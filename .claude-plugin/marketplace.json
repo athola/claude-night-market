@@ -1,0 +1,83 @@
+{
+  "name": "claude-night-market",
+  "owner": {
+    "name": "athola",
+    "email": "athola@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "Personal Claude Code plugin collection: architecture patterns, intelligent delegation, resource optimization, code review, and spatial memory systems",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "archetypes",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/athola/archetypes.git"
+      },
+      "description": "Architecture paradigm selection and implementation planning - 14 paradigm skills from functional-core to microservices",
+      "version": "1.0.0",
+      "strict": true
+    },
+    {
+      "name": "conjure",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/athola/conjure.git"
+      },
+      "description": "Intelligent delegation framework for routing tasks to external LLMs (Gemini, Qwen) while retaining strategic oversight",
+      "version": "1.0.0",
+      "strict": true
+    },
+    {
+      "name": "conservation",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/athola/conservation.git"
+      },
+      "description": "Resource optimization toolkit - CPU/GPU performance monitoring, token conservation, and usage estimation",
+      "version": "1.0.0",
+      "strict": true
+    },
+    {
+      "name": "imbue",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/athola/imbue.git"
+      },
+      "description": "Intelligent workflow methodologies - review-core scaffolding, diff analysis, evidence logging, and catchup patterns",
+      "version": "1.0.0",
+      "strict": true
+    },
+    {
+      "name": "memory-palace",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/athola/memory-palace.git"
+      },
+      "description": "Spatial memory techniques based on Matteo Ricci's method of loci for enhanced knowledge organization",
+      "version": "1.0.0",
+      "strict": true
+    },
+    {
+      "name": "pensive",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/athola/pensive.git"
+      },
+      "description": "Comprehensive code review toolkit - 7 specialized review skills for architecture, bugs, APIs, math, Rust, tests, and Makefiles",
+      "version": "1.0.0",
+      "strict": true
+    },
+    {
+      "name": "sanctum",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/athola/sanctum.git"
+      },
+      "description": "Git and workspace operations - commit messages, PR prep, documentation updates, version bumping",
+      "version": "1.0.0",
+      "strict": true
+    }
+  ]
+}

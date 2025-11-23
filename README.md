@@ -99,25 +99,29 @@ Spatial memory techniques for knowledge organization.
 
 ```mermaid
 graph TD
-    subgraph "Domain Specialists"
-        archetypes[archetypes]
-        pensive[pensive]
-        memory-palace[memory-palace]
+    subgraph Foundation[Foundation Layer]
+        imbue[imbue<br/>Intelligent workflows]
+        sanctum[sanctum<br/>Git & workspace ops]
     end
 
-    subgraph "Utility Layer"
-        conservation[conservation]
-        conjure[conjure]
+    subgraph Utility[Utility Layer]
+        conservation[conservation<br/>Resource optimization]
+        conjure[conjure<br/>External delegation]
     end
 
-    subgraph "Foundation Layer"
-        imbue[imbue]
-        sanctum[sanctum]
+    subgraph Domain[Domain Specialists]
+        archetypes[archetypes<br/>Architecture patterns]
+        pensive[pensive<br/>Code review toolkit]
+        memory_palace[memory-palace<br/>Spatial memory]
     end
 
     pensive --> imbue
     pensive --> sanctum
     sanctum --> imbue
+
+    style Foundation fill:#e1f5fe,stroke:#01579b,color:#01579b
+    style Utility fill:#f3e5f5,stroke:#4a148c,color:#4a148c
+    style Domain fill:#e8f5e8,stroke:#1b5e20,color:#1b5e20
 ```
 
 ## Setup
