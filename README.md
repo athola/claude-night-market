@@ -98,7 +98,13 @@ Spatial memory techniques for knowledge organization.
 ## Plugin Dependency Graph
 
 ```mermaid
-graph TD
+graph LR
+    subgraph Domain[Domain Specialists]
+        archetypes[archetypes<br/>Architecture patterns]
+        pensive[pensive<br/>Code review toolkit]
+        memory_palace[memory-palace<br/>Spatial memory]
+    end
+
     subgraph Foundation[Foundation Layer]
         imbue[imbue<br/>Intelligent workflows]
         sanctum[sanctum<br/>Git & workspace ops]
@@ -107,12 +113,6 @@ graph TD
     subgraph Utility[Utility Layer]
         conservation[conservation<br/>Resource optimization]
         conjure[conjure<br/>External delegation]
-    end
-
-    subgraph Domain[Domain Specialists]
-        archetypes[archetypes<br/>Architecture patterns]
-        pensive[pensive<br/>Code review toolkit]
-        memory_palace[memory-palace<br/>Spatial memory]
     end
 
     pensive --> imbue
