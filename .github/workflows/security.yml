@@ -1,0 +1,113 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+
+    - name: Install dependencies
+      run: |
+        uv venv
+        source .venv/bin/activate
+        uv pip install -e .[dev]
+        uv pip install safety semgrep
+
+    - name: Run Bandit security linter
+      run: |
+        source .venv/bin/activate
+        bandit -r . -f json -o bandit-report.json || true
+        bandit -r . -f txt
+      continue-on-error: true
+
+    - name: Run Safety dependency vulnerability scan
+      run: |
+        source .venv/bin/activate
+        safety check --json --output safety-report.json || true
+        safety check
+      continue-on-error: true
+
+    - name: Run Semgrep static analysis
+      run: |
+        semgrep --config=auto --json --output=semgrep-report.json || true
+        semgrep --config=auto
+      continue-on-error: true
+
+    - name: Upload Bandit scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: bandit-report.json
+
+    - name: Upload security scan artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+          semgrep-report.json
+        retention-days: 30
+
+    - name: Comment PR with security results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          try {
+            const banditReport = JSON.parse(fs.readFileSync('bandit-report.json', 'utf8'));
+            const safetyReport = JSON.parse(fs.readFileSync('safety-report.json', 'utf8'));
+            const semgrepReport = JSON.parse(fs.readFileSync('semgrep-report.json', 'utf8'));
+
+            let comment = '## 🔒 Security Scan Results\n\n';
+
+            if (banditReport.results.length === 0 && safetyReport.vulnerabilities.length === 0 && semgrepReport.results.length === 0) {
+              comment += '✅ No security issues found!\n';
+            } else {
+              if (banditReport.results.length > 0) {
+                comment += `### Bandit Issues: ${banditReport.results.length}\n`;
+              }
+              if (safetyReport.vulnerabilities.length > 0) {
+                comment += `### Dependency Vulnerabilities: ${safetyReport.vulnerabilities.length}\n`;
+              }
+              if (semgrepReport.results.length > 0) {
+                comment += `### Semgrep Issues: ${semgrepReport.results.length}\n`;
+              }
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not read security reports:', error.message);
+          }

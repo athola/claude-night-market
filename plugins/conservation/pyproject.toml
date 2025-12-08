@@ -1,0 +1,132 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "conservation-dev"
+version = "1.1.0"
+description = "Development tools for the conservation Claude Code plugin - resource optimization and performance monitoring"
+authors = [
+    {name = "Alex Thola", email = "alexthola@gmail.com"}
+]
+maintainers = [
+    {name = "Alex Thola", email = "alexthola@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+repository = "https://github.com/athola/conservation"
+requires-python = ">=3.10"
+dependencies = [
+    "pre-commit>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.7.0,<1.0",
+    "mypy>=1.11.0,<2.0",
+    "ty>=0.0.1a23",
+    "pytype>=2024.10.11 ; python_version >= '3.10'",
+    "typos>=1.0.0",
+]
+
+# [project.scripts]
+# Note: token-estimator has been consolidated into the abstract plugin.
+# Use: cd ../abstract && uv run python scripts/token_estimator.py
+# Or via Makefile: make token-estimate
+
+[dependency-groups]
+dev = [
+    "bandit>=1.7.9,<2.0",
+    "blacken-docs>=1.16.0,<2.0",
+    "interrogate>=1.7.0,<2.0",
+    "pre-commit>=4.0.1,<5.0",
+    "ty>=0.0.1a23",
+    "safety>=3.7.0,<4.0",
+    "typos>=1.0.0",
+    "ruff>=0.14.6",
+    "mypy>=1.18.2",
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.1",
+    "pytest-asyncio>=0.25.0",
+    "pytest-bdd>=8.1.0",
+    "pytest-xdist>=3.6.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["tools", ".pre-commit"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = [".venv", ".uv-cache"]
+
+[tool.ruff.lint]
+# Rules: https://docs.astral.sh/ruff/rules/
+# Using a subset of ruff-recommended rules plus some extras
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+  "S",   # flake8-bandit
+  "PL",  # All Pylint rules (complete coverage)
+  "D",   # pydocstyle
+]
+
+extend-ignore = [
+    "E203",    # whitespace before ':' (conflicts with black/ruff format)
+    "D203",    # incorrect-blank-line-before-class (incompatible with D211)
+    "D213",    # multi-line-summary-second-line (incompatible with D212)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+explicit_package_bases = true
+namespace_packages = true
+exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
+
+[tool.bandit]
+exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
+skips = ["B101"]  # Skip assert_used test for test files
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--cov=scripts",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-fail-under=85"
+]
+markers = [
+    "unit: Unit tests for individual components",
+    "integration: Integration tests for workflow orchestration",
+    "performance: Performance and scalability tests",
+    "slow: Tests that take longer to execute",
+    "bdd: Behavior-driven development style tests"
+]

@@ -1,0 +1,64 @@
+{
+  "name": "abstract",
+  "version": "2.0.0",
+  "main": "skills",
+  "skills": [
+    "skills/modular-skills",
+    "skills/skills-eval",
+    "skills/validate-plugin-structure"
+  ],
+  "dependencies": {},
+  "provides": {
+    "infrastructure": [
+      "modular-design",
+      "skill-evaluation",
+      "evaluation-framework",
+      "quality-assurance"
+    ],
+    "patterns": [
+      "skill-composition",
+      "token-efficiency",
+      "meta-skills",
+      "skill-analysis",
+      "token-optimization"
+    ],
+    "tools": [
+      "skills-auditor",
+      "improvement-suggester",
+      "compliance-checker",
+      "tool-performance-analyzer",
+      "token-usage-tracker",
+      "plugin-validator"
+    ]
+  },
+  "claude": {
+    "skill_prefix": "abstract",
+    "auto_load": false,
+    "categories": {
+      "meta-skills": "Design patterns and infrastructure for building other skills",
+      "evaluation": "Comprehensive skill quality assessment and improvement"
+    },
+    "provides_infrastructure": true,
+    "base_plugin": true,
+    "sdk_compatibility": {
+      "version": "2024.1",
+      "features": [
+        "advanced-metrics",
+        "modular-architecture",
+        "token-optimization",
+        "integration-testing",
+        "performance-benchmarking",
+        "tool-performance-analysis",
+        "context-optimization",
+        "progressive-disclosure"
+      ]
+    },
+    "agent_integration": {
+      "skill_discovery": true,
+      "dynamic_loading": true,
+      "context_management": true,
+      "tool_optimization": true,
+      "performance_monitoring": true
+    }
+  }
+}

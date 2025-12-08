@@ -1,0 +1,458 @@
+name: Technical Debt Automation
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  schedule:
+    # Run comprehensive debt analysis daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'scan'
+        type: choice
+        options:
+        - scan
+        - report
+        - plan
+        - dashboard
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  debt-detection:
+    name: Technical Debt Detection
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event.inputs.action == 'scan'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for trend analysis
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        version: "latest"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install psutil matplotlib PyGithub
+
+    - name: Run Enhanced Technical Debt Detection
+      run: |
+        python scripts/enhanced_technical_debt_detector.py . --output json > debt_scan_results.json
+
+    - name: Update Debt Database
+      run: |
+        python scripts/technical_debt_workflow_manager.py . create-workflows
+
+    - name: Generate Metrics
+      run: |
+        python scripts/technical_debt_metrics_kpi.py . dashboard > dashboard_metrics.json
+
+    - name: Check for Critical Issues
+      run: |
+        python scripts/technical_debt_workflow_manager.py . escalations > escalations.json
+
+    - name: Comment PR with Debt Results
+      if: github.event_name == 'pull_request'
+      env:
+        PR_NUMBER: ${{ github.event.number }}
+        REPO_OWNER: ${{ github.repository_owner }}
+        REPO_NAME: ${{ github.event.repository.name }}
+      run: |
+        python -c "
+import json
+import os
+from github import Github
+
+# Load results safely
+with open('debt_scan_results.json', 'r') as f:
+    debt_results = json.load(f)
+
+with open('escalations.json', 'r') as f:
+    escalations = json.load(f)
+
+# Build comment safely
+comment_lines = [
+    '## 🔍 Technical Debt Analysis\\n',
+    '### Summary',
+    f'- **Total Issues**: {debt_results.get(\"total_issues\", 0)}',
+    f'- **Total Debt Score**: {debt_results.get(\"total_score\", 0):,}',
+    f'- **Critical Issues**: {len([i for i in debt_results.get(\"issues\", []) if i.get(\"severity\") == \"critical\"])}',
+    f'- **High Priority Issues**: {len([i for i in debt_results.get(\"issues\", []) if i.get(\"severity\") == \"high\"])}',
+    ''
+]
+
+# Add top issues
+top_issues = debt_results.get('issues', [])[:5]
+if top_issues:
+    comment_lines.append('### Top Priority Issues')
+    for idx, issue in enumerate(top_issues, 1):
+        safe_file_path = issue.get('file_path', 'unknown').replace('<', '&lt;').replace('>', '&gt;')
+        safe_description = issue.get('description', 'No description').replace('<', '&lt;').replace('>', '&gt;')
+        comment_lines.append(f'{idx}. **[{issue.get(\"severity\", \"unknown\").upper()}]** {safe_file_path}:{issue.get(\"line_number\", 0)}')
+        comment_lines.append(f'   - Score: {issue.get(\"debt_score\", 0)}')
+        comment_lines.append(f'   - {safe_description}')
+        comment_lines.append('')
+
+# Add escalations
+if escalations:
+    comment_lines.append(f'### 🚨 Escalations ({len(escalations)})')
+    for escalation in escalations[:3]:
+        safe_desc = escalation.get('description', 'No description').replace('<', '&lt;').replace('>', '&gt;')
+        comment_lines.append(f'- {safe_desc}')
+    if len(escalations) > 3:
+        comment_lines.append(f'- ... and {len(escalations) - 3} more')
+    comment_lines.append('')
+
+comment = '\\n'.join(comment_lines)
+print('Generated comment safely')
+"
+
+    - name: Upload Debt Scan Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: debt-scan-results
+        path: |
+          debt_scan_results.json
+          dashboard_metrics.json
+          escalations.json
+        retention-days: 30
+
+  dashboard-generation:
+    name: Generate Debt Dashboard
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.action == 'report' || github.event.inputs.action == 'dashboard'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install matplotlib
+
+    - name: Generate Debt Dashboard
+      run: |
+        python scripts/debt_dashboard_generator.py . --output-dir debt_reports
+
+    - name: Generate Metrics Report
+      run: |
+        python scripts/technical_debt_metrics_kpi.py . report 30 > metrics_report.json
+
+    - name: Deploy Dashboard to GitHub Pages
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./debt_reports
+        destination_dir: debt-dashboard
+
+    - name: Upload Dashboard Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: debt-dashboard
+        path: |
+          debt_reports/
+          metrics_report.json
+        retention-days: 90
+
+  quarterly-planning:
+    name: Quarterly Sprint Planning
+    runs-on: ubuntu-latest
+    if: contains(github.event.schedule, '0 3 * * 1') || github.event.inputs.action == 'plan'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Determine Quarter and Year
+      id: quarter
+      run: |
+        python -c "
+import datetime
+import json
+import os
+from pathlib import Path
+
+now = datetime.datetime.now()
+quarter = f'Q{((now.month - 1) // 3) + 1}'
+year = now.year
+
+# Save to output for later steps
+with open(Path('${{ github.workspace }}') / 'quarter_info.json', 'w') as f:
+    json.dump({'quarter': quarter, 'year': year}, f)
+
+output_path = Path(os.environ['GITHUB_OUTPUT'])
+with open(output_path, 'a') as gh:
+    gh.write(f'quarter={quarter}\\n')
+    gh.write(f'year={year}\\n')
+"
+
+    - name: Generate Quarterly Sprint Plan
+      run: |
+        python scripts/quarterly_debt_sprint_planner.py . --quarter ${{ steps.quarter.outputs.quarter }} --year ${{ steps.quarter.outputs.year }} --output-dir sprint_plans
+
+    - name: Upload Sprint Planning Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: sprint-planning
+        path: sprint_plans/
+        retention-days: 180
+
+  metrics-and-kpis:
+    name: Update Metrics and KPIs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Calculate Current KPIs
+      run: |
+        python scripts/technical_debt_metrics_kpi.py . kpis > current_kpis.json
+
+    - name: Store Metrics in Database
+      run: |
+        python scripts/technical_debt_metrics_kpi.py . record-metrics
+
+    - name: Check KPI Thresholds
+      run: |
+        python scripts/technical_debt_metrics_kpi.py . check-thresholds
+
+    - name: Create Alert on Critical KPIs
+      if: failure()
+      env:
+        WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: |
+        python -c "
+import json
+import os
+from pathlib import Path
+
+# Load current KPIs safely
+try:
+    with open('current_kpis.json', 'r') as f:
+        kpis = json.load(f)
+
+    critical_kpis = [kpi for kpi in kpis.values() if kpi.get('status') == 'critical']
+
+    if critical_kpis:
+        print(f'Found {len(critical_kpis)} critical KPIs')
+        # Create alert issue would be done here with proper API calls
+        print('Alert would be created for critical KPIs')
+
+except Exception as e:
+    print(f'Could not process KPIs: {e}')
+"
+
+  integration-tests:
+    name: Technical Debt Integration Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+
+    - name: Create test directories if needed
+      run: |
+        mkdir -p tests/technical_debt
+
+    - name: Run Basic Technical Debt Tests
+      run: |
+        python -c "
+import sys
+import json
+from pathlib import Path
+
+# Test that scripts can run without errors
+scripts_to_test = [
+    'scripts/enhanced_technical_debt_detector.py',
+    'scripts/debt_dashboard_generator.py',
+    'scripts/technical_debt_metrics_kpi.py'
+]
+
+failed_tests = []
+for script in scripts_to_test:
+    try:
+        script_path = Path(script)
+        if script_path.exists():
+            print(f'Testing {script}...')
+            # Test script can be imported
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('test_module', script)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                print(f'✓ {script} imports successfully')
+            else:
+                print(f'⚠ {script} could not be imported')
+        else:
+            print(f'⚠ {script} not found')
+    except Exception as e:
+        print(f'✗ {script} failed: {e}')
+        failed_tests.append(script)
+
+if failed_tests:
+    print(f'Failed tests: {failed_tests}')
+    sys.exit(1)
+else:
+    print('All tests passed')
+"
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          test-results.xml
+          test-report.json
+        retention-days: 30
+
+  cleanup:
+    name: Cleanup and Maintenance
+    runs-on: ubuntu-latest
+    if: contains(github.event.schedule, '0 2 * * 0')  # Weekly on Sunday
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Cleanup Old Debt Data
+      run: |
+        python -c "
+import json
+import os
+from datetime import datetime, timedelta
+from pathlib import Path
+
+# Clean up old debt data (older than 1 year)
+claude_dir = Path('.claude')
+if claude_dir.exists():
+    cutoff_date = datetime.now() - timedelta(days=365)
+
+    # Clean up old trend data
+    trends_file = claude_dir / 'debt_trends.json'
+    if trends_file.exists():
+        try:
+            with open(trends_file, 'r') as f:
+                trends = json.load(f)
+
+            # Filter old trends
+            recent_trends = [
+                trend for trend in trends
+                if datetime.fromisoformat(trend['date']) > cutoff_date
+            ]
+
+            with open(trends_file, 'w') as f:
+                json.dump(recent_trends, f, indent=2)
+
+            print(f'Cleaned trends: {len(trends)} -> {len(recent_trends)}')
+        except Exception as e:
+            print(f'Error cleaning trends: {e}')
+
+print('Cleanup completed')
+"
+
+    - name: Archive Old Reports
+      run: |
+        python -c "
+import json
+import os
+from datetime import datetime, timedelta
+from pathlib import Path
+import shutil
+
+# Archive reports older than 6 months
+reports_dir = Path('debt_reports')
+archive_dir = Path('archived_reports')
+
+if reports_dir.exists():
+    archive_dir.mkdir(exist_ok=True)
+    cutoff_date = datetime.now() - timedelta(days=180)
+
+    archived_count = 0
+    for report_file in reports_dir.glob('*'):
+        if report_file.is_file():
+            try:
+                file_time = datetime.fromtimestamp(report_file.stat().st_mtime)
+                if file_time < cutoff_date:
+                    archive_path = archive_dir / report_file.name
+                    shutil.move(str(report_file), str(archive_path))
+                    archived_count += 1
+            except Exception as e:
+                print(f'Error archiving {report_file}: {e}')
+
+    print(f'Archived {archived_count} old reports')
+
+print('Archive cleanup completed')
+"

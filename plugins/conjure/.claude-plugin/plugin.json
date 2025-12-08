@@ -1,0 +1,16 @@
+{
+  "name": "conjure",
+  "version": "1.1.0",
+  "description": "Intelligent delegation framework for routing tasks to external LLM services while retaining strategic oversight",
+  "skills": [
+    "./skills/delegation-core",
+    "./skills/gemini-delegation",
+    "./skills/qwen-delegation"
+  ],
+  "keywords": ["delegation", "llm", "gemini", "qwen", "orchestration", "routing"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

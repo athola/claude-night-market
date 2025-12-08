@@ -1,0 +1,64 @@
+name: Docs
+
+on:
+  pull_request:
+    paths:
+      - "plugins/quill/**"
+      - "plugins/sanctum/**"
+      - "scripts/build-marketplace-docs.sh"
+      - "Makefile"
+      - "plugins/*/docs.yaml"
+      - "plugins/*/docs/**"
+      - ".github/workflows/docs.yml"
+  push:
+    branches: [main]
+    paths:
+      - "plugins/quill/**"
+      - "plugins/sanctum/**"
+      - "scripts/build-marketplace-docs.sh"
+      - "Makefile"
+      - "plugins/*/docs.yaml"
+      - "plugins/*/docs/**"
+      - ".github/workflows/docs.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Quill (editable)
+        run: pip install -e plugins/quill/
+
+      - name: Build docs (full)
+        run: make docs
+
+      - name: Upload pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs_output
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

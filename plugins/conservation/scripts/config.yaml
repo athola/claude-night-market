@@ -1,0 +1,216 @@
+# Context Growth Management Configuration
+# Defines thresholds, criteria, and templates for growth control
+
+# Growth Analysis Thresholds
+growth_thresholds:
+  stable: 0.05      # < 5% growth per turn
+  mild: 0.10        # 5-10% growth per turn
+  moderate: 0.15   # 10-15% growth per turn
+  severe: 0.20      # 15-20% growth per turn
+  critical: 0.25    # > 20% growth per turn
+
+# Control Urgency Levels
+urgency_levels:
+  none:
+    growth_rate: 0.05
+    acceleration: 0.001
+  low:
+    growth_rate: 0.10
+    acceleration: 0.005
+  medium:
+    growth_rate: 0.15
+    acceleration: 0.010
+  high:
+    growth_rate: 0.20
+    acceleration: 0.015
+  urgent:
+    growth_rate: 1.0
+    acceleration: 0.020
+
+# Monitoring System Configuration
+monitoring_system:
+  real_time_metrics:
+    - context_usage_percentage
+    - growth_rate_per_turn
+    - growth_acceleration
+    - content_category_breakdown
+
+  periodic_analysis:
+    growth_source_analysis: 10  # every 10 turns
+    trend_analysis: 20          # every 20 turns
+    strategy_effectiveness: 50  # every 50 turns
+
+  alert_conditions:
+    threshold_breach:
+      context_usage: 90
+      growth_rate: 0.15
+      acceleration: 0.01
+    growth_spike:
+      rate_increase: 0.10  # 10% increase in single turn
+    strategy_failure:
+      effectiveness_threshold: 50  # less than 50% effective
+    mecw_violation:
+      warning_threshold: 85
+      critical_threshold: 95
+
+# Strategy Configuration
+strategy_types:
+  conservative:
+    description: "Minimal disruption, gradual optimization"
+    priority_order:
+      - Prevention
+      - Monitoring
+      - Manual_Control
+    implementation_timeline: "5-10 turns"
+    risk_level: "Low"
+    target_reduction: 0.3  # 30% reduction
+
+  moderate:
+    description: "Balanced approach with automated controls"
+    priority_order:
+      - Automated_Control
+      - Prevention
+      - Manual_Control
+    implementation_timeline: "3-7 turns"
+    risk_level: "Medium"
+    target_reduction: 0.5  # 50% reduction
+
+  aggressive:
+    description: "Immediate action with strong controls"
+    priority_order:
+      - Automated_Control
+      - Manual_Control
+      - Prevention
+    implementation_timeline: "1-3 turns"
+    risk_level: "High"
+    target_reduction: 0.7  # 70% reduction
+
+# Success Metrics and Targets
+success_criteria:
+  growth_rate:
+    target: "< 5% per turn"
+    current_threshold: 0.05
+
+  mecw_compliance:
+    target: "> 90% compliance rate"
+    violation_threshold: 10
+
+  control_effectiveness:
+    target: "> 80% of growth controlled"
+    minimum_effective: 0.8
+
+  strategy_success:
+    target: "> 75% of implemented strategies effective"
+    success_threshold: 0.75
+
+# Content Category Configuration
+content_categories:
+  conversation_history:
+    priority: "Medium"
+    retention_policy: "Last 50 turns"
+    optimization_methods:
+      - summarization
+      - key_point_extraction
+      - temporal_compression
+
+  tool_results:
+    priority: "Low"
+    retention_policy: "Last successful result"
+    optimization_methods:
+      - result_caching
+      - error_only_storage
+      - compression
+
+  code_blocks:
+    priority: "High"
+    retention_policy: "All active code"
+    optimization_methods:
+      - external_storage
+      - versioning
+      - dependency_tracking
+
+  analysis_results:
+    priority: "Medium"
+    retention_policy: "Last 5 analyses"
+    optimization_methods:
+      - result_summarization
+      - trend_storage
+      - delta_encoding
+
+# External Storage Configuration
+external_storage:
+  enabled_categories:
+    - large_code_blocks
+    - detailed_analysis
+    - historical_data
+  access_patterns:
+    - "lazy_loading"
+    - "on_demand_retrieval"
+    - "summary_first"
+  storage_limits:
+    max_file_size: "1MB"
+    compression_threshold: "100KB"
+
+# Progressive Loading Configuration
+progressive_loading:
+  core_always_loaded:
+    - current_context
+    - active_conversation
+    - immediate_tools
+
+  conditional_loading:
+    - historical_analysis: "turn_count > 20"
+    - detailed_metrics: "analysis_requested"
+    - advanced_features: "user_explicit_request"
+
+# Reporting Configuration
+reporting_structure:
+  daily_reports:
+    audience: "operations_team"
+    metrics:
+      - context_usage_trend
+      - growth_rate_changes
+      - strategy_performance
+    format: "summary_dashboard"
+
+  weekly_analysis:
+    audience: "strategy_team"
+    metrics:
+      - comprehensive_growth_analysis
+      - strategy_effectiveness
+      - optimization_recommendations
+    format: "detailed_report"
+
+  monthly_strategic:
+    audience: "leadership"
+    metrics:
+      - overall_trend_analysis
+      - roi_of_strategies
+      - resource_utilization
+    format: "executive_summary"
+
+# Error Handling and Recovery
+error_handling:
+  max_retry_attempts: 3
+  fallback_strategies:
+    - "conservative_controls"
+    - "manual_intervention"
+    - "emergency_compression"
+
+  recovery_procedures:
+    growth_spike:
+      - "immediate_compression"
+      - "enhanced_monitoring"
+      - "strategy_adjustment"
+
+    strategy_failure:
+      - "fallback_to_conservative"
+      - "manual_review"
+      - "strategy_replacement"
+
+# Performance Optimization
+performance_tuning:
+  analysis_frequency: "adaptive_based_on_growth"
+  cache_strategy: "recent_analyses"
+  compression_threshold: "context_usage > 70%"
+  batch_processing: "multiple_optimizations_together"

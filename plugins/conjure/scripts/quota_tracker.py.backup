@@ -1,0 +1,287 @@
+#!/usr/bin/env python3
+"""Gemini CLI Quota Tracker.
+
+Track Gemini CLI usage to provide quota warnings and prevent rate limit
+exhaustion. Monitor usage patterns and estimate remaining quota.
+"""
+
+import argparse
+import json
+import logging
+import shlex
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any
+
+from leyline.tokens import FILE_TOKEN_RATIOS, estimate_tokens
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Quota threshold constants
+WARN_THRESHOLD = 0.8  # 80% usage triggers warning
+CRITICAL_THRESHOLD = 0.95  # 95% usage triggers critical warning
+
+# Gemini Free Tier Limits (adjustable based on your plan)
+DEFAULT_LIMITS = {
+    "requests_per_minute": 60,
+    "requests_per_day": 1000,
+    "tokens_per_minute": 32000,
+    "tokens_per_day": 1000000,
+}
+
+
+class GeminiQuotaTracker:
+    """Track and manage Gemini CLI quota usage."""
+
+    def __init__(self, limits: dict | None = None) -> None:
+        """Initialize tracker with optional custom limits."""
+        self.limits = limits or DEFAULT_LIMITS
+        self.usage_file = Path.home() / ".claude" / "hooks" / "gemini" / "usage.json"
+        self.usage_data = self._load_usage_data()
+
+    def _load_usage_data(self) -> dict[str, Any]:
+        """Load usage data from file or create a new structure."""
+        if self.usage_file.exists():
+            try:
+                with open(self.usage_file) as f:
+                    data: dict[str, Any] = json.load(f)
+                # Clean old data (older than 24 hours)
+                self._cleanup_old_data(data)
+                return data
+            except (json.JSONDecodeError, KeyError):
+                pass
+
+        return {
+            "requests": [],
+            "daily_tokens": 0,
+            "last_reset": datetime.now().isoformat(),
+        }
+
+    def _cleanup_old_data(self, data: dict[str, Any]) -> None:
+        """Remove usage data older than 24 hours."""
+        now = datetime.now()
+        cutoff = now - timedelta(hours=24)
+
+        # Filter out old requests
+        data["requests"] = [
+            req
+            for req in data.get("requests", [])
+            if datetime.fromisoformat(req["timestamp"]) > cutoff
+        ]
+
+        # Reset daily counter if needed
+        last_reset = datetime.fromisoformat(data.get("last_reset", now.isoformat()))
+        if (now - last_reset).days >= 1:
+            data["daily_tokens"] = 0
+            data["last_reset"] = now.isoformat()
+
+    def _save_usage_data(self) -> None:
+        """Save usage data to file."""
+        self.usage_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.usage_file, "w") as f:
+            json.dump(self.usage_data, f, indent=2)
+
+    def record_request(self, estimated_tokens: int, success: bool = True) -> None:
+        """Record a Gemini CLI request."""
+        now = datetime.now()
+
+        request_data = {
+            "timestamp": now.isoformat(),
+            "tokens": estimated_tokens,
+            "success": success,
+        }
+
+        self.usage_data["requests"].append(request_data)
+        if success:
+            self.usage_data["daily_tokens"] += estimated_tokens
+
+        self._save_usage_data()
+
+    def get_current_usage(self) -> dict:
+        """Get current usage statistics."""
+        now = datetime.now()
+        one_minute_ago = now - timedelta(minutes=1)
+
+        recent_requests = [
+            req
+            for req in self.usage_data.get("requests", [])
+            if datetime.fromisoformat(req["timestamp"]) > one_minute_ago
+        ]
+
+        return {
+            "requests_last_minute": len(recent_requests),
+            "tokens_last_minute": sum(req["tokens"] for req in recent_requests),
+            "daily_tokens": self.usage_data.get("daily_tokens", 0),
+            "requests_today": len(self.usage_data.get("requests", [])),
+        }
+
+    def _format_rpm_warning(self, usage: dict) -> str:
+        """Format request-per-minute warning message."""
+        rpm = usage["requests_last_minute"]
+        limit = self.limits["requests_per_minute"]
+        return f"Request rate: {rpm}/{limit} per minute"
+
+    def _format_tpm_warning(self, usage: dict) -> str:
+        """Format tokens-per-minute warning message."""
+        tpm = usage["tokens_last_minute"]
+        limit = self.limits["tokens_per_minute"]
+        return f"Token rate: {tpm:,}/{limit:,} per minute"
+
+    def _format_daily_tokens_warning(self, usage: dict, pct: float) -> str:
+        """Format daily tokens warning message."""
+        current = usage["daily_tokens"]
+        limit = self.limits["tokens_per_day"]
+        return f"Daily tokens: {current:,}/{limit:,} ({pct:.1%})"
+
+    def _format_daily_requests_warning(self, usage: dict, pct: float) -> str:
+        """Format daily requests warning message."""
+        current = usage["requests_today"]
+        limit = self.limits["requests_per_day"]
+        return f"Daily requests: {current}/{limit} ({pct:.1%})"
+
+    def get_quota_status(self) -> tuple[str, list[str]]:
+        """Get quota status and warnings."""
+        usage = self.get_current_usage()
+        warnings: list[str] = []
+
+        # Check per-minute limits
+        rpm_usage = usage["requests_last_minute"] / self.limits["requests_per_minute"]
+        tpm_usage = usage["tokens_last_minute"] / self.limits["tokens_per_minute"]
+
+        # Check daily limits
+        daily_tokens_usage = usage["daily_tokens"] / self.limits["tokens_per_day"]
+        daily_requests_usage = usage["requests_today"] / self.limits["requests_per_day"]
+
+        status = "[OK] Healthy"
+
+        # High usage warnings
+        if rpm_usage > WARN_THRESHOLD:
+            status = "[WARNING] High RPM"
+            warnings.append(self._format_rpm_warning(usage))
+
+        if tpm_usage > WARN_THRESHOLD:
+            if status == "[OK] Healthy":
+                status = "[WARNING] High TPM"
+            warnings.append(self._format_tpm_warning(usage))
+
+        if daily_tokens_usage > WARN_THRESHOLD:
+            status = "[WARNING] Daily Token Warning"
+            warnings.append(
+                self._format_daily_tokens_warning(usage, daily_tokens_usage)
+            )
+
+        if daily_requests_usage > WARN_THRESHOLD:
+            status = "[WARNING] Daily Request Warning"
+            warnings.append(
+                self._format_daily_requests_warning(usage, daily_requests_usage)
+            )
+
+        # Critical warnings
+        if rpm_usage > CRITICAL_THRESHOLD or tpm_usage > CRITICAL_THRESHOLD:
+            status = "[CRITICAL] Rate Limit Soon"
+            warnings.append("IMMEDIATE: Approaching rate limits! Wait or reduce usage.")
+
+        if (
+            daily_tokens_usage > CRITICAL_THRESHOLD
+            or daily_requests_usage > CRITICAL_THRESHOLD
+        ):
+            status = "[CRITICAL] Daily Quota Exhausted"
+            warnings.append(
+                "CRITICAL: Daily quota nearly exhausted! Large tasks may fail."
+            )
+
+        return status, warnings
+
+    def estimate_task_tokens(
+        self, file_paths: list[str], prompt_length: int = 100
+    ) -> int:
+        """Estimate tokens needed for a task with optional tokenizer fallback."""
+        # Create a dummy prompt of the specified length
+        prompt = "x" * prompt_length
+        return estimate_tokens(file_paths, prompt)
+
+    def can_handle_task(self, estimated_tokens: int) -> tuple[bool, list[str]]:
+        """Check if Gemini can handle a task given current quota."""
+        usage = self.get_current_usage()
+        issues = []
+
+        # Check per-minute capacity
+        if usage["requests_last_minute"] >= self.limits["requests_per_minute"] - 1:
+            issues.append("Request rate limit reached - wait 1 minute")
+            can_handle = False
+        elif (
+            usage["tokens_last_minute"] + estimated_tokens
+            > self.limits["tokens_per_minute"]
+        ):
+            issues.append("Token rate limit would be exceeded - wait or split task")
+            can_handle = False
+        elif usage["daily_tokens"] + estimated_tokens > self.limits["tokens_per_day"]:
+            issues.append("Daily token quota would be exceeded - wait for reset")
+            can_handle = False
+        else:
+            can_handle = True
+
+        return can_handle, issues
+
+
+def estimate_tokens_from_gemini_command(command: str) -> int:
+    """Estimate tokens from a Gemini CLI command by analyzing @ paths."""
+    try:
+        parts = shlex.split(command)
+        file_paths = []
+
+        for part in parts:
+            if part.startswith("@"):
+                file_paths.append(part[1:])  # Remove @ prefix
+
+        # Create a tracker instance for estimation
+        tracker = GeminiQuotaTracker()
+        return tracker.estimate_task_tokens(file_paths, len(command))
+    except (ValueError, OSError) as e:
+        logger.debug("Error parsing command for token estimation: %s", e)
+        return len(command) // 4  # Default estimation
+
+
+def main() -> None:
+    """CLI entry point for quota tracker."""
+    parser = argparse.ArgumentParser(description="Track Gemini CLI quota and usage")
+    parser.add_argument(
+        "--status", action="store_true", help="Show current quota status"
+    )
+    parser.add_argument("--estimate", nargs="+", help="Estimate tokens for given paths")
+    parser.add_argument(
+        "--validate-config", action="store_true", help="Validate quota configuration"
+    )
+
+    args = parser.parse_args()
+
+    tracker = GeminiQuotaTracker()
+
+    if args.status:
+        status, warnings = tracker.get_quota_status()
+        print(f"Status: {status}")
+        for warning in warnings:
+            print(f"  Warning: {warning}")
+
+    elif args.estimate:
+        estimated = tracker.estimate_task_tokens(args.estimate)
+        print(f"Estimated tokens for {args.estimate}: {estimated:,}")
+
+    elif args.validate_config:
+        # Basic validation of configuration
+        print("Quota configuration validation:")
+        for key, value in tracker.limits.items():
+            print(f"  {key}: {value}")
+        print("  Configuration is valid")
+
+    else:
+        # Default: show status
+        status, warnings = tracker.get_quota_status()
+        print(f"Status: {status}")
+        for warning in warnings:
+            print(f"  Warning: {warning}")
+
+
+if __name__ == "__main__":
+    main()

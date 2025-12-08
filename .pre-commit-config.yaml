@@ -1,0 +1,156 @@
+repos:
+  - repo: local
+    hooks:
+      # Enhanced Governance Automation Hooks
+      - id: performance-regression-detector
+        name: Performance Regression Detection
+        entry: python3 scripts/performance_regression_detector.py
+        language: system
+        files: ^(plugins|scripts)/.*\.(py|md|yaml|yml|json)$
+        pass_filenames: false
+        args: [".", "--update-baseline"]
+
+      - id: technical-debt-detector
+        name: Technical Debt Detection
+        entry: python3 scripts/technical_debt_detector.py
+        language: system
+        files: ^(plugins|scripts)/.*\.(py|md|yaml|yml|json)$
+        pass_filenames: false
+        args: ["."]
+
+      - id: plugin-api-compatibility-checker
+        name: Plugin API Compatibility Validation
+        entry: python3 scripts/plugin_api_compatibility_checker.py
+        language: system
+        files: ^plugins/.*\.json$|^plugins/.*plugin\.yaml$|^plugins/.*plugin\.yml$
+        pass_filenames: false
+        args: ["."]
+
+      - id: enhanced-context-optimizer
+        name: Enhanced Context Optimization
+        entry: python3 scripts/enhanced_context_optimizer.py
+        language: system
+        files: ^.*SKILL\.md$|^plugins/.*\.py$
+        pass_filenames: false
+        args: ["."]
+
+      - id: quality-gate-enforcer
+        name: Quality Gate Enforcement
+        entry: python3 scripts/quality_gate_enforcer.py
+        language: system
+        files: ^(plugins|scripts)/.*\.(py|md|yaml|yml|json)$
+        pass_filenames: false
+        args: ["."]
+        stages: [pre-commit, pre-merge-commit]
+
+      # Original Plugin Validation Hooks
+      - id: validate-abstract-skills
+        name: Validate Abstract Skills
+        entry: python3 plugins/abstract/scripts/abstract_validator.py
+        language: system
+        files: ^plugins/abstract/.*SKILL\.md$
+        pass_filenames: false
+        args: ["--root", "plugins/abstract", "--scan"]
+
+      - id: validate-imbue-skills
+        name: Validate Imbue Skills
+        entry: python3 plugins/imbue/scripts/imbue_validator.py
+        language: system
+        files: ^plugins/imbue/.*SKILL\.md$
+        pass_filenames: false
+        args: ["--root", "plugins/imbue", "--scan"]
+
+      - id: validate-abstract-plugin
+        name: Validate Abstract Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/abstract
+        language: system
+        files: ^plugins/abstract/
+        pass_filenames: false
+
+      - id: validate-imbue-plugin
+        name: Validate Imbue Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/imbue
+        language: system
+        files: ^plugins/imbue/
+        pass_filenames: false
+
+      - id: validate-archetypes-plugin
+        name: Validate Archetypes Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/archetypes
+        language: system
+        files: ^plugins/archetypes/
+        pass_filenames: false
+
+      - id: validate-conjure-plugin
+        name: Validate Conjure Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conjure
+        language: system
+        files: ^plugins/conjure/
+        pass_filenames: false
+
+      - id: validate-conservation-plugin
+        name: Validate Conservation Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conservation
+        language: system
+        files: ^plugins/conservation/
+        pass_filenames: false
+
+      - id: validate-memory-palace-plugin
+        name: Validate Memory Palace Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/memory-palace
+        language: system
+        files: ^plugins/memory-palace/
+        pass_filenames: false
+
+      - id: check-context-optimization
+        name: Check Context Optimization
+        entry: python3 plugins/abstract/scripts/context_optimizer.py --check-sizes
+        language: system
+        files: ^.*SKILL\.md$
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-ast
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: requirements-txt-fixer
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: ["-r", "plugins/"]
+        exclude: ^\.venv/|^\.uv-cache/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.0
+    hooks:
+      - id: mypy
+        args: [plugins/abstract/src/]
+        additional_dependencies:
+          - types-PyYAML
+        exclude: ^\.venv/|^\.uv-cache/|^fix_.*\.py$
+
+default_stages: [pre-commit]
+default_language_version:
+  python: python3
+default_install_hook_types: [pre-commit, pre-push, pre-merge-commit]
+minimum_pre_commit_version: 2.9.0

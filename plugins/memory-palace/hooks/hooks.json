@@ -1,0 +1,35 @@
+{
+  "UserPromptSubmit": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/url_detector.py",
+          "timeout": 10
+        }
+      ]
+    }
+  ],
+  "PostToolUse": [
+    {
+      "matcher": "WebFetch|WebSearch",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/web_content_processor.py",
+          "timeout": 30
+        }
+      ]
+    },
+    {
+      "matcher": "Read",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/local_doc_processor.py",
+          "timeout": 15
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,371 @@
+#!/usr/bin/env python3
+"""
+Tool: Module Validator
+Description: Validates skill module structure and dependencies
+Usage: scripts/module-validator [--skill PATH] [--directory PATH] [--verbose]
+"""
+
+import os
+import sys
+import argparse
+import re
+import yaml
+from pathlib import Path
+from typing import Dict, List, Set, Optional
+
+class ValidationResult:
+    def __init__(self):
+        self.errors = []
+        self.warnings = []
+        self.info = []
+
+    def add_error(self, message: str):
+        self.errors.append(message)
+
+    def add_warning(self, message: str):
+        self.warnings.append(message)
+
+    def add_info(self, message: str):
+        self.info.append(message)
+
+    def is_valid(self) -> bool:
+        return len(self.errors) == 0
+
+    def has_warnings(self) -> bool:
+        return len(self.warnings) > 0
+
+def parse_frontmatter(content: str) -> Dict:
+    """Parse YAML frontmatter from markdown content"""
+    if not content.startswith('---\n'):
+        return {}
+
+    try:
+        end_idx = content.index('\n---\n', 4)
+        frontmatter_text = content[4:end_idx]
+        return yaml.safe_load(frontmatter_text) or {}
+    except (ValueError, yaml.YAMLError):
+        return {}
+
+def validate_frontmatter(frontmatter: Dict, result: ValidationResult) -> Dict:
+    """Validate frontmatter structure"""
+    required_fields = ['name', 'description']
+    recommended_fields = ['category', 'tags', 'dependencies']
+
+    # Check required fields
+    for field in required_fields:
+        if field not in frontmatter:
+            result.add_error(f"Missing required frontmatter field: {field}")
+        elif not frontmatter[field]:
+            result.add_error(f"Empty required frontmatter field: {field}")
+
+    # Check recommended fields
+    for field in recommended_fields:
+        if field not in frontmatter:
+            result.add_warning(f"Missing recommended frontmatter field: {field}")
+
+    # Validate field types
+    if 'name' in frontmatter and not isinstance(frontmatter['name'], str):
+        result.add_error("Field 'name' must be a string")
+
+    if 'description' in frontmatter:
+        desc = frontmatter['description']
+        if not isinstance(desc, str):
+            result.add_error("Field 'description' must be a string")
+        elif len(desc) > 100:
+            result.add_warning("Description is quite long (>100 chars)")
+
+    if 'tags' in frontmatter:
+        tags = frontmatter['tags']
+        if not isinstance(tags, list):
+            result.add_error("Field 'tags' must be a list")
+        elif not all(isinstance(tag, str) for tag in tags):
+            result.add_error("All tags must be strings")
+
+    if 'dependencies' in frontmatter:
+        deps = frontmatter['dependencies']
+        if not isinstance(deps, list):
+            result.add_error("Field 'dependencies' must be a list")
+        elif not all(isinstance(dep, str) for dep in deps):
+            result.add_error("All dependencies must be strings")
+
+    if 'tools' in frontmatter:
+        tools = frontmatter['tools']
+        if not isinstance(tools, list):
+            result.add_error("Field 'tools' must be a list")
+        elif not all(isinstance(tool, str) for tool in tools):
+            result.add_error("All tools must be strings")
+
+    return frontmatter
+
+def validate_dependencies(dependencies: List[str], skill_path: Path, result: ValidationResult):
+    """Validate that dependencies exist and are accessible"""
+    if not dependencies:
+        return
+
+    # Search paths for dependencies
+    search_paths = [
+        skill_path.parent,  # Same directory
+        skill_path.parent.parent / "skills",  # Parent skills directory
+        Path.home() / ".claude" / "superpowers" / "skills",  # Claude skills
+        Path.home() / ".claude" / "skills",  # User skills
+    ]
+
+    for dep in dependencies:
+        dep_found = False
+        dep_paths = []
+
+        for search_path in search_paths:
+            # Try different dependency file patterns
+            possible_paths = [
+                search_path / f"{dep}.md",
+                search_path / dep / "SKILL.md",
+                search_path / f"{dep}-skill" / "SKILL.md",
+            ]
+
+            for path in possible_paths:
+                if path.exists():
+                    dep_found = True
+                    dep_paths.append(path)
+                    break
+
+        if dep_found:
+            result.add_info(f"Dependency '{dep}' found: {dep_paths[0]}")
+        else:
+            result.add_error(f"Dependency '{dep}' not found in any search path")
+
+def validate_tools(tools: List[str], skill_path: Path, result: ValidationResult):
+    """Validate that tools exist and are executable"""
+    if not tools:
+        return
+
+    tools_dir = skill_path.parent / "tools"
+
+    for tool in tools:
+        tool_found = False
+
+        # Check in various locations
+        possible_paths = [
+            tools_dir / tool,
+            tools_dir / f"{tool}.py",
+            tools_dir / f"{tool}.sh",
+            skill_path.parent / tool,
+            skill_path.parent / f"{tool}.py",
+            skill_path.parent / f"{tool}.sh",
+        ]
+
+        for path in possible_paths:
+            if path.exists():
+                tool_found = True
+
+                # Check if executable
+                if path.suffix in ['.py', '.sh'] and not os.access(path, os.X_OK):
+                    result.add_warning(f"Tool '{tool}' exists but may not be executable: {path}")
+                else:
+                    result.add_info(f"Tool '{tool}' found: {path}")
+                break
+
+        if not tool_found:
+            result.add_error(f"Tool '{tool}' not found")
+
+def validate_skill_structure(skill_path: Path, result: ValidationResult):
+    """Validate overall skill directory structure"""
+    skill_dir = skill_path.parent
+
+    # Check for common skill files
+    common_files = [
+        "SKILL.md",
+        "guide.md",
+        "README.md",
+    ]
+
+    for file_name in common_files:
+        file_path = skill_dir / file_name
+        if file_path.exists():
+            result.add_info(f"Found {file_name}")
+
+    # Check for tools directory if tools are specified
+    tools_dir = skill_dir / "tools"
+    if tools_dir.exists() and tools_dir.is_dir():
+        tools_count = len(list(tools_dir.iterdir()))
+        result.add_info(f"Tools directory found with {tools_count} items")
+    else:
+        # Check if tools are defined in frontmatter
+        with open(skill_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            frontmatter = parse_frontmatter(content)
+            if frontmatter.get('tools'):
+                result.add_warning("Tools defined but no tools directory found")
+
+def analyze_skill_file(skill_path: Path) -> ValidationResult:
+    """Analyze a single skill file"""
+    result = ValidationResult()
+
+    if not skill_path.exists():
+        result.add_error(f"Skill file not found: {skill_path}")
+        return result
+
+    if not skill_path.suffix == '.md':
+        result.add_warning(f"Skill file does not have .md extension: {skill_path}")
+
+    try:
+        with open(skill_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Parse and validate frontmatter
+        frontmatter = parse_frontmatter(content)
+        if not frontmatter:
+            result.add_error("No valid YAML frontmatter found")
+        else:
+            validated_frontmatter = validate_frontmatter(frontmatter, result)
+
+            # Validate dependencies
+            dependencies = validated_frontmatter.get('dependencies', [])
+            if dependencies:
+                validate_dependencies(dependencies, skill_path, result)
+
+            # Validate tools
+            tools = validated_frontmatter.get('tools', [])
+            if tools:
+                validate_tools(tools, skill_path, result)
+
+        # Validate overall structure
+        validate_skill_structure(skill_path, result)
+
+        # Content quality checks
+        lines = content.splitlines()
+        if len(lines) < 20:
+            result.add_warning("Skill file seems quite short (<20 lines)")
+
+        if content.count('#') == 0:
+            result.add_error("No markdown headers found")
+
+        # Check for progressive disclosure structure
+        has_overview = '## Overview' in content or '## Quick Start' in content
+        has_resources = '## Resources' in content or '## Tools' in content
+        if not (has_overview or has_resources):
+            result.add_warning("May benefit from progressive disclosure structure")
+
+    except Exception as e:
+        result.add_error(f"Error reading skill file: {e}")
+
+    return result
+
+def format_result(result: ValidationResult, skill_path: Path, verbose: bool = False) -> str:
+    """Format validation result for display"""
+    lines = [f"=== Validation Results for {skill_path} ==="]
+
+    if result.is_valid() and not result.has_warnings():
+        lines.append("✓ PASSED: Skill structure is valid")
+    else:
+        if result.is_valid():
+            lines.append("⚠ PASSED WITH WARNINGS")
+        else:
+            lines.append("✗ FAILED: Validation errors found")
+
+    if result.errors:
+        lines.extend(["", "ERRORS:"])
+        for error in result.errors:
+            lines.append(f"  - {error}")
+
+    if result.warnings:
+        lines.extend(["", "WARNINGS:"])
+        for warning in result.warnings:
+            lines.append(f"  - {warning}")
+
+    if verbose and result.info:
+        lines.extend(["", "INFO:"])
+        for info in result.info:
+            lines.append(f"  - {info}")
+
+    return "\n".join(lines)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Validate skill module structure and dependencies",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  module-validator --skill-path ./my-skill/SKILL.md
+  module-validator --directory ~/.claude/skills/ --verbose
+  module-validator --skill-path SKILL.md --check-dependencies
+        """
+    )
+
+    parser.add_argument('-s', '--skill-path', type=Path,
+                       help='Path to skill file (SKILL.md)')
+    parser.add_argument('-d', '--directory', type=Path,
+                       help='Directory containing skill files to validate')
+    parser.add_argument('-c', '--check-dependencies', action='store_true',
+                       help='Perform thorough dependency checking')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                       help='Verbose output with additional information')
+    parser.add_argument('--fail-on-warnings', action='store_true',
+                       help='Exit with error code on warnings')
+
+    args = parser.parse_args()
+
+    if not args.skill_path and not args.directory:
+        parser.error("Either --skill-path or --directory must be specified")
+
+    overall_valid = True
+    has_warnings = False
+
+    try:
+        if args.skill_path:
+            result = analyze_skill_file(args.skill_path)
+            print(format_result(result, args.skill_path, args.verbose))
+
+            if not result.is_valid():
+                overall_valid = False
+            if result.has_warnings():
+                has_warnings = True
+
+        elif args.directory:
+            if not args.directory.is_dir():
+                print(f"Error: {args.directory} is not a directory", file=sys.stderr)
+                sys.exit(1)
+
+            # Find all skill files
+            skill_files = list(args.directory.rglob("SKILL.md"))
+
+            if not skill_files:
+                print(f"No SKILL.md files found in {args.directory}")
+                sys.exit(1)
+
+            valid_count = 0
+            warning_count = 0
+
+            for skill_file in sorted(skill_files):
+                result = analyze_skill_file(skill_file)
+                print(format_result(result, skill_file, args.verbose))
+                print()
+
+                if result.is_valid():
+                    valid_count += 1
+                if result.has_warnings():
+                    warning_count += 1
+
+            # Summary
+            print("=== SUMMARY ===")
+            print(f"Total skills: {len(skill_files)}")
+            print(f"Valid: {valid_count}")
+            print(f"With warnings: {warning_count}")
+            print(f"Invalid: {len(skill_files) - valid_count}")
+
+            overall_valid = (valid_count == len(skill_files))
+            has_warnings = (warning_count > 0)
+
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Exit with appropriate code
+    if not overall_valid:
+        sys.exit(1)
+    elif has_warnings and args.fail_on_warnings:
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

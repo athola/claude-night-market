@@ -1,0 +1,141 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "claude-night-market"
+version = "0.1.0"
+description = "Root workspace config for tests and linting"
+requires-python = ">=3.12"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "pyproject.toml",
+    "README.md",
+    "LICENSE"
+]
+dependencies = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "pytest-cov>=6.0.0",
+  "pytest-mock>=3.14.0",
+  "pytest-bdd>=7.2.0",
+  "pytest-xdist>=3.6.0",
+  "pytest-json-report>=1.5.0",
+  "coverage[toml]>=7.6.0",
+  "jsonschema>=4.22.0",
+  "pyyaml>=6.0.2",
+  "toml>=0.10.2",
+  "rich>=13.9.0",
+  "click>=8.1.7"
+]
+
+[project.optional-dependencies]
+dev = [
+  "black>=24.10.0",
+  "ruff>=0.7.0",
+  "mypy>=1.13.0",
+  "pre-commit>=4.0.0"
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "-ra",
+    "--disable-warnings",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "slow: Slow running tests",
+    "network: Tests requiring network access",
+    "plugin: Plugin-specific tests",
+    "skill: Skill-specific tests",
+    "hook: Hook-specific tests",
+    "command: Command-specific tests",
+]
+
+[tool.coverage.run]
+source = ["." ]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+fail_under = 85
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["plugins", "tests"]
+
+[tool.ruff.lint]
+select = ["E","W","F","I","B","C4","UP"]
+ignore = ["E501","B008","PLR2004","S101","PLC0415","E402"]
+per-file-ignores = {"tests/*" = ["E501", "B011"], "__init__.py" = ["F401"]}
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.uv.workspace]
+# Allow uv to discover plugin and tool projects (minimal set for linting)
+members = [
+    "plugins/abstract",
+    "plugins/leyline",
+    "plugins/conservation",
+    "plugins/core"
+]
+
+[tool.uv.sources]
+# Explicit workspace member configuration
+leyline = { workspace = true }
+conservation = { workspace = true }
+core = { workspace = true }

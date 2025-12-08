@@ -1,0 +1,25 @@
+{
+  "name": "conservation",
+  "version": "2.0.0",
+  "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
+  "skills": [
+    "./skills/context-optimization",
+    "./skills/mcp-code-execution",
+    "./skills/optimizing-large-skills",
+    "./skills/performance-monitoring/cpu-gpu-performance",
+    "./skills/resource-management/token-conservation"
+  ],
+  "commands": [
+    "./commands/optimize-context.md",
+    "./commands/analyze-growth.md"
+  ],
+  "agents": [
+    "./agents/context-optimizer.md"
+  ],
+  "keywords": ["conservation", "performance", "resource-management", "token-optimization", "context-optimization", "MECW", "efficiency"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,64 @@
+{
+  "name": "pre-skill-load",
+  "description": "Hook executed before skill loading to validate dependencies and prepare environment",
+  "version": "1.0.0",
+  "trigger": "before-skill-load",
+  "priority": "high",
+  "enabled": true,
+  "conditions": {
+    "file_patterns": ["**/SKILL.md"],
+    "exclude_patterns": ["**/.git/**", "**/node_modules/**", "**/__pycache__/**"],
+    "required_fields": ["name", "description", "category"]
+  },
+  "validations": {
+    "yaml_frontmatter": {
+      "required": true,
+      "check_syntax": true,
+      "required_fields": ["name", "description"]
+    },
+    "file_structure": {
+      "required": true,
+      "max_file_size": "2MB",
+      "allowed_extensions": [".md"]
+    },
+    "dependency_check": {
+      "required": true,
+      "validate_paths": true,
+      "check_circular": true
+    }
+  },
+  "actions": {
+    "on_success": [
+      "log-skill-discovery",
+      "cache-metadata",
+      "prepare-tools",
+      "validate-dependencies"
+    ],
+    "on_failure": [
+      "log-validation-errors",
+      "skip-skill-loading",
+      "report-issues",
+      "suggest-fixes"
+    ],
+    "on_warning": [
+      "log-warnings",
+      "continue-with-caution",
+      "suggest-improvements"
+    ]
+  },
+  "environment": {
+    "working_directory": "./",
+    "tool_timeout": 30,
+    "max_concurrent_checks": 5
+  },
+  "integrations": {
+    "skills_eval": "pre-validation",
+    "modular_skills": "dependency-analysis",
+    "performance_optimization": "resource-check"
+  },
+  "logging": {
+    "level": "info",
+    "format": "structured",
+    "destination": "hooks/logs/pre-skill-load.log"
+  }
+}

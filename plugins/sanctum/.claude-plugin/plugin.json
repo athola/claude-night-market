@@ -1,0 +1,39 @@
+{
+  "name": "sanctum",
+  "version": "3.0.0",
+  "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
+  "commands": [
+    "./commands/catchup.md",
+    "./commands/commit-msg.md",
+    "./commands/fix-pr.md",
+    "./commands/merge-docs.md",
+    "./commands/pr.md",
+    "./commands/update-docs.md",
+    "./commands/update-readme.md",
+    "./commands/update-tests.md",
+    "./commands/update-version.md"
+  ],
+  "skills": [
+    "./skills/shared",
+    "./skills/git-workspace-review",
+    "./skills/file-analysis",
+    "./skills/commit-messages",
+    "./skills/pr-prep",
+    "./skills/doc-consolidation",
+    "./skills/doc-updates",
+    "./skills/test-updates",
+    "./skills/update-readme",
+    "./skills/version-updates"
+  ],
+  "agents": [
+    "./agents/git-workspace-agent.md",
+    "./agents/commit-agent.md",
+    "./agents/pr-agent.md"
+  ],
+  "keywords": ["git", "workspace", "commit", "pr", "documentation", "version", "changelog", "conventional-commits"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

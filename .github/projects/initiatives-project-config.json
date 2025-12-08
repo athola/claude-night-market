@@ -1,0 +1,111 @@
+{
+  "name": "Claude Night Market Medium-Term Initiatives",
+  "description": "Coordination of architecture review, test infrastructure modernization, and documentation drive initiatives",
+  "owner": "claude-night-market-team",
+  "visibility": "all",
+  "template": "basic",
+  "columns": [
+    {
+      "id": "backlog",
+      "name": "Backlog",
+      "description": "Tasks not yet started"
+    },
+    {
+      "id": "todo",
+      "name": "To Do",
+      "description": "Tasks ready to start"
+    },
+    {
+      "id": "in-progress",
+      "name": "In Progress",
+      "description": "Currently being worked on"
+    },
+    {
+      "id": "review",
+      "name": "Review",
+      "description": "Waiting for review or approval"
+    },
+    {
+      "id": "done",
+      "name": "Done",
+      "description": "Completed tasks"
+    }
+  ],
+  "labels": [
+    {
+      "name": "architecture-review",
+      "color": "d93f0b",
+      "description": "Related to plugin architecture review initiative"
+    },
+    {
+      "name": "test-modernization",
+      "color": "0e8a16",
+      "description": "Related to test infrastructure modernization"
+    },
+    {
+      "name": "documentation-drive",
+      "color": "1d76db",
+      "description": "Related to documentation drive initiative"
+    },
+    {
+      "name": "phase-1",
+      "color": "fbca04",
+      "description": "Phase 1 task (Weeks 1-2)"
+    },
+    {
+      "name": "phase-2",
+      "color": "006b75",
+      "description": "Phase 2 task (Weeks 3-6)"
+    },
+    {
+      "name": "phase-3",
+      "color": "5319e7",
+      "description": "Phase 3 task (Weeks 7-8)"
+    },
+    {
+      "name": "high-priority",
+      "color": "b60205",
+      "description": "High priority task"
+    },
+    {
+      "name": "medium-priority",
+      "color": "fbca04",
+      "description": "Medium priority task"
+    },
+    {
+      "name": "low-priority",
+      "color": "c2e0c6",
+      "description": "Low priority task"
+    },
+    {
+      "name": "blocked",
+      "color": "000000",
+      "description": "Task is blocked"
+    },
+    {
+      "name": "dependencies",
+      "color": "f9d0c4",
+      "description": "Task has dependencies"
+    }
+  ],
+  "milestones": [
+    {
+      "title": "Phase 1 Complete - Foundation Setup",
+      "description": "Complete foundation setup for all initiatives",
+      "due_date": "2025-12-20",
+      "state": "open"
+    },
+    {
+      "title": "Phase 2 Complete - Implementation",
+      "description": "Complete main implementation phase",
+      "due_date": "2026-01-17",
+      "state": "open"
+    },
+    {
+      "title": "Phase 3 Complete - Deployment",
+      "description": "Complete optimization and deployment",
+      "due_date": "2026-01-31",
+      "state": "open"
+    }
+  ]
+}

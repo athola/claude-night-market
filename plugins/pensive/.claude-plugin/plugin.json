@@ -1,0 +1,37 @@
+{
+  "name": "pensive",
+  "version": "3.0.0",
+  "description": "Comprehensive code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
+  "commands": [
+    "./commands/review.md",
+    "./commands/api-review.md",
+    "./commands/architecture-review.md",
+    "./commands/bug-review.md",
+    "./commands/rust-review.md",
+    "./commands/test-review.md",
+    "./commands/math-review.md",
+    "./commands/makefile-review.md"
+  ],
+  "skills": [
+    "./skills/shared",
+    "./skills/unified-review",
+    "./skills/api-review",
+    "./skills/architecture-review",
+    "./skills/bug-review",
+    "./skills/rust-review",
+    "./skills/test-review",
+    "./skills/math-review",
+    "./skills/makefile-review"
+  ],
+  "agents": [
+    "./agents/code-reviewer.md",
+    "./agents/architecture-reviewer.md",
+    "./agents/rust-auditor.md"
+  ],
+  "keywords": ["review", "code-quality", "architecture", "testing", "analysis", "rust", "api", "bugs", "audit"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,132 @@
+---
+name: python-packaging
+description: Create distributable Python packages with proper structure and publishing. Use for libraries, CLI tools, and code distribution.
+category: packaging
+tags: [python, packaging, pyproject.toml, uv, pip, pypi, distribution]
+tools: [package-analyzer, build-runner]
+usage_patterns:
+  - package-creation
+  - pypi-publishing
+  - cli-tool-development
+  - library-distribution
+complexity: beginner
+estimated_tokens: 200
+progressive_loading: true
+modules:
+  - uv-workflow.md
+  - pyproject-patterns.md
+  - entry-points.md
+  - ci-cd-integration.md
+---
+
+# Python Packaging
+
+Modern Python packaging with pyproject.toml, uv, and best practices for distribution.
+
+## Quick Start
+
+```bash
+# Create new project with uv
+uv init my-package
+cd my-package
+
+# Add dependencies
+uv add requests click
+
+# Build package
+uv build
+
+# Publish to PyPI
+uv publish
+```
+
+## When to Use
+
+- Creating distributable Python libraries
+- Building CLI tools
+- Publishing to PyPI
+- Setting up development environments
+- Managing project dependencies
+
+## Core Decisions
+
+### 1. Layout Choice
+
+```yaml
+# Source layout (recommended)
+src/my_package/
+    __init__.py
+    module.py
+
+# Flat layout (simple)
+my_package/
+    __init__.py
+    module.py
+```
+
+**Source layout benefits:**
+- Clear separation of source and tests
+- Prevents accidental imports of uninstalled code
+- Better for packages with complex structure
+
+### 2. Project Structure
+
+**Minimal Project:**
+```
+my-project/
+├── pyproject.toml
+├── README.md
+├── src/
+│   └── my_package/
+│       └── __init__.py
+└── tests/
+    └── test_init.py
+```
+
+**Complete Project:**
+```
+my-project/
+├── pyproject.toml
+├── README.md
+├── LICENSE
+├── .gitignore
+├── src/
+│   └── my_package/
+│       ├── __init__.py
+│       ├── cli.py
+│       ├── core.py
+│       └── utils.py
+├── tests/
+│   ├── conftest.py
+│   └── test_core.py
+└── docs/
+    └── index.md
+```
+
+## Detailed Topics
+
+See modules for detailed information:
+
+- **[uv Workflow](modules/uv-workflow.md)** - Complete uv commands and troubleshooting
+- **[pyproject.toml Patterns](modules/pyproject-patterns.md)** - Configuration examples for different package types
+- **[Entry Points](modules/entry-points.md)** - Console scripts, GUI scripts, and plugins
+- **[CI/CD Integration](modules/ci-cd-integration.md)** - GitHub Actions and automated publishing
+
+## Best Practices
+
+1. **Use source layout** for anything beyond simple packages
+2. **Pin direct dependencies** with minimum versions
+3. **Use optional dependency groups** for dev/docs/test
+4. **Include py.typed** for type hint support
+5. **Add comprehensive README** with usage examples
+6. **Use semantic versioning** (MAJOR.MINOR.PATCH)
+7. **Test on multiple Python versions** before publishing
+
+## Exit Criteria
+
+- Modern pyproject.toml configuration
+- Clear dependency specification
+- Proper version management
+- Tests included and passing
+- Build process reproducible
+- Publishing pipeline automated

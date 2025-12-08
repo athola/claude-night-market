@@ -1,0 +1,114 @@
+{
+  "name": "post-evaluation",
+  "description": "Hook executed after skill evaluation to process results and trigger improvements",
+  "version": "1.0.0",
+  "trigger": "after-skill-evaluation",
+  "priority": "medium",
+  "enabled": true,
+  "conditions": {
+    "evaluation_types": ["quality-assessment", "compliance-check", "performance-analysis"],
+    "min_quality_score": 50,
+    "trigger_on_improvements": true
+  },
+  "actions": {
+    "on_high_quality": {
+      "threshold": 90,
+      "actions": [
+        "log-success",
+        "update-quality-baseline",
+        "consider-for-examples",
+        "notify-maintainers"
+      ]
+    },
+    "on_medium_quality": {
+      "threshold": 70,
+      "actions": [
+        "log-results",
+        "generate-improvement-suggestions",
+        "schedule-follow-up",
+        "update-metrics"
+      ]
+    },
+    "on_low_quality": {
+      "threshold": 50,
+      "actions": [
+        "log-issues",
+        "create-improvement-plan",
+        "flag-for-review",
+        "suggest-refactoring"
+      ]
+    },
+    "on_critical_issues": {
+      "actions": [
+        "immediate-notification",
+        "disable-skill-if-broken",
+        "create-urgent-ticket",
+        "rollback-if-necessary"
+      ]
+    }
+  },
+  "result_processing": {
+    "quality_scoring": {
+      "enable": true,
+      "weights": {
+        "structure": 0.25,
+        "content": 0.25,
+        "performance": 0.20,
+        "reliability": 0.20,
+        "integration": 0.10
+      },
+      "baseline_tracking": true
+    },
+    "improvement_tracking": {
+      "enable": true,
+      "track_suggestions": true,
+      "monitor_implementations": true,
+      "measure_impact": true
+    },
+    "compliance_monitoring": {
+      "enable": true,
+      "standards_check": true,
+      "security_scan": true,
+      "best_practices_validation": true
+    }
+  },
+  "notifications": {
+    "channels": [
+      "log-file",
+      "quality-dashboard",
+      "maintainer-alerts"
+    ],
+    "escalation_rules": {
+      "critical_issues": "immediate",
+      "quality_degradation": "daily",
+      "improvement_opportunities": "weekly"
+    }
+  },
+  "integrations": {
+    "skills_eval": "result-processing",
+    "modular_skills": "architectural-feedback",
+    "performance_optimization": "optimization-recommendations"
+  },
+  "automation": {
+    "auto_fix_minor_issues": false,
+    "auto_generate_improvements": true,
+    "auto_schedule_reviews": true,
+    "auto_update_metrics": true
+  },
+  "logging": {
+    "level": "info",
+    "format": "structured",
+    "destination": "hooks/logs/post-evaluation.log",
+    "retention_days": 30
+  },
+  "metrics": {
+    "track": [
+      "quality_trends",
+      "improvement_rates",
+      "compliance_scores",
+      "performance_impact",
+      "evaluation_frequency"
+    ],
+    "export_formats": ["json", "csv", "dashboard"]
+  }
+}

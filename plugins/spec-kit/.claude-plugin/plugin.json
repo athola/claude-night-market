@@ -1,0 +1,33 @@
+{
+  "name": "spec-kit",
+  "version": "3.0.0",
+  "description": "Spec Driven Development toolkit - structured specification, planning, and implementation workflows for systematic feature development",
+  "commands": [
+    "./commands/speckit.analyze.md",
+    "./commands/speckit.checklist.md",
+    "./commands/speckit.clarify.md",
+    "./commands/speckit.constitution.md",
+    "./commands/speckit.implement.md",
+    "./commands/speckit.plan.md",
+    "./commands/speckit.specify.md",
+    "./commands/speckit.startup.md",
+    "./commands/speckit.tasks.md"
+  ],
+  "skills": [
+    "./skills/shared",
+    "./skills/speckit-orchestrator",
+    "./skills/spec-writing",
+    "./skills/task-planning"
+  ],
+  "agents": [
+    "./agents/spec-analyzer.md",
+    "./agents/task-generator.md",
+    "./agents/implementation-executor.md"
+  ],
+  "keywords": ["speckit", "spec-driven-development", "specification", "planning", "implementation", "workflow", "tdd", "requirements"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

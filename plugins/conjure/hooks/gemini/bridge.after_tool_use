@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""
+Gemini CLI Bridge Hook - Post-Execution
+
+This hook runs after tool execution. It provides recommendations for using the
+gemini-delegation skill based on the execution context.
+"""
+
+import json
+import logging
+import os
+import sys
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+def analyze_execution_for_gemini_benefit(tool_name, tool_args, tool_result):
+    """Analyze if the execution result suggests Gemini would be useful."""
+
+    # Check for large outputs or complex patterns
+    if tool_result and "error" not in tool_result:
+        if tool_name == "Read" and isinstance(tool_result, str):
+            # Large file was read
+            if len(tool_result) > 50000:  # 50KB threshold
+                return True, "large_file_analysis"
+
+        elif tool_name == "Glob" and isinstance(tool_result, list):
+            # Many files found
+            if len(tool_result) > 20:
+                return True, "many_files_analysis"
+
+        elif tool_name == "Grep":
+            # Many search results
+            if isinstance(tool_result, str):
+                line_count = tool_result.count('\n')
+                if line_count > 50:
+                    return True, "extensive_search_results"
+
+        elif tool_name == "Task":
+            # Exploration tasks that might have produced large results
+            return True, "exploration_results"
+
+    return False, None
+
+def generate_contextual_recommendation(benefit_type, tool_name, tool_args):
+    """Generate specific recommendations based on the analysis."""
+
+    recommendations = []
+
+    if benefit_type == "large_file_analysis":
+        file_path = tool_args.get("file_path", "")
+        recommendations.extend([
+            f"This large file analysis could benefit from Gemini's context window",
+            f"Try: `gemini -p '@{file_path} Provide a comprehensive analysis of this file'`",
+            "Use gemini-delegation skill for systematic analysis"
+        ])
+
+    elif benefit_type == "many_files_analysis":
+        pattern = tool_args.get("pattern", "")
+        recommendations.extend([
+            f"Found many files matching {pattern}",
+            "Use Gemini to analyze patterns across all files:",
+            f"`gemini -p '@{pattern} Analyze common patterns across these files'`",
+            "Perfect candidate for gemini-delegation skill"
+        ])
+
+    elif benefit_type == "extensive_search_results":
+        search_pattern = tool_args.get("pattern", "")
+        search_path = tool_args.get("path", ".")
+        recommendations.extend([
+            f"Extensive results for '{search_pattern}' in {search_path}",
+            "Gemini can provide higher-level analysis of these patterns:",
+            f"`gemini -p '@{search_path} Analyze all instances of {search_pattern} and identify patterns'`",
+            "Consider gemini-delegation for comprehensive analysis"
+        ])
+
+    elif benefit_type == "exploration_results":
+        recommendations.extend([
+            "Complex exploration completed - use Gemini for synthesis",
+            "gemini-delegation skill can help organize and analyze findings",
+            "Gemini's large context window is ideal for this type of analysis"
+        ])
+
+    return recommendations
+
+# Main hook logic
+try:
+    payload = json.load(sys.stdin)
+    tool_use = payload.get("tool_use", {})
+    tool_result = payload.get("tool_result", {})
+
+    if tool_use:
+        tool_name = tool_use.get("name", "")
+        tool_args = tool_use.get("input", {})
+
+        should_recommend, benefit_type = analyze_execution_for_gemini_benefit(
+            tool_name, tool_args, tool_result
+        )
+
+        if should_recommend:
+            recommendations = generate_contextual_recommendation(
+                benefit_type, tool_name, tool_args
+            )
+
+            print("\nPost-Analysis Recommendation:", file=sys.stderr)
+            print("This operation produced results that could benefit from Gemini's analysis capabilities:", file=sys.stderr)
+            print(file=sys.stderr)
+
+            for rec in recommendations:
+                print(f"  - {rec}", file=sys.stderr)
+
+            print(file=sys.stderr)
+            print("**Next Steps:**", file=sys.stderr)
+            print("1. Use skill: `/skill gemini-delegation`", file=sys.stderr)
+            print("2. Or run Gemini CLI directly if configured", file=sys.stderr)
+            print("3. Follow the TodoWrite checklist in the gemini-delegation skill", file=sys.stderr)
+            print(file=sys.stderr)
+
+except (json.JSONDecodeError, KeyError, AttributeError) as e:
+    # Log the error before failing silently
+    logger.debug(f"Hook error (non-fatal): {type(e).__name__}: {e}")
+    print(f"Hook error (non-fatal): {type(e).__name__}: {e}", file=sys.stderr)
+
+sys.exit(0)

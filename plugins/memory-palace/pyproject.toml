@@ -1,0 +1,99 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "memory-palace"
+version = "2.0.0"
+description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
+authors = [
+    {name = "Alex Thola", email = "alexthola@gmail.com"}
+]
+maintainers = [
+    {name = "Alex Thola", email = "alexthola@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pre-commit>=3.0.0",
+    "tiktoken>=0.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.7.0,<1.0",
+    "mypy>=1.11.0,<2.0",
+    "ty>=0.0.1a23",
+    "pytype>=2024.10.11 ; python_version >= '3.10'",
+    "typos>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "bandit>=1.7.9,<2.0",
+    "blacken-docs>=1.16.0,<2.0",
+    "interrogate>=1.7.0,<2.0",
+    "pre-commit>=4.0.1,<5.0",
+    "ty>=0.0.1a23",
+    "safety>=3.7.0,<4.0",
+    "typos>=1.0.0",
+    "ruff>=0.14.6",
+    "mypy>=1.18.2",
+    "pytest>=8.0.0,<9.0",
+    "pytest-cov>=4.0.0,<5.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/memory_palace"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".venv", ".uv-cache"]
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "W",
+  "F",
+  "I",
+  "B",
+  "C4",
+  "UP",
+  "S",
+  "PL",
+  "D",
+]
+
+extend-ignore = ["E203", "D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+explicit_package_bases = true
+namespace_packages = true
+exclude = ['^\.venv', '^\.uv-cache']
+
+[tool.bandit]
+exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

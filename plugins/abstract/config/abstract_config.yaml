@@ -1,0 +1,105 @@
+# Abstract Configuration File
+# Centralized configuration for all tools and skills
+
+environment: production
+debug: false
+verbose: false
+
+# Paths
+project_root: .
+lib_dir: lib
+config_dir: config
+tools_dir: tools
+
+# Skill Validation Configuration
+skill_validation:
+  meta_skill_exceptions:
+    - skills-eval
+    - modular-skills
+    - writing-clearly-and-concisely
+  meta_indicators:
+    - pattern
+    - template
+    - framework
+    - infrastructure
+    - meta-skill
+    - orchestrat
+    - design pattern
+    - methodology
+  required_frontmatter_fields:
+    - name
+    - description
+  recommended_frontmatter_fields:
+    - category
+    - tags
+    - dependencies
+    - tools
+    - usage_patterns
+    - complexity
+    - estimated_tokens
+  max_skill_file_size: 15000
+  max_total_skill_size: 100000
+
+# Skill Analyzer Configuration
+skill_analyzer:
+  default_threshold: 150
+  min_threshold: 1
+  max_threshold: 10000
+  token_ratio: 4
+  large_file_lines: 200
+  many_themes: 3
+  many_code_blocks: 3
+  markdown_extensions:
+    - .md
+    - .markdown
+
+# Skills Evaluation Configuration
+skills_eval:
+  scoring_weights:
+    structure_weight: 0.20
+    content_weight: 0.20
+    token_weight: 0.15
+    activation_weight: 0.20
+    tool_weight: 0.15
+    documentation_weight: 0.10
+  quality_thresholds:
+    minimum_quality_threshold: 70.0
+    high_quality_threshold: 80.0
+    excellent_quality_threshold: 90.0
+  token_ranges:
+    optimal_token_range: [800, 2000]
+    acceptable_token_range: [2000, 3000]
+  claude_paths:
+    - ~/.claude
+    - ~/.claude/superpowers/skills
+    - ~/.claude/skills
+
+# Context Optimizer Configuration
+context_optimizer:
+  progressive_disclosure_thresholds:
+    small: 2000
+    medium: 5000
+    large: 15000
+  size_limits:
+    small_size_limit: 2000
+    medium_size_limit: 5000
+    large_size_limit: 15000
+  content_optimization:
+    max_section_lines: 20
+    max_line_length: 100
+    target_tokens_per_section: 200
+
+# Error Handling Configuration
+error_handling:
+  exit_codes:
+    SUCCESS: 0
+    GENERAL_ERROR: 1
+    ARGUMENT_ERROR: 2
+    FILE_NOT_FOUND: 3
+    PERMISSION_ERROR: 4
+    VALIDATION_ERROR: 5
+    CONFIGURATION_ERROR: 6
+  default_log_level: INFO
+  log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  max_error_context_lines: 5
+  error_cache_size: 100

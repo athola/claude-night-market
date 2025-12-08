@@ -1,0 +1,37 @@
+{
+  "name": "spec-kit",
+  "version": "2.0.0",
+  "main": "skills",
+  "skills": [
+    "skills/speckit-orchestrator",
+    "skills/spec-writing",
+    "skills/task-planning"
+  ],
+  "dependencies": {
+    "abstract": ">=2.0.0"
+  },
+  "provides": {
+    "infrastructure": [
+      "spec-driven-development",
+      "specification-management",
+      "task-orchestration"
+    ],
+    "patterns": [
+      "specification-workflow",
+      "implementation-planning",
+      "requirement-analysis"
+    ],
+    "tools": [
+      "spec-analyzer",
+      "task-generator",
+      "implementation-executor"
+    ]
+  },
+  "claude": {
+    "skill_prefix": "spec-kit",
+    "auto_load": false,
+    "categories": {
+      "specification": "Structured specification, planning, and implementation workflows"
+    }
+  }
+}

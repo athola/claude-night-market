@@ -1,0 +1,27 @@
+{
+  "name": "parseltongue",
+  "version": "2.0.0",
+  "description": "Comprehensive Python development suite - testing, performance optimization, async patterns, and modern packaging",
+  "commands": [
+    "./commands/analyze-tests.md",
+    "./commands/run-profiler.md",
+    "./commands/check-async.md"
+  ],
+  "skills": [
+    "./skills/python-testing",
+    "./skills/python-performance",
+    "./skills/python-async",
+    "./skills/python-packaging"
+  ],
+  "agents": [
+    "./agents/python-pro.md",
+    "./agents/python-tester.md",
+    "./agents/python-optimizer.md"
+  ],
+  "keywords": ["python", "testing", "pytest", "performance", "optimization", "async", "asyncio", "packaging", "uv", "profiling"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

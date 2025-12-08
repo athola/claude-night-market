@@ -1,0 +1,58 @@
+{
+  "name": "archetypes",
+  "version": "1.0.0",
+  "main": "skills",
+  "skills": [
+    "skills/architecture-paradigms",
+    "skills/architecture-paradigm-functional-core",
+    "skills/architecture-paradigm-hexagonal",
+    "skills/architecture-paradigm-layered",
+    "skills/architecture-paradigm-modular-monolith",
+    "skills/architecture-paradigm-microservices",
+    "skills/architecture-paradigm-service-based",
+    "skills/architecture-paradigm-event-driven",
+    "skills/architecture-paradigm-cqrs-es",
+    "skills/architecture-paradigm-microkernel",
+    "skills/architecture-paradigm-space-based",
+    "skills/architecture-paradigm-pipeline",
+    "skills/architecture-paradigm-serverless",
+    "skills/architecture-paradigm-client-server"
+  ],
+  "dependencies": {
+    "abstract": ">=2.0.0"
+  },
+  "provides": {
+    "architectures": [
+      "functional-core",
+      "hexagonal",
+      "layered",
+      "modular-monolith",
+      "microservices",
+      "service-based",
+      "event-driven",
+      "cqrs-es",
+      "microkernel",
+      "space-based",
+      "pipeline",
+      "serverless",
+      "client-server"
+    ],
+    "patterns": [
+      "architecture-selection",
+      "paradigm-implementation",
+      "system-design"
+    ],
+    "guidance": [
+      "architecture-decision-making",
+      "pattern-comparison",
+      "implementation-planning"
+    ]
+  },
+  "claude": {
+    "skill_prefix": "archetypes",
+    "auto_load": false,
+    "categories": {
+      "architecture": "Comprehensive architecture paradigm guidance and implementation planning"
+    }
+  }
+}
