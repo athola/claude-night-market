@@ -370,6 +370,44 @@ Commands can leverage:
 - **Agents**: `Spawn a <agent-type> agent to...`
 - **Other commands**: `First run /other-command, then...`
 - **Tools**: Direct tool usage via prompt instructions
+- **Wrapper Classes**: For complex integrations, implement wrapper classes in `src/` that translate plugin parameters to superpower calls
+
+### Using Wrapper Classes
+
+When a command needs complex parameter translation or validation, create a wrapper class:
+
+```python
+# src/my_command_wrapper.py
+from .wrapper_base import SuperpowerWrapper
+from typing import Dict, Any
+
+class MyCommandWrapper(SuperpowerWrapper):
+    """Wrapper for my-command that delegates to target-superpower"""
+
+    def __init__(self):
+        super().__init__(
+            source_plugin="my-plugin",
+            source_command="my-command",
+            target_superpower="target-superpower"
+        )
+
+    def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute with validation and parameter translation"""
+        # Validate required parameters
+        if not params:
+            raise ValueError("Parameters cannot be empty")
+
+        # Translate and call superpower
+        translated = self.translate_parameters(params)
+        # ... execute logic ...
+        return result
+```
+
+The wrapper handles:
+- Parameter validation and type checking
+- Translation from plugin naming to superpower naming
+- Error handling with clear messages
+- Extension of superpower functionality
 
 ## Implementation
 
