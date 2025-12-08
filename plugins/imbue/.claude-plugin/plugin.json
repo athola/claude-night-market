@@ -8,7 +8,8 @@
     "./skills/evidence-logging",
     "./skills/structured-output",
     "./skills/diff-analysis",
-    "./skills/catchup"
+    "./skills/catchup",
+    "./skills/scope-guard"
   ],
   "commands": [
     "./commands/full-review.md",

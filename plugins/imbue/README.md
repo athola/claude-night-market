@@ -58,6 +58,31 @@ Use this when you need to get up to speed on a project, for example, after being
 3. `catchup:insights-extracted` - Summarize what changed, why it changed, and what the implications are.
 4. `catchup:followups-recorded` - List any action items or next steps.
 
+### Workflow Guards
+
+#### scope-guard
+A methodology for preventing overengineering through worthiness scoring, opportunity cost comparison, and branch threshold monitoring.
+
+**When to Use:**
+Use this skill during brainstorming and planning sessions to evaluate whether proposed features should be implemented now, discussed further, or deferred to a backlog. Also triggered automatically via hooks when branch metrics approach thresholds.
+
+**Core Mechanisms:**
+- **Worthiness Scoring**: Business value formula evaluates features
+- **Opportunity Cost**: New ideas compete against existing backlog items
+- **Branch Thresholds**: Automatic checks on lines, files, commits, days
+- **Backlog Management**: Structured queue for deferred ideas
+
+**Required TodoWrite Items:**
+1. `scope-guard:worthiness-scored` - Calculate and record feature score.
+2. `scope-guard:backlog-compared` - Compare against queued items.
+3. `scope-guard:budget-checked` - Verify within branch feature budget.
+4. `scope-guard:decision-documented` - Record implement/defer/reject decision.
+
+**Integration:**
+- Works with `superpowers:brainstorming` at end of ideation
+- Works with `superpowers:writing-plans` before plan finalization
+- Hook: `pre-pr-scope-check.sh` for automatic threshold monitoring
+
 ### Output Patterns
 
 #### evidence-logging
@@ -90,12 +115,15 @@ Use this skill when preparing the final report or deliverable. It helps make the
 imbue/
 ├── plugin.json              # Plugin configuration
 ├── README.md               # This file
+├── hooks/
+│   └── pre-pr-scope-check.sh  # Branch threshold monitoring
 └── skills/
     ├── review-core/        # Review workflow scaffolding
     ├── evidence-logging/   # Evidence capture methodology
     ├── structured-output/  # Output formatting patterns
     ├── diff-analysis/      # Change analysis methodology
-    └── catchup/            # Summarization methodology
+    ├── catchup/            # Summarization methodology
+    └── scope-guard/        # Anti-overengineering guardrails
 ```
 
 ## Dependencies
@@ -111,6 +139,9 @@ Skill(imbue:review-core)
 # Analysis methodologies
 Skill(imbue:diff-analysis)
 Skill(imbue:catchup)
+
+# Workflow guards
+Skill(imbue:scope-guard)
 
 # Output patterns
 Skill(imbue:evidence-logging)
