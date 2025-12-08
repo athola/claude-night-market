@@ -186,7 +186,7 @@ custom_field: value       # your plugin
 All plugins benefit from consistent maturity progression:
 
 ```
-seedling (experimental) 
+seedling (experimental)
    ↓
 growing (under development)
    ↓

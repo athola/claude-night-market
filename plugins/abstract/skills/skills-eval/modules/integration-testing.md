@@ -322,4 +322,3 @@ def test_performance_characteristics(skill_path: str) -> PerformanceResults:
 
     return results
 ```
-

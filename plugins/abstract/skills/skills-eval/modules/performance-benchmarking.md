@@ -541,4 +541,3 @@ def detect_performance_regression(
 
     return regressions
 ```
-

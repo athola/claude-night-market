@@ -20,7 +20,6 @@
     "./agents/garden-curator.md",
     "./agents/knowledge-librarian.md"
   ],
-  "hooks": "./hooks/hooks.json",
   "keywords": ["memory-palace", "spatial-memory", "knowledge-organization", "digital-garden", "recall", "navigation", "mnemonic"],
   "author": {
     "name": "Claude Skills",
