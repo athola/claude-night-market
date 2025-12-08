@@ -15,7 +15,7 @@
         update-changelog check-changelog format lint type-check typecheck security unit-tests test-unit \
         test-coverage test-quick analyze-skill estimate-tokens audit-skill improve-skill \
         check-compliance audit-all eval-report dev-setup ci-check verify-install debug-variables \
-        validate-skill-descriptions validate-plugin validate-self
+        validate-skill-descriptions validate-plugin validate-self test-wrappers validate-migration generate-wrappers
 
 # Default shell with error handling
 SHELL := /bin/bash
@@ -283,6 +283,30 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "SKILLS_DIR: $(SKILLS_DIR)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
 	@echo "MAKEFLAGS: $(MAKEFLAGS)"
+
+# WRAPPER TESTING AND VALIDATION
+test-wrappers: ## Run all wrapper-related tests
+	@echo "Running wrapper tests..."
+	@$(PYTEST) tests/test_*_wrapper.py -v --tb=short || { echo "⚠ Wrapper tests failed"; exit 1; }
+
+validate-migration: ## Validate migration compatibility and analyze overlaps
+	@echo "Running migration validation..."
+	@if [ -f "$(SCRIPTS_DIR)/compatibility_validator.py" ]; then \
+		$(UV_PYTHON) "$(SCRIPTS_DIR)/compatibility_validator.py" --all; \
+	fi
+	@if [ -f "$(SCRIPTS_DIR)/migration_analyzer.py" ]; then \
+		$(UV_PYTHON) "$(SCRIPTS_DIR)/migration_analyzer.py" --all; \
+	fi
+	@echo "✓ Migration validation completed"
+
+generate-wrappers: ## Generate wrapper boilerplate for detected functionality
+	@echo "Generating wrappers..."
+	@if [ -f "$(SCRIPTS_DIR)/wrapper_generator.py" ]; then \
+		$(UV_PYTHON) "$(SCRIPTS_DIR)/wrapper_generator.py" --auto-detect; \
+	else \
+		echo "⚠ wrapper_generator.py not found in $(SCRIPTS_DIR)/"; \
+	fi
+	@echo "✓ Wrapper generation completed"
 
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
