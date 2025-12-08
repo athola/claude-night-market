@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "description": "Comprehensive code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
-    "./commands/review.md",
+    "./commands/full-review.md",
     "./commands/api-review.md",
     "./commands/architecture-review.md",
     "./commands/bug-review.md",

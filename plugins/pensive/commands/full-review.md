@@ -6,17 +6,17 @@ Run a comprehensive review using intelligent skill selection based on codebase a
 
 ```bash
 # Auto-detect and run appropriate reviews
-/review
+/full-review
 
 # Focus on specific domains
-/review api          # API surface review
-/review architecture # Architecture review
-/review bugs         # Bug hunting
-/review tests        # Test suite review
-/review rust         # Rust-specific review
-/review math         # Mathematical review
-/review makefile     # Makefile review
-/review all          # Run all applicable
+/full-review api          # API surface review
+/full-review architecture # Architecture review
+/full-review bugs         # Bug hunting
+/full-review tests        # Test suite review
+/full-review rust         # Rust-specific review
+/full-review math         # Mathematical review
+/full-review makefile     # Makefile review
+/full-review all          # Run all applicable
 ```
 
 ## Skill Detection

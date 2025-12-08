@@ -35,7 +35,7 @@ Or reference directly from the marketplace:
 
 | Command | Description |
 |---------|-------------|
-| `/review` | Unified review with intelligent skill selection |
+| `/full-review` | Unified review with intelligent skill selection |
 | `/api-review` | API surface and consistency audit |
 | `/architecture-review` | Architecture and ADR assessment |
 | `/bug-review` | Systematic bug hunting |
@@ -57,14 +57,14 @@ Or reference directly from the marketplace:
 ### Unified Review
 ```bash
 # Auto-detect and run appropriate reviews
-/review
+/full-review
 
 # Focus on specific domains
-/review api          # API surface review
-/review architecture # Architecture review
-/review bugs         # Bug hunting
-/review tests        # Test suite review
-/review all          # Run all applicable
+/full-review api          # API surface review
+/full-review architecture # Architecture review
+/full-review bugs         # Bug hunting
+/full-review tests        # Test suite review
+/full-review all          # Run all applicable
 ```
 
 ### Domain-Specific Reviews
@@ -128,7 +128,7 @@ pensive/
 │   ├── architecture-reviewer.md  # Architecture assessment
 │   └── rust-auditor.md      # Rust-specific auditing
 ├── commands/
-│   ├── review.md            # Unified review command
+│   ├── full-review.md       # Unified review command
 │   ├── api-review.md
 │   ├── architecture-review.md
 │   ├── bug-review.md

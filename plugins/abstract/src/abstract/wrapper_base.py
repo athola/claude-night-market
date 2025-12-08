@@ -1,0 +1,219 @@
+"""Superpower wrapper infrastructure for translating between plugin commands and superpowers."""
+
+from .errors import ErrorHandler, ToolError, ErrorSeverity
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+
+class SuperpowerWrapper:
+    """Wrapper that translates plugin command parameters to superpower parameters."""
+
+    def __init__(self, source_plugin: str, source_command: str, target_superpower: str,
+                 config_path: Optional[Path] = None):
+        """Initialize the wrapper with validation.
+
+        Args:
+            source_plugin: Name of the source plugin
+            source_command: Name of the source command
+            target_superpower: Name of the target superpower
+            config_path: Optional path to wrapper configuration file
+
+        Raises:
+            ValueError: If any required parameter is invalid
+        """
+        # Validate inputs
+        if not source_plugin or not isinstance(source_plugin, str):
+            raise ValueError("source_plugin must be a non-empty string")
+        if not source_command or not isinstance(source_command, str):
+            raise ValueError("source_command must be a non-empty string")
+        if not target_superpower or not isinstance(target_superpower, str):
+            raise ValueError("target_superpower must be a non-empty string")
+
+        self.source_plugin = source_plugin
+        self.source_command = source_command
+        self.target_superpower = target_superpower
+        self.config_path = config_path
+        self.error_handler = ErrorHandler(f"wrapper-{source_plugin}-{source_command}")
+
+        # Load parameter mapping with error handling
+        try:
+            self.parameter_map = self._load_parameter_map()
+        except Exception as e:
+            self.error_handler.log_error(ToolError(
+                severity=ErrorSeverity.HIGH,
+                error_code="WRAPPER_CONFIG_ERROR",
+                message=f"Failed to load parameter mapping: {str(e)}",
+                context={
+                    "source_plugin": source_plugin,
+                    "source_command": source_command,
+                    "target_superpower": target_superpower
+                }
+            ))
+            raise
+
+    def translate_parameters(self, params: Dict[str, Any]) -> Dict[str, Any]:
+        """Translate plugin parameters to superpower parameters.
+
+        Args:
+            params: Dictionary of plugin parameters
+
+        Returns:
+            Dictionary of translated parameters
+
+        Raises:
+            ValueError: If params is not a dictionary
+            TypeError: If parameter values are invalid
+        """
+        if not isinstance(params, dict):
+            raise ValueError("Parameters must be provided as a dictionary")
+
+        if not params:
+            self.error_handler.log_error(ToolError(
+                severity=ErrorSeverity.LOW,
+                error_code="EMPTY_PARAMETERS",
+                message="No parameters provided for translation",
+                suggestion="Check if required parameters are missing",
+                context={"wrapper": f"{self.source_plugin}.{self.source_command}"}
+            ))
+
+        translated = {}
+        translation_errors = []
+
+        for key, value in params.items():
+            try:
+                # Validate key
+                if not isinstance(key, str):
+                    translation_errors.append(f"Invalid parameter key type: {type(key)}")
+                    continue
+
+                # Get mapped key or use original
+                mapped_key = self.parameter_map.get(key, key)
+
+                # Validate value
+                if value is None:
+                    translation_errors.append(f"Parameter '{key}' has None value")
+                    continue
+
+                translated[mapped_key] = value
+
+            except Exception as e:
+                translation_errors.append(f"Error processing parameter '{key}': {str(e)}")
+
+        if translation_errors:
+            self.error_handler.log_error(ToolError(
+                severity=ErrorSeverity.MEDIUM,
+                error_code="PARAMETER_TRANSLATION_ERROR",
+                message=f"Parameter translation completed with {len(translation_errors)} errors",
+                details="; ".join(translation_errors),
+                context={"original_params": params, "translated_params": translated}
+            ))
+
+        return translated
+
+    def _load_parameter_map(self) -> Dict[str, str]:
+        """Load parameter mapping from wrapper config.
+
+        Returns:
+            Dictionary mapping parameter names
+
+        Raises:
+            FileNotFoundError: If config file doesn't exist
+            ValueError: If config format is invalid
+        """
+        # Default mapping for test-skill -> test-driven-development
+        default_mapping = {
+            "skill-path": "target_under_test",
+            "phase": "tdd_phase"
+        }
+
+        # If no config path, return default mapping
+        if not self.config_path:
+            return default_mapping
+
+        # Try to load from config file
+        if self.config_path.exists():
+            try:
+                # For now, implement simple YAML loading
+                # In a full implementation, this would use the errors.py safe_yaml_load
+                import yaml
+                with open(self.config_path, 'r', encoding='utf-8') as f:
+                    config = yaml.safe_load(f)
+
+                if not isinstance(config, dict):
+                    raise ValueError("Config file must contain a dictionary")
+
+                parameter_mapping = config.get('parameter_mapping', {})
+                if not isinstance(parameter_mapping, dict):
+                    raise ValueError("parameter_mapping must be a dictionary")
+
+                # Validate mapping values are strings
+                for key, value in parameter_mapping.items():
+                    if not isinstance(key, str) or not isinstance(value, str):
+                        raise ValueError(f"Invalid mapping: {key} -> {value} (both must be strings)")
+
+                return parameter_mapping
+
+            except yaml.YAMLError as e:
+                self.error_handler.log_error(ToolError(
+                    severity=ErrorSeverity.HIGH,
+                    error_code="CONFIG_PARSE_ERROR",
+                    message=f"Failed to parse YAML config: {str(e)}",
+                    context={"config_path": str(self.config_path)}
+                ))
+                raise ValueError(f"Invalid YAML config: {str(e)}")
+            except Exception as e:
+                self.error_handler.log_error(ToolError(
+                    severity=ErrorSeverity.HIGH,
+                    error_code="CONFIG_LOAD_ERROR",
+                    message=f"Failed to load config: {str(e)}",
+                    context={"config_path": str(self.config_path)}
+                ))
+                raise ValueError(f"Failed to load config: {str(e)}")
+        else:
+            self.error_handler.log_error(ToolError(
+                severity=ErrorSeverity.MEDIUM,
+                error_code="CONFIG_NOT_FOUND",
+                message=f"Config file not found, using defaults: {self.config_path}",
+                suggestion="Create a config file or use default mapping",
+                context={"config_path": str(self.config_path)}
+            ))
+            return default_mapping
+
+    def validate_translation(self, original_params: Dict[str, Any],
+                           translated_params: Dict[str, Any]) -> bool:
+        """Validate that translation was successful.
+
+        Args:
+            original_params: Original parameters provided
+            translated_params: Parameters after translation
+
+        Returns:
+            True if translation appears valid, False otherwise
+        """
+        if not translated_params and original_params:
+            self.error_handler.log_error(ToolError(
+                severity=ErrorSeverity.HIGH,
+                error_code="TRANSLATION_FAILED",
+                message="Translation resulted in empty parameters from non-empty input",
+                context={"original": original_params, "translated": translated_params}
+            ))
+            return False
+
+        # Check for expected mappings based on our default mapping
+        expected_mappings = ["skill-path", "phase"]
+        missing_mappings = []
+
+        for expected in expected_mappings:
+            if expected in original_params and expected not in self.parameter_map:
+                missing_mappings.append(expected)
+
+        if missing_mappings:
+            self.error_handler.log_error(ToolError(
+                severity=ErrorSeverity.MEDIUM,
+                error_code="MISSING_MAPPINGS",
+                message=f"No mapping found for parameters: {', '.join(missing_mappings)}",
+                suggestion=f"Add mappings for: {', '.join(missing_mappings)}",
+                context={"missing_mappings": missing_mappings}
+            ))
+
+        return len(translated_params) > 0

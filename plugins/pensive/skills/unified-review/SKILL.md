@@ -33,14 +33,14 @@ Intelligently selects and executes appropriate review skills based on codebase a
 
 ```bash
 # Auto-detect and run appropriate reviews
-/review
+/full-review
 
 # Focus on specific areas
-/review api          # API surface review
-/review architecture # Architecture review
-/review bugs         # Bug hunting
-/review tests        # Test suite review
-/review all          # Run all applicable skills
+/full-review api          # API surface review
+/full-review architecture # Architecture review
+/full-review bugs         # Bug hunting
+/full-review tests        # Test suite review
+/full-review all          # Run all applicable skills
 ```
 
 ## When to Use
@@ -109,14 +109,14 @@ Automatically selects skills based on codebase analysis.
 
 ### Focused Mode
 Run specific review domains:
-- `/review api` → api-review only
-- `/review architecture` → architecture-review only
-- `/review bugs` → bug-review only
-- `/review tests` → test-review only
+- `/full-review api` → api-review only
+- `/full-review architecture` → architecture-review only
+- `/full-review bugs` → bug-review only
+- `/full-review tests` → test-review only
 
 ### Comprehensive Mode
 Run all applicable review skills:
-- `/review all` → Execute all detected skills
+- `/full-review all` → Execute all detected skills
 
 ## Quality Gates
 
