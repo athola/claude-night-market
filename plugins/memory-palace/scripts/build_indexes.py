@@ -49,8 +49,8 @@ def main():
 
     # Test a search
     print("\n--- Testing Search ---")
-    print("Query: 'how to learn effectively'")
-    results = lookup.search("how to learn effectively", mode="unified")
+    print("Query: 'How to improve writing skills systematically'")
+    results = lookup.search("How to improve writing skills systematically", mode="unified")
 
     for i, result in enumerate(results, 1):
         print(f"\n{i}. {result['title']}")

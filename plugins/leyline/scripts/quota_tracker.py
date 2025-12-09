@@ -242,8 +242,8 @@ class QuotaTracker:
         """Estimate total tokens for a task."""
         total = prompt_length // 4  # Rough prompt token estimate
 
-        for path in file_paths:
-            path = Path(path) if isinstance(path, str) else path
+        for path_input in file_paths:
+            path = Path(path_input) if isinstance(path_input, str) else path_input
             total += self.estimate_file_tokens(path)
 
         return total

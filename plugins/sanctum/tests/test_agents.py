@@ -214,7 +214,7 @@ class TestGitWorkspaceAgent:
         return {
             "total_additions": additions,
             "total_deletions": deletions,
-            "files_changed": len([l for l in lines if l.isdigit()])
+            "files_changed": len([line for line in lines if line.isdigit()])
         }
 
     def _create_analysis_todos(self, analysis: dict) -> list[dict]:

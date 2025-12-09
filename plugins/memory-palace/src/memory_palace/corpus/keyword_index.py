@@ -218,6 +218,11 @@ class KeywordIndexer:
         Returns:
             List of matching entries with their metadata
 
+        Note:
+            Keyword search uses AND logic (all keywords must match) and requires
+            exact term matching with no stemming. For example, "writing" will not
+            match "write". Keywords are normalized to lowercase during indexing.
+
         """
         if not self.index.get("keywords"):
             self.load_index()

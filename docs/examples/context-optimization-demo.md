@@ -1,6 +1,6 @@
-# Context Optimization Demo Repository
+# Context Optimization Demo
 
-A comprehensive demonstration of MECW (Most Effective Context Window) principles and context optimization techniques. This repository shows how to manage context pressure in AI-assisted development workflows.
+A comprehensive demonstration of MECW (Most Effective Context Window) principles and context optimization techniques. This reference shows how to manage context pressure in AI-assisted development workflows.
 
 ## Overview
 
@@ -56,7 +56,6 @@ python benchmarks/optimization_benchmark.py
 
 ### Scenario 1: Large Codebase Analysis
 ```bash
-# Demonstrate analyzing a large project
 python demos/large_codebase_analysis.py \
     --project-path sample_projects/ecommerce_platform \
     --analysis-type security
@@ -65,18 +64,15 @@ python demos/large_codebase_analysis.py \
 **Before Optimization**:
 - Context usage: 94% (exceeds 50% threshold)
 - Analysis coverage: 60% (context overflow)
-- Time: 45 minutes
 - Quality: Poor (missed issues)
 
 **After Optimization**:
 - Context usage: 45% (compliant)
 - Analysis coverage: 100% (complete)
-- Time: 12 minutes
 - Quality: Excellent (all issues found)
 
 ### Scenario 2: Multi-Skill Orchestration
 ```bash
-# Demonstrate coordinating multiple skills
 python demos/multi_skill_orchestration.py \
     --skills "api-design,testing-patterns,doc-updates" \
     --task "build-rest-api"
@@ -90,7 +86,6 @@ python demos/multi_skill_orchestration.py \
 
 ### Scenario 3: Subagent Delegation
 ```bash
-# Demonstrate parallel processing with subagents
 python demos/subagent_delegation.py \
     --tasks code_review,security_scan,performance_check \
     --target sample_projects/web_app
@@ -98,8 +93,7 @@ python demos/subagent_delegation.py \
 
 ## Architecture
 
-### Core Components
-
+### Project Structure
 ```
 context-optimization-demo/
 ├── tools/                    # Analysis and optimization tools
@@ -114,21 +108,7 @@ context-optimization-demo/
 │   ├── subagent_delegation.py # Parallel processing
 │   └── progressive_loading.py # Incremental loading
 ├── benchmarks/               # Performance benchmarks
-│   ├── optimization_benchmark.py # Optimization effectiveness
-│   ├── token_usage_comparison.py # Before/after analysis
-│   └── quality_metrics.py    # Output quality measurement
-├── examples/                 # Real-world examples
-│   ├── security_audit/       # Security analysis example
-│   ├── code_review/          # Code review example
-│   └── documentation_generation/ # Documentation example
-├── sample_projects/          # Sample projects for testing
-│   ├── ecommerce_platform/  # Large e-commerce codebase
-│   ├── web_app/             # Medium web application
-│   └── microservices/       # Microservice architecture
-└── docs/                    # Documentation
-    ├── MECW_principles.md    # Context optimization theory
-    ├── best_practices.md     # Optimization guidelines
-    └── integration_guide.md  # Integration with other skills
+└── sample_projects/          # Sample projects for testing
 ```
 
 ### Key Tools
@@ -165,25 +145,6 @@ if not compliance.is_compliant:
     print("Violations:")
     for violation in compliance.violations:
         print(f"- {violation.rule}: {violation.description}")
-```
-
-#### Optimization Validator
-Tests optimization effectiveness.
-
-```python
-from tools.optimization_validator import OptimizationValidator
-
-validator = OptimizationValidator()
-
-# Validate optimization
-results = validator.validate_optimization(
-    original_workflow=original,
-    optimized_workflow=optimized
-)
-
-print(f"Token reduction: {results.token_reduction:.1%}")
-print(f"Time improvement: {results.time_improvement:.1%}")
-print(f"Quality score: {results.quality_score:.1f}/10")
 ```
 
 ## Optimization Techniques
@@ -250,13 +211,11 @@ Without Optimization:
 - Total tokens: 45,000
 - Context utilization: 94%
 - Analysis coverage: 60%
-- Quality issues: Missed vulnerabilities, incomplete report
 
 With MECW Optimization:
 - Total tokens: 18,000
 - Context utilization: 38%
 - Analysis coverage: 100%
-- Quality improvements: Complete analysis, prioritized findings
 
 Improvement:
 - Token reduction: 60%
@@ -281,51 +240,6 @@ Optimized Loading:
 Efficiency Gain: 2.5x faster, 60% less memory
 ```
 
-## Integration Examples
-
-### With Conservation Skills
-```python
-from conservation import token_conservation, context_optimization
-
-# Combine token-level and context-level optimization
-token_optimizer = token_conservation.TokenOptimizer()
-context_optimizer = context_optimization.ContextOptimizer()
-
-workflow = combine_optimizers(
-    token_optimizer.optimize_token_usage,
-    context_optimizer.optimize_context_structure
-)
-```
-
-### With Memory Palace Skills
-```python
-from memory_palace import memory_palace_architect
-
-# Use memory palace for context organization
-palace = memory_palace_architect.create_context_palace(
-    topics=current_workflow.topics,
-    size=available_tokens
-)
-
-organized_context = palace.organize_context(raw_context)
-```
-
-### With Python Async Skills
-```python
-from python_async import async_patterns
-
-# Use async patterns for context loading
-async def load_context_efficiently():
-    tasks = [
-        async_patterns.load_with_timeout(high_priority, 5),
-        async_patterns.load_with_timeout(medium_priority, 10),
-        async_patterns.load_with_timeout(low_priority, 30)
-    ]
-
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    return filter_successful_loads(results)
-```
-
 ## Best Practices
 
 ### Context Management
@@ -342,25 +256,6 @@ async def load_context_efficiently():
 4. **Context Compression**: Reduce context size intelligently
 5. **Result Caching**: Cache intermediate results
 
-### Quality Assurance
-1. **Validate Optimizations**: Ensure quality isn't compromised
-2. **Benchmark Performance**: Measure improvements
-3. **Test Edge Cases**: Verify optimization works under pressure
-4. **Monitor Compliance**: Check MECW principle adherence
-5. **Gather Feedback**: Continuously improve techniques
-
-## Contributing
-
-1. Fork the repository
-2. Create optimization example or improvement
-3. Add tests for new functionality
-4. Benchmark improvements
-5. Submit pull request with performance data
-
-## License
-
-MIT License - see LICENSE file for details.
-
 ## Related Skills
 
 This demo integrates with:
@@ -369,9 +264,7 @@ This demo integrates with:
 - **python-async**: Efficient loading patterns
 - **subagent-dispatching**: Parallel execution
 
-## Resources
+## See Also
 
-- [MECW Principles Documentation](docs/MECW_principles.md)
-- [Optimization Best Practices](docs/best_practices.md)
-- [Integration Guide](docs/integration_guide.md)
-- [Performance Benchmarks](benchmarks/README.md)
+- [Conservation Plugin](../../plugins/conservation/) - Context optimization plugin
+- [Cross-Plugin Collaboration](../cross-plugin-collaboration.md) - Plugin workflows

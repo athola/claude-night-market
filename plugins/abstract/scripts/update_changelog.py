@@ -11,7 +11,7 @@ import argparse
 import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Constants
@@ -200,7 +200,7 @@ def update_changelog(entries: dict[str, list[str]], version: str | None = None) 
         return
 
     # Generate the new entry
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     version = version or "Unreleased"
 
     new_entry_parts = [f"## [{version}] - {today}"]

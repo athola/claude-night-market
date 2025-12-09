@@ -254,8 +254,8 @@ class CompatibilityValidator:
             # Basic parameter detection
             param_patterns = re.findall(r"def.*?\((.*?)\):", content, re.DOTALL)
             for params in param_patterns:
-                for param in params.split(","):
-                    param = param.strip().split("=")[0].strip()
+                for param_raw in params.split(","):
+                    param = param_raw.strip().split("=")[0].strip()
                     if param and param != "self":
                         features["parameters"].append(param)
 

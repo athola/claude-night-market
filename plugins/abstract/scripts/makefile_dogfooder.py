@@ -141,9 +141,9 @@ class MakefileDogfooder:
         current_target = None
         line_number = 0
 
-        for line in lines:
+        for raw_line in lines:
             line_number += 1
-            line = line.strip()
+            line = raw_line.strip()
 
             if not line or line.startswith("#"):
                 continue

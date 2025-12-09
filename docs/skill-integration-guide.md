@@ -1,6 +1,6 @@
-# Skill Integration Examples
+# Skill Integration Guide
 
-This directory demonstrates how different skills work together to create powerful workflows and solve complex problems. Each integration shows the synergies between skills and provides practical implementation guidance.
+This guide demonstrates how different skills work together to create powerful workflows and solve complex problems. Each integration shows the synergies between skills and provides practical implementation guidance.
 
 ## Integration Categories
 
@@ -9,7 +9,7 @@ Skills that work together in sequence to complete complex tasks:
 
 #### API Development Workflow
 ```
-skill-authoring → api-design → testing-patterns → doc-updates → commit-messages
+skill-authoring -> api-design -> testing-patterns -> doc-updates -> commit-messages
 ```
 
 **Scenario**: Building a new REST API
@@ -21,7 +21,7 @@ skill-authoring → api-design → testing-patterns → doc-updates → commit-m
 
 #### Security Review Workflow
 ```
-security-scanning → bug-review → architecture-review → test-review → pr-prep
+security-scanning -> bug-review -> architecture-review -> test-review -> pr-prep
 ```
 
 **Scenario**: Conducting security audit
@@ -36,7 +36,7 @@ Skills that organize and retain information:
 
 #### Learning New Technology
 ```
-memory-palace-architect → knowledge-intake → digital-garden-cultivator → session-palace-builder
+memory-palace-architect -> knowledge-intake -> digital-garden-cultivator -> session-palace-builder
 ```
 
 **Scenario**: Mastering a new framework
@@ -47,7 +47,7 @@ memory-palace-architect → knowledge-intake → digital-garden-cultivator → s
 
 #### Research Project
 ```
-knowledge-locator → evidence-logging → structured-output → imbue-review
+knowledge-locator -> evidence-logging -> structured-output -> imbue-review
 ```
 
 **Scenario**: Academic or market research
@@ -61,7 +61,7 @@ Skills that improve efficiency and quality:
 
 #### Large-Scale Code Analysis
 ```
-context-optimization → subagent-dispatching → systematic-debugging → verification-before-completion
+context-optimization -> subagent-dispatching -> systematic-debugging -> verification-before-completion
 ```
 
 **Scenario**: Analyzing enterprise codebase
@@ -72,7 +72,7 @@ context-optimization → subagent-dispatching → systematic-debugging → verif
 
 #### Performance Critical Application
 ```
-python-async → python-performance → condition-based-waiting → performance-monitoring
+python-async -> python-performance -> condition-based-waiting -> performance-monitoring
 ```
 
 **Scenario**: Optimizing Python application
@@ -80,6 +80,8 @@ python-async → python-performance → condition-based-waiting → performance-
 2. **python-performance**: Profile and optimize bottlenecks
 3. **condition-based-waiting**: Replace arbitrary timeouts
 4. **performance-monitoring**: Track ongoing performance
+
+---
 
 ## Detailed Integration Examples
 
@@ -128,6 +130,8 @@ commits = commit_skill.create_feature_commits(
 - **Efficiency**: No handoff gaps between phases
 - **Quality**: Each skill reinforces others
 - **Traceability**: Clear lineage from design to deployment
+
+---
 
 ### Example 2: Security Review Automation
 
@@ -182,6 +186,8 @@ security_pr = pr_skill.prepare_security_focused_pr(
 - **Actionable**: Provides specific fixes
 - **Auditable**: Complete security audit trail
 
+---
+
 ### Example 3: Learning Acceleration System
 
 **Use Case**: Rapidly mastering new programming language
@@ -230,6 +236,8 @@ current_session = session_skill.build_palace(
 - **Memorable**: Spatial memory techniques
 - **Growing**: Knowledge expands over time
 - **Practical**: Session-focused application
+
+---
 
 ## Implementation Patterns
 
@@ -293,6 +301,8 @@ class CompositeSkill:
         pass
 ```
 
+---
+
 ## Integration Best Practices
 
 ### 1. Skill Compatibility
@@ -319,32 +329,36 @@ class CompositeSkill:
 - **Error Logging**: Capture and analyze errors
 - **Quality Assurance**: Validate integrated outputs
 
+---
+
 ## Real-World Use Cases
 
 ### 1. Software Development Lifecycle
 ```
-requirements → design → implementation → testing → deployment → maintenance
+requirements -> design -> implementation -> testing -> deployment -> maintenance
 ```
 
 ### 2. Security Operations Center
 ```
-threat_detection → analysis → response → recovery → prevention
+threat_detection -> analysis -> response -> recovery -> prevention
 ```
 
 ### 3. Research and Development
 ```
-hypothesis → experiment → analysis → documentation → publication
+hypothesis -> experiment -> analysis -> documentation -> publication
 ```
 
 ### 4. DevOps Pipeline
 ```
-code → build → test → deploy → monitor → optimize
+code -> build -> test -> deploy -> monitor -> optimize
 ```
 
 ### 5. Knowledge Management
 ```
-discovery → intake → organization → application → sharing
+discovery -> intake -> organization -> application -> sharing
 ```
+
+---
 
 ## Integration Testing
 
@@ -378,6 +392,8 @@ class SkillIntegrationTest:
 - [ ] Integration documented
 - [ ] Tests cover integration scenarios
 
+---
+
 ## Future Enhancements
 
 ### Planned Integrations
@@ -392,4 +408,10 @@ class SkillIntegrationTest:
 - **Cross-Domain Skills**: Skills that bridge multiple domains
 - **Adaptive Workflows**: Workflows that adjust based on results
 
-These integration examples demonstrate how skills can work together to solve complex problems that would be difficult or impossible to address with individual skills alone.
+---
+
+## See Also
+
+- [Cross-Plugin Collaboration](./cross-plugin-collaboration.md) - Plugin-level workflows
+- [SUPERPOWERS_INTEGRATION.md](./SUPERPOWERS_INTEGRATION.md) - Superpowers skill integration
+- [Plugin Development Guide](./plugin-development-guide.md) - Creating plugins

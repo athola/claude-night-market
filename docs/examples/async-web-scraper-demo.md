@@ -1,6 +1,6 @@
-# Async Web Scraper Demo Repository
+# Async Web Scraper Demo
 
-A complete, working example demonstrating async/await patterns in Python for concurrent web scraping. This repository showcases the practical application of the python-async skill with real-world functionality.
+A complete, working example demonstrating async/await patterns in Python for concurrent web scraping. This reference showcases the practical application of python-async skills with real-world functionality.
 
 ## Overview
 
@@ -124,8 +124,7 @@ async def advanced_scraping():
 
 ## Architecture
 
-### Core Components
-
+### Project Structure
 ```
 async-web-scraper/
 ├── scraper.py              # Main scraper class
@@ -147,13 +146,7 @@ async-web-scraper/
 │   ├── progress.py       # Progress tracking
 │   └── validators.py     # URL and data validation
 ├── examples/             # Example scripts
-│   ├── basic_scraper.py  # Basic scraping example
-│   ├── custom_extractor.py # Custom data extractor example
-│   └── batch_scraping.py  # Batch processing example
 └── tests/               # Test files
-    ├── test_scraper.py
-    ├── test_extractors.py
-    └── test_storage.py
 ```
 
 ### Key Classes
@@ -235,39 +228,6 @@ async def smart_retry(request_func, max_retries=3):
             await asyncio.sleep(delay)
 ```
 
-## Monitoring and Debugging
-
-### Logging Configuration
-```python
-import logging
-
-# Configure detailed logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('scraper.log'),
-        logging.StreamHandler()
-    ]
-)
-```
-
-### Performance Metrics
-```python
-from utils.metrics import PerformanceTracker
-
-async def scrape_with_metrics(urls):
-    tracker = PerformanceTracker()
-
-    with tracker.measure('total_scraping'):
-        results = await scraper.scrape_multiple(urls)
-
-    # Print performance report
-    tracker.print_report()
-
-    return results
-```
-
 ## Testing
 
 ### Run Tests
@@ -299,30 +259,16 @@ async def test_scrape_multiple():
         assert results[0].title
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
-
 ## Related Skills
 
-This demo repository showcases the practical application of the following skills:
+This demo showcases the practical application of:
 
 - **python-async**: Core async/await patterns
 - **python-performance**: Optimization techniques
 - **python-testing**: Testing async code
 - **context-optimization**: Managing large-scale scraping
 
-## Further Learning
+## See Also
 
-- Read the blog post: "Building High-Performance Async Scrapers"
-- Watch the video tutorial: "Advanced Async Python Patterns"
-- Check the related repositories for more examples
-- Join the discussion in our Discord community
+- [Parseltongue Plugin](../../plugins/parseltongue/) - Python development skills
+- [Skill Integration Guide](../skill-integration-guide.md) - Combining skills

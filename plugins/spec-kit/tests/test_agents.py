@@ -21,7 +21,7 @@ class TestSpeckitAgents:
                 "sections": sections,
                 "user_scenarios": user_scenarios,
                 "functional_requirements": functional_requirements,
-                "total_lines": len([l for l in lines if l.strip()]),
+                "total_lines": len([line for line in lines if line.strip()]),
                 "has_open_questions": "[CLARIFY]" in sample_spec_content
             }
 
