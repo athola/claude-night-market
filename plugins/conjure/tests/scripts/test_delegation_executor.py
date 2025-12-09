@@ -1,6 +1,7 @@
 """Tests for delegation_executor.py following TDD/BDD principles."""
 
 import json
+import os
 import subprocess
 
 # Import the module under test
@@ -19,40 +20,56 @@ from delegation_executor import (
     main,
 )
 
+# Constants for magic values
+DEFAULT_REQUESTS_PER_MINUTE = 60
+DEFAULT_TEST_DURATION = 1.5
+DEFAULT_TOKENS_USED = 100
+MIN_TOKEN_COUNT_THRESHOLD = 50
+TIMEOUT_EXIT_CODE = 124
+TEST_USAGE_REQUESTS = 2
+TEST_SUCCESS_RATE = 50.0
+USAGE_DAYS = 30
+
 
 class TestServiceConfig:
     """Test ServiceConfig dataclass."""
 
     def test_service_config_creation(self, delegation_service_config):
-        """Given valid service config data when creating ServiceConfig then should instantiate correctly."""
+        """Given valid service config data when creating ServiceConfig.
+
+        then should instantiate correctly.
+        """
         config = ServiceConfig(**delegation_service_config)
 
         assert config.name == "test_service"
         assert config.command == "test"
         assert config.auth_method == "api_key"
         assert config.auth_env_var == "TEST_API_KEY"
-        assert config.quota_limits["requests_per_minute"] == 60
+        assert config.quota_limits["requests_per_minute"] == DEFAULT_REQUESTS_PER_MINUTE
 
 
 class TestExecutionResult:
     """Test ExecutionResult dataclass."""
 
     def test_execution_result_creation(self):
-        """Given execution data when creating ExecutionResult then should store all fields."""
+        """Given execution data when creating ExecutionResult.
+
+        then should store all fields.
+        """
         result = ExecutionResult(
             success=True,
             stdout="Test output",
             stderr="",
             exit_code=0,
-            duration=1.5,
-            tokens_used=100,
+            duration=DEFAULT_TEST_DURATION,
+            tokens_used=DEFAULT_TOKENS_USED,
             service="gemini",
         )
 
         assert result.success is True
         assert result.stdout == "Test output"
-        assert result.duration == 1.5
-        assert result.tokens_used == 100
+        assert result.duration == DEFAULT_TEST_DURATION
+        assert result.tokens_used == DEFAULT_TOKENS_USED
         assert result.service == "gemini"
 
 
@@ -60,7 +77,10 @@ class TestDelegator:
     """Test Delegator class functionality."""
 
     def test_delegator_initialization_default_config_dir(self):
-        """Given no config dir when initializing Delegator then should use default path."""
+        """Given no config dir when initializing Delegator.
+
+        then should use default path.
+        """
         delegator = Delegator()
 
         expected_path = Path.home() / ".claude" / "hooks" / "delegation"
@@ -69,7 +89,10 @@ class TestDelegator:
         assert delegator.usage_log == expected_path / "usage.jsonl"
 
     def test_delegator_initialization_custom_config_dir(self, temp_config_dir):
-        """Given custom config dir when initializing Delegator then should use provided path."""
+        """Given custom config dir when initializing Delegator.
+
+        then should use provided path.
+        """
         delegator = Delegator(config_dir=temp_config_dir)
 
         assert delegator.config_dir == temp_config_dir
@@ -79,7 +102,10 @@ class TestDelegator:
     def test_load_configurations_with_custom_config(
         self, temp_config_dir, sample_config_file
     ):
-        """Given custom config file when loading configurations then should merge with defaults."""
+        """Given custom config file when loading configurations.
+
+        then should merge with defaults.
+        """
         delegator = Delegator(config_dir=temp_config_dir)
 
         # Check that custom service was added
@@ -144,7 +170,7 @@ class TestDelegator:
         tokens = delegator.estimate_tokens(file_paths, "test prompt")
 
         # Should count prompt tokens + file tokens + overhead
-        assert tokens > 50  # More than just the prompt
+        assert tokens > MIN_TOKEN_COUNT_THRESHOLD  # More than just the prompt
         mock_get_encoding.assert_called_once_with("cl100k_base")
 
     @patch("delegation_executor.tiktoken.get_encoding")
@@ -164,7 +190,10 @@ class TestDelegator:
         assert tokens > 0
 
     def test_build_command_basic(self, temp_config_dir):
-        """Given basic parameters when building command then should create correct structure."""
+        """Given basic parameters when building command.
+
+        then should create correct structure.
+        """
         delegator = Delegator(config_dir=temp_config_dir)
 
         command = delegator.build_command("gemini", "test prompt")
@@ -172,7 +201,10 @@ class TestDelegator:
         assert command == ["gemini", "-p", "test prompt"]
 
     def test_build_command_with_options(self, temp_config_dir):
-        """Given options when building command then should include service-specific flags."""
+        """Given options when building command.
+
+        then should include service-specific flags.
+        """
         delegator = Delegator(config_dir=temp_config_dir)
 
         options = {"model": "gemini-pro", "output_format": "json", "temperature": 0.7}
@@ -202,7 +234,9 @@ class TestDelegator:
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
     def test_execute_success(self, mock_estimate, mock_run, temp_config_dir):
-        """Given successful command when executing then should return positive result."""
+        """Given successful command when executing
+        then should return positive result.
+        """
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "Success output"
         mock_run.return_value.stderr = ""
@@ -216,7 +250,7 @@ class TestDelegator:
         assert result.stdout == "Success output"
         assert result.exit_code == 0
         assert result.service == "gemini"
-        assert result.tokens_used == 100
+        assert result.tokens_used == DEFAULT_TOKENS_USED
 
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
@@ -247,7 +281,7 @@ class TestDelegator:
 
         assert result.success is False
         assert "timed out" in result.stderr.lower()
-        assert result.exit_code == 124
+        assert result.exit_code == TIMEOUT_EXIT_CODE
 
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
@@ -289,10 +323,10 @@ class TestDelegator:
         """Given usage log when getting summary then should calculate correct stats."""
         delegator = Delegator(config_dir=temp_config_dir)
 
-        summary = delegator.get_usage_summary(days=30)
+        summary = delegator.get_usage_summary(days=USAGE_DAYS)
 
-        assert summary["total_requests"] == 2
-        assert summary["success_rate"] == 50.0  # 1 success out of 2
+        assert summary["total_requests"] == TEST_USAGE_REQUESTS
+        assert summary["success_rate"] == TEST_SUCCESS_RATE  # 1 success out of 2
         assert "gemini" in summary["services"]
         assert "qwen" in summary["services"]
 
@@ -404,6 +438,5 @@ class TestDelegatorCli:
 
 
 # Import os for environment variable mocking
-import os
 
 # ruff: noqa: S101

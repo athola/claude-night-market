@@ -9,6 +9,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 from delegation_executor import Delegator, ExecutionResult, ServiceConfig
 
+# Constants for magic values
+MIN_RECOVERY_STRATEGIES = 2
+MIN_SOLUTIONS = 2
+EXPECTED_ESTIMATE_COUNT = 4
+MIN_MODEL_CHOICES = 2
+
 
 # ruff: noqa: S101
 class TestSkillStructure:
@@ -289,7 +295,7 @@ class TestSkillErrorHandling:
             "Clear cache",
         ]
 
-        assert len(recovery_steps) >= 2
+        assert len(recovery_steps) >= MIN_RECOVERY_STRATEGIES
 
     def test_quota_exhaustion_handling(self):
         """Given quota exhaustion when executing skill then should provide recovery strategies."""
@@ -301,7 +307,7 @@ class TestSkillErrorHandling:
             "Wait for daily reset",
         ]
 
-        assert len(recovery_strategies) >= 2
+        assert len(recovery_strategies) >= MIN_RECOVERY_STRATEGIES
 
     def test_context_too_large_handling(self):
         """Given context too large error when executing skill then should provide solutions."""
@@ -312,7 +318,7 @@ class TestSkillErrorHandling:
             "Pre-process files",
         ]
 
-        assert len(solutions) >= 2
+        assert len(solutions) >= MIN_SOLUTIONS
 
 
 class TestSkillPerformanceConsiderations:
@@ -328,7 +334,7 @@ class TestSkillPerformanceConsiderations:
             "Boilerplate generation": (50, 200),  # tokens per template
         }
 
-        assert len(estimates) == 4
+        assert len(estimates) == EXPECTED_ESTIMATE_COUNT
         for _task, (min_tokens, max_tokens) in estimates.items():
             assert isinstance(min_tokens, int)
             assert isinstance(max_tokens, int)
@@ -343,7 +349,7 @@ class TestSkillPerformanceConsiderations:
             "gemini-exp-1206",  # Experimental
         ]
 
-        assert len(models) >= 2
+        assert len(models) >= MIN_MODEL_CHOICES
 
     def test_cost_estimates(self):
         """Given skill when checking costs then should provide realistic cost estimates."""

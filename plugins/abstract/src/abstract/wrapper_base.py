@@ -258,9 +258,7 @@ class SuperpowerWrapper:
                     message=(
                         f"No mapping found for parameters: {', '.join(missing_mappings)}"
                     ),
-                    suggestion=(
-                        f"Add mappings for: {', '.join(missing_mappings)}"
-                    ),
+                    suggestion=(f"Add mappings for: {', '.join(missing_mappings)}"),
                     context={"missing_mappings": missing_mappings},
                 )
             )

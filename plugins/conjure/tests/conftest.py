@@ -176,7 +176,8 @@ conjure gemini "Explain this code" --files src/
 ## Implementation Guide
 
 `★ Insight ─────────────────────────────────────`
-The conjure plugin follows a **unified delegation pattern** where multiple LLM services (Gemini, Qwen) are abstracted behind a common interface. This design enables:
+The conjure plugin follows a **unified delegation pattern** where multiple LLM
+services (Gemini, Qwen) are abstracted behind a common interface. This design enables:
 - **Service polymorphism**: Easy addition of new LLM providers
 - **Consistent error handling**: Unified approach to timeouts and failures
 - **Cross-service logging**: Centralized usage tracking and quota management
