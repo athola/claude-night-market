@@ -2,11 +2,25 @@
 
 This document explains how to integrate scope-guard with the superpowers brainstorm→plan→execute workflow.
 
+## Automatic Integration (Default)
+
+**The imbue plugin now includes automatic scope-guard hooks.** When imbue is installed:
+
+1. **SessionStart hook** - Injects scope-guard quick reference into every session
+   - Shows worthiness formula and thresholds
+   - Warns if branch is in Yellow/Red zone at session start
+
+2. **UserPromptSubmit hook** - Monitors thresholds on every prompt
+   - Checks lines, commits, days, new files
+   - Alerts in Yellow/Red zone with specific warnings
+
+**No configuration needed** - hooks activate automatically when imbue plugin is installed.
+
 ## Integration Approach
 
 Since superpowers skills live in a separate repository, we integrate via:
-1. **Keyword triggers** in scope-guard that auto-activate after brainstorming/planning
-2. **User-installable hooks** for automatic threshold monitoring
+1. **Automatic hooks** that inject scope-guard awareness (now default)
+2. **Keyword triggers** in scope-guard that auto-activate after brainstorming/planning
 3. **Manual invocation** at workflow checkpoints
 
 ## Option 1: Auto-Trigger via Keywords (Recommended)
