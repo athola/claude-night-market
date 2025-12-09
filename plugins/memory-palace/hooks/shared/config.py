@@ -16,6 +16,13 @@ _config_mtime: float = 0
 CONFIG_DEFAULTS: dict[str, Any] = {
     "enabled": True,
 
+    # Research interception mode
+    # - cache_only: Never hit web, use local knowledge
+    # - cache_first: Check cache, fall back to web (default)
+    # - augment: Always combine cache + web
+    # - web_only: Skip cache, use web (current behavior)
+    "research_mode": "cache_first",
+
     "local_knowledge_paths": [
         "docs/",
         "knowledge-corpus/",
