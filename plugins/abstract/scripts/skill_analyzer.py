@@ -6,17 +6,25 @@ Uses centralized utilities from abstract.base and abstract.utils.
 """
 
 import argparse
+import logging
 import re
 import sys
 from pathlib import Path
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 # Set up imports before using abstract package
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from abstract.cli_framework import AbstractCLI, CLIResult, PathArgumentMixin, cli_main
-from abstract.tokens import TokenAnalyzer, extract_code_blocks
-from abstract.utils import count_sections, find_skill_files
+from abstract.cli_framework import (  # noqa: E402
+    AbstractCLI,
+    CLIResult,
+    PathArgumentMixin,
+    cli_main,
+)
+from abstract.tokens import TokenAnalyzer, extract_code_blocks  # noqa: E402
+from abstract.utils import count_sections, find_skill_files  # noqa: E402
 
 # Constants for analysis thresholds
 MAX_THEMES = 3
@@ -213,8 +221,8 @@ class SkillAnalyzer:
             try:
                 result = self.analyze_file(skill_file, verbose)
                 results.append(result)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to analyze {skill_file}: {e}")
 
         return results
 

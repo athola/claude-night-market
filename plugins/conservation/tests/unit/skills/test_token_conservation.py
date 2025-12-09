@@ -21,6 +21,7 @@ class TestTokenConservationSkill:
     def mock_token_conservation_skill_content(self) -> str:
         """Mock token-conservation skill content with required components."""
         return """---
+
 name: token-conservation
 description: |
   Minimize token usage through conservative prompting,
@@ -85,6 +86,7 @@ tags:
         self, mock_todo_write
     ) -> None:
         """Scenario: Token conservation creates required TodoWrite items
+
         Given the token-conservation skill is executed
         When establishing the conservation workflow
         Then it should create all 5 required TodoWrite items
@@ -120,6 +122,7 @@ tags:
     @pytest.mark.unit
     def test_quota_check_monitors_usage_limits(self, mock_token_quota_tracker) -> None:
         """Scenario: Quota check monitors usage against limits
+
         Given session duration and usage data
         When checking quotas
         Then it should track against 5-hour rolling cap and weekly limits
@@ -157,6 +160,7 @@ tags:
     @pytest.mark.unit
     def test_context_plan_optimizes_token_usage(self, mock_claude_tools) -> None:
         """Scenario: Context planning optimizes token usage for tasks
+
         Given a task requiring file analysis
         When planning context usage
         Then it should prefer targeted approaches over broad exposure
@@ -212,6 +216,7 @@ tags:
         mock_claude_tools,
     ) -> None:
         """Scenario: Delegation check identifies external processing opportunities
+
         Given compute-intensive tasks and available MCP tools
         When checking delegation opportunities
         Then it should identify tasks suitable for external processing
@@ -280,6 +285,7 @@ tags:
     @pytest.mark.unit
     def test_compression_review_identifies_optimization_patterns(self) -> None:
         """Scenario: Compression review identifies text optimization opportunities
+
         Given existing prompts and responses
         When reviewing for compression opportunities
         Then it should identify verbose patterns and suggest optimizations
@@ -373,6 +379,7 @@ tags:
     @pytest.mark.unit
     def test_logging_tracks_conservation_metrics(self, sample_token_quota) -> None:
         """Scenario: Logging tracks conservation metrics for analysis
+
         Given ongoing conservation activities
         When logging metrics
         Then it should track token usage, savings, and efficiency
@@ -442,6 +449,7 @@ tags:
         mock_token_quota_tracker,
     ) -> None:
         """Scenario: Token conservation handles quota exceeded situations gracefully
+
         Given approaching or exceeded quota limits
         When quota limits are reached
         Then it should implement conservation measures
@@ -495,6 +503,7 @@ tags:
     @pytest.mark.unit
     def test_token_conservation_adapts_to_task_complexity(self) -> None:
         """Scenario: Token conservation adapts strategies based on task complexity
+
         Given tasks with varying complexity levels
         When applying conservation strategies
         Then it should adapt approach based on task requirements
@@ -572,6 +581,7 @@ tags:
         self, sample_token_quota
     ) -> None:
         """Scenario: Token conservation measures actual effectiveness
+
         Given applied conservation strategies
         When measuring effectiveness
         Then it should quantify actual savings achieved

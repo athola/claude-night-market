@@ -322,337 +322,860 @@ entries:
     keywords: []
     title: README
     tags: []
+  structured-concurrency-task-groups:
+    file: knowledge-corpus/structured-concurrency-task-groups.md
+    keywords:
+    - api
+    - async
+    - concurrency
+    - context
+    - lifecycle
+    - python
+    - scoped
+    - structured
+    - taskgroup
+    title: "Structured Concurrency \u2014 Task Group Patterns"
+    tags:
+    - async
+    - reliability
+    - structured-concurrency
+    - task_groups
+  structured-concurrency-cancellation-graphs:
+    file: knowledge-corpus/structured-concurrency-cancellation-graphs.md
+    keywords:
+    - async
+    - cancellation
+    - concurrency
+    - context
+    - go
+    - goroutine
+    - lifecycle
+    - scoped
+    - structured
+    title: "Structured Concurrency \u2014 Cancellation Graphs"
+    tags:
+    - async
+    - cancellation_graphs
+    - reliability
+    - structured-concurrency
+  structured-concurrency-service-boundaries:
+    file: knowledge-corpus/structured-concurrency-service-boundaries.md
+    keywords:
+    - async
+    - concurrency
+    - coroutines
+    - kotlin
+    - lifecycle
+    - scoped
+    - structured
+    - supervisorjob
+    title: "Structured Concurrency \u2014 Service Boundaries"
+    tags:
+    - async
+    - reliability
+    - service_boundaries
+    - structured-concurrency
+  structured-concurrency-load-shedding:
+    file: knowledge-corpus/structured-concurrency-load-shedding.md
+    keywords:
+    - async
+    - budget
+    - concurrency
+    - lifecycle
+    - load-shed
+    - rust
+    - scoped
+    - structured
+    - tokio
+    title: "Structured Concurrency \u2014 Load Shedding"
+    tags:
+    - async
+    - load_shedding
+    - reliability
+    - structured-concurrency
+  structured-concurrency-observability:
+    file: knowledge-corpus/structured-concurrency-observability.md
+    keywords:
+    - async
+    - concurrency
+    - instrumentation
+    - lifecycle
+    - otel
+    - scoped
+    - spans
+    - structured
+    title: "Structured Concurrency \u2014 Observability Hooks"
+    tags:
+    - async
+    - observability
+    - reliability
+    - structured-concurrency
+  async-error-handling-boundary-contracts:
+    file: knowledge-corpus/async-error-handling-boundary-contracts.md
+    keywords:
+    - async
+    - error
+    - fallback
+    - interface
+    - retry
+    - timeout
+    title: "Async Error Handling \u2014 Boundary Contracts"
+    tags:
+    - async
+    - async-error-handling
+    - boundary_contracts
+    - error-handling
+    - safety
+  async-error-handling-idempotent-retries:
+    file: knowledge-corpus/async-error-handling-idempotent-retries.md
+    keywords:
+    - async
+    - error
+    - fallback
+    - go
+    - idempotent
+    - retries
+    - retry
+    - timeout
+    title: "Async Error Handling \u2014 Idempotent Retries"
+    tags:
+    - async
+    - async-error-handling
+    - error-handling
+    - idempotent_retries
+    - safety
+  async-error-handling-fallback-strategies:
+    file: knowledge-corpus/async-error-handling-fallback-strategies.md
+    keywords:
+    - async
+    - degradation
+    - error
+    - fallback
+    - graceful
+    - node
+    - retry
+    - timeout
+    title: "Async Error Handling \u2014 Fallback Strategies"
+    tags:
+    - async
+    - async-error-handling
+    - error-handling
+    - fallback_strategies
+    - safety
+  async-error-handling-error-budget-alerts:
+    file: knowledge-corpus/async-error-handling-error-budget-alerts.md
+    keywords:
+    - alerts
+    - async
+    - error
+    - error-budget
+    - fallback
+    - retry
+    - slo
+    - timeout
+    title: "Async Error Handling \u2014 Error Budget Alerts"
+    tags:
+    - async
+    - async-error-handling
+    - error-handling
+    - error_budget_alerts
+    - safety
+  async-error-handling-dead-letter-streams:
+    file: knowledge-corpus/async-error-handling-dead-letter-streams.md
+    keywords:
+    - async
+    - dead-letter
+    - error
+    - fallback
+    - queue
+    - retry
+    - stream
+    - timeout
+    title: "Async Error Handling \u2014 Dead Letter Streams"
+    tags:
+    - async
+    - async-error-handling
+    - dead_letter_streams
+    - error-handling
+    - safety
+  cache-eviction-strategies-vitality-decay:
+    file: knowledge-corpus/cache-eviction-strategies-vitality-decay.md
+    keywords:
+    - cache
+    - decay
+    - eviction
+    - knowledge
+    - lifecycle
+    - ttl
+    - vitality
+    title: "Cache Eviction Strategies \u2014 Vitality Decay"
+    tags:
+    - cache
+    - cache-eviction-strategies
+    - eviction
+    - memory-palace
+    - vitality_decay
+  cache-eviction-strategies-konmari-sessions:
+    file: knowledge-corpus/cache-eviction-strategies-konmari-sessions.md
+    keywords:
+    - cache
+    - eviction
+    - gratitude
+    - knowledge
+    - konmari
+    - tidy
+    - ttl
+    - vitality
+    title: "Cache Eviction Strategies \u2014 KonMari Sessions"
+    tags:
+    - cache
+    - cache-eviction-strategies
+    - eviction
+    - konmari_sessions
+    - memory-palace
+  cache-eviction-strategies-context-budgeting:
+    file: knowledge-corpus/cache-eviction-strategies-context-budgeting.md
+    keywords:
+    - cache
+    - context-budget
+    - eviction
+    - knowledge
+    - token-limit
+    - ttl
+    - vitality
+    title: "Cache Eviction Strategies \u2014 Context Budgeting"
+    tags:
+    - cache
+    - cache-eviction-strategies
+    - context_budgeting
+    - eviction
+    - memory-palace
+  cache-eviction-strategies-marginal-value-score:
+    file: knowledge-corpus/cache-eviction-strategies-marginal-value-score.md
+    keywords:
+    - cache
+    - duplicate
+    - eviction
+    - filter
+    - knowledge
+    - marginal
+    - ttl
+    - vitality
+    title: "Cache Eviction Strategies \u2014 Marginal Value Score"
+    tags:
+    - cache
+    - cache-eviction-strategies
+    - eviction
+    - marginal_value_score
+    - memory-palace
+  cache-eviction-strategies-intake-quarantine:
+    file: knowledge-corpus/cache-eviction-strategies-intake-quarantine.md
+    keywords:
+    - cache
+    - eviction
+    - intake
+    - knowledge
+    - probation
+    - quarantine
+    - ttl
+    - vitality
+    title: "Cache Eviction Strategies \u2014 Intake Quarantine"
+    tags:
+    - cache
+    - cache-eviction-strategies
+    - eviction
+    - intake_quarantine
+    - memory-palace
+  knowledge-indexing-keyword-curation:
+    file: knowledge-corpus/knowledge-indexing-keyword-curation.md
+    keywords:
+    - index
+    - keyword
+    - query-template
+    - search
+    - taxonomy
+    - vocabulary
+    title: "Knowledge Indexing \u2014 Keyword Curation"
+    tags:
+    - indexing
+    - keyword_curation
+    - knowledge-indexing
+    - metadata
+    - search
+  knowledge-indexing-query-templates:
+    file: knowledge-corpus/knowledge-indexing-query-templates.md
+    keywords:
+    - index
+    - keyword
+    - query
+    - query-template
+    - ranking
+    - search
+    - template
+    title: "Knowledge Indexing \u2014 Query Templates"
+    tags:
+    - indexing
+    - knowledge-indexing
+    - metadata
+    - query_templates
+    - search
+  knowledge-indexing-semantic-tags:
+    file: knowledge-corpus/knowledge-indexing-semantic-tags.md
+    keywords:
+    - index
+    - keyword
+    - ontology
+    - query-template
+    - search
+    - semantic
+    - tagging
+    title: "Knowledge Indexing \u2014 Semantic Tags"
+    tags:
+    - indexing
+    - knowledge-indexing
+    - metadata
+    - search
+    - semantic_tags
+  knowledge-indexing-index-refresh:
+    file: knowledge-corpus/knowledge-indexing-index-refresh.md
+    keywords:
+    - automation
+    - index
+    - keyword
+    - query-template
+    - rebuild
+    - search
+    title: "Knowledge Indexing \u2014 Index Refresh"
+    tags:
+    - index_refresh
+    - indexing
+    - knowledge-indexing
+    - metadata
+    - search
+  knowledge-indexing-index-telemetry:
+    file: knowledge-corpus/knowledge-indexing-index-telemetry.md
+    keywords:
+    - hits
+    - index
+    - keyword
+    - query-template
+    - ranking
+    - search
+    - telemetry
+    title: "Knowledge Indexing \u2014 Index Telemetry"
+    tags:
+    - index_telemetry
+    - indexing
+    - knowledge-indexing
+    - metadata
+    - search
+  autonomy-scoring-level-promotions:
+    file: knowledge-corpus/autonomy-scoring-level-promotions.md
+    keywords:
+    - autonomy
+    - criteria
+    - level
+    - promotion
+    - regret-rate
+    - score
+    - trust
+    title: "Autonomy Scoring \u2014 Level Promotions"
+    tags:
+    - autonomy
+    - autonomy-scoring
+    - governance
+    - level_promotions
+    - scoring
+  autonomy-scoring-domain-overrides:
+    file: knowledge-corpus/autonomy-scoring-domain-overrides.md
+    keywords:
+    - autonomy
+    - domain-lock
+    - override
+    - regret-rate
+    - score
+    - sensitive
+    - trust
+    title: "Autonomy Scoring \u2014 Domain Overrides"
+    tags:
+    - autonomy
+    - autonomy-scoring
+    - domain_overrides
+    - governance
+    - scoring
+  autonomy-scoring-regret-rate-tracking:
+    file: knowledge-corpus/autonomy-scoring-regret-rate-tracking.md
+    keywords:
+    - alerts
+    - autonomy
+    - regret-rate
+    - score
+    - trust
+    title: "Autonomy Scoring \u2014 Regret Rate Tracking"
+    tags:
+    - autonomy
+    - autonomy-scoring
+    - governance
+    - regret_rate_tracking
+    - scoring
+  autonomy-scoring-human-in-loop:
+    file: knowledge-corpus/autonomy-scoring-human-in-loop.md
+    keywords:
+    - audit
+    - autonomy
+    - level3
+    - regret-rate
+    - sample
+    - score
+    - trust
+    title: "Autonomy Scoring \u2014 Human-in-the-Loop"
+    tags:
+    - autonomy
+    - autonomy-scoring
+    - governance
+    - human_in_loop
+    - scoring
+  autonomy-scoring-cli-workflows:
+    file: knowledge-corpus/autonomy-scoring-cli-workflows.md
+    keywords:
+    - autonomy
+    - cli
+    - regret-rate
+    - score
+    - trust
+    - workflow
+    title: "Autonomy Scoring \u2014 CLI Workflows"
+    tags:
+    - autonomy
+    - autonomy-scoring
+    - cli_workflows
+    - governance
+    - scoring
+  garden-tending-stale-sweeps:
+    file: knowledge-corpus/garden-tending-stale-sweeps.md
+    keywords:
+    - automation
+    - evergreen
+    - garden
+    - probation
+    - queue
+    - stale
+    - tend
+    title: "Garden Tending \u2014 Stale Sweeps"
+    tags:
+    - garden
+    - garden-tending
+    - lifecycle
+    - stale_sweeps
+    - tending
+  garden-tending-konmari-prompts:
+    file: knowledge-corpus/garden-tending-konmari-prompts.md
+    keywords:
+    - cli
+    - evergreen
+    - garden
+    - konmari
+    - probation
+    - prompts
+    - stale
+    - tend
+    title: "Garden Tending \u2014 KonMari Prompts"
+    tags:
+    - garden
+    - garden-tending
+    - konmari_prompts
+    - lifecycle
+    - tending
+  garden-tending-garden-reports:
+    file: knowledge-corpus/garden-tending-garden-reports.md
+    keywords:
+    - evergreen
+    - garden
+    - health
+    - probation
+    - report
+    - stale
+    - tend
+    title: "Garden Tending \u2014 Garden Reports"
+    tags:
+    - garden
+    - garden-tending
+    - garden_reports
+    - lifecycle
+    - tending
+  garden-tending-tending-cli:
+    file: knowledge-corpus/garden-tending-tending-cli.md
+    keywords:
+    - cli
+    - evergreen
+    - garden
+    - probation
+    - stale
+    - tend
+    - tending
+    - workflow
+    title: "Garden Tending \u2014 Tending CLI"
+    tags:
+    - garden
+    - garden-tending
+    - lifecycle
+    - tending
+    - tending_cli
+  garden-tending-evergreen-guards:
+    file: knowledge-corpus/garden-tending-evergreen-guards.md
+    keywords:
+    - evergreen
+    - garden
+    - probation
+    - regression
+    - stale
+    - tend
+    - tests
+    title: "Garden Tending \u2014 Evergreen Guards"
+    tags:
+    - evergreen_guards
+    - garden
+    - garden-tending
+    - lifecycle
+    - tending
+  telemetry-pipeline-cache-hit-dashboard:
+    file: knowledge-corpus/telemetry-pipeline-cache-hit-dashboard.md
+    keywords:
+    - cache-hit
+    - csv
+    - dashboard
+    - event
+    - metrics
+    - telemetry
+    - visualization
+    title: "Telemetry Pipeline \u2014 Cache Hit Dashboard"
+    tags:
+    - cache_hit_dashboard
+    - logging
+    - metrics
+    - telemetry
+    - telemetry-pipeline
+  telemetry-pipeline-latency-profiling:
+    file: knowledge-corpus/telemetry-pipeline-latency-profiling.md
+    keywords:
+    - csv
+    - dashboard
+    - event
+    - hook
+    - latency
+    - metrics
+    - profiling
+    - telemetry
+    title: "Telemetry Pipeline \u2014 Latency Profiling"
+    tags:
+    - latency_profiling
+    - logging
+    - metrics
+    - telemetry
+    - telemetry-pipeline
+  telemetry-pipeline-intake-flags:
+    file: knowledge-corpus/telemetry-pipeline-intake-flags.md
+    keywords:
+    - csv
+    - dashboard
+    - event
+    - flag
+    - intake
+    - metrics
+    - telemetry
+    - volume
+    title: "Telemetry Pipeline \u2014 Intake Flags"
+    tags:
+    - intake_flags
+    - logging
+    - metrics
+    - telemetry
+    - telemetry-pipeline
+  telemetry-pipeline-autonomy-alerts:
+    file: knowledge-corpus/telemetry-pipeline-autonomy-alerts.md
+    keywords:
+    - alert
+    - autonomy
+    - csv
+    - dashboard
+    - event
+    - metrics
+    - telemetry
+    title: "Telemetry Pipeline \u2014 Autonomy Alerts"
+    tags:
+    - autonomy_alerts
+    - logging
+    - metrics
+    - telemetry
+    - telemetry-pipeline
+  telemetry-pipeline-token-savings:
+    file: knowledge-corpus/telemetry-pipeline-token-savings.md
+    keywords:
+    - context
+    - csv
+    - dashboard
+    - event
+    - metrics
+    - savings
+    - telemetry
+    - token
+    title: "Telemetry Pipeline \u2014 Token Savings"
+    tags:
+    - logging
+    - metrics
+    - telemetry
+    - telemetry-pipeline
+    - token_savings
+  feature-flag-governance-flag-matrix:
+    file: knowledge-corpus/feature-flag-governance-flag-matrix.md
+    keywords:
+    - dependency
+    - feature-flag
+    - flag
+    - kill-switch
+    - matrix
+    - rollout
+    - staging
+    title: "Feature Flag Governance \u2014 Flag Matrix"
+    tags:
+    - feature-flag
+    - feature-flag-governance
+    - flag_matrix
+    - rollout
+    - safety
+  feature-flag-governance-staged-rollout:
+    file: knowledge-corpus/feature-flag-governance-staged-rollout.md
+    keywords:
+    - feature-flag
+    - flag
+    - kill-switch
+    - rollout
+    - staged
+    - staging
+    title: "Feature Flag Governance \u2014 Staged Rollout"
+    tags:
+    - feature-flag
+    - feature-flag-governance
+    - rollout
+    - safety
+    - staged_rollout
+  feature-flag-governance-flag-telemetry:
+    file: knowledge-corpus/feature-flag-governance-flag-telemetry.md
+    keywords:
+    - feature-flag
+    - flag
+    - kill-switch
+    - rollout
+    - staging
+    - state
+    - telemetry
+    title: "Feature Flag Governance \u2014 Flag Telemetry"
+    tags:
+    - feature-flag
+    - feature-flag-governance
+    - flag_telemetry
+    - rollout
+    - safety
+  feature-flag-governance-oncall-runbooks:
+    file: knowledge-corpus/feature-flag-governance-oncall-runbooks.md
+    keywords:
+    - feature-flag
+    - flag
+    - kill-switch
+    - oncall
+    - rollout
+    - runbook
+    - staging
+    title: "Feature Flag Governance \u2014 On-call Runbooks"
+    tags:
+    - feature-flag
+    - feature-flag-governance
+    - oncall_runbooks
+    - rollout
+    - safety
+  feature-flag-governance-audit-trails:
+    file: knowledge-corpus/feature-flag-governance-audit-trails.md
+    keywords:
+    - audit
+    - feature-flag
+    - flag-change
+    - kill-switch
+    - rollout
+    - staging
+    - trail
+    title: "Feature Flag Governance \u2014 Audit Trails"
+    tags:
+    - audit_trails
+    - feature-flag
+    - feature-flag-governance
+    - rollout
+    - safety
+  semantic-embedding-local-embeddings:
+    file: knowledge-corpus/semantic-embedding-local-embeddings.md
+    keywords:
+    - embedding
+    - index
+    - local
+    - search
+    - semantic
+    - sentence-transformers
+    - vector
+    title: "Semantic Embedding \u2014 Local Embeddings"
+    tags:
+    - embedding
+    - local_embeddings
+    - search
+    - semantic
+    - semantic-embedding
+  semantic-embedding-fusion-ranking:
+    file: knowledge-corpus/semantic-embedding-fusion-ranking.md
+    keywords:
+    - embedding
+    - fusion
+    - hybrid
+    - ranking
+    - search
+    - semantic
+    - vector
+    title: "Semantic Embedding \u2014 Fusion Ranking"
+    tags:
+    - embedding
+    - fusion_ranking
+    - search
+    - semantic
+    - semantic-embedding
+  semantic-embedding-evaluation-suite:
+    file: knowledge-corpus/semantic-embedding-evaluation-suite.md
+    keywords:
+    - benchmark
+    - embedding
+    - evaluation
+    - search
+    - semantic
+    - vector
+    title: "Semantic Embedding \u2014 Evaluation Suite"
+    tags:
+    - embedding
+    - evaluation_suite
+    - search
+    - semantic
+    - semantic-embedding
+  semantic-embedding-provider-toggles:
+    file: knowledge-corpus/semantic-embedding-provider-toggles.md
+    keywords:
+    - config
+    - embedding
+    - provider
+    - search
+    - semantic
+    - toggle
+    - vector
+    title: "Semantic Embedding \u2014 Provider Toggles"
+    tags:
+    - embedding
+    - provider_toggles
+    - search
+    - semantic
+    - semantic-embedding
+  semantic-embedding-vector-maintenance:
+    file: knowledge-corpus/semantic-embedding-vector-maintenance.md
+    keywords:
+    - cron
+    - embedding
+    - maintenance
+    - search
+    - semantic
+    - vector
+    title: "Semantic Embedding \u2014 Vector Maintenance"
+    tags:
+    - embedding
+    - search
+    - semantic
+    - semantic-embedding
+    - vector_maintenance
+  marginal-value-filter-redundancy-checks:
+    file: knowledge-corpus/marginal-value-filter-redundancy-checks.md
+    keywords:
+    - delta
+    - exact-match
+    - integration
+    - marginal
+    - partial
+    - redundancy
+    title: "Marginal Value Filter \u2014 Redundancy Checks"
+    tags:
+    - curation
+    - filter
+    - marginal-value
+    - marginal-value-filter
+    - redundancy_checks
+  marginal-value-filter-delta-analysis:
+    file: knowledge-corpus/marginal-value-filter-delta-analysis.md
+    keywords:
+    - analysis
+    - delta
+    - integration
+    - marginal
+    - novel-insight
+    - redundancy
+    title: "Marginal Value Filter \u2014 Delta Analysis"
+    tags:
+    - curation
+    - delta_analysis
+    - filter
+    - marginal-value
+    - marginal-value-filter
+  marginal-value-filter-integration-decisions:
+    file: knowledge-corpus/marginal-value-filter-integration-decisions.md
+    keywords:
+    - automation
+    - decision
+    - delta
+    - integration
+    - marginal
+    - redundancy
+    title: "Marginal Value Filter \u2014 Integration Decisions"
+    tags:
+    - curation
+    - filter
+    - integration_decisions
+    - marginal-value
+    - marginal-value-filter
+  marginal-value-filter-explanations:
+    file: knowledge-corpus/marginal-value-filter-explanations.md
+    keywords:
+    - curator
+    - delta
+    - explanation
+    - integration
+    - marginal
+    - payload
+    - redundancy
+    title: "Marginal Value Filter \u2014 Explanations"
+    tags:
+    - curation
+    - explanations
+    - filter
+    - marginal-value
+    - marginal-value-filter
+  marginal-value-filter-cli-workbench:
+    file: knowledge-corpus/marginal-value-filter-cli-workbench.md
+    keywords:
+    - cli
+    - curation
+    - delta
+    - integration
+    - marginal
+    - redundancy
+    - workbench
+    title: "Marginal Value Filter \u2014 CLI Workbench"
+    tags:
+    - cli_workbench
+    - curation
+    - filter
+    - marginal-value
+    - marginal-value-filter
 keywords:
-  adjustment:
-  - franklin-protocol-learning
-  algorithm:
-  - franklin-protocol-learning
-  algorithms:
-  - franklin-protocol-learning
-  anders:
-  - franklin-protocol-learning
-  antechamber:
-  - franklin-protocol-learning
-  anvil:
-  - franklin-protocol-learning
-  application:
-  - franklin-protocol-learning
-  apply:
-  - franklin-protocol-learning
-  article:
-  - franklin-protocol-learning
-  ask:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  attribution:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  authors:
-  - franklin-protocol-learning
-  autobiography:
-  - franklin-protocol-learning
-  backpropagation:
-  - franklin-protocol-learning
-  benjamin:
-  - franklin-protocol-learning
-  bright:
-  - franklin-protocol-learning
-  built:
-  - franklin-protocol-learning
-  built-in:
-  - franklin-protocol-learning
-  calculation:
-  - franklin-protocol-learning
-  challenge:
-  - franklin-protocol-learning
-  chamber:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  choose:
-  - franklin-protocol-learning
-  collection:
-  - franklin-protocol-learning
-  compare:
-  - franklin-protocol-learning
-  comparison:
-  - franklin-protocol-learning
-  compress:
-  - franklin-protocol-learning
-  compression:
-  - franklin-protocol-learning
-  concept:
-  - franklin-protocol-learning
-  concepts:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  connections:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  convert:
-  - franklin-protocol-learning
-  cool:
-  - franklin-protocol-learning
-  core:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  correct:
-  - franklin-protocol-learning
-  cross:
-  - franklin-protocol-learning
-  cross-references:
-  - franklin-protocol-learning
-  curated:
-  - franklin-protocol-learning
-  data:
-  - franklin-protocol-learning
-  delay:
-  - franklin-protocol-learning
-  deliberate:
-  - franklin-protocol-learning
-  deliberate-practice:
-  - franklin-protocol-learning
-  detailed:
-  - franklin-protocol-learning
-  development:
-  - franklin-protocol-learning
-  digital-garden-cultivator:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  discovered:
-  - franklin-protocol-learning
-  draft:
-  - franklin-protocol-learning
-  encoding:
-  - franklin-protocol-learning
-  equivalent:
-  - franklin-protocol-learning
-  ericsson:
-  - franklin-protocol-learning
-  error:
-  - franklin-protocol-learning
-  eval:
-  - franklin-protocol-learning
-  exemplar:
-  - franklin-protocol-learning
-  expertise:
-  - franklin-protocol-learning
-  extract:
-  - franklin-protocol-learning
-  extraction:
-  - franklin-protocol-learning
-  feature:
-  - franklin-protocol-learning
-  feedback-loops:
-  - franklin-protocol-learning
-  find:
-  - franklin-protocol-learning
-  forge:
-  - franklin-protocol-learning
-  forward:
-  - franklin-protocol-learning
-  franklin:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  function:
-  - franklin-protocol-learning
-  gaps:
-  - franklin-protocol-learning
-  generate:
-  - franklin-protocol-learning
-  gradient:
-  - franklin-protocol-learning
-  hall:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  hammering:
-  - franklin-protocol-learning
-  heat:
-  - franklin-protocol-learning
-  high-quality:
-  - franklin-protocol-learning
-  his:
-  - franklin-protocol-learning
-  historical:
-  - franklin-protocol-learning
-  how-benjamin-franklin-invented-machine-learning-in:
-  - franklin-protocol-learning
-  identify:
-  - franklin-protocol-learning
-  insight:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  internal:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  internalize:
-  - franklin-protocol-learning
-  invented:
-  - franklin-protocol-learning
-  iterate:
-  - franklin-protocol-learning
-  iterative:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  key:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  layout:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  lean:
-  - franklin-protocol-learning
-  learning:
-  - franklin-protocol-learning
-  location:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  loop:
-  - franklin-protocol-learning
-  loss:
-  - franklin-protocol-learning
-  machine:
-  - franklin-protocol-learning
-  machine-learning:
-  - franklin-protocol-learning
-  mastery:
-  - franklin-protocol-learning
-  memory:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  memory-palace-architect:
-  - franklin-protocol-learning
-  meta:
-  - franklin-protocol-learning
-  meta-insight:
-  - franklin-protocol-learning
-  meta-skill:
-  - franklin-protocol-learning
-  method:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  methods:
-  - franklin-protocol-learning
-  modular:
-  - franklin-protocol-learning
-  modular-skills:
-  - franklin-protocol-learning
-  new:
-  - franklin-protocol-learning
-  original:
-  - franklin-protocol-learning
-  output:
-  - franklin-protocol-learning
-  palace:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  parallel:
-  - franklin-protocol-learning
-  parameter:
-  - franklin-protocol-learning
-  pass:
-  - franklin-protocol-learning
-  patterns:
-  - franklin-protocol-learning
-  peak:
-  - franklin-protocol-learning
-  plugin:
-  - franklin-protocol-learning
-  practical:
-  - franklin-protocol-learning
-  practice:
-  - franklin-protocol-learning
-  protocol:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  re-evaluate:
-  - franklin-protocol-learning
-  reconstruct:
-  - franklin-protocol-learning
-  reconstruction:
-  - franklin-protocol-learning
-  record:
-  - franklin-protocol-learning
-  reference:
-  - franklin-protocol-learning
-  referenced:
-  - franklin-protocol-learning
-  references:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  regularization:
-  - franklin-protocol-learning
-  related:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  reverse-engineered:
-  - franklin-protocol-learning
-  room:
-  - franklin-protocol-learning
-  run:
-  - franklin-protocol-learning
-  science:
-  - franklin-protocol-learning
-  secrets:
-  - franklin-protocol-learning
-  select:
-  - franklin-protocol-learning
-  sensory:
-  - franklin-protocol-learning
-  short:
-  - franklin-protocol-learning
-  side:
-  - franklin-protocol-learning
-  side-by-side:
-  - franklin-protocol-learning
-  skill:
-  - franklin-protocol-learning
-  skill-acquisition:
-  - franklin-protocol-learning
-  skills:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  skills-eval:
-  - franklin-protocol-learning
-  source:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  spectator:
-  - franklin-protocol-learning
-  spend:
-  - franklin-protocol-learning
-  started:
-  - franklin-protocol-learning
-  study:
-  - franklin-protocol-learning
-  techniques:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  thesis:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  tight:
-  - franklin-protocol-learning
-  training:
-  - franklin-protocol-learning
-  update:
-  - franklin-protocol-learning
-  user:
-  - franklin-protocol-learning
-  uses:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  validate:
-  - franklin-protocol-learning
-  waiting:
-  - franklin-protocol-learning
-  works:
-  - franklin-protocol-learning
-  - konmari-method-tidying
-  workshop:
-  - franklin-protocol-learning
-  your:
-  - franklin-protocol-learning
-  - konmari-method-tidying
   about:
   - konmari-method-tidying
   about-the-konmari-method:
@@ -667,109 +1190,510 @@ keywords:
   - konmari-method-tidying
   adapted:
   - konmari-method-tidying
+  adjustment:
+  - franklin-protocol-learning
+  alert:
+  - telemetry-pipeline-autonomy-alerts
+  alerts:
+  - async-error-handling-error-budget-alerts
+  - autonomy-scoring-regret-rate-tracking
+  algorithm:
+  - franklin-protocol-learning
+  algorithms:
+  - franklin-protocol-learning
   alignment:
   - konmari-method-tidying
+  analysis:
+  - marginal-value-filter-delta-analysis
+  anders:
+  - franklin-protocol-learning
+  antechamber:
+  - franklin-protocol-learning
+  anvil:
+  - franklin-protocol-learning
+  api:
+  - structured-concurrency-task-groups
+  application:
+  - franklin-protocol-learning
+  apply:
+  - franklin-protocol-learning
   approval:
   - konmari-method-tidying
   archive:
   - konmari-method-tidying
+  article:
+  - franklin-protocol-learning
+  ask:
+  - franklin-protocol-learning
+  - konmari-method-tidying
   aspirational:
   - konmari-method-tidying
+  async:
+  - async-error-handling-boundary-contracts
+  - async-error-handling-dead-letter-streams
+  - async-error-handling-error-budget-alerts
+  - async-error-handling-fallback-strategies
+  - async-error-handling-idempotent-retries
+  - structured-concurrency-cancellation-graphs
+  - structured-concurrency-load-shedding
+  - structured-concurrency-observability
+  - structured-concurrency-service-boundaries
+  - structured-concurrency-task-groups
+  attribution:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  audit:
+  - autonomy-scoring-human-in-loop
+  - feature-flag-governance-audit-trails
+  authors:
+  - franklin-protocol-learning
+  autobiography:
+  - franklin-protocol-learning
+  automation:
+  - garden-tending-stale-sweeps
+  - knowledge-indexing-index-refresh
+  - marginal-value-filter-integration-decisions
   autonomously:
   - konmari-method-tidying
+  autonomy:
+  - autonomy-scoring-cli-workflows
+  - autonomy-scoring-domain-overrides
+  - autonomy-scoring-human-in-loop
+  - autonomy-scoring-level-promotions
+  - autonomy-scoring-regret-rate-tracking
+  - telemetry-pipeline-autonomy-alerts
+  backpropagation:
+  - franklin-protocol-learning
   before:
   - konmari-method-tidying
+  benchmark:
+  - semantic-embedding-evaluation-suite
+  benjamin:
+  - franklin-protocol-learning
   books:
   - konmari-method-tidying
+  bright:
+  - franklin-protocol-learning
+  budget:
+  - structured-concurrency-load-shedding
   build:
   - konmari-method-tidying
+  built:
+  - franklin-protocol-learning
+  built-in:
+  - franklin-protocol-learning
+  cache:
+  - cache-eviction-strategies-context-budgeting
+  - cache-eviction-strategies-intake-quarantine
+  - cache-eviction-strategies-konmari-sessions
+  - cache-eviction-strategies-marginal-value-score
+  - cache-eviction-strategies-vitality-decay
+  cache-hit:
+  - telemetry-pipeline-cache-hit-dashboard
+  calculation:
+  - franklin-protocol-learning
+  cancellation:
+  - structured-concurrency-cancellation-graphs
   cannot:
   - konmari-method-tidying
   category:
   - konmari-method-tidying
+  challenge:
+  - franklin-protocol-learning
+  chamber:
+  - franklin-protocol-learning
+  - konmari-method-tidying
   changing:
   - konmari-method-tidying
+  choose:
+  - franklin-protocol-learning
   claude:
   - konmari-method-tidying
+  cli:
+  - autonomy-scoring-cli-workflows
+  - garden-tending-konmari-prompts
+  - garden-tending-tending-cli
+  - marginal-value-filter-cli-workbench
   clothes:
   - konmari-method-tidying
+  collection:
+  - franklin-protocol-learning
   commit:
   - konmari-method-tidying
   commitment:
   - konmari-method-tidying
+  compare:
+  - franklin-protocol-learning
+  comparison:
+  - franklin-protocol-learning
+  compress:
+  - franklin-protocol-learning
+  compression:
+  - franklin-protocol-learning
+  concept:
+  - franklin-protocol-learning
+  concepts:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  concurrency:
+  - structured-concurrency-cancellation-graphs
+  - structured-concurrency-load-shedding
+  - structured-concurrency-observability
+  - structured-concurrency-service-boundaries
+  - structured-concurrency-task-groups
+  config:
+  - semantic-embedding-provider-toggles
+  connections:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  context:
+  - structured-concurrency-cancellation-graphs
+  - structured-concurrency-task-groups
+  - telemetry-pipeline-token-savings
+  context-budget:
+  - cache-eviction-strategies-context-budgeting
+  convert:
+  - franklin-protocol-learning
+  cool:
+  - franklin-protocol-learning
+  core:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  coroutines:
+  - structured-concurrency-service-boundaries
+  correct:
+  - franklin-protocol-learning
+  criteria:
+  - autonomy-scoring-level-promotions
   criterion:
   - konmari-method-tidying
   critical:
   - konmari-method-tidying
+  cron:
+  - semantic-embedding-vector-maintenance
+  cross:
+  - franklin-protocol-learning
+  cross-references:
+  - franklin-protocol-learning
+  csv:
+  - telemetry-pipeline-autonomy-alerts
+  - telemetry-pipeline-cache-hit-dashboard
+  - telemetry-pipeline-intake-flags
+  - telemetry-pipeline-latency-profiling
+  - telemetry-pipeline-token-savings
+  curated:
+  - franklin-protocol-learning
   curation:
   - konmari-method-tidying
+  - marginal-value-filter-cli-workbench
   curator:
   - konmari-method-tidying
+  - marginal-value-filter-explanations
+  dashboard:
+  - telemetry-pipeline-autonomy-alerts
+  - telemetry-pipeline-cache-hit-dashboard
+  - telemetry-pipeline-intake-flags
+  - telemetry-pipeline-latency-profiling
+  - telemetry-pipeline-token-savings
+  data:
+  - franklin-protocol-learning
+  dead-letter:
+  - async-error-handling-dead-letter-streams
+  decay:
+  - cache-eviction-strategies-vitality-decay
   decision:
   - konmari-method-tidying
+  - marginal-value-filter-integration-decisions
   decision-making:
   - konmari-method-tidying
   decluttering:
   - konmari-method-tidying
+  degradation:
+  - async-error-handling-fallback-strategies
+  delay:
+  - franklin-protocol-learning
   delete:
   - konmari-method-tidying
+  deliberate:
+  - franklin-protocol-learning
+  deliberate-practice:
+  - franklin-protocol-learning
+  delta:
+  - marginal-value-filter-cli-workbench
+  - marginal-value-filter-delta-analysis
+  - marginal-value-filter-explanations
+  - marginal-value-filter-integration-decisions
+  - marginal-value-filter-redundancy-checks
+  dependency:
+  - feature-flag-governance-flag-matrix
+  detailed:
+  - franklin-protocol-learning
   detect:
+  - konmari-method-tidying
+  development:
+  - franklin-protocol-learning
+  digital-garden-cultivator:
+  - franklin-protocol-learning
   - konmari-method-tidying
   discarding:
   - konmari-method-tidying
+  discovered:
+  - franklin-protocol-learning
   does:
   - konmari-method-tidying
+  domain-lock:
+  - autonomy-scoring-domain-overrides
   don:
   - konmari-method-tidying
+  draft:
+  - franklin-protocol-learning
+  duplicate:
+  - cache-eviction-strategies-marginal-value-score
+  embedding:
+  - semantic-embedding-evaluation-suite
+  - semantic-embedding-fusion-ranking
+  - semantic-embedding-local-embeddings
+  - semantic-embedding-provider-toggles
+  - semantic-embedding-vector-maintenance
+  encoding:
+  - franklin-protocol-learning
   enthusiasm:
   - konmari-method-tidying
+  equivalent:
+  - franklin-protocol-learning
+  ericsson:
+  - franklin-protocol-learning
+  error:
+  - async-error-handling-boundary-contracts
+  - async-error-handling-dead-letter-streams
+  - async-error-handling-error-budget-alerts
+  - async-error-handling-fallback-strategies
+  - async-error-handling-idempotent-retries
+  - franklin-protocol-learning
+  error-budget:
+  - async-error-handling-error-budget-alerts
+  eval:
+  - franklin-protocol-learning
+  evaluation:
+  - semantic-embedding-evaluation-suite
+  event:
+  - telemetry-pipeline-autonomy-alerts
+  - telemetry-pipeline-cache-hit-dashboard
+  - telemetry-pipeline-intake-flags
+  - telemetry-pipeline-latency-profiling
+  - telemetry-pipeline-token-savings
+  evergreen:
+  - garden-tending-evergreen-guards
+  - garden-tending-garden-reports
+  - garden-tending-konmari-prompts
+  - garden-tending-stale-sweeps
+  - garden-tending-tending-cli
+  eviction:
+  - cache-eviction-strategies-context-budgeting
+  - cache-eviction-strategies-intake-quarantine
+  - cache-eviction-strategies-konmari-sessions
+  - cache-eviction-strategies-marginal-value-score
+  - cache-eviction-strategies-vitality-decay
+  exact-match:
+  - marginal-value-filter-redundancy-checks
+  exemplar:
+  - franklin-protocol-learning
+  expertise:
+  - franklin-protocol-learning
+  explanation:
+  - marginal-value-filter-explanations
   explicit:
   - konmari-method-tidying
+  extract:
+  - franklin-protocol-learning
+  extraction:
+  - franklin-protocol-learning
+  fallback:
+  - async-error-handling-boundary-contracts
+  - async-error-handling-dead-letter-streams
+  - async-error-handling-error-budget-alerts
+  - async-error-handling-fallback-strategies
+  - async-error-handling-idempotent-retries
   'false':
   - konmari-method-tidying
   fear:
   - konmari-method-tidying
+  feature:
+  - franklin-protocol-learning
+  feature-flag:
+  - feature-flag-governance-audit-trails
+  - feature-flag-governance-flag-matrix
+  - feature-flag-governance-flag-telemetry
+  - feature-flag-governance-oncall-runbooks
+  - feature-flag-governance-staged-rollout
+  feedback-loops:
+  - franklin-protocol-learning
   feel:
   - konmari-method-tidying
+  filter:
+  - cache-eviction-strategies-marginal-value-score
+  find:
+  - franklin-protocol-learning
   finish:
   - konmari-method-tidying
   first:
   - konmari-method-tidying
+  flag:
+  - feature-flag-governance-flag-matrix
+  - feature-flag-governance-flag-telemetry
+  - feature-flag-governance-oncall-runbooks
+  - feature-flag-governance-staged-rollout
+  - telemetry-pipeline-intake-flags
+  flag-change:
+  - feature-flag-governance-audit-trails
   follow:
   - konmari-method-tidying
+  forge:
+  - franklin-protocol-learning
+  forward:
+  - franklin-protocol-learning
   frameworks:
+  - konmari-method-tidying
+  franklin:
+  - franklin-protocol-learning
   - konmari-method-tidying
   full:
   - konmari-method-tidying
+  function:
+  - franklin-protocol-learning
+  fusion:
+  - semantic-embedding-fusion-ranking
+  gaps:
+  - franklin-protocol-learning
+  garden:
+  - garden-tending-evergreen-guards
+  - garden-tending-garden-reports
+  - garden-tending-konmari-prompts
+  - garden-tending-stale-sweeps
+  - garden-tending-tending-cli
   gate:
   - konmari-method-tidying
   gather:
   - konmari-method-tidying
+  generate:
+  - franklin-protocol-learning
+  go:
+  - async-error-handling-idempotent-retries
+  - structured-concurrency-cancellation-graphs
+  goroutine:
+  - structured-concurrency-cancellation-graphs
   governance:
   - konmari-method-tidying
+  graceful:
+  - async-error-handling-fallback-strategies
+  gradient:
+  - franklin-protocol-learning
   gratitude:
+  - cache-eviction-strategies-konmari-sessions
   - konmari-method-tidying
   half-measures:
   - konmari-method-tidying
   half-tidy:
   - konmari-method-tidying
+  hall:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  hammering:
+  - franklin-protocol-learning
+  health:
+  - garden-tending-garden-reports
+  heat:
+  - franklin-protocol-learning
+  high-quality:
+  - franklin-protocol-learning
+  his:
+  - franklin-protocol-learning
+  historical:
+  - franklin-protocol-learning
+  hits:
+  - knowledge-indexing-index-telemetry
   hold:
   - konmari-method-tidying
+  hook:
+  - telemetry-pipeline-latency-profiling
+  how-benjamin-franklin-invented-machine-learning-in:
+  - franklin-protocol-learning
   human:
   - konmari-method-tidying
+  hybrid:
+  - semantic-embedding-fusion-ranking
   ideal:
   - konmari-method-tidying
+  idempotent:
+  - async-error-handling-idempotent-retries
+  identify:
+  - franklin-protocol-learning
   identity:
   - konmari-method-tidying
   imagine:
   - konmari-method-tidying
+  index:
+  - knowledge-indexing-index-refresh
+  - knowledge-indexing-index-telemetry
+  - knowledge-indexing-keyword-curation
+  - knowledge-indexing-query-templates
+  - knowledge-indexing-semantic-tags
+  - semantic-embedding-local-embeddings
+  insight:
+  - franklin-protocol-learning
+  - konmari-method-tidying
   insights:
+  - konmari-method-tidying
+  instrumentation:
+  - structured-concurrency-observability
+  intake:
+  - cache-eviction-strategies-intake-quarantine
+  - telemetry-pipeline-intake-flags
+  integration:
+  - marginal-value-filter-cli-workbench
+  - marginal-value-filter-delta-analysis
+  - marginal-value-filter-explanations
+  - marginal-value-filter-integration-decisions
+  - marginal-value-filter-redundancy-checks
+  interface:
+  - async-error-handling-boundary-contracts
+  internal:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  internalize:
+  - franklin-protocol-learning
+  invented:
+  - franklin-protocol-learning
+  iterate:
+  - franklin-protocol-learning
+  iterative:
+  - franklin-protocol-learning
   - konmari-method-tidying
   joy:
   - konmari-method-tidying
   keep:
   - konmari-method-tidying
+  key:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  keyword:
+  - knowledge-indexing-index-refresh
+  - knowledge-indexing-index-telemetry
+  - knowledge-indexing-keyword-curation
+  - knowledge-indexing-query-templates
+  - knowledge-indexing-semantic-tags
+  kill-switch:
+  - feature-flag-governance-audit-trails
+  - feature-flag-governance-flag-matrix
+  - feature-flag-governance-flag-telemetry
+  - feature-flag-governance-oncall-runbooks
+  - feature-flag-governance-staged-rollout
   knowledge:
+  - cache-eviction-strategies-context-budgeting
+  - cache-eviction-strategies-intake-quarantine
+  - cache-eviction-strategies-konmari-sessions
+  - cache-eviction-strategies-marginal-value-score
+  - cache-eviction-strategies-vitality-decay
   - konmari-method-tidying
   knowledge-intake:
   - konmari-method-tidying
@@ -778,59 +1702,252 @@ keywords:
   kondo:
   - konmari-method-tidying
   konmari:
+  - cache-eviction-strategies-konmari-sessions
+  - garden-tending-konmari-prompts
   - konmari-method-tidying
+  kotlin:
+  - structured-concurrency-service-boundaries
+  latency:
+  - telemetry-pipeline-latency-profiling
+  layout:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  lean:
+  - franklin-protocol-learning
+  learning:
+  - franklin-protocol-learning
+  level:
+  - autonomy-scoring-level-promotions
+  level3:
+  - autonomy-scoring-human-in-loop
   library:
   - konmari-method-tidying
   life:
   - konmari-method-tidying
   life-changing:
   - konmari-method-tidying
+  lifecycle:
+  - cache-eviction-strategies-vitality-decay
+  - structured-concurrency-cancellation-graphs
+  - structured-concurrency-load-shedding
+  - structured-concurrency-observability
+  - structured-concurrency-service-boundaries
+  - structured-concurrency-task-groups
   lifestyle:
   - konmari-method-tidying
+  load-shed:
+  - structured-concurrency-load-shedding
+  local:
+  - semantic-embedding-local-embeddings
+  location:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  loop:
+  - franklin-protocol-learning
+  loss:
+  - franklin-protocol-learning
+  machine:
+  - franklin-protocol-learning
+  machine-learning:
+  - franklin-protocol-learning
   magic:
   - konmari-method-tidying
+  maintenance:
+  - semantic-embedding-vector-maintenance
+  marginal:
+  - cache-eviction-strategies-marginal-value-score
+  - marginal-value-filter-cli-workbench
+  - marginal-value-filter-delta-analysis
+  - marginal-value-filter-explanations
+  - marginal-value-filter-integration-decisions
+  - marginal-value-filter-redundancy-checks
   marie:
   - konmari-method-tidying
   marie-kondo-rules-of-tidying-sparks-joy:
   - konmari-method-tidying
   master:
   - konmari-method-tidying
+  mastery:
+  - franklin-protocol-learning
+  matrix:
+  - feature-flag-governance-flag-matrix
   meaning:
   - konmari-method-tidying
+  memory:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  memory-palace-architect:
+  - franklin-protocol-learning
   mental:
   - konmari-method-tidying
+  meta:
+  - franklin-protocol-learning
+  meta-insight:
+  - franklin-protocol-learning
+  meta-skill:
+  - franklin-protocol-learning
+  method:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  methods:
+  - franklin-protocol-learning
+  metrics:
+  - telemetry-pipeline-autonomy-alerts
+  - telemetry-pipeline-cache-hit-dashboard
+  - telemetry-pipeline-intake-flags
+  - telemetry-pipeline-latency-profiling
+  - telemetry-pipeline-token-savings
   miscellaneous:
   - konmari-method-tidying
+  modular:
+  - franklin-protocol-learning
+  modular-skills:
+  - franklin-protocol-learning
   moving:
   - konmari-method-tidying
   neutral:
   - konmari-method-tidying
   never:
   - konmari-method-tidying
+  new:
+  - franklin-protocol-learning
+  node:
+  - async-error-handling-fallback-strategies
   notices:
   - konmari-method-tidying
+  novel-insight:
+  - marginal-value-filter-delta-analysis
   obligation:
   - konmari-method-tidying
+  oncall:
+  - feature-flag-governance-oncall-runbooks
+  ontology:
+  - knowledge-indexing-semantic-tags
   order:
   - konmari-method-tidying
   organization:
   - konmari-method-tidying
+  original:
+  - franklin-protocol-learning
+  otel:
+  - structured-concurrency-observability
+  output:
+  - franklin-protocol-learning
+  override:
+  - autonomy-scoring-domain-overrides
+  palace:
+  - franklin-protocol-learning
+  - konmari-method-tidying
   papers:
   - konmari-method-tidying
+  parallel:
+  - franklin-protocol-learning
+  parameter:
+  - franklin-protocol-learning
   partial:
   - konmari-method-tidying
+  - marginal-value-filter-redundancy-checks
+  pass:
+  - franklin-protocol-learning
   path:
   - konmari-method-tidying
+  patterns:
+  - franklin-protocol-learning
+  payload:
+  - marginal-value-filter-explanations
+  peak:
+  - franklin-protocol-learning
   philosophy:
   - konmari-method-tidying
   pick:
   - konmari-method-tidying
+  plugin:
+  - franklin-protocol-learning
+  practical:
+  - franklin-protocol-learning
+  practice:
+  - franklin-protocol-learning
+  probation:
+  - cache-eviction-strategies-intake-quarantine
+  - garden-tending-evergreen-guards
+  - garden-tending-garden-reports
+  - garden-tending-konmari-prompts
+  - garden-tending-stale-sweeps
+  - garden-tending-tending-cli
+  profiling:
+  - telemetry-pipeline-latency-profiling
   progressive:
+  - konmari-method-tidying
+  promotion:
+  - autonomy-scoring-level-promotions
+  prompts:
+  - garden-tending-konmari-prompts
+  protocol:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  provider:
+  - semantic-embedding-provider-toggles
+  python:
+  - structured-concurrency-task-groups
+  quarantine:
+  - cache-eviction-strategies-intake-quarantine
+  query:
+  - knowledge-indexing-query-templates
+  query-template:
+  - knowledge-indexing-index-refresh
+  - knowledge-indexing-index-telemetry
+  - knowledge-indexing-keyword-curation
+  - knowledge-indexing-query-templates
+  - knowledge-indexing-semantic-tags
+  queue:
+  - async-error-handling-dead-letter-streams
+  - garden-tending-stale-sweeps
+  ranking:
+  - knowledge-indexing-index-telemetry
+  - knowledge-indexing-query-templates
+  - semantic-embedding-fusion-ranking
+  re-evaluate:
+  - franklin-protocol-learning
+  rebuild:
+  - knowledge-indexing-index-refresh
+  reconstruct:
+  - franklin-protocol-learning
+  reconstruction:
+  - franklin-protocol-learning
+  record:
+  - franklin-protocol-learning
+  redundancy:
+  - marginal-value-filter-cli-workbench
+  - marginal-value-filter-delta-analysis
+  - marginal-value-filter-explanations
+  - marginal-value-filter-integration-decisions
+  - marginal-value-filter-redundancy-checks
+  reference:
+  - franklin-protocol-learning
+  referenced:
+  - franklin-protocol-learning
+  references:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  regression:
+  - garden-tending-evergreen-guards
+  regret-rate:
+  - autonomy-scoring-cli-workflows
+  - autonomy-scoring-domain-overrides
+  - autonomy-scoring-human-in-loop
+  - autonomy-scoring-level-promotions
+  - autonomy-scoring-regret-rate-tracking
+  regularization:
+  - franklin-protocol-learning
+  related:
+  - franklin-protocol-learning
   - konmari-method-tidying
   release:
   - konmari-method-tidying
   releasing:
   - konmari-method-tidying
+  report:
+  - garden-tending-garden-reports
   require:
   - konmari-method-tidying
   required:
@@ -839,55 +1956,287 @@ keywords:
   - konmari-method-tidying
   response:
   - konmari-method-tidying
+  retries:
+  - async-error-handling-idempotent-retries
+  retry:
+  - async-error-handling-boundary-contracts
+  - async-error-handling-dead-letter-streams
+  - async-error-handling-error-budget-alerts
+  - async-error-handling-fallback-strategies
+  - async-error-handling-idempotent-retries
+  reverse-engineered:
+  - franklin-protocol-learning
   revisit:
   - konmari-method-tidying
   right:
   - konmari-method-tidying
+  rollout:
+  - feature-flag-governance-audit-trails
+  - feature-flag-governance-flag-matrix
+  - feature-flag-governance-flag-telemetry
+  - feature-flag-governance-oncall-runbooks
+  - feature-flag-governance-staged-rollout
+  room:
+  - franklin-protocol-learning
   rule:
   - konmari-method-tidying
   rules:
   - konmari-method-tidying
+  run:
+  - franklin-protocol-learning
+  runbook:
+  - feature-flag-governance-oncall-runbooks
+  rust:
+  - structured-concurrency-load-shedding
+  sample:
+  - autonomy-scoring-human-in-loop
   sanctuary:
   - konmari-method-tidying
+  savings:
+  - telemetry-pipeline-token-savings
+  science:
+  - franklin-protocol-learning
+  scoped:
+  - structured-concurrency-cancellation-graphs
+  - structured-concurrency-load-shedding
+  - structured-concurrency-observability
+  - structured-concurrency-service-boundaries
+  - structured-concurrency-task-groups
+  score:
+  - autonomy-scoring-cli-workflows
+  - autonomy-scoring-domain-overrides
+  - autonomy-scoring-human-in-loop
+  - autonomy-scoring-level-promotions
+  - autonomy-scoring-regret-rate-tracking
+  search:
+  - knowledge-indexing-index-refresh
+  - knowledge-indexing-index-telemetry
+  - knowledge-indexing-keyword-curation
+  - knowledge-indexing-query-templates
+  - knowledge-indexing-semantic-tags
+  - semantic-embedding-evaluation-suite
+  - semantic-embedding-fusion-ranking
+  - semantic-embedding-local-embeddings
+  - semantic-embedding-provider-toggles
+  - semantic-embedding-vector-maintenance
+  secrets:
+  - franklin-protocol-learning
+  select:
+  - franklin-protocol-learning
+  semantic:
+  - knowledge-indexing-semantic-tags
+  - semantic-embedding-evaluation-suite
+  - semantic-embedding-fusion-ranking
+  - semantic-embedding-local-embeddings
+  - semantic-embedding-provider-toggles
+  - semantic-embedding-vector-maintenance
+  sensitive:
+  - autonomy-scoring-domain-overrides
+  sensory:
+  - franklin-protocol-learning
+  sentence-transformers:
+  - semantic-embedding-local-embeddings
   sentimental:
   - konmari-method-tidying
+  short:
+  - franklin-protocol-learning
   showing:
   - konmari-method-tidying
+  side:
+  - franklin-protocol-learning
+  side-by-side:
+  - franklin-protocol-learning
   signs:
   - konmari-method-tidying
   six:
   - konmari-method-tidying
+  skill:
+  - franklin-protocol-learning
+  skill-acquisition:
+  - franklin-protocol-learning
+  skills:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  skills-eval:
+  - franklin-protocol-learning
+  slo:
+  - async-error-handling-error-budget-alerts
+  source:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  spans:
+  - structured-concurrency-observability
   spark:
   - konmari-method-tidying
   sparks:
   - konmari-method-tidying
+  spectator:
+  - franklin-protocol-learning
+  spend:
+  - franklin-protocol-learning
+  staged:
+  - feature-flag-governance-staged-rollout
+  staging:
+  - feature-flag-governance-audit-trails
+  - feature-flag-governance-flag-matrix
+  - feature-flag-governance-flag-telemetry
+  - feature-flag-governance-oncall-runbooks
+  - feature-flag-governance-staged-rollout
+  stale:
+  - garden-tending-evergreen-guards
+  - garden-tending-garden-reports
+  - garden-tending-konmari-prompts
+  - garden-tending-stale-sweeps
+  - garden-tending-tending-cli
+  started:
+  - franklin-protocol-learning
+  state:
+  - feature-flag-governance-flag-telemetry
+  stream:
+  - async-error-handling-dead-letter-streams
+  structured:
+  - structured-concurrency-cancellation-graphs
+  - structured-concurrency-load-shedding
+  - structured-concurrency-observability
+  - structured-concurrency-service-boundaries
+  - structured-concurrency-task-groups
+  study:
+  - franklin-protocol-learning
   suggest:
   - konmari-method-tidying
+  supervisorjob:
+  - structured-concurrency-service-boundaries
+  tagging:
+  - knowledge-indexing-semantic-tags
+  taskgroup:
+  - structured-concurrency-task-groups
+  taxonomy:
+  - knowledge-indexing-keyword-curation
+  techniques:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  telemetry:
+  - feature-flag-governance-flag-telemetry
+  - knowledge-indexing-index-telemetry
+  - telemetry-pipeline-autonomy-alerts
+  - telemetry-pipeline-cache-hit-dashboard
+  - telemetry-pipeline-intake-flags
+  - telemetry-pipeline-latency-profiling
+  - telemetry-pipeline-token-savings
+  template:
+  - knowledge-indexing-query-templates
+  tend:
+  - garden-tending-evergreen-guards
+  - garden-tending-garden-reports
+  - garden-tending-konmari-prompts
+  - garden-tending-stale-sweeps
+  - garden-tending-tending-cli
   tending:
+  - garden-tending-tending-cli
   - konmari-method-tidying
   test:
   - konmari-method-tidying
+  tests:
+  - garden-tending-evergreen-guards
   thank:
   - konmari-method-tidying
+  thesis:
+  - franklin-protocol-learning
+  - konmari-method-tidying
   tidy:
+  - cache-eviction-strategies-konmari-sessions
   - konmari-method-tidying
   tidying:
   - konmari-method-tidying
+  tight:
+  - franklin-protocol-learning
   time:
   - konmari-method-tidying
+  timeout:
+  - async-error-handling-boundary-contracts
+  - async-error-handling-dead-letter-streams
+  - async-error-handling-error-budget-alerts
+  - async-error-handling-fallback-strategies
+  - async-error-handling-idempotent-retries
+  toggle:
+  - semantic-embedding-provider-toggles
+  token:
+  - telemetry-pipeline-token-savings
+  token-limit:
+  - cache-eviction-strategies-context-budgeting
+  tokio:
+  - structured-concurrency-load-shedding
   traditional:
   - konmari-method-tidying
+  trail:
+  - feature-flag-governance-audit-trails
+  training:
+  - franklin-protocol-learning
+  trust:
+  - autonomy-scoring-cli-workflows
+  - autonomy-scoring-domain-overrides
+  - autonomy-scoring-human-in-loop
+  - autonomy-scoring-level-promotions
+  - autonomy-scoring-regret-rate-tracking
+  ttl:
+  - cache-eviction-strategies-context-budgeting
+  - cache-eviction-strategies-intake-quarantine
+  - cache-eviction-strategies-konmari-sessions
+  - cache-eviction-strategies-marginal-value-score
+  - cache-eviction-strategies-vitality-decay
   unprocessed:
   - konmari-method-tidying
+  update:
+  - franklin-protocol-learning
+  user:
+  - franklin-protocol-learning
+  uses:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  validate:
+  - franklin-protocol-learning
+  vector:
+  - semantic-embedding-evaluation-suite
+  - semantic-embedding-fusion-ranking
+  - semantic-embedding-local-embeddings
+  - semantic-embedding-provider-toggles
+  - semantic-embedding-vector-maintenance
   vision:
   - konmari-method-tidying
+  visualization:
+  - telemetry-pipeline-cache-hit-dashboard
+  vitality:
+  - cache-eviction-strategies-context-budgeting
+  - cache-eviction-strategies-intake-quarantine
+  - cache-eviction-strategies-konmari-sessions
+  - cache-eviction-strategies-marginal-value-score
+  - cache-eviction-strategies-vitality-decay
+  vocabulary:
+  - knowledge-indexing-keyword-curation
+  volume:
+  - telemetry-pipeline-intake-flags
+  waiting:
+  - franklin-protocol-learning
   warning:
   - konmari-method-tidying
   what-is-konmari-method:
   - konmari-method-tidying
+  workbench:
+  - marginal-value-filter-cli-workbench
+  workflow:
+  - autonomy-scoring-cli-workflows
+  - garden-tending-tending-cli
+  works:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  workshop:
+  - franklin-protocol-learning
+  your:
+  - franklin-protocol-learning
+  - konmari-method-tidying
   yourself:
   - konmari-method-tidying
 metadata:
-  total_entries: 3
-  total_keywords: 268
-  last_updated: '2025-12-08T23:04:00.394420'
+  total_entries: 53
+  total_keywords: 406
+  last_updated: '2025-12-09T08:16:30.324622+00:00'

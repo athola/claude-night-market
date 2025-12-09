@@ -6,6 +6,9 @@ import pytest
 
 from memory_palace.corpus.cache_lookup import CacheLookup
 
+# Constants for match score thresholds
+STRONG_MATCH_THRESHOLD = 0.6
+
 
 @pytest.fixture
 def temp_corpus_dir(tmp_path):
@@ -144,7 +147,7 @@ class TestCacheLookup:
         # Should have at least one strong match
         # Query template matching provides good semantic similarity
         assert len(strong_results) > 0
-        assert any(r["match_score"] >= 0.6 for r in strong_results)
+        assert any(r["match_score"] >= STRONG_MATCH_THRESHOLD for r in strong_results)
 
         # Partial match: some keywords match
         partial_results = cache_lookup.search(query="learning techniques", mode="unified")
@@ -242,3 +245,28 @@ class TestCacheLookup:
         # Each entry should appear only once
         entry_ids = [r["entry_id"] for r in results]
         assert len(entry_ids) == len(set(entry_ids))
+
+    def test_embedding_toggle_includes_results(
+        self,
+        temp_corpus_dir,
+        temp_index_dir,
+        monkeypatch,
+    ) -> None:
+        """Embedding toggle should honor env provider and return embedding hits."""
+        monkeypatch.setenv("MEMORY_PALACE_EMBEDDINGS_PROVIDER", "hash")
+        lookup = CacheLookup(
+            corpus_dir=str(temp_corpus_dir),
+            index_dir=str(temp_index_dir),
+            embedding_provider="env",
+        )
+        lookup.build_indexes()
+
+        assert lookup.embedding_index is not None
+        assert lookup.embedding_index.provider == "hash"
+
+        lookup.embedding_index.entries = {"franklin-protocol": [0.1] * 16}
+
+        results = lookup.search(query="gradient descent", mode="embeddings")
+
+        assert results
+        assert results[0]["source"] == "embeddings"

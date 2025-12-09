@@ -71,6 +71,7 @@ select = [
 ]
 
 extend-ignore = [
+    "S101",   # Use of assert (acceptable)
     "E203",    # whitespace before ':' (conflicts with black/ruff format)
     "D203",    # incorrect-blank-line-before-class (incompatible with D211)
     "D213",    # multi-line-summary-second-line (incompatible with D212)

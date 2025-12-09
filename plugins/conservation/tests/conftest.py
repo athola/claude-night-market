@@ -15,6 +15,14 @@ import pytest
 # Add the scripts directory to Python path for importing conservation scripts
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
+# Constants for test thresholds and limits
+CPU_USAGE_THRESHOLD = 80
+TOKEN_USAGE_THRESHOLD = 10000
+MECW_THRESHOLD = 0.5  # 50% rule
+LOW_UTILIZATION_THRESHOLD = 0.3
+OPTIMAL_UTILIZATION_THRESHOLD = 0.5
+HIGH_UTILIZATION_THRESHOLD = 0.7
+
 
 @pytest.fixture
 def conservation_plugin_root():
@@ -113,7 +121,10 @@ def sample_plugin_json():
     return {
         "name": "conservation",
         "version": "2.0.0",
-        "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
+        "description": (
+            "Resource optimization and performance monitoring toolkit for "
+            "efficient Claude Code workflows"
+        ),
         "skills": [
             {
                 "name": "context-optimization",
@@ -320,9 +331,9 @@ def mock_performance_monitor():
 
         def check_thresholds(self, metrics):
             alerts = []
-            if metrics["cpu_usage"] > 80:
+            if metrics["cpu_usage"] > CPU_USAGE_THRESHOLD:
                 alerts.append("High CPU usage detected")
-            if metrics["token_usage"] > 10000:
+            if metrics["token_usage"] > TOKEN_USAGE_THRESHOLD:
                 alerts.append("High token usage detected")
             return alerts
 
@@ -344,7 +355,7 @@ def mock_mecw_analyzer():
     class MockMECWAnalyzer:
         def __init__(self) -> None:
             self.context_window = 200000
-            self.mecw_threshold = 0.5  # 50% rule
+            self.mecw_threshold = MECW_THRESHOLD  # 50% rule
 
         def analyze_context_usage(self, context_tokens):
             utilization = context_tokens / self.context_window
@@ -356,20 +367,20 @@ def mock_mecw_analyzer():
             }
 
         def _classify_status(self, utilization) -> str:
-            if utilization < 0.3:
+            if utilization < LOW_UTILIZATION_THRESHOLD:
                 return "LOW"
-            if utilization < 0.5:
+            if utilization < OPTIMAL_UTILIZATION_THRESHOLD:
                 return "OPTIMAL"
-            if utilization < 0.7:
+            if utilization < HIGH_UTILIZATION_THRESHOLD:
                 return "HIGH"
             return "CRITICAL"
 
         def _get_recommendations(self, utilization):
-            if utilization < 0.3:
+            if utilization < LOW_UTILIZATION_THRESHOLD:
                 return ["Context usage is low, optimization not required"]
-            if utilization < 0.5:
+            if utilization < OPTIMAL_UTILIZATION_THRESHOLD:
                 return ["Continue current approach, monitor usage"]
-            if utilization < 0.7:
+            if utilization < HIGH_UTILIZATION_THRESHOLD:
                 return ["Consider context compression", "Evaluate token efficiency"]
             return [
                 "Immediate context optimization required",
@@ -515,9 +526,9 @@ def create_mock_context_analysis(
         "window_size": window_size,
         "utilization_percentage": utilization * 100,
         "status": "OPTIMAL"
-        if utilization < 0.5
+        if utilization < OPTIMAL_UTILIZATION_THRESHOLD
         else "HIGH"
-        if utilization < 0.7
+        if utilization < HIGH_UTILIZATION_THRESHOLD
         else "CRITICAL",
-        "mecw_compliant": utilization <= 0.5,
+        "mecw_compliant": utilization <= OPTIMAL_UTILIZATION_THRESHOLD,
     }

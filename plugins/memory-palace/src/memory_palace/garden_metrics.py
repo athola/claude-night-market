@@ -60,6 +60,12 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional label for Prometheus output (defaults to file stem).",
     )
+    parser.add_argument(
+        "--tending-queue",
+        type=Path,
+        default=None,
+        help="Optional path to the vitality tending queue emitted by update_vitality_scores.",
+    )
     return parser.parse_args()
 
 
@@ -107,7 +113,22 @@ def compute_metrics(data: dict[str, Any], now: datetime) -> dict[str, Any]:
     }
 
 
-def compute_garden_metrics(path: Path, now: datetime | None = None) -> dict[str, Any]:
+def summarize_tending_queue(queue_path: Path) -> dict[str, int]:
+    """Summarize tending queue entries for telemetry."""
+    if not queue_path.exists():
+        return {"stale": 0, "probation_overdue": 0}
+    queue_data = json.loads(queue_path.read_text(encoding="utf-8"))
+    return {
+        "stale": len(queue_data.get("stale", [])),
+        "probation_overdue": len(queue_data.get("probation_overdue", [])),
+    }
+
+
+def compute_garden_metrics(
+    path: Path,
+    now: datetime | None = None,
+    queue_path: Path | None = None,
+) -> dict[str, Any]:
     """Load a digital garden file; compute its key metrics.
 
     Read the specified JSON garden file; calculate metrics such as link density
@@ -126,7 +147,10 @@ def compute_garden_metrics(path: Path, now: datetime | None = None) -> dict[str,
     current_time = now or datetime.now(UTC)
     with path.open("r", encoding="utf-8") as file:
         data = json.load(file)
-    return compute_metrics(data, current_time)
+    metrics = compute_metrics(data, current_time)
+    if queue_path:
+        metrics["tending_queue"] = summarize_tending_queue(queue_path)
+    return metrics
 
 
 def main() -> int:
@@ -134,7 +158,7 @@ def main() -> int:
     args = parse_args()
     now = datetime.fromisoformat(args.now) if args.now else datetime.now(UTC)
 
-    compute_garden_metrics(args.path, now)
+    compute_garden_metrics(args.path, now, args.tending_queue)
     if args.format == "brief":
         pass
     elif args.format == "prometheus":

@@ -18,6 +18,7 @@ class TestCatchupCommand:
 
     def test_catchup_command_analyzes_diverged_branch(self, temp_git_repo) -> None:
         """GIVEN a branch that has diverged from remote
+
         WHEN /catchup is executed
         THEN it should analyze differences and prepare for synchronization.
         """
@@ -54,6 +55,7 @@ class TestCatchupCommand:
 
     def test_catchup_command_handles_ahead_branch(self, temp_git_repo) -> None:
         """GIVEN a branch that is ahead of remote
+
         WHEN /catchup is executed
         THEN it should identify commits to push.
         """
@@ -74,6 +76,7 @@ class TestCatchupCommand:
 
     def test_catchup_command_handles_diverged_branch(self) -> None:
         """GIVEN a branch that has both local and remote changes
+
         WHEN /catchup is executed
         THEN it should identify the diverged state and suggest merge/rebase.
         """
@@ -97,6 +100,7 @@ class TestCatchupCommand:
 
     def test_catchup_command_handles_clean_repository(self) -> None:
         """GIVEN a clean repository up to date with remote
+
         WHEN /catchup is executed
         THEN it should report no action needed.
         """
@@ -160,6 +164,7 @@ class TestCommitMsgCommand:
         staged_changes_context,
     ) -> None:
         """GIVEN staged changes in the repository
+
         WHEN /commit-msg is executed
         THEN it should generate a conventional commit message.
         """
@@ -177,6 +182,7 @@ class TestCommitMsgCommand:
 
     def test_commit_msg_command_handles_bug_fixes(self) -> None:
         """GIVEN staged changes that fix bugs
+
         WHEN /commit-msg is executed
         THEN it should generate a fix-type commit message.
         """
@@ -192,6 +198,7 @@ class TestCommitMsgCommand:
 
     def test_commit_msg_command_handles_no_staged_changes(self) -> None:
         """GIVEN no staged changes in the repository
+
         WHEN /commit-msg is executed
         THEN it should inform user to stage changes first.
         """
@@ -204,6 +211,7 @@ class TestCommitMsgCommand:
 
     def test_commit_msg_command_follows_skill_sequence(self, mock_todo_tool) -> None:
         """GIVEN the /commit-msg command is executed
+
         WHEN it runs the skill sequence
         THEN it should execute skills in the correct order.
         """
@@ -272,6 +280,7 @@ class TestPRCommand:
 
     def test_pr_command_prepares_pull_request(self, pull_request_context) -> None:
         """GIVEN a feature branch ready for PR
+
         WHEN /pr is executed
         THEN it should prepare a comprehensive pull request.
         """
@@ -289,6 +298,7 @@ class TestPRCommand:
 
     def test_pr_command_includes_quality_gates(self, pull_request_context) -> None:
         """GIVEN a feature branch
+
         WHEN /pr prepares the pull request
         THEN it should include quality gate validation.
         """
@@ -303,6 +313,7 @@ class TestPRCommand:
 
     def test_pr_command_suggests_reviewers(self, pull_request_context) -> None:
         """GIVEN changes in specific areas
+
         WHEN /pr prepares the pull request
         THEN it should suggest appropriate reviewers.
         """
@@ -350,6 +361,7 @@ Implements new functionality with comprehensive test coverage.
 - [ ] Run integration tests
 - [ ] Review documentation
 """,
+
                 "quality_gates": {
                     "has_tests": any(
                         f["type"] == "test" for f in context.get("changed_files", [])
@@ -375,6 +387,7 @@ class TestUpdateDocsCommand:
         self, temp_git_repo
     ) -> None:
         """GIVEN code changes that require documentation updates
+
         WHEN /update-docs is executed
         THEN it should identify and suggest documentation changes.
         """
@@ -390,6 +403,7 @@ class TestUpdateDocsCommand:
 
     def test_update_docs_command_handles_no_changes(self) -> None:
         """GIVEN no code changes
+
         WHEN /update-docs is executed
         THEN it should report no documentation updates needed.
         """
@@ -440,6 +454,7 @@ class TestUpdateReadmeCommand:
 
     def test_update_readme_command_modernizes_readme(self, temp_git_repo) -> None:
         """GIVEN an outdated README file
+
         WHEN /update-readme is executed
         THEN it should modernize the README with current best practices.
         """
@@ -517,6 +532,7 @@ class TestUpdateVersionCommand:
         self, temp_git_repo
     ) -> None:
         """GIVEN a project with version information in multiple files
+
         WHEN /update-version is executed with patch version
         THEN it should update version in all relevant files.
         """
@@ -531,6 +547,7 @@ class TestUpdateVersionCommand:
 
     def test_update_version_command_handles_major_minor_patch(self) -> None:
         """GIVEN different version bump types
+
         WHEN /update-version is executed
         THEN it should correctly calculate the new version.
         """

@@ -111,7 +111,8 @@ Foundational workflow scaffolding for any detailed review.
     def test_review_core_creates_required_todowrite_items(
         self, mock_todo_write
     ) -> None:
-        """Scenario: Review core creates required TodoWrite items
+        """Scenario: Review core creates required TodoWrite items.
+
         Given the review-core skill is executed
         When establishing the workflow
         Then it should create all 5 required TodoWrite items
@@ -144,7 +145,8 @@ Foundational workflow scaffolding for any detailed review.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_context_establishment_captures_git_state(self, mock_claude_tools) -> None:
-        """Scenario: Context establishment captures git state
+        """Scenario: Context establishment captures git state.
+
         Given a repository in review state
         When establishing context
         Then it should capture pwd, branch, and baseline
@@ -186,7 +188,8 @@ Foundational workflow scaffolding for any detailed review.
     def test_scope_inventory_discovers_project_structure(
         self, mock_claude_tools
     ) -> None:
-        """Scenario: Scope inventory finds all relevant artifacts
+        """Scenario: Scope inventory finds all relevant artifacts.
+
         Given a project with various file types
         When inventorying scope
         Then it should list source, config, docs, and generated assets
@@ -233,7 +236,8 @@ Foundational workflow scaffolding for any detailed review.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_scope_inventory_identifies_review_targets(self, mock_claude_tools) -> None:
-        """Scenario: Scope inventory identifies targets for review
+        """Scenario: Scope inventory identifies targets for review.
+
         Given modified files and configuration changes
         When inventorying scope
         Then it should prioritize modified files
@@ -275,7 +279,8 @@ Foundational workflow scaffolding for any detailed review.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_capture_initializes_log(self, sample_evidence_log) -> None:
-        """Scenario: Evidence capture initializes structured log
+        """Scenario: Evidence capture initializes structured log.
+
         Given a review workflow starting
         When initializing evidence capture
         Then it should create structured evidence log
@@ -296,7 +301,8 @@ Foundational workflow scaffolding for any detailed review.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_capture_logs_commands(self, sample_evidence_log) -> None:
-        """Scenario: Evidence capture logs all commands
+        """Scenario: Evidence capture logs all commands.
+
         Given commands being executed during review
         When capturing evidence
         Then it should record command, output, and timestamp
@@ -325,7 +331,8 @@ Foundational workflow scaffolding for any detailed review.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_deliverable_structure_generation(self) -> None:
-        """Scenario: Deliverable structure creates consistent report format
+        """Scenario: Deliverable structure creates consistent report format.
+
         Given review findings and evidence
         When generating deliverables
         Then it should create structured report with required sections
@@ -366,7 +373,8 @@ Foundational workflow scaffolding for any detailed review.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_contingency_planning_missing_tools(self, mock_claude_tools) -> None:
-        """Scenario: Contingency planning handles missing tools
+        """Scenario: Contingency planning handles missing tools.
+
         Given required tools not available
         When planning contingencies
         Then it should provide fallback strategies
@@ -403,7 +411,8 @@ Foundational workflow scaffolding for any detailed review.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_review_core_workflow_completion(self, mock_todo_write) -> None:
-        """Scenario: Review core workflow completes all phases
+        """Scenario: Review core workflow completes all phases.
+
         Given a full review workflow
         When executing review-core skill
         Then it should complete all 5 TodoWrite items
@@ -431,7 +440,8 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.unit
     def test_review_core_error_handling(self, mock_claude_tools) -> None:
-        """Scenario: Review core handles errors gracefully
+        """Scenario: Review core handles errors gracefully.
+
         Given command execution failures
         When running review workflow
         Then it should handle errors and continue
@@ -468,7 +478,8 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.unit
     def test_review_core_token_conservation(self) -> None:
-        """Scenario: Review core conserves tokens in large projects
+        """Scenario: Review core conserves tokens in large projects.
+
         Given a project with many files
         When inventorying scope
         Then it should summarize rather than list all files

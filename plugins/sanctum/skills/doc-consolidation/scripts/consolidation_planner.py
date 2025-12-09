@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import shutil
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
@@ -146,6 +147,7 @@ class ContentChunk:
     char_count: int = 0
 
     def __post_init__(self) -> None:
+        """Initialize character count after dataclass creation."""
         self.char_count = len(self.content)
 
 
@@ -174,8 +176,12 @@ class ConsolidationPlan:
 def git_untracked_files(repo_path: str = ".") -> list[str]:
     """Get list of untracked files from git status."""
     try:
+        git_path = shutil.which("git")
+        if not git_path:
+            return []
+
         result = subprocess.run(
-            ["git", "status", "--porcelain"],
+            [git_path, "status", "--porcelain"],
             cwd=repo_path,
             capture_output=True,
             text=True,
@@ -187,7 +193,7 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
                 file_path = line[3:].strip()
                 untracked.append(file_path)
         return untracked
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return []
 
 
@@ -592,32 +598,42 @@ def main() -> int:
 
     if args.command == "scan":
         candidates = scan_for_candidates(args.repo_path)
-        if args.json or not candidates:
-            pass
-        else:
+        if args.json:
+            import json
+
+            print(json.dumps([asdict(c) for c in candidates], indent=2))
+        elif candidates:
             for c in candidates:
-                for _reason in c.reasons:
-                    pass
+                print(f"{c.path} (score={c.score}): {', '.join(c.reasons)}")
 
     elif args.command == "analyze":
         all_chunks = []
         for file_path in args.files:
             chunks = extract_chunks(file_path)
-            if args.json:
-                all_chunks.extend([asdict(c) for c in chunks])
-            else:
-                for _chunk in chunks:
-                    pass
+            all_chunks.extend(chunks)
 
         if args.json:
-            pass
+            import json
+
+            print(json.dumps([asdict(c) for c in all_chunks], indent=2))
+        else:
+            for chunk in all_chunks:
+                print(f"## {chunk.header} ({chunk.category}, {chunk.value})")
 
     elif args.command == "plan":
-        generate_plan(args.file, args.docs_dir)
+        plan = generate_plan(args.file, args.docs_dir)
         if args.json:
-            pass
+            import json
+
+            plan_dict = {
+                "source": plan.source,
+                "routes": [asdict(r) for r in plan.routes],
+                "skipped": plan.skipped,
+                "summary": plan.summary,
+            }
+            print(json.dumps(plan_dict, indent=2))
         else:
-            pass
+            print(format_plan_markdown(plan))
 
     return 0
 

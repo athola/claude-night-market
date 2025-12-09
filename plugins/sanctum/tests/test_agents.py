@@ -14,6 +14,7 @@ class TestGitWorkspaceAgent:
 
     def test_agent_initializes_with_correct_capabilities(self) -> None:
         """GIVEN the Git Workspace agent is created
+
         WHEN it initializes
         THEN it should have the correct capabilities and tools.
         """
@@ -41,6 +42,7 @@ class TestGitWorkspaceAgent:
 
     def test_agent_analyzes_repository_state(self, temp_git_repo) -> None:
         """GIVEN a Git repository
+
         WHEN the agent analyzes the repository state
         THEN it should provide comprehensive repository information.
         """
@@ -74,6 +76,7 @@ class TestGitWorkspaceAgent:
         self, staged_changes_context
     ) -> None:
         """GIVEN a repository with various types of changes
+
         WHEN the agent analyzes the changes
         THEN it should categorize them appropriately.
         """
@@ -104,6 +107,7 @@ class TestGitWorkspaceAgent:
 
     def test_agent_coordinates_todo_creation(self, mock_todo_tool) -> None:
         """GIVEN the agent completes repository analysis
+
         WHEN it creates TodoWrite items
         THEN it should create appropriate tasks for the workflow.
         """
@@ -128,6 +132,7 @@ class TestGitWorkspaceAgent:
 
     def test_agent_handles_error_states_gracefully(self) -> None:
         """GIVEN a repository in an error state
+
         WHEN the agent encounters the error
         THEN it should handle it gracefully and provide recovery options.
         """
@@ -161,6 +166,7 @@ class TestGitWorkspaceAgent:
         self, staged_changes_context
     ) -> None:
         """GIVEN a repository state analysis
+
         WHEN the agent provides recommendations
         THEN it should suggest appropriate next steps.
         """
@@ -285,6 +291,7 @@ class TestCommitAgent:
 
     def test_agent_generates_conventional_commits(self, staged_changes_context) -> None:
         """GIVEN staged changes in the repository
+
         WHEN the commit agent analyzes and generates a commit
         THEN it should produce a conventional commit message.
         """
@@ -320,6 +327,7 @@ class TestCommitAgent:
 
     def test_agent_validates_commit_message_quality(self) -> None:
         """GIVEN a generated commit message
+
         WHEN the agent validates it
         THEN it should ensure quality standards are met.
         """
@@ -339,6 +347,7 @@ class TestCommitAgent:
 
     def test_agent_handles_complex_change_scenarios(self) -> None:
         """GIVEN complex changes involving multiple files and types
+
         WHEN the agent generates a commit message
         THEN it should appropriately summarize all changes.
         """
@@ -440,6 +449,7 @@ class TestPRAgent:
 
     def test_agent_preparates_comprehensive_pr(self, pull_request_context) -> None:
         """GIVEN a feature branch ready for PR
+
         WHEN the PR agent prepares the pull request
         THEN it should generate a comprehensive PR description.
         """
@@ -461,6 +471,7 @@ class TestPRAgent:
 
     def test_agent_analyzes_pr_quality_gates(self, pull_request_context) -> None:
         """GIVEN a pull request
+
         WHEN the agent checks quality gates
         THEN it should validate all required criteria.
         """
@@ -486,6 +497,7 @@ class TestPRAgent:
 
     def test_agent_suggests_reviewers(self, pull_request_context) -> None:
         """GIVEN changes in specific areas
+
         WHEN the agent suggests reviewers
         THEN it should recommend appropriate team members.
         """

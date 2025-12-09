@@ -120,7 +120,7 @@ def fix_skill_file(file_path: str, max_length: int = 80) -> bool:
 
 
 def main() -> None:
-    """Main entry point for fixing long lines in skill files."""
+    """Fix long lines in skill files."""
     parser = argparse.ArgumentParser(description="Fix very long lines in skill files")
     parser.add_argument("files", nargs="+", help="Skill files to fix")
     parser.add_argument(

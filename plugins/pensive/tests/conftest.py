@@ -6,6 +6,7 @@ for testing pensive skills, agents, and workflows.
 
 from __future__ import annotations
 
+import subprocess
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock
@@ -246,8 +247,6 @@ tokio = { version = "1.0", features = ["full"] }
         """)
 
         # Initialize git repository
-        import subprocess
-
         subprocess.run(["git", "init"], check=False, cwd=repo_path, capture_output=True)
         subprocess.run(
             ["git", "config", "user.email", "test@example.com"],
@@ -281,8 +280,8 @@ tokio = { version = "1.0", features = ["full"] }
 def mock_skill_context():
     """Create a mock skill context for testing."""
     context = Mock()
-    context.repo_path = Path("/tmp/test_repo")
-    context.working_dir = Path("/tmp/test_repo")
+    context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
+    context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
     context.get_file_diffs.return_value = []
     context.get_staged_files.return_value = []
     context.get_unstaged_files.return_value = []

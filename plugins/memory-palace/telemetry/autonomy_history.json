@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp": "2025-12-07T10:00:00Z",
+    "result": "correct",
+    "domains": ["cache", "async"]
+  },
+  {
+    "timestamp": "2025-12-07T12:10:00Z",
+    "result": "regret",
+    "domains": ["async"]
+  }
+]

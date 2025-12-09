@@ -8,6 +8,15 @@ import time
 
 import pytest
 
+# Constants for performance thresholds
+MIN_REVIEW_WORKFLOW_SKILLS = 50
+MAX_VALIDATOR_SIZE_BYTES = 100_000  # 100KB
+MAX_AVG_MEMORY_PER_SKILL_FILE = 50_000  # 50KB
+MAX_MEMORY_PER_SKILL_FILE = 100_000  # 100KB
+MIN_REPORT_LENGTH = 1000
+ITERATIONS_FOR_STRESS_TEST = 1000
+MAX_EXECUTION_TIME_SECONDS = 5.0
+
 
 class TestValidatorPerformance:
     """Feature: Imbue validator performance under load.
@@ -107,7 +116,8 @@ Test command for performance testing.
 
     @pytest.mark.slow
     def test_validator_performance_large_plugin(self, large_plugin_structure) -> None:
-        """Scenario: Validator performance with large plugin
+        """Scenario: Validator performance with large plugin.
+
         Given a plugin with 100+ skills and 50+ commands
         When running validation
         Then it should complete within reasonable time.
@@ -133,10 +143,10 @@ Test command for performance testing.
         execution_time = end_time - start_time
 
         # Assert performance
-        assert execution_time < 5.0  # Should complete in under 5 seconds
+        assert execution_time < MAX_EXECUTION_TIME_SECONDS  # Should complete in under 5 seconds
         assert len(scan_result["skills_found"]) == 100
         assert (
-            len(scan_result["review_workflow_skills"]) >= 50
+            len(scan_result["review_workflow_skills"]) >= MIN_REVIEW_WORKFLOW_SKILLS
         )  # About half should match patterns
         assert isinstance(validation_issues, list)
         assert len(report) > 0  # Report should be generated
@@ -146,12 +156,13 @@ Test command for performance testing.
 
         validator_size = sys.getsizeof(validator)
         assert (
-            validator_size < 100_000
+            validator_size < MAX_VALIDATOR_SIZE_BYTES
         )  # Should be under 100KB for in-memory representation
 
     @pytest.mark.slow
     def test_validator_scan_performance_patterns(self, large_plugin_structure) -> None:
-        """Scenario: Pattern matching performance optimization
+        """Scenario: Pattern matching performance optimization.
+
         Given many skill files with various patterns
         When scanning for review patterns
         Then pattern matching should be optimized.
@@ -202,7 +213,8 @@ Test command for performance testing.
 
     @pytest.mark.slow
     def test_validator_memory_efficiency(self, tmp_path) -> None:
-        """Scenario: Memory usage remains reasonable
+        """Scenario: Memory usage remains reasonable.
+
         Given validation processing many files
         When processing large datasets
         Then memory usage should scale linearly.
@@ -271,8 +283,8 @@ Test command for performance testing.
         max_memory_per_file = max(memory_per_skill)
 
         # Assert memory efficiency
-        assert avg_memory_per_file < 50_000  # Less than 50KB per skill file
-        assert max_memory_per_file < 100_000  # Less than 100KB per skill file
+        assert avg_memory_per_file < MAX_AVG_MEMORY_PER_SKILL_FILE  # Less than 50KB per skill file
+        assert max_memory_per_file < MAX_MEMORY_PER_SKILL_FILE  # Less than 100KB per skill file
 
         # Check linear scaling ( shouldn't grow exponentially)
         if len(memory_per_skill) > 2:
@@ -287,7 +299,8 @@ Test command for performance testing.
 
     @pytest.mark.slow
     def test_validator_concurrent_performance(self, tmp_path) -> None:
-        """Scenario: Validator handles concurrent processing
+        """Scenario: Validator handles concurrent processing.
+
         Given multiple validation requests
         When processing in parallel
         Then performance should scale appropriately.
@@ -378,7 +391,8 @@ Test command for performance testing.
     def test_validator_report_generation_performance(
         self, large_plugin_structure
     ) -> None:
-        """Scenario: Report generation performs efficiently
+        """Scenario: Report generation performs efficiently.
+
         Given large validation results
         When generating reports
         Then report generation should be fast.
@@ -427,7 +441,8 @@ Test command for performance testing.
 
     @pytest.mark.slow
     def test_validator_regex_pattern_optimization(self, large_plugin_structure) -> None:
-        """Scenario: Regex pattern matching is optimized
+        """Scenario: Regex pattern matching is optimized.
+
         Given many patterns to match against content
         When scanning skills
         Then regex compilation should be optimized.
@@ -479,7 +494,10 @@ Test command for performance testing.
             return pattern.search(content) is not None
 
         # Test performance of each strategy
-        test_content = "This is a review workflow with evidence logging and structured output patterns"
+        test_content = (
+            "This is a review workflow with evidence logging "
+            "and structured output patterns"
+        )
         iterations = 1000
 
         # Strategy 1: Compile each time
@@ -513,7 +531,8 @@ Test command for performance testing.
 
     @pytest.mark.slow
     def test_validator_io_performance(self, tmp_path) -> None:
-        """Scenario: File I/O operations are optimized
+        """Scenario: File I/O operations are optimized.
+
         Given many files to read
         When scanning plugin directory
         Then file I/O should be efficient.

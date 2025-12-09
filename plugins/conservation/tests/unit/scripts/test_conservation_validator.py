@@ -24,6 +24,7 @@ class TestConservationValidator:
         mock_conservation_validator,
     ) -> None:
         """Scenario: Validator detects conservation workflow patterns
+
         Given a conservation plugin with multiple skills
         When scanning for conservation patterns
         Then it should identify MECW principles, token conservation, and performance monitoring
@@ -72,6 +73,7 @@ class TestConservationValidator:
     @pytest.mark.unit
     def test_validator_validates_mecw_compliance(self, mock_mecw_analyzer) -> None:
         """Scenario: Validator validates MECW compliance in skills
+
         Given skills with context optimization patterns
         When validating MECW compliance
         Then it should check 50% context window rule
@@ -107,6 +109,7 @@ class TestConservationValidator:
         mock_token_quota_tracker,
     ) -> None:
         """Scenario: Validator analyzes token conservation patterns
+
         Given token usage logs and quota information
         When analyzing conservation patterns
         Then it should track usage against quotas
@@ -139,6 +142,7 @@ class TestConservationValidator:
         mock_performance_monitor,
     ) -> None:
         """Scenario: Validator detects performance monitoring capabilities
+
         Given performance monitoring skills and metrics
         When detecting monitoring patterns
         Then it should identify resource tracking capabilities
@@ -169,6 +173,7 @@ class TestConservationValidator:
         sample_skill_content,
     ) -> None:
         """Scenario: Validator validates conservation skill configuration
+
         Given conservation skill files with frontmatter
         When validating configuration compliance
         Then it should check required fields for conservation skills
@@ -196,6 +201,7 @@ class TestConservationValidator:
         mock_conservation_validator,
     ) -> None:
         """Scenario: Validator generates comprehensive conservation report
+
         Given conservation analysis results
         When generating report
         Then it should include MECW compliance, token efficiency, and performance metrics
@@ -249,6 +255,7 @@ class TestConservationValidator:
         mock_conservation_validator,
     ) -> None:
         """Scenario: Validator identifies resource optimization opportunities
+
         Given conservation plugin configuration and usage patterns
         When identifying optimization opportunities
         Then it should highlight MECW violations, token waste, and performance bottlenecks
@@ -305,6 +312,7 @@ class TestConservationValidator:
         mock_conservation_validator,
     ) -> None:
         """Scenario: Validator handles invalid or malformed skill files
+
         Given skill files with missing or invalid frontmatter
         When validating skills
         Then it should report specific validation errors
@@ -356,6 +364,7 @@ class TestConservationValidator:
         self, mock_conservation_validator
     ) -> None:
         """Scenario: Validator maintains performance with large plugin structures
+
         Given a plugin with many skills and complex configurations
         When scanning and validating
         Then it should complete within reasonable time limits
@@ -399,6 +408,7 @@ class TestConservationValidator:
         mock_conservation_validator,
     ) -> None:
         """Scenario: Validator integrates properly with abstract plugin dependencies
+
         Given conservation plugin depends on abstract plugin
         When validating dependencies
         Then it should check abstract plugin compatibility
@@ -441,6 +451,7 @@ class TestConservationWorkflowValidation:
         self, mock_conservation_validator
     ) -> None:
         """Scenario: Workflow validation covers all conservation phases
+
         Given a complete conservation workflow
         When validating the workflow
         Then it should check analysis, optimization, and monitoring phases
@@ -478,6 +489,7 @@ class TestConservationWorkflowValidation:
         mock_conservation_validator,
     ) -> None:
         """Scenario: Workflow validation measures efficiency metrics
+
         Given conservation workflows with measurable outcomes
         When validating efficiency
         Then it should measure token savings, performance improvements, and resource optimization

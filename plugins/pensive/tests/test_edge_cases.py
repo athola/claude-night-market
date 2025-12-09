@@ -13,10 +13,17 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+from pensive.config.configuration import Configuration
 from pensive.exceptions import ConfigurationError
+from pensive.plugin.loader import PluginLoader
 
 # Import pensive components for testing
+from pensive.skills.architecture_review import ArchitectureReviewSkill
+from pensive.skills.bug_review import BugReviewSkill
+from pensive.skills.rust_review import RustReviewSkill
 from pensive.skills.unified_review import UnifiedReviewSkill
+from pensive.workflows.code_review import CodeReviewWorkflow
+from pensive.workflows.memory_manager import MemoryManager
 
 
 class TestEdgeCasesAndErrorScenarios:
@@ -113,14 +120,12 @@ class TestEdgeCasesAndErrorScenarios:
             assert isinstance(result, str)
 
         finally:
-            os.unlink(large_file_path)
+            Path(large_file_path).unlink()
 
     @pytest.mark.unit
     def test_missing_dependencies_handling(self) -> None:
         """Given missing external dependencies, when analyzing, then provides helpful error."""
         # Arrange
-        from pensive.skills.rust_review import RustReviewSkill
-
         skill = RustReviewSkill()
 
         with patch("subprocess.run") as mock_subprocess:
@@ -146,8 +151,6 @@ class TestEdgeCasesAndErrorScenarios:
     def test_circular_dependency_detection(self) -> None:
         """Given circular dependencies, when analyzing, then detects and reports."""
         # Arrange
-        from pensive.skills.architecture_review import ArchitectureReviewSkill
-
         skill = ArchitectureReviewSkill()
         context = Mock()
 
@@ -209,8 +212,6 @@ class TestEdgeCasesAndErrorScenarios:
     def test_network_timeout_scenarios(self) -> None:
         """Given network operations, when timeout occurs, then handles gracefully."""
         # Arrange
-        from pensive.skills.bug_review import BugReviewSkill
-
         skill = BugReviewSkill()
         context = Mock()
 
@@ -229,8 +230,6 @@ class TestEdgeCasesAndErrorScenarios:
     def test_memory_pressure_scenarios(self) -> None:
         """Given low memory conditions, when analyzing, then uses fallback strategies."""
         # Arrange
-        from pensive.workflows.memory_manager import MemoryManager
-
         memory_manager = MemoryManager()
 
         with patch("psutil.virtual_memory") as mock_memory:
@@ -248,26 +247,24 @@ class TestEdgeCasesAndErrorScenarios:
     def test_configuration_errors(self) -> None:
         """Given invalid configuration, when loading, then provides helpful error messages."""
         # Arrange
-        from pensive.config.configuration import Configuration
-
         # Test malformed YAML
-        malformed_config = tempfile.NamedTemporaryFile(
+        with tempfile.NamedTemporaryFile(
             mode="w",
             suffix=".yml",
             delete=False,
-        )
-        malformed_config.write("""
+        ) as malformed_config:
+            malformed_config.write("""
 pensive:
   skills:
     - unified-review
   invalid_yaml: [unclosed_bracket
-        """)
-        malformed_config.close()
+            """)
+            config_path = Path(malformed_config.name)
 
         try:
             # Act & Assert
             with pytest.raises(ConfigurationError) as exc_info:
-                Configuration.load_from_file(Path(malformed_config.name))
+                Configuration.load_from_file(config_path)
 
             assert (
                 "yaml" in str(exc_info.value).lower()
@@ -275,7 +272,7 @@ pensive:
             )
 
         finally:
-            os.unlink(malformed_config.name)
+            Path(config_path).unlink()
 
     @pytest.mark.unit
     def test_unicode_and_special_characters(self) -> None:
@@ -395,8 +392,6 @@ const EMOJI: &str = "🦀 Rust 🚀";
     def test_partial_failure_scenarios(self) -> None:
         """Given partial failures in multi-step processes, when analyzing, then continues gracefully."""
         # Arrange
-        from pensive.workflows.code_review import CodeReviewWorkflow
-
         workflow = CodeReviewWorkflow()
 
         with patch(
@@ -427,8 +422,6 @@ const EMOJI: &str = "🦀 Rust 🚀";
     def test_plugin_discovery_failures(self) -> None:
         """Given plugin discovery issues, when loading plugins, then handles gracefully."""
         # Arrange
-        from pensive.plugin.loader import PluginLoader
-
         loader = PluginLoader()
 
         # Try to load from non-existent directory

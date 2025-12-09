@@ -37,6 +37,7 @@ exclude = [".venv", ".uv-cache"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
 extend-ignore = [
+    "S101",   # Use of assert (acceptable)
     "E203",
     "D203",
     "D213",

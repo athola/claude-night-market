@@ -176,12 +176,16 @@ class KeywordIndexer:
         entries = {}
         keyword_to_entries = defaultdict(list)
 
-        # Find all markdown files in corpus directory
-        md_files = list(self.corpus_dir.glob("*.md"))
+        # Find all markdown files in corpus directory (including subdirectories)
+        md_files = sorted(self.corpus_dir.rglob("*.md"))
 
         for md_file in md_files:
+            if md_file.name.lower() == "readme.md":
+                continue
             # Create entry ID from filename
-            entry_id = md_file.stem
+            relative = md_file.relative_to(self.corpus_dir)
+            relative_str = relative.as_posix()
+            entry_id = relative_str.removesuffix(".md").replace("/", "-")
 
             # Extract keywords
             keywords = self.extract_keywords(md_file)

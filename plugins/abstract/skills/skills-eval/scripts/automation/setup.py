@@ -4,10 +4,13 @@
 Ensures all tools are executable and dependencies are available.
 """
 
+import logging
 import stat
 import subprocess  # nosec: B404
 import sys
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def setup_skills_eval() -> bool:
@@ -57,8 +60,8 @@ def setup_skills_eval() -> bool:
                 pass
             else:
                 pass
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Setup command failed: {e}")
 
     return True
 

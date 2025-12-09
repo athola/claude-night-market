@@ -59,7 +59,8 @@ def test_auth():
         mock_workflow_environment,
         mock_claude_tools,
     ) -> None:
-        """Scenario: Full review workflow from command to deliverable
+        """Scenario: Full review workflow from command to deliverable.
+
         Given a repository with changes
         When running /review command
         Then it should initialize review-core workflow
@@ -184,7 +185,11 @@ def test_auth():
             {
                 "id": "E1",
                 "command": "grep -n 'SELECT.*username' src/auth.py",
-                "output": 'src/auth.py:3: query = "SELECT * FROM users WHERE username = \'" + username + "\'"',
+                "output": (
+                    "src/auth.py:3: query = \"SELECT * FROM users WHERE username = '"
+                    + "test_user"
+                    + "'"
+                ),
                 "timestamp": datetime.now(UTC).isoformat(),
             },
         ]
@@ -218,7 +223,8 @@ def test_auth():
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_catchup_workflow_with_multiple_skills(self, mock_claude_tools) -> None:
-        """Scenario: Catchup workflow integrates multiple skills
+        """Scenario: Catchup workflow integrates multiple skills.
+
         Given recent changes in repository
         When running /catchup command
         Then it should establish context
@@ -287,7 +293,10 @@ def test_auth():
             "key_changes": workflow_state["delta"]["changes"],
             "insights": workflow_state["insights"],
             "followups": workflow_state["followups"],
-            "summary": f"Payment processing feature added with {workflow_state['delta']['total_files']} files changed",
+            "summary": (
+                f"Payment processing feature added with "
+                f"{workflow_state['delta']['total_files']} files changed"
+            ),
         }
 
         # Assert
@@ -317,7 +326,8 @@ def test_auth():
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_agent_integration_with_workflow_skills(self, mock_claude_tools) -> None:
-        """Scenario: Review-analyst agent integrates with workflow skills
+        """Scenario: Review-analyst agent integrates with workflow skills.
+
         Given autonomous review execution
         When agent analyzes repository
         Then it should use imbue skills consistently
@@ -426,7 +436,8 @@ def test_auth():
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_evidence_chain_continuity_across_skills(self, mock_claude_tools) -> None:
-        """Scenario: Evidence references maintain integrity across skills
+        """Scenario: Evidence references maintain integrity across skills.
+
         Given multi-skill review workflow
         When skills exchange evidence
         Then all citations should resolve correctly
@@ -535,7 +546,8 @@ def test_auth():
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_command_skill_orchestration(self, mock_claude_tools) -> None:
-        """Scenario: Commands properly orchestrate skills
+        """Scenario: Commands properly orchestrate skills.
+
         Given /review command execution
         When dispatching to skills
         Then skills should receive correct context
@@ -649,7 +661,8 @@ def test_auth():
 
     @pytest.mark.integration
     def test_error_propagation_through_workflow(self, mock_claude_tools) -> None:
-        """Scenario: Errors are handled gracefully across workflow
+        """Scenario: Errors are handled gracefully across workflow.
+
         Given skill execution failures
         When propagating through workflow
         Then errors should be captured and handled
@@ -742,7 +755,8 @@ def test_auth():
     @pytest.mark.performance
     @pytest.mark.integration
     def test_workflow_performance_under_load(self, mock_claude_tools) -> None:
-        """Scenario: Workflow performs efficiently under load
+        """Scenario: Workflow performs efficiently under load.
+
         Given multiple concurrent workflows
         When executing review workflows
         Then performance should remain acceptable

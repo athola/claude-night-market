@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import sys
@@ -12,19 +13,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+# Setup path before importing from memory_palace
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PLUGIN_ROOT / "src"
 
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-import contextlib
-
-from memory_palace.corpus.cache_lookup import CacheLookup
-from memory_palace.corpus.marginal_value import RedundancyLevel
-from memory_palace.curation import DomainAlignment, IntakeFlagPayload
-from memory_palace.lifecycle.autonomy_state import AutonomyProfile, AutonomyStateStore
-from memory_palace.observability.telemetry import (
+# Import from memory_palace after path setup
+from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
+from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
+from memory_palace.curation import DomainAlignment, IntakeFlagPayload  # noqa: E402
+from memory_palace.lifecycle.autonomy_state import AutonomyProfile, AutonomyStateStore  # noqa: E402
+from memory_palace.observability.telemetry import (  # noqa: E402
     ResearchTelemetryEvent,
     TelemetryLogger,
     resolve_telemetry_path,
@@ -98,7 +99,8 @@ def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str,
     try:
         corpus_dir = PLUGIN_ROOT / config.get("corpus_dir", "docs/knowledge-corpus/")
         index_dir = PLUGIN_ROOT / config.get("indexes_dir", "data/indexes")
-        lookup = CacheLookup(str(corpus_dir), str(index_dir))
+        provider = config.get("embedding_provider", "none")
+        lookup = CacheLookup(str(corpus_dir), str(index_dir), embedding_provider=provider)
         return lookup.search(query, mode="unified", min_score=0.0)
     except Exception:
         return []
@@ -277,7 +279,8 @@ def make_decision(
             decision.action = "block"
             decision.context.append(
                 "Memory Palace (cache_only mode): No local knowledge found for this query. "
-                "Web search blocked. Consider switching to cache_first mode or adding knowledge manually.",
+                "Web search blocked. Consider switching to cache_first mode or adding "
+                "knowledge manually.",
             )
         else:
             decision.should_flag_for_intake = True
@@ -323,7 +326,8 @@ def make_decision(
         else:
             decision.action = "augment"
             decision.context.append(
-                "Memory Palace: Found cached match but query needs fresh data. Combining cache with web search.",
+                "Memory Palace: Found cached match but query needs fresh data. "
+                "Combining cache with web search.",
             )
             decision.cached_entries = results[:2]
 
@@ -467,15 +471,21 @@ def main() -> None:
     config = get_config()
     if not config.get("enabled", True):
         sys.exit(0)
+    feature_flags = dict(config.get("feature_flags") or {})
+    if not feature_flags.get("cache_intercept", True):
+        sys.exit(0)
 
     autonomy_profile: AutonomyProfile | None = None
     autonomy_store: AutonomyStateStore | None = None
-    try:
-        autonomy_store = AutonomyStateStore(plugin_root=PLUGIN_ROOT)
-        autonomy_profile = autonomy_store.build_profile(config_level=config.get("autonomy_level"))
-    except Exception:
-        autonomy_profile = None
-        autonomy_store = None
+    if feature_flags.get("autonomy", True):
+        try:
+            autonomy_store = AutonomyStateStore(plugin_root=PLUGIN_ROOT)
+            autonomy_profile = autonomy_store.build_profile(
+                config_level=config.get("autonomy_level")
+            )
+        except Exception:
+            autonomy_profile = None
+            autonomy_store = None
 
     telemetry_config = config.get("telemetry", {})
     telemetry_logger: TelemetryLogger | None = None
@@ -532,10 +542,14 @@ def main() -> None:
             output["intakeDecisionRationale"] = decision.delta_reasoning
         return output
 
+    hook_payload: dict[str, Any] | None = None
     if decision.action == "block":
-        {"hookSpecificOutput": _build_hook_output("deny")}
-    elif decision.action == "augment" or decision.should_flag_for_intake:
-        {"hookSpecificOutput": _build_hook_output("allow")}
+        hook_payload = {"hookSpecificOutput": _build_hook_output("deny")}
+    elif decision.action == "augment" or decision.should_flag_for_intake or response_parts:
+        hook_payload = {"hookSpecificOutput": _build_hook_output("allow")}
+
+    if hook_payload:
+        print(json.dumps(hook_payload))
 
     emit_telemetry_event(
         telemetry_logger,

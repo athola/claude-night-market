@@ -85,6 +85,12 @@ def main() -> None:
 
     context_parts = []
 
+    feature_flags = dict(config.get("feature_flags") or {})
+    if not feature_flags.get("lifecycle", True):
+        sys.exit(0)
+
+    response: dict[str, Any] | None = None
+
     if tool_name == "WebFetch":
         content, url = extract_content_from_webfetch(tool_response)
         url = url or tool_input.get("url", "")
@@ -136,7 +142,8 @@ def main() -> None:
 
             if new_urls:
                 context_parts.append(
-                    f"Memory Palace: WebSearch found {len(new_urls)} new sources not in memory palace:",
+                    f"Memory Palace: WebSearch found {len(new_urls)} new sources "
+                    "not in memory palace:",
                 )
                 for r in new_urls[:5]:
                     context_parts.append(f"  - {r.get('title', 'Untitled')}: {r.get('url')}")
@@ -149,12 +156,15 @@ def main() -> None:
 
     # Output response
     if context_parts:
-        {
+        response = {
             "hookSpecificOutput": {
                 "hookEventName": "PostToolUse",
                 "additionalContext": "\n".join(context_parts),
             },
         }
+
+    if response:
+        print(json.dumps(response))
 
     sys.exit(0)
 

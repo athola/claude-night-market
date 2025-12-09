@@ -70,6 +70,120 @@ EXPECTED_CALLBACKS = {
 }
 
 
+def _validate_hook_action(
+    event_type: str,
+    idx: int,
+    hook_idx: int,
+    hook_action: dict,
+    result: ValidationResult,
+) -> None:
+    """Validate a single hook action."""
+    if not isinstance(hook_action, dict):
+        result["errors"].append(
+            f"{event_type}[{idx}].hooks[{hook_idx}]: must be an object",
+        )
+        result["valid"] = False
+        return
+
+    # Check for 'type' field
+    if "type" not in hook_action:
+        result["warnings"].append(
+            f"{event_type}[{idx}].hooks[{hook_idx}]: missing 'type' field",
+        )
+
+    # Check for 'command' field if type is 'command'
+    if hook_action.get("type") == "command" and "command" not in hook_action:
+        result["errors"].append(
+            f"{event_type}[{idx}].hooks[{hook_idx}]: missing 'command' field",
+        )
+        result["valid"] = False
+
+
+def _validate_hooks_array(
+    event_type: str,
+    idx: int,
+    hooks_array: list,
+    result: ValidationResult,
+) -> None:
+    """Validate the hooks array in a hook entry."""
+    if not isinstance(hooks_array, list):
+        result["errors"].append(f"{event_type}[{idx}]: 'hooks' must be a list")
+        result["valid"] = False
+        return
+
+    # Validate each hook action
+    for hook_idx, hook_action in enumerate(hooks_array):
+        _validate_hook_action(event_type, idx, hook_idx, hook_action, result)
+
+
+def _validate_matcher(
+    event_type: str,
+    idx: int,
+    matcher: dict,
+    result: ValidationResult,
+) -> None:
+    """Validate the matcher configuration in a hook entry."""
+    if not isinstance(matcher, dict):
+        result["warnings"].append(
+            f"{event_type}[{idx}]: 'matcher' should be an object",
+        )
+        return
+
+    # Check for known matcher fields
+    known_matcher_fields = {"toolName", "inputPattern"}
+    for field in matcher:
+        if field not in known_matcher_fields:
+            result["warnings"].append(
+                f"{event_type}[{idx}]: unknown matcher field: {field}",
+            )
+
+
+def _validate_hook_entry(
+    event_type: str,
+    idx: int,
+    hook_entry: dict,
+    result: ValidationResult,
+) -> None:
+    """Validate a single hook entry."""
+    if not isinstance(hook_entry, dict):
+        result["errors"].append(
+            f"{event_type}[{idx}]: hook entry must be an object",
+        )
+        result["valid"] = False
+        return
+
+    # Check for 'hooks' field
+    if "hooks" not in hook_entry:
+        result["errors"].append(
+            f"{event_type}[{idx}]: missing required 'hooks' field",
+        )
+        result["valid"] = False
+        return
+
+    # Validate hooks array
+    _validate_hooks_array(event_type, idx, hook_entry["hooks"], result)
+
+    # Validate matcher if present
+    if "matcher" in hook_entry:
+        _validate_matcher(event_type, idx, hook_entry["matcher"], result)
+
+
+def _validate_event_hooks(
+    event_type: str,
+    event_hooks: list,
+    result: ValidationResult,
+) -> None:
+    """Validate hooks for a specific event type."""
+    if not isinstance(event_hooks, list):
+        result["errors"].append(f"{event_type}: must be a list")
+        result["valid"] = False
+        return
+
+    # Validate each hook entry
+    for idx, hook_entry in enumerate(event_hooks):
+        _validate_hook_entry(event_type, idx, hook_entry, result)
+
+
 def validate_json_hook(hook_file: Path) -> ValidationResult:
     """Validate a JSON hook file.
 
@@ -117,81 +231,116 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
 
     # Validate each event type
     for event_type, event_hooks in hooks_data.items():
-        if not isinstance(event_hooks, list):
-            result["errors"].append(f"{event_type}: must be a list")
-            result["valid"] = False
-            continue
-
-        # Validate each hook entry
-        for idx, hook_entry in enumerate(event_hooks):
-            if not isinstance(hook_entry, dict):
-                result["errors"].append(
-                    f"{event_type}[{idx}]: hook entry must be an object",
-                )
-                result["valid"] = False
-                continue
-
-            # Check for 'hooks' field
-            if "hooks" not in hook_entry:
-                result["errors"].append(
-                    f"{event_type}[{idx}]: missing required 'hooks' field",
-                )
-                result["valid"] = False
-                continue
-
-            # Validate hooks array
-            hooks_array = hook_entry["hooks"]
-            if not isinstance(hooks_array, list):
-                result["errors"].append(f"{event_type}[{idx}]: 'hooks' must be a list")
-                result["valid"] = False
-                continue
-
-            # Validate each hook action
-            for hook_idx, hook_action in enumerate(hooks_array):
-                if not isinstance(hook_action, dict):
-                    result["errors"].append(
-                        f"{event_type}[{idx}].hooks[{hook_idx}]: must be an object",
-                    )
-                    result["valid"] = False
-                    continue
-
-                # Check for 'type' field
-                if "type" not in hook_action:
-                    result["warnings"].append(
-                        f"{event_type}[{idx}].hooks[{hook_idx}]: missing 'type' field",
-                    )
-
-                # Check for 'command' field if type is 'command'
-                if (
-                    hook_action.get("type") == "command"
-                    and "command" not in hook_action
-                ):
-                    result["errors"].append(
-                        f"{event_type}[{idx}].hooks[{hook_idx}]: "
-                        "missing 'command' field",
-                    )
-                    result["valid"] = False
-
-            # Validate matcher if present
-            if "matcher" in hook_entry:
-                matcher = hook_entry["matcher"]
-                if not isinstance(matcher, dict):
-                    result["warnings"].append(
-                        f"{event_type}[{idx}]: 'matcher' should be an object",
-                    )
-
-                # Check for known matcher fields
-                known_matcher_fields = {"toolName", "inputPattern"}
-                for field in matcher:
-                    if field not in known_matcher_fields:
-                        result["warnings"].append(
-                            f"{event_type}[{idx}]: unknown matcher field '{field}'",
-                        )
+        _validate_event_hooks(event_type, event_hooks, result)
 
     # Summary
     result["info"].append(f"Validated {len(hooks_data)} event type(s)")
 
     return result
+
+
+def _validate_file_exists(hook_file: Path, result: ValidationResult) -> bool:
+    """Check if hook file exists."""
+    if not hook_file.exists():
+        result["errors"].append(f"Hook file not found: {hook_file}")
+        result["valid"] = False
+        return False
+    return True
+
+
+def _read_source_file(hook_file: Path, result: ValidationResult) -> str | None:
+    """Read and return source file content."""
+    try:
+        return hook_file.read_text()
+    except Exception as e:
+        result["errors"].append(f"Cannot read file: {e}")
+        result["valid"] = False
+        return None
+
+
+def _parse_ast(
+    source: str, hook_file: Path, result: ValidationResult
+) -> ast.AST | None:
+    """Parse source code into AST."""
+    try:
+        tree = ast.parse(source, filename=str(hook_file))
+        result["info"].append(f"Parsed Python from {hook_file}")
+        return tree
+    except SyntaxError as e:
+        result["errors"].append(f"Python syntax error: {e}")
+        result["valid"] = False
+        return None
+
+
+def _find_agent_hooks_subclasses(
+    tree: ast.AST, result: ValidationResult
+) -> list[ast.ClassDef]:
+    """Find classes that inherit from AgentHooks."""
+    classes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
+
+    if not classes:
+        result["warnings"].append("No classes found in file")
+        return []
+
+    agent_hooks_classes = []
+    for cls in classes:
+        for base in cls.bases:
+            if isinstance(base, ast.Name) and base.id == "AgentHooks":
+                agent_hooks_classes.append(cls)
+                break
+
+    if not agent_hooks_classes:
+        result["warnings"].append(
+            "No classes inherit from AgentHooks (may not be a hook file)",
+        )
+        return []
+
+    result["info"].append(f"Found {len(agent_hooks_classes)} AgentHooks subclass(es)")
+    return agent_hooks_classes
+
+
+def _validate_callback_method(
+    cls: ast.ClassDef, method: ast.FunctionDef, result: ValidationResult
+) -> None:
+    """Validate a single callback method."""
+    method_name = method.name
+
+    # Check if it's a known callback
+    if method_name not in EXPECTED_CALLBACKS:
+        return
+
+    expected = EXPECTED_CALLBACKS[method_name]
+
+    # Check if async
+    if not isinstance(method, ast.AsyncFunctionDef):
+        result["errors"].append(
+            f"{cls.name}.{method_name}: should be async (async def)",
+        )
+        result["valid"] = False
+
+    # Check arguments
+    actual_args = [arg.arg for arg in method.args.args]
+    expected_args = expected["args"]
+
+    if actual_args != expected_args:
+        result["errors"].append(
+            f"{cls.name}.{method_name}: incorrect arguments. "
+            f"Expected {expected_args}, got {actual_args}",
+        )
+        result["valid"] = False
+
+    result["info"].append(f"  ✓ {method_name}: signature correct")
+
+
+def _validate_agent_hooks_class(cls: ast.ClassDef, result: ValidationResult) -> None:
+    """Validate a single AgentHooks subclass."""
+    result["info"].append(f"Validating class: {cls.name}")
+
+    # Find callback methods
+    methods = [node for node in cls.body if isinstance(node, ast.FunctionDef)]
+
+    for method in methods:
+        _validate_callback_method(cls, method, result)
 
 
 def validate_python_hook(hook_file: Path) -> ValidationResult:
@@ -212,87 +361,27 @@ def validate_python_hook(hook_file: Path) -> ValidationResult:
     }
 
     # Check file exists
-    if not hook_file.exists():
-        result["errors"].append(f"Hook file not found: {hook_file}")
-        result["valid"] = False
+    if not _validate_file_exists(hook_file, result):
         return result
 
     # Read file
-    try:
-        source = hook_file.read_text()
-    except Exception as e:
-        result["errors"].append(f"Cannot read file: {e}")
-        result["valid"] = False
+    source = _read_source_file(hook_file, result)
+    if source is None:
         return result
 
     # Parse Python AST
-    try:
-        tree = ast.parse(source, filename=str(hook_file))
-    except SyntaxError as e:
-        result["errors"].append(f"Python syntax error: {e}")
-        result["valid"] = False
+    tree = _parse_ast(source, hook_file, result)
+    if tree is None:
         return result
 
-    result["info"].append(f"Parsed Python from {hook_file}")
-
-    # Find classes
-    classes = [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
-
-    if not classes:
-        result["warnings"].append("No classes found in file")
-        return result
-
-    # Check for AgentHooks inheritance
-    agent_hooks_classes = []
-    for cls in classes:
-        for base in cls.bases:
-            if isinstance(base, ast.Name) and base.id == "AgentHooks":
-                agent_hooks_classes.append(cls)
-                break
-
+    # Find AgentHooks subclasses
+    agent_hooks_classes = _find_agent_hooks_subclasses(tree, result)
     if not agent_hooks_classes:
-        result["warnings"].append(
-            "No classes inherit from AgentHooks (may not be a hook file)",
-        )
         return result
-
-    result["info"].append(f"Found {len(agent_hooks_classes)} AgentHooks subclass(es)")
 
     # Validate each AgentHooks subclass
     for cls in agent_hooks_classes:
-        result["info"].append(f"Validating class: {cls.name}")
-
-        # Find callback methods
-        methods = [node for node in cls.body if isinstance(node, ast.FunctionDef)]
-
-        for method in methods:
-            method_name = method.name
-
-            # Check if it's a known callback
-            if method_name not in EXPECTED_CALLBACKS:
-                continue
-
-            expected = EXPECTED_CALLBACKS[method_name]
-
-            # Check if async
-            if not isinstance(method, ast.AsyncFunctionDef):
-                result["errors"].append(
-                    f"{cls.name}.{method_name}: should be async (async def)",
-                )
-                result["valid"] = False
-
-            # Check arguments
-            actual_args = [arg.arg for arg in method.args.args]
-            expected_args = expected["args"]
-
-            if actual_args != expected_args:
-                result["errors"].append(
-                    f"{cls.name}.{method_name}: incorrect arguments. "
-                    f"Expected {expected_args}, got {actual_args}",
-                )
-                result["valid"] = False
-
-            result["info"].append(f"  ✓ {method_name}: signature correct")
+        _validate_agent_hooks_class(cls, result)
 
     return result
 

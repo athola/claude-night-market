@@ -23,7 +23,10 @@ class TestReviewAnalystAgent:
         """Mock review-analyst agent content from agents/review-analyst.md."""
         return {
             "name": "review-analyst",
-            "description": "Autonomous agent for conducting structured reviews with evidence gathering",
+            "description": (
+                "Autonomous agent for conducting structured reviews "
+                "with evidence gathering"
+            ),
             "tools": ["Read", "Glob", "Grep", "Bash"],
             "capabilities": [
                 "context_establishment",
@@ -67,13 +70,18 @@ class TestReviewAnalystAgent:
             {
                 "id": "F1",
                 "title": "SQL injection vulnerability in login function",
-                "description": "User input directly concatenated into SQL query without sanitization",
+                "description": (
+                    "User input directly concatenated into SQL query "
+                    "without sanitization"
+                ),
                 "severity": "Critical",
                 "category": "Security",
                 "file": "src/auth/login.py",
                 "line": 45,
                 "evidence_refs": ["E1", "E2", "E3"],
-                "recommendation": "Use parameterized queries or ORM to prevent SQL injection",
+                "recommendation": (
+                    "Use parameterized queries or ORM to prevent SQL injection"
+                ),
                 "cvss_score": 9.8,
                 "impact": "Complete database compromise possible",
             },
@@ -86,14 +94,19 @@ class TestReviewAnalystAgent:
                 "file": "src/auth/models.py",
                 "line": 23,
                 "evidence_refs": ["E4", "E5"],
-                "recommendation": "Implement proper password hashing using bcrypt or Argon2",
+                "recommendation": (
+                    "Implement proper password hashing using bcrypt or Argon2"
+                ),
                 "cvss_score": 9.0,
                 "impact": "User credentials exposed in data breach",
             },
             {
                 "id": "F3",
                 "title": "Missing rate limiting on authentication endpoint",
-                "description": "Authentication API lacks rate limiting, vulnerable to brute force attacks",
+                "description": (
+                    "Authentication API lacks rate limiting, "
+                    "vulnerable to brute force attacks"
+                ),
                 "severity": "High",
                 "category": "Security",
                 "file": "src/auth/api.py",
@@ -112,7 +125,8 @@ class TestReviewAnalystAgent:
         mock_claude_tools,
         sample_agent_session,
     ) -> None:
-        """Scenario: Agent uses all imbue skills correctly
+        """Scenario: Agent uses all imbue skills correctly.
+
         Given a review-analyst dispatch
         When conducting review
         Then it should use review-core for scaffolding
@@ -196,7 +210,8 @@ class TestReviewAnalystAgent:
         mock_claude_tools,
         sample_agent_findings,
     ) -> None:
-        """Scenario: Agent captures reproducible evidence
+        """Scenario: Agent captures reproducible evidence.
+
         Given an agent conducting review
         When analyzing artifacts
         Then every finding should have evidence reference
@@ -211,15 +226,30 @@ class TestReviewAnalystAgent:
 
         # Mock tool usage for evidence gathering
         mock_claude_tools["Bash"].side_effect = [
-            'src/auth/login.py:45: query = "SELECT * FROM users WHERE email = \'" + email + "\'"',  # Grep for SQL patterns
-            "src/auth/models.py:23: password = user_data['password']",  # Grep for password storage
-            "src/auth/api.py:15: @app.route('/login', methods=['POST'])",  # Grep for endpoints
+            # Grep for SQL patterns
+            "src/auth/login.py:45: query = \"SELECT * FROM users WHERE email = '"
+            + email
+            + "'",
+            # Grep for password storage
+            "src/auth/models.py:23: password = user_data['password']",
+            # Grep for endpoints
+            "src/auth/api.py:15: @app.route('/login', methods=['POST'])",
         ]
 
         mock_claude_tools["Read"].side_effect = [
-            'def authenticate_user(email, password):\n    # SQL injection vulnerable code\n    query = "SELECT * FROM users WHERE email = \'" + email + "\'"\n    cursor.execute(query)',
-            "class User:\n    def __init__(self, data):\n        self.email = data['email']\n        self.password = data['password']  # Stored in plaintext",
-            "@app.route('/login', methods=['POST'])\ndef login():\n    # No rate limiting implemented\n    return authenticate()",
+            # SQL injection vulnerable code
+            "def authenticate_user(email, password):\n    "
+            "# SQL injection vulnerable code\n    "
+            'query = "SELECT * FROM users WHERE email = \'" + email + "\'"\n    '
+            "cursor.execute(query)",
+            # Password stored in plaintext
+            "class User:\n    def __init__(self, data):\n        "
+            "self.email = data['email']\n        "
+            "self.password = data['password']  # Stored in plaintext",
+            # No rate limiting
+            "@app.route('/login', methods=['POST'])\ndef login():\n    "
+            "# No rate limiting implemented\n    "
+            "return authenticate()",
         ]
 
         # Act - gather evidence for findings
@@ -278,7 +308,8 @@ class TestReviewAnalystAgent:
     def test_agent_categorizes_findings_by_severity(
         self, sample_agent_findings
     ) -> None:
-        """Scenario: Agent categorizes findings by severity with justification
+        """Scenario: Agent categorizes findings by severity with justification.
+
         Given multiple findings identified
         When categorizing findings
         Then severity levels should be justified
@@ -289,7 +320,10 @@ class TestReviewAnalystAgent:
 
         severity_criteria = {
             "Critical": {
-                "description": "Vulnerabilities that can be exploited without user interaction and result in complete system compromise",
+                "description": (
+                    "Vulnerabilities that can be exploited without user interaction "
+                    "and result in complete system compromise"
+                ),
                 "examples": [
                     "Remote code execution",
                     "SQL injection",
@@ -298,7 +332,10 @@ class TestReviewAnalystAgent:
                 "cvss_range": (9.0, 10.0),
             },
             "High": {
-                "description": "Vulnerabilities that require some user interaction or privileges and result in significant impact",
+                "description": (
+                    "Vulnerabilities that require some user interaction or "
+                    "privileges and result in significant impact"
+                ),
                 "examples": [
                     "Privilege escalation",
                     "Data exposure",
@@ -307,12 +344,17 @@ class TestReviewAnalystAgent:
                 "cvss_range": (7.0, 8.9),
             },
             "Medium": {
-                "description": "Vulnerabilities with limited impact or requiring complex exploitation",
+                "description": (
+                    "Vulnerabilities with limited impact or requiring "
+                    "complex exploitation"
+                ),
                 "examples": ["Information disclosure", "Weak cryptography"],
                 "cvss_range": (4.0, 6.9),
             },
             "Low": {
-                "description": "Vulnerabilities with minimal impact or requiring local access",
+                "description": (
+                    "Vulnerabilities with minimal impact or requiring local access"
+                ),
                 "examples": ["Informational findings", "Best practice violations"],
                 "cvss_range": (0.1, 3.9),
             },
@@ -358,7 +400,8 @@ class TestReviewAnalystAgent:
     def test_agent_generates_actionable_recommendations(
         self, sample_agent_findings
     ) -> None:
-        """Scenario: Agent generates actionable and specific recommendations
+        """Scenario: Agent generates actionable and specific recommendations.
+
         Given security findings identified
         When creating recommendations
         Then they should be specific and actionable
@@ -460,7 +503,8 @@ class TestReviewAnalystAgent:
     def test_agent_produces_consistent_report_structure(
         self, sample_agent_findings
     ) -> None:
-        """Scenario: Agent produces reports with consistent template structure
+        """Scenario: Agent produces reports with consistent template structure.
+
         Given completed analysis with findings
         When generating final report
         Then it should follow imbue structured-output standards
@@ -574,7 +618,8 @@ Immediate remediation of critical findings is essential before production deploy
 
     @pytest.mark.unit
     def test_agent_handles_tool_failures_gracefully(self, mock_claude_tools) -> None:
-        """Scenario: Agent handles tool failures gracefully
+        """Scenario: Agent handles tool failures gracefully.
+
         Given tool execution failures during review
         When conducting analysis
         Then it should handle errors and continue analysis
@@ -637,7 +682,8 @@ Immediate remediation of critical findings is essential before production deploy
 
     @pytest.mark.performance
     def test_agent_performance_with_large_codebases(self) -> None:
-        """Scenario: Agent performs efficiently with large codebases
+        """Scenario: Agent performs efficiently with large codebases.
+
         Given many files to analyze
         When conducting review
         Then it should complete analysis in reasonable time

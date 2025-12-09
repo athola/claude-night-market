@@ -19,6 +19,7 @@ class TestContextOptimizationSkill:
     def mock_context_optimization_skill_content(self) -> str:
         """Mock context-optimization skill content with required components."""
         return """---
+
 name: context-optimization
 description: |
   Optimize context usage by implementing Maximum Effective Context Window (MECW)
@@ -75,6 +76,7 @@ tags:
         mock_todo_write,
     ) -> None:
         """Scenario: Context optimization creates required TodoWrite items
+
         Given the context-optimization skill is executed
         When establishing the optimization workflow
         Then it should create all 5 required TodoWrite items
@@ -111,6 +113,7 @@ tags:
     @pytest.mark.unit
     def test_mecw_assessment_analyzes_context_usage(self, mock_mecw_analyzer) -> None:
         """Scenario: MECW assessment analyzes context usage accurately
+
         Given different context usage scenarios
         When performing MECW assessment
         Then it should classify context status correctly
@@ -149,6 +152,7 @@ tags:
         self, mock_claude_tools
     ) -> None:
         """Scenario: Context classification categorizes usage patterns effectively
+
         Given various context usage patterns
         When classifying context usage
         Then it should categorize by utilization percentage
@@ -191,6 +195,7 @@ tags:
         self, mock_claude_tools
     ) -> None:
         """Scenario: Module coordination selects optimal optimization modules
+
         Given different context situations and task complexities
         When coordinating modules
         Then it should select appropriate specialized modules
@@ -241,6 +246,7 @@ tags:
     @pytest.mark.unit
     def test_synthesis_combines_module_results_effectively(self) -> None:
         """Scenario: Synthesis combines module results into coherent recommendations
+
         Given results from multiple optimization modules
         When synthesizing results
         Then it should combine complementary recommendations
@@ -304,6 +310,7 @@ tags:
         self, mock_mecw_analyzer
     ) -> None:
         """Scenario: Validation confirms optimization effectiveness
+
         Given context optimization applied
         When validating results
         Then it should confirm improved context utilization
@@ -341,6 +348,7 @@ tags:
         mock_claude_tools,
     ) -> None:
         """Scenario: Context optimization handles large contexts efficiently
+
         Given very large context windows approaching limits
         When applying optimization
         Then it should process efficiently without timeouts
@@ -378,6 +386,7 @@ tags:
     @pytest.mark.unit
     def test_context_optimization_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Context optimization handles errors gracefully
+
         Given invalid context measurements or module failures
         When optimizing context
         Then it should handle errors and provide fallback strategies
@@ -426,6 +435,7 @@ tags:
         sample_context_analysis,
     ) -> None:
         """Scenario: Context optimization conserves token budget effectively
+
         Given limited token budget for optimization tasks
         When optimizing context
         Then it should stay within allocated budget

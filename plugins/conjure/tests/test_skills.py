@@ -20,7 +20,10 @@ class TestSkillStructure:
     """Test skill file structure and metadata."""
 
     def test_gemini_delegation_skill_structure(self) -> None:
-        """Given gemini-delegation skill file when reading structure then should have valid frontmatter."""
+        """Given gemini-delegation skill file when reading structure.
+
+        then should have valid frontmatter.
+        """
         skill_file = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )
@@ -43,7 +46,10 @@ class TestSkillStructure:
         assert "# Exit Criteria" in content
 
     def test_delegation_core_skill_structure(self) -> None:
-        """Given delegation-core skill file when reading structure then should have valid frontmatter."""
+        """Given delegation-core skill file when reading structure.
+
+        then should have valid frontmatter.
+        """
         skill_file = (
             Path(__file__).parent.parent / "skills" / "delegation-core" / "SKILL.md"
         )
@@ -58,7 +64,10 @@ class TestSkillStructure:
         assert "category: delegation" in content
 
     def test_qwen_delegation_skill_structure(self) -> None:
-        """Given qwen-delegation skill file when reading structure then should have valid frontmatter."""
+        """Given qwen-delegation skill file when reading structure.
+
+        then should have valid frontmatter.
+        """
         skill_file = (
             Path(__file__).parent.parent / "skills" / "qwen-delegation" / "SKILL.md"
         )
@@ -77,7 +86,10 @@ class TestSkillDependencyResolution:
     """Test skill dependency management."""
 
     def test_gemini_delegation_dependencies(self) -> None:
-        """Given gemini-delegation skill when checking dependencies then should resolve correctly."""
+        """Given gemini-delegation skill when checking dependencies.
+
+        then should resolve correctly.
+        """
         skill_file = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )
@@ -103,7 +115,10 @@ class TestSkillDependencyResolution:
         )
 
     def test_skill_tool_requirements(self) -> None:
-        """Given skill files when checking tool requirements then should specify necessary tools."""
+        """Given skill files when checking tool requirements.
+
+        then should specify necessary tools.
+        """
         gemini_skill = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )
@@ -113,7 +128,10 @@ class TestSkillDependencyResolution:
         assert "tools: [gemini-cli, quota-tracker, usage-logger]" in content
 
     def test_skill_usage_patterns(self) -> None:
-        """Given skill files when checking usage patterns then should specify valid patterns."""
+        """Given skill files when checking usage patterns.
+
+        then should specify valid patterns.
+        """
         gemini_skill = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )
@@ -129,7 +147,10 @@ class TestGeminiDelegationSkill:
     """Test gemini-delegation skill execution scenarios."""
 
     def test_authentication_verification_flow(self) -> None:
-        """Given authentication step when executing gemini-delegation then should verify auth status."""
+        """Given authentication step when executing gemini-delegation.
+
+        then should verify auth status.
+        """
         # This tests the logic described in step 1 of the skill
         auth_commands = ["gemini auth status", 'gemini "ping"']
 
@@ -137,7 +158,10 @@ class TestGeminiDelegationSkill:
         assert "gemini auth status" in auth_commands
 
     def test_quota_checking_flow(self) -> None:
-        """Given quota checking step when executing gemini-delegation then should check quota thresholds."""
+        """Given quota checking step when executing gemini-delegation.
+
+        then should check quota thresholds.
+        """
         # This tests the logic described in step 2 of the skill
         quota_commands = [
             "~/conjure/hooks/gemini/status.sh",
@@ -151,7 +175,10 @@ class TestGeminiDelegationSkill:
     def test_command_construction_patterns(
         self, mock_delegator_class, sample_files
     ) -> None:
-        """Given command construction step when executing gemini-delegation then should build correct commands."""
+        """Given command construction step when executing gemini-delegation.
+
+        then should build correct commands.
+        """
         # Test the patterns described in step 3
         test_cases = [
             {
@@ -198,9 +225,15 @@ class TestGeminiDelegationSkill:
                 )
 
     def test_usage_logging_flow(self) -> None:
-        """Given usage logging step when executing gemini-delegation then should log correctly."""
+        """Given usage logging step when executing gemini-delegation.
+
+        then should log correctly.
+        """
         # This tests the logic described in step 4
-        log_pattern = 'python3 ~/conjure/tools/usage_logger.py "<command>" <estimated_tokens> <success:true/false> <duration_seconds>'
+        log_pattern = (
+            'python3 ~/conjure/tools/usage_logger.py "<command>" '
+            "<estimated_tokens> <success:true/false> <duration_seconds>"
+        )
 
         assert "usage_logger.py" in log_pattern
         assert "estimated_tokens" in log_pattern
@@ -211,7 +244,10 @@ class TestGeminiDelegationSkill:
     def test_delegation_workflow_integration(
         self, mock_delegator_class, tmp_path
     ) -> None:
-        """Given complete workflow when executing gemini-delegation then should follow all steps."""
+        """Given complete workflow when executing gemini-delegation.
+
+        then should follow all steps.
+        """
         # Mock the delegator
         mock_delegator = MagicMock()
         mock_delegator.SERVICES = {
@@ -261,7 +297,10 @@ class TestQwenDelegationSkill:
     """Test qwen-delegation skill execution scenarios."""
 
     def test_qwen_skill_structure(self) -> None:
-        """Given qwen-delegation skill when checking structure then should follow same patterns as gemini."""
+        """Given qwen-delegation skill when checking structure.
+
+        then should follow same patterns as gemini.
+        """
         qwen_skill = (
             Path(__file__).parent.parent / "skills" / "qwen-delegation" / "SKILL.md"
         )
@@ -274,7 +313,10 @@ class TestQwenDelegationSkill:
         assert "# Exit Criteria" in content
 
     def test_qwen_authentication_differences(self) -> None:
-        """Given qwen-delegation skill when checking authentication then should use correct auth method."""
+        """Given qwen-delegation skill when checking authentication.
+
+        then should use correct auth method.
+        """
         qwen_skill = (
             Path(__file__).parent.parent / "skills" / "qwen-delegation" / "SKILL.md"
         )
@@ -289,7 +331,10 @@ class TestSkillErrorHandling:
     """Test skill error handling scenarios."""
 
     def test_authentication_failure_handling(self) -> None:
-        """Given authentication failure when executing skill then should provide recovery steps."""
+        """Given authentication failure when executing skill.
+
+        then should provide recovery steps.
+        """
         # Based on the skill's error handling section
         recovery_steps = [
             "gemini auth login",
@@ -301,7 +346,10 @@ class TestSkillErrorHandling:
         assert len(recovery_steps) >= MIN_RECOVERY_STRATEGIES
 
     def test_quota_exhaustion_handling(self) -> None:
-        """Given quota exhaustion when executing skill then should provide recovery strategies."""
+        """Given quota exhaustion when executing skill.
+
+        then should provide recovery strategies.
+        """
         # Based on the skill's error handling section
         recovery_strategies = [
             "Wait 60 seconds for RPM reset",
@@ -313,7 +361,10 @@ class TestSkillErrorHandling:
         assert len(recovery_strategies) >= MIN_RECOVERY_STRATEGIES
 
     def test_context_too_large_handling(self) -> None:
-        """Given context too large error when executing skill then should provide solutions."""
+        """Given context too large error when executing skill.
+
+        then should provide solutions.
+        """
         # Based on the skill's error handling section
         solutions = [
             "Split into multiple requests",
@@ -328,7 +379,10 @@ class TestSkillPerformanceConsiderations:
     """Test skill performance and optimization."""
 
     def test_token_usage_estimates(self) -> None:
-        """Given skill when checking token estimates then should provide realistic estimates."""
+        """Given skill when checking token estimates.
+
+        then should provide realistic estimates.
+        """
         # Based on the token estimation section
         estimates = {
             "File analysis": (15, 50),  # min-max per file
@@ -344,7 +398,10 @@ class TestSkillPerformanceConsiderations:
             assert max_tokens >= min_tokens
 
     def test_model_selection_guidance(self) -> None:
-        """Given skill when checking model selection then should provide appropriate choices."""
+        """Given skill when checking model selection.
+
+        then should provide appropriate choices.
+        """
         # Based on the model selection section
         models = [
             "gemini-2.5-flash-exp",  # Fast
@@ -355,7 +412,10 @@ class TestSkillPerformanceConsiderations:
         assert len(models) >= MIN_MODEL_CHOICES
 
     def test_cost_estimates(self) -> None:
-        """Given skill when checking costs then should provide realistic cost estimates."""
+        """Given skill when checking costs.
+
+        then should provide realistic cost estimates.
+        """
         # Based on the sample delegation costs section
         sample_costs = [
             ("Analyze 100 Python files (50K tokens)", 0.025),
@@ -373,7 +433,10 @@ class TestSkillIntegrationWithHooks:
     """Test skill integration with hook system."""
 
     def test_hook_references_in_skill(self) -> None:
-        """Given skill content when checking for hooks then should reference hook system."""
+        """Given skill content when checking for hooks.
+
+        then should reference hook system.
+        """
         gemini_skill = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )
@@ -397,7 +460,10 @@ class TestSkillConfigurationManagement:
     """Test skill configuration and customization."""
 
     def test_environment_variable_support(self) -> None:
-        """Given skill when checking configuration then should support environment variables."""
+        """Given skill when checking configuration.
+
+        then should support environment variables.
+        """
         gemini_skill = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )
@@ -408,7 +474,10 @@ class TestSkillConfigurationManagement:
         assert "export " in content  # For setting environment variables
 
     def test_model_configuration(self) -> None:
-        """Given skill when checking configuration then should support model selection."""
+        """Given skill when checking configuration.
+
+        then should support model selection.
+        """
         gemini_skill = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )
@@ -419,7 +488,10 @@ class TestSkillConfigurationManagement:
         assert "--model" in content
 
     def test_timeout_configuration(self) -> None:
-        """Given skill when checking configuration then should support timeout settings."""
+        """Given skill when checking configuration.
+
+        then should support timeout settings.
+        """
         gemini_skill = (
             Path(__file__).parent.parent / "skills" / "gemini-delegation" / "SKILL.md"
         )

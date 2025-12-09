@@ -136,7 +136,7 @@ class MakefileDogfooder:
 
         return sorted(makefiles)
 
-    def parse_makefile(self, makefile_path: Path) -> MakefileInventory:
+    def parse_makefile(self, makefile_path: Path) -> MakefileInventory:  # noqa: PLR0912
         """Parse a Makefile and extract targets, variables, and includes."""
         targets = {}
         variables = {}
@@ -203,9 +203,9 @@ class MakefileDogfooder:
         # Check .PHONY declaration
         if ".PHONY" in targets:
             phony_targets = targets[".PHONY"].dependencies
-            for target_name in targets:
+            for target_name, target in targets.items():
                 if target_name in phony_targets:
-                    targets[target_name].phony = True
+                    target.phony = True
 
         # Determine plugin type
         plugin_type = "leaf"
@@ -224,7 +224,7 @@ class MakefileDogfooder:
             plugin_type=plugin_type,
         )
 
-    def analyze_makefile(self, inventory: MakefileInventory) -> AnalysisResult:
+    def analyze_makefile(self, inventory: MakefileInventory) -> AnalysisResult:  # noqa: PLR0912
         """Analyze a Makefile inventory and identify gaps."""
         score = 0
         missing_essential = []
@@ -600,7 +600,7 @@ def main() -> int:
                     detail["test_results"]
 
         if results.get("generated_targets"):
-            for gen in results["generated_targets"]:
+            for _gen in results["generated_targets"]:
                 pass
 
     # Apply changes if requested

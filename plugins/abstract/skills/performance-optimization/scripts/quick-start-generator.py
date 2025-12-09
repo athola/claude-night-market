@@ -9,11 +9,14 @@ Usage: scripts/quick-start-generator.py [--skill-path PATH] [--output PATH]
 """
 
 import argparse
+import logging
 import re
 import sys
 from pathlib import Path
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 
 class QuickStartGenerator:
@@ -406,8 +409,8 @@ def _process_batch_directory(batch_path: str, show_stats: bool) -> None:
             tokens_saved = (original_size - quick_size) // 4
             total_tokens_saved += tokens_saved
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to process {output_path}: {e}")
 
     if show_stats:
         total_tokens_saved // generated_count

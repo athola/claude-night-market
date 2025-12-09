@@ -6,6 +6,7 @@ and testing best practices evaluation.
 
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -22,8 +23,8 @@ class TestTestReviewSkill:
         """Set up test fixtures before each test."""
         self.skill = TestReviewSkill()
         self.mock_context = Mock()
-        self.mock_context.repo_path = Path("/tmp/test_repo")
-        self.mock_context.working_dir = Path("/tmp/test_repo")
+        self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
+        self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
     @pytest.mark.unit
     def test_analyzes_test_coverage(self, mock_skill_context) -> None:

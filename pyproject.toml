@@ -106,7 +106,7 @@ ignore = [
     "E501",  # Line too long (handled by black)
     "B008",  # Do not perform function calls in argument defaults
     "PLR2004",  # Magic value comparison
-    "S101",  # Use of assert (acceptable in tests)
+    "S101",  # Use of assert (acceptable in tests and production code)
     "PLC0415",  # Import outside top-level (acceptable in some cases)
     "E402",  # Module imports not at top of file (acceptable in some cases)
     "D205",  # 1 blank line required between summary line and description

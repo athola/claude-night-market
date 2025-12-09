@@ -6,18 +6,21 @@ Uses centralized utilities from abstract.base and abstract.utils.
 
 import argparse
 import io
+import logging
 import sys
 from contextlib import redirect_stdout
 from pathlib import Path
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 # Set up imports before using abstract package
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from abstract.cli_framework import AbstractCLI, CLIResult, cli_main
-from abstract.config import AbstractConfig
-from abstract.tokens import estimate_tokens
-from abstract.utils import (
+from abstract.cli_framework import AbstractCLI, CLIResult, cli_main  # noqa: E402
+from abstract.config import AbstractConfig  # noqa: E402
+from abstract.tokens import estimate_tokens  # noqa: E402
+from abstract.utils import (  # noqa: E402
     extract_frontmatter,
     find_project_root,
     find_skill_files,
@@ -96,8 +99,8 @@ class ContextOptimizer:
                         **size_info,
                     },
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to analyze {skill_file}: {e}")
 
         return sorted(results, key=lambda x: x["bytes"], reverse=True)
 

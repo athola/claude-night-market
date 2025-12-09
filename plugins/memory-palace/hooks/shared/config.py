@@ -85,6 +85,7 @@ CONFIG_DEFAULTS: dict[str, Any] = {
     "index_file": "memory-palace-index.yaml",
     "indexes_dir": "data/indexes",
     "corpus_dir": "docs/knowledge-corpus/",
+    "embedding_provider": "none",  # none|local|api
     # New governance + lifecycle controls
     "autonomy_level": 0,
     "intake_threshold": 70,
@@ -93,6 +94,11 @@ CONFIG_DEFAULTS: dict[str, Any] = {
     "telemetry": {
         "enabled": True,
         "file": "data/telemetry/memory-palace.csv",
+    },
+    "feature_flags": {
+        "cache_intercept": True,
+        "autonomy": True,
+        "lifecycle": True,
     },
 }
 
@@ -136,6 +142,15 @@ def get_config() -> dict[str, Any]:
                 **CONFIG_DEFAULTS["telemetry"],
                 **user_config["telemetry"],
             }
+
+        if "feature_flags" in user_config:
+            _config_cache["feature_flags"] = {
+                **CONFIG_DEFAULTS["feature_flags"],
+                **user_config["feature_flags"],
+            }
+
+        if "embedding_provider" in user_config:
+            _config_cache["embedding_provider"] = user_config["embedding_provider"]
 
         _config_mtime = current_mtime
         return _config_cache

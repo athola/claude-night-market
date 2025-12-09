@@ -7,6 +7,10 @@ import yaml
 
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
+# Constants for test expectations
+FRANKLIN_QUERIES_COUNT = 4
+TOTAL_TEST_ENTRIES = 2
+
 
 @pytest.fixture
 def temp_corpus_dir(tmp_path):
@@ -85,7 +89,7 @@ class TestQueryTemplateManager:
         queries = manager.extract_queries(entry_path)
 
         # Should extract from queries field
-        assert len(queries) == 4
+        assert len(queries) == FRANKLIN_QUERIES_COUNT
         assert any("writing skills" in q.lower() for q in queries)
         assert any("gradient descent" in q.lower() for q in queries)
         assert any("benjamin franklin" in q.lower() for q in queries)
@@ -111,7 +115,7 @@ class TestQueryTemplateManager:
         assert "metadata" in index
 
         # Should have indexed both entries
-        assert len(index["entries"]) == 2
+        assert len(index["entries"]) == TOTAL_TEST_ENTRIES
 
         # Check entry structure
         for entry_data in index["entries"].values():
@@ -204,7 +208,7 @@ class TestQueryTemplateManager:
         assert "total_entries" in metadata
         assert "total_queries" in metadata
         assert "last_updated" in metadata
-        assert metadata["total_entries"] == 2
+        assert metadata["total_entries"] == TOTAL_TEST_ENTRIES
         assert metadata["total_queries"] > 0
 
     def test_query_normalization(self, temp_corpus_dir, temp_index_dir) -> None:

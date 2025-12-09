@@ -32,7 +32,10 @@ class TestGeminiQuotaTracker:
         )
 
     def test_initialization_custom_limits(self) -> None:
-        """Given custom limits when initializing tracker then should use provided limits."""
+        """Given custom limits when initializing tracker.
+
+        then should use provided limits.
+        """
         custom_limits = {
             "requests_per_minute": 30,
             "requests_per_day": 500,
@@ -57,7 +60,10 @@ class TestGeminiQuotaTracker:
         assert tracker.usage_data["daily_tokens"] == 0
 
     def test_load_usage_data_existing_file(self, tmp_path) -> None:
-        """Given existing usage file when loading data then should load and clean data."""
+        """Given existing usage file when loading data.
+
+        then should load and clean data.
+        """
         usage_file = tmp_path / "usage.json"
 
         # Create old data (more than 24 hours old)
@@ -92,7 +98,10 @@ class TestGeminiQuotaTracker:
         assert tracker.usage_data["daily_tokens"] == 0  # Reset due to day change
 
     def test_load_usage_data_invalid_json(self, tmp_path) -> None:
-        """Given invalid JSON file when loading data then should create new structure."""
+        """Given invalid JSON file when loading data.
+
+        then should create new structure.
+        """
         usage_file = tmp_path / "usage.json"
         usage_file.write_text("invalid json content")
 
@@ -161,7 +170,10 @@ class TestGeminiQuotaTracker:
         assert usage["requests_today"] == 0
 
     def test_get_current_usage_with_data(self, tmp_path) -> None:
-        """Given usage data when getting current usage then should calculate correctly."""
+        """Given usage data when getting current usage.
+
+        then should calculate correctly.
+        """
         usage_file = tmp_path / "usage.json"
 
         # Create tracker and add some test data
@@ -196,7 +208,10 @@ class TestGeminiQuotaTracker:
         assert usage["requests_today"] == 2
 
     def test_get_quota_status_healthy(self, tmp_path) -> None:
-        """Given low usage when getting quota status then should return healthy status."""
+        """Given low usage when getting quota status.
+
+        then should return healthy status.
+        """
         usage_file = tmp_path / "usage.json"
 
         # Create tracker with very high limits to ensure low usage
@@ -248,7 +263,10 @@ class TestGeminiQuotaTracker:
         assert any("Token rate" in warning for warning in warnings)
 
     def test_get_quota_status_critical_threshold(self, tmp_path) -> None:
-        """Given critical usage when getting quota status then should return critical."""
+        """Given critical usage when getting quota status.
+
+        then should return critical.
+        """
         usage_file = tmp_path / "usage.json"
 
         # Create tracker with very low limits
@@ -334,7 +352,10 @@ class TestGeminiQuotaTracker:
             assert Path(path).suffix.lower() in {".py", ".md", ".json"}
 
     def test_iter_source_paths_directory(self, tmp_path) -> None:
-        """Given directory when iterating source paths then should yield source files."""
+        """Given directory when iterating source paths.
+
+        then should yield source files.
+        """
         usage_file = tmp_path / "usage.json"
         with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
@@ -359,7 +380,10 @@ class TestGeminiQuotaTracker:
         assert not any("__pycache__" in path for path in paths)
 
     def test_estimate_file_tokens_different_types(self, tmp_path) -> None:
-        """Given different file types when estimating tokens then should use correct ratios."""
+        """Given different file types when estimating tokens.
+
+        then should use correct ratios.
+        """
         usage_file = tmp_path / "usage.json"
         with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
@@ -387,7 +411,10 @@ class TestGeminiQuotaTracker:
         assert md_tokens > 0
 
     def test_can_handle_task_success(self, tmp_path) -> None:
-        """Given available capacity when checking task then should return can_handle=True."""
+        """Given available capacity when checking task then should return.
+
+        can_handle=True.
+        """
         usage_file = tmp_path / "usage.json"
 
         with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
@@ -399,7 +426,10 @@ class TestGeminiQuotaTracker:
         assert len(issues) == 0
 
     def test_can_handle_task_rate_limit(self, tmp_path) -> None:
-        """Given rate limit reached when checking task then should return can_handle=False."""
+        """Given rate limit reached when checking task then should return
+
+        can_handle=False.
+        """
         usage_file = tmp_path / "usage.json"
 
         # Create tracker with low limits
@@ -430,7 +460,10 @@ class TestGeminiQuotaTracker:
         assert any("limit" in issue.lower() for issue in issues)
 
     def test_can_handle_task_daily_quota(self, tmp_path) -> None:
-        """Given daily quota exhausted when checking task then should return can_handle=False."""
+        """Given daily quota exhausted when checking task then should return
+
+        can_handle=False.
+        """
         usage_file = tmp_path / "usage.json"
 
         # Create tracker with low daily limit
@@ -462,7 +495,10 @@ class TestTokenEstimation:
         mock_tracker_class,
         tmp_path,
     ) -> None:
-        """Given command with file references when estimating then should extract paths."""
+        """Given command with file references when estimating then should
+
+        extract paths.
+        """
         mock_tracker = MagicMock()
         mock_tracker.estimate_task_tokens.return_value = 500
         mock_tracker_class.return_value = mock_tracker

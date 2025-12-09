@@ -11,6 +11,13 @@ import pytest
 # Import the skills we're testing
 from parseltongue.skills.language_detection import LanguageDetectionSkill
 
+# Import test data from conftest
+from .conftest import (
+    JAVASCRIPT_SAMPLE_CODE,
+    PYTHON_SAMPLE_CODE,
+    RUST_SAMPLE_CODE,
+)
+
 
 class TestLanguageDetectionSkill:
     """Test suite for LanguageDetectionSkill."""
@@ -23,7 +30,7 @@ class TestLanguageDetectionSkill:
     def test_detects_python_language(self, sample_python_code) -> None:
         """Given Python code, when skill analyzes, then identifies Python correctly."""
         # Arrange
-        code = sample_python_code
+        code = PYTHON_SAMPLE_CODE
 
         # Act
         result = self.skill.detect_language(code)
@@ -89,7 +96,7 @@ class TestLanguageDetectionSkill:
     def test_identifies_python_features(self, sample_python_code) -> None:
         """Given Python code, when skill analyzes, then identifies Python-specific features."""
         # Arrange
-        code = sample_python_code
+        code = PYTHON_SAMPLE_CODE
 
         # Act
         result = self.skill.analyze_features(code, "python")
@@ -284,7 +291,7 @@ class UserView(ListView):
     def test_detects_design_patterns(self, sample_python_code) -> None:
         """Given code, when skill analyzes, then identifies design patterns."""
         # Arrange
-        code = sample_python_code
+        code = PYTHON_SAMPLE_CODE
 
         # Act
         result = self.skill.detect_design_patterns(code, "python")
@@ -381,8 +388,8 @@ def complex_function(items):
     def test_detects_language_specific_keywords(self, language_samples) -> None:
         """Given code, when skill analyzes, then identifies language-specific keywords."""
         # Arrange & Act
-        python_result = self.skill.analyze_features(sample_python_code, "python")
-        rust_result = self.skill.analyze_features(sample_rust_code, "rust")
+        python_result = self.skill.analyze_features(PYTHON_SAMPLE_CODE, "python")
+        rust_result = self.skill.analyze_features(RUST_SAMPLE_CODE, "rust")
 
         # Assert - Python keywords
         python_keywords = python_result["features"]["keywords"]
@@ -428,9 +435,9 @@ from .internal_module import helper
     def test_calculates_language_confidence_scores(self, language_samples) -> None:
         """Given code samples, when skill analyzes, then provides accurate confidence scores."""
         # Arrange & Act
-        python_result = self.skill.detect_language(sample_python_code)
-        javascript_result = self.skill.detect_language(sample_javascript_code)
-        rust_result = self.skill.detect_language(sample_rust_code)
+        python_result = self.skill.detect_language(PYTHON_SAMPLE_CODE)
+        javascript_result = self.skill.detect_language(JAVASCRIPT_SAMPLE_CODE)
+        rust_result = self.skill.detect_language(RUST_SAMPLE_CODE)
 
         # Assert - High confidence for clear language indicators
         assert python_result["confidence"] > 0.9

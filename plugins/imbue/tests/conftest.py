@@ -4,6 +4,7 @@ This module provides common test fixtures, mocks, and utilities for testing
 the imbue plugin's skills, commands, and agents following TDD/BDD principles.
 """
 
+import shutil
 import subprocess
 import sys
 from datetime import UTC, datetime
@@ -15,6 +16,11 @@ import pytest
 
 # Add the scripts directory to Python path for importing imbue_validator
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+
+try:
+    from scripts.imbue_validator import ImbueValidator
+except ImportError:
+    ImbueValidator = None
 
 
 @pytest.fixture
@@ -67,28 +73,39 @@ def sample_plugin_json():
     return {
         "name": "imbue",
         "version": "2.0.0",
-        "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
+        "description": (
+            "Intelligent workflow methodologies for analysis, evidence gathering, "
+            "and structured output patterns"
+        ),
         "author": "Claude Skills (superpowers-marketplace)",
         "license": "MIT",
         "skills": [
             {
                 "name": "review-core",
-                "description": "Foundational workflow scaffolding for any detailed review",
+                "description": (
+                    "Foundational workflow scaffolding for any detailed review"
+                ),
                 "file": "skills/review-core/SKILL.md",
             },
             {
                 "name": "evidence-logging",
-                "description": "Workflow for capturing reproducible evidence and audit trails",
+                "description": (
+                    "Workflow for capturing reproducible evidence and audit trails"
+                ),
                 "file": "skills/evidence-logging/SKILL.md",
             },
             {
                 "name": "diff-analysis",
-                "description": "Methodology for categorizing changes and assessing risks",
+                "description": (
+                    "Methodology for categorizing changes and assessing risks"
+                ),
                 "file": "skills/diff-analysis/SKILL.md",
             },
             {
                 "name": "catchup",
-                "description": "Methodology for summarizing changes and extracting insights",
+                "description": (
+                    "Methodology for summarizing changes and extracting insights"
+                ),
                 "file": "skills/catchup/SKILL.md",
             },
             {
@@ -130,14 +147,17 @@ def mock_git_repository(tmp_path):
     repo_path.mkdir()
 
     # Initialize git repo
-    subprocess.run(["git", "init"], cwd=repo_path, capture_output=True, check=True)
-    subprocess.run(
-        ["git", "config", "user.email", "test@example.com"],
+    git_executable = shutil.which("git") or "git"
+    subprocess.run(  # noqa: S603
+        [git_executable, "init"], cwd=repo_path, capture_output=True, check=True
+    )
+    subprocess.run(  # noqa: S603
+        [git_executable, "config", "user.email", "test@example.com"],
         cwd=repo_path,
         check=True,
     )
-    subprocess.run(
-        ["git", "config", "user.name", "Test User"],
+    subprocess.run(  # noqa: S603
+        [git_executable, "config", "user.name", "Test User"],
         cwd=repo_path,
         check=True,
     )
@@ -147,9 +167,11 @@ def mock_git_repository(tmp_path):
     (repo_path / "src").mkdir()
     (repo_path / "src" / "main.py").write_text('print("Hello, World!")')
 
-    subprocess.run(["git", "add", "."], cwd=repo_path, capture_output=True, check=True)
-    subprocess.run(
-        ["git", "commit", "-m", "Initial commit"],
+    subprocess.run(  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use
+        [git_executable, "add", "."], cwd=repo_path, capture_output=True, check=True
+    )
+    subprocess.run(  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use
+        [git_executable, "commit", "-m", "Initial commit"],
         cwd=repo_path,
         capture_output=True,
         check=True,
@@ -161,9 +183,11 @@ def mock_git_repository(tmp_path):
         "from utils import helper\nprint(helper())",
     )
 
-    subprocess.run(["git", "add", "."], cwd=repo_path, capture_output=True, check=True)
-    subprocess.run(
-        ["git", "commit", "-m", "Add helper function"],
+    subprocess.run(  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use
+        [git_executable, "add", "."], cwd=repo_path, capture_output=True, check=True
+    )
+    subprocess.run(  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use
+        [git_executable, "commit", "-m", "Add helper function"],
         cwd=repo_path,
         capture_output=True,
         check=True,
@@ -190,7 +214,10 @@ def sample_evidence_log():
             {
                 "id": "E2",
                 "command": "git diff --stat",
-                "output": " src/main.py | 2 +-\n 1 file changed, 2 insertions(+), 1 deletion(-)",
+                "output": (
+                    " src/main.py | 2 +-\n"
+                    " 1 file changed, 2 insertions(+), 1 deletion(-)"
+                ),
                 "timestamp": datetime.now(UTC).isoformat(),
                 "working_directory": "/test/repo",
             },
@@ -362,12 +389,10 @@ def sample_review_findings():
 @pytest.fixture
 def mock_imbue_validator(imbue_plugin_root):
     """Create ImbueValidator instance with mocked dependencies."""
-    try:
-        from scripts.imbue_validator import ImbueValidator
-
+    if ImbueValidator is not None:
         # Initialize with real plugin root but mock file operations
         return ImbueValidator(str(imbue_plugin_root))
-    except ImportError:
+    else:
         # If the module doesn't exist yet, create a mock
         mock_validator = Mock()
         mock_validator.plugin_root = str(imbue_plugin_root)

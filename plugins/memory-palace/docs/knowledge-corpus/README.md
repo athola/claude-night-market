@@ -27,6 +27,18 @@ When adding external resources:
 3. Link to relevant internal skills and patterns
 4. Tag with maturity level (seedling → evergreen)
 
+## Cache Interception Catalog
+
+The cache interceptor requires a large curated base so governance hooks can answer requests without hitting the network. We maintain a YAML catalog (`cache_intercept_catalog.yaml`) with **55** vetted scenarios that cover cache governance patterns, rollback readiness, and curator prompts.
+
+- **Location**: `plugins/memory-palace/docs/knowledge-corpus/cache_intercept_catalog.yaml`
+- **Metadata**: Each entry includes slug, title, tags, keywords, summary, and canonical file path.
+- **Quality bar**: Keep the `metadata.cache_intercept.curated_count` at **≥50** by adding scenarios in batches of five or more with reviewer sign-off.
+- **Refresh workflow**:
+  1. Update the YAML catalog with the new entries.
+  2. Run `uv run python plugins/memory-palace/scripts/seed_corpus.py` to merge curated entries via `seed_cache_catalog`.
+  3. Verify `plugins/memory-palace/data/indexes/keyword-index.yaml` reflects the new `cache_intercept` metadata and entry slugs.
+
 ## Index
 
 - [Franklin Protocol - Learning Algorithms](./franklin-protocol-learning.md)

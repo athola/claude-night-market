@@ -21,7 +21,10 @@ class TestUsageEntry:
     """Test UsageEntry dataclass."""
 
     def test_usage_entry_creation_minimal(self) -> None:
-        """Given minimal required data when creating UsageEntry then should instantiate correctly."""
+        """Given minimal required data when creating UsageEntry then should
+
+        instantiate correctly.
+        """
         entry = UsageEntry(command="test command", estimated_tokens=100)
 
         assert entry.command == "test command"
@@ -54,7 +57,10 @@ class TestGeminiUsageLogger:
     """Test GeminiUsageLogger class functionality."""
 
     def test_initialization(self, tmp_path) -> None:
-        """Given temp directory when initializing logger then should set correct paths."""
+        """Given temp directory when initializing logger then should set
+
+        correct paths.
+        """
         with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
@@ -66,7 +72,10 @@ class TestGeminiUsageLogger:
     @patch("builtins.open", new_callable=mock_open)
     @patch("usage_logger.GeminiUsageLogger._get_session_id")
     def test_log_usage_success(self, mock_session_id, mock_file, tmp_path) -> None:
-        """Given successful entry when logging usage then should write to log and update session."""
+        """Given successful entry when logging usage then should write to log and
+
+        update session.
+        """
         mock_session_id.return_value = "test_session_123"
 
         with patch("pathlib.Path.home", return_value=tmp_path):
@@ -100,7 +109,10 @@ class TestGeminiUsageLogger:
     @patch("builtins.open", new_callable=mock_open)
     @patch("usage_logger.GeminiUsageLogger._get_session_id")
     def test_log_usage_failure(self, mock_session_id, mock_file, tmp_path) -> None:
-        """Given failed entry when logging usage then should record error information."""
+        """Given failed entry when logging usage then should record error
+
+        information.
+        """
         mock_session_id.return_value = "test_session_123"
 
         with patch("pathlib.Path.home", return_value=tmp_path):
@@ -126,7 +138,10 @@ class TestGeminiUsageLogger:
         assert log_entry["actual_tokens"] == 100  # Should fallback to estimated
 
     def test_get_session_id_new_session(self, tmp_path) -> None:
-        """Given no existing session when getting session ID then should create new session."""
+        """Given no existing session when getting session ID then should create new
+
+        session.
+        """
         with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
@@ -146,7 +161,10 @@ class TestGeminiUsageLogger:
         assert "last_activity" in session_data
 
     def test_get_session_id_existing_session(self, tmp_path) -> None:
-        """Given existing recent session when getting session ID then should reuse existing."""
+        """Given existing recent session when getting session ID then should reuse
+
+        existing.
+        """
         with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
@@ -166,7 +184,10 @@ class TestGeminiUsageLogger:
         assert session_id == "existing_session_456"
 
     def test_get_session_id_expired_session(self, tmp_path) -> None:
-        """Given expired session when getting session ID then should create new session."""
+        """Given expired session when getting session ID then should create new
+
+        session.
+        """
         with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 

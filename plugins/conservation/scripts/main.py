@@ -1,3 +1,6 @@
+"""Main entry point for the conservation CLI."""
+
+
 def main() -> None:
     """Entry point for the conservation CLI."""
 

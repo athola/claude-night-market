@@ -73,3 +73,48 @@ def test_cli_set_and_status(temp_state_path: Path, capsys: pytest.CaptureFixture
     memory_palace_cli.main(["autonomy", "status"])
     output = capsys.readouterr().out
     assert "Current level: 2" in output
+
+
+def test_garden_commands_emit_transcripts(
+    temp_state_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    memory_palace_cli.main(
+        [
+            "garden",
+            "trust",
+            "--domain",
+            "cache",
+            "--level",
+            "2",
+            "--lock",
+            "--reason",
+            "autonomy review",
+        ]
+    )
+    trust_output = capsys.readouterr().out
+    assert "Garden command transcript" in trust_output
+    assert "action: trust" in trust_output
+    assert "domain: cache" in trust_output
+    assert "level: 2" in trust_output
+    assert "lock: yes" in trust_output
+    assert str(temp_state_path) in trust_output
+
+    memory_palace_cli.main(
+        [
+            "garden",
+            "demote",
+            "--domain",
+            "cache",
+            "--unlock",
+            "--reason",
+            "regret spike",
+        ]
+    )
+    demote_output = capsys.readouterr().out
+    assert "Garden command transcript" in demote_output
+    assert "action: demote" in demote_output
+    assert "domain: cache" in demote_output
+    assert "unlock: yes" in demote_output
+    assert "reason: regret spike" in demote_output
+    assert str(temp_state_path) in demote_output

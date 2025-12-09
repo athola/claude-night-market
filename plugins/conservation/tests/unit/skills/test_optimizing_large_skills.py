@@ -19,6 +19,7 @@ class TestOptimizingLargeSkills:
     def mock_optimizing_large_skills_content(self) -> str:
         """Mock optimizing-large-skills skill content with required components."""
         return """---
+
 name: optimizing-large-skills
 description: |
   Optimize large skills for better performance through modularization,
@@ -77,6 +78,7 @@ tags:
         mock_todo_write,
     ) -> None:
         """Scenario: Optimizing large skills creates required TodoWrite items
+
         Given the optimizing-large-skills skill is executed
         When establishing the optimization workflow
         Then it should create all 5 required TodoWrite items
@@ -112,6 +114,7 @@ tags:
     @pytest.mark.unit
     def test_skill_analysis_identifies_optimization_candidates(self) -> None:
         """Scenario: Skill analysis identifies skills needing optimization
+
         Given various skill files with different characteristics
         When analyzing for optimization opportunities
         Then it should identify large, complex, and inefficient skills
@@ -224,6 +227,7 @@ tags:
     @pytest.mark.unit
     def test_modularization_assessment_identifies_breakdown_opportunities(self) -> None:
         """Scenario: Modularization assessment identifies skill breakdown opportunities
+
         Given large skills with multiple responsibilities
         When assessing modularization potential
         Then it should identify logical separation points
@@ -366,6 +370,7 @@ tags:
         self, mock_claude_tools
     ) -> None:
         """Scenario: Performance profiling identifies skill execution bottlenecks
+
         Given skill execution metrics and resource usage
         When profiling performance
         Then it should identify slow operations and resource-intensive sections
@@ -504,6 +509,7 @@ tags:
     @pytest.mark.unit
     def test_optimization_recommendations_prioritize_high_impact_changes(self) -> None:
         """Scenario: Optimization recommendations prioritize high-impact changes
+
         Given performance analysis and modularization assessment
         When generating optimization recommendations
         Then it should prioritize changes by impact and implementation effort
@@ -662,6 +668,7 @@ tags:
     @pytest.mark.unit
     def test_validation_testing_measures_optimization_effectiveness(self) -> None:
         """Scenario: Validation testing measures optimization effectiveness
+
         Given before and after optimization metrics
         When validating optimization results
         Then it should measure actual improvements

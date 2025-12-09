@@ -328,7 +328,9 @@ class TestSearchLocalKnowledge:
             )
             expected_corpus = str(research_interceptor.PLUGIN_ROOT / "docs/knowledge-corpus/")
             expected_index = str(research_interceptor.PLUGIN_ROOT / "data/indexes")
-            mock_lookup.assert_called_once_with(expected_corpus, expected_index)
+            mock_lookup.assert_called_once_with(
+                expected_corpus, expected_index, embedding_provider="none"
+            )
 
     def test_search_error_handling(self) -> None:
         """Search errors should return empty results."""

@@ -10,11 +10,14 @@ This module provides utility functions for:
 For token-related utilities, use the `tokens` module directly.
 """
 
+import logging
 import re
 from pathlib import Path
 
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "check_meta_skill_indicators",
@@ -74,8 +77,8 @@ def load_config_with_fallback(project_root: Path | None = None) -> AbstractConfi
     if config_file.exists():
         try:
             return AbstractConfig.from_yaml(config_file)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load config from {config_file}: {e}")
 
     return AbstractConfig()
 

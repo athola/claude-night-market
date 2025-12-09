@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Comprehensive skill optimization patterns and tools.
+
 CLI interface for systematic skill file optimization.
 """
 
@@ -9,6 +10,15 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
+
+# Constants for optimization thresholds
+LONG_FUNCTION_LINES = 20
+MAX_TOTAL_LINES_FOR_OPTIMIZATION = 300
+MAX_CODE_BLOCKS = 5
+MAX_PYTHON_FUNCTIONS = 10
+MAX_FUNCTIONS_FOR_CONSOLIDATION = 5
+MAX_CODE_BLOCKS_FOR_REPLACEMENT = 3
+MAX_LINES_FOR_PROGRESSIVE_LOADING = 200
 
 
 def analyze_skill_file(file_path: str) -> dict[str, Any]:
@@ -25,7 +35,7 @@ def analyze_skill_file(file_path: str) -> dict[str, Any]:
     # Count Python functions
     python_functions = len(re.findall(r"^def\s+\w+", content, re.MULTILINE))
 
-    # Find functions over 20 lines
+    # Find functions over LONG_FUNCTION_LINES lines
     long_functions = []
     if python_functions > 0:
         in_function = False
@@ -54,11 +64,11 @@ def analyze_skill_file(file_path: str) -> dict[str, Any]:
         "code_blocks": code_blocks,
         "python_functions": python_functions,
         "long_functions": [
-            (start + 1, lines) for start, lines in long_functions if lines > 20
+            (start + 1, lines) for start, lines in long_functions if lines > LONG_FUNCTION_LINES
         ],
-        "needs_optimization": total_lines > 300
-        or code_blocks > 5
-        or python_functions > 10,
+        "needs_optimization": total_lines > MAX_TOTAL_LINES_FOR_OPTIMIZATION
+        or code_blocks > MAX_CODE_BLOCKS
+        or python_functions > MAX_PYTHON_FUNCTIONS,
     }
 
 
@@ -103,16 +113,16 @@ def generate_optimization_plan(analysis: dict[str, Any]) -> dict[str, Any]:
     }
 
     # Determine optimizations needed
-    if analysis["total_lines"] > 300:
+    if analysis["total_lines"] > MAX_TOTAL_LINES_FOR_OPTIMIZATION:
         plan["optimizations_needed"].append("externalize_heavy_implementations")
 
-    if analysis["python_functions"] > 5:
+    if analysis["python_functions"] > MAX_FUNCTIONS_FOR_CONSOLIDATION:
         plan["optimizations_needed"].append("consolidate_similar_functions")
 
-    if analysis["code_blocks"] > 3:
+    if analysis["code_blocks"] > MAX_CODE_BLOCKS_FOR_REPLACEMENT:
         plan["optimizations_needed"].append("replace_code_with_structured_data")
 
-    if analysis["total_lines"] > 200:
+    if analysis["total_lines"] > MAX_LINES_FOR_PROGRESSIVE_LOADING:
         plan["optimizations_needed"].append("progressive_loading")
 
     # Generate file structure

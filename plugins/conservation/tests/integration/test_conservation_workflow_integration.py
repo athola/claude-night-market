@@ -21,7 +21,8 @@ class TestConservationWorkflowIntegration:
         mock_claude_tools,
         mock_mecw_analyzer,
     ) -> None:
-        """Scenario: End-to-end context optimization workflow integrates all components
+        """Scenario: End-to-end context optimization workflow integrates all components.
+
         Given a complete conservation workflow
         When executing from command to results
         Then it should coordinate skills, tools, and agents effectively
@@ -108,7 +109,8 @@ class TestConservationWorkflowIntegration:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_conservation_command_skill_coordination(self) -> None:
-        """Scenario: Conservation commands coordinate skills effectively
+        """Scenario: Conservation commands coordinate skills effectively.
+
         Given command execution requiring multiple skills
         When coordinating skill execution
         Then it should manage dependencies and data flow
@@ -199,7 +201,8 @@ class TestConservationWorkflowIntegration:
     def test_performance_monitoring_across_workflow(
         self, mock_performance_monitor
     ) -> None:
-        """Scenario: Performance monitoring tracks workflow efficiency
+        """Scenario: Performance monitoring tracks workflow efficiency.
+
         Given complex conservation workflow
         When monitoring performance across all phases
         Then it should provide comprehensive performance insights
@@ -264,7 +267,9 @@ class TestConservationWorkflowIntegration:
                         "current_efficiency": metrics["efficiency_score"],
                         "potential_improvement": (1 - metrics["efficiency_score"])
                         * 100,
-                        "recommendation": f"Optimize {metrics['phase']} for better performance",
+                        "recommendation": (
+                            f"Optimize {metrics['phase']} for better performance"
+                        ),
                     },
                 )
 

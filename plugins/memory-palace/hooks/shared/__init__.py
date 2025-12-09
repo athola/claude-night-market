@@ -2,12 +2,12 @@
 
 from .config import CONFIG_DEFAULTS, get_config, should_process_path
 from .deduplication import get_content_hash, is_known, needs_update, update_index
-from .safety_checks import SafetyCheckResult, SafetyCheckTimeout, is_safe_content
+from .safety_checks import SafetyCheckResult, SafetyCheckTimeoutError, is_safe_content
 
 __all__ = [
     "CONFIG_DEFAULTS",
     "SafetyCheckResult",
-    "SafetyCheckTimeout",
+    "SafetyCheckTimeoutError",
     "get_config",
     "get_content_hash",
     "is_known",

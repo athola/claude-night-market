@@ -64,7 +64,8 @@ class OptimizationServiceInfo:
 
 
 class OptimizationServiceInterface:
-    """High-level service interface for plugins to use Conservation's
+    """High-level service interface for plugins to use Conservation's.
+
     optimization capabilities without needing to know implementation details.
     """
 

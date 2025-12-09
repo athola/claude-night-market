@@ -12,7 +12,7 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 
-import logging
+import logging  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

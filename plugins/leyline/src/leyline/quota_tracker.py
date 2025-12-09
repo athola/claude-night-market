@@ -13,11 +13,17 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+
+# Quota threshold constants
+CRITICAL_THRESHOLD = 95
+WARNING_THRESHOLD = 80
+SECONDS_PER_MINUTE = 60
 
 
 @dataclass
@@ -120,7 +126,7 @@ class QuotaTracker:
         now = time.time()
 
         # Reset minute counters if more than 60 seconds
-        if now - self.usage.last_request_time > 60:
+        if now - self.usage.last_request_time > SECONDS_PER_MINUTE:
             self.usage.requests_this_minute = 0
             self.usage.tokens_this_minute = 0
 
@@ -176,25 +182,28 @@ class QuotaTracker:
         # Determine status level
         max_usage = max(rpm_percent, daily_percent, tpm_percent)
 
-        if max_usage >= 95:
+        if max_usage >= CRITICAL_THRESHOLD:
             level = "critical"
-        elif max_usage >= 80:
+        elif max_usage >= WARNING_THRESHOLD:
             level = "warning"
         else:
             level = "healthy"
 
         # Generate warnings
-        if rpm_percent >= 80:
+        if rpm_percent >= WARNING_THRESHOLD:
             warnings.append(
-                f"RPM at {rpm_percent:.1f}% ({self.usage.requests_this_minute}/{self.config.requests_per_minute})",
+                f"RPM at {rpm_percent:.1f}% "
+                f"({self.usage.requests_this_minute}/{self.config.requests_per_minute})",
             )
-        if daily_percent >= 80:
+        if daily_percent >= WARNING_THRESHOLD:
             warnings.append(
-                f"Daily requests at {daily_percent:.1f}% ({self.usage.requests_today}/{self.config.requests_per_day})",
+                f"Daily requests at {daily_percent:.1f}% "
+                f"({self.usage.requests_today}/{self.config.requests_per_day})",
             )
-        if tpm_percent >= 80:
+        if tpm_percent >= WARNING_THRESHOLD:
             warnings.append(
-                f"TPM at {tpm_percent:.1f}% ({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})",
+                f"TPM at {tpm_percent:.1f}% "
+                f"({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})",
             )
 
         return level, warnings
@@ -214,13 +223,17 @@ class QuotaTracker:
             self.usage.tokens_this_minute + estimated_tokens
             > self.config.tokens_per_minute
         ):
+            exceeded_tpm = self.usage.tokens_this_minute + estimated_tokens
             issues.append(
-                f"Would exceed TPM limit ({self.usage.tokens_this_minute + estimated_tokens} > {self.config.tokens_per_minute})",
+                f"Would exceed TPM limit "
+                f"({exceeded_tpm} > {self.config.tokens_per_minute})",
             )
 
         if self.usage.tokens_today + estimated_tokens > self.config.tokens_per_day:
+            exceeded_daily = self.usage.tokens_today + estimated_tokens
             issues.append(
-                f"Would exceed daily token limit ({self.usage.tokens_today + estimated_tokens} > {self.config.tokens_per_day})",
+                f"Would exceed daily token limit "
+                f"({exceeded_daily} > {self.config.tokens_per_day})",
             )
 
         # Check request counts
@@ -258,8 +271,6 @@ class QuotaTracker:
 
 def main() -> None:
     """CLI interface for quota tracker."""
-    import argparse
-
     parser = argparse.ArgumentParser(description="Check service quota status")
     parser.add_argument("service", help="Service name")
     parser.add_argument("--check", action="store_true", help="Check quota status")

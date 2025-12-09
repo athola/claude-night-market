@@ -8,9 +8,22 @@ This example demonstrates how the Sanctum plugin can:
 """
 
 import json
+import shutil
 import subprocess
+import sys
+import warnings
 from pathlib import Path
 from typing import Any
+
+# Constants for complexity analysis
+HIGH_COMPLEXITY_LINES = 200
+HIGH_COMPLEXITY_FUNCTIONS = 10
+MEDIUM_COMPLEXITY_LINES = 100
+MEDIUM_COMPLEXITY_FUNCTIONS = 5
+
+# Constants for recommendations
+MAX_RECOMMENDATIONS = 10
+MANY_FILES_THRESHOLD = 5
 
 
 class PluginDetector:
@@ -60,6 +73,7 @@ class AbstractIntegration:
     """Handles integration with Abstract plugin for skill analysis."""
 
     def __init__(self) -> None:
+        """Initialize the Abstract integration."""
         self.abstract_available = PluginDetector.is_plugin_available("abstract")
         self.abstract_capabilities = (
             PluginDetector.get_plugin_capabilities("abstract")
@@ -77,8 +91,6 @@ class AbstractIntegration:
             return True
 
         try:
-            import sys
-
             abstract_path = self._find_abstract_path()
             if abstract_path:
                 sys.path.insert(0, str(abstract_path / "src"))
@@ -88,8 +100,11 @@ class AbstractIntegration:
                 return True
         except ImportError:
             self.abstract_available = False
-        except Exception:
-            pass
+        except Exception as e:
+            # Log unexpected error but don't fail initialization
+            warnings.warn(
+                f"Unexpected error loading Abstract plugin: {e}", stacklevel=2
+            )
 
         return False
 
@@ -144,7 +159,7 @@ class AbstractIntegration:
         return analysis
 
     def _basic_complexity_analysis(self, skill_file: Path) -> dict[str, Any]:
-        """Basic fallback complexity analysis."""
+        """Perform basic fallback complexity analysis."""
         try:
             content = skill_file.read_text()
             lines = len(content.splitlines())
@@ -153,9 +168,12 @@ class AbstractIntegration:
 
             # Simple heuristic
             complexity = "low"
-            if lines > 200 or functions > 10:
+            if lines > HIGH_COMPLEXITY_LINES or functions > HIGH_COMPLEXITY_FUNCTIONS:
                 complexity = "high"
-            elif lines > 100 or functions > 5:
+            elif (
+                lines > MEDIUM_COMPLEXITY_LINES
+                or functions > MEDIUM_COMPLEXITY_FUNCTIONS
+            ):
                 complexity = "medium"
 
             return {
@@ -189,6 +207,7 @@ class SanctumGitOperations:
     """Sanctum git operations enhanced with Abstract analysis."""
 
     def __init__(self) -> None:
+        """Initialize git operations with Abstract integration."""
         self.abstract = AbstractIntegration()
 
     def analyze_commit_with_skill_analysis(self, commit_hash: str) -> dict[str, Any]:
@@ -233,9 +252,12 @@ class SanctumGitOperations:
     def _get_changed_files(self, commit_hash: str) -> list[str]:
         """Get list of files changed in a commit."""
         try:
+            git_path = shutil.which("git")
+            if not git_path:
+                return []
             result = subprocess.run(
                 [
-                    "git",
+                    git_path,
                     "diff-tree",
                     "--no-commit-id",
                     "--name-only",
@@ -247,15 +269,19 @@ class SanctumGitOperations:
                 check=True,
             )
             return result.stdout.splitlines()
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             return []
 
     def _get_file_commit_info(self, file_path: str, commit_hash: str) -> dict[str, Any]:
         """Get git information for a file in a specific commit."""
         try:
+            git_path = shutil.which("git")
+            if not git_path:
+                return {"path": file_path, "error": "Git not found"}
+
             # Get file stats from commit
             result = subprocess.run(
-                ["git", "show", "--stat", "--format=", f"{commit_hash}:{file_path}"],
+                [git_path, "show", "--stat", "--format=", f"{commit_hash}:{file_path}"],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -263,7 +289,15 @@ class SanctumGitOperations:
 
             # Get author and date
             log_result = subprocess.run(
-                ["git", "log", "-1", "--format=%an|%ad", commit_hash, "--", file_path],
+                [
+                    git_path,
+                    "log",
+                    "-1",
+                    "--format=%an|%ad",
+                    commit_hash,
+                    "--",
+                    file_path,
+                ],
                 capture_output=True,
                 text=True,
                 check=True,
@@ -277,7 +311,7 @@ class SanctumGitOperations:
                 "date": date,
                 "lines_changed": result.stdout.count("\n"),
             }
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
             return {"path": file_path, "error": "Could not get git info"}
 
     def _generate_complexity_summary(
@@ -307,7 +341,7 @@ class SanctumGitOperations:
                 "analysis_method": "abstract_plugin",
                 "total_skills": total_files,
                 "average_complexity_score": round(avg_complexity, 2),
-                "complex_skills": sum(1 for s in scores if s > 5),
+                "complex_skills": sum(1 for s in scores if s > MANY_FILES_THRESHOLD),
                 "total_recommendations": sum(
                     len(analysis.get("recommendations", []))
                     for analysis in skill_analysis.values()
@@ -381,14 +415,17 @@ class SanctumGitOperations:
     ) -> list[str]:
         """Get commit hashes between two branches."""
         try:
+            git_path = shutil.which("git")
+            if not git_path:
+                return []
             result = subprocess.run(
-                ["git", "log", "--format=%H", f"{to_branch}..{from_branch}"],
+                [git_path, "log", "--format=%H", f"{to_branch}..{from_branch}"],
                 capture_output=True,
                 text=True,
                 check=True,
             )
             return result.stdout.splitlines()
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             return []
 
     def _generate_pr_recommendations(
@@ -411,20 +448,21 @@ class SanctumGitOperations:
                     "average_complexity_score",
                     0,
                 )
-                if avg_complexity > 5:
+                if avg_complexity > MANY_FILES_THRESHOLD:
                     recommendations.append(
-                        "⚠️ High complexity skills modified - consider additional testing",
+                        "⚠️ High complexity skills modified - consider additional "
+                        "testing",
                     )
             else:
                 # Fallback recommendations
                 total_files = len(skill_analysis)
-                if total_files > 5:
+                if total_files > MANY_FILES_THRESHOLD:
                     recommendations.append(
                         "📝 Multiple skills modified - ensure comprehensive review",
                     )
 
         # Check commit patterns
-        if len(commits) > 10:
+        if len(commits) > MAX_RECOMMENDATIONS:
             recommendations.append(
                 "🔄 Many commits in PR - consider squashing for cleaner history",
             )
@@ -441,32 +479,33 @@ if __name__ == "__main__":
 
     # Get latest commit hash for demo
     try:
-        result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        latest_commit = result.stdout.strip()
-
-        commit_analysis = git_ops.analyze_commit_with_skill_analysis(latest_commit)
-    except subprocess.CalledProcessError:
+        git_path = shutil.which("git")
+        if git_path:
+            result = subprocess.run(
+                [git_path, "rev-parse", "HEAD"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            latest_commit = result.stdout.strip()
+            commit_analysis = git_ops.analyze_commit_with_skill_analysis(latest_commit)
+    except (subprocess.CalledProcessError, FileNotFoundError):
         pass
 
     # Example 2: Generate PR description
     # This would analyze between current branch and main
     try:
-        result = subprocess.run(
-            ["git", "branch", "--show-current"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        current_branch = result.stdout.strip()
+        git_path = shutil.which("git")
+        if git_path:
+            result = subprocess.run(
+                [git_path, "branch", "--show-current"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            current_branch = result.stdout.strip()
 
-        if current_branch != "main":
-            pr_info = git_ops.generate_pr_description_with_analysis(current_branch)
-        else:
-            pass
-    except subprocess.CalledProcessError:
+            if current_branch != "main":
+                pr_info = git_ops.generate_pr_description_with_analysis(current_branch)
+    except (subprocess.CalledProcessError, FileNotFoundError):
         pass

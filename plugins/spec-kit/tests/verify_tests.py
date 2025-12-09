@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Simple test verification script for spec-kit test suite.
+
 Verifies test structure and basic functionality without requiring pytest installation.
 """
 

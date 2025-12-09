@@ -1,5 +1,7 @@
-"""Superpower wrapper infrastructure for translating between plugin commands
-and superpowers.
+"""Superpower wrapper infrastructure for translating between commands and superpowers.
+
+This module provides base classes and utilities for creating plugin command wrappers
+that delegate to superpowers with parameter translation and error handling.
 """
 
 from pathlib import Path
@@ -129,7 +131,8 @@ class SuperpowerWrapper:
                     severity=ErrorSeverity.MEDIUM,
                     error_code="PARAMETER_TRANSLATION_ERROR",
                     message=(
-                        f"Parameter translation completed with {len(translation_errors)} errors"
+                        f"Parameter translation completed with "
+                        f"{len(translation_errors)} errors"
                     ),
                     details="; ".join(translation_errors),
                     context={
@@ -269,7 +272,8 @@ class SuperpowerWrapper:
                     severity=ErrorSeverity.MEDIUM,
                     error_code="MISSING_MAPPINGS",
                     message=(
-                        f"No mapping found for parameters: {', '.join(missing_mappings)}"
+                        f"No mapping found for parameters: "
+                        f"{', '.join(missing_mappings)}"
                     ),
                     suggestion=(f"Add mappings for: {', '.join(missing_mappings)}"),
                     context={"missing_mappings": missing_mappings},

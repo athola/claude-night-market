@@ -4,7 +4,7 @@ This example demonstrates how the Conservation plugin can:
 1. Provide context optimization as a service to other plugins
 2. Be detected and used by any plugin that needs context optimization
 3. Offer various optimization strategies (token reduction, prioritization,
-        summarization)
+   summarization)
 4. Work as a drop-in enhancement for any plugin
 """
 
@@ -12,6 +12,19 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
+
+# Constants
+HIGH_PRIORITY_THRESHOLD = 0.7
+TOKEN_BUFFER_MULTIPLIER = 0.9
+HIGH_SCORE_THRESHOLD = 0.8
+LOW_TOKEN_MULTIPLIER = 0.8
+
+# Note: These imports are for example usage only
+# from conservation.context_optimization_service import (
+#     ConservationContextOptimizer,
+#     ContentBlock,
+# )
+# from conservation.context_optimization_service import ConservationServiceRegistry
 
 
 @dataclass
@@ -29,6 +42,7 @@ class ConservationContextOptimizer:
     """Main context optimization service provided by Conservation plugin."""
 
     def __init__(self) -> None:
+        """Initialize the context optimizer with default strategies."""
         self.strategies = {
             "priority": self._optimize_by_priority,
             "recency": self._optimize_by_recency,
@@ -124,7 +138,10 @@ class ConservationContextOptimizer:
                 current_tokens += block.token_estimate
             else:
                 # Try to truncate the last block if it's important
-                if block.priority > 0.7 and current_tokens < max_tokens * 0.9:
+                if (
+                    block.priority > HIGH_PRIORITY_THRESHOLD
+                    and current_tokens < max_tokens * TOKEN_BUFFER_MULTIPLIER
+                ):
                     remaining_tokens = max_tokens - current_tokens
                     truncated = self._truncate_block(block, remaining_tokens)
                     if truncated:
@@ -296,7 +313,10 @@ class ConservationContextOptimizer:
             if current_tokens + block.token_estimate <= max_tokens:
                 kept_blocks.append(block)
                 current_tokens += block.token_estimate
-            elif block.score > 0.8 and current_tokens < max_tokens * 0.8:
+            elif (
+                block.score > HIGH_SCORE_THRESHOLD
+                and current_tokens < max_tokens * LOW_TOKEN_MULTIPLIER
+            ):
                 # Try to fit very important blocks by truncating
                 remaining = max_tokens - current_tokens
                 truncated = self._truncate_block(block, remaining)
@@ -368,6 +388,7 @@ class ConservationServiceRegistry:
     _instance = None
 
     def __new__(cls):
+        """Create a singleton instance of the registry."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance.services = {}
@@ -400,12 +421,12 @@ registry.register_service(
 
 # Example usage patterns for other plugins
 def example_abstract_usage():
-    """Example of how Abstract plugin would use Conservation."""
+    """Demonstrate how Abstract plugin would use Conservation."""
     # Abstract plugin code would do:
-    from conservation.context_optimization_service import (
-        ConservationContextOptimizer,
-        ContentBlock,
-    )
+    # from conservation.context_optimization_service import (
+    #     ConservationContextOptimizer,
+    #     ContentBlock,
+    # )
 
     # Create content blocks from skill analysis
     blocks = [
@@ -439,9 +460,9 @@ def example_abstract_usage():
 
 
 def example_sanctum_usage():
-    """Example of how Sanctum plugin would use Conservation."""
+    """Demonstrate how Sanctum plugin would use Conservation."""
     # Sanctum plugin code would do:
-    from conservation.context_optimization_service import ConservationServiceRegistry
+    # from conservation.context_optimization_service import ConservationServiceRegistry
 
     # Get the optimization service
     registry = ConservationServiceRegistry()
@@ -449,8 +470,9 @@ def example_sanctum_usage():
 
     if optimize:
         # Use it to optimize git commit messages and diffs
+        # git_content_blocks would be defined elsewhere
         return optimize(
-            content_blocks=git_content_blocks,
+            content_blocks=[],
             max_tokens=1500,
             strategy="recency",
         )
@@ -464,7 +486,10 @@ if __name__ == "__main__":
     # Create example content blocks
     example_blocks = [
         ContentBlock(
-            content="# Main Analysis Function\n\ndef analyze(data):\n    return process(data)",
+            content=(
+                "# Main Analysis Function\n\n"
+                "def analyze(data):\n    return process(data)"
+            ),
             priority=0.9,
             source="core_code",
             token_estimate=100,

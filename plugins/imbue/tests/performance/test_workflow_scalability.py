@@ -46,7 +46,8 @@ class TestWorkflowScalability:
 
     @pytest.mark.slow
     def test_large_diff_analysis_scalability(self, large_change_set) -> None:
-        """Scenario: Diff analysis scales with large change sets
+        """Scenario: Diff analysis scales with large change sets.
+
         Given 1000+ files changed
         When performing diff analysis
         Then performance should remain acceptable.
@@ -140,7 +141,8 @@ class TestWorkflowScalability:
 
     @pytest.mark.slow
     def test_evidence_logging_scalability(self) -> None:
-        """Scenario: Evidence logging scales with large evidence sets
+        """Scenario: Evidence logging scales with large evidence sets.
+
         Given 10,000+ evidence items to log
         When managing evidence during review
         Then performance should remain efficient.
@@ -229,7 +231,8 @@ class TestWorkflowScalability:
     async def test_concurrent_workflow_execution(
         self, concurrent_workflow_scenario
     ) -> None:
-        """Scenario: Concurrent workflow execution scales properly
+        """Scenario: Concurrent workflow execution scales properly.
+
         Given multiple workflows running simultaneously
         When executing in parallel
         Then resource usage should be controlled.
@@ -403,7 +406,8 @@ class TestWorkflowScalability:
 
     @pytest.mark.slow
     def test_memory_usage_with_large_datasets(self, tmp_path) -> None:
-        """Scenario: Memory usage scales appropriately with large datasets
+        """Scenario: Memory usage scales appropriately with large datasets.
+
         Given large amounts of data to process
         When performing workflow operations
         Then memory usage should be controlled.
@@ -509,7 +513,8 @@ class TestWorkflowScalability:
 
     @pytest.mark.slow
     def test_token_conservation_scalability(self) -> None:
-        """Scenario: Token conservation scales with large inputs
+        """Scenario: Token conservation scales with large inputs.
+
         Given large amounts of content to process
         When applying token conservation strategies
         Then output should remain token-efficient.
@@ -621,7 +626,8 @@ class TestWorkflowScalability:
 
     @pytest.mark.slow
     def test_database_scalability_simulation(self) -> None:
-        """Scenario: Workflow scales with database-like operations
+        """Scenario: Workflow scales with database-like operations.
+
         Given large numbers of records to process
         When performing database-style operations
         Then performance should remain acceptable.
@@ -725,6 +731,7 @@ class TestWorkflowScalability:
         assert stats["unique_tags"] > 0
 
         # Performance scaling check (should be roughly O(n))
-        # If we double the records, time should roughly double (not exponentially increase)
+        # If we double the records, time should roughly double
+        # (not exponentially increase)
         time_per_record = total_time / len(records)
         assert time_per_record < 0.001  # Less than 1ms per record

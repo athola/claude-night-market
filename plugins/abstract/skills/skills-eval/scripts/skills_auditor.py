@@ -13,7 +13,7 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 
-from abstract.skills_eval import SkillsAuditor as CoreSkillsAuditor
+from abstract.skills_eval import SkillsAuditor as CoreSkillsAuditor  # noqa: E402
 
 
 class SkillsAuditor(CoreSkillsAuditor):

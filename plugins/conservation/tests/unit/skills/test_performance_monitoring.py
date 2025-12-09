@@ -21,6 +21,7 @@ class TestPerformanceMonitoringSkill:
     def mock_performance_monitoring_skill_content(self) -> str:
         """Mock performance monitoring skill content with required components."""
         return """---
+
 name: performance-monitoring
 description: |
   Monitor CPU/GPU performance and resource usage to identify
@@ -85,6 +86,7 @@ tags:
         mock_todo_write,
     ) -> None:
         """Scenario: Performance monitoring creates required TodoWrite items
+
         Given the performance-monitoring skill is executed
         When establishing the monitoring workflow
         Then it should create all 5 required TodoWrite items
@@ -124,6 +126,7 @@ tags:
         mock_performance_monitor,
     ) -> None:
         """Scenario: Metrics collection gathers comprehensive performance data
+
         Given system resources in various states
         When collecting metrics
         Then it should gather CPU, memory, GPU, and token efficiency metrics
@@ -160,6 +163,7 @@ tags:
         mock_performance_monitor,
     ) -> None:
         """Scenario: Threshold analysis identifies performance issues
+
         Given collected performance metrics
         When analyzing against thresholds
         Then it should identify warning and critical conditions
@@ -223,6 +227,7 @@ tags:
         mock_performance_monitor,
     ) -> None:
         """Scenario: Alert evaluation prioritizes critical performance issues
+
         Given multiple performance alerts
         When evaluating alert priorities
         Then it should prioritize critical over warning alerts
@@ -279,6 +284,7 @@ tags:
         sample_performance_metrics,
     ) -> None:
         """Scenario: Optimization recommendations suggest performance improvements
+
         Given performance metrics indicating inefficiencies
         When generating recommendations
         Then it should suggest specific optimization strategies
@@ -355,6 +361,7 @@ tags:
         mock_performance_monitor,
     ) -> None:
         """Scenario: Trend analysis identifies performance patterns over time
+
         Given historical performance data
         When analyzing trends
         Then it should identify patterns, anomalies, and predictions
@@ -443,6 +450,7 @@ tags:
         mock_claude_tools,
     ) -> None:
         """Scenario: Performance monitoring handles missing GPU gracefully
+
         Given systems without GPU availability
         When monitoring performance
         Then it should adapt to available resources
@@ -491,6 +499,7 @@ tags:
     @pytest.mark.unit
     def test_performance_monitoring_adapts_to_system_resources(self) -> None:
         """Scenario: Performance monitoring adapts to different system configurations
+
         Given systems with varying resource capacities
         When monitoring performance
         Then it should adapt thresholds and recommendations
@@ -576,6 +585,7 @@ tags:
         mock_performance_monitor,
     ) -> None:
         """Scenario: Performance monitoring generates comprehensive reports
+
         Given collected performance data and analysis
         When generating reports
         Then it should include metrics, trends, alerts, and recommendations

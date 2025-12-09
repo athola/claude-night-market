@@ -6,10 +6,21 @@ rather than using arbitrary timeouts, eliminating flaky optimization behavior.
 
 import asyncio
 import logging
+import random
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
+
+# Constants
+COMPRESSION_RATIO_THRESHOLD = 0.3
+TOKEN_REDUCTION_THRESHOLD = 100
+PRIORITY_THRESHOLD = 0
+SEMANTIC_COHERENCE_THRESHOLD = 0.7
+COMPRESSION_RATIO_MIN = 0.1
+HIGH_PRESSURE_THRESHOLD = 0.9
+LOW_USAGE_SIMULATION = 0.3
+HIGH_USAGE_SIMULATION = 0.95
 
 # Import the base optimizer
 try:
@@ -21,12 +32,18 @@ try:
 except ImportError:
     # Fallback for standalone use
     class ConservationContextOptimizer:
+        """Fallback optimizer when imports are not available."""
+
         pass
 
     class ContentBlock:
+        """Fallback content block when imports are not available."""
+
         pass
 
     class ConservationServiceRegistry:
+        """Fallback service registry when imports are not available."""
+
         pass
 
 
@@ -59,11 +76,13 @@ class OptimizationResult:
 
 
 class ConditionBasedOptimizer:
-    """Enhanced optimizer that uses condition-based waiting instead of arbitrary timeouts.
+    """Enhanced optimizer using condition-based waiting instead of arbitrary timeouts.
+
     Eliminates flaky optimization behavior by waiting for actual completion signals.
     """
 
     def __init__(self) -> None:
+        """Initialize the condition-based optimizer with default services."""
         self.optimizer = ConservationContextOptimizer()
         self.active_optimizations: dict[str, OptimizationResult] = {}
         self.optimization_queue: list[OptimizationRequest] = []
@@ -86,11 +105,15 @@ class ConditionBasedOptimizer:
         """Register built-in condition checkers."""
         self.condition_checkers.update(
             {
-                "compression_ratio": lambda r: r.get("compression_ratio", 0) > 0.3,
-                "token_reduction": lambda r: r.get("tokens_saved", 0) > 100,
-                "priority_preserved": lambda r: r.get("high_priority_kept", 0) > 0,
+                "compression_ratio": lambda r: r.get("compression_ratio", 0)
+                > COMPRESSION_RATIO_THRESHOLD,  # noqa: E501
+                "token_reduction": lambda r: r.get("tokens_saved", 0)
+                > TOKEN_REDUCTION_THRESHOLD,  # noqa: E501
+                "priority_preserved": lambda r: r.get("high_priority_kept", 0)
+                > PRIORITY_THRESHOLD,  # noqa: E501
                 "structure_intact": lambda r: r.get("structure_preserved", False),
-                "semantic_coherence": lambda r: r.get("coherence_score", 0) > 0.7,
+                "semantic_coherence": lambda r: r.get("coherence_score", 0)
+                > SEMANTIC_COHERENCE_THRESHOLD,  # noqa: E501
             },
         )
 
@@ -235,7 +258,7 @@ class ConditionBasedOptimizer:
             return False
 
         # Check compression ratio is reasonable
-        return not result.get("compression_ratio", 0) <= 0.1
+        return not result.get("compression_ratio", 0) <= COMPRESSION_RATIO_MIN
 
     async def optimize_batch_async(
         self,
@@ -365,7 +388,9 @@ class ConditionBasedOptimizer:
                     "usage": usage,
                     "threshold": threshold,
                     "timestamp": time.time(),
-                    "pressure_level": "high" if usage > 0.9 else "moderate",
+                    "pressure_level": (
+                        "high" if usage > HIGH_PRESSURE_THRESHOLD else "moderate"
+                    ),
                 }
             return None
 
@@ -380,9 +405,7 @@ class ConditionBasedOptimizer:
         """Get current context usage as percentage (0-1)."""
         # In real implementation, this would check actual token usage
         # For demo, simulate varying usage
-        import random
-
-        return random.uniform(0.3, 0.95)
+        return random.uniform(LOW_USAGE_SIMULATION, HIGH_USAGE_SIMULATION)  # noqa: S311
 
 
 # Create global instance for service registry
@@ -397,7 +420,7 @@ def optimize_content_with_conditions(
     strategy: str = "balanced",
     **kwargs,
 ) -> OptimizationResult:
-    """Convenience function for plugins to optimize content with condition-based waiting.
+    """Optimize content with condition-based waiting.
 
     This is the main entry point for other plugins to use Conservation's
     enhanced optimization services.

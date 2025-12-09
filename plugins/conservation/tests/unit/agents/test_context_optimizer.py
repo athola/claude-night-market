@@ -20,7 +20,8 @@ class TestContextOptimizerAgent:
     def test_agent_autonomously_monitors_context_pressure(
         self, mock_mecw_analyzer
     ) -> None:
-        """Scenario: Agent autonomously monitors context pressure
+        """Scenario: Agent autonomously monitors context pressure.
+
         Given varying context usage levels
         When monitoring context pressure
         Then it should detect pressure changes
@@ -75,7 +76,8 @@ class TestContextOptimizerAgent:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_agent_makes_optimal_optimization_decisions(self) -> None:
-        """Scenario: Agent makes optimal optimization decisions
+        """Scenario: Agent makes optimal optimization decisions.
+
         Given multiple optimization strategies available
         When deciding on optimization approach
         Then it should select optimal strategy based on context
@@ -149,7 +151,8 @@ class TestContextOptimizerAgent:
                     condition in strategy["applicable_conditions"]
                     for condition in scenario["conditions"]
                 ):
-                    # Calculate decision score (effectiveness / risk_factor) - cost_penalty
+                    # Calculate decision score (effectiveness / risk_factor) -
+                    # cost_penalty
                     risk_factor = {"low": 1.0, "medium": 1.5, "high": 2.0}[
                         strategy["risk"]
                     ]
@@ -197,6 +200,7 @@ class TestContextOptimizerAgent:
     @pytest.mark.unit
     def test_agent_learns_from_optimization_outcomes(self) -> None:
         """Scenario: Agent learns from optimization outcomes
+
         Given historical optimization results
         When making future decisions
         Then it should incorporate learned preferences

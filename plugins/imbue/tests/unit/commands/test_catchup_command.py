@@ -66,7 +66,8 @@ def5678 2024-12-04 test: Add payment flow tests
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_command_workflow_orchestration(self, mock_claude_tools) -> None:
-        """Scenario: /catchup orchestrates complete workflow
+        """Scenario: /catchup orchestrates complete workflow.
+
         Given a repository with recent changes
         When executing /catchup command
         Then it should execute Baseline → Current → Delta → Insights → Follow-ups
@@ -136,7 +137,8 @@ def5678 2024-12-04 test: Add payment flow tests
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
-        """Scenario: /catchup handles various baseline specifications
+        """Scenario: /catchup handles various baseline specifications.
+
         Given different baseline reference formats
         When specifying baseline parameter
         Then it should parse and validate different baseline types.
@@ -199,7 +201,8 @@ def5678 2024-12-04 test: Add payment flow tests
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_token_conservation(self, sample_git_log_output) -> None:
-        """Scenario: /catchup conserves tokens with large change sets
+        """Scenario: /catchup conserves tokens with large change sets.
+
         Given many commits and changes
         When generating catchup summary
         Then it should summarize rather than reproduce content
@@ -267,7 +270,8 @@ def5678 2024-12-04 test: Add payment flow tests
         sample_catchup_context,
         sample_git_log_output,
     ) -> None:
-        """Scenario: /catchup generates consistent structured output
+        """Scenario: /catchup generates consistent structured output.
+
         Given completed catchup analysis
         When formatting output
         Then it should follow consistent markdown structure
@@ -355,7 +359,8 @@ def5678 2024-12-04 test: Add payment flow tests
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_integration_with_diff_analysis(self, mock_claude_tools) -> None:
-        """Scenario: /catchup integrates with diff-analysis for semantic categorization
+        """Scenario: /catchup integrates with diff-analysis for semantic categorization.
+
         Given changes that need semantic understanding
         When analyzing changes
         Then it should use diff-analysis for categorization
@@ -439,7 +444,8 @@ def5678 2024-12-04 test: Add payment flow tests
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_records_actionable_followups(self) -> None:
-        """Scenario: /catchup records actionable follow-up items
+        """Scenario: /catchup records actionable follow-up items.
+
         Given various types of changes
         When generating follow-ups
         Then it should create specific, actionable items
@@ -518,7 +524,8 @@ def5678 2024-12-04 test: Add payment flow tests
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_error_handling(self, mock_claude_tools) -> None:
-        """Scenario: /catchup handles repository errors gracefully
+        """Scenario: /catchup handles repository errors gracefully.
+
         Given various git repository issues
         When running catchup analysis
         Then it should provide helpful error messages
@@ -565,7 +572,8 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.unit
     def test_catchup_parameter_parsing(self) -> None:
-        """Scenario: /catchup parses command parameters correctly
+        """Scenario: /catchup parses command parameters correctly.
+
         Given various argument combinations
         When parsing command line
         Then it should handle all parameter formats
@@ -632,7 +640,8 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.performance
     def test_catchup_performance_large_history(self) -> None:
-        """Scenario: /catchup performs efficiently with extensive commit history
+        """Scenario: /catchup performs efficiently with extensive commit history.
+
         Given repository with many commits to analyze
         When running catchup analysis
         Then it should complete in reasonable time.

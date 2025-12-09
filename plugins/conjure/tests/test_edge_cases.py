@@ -1,6 +1,7 @@
 """Edge case and error handling tests for conjure plugin following TDD/BDD principles."""
 
 import json
+import os
 import queue
 import subprocess
 
@@ -728,5 +729,4 @@ class TestSystemIntegrationEdgeCases:
                 assert not isinstance(e, RecursionError)  # Should not infinite loop
 
 
-# Import os for environment variable tests
-import os
+# Import os for environment variable tests (moved to top)

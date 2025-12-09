@@ -22,6 +22,7 @@ class TestAnalyzeGrowthCommand:
         sample_growth_analysis,
     ) -> None:
         """Scenario: Command analyzes growth patterns across different timeframes
+
         Given various analysis timeframes
         When analyzing resource growth
         Then it should identify trends and patterns
@@ -55,7 +56,9 @@ class TestAnalyzeGrowthCommand:
                     "trend": "accelerating",
                     "growth_percentage": 280.5,
                     "peak_hour": "15:30",
-                    "recommendation": "Consider optimization strategies and scaling plans",
+                    "recommendation": (
+                        "Consider optimization strategies and scaling plans"
+                    ),
                 }
 
             analysis_results.append({"timeframe": timeframe, "pattern": pattern})
@@ -77,6 +80,7 @@ class TestAnalyzeGrowthCommand:
     @pytest.mark.unit
     def test_command_generates_resource_efficiency_metrics(self) -> None:
         """Scenario: Command generates comprehensive resource efficiency metrics
+
         Given resource usage data across multiple dimensions
         When calculating efficiency metrics
         Then it should provide multi-dimensional efficiency analysis
@@ -176,6 +180,7 @@ class TestAnalyzeGrowthCommand:
         self, sample_growth_analysis
     ) -> None:
         """Scenario: Command provides actionable optimization recommendations
+
         Given growth analysis and efficiency metrics
         When generating recommendations
         Then it should provide specific, prioritized actions
@@ -215,7 +220,10 @@ class TestAnalyzeGrowthCommand:
                     "category": "efficiency_improvement",
                     "priority": "medium",
                     "action": "Optimize resource usage patterns",
-                    "impact": f"Improve efficiency by {(1 - analysis_data['efficiency_score']) * 100:.1f}%",
+                    "impact": (
+                        f"Improve efficiency by "
+                        f"{(1 - analysis_data['efficiency_score']) * 100:.1f}%"
+                    ),
                     "implementation": "Apply token conservation and context optimization",
                 },
             )

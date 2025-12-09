@@ -115,13 +115,14 @@ def main() -> None:
             new_urls.append(url)
 
     # Build response
+    response: dict[str, Any] | None = None
     if new_urls or known_urls:
         context_parts = []
 
         if new_urls:
             context_parts.append(
                 f"Memory Palace: Detected {len(new_urls)} new URL(s) for knowledge intake:\n"
-                + "\n".join(f"  - {url}" for url in new_urls[:5]),  # Limit to 5
+                + "\n".join(f"  - {url}" for url in new_urls[:5]),
             )
             if len(new_urls) > 5:
                 context_parts.append(f"  ... and {len(new_urls) - 5} more")
@@ -136,12 +137,15 @@ def main() -> None:
                 "Check memory-palace for existing knowledge before re-fetching.",
             )
 
-        {
+        response = {
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
                 "additionalContext": "\n".join(context_parts),
             },
         }
+
+    if response:
+        print(json.dumps(response))
 
     sys.exit(0)
 

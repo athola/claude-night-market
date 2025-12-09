@@ -47,6 +47,7 @@ class TestOptimizeContextCommand:
         self, mock_optimize_context_command
     ) -> None:
         """Scenario: Command parses parameters correctly
+
         Given various parameter combinations
         When parsing the command
         Then it should extract target and aggressiveness parameters
@@ -123,6 +124,7 @@ class TestOptimizeContextCommand:
         mock_claude_tools,
     ) -> None:
         """Scenario: Command orchestrates context optimization workflow
+
         Given parsed parameters and available skills
         When executing the optimization workflow
         Then it should coordinate context-optimization and token-conservation skills
@@ -228,6 +230,7 @@ class TestOptimizeContextCommand:
         mock_claude_tools,
     ) -> None:
         """Scenario: Command adapts optimization based on aggressiveness level
+
         Given different aggressiveness parameters
         When applying optimization strategies
         Then it should adjust optimization intensity
@@ -347,6 +350,7 @@ class TestOptimizeContextCommand:
     @pytest.mark.unit
     def test_command_handles_different_target_types(self, mock_claude_tools) -> None:
         """Scenario: Command handles different optimization target types
+
         Given various target types (file, directory, session)
         When optimizing different targets
         Then it should apply appropriate optimization strategies
@@ -492,6 +496,7 @@ class TestOptimizeContextCommand:
     @pytest.mark.unit
     def test_command_provides_comprehensive_feedback(self, mock_claude_tools) -> None:
         """Scenario: Command provides comprehensive feedback on optimization results
+
         Given completed optimization workflow
         When generating user feedback
         Then it should detail changes made and improvements achieved
@@ -629,6 +634,7 @@ class TestOptimizeContextCommand:
         self, mock_claude_tools
     ) -> None:
         """Scenario: Command handles optimization errors gracefully
+
         Given various error conditions during optimization
         When errors occur
         Then it should handle them gracefully and provide recovery options

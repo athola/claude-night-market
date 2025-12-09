@@ -68,7 +68,8 @@ class TestReviewCommand:
         mock_todo_write,
         sample_session_state,
     ) -> None:
-        """Scenario: /review creates complete workflow
+        """Scenario: /review creates complete workflow.
+
         Given a repository ready for review
         When executing /review command
         Then it should initialize all review-core TodoWrite items
@@ -126,7 +127,8 @@ class TestReviewCommand:
         mock_claude_tools,
         sample_scope_inventory,
     ) -> None:
-        """Scenario: /review accepts scope targets
+        """Scenario: /review accepts scope targets.
+
         Given a /review command with target path
         When parsing parameters
         Then it should scope inventory to target
@@ -174,7 +176,8 @@ class TestReviewCommand:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_command_handles_focus_parameters(self) -> None:
-        """Scenario: /review accepts focus parameters
+        """Scenario: /review accepts focus parameters.
+
         Given a /review command with focus flags
         When parsing parameters
         Then it should configure specialized analysis
@@ -241,7 +244,8 @@ class TestReviewCommand:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_command_orchestrates_multiple_skills(self, mock_claude_tools) -> None:
-        """Scenario: /review orchestrates multiple imbue skills
+        """Scenario: /review orchestrates multiple imbue skills.
+
         Given a review command execution
         When coordinating skills
         Then it should call skills in correct order
@@ -313,7 +317,8 @@ class TestReviewCommand:
         sample_session_state,
         sample_scope_inventory,
     ) -> None:
-        """Scenario: /review provides structured output format
+        """Scenario: /review provides structured output format.
+
         Given completed review initialization
         When generating command output
         Then it should display clear workflow status
@@ -382,7 +387,8 @@ class TestReviewCommand:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_command_error_handling(self, mock_claude_tools) -> None:
-        """Scenario: /review handles errors gracefully
+        """Scenario: /review handles errors gracefully.
+
         Given repository or skill execution errors
         When running review command
         Then it should provide helpful error messages
@@ -424,7 +430,8 @@ class TestReviewCommand:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_command_parameter_validation(self) -> None:
-        """Scenario: /review validates command parameters
+        """Scenario: /review validates command parameters.
+
         Given various command argument combinations
         When parsing parameters
         Then it should validate all parameters
@@ -508,7 +515,8 @@ class TestReviewCommand:
 
     @pytest.mark.unit
     def test_command_integration_with_git_workspace(self, mock_claude_tools) -> None:
-        """Scenario: /review integrates with git workspace commands
+        """Scenario: /review integrates with git workspace commands.
+
         Given a git repository with changes
         When running review command
         Then it should use git workspace data for context
@@ -560,7 +568,8 @@ class TestReviewCommand:
 
     @pytest.mark.performance
     def test_command_performance_large_repositories(self) -> None:
-        """Scenario: /review performs efficiently with large repositories
+        """Scenario: /review performs efficiently with large repositories.
+
         Given a repository with many files
         When running review command
         Then it should complete initialization in reasonable time.

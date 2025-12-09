@@ -180,7 +180,8 @@ Common template variables that should be populated:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_template_selection_review_report(self, sample_review_findings) -> None:
-        """Scenario: Template selection works for review reports
+        """Scenario: Template selection works for review reports.
+
         Given comprehensive review findings
         When selecting template for review report
         Then it should choose review report template
@@ -224,7 +225,8 @@ Common template variables that should be populated:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_template_selection_pull_request(self) -> None:
-        """Scenario: Template selection works for pull requests
+        """Scenario: Template selection works for pull requests.
+
         Given code changes for review
         When selecting template for PR description
         Then it should choose PR template
@@ -271,7 +273,8 @@ Common template variables that should be populated:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_findings_formatting_by_severity(self, sample_review_findings) -> None:
-        """Scenario: Findings are formatted by severity level
+        """Scenario: Findings are formatted by severity level.
+
         Given mixed severity findings
         When formatting findings
         Then it should group by severity
@@ -328,7 +331,8 @@ Common template variables that should be populated:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_markdown_formatting_quality(self, sample_review_findings) -> None:
-        """Scenario: Markdown output is properly formatted
+        """Scenario: Markdown output is properly formatted.
+
         Given structured review data
         When generating markdown
         Then it should produce valid markdown
@@ -393,7 +397,8 @@ Common template variables that should be populated:
     def test_action_item_conversion_and_assignment(
         self, sample_review_findings
     ) -> None:
-        """Scenario: Action items are converted and assigned appropriately
+        """Scenario: Action items are converted and assigned appropriately.
+
         Given review findings with recommendations
         When creating action items
         Then it should convert findings to actionable tasks
@@ -476,7 +481,8 @@ Common template variables that should be populated:
         sample_review_findings,
         sample_evidence_log,
     ) -> None:
-        """Scenario: Appendix is compiled with proper navigation
+        """Scenario: Appendix is compiled with proper navigation.
+
         Given evidence log and findings
         When creating appendix
         Then it should provide evidence references
@@ -540,7 +546,8 @@ Common template variables that should be populated:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_template_variable_substitution(self) -> None:
-        """Scenario: Template variables are properly substituted
+        """Scenario: Template variables are properly substituted.
+
         Given template with placeholders
         When generating final output
         Then it should replace all variables with actual values.
@@ -600,7 +607,8 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     def test_output_format_consistency(self, sample_review_findings) -> None:
-        """Scenario: Output format maintains consistency across templates
+        """Scenario: Output format maintains consistency across templates.
+
         Given different template types
         When generating outputs
         Then key elements should be consistently formatted.
@@ -670,7 +678,8 @@ This PR addresses {len(findings)} security-related items.
 
     @pytest.mark.unit
     def test_error_handling_invalid_data(self) -> None:
-        """Scenario: Template formatting handles invalid data gracefully
+        """Scenario: Template formatting handles invalid data gracefully.
+
         Given malformed or missing data
         When generating output
         Then it should provide sensible defaults
@@ -716,7 +725,8 @@ This PR addresses {len(findings)} security-related items.
 
     @pytest.mark.performance
     def test_large_finding_set_formatting(self) -> None:
-        """Scenario: Template formatting performs efficiently with many findings
+        """Scenario: Template formatting performs efficiently with many findings.
+
         Given a large set of findings
         When generating output
         Then it should complete in reasonable time.

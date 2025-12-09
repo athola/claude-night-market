@@ -10,6 +10,7 @@ Usage:
     python scripts/analyze.py --path ../other-skill  # Analyze different skill
 """
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -17,11 +18,9 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from abstract.skill_tools import analyze_skill
+from abstract.skill_tools import analyze_skill  # noqa: E402
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Analyze skill complexity and token usage",
     )

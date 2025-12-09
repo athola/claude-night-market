@@ -6,6 +6,7 @@ of multiple review skills based on repository characteristics.
 
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -22,8 +23,8 @@ class TestUnifiedReviewSkill:
         """Set up test fixtures before each test."""
         self.skill = UnifiedReviewSkill()
         self.mock_context = Mock()
-        self.mock_context.repo_path = Path("/tmp/test_repo")
-        self.mock_context.working_dir = Path("/tmp/test_repo")
+        self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
+        self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
     @pytest.mark.unit
     def test_detects_rust_project_by_cargo_toml(self, mock_skill_context) -> None:

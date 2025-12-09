@@ -10,11 +10,17 @@ import json
 import sys
 from datetime import datetime
 
+# Constants
+CONTROLLABLE_THRESHOLD = 50  # Percentage threshold for controllable growth
+GROWTH_RATE_WARNING = 0.1  # Growth rate threshold for warning
+GROWTH_RATE_CRITICAL = 0.2  # Growth rate threshold for critical priority
+
 
 class GrowthController:
     """Generates and manages context growth control strategies."""
 
     def __init__(self) -> None:
+        """Initialize the growth controller with strategy definitions."""
         self.strategy_types = {
             "conservative": {
                 "description": "Minimal disruption, gradual optimization",
@@ -105,7 +111,9 @@ class GrowthController:
             controls.append(
                 {
                     "name": "Emergency Context Compression",
-                    "description": "Automated compression of older, low-priority context",
+                    "description": (
+                        "Automated compression of older, low-priority context"
+                    ),
                     "priority": "Critical" if urgency in ["HIGH", "URGENT"] else "High",
                     "effectiveness": "60-80%",
                     "implementation_time": "1-2 turns",
@@ -128,7 +136,9 @@ class GrowthController:
             controls.append(
                 {
                     "name": "Aggressive Context Pruning",
-                    "description": "Automated removal of non-essential context elements",
+                    "description": (
+                        "Automated removal of non-essential context elements"
+                    ),
                     "priority": "Critical",
                     "effectiveness": "70-90%",
                     "implementation_time": "1 turn",
@@ -141,11 +151,14 @@ class GrowthController:
         """Generate manual control strategies."""
         controls = []
 
-        if controllable_percentage > 50:
+        if controllable_percentage > CONTROLLABLE_THRESHOLD:
             controls.append(
                 {
                     "name": "Category-Specific Optimization",
-                    "description": f"Manual optimization of {controllable_percentage:.0f}% controllable growth sources",
+                    "description": (
+                        f"Manual optimization of {controllable_percentage:.0f}% "
+                        f"controllable growth sources"
+                    ),
                     "priority": "High",
                     "frequency": "Every 5 turns",
                     "effectiveness": "70-85%",
@@ -155,7 +168,9 @@ class GrowthController:
         controls.append(
             {
                 "name": "Context Review and Cleanup",
-                "description": "Periodic manual review of context elements for relevance",
+                "description": (
+                    "Periodic manual review of context elements for relevance"
+                ),
                 "priority": "Medium",
                 "frequency": "Every 10 turns"
                 if strategy_type == "conservative"
@@ -191,12 +206,14 @@ class GrowthController:
             },
         )
 
-        if growth_rate > 0.1:
+        if growth_rate > GROWTH_RATE_WARNING:
             strategies.append(
                 {
                     "name": "Growth Acceleration Control",
                     "description": "Implement measures to control growth acceleration",
-                    "priority": "Critical" if growth_rate > 0.2 else "High",
+                    "priority": "Critical"
+                    if growth_rate > GROWTH_RATE_CRITICAL
+                    else "High",
                     "implementation": "2-3 turns",
                     "ongoing_maintenance": "Continuous monitoring",
                 },
@@ -315,6 +332,7 @@ class GrowthController:
 
 
 def main() -> None:
+    """Generate context growth control strategies."""
     parser = argparse.ArgumentParser(
         description="Generate context growth control strategies",
     )

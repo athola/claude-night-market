@@ -168,7 +168,7 @@ class GrowthAnalyzer:
 
 
 def main() -> None:
-    """Main entry point for context growth analysis."""
+    """Analyze context growth patterns."""
     parser = argparse.ArgumentParser(description="Analyze context growth patterns")
     parser.add_argument(
         "--context-file",

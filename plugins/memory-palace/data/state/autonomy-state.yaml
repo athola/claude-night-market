@@ -1,11 +1,11 @@
 current_level: 0
 domain_controls: {}
 metrics:
-  auto_approvals: 0
-  flagged_requests: 0
+  auto_approvals: 8
+  flagged_requests: 4
   blocked_requests: 0
   promotions: 0
   demotions: 0
-  last_decision: null
+  last_decision: auto_approved
   last_domains: []
-last_updated: "2025-01-01T00:00:00+00:00"
+last_updated: '2025-12-09T19:10:38.906653+00:00'

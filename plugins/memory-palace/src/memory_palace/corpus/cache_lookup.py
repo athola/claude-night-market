@@ -5,11 +5,13 @@ keyword indexing and query template matching, with intelligent scoring
 to classify matches as strong (>80%), partial (40-80%), or weak (<40%).
 """
 
+import os
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from memory_palace.corpus.embedding_index import EmbeddingIndex
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
@@ -25,7 +27,7 @@ class CacheLookup:
     - Weak match: <40% (tangentially related)
     """
 
-    def __init__(self, corpus_dir: str, index_dir: str) -> None:
+    def __init__(self, corpus_dir: str, index_dir: str, embedding_provider: str = "none") -> None:
         """Initialize the cache lookup system.
 
         Args:
@@ -39,6 +41,17 @@ class CacheLookup:
         # Initialize both search components
         self.keyword_indexer = KeywordIndexer(corpus_dir, index_dir)
         self.query_manager = QueryTemplateManager(corpus_dir, index_dir)
+
+        resolved_provider = (embedding_provider or "none").strip().lower()
+        if resolved_provider == "env":
+            env_value = os.getenv("MEMORY_PALACE_EMBEDDINGS_PROVIDER", "none")
+            resolved_provider = (env_value or "none").strip().lower()
+
+        self.embedding_provider = resolved_provider
+        embeddings_path = self.index_dir / "embeddings.yaml"
+        self.embedding_index = None
+        if resolved_provider != "none":
+            self.embedding_index = EmbeddingIndex(str(embeddings_path), provider=resolved_provider)
 
     def build_indexes(self) -> None:
         """Build both keyword and query template indexes."""
@@ -75,6 +88,10 @@ class CacheLookup:
         if mode in ("queries", "unified"):
             query_results = self._search_queries(query)
             results.extend(query_results)
+
+        if self.embedding_index and mode in ("embeddings", "unified"):
+            embedding_results = self._search_embeddings(query)
+            results.extend(embedding_results)
 
         # Deduplicate and merge scores
         merged_results = self._merge_and_score_results(results)
@@ -149,6 +166,33 @@ class CacheLookup:
             result["source"] = "queries"
 
         return query_results
+
+    def _search_embeddings(self, query: str | list[str]) -> list[dict[str, Any]]:
+        """Search using embeddings if configured."""
+        if not self.embedding_index:
+            return []
+        if isinstance(query, list):
+            query_text = " ".join(query)
+        else:
+            query_text = query
+        scores = self.embedding_index.search(query_text)
+        results = []
+        for entry_id, score in scores:
+            entry_data = self.keyword_indexer.index.get("entries", {}).get(entry_id)
+            if not entry_data:
+                continue
+            results.append(
+                {
+                    "entry_id": entry_id,
+                    "title": entry_data.get("title"),
+                    "file": entry_data.get("file"),
+                    "match_score": 0.6 + 0.4 * score,
+                    "match_strength": "partial",
+                    "source": "embeddings",
+                    "query_score": score,
+                },
+            )
+        return results
 
     def _merge_and_score_results(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Merge duplicate entries and calculate unified match scores.

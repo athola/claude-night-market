@@ -21,14 +21,14 @@ _MAX_REGEX_INPUT_LEN = 50000
 _SUPPORTS_TIMEOUT = hasattr(signal, "SIGALRM")
 
 
-class SafetyCheckTimeout(Exception):
+class SafetyCheckTimeoutError(Exception):
     """Raised when safety check exceeds timeout."""
 
 
 def _timeout_handler(signum: int, frame: object) -> None:
     """Signal handler for timeout."""
     msg = "Safety check timeout exceeded"
-    raise SafetyCheckTimeout(msg)
+    raise SafetyCheckTimeoutError(msg)
 
 
 # Pre-compiled patterns for speed
@@ -208,7 +208,7 @@ def is_safe_content(content: str | bytes, config: dict[str, Any]) -> SafetyCheck
 
     try:
         return _is_safe_content_impl(content, config)
-    except SafetyCheckTimeout:
+    except SafetyCheckTimeoutError:
         return SafetyCheckResult(False, f"Safety check timeout ({timeout_sec}s)")
     finally:
         # Always clean up alarm and restore handler

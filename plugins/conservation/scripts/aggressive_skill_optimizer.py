@@ -100,7 +100,7 @@ if __name__ == "__main__":
         # Sort by size (largest first)
         large_files.sort(key=lambda x: x[1], reverse=True)
 
-        for skill_file, lines in large_files:
+        for _skill_file, _lines in large_files:
             pass
 
         total_reduction = 0

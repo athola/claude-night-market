@@ -71,7 +71,7 @@ select = [
   "D",
 ]
 
-extend-ignore = ["E203", "D203", "D213"]
+extend-ignore = ["E203", "D203", "D213", "S101"]  # Added S101 for assert usage
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]

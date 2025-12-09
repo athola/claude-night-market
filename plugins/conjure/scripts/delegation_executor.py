@@ -120,8 +120,10 @@ class Delegator:
                             self.SERVICES[service_name] = ServiceConfig(
                                 **service_config,
                             )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(
+                    "Failed to load service config for %s: %s", service_name, e
+                )
 
     def verify_service(self, service_name: str) -> tuple[bool, list[str]]:
         """Verify a service is available and authenticated."""
@@ -296,8 +298,8 @@ class Delegator:
         try:
             with open(self.usage_log, "a") as f:
                 f.write(json.dumps(log_entry) + "\n")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Failed to write usage log: %s", e)
 
     def _init_service_stats(self) -> dict[str, Any]:
         """Initialize empty service statistics dictionary."""

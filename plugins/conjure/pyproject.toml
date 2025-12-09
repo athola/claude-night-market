@@ -61,6 +61,7 @@ target-version = "py310"
 exclude = [".venv", ".uv-cache"]
 
 [tool.ruff.lint]
+extend-ignore = ["S101"]
 # Rules: https://docs.astral.sh/ruff/rules/
 # Using a subset of ruff-recommended rules plus some extras
 select = [

@@ -163,7 +163,8 @@ Untracked files:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_confirms_repository_context(self, mock_claude_tools) -> None:
-        """Scenario: Catchup confirms repository context and state
+        """Scenario: Catchup confirms repository context and state.
+
         Given a git repository in any state
         When starting catchup analysis
         Then it should capture pwd, branch, and synchronization status
@@ -208,7 +209,8 @@ Untracked files:
     def test_catchup_identifies_relevant_changes(
         self, sample_git_status_output
     ) -> None:
-        """Scenario: Catchup filters changes by relevance
+        """Scenario: Catchup filters changes by relevance.
+
         Given a repository with various changes
         When running catchup analysis
         Then it should prioritize code changes over docs
@@ -277,7 +279,8 @@ Untracked files:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_captures_delta_efficiently(self, sample_git_log_output) -> None:
-        """Scenario: Catchup captures change delta without full reproduction
+        """Scenario: Catchup captures change delta without full reproduction.
+
         Given recent commits and changes
         When analyzing delta
         Then it should summarize metadata and structure
@@ -355,7 +358,8 @@ Untracked files:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_extracts_insights(self, sample_catchup_result) -> None:
-        """Scenario: Catchup extracts actionable insights from changes
+        """Scenario: Catchup extracts actionable insights from changes.
+
         Given categorized changes and commit history
         When extracting insights
         Then it should identify high-impact changes
@@ -422,7 +426,8 @@ Untracked files:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_records_followups(self, sample_catchup_result) -> None:
-        """Scenario: Catchup records actionable follow-up items
+        """Scenario: Catchup records actionable follow-up items.
+
         Given insights from change analysis
         When recording follow-ups
         Then it should prioritize actions by impact
@@ -478,7 +483,8 @@ Untracked files:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_token_conservation(self) -> None:
-        """Scenario: Catchup conserves tokens in large repositories
+        """Scenario: Catchup conserves tokens in large repositories.
+
         Given a repository with many changes
         When generating catchup summary
         Then it should summarize rather than reproduce content
@@ -528,7 +534,8 @@ Untracked files:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
-        """Scenario: Catchup handles various baseline specifications
+        """Scenario: Catchup handles various baseline specifications.
+
         Given different baseline reference formats
         When establishing baseline for catchup
         Then it should handle relative refs, dates, and branches.
@@ -556,7 +563,8 @@ Untracked files:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_detects_blockers_and_conflicts(self) -> None:
-        """Scenario: Catchup identifies potential blockers and conflicts
+        """Scenario: Catchup identifies potential blockers and conflicts.
+
         Given changes that might cause issues
         When analyzing for blockers
         Then it should flag merge conflicts, breaking changes, etc.
@@ -631,7 +639,8 @@ Untracked files:
 
     @pytest.mark.unit
     def test_catchup_error_handling(self, mock_claude_tools) -> None:
-        """Scenario: Catchup handles repository errors gracefully
+        """Scenario: Catchup handles repository errors gracefully.
+
         Given various git repository issues
         When running catchup analysis
         Then it should handle errors and provide meaningful feedback.
@@ -657,7 +666,8 @@ Untracked files:
 
     @pytest.mark.performance
     def test_catchup_performance_large_history(self) -> None:
-        """Scenario: Catchup performs efficiently with large commit history
+        """Scenario: Catchup performs efficiently with large commit history.
+
         Given a repository with extensive commit history
         When running catchup analysis
         Then it should complete in reasonable time.
@@ -707,7 +717,8 @@ Untracked files:
 
     @pytest.mark.unit
     def test_catchup_generates_structured_output(self, sample_catchup_result) -> None:
-        """Scenario: Catchup generates structured output for consumption
+        """Scenario: Catchup generates structured output for consumption.
+
         Given completed catchup analysis
         When generating final output
         Then it should produce consistent structure

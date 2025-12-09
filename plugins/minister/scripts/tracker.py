@@ -16,9 +16,9 @@ def _bootstrap_path() -> None:
 
 _bootstrap_path()
 
-from minister.project_tracker import (
+from minister.project_tracker import (  # noqa: E402
     run_cli,
-)  # pylint: disable=wrong-import-position
+)
 
 if __name__ == "__main__":
     raise SystemExit(run_cli())

@@ -121,7 +121,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_log_initialization(self, sample_evidence_session) -> None:
-        """Scenario: Evidence log initializes with session context
+        """Scenario: Evidence log initializes with session context.
+
         Given starting a review workflow
         When initializing evidence logging
         Then it should create structured evidence log
@@ -146,7 +147,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_captures_command_output(self, sample_evidence_session) -> None:
-        """Scenario: Evidence logging captures command outputs
+        """Scenario: Evidence logging captures command outputs.
+
         Given review commands being executed
         When logging evidence
         Then it should capture command, output, and timestamp
@@ -180,7 +182,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_sequential_identifiers(self, sample_evidence_session) -> None:
-        """Scenario: Evidence logging assigns sequential identifiers
+        """Scenario: Evidence logging assigns sequential identifiers.
+
         Given multiple commands being logged
         When capturing evidence
         Then it should assign sequential IDs [E1], [E2], [E3]
@@ -218,7 +221,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_supports_citations(self, sample_evidence_session) -> None:
-        """Scenario: Evidence log supports web citations
+        """Scenario: Evidence log supports web citations.
+
         Given web.run citations in review
         When logging evidence
         Then it should capture URLs and access timestamps
@@ -251,7 +255,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_exports_json_format(self, sample_evidence_session) -> None:
-        """Scenario: Evidence log exports in structured JSON format
+        """Scenario: Evidence log exports in structured JSON format.
+
         Given a complete evidence log
         When exporting to JSON
         Then it should maintain structure and validity
@@ -293,7 +298,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_exports_markdown_format(self, sample_evidence_session) -> None:
-        """Scenario: Evidence log exports in human-readable Markdown
+        """Scenario: Evidence log exports in human-readable Markdown.
+
         Given a complete evidence log
         When exporting to Markdown
         Then it should format evidence and citations clearly
@@ -348,7 +354,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_exports_csv_format(self, sample_evidence_session) -> None:
-        """Scenario: Evidence log exports in CSV format for analysis
+        """Scenario: Evidence log exports in CSV format for analysis.
+
         Given a complete evidence log
         When exporting to CSV
         Then it should create tabular evidence data
@@ -393,7 +400,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_handles_large_outputs(self, sample_evidence_session) -> None:
-        """Scenario: Evidence logging handles large command outputs
+        """Scenario: Evidence logging handles large command outputs.
+
         Given commands with substantial output
         When logging evidence
         Then it should manage output size appropriately
@@ -432,7 +440,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_references_in_findings(self, sample_evidence_session) -> None:
-        """Scenario: Evidence references maintain integrity
+        """Scenario: Evidence references maintain integrity.
+
         Given review findings referencing evidence
         When creating findings
         Then evidence references should resolve correctly
@@ -492,7 +501,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.unit
     def test_evidence_error_handling(self, sample_evidence_session) -> None:
-        """Scenario: Evidence logging handles errors gracefully
+        """Scenario: Evidence logging handles errors gracefully.
+
         Given command execution failures
         When logging evidence
         Then it should capture error information
@@ -537,7 +547,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
     def test_evidence_file_output_persistence(
         self, sample_evidence_session, tmp_path
     ) -> None:
-        """Scenario: Evidence log persists to file system
+        """Scenario: Evidence log persists to file system.
+
         Given evidence logging session
         When saving evidence log
         Then it should write valid JSON to file
@@ -570,7 +581,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.unit
     def test_evidence_session_uniqueness(self) -> None:
-        """Scenario: Evidence logging generates unique session IDs
+        """Scenario: Evidence logging generates unique session IDs.
+
         Given multiple evidence logging sessions
         When creating new sessions
         Then each should have unique identifiers
@@ -596,7 +608,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.performance
     def test_evidence_logging_performance(self, sample_evidence_session) -> None:
-        """Scenario: Evidence logging performs efficiently with large datasets
+        """Scenario: Evidence logging performs efficiently with large datasets.
+
         Given many evidence items to log
         When processing evidence
         Then it should maintain reasonable performance

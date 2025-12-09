@@ -13,15 +13,30 @@ Usage:
 import argparse
 import ast
 import json
+import os
 import re
+import shutil
 import subprocess
+import tempfile
 import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
+# Constants for quality thresholds
+MIN_TEST_NAME_LENGTH = 10
+EXCELLENT_QUALITY_SCORE = 90
+GOOD_QUALITY_SCORE = 80
+FAIR_QUALITY_SCORE = 70
+MIN_DOCUMENTATION_RATIO = 0.1
+MAX_TEST_DURATION = 5
+MAX_TEST_LENGTH = 50
+MIN_ASSERTIONS_PER_TEST = 2
+
 
 class QualityLevel(Enum):
+    """Test quality levels for classification."""
+
     EXCELLENT = "excellent"
     GOOD = "good"
     FAIR = "fair"
@@ -43,6 +58,13 @@ class TestQualityChecker:
     """Validates and scores test quality."""
 
     def __init__(self, test_path: Path, source_path: Path | None = None) -> None:
+        """Initialize the test quality checker.
+
+        Args:
+            test_path: Path to the test file or directory
+            source_path: Optional path to the source code being tested
+
+        """
         self.test_path = Path(test_path)
         self.source_path = Path(source_path) if source_path else None
         self.issues: list[QualityIssue] = []
@@ -155,7 +177,7 @@ class TestQualityChecker:
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
                 # Check descriptive names
-                if len(node.name) < 10:
+                if len(node.name) < MIN_TEST_NAME_LENGTH:
                     analysis["naming_issues"].append(
                         QualityIssue(
                             "warning",
@@ -207,7 +229,7 @@ class TestQualityChecker:
                                         "assertion",
                                         f"Vague assertion in '{node.name}' - be more specific",
                                         assert_node.lineno,
-                                        "Assert specific properties: assert result.status == 'success'",
+                                        "Example: assert result.status == 'success'",
                                     ),
                                 )
 
@@ -247,8 +269,8 @@ class TestQualityChecker:
                             QualityIssue(
                                 "warning",
                                 "bdd",
-                                f"Test '{test_name}' missing BDD patterns: {', '.join(missing_patterns)}",
-                                suggestion=f"Add {', '.join(missing_patterns)} clauses to docstring",
+                                f"Test '{test_name}' missing BDD patterns",
+                                suggestion=f"Add {', '.join(missing_patterns)} patterns",
                             ),
                         )
 
@@ -297,45 +319,61 @@ class TestQualityChecker:
         try:
             # Run pytest with JSON output
             start_time = time.time()
-            result = subprocess.run(
-                [
-                    "python",
-                    "-m",
-                    "pytest",
-                    str(self.test_path),
-                    "--json-report",
-                    "--json-report-file=/tmp/test_report.json",
-                    "-q",
-                ],
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-            validation["test_duration"] = time.time() - start_time
+            python_path = shutil.which("python")
+            if not python_path:
+                raise RuntimeError("Python not found")
 
-            # Parse results if available
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp_file:
+                tmp_path = tmp_file.name
+
             try:
-                with open("/tmp/test_report.json") as f:
-                    report = json.load(f)
-                    validation["passed"] = report.get("summary", {}).get("passed", 0)
-                    validation["failures"] = report.get("summary", {}).get("failed", 0)
-                    validation["errors"] = report.get("summary", {}).get("error", 0)
-                    validation["skipped"] = report.get("summary", {}).get("skipped", 0)
-            except:
-                # Fallback to parsing output
-                if result.returncode == 0:
-                    validation["passed"] = 1
-                else:
-                    validation["failures"] = 1
+                result = subprocess.run(
+                    [
+                        python_path,
+                        "-m",
+                        "pytest",
+                        str(self.test_path),
+                        "--json-report",
+                        f"--json-report-file={tmp_path}",
+                        "-q",
+                    ],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+                validation["test_duration"] = time.time() - start_time
+                validation["execution_result"] = result.returncode
 
-            validation["execution_result"] = result.returncode
+                # Parse results if available
+                try:
+                    with open(tmp_path) as f:
+                        report = json.load(f)
+                        validation["passed"] = report.get("summary", {}).get("passed", 0)
+                        validation["failures"] = report.get("summary", {}).get("failed", 0)
+                        validation["errors"] = report.get("summary", {}).get("error", 0)
+                        validation["skipped"] = report.get("summary", {}).get("skipped", 0)
+                except (json.JSONDecodeError, FileNotFoundError, OSError):
+                    # Fallback to parsing output
+                    if result.returncode == 0:
+                        validation["passed"] = 1
+                    else:
+                        validation["failures"] = 1
 
-        except subprocess.TimeoutExpired:
-            validation["errors"].append("Test execution timed out (>30s)")
-            validation["test_duration"] = 30
+            except subprocess.TimeoutExpired:
+                validation["errors"].append("Test execution timed out (>30s)")
+                validation["test_duration"] = 30
+            except Exception as e:
+                validation["errors"].append(f"Test execution failed: {e}")
+            finally:
+                # Clean up temp file
+                try:
+                    os.unlink(tmp_path)
+                except (OSError, FileNotFoundError):
+                    pass
+
         except Exception as e:
-            validation["errors"].append(f"Test execution failed: {e}")
+            validation["errors"].append(f"Test setup failed: {e}")
 
         return validation
 
@@ -357,7 +395,7 @@ class TestQualityChecker:
 
         try:
             tree = ast.parse(content)
-        except:
+        except SyntaxError:
             return metrics
 
         # Count tests
@@ -437,7 +475,7 @@ class TestQualityChecker:
         if metrics["test_count"] == 0:
             score -= 30
 
-        if metrics["documentation_ratio"] < 0.1:
+        if metrics["documentation_ratio"] < MIN_DOCUMENTATION_RATIO:
             score -= 10
 
         # Bonus points for good practices
@@ -449,11 +487,11 @@ class TestQualityChecker:
 
     def _determine_quality_level(self, score: int) -> QualityLevel:
         """Determine quality level from score."""
-        if score >= 90:
+        if score >= EXCELLENT_QUALITY_SCORE:
             return QualityLevel.EXCELLENT
-        if score >= 80:
+        if score >= GOOD_QUALITY_SCORE:
             return QualityLevel.GOOD
-        if score >= 70:
+        if score >= FAIR_QUALITY_SCORE:
             return QualityLevel.FAIR
         return QualityLevel.POOR
 
@@ -544,7 +582,7 @@ def format_report(results: dict) -> str:
 Test Quality Report
 ==================
 
-Overall Quality Score: {results["quality_score"]}/100 ({results["quality_level"].value.upper()})
+Overall Quality Score: {results["quality_score"]}/100 ({results["quality_level"].upper()})
 
 Dynamic Validation
 ------------------

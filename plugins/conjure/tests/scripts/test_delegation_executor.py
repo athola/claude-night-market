@@ -242,7 +242,8 @@ class TestDelegator:
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
     def test_execute_success(self, mock_estimate, mock_run, temp_config_dir) -> None:
-        """Given successful command when executing
+        """Given successful command when executing.
+
         then should return positive result.
         """
         mock_run.return_value.returncode = 0

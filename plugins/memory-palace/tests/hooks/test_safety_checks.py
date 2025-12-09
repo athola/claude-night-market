@@ -11,7 +11,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
 from shared.safety_checks import (
-    SafetyCheckTimeout,
+    SafetyCheckTimeoutError,
     check_data_bombs,
     check_prompt_injection,
     check_secrets,
@@ -230,8 +230,8 @@ class TestTimeout:
     """Tests for timeout behavior."""
 
     def test_timeout_exception_exists(self) -> None:
-        """SafetyCheckTimeout exception should be available."""
-        assert SafetyCheckTimeout is not None
+        """SafetyCheckTimeoutError exception should be available."""
+        assert SafetyCheckTimeoutError is not None
 
     @pytest.mark.skipif(
         not hasattr(__import__("signal"), "SIGALRM"),

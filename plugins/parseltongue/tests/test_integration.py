@@ -8,14 +8,26 @@ from __future__ import annotations
 
 import json
 import tempfile
+import time
 from pathlib import Path
 
 import pytest
+from parseltongue.agents.python_optimizer import PythonOptimizerAgent
 from parseltongue.agents.python_pro import PythonProAgent
+from parseltongue.agents.python_tester import PythonTesterAgent
+from parseltongue.commands.analyze_tests import AnalyzeTestsCommand
+from parseltongue.commands.check_async import CheckAsyncCommand
+from parseltongue.commands.run_profiler import RunProfilerCommand
+from parseltongue.plugin import ParseltonguePlugin
+from parseltongue.skills.code_transformation import CodeTransformationSkill
 from parseltongue.skills.language_detection import LanguageDetectionSkill
+from parseltongue.skills.pattern_matching import PatternMatchingSkill
+from parseltongue.workflow.configurable_workflow import ConfigurableWorkflow
+from parseltongue.workflows.batch_analyzer import BatchAnalyzer
 
 # Import parseltongue components for testing
 from parseltongue.workflows.code_review import CodeReviewWorkflow
+from parseltongue.workflows.fastapi_analyzer import FastAPIAnalyzer
 
 
 class TestParseltongueIntegration:
@@ -197,9 +209,6 @@ def test_data_processor():
         '''
 
         # Act
-        from parseltongue.agents.python_optimizer import PythonOptimizerAgent
-        from parseltongue.agents.python_tester import PythonTesterAgent
-
         # Coordinate multiple agents
         python_pro = PythonProAgent()
         python_tester = PythonTesterAgent()
@@ -245,9 +254,6 @@ def test_data_processor():
         }
 
         # Act
-        from parseltongue.skills.code_transformation import CodeTransformationSkill
-        from parseltongue.skills.pattern_matching import PatternMatchingSkill
-
         detection_skill = LanguageDetectionSkill()
         pattern_skill = PatternMatchingSkill()
         transformation_skill = CodeTransformationSkill()
@@ -274,6 +280,7 @@ def test_data_processor():
 
         # Assert
         for language, result in results.items():
+            assert f"Analysis for {language}" in result.get("summary", "")
             assert "language_features" in result
             assert "patterns" in result
             assert "improvements" in result
@@ -294,9 +301,7 @@ def test_data_processor():
     async def test_command_execution_workflow(self, temp_project_directory) -> None:
         """Given command execution, when workflow runs, then integrates all components."""
         # Arrange
-        from parseltongue.commands.analyze_tests import AnalyzeTestsCommand
-        from parseltongue.commands.check_async import CheckAsyncCommand
-        from parseltongue.commands.run_profiler import RunProfilerCommand
+        project_path = temp_project_directory
 
         # Add test files with issues
         (project_path / "src" / "slow_code.py").write_text("""
@@ -463,8 +468,6 @@ def test_app_config():
         """)
 
         # Act
-        from parseltongue.workflow.configurable_workflow import ConfigurableWorkflow
-
         workflow = ConfigurableWorkflow(config)
         analysis = await workflow.analyze_project(temp_project_directory)
 
@@ -510,11 +513,7 @@ class Module{i}:
                 """)
 
             # Act
-            import time
-
             start_time = time.time()
-
-            from parseltongue.workflows.batch_analyzer import BatchAnalyzer
 
             analyzer = BatchAnalyzer()
             results = await analyzer.analyze_directory(project_path)
@@ -531,8 +530,6 @@ class Module{i}:
     async def test_plugin_lifecycle_management(self) -> None:
         """Given plugin usage, when managing lifecycle, then handles resources properly."""
         # Arrange
-        from parseltongue.plugin import ParseltonguePlugin
-
         plugin = ParseltonguePlugin()
 
         # Act
@@ -679,8 +676,6 @@ async def test_create_user_duplicate_email(user_service, mock_db):
         """)
 
         # Act
-        from parseltongue.workflows.fastapi_analyzer import FastAPIAnalyzer
-
         analyzer = FastAPIAnalyzer()
         analysis = await analyzer.analyze_project(temp_project_directory)
 

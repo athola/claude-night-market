@@ -161,6 +161,7 @@ target-version = "py38"
 line-length = 88
 
 [tool.ruff.lint]
+extend-ignore = ["S101"]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings

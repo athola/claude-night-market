@@ -15,7 +15,8 @@ class TestGitWorkflowIntegration:
     """Integration tests for complete Git workflows."""
 
     def test_complete_commit_workflow(self, temp_git_repo, mock_todo_tool) -> None:
-        """GIVEN a Git repository with staged changes
+        """GIVEN a Git repository with staged changes.
+
         WHEN a user runs the complete commit workflow
         THEN it should execute git-workspace-review and commit-messages in sequence.
         """
@@ -84,6 +85,7 @@ class TestGitWorkflowIntegration:
 
     def test_pr_workflow_from_feature_branch(self, temp_git_repo) -> None:
         """GIVEN a feature branch with multiple commits
+
         WHEN a user prepares a pull request
         THEN it should execute the complete PR preparation workflow.
         """
@@ -125,6 +127,7 @@ class TestGitWorkflowIntegration:
 
     def test_catchup_workflow_integration(self, temp_git_repo) -> None:
         """GIVEN a Git repository that has diverged from remote
+
         WHEN a user runs the catchup workflow
         THEN it should analyze changes and prepare for merging.
         """
@@ -151,6 +154,7 @@ class TestGitWorkflowIntegration:
 
     def test_documentation_update_workflow(self, temp_git_repo) -> None:
         """GIVEN changes that require documentation updates
+
         WHEN the documentation update workflow is executed
         THEN it should identify and update relevant documentation.
         """
@@ -177,6 +181,7 @@ class TestGitWorkflowIntegration:
 
     def test_version_update_workflow(self, temp_git_repo) -> None:
         """GIVEN a repository ready for release
+
         WHEN the version update workflow is executed
         THEN it should update version numbers across the project.
         """
@@ -213,6 +218,7 @@ class TestGitWorkflowIntegration:
 
     def test_agent_skill_integration(self, temp_git_repo) -> None:
         """GIVEN a Git repository requiring analysis
+
         WHEN an agent is invoked to analyze the repository
         THEN it should coordinate with the appropriate skills.
         """
@@ -241,6 +247,7 @@ class TestGitWorkflowIntegration:
 
     def test_error_handling_workflow(self, temp_git_repo) -> None:
         """GIVEN a repository in an error state
+
         WHEN a workflow encounters an error
         THEN it should handle the error gracefully and provide recovery options.
         """
@@ -265,6 +272,7 @@ class TestCommandSkillIntegration:
 
     def test_commit_msg_command_integration(self) -> None:
         """GIVEN the /commit-msg command is invoked
+
         WHEN the command executes
         THEN it should properly invoke git-workspace-review and commit-messages skills.
         """
@@ -289,6 +297,7 @@ class TestCommandSkillIntegration:
 
     def test_pr_command_integration(self) -> None:
         """GIVEN the /pr command is invoked
+
         WHEN the command executes
         THEN it should coordinate multiple skills for PR preparation.
         """
@@ -322,6 +331,7 @@ class TestToolIntegration:
 
     def test_bash_todo_coordination(self, temp_git_repo, mock_todo_tool) -> None:
         """GIVEN skills that use both Bash and TodoWrite tools
+
         WHEN the skills execute
         THEN the tools should coordinate properly with shared state.
         """
@@ -355,6 +365,7 @@ class TestToolIntegration:
 
     def test_read_write_file_operations(self, tmp_path) -> None:
         """GIVEN skills that need to read and write files
+
         WHEN the skills execute
         THEN file operations should work correctly with proper paths.
         """
@@ -383,6 +394,7 @@ class TestWorkflowPerformance:
 
     def test_large_repository_handling(self) -> None:
         """GIVEN a repository with many files and changes
+
         WHEN workflows execute
         THEN they should complete within reasonable time limits.
         """
@@ -416,6 +428,7 @@ class TestWorkflowPerformance:
 
     def test_concurrent_workflow_execution(self) -> None:
         """GIVEN multiple workflows that could run concurrently
+
         WHEN the plugin coordinates them
         THEN they should execute efficiently without interference.
         """

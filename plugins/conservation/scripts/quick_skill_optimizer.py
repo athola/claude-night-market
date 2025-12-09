@@ -5,6 +5,9 @@ import argparse
 import os
 import re
 
+# Constants
+LARGE_FUNCTION_THRESHOLD = 15  # Minimum lines for a function to be considered large
+
 
 def extract_python_blocks(skill_file):
     """Extract all Python code blocks from skill file."""
@@ -15,11 +18,11 @@ def extract_python_blocks(skill_file):
     pattern = r"```python\n(.*?)\n```"
     blocks = re.findall(pattern, content, re.DOTALL)
 
-    # Find functions >15 lines
+    # Find functions > LARGE_FUNCTION_THRESHOLD lines
     functions = []
     for i, block in enumerate(blocks):
         lines = block.split("\n")
-        if len(lines) > 15:
+        if len(lines) > LARGE_FUNCTION_THRESHOLD:
             functions.append({"index": i, "lines": len(lines), "content": block})
 
     return functions
@@ -52,7 +55,7 @@ def quick_optimize_skill(skill_file):
 
     optimized_count = 0
     for func in functions:
-        if func["lines"] > 15:
+        if func["lines"] > LARGE_FUNCTION_THRESHOLD:
             # Extract to tool file
             tool_name = f"extracted_{optimized_count + 1}"
             tool_path = os.path.join(tools_dir, f"{tool_name}.py")

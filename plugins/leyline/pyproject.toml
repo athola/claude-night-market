@@ -36,6 +36,7 @@ exclude = [".venv", ".uv-cache"]
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
 extend-ignore = [
+    "S101",   # Use of assert (acceptable)
     "E203",   # Whitespace before ':'
     "D203",   # One blank line before class docstring
     "D213",   # Multi-line docstring summary should start at second line

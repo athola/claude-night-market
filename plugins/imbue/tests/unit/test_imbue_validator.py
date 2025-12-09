@@ -55,6 +55,7 @@ class TestImbueValidator:
         review_core_dir = skills_dir / "review-core"
         review_core_dir.mkdir()
         (review_core_dir / "SKILL.md").write_text("""---
+
 name: review-core
 description: Foundational workflow scaffolding
 ---
@@ -74,6 +75,7 @@ We generate structured output for reviews.
         evidence_log_dir = skills_dir / "evidence-logging"
         evidence_log_dir.mkdir()
         (evidence_log_dir / "SKILL.md").write_text("""---
+
 name: evidence-logging
 description: Evidence capture workflow
 ---
@@ -90,6 +92,7 @@ We document all commands and outputs.
         other_dir = skills_dir / "other-skill"
         other_dir.mkdir()
         (other_dir / "SKILL.md").write_text("""---
+
 name: other-skill
 description: Non-review skill
 ---
@@ -103,7 +106,8 @@ This skill doesn't do reviews.
 
     @pytest.mark.unit
     def test_validator_initialization(self, mock_plugin_structure) -> None:
-        """Scenario: Validator initializes with plugin structure
+        """Scenario: Validator initializes with plugin structure.
+
         Given a valid plugin directory
         When initializing ImbueValidator
         Then it should load skill files and configuration.
@@ -121,7 +125,8 @@ This skill doesn't do reviews.
 
     @pytest.mark.unit
     def test_validator_initialization_with_nonexistent_directory(self) -> None:
-        """Scenario: Validator handles non-existent directory gracefully
+        """Scenario: Validator handles non-existent directory gracefully.
+
         Given a non-existent plugin directory
         When initializing ImbueValidator
         Then it should initialize with empty skill list.
@@ -140,7 +145,8 @@ This skill doesn't do reviews.
     def test_scan_review_workflows_finds_review_skills(
         self, mock_plugin_structure
     ) -> None:
-        """Scenario: Scan identifies all review workflow skills
+        """Scenario: Scan identifies all review workflow skills.
+
         Given a plugin with review and non-review skills
         When scanning for review workflows
         Then it should identify review-pattern skills
@@ -169,7 +175,8 @@ This skill doesn't do reviews.
     def test_scan_review_workflows_detects_patterns(
         self, mock_plugin_structure
     ) -> None:
-        """Scenario: Scan detects various review workflow patterns
+        """Scenario: Scan detects various review workflow patterns.
+
         Given skills with different review-related keywords
         When scanning for review workflows
         Then it should match multiple patterns
@@ -182,6 +189,7 @@ This skill doesn't do reviews.
         workflow_dir = mock_plugin_structure / "skills" / "workflow-skill"
         workflow_dir.mkdir()
         (workflow_dir / "SKILL.md").write_text("""---
+
 name: workflow-skill
 description: Workflow orchestration
 ---
@@ -204,7 +212,8 @@ This provides workflow orchestration.
     def test_scan_review_workflows_loads_plugin_config(
         self, mock_plugin_structure
     ) -> None:
-        """Scenario: Scan loads plugin configuration successfully
+        """Scenario: Scan loads plugin configuration successfully.
+
         Given a valid plugin.json file
         When scanning for review workflows
         Then it should add evidence logging patterns
@@ -230,7 +239,8 @@ This provides workflow orchestration.
     def test_scan_review_workflows_handles_invalid_json(
         self, mock_plugin_structure
     ) -> None:
-        """Scenario: Scan handles invalid plugin.json gracefully
+        """Scenario: Scan handles invalid plugin.json gracefully.
+
         Given an invalid plugin.json file
         When scanning for review workflows
         Then it should record error in issues
@@ -255,7 +265,8 @@ This provides workflow orchestration.
         self,
         mock_plugin_structure,
     ) -> None:
-        """Scenario: Validation checks review-core skill components
+        """Scenario: Validation checks review-core skill components.
+
         Given a review-core skill missing components
         When validating review workflows
         Then it should identify missing components
@@ -267,6 +278,7 @@ This provides workflow orchestration.
         # Arrange - create review-core skill missing deliverable component
         review_core_dir = mock_plugin_structure / "skills" / "review-core"
         (review_core_dir / "SKILL.md").write_text("""---
+
 name: review-core
 description: Incomplete review skill
 ---
@@ -296,7 +308,8 @@ This skill has checklist but no deliverable section.
     def test_validate_review_workflows_evidence_patterns(
         self, mock_plugin_structure
     ) -> None:
-        """Scenario: Validation checks for evidence logging patterns
+        """Scenario: Validation checks for evidence logging patterns.
+
         Given skills without evidence logging patterns
         When validating review workflows
         Then it should flag missing evidence patterns
@@ -309,6 +322,7 @@ This skill has checklist but no deliverable section.
         no_evidence_dir = mock_plugin_structure / "skills" / "no-evidence"
         no_evidence_dir.mkdir()
         (no_evidence_dir / "SKILL.md").write_text("""---
+
 name: no-evidence
 description: Skill without evidence patterns
 ---
@@ -334,7 +348,8 @@ This skill doesn't mention evidence or logging.
         self,
         mock_plugin_structure,
     ) -> None:
-        """Scenario: Validation excludes review-core from evidence pattern requirement
+        """Scenario: Validation excludes review-core from evidence pattern requirement.
+
         Given a review-core skill without evidence keywords
         When validating review workflows
         Then it should not flag review-core for missing evidence patterns.
@@ -345,6 +360,7 @@ This skill doesn't mention evidence or logging.
         # Arrange - review-core skill without explicit evidence keywords
         review_core_dir = mock_plugin_structure / "skills" / "review-core"
         (review_core_dir / "SKILL.md").write_text("""---
+
 name: review-core
 description: Core review workflow
 ---
@@ -370,7 +386,8 @@ This skill provides review scaffolding with checklist and deliverables.
 
     @pytest.mark.unit
     def test_generate_report_includes_all_sections(self, mock_plugin_structure) -> None:
-        """Scenario: Report generation includes all required sections
+        """Scenario: Report generation includes all required sections.
+
         Given a plugin with various validation results
         When generating a report
         Then it should include all sections with appropriate content.
@@ -395,7 +412,8 @@ This skill provides review scaffolding with checklist and deliverables.
 
     @pytest.mark.unit
     def test_generate_report_shows_issues(self, mock_plugin_structure) -> None:
-        """Scenario: Report displays validation issues
+        """Scenario: Report displays validation issues.
+
         Given validation with issues found
         When generating a report
         Then it should list all issues with numbering.
@@ -422,7 +440,8 @@ This skill provides review scaffolding with checklist and deliverables.
 
     @pytest.mark.unit
     def test_generate_report_success_message(self, mock_plugin_structure) -> None:
-        """Scenario: Report shows success when no issues found
+        """Scenario: Report shows success when no issues found.
+
         Given validation without issues
         When generating a report
         Then it should display success message.
@@ -448,7 +467,8 @@ This skill provides review scaffolding with checklist and deliverables.
 
     @pytest.mark.unit
     def test_pattern_matching_case_insensitive(self, mock_plugin_structure) -> None:
-        """Scenario: Pattern matching is case insensitive
+        """Scenario: Pattern matching is case insensitive.
+
         Given skills with mixed case keywords
         When scanning for review workflows
         Then it should match patterns regardless of case.
@@ -460,6 +480,7 @@ This skill provides review scaffolding with checklist and deliverables.
         mixed_case_dir = mock_plugin_structure / "skills" / "mixed-case"
         mixed_case_dir.mkdir()
         (mixed_case_dir / "SKILL.md").write_text("""---
+
 name: mixed-case
 description: Mixed case REVIEW and WORKFLOW
 ---
@@ -480,7 +501,8 @@ Also includes EVIDENCE logging.
 
     @pytest.mark.unit
     def test_empty_plugin_directory(self, tmp_path) -> None:
-        """Scenario: Validation handles empty plugin directory
+        """Scenario: Validation handles empty plugin directory.
+
         Given an empty plugin directory
         When scanning for review workflows
         Then it should return empty results.
@@ -503,7 +525,8 @@ Also includes EVIDENCE logging.
 
     @pytest.mark.unit
     def test_missing_plugin_json(self, mock_plugin_structure) -> None:
-        """Scenario: Validation handles missing plugin.json
+        """Scenario: Validation handles missing plugin.json.
+
         Given a plugin directory without plugin.json
         When scanning for review workflows
         Then it should continue processing skills.
@@ -535,7 +558,8 @@ class TestImbueValidatorIntegration:
 
     @pytest.mark.integration
     def test_real_plugin_validation(self, imbue_plugin_root) -> None:
-        """Scenario: Validate real imbue plugin structure
+        """Scenario: Validate real imbue plugin structure.
+
         Given the actual imbue plugin directory
         When running validation
         Then it should process actual skills and configuration.
@@ -561,7 +585,8 @@ class TestImbueValidatorIntegration:
 
     @pytest.mark.integration
     def test_file_permissions_handling(self, tmp_path) -> None:
-        """Scenario: Validation handles file permission issues
+        """Scenario: Validation handles file permission issues.
+
         Given files with permission restrictions
         When running validation
         Then it should handle permissions gracefully.
@@ -605,7 +630,8 @@ class TestImbueValidatorPerformance:
 
     @pytest.mark.performance
     def test_large_plugin_validation_performance(self, tmp_path) -> None:
-        """Scenario: Validation performance with many skills
+        """Scenario: Validation performance with many skills.
+
         Given a plugin with many skill files
         When running validation
         Then it should complete within reasonable time.
@@ -622,6 +648,7 @@ class TestImbueValidatorPerformance:
             skill_dir.mkdir()
             skill_file = skill_dir / "SKILL.md"
             skill_file.write_text(f"""---
+
 name: skill-{i:03d}
 description: Test skill {i}
 ---
@@ -647,7 +674,8 @@ This is test skill number {i} with review workflow patterns.
 
     @pytest.mark.performance
     def test_memory_usage_large_plugin(self, tmp_path) -> None:
-        """Scenario: Memory usage with large plugin structures
+        """Scenario: Memory usage with large plugin structures.
+
         Given a plugin with large skill files
         When running validation
         Then memory usage should remain reasonable.

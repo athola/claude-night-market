@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Memory Palace Intake Candidate",
+  "type": "object",
+  "required": ["source", "summary", "evaluation"],
+  "properties": {
+    "source": {
+      "type": "object",
+      "required": ["type", "identifier"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["web_fetch", "web_search", "local_doc", "user_upload"]
+        },
+        "identifier": {
+          "type": "string",
+          "description": "URL, path, or unique handle for the content"
+        },
+        "content_hash": {
+          "type": "string",
+          "description": "xxhash/sha256 computed by hooks.shared.deduplication"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["title", "key_points"],
+      "properties": {
+        "title": {"type": "string"},
+        "key_points": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "required": ["novelty", "applicability", "decision"],
+      "properties": {
+        "novelty": {"type": "integer", "minimum": 0, "maximum": 100},
+        "applicability": {"type": "integer", "minimum": 0, "maximum": 100},
+        "durability": {"type": "integer", "minimum": 0, "maximum": 100},
+        "connectivity": {"type": "integer", "minimum": 0, "maximum": 100},
+        "decision": {
+          "type": "string",
+          "enum": ["store_new", "merge_with", "replace", "reject", "needs_revision"]
+        },
+        "target_entry": {
+          "type": ["string", "null"],
+          "description": "Entry id to merge/replace when applicable"
+        },
+        "autonomy_level": {"type": "integer", "minimum": 0, "maximum": 5}
+      }
+    },
+    "dual_output": {
+      "type": "object",
+      "properties": {
+        "palace_entry_path": {"type": "string"},
+        "developer_doc_path": {"type": "string"},
+        "tasks": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Follow-up actions (e.g., update README, add regression test)"
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "properties": {
+        "reviewed_by": {"type": "string"},
+        "reviewed_at": {"type": "string", "format": "date-time"},
+        "notes": {"type": "string"}
+      }
+    }
+  }
+}

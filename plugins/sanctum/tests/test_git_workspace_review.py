@@ -23,6 +23,7 @@ class TestGitWorkspaceReviewSkill:
         self, temp_git_repo, mock_todo_tool
     ) -> None:
         """GIVEN a valid Git repository
+
         WHEN the git-workspace-review skill is executed
         THEN it should confirm the repository is valid and create required todos.
         """
@@ -39,6 +40,7 @@ class TestGitWorkspaceReviewSkill:
 
     def test_skill_detects_staged_changes(self, temp_git_repo, mock_todo_tool) -> None:
         """GIVEN a Git repository with staged changes
+
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should detect and report the staged changes.
         """
@@ -64,6 +66,7 @@ class TestGitWorkspaceReviewSkill:
 
     def test_skill_detects_unstaged_changes(self, temp_git_repo) -> None:
         """GIVEN a Git repository with unstaged changes
+
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should detect and report the unstaged changes.
         """
@@ -94,6 +97,7 @@ class TestGitWorkspaceReviewSkill:
 
     def test_skill_detects_untracked_files(self, temp_git_repo) -> None:
         """GIVEN a Git repository with untracked files
+
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should detect and report the untracked files.
         """
@@ -103,6 +107,7 @@ class TestGitWorkspaceReviewSkill:
 
         mock_bash = Mock()
         mock_bash.return_value = """On branch main
+
 Untracked files:
   untracked.txt
   temp.tmp
@@ -120,6 +125,7 @@ nothing added to commit but untracked files present
 
     def test_skill_handles_repository_with_no_changes(self, temp_git_repo) -> None:
         """GIVEN a clean Git repository with no changes
+
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report the repository is clean.
         """
@@ -136,6 +142,7 @@ nothing added to commit but untracked files present
 
     def test_skill_reports_branch_information(self, temp_git_repo) -> None:
         """GIVEN a Git repository on a specific branch
+
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report the current branch information.
         """
@@ -161,6 +168,7 @@ nothing added to commit but untracked files present
 
     def test_skill_detects_remote_tracking(self, temp_git_repo) -> None:
         """GIVEN a Git repository with remote tracking
+
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report remote tracking information.
         """
@@ -185,6 +193,7 @@ nothing added to commit but untracked files present
 
     def test_skill_detects_ahead_behind_status(self, temp_git_repo) -> None:
         """GIVEN a Git repository that is ahead/behind remote
+
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report ahead/behind information.
         """
@@ -205,6 +214,7 @@ nothing added to commit but untracked files present
 
     def test_skill_creates_required_todo_items(self, mock_todo_tool) -> None:
         """GIVEN any repository state
+
         WHEN the git-workspace-review skill completes analysis
         THEN it should create the required TodoWrite items.
         """
@@ -230,6 +240,7 @@ nothing added to commit but untracked files present
 
     def test_skill_handles_non_git_directory(self) -> None:
         """GIVEN a directory that is not a Git repository
+
         WHEN the git-workspace-review skill attempts analysis
         THEN it should handle the error gracefully.
         """
@@ -245,6 +256,7 @@ nothing added to commit but untracked files present
 
     def test_skill_handles_permission_errors(self) -> None:
         """GIVEN a directory with permission restrictions
+
         WHEN the git-workspace-review skill attempts analysis
         THEN it should handle permission errors gracefully.
         """
@@ -263,6 +275,7 @@ nothing added to commit but untracked files present
             self, temp_git_repo, mock_todo_tool
         ) -> None:
             """GIVEN a Git repository
+
             WHEN git-workspace-review skill executes
             THEN it should properly integrate with TodoWrite tool.
             """
@@ -296,6 +309,7 @@ nothing added to commit but untracked files present
 
         def test_skill_dependency_chain(self, temp_git_repo) -> None:
             """GIVEN multiple skills that depend on git-workspace-review
+
             WHEN the dependency chain is executed
             THEN git-workspace-review should provide necessary context.
             """
@@ -321,6 +335,7 @@ nothing added to commit but untracked files present
 
         def test_handles_empty_repository(self, temp_git_repo) -> None:
             """GIVEN an empty Git repository (no commits)
+
             WHEN the skill analyzes the repository
             THEN it should handle the empty state correctly.
             """
@@ -342,12 +357,14 @@ nothing to commit
 
         def test_handles_detached_head_state(self, temp_git_repo) -> None:
             """GIVEN a repository in detached HEAD state
+
             WHEN the skill analyzes the repository
             THEN it should handle detached HEAD correctly.
             """
             # Arrange
             mock_bash = Mock()
             mock_bash.return_value = """HEAD detached at abc1234
+
 nothing to commit, working tree clean
 """
 
@@ -360,12 +377,14 @@ nothing to commit, working tree clean
 
         def test_handles_merge_conflicts(self, temp_git_repo) -> None:
             """GIVEN a repository with merge conflicts
+
             WHEN the skill analyzes the repository
             THEN it should detect and report conflicts.
             """
             # Arrange
             mock_bash = Mock()
             mock_bash.return_value = """On branch main
+
 You have unmerged paths.
   (fix conflicts and run "git commit")
 
@@ -386,6 +405,7 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
         def test_handles_large_diff_output(self, temp_git_repo) -> None:
             """GIVEN a repository with very large diffs
+
             WHEN the skill analyzes changes
             THEN it should handle large output efficiently.
             """

@@ -12,7 +12,9 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 
-from abstract.skills_eval import ImprovementSuggester as CoreImprovementSuggester
+from abstract.skills_eval import (  # noqa: E402
+    ImprovementSuggester as CoreImprovementSuggester,
+)
 
 
 class ImprovementSuggester(CoreImprovementSuggester):
