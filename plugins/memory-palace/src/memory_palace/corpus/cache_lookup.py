@@ -116,7 +116,7 @@ class CacheLookup:
             if isinstance(query, str):
                 query_keywords = set(query.lower().split())
             else:
-                query_keywords = set(k.lower() for k in query)
+                query_keywords = {k.lower() for k in query}
 
             entry_keywords = set(result.get("keywords", []))
 
