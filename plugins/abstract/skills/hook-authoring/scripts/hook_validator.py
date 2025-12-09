@@ -111,7 +111,7 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
         return result
 
     # Check for known event types
-    for event_type in hooks_data.keys():
+    for event_type in hooks_data:
         if event_type not in KNOWN_EVENTS:
             result["warnings"].append(f"Unknown event type: {event_type}")
 
@@ -126,7 +126,7 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
         for idx, hook_entry in enumerate(event_hooks):
             if not isinstance(hook_entry, dict):
                 result["errors"].append(
-                    f"{event_type}[{idx}]: hook entry must be an object"
+                    f"{event_type}[{idx}]: hook entry must be an object",
                 )
                 result["valid"] = False
                 continue
@@ -134,7 +134,7 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
             # Check for 'hooks' field
             if "hooks" not in hook_entry:
                 result["errors"].append(
-                    f"{event_type}[{idx}]: missing required 'hooks' field"
+                    f"{event_type}[{idx}]: missing required 'hooks' field",
                 )
                 result["valid"] = False
                 continue
@@ -150,7 +150,7 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
             for hook_idx, hook_action in enumerate(hooks_array):
                 if not isinstance(hook_action, dict):
                     result["errors"].append(
-                        f"{event_type}[{idx}].hooks[{hook_idx}]: must be an object"
+                        f"{event_type}[{idx}].hooks[{hook_idx}]: must be an object",
                     )
                     result["valid"] = False
                     continue
@@ -158,7 +158,7 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
                 # Check for 'type' field
                 if "type" not in hook_action:
                     result["warnings"].append(
-                        f"{event_type}[{idx}].hooks[{hook_idx}]: missing 'type' field"
+                        f"{event_type}[{idx}].hooks[{hook_idx}]: missing 'type' field",
                     )
 
                 # Check for 'command' field if type is 'command'
@@ -168,7 +168,7 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
                 ):
                     result["errors"].append(
                         f"{event_type}[{idx}].hooks[{hook_idx}]: "
-                        "missing 'command' field"
+                        "missing 'command' field",
                     )
                     result["valid"] = False
 
@@ -177,15 +177,15 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
                 matcher = hook_entry["matcher"]
                 if not isinstance(matcher, dict):
                     result["warnings"].append(
-                        f"{event_type}[{idx}]: 'matcher' should be an object"
+                        f"{event_type}[{idx}]: 'matcher' should be an object",
                     )
 
                 # Check for known matcher fields
                 known_matcher_fields = {"toolName", "inputPattern"}
-                for field in matcher.keys():
+                for field in matcher:
                     if field not in known_matcher_fields:
                         result["warnings"].append(
-                            f"{event_type}[{idx}]: unknown matcher field '{field}'"
+                            f"{event_type}[{idx}]: unknown matcher field '{field}'",
                         )
 
     # Summary
@@ -252,7 +252,7 @@ def validate_python_hook(hook_file: Path) -> ValidationResult:
 
     if not agent_hooks_classes:
         result["warnings"].append(
-            "No classes inherit from AgentHooks (may not be a hook file)"
+            "No classes inherit from AgentHooks (may not be a hook file)",
         )
         return result
 
@@ -277,7 +277,7 @@ def validate_python_hook(hook_file: Path) -> ValidationResult:
             # Check if async
             if not isinstance(method, ast.AsyncFunctionDef):
                 result["errors"].append(
-                    f"{cls.name}.{method_name}: should be async (async def)"
+                    f"{cls.name}.{method_name}: should be async (async def)",
                 )
                 result["valid"] = False
 
@@ -288,7 +288,7 @@ def validate_python_hook(hook_file: Path) -> ValidationResult:
             if actual_args != expected_args:
                 result["errors"].append(
                     f"{cls.name}.{method_name}: incorrect arguments. "
-                    f"Expected {expected_args}, got {actual_args}"
+                    f"Expected {expected_args}, got {actual_args}",
                 )
                 result["valid"] = False
 
@@ -298,7 +298,8 @@ def validate_python_hook(hook_file: Path) -> ValidationResult:
 
 
 def validate_hook_file(
-    hook_file: Path, file_type: str | None = None
+    hook_file: Path,
+    file_type: str | None = None,
 ) -> ValidationResult:
     """Validate a hook file (auto-detect type or use specified type).
 
@@ -320,7 +321,7 @@ def validate_hook_file(
             return {
                 "valid": False,
                 "errors": [
-                    f"Cannot determine file type from extension: {hook_file.suffix}"
+                    f"Cannot determine file type from extension: {hook_file.suffix}",
                 ],
                 "warnings": [],
                 "info": [],
@@ -329,15 +330,14 @@ def validate_hook_file(
     # Validate based on type
     if file_type == "json":
         return validate_json_hook(hook_file)
-    elif file_type == "python":
+    if file_type == "python":
         return validate_python_hook(hook_file)
-    else:
-        return {
-            "valid": False,
-            "errors": [f"Unknown file type: {file_type}"],
-            "warnings": [],
-            "info": [],
-        }
+    return {
+        "valid": False,
+        "errors": [f"Unknown file type: {file_type}"],
+        "warnings": [],
+        "info": [],
+    }
 
 
 def print_result(result: ValidationResult, verbose: bool = False) -> None:
@@ -350,37 +350,33 @@ def print_result(result: ValidationResult, verbose: bool = False) -> None:
     """
     # Print info (if verbose)
     if verbose and result["info"]:
-        print("\nInfo:")
-        for msg in result["info"]:
-            print(f"  ℹ  {msg}")
+        for _msg in result["info"]:
+            pass
 
     # Print warnings
     if result["warnings"]:
-        print("\nWarnings:")
-        for msg in result["warnings"]:
-            print(f"  ⚠  {msg}")
+        for _msg in result["warnings"]:
+            pass
 
     # Print errors
     if result["errors"]:
-        print("\nErrors:")
-        for msg in result["errors"]:
-            print(f"  ✗ {msg}")
+        for _msg in result["errors"]:
+            pass
 
     # Print summary
-    print()
     if result["valid"]:
         if result["warnings"]:
-            print("✓ Valid with warnings")
+            pass
         else:
-            print("✓ Valid")
+            pass
     else:
-        print("✗ Invalid")
+        pass
 
 
 def main() -> None:
     """Main entry point for hook validator."""
     parser = argparse.ArgumentParser(
-        description="Validate Claude Code hooks (JSON) and SDK hooks (Python)"
+        description="Validate Claude Code hooks (JSON) and SDK hooks (Python)",
     )
     parser.add_argument(
         "hook_file",

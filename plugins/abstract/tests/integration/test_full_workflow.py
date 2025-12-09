@@ -9,7 +9,7 @@ import pytest
 def sample_skill_dir() -> Generator[str, None, None]:
     """Create a temporary skill directory for testing."""
     # Placeholder for test fixture
-    yield "sample_skill_dir"
+    return "sample_skill_dir"
 
 
 def test_full_workflow(sample_skill_dir: str) -> None:

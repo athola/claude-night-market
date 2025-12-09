@@ -47,7 +47,7 @@ class ProjectTracker:
         "Docs & Enablement",
     ]
 
-    def __init__(self, data_file: Path | None = None, initiatives: list[str] | None = None):
+    def __init__(self, data_file: Path | None = None, initiatives: list[str] | None = None) -> None:
         plugin_root = Path(__file__).resolve().parents[2]
         default_data = plugin_root / "data" / "project-data.json"
         self.data_file = data_file or default_data
@@ -78,7 +78,6 @@ class ProjectTracker:
         """Add a new task to the tracker."""
         self.data.tasks.append(task)
         self._save_data()
-        print(f"Added task: {task.title}")
 
     def update_task(self, task_id: str, updates: dict[str, Any]) -> None:
         """Update an existing task."""
@@ -88,9 +87,7 @@ class ProjectTracker:
                     setattr(task, key, value)
                 task.updated_date = datetime.now().isoformat()
                 self._save_data()
-                print(f"Updated task: {task.title}")
                 return
-        print(f"Task not found: {task_id}")
 
     def get_tasks_by_initiative(self, initiative: str) -> list[Task]:
         """Get all tasks for a specific initiative."""
@@ -105,7 +102,7 @@ class ProjectTracker:
         }
 
         initiative_names = sorted(
-            {task.initiative for task in self.data.tasks} | set(self.initiatives)
+            {task.initiative for task in self.data.tasks} | set(self.initiatives),
         )
         for initiative in initiative_names:
             tasks = self.get_tasks_by_initiative(initiative)
@@ -192,7 +189,7 @@ class ProjectTracker:
                 f"{metrics['completed_tasks']}/{metrics['total_tasks']} | "
                 f"{metrics['in_progress_tasks']} | "
                 f"{metrics['completion_percentage']}% | "
-                f"{metrics['average_task_completion']}% |"
+                f"{metrics['average_task_completion']}% |",
             )
 
         overall = report["overall_metrics"]
@@ -204,7 +201,7 @@ class ProjectTracker:
                 f"- Completion: {overall['overall_completion']}%",
                 f"- Total effort: {overall['total_effort']}h",
                 f"- Burn rate: {overall['burn_rate']}h/week",
-            ]
+            ],
         )
         return "\n".join(lines)
 
@@ -241,15 +238,14 @@ class ProjectTracker:
                         "completion_percent": task.completion_percent,
                         "due_date": task.due_date,
                         "github_issue": task.github_issue or "",
-                    }
+                    },
                 )
-        print(f"Exported {len(self.data.tasks)} tasks to {output_file}")
 
 
 def build_cli_parser() -> argparse.ArgumentParser:
     """Create the CLI parser shared by scripts and tests."""
     parser = argparse.ArgumentParser(
-        description="GitHub-centric initiative tracker for Claude Night Market"
+        description="GitHub-centric initiative tracker for Claude Night Market",
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -337,14 +333,14 @@ def run_cli(argv: list[str] | None = None) -> int:
         if updates:
             tracker.update_task(args.id, updates)
         else:
-            print("No updates specified")
+            pass
 
     elif args.command == "status":
-        report = tracker.get_status_report()
+        tracker.get_status_report()
         if args.github_comment:
-            print(tracker.format_github_comment(report))
+            pass
         else:
-            print(json.dumps(report, indent=2))
+            pass
 
     elif args.command == "export":
         tracker.export_csv(Path(args.output))

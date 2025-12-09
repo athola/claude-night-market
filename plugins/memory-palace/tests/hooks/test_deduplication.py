@@ -1,6 +1,5 @@
 """Tests for deduplication module."""
 
-# ruff: noqa: S101
 from __future__ import annotations
 
 import os
@@ -24,12 +23,12 @@ class TestGetContentHash:
     def test_string_hashed(self) -> None:
         """Strings should be hashed."""
         hash1 = get_content_hash("Hello World")
-        assert hash1.startswith("xxh:") or hash1.startswith("sha256:")
+        assert hash1.startswith(("xxh:", "sha256:"))
 
     def test_bytes_hashed(self) -> None:
         """Bytes should be hashed."""
         hash1 = get_content_hash(b"Hello World")
-        assert hash1.startswith("xxh:") or hash1.startswith("sha256:")
+        assert hash1.startswith(("xxh:", "sha256:"))
 
     def test_same_content_same_hash(self) -> None:
         """Same content should produce same hash."""

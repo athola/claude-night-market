@@ -1,6 +1,5 @@
 """Tests for unified cache lookup functionality."""
 
-# ruff: noqa: S101
 from pathlib import Path
 
 import pytest
@@ -87,7 +86,7 @@ def cache_lookup(temp_corpus_dir, temp_index_dir):
 class TestCacheLookup:
     """Test suite for CacheLookup."""
 
-    def test_initialization(self, temp_corpus_dir, temp_index_dir):
+    def test_initialization(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test cache lookup initialization."""
         lookup = CacheLookup(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -96,7 +95,7 @@ class TestCacheLookup:
         assert lookup.keyword_indexer is not None
         assert lookup.query_manager is not None
 
-    def test_build_indexes(self, temp_corpus_dir, temp_index_dir):
+    def test_build_indexes(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test building both indexes."""
         lookup = CacheLookup(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -109,21 +108,21 @@ class TestCacheLookup:
         assert keyword_index.exists()
         assert query_index.exists()
 
-    def test_search_by_keywords(self, cache_lookup):
+    def test_search_by_keywords(self, cache_lookup) -> None:
         """Test search using keywords only."""
         results = cache_lookup.search(query="learning machine", mode="keywords")
 
         assert len(results) > 0
         assert any("franklin" in r["entry_id"].lower() for r in results)
 
-    def test_search_by_query_templates(self, cache_lookup):
+    def test_search_by_query_templates(self, cache_lookup) -> None:
         """Test search using query templates only."""
         results = cache_lookup.search(query="how to improve writing skills", mode="queries")
 
         assert len(results) > 0
         assert any("franklin" in r["entry_id"].lower() for r in results)
 
-    def test_search_unified(self, cache_lookup):
+    def test_search_unified(self, cache_lookup) -> None:
         """Test unified search combining both approaches."""
         results = cache_lookup.search(query="improve writing systematically", mode="unified")
 
@@ -134,11 +133,12 @@ class TestCacheLookup:
             assert "match_score" in result
             assert 0.0 <= result["match_score"] <= 1.0
 
-    def test_match_score_classification(self, cache_lookup):
+    def test_match_score_classification(self, cache_lookup) -> None:
         """Test that match scores are correctly classified."""
         # Strong match: query directly addresses indexed query
         strong_results = cache_lookup.search(
-            query="how to improve writing skills systematically", mode="unified"
+            query="how to improve writing skills systematically",
+            mode="unified",
         )
 
         # Should have at least one strong match
@@ -152,7 +152,7 @@ class TestCacheLookup:
         # Should have partial matches
         assert len(partial_results) > 0
 
-    def test_result_ranking(self, cache_lookup):
+    def test_result_ranking(self, cache_lookup) -> None:
         """Test that results are ranked by match score."""
         results = cache_lookup.search(query="learning gradient descent machine", mode="unified")
 
@@ -160,7 +160,7 @@ class TestCacheLookup:
         scores = [r["match_score"] for r in results]
         assert scores == sorted(scores, reverse=True)
 
-    def test_get_entry_content(self, cache_lookup):
+    def test_get_entry_content(self, cache_lookup) -> None:
         """Test retrieving full entry content."""
         # First search for an entry
         results = cache_lookup.search(query="franklin learning", mode="unified")
@@ -175,7 +175,7 @@ class TestCacheLookup:
         assert "Franklin Protocol" in content
         assert "gradient descent" in content.lower()
 
-    def test_get_entry_metadata(self, cache_lookup):
+    def test_get_entry_metadata(self, cache_lookup) -> None:
         """Test retrieving entry metadata."""
         results = cache_lookup.search(query="franklin", mode="keywords")
 
@@ -190,13 +190,13 @@ class TestCacheLookup:
         assert "tags" in metadata
         assert "maturity" in metadata
 
-    def test_search_no_results(self, cache_lookup):
+    def test_search_no_results(self, cache_lookup) -> None:
         """Test search with no matching results."""
         results = cache_lookup.search(query="quantum physics black holes", mode="unified")
 
         assert len(results) == 0
 
-    def test_load_existing_indexes(self, temp_corpus_dir, temp_index_dir):
+    def test_load_existing_indexes(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test loading previously built indexes."""
         # Build indexes with first instance
         lookup1 = CacheLookup(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
@@ -209,7 +209,7 @@ class TestCacheLookup:
         results = lookup2.search(query="learning", mode="keywords")
         assert len(results) > 0
 
-    def test_match_score_thresholds(self, cache_lookup):
+    def test_match_score_thresholds(self, cache_lookup) -> None:
         """Test filtering by match score threshold."""
         # Get all results
         all_results = cache_lookup.search(query="learning", mode="unified")
@@ -220,7 +220,7 @@ class TestCacheLookup:
         # Strong results should be subset of all results
         assert len(strong_results) <= len(all_results)
 
-    def test_multiple_keyword_search(self, cache_lookup):
+    def test_multiple_keyword_search(self, cache_lookup) -> None:
         """Test searching with multiple keywords (AND logic)."""
         results = cache_lookup.search(query=["learning", "deliberate"], mode="keywords")
 
@@ -228,14 +228,14 @@ class TestCacheLookup:
         assert len(results) > 0
         assert any("franklin" in r["entry_id"].lower() for r in results)
 
-    def test_empty_query_handling(self, cache_lookup):
+    def test_empty_query_handling(self, cache_lookup) -> None:
         """Test handling of empty queries."""
         results = cache_lookup.search(query="", mode="unified")
 
         # Empty query should return no results
         assert len(results) == 0
 
-    def test_result_deduplication(self, cache_lookup):
+    def test_result_deduplication(self, cache_lookup) -> None:
         """Test that results are deduplicated across search methods."""
         results = cache_lookup.search(query="learning machine franklin", mode="unified")
 

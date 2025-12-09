@@ -9,14 +9,16 @@ from typing import Any
 
 
 class SuperpowerWrapper:
-    """Base class for wrapping plugin commands to superpower calls
+    """Base class for wrapping plugin commands to superpower calls.
 
     Provides parameter translation and common functionality for plugin
     command wrappers that delegate to superpower implementations.
     """
 
-    def __init__(self, source_plugin: str, source_command: str, target_superpower: str):
-        """Initialize the wrapper with plugin and command information
+    def __init__(
+        self, source_plugin: str, source_command: str, target_superpower: str
+    ) -> None:
+        """Initialize the wrapper with plugin and command information.
 
         Args:
             source_plugin: Name of the source plugin
@@ -30,7 +32,7 @@ class SuperpowerWrapper:
         self.parameter_map = self._load_parameter_map()
 
     def translate_parameters(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Translate plugin parameters to superpower parameters
+        """Translate plugin parameters to superpower parameters.
 
         Args:
             params: Dictionary of plugin parameters
@@ -46,7 +48,7 @@ class SuperpowerWrapper:
         return translated
 
     def _load_parameter_map(self) -> dict[str, str]:
-        """Load parameter mapping from wrapper config
+        """Load parameter mapping from wrapper config.
 
         Returns:
             Dictionary mapping parameter names from plugin to superpower

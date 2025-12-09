@@ -21,19 +21,21 @@ PLUGIN_ROOT = Path(__file__).parent.parent
 class GitRepository:
     """Helper class to create and manage test Git repositories."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path) -> None:
         self.path = path
         self.git_cmd = ["git", "-C", str(path)]
 
     def init(self, bare: bool = False) -> None:
         """Initialize a Git repository."""
-        cmd = self.git_cmd + ["init", "--bare"] if bare else self.git_cmd + ["init"]
+        cmd = [*self.git_cmd, "init", "--bare"] if bare else [*self.git_cmd, "init"]
         subprocess.run(cmd, check=True, capture_output=True)
 
     def config(self, key: str, value: str) -> None:
         """Set Git configuration."""
         subprocess.run(
-            self.git_cmd + ["config", key, value], check=True, capture_output=True
+            [*self.git_cmd, "config", key, value],
+            check=True,
+            capture_output=True,
         )
 
     def add_file(self, file_path: str, content: str = "") -> Path:
@@ -46,17 +48,21 @@ class GitRepository:
     def stage_file(self, file_path: str) -> None:
         """Stage a file for commit."""
         subprocess.run(
-            self.git_cmd + ["add", file_path], check=True, capture_output=True
+            [*self.git_cmd, "add", file_path],
+            check=True,
+            capture_output=True,
         )
 
     def commit(self, message: str = "Test commit") -> str:
         """Create a commit."""
         subprocess.run(
-            self.git_cmd + ["commit", "-m", message], check=True, capture_output=True
+            [*self.git_cmd, "commit", "-m", message],
+            check=True,
+            capture_output=True,
         )
         # Get commit hash
         result = subprocess.run(
-            self.git_cmd + ["rev-parse", "HEAD"],
+            [*self.git_cmd, "rev-parse", "HEAD"],
             check=True,
             capture_output=True,
             text=True,
@@ -66,7 +72,7 @@ class GitRepository:
     def create_branch(self, branch_name: str) -> None:
         """Create and checkout a new branch."""
         subprocess.run(
-            self.git_cmd + ["checkout", "-b", branch_name],
+            [*self.git_cmd, "checkout", "-b", branch_name],
             check=True,
             capture_output=True,
         )
@@ -74,7 +80,7 @@ class GitRepository:
     def get_status(self) -> dict[str, Any]:
         """Get repository status as a dictionary."""
         result = subprocess.run(
-            self.git_cmd + ["status", "--porcelain"],
+            [*self.git_cmd, "status", "--porcelain"],
             check=True,
             capture_output=True,
             text=True,
@@ -87,14 +93,16 @@ class GitRepository:
 
     def get_diff(self, cached: bool = False) -> str:
         """Get diff output."""
-        cmd = self.git_cmd + ["diff", "--cached"] if cached else self.git_cmd + ["diff"]
+        cmd = [*self.git_cmd, "diff", "--cached"] if cached else [*self.git_cmd, "diff"]
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
         return result.stdout
 
     def add_remote(self, name: str, url: str) -> None:
         """Add a remote repository."""
         subprocess.run(
-            self.git_cmd + ["remote", "add", name, url], check=True, capture_output=True
+            [*self.git_cmd, "remote", "add", name, url],
+            check=True,
+            capture_output=True,
         )
 
 
@@ -114,16 +122,15 @@ def mock_bash_tool():
     """Mock Bash tool for testing Git operations."""
     mock = Mock()
 
-    def mock_execute(command: str, **kwargs):
+    def mock_execute(command: str, **kwargs) -> str:
         """Mock bash execution with common Git commands."""
         if "git status" in command:
             return "## main...origin/main\nM file1.txt\nA file2.txt\n"
-        elif "git diff" in command:
+        if "git diff" in command:
             return "diff --git a/file1.txt b/file1.txt\nindex 123..456 789\n"
-        elif "git log" in command:
+        if "git log" in command:
             return "abc1234 Test commit\n"
-        else:
-            return ""
+        return ""
 
     mock.side_effect = mock_execute
     return mock
@@ -188,7 +195,7 @@ def pull_request_context():
 class GitCommandMatcher:
     """Helper for matching Git commands in mock assertions."""
 
-    def __init__(self, command_pattern: str):
+    def __init__(self, command_pattern: str) -> None:
         self.pattern = command_pattern
 
     def __eq__(self, other: str) -> bool:
@@ -223,10 +230,9 @@ def sample_repository_state():
 
 
 @pytest.fixture(autouse=True)
-def isolate_tests(tmp_path: Path, monkeypatch):
+def isolate_tests(tmp_path: Path, monkeypatch) -> None:
     """Isolate tests by changing to temporary directory."""
     monkeypatch.chdir(tmp_path)
-    yield
 
 
 @pytest.fixture
@@ -415,7 +421,10 @@ def temp_plugin_dir(tmp_path, sample_plugin_json):
 
 @pytest.fixture
 def temp_full_plugin(
-    tmp_path, sample_plugin_json, sample_skill_frontmatter, sample_command_content
+    tmp_path,
+    sample_plugin_json,
+    sample_skill_frontmatter,
+    sample_command_content,
 ):
     """Create a complete temporary plugin structure."""
     # Create plugin.json

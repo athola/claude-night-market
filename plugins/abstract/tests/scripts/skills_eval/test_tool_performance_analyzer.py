@@ -61,13 +61,13 @@ if __name__ == "__main__":
 
         return tmp_path
 
-    def test_analyzer_initialization(self, sample_tools_dir):
+    def test_analyzer_initialization(self, sample_tools_dir) -> None:
         """Test analyzer initializes correctly."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         assert analyzer.tools_dir == sample_tools_dir
         assert isinstance(analyzer.performance_metrics, dict)
 
-    def test_discover_tools(self, sample_tools_dir):
+    def test_discover_tools(self, sample_tools_dir) -> None:
         """Test tool discovery."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         tools = analyzer.discover_tools()
@@ -78,7 +78,7 @@ if __name__ == "__main__":
         assert "slow-tool.py" in tool_names
         assert "memory-intensive-tool.py" in tool_names
 
-    def test_measure_execution_time(self, sample_tools_dir):
+    def test_measure_execution_time(self, sample_tools_dir) -> None:
         """Test execution time measurement."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         assert "cpu_usage" in fast_metrics
         assert fast_metrics["execution_time"] < 1.0  # Should be fast
 
-    def test_compare_tool_performance(self, sample_tools_dir):
+    def test_compare_tool_performance(self, sample_tools_dir) -> None:
         """Test comparing performance between tools."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
             f"(fast: {fast_time:.3f}s, slow: {slow_time:.3f}s)"
         )
 
-    def test_benchmark_all_tools(self, sample_tools_dir):
+    def test_benchmark_all_tools(self, sample_tools_dir) -> None:
         """Test comprehensive benchmarking of all tools."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         assert benchmark_results["total_tools"] == EXPECTED_TOOL_COUNT
         assert len(benchmark_results["tools"]) == EXPECTED_TOOL_COUNT
 
-    def test_identify_performance_bottlenecks(self, sample_tools_dir):
+    def test_identify_performance_bottlenecks(self, sample_tools_dir) -> None:
         """Test identification of performance bottlenecks."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         bottleneck_tools = [b["tool"] for b in bottlenecks]
         assert "slow-tool.py" in bottleneck_tools
 
-    def test_suggest_optimizations(self, sample_tools_dir):
+    def test_suggest_optimizations(self, sample_tools_dir) -> None:
         """Test optimization suggestions."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             ]
             assert len(optimization_for_slow) > 0
 
-    def test_track_performance_over_time(self, sample_tools_dir):
+    def test_track_performance_over_time(self, sample_tools_dir) -> None:
         """Test performance tracking across multiple runs."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
         assert "improvements" in comparison
         assert "regressions" in comparison
 
-    def test_generate_performance_report(self, sample_tools_dir):
+    def test_generate_performance_report(self, sample_tools_dir) -> None:
         """Test performance report generation."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
@@ -171,7 +171,7 @@ if __name__ == "__main__":
         assert "slow-tool.py" in report
         assert "Performance Summary" in report
 
-    def test_handle_missing_tools(self, tmp_path):
+    def test_handle_missing_tools(self, tmp_path) -> None:
         """Test handling of non-existent tools."""
         analyzer = ToolPerformanceAnalyzer(tmp_path)
 
@@ -179,7 +179,7 @@ if __name__ == "__main__":
         with pytest.raises((FileNotFoundError, Exception)):
             analyzer.measure_tool_performance("non-existent-tool.py")
 
-    def test_analyze_resource_usage(self, sample_tools_dir):
+    def test_analyze_resource_usage(self, sample_tools_dir) -> None:
         """Test resource usage analysis."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
 
@@ -188,13 +188,13 @@ if __name__ == "__main__":
         assert "memory_usage" in memory_metrics
         assert memory_metrics["memory_usage"] > 0
 
-    def test_calculate_performance_scores(self, sample_tools_dir):
+    def test_calculate_performance_scores(self, sample_tools_dir) -> None:
         """Test performance score calculation."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
         scores = analyzer.calculate_performance_scores(benchmark_results)
 
-        for _tool_name, score_data in scores.items():
+        for score_data in scores.values():
             assert "speed_score" in score_data
             assert "memory_score" in score_data
             assert "overall_score" in score_data
@@ -204,7 +204,7 @@ if __name__ == "__main__":
             assert 0 <= score_data["memory_score"] <= MAX_SCORE
             assert 0 <= score_data["overall_score"] <= MAX_SCORE
 
-    def test_export_performance_data(self, sample_tools_dir, tmp_path):
+    def test_export_performance_data(self, sample_tools_dir, tmp_path) -> None:
         """Test exporting performance data."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
@@ -222,7 +222,7 @@ if __name__ == "__main__":
         assert "tools" in exported_data
         assert "summary" in exported_data
 
-    def test_detect_performance_regressions(self, sample_tools_dir):
+    def test_detect_performance_regressions(self, sample_tools_dir) -> None:
         """Test detection of performance regressions."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
 

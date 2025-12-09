@@ -22,7 +22,7 @@ class TestPRPrepSkill:
         "includes_breaking_changes",
     ]
 
-    def test_generates_comprehensive_pr_description(self, pull_request_context):
+    def test_generates_comprehensive_pr_description(self, pull_request_context) -> None:
         """GIVEN a feature branch with changes and commits
         WHEN the pr-prep skill analyzes the branch
         THEN it should generate a comprehensive PR description with sections.
@@ -48,7 +48,9 @@ class TestPRPrepSkill:
         assert "## Test Plan" in pr_description
         assert "new functionality" in pr_description.lower()
 
-    def test_includes_commit_history_in_pr_description(self, pull_request_context):
+    def test_includes_commit_history_in_pr_description(
+        self, pull_request_context
+    ) -> None:
         """GIVEN multiple commits on the feature branch
         WHEN the pr-prep skill generates the PR description
         THEN it should include a summary of commit history.
@@ -57,7 +59,7 @@ class TestPRPrepSkill:
         commits = pull_request_context["commits"]
         mock_bash = Mock()
         mock_bash.return_value = "\n".join(
-            [f"{c['hash']} {c['message']}" for c in commits]
+            [f"{c['hash']} {c['message']}" for c in commits],
         )
 
         # Act - simulate getting commit history from mock
@@ -68,7 +70,9 @@ class TestPRPrepSkill:
             assert commit["hash"] in commit_history
             assert commit["message"] in commit_history
 
-    def test_analyzes_changed_files_and_categorizes_them(self, pull_request_context):
+    def test_analyzes_changed_files_and_categorizes_them(
+        self, pull_request_context
+    ) -> None:
         """GIVEN various types of files changed in the PR
         WHEN the pr-prep skill analyzes the changes
         THEN it should categorize files by type (feature, test, docs, etc.).
@@ -85,7 +89,7 @@ class TestPRPrepSkill:
         assert categories["docs"] == ["docs/feature.md"]
         assert categories["total_changes"] == 275  # 150 + 75 + 50
 
-    def test_identifies_test_coverage_changes(self, pull_request_context):
+    def test_identifies_test_coverage_changes(self, pull_request_context) -> None:
         """GIVEN test files included in the PR
         WHEN the pr-prep skill analyzes the changes
         THEN it should report test coverage and quality metrics.
@@ -103,7 +107,7 @@ class TestPRPrepSkill:
         assert test_analysis["test_file_count"] == 1
         assert test_analysis["test_changes"] == 75
 
-    def test_detects_breaking_changes_and_highlights_them(self):
+    def test_detects_breaking_changes_and_highlights_them(self) -> None:
         """GIVEN changes that break backward compatibility
         WHEN the pr-prep skill analyzes the changes
         THEN it should identify and highlight breaking changes.
@@ -117,7 +121,7 @@ class TestPRPrepSkill:
                 {"hash": "def456", "message": "feat: Add new endpoint"},
             ],
             "changed_files": [
-                {"path": "src/api.py", "changes": 200, "type": "breaking"}
+                {"path": "src/api.py", "changes": 200, "type": "breaking"},
             ],
         }
 
@@ -129,7 +133,7 @@ class TestPRPrepSkill:
         assert "abc123" in breaking_analysis["breaking_commits"]
         assert breaking_analysis["affected_apis"] == ["src/api.py"]
 
-    def test_generates_test_plan_based_on_changes(self, pull_request_context):
+    def test_generates_test_plan_based_on_changes(self, pull_request_context) -> None:
         """GIVEN various types of changes in the PR
         WHEN the pr-prep skill creates a test plan
         THEN it should generate relevant test cases for each change type.
@@ -147,7 +151,7 @@ class TestPRPrepSkill:
         assert "src/feature.py" in test_plan
         assert "docs/feature.md" in test_plan
 
-    def test_validates_pr_quality_gates(self, pull_request_context):
+    def test_validates_pr_quality_gates(self, pull_request_context) -> None:
         """GIVEN a PR with various changes
         WHEN the pr-prep skill checks quality gates
         THEN it should validate each gate and report status.
@@ -157,7 +161,8 @@ class TestPRPrepSkill:
 
         # Act
         quality_status = self._validate_quality_gates(
-            pull_request_context, quality_checklist
+            pull_request_context,
+            quality_checklist,
         )
 
         # Assert
@@ -167,7 +172,7 @@ class TestPRPrepSkill:
         # Check that all gates have been evaluated
         assert all(gate in quality_status for gate in self.QUALITY_GATES)
 
-    def test_generates_pr_checklist(self, pull_request_context):
+    def test_generates_pr_checklist(self, pull_request_context) -> None:
         """GIVEN a PR being prepared
         WHEN the pr-prep skill creates a checklist
         THEN it should include relevant review items.
@@ -185,7 +190,7 @@ class TestPRPrepSkill:
         assert "- [ ] Review src/feature.py" in checklist
         assert "- [ ] Run tests/test_feature.py" in checklist
 
-    def test_handles_pr_with_multiple_reviewers(self, pull_request_context):
+    def test_handles_pr_with_multiple_reviewers(self, pull_request_context) -> None:
         """GIVEN a PR that requires multiple reviewers
         WHEN the pr-prep skill prepares the description
         THEN it should suggest appropriate reviewers based on file changes.
@@ -206,7 +211,7 @@ class TestPRPrepSkill:
         assert "@qa-team" in suggested_reviewers
         assert "@tech-lead" in suggested_reviewers
 
-    def test_includes_performance_impact_analysis(self):
+    def test_includes_performance_impact_analysis(self) -> None:
         """GIVEN changes that might affect performance
         WHEN the pr-prep skill analyzes the changes
         THEN it should include performance impact assessment.
@@ -233,7 +238,7 @@ class TestPRPrepSkill:
         assert "before" in perf_analysis["metrics"]
         assert "queries_per_second" in perf_analysis["metrics"]["before"]
 
-    def test_creates_merge_strategy_recommendations(self, pull_request_context):
+    def test_creates_merge_strategy_recommendations(self, pull_request_context) -> None:
         """GIVEN a PR with specific types of changes
         WHEN the pr-prep skill prepares the description
         THEN it should recommend appropriate merge strategies.
@@ -250,7 +255,7 @@ class TestPRPrepSkill:
         # Feature changes typically suggest squash merge
         assert merge_strategy["strategy"] in ["squash", "merge", "rebase"]
 
-    def test_generates_backward_compatibility_notes(self):
+    def test_generates_backward_compatibility_notes(self) -> None:
         """GIVEN changes that might affect backward compatibility
         WHEN the pr-prep skill prepares the description
         THEN it should include backward compatibility notes.
@@ -262,7 +267,11 @@ class TestPRPrepSkill:
                 {"endpoint": "/api/v1/auth", "change": "deprecated"},
             ],
             "config_changes": [
-                {"file": "config.yaml", "parameter": "timeout", "change": "new default"}
+                {
+                    "file": "config.yaml",
+                    "parameter": "timeout",
+                    "change": "new default",
+                },
             ],
         }
 
@@ -274,7 +283,7 @@ class TestPRPrepSkill:
         assert "Configuration Changes" in compatibility_notes
         assert "deprecated" in compatibility_notes
 
-    def test_handles_empty_feature_branch(self):
+    def test_handles_empty_feature_branch(self) -> None:
         """GIVEN an empty feature branch with no meaningful changes
         WHEN the pr-prep skill attempts to prepare a PR
         THEN it should handle the empty state gracefully.
@@ -293,7 +302,7 @@ class TestPRPrepSkill:
         # Assert
         assert "No changes" in pr_description or "empty" in pr_description.lower()
 
-    def test_includes_security_considerations(self):
+    def test_includes_security_considerations(self) -> None:
         """GIVEN changes that might have security implications
         WHEN the pr-prep skill analyzes the changes
         THEN it should include security review checklist.
@@ -319,7 +328,7 @@ class TestPRPrepSkill:
         assert "encryption" in security_review.lower()
         assert "@security-team" in security_review
 
-    def test_creates_required_todo_items(self, mock_todo_tool):
+    def test_creates_required_todo_items(self, mock_todo_tool) -> None:
         """GIVEN PR preparation is complete
         WHEN the pr-prep skill finishes
         THEN it should create the required TodoWrite items.
@@ -497,16 +506,15 @@ This pull request implements new functionality for the feature branch.
                 "strategy": "merge",
                 "reasoning": "Preserve commit history for breaking changes",
             }
-        elif len(files) > 10:
+        if len(files) > 10:
             return {
                 "strategy": "squash",
                 "reasoning": "Clean history for large feature branch",
             }
-        else:
-            return {
-                "strategy": "rebase",
-                "reasoning": "Linear history for small feature branch",
-            }
+        return {
+            "strategy": "rebase",
+            "reasoning": "Linear history for small feature branch",
+        }
 
     def _generate_compatibility_notes(self, context: dict) -> str:
         """Generate backward compatibility notes."""

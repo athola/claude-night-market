@@ -28,7 +28,7 @@ MODERATE_TOKEN_LIMIT = 1500
 class SkillAnalyzer:
     """Analyzes skill files for complexity and modularization opportunities."""
 
-    def __init__(self, threshold: int = 150):
+    def __init__(self, threshold: int = 150) -> None:
         """Initialize the analyzer.
 
         Args:
@@ -49,7 +49,8 @@ class SkillAnalyzer:
 
         """
         if not file_path.exists():
-            raise FileNotFoundError(f"File not found: {file_path}")
+            msg = f"File not found: {file_path}"
+            raise FileNotFoundError(msg)
 
         content = file_path.read_text(encoding="utf-8")
         lines = content.split("\n")
@@ -79,7 +80,10 @@ class SkillAnalyzer:
             "code_blocks": code_blocks,
             "estimated_tokens": estimated_tokens,
             "recommendations": self._generate_recommendations(
-                line_count, themes, multiple_sections, estimated_tokens
+                line_count,
+                themes,
+                multiple_sections,
+                estimated_tokens,
             ),
         }
 
@@ -94,7 +98,11 @@ class SkillAnalyzer:
         return result
 
     def _generate_recommendations(
-        self, line_count: int, themes: int, sections: int, tokens: int
+        self,
+        line_count: int,
+        themes: int,
+        sections: int,
+        tokens: int,
     ) -> list[str]:
         """Generate modularization recommendations.
 
@@ -112,32 +120,32 @@ class SkillAnalyzer:
 
         if line_count > self.threshold:
             recommendations.append(
-                f"MODULARIZE: File exceeds threshold ({line_count} > {self.threshold})"
+                f"MODULARIZE: File exceeds threshold ({line_count} > {self.threshold})",
             )
         else:
             recommendations.append(
-                f"OK: File within threshold ({line_count} <= {self.threshold})"
+                f"OK: File within threshold ({line_count} <= {self.threshold})",
             )
 
         if themes > MAX_THEMES:
             recommendations.append(
-                f"MODULARIZE: Multiple themes detected ({themes} themes)"
+                f"MODULARIZE: Multiple themes detected ({themes} themes)",
             )
 
         if sections > MAX_SECTIONS:
             recommendations.append(
                 "CONSIDER: Multiple main sections - possible candidate "
-                "for modularization"
+                "for modularization",
             )
 
         if tokens > HIGH_TOKEN_LIMIT:
             recommendations.append(
-                f"MODULARIZE: High token usage ({tokens} tokens >2KB)"
+                f"MODULARIZE: High token usage ({tokens} tokens >2KB)",
             )
         elif tokens > MODERATE_TOKEN_LIMIT:
             recommendations.append(
                 f"CONSIDER: Moderate token usage ({tokens} tokens, "
-                "approaching 2KB limit)"
+                "approaching 2KB limit)",
             )
 
         return recommendations
@@ -178,7 +186,7 @@ class SkillAnalyzer:
                     "",
                     "Sub-sections:",
                     *analysis["sub_sections"],
-                ]
+                ],
             )
 
         lines.append("")
@@ -198,7 +206,6 @@ class SkillAnalyzer:
         skill_files = find_skill_files(dir_path)
 
         if not skill_files:
-            print(f"No SKILL.md files found in {dir_path}")
             return []
 
         results = []
@@ -206,8 +213,8 @@ class SkillAnalyzer:
             try:
                 result = self.analyze_file(skill_file, verbose)
                 results.append(result)
-            except Exception as e:
-                print(f"Error analyzing {skill_file}: {e}", file=sys.stderr)
+            except Exception:
+                pass
 
         return results
 
@@ -256,9 +263,9 @@ class SkillAnalyzerCLI(AbstractCLI, PathArgumentMixin):
             if path.is_file():
                 result = self._analyzer.analyze_file(path, self._verbose)
                 return CLIResult(success=True, data=[result])
-            else:  # directory
-                results = self._analyzer.analyze_directory(path, self._verbose)
-                return CLIResult(success=True, data=results)
+            # directory
+            results = self._analyzer.analyze_directory(path, self._verbose)
+            return CLIResult(success=True, data=results)
         except Exception as e:
             return CLIResult(success=False, error=str(e))
 
@@ -279,7 +286,8 @@ class SkillAnalyzerCLI(AbstractCLI, PathArgumentMixin):
         else:
             for i, result in enumerate(data):
                 analysis = self._analyzer.format_analysis(
-                    result, getattr(self, "_verbose", False)
+                    result,
+                    getattr(self, "_verbose", False),
                 )
                 lines.append(analysis)
                 if i < len(data) - 1:

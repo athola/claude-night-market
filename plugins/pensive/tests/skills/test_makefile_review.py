@@ -1,5 +1,4 @@
-"""
-Unit tests for the makefile review skill.
+"""Unit tests for the makefile review skill.
 
 Tests build system analysis, makefile optimization,
 and dependency management validation.
@@ -19,7 +18,7 @@ from pensive.skills.makefile_review import MakefileReviewSkill
 class TestMakefileReviewSkill:
     """Test suite for MakefileReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = MakefileReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestMakefileReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_detects_makefile_structure_issues(self, mock_skill_context):
+    def test_detects_makefile_structure_issues(self, mock_skill_context) -> None:
         """Given makefile content, when skill analyzes, then identifies structural problems."""
         # Arrange
         problematic_makefile = """
@@ -76,7 +75,7 @@ help:
         )  # build, test, clean, install
 
     @pytest.mark.unit
-    def test_analyzes_dependency_management(self, mock_skill_context):
+    def test_analyzes_dependency_management(self, mock_skill_context) -> None:
         """Given makefile dependencies, when skill analyzes, then checks dependency correctness."""
         # Arrange
         dependency_makefile = """
@@ -132,7 +131,7 @@ format_code:
         assert len(dependency_analysis["missing_dependencies"]) >= 2
 
     @pytest.mark.unit
-    def test_detects_performance_issues(self, mock_skill_context):
+    def test_detects_performance_issues(self, mock_skill_context) -> None:
         """Given makefile, when skill analyzes, then identifies performance bottlenecks."""
         # Arrange
         performance_makefile = """
@@ -199,7 +198,7 @@ all: $(PROGRAMS)
         assert len(performance_analysis["parallelization_issues"]) >= 2
 
     @pytest.mark.unit
-    def test_analyzes_portability_issues(self, mock_skill_context):
+    def test_analyzes_portability_issues(self, mock_skill_context) -> None:
         """Given makefile, when skill analyzes, then checks portability across platforms."""
         # Arrange
         unportable_makefile = """
@@ -264,7 +263,7 @@ endif
         assert len(portability_analysis["platform_specific"]) >= 3
 
     @pytest.mark.unit
-    def test_detects_security_issues(self, mock_skill_context):
+    def test_detects_security_issues(self, mock_skill_context) -> None:
         """Given makefile, when skill analyzes, then identifies security vulnerabilities."""
         # Arrange
         security_makefile = """
@@ -329,7 +328,7 @@ secure_install: build
         assert len(security_analysis["command_injection"]) >= 3
 
     @pytest.mark.unit
-    def test_analyzes_variable_usage(self, mock_skill_context):
+    def test_analyzes_variable_usage(self, mock_skill_context) -> None:
         """Given makefile, when skill analyzes, then evaluates variable management."""
         # Arrange
         variable_makefile = """
@@ -397,7 +396,7 @@ DEPS = $(OBJECTS:.o=.d)
         assert len(variable_analysis["undefined_variables"]) >= 3
 
     @pytest.mark.unit
-    def test_analyzes_target_organization(self, mock_skill_context):
+    def test_analyzes_target_organization(self, mock_skill_context) -> None:
         """Given makefile, when skill analyzes, then evaluates target structure and organization."""
         # Arrange
         target_makefile = """
@@ -469,7 +468,7 @@ release: $(TARGET)
         assert len(target_analysis["phony_declarations"]) >= 3
 
     @pytest.mark.unit
-    def test_detects_modern_makefile_best_practices(self, mock_skill_context):
+    def test_detects_modern_makefile_best_practices(self, mock_skill_context) -> None:
         """Given makefile, when skill analyzes, then checks for modern best practices."""
         # Arrange
         modern_makefile = """
@@ -543,7 +542,9 @@ old_style:
         assert modernization_analysis["modern_features"]["score"] > 0.7
 
     @pytest.mark.unit
-    def test_generates_makefile_optimization_recommendations(self, mock_skill_context):
+    def test_generates_makefile_optimization_recommendations(
+        self, mock_skill_context
+    ) -> None:
         """Given makefile analysis, when skill generates recommendations, then provides actionable improvements."""
         # Arrange
         makefile_analysis = {
@@ -557,7 +558,7 @@ old_style:
 
         # Act
         recommendations = self.skill.generate_makefile_recommendations(
-            makefile_analysis
+            makefile_analysis,
         )
 
         # Assert
@@ -575,7 +576,7 @@ old_style:
             assert "benefit" in rec
 
     @pytest.mark.unit
-    def test_creates_makefile_quality_report(self, sample_findings):
+    def test_creates_makefile_quality_report(self, sample_findings) -> None:
         """Given comprehensive makefile analysis, when skill creates report, then generates structured summary."""
         # Arrange
         makefile_analysis = {
@@ -607,7 +608,7 @@ old_style:
         assert "2" in report  # Security issues
 
     @pytest.mark.unit
-    def test_handles_multiple_makefiles(self, mock_skill_context):
+    def test_handles_multiple_makefiles(self, mock_skill_context) -> None:
         """Given multiple makefiles, when skill analyzes, then evaluates consistency across files."""
         # Arrange
         makefiles = {
@@ -651,7 +652,7 @@ clean:
         assert len(multi_file_analysis["consistency_issues"]) >= 1
 
     @pytest.mark.unit
-    def test_analyzes_makefile_integration(self, mock_skill_context):
+    def test_analyzes_makefile_integration(self, mock_skill_context) -> None:
         """Given makefile in project context, when skill analyzes, then evaluates integration with build ecosystem."""
         # Arrange
         project_files = {
@@ -699,7 +700,7 @@ jobs:
 
         # Act
         integration_analysis = self.skill.analyze_build_system_integration(
-            mock_skill_context
+            mock_skill_context,
         )
 
         # Assert

@@ -77,13 +77,15 @@ class KeywordIndexer:
                             # Extract from palace/district
                             if "palace" in metadata:
                                 palace_words = re.findall(
-                                    r"\b[a-z]{3,}\b", metadata["palace"].lower()
+                                    r"\b[a-z]{3,}\b",
+                                    metadata["palace"].lower(),
                                 )
                                 keywords.update(palace_words)
 
                             if "district" in metadata:
                                 district_words = re.findall(
-                                    r"\b[a-z]{3,}\b", metadata["district"].lower()
+                                    r"\b[a-z]{3,}\b",
+                                    metadata["district"].lower(),
                                 )
                                 keywords.update(district_words)
 

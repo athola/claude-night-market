@@ -42,7 +42,7 @@ class QualityIssue:
 class TestQualityChecker:
     """Validates and scores test quality."""
 
-    def __init__(self, test_path: Path, source_path: Path | None = None):
+    def __init__(self, test_path: Path, source_path: Path | None = None) -> None:
         self.test_path = Path(test_path)
         self.source_path = Path(source_path) if source_path else None
         self.issues: list[QualityIssue] = []
@@ -61,7 +61,7 @@ class TestQualityChecker:
         # Calculate overall score
         results["quality_score"] = self._calculate_overall_score(results)
         results["quality_level"] = self._determine_quality_level(
-            results["quality_score"]
+            results["quality_score"],
         )
         results["recommendations"] = self._generate_recommendations(results)
 
@@ -80,8 +80,10 @@ class TestQualityChecker:
         if not self.test_path.exists():
             analysis["structure_issues"].append(
                 QualityIssue(
-                    "error", "structure", f"Test file not found: {self.test_path}"
-                )
+                    "error",
+                    "structure",
+                    f"Test file not found: {self.test_path}",
+                ),
             )
             return analysis
 
@@ -98,7 +100,7 @@ class TestQualityChecker:
                     f"Syntax error in test file: {e}",
                     e.lineno,
                     "Fix syntax errors before proceeding",
-                )
+                ),
             )
             return analysis
 
@@ -111,7 +113,7 @@ class TestQualityChecker:
 
         return analysis
 
-    def _check_test_structure(self, tree: ast.AST, analysis: dict):
+    def _check_test_structure(self, tree: ast.AST, analysis: dict) -> None:
         """Check test file structure."""
         # Check for test functions
         test_functions = [
@@ -122,7 +124,7 @@ class TestQualityChecker:
 
         if not test_functions:
             analysis["structure_issues"].append(
-                QualityIssue("error", "structure", "No test functions found")
+                QualityIssue("error", "structure", "No test functions found"),
             )
 
         # Check for test classes
@@ -145,10 +147,10 @@ class TestQualityChecker:
                     "warning",
                     "structure",
                     "No imports found - may need pytest or unittest",
-                )
+                ),
             )
 
-    def _check_naming_conventions(self, tree: ast.AST, analysis: dict):
+    def _check_naming_conventions(self, tree: ast.AST, analysis: dict) -> None:
         """Check test naming conventions."""
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
@@ -160,7 +162,7 @@ class TestQualityChecker:
                             "naming",
                             f"Test name '{node.name}' too short - be more descriptive",
                             node.lineno,
-                        )
+                        ),
                     )
 
                 # Check for underscore separation
@@ -172,10 +174,10 @@ class TestQualityChecker:
                             f"Test name '{node.name}' contains spaces",
                             node.lineno,
                             "Use underscores: test_example_behavior",
-                        )
+                        ),
                     )
 
-    def _check_assertion_quality(self, tree: ast.AST, analysis: dict):
+    def _check_assertion_quality(self, tree: ast.AST, analysis: dict) -> None:
         """Check assertion quality and patterns."""
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
@@ -188,7 +190,7 @@ class TestQualityChecker:
                             "assertion",
                             f"Test '{node.name}' has no assertions",
                             node.lineno,
-                        )
+                        ),
                     )
                 elif len(assertions) == 1:
                     # Check for specific assertions
@@ -206,10 +208,10 @@ class TestQualityChecker:
                                         f"Vague assertion in '{node.name}' - be more specific",
                                         assert_node.lineno,
                                         "Assert specific properties: assert result.status == 'success'",
-                                    )
+                                    ),
                                 )
 
-    def _check_bdd_compliance(self, test_content: str, analysis: dict):
+    def _check_bdd_compliance(self, test_content: str, analysis: dict) -> None:
         """Check BDD pattern compliance."""
         bdd_patterns = {
             "given": r"(?i)given\s+",
@@ -247,10 +249,10 @@ class TestQualityChecker:
                                 "bdd",
                                 f"Test '{test_name}' missing BDD patterns: {', '.join(missing_patterns)}",
                                 suggestion=f"Add {', '.join(missing_patterns)} clauses to docstring",
-                            )
+                            ),
                         )
 
-    def _check_documentation(self, test_content: str, analysis: dict):
+    def _check_documentation(self, test_content: str, analysis: dict) -> None:
         """Check test documentation quality."""
         # Check for module docstring
         if not test_content.startswith('"""'):
@@ -259,12 +261,14 @@ class TestQualityChecker:
                     "warning",
                     "documentation",
                     "Missing module docstring - describe what these tests cover",
-                )
+                ),
             )
 
         # Check test function docstrings
         test_functions = re.finditer(
-            r'def (test_[^(]+).*?"""(.*?)"""', test_content, re.DOTALL
+            r'def (test_[^(]+).*?"""(.*?)"""',
+            test_content,
+            re.DOTALL,
         )
 
         documented_tests = sum(1 for _ in test_functions)
@@ -276,7 +280,7 @@ class TestQualityChecker:
                     "info",
                     "documentation",
                     f"{total_tests - documented_tests} tests lack documentation",
-                )
+                ),
             )
 
     def run_dynamic_validation(self) -> dict[str, any]:
@@ -399,9 +403,9 @@ class TestQualityChecker:
         complexity = 1  # Base complexity
 
         for node in ast.walk(tree):
-            if isinstance(node, (ast.If, ast.While, ast.For, ast.With)):
-                complexity += 1
-            elif isinstance(node, ast.ExceptHandler):
+            if isinstance(
+                node, (ast.If, ast.While, ast.For, ast.With, ast.ExceptHandler)
+            ):
                 complexity += 1
             elif isinstance(node, ast.BoolOp):
                 complexity += len(node.values) - 1
@@ -447,12 +451,11 @@ class TestQualityChecker:
         """Determine quality level from score."""
         if score >= 90:
             return QualityLevel.EXCELLENT
-        elif score >= 80:
+        if score >= 80:
             return QualityLevel.GOOD
-        elif score >= 70:
+        if score >= 70:
             return QualityLevel.FAIR
-        else:
-            return QualityLevel.POOR
+        return QualityLevel.POOR
 
     def _generate_recommendations(self, results: dict) -> list[str]:
         """Generate improvement recommendations."""
@@ -465,22 +468,22 @@ class TestQualityChecker:
 
         if static["naming_issues"]:
             recommendations.append(
-                "Use descriptive, snake_case test names that describe behavior"
+                "Use descriptive, snake_case test names that describe behavior",
             )
 
         if static["assertion_issues"]:
             recommendations.append(
-                "Write specific, meaningful assertions that verify behavior"
+                "Write specific, meaningful assertions that verify behavior",
             )
 
         if static["bdd_compliance"]:
             recommendations.append(
-                "Add Given/When/Then clauses to test docstrings for BDD compliance"
+                "Add Given/When/Then clauses to test docstrings for BDD compliance",
             )
 
         if static["documentation"]:
             recommendations.append(
-                "Add comprehensive documentation to explain test scenarios"
+                "Add comprehensive documentation to explain test scenarios",
             )
 
         # From dynamic validation
@@ -490,7 +493,7 @@ class TestQualityChecker:
 
         if dynamic["test_duration"] > 5:
             recommendations.append(
-                "Optimize test performance - tests should run quickly"
+                "Optimize test performance - tests should run quickly",
             )
 
         # From metrics
@@ -504,7 +507,7 @@ class TestQualityChecker:
         return recommendations
 
 
-def main():
+def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Check test quality")
     parser.add_argument("--check", type=str, help="Test file or directory to check")
@@ -528,9 +531,8 @@ def main():
         if args.output:
             with open(args.output, "w") as f:
                 f.write(output)
-            print(f"Report saved to {args.output}")
         else:
-            print(output)
+            pass
 
     else:
         parser.print_help()

@@ -6,7 +6,7 @@ import pytest
 
 
 @pytest.fixture
-def sample_spec_content():
+def sample_spec_content() -> str:
     """Sample valid specification content."""
     return """# Feature Specification: User Authentication
 
@@ -232,7 +232,7 @@ def mock_git_repo(tmp_path):
 
 
 @pytest.fixture
-def sample_feature_description():
+def sample_feature_description() -> str:
     """Sample natural language feature description."""
     return "I want to add user authentication with email and password login, including role-based access control for admin and regular users"
 
@@ -287,7 +287,7 @@ def workflow_progress_items():
 class MockAgentResponse:
     """Mock agent response for testing."""
 
-    def __init__(self, success=True, data=None, error=None):
+    def __init__(self, success=True, data=None, error=None) -> None:
         self.success = success
         self.data = data or {}
         self.error = error

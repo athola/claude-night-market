@@ -20,7 +20,7 @@ from pathlib import Path
 class TestAnalyzer:
     """Analyzes codebases for test coverage and gaps."""
 
-    def __init__(self, codebase_path: Path):
+    def __init__(self, codebase_path: Path) -> None:
         self.codebase_path = Path(codebase_path)
         self.test_patterns = ["test_*.py", "*_test.py"]
         self.source_patterns = ["*.py"]
@@ -236,7 +236,7 @@ class TestAnalyzer:
         return json.dumps(results, indent=2)
 
 
-def main():
+def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Analyze codebase for test coverage")
     parser.add_argument("--scan", type=str, help="Scan directory for test gaps")
@@ -252,11 +252,9 @@ def main():
     args = parser.parse_args()
 
     if args.scan:
-        analyzer = TestAnalyzer(args.scan)
-        print(analyzer.generate_report("coverage"))
+        TestAnalyzer(args.scan)
     elif args.changes:
-        analyzer = TestAnalyzer(args.changes)
-        print(analyzer.generate_report("changes"))
+        TestAnalyzer(args.changes)
     else:
         parser.print_help()
 

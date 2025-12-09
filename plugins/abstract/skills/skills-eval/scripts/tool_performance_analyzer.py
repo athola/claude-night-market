@@ -18,7 +18,7 @@ sys.path.insert(0, str(src_path))
 class ToolPerformanceAnalyzer:
     """CLI wrapper for tool performance analysis functionality."""
 
-    def __init__(self, skills_dir: Path):
+    def __init__(self, skills_dir: Path) -> None:
         self.skills_dir = skills_dir
 
     def analyze_tools(self) -> dict:
@@ -92,7 +92,7 @@ class ToolPerformanceAnalyzer:
                     "",
                     "| Tool | Execution Time | Success | Output Length |",
                     "|------|----------------|---------|---------------|",
-                ]
+                ],
             )
 
             for tool_name, perf in results["tools"].items():
@@ -102,7 +102,7 @@ class ToolPerformanceAnalyzer:
 
                 lines.append(
                     f"| {status} {tool_name} | {perf['execution_time']:.3f}s | "
-                    f"{perf['success']} | {perf['output_length']} |"
+                    f"{perf['success']} | {perf['output_length']} |",
                 )
 
         return "\n".join(lines)
@@ -115,7 +115,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Analyze performance of tools")
 
     parser.add_argument(
-        "skills_dir", type=Path, help="Directory containing skills/tools to analyze"
+        "skills_dir",
+        type=Path,
+        help="Directory containing skills/tools to analyze",
     )
     parser.add_argument("--output", type=Path, help="Output file path")
 
@@ -127,6 +129,5 @@ if __name__ == "__main__":
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
-        print(f"Performance analysis saved to {args.output}")
     else:
-        print(output)
+        pass

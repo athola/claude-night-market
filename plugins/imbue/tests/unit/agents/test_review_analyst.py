@@ -4,7 +4,6 @@ This module tests the autonomous review agent capabilities and workflow integrat
 following TDD/BDD principles and testing all agent scenarios.
 """
 
-# ruff: noqa: S101
 from datetime import UTC, datetime
 from unittest.mock import Mock
 
@@ -109,8 +108,10 @@ class TestReviewAnalystAgent:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_agent_follows_imbue_workflow(
-        self, mock_claude_tools, sample_agent_session
-    ):
+        self,
+        mock_claude_tools,
+        sample_agent_session,
+    ) -> None:
         """Scenario: Agent uses all imbue skills correctly
         Given a review-analyst dispatch
         When conducting review
@@ -122,7 +123,7 @@ class TestReviewAnalystAgent:
         used_skills = []
         skill_contexts = {}
 
-        def mock_skill_usage(skill_name, context):
+        def mock_skill_usage(skill_name, context) -> str:
             used_skills.append(skill_name)
             skill_contexts[skill_name] = context.copy()
             return f"{skill_name} executed successfully"
@@ -191,8 +192,10 @@ class TestReviewAnalystAgent:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_agent_gathers_reproducible_evidence(
-        self, mock_claude_tools, sample_agent_findings
-    ):
+        self,
+        mock_claude_tools,
+        sample_agent_findings,
+    ) -> None:
         """Scenario: Agent captures reproducible evidence
         Given an agent conducting review
         When analyzing artifacts
@@ -264,15 +267,17 @@ class TestReviewAnalystAgent:
         """Helper to get appropriate search pattern for finding type."""
         if "SQL injection" in finding["title"]:
             return "SELECT.*email"
-        elif "password" in finding["title"].lower():
+        if "password" in finding["title"].lower():
             return "password.*=.*\\["
-        elif "rate limiting" in finding["title"].lower():
+        if "rate limiting" in finding["title"].lower():
             return "@app.route.*login"
         return finding["title"].lower().split()[0]
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_agent_categorizes_findings_by_severity(self, sample_agent_findings):
+    def test_agent_categorizes_findings_by_severity(
+        self, sample_agent_findings
+    ) -> None:
         """Scenario: Agent categorizes findings by severity with justification
         Given multiple findings identified
         When categorizing findings
@@ -350,7 +355,9 @@ class TestReviewAnalystAgent:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_agent_generates_actionable_recommendations(self, sample_agent_findings):
+    def test_agent_generates_actionable_recommendations(
+        self, sample_agent_findings
+    ) -> None:
         """Scenario: Agent generates actionable and specific recommendations
         Given security findings identified
         When creating recommendations
@@ -370,7 +377,7 @@ class TestReviewAnalystAgent:
 
             # Add verification steps
             enhanced_finding["verification_steps"] = self._generate_verification_steps(
-                finding
+                finding,
             )
 
             # Add estimated effort
@@ -442,15 +449,17 @@ class TestReviewAnalystAgent:
         """Identify dependencies for implementing the fix."""
         if "SQL injection" in finding["title"]:
             return ["Database schema review", "Application deployment coordination"]
-        elif "password" in finding["title"]:
+        if "password" in finding["title"]:
             return ["User migration plan", "Password reset functionality"]
-        elif "rate limiting" in finding["title"]:
+        if "rate limiting" in finding["title"]:
             return ["Rate limiting service setup", "Monitoring configuration"]
         return []
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_agent_produces_consistent_report_structure(self, sample_agent_findings):
+    def test_agent_produces_consistent_report_structure(
+        self, sample_agent_findings
+    ) -> None:
         """Scenario: Agent produces reports with consistent template structure
         Given completed analysis with findings
         When generating final report
@@ -468,10 +477,10 @@ class TestReviewAnalystAgent:
                 "total_findings": len(sample_agent_findings),
             },
             "executive_summary": self._generate_executive_summary(
-                sample_agent_findings
+                sample_agent_findings,
             ),
             "findings_by_severity": self._organize_findings_by_severity(
-                sample_agent_findings
+                sample_agent_findings,
             ),
             "detailed_findings": sample_agent_findings,
             "action_items": self._generate_action_items(sample_agent_findings),
@@ -514,7 +523,7 @@ class TestReviewAnalystAgent:
         assert "total_evidence_items" in evidence_appendix
         assert "evidence_references" in evidence_appendix
 
-    def _generate_executive_summary(self, findings):
+    def _generate_executive_summary(self, findings) -> str:
         """Generate executive summary for findings."""
         critical_count = len([f for f in findings if f["severity"] == "Critical"])
         high_count = len([f for f in findings if f["severity"] == "High"])
@@ -535,7 +544,7 @@ Immediate remediation of critical findings is essential before production deploy
                         "title": finding["title"],
                         "file": finding["file"],
                         "impact": finding.get("impact", "Security impact"),
-                    }
+                    },
                 )
         return organized
 
@@ -550,7 +559,7 @@ Immediate remediation of critical findings is essential before production deploy
                     "priority": finding["severity"],
                     "related_finding": finding["id"],
                     "estimated_effort": self._estimate_effort(finding),
-                }
+                },
             )
         return action_items
 
@@ -564,7 +573,7 @@ Immediate remediation of critical findings is essential before production deploy
         }
 
     @pytest.mark.unit
-    def test_agent_handles_tool_failures_gracefully(self, mock_claude_tools):
+    def test_agent_handles_tool_failures_gracefully(self, mock_claude_tools) -> None:
         """Scenario: Agent handles tool failures gracefully
         Given tool execution failures during review
         When conducting analysis
@@ -600,12 +609,12 @@ Immediate remediation of critical findings is essential before production deploy
 
                 # Create finding if successful
                 findings.append(
-                    {"id": f"F{i + 1}", "file": file_path, "analysis_successful": True}
+                    {"id": f"F{i + 1}", "file": file_path, "analysis_successful": True},
                 )
 
             except Exception as e:
                 errors_encountered.append(
-                    {"file": file_path, "error": str(e), "impact": "limited_analysis"}
+                    {"file": file_path, "error": str(e), "impact": "limited_analysis"},
                 )
 
         # Generate report with limitations noted
@@ -627,7 +636,7 @@ Immediate remediation of critical findings is essential before production deploy
         assert all("error" in error for error in errors_encountered)
 
     @pytest.mark.performance
-    def test_agent_performance_with_large_codebases(self):
+    def test_agent_performance_with_large_codebases(self) -> None:
         """Scenario: Agent performs efficiently with large codebases
         Given many files to analyze
         When conducting review

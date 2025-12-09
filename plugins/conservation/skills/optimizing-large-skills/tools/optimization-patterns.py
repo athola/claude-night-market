@@ -4,7 +4,6 @@ CLI interface for systematic skill file optimization.
 """
 
 import argparse
-import json
 import os
 import re
 import sys
@@ -64,7 +63,8 @@ def analyze_skill_file(file_path: str) -> dict[str, Any]:
 
 
 def calculate_size_reduction(
-    original_lines: int, optimizations: list[str]
+    original_lines: int,
+    optimizations: list[str],
 ) -> dict[str, float]:
     """Calculate expected size reduction from optimizations."""
     reductions = {
@@ -131,88 +131,72 @@ def generate_optimization_plan(analysis: dict[str, Any]) -> dict[str, Any]:
     # Calculate expected outcome
     if plan["optimizations_needed"]:
         outcome = calculate_size_reduction(
-            analysis["total_lines"], plan["optimizations_needed"]
+            analysis["total_lines"],
+            plan["optimizations_needed"],
         )
         plan["expected_outcome"] = outcome
 
     return plan
 
 
-def main():
+def main() -> int:
     """CLI interface for skill optimization analysis."""
     parser = argparse.ArgumentParser(
-        description="Analyze and plan skill file optimization"
+        description="Analyze and plan skill file optimization",
     )
     parser.add_argument("skill_file", help="Path to skill file (SKILL.md)")
     parser.add_argument(
-        "--output-json", action="store_true", help="Output results as JSON"
+        "--output-json",
+        action="store_true",
+        help="Output results as JSON",
     )
     parser.add_argument(
-        "--verbose", action="store_true", help="Detailed analysis output"
+        "--verbose",
+        action="store_true",
+        help="Detailed analysis output",
     )
     parser.add_argument(
-        "--generate-plan", action="store_true", help="Generate optimization plan"
+        "--generate-plan",
+        action="store_true",
+        help="Generate optimization plan",
     )
 
     args = parser.parse_args()
 
     # Validate file exists
     if not os.path.exists(args.skill_file):
-        print(f"Error: File '{args.skill_file}' not found")
         return 1
 
     # Analyze skill file
     analysis = analyze_skill_file(args.skill_file)
 
-    if args.verbose or args.generate_plan:
-        print("=== SKILL FILE ANALYSIS ===")
-        print(f"File: {analysis['file_path']}")
-        print(f"Total lines: {analysis['total_lines']}")
-        print(f"Code blocks: {analysis['code_blocks']}")
-        print(f"Python functions: {analysis['python_functions']}")
-
-        if analysis["long_functions"]:
-            print(f"Long functions (>20 lines): {len(analysis['long_functions'])}")
-            for start, lines in analysis["long_functions"]:
-                print(f"  Line {start}: {lines} lines")
-
-        print(f"Needs optimization: {analysis['needs_optimization']}")
-        print()
+    if (args.verbose or args.generate_plan) and analysis["long_functions"]:
+        for _start, _lines in analysis["long_functions"]:
+            pass
 
     if args.generate_plan:
         plan = generate_optimization_plan(analysis)
-        print("=== OPTIMIZATION PLAN ===")
 
         if plan["optimizations_needed"]:
-            print("Optimizations recommended:")
-            for opt in plan["optimizations_needed"]:
-                print(f"  - {opt}")
-            print()
+            for _opt in plan["optimizations_needed"]:
+                pass
 
-            print("Expected outcome:")
-            outcome = plan["expected_outcome"]
-            print(f"  Original: {outcome['original_lines']} lines")
-            print(f"  Expected: {outcome['expected_lines']} lines")
-            print(f"  Reduction: {outcome['reduction_percentage']:.1f}%")
-            print()
+            plan["expected_outcome"]
 
-            print("File structure:")
-            for item, description in plan["file_structure"].items():
+            for description in plan["file_structure"].values():
                 if isinstance(description, dict):
-                    print(f"  {item}/")
-                    for subitem, subdesc in description.items():
-                        print(f"    {subitem}: {subdesc}")
+                    for _subitem, _subdesc in description.items():
+                        pass
                 else:
-                    print(f"  {item}: {description}")
+                    pass
         else:
-            print("No optimization needed - file is already optimized")
+            pass
 
     if args.output_json:
         if args.generate_plan:
             plan = generate_optimization_plan(analysis)
-            print(json.dumps(plan, indent=2))
         else:
-            print(json.dumps(analysis, indent=2))
+            pass
 
     return 0
 

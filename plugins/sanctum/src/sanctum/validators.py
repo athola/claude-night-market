@@ -134,14 +134,14 @@ class AgentValidator:
 
         # Check for capabilities section
         has_capabilities = bool(
-            re.search(r"^##\s+Capabilities", content, re.MULTILINE | re.IGNORECASE)
+            re.search(r"^##\s+Capabilities", content, re.MULTILINE | re.IGNORECASE),
         )
         if not has_capabilities:
             warnings.append("Missing Capabilities section")
 
         # Check for tools section
         has_tools = bool(
-            re.search(r"^##\s+Tools", content, re.MULTILINE | re.IGNORECASE)
+            re.search(r"^##\s+Tools", content, re.MULTILINE | re.IGNORECASE),
         )
         if not has_tools:
             warnings.append("Missing Tools section")
@@ -274,7 +274,7 @@ class SkillValidator:
                 r"^##\s+(Workflow|When to Use|Steps)",
                 content,
                 re.MULTILINE | re.IGNORECASE,
-            )
+            ),
         )
 
         return SkillValidationResult(
@@ -495,7 +495,7 @@ class CommandValidator:
                 r"^##\s+(Usage|Arguments|Options)",
                 content,
                 re.MULTILINE | re.IGNORECASE,
-            )
+            ),
         )
         if not has_usage:
             warnings.append("Missing usage section")
@@ -546,7 +546,8 @@ class CommandValidator:
 
     @staticmethod
     def validate_skill_references(
-        content: str, plugin_path: Path
+        content: str,
+        plugin_path: Path,
     ) -> CommandValidationResult:
         """Validate that referenced skills exist in the plugin."""
         errors = []
@@ -601,11 +602,11 @@ class PluginValidator:
             errors.append("Missing 'description' field in plugin.json")
 
         # Validate empty arrays
-        commands = content.get("commands", None)
+        commands = content.get("commands")
         if commands is not None and len(commands) == 0:
             warnings.append("Empty commands array defined")
 
-        skills = content.get("skills", None)
+        skills = content.get("skills")
         if skills is not None and len(skills) == 0:
             warnings.append("Empty skills array defined")
 

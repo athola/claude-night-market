@@ -4,7 +4,6 @@ This module tests the catchup command workflow and change analysis integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
-# ruff: noqa: S101
 from unittest.mock import Mock
 
 import pytest
@@ -30,7 +29,7 @@ class TestCatchupCommand:
                     "name": "baseline",
                     "type": "optional",
                     "description": "Git reference or date for baseline comparison",
-                }
+                },
             ],
             "integrates_with": [
                 "catchup",
@@ -54,7 +53,7 @@ class TestCatchupCommand:
         }
 
     @pytest.fixture
-    def sample_git_log_output(self):
+    def sample_git_log_output(self) -> str:
         """Sample git log output for catchup analysis."""
         return """abc1234 2024-12-04 feat: Add Stripe payment integration
 def5678 2024-12-04 test: Add payment flow tests
@@ -66,7 +65,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_command_workflow_orchestration(self, mock_claude_tools):
+    def test_catchup_command_workflow_orchestration(self, mock_claude_tools) -> None:
         """Scenario: /catchup orchestrates complete workflow
         Given a repository with recent changes
         When executing /catchup command
@@ -77,7 +76,7 @@ def5678 2024-12-04 test: Add payment flow tests
         workflow_steps = []
         skill_contexts = {}
 
-        def mock_skill_execution(skill_name, context):
+        def mock_skill_execution(skill_name, context) -> str:
             workflow_steps.append(skill_name)
             skill_contexts[skill_name] = context.copy()
 
@@ -136,7 +135,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_handles_different_baselines(self, mock_claude_tools):
+    def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles various baseline specifications
         Given different baseline reference formats
         When specifying baseline parameter
@@ -199,7 +198,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_token_conservation(self, sample_git_log_output):
+    def test_catchup_token_conservation(self, sample_git_log_output) -> None:
         """Scenario: /catchup conserves tokens with large change sets
         Given many commits and changes
         When generating catchup summary
@@ -210,7 +209,7 @@ def5678 2024-12-04 test: Add payment flow tests
         many_commits = []
         for i in range(50):
             many_commits.append(
-                f"{i:08x} 2024-12-{(i % 30) + 1:02d} commit {i}: Various changes"
+                f"{i:08x} 2024-12-{(i % 30) + 1:02d} commit {i}: Various changes",
             )
 
         # Act - implement token conservation strategy
@@ -248,7 +247,7 @@ def5678 2024-12-04 test: Add payment flow tests
                         "type": commit_type,
                         "count": count,
                         "description": f"Major {commit_type} activity",
-                    }
+                    },
                 )
 
         # Assert
@@ -264,8 +263,10 @@ def5678 2024-12-04 test: Add payment flow tests
     @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_generates_structured_output(
-        self, sample_catchup_context, sample_git_log_output
-    ):
+        self,
+        sample_catchup_context,
+        sample_git_log_output,
+    ) -> None:
         """Scenario: /catchup generates consistent structured output
         Given completed catchup analysis
         When formatting output
@@ -314,14 +315,14 @@ def5678 2024-12-04 test: Add payment flow tests
 
         for change in catchup_results["key_changes"]:
             output_lines.extend(
-                [f"- **{change['what']}**: {change['why']} → {change['implication']}"]
+                [f"- **{change['what']}**: {change['why']} → {change['implication']}"],
             )
 
         output_lines.extend(
             [
                 "",
                 "## Follow-ups",
-            ]
+            ],
         )
 
         for followup in catchup_results["followups"]:
@@ -332,7 +333,7 @@ def5678 2024-12-04 test: Add payment flow tests
                 [
                     "",
                     "## Blockers/Questions",
-                ]
+                ],
             )
             for blocker in catchup_results["blockers"]:
                 output_lines.append(f"- {blocker}")
@@ -353,7 +354,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_integration_with_diff_analysis(self, mock_claude_tools):
+    def test_catchup_integration_with_diff_analysis(self, mock_claude_tools) -> None:
         """Scenario: /catchup integrates with diff-analysis for semantic categorization
         Given changes that need semantic understanding
         When analyzing changes
@@ -407,17 +408,17 @@ def5678 2024-12-04 test: Add payment flow tests
 
         if categories.get("feature", 0) > 0:
             insights.append(
-                f"New functionality added: {categories['feature']} feature(s)"
+                f"New functionality added: {categories['feature']} feature(s)",
             )
 
         if risk_levels.get("High", 0) > 0:
             insights.append(
-                f"High-impact changes require careful review: {risk_levels['High']} item(s)"
+                f"High-impact changes require careful review: {risk_levels['High']} item(s)",
             )
 
         if categories.get("tests", 0) > 0:
             insights.append(
-                f"Test coverage improvements: {categories['tests']} test file(s)"
+                f"Test coverage improvements: {categories['tests']} test file(s)",
             )
 
         catchup_analysis["insights"] = insights
@@ -437,7 +438,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_records_actionable_followups(self):
+    def test_catchup_records_actionable_followups(self) -> None:
         """Scenario: /catchup records actionable follow-up items
         Given various types of changes
         When generating follow-ups
@@ -516,7 +517,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_error_handling(self, mock_claude_tools):
+    def test_catchup_error_handling(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles repository errors gracefully
         Given various git repository issues
         When running catchup analysis
@@ -563,7 +564,7 @@ def5678 2024-12-04 test: Add payment flow tests
         assert "suggestion" in expected_baseline_error
 
     @pytest.mark.unit
-    def test_catchup_parameter_parsing(self):
+    def test_catchup_parameter_parsing(self) -> None:
         """Scenario: /catchup parses command parameters correctly
         Given various argument combinations
         When parsing command line
@@ -630,7 +631,7 @@ def5678 2024-12-04 test: Add payment flow tests
             assert len(parsed_params["errors"]) == 0
 
     @pytest.mark.performance
-    def test_catchup_performance_large_history(self):
+    def test_catchup_performance_large_history(self) -> None:
         """Scenario: /catchup performs efficiently with extensive commit history
         Given repository with many commits to analyze
         When running catchup analysis
@@ -647,7 +648,7 @@ def5678 2024-12-04 test: Add payment flow tests
                     "date": f"2024-{12 - (i % 12):02d}-{(i % 28) + 1:02d}",
                     "message": f"Commit {i}: {'feat' if i % 3 == 0 else 'fix' if i % 3 == 1 else 'chore'} various changes",
                     "files_changed": (i % 10) + 1,
-                }
+                },
             )
 
         # Act - measure catchup analysis performance
@@ -681,7 +682,7 @@ def5678 2024-12-04 test: Add payment flow tests
                         "type": category,
                         "count": count,
                         "percentage": (count / len(large_history)) * 100,
-                    }
+                    },
                 )
 
         # Sample recent commits (last 10)

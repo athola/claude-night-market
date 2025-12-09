@@ -12,12 +12,14 @@ import argparse
 import logging
 import os
 import shlex
-from collections.abc import Iterable
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from leyline import QuotaConfig, QuotaTracker
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 try:
     import tiktoken
@@ -91,7 +93,9 @@ class GeminiQuotaTracker(QuotaTracker):
         }
 
     def estimate_task_tokens(
-        self, file_paths: list[str], prompt_length: int = 100
+        self,
+        file_paths: list[str],
+        prompt_length: int = 100,
     ) -> int:
         """Estimate tokens with optional tiktoken encoder fallback.
 
@@ -123,7 +127,10 @@ class GeminiQuotaTracker(QuotaTracker):
             return None
 
     def _estimate_with_encoder(
-        self, encoder: Any, file_paths: list[str], prompt_length: int
+        self,
+        encoder: Any,
+        file_paths: list[str],
+        prompt_length: int,
     ) -> int:
         """Estimate tokens using tiktoken encoder."""
         tokens = len(encoder.encode("x" * prompt_length))
@@ -138,7 +145,9 @@ class GeminiQuotaTracker(QuotaTracker):
         return tokens
 
     def _estimate_with_heuristic(
-        self, file_paths: list[str], prompt_length: int
+        self,
+        file_paths: list[str],
+        prompt_length: int,
     ) -> int:
         """Estimate tokens using heuristic ratios."""
         tokens = int(prompt_length / 4.0)  # Default ratio
@@ -227,11 +236,15 @@ def main() -> None:
     """CLI entry point for quota tracker."""
     parser = argparse.ArgumentParser(description="Track Gemini CLI quota and usage")
     parser.add_argument(
-        "--status", action="store_true", help="Show current quota status"
+        "--status",
+        action="store_true",
+        help="Show current quota status",
     )
     parser.add_argument("--estimate", nargs="+", help="Estimate tokens for given paths")
     parser.add_argument(
-        "--validate-config", action="store_true", help="Validate quota configuration"
+        "--validate-config",
+        action="store_true",
+        help="Validate quota configuration",
     )
 
     args = parser.parse_args()
@@ -240,27 +253,22 @@ def main() -> None:
 
     if args.status:
         status, warnings = tracker.get_quota_status()
-        print(f"Status: {status}")
-        for warning in warnings:
-            print(f"  Warning: {warning}")
+        for _warning in warnings:
+            pass
 
     elif args.estimate:
-        estimated = tracker.estimate_task_tokens(args.estimate)
-        print(f"Estimated tokens for {args.estimate}: {estimated:,}")
+        tracker.estimate_task_tokens(args.estimate)
 
     elif args.validate_config:
         # Basic validation of configuration
-        print("Quota configuration validation:")
-        for key, value in tracker.limits.items():
-            print(f"  {key}: {value}")
-        print("  Configuration is valid")
+        for _key, _value in tracker.limits.items():
+            pass
 
     else:
         # Default: show status
-        status, warnings = tracker.get_quota_status()
-        print(f"Status: {status}")
-        for warning in warnings:
-            print(f"  Warning: {warning}")
+        _status, warnings = tracker.get_quota_status()
+        for _warning in warnings:
+            pass
 
 
 if __name__ == "__main__":

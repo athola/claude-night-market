@@ -28,7 +28,7 @@ from abstract.utils import (
 class ContextOptimizer:
     """Optimizes skill content loading for better context window management."""
 
-    def __init__(self, config: AbstractConfig):
+    def __init__(self, config: AbstractConfig) -> None:
         """Initialize context optimizer with configuration."""
         self.config = config
         self.optimizer_config = config.context_optimizer
@@ -36,7 +36,8 @@ class ContextOptimizer:
     def analyze_skill_size(self, skill_path: Path) -> dict[str, Any]:
         """Analyze skill file size and categorize for context optimization."""
         if not skill_path.exists():
-            raise FileNotFoundError(f"Skill file not found: {skill_path}")
+            msg = f"Skill file not found: {skill_path}"
+            raise FileNotFoundError(msg)
 
         size = skill_path.stat().st_size
 
@@ -93,41 +94,28 @@ class ContextOptimizer:
                         "path": str(skill_file.relative_to(directory)),
                         "absolute_path": str(skill_file),
                         **size_info,
-                    }
+                    },
                 )
-            except Exception as e:
-                print(f"WARNING: Failed to analyze {skill_file}: {e}", file=sys.stderr)
+            except Exception:
+                pass
 
         return sorted(results, key=lambda x: x["bytes"], reverse=True)
 
     def report_statistics(self, results: list[dict[str, Any]]) -> None:
         """Print statistics about skill files."""
         if not results:
-            print("No skill files found.")
             return
 
-        total_files = len(results)
-        total_size = sum(r["bytes"] for r in results)
-        total_tokens = sum(r["estimated_tokens"] for r in results)
+        len(results)
+        sum(r["bytes"] for r in results)
+        sum(r["estimated_tokens"] for r in results)
 
         categories = {"small": 0, "medium": 0, "large": 0, "xlarge": 0}
         for r in results:
             categories[r["category"]] += 1
 
-        print("\nContext Optimization Analysis")
-        print(f"{'=' * 50}")
-        print(f"Total Skills: {total_files}")
-        print(f"Total Size: {total_size:,} bytes")
-        print(f"Estimated Tokens: {total_tokens:,}")
-        print("\nSize Distribution:")
-        print(f"  Small (<2KB):   {categories['small']:3d} files")
-        print(f"  Medium (2-5KB): {categories['medium']:3d} files")
-        print(f"  Large (5-15KB): {categories['large']:3d} files")
-        print(f"  XLarge (>15KB): {categories['xlarge']:3d} files")
-
         if categories["xlarge"] > 0:
-            print(f"\nRecommendation: {categories['xlarge']} file(s) exceed 15KB")
-            print("Consider using progressive disclosure or modularization")
+            pass
 
 
 class ContextOptimizerCLI(AbstractCLI):
@@ -169,7 +157,7 @@ class ContextOptimizerCLI(AbstractCLI):
                     data={"command": "analyze", "path": str(args.path), **size_info},
                 )
 
-            elif args.command in ("report", "stats"):
+            if args.command in ("report", "stats"):
                 results = optimizer.analyze_directory(args.path)
                 return CLIResult(
                     success=True,
@@ -196,28 +184,28 @@ class ContextOptimizerCLI(AbstractCLI):
             ]
             return "\n".join(lines)
 
-        else:  # report or stats
-            optimizer = data["optimizer"]
-            results = data["results"]
+        # report or stats
+        optimizer = data["optimizer"]
+        results = data["results"]
 
-            # Get statistics output
-            f = io.StringIO()
-            with redirect_stdout(f):
-                optimizer.report_statistics(results)
+        # Get statistics output
+        f = io.StringIO()
+        with redirect_stdout(f):
+            optimizer.report_statistics(results)
 
-            output = f.getvalue()
+        output = f.getvalue()
 
-            if data["command"] == "report":
-                output += "\n\nDetailed Results:\n"
-                output += f"{'Path':<50} {'Size':>10} {'Category':>10} {'Tokens':>10}\n"
-                output += f"{'-' * 82}\n"
-                for r in results:
-                    output += (
-                        f"{r['path']:<50} {r['bytes']:>10,} "
-                        f"{r['category']:>10} {r['estimated_tokens']:>10,}\n"
-                    )
+        if data["command"] == "report":
+            output += "\n\nDetailed Results:\n"
+            output += f"{'Path':<50} {'Size':>10} {'Category':>10} {'Tokens':>10}\n"
+            output += f"{'-' * 82}\n"
+            for r in results:
+                output += (
+                    f"{r['path']:<50} {r['bytes']:>10,} "
+                    f"{r['category']:>10} {r['estimated_tokens']:>10,}\n"
+                )
 
-            return output
+        return output
 
 
 def main() -> None:

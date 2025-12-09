@@ -31,8 +31,8 @@ def sample_config_file(temp_config_dir: Path) -> Path:
                     "requests_per_day": 500,
                     "tokens_per_day": 500000,
                 },
-            }
-        }
+            },
+        },
     }
     config_file.write_text(json.dumps(sample_config, indent=2))
     return config_file
@@ -66,8 +66,7 @@ def sample_usage_log(temp_config_dir: Path) -> Path:
     ]
 
     with open(usage_log, "w") as f:
-        for entry in sample_entries:
-            f.write(json.dumps(entry) + "\n")
+        f.writelines(json.dumps(entry) + "\n" for entry in sample_entries)
 
     return usage_log
 
@@ -130,7 +129,7 @@ def delegation_service_config():
 
 
 @pytest.fixture
-def gemini_hook_script_content():
+def gemini_hook_script_content() -> str:
     """Content for gemini bridge hook script."""
     return """#!/bin/bash
 # Gemini bridge hook script
@@ -141,7 +140,7 @@ echo "Arguments: $@"
 
 
 @pytest.fixture
-def sample_skill_content():
+def sample_skill_content() -> str:
     """Sample skill file content for testing."""
     return """---
 name: gemini-delegation

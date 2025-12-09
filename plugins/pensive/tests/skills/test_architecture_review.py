@@ -1,5 +1,4 @@
-"""
-Unit tests for the architecture review skill.
+"""Unit tests for the architecture review skill.
 
 Tests system design analysis, ADR compliance assessment,
 and architectural pattern validation.
@@ -19,7 +18,7 @@ from pensive.skills.architecture_review import ArchitectureReviewSkill
 class TestArchitectureReviewSkill:
     """Test suite for ArchitectureReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = ArchitectureReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestArchitectureReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_detects_layered_architecture(self, mock_skill_context):
+    def test_detects_layered_architecture(self, mock_skill_context) -> None:
         """Given layered architecture, when skill analyzes, then identifies layer structure."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -48,7 +47,7 @@ class TestArchitectureReviewSkill:
         assert "models" in architecture["layers"]
 
     @pytest.mark.unit
-    def test_detects_hexagonal_architecture(self, mock_skill_context):
+    def test_detects_hexagonal_architecture(self, mock_skill_context) -> None:
         """Given hexagonal architecture, when skill analyzes, then identifies ports and adapters."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -69,7 +68,7 @@ class TestArchitectureReviewSkill:
         assert "domain" in architecture["components"]
 
     @pytest.mark.unit
-    def test_detects_microservices_architecture(self, mock_skill_context):
+    def test_detects_microservices_architecture(self, mock_skill_context) -> None:
         """Given microservices architecture, when skill analyzes, then identifies service boundaries."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -91,7 +90,7 @@ class TestArchitectureReviewSkill:
         ]
 
     @pytest.mark.unit
-    def test_detects_event_driven_architecture(self, mock_skill_context):
+    def test_detects_event_driven_architecture(self, mock_skill_context) -> None:
         """Given event-driven architecture, when skill analyzes, then identifies event components."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -112,7 +111,7 @@ class TestArchitectureReviewSkill:
         assert "publishers" in architecture["components"]
 
     @pytest.mark.unit
-    def test_analyzes_coupling_between_modules(self, mock_skill_context):
+    def test_analyzes_coupling_between_modules(self, mock_skill_context) -> None:
         """Given module dependencies, when skill analyzes, then assesses coupling levels."""
         # Arrange
         dependencies = [
@@ -140,7 +139,7 @@ class TestArchitectureReviewSkill:
         assert coupling_analysis["coupling_score"] > 0
 
     @pytest.mark.unit
-    def test_analyzes_cohesion_within_modules(self, mock_skill_context):
+    def test_analyzes_cohesion_within_modules(self, mock_skill_context) -> None:
         """Given module content, when skill analyzes, then assesses cohesion levels."""
         # Arrange
         module_content = """
@@ -157,7 +156,8 @@ class TestArchitectureReviewSkill:
 
         # Act
         cohesion_analysis = self.skill.analyze_cohesion(
-            mock_skill_context, "user_service.py"
+            mock_skill_context,
+            "user_service.py",
         )
 
         # Assert
@@ -169,7 +169,7 @@ class TestArchitectureReviewSkill:
         )  # Should detect multiple responsibilities
 
     @pytest.mark.unit
-    def test_checks_separation_of_concerns(self, mock_skill_context):
+    def test_checks_separation_of_concerns(self, mock_skill_context) -> None:
         """Given mixed responsibilities, when skill analyzes, then flags SoC violations."""
         # Arrange
         mixed_concerns_code = """
@@ -196,7 +196,8 @@ class TestArchitectureReviewSkill:
 
         # Act
         soc_violations = self.skill.check_separation_of_concerns(
-            mock_skill_context, "handler.py"
+            mock_skill_context,
+            "handler.py",
         )
 
         # Assert
@@ -207,7 +208,7 @@ class TestArchitectureReviewSkill:
         assert "presentation" in concern_types
 
     @pytest.mark.unit
-    def test_validates_dependency_inversion_principle(self, mock_skill_context):
+    def test_validates_dependency_inversion_principle(self, mock_skill_context) -> None:
         """Given dependency violations, when skill analyzes, then flags DIP violations."""
         # Arrange
         violating_code = """
@@ -225,7 +226,8 @@ class TestArchitectureReviewSkill:
 
         # Act
         dip_violations = self.skill.check_dependency_inversion(
-            mock_skill_context, "order_service.py"
+            mock_skill_context,
+            "order_service.py",
         )
 
         # Assert
@@ -236,7 +238,7 @@ class TestArchitectureReviewSkill:
         )  # Should detect MySQLDatabase and SMTPEmailSender
 
     @pytest.mark.unit
-    def test_analyzes_sOLID_principles_compliance(self, mock_skill_context):
+    def test_analyzes_sOLID_principles_compliance(self, mock_skill_context) -> None:
         """Given code implementation, when skill analyzes, then checks SOLID principles."""
         # Arrange
         code_with_violations = """
@@ -271,7 +273,8 @@ class TestArchitectureReviewSkill:
 
         # Act
         solid_analysis = self.skill.analyze_solid_principles(
-            mock_skill_context, "shapes.py"
+            mock_skill_context,
+            "shapes.py",
         )
 
         # Assert
@@ -283,7 +286,7 @@ class TestArchitectureReviewSkill:
         assert solid_analysis["liskov_substitution"]["violations"] > 0
 
     @pytest.mark.unit
-    def test_checks_architectural_decision_records(self, mock_skill_context):
+    def test_checks_architectural_decision_records(self, mock_skill_context) -> None:
         """Given ADR files, when skill analyzes, then validates ADR structure and compliance."""
         # Arrange
         adr_files = [
@@ -325,7 +328,7 @@ class TestArchitectureReviewSkill:
         )  # Should find proper ADR structure
 
     @pytest.mark.unit
-    def test_analyzes_data_flow_architecture(self, mock_skill_context):
+    def test_analyzes_data_flow_architecture(self, mock_skill_context) -> None:
         """Given data flow implementation, when skill analyzes, then maps data flow patterns."""
         # Arrange
         data_flow_files = [
@@ -350,7 +353,7 @@ class TestArchitectureReviewSkill:
         assert "flow_components" in data_flow_analysis
 
     @pytest.mark.unit
-    def test_checks_scalability_patterns(self, mock_skill_context):
+    def test_checks_scalability_patterns(self, mock_skill_context) -> None:
         """Given architecture implementation, when skill analyzes, then evaluates scalability patterns."""
         # Arrange
         scalability_code = """
@@ -383,7 +386,7 @@ class TestArchitectureReviewSkill:
 
         # Act
         scalability_analysis = self.skill.analyze_scalability_patterns(
-            mock_skill_context
+            mock_skill_context,
         )
 
         # Assert
@@ -394,7 +397,7 @@ class TestArchitectureReviewSkill:
         )  # Should detect stateful and sequential issues
 
     @pytest.mark.unit
-    def test_analyzes_security_architecture(self, mock_skill_context):
+    def test_analyzes_security_architecture(self, mock_skill_context) -> None:
         """Given security implementation, when skill analyzes, then evaluates security patterns."""
         # Arrange
         security_code = """
@@ -431,7 +434,7 @@ class TestArchitectureReviewSkill:
         assert "data_exposure" in vuln_types
 
     @pytest.mark.unit
-    def test_detects_architectural_drift(self, mock_skill_context):
+    def test_detects_architectural_drift(self, mock_skill_context) -> None:
         """Given codebase evolution, when skill analyzes, then detects architectural drift."""
         # Arrange
         # Simulate detected patterns vs intended architecture
@@ -451,7 +454,7 @@ class TestArchitectureReviewSkill:
         assert "spaghetti" in [d["pattern"] for d in drift_analysis["deviations"]]
 
     @pytest.mark.unit
-    def test_generates_architecture_recommendations(self, sample_findings):
+    def test_generates_architecture_recommendations(self, sample_findings) -> None:
         """Given architecture analysis findings, when skill generates recommendations, then provides actionable advice."""
         # Arrange
         architecture_findings = [
@@ -484,10 +487,11 @@ class TestArchitectureReviewSkill:
             assert "priority" in rec
             assert "action" in rec
             assert "rationale" in rec
-            assert rec["action"] is not None and len(rec["action"]) > 0
+            assert rec["action"] is not None
+            assert len(rec["action"]) > 0
 
     @pytest.mark.unit
-    def test_handles_missing_architecture_docs(self, mock_skill_context):
+    def test_handles_missing_architecture_docs(self, mock_skill_context) -> None:
         """Given missing architecture documentation, when skill analyzes, then flags documentation gaps."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -506,7 +510,7 @@ class TestArchitectureReviewSkill:
         assert len(doc_analysis["missing_docs"]) > 0
 
     @pytest.mark.unit
-    def test_analyzes_technical_debt_impact(self, mock_skill_context):
+    def test_analyzes_technical_debt_impact(self, mock_skill_context) -> None:
         """Given technical debt indicators, when skill analyzes, then quantifies impact."""
         # Arrange
         debt_indicators = [
@@ -526,7 +530,7 @@ class TestArchitectureReviewSkill:
         assert len(debt_analysis["priority_areas"]) > 0
 
     @pytest.mark.unit
-    def test_creates_architecture_quality_report(self, sample_findings):
+    def test_creates_architecture_quality_report(self, sample_findings) -> None:
         """Given comprehensive analysis, when skill creates report, then generates structured summary."""
         # Arrange
         analysis_results = {

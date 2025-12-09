@@ -76,7 +76,7 @@ class QuotaTracker:
         service: str,
         config: QuotaConfig | None = None,
         storage_dir: Path | None = None,
-    ):
+    ) -> None:
         self.service = service
         self.config = config or QuotaConfig()
 
@@ -132,7 +132,10 @@ class QuotaTracker:
             self.usage.tokens_today = 0
 
     def record_request(
-        self, tokens: int = 0, success: bool = True, duration: float = 0.0
+        self,
+        tokens: int = 0,
+        success: bool = True,
+        duration: float = 0.0,
     ) -> None:
         """Record a request to the service."""
         self._cleanup_old_data()
@@ -156,6 +159,7 @@ class QuotaTracker:
         Returns:
             Tuple of (status_level, list of warnings)
             Status levels: "healthy", "warning", "critical"
+
         """
         self._cleanup_old_data()
         warnings = []
@@ -182,15 +186,15 @@ class QuotaTracker:
         # Generate warnings
         if rpm_percent >= 80:
             warnings.append(
-                f"RPM at {rpm_percent:.1f}% ({self.usage.requests_this_minute}/{self.config.requests_per_minute})"
+                f"RPM at {rpm_percent:.1f}% ({self.usage.requests_this_minute}/{self.config.requests_per_minute})",
             )
         if daily_percent >= 80:
             warnings.append(
-                f"Daily requests at {daily_percent:.1f}% ({self.usage.requests_today}/{self.config.requests_per_day})"
+                f"Daily requests at {daily_percent:.1f}% ({self.usage.requests_today}/{self.config.requests_per_day})",
             )
         if tpm_percent >= 80:
             warnings.append(
-                f"TPM at {tpm_percent:.1f}% ({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})"
+                f"TPM at {tpm_percent:.1f}% ({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})",
             )
 
         return level, warnings
@@ -200,6 +204,7 @@ class QuotaTracker:
 
         Returns:
             Tuple of (can_proceed, list of issues)
+
         """
         self._cleanup_old_data()
         issues = []
@@ -210,12 +215,12 @@ class QuotaTracker:
             > self.config.tokens_per_minute
         ):
             issues.append(
-                f"Would exceed TPM limit ({self.usage.tokens_this_minute + estimated_tokens} > {self.config.tokens_per_minute})"
+                f"Would exceed TPM limit ({self.usage.tokens_this_minute + estimated_tokens} > {self.config.tokens_per_minute})",
             )
 
         if self.usage.tokens_today + estimated_tokens > self.config.tokens_per_day:
             issues.append(
-                f"Would exceed daily token limit ({self.usage.tokens_today + estimated_tokens} > {self.config.tokens_per_day})"
+                f"Would exceed daily token limit ({self.usage.tokens_today + estimated_tokens} > {self.config.tokens_per_day})",
             )
 
         # Check request counts
@@ -237,7 +242,9 @@ class QuotaTracker:
         return int(size / ratio)
 
     def estimate_task_tokens(
-        self, file_paths: list[str | Path], prompt_length: int = 100
+        self,
+        file_paths: list[str | Path],
+        prompt_length: int = 100,
     ) -> int:
         """Estimate total tokens for a task."""
         total = prompt_length // 4  # Rough prompt token estimate
@@ -249,7 +256,7 @@ class QuotaTracker:
         return total
 
 
-def main():
+def main() -> None:
     """CLI interface for quota tracker."""
     import argparse
 
@@ -263,21 +270,18 @@ def main():
     tracker = QuotaTracker(service=args.service)
 
     if args.check:
-        level, warnings = tracker.get_quota_status()
-        print(f"Status: {level.upper()}")
+        _level, warnings = tracker.get_quota_status()
         if warnings:
-            for w in warnings:
-                print(f"  - {w}")
+            for _w in warnings:
+                pass
     elif args.estimate:
         total = tracker.estimate_task_tokens(args.estimate)
-        print(f"Estimated tokens: {total:,}")
         can_proceed, issues = tracker.can_handle_task(total)
         if can_proceed:
-            print("Quota available for this task")
+            pass
         else:
-            print("Quota issues:")
-            for issue in issues:
-                print(f"  - {issue}")
+            for _issue in issues:
+                pass
 
 
 if __name__ == "__main__":

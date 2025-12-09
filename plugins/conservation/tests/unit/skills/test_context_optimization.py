@@ -4,9 +4,6 @@ This module tests the MECW principles, context analysis, and optimization
 functionality following TDD/BDD principles.
 """
 
-
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -19,7 +16,7 @@ class TestContextOptimizationSkill:
     """
 
     @pytest.fixture
-    def mock_context_optimization_skill_content(self):
+    def mock_context_optimization_skill_content(self) -> str:
         """Mock context-optimization skill content with required components."""
         return """---
 name: context-optimization
@@ -74,8 +71,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_context_optimization_creates_required_todowrite_items(
-        self, mock_todo_write
-    ):
+        self,
+        mock_todo_write,
+    ) -> None:
         """Scenario: Context optimization creates required TodoWrite items
         Given the context-optimization skill is executed
         When establishing the optimization workflow
@@ -111,7 +109,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_mecw_assessment_analyzes_context_usage(self, mock_mecw_analyzer):
+    def test_mecw_assessment_analyzes_context_usage(self, mock_mecw_analyzer) -> None:
         """Scenario: MECW assessment analyzes context usage accurately
         Given different context usage scenarios
         When performing MECW assessment
@@ -129,7 +127,7 @@ tags:
         # Act & Assert
         for scenario in test_scenarios:
             analysis = mock_mecw_analyzer.analyze_context_usage(
-                scenario["context_tokens"]
+                scenario["context_tokens"],
             )
 
             assert (
@@ -147,7 +145,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_context_classification_categorizes_usage_patterns(self, mock_claude_tools):
+    def test_context_classification_categorizes_usage_patterns(
+        self, mock_claude_tools
+    ) -> None:
         """Scenario: Context classification categorizes usage patterns effectively
         Given various context usage patterns
         When classifying context usage
@@ -187,7 +187,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_module_coordination_selects_optimal_modules(self, mock_claude_tools):
+    def test_module_coordination_selects_optimal_modules(
+        self, mock_claude_tools
+    ) -> None:
         """Scenario: Module coordination selects optimal optimization modules
         Given different context situations and task complexities
         When coordinating modules
@@ -237,7 +239,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_synthesis_combines_module_results_effectively(self):
+    def test_synthesis_combines_module_results_effectively(self) -> None:
         """Scenario: Synthesis combines module results into coherent recommendations
         Given results from multiple optimization modules
         When synthesizing results
@@ -283,7 +285,9 @@ tags:
         # Remove duplicate recommendations
         unique_recommendations = list(set(synthesized_recommendations))
         prioritized_recommendations = sorted(
-            unique_recommendations, key=len, reverse=True
+            unique_recommendations,
+            key=len,
+            reverse=True,
         )
 
         # Assert
@@ -296,7 +300,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validation_confirms_optimization_effectiveness(self, mock_mecw_analyzer):
+    def test_validation_confirms_optimization_effectiveness(
+        self, mock_mecw_analyzer
+    ) -> None:
         """Scenario: Validation confirms optimization effectiveness
         Given context optimization applied
         When validating results
@@ -305,10 +311,10 @@ tags:
         """
         # Arrange
         before_optimization = mock_mecw_analyzer.analyze_context_usage(
-            120000
+            120000,
         )  # 60% utilization
         after_optimization = mock_mecw_analyzer.analyze_context_usage(
-            80000
+            80000,
         )  # 40% utilization
 
         # Act - calculate improvements
@@ -331,8 +337,9 @@ tags:
 
     @pytest.mark.unit
     def test_context_optimization_handles_large_contexts_efficiently(
-        self, mock_claude_tools
-    ):
+        self,
+        mock_claude_tools,
+    ) -> None:
         """Scenario: Context optimization handles large contexts efficiently
         Given very large context windows approaching limits
         When applying optimization
@@ -369,7 +376,7 @@ tags:
         assert target_tokens == 108000  # 60% of window size
 
     @pytest.mark.unit
-    def test_context_optimization_error_handling(self, mock_claude_tools):
+    def test_context_optimization_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Context optimization handles errors gracefully
         Given invalid context measurements or module failures
         When optimizing context
@@ -391,16 +398,17 @@ tags:
             try:
                 context_tokens = int(result)
                 if context_tokens <= 0:
-                    raise ValueError("Invalid context measurement")
+                    msg = "Invalid context measurement"
+                    raise ValueError(msg)
             except (ValueError, TypeError) as e:
-                error_log.append(f"Attempt {i + 1}: {str(e)}")
+                error_log.append(f"Attempt {i + 1}: {e!s}")
                 fallback_strategies.append(
                     {
                         "attempt": i + 1,
                         "strategy": "use_estimated_context",
                         "estimated_tokens": 50000,
                         "confidence": 0.7,
-                    }
+                    },
                 )
 
         # Assert
@@ -414,8 +422,9 @@ tags:
 
     @pytest.mark.unit
     def test_context_optimization_token_budget_conservation(
-        self, sample_context_analysis
-    ):
+        self,
+        sample_context_analysis,
+    ) -> None:
         """Scenario: Context optimization conserves token budget effectively
         Given limited token budget for optimization tasks
         When optimizing context

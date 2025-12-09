@@ -4,9 +4,6 @@ This module tests large skill optimization patterns, modularization,
 and performance enhancement following TDD/BDD principles.
 """
 
-
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -19,7 +16,7 @@ class TestOptimizingLargeSkills:
     """
 
     @pytest.fixture
-    def mock_optimizing_large_skills_content(self):
+    def mock_optimizing_large_skills_content(self) -> str:
         """Mock optimizing-large-skills skill content with required components."""
         return """---
 name: optimizing-large-skills
@@ -76,8 +73,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_optimizing_large_skills_creates_required_todowrite_items(
-        self, mock_todo_write
-    ):
+        self,
+        mock_todo_write,
+    ) -> None:
         """Scenario: Optimizing large skills creates required TodoWrite items
         Given the optimizing-large-skills skill is executed
         When establishing the optimization workflow
@@ -112,7 +110,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skill_analysis_identifies_optimization_candidates(self):
+    def test_skill_analysis_identifies_optimization_candidates(self) -> None:
         """Scenario: Skill analysis identifies skills needing optimization
         Given various skill files with different characteristics
         When analyzing for optimization opportunities
@@ -188,7 +186,7 @@ tags:
                         "dependencies": skill["dependencies"],
                     },
                     "optimization_potential": total_score * 10,  # Percentage estimate
-                }
+                },
             )
 
         # Sort by priority and score
@@ -224,7 +222,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_modularization_assessment_identifies_breakdown_opportunities(self):
+    def test_modularization_assessment_identifies_breakdown_opportunities(self) -> None:
         """Scenario: Modularization assessment identifies skill breakdown opportunities
         Given large skills with multiple responsibilities
         When assessing modularization potential
@@ -311,7 +309,7 @@ tags:
                         "after_section": section["title"],
                         "reason": f"Natural separation for {section['responsibility']}",
                         "estimated_reduction": section["lines"],
-                    }
+                    },
                 )
 
         # Build dependency graph
@@ -338,7 +336,7 @@ tags:
                     m
                     for m in modularization_analysis["identified_modules"]
                     if m["module_type"] == "independent"
-                ]
+                ],
             ),
         }
 
@@ -364,7 +362,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_performance_profiling_identifies_bottlenecks(self, mock_claude_tools):
+    def test_performance_profiling_identifies_bottlenecks(
+        self, mock_claude_tools
+    ) -> None:
         """Scenario: Performance profiling identifies skill execution bottlenecks
         Given skill execution metrics and resource usage
         When profiling performance
@@ -427,7 +427,8 @@ tags:
 
             performance_analysis["total_execution_time"] += total_time
             performance_analysis["total_memory_peak"] = max(
-                performance_analysis["total_memory_peak"], total_memory
+                performance_analysis["total_memory_peak"],
+                total_memory,
             )
             performance_analysis["total_token_usage"] += total_tokens
 
@@ -447,7 +448,7 @@ tags:
                         "impact_percentage": time_percentage,
                         "total_time": total_time,
                         "reason": f"Takes {time_percentage:.1f}% of total execution time",
-                    }
+                    },
                 )
 
             # Identify optimization targets (high resource usage)
@@ -462,12 +463,13 @@ tags:
                         "optimization_potential": "High"
                         if total_tokens > 2000
                         else "Medium",
-                    }
+                    },
                 )
 
         # Sort bottlenecks by impact
         performance_analysis["bottlenecks"].sort(
-            key=lambda x: x["impact_percentage"], reverse=True
+            key=lambda x: x["impact_percentage"],
+            reverse=True,
         )
 
         # Assert
@@ -500,7 +502,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_optimization_recommendations_prioritize_high_impact_changes(self):
+    def test_optimization_recommendations_prioritize_high_impact_changes(self) -> None:
         """Scenario: Optimization recommendations prioritize high-impact changes
         Given performance analysis and modularization assessment
         When generating optimization recommendations
@@ -575,7 +577,7 @@ tags:
                     "estimated_improvement": bottleneck["estimated_improvement"],
                     "implementation_effort": bottleneck["implementation_effort"],
                     "description": f"Optimize {bottleneck['operation']} for {bottleneck['estimated_improvement']}% improvement",
-                }
+                },
             )
 
         # Process modularization opportunities
@@ -596,7 +598,7 @@ tags:
                     "estimated_improvement": module["complexity_reduction"],
                     "implementation_effort": module["implementation_effort"],
                     "description": f"Extract {module['module']} into separate module",
-                }
+                },
             )
 
         # Process resource inefficiencies
@@ -615,7 +617,7 @@ tags:
                     "estimated_improvement": inefficiency["potential_savings"],
                     "implementation_effort": inefficiency["implementation_effort"],
                     "description": f"Fix {inefficiency['source']} to reduce {inefficiency['type']}",
-                }
+                },
             )
 
         # Sort by priority score
@@ -658,7 +660,7 @@ tags:
             assert rec["estimated_improvement"] > 15
 
     @pytest.mark.unit
-    def test_validation_testing_measures_optimization_effectiveness(self):
+    def test_validation_testing_measures_optimization_effectiveness(self) -> None:
         """Scenario: Validation testing measures optimization effectiveness
         Given before and after optimization metrics
         When validating optimization results
@@ -806,7 +808,7 @@ tags:
                     validation_results["memory_savings_percentage"] >= 10,
                     validation_results["token_efficiency_improvement"] >= 20,
                     validation_results["satisfaction_improvement"] >= 0.5,
-                ]
+                ],
             ),
         }
 

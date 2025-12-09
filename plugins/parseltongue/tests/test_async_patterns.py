@@ -1,5 +1,4 @@
-"""
-Unit tests for async code analysis and optimization.
+"""Unit tests for async code analysis and optimization.
 
 Tests async pattern recognition, performance analysis,
 and optimization recommendations.
@@ -16,12 +15,12 @@ from parseltongue.skills.async_analyzer import AsyncAnalysisSkill
 class TestAsyncAnalysisSkill:
     """Test suite for AsyncAnalysisSkill."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = AsyncAnalysisSkill()
 
     @pytest.mark.asyncio
-    async def test_detects_async_functions(self, sample_async_code):
+    async def test_detects_async_functions(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies all async functions."""
         # Arrange
         code = sample_async_code
@@ -46,7 +45,7 @@ class TestAsyncAnalysisSkill:
             assert "await_calls" in func
 
     @pytest.mark.asyncio
-    async def test_identifies_async_context_managers(self, sample_async_code):
+    async def test_identifies_async_context_managers(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies async context managers."""
         # Arrange
         code = sample_async_code
@@ -67,7 +66,7 @@ class TestAsyncAnalysisSkill:
         assert "__aexit__" in async_service["methods"]
 
     @pytest.mark.asyncio
-    async def test_analyzes_concurrency_patterns(self, sample_async_code):
+    async def test_analyzes_concurrency_patterns(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies concurrency patterns."""
         # Arrange
         code = sample_async_code
@@ -91,7 +90,7 @@ class TestAsyncAnalysisSkill:
         assert concurrency["gather_usage"]["error_handling"] == "return_exceptions"
 
     @pytest.mark.asyncio
-    async def test_detects_blocking_calls(self, async_issues):
+    async def test_detects_blocking_calls(self, async_issues) -> None:
         """Given async code with blocking calls, when skill analyzes, then identifies blocking patterns."""
         # Arrange
         blocking_code = async_issues["blocking_io"]
@@ -116,7 +115,7 @@ class TestAsyncAnalysisSkill:
         assert len(blocking_patterns["recommendations"]) >= 1
 
     @pytest.mark.asyncio
-    async def test_identifies_missing_await(self, async_issues):
+    async def test_identifies_missing_await(self, async_issues) -> None:
         """Given async code with missing await, when skill analyzes, then detect missing awaits."""
         # Arrange
         missing_await_code = async_issues["missing_await"]
@@ -136,7 +135,7 @@ class TestAsyncAnalysisSkill:
         assert "await" in missing_awaits["fetch_data"]["suggestion"]
 
     @pytest.mark.asyncio
-    async def test_analyzes_error_handling(self, sample_async_code):
+    async def test_analyzes_error_handling(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then evaluates error handling patterns."""
         # Arrange
         code = sample_async_code
@@ -160,7 +159,7 @@ class TestAsyncAnalysisSkill:
         assert fetch_user_errors["graceful_degradation"] is True
 
     @pytest.mark.asyncio
-    async def test_analyzes_timeout_handling(self, sample_async_code):
+    async def test_analyzes_timeout_handling(self, sample_async_code) -> None:
         """Given async code with timeouts, when skill analyzes, then evaluates timeout patterns."""
         # Arrange
         code = sample_async_code
@@ -184,7 +183,7 @@ class TestAsyncAnalysisSkill:
         assert process_timeout["handles_timeout_error"] is True
 
     @pytest.mark.asyncio
-    async def test_identifies_resource_management(self, sample_async_code):
+    async def test_identifies_resource_management(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies resource management patterns."""
         # Arrange
         code = sample_async_code
@@ -208,7 +207,7 @@ class TestAsyncAnalysisSkill:
         assert async_service["cleanup_in_finally"] is True
 
     @pytest.mark.asyncio
-    async def test_analyzes_performance_issues(self, sample_async_code):
+    async def test_analyzes_performance_issues(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies performance opportunities."""
         # Arrange
         code_with_issues = '''
@@ -256,7 +255,7 @@ async def fetch_item(item):
         assert performance["improvement_potential"]["speedup"] > 1.0
 
     @pytest.mark.asyncio
-    async def test_detects_race_conditions(self):
+    async def test_detects_race_conditions(self) -> None:
         """Given async code, when skill analyzes, then identifies potential race conditions."""
         # Arrange
         race_condition_code = '''
@@ -311,7 +310,7 @@ async def main():
         assert len(race_conditions["recommendations"]) >= 1
 
     @pytest.mark.asyncio
-    async def test_analyzes_event_loop_usage(self):
+    async def test_analyzes_event_loop_usage(self) -> None:
         """Given async code, when skill analyzes, then evaluates event loop patterns."""
         # Arrange
         event_loop_code = '''
@@ -364,7 +363,7 @@ async def callback_example():
         assert cleanup_analysis["proper_loop_close"] is True
 
     @pytest.mark.asyncio
-    async def test_suggests_async_improvements(self, async_issues):
+    async def test_suggests_async_improvements(self, async_issues) -> None:
         """Given async code with issues, when skill analyzes, then suggests improvements."""
         # Arrange
         problematic_code = (
@@ -394,7 +393,7 @@ async def callback_example():
             assert "explanation" in suggestion
 
     @pytest.mark.asyncio
-    async def test_validates_async_best_practices(self, sample_async_code):
+    async def test_validates_async_best_practices(self, sample_async_code) -> None:
         """Given well-structured async code, when skill analyzes, then validates best practices."""
         # Arrange
         good_async_code = sample_async_code
@@ -420,7 +419,7 @@ async def callback_example():
         assert "recommendations" in validation
 
     @pytest.mark.asyncio
-    async def test_analyzes_async_testing_patterns(self):
+    async def test_analyzes_async_testing_patterns(self) -> None:
         """Given async test code, when skill analyzes, then evaluates testing patterns."""
         # Arrange
         async_test_code = '''
@@ -485,7 +484,7 @@ async def test_concurrent_operations():
         assert testing_analysis["concurrency_testing"] is True
 
     @pytest.mark.asyncio
-    async def test_handles_complex_async_scenarios(self):
+    async def test_handles_complex_async_scenarios(self) -> None:
         """Given complex async scenarios, when skill analyzes, then handles correctly."""
         # Arrange
         complex_async_code = '''

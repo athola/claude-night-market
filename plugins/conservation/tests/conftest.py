@@ -5,7 +5,7 @@ the conservation plugin's skills, commands, and agents following TDD/BDD princip
 """
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from unittest.mock import Mock
@@ -23,7 +23,7 @@ def conservation_plugin_root():
 
 
 @pytest.fixture
-def sample_skill_content():
+def sample_skill_content() -> str:
     """Sample valid skill file content with frontmatter for conservation."""
     return """---
 name: token-conservation-test
@@ -65,7 +65,7 @@ Use this skill to test token conservation patterns.
 
 
 @pytest.fixture
-def sample_context_optimization_skill():
+def sample_context_optimization_skill() -> str:
     """Sample context optimization skill content."""
     return """---
 name: context-optimization-test
@@ -161,7 +161,7 @@ def sample_plugin_json():
                 "description": "Autonomous agent for context optimization",
                 "file": "agents/context-optimizer.md",
                 "tools": ["Read", "Glob", "Grep", "Bash", "TodoWrite"],
-            }
+            },
         ],
     }
 
@@ -200,7 +200,7 @@ def sample_context_analysis():
 def sample_performance_metrics():
     """Sample performance monitoring metrics."""
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "cpu_usage_percent": 15.2,
         "memory_usage_mb": 512,
         "gpu_usage_percent": 0.0,
@@ -275,7 +275,7 @@ def mock_todo_write():
     mock = Mock()
     mock.return_value = None
     # Configure mock to track calls
-    yield mock
+    return mock
 
 
 @pytest.fixture
@@ -306,7 +306,7 @@ def mock_performance_monitor():
     """Mock performance monitoring functionality."""
 
     class MockPerformanceMonitor:
-        def __init__(self):
+        def __init__(self) -> None:
             self.metrics_history = []
             self.alerts = []
 
@@ -342,7 +342,7 @@ def mock_mecw_analyzer():
     """Mock MECW (Maximum Effective Context Window) analyzer."""
 
     class MockMECWAnalyzer:
-        def __init__(self):
+        def __init__(self) -> None:
             self.context_window = 200000
             self.mecw_threshold = 0.5  # 50% rule
 
@@ -355,28 +355,26 @@ def mock_mecw_analyzer():
                 "recommended_actions": self._get_recommendations(utilization),
             }
 
-        def _classify_status(self, utilization):
+        def _classify_status(self, utilization) -> str:
             if utilization < 0.3:
                 return "LOW"
-            elif utilization < 0.5:
+            if utilization < 0.5:
                 return "OPTIMAL"
-            elif utilization < 0.7:
+            if utilization < 0.7:
                 return "HIGH"
-            else:
-                return "CRITICAL"
+            return "CRITICAL"
 
         def _get_recommendations(self, utilization):
             if utilization < 0.3:
                 return ["Context usage is low, optimization not required"]
-            elif utilization < 0.5:
+            if utilization < 0.5:
                 return ["Continue current approach, monitor usage"]
-            elif utilization < 0.7:
+            if utilization < 0.7:
                 return ["Consider context compression", "Evaluate token efficiency"]
-            else:
-                return [
-                    "Immediate context optimization required",
-                    "Use subagent delegation",
-                ]
+            return [
+                "Immediate context optimization required",
+                "Use subagent delegation",
+            ]
 
     return MockMECWAnalyzer()
 
@@ -386,14 +384,14 @@ def mock_token_quota_tracker():
     """Mock token quota tracking functionality."""
 
     class MockTokenQuotaTracker:
-        def __init__(self):
-            self.session_start = datetime.now(timezone.utc)
+        def __init__(self) -> None:
+            self.session_start = datetime.now(UTC)
             self.weekly_usage = 45000
             self.weekly_limit = 100000
 
         def check_quota(self):
             session_duration = (
-                datetime.now(timezone.utc) - self.session_start
+                datetime.now(UTC) - self.session_start
             ).total_seconds() / 3600
             remaining = self.weekly_limit - self.weekly_usage
             return {
@@ -418,8 +416,7 @@ def mock_conservation_validator(conservation_plugin_root):
         from scripts.conservation_validator import ConservationValidator
 
         # Initialize with real plugin root but mock file operations
-        validator = ConservationValidator(str(conservation_plugin_root))
-        return validator
+        return ConservationValidator(str(conservation_plugin_root))
     except ImportError:
         # If the module doesn't exist yet, create a mock
         mock_validator = Mock()
@@ -431,18 +428,19 @@ def mock_conservation_validator(conservation_plugin_root):
 
 
 # Test markers for pytest configuration
-def pytest_configure(config):
+def pytest_configure(config) -> None:
     """Configure custom pytest markers."""
     config.addinivalue_line("markers", "unit: Unit tests for individual components")
     config.addinivalue_line(
-        "markers", "integration: Integration tests for workflow orchestration"
+        "markers",
+        "integration: Integration tests for workflow orchestration",
     )
     config.addinivalue_line("markers", "performance: Performance and scalability tests")
     config.addinivalue_line("markers", "slow: Tests that take longer to execute")
     config.addinivalue_line("markers", "bdd: Behavior-driven development style tests")
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(config, items) -> None:
     """Add custom markers to items based on their content."""
     for item in items:
         # Add performance marker to performance tests
@@ -462,7 +460,8 @@ def pytest_collection_modifyitems(config, items):
 
 # Helper functions for test data generation
 def create_mock_conservation_skill(
-    name: str, category: str = "conservation"
+    name: str,
+    category: str = "conservation",
 ) -> dict[str, Any]:
     """Create a mock conservation skill configuration."""
     return {
@@ -476,12 +475,14 @@ def create_mock_conservation_skill(
 
 
 def create_mock_token_log_entry(
-    session_id: str, tokens_used: int, operation: str
+    session_id: str,
+    tokens_used: int,
+    operation: str,
 ) -> dict[str, Any]:
     """Create a mock token usage log entry."""
     return {
         "session_id": session_id,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "tokens_used": tokens_used,
         "operation": operation,
         "efficiency_score": 0.85,
@@ -489,20 +490,23 @@ def create_mock_token_log_entry(
 
 
 def create_mock_performance_metric(
-    metric_name: str, value: float, unit: str
+    metric_name: str,
+    value: float,
+    unit: str,
 ) -> dict[str, Any]:
     """Create a mock performance metric."""
     return {
         "name": metric_name,
         "value": value,
         "unit": unit,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "threshold_exceeded": False,
     }
 
 
 def create_mock_context_analysis(
-    context_tokens: int, window_size: int = 200000
+    context_tokens: int,
+    window_size: int = 200000,
 ) -> dict[str, Any]:
     """Create a mock context analysis result."""
     utilization = context_tokens / window_size

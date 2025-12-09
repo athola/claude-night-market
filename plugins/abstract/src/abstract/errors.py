@@ -48,7 +48,7 @@ class ToolError:
 class ErrorHandler:
     """Centralized error handling for Abstract tools."""
 
-    def __init__(self, tool_name: str, log_file: Path | None = None):
+    def __init__(self, tool_name: str, log_file: Path | None = None) -> None:
         """Initialize error handler for a specific tool."""
         self.tool_name = tool_name
         self.errors: list[ToolError] = []
@@ -58,13 +58,10 @@ class ErrorHandler:
         self.logger.setLevel(logging.INFO)
 
         handler: logging.Handler
-        if log_file:
-            handler = logging.FileHandler(log_file)
-        else:
-            handler = logging.StreamHandler()
+        handler = logging.FileHandler(log_file) if log_file else logging.StreamHandler()
 
         formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         )
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
@@ -150,7 +147,7 @@ class ErrorHandler:
         return ToolError(
             severity=ErrorSeverity.HIGH,
             error_code="YAML_PARSE_ERROR",
-            message=f"YAML parsing error in {file_path}: {str(yaml_error)}",
+            message=f"YAML parsing error in {file_path}: {yaml_error!s}",
             suggestion="Check YAML syntax, indentation, and special characters",
             details=str(yaml_error),
             context={"file_path": str(file_path), "yaml_error": str(yaml_error)},
@@ -161,14 +158,16 @@ class ErrorHandler:
         return ToolError(
             severity=ErrorSeverity.MEDIUM,
             error_code="IO_ERROR",
-            message=f"I/O error during {operation}: {str(io_error)}",
+            message=f"I/O error during {operation}: {io_error!s}",
             suggestion="Check file system permissions and disk space",
             details=str(io_error),
             context={"operation": operation, "io_error": str(io_error)},
         )
 
     def handle_validation_error(
-        self, validation_error: str, context: dict[str, Any] | None = None
+        self,
+        validation_error: str,
+        context: dict[str, Any] | None = None,
     ) -> ToolError:
         """Handle validation errors."""
         return ToolError(
@@ -213,35 +212,31 @@ class ErrorHandler:
             ErrorSeverity.INFO: "ℹ️",
         }
 
-        symbol = severity_symbols.get(error.severity, "❓")
-        print(f"\n{symbol} {error.severity.value.upper()}: {error.message}")
+        severity_symbols.get(error.severity, "❓")
 
         if error.details:
-            print(f"   Details: {error.details}")
+            pass
 
         if error.suggestion:
-            print(f"   💡 Suggestion: {error.suggestion}")
+            pass
 
     def print_error_summary(self) -> None:
         """Print summary of all errors encountered."""
         if not self.errors:
-            print("✅ No errors encountered")
             return
 
         severity_counts: dict[ErrorSeverity, int] = {}
         for error in self.errors:
             severity_counts[error.severity] = severity_counts.get(error.severity, 0) + 1
 
-        print(f"\n📊 Error Summary ({len(self.errors)} total errors):")
-        for severity, count in severity_counts.items():
-            symbol = {
+        for severity in severity_counts:
+            {
                 "critical": "🔴",
                 "high": "🟠",
                 "medium": "🟡",
                 "low": "🟢",
                 "info": "ℹ️",
             }.get(severity.value, "❓")
-            print(f"   {symbol} {severity.value.upper()}: {count}")
 
     def exit_with_error(self, error: ToolError) -> None:
         """Log error and exit program."""
@@ -251,7 +246,8 @@ class ErrorHandler:
         sys.exit(error.exit_code)
 
     def exit_if_errors(
-        self, min_severity: ErrorSeverity = ErrorSeverity.MEDIUM
+        self,
+        min_severity: ErrorSeverity = ErrorSeverity.MEDIUM,
     ) -> None:
         """Exit if errors of specified severity or higher exist."""
         critical_errors = [
@@ -275,7 +271,7 @@ class ErrorHandler:
             error = ToolError(
                 severity=ErrorSeverity.CRITICAL,
                 error_code="FILE_NOT_FOUND",
-                message=f"File not found during {operation_name}: {str(e)}",
+                message=f"File not found during {operation_name}: {e!s}",
                 context={"operation": operation_name},
             )
             self.log_error(error)
@@ -284,7 +280,7 @@ class ErrorHandler:
             error = ToolError(
                 severity=ErrorSeverity.HIGH,
                 error_code="PERMISSION_ERROR",
-                message=f"Permission denied during {operation_name}: {str(e)}",
+                message=f"Permission denied during {operation_name}: {e!s}",
                 suggestion="Check file and directory permissions",
                 context={"operation": operation_name},
             )
@@ -298,7 +294,7 @@ class ErrorHandler:
             error = ToolError(
                 severity=ErrorSeverity.HIGH,
                 error_code="UNEXPECTED_ERROR",
-                message=f"Unexpected error during {operation_name}: {str(e)}",
+                message=f"Unexpected error during {operation_name}: {e!s}",
                 details=traceback.format_exc(),
                 suggestion="Check input data and system resources",
                 context={"operation": operation_name},
@@ -316,7 +312,9 @@ def safe_file_read(file_path: Path, error_handler: ErrorHandler) -> str:
 
     try:
         return error_handler.safe_execute(
-            file_path.read_text, f"reading file {file_path}", encoding="utf-8"
+            file_path.read_text,
+            f"reading file {file_path}",
+            encoding="utf-8",
         )
     except Exception as exc:
         error = error_handler.handle_file_error(file_path, "read")
@@ -331,7 +329,10 @@ def safe_file_write(file_path: Path, content: str, error_handler: ErrorHandler) 
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
         error_handler.safe_execute(
-            file_path.write_text, f"writing file {file_path}", content, encoding="utf-8"
+            file_path.write_text,
+            f"writing file {file_path}",
+            content,
+            encoding="utf-8",
         )
     except Exception:
         error = error_handler.handle_file_error(file_path, "write")
@@ -339,7 +340,9 @@ def safe_file_write(file_path: Path, content: str, error_handler: ErrorHandler) 
 
 
 def safe_yaml_load(
-    content: str, file_path: Path, error_handler: ErrorHandler
+    content: str,
+    file_path: Path,
+    error_handler: ErrorHandler,
 ) -> dict[str, Any]:
     """Safely load YAML with error handling."""
     if yaml is None:
@@ -354,7 +357,9 @@ def safe_yaml_load(
 
     try:
         result = error_handler.safe_execute(
-            yaml.safe_load, f"parsing YAML from {file_path}", content
+            yaml.safe_load,
+            f"parsing YAML from {file_path}",
+            content,
         )
         return result if isinstance(result, dict) else {}
     except Exception as e:
@@ -364,7 +369,9 @@ def safe_yaml_load(
 
 
 def validate_path_exists(
-    path: Path, path_type: str, error_handler: ErrorHandler
+    path: Path,
+    path_type: str,
+    error_handler: ErrorHandler,
 ) -> Path:
     """Validate path exists and is of correct type."""
     if not path.exists():

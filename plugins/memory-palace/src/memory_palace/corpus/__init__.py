@@ -15,13 +15,13 @@ from memory_palace.corpus.query_templates import QueryTemplateManager
 
 __all__ = [
     "CacheLookup",
-    "KeywordIndexer",
-    "QueryTemplateManager",
-    "MarginalValueFilter",
-    "RedundancyLevel",
-    "RedundancyCheck",
-    "DeltaType",
     "DeltaAnalysis",
+    "DeltaType",
     "IntegrationDecision",
     "IntegrationPlan",
+    "KeywordIndexer",
+    "MarginalValueFilter",
+    "QueryTemplateManager",
+    "RedundancyCheck",
+    "RedundancyLevel",
 ]

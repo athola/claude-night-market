@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..frontmatter import FrontmatterProcessor
-from ..tokens import estimate_tokens
+from src.abstract.frontmatter import FrontmatterProcessor
+from src.abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class Improvement:
 class ImprovementSuggester:
     """Core improvement suggestion functionality."""
 
-    def __init__(self, skills_dir: Path):
+    def __init__(self, skills_dir: Path) -> None:
         self.skills_dir = skills_dir
         self.skills_root = skills_dir  # Add alias for compatibility
         self.skill_root = skills_dir  # Add alias for test compatibility
@@ -82,10 +82,9 @@ class ImprovementSuggester:
         required_fields = ["name", "description"]
         result = FrontmatterProcessor.parse(content, required_fields=required_fields)
 
-        if not result.is_valid:
-            if result.parse_error:
-                issues.append("Missing YAML frontmatter")
-                suggestions.append("Add YAML frontmatter with metadata")
+        if not result.is_valid and result.parse_error:
+            issues.append("Missing YAML frontmatter")
+            suggestions.append("Add YAML frontmatter with metadata")
 
         # Check for missing required fields
         if result.missing_fields:
@@ -103,7 +102,7 @@ class ImprovementSuggester:
             issues.append(f"Missing required sections: {', '.join(missing_sections)}")
             suggestions.append(
                 "Add progressive disclosure structure with Overview "
-                "and Quick Start sections"
+                "and Quick Start sections",
             )
 
         # Check examples
@@ -116,13 +115,13 @@ class ImprovementSuggester:
         if estimated_tokens > TOKEN_LARGE_SKILL:
             suggestions.append(
                 "Consider modularization or content optimization "
-                "for better token efficiency"
+                "for better token efficiency",
             )
 
         # Check naming convention
         if "-" not in skill_name or skill_name.islower():
             suggestions.append(
-                "Use kebab-case naming (lowercase with hyphens) for better readability"
+                "Use kebab-case naming (lowercase with hyphens) for better readability",
             )
 
         return {"name": skill_name, "issues": issues, "suggestions": suggestions}
@@ -155,7 +154,7 @@ class ImprovementSuggester:
 
         if not suggestions:
             suggestions.append(
-                "Skill is well-structured, no major modularization needed"
+                "Skill is well-structured, no major modularization needed",
             )
 
         return suggestions
@@ -193,7 +192,7 @@ class ImprovementSuggester:
         section_count = len(re.findall(r"^#+ ", content, re.MULTILINE))
         if section_count < MIN_SECTIONS:
             suggestions.append(
-                "Improve content organization with more structured sections"
+                "Improve content organization with more structured sections",
             )
 
         return suggestions
@@ -248,7 +247,8 @@ class ImprovementSuggester:
         return results
 
     def prioritize_suggestions(
-        self, suggestions: list[dict[str, Any]]
+        self,
+        suggestions: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Prioritize suggestions by importance."""
         priority_order = {"high": 0, "medium": 1, "low": 2}

@@ -1,6 +1,5 @@
 """Tests for task-planning skill functionality."""
 
-# ruff: noqa: S101
 import re
 
 # Constants for magic numbers
@@ -11,7 +10,7 @@ MIN_MINUTES_PER_TASK = 15
 class TestTaskPlanning:
     """Test cases for the Task Planning skill."""
 
-    def test_task_phases_structure(self, sample_task_list):
+    def test_task_phases_structure(self, sample_task_list) -> None:
         """Test task list follows proper phase structure."""
         expected_phases = [
             "0 - Setup",
@@ -29,7 +28,7 @@ class TestTaskPlanning:
                 f"Phase {i} should be {expected_phase}"
             )
 
-    def test_task_dependency_structure(self, sample_task_list):
+    def test_task_dependency_structure(self, sample_task_list) -> None:
         """Test tasks have proper dependency structure."""
         for phase in sample_task_list:
             for task in phase["tasks"]:
@@ -58,10 +57,11 @@ class TestTaskPlanning:
                             break
                     # Allow dependencies on tasks not in our sample (external deps)
 
-    def test_phase_0_setup_tasks(self, sample_task_list):
+    def test_phase_0_setup_tasks(self, sample_task_list) -> None:
         """Test Phase 0 contains proper setup tasks."""
         setup_phase = next(
-            (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"), None
+            (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"),
+            None,
         )
         assert setup_phase is not None, "Should have Setup phase"
 
@@ -82,7 +82,7 @@ class TestTaskPlanning:
                         f"Setup task {task['id']} has internal dependency {dep_id}"
                     )
 
-    def test_priority_assignment(self, sample_task_list):
+    def test_priority_assignment(self, sample_task_list) -> None:
         """Test tasks have appropriate priority levels."""
         valid_priorities = ["high", "medium", "low", "critical"]
 
@@ -92,7 +92,7 @@ class TestTaskPlanning:
                     f"Invalid priority: {task['priority']}"
                 )
 
-    def test_estimation_format(self, sample_task_list):
+    def test_estimation_format(self, sample_task_list) -> None:
         """Test time estimations follow consistent format."""
         estimation_pattern = (
             r"^\d+[hm]$|^(\d+\.?\d*)\s*(hour|hours|day|days|week|weeks)s?$"
@@ -105,7 +105,7 @@ class TestTaskPlanning:
                     f"Invalid time format: {estimation}"
                 )
 
-    def test_dependency_cycle_detection(self):
+    def test_dependency_cycle_detection(self) -> None:
         """Test dependency cycle detection."""
         # Create tasks with a cycle
         cyclic_tasks = [
@@ -123,7 +123,7 @@ class TestTaskPlanning:
             visited = set()
             rec_stack = set()
 
-            def dfs(task_id):
+            def dfs(task_id) -> bool:
                 if task_id in rec_stack:
                     return True
                 if task_id in visited:
@@ -145,7 +145,7 @@ class TestTaskPlanning:
 
         assert has_cycle(cyclic_tasks), "Should detect dependency cycle"
 
-    def test_parallel_execution_identification(self, sample_task_list):
+    def test_parallel_execution_identification(self, sample_task_list) -> None:
         """Test identification of tasks that can run in parallel."""
         # Tasks can run in parallel if they're in same phase and have no dependencies on each other
         parallel_groups = []
@@ -169,14 +169,15 @@ class TestTaskPlanning:
 
         # Should identify at least one parallel opportunity if we have multiple setup tasks
         setup_phase = next(
-            (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"), None
+            (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"),
+            None,
         )
         if setup_phase and len(setup_phase["tasks"]) > 1:
             assert len(parallel_groups) > 0, (
                 "Should identify parallel execution opportunities"
             )
 
-    def test_critical_path_identification(self, sample_task_list):
+    def test_critical_path_identification(self, sample_task_list) -> None:
         """Test critical path identification through tasks."""
         # Build dependency graph
         task_map = {}
@@ -199,7 +200,7 @@ class TestTaskPlanning:
             "Should have at least one task with no dependencies"
         )
 
-    def test_task_description_quality(self, sample_task_list):
+    def test_task_description_quality(self, sample_task_list) -> None:
         """Test task descriptions are clear and actionable."""
         for phase in sample_task_list:
             for task in phase["tasks"]:
@@ -242,7 +243,7 @@ class TestTaskPlanning:
                 # Not strictly required but good practice
                 # assert starts_with_verb, f"Description should start with action verb: {description}"
 
-    def test_phase_content_appropriateness(self, sample_task_list):
+    def test_phase_content_appropriateness(self, sample_task_list) -> None:
         """Test each phase contains appropriate types of tasks."""
         phase_expectations = {
             "0 - Setup": ["project", "directory", "install", "configure", "init"],
@@ -270,7 +271,7 @@ class TestTaskPlanning:
                 # Should have some expected content (not strictly required)
                 # assert len(found_keywords) > 0, f"Phase {phase_name} should contain expected types of tasks"
 
-    def test_task_breakdown_granularity(self, sample_task_list):
+    def test_task_breakdown_granularity(self, sample_task_list) -> None:
         """Test tasks are broken down at appropriate granularity."""
         for phase in sample_task_list:
             for task in phase["tasks"]:
@@ -294,7 +295,7 @@ class TestTaskPlanning:
                             f"Task too small: {task['id']} - {minutes} minutes"
                         )
 
-    def test_task_id_consistency(self, sample_task_list):
+    def test_task_id_consistency(self, sample_task_list) -> None:
         """Test task IDs follow consistent pattern."""
         id_pattern = r"^[a-z]+-\d{3}$"
 
@@ -304,7 +305,7 @@ class TestTaskPlanning:
                     f"Task ID doesn't match pattern: {task['id']}"
                 )
 
-    def test_phase_separation(self, sample_task_list):
+    def test_phase_separation(self, sample_task_list) -> None:
         """Test phases are properly separated with no cross-phase dependencies."""
         # Build task ID sets per phase
         phase_tasks = {}

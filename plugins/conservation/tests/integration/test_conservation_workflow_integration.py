@@ -3,8 +3,6 @@
 This module tests end-to-end conservation workflows following TDD/BDD principles.
 """
 
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -19,8 +17,10 @@ class TestConservationWorkflowIntegration:
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_end_to_end_context_optimization_workflow(
-        self, mock_claude_tools, mock_mecw_analyzer
-    ):
+        self,
+        mock_claude_tools,
+        mock_mecw_analyzer,
+    ) -> None:
         """Scenario: End-to-end context optimization workflow integrates all components
         Given a complete conservation workflow
         When executing from command to results
@@ -107,7 +107,7 @@ class TestConservationWorkflowIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_conservation_command_skill_coordination(self):
+    def test_conservation_command_skill_coordination(self) -> None:
         """Scenario: Conservation commands coordinate skills effectively
         Given command execution requiring multiple skills
         When coordinating skill execution
@@ -152,7 +152,7 @@ class TestConservationWorkflowIntegration:
                         "from": "command_parameters",
                         "to": "context-optimization",
                         "data": "target, aggressiveness",
-                    }
+                    },
                 )
 
             elif skill_name == "token-conservation":
@@ -165,7 +165,7 @@ class TestConservationWorkflowIntegration:
                         "from": "context-optimization",
                         "to": "token-conservation",
                         "data": "optimization_plan",
-                    }
+                    },
                 )
 
             skill_execution["execution_status"] = "completed"
@@ -177,7 +177,7 @@ class TestConservationWorkflowIntegration:
                 "type": "result_synthesis",
                 "skills_involved": command_execution["required_skills"],
                 "output": "combined_optimization_results",
-            }
+            },
         )
 
         # Assert
@@ -196,7 +196,9 @@ class TestConservationWorkflowIntegration:
         assert "context-optimization" in data_sources
 
     @pytest.mark.integration
-    def test_performance_monitoring_across_workflow(self, mock_performance_monitor):
+    def test_performance_monitoring_across_workflow(
+        self, mock_performance_monitor
+    ) -> None:
         """Scenario: Performance monitoring tracks workflow efficiency
         Given complex conservation workflow
         When monitoring performance across all phases
@@ -263,7 +265,7 @@ class TestConservationWorkflowIntegration:
                         "potential_improvement": (1 - metrics["efficiency_score"])
                         * 100,
                         "recommendation": f"Optimize {metrics['phase']} for better performance",
-                    }
+                    },
                 )
 
         # Assert

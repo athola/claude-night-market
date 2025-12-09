@@ -16,15 +16,18 @@ from quota_tracker import GeminiQuotaTracker
 from usage_logger import GeminiUsageLogger, UsageEntry
 
 
-# ruff: noqa: S101
 class TestDelegationExecutorIntegration:
     """Test integration scenarios for delegation executor."""
 
     @patch("subprocess.run")
     @patch("delegation_executor.tiktoken.get_encoding")
     def test_complete_delegation_workflow_success(
-        self, mock_encoder, mock_run, tmp_path, sample_files
-    ):
+        self,
+        mock_encoder,
+        mock_run,
+        tmp_path,
+        sample_files,
+    ) -> None:
         """Given complete workflow when all components work then should execute successfully."""
         # Setup mocks
         mock_encoder_instance = MagicMock()
@@ -42,7 +45,7 @@ class TestDelegationExecutorIntegration:
 
         # Step 1: Verify service
         with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
-            is_available, issues = delegator.verify_service("gemini")
+            is_available, _issues = delegator.verify_service("gemini")
             assert is_available is True
 
         # Step 2: Estimate tokens
@@ -70,13 +73,13 @@ class TestDelegationExecutorIntegration:
         assert usage_log.exists()
 
         with open(usage_log) as f:
-            log_entries = [json.loads(line.strip()) for line in f.readlines()]
+            log_entries = [json.loads(line.strip()) for line in f]
             assert len(log_entries) > 0
             assert log_entries[-1]["service"] == "gemini"
             assert log_entries[-1]["success"] is True
 
     @patch("subprocess.run")
-    def test_delegation_workflow_with_quota_limits(self, mock_run, tmp_path):
+    def test_delegation_workflow_with_quota_limits(self, mock_run, tmp_path) -> None:
         """Given quota limits when executing workflow then should respect limits."""
         # Setup mock for service verification
         mock_run.return_value.returncode = 0
@@ -91,7 +94,7 @@ class TestDelegationExecutorIntegration:
         assert "tokens_per_day" in gemini_config.quota_limits
 
     @patch("subprocess.run")
-    def test_smart_delegation_service_selection(self, mock_run, tmp_path):
+    def test_smart_delegation_service_selection(self, mock_run, tmp_path) -> None:
         """Given multiple services when using smart delegation then should select appropriate service."""
         # Setup mocks
         mock_run.return_value.returncode = 0
@@ -112,7 +115,7 @@ class TestDelegationExecutorIntegration:
 
             # Test case 2: Qwen available for code execution
             mock_verify.side_effect = [(False, ["Gemini not available"]), (True, [])]
-            service, result = delegator.smart_delegate(
+            service, _result = delegator.smart_delegate(
                 "Execute this code",
                 requirements={"code_execution": True, "qwen_available": True},
             )
@@ -123,7 +126,9 @@ class TestQuotaTrackerIntegration:
     """Test integration scenarios for quota tracker."""
 
     @patch("quota_tracker.tiktoken.get_encoding")
-    def test_quota_tracking_across_sessions(self, mock_encoder, tmp_path, sample_files):
+    def test_quota_tracking_across_sessions(
+        self, mock_encoder, tmp_path, sample_files
+    ) -> None:
         """Given multiple sessions when tracking quota then should maintain accurate state."""
         # Setup mock encoder
         mock_encoder_instance = MagicMock()
@@ -145,7 +150,7 @@ class TestQuotaTrackerIntegration:
             assert current_usage["daily_tokens"] == 1000  # Only successful requests
             assert current_usage["requests_today"] == 2
 
-    def test_quota_warnings_and_status_changes(self, tmp_path):
+    def test_quota_warnings_and_status_changes(self, tmp_path) -> None:
         """Given approaching limits when tracking quota then should provide appropriate warnings."""
         usage_file = tmp_path / "usage.json"
 
@@ -161,7 +166,7 @@ class TestQuotaTrackerIntegration:
                         "timestamp": (now - timedelta(seconds=i * 10)).isoformat(),
                         "tokens": 100,
                         "success": True,
-                    }
+                    },
                 )
 
             tracker.usage_data["requests"] = high_usage_requests
@@ -172,7 +177,7 @@ class TestQuotaTrackerIntegration:
             assert len(warnings) > 0
 
     @patch("quota_tracker.GeminiQuotaTracker")
-    def test_quota_aware_task_execution(self, mock_tracker_class, tmp_path):
+    def test_quota_aware_task_execution(self, mock_tracker_class, tmp_path) -> None:
         """Given quota limits when executing tasks then should enforce limits appropriately."""
         mock_tracker = MagicMock()
         mock_tracker.estimate_task_tokens.return_value = 50000
@@ -198,7 +203,7 @@ class TestQuotaTrackerIntegration:
 class TestUsageLoggerIntegration:
     """Test integration scenarios for usage logger."""
 
-    def test_usage_logging_across_days(self, tmp_path):
+    def test_usage_logging_across_days(self, tmp_path) -> None:
         """Given usage spanning multiple days when logging then should handle day transitions."""
         usage_log = tmp_path / "usage.jsonl"
 
@@ -255,7 +260,7 @@ class TestUsageLoggerIntegration:
             assert summary["total_requests"] == 3
             assert summary["total_tokens"] == 3700  # 1200 + 900 + 1600
 
-    def test_error_logging_and_analysis(self, tmp_path):
+    def test_error_logging_and_analysis(self, tmp_path) -> None:
         """Given errors occurring during usage when logging then should track and analyze them."""
         usage_log = tmp_path / "usage.jsonl"
 
@@ -278,7 +283,10 @@ class TestUsageLoggerIntegration:
                 ),
                 UsageEntry("gemini -p 'task3'", 1500, success=True),
                 UsageEntry(
-                    "gemini -p 'task4'", 1200, success=False, error="Context too large"
+                    "gemini -p 'task4'",
+                    1200,
+                    success=False,
+                    error="Context too large",
                 ),
             ]
 
@@ -294,7 +302,7 @@ class TestUsageLoggerIntegration:
             assert "Authentication failed" in error_messages
             assert "Context too large" in error_messages
 
-    def test_session_management_and_tracking(self, tmp_path):
+    def test_session_management_and_tracking(self, tmp_path) -> None:
         """Given usage spanning sessions when logging then should track sessions correctly."""
         logger = GeminiUsageLogger()
 
@@ -330,8 +338,12 @@ class TestEndToEndWorkflows:
     @patch("subprocess.run")
     @patch("delegation_executor.tiktoken.get_encoding")
     def test_complete_delegation_with_tracking(
-        self, mock_encoder, mock_run, tmp_path, sample_files
-    ):
+        self,
+        mock_encoder,
+        mock_run,
+        tmp_path,
+        sample_files,
+    ) -> None:
         """Given complete delegation workflow when executed then should track usage and quota."""
         # Setup mocks
         mock_encoder_instance = MagicMock()
@@ -355,12 +367,12 @@ class TestEndToEndWorkflows:
 
         with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
             # Step 1: Verify service availability
-            is_available, issues = delegator.verify_service("gemini")
+            is_available, _issues = delegator.verify_service("gemini")
             assert is_available is True
 
             # Step 2: Check quota before execution
-            can_handle, quota_issues = quota_tracker.can_handle_task(
-                estimated_tokens=5000
+            can_handle, _quota_issues = quota_tracker.can_handle_task(
+                estimated_tokens=5000,
             )
             assert can_handle is True
 
@@ -375,7 +387,8 @@ class TestEndToEndWorkflows:
 
             # Step 4: Record usage in quota tracker
             quota_tracker.record_request(
-                estimated_tokens=result.tokens_used or 5000, success=result.success
+                estimated_tokens=result.tokens_used or 5000,
+                success=result.success,
             )
 
             # Step 5: Log detailed usage
@@ -403,7 +416,7 @@ class TestEndToEndWorkflows:
             assert usage_summary["total_tokens"] >= 5000
 
     @patch("subprocess.run")
-    def test_error_recovery_workflow(self, mock_run, tmp_path):
+    def test_error_recovery_workflow(self, mock_run, tmp_path) -> None:
         """Given errors during delegation when executing workflow then should recover appropriately."""
         # Setup error scenarios
         error_results = [
@@ -429,7 +442,7 @@ class TestEndToEndWorkflows:
                 assert result.success is True
                 assert "Success after retry" in result.stdout
 
-    def test_quota_exhaustion_handling_workflow(self, tmp_path):
+    def test_quota_exhaustion_handling_workflow(self, tmp_path) -> None:
         """Given quota exhaustion when executing workflow then should handle gracefully."""
         quota_tracker = GeminiQuotaTracker()
 
@@ -452,12 +465,12 @@ class TestEndToEndWorkflows:
                 )
 
                 can_handle, issues = quota_tracker.can_handle_task(
-                    estimated_tokens=50000
+                    estimated_tokens=50000,
                 )
                 assert can_handle is False
                 assert "quota" in issues[0].lower()
 
-    def test_multiple_service_delegation_workflow(self, tmp_path):
+    def test_multiple_service_delegation_workflow(self, tmp_path) -> None:
         """Given multiple services available when executing workflow then should select optimal service."""
         # Create delegator with custom service configurations
         custom_config = {
@@ -482,7 +495,7 @@ class TestEndToEndWorkflows:
                         "tokens_per_day": 500000,
                     },
                 },
-            }
+            },
         }
 
         config_file = tmp_path / "config.json"
@@ -514,7 +527,7 @@ class TestEndToEndWorkflows:
 class TestPerformanceAndScalability:
     """Test performance and scalability scenarios."""
 
-    def test_large_file_token_estimation_performance(self, tmp_path):
+    def test_large_file_token_estimation_performance(self, tmp_path) -> None:
         """Given large files when estimating tokens then should perform efficiently."""
         # Create a large test file
         large_file = tmp_path / "large_file.py"
@@ -529,7 +542,8 @@ class TestPerformanceAndScalability:
             # Time the token estimation
             start_time = time.time()
             estimated_tokens = tracker.estimate_task_tokens(
-                [str(large_file)], prompt_length=100
+                [str(large_file)],
+                prompt_length=100,
             )
             duration = time.time() - start_time
 
@@ -538,7 +552,7 @@ class TestPerformanceAndScalability:
             assert estimated_tokens > 0
 
     @patch("quota_tracker.tiktoken.get_encoding")
-    def test_batch_processing_efficiency(self, mock_encoder, tmp_path):
+    def test_batch_processing_efficiency(self, mock_encoder, tmp_path) -> None:
         """Given multiple files when processing batch then should handle efficiently."""
         # Setup mock
         mock_encoder_instance = MagicMock()
@@ -560,7 +574,8 @@ class TestPerformanceAndScalability:
             # Test batch token estimation
             start_time = time.time()
             estimated_tokens = tracker.estimate_task_tokens(
-                [str(f) for f in files], prompt_length=200
+                [str(f) for f in files],
+                prompt_length=200,
             )
             duration = time.time() - start_time
 
@@ -568,7 +583,7 @@ class TestPerformanceAndScalability:
             assert duration < 1.0  # Should complete quickly
             assert estimated_tokens > 5000  # Should account for all files + prompt
 
-    def test_usage_log_performance_with_many_entries(self, tmp_path):
+    def test_usage_log_performance_with_many_entries(self, tmp_path) -> None:
         """Given many usage log entries when analyzing logs then should perform efficiently."""
         usage_log = tmp_path / "usage.jsonl"
 
@@ -597,7 +612,7 @@ class TestPerformanceAndScalability:
             # Test performance of usage analysis
             start_time = time.time()
             summary = logger.get_usage_summary(
-                hours=25
+                hours=25,
             )  # Last 25 hours to include all entries
             duration = time.time() - start_time
 

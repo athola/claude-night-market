@@ -46,6 +46,7 @@ def calculate_context_pressure(current_tokens: int, max_tokens: int) -> str:
         'HIGH'
         >>> calculate_context_pressure(180000, 200000)
         'CRITICAL'
+
     """
     if max_tokens <= 0:
         return "CRITICAL"
@@ -54,16 +55,16 @@ def calculate_context_pressure(current_tokens: int, max_tokens: int) -> str:
 
     if usage_ratio < MECW_THRESHOLDS["LOW"]:
         return "LOW"  # Plenty of headroom
-    elif usage_ratio < MECW_THRESHOLDS["MODERATE"]:
+    if usage_ratio < MECW_THRESHOLDS["MODERATE"]:
         return "MODERATE"  # Within MECW limits
-    elif usage_ratio < MECW_THRESHOLDS["HIGH"]:
+    if usage_ratio < MECW_THRESHOLDS["HIGH"]:
         return "HIGH"  # Exceeding MECW, risk zone
-    else:
-        return "CRITICAL"  # Severe hallucination risk
+    return "CRITICAL"  # Severe hallucination risk
 
 
 def check_mecw_compliance(
-    current_tokens: int, max_tokens: int = 200000
+    current_tokens: int,
+    max_tokens: int = 200000,
 ) -> dict[str, Any]:
     """Check if current token usage complies with MECW principles.
 
@@ -96,6 +97,7 @@ def check_mecw_compliance(
         False
         >>> result['action']
         'immediate_optimization_required'
+
     """
     mecw_threshold = int(max_tokens * MECW_THRESHOLDS["MODERATE"])
     pressure_level = calculate_context_pressure(current_tokens, max_tokens)
@@ -160,13 +162,15 @@ class MECWMonitor:
         True
         >>> status.pressure_level
         'MODERATE'
+
     """
 
-    def __init__(self, max_context: int = 200000):
+    def __init__(self, max_context: int = 200000) -> None:
         """Initialize MECW monitor.
 
         Args:
             max_context: Maximum context window size (default: 200000)
+
         """
         self.max_context = max_context
         self.mecw_threshold = int(max_context * MECW_THRESHOLDS["MODERATE"])
@@ -178,6 +182,7 @@ class MECWMonitor:
 
         Args:
             tokens: Current token count in context
+
         """
         self.current_tokens = tokens
         self._usage_history.append(tokens)
@@ -191,6 +196,7 @@ class MECWMonitor:
 
         Returns:
             MECWStatus object with compliance info and recommendations
+
         """
         compliance = check_mecw_compliance(self.current_tokens, self.max_context)
 
@@ -201,20 +207,20 @@ class MECWMonitor:
         if compliance["pressure_level"] == "CRITICAL":
             warnings.append(
                 f"CRITICAL: Context at {compliance['usage_ratio']:.1f}% - "
-                f"high hallucination risk"
+                f"high hallucination risk",
             )
             recommendations.append("Execute context reset immediately")
             recommendations.append("Use /clear command or restart session")
         elif compliance["pressure_level"] == "HIGH":
             warnings.append(
                 f"HIGH: Context at {compliance['usage_ratio']:.1f}% - "
-                f"exceeding MECW limits"
+                f"exceeding MECW limits",
             )
             recommendations.append("Optimize context before next operation")
             recommendations.append("Consider using subagents for complex tasks")
         elif compliance["pressure_level"] == "MODERATE" and not compliance["compliant"]:
             warnings.append(
-                f"Approaching MECW limit: {compliance['overage']:,} tokens over threshold"
+                f"Approaching MECW limit: {compliance['overage']:,} tokens over threshold",
             )
             recommendations.append("Monitor context usage closely")
             recommendations.append("Plan context optimization strategy")
@@ -224,7 +230,7 @@ class MECWMonitor:
             recent_growth = self._usage_history[-1] - self._usage_history[-3]
             if recent_growth > (self.max_context * 0.1):  # >10% growth in 3 checks
                 warnings.append(
-                    f"Rapid context growth detected: +{recent_growth:,} tokens"
+                    f"Rapid context growth detected: +{recent_growth:,} tokens",
                 )
                 recommendations.append("Review context consumption patterns")
 
@@ -245,6 +251,7 @@ class MECWMonitor:
 
         Returns:
             Tuple of (can_proceed, list of issues)
+
         """
         projected_tokens = self.current_tokens + additional_tokens
         compliance = check_mecw_compliance(projected_tokens, self.max_context)
@@ -253,7 +260,7 @@ class MECWMonitor:
 
         if not compliance["compliant"]:
             issues.append(
-                f"Would exceed MECW threshold by {compliance['overage']:,} tokens"
+                f"Would exceed MECW threshold by {compliance['overage']:,} tokens",
             )
 
         if compliance["pressure_level"] == "CRITICAL":
@@ -269,6 +276,7 @@ class MECWMonitor:
 
         Returns:
             Number of tokens that can be safely added
+
         """
         return max(0, self.mecw_threshold - self.current_tokens)
 

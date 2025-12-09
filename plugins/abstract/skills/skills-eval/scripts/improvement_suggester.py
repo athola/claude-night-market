@@ -11,14 +11,12 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-# ruff: noqa: E402  (import must come after sys.path modification)
+
 from abstract.skills_eval import ImprovementSuggester as CoreImprovementSuggester
 
 
 class ImprovementSuggester(CoreImprovementSuggester):
     """CLI wrapper for core improvement suggestion functionality."""
-
-    pass
 
 
 # For direct execution
@@ -27,12 +25,15 @@ if __name__ == "__main__":
     import json
 
     parser = argparse.ArgumentParser(
-        description="Generate improvement suggestions for skills"
+        description="Generate improvement suggestions for skills",
     )
 
     parser.add_argument("skill_path", type=Path, help="Path to skill file or directory")
     parser.add_argument(
-        "--format", choices=["text", "json"], default="text", help="Output format"
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
     parser.add_argument("--output", type=Path, help="Output file path")
 
@@ -42,14 +43,13 @@ if __name__ == "__main__":
     if args.skill_path.is_dir():
         skill_file = args.skill_path / "SKILL.md"
         if not skill_file.exists():
-            print(f"Error: No SKILL.md found in {args.skill_path}")
             sys.exit(1)
         skill_name = args.skill_path.name
     else:
         skill_name = args.skill_path.parent.name
 
     suggester = ImprovementSuggester(
-        args.skill_path.parent if args.skill_path.is_file() else args.skill_path.parent
+        args.skill_path.parent if args.skill_path.is_file() else args.skill_path.parent,
     )
 
     if args.format == "json":
@@ -61,6 +61,5 @@ if __name__ == "__main__":
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
-        print(f"Improvement plan saved to {args.output}")
     else:
-        print(output)
+        pass

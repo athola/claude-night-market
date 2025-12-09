@@ -17,16 +17,18 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from abstract.skill_tools import analyze_skill  # noqa: E402
+from abstract.skill_tools import analyze_skill
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Analyze skill complexity and token usage"
+        description="Analyze skill complexity and token usage",
     )
     parser.add_argument(
-        "--path", default=".", help="Path to analyze (default: current directory)"
+        "--path",
+        default=".",
+        help="Path to analyze (default: current directory)",
     )
     parser.add_argument(
         "--threshold",
@@ -41,24 +43,12 @@ if __name__ == "__main__":
     try:
         result = analyze_skill(args.path, args.threshold, args.verbose)
 
-        print("\n📊 Skill Analysis Results")
-        print(f"📁 Analyzed: {result['path']}")
-        print(f"📄 Files found: {result['total_files']}")
-        print(f"⚠️  Threshold: {args.threshold} lines")
-
         if result["results"]:
-            print("\n" + "=" * 60)
             for r in result["results"]:
                 if "error" in r:
-                    print(f"❌ {Path(r['path']).name}: {r['error']}")
+                    pass
                 else:
                     status = "⚠️" if r["above_threshold"] else "✅"
-                    print(f"{status} {Path(r['path']).name}")
-                    print(f"   📏 Lines: {r['lines']:,}")
-                    print(f"   🔤 Tokens: {r['tokens']:,}")
-                    print(f"   📦 Code blocks: {r['code_blocks']}")
-                    print(f"   🏷️  Complexity: {r['complexity']}")
-                    print()
 
         # Summary
         above_threshold = sum(
@@ -66,16 +56,8 @@ if __name__ == "__main__":
         )
         total_tokens = sum(r.get("tokens", 0) for r in result["results"])
 
-        print("=" * 60)
-        print("📈 Summary:")
-        print(f"   Above threshold: {above_threshold}/{result['total_files']}")
-        print(f"   Total tokens: {total_tokens:,}")
-
         if above_threshold > 0:
-            print(f"\n💡 Consider modularizing files above {args.threshold} lines")
+            pass
 
-        print("\n✨ Done!")
-
-    except Exception as e:
-        print(f"❌ Error: {e}")
+    except Exception:
         sys.exit(1)

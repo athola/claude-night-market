@@ -1,5 +1,4 @@
-"""
-Unit tests for the unified review skill.
+"""Unit tests for the unified review skill.
 
 Tests the intelligent skill selection logic and orchestration
 of multiple review skills based on repository characteristics.
@@ -19,7 +18,7 @@ from pensive.skills.unified_review import UnifiedReviewSkill
 class TestUnifiedReviewSkill:
     """Test suite for UnifiedReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = UnifiedReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestUnifiedReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_detects_rust_project_by_cargo_toml(self, mock_skill_context):
+    def test_detects_rust_project_by_cargo_toml(self, mock_skill_context) -> None:
         """Given a repository with Cargo.toml, when skill detects languages, then identifies Rust."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -45,7 +44,7 @@ class TestUnifiedReviewSkill:
         assert "cargo_toml" in languages["rust"]
 
     @pytest.mark.unit
-    def test_detects_python_project_by_requirements(self, mock_skill_context):
+    def test_detects_python_project_by_requirements(self, mock_skill_context) -> None:
         """Given a repository with requirements.txt, when skill detects languages, then identifies Python."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -65,7 +64,9 @@ class TestUnifiedReviewSkill:
         assert languages["python"]["test_files"] == 1
 
     @pytest.mark.unit
-    def test_detects_javascript_project_by_package_json(self, mock_skill_context):
+    def test_detects_javascript_project_by_package_json(
+        self, mock_skill_context
+    ) -> None:
         """Given a repository with package.json, when skill detects languages, then identifies JavaScript."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -84,7 +85,7 @@ class TestUnifiedReviewSkill:
         assert languages["javascript"]["files"] >= 2
 
     @pytest.mark.unit
-    def test_detects_makefile_build_system(self, mock_skill_context):
+    def test_detects_makefile_build_system(self, mock_skill_context) -> None:
         """Given a repository with Makefile, when skill detects build systems, then identifies make."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -101,7 +102,7 @@ class TestUnifiedReviewSkill:
         assert "makefile" in build_systems
 
     @pytest.mark.unit
-    def test_selects_rust_review_for_rust_project(self, mock_skill_context):
+    def test_selects_rust_review_for_rust_project(self, mock_skill_context) -> None:
         """Given a Rust project, when skill selects reviews, then includes rust-review."""
         # Arrange
         mock_skill_context.get_files.return_value = ["Cargo.toml", "src/main.rs"]
@@ -114,7 +115,9 @@ class TestUnifiedReviewSkill:
         assert "code-reviewer" in selected_skills  # General review always included
 
     @pytest.mark.unit
-    def test_selects_test_review_for_projects_with_tests(self, mock_skill_context):
+    def test_selects_test_review_for_projects_with_tests(
+        self, mock_skill_context
+    ) -> None:
         """Given a project with test files, when skill selects reviews, then includes test-review."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -130,7 +133,9 @@ class TestUnifiedReviewSkill:
         assert "test-review" in selected_skills
 
     @pytest.mark.unit
-    def test_selects_makefile_review_for_make_projects(self, mock_skill_context):
+    def test_selects_makefile_review_for_make_projects(
+        self, mock_skill_context
+    ) -> None:
         """Given a project with Makefile, when skill selects reviews, then includes makefile-review."""
         # Arrange
         mock_skill_context.get_files.return_value = ["Makefile", "src/main.c"]
@@ -142,7 +147,9 @@ class TestUnifiedReviewSkill:
         assert "makefile-review" in selected_skills
 
     @pytest.mark.unit
-    def test_selects_math_review_for_mathematical_code(self, mock_skill_context):
+    def test_selects_math_review_for_mathematical_code(
+        self, mock_skill_context
+    ) -> None:
         """Given mathematical code patterns, when skill selects reviews, then includes math-review."""
         # Arrange
         mock_skill_context.get_files.return_value = [
@@ -167,7 +174,9 @@ class TestUnifiedReviewSkill:
         assert "math-review" in selected_skills
 
     @pytest.mark.unit
-    def test_excludes_irrelevant_skills_for_simple_project(self, mock_skill_context):
+    def test_excludes_irrelevant_skills_for_simple_project(
+        self, mock_skill_context
+    ) -> None:
         """Given a simple project, when skill selects reviews, then excludes specialized skills."""
         # Arrange
         mock_skill_context.get_files.return_value = ["src/utils.js", "README.md"]
@@ -182,7 +191,7 @@ class TestUnifiedReviewSkill:
         assert "code-reviewer" in selected_skills  # Always included
 
     @pytest.mark.unit
-    def test_prioritizes_findings_by_severity(self, sample_findings):
+    def test_prioritizes_findings_by_severity(self, sample_findings) -> None:
         """Given multiple findings, when skill prioritizes, then orders by severity."""
         # Arrange
         findings = sample_findings  # Contains high, medium, low severity findings
@@ -197,7 +206,7 @@ class TestUnifiedReviewSkill:
         assert prioritized[2]["severity"] == "low"
 
     @pytest.mark.unit
-    def test_consolidates_duplicate_findings(self, sample_findings):
+    def test_consolidates_duplicate_findings(self, sample_findings) -> None:
         """Given duplicate findings, when skill consolidates, then removes duplicates."""
         # Arrange
         duplicate_findings = [
@@ -223,7 +232,7 @@ class TestUnifiedReviewSkill:
         assert len(sec_findings) == 1
 
     @pytest.mark.unit
-    def test_generates_comprehensive_summary(self, sample_findings):
+    def test_generates_comprehensive_summary(self, sample_findings) -> None:
         """Given findings, when skill generates summary, then includes all key sections."""
         # Arrange
         findings = sample_findings
@@ -240,7 +249,7 @@ class TestUnifiedReviewSkill:
         assert "high" in summary.lower()  # Severity levels should be present
 
     @pytest.mark.unit
-    def test_recommends_approval_for_no_critical_issues(self):
+    def test_recommends_approval_for_no_critical_issues(self) -> None:
         """Given no critical findings, when skill recommends, then suggests approval."""
         # Arrange
         findings = [{"id": "STYLE001", "severity": "low", "issue": "Minor style issue"}]
@@ -253,7 +262,7 @@ class TestUnifiedReviewSkill:
         assert "Block" not in recommendation
 
     @pytest.mark.unit
-    def test_recommends_block_for_critical_security_issues(self):
+    def test_recommends_block_for_critical_security_issues(self) -> None:
         """Given critical security issues, when skill recommends, then suggests block."""
         # Arrange
         findings = [
@@ -261,7 +270,7 @@ class TestUnifiedReviewSkill:
                 "id": "SEC001",
                 "severity": "critical",
                 "issue": "SQL injection vulnerability",
-            }
+            },
         ]
 
         # Act
@@ -272,7 +281,7 @@ class TestUnifiedReviewSkill:
         assert "critical" in recommendation.lower()
 
     @pytest.mark.unit
-    def test_creates_actionable_items(self, sample_findings):
+    def test_creates_actionable_items(self, sample_findings) -> None:
         """Given findings, when skill creates action items, then assigns owners and deadlines."""
         # Arrange
         findings = sample_findings
@@ -294,7 +303,7 @@ class TestUnifiedReviewSkill:
                 )
 
     @pytest.mark.unit
-    def test_handles_empty_repository_gracefully(self, mock_skill_context):
+    def test_handles_empty_repository_gracefully(self, mock_skill_context) -> None:
         """Given an empty repository, when skill analyzes, then returns appropriate response."""
         # Arrange
         mock_skill_context.get_files.return_value = []
@@ -308,7 +317,7 @@ class TestUnifiedReviewSkill:
         assert len(result) > 0
 
     @pytest.mark.unit
-    def test_detects_api_exports(self, mock_skill_context):
+    def test_detects_api_exports(self, mock_skill_context) -> None:
         """Given code with exports, when skill analyzes, then identifies API surface."""
         # Arrange
         mock_skill_context.get_files.return_value = ["src/api.ts"]
@@ -340,7 +349,9 @@ class TestUnifiedReviewSkill:
         assert api_surface["classes"] >= 1  # AuthService
 
     @pytest.mark.unit
-    async def test_executes_selected_skills_concurrently(self, mock_skill_context):
+    async def test_executes_selected_skills_concurrently(
+        self, mock_skill_context
+    ) -> None:
         """Given multiple skills, when skill executes, then runs them concurrently."""
         # Arrange
         selected_skills = ["code-reviewer", "rust-review", "test-review"]
@@ -355,7 +366,8 @@ class TestUnifiedReviewSkill:
 
             # Act
             results = await self.skill.execute_skills_concurrently(
-                selected_skills, mock_skill_context
+                selected_skills,
+                mock_skill_context,
             )
 
             # Assert
@@ -364,7 +376,7 @@ class TestUnifiedReviewSkill:
             assert mock_dispatch.call_count == len(selected_skills)
 
     @pytest.mark.unit
-    def test_calculate_review_confidence_score(self, sample_findings):
+    def test_calculate_review_confidence_score(self, sample_findings) -> None:
         """Given findings and analysis, when skill calculates confidence, then returns appropriate score."""
         # Arrange
         analysis_data = {
@@ -375,7 +387,8 @@ class TestUnifiedReviewSkill:
 
         # Act
         confidence = self.skill.calculate_confidence_score(
-            sample_findings, analysis_data
+            sample_findings,
+            analysis_data,
         )
 
         # Assert
@@ -384,7 +397,7 @@ class TestUnifiedReviewSkill:
         assert confidence > 50  # Should have reasonable confidence with sample data
 
     @pytest.mark.unit
-    def test_formats_findings_consistently(self, sample_findings):
+    def test_formats_findings_consistently(self, sample_findings) -> None:
         """Given findings, when skill formats, then maintains consistent structure."""
         # Arrange
         findings = sample_findings

@@ -12,8 +12,6 @@ DEFAULT_THRESHOLD = 300
 
 def aggressive_optimize_skill(skill_file):
     """Fast optimization that actually replaces code blocks."""
-    print(f"Aggressively optimizing {skill_file}...")
-
     with open(skill_file) as f:
         content = f.read()
 
@@ -39,8 +37,7 @@ python tools/{tool_name}.py --input data.json --output results.json
 # Advanced options
 python tools/{tool_name}.py --input data.json --verbose --output results.json
 ```"""
-        else:
-            return match.group(0)  # Keep small blocks
+        return match.group(0)  # Keep small blocks
 
     content = re.sub(python_pattern, replace_large_code_block, content, flags=re.DOTALL)
 
@@ -65,12 +62,7 @@ python tools/{tool_name}.py --input data.json --verbose --output results.json
 
     new_lines = len(content.split("\n"))
     reduction = original_lines - new_lines
-    reduction_pct = (reduction / original_lines) * 100
-
-    print(
-        f"✓ Reduced {skill_file} from {original_lines} to {new_lines} lines "
-        f"({reduction_pct:.1f}% reduction)"
-    )
+    (reduction / original_lines) * 100
 
     return reduction
 
@@ -84,7 +76,10 @@ if __name__ == "__main__":
         help=f"Batch mode for all skills >{BATCH_THRESHOLD} lines",
     )
     parser.add_argument(
-        "--threshold", type=int, default=DEFAULT_THRESHOLD, help="Line count threshold"
+        "--threshold",
+        type=int,
+        default=DEFAULT_THRESHOLD,
+        help="Line count threshold",
     )
 
     args = parser.parse_args()
@@ -105,15 +100,12 @@ if __name__ == "__main__":
         # Sort by size (largest first)
         large_files.sort(key=lambda x: x[1], reverse=True)
 
-        print(f"Found {len(large_files)} files above {args.threshold} lines:")
         for skill_file, lines in large_files:
-            print(f"  {skill_file}: {lines} lines")
+            pass
 
         total_reduction = 0
         for skill_file, _lines in large_files:
             total_reduction += aggressive_optimize_skill(skill_file)
-
-        print(f"\nTotal line reduction: {total_reduction} lines")
 
     else:
         aggressive_optimize_skill(args.skill_file)

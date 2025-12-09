@@ -39,7 +39,7 @@ class TestConfig:
 class TestGenerator:
     """Generates test scaffolding from source code analysis."""
 
-    def __init__(self, config: TestConfig):
+    def __init__(self, config: TestConfig) -> None:
         self.config = config
 
     def generate_from_source(self, source_path: Path) -> str:
@@ -95,7 +95,7 @@ import pytest
 from {module_name} import *
 
 '''
-        elif self.config.style == TestStyle.DOCSTRING_BDD:
+        if self.config.style == TestStyle.DOCSTRING_BDD:
             return f'''"""
 Tests for {module_name} module.
 
@@ -105,8 +105,8 @@ Generated using test-updates skill following BDD principles.
 from {module_name} import *
 
 '''
-        else:  # GHERKIN
-            return f'''"""
+        # GHERKIN
+        return f'''"""
 Feature: {module_name} functionality
 
 Generated using test-updates skill following BDD principles.
@@ -151,10 +151,10 @@ def test_context():
 
         if self.config.style == TestStyle.PYTEST_BDD:
             return self._generate_pytest_bdd_test(func.name, params)
-        elif self.config.style == TestStyle.DOCSTRING_BDD:
+        if self.config.style == TestStyle.DOCSTRING_BDD:
             return self._generate_docstring_test(func.name, params)
-        else:  # GHERKIN
-            return self._generate_gherkin_scenario(func.name, params)
+        # GHERKIN
+        return self._generate_gherkin_scenario(func.name, params)
 
     def _generate_class_test(self, cls: ast.ClassDef) -> str:
         """Generate test for a class."""
@@ -201,7 +201,7 @@ def test_context():
         assert result is not None
 '''
 
-        elif self.config.style == TestStyle.DOCSTRING_BDD:
+        if self.config.style == TestStyle.DOCSTRING_BDD:
             return f'''def test_{method_name}_behavior(self):
         """Test {method_name} method behavior.
 
@@ -213,8 +213,8 @@ def test_context():
         pass
 '''
 
-        else:  # GHERKIN style placeholder
-            return f"# Scenario: {method_name} behavior\n"
+        # GHERKIN style placeholder
+        return f"# Scenario: {method_name} behavior\n"
 
     def _extract_function_params(self, func: ast.FunctionDef) -> list[str]:
         """Extract parameter names from function."""
@@ -251,6 +251,7 @@ def test_{func_name}_with_valid_input():
         if self.config.include_error_cases:
             return f"""{error_test}
 """
+        return None
 
     def _generate_docstring_test(self, func_name: str, params: list[str]) -> str:
         """Generate docstring BDD-style test."""
@@ -306,7 +307,7 @@ def test_{func_name}_behavior():
         return output_path
 
 
-def main():
+def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Generate test scaffolding")
     parser.add_argument("--source", type=str, help="Source file to generate tests for")
@@ -319,13 +320,19 @@ def main():
         help="Test style to generate",
     )
     parser.add_argument(
-        "--no-fixtures", action="store_true", help="Skip fixture generation"
+        "--no-fixtures",
+        action="store_true",
+        help="Skip fixture generation",
     )
     parser.add_argument(
-        "--no-edge-cases", action="store_true", help="Skip edge case generation"
+        "--no-edge-cases",
+        action="store_true",
+        help="Skip edge case generation",
     )
     parser.add_argument(
-        "--no-error-cases", action="store_true", help="Skip error case generation"
+        "--no-error-cases",
+        action="store_true",
+        help="Skip error case generation",
     )
 
     args = parser.parse_args()
@@ -343,10 +350,9 @@ def main():
     if args.source:
         source_path = Path(args.source)
         test_content = generator.generate_from_source(source_path)
-        output_path = generator.save_test_file(test_content, source_path)
-        print(f"Generated test: {output_path}")
+        generator.save_test_file(test_content, source_path)
     elif args.module:
-        print(f"Module generation not yet implemented for: {args.module}")
+        pass
     else:
         parser.print_help()
 

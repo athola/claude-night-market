@@ -4,9 +4,6 @@ This module tests MCP pattern optimization, subagent coordination,
 and external tool delegation following TDD/BDD principles.
 """
 
-
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -19,7 +16,7 @@ class TestMCPCodeExecutionSkill:
     """
 
     @pytest.fixture
-    def mock_mcp_code_execution_skill_content(self):
+    def mock_mcp_code_execution_skill_content(self) -> str:
         """Mock MCP code execution skill content with required components."""
         return """---
 name: mcp-code-execution
@@ -78,7 +75,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_mcp_code_execution_creates_required_todowrite_items(self, mock_todo_write):
+    def test_mcp_code_execution_creates_required_todowrite_items(
+        self, mock_todo_write
+    ) -> None:
         """Scenario: MCP code execution creates required TodoWrite items
         Given the mcp-code-execution skill is executed
         When establishing the delegation workflow
@@ -113,7 +112,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_task_analysis_identifies_delegation_candidates(self):
+    def test_task_analysis_identifies_delegation_candidates(self) -> None:
         """Scenario: Task analysis identifies suitable delegation candidates
         Given various computational tasks
         When analyzing for delegation potential
@@ -168,7 +167,7 @@ tags:
                         "reason": f"High compute ({task['compute_complexity']}) and token cost ({task['estimated_tokens']})",
                         "recommended_tool": "qwen_mcp_executor",
                         "estimated_savings": task["estimated_tokens"] * 0.7,
-                    }
+                    },
                 )
 
         # Assert
@@ -181,7 +180,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_delegation_assessment_evaluates_tool_suitability(self, mock_claude_tools):
+    def test_delegation_assessment_evaluates_tool_suitability(
+        self, mock_claude_tools
+    ) -> None:
         """Scenario: Delegation assessment evaluates MCP tool suitability
         Given available MCP tools and task requirements
         When assessing delegation options
@@ -249,7 +250,7 @@ tags:
                     # Check token limits
                     if task["estimated_tokens"] <= tool["max_tokens"]:
                         suitability_score = len(required_caps) / len(
-                            tool["capabilities"]
+                            tool["capabilities"],
                         )
                         suitable_tools.append(
                             {
@@ -257,7 +258,7 @@ tags:
                                 "suitability_score": suitability_score,
                                 "token_margin": tool["max_tokens"]
                                 - task["estimated_tokens"],
-                            }
+                            },
                         )
 
             if suitable_tools:
@@ -269,7 +270,7 @@ tags:
                         "recommended_tool": best_tool["tool"],
                         "suitability_score": best_tool["suitability_score"],
                         "token_margin": best_tool["token_margin"],
-                    }
+                    },
                 )
 
         # Assert
@@ -293,7 +294,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_external_execution_manages_delegation_workflow(self, mock_claude_tools):
+    def test_external_execution_manages_delegation_workflow(
+        self, mock_claude_tools
+    ) -> None:
         """Scenario: External execution manages delegation workflow effectively
         Given selected delegation tasks and tools
         When executing external delegation
@@ -392,7 +395,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_result_integration_validates_and_formats_outputs(self):
+    def test_result_integration_validates_and_formats_outputs(self) -> None:
         """Scenario: Result integration validates and formats external execution outputs
         Given results from external MCP execution
         When integrating results into workflow
@@ -503,7 +506,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_performance_validation_measures_delegation_benefits(self):
+    def test_performance_validation_measures_delegation_benefits(self) -> None:
         """Scenario: Performance validation measures delegation benefits
         Given local and external execution performance data
         When validating delegation benefits
@@ -619,7 +622,7 @@ tags:
         )  # Slightly lower success rate
 
     @pytest.mark.unit
-    def test_mcp_execution_handles_failures_gracefully(self, mock_claude_tools):
+    def test_mcp_execution_handles_failures_gracefully(self, mock_claude_tools) -> None:
         """Scenario: MCP execution handles external tool failures gracefully
         Given external execution failures and timeouts
         When delegating tasks
@@ -717,7 +720,7 @@ tags:
         )  # Most expensive fallback
 
     @pytest.mark.unit
-    def test_mcp_execution_optimizes_task_batching(self):
+    def test_mcp_execution_optimizes_task_batching(self) -> None:
         """Scenario: MCP execution optimizes task batching for efficiency
         Given multiple similar tasks suitable for external execution
         When optimizing delegation strategy

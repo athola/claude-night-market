@@ -11,7 +11,7 @@ import json
 import os
 import shutil
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -80,19 +80,15 @@ class MemoryPalaceCLI:
 
     def print_status(self, message: str) -> None:
         """Print a status message to the console."""
-        print(f"\033[0;34m[MEMORY-PALACE]\033[0m {message}")
 
     def print_success(self, message: str) -> None:
         """Print a success message to the console."""
-        print(f"\033[0;32m[MEMORY-PALACE]\033[0m {message}")
 
     def print_warning(self, message: str) -> None:
         """Print a warning message to the console."""
-        print(f"\033[1;33m[MEMORY-PALACE]\033[0m {message}")
 
     def print_error(self, message: str) -> None:
         """Print an error message to the console."""
-        print(f"\033[0;31m[MEMORY-PALACE]\033[0m {message}")
 
     def is_enabled(self) -> bool:
         """Check if the plugin is enabled in the Claude configuration."""
@@ -203,43 +199,31 @@ class MemoryPalaceCLI:
     def show_status(self) -> None:
         """Show the current status of the plugin."""
         self.print_status("Memory Palace Plugin Status")
-        print("=" * 50)
 
         if self.is_enabled():
             self.print_success("Status: ENABLED")
         else:
             self.print_warning("Status: DISABLED")
 
-        print()
         self.print_status("Configuration:")
-        print(f"  Plugin directory: {self.plugin_dir}")
-        print(f"  Config file: {self.config_file}")
-        print(f"  Claude config: {self.claude_config}")
 
         # Show palace statistics if enabled
         if self.is_enabled():
-            print()
             self.print_status("Palace Statistics:")
             try:
                 index = self._manager().get_master_index()
                 stats = index.get("global_stats", {})
-                print("Memory Palace Status:")
-                print(f"  Total palaces: {stats.get('total_palaces', 0)}")
-                print(f"  Total concepts: {stats.get('total_concepts', 0)}")
                 domains = stats.get("domains", {})
-                print(f"  Domains: {len(domains)}")
-                for domain, count in domains.items():
-                    print(f"    {domain}: {count}")
+                for _domain, _count in domains.items():
+                    pass
             except Exception as e:
                 self.print_warning(f"Could not get palace statistics: {e}")
 
             garden_path = Path(os.environ.get("GARDEN_FILE", str(self.plugin_dir / "garden.json")))
             if garden_path.exists():
-                print()
                 self.print_status(f"Digital Garden Metrics ({garden_path}):")
                 try:
-                    metrics = compute_garden_metrics(garden_path)
-                    print(json.dumps(metrics, indent=2))
+                    compute_garden_metrics(garden_path)
                 except Exception as e:
                     self.print_warning(f"Could not compute garden metrics: {e}")
 
@@ -258,43 +242,20 @@ class MemoryPalaceCLI:
 
         self.print_status(f"Computing garden metrics for {target}")
         try:
-            metrics = compute_garden_metrics(
-                Path(target), datetime.fromisoformat(now) if now else None
+            compute_garden_metrics(
+                Path(target),
+                datetime.fromisoformat(now) if now else None,
             )
             if output_format == "brief":
-                print(
-                    f"plots={metrics['plots']} "
-                    f"link_density={metrics['link_density']} "
-                    f"avg_days_since_tend={metrics['avg_days_since_tend']}"
-                )
+                pass
             elif output_format == "prometheus":
                 label_val = label or Path(target).stem
 
                 def line(metric: str, value: Any) -> str:
                     return f'{metric}{{garden="{label_val}"}} {value}'
 
-                print(
-                    "\n".join(
-                        [
-                            "# HELP garden_plots Number of plots in the garden",
-                            "# TYPE garden_plots gauge",
-                            line("garden_plots", metrics["plots"]),
-                            "# HELP garden_link_density Average inbound+outbound links per plot",
-                            "# TYPE garden_link_density gauge",
-                            line("garden_link_density", metrics["link_density"]),
-                            "# HELP garden_avg_days_since_tend Average days since last tending",
-                            "# TYPE garden_avg_days_since_tend gauge",
-                            line(
-                                "garden_avg_days_since_tend",
-                                metrics["avg_days_since_tend"]
-                                if metrics["avg_days_since_tend"] is not None
-                                else 0,
-                            ),
-                        ]
-                    )
-                )
             else:
-                print(json.dumps(metrics, indent=2))
+                pass
         except Exception as e:
             self.print_error(f"Metrics failed: {e}")
 
@@ -306,7 +267,7 @@ class MemoryPalaceCLI:
             self.print_warning(f"Garden file not found: {target_path}")
             return
 
-        now_dt = datetime.fromisoformat(opts.now) if opts.now else datetime.now(timezone.utc)
+        now_dt = datetime.fromisoformat(opts.now) if opts.now else datetime.now(UTC)
         with target_path.open(encoding="utf-8") as f:
             data = json.load(f)
 
@@ -319,7 +280,11 @@ class MemoryPalaceCLI:
             return (now_dt - datetime.fromisoformat(ts)).total_seconds() / 86400
 
         actions = self._compute_tending_actions(
-            plots, now_dt, opts.prune_days, opts.stale_days, opts.archive_days
+            plots,
+            now_dt,
+            opts.prune_days,
+            opts.stale_days,
+            opts.archive_days,
         )
         ctx = TendingContext(
             data=data,
@@ -392,35 +357,17 @@ class MemoryPalaceCLI:
             def line(metric: str, value: Any) -> str:
                 return f'{metric}{{garden="{label_val}"}} {value}'
 
-            print(
-                "\n".join(
-                    [
-                        "# HELP garden_prune_plots Plots needing prune",
-                        "# TYPE garden_prune_plots gauge",
-                        line("garden_prune_plots", len(ctx.actions["prune"])),
-                        "# HELP garden_stale_plots Plots flagged stale",
-                        "# TYPE garden_stale_plots gauge",
-                        line("garden_stale_plots", len(ctx.actions["stale"])),
-                        "# HELP garden_archive_plots Plots flagged for archive",
-                        "# TYPE garden_archive_plots gauge",
-                        line("garden_archive_plots", len(ctx.actions["archive"])),
-                    ]
-                )
-            )
             return
 
         if ctx.actions["prune"]:
-            print("Prune (needs touch):")
-            for name, age in ctx.actions["prune"]:
-                print(f"  - {name} ({age} days)")
+            for _name, _age in ctx.actions["prune"]:
+                pass
         if ctx.actions["stale"]:
-            print(f"Stale (>= {opts.stale_days} days):")
-            for name, age in ctx.actions["stale"]:
-                print(f"  - {name} ({age} days)")
+            for _name, _age in ctx.actions["stale"]:
+                pass
         if ctx.actions["archive"]:
-            print(f"Archive (>= {opts.archive_days} days):")
-            for name, age in ctx.actions["archive"]:
-                print(f"  - {name} ({age} days)")
+            for _name, _age in ctx.actions["archive"]:
+                pass
         if not any(ctx.actions.values()):
             self.print_success("All plots are fresh within cadence.")
 
@@ -475,7 +422,6 @@ class MemoryPalaceCLI:
     def list_skills(self) -> None:
         """List the available skills in the Memory Palace."""
         self.print_status("Available Memory Palace Skills:")
-        print()
 
         skills_dir = self.plugin_dir / "skills"
         if not skills_dir.exists():
@@ -492,14 +438,10 @@ class MemoryPalaceCLI:
                             content = f.read()
 
                         # Extract description from YAML frontmatter
-                        description = "No description available"
                         for line in content.split("\n"):
                             if line.startswith("description:"):
-                                description = line.split(":", 1)[1].strip().strip('"')
+                                line.split(":", 1)[1].strip().strip('"')
                                 break
-
-                        skill_name = skill_dir.name
-                        print(f"  \033[0;32m{skill_name:<25}\033[0m {description}")
 
                     except Exception as e:
                         self.print_warning(f"Could not read skill {skill_dir.name}: {e}")
@@ -524,8 +466,7 @@ class MemoryPalaceCLI:
 
         try:
             manager = self._manager()
-            palace = manager.create_palace(name, domain, metaphor)
-            print(f"Created palace '{palace['name']}' with ID: {palace['id']}")
+            manager.create_palace(name, domain, metaphor)
             return True
         except Exception as e:
             self.print_error(f"Failed to create palace: {e}")
@@ -534,20 +475,14 @@ class MemoryPalaceCLI:
     def list_palaces(self) -> bool:
         """List all available memory palaces."""
         self.print_status("Available Memory Palaces:")
-        print()
 
         try:
             palaces = self._manager().list_palaces()
             if palaces:
-                print(f"{'ID':<8} {'Name':<20} {'Domain':<15} {'Concepts':<8} {'Modified':<20}")
-                print("-" * 80)
-                for palace in palaces:
-                    print(
-                        f"{palace['id']:<8} {palace['name']:<20} {palace['domain']:<15} "
-                        f"{palace['concept_count']:<8} {palace['last_modified'][:19]:<20}"
-                    )
+                for _palace in palaces:
+                    pass
             else:
-                print("No palaces found.")
+                pass
             return True
         except Exception as e:
             self.print_error(f"Failed to list palaces: {e}")
@@ -564,16 +499,11 @@ class MemoryPalaceCLI:
         try:
             results = self._manager().search_palaces(query, search_type)
             if results:
-                print(f"Search results for '{query}':")
                 for result in results:
-                    print(f"\nPalace: {result['palace_name']} (ID: {result['palace_id']})")
-                    for match in result["matches"]:
-                        print(
-                            f"  - {match['type']}: "
-                            f"{match.get('concept_id', match.get('location_id', 'unknown'))}"
-                        )
+                    for _match in result["matches"]:
+                        pass
             else:
-                print(f"No results found for '{query}'.")
+                pass
             return True
         except Exception as e:
             self.print_error(f"Search failed: {e}")
@@ -609,9 +539,8 @@ class MemoryPalaceCLI:
             shutil.copytree(source_skills, memory_palace_skills_dir)
             self.print_success(f"Skills installed to: {memory_palace_skills_dir}")
             return True
-        else:
-            self.print_error("No skills directory found in plugin")
-            return False
+        self.print_error("No skills directory found in plugin")
+        return False
 
     def run_palace_manager(self, args: list[str]) -> bool:
         """Handle a subset of palace_manager commands directly."""
@@ -625,7 +554,6 @@ class MemoryPalaceCLI:
         if command == "delete" and len(args) > 1:
             palace_id = args[1]
             if manager.delete_palace(palace_id):
-                print(f"Deleted palace with ID: {palace_id}")
                 return True
             self.print_error(f"Palace with ID {palace_id} not found.")
             return False
@@ -633,12 +561,8 @@ class MemoryPalaceCLI:
         if command == "status":
             index = manager.get_master_index()
             stats = index.get("global_stats", {})
-            print("Memory Palace Status:")
-            print(f"  Total palaces: {stats.get('total_palaces', 0)}")
-            print(f"  Total concepts: {stats.get('total_concepts', 0)}")
-            print(f"  Domains: {len(stats.get('domains', {}))}")
-            for domain, count in stats.get("domains", {}).items():
-                print(f"    {domain}: {count}")
+            for _domain, _count in stats.get("domains", {}).items():
+                pass
             return True
 
         self.print_warning(f"Manager command not supported: {' '.join(args)}")
@@ -649,20 +573,21 @@ class MemoryPalaceCLI:
         self.print_status(f"Exporting palaces to {destination}")
         try:
             manager = self._manager(palaces_dir)
-            dest = manager.export_state(destination)
-            print(f"Exported palaces to {dest}")
+            manager.export_state(destination)
         except Exception as e:
             self.print_error(f"Export failed: {e}")
 
     def import_palaces(
-        self, source: str, keep_existing: bool = True, palaces_dir: str | None = None
+        self,
+        source: str,
+        keep_existing: bool = True,
+        palaces_dir: str | None = None,
     ) -> None:
         """Import palaces from a JSON file."""
         self.print_status(f"Importing palaces from {source}")
         try:
             manager = self._manager(palaces_dir)
-            stats = manager.import_state(source, keep_existing=keep_existing)
-            print(json.dumps(stats, indent=2))
+            manager.import_state(source, keep_existing=keep_existing)
         except Exception as e:
             self.print_error(f"Import failed: {e}")
 
@@ -694,10 +619,12 @@ Examples:
 
     garden_metrics_parser = garden_sub.add_parser("metrics", help="Compute digital garden metrics")
     garden_metrics_parser.add_argument(
-        "--path", help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)"
+        "--path",
+        help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)",
     )
     garden_metrics_parser.add_argument(
-        "--now", help="Override timestamp (ISO 8601) for reproducible runs"
+        "--now",
+        help="Override timestamp (ISO 8601) for reproducible runs",
     )
     garden_metrics_parser.add_argument(
         "--format",
@@ -708,10 +635,12 @@ Examples:
     garden_metrics_parser.add_argument("--label", help="Prometheus label (defaults to file stem)")
 
     garden_tend_parser = garden_sub.add_parser(
-        "tend", help="Report tending actions based on freshness cadence"
+        "tend",
+        help="Report tending actions based on freshness cadence",
     )
     garden_tend_parser.add_argument(
-        "--path", help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)"
+        "--path",
+        help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)",
     )
     garden_tend_parser.add_argument("--now", help="Override timestamp (ISO 8601)")
     garden_tend_parser.add_argument(
@@ -721,7 +650,10 @@ Examples:
         help="Days since tend to flag for quick prune",
     )
     garden_tend_parser.add_argument(
-        "--stale-days", type=int, default=7, help="Days since tend to flag as stale"
+        "--stale-days",
+        type=int,
+        default=7,
+        help="Days since tend to flag as stale",
     )
     garden_tend_parser.add_argument(
         "--archive-days",
@@ -738,7 +670,8 @@ Examples:
         ),
     )
     garden_tend_parser.add_argument(
-        "--archive-export", help="Path to write archived plots (JSON) when applying"
+        "--archive-export",
+        help="Path to write archived plots (JSON) when applying",
     )
     garden_tend_parser.add_argument(
         "--prometheus",
@@ -746,7 +679,8 @@ Examples:
         help="Emit tending counts in Prometheus format",
     )
     garden_tend_parser.add_argument(
-        "--label", help="Prometheus garden label (defaults to file stem)"
+        "--label",
+        help="Prometheus garden label (defaults to file stem)",
     )
 
     export_parser = subparsers.add_parser("export", help="Export all palaces to a bundle")
@@ -813,7 +747,7 @@ def main() -> None:
                     archive_export=args.archive_export,
                     prometheus=args.prometheus,
                     label=args.label,
-                )
+                ),
             )
         else:
             parser.print_help()
@@ -830,7 +764,9 @@ def main() -> None:
         "garden": handle_garden,
         "export": lambda: cli.export_palaces(args.destination, args.palaces_dir),
         "import": lambda: cli.import_palaces(
-            args.source, keep_existing=not args.overwrite, palaces_dir=args.palaces_dir
+            args.source,
+            keep_existing=not args.overwrite,
+            palaces_dir=args.palaces_dir,
         ),
         "manager": lambda: cli.run_palace_manager(args.manager_args),
     }

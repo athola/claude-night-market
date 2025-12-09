@@ -16,7 +16,7 @@ from .conftest import (
 class TestCatchupCommand:
     """BDD tests for the /catchup command."""
 
-    def test_catchup_command_analyzes_diverged_branch(self, temp_git_repo):
+    def test_catchup_command_analyzes_diverged_branch(self, temp_git_repo) -> None:
         """GIVEN a branch that has diverged from remote
         WHEN /catchup is executed
         THEN it should analyze differences and prepare for synchronization.
@@ -52,7 +52,7 @@ class TestCatchupCommand:
         assert catchup_result["remote"] == "origin"
         assert "Fix critical bug" in str(catchup_result["commit_details"])
 
-    def test_catchup_command_handles_ahead_branch(self, temp_git_repo):
+    def test_catchup_command_handles_ahead_branch(self, temp_git_repo) -> None:
         """GIVEN a branch that is ahead of remote
         WHEN /catchup is executed
         THEN it should identify commits to push.
@@ -61,7 +61,10 @@ class TestCatchupCommand:
 
         # Act - simulate calling catchup workflow
         catchup_result = self._execute_catchup_workflow(
-            branch="feature/branch", behind=0, ahead=2, local_commits=2
+            branch="feature/branch",
+            behind=0,
+            ahead=2,
+            local_commits=2,
         )
 
         # Assert
@@ -69,7 +72,7 @@ class TestCatchupCommand:
         assert catchup_result["missing_commits"] == 0
         assert catchup_result["local_commits"] == 2
 
-    def test_catchup_command_handles_diverged_branch(self):
+    def test_catchup_command_handles_diverged_branch(self) -> None:
         """GIVEN a branch that has both local and remote changes
         WHEN /catchup is executed
         THEN it should identify the diverged state and suggest merge/rebase.
@@ -92,14 +95,17 @@ class TestCatchupCommand:
             or "rebase" in catchup_result["recommendations"]
         )
 
-    def test_catchup_command_handles_clean_repository(self):
+    def test_catchup_command_handles_clean_repository(self) -> None:
         """GIVEN a clean repository up to date with remote
         WHEN /catchup is executed
         THEN it should report no action needed.
         """
         # Act - simulate calling catchup workflow with clean state
         catchup_result = self._execute_catchup_workflow(
-            branch="main", behind=0, ahead=0, is_clean=True
+            branch="main",
+            behind=0,
+            ahead=0,
+            is_clean=True,
         )
 
         # Assert
@@ -114,12 +120,12 @@ class TestCatchupCommand:
         branch: str = "main",
         behind: int = 0,
         ahead: int = 0,
-        commit_details: list[str] = None,
+        commit_details: list[str] | None = None,
         remote: str = "origin",
         local_commits: int = 0,
         is_diverged: bool = False,
         is_clean: bool = False,
-        recommendations: list[str] = None,
+        recommendations: list[str] | None = None,
     ) -> dict:
         """Execute the catchup workflow simulation with configurable state."""
         workflow_result = {
@@ -140,7 +146,7 @@ class TestCatchupCommand:
                 "is_diverged": is_diverged,
                 "is_clean": is_clean,
                 "recommendations": recommendations or [],
-            }
+            },
         )
 
         return workflow_result
@@ -150,8 +156,9 @@ class TestCommitMsgCommand:
     """BDD tests for the /commit-msg command."""
 
     def test_commit_msg_command_generates_conventional_commit(
-        self, staged_changes_context
-    ):
+        self,
+        staged_changes_context,
+    ) -> None:
         """GIVEN staged changes in the repository
         WHEN /commit-msg is executed
         THEN it should generate a conventional commit message.
@@ -168,7 +175,7 @@ class TestCommitMsgCommand:
         assert "authentication" in commit_result["commit_message"].lower()
         assert "OAuth2" in commit_result["commit_message"]
 
-    def test_commit_msg_command_handles_bug_fixes(self):
+    def test_commit_msg_command_handles_bug_fixes(self) -> None:
         """GIVEN staged changes that fix bugs
         WHEN /commit-msg is executed
         THEN it should generate a fix-type commit message.
@@ -183,7 +190,7 @@ class TestCommitMsgCommand:
         assert commit_result["commit_message"].startswith("fix:")
         assert "null pointer" in commit_result["commit_message"].lower()
 
-    def test_commit_msg_command_handles_no_staged_changes(self):
+    def test_commit_msg_command_handles_no_staged_changes(self) -> None:
         """GIVEN no staged changes in the repository
         WHEN /commit-msg is executed
         THEN it should inform user to stage changes first.
@@ -195,7 +202,7 @@ class TestCommitMsgCommand:
         assert commit_result["status"] == "no_changes"
         assert "no staged changes" in commit_result["message"].lower()
 
-    def test_commit_msg_command_follows_skill_sequence(self, mock_todo_tool):
+    def test_commit_msg_command_follows_skill_sequence(self, mock_todo_tool) -> None:
         """GIVEN the /commit-msg command is executed
         WHEN it runs the skill sequence
         THEN it should execute skills in the correct order.
@@ -223,7 +230,9 @@ class TestCommitMsgCommand:
         assert captured_calls[1]["count"] == 3  # commit-messages todos
 
     def _execute_commit_msg_workflow(
-        self, has_staged: bool = True, commit_message: str = None
+        self,
+        has_staged: bool = True,
+        commit_message: str | None = None,
     ) -> dict:
         """Execute the commit-msg workflow simulation with configurable state."""
         workflow_result = {
@@ -245,7 +254,9 @@ class TestCommitMsgCommand:
 
         return workflow_result
 
-    def _simulate_commit_msg_command_sequence(self, sequence: list[dict], mock_todo):
+    def _simulate_commit_msg_command_sequence(
+        self, sequence: list[dict], mock_todo
+    ) -> None:
         """Simulate the command's skill execution sequence."""
         for step in sequence:
             # Simulate skill creating todos
@@ -259,7 +270,7 @@ class TestCommitMsgCommand:
 class TestPRCommand:
     """BDD tests for the /pr command."""
 
-    def test_pr_command_prepares_pull_request(self, pull_request_context):
+    def test_pr_command_prepares_pull_request(self, pull_request_context) -> None:
         """GIVEN a feature branch ready for PR
         WHEN /pr is executed
         THEN it should prepare a comprehensive pull request.
@@ -276,7 +287,7 @@ class TestPRCommand:
         assert "## Summary" in pr_result["pr_description"]
         assert "## Test Plan" in pr_result["pr_description"]
 
-    def test_pr_command_includes_quality_gates(self, pull_request_context):
+    def test_pr_command_includes_quality_gates(self, pull_request_context) -> None:
         """GIVEN a feature branch
         WHEN /pr prepares the pull request
         THEN it should include quality gate validation.
@@ -290,7 +301,7 @@ class TestPRCommand:
         assert pr_result["quality_gates"]["has_documentation"] is True
         assert pr_result["quality_gates"]["describes_changes"] is True
 
-    def test_pr_command_suggests_reviewers(self, pull_request_context):
+    def test_pr_command_suggests_reviewers(self, pull_request_context) -> None:
         """GIVEN changes in specific areas
         WHEN /pr prepares the pull request
         THEN it should suggest appropriate reviewers.
@@ -305,7 +316,7 @@ class TestPRCommand:
             "team" in reviewer.lower() for reviewer in pr_result["suggested_reviewers"]
         )
 
-    def _execute_pr_workflow(self, context: dict = None) -> dict:
+    def _execute_pr_workflow(self, context: dict | None = None) -> dict:
         """Execute the PR preparation workflow simulation."""
         if context is None:
             context = pull_request_context
@@ -351,7 +362,7 @@ Implements new functionality with comprehensive test coverage.
                     "overall_status": "ready",
                 },
                 "suggested_reviewers": ["@backend-team", "@qa-team", "@docs-team"],
-            }
+            },
         )
 
         return workflow_result
@@ -360,7 +371,9 @@ Implements new functionality with comprehensive test coverage.
 class TestUpdateDocsCommand:
     """BDD tests for the /update-docs command."""
 
-    def test_update_docs_command_identifies_documentation_needs(self, temp_git_repo):
+    def test_update_docs_command_identifies_documentation_needs(
+        self, temp_git_repo
+    ) -> None:
         """GIVEN code changes that require documentation updates
         WHEN /update-docs is executed
         THEN it should identify and suggest documentation changes.
@@ -375,7 +388,7 @@ class TestUpdateDocsCommand:
         assert "README.md" in docs_result["existing_docs"]
         assert len(docs_result["suggestions"]) > 0
 
-    def test_update_docs_command_handles_no_changes(self):
+    def test_update_docs_command_handles_no_changes(self) -> None:
         """GIVEN no code changes
         WHEN /update-docs is executed
         THEN it should report no documentation updates needed.
@@ -413,7 +426,7 @@ class TestUpdateDocsCommand:
                         },
                         {"file": "api.md", "change": "Document new endpoint"},
                     ],
-                }
+                },
             )
         else:
             workflow_result["status"] = "no_changes"
@@ -425,7 +438,7 @@ class TestUpdateDocsCommand:
 class TestUpdateReadmeCommand:
     """BDD tests for the /update-readme command."""
 
-    def test_update_readme_command_modernizes_readme(self, temp_git_repo):
+    def test_update_readme_command_modernizes_readme(self, temp_git_repo) -> None:
         """GIVEN an outdated README file
         WHEN /update-readme is executed
         THEN it should modernize the README with current best practices.
@@ -491,7 +504,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
                     "Added license section",
                     "Improved formatting and structure",
                 ],
-            }
+            },
         )
 
         return workflow_result
@@ -500,7 +513,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 class TestUpdateVersionCommand:
     """BDD tests for the /update-version command."""
 
-    def test_update_version_command_bumps_all_version_files(self, temp_git_repo):
+    def test_update_version_command_bumps_all_version_files(
+        self, temp_git_repo
+    ) -> None:
         """GIVEN a project with version information in multiple files
         WHEN /update-version is executed with patch version
         THEN it should update version in all relevant files.
@@ -514,7 +529,7 @@ class TestUpdateVersionCommand:
         assert version_result["new_version"] == "1.0.1"
         assert len(version_result["updated_files"]) == 3
 
-    def test_update_version_command_handles_major_minor_patch(self):
+    def test_update_version_command_handles_major_minor_patch(self) -> None:
         """GIVEN different version bump types
         WHEN /update-version is executed
         THEN it should correctly calculate the new version.
@@ -570,7 +585,7 @@ class TestUpdateVersionCommand:
                     },
                 ],
                 "changes_committed": True,
-            }
+            },
         )
 
         return workflow_result
@@ -589,6 +604,7 @@ class TestUpdateVersionCommand:
             minor = 0
             patch = 0
         else:
-            raise ValueError(f"Invalid bump type: {bump_type}")
+            msg = f"Invalid bump type: {bump_type}"
+            raise ValueError(msg)
 
         return f"{major}.{minor}.{patch}"

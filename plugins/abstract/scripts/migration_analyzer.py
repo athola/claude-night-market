@@ -28,7 +28,7 @@ except ImportError:
 class MigrationAnalyzer:
     """Analyzes plugins for overlapping functionality with superpowers."""
 
-    def __init__(self, plugin_name: str):
+    def __init__(self, plugin_name: str) -> None:
         self.plugin_name = plugin_name
         # When running from within the plugin directory, use current directory
         self.plugin_path = os.path.abspath(".")
@@ -36,7 +36,7 @@ class MigrationAnalyzer:
         self.compatibility_validator = CompatibilityValidator()
 
     def analyze_plugin(self, command_name: str) -> dict:
-        """Analyze a plugin command for superpower overlaps"""
+        """Analyze a plugin command for superpower overlaps."""
         overlaps = {}
 
         # Load command content
@@ -52,14 +52,17 @@ class MigrationAnalyzer:
                     overlaps[superpower] = {
                         "confidence": confidence,
                         "patterns_matched": self._get_matched_patterns(
-                            content, patterns
+                            content,
+                            patterns,
                         ),
                     }
 
         return overlaps
 
     def analyze_migration_path(
-        self, command_name: str, wrapper_path: str | None = None
+        self,
+        command_name: str,
+        wrapper_path: str | None = None,
     ) -> dict:
         """Analyze migration path for a command to superpowers wrapper.
 
@@ -86,11 +89,14 @@ class MigrationAnalyzer:
         # If wrapper exists, validate compatibility
         if wrapper_path and os.path.exists(wrapper_path):
             original_path = os.path.join(
-                self.plugin_path, "commands", f"{command_name}.md"
+                self.plugin_path,
+                "commands",
+                f"{command_name}.md",
             )
             if os.path.exists(original_path):
                 compatibility = self.compatibility_validator.validate_wrapper(
-                    original_path, wrapper_path
+                    original_path,
+                    wrapper_path,
                 )
                 migration_path["wrapper_status"] = "exists"
                 migration_path["compatibility"] = compatibility
@@ -140,7 +146,7 @@ class MigrationAnalyzer:
         return report
 
     def _calculate_migration_priority(self, overlaps: dict) -> float:
-        """Calculate migration priority based on overlap confidence"""
+        """Calculate migration priority based on overlap confidence."""
         if not overlaps:
             return 0.0
 
@@ -154,16 +160,15 @@ class MigrationAnalyzer:
         return round(max_confidence, 2)
 
     def _suggest_best_superpower(self, overlaps: dict) -> str | None:
-        """Suggest the best superpower for migration based on overlap confidence"""
+        """Suggest the best superpower for migration based on overlap confidence."""
         if not overlaps:
             return None
 
         # Return superpower with highest confidence
-        best_superpower = max(overlaps.keys(), key=lambda k: overlaps[k]["confidence"])
-        return best_superpower
+        return max(overlaps.keys(), key=lambda k: overlaps[k]["confidence"])
 
     def _load_overlap_mappings(self) -> dict:
-        """Load predefined overlap patterns"""
+        """Load predefined overlap patterns."""
         mappings_path = os.path.join(self.plugin_path, "data", "overlap_mappings.yaml")
         if os.path.exists(mappings_path):
             with open(mappings_path) as f:
@@ -204,10 +209,10 @@ class MigrationAnalyzer:
         }
 
     def _calculate_overlap(self, content: str, patterns: list[str]) -> float:
-        """Calculate overlap confidence based on pattern matching"""
+        """Calculate overlap confidence based on pattern matching."""
         matches = sum(1 for pattern in patterns if pattern.lower() in content.lower())
         return matches / len(patterns) if patterns else 0
 
     def _get_matched_patterns(self, content: str, patterns: list[str]) -> list[str]:
-        """Get list of patterns that matched"""
+        """Get list of patterns that matched."""
         return [p for p in patterns if p.lower() in content.lower()]

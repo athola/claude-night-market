@@ -14,7 +14,7 @@ from pathlib import Path
 class SetupValidator:
     """Validates development environment setup."""
 
-    def __init__(self, project_path: str = "."):
+    def __init__(self, project_path: str = ".") -> None:
         """Initialize setup validator.
 
         Args:
@@ -28,8 +28,6 @@ class SetupValidator:
 
     def validate_all(self) -> bool:
         """Run all validations."""
-        print("🔍 Validating development workflow setup...")
-
         validations = [
             self.validate_git_repository,
             self.validate_git_hooks,
@@ -46,7 +44,7 @@ class SetupValidator:
             try:
                 validation()
             except Exception as e:
-                self.errors.append(f"Validation {validation.__name__} failed: {str(e)}")
+                self.errors.append(f"Validation {validation.__name__} failed: {e!s}")
 
         self.print_results()
         return len(self.errors) == 0
@@ -169,7 +167,7 @@ class SetupValidator:
             self.successes.append("✅ Dependencies installed")
         else:
             self.warnings.append(
-                "⚠️  Dependencies not installed. Run 'npm install' or equivalent"
+                "⚠️  Dependencies not installed. Run 'npm install' or equivalent",
             )
 
     def validate_testing_setup(self) -> None:
@@ -248,9 +246,7 @@ class SetupValidator:
 
         found_ci_cd = []
         for ci_cd in ci_cd_dirs:
-            if isinstance(ci_cd, str) and (self.project_path / ci_cd).exists():
-                found_ci_cd.append(ci_cd)
-            elif (
+            if (isinstance(ci_cd, str) and (self.project_path / ci_cd).exists()) or (
                 isinstance(ci_cd, str)
                 and ci_cd.startswith(".")
                 and (self.project_path / ci_cd).exists()
@@ -327,53 +323,39 @@ class SetupValidator:
                 if ignored_builds:
                     ignored_str = ", ".join(ignored_builds)
                     self.successes.append(
-                        f"✅ Build directories properly ignored: {ignored_str}"
+                        f"✅ Build directories properly ignored: {ignored_str}",
                     )
                 else:
                     builds_str = ", ".join(found_build)
                     self.warnings.append(
-                        f"⚠️  Build directories not in .gitignore: {builds_str}"
+                        f"⚠️  Build directories not in .gitignore: {builds_str}",
                     )
 
     def print_results(self) -> None:
         """Print validation results."""
-        print(f"\n📊 Validation Results for {self.project_path.name}")
-        print("=" * 50)
-
         if self.successes:
-            print(f"\n✅ {len(self.successes)} Successes:")
-            for success in self.successes:
-                print(f"  {success}")
+            for _success in self.successes:
+                pass
 
         if self.warnings:
-            print(f"\n⚠️  {len(self.warnings)} Warnings:")
-            for warning in self.warnings:
-                print(f"  {warning}")
+            for _warning in self.warnings:
+                pass
 
         if self.errors:
-            print(f"\n❌ {len(self.errors)} Errors:")
-            for error in self.errors:
-                print(f"  {error}")
+            for _error in self.errors:
+                pass
 
         # Summary
         total = len(self.successes) + len(self.warnings) + len(self.errors)
         if total == 0:
-            print("\n🔍 No validations completed")
+            pass
         elif len(self.errors) == 0:
             if len(self.warnings) == 0:
-                print(
-                    f"\n🎉 Perfect setup! All {len(self.successes)} validations passed."
-                )
+                pass
             else:
-                print(
-                    f"\n✅ Good setup! {len(self.successes)} passed, "
-                    f"{len(self.warnings)} warnings to consider."
-                )
+                pass
         else:
-            print(
-                f"\n⚠️  Setup needs attention: {len(self.errors)} errors, "
-                f"{len(self.warnings)} warnings, {len(self.successes)} successes."
-            )
+            pass
 
     def generate_setup_script(self) -> str:
         """Generate a setup script based on missing components."""
@@ -394,7 +376,7 @@ class SetupValidator:
                     "git add README.md",
                     "git commit -m 'Initial commit'",
                     "",
-                ]
+                ],
             )
 
         # Python setup
@@ -409,7 +391,7 @@ class SetupValidator:
                     "source venv/bin/activate",
                     "pip install --upgrade pip",
                     "",
-                ]
+                ],
             )
 
         # Node.js setup
@@ -426,7 +408,7 @@ class SetupValidator:
                     "pip install pre-commit",
                     "pre-commit install",
                     "",
-                ]
+                ],
             )
 
         script_lines.extend(
@@ -434,20 +416,25 @@ class SetupValidator:
                 "echo '✅ Setup complete!'",
                 "echo 'Run this script to complete your development "
                 "environment setup.'",
-            ]
+            ],
         )
 
         return "\n".join(script_lines)
 
 
-def main():
+def main() -> None:
     """Entry point for setup validator script."""
     parser = argparse.ArgumentParser(description="Validate development workflow setup")
     parser.add_argument(
-        "path", nargs="?", default=".", help="Project path (default: current directory)"
+        "path",
+        nargs="?",
+        default=".",
+        help="Project path (default: current directory)",
     )
     parser.add_argument(
-        "--generate-script", action="store_true", help="Generate setup script"
+        "--generate-script",
+        action="store_true",
+        help="Generate setup script",
     )
     parser.add_argument("--output", "-o", help="Output file for generated script")
 
@@ -460,9 +447,8 @@ def main():
         if args.output:
             with open(args.output, "w") as f:
                 f.write(script)
-            print(f"📝 Setup script generated: {args.output}")
         else:
-            print(script)
+            pass
         return
 
     success = validator.validate_all()

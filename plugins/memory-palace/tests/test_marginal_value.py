@@ -4,8 +4,6 @@ Tests redundancy detection, delta analysis, and integration decisions
 following TDD principles.
 """
 
-# ruff: noqa: S101
-
 import pytest
 
 from memory_palace.corpus.marginal_value import (
@@ -125,7 +123,7 @@ def marginal_filter(temp_corpus_dir, temp_index_dir):
 class TestRedundancyDetection:
     """Test redundancy detection logic."""
 
-    def test_exact_match_detection(self, marginal_filter, temp_corpus_dir):
+    def test_exact_match_detection(self, marginal_filter, temp_corpus_dir) -> None:
         """Exact duplicate content should be detected and rejected."""
         # Read existing content
         existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
@@ -142,7 +140,7 @@ class TestRedundancyDetection:
         assert integration.decision == IntegrationDecision.SKIP
         assert integration.confidence >= 0.9
 
-    def test_highly_redundant_content(self, marginal_filter):
+    def test_highly_redundant_content(self, marginal_filter) -> None:
         """Content with high overlap should be detected when keywords match well."""
         # Very similar to Franklin Protocol with matching keywords
         # This test validates that the filter CAN detect redundancy when
@@ -166,7 +164,7 @@ Benjamin Franklin's learning method uses gradient descent principles.
 This demonstrates machine learning applied to human learning processes.
 """
 
-        redundancy, delta, integration = marginal_filter.evaluate_content(
+        redundancy, _delta, integration = marginal_filter.evaluate_content(
             content=redundant_content,
             title="Franklin Protocol - Learning via Gradient Descent",
             tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"],
@@ -189,7 +187,7 @@ This demonstrates machine learning applied to human learning processes.
             IntegrationDecision.STANDALONE,
         ]
 
-    def test_partial_overlap_detection(self, marginal_filter):
+    def test_partial_overlap_detection(self, marginal_filter) -> None:
         """Content with 40-80% overlap should trigger delta analysis."""
         partial_content = """---
 title: Spaced Repetition for Learning
@@ -210,7 +208,7 @@ A learning technique using increasing intervals.
 Related to gradient descent but focuses on timing.
 """
 
-        redundancy, delta, integration = marginal_filter.evaluate_content(
+        redundancy, delta, _integration = marginal_filter.evaluate_content(
             content=partial_content,
             title="Spaced Repetition for Learning",
             tags=["learning", "spaced-repetition", "memory"],
@@ -222,7 +220,7 @@ Related to gradient descent but focuses on timing.
             assert delta is not None
             assert redundancy.overlap_score >= 0.3
 
-    def test_novel_content_detection(self, marginal_filter):
+    def test_novel_content_detection(self, marginal_filter) -> None:
         """Completely new content should be marked as novel."""
         novel_content = """---
 title: Rust Ownership Model
@@ -255,7 +253,7 @@ Rust's ownership system provides memory safety without garbage collection.
 class TestDeltaAnalysis:
     """Test delta analysis for partially overlapping content."""
 
-    def test_novel_insight_detection(self, marginal_filter):
+    def test_novel_insight_detection(self, marginal_filter) -> None:
         """Novel insights should be valued highly."""
         novel_insight_content = """---
 title: Franklin Protocol with Neural Networks
@@ -276,7 +274,7 @@ Franklin's method is literally backpropagation for humans.
 This connects Franklin to modern deep learning.
 """
 
-        redundancy, delta, integration = marginal_filter.evaluate_content(
+        _redundancy, delta, _integration = marginal_filter.evaluate_content(
             content=novel_insight_content,
             title="Franklin Protocol with Neural Networks",
             tags=["learning", "gradient-descent", "neural-networks"],
@@ -288,7 +286,7 @@ This connects Franklin to modern deep learning.
             assert delta.value_score >= 0.4
             assert len(delta.novel_aspects) > 0
 
-    def test_different_framing_detection(self, marginal_filter):
+    def test_different_framing_detection(self, marginal_filter) -> None:
         """Same concepts with different words should score low."""
         reframed_content = """---
 title: Franklin's Writing Improvement Technique
@@ -308,7 +306,7 @@ Ben Franklin got better at writing using a systematic approach.
 - Do better next time
 """
 
-        redundancy, delta, integration = marginal_filter.evaluate_content(
+        redundancy, delta, _integration = marginal_filter.evaluate_content(
             content=reframed_content,
             title="Franklin's Writing Improvement Technique",
             tags=["learning", "writing", "practice"],
@@ -321,7 +319,7 @@ Ben Franklin got better at writing using a systematic approach.
             if delta.delta_type == DeltaType.DIFFERENT_FRAMING:
                 assert delta.value_score <= 0.5
 
-    def test_contradiction_detection(self, marginal_filter):
+    def test_contradiction_detection(self, marginal_filter) -> None:
         """Content that contradicts existing knowledge should be flagged."""
         contradicting_content = """---
 title: Why Franklin's Method Doesn't Work
@@ -340,7 +338,7 @@ Franklin's approach is actually not like gradient descent.
 - **Avoid this method**: Modern techniques are superior
 """
 
-        redundancy, delta, integration = marginal_filter.evaluate_content(
+        redundancy, delta, _integration = marginal_filter.evaluate_content(
             content=contradicting_content,
             title="Why Franklin's Method Doesn't Work",
             tags=["learning", "critique"],
@@ -355,19 +353,21 @@ Franklin's approach is actually not like gradient descent.
 class TestIntegrationDecisions:
     """Test integration decision logic."""
 
-    def test_skip_exact_duplicate(self, marginal_filter, temp_corpus_dir):
+    def test_skip_exact_duplicate(self, marginal_filter, temp_corpus_dir) -> None:
         """Exact duplicates should always be skipped."""
         existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
 
         _, _, integration = marginal_filter.evaluate_content(
-            content=existing, title="Franklin Protocol", tags=["learning"]
+            content=existing,
+            title="Franklin Protocol",
+            tags=["learning"],
         )
 
         assert integration.decision == IntegrationDecision.SKIP
         assert "duplicate" in integration.rationale.lower()
         assert integration.confidence >= 0.9
 
-    def test_skip_highly_redundant(self, marginal_filter):
+    def test_skip_highly_redundant(self, marginal_filter) -> None:
         """Highly redundant content should be skipped or merged."""
         redundant = """---
 title: Franklin Protocol Learning
@@ -388,7 +388,7 @@ Benjamin Franklin's learning method using gradient descent.
 Machine learning for humans.
 """
 
-        redundancy, delta, integration = marginal_filter.evaluate_content(
+        redundancy, _delta, integration = marginal_filter.evaluate_content(
             content=redundant,
             title="Franklin Protocol Learning",
             tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"],
@@ -405,7 +405,7 @@ Machine learning for humans.
         if integration.decision == IntegrationDecision.STANDALONE:
             assert redundancy.level == RedundancyLevel.NOVEL
 
-    def test_standalone_for_novel(self, marginal_filter):
+    def test_standalone_for_novel(self, marginal_filter) -> None:
         """Novel content should be stored standalone."""
         novel = """---
 title: Test-Driven Development Philosophy
@@ -426,13 +426,15 @@ This ensures tests actually verify behavior.
 """
 
         _, _, integration = marginal_filter.evaluate_content(
-            content=novel, title="Test-Driven Development", tags=["tdd", "testing"]
+            content=novel,
+            title="Test-Driven Development",
+            tags=["tdd", "testing"],
         )
 
         assert integration.decision == IntegrationDecision.STANDALONE
         assert integration.confidence >= 0.7
 
-    def test_merge_for_examples(self, marginal_filter):
+    def test_merge_for_examples(self, marginal_filter) -> None:
         """Content adding examples should merge with existing."""
         examples_content = """---
 title: Franklin Protocol Examples
@@ -476,21 +478,25 @@ Additional examples of Franklin's method:
 class TestKeywordExtraction:
     """Test keyword extraction from content."""
 
-    def test_extract_from_tags(self, marginal_filter):
+    def test_extract_from_tags(self, marginal_filter) -> None:
         """Should extract keywords from tags."""
         content = "# Test\n\nSome content"
         keywords = marginal_filter._extract_keywords(
-            content, "Test", ["python", "async", "testing"]
+            content,
+            "Test",
+            ["python", "async", "testing"],
         )
 
         assert "python" in keywords
         assert "async" in keywords
         assert "testing" in keywords
 
-    def test_extract_from_title(self, marginal_filter):
+    def test_extract_from_title(self, marginal_filter) -> None:
         """Should extract significant words from title."""
         keywords = marginal_filter._extract_keywords(
-            "content", "Python Async Patterns for Web Development", []
+            "content",
+            "Python Async Patterns for Web Development",
+            [],
         )
 
         assert "python" in keywords
@@ -499,7 +505,7 @@ class TestKeywordExtraction:
         assert "web" in keywords
         assert "development" in keywords
 
-    def test_extract_technical_terms(self, marginal_filter):
+    def test_extract_technical_terms(self, marginal_filter) -> None:
         """Should extract hyphenated technical terms."""
         content = """
 # Test
@@ -513,7 +519,7 @@ Also machine-learning patterns.
         assert "continuous-integration" in keywords
         assert "machine-learning" in keywords
 
-    def test_extract_emphasized_terms(self, marginal_filter):
+    def test_extract_emphasized_terms(self, marginal_filter) -> None:
         """Should extract **bold** and *italic* terms."""
         content = """
 # Test
@@ -529,10 +535,12 @@ Another **important concept** here.
         assert "important" in keywords
         assert "concept" in keywords
 
-    def test_filter_stop_words(self, marginal_filter):
+    def test_filter_stop_words(self, marginal_filter) -> None:
         """Should filter out common stop words."""
         keywords = marginal_filter._extract_keywords(
-            "content", "The Best Way to Learn Python with This Method", []
+            "content",
+            "The Best Way to Learn Python with This Method",
+            [],
         )
 
         # Stop words should be filtered
@@ -550,7 +558,7 @@ Another **important concept** here.
 class TestQueryInference:
     """Test query inference from content."""
 
-    def test_infer_how_to_queries(self, marginal_filter):
+    def test_infer_how_to_queries(self, marginal_filter) -> None:
         """Should infer 'how to' queries from headings."""
         content = """
 # How to Learn Python
@@ -564,7 +572,7 @@ Content here.
         assert len(queries) > 0
         assert any("how" in q.lower() for q in queries)
 
-    def test_infer_pattern_queries(self, marginal_filter):
+    def test_infer_pattern_queries(self, marginal_filter) -> None:
         """Should infer pattern/approach queries."""
         content = """
 # Async Patterns
@@ -579,7 +587,7 @@ Content.
         # Should generate "what is" queries for patterns
         assert any("pattern" in q.lower() for q in queries)
 
-    def test_infer_best_practices_queries(self, marginal_filter):
+    def test_infer_best_practices_queries(self, marginal_filter) -> None:
         """Should infer best practices queries."""
         content = """
 # Python Best Practices
@@ -597,12 +605,14 @@ Content.
 class TestExplanationGeneration:
     """Test human-readable explanation generation."""
 
-    def test_explain_exact_match(self, marginal_filter, temp_corpus_dir):
+    def test_explain_exact_match(self, marginal_filter, temp_corpus_dir) -> None:
         """Should generate clear explanation for exact match."""
         existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
 
         redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=existing, title="Franklin Protocol", tags=["learning"]
+            content=existing,
+            title="Franklin Protocol",
+            tags=["learning"],
         )
 
         explanation = marginal_filter.explain_decision(redundancy, delta, integration)
@@ -613,7 +623,7 @@ class TestExplanationGeneration:
         assert "SKIP" in explanation
         assert "duplicate" in explanation.lower()
 
-    def test_explain_novel_content(self, marginal_filter):
+    def test_explain_novel_content(self, marginal_filter) -> None:
         """Should explain why novel content is standalone."""
         novel = """---
 title: Quantum Computing Basics
@@ -626,7 +636,9 @@ Introduction to quantum computing concepts.
 """
 
         redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=novel, title="Quantum Computing", tags=["quantum", "computing"]
+            content=novel,
+            title="Quantum Computing",
+            tags=["quantum", "computing"],
         )
 
         explanation = marginal_filter.explain_decision(redundancy, delta, integration)
@@ -635,7 +647,7 @@ Introduction to quantum computing concepts.
         assert "STANDALONE" in explanation or "standalone" in explanation
         assert "Confidence" in explanation
 
-    def test_explain_with_delta(self, marginal_filter):
+    def test_explain_with_delta(self, marginal_filter) -> None:
         """Should include delta analysis in explanation."""
         partial = """---
 title: Advanced Franklin Techniques
@@ -652,7 +664,9 @@ Using Franklin's principles for hyperparameter tuning.
 """
 
         redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=partial, title="Advanced Franklin", tags=["learning", "advanced"]
+            content=partial,
+            title="Advanced Franklin",
+            tags=["learning", "advanced"],
         )
 
         explanation = marginal_filter.explain_decision(redundancy, delta, integration)

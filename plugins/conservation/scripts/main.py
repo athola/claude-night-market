@@ -1,6 +1,5 @@
-def main():
+def main() -> None:
     """Entry point for the conservation CLI."""
-    print("Hello from conservation!")
 
 
 if __name__ == "__main__":

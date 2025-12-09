@@ -24,18 +24,17 @@ _SUPPORTS_TIMEOUT = hasattr(signal, "SIGALRM")
 class SafetyCheckTimeout(Exception):
     """Raised when safety check exceeds timeout."""
 
-    pass
-
 
 def _timeout_handler(signum: int, frame: object) -> None:
     """Signal handler for timeout."""
-    raise SafetyCheckTimeout("Safety check timeout exceeded")
+    msg = "Safety check timeout exceeded"
+    raise SafetyCheckTimeout(msg)
 
 
 # Pre-compiled patterns for speed
 _SECRET_PATTERNS = [
     re.compile(
-        r'(?i)(api[_-]?key|secret|password|token|credential)\s*[=:]\s*["\']?[a-zA-Z0-9+/=_-]{8,}'
+        r'(?i)(api[_-]?key|secret|password|token|credential)\s*[=:]\s*["\']?[a-zA-Z0-9+/=_-]{8,}',
     ),
     re.compile(r"-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----"),
     re.compile(r"(?i)(aws|gcp|azure)[_-]?(access|secret|api)[_-]?key"),
@@ -55,7 +54,7 @@ _BIDI_OVERRIDES = frozenset(
         "\u2067",
         "\u2068",
         "\u2069",  # LRI, RLI, FSI, PDI
-    ]
+    ],
 )
 
 _PROMPT_INJECTION_PATTERNS = [
@@ -129,7 +128,8 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
                 max_freq = max(char_counts.values()) / len(sample)
                 if max_freq > threshold:
                     return SafetyCheckResult(
-                        False, "Repetition bomb detected - low entropy content"
+                        False,
+                        "Repetition bomb detected - low entropy content",
                     )
 
     # 3. Unicode bomb - excessive combining characters

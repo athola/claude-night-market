@@ -25,31 +25,16 @@ def main() -> int:
     skills_dir = "skills"
 
     if not os.path.exists(skills_dir):
-        print(f"Skills directory '{skills_dir}' not found")
         return 1
 
     files_without_frontmatter = find_markdown_files_without_frontmatter(skills_dir)
 
     if files_without_frontmatter:
-        print(
-            f"Found {len(files_without_frontmatter)} markdown files "
-            "without YAML frontmatter:"
-        )
-        print()
-
         for file_path in sorted(files_without_frontmatter):
-            rel_path = os.path.relpath(file_path, skills_dir)
-            print(f"  - {rel_path}")
+            os.path.relpath(file_path, skills_dir)
 
-        print()
-        print(
-            "Recommendation: Add YAML frontmatter to these files or "
-            "document as exceptions"
-        )
         return 1
-    else:
-        print("All markdown files have YAML frontmatter")
-        return 0
+    return 0
 
 
 if __name__ == "__main__":

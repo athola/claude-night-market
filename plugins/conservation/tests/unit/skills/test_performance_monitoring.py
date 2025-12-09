@@ -4,8 +4,7 @@ This module tests CPU/GPU performance monitoring, resource tracking,
 and alert functionality following TDD/BDD principles.
 """
 
-# ruff: noqa: S101
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -19,7 +18,7 @@ class TestPerformanceMonitoringSkill:
     """
 
     @pytest.fixture
-    def mock_performance_monitoring_skill_content(self):
+    def mock_performance_monitoring_skill_content(self) -> str:
         """Mock performance monitoring skill content with required components."""
         return """---
 name: performance-monitoring
@@ -82,8 +81,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_performance_monitoring_creates_required_todowrite_items(
-        self, mock_todo_write
-    ):
+        self,
+        mock_todo_write,
+    ) -> None:
         """Scenario: Performance monitoring creates required TodoWrite items
         Given the performance-monitoring skill is executed
         When establishing the monitoring workflow
@@ -120,8 +120,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_metrics_collection_gathers_comprehensive_data(
-        self, mock_performance_monitor
-    ):
+        self,
+        mock_performance_monitor,
+    ) -> None:
         """Scenario: Metrics collection gathers comprehensive performance data
         Given system resources in various states
         When collecting metrics
@@ -155,8 +156,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_threshold_analysis_identifies_performance_issues(
-        self, mock_performance_monitor
-    ):
+        self,
+        mock_performance_monitor,
+    ) -> None:
         """Scenario: Threshold analysis identifies performance issues
         Given collected performance metrics
         When analyzing against thresholds
@@ -217,8 +219,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_alert_evaluation_prioritizes_critical_issues(
-        self, mock_performance_monitor
-    ):
+        self,
+        mock_performance_monitor,
+    ) -> None:
         """Scenario: Alert evaluation prioritizes critical performance issues
         Given multiple performance alerts
         When evaluating alert priorities
@@ -233,7 +236,7 @@ tags:
                     "memory_usage": 8192,
                     "token_usage": 11000,
                     "context_efficiency": 0.55,
-                }
+                },
             },
             {
                 "metrics": {
@@ -241,7 +244,7 @@ tags:
                     "memory_usage": 15360,
                     "token_usage": 9000,
                     "context_efficiency": 0.70,
-                }
+                },
             },
         ]
 
@@ -272,8 +275,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_optimization_recommendations_suggest_improvements(
-        self, sample_performance_metrics
-    ):
+        self,
+        sample_performance_metrics,
+    ) -> None:
         """Scenario: Optimization recommendations suggest performance improvements
         Given performance metrics indicating inefficiencies
         When generating recommendations
@@ -301,7 +305,7 @@ tags:
                     "recommendation": "Implement task batching and reduce concurrent operations",
                     "estimated_improvement": "15-25% CPU reduction",
                     "implementation_effort": "Medium",
-                }
+                },
             )
 
         # Memory optimization
@@ -313,7 +317,7 @@ tags:
                     "recommendation": "Implement memory pooling and reduce object retention",
                     "estimated_improvement": "20-30% memory reduction",
                     "implementation_effort": "High",
-                }
+                },
             )
 
         # Token efficiency optimization
@@ -325,7 +329,7 @@ tags:
                     "recommendation": "Apply context compression and prompt optimization",
                     "estimated_improvement": "25-40% token savings",
                     "implementation_effort": "Low",
-                }
+                },
             )
 
         # Assert
@@ -347,8 +351,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_trend_analysis_identifies_patterns_over_time(
-        self, mock_performance_monitor
-    ):
+        self,
+        mock_performance_monitor,
+    ) -> None:
         """Scenario: Trend analysis identifies performance patterns over time
         Given historical performance data
         When analyzing trends
@@ -376,13 +381,13 @@ tags:
 
             historical_data.append(
                 {
-                    "timestamp": datetime.now(timezone.utc)
+                    "timestamp": datetime.now(UTC)
                     .replace(hour=hour_offset)
                     .isoformat(),
                     "cpu_usage": min(cpu_usage, 95.0),  # Cap at 95%
                     "memory_usage": min(memory_usage, 16384),  # Cap at 16GB
                     "token_usage": 5000 + (i * 100),
-                }
+                },
             )
 
         # Act - analyze trends
@@ -417,24 +422,26 @@ tags:
         # Add recommendations based on trends
         if trend_analysis["growth_rate"] > 0.02:  # 2% growth per hour
             trend_analysis["recommendations"].append(
-                "Monitor resource growth - consider scaling strategies"
+                "Monitor resource growth - consider scaling strategies",
             )
 
         if trend_analysis["peak_usage_average"] > 80:
             trend_analysis["recommendations"].append(
-                f"Optimize for peak hours around {highest_usage_hour}:00"
+                f"Optimize for peak hours around {highest_usage_hour}:00",
             )
 
         # Assert
         assert trend_analysis["cpu_trend_per_hour"] > 0  # Increasing trend
         assert trend_analysis["memory_trend_per_hour"] > 0  # Increasing trend
-        assert highest_usage_hour >= 14 and highest_usage_hour <= 18  # Afternoon peak
+        assert highest_usage_hour >= 14
+        assert highest_usage_hour <= 18
         assert len(trend_analysis["recommendations"]) >= 1
 
     @pytest.mark.unit
     def test_performance_monitoring_handles_missing_gpu_gracefully(
-        self, mock_claude_tools
-    ):
+        self,
+        mock_claude_tools,
+    ) -> None:
         """Scenario: Performance monitoring handles missing GPU gracefully
         Given systems without GPU availability
         When monitoring performance
@@ -454,7 +461,7 @@ tags:
 
         try:
             gpu_available = bool(
-                int(mock_claude_tools["Bash"]("nvidia-smi --list-gpus | wc -l"))
+                int(mock_claude_tools["Bash"]("nvidia-smi --list-gpus | wc -l")),
             )
             performance_status["gpu_available"] = gpu_available
         except (ValueError, Exception):
@@ -463,7 +470,7 @@ tags:
 
         try:
             gpu_usage = mock_claude_tools["Bash"](
-                "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits"
+                "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits",
             )
             performance_status["gpu_usage"] = gpu_usage
         except Exception:
@@ -482,7 +489,7 @@ tags:
         assert error_count >= 2  # Gracefully handled GPU errors
 
     @pytest.mark.unit
-    def test_performance_monitoring_adapts_to_system_resources(self):
+    def test_performance_monitoring_adapts_to_system_resources(self) -> None:
         """Scenario: Performance monitoring adapts to different system configurations
         Given systems with varying resource capacities
         When monitoring performance
@@ -565,8 +572,9 @@ tags:
 
     @pytest.mark.unit
     def test_performance_monitoring_generates_comprehensive_reports(
-        self, mock_performance_monitor
-    ):
+        self,
+        mock_performance_monitor,
+    ) -> None:
         """Scenario: Performance monitoring generates comprehensive reports
         Given collected performance data and analysis
         When generating reports
@@ -581,7 +589,7 @@ tags:
                     "memory_usage": 4096 + (i * 256),
                     "token_usage": 5000 + (i * 100),
                     "context_efficiency": 0.85 - (i * 0.01),
-                }
+                },
             )
 
         # Act - generate comprehensive report

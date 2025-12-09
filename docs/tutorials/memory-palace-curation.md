@@ -15,7 +15,7 @@ This note explains how the Memory Palace cache interceptor collaborates with the
 
 - The hook attaches the serialized payload under `hookSpecificOutput.intakeFlagPayload`.
 - Additional context includes a `[Memory Palace Intake]` line summarizing novelty, domain alignment, duplicates, and whether the flag is set. This makes intake reasoning visible to the runtime transcript.
-- Telemetry rows (`data/telemetry/memory-palace.csv`) now include `novelty_score`, `aligned_domains`, and `intake_delta_reasoning`, enabling downstream analytics to compare cache activity with intake routing.
+- Telemetry rows (`data/telemetry/memory-palace.csv`) now include `novelty_score`, `aligned_domains`, `intake_delta_reasoning`, and a pipe-delimited `duplicate_entry_ids` column so knowledge-intake can short-circuit redundant ingest attempts without re-querying the cache.
 
 ## Knowledge-intake handoff
 

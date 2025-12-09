@@ -1,6 +1,5 @@
 """Tests for spec-kit command functionality."""
 
-# ruff: noqa: S101
 import json
 from unittest.mock import Mock, patch
 
@@ -13,7 +12,7 @@ class TestSpeckitCommands:
     class TestSpecifyCommand:
         """Test /speckit.specify command."""
 
-        def test_branch_name_generation(self, sample_feature_description):
+        def test_branch_name_generation(self, sample_feature_description) -> None:
             """Test branch name generation from feature description."""
             feature_desc = sample_feature_description
 
@@ -48,18 +47,19 @@ class TestSpeckitCommands:
             )
 
         @patch("subprocess.run")
-        def test_git_branch_numbering(self, mock_run, mock_git_repo):
+        def test_git_branch_numbering(self, mock_run, mock_git_repo) -> None:
             """Test git branch number detection and increment."""
             # Mock git fetch
             mock_run.return_value = Mock(
-                stdout="1-user-auth\n2-api-integration\n", returncode=0
+                stdout="1-user-auth\n2-api-integration\n",
+                returncode=0,
             )
 
             # Mock git ls-remote
             def mock_subprocess_run(cmd, **kwargs):
                 if "ls-remote" in cmd:
                     return Mock(stdout="refs/heads/3-feature-c\n", returncode=0)
-                elif "branch" in cmd:
+                if "branch" in cmd:
                     return Mock(stdout="* main\n  4-local-feature\n", returncode=0)
                 return Mock(stdout="", returncode=0)
 
@@ -74,8 +74,10 @@ class TestSpeckitCommands:
 
         @patch("subprocess.run")
         def test_create_feature_script_execution(
-            self, mock_run, sample_feature_description
-        ):
+            self,
+            mock_run,
+            sample_feature_description,
+        ) -> None:
             """Test execution of create-new-feature.sh script."""
             mock_run.return_value = Mock(
                 stdout='{"success": true, "branch": "5-user-auth", "directory": "specs/5-user-auth"}',
@@ -99,7 +101,7 @@ class TestSpeckitCommands:
             assert "--number" in script_args
             assert "--short-name" in script_args
 
-        def test_feature_description_validation(self):
+        def test_feature_description_validation(self) -> None:
             """Test feature description validation."""
             valid_descriptions = [
                 "Add user authentication with OAuth2",
@@ -129,7 +131,7 @@ class TestSpeckitCommands:
     class TestPlanCommand:
         """Test /speckit.plan command."""
 
-        def test_spec_file_detection(self, temp_speckit_project):
+        def test_spec_file_detection(self, temp_speckit_project) -> None:
             """Test detection of specification files."""
             # Create a spec file
             spec_dir = temp_speckit_project / ".specify" / "specs"
@@ -141,7 +143,7 @@ class TestSpeckitCommands:
             assert spec_file.exists()
             assert "SPECIFICATION.md" in spec_file.name
 
-        def test_specification_parsing(self, sample_spec_content):
+        def test_specification_parsing(self, sample_spec_content) -> None:
             """Test parsing of specification content."""
             spec_lines = sample_spec_content.split("\n")
 
@@ -169,7 +171,7 @@ class TestSpeckitCommands:
             )
             assert "Success Criteria" in sections, "Should parse Success Criteria"
 
-        def test_plan_generation_from_spec(self, sample_spec_content):
+        def test_plan_generation_from_spec(self, sample_spec_content) -> None:
             """Test plan generation from specification content."""
             # Extract functional requirements
             fr_section = ""
@@ -180,9 +182,9 @@ class TestSpeckitCommands:
                 if "## Functional Requirements" in line:
                     in_fr_section = True
                     continue
-                elif line.startswith("## ") and in_fr_section:
+                if line.startswith("## ") and in_fr_section:
                     break
-                elif in_fr_section:
+                if in_fr_section:
                     fr_section += line + "\n"
 
             # Should have functional requirements
@@ -204,7 +206,7 @@ class TestSpeckitCommands:
     class TestImplementCommand:
         """Test /speckit.implement command."""
 
-        def test_task_file_detection(self, temp_speckit_project):
+        def test_task_file_detection(self, temp_speckit_project) -> None:
             """Test detection of task files."""
             # Create a task file
             spec_dir = temp_speckit_project / ".specify" / "specs"
@@ -216,7 +218,7 @@ class TestSpeckitCommands:
             assert task_file.exists()
             assert "TASKS.md" in task_file.name
 
-        def test_implementation_readiness_validation(self):
+        def test_implementation_readiness_validation(self) -> None:
             """Test validation of implementation readiness."""
             required_files = ["SPECIFICATION.md", "TASKS.md"]
 
@@ -225,7 +227,7 @@ class TestSpeckitCommands:
 
             assert len(missing_files) == 0, f"Missing required files: {missing_files}"
 
-        def test_dependency_validation(self, sample_task_list):
+        def test_dependency_validation(self, sample_task_list) -> None:
             """Test validation of task dependencies before implementation."""
             # Check if dependencies are satisfied
             satisfied_tasks = set()  # Tasks already completed
@@ -259,7 +261,7 @@ class TestSpeckitCommands:
     class TestAnalyzeCommand:
         """Test /speckit.analyze command."""
 
-        def test_code_analysis_scope_detection(self, temp_speckit_project):
+        def test_code_analysis_scope_detection(self, temp_speckit_project) -> None:
             """Test detection of code analysis scope."""
             # Mock project structure
             src_dir = temp_speckit_project / "src"
@@ -272,7 +274,7 @@ class TestSpeckitCommands:
             assert (src_dir / "auth.py").exists()
             assert (src_dir / "models.py").exists()
 
-        def test_analysis_report_generation(self):
+        def test_analysis_report_generation(self) -> None:
             """Test generation of analysis reports."""
             # Mock analysis results
             analysis_results = {
@@ -302,8 +304,10 @@ class TestSpeckitCommands:
         """Test /speckit.checklist command."""
 
         def test_completion_checklist_generation(
-            self, sample_spec_content, sample_task_list
-        ):
+            self,
+            sample_spec_content,
+            sample_task_list,
+        ) -> None:
             """Test generation of completion checklist."""
             checklist_items = []
 
@@ -325,7 +329,7 @@ class TestSpeckitCommands:
                 f"Should generate checklist items, got: {checklist_items}"
             )
 
-        def test_verification_criteria_check(self, sample_spec_content):
+        def test_verification_criteria_check(self, sample_spec_content) -> None:
             """Test verification of success criteria."""
             # Extract success criteria
             success_section = ""
@@ -336,9 +340,9 @@ class TestSpeckitCommands:
                 if "## Success Criteria" in line:
                     in_success_section = True
                     continue
-                elif line.startswith("## ") and in_success_section:
+                if line.startswith("## ") and in_success_section:
                     break
-                elif in_success_section:
+                if in_success_section:
                     success_section += line + "\n"
 
             # Should have success criteria
@@ -356,9 +360,8 @@ class TestSpeckitCommands:
     @pytest.fixture
     def mock_command_execution(self):
         """Mock command execution environment."""
-        mock_env = {
+        return {
             "PWD": "/tmp/test-project",
             "GIT_BRANCH": "feature/user-auth",
             "SPEC_DIR": "/tmp/test-project/.specify",
         }
-        return mock_env

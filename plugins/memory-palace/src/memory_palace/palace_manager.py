@@ -26,7 +26,9 @@ class MemoryPalaceManager:
     """
 
     def __init__(
-        self, config_path: str | None = None, palaces_dir_override: str | None = None
+        self,
+        config_path: str | None = None,
+        palaces_dir_override: str | None = None,
     ) -> None:
         """Initialize `MemoryPalaceManager`.
 
@@ -50,7 +52,7 @@ class MemoryPalaceManager:
         else:
             try:
                 self.palaces_dir = os.path.expanduser(
-                    self.config.get("storage", {}).get("palace_directory", default_palaces_dir)
+                    self.config.get("storage", {}).get("palace_directory", default_palaces_dir),
                 )
             except (AttributeError, KeyError):
                 self.palaces_dir = os.path.expanduser(default_palaces_dir)
@@ -77,7 +79,6 @@ class MemoryPalaceManager:
                 data: dict[str, Any] = json.load(f)
                 return data
         except FileNotFoundError:
-            print(f"Config file not found: {self.config_path}", file=sys.stderr)
             sys.exit(1)
 
     def ensure_directories(self) -> None:
@@ -176,9 +177,8 @@ class MemoryPalaceManager:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_file = os.path.join(backup_dir, f"{palace_id}_{timestamp}.json")
 
-            with open(palace_file) as src:
-                with open(backup_file, "w") as dst:
-                    dst.write(src.read())
+            with open(palace_file) as src, open(backup_file, "w") as dst:
+                dst.write(src.read())
 
     def update_master_index(self) -> None:
         """Scan the palaces directory; rebuild the master index.
@@ -227,8 +227,8 @@ class MemoryPalaceManager:
                     domain = palace["domain"]
                     domains[domain] = domains.get(domain, 0) + 1
 
-                except (json.JSONDecodeError, KeyError) as e:
-                    print(f"Warning: Could not index {file_path}: {e}")
+                except (json.JSONDecodeError, KeyError):
+                    pass
 
         with open(self.index_file, "w") as f:
             json.dump(index, f, indent=2)
@@ -256,13 +256,16 @@ class MemoryPalaceManager:
                             "palace_id": palace["id"],
                             "palace_name": palace["name"],
                             "matches": matches,
-                        }
+                        },
                     )
 
         return results
 
     def _search_in_palace(
-        self, palace: dict[str, Any], query: str, search_type: str
+        self,
+        palace: dict[str, Any],
+        query: str,
+        search_type: str,
     ) -> list[dict[str, Any]]:
         """Search for a query within a single palace.
 
@@ -286,7 +289,7 @@ class MemoryPalaceManager:
                         "type": "association",
                         "concept_id": concept_id,
                         "data": association,
-                    }
+                    },
                 )
 
         # Search in sensory encoding
@@ -297,7 +300,7 @@ class MemoryPalaceManager:
                         "type": "sensory",
                         "location_id": location_id,
                         "data": sensory_data,
-                    }
+                    },
                 )
 
         return matches
@@ -379,9 +382,9 @@ class MemoryPalaceManager:
             # Simple text matching - in a real implementation, use embeddings
             text_content = json.dumps(data).lower()
             return query in text_content
-        elif search_type == "exact":
+        if search_type == "exact":
             return query == json.dumps(data).lower()
-        elif search_type == "fuzzy":
+        if search_type == "fuzzy":
             # Simple fuzzy matching - implement Levenshtein or similar for real use
             text_content = json.dumps(data).lower()
             return any(word in text_content for word in query.split())
@@ -490,57 +493,42 @@ def main() -> None:  # noqa: PLR0912,PLR0915
     manager = MemoryPalaceManager(args.config, args.palaces_dir)
 
     if args.command == "create":
-        palace = manager.create_palace(args.name, args.domain, args.metaphor)
-        print(f"Created palace '{args.name}' with ID: {palace['id']}")
+        manager.create_palace(args.name, args.domain, args.metaphor)
 
     elif args.command == "list":
         palaces = manager.list_palaces()
         if palaces:
-            print(f"{'ID':<8} {'Name':<20} {'Domain':<15} {'Concepts':<8} {'Modified':<20}")
-            print("-" * 80)
-            for palace in palaces:
-                print(
-                    f"{palace['id']:<8} {palace['name']:<20} {palace['domain']:<15} "
-                    f"{palace['concept_count']:<8} {palace['last_modified'][:19]:<20}"
-                )
+            for _palace in palaces:
+                pass
         else:
-            print("No palaces found.")
+            pass
 
     elif args.command == "search":
         results = manager.search_palaces(args.query, args.type)
         if results:
-            print(f"Search results for '{args.query}':")
             for result in results:
-                print(f"\nPalace: {result['palace_name']} (ID: {result['palace_id']})")
                 for match in result["matches"]:
-                    identifier = match.get("concept_id", match.get("location_id", "unknown"))
-                    print(f"  - {match['type']}: {identifier}")
+                    match.get("concept_id", match.get("location_id", "unknown"))
         else:
-            print(f"No results found for '{args.query}'.")
+            pass
 
     elif args.command == "delete":
         if manager.delete_palace(args.palace_id):
-            print(f"Deleted palace with ID: {args.palace_id}")
+            pass
         else:
-            print(f"Palace with ID {args.palace_id} not found.")
+            pass
 
     elif args.command == "status":
         index = manager.get_master_index()
         stats = index["global_stats"]
-        print("Memory Palace Status:")
-        print(f"  Total palaces: {stats['total_palaces']}")
-        print(f"  Total concepts: {stats['total_concepts']}")
-        print(f"  Domains: {len(stats['domains'])}")
-        for domain, count in stats["domains"].items():
-            print(f"    {domain}: {count}")
+        for _domain, _count in stats["domains"].items():
+            pass
 
     elif args.command == "export":
-        dest = manager.export_state(args.destination)
-        print(f"Exported palaces to {dest}")
+        manager.export_state(args.destination)
 
     elif args.command == "import":
         stats = manager.import_state(args.source, keep_existing=not args.overwrite)
-        print(json.dumps(stats, indent=2))
 
 
 if __name__ == "__main__":

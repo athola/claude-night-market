@@ -10,7 +10,7 @@ import contextlib
 import hashlib
 import os
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -46,8 +46,7 @@ def get_content_hash(content: str | bytes) -> str:
 
     if _USE_XXHASH:
         return f"xxh:{xxhash.xxh64(content).hexdigest()}"
-    else:
-        return f"sha256:{hashlib.sha256(content).hexdigest()[:16]}"
+    return f"sha256:{hashlib.sha256(content).hexdigest()[:16]}"
 
 
 def get_url_key(url: str) -> str:
@@ -98,7 +97,9 @@ def _load_index() -> dict[str, Any]:
 
 
 def is_known(
-    content_hash: str | None = None, url: str | None = None, path: str | None = None
+    content_hash: str | None = None,
+    url: str | None = None,
+    path: str | None = None,
 ) -> bool:
     """Fast check if content is already indexed.
 
@@ -170,11 +171,12 @@ def update_index(
         routing_type: Application routing (local, meta, both)
 
     Note: This does write to disk - use sparingly.
+
     """
     global _index_cache
 
     index = _load_index()
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     entry = {
         "content_hash": content_hash,
@@ -212,7 +214,9 @@ def update_index(
 
     # Write to temp file in same directory (ensures same filesystem for atomic rename)
     fd, tmp_path = tempfile.mkstemp(
-        suffix=".tmp", prefix="memory-palace-index-", dir=index_path.parent
+        suffix=".tmp",
+        prefix="memory-palace-index-",
+        dir=index_path.parent,
     )
     try:
         with os.fdopen(fd, "w") as f:

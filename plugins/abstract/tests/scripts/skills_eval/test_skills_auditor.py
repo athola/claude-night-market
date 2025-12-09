@@ -66,13 +66,13 @@ category: comprehensive
 
         return tmp_path
 
-    def test_auditor_initialization(self, sample_skills_dir):
+    def test_auditor_initialization(self, sample_skills_dir) -> None:
         """Test auditor initializes correctly."""
         auditor = SkillsAuditor(sample_skills_dir)
         assert auditor.skills_root == sample_skills_dir
         assert len(auditor.skill_files) == EXPECTED_TOTAL_SKILLS
 
-    def test_discover_skills(self, sample_skills_dir):
+    def test_discover_skills(self, sample_skills_dir) -> None:
         """Test skill discovery."""
         auditor = SkillsAuditor(sample_skills_dir)
         discovered_skills = auditor.discover_skills()
@@ -83,7 +83,7 @@ category: comprehensive
         assert "needs-improvement-skill" in discovered_skills
         assert "large-skill" in discovered_skills
 
-    def test_audit_all_skills(self, sample_skills_dir):
+    def test_audit_all_skills(self, sample_skills_dir) -> None:
         """Test comprehensive auditing of all skills."""
         auditor = SkillsAuditor(sample_skills_dir)
         audit_results = auditor.audit_all_skills()
@@ -93,7 +93,7 @@ category: comprehensive
         assert audit_results["total_skills"] == EXPECTED_TOTAL_SKILLS
         assert len(audit_results["skill_metrics"]) == EXPECTED_TOTAL_SKILLS
 
-    def test_audit_single_skill(self, sample_skills_dir):
+    def test_audit_single_skill(self, sample_skills_dir) -> None:
         """Test auditing a single skill."""
         auditor = SkillsAuditor(sample_skills_dir)
         skill_audit = auditor.audit_skill("well-structured-skill")
@@ -106,7 +106,7 @@ category: comprehensive
         assert "recommendations" in skill_audit
         assert skill_audit["name"] == "well-structured-skill"
 
-    def test_calculate_completeness_scores(self, sample_skills_dir):
+    def test_calculate_completeness_scores(self, sample_skills_dir) -> None:
         """Test completeness scoring."""
         auditor = SkillsAuditor(sample_skills_dir)
 
@@ -118,7 +118,7 @@ category: comprehensive
         needs_improvement = auditor.audit_skill("needs-improvement-skill")
         assert needs_improvement["completeness_score"] < NEEDS_IMPROVEMENT_MAX_SCORE
 
-    def test_calculate_structure_scores(self, sample_skills_dir):
+    def test_calculate_structure_scores(self, sample_skills_dir) -> None:
         """Test structure scoring."""
         auditor = SkillsAuditor(sample_skills_dir)
 
@@ -128,7 +128,7 @@ category: comprehensive
         # Well structured should score higher on structure
         assert well_structured["structure_score"] > needs_improvement["structure_score"]
 
-    def test_detect_common_issues(self, sample_skills_dir):
+    def test_detect_common_issues(self, sample_skills_dir) -> None:
         """Test detection of common skill issues."""
         auditor = SkillsAuditor(sample_skills_dir)
 
@@ -142,7 +142,7 @@ category: comprehensive
         issue_descriptions = [issue["type"] for issue in large_skill["issues"]]
         assert "size_large" in issue_descriptions
 
-    def test_generate_recommendations(self, sample_skills_dir):
+    def test_generate_recommendations(self, sample_skills_dir) -> None:
         """Test recommendation generation."""
         auditor = SkillsAuditor(sample_skills_dir)
 
@@ -156,7 +156,7 @@ category: comprehensive
             assert "priority" in rec
             assert rec["priority"] in ["high", "medium", "low"]
 
-    def test_generate_audit_report(self, sample_skills_dir):
+    def test_generate_audit_report(self, sample_skills_dir) -> None:
         """Test comprehensive audit report generation."""
         auditor = SkillsAuditor(sample_skills_dir)
         audit_results = auditor.audit_all_skills()
@@ -168,7 +168,7 @@ category: comprehensive
         assert "well-structured-skill" in report
         assert "needs-improvement-skill" in report
 
-    def test_calculate_overall_metrics(self, sample_skills_dir):
+    def test_calculate_overall_metrics(self, sample_skills_dir) -> None:
         """Test calculation of overall audit metrics."""
         auditor = SkillsAuditor(sample_skills_dir)
         audit_results = auditor.audit_all_skills()
@@ -185,7 +185,7 @@ category: comprehensive
         assert 0 <= summary["average_structure"] <= MAX_SCORE
         assert 0 <= summary["average_overall"] <= MAX_SCORE
 
-    def test_export_audit_results(self, sample_skills_dir, tmp_path):
+    def test_export_audit_results(self, sample_skills_dir, tmp_path) -> None:
         """Test exporting audit results to file."""
         auditor = SkillsAuditor(sample_skills_dir)
         audit_results = auditor.audit_all_skills()
@@ -204,7 +204,7 @@ category: comprehensive
         assert "skills" in exported_data
         assert "summary" in exported_data
 
-    def test_filter_skills_by_criteria(self, sample_skills_dir):
+    def test_filter_skills_by_criteria(self, sample_skills_dir) -> None:
         """Test filtering skills by various criteria."""
         auditor = SkillsAuditor(sample_skills_dir)
         audit_results = auditor.audit_all_skills()
@@ -215,11 +215,12 @@ category: comprehensive
 
         # Filter by priority issues
         critical_issues = auditor.filter_skills(
-            audit_results, has_high_priority_issues=True
+            audit_results,
+            has_high_priority_issues=True,
         )
         assert len(critical_issues["skills"]) <= audit_results["total_skills"]
 
-    def test_track_improvement_over_time(self, tmp_path):
+    def test_track_improvement_over_time(self, tmp_path) -> None:
         """Test tracking skill improvements across multiple audits."""
         # Create initial audit
         initial_skills_dir = tmp_path / "initial"

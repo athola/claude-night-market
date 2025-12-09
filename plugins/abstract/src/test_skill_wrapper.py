@@ -11,14 +11,14 @@ from .wrapper_base import SuperpowerWrapper
 
 class TestSkillWrapper(SuperpowerWrapper):
     """Wrapper for the test-skill command that delegates to test-driven-development
-    superpower
+    superpower.
 
     This wrapper translates plugin-specific parameters to superpower parameters
     and adds skill-specific validation and extensions for TDD-based skill testing.
     """
 
-    def __init__(self):
-        """Initialize the test-skill wrapper"""
+    def __init__(self) -> None:
+        """Initialize the test-skill wrapper."""
         super().__init__(
             source_plugin="abstract",
             source_command="test-skill",
@@ -26,7 +26,7 @@ class TestSkillWrapper(SuperpowerWrapper):
         )
 
     def execute(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Execute the wrapped test-skill command
+        """Execute the wrapped test-skill command.
 
         Args:
             params: Dictionary containing required parameters:
@@ -43,41 +43,45 @@ class TestSkillWrapper(SuperpowerWrapper):
         """
         # Validate required parameters
         if not params:
-            raise ValueError("Parameters dictionary cannot be empty")
+            msg = "Parameters dictionary cannot be empty"
+            raise ValueError(msg)
 
         if "skill-path" not in params:
-            raise ValueError("Missing required parameter: skill-path")
+            msg = "Missing required parameter: skill-path"
+            raise ValueError(msg)
 
         if "phase" not in params:
-            raise ValueError("Missing required parameter: phase")
+            msg = "Missing required parameter: phase"
+            raise ValueError(msg)
 
         # Validate parameter types
         if not isinstance(params["skill-path"], str):
-            raise TypeError("skill-path must be a string")
+            msg = "skill-path must be a string"
+            raise TypeError(msg)
 
         if not isinstance(params["phase"], str):
-            raise TypeError("phase must be a string")
+            msg = "phase must be a string"
+            raise TypeError(msg)
 
         # Validate phase values
         valid_phases = ["red", "green", "refactor"]
         if params["phase"] not in valid_phases:
-            raise ValueError(f"phase must be one of: {', '.join(valid_phases)}")
+            msg = f"phase must be one of: {', '.join(valid_phases)}"
+            raise ValueError(msg)
 
         # Translate parameters
         superpower_params = self.translate_parameters(params)
 
         # Call superpower with skill-specific extensions
-        result = {
+        return {
             "superpower_called": self.target_superpower,
             "phase_executed": superpower_params.get("tdd_phase"),
             "target": superpower_params.get("target_under_test"),
             "extensions": self._apply_skill_extensions(superpower_params),
         }
 
-        return result
-
     def _apply_skill_extensions(self, params: dict[str, Any]) -> dict[str, Any]:
-        """Apply skill-specific extensions to superpower call
+        """Apply skill-specific extensions to superpower call.
 
         Args:
             params: Translated parameters for the superpower

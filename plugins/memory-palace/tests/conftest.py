@@ -8,7 +8,7 @@ Provides reusable test fixtures for:
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -41,7 +41,7 @@ def temp_config_file(tmp_path: Path) -> Path:
                 "defaults": {"metaphor": "building"},
             },
             indent=2,
-        )
+        ),
     )
     return config_file
 
@@ -88,7 +88,7 @@ def sample_palace_file(temp_palaces_dir: Path, sample_palace_data: dict) -> Path
 @pytest.fixture
 def sample_garden_data() -> dict[str, Any]:
     """Return sample digital garden data for testing."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     return {
         "garden": {
             "plots": [
@@ -110,8 +110,8 @@ def sample_garden_data() -> dict[str, Any]:
                     "outbound_links": [],
                     "last_tended": "2025-10-01T00:00:00+00:00",
                 },
-            ]
-        }
+            ],
+        },
     }
 
 
@@ -134,7 +134,7 @@ def empty_garden_file(tmp_path: Path) -> Path:
 @pytest.fixture
 def fixed_timestamp() -> datetime:
     """Provide a fixed timestamp for reproducible tests."""
-    return datetime(2025, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
+    return datetime(2025, 12, 1, 12, 0, 0, tzinfo=UTC)
 
 
 @pytest.fixture

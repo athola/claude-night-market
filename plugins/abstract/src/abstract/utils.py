@@ -11,31 +11,30 @@ For token-related utilities, use the `tokens` module directly.
 """
 
 import re
-import sys
 from pathlib import Path
 
 from .config import AbstractConfig, SkillValidationConfig
 from .frontmatter import FrontmatterProcessor
 
 __all__ = [
-    # Project utilities
-    "find_project_root",
-    "load_config_with_fallback",
-    # Frontmatter utilities
-    "extract_frontmatter",
-    "parse_frontmatter_fields",
-    "validate_skill_frontmatter",
     "check_meta_skill_indicators",
-    "parse_yaml_frontmatter",
-    # Skill file utilities
-    "find_skill_files",
-    "load_skill_file",
-    "get_skill_name",
-    # Analysis utilities
-    "format_score",
     "count_sections",
     "extract_dependencies",
+    # Frontmatter utilities
+    "extract_frontmatter",
     "find_dependency_file",
+    # Project utilities
+    "find_project_root",
+    # Skill file utilities
+    "find_skill_files",
+    # Analysis utilities
+    "format_score",
+    "get_skill_name",
+    "load_config_with_fallback",
+    "load_skill_file",
+    "parse_frontmatter_fields",
+    "parse_yaml_frontmatter",
+    "validate_skill_frontmatter",
 ]
 
 
@@ -75,12 +74,8 @@ def load_config_with_fallback(project_root: Path | None = None) -> AbstractConfi
     if config_file.exists():
         try:
             return AbstractConfig.from_yaml(config_file)
-        except Exception as e:
-            print(
-                f"WARNING: Failed to load config from {config_file}: {e}",
-                file=sys.stderr,
-            )
-            print("Using default configuration", file=sys.stderr)
+        except Exception:
+            pass
 
     return AbstractConfig()
 
@@ -127,7 +122,8 @@ def parse_frontmatter_fields(frontmatter: str) -> dict[str, str]:
 
 
 def validate_skill_frontmatter(
-    content: str, config: SkillValidationConfig
+    content: str,
+    config: SkillValidationConfig,
 ) -> list[str]:
     """Validate skill frontmatter fields.
 
@@ -145,7 +141,8 @@ def validate_skill_frontmatter(
 
     # Use FrontmatterProcessor for parsing
     result = FrontmatterProcessor.parse(
-        content, required_fields=config.REQUIRED_FRONTMATTER_FIELDS
+        content,
+        required_fields=config.REQUIRED_FRONTMATTER_FIELDS,
     )
 
     if result.parse_error:
@@ -163,19 +160,22 @@ def validate_skill_frontmatter(
 
     # Check recommended fields
     missing_recommended = FrontmatterProcessor.check_missing_recommended(
-        result.parsed, config.RECOMMENDED_FRONTMATTER_FIELDS
+        result.parsed,
+        config.RECOMMENDED_FRONTMATTER_FIELDS,
     )
     if missing_recommended:
         issues.append(
             "INFO: Consider adding recommended fields: "
-            f"{', '.join(sorted(missing_recommended))}"
+            f"{', '.join(sorted(missing_recommended))}",
         )
 
     return issues
 
 
 def check_meta_skill_indicators(
-    content: str, config: SkillValidationConfig, skill_name: str
+    content: str,
+    config: SkillValidationConfig,
+    skill_name: str,
 ) -> str | None:
     """Check if skill has meta-skill indicators.
 
@@ -246,7 +246,8 @@ def load_skill_file(skill_path: Path) -> tuple[str, dict]:
 
     """
     if not skill_path.exists():
-        raise FileNotFoundError(f"Skill not found: {skill_path}")
+        msg = f"Skill not found: {skill_path}"
+        raise FileNotFoundError(msg)
 
     content = skill_path.read_text()
     result = FrontmatterProcessor.parse(content, required_fields=[])

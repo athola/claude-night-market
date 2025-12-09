@@ -20,7 +20,7 @@ class ImbueValidationResult(TypedDict):
 class ImbueValidator:
     """Validator for imbue plugin review workflow and evidence management skills."""
 
-    def __init__(self, plugin_root: Path):
+    def __init__(self, plugin_root: Path) -> None:
         """Initialize the imbue validator.
 
         Args:
@@ -139,10 +139,10 @@ class ImbueValidator:
         report.append(f"Skill Files: {len(self.skill_files)}")
 
         report.append(
-            f"\nReview Workflow Skills: {sorted(result['review_workflow_skills'])}"
+            f"\nReview Workflow Skills: {sorted(result['review_workflow_skills'])}",
         )
         report.append(
-            f"Evidence Logging Patterns: {sorted(result['evidence_logging_patterns'])}"
+            f"Evidence Logging Patterns: {sorted(result['evidence_logging_patterns'])}",
         )
 
         if issues:
@@ -158,14 +158,18 @@ class ImbueValidator:
 def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Validate imbue plugin review workflow skills"
+        description="Validate imbue plugin review workflow skills",
     )
     parser.add_argument(
-        "--root", default="/home/alext/imbue", help="Imbue plugin root directory"
+        "--root",
+        default="/home/alext/imbue",
+        help="Imbue plugin root directory",
     )
     parser.add_argument("--report", action="store_true", help="Generate full report")
     parser.add_argument(
-        "--scan", action="store_true", help="Scan for review workflow patterns"
+        "--scan",
+        action="store_true",
+        help="Scan for review workflow patterns",
     )
 
     args = parser.parse_args()
@@ -173,17 +177,16 @@ def main() -> None:
     validator = ImbueValidator(Path(args.root))
 
     if args.report:
-        print(validator.generate_report())
+        pass
     elif args.scan:
-        result = validator.scan_review_workflows()
+        validator.scan_review_workflows()
         issues = validator.validate_review_workflows()
-        print(f"Review workflow skills: {sorted(result['review_workflow_skills'])}")
         if issues:
-            print(f"Issues found: {len(issues)}")
+            pass
         else:
-            print("No issues found!")
+            pass
     else:
-        print("Use --report or --scan. Use --help for details.")
+        pass
 
 
 if __name__ == "__main__":

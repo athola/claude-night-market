@@ -5,4 +5,4 @@ from memory_palace.observability.telemetry import (
     TelemetryLogger,
 )
 
-__all__ = ["TelemetryLogger", "ResearchTelemetryEvent"]
+__all__ = ["ResearchTelemetryEvent", "TelemetryLogger"]

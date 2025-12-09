@@ -34,7 +34,7 @@ USAGE_DAYS = 30
 class TestServiceConfig:
     """Test ServiceConfig dataclass."""
 
-    def test_service_config_creation(self, delegation_service_config):
+    def test_service_config_creation(self, delegation_service_config) -> None:
         """Given valid service config data when creating ServiceConfig.
 
         then should instantiate correctly.
@@ -51,7 +51,7 @@ class TestServiceConfig:
 class TestExecutionResult:
     """Test ExecutionResult dataclass."""
 
-    def test_execution_result_creation(self):
+    def test_execution_result_creation(self) -> None:
         """Given execution data when creating ExecutionResult.
 
         then should store all fields.
@@ -76,7 +76,7 @@ class TestExecutionResult:
 class TestDelegator:
     """Test Delegator class functionality."""
 
-    def test_delegator_initialization_default_config_dir(self):
+    def test_delegator_initialization_default_config_dir(self) -> None:
         """Given no config dir when initializing Delegator.
 
         then should use default path.
@@ -88,7 +88,7 @@ class TestDelegator:
         assert delegator.config_file == expected_path / "config.json"
         assert delegator.usage_log == expected_path / "usage.jsonl"
 
-    def test_delegator_initialization_custom_config_dir(self, temp_config_dir):
+    def test_delegator_initialization_custom_config_dir(self, temp_config_dir) -> None:
         """Given custom config dir when initializing Delegator.
 
         then should use provided path.
@@ -100,8 +100,10 @@ class TestDelegator:
         assert delegator.usage_log == temp_config_dir / "usage.jsonl"
 
     def test_load_configurations_with_custom_config(
-        self, temp_config_dir, sample_config_file
-    ):
+        self,
+        temp_config_dir,
+        sample_config_file,
+    ) -> None:
         """Given custom config file when loading configurations.
 
         then should merge with defaults.
@@ -115,7 +117,7 @@ class TestDelegator:
         assert custom_service.auth_env_var == "CUSTOM_API_KEY"
 
     @patch("subprocess.run")
-    def test_verify_service_success(self, mock_run, temp_config_dir):
+    def test_verify_service_success(self, mock_run, temp_config_dir) -> None:
         """Given available service when verifying then should return success."""
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "version 1.0.0"
@@ -129,7 +131,7 @@ class TestDelegator:
         assert len(issues) == 0
 
     @patch("subprocess.run")
-    def test_verify_service_command_not_found(self, mock_run, temp_config_dir):
+    def test_verify_service_command_not_found(self, mock_run, temp_config_dir) -> None:
         """Given missing command when verifying then should return error."""
         mock_run.side_effect = FileNotFoundError("Command not found")
 
@@ -140,7 +142,7 @@ class TestDelegator:
         assert any("not found" in issue for issue in issues)
 
     @patch("subprocess.run")
-    def test_verify_service_missing_auth(self, mock_run, temp_config_dir):
+    def test_verify_service_missing_auth(self, mock_run, temp_config_dir) -> None:
         """Given missing auth env var when verifying then should return error."""
         mock_run.return_value.returncode = 0
 
@@ -157,8 +159,11 @@ class TestDelegator:
 
     @patch("delegation_executor.tiktoken.get_encoding")
     def test_estimate_tokens_with_encoder(
-        self, mock_get_encoding, sample_files, temp_config_dir
-    ):
+        self,
+        mock_get_encoding,
+        sample_files,
+        temp_config_dir,
+    ) -> None:
         """Given tiktoken available when estimating tokens then should use encoder."""
         mock_encoder = MagicMock()
         mock_encoder.encode.return_value = list(range(50))  # 50 tokens
@@ -175,8 +180,11 @@ class TestDelegator:
 
     @patch("delegation_executor.tiktoken.get_encoding")
     def test_estimate_tokens_without_encoder(
-        self, mock_get_encoding, sample_files, temp_config_dir
-    ):
+        self,
+        mock_get_encoding,
+        sample_files,
+        temp_config_dir,
+    ) -> None:
         """Given no tiktoken when estimating tokens then should use heuristic."""
         mock_get_encoding.side_effect = Exception("tiktoken not available")
 
@@ -189,7 +197,7 @@ class TestDelegator:
         assert isinstance(tokens, int)
         assert tokens > 0
 
-    def test_build_command_basic(self, temp_config_dir):
+    def test_build_command_basic(self, temp_config_dir) -> None:
         """Given basic parameters when building command.
 
         then should create correct structure.
@@ -200,7 +208,7 @@ class TestDelegator:
 
         assert command == ["gemini", "-p", "test prompt"]
 
-    def test_build_command_with_options(self, temp_config_dir):
+    def test_build_command_with_options(self, temp_config_dir) -> None:
         """Given options when building command.
 
         then should include service-specific flags.
@@ -219,7 +227,7 @@ class TestDelegator:
         assert "--temperature" in command
         assert "0.7" in command
 
-    def test_build_command_with_files(self, sample_files, temp_config_dir):
+    def test_build_command_with_files(self, sample_files, temp_config_dir) -> None:
         """Given files when building command then should include file references."""
         delegator = Delegator(config_dir=temp_config_dir)
 
@@ -233,7 +241,7 @@ class TestDelegator:
 
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
-    def test_execute_success(self, mock_estimate, mock_run, temp_config_dir):
+    def test_execute_success(self, mock_estimate, mock_run, temp_config_dir) -> None:
         """Given successful command when executing
         then should return positive result.
         """
@@ -254,7 +262,7 @@ class TestDelegator:
 
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
-    def test_execute_failure(self, mock_estimate, mock_run, temp_config_dir):
+    def test_execute_failure(self, mock_estimate, mock_run, temp_config_dir) -> None:
         """Given failed command when executing then should return negative result."""
         mock_run.return_value.returncode = 1
         mock_run.return_value.stdout = ""
@@ -271,7 +279,7 @@ class TestDelegator:
         assert result.service == "gemini"
 
     @patch("subprocess.run")
-    def test_execute_timeout(self, mock_run, temp_config_dir):
+    def test_execute_timeout(self, mock_run, temp_config_dir) -> None:
         """Given command timeout when executing then should return timeout result."""
         mock_run.side_effect = subprocess.TimeoutExpired("cmd", 300)
 
@@ -286,7 +294,9 @@ class TestDelegator:
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
     @patch("builtins.open", new_callable=mock_open)
-    def test_log_usage(self, mock_file, mock_estimate, mock_run, temp_config_dir):
+    def test_log_usage(
+        self, mock_file, mock_estimate, mock_run, temp_config_dir
+    ) -> None:
         """Given execution result when logging usage then should write to log file."""
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "Success"
@@ -309,7 +319,7 @@ class TestDelegator:
         assert "timestamp" in log_entry
         assert "duration" in log_entry
 
-    def test_get_usage_summary_no_log(self, temp_config_dir):
+    def test_get_usage_summary_no_log(self, temp_config_dir) -> None:
         """Given no usage log when getting summary then should return empty stats."""
         delegator = Delegator(config_dir=temp_config_dir)
 
@@ -319,7 +329,9 @@ class TestDelegator:
         assert summary["success_rate"] == 0
         assert len(summary["services"]) == 0
 
-    def test_get_usage_summary_with_log(self, sample_usage_log, temp_config_dir):
+    def test_get_usage_summary_with_log(
+        self, sample_usage_log, temp_config_dir
+    ) -> None:
         """Given usage log when getting summary then should calculate correct stats."""
         delegator = Delegator(config_dir=temp_config_dir)
 
@@ -338,23 +350,30 @@ class TestDelegator:
     @patch("delegation_executor.Delegator.verify_service")
     @patch("delegation_executor.Delegator.execute")
     def test_smart_delegate_gemini_available(
-        self, mock_execute, mock_verify, temp_config_dir
-    ):
+        self,
+        mock_execute,
+        mock_verify,
+        temp_config_dir,
+    ) -> None:
         """Given gemini available when smart delegating then should select gemini."""
         mock_verify.return_value = (True, [])
         mock_execute.return_value = ExecutionResult(
-            success=True, stdout="", stderr="", exit_code=0, duration=1.0
+            success=True,
+            stdout="",
+            stderr="",
+            exit_code=0,
+            duration=1.0,
         )
 
         delegator = Delegator(config_dir=temp_config_dir)
 
-        service, result = delegator.smart_delegate("test prompt")
+        service, _result = delegator.smart_delegate("test prompt")
 
         assert service == "gemini"
         mock_execute.assert_called_once()
 
     @patch("delegation_executor.Delegator.verify_service")
-    def test_smart_delegate_no_services(self, mock_verify, temp_config_dir):
+    def test_smart_delegate_no_services(self, mock_verify, temp_config_dir) -> None:
         """Given no services available when smart delegating then should raise error."""
         mock_verify.return_value = (False, ["Service not available"])
 
@@ -369,7 +388,7 @@ class TestDelegatorCli:
 
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "--list-services"])
-    def test_cli_list_services(self, mock_delegator_class):
+    def test_cli_list_services(self, mock_delegator_class) -> None:
         """Given --list-services flag when running CLI then should list services."""
         mock_delegator = MagicMock()
         mock_delegator.SERVICES = {
@@ -385,7 +404,7 @@ class TestDelegatorCli:
 
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "--usage"])
-    def test_cli_show_usage(self, mock_delegator_class):
+    def test_cli_show_usage(self, mock_delegator_class) -> None:
         """Given --usage flag when running CLI then should show usage summary."""
         mock_delegator = MagicMock()
         mock_delegator.get_usage_summary.return_value = {
@@ -402,7 +421,7 @@ class TestDelegatorCli:
 
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "--verify", "gemini"])
-    def test_cli_verify_service(self, mock_delegator_class):
+    def test_cli_verify_service(self, mock_delegator_class) -> None:
         """Given --verify flag when running CLI then should verify service."""
         mock_delegator = MagicMock()
         mock_delegator.verify_service.return_value = (True, [])
@@ -415,7 +434,7 @@ class TestDelegatorCli:
 
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "gemini", "test prompt"])
-    def test_cli_execute_delegation(self, mock_delegator_class):
+    def test_cli_execute_delegation(self, mock_delegator_class) -> None:
         """Given service and prompt when running CLI then should execute delegation."""
         mock_delegator = MagicMock()
         mock_result = ExecutionResult(
@@ -433,10 +452,12 @@ class TestDelegatorCli:
             main()
 
         mock_delegator.execute.assert_called_once_with(
-            "gemini", "test prompt", None, {}, 300
+            "gemini",
+            "test prompt",
+            None,
+            {},
+            300,
         )
 
 
 # Import os for environment variable mocking
-
-# ruff: noqa: S101

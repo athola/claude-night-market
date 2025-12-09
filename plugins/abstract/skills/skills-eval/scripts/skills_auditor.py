@@ -12,14 +12,12 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-# ruff: noqa: E402  (import must come after sys.path modification)
+
 from abstract.skills_eval import SkillsAuditor as CoreSkillsAuditor
 
 
 class SkillsAuditor(CoreSkillsAuditor):
     """CLI wrapper for core skills auditing functionality."""
-
-    pass
 
 
 # For direct execution
@@ -28,14 +26,19 @@ if __name__ == "__main__":
     import json
 
     parser = argparse.ArgumentParser(
-        description="Audit skills and generate comprehensive reports"
+        description="Audit skills and generate comprehensive reports",
     )
 
     parser.add_argument(
-        "skills_dir", type=Path, help="Directory containing skills to audit"
+        "skills_dir",
+        type=Path,
+        help="Directory containing skills to audit",
     )
     parser.add_argument(
-        "--format", choices=["text", "json"], default="text", help="Output format"
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
     parser.add_argument("--output", type=Path, help="Output file path")
 
@@ -71,6 +74,5 @@ if __name__ == "__main__":
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
-        print(f"Audit report saved to {args.output}")
     else:
-        print(output)
+        pass

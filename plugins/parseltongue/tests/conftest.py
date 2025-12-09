@@ -1,5 +1,4 @@
-"""
-Test configuration and shared fixtures for the parseltongue plugin test suite.
+"""Test configuration and shared fixtures for the parseltongue plugin test suite.
 
 This module provides common fixtures, test data, and utilities
 for testing parseltongue skills, agents, and workflows.
@@ -469,7 +468,10 @@ dependencies = [
         import subprocess
 
         subprocess.run(
-            ["git", "init"], check=False, cwd=project_path, capture_output=True
+            ["git", "init"],
+            check=False,
+            cwd=project_path,
+            capture_output=True,
         )
         subprocess.run(
             ["git", "config", "user.email", "test@example.com"],
@@ -484,7 +486,10 @@ dependencies = [
             capture_output=True,
         )
         subprocess.run(
-            ["git", "add", "."], check=False, cwd=project_path, capture_output=True
+            ["git", "add", "."],
+            check=False,
+            cwd=project_path,
+            capture_output=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "Initial commit"],
@@ -601,7 +606,7 @@ def test_user_creation():
 class MockAgentResponse:
     """Mock agent response for testing."""
 
-    def __init__(self, content: str, success: bool = True):
+    def __init__(self, content: str, success: bool = True) -> None:
         self.content = content
         self.success = success
         self.metadata = {
@@ -616,16 +621,17 @@ def mock_agent_responses():
     """Create mock agent responses for testing."""
     return {
         "python_pro": MockAgentResponse(
-            "Here's a modern Python implementation using type hints and asyncio."
+            "Here's a modern Python implementation using type hints and asyncio.",
         ),
         "python_tester": MockAgentResponse(
-            "Here's a comprehensive test suite using pytest fixtures."
+            "Here's a comprehensive test suite using pytest fixtures.",
         ),
         "python_optimizer": MockAgentResponse(
-            "I've optimized this by using sets instead of nested loops."
+            "I've optimized this by using sets instead of nested loops.",
         ),
         "error_response": MockAgentResponse(
-            "I encountered an error processing this request.", False
+            "I encountered an error processing this request.",
+            False,
         ),
     }
 
@@ -634,7 +640,7 @@ def mock_agent_responses():
 pytest_plugins = []
 
 
-def pytest_configure(config):
+def pytest_configure(config) -> None:
     """Configure custom pytest markers."""
     config.addinivalue_line("markers", "unit: Mark test as unit test")
     config.addinivalue_line("markers", "integration: Mark test as integration test")
@@ -644,5 +650,6 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "testing: Mark test as testing-focused")
     config.addinivalue_line("markers", "packaging: Mark test as packaging-focused")
     config.addinivalue_line(
-        "markers", "language_detection: Mark test as language detection test"
+        "markers",
+        "language_detection: Mark test as language detection test",
     )

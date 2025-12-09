@@ -1,5 +1,4 @@
-"""
-Unit tests for the Rust review skill.
+"""Unit tests for the Rust review skill.
 
 Tests Rust-specific safety, ownership, concurrency,
 and security auditing capabilities.
@@ -19,7 +18,7 @@ from pensive.skills.rust_review import RustReviewSkill
 class TestRustReviewSkill:
     """Test suite for RustReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = RustReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestRustReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_detects_unsafe_code_blocks(self, mock_skill_context):
+    def test_detects_unsafe_code_blocks(self, mock_skill_context) -> None:
         """Given unsafe code, when skill analyzes, then identifies and validates unsafe blocks."""
         # Arrange
         unsafe_code = """
@@ -64,7 +63,8 @@ class TestRustReviewSkill:
 
         # Act
         unsafe_analysis = self.skill.analyze_unsafe_code(
-            mock_skill_context, "raw_ops.rs"
+            mock_skill_context,
+            "raw_ops.rs",
         )
 
         # Assert
@@ -80,7 +80,7 @@ class TestRustReviewSkill:
         )
 
     @pytest.mark.unit
-    def test_analyzes_ownership_patterns(self, mock_skill_context):
+    def test_analyzes_ownership_patterns(self, mock_skill_context) -> None:
         """Given ownership code, when skill analyzes, then detects ownership violations."""
         # Arrange
         ownership_code = """
@@ -130,7 +130,8 @@ class TestRustReviewSkill:
 
         # Act
         ownership_analysis = self.skill.analyze_ownership(
-            mock_skill_context, "ownership.rs"
+            mock_skill_context,
+            "ownership.rs",
         )
 
         # Assert
@@ -141,7 +142,7 @@ class TestRustReviewSkill:
         assert len(ownership_analysis["reference_cycles"]) >= 1
 
     @pytest.mark.unit
-    def test_detects_data_races(self, mock_skill_context):
+    def test_detects_data_races(self, mock_skill_context) -> None:
         """Given concurrent code, when skill analyzes, then flags data race risks."""
         # Arrange
         concurrent_code = """
@@ -203,7 +204,8 @@ class TestRustReviewSkill:
 
         # Act
         race_analysis = self.skill.analyze_data_races(
-            mock_skill_context, "concurrent.rs"
+            mock_skill_context,
+            "concurrent.rs",
         )
 
         # Assert
@@ -215,7 +217,7 @@ class TestRustReviewSkill:
         )  # Should detect RefCell usage
 
     @pytest.mark.unit
-    def test_analyzes_memory_safety(self, mock_skill_context):
+    def test_analyzes_memory_safety(self, mock_skill_context) -> None:
         """Given memory management code, when skill analyzes, then detects memory safety issues."""
         # Arrange
         memory_code = """
@@ -268,7 +270,8 @@ class TestRustReviewSkill:
 
         # Act
         memory_analysis = self.skill.analyze_memory_safety(
-            mock_skill_context, "memory.rs"
+            mock_skill_context,
+            "memory.rs",
         )
 
         # Assert
@@ -279,7 +282,7 @@ class TestRustReviewSkill:
         assert len(memory_analysis["unsafe_operations"]) >= 2
 
     @pytest.mark.unit
-    def test_detects_panic_propagation(self, mock_skill_context):
+    def test_detects_panic_propagation(self, mock_skill_context) -> None:
         """Given error handling code, when skill analyzes, then flags improper panic usage."""
         # Arrange
         panic_code = """
@@ -328,7 +331,8 @@ class TestRustReviewSkill:
 
         # Act
         panic_analysis = self.skill.analyze_panic_propagation(
-            mock_skill_context, "error_handling.rs"
+            mock_skill_context,
+            "error_handling.rs",
         )
 
         # Assert
@@ -338,7 +342,7 @@ class TestRustReviewSkill:
         assert len(panic_analysis["panic_points"]) >= 2
 
     @pytest.mark.unit
-    def test_analyzes_async_await_patterns(self, mock_skill_context):
+    def test_analyzes_async_await_patterns(self, mock_skill_context) -> None:
         """Given async code, when skill analyzes, then detects async pattern issues."""
         # Arrange
         async_code = """
@@ -399,7 +403,8 @@ class TestRustReviewSkill:
 
         # Act
         async_analysis = self.skill.analyze_async_patterns(
-            mock_skill_context, "async_code.rs"
+            mock_skill_context,
+            "async_code.rs",
         )
 
         # Assert
@@ -409,7 +414,7 @@ class TestRustReviewSkill:
         assert len(async_analysis["blocking_operations"]) >= 1
 
     @pytest.mark.unit
-    def test_checks_cargo_toml_dependencies(self, mock_skill_context):
+    def test_checks_cargo_toml_dependencies(self, mock_skill_context) -> None:
         """Given Cargo.toml, when skill analyzes, then validates dependencies and features."""
         # Arrange
         cargo_toml_content = """
@@ -448,7 +453,7 @@ class TestRustReviewSkill:
         assert len(dependency_analysis["version_issues"]) >= 1
 
     @pytest.mark.unit
-    def test_detects_macro_usage_patterns(self, mock_skill_context):
+    def test_detects_macro_usage_patterns(self, mock_skill_context) -> None:
         """Given macro usage, when skill analyzes, then identifies problematic macro patterns."""
         # Arrange
         macro_code = """
@@ -512,7 +517,7 @@ class TestRustReviewSkill:
         assert len(macro_analysis["problematic_patterns"]) >= 2
 
     @pytest.mark.unit
-    def test_analyzes_trait_implementations(self, mock_skill_context):
+    def test_analyzes_trait_implementations(self, mock_skill_context) -> None:
         """Given trait implementations, when skill analyzes, then detects trait-related issues."""
         # Arrange
         trait_code = """
@@ -584,7 +589,7 @@ class TestRustReviewSkill:
         assert "missing_methods" in trait_analysis
 
     @pytest.mark.unit
-    def test_checks_const_generic_usage(self, mock_skill_context):
+    def test_checks_const_generic_usage(self, mock_skill_context) -> None:
         """Given const generics, when skill analyzes, then validates const generic patterns."""
         # Arrange
         const_generic_code = """
@@ -643,7 +648,8 @@ class TestRustReviewSkill:
 
         # Act
         const_generic_analysis = self.skill.analyze_const_generics(
-            mock_skill_context, "const_generics.rs"
+            mock_skill_context,
+            "const_generics.rs",
         )
 
         # Assert
@@ -653,7 +659,7 @@ class TestRustReviewSkill:
         assert len(const_generic_analysis["unconstrained_usage"]) >= 1
 
     @pytest.mark.unit
-    def test_detects_build_optimization_issues(self, mock_skill_context):
+    def test_detects_build_optimization_issues(self, mock_skill_context) -> None:
         """Given build configuration, when skill analyzes, then identifies optimization opportunities."""
         # Arrange
         build_files = {
@@ -696,7 +702,7 @@ class TestRustReviewSkill:
         assert "recommendations" in build_analysis
 
     @pytest.mark.unit
-    def test_generates_rust_security_report(self, sample_findings):
+    def test_generates_rust_security_report(self, sample_findings) -> None:
         """Given comprehensive Rust analysis, when skill generates report, then creates security-focused summary."""
         # Arrange
         rust_analysis = {
@@ -725,7 +731,7 @@ class TestRustReviewSkill:
         assert "unsafe" in report.lower()
 
     @pytest.mark.unit
-    def test_categorizes_rust_issue_severity(self):
+    def test_categorizes_rust_issue_severity(self) -> None:
         """Given Rust-specific issues, when skill categorizes, then assigns appropriate severity."""
         # Arrange
         rust_issues = [
@@ -748,7 +754,7 @@ class TestRustReviewSkill:
         assert severity_map["deprecated_dependency"] in ["medium", "high"]
 
     @pytest.mark.unit
-    def test_recommends_rust_best_practices(self, mock_skill_context):
+    def test_recommends_rust_best_practices(self, mock_skill_context) -> None:
         """Given Rust codebase analysis, when skill recommends, then provides Rust-specific best practices."""
         # Arrange
         codebase_analysis = {

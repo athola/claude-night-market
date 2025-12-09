@@ -1,6 +1,5 @@
 """Integration tests for spec-kit workflows."""
 
-# ruff: noqa: S101
 import json
 import subprocess
 from unittest.mock import Mock, patch
@@ -13,7 +12,10 @@ class TestSpeckitIntegration:
 
     @pytest.fixture
     def complete_speckit_project(
-        self, temp_speckit_project, sample_spec_content, sample_task_list
+        self,
+        temp_speckit_project,
+        sample_spec_content,
+        sample_task_list,
     ):
         """Create a complete speckit project with all artifacts."""
         project_root = temp_speckit_project
@@ -37,8 +39,8 @@ class TestSpeckitIntegration:
                     "current_phase": "1 - Foundation",
                     "total_tasks": 8,
                     "completed_count": 2,
-                }
-            )
+                },
+            ),
         )
 
         return project_root
@@ -48,8 +50,11 @@ class TestSpeckitIntegration:
 
         @patch("subprocess.run")
         def test_specify_to_implement_workflow(
-            self, mock_run, sample_feature_description, temp_speckit_project
-        ):
+            self,
+            mock_run,
+            sample_feature_description,
+            temp_speckit_project,
+        ) -> None:
             """Test complete workflow from specification to implementation."""
             # Mock script execution
             mock_run.return_value = Mock(
@@ -66,7 +71,7 @@ class TestSpeckitIntegration:
             # Should create specification file
             spec_file = spec_dir / "SPECIFICATION.md"
             spec_file.write_text(
-                "# User Authentication\n\n## Overview\nUser auth feature"
+                "# User Authentication\n\n## Overview\nUser auth feature",
             )
 
             assert spec_file.exists(), "Specification should be created"
@@ -85,12 +90,12 @@ class TestSpeckitIntegration:
                                     "id": "setup-001",
                                     "title": "Create project structure",
                                     "dependencies": [],
-                                }
+                                },
                             ],
-                        }
+                        },
                     ],
                     indent=2,
-                )
+                ),
             )
 
             assert task_file.exists(), "Task file should be created"
@@ -102,15 +107,18 @@ class TestSpeckitIntegration:
 
             progress_file = impl_dir / "progress.json"
             progress_file.write_text(
-                json.dumps({"current_task": "setup-001", "status": "in_progress"})
+                json.dumps({"current_task": "setup-001", "status": "in_progress"}),
             )
 
             assert impl_dir.exists(), "Implementation directory should be created"
             assert progress_file.exists(), "Progress tracking should start"
 
         def test_artifact_consistency(
-            self, complete_speckit_project, sample_spec_content, sample_task_list
-        ):
+            self,
+            complete_speckit_project,
+            sample_spec_content,
+            sample_task_list,
+        ) -> None:
             """Test consistency across all artifacts."""
             spec_dir = complete_speckit_project / ".specify" / "specs" / "5-user-auth"
 
@@ -130,7 +138,7 @@ class TestSpeckitIntegration:
                     line
                     for line in spec_content.split("\n")
                     if line.strip().startswith("-")
-                ]
+                ],
             )
 
             total_tasks = sum(len(phase["tasks"]) for phase in tasks_data)
@@ -150,7 +158,7 @@ class TestSpeckitIntegration:
                     f"Progress references invalid task: {completed_id}"
                 )
 
-        def test_workflow_state_persistence(self, complete_speckit_project):
+        def test_workflow_state_persistence(self, complete_speckit_project) -> None:
             """Test workflow state persistence across commands."""
             spec_dir = complete_speckit_project / ".specify" / "specs" / "5-user-auth"
 
@@ -177,7 +185,9 @@ class TestSpeckitIntegration:
     class TestCrossCommandDataFlow:
         """Test data flow between different speckit commands."""
 
-        def test_spec_to_task_data_flow(self, sample_spec_content, sample_task_list):
+        def test_spec_to_task_data_flow(
+            self, sample_spec_content, sample_task_list
+        ) -> None:
             """Test data flow from specification to task generation."""
             # Extract key concepts from specification
             spec_concepts = []
@@ -220,7 +230,7 @@ class TestSpeckitIntegration:
                 f"Tasks should reference spec concepts: {task_concepts}"
             )
 
-        def test_task_to_progress_data_flow(self, sample_task_list):
+        def test_task_to_progress_data_flow(self, sample_task_list) -> None:
             """Test data flow from tasks to progress tracking."""
             # Simulate task execution and progress tracking
             progress_data = {
@@ -265,8 +275,10 @@ class TestSpeckitIntegration:
                 )
 
         def test_progress_to_checklist_data_flow(
-            self, sample_spec_content, sample_task_list
-        ):
+            self,
+            sample_spec_content,
+            sample_task_list,
+        ) -> None:
             """Test data flow from progress to completion checklist."""
             # Simulate completion status
             completed_tasks = ["setup-001", "setup-002"]  # Mock completed tasks
@@ -285,13 +297,13 @@ class TestSpeckitIntegration:
 
             # Task-based items
             checklist_items.append(
-                f"✓ {len(completed_tasks)}/{total_tasks} tasks completed"
+                f"✓ {len(completed_tasks)}/{total_tasks} tasks completed",
             )
 
             # Progress-based items
             completion_percentage = (len(completed_tasks) / total_tasks) * 100
             checklist_items.append(
-                f"✓ {completion_percentage:.1f}% implementation complete"
+                f"✓ {completion_percentage:.1f}% implementation complete",
             )
 
             # Validate checklist
@@ -307,7 +319,7 @@ class TestSpeckitIntegration:
         """Test error recovery and resilience."""
 
         @patch("subprocess.run")
-        def test_partial_failure_recovery(self, mock_run, temp_speckit_project):
+        def test_partial_failure_recovery(self, mock_run, temp_speckit_project) -> None:
             """Test recovery from partial workflow failures."""
             # Mock script failure then success
             call_count = 0
@@ -317,26 +329,31 @@ class TestSpeckitIntegration:
                 call_count += 1
                 if call_count == 1:
                     return Mock(
-                        stdout="", returncode=1, stderr="Script failed"
+                        stdout="",
+                        returncode=1,
+                        stderr="Script failed",
                     )  # First call fails
-                else:
-                    return Mock(
-                        stdout='{"success": true, "branch": "5-user-auth"}',
-                        returncode=0,
-                    )
+                return Mock(
+                    stdout='{"success": true, "branch": "5-user-auth"}',
+                    returncode=0,
+                )
 
             mock_run.side_effect = mock_subprocess_run
 
             # Should retry after failure
-            result1 = subprocess.run(["echo", "test"], capture_output=True, text=True)
+            result1 = subprocess.run(
+                ["echo", "test"], check=False, capture_output=True, text=True
+            )
             assert result1.returncode == 1  # First call fails
 
-            result2 = subprocess.run(["echo", "test"], capture_output=True, text=True)
+            result2 = subprocess.run(
+                ["echo", "test"], check=False, capture_output=True, text=True
+            )
             assert result2.returncode == 0  # Second call succeeds
 
             assert call_count == 2, "Should have made 2 attempts"
 
-        def test_missing_artifact_recovery(self, complete_speckit_project):
+        def test_missing_artifact_recovery(self, complete_speckit_project) -> None:
             """Test recovery when artifacts are missing."""
             spec_dir = complete_speckit_project / ".specify" / "specs" / "5-user-auth"
 
@@ -359,7 +376,7 @@ class TestSpeckitIntegration:
                 assert "TASKS.md" in missing_files, "Should detect missing task file"
                 # In real implementation, would regenerate or prompt user
 
-        def test_inconsistent_artifact_recovery(self, complete_speckit_project):
+        def test_inconsistent_artifact_recovery(self, complete_speckit_project) -> None:
             """Test recovery from inconsistent artifacts."""
             spec_dir = complete_speckit_project / ".specify" / "specs" / "5-user-auth"
 
@@ -403,7 +420,7 @@ class TestSpeckitIntegration:
     class TestPerformance:
         """Test performance characteristics of workflows."""
 
-        def test_large_specification_handling(self):
+        def test_large_specification_handling(self) -> None:
             """Test handling of large specifications."""
             # Create large specification
             large_spec_content = "# Large Feature Specification\n\n## Overview\n"
@@ -435,7 +452,7 @@ class TestSpeckitIntegration:
             assert len(sections) >= 2, "Should find sections in large spec"
             assert len(requirements) >= 100, "Should find requirements in large spec"
 
-        def test_many_tasks_handling(self, sample_task_list):
+        def test_many_tasks_handling(self, sample_task_list) -> None:
             """Test handling of many tasks."""
             # Expand task list
             expanded_tasks = []
@@ -475,7 +492,7 @@ class TestSpeckitIntegration:
             start_time = time.time()
 
             # Check for cycles (should be fast)
-            def has_cycle(tasks):
+            def has_cycle(tasks) -> bool:
                 # Simplified cycle detection
                 return False  # No cycles in our test data
 

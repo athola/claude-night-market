@@ -58,6 +58,7 @@ def _get_encoder() -> Any | None:
 
     Returns:
         tiktoken encoder instance or None if tiktoken is not installed
+
     """
     try:
         import tiktoken
@@ -79,6 +80,7 @@ def estimate_file_tokens(path: Path) -> int:
 
     Returns:
         Estimated token count including overhead
+
     """
     try:
         size = path.stat().st_size
@@ -108,6 +110,7 @@ def _encode_file_with_tiktoken(encoder: Any, path: Path) -> int:
 
     Returns:
         Actual token count including overhead
+
     """
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
@@ -124,6 +127,7 @@ def _iter_source_files(path: Path) -> Iterable[Path]:
 
     Yields:
         Path objects for each source file
+
     """
     for root, dirs, files in os.walk(path):
         # Skip common build/cache directories
@@ -145,6 +149,7 @@ def _estimate_with_encoder(encoder: Any, files: list[str], prompt: str) -> int:
 
     Returns:
         Estimated token count
+
     """
     # Start with prompt tokens
     total_tokens = len(encoder.encode(prompt))
@@ -174,6 +179,7 @@ def _estimate_with_heuristic(files: list[str], prompt: str) -> int:
 
     Returns:
         Estimated token count
+
     """
     # Start with prompt tokens (using default ratio)
     tokens = int(len(prompt) / FILE_TOKEN_RATIOS["default"])
@@ -214,6 +220,7 @@ def estimate_tokens(files: list[str], prompt: str = "") -> int:
 
         >>> estimate_tokens(["src/"], "Analyze this project")
         5678
+
     """
     encoder = _get_encoder()
 

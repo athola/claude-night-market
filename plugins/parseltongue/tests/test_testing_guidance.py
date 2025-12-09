@@ -1,5 +1,4 @@
-"""
-Unit tests for testing guidance capabilities.
+"""Unit tests for testing guidance capabilities.
 
 Tests test quality assessment, TDD guidance,
 and testing best practices recommendations.
@@ -16,12 +15,12 @@ from parseltongue.skills.testing_guide import TestingGuideSkill
 class TestTestingGuideSkill:
     """Test suite for TestingGuideSkill."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = TestingGuideSkill()
 
     @pytest.mark.unit
-    def test_analyzes_test_structure(self, sample_test_patterns):
+    def test_analyzes_test_structure(self, sample_test_patterns) -> None:
         """Given test code, when skill analyzes, then evaluates test structure."""
         # Arrange
         test_code = sample_test_patterns["pytest_fixture"]
@@ -48,7 +47,7 @@ class TestTestingGuideSkill:
         assert "sample_data" in structure["fixtures"]
 
     @pytest.mark.unit
-    def test_identifies_anti_patterns(self, testing_issues):
+    def test_identifies_anti_patterns(self, testing_issues) -> None:
         """Given problematic test code, when skill analyzes, then identifies testing anti-patterns."""
         # Arrange
         anti_pattern_code = testing_issues["no_fixtures"]
@@ -67,7 +66,7 @@ class TestTestingGuideSkill:
         assert len(anti_patterns["recommendations"]) >= 1
 
     @pytest.mark.unit
-    def test_analyzes_coverage_gaps(self):
+    def test_analyzes_coverage_gaps(self) -> None:
         """Given test code and source code, when skill analyzes, then identifies coverage gaps."""
         # Arrange
         source_code = """
@@ -122,7 +121,7 @@ def test_get_user():
         assert coverage["estimated_coverage"] > 0
 
     @pytest.mark.unit
-    def test_evaluates_test_quality(self, sample_test_patterns):
+    def test_evaluates_test_quality(self, sample_test_patterns) -> None:
         """Given test code, when skill analyzes, then evaluates overall test quality."""
         # Arrange
         test_code = sample_test_patterns["pytest_fixture"]
@@ -150,7 +149,7 @@ def test_get_user():
         assert "improvements" in quality
 
     @pytest.mark.unit
-    def test_recommends_tdd_workflow(self):
+    def test_recommends_tdd_workflow(self) -> None:
         """Given feature requirements, when skill analyzes, then recommends TDD workflow."""
         # Arrange
         feature_description = """
@@ -184,7 +183,7 @@ User Authentication System:
             assert "implementation_hint" in step
 
     @pytest.mark.unit
-    def test_suggests_improvements(self, testing_issues):
+    def test_suggests_improvements(self, testing_issues) -> None:
         """Given problematic test code, when skill analyzes, then suggests improvements."""
         # Arrange
         problematic_code = testing_issues["testing_implementation"]
@@ -206,7 +205,7 @@ User Authentication System:
             assert "rationale" in suggestion
 
     @pytest.mark.unit
-    def test_generates_test_fixtures(self):
+    def test_generates_test_fixtures(self) -> None:
         """Given source code, when skill analyzes, then generates appropriate test fixtures."""
         # Arrange
         source_code = """
@@ -245,7 +244,7 @@ class Order:
         assert "pytest" in str(result["imports"])
 
     @pytest.mark.unit
-    def test_analyzes_mock_usage(self):
+    def test_analyzes_mock_usage(self) -> None:
         """Given test code, when skill analyzes, then evaluates mock usage patterns."""
         # Arrange
         test_with_mocks = """
@@ -289,7 +288,7 @@ def test_database_interaction():
         assert mock_analysis["assertions"]["uses_assert_called"] is True
 
     @pytest.mark.unit
-    def test_recommends_test_types(self):
+    def test_recommends_test_types(self) -> None:
         """Given code structure, when skill analyzes, then recommends types of tests needed."""
         # Arrange
         code_structure = """
@@ -327,7 +326,7 @@ src/
         assert recommendations["test_structure"]["conftest_py"] is True
 
     @pytest.mark.unit
-    def test_validates_async_testing(self):
+    def test_validates_async_testing(self) -> None:
         """Given async test code, when skill analyzes, then validates async testing patterns."""
         # Arrange
         async_test_code = """
@@ -372,7 +371,7 @@ async def test_with_async_mock():
         assert validation["uses_asyncmock"] is True
 
     @pytest.mark.unit
-    def test_analyzes_test_performance(self):
+    def test_analyzes_test_performance(self) -> None:
         """Given test suite, when skill analyzes, then evaluates test performance."""
         # Arrange
         slow_tests = """
@@ -415,7 +414,7 @@ def test_parameterized_heavy(item):
         assert len(performance["optimizations"]) >= 2
 
     @pytest.mark.unit
-    def test_recommends_testing_tools(self):
+    def test_recommends_testing_tools(self) -> None:
         """Given project context, when skill analyzes, then recommends appropriate testing tools."""
         # Arrange
         project_context = {
@@ -452,7 +451,7 @@ def test_parameterized_heavy(item):
         assert "factory_boy" in recommendations["database_testing"]["tools"]
 
     @pytest.mark.unit
-    def test_generates_test_documentation(self):
+    def test_generates_test_documentation(self) -> None:
         """Given test code, when skill analyzes, then generates test documentation."""
         # Arrange
         test_code = '''
@@ -504,7 +503,7 @@ class TestUserService:
         assert "assertions" in first_test
 
     @pytest.mark.unit
-    def test_evaluates_test_maintainability(self):
+    def test_evaluates_test_maintainability(self) -> None:
         """Given test code, when skill analyzes, then evaluates test maintainability."""
         # Arrange
         maintainable_code = '''

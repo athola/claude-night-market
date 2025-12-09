@@ -11,14 +11,12 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-# ruff: noqa: E402  (import must come after sys.path modification)
+
 from abstract.skills_eval import ComplianceChecker as CoreComplianceChecker
 
 
 class ComplianceChecker(CoreComplianceChecker):
     """CLI wrapper for core compliance checking functionality."""
-
-    pass
 
 
 # For direct execution
@@ -27,16 +25,21 @@ if __name__ == "__main__":
     import json
 
     parser = argparse.ArgumentParser(
-        description="Check compliance of skills in directory"
+        description="Check compliance of skills in directory",
     )
 
     parser.add_argument(
-        "directory", type=Path, help="Directory containing skills to check"
+        "directory",
+        type=Path,
+        help="Directory containing skills to check",
     )
     parser.add_argument("--rules-file", type=Path, help="Custom rules file")
     parser.add_argument("--output", type=Path, help="Output file path")
     parser.add_argument(
-        "--format", choices=["text", "json"], default="text", help="Output format"
+        "--format",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
 
     args = parser.parse_args()
@@ -52,6 +55,5 @@ if __name__ == "__main__":
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
-        print(f"Compliance report saved to {args.output}")
     else:
-        print(output)
+        pass

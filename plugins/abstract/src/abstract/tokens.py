@@ -142,10 +142,12 @@ class TokenAnalyzer:
 
         # Calculate tokens for each component with appropriate multipliers
         frontmatter_tokens = TokenAnalyzer._estimate_tokens(
-            frontmatter, TokenAnalyzer.FRONTMATTER_MULTIPLIER
+            frontmatter,
+            TokenAnalyzer.FRONTMATTER_MULTIPLIER,
         )
         code_tokens = TokenAnalyzer._estimate_tokens(
-            code_content, TokenAnalyzer.CODE_MULTIPLIER
+            code_content,
+            TokenAnalyzer.CODE_MULTIPLIER,
         )
 
         # Body tokens exclude code blocks to avoid double counting
@@ -276,7 +278,9 @@ def analyze_content(content: str) -> dict[str, int]:
 
 
 def check_efficiency(
-    token_count: int, optimal: int = 2000, max_acceptable: int = 4000
+    token_count: int,
+    optimal: int = 2000,
+    max_acceptable: int = 4000,
 ) -> dict:
     """Check token efficiency against thresholds.
 

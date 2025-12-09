@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +31,7 @@ class ResearchTelemetryEvent:
     novelty_score: float | None
     aligned_domains: str | None
     intake_delta_reasoning: str | None
+    duplicate_entry_ids: str | None
     notes: str | None = None
 
     @classmethod
@@ -54,10 +55,11 @@ class ResearchTelemetryEvent:
         novelty_score: float | None,
         aligned_domains: str | None,
         intake_delta_reasoning: str | None,
+        duplicate_entry_ids: str | None,
         notes: str | None = None,
     ) -> ResearchTelemetryEvent:
         """Convenience constructor that stamps the event."""
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
         return cls(
             timestamp=timestamp,
             query_id=query_id,
@@ -77,6 +79,7 @@ class ResearchTelemetryEvent:
             novelty_score=novelty_score,
             aligned_domains=aligned_domains,
             intake_delta_reasoning=intake_delta_reasoning,
+            duplicate_entry_ids=duplicate_entry_ids,
             notes=notes,
         )
 
@@ -106,6 +109,7 @@ class TelemetryLogger:
             "novelty_score",
             "aligned_domains",
             "intake_delta_reasoning",
+            "duplicate_entry_ids",
             "notes",
         ]
 

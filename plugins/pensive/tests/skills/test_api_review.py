@@ -1,5 +1,4 @@
-"""
-Unit tests for the API review skill.
+"""Unit tests for the API review skill.
 
 Tests API surface detection, interface validation,
 and public API quality assessment.
@@ -19,7 +18,7 @@ from pensive.skills.api_review import ApiReviewSkill
 class TestApiReviewSkill:
     """Test suite for ApiReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = ApiReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestApiReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_detects_typescript_exports(self, mock_skill_context):
+    def test_detects_typescript_exports(self, mock_skill_context) -> None:
         """Given TypeScript code with exports, when skill analyzes, then identifies API exports."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -61,7 +60,8 @@ class TestApiReviewSkill:
 
         # Act
         api_surface = self.skill.analyze_typescript_api(
-            mock_skill_context, "src/auth.ts"
+            mock_skill_context,
+            "src/auth.ts",
         )
 
         # Assert
@@ -75,7 +75,7 @@ class TestApiReviewSkill:
         assert api_surface["interfaces"] >= 1  # User
 
     @pytest.mark.unit
-    def test_detects_rust_public_api(self, mock_skill_context):
+    def test_detects_rust_public_api(self, mock_skill_context) -> None:
         """Given Rust code with pub items, when skill analyzes, then identifies public API."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -115,7 +115,8 @@ class TestApiReviewSkill:
 
         # Act
         api_surface = self.skill.analyze_rust_api(
-            mock_skill_context, "src/user_service.rs"
+            mock_skill_context,
+            "src/user_service.rs",
         )
 
         # Assert
@@ -127,7 +128,7 @@ class TestApiReviewSkill:
         assert api_surface["public_methods"] >= 3
 
     @pytest.mark.unit
-    def test_detects_python_exports(self, mock_skill_context):
+    def test_detects_python_exports(self, mock_skill_context) -> None:
         """Given Python code with __all__, when skill analyzes, then identifies public API."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -160,7 +161,8 @@ class TestApiReviewSkill:
 
         # Act
         api_surface = self.skill.analyze_python_api(
-            mock_skill_context, "auth_service.py"
+            mock_skill_context,
+            "auth_service.py",
         )
 
         # Assert
@@ -174,7 +176,7 @@ class TestApiReviewSkill:
         assert api_surface["functions"] >= 1  # calculate_total
 
     @pytest.mark.unit
-    def test_detects_javascript_es6_exports(self, mock_skill_context):
+    def test_detects_javascript_es6_exports(self, mock_skill_context) -> None:
         """Given JavaScript ES6 modules, when skill analyzes, then identifies exports."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -206,7 +208,8 @@ class TestApiReviewSkill:
 
         # Act
         api_surface = self.skill.analyze_javascript_api(
-            mock_skill_context, "calculator.js"
+            mock_skill_context,
+            "calculator.js",
         )
 
         # Assert
@@ -220,7 +223,7 @@ class TestApiReviewSkill:
         assert api_surface["functions"] >= 1  # factorial
 
     @pytest.mark.unit
-    def test_identifies_missing_documentation(self, mock_skill_context):
+    def test_identifies_missing_documentation(self, mock_skill_context) -> None:
         """Given undocumented API exports, when skill analyzes, then flags missing docs."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -250,7 +253,7 @@ class TestApiReviewSkill:
         assert len(doc_issues) >= 2  # Should flag missing docs for class and function
 
     @pytest.mark.unit
-    def test_identifies_inconsistent_naming(self, mock_skill_context):
+    def test_identifies_inconsistent_naming(self, mock_skill_context) -> None:
         """Given API with inconsistent naming, when skill analyzes, then flags naming issues."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -270,7 +273,8 @@ class TestApiReviewSkill:
 
         # Act
         issues = self.skill.check_naming_consistency(
-            mock_skill_context, "user_service.ts"
+            mock_skill_context,
+            "user_service.ts",
         )
 
         # Assert
@@ -281,7 +285,7 @@ class TestApiReviewSkill:
         assert len(naming_issues) >= 1  # Should detect inconsistent naming patterns
 
     @pytest.mark.unit
-    def test_identifies_missing_error_handling(self, mock_skill_context):
+    def test_identifies_missing_error_handling(self, mock_skill_context) -> None:
         """Given API without error handling, when skill analyzes, then flags missing error handling."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -316,7 +320,7 @@ class TestApiReviewSkill:
         )  # Should flag both methods for missing error handling
 
     @pytest.mark.unit
-    def test_identifies_breaking_changes(self, mock_skill_context):
+    def test_identifies_breaking_changes(self, mock_skill_context) -> None:
         """Given potential breaking changes, when skill analyzes, then flags compatibility issues."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -344,7 +348,7 @@ class TestApiReviewSkill:
             mock_skill_context,
             "api.ts",
             {
-                "previous_version": True  # Simulate we have previous version context
+                "previous_version": True,  # Simulate we have previous version context
             },
         )
 
@@ -356,7 +360,7 @@ class TestApiReviewSkill:
         assert len(breaking_issues) >= 1
 
     @pytest.mark.unit
-    def test_validates_rest_api_patterns(self, mock_skill_context):
+    def test_validates_rest_api_patterns(self, mock_skill_context) -> None:
         """Given REST API implementation, when skill analyzes, then validates REST patterns."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -400,7 +404,7 @@ class TestApiReviewSkill:
         assert len(rest_issues) >= 1  # Should detect improper HTTP method usage
 
     @pytest.mark.unit
-    def test_checks_input_validation(self, mock_skill_context):
+    def test_checks_input_validation(self, mock_skill_context) -> None:
         """Given API methods without validation, when skill analyzes, then flags missing validation."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -429,7 +433,8 @@ class TestApiReviewSkill:
 
         # Act
         issues = self.skill.check_input_validation(
-            mock_skill_context, "user_service.ts"
+            mock_skill_context,
+            "user_service.ts",
         )
 
         # Assert
@@ -440,7 +445,7 @@ class TestApiReviewSkill:
         assert len(validation_issues) >= 2  # Should flag multiple methods
 
     @pytest.mark.unit
-    def test_analyzes_api_versioning(self, mock_skill_context):
+    def test_analyzes_api_versioning(self, mock_skill_context) -> None:
         """Given API implementation, when skill analyzes, then checks versioning strategy."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -470,7 +475,8 @@ class TestApiReviewSkill:
 
         # Act
         versioning_analysis = self.skill.analyze_versioning(
-            mock_skill_context, "auth_service.ts"
+            mock_skill_context,
+            "auth_service.ts",
         )
 
         # Assert
@@ -480,7 +486,7 @@ class TestApiReviewSkill:
         assert len(versioning_analysis["inconsistencies"]) > 0
 
     @pytest.mark.unit
-    def test_checks_api_security_practices(self, mock_skill_context):
+    def test_checks_api_security_practices(self, mock_skill_context) -> None:
         """Given API implementation, when skill analyzes, then checks security practices."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -511,7 +517,8 @@ class TestApiReviewSkill:
 
         # Act
         security_issues = self.skill.check_security_practices(
-            mock_skill_context, "api_client.ts"
+            mock_skill_context,
+            "api_client.ts",
         )
 
         # Assert
@@ -524,7 +531,7 @@ class TestApiReviewSkill:
         assert len(critical_issues) >= 1  # Should detect API key exposure
 
     @pytest.mark.unit
-    def test_analyzes_api_performance_implications(self, mock_skill_context):
+    def test_analyzes_api_performance_implications(self, mock_skill_context) -> None:
         """Given API implementation, when skill analyzes, then identifies performance issues."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -558,7 +565,8 @@ class TestApiReviewSkill:
 
         # Act
         performance_issues = self.skill.analyze_performance_implications(
-            mock_skill_context, "data_service.ts"
+            mock_skill_context,
+            "data_service.ts",
         )
 
         # Assert
@@ -572,7 +580,7 @@ class TestApiReviewSkill:
         assert len(perf_issues) >= 1  # Should detect pagination or N+1 issues
 
     @pytest.mark.unit
-    def test_handles_empty_api_surface(self, mock_skill_context):
+    def test_handles_empty_api_surface(self, mock_skill_context) -> None:
         """Given file with no exports, when skill analyzes, then handles gracefully."""
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -592,7 +600,8 @@ class TestApiReviewSkill:
 
         # Act
         api_surface = self.skill.analyze_typescript_api(
-            mock_skill_context, "internal.ts"
+            mock_skill_context,
+            "internal.ts",
         )
 
         # Assert
@@ -601,7 +610,7 @@ class TestApiReviewSkill:
         assert api_surface["exports"] == 0  # Should detect no public exports
 
     @pytest.mark.unit
-    def test_generates_api_summary_report(self, sample_findings):
+    def test_generates_api_summary_report(self, sample_findings) -> None:
         """Given API analysis findings, when skill generates report, then creates comprehensive summary."""
         # Arrange
         analysis_data = {

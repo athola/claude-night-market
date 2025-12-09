@@ -4,7 +4,7 @@ This module tests the repository catchup and change summarization functionality,
 following TDD/BDD principles and testing all catchup scenarios.
 """
 
-# ruff: noqa: S101
+import contextlib
 from unittest.mock import call
 
 import pytest
@@ -19,7 +19,7 @@ class TestCatchupSkill:
     """
 
     @pytest.fixture
-    def mock_catchup_skill_content(self):
+    def mock_catchup_skill_content(self) -> str:
         """Mock catchup skill content."""
         return """---
 name: catchup
@@ -89,7 +89,7 @@ Priority order for change categories:
 """
 
     @pytest.fixture
-    def sample_git_log_output(self):
+    def sample_git_log_output(self) -> str:
         """Sample git log output for catchup testing."""
         return """abc1234 2024-12-04 Add user authentication feature
 def5678 2024-12-03 Fix database connection timeout
@@ -100,7 +100,7 @@ def5678 2024-12-03 Fix database connection timeout
 5678901 2024-11-28 Update dependencies"""
 
     @pytest.fixture
-    def sample_git_status_output(self):
+    def sample_git_status_output(self) -> str:
         """Sample git status output."""
         return """On branch feature/user-auth
 Your branch is ahead of 'origin/feature/user-auth' by 2 commits.
@@ -162,7 +162,7 @@ Untracked files:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_confirms_repository_context(self, mock_claude_tools):
+    def test_catchup_confirms_repository_context(self, mock_claude_tools) -> None:
         """Scenario: Catchup confirms repository context and state
         Given a git repository in any state
         When starting catchup analysis
@@ -182,10 +182,10 @@ Untracked files:
         context["working_directory"] = mock_claude_tools["Bash"]("pwd")
         context["branch"] = mock_claude_tools["Bash"]("git branch --show-current")
         context["status"] = mock_claude_tools["Bash"](
-            "git status --porcelain | head -1"
+            "git status --porcelain | head -1",
         )
         context["uncommitted_changes"] = bool(
-            mock_claude_tools["Bash"]("git status --porcelain")
+            mock_claude_tools["Bash"]("git status --porcelain"),
         )
 
         # Assert
@@ -205,7 +205,9 @@ Untracked files:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_identifies_relevant_changes(self, sample_git_status_output):
+    def test_catchup_identifies_relevant_changes(
+        self, sample_git_status_output
+    ) -> None:
         """Scenario: Catchup filters changes by relevance
         Given a repository with various changes
         When running catchup analysis
@@ -228,11 +230,11 @@ Untracked files:
                 if ":" in change_info:
                     change_type, file_path = change_info.split(": ", 1)
                     changes[current_section].append(
-                        {"file": file_path, "status": change_type}
+                        {"file": file_path, "status": change_type},
                     )
                 elif change_info and not change_info.endswith(":"):
                     changes[current_section].append(
-                        {"file": change_info, "status": "untracked"}
+                        {"file": change_info, "status": "untracked"},
                     )
 
         # Categorize by relevance
@@ -260,7 +262,7 @@ Untracked files:
                         break
 
                 categorized_changes[relevance].append(
-                    {"file": file_path, "section": section, "status": change["status"]}
+                    {"file": file_path, "section": section, "status": change["status"]},
                 )
 
         # Assert
@@ -274,7 +276,7 @@ Untracked files:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_captures_delta_efficiently(self, sample_git_log_output):
+    def test_catchup_captures_delta_efficiently(self, sample_git_log_output) -> None:
         """Scenario: Catchup captures change delta without full reproduction
         Given recent commits and changes
         When analyzing delta
@@ -300,7 +302,7 @@ Untracked files:
                         "time": commit_time,
                         "message": commit_message,
                         "type": self._categorize_commit_type(commit_message),
-                    }
+                    },
                 )
 
         # Generate summary statistics
@@ -338,22 +340,21 @@ Untracked files:
         message_lower = message.lower()
         if "add" in message_lower or "implement" in message_lower:
             return "feature"
-        elif "fix" in message_lower or "bug" in message_lower:
+        if "fix" in message_lower or "bug" in message_lower:
             return "fix"
-        elif "refactor" in message_lower or "restructure" in message_lower:
+        if "refactor" in message_lower or "restructure" in message_lower:
             return "refactor"
-        elif "update" in message_lower or "upgrade" in message_lower:
+        if "update" in message_lower or "upgrade" in message_lower:
             return "update"
-        elif "test" in message_lower:
+        if "test" in message_lower:
             return "test"
-        elif "config" in message_lower or "configure" in message_lower:
+        if "config" in message_lower or "configure" in message_lower:
             return "config"
-        else:
-            return "other"
+        return "other"
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_extracts_insights(self, sample_catchup_result):
+    def test_catchup_extracts_insights(self, sample_catchup_result) -> None:
         """Scenario: Catchup extracts actionable insights from changes
         Given categorized changes and commit history
         When extracting insights
@@ -379,7 +380,7 @@ Untracked files:
                     "description": f"Feature implementation with {len(feature_files)} components",
                     "impact": "High",
                     "files": [c["file"] for c in feature_files],
-                }
+                },
             )
 
         # Look for test additions
@@ -391,7 +392,7 @@ Untracked files:
                     "description": f"Test coverage added for {len(test_files)} areas",
                     "impact": "Medium",
                     "files": [c["file"] for c in test_files],
-                }
+                },
             )
 
         # Look for configuration changes
@@ -403,7 +404,7 @@ Untracked files:
                     "description": "Configuration changes affecting deployment",
                     "impact": "Medium",
                     "files": [c["file"] for c in config_files],
-                }
+                },
             )
 
         # Assert
@@ -420,7 +421,7 @@ Untracked files:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_records_followups(self, sample_catchup_result):
+    def test_catchup_records_followups(self, sample_catchup_result) -> None:
         """Scenario: Catchup records actionable follow-up items
         Given insights from change analysis
         When recording follow-ups
@@ -440,7 +441,7 @@ Untracked files:
                         "priority": "High",
                         "category": "code_review",
                         "files": insight["files"],
-                    }
+                    },
                 )
                 followups.append(
                     {
@@ -448,7 +449,7 @@ Untracked files:
                         "priority": "Medium",
                         "category": "documentation",
                         "files": insight["files"],
-                    }
+                    },
                 )
 
             elif insight["type"] == "coordination_needed":
@@ -458,7 +459,7 @@ Untracked files:
                         "priority": "High",
                         "category": "coordination",
                         "files": insight["files"],
-                    }
+                    },
                 )
 
         # Sort by priority
@@ -476,7 +477,7 @@ Untracked files:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_token_conservation(self):
+    def test_catchup_token_conservation(self) -> None:
         """Scenario: Catchup conserves tokens in large repositories
         Given a repository with many changes
         When generating catchup summary
@@ -492,7 +493,7 @@ Untracked files:
                     "type": "modified",
                     "lines_added": i % 10,
                     "lines_removed": i % 5,
-                }
+                },
             )
 
         # Act - implement token conservation
@@ -526,7 +527,7 @@ Untracked files:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_handles_different_baselines(self, mock_claude_tools):
+    def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
         """Scenario: Catchup handles various baseline specifications
         Given different baseline reference formats
         When establishing baseline for catchup
@@ -554,7 +555,7 @@ Untracked files:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_catchup_detects_blockers_and_conflicts(self):
+    def test_catchup_detects_blockers_and_conflicts(self) -> None:
         """Scenario: Catchup identifies potential blockers and conflicts
         Given changes that might cause issues
         When analyzing for blockers
@@ -605,7 +606,7 @@ Untracked files:
                             "type": "database_migration_required",
                             "affected_files": [change["file"]],
                             "action": "Coordinate with DB team for migration",
-                        }
+                        },
                     )
                 elif "endpoint" in change["change_type"]:
                     conflicts.append(
@@ -613,7 +614,7 @@ Untracked files:
                             "type": "api_contract_break",
                             "affected_files": [change["file"]],
                             "action": "Update API clients and documentation",
-                        }
+                        },
                     )
 
         # Assert
@@ -629,7 +630,7 @@ Untracked files:
             assert blocker["severity"] == "High"
 
     @pytest.mark.unit
-    def test_catchup_error_handling(self, mock_claude_tools):
+    def test_catchup_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Catchup handles repository errors gracefully
         Given various git repository issues
         When running catchup analysis
@@ -647,17 +648,15 @@ Untracked files:
             mock_claude_tools["Bash"].return_value = error_output
 
             # Act - handle error gracefully
-            try:
+            with contextlib.suppress(Exception):
                 mock_claude_tools["Bash"]("git status")
-            except Exception:
-                pass
 
             # Assert
             # In a real implementation, this would return error info rather than raising
             assert "fatal:" in error_output or "error:" in error_output
 
     @pytest.mark.performance
-    def test_catchup_performance_large_history(self):
+    def test_catchup_performance_large_history(self) -> None:
         """Scenario: Catchup performs efficiently with large commit history
         Given a repository with extensive commit history
         When running catchup analysis
@@ -674,7 +673,7 @@ Untracked files:
                     "date": f"2024-{12 - (i % 12):02d}-{(i % 28) + 1:02d}",
                     "message": f"Commit {i}: Various changes",
                     "files_changed": i % 10 + 1,
-                }
+                },
             )
 
         # Act - measure performance of analysis
@@ -707,7 +706,7 @@ Untracked files:
         assert len(summary["commits_by_month"]) <= 12  # Max 12 months
 
     @pytest.mark.unit
-    def test_catchup_generates_structured_output(self, sample_catchup_result):
+    def test_catchup_generates_structured_output(self, sample_catchup_result) -> None:
         """Scenario: Catchup generates structured output for consumption
         Given completed catchup analysis
         When generating final output

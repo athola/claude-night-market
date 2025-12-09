@@ -11,7 +11,6 @@ Note: The actual CLI at scripts/memory_palace_cli.py has import path issues
 underlying business logic directly via the MemoryPalaceManager class.
 """
 
-# ruff: noqa: S101
 import json
 from datetime import datetime
 from pathlib import Path
@@ -23,7 +22,9 @@ from memory_palace.palace_manager import MemoryPalaceManager
 class TestPalaceManagementWorkflows:
     """Integration tests for complete palace management workflows."""
 
-    def test_create_list_delete_workflow(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_create_list_delete_workflow(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Complete workflow: create palace, verify in list, delete."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -48,8 +49,10 @@ class TestPalaceManagementWorkflows:
         assert not any(p["id"] == palace_id for p in palaces_after)
 
     def test_create_modify_save_reload_workflow(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Workflow: create, modify, save, reload verifies persistence."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -84,8 +87,11 @@ class TestPalaceManagementWorkflows:
         assert reloaded["metadata"]["concept_count"] == 1
 
     def test_search_across_multiple_palaces(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Search finds matches across different palaces."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -103,8 +109,11 @@ class TestPalaceManagementWorkflows:
         assert len(results) >= 1
 
     def test_export_import_roundtrip(
-        self, temp_config_file: Path, temp_palaces_dir: Path, tmp_path: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        tmp_path: Path,
+    ) -> None:
         """Export then import preserves all palace data."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -147,7 +156,9 @@ class TestPalaceManagementWorkflows:
 class TestGardenTendingWorkflows:
     """Integration tests for garden tending operations."""
 
-    def test_compute_metrics_for_garden(self, sample_garden_file: Path, fixed_timestamp: datetime):
+    def test_compute_metrics_for_garden(
+        self, sample_garden_file: Path, fixed_timestamp: datetime
+    ) -> None:
         """Compute metrics returns expected structure."""
         metrics = compute_garden_metrics(sample_garden_file, fixed_timestamp)
 
@@ -156,7 +167,7 @@ class TestGardenTendingWorkflows:
         assert "avg_days_since_tend" in metrics
         assert metrics["plots"] > 0
 
-    def test_empty_garden_metrics(self, empty_garden_file: Path, fixed_timestamp: datetime):
+    def test_empty_garden_metrics(self, empty_garden_file: Path, fixed_timestamp: datetime) -> None:
         """Empty garden returns valid zero metrics."""
         metrics = compute_garden_metrics(empty_garden_file, fixed_timestamp)
 
@@ -167,7 +178,9 @@ class TestGardenTendingWorkflows:
 class TestConcurrentOperations:
     """Tests for concurrent/interleaved operations."""
 
-    def test_multiple_managers_same_directory(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_multiple_managers_same_directory(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Multiple managers can operate on same directory."""
         manager1 = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -189,8 +202,11 @@ class TestConcurrentOperations:
         assert loaded["name"] == "Shared Palace"
 
     def test_backup_accumulation(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Multiple saves create backups (at least one per save).
 
         Note: Backup filenames use second-precision timestamps, so rapid
@@ -222,8 +238,10 @@ class TestEdgeCases:
     """Tests for edge cases and error handling."""
 
     def test_create_palace_with_special_characters_in_name(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Palace names with special characters are handled."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -239,8 +257,11 @@ class TestEdgeCases:
         assert loaded["name"] == 'Test\'s "Special" Palace!'
 
     def test_empty_search_query(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Empty or whitespace search query handled gracefully."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -252,7 +273,7 @@ class TestEdgeCases:
         # Should not crash, may return all or none depending on implementation
         assert isinstance(results, list)
 
-    def test_very_long_palace_name(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_very_long_palace_name(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
         """Very long palace names are handled."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -264,7 +285,7 @@ class TestEdgeCases:
 
         assert palace["name"] == long_name
 
-    def test_unicode_in_palace_data(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_unicode_in_palace_data(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
         """Unicode characters in palace data are preserved."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -283,7 +304,7 @@ class TestEdgeCases:
 class TestDataIntegrity:
     """Tests for data integrity and consistency."""
 
-    def test_master_index_consistency(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_master_index_consistency(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
         """Master index stays consistent with actual palace files."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -312,7 +333,9 @@ class TestDataIntegrity:
             or index_after["global_stats"]["domains"]["domain2"] == 0
         )
 
-    def test_palace_file_contains_valid_json(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_palace_file_contains_valid_json(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """All palace files are valid JSON."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -334,8 +357,11 @@ class TestSearchTypes:
     """Tests for different search type behaviors."""
 
     def test_semantic_search_case_insensitive(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Semantic search is case-insensitive."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -349,8 +375,11 @@ class TestSearchTypes:
         assert len(results_lower) == len(results_upper)
 
     def test_exact_search_stricter_than_semantic(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Exact search is stricter than semantic."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -367,8 +396,11 @@ class TestSearchTypes:
         assert len(exact_results) <= len(semantic_results)
 
     def test_fuzzy_search_word_matching(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Fuzzy search matches any word in query."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),

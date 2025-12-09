@@ -4,9 +4,6 @@ This module tests the optimize-context command orchestration,
 parameter handling, and skill coordination following TDD/BDD principles.
 """
 
-
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -46,7 +43,9 @@ class TestOptimizeContextCommand:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_parses_parameters_correctly(self, mock_optimize_context_command):
+    def test_command_parses_parameters_correctly(
+        self, mock_optimize_context_command
+    ) -> None:
         """Scenario: Command parses parameters correctly
         Given various parameter combinations
         When parsing the command
@@ -91,7 +90,7 @@ class TestOptimizeContextCommand:
                         parameters["aggressiveness"] = aggressiveness_value
 
             parsed_results.append(
-                {"input": command_input, "parsed_parameters": parameters}
+                {"input": command_input, "parsed_parameters": parameters},
             )
 
         # Assert
@@ -119,8 +118,10 @@ class TestOptimizeContextCommand:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_orchestrates_context_optimization_workflow(
-        self, mock_optimize_context_command, mock_claude_tools
-    ):
+        self,
+        mock_optimize_context_command,
+        mock_claude_tools,
+    ) -> None:
         """Scenario: Command orchestrates context optimization workflow
         Given parsed parameters and available skills
         When executing the optimization workflow
@@ -172,7 +173,8 @@ class TestOptimizeContextCommand:
         # Execute skills in sequence
         for skill_name in mock_optimize_context_command["skills_orchestrated"]:
             skill_result = skill_execution_results.get(
-                skill_name, {"status": "skipped"}
+                skill_name,
+                {"status": "skipped"},
             )
 
             workflow_execution["skills_executed"].append(skill_name)
@@ -222,8 +224,9 @@ class TestOptimizeContextCommand:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_adapts_optimization_based_on_aggressiveness(
-        self, mock_claude_tools
-    ):
+        self,
+        mock_claude_tools,
+    ) -> None:
         """Scenario: Command adapts optimization based on aggressiveness level
         Given different aggressiveness parameters
         When applying optimization strategies
@@ -342,7 +345,7 @@ class TestOptimizeContextCommand:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_handles_different_target_types(self, mock_claude_tools):
+    def test_command_handles_different_target_types(self, mock_claude_tools) -> None:
         """Scenario: Command handles different optimization target types
         Given various target types (file, directory, session)
         When optimizing different targets
@@ -487,7 +490,7 @@ class TestOptimizeContextCommand:
             )  # Should be reasonably effective
 
     @pytest.mark.unit
-    def test_command_provides_comprehensive_feedback(self, mock_claude_tools):
+    def test_command_provides_comprehensive_feedback(self, mock_claude_tools) -> None:
         """Scenario: Command provides comprehensive feedback on optimization results
         Given completed optimization workflow
         When generating user feedback
@@ -571,23 +574,23 @@ class TestOptimizeContextCommand:
                     [
                         f"{skill_name}: {change}"
                         for change in skill_result["changes_made"]
-                    ]
+                    ],
                 )
 
         # Generate recommendations
         if user_feedback["achievements"]["context_reduction_percentage"] > 15:
             user_feedback["recommendations"].append(
-                "Consider similar optimization for related files"
+                "Consider similar optimization for related files",
             )
 
         if token_result["quota_after"]["remaining"] < 20000:
             user_feedback["recommendations"].append(
-                "Monitor weekly quota usage closely"
+                "Monitor weekly quota usage closely",
             )
 
         if optimization_results["aggressiveness"] == "moderate":
             user_feedback["recommendations"].append(
-                "Consider aggressive optimization for larger files"
+                "Consider aggressive optimization for larger files",
             )
 
         user_feedback["recommendations"].extend(
@@ -595,7 +598,7 @@ class TestOptimizeContextCommand:
                 "Review optimized content for accuracy",
                 "Monitor performance improvements",
                 "Set up regular optimization schedule",
-            ]
+            ],
         )
 
         # Assert
@@ -622,7 +625,9 @@ class TestOptimizeContextCommand:
         assert all(isinstance(rec, str) for rec in user_feedback["recommendations"])
 
     @pytest.mark.unit
-    def test_command_handles_optimization_errors_gracefully(self, mock_claude_tools):
+    def test_command_handles_optimization_errors_gracefully(
+        self, mock_claude_tools
+    ) -> None:
         """Scenario: Command handles optimization errors gracefully
         Given various error conditions during optimization
         When errors occur

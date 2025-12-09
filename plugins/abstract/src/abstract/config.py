@@ -9,12 +9,9 @@ import os
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import yaml  # type: ignore[import-untyped]
-
-if TYPE_CHECKING:
-    pass
 
 
 class Environment(Enum):
@@ -245,7 +242,8 @@ class AbstractConfig:
         config_path = Path(config_path)
 
         if not config_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+            msg = f"Configuration file not found: {config_path}"
+            raise FileNotFoundError(msg)
 
         # Determine file format
         if config_path.suffix.lower() in [".yaml", ".yml"]:
@@ -255,19 +253,20 @@ class AbstractConfig:
             with open(config_path) as f:
                 config_data = json.load(f)
         else:
+            msg = f"Unsupported configuration file format: {config_path.suffix}"
             raise ValueError(
-                f"Unsupported configuration file format: {config_path.suffix}"
+                msg,
             )
 
         # Convert nested dicts to configuration objects
         if "skill_validation" in config_data:
             config_data["skill_validation"] = SkillValidationConfig(
-                **config_data["skill_validation"]
+                **config_data["skill_validation"],
             )
 
         if "skill_analyzer" in config_data:
             config_data["skill_analyzer"] = SkillAnalyzerConfig(
-                **config_data["skill_analyzer"]
+                **config_data["skill_analyzer"],
             )
 
         if "skills_eval" in config_data:
@@ -275,12 +274,12 @@ class AbstractConfig:
 
         if "context_optimizer" in config_data:
             config_data["context_optimizer"] = ContextOptimizerConfig(
-                **config_data["context_optimizer"]
+                **config_data["context_optimizer"],
             )
 
         if "error_handling" in config_data:
             config_data["error_handling"] = ErrorHandlingConfig(
-                **config_data["error_handling"]
+                **config_data["error_handling"],
             )
 
         return cls(**config_data)
@@ -335,22 +334,24 @@ class AbstractConfig:
             with open(config_path, "w") as f:
                 json.dump(config_dict, f, indent=2, default=str)
         else:
-            raise ValueError(f"Unsupported format: {fmt}")
+            msg = f"Unsupported format: {fmt}"
+            raise ValueError(msg)
 
     def get_path(self, path_key: str) -> str:
         """Get a resolved path."""
         if self.project_root is None:
-            raise ValueError("project_root is not set")
+            msg = "project_root is not set"
+            raise ValueError(msg)
         base_path = Path(self.project_root)
 
         if path_key == "config_dir":
             return str(base_path / self.config_dir)
-        elif path_key == "scripts_dir":
+        if path_key == "scripts_dir":
             return str(base_path / self.scripts_dir)
-        elif path_key == "project_root":
+        if path_key == "project_root":
             return self.project_root
-        else:
-            raise ValueError(f"Unknown path key: {path_key}")
+        msg = f"Unknown path key: {path_key}"
+        raise ValueError(msg)
 
     def validate(self) -> list[str]:
         """Validate configuration and return list of issues."""
@@ -363,7 +364,7 @@ class AbstractConfig:
             if default < min_thresh:
                 issues.append(
                     f"Threshold {self.skill_analyzer.DEFAULT_THRESHOLD} "
-                    f"below minimum {self.skill_analyzer.MIN_THRESHOLD}"
+                    f"below minimum {self.skill_analyzer.MIN_THRESHOLD}",
                 )
 
             max_thresh = self.skill_analyzer.MAX_THRESHOLD
@@ -395,13 +396,17 @@ class AbstractConfig:
         """Get configuration summary."""
         # Ensure sub-configs are initialized (they should be after __post_init__)
         if self.skill_validation is None:
-            raise ValueError("skill_validation not initialized")
+            msg = "skill_validation not initialized"
+            raise ValueError(msg)
         if self.skill_analyzer is None:
-            raise ValueError("skill_analyzer not initialized")
+            msg = "skill_analyzer not initialized"
+            raise ValueError(msg)
         if self.skills_eval is None:
-            raise ValueError("skills_eval not initialized")
+            msg = "skills_eval not initialized"
+            raise ValueError(msg)
         if self.context_optimizer is None:
-            raise ValueError("context_optimizer not initialized")
+            msg = "context_optimizer not initialized"
+            raise ValueError(msg)
 
         # Get exception count safely
         exception_count = (
@@ -475,7 +480,9 @@ class ConfigFactory:
 
     @classmethod
     def load_config(
-        cls, config_path: str | Path, name: str = "default"
+        cls,
+        config_path: str | Path,
+        name: str = "default",
     ) -> AbstractConfig:
         """Load configuration from file and store with given name."""
         config = AbstractConfig.from_file(config_path)

@@ -1,6 +1,5 @@
 """Tests for frontmatter validation in spec-kit skill files."""
 
-# ruff: noqa: S101
 import re
 
 import pytest
@@ -9,7 +8,7 @@ import pytest
 class TestFrontmatterValidation:
     """Test frontmatter validation for spec-kit skills."""
 
-    def test_spec_writing_skill_frontmatter(self, temp_skill_files):
+    def test_spec_writing_skill_frontmatter(self, temp_skill_files) -> None:
         """Test spec-writing skill has valid frontmatter."""
         skill_file = temp_skill_files / "spec-writing" / "SKILL.md"
         content = skill_file.read_text()
@@ -31,7 +30,7 @@ class TestFrontmatterValidation:
             "Category should be specification"
         )
 
-    def test_task_planning_skill_frontmatter(self, temp_skill_files):
+    def test_task_planning_skill_frontmatter(self, temp_skill_files) -> None:
         """Test task-planning skill has valid frontmatter."""
         skill_file = temp_skill_files / "task-planning" / "SKILL.md"
         content = skill_file.read_text()
@@ -51,7 +50,7 @@ class TestFrontmatterValidation:
         assert "name: task-planning" in frontmatter, "Name should match directory"
         assert "category: planning" in frontmatter, "Category should be planning"
 
-    def test_orchestrator_skill_frontmatter(self, temp_skill_files):
+    def test_orchestrator_skill_frontmatter(self, temp_skill_files) -> None:
         """Test speckit-orchestrator skill has valid frontmatter."""
         skill_file = temp_skill_files / "speckit-orchestrator" / "SKILL.md"
         content = skill_file.read_text()
@@ -75,7 +74,7 @@ class TestFrontmatterValidation:
             "Category should be workflow"
         )
 
-    def test_frontmatter_yaml_validity(self, temp_skill_files):
+    def test_frontmatter_yaml_validity(self, temp_skill_files) -> None:
         """Test frontmatter is valid YAML."""
         import yaml
 
@@ -100,7 +99,7 @@ class TestFrontmatterValidation:
             except yaml.YAMLError as e:
                 pytest.fail(f"Invalid YAML in {skill_name} frontmatter: {e}")
 
-    def test_optional_frontmatter_fields(self, temp_skill_files):
+    def test_optional_frontmatter_fields(self, temp_skill_files) -> None:
         """Test optional frontmatter fields are properly formatted."""
         import yaml
 
@@ -135,7 +134,7 @@ class TestFrontmatterValidation:
                         f"{field} should be a number or string"
                     )
 
-    def test_frontmatter_content_consistency(self, temp_skill_files):
+    def test_frontmatter_content_consistency(self, temp_skill_files) -> None:
         """Test frontmatter content is consistent with skill content."""
         skill_file = temp_skill_files / "spec-writing" / "SKILL.md"
         content = skill_file.read_text()
@@ -158,7 +157,7 @@ class TestFrontmatterValidation:
         heading_match = re.search(r"^# (.+)$", main_content, re.MULTILINE)
         assert heading_match, "Skill should have main heading"
 
-    def test_consistent_frontmatter_structure(self, temp_skill_files):
+    def test_consistent_frontmatter_structure(self, temp_skill_files) -> None:
         """Test all skills follow consistent frontmatter structure."""
         import yaml
 
@@ -185,7 +184,7 @@ class TestFrontmatterValidation:
             f"Skills should have common fields: {expected_common}"
         )
 
-    def test_plugin_manifest_validation(self, sample_plugin_manifest):
+    def test_plugin_manifest_validation(self, sample_plugin_manifest) -> None:
         """Test plugin manifest follows expected structure."""
         required_fields = [
             "name",
@@ -219,8 +218,10 @@ class TestFrontmatterValidation:
         )
 
     def test_skill_references_in_manifest(
-        self, sample_plugin_manifest, temp_skill_files
-    ):
+        self,
+        sample_plugin_manifest,
+        temp_skill_files,
+    ) -> None:
         """Test that manifest references existing skills."""
         manifest_skills = sample_plugin_manifest["skills"]
 
@@ -238,7 +239,7 @@ class TestFrontmatterValidation:
             skill_file = skill_dir / "SKILL.md"
             assert skill_file.exists(), f"Skill missing SKILL.md: {skill_ref}"
 
-    def test_command_references_in_manifest(self, sample_plugin_manifest):
+    def test_command_references_in_manifest(self, sample_plugin_manifest) -> None:
         """Test that manifest references existing command files."""
         manifest_commands = sample_plugin_manifest["commands"]
 

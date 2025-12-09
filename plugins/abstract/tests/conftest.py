@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.fixture
-def sample_skill_content():
+def sample_skill_content() -> str:
     """Sample valid skill file content."""
     return """---
 name: test-skill
@@ -31,7 +31,7 @@ This is a test skill.
 
 
 @pytest.fixture
-def sample_skill_with_issues():
+def sample_skill_with_issues() -> str:
     """Sample skill content with validation issues."""
     return """---
 name: test-skill

@@ -1,5 +1,4 @@
-"""
-Integration tests for the parseltongue plugin.
+"""Integration tests for the parseltongue plugin.
 
 Tests end-to-end workflows, agent coordination,
 and real-world usage scenarios.
@@ -23,7 +22,9 @@ class TestParseltongueIntegration:
     """Integration tests for parseltongue plugin."""
 
     @pytest.mark.integration
-    async def test_end_to_end_python_code_analysis(self, temp_project_directory):
+    async def test_end_to_end_python_code_analysis(
+        self, temp_project_directory
+    ) -> None:
         """Given a Python project, when analyzing, then provides comprehensive insights."""
         # Arrange
         workflow = CodeReviewWorkflow()
@@ -163,7 +164,9 @@ async def test_get_user_not_found(mock_client):
         assert "pytest" in str(analysis_result["dependencies"])
 
     @pytest.mark.integration
-    async def test_agent_coordination_for_code_review(self, temp_project_directory):
+    async def test_agent_coordination_for_code_review(
+        self, temp_project_directory
+    ) -> None:
         """Given code review request, when agents coordinate, then provides comprehensive analysis."""
         # Arrange
         python_code = '''
@@ -232,7 +235,7 @@ def test_data_processor():
         assert len(optimizer_analysis["optimizations"]) >= 2
 
     @pytest.mark.integration
-    async def test_skill_workflow_coordination(self, language_samples):
+    async def test_skill_workflow_coordination(self, language_samples) -> None:
         """Given multi-language code, when skills coordinate, then provides comprehensive analysis."""
         # Arrange
         multi_language_code = {
@@ -259,7 +262,8 @@ def test_data_processor():
 
             # Step 3: Suggest improvements
             transformation_result = transformation_skill.suggest_improvements(
-                code, language
+                code,
+                language,
             )
 
             results[language] = {
@@ -287,7 +291,7 @@ def test_data_processor():
             # (May be empty for good code, but structure should exist)
 
     @pytest.mark.integration
-    async def test_command_execution_workflow(self, temp_project_directory):
+    async def test_command_execution_workflow(self, temp_project_directory) -> None:
         """Given command execution, when workflow runs, then integrates all components."""
         # Arrange
         from parseltongue.commands.analyze_tests import AnalyzeTestsCommand
@@ -362,13 +366,13 @@ def test_no_assertion():
         # Execute profiler command
         profiler_command = RunProfilerCommand()
         profiler_analysis = await profiler_command.execute(
-            temp_project_directory / "src" / "slow_code.py"
+            temp_project_directory / "src" / "slow_code.py",
         )
 
         # Execute async check command
         async_command = CheckAsyncCommand()
         async_analysis = await async_command.execute(
-            temp_project_directory / "src" / "slow_code.py"
+            temp_project_directory / "src" / "slow_code.py",
         )
 
         # Assert
@@ -390,7 +394,7 @@ def test_no_assertion():
         assert len(async_analysis["blocking_operations"]) >= 1
 
     @pytest.mark.integration
-    async def test_error_handling_and_recovery(self):
+    async def test_error_handling_and_recovery(self) -> None:
         """Given error scenarios, when workflow encounters errors, then handles gracefully."""
         # Arrange
         invalid_code = """
@@ -418,7 +422,7 @@ class AnotherClass:
             assert isinstance(e, (SyntaxError, ValueError))
 
     @pytest.mark.integration
-    async def test_configuration_driven_workflow(self, temp_project_directory):
+    async def test_configuration_driven_workflow(self, temp_project_directory) -> None:
         """Given custom configuration, when workflow runs, then respects settings."""
         # Arrange
         config = {
@@ -430,7 +434,7 @@ class AnotherClass:
 
         # Add configuration file
         (temp_project_directory / "parseltongue.json").write_text(
-            json.dumps(config, indent=2)
+            json.dumps(config, indent=2),
         )
 
         # Add some code files
@@ -475,7 +479,7 @@ def test_app_config():
         assert len(test_files) == 0  # Should be excluded
 
     @pytest.mark.integration
-    async def test_performance_with_large_codebase(self):
+    async def test_performance_with_large_codebase(self) -> None:
         """Given large codebase, when analyzing, then maintains acceptable performance."""
         # Arrange
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -524,7 +528,7 @@ class Module{i}:
             assert all("analysis" in result for result in results.values())
 
     @pytest.mark.integration
-    async def test_plugin_lifecycle_management(self):
+    async def test_plugin_lifecycle_management(self) -> None:
         """Given plugin usage, when managing lifecycle, then handles resources properly."""
         # Arrange
         from parseltongue.plugin import ParseltonguePlugin
@@ -546,7 +550,7 @@ class Module{i}:
         assert plugin.is_initialized is False  # Should be cleaned up
 
     @pytest.mark.integration
-    async def test_real_world_scenario_analysis(self, temp_project_directory):
+    async def test_real_world_scenario_analysis(self, temp_project_directory) -> None:
         """Given realistic Python project, when analyzing, then provides actionable insights."""
         # Arrange - Create a realistic FastAPI project
         (temp_project_directory / "src" / "api" / "__init__.py").write_text("")

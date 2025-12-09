@@ -4,9 +4,6 @@ This module tests the change categorization and risk assessment functionality,
 following TDD/BDD principles and testing all diff analysis scenarios.
 """
 
-
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -19,7 +16,7 @@ class TestDiffAnalysisSkill:
     """
 
     @pytest.fixture
-    def mock_diff_analysis_skill_content(self):
+    def mock_diff_analysis_skill_content(self) -> str:
         """Mock diff-analysis skill content."""
         return """---
 name: diff-analysis
@@ -85,7 +82,7 @@ Methodology for categorizing changes and assessing their potential impact and ri
 """
 
     @pytest.fixture
-    def sample_git_diff_output(self):
+    def sample_git_diff_output(self) -> str:
         """Sample git diff output for testing."""
         return """diff --git a/src/main.py b/src/main.py
 index abc123..def456 100644
@@ -182,7 +179,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_change_categorization_by_type(self, sample_git_diff_output):
+    def test_change_categorization_by_type(self, sample_git_diff_output) -> None:
         """Scenario: Changes are categorized by type correctly
         Given various git diff outputs
         When analyzing changes
@@ -248,7 +245,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_semantic_categorization_of_changes(self, sample_git_diff_output):
+    def test_semantic_categorization_of_changes(self, sample_git_diff_output) -> None:
         """Scenario: Changes are categorized semantically
         Given files in different directories
         When analyzing semantic meaning
@@ -282,7 +279,7 @@ index abcdef..0000000
                     break
 
             categorized_changes.append(
-                {"file": file_path, "semantic_category": category}
+                {"file": file_path, "semantic_category": category},
             )
 
         # Assert
@@ -298,7 +295,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_risk_assessment_by_change_type(self):
+    def test_risk_assessment_by_change_type(self) -> None:
         """Scenario: Risk levels are assigned based on change characteristics
         Given various types of changes
         When assessing risk
@@ -354,7 +351,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_diff_summary_generation(self, sample_diff_analysis_result):
+    def test_diff_summary_generation(self, sample_diff_analysis_result) -> None:
         """Scenario: Diff summary provides comprehensive overview
         Given categorized changes with risk assessments
         When generating summary
@@ -393,7 +390,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_baseline_establishment(self, mock_claude_tools):
+    def test_baseline_establishment(self, mock_claude_tools) -> None:
         """Scenario: Baseline is established for comparison
         Given a git repository
         When establishing baseline for diff analysis
@@ -423,7 +420,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_diff_patterns_recognition(self):
+    def test_diff_patterns_recognition(self) -> None:
         """Scenario: Common diff patterns are recognized
         Given typical code change patterns
         When analyzing diffs
@@ -475,7 +472,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_cross_cutting_change_detection(self):
+    def test_cross_cutting_change_detection(self) -> None:
         """Scenario: Cross-cutting changes are identified
         Given changes affecting multiple files or components
         When analyzing diffs
@@ -517,7 +514,7 @@ index abcdef..0000000
                         "base_name": base_name,
                         "files": [c["file"] for c in group_changes],
                         "categories": [c["semantic_category"] for c in group_changes],
-                    }
+                    },
                 )
 
         # Assert
@@ -531,7 +528,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_diff_statistics_calculation(self):
+    def test_diff_statistics_calculation(self) -> None:
         """Scenario: Diff statistics are calculated accurately
         Given diff output with various change metrics
         When calculating statistics
@@ -597,7 +594,7 @@ index abcdef..0000000
         assert stats["files_by_type"]["added"] == 1
 
     @pytest.mark.unit
-    def test_diff_analysis_error_handling(self, mock_claude_tools):
+    def test_diff_analysis_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Diff analysis handles errors gracefully
         Given git command failures or malformed diff output
         When analyzing diffs
@@ -630,7 +627,7 @@ just some text"""
         # No assertion about parsing - just that it doesn't crash
 
     @pytest.mark.performance
-    def test_large_diff_analysis_performance(self):
+    def test_large_diff_analysis_performance(self) -> None:
         """Scenario: Large diff analysis performs efficiently
         Given diff output with many changed files
         When analyzing large diffs
@@ -649,7 +646,7 @@ just some text"""
                     "lines_removed": i % 10,
                     "semantic_category": ["feature", "fix", "refactor", "tests"][i % 4],
                     "risk_level": ["Low", "Medium", "High"][i % 3],
-                }
+                },
             )
 
         # Act - measure analysis performance

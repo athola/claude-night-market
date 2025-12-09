@@ -4,9 +4,6 @@ This module tests the analyze-growth command orchestration,
 growth analysis, and resource monitoring following TDD/BDD principles.
 """
 
-
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -21,8 +18,9 @@ class TestAnalyzeGrowthCommand:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_analyzes_growth_patterns_across_timeframes(
-        self, sample_growth_analysis
-    ):
+        self,
+        sample_growth_analysis,
+    ) -> None:
         """Scenario: Command analyzes growth patterns across different timeframes
         Given various analysis timeframes
         When analyzing resource growth
@@ -77,7 +75,7 @@ class TestAnalyzeGrowthCommand:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_generates_resource_efficiency_metrics(self):
+    def test_command_generates_resource_efficiency_metrics(self) -> None:
         """Scenario: Command generates comprehensive resource efficiency metrics
         Given resource usage data across multiple dimensions
         When calculating efficiency metrics
@@ -174,7 +172,9 @@ class TestAnalyzeGrowthCommand:
         assert context_eff["status"] == "acceptable"
 
     @pytest.mark.unit
-    def test_command_provides_actionable_recommendations(self, sample_growth_analysis):
+    def test_command_provides_actionable_recommendations(
+        self, sample_growth_analysis
+    ) -> None:
         """Scenario: Command provides actionable optimization recommendations
         Given growth analysis and efficiency metrics
         When generating recommendations
@@ -205,7 +205,7 @@ class TestAnalyzeGrowthCommand:
                     "action": "Implement proactive optimization strategies",
                     "impact": "Prevent resource exhaustion",
                     "implementation": "Set up automated monitoring and alerts",
-                }
+                },
             )
 
         # Efficiency-based recommendations
@@ -217,7 +217,7 @@ class TestAnalyzeGrowthCommand:
                     "action": "Optimize resource usage patterns",
                     "impact": f"Improve efficiency by {(1 - analysis_data['efficiency_score']) * 100:.1f}%",
                     "implementation": "Apply token conservation and context optimization",
-                }
+                },
             )
 
         # Peak usage recommendations
@@ -229,7 +229,7 @@ class TestAnalyzeGrowthCommand:
                     "action": "Optimize for peak usage periods",
                     "impact": "Reduce performance degradation during peak hours",
                     "implementation": f"Schedule resource-intensive tasks outside {analysis_data['peak_usage_times'][0]}",
-                }
+                },
             )
 
         # Resource pressure recommendations
@@ -242,7 +242,7 @@ class TestAnalyzeGrowthCommand:
                         "action": "Apply token conservation techniques",
                         "impact": "Reduce token consumption by 20-40%",
                         "implementation": "Use /optimize-context command regularly",
-                    }
+                    },
                 )
             elif pressure_point == "context_utilization":
                 recommendations.append(
@@ -252,7 +252,7 @@ class TestAnalyzeGrowthCommand:
                         "action": "Apply MECW principles",
                         "impact": "Maintain context under 50% threshold",
                         "implementation": "Enable progressive loading and context compression",
-                    }
+                    },
                 )
 
         # Assert

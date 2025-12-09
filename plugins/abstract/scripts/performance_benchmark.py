@@ -15,7 +15,7 @@ from src.test_skill_wrapper import TestSkillWrapper
 
 
 def benchmark_wrapper(iterations: int = 1000) -> dict:
-    """Benchmark wrapper performance"""
+    """Benchmark wrapper performance."""
     wrapper = TestSkillWrapper()
 
     times: list[float] = []
@@ -37,7 +37,3 @@ def benchmark_wrapper(iterations: int = 1000) -> dict:
 
 if __name__ == "__main__":
     result = benchmark_wrapper()
-    print(f"Performance Results ({result['iterations']} iterations):")
-    print(f"Mean: {result['mean'] * 1000:.2f}ms")
-    print(f"P95: {result['p95'] * 1000:.2f}ms")
-    print(f"Max: {result['max'] * 1000:.2f}ms")

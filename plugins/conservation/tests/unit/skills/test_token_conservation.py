@@ -4,8 +4,7 @@ This module tests token optimization, quota management, and conservation
 functionality following TDD/BDD principles.
 """
 
-# ruff: noqa: S101
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -19,7 +18,7 @@ class TestTokenConservationSkill:
     """
 
     @pytest.fixture
-    def mock_token_conservation_skill_content(self):
+    def mock_token_conservation_skill_content(self) -> str:
         """Mock token-conservation skill content with required components."""
         return """---
 name: token-conservation
@@ -82,7 +81,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_token_conservation_creates_required_todowrite_items(self, mock_todo_write):
+    def test_token_conservation_creates_required_todowrite_items(
+        self, mock_todo_write
+    ) -> None:
         """Scenario: Token conservation creates required TodoWrite items
         Given the token-conservation skill is executed
         When establishing the conservation workflow
@@ -117,7 +118,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_quota_check_monitors_usage_limits(self, mock_token_quota_tracker):
+    def test_quota_check_monitors_usage_limits(self, mock_token_quota_tracker) -> None:
         """Scenario: Quota check monitors usage against limits
         Given session duration and usage data
         When checking quotas
@@ -154,7 +155,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_context_plan_optimizes_token_usage(self, mock_claude_tools):
+    def test_context_plan_optimizes_token_usage(self, mock_claude_tools) -> None:
         """Scenario: Context planning optimizes token usage for tasks
         Given a task requiring file analysis
         When planning context usage
@@ -207,8 +208,9 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_delegation_check_identifies_optimization_opportunities(
-        self, mock_claude_tools
-    ):
+        self,
+        mock_claude_tools,
+    ) -> None:
         """Scenario: Delegation check identifies external processing opportunities
         Given compute-intensive tasks and available MCP tools
         When checking delegation opportunities
@@ -261,7 +263,7 @@ tags:
                         "recommended_tool": "qwen_code_executor",
                         "estimated_savings": task["estimated_tokens"]
                         * 0.7,  # 70% savings
-                    }
+                    },
                 )
 
         # Assert
@@ -276,7 +278,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_compression_review_identifies_optimization_patterns(self):
+    def test_compression_review_identifies_optimization_patterns(self) -> None:
         """Scenario: Compression review identifies text optimization opportunities
         Given existing prompts and responses
         When reviewing for compression opportunities
@@ -333,7 +335,8 @@ tags:
 
                     if pattern in alternatives:
                         compressed_text = sample["text"].replace(
-                            pattern, alternatives[pattern]
+                            pattern,
+                            alternatives[pattern],
                         )
                         savings = len(sample["text"]) - len(compressed_text)
                         potential_savings += savings
@@ -343,7 +346,7 @@ tags:
                                 "pattern": pattern,
                                 "alternative": alternatives[pattern],
                                 "estimated_savings": savings,
-                            }
+                            },
                         )
 
             if compression_suggestions:
@@ -354,7 +357,7 @@ tags:
                         "suggestions": compression_suggestions,
                         "total_potential_savings": potential_savings,
                         "compression_ratio": potential_savings / len(sample["text"]),
-                    }
+                    },
                 )
 
         # Assert
@@ -368,7 +371,7 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_logging_tracks_conservation_metrics(self, sample_token_quota):
+    def test_logging_tracks_conservation_metrics(self, sample_token_quota) -> None:
         """Scenario: Logging tracks conservation metrics for analysis
         Given ongoing conservation activities
         When logging metrics
@@ -381,7 +384,7 @@ tags:
         # Act - simulate logging conservation activities
         activities = [
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "activity": "context_planning",
                 "tokens_used": 45,
                 "tokens_saved": 150,
@@ -389,7 +392,7 @@ tags:
                 "efficiency_score": 0.77,
             },
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "activity": "delegation",
                 "tokens_used": 200,
                 "tokens_saved": 800,
@@ -397,7 +400,7 @@ tags:
                 "efficiency_score": 0.80,
             },
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "activity": "compression",
                 "tokens_used": 25,
                 "tokens_saved": 75,
@@ -435,8 +438,9 @@ tags:
 
     @pytest.mark.unit
     def test_token_conservation_handles_quota_exceeded_gracefully(
-        self, mock_token_quota_tracker
-    ):
+        self,
+        mock_token_quota_tracker,
+    ) -> None:
         """Scenario: Token conservation handles quota exceeded situations gracefully
         Given approaching or exceeded quota limits
         When quota limits are reached
@@ -473,7 +477,7 @@ tags:
                         "description": "Restrict to absolutely essential context only",
                         "expected_savings": "50-70%",
                     },
-                ]
+                ],
             )
 
         # Assert
@@ -489,7 +493,7 @@ tags:
             assert "description" in measure
 
     @pytest.mark.unit
-    def test_token_conservation_adapts_to_task_complexity(self):
+    def test_token_conservation_adapts_to_task_complexity(self) -> None:
         """Scenario: Token conservation adapts strategies based on task complexity
         Given tasks with varying complexity levels
         When applying conservation strategies
@@ -564,7 +568,9 @@ tags:
         assert complex_task["strategy"]["compression_level"] == "light"
 
     @pytest.mark.unit
-    def test_token_conservation_measures_effectiveness(self, sample_token_quota):
+    def test_token_conservation_measures_effectiveness(
+        self, sample_token_quota
+    ) -> None:
         """Scenario: Token conservation measures actual effectiveness
         Given applied conservation strategies
         When measuring effectiveness

@@ -1,5 +1,4 @@
-"""
-Unit tests for the math review skill.
+"""Unit tests for the math review skill.
 
 Tests mathematical algorithm correctness, numerical stability,
 and computational accuracy validation.
@@ -19,7 +18,7 @@ from pensive.skills.math_review import MathReviewSkill
 class TestMathReviewSkill:
     """Test suite for MathReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = MathReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestMathReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_detects_numerical_precision_issues(self, mock_skill_context):
+    def test_detects_numerical_precision_issues(self, mock_skill_context) -> None:
         """Given floating-point operations, when skill analyzes, then flags precision issues."""
         # Arrange
         precision_issues_code = """
@@ -72,7 +71,8 @@ class TestMathReviewSkill:
 
         # Act
         precision_analysis = self.skill.analyze_numerical_precision(
-            mock_skill_context, "math_utils.py"
+            mock_skill_context,
+            "math_utils.py",
         )
 
         # Assert
@@ -82,7 +82,7 @@ class TestMathReviewSkill:
         assert len(precision_analysis["precision_issues"]) >= 3
 
     @pytest.mark.unit
-    def test_detects_integer_overflow_risks(self, mock_skill_context):
+    def test_detects_integer_overflow_risks(self, mock_skill_context) -> None:
         """Given integer operations, when skill analyzes, then flags overflow risks."""
         # Arrange
         overflow_code = """
@@ -127,7 +127,8 @@ class TestMathReviewSkill:
 
         # Act
         overflow_analysis = self.skill.analyze_integer_overflow(
-            mock_skill_context, "combinatorics.py"
+            mock_skill_context,
+            "combinatorics.py",
         )
 
         # Assert
@@ -137,7 +138,7 @@ class TestMathReviewSkill:
         assert len(overflow_analysis["overflow_risks"]) >= 4
 
     @pytest.mark.unit
-    def test_analyzes_matrix_operation_stability(self, mock_skill_context):
+    def test_analyzes_matrix_operation_stability(self, mock_skill_context) -> None:
         """Given matrix operations, when skill analyzes, then assesses numerical stability."""
         # Arrange
         matrix_code = """
@@ -182,7 +183,8 @@ class TestMathReviewSkill:
 
         # Act
         matrix_analysis = self.skill.analyze_matrix_stability(
-            mock_skill_context, "linear_algebra.py"
+            mock_skill_context,
+            "linear_algebra.py",
         )
 
         # Assert
@@ -192,7 +194,7 @@ class TestMathReviewSkill:
         assert len(matrix_analysis["unstable_operations"]) >= 2
 
     @pytest.mark.unit
-    def test_detects_statistical_fallacies(self, mock_skill_context):
+    def test_detects_statistical_fallacies(self, mock_skill_context) -> None:
         """Given statistical code, when skill analyzes, then flags statistical fallacies."""
         # Arrange
         statistical_code = """
@@ -241,7 +243,8 @@ class TestMathReviewSkill:
 
         # Act
         statistical_analysis = self.skill.analyze_statistical_fallacies(
-            mock_skill_context, "statistics.py"
+            mock_skill_context,
+            "statistics.py",
         )
 
         # Assert
@@ -252,7 +255,9 @@ class TestMathReviewSkill:
         assert len(statistical_analysis["sampling_biases"]) >= 2
 
     @pytest.mark.unit
-    def test_analyzes_optimization_algorithm_correctness(self, mock_skill_context):
+    def test_analyzes_optimization_algorithm_correctness(
+        self, mock_skill_context
+    ) -> None:
         """Given optimization algorithms, when skill analyzes, then checks convergence and correctness."""
         # Arrange
         optimization_code = """
@@ -311,7 +316,8 @@ class TestMathReviewSkill:
 
         # Act
         optimization_analysis = self.skill.analyze_optimization_algorithms(
-            mock_skill_context, "optimization.py"
+            mock_skill_context,
+            "optimization.py",
         )
 
         # Assert
@@ -321,7 +327,7 @@ class TestMathReviewSkill:
         assert len(optimization_analysis["convergence_issues"]) >= 2
 
     @pytest.mark.unit
-    def test_detects_calculus_implementation_errors(self, mock_skill_context):
+    def test_detects_calculus_implementation_errors(self, mock_skill_context) -> None:
         """Given calculus implementations, when skill analyzes, then flags mathematical errors."""
         # Arrange
         calculus_code = """
@@ -378,7 +384,8 @@ class TestMathReviewSkill:
 
         # Act
         calculus_analysis = self.skill.analyze_calculus_implementations(
-            mock_skill_context, "calculus.py"
+            mock_skill_context,
+            "calculus.py",
         )
 
         # Assert
@@ -388,7 +395,7 @@ class TestMathReviewSkill:
         assert len(calculus_analysis["numerical_errors"]) >= 3
 
     @pytest.mark.unit
-    def test_analyzes_probability_distributions(self, mock_skill_context):
+    def test_analyzes_probability_distributions(self, mock_skill_context) -> None:
         """Given probability code, when skill analyzes, then checks distribution correctness."""
         # Arrange
         probability_code = """
@@ -441,7 +448,8 @@ class TestMathReviewSkill:
 
         # Act
         probability_analysis = self.skill.analyze_probability_distributions(
-            mock_skill_context, "probability.py"
+            mock_skill_context,
+            "probability.py",
         )
 
         # Assert
@@ -451,7 +459,7 @@ class TestMathReviewSkill:
         assert len(probability_analysis["statistical_formulas"]) >= 2
 
     @pytest.mark.unit
-    def test_detects_geometry_trigonometry_errors(self, mock_skill_context):
+    def test_detects_geometry_trigonometry_errors(self, mock_skill_context) -> None:
         """Given geometry/trig code, when skill analyzes, then flags mathematical errors."""
         # Arrange
         geometry_code = """
@@ -506,7 +514,8 @@ class TestMathReviewSkill:
 
         # Act
         geometry_analysis = self.skill.analyze_geometry_trigonometry(
-            mock_skill_context, "geometry.py"
+            mock_skill_context,
+            "geometry.py",
         )
 
         # Assert
@@ -516,7 +525,7 @@ class TestMathReviewSkill:
         assert len(geometry_analysis["formula_errors"]) >= 2
 
     @pytest.mark.unit
-    def test_analyzes_computational_complexity(self, mock_skill_context):
+    def test_analyzes_computational_complexity(self, mock_skill_context) -> None:
         """Given mathematical algorithms, when skill analyzes, then assesses computational complexity."""
         # Arrange
         complexity_code = """
@@ -569,7 +578,8 @@ class TestMathReviewSkill:
 
         # Act
         complexity_analysis = self.skill.analyze_computational_complexity(
-            mock_skill_context, "algorithms.py"
+            mock_skill_context,
+            "algorithms.py",
         )
 
         # Assert
@@ -579,7 +589,7 @@ class TestMathReviewSkill:
         assert len(complexity_analysis["inefficient_algorithms"]) >= 2
 
     @pytest.mark.unit
-    def test_validates_mathematical_proofs(self, mock_skill_context):
+    def test_validates_mathematical_proofs(self, mock_skill_context) -> None:
         """Given proof implementations, when skill analyzes, then checks logical correctness."""
         # Arrange
         proof_code = """
@@ -635,7 +645,8 @@ class TestMathReviewSkill:
 
         # Act
         proof_analysis = self.skill.analyze_mathematical_proofs(
-            mock_skill_context, "proofs.py"
+            mock_skill_context,
+            "proofs.py",
         )
 
         # Assert
@@ -645,7 +656,7 @@ class TestMathReviewSkill:
         assert "safety_measures" in proof_analysis
 
     @pytest.mark.unit
-    def test_generates_math_correctness_report(self, sample_findings):
+    def test_generates_math_correctness_report(self, sample_findings) -> None:
         """Given comprehensive math analysis, when skill generates report, then creates structured summary."""
         # Arrange
         math_analysis = {
@@ -673,7 +684,7 @@ class TestMathReviewSkill:
         assert "15" in report  # Total algorithms
 
     @pytest.mark.unit
-    def test_recommends_mathematical_improvements(self, mock_skill_context):
+    def test_recommends_mathematical_improvements(self, mock_skill_context) -> None:
         """Given math code analysis, when skill recommends, then provides specific mathematical improvements."""
         # Arrange
         analysis_results = {
@@ -686,7 +697,7 @@ class TestMathReviewSkill:
 
         # Act
         recommendations = self.skill.generate_mathematical_recommendations(
-            analysis_results
+            analysis_results,
         )
 
         # Assert

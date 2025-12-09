@@ -24,7 +24,7 @@ def imbue_plugin_root():
 
 
 @pytest.fixture
-def sample_skill_content():
+def sample_skill_content() -> str:
     """Sample valid skill file content with frontmatter."""
     return """---
 name: test-review-skill
@@ -118,7 +118,7 @@ def sample_plugin_json():
                 "description": "Autonomous agent for conducting structured reviews",
                 "file": "agents/review-analyst.md",
                 "tools": ["Read", "Glob", "Grep", "Bash"],
-            }
+            },
         ],
     }
 
@@ -132,10 +132,14 @@ def mock_git_repository(tmp_path):
     # Initialize git repo
     subprocess.run(["git", "init"], cwd=repo_path, capture_output=True, check=True)
     subprocess.run(
-        ["git", "config", "user.email", "test@example.com"], cwd=repo_path, check=True
+        ["git", "config", "user.email", "test@example.com"],
+        cwd=repo_path,
+        check=True,
     )
     subprocess.run(
-        ["git", "config", "user.name", "Test User"], cwd=repo_path, check=True
+        ["git", "config", "user.name", "Test User"],
+        cwd=repo_path,
+        check=True,
     )
 
     # Create initial commit
@@ -154,7 +158,7 @@ def mock_git_repository(tmp_path):
     # Create a second commit with changes
     (repo_path / "src" / "utils.py").write_text('def helper():\n    return "helper"')
     (repo_path / "src" / "main.py").write_text(
-        "from utils import helper\nprint(helper())"
+        "from utils import helper\nprint(helper())",
     )
 
     subprocess.run(["git", "add", "."], cwd=repo_path, capture_output=True, check=True)
@@ -198,7 +202,7 @@ def sample_evidence_log():
                 "title": "Example Documentation",
                 "accessed": datetime.now(UTC).isoformat(),
                 "relevant_snippet": "This is relevant information",
-            }
+            },
         ],
     }
 
@@ -245,7 +249,7 @@ def mock_todo_write():
     mock = Mock()
     mock.return_value = None
     # Configure mock to track calls
-    yield mock
+    return mock
 
 
 @pytest.fixture
@@ -276,7 +280,7 @@ def mock_git_operations():
     """Mock git operations for testing."""
 
     class MockGit:
-        def __init__(self):
+        def __init__(self) -> None:
             self.status_output = "On branch main\nnothing to commit, working tree clean"
             self.diff_output = "diff --git a/file.py b/file.py"
             self.log_output = "commit abc123\nAuthor: Test User\n\nInitial commit"
@@ -362,8 +366,7 @@ def mock_imbue_validator(imbue_plugin_root):
         from scripts.imbue_validator import ImbueValidator
 
         # Initialize with real plugin root but mock file operations
-        validator = ImbueValidator(str(imbue_plugin_root))
-        return validator
+        return ImbueValidator(str(imbue_plugin_root))
     except ImportError:
         # If the module doesn't exist yet, create a mock
         mock_validator = Mock()
@@ -401,7 +404,7 @@ def sample_review_report():
                 "line": 10,
                 "evidence_refs": ["E1"],
                 "recommendation": "Fix the issue",
-            }
+            },
         ],
         "evidence_log": {
             "session_id": "session-123",
@@ -411,7 +414,7 @@ def sample_review_report():
                     "id": "E1",
                     "command": "grep -r 'test' src/",
                     "output": "src/test.py:10: test function",
-                }
+                },
             ],
         },
         "actions": [
@@ -421,7 +424,7 @@ def sample_review_report():
                 "priority": "High",
                 "assignee": "Developer",
                 "due_date": "2024-12-11",
-            }
+            },
         ],
         "appendix": {
             "commands_used": ["git status", "git diff", "grep -r 'test' src/"],
@@ -431,18 +434,19 @@ def sample_review_report():
 
 
 # Test markers for pytest configuration
-def pytest_configure(config):
+def pytest_configure(config) -> None:
     """Configure custom pytest markers."""
     config.addinivalue_line("markers", "unit: Unit tests for individual components")
     config.addinivalue_line(
-        "markers", "integration: Integration tests for workflow orchestration"
+        "markers",
+        "integration: Integration tests for workflow orchestration",
     )
     config.addinivalue_line("markers", "performance: Performance and scalability tests")
     config.addinivalue_line("markers", "slow: Tests that take longer to execute")
     config.addinivalue_line("markers", "bdd: Behavior-driven development style tests")
 
 
-def pytest_collection_modifyitems(config, items):
+def pytest_collection_modifyitems(config, items) -> None:
     """Add custom markers to items based on their content."""
     for item in items:
         # Add performance marker to performance tests
@@ -487,7 +491,9 @@ def create_mock_evidence_item(e_id: str, command: str, output: str) -> dict[str,
 
 
 def create_mock_finding(
-    f_id: str, severity: str, evidence_refs: list[str]
+    f_id: str,
+    severity: str,
+    evidence_refs: list[str],
 ) -> dict[str, Any]:
     """Create a mock review finding."""
     return {

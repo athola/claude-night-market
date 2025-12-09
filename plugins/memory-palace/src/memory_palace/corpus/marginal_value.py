@@ -104,7 +104,10 @@ class MarginalValueFilter:
         self.query_manager = QueryTemplateManager(corpus_dir, index_dir)
 
     def evaluate_content(
-        self, content: str, title: str = "", tags: list[str] | None = None
+        self,
+        content: str,
+        title: str = "",
+        tags: list[str] | None = None,
     ) -> tuple[RedundancyCheck, DeltaAnalysis | None, IntegrationPlan]:
         """Evaluate new content for marginal value.
 
@@ -214,9 +217,7 @@ class MarginalValueFilter:
             "out",
             "only",
         }
-        keywords = {k for k in keywords if k not in stop_words}
-
-        return keywords
+        return {k for k in keywords if k not in stop_words}
 
     def _infer_queries(self, content: str, title: str) -> list[str]:
         """Infer potential queries this content could answer.
@@ -232,7 +233,7 @@ class MarginalValueFilter:
         queries = []
 
         # Common question patterns from title/headings
-        headings = [title] + re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE)
+        headings = [title, *re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE)]
 
         for heading in headings:
             heading_lower = heading.lower()
@@ -252,7 +253,10 @@ class MarginalValueFilter:
         return queries
 
     def _check_redundancy(
-        self, keywords: set[str], queries: list[str], content: str
+        self,
+        keywords: set[str],
+        queries: list[str],
+        content: str,
     ) -> RedundancyCheck:
         """Check if content is redundant with existing corpus.
 
@@ -272,7 +276,9 @@ class MarginalValueFilter:
         # Search by keywords
         if keywords:
             keyword_results = self.cache_lookup.search(
-                list(keywords), mode="keywords", min_score=0.3
+                list(keywords),
+                mode="keywords",
+                min_score=0.3,
             )
 
             for result in keyword_results:
@@ -324,7 +330,7 @@ class MarginalValueFilter:
             level = RedundancyLevel.HIGHLY_REDUNDANT
         elif max_overlap >= 0.4:
             reasons.append(
-                f"Partial overlap ({max_overlap:.0%}) with {len(matching_entries)} entries"
+                f"Partial overlap ({max_overlap:.0%}) with {len(matching_entries)} entries",
             )
             level = RedundancyLevel.PARTIAL_OVERLAP
         else:
@@ -437,7 +443,9 @@ class MarginalValueFilter:
         )
 
     def _decide_integration(
-        self, redundancy: RedundancyCheck, delta: DeltaAnalysis | None
+        self,
+        redundancy: RedundancyCheck,
+        delta: DeltaAnalysis | None,
     ) -> IntegrationPlan:
         """Decide how to integrate new knowledge (or skip it).
 
@@ -519,7 +527,10 @@ class MarginalValueFilter:
         )
 
     def explain_decision(
-        self, redundancy: RedundancyCheck, delta: DeltaAnalysis | None, integration: IntegrationPlan
+        self,
+        redundancy: RedundancyCheck,
+        delta: DeltaAnalysis | None,
+        integration: IntegrationPlan,
     ) -> str:
         """Generate human-readable explanation of the filtering decision.
 

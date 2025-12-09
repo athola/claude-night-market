@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..frontmatter import FrontmatterProcessor
-from ..tokens import estimate_tokens
+from src.abstract.frontmatter import FrontmatterProcessor
+from src.abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class ComplianceReport:
 class ComplianceChecker:
     """Core compliance checking functionality."""
 
-    def __init__(self, skill_root: Path, rules_file: Path | None = None):
+    def __init__(self, skill_root: Path, rules_file: Path | None = None) -> None:
         self.skill_root = skill_root
         self.rules_file = rules_file
         self.rules = self._load_rules()
@@ -96,12 +96,13 @@ class ComplianceChecker:
                     max_tokens = self.rules["max_tokens"]
                     warnings.append(
                         f"{skill_file.parent.name}: Exceeds token limit "
-                        f"({estimated_tokens} > {max_tokens})"
+                        f"({estimated_tokens} > {max_tokens})",
                     )
 
                 # Parse frontmatter using centralized processor
                 result = FrontmatterProcessor.parse(
-                    content, required_fields=self.rules["required_fields"]
+                    content,
+                    required_fields=self.rules["required_fields"],
                 )
 
                 # Check for parse errors (invalid YAML or missing frontmatter)
@@ -114,7 +115,7 @@ class ComplianceChecker:
                     skill_name = skill_file.parent.name
                     fields_str = ", ".join(result.missing_fields)
                     issues.append(
-                        f"{skill_name}: Missing required fields: {fields_str}"
+                        f"{skill_name}: Missing required fields: {fields_str}",
                     )
                     continue
 

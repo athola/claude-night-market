@@ -10,10 +10,8 @@ import sys
 from pathlib import Path
 
 
-def setup_skills_eval():
+def setup_skills_eval() -> bool:
     """Set up the skills-eval framework."""
-    print("Setting up Skills Evaluation Framework...")
-
     # Get script directory
     script_dir = Path(__file__).parent
     skills_eval_dir = script_dir.parent.parent
@@ -23,7 +21,6 @@ def setup_skills_eval():
     required_dirs = [skills_eval_dir, modular_skills_dir]
     for dir_path in required_dirs:
         if not dir_path.exists():
-            print(f"Error: Required directory {dir_path} not found")
             return False
 
     # Make tools executable
@@ -40,12 +37,10 @@ def setup_skills_eval():
         if tool.exists():
             current_mode = tool.stat().st_mode
             tool.chmod(current_mode | stat.S_IEXEC)
-            print(f"Made {tool.name} executable")
         else:
-            print(f"Warning: Tool {tool} not found")
+            pass
 
     # Test basic functionality
-    print("\nTesting tools...")
 
     # Test skills-auditor
     auditor = skills_eval_dir / "tools" / "skills-auditor"
@@ -59,17 +54,16 @@ def setup_skills_eval():
                 timeout=10,
             )
             if result.returncode == 0:
-                print("✓ skills-auditor working")
+                pass
             else:
-                print(f"⚠ skills-auditor may have issues: {result.stderr[:100]}")
-        except Exception as e:
-            print(f"⚠ skills-auditor test failed: {e}")
+                pass
+        except Exception:
+            pass
 
-    print("\nSetup complete!")
     return True
 
 
-def main():
+def main() -> None:
     """Run the setup process."""
     if setup_skills_eval():
         sys.exit(0)

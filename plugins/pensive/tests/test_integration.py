@@ -1,5 +1,4 @@
-"""
-Integration tests for the pensive plugin.
+"""Integration tests for the pensive plugin.
 
 Tests end-to-end workflows, skill coordination,
 and real repository analysis scenarios.
@@ -21,7 +20,7 @@ class TestPensiveIntegration:
     """Integration tests for pensive plugin workflows."""
 
     @pytest.mark.integration
-    def test_end_to_end_code_review_workflow(self, temp_repository):
+    def test_end_to_end_code_review_workflow(self, temp_repository) -> None:
         """Given a repository with code, when running full review, then generates comprehensive report."""
         # Arrange
         from pensive.workflows.code_review import CodeReviewWorkflow
@@ -45,7 +44,7 @@ class TestPensiveIntegration:
         assert review_result["metrics"]["total_findings"] >= 0
 
     @pytest.mark.integration
-    def test_skill_coordination_and_result_consolidation(self, temp_repository):
+    def test_skill_coordination_and_result_consolidation(self, temp_repository) -> None:
         """Given multiple skills, when executing in parallel, then consolidates results correctly."""
         # Arrange
         unified_skill = UnifiedReviewSkill()
@@ -56,7 +55,7 @@ class TestPensiveIntegration:
         # Act
         skills_to_execute = ["code-reviewer", "api-review"]
         with patch(
-            "pensive.workflows.skill_coordinator.dispatch_agent"
+            "pensive.workflows.skill_coordinator.dispatch_agent",
         ) as mock_dispatch:
             # Mock different skill responses
             mock_dispatch.side_effect = [
@@ -65,7 +64,8 @@ class TestPensiveIntegration:
             ]
 
             results = unified_skill.execute_skills_concurrently(
-                skills_to_execute, context
+                skills_to_execute,
+                context,
             )
 
         # Assert
@@ -74,7 +74,7 @@ class TestPensiveIntegration:
         assert mock_dispatch.call_count == 2
 
     @pytest.mark.integration
-    async def test_real_repository_analysis(self, temp_repository):
+    async def test_real_repository_analysis(self, temp_repository) -> None:
         """Given a real repository structure, when analyzing, then detects patterns correctly."""
         # Arrange
         files = {
@@ -166,7 +166,10 @@ clean:
 
         # Initialize git
         subprocess.run(
-            ["git", "add", "."], check=False, cwd=temp_repository, capture_output=True
+            ["git", "add", "."],
+            check=False,
+            cwd=temp_repository,
+            capture_output=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "Add Rust user service"],
@@ -190,7 +193,7 @@ clean:
         assert "cargo" in analysis["test_frameworks"]
 
     @pytest.mark.integration
-    def test_todo_write_integration(self, temp_repository):
+    def test_todo_write_integration(self, temp_repository) -> None:
         """Given review workflow, when finding issues, then integrates with TodoWrite correctly."""
         # Arrange
         from pensive.workflows.code_review import CodeReviewWorkflow
@@ -210,7 +213,7 @@ clean:
             assert call_args is not None
 
     @pytest.mark.integration
-    def test_error_handling_and_recovery(self, temp_repository):
+    def test_error_handling_and_recovery(self, temp_repository) -> None:
         """Given errors during review, when skill fails, then handles gracefully and continues."""
         # Arrange
         from pensive.workflows.code_review import CodeReviewWorkflow
@@ -220,7 +223,7 @@ clean:
         with patch("pensive.skills.rust_review.RustReviewSkill") as mock_rust_skill:
             # Make rust skill fail
             mock_rust_skill.return_value.analyze.side_effect = Exception(
-                "Rust toolchain not found"
+                "Rust toolchain not found",
             )
 
             # Act
@@ -235,7 +238,7 @@ clean:
             )  # Other skills should still work
 
     @pytest.mark.integration
-    def test_performance_with_large_repository(self, temp_repository):
+    def test_performance_with_large_repository(self, temp_repository) -> None:
         """Given larger repository, when executing review, then completes within reasonable time."""
         # Arrange
         # Create a larger repository with many files
@@ -292,7 +295,7 @@ mod tests {{
         assert result["metrics"]["files_analyzed"] >= 20
 
     @pytest.mark.integration
-    def test_cross_language_repository_analysis(self, temp_repository):
+    def test_cross_language_repository_analysis(self, temp_repository) -> None:
         """Given multi-language repository, when analyzing, then handles all languages correctly."""
         # Arrange
         # Create JavaScript files
@@ -352,7 +355,7 @@ def export_to_json(data: List[Dict], filename: str) -> None:
         assert "rust" in analysis["languages"]
 
     @pytest.mark.integration
-    def test_ci_cd_integration(self, temp_repository):
+    def test_ci_cd_integration(self, temp_repository) -> None:
         """Given CI/CD configuration, when integrating, then works with build systems."""
         # Arrange
         # Create GitHub Actions workflow
@@ -392,7 +395,7 @@ jobs:
         assert "tool" in sarif_output
 
     @pytest.mark.integration
-    def test_configuration_and_customization(self, temp_repository):
+    def test_configuration_and_customization(self, temp_repository) -> None:
         """Given custom configuration, when executing review, then respects settings."""
         # Arrange
         config_file = temp_repository / ".pensive.yml"
@@ -438,7 +441,7 @@ custom_rules:
         assert len(config.exclude_patterns) > 0
 
     @pytest.mark.integration
-    def test_memory_usage_and_resource_management(self, temp_repository):
+    def test_memory_usage_and_resource_management(self, temp_repository) -> None:
         """Given large analysis, when executing, then manages memory efficiently."""
         # Arrange
         import os
@@ -467,7 +470,7 @@ custom_rules:
         assert result is not None
 
     @pytest.mark.integration
-    def test_concurrent_skill_execution(self, temp_repository):
+    def test_concurrent_skill_execution(self, temp_repository) -> None:
         """Given multiple skills, when executing, then runs concurrently when possible."""
         # Arrange
         from pensive.workflows.skill_coordinator import SkillCoordinator
@@ -477,7 +480,7 @@ custom_rules:
 
         # Act
         with patch(
-            "pensive.workflows.skill_coordinator.dispatch_agent"
+            "pensive.workflows.skill_coordinator.dispatch_agent",
         ) as mock_dispatch:
             # Configure mock to return different responses
             mock_dispatch.side_effect = [
@@ -495,7 +498,7 @@ custom_rules:
         assert mock_dispatch.call_count == 3
 
     @pytest.mark.integration
-    def test_output_formatting_and_reporting(self, temp_repository):
+    def test_output_formatting_and_reporting(self, temp_repository) -> None:
         """Given review results, when generating reports, then formats correctly."""
         # Arrange
         sample_findings = [
@@ -537,7 +540,7 @@ custom_rules:
         assert "results" in sarif_data["runs"][0]
 
     @pytest.mark.integration
-    def test_plugin_lifecycle_and_cleanup(self, temp_repository):
+    def test_plugin_lifecycle_and_cleanup(self, temp_repository) -> None:
         """Given plugin execution, when completing, then cleans up resources properly."""
         # Arrange
         from pensive.plugin import PensivePlugin

@@ -109,13 +109,13 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
 
         return tmp_path
 
-    def test_tracker_initialization(self, sample_skills_dir):
+    def test_tracker_initialization(self, sample_skills_dir) -> None:
         """Test tracker initializes correctly."""
         tracker = TokenUsageTracker(sample_skills_dir)
         assert tracker.skills_root == sample_skills_dir
         assert hasattr(tracker, "analyze_skill_tokens")
 
-    def test_analyze_small_skill_tokens(self, sample_skills_dir):
+    def test_analyze_small_skill_tokens(self, sample_skills_dir) -> None:
         """Test token analysis for a small skill."""
         tracker = TokenUsageTracker(sample_skills_dir)
         analysis = tracker.analyze_skill_tokens("small-skill")
@@ -130,7 +130,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         assert analysis["frontmatter_tokens"] > 0
         assert analysis["content_tokens"] > 0
 
-    def test_analyze_medium_skill_tokens(self, sample_skills_dir):
+    def test_analyze_medium_skill_tokens(self, sample_skills_dir) -> None:
         """Test token analysis for a medium skill."""
         tracker = TokenUsageTracker(sample_skills_dir)
         analysis = tracker.analyze_skill_tokens("medium-skill")
@@ -142,7 +142,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         # Should detect multiple sections
         assert len(analysis["sections"]) > len(small_analysis["sections"])
 
-    def test_analyze_large_skill_tokens(self, sample_skills_dir):
+    def test_analyze_large_skill_tokens(self, sample_skills_dir) -> None:
         """Test token analysis for a large skill."""
         tracker = TokenUsageTracker(sample_skills_dir)
         analysis = tracker.analyze_skill_tokens("large-skill")
@@ -154,7 +154,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         # Should identify it as potentially needing modularization
         assert analysis["needs_modularization"]
 
-    def test_analyze_all_skills(self, sample_skills_dir):
+    def test_analyze_all_skills(self, sample_skills_dir) -> None:
         """Test comprehensive token analysis across all skills."""
         tracker = TokenUsageTracker(sample_skills_dir)
         all_analysis = tracker.analyze_all_skills()
@@ -171,7 +171,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         assert "medium-skill" in skill_names
         assert "large-skill" in skill_names
 
-    def test_calculate_token_efficiency(self, sample_skills_dir):
+    def test_calculate_token_efficiency(self, sample_skills_dir) -> None:
         """Test token efficiency calculations."""
         tracker = TokenUsageTracker(sample_skills_dir)
         efficiency = tracker.calculate_token_efficiency()
@@ -190,7 +190,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         ]
         assert len(large_skill_optimization) > 0
 
-    def test_suggest_modularization(self, sample_skills_dir):
+    def test_suggest_modularization(self, sample_skills_dir) -> None:
         """Test modularization suggestions."""
         tracker = TokenUsageTracker(sample_skills_dir)
         suggestions = tracker.suggest_modularization()
@@ -208,7 +208,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
                 assert "suggested_modules" in suggestion
                 assert len(suggestion["suggested_modules"]) > 0
 
-    def test_track_usage_over_time(self, sample_skills_dir, tmp_path):
+    def test_track_usage_over_time(self, sample_skills_dir, tmp_path) -> None:
         """Test tracking token usage over time."""
         tracker = TokenUsageTracker(sample_skills_dir)
 
@@ -228,7 +228,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         # Should have usage history
         assert len(tracker.usage_history) > 0
 
-    def test_generate_usage_report(self, sample_skills_dir):
+    def test_generate_usage_report(self, sample_skills_dir) -> None:
         """Test comprehensive usage report generation."""
         tracker = TokenUsageTracker(sample_skills_dir)
         analysis = tracker.analyze_all_skills()
@@ -240,7 +240,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         assert "small-skill" in report
         assert "large-skill" in report
 
-    def test_identify_optimization_opportunities(self, sample_skills_dir):
+    def test_identify_optimization_opportunities(self, sample_skills_dir) -> None:
         """Test identification of token optimization opportunities."""
         tracker = TokenUsageTracker(sample_skills_dir)
         opportunities = tracker.identify_optimization_opportunities()
@@ -259,7 +259,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
             assert "potential_savings" in opportunity
             assert "action" in opportunity
 
-    def test_calculate_dependency_token_impact(self, sample_skills_dir):
+    def test_calculate_dependency_token_impact(self, sample_skills_dir) -> None:
         """Test calculation of token impact from dependencies."""
         tracker = TokenUsageTracker(sample_skills_dir)
         impact_analysis = tracker.calculate_dependency_impact()
@@ -273,7 +273,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
             assert "dependency_tokens" in skill_data
             assert "total_impact" in skill_data
 
-    def test_export_token_analysis(self, sample_skills_dir, tmp_path):
+    def test_export_token_analysis(self, sample_skills_dir, tmp_path) -> None:
         """Test exporting token analysis data."""
         tracker = TokenUsageTracker(sample_skills_dir)
         analysis = tracker.analyze_all_skills()
@@ -291,11 +291,11 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         assert "skills" in exported_data
         assert "summary" in exported_data
 
-    def test_compare_token_usage(self, sample_skills_dir):
+    def test_compare_token_usage(self, sample_skills_dir) -> None:
         """Test comparison of token usage between skills."""
         tracker = TokenUsageTracker(sample_skills_dir)
         comparison = tracker.compare_skills(
-            ["small-skill", "medium-skill", "large-skill"]
+            ["small-skill", "medium-skill", "large-skill"],
         )
 
         assert "comparison_table" in comparison
@@ -305,7 +305,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         # Should show token usage progression
         assert len(comparison["comparison_table"]) == EXPECTED_SKILL_COUNT
 
-    def test_monitor_token_budgets(self, sample_skills_dir):
+    def test_monitor_token_budgets(self, sample_skills_dir) -> None:
         """Test token budget monitoring."""
         tracker = TokenUsageTracker(sample_skills_dir)
 

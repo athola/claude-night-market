@@ -30,13 +30,13 @@ This is a simple skill that needs improvement.
         (skill_dir / "SKILL.md").write_text(skill_content)
         return tmp_path
 
-    def test_suggester_initialization(self, temp_skill_dir):
+    def test_suggester_initialization(self, temp_skill_dir) -> None:
         """Test suggester initializes correctly."""
         suggester = ImprovementSuggester(temp_skill_dir)
         assert suggester.skill_root == temp_skill_dir
         assert hasattr(suggester, "analyze_skill")
 
-    def test_analyze_basic_skill(self, temp_skill_dir):
+    def test_analyze_basic_skill(self, temp_skill_dir) -> None:
         """Test basic skill analysis."""
         suggester = ImprovementSuggester(temp_skill_dir)
         analysis = suggester.analyze_skill("test-skill")
@@ -48,7 +48,7 @@ This is a simple skill that needs improvement.
         assert isinstance(analysis["issues"], list)
         assert isinstance(analysis["suggestions"], list)
 
-    def test_analyze_missing_progressive_disclosure(self, tmp_path):
+    def test_analyze_missing_progressive_disclosure(self, tmp_path) -> None:
         """Test analysis catches missing progressive disclosure."""
         skill_dir = tmp_path / "no-progressive-skill"
         skill_dir.mkdir()
@@ -73,7 +73,7 @@ This skill just has basic content without proper structure.
             for suggestion in analysis["suggestions"]
         )
 
-    def test_analyze_long_skill_token_optimization(self, tmp_path):
+    def test_analyze_long_skill_token_optimization(self, tmp_path) -> None:
         """Test analysis suggests token optimization for long skills."""
         skill_dir = tmp_path / "long-skill"
         skill_dir.mkdir()
@@ -103,7 +103,7 @@ description: Very long skill
             for suggestion in analysis["suggestions"]
         )
 
-    def test_suggest_modularization(self, temp_skill_dir):
+    def test_suggest_modularization(self, temp_skill_dir) -> None:
         """Test modularization suggestions."""
         suggester = ImprovementSuggester(temp_skill_dir)
         suggestions = suggester.suggest_modularization("test-skill")
@@ -112,7 +112,7 @@ description: Very long skill
         # Should at least suggest basic modules
         assert len(suggestions) > 0
 
-    def test_suggest_improved_structure(self, temp_skill_dir):
+    def test_suggest_improved_structure(self, temp_skill_dir) -> None:
         """Test structure improvement suggestions."""
         suggester = ImprovementSuggester(temp_skill_dir)
         suggestions = suggester.suggest_improved_structure("test-skill")
@@ -122,7 +122,7 @@ description: Very long skill
         structure_suggestions = [s for s in suggestions if "section" in s.lower()]
         assert len(structure_suggestions) > 0
 
-    def test_generate_improvement_plan(self, temp_skill_dir):
+    def test_generate_improvement_plan(self, temp_skill_dir) -> None:
         """Test improvement plan generation."""
         suggester = ImprovementSuggester(temp_skill_dir)
         plan = suggester.generate_improvement_plan("test-skill")
@@ -134,7 +134,7 @@ description: Very long skill
         assert plan["skill_name"] == "test-skill"
         assert isinstance(plan["improvement_steps"], list)
 
-    def test_analyze_multiple_skills(self, tmp_path):
+    def test_analyze_multiple_skills(self, tmp_path) -> None:
         """Test analysis across multiple skills."""
         # Create multiple skills with different issues
         skills_data = [
@@ -175,7 +175,7 @@ dependencies: [basic-skill]
         assert all("name" in analysis for analysis in all_analyses)
         assert all("suggestions" in analysis for analysis in all_analyses)
 
-    def test_prioritize_suggestions(self, temp_skill_dir):
+    def test_prioritize_suggestions(self, temp_skill_dir) -> None:
         """Test suggestion prioritization."""
         suggester = ImprovementSuggester(temp_skill_dir)
 

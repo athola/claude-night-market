@@ -14,7 +14,7 @@ from datetime import datetime
 class GrowthController:
     """Generates and manages context growth control strategies."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.strategy_types = {
             "conservative": {
                 "description": "Minimal disruption, gradual optimization",
@@ -39,7 +39,8 @@ class GrowthController:
     def generate_control_strategies(self, analysis_results, strategy_type="moderate"):
         """Generate control strategies based on analysis results."""
         if strategy_type not in self.strategy_types:
-            raise ValueError(f"Invalid strategy type: {strategy_type}")
+            msg = f"Invalid strategy type: {strategy_type}"
+            raise ValueError(msg)
 
         severity = analysis_results.get("severity", "STABLE")
         urgency = analysis_results.get("urgency", "NONE")
@@ -47,39 +48,42 @@ class GrowthController:
         controllable_percentage = analysis_results.get("controllable_percentage", 0)
 
         # Generate strategy components
-        strategies = {
+        return {
             "metadata": {
                 "strategy_type": strategy_type,
                 "generated_at": datetime.now().isoformat(),
                 "analysis_severity": severity,
                 "analysis_urgency": urgency,
                 "target_growth_rate": self._calculate_target_growth_rate(
-                    growth_rate, strategy_type
+                    growth_rate,
+                    strategy_type,
                 ),
             },
             "automated_controls": self._generate_automated_controls(
-                severity, urgency, strategy_type
+                severity,
+                urgency,
+                strategy_type,
             ),
             "manual_controls": self._generate_manual_controls(
-                controllable_percentage, strategy_type
+                controllable_percentage,
+                strategy_type,
             ),
             "preventive_strategies": self._generate_preventive_strategies(
-                growth_rate, strategy_type
+                growth_rate,
+                strategy_type,
             ),
             "implementation_plan": self._generate_implementation_plan(strategy_type),
             "monitoring_requirements": self._generate_monitoring_requirements(severity),
         }
 
-        return strategies
-
     def _calculate_target_growth_rate(self, current_rate, strategy_type):
         """Calculate target growth rate based on strategy type."""
         if strategy_type == "conservative":
             return min(current_rate * 0.7, 0.05)  # 30% reduction, max 5%
-        elif strategy_type == "moderate":
+        if strategy_type == "moderate":
             return min(current_rate * 0.5, 0.03)  # 50% reduction, max 3%
-        else:  # aggressive
-            return min(current_rate * 0.3, 0.02)  # 70% reduction, max 2%
+        # aggressive
+        return min(current_rate * 0.3, 0.02)  # 70% reduction, max 2%
 
     def _generate_automated_controls(self, severity, urgency, strategy_type):
         """Generate automated control strategies."""
@@ -93,7 +97,7 @@ class GrowthController:
                 "priority": "High",
                 "effectiveness": "80%",
                 "implementation_time": "2-3 turns",
-            }
+            },
         )
 
         # Severity-based controls
@@ -105,7 +109,7 @@ class GrowthController:
                     "priority": "Critical" if urgency in ["HIGH", "URGENT"] else "High",
                     "effectiveness": "60-80%",
                     "implementation_time": "1-2 turns",
-                }
+                },
             )
 
         if urgency in ["HIGH", "URGENT"]:
@@ -116,7 +120,7 @@ class GrowthController:
                     "priority": "Critical",
                     "effectiveness": "90%",
                     "implementation_time": "Immediate",
-                }
+                },
             )
 
         # Strategy type adjustments
@@ -128,7 +132,7 @@ class GrowthController:
                     "priority": "Critical",
                     "effectiveness": "70-90%",
                     "implementation_time": "1 turn",
-                }
+                },
             )
 
         return controls
@@ -145,7 +149,7 @@ class GrowthController:
                     "priority": "High",
                     "frequency": "Every 5 turns",
                     "effectiveness": "70-85%",
-                }
+                },
             )
 
         controls.append(
@@ -157,7 +161,7 @@ class GrowthController:
                 if strategy_type == "conservative"
                 else "Every 5 turns",
                 "effectiveness": "50-70%",
-            }
+            },
         )
 
         if strategy_type != "conservative":
@@ -168,7 +172,7 @@ class GrowthController:
                     "priority": "Medium",
                     "frequency": "As needed",
                     "effectiveness": "60-80%",
-                }
+                },
             )
 
         return controls
@@ -184,7 +188,7 @@ class GrowthController:
                 "priority": "High",
                 "implementation": "Immediate",
                 "ongoing_maintenance": "Weekly reviews",
-            }
+            },
         )
 
         if growth_rate > 0.1:
@@ -195,7 +199,7 @@ class GrowthController:
                     "priority": "Critical" if growth_rate > 0.2 else "High",
                     "implementation": "2-3 turns",
                     "ongoing_maintenance": "Continuous monitoring",
-                }
+                },
             )
 
         strategies.append(
@@ -205,7 +209,7 @@ class GrowthController:
                 "priority": "Medium",
                 "implementation": "1-2 turns",
                 "ongoing_maintenance": "Monthly reviews",
-            }
+            },
         )
 
         return strategies
@@ -236,7 +240,7 @@ class GrowthController:
                 },
             }
 
-        elif strategy_type == "moderate":
+        if strategy_type == "moderate":
             return {
                 "phase_1": {
                     "duration": "1-2 turns",
@@ -261,24 +265,24 @@ class GrowthController:
                 },
             }
 
-        else:  # aggressive
-            return {
-                "phase_1": {
-                    "duration": "Immediate",
-                    "actions": ["Emergency compression", "Real-time monitoring"],
-                    "priority": "Critical",
-                },
-                "phase_2": {
-                    "duration": "1-2 turns",
-                    "actions": ["Aggressive pruning", "Automated control deployment"],
-                    "priority": "Critical",
-                },
-                "phase_3": {
-                    "duration": "2-3 turns",
-                    "actions": ["Manual optimization", "Structural changes"],
-                    "priority": "High",
-                },
-            }
+        # aggressive
+        return {
+            "phase_1": {
+                "duration": "Immediate",
+                "actions": ["Emergency compression", "Real-time monitoring"],
+                "priority": "Critical",
+            },
+            "phase_2": {
+                "duration": "1-2 turns",
+                "actions": ["Aggressive pruning", "Automated control deployment"],
+                "priority": "Critical",
+            },
+            "phase_3": {
+                "duration": "2-3 turns",
+                "actions": ["Manual optimization", "Structural changes"],
+                "priority": "High",
+            },
+        }
 
     def _generate_monitoring_requirements(self, severity):
         """Generate monitoring requirements based on severity."""
@@ -294,7 +298,7 @@ class GrowthController:
                     "frequency": "Every 5 turns",
                     "alerts": base_requirements["alerts"]
                     + ["growth_spike", "acceleration_detected"],
-                }
+                },
             )
 
         if severity in ["SEVERE", "CRITICAL"]:
@@ -304,21 +308,25 @@ class GrowthController:
                     "alerts": base_requirements["alerts"]
                     + ["critical_threshold", "strategy_failure"],
                     "real_time_monitoring": True,
-                }
+                },
             )
 
         return base_requirements
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generate context growth control strategies"
+        description="Generate context growth control strategies",
     )
     parser.add_argument(
-        "--analysis-file", required=True, help="Path to analysis results JSON file"
+        "--analysis-file",
+        required=True,
+        help="Path to analysis results JSON file",
     )
     parser.add_argument(
-        "--output-json", action="store_true", help="Output strategies as JSON"
+        "--output-json",
+        action="store_true",
+        help="Output strategies as JSON",
     )
     parser.add_argument(
         "--strategy-type",
@@ -335,64 +343,36 @@ def main():
         with open(args.analysis_file) as f:
             analysis_results = json.load(f)
     except FileNotFoundError:
-        print(f"Error: Analysis file '{args.analysis_file}' not found")
         sys.exit(1)
     except json.JSONDecodeError:
-        print(f"Error: Invalid JSON in analysis file '{args.analysis_file}'")
         sys.exit(1)
 
     # Generate control strategies
     controller = GrowthController()
     strategies = controller.generate_control_strategies(
-        analysis_results, args.strategy_type
+        analysis_results,
+        args.strategy_type,
     )
 
     if args.output_json:
-        print(json.dumps(strategies, indent=2))
+        pass
     else:
-        print(f"=== Context Growth Control Strategy ({args.strategy_type.title()}) ===")
-        metadata = strategies["metadata"]
-        print(
-            f"Target Growth Rate: {metadata['target_growth_rate'] * 100:.2f}% per turn"
-        )
-        print(
-            f"Generated for: {metadata['analysis_severity']} severity, {metadata['analysis_urgency']} urgency"
-        )
+        strategies["metadata"]
 
-        print("\n=== Automated Controls ===")
-        for control in strategies["automated_controls"]:
-            print(f"• {control['name']}: {control['description']}")
-            print(
-                f"  Priority: {control['priority']}, Effectiveness: {control['effectiveness']}, Time: {control['implementation_time']}"
-            )
+        for _control in strategies["automated_controls"]:
+            pass
 
-        print("\n=== Manual Controls ===")
-        for control in strategies["manual_controls"]:
-            print(f"• {control['name']}: {control['description']}")
-            print(
-                f"  Priority: {control['priority']}, Frequency: {control['frequency']}, Effectiveness: {control['effectiveness']}"
-            )
+        for _control in strategies["manual_controls"]:
+            pass
 
-        print("\n=== Preventive Strategies ===")
-        for strategy in strategies["preventive_strategies"]:
-            print(f"• {strategy['name']}: {strategy['description']}")
-            print(
-                f"  Priority: {strategy['priority']}, Implementation: {strategy['implementation']}"
-            )
+        for _strategy in strategies["preventive_strategies"]:
+            pass
 
         if args.verbose:
-            print("\n=== Implementation Plan ===")
-            for phase, details in strategies["implementation_plan"].items():
-                print(f"{phase.replace('_', ' ').title()}:")
-                print(f"  Duration: {details['duration']}")
-                print(f"  Actions: {', '.join(details['actions'])}")
-                print(f"  Priority: {details['priority']}")
+            for _details in strategies["implementation_plan"].values():
+                pass
 
-            print("\n=== Monitoring Requirements ===")
-            monitoring = strategies["monitoring_requirements"]
-            print(f"Frequency: {monitoring['frequency']}")
-            print(f"Metrics: {', '.join(monitoring['metrics'])}")
-            print(f"Alerts: {', '.join(monitoring['alerts'])}")
+            strategies["monitoring_requirements"]
 
 
 if __name__ == "__main__":

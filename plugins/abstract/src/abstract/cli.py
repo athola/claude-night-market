@@ -197,7 +197,7 @@ class SuggestCLI(AbstractCLI):
         for idx, suggestion in enumerate(data, 1):
             lines.append(
                 f"\n{idx}. [{suggestion.get('category', 'medium').upper()}] "
-                f"{suggestion.get('description', 'No description')}"
+                f"{suggestion.get('description', 'No description')}",
             )
             if suggestion.get("specific_action"):
                 lines.append(f"   Action: {suggestion['specific_action']}")
@@ -305,7 +305,11 @@ def _add_check_subparser(subparsers: argparse._SubParsersAction) -> None:
     check.add_argument("--rules-file", type=Path, help="Custom rules file")
     check.add_argument("--output", "-o", type=Path, help="Output file")
     check.add_argument(
-        "--format", "-f", choices=["text", "json"], default="text", help="Output format"
+        "--format",
+        "-f",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
 
 
@@ -316,7 +320,11 @@ def _add_audit_subparser(subparsers: argparse._SubParsersAction) -> None:
     audit.add_argument("--output", "-o", type=Path, help="Output file")
     audit.add_argument("--min-score", type=float, default=0.0, help="Minimum score")
     audit.add_argument(
-        "--format", "-f", choices=["text", "json"], default="text", help="Output format"
+        "--format",
+        "-f",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
 
 
@@ -331,7 +339,11 @@ def _add_suggest_subparser(subparsers: argparse._SubParsersAction) -> None:
         help="Filter by priority",
     )
     suggest.add_argument(
-        "--format", "-f", choices=["text", "json"], default="text", help="Output format"
+        "--format",
+        "-f",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
 
 
@@ -342,7 +354,11 @@ def _add_tokens_subparser(subparsers: argparse._SubParsersAction) -> None:
     tokens.add_argument("--output", "-o", type=Path, help="Output file")
     tokens.add_argument("--threshold", type=int, default=4000, help="Token threshold")
     tokens.add_argument(
-        "--format", "-f", choices=["text", "json"], default="text", help="Output format"
+        "--format",
+        "-f",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
 
 
@@ -365,7 +381,6 @@ def main(argv: list[str] | None = None) -> int:
 
     cli_class = cli_map.get(args.command)
     if cli_class is None:
-        print(f"Unknown command: {args.command}", file=sys.stderr)
         return 1
 
     # Re-run with the subcommand-specific CLI

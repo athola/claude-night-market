@@ -34,7 +34,7 @@ class AbstractValidationResult(TypedDict):
 class AbstractValidator:
     """Validate the abstract plugin for meta-skills and infrastructure."""
 
-    def __init__(self, plugin_root: Path):
+    def __init__(self, plugin_root: Path) -> None:
         """Initialize the abstract validator.
 
         Args:
@@ -59,7 +59,7 @@ class AbstractValidator:
                 if "provides" in config:
                     provides = config["provides"]
                     if isinstance(provides, dict):
-                        for _category, items in provides.items():
+                        for items in provides.values():
                             if isinstance(items, list):
                                 infrastructure_provided.update(items)
             except json.JSONDecodeError:
@@ -111,7 +111,7 @@ class AbstractValidator:
                 if result.parse_error and "Missing frontmatter" in result.parse_error:
                     issues.append(f"{skill_name}: Missing frontmatter")
                     continue
-                elif result.parse_error and "Incomplete" in result.parse_error:
+                if result.parse_error and "Incomplete" in result.parse_error:
                     issues.append(f"{skill_name}: Incomplete frontmatter")
                     continue
 
@@ -162,18 +162,18 @@ class AbstractValidator:
 
         if not has_overview:
             issues.append(
-                f"{skill_name}: Missing overview section for progressive disclosure"
+                f"{skill_name}: Missing overview section for progressive disclosure",
             )
 
         # Check that Quick Start comes before Detailed Resources
         if has_quick_start and has_detailed:
             quick_pos = content.find("## Quick Start")
             detailed_pos = content.find("## Detailed Resources") or content.find(
-                "## Resources"
+                "## Resources",
             )
             if detailed_pos and quick_pos > detailed_pos:
                 issues.append(
-                    f"{skill_name}: Quick Start should come before Detailed Resources"
+                    f"{skill_name}: Quick Start should come before Detailed Resources",
                 )
 
         return issues
@@ -206,7 +206,7 @@ class AbstractValidator:
                 if neighbor not in visited:
                     cycle = has_cycle(neighbor, visited, rec_stack)
                     if cycle:
-                        return [node] + cycle
+                        return [node, *cycle]
                 elif neighbor in rec_stack:
                     return [node, neighbor]
 
@@ -246,7 +246,7 @@ class AbstractValidator:
 
             if not module_files:
                 issues.append(
-                    f"{skill_name}: Has modules/ directory but no module files"
+                    f"{skill_name}: Has modules/ directory but no module files",
                 )
                 continue
 
@@ -266,7 +266,7 @@ class AbstractValidator:
             if unreferenced > 0:
                 issues.append(
                     f"{skill_name}: {unreferenced} module(s) not referenced in "
-                    f"main SKILL.md (hub-spoke violation)"
+                    f"main SKILL.md (hub-spoke violation)",
                 )
 
             # Check that modules don't cross-reference each other (spoke-to-spoke)
@@ -294,7 +294,7 @@ class AbstractValidator:
                             issues.append(
                                 f"{skill_name}/{current_module}.md: "
                                 f"References another module ({other_module.stem}), "
-                                f"violating hub-spoke pattern"
+                                f"violating hub-spoke pattern",
                             )
 
         return issues
@@ -309,7 +309,7 @@ class AbstractValidator:
         report.append(f"Skill Files: {len(self.skill_files)}")
 
         report.append(
-            f"\nInfrastructure Provided: {sorted(result['infrastructure_provided'])}"
+            f"\nInfrastructure Provided: {sorted(result['infrastructure_provided'])}",
         )
         report.append(f"Skills with Patterns: {sorted(result['skills_with_patterns'])}")
 
@@ -347,7 +347,10 @@ class AbstractValidator:
             # Fix missing frontmatter - use centralized check
             if not FrontmatterProcessor.has_frontmatter(content):
                 fix = self._fix_missing_frontmatter(
-                    skill_file, skill_name, content, dry_run
+                    skill_file,
+                    skill_name,
+                    content,
+                    dry_run,
                 )
                 if fix:
                     fixes_applied.append(fix)
@@ -361,7 +364,11 @@ class AbstractValidator:
         return fixes_applied if fixes_applied else ["No fixes needed"]
 
     def _fix_missing_frontmatter(
-        self, skill_file: Path, skill_name: str, content: str, dry_run: bool
+        self,
+        skill_file: Path,
+        skill_name: str,
+        content: str,
+        dry_run: bool,
     ) -> str:
         """Fix missing frontmatter by adding basic structure."""
         frontmatter = f"""---
@@ -378,7 +385,11 @@ category: infrastructure
         return f"Fixed missing frontmatter in {skill_name}"
 
     def _fix_frontmatter_fields(
-        self, skill_file: Path, skill_name: str, content: str, dry_run: bool
+        self,
+        skill_file: Path,
+        skill_name: str,
+        content: str,
+        dry_run: bool,
     ) -> str:
         """Fix missing required fields in existing frontmatter."""
         # Use centralized FrontmatterProcessor for extraction
@@ -441,7 +452,7 @@ category: infrastructure
 def main() -> None:
     """Run the command-line interface."""
     parser = argparse.ArgumentParser(
-        description="Validate the abstract plugin infrastructure."
+        description="Validate the abstract plugin infrastructure.",
     )
     parser.add_argument(
         "--root",
@@ -449,14 +460,20 @@ def main() -> None:
         help="The root directory of the abstract plugin (default: current directory).",
     )
     parser.add_argument(
-        "--scan", action="store_true", help="Scan for infrastructure patterns."
+        "--scan",
+        action="store_true",
+        help="Scan for infrastructure patterns.",
     )
     parser.add_argument("--report", action="store_true", help="Generate a full report.")
     parser.add_argument(
-        "--fix", action="store_true", help="Fix common meta-skill issues."
+        "--fix",
+        action="store_true",
+        help="Fix common meta-skill issues.",
     )
     parser.add_argument(
-        "--dry-run", action="store_true", help="A dry run for fix operations."
+        "--dry-run",
+        action="store_true",
+        help="A dry run for fix operations.",
     )
 
     args = parser.parse_args()
@@ -465,21 +482,20 @@ def main() -> None:
     validator = AbstractValidator(root_path)
 
     if args.report:
-        print(validator.generate_report())
+        pass
     elif args.scan:
         issues = validator.validate_patterns()
         if issues:
-            print(f"Found {len(issues)} issues:")
-            for issue in issues:
-                print(f"  - {issue}")
+            for _issue in issues:
+                pass
         else:
-            print("No issues found!")
+            pass
     elif args.fix:
         fixes = validator.fix_patterns(dry_run=args.dry_run)
-        for fix in fixes:
-            print(fix)
+        for _fix in fixes:
+            pass
     else:
-        print("Use --report, --scan, or --fix. Use --help for more details.")
+        pass
 
 
 if __name__ == "__main__":

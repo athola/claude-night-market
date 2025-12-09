@@ -1,5 +1,4 @@
-"""
-Unit tests for the test review skill.
+"""Unit tests for the test review skill.
 
 Tests test suite quality assessment, TDD/BDD compliance,
 and testing best practices evaluation.
@@ -19,7 +18,7 @@ from pensive.skills.test_review import TestReviewSkill
 class TestTestReviewSkill:
     """Test suite for TestReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = TestReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestTestReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_analyzes_test_coverage(self, mock_skill_context):
+    def test_analyzes_test_coverage(self, mock_skill_context) -> None:
         """Given source and test files, when skill analyzes, then calculates coverage metrics."""
         # Arrange
         source_files = [
@@ -54,7 +53,7 @@ def complex_calculation(x, y, z):
     else:
         return z
             """,
-            )
+            ),
         ]
 
         test_files = [
@@ -73,13 +72,13 @@ def test_subtract():
 def test_add_negative():
     assert add(-1, 1) == 0
             """,
-            )
+            ),
         ]
 
         def mock_get_file_content(path):
             if "src/" in str(path):
                 return source_files[0][1]
-            elif "tests/" in str(path):
+            if "tests/" in str(path):
                 return test_files[0][1]
             return ""
 
@@ -105,7 +104,7 @@ def test_add_negative():
         )  # divide and complex_calculation
 
     @pytest.mark.unit
-    def test_detects_test_structure_quality(self, mock_skill_context):
+    def test_detects_test_structure_quality(self, mock_skill_context) -> None:
         """Given test files, when skill analyzes, then evaluates test structure and organization."""
         # Arrange
         well_structured_test = """
@@ -157,7 +156,8 @@ class TestCalculator:
 
         # Act
         structure_analysis = self.skill.analyze_test_structure(
-            mock_skill_context, "test_calculator.py"
+            mock_skill_context,
+            "test_calculator.py",
         )
 
         # Assert
@@ -170,7 +170,7 @@ class TestCalculator:
         )  # Well-structured test should score high
 
     @pytest.mark.unit
-    def test_evaluates_tdd_compliance(self, mock_skill_context):
+    def test_evaluates_tdd_compliance(self, mock_skill_context) -> None:
         """Given development workflow, when skill analyzes, then checks TDD compliance."""
         # Arrange
         development_history = [
@@ -209,7 +209,7 @@ class TestCalculator:
         assert tdd_analysis["test_first_pattern"] is True
 
     @pytest.mark.unit
-    def test_detects_bdd_patterns(self, mock_skill_context):
+    def test_detects_bdd_patterns(self, mock_skill_context) -> None:
         """Given test specifications, when skill analyzes, then identifies BDD patterns."""
         # Arrange
         bdd_style_test = """
@@ -257,7 +257,8 @@ def test_calculator_addition():
 
         # Act
         bdd_analysis = self.skill.analyze_bdd_patterns(
-            mock_skill_context, "test_features.py"
+            mock_skill_context,
+            "test_features.py",
         )
 
         # Assert
@@ -269,7 +270,7 @@ def test_calculator_addition():
         assert len(bdd_analysis["given_when_then"]) >= 2
 
     @pytest.mark.unit
-    def test_identifies_test_anti_patterns(self, mock_skill_context):
+    def test_identifies_test_anti_patterns(self, mock_skill_context) -> None:
         """Given test code, when skill analyzes, then detects testing anti-patterns."""
         # Arrange
         anti_pattern_test = """
@@ -327,7 +328,8 @@ counter = 0
 
         # Act
         anti_patterns = self.skill.identify_test_anti_patterns(
-            mock_skill_context, "anti_patterns.py"
+            mock_skill_context,
+            "anti_patterns.py",
         )
 
         # Assert
@@ -339,7 +341,7 @@ counter = 0
         assert "slow_test" in pattern_types
 
     @pytest.mark.unit
-    def test_analyzes_test_data_management(self, mock_skill_context):
+    def test_analyzes_test_data_management(self, mock_skill_context) -> None:
         """Given test fixtures and data, when skill analyzes, then evaluates data management."""
         # Arrange
         test_with_fixtures = """
@@ -397,7 +399,8 @@ def test_hardcoded_data():
 
         # Act
         data_analysis = self.skill.analyze_test_data_management(
-            mock_skill_context, "test_data.py"
+            mock_skill_context,
+            "test_data.py",
         )
 
         # Assert
@@ -408,7 +411,7 @@ def test_hardcoded_data():
         assert len(data_analysis["hardcoded_data"]) >= 1
 
     @pytest.mark.unit
-    def test_evaluates_mock_usage_quality(self, mock_skill_context):
+    def test_evaluates_mock_usage_quality(self, mock_skill_context) -> None:
         """Given test mocks, when skill analyzes, then evaluates mock usage patterns."""
         # Arrange
         mock_usage_test = """
@@ -460,7 +463,8 @@ def test_spy_usage():
 
         # Act
         mock_analysis = self.skill.analyze_mock_usage(
-            mock_skill_context, "test_mocks.py"
+            mock_skill_context,
+            "test_mocks.py",
         )
 
         # Assert
@@ -471,7 +475,7 @@ def test_spy_usage():
         assert len(mock_analysis["over_mocking"]) >= 1
 
     @pytest.mark.unit
-    def test_analyzes_test_performance(self, mock_skill_context):
+    def test_analyzes_test_performance(self, mock_skill_context) -> None:
         """Given test suite, when skill analyzes, then evaluates test performance."""
         # Arrange
         performance_test_info = {
@@ -501,7 +505,7 @@ def test_spy_usage():
         assert len(performance_analysis["slow_tests"]) >= 2
 
     @pytest.mark.unit
-    def test_evaluates_integration_test_coverage(self, mock_skill_context):
+    def test_evaluates_integration_test_coverage(self, mock_skill_context) -> None:
         """Given test suite, when skill analyzes, then assesses integration vs unit test balance."""
         # Arrange
         test_files = [
@@ -546,7 +550,7 @@ def test_api_endpoint():
 
         # Act
         integration_analysis = self.skill.analyze_integration_test_coverage(
-            mock_skill_context
+            mock_skill_context,
         )
 
         # Assert
@@ -559,7 +563,7 @@ def test_api_endpoint():
         )  # More integration than unit tests
 
     @pytest.mark.unit
-    def test_detects_test_flakiness_patterns(self, mock_skill_context):
+    def test_detects_test_flakiness_patterns(self, mock_skill_context) -> None:
         """Given test history, when skill analyzes, then identifies flaky test patterns."""
         # Arrange
         test_execution_history = [
@@ -595,7 +599,7 @@ def test_api_endpoint():
         assert len(flakiness_analysis["flaky_tests"]) >= 3
 
     @pytest.mark.unit
-    def test_generates_test_quality_report(self, sample_findings):
+    def test_generates_test_quality_report(self, sample_findings) -> None:
         """Given comprehensive test analysis, when skill generates report, then creates structured summary."""
         # Arrange
         test_analysis = {
@@ -626,7 +630,7 @@ def test_api_endpoint():
         assert "150" in report  # Test count
 
     @pytest.mark.unit
-    def test_recommends_testing_improvements(self, mock_skill_context):
+    def test_recommends_testing_improvements(self, mock_skill_context) -> None:
         """Given test analysis, when skill recommends, then provides actionable testing improvements."""
         # Arrange
         current_state = {

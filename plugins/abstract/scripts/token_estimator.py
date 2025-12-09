@@ -42,7 +42,8 @@ class TokenEstimator:
 
         """
         if not file_path.exists():
-            raise FileNotFoundError(f"File not found: {file_path}")
+            msg = f"File not found: {file_path}"
+            raise FileNotFoundError(msg)
 
         content = file_path.read_text(encoding="utf-8")
 
@@ -76,7 +77,8 @@ class TokenEstimator:
                 if dep_file:
                     try:
                         dep_analysis = self.analyze_file(
-                            dep_file, include_dependencies=False
+                            dep_file,
+                            include_dependencies=False,
                         )
                         dependency_tokens += dep_analysis["total_tokens"]
                     except Exception:
@@ -93,7 +95,9 @@ class TokenEstimator:
         return result
 
     def format_analysis(
-        self, analysis: dict, include_dependencies: bool = False
+        self,
+        analysis: dict,
+        include_dependencies: bool = False,
     ) -> str:
         """Format analysis results for display.
 
@@ -123,7 +127,7 @@ class TokenEstimator:
                     "",
                     f"Dependencies: {len(analysis['dependencies'])}",
                     f"  {', '.join(analysis['dependencies'])}",
-                ]
+                ],
             )
 
         if include_dependencies:
@@ -136,7 +140,7 @@ class TokenEstimator:
                             f"Total with dependencies: "
                             f"{analysis['total_with_dependencies']:,}"
                         ),
-                    ]
+                    ],
                 )
 
             if analysis.get("missing_dependencies"):
@@ -148,7 +152,7 @@ class TokenEstimator:
                             f"{len(analysis['missing_dependencies'])}"
                         ),
                         (f"  {', '.join(analysis['missing_dependencies'])}"),
-                    ]
+                    ],
                 )
 
         # Recommendations
@@ -168,14 +172,16 @@ class TokenEstimator:
         if analysis["code_tokens"] > analysis["body_tokens"]:
             lines.append(
                 "CONSIDER: Extract code examples to scripts/ directory "
-                "for better efficiency"
+                "for better efficiency",
             )
 
         lines.append("")
         return "\n".join(lines)
 
     def analyze_directory(
-        self, dir_path: Path, include_dependencies: bool = False
+        self,
+        dir_path: Path,
+        include_dependencies: bool = False,
     ) -> list[dict]:
         """Analyze all skill files in a directory.
 
@@ -190,7 +196,6 @@ class TokenEstimator:
         skill_files = find_skill_files(dir_path)
 
         if not skill_files:
-            print(f"No SKILL.md files found in {dir_path}")
             return []
 
         results = []
@@ -198,8 +203,8 @@ class TokenEstimator:
             try:
                 result = self.analyze_file(skill_file, include_dependencies)
                 results.append(result)
-            except Exception as e:
-                print(f"Error analyzing {skill_file}: {e}", file=sys.stderr)
+            except Exception:
+                pass
 
         return results
 
@@ -237,14 +242,16 @@ class TokenEstimatorCLI(AbstractCLI, PathArgumentMixin):
         if args.file:
             try:
                 result = self.estimator.analyze_file(
-                    args.file, args.include_dependencies
+                    args.file,
+                    args.include_dependencies,
                 )
                 results = [result]
             except Exception as e:
                 return CLIResult(success=False, error=str(e))
         else:  # directory
             all_results = self.estimator.analyze_directory(
-                args.directory, args.include_dependencies
+                args.directory,
+                args.include_dependencies,
             )
             if not all_results:
                 return CLIResult(
@@ -262,14 +269,14 @@ class TokenEstimatorCLI(AbstractCLI, PathArgumentMixin):
             lines = []
             for result in data:
                 analysis = self.estimator.format_analysis(
-                    result, hasattr(self, "_args") and self._args.include_dependencies
+                    result,
+                    hasattr(self, "_args") and self._args.include_dependencies,
                 )
                 lines.append(analysis)
                 if len(data) > 1:
                     lines.append("-" * 50)
             return "\n".join(lines)
-        else:
-            return self.estimator.format_analysis(data, False)
+        return self.estimator.format_analysis(data, False)
 
 
 def main() -> None:

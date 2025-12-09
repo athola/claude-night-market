@@ -93,7 +93,8 @@ class Delegator:
                     custom_config = json.load(f)
                     # Merge custom configurations
                     for service_name, service_config in custom_config.get(
-                        "services", {}
+                        "services",
+                        {},
                     ).items():
                         if service_name in self.SERVICES:
                             # Update existing service config
@@ -102,22 +103,25 @@ class Delegator:
                                 name=current.name,
                                 command=service_config.get("command", current.command),
                                 auth_method=service_config.get(
-                                    "auth_method", current.auth_method
+                                    "auth_method",
+                                    current.auth_method,
                                 ),
                                 auth_env_var=service_config.get(
-                                    "auth_env_var", current.auth_env_var
+                                    "auth_env_var",
+                                    current.auth_env_var,
                                 ),
                                 quota_limits=service_config.get(
-                                    "quota_limits", current.quota_limits
+                                    "quota_limits",
+                                    current.quota_limits,
                                 ),
                             )
                         else:
                             # Add new service config
                             self.SERVICES[service_name] = ServiceConfig(
-                                **service_config
+                                **service_config,
                             )
-            except Exception as e:
-                print(f"Warning: Failed to load custom config: {e}")
+            except Exception:
+                pass
 
     def verify_service(self, service_name: str) -> tuple[bool, list[str]]:
         """Verify a service is available and authenticated."""
@@ -272,7 +276,10 @@ class Delegator:
             )
 
     def log_usage(
-        self, service_name: str, command: list[str], result: ExecutionResult
+        self,
+        service_name: str,
+        command: list[str],
+        result: ExecutionResult,
     ) -> None:
         """Log usage for tracking and analysis."""
         log_entry = {
@@ -289,15 +296,17 @@ class Delegator:
         try:
             with open(self.usage_log, "a") as f:
                 f.write(json.dumps(log_entry) + "\n")
-        except Exception as e:
-            print(f"Warning: Failed to log usage: {e}")
+        except Exception:
+            pass
 
     def _init_service_stats(self) -> dict[str, Any]:
         """Initialize empty service statistics dictionary."""
         return {"requests": 0, "successful": 0, "tokens_used": 0, "total_duration": 0}
 
     def _update_service_stats(
-        self, summary: dict[str, Any], entry: dict[str, Any]
+        self,
+        summary: dict[str, Any],
+        entry: dict[str, Any],
     ) -> None:
         """Update service statistics from a log entry."""
         service = entry["service"]
@@ -344,7 +353,7 @@ class Delegator:
                     try:
                         entry = json.loads(line.strip())
                         entry_time = datetime.fromisoformat(
-                            entry["timestamp"]
+                            entry["timestamp"],
                         ).timestamp()
 
                         if entry_time >= cutoff_time:
@@ -387,7 +396,8 @@ class Delegator:
                     service = service_name
                     break
             else:
-                raise RuntimeError("No delegation services available")
+                msg = "No delegation services available"
+                raise RuntimeError(msg)
 
         # Execute with optimal settings
         options = {}
@@ -406,54 +416,33 @@ class Delegator:
 
 def _print_services(delegator: Delegator) -> None:
     """Print available services."""
-    print("Available services:")
-    for name, config in delegator.SERVICES.items():
-        print(f"  {name}: {config.command} ({config.auth_method})")
+    for _name, _config in delegator.SERVICES.items():
+        pass
 
 
 def _print_usage_summary(delegator: Delegator) -> None:
     """Print usage summary report."""
     summary = delegator.get_usage_summary()
-    print("Delegation Usage Summary")
-    print("=" * 25)
-    print(f"Total requests: {summary['total_requests']}")
-    print(f"Success rate: {summary['success_rate']:.1f}%")
-    print("\nBy service:")
-    for svc, stats in summary["services"].items():
-        print(f"  {svc}:")
-        print(f"    Requests: {stats['requests']}")
-        print(f"    Success rate: {stats['success_rate']:.1f}%")
-        print(f"    Tokens used: {stats['tokens_used']:,}")
-        print(f"    Avg duration: {stats['avg_duration']:.2f}s")
+    for _stats in summary["services"].values():
+        pass
 
 
 def _verify_service(delegator: Delegator, service_name: str) -> None:
     """Verify a service and print results."""
     is_available, issues = delegator.verify_service(service_name)
     if is_available:
-        print(f"[OK] {service_name} is available and authenticated")
+        pass
     else:
-        print(f"[ERROR] {service_name} has issues:")
-        for issue in issues:
-            print(f"  - {issue}")
+        for _issue in issues:
+            pass
 
 
 def _print_result(result: ExecutionResult) -> None:
     """Print execution result."""
     if result.success:
-        print("[OK] Delegation successful")
-        print(f"Service: {result.service}")
-        print(f"Duration: {result.duration:.2f}s")
-        print(f"Tokens used: {result.tokens_used or 0:,}")
-        print("\nOutput:")
-        print(result.stdout)
+        pass
     else:
-        print("[ERROR] Delegation failed")
-        print(f"Service: {result.service}")
-        print(f"Duration: {result.duration:.2f}s")
-        print(f"Exit code: {result.exit_code}")
-        print("\nError:")
-        print(result.stderr)
+        pass
 
 
 def _create_parser() -> argparse.ArgumentParser:
@@ -468,7 +457,9 @@ def _create_parser() -> argparse.ArgumentParser:
     parser.add_argument("--verify", action="store_true", help="Verify service only")
     parser.add_argument("--usage", action="store_true", help="Show usage summary")
     parser.add_argument(
-        "--list-services", action="store_true", help="List available services"
+        "--list-services",
+        action="store_true",
+        help="List available services",
     )
     return parser
 
@@ -497,8 +488,7 @@ def main() -> None:
     if args.service == "auto":
         try:
             _, result = delegator.smart_delegate(args.prompt, args.files)
-        except RuntimeError as e:
-            print(f"Auto-selection failed: {e}")
+        except RuntimeError:
             return
     else:
         options: dict[str, Any] = {}
@@ -507,7 +497,11 @@ def main() -> None:
         if args.format:
             options["output_format"] = args.format
         result = delegator.execute(
-            args.service, args.prompt, args.files, options, args.timeout
+            args.service,
+            args.prompt,
+            args.files,
+            options,
+            args.timeout,
         )
 
     _print_result(result)

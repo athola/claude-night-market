@@ -1,6 +1,5 @@
 """Performance tests for spec-kit wrapped commands."""
 
-# ruff: noqa: S101
 import os
 import time
 from unittest.mock import Mock
@@ -15,13 +14,13 @@ class TestPerformanceBenchmarks:
     class TestWrappedCommandPerformance:
         """Test performance characteristics of wrapped commands."""
 
-        def test_skill_loading_performance(self, mock_skill_loading):
+        def test_skill_loading_performance(self, mock_skill_loading) -> None:
             """Benchmark skill loading times."""
             start_time = time.time()
 
             # Simulate skill loading
             skills_loaded = []
-            for skill_name, _skill_config in mock_skill_loading.items():
+            for skill_name in mock_skill_loading:
                 # Simulate loading delay
                 time.sleep(0.01)  # 10ms per skill
                 skills_loaded.append(skill_name)
@@ -32,7 +31,7 @@ class TestPerformanceBenchmarks:
             assert len(skills_loaded) == 2
             assert loading_time < 1.0  # Should load in under 1 second
 
-        def test_artifact_generation_performance(self, sample_artifacts):
+        def test_artifact_generation_performance(self, sample_artifacts) -> None:
             """Benchmark artifact generation performance."""
             start_time = time.time()
 
@@ -56,7 +55,7 @@ class TestPerformanceBenchmarks:
             assert len(generated_artifacts) == 4
             assert generation_time < 2.0  # Should complete in under 2 seconds
 
-        def test_memory_usage_during_execution(self, sample_artifacts):
+        def test_memory_usage_during_execution(self, sample_artifacts) -> None:
             """Test memory usage patterns during command execution."""
             process = psutil.Process(os.getpid())
 
@@ -75,11 +74,11 @@ class TestPerformanceBenchmarks:
             memory_increase = peak_memory - initial_memory
             assert memory_increase < 100  # Should not use more than 100MB extra
 
-        def test_concurrent_skill_execution(self):
+        def test_concurrent_skill_execution(self) -> None:
             """Test concurrent execution of multiple skills."""
             import concurrent.futures
 
-            def simulate_skill_execution(skill_name):
+            def simulate_skill_execution(skill_name) -> str:
                 """Simulate skill execution with delay."""
                 time.sleep(0.1)  # 100ms execution time
                 return f"{skill_name} completed"
@@ -101,7 +100,7 @@ class TestPerformanceBenchmarks:
             assert len(results) == 3
             assert concurrent_time < 0.3  # Should complete in under 300ms
 
-        def test_session_persistence_performance(self):
+        def test_session_persistence_performance(self) -> None:
             """Test performance of session state persistence."""
             # Create large session state
             session_state = {
@@ -123,7 +122,7 @@ class TestPerformanceBenchmarks:
     class TestScalabilityMetrics:
         """Test scalability of wrapped commands."""
 
-        def test_large_project_handling(self):
+        def test_large_project_handling(self) -> None:
             """Test performance with large project structures."""
             # Simulate large project with many artifacts
             project_size = 1000  # Number of artifacts
@@ -151,7 +150,7 @@ class TestPerformanceBenchmarks:
             assert processed_count == project_size
             assert total_rate > 50  # Overall rate should be maintained
 
-        def test_memory_scaling_with_project_size(self):
+        def test_memory_scaling_with_project_size(self) -> None:
             """Test memory usage scales linearly with project size."""
             base_memory = psutil.Process(os.getpid()).memory_info().rss
 
@@ -181,7 +180,7 @@ class TestPerformanceBenchmarks:
                 memory_usage[-1] < memory_usage[0] * 20
             )  # Not more than 20x increase for 10x data
 
-        def test_command_execution_time_limits(self):
+        def test_command_execution_time_limits(self) -> None:
             """Test that commands execute within acceptable time limits."""
             command_time_limits = {
                 "startup.wrapped": 5.0,  # 5 seconds
@@ -210,7 +209,7 @@ class TestPerformanceBenchmarks:
     class TestResourceOptimization:
         """Test resource optimization features."""
 
-        def test_lazy_loading_of_skills(self):
+        def test_lazy_loading_of_skills(self) -> None:
             """Test that skills are loaded only when needed."""
             loaded_skills = set()
 
@@ -236,7 +235,7 @@ class TestPerformanceBenchmarks:
 
             assert "writing-plans" in loaded_skills
 
-        def test_caching_mechanisms(self):
+        def test_caching_mechanisms(self) -> None:
             """Test caching of frequently accessed data."""
             cache = {}
             cache_hits = 0
@@ -248,13 +247,12 @@ class TestPerformanceBenchmarks:
                 if key in cache:
                     cache_hits += 1
                     return cache[key]
-                else:
-                    cache_misses += 1
-                    # Simulate expensive operation
-                    time.sleep(0.01)
-                    result = f"data_for_{key}"
-                    cache[key] = result
-                    return result
+                cache_misses += 1
+                # Simulate expensive operation
+                time.sleep(0.01)
+                result = f"data_for_{key}"
+                cache[key] = result
+                return result
 
             # Perform lookups with some repetition
             lookup_keys = ["spec", "plan", "tasks", "spec", "plan", "spec"]
@@ -269,7 +267,7 @@ class TestPerformanceBenchmarks:
             assert cache_misses == 3  # 3 unique lookups
             assert lookup_time < 0.1  # Should be fast due to caching
 
-        def test_memory_cleanup_after_command(self):
+        def test_memory_cleanup_after_command(self) -> None:
             """Test memory cleanup after command completion."""
             process = psutil.Process(os.getpid())
 

@@ -1,6 +1,5 @@
 """Tests for keyword indexing functionality."""
 
-# ruff: noqa: S101
 from pathlib import Path
 
 import pytest
@@ -74,7 +73,7 @@ def temp_index_dir(tmp_path):
 class TestKeywordIndexer:
     """Test suite for KeywordIndexer."""
 
-    def test_initialization(self, temp_corpus_dir, temp_index_dir):
+    def test_initialization(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test indexer initialization."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -82,14 +81,12 @@ class TestKeywordIndexer:
         assert indexer.index_dir == Path(temp_index_dir)
         assert indexer.index_file == Path(temp_index_dir) / "keyword-index.yaml"
 
-    def test_extract_keywords_from_entry(self, temp_corpus_dir, temp_index_dir):
+    def test_extract_keywords_from_entry(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test keyword extraction from a single entry."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
         entry_path = temp_corpus_dir / "franklin-protocol.md"
         keywords = indexer.extract_keywords(entry_path)
-
-        print(f"Extracted keywords: {keywords}")
 
         # Should extract from tags
         assert "learning" in keywords
@@ -103,7 +100,7 @@ class TestKeywordIndexer:
         # "gradient descent" appears in the content
         assert "gradient" in keywords or "descent" in keywords
 
-    def test_build_index(self, temp_corpus_dir, temp_index_dir):
+    def test_build_index(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test building the full keyword index."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -124,7 +121,7 @@ class TestKeywordIndexer:
         assert len(index["entries"]) == 2
 
         # Check entry structure
-        for _entry_id, entry_data in index["entries"].items():
+        for entry_data in index["entries"].values():
             assert "file" in entry_data
             assert "keywords" in entry_data
             assert "title" in entry_data
@@ -134,11 +131,11 @@ class TestKeywordIndexer:
         assert len(index["keywords"]) > 0
 
         # Keywords should map to entry IDs
-        for _keyword, entry_ids in index["keywords"].items():
+        for entry_ids in index["keywords"].values():
             assert isinstance(entry_ids, list)
             assert len(entry_ids) > 0
 
-    def test_keyword_deduplication(self, temp_corpus_dir, temp_index_dir):
+    def test_keyword_deduplication(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test that keywords are deduplicated and normalized."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -151,7 +148,7 @@ class TestKeywordIndexer:
         # Keywords should be lowercase
         assert all(k.islower() for k in keywords)
 
-    def test_search_by_keyword(self, temp_corpus_dir, temp_index_dir):
+    def test_search_by_keyword(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test searching the index by keyword."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -163,7 +160,7 @@ class TestKeywordIndexer:
         assert len(results) > 0
         assert any("franklin" in r["file"].lower() for r in results)
 
-    def test_search_multiple_keywords(self, temp_corpus_dir, temp_index_dir):
+    def test_search_multiple_keywords(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test searching with multiple keywords (AND logic)."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -175,7 +172,7 @@ class TestKeywordIndexer:
         # Should find entries containing both keywords
         assert len(results) > 0
 
-    def test_search_no_results(self, temp_corpus_dir, temp_index_dir):
+    def test_search_no_results(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test searching for non-existent keyword."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -186,7 +183,7 @@ class TestKeywordIndexer:
 
         assert len(results) == 0
 
-    def test_load_existing_index(self, temp_corpus_dir, temp_index_dir):
+    def test_load_existing_index(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test loading an existing index from disk."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
@@ -202,7 +199,7 @@ class TestKeywordIndexer:
         results = indexer2.search("learning")
         assert len(results) > 0
 
-    def test_metadata_tracking(self, temp_corpus_dir, temp_index_dir):
+    def test_metadata_tracking(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test that index metadata is tracked correctly."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 

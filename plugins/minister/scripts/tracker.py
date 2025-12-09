@@ -18,7 +18,7 @@ _bootstrap_path()
 
 from minister.project_tracker import (
     run_cli,
-)  # noqa: E402  # pylint: disable=wrong-import-position
+)  # pylint: disable=wrong-import-position
 
 if __name__ == "__main__":
     raise SystemExit(run_cli())

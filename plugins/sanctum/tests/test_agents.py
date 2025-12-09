@@ -12,7 +12,7 @@ from unittest.mock import Mock
 class TestGitWorkspaceAgent:
     """BDD tests for the Git Workspace agent."""
 
-    def test_agent_initializes_with_correct_capabilities(self):
+    def test_agent_initializes_with_correct_capabilities(self) -> None:
         """GIVEN the Git Workspace agent is created
         WHEN it initializes
         THEN it should have the correct capabilities and tools.
@@ -39,7 +39,7 @@ class TestGitWorkspaceAgent:
         # Assert
         assert all(cap in agent_capabilities for cap in expected_capabilities)
 
-    def test_agent_analyzes_repository_state(self, temp_git_repo):
+    def test_agent_analyzes_repository_state(self, temp_git_repo) -> None:
         """GIVEN a Git repository
         WHEN the agent analyzes the repository state
         THEN it should provide comprehensive repository information.
@@ -70,7 +70,9 @@ class TestGitWorkspaceAgent:
         assert analysis["is_git_repo"] is True
         assert "origin" in analysis["remotes"]
 
-    def test_agent_detects_and_categorizes_changes(self, staged_changes_context):
+    def test_agent_detects_and_categorizes_changes(
+        self, staged_changes_context
+    ) -> None:
         """GIVEN a repository with various types of changes
         WHEN the agent analyzes the changes
         THEN it should categorize them appropriately.
@@ -100,7 +102,7 @@ class TestGitWorkspaceAgent:
         assert change_stats["total_additions"] == 150
         assert change_stats["total_deletions"] == 75  # 50 + 25
 
-    def test_agent_coordinates_todo_creation(self, mock_todo_tool):
+    def test_agent_coordinates_todo_creation(self, mock_todo_tool) -> None:
         """GIVEN the agent completes repository analysis
         WHEN it creates TodoWrite items
         THEN it should create appropriate tasks for the workflow.
@@ -124,7 +126,7 @@ class TestGitWorkspaceAgent:
         assert all(todo["status"] == "completed" for todo in todos)
         mock_todo_tool.assert_called_once_with(todos)
 
-    def test_agent_handles_error_states_gracefully(self):
+    def test_agent_handles_error_states_gracefully(self) -> None:
         """GIVEN a repository in an error state
         WHEN the agent encounters the error
         THEN it should handle it gracefully and provide recovery options.
@@ -155,7 +157,9 @@ class TestGitWorkspaceAgent:
                 for action in scenario["recovery"]
             )
 
-    def test_agent_provides_workflow_recommendations(self, staged_changes_context):
+    def test_agent_provides_workflow_recommendations(
+        self, staged_changes_context
+    ) -> None:
         """GIVEN a repository state analysis
         WHEN the agent provides recommendations
         THEN it should suggest appropriate next steps.
@@ -246,20 +250,19 @@ class TestGitWorkspaceAgent:
                 "Initialize repository with git init",
                 "Clone existing repository with git clone",
             ]
-        elif "couldn't find remote ref" in error:
+        if "couldn't find remote ref" in error:
             return [
                 "Check remote configuration with git branch -m main",
                 "Ensure branch exists remotely",
                 "Push branch with git push origin main",
             ]
-        elif "permission denied" in error.lower():
+        if "permission denied" in error.lower():
             return [
                 "Check file permissions",
                 "Verify Git configuration",
                 "Run as appropriate user",
             ]
-        else:
-            return ["Check Git status for details"]
+        return ["Check Git status for details"]
 
     def _generate_workflow_recommendations(self, context: dict) -> list[str]:
         """Generate workflow recommendations based on context."""
@@ -280,7 +283,7 @@ class TestGitWorkspaceAgent:
 class TestCommitAgent:
     """BDD tests for the Commit agent."""
 
-    def test_agent_generates_conventional_commits(self, staged_changes_context):
+    def test_agent_generates_conventional_commits(self, staged_changes_context) -> None:
         """GIVEN staged changes in the repository
         WHEN the commit agent analyzes and generates a commit
         THEN it should produce a conventional commit message.
@@ -315,7 +318,7 @@ class TestCommitAgent:
         assert base_type in conventional_types
         assert "Add OAuth2" in commit_msg
 
-    def test_agent_validates_commit_message_quality(self):
+    def test_agent_validates_commit_message_quality(self) -> None:
         """GIVEN a generated commit message
         WHEN the agent validates it
         THEN it should ensure quality standards are met.
@@ -334,7 +337,7 @@ class TestCommitAgent:
             validation_result = self._validate_commit_message(msg)
             assert validation_result == should_pass, f"Failed on: {msg}"
 
-    def test_agent_handles_complex_change_scenarios(self):
+    def test_agent_handles_complex_change_scenarios(self) -> None:
         """GIVEN complex changes involving multiple files and types
         WHEN the agent generates a commit message
         THEN it should appropriately summarize all changes.
@@ -401,10 +404,9 @@ class TestCommitAgent:
             return False
 
         # Check imperative mood (basic check)
-        if description.lower().startswith(("added", "fixed", "updated", "removed")):
-            return False
-
-        return True
+        return not description.lower().startswith(
+            ("added", "fixed", "updated", "removed")
+        )
 
     def _generate_complex_commit_message(self, context: dict) -> str:
         """Generate commit message for complex changes."""
@@ -428,10 +430,7 @@ class TestCommitAgent:
             elif file["type"] == "docs":
                 details.append("- Update documentation")
 
-        if details:
-            body = "\n\n" + "\n".join(details)
-        else:
-            body = ""
+        body = "\n\n" + "\n".join(details) if details else ""
 
         return base_msg + body
 
@@ -439,7 +438,7 @@ class TestCommitAgent:
 class TestPRAgent:
     """BDD tests for the Pull Request agent."""
 
-    def test_agent_preparates_comprehensive_pr(self, pull_request_context):
+    def test_agent_preparates_comprehensive_pr(self, pull_request_context) -> None:
         """GIVEN a feature branch ready for PR
         WHEN the PR agent prepares the pull request
         THEN it should generate a comprehensive PR description.
@@ -460,7 +459,7 @@ class TestPRAgent:
         for section in pr_sections:
             assert f"## {section}" in pr_description
 
-    def test_agent_analyzes_pr_quality_gates(self, pull_request_context):
+    def test_agent_analyzes_pr_quality_gates(self, pull_request_context) -> None:
         """GIVEN a pull request
         WHEN the agent checks quality gates
         THEN it should validate all required criteria.
@@ -485,7 +484,7 @@ class TestPRAgent:
             gate_status["overall_status"] == "failed"
         )  # CI failure causes overall failure
 
-    def test_agent_suggests_reviewers(self, pull_request_context):
+    def test_agent_suggests_reviewers(self, pull_request_context) -> None:
         """GIVEN changes in specific areas
         WHEN the agent suggests reviewers
         THEN it should recommend appropriate team members.
@@ -500,7 +499,8 @@ class TestPRAgent:
 
         # Act
         suggested_reviewers = self._suggest_reviewers(
-            pull_request_context, reviewer_map
+            pull_request_context,
+            reviewer_map,
         )
 
         # Assert
@@ -510,7 +510,7 @@ class TestPRAgent:
 
     def _generate_pr_description(self, context: dict) -> str:
         """Generate comprehensive PR description."""
-        description = """## Summary
+        return """## Summary
 
 This pull request implements new functionality for the feature branch.
 
@@ -536,7 +536,6 @@ None
 - [ ] Tests pass
 - [ ] Documentation is updated
 """
-        return description
 
     def _check_quality_gates(self, gates: dict[str, bool]) -> dict[str, str]:
         """Check PR quality gates."""
@@ -564,7 +563,9 @@ None
         return status
 
     def _suggest_reviewers(
-        self, context: dict, reviewer_map: dict[str, list[str]]
+        self,
+        context: dict,
+        reviewer_map: dict[str, list[str]],
     ) -> list[str]:
         """Suggest reviewers based on changed files."""
         reviewers = set()

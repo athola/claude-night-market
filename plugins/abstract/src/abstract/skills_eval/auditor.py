@@ -7,8 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..frontmatter import FrontmatterProcessor
-from ..tokens import estimate_tokens
+from src.abstract.frontmatter import FrontmatterProcessor
+from src.abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class SkillMetrics:
 class SkillsAuditor:
     """Core skills auditing functionality."""
 
-    def __init__(self, skills_dir: Path):
+    def __init__(self, skills_dir: Path) -> None:
         self.skills_dir = skills_dir
         self.skills_root = skills_dir  # Add alias for compatibility
         self.audit_metrics = self._load_audit_metrics()
@@ -100,10 +100,10 @@ class SkillsAuditor:
 
         average_score = total_score / len(skills_metrics) if skills_metrics else 0
         well_structured = len(
-            [m for m in skills_metrics if m.score >= SCORE_WELL_STRUCTURED]
+            [m for m in skills_metrics if m.score >= SCORE_WELL_STRUCTURED],
         )
         needs_improvement = len(
-            [m for m in skills_metrics if m.score < SCORE_ACCEPTABLE]
+            [m for m in skills_metrics if m.score < SCORE_ACCEPTABLE],
         )
         recommendations = self._generate_recommendations(skills_metrics)
 
@@ -179,7 +179,9 @@ class SkillsAuditor:
         return result.parsed
 
     def _calculate_completeness_score(
-        self, frontmatter: dict[str, Any], content: str
+        self,
+        frontmatter: dict[str, Any],
+        content: str,
     ) -> float:
         """Calculate frontmatter completeness score."""
         required = self.audit_metrics["required_fields"]
@@ -258,10 +260,9 @@ class SkillsAuditor:
 
         if token_count <= optimal:
             return 100
-        elif token_count <= acceptable:
+        if token_count <= acceptable:
             return 80
-        else:
-            return max(20, 100 - (token_count - acceptable) * 0.02)
+        return max(20, 100 - (token_count - acceptable) * 0.02)
 
     def _generate_issues(
         self,
@@ -343,46 +344,46 @@ class SkillsAuditor:
             return recommendations
 
         avg_completeness = sum(m.completeness_score for m in skill_metrics) / len(
-            skill_metrics
+            skill_metrics,
         )
         avg_structure = sum(m.structure_score for m in skill_metrics) / len(
-            skill_metrics
+            skill_metrics,
         )
         avg_documentation = sum(m.documentation_score for m in skill_metrics) / len(
-            skill_metrics
+            skill_metrics,
         )
 
         if avg_completeness < SCORE_GOOD:
             recommendations.append(
-                "Add required frontmatter fields (name, description) to all skills"
+                "Add required frontmatter fields (name, description) to all skills",
             )
             recommendations.append(
                 "Consider adding recommended fields (category, tags) "
-                "for better organization"
+                "for better organization",
             )
 
         if avg_structure < SCORE_GOOD:
             recommendations.append(
                 "Implement progressive disclosure structure with "
-                "Overview and Quick Start sections"
+                "Overview and Quick Start sections",
             )
             recommendations.append(
-                "Add more detailed sections to improve content organization"
+                "Add more detailed sections to improve content organization",
             )
 
         if avg_documentation < SCORE_GOOD:
             recommendations.append(
-                "Add practical examples and code blocks to demonstrate skill usage"
+                "Add practical examples and code blocks to demonstrate skill usage",
             )
             recommendations.append(
-                "Include step-by-step instructions for common workflows"
+                "Include step-by-step instructions for common workflows",
             )
 
         avg_tokens = sum(m.token_count for m in skill_metrics) / len(skill_metrics)
         if avg_tokens > self.audit_metrics["token_acceptable"]:
             recommendations.append("Optimize content for better token efficiency")
             recommendations.append(
-                "Consider moving detailed content to separate files or tools"
+                "Consider moving detailed content to separate files or tools",
             )
 
         return recommendations
@@ -415,7 +416,7 @@ class SkillsAuditor:
                     "recommendations": [
                         {"action": r, "priority": "medium"} for r in m.strengths
                     ],
-                }
+                },
             )
 
         # Calculate summary
@@ -427,7 +428,7 @@ class SkillsAuditor:
             avg_structure = sum(s["structure_score"] for s in skills) / skill_count
             avg_overall = sum(s["overall_score"] for s in skills) / skill_count
             needs_improvement = len(
-                [s for s in skills if s["overall_score"] < SCORE_ACCEPTABLE]
+                [s for s in skills if s["overall_score"] < SCORE_ACCEPTABLE],
             )
             high_priority = len([s for s in skills if s["issues"]])
         else:
@@ -474,7 +475,8 @@ class SkillsAuditor:
                 issue_type = "size_large"
             elif "missing" in issue_lower:
                 issue_type = "missing_" + issue_lower.split(":")[-1].strip().replace(
-                    " ", "_"
+                    " ",
+                    "_",
                 )
             else:
                 issue_type = issue_lower.replace(" ", "_")[:20]
@@ -518,7 +520,7 @@ class SkillsAuditor:
                     f"- **Average Structure:** {structure:.1f}%",
                     f"- **Average Overall:** {overall:.1f}%",
                     f"- **Skills Needing Improvement:** {needs_improve}",
-                ]
+                ],
             )
 
         lines.append("")

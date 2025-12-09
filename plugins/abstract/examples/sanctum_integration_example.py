@@ -1,4 +1,4 @@
-"""Example: Abstract plugin checking for and using Sanctum functionality
+"""Example: Abstract plugin checking for and using Sanctum functionality.
 
 This example demonstrates how the Abstract plugin can:
 1. Check if Sanctum plugin is installed
@@ -20,11 +20,11 @@ MULTIPLE_AUTHORS_THRESHOLD = 3
 
 
 class PluginDetector:
-    """Utility class for detecting plugin installations"""
+    """Utility class for detecting plugin installations."""
 
     @staticmethod
     def is_plugin_available(plugin_name: str) -> bool:
-        """Check if a plugin is installed and available"""
+        """Check if a plugin is installed and available."""
         try:
             # Check multiple possible installation locations
             possible_paths = [
@@ -45,7 +45,7 @@ class PluginDetector:
 
     @staticmethod
     def get_plugin_version(plugin_name: str) -> str | None:
-        """Get the version of an installed plugin"""
+        """Get the version of an installed plugin."""
         try:
             possible_paths = [
                 Path.home() / ".claude" / "plugins" / plugin_name,
@@ -65,15 +65,15 @@ class PluginDetector:
 
 
 class SanctumIntegration:
-    """Handles integration with Sanctum plugin for git context"""
+    """Handles integration with Sanctum plugin for git context."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.sanctum_available = PluginDetector.is_plugin_available("sanctum")
         self.sanctum_version = PluginDetector.get_plugin_version("sanctum")
         self._sanctum_module = None
 
     def _load_sanctum(self) -> bool:
-        """Lazy load Sanctum module"""
+        """Lazy load Sanctum module."""
         if not self.sanctum_available:
             return False
 
@@ -104,7 +104,7 @@ class SanctumIntegration:
         return False
 
     def _find_sanctum_path(self) -> Path | None:
-        """Find the Sanctum plugin path"""
+        """Find the Sanctum plugin path."""
         possible_paths = [
             Path.home() / ".claude" / "plugins" / "sanctum",
             Path.cwd() / "plugins" / "sanctum",
@@ -117,7 +117,7 @@ class SanctumIntegration:
         return None
 
     def get_git_context_for_file(self, file_path: Path) -> dict[str, Any]:
-        """Get git context for a file using Sanctum if available"""
+        """Get git context for a file using Sanctum if available."""
         context = {"git_available": False, "sanctum_enhanced": False, "error": None}
 
         if not self._load_sanctum():
@@ -136,15 +136,15 @@ class SanctumIntegration:
                     "authors": git_info.get("authors", []),
                     "last_modified": git_info.get("last_modified"),
                     "file_changes": git_info.get("change_count", 0),
-                }
+                },
             )
         except Exception as e:
-            context["error"] = f"Failed to get git context: {str(e)}"
+            context["error"] = f"Failed to get git context: {e!s}"
 
         return context
 
     def get_workspace_context(self) -> dict[str, Any]:
-        """Get overall workspace git context"""
+        """Get overall workspace git context."""
         context = {"git_available": False, "sanctum_enhanced": False, "error": None}
 
         if not self._load_sanctum():
@@ -161,22 +161,22 @@ class SanctumIntegration:
                     "branch": workspace_info.get("current_branch"),
                     "status": workspace_info.get("status", "clean"),
                     "recent_commits": workspace_info.get("recent_commits", [])[:3],
-                }
+                },
             )
         except Exception as e:
-            context["error"] = f"Failed to get workspace context: {str(e)}"
+            context["error"] = f"Failed to get workspace context: {e!s}"
 
         return context
 
 
 class AbstractSkillAnalyzer:
-    """Abstract plugin skill analyzer with Sanctum integration"""
+    """Abstract plugin skill analyzer with Sanctum integration."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.sanctum = SanctumIntegration()
 
     def analyze_skill_with_git_context(self, skill_path: Path) -> dict[str, Any]:
-        """Analyze a skill with enhanced git context from Sanctum"""
+        """Analyze a skill with enhanced git context from Sanctum."""
         analysis = {
             "skill_path": str(skill_path),
             "abstract_analysis": None,
@@ -194,14 +194,15 @@ class AbstractSkillAnalyzer:
         if analysis["git_context"].get("sanctum_enhanced"):
             analysis["enhanced_recommendations"] = (
                 self._generate_git_aware_recommendations(
-                    analysis["abstract_analysis"], analysis["git_context"]
+                    analysis["abstract_analysis"],
+                    analysis["git_context"],
                 )
             )
 
         return analysis
 
     def _basic_skill_analysis(self, skill_path: Path) -> dict[str, Any]:
-        """Perform basic Abstract skill analysis"""
+        """Perform basic Abstract skill analysis."""
         # This is simplified - in reality would analyze the skill file
         return {
             "skill_name": skill_path.name,
@@ -215,26 +216,28 @@ class AbstractSkillAnalyzer:
         }
 
     def _generate_git_aware_recommendations(
-        self, abstract_analysis: dict[str, Any], git_context: dict[str, Any]
+        self,
+        abstract_analysis: dict[str, Any],
+        git_context: dict[str, Any],
     ) -> list:
-        """Generate recommendations enhanced with git context"""
+        """Generate recommendations enhanced with git context."""
         recommendations = []
 
         # Add git-aware recommendations
         if git_context.get("file_changes", 0) > FILE_CHANGES_THRESHOLD:
             recommendations.append(
                 "⚠️ File has been modified frequently - consider "
-                "stabilizing the interface"
+                "stabilizing the interface",
             )
 
         if len(git_context.get("authors", [])) > MULTIPLE_AUTHORS_THRESHOLD:
             recommendations.append(
-                "👥 Multiple authors involved - ensure documentation is clear"
+                "👥 Multiple authors involved - ensure documentation is clear",
             )
 
         if git_context.get("status") == "modified":
             recommendations.append(
-                "📝 File has uncommitted changes - ensure analysis is up to date"
+                "📝 File has uncommitted changes - ensure analysis is up to date",
             )
 
         # Combine with Abstract recommendations
@@ -242,7 +245,7 @@ class AbstractSkillAnalyzer:
         return recommendations + base_recs
 
     def analyze_plugin_suite(self, plugin_path: Path) -> dict[str, Any]:
-        """Analyze an entire plugin suite with git context"""
+        """Analyze an entire plugin suite with git context."""
         suite_analysis = {
             "plugin_name": plugin_path.name,
             "skills_analyzed": [],
@@ -266,7 +269,7 @@ class AbstractSkillAnalyzer:
         return suite_analysis
 
     def _generate_suite_summary(self, suite_analysis: dict[str, Any]) -> dict[str, Any]:
-        """Generate a summary of the plugin suite analysis"""
+        """Generate a summary of the plugin suite analysis."""
         skills = suite_analysis["skills_analyzed"]
         if not skills:
             return {"message": "No skills found to analyze"}
@@ -290,7 +293,7 @@ class AbstractSkillAnalyzer:
                     "repository": ws_context.get("repository"),
                     "branch": ws_context.get("branch"),
                     "git_status": ws_context.get("status"),
-                }
+                },
             )
 
         return summary
@@ -305,27 +308,15 @@ if __name__ == "__main__":
     skill_path = Path("skills/analyze-skill.py")
     if skill_path.exists():
         result = analyzer.analyze_skill_with_git_context(skill_path)
-        print(f"Analysis for {skill_path.name}:")
-        print(f"  Abstract analysis: {result['abstract_analysis']}")
         git_available = result["git_context"].get("sanctum_enhanced")
-        print(f"  Git context available: {git_available}")
         enhanced_count = len(result.get("enhanced_recommendations", []))
-        print(f"  Enhanced recommendations: {enhanced_count}")
 
     # Example 2: Analyze entire plugin suite
-    plugin_path = Path(".")
+    plugin_path = Path()
     suite_result = analyzer.analyze_plugin_suite(plugin_path)
-    print("\nPlugin Suite Analysis:")
-    print(f"  Plugin: {suite_result['plugin_name']}")
-    print(f"  Skills analyzed: {suite_result['summary']['total_skills']}")
     git_context_skills = suite_result["summary"]["skills_with_git_context"]
-    print(f"  Skills with git context: {git_context_skills}")
     total_recs = suite_result["summary"]["total_recommendations"]
-    print(f"  Total recommendations: {total_recs}")
 
     # Example 3: Check Sanctum availability
-    print("\nSanctum Integration Status:")
-    print(f"  Sanctum available: {analyzer.sanctum.sanctum_available}")
-    print(f"  Sanctum version: {analyzer.sanctum.sanctum_version}")
     if not analyzer.sanctum.sanctum_available:
-        print("  Note: Install Sanctum plugin to enable git context enhancement")
+        pass

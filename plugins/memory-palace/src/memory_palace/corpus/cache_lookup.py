@@ -46,7 +46,10 @@ class CacheLookup:
         self.query_manager.build_index()
 
     def search(
-        self, query: str | list[str], mode: str = "unified", min_score: float = 0.0
+        self,
+        query: str | list[str],
+        mode: str = "unified",
+        min_score: float = 0.0,
     ) -> list[dict[str, Any]]:
         """Search the knowledge corpus.
 
@@ -136,10 +139,7 @@ class CacheLookup:
 
         """
         # Convert list to string for query matching
-        if isinstance(query, list):
-            query_str = " ".join(query)
-        else:
-            query_str = query
+        query_str = " ".join(query) if isinstance(query, list) else query
 
         query_results = self.query_manager.search(query_str)
 
@@ -246,8 +246,7 @@ class CacheLookup:
             parts = content.split("---", 2)
             if len(parts) >= 3:
                 try:
-                    metadata = yaml.safe_load(parts[1])
-                    return metadata
+                    return yaml.safe_load(parts[1])
                 except yaml.YAMLError:
                     pass
 

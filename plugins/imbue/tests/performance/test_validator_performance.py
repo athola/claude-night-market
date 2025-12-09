@@ -4,7 +4,6 @@ This module tests the validation tool performance with large plugins
 and complex scenarios, ensuring it scales appropriately.
 """
 
-# ruff: noqa: S101
 import time
 
 import pytest
@@ -74,7 +73,7 @@ Use this skill for testing purposes.
             skill_file.write_text(skill_content)
 
             plugin_config["skills"].append(
-                {"name": f"skill-{i:03d}", "file": f"skills/skill-{i:03d}/SKILL.md"}
+                {"name": f"skill-{i:03d}", "file": f"skills/skill-{i:03d}/SKILL.md"},
             )
 
         # Create many commands
@@ -96,18 +95,18 @@ Test command for performance testing.
             command_file.write_text(command_content)
 
             plugin_config["commands"].append(
-                {"name": f"command-{i:03d}", "file": f"commands/command-{i:03d}.md"}
+                {"name": f"command-{i:03d}", "file": f"commands/command-{i:03d}.md"},
             )
 
         # Write plugin.json
         (plugin_root / "plugin.json").write_text(
-            str(plugin_config).replace("'", '"')  # Convert to JSON format
+            str(plugin_config).replace("'", '"'),  # Convert to JSON format
         )
 
         return plugin_root
 
     @pytest.mark.slow
-    def test_validator_performance_large_plugin(self, large_plugin_structure):
+    def test_validator_performance_large_plugin(self, large_plugin_structure) -> None:
         """Scenario: Validator performance with large plugin
         Given a plugin with 100+ skills and 50+ commands
         When running validation
@@ -151,7 +150,7 @@ Test command for performance testing.
         )  # Should be under 100KB for in-memory representation
 
     @pytest.mark.slow
-    def test_validator_scan_performance_patterns(self, large_plugin_structure):
+    def test_validator_scan_performance_patterns(self, large_plugin_structure) -> None:
         """Scenario: Pattern matching performance optimization
         Given many skill files with various patterns
         When scanning for review patterns
@@ -202,7 +201,7 @@ Test command for performance testing.
             )
 
     @pytest.mark.slow
-    def test_validator_memory_efficiency(self, tmp_path):
+    def test_validator_memory_efficiency(self, tmp_path) -> None:
         """Scenario: Memory usage remains reasonable
         Given validation processing many files
         When processing large datasets
@@ -235,7 +234,7 @@ Test command for performance testing.
                 skill_dir = skills_dir / f"skill-{i:03d}"
                 skill_dir.mkdir()
                 (skill_dir / "SKILL.md").write_text(
-                    f"---\nname: skill-{i:03d}\n---\nContent {i}"
+                    f"---\nname: skill-{i:03d}\n---\nContent {i}",
                 )
 
             # Create plugin.json
@@ -257,7 +256,7 @@ Test command for performance testing.
                     "current_memory": current,
                     "peak_memory": peak,
                     "files_processed": len(validator.skill_files),
-                }
+                },
             )
 
             tracemalloc.stop()
@@ -287,7 +286,7 @@ Test command for performance testing.
             assert avg_second < avg_first * 3
 
     @pytest.mark.slow
-    def test_validator_concurrent_performance(self, tmp_path):
+    def test_validator_concurrent_performance(self, tmp_path) -> None:
         """Scenario: Validator handles concurrent processing
         Given multiple validation requests
         When processing in parallel
@@ -317,7 +316,7 @@ Test command for performance testing.
                 skill_dir = skills_dir / f"skill-{j:03d}"
                 skill_dir.mkdir()
                 (skill_dir / "SKILL.md").write_text(
-                    f"---\nname: plugin-{i}-skill-{j}\n---\nContent"
+                    f"---\nname: plugin-{i}-skill-{j}\n---\nContent",
                 )
 
             (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')
@@ -349,7 +348,7 @@ Test command for performance testing.
         # Test concurrent performance
         concurrent_start = time.time()
         with concurrent.futures.ThreadPoolExecutor(
-            max_workers=plugin_count
+            max_workers=plugin_count,
         ) as executor:
             concurrent_results = list(executor.map(validate_plugin, plugin_roots))
         concurrent_time = time.time() - concurrent_start
@@ -376,7 +375,9 @@ Test command for performance testing.
         assert len(set(thread_ids)) > 1  # Multiple threads were used
 
     @pytest.mark.slow
-    def test_validator_report_generation_performance(self, large_plugin_structure):
+    def test_validator_report_generation_performance(
+        self, large_plugin_structure
+    ) -> None:
         """Scenario: Report generation performs efficiently
         Given large validation results
         When generating reports
@@ -425,7 +426,7 @@ Test command for performance testing.
             assert reports[i] == reports[0]
 
     @pytest.mark.slow
-    def test_validator_regex_pattern_optimization(self, large_plugin_structure):
+    def test_validator_regex_pattern_optimization(self, large_plugin_structure) -> None:
         """Scenario: Regex pattern matching is optimized
         Given many patterns to match against content
         When scanning skills
@@ -511,7 +512,7 @@ Test command for performance testing.
         assert improvement_factor > 2  # At least 2x improvement
 
     @pytest.mark.slow
-    def test_validator_io_performance(self, tmp_path):
+    def test_validator_io_performance(self, tmp_path) -> None:
         """Scenario: File I/O operations are optimized
         Given many files to read
         When scanning plugin directory
@@ -536,7 +537,7 @@ Test command for performance testing.
             skill_dir = skills_dir / f"skill-{i:03d}"
             skill_dir.mkdir()
             (skill_dir / "SKILL.md").write_text(
-                "Content " * (file_size // 8)
+                "Content " * (file_size // 8),
             )  # ~1KB content
 
         (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')

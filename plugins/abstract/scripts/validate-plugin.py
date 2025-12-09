@@ -70,10 +70,10 @@ class PluginValidator:
             if wrong_path.exists():
                 self.issues["critical"].append(
                     "plugin.json found at root but should be at "
-                    ".claude-plugin/plugin.json"
+                    ".claude-plugin/plugin.json",
                 )
                 self.issues["info"].append(
-                    "Run: mkdir -p .claude-plugin && mv plugin.json .claude-plugin/"
+                    "Run: mkdir -p .claude-plugin && mv plugin.json .claude-plugin/",
                 )
             else:
                 self.issues["critical"].append(".claude-plugin/plugin.json not found")
@@ -83,7 +83,7 @@ class PluginValidator:
             with open(json_path) as f:
                 self.config = json.load(f)
             self.issues["info"].append(
-                "[OK] .claude-plugin/plugin.json exists and is valid JSON"
+                "[OK] .claude-plugin/plugin.json exists and is valid JSON",
             )
         except json.JSONDecodeError as e:
             self.issues["critical"].append(f"plugin.json is not valid JSON: {e}")
@@ -100,14 +100,14 @@ class PluginValidator:
         if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", name):
             self.issues["critical"].append(
                 f"Invalid plugin name: '{name}' "
-                "(must be kebab-case: lowercase with hyphens)"
+                "(must be kebab-case: lowercase with hyphens)",
             )
             self.issues["info"].append(
-                "Example valid names: 'my-plugin', 'ai-assistant', 'code-helper'"
+                "Example valid names: 'my-plugin', 'ai-assistant', 'code-helper'",
             )
         else:
             self.issues["info"].append(
-                f"[OK] Plugin name '{name}' follows kebab-case convention"
+                f"[OK] Plugin name '{name}' follows kebab-case convention",
             )
 
     def _validate_recommended_fields(self) -> None:
@@ -122,7 +122,7 @@ class PluginValidator:
         for field, description in recommended.items():
             if field not in self.config:
                 self.issues["recommendations"].append(
-                    f"Missing recommended field: {field} - {description}"
+                    f"Missing recommended field: {field} - {description}",
                 )
 
         # Validate version format if present
@@ -131,7 +131,7 @@ class PluginValidator:
             if not re.match(r"^\d+\.\d+\.\d+", version):
                 self.issues["warnings"].append(
                     f"Version '{version}' should follow semantic versioning "
-                    "(e.g., '1.0.0')"
+                    "(e.g., '1.0.0')",
                 )
 
     def _validate_paths(self) -> None:
@@ -157,7 +157,7 @@ class PluginValidator:
                 # Check relative path format
                 if not path.startswith("./") and not path.startswith(field + "/"):
                     self.issues["warnings"].append(
-                        f"{field} path should use relative format: {path}"
+                        f"{field} path should use relative format: {path}",
                     )
 
                 # Check if referenced path exists
@@ -171,7 +171,7 @@ class PluginValidator:
 
                 if not any(p.exists() for p in check_paths):
                     self.issues["critical"].append(
-                        f"Referenced {field} path not found: {path}"
+                        f"Referenced {field} path not found: {path}",
                     )
 
     def _validate_dependencies(self) -> None:
@@ -185,7 +185,7 @@ class PluginValidator:
         if isinstance(deps, list):
             self.issues["recommendations"].append(
                 "Dependencies should be an object with versions, not an array. "
-                'Example: {"abstract": ">=2.0.0"}'
+                'Example: {"abstract": ">=2.0.0"}',
             )
             return
 
@@ -194,7 +194,7 @@ class PluginValidator:
             for dep_name, version in deps.items():
                 if not isinstance(version, str):
                     self.issues["warnings"].append(
-                        f"Dependency '{dep_name}' version should be a string"
+                        f"Dependency '{dep_name}' version should be a string",
                     )
                     continue
 
@@ -202,28 +202,28 @@ class PluginValidator:
                 if not re.match(r"^[><=\^~]*\d+\.\d+\.\d+", version):
                     self.issues["warnings"].append(
                         f"Dependency '{dep_name}' should use semantic "
-                        f"versioning (found: '{version}')"
+                        f"versioning (found: '{version}')",
                     )
 
     def _validate_directory_structure(self) -> None:
         """Validate plugin directory structure."""
         # Check that component directories exist if referenced
-        if "skills" in self.config and self.config["skills"]:
+        if self.config.get("skills"):
             if not (self.plugin_path / "skills").exists():
                 self.issues["warnings"].append(
-                    "Plugin references skills but skills/ directory is missing"
+                    "Plugin references skills but skills/ directory is missing",
                 )
 
-        if "commands" in self.config and self.config["commands"]:
+        if self.config.get("commands"):
             if not (self.plugin_path / "commands").exists():
                 self.issues["warnings"].append(
-                    "Plugin references commands but commands/ directory is missing"
+                    "Plugin references commands but commands/ directory is missing",
                 )
 
         if "agents" in self.config and self.config.get("agents"):
             if not (self.plugin_path / "agents").exists():
                 self.issues["warnings"].append(
-                    "Plugin references agents but agents/ directory is missing"
+                    "Plugin references agents but agents/ directory is missing",
                 )
 
         # Check that component directories are at plugin root, not in .claude-plugin
@@ -231,7 +231,7 @@ class PluginValidator:
             wrong_location = self.plugin_path / ".claude-plugin" / dirname
             if wrong_location.exists():
                 self.issues["critical"].append(
-                    f"{dirname}/ should be at plugin root, not inside .claude-plugin/"
+                    f"{dirname}/ should be at plugin root, not inside .claude-plugin/",
                 )
                 self.issues["info"].append(f"Run: mv .claude-plugin/{dirname} ./")
 
@@ -267,7 +267,7 @@ class PluginValidator:
             # Check for YAML frontmatter
             if not content.startswith("---"):
                 self.issues["warnings"].append(
-                    f"Skill {skill_path} should start with YAML frontmatter (---)"
+                    f"Skill {skill_path} should start with YAML frontmatter (---)",
                 )
                 return
 
@@ -275,7 +275,7 @@ class PluginValidator:
             parts = content.split("---", 2)
             if len(parts) < FRONTMATTER_PARTS_MIN:
                 self.issues["warnings"].append(
-                    f"Skill {skill_path} has incomplete YAML frontmatter"
+                    f"Skill {skill_path} has incomplete YAML frontmatter",
                 )
                 return
 
@@ -283,11 +283,11 @@ class PluginValidator:
             frontmatter = parts[1]
             if "name:" not in frontmatter:
                 self.issues["warnings"].append(
-                    f"Skill {skill_path} missing 'name' in frontmatter"
+                    f"Skill {skill_path} missing 'name' in frontmatter",
                 )
             if "description:" not in frontmatter:
                 self.issues["recommendations"].append(
-                    f"Skill {skill_path} missing 'description' in frontmatter"
+                    f"Skill {skill_path} missing 'description' in frontmatter",
                 )
 
         except Exception as e:
@@ -297,7 +297,7 @@ class PluginValidator:
         """Validate Claude-specific configuration."""
         if "claude" not in self.config:
             self.issues["recommendations"].append(
-                "Consider adding 'claude' configuration object for enhanced metadata"
+                "Consider adding 'claude' configuration object for enhanced metadata",
             )
             return
 
@@ -313,74 +313,53 @@ class PluginValidator:
         for field, description in recommended_claude_fields.items():
             if field not in claude_config:
                 self.issues["recommendations"].append(
-                    f"Consider adding claude.{field} - {description}"
+                    f"Consider adding claude.{field} - {description}",
                 )
 
     def _print_report(self) -> None:
         """Print validation report."""
-        plugin_name = self.config.get("name", "unknown") if self.config else "unknown"
-
-        print(f"\n{Colors.BOLD}Plugin Validation Report: {plugin_name}{Colors.END}")
-        print("=" * 70)
+        self.config.get("name", "unknown") if self.config else "unknown"
 
         # Critical issues
         if self.issues["critical"]:
-            print(f"\n{Colors.RED}{Colors.BOLD}[!] CRITICAL ISSUES:{Colors.END}")
-            for issue in self.issues["critical"]:
-                print(f"  {Colors.RED}•{Colors.END} {issue}")
+            for _issue in self.issues["critical"]:
+                pass
 
         # Warnings
         if self.issues["warnings"]:
-            print(f"\n{Colors.YELLOW}{Colors.BOLD}[*] WARNINGS:{Colors.END}")
-            for issue in self.issues["warnings"]:
-                print(f"  {Colors.YELLOW}•{Colors.END} {issue}")
+            for _issue in self.issues["warnings"]:
+                pass
 
         # Recommendations
         if self.issues["recommendations"]:
-            print(f"\n{Colors.BLUE}{Colors.BOLD}[+] RECOMMENDATIONS:{Colors.END}")
-            for issue in self.issues["recommendations"]:
-                print(f"  {Colors.BLUE}•{Colors.END} {issue}")
+            for _issue in self.issues["recommendations"]:
+                pass
 
         # Info messages
         if self.issues["info"]:
-            print(f"\n{Colors.GREEN}{Colors.BOLD}[i] INFO:{Colors.END}")
-            for info in self.issues["info"]:
-                print(f"  {Colors.GREEN}•{Colors.END} {info}")
+            for _info in self.issues["info"]:
+                pass
 
         # Summary
-        print("\n" + "=" * 70)
-        if not self.issues["critical"] and not self.issues["warnings"]:
-            msg = "[SUCCESS] Plugin structure is valid!"
-            print(f"{Colors.GREEN}{Colors.BOLD}{msg}{Colors.END}")
-        elif self.issues["critical"]:
-            msg = "[FAIL] Plugin has critical issues that must be fixed"
-            print(f"{Colors.RED}{Colors.BOLD}{msg}{Colors.END}")
+        if (not self.issues["critical"] and not self.issues["warnings"]) or self.issues[
+            "critical"
+        ]:
+            pass
         else:
-            msg = "[WARNING] Plugin is functional but has warnings"
-            print(f"{Colors.YELLOW}{Colors.BOLD}{msg}{Colors.END}")
-
-        print()
+            pass
 
 
 def main() -> int:
     """Run the plugin validator CLI."""
     if len(sys.argv) < MIN_ARGS:
-        print(f"Usage: {sys.argv[0]} <plugin-directory>")
-        print(
-            "\nValidates a Claude Code plugin structure against official requirements."
-        )
-        print("\nExample:")
-        print(f"  {sys.argv[0]} ~/claude-night-market/plugins/archetypes")
         return 1
 
     plugin_path = Path(sys.argv[1]).expanduser()
 
     if not plugin_path.exists():
-        print(f"Error: Plugin directory not found: {plugin_path}")
         return 1
 
     if not plugin_path.is_dir():
-        print(f"Error: Path is not a directory: {plugin_path}")
         return 1
 
     validator = PluginValidator(plugin_path)

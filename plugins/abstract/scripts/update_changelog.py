@@ -122,7 +122,7 @@ def generate_changelog_entry(commits: list[tuple[str, str]]) -> dict[str, list[s
 
     for _, commit_message in commits:
         # Skip merge commits and version bumps
-        if commit_message.startswith("Merge ") or commit_message.startswith("bump:"):
+        if commit_message.startswith(("Merge ", "bump:")):
             continue
 
         # Clean up the message
@@ -149,14 +149,14 @@ def _clean_commit_message(message: str) -> str:
     """
     # Remove common prefixes
     message = re.sub(
-        r"^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?:\s*", "", message
+        r"^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?:\s*",
+        "",
+        message,
     )
     # Remove PR numbers
     message = re.sub(r"\(#\d+\)", "", message).strip()
     # Remove commit hash if present at start
-    message = re.sub(r"^[a-f0-9]+\s+", "", message).strip()
-
-    return message
+    return re.sub(r"^[a-f0-9]+\s+", "", message).strip()
 
 
 def _format_changelog_entry(message: str) -> str:
@@ -188,7 +188,6 @@ def update_changelog(entries: dict[str, list[str]], version: str | None = None) 
     changelog_path = Path("CHANGELOG.md")
 
     if not changelog_path.exists():
-        print("CHANGELOG.md not found")
         return
 
     content = changelog_path.read_text()
@@ -196,7 +195,6 @@ def update_changelog(entries: dict[str, list[str]], version: str | None = None) 
     # Find where to insert the new entry (after ## [Unreleased] section)
     unreleased_match = re.search(r"## \[Unreleased\]\s*\n", content)
     if not unreleased_match:
-        print("Could not find ## [Unreleased] section in CHANGELOG.md")
         return
 
     # Generate the new entry
@@ -206,7 +204,7 @@ def update_changelog(entries: dict[str, list[str]], version: str | None = None) 
     new_entry_parts = [f"## [{version}] - {today}"]
 
     for section in ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"]:
-        if section in entries and entries[section]:
+        if entries.get(section):
             new_entry_parts.append(f"\n### {section}")
             for item in sorted(set(entries[section])):  # Remove duplicates and sort
                 new_entry_parts.append(f"- {item}")
@@ -220,15 +218,12 @@ def update_changelog(entries: dict[str, list[str]], version: str | None = None) 
     # Write back to file
     changelog_path.write_text(content)
 
-    print(f"Updated CHANGELOG.md with {sum(len(v) for v in entries.values())} entries")
-
 
 def validate_changelog() -> bool:
     """Validate that the CHANGELOG.md follows the correct format."""
     changelog_path = Path("CHANGELOG.md")
 
     if not changelog_path.exists():
-        print("CHANGELOG.md does not exist")
         return False
 
     content = changelog_path.read_text()
@@ -240,13 +235,7 @@ def validate_changelog() -> bool:
         r"## \[\d+\.\d+\.\d+\]",  # At least one versioned section
     ]
 
-    for pattern in required_patterns:
-        if not re.search(pattern, content):
-            print(f"CHANGELOG.md validation failed: missing pattern {pattern}")
-            return False
-
-    print("CHANGELOG.md format is valid")
-    return True
+    return all(re.search(pattern, content) for pattern in required_patterns)
 
 
 def main() -> None:
@@ -269,36 +258,30 @@ def main() -> None:
     # Get commits
     last_tag = args.since_tag or get_last_tag()
     if last_tag:
-        print(f"Getting commits since tag: {last_tag}")
+        pass
     else:
-        print("Getting all commits")
+        pass
 
     commits = get_commits_since_tag(last_tag)
 
     if not commits:
-        print("No new commits found")
         return
-
-    print(f"Found {len(commits)} commits")
 
     # Generate entries
     entries = generate_changelog_entry(commits)
 
     if not any(entries.values()):
-        print("No changelog-worthy entries found")
         return
 
     # Show summary
-    for section, items in entries.items():
+    for items in entries.values():
         if items:
-            print(f"\n{section}: {len(items)} entries")
-            for item in items[:MAX_DISPLAY_ITEMS]:  # Show first few
-                print(f"  - {item}")
+            for _item in items[:MAX_DISPLAY_ITEMS]:  # Show first few
+                pass
             if len(items) > MAX_DISPLAY_ITEMS:
-                print(f"  ... and {len(items) - MAX_DISPLAY_ITEMS} more")
+                pass
 
     # Update changelog
-    print("\nUpdating CHANGELOG.md...")
     update_changelog(entries, args.version)
 
     # Validate after update

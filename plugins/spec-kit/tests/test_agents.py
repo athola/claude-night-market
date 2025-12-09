@@ -1,23 +1,20 @@
 """Tests for spec-kit agent functionality."""
 
 
-# ruff: noqa: S101
-
-
 class TestSpeckitAgents:
     """Test cases for speckit agents."""
 
     class TestSpecAnalyzer:
         """Test spec-analyzer agent."""
 
-        def test_spec_complexity_analysis(self, sample_spec_content):
+        def test_spec_complexity_analysis(self, sample_spec_content) -> None:
             """Test specification complexity analysis."""
             # Analyze spec content
             lines = sample_spec_content.split("\n")
             sections = len([line for line in lines if line.startswith("## ")])
             user_scenarios = len([line for line in lines if "### As a" in line])
             functional_requirements = len(
-                [line for line in lines if line.startswith("-")]
+                [line for line in lines if line.startswith("-")],
             )
 
             # Calculate complexity metrics
@@ -46,7 +43,7 @@ class TestSpeckitAgents:
             assert complexity_level in ["low", "medium", "high"]
             assert complexity_factors["sections"] >= 4  # Minimum required sections
 
-        def test_effort_estimation(self, sample_spec_content):
+        def test_effort_estimation(self, sample_spec_content) -> None:
             """Test effort estimation from specification."""
             # Count implementation indicators
             implementation_indicators = {
@@ -56,7 +53,7 @@ class TestSpeckitAgents:
                         line
                         for line in sample_spec_content.split("\n")
                         if line.strip().startswith("-")
-                    ]
+                    ],
                 ),
                 "integrations": len(
                     [
@@ -66,7 +63,7 @@ class TestSpeckitAgents:
                             term in line
                             for term in ["api", "database", "service", "external"]
                         )
-                    ]
+                    ],
                 ),
                 "complexity_markers": len(
                     [
@@ -76,7 +73,7 @@ class TestSpeckitAgents:
                             term in line
                             for term in ["security", "performance", "scalability"]
                         )
-                    ]
+                    ],
                 ),
             }
 
@@ -100,7 +97,7 @@ class TestSpeckitAgents:
             assert total_effort > 0, "Should estimate positive effort"
             assert total_effort < 30, "Effort should be reasonable (< 30 days)"
 
-        def test_key_component_extraction(self, sample_spec_content):
+        def test_key_component_extraction(self, sample_spec_content) -> None:
             """Test extraction of key components from specification."""
             # Look for technical components
             component_patterns = [
@@ -127,7 +124,7 @@ class TestSpeckitAgents:
                 f"Should extract key components, found: {found_components}"
             )
 
-        def test_dependency_identification(self, sample_spec_content):
+        def test_dependency_identification(self, sample_spec_content) -> None:
             """Test identification of external dependencies."""
             dependency_indicators = [
                 "email service",
@@ -148,7 +145,7 @@ class TestSpeckitAgents:
             # Dependencies are optional but should be identified if present
             # assert len(found_dependencies) > 0, "Should identify dependencies if mentioned"
 
-        def test_risk_assessment(self, sample_spec_content):
+        def test_risk_assessment(self, sample_spec_content) -> None:
             """Test risk assessment from specification."""
             risk_indicators = {
                 "security": ["password", "authentication", "authorization", "session"],
@@ -177,7 +174,7 @@ class TestSpeckitAgents:
     class TestTaskGenerator:
         """Test task-generator agent."""
 
-        def test_task_count_estimation(self, sample_spec_content):
+        def test_task_count_estimation(self, sample_spec_content) -> None:
             """Test estimation of task count from specification."""
             # Analyze spec complexity for task estimation
             functional_requirements = len(
@@ -185,7 +182,7 @@ class TestSpeckitAgents:
                     line
                     for line in sample_spec_content.split("\n")
                     if line.strip().startswith("-") and len(line.strip()) > 2
-                ]
+                ],
             )
 
             user_scenarios = sample_spec_content.count("### As a")
@@ -204,7 +201,7 @@ class TestSpeckitAgents:
                 f"Task count should be reasonable: {estimated_tasks}"
             )
 
-        def test_phase_breakdown(self, sample_task_list):
+        def test_phase_breakdown(self, sample_task_list) -> None:
             """Test task phase breakdown."""
             expected_phases = [
                 "0 - Setup",
@@ -220,7 +217,7 @@ class TestSpeckitAgents:
             for i, expected_phase in enumerate(expected_phases[: len(actual_phases)]):
                 assert actual_phases[i] == expected_phase
 
-        def test_dependency_analysis(self, sample_task_list):
+        def test_dependency_analysis(self, sample_task_list) -> None:
             """Test task dependency analysis."""
             # Build dependency graph
             all_tasks = []
@@ -232,7 +229,7 @@ class TestSpeckitAgents:
                 visited = set()
                 rec_stack = set()
 
-                def dfs(task_id):
+                def dfs(task_id) -> bool:
                     if task_id in rec_stack:
                         return True
                     if task_id in visited:
@@ -254,7 +251,7 @@ class TestSpeckitAgents:
 
             assert not has_cycle(all_tasks), "Task dependencies should not have cycles"
 
-        def test_parallel_task_identification(self, sample_task_list):
+        def test_parallel_task_identification(self, sample_task_list) -> None:
             """Test identification of parallel executable tasks."""
             parallel_groups = []
 
@@ -288,7 +285,9 @@ class TestSpeckitAgents:
     class TestImplementationExecutor:
         """Test implementation-executor agent."""
 
-        def test_prerequisites_validation(self, sample_spec_content, sample_task_list):
+        def test_prerequisites_validation(
+            self, sample_spec_content, sample_task_list
+        ) -> None:
             """Test validation of implementation prerequisites."""
             prerequisites = {
                 "specification_exists": len(sample_spec_content.strip()) > 0,
@@ -309,8 +308,10 @@ class TestSpeckitAgents:
                 assert met, f"Prerequisite not met: {prereq}"
 
         def test_implementation_readiness_score(
-            self, sample_spec_content, sample_task_list
-        ):
+            self,
+            sample_spec_content,
+            sample_task_list,
+        ) -> None:
             """Test calculation of implementation readiness score."""
             readiness_factors = {
                 "spec_completeness": 0.3,
@@ -365,7 +366,9 @@ class TestSpeckitAgents:
                 f"Should be ready for implementation: {readiness_score}"
             )
 
-        def test_blocking_issues_detection(self, sample_spec_content, sample_task_list):
+        def test_blocking_issues_detection(
+            self, sample_spec_content, sample_task_list
+        ) -> None:
             """Test detection of blocking implementation issues."""
             blocking_issues = []
 
@@ -388,7 +391,7 @@ class TestSpeckitAgents:
                     dep_task = next((t for t in all_tasks if t["id"] == dep_id), None)
                     if dep_task and task["id"] in dep_task.get("dependencies", []):
                         blocking_issues.append(
-                            f"Circular dependency: {task['id']} <-> {dep_id}"
+                            f"Circular dependency: {task['id']} <-> {dep_id}",
                         )
 
             # Should have minimal blocking issues for good specs
@@ -396,7 +399,7 @@ class TestSpeckitAgents:
                 f"Too many blocking issues: {blocking_issues}"
             )
 
-        def test_implementation_status_assessment(self, sample_task_list):
+        def test_implementation_status_assessment(self, sample_task_list) -> None:
             """Test assessment of implementation status."""
             # Mock implementation progress
             completed_tasks = set()  # Tasks that are completed
@@ -413,7 +416,8 @@ class TestSpeckitAgents:
             # Find current phase based on completed tasks
             for i, phase in enumerate(phases):
                 phase_tasks = next(
-                    (p["tasks"] for p in sample_task_list if p["phase"] == phase), []
+                    (p["tasks"] for p in sample_task_list if p["phase"] == phase),
+                    [],
                 )
                 if all(task["id"] in completed_tasks for task in phase_tasks):
                     current_phase_index = i + 1
@@ -426,11 +430,11 @@ class TestSpeckitAgents:
                 else "Completed"
             )
 
-            assert current_phase in phases + ["Completed"], (
+            assert current_phase in [*phases, "Completed"], (
                 f"Invalid phase: {current_phase}"
             )
 
-        def test_resource_requirements_estimation(self, sample_task_list):
+        def test_resource_requirements_estimation(self, sample_task_list) -> None:
             """Test estimation of resource requirements."""
             # Calculate total estimated time
             total_time = 0

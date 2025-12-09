@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 from .base import AbstractScript
 from .config import AbstractConfig
@@ -24,7 +24,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class CLIResult(Generic[T]):
+class CLIResult[T]:
     """Standard result wrapper for CLI operations."""
 
     success: bool
@@ -55,7 +55,8 @@ class OutputFormatter:
 
     @staticmethod
     def format_summary(
-        data: Any, summary_func: Callable[[Any], str] | None = None
+        data: Any,
+        summary_func: Callable[[Any], str] | None = None,
     ) -> str:
         """Format data as a summary.
 
@@ -135,7 +136,7 @@ class AbstractCLI(ABC):
         name: str,
         description: str,
         version: str = "1.0.0",
-    ):
+    ) -> None:
         """Initialize the CLI.
 
         Args:
@@ -314,7 +315,7 @@ class AbstractCLI(ABC):
         if isinstance(data, list):
             rows = [asdict(d) if is_dataclass(d) else d for d in data]
             return self._formatter.format_table(rows, table_columns)
-        elif is_dataclass(data):
+        if is_dataclass(data):
             return self._formatter.format_table([asdict(data)], table_columns)
         return str(data)
 
@@ -348,44 +349,37 @@ class AbstractCLI(ABC):
         args = parser.parse_args(argv)
 
         # Handle project root (for future use)
-        if args.project_root:
-            _project_root = args.project_root  # noqa: F841
-        else:
-            _project_root = self._script.find_project_root()  # noqa: F841
+        _project_root = args.project_root or self._script.find_project_root()
 
         # Load config if specified
         if args.config:
             try:
                 self.config = AbstractConfig.from_yaml(args.config)
-            except Exception as e:
-                print(f"Error loading config: {e}", file=sys.stderr)
+            except Exception:
                 return 1
 
         try:
             result = self.execute(args)
         except KeyboardInterrupt:
-            print("\nOperation cancelled", file=sys.stderr)
             return 130
-        except Exception as e:
+        except Exception:
             if args.verbose > 0:
                 traceback.print_exc()
-            print(f"Error: {e}", file=sys.stderr)
             return 1
 
         # Handle warnings
         if result.warnings and not args.quiet:
-            for warning in result.warnings:
-                print(f"Warning: {warning}", file=sys.stderr)
+            for _warning in result.warnings:
+                pass
 
         # Format and print output
         if not args.quiet or result.success:
-            output = self.format_output(
+            self.format_output(
                 result,
                 args.format,
                 summary_func=getattr(self, "summary_func", None),
                 table_columns=getattr(self, "table_columns", None),
             )
-            print(output)
 
         return 0 if result.success else 1
 

@@ -28,40 +28,29 @@ def categorize_files(
         rel_path = str(file_path)
 
         # README files are typically documentation and don't need frontmatter
-        if "README.md" in rel_path:
-            should_be_exceptions.append(file_path)
-
-        # Files in examples/ directories are typically documentation
-        elif "/examples/" in rel_path:
-            should_be_exceptions.append(file_path)
-
-        # Files in sample-migration/modules/ are typically case studies/examples
-        elif "/sample-migration/modules/" in rel_path:
-            should_be_exceptions.append(file_path)
-
-        # Files in scripts/ directories are typically documentation
-        elif "/scripts/" in rel_path:
-            should_be_exceptions.append(file_path)
-
-        # Skills-eval modules are typically framework documentation
-        elif "/skills-eval/modules/" in rel_path:
+        if (
+            "README.md" in rel_path
+            or "/examples/" in rel_path
+            or "/sample-migration/modules/" in rel_path
+            or "/scripts/" in rel_path
+            or "/skills-eval/modules/" in rel_path
+        ):
             should_be_exceptions.append(file_path)
 
         # Core skill modules should have frontmatter
-        elif "/modules/" in rel_path and any(
-            x in rel_path
-            for x in [
-                "core-workflow",
-                "implementation-patterns",
-                "design-philosophy",
-                "troubleshooting",
-                "antipatterns-and-migration",
-            ]
-        ):
-            needs_frontmatter.append(file_path)
-
-        # Guide files might benefit from frontmatter
-        elif rel_path.endswith("guide.md"):
+        elif (
+            "/modules/" in rel_path
+            and any(
+                x in rel_path
+                for x in [
+                    "core-workflow",
+                    "implementation-patterns",
+                    "design-philosophy",
+                    "troubleshooting",
+                    "antipatterns-and-migration",
+                ]
+            )
+        ) or rel_path.endswith("guide.md"):
             needs_frontmatter.append(file_path)
 
         else:
@@ -82,20 +71,14 @@ def main() -> tuple[int, int]:
     ]
 
     needs_frontmatter, should_be_exceptions = categorize_files(
-        files_without_frontmatter
+        files_without_frontmatter,
     )
 
-    print("Files that should have YAML frontmatter added:")
-    print(f"Total: {len(needs_frontmatter)}")
     for file_path in sorted(needs_frontmatter):
-        rel_path = os.path.relpath(file_path, skills_dir)
-        print(f"  - {rel_path}")
+        os.path.relpath(file_path, skills_dir)
 
-    print("\nFiles that should remain as exceptions (documentation/examples):")
-    print(f"Total: {len(should_be_exceptions)}")
     for file_path in sorted(should_be_exceptions):
-        rel_path = os.path.relpath(file_path, skills_dir)
-        print(f"  - {rel_path}")
+        os.path.relpath(file_path, skills_dir)
 
     return len(needs_frontmatter), len(should_be_exceptions)
 

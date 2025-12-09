@@ -19,17 +19,17 @@ EXPECTED_RESULTS_COUNT = 3
 class TestSkillAnalyzer:
     """Test cases for SkillAnalyzer."""
 
-    def test_analyzer_initialization(self):
+    def test_analyzer_initialization(self) -> None:
         """Test analyzer initializes with correct threshold."""
         analyzer = SkillAnalyzer(threshold=CUSTOM_THRESHOLD)
         assert analyzer.threshold == CUSTOM_THRESHOLD
 
-    def test_analyzer_default_threshold(self):
+    def test_analyzer_default_threshold(self) -> None:
         """Test analyzer uses default threshold."""
         analyzer = SkillAnalyzer()
         assert analyzer.threshold == DEFAULT_THRESHOLD
 
-    def test_analyze_file_basic_metrics(self, temp_skill_file):
+    def test_analyze_file_basic_metrics(self, temp_skill_file) -> None:
         """Test basic file analysis metrics."""
         analyzer = SkillAnalyzer()
         result = analyzer.analyze_file(temp_skill_file)
@@ -44,7 +44,7 @@ class TestSkillAnalyzer:
         assert "estimated_tokens" in result
         assert "recommendations" in result
 
-    def test_analyze_file_counts_sections(self, temp_skill_file):
+    def test_analyze_file_counts_sections(self, temp_skill_file) -> None:
         """Test that analyzer counts sections correctly."""
         analyzer = SkillAnalyzer()
         result = analyzer.analyze_file(temp_skill_file)
@@ -53,13 +53,13 @@ class TestSkillAnalyzer:
         assert result["themes"] >= 0
         assert result["subsections"] >= 0
 
-    def test_analyze_file_nonexistent_fails(self):
+    def test_analyze_file_nonexistent_fails(self) -> None:
         """Test that analyzing nonexistent file raises error."""
         analyzer = SkillAnalyzer()
         with pytest.raises(FileNotFoundError):
             analyzer.analyze_file(Path("/nonexistent/file.md"))
 
-    def test_recommendations_under_threshold(self, temp_skill_file):
+    def test_recommendations_under_threshold(self, temp_skill_file) -> None:
         """Test recommendations for file under threshold."""
         analyzer = SkillAnalyzer(threshold=1000)  # High threshold
         result = analyzer.analyze_file(temp_skill_file)
@@ -67,7 +67,7 @@ class TestSkillAnalyzer:
         recommendations = result["recommendations"]
         assert any("OK" in rec or "within threshold" in rec for rec in recommendations)
 
-    def test_recommendations_over_threshold(self, temp_skill_file):
+    def test_recommendations_over_threshold(self, temp_skill_file) -> None:
         """Test recommendations for file over threshold."""
         analyzer = SkillAnalyzer(threshold=5)  # Very low threshold
         result = analyzer.analyze_file(temp_skill_file)
@@ -75,7 +75,7 @@ class TestSkillAnalyzer:
         recommendations = result["recommendations"]
         assert any("MODULARIZE" in rec for rec in recommendations)
 
-    def test_format_analysis_basic(self, temp_skill_file):
+    def test_format_analysis_basic(self, temp_skill_file) -> None:
         """Test analysis formatting."""
         analyzer = SkillAnalyzer()
         result = analyzer.analyze_file(temp_skill_file)
@@ -85,7 +85,7 @@ class TestSkillAnalyzer:
         assert "Line count:" in formatted
         assert "Recommendations" in formatted
 
-    def test_format_analysis_verbose(self, temp_skill_file):
+    def test_format_analysis_verbose(self, temp_skill_file) -> None:
         """Test verbose analysis formatting."""
         analyzer = SkillAnalyzer()
         result = analyzer.analyze_file(temp_skill_file, verbose=True)
@@ -95,7 +95,9 @@ class TestSkillAnalyzer:
         assert "main_sections" in result
         assert "sub_sections" in result
 
-    def test_analyze_directory_finds_skills(self, temp_skill_dir, sample_skill_content):
+    def test_analyze_directory_finds_skills(
+        self, temp_skill_dir, sample_skill_content
+    ) -> None:
         """Test directory analysis finds skill files."""
         # Create multiple skill files
         for i in range(3):
@@ -111,7 +113,7 @@ class TestSkillAnalyzer:
             assert "file" in result
             assert "recommendations" in result
 
-    def test_analyze_empty_directory(self, temp_skill_dir):
+    def test_analyze_empty_directory(self, temp_skill_dir) -> None:
         """Test analyzing empty directory returns empty list."""
         analyzer = SkillAnalyzer()
         results = analyzer.analyze_directory(temp_skill_dir)
@@ -119,13 +121,15 @@ class TestSkillAnalyzer:
         assert results == []
 
     @pytest.mark.parametrize(
-        "threshold,expected",
+        ("threshold", "expected"),
         [
             (5, "MODULARIZE"),  # Very low threshold to trigger modularize
             (1000, "OK"),
         ],
     )
-    def test_threshold_recommendations(self, temp_skill_file, threshold, expected):
+    def test_threshold_recommendations(
+        self, temp_skill_file, threshold, expected
+    ) -> None:
         """Test different thresholds produce appropriate recommendations."""
         analyzer = SkillAnalyzer(threshold=threshold)
         result = analyzer.analyze_file(temp_skill_file)

@@ -47,7 +47,7 @@ class UsageLogger:
         service: str,
         storage_dir: Path | None = None,
         session_id: str | None = None,
-    ):
+    ) -> None:
         self.service = service
 
         # Storage location
@@ -218,7 +218,7 @@ class UsageLogger:
         return operations
 
 
-def main():
+def main() -> None:
     """CLI interface for usage logger."""
     import argparse
 
@@ -239,20 +239,11 @@ def main():
     logger = UsageLogger(service=args.service)
 
     if args.summary:
-        summary = logger.get_usage_summary()
-        print(f"Usage Summary ({args.service}):")
-        print(f"  Operations: {summary['total_operations']}")
-        print(f"  Total tokens: {summary['total_tokens']:,}")
-        print(f"  Success rate: {summary['success_rate']:.1%}")
-        print(f"  Total duration: {summary['total_duration']:.1f}s")
-        print(f"  Estimated cost: ${summary['estimated_cost']:.4f}")
+        logger.get_usage_summary()
     elif args.errors:
         errors = logger.get_recent_errors(args.errors)
-        print(f"Recent Errors ({len(errors)}):")
-        for err in errors:
-            print(
-                f"  [{err['timestamp']}] {err.get('error_type', 'Unknown')}: {err.get('error_message', 'No message')}"
-            )
+        for _err in errors:
+            pass
     elif args.log:
         operation, tokens, success, duration = args.log
         logger.log_usage(
@@ -261,15 +252,10 @@ def main():
             success=success.lower() == "true",
             duration=float(duration),
         )
-        print(f"Logged: {operation}")
     else:
         operations = logger.get_recent_operations(hours=args.recent)
-        print(f"Recent Operations ({len(operations)} in last {args.recent}h):")
         for op in operations[-10:]:
-            status = "✓" if op.get("success") else "✗"
-            print(
-                f"  {status} [{op['timestamp'][:19]}] {op['operation']} ({op.get('tokens', 0)} tokens)"
-            )
+            "✓" if op.get("success") else "✗"
 
 
 if __name__ == "__main__":

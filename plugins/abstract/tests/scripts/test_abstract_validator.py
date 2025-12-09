@@ -12,13 +12,15 @@ from abstract_validator import AbstractValidator
 class TestAbstractValidator:
     """Test cases for AbstractValidator."""
 
-    def test_validator_initialization(self, temp_skill_dir):
+    def test_validator_initialization(self, temp_skill_dir) -> None:
         """Test validator initializes correctly."""
         validator = AbstractValidator(temp_skill_dir)
         assert validator.plugin_root == temp_skill_dir
         assert isinstance(validator.skill_files, list)
 
-    def test_scan_infrastructure_basic(self, temp_skill_dir, sample_skill_content):
+    def test_scan_infrastructure_basic(
+        self, temp_skill_dir, sample_skill_content
+    ) -> None:
         """Test basic infrastructure scanning."""
         skill_dir = temp_skill_dir / "test-skill"
         skill_dir.mkdir()
@@ -32,7 +34,7 @@ class TestAbstractValidator:
         assert "infrastructure_provided" in result
         assert "issues" in result
 
-    def test_validate_patterns_missing_frontmatter(self, temp_skill_dir):
+    def test_validate_patterns_missing_frontmatter(self, temp_skill_dir) -> None:
         """Test validation catches missing frontmatter."""
         skill_dir = temp_skill_dir / "bad-skill"
         skill_dir.mkdir()
@@ -43,7 +45,7 @@ class TestAbstractValidator:
 
         assert any("Missing frontmatter" in issue for issue in issues)
 
-    def test_validate_patterns_incomplete_frontmatter(self, temp_skill_dir):
+    def test_validate_patterns_incomplete_frontmatter(self, temp_skill_dir) -> None:
         """Test validation catches incomplete frontmatter."""
         skill_dir = temp_skill_dir / "incomplete-skill"
         skill_dir.mkdir()
@@ -57,7 +59,7 @@ name: test
 
         assert any("Incomplete frontmatter" in issue for issue in issues)
 
-    def test_validate_patterns_missing_required_fields(self, temp_skill_dir):
+    def test_validate_patterns_missing_required_fields(self, temp_skill_dir) -> None:
         """Test validation catches missing required fields."""
         skill_dir = temp_skill_dir / "missing-fields"
         skill_dir.mkdir()
@@ -76,7 +78,7 @@ Content.
         assert any("description" in issue for issue in issues)
         assert any("category" in issue for issue in issues)
 
-    def test_check_progressive_disclosure(self, temp_skill_dir):
+    def test_check_progressive_disclosure(self, temp_skill_dir) -> None:
         """Test progressive disclosure validation."""
         skill_dir = temp_skill_dir / "no-overview"
         skill_dir.mkdir()
@@ -97,7 +99,7 @@ Some content.
 
         assert any("overview" in issue.lower() for issue in issues)
 
-    def test_check_dependency_cycles(self, temp_skill_dir):
+    def test_check_dependency_cycles(self, temp_skill_dir) -> None:
         """Test dependency cycle detection."""
         # Create skill A depending on B
         skill_a = temp_skill_dir / "skill-a"
@@ -130,7 +132,7 @@ Content B.
 
         assert any("cycle" in issue.lower() for issue in issues)
 
-    def test_check_hub_spoke_pattern_violation(self, temp_skill_dir):
+    def test_check_hub_spoke_pattern_violation(self, temp_skill_dir) -> None:
         """Test hub-spoke pattern validation."""
         skill_dir = temp_skill_dir / "modular-skill"
         skill_dir.mkdir()
@@ -155,7 +157,7 @@ Content without module references.
 
         assert any("hub-spoke" in issue.lower() for issue in issues)
 
-    def test_generate_report(self, temp_skill_dir, sample_skill_content):
+    def test_generate_report(self, temp_skill_dir, sample_skill_content) -> None:
         """Test report generation."""
         skill_dir = temp_skill_dir / "test-skill"
         skill_dir.mkdir()
@@ -168,7 +170,7 @@ Content without module references.
         assert "Plugin Root:" in report
         assert "Skill Files:" in report
 
-    def test_fix_patterns_dry_run(self, temp_skill_dir):
+    def test_fix_patterns_dry_run(self, temp_skill_dir) -> None:
         """Test fix patterns in dry run mode."""
         skill_dir = temp_skill_dir / "fixable-skill"
         skill_dir.mkdir()
@@ -185,7 +187,7 @@ Content without module references.
         content = (skill_dir / "SKILL.md").read_text()
         assert not content.startswith("---")
 
-    def test_fix_patterns_actual_fix(self, temp_skill_dir):
+    def test_fix_patterns_actual_fix(self, temp_skill_dir) -> None:
         """Test actual fixing of patterns."""
         skill_dir = temp_skill_dir / "fixable-skill"
         skill_dir.mkdir()

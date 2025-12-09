@@ -4,7 +4,6 @@ This module tests the conservation workflow validation, pattern matching,
 and report generation functionality following TDD/BDD principles.
 """
 
-# ruff: noqa: S101
 import json
 
 import pytest
@@ -21,8 +20,9 @@ class TestConservationValidator:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_detects_conservation_workflow_patterns(
-        self, mock_conservation_validator
-    ):
+        self,
+        mock_conservation_validator,
+    ) -> None:
         """Scenario: Validator detects conservation workflow patterns
         Given a conservation plugin with multiple skills
         When scanning for conservation patterns
@@ -70,7 +70,7 @@ class TestConservationValidator:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validator_validates_mecw_compliance(self, mock_mecw_analyzer):
+    def test_validator_validates_mecw_compliance(self, mock_mecw_analyzer) -> None:
         """Scenario: Validator validates MECW compliance in skills
         Given skills with context optimization patterns
         When validating MECW compliance
@@ -103,8 +103,9 @@ class TestConservationValidator:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_analyzes_token_conservation_patterns(
-        self, mock_token_quota_tracker
-    ):
+        self,
+        mock_token_quota_tracker,
+    ) -> None:
         """Scenario: Validator analyzes token conservation patterns
         Given token usage logs and quota information
         When analyzing conservation patterns
@@ -134,8 +135,9 @@ class TestConservationValidator:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_detects_performance_monitoring_patterns(
-        self, mock_performance_monitor
-    ):
+        self,
+        mock_performance_monitor,
+    ) -> None:
         """Scenario: Validator detects performance monitoring capabilities
         Given performance monitoring skills and metrics
         When detecting monitoring patterns
@@ -163,8 +165,9 @@ class TestConservationValidator:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_validates_skill_configuration_compliance(
-        self, sample_skill_content
-    ):
+        self,
+        sample_skill_content,
+    ) -> None:
         """Scenario: Validator validates conservation skill configuration
         Given conservation skill files with frontmatter
         When validating configuration compliance
@@ -189,8 +192,9 @@ class TestConservationValidator:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_generates_comprehensive_report(
-        self, mock_conservation_validator
-    ):
+        self,
+        mock_conservation_validator,
+    ) -> None:
         """Scenario: Validator generates comprehensive conservation report
         Given conservation analysis results
         When generating report
@@ -219,7 +223,8 @@ class TestConservationValidator:
         }
 
         mock_conservation_validator.generate_report.return_value = json.dumps(
-            mock_analysis_results, indent=2
+            mock_analysis_results,
+            indent=2,
         )
 
         # Act
@@ -240,8 +245,9 @@ class TestConservationValidator:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_identifies_optimization_opportunities(
-        self, mock_conservation_validator
-    ):
+        self,
+        mock_conservation_validator,
+    ) -> None:
         """Scenario: Validator identifies resource optimization opportunities
         Given conservation plugin configuration and usage patterns
         When identifying optimization opportunities
@@ -295,8 +301,9 @@ class TestConservationValidator:
 
     @pytest.mark.unit
     def test_validator_handles_invalid_skill_files_gracefully(
-        self, mock_conservation_validator
-    ):
+        self,
+        mock_conservation_validator,
+    ) -> None:
         """Scenario: Validator handles invalid or malformed skill files
         Given skill files with missing or invalid frontmatter
         When validating skills
@@ -345,7 +352,9 @@ class TestConservationValidator:
         assert any("No frontmatter" in error["error"] for error in errors)
 
     @pytest.mark.unit
-    def test_validator_performance_with_large_plugin(self, mock_conservation_validator):
+    def test_validator_performance_with_large_plugin(
+        self, mock_conservation_validator
+    ) -> None:
         """Scenario: Validator maintains performance with large plugin structures
         Given a plugin with many skills and complex configurations
         When scanning and validating
@@ -386,8 +395,9 @@ class TestConservationValidator:
 
     @pytest.mark.unit
     def test_validator_integration_with_abstract_plugin(
-        self, mock_conservation_validator
-    ):
+        self,
+        mock_conservation_validator,
+    ) -> None:
         """Scenario: Validator integrates properly with abstract plugin dependencies
         Given conservation plugin depends on abstract plugin
         When validating dependencies
@@ -400,7 +410,7 @@ class TestConservationValidator:
                 "required_version": ">=2.0.0",
                 "current_version": "2.1.0",
                 "compatibility": True,
-            }
+            },
         }
 
         mock_conservation_validator.check_dependencies.return_value = (
@@ -427,7 +437,9 @@ class TestConservationWorkflowValidation:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_workflow_validation_covers_all_phases(self, mock_conservation_validator):
+    def test_workflow_validation_covers_all_phases(
+        self, mock_conservation_validator
+    ) -> None:
         """Scenario: Workflow validation covers all conservation phases
         Given a complete conservation workflow
         When validating the workflow
@@ -462,8 +474,9 @@ class TestConservationWorkflowValidation:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_workflow_validation_measures_efficiency_metrics(
-        self, mock_conservation_validator
-    ):
+        self,
+        mock_conservation_validator,
+    ) -> None:
         """Scenario: Workflow validation measures efficiency metrics
         Given conservation workflows with measurable outcomes
         When validating efficiency

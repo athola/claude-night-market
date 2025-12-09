@@ -11,7 +11,7 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-# ruff: noqa: E402  (import must come after sys.path modification)
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,8 +21,11 @@ class TokenUsageTracker:
     """CLI wrapper for token usage tracking functionality."""
 
     def __init__(
-        self, skills_dir: Path, optimal_limit: int = 2000, max_limit: int = 4000
-    ):
+        self,
+        skills_dir: Path,
+        optimal_limit: int = 2000,
+        max_limit: int = 4000,
+    ) -> None:
         self.skills_dir = skills_dir
         self.optimal_limit = optimal_limit
         self.max_limit = max_limit
@@ -98,10 +101,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Track token usage for skills")
 
     parser.add_argument(
-        "skills_dir", type=Path, help="Directory containing skills to analyze"
+        "skills_dir",
+        type=Path,
+        help="Directory containing skills to analyze",
     )
     parser.add_argument(
-        "--optimal-limit", type=int, default=2000, help="Optimal token limit per skill"
+        "--optimal-limit",
+        type=int,
+        default=2000,
+        help="Optimal token limit per skill",
     )
     parser.add_argument("--output", type=Path, help="Output file path")
 
@@ -113,6 +121,5 @@ if __name__ == "__main__":
     if args.output:
         with open(args.output, "w") as f:
             f.write(output)
-        print(f"Token usage report saved to {args.output}")
     else:
-        print(output)
+        pass

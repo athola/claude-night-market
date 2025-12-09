@@ -1,5 +1,4 @@
-"""
-Test configuration and shared fixtures for the pensive plugin test suite.
+"""Test configuration and shared fixtures for the pensive plugin test suite.
 
 This module provides common fixtures, test data, and utilities
 for testing pensive skills, agents, and workflows.
@@ -263,7 +262,10 @@ tokio = { version = "1.0", features = ["full"] }
             capture_output=True,
         )
         subprocess.run(
-            ["git", "add", "."], check=False, cwd=repo_path, capture_output=True
+            ["git", "add", "."],
+            check=False,
+            cwd=repo_path,
+            capture_output=True,
         )
         subprocess.run(
             ["git", "commit", "-m", "Initial commit"],
@@ -322,7 +324,7 @@ def sample_findings():
 
 
 @pytest.fixture
-def mock_agent_response():
+def mock_agent_response() -> str:
     """Create a mock agent response for testing."""
     return """## Summary
 Overall code quality is good with some security improvements needed.
@@ -354,18 +356,25 @@ Approve with actions
 class MockTodoWrite:
     """Mock TodoWrite for testing progress tracking."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.todos = []
 
     def add(
-        self, content: str, status: str = "pending", active_form: str | None = None
-    ):
+        self,
+        content: str,
+        status: str = "pending",
+        active_form: str | None = None,
+    ) -> None:
         """Add a todo item."""
         self.todos.append(
-            {"content": content, "status": status, "activeForm": active_form or content}
+            {
+                "content": content,
+                "status": status,
+                "activeForm": active_form or content,
+            },
         )
 
-    def update_status(self, index: int, status: str):
+    def update_status(self, index: int, status: str) -> None:
         """Update todo status."""
         if 0 <= index < len(self.todos):
             self.todos[index]["status"] = status
@@ -385,13 +394,14 @@ def mock_todo_write():
 pytest_plugins = []
 
 
-def pytest_configure(config):
+def pytest_configure(config) -> None:
     """Configure custom pytest markers."""
     config.addinivalue_line("markers", "unit: Mark test as unit test")
     config.addinivalue_line("markers", "integration: Mark test as integration test")
     config.addinivalue_line("markers", "slow: Mark test as slow running")
     config.addinivalue_line("markers", "security: Mark test as security-focused")
     config.addinivalue_line(
-        "markers", "architecture: Mark test as architecture-focused"
+        "markers",
+        "architecture: Mark test as architecture-focused",
     )
     config.addinivalue_line("markers", "performance: Mark test as performance-focused")

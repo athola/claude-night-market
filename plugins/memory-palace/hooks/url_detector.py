@@ -24,7 +24,7 @@ _SKIP_DOMAINS = frozenset(
         "localhost",
         "127.0.0.1",
         "github.com/anthropics/claude-code",  # Claude Code repo (we have local docs)
-    ]
+    ],
 )
 
 # File extensions that aren't articles/knowledge
@@ -48,7 +48,7 @@ _SKIP_EXTENSIONS = frozenset(
         ".dmg",
         ".pkg",
         ".pdf",  # Could be knowledge but needs special handling
-    ]
+    ],
 )
 
 
@@ -121,29 +121,27 @@ def main() -> None:
         if new_urls:
             context_parts.append(
                 f"Memory Palace: Detected {len(new_urls)} new URL(s) for knowledge intake:\n"
-                + "\n".join(f"  - {url}" for url in new_urls[:5])  # Limit to 5
+                + "\n".join(f"  - {url}" for url in new_urls[:5]),  # Limit to 5
             )
             if len(new_urls) > 5:
                 context_parts.append(f"  ... and {len(new_urls) - 5} more")
             context_parts.append(
                 "\nAfter processing the user's request, consider running the knowledge-intake "
-                "workflow to store valuable content from these URLs."
+                "workflow to store valuable content from these URLs.",
             )
 
         if known_urls:
             context_parts.append(
                 f"\nMemory Palace: {len(known_urls)} URL(s) already indexed. "
-                "Check memory-palace for existing knowledge before re-fetching."
+                "Check memory-palace for existing knowledge before re-fetching.",
             )
 
-        response = {
+        {
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
                 "additionalContext": "\n".join(context_parts),
-            }
+            },
         }
-
-        print(json.dumps(response))
 
     sys.exit(0)
 

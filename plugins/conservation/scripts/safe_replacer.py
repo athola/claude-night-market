@@ -53,11 +53,10 @@ class SafeDependencyUpdater:
             if new_content != content:
                 # Validate that we didn't create duplicates
                 if replacement not in original_content or original_content.count(
-                    replacement
+                    replacement,
                 ) < new_content.count(replacement):
                     content = new_content
                     changes_made += len(matches)
-                    print(f"  Applied {pattern_name}: {len(matches)} replacements")
 
         if content != original_content:
             file_path.write_text(content)
@@ -92,8 +91,6 @@ class SafeDependencyUpdater:
         total_changes = 0
 
         for skill_file in base_path.rglob("SKILL.md"):
-            print(f"\nProcessing: {skill_file.relative_to(base_path)}")
-
             updated, changes = self.update_file(skill_file)
             if updated:
                 files_updated += 1
@@ -102,13 +99,10 @@ class SafeDependencyUpdater:
             # Validate results
             issues = self.validate_references(skill_file)
             if issues:
-                print(f"  Validation issues: {', '.join(issues)}")
+                pass
             else:
-                print("  No issues found")
+                pass
 
-        print(
-            f"\nSummary: {files_updated} files updated, {total_changes} total changes"
-        )
         return files_updated, total_changes
 
 
@@ -117,13 +111,8 @@ def main() -> None:
     updater = SafeDependencyUpdater()
 
     base_path = Path("/home/alext/conservation/skills")
-    print("Starting safe dependency reference update...")
 
-    files_updated, changes = updater.update_directory(base_path)
-
-    print("\nUpdate complete!")
-    print(f"   Files updated: {files_updated}")
-    print(f"   Total changes: {changes}")
+    _files_updated, _changes = updater.update_directory(base_path)
 
 
 if __name__ == "__main__":

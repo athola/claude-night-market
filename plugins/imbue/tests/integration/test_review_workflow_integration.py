@@ -4,7 +4,6 @@ This module tests end-to-end workflow scenarios with multiple skills
 and commands working together, following TDD/BDD principles.
 """
 
-# ruff: noqa: S101
 from datetime import UTC, datetime
 from unittest.mock import Mock
 
@@ -56,8 +55,10 @@ def test_auth():
     @pytest.mark.integration
     @pytest.mark.bdd
     def test_end_to_end_review_workflow(
-        self, mock_workflow_environment, mock_claude_tools
-    ):
+        self,
+        mock_workflow_environment,
+        mock_claude_tools,
+    ) -> None:
         """Scenario: Full review workflow from command to deliverable
         Given a repository with changes
         When running /review command
@@ -76,7 +77,7 @@ def test_auth():
             "evidence": [],
         }
 
-        def mock_skill_call(skill_name, context):
+        def mock_skill_call(skill_name, context) -> str:
             skill_execution_log.append((skill_name, context.copy()))
 
             if skill_name == "review-core":
@@ -97,7 +98,8 @@ def test_auth():
             elif skill_name == "evidence-logging":
                 # Initialize evidence logging
                 context["evidence_session"] = context.get(
-                    "session_id", "default-session"
+                    "session_id",
+                    "default-session",
                 )
                 context["evidence_log"] = {
                     "session_id": context["evidence_session"],
@@ -113,7 +115,7 @@ def test_auth():
                         "type": "modified",
                         "semantic_category": "security",
                         "risk_level": "High",
-                    }
+                    },
                 ]
 
             elif skill_name == "structured-output":
@@ -174,7 +176,7 @@ def test_auth():
                 "severity": "Critical",
                 "file": "src/auth.py",
                 "evidence_refs": ["E1"],
-            }
+            },
         ]
 
         # Add evidence items
@@ -184,7 +186,7 @@ def test_auth():
                 "command": "grep -n 'SELECT.*username' src/auth.py",
                 "output": 'src/auth.py:3: query = "SELECT * FROM users WHERE username = \'" + username + "\'"',
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         ]
 
         workflow_result["final_deliverable"] = shared_context.get("deliverable")
@@ -215,7 +217,7 @@ def test_auth():
 
     @pytest.mark.integration
     @pytest.mark.bdd
-    def test_catchup_workflow_with_multiple_skills(self, mock_claude_tools):
+    def test_catchup_workflow_with_multiple_skills(self, mock_claude_tools) -> None:
         """Scenario: Catchup workflow integrates multiple skills
         Given recent changes in repository
         When running /catchup command
@@ -240,7 +242,7 @@ def test_auth():
                 }
                 return {"status": "context_confirmed"}
 
-            elif phase == "delta":
+            if phase == "delta":
                 workflow_state["delta"] = {
                     "changes": [
                         {"type": "feature", "category": "payment", "count": 5},
@@ -252,7 +254,7 @@ def test_auth():
                 }
                 return {"status": "delta_captured"}
 
-            elif phase == "insights":
+            if phase == "insights":
                 workflow_state["delta"]["changes"]
                 workflow_state["insights"] = [
                     "Payment processing feature implemented with 5 components",
@@ -261,13 +263,14 @@ def test_auth():
                 ]
                 return {"status": "insights_extracted"}
 
-            elif phase == "followups":
+            if phase == "followups":
                 workflow_state["followups"] = [
                     "[ ] Review payment security implementation",
                     "[ ] Update API documentation with new endpoints",
                     "[ ] Coordinate with finance team for payment testing",
                 ]
                 return {"status": "followups_recorded"}
+            return None
 
         # Act - simulate catchup workflow
         catchup_phases = ["context", "delta", "insights", "followups"]
@@ -313,7 +316,7 @@ def test_auth():
 
     @pytest.mark.integration
     @pytest.mark.bdd
-    def test_agent_integration_with_workflow_skills(self, mock_claude_tools):
+    def test_agent_integration_with_workflow_skills(self, mock_claude_tools) -> None:
         """Scenario: Review-analyst agent integrates with workflow skills
         Given autonomous review execution
         When agent analyzes repository
@@ -325,7 +328,7 @@ def test_auth():
         agent_execution_log = []
         shared_evidence = []
 
-        def mock_agent_with_skills(skill_name, context):
+        def mock_agent_with_skills(skill_name, context) -> None:
             """Mock agent using imbue skills."""
             agent_execution_log.append((skill_name, context))
 
@@ -385,7 +388,7 @@ def test_auth():
                     k: v
                     for k, v in current_agent_context.items()
                     if k.startswith("agent")
-                }
+                },
             )
 
         # Add agent findings
@@ -396,7 +399,7 @@ def test_auth():
                 "severity": "Critical",
                 "agent_detected": True,
                 "confidence": 0.95,
-            }
+            },
         ]
 
         agent_workflow["evidence_log"] = shared_evidence
@@ -422,7 +425,7 @@ def test_auth():
 
     @pytest.mark.integration
     @pytest.mark.bdd
-    def test_evidence_chain_continuity_across_skills(self, mock_claude_tools):
+    def test_evidence_chain_continuity_across_skills(self, mock_claude_tools) -> None:
         """Scenario: Evidence references maintain integrity across skills
         Given multi-skill review workflow
         When skills exchange evidence
@@ -436,7 +439,7 @@ def test_auth():
             "skill_contributions": {},  # Skill -> evidence_count mapping
         }
 
-        def mock_evidence_aware_skill(skill_name, context):
+        def mock_evidence_aware_skill(skill_name, context) -> None:
             """Mock skill that contributes to evidence chain."""
             if skill_name == "evidence-logging":
                 # Initialize evidence logging
@@ -480,7 +483,7 @@ def test_auth():
                         "evidence_refs": available_evidence[:1]
                         if available_evidence
                         else [],
-                    }
+                    },
                 ]
 
                 # Track references
@@ -506,7 +509,7 @@ def test_auth():
                     k: v
                     for k, v in current_context.items()
                     if k in ["evidence_log", "findings"]
-                }
+                },
             )
 
         # Verify evidence chain integrity
@@ -519,7 +522,7 @@ def test_auth():
         assert len(evidence_ids) == len(set(evidence_ids))  # All unique
 
         # Check reference resolution
-        for _finding_id, evidence_refs in evidence_chain["reference_tracker"].items():
+        for evidence_refs in evidence_chain["reference_tracker"].values():
             for ref in evidence_refs:
                 assert ref in evidence_chain["evidence_registry"], (
                     f"Evidence reference {ref} not found"
@@ -531,7 +534,7 @@ def test_auth():
 
     @pytest.mark.integration
     @pytest.mark.bdd
-    def test_command_skill_orchestration(self, mock_claude_tools):
+    def test_command_skill_orchestration(self, mock_claude_tools) -> None:
         """Scenario: Commands properly orchestrate skills
         Given /review command execution
         When dispatching to skills
@@ -574,7 +577,7 @@ def test_auth():
             """Mock /review command orchestrating skills."""
             orchestration_log["command_invoked"] = "/review"
             orchestration_log["results_chain"].append(
-                {"stage": "command_start", "args": args}
+                {"stage": "command_start", "args": args},
             )
 
             # Orchestrate skills in sequence
@@ -594,7 +597,7 @@ def test_auth():
 
                 result = mock_claude_tools["Skill"](skill, skill_context)
                 orchestration_log["results_chain"].append(
-                    {"stage": f"skill_{skill}_completed", "result": result}
+                    {"stage": f"skill_{skill}_completed", "result": result},
                 )
 
                 # Propagate context changes
@@ -603,7 +606,7 @@ def test_auth():
                         context[key] = value
 
             orchestration_log["results_chain"].append(
-                {"stage": "command_complete", "final_context": context}
+                {"stage": "command_complete", "final_context": context},
             )
             return context
 
@@ -645,7 +648,7 @@ def test_auth():
         assert final_context["evidence_infrastructure"]["tracking_enabled"] is True
 
     @pytest.mark.integration
-    def test_error_propagation_through_workflow(self, mock_claude_tools):
+    def test_error_propagation_through_workflow(self, mock_claude_tools) -> None:
         """Scenario: Errors are handled gracefully across workflow
         Given skill execution failures
         When propagating through workflow
@@ -665,7 +668,8 @@ def test_auth():
                     "context": context.copy(),
                 }
                 error_log.append(error)
-                raise Exception("Git command failed")
+                msg = "Git command failed"
+                raise Exception(msg)
 
             # Other skills succeed
             return {"skill": skill_name, "status": "success"}
@@ -694,13 +698,13 @@ def test_auth():
 
             except Exception as e:
                 workflow_result["errors_encountered"].append(
-                    {"skill": skill, "error": str(e)}
+                    {"skill": skill, "error": str(e)},
                 )
 
                 # Implement fallback action
                 if skill == "diff-analysis":
                     workflow_result["fallback_actions"].append(
-                        "Used file system analysis instead of git diff"
+                        "Used file system analysis instead of git diff",
                     )
                     # Continue with workflow despite error
                     current_context["diff_analysis_fallback"] = True
@@ -737,7 +741,7 @@ def test_auth():
 
     @pytest.mark.performance
     @pytest.mark.integration
-    def test_workflow_performance_under_load(self, mock_claude_tools):
+    def test_workflow_performance_under_load(self, mock_claude_tools) -> None:
         """Scenario: Workflow performs efficiently under load
         Given multiple concurrent workflows
         When executing review workflows
@@ -791,7 +795,7 @@ def test_auth():
                 if skill not in performance_metrics["skill_execution_times"]:
                     performance_metrics["skill_execution_times"][skill] = []
                 performance_metrics["skill_execution_times"][skill].append(
-                    skill_duration
+                    skill_duration,
                 )
 
             workflow_duration = time.time() - workflow_start

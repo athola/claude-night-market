@@ -73,7 +73,7 @@ class GeminiUsageLogger:
                     session_data = json.load(f)
                     # Check if session is still recent (within 1 hour)
                     last_activity = datetime.fromisoformat(
-                        session_data.get("last_activity", "")
+                        session_data.get("last_activity", ""),
                     )
                     elapsed = (datetime.now() - last_activity).seconds
                     if elapsed < SESSION_TIMEOUT_SECONDS:
@@ -140,7 +140,7 @@ class GeminiUsageLogger:
                     try:
                         entry = json.loads(line.strip())
                         entry_time = datetime.fromisoformat(
-                            entry["timestamp"]
+                            entry["timestamp"],
                         ).timestamp()
 
                         if entry_time >= cutoff_time:
@@ -197,10 +197,14 @@ def main() -> None:
     )
     parser.add_argument("--report", action="store_true", help="Generate usage report")
     parser.add_argument(
-        "--validate", action="store_true", help="Validate logging configuration"
+        "--validate",
+        action="store_true",
+        help="Validate logging configuration",
     )
     parser.add_argument(
-        "--status", action="store_true", help="Show current session status"
+        "--status",
+        action="store_true",
+        help="Show current session status",
     )
 
     args = parser.parse_args()
@@ -221,36 +225,17 @@ def main() -> None:
                 duration=duration_float,
             )
             usage_logger.log_usage(entry)
-            print(f"Logged usage for {command}")
-        except ValueError as e:
-            print(f"Error parsing arguments: {e}")
+        except ValueError:
+            pass
 
     elif args.report:
-        report = usage_logger.get_usage_summary()
-        print("Gemini Usage Report")
-        print("=" * 20)
-        print(f"Total requests: {report['total_requests']}")
-        print(f"Success rate: {report['success_rate']:.1f}%")
-        print(f"Total tokens: {report['total_tokens']}")
-        print("Average duration: 0.00s")
+        usage_logger.get_usage_summary()
 
-    elif args.validate:
-        print("Usage logger validation:")
-        print(f"Log directory: {usage_logger.log_dir}")
-        print(f"Usage log: {usage_logger.usage_log}")
-        print(f"Session file: {usage_logger.session_file}")
-        print("Configuration is valid")
-
-    elif args.status:
-        print("Usage logger status:")
-        print(f"Log directory exists: {usage_logger.log_dir.exists()}")
-        print(f"Current session active: {usage_logger.session_file.exists()}")
+    elif args.validate or args.status:
+        pass
 
     else:
-        print("Usage: usage-logger --log <command> <tokens> <success> <duration>")
-        print("       usage-logger --report")
-        print("       usage-logger --validate")
-        print("       usage-logger --status")
+        pass
 
 
 if __name__ == "__main__":

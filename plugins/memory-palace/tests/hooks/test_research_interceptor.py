@@ -1,6 +1,5 @@
 """Tests for research_interceptor hook."""
 
-# ruff: noqa: S101
 from __future__ import annotations
 
 import json
@@ -16,7 +15,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
 import research_interceptor
 from research_interceptor import (
-    # ruff: noqa: S101
     extract_query_intent,
     format_cached_entry_context,
     is_evergreen,
@@ -37,7 +35,8 @@ class TestExtractQueryIntent:
     def test_webfetch_prompt(self) -> None:
         """WebFetch prompt should be extracted."""
         query = extract_query_intent(
-            "WebFetch", {"prompt": "get fastapi docs", "url": "https://example.com"}
+            "WebFetch",
+            {"prompt": "get fastapi docs", "url": "https://example.com"},
         )
         assert query == "get fastapi docs"
 
@@ -138,7 +137,7 @@ class TestMakeDecision:
                 "match_strength": "strong",
                 "title": "Python Async Patterns",
                 "file": "docs/async.md",
-            }
+            },
         ]
         decision = make_decision("async error handling patterns", results, "cache_first")
         assert decision.action == "augment"
@@ -152,7 +151,7 @@ class TestMakeDecision:
                 "match_strength": "strong",
                 "title": "Python Release Notes",
                 "file": "docs/releases.md",
-            }
+            },
         ]
         decision = make_decision("latest python 2025 features", results, "cache_first")
         assert decision.action == "augment"
@@ -166,7 +165,7 @@ class TestMakeDecision:
                 "match_strength": "partial",
                 "title": "Python Basics",
                 "file": "docs/python.md",
-            }
+            },
         ]
         decision = make_decision("python advanced patterns", results, "cache_first")
         assert decision.action == "augment"
@@ -181,7 +180,7 @@ class TestMakeDecision:
                 "match_strength": "weak",
                 "title": "General Programming",
                 "file": "docs/general.md",
-            }
+            },
         ]
         decision = make_decision("python async patterns", results, "cache_first")
         assert decision.should_flag_for_intake is True
@@ -194,7 +193,7 @@ class TestMakeDecision:
                 "match_strength": "partial",
                 "title": "Python Basics",
                 "file": "docs/python.md",
-            }
+            },
         ]
         decision = make_decision("python patterns", results, "augment")
         assert decision.action == "augment"
@@ -208,7 +207,7 @@ class TestMakeDecision:
                 "match_strength": "partial",
                 "title": "Python Basics",
                 "file": "docs/python.md",
-            }
+            },
         ]
         decision = make_decision("python patterns", results, "cache_only")
         assert decision.action == "block"
@@ -217,7 +216,10 @@ class TestMakeDecision:
         """Domains of interest should surface in the intake payload."""
         config = {"domains_of_interest": ["python async", "security"]}
         decision = make_decision(
-            "python async telemetry strategy", [], "cache_first", config=config
+            "python async telemetry strategy",
+            [],
+            "cache_first",
+            config=config,
         )
         assert decision.intake_payload is not None
         assert decision.aligned_domains == ["python async"]
@@ -233,7 +235,7 @@ class TestMakeDecision:
                 "title": "Python Async Patterns",
                 "file": "docs/async.md",
                 "entry_id": "entry-123",
-            }
+            },
         ]
         config = {"intake_threshold": 80}
         decision = make_decision("python async patterns", results, "cache_first", config=config)
@@ -246,7 +248,10 @@ class TestMakeDecision:
         """Domains of interest should surface in the intake payload."""
         config = {"domains_of_interest": ["python async", "security"]}
         decision = make_decision(
-            "python async telemetry strategy", [], "cache_first", config=config
+            "python async telemetry strategy",
+            [],
+            "cache_first",
+            config=config,
         )
         assert decision.intake_payload is not None
         assert decision.aligned_domains == ["python async"]
@@ -262,7 +267,7 @@ class TestMakeDecision:
                 "title": "Python Async Patterns",
                 "file": "docs/async.md",
                 "entry_id": "entry-123",
-            }
+            },
         ]
         config = {"intake_threshold": 80}
         decision = make_decision("python async patterns", results, "cache_first", config=config)
@@ -317,7 +322,9 @@ class TestSearchLocalKnowledge:
             assert len(results) == 1
             assert results[0]["title"] == "Test"
             mock_instance.search.assert_called_once_with(
-                "test query", mode="unified", min_score=0.0
+                "test query",
+                mode="unified",
+                min_score=0.0,
             )
             expected_corpus = str(research_interceptor.PLUGIN_ROOT / "docs/knowledge-corpus/")
             expected_index = str(research_interceptor.PLUGIN_ROOT / "data/indexes")
@@ -341,7 +348,9 @@ class TestSearchLocalKnowledge:
 
             search_local_knowledge("test query", config)
             mock_instance.search.assert_called_once_with(
-                "test query", mode="unified", min_score=0.0
+                "test query",
+                mode="unified",
+                min_score=0.0,
             )
 
 
@@ -358,7 +367,7 @@ class TestEndToEnd:
                 "match_strength": "strong",
                 "title": "Test Knowledge",
                 "file": "docs/test.md",
-            }
+            },
         ]
 
         decision = make_decision("evergreen test query", results, "cache_first")
@@ -373,7 +382,7 @@ class TestEndToEnd:
                 "match_strength": "strong",
                 "title": "Test Knowledge",
                 "file": "docs/test.md",
-            }
+            },
         ]
 
         decision = make_decision("test query", results, "cache_only")
@@ -388,7 +397,7 @@ class TestEndToEnd:
                 "match_strength": "partial",
                 "title": "Test Knowledge",
                 "file": "docs/test.md",
-            }
+            },
         ]
 
         decision = make_decision("test query", results, "augment")
@@ -405,8 +414,8 @@ class TestEndToEnd:
                 {
                     "tool_name": "WebSearch",
                     "tool_input": {"query": "test query"},
-                }
-            )
+                },
+            ),
         )
 
         # Mock config to enable cache_only mode
@@ -424,7 +433,7 @@ class TestEndToEnd:
                 "title": "Test Knowledge",
                 "file": "docs/test.md",
                 "content": "Test content",
-            }
+            },
         ]
 
         # Capture stdout
@@ -454,6 +463,8 @@ class TestEndToEnd:
             assert hook_output["permissionDecision"] == "deny"
             assert "permissionDecisionReason" in hook_output
             assert "additionalContext" in hook_output
+            assert "intakeFlagPayload" in hook_output
+            assert "intakeDecisionRationale" in hook_output
 
             # Verify incorrect fields are NOT present
             assert "blockToolExecution" not in hook_output
@@ -469,8 +480,8 @@ class TestEndToEnd:
                 {
                     "tool_name": "WebSearch",
                     "tool_input": {"query": "test query"},
-                }
-            )
+                },
+            ),
         )
 
         # Mock config to enable cache_first mode
@@ -488,7 +499,7 @@ class TestEndToEnd:
                 "title": "Test Knowledge",
                 "file": "docs/test.md",
                 "content": "Test content",
-            }
+            },
         ]
 
         # Capture stdout
@@ -517,6 +528,8 @@ class TestEndToEnd:
             assert hook_output["hookEventName"] == "PreToolUse"
             assert hook_output["permissionDecision"] == "allow"
             assert "additionalContext" in hook_output
+            assert "intakeFlagPayload" in hook_output
+            assert "intakeDecisionRationale" in hook_output
 
             # Verify incorrect fields are NOT present
             assert "blockToolExecution" not in hook_output
@@ -531,8 +544,8 @@ class TestEndToEnd:
                 {
                     "tool_name": "WebSearch",
                     "tool_input": {"query": "async error handling"},
-                }
-            )
+                },
+            ),
         )
         mock_config = {
             "enabled": True,
@@ -541,13 +554,13 @@ class TestEndToEnd:
         }
         mock_results = [
             {
-                "match_score": 0.9,
+                "match_score": 0.95,
                 "match_strength": "strong",
                 "title": "Async Patterns",
                 "file": "docs/test.md",
                 "entry_id": "async-patterns",
                 "content": "Structured concurrency keeps resources safe.",
-            }
+            },
         ]
         mock_logger = MagicMock()
 
@@ -568,6 +581,7 @@ class TestEndToEnd:
         assert telemetry_event.returned_entries == 1
         assert telemetry_event.novelty_score is not None
         assert telemetry_event.intake_delta_reasoning
+        assert telemetry_event.duplicate_entry_ids == "async-patterns"
 
 
 if __name__ == "__main__":

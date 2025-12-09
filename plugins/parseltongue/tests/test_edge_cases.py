@@ -1,5 +1,4 @@
-"""
-Edge case and error scenario tests for the parseltongue plugin.
+"""Edge case and error scenario tests for the parseltongue plugin.
 
 Tests boundary conditions, error handling, and
 unexpected input scenarios.
@@ -12,6 +11,7 @@ import json
 import os
 import tempfile
 from pathlib import Path
+from typing import Never
 from unittest.mock import patch
 
 import pytest
@@ -25,7 +25,7 @@ class TestEdgeCasesAndErrorScenarios:
     """Test suite for edge cases and error handling."""
 
     @pytest.mark.unit
-    def test_empty_code_handling(self):
+    def test_empty_code_handling(self) -> None:
         """Given empty input, when analyzing, then handles gracefully."""
         # Arrange
         skill = LanguageDetectionSkill()
@@ -44,7 +44,7 @@ class TestEdgeCasesAndErrorScenarios:
                 assert result["confidence"] == 0
 
     @pytest.mark.unit
-    def test_extremely_long_code_handling(self):
+    def test_extremely_long_code_handling(self) -> None:
         """Given extremely long code, when analyzing, then handles efficiently."""
         # Arrange
         skill = LanguageDetectionSkill()
@@ -59,7 +59,7 @@ class TestEdgeCasesAndErrorScenarios:
         # Should complete without memory issues
 
     @pytest.mark.unit
-    def test_malformed_unicode_handling(self):
+    def test_malformed_unicode_handling(self) -> None:
         """Given malformed Unicode input, when analyzing, then handles gracefully."""
         # Arrange
         skill = LanguageDetectionSkill()
@@ -70,7 +70,7 @@ class TestEdgeCasesAndErrorScenarios:
             skill.detect_language(malformed_unicode)
 
     @pytest.mark.unit
-    def test_mixed_language_input(self):
+    def test_mixed_language_input(self) -> None:
         """Given mixed language content, when analyzing, then identifies dominant language."""
         # Arrange
         skill = LanguageDetectionSkill()
@@ -104,7 +104,7 @@ interface TypeScriptInterface {
         assert result["confidence"] > 0.5
 
     @pytest.mark.unit
-    def test_syntax_error_handling(self):
+    def test_syntax_error_handling(self) -> None:
         """Given code with syntax errors, when analyzing, then handles gracefully."""
         # Arrange
         skill = LanguageDetectionSkill()
@@ -122,7 +122,7 @@ def broken_function(
         assert "def" in result["detected_keywords"]
 
     @pytest.mark.unit
-    async def test_async_timeout_handling(self):
+    async def test_async_timeout_handling(self) -> None:
         """Given long-running analysis, when timeout occurs, then handles gracefully."""
         # Arrange
         from parseltongue.skills.async_analyzer import AsyncAnalysisSkill
@@ -140,14 +140,14 @@ async def slow_function():
 
         # Mock timeout
         with patch("asyncio.wait_for") as mock_wait_for:
-            mock_wait_for.side_effect = asyncio.TimeoutError()
+            mock_wait_for.side_effect = TimeoutError()
 
             # Act & Assert
             with pytest.raises(AnalysisError):
                 await skill.analyze_async_functions(large_async_code)
 
     @pytest.mark.unit
-    def test_permission_denied_scenarios(self):
+    def test_permission_denied_scenarios(self) -> None:
         """Given permission denied errors, when accessing files, then handles gracefully."""
         # Arrange
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -171,7 +171,7 @@ async def slow_function():
                 test_file.chmod(0o644)
 
     @pytest.mark.unit
-    def test_network_timeout_simulation(self):
+    def test_network_timeout_simulation(self) -> None:
         """Given network operations, when timeout occurs, then handles gracefully."""
         # Arrange
         with patch("requests.get") as mock_get:
@@ -187,7 +187,7 @@ async def slow_function():
             assert result is None or "timeout" in str(result).lower()
 
     @pytest.mark.unit
-    def test_memory_pressure_scenarios(self):
+    def test_memory_pressure_scenarios(self) -> None:
         """Given memory pressure, when analyzing, then uses fallback strategies."""
         # Arrange
         with patch("psutil.virtual_memory") as mock_memory:
@@ -207,13 +207,13 @@ async def slow_function():
             assert strategy["batch_size"] < 1000  # Should reduce batch size
 
     @pytest.mark.unit
-    def test_corrupted_file_handling(self):
+    def test_corrupted_file_handling(self) -> None:
         """Given corrupted files, when analyzing, then handles gracefully."""
         # Arrange
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write partial/incomplete Python code
             f.write(
-                "class IncompleteClass:\n    def __init__(self\n        # Missing closing parenthesis and colon"
+                "class IncompleteClass:\n    def __init__(self\n        # Missing closing parenthesis and colon",
             )
             temp_file = f.name
 
@@ -233,7 +233,7 @@ async def slow_function():
             os.unlink(temp_file)
 
     @pytest.mark.unit
-    def test_circular_dependency_detection(self):
+    def test_circular_dependency_detection(self) -> None:
         """Given circular dependency scenarios, when analyzing, then detects correctly."""
         # Arrange
         circular_dependency_code = """
@@ -261,7 +261,7 @@ class ClassB:
         assert len(analysis["circular_dependencies"]) >= 1
 
     @pytest.mark.unit
-    def test_unicode_edge_cases(self):
+    def test_unicode_edge_cases(self) -> None:
         """Given unusual Unicode content, when analyzing, then handles correctly."""
         # Arrange
         skill = LanguageDetectionSkill()
@@ -285,7 +285,7 @@ class ClassB:
             assert "language" in result
 
     @pytest.mark.unit
-    def test_extreme_nesting_scenarios(self):
+    def test_extreme_nesting_scenarios(self) -> None:
         """Given deeply nested code, when analyzing, then handles efficiently."""
         # Arrange
         skill = LanguageDetectionSkill()
@@ -314,7 +314,7 @@ def deeply_nested_function():
         assert "recommendations" in result
 
     @pytest.mark.unit
-    def test_concurrent_access_scenarios(self):
+    def test_concurrent_access_scenarios(self) -> None:
         """Given concurrent access, when analyzing, then handles race conditions."""
         # Arrange
         import threading
@@ -323,7 +323,7 @@ def deeply_nested_function():
         results = []
         errors = []
 
-        def analyze_worker(worker_id):
+        def analyze_worker(worker_id) -> None:
             try:
                 code = f"def function_{worker_id}(): pass"
                 result = skill.detect_language(code)
@@ -348,7 +348,7 @@ def deeply_nested_function():
         assert all(result["language"] == "python" for result in results)
 
     @pytest.mark.unit
-    def test_invalid_configuration_handling(self):
+    def test_invalid_configuration_handling(self) -> None:
         """Given invalid configuration, when loading, then provides helpful errors."""
         # Arrange
         invalid_configs = [
@@ -363,7 +363,9 @@ def deeply_nested_function():
         # Act & Assert
         for config in invalid_configs:
             with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False
+                mode="w",
+                suffix=".json",
+                delete=False,
             ) as f:
                 f.write(config)
                 temp_file = f.name
@@ -379,7 +381,7 @@ def deeply_nested_function():
                 os.unlink(temp_file)
 
     @pytest.mark.unit
-    def test_plugin_discovery_failures(self):
+    def test_plugin_discovery_failures(self) -> None:
         """Given plugin discovery issues, when loading, then handles gracefully."""
         # Arrange
         from parseltongue.plugin.loader import PluginLoader
@@ -397,7 +399,7 @@ def deeply_nested_function():
         # Should return empty list rather than crashing
 
     @pytest.mark.unit
-    async def test_interrupted_operations(self):
+    async def test_interrupted_operations(self) -> None:
         """Given interrupted operations, when analyzing, then cleanup properly."""
         # Arrange
         import signal
@@ -405,8 +407,9 @@ def deeply_nested_function():
         class InterruptException(Exception):
             pass
 
-        def interrupt_handler(signum, frame):
-            raise InterruptException("Operation interrupted")
+        def interrupt_handler(signum, frame) -> Never:
+            msg = "Operation interrupted"
+            raise InterruptException(msg)
 
         # Set up signal handler
         original_handler = signal.getsignal(signal.SIGINT)
@@ -421,7 +424,7 @@ def deeply_nested_function():
                 skill = AsyncAnalysisSkill()
                 with patch("asyncio.sleep") as mock_sleep:
                     mock_sleep.side_effect = lambda _: signal.raise_signal(
-                        signal.SIGINT
+                        signal.SIGINT,
                     )
                     await skill.analyze_concurrency_patterns("async def test(): pass")
 
@@ -430,7 +433,7 @@ def deeply_nested_function():
             signal.signal(signal.SIGINT, original_handler)
 
     @pytest.mark.unit
-    def test_resource_exhaustion_recovery(self):
+    def test_resource_exhaustion_recovery(self) -> None:
         """Given resource exhaustion, when analyzing, then recovers gracefully."""
         # Arrange
         with patch("psutil.Process") as mock_process:
@@ -450,7 +453,7 @@ def deeply_nested_function():
             assert "recommendations" in status
 
     @pytest.mark.unit
-    def test_database_connection_failures(self):
+    def test_database_connection_failures(self) -> None:
         """Given database connection issues, when analyzing, then handles gracefully."""
         # Arrange
         with patch("sqlite3.connect") as mock_connect:
@@ -466,7 +469,7 @@ def deeply_nested_function():
                 storage.save_results({"test": "data"})
 
     @pytest.mark.unit
-    def test_malformed_skill_metadata(self):
+    def test_malformed_skill_metadata(self) -> None:
         """Given malformed skill metadata, when loading, then handles gracefully."""
         # Arrange
         malformed_metadata = {
@@ -487,7 +490,7 @@ def deeply_nested_function():
         assert len(result["errors"]) > 0
 
     @pytest.mark.unit
-    def test_file_system_edge_cases(self):
+    def test_file_system_edge_cases(self) -> None:
         """Given edge cases in file system operations, when analyzing, then handles correctly."""
         # Arrange
         edge_cases = [
@@ -504,7 +507,9 @@ def deeply_nested_function():
         # Act & Assert
         for filename in edge_cases:
             with tempfile.NamedTemporaryFile(
-                prefix=filename[:50], suffix=".py", delete=False
+                prefix=filename[:50],
+                suffix=".py",
+                delete=False,
             ) as f:
                 f.write("def test_function(): pass")
                 temp_file = f.name
@@ -523,7 +528,7 @@ def deeply_nested_function():
                     os.unlink(temp_file)
 
     @pytest.mark.unit
-    def test_asyncio_event_loop_errors(self):
+    def test_asyncio_event_loop_errors(self) -> None:
         """Given asyncio event loop issues, when analyzing, then handles correctly."""
         # Arrange
         async_code = """
@@ -559,7 +564,7 @@ async def test_function():
             )
 
     @pytest.mark.unit
-    def test_version_compatibility_issues(self):
+    def test_version_compatibility_issues(self) -> None:
         """Given version compatibility issues, when analyzing, then handles gracefully."""
         # Arrange
         version_specific_code = """
@@ -595,7 +600,7 @@ def process_data(data: list[str]) -> None:
         assert "features_by_version" in analysis
 
     @pytest.mark.unit
-    def test_logging_and_debugging_scenarios(self):
+    def test_logging_and_debugging_scenarios(self) -> None:
         """Given logging/debugging scenarios, when analyzing, then handles correctly."""
         # Arrange
         from parseltongue.utils.logger import ParseltongLogger

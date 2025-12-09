@@ -1,6 +1,5 @@
 """Tests for safety_checks module."""
 
-# ruff: noqa: S101
 from __future__ import annotations
 
 import os
@@ -35,7 +34,7 @@ def default_config() -> dict:
             "max_combining_chars": 10,
             "block_bidi_override": True,
             "parsing_timeout_ms": 5000,
-        }
+        },
     }
 
 

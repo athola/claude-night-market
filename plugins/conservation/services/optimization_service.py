@@ -4,6 +4,7 @@ Provides a clean, discoverable interface for other plugins to use
 Conservation's context optimization capabilities with condition-based waiting.
 """
 
+import contextlib
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -67,25 +68,29 @@ class OptimizationServiceInterface:
     optimization capabilities without needing to know implementation details.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.optimizer = ConditionBasedOptimizer()
         self.registry = ConservationServiceRegistry()
         self._register_services()
 
-    def _register_services(self):
+    def _register_services(self) -> None:
         """Register optimization services in the global registry."""
         self.registry.register_service("conservation.optimize", self.optimize_content)
         self.registry.register_service(
-            "conservation.optimize_async", self.optimize_content_async
+            "conservation.optimize_async",
+            self.optimize_content_async,
         )
         self.registry.register_service(
-            "conservation.monitor_context", self.monitor_context_pressure
+            "conservation.monitor_context",
+            self.monitor_context_pressure,
         )
         self.registry.register_service(
-            "conservation.coordinate_plugins", self.coordinate_plugin_optimization
+            "conservation.coordinate_plugins",
+            self.coordinate_plugin_optimization,
         )
         self.registry.register_service(
-            "conservation.get_service_info", self.get_service_info
+            "conservation.get_service_info",
+            self.get_service_info,
         )
 
     def optimize_content(
@@ -179,7 +184,8 @@ class OptimizationServiceInterface:
 
         """
         pressure_info = self.optimizer.monitor_context_pressure(
-            threshold=threshold, timeout_ms=timeout_ms
+            threshold=threshold,
+            timeout_ms=timeout_ms,
         )
 
         # Add optimization recommendations
@@ -190,14 +196,14 @@ class OptimizationServiceInterface:
                     "Consider using 'priority' strategy to keep essential content",
                     "Enable structure preservation for better coherence",
                     "Increase monitoring frequency during peak usage",
-                ]
+                ],
             )
         elif pressure_info["pressure_level"] == "moderate":
             recommendations.extend(
                 [
                     "Use 'balanced' strategy for general optimization",
                     "Monitor for additional context pressure",
-                ]
+                ],
             )
 
         return {
@@ -219,7 +225,9 @@ class OptimizationServiceInterface:
         before proceeding with coordinated optimization.
         """
         coordination_result = self.optimizer.wait_for_plugin_coordination(
-            plugins=plugins, coordination_type=optimization_type, timeout_ms=timeout_ms
+            plugins=plugins,
+            coordination_type=optimization_type,
+            timeout_ms=timeout_ms,
         )
 
         # Add coordination metadata
@@ -286,7 +294,9 @@ class OptimizationServiceInterface:
         }
 
     def _prepare_content_blocks(
-        self, content: str | list[dict[str, Any]], default_priority: float = 0.5
+        self,
+        content: str | list[dict[str, Any]],
+        default_priority: float = 0.5,
     ) -> list[ContentBlock]:
         """Convert content input to ContentBlock objects."""
         if isinstance(content, str):
@@ -298,9 +308,9 @@ class OptimizationServiceInterface:
                     source="plugin_content",
                     token_estimate=len(content.split()) * 1.3,
                     metadata={"section": "main", "timestamp": time.time()},
-                )
+                ),
             ]
-        elif isinstance(content, list):
+        if isinstance(content, list):
             # Assume list of dictionaries with content info
             blocks = []
             for item in content:
@@ -313,11 +323,11 @@ class OptimizationServiceInterface:
                             token_estimate=item.get("token_estimate", 0)
                             or len(str(item.get("content", "")).split()) * 1.3,
                             metadata=item.get("metadata", {}),
-                        )
+                        ),
                     )
             return blocks
-        else:
-            raise ValueError(f"Unsupported content type: {type(content)}")
+        msg = f"Unsupported content type: {type(content)}"
+        raise ValueError(msg)
 
     def _serialize_result(self, result: OptimizationResult) -> dict[str, Any]:
         """Convert OptimizationResult to serializable dictionary."""
@@ -373,7 +383,8 @@ def optimize_content(
 
 
 def monitor_context(
-    threshold: float = 0.8, plugin_name: str | None = None
+    threshold: float = 0.8,
+    plugin_name: str | None = None,
 ) -> dict[str, Any]:
     """Quick context monitoring function.
 
@@ -387,12 +398,14 @@ def monitor_context(
 
     """
     return optimization_service.monitor_context_pressure(
-        threshold=threshold, plugin_name=plugin_name
+        threshold=threshold,
+        plugin_name=plugin_name,
     )
 
 
 def coordinate_plugins(
-    plugins: list[str], optimization_type: str = "context"
+    plugins: list[str],
+    optimization_type: str = "context",
 ) -> dict[str, Any]:
     """Quick plugin coordination function.
 
@@ -410,7 +423,8 @@ def coordinate_plugins(
 
     """
     return optimization_service.coordinate_plugin_optimization(
-        plugins=plugins, optimization_type=optimization_type
+        plugins=plugins,
+        optimization_type=optimization_type,
     )
 
 
@@ -424,7 +438,7 @@ def get_conservation_services() -> dict[str, Any]:
 
 
 # Auto-register with global service registry
-def register_services():
+def register_services() -> None:
     """Register all services with the global registry."""
     registry = ConservationServiceRegistry()
 
@@ -449,17 +463,10 @@ register_services()
 if __name__ == "__main__":
     # Demonstrate service interface
 
-    print("=== Conservation Optimization Service Demo ===\n")
-
     # 1. Discover services
-    print("1. Discovering available services:")
     services = get_conservation_services()
-    print(f"   Available services: {len(services['conservation_services'])}")
-    print(f"   Version: {services['version']}")
-    print()
 
     # 2. Basic optimization
-    print("2. Basic content optimization:")
     test_content = """
     # This is a long document with many sections
     def function_one():
@@ -481,32 +488,12 @@ if __name__ == "__main__":
         strategy="importance",
     )
 
-    print(f"   Status: {result['status']}")
-    print(f"   Original tokens: {result['metrics'].get('original_tokens', 0)}")
-    print(f"   Optimized tokens: {result['metrics'].get('optimized_tokens', 0)}")
-    print(f"   Compression ratio: {result['metrics'].get('compression_ratio', 0):.2f}")
-    print()
-
     # 3. Context monitoring
-    print("3. Context pressure monitoring:")
-    try:
+    with contextlib.suppress(TimeoutError):
         pressure = monitor_context(threshold=0.5)
-        print(f"   Usage: {pressure['usage']:.2f}")
-        print(f"   Pressure level: {pressure['pressure_level']}")
-        print(f"   Recommendations: {len(pressure['recommendations'])}")
-    except TimeoutError:
-        print("   No pressure detected within timeout")
-    print()
 
     # 4. Plugin coordination
-    print("4. Plugin coordination:")
     coordination = coordinate_plugins(
-        plugins=["abstract", "sanctum", "imbue"], optimization_type="context"
+        plugins=["abstract", "sanctum", "imbue"],
+        optimization_type="context",
     )
-
-    print(f"   Coordination successful: {coordination['coordination_successful']}")
-    print(
-        f"   Plugins ready: {sum(coordination['plugin_readiness'].values())}/{len(coordination['plugin_readiness'])}"
-    )
-
-    print("\n=== Service Demo Complete ===")

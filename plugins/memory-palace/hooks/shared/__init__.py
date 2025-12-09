@@ -5,14 +5,14 @@ from .deduplication import get_content_hash, is_known, needs_update, update_inde
 from .safety_checks import SafetyCheckResult, SafetyCheckTimeout, is_safe_content
 
 __all__ = [
-    "get_config",
     "CONFIG_DEFAULTS",
-    "should_process_path",
-    "is_known",
-    "get_content_hash",
-    "update_index",
-    "needs_update",
-    "is_safe_content",
     "SafetyCheckResult",
     "SafetyCheckTimeout",
+    "get_config",
+    "get_content_hash",
+    "is_known",
+    "is_safe_content",
+    "needs_update",
+    "should_process_path",
+    "update_index",
 ]

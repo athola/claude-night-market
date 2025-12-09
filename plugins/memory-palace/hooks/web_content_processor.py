@@ -53,7 +53,7 @@ def extract_results_from_websearch(tool_response: dict[str, Any]) -> list[dict[s
                             "url": result.get("url", ""),
                             "title": result.get("title", ""),
                             "snippet": result.get("snippet", result.get("description", "")),
-                        }
+                        },
                     )
 
     return results
@@ -96,7 +96,7 @@ def main() -> None:
         safety_result = is_safe_content(content, config)
         if not safety_result.is_safe:
             context_parts.append(
-                f"Memory Palace: Content from {url} skipped - {safety_result.reason}"
+                f"Memory Palace: Content from {url} skipped - {safety_result.reason}",
             )
         else:
             # Use sanitized content if available
@@ -109,14 +109,14 @@ def main() -> None:
                 if needs_update(content_hash, url=url):
                     context_parts.append(
                         f"Memory Palace: Content at {url} has changed. "
-                        "Consider updating the stored knowledge entry."
+                        "Consider updating the stored knowledge entry.",
                     )
                 # else: unchanged, no message needed
             else:
                 context_parts.append(
                     f"Memory Palace: New web content fetched from {url}. "
                     "Consider running knowledge-intake to evaluate and store if valuable. "
-                    f"Content length: {len(content)} chars."
+                    f"Content length: {len(content)} chars.",
                 )
 
     elif tool_name == "WebSearch":
@@ -136,7 +136,7 @@ def main() -> None:
 
             if new_urls:
                 context_parts.append(
-                    f"Memory Palace: WebSearch found {len(new_urls)} new sources not in memory palace:"
+                    f"Memory Palace: WebSearch found {len(new_urls)} new sources not in memory palace:",
                 )
                 for r in new_urls[:5]:
                     context_parts.append(f"  - {r.get('title', 'Untitled')}: {r.get('url')}")
@@ -144,18 +144,17 @@ def main() -> None:
             if known_urls:
                 context_parts.append(
                     f"\nMemory Palace: {len(known_urls)} result(s) already stored. "
-                    "Check existing knowledge before re-fetching."
+                    "Check existing knowledge before re-fetching.",
                 )
 
     # Output response
     if context_parts:
-        response = {
+        {
             "hookSpecificOutput": {
                 "hookEventName": "PostToolUse",
                 "additionalContext": "\n".join(context_parts),
-            }
+            },
         }
-        print(json.dumps(response))
 
     sys.exit(0)
 

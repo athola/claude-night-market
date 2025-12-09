@@ -19,7 +19,7 @@ class SuperpowerWrapper:
         source_command: str,
         target_superpower: str,
         config_path: Path | None = None,
-    ):
+    ) -> None:
         """Initialize the wrapper with validation.
 
         Args:
@@ -34,11 +34,14 @@ class SuperpowerWrapper:
         """
         # Validate inputs
         if not source_plugin or not isinstance(source_plugin, str):
-            raise ValueError("source_plugin must be a non-empty string")
+            msg = "source_plugin must be a non-empty string"
+            raise ValueError(msg)
         if not source_command or not isinstance(source_command, str):
-            raise ValueError("source_command must be a non-empty string")
+            msg = "source_command must be a non-empty string"
+            raise ValueError(msg)
         if not target_superpower or not isinstance(target_superpower, str):
-            raise ValueError("target_superpower must be a non-empty string")
+            msg = "target_superpower must be a non-empty string"
+            raise ValueError(msg)
 
         self.source_plugin = source_plugin
         self.source_command = source_command
@@ -54,13 +57,13 @@ class SuperpowerWrapper:
                 ToolError(
                     severity=ErrorSeverity.HIGH,
                     error_code="WRAPPER_CONFIG_ERROR",
-                    message=f"Failed to load parameter mapping: {str(e)}",
+                    message=f"Failed to load parameter mapping: {e!s}",
                     context={
                         "source_plugin": source_plugin,
                         "source_command": source_command,
                         "target_superpower": target_superpower,
                     },
-                )
+                ),
             )
             raise
 
@@ -79,7 +82,8 @@ class SuperpowerWrapper:
 
         """
         if not isinstance(params, dict):
-            raise ValueError("Parameters must be provided as a dictionary")
+            msg = "Parameters must be provided as a dictionary"
+            raise ValueError(msg)
 
         if not params:
             self.error_handler.log_error(
@@ -89,7 +93,7 @@ class SuperpowerWrapper:
                     message="No parameters provided for translation",
                     suggestion="Check if required parameters are missing",
                     context={"wrapper": f"{self.source_plugin}.{self.source_command}"},
-                )
+                ),
             )
 
         translated = {}
@@ -100,7 +104,7 @@ class SuperpowerWrapper:
                 # Validate key
                 if not isinstance(key, str):
                     translation_errors.append(
-                        f"Invalid parameter key type: {type(key)}"
+                        f"Invalid parameter key type: {type(key)}",
                     )
                     continue
 
@@ -116,7 +120,7 @@ class SuperpowerWrapper:
 
             except Exception as e:
                 translation_errors.append(
-                    f"Error processing parameter '{key}': {str(e)}"
+                    f"Error processing parameter '{key}': {e!s}",
                 )
 
         if translation_errors:
@@ -132,7 +136,7 @@ class SuperpowerWrapper:
                         "original_params": params,
                         "translated_params": translated,
                     },
-                )
+                ),
             )
 
         return translated
@@ -164,17 +168,22 @@ class SuperpowerWrapper:
                     config = yaml.safe_load(f)
 
                 if not isinstance(config, dict):
-                    raise ValueError("Config file must contain a dictionary")
+                    msg = "Config file must contain a dictionary"
+                    raise ValueError(msg)
 
                 parameter_mapping = config.get("parameter_mapping", {})
                 if not isinstance(parameter_mapping, dict):
-                    raise ValueError("parameter_mapping must be a dictionary")
+                    msg = "parameter_mapping must be a dictionary"
+                    raise ValueError(msg)
 
                 # Validate mapping values are strings
                 for key, value in parameter_mapping.items():
                     if not isinstance(key, str) or not isinstance(value, str):
-                        raise ValueError(
+                        msg = (
                             f"Invalid mapping: {key} -> {value} (both must be strings)"
+                        )
+                        raise ValueError(
+                            msg,
                         )
 
                 return parameter_mapping
@@ -184,21 +193,23 @@ class SuperpowerWrapper:
                     ToolError(
                         severity=ErrorSeverity.HIGH,
                         error_code="CONFIG_PARSE_ERROR",
-                        message=f"Failed to parse YAML config: {str(e)}",
+                        message=f"Failed to parse YAML config: {e!s}",
                         context={"config_path": str(self.config_path)},
-                    )
+                    ),
                 )
-                raise ValueError(f"Invalid YAML config: {str(e)}") from e
+                msg = f"Invalid YAML config: {e!s}"
+                raise ValueError(msg) from e
             except Exception as e:
                 self.error_handler.log_error(
                     ToolError(
                         severity=ErrorSeverity.HIGH,
                         error_code="CONFIG_LOAD_ERROR",
-                        message=f"Failed to load config: {str(e)}",
+                        message=f"Failed to load config: {e!s}",
                         context={"config_path": str(self.config_path)},
-                    )
+                    ),
                 )
-                raise ValueError(f"Failed to load config: {str(e)}") from e
+                msg = f"Failed to load config: {e!s}"
+                raise ValueError(msg) from e
         else:
             self.error_handler.log_error(
                 ToolError(
@@ -209,12 +220,14 @@ class SuperpowerWrapper:
                     ),
                     suggestion="Create a config file or use default mapping",
                     context={"config_path": str(self.config_path)},
-                )
+                ),
             )
             return default_mapping
 
     def validate_translation(
-        self, original_params: dict[str, Any], translated_params: dict[str, Any]
+        self,
+        original_params: dict[str, Any],
+        translated_params: dict[str, Any],
     ) -> bool:
         """Validate that translation was successful.
 
@@ -238,7 +251,7 @@ class SuperpowerWrapper:
                         "original": original_params,
                         "translated": translated_params,
                     },
-                )
+                ),
             )
             return False
 
@@ -260,7 +273,7 @@ class SuperpowerWrapper:
                     ),
                     suggestion=(f"Add mappings for: {', '.join(missing_mappings)}"),
                     context={"missing_mappings": missing_mappings},
-                )
+                ),
             )
 
         return len(translated_params) > 0

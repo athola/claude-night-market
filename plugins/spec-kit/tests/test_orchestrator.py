@@ -1,6 +1,5 @@
 """Tests for speckit-orchestrator skill functionality."""
 
-# ruff: noqa: S101
 from unittest.mock import Mock, patch
 
 import pytest
@@ -35,8 +34,10 @@ class TestSpeckitOrchestrator:
         return orchestrator
 
     def test_session_initialization_repository_context(
-        self, orchestrator, temp_speckit_project
-    ):
+        self,
+        orchestrator,
+        temp_speckit_project,
+    ) -> None:
         """Test repository context verification during session initialization."""
         orchestrator.plugin_root = temp_speckit_project
 
@@ -46,7 +47,9 @@ class TestSpeckitOrchestrator:
         assert (specify_dir / "scripts").exists()
         assert (specify_dir / "specs").exists()
 
-    def test_session_initialization_missing_specify_dir(self, orchestrator, tmp_path):
+    def test_session_initialization_missing_specify_dir(
+        self, orchestrator, tmp_path
+    ) -> None:
         """Test session initialization fails when .specify directory is missing."""
         orchestrator.plugin_root = tmp_path  # No .specify directory
 
@@ -54,7 +57,7 @@ class TestSpeckitOrchestrator:
         specify_dir = tmp_path / ".specify"
         assert not specify_dir.exists()
 
-    def test_command_skill_mapping(self, orchestrator):
+    def test_command_skill_mapping(self, orchestrator) -> None:
         """Test command to skill mapping is correct."""
         expected_mappings = {
             "speckit.specify": "spec-writing",
@@ -72,7 +75,7 @@ class TestSpeckitOrchestrator:
                 f"Command {command} should map to {expected_skill}"
             )
 
-    def test_load_command_dependencies_specify_command(self, orchestrator):
+    def test_load_command_dependencies_specify_command(self, orchestrator) -> None:
         """Test loading dependencies for /speckit.specify command."""
         command = "speckit.specify"
         primary_skill = orchestrator.command_skill_map[command]
@@ -86,7 +89,7 @@ class TestSpeckitOrchestrator:
         # Should load brainstorming as complementary
         assert "brainstorming" in complementary_skills
 
-    def test_load_command_dependencies_plan_command(self, orchestrator):
+    def test_load_command_dependencies_plan_command(self, orchestrator) -> None:
         """Test loading dependencies for /speckit.plan command."""
         command = "speckit.plan"
         primary_skill = orchestrator.command_skill_map[command]
@@ -100,7 +103,7 @@ class TestSpeckitOrchestrator:
         # Should load writing-plans as complementary
         assert "writing-plans" in complementary_skills
 
-    def test_load_command_dependencies_implement_command(self, orchestrator):
+    def test_load_command_dependencies_implement_command(self, orchestrator) -> None:
         """Test loading dependencies for /speckit.implement command."""
         command = "speckit.implement"
         primary_skill = orchestrator.command_skill_map[command]
@@ -115,8 +118,11 @@ class TestSpeckitOrchestrator:
 
     @patch("speckit_orchestrator.TodoWrite")
     def test_progress_tracking_initialization(
-        self, mock_todowrite, orchestrator, workflow_progress_items
-    ):
+        self,
+        mock_todowrite,
+        orchestrator,
+        workflow_progress_items,
+    ) -> None:
         """Test progress tracking initialization creates proper todo items."""
         # Simulate progress tracking setup
         mock_todowrite.return_value = None
@@ -130,22 +136,24 @@ class TestSpeckitOrchestrator:
         assert "Artifacts created/updated" in progress_items
 
     def test_cross_artifact_consistency_validation(
-        self, orchestrator, temp_speckit_project
-    ):
+        self,
+        orchestrator,
+        temp_speckit_project,
+    ) -> None:
         """Test validation of consistency across speckit artifacts."""
         # Create related artifacts
         specs_dir = temp_speckit_project / ".specify" / "specs"
         spec_file = specs_dir / "1-user-auth" / "SPECIFICATION.md"
         spec_file.parent.mkdir(parents=True)
         spec_file.write_text(
-            "# User Authentication Spec\n\n## Overview\nUser auth feature"
+            "# User Authentication Spec\n\n## Overview\nUser auth feature",
         )
 
         # Validate artifact consistency
         assert spec_file.exists()
         assert "User Authentication" in spec_file.read_text()
 
-    def test_skill_dependency_validation(self, orchestrator):
+    def test_skill_dependency_validation(self, orchestrator) -> None:
         """Test validation of skill dependencies."""
         # Mock skill with dependencies
         skill_with_deps = {
@@ -158,7 +166,7 @@ class TestSpeckitOrchestrator:
         assert "abstract" in required_deps
         assert "superpowers" in required_deps
 
-    def test_workflow_state_management(self, orchestrator):
+    def test_workflow_state_management(self, orchestrator) -> None:
         """Test workflow state tracking and management."""
         # Simulate workflow states
         workflow_states = [
@@ -177,13 +185,13 @@ class TestSpeckitOrchestrator:
         current_state = "specifying"
         assert current_state in workflow_states
 
-    def test_error_handling_missing_skill(self, orchestrator):
+    def test_error_handling_missing_skill(self, orchestrator) -> None:
         """Test error handling when required skill is missing."""
         # Try to load non-existent skill
         missing_skill = orchestrator.load_skill("non-existent-skill")
         assert missing_skill is None
 
-    def test_prerequisite_validation(self, orchestrator, temp_speckit_project):
+    def test_prerequisite_validation(self, orchestrator, temp_speckit_project) -> None:
         """Test validation of workflow prerequisites."""
         # Check for required scripts
         scripts_dir = temp_speckit_project / ".specify" / "scripts"
@@ -194,7 +202,7 @@ class TestSpeckitOrchestrator:
         assert create_script.stat().st_mode & 0o111  # Executable bit set
 
     @patch("speckit_orchestrator.Skill")
-    def test_skill_loading_with_context(self, mock_skill, orchestrator):
+    def test_skill_loading_with_context(self, mock_skill, orchestrator) -> None:
         """Test skill loading with proper context."""
         # Mock skill loading
         mock_skill_instance = Mock()
@@ -209,7 +217,7 @@ class TestSpeckitOrchestrator:
         assert loaded_skill is not None
         mock_skill.assert_called_once()
 
-    def test_command_execution_workflow(self, orchestrator, mock_todowrite):
+    def test_command_execution_workflow(self, orchestrator, mock_todowrite) -> None:
         """Test complete command execution workflow."""
         command = "speckit.specify"
 

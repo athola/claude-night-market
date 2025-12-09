@@ -15,7 +15,7 @@ import tiktoken
 class TokenComparison:
     """Compare token usage between monolithic and modular approaches."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize token comparison tool."""
         # Efficiency thresholds
         self.EXCELLENT_THRESHOLD = 50
@@ -33,9 +33,8 @@ class TokenComparison:
         """Count tokens in text."""
         if self.encoder:
             return len(self.encoder.encode(text))
-        else:
-            # Rough estimation: ~4 characters per token
-            return len(text) // 4
+        # Rough estimation: ~4 characters per token
+        return len(text) // 4
 
     def analyze_skill_file(self, file_path: Path) -> dict:
         """Analyze a single skill file."""
@@ -72,13 +71,10 @@ class TokenComparison:
 
     def analyze_monolithic(self, monolithic_path: Path) -> dict:
         """Analyze the monolithic skill file."""
-        print(f"🔍 Analyzing monolithic skill: {monolithic_path.name}")
         return self.analyze_skill_file(monolithic_path)
 
     def analyze_modular(self, modular_dir: Path) -> dict:
         """Analyze the modular skill directory."""
-        print(f"🔍 Analyzing modular skill: {modular_dir.name}")
-
         results = {
             "hub": None,
             "modules": {},
@@ -203,71 +199,47 @@ class TokenComparison:
 
     def print_comparison_report(self, comparison: dict) -> None:
         """Print a detailed comparison report."""
-        print("\n" + "=" * 60)
-        print("📊 TOKEN COMPARISON REPORT")
-        print("=" * 60)
-
         if "error" in comparison:
-            print(f"❌ Error: {comparison['error']}")
             return
 
-        monolithic = comparison["monolithic_analysis"]
+        comparison["monolithic_analysis"]
         modular = comparison["modular_analysis"]
         metrics = comparison["efficiency_metrics"]
 
-        print("\n📁 Files Analyzed:")
-        print("  Monolithic: 1 file")
         module_count = len(modular["modules"])
         tool_count = len(modular["tools"])
-        files_info = (
+        (
             f"{modular['total_files']} files "
             f"({module_count} modules + {tool_count} tools)"
         )
-        print(f"  Modular: {files_info}")
 
-        print("\n🔢 Token Usage:")
-        print(f"  Monolithic: {monolithic['total_tokens']:,} tokens")
-        print(f"  Modular: {metrics['modular_total_tokens']:,} tokens")
-        print(f"  Savings: {metrics['token_savings']:,} tokens")
-        print(f"  Reduction: {metrics['token_reduction_percentage']:.1f}%")
+        for _scenario in metrics["scenarios"].values():
+            pass
 
-        print("\n🎯 Usage Scenarios:")
-        for _scenario_name, scenario in metrics["scenarios"].items():
-            print(f"  {scenario['description']}:")
-            print(f"    Tokens: {scenario['tokens']:,}")
-            print(f"    Efficiency: {scenario['efficiency']}")
-
-        print("\n📈 Quality Metrics:")
-        print(f"  Modularity Score: {metrics['modularity_score']}/10")
-        print(f"  Reusability Score: {metrics['reuseability_score']}/20")
-        print(f"  Maintainability Score: {metrics['maintainability_score']}/15")
-
-        print("\n🔍 Module Breakdown:")
         if modular["hub"]:
-            print(f"  Hub (SKILL.md): {modular['hub']['total_tokens']:,} tokens")
+            pass
 
-        for module_name, module_data in modular["modules"].items():
-            print(f"  Module {module_name}: {module_data['total_tokens']:,} tokens")
+        for _module_name, _module_data in modular["modules"].items():
+            pass
 
-        for tool_name, tool_data in modular["tools"].items():
-            print(f"  Tool {tool_name}: {tool_data['total_tokens']:,} tokens")
+        for _tool_name, _tool_data in modular["tools"].items():
+            pass
 
         # Efficiency recommendations
-        print("\n💡 Efficiency Recommendations:")
 
-        if metrics["token_reduction_percentage"] > self.EXCELLENT_THRESHOLD:
-            print("  ✅ Excellent token efficiency achieved!")
-        elif metrics["token_reduction_percentage"] > self.GOOD_THRESHOLD:
-            print("  ✅ Good token efficiency improvement")
-        elif metrics["token_reduction_percentage"] > self.MODERATE_THRESHOLD:
-            print("  ⚠️  Moderate token efficiency gains")
+        if (
+            metrics["token_reduction_percentage"] > self.EXCELLENT_THRESHOLD
+            or metrics["token_reduction_percentage"] > self.GOOD_THRESHOLD
+            or metrics["token_reduction_percentage"] > self.MODERATE_THRESHOLD
+        ):
+            pass
         else:
-            print("  ❌ Limited token efficiency - consider further modularization")
+            pass
 
         if len(modular["modules"]) >= self.MIN_MODULE_COUNT:
-            print("  ✅ Strong modularity with multiple focused components")
+            pass
         else:
-            print("  ⚠️  Consider breaking down into more focused modules")
+            pass
 
     def generate_comparison_json(self, comparison: dict, output_path: Path) -> None:
         """Generate detailed JSON comparison report."""
@@ -294,7 +266,8 @@ class TokenComparison:
         monolithic_analysis = self.analyze_monolithic(monolithic_file)
         modular_analysis = self.analyze_modular(modular_dir)
         efficiency_metrics = self.calculate_efficiency_metrics(
-            monolithic_analysis, modular_analysis
+            monolithic_analysis,
+            modular_analysis,
         )
 
         return {
@@ -304,10 +277,10 @@ class TokenComparison:
         }
 
 
-def main():
+def main() -> int:
     """Entry point for token comparison script."""
     parser = argparse.ArgumentParser(
-        description="Compare token usage between monolithic and modular skills"
+        description="Compare token usage between monolithic and modular skills",
     )
     parser.add_argument("monolithic", help="Path to monolithic skill file")
     parser.add_argument("modular", help="Path to modular skill directory")
@@ -330,7 +303,6 @@ def main():
 
     if args.output:
         comparison.generate_comparison_json(results, Path(args.output))
-        print(f"\n📄 Detailed report saved to: {args.output}")
 
     # Exit with error code if analysis failed
     if "error" in results or "error" in results.get("efficiency_metrics", {}):

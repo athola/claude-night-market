@@ -19,7 +19,9 @@ class TestGitWorkspaceReviewSkill:
     EXPECTED_TODO_ITEMS = 2
     REQUIRED_TODOS = ["git-review:repo-confirmed", "git-review:status-overview"]
 
-    def test_skill_identifies_valid_git_repository(self, temp_git_repo, mock_todo_tool):
+    def test_skill_identifies_valid_git_repository(
+        self, temp_git_repo, mock_todo_tool
+    ) -> None:
         """GIVEN a valid Git repository
         WHEN the git-workspace-review skill is executed
         THEN it should confirm the repository is valid and create required todos.
@@ -35,7 +37,7 @@ class TestGitWorkspaceReviewSkill:
         mock_bash.assert_called_once()
         assert "nothing to commit, working tree clean" in result
 
-    def test_skill_detects_staged_changes(self, temp_git_repo, mock_todo_tool):
+    def test_skill_detects_staged_changes(self, temp_git_repo, mock_todo_tool) -> None:
         """GIVEN a Git repository with staged changes
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should detect and report the staged changes.
@@ -60,7 +62,7 @@ class TestGitWorkspaceReviewSkill:
         assert "new file" in status_output
         assert "print('hello')" in diff_output
 
-    def test_skill_detects_unstaged_changes(self, temp_git_repo):
+    def test_skill_detects_unstaged_changes(self, temp_git_repo) -> None:
         """GIVEN a Git repository with unstaged changes
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should detect and report the unstaged changes.
@@ -70,7 +72,8 @@ class TestGitWorkspaceReviewSkill:
         temp_git_repo.stage_file("test.py")
         temp_git_repo.commit("Initial commit")
         temp_git_repo.add_file(
-            "test.py", "print('hello world')"
+            "test.py",
+            "print('hello world')",
         )  # Modify without staging
 
         mock_bash = Mock()
@@ -89,7 +92,7 @@ class TestGitWorkspaceReviewSkill:
         assert "-print('hello')" in diff_output
         assert "+print('hello world')" in diff_output
 
-    def test_skill_detects_untracked_files(self, temp_git_repo):
+    def test_skill_detects_untracked_files(self, temp_git_repo) -> None:
         """GIVEN a Git repository with untracked files
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should detect and report the untracked files.
@@ -115,7 +118,7 @@ nothing added to commit but untracked files present
         assert "untracked.txt" in status_output
         assert "temp.tmp" in status_output
 
-    def test_skill_handles_repository_with_no_changes(self, temp_git_repo):
+    def test_skill_handles_repository_with_no_changes(self, temp_git_repo) -> None:
         """GIVEN a clean Git repository with no changes
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report the repository is clean.
@@ -131,7 +134,7 @@ nothing added to commit but untracked files present
         assert "nothing to commit" in status_output
         assert "working tree clean" in status_output
 
-    def test_skill_reports_branch_information(self, temp_git_repo):
+    def test_skill_reports_branch_information(self, temp_git_repo) -> None:
         """GIVEN a Git repository on a specific branch
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report the current branch information.
@@ -156,7 +159,7 @@ nothing added to commit but untracked files present
         assert "On branch feature/test-branch" in status_output
         assert branch_output == "feature/test-branch"
 
-    def test_skill_detects_remote_tracking(self, temp_git_repo):
+    def test_skill_detects_remote_tracking(self, temp_git_repo) -> None:
         """GIVEN a Git repository with remote tracking
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report remote tracking information.
@@ -180,7 +183,7 @@ nothing added to commit but untracked files present
         assert "origin" in remote_output
         assert "github.com/test/repo.git" in remote_output
 
-    def test_skill_detects_ahead_behind_status(self, temp_git_repo):
+    def test_skill_detects_ahead_behind_status(self, temp_git_repo) -> None:
         """GIVEN a Git repository that is ahead/behind remote
         WHEN the git-workspace-review skill analyzes the repository
         THEN it should report ahead/behind information.
@@ -200,7 +203,7 @@ nothing added to commit but untracked files present
         assert "ahead of" in status_output
         assert "2 commits" in status_output
 
-    def test_skill_creates_required_todo_items(self, mock_todo_tool):
+    def test_skill_creates_required_todo_items(self, mock_todo_tool) -> None:
         """GIVEN any repository state
         WHEN the git-workspace-review skill completes analysis
         THEN it should create the required TodoWrite items.
@@ -225,7 +228,7 @@ nothing added to commit but untracked files present
         # Assert
         mock_todo_tool.assert_called_once_with(expected_todos)
 
-    def test_skill_handles_non_git_directory(self):
+    def test_skill_handles_non_git_directory(self) -> None:
         """GIVEN a directory that is not a Git repository
         WHEN the git-workspace-review skill attempts analysis
         THEN it should handle the error gracefully.
@@ -240,7 +243,7 @@ nothing added to commit but untracked files present
 
         assert "not a git repository" in str(exc_info.value)
 
-    def test_skill_handles_permission_errors(self):
+    def test_skill_handles_permission_errors(self) -> None:
         """GIVEN a directory with permission restrictions
         WHEN the git-workspace-review skill attempts analysis
         THEN it should handle permission errors gracefully.
@@ -256,7 +259,9 @@ nothing added to commit but untracked files present
     class TestSkillIntegration:
         """Integration tests for git-workspace-review skill with other tools."""
 
-        def test_skill_integration_with_todo_tool(self, temp_git_repo, mock_todo_tool):
+        def test_skill_integration_with_todo_tool(
+            self, temp_git_repo, mock_todo_tool
+        ) -> None:
             """GIVEN a Git repository
             WHEN git-workspace-review skill executes
             THEN it should properly integrate with TodoWrite tool.
@@ -289,7 +294,7 @@ nothing added to commit but untracked files present
             assert len(todos_created) == 2  # Expected todo count
             assert all(todo["status"] == "completed" for todo in todos_created)
 
-        def test_skill_dependency_chain(self, temp_git_repo):
+        def test_skill_dependency_chain(self, temp_git_repo) -> None:
             """GIVEN multiple skills that depend on git-workspace-review
             WHEN the dependency chain is executed
             THEN git-workspace-review should provide necessary context.
@@ -314,7 +319,7 @@ nothing added to commit but untracked files present
     class TestSkillEdgeCases:
         """Edge case testing for git-workspace-review skill."""
 
-        def test_handles_empty_repository(self, temp_git_repo):
+        def test_handles_empty_repository(self, temp_git_repo) -> None:
             """GIVEN an empty Git repository (no commits)
             WHEN the skill analyzes the repository
             THEN it should handle the empty state correctly.
@@ -335,7 +340,7 @@ nothing to commit
             assert "No commits yet" in status
             assert "nothing to commit" in status
 
-        def test_handles_detached_head_state(self, temp_git_repo):
+        def test_handles_detached_head_state(self, temp_git_repo) -> None:
             """GIVEN a repository in detached HEAD state
             WHEN the skill analyzes the repository
             THEN it should handle detached HEAD correctly.
@@ -353,7 +358,7 @@ nothing to commit, working tree clean
             assert "HEAD detached" in status
             assert "abc1234" in status
 
-        def test_handles_merge_conflicts(self, temp_git_repo):
+        def test_handles_merge_conflicts(self, temp_git_repo) -> None:
             """GIVEN a repository with merge conflicts
             WHEN the skill analyzes the repository
             THEN it should detect and report conflicts.
@@ -379,7 +384,7 @@ no changes added to commit (use "git add" and/or "git commit -a")
             assert "both modified" in status
             assert "conflict.txt" in status
 
-        def test_handles_large_diff_output(self, temp_git_repo):
+        def test_handles_large_diff_output(self, temp_git_repo) -> None:
             """GIVEN a repository with very large diffs
             WHEN the skill analyzes changes
             THEN it should handle large output efficiently.

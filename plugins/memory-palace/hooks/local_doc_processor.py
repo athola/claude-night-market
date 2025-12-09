@@ -93,25 +93,24 @@ def main() -> None:
         if needs_update(content_hash, path=file_path):
             context_parts.append(
                 f"Memory Palace: Local doc '{rel_path}' has changed since last indexing. "
-                "Consider updating the stored knowledge entry."
+                "Consider updating the stored knowledge entry.",
             )
         # else: unchanged, no message
     else:
         context_parts.append(
             f"Memory Palace: Reading local knowledge doc '{rel_path}'. "
             "This path is configured for knowledge tracking. "
-            "Consider running knowledge-intake if this contains valuable reference material."
+            "Consider running knowledge-intake if this contains valuable reference material.",
         )
 
     # Output response
     if context_parts:
-        response = {
+        {
             "hookSpecificOutput": {
                 "hookEventName": "PostToolUse",
                 "additionalContext": "\n".join(context_parts),
-            }
+            },
         }
-        print(json.dumps(response))
 
     sys.exit(0)
 

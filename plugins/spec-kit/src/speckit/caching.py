@@ -3,16 +3,16 @@
 import hashlib
 import json
 import time
+from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 import cachetools
 
 
 class SpecKitCache:
-    """
-    Comprehensive caching system for spec-kit operations.
+    """Comprehensive caching system for spec-kit operations.
 
     Features:
     - TTL-based cache expiration
@@ -21,14 +21,14 @@ class SpecKitCache:
     - Cache invalidation strategies
     """
 
-    def __init__(self, cache_dir: Optional[Path] = None):
+    def __init__(self, cache_dir: Path | None = None) -> None:
         """Initialize cache with optional custom directory."""
         self.cache_dir = cache_dir or Path.home() / ".spec-kit" / "cache"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Memory cache for frequently accessed data
-        self._memory_cache: Dict[str, Any] = {}
-        self._cache_timestamps: Dict[str, float] = {}
+        self._memory_cache: dict[str, Any] = {}
+        self._cache_timestamps: dict[str, float] = {}
 
         # Default TTL: 1 hour
         self.default_ttl = 3600
@@ -36,7 +36,7 @@ class SpecKitCache:
         # Initialize cachetools LRU cache
         self._lru_cache: cachetools.LRUCache = cachetools.LRUCache(maxsize=128)
 
-    def _get_cache_key(self, key: str, data: Optional[Any] = None) -> str:
+    def _get_cache_key(self, key: str, data: Any | None = None) -> str:
         """Generate a unique cache key."""
         if data:
             # Include data hash in key for data-specific caching
@@ -49,7 +49,7 @@ class SpecKitCache:
         safe_key = "".join(c if c.isalnum() else "_" for c in key)
         return self.cache_dir / f"{safe_key}.json"
 
-    def is_expired(self, key: str, ttl: Optional[int] = None) -> bool:
+    def is_expired(self, key: str, ttl: int | None = None) -> bool:
         """Check if cached data is expired."""
         ttl = ttl or self.default_ttl
 
@@ -65,8 +65,11 @@ class SpecKitCache:
         return True  # Not cached = expired
 
     def get(
-        self, key: str, data: Optional[Any] = None, ttl: Optional[int] = None
-    ) -> Optional[Any]:
+        self,
+        key: str,
+        data: Any | None = None,
+        ttl: int | None = None,
+    ) -> Any | None:
         """Get cached data."""
         cache_key = self._get_cache_key(key, data)
 
@@ -74,11 +77,10 @@ class SpecKitCache:
         if cache_key in self._memory_cache:
             if not self.is_expired(cache_key, ttl):
                 return self._memory_cache[cache_key]
-            else:
-                # Remove expired entry
-                del self._memory_cache[cache_key]
-                if cache_key in self._cache_timestamps:
-                    del self._cache_timestamps[cache_key]
+            # Remove expired entry
+            del self._memory_cache[cache_key]
+            if cache_key in self._cache_timestamps:
+                del self._cache_timestamps[cache_key]
 
         # Check LRU cache
         try:
@@ -106,8 +108,8 @@ class SpecKitCache:
         self,
         key: str,
         value: Any,
-        data: Optional[Any] = None,
-        ttl: Optional[int] = None,
+        data: Any | None = None,
+        ttl: int | None = None,
     ) -> None:
         """Cache data with optional TTL."""
         cache_key = self._get_cache_key(key, data)
@@ -124,11 +126,11 @@ class SpecKitCache:
         try:
             with open(cache_path, "w", encoding="utf-8") as f:
                 json.dump(value, f, ensure_ascii=False, indent=2)
-        except OSError as e:
+        except OSError:
             # Log error but don't fail
-            print(f"Warning: Failed to cache data: {e}")
+            pass
 
-    def invalidate(self, key: Optional[str] = None) -> None:
+    def invalidate(self, key: str | None = None) -> None:
         """Invalidate cache entries."""
         if key:
             cache_key = self._get_cache_key(key)
@@ -153,7 +155,7 @@ class SpecKitCache:
             for cache_file in self.cache_dir.glob("*.json"):
                 cache_file.unlink(missing_ok=True)
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         cache_files = list(self.cache_dir.glob("*.json"))
         total_size = sum(f.stat().st_size for f in cache_files)
@@ -169,7 +171,7 @@ class SpecKitCache:
 
 
 # Global cache instance
-_cache_instance: Optional[SpecKitCache] = None
+_cache_instance: SpecKitCache | None = None
 
 
 def get_cache() -> SpecKitCache:
@@ -181,15 +183,17 @@ def get_cache() -> SpecKitCache:
 
 
 def cached(
-    ttl: Optional[int] = None, key: Optional[str] = None, data_arg: Optional[str] = None
+    ttl: int | None = None,
+    key: str | None = None,
+    data_arg: str | None = None,
 ) -> Any:
-    """
-    Decorator for caching function results.
+    """Decorator for caching function results.
 
     Args:
         ttl: Time to live in seconds
         key: Custom cache key (defaults to function name)
         data_arg: Argument name to include in cache key
+
     """
 
     def decorator(func: Callable) -> Any:
@@ -230,9 +234,7 @@ def cached(
 
 
 class CacheManager:
-    """
-    High-level cache management for spec-kit operations.
-    """
+    """High-level cache management for spec-kit operations."""
 
     CACHE_CATEGORIES = {
         "spec_parsing": 1800,  # 30 minutes
@@ -244,7 +246,7 @@ class CacheManager:
     }
 
     @classmethod
-    def cache_result(cls, category: str, key: Optional[str] = None) -> Any:
+    def cache_result(cls, category: str, key: str | None = None) -> Any:
         """Decorator with category-based TTL."""
         ttl = cls.CACHE_CATEGORIES.get(category, cls.CACHE_CATEGORIES["spec_parsing"])
         return cached(ttl=ttl, key=key)
@@ -292,7 +294,7 @@ def cache_performance_monitor(func: Callable) -> Any:
     return wrapper
 
 
-def get_performance_report() -> Dict[str, Any]:
+def get_performance_report() -> dict[str, Any]:
     """Get performance report for cached functions."""
     cache = get_cache()
     report = {"cache_stats": cache.get_cache_stats(), "function_metrics": {}}

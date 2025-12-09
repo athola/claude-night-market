@@ -14,12 +14,12 @@ from token_estimator import TokenEstimator
 class TestTokenEstimator:
     """Test cases for TokenEstimator."""
 
-    def test_estimator_initialization(self):
+    def test_estimator_initialization(self) -> None:
         """Test estimator initializes correctly."""
         estimator = TokenEstimator()
         assert estimator is not None
 
-    def test_analyze_file_basic(self, temp_skill_file):
+    def test_analyze_file_basic(self, temp_skill_file) -> None:
         """Test basic file analysis."""
         estimator = TokenEstimator()
         result = estimator.analyze_file(temp_skill_file)
@@ -33,7 +33,7 @@ class TestTokenEstimator:
         assert "character_count" in result
         assert "line_count" in result
 
-    def test_analyze_file_token_components(self, temp_skill_file):
+    def test_analyze_file_token_components(self, temp_skill_file) -> None:
         """Test token component breakdown."""
         estimator = TokenEstimator()
         result = estimator.analyze_file(temp_skill_file)
@@ -47,13 +47,13 @@ class TestTokenEstimator:
         assert total == components_sum
         assert total > 0
 
-    def test_analyze_file_nonexistent_fails(self):
+    def test_analyze_file_nonexistent_fails(self) -> None:
         """Test that analyzing nonexistent file raises error."""
         estimator = TokenEstimator()
         with pytest.raises(FileNotFoundError):
             estimator.analyze_file(Path("/nonexistent/file.md"))
 
-    def test_format_analysis_basic(self, temp_skill_file):
+    def test_format_analysis_basic(self, temp_skill_file) -> None:
         """Test analysis formatting."""
         estimator = TokenEstimator()
         result = estimator.analyze_file(temp_skill_file)
@@ -63,7 +63,7 @@ class TestTokenEstimator:
         assert "Component breakdown:" in formatted
         assert "Recommendations" in formatted
 
-    def test_format_analysis_optimal_range(self, temp_skill_file):
+    def test_format_analysis_optimal_range(self, temp_skill_file) -> None:
         """Test recommendations for optimal token range."""
         estimator = TokenEstimator()
         result = estimator.analyze_file(temp_skill_file)
@@ -72,7 +72,9 @@ class TestTokenEstimator:
         # Our sample should be in optimal or good range
         assert "OPTIMAL" in formatted or "GOOD" in formatted
 
-    def test_analyze_file_with_dependencies(self, temp_skill_dir, sample_skill_content):
+    def test_analyze_file_with_dependencies(
+        self, temp_skill_dir, sample_skill_content
+    ) -> None:
         """Test dependency token calculation."""
         # Create main skill with dependency
         main_dir = temp_skill_dir / "main-skill"
@@ -96,14 +98,15 @@ Main content.
 
         estimator = TokenEstimator()
         result = estimator.analyze_file(
-            main_dir / "SKILL.md", include_dependencies=True
+            main_dir / "SKILL.md",
+            include_dependencies=True,
         )
 
         assert "dependency_tokens" in result
         assert "total_with_dependencies" in result
         assert result["total_with_dependencies"] > result["total_tokens"]
 
-    def test_analyze_file_missing_dependency(self, temp_skill_dir):
+    def test_analyze_file_missing_dependency(self, temp_skill_dir) -> None:
         """Test handling of missing dependencies."""
         skill_dir = temp_skill_dir / "skill-with-missing-dep"
         skill_dir.mkdir()
@@ -119,13 +122,14 @@ Content.
 
         estimator = TokenEstimator()
         result = estimator.analyze_file(
-            skill_dir / "SKILL.md", include_dependencies=True
+            skill_dir / "SKILL.md",
+            include_dependencies=True,
         )
 
         assert "missing_dependencies" in result
         assert "nonexistent-dep" in result["missing_dependencies"]
 
-    def test_analyze_directory(self, temp_skill_dir, sample_skill_content):
+    def test_analyze_directory(self, temp_skill_dir, sample_skill_content) -> None:
         """Test directory analysis."""
         # Create multiple skills
         for i in range(2):
@@ -141,7 +145,7 @@ Content.
         for result in results:
             assert "total_tokens" in result
 
-    def test_empty_directory(self, temp_skill_dir):
+    def test_empty_directory(self, temp_skill_dir) -> None:
         """Test analyzing empty directory."""
         estimator = TokenEstimator()
         results = estimator.analyze_directory(temp_skill_dir)

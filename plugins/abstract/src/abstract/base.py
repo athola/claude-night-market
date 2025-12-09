@@ -25,12 +25,15 @@ This module offers two usage patterns:
 """
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 # Import implementations
-from .config import AbstractConfig
 from .errors import ErrorHandler
 from .frontmatter import FrontmatterProcessor
 from .utils import find_project_root, load_config_with_fallback
+
+if TYPE_CHECKING:
+    from .config import AbstractConfig
 
 # =============================================================================
 # Module-level helper functions (for simple scripts)
@@ -44,7 +47,6 @@ def setup_imports() -> None:
     All imports are now handled at the module level.
     """
     # Imports are now handled at module level, but keep this for compatibility
-    pass
 
 
 def has_frontmatter_file(file_path: Path) -> bool:
@@ -94,7 +96,7 @@ class AbstractScript:
     - Configuration and error handling setup
     """
 
-    def __init__(self, script_name: str):
+    def __init__(self, script_name: str) -> None:
         """Initialize the script with common setup.
 
         Args:
@@ -116,7 +118,6 @@ class AbstractScript:
         of the current working directory.
         """
         # Imports are now handled at module level, but keep this for compatibility
-        pass
 
     def find_markdown_files(self, directory: Path) -> list[Path]:
         """Find all markdown files in a directory recursively.

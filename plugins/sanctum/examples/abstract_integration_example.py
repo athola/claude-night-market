@@ -59,7 +59,7 @@ class PluginDetector:
 class AbstractIntegration:
     """Handles integration with Abstract plugin for skill analysis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.abstract_available = PluginDetector.is_plugin_available("abstract")
         self.abstract_capabilities = (
             PluginDetector.get_plugin_capabilities("abstract")
@@ -135,10 +135,10 @@ class AbstractIntegration:
                     ],
                     "token_estimate": len(skill_file.read_text())
                     * 1.3,  # Rough estimate
-                }
+                },
             )
         except Exception as e:
-            analysis["error"] = f"Failed to analyze with Abstract: {str(e)}"
+            analysis["error"] = f"Failed to analyze with Abstract: {e!s}"
             analysis["fallback_analysis"] = self._basic_complexity_analysis(skill_file)
 
         return analysis
@@ -188,7 +188,7 @@ class AbstractIntegration:
 class SanctumGitOperations:
     """Sanctum git operations enhanced with Abstract analysis."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.abstract = AbstractIntegration()
 
     def analyze_commit_with_skill_analysis(self, commit_hash: str) -> dict[str, Any]:
@@ -222,7 +222,7 @@ class SanctumGitOperations:
 
             # Generate complexity summary
             commit_info["complexity_summary"] = self._generate_complexity_summary(
-                commit_info["skill_analysis"]
+                commit_info["skill_analysis"],
             )
 
         except Exception as e:
@@ -281,7 +281,8 @@ class SanctumGitOperations:
             return {"path": file_path, "error": "Could not get git info"}
 
     def _generate_complexity_summary(
-        self, skill_analysis: dict[str, Any]
+        self,
+        skill_analysis: dict[str, Any],
     ) -> dict[str, Any]:
         """Generate a summary of skill complexities."""
         if not skill_analysis:
@@ -312,24 +313,25 @@ class SanctumGitOperations:
                     for analysis in skill_analysis.values()
                 ),
             }
-        else:
-            # Use fallback analysis
-            complexities = [
-                analysis.get("fallback_analysis", {}).get("complexity_level", "unknown")
-                for analysis in skill_analysis.values()
-                if analysis.get("fallback_analysis")
-            ]
+        # Use fallback analysis
+        complexities = [
+            analysis.get("fallback_analysis", {}).get("complexity_level", "unknown")
+            for analysis in skill_analysis.values()
+            if analysis.get("fallback_analysis")
+        ]
 
-            return {
-                "analysis_method": "fallback_heuristic",
-                "total_skills": total_files,
-                "complexity_distribution": {
-                    level: complexities.count(level) for level in set(complexities)
-                },
-            }
+        return {
+            "analysis_method": "fallback_heuristic",
+            "total_skills": total_files,
+            "complexity_distribution": {
+                level: complexities.count(level) for level in set(complexities)
+            },
+        }
 
     def generate_pr_description_with_analysis(
-        self, from_branch: str, to_branch: str = "main"
+        self,
+        from_branch: str,
+        to_branch: str = "main",
     ) -> dict[str, Any]:
         """Generate PR description enhanced with Abstract analysis."""
         pr_info = {
@@ -358,12 +360,13 @@ class SanctumGitOperations:
                         all_skill_analysis[skill_file] = analysis
 
             pr_info["skill_summary"] = self._generate_complexity_summary(
-                all_skill_analysis
+                all_skill_analysis,
             )
 
             # Generate PR recommendations
             pr_info["recommendations"] = self._generate_pr_recommendations(
-                pr_info["commits"], all_skill_analysis
+                pr_info["commits"],
+                all_skill_analysis,
             )
 
         except Exception as e:
@@ -372,7 +375,9 @@ class SanctumGitOperations:
         return pr_info
 
     def _get_commits_between_branches(
-        self, from_branch: str, to_branch: str
+        self,
+        from_branch: str,
+        to_branch: str,
     ) -> list[str]:
         """Get commit hashes between two branches."""
         try:
@@ -387,7 +392,9 @@ class SanctumGitOperations:
             return []
 
     def _generate_pr_recommendations(
-        self, commits: list[dict[str, Any]], skill_analysis: dict[str, Any]
+        self,
+        commits: list[dict[str, Any]],
+        skill_analysis: dict[str, Any],
     ) -> list[str]:
         """Generate recommendations for the PR."""
         recommendations = []
@@ -401,24 +408,25 @@ class SanctumGitOperations:
 
             if abstract_available:
                 avg_complexity = skill_analysis.get("complexity_summary", {}).get(
-                    "average_complexity_score", 0
+                    "average_complexity_score",
+                    0,
                 )
                 if avg_complexity > 5:
                     recommendations.append(
-                        "⚠️ High complexity skills modified - consider additional testing"
+                        "⚠️ High complexity skills modified - consider additional testing",
                     )
             else:
                 # Fallback recommendations
                 total_files = len(skill_analysis)
                 if total_files > 5:
                     recommendations.append(
-                        "📝 Multiple skills modified - ensure comprehensive review"
+                        "📝 Multiple skills modified - ensure comprehensive review",
                     )
 
         # Check commit patterns
         if len(commits) > 10:
             recommendations.append(
-                "🔄 Many commits in PR - consider squashing for cleaner history"
+                "🔄 Many commits in PR - consider squashing for cleaner history",
             )
 
         return recommendations
@@ -430,29 +438,22 @@ if __name__ == "__main__":
     git_ops = SanctumGitOperations()
 
     # Example 1: Analyze a specific commit
-    print("Commit Analysis Example:")
-    print(f"Abstract plugin available: {git_ops.abstract.abstract_available}")
-    print(f"Abstract capabilities: {git_ops.abstract.abstract_capabilities}")
 
     # Get latest commit hash for demo
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
         )
         latest_commit = result.stdout.strip()
 
         commit_analysis = git_ops.analyze_commit_with_skill_analysis(latest_commit)
-        print(f"\nLatest commit ({latest_commit[:8]}):")
-        print(f"  Files changed: {len(commit_analysis['files_changed'])}")
-        print(f"  Skills analyzed: {len(commit_analysis['skill_analysis'])}")
-        print(
-            f"  Analysis method: {commit_analysis['complexity_summary'].get('analysis_method', 'none')}"
-        )
     except subprocess.CalledProcessError:
-        print("Not in a git repository")
+        pass
 
     # Example 2: Generate PR description
-    print("\nPR Description Example:")
     # This would analyze between current branch and main
     try:
         result = subprocess.run(
@@ -465,10 +466,7 @@ if __name__ == "__main__":
 
         if current_branch != "main":
             pr_info = git_ops.generate_pr_description_with_analysis(current_branch)
-            print(f"PR from {current_branch} to main:")
-            print(f"  Commits: {len(pr_info['commits'])}")
-            print(f"  Recommendations: {len(pr_info['recommendations'])}")
         else:
-            print("Currently on main branch")
+            pass
     except subprocess.CalledProcessError:
-        print("Could not determine current branch")
+        pass

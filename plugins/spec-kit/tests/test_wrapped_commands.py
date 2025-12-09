@@ -1,6 +1,5 @@
 """Integration tests for wrapped commands with superpowers integration."""
 
-# ruff: noqa: S101
 from unittest.mock import Mock, patch
 
 import pytest
@@ -12,7 +11,7 @@ class TestWrappedCommands:
     class TestWrappedPlanCommand:
         """Test /speckit.plan.wrapped command."""
 
-        def test_skill_loading_sequence(self):
+        def test_skill_loading_sequence(self) -> None:
             """Test that writing-plans and speckit-orchestrator skills are loaded."""
             # Mock skill loading
             mock_skills = {"writing-plans": Mock(), "speckit-orchestrator": Mock()}
@@ -21,7 +20,7 @@ class TestWrappedCommands:
             assert "writing-plans" in mock_skills
             assert "speckit-orchestrator" in mock_skills
 
-        def test_spec_kit_context_initialization(self, temp_speckit_project):
+        def test_spec_kit_context_initialization(self, temp_speckit_project) -> None:
             """Test spec-kit context initialization."""
             project_dir = temp_speckit_project
 
@@ -35,14 +34,16 @@ class TestWrappedCommands:
             setup_script.write_text(
                 """#!/bin/bash
 echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR": "/tmp", "BRANCH": "test"}'
-"""
+""",
             )
 
             assert setup_script.exists()
             assert setup_script.is_file()
 
         @patch("subprocess.run")
-        def test_enhanced_planning_workflow(self, mock_run, temp_speckit_project):
+        def test_enhanced_planning_workflow(
+            self, mock_run, temp_speckit_project
+        ) -> None:
             """Test enhanced planning workflow with writing-plans integration."""
             # Mock subprocess calls
             mock_run.return_value = Mock(
@@ -64,7 +65,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             assert "writing-plans" in workflow_steps[0]
             assert "artifacts" in workflow_steps[-1]
 
-        def test_artifact_generation_enhancements(self):
+        def test_artifact_generation_enhancements(self) -> None:
             """Test enhanced artifact generation with writing-plans patterns."""
             expected_artifacts = [
                 "research.md",
@@ -78,7 +79,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             # Should generate more artifacts than standard spec-kit
             assert len(expected_artifacts) >= 6
 
-        def test_quality_validation_integration(self):
+        def test_quality_validation_integration(self) -> None:
             """Test quality validation from both methodologies."""
             quality_checks = {
                 "constitution_compliance": "spec-kit",
@@ -102,7 +103,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
     class TestWrappedTasksCommand:
         """Test /speckit.tasks.wrapped command."""
 
-        def test_user_story_organization(self):
+        def test_user_story_organization(self) -> None:
             """Test task organization by user stories."""
             user_stories = ["US1", "US2", "US3"]
 
@@ -118,7 +119,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
                 assert len(story_tasks["testing"]) >= 1
                 assert len(story_tasks["documentation"]) >= 1
 
-        def test_enhanced_task_formatting(self):
+        def test_enhanced_task_formatting(self) -> None:
             """Test enhanced task formatting with writing-plans detail."""
             task_format = "- [ ] T001 [P] [US1] Create User model in src/models/user.py"
 
@@ -129,7 +130,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             assert "[US1]" in task_format  # User story
             assert "src/models/user.py" in task_format  # File path
 
-        def test_dependency_analysis_enhancement(self):
+        def test_dependency_analysis_enhancement(self) -> None:
             """Test enhanced dependency analysis from writing-plans."""
             dependency_types = {
                 "sequential": ["T001 → T002", "T002 → T003"],
@@ -142,7 +143,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             assert len(dependency_types) == 4
             assert len(dependency_types["parallel"]) >= 2
 
-        def test_phase_organization(self):
+        def test_phase_organization(self) -> None:
             """Test phase-based task organization."""
             phases = {
                 "Phase 0": ["setup", "environment", "tools"],
@@ -156,7 +157,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             assert len(phases) == 5
             assert len(phases["Phase 1"]) >= 3
 
-        def test_mvp_scope_identification(self):
+        def test_mvp_scope_identification(self) -> None:
             """Test MVP scope identification."""
             mvp_tasks = ["core-authentication", "basic-profile", "simple-ui"]
             enhanced_tasks = ["advanced-features", "optimizations", "extras"]
@@ -168,7 +169,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
     class TestWrappedStartupCommand:
         """Test /speckit.startup.wrapped command."""
 
-        def test_session_state_initialization(self):
+        def test_session_state_initialization(self) -> None:
             """Test enhanced session state initialization."""
             session_state = {
                 "session_id": "test-uuid",
@@ -186,7 +187,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             assert "writing-plans" in session_state["loaded_skills"]
             assert len(session_state["quality_gates"]) >= 2
 
-        def test_artifact_tracking_configuration(self):
+        def test_artifact_tracking_configuration(self) -> None:
             """Test artifact tracking setup."""
             tracked_artifacts = [
                 "SPECIFICATION.md",
@@ -203,7 +204,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             assert "contracts/" in tracked_artifacts  # Directory tracking
 
         @patch("subprocess.run")
-        def test_repository_verification(self, mock_run):
+        def test_repository_verification(self, mock_run) -> None:
             """Test repository context verification."""
             # Mock git repository check
             mock_run.return_value = Mock(returncode=0)
@@ -218,7 +219,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
 
             assert len(verification_steps) >= 4
 
-        def test_skill_coordination_setup(self):
+        def test_skill_coordination_setup(self) -> None:
             """Test skill coordination patterns."""
             skill_config = {
                 "primary": ["writing-plans", "speckit-orchestrator"],
@@ -236,7 +237,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
     class TestWrappedCommandsIntegration:
         """Test integration between wrapped commands."""
 
-        def test_session_continuity(self):
+        def test_session_continuity(self) -> None:
             """Test session continuity across command executions."""
             session_flow = [
                 ("startup.wrapped", "initialization"),
@@ -252,7 +253,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             restoration_command = session_flow[-1]
             assert restoration_command[0] == "startup.wrapped"
 
-        def test_artifact_consistency(self):
+        def test_artifact_consistency(self) -> None:
             """Test artifact consistency across wrapped commands."""
             artifact_lifecycle = {
                 "startup.wrapped": ["tracking_setup"],
@@ -261,10 +262,10 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             }
 
             # Each command should update artifacts appropriately
-            for _command, artifacts in artifact_lifecycle.items():
+            for artifacts in artifact_lifecycle.values():
                 assert len(artifacts) >= 1
 
-        def test_quality_gate_progression(self):
+        def test_quality_gate_progression(self) -> None:
             """Test quality gate progression through workflow."""
             quality_gates = {
                 "Gate 1": {
@@ -284,14 +285,14 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             # Should have quality gates for each phase
             assert len(quality_gates) == 3
 
-            for _gate, config in quality_gates.items():
+            for config in quality_gates.values():
                 assert "command" in config
                 assert len(config["criteria"]) >= 2
 
     class TestErrorHandlingAndRecovery:
         """Test error handling and recovery in wrapped commands."""
 
-        def test_skill_loading_failure(self):
+        def test_skill_loading_failure(self) -> None:
             """Test graceful handling of skill loading failures."""
             failure_scenarios = [
                 {"skill": "writing-plans", "fallback": "standard_planning"},
@@ -302,7 +303,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
             for scenario in failure_scenarios:
                 assert "fallback" in scenario
 
-        def test_artifact_missing_handling(self):
+        def test_artifact_missing_handling(self) -> None:
             """Test handling of missing artifacts."""
             missing_artifacts = {
                 "spec.md": {"action": "suggest_run_specify", "continue": False},
@@ -310,11 +311,11 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
                 "constitution.md": {"action": "use_default", "continue": True},
             }
 
-            for _artifact, handling in missing_artifacts.items():
+            for handling in missing_artifacts.values():
                 assert "action" in handling
                 assert "continue" in handling
 
-        def test_session_recovery_mechanisms(self):
+        def test_session_recovery_mechanisms(self) -> None:
             """Test session recovery after errors."""
             recovery_features = [
                 "state_checkpointing",
@@ -346,7 +347,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
     @pytest.fixture
     def mock_skill_loading(self):
         """Mock skill loading for testing."""
-        skills = {
+        return {
             "writing-plans": {
                 "capabilities": ["planning", "task_breakdown", "dependency_analysis"],
                 "status": "loaded",
@@ -356,7 +357,6 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR":
                 "status": "loaded",
             },
         }
-        return skills
 
     @pytest.fixture
     def sample_artifacts(self, temp_speckit_project):
@@ -382,7 +382,7 @@ A test feature for validation
 - Users can authenticate
 - Data persists correctly
 - API responses are valid
-"""
+""",
         )
 
         # Create sample plan
@@ -400,7 +400,7 @@ A test feature for validation
 - Phase 0: Setup
 - Phase 1: Core features
 - Phase 2: Integration
-"""
+""",
         )
 
         return {"spec": spec_file, "plan": plan_file, "directory": artifacts_dir}

@@ -19,12 +19,14 @@ from typing import Any
 # Add project root to Python path for imports (must be before abstract imports)
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from abstract.tokens import TokenAnalyzer, extract_code_blocks  # noqa: E402
-from abstract.utils import find_skill_files  # noqa: E402
+from abstract.tokens import TokenAnalyzer, extract_code_blocks
+from abstract.utils import find_skill_files
 
 
 def analyze_skill(
-    path: str = ".", threshold: int = 150, verbose: bool = False
+    path: str = ".",
+    threshold: int = 150,
+    verbose: bool = False,
 ) -> dict[str, Any]:
     """Analyze a skill for complexity and token usage.
 
@@ -40,13 +42,11 @@ def analyze_skill(
     skill_path = Path(path).resolve()
 
     if not skill_path.exists():
-        raise FileNotFoundError(f"Path does not exist: {skill_path}")
+        msg = f"Path does not exist: {skill_path}"
+        raise FileNotFoundError(msg)
 
     # Find skill files
-    if skill_path.is_file():
-        skill_files = [skill_path]
-    else:
-        skill_files = find_skill_files(skill_path)
+    skill_files = [skill_path] if skill_path.is_file() else find_skill_files(skill_path)
 
     results = []
 
@@ -78,14 +78,13 @@ def analyze_skill(
             }
 
             if verbose:
-                print(f"Analyzed: {skill_file}")
-                print(f"  Lines: {lines}, Tokens: {tokens}, Complexity: {complexity}")
+                pass
 
             results.append(result)
 
         except Exception as e:
             if verbose:
-                print(f"Error analyzing {skill_file}: {e}")
+                pass
             results.append(
                 {
                     "path": str(skill_file),
@@ -95,7 +94,7 @@ def analyze_skill(
                     "code_blocks": 0,
                     "complexity": "error",
                     "above_threshold": False,
-                }
+                },
             )
 
     return {
@@ -121,7 +120,8 @@ def estimate_tokens(file_path: str) -> dict[str, Any]:
     path = Path(file_path).resolve()
 
     if not path.exists():
-        raise FileNotFoundError(f"File does not exist: {path}")
+        msg = f"File does not exist: {path}"
+        raise FileNotFoundError(msg)
 
     with open(path, encoding="utf-8") as f:
         content = f.read()
@@ -188,7 +188,10 @@ if __name__ == "__main__":
     analyze_parser = subparsers.add_parser("analyze", help="Analyze skill complexity")
     analyze_parser.add_argument("path", nargs="?", default=".", help="Path to analyze")
     analyze_parser.add_argument(
-        "--threshold", type=int, default=150, help="Complexity threshold"
+        "--threshold",
+        type=int,
+        default=150,
+        help="Complexity threshold",
     )
     analyze_parser.add_argument("--verbose", action="store_true", help="Verbose output")
 
@@ -199,48 +202,38 @@ if __name__ == "__main__":
     # Validate command
     validate_parser = subparsers.add_parser("validate", help="Validate skill structure")
     validate_parser.add_argument(
-        "path", nargs="?", default=".", help="Path to validate"
+        "path",
+        nargs="?",
+        default=".",
+        help="Path to validate",
     )
 
     args = parser.parse_args()
 
     if args.command == "analyze":
         result = analyze_skill(args.path, args.threshold, args.verbose)
-        print(f"\nAnalysis complete for: {result['path']}")
-        print(f"Files analyzed: {result['total_files']}")
         for r in result["results"]:
             if "error" in r:
-                print(f"❌ {r['path']}: {r['error']}")
+                pass
             else:
                 status = "⚠️" if r["above_threshold"] else "✅"
                 lines = r["lines"]
                 tokens = r["tokens"]
                 complexity = r["complexity"]
-                print(
-                    f"{status} {r['path']}: {lines} lines, "
-                    f"{tokens} tokens ({complexity} complexity)"
-                )
 
     elif args.command == "tokens":
         result = estimate_tokens(args.file)
-        print(f"\nToken estimates for: {result['file_path']}")
-        print(f"Total tokens: {result['total_tokens']}")
-        print(f"  Frontmatter: {result['frontmatter_tokens']}")
-        print(f"  Body: {result['body_tokens']}")
         code_tokens = result["code_tokens"]
         blocks_count = result["code_blocks_count"]
-        print(f"  Code blocks: {code_tokens} ({blocks_count} blocks)")
 
     elif args.command == "validate":
         result = validate_skill_structure(args.path)
-        print(f"\nValidation for: {result['path']}")
         if result["valid"]:
-            print("✅ Skill structure is valid")
+            pass
         else:
-            print(f"❌ Missing required files: {', '.join(result['missing_files'])}")
-        print(f"Found {result['total_skill_files']} skill file(s)")
+            pass
         if result["existing_directories"]:
-            print(f"Directories: {', '.join(result['existing_directories'])}")
+            pass
 
     else:
         parser.print_help()

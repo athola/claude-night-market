@@ -4,7 +4,6 @@ This module tests the deliverable formatting and template functionality,
 following TDD/BDD principles and testing all output formatting scenarios.
 """
 
-# ruff: noqa: S101
 from datetime import UTC, datetime
 from typing import Any
 
@@ -20,7 +19,7 @@ class TestStructuredOutputSkill:
     """
 
     @pytest.fixture
-    def mock_structured_output_skill_content(self):
+    def mock_structured_output_skill_content(self) -> str:
         """Mock structured-output skill content."""
         return """---
 name: structured-output
@@ -180,7 +179,7 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_template_selection_review_report(self, sample_review_findings):
+    def test_template_selection_review_report(self, sample_review_findings) -> None:
         """Scenario: Template selection works for review reports
         Given comprehensive review findings
         When selecting template for review report
@@ -224,7 +223,7 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_template_selection_pull_request(self):
+    def test_template_selection_pull_request(self) -> None:
         """Scenario: Template selection works for pull requests
         Given code changes for review
         When selecting template for PR description
@@ -271,7 +270,7 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_findings_formatting_by_severity(self, sample_review_findings):
+    def test_findings_formatting_by_severity(self, sample_review_findings) -> None:
         """Scenario: Findings are formatted by severity level
         Given mixed severity findings
         When formatting findings
@@ -282,7 +281,8 @@ Common template variables that should be populated:
         severity_order = {"Critical": 1, "High": 2, "Medium": 3, "Low": 4}
 
         sorted_findings = sorted(
-            sample_review_findings, key=lambda f: severity_order.get(f["severity"], 5)
+            sample_review_findings,
+            key=lambda f: severity_order.get(f["severity"], 5),
         )
 
         # Group by severity
@@ -327,7 +327,7 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_markdown_formatting_quality(self, sample_review_findings):
+    def test_markdown_formatting_quality(self, sample_review_findings) -> None:
         """Scenario: Markdown output is properly formatted
         Given structured review data
         When generating markdown
@@ -367,7 +367,7 @@ Common template variables that should be populated:
                     f"**Recommendation:** {finding['recommendation']}",
                     f"**Evidence:** {', '.join(finding['evidence_refs'])}",
                     "",
-                ]
+                ],
             )
 
         markdown_output = "\n".join(markdown_lines)
@@ -390,7 +390,9 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_action_item_conversion_and_assignment(self, sample_review_findings):
+    def test_action_item_conversion_and_assignment(
+        self, sample_review_findings
+    ) -> None:
         """Scenario: Action items are converted and assigned appropriately
         Given review findings with recommendations
         When creating action items
@@ -470,8 +472,10 @@ Common template variables that should be populated:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_appendix_compilation_and_navigation(
-        self, sample_review_findings, sample_evidence_log
-    ):
+        self,
+        sample_review_findings,
+        sample_evidence_log,
+    ) -> None:
         """Scenario: Appendix is compiled with proper navigation
         Given evidence log and findings
         When creating appendix
@@ -512,7 +516,7 @@ Common template variables that should be populated:
                         "```",
                         f"**Referenced by findings:** {', '.join(related_findings)}",
                         "",
-                    ]
+                    ],
                 )
 
         appendix_output = "\n".join(appendix_sections)
@@ -535,7 +539,7 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_template_variable_substitution(self):
+    def test_template_variable_substitution(self) -> None:
         """Scenario: Template variables are properly substituted
         Given template with placeholders
         When generating final output
@@ -595,7 +599,7 @@ Common template variables that should be populated:
         assert "}}" not in output
 
     @pytest.mark.unit
-    def test_output_format_consistency(self, sample_review_findings):
+    def test_output_format_consistency(self, sample_review_findings) -> None:
         """Scenario: Output format maintains consistency across templates
         Given different template types
         When generating outputs
@@ -633,7 +637,7 @@ Common template variables that should be populated:
             assert checks["has_findings"], f"{template_type} missing findings"
             assert checks["proper_markdown"], f"{template_type} has invalid markdown"
 
-    def _generate_review_report(self, findings):
+    def _generate_review_report(self, findings) -> str:
         """Helper to generate review report output."""
         return f"""# Security Review Report
 
@@ -644,7 +648,7 @@ Common template variables that should be populated:
 
 {chr(10).join(f"- {f['severity']}: {f['title']}" for f in findings)}"""
 
-    def _generate_pr_description(self, findings):
+    def _generate_pr_description(self, findings) -> str:
         """Helper to generate PR description output."""
         return f"""# Pull Request: Security Improvements
 
@@ -654,7 +658,7 @@ This PR addresses {len(findings)} security-related items.
 ## Checklist
 {chr(10).join(f"- [ ] Fix {f['title'].lower()}" for f in findings)}"""
 
-    def _generate_security_brief(self, findings):
+    def _generate_security_brief(self, findings) -> str:
         """Helper to generate security brief output."""
         critical_findings = [f for f in findings if f["severity"] == "Critical"]
         return f"""# Security Brief
@@ -665,7 +669,7 @@ This PR addresses {len(findings)} security-related items.
 {chr(10).join(f"🚨 {f['title']}" for f in critical_findings if critical_findings)}"""
 
     @pytest.mark.unit
-    def test_error_handling_invalid_data(self):
+    def test_error_handling_invalid_data(self) -> None:
         """Scenario: Template formatting handles invalid data gracefully
         Given malformed or missing data
         When generating output
@@ -711,7 +715,7 @@ This PR addresses {len(findings)} security-related items.
         return severity if severity in valid_severities else "Medium"
 
     @pytest.mark.performance
-    def test_large_finding_set_formatting(self):
+    def test_large_finding_set_formatting(self) -> None:
         """Scenario: Template formatting performs efficiently with many findings
         Given a large set of findings
         When generating output
@@ -730,7 +734,7 @@ This PR addresses {len(findings)} security-related items.
                     "description": f"Description for finding {i + 1}",
                     "file": f"src/file_{i % 20}.py",
                     "line": (i * 7) % 200 + 1,
-                }
+                },
             )
 
         # Act - measure formatting performance
@@ -749,7 +753,7 @@ This PR addresses {len(findings)} security-related items.
         for severity in ["Critical", "High", "Medium", "Low"]:
             if severity in grouped_findings:
                 markdown_lines.append(
-                    f"## {severity} Findings ({len(grouped_findings[severity])})"
+                    f"## {severity} Findings ({len(grouped_findings[severity])})",
                 )
                 # Show only first 10 for each category to avoid huge output
                 for finding in grouped_findings[severity][:10]:

@@ -72,7 +72,8 @@ class FrontmatterProcessor:
 
     @staticmethod
     def parse(
-        content: str, required_fields: list[str] | None = None
+        content: str,
+        required_fields: list[str] | None = None,
     ) -> FrontmatterResult:
         """Parse frontmatter from content.
 
@@ -193,7 +194,9 @@ class FrontmatterProcessor:
 
     @staticmethod
     def get_field(
-        content: str, field_name: str, default: str | None = None
+        content: str,
+        field_name: str,
+        default: str | None = None,
     ) -> str | None:
         """Get a single field value from frontmatter.
 
@@ -213,7 +216,8 @@ class FrontmatterProcessor:
 
     @staticmethod
     def parse_file(
-        file_path: Path, required_fields: list[str] | None = None
+        file_path: Path,
+        required_fields: list[str] | None = None,
     ) -> FrontmatterResult:
         """Parse frontmatter from a file.
 

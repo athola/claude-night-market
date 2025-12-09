@@ -4,7 +4,6 @@ This module tests how imbue workflows scale with large datasets,
 concurrent executions, and complex scenarios.
 """
 
-# ruff: noqa: S101
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -46,7 +45,7 @@ class TestWorkflowScalability:
         }
 
     @pytest.mark.slow
-    def test_large_diff_analysis_scalability(self, large_change_set):
+    def test_large_diff_analysis_scalability(self, large_change_set) -> None:
         """Scenario: Diff analysis scales with large change sets
         Given 1000+ files changed
         When performing diff analysis
@@ -117,32 +116,30 @@ class TestWorkflowScalability:
         total_memory = sys.getsizeof(categorized_changes) + sys.getsizeof(summary)
         assert total_memory < 10_000_000  # Under 10MB for processing 1000 files
 
-    def _categorize_file_type(self, file_path):
+    def _categorize_file_type(self, file_path) -> str:
         """Helper to categorize file by path."""
         if "auth" in file_path or "security" in file_path:
             return "security"
-        elif "test" in file_path:
+        if "test" in file_path:
             return "tests"
-        elif "docs" in file_path or "README" in file_path:
+        if "docs" in file_path or "README" in file_path:
             return "documentation"
-        elif "config" in file_path or "settings" in file_path:
+        if "config" in file_path or "settings" in file_path:
             return "configuration"
-        else:
-            return "application"
+        return "application"
 
-    def _assess_risk_level(self, file_path, lines_changed):
+    def _assess_risk_level(self, file_path, lines_changed) -> str:
         """Helper to assess risk level based on file and changes."""
         if "auth" in file_path or "security" in file_path:
             return "High" if lines_changed > 10 else "Medium"
-        elif "test" in file_path:
+        if "test" in file_path:
             return "Low"
-        elif lines_changed > 50:
+        if lines_changed > 50:
             return "Medium"
-        else:
-            return "Low"
+        return "Low"
 
     @pytest.mark.slow
-    def test_evidence_logging_scalability(self):
+    def test_evidence_logging_scalability(self) -> None:
         """Scenario: Evidence logging scales with large evidence sets
         Given 10,000+ evidence items to log
         When managing evidence during review
@@ -229,7 +226,9 @@ class TestWorkflowScalability:
 
     @pytest.mark.slow
     @pytest.mark.asyncio
-    async def test_concurrent_workflow_execution(self, concurrent_workflow_scenario):
+    async def test_concurrent_workflow_execution(
+        self, concurrent_workflow_scenario
+    ) -> None:
         """Scenario: Concurrent workflow execution scales properly
         Given multiple workflows running simultaneously
         When executing in parallel
@@ -244,7 +243,7 @@ class TestWorkflowScalability:
         execution_results = []
         execution_lock = threading.Lock()
 
-        def execute_review_workflow(workflow_id):
+        def execute_review_workflow(workflow_id) -> str:
             """Simulate review workflow execution."""
             start_time = time.time()
             thread_id = threading.get_ident()
@@ -271,12 +270,12 @@ class TestWorkflowScalability:
                         "execution_time": end_time - start_time,
                         "thread_id": thread_id,
                         "steps_completed": len(workflow_steps),
-                    }
+                    },
                 )
 
             return f"review-{workflow_id}-completed"
 
-        def execute_catchup_workflow(workflow_id):
+        def execute_catchup_workflow(workflow_id) -> str:
             """Simulate catchup workflow execution."""
             start_time = time.time()
             thread_id = threading.get_ident()
@@ -302,12 +301,12 @@ class TestWorkflowScalability:
                         "execution_time": end_time - start_time,
                         "thread_id": thread_id,
                         "steps_completed": len(catchup_steps),
-                    }
+                    },
                 )
 
             return f"catchup-{workflow_id}-completed"
 
-        def execute_agent_workflow(workflow_id):
+        def execute_agent_workflow(workflow_id) -> str:
             """Simulate agent workflow execution."""
             start_time = time.time()
             thread_id = threading.get_ident()
@@ -334,7 +333,7 @@ class TestWorkflowScalability:
                         "execution_time": end_time - start_time,
                         "thread_id": thread_id,
                         "steps_completed": len(agent_steps),
-                    }
+                    },
                 )
 
             return f"agent-{workflow_id}-completed"
@@ -403,7 +402,7 @@ class TestWorkflowScalability:
             assert result["execution_time"] > 0
 
     @pytest.mark.slow
-    def test_memory_usage_with_large_datasets(self, tmp_path):
+    def test_memory_usage_with_large_datasets(self, tmp_path) -> None:
         """Scenario: Memory usage scales appropriately with large datasets
         Given large amounts of data to process
         When performing workflow operations
@@ -509,7 +508,7 @@ class TestWorkflowScalability:
         )  # Should not leak much memory
 
     @pytest.mark.slow
-    def test_token_conservation_scalability(self):
+    def test_token_conservation_scalability(self) -> None:
         """Scenario: Token conservation scales with large inputs
         Given large amounts of content to process
         When applying token conservation strategies
@@ -523,7 +522,7 @@ class TestWorkflowScalability:
                     "file": f"src/module_{i // 50}/file_{i}.py",
                     "content": "Line of content " * 100,  # 100 lines per file
                     "size_chars": len("Line of content " * 100),
-                }
+                },
             )
 
         # Test different token conservation strategies
@@ -621,7 +620,7 @@ class TestWorkflowScalability:
         ]
 
     @pytest.mark.slow
-    def test_database_scalability_simulation(self):
+    def test_database_scalability_simulation(self) -> None:
         """Scenario: Workflow scales with database-like operations
         Given large numbers of records to process
         When performing database-style operations
@@ -676,7 +675,8 @@ class TestWorkflowScalability:
         stats = {
             "total_records": len(records),
             "records_by_type": dict.fromkeys(
-                ["finding", "evidence", "action", "citation"], 0
+                ["finding", "evidence", "action", "citation"],
+                0,
             ),
             "avg_data_size": sum(len(r["data"]) for r in records) / len(records),
             "unique_tags": set(),
@@ -702,7 +702,7 @@ class TestWorkflowScalability:
                 e for e in evidence[:100] if finding["id"] % 10 == e["id"] % 10
             ]
             join_results.append(
-                {"finding": finding, "related_evidence": related_evidence}
+                {"finding": finding, "related_evidence": related_evidence},
             )
         operations_performance["complex_join"] = time.time() - start_time
 

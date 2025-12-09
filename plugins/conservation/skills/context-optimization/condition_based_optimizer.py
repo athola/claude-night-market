@@ -63,7 +63,7 @@ class ConditionBasedOptimizer:
     Eliminates flaky optimization behavior by waiting for actual completion signals.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.optimizer = ConservationContextOptimizer()
         self.active_optimizations: dict[str, OptimizationResult] = {}
         self.optimization_queue: list[OptimizationRequest] = []
@@ -75,13 +75,14 @@ class ConditionBasedOptimizer:
         registry = ConservationServiceRegistry()
         registry.register_service("condition_based_optimizer", self)
         registry.register_service(
-            "optimize_with_conditions", self.optimize_with_conditions
+            "optimize_with_conditions",
+            self.optimize_with_conditions,
         )
 
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def _register_condition_checkers(self):
+    def _register_condition_checkers(self) -> None:
         """Register built-in condition checkers."""
         self.condition_checkers.update(
             {
@@ -90,7 +91,7 @@ class ConditionBasedOptimizer:
                 "priority_preserved": lambda r: r.get("high_priority_kept", 0) > 0,
                 "structure_intact": lambda r: r.get("structure_preserved", False),
                 "semantic_coherence": lambda r: r.get("coherence_score", 0) > 0.7,
-            }
+            },
         )
 
     def wait_for_condition(
@@ -117,21 +118,23 @@ class ConditionBasedOptimizer:
                 if result:
                     elapsed_ms = (time.time() - start_time) * 1000
                     self.logger.info(
-                        f"Condition met: {description} (elapsed: {elapsed_ms:.0f}ms)"
+                        f"Condition met: {description} (elapsed: {elapsed_ms:.0f}ms)",
                     )
                     return result
             except Exception as e:
                 self.logger.warning(f"Condition check failed: {e}")
 
             if time.time() - start_time > timeout_seconds:
+                msg = f"Timeout waiting for {description} after {timeout_ms}ms"
                 raise TimeoutError(
-                    f"Timeout waiting for {description} after {timeout_ms}ms"
+                    msg,
                 )
 
             time.sleep(poll_interval)
 
     def optimize_with_conditions(
-        self, request: OptimizationRequest
+        self,
+        request: OptimizationRequest,
     ) -> OptimizationResult:
         """Perform optimization with condition-based completion monitoring.
 
@@ -151,7 +154,7 @@ class ConditionBasedOptimizer:
         try:
             self.logger.info(
                 f"Starting optimization {optimization_id} "
-                f"for plugin {request.plugin_name}"
+                f"for plugin {request.plugin_name}",
             )
 
             # Step 1: Perform optimization
@@ -181,7 +184,8 @@ class ConditionBasedOptimizer:
             # Step 3: Validate result meets requirements
             self.wait_for_condition(
                 condition=lambda: self._validate_optimization_result(
-                    optimization_result, request
+                    optimization_result,
+                    request,
                 ),
                 description=f"optimization {optimization_id} validation",
                 timeout_ms=5000,
@@ -199,25 +203,27 @@ class ConditionBasedOptimizer:
 
             self.logger.info(
                 f"Optimization {optimization_id} completed successfully "
-                f"in {result.end_time - result.start_time:.2f}s"
+                f"in {result.end_time - result.start_time:.2f}s",
             )
 
         except TimeoutError as e:
             result.status = "timeout"
             result.error_message = str(e)
             result.end_time = time.time()
-            self.logger.error(f"Optimization {optimization_id} timed out: {e}")
+            self.logger.exception(f"Optimization {optimization_id} timed out: {e}")
 
         except Exception as e:
             result.status = "failed"
             result.error_message = str(e)
             result.end_time = time.time()
-            self.logger.error(f"Optimization {optimization_id} failed: {e}")
+            self.logger.exception(f"Optimization {optimization_id} failed: {e}")
 
         return result
 
     def _validate_optimization_result(
-        self, result: dict[str, Any], request: OptimizationRequest
+        self,
+        result: dict[str, Any],
+        request: OptimizationRequest,
     ) -> bool:
         """Validate that optimization meets minimum requirements."""
         # Check we actually reduced token usage
@@ -229,13 +235,12 @@ class ConditionBasedOptimizer:
             return False
 
         # Check compression ratio is reasonable
-        if result.get("compression_ratio", 0) <= 0.1:
-            return False
-
-        return True
+        return not result.get("compression_ratio", 0) <= 0.1
 
     async def optimize_batch_async(
-        self, requests: list[OptimizationRequest], max_concurrent: int = 3
+        self,
+        requests: list[OptimizationRequest],
+        max_concurrent: int = 3,
     ) -> list[OptimizationResult]:
         """Optimize multiple requests concurrently with condition-based waiting.
 
@@ -250,7 +255,9 @@ class ConditionBasedOptimizer:
                 # Run synchronous optimization in thread pool
                 loop = asyncio.get_event_loop()
                 return await loop.run_in_executor(
-                    None, self.optimize_with_conditions, request
+                    None,
+                    self.optimize_with_conditions,
+                    request,
                 )
 
         # Create tasks
@@ -301,7 +308,7 @@ class ConditionBasedOptimizer:
             f"Batch optimization completed: "
             f"{sum(1 for r in results if r.status == 'completed')}/{
                 total_count
-            } successful"
+            } successful",
         )
 
         return results
@@ -407,7 +414,8 @@ def optimize_content_with_conditions(
 
 
 def wait_for_optimal_conditions(
-    optimization_type: str = "context", **kwargs
+    optimization_type: str = "context",
+    **kwargs,
 ) -> dict[str, Any]:
     """Wait for optimal conditions before performing optimization.
 
@@ -415,10 +423,10 @@ def wait_for_optimal_conditions(
     """
     if optimization_type == "context":
         return condition_optimizer.monitor_context_pressure(**kwargs)
-    elif optimization_type == "coordination":
+    if optimization_type == "coordination":
         return condition_optimizer.wait_for_plugin_coordination(**kwargs)
-    else:
-        raise ValueError(f"Unknown optimization type: {optimization_type}")
+    msg = f"Unknown optimization type: {optimization_type}"
+    raise ValueError(msg)
 
 
 # Example usage patterns
@@ -451,7 +459,6 @@ if __name__ == "__main__":
     ]
 
     # Example 1: Basic optimization with conditions
-    print("=== Basic Condition-Based Optimization ===")
     request = OptimizationRequest(
         plugin_name="demo_plugin",
         content_blocks=test_blocks,
@@ -460,23 +467,15 @@ if __name__ == "__main__":
     )
 
     result = condition_optimizer.optimize_with_conditions(request)
-    print(f"Status: {result.status}")
-    print(f"Compression ratio: {result.metrics.get('compression_ratio', 0):.2f}")
-    print(f"Time taken: {result.end_time - result.start_time:.2f}s")
 
     # Example 2: Plugin coordination
-    print("\n=== Plugin Coordination ===")
     coordination = condition_optimizer.wait_for_plugin_coordination(
         plugins=["abstract", "sanctum", "imbue"],
         coordination_type="resource_optimization",
     )
-    print(f"Coordination result: {coordination}")
 
     # Example 3: Context pressure monitoring
-    print("\n=== Context Pressure Monitoring ===")
     pressure = condition_optimizer.monitor_context_pressure(
-        threshold=0.7, check_interval_ms=50
+        threshold=0.7,
+        check_interval_ms=50,
     )
-    print(f"Pressure detected: {pressure}")
-
-    print("\n=== Condition-Based Optimization Demo Complete ===")

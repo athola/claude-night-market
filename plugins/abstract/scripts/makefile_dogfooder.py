@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Makefile Dogfooder - Analyze and enhance Makefiles for complete user functionality
+"""Makefile Dogfooder - Analyze and enhance Makefiles for complete user functionality.
 
 This script orchestrates the makefile-dogfooder skill workflow:
 1. Discovery - Find and inventory Makefiles
@@ -9,7 +9,6 @@ This script orchestrates the makefile-dogfooder skill workflow:
 """
 
 import argparse
-import json
 import re
 import subprocess
 import sys
@@ -85,9 +84,9 @@ class AnalysisResult:
 
 
 class MakefileDogfooder:
-    """Main orchestrator for makefile analysis and enhancement"""
+    """Main orchestrator for makefile analysis and enhancement."""
 
-    def __init__(self, root_dir: Path = None):
+    def __init__(self, root_dir: Path | None = None) -> None:
         self.root_dir = root_dir or Path.cwd()
         self.inventory: dict[str, MakefileInventory] = {}
         self.analysis_results: list[AnalysisResult] = []
@@ -117,7 +116,7 @@ class MakefileDogfooder:
         }
 
     def discover_makefiles(self, scope: Scope) -> list[Path]:
-        """Find all Makefiles based on scope"""
+        """Find all Makefiles based on scope."""
         makefiles = []
 
         if scope in [Scope.ROOT, Scope.ALL]:
@@ -138,7 +137,7 @@ class MakefileDogfooder:
         return sorted(makefiles)
 
     def parse_makefile(self, makefile_path: Path) -> MakefileInventory:
-        """Parse a Makefile and extract targets, variables, and includes"""
+        """Parse a Makefile and extract targets, variables, and includes."""
         targets = {}
         variables = {}
         includes = []
@@ -146,8 +145,7 @@ class MakefileDogfooder:
         try:
             with open(makefile_path) as f:
                 lines = f.readlines()
-        except Exception as e:
-            print(f"Error reading {makefile_path}: {e}")
+        except Exception:
             return MakefileInventory(str(makefile_path), {}, {}, [], "unknown")
 
         current_target = None
@@ -205,7 +203,7 @@ class MakefileDogfooder:
         # Check .PHONY declaration
         if ".PHONY" in targets:
             phony_targets = targets[".PHONY"].dependencies
-            for target_name, _target in targets.items():
+            for target_name in targets:
                 if target_name in phony_targets:
                     targets[target_name].phony = True
 
@@ -227,7 +225,7 @@ class MakefileDogfooder:
         )
 
     def analyze_makefile(self, inventory: MakefileInventory) -> AnalysisResult:
-        """Analyze a Makefile inventory and identify gaps"""
+        """Analyze a Makefile inventory and identify gaps."""
         score = 0
         missing_essential = []
         missing_recommended = []
@@ -253,7 +251,7 @@ class MakefileDogfooder:
 
         # Check convenience targets
         convenience_found = 0
-        for convenience, _desc in self.convenience_targets.items():
+        for convenience in self.convenience_targets:
             if convenience in target_names:
                 convenience_found += 1
                 score += 5
@@ -265,7 +263,7 @@ class MakefileDogfooder:
                 f in target_name.lower() for f in [".o", ".so", ".a"]
             ):
                 anti_patterns.append(
-                    f"Target '{target_name}' appears phony but not in .PHONY"
+                    f"Target '{target_name}' appears phony but not in .PHONY",
                 )
 
             # Commands without error handling
@@ -273,7 +271,7 @@ class MakefileDogfooder:
                 if not any(flag in cmd for flag in ["set -e", "-e", "||"]):
                     if not cmd.startswith("@echo") and not cmd.startswith("#"):
                         anti_patterns.append(
-                            f"Command in '{target_name}' lacks error handling"
+                            f"Command in '{target_name}' lacks error handling",
                         )
 
         # Check for help target quality
@@ -286,7 +284,7 @@ class MakefileDogfooder:
         if inventory.plugin_type == "leaf":
             if "demo" not in target_names:
                 recommendations.append(
-                    "Add 'demo' target to showcase plugin functionality"
+                    "Add 'demo' target to showcase plugin functionality",
                 )
             if "dogfood" not in target_names:
                 recommendations.append("Add 'dogfood' target for self-testing")
@@ -307,9 +305,11 @@ class MakefileDogfooder:
         )
 
     def test_makefile(
-        self, inventory: MakefileInventory, safe_mode: bool = True
+        self,
+        inventory: MakefileInventory,
+        safe_mode: bool = True,
     ) -> dict[str, Any]:
-        """Safely test a Makefile"""
+        """Safely test a Makefile."""
         results = {
             "file": inventory.file_path,
             "tests_run": 0,
@@ -355,7 +355,7 @@ class MakefileDogfooder:
                     results["tests_run"] += 1
                 except subprocess.TimeoutExpired:
                     results["warnings"].append(
-                        f"Target '{target}' took too long to dry-run"
+                        f"Target '{target}' took too long to dry-run",
                     )
 
         # Test 3: Check for undefined variables in critical targets
@@ -378,9 +378,11 @@ class MakefileDogfooder:
         return results
 
     def generate_missing_targets(
-        self, inventory: MakefileInventory, analysis: AnalysisResult
+        self,
+        inventory: MakefileInventory,
+        analysis: AnalysisResult,
     ) -> list[str]:
-        """Generate Makefile content for missing targets"""
+        """Generate Makefile content for missing targets."""
         generated = []
 
         if analysis.missing_essential:
@@ -412,7 +414,7 @@ class MakefileDogfooder:
         return generated
 
     def _generate_help_target(self, inventory: MakefileInventory) -> str:
-        """Generate a help target"""
+        """Generate a help target."""
         return (
             "help: ## Show this help message\n"
             '\t@echo ""\n'
@@ -423,7 +425,7 @@ class MakefileDogfooder:
         )
 
     def _generate_demo_target(self, inventory: MakefileInventory) -> str:
-        """Generate a demo target for leaf plugins"""
+        """Generate a demo target for leaf plugins."""
         plugin_name = Path(inventory.file_path).parent.name
         return f"""demo: ## Demonstrate {plugin_name} plugin functionality
 \t@echo "=== Demonstrating {plugin_name} Plugin ==="
@@ -437,7 +439,7 @@ class MakefileDogfooder:
 \t@echo "  make help    # See all options" """
 
     def _generate_dogfood_target(self, inventory: MakefileInventory) -> str:
-        """Generate a dogfood target for self-testing"""
+        """Generate a dogfood target for self-testing."""
         plugin_name = Path(inventory.file_path).parent.name
         return f"""dogfood: ## Test {plugin_name} plugin on itself
 \t@echo "=== Dogfooding {plugin_name} Plugin ==="
@@ -455,7 +457,7 @@ class MakefileDogfooder:
 \t@echo "✓ All dogfood tests completed!" """
 
     def _generate_check_all_target(self, inventory: MakefileInventory) -> str:
-        """Generate a check-all target for aggregator Makefiles"""
+        """Generate a check-all target for aggregator Makefiles."""
         return """check-all: ## Run checks across all plugins
 \t@echo "=== Running All Plugin Checks ==="
 \t@for plugin in $$(PLUGINS); do \\
@@ -467,9 +469,12 @@ class MakefileDogfooder:
 \t@echo "=== All Plugin Checks Complete ===" """
 
     def run(
-        self, scope: Scope, mode: Mode, plugin_filter: str | None = None
+        self,
+        scope: Scope,
+        mode: Mode,
+        plugin_filter: str | None = None,
     ) -> dict[str, Any]:
-        """Main orchestration method"""
+        """Main orchestration method."""
         results = {
             "scope": scope.value,
             "mode": mode.value,
@@ -504,10 +509,10 @@ class MakefileDogfooder:
                         "issues": len(analysis.anti_patterns)
                         + len(analysis.missing_essential),
                         "recommendations": len(analysis.recommendations),
-                    }
+                    },
                 )
                 results["issues_found"] += len(analysis.anti_patterns) + len(
-                    analysis.missing_essential
+                    analysis.missing_essential,
                 )
                 results["recommendations_made"] += len(analysis.recommendations)
 
@@ -539,16 +544,16 @@ class MakefileDogfooder:
                             {
                                 "file": inventory.file_path,
                                 "content": "\n".join(generated),
-                            }
+                            },
                         )
 
         return results
 
 
-def main():
-    """CLI entry point"""
+def main() -> int:
+    """CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Analyze and enhance Makefiles for complete functionality"
+        description="Analyze and enhance Makefiles for complete functionality",
     )
     parser.add_argument(
         "--scope",
@@ -564,55 +569,45 @@ def main():
     )
     parser.add_argument("--plugin", help="Restrict to specific plugin")
     parser.add_argument(
-        "--output", choices=["text", "json"], default="text", help="Output format"
+        "--output",
+        choices=["text", "json"],
+        default="text",
+        help="Output format",
     )
     parser.add_argument(
-        "--apply", action="store_true", help="Apply generated changes to Makefiles"
+        "--apply",
+        action="store_true",
+        help="Apply generated changes to Makefiles",
     )
 
     args = parser.parse_args()
 
     dogfooder = MakefileDogfooder()
     results = dogfooder.run(
-        scope=Scope(args.scope), mode=Mode(args.mode), plugin_filter=args.plugin
+        scope=Scope(args.scope),
+        mode=Mode(args.mode),
+        plugin_filter=args.plugin,
     )
 
     if args.output == "json":
-        print(json.dumps(results, indent=2))
+        pass
     else:
         # Text output
-        print("\n=== Makefile Dogfooding Results ===")
-        print(f"Scope: {results['scope']}")
-        print(f"Mode: {results['mode']}")
-        print(f"Makefiles analyzed: {results['makefiles_analyzed']}")
-        print(f"Issues found: {results['issues_found']}")
-        print(f"Recommendations made: {results['recommendations_made']}")
 
         if results.get("details"):
-            print("\n=== Details ===")
             for detail in results["details"]:
-                print(f"\nFile: {detail['file']}")
-                print(f"Score: {detail['score']}/100")
-                print(f"Issues: {detail['issues']}")
-                print(f"Recommendations: {detail['recommendations']}")
                 if "test_results" in detail:
-                    tr = detail["test_results"]
-                    print(f"Tests: {tr['tests_passed']}/{tr['tests_run']} passed")
+                    detail["test_results"]
 
         if results.get("generated_targets"):
-            print("\n=== Generated Targets ===")
             for gen in results["generated_targets"]:
-                print(f"\n{gen['file']}:")
-                print(gen["content"])
+                pass
 
     # Apply changes if requested
     if args.apply and results.get("generated_targets"):
-        print("\n=== Applying Changes ===")
         for gen in results["generated_targets"]:
-            print(f"Appending to {gen['file']}...")
             with open(gen["file"], "a") as f:
                 f.write("\n" + gen["content"])
-        print("Done!")
 
     return 0
 

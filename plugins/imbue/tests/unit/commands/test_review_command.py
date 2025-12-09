@@ -4,7 +4,6 @@ This module tests the review command orchestration and workflow integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
-# ruff: noqa: S101
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -31,7 +30,7 @@ class TestReviewCommand:
                     "name": "target",
                     "type": "optional",
                     "description": "Specific path or scope to review",
-                }
+                },
             ],
             "integrates_with": [
                 "review-core",
@@ -65,8 +64,10 @@ class TestReviewCommand:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_command_creates_workflow_scaffold(
-        self, mock_todo_write, sample_session_state
-    ):
+        self,
+        mock_todo_write,
+        sample_session_state,
+    ) -> None:
         """Scenario: /review creates complete workflow
         Given a repository ready for review
         When executing /review command
@@ -121,8 +122,10 @@ class TestReviewCommand:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_command_handles_target_parameter(
-        self, mock_claude_tools, sample_scope_inventory
-    ):
+        self,
+        mock_claude_tools,
+        sample_scope_inventory,
+    ) -> None:
         """Scenario: /review accepts scope targets
         Given a /review command with target path
         When parsing parameters
@@ -170,7 +173,7 @@ class TestReviewCommand:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_command_handles_focus_parameters(self):
+    def test_command_handles_focus_parameters(self) -> None:
         """Scenario: /review accepts focus parameters
         Given a /review command with focus flags
         When parsing parameters
@@ -237,7 +240,7 @@ class TestReviewCommand:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_command_orchestrates_multiple_skills(self, mock_claude_tools):
+    def test_command_orchestrates_multiple_skills(self, mock_claude_tools) -> None:
         """Scenario: /review orchestrates multiple imbue skills
         Given a review command execution
         When coordinating skills
@@ -249,7 +252,7 @@ class TestReviewCommand:
         skill_contexts = {}
 
         # Mock skill calls
-        def mock_skill_execution(skill_name, context):
+        def mock_skill_execution(skill_name, context) -> str:
             skill_execution_order.append(skill_name)
             skill_contexts[skill_name] = context.copy()
 
@@ -278,7 +281,8 @@ class TestReviewCommand:
 
         # 3. structured-output - prepares deliverable format
         mock_claude_tools["Skill"](
-            "structured-output", skill_contexts["evidence-logging"]
+            "structured-output",
+            skill_contexts["evidence-logging"],
         )
 
         # 4. diff-analysis - if there are changes to analyze
@@ -305,8 +309,10 @@ class TestReviewCommand:
     @pytest.mark.unit
     @pytest.mark.unit
     def test_command_output_formatting(
-        self, sample_session_state, sample_scope_inventory
-    ):
+        self,
+        sample_session_state,
+        sample_scope_inventory,
+    ) -> None:
         """Scenario: /review provides structured output format
         Given completed review initialization
         When generating command output
@@ -358,7 +364,7 @@ class TestReviewCommand:
                 "1. Begin detailed analysis of scoped files",
                 "2. Use evidence logging to capture findings",
                 "3. Populate structured output template with results",
-            ]
+            ],
         )
 
         output = "\n".join(output_lines)
@@ -375,7 +381,7 @@ class TestReviewCommand:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_command_error_handling(self, mock_claude_tools):
+    def test_command_error_handling(self, mock_claude_tools) -> None:
         """Scenario: /review handles errors gracefully
         Given repository or skill execution errors
         When running review command
@@ -417,7 +423,7 @@ class TestReviewCommand:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_command_parameter_validation(self):
+    def test_command_parameter_validation(self) -> None:
         """Scenario: /review validates command parameters
         Given various command argument combinations
         When parsing parameters
@@ -476,7 +482,7 @@ class TestReviewCommand:
                             i += 1
                         else:
                             parsed_params["errors"].append(
-                                "Missing focus value after --focus"
+                                "Missing focus value after --focus",
                             )
                     else:
                         parsed_params["errors"].append(f"Unknown flag: {arg}")
@@ -501,7 +507,7 @@ class TestReviewCommand:
                     assert test_case["error"] in parsed_params["errors"]
 
     @pytest.mark.unit
-    def test_command_integration_with_git_workspace(self, mock_claude_tools):
+    def test_command_integration_with_git_workspace(self, mock_claude_tools) -> None:
         """Scenario: /review integrates with git workspace commands
         Given a git repository with changes
         When running review command
@@ -533,7 +539,7 @@ class TestReviewCommand:
 
         # Get change statistics
         git_context["change_stats"] = mock_claude_tools["Bash"](
-            "git diff --stat HEAD~5"
+            "git diff --stat HEAD~5",
         )
 
         # Enhance review scope with git information
@@ -553,7 +559,7 @@ class TestReviewCommand:
         assert len(review_scope["priority_files"]) == 2
 
     @pytest.mark.performance
-    def test_command_performance_large_repositories(self):
+    def test_command_performance_large_repositories(self) -> None:
         """Scenario: /review performs efficiently with large repositories
         Given a repository with many files
         When running review command

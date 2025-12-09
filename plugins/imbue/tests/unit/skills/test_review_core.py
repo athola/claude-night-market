@@ -4,7 +4,6 @@ This module tests the review workflow scaffolding functionality,
 following TDD/BDD principles and testing all business scenarios.
 """
 
-# ruff: noqa: S101
 from unittest.mock import call
 
 import pytest
@@ -19,7 +18,7 @@ class TestReviewCoreSkill:
     """
 
     @pytest.fixture
-    def mock_review_core_skill_content(self):
+    def mock_review_core_skill_content(self) -> str:
         """Mock review-core skill content with required components."""
         return """---
 name: review-core
@@ -109,7 +108,9 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_review_core_creates_required_todowrite_items(self, mock_todo_write):
+    def test_review_core_creates_required_todowrite_items(
+        self, mock_todo_write
+    ) -> None:
         """Scenario: Review core creates required TodoWrite items
         Given the review-core skill is executed
         When establishing the workflow
@@ -142,7 +143,7 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_context_establishment_captures_git_state(self, mock_claude_tools):
+    def test_context_establishment_captures_git_state(self, mock_claude_tools) -> None:
         """Scenario: Context establishment captures git state
         Given a repository in review state
         When establishing context
@@ -182,7 +183,9 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_scope_inventory_discovers_project_structure(self, mock_claude_tools):
+    def test_scope_inventory_discovers_project_structure(
+        self, mock_claude_tools
+    ) -> None:
         """Scenario: Scope inventory finds all relevant artifacts
         Given a project with various file types
         When inventorying scope
@@ -229,7 +232,7 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_scope_inventory_identifies_review_targets(self, mock_claude_tools):
+    def test_scope_inventory_identifies_review_targets(self, mock_claude_tools) -> None:
         """Scenario: Scope inventory identifies targets for review
         Given modified files and configuration changes
         When inventorying scope
@@ -271,7 +274,7 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_capture_initializes_log(self, sample_evidence_log):
+    def test_evidence_capture_initializes_log(self, sample_evidence_log) -> None:
         """Scenario: Evidence capture initializes structured log
         Given a review workflow starting
         When initializing evidence capture
@@ -292,7 +295,7 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_capture_logs_commands(self, sample_evidence_log):
+    def test_evidence_capture_logs_commands(self, sample_evidence_log) -> None:
         """Scenario: Evidence capture logs all commands
         Given commands being executed during review
         When capturing evidence
@@ -321,7 +324,7 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_deliverable_structure_generation(self):
+    def test_deliverable_structure_generation(self) -> None:
         """Scenario: Deliverable structure creates consistent report format
         Given review findings and evidence
         When generating deliverables
@@ -336,7 +339,7 @@ Foundational workflow scaffolding for any detailed review.
                 "description": "Test description",
                 "severity": "Medium",
                 "evidence_refs": ["E1", "E2"],
-            }
+            },
         ]
 
         # Act - generate deliverable structure
@@ -362,7 +365,7 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_contingency_planning_missing_tools(self, mock_claude_tools):
+    def test_contingency_planning_missing_tools(self, mock_claude_tools) -> None:
         """Scenario: Contingency planning handles missing tools
         Given required tools not available
         When planning contingencies
@@ -384,11 +387,11 @@ Foundational workflow scaffolding for any detailed review.
         for missing_tool in missing_tools:
             if missing_tool == "Grep":
                 contingency_plan["fallback_strategies"].append(
-                    "Use file reading and string searching for pattern matching"
+                    "Use file reading and string searching for pattern matching",
                 )
             elif missing_tool == "Bash":
                 contingency_plan["fallback_strategies"].append(
-                    "Use external script execution or manual command results"
+                    "Use external script execution or manual command results",
                 )
 
         # Assert
@@ -399,7 +402,7 @@ Foundational workflow scaffolding for any detailed review.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_review_core_workflow_completion(self, mock_todo_write):
+    def test_review_core_workflow_completion(self, mock_todo_write) -> None:
         """Scenario: Review core workflow completes all phases
         Given a full review workflow
         When executing review-core skill
@@ -427,7 +430,7 @@ Foundational workflow scaffolding for any detailed review.
         assert len(set(completed_phases)) == 5  # All unique
 
     @pytest.mark.unit
-    def test_review_core_error_handling(self, mock_claude_tools):
+    def test_review_core_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Review core handles errors gracefully
         Given command execution failures
         When running review workflow
@@ -447,7 +450,7 @@ Foundational workflow scaffolding for any detailed review.
         try:
             context["working_directory"] = mock_claude_tools["Bash"]("pwd")
             context["git_branch"] = mock_claude_tools["Bash"](
-                "git branch --show-current"
+                "git branch --show-current",
             )
             context["git_status"] = mock_claude_tools["Bash"]("git status --porcelain")
         except Exception as e:
@@ -464,7 +467,7 @@ Foundational workflow scaffolding for any detailed review.
         assert context["baseline"] == "HEAD~1"
 
     @pytest.mark.unit
-    def test_review_core_token_conservation(self):
+    def test_review_core_token_conservation(self) -> None:
         """Scenario: Review core conserves tokens in large projects
         Given a project with many files
         When inventorying scope

@@ -17,7 +17,7 @@ class ToolPerformanceAnalyzer:
     MAX_SCORE = 100
     CHANGE_THRESHOLD = 0.01  # 10ms threshold for detecting changes
 
-    def __init__(self, skills_dir: Path):
+    def __init__(self, skills_dir: Path) -> None:
         """Initialize analyzer with skills directory.
 
         Args:
@@ -47,7 +47,7 @@ class ToolPerformanceAnalyzer:
                     {
                         "name": file_path.name,
                         "path": str(file_path),
-                    }
+                    },
                 )
         return tools
 
@@ -72,7 +72,8 @@ class ToolPerformanceAnalyzer:
                 break
 
         if not tool_path:
-            raise FileNotFoundError(f"Tool not found: {tool_name}")
+            msg = f"Tool not found: {tool_name}"
+            raise FileNotFoundError(msg)
 
         try:
             start_time = time.time()
@@ -131,7 +132,7 @@ class ToolPerformanceAnalyzer:
                         "execution_time": 0,
                         "success": False,
                         "error": True,
-                    }
+                    },
                 )
 
         # Calculate summary
@@ -154,7 +155,8 @@ class ToolPerformanceAnalyzer:
         }
 
     def identify_bottlenecks(
-        self, benchmark_results: dict[str, Any]
+        self,
+        benchmark_results: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Identify performance bottlenecks from benchmark results.
 
@@ -176,13 +178,14 @@ class ToolPerformanceAnalyzer:
                         "tool": tool.get("name"),
                         "execution_time": exec_time,
                         "reason": "Execution time exceeds threshold",
-                    }
+                    },
                 )
 
         return bottlenecks
 
     def suggest_optimizations(
-        self, benchmark_results: dict[str, Any]
+        self,
+        benchmark_results: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Suggest optimizations based on benchmark results.
 
@@ -205,7 +208,7 @@ class ToolPerformanceAnalyzer:
                         "tool": name,
                         "type": "critical",
                         "suggestion": "Consider caching or lazy loading",
-                    }
+                    },
                 )
             elif exec_time > self.SLOW_THRESHOLD:
                 suggestions.append(
@@ -213,13 +216,15 @@ class ToolPerformanceAnalyzer:
                         "tool": name,
                         "type": "moderate",
                         "suggestion": "Review for optimization opportunities",
-                    }
+                    },
                 )
 
         return suggestions
 
     def compare_benchmarks(
-        self, baseline: dict[str, Any], current: dict[str, Any]
+        self,
+        baseline: dict[str, Any],
+        current: dict[str, Any],
     ) -> dict[str, Any]:
         """Compare two benchmark results.
 
@@ -300,7 +305,8 @@ class ToolPerformanceAnalyzer:
         return "\n".join(lines)
 
     def calculate_performance_scores(
-        self, benchmark_results: dict[str, Any]
+        self,
+        benchmark_results: dict[str, Any],
     ) -> dict[str, dict[str, float]]:
         """Calculate performance scores for all tools.
 
@@ -335,7 +341,9 @@ class ToolPerformanceAnalyzer:
         return scores
 
     def export_results(
-        self, benchmark_results: dict[str, Any], export_path: Path
+        self,
+        benchmark_results: dict[str, Any],
+        export_path: Path,
     ) -> None:
         """Export benchmark results to a JSON file.
 
@@ -348,7 +356,9 @@ class ToolPerformanceAnalyzer:
             json.dump(benchmark_results, f, indent=2, default=str)
 
     def detect_regressions(
-        self, baseline: dict[str, Any], current: dict[str, Any]
+        self,
+        baseline: dict[str, Any],
+        current: dict[str, Any],
     ) -> list[dict[str, Any]]:
         """Detect performance regressions between benchmarks.
 

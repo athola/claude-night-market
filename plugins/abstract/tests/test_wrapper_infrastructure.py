@@ -9,10 +9,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from abstract.wrapper_base import SuperpowerWrapper
 
 
-def test_wrapper_translates_parameters():
+def test_wrapper_translates_parameters() -> None:
     """Test that wrapper translates parameters correctly."""
-    print("🧪 Running wrapper parameter translation test...")
-
     # This should fail first (TDD principle)
     wrapper = SuperpowerWrapper(
         source_plugin="abstract",
@@ -20,14 +18,10 @@ def test_wrapper_translates_parameters():
         target_superpower="test-driven-development",
     )
 
-    print("✅ Wrapper created successfully")
-
     # Test parameter translation - this should fail initially
     input_params = {"skill-path": "skills/my-skill", "phase": "red"}
 
-    print(f"🔍 Translating parameters: {input_params}")
     result = wrapper.translate_parameters(input_params)
-    print(f"📝 Translation result: {result}")
 
     # Validate expected mappings exist
     assert "target_under_test" in result, (
@@ -43,41 +37,36 @@ def test_wrapper_translates_parameters():
     )
     assert result["tdd_phase"] == "red", f"Expected 'red', got '{result['tdd_phase']}'"
 
-    print("✅ All assertions passed!")
 
-
-def test_wrapper_validation():
+def test_wrapper_validation() -> None:
     """Test wrapper validation functionality."""
-    print("🧪 Running wrapper validation test...")
-
     # Test invalid inputs - should raise ValueError
     try:
         SuperpowerWrapper("", "test-skill", "test-driven-development")
-        raise AssertionError("Should have raised ValueError for empty source_plugin")
-    except ValueError as e:
-        print(f"✅ Correctly caught invalid source_plugin: {e}")
+        msg = "Should have raised ValueError for empty source_plugin"
+        raise AssertionError(msg)
+    except ValueError:
+        pass
 
     try:
         SuperpowerWrapper("abstract", None, "test-driven-development")
-        raise AssertionError("Should have raised ValueError for None source_command")
-    except ValueError as e:
-        print(f"✅ Correctly caught invalid source_command: {e}")
+        msg = "Should have raised ValueError for None source_command"
+        raise AssertionError(msg)
+    except ValueError:
+        pass
 
     try:
         SuperpowerWrapper("abstract", "test-skill", "")
+        msg = "Should have raised ValueError for empty target_superpower"
         raise AssertionError(
-            "Should have raised ValueError for empty target_superpower"
+            msg,
         )
-    except ValueError as e:
-        print(f"✅ Correctly caught invalid target_superpower: {e}")
-
-    print("✅ Validation tests passed!")
+    except ValueError:
+        pass
 
 
-def test_parameter_validation():
+def test_parameter_validation() -> None:
     """Test parameter validation functionality."""
-    print("🧪 Running parameter validation test...")
-
     wrapper = SuperpowerWrapper(
         source_plugin="abstract",
         source_command="test-skill",
@@ -87,28 +76,22 @@ def test_parameter_validation():
     # Test invalid parameter types
     try:
         wrapper.translate_parameters("not a dict")
-        raise AssertionError("Should have raised ValueError for non-dict parameters")
-    except ValueError as e:
-        print(f"✅ Correctly caught invalid parameter type: {e}")
+        msg = "Should have raised ValueError for non-dict parameters"
+        raise AssertionError(msg)
+    except ValueError:
+        pass
 
     # Test empty parameters
     result = wrapper.translate_parameters({})
     assert result == {}, f"Expected empty dict for empty input, got: {result}"
-    print("✅ Empty parameters handled correctly")
-
-    print("✅ Parameter validation tests passed!")
 
 
 if __name__ == "__main__":
-    print("🚀 Running wrapper infrastructure tests...")
-
     try:
         test_wrapper_validation()
         test_parameter_validation()
         test_wrapper_translates_parameters()
-        print("\n🎉 All tests passed!")
-    except Exception as e:
-        print(f"\n❌ Test failed: {e}")
+    except Exception:
         import traceback
 
         traceback.print_exc()

@@ -18,9 +18,12 @@ SRC_DIR = PLUGIN_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+import contextlib
+
 from memory_palace.corpus.cache_lookup import CacheLookup
 from memory_palace.corpus.marginal_value import RedundancyLevel
 from memory_palace.curation import DomainAlignment, IntakeFlagPayload
+from memory_palace.lifecycle.autonomy_state import AutonomyProfile, AutonomyStateStore
 from memory_palace.observability.telemetry import (
     ResearchTelemetryEvent,
     TelemetryLogger,
@@ -29,7 +32,8 @@ from memory_palace.observability.telemetry import (
 
 # Freshness indicators - if present, likely needs web
 _FRESHNESS_PATTERNS = re.compile(
-    r"\b(latest|recent|new|current|2025|2024|today|now|update)\b", re.IGNORECASE
+    r"\b(latest|recent|new|current|2025|2024|today|now|update)\b",
+    re.IGNORECASE,
 )
 
 # Evergreen indicators - timeless concepts that cache well
@@ -56,6 +60,8 @@ class CacheInterceptDecision:
     aligned_domains: list[str] = field(default_factory=list)
     delta_reasoning: str | None = None
     intake_payload: IntakeFlagPayload | None = None
+    autonomy_level: int = 0
+    autonomy_domains: list[str] = field(default_factory=list)
 
 
 _NOVELTY_BY_REDUNDANCY = {
@@ -165,11 +171,20 @@ def _finalize_decision(
     query: str,
     results: list[dict[str, Any]],
     config: dict[str, Any] | None,
+    autonomy_profile: AutonomyProfile | None = None,
 ) -> CacheInterceptDecision:
     cfg = config or {}
     novelty_score, duplicate_entry_ids = _calculate_novelty_and_duplicates(results)
     alignment = _detect_domain_alignment(query, cfg.get("domains_of_interest", []))
     intake_threshold = int(cfg.get("intake_threshold", 70))
+
+    effective_domains = alignment.matched_domains
+    effective_level = 0
+    if autonomy_profile is None:
+        fallback_level = int(cfg.get("autonomy_level", 0) or 0)
+        autonomy_profile = AutonomyProfile(global_level=fallback_level, domain_controls={})
+
+    effective_level = autonomy_profile.effective_level_for(effective_domains)
 
     should_flag = decision.should_flag_for_intake
     if (
@@ -179,6 +194,24 @@ def _finalize_decision(
         and not alignment.is_aligned
     ):
         should_flag = False
+
+    override_reason: str | None = None
+    if should_flag:
+        if duplicate_entry_ids and autonomy_profile.should_auto_approve_duplicates(
+            effective_domains
+        ):
+            should_flag = False
+            override_reason = "duplicate override"
+        elif (
+            decision.match_score is not None
+            and decision.match_score >= 0.4
+            and autonomy_profile.should_auto_approve_partial(effective_domains)
+        ):
+            should_flag = False
+            override_reason = "partial match override"
+        elif autonomy_profile.should_auto_approve_all(effective_domains):
+            should_flag = False
+            override_reason = "trusted override"
 
     delta_reasoning = _build_delta_reasoning(
         should_flag=should_flag,
@@ -202,6 +235,12 @@ def _finalize_decision(
     decision.aligned_domains = alignment.matched_domains
     decision.delta_reasoning = delta_reasoning
     decision.intake_payload = payload
+    decision.autonomy_level = effective_level
+    decision.autonomy_domains = alignment.matched_domains
+    if override_reason:
+        decision.context.append(
+            f"[Autonomy L{effective_level}] Intake gating relaxed ({override_reason})."
+        )
     return decision
 
 
@@ -210,6 +249,7 @@ def make_decision(
     results: list[dict[str, Any]],
     mode: str,
     config: dict[str, Any] | None = None,
+    autonomy_profile: AutonomyProfile | None = None,
 ) -> CacheInterceptDecision:
     """Make decision based on cache results and mode."""
     freshness_required = needs_freshness(query)
@@ -222,7 +262,13 @@ def make_decision(
     )
 
     if mode == "web_only":
-        return _finalize_decision(decision=decision, query=query, results=results, config=config)
+        return _finalize_decision(
+            decision=decision,
+            query=query,
+            results=results,
+            config=config,
+            autonomy_profile=autonomy_profile,
+        )
 
     best_match = results[0] if results else None
 
@@ -231,15 +277,21 @@ def make_decision(
             decision.action = "block"
             decision.context.append(
                 "Memory Palace (cache_only mode): No local knowledge found for this query. "
-                "Web search blocked. Consider switching to cache_first mode or adding knowledge manually."
+                "Web search blocked. Consider switching to cache_first mode or adding knowledge manually.",
             )
         else:
             decision.should_flag_for_intake = True
             decision.context.append(
                 "Memory Palace: No cached knowledge found. Proceeding with web search. "
-                "Result will be flagged for potential knowledge intake."
+                "Result will be flagged for potential knowledge intake.",
             )
-        return _finalize_decision(decision=decision, query=query, results=results, config=config)
+        return _finalize_decision(
+            decision=decision,
+            query=query,
+            results=results,
+            config=config,
+            autonomy_profile=autonomy_profile,
+        )
 
     match_score = best_match.get("match_score", 0.0)
     decision.match_score = match_score
@@ -251,13 +303,13 @@ def make_decision(
                 decision.action = "block"
                 decision.context.append(
                     f"Memory Palace (cache_only): Found strong match ({match_score:.0%}) - "
-                    f"'{best_match.get('title', 'Untitled')}'. Web search blocked."
+                    f"'{best_match.get('title', 'Untitled')}'. Web search blocked.",
                 )
             elif mode == "augment":
                 decision.action = "augment"
                 decision.context.append(
                     f"Memory Palace: Found strong cached match ({match_score:.0%}) - "
-                    f"'{best_match.get('title', 'Untitled')}'. Combining with web search."
+                    f"'{best_match.get('title', 'Untitled')}'. Combining with web search.",
                 )
                 decision.cached_entries = results[:3]
             else:
@@ -265,13 +317,13 @@ def make_decision(
                 decision.context.append(
                     f"Memory Palace: Found strong cached match ({match_score:.0%}) - "
                     f"'{best_match.get('title', 'Untitled')}'. "
-                    "This may answer your question. Proceeding with web verification."
+                    "This may answer your question. Proceeding with web verification.",
                 )
                 decision.cached_entries = results[:1]
         else:
             decision.action = "augment"
             decision.context.append(
-                "Memory Palace: Found cached match but query needs fresh data. Combining cache with web search."
+                "Memory Palace: Found cached match but query needs fresh data. Combining cache with web search.",
             )
             decision.cached_entries = results[:2]
 
@@ -280,37 +332,42 @@ def make_decision(
             decision.action = "block"
             decision.context.append(
                 f"Memory Palace (cache_only): Found partial match ({match_score:.0%}) - "
-                f"'{best_match.get('title', 'Untitled')}'. Web search blocked."
+                f"'{best_match.get('title', 'Untitled')}'. Web search blocked.",
             )
         elif mode == "augment":
             decision.action = "augment"
             decision.context.append(
                 f"Memory Palace: Found partial match ({match_score:.0%}) - "
-                f"'{best_match.get('title', 'Untitled')}'. Augmenting with web search."
+                f"'{best_match.get('title', 'Untitled')}'. Augmenting with web search.",
             )
             decision.cached_entries = results[:3]
         else:
             decision.action = "augment"
             decision.context.append(
                 f"Memory Palace: Found partial match ({match_score:.0%}). "
-                "Injecting cached knowledge and proceeding with web search."
+                "Injecting cached knowledge and proceeding with web search.",
             )
             decision.cached_entries = results[:2]
             decision.should_flag_for_intake = True
 
+    elif mode == "cache_only":
+        decision.action = "block"
+        decision.context.append(
+            "Memory Palace (cache_only): Only weak matches found. Web search blocked.",
+        )
     else:
-        if mode == "cache_only":
-            decision.action = "block"
-            decision.context.append(
-                "Memory Palace (cache_only): Only weak matches found. Web search blocked."
-            )
-        else:
-            decision.should_flag_for_intake = True
-            decision.context.append(
-                "Memory Palace: Weak cache match. Proceeding with full web search."
-            )
+        decision.should_flag_for_intake = True
+        decision.context.append(
+            "Memory Palace: Weak cache match. Proceeding with full web search.",
+        )
 
-    return _finalize_decision(decision=decision, query=query, results=results, config=config)
+    return _finalize_decision(
+        decision=decision,
+        query=query,
+        results=results,
+        config=config,
+        autonomy_profile=autonomy_profile,
+    )
 
 
 def format_cached_entry_context(entry: dict[str, Any]) -> str:
@@ -361,6 +418,10 @@ def emit_telemetry_event(
         else:
             top_entry_id = None
 
+        duplicate_ids = None
+        if decision.intake_payload and decision.intake_payload.duplicate_entry_ids:
+            duplicate_ids = "|".join(decision.intake_payload.duplicate_entry_ids)
+
         event = ResearchTelemetryEvent.build(
             query_id=query_id,
             query=query,
@@ -381,6 +442,7 @@ def emit_telemetry_event(
             if decision.aligned_domains
             else None,
             intake_delta_reasoning=decision.delta_reasoning,
+            duplicate_entry_ids=duplicate_ids,
         )
         logger.log_event(event)
     except Exception:
@@ -406,6 +468,15 @@ def main() -> None:
     if not config.get("enabled", True):
         sys.exit(0)
 
+    autonomy_profile: AutonomyProfile | None = None
+    autonomy_store: AutonomyStateStore | None = None
+    try:
+        autonomy_store = AutonomyStateStore(plugin_root=PLUGIN_ROOT)
+        autonomy_profile = autonomy_store.build_profile(config_level=config.get("autonomy_level"))
+    except Exception:
+        autonomy_profile = None
+        autonomy_store = None
+
     telemetry_config = config.get("telemetry", {})
     telemetry_logger: TelemetryLogger | None = None
     if telemetry_config.get("enabled", True):
@@ -423,8 +494,17 @@ def main() -> None:
     query_id = uuid.uuid4().hex
     search_started = time.perf_counter()
     results = search_local_knowledge(query, config)
-    decision = make_decision(query, results, mode, config=config)
+    decision = make_decision(query, results, mode, config=config, autonomy_profile=autonomy_profile)
     latency_ms = int((time.perf_counter() - search_started) * 1000)
+
+    if autonomy_store is not None:
+        with contextlib.suppress(Exception):
+            autonomy_store.record_decision(
+                auto_approved=not decision.should_flag_for_intake,
+                flagged=decision.should_flag_for_intake,
+                blocked=decision.action == "block",
+                domains=decision.autonomy_domains or decision.aligned_domains,
+            )
 
     response_parts: list[str] = []
     if decision.context:
@@ -448,14 +528,14 @@ def main() -> None:
             output["permissionDecisionReason"] = "cache_only mode: local knowledge available"
         if decision.intake_payload:
             output["intakeFlagPayload"] = decision.intake_payload.to_dict()
+        if decision.delta_reasoning:
+            output["intakeDecisionRationale"] = decision.delta_reasoning
         return output
 
     if decision.action == "block":
-        response = {"hookSpecificOutput": _build_hook_output("deny")}
-        print(json.dumps(response))
+        {"hookSpecificOutput": _build_hook_output("deny")}
     elif decision.action == "augment" or decision.should_flag_for_intake:
-        response = {"hookSpecificOutput": _build_hook_output("allow")}
-        print(json.dumps(response))
+        {"hookSpecificOutput": _build_hook_output("allow")}
 
     emit_telemetry_event(
         telemetry_logger,

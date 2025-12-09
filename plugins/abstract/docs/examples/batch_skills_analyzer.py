@@ -30,23 +30,16 @@ def generate_batch_report(skills_dir: Path, output_dir: Path) -> None:
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Analyzing skills in: {skills_dir}")
-    print(f"Output directory: {output_dir}")
-    print("-" * 50)
-
     # Initialize analyzers
     auditor = SkillsAuditor(skills_dir)
     token_tracker = TokenUsageTracker(skills_dir)
     compliance_checker = ComplianceChecker(skills_dir)
 
     # Run all analyses
-    print("1. Running audit...")
     audit_results = auditor.audit_skills()
 
-    print("2. Tracking token usage...")
     token_stats = token_tracker.get_usage_statistics()
 
-    print("3. Checking compliance...")
     compliance_results = compliance_checker.check_compliance()
 
     # Prepare summary
@@ -82,29 +75,17 @@ def generate_batch_report(skills_dir: Path, output_dir: Path) -> None:
 
     # Generate markdown summary
     md_content = generate_markdown_summary(
-        summary, compliance_results.get("issues", [])
+        summary,
+        compliance_results.get("issues", []),
     )
     summary_file = output_dir / "README.md"
     with open(summary_file, "w") as f:
         f.write(md_content)
 
     # Print results
-    print("\nAnalysis Complete!")
-    print("=" * 50)
-    print(f"Total skills analyzed: {summary['total_skills']}")
-    print(f"Average quality score: {summary['average_score']:.1f}/100")
-    print(f"Total tokens: {summary['total_tokens']:,}")
-    print(f"Well-structured skills: {summary['well_structured_skills']}")
-    print(f"Skills needing improvement: {summary['skills_needing_improvement']}")
-    print("\nToken Efficiency:")
-    print(f"  Optimal usage: {summary['token_efficiency']['optimal_usage']}")
-    print(f"  Over limit: {summary['token_efficiency']['over_limit']}")
-    print(f"  Average tokens: {summary['token_efficiency']['average_tokens']:,}")
 
     if summary["compliance_issues"] > 0:
-        print(f"\nCompliance Issues: {summary['compliance_issues']}")
-
-    print(f"\nReports saved to: {output_dir}")
+        pass
 
 
 def generate_markdown_summary(summary: dict[str, Any], issues: list[str]) -> str:
@@ -165,16 +146,16 @@ def generate_markdown_summary(summary: dict[str, Any], issues: list[str]) -> str
             "- `skills_analysis_report.json` - Complete analysis data",
             "- Individual skill details available in the JSON report",
             "",
-        ]
+        ],
     )
 
     return "\n".join(lines)
 
 
-def main():
+def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Batch analyze skills and generate comprehensive reports"
+        description="Batch analyze skills and generate comprehensive reports",
     )
     parser.add_argument(
         "--skills-dir",
@@ -192,13 +173,11 @@ def main():
     args = parser.parse_args()
 
     if not Path(args.skills_dir).exists():
-        print(f"Error: Skills directory not found: {args.skills_dir}", file=sys.stderr)
         sys.exit(1)
 
     try:
         generate_batch_report(args.skills_dir, args.output_dir)
-    except Exception as e:
-        print(f"Error during analysis: {e}", file=sys.stderr)
+    except Exception:
         sys.exit(1)
 
 

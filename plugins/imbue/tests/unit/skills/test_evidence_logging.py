@@ -4,7 +4,6 @@ This module tests the evidence capture and reproducibility functionality,
 following TDD/BDD principles and testing all evidence management scenarios.
 """
 
-# ruff: noqa: S101
 import json
 from datetime import UTC, datetime
 
@@ -20,7 +19,7 @@ class TestEvidenceLoggingSkill:
     """
 
     @pytest.fixture
-    def mock_evidence_logging_skill_content(self):
+    def mock_evidence_logging_skill_content(self) -> str:
         """Mock evidence-logging skill content."""
         return """---
 name: evidence-logging
@@ -121,7 +120,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_log_initialization(self, sample_evidence_session):
+    def test_evidence_log_initialization(self, sample_evidence_session) -> None:
         """Scenario: Evidence log initializes with session context
         Given starting a review workflow
         When initializing evidence logging
@@ -146,7 +145,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_captures_command_output(self, sample_evidence_session):
+    def test_evidence_captures_command_output(self, sample_evidence_session) -> None:
         """Scenario: Evidence logging captures command outputs
         Given review commands being executed
         When logging evidence
@@ -180,7 +179,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_sequential_identifiers(self, sample_evidence_session):
+    def test_evidence_sequential_identifiers(self, sample_evidence_session) -> None:
         """Scenario: Evidence logging assigns sequential identifiers
         Given multiple commands being logged
         When capturing evidence
@@ -218,7 +217,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_supports_citations(self, sample_evidence_session):
+    def test_evidence_supports_citations(self, sample_evidence_session) -> None:
         """Scenario: Evidence log supports web citations
         Given web.run citations in review
         When logging evidence
@@ -251,7 +250,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_exports_json_format(self, sample_evidence_session):
+    def test_evidence_exports_json_format(self, sample_evidence_session) -> None:
         """Scenario: Evidence log exports in structured JSON format
         Given a complete evidence log
         When exporting to JSON
@@ -266,7 +265,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "output": "diff content",
                 "timestamp": "2024-12-04T10:00:00Z",
                 "working_directory": "/test/repo",
-            }
+            },
         )
         sample_evidence_session["citations"].append(
             {
@@ -275,7 +274,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "title": "Example",
                 "accessed": "2024-12-04T10:00:00Z",
                 "relevant_snippet": "snippet",
-            }
+            },
         )
 
         # Act - export to JSON
@@ -293,7 +292,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_exports_markdown_format(self, sample_evidence_session):
+    def test_evidence_exports_markdown_format(self, sample_evidence_session) -> None:
         """Scenario: Evidence log exports in human-readable Markdown
         Given a complete evidence log
         When exporting to Markdown
@@ -308,7 +307,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "output": "On branch main\nnothing to commit",
                 "timestamp": "2024-12-04T10:00:00Z",
                 "working_directory": "/test/repo",
-            }
+            },
         )
 
         # Act - generate markdown
@@ -334,7 +333,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                     evidence["output"],
                     "```",
                     "",
-                ]
+                ],
             )
 
         markdown_output = "\n".join(markdown_lines)
@@ -348,7 +347,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_exports_csv_format(self, sample_evidence_session):
+    def test_evidence_exports_csv_format(self, sample_evidence_session) -> None:
         """Scenario: Evidence log exports in CSV format for analysis
         Given a complete evidence log
         When exporting to CSV
@@ -372,7 +371,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                     "timestamp": "2024-12-04T10:01:00Z",
                     "working_directory": "/test/repo",
                 },
-            ]
+            ],
         )
 
         # Act - generate CSV
@@ -393,7 +392,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_handles_large_outputs(self, sample_evidence_session):
+    def test_evidence_handles_large_outputs(self, sample_evidence_session) -> None:
         """Scenario: Evidence logging handles large command outputs
         Given commands with substantial output
         When logging evidence
@@ -432,7 +431,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evidence_references_in_findings(self, sample_evidence_session):
+    def test_evidence_references_in_findings(self, sample_evidence_session) -> None:
         """Scenario: Evidence references maintain integrity
         Given review findings referencing evidence
         When creating findings
@@ -456,7 +455,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                     "timestamp": "2024-12-04T10:01:00Z",
                     "working_directory": "/test/repo",
                 },
-            ]
+            ],
         )
 
         # Act - create findings with evidence references
@@ -492,7 +491,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         assert "E2" in findings[1]["evidence_refs"]
 
     @pytest.mark.unit
-    def test_evidence_error_handling(self, sample_evidence_session):
+    def test_evidence_error_handling(self, sample_evidence_session) -> None:
         """Scenario: Evidence logging handles errors gracefully
         Given command execution failures
         When logging evidence
@@ -535,7 +534,9 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         )
 
     @pytest.mark.unit
-    def test_evidence_file_output_persistence(self, sample_evidence_session, tmp_path):
+    def test_evidence_file_output_persistence(
+        self, sample_evidence_session, tmp_path
+    ) -> None:
         """Scenario: Evidence log persists to file system
         Given evidence logging session
         When saving evidence log
@@ -551,7 +552,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "output": "abc123 Latest commit message",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "working_directory": sample_evidence_session["context"]["repository"],
-            }
+            },
         )
 
         # Act - write evidence to file
@@ -568,7 +569,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         assert loaded_evidence["evidence"][0]["id"] == "E1"
 
     @pytest.mark.unit
-    def test_evidence_session_uniqueness(self):
+    def test_evidence_session_uniqueness(self) -> None:
         """Scenario: Evidence logging generates unique session IDs
         Given multiple evidence logging sessions
         When creating new sessions
@@ -594,7 +595,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             assert "T" in session_id  # Contains timestamp
 
     @pytest.mark.performance
-    def test_evidence_logging_performance(self, sample_evidence_session):
+    def test_evidence_logging_performance(self, sample_evidence_session) -> None:
         """Scenario: Evidence logging performs efficiently with large datasets
         Given many evidence items to log
         When processing evidence
@@ -613,7 +614,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                     "output": f"output-{i}",
                     "timestamp": datetime.now(UTC).isoformat(),
                     "working_directory": "/test/repo",
-                }
+                },
             )
 
         # Act - measure performance

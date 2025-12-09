@@ -1,5 +1,4 @@
-"""
-Unit tests for the bug review skill.
+"""Unit tests for the bug review skill.
 
 Tests systematic bug detection, pattern matching,
 and fix recommendation generation.
@@ -19,7 +18,7 @@ from pensive.skills.bug_review import BugReviewSkill
 class TestBugReviewSkill:
     """Test suite for BugReviewSkill business logic."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = BugReviewSkill()
         self.mock_context = Mock()
@@ -27,7 +26,7 @@ class TestBugReviewSkill:
         self.mock_context.working_dir = Path("/tmp/test_repo")
 
     @pytest.mark.unit
-    def test_detects_null_pointer_dereference(self, mock_skill_context):
+    def test_detects_null_pointer_dereference(self, mock_skill_context) -> None:
         """Given potential null pointer usage, when skill analyzes, then flags NPD risks."""
         # Arrange
         code_with_npd = """
@@ -64,7 +63,7 @@ class TestBugReviewSkill:
         assert len(npd_bugs) >= 2  # Should detect both NPD instances
 
     @pytest.mark.unit
-    def test_detects_race_conditions(self, mock_skill_context):
+    def test_detects_race_conditions(self, mock_skill_context) -> None:
         """Given concurrent code patterns, when skill analyzes, then flags race condition risks."""
         # Arrange
         race_condition_code = """
@@ -100,7 +99,8 @@ class TestBugReviewSkill:
 
         # Act
         race_bugs = self.skill.detect_race_conditions(
-            mock_skill_context, "bank_account.py"
+            mock_skill_context,
+            "bank_account.py",
         )
 
         # Assert
@@ -109,7 +109,7 @@ class TestBugReviewSkill:
         assert any("thread safety" in bug["issue"].lower() for bug in race_bugs)
 
     @pytest.mark.unit
-    def test_detects_memory_leaks(self, mock_skill_context):
+    def test_detects_memory_leaks(self, mock_skill_context) -> None:
         """Given memory management code, when skill analyzes, then flags memory leak risks."""
         # Arrange
         memory_leak_code = """
@@ -161,7 +161,7 @@ class TestBugReviewSkill:
         assert any("event listener" in leak_type for leak_type in leak_types)
 
     @pytest.mark.unit
-    def test_detects_sql_injection_vulnerabilities(self, mock_skill_context):
+    def test_detects_sql_injection_vulnerabilities(self, mock_skill_context) -> None:
         """Given database queries, when skill analyzes, then flags SQL injection risks."""
         # Arrange
         sql_injection_code = """
@@ -194,7 +194,8 @@ class TestBugReviewSkill:
 
         # Act
         sql_bugs = self.skill.detect_sql_injection(
-            mock_skill_context, "user_service.py"
+            mock_skill_context,
+            "user_service.py",
         )
 
         # Assert
@@ -203,7 +204,7 @@ class TestBugReviewSkill:
         assert len(vuln_bugs) >= 2
 
     @pytest.mark.unit
-    def test_detects_off_by_one_errors(self, mock_skill_context):
+    def test_detects_off_by_one_errors(self, mock_skill_context) -> None:
         """Given loop and array access code, when skill analyzes, then flags off-by-one risks."""
         # Arrange
         off_by_one_code = """
@@ -242,7 +243,8 @@ class TestBugReviewSkill:
 
         # Act
         off_by_one_bugs = self.skill.detect_off_by_one_errors(
-            mock_skill_context, "arrays.js"
+            mock_skill_context,
+            "arrays.js",
         )
 
         # Assert
@@ -250,7 +252,7 @@ class TestBugReviewSkill:
         assert any("off-by-one" in bug["issue"].lower() for bug in off_by_one_bugs)
 
     @pytest.mark.unit
-    def test_detects_integer_overflow(self, mock_skill_context):
+    def test_detects_integer_overflow(self, mock_skill_context) -> None:
         """Given numeric operations, when skill analyzes, then flags overflow risks."""
         # Arrange
         overflow_code = """
@@ -283,7 +285,8 @@ class TestBugReviewSkill:
 
         # Act
         overflow_bugs = self.skill.detect_integer_overflow(
-            mock_skill_context, "calculator.py"
+            mock_skill_context,
+            "calculator.py",
         )
 
         # Assert
@@ -291,7 +294,7 @@ class TestBugReviewSkill:
         assert any("overflow" in bug["issue"].lower() for bug in overflow_bugs)
 
     @pytest.mark.unit
-    def test_detects_resource_leaks(self, mock_skill_context):
+    def test_detects_resource_leaks(self, mock_skill_context) -> None:
         """Given resource management code, when skill analyzes, then flags resource leaks."""
         # Arrange
         resource_leak_code = """
@@ -332,7 +335,8 @@ class TestBugReviewSkill:
 
         # Act
         resource_bugs = self.skill.detect_resource_leaks(
-            mock_skill_context, "resource_manager.py"
+            mock_skill_context,
+            "resource_manager.py",
         )
 
         # Assert
@@ -346,7 +350,7 @@ class TestBugReviewSkill:
         )
 
     @pytest.mark.unit
-    def test_detects_logical_errors(self, mock_skill_context):
+    def test_detects_logical_errors(self, mock_skill_context) -> None:
         """Given conditional logic, when skill analyzes, then flags logical fallacies."""
         # Arrange
         logical_error_code = """
@@ -389,7 +393,8 @@ class TestBugReviewSkill:
 
         # Act
         logic_bugs = self.skill.detect_logical_errors(
-            mock_skill_context, "validator.py"
+            mock_skill_context,
+            "validator.py",
         )
 
         # Assert
@@ -397,7 +402,7 @@ class TestBugReviewSkill:
         assert any("logic error" in bug["issue"].lower() for bug in logic_bugs)
 
     @pytest.mark.unit
-    def test_detects_type_confusion_bugs(self, mock_skill_context):
+    def test_detects_type_confusion_bugs(self, mock_skill_context) -> None:
         """Given dynamic typing code, when skill analyzes, then flags type confusion risks."""
         # Arrange
         type_confusion_code = """
@@ -449,7 +454,7 @@ class TestBugReviewSkill:
         assert any("type" in bug["issue"].lower() for bug in type_bugs)
 
     @pytest.mark.unit
-    def test_detects_timing_attacks(self, mock_skill_context):
+    def test_detects_timing_attacks(self, mock_skill_context) -> None:
         """Given authentication/authorization code, when skill analyzes, then flags timing attack risks."""
         # Arrange
         timing_attack_code = """
@@ -497,7 +502,7 @@ class TestBugReviewSkill:
         assert any("timing attack" in bug["issue"].lower() for bug in timing_bugs)
 
     @pytest.mark.unit
-    def test_categorizes_bug_severity(self):
+    def test_categorizes_bug_severity(self) -> None:
         """Given various bugs, when skill categorizes, then assigns appropriate severity."""
         # Arrange
         bugs = [
@@ -526,7 +531,7 @@ class TestBugReviewSkill:
         ]  # Off-by-one should be medium/low
 
     @pytest.mark.unit
-    def test_generates_fix_recommendations(self, mock_skill_context):
+    def test_generates_fix_recommendations(self, mock_skill_context) -> None:
         """Given detected bugs, when skill generates fixes, then provides actionable solutions."""
         # Arrange
         bug_findings = [
@@ -557,7 +562,7 @@ class TestBugReviewSkill:
             assert len(rec["example"]) > 0
 
     @pytest.mark.unit
-    def test_analyzes_bug_patterns(self, mock_skill_context):
+    def test_analyzes_bug_patterns(self, mock_skill_context) -> None:
         """Given bug history, when skill analyzes patterns, then identifies common bug types."""
         # Arrange
         bug_history = [
@@ -583,7 +588,7 @@ class TestBugReviewSkill:
         assert common_bugs[0]["count"] == 3
 
     @pytest.mark.unit
-    def test_validates_bug_fixes(self, mock_skill_context):
+    def test_validates_bug_fixes(self, mock_skill_context) -> None:
         """Given proposed bug fixes, when skill validates, then checks for correctness."""
         # Arrange
         bug_fixes = [
@@ -610,7 +615,7 @@ class TestBugReviewSkill:
             assert "remaining_risks" in result
 
     @pytest.mark.unit
-    def test_handles_false_positives(self, mock_skill_context):
+    def test_handles_false_positives(self, mock_skill_context) -> None:
         """Given benign code patterns, when skill analyzes, then avoids false positives."""
         # Arrange
         benign_code = """
@@ -642,7 +647,8 @@ class TestBugReviewSkill:
 
         # Act
         false_positives = self.skill.detect_false_positives(
-            mock_skill_context, "safe_code.py"
+            mock_skill_context,
+            "safe_code.py",
         )
 
         # Assert
@@ -653,7 +659,7 @@ class TestBugReviewSkill:
             assert "reason" in fp
 
     @pytest.mark.unit
-    def test_creates_bug_summary_report(self, sample_findings):
+    def test_creates_bug_summary_report(self, sample_findings) -> None:
         """Given comprehensive bug analysis, when skill creates report, then generates structured summary."""
         # Arrange
         bug_analysis = {

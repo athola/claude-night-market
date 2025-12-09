@@ -10,8 +10,8 @@ __description__ = (
 from .caching import CacheManager, SpecKitCache, cached, get_cache
 
 __all__ = [
-    "SpecKitCache",
-    "get_cache",
-    "cached",
     "CacheManager",
+    "SpecKitCache",
+    "cached",
+    "get_cache",
 ]

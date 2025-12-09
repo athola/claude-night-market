@@ -1,5 +1,4 @@
-"""
-Unit tests for language detection functionality.
+"""Unit tests for language detection functionality.
 
 Tests code language identification, feature detection,
 and pattern recognition capabilities.
@@ -16,12 +15,12 @@ from parseltongue.skills.language_detection import LanguageDetectionSkill
 class TestLanguageDetectionSkill:
     """Test suite for LanguageDetectionSkill."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = LanguageDetectionSkill()
 
     @pytest.mark.unit
-    def test_detects_python_language(self, sample_python_code):
+    def test_detects_python_language(self, sample_python_code) -> None:
         """Given Python code, when skill analyzes, then identifies Python correctly."""
         # Arrange
         code = sample_python_code
@@ -38,7 +37,7 @@ class TestLanguageDetectionSkill:
         assert "async_functions" in result["features"]
 
     @pytest.mark.unit
-    def test_detects_javascript_language(self, sample_javascript_code):
+    def test_detects_javascript_language(self, sample_javascript_code) -> None:
         """Given JavaScript code, when skill analyzes, then identifies JavaScript correctly."""
         # Arrange
         code = sample_javascript_code
@@ -54,7 +53,7 @@ class TestLanguageDetectionSkill:
         assert "prototype" in result["features"]
 
     @pytest.mark.unit
-    def test_detects_typescript_language(self, sample_typescript_code):
+    def test_detects_typescript_language(self, sample_typescript_code) -> None:
         """Given TypeScript code, when skill analyzes, then identifies TypeScript correctly."""
         # Arrange
         code = sample_typescript_code
@@ -70,7 +69,7 @@ class TestLanguageDetectionSkill:
         assert "generics" in result["features"]
 
     @pytest.mark.unit
-    def test_detects_rust_language(self, sample_rust_code):
+    def test_detects_rust_language(self, sample_rust_code) -> None:
         """Given Rust code, when skill analyzes, then identifies Rust correctly."""
         # Arrange
         code = sample_rust_code
@@ -87,7 +86,7 @@ class TestLanguageDetectionSkill:
         assert "error_handling" in result["features"]
 
     @pytest.mark.unit
-    def test_identifies_python_features(self, sample_python_code):
+    def test_identifies_python_features(self, sample_python_code) -> None:
         """Given Python code, when skill analyzes, then identifies Python-specific features."""
         # Arrange
         code = sample_python_code
@@ -112,7 +111,7 @@ class TestLanguageDetectionSkill:
         assert "UserService" in features["class_names"]
 
     @pytest.mark.unit
-    def test_identifies_javascript_features(self, sample_javascript_code):
+    def test_identifies_javascript_features(self, sample_javascript_code) -> None:
         """Given JavaScript code, when skill analyzes, then identifies JavaScript-specific features."""
         # Arrange
         code = sample_javascript_code
@@ -134,7 +133,7 @@ class TestLanguageDetectionSkill:
         assert features["data_structures"]["Map"] >= 1
 
     @pytest.mark.unit
-    def test_identifies_typescript_features(self, sample_typescript_code):
+    def test_identifies_typescript_features(self, sample_typescript_code) -> None:
         """Given TypeScript code, when skill analyzes, then identifies TypeScript-specific features."""
         # Arrange
         code = sample_typescript_code
@@ -156,7 +155,7 @@ class TestLanguageDetectionSkill:
         assert features["optional_properties"] >= 1
 
     @pytest.mark.unit
-    def test_identifies_rust_features(self, sample_rust_code):
+    def test_identifies_rust_features(self, sample_rust_code) -> None:
         """Given Rust code, when skill analyzes, then identifies Rust-specific features."""
         # Arrange
         code = sample_rust_code
@@ -182,7 +181,7 @@ class TestLanguageDetectionSkill:
         assert features["concurrency"]["Mutex"] >= 1
 
     @pytest.mark.unit
-    def test_detects_python_version_features(self, language_samples):
+    def test_detects_python_version_features(self, language_samples) -> None:
         """Given Python code, when skill analyzes, then detects Python version features."""
         # Arrange
         modern_python = """
@@ -210,7 +209,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert "future_import" in result["features"]
 
     @pytest.mark.unit
-    def test_detects_javascript_es_version(self, sample_javascript_code):
+    def test_detects_javascript_es_version(self, sample_javascript_code) -> None:
         """Given JavaScript code, when skill analyzes, then detects ES version features."""
         # Arrange
         code = sample_javascript_code
@@ -225,7 +224,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert "arrow_functions" in result["features"]
 
     @pytest.mark.unit
-    def test_detects_typescript_version(self, sample_typescript_code):
+    def test_detects_typescript_version(self, sample_typescript_code) -> None:
         """Given TypeScript code, when skill analyzes, then detects TypeScript version features."""
         # Arrange
         code = sample_typescript_code
@@ -242,7 +241,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert "generic_classes" in result["features"]
 
     @pytest.mark.unit
-    def test_detects_rust_edition(self, sample_rust_code):
+    def test_detects_rust_edition(self, sample_rust_code) -> None:
         """Given Rust code, when skill analyzes, then detects Rust edition features."""
         # Arrange
         code = sample_rust_code
@@ -257,7 +256,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert "serde_derive" in result["features"]
 
     @pytest.mark.unit
-    def test_detects_frameworks_and_libraries(self, language_samples):
+    def test_detects_frameworks_and_libraries(self, language_samples) -> None:
         """Given code, when skill analyzes, then detects frameworks and libraries."""
         # Arrange
         django_code = """
@@ -282,7 +281,7 @@ class UserView(ListView):
         assert result["frameworks"]["django"]["components"]["views"]
 
     @pytest.mark.unit
-    def test_detects_design_patterns(self, sample_python_code):
+    def test_detects_design_patterns(self, sample_python_code) -> None:
         """Given code, when skill analyzes, then identifies design patterns."""
         # Arrange
         code = sample_python_code
@@ -300,7 +299,7 @@ class UserView(ListView):
         assert any("repository" in pattern.lower() for pattern in patterns)
 
     @pytest.mark.unit
-    def test_handles_mixed_language_files(self, language_samples):
+    def test_handles_mixed_language_files(self, language_samples) -> None:
         """Given mixed language content, when skill analyzes, then handles appropriately."""
         # Arrange
         mixed_content = """
@@ -325,7 +324,7 @@ def python_function():
         assert len(result["detected_languages"]) >= 1
 
     @pytest.mark.unit
-    def test_detects_code_complexity(self, language_samples):
+    def test_detects_code_complexity(self, language_samples) -> None:
         """Given code, when skill analyzes, then calculates complexity metrics."""
         # Arrange
         complex_code = """
@@ -359,7 +358,7 @@ def complex_function(items):
         assert "suggestions" in result
 
     @pytest.mark.unit
-    def test_handles_empty_or_invalid_code(self):
+    def test_handles_empty_or_invalid_code(self) -> None:
         """Given empty or invalid code, when skill analyzes, then handles gracefully."""
         # Arrange
         test_cases = [
@@ -379,7 +378,7 @@ def complex_function(items):
             assert "error" in result or "features" in result
 
     @pytest.mark.unit
-    def test_detects_language_specific_keywords(self, language_samples):
+    def test_detects_language_specific_keywords(self, language_samples) -> None:
         """Given code, when skill analyzes, then identifies language-specific keywords."""
         # Arrange & Act
         python_result = self.skill.analyze_features(sample_python_code, "python")
@@ -399,7 +398,7 @@ def complex_function(items):
         assert "async" in rust_keywords
 
     @pytest.mark.unit
-    def test_identifies_imports_and_dependencies(self, language_samples):
+    def test_identifies_imports_and_dependencies(self, language_samples) -> None:
         """Given code, when skill analyzes, then identifies imports and dependencies."""
         # Arrange
         python_code = """
@@ -426,7 +425,7 @@ from .internal_module import helper
         assert len(dependencies["local"]) >= 1
 
     @pytest.mark.unit
-    def test_calculates_language_confidence_scores(self, language_samples):
+    def test_calculates_language_confidence_scores(self, language_samples) -> None:
         """Given code samples, when skill analyzes, then provides accurate confidence scores."""
         # Arrange & Act
         python_result = self.skill.detect_language(sample_python_code)
@@ -444,7 +443,7 @@ from .internal_module import helper
             assert len(result["reasoning"]) > 0
 
     @pytest.mark.unit
-    def test_handles_minimal_code_samples(self):
+    def test_handles_minimal_code_samples(self) -> None:
         """Given minimal code samples, when skill analyzes, then still identifies language."""
         # Arrange
         minimal_samples = {
@@ -463,7 +462,7 @@ from .internal_module import helper
             assert result["confidence"] > 0.5
 
     @pytest.mark.unit
-    def test_provides_detailed_feature_analysis(self, language_samples):
+    def test_provides_detailed_feature_analysis(self, language_samples) -> None:
         """Given code, when skill analyzes, then provides comprehensive feature breakdown."""
         # Arrange
         code = language_samples["python"]
@@ -486,7 +485,7 @@ from .internal_module import helper
         assert features["classes"] >= 1
 
     @pytest.mark.unit
-    def test_detects_async_patterns(self, sample_async_code):
+    def test_detects_async_patterns(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies async patterns."""
         # Arrange
         code = sample_async_code

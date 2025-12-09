@@ -7,8 +7,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ..frontmatter import FrontmatterProcessor
-from ..tokens import estimate_tokens
+from src.abstract.frontmatter import FrontmatterProcessor
+from src.abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class TokenUsageTracker:
         skills_dir: Path,
         optimal_limit: int | None = None,
         max_limit: int | None = None,
-    ):
+    ) -> None:
         self.skills_dir = skills_dir
         self.skills_root = skills_dir  # Add alias for compatibility
         self.optimal_limit = (
@@ -97,7 +97,7 @@ class TokenUsageTracker:
                 "total_tokens": total_tokens,
                 "average_tokens": total_tokens // len(skills) if skills else 0,
                 "skills_needing_modularization": len(
-                    [s for s in skills if s.get("needs_modularization")]
+                    [s for s in skills if s.get("needs_modularization")],
                 ),
             },
         }
@@ -121,7 +121,7 @@ class TokenUsageTracker:
                         "current_tokens": tokens,
                         "target_tokens": self.optimal_limit,
                         "potential_savings": tokens - self.optimal_limit,
-                    }
+                    },
                 )
 
         avg_efficiency = (
@@ -153,7 +153,7 @@ class TokenUsageTracker:
                         "current_tokens": skill.get("total_tokens", 0),
                         "suggested_modules": suggested_modules[:5],
                         "reason": "Skill exceeds optimal token limit",
-                    }
+                    },
                 )
 
         return suggestions
@@ -177,7 +177,7 @@ class TokenUsageTracker:
                 [
                     f"- **Total Tokens:** {summary.get('total_tokens', 0):,}",
                     f"- **Average Tokens:** {summary.get('average_tokens', 0):,}",
-                ]
+                ],
             )
 
         lines.append("")
@@ -204,7 +204,7 @@ class TokenUsageTracker:
                         "type": "token_reduction",
                         "potential_savings": tokens - self.optimal_limit,
                         "action": "Consider modularizing or compressing content",
-                    }
+                    },
                 )
 
         return opportunities
@@ -225,7 +225,7 @@ class TokenUsageTracker:
                     "direct_tokens": direct_tokens,
                     "dependency_tokens": 0,
                     "total_impact": direct_tokens,
-                }
+                },
             )
 
         return {
@@ -248,7 +248,7 @@ class TokenUsageTracker:
                     "name": name,
                     "total_tokens": analysis.get("total_tokens", 0),
                     "sections": len(analysis.get("sections", [])),
-                }
+                },
             )
 
         # Sort by token count
@@ -282,13 +282,13 @@ class TokenUsageTracker:
         if exceeded:
             overage = total_tokens - budget
             recommendations.append(
-                f"Budget exceeded by {overage} tokens. Consider optimization."
+                f"Budget exceeded by {overage} tokens. Consider optimization.",
             )
             # Find skills to optimize
             for skill in all_analysis.get("skills", []):
                 if skill.get("total_tokens", 0) > self.optimal_limit:
                     recommendations.append(
-                        f"Optimize {skill.get('name')} to reduce tokens"
+                        f"Optimize {skill.get('name')} to reduce tokens",
                     )
 
         return {
@@ -298,7 +298,7 @@ class TokenUsageTracker:
             "recommendations": recommendations,
         }
 
-    def track_usage(self, skill_path: Path = None):
+    def track_usage(self, skill_path: Path | None = None):
         """Track token usage for a single skill."""
         if skill_path is None:
             # Find first skill if none specified
@@ -311,20 +311,22 @@ class TokenUsageTracker:
             skill_path = skill_path / "SKILL.md"
 
         if not skill_path.exists():
-            raise FileNotFoundError(f"Skill file not found: {skill_path}")
+            msg = f"Skill file not found: {skill_path}"
+            raise FileNotFoundError(msg)
 
         try:
             with open(skill_path, encoding="utf-8") as f:
                 content = f.read()
         except Exception as e:
-            raise OSError(f"Error reading skill file {skill_path}: {e}") from e
+            msg = f"Error reading skill file {skill_path}: {e}"
+            raise OSError(msg) from e
 
         # Calculate tokens
         total_tokens = estimate_tokens(content)
         frontmatter_tokens = self._calculate_frontmatter_tokens(content)
         content_tokens = total_tokens - frontmatter_tokens
 
-        entry = {
+        return {
             "skill_name": skill_path.parent.name,
             "file_path": str(skill_path),
             "token_count": total_tokens,
@@ -332,8 +334,6 @@ class TokenUsageTracker:
             "content_tokens": content_tokens,
             "timestamp": datetime.now(),
         }
-
-        return entry
 
     def get_usage_statistics(self):
         """Get comprehensive usage statistics."""
@@ -401,7 +401,7 @@ class TokenUsageTracker:
 
         return "\n".join(lines)
 
-    def optimize_suggestions(self, skill_name: str = None):
+    def optimize_suggestions(self, skill_name: str | None = None):
         """Generate optimization suggestions for skills."""
         if skill_name:
             # Single skill suggestions
@@ -418,29 +418,27 @@ class TokenUsageTracker:
             total_tokens = estimate_tokens(content)
             if total_tokens > self.optimal_limit:
                 return ["Reduce content size for better performance"]
-            elif total_tokens > self.max_limit:
+            if total_tokens > self.max_limit:
                 return ["CRITICAL: Skill exceeds maximum token limit"]
-            else:
-                return ["Token usage is optimal"]
-        else:
-            # General suggestions
-            stats = self.get_usage_statistics()
-            suggestions = []
+            return ["Token usage is optimal"]
+        # General suggestions
+        stats = self.get_usage_statistics()
+        suggestions = []
 
-            if stats["skills_over_limit"] > 0:
-                suggestions.append(
-                    f"{stats['skills_over_limit']} skills exceed optimal token limit"
-                )
+        if stats["skills_over_limit"] > 0:
+            suggestions.append(
+                f"{stats['skills_over_limit']} skills exceed optimal token limit",
+            )
 
-            if stats["average_tokens"] > self.optimal_limit:
-                suggestions.append(
-                    "Average token usage is high, consider content optimization"
-                )
+        if stats["average_tokens"] > self.optimal_limit:
+            suggestions.append(
+                "Average token usage is high, consider content optimization",
+            )
 
-            if not suggestions:
-                suggestions.append("Token usage is within optimal limits")
+        if not suggestions:
+            suggestions.append("Token usage is within optimal limits")
 
-            return suggestions
+        return suggestions
 
     def _calculate_frontmatter_tokens(self, content: str) -> int:
         """Calculate tokens used in frontmatter."""

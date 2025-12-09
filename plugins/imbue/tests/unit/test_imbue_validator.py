@@ -4,7 +4,6 @@ This module tests the core validation functionality of the imbue validator,
 following TDD/BDD principles and testing all business logic scenarios.
 """
 
-# ruff: noqa: S101
 import json
 from pathlib import Path
 from unittest.mock import patch
@@ -103,7 +102,7 @@ This skill doesn't do reviews.
         return plugin_root
 
     @pytest.mark.unit
-    def test_validator_initialization(self, mock_plugin_structure):
+    def test_validator_initialization(self, mock_plugin_structure) -> None:
         """Scenario: Validator initializes with plugin structure
         Given a valid plugin directory
         When initializing ImbueValidator
@@ -121,7 +120,7 @@ This skill doesn't do reviews.
         assert validator.plugin_config == mock_plugin_structure / "plugin.json"
 
     @pytest.mark.unit
-    def test_validator_initialization_with_nonexistent_directory(self):
+    def test_validator_initialization_with_nonexistent_directory(self) -> None:
         """Scenario: Validator handles non-existent directory gracefully
         Given a non-existent plugin directory
         When initializing ImbueValidator
@@ -138,7 +137,9 @@ This skill doesn't do reviews.
         assert len(validator.skill_files) == 0
 
     @pytest.mark.unit
-    def test_scan_review_workflows_finds_review_skills(self, mock_plugin_structure):
+    def test_scan_review_workflows_finds_review_skills(
+        self, mock_plugin_structure
+    ) -> None:
         """Scenario: Scan identifies all review workflow skills
         Given a plugin with review and non-review skills
         When scanning for review workflows
@@ -165,7 +166,9 @@ This skill doesn't do reviews.
         assert "other-skill" not in result["review_workflow_skills"]
 
     @pytest.mark.unit
-    def test_scan_review_workflows_detects_patterns(self, mock_plugin_structure):
+    def test_scan_review_workflows_detects_patterns(
+        self, mock_plugin_structure
+    ) -> None:
         """Scenario: Scan detects various review workflow patterns
         Given skills with different review-related keywords
         When scanning for review workflows
@@ -198,7 +201,9 @@ This provides workflow orchestration.
         assert len(result["review_workflow_skills"]) >= 3
 
     @pytest.mark.unit
-    def test_scan_review_workflows_loads_plugin_config(self, mock_plugin_structure):
+    def test_scan_review_workflows_loads_plugin_config(
+        self, mock_plugin_structure
+    ) -> None:
         """Scenario: Scan loads plugin configuration successfully
         Given a valid plugin.json file
         When scanning for review workflows
@@ -222,7 +227,9 @@ This provides workflow orchestration.
         assert len(result["issues"]) == 0
 
     @pytest.mark.unit
-    def test_scan_review_workflows_handles_invalid_json(self, mock_plugin_structure):
+    def test_scan_review_workflows_handles_invalid_json(
+        self, mock_plugin_structure
+    ) -> None:
         """Scenario: Scan handles invalid plugin.json gracefully
         Given an invalid plugin.json file
         When scanning for review workflows
@@ -245,8 +252,9 @@ This provides workflow orchestration.
 
     @pytest.mark.unit
     def test_validate_review_workflows_review_core_components(
-        self, mock_plugin_structure
-    ):
+        self,
+        mock_plugin_structure,
+    ) -> None:
         """Scenario: Validation checks review-core skill components
         Given a review-core skill missing components
         When validating review workflows
@@ -285,7 +293,9 @@ This skill has checklist but no deliverable section.
         assert any("Missing review components" in issue for issue in review_core_issues)
 
     @pytest.mark.unit
-    def test_validate_review_workflows_evidence_patterns(self, mock_plugin_structure):
+    def test_validate_review_workflows_evidence_patterns(
+        self, mock_plugin_structure
+    ) -> None:
         """Scenario: Validation checks for evidence logging patterns
         Given skills without evidence logging patterns
         When validating review workflows
@@ -321,8 +331,9 @@ This skill doesn't mention evidence or logging.
 
     @pytest.mark.unit
     def test_validate_review_workflows_excludes_review_core_from_evidence_check(
-        self, mock_plugin_structure
-    ):
+        self,
+        mock_plugin_structure,
+    ) -> None:
         """Scenario: Validation excludes review-core from evidence pattern requirement
         Given a review-core skill without evidence keywords
         When validating review workflows
@@ -358,7 +369,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert len(evidence_issues) == 0
 
     @pytest.mark.unit
-    def test_generate_report_includes_all_sections(self, mock_plugin_structure):
+    def test_generate_report_includes_all_sections(self, mock_plugin_structure) -> None:
         """Scenario: Report generation includes all required sections
         Given a plugin with various validation results
         When generating a report
@@ -383,7 +394,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "evidence-logging" in report
 
     @pytest.mark.unit
-    def test_generate_report_shows_issues(self, mock_plugin_structure):
+    def test_generate_report_shows_issues(self, mock_plugin_structure) -> None:
         """Scenario: Report displays validation issues
         Given validation with issues found
         When generating a report
@@ -410,7 +421,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "no-evidence: Should have evidence logging patterns" in report
 
     @pytest.mark.unit
-    def test_generate_report_success_message(self, mock_plugin_structure):
+    def test_generate_report_success_message(self, mock_plugin_structure) -> None:
         """Scenario: Report shows success when no issues found
         Given validation without issues
         When generating a report
@@ -436,7 +447,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "Issues Found" not in report
 
     @pytest.mark.unit
-    def test_pattern_matching_case_insensitive(self, mock_plugin_structure):
+    def test_pattern_matching_case_insensitive(self, mock_plugin_structure) -> None:
         """Scenario: Pattern matching is case insensitive
         Given skills with mixed case keywords
         When scanning for review workflows
@@ -468,7 +479,7 @@ Also includes EVIDENCE logging.
         assert "mixed-case" in result["review_workflow_skills"]
 
     @pytest.mark.unit
-    def test_empty_plugin_directory(self, tmp_path):
+    def test_empty_plugin_directory(self, tmp_path) -> None:
         """Scenario: Validation handles empty plugin directory
         Given an empty plugin directory
         When scanning for review workflows
@@ -491,7 +502,7 @@ Also includes EVIDENCE logging.
         assert len(result["issues"]) == 0
 
     @pytest.mark.unit
-    def test_missing_plugin_json(self, mock_plugin_structure):
+    def test_missing_plugin_json(self, mock_plugin_structure) -> None:
         """Scenario: Validation handles missing plugin.json
         Given a plugin directory without plugin.json
         When scanning for review workflows
@@ -523,7 +534,7 @@ class TestImbueValidatorIntegration:
     """
 
     @pytest.mark.integration
-    def test_real_plugin_validation(self, imbue_plugin_root):
+    def test_real_plugin_validation(self, imbue_plugin_root) -> None:
         """Scenario: Validate real imbue plugin structure
         Given the actual imbue plugin directory
         When running validation
@@ -549,7 +560,7 @@ class TestImbueValidatorIntegration:
         assert len(report) > 0
 
     @pytest.mark.integration
-    def test_file_permissions_handling(self, tmp_path):
+    def test_file_permissions_handling(self, tmp_path) -> None:
         """Scenario: Validation handles file permission issues
         Given files with permission restrictions
         When running validation
@@ -571,7 +582,9 @@ class TestImbueValidatorIntegration:
 
         # Mock file reading to simulate permission error
         with patch.object(
-            skill_file, "read_text", side_effect=PermissionError("Permission denied")
+            skill_file,
+            "read_text",
+            side_effect=PermissionError("Permission denied"),
         ):
             validator = ImbueValidator(plugin_root)
 
@@ -591,7 +604,7 @@ class TestImbueValidatorPerformance:
     """
 
     @pytest.mark.performance
-    def test_large_plugin_validation_performance(self, tmp_path):
+    def test_large_plugin_validation_performance(self, tmp_path) -> None:
         """Scenario: Validation performance with many skills
         Given a plugin with many skill files
         When running validation
@@ -633,7 +646,7 @@ This is test skill number {i} with review workflow patterns.
         assert len(result["skills_found"]) == 100
 
     @pytest.mark.performance
-    def test_memory_usage_large_plugin(self, tmp_path):
+    def test_memory_usage_large_plugin(self, tmp_path) -> None:
         """Scenario: Memory usage with large plugin structures
         Given a plugin with large skill files
         When running validation

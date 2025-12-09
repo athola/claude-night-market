@@ -44,8 +44,11 @@ except ImportError as err:
             parse_yaml_frontmatter as parse_frontmatter,
         )
     else:
-        raise ImportError(
+        msg = (
             "Cannot import abstract package. Run: uv pip install -e . from project root"
+        )
+        raise ImportError(
+            msg,
         ) from err
 
 # Re-export for backwards compatibility
@@ -74,12 +77,11 @@ def get_efficiency_grade(value: int, thresholds: dict) -> str:
     """
     if value <= thresholds.get("excellent", 1500):
         return "A"
-    elif value <= thresholds.get("good", 2000):
+    if value <= thresholds.get("good", 2000):
         return "B"
-    elif value <= thresholds.get("acceptable", 2500):
+    if value <= thresholds.get("acceptable", 2500):
         return "C"
-    else:
-        return "D"
+    return "D"
 
 
 def get_optimization_level(score: float) -> str:
@@ -94,9 +96,8 @@ def get_optimization_level(score: float) -> str:
     """
     if score >= EXCELLENT_THRESHOLD:
         return "excellent"
-    elif score >= GOOD_THRESHOLD:
+    if score >= GOOD_THRESHOLD:
         return "good"
-    elif score >= NEEDS_IMPROVEMENT_THRESHOLD:
+    if score >= NEEDS_IMPROVEMENT_THRESHOLD:
         return "needs improvement"
-    else:
-        return "poor"
+    return "poor"

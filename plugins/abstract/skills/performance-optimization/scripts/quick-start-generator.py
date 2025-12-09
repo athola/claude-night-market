@@ -19,7 +19,7 @@ import yaml
 class QuickStartGenerator:
     """Generates quick-start variants of skills with essential information only."""
 
-    def __init__(self, skill_path: str):
+    def __init__(self, skill_path: str) -> None:
         """Initialize quick start generator.
 
         Args:
@@ -37,7 +37,8 @@ class QuickStartGenerator:
             with open(self.skill_path, encoding="utf-8") as f:
                 return f.readlines()
         except FileNotFoundError as err:
-            raise FileNotFoundError(f"Skill file not found: {self.skill_path}") from err
+            msg = f"Skill file not found: {self.skill_path}"
+            raise FileNotFoundError(msg) from err
 
     def _parse_skill_content(self) -> tuple[dict, list[str]]:
         """Parse YAML frontmatter and content."""
@@ -99,7 +100,7 @@ class QuickStartGenerator:
         quick_start_lines.append("\n<!-- FULL_CONTENT_AVAILABLE -->\n")
         quick_start_lines.append(
             "<!-- Implementation details, examples, and workflows "
-            "available in full SKILL.md -->\n"
+            "available in full SKILL.md -->\n",
         )
 
         # Add optional quick implementation steps
@@ -115,13 +116,14 @@ class QuickStartGenerator:
         quick_frontmatter.update(
             {
                 "estimated_tokens": min(
-                    quick_frontmatter.get("estimated_tokens", 800), 300
+                    quick_frontmatter.get("estimated_tokens", 800),
+                    300,
                 ),
                 "complexity": quick_frontmatter.get("complexity", "intermediate"),
                 "description": (
                     f"{quick_frontmatter.get('description', '')} (Quick Start)"
                 ),
-            }
+            },
         )
 
         # Add tools only if they exist
@@ -169,7 +171,7 @@ class QuickStartGenerator:
             purpose_lines.append(f"{first_sentence}.\n")
         else:
             purpose_lines.append(
-                "Essential skill functionality for specific use cases.\n"
+                "Essential skill functionality for specific use cases.\n",
             )
 
         return purpose_lines
@@ -307,12 +309,13 @@ class QuickStartGenerator:
                 benefits_text = match.group(1).strip()
                 # Extract bullet points
                 bullets = re.findall(
-                    r"[*-]\s*\*\*(.*?)\*\*:\s*(.*?)(?=\n|$)", benefits_text
+                    r"[*-]\s*\*\*(.*?)\*\*:\s*(.*?)(?=\n|$)",
+                    benefits_text,
                 )
                 if bullets:
                     for benefit, desc in bullets[:3]:  # Limit to 3 benefits
                         benefits_lines.append(
-                            f"- **{benefit.strip()}**: {desc.strip()}\n"
+                            f"- **{benefit.strip()}**: {desc.strip()}\n",
                         )
                     return benefits_lines
 
@@ -323,7 +326,7 @@ class QuickStartGenerator:
                 "- **Performance Optimization**: Token usage analysis and "
                 "recommendations\n",
                 "- **Maintainability**: Clear structure for easier management\n",
-            ]
+            ],
         )
 
         return benefits_lines
@@ -359,12 +362,12 @@ class QuickStartGenerator:
                 "2. **Design**: Plan modular architecture based on single "
                 "responsibility\n",
                 "3. **Validate**: Run quality checks and compliance validation\n",
-            ]
+            ],
         )
 
         return impl_lines
 
-    def save_quick_start(self, output_path: str = None) -> str:
+    def save_quick_start(self, output_path: str | None = None) -> str:
         """Save quick-start variant."""
         if output_path is None:
             output_path = self.skill_dir / "QUICK_START.md"
@@ -381,11 +384,11 @@ def _process_batch_directory(batch_path: str, show_stats: bool) -> None:
     """Process all SKILL.md files in a directory."""
     batch_dir = Path(batch_path)
     if not batch_dir.exists():
-        raise FileNotFoundError(f"Directory not found: {batch_path}")
+        msg = f"Directory not found: {batch_path}"
+        raise FileNotFoundError(msg)
 
     skill_files = list(batch_dir.glob("**/SKILL.md"))
     if not skill_files:
-        print("No SKILL.md files found in directory", file=sys.stderr)
         sys.exit(1)
 
     generated_count = 0
@@ -403,44 +406,40 @@ def _process_batch_directory(batch_path: str, show_stats: bool) -> None:
             tokens_saved = (original_size - quick_size) // 4
             total_tokens_saved += tokens_saved
 
-            print(f"Generated: {output_path} (~{tokens_saved} tokens saved)")
-
-        except Exception as e:
-            print(f"Error processing {skill_file}: {e}", file=sys.stderr)
+        except Exception:
+            pass
 
     if show_stats:
-        print("\nGeneration Complete:")
-        print(f"  Files processed: {generated_count}")
-        print(f"  Total tokens saved: ~{total_tokens_saved:,}")
-        average_savings = total_tokens_saved // generated_count
-        print(f"  Average savings: ~{average_savings:,} tokens per skill")
+        total_tokens_saved // generated_count
 
 
 def _process_single_skill(
-    skill_path: str, output_path: str | None, show_stats: bool
+    skill_path: str,
+    output_path: str | None,
+    show_stats: bool,
 ) -> None:
     """Process a single skill file."""
     generator = QuickStartGenerator(skill_path)
     output = generator.save_quick_start(output_path)
-    print(f"Quick-start generated: {output}")
 
     if show_stats:
         original_size = Path(skill_path).stat().st_size
         quick_size = Path(output).stat().st_size
-        tokens_saved = (original_size - quick_size) // 4
-        print(f"Estimated tokens saved: ~{tokens_saved}")
+        (original_size - quick_size) // 4
 
 
-def main():
+def main() -> None:
     """Generate quick-start variants of skills."""
     parser = argparse.ArgumentParser(
-        description="Generate quick-start variants of skills"
+        description="Generate quick-start variants of skills",
     )
     parser.add_argument("skill_path", help="Path to skill file")
     parser.add_argument("--output", help="Output path for quick-start variant")
     parser.add_argument("--batch", help="Process all skills in directory")
     parser.add_argument(
-        "--stats", action="store_true", help="Show generation statistics"
+        "--stats",
+        action="store_true",
+        help="Show generation statistics",
     )
 
     args = parser.parse_args()
@@ -451,8 +450,7 @@ def main():
         else:
             _process_single_skill(args.skill_path, args.output, args.stats)
 
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+    except Exception:
         sys.exit(1)
 
 

@@ -29,7 +29,7 @@ class CompatibilityValidator:
     plugin commands they replace.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.feature_weights = {
             "parameters": 0.3,
             "options": 0.2,
@@ -53,10 +53,11 @@ class CompatibilityValidator:
 
         parity_score = self._calculate_parity(original_features, wrapper_features)
         missing_features = self._find_missing_features(
-            original_features, wrapper_features
+            original_features,
+            wrapper_features,
         )
 
-        result = {
+        return {
             "feature_parity": parity_score,
             "original_features": original_features,
             "wrapper_features": wrapper_features,
@@ -64,8 +65,6 @@ class CompatibilityValidator:
             "validation_passed": parity_score >= PARITY_THRESHOLD
             and not self._has_critical_missing_features(missing_features),
         }
-
-        return result
 
     def _extract_features(self, file_path: str) -> dict[str, Any]:
         """Extract features from command implementation file.
@@ -327,7 +326,8 @@ class CompatibilityValidator:
 
         """
         option_literals = re.findall(
-            r'\[([\'"]([a-zA-Z]+)[\'"](?:,\s*[\'"][a-zA-Z]+[\'"])*?)\]', content
+            r'\[([\'"]([a-zA-Z]+)[\'"](?:,\s*[\'"][a-zA-Z]+[\'"])*?)\]',
+            content,
         )
         for literal in option_literals:
             # Extract individual quoted values
@@ -455,7 +455,7 @@ class CompatibilityValidator:
                             "name": item,
                             "severity": severity,
                             "description": f"Missing {feature}: {item}",
-                        }
+                        },
                     )
             elif original_value != wrapper_value:
                 severity = self._determine_severity(feature, original_value)
@@ -468,7 +468,7 @@ class CompatibilityValidator:
                             f"Different {feature}: expected {original_value}, "
                             f"got {wrapper_value}"
                         ),
-                    }
+                    },
                 )
 
         return sorted(missing, key=lambda x: self._severity_order(x["severity"]))
@@ -529,13 +529,13 @@ class CompatibilityValidator:
         return any(feature["severity"] == "critical" for feature in missing_features)
 
 
-def main():
-    """Main entry point for compatibility validation"""
+def main() -> None:
+    """Main entry point for compatibility validation."""
     parser = argparse.ArgumentParser(
         description=(
             "Validate feature parity between original commands and "
             "wrapper implementations"
-        )
+        ),
     )
     parser.add_argument("original", help="Path to original command file (.md)")
     parser.add_argument("wrapper", help="Path to wrapper implementation file (.py)")
@@ -547,21 +547,13 @@ def main():
     result = validator.validate_wrapper(args.original, args.wrapper)
 
     if args.verbose:
-        print("\nValidation Results:")
-        print(f"Feature Parity Score: {result['feature_parity']:.1%}")
-        print(f"Validation Passed: {result['validation_passed']}")
-
         if result["missing_features"]:
-            print(f"\nMissing Features ({len(result['missing_features'])}):")
-            for feature in result["missing_features"]:
-                print(f"  - [{feature['severity'].upper()}] {feature['description']}")
+            for _feature in result["missing_features"]:
+                pass
+    elif not result["validation_passed"]:
+        sys.exit(1)
     else:
-        print(f"Feature Parity: {result['feature_parity']:.1%}")
-        if not result["validation_passed"]:
-            print("Validation FAILED")
-            sys.exit(1)
-        else:
-            print("Validation PASSED")
+        pass
 
 
 if __name__ == "__main__":

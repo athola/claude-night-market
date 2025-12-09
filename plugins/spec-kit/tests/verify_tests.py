@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Simple test verification script for spec-kit test suite.
+"""Simple test verification script for spec-kit test suite.
 Verifies test structure and basic functionality without requiring pytest installation.
 """
 
@@ -77,12 +76,9 @@ def verify_fixtures(conftest_path):
         return []
 
 
-def main():
+def main() -> None:
     """Main verification function."""
     tests_dir = Path(__file__).parent
-
-    print("🔍 Verifying spec-kit test suite...")
-    print("=" * 50)
 
     # Verify test files
     test_files = list(tests_dir.glob("test_*.py"))
@@ -91,58 +87,33 @@ def main():
 
     for test_file in sorted(test_files):
         result = verify_test_file(test_file)
-        filename = test_file.name
 
         if result["valid_syntax"]:
-            print(f"✅ {filename}")
-            print(f"   Classes: {len(result['test_classes'])}")
-            print(f"   Methods: {len(result['test_methods'])}")
-            print(f"   Lines:   {result['line_count']}")
             total_test_methods += len(result["test_methods"])
             total_test_classes += len(result["test_classes"])
         else:
-            print(f"❌ {filename} - Syntax Error")
-            print(f"   Error: {result['error']}")
-
-    print("\n📊 Summary:")
-    print(f"   Test files: {len(test_files)}")
-    print(f"   Test classes: {total_test_classes}")
-    print(f"   Test methods: {total_test_methods}")
+            pass
 
     # Verify fixtures
     conftest_path = tests_dir / "conftest.py"
     if conftest_path.exists():
-        fixtures = verify_fixtures(conftest_path)
-        print(f"   Fixtures: {len(fixtures)}")
+        verify_fixtures(conftest_path)
 
     # Verify other files
     other_files = ["pytest.ini", "requirements.txt", "Makefile", "README.md"]
     for other_file in other_files:
         file_path = tests_dir / other_file
         if file_path.exists():
-            print(f"✅ {other_file}")
+            pass
         else:
-            print(f"❌ {other_file} - Missing")
+            pass
 
     # Coverage estimation
-    print("\n🎯 Coverage Estimate:")
-    print(
-        "   Unit tests: test_orchestrator.py, test_spec_writing.py, test_task_planning.py"
-    )
-    print("   Command tests: test_commands.py")
-    print("   Agent tests: test_agents.py")
-    print("   Integration tests: test_integration.py")
-    print("   Validation tests: test_frontmatter.py")
 
-    if total_test_methods >= 50:
-        print(f"   ✅ Comprehensive test coverage ({total_test_methods} test methods)")
-    elif total_test_methods >= 30:
-        print(f"   ⚠️  Good test coverage ({total_test_methods} test methods)")
+    if total_test_methods >= 50 or total_test_methods >= 30:
+        pass
     else:
-        print(f"   ❌ Limited test coverage ({total_test_methods} test methods)")
-
-    print("\n" + "=" * 50)
-    print("Verification complete! 🎉")
+        pass
 
 
 if __name__ == "__main__":

@@ -1,5 +1,4 @@
-"""
-Unit tests for pattern matching and DSL recognition.
+"""Unit tests for pattern matching and DSL recognition.
 
 Tests code pattern identification, DSL parsing,
 and transformation pattern recognition.
@@ -16,12 +15,12 @@ from parseltongue.skills.pattern_matching import PatternMatchingSkill
 class TestPatternMatchingSkill:
     """Test suite for PatternMatchingSkill."""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test fixtures before each test."""
         self.skill = PatternMatchingSkill()
 
     @pytest.mark.unit
-    def test_recognizes_test_patterns(self, sample_test_patterns):
+    def test_recognizes_test_patterns(self, sample_test_patterns) -> None:
         """Given test patterns, when skill analyzes, then recognizes testing structures."""
         # Arrange
         test_code = sample_test_patterns["pytest_fixture"]
@@ -44,7 +43,7 @@ class TestPatternMatchingSkill:
         assert "setup_method" in result["lifecycle_methods"]
 
     @pytest.mark.unit
-    def test_identifies_ddd_patterns(self):
+    def test_identifies_ddd_patterns(self) -> None:
         """Given Domain-Driven Design code, when skill analyzes, then identifies DDD patterns."""
         # Arrange
         ddd_code = """
@@ -134,7 +133,7 @@ class Customer:
         assert "OrderService" in ddd_patterns["domain_services"]
 
     @pytest.mark.unit
-    def test_identifies_gof_patterns(self):
+    def test_identifies_gof_patterns(self) -> None:
         """Given Gang of Four patterns, when skill analyzes, then identifies GoF patterns."""
         # Arrange
         gof_code = """
@@ -221,7 +220,7 @@ class PayPalPayment(PaymentStrategy):
         assert len(gof_patterns["strategies"]) >= 2
 
     @pytest.mark.unit
-    def test_identifies_async_patterns(self, sample_async_code):
+    def test_identifies_async_patterns(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies async patterns."""
         # Arrange
         code = sample_async_code
@@ -234,7 +233,8 @@ class PayPalPayment(PaymentStrategy):
 
         # Should detect Async Context Manager pattern
         assert "async_context_manager" in async_patterns
-        assert "__aenter__" in code and "__aexit__" in code
+        assert "__aenter__" in code
+        assert "__aexit__" in code
 
         # Should detect Retry pattern
         assert "retry_pattern" in async_patterns
@@ -245,7 +245,7 @@ class PayPalPayment(PaymentStrategy):
         assert "asyncio.gather" in code
 
     @pytest.mark.unit
-    def test_identifies_performance_patterns(self, sample_test_patterns):
+    def test_identifies_performance_patterns(self, sample_test_patterns) -> None:
         """Given performance code, when skill analyzes, then identifies optimization patterns."""
         # Arrange
         performance_code = sample_test_patterns["performance_pattern"]
@@ -268,7 +268,7 @@ class PayPalPayment(PaymentStrategy):
         assert "process_large_file" in result["pattern_instances"]
 
     @pytest.mark.unit
-    def test_detects_architectural_patterns(self):
+    def test_detects_architectural_patterns(self) -> None:
         """Given architectural code, when skill analyzes, then identifies architectural patterns."""
         # Arrange
         arch_code = """
@@ -341,7 +341,7 @@ class UnitOfWork:
         assert "unit_of_work" in arch_patterns
 
     @pytest.mark.unit
-    def test_identifies_anti_patterns(self, performance_issues):
+    def test_identifies_anti_patterns(self, performance_issues) -> None:
         """Given problematic code, when skill analyzes, then identifies anti-patterns."""
         # Arrange
         anti_patterns = performance_issues
@@ -364,7 +364,7 @@ class UnitOfWork:
                 assert "event_loop_blocking" in result["description"]
 
     @pytest.mark.unit
-    def test_matches_dsl_patterns(self):
+    def test_matches_dsl_patterns(self) -> None:
         """Given DSL code, when skill analyzes, then matches DSL patterns."""
         # Arrange
         dsl_code = """
@@ -419,7 +419,7 @@ validate User {
         assert result["structures"]["validation_rules"] >= 3
 
     @pytest.mark.unit
-    def test_suggests_pattern_improvements(self, performance_issues):
+    def test_suggests_pattern_improvements(self, performance_issues) -> None:
         """Given code with anti-patterns, when skill analyzes, then suggests improvements."""
         # Arrange
         bad_code = performance_issues["nested_loops"]
@@ -442,12 +442,13 @@ validate User {
 
         # Should suggest set-based approach for O(n²) problem
         optimization_suggestion = next(
-            (s for s in suggestions if "set" in s["improvement"].lower()), None
+            (s for s in suggestions if "set" in s["improvement"].lower()),
+            None,
         )
         assert optimization_suggestion is not None
 
     @pytest.mark.unit
-    def test_validates_pattern_consistency(self):
+    def test_validates_pattern_consistency(self) -> None:
         """Given multiple patterns, when skill analyzes, then validates consistency."""
         # Arrange
         mixed_patterns_code = """
@@ -487,7 +488,7 @@ class InconsistentPattern:
         assert len(consistency["recommendations"]) >= 1
 
     @pytest.mark.unit
-    def test_detects_pattern_variations(self):
+    def test_detects_pattern_variations(self) -> None:
         """Given pattern variations, when skill analyzes, then recognizes different implementations."""
         # Arrange
         singleton_variations = """
@@ -546,7 +547,7 @@ class Logger(metaclass=SingletonMeta):
             assert "disadvantages" in variation
 
     @pytest.mark.unit
-    def test_handles_incomplete_patterns(self):
+    def test_handles_incomplete_patterns(self) -> None:
         """Given incomplete patterns, when skill analyzes, then handles gracefully."""
         # Arrange
         incomplete_patterns = [
@@ -565,7 +566,7 @@ class Logger(metaclass=SingletonMeta):
                 assert result["confidence"] < 0.8  # Lower confidence for incomplete
 
     @pytest.mark.unit
-    def test_generates_pattern_documentation(self):
+    def test_generates_pattern_documentation(self) -> None:
         """Given recognized patterns, when skill analyzes, then generates documentation."""
         # Arrange
         well_structured_code = '''
@@ -605,7 +606,7 @@ class UserService:
             assert "benefits" in pattern_doc
 
     @pytest.mark.unit
-    def test_compares_pattern_alternatives(self):
+    def test_compares_pattern_alternatives(self) -> None:
         """Given multiple approaches, when skill analyzes, then compares alternatives."""
         # Arrange
         factory_alternatives = """
@@ -638,7 +639,8 @@ class ModernNotificationFactory(NotificationFactory):
 
         # Act
         result = self.skill.compare_pattern_alternatives(
-            factory_alternatives, "factory"
+            factory_alternatives,
+            "factory",
         )
 
         # Assert

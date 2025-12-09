@@ -1,10 +1,12 @@
 """Edge case and error handling tests for conjure plugin following TDD/BDD principles."""
 
 import json
+import queue
 import subprocess
 
 # Import modules for testing
 import sys
+import threading
 import time
 from datetime import datetime
 from pathlib import Path
@@ -20,7 +22,7 @@ from usage_logger import GeminiUsageLogger, UsageEntry
 class TestDelegationExecutorEdgeCases:
     """Test edge cases for delegation executor."""
 
-    def test_delegator_initialization_with_invalid_config(self, tmp_path):
+    def test_delegator_initialization_with_invalid_config(self, tmp_path) -> None:
         """Given invalid config file when initializing delegator then should handle gracefully."""
         # Create invalid JSON config
         config_file = tmp_path / "config.json"
@@ -31,7 +33,7 @@ class TestDelegationExecutorEdgeCases:
         assert "gemini" in delegator.SERVICES
         assert "qwen" in delegator.SERVICES
 
-    def test_delegator_initialization_with_malformed_config(self, tmp_path):
+    def test_delegator_initialization_with_malformed_config(self, tmp_path) -> None:
         """Given malformed config structure when initializing delegator then should handle gracefully."""
         # Create config with invalid structure
         config_file = tmp_path / "config.json"
@@ -39,10 +41,10 @@ class TestDelegationExecutorEdgeCases:
             "services": {
                 "test_service": {
                     # Missing required fields
-                    "name": "test"
+                    "name": "test",
                     # Missing command, auth_method
-                }
-            }
+                },
+            },
         }
         config_file.write_text(json.dumps(malformed_config, indent=2))
 
@@ -52,7 +54,7 @@ class TestDelegationExecutorEdgeCases:
         assert "gemini" in delegator.SERVICES
 
     @patch("subprocess.run")
-    def test_service_verification_command_not_found(self, mock_run, tmp_path):
+    def test_service_verification_command_not_found(self, mock_run, tmp_path) -> None:
         """Given missing command when verifying service then should handle gracefully."""
         mock_run.side_effect = FileNotFoundError("Command not found")
 
@@ -64,7 +66,7 @@ class TestDelegationExecutorEdgeCases:
         assert any("not found" in issue.lower() for issue in issues)
 
     @patch("subprocess.run")
-    def test_service_verification_timeout(self, mock_run, tmp_path):
+    def test_service_verification_timeout(self, mock_run, tmp_path) -> None:
         """Given command timeout when verifying service then should handle gracefully."""
         mock_run.side_effect = subprocess.TimeoutExpired("test", 10)
 
@@ -75,7 +77,9 @@ class TestDelegationExecutorEdgeCases:
         assert len(issues) > 0
 
     @patch("subprocess.run")
-    def test_service_verification_authentication_failure(self, mock_run, tmp_path):
+    def test_service_verification_authentication_failure(
+        self, mock_run, tmp_path
+    ) -> None:
         """Given authentication failure when verifying service then should provide specific error."""
         # Mock version check success but auth check failure
         mock_run.side_effect = [
@@ -96,7 +100,7 @@ class TestDelegationExecutorEdgeCases:
             for issue in issues
         )
 
-    def test_token_estimation_with_nonexistent_files(self, tmp_path):
+    def test_token_estimation_with_nonexistent_files(self, tmp_path) -> None:
         """Given nonexistent files when estimating tokens then should handle gracefully."""
         delegator = Delegator(config_dir=tmp_path)
 
@@ -107,7 +111,7 @@ class TestDelegationExecutorEdgeCases:
         assert isinstance(estimated, int)
         assert estimated >= len("test prompt") / 4  # At least prompt tokens
 
-    def test_token_estimation_with_unreadable_files(self, tmp_path):
+    def test_token_estimation_with_unreadable_files(self, tmp_path) -> None:
         """Given unreadable files when estimating tokens then should handle gracefully."""
         delegator = Delegator(config_dir=tmp_path)
 
@@ -116,7 +120,8 @@ class TestDelegationExecutorEdgeCases:
         test_file.write_text("test content")
 
         with patch(
-            "pathlib.Path.read_text", side_effect=PermissionError("Permission denied")
+            "pathlib.Path.read_text",
+            side_effect=PermissionError("Permission denied"),
         ):
             estimated = delegator.estimate_tokens([str(test_file)], "test prompt")
 
@@ -124,7 +129,7 @@ class TestDelegationExecutorEdgeCases:
         # Should fall back to size-based estimation or skip the file
 
     @patch("subprocess.run")
-    def test_execution_with_very_long_command(self, mock_run, tmp_path):
+    def test_execution_with_very_long_command(self, mock_run, tmp_path) -> None:
         """Given very long command when executing then should handle correctly."""
         mock_result = MagicMock()
         mock_result.returncode = 0
@@ -147,7 +152,7 @@ class TestDelegationExecutorEdgeCases:
         assert len(" ".join(command)) > 10000  # Command should be long
 
     @patch("subprocess.run")
-    def test_execution_with_unicode_content(self, mock_run, tmp_path):
+    def test_execution_with_unicode_content(self, mock_run, tmp_path) -> None:
         """Given unicode content in files when executing then should handle correctly."""
         mock_result = MagicMock()
         mock_result.returncode = 0
@@ -163,14 +168,16 @@ class TestDelegationExecutorEdgeCases:
         unicode_file.write_text(unicode_content)
 
         result = delegator.execute(
-            "gemini", "Process unicode content", files=[str(unicode_file)]
+            "gemini",
+            "Process unicode content",
+            files=[str(unicode_file)],
         )
 
         assert result.success is True
         # Should handle unicode without encoding errors
 
     @patch("subprocess.run")
-    def test_execution_with_zero_timeout(self, mock_run, tmp_path):
+    def test_execution_with_zero_timeout(self, mock_run, tmp_path) -> None:
         """Given zero timeout when executing then should handle appropriately."""
         mock_run.side_effect = subprocess.TimeoutExpired("command", 0)
 
@@ -181,7 +188,7 @@ class TestDelegationExecutorEdgeCases:
         assert result.success is False
         assert "timed out" in result.stderr.lower()
 
-    def test_usage_logging_with_invalid_directory(self, tmp_path):
+    def test_usage_logging_with_invalid_directory(self, tmp_path) -> None:
         """Given invalid usage directory when logging then should create directories as needed."""
         invalid_dir = tmp_path / "nonexistent" / "deep" / "path"
 
@@ -211,7 +218,7 @@ class TestDelegationExecutorEdgeCases:
 class TestQuotaTrackerEdgeCases:
     """Test edge cases for quota tracker."""
 
-    def test_quota_tracker_with_corrupted_usage_file(self, tmp_path):
+    def test_quota_tracker_with_corrupted_usage_file(self, tmp_path) -> None:
         """Given corrupted usage file when loading tracker then should handle gracefully."""
         usage_file = tmp_path / "usage.json"
         usage_file.write_text("corrupted json content\n{invalid json")
@@ -223,7 +230,7 @@ class TestQuotaTrackerEdgeCases:
             assert tracker.usage_data["daily_tokens"] == 0
             assert len(tracker.usage_data["requests"]) == 0
 
-    def test_quota_tracker_with_extreme_timestamps(self, tmp_path):
+    def test_quota_tracker_with_extreme_timestamps(self, tmp_path) -> None:
         """Given extreme timestamps in usage data when loading tracker then should handle gracefully."""
         usage_file = tmp_path / "usage.json"
 
@@ -255,7 +262,7 @@ class TestQuotaTrackerEdgeCases:
             assert isinstance(usage["requests_last_minute"], int)
             assert usage["requests_last_minute"] >= 0
 
-    def test_quota_tracker_with_negative_values(self, tmp_path):
+    def test_quota_tracker_with_negative_values(self, tmp_path) -> None:
         """Given negative token values when tracking quota then should handle gracefully."""
         usage_file = tmp_path / "usage.json"
 
@@ -266,7 +273,7 @@ class TestQuotaTrackerEdgeCases:
                     "timestamp": datetime.now().isoformat(),
                     "tokens": -100,  # Negative tokens
                     "success": True,
-                }
+                },
             ],
             "daily_tokens": -50,  # Negative daily total
             "last_reset": datetime.now().isoformat(),
@@ -281,7 +288,7 @@ class TestQuotaTrackerEdgeCases:
             usage = tracker.get_current_usage()
             assert usage["daily_tokens"] >= 0  # Should not be negative
 
-    def test_quota_tracker_with_huge_token_values(self, tmp_path):
+    def test_quota_tracker_with_huge_token_values(self, tmp_path) -> None:
         """Given extremely large token values when tracking quota then should handle gracefully."""
         usage_file = tmp_path / "usage.json"
 
@@ -292,7 +299,7 @@ class TestQuotaTrackerEdgeCases:
                     "timestamp": datetime.now().isoformat(),
                     "tokens": 10**12,  # Trillion tokens
                     "success": True,
-                }
+                },
             ],
             "daily_tokens": 10**15,  # Quadrillion tokens
             "last_reset": datetime.now().isoformat(),
@@ -304,13 +311,13 @@ class TestQuotaTrackerEdgeCases:
             tracker = GeminiQuotaTracker()
 
             # Should handle huge values without overflow
-            status, warnings = tracker.get_quota_status()
+            status, _warnings = tracker.get_quota_status()
             assert status is not None
             # Should show critical status due to huge usage
             assert "[CRITICAL]" in status
 
     @patch("quota_tracker.tiktoken.get_encoding")
-    def test_token_estimation_with_empty_files(self, mock_encoder, tmp_path):
+    def test_token_estimation_with_empty_files(self, mock_encoder, tmp_path) -> None:
         """Given empty files when estimating tokens then should handle gracefully."""
         mock_encoder_instance = MagicMock()
         mock_encoder_instance.encode.return_value = []  # No tokens for empty content
@@ -330,7 +337,7 @@ class TestQuotaTrackerEdgeCases:
             assert isinstance(estimated, int)
             assert estimated >= 0  # Should not be negative
 
-    def test_quota_tracker_file_permission_errors(self, tmp_path):
+    def test_quota_tracker_file_permission_errors(self, tmp_path) -> None:
         """Given file permission errors when tracking quota then should handle gracefully."""
         usage_file = tmp_path / "usage.json"
 
@@ -338,25 +345,28 @@ class TestQuotaTrackerEdgeCases:
             tracker = GeminiQuotaTracker()
 
             # Mock permission errors
-            with patch(
-                "builtins.open", side_effect=PermissionError("Permission denied")
-            ):
-                with patch(
+            with (
+                patch(
+                    "builtins.open",
+                    side_effect=PermissionError("Permission denied"),
+                ),
+                patch(
                     "pathlib.Path.mkdir",
                     side_effect=PermissionError("Permission denied"),
-                ):
-                    # Should not raise exception
-                    try:
-                        tracker.record_request(1000, success=True)
-                    except PermissionError:
-                        # Expected for this test
-                        pass
+                ),
+            ):
+                # Should not raise exception
+                try:
+                    tracker.record_request(1000, success=True)
+                except PermissionError:
+                    # Expected for this test
+                    pass
 
-                    # Should still be able to get current usage (from memory)
-                    usage = tracker.get_current_usage()
-                    assert isinstance(usage, dict)
+                # Should still be able to get current usage (from memory)
+                usage = tracker.get_current_usage()
+                assert isinstance(usage, dict)
 
-    def test_quota_tracker_concurrent_access_simulation(self, tmp_path):
+    def test_quota_tracker_concurrent_access_simulation(self, tmp_path) -> None:
         """Given concurrent access when tracking quota then should handle race conditions."""
         usage_file = tmp_path / "usage.json"
 
@@ -378,7 +388,7 @@ class TestQuotaTrackerEdgeCases:
 class TestUsageLoggerEdgeCases:
     """Test edge cases for usage logger."""
 
-    def test_usage_logger_with_very_long_commands(self, tmp_path):
+    def test_usage_logger_with_very_long_commands(self, tmp_path) -> None:
         """Given very long commands when logging usage then should handle gracefully."""
         usage_log = tmp_path / "usage.jsonl"
 
@@ -404,7 +414,7 @@ class TestUsageLoggerEdgeCases:
                 log_content = f.read()
                 assert long_command in log_content
 
-    def test_usage_logger_with_special_characters(self, tmp_path):
+    def test_usage_logger_with_special_characters(self, tmp_path) -> None:
         """Given special characters in commands when logging usage then should handle correctly."""
         usage_log = tmp_path / "usage.jsonl"
 
@@ -430,7 +440,7 @@ class TestUsageLoggerEdgeCases:
                 log_entry = json.loads(f.read().strip())
                 assert log_entry["command"] == special_command
 
-    def test_usage_logger_with_corrupted_session_file(self, tmp_path):
+    def test_usage_logger_with_corrupted_session_file(self, tmp_path) -> None:
         """Given corrupted session file when logging usage then should handle gracefully."""
         session_file = tmp_path / "current_session.json"
         usage_log = tmp_path / "usage.jsonl"
@@ -451,7 +461,7 @@ class TestUsageLoggerEdgeCases:
                     session_data = json.load(f)
                     assert "session_id" in session_data
 
-    def test_usage_logger_session_timeout_edge_cases(self, tmp_path):
+    def test_usage_logger_session_timeout_edge_cases(self, tmp_path) -> None:
         """Given session timeout edge cases when logging usage then should handle correctly."""
         session_file = tmp_path / "current_session.json"
 
@@ -464,14 +474,15 @@ class TestUsageLoggerEdgeCases:
 
             # Test just after timeout
             with patch(
-                "time.time", return_value=int(time.time()) + 3601
+                "time.time",
+                return_value=int(time.time()) + 3601,
             ):  # 1 hour + 1 second
                 session_id2 = logger._get_session_id()
 
             # Should create new session after timeout
             assert session_id1 != session_id2
 
-    def test_usage_logger_with_disk_full_simulation(self, tmp_path):
+    def test_usage_logger_with_disk_full_simulation(self, tmp_path) -> None:
         """Given disk full condition when logging usage then should handle gracefully."""
         usage_log = tmp_path / "usage.jsonl"
 
@@ -489,7 +500,7 @@ class TestUsageLoggerEdgeCases:
                     # Expected for this test
                     pass
 
-    def test_usage_logger_with_very_high_frequency_requests(self, tmp_path):
+    def test_usage_logger_with_very_high_frequency_requests(self, tmp_path) -> None:
         """Given very high frequency requests when logging usage then should handle performance."""
         usage_log = tmp_path / "usage.jsonl"
 
@@ -516,7 +527,7 @@ class TestSystemIntegrationEdgeCases:
     """Test system integration edge cases."""
 
     @patch("subprocess.run")
-    def test_network_connectivity_issues(self, mock_run, tmp_path):
+    def test_network_connectivity_issues(self, mock_run, tmp_path) -> None:
         """Given network connectivity issues when executing delegation then should handle gracefully."""
         # Mock various network errors
         network_errors = [
@@ -537,20 +548,26 @@ class TestSystemIntegrationEdgeCases:
             assert result.stderr is not None
 
     @patch("subprocess.run")
-    def test_api_rate_limiting_scenarios(self, mock_run, tmp_path):
+    def test_api_rate_limiting_scenarios(self, mock_run, tmp_path) -> None:
         """Given various API rate limiting scenarios when executing delegation then should handle appropriately."""
         rate_limit_responses = [
             # HTTP 429 with retry-after
             subprocess.CalledProcessError(
-                1, "gemini", stderr="HTTP/1.1 429 Too Many Requests\nRetry-After: 60"
+                1,
+                "gemini",
+                stderr="HTTP/1.1 429 Too Many Requests\nRetry-After: 60",
             ),
             # HTTP 429 without retry-after
             subprocess.CalledProcessError(
-                1, "gemini", stderr="HTTP/1.1 429 Too Many Requests"
+                1,
+                "gemini",
+                stderr="HTTP/1.1 429 Too Many Requests",
             ),
             # Custom rate limit message
             subprocess.CalledProcessError(
-                1, "gemini", stderr="Rate limit exceeded. Try again later."
+                1,
+                "gemini",
+                stderr="Rate limit exceeded. Try again later.",
             ),
         ]
 
@@ -569,11 +586,13 @@ class TestSystemIntegrationEdgeCases:
             )
 
     @patch("subprocess.run")
-    def test_memory_exhaustion_scenarios(self, mock_run, tmp_path):
+    def test_memory_exhaustion_scenarios(self, mock_run, tmp_path) -> None:
         """Given memory exhaustion scenarios when executing delegation then should handle gracefully."""
         memory_errors = [
             subprocess.CalledProcessError(
-                1, "gemini", stderr="MemoryError: Out of memory"
+                1,
+                "gemini",
+                stderr="MemoryError: Out of memory",
             ),
             subprocess.CalledProcessError(1, "gemini", stderr="Killed"),
             subprocess.CalledProcessError(1, "gemini", stderr="Segmentation fault"),
@@ -589,7 +608,7 @@ class TestSystemIntegrationEdgeCases:
             assert result.success is False
             # Should preserve the original error information
 
-    def test_environment_variable_edge_cases(self, tmp_path):
+    def test_environment_variable_edge_cases(self, tmp_path) -> None:
         """Given edge cases with environment variables when executing delegation then should handle correctly."""
         delegator = Delegator(config_dir=tmp_path)
 
@@ -603,11 +622,11 @@ class TestSystemIntegrationEdgeCases:
             if "GEMINI_API_KEY" in os.environ:
                 del os.environ["GEMINI_API_KEY"]
 
-            is_available, issues = delegator.verify_service("gemini")
+            is_available, _issues = delegator.verify_service("gemini")
             assert is_available is False
 
     @patch("subprocess.run")
-    def test_filesystem_edge_cases(self, mock_run, tmp_path):
+    def test_filesystem_edge_cases(self, mock_run, tmp_path) -> None:
         """Given filesystem edge cases when executing delegation then should handle appropriately."""
         # Create a very deep directory structure
         deep_path = tmp_path
@@ -626,15 +645,15 @@ class TestSystemIntegrationEdgeCases:
         assert isinstance(estimated, int)
         assert estimated > 0
 
-    def test_concurrent_delegation_scenarios(self, tmp_path):
+    def test_concurrent_delegation_scenarios(self, tmp_path) -> None:
         """Given concurrent delegation scenarios when executing then should handle thread safety."""
-        import queue
-        import threading
+        # queue imported at top
+        # threading imported at top
 
         delegator = Delegator(config_dir=tmp_path)
         results_queue = queue.Queue()
 
-        def delegate_worker(worker_id):
+        def delegate_worker(worker_id) -> None:
             """Worker function for concurrent delegation."""
             try:
                 # Mock the actual execution for thread safety
@@ -648,7 +667,8 @@ class TestSystemIntegrationEdgeCases:
                         mock_run.return_value = mock_result
 
                         result = delegator.execute(
-                            "gemini", f"test from worker {worker_id}"
+                            "gemini",
+                            f"test from worker {worker_id}",
                         )
                         results_queue.put((worker_id, result.success))
             except Exception as e:
@@ -672,14 +692,14 @@ class TestSystemIntegrationEdgeCases:
 
         # Should have completed all workers without crashes
         assert len(results) == 5
-        for worker_id, result in results:
+        for _worker_id, result in results:
             if isinstance(result, Exception):
                 # Log the exception but don't fail the test
-                print(f"Worker {worker_id} failed with: {result}")
+                pass
             else:
                 assert result is True  # Success
 
-    def test_configuration_corruption_recovery(self, tmp_path):
+    def test_configuration_corruption_recovery(self, tmp_path) -> None:
         """Given corrupted configuration when initializing then should recover gracefully."""
         # Create various types of corrupted config files
         corruption_scenarios = [
@@ -710,5 +730,3 @@ class TestSystemIntegrationEdgeCases:
 
 # Import os for environment variable tests
 import os
-
-# ruff: noqa: S101

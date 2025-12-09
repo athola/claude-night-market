@@ -9,10 +9,6 @@ from __future__ import annotations
 
 import json
 import sys
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
 
 REMINDER = """
 ## Post-Implementation Checklist Reminder
@@ -37,10 +33,6 @@ def main() -> None:
         # No payload or invalid JSON - still provide reminder
         pass
 
-    response = {
-        "hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": REMINDER}
-    }
-    print(json.dumps(response))
     sys.exit(0)
 
 

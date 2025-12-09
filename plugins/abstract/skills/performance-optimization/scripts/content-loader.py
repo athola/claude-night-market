@@ -18,7 +18,7 @@ from pathlib import Path
 class ContentLoader:
     """Handles progressive loading of skill content based on context and triggers."""
 
-    def __init__(self, skill_path: str):
+    def __init__(self, skill_path: str) -> None:
         """Initialize content loader with skill path.
 
         Args:
@@ -35,7 +35,8 @@ class ContentLoader:
             with open(self.skill_path, encoding="utf-8") as f:
                 return f.readlines()
         except FileNotFoundError as err:
-            raise FileNotFoundError(f"Skill file not found: {self.skill_path}") from err
+            msg = f"Skill file not found: {self.skill_path}"
+            raise FileNotFoundError(msg) from err
 
     def _find_loading_markers(self) -> dict[str, tuple[int, str]]:
         """Find all loading markers and their positions."""
@@ -69,7 +70,7 @@ class ContentLoader:
         # Look for first loading marker or stop at reasonable length
         cutoff_line = len(self.skill_content)
 
-        for _marker_name, (line_num, _) in self.loading_markers.items():
+        for line_num, _ in self.loading_markers.values():
             cutoff_line = min(cutoff_line, line_num)
 
         # Also limit by reasonable token count (roughly 50-60 lines)
@@ -88,7 +89,7 @@ class ContentLoader:
         # Add examples if marker exists
         example_markers = [
             k
-            for k in self.loading_markers.keys()
+            for k in self.loading_markers
             if "EXAMPLE" in k.upper() or "DETAILED" in k.upper()
         ]
 
@@ -146,15 +147,14 @@ class ContentLoader:
             for keyword in ["advanced", "detailed", "comprehensive", "full"]
         ):
             return "full_content"
-        elif any(
+        if any(
             keyword in content
             for keyword in ["example", "how to", "implement", "step by step"]
         ):
             return "with_examples"
-        else:
-            return "quick_start"
+        return "quick_start"
 
-    def load_optimal_content(self, user_context: dict[str, str] = None) -> str:
+    def load_optimal_content(self, user_context: dict[str, str] | None = None) -> str:
         """Load optimal content based on context."""
         if user_context is None:
             user_context = {}
@@ -163,16 +163,15 @@ class ContentLoader:
 
         if loading_level == "full_content":
             return self.load_advanced_content()
-        elif loading_level == "with_examples":
+        if loading_level == "with_examples":
             return self.load_with_examples()
-        else:
-            return self.load_quick_start()
+        return self.load_quick_start()
 
 
-def main():
+def main() -> None:
     """Run the content loader CLI."""
     parser = argparse.ArgumentParser(
-        description="Progressive content loader for skills"
+        description="Progressive content loader for skills",
     )
     parser.add_argument("skill_path", help="Path to skill file")
     parser.add_argument(
@@ -191,15 +190,7 @@ def main():
         loader = ContentLoader(args.skill_path)
 
         if args.analyze:
-            analysis = loader.analyze_token_usage()
-            print(f"Token Usage Analysis for {args.skill_path}:")
-            print(f"  Quick Start: {analysis['quick_start']} tokens")
-            print(f"  With Examples: {analysis['with_examples']} tokens")
-            print(f"  Full Content: {analysis['full_content']} tokens")
-            print(
-                f"  Savings: {analysis['savings_quick_vs_full']} tokens "
-                f"({analysis['savings_percentage']}%)"
-            )
+            loader.analyze_token_usage()
             return
 
         # Determine loading mode
@@ -217,12 +208,10 @@ def main():
         if args.output:
             with open(args.output, "w", encoding="utf-8") as f:
                 f.write(content)
-            print(f"Content written to {args.output}")
         else:
-            print(content)
+            pass
 
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+    except Exception:
         sys.exit(1)
 
 

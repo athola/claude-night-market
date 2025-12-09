@@ -133,7 +133,7 @@ class TestScriptPermissions:
                 st = os.stat(script)
                 mode = stat.S_IMODE(st.st_mode)
                 permission_errors.append(
-                    f"{script}: Invalid permissions {oct(mode)} (expected 0755)"
+                    f"{script}: Invalid permissions {oct(mode)} (expected 0755)",
                 )
 
         if permission_errors:
@@ -163,17 +163,11 @@ if __name__ == "__main__":
     repo_root = Path(__file__).parent.parent
     scripts = find_executable_scripts(repo_root)
 
-    print(f"Found {len(scripts)} executable scripts:")
     for script in sorted(scripts):
-        print(f"  {script}")
         permissions_ok = check_script_permissions(script)
         status = "✓" if permissions_ok else "✗"
-        print(f"    Permissions: {status}")
 
     # Fix permissions if requested
     if len(sys.argv) > 1 and sys.argv[1] == "--fix":
-        print("\nFixing permissions...")
         for script in scripts:
             fix_script_permissions(script)
-            print(f"  Fixed: {script}")
-        print("\nDone!")

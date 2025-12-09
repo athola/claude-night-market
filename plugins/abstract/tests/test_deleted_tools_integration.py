@@ -202,7 +202,6 @@ if __name__ == "__main__":
     test_class = TestDeletedToolsIntegration()
     repo_root = Path(__file__).parent.parent
 
-    print("Checking for references to deleted tools...")
     all_references = []
 
     # Check Python files
@@ -218,10 +217,8 @@ if __name__ == "__main__":
         all_references.extend(references)
 
     if all_references:
-        print("Found references to deleted tools:")
-        for ref in all_references:
-            print(f"  - {ref}")
+        for _ref in all_references:
+            pass
         sys.exit(1)
     else:
-        print("✓ No references to deleted tools found")
         sys.exit(0)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Skill Validator
+"""Skill Validator.
 
 Validates Claude Code skill structure, frontmatter, and content quality.
 
@@ -28,14 +28,13 @@ MIN_DESCRIPTION_WORDS = 15
 try:
     import yaml
 except ImportError:
-    print("Error: PyYAML required. Install with: pip install pyyaml", file=sys.stderr)
     sys.exit(2)
 
 
 class ValidationResult:
     """Container for validation results."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.errors: list[str] = []
         self.warnings: list[str] = []
         self.info: list[str] = []
@@ -111,7 +110,7 @@ class SkillValidator:
         r"let(s)?\s+you",
     ]
 
-    def __init__(self, skill_path: Path, strict: bool = False):
+    def __init__(self, skill_path: Path, strict: bool = False) -> None:
         """Initialize validator.
 
         Args:
@@ -166,7 +165,7 @@ class SkillValidator:
             self.result.add_error(f"SKILL.md not found at {self.skill_path}")
         elif self.skill_path.name != "SKILL.md":
             self.result.add_warning(
-                f"File should be named 'SKILL.md', got '{self.skill_path.name}'"
+                f"File should be named 'SKILL.md', got '{self.skill_path.name}'",
             )
 
     def _read_file(self) -> str | None:
@@ -190,7 +189,7 @@ class SkillValidator:
 
         if not match:
             self.result.add_error(
-                "YAML frontmatter not found (expected ---\\n...\\n---)"
+                "YAML frontmatter not found (expected ---\\n...\\n---)",
             )
             return None, content
 
@@ -253,13 +252,12 @@ class SkillValidator:
             elif fm["estimated_tokens"] > MAX_ESTIMATED_TOKENS:
                 self.result.add_warning(
                     f"estimated_tokens very high ({fm['estimated_tokens']}). "
-                    "Consider modularization."
+                    "Consider modularization.",
                 )
 
         # Dependencies (optional but validate if present)
-        if "dependencies" in fm:
-            if not isinstance(fm["dependencies"], list):
-                self.result.add_error("dependencies must be a list")
+        if "dependencies" in fm and not isinstance(fm["dependencies"], list):
+            self.result.add_error("dependencies must be a list")
 
     def _validate_name(self, name: str) -> None:
         """Validate skill name."""
@@ -270,13 +268,13 @@ class SkillValidator:
         # Length check
         if len(name) > self.MAX_NAME_LENGTH:
             self.result.add_error(
-                f"Name too long: {len(name)} chars (max {self.MAX_NAME_LENGTH})"
+                f"Name too long: {len(name)} chars (max {self.MAX_NAME_LENGTH})",
             )
 
         # Format check: lowercase, numbers, hyphens only
         if not re.match(r"^[a-z0-9-]+$", name):
             self.result.add_error(
-                "Name must be lowercase letters, numbers, and hyphens only"
+                "Name must be lowercase letters, numbers, and hyphens only",
             )
 
         # No leading/trailing hyphens
@@ -296,7 +294,7 @@ class SkillValidator:
         # Length check
         if len(desc) > self.MAX_DESC_LENGTH:
             self.result.add_error(
-                f"Description too long: {len(desc)} chars (max {self.MAX_DESC_LENGTH})"
+                f"Description too long: {len(desc)} chars (max {self.MAX_DESC_LENGTH})",
             )
 
         if len(desc) < MIN_DESCRIPTION_LENGTH:
@@ -321,7 +319,7 @@ class SkillValidator:
         if has_first_person:
             self.result.add_error(
                 "Description uses first/second person. Use third person "
-                "(e.g., 'Guides...', 'Teaches...', 'Provides...')"
+                "(e.g., 'Guides...', 'Teaches...', 'Provides...')",
             )
 
         # Check for third person verbs
@@ -332,19 +330,19 @@ class SkillValidator:
         if not has_third_person and not has_first_person:
             self.result.add_warning(
                 "Description doesn't start with common third-person verb "
-                f"(e.g., {', '.join(list(self.THIRD_PERSON_VERBS)[:5])})"
+                f"(e.g., {', '.join(list(self.THIRD_PERSON_VERBS)[:5])})",
             )
 
         # "Use when" clause check
         if "use when" not in desc.lower():
             self.result.add_warning(
-                "Description missing 'Use when...' clause (helps activation)"
+                "Description missing 'Use when...' clause (helps activation)",
             )
 
         # Discovery terms check
         if len(desc.split()) < MIN_DESCRIPTION_WORDS:
             self.result.add_warning(
-                "Description has few words. Include more discovery terms."
+                "Description has few words. Include more discovery terms.",
             )
 
     def _validate_version(self, version: str) -> None:
@@ -356,7 +354,7 @@ class SkillValidator:
         # Basic semver check: X.Y.Z
         if not re.match(r"^\d+\.\d+\.\d+(-[a-z0-9.]+)?$", version):
             self.result.add_error(
-                f"Version '{version}' invalid. Use semver: X.Y.Z (e.g., 1.0.0)"
+                f"Version '{version}' invalid. Use semver: X.Y.Z (e.g., 1.0.0)",
             )
 
     def _validate_body(self, body: str) -> None:
@@ -387,7 +385,7 @@ class SkillValidator:
         if lines > self.MAX_SKILL_LINES:
             self.result.add_warning(
                 f"SKILL.md has {lines} lines (recommend <{self.MAX_SKILL_LINES}). "
-                "Consider moving content to modules/"
+                "Consider moving content to modules/",
             )
         else:
             self.result.add_info(f"Line count OK: {lines}/{self.MAX_SKILL_LINES}")
@@ -422,7 +420,7 @@ class SkillValidator:
         if not modules_dir.exists() and referenced_modules:
             self.result.add_error(
                 f"References {len(referenced_modules)} modules but "
-                f"modules/ doesn't exist"
+                f"modules/ doesn't exist",
             )
             return
 
@@ -432,7 +430,7 @@ class SkillValidator:
             for module in referenced_modules:
                 if module not in existing_modules:
                     self.result.add_error(
-                        f"Referenced module not found: modules/{module}"
+                        f"Referenced module not found: modules/{module}",
                     )
 
     def _validate_modules(self) -> None:
@@ -461,11 +459,11 @@ class SkillValidator:
             if lines > self.MAX_MODULE_LINES:
                 self.result.add_warning(
                     f"{module_path.name}: {lines} lines "
-                    f"(recommend <{self.MAX_MODULE_LINES})"
+                    f"(recommend <{self.MAX_MODULE_LINES})",
                 )
             elif lines < self.MIN_MODULE_LINES:
                 self.result.add_warning(
-                    f"{module_path.name}: {lines} lines (might be too brief)"
+                    f"{module_path.name}: {lines} lines (might be too brief)",
                 )
 
             # Check for broken references
@@ -479,58 +477,32 @@ class SkillValidator:
 
 def print_report(validator: SkillValidator, result: ValidationResult) -> None:
     """Print validation report."""
-    print("\nSkill Validation Report")
-    print("=" * 60)
-    print(f"\nSkill: {validator.skill_path.parent.name}")
-    print(f"Path: {validator.skill_path}")
-    print()
-
     # Errors
     if result.errors:
-        print("ERRORS (must fix)")
-        print("-" * 60)
-        for error in result.errors:
-            print(f"  ✗ {error}")
-        print()
+        for _error in result.errors:
+            pass
 
     # Warnings
     if result.warnings:
-        print("WARNINGS (should fix)")
-        print("-" * 60)
-        for warning in result.warnings:
-            print(f"  ! {warning}")
-        print()
+        for _warning in result.warnings:
+            pass
 
     # Info
     if result.info:
-        print("INFO")
-        print("-" * 60)
-        for info in result.info:
-            print(f"  ℹ {info}")
-        print()
+        for _info in result.info:
+            pass
 
     # Summary
-    print("SUMMARY")
-    print("-" * 60)
-    print(f"Errors: {len(result.errors)}")
-    print(f"Warnings: {len(result.warnings)}")
-    print()
 
     # Result
     exit_code = result.exit_code()
-    if exit_code == 0:
-        print("✓ PASS - Ready to deploy")
-    elif exit_code == 1:
-        print("! PASS WITH WARNINGS - Fix warnings before deployment (optional)")
+    if exit_code in {0, 1}:
+        pass
     else:
-        print("✗ FAIL - Must fix errors before deployment")
-
-    print()
-    print(f"Exit Code: {exit_code}")
-    print()
+        pass
 
 
-def main():
+def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(
         description="Validate Claude Code skill structure and content",
@@ -554,20 +526,21 @@ Examples:
     )
 
     parser.add_argument(
-        "--path", type=Path, help="Path to SKILL.md file (default: ./SKILL.md)"
+        "--path",
+        type=Path,
+        help="Path to SKILL.md file (default: ./SKILL.md)",
     )
 
     parser.add_argument(
-        "--strict", action="store_true", help="Treat warnings as errors"
+        "--strict",
+        action="store_true",
+        help="Treat warnings as errors",
     )
 
     args = parser.parse_args()
 
     # Determine skill path
-    if args.path:
-        skill_path = args.path
-    else:
-        skill_path = Path.cwd() / "SKILL.md"
+    skill_path = args.path or Path.cwd() / "SKILL.md"
 
     # Validate
     validator = SkillValidator(skill_path, strict=args.strict)

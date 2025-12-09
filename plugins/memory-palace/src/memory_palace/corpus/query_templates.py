@@ -153,8 +153,7 @@ class QueryTemplateManager:
             "would",
         }
 
-        keywords = {w for w in words if len(w) >= 3 and w not in stop_words}
-        return keywords
+        return {w for w in words if len(w) >= 3 and w not in stop_words}
 
     def _calculate_similarity(self, query1: str, query2: str) -> float:
         """Calculate similarity score between two queries.

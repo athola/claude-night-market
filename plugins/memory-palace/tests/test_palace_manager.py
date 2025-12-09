@@ -7,7 +7,6 @@ BDD-style tests organized by behavior:
 - Export/Import functionality
 """
 
-# ruff: noqa: S101
 import json
 from datetime import datetime
 from pathlib import Path
@@ -21,8 +20,10 @@ class TestMemoryPalaceManagerInitialization:
     """Tests for MemoryPalaceManager initialization."""
 
     def test_initializes_with_config_and_directory(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Initialize manager with explicit config and directory paths."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -30,7 +31,7 @@ class TestMemoryPalaceManagerInitialization:
         )
         assert manager.palaces_dir == str(temp_palaces_dir)
 
-    def test_creates_directories_on_init(self, temp_config_file: Path, tmp_path: Path):
+    def test_creates_directories_on_init(self, temp_config_file: Path, tmp_path: Path) -> None:
         """Create palaces and backups directories if they don't exist."""
         new_palaces_dir = tmp_path / "new_palaces"
         assert not new_palaces_dir.exists()
@@ -44,8 +45,11 @@ class TestMemoryPalaceManagerInitialization:
         assert (new_palaces_dir / "backups").exists()
 
     def test_respects_environment_variable(
-        self, temp_config_file: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ):
+        self,
+        temp_config_file: Path,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         """Use PALACES_DIR environment variable when no override provided."""
         env_palaces_dir = tmp_path / "env_palaces"
         env_palaces_dir.mkdir()
@@ -55,8 +59,11 @@ class TestMemoryPalaceManagerInitialization:
         assert manager.palaces_dir == str(env_palaces_dir)
 
     def test_override_takes_precedence_over_env(
-        self, temp_config_file: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ):
+        self,
+        temp_config_file: Path,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
         """Explicit override takes precedence over environment variable."""
         env_dir = tmp_path / "env_palaces"
         override_dir = tmp_path / "override_palaces"
@@ -75,8 +82,10 @@ class TestPalaceCreation:
     """Tests for creating new memory palaces."""
 
     def test_creates_palace_with_required_fields(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Create palace returns dict with required structure."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -97,8 +106,10 @@ class TestPalaceCreation:
         assert "metadata" in palace
 
     def test_creates_palace_with_custom_metaphor(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Create palace with custom architectural metaphor."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -108,7 +119,9 @@ class TestPalaceCreation:
         palace = manager.create_palace("Rust Fortress", "rust", metaphor="fortress")
         assert palace["metaphor"] == "fortress"
 
-    def test_generates_unique_palace_ids(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_generates_unique_palace_ids(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Each palace gets a unique ID."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -120,7 +133,7 @@ class TestPalaceCreation:
 
         assert palace1["id"] != palace2["id"]
 
-    def test_persists_palace_to_disk(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_persists_palace_to_disk(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
         """Created palace is saved to a JSON file."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -135,7 +148,9 @@ class TestPalaceCreation:
             saved_data = json.load(f)
         assert saved_data["name"] == "Persisted Palace"
 
-    def test_updates_master_index_on_create(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_updates_master_index_on_create(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Master index is updated after palace creation."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -153,8 +168,11 @@ class TestPalaceLoading:
     """Tests for loading palaces from storage."""
 
     def test_loads_existing_palace(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Load palace by ID returns correct data."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -168,8 +186,10 @@ class TestPalaceLoading:
         assert loaded["domain"] == sample_palace_data["domain"]
 
     def test_returns_none_for_nonexistent_palace(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Loading nonexistent palace returns None."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -184,8 +204,11 @@ class TestPalaceSaving:
     """Tests for saving palace modifications."""
 
     def test_saves_palace_updates(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Save palace persists modifications to disk."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -201,8 +224,11 @@ class TestPalaceSaving:
         assert loaded["name"] == "Updated Palace Name"
 
     def test_updates_last_modified_timestamp(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Saving updates the last_modified timestamp."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -216,8 +242,11 @@ class TestPalaceSaving:
         assert loaded["last_modified"] != original_modified
 
     def test_creates_backup_before_save(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Backup is created before overwriting palace file."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -236,8 +265,11 @@ class TestPalaceDeletion:
     """Tests for deleting palaces."""
 
     def test_deletes_existing_palace(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Delete palace removes file and returns True."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -250,8 +282,10 @@ class TestPalaceDeletion:
         assert not sample_palace_file.exists()
 
     def test_returns_false_for_nonexistent_palace(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Deleting nonexistent palace returns False."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -262,8 +296,11 @@ class TestPalaceDeletion:
         assert result is False
 
     def test_creates_backup_before_delete(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Backup is created before deleting palace."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -278,8 +315,11 @@ class TestPalaceDeletion:
         assert len(new_backups) > len(initial_backups)
 
     def test_updates_master_index_on_delete(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Master index is updated after deletion."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -301,8 +341,11 @@ class TestMasterIndex:
     """Tests for master index management."""
 
     def test_builds_index_from_palace_files(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Master index aggregates all palace summaries."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -315,8 +358,11 @@ class TestMasterIndex:
         assert index["global_stats"]["total_palaces"] == 3
 
     def test_counts_concepts_per_domain(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Index tracks concept counts by domain."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -330,7 +376,7 @@ class TestMasterIndex:
         assert "mathematics" in domains
         assert domains["programming"] == 2  # Two programming palaces
 
-    def test_handles_empty_directory(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_handles_empty_directory(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
         """Empty directory returns valid empty index."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -343,8 +389,11 @@ class TestMasterIndex:
         assert index["global_stats"]["total_palaces"] == 0
 
     def test_index_contains_palace_metadata(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Index entries contain essential palace metadata."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -367,8 +416,11 @@ class TestListPalaces:
     """Tests for listing palaces."""
 
     def test_lists_all_palaces(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """List returns all palaces from index."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -379,8 +431,10 @@ class TestListPalaces:
         assert len(palaces) == 3
 
     def test_returns_empty_list_when_no_palaces(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+    ) -> None:
         """Returns empty list when no palaces exist."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -395,8 +449,11 @@ class TestSearchOperations:
     """Tests for searching within palaces."""
 
     def test_semantic_search_finds_matching_associations(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Semantic search finds text in associations."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -409,8 +466,11 @@ class TestSearchOperations:
         assert any("Python" in r["palace_name"] for r in results)
 
     def test_search_returns_empty_for_no_matches(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Search returns empty list when no matches found."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -421,8 +481,11 @@ class TestSearchOperations:
         assert results == []
 
     def test_fuzzy_search_matches_partial_words(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Fuzzy search matches partial query words."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -435,8 +498,11 @@ class TestSearchOperations:
         assert len(results) >= 1
 
     def test_search_result_structure(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+    ) -> None:
         """Search results have correct structure."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -456,8 +522,12 @@ class TestExportImport:
     """Tests for export and import functionality."""
 
     def test_exports_all_palaces_to_bundle(
-        self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list, tmp_path: Path
-    ):
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        multiple_palaces: list,
+        tmp_path: Path,
+    ) -> None:
         """Export creates bundle with all palaces."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -473,7 +543,7 @@ class TestExportImport:
         assert "exported_at" in bundle
         assert len(bundle["palaces"]) == 3
 
-    def test_imports_palaces_from_bundle(self, temp_config_file: Path, tmp_path: Path):
+    def test_imports_palaces_from_bundle(self, temp_config_file: Path, tmp_path: Path) -> None:
         """Import loads palaces from bundle into storage."""
         # Create a bundle to import
         bundle = {
@@ -494,7 +564,7 @@ class TestExportImport:
                         "complexity_level": "basic",
                         "access_patterns": [],
                     },
-                }
+                },
             ],
         }
 
@@ -521,7 +591,7 @@ class TestExportImport:
         temp_palaces_dir: Path,
         sample_palace_file: Path,
         tmp_path: Path,
-    ):
+    ) -> None:
         """Import skips palaces that already exist by default."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -547,7 +617,7 @@ class TestExportImport:
                         "complexity_level": "basic",
                         "access_patterns": [],
                     },
-                }
+                },
             ],
         }
 
@@ -565,7 +635,7 @@ class TestExportImport:
         temp_palaces_dir: Path,
         sample_palace_file: Path,
         tmp_path: Path,
-    ):
+    ) -> None:
         """Import overwrites existing palaces when keep_existing=False."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -591,7 +661,7 @@ class TestExportImport:
                         "complexity_level": "basic",
                         "access_patterns": [],
                     },
-                }
+                },
             ],
         }
 
@@ -611,8 +681,11 @@ class TestBackupCreation:
     """Tests for backup functionality."""
 
     def test_creates_timestamped_backup(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Backup files include timestamp in filename."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -630,8 +703,11 @@ class TestBackupCreation:
         assert sample_palace_data["id"] in backup_name
 
     def test_backup_contains_original_data(
-        self, temp_config_file: Path, sample_palace_file: Path, sample_palace_data: dict
-    ):
+        self,
+        temp_config_file: Path,
+        sample_palace_file: Path,
+        sample_palace_data: dict,
+    ) -> None:
         """Backup file contains exact copy of original."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -641,14 +717,16 @@ class TestBackupCreation:
 
         manager.create_backup(sample_palace_data["id"])
 
-        backup_file = list(backups_dir.glob(f"{sample_palace_data['id']}_*.json"))[0]
+        backup_file = next(iter(backups_dir.glob(f"{sample_palace_data['id']}_*.json")))
         with open(backup_file) as f:
             backup_data = json.load(f)
 
         assert backup_data["name"] == sample_palace_data["name"]
         assert backup_data["id"] == sample_palace_data["id"]
 
-    def test_no_backup_for_nonexistent_palace(self, temp_config_file: Path, temp_palaces_dir: Path):
+    def test_no_backup_for_nonexistent_palace(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Creating backup for nonexistent palace is a no-op."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),

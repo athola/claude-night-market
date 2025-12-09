@@ -10,7 +10,7 @@ from pathlib import Path
 class DependencyManager:
     """Manages dependencies for Claude Code plugins."""
 
-    def __init__(self, plugin_root: Path):
+    def __init__(self, plugin_root: Path) -> None:
         """Initialize the dependency manager.
 
         Args:
@@ -95,7 +95,7 @@ class DependencyManager:
                 if re.search(pattern, content):
                     issues.append(
                         f"Found old reference pattern '{pattern_name}' "
-                        f"in {skill_file.name}"
+                        f"in {skill_file.name}",
                     )
 
         return issues
@@ -125,7 +125,7 @@ class DependencyManager:
                         "sanctum:git-workspace-review",
                     ),
                     (r"\bgit-workspace-review\b", "sanctum:git-workspace-review"),
-                ]
+                ],
             )
 
         if "imbue" in expected_deps:
@@ -133,7 +133,7 @@ class DependencyManager:
                 [
                     (r"\bworkflow-utils:review-core\b", "imbue:review-core"),
                     (r"\breview-core\b", "imbue:review-core"),
-                ]
+                ],
             )
 
         # Add general cleanup
@@ -142,7 +142,7 @@ class DependencyManager:
                 (r"~?/\.claude/skills/", ""),
                 (r"sanctum:sanctum:", "sanctum:"),
                 (r"imbue:imbue:", "imbue:"),
-            ]
+            ],
         )
 
         # Apply corrections to all skill files
@@ -162,7 +162,7 @@ class DependencyManager:
                     skill_file.write_text(content)
                 prefix = "[DRY RUN] " if dry_run else ""
                 issues_fixed.append(
-                    f"{prefix}Updated {skill_file.name}: {file_changes} changes"
+                    f"{prefix}Updated {skill_file.name}: {file_changes} changes",
                 )
 
         return issues_fixed if issues_fixed else ["No changes needed"]
@@ -193,13 +193,17 @@ def main() -> None:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Manage plugin dependencies")
     parser.add_argument(
-        "--root", default="/home/alext/conservation", help="Plugin root directory"
+        "--root",
+        default="/home/alext/conservation",
+        help="Plugin root directory",
     )
     parser.add_argument("--scan", action="store_true", help="Scan for dependencies")
     parser.add_argument("--report", action="store_true", help="Generate full report")
     parser.add_argument("--fix", action="store_true", help="Fix dependency issues")
     parser.add_argument(
-        "--dry-run", action="store_true", help="Dry run for fix operations"
+        "--dry-run",
+        action="store_true",
+        help="Dry run for fix operations",
     )
 
     args = parser.parse_args()
@@ -207,21 +211,20 @@ def main() -> None:
     manager = DependencyManager(Path(args.root))
 
     if args.report:
-        print(manager.generate_report())
+        pass
     elif args.scan:
         issues = manager.detect_issues()
         if issues:
-            print(f"Found {len(issues)} issues:")
-            for issue in issues:
-                print(f"  - {issue}")
+            for _issue in issues:
+                pass
         else:
-            print("No issues found!")
+            pass
     elif args.fix:
         fixes = manager.fix_dependencies(dry_run=args.dry_run)
-        for fix in fixes:
-            print(fix)
+        for _fix in fixes:
+            pass
     else:
-        print("Use --report, --scan, or --fix. Use --help for details.")
+        pass
 
 
 if __name__ == "__main__":

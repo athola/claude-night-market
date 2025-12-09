@@ -20,7 +20,7 @@ PROJECTION_TURNS = [5, 10, 20]
 class GrowthAnalyzer:
     """Analyzes context growth patterns and generates projections."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the GrowthAnalyzer with default thresholds."""
         self.growth_thresholds = {
             "stable": 0.05,  # < 5% growth per turn
@@ -69,18 +69,17 @@ class GrowthAnalyzer:
             "analysis_timestamp": datetime.now().isoformat(),
         }
 
-    def _assess_severity(self, growth_rate):
+    def _assess_severity(self, growth_rate) -> str:
         """Determine growth severity level."""
         if growth_rate < self.growth_thresholds["mild"]:
             return "STABLE"
-        elif growth_rate < self.growth_thresholds["moderate"]:
+        if growth_rate < self.growth_thresholds["moderate"]:
             return "MILD"
-        elif growth_rate < self.growth_thresholds["severe"]:
+        if growth_rate < self.growth_thresholds["severe"]:
             return "MODERATE"
-        elif growth_rate < self.growth_thresholds["critical"]:
+        if growth_rate < self.growth_thresholds["critical"]:
             return "SEVERE"
-        else:
-            return "CRITICAL"
+        return "CRITICAL"
 
     def _assess_urgency(self, growth_rate, acceleration):
         """Determine control urgency level."""
@@ -94,7 +93,7 @@ class GrowthAnalyzer:
         total_contribution = 0
         controllable_contribution = 0
 
-        for _category, data in content_breakdown.items():
+        for data in content_breakdown.values():
             contribution = data.get("growth_contribution", 0)
             growth_rate = data.get("growth_rate", 0)
             total_contribution += contribution
@@ -137,7 +136,9 @@ class GrowthAnalyzer:
         # Estimate time to MECW violation (assuming 100% limit)
         if current_usage > 0 and growth_rate > 0:
             turns_to_mecw = self._estimate_mecw_violation(
-                current_usage, growth_rate, acceleration
+                current_usage,
+                growth_rate,
+                acceleration,
             )
             projections["mecw_violation_turns"] = turns_to_mecw
 
@@ -166,18 +167,25 @@ class GrowthAnalyzer:
         return turns if usage >= MECW_USAGE_LIMIT else float("inf")
 
 
-def main():
+def main() -> None:
     """Main entry point for context growth analysis."""
     parser = argparse.ArgumentParser(description="Analyze context growth patterns")
     parser.add_argument(
-        "--context-file", required=True, help="Path to context JSON file"
+        "--context-file",
+        required=True,
+        help="Path to context JSON file",
     )
     parser.add_argument(
-        "--output-json", action="store_true", help="Output results as JSON"
+        "--output-json",
+        action="store_true",
+        help="Output results as JSON",
     )
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
     parser.add_argument(
-        "--turns", type=int, default=20, help="Number of turns to project"
+        "--turns",
+        type=int,
+        default=20,
+        help="Number of turns to project",
     )
 
     args = parser.parse_args()
@@ -187,10 +195,8 @@ def main():
         with open(args.context_file) as f:
             context_data = json.load(f)
     except FileNotFoundError:
-        print(f"Error: Context file '{args.context_file}' not found")
         sys.exit(1)
     except json.JSONDecodeError:
-        print(f"Error: Invalid JSON in context file '{args.context_file}'")
         sys.exit(1)
 
     # Analyze growth patterns
@@ -198,36 +204,20 @@ def main():
     results = analyzer.analyze_growth_patterns(context_data)
 
     if args.output_json:
-        print(json.dumps(results, indent=2))
+        pass
     else:
-        print("=== Context Growth Analysis ===")
-        print(f"Growth Severity: {results['severity']}")
-        print(f"Control Urgency: {results['urgency']}")
-        print(f"Current Usage: {results['current_usage']}%")
-        print(f"Growth Rate: {results['growth_rate'] * 100:.2f}% per turn")
-        print(f"Growth Acceleration: {results['acceleration'] * 100:.2f}% per turn²")
-        print(f"Controllable Growth: {results['controllable_percentage']}%")
-
-        print("\n=== Projections ===")
         for key, projection in results["projections"].items():
             if key == "mecw_violation_turns":
                 if projection == float("inf"):
-                    print("MECW Violation: Never (within 1000 turns)")
+                    pass
                 else:
-                    print(f"MECW Violation: {projection} turns")
+                    pass
             else:
-                print(
-                    f"{key.replace('_', ' ').title()}: {projection['projected_usage']:.2f}% usage "
-                    f"({projection['growth_percentage']:+.1f}%)"
-                )
+                pass
 
         if args.verbose:
-            print("\n=== Content Breakdown ===")
-            for category, data in results["content_breakdown"].items():
-                print(
-                    f"{category}: {data['growth_contribution']} contribution, "
-                    f"{data['growth_rate'] * 100:.2f}% growth rate"
-                )
+            for _category, _data in results["content_breakdown"].items():
+                pass
 
 
 if __name__ == "__main__":

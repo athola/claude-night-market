@@ -25,7 +25,7 @@ def extract_python_blocks(skill_file):
     return functions
 
 
-def create_tool_reference(function_name, tool_name):
+def create_tool_reference(function_name, tool_name) -> str:
     """Create standardized tool reference."""
     return f"""Uses `tools/{tool_name}.py` for {function_name.replace("_", " ")}:
 
@@ -40,8 +40,6 @@ python tools/{tool_name}.py --input data.json --verbose --output results.json
 
 def quick_optimize_skill(skill_file):
     """Fast optimization focused on externalization."""
-    print(f"Optimizing {skill_file}...")
-
     # 1. Extract large functions
     functions = extract_python_blocks(skill_file)
 
@@ -88,7 +86,6 @@ if __name__ == "__main__":
             optimized_count += 1
 
     # 3. Update skill file with references
-    print(f"✓ Extracted {optimized_count} functions from {skill_file}")
     return optimized_count
 
 
@@ -106,6 +103,5 @@ if __name__ == "__main__":
         total_extracted = 0
         for skill_file in skill_files:
             total_extracted += quick_optimize_skill(skill_file)
-        print(f"Total functions extracted: {total_extracted}")
     else:
         quick_optimize_skill(args.skill_file)

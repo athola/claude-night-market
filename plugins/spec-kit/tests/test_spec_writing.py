@@ -1,13 +1,14 @@
 """Tests for spec-writing skill functionality."""
 
-# ruff: noqa: S101
 import re
 
 
 class TestSpecWriting:
     """Test cases for the Spec Writing skill."""
 
-    def test_spec_creation_from_natural_language(self, sample_feature_description):
+    def test_spec_creation_from_natural_language(
+        self, sample_feature_description
+    ) -> None:
         """Test creating specification from natural language description."""
         # Parse feature description
         feature_desc = sample_feature_description
@@ -18,7 +19,7 @@ class TestSpecWriting:
         assert "password" in feature_desc.lower()
         assert "role-based access control" in feature_desc.lower()
 
-    def test_spec_structure_validation(self, sample_spec_content):
+    def test_spec_structure_validation(self, sample_spec_content) -> None:
         """Test specification follows required structure."""
         spec = sample_spec_content
 
@@ -40,7 +41,7 @@ class TestSpecWriting:
             # Optional sections may or may not be present
             pass  # No assertion needed for optional sections
 
-    def test_user_scenario_formatting(self, sample_spec_content):
+    def test_user_scenario_formatting(self, sample_spec_content) -> None:
         """Test user scenarios follow proper format."""
         # Look for user scenario patterns
         scenario_pattern = r"### As a (\w+)\nI want to (.+)\nSo that (.+)"
@@ -53,11 +54,13 @@ class TestSpecWriting:
             assert want.strip(), "Desire should not be empty"
             assert so_that.strip(), "Purpose should not be empty"
 
-    def test_functional_requirements_structure(self, sample_spec_content):
+    def test_functional_requirements_structure(self, sample_spec_content) -> None:
         """Test functional requirements are properly structured."""
         # Look for functional requirement sections
         fr_sections = re.findall(
-            r"### ([^\n]+)\n(.+?)(?=\n###|\n##|$)", sample_spec_content, re.DOTALL
+            r"### ([^\n]+)\n(.+?)(?=\n###|\n##|$)",
+            sample_spec_content,
+            re.DOTALL,
         )
 
         assert len(fr_sections) > 0, "Should have functional requirement sections"
@@ -70,10 +73,12 @@ class TestSpecWriting:
                 "FR should have structured items"
             )
 
-    def test_success_criteria_measurability(self, sample_spec_content):
+    def test_success_criteria_measurability(self, sample_spec_content) -> None:
         """Test success criteria are measurable and verifiable."""
         success_section = re.search(
-            r"## Success Criteria\n(.+?)(?=\n##|$)", sample_spec_content, re.DOTALL
+            r"## Success Criteria\n(.+?)(?=\n##|$)",
+            sample_spec_content,
+            re.DOTALL,
         )
 
         assert success_section, "Should have Success Criteria section"
@@ -94,7 +99,7 @@ class TestSpecWriting:
         )
         assert has_measurable, "Success criteria should contain measurable elements"
 
-    def test_clarification_markers_limit(self, sample_spec_content):
+    def test_clarification_markers_limit(self, sample_spec_content) -> None:
         """Test clarification markers are limited (max 3)."""
         # Count clarification markers
         clarification_count = sample_spec_content.count("[CLARIFY]")
@@ -103,7 +108,7 @@ class TestSpecWriting:
             f"Too many clarification markers: {clarification_count} (max 3 allowed)"
         )
 
-    def test_implementation_details_avoidance(self, sample_spec_content):
+    def test_implementation_details_avoidance(self, sample_spec_content) -> None:
         """Test specification avoids implementation details."""
         # Look for implementation-specific terms that should be avoided
         implementation_terms = [
@@ -136,7 +141,7 @@ class TestSpecWriting:
             "Specification should avoid implementation details"
         )
 
-    def test_business_value_focus(self, sample_spec_content):
+    def test_business_value_focus(self, sample_spec_content) -> None:
         """Test specification focuses on business value."""
         # Look for business value indicators
         business_value_terms = [
@@ -160,7 +165,7 @@ class TestSpecWriting:
             f"Should include business value terms, found: {business_terms_found}"
         )
 
-    def test_acceptance_criteria_inclusion(self, sample_spec_content):
+    def test_acceptance_criteria_inclusion(self, sample_spec_content) -> None:
         """Test specification includes acceptance criteria."""
         # Acceptance criteria should be embedded in success criteria or scenarios
         acceptance_patterns = [
@@ -176,7 +181,7 @@ class TestSpecWriting:
         )
         assert has_acceptance_criteria, "Should include acceptance criteria"
 
-    def test_edge_cases_consideration(self, sample_spec_content):
+    def test_edge_cases_consideration(self, sample_spec_content) -> None:
         """Test specification considers edge cases."""
         # Look for edge case indicators
         edge_case_indicators = [
@@ -197,7 +202,7 @@ class TestSpecWriting:
         # Edge cases are optional but good to have
         # assert len(edge_cases_found) > 0, "Should consider edge cases"
 
-    def test_spec_clarity_readability(self, sample_spec_content):
+    def test_spec_clarity_readability(self, sample_spec_content) -> None:
         """Test specification is clear and readable."""
         # Check sentence complexity
         sentences = re.split(r"[.!?]+", sample_spec_content)
@@ -213,10 +218,12 @@ class TestSpecWriting:
         headings = re.findall(r"^#{1,6}\s+(.+)$", sample_spec_content, re.MULTILINE)
         assert len(headings) >= 4, "Should have clear heading structure"
 
-    def test_assumptions_documentation(self, sample_spec_content):
+    def test_assumptions_documentation(self, sample_spec_content) -> None:
         """Test assumptions are explicitly documented."""
         assumptions_section = re.search(
-            r"## Assumptions\n(.+?)(?=\n##|$)", sample_spec_content, re.DOTALL
+            r"## Assumptions\n(.+?)(?=\n##|$)",
+            sample_spec_content,
+            re.DOTALL,
         )
 
         if assumptions_section:
@@ -226,7 +233,7 @@ class TestSpecWriting:
                 "Assumptions should be structured"
             )
 
-    def test_non_personal_pronoun_usage(self, sample_spec_content):
+    def test_non_personal_pronoun_usage(self, sample_spec_content) -> None:
         """Test specification avoids personal pronouns (I, we, our)."""
         personal_pronouns = [" I ", " we ", " our ", " my "]
         spec_lower = " " + sample_spec_content.lower() + " "
@@ -239,7 +246,8 @@ class TestSpecWriting:
         for pronoun in found_pronouns:
             # Check if pronoun is in a user scenario
             scenario_context = re.search(
-                r"### As a [^\n]*[^\n]*" + pronoun + "[^\n]*", sample_spec_content
+                r"### As a [^\n]*[^\n]*" + pronoun + "[^\n]*",
+                sample_spec_content,
             )
             if not scenario_context:
                 non_scenario_pronouns.append(pronoun)
@@ -248,7 +256,7 @@ class TestSpecWriting:
             f"Found personal pronouns outside scenarios: {non_scenario_pronouns}"
         )
 
-    def test_spec_completeness_score(self, sample_spec_content):
+    def test_spec_completeness_score(self, sample_spec_content) -> None:
         """Test specification completeness scoring."""
         completeness_factors = {
             "overview": "## Overview" in sample_spec_content,
@@ -266,7 +274,7 @@ class TestSpecWriting:
         }
 
         completeness_score = sum(completeness_factors.values()) / len(
-            completeness_factors
+            completeness_factors,
         )
 
         # Should achieve at least 80% completeness

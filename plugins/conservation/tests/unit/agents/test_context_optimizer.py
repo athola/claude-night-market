@@ -4,9 +4,6 @@ This module tests the autonomous context optimization agent
 following TDD/BDD principles.
 """
 
-
-# ruff: noqa: S101
-
 import pytest
 
 
@@ -20,7 +17,9 @@ class TestContextOptimizerAgent:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_agent_autonomously_monitors_context_pressure(self, mock_mecw_analyzer):
+    def test_agent_autonomously_monitors_context_pressure(
+        self, mock_mecw_analyzer
+    ) -> None:
         """Scenario: Agent autonomously monitors context pressure
         Given varying context usage levels
         When monitoring context pressure
@@ -59,7 +58,7 @@ class TestContextOptimizerAgent:
                     "status": analysis["status"],
                     "action_taken": action,
                     "compliance": analysis["mecw_compliant"],
-                }
+                },
             )
 
         # Assert
@@ -75,7 +74,7 @@ class TestContextOptimizerAgent:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_agent_makes_optimal_optimization_decisions(self):
+    def test_agent_makes_optimal_optimization_decisions(self) -> None:
         """Scenario: Agent makes optimal optimization decisions
         Given multiple optimization strategies available
         When deciding on optimization approach
@@ -166,7 +165,7 @@ class TestContextOptimizerAgent:
                             "effectiveness": strategy["effectiveness"],
                             "risk": strategy["risk"],
                             "cost": strategy["cost"],
-                        }
+                        },
                     )
 
             # Select best strategy
@@ -196,7 +195,7 @@ class TestContextOptimizerAgent:
             assert decision["decision_score"] > 0
 
     @pytest.mark.unit
-    def test_agent_learns_from_optimization_outcomes(self):
+    def test_agent_learns_from_optimization_outcomes(self) -> None:
         """Scenario: Agent learns from optimization outcomes
         Given historical optimization results
         When making future decisions
@@ -267,7 +266,7 @@ class TestContextOptimizerAgent:
                         {
                             "strategy": strategy,
                             "learned_score": context_scores[scenario["context_type"]],
-                        }
+                        },
                     )
 
             if strategy_scores:
@@ -281,7 +280,7 @@ class TestContextOptimizerAgent:
                         "expected_strategy": scenario["expected_best"],
                         "improvement_applied": best_strategy["strategy"]
                         == scenario["expected_best"],
-                    }
+                    },
                 )
 
         # Assert

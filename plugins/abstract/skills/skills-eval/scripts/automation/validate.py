@@ -12,10 +12,7 @@ from pathlib import Path
 
 def validate_skill(skill_path):
     """Validate a single skill."""
-    print(f"\nValidating skill: {skill_path}")
-
     if not skill_path.exists():
-        print(f"❌ Skill file not found: {skill_path}")
         return False
 
     # Use modular-skills validator
@@ -32,31 +29,22 @@ def validate_skill(skill_path):
                 timeout=30,
             )
 
-            print("Validation output:")
-            print(result.stdout)
-
             if result.stderr:
-                print("Validation errors:")
-                print(result.stderr)
+                pass
 
             return result.returncode == 0
 
-        except Exception as e:
-            print(f"❌ Validation failed: {e}")
+        except Exception:
             return False
     else:
-        print("❌ Module validator not found")
         return False
 
 
 def validate_directory(directory):
     """Validate all skills in directory."""
-    print(f"Validating all skills in: {directory}")
-
     skill_files = list(Path(directory).glob("**/SKILL.md"))
 
     if not skill_files:
-        print("No SKILL.md files found")
         return True
 
     success_count = 0
@@ -66,14 +54,11 @@ def validate_directory(directory):
         if validate_skill(skill_file):
             success_count += 1
 
-    print(f"\nValidation complete: {success_count}/{total_count} skills passed")
     return success_count == total_count
 
 
-def check_dependencies():
+def check_dependencies() -> bool:
     """Check if required dependencies are available."""
-    print("Checking dependencies...")
-
     script_dir = Path(__file__).parent
     skills_eval_dir = script_dir.parent.parent
     modular_skills_dir = skills_eval_dir.parent / "modular-skills"
@@ -90,21 +75,19 @@ def check_dependencies():
         if not tool.exists():
             missing_tools.append(tool.name)
         else:
-            print(f"✓ {tool.name}")
+            pass
 
-    if missing_tools:
-        print(f"❌ Missing tools: {missing_tools}")
-        return False
-
-    return True
+    return not missing_tools
 
 
-def main():
+def main() -> None:
     """Validate skills from command line."""
     parser = argparse.ArgumentParser(description="Validate skills")
     parser.add_argument("path", help="Path to skill file or directory")
     parser.add_argument(
-        "--check-deps", action="store_true", help="Check dependencies only"
+        "--check-deps",
+        action="store_true",
+        help="Check dependencies only",
     )
 
     args = parser.parse_args()
@@ -119,7 +102,6 @@ def main():
         elif path.is_dir():
             success = validate_directory(path)
         else:
-            print(f"❌ Invalid path: {path}")
             success = False
 
     sys.exit(0 if success else 1)

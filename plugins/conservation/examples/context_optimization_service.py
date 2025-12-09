@@ -28,7 +28,7 @@ class ContentBlock:
 class ConservationContextOptimizer:
     """Main context optimization service provided by Conservation plugin."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.strategies = {
             "priority": self._optimize_by_priority,
             "recency": self._optimize_by_recency,
@@ -39,7 +39,7 @@ class ConservationContextOptimizer:
         self.optimizers = {}
         self._register_builtin_optimizers()
 
-    def _register_builtin_optimizers(self):
+    def _register_builtin_optimizers(self) -> None:
         """Register built-in optimization strategies."""
         self.optimizers.update(
             {
@@ -48,7 +48,7 @@ class ConservationContextOptimizer:
                 "conservation.importance": self._optimize_by_importance,
                 "conservation.semantic": self._optimize_by_semantic_importance,
                 "conservation.balanced": self._optimize_balanced,
-            }
+            },
         )
 
     def optimize_content(
@@ -106,7 +106,9 @@ class ConservationContextOptimizer:
         return result
 
     def _optimize_by_priority(
-        self, blocks: list[ContentBlock], max_tokens: int
+        self,
+        blocks: list[ContentBlock],
+        max_tokens: int,
     ) -> list[ContentBlock]:
         """Keep blocks with highest priority scores."""
         # Sort by priority (descending)
@@ -135,7 +137,9 @@ class ConservationContextOptimizer:
         return kept_blocks
 
     def _optimize_by_recency(
-        self, blocks: list[ContentBlock], max_tokens: int
+        self,
+        blocks: list[ContentBlock],
+        max_tokens: int,
     ) -> list[ContentBlock]:
         """Keep most recent blocks based on metadata."""
 
@@ -157,7 +161,9 @@ class ConservationContextOptimizer:
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
     def _optimize_by_importance(
-        self, blocks: list[ContentBlock], max_tokens: int
+        self,
+        blocks: list[ContentBlock],
+        max_tokens: int,
     ) -> list[ContentBlock]:
         """Keep blocks based on importance keywords and patterns."""
         # Importance indicators
@@ -178,7 +184,7 @@ class ConservationContextOptimizer:
             # Add points for importance patterns
             for pattern in important_patterns:
                 matches = len(
-                    re.findall(pattern, block.content, re.IGNORECASE | re.MULTILINE)
+                    re.findall(pattern, block.content, re.IGNORECASE | re.MULTILINE),
                 )
                 score += matches * 0.1
 
@@ -204,7 +210,9 @@ class ConservationContextOptimizer:
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
     def _optimize_by_semantic_importance(
-        self, blocks: list[ContentBlock], max_tokens: int
+        self,
+        blocks: list[ContentBlock],
+        max_tokens: int,
     ) -> list[ContentBlock]:
         """Semantic optimization based on content analysis."""
         # Simple semantic scoring based on content characteristics
@@ -251,7 +259,9 @@ class ConservationContextOptimizer:
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
     def _optimize_balanced(
-        self, blocks: list[ContentBlock], max_tokens: int
+        self,
+        blocks: list[ContentBlock],
+        max_tokens: int,
     ) -> list[ContentBlock]:
         """Balanced optimization considering multiple factors."""
         # Combine multiple scoring methods
@@ -297,7 +307,9 @@ class ConservationContextOptimizer:
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
     def _truncate_block(
-        self, block: ContentBlock, max_tokens: int
+        self,
+        block: ContentBlock,
+        max_tokens: int,
     ) -> ContentBlock | None:
         """Truncate a block to fit within token limit."""
         if block.token_estimate <= max_tokens:
@@ -361,7 +373,7 @@ class ConservationServiceRegistry:
             cls._instance.services = {}
         return cls._instance
 
-    def register_service(self, name: str, service: Callable):
+    def register_service(self, name: str, service: Callable) -> None:
         """Register a service that other plugins can use."""
         self.services[name] = service
 
@@ -380,7 +392,8 @@ registry.register_service("context_optimizer", ConservationContextOptimizer())
 registry.register_service(
     "optimize_content",
     lambda *args, **kwargs: ConservationContextOptimizer().optimize_content(
-        *args, **kwargs
+        *args,
+        **kwargs,
     ),
 )
 
@@ -416,7 +429,10 @@ def example_abstract_usage():
     # Use Conservation to optimize
     optimizer = ConservationContextOptimizer()
     result = optimizer.optimize_content(
-        blocks, max_tokens=2000, strategy="importance", preserve_structure=True
+        blocks,
+        max_tokens=2000,
+        strategy="importance",
+        preserve_structure=True,
     )
 
     return result["optimized_content"]
@@ -433,10 +449,12 @@ def example_sanctum_usage():
 
     if optimize:
         # Use it to optimize git commit messages and diffs
-        optimized = optimize(
-            content_blocks=git_content_blocks, max_tokens=1500, strategy="recency"
+        return optimize(
+            content_blocks=git_content_blocks,
+            max_tokens=1500,
+            strategy="recency",
         )
-        return optimized
+    return None
 
 
 if __name__ == "__main__":
@@ -477,17 +495,13 @@ if __name__ == "__main__":
 
     # Test different strategies
     for strategy in ["priority", "importance", "balanced"]:
-        print(f"\nStrategy: {strategy}")
         result = optimizer.optimize_content(
-            example_blocks, max_tokens=150, strategy=strategy
+            example_blocks,
+            max_tokens=150,
+            strategy=strategy,
         )
-        print(f"  Original tokens: {result['original_tokens']}")
-        print(f"  Optimized tokens: {result['optimized_tokens']}")
-        print(f"  Compression ratio: {result['compression_ratio']:.2f}")
-        print(f"  Blocks kept: {result['blocks_kept']}/{len(example_blocks)}")
 
     # Show available services
-    print("\nAvailable Conservation Services:")
     registry = ConservationServiceRegistry()
-    for service_name in registry.list_services():
-        print(f"  - {service_name}")
+    for _service_name in registry.list_services():
+        pass
