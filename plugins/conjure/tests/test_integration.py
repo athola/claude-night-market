@@ -16,6 +16,7 @@ from quota_tracker import GeminiQuotaTracker
 from usage_logger import GeminiUsageLogger, UsageEntry
 
 
+# ruff: noqa: S101
 class TestDelegationExecutorIntegration:
     """Test integration scenarios for delegation executor."""
 

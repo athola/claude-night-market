@@ -545,6 +545,7 @@ class TestQuotaTrackerCli:
 
         with patch('builtins.print') as mock_print:
             from quota_tracker import main
+# ruff: noqa: S101
             main()
 
         mock_tracker.get_quota_status.assert_called_once()

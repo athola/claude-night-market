@@ -675,3 +675,5 @@ class TestSystemIntegrationEdgeCases:
 
 # Import os for environment variable tests
 import os
+
+# ruff: noqa: S101

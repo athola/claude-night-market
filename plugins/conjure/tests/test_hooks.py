@@ -504,6 +504,7 @@ class TestHookIntegration:
             with patch('bridge.on_tool_start._QUOTA_AVAILABLE', False):
                 from bridge.on_tool_start import _FallbackQuotaTracker
 
+# ruff: noqa: S101
                 fallback_tracker = _FallbackQuotaTracker()
                 status, warnings = fallback_tracker.get_quota_status()
                 can_handle, issues = fallback_tracker.can_handle_task(10000)

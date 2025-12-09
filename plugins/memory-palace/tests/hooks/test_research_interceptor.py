@@ -14,6 +14,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))
 
 from research_interceptor import (
+# ruff: noqa: S101
     extract_query_intent,
     format_cached_entry_context,
     is_evergreen,

@@ -305,11 +305,11 @@ import json
 from typing import List, Dict
 
 def process_data(data: List[Dict]) -> List[Dict]:
-    """Process a list of data dictionaries."""
+    '''Process a list of data dictionaries.'''
     return [item for item in data if item.get('active', False)]
 
 def export_to_json(data: List[Dict], filename: str) -> None:
-    """Export data to JSON file."""
+    '''Export data to JSON file.'''
     with open(filename, 'w') as f:
         json.dump(data, f, indent=2)
         """)

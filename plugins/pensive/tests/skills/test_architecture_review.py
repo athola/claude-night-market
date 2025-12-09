@@ -324,7 +324,7 @@ class TestArchitectureReviewSkill:
         assert "flow_components" in data_flow_analysis
 
     @pytest.mark.unit
-    def test_checks scalability_patterns(self, mock_skill_context):
+    def test_checks_scalability_patterns(self, mock_skill_context):
         """Given architecture implementation, when skill analyzes, then evaluates scalability patterns."""
         # Arrange
         scalability_code = """

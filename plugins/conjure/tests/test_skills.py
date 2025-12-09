@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from delegation_executor import Delegator, ExecutionResult, ServiceConfig
 
 
+# ruff: noqa: S101
 class TestSkillStructure:
     """Test skill file structure and metadata."""
 

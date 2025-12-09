@@ -507,7 +507,7 @@ def deeply_nested_function():
     def test_asyncio_event_loop_errors(self):
         """Given asyncio event loop issues, when analyzing, then handles correctly."""
         # Arrange
-        async code = '''
+        async_code = '''
 async def test_function():
     await asyncio.sleep(0.1)
     return "result"
@@ -527,7 +527,7 @@ async def test_function():
                 skill = AsyncAnalysisSkill()
                 # This should handle the case where there's no running loop
                 with pytest.raises(RuntimeError):
-                    asyncio.run(skill.analyze_async_functions(code))
+                    asyncio.run(skill.analyze_async_functions(async_code))
 
                 # Cleanup
                 new_loop.close()

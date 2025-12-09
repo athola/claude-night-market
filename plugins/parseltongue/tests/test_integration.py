@@ -299,7 +299,7 @@ class SlowProcessor:
         self.cache = []
 
     def process_sequential(self, items):
-        """O(n²) sequential processing."""
+        '''O(n^2) sequential processing.'''
         results = []
         for item in items:
             for other_item in items:
@@ -308,7 +308,7 @@ class SlowProcessor:
         return results
 
     async def async_blocking(self, items):
-        """Async code with blocking operations."""
+        '''Async code with blocking operations.'''
         for item in items:
             time.sleep(0.1)  # Blocks event loop
             await self.process_item(item)

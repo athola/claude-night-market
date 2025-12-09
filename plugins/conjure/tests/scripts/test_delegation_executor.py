@@ -399,3 +399,5 @@ class TestDelegatorCli:
 
 # Import os for environment variable mocking
 import os
+
+# ruff: noqa: S101

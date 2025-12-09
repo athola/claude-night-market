@@ -547,6 +547,7 @@ class TestUsageLoggerCli:
 
         with patch('builtins.print') as mock_print:
             from usage_logger import main
+# ruff: noqa: S101
             main()
 
         mock_print.assert_any_call("Usage: usage-logger --log <command> <tokens> <success> <duration>")
