@@ -336,9 +336,9 @@ def main() -> None:
         response = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
-                "additionalContext": "\n".join(response_parts),
-                "blockToolExecution": True,
-                "blockReason": "cache_only mode: local knowledge available"
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "cache_only mode: local knowledge available",
+                "additionalContext": "\n".join(response_parts)
             }
         }
         print(json.dumps(response))
@@ -348,6 +348,7 @@ def main() -> None:
         response = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
+                "permissionDecision": "allow",
                 "additionalContext": "\n".join(response_parts)
             }
         }
