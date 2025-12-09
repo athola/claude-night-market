@@ -73,7 +73,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_context_optimization_creates_required_todowrite_items(self, mock_todo_write):
+    def test_context_optimization_creates_required_todowrite_items(
+        self, mock_todo_write
+    ):
         """Scenario: Context optimization creates required TodoWrite items
         Given the context-optimization skill is executed
         When establishing the optimization workflow
@@ -86,7 +88,7 @@ tags:
             "context-optimization:context-classification",
             "context-optimization:module-coordination",
             "context-optimization:synthesis",
-            "context-optimization:validation"
+            "context-optimization:validation",
         ]
 
         # Act - simulate context-optimization skill execution
@@ -95,14 +97,17 @@ tags:
             "context-optimization:context-classification",
             "context-optimization:module-coordination",
             "context-optimization:synthesis",
-            "context-optimization:validation"
+            "context-optimization:validation",
         ]
 
         # Assert
         assert len(context_optimization_items) == 5
         for expected_item in expected_items:
             assert expected_item in context_optimization_items
-        assert all(item.startswith("context-optimization:") for item in context_optimization_items)
+        assert all(
+            item.startswith("context-optimization:")
+            for item in context_optimization_items
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -118,14 +123,19 @@ tags:
             {"context_tokens": 2000, "expected_status": "LOW"},
             {"context_tokens": 50000, "expected_status": "OPTIMAL"},
             {"context_tokens": 120000, "expected_status": "HIGH"},
-            {"context_tokens": 160000, "expected_status": "CRITICAL"}
+            {"context_tokens": 160000, "expected_status": "CRITICAL"},
         ]
 
         # Act & Assert
         for scenario in test_scenarios:
-            analysis = mock_mecw_analyzer.analyze_context_usage(scenario["context_tokens"])
+            analysis = mock_mecw_analyzer.analyze_context_usage(
+                scenario["context_tokens"]
+            )
 
-            assert analysis["utilization_percentage"] == (scenario["context_tokens"] / 200000) * 100
+            assert (
+                analysis["utilization_percentage"]
+                == (scenario["context_tokens"] / 200000) * 100
+            )
             assert analysis["status"] == scenario["expected_status"]
 
             # Check MECW compliance (50% rule)
@@ -145,14 +155,14 @@ tags:
         And assign appropriate priority levels.
         """
         # Arrange
-        mock_claude_tools['Bash'].side_effect = [
+        mock_claude_tools["Bash"].side_effect = [
             "85000",  # Current context tokens
-            "200000"  # Total window size
+            "200000",  # Total window size
         ]
 
         # Act - simulate context classification
-        current_context = int(mock_claude_tools['Bash']("echo $CURRENT_CONTEXT_TOKENS"))
-        window_size = int(mock_claude_tools['Bash']("echo $CONTEXT_WINDOW_SIZE"))
+        current_context = int(mock_claude_tools["Bash"]("echo $CURRENT_CONTEXT_TOKENS"))
+        window_size = int(mock_claude_tools["Bash"]("echo $CONTEXT_WINDOW_SIZE"))
         utilization_percentage = (current_context / window_size) * 100
 
         # Classify based on utilization
@@ -189,18 +199,18 @@ tags:
             {
                 "context_situation": "CRITICAL",
                 "task_complexity": "high",
-                "expected_modules": ["mecw-assessment", "subagent-coordination"]
+                "expected_modules": ["mecw-assessment", "subagent-coordination"],
             },
             {
                 "context_situation": "HIGH",
                 "task_complexity": "medium",
-                "expected_modules": ["mecw-principles", "mecw-assessment"]
+                "expected_modules": ["mecw-principles", "mecw-assessment"],
             },
             {
                 "context_situation": "OPTIMAL",
                 "task_complexity": "low",
-                "expected_modules": ["mecw-assessment"]
-            }
+                "expected_modules": ["mecw-assessment"],
+            },
         ]
 
         # Act & Assert - test each scenario
@@ -239,18 +249,27 @@ tags:
             {
                 "module": "mecw-assessment",
                 "findings": ["Context at 65% utilization", "Exceeds 50% threshold"],
-                "recommendations": ["Apply context compression", "Remove redundant content"]
+                "recommendations": [
+                    "Apply context compression",
+                    "Remove redundant content",
+                ],
             },
             {
                 "module": "subagent-coordination",
                 "findings": ["Complex task with multiple phases"],
-                "recommendations": ["Delegate to specialized subagents", "Use task decomposition"]
+                "recommendations": [
+                    "Delegate to specialized subagents",
+                    "Use task decomposition",
+                ],
             },
             {
                 "module": "mecw-principles",
                 "findings": ["MECW violation detected"],
-                "recommendations": ["Implement 50% rule compliance", "Monitor continuously"]
-            }
+                "recommendations": [
+                    "Implement 50% rule compliance",
+                    "Monitor continuously",
+                ],
+            },
         ]
 
         # Act - synthesize results
@@ -263,7 +282,9 @@ tags:
 
         # Remove duplicate recommendations
         unique_recommendations = list(set(synthesized_recommendations))
-        prioritized_recommendations = sorted(unique_recommendations, key=len, reverse=True)
+        prioritized_recommendations = sorted(
+            unique_recommendations, key=len, reverse=True
+        )
 
         # Assert
         assert len(synthesized_findings) == 4
@@ -283,13 +304,21 @@ tags:
         And ensure MECW compliance.
         """
         # Arrange
-        before_optimization = mock_mecw_analyzer.analyze_context_usage(120000)  # 60% utilization
-        after_optimization = mock_mecw_analyzer.analyze_context_usage(80000)    # 40% utilization
+        before_optimization = mock_mecw_analyzer.analyze_context_usage(
+            120000
+        )  # 60% utilization
+        after_optimization = mock_mecw_analyzer.analyze_context_usage(
+            80000
+        )  # 40% utilization
 
         # Act - calculate improvements
-        improvement_percentage = ((before_optimization["utilization_percentage"] -
-                                  after_optimization["utilization_percentage"]) /
-                                 before_optimization["utilization_percentage"]) * 100
+        improvement_percentage = (
+            (
+                before_optimization["utilization_percentage"]
+                - after_optimization["utilization_percentage"]
+            )
+            / before_optimization["utilization_percentage"]
+        ) * 100
 
         # Assert
         assert before_optimization["status"] == "HIGH"
@@ -301,7 +330,9 @@ tags:
         assert improvement_percentage > 30.0  # Significant improvement
 
     @pytest.mark.unit
-    def test_context_optimization_handles_large_contexts_efficiently(self, mock_claude_tools):
+    def test_context_optimization_handles_large_contexts_efficiently(
+        self, mock_claude_tools
+    ):
         """Scenario: Context optimization handles large contexts efficiently
         Given very large context windows approaching limits
         When applying optimization
@@ -310,10 +341,10 @@ tags:
         """
         # Arrange
         large_context_size = 180000  # 90% of 200k window
-        mock_claude_tools['Bash'].return_value = str(large_context_size)
+        mock_claude_tools["Bash"].return_value = str(large_context_size)
 
         # Act - simulate large context optimization
-        current_context = int(mock_claude_tools['Bash']("echo $CURRENT_CONTEXT_TOKENS"))
+        current_context = int(mock_claude_tools["Bash"]("echo $CURRENT_CONTEXT_TOKENS"))
         window_size = 200000
         utilization = (current_context / window_size) * 100
 
@@ -346,38 +377,45 @@ tags:
         And document issues for troubleshooting.
         """
         # Arrange
-        mock_claude_tools['Bash'].side_effect = [
+        mock_claude_tools["Bash"].side_effect = [
             "invalid",  # Invalid context token measurement
-            "0",        # Zero window size
-            "Error: Context unavailable"  # Error condition
+            "0",  # Zero window size
+            "Error: Context unavailable",  # Error condition
         ]
 
         # Act - simulate error handling
         error_log = []
         fallback_strategies = []
 
-        for i, result in enumerate(mock_claude_tools['Bash'].side_effect):
+        for i, result in enumerate(mock_claude_tools["Bash"].side_effect):
             try:
                 context_tokens = int(result)
                 if context_tokens <= 0:
                     raise ValueError("Invalid context measurement")
             except (ValueError, TypeError) as e:
-                error_log.append(f"Attempt {i+1}: {str(e)}")
-                fallback_strategies.append({
-                    "attempt": i+1,
-                    "strategy": "use_estimated_context",
-                    "estimated_tokens": 50000,
-                    "confidence": 0.7
-                })
+                error_log.append(f"Attempt {i + 1}: {str(e)}")
+                fallback_strategies.append(
+                    {
+                        "attempt": i + 1,
+                        "strategy": "use_estimated_context",
+                        "estimated_tokens": 50000,
+                        "confidence": 0.7,
+                    }
+                )
 
         # Assert
         assert len(error_log) == 3
         assert len(fallback_strategies) == 3
-        assert all(strategy["strategy"] == "use_estimated_context" for strategy in fallback_strategies)
+        assert all(
+            strategy["strategy"] == "use_estimated_context"
+            for strategy in fallback_strategies
+        )
         assert all("invalid" in error.lower() for error in error_log)
 
     @pytest.mark.unit
-    def test_context_optimization_token_budget_conservation(self, sample_context_analysis):
+    def test_context_optimization_token_budget_conservation(
+        self, sample_context_analysis
+    ):
         """Scenario: Context optimization conserves token budget effectively
         Given limited token budget for optimization tasks
         When optimizing context
@@ -394,7 +432,7 @@ tags:
             {"task": "compression_strategy", "cost": 50, "impact": "high"},
             {"task": "module_coordination", "cost": 40, "impact": "medium"},
             {"task": "validation", "cost": 20, "impact": "medium"},
-            {"task": "reporting", "cost": 10, "impact": "low"}
+            {"task": "reporting", "cost": 10, "impact": "low"},
         ]
 
         # Prioritize by impact while respecting budget

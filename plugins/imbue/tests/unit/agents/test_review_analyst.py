@@ -4,7 +4,6 @@ This module tests the autonomous review agent capabilities and workflow integrat
 following TDD/BDD principles and testing all agent scenarios.
 """
 
-
 # ruff: noqa: S101
 from datetime import UTC, datetime
 from unittest.mock import Mock
@@ -32,13 +31,13 @@ class TestReviewAnalystAgent:
                 "scope_discovery",
                 "evidence_gathering",
                 "finding_categorization",
-                "deliverable_generation"
+                "deliverable_generation",
             ],
             "integrates_with": [
                 "review-core",
                 "evidence-logging",
                 "structured-output",
-                "diff-analysis"
+                "diff-analysis",
             ],
             "workflow_steps": [
                 "Initialize",
@@ -46,8 +45,8 @@ class TestReviewAnalystAgent:
                 "Analyze",
                 "Categorize",
                 "Format",
-                "Report"
-            ]
+                "Report",
+            ],
         }
 
     @pytest.fixture
@@ -59,7 +58,7 @@ class TestReviewAnalystAgent:
             "focus": "security_review",
             "target": "src/auth/",
             "tools_available": ["Read", "Glob", "Grep", "Bash"],
-            "completed_steps": []
+            "completed_steps": [],
         }
 
     @pytest.fixture
@@ -77,7 +76,7 @@ class TestReviewAnalystAgent:
                 "evidence_refs": ["E1", "E2", "E3"],
                 "recommendation": "Use parameterized queries or ORM to prevent SQL injection",
                 "cvss_score": 9.8,
-                "impact": "Complete database compromise possible"
+                "impact": "Complete database compromise possible",
             },
             {
                 "id": "F2",
@@ -90,7 +89,7 @@ class TestReviewAnalystAgent:
                 "evidence_refs": ["E4", "E5"],
                 "recommendation": "Implement proper password hashing using bcrypt or Argon2",
                 "cvss_score": 9.0,
-                "impact": "User credentials exposed in data breach"
+                "impact": "User credentials exposed in data breach",
             },
             {
                 "id": "F3",
@@ -103,13 +102,15 @@ class TestReviewAnalystAgent:
                 "evidence_refs": ["E6"],
                 "recommendation": "Implement rate limiting with exponential backoff",
                 "cvss_score": 7.5,
-                "impact": "Account takeover through credential stuffing"
-            }
+                "impact": "Account takeover through credential stuffing",
+            },
         ]
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_agent_follows_imbue_workflow(self, mock_claude_tools, sample_agent_session):
+    def test_agent_follows_imbue_workflow(
+        self, mock_claude_tools, sample_agent_session
+    ):
         """Scenario: Agent uses all imbue skills correctly
         Given a review-analyst dispatch
         When conducting review
@@ -126,44 +127,58 @@ class TestReviewAnalystAgent:
             skill_contexts[skill_name] = context.copy()
             return f"{skill_name} executed successfully"
 
-        mock_claude_tools['Skill'] = Mock(side_effect=mock_skill_usage)
+        mock_claude_tools["Skill"] = Mock(side_effect=mock_skill_usage)
 
         # Act - simulate agent workflow execution
         agent_context = sample_agent_session.copy()
 
         # Step 1: Initialize with review-core
-        mock_claude_tools['Skill']("review-core", {
-            "agent": "review-analyst",
-            "focus": agent_context["focus"],
-            "target": agent_context["target"]
-        })
+        mock_claude_tools["Skill"](
+            "review-core",
+            {
+                "agent": "review-analyst",
+                "focus": agent_context["focus"],
+                "target": agent_context["target"],
+            },
+        )
         agent_context["completed_steps"].append("workflow_scaffolded")
 
         # Step 2: Set up evidence logging
-        mock_claude_tools['Skill']("evidence-logging", {
-            "session_id": agent_context["session_id"],
-            "agent": "review-analyst"
-        })
+        mock_claude_tools["Skill"](
+            "evidence-logging",
+            {"session_id": agent_context["session_id"], "agent": "review-analyst"},
+        )
         agent_context["completed_steps"].append("evidence_logging_ready")
 
         # Step 3: Analyze changes with diff-analysis
-        mock_claude_tools['Skill']("diff-analysis", {
-            "baseline": "main",
-            "target": agent_context["target"],
-            "focus": agent_context["focus"]
-        })
+        mock_claude_tools["Skill"](
+            "diff-analysis",
+            {
+                "baseline": "main",
+                "target": agent_context["target"],
+                "focus": agent_context["focus"],
+            },
+        )
         agent_context["completed_steps"].append("changes_analyzed")
 
         # Step 4: Format output with structured-output
-        mock_claude_tools['Skill']("structured-output", {
-            "template_type": "security_review",
-            "findings_count": 3,  # Would be populated from actual analysis
-            "evidence_count": 6
-        })
+        mock_claude_tools["Skill"](
+            "structured-output",
+            {
+                "template_type": "security_review",
+                "findings_count": 3,  # Would be populated from actual analysis
+                "evidence_count": 6,
+            },
+        )
         agent_context["completed_steps"].append("report_formatted")
 
         # Assert
-        expected_skills = ["review-core", "evidence-logging", "diff-analysis", "structured-output"]
+        expected_skills = [
+            "review-core",
+            "evidence-logging",
+            "diff-analysis",
+            "structured-output",
+        ]
         assert len(used_skills) == 4
         assert all(skill in used_skills for skill in expected_skills)
 
@@ -175,7 +190,9 @@ class TestReviewAnalystAgent:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_agent_gathers_reproducible_evidence(self, mock_claude_tools, sample_agent_findings):
+    def test_agent_gathers_reproducible_evidence(
+        self, mock_claude_tools, sample_agent_findings
+    ):
         """Scenario: Agent captures reproducible evidence
         Given an agent conducting review
         When analyzing artifacts
@@ -186,39 +203,39 @@ class TestReviewAnalystAgent:
         evidence_log = {
             "session_id": "agent-session-123",
             "evidence": [],
-            "citations": []
+            "citations": [],
         }
 
         # Mock tool usage for evidence gathering
-        mock_claude_tools['Bash'].side_effect = [
-            "src/auth/login.py:45: query = \"SELECT * FROM users WHERE email = '\" + email + \"'\"",  # Grep for SQL patterns
+        mock_claude_tools["Bash"].side_effect = [
+            'src/auth/login.py:45: query = "SELECT * FROM users WHERE email = \'" + email + "\'"',  # Grep for SQL patterns
             "src/auth/models.py:23: password = user_data['password']",  # Grep for password storage
             "src/auth/api.py:15: @app.route('/login', methods=['POST'])",  # Grep for endpoints
         ]
 
-        mock_claude_tools['Read'].side_effect = [
-            "def authenticate_user(email, password):\n    # SQL injection vulnerable code\n    query = \"SELECT * FROM users WHERE email = '\" + email + \"'\"\n    cursor.execute(query)",
+        mock_claude_tools["Read"].side_effect = [
+            'def authenticate_user(email, password):\n    # SQL injection vulnerable code\n    query = "SELECT * FROM users WHERE email = \'" + email + "\'"\n    cursor.execute(query)',
             "class User:\n    def __init__(self, data):\n        self.email = data['email']\n        self.password = data['password']  # Stored in plaintext",
-            "@app.route('/login', methods=['POST'])\ndef login():\n    # No rate limiting implemented\n    return authenticate()"
+            "@app.route('/login', methods=['POST'])\ndef login():\n    # No rate limiting implemented\n    return authenticate()",
         ]
 
         # Act - gather evidence for findings
         for i, finding in enumerate(sample_agent_findings):
             # Simulate evidence collection for each finding
             search_pattern = self._get_search_pattern_for_finding(finding)
-            search_results = mock_claude_tools['Grep'](search_pattern)
+            search_results = mock_claude_tools["Grep"](search_pattern)
 
             # Read the relevant file
-            mock_claude_tools['Read'](finding["file"])
+            mock_claude_tools["Read"](finding["file"])
 
             # Log evidence
             evidence_item = {
-                "id": f"E{i+1}",
+                "id": f"E{i + 1}",
                 "command": f"grep -r '{search_pattern}' src/",
                 "output": search_results,
                 "timestamp": datetime.now(UTC).isoformat(),
                 "file": finding["file"],
-                "line": finding["line"]
+                "line": finding["line"],
             }
             evidence_log["evidence"].append(evidence_item)
 
@@ -231,7 +248,9 @@ class TestReviewAnalystAgent:
             # Verify evidence references correspond to logged evidence
             for ref in finding["evidence_refs"]:
                 evidence_exists = any(e["id"] == ref for e in evidence_log["evidence"])
-                assert evidence_exists, f"Evidence reference {ref} not found in evidence log"
+                assert evidence_exists, (
+                    f"Evidence reference {ref} not found in evidence log"
+                )
 
         # Verify evidence completeness
         for evidence in evidence_log["evidence"]:
@@ -261,34 +280,37 @@ class TestReviewAnalystAgent:
         And follow consistent criteria.
         """
         # Arrange & Act - analyze and categorize findings
-        categorized_findings = {
-            "Critical": [],
-            "High": [],
-            "Medium": [],
-            "Low": []
-        }
+        categorized_findings = {"Critical": [], "High": [], "Medium": [], "Low": []}
 
         severity_criteria = {
             "Critical": {
                 "description": "Vulnerabilities that can be exploited without user interaction and result in complete system compromise",
-                "examples": ["Remote code execution", "SQL injection", "Authentication bypass"],
-                "cvss_range": (9.0, 10.0)
+                "examples": [
+                    "Remote code execution",
+                    "SQL injection",
+                    "Authentication bypass",
+                ],
+                "cvss_range": (9.0, 10.0),
             },
             "High": {
                 "description": "Vulnerabilities that require some user interaction or privileges and result in significant impact",
-                "examples": ["Privilege escalation", "Data exposure", "Denial of service"],
-                "cvss_range": (7.0, 8.9)
+                "examples": [
+                    "Privilege escalation",
+                    "Data exposure",
+                    "Denial of service",
+                ],
+                "cvss_range": (7.0, 8.9),
             },
             "Medium": {
                 "description": "Vulnerabilities with limited impact or requiring complex exploitation",
                 "examples": ["Information disclosure", "Weak cryptography"],
-                "cvss_range": (4.0, 6.9)
+                "cvss_range": (4.0, 6.9),
             },
             "Low": {
                 "description": "Vulnerabilities with minimal impact or requiring local access",
                 "examples": ["Informational findings", "Best practice violations"],
-                "cvss_range": (0.1, 3.9)
-            }
+                "cvss_range": (0.1, 3.9),
+            },
         }
 
         # Categorize findings and add justifications
@@ -303,7 +325,8 @@ class TestReviewAnalystAgent:
             categorized_finding["severity_justification"] = {
                 "rationale": criteria["description"],
                 "cvss_score": cvss_score,
-                "matches_criteria": cvss_score >= criteria["cvss_range"][0] and cvss_score <= criteria["cvss_range"][1]
+                "matches_criteria": cvss_score >= criteria["cvss_range"][0]
+                and cvss_score <= criteria["cvss_range"][1],
             }
 
             categorized_findings[severity].append(categorized_finding)
@@ -341,10 +364,14 @@ class TestReviewAnalystAgent:
             enhanced_finding = finding.copy()
 
             # Add implementation guidance
-            enhanced_finding["implementation_guidance"] = self._generate_implementation_guidance(finding)
+            enhanced_finding["implementation_guidance"] = (
+                self._generate_implementation_guidance(finding)
+            )
 
             # Add verification steps
-            enhanced_finding["verification_steps"] = self._generate_verification_steps(finding)
+            enhanced_finding["verification_steps"] = self._generate_verification_steps(
+                finding
+            )
 
             # Add estimated effort
             enhanced_finding["estimated_effort"] = self._estimate_effort(finding)
@@ -364,16 +391,26 @@ class TestReviewAnalystAgent:
             # Verify recommendation specificity
             guidance = finding["implementation_guidance"]
             assert len(guidance) > 20  # Detailed guidance
-            assert any(keyword in guidance.lower() for keyword in ["use", "implement", "add", "configure"])
+            assert any(
+                keyword in guidance.lower()
+                for keyword in ["use", "implement", "add", "configure"]
+            )
 
             # Verify verification steps
             verification = finding["verification_steps"]
             assert len(verification) >= 1  # At least one verification step
-            assert any(keyword in " ".join(verification).lower() for keyword in ["test", "verify", "check", "confirm"])
+            assert any(
+                keyword in " ".join(verification).lower()
+                for keyword in ["test", "verify", "check", "confirm"]
+            )
 
         # Check specific findings
-        sql_injection_finding = next(f for f in enhanced_findings if "SQL injection" in f["title"])
-        assert "parameterized" in sql_injection_finding["implementation_guidance"].lower()
+        sql_injection_finding = next(
+            f for f in enhanced_findings if "SQL injection" in f["title"]
+        )
+        assert (
+            "parameterized" in sql_injection_finding["implementation_guidance"].lower()
+        )
         assert len(sql_injection_finding["verification_steps"]) >= 2
 
     def _generate_implementation_guidance(self, finding):
@@ -381,26 +418,24 @@ class TestReviewAnalystAgent:
         guidance_map = {
             "SQL injection": "Replace string concatenation with parameterized queries using prepared statements or ORM. Example: cursor.execute('SELECT * FROM users WHERE email = %s', (email,))",
             "password": "Implement strong password hashing using bcrypt or Argon2. Store only salted hashes, never plaintext passwords. Example: bcrypt.hashpw(password.encode(), bcrypt.gensalt())",
-            "rate limiting": "Implement rate limiting using exponential backoff. Track attempts per IP/user and delay responses after threshold exceeded. Use libraries like flask-limiter or redis for distributed limiting"
+            "rate limiting": "Implement rate limiting using exponential backoff. Track attempts per IP/user and delay responses after threshold exceeded. Use libraries like flask-limiter or redis for distributed limiting",
         }
-        return guidance_map.get(finding["title"].split()[-1], "Review and update the identified code section")
+        return guidance_map.get(
+            finding["title"].split()[-1],
+            "Review and update the identified code section",
+        )
 
     def _generate_verification_steps(self, finding):
         """Generate verification steps for finding."""
         return [
             "Run unit tests with malicious input to verify fix",
             "Perform manual penetration testing of the endpoint",
-            "Review code changes for proper error handling"
+            "Review code changes for proper error handling",
         ]
 
     def _estimate_effort(self, finding):
         """Estimate implementation effort in person-days."""
-        effort_map = {
-            "Critical": 2,
-            "High": 1,
-            "Medium": 0.5,
-            "Low": 0.25
-        }
+        effort_map = {"Critical": 2, "High": 1, "Medium": 0.5, "Low": 0.25}
         return effort_map.get(finding["severity"], 1)
 
     def _identify_dependencies(self, finding):
@@ -430,20 +465,28 @@ class TestReviewAnalystAgent:
                 "timestamp": datetime.now(UTC).isoformat(),
                 "focus": "security_review",
                 "target": "src/auth/",
-                "total_findings": len(sample_agent_findings)
+                "total_findings": len(sample_agent_findings),
             },
-            "executive_summary": self._generate_executive_summary(sample_agent_findings),
-            "findings_by_severity": self._organize_findings_by_severity(sample_agent_findings),
+            "executive_summary": self._generate_executive_summary(
+                sample_agent_findings
+            ),
+            "findings_by_severity": self._organize_findings_by_severity(
+                sample_agent_findings
+            ),
             "detailed_findings": sample_agent_findings,
             "action_items": self._generate_action_items(sample_agent_findings),
             "evidence_appendix": self._create_evidence_appendix(),
-            "methodology": "imbue review methodology with evidence logging and structured output"
+            "methodology": "imbue review methodology with evidence logging and structured output",
         }
 
         # Assert required sections exist
         required_sections = [
-            "metadata", "executive_summary", "findings_by_severity",
-            "detailed_findings", "action_items", "evidence_appendix"
+            "metadata",
+            "executive_summary",
+            "findings_by_severity",
+            "detailed_findings",
+            "action_items",
+            "evidence_appendix",
         ]
 
         for section in required_sections:
@@ -486,25 +529,29 @@ Immediate remediation of critical findings is essential before production deploy
         organized = {"Critical": [], "High": [], "Medium": [], "Low": []}
         for finding in findings:
             if finding["severity"] in organized:
-                organized[finding["severity"]].append({
-                    "id": finding["id"],
-                    "title": finding["title"],
-                    "file": finding["file"],
-                    "impact": finding.get("impact", "Security impact")
-                })
+                organized[finding["severity"]].append(
+                    {
+                        "id": finding["id"],
+                        "title": finding["title"],
+                        "file": finding["file"],
+                        "impact": finding.get("impact", "Security impact"),
+                    }
+                )
         return organized
 
     def _generate_action_items(self, findings):
         """Generate prioritized action items from findings."""
         action_items = []
         for finding in findings:
-            action_items.append({
-                "id": f"A{finding['id'][1:]}",  # Convert F1 to A1
-                "description": finding["recommendation"],
-                "priority": finding["severity"],
-                "related_finding": finding["id"],
-                "estimated_effort": self._estimate_effort(finding)
-            })
+            action_items.append(
+                {
+                    "id": f"A{finding['id'][1:]}",  # Convert F1 to A1
+                    "description": finding["recommendation"],
+                    "priority": finding["severity"],
+                    "related_finding": finding["id"],
+                    "estimated_effort": self._estimate_effort(finding),
+                }
+            )
         return action_items
 
     def _create_evidence_appendix(self):
@@ -513,7 +560,7 @@ Immediate remediation of critical findings is essential before production deploy
             "total_evidence_items": 6,
             "evidence_references": ["E1", "E2", "E3", "E4", "E5", "E6"],
             "evidence_log_available": True,
-            "reproducible_commands": True
+            "reproducible_commands": True,
         }
 
     @pytest.mark.unit
@@ -525,15 +572,15 @@ Immediate remediation of critical findings is essential before production deploy
         And report limitations in findings.
         """
         # Arrange - simulate tool failures
-        mock_claude_tools['Read'].side_effect = [
+        mock_claude_tools["Read"].side_effect = [
             "File content",  # First read succeeds
             PermissionError("Permission denied"),  # Second read fails
             "File content",  # Third read succeeds
         ]
 
-        mock_claude_tools['Grep'].side_effect = [
+        mock_claude_tools["Grep"].side_effect = [
             "Search results",  # First search succeeds
-            "Timeout error",   # Second search fails
+            "Timeout error",  # Second search fails
         ]
 
         # Act - simulate agent handling tool failures
@@ -546,24 +593,20 @@ Immediate remediation of critical findings is essential before production deploy
         for i, file_path in enumerate(test_files):
             try:
                 # Try to read file
-                mock_claude_tools['Read'](file_path)
+                mock_claude_tools["Read"](file_path)
 
                 # Try to search for patterns
-                mock_claude_tools['Grep']("pattern", file_path)
+                mock_claude_tools["Grep"]("pattern", file_path)
 
                 # Create finding if successful
-                findings.append({
-                    "id": f"F{i+1}",
-                    "file": file_path,
-                    "analysis_successful": True
-                })
+                findings.append(
+                    {"id": f"F{i + 1}", "file": file_path, "analysis_successful": True}
+                )
 
             except Exception as e:
-                errors_encountered.append({
-                    "file": file_path,
-                    "error": str(e),
-                    "impact": "limited_analysis"
-                })
+                errors_encountered.append(
+                    {"file": file_path, "error": str(e), "impact": "limited_analysis"}
+                )
 
         # Generate report with limitations noted
         analysis_report = {
@@ -571,9 +614,9 @@ Immediate remediation of critical findings is essential before production deploy
             "errors_encountered": errors_encountered,
             "analysis_limitations": [
                 "Some files could not be analyzed due to permission errors",
-                "Pattern matching was incomplete for certain files"
+                "Pattern matching was incomplete for certain files",
             ],
-            "confidence_level": "medium" if errors_encountered else "high"
+            "confidence_level": "medium" if errors_encountered else "high",
         }
 
         # Assert
@@ -598,7 +641,7 @@ Immediate remediation of critical findings is essential before production deploy
             "total_files": 500,
             "high_risk_files": [f"src/auth/file_{i}.py" for i in range(20)],
             "medium_risk_files": [f"src/api/file_{i}.py" for i in range(50)],
-            "low_risk_files": [f"src/utils/file_{i}.py" for i in range(100)]
+            "low_risk_files": [f"src/utils/file_{i}.py" for i in range(100)],
         }
 
         # Act - measure analysis performance
@@ -608,14 +651,14 @@ Immediate remediation of critical findings is essential before production deploy
         analysis_strategy = {
             "focus_areas": ["authentication", "data_handling", "api_endpoints"],
             "file_prioritization": [],
-            "analysis_results": {}
+            "analysis_results": {},
         }
 
         # Prioritize high-risk files for detailed analysis
         analysis_strategy["file_prioritization"] = (
-            large_codebase["high_risk_files"] +
-            large_codebase["medium_risk_files"][:20] +  # Sample of medium risk
-            large_codebase["low_risk_files"][:10]      # Sample of low risk
+            large_codebase["high_risk_files"]
+            + large_codebase["medium_risk_files"][:20]  # Sample of medium risk
+            + large_codebase["low_risk_files"][:10]  # Sample of low risk
         )
 
         # Simulate analysis with token conservation
@@ -634,24 +677,38 @@ Immediate remediation of critical findings is essential before production deploy
             analysis_strategy["analysis_results"][file_path] = {
                 "risk_level": risk_level,
                 "analysis_depth": analysis_depth,
-                "findings": 1 if risk_level == "high" else 0.3 if risk_level == "medium" else 0.1
+                "findings": 1
+                if risk_level == "high"
+                else 0.3
+                if risk_level == "medium"
+                else 0.1,
             }
 
         end_time = time.time()
 
         # Generate summary
-        total_findings = sum(result["findings"] for result in analysis_strategy["analysis_results"].values())
+        total_findings = sum(
+            result["findings"]
+            for result in analysis_strategy["analysis_results"].values()
+        )
         performance_summary = {
             "processing_time": end_time - start_time,
             "files_analyzed": len(analysis_strategy["file_prioritization"]),
             "total_files_in_repo": large_codebase["total_files"],
-            "analysis_coverage": len(analysis_strategy["file_prioritization"]) / large_codebase["total_files"],
+            "analysis_coverage": len(analysis_strategy["file_prioritization"])
+            / large_codebase["total_files"],
             "estimated_findings": int(total_findings),
-            "efficiency_achieved": True
+            "efficiency_achieved": True,
         }
 
         # Assert
-        assert performance_summary["processing_time"] < 2.0  # Should complete in under 2 seconds
-        assert performance_summary["files_analyzed"] < large_codebase["total_files"]  # Focused analysis
-        assert performance_summary["analysis_coverage"] < 0.5  # Less than 50% coverage (focused approach)
+        assert (
+            performance_summary["processing_time"] < 2.0
+        )  # Should complete in under 2 seconds
+        assert (
+            performance_summary["files_analyzed"] < large_codebase["total_files"]
+        )  # Focused analysis
+        assert (
+            performance_summary["analysis_coverage"] < 0.5
+        )  # Less than 50% coverage (focused approach)
         assert performance_summary["efficiency_achieved"] is True

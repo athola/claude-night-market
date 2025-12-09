@@ -27,6 +27,7 @@ except ImportError:
     # Handle relative imports for different usage contexts
     import sys
     from pathlib import Path
+
     sys.path.append(str(Path(__file__).parent.parent))
 
     from skills.context_optimization.condition_based_optimizer import (
@@ -53,8 +54,11 @@ class OptimizationServiceInfo:
     def __post_init__(self):
         if self.supported_strategies is None:
             self.supported_strategies = [
-                "priority", "recency", "importance",
-                "semantic", "balanced"
+                "priority",
+                "recency",
+                "importance",
+                "semantic",
+                "balanced",
             ]
 
 
@@ -70,25 +74,18 @@ class OptimizationServiceInterface:
 
     def _register_services(self):
         """Register optimization services in the global registry."""
+        self.registry.register_service("conservation.optimize", self.optimize_content)
         self.registry.register_service(
-            "conservation.optimize",
-            self.optimize_content
+            "conservation.optimize_async", self.optimize_content_async
         )
         self.registry.register_service(
-            "conservation.optimize_async",
-            self.optimize_content_async
+            "conservation.monitor_context", self.monitor_context_pressure
         )
         self.registry.register_service(
-            "conservation.monitor_context",
-            self.monitor_context_pressure
+            "conservation.coordinate_plugins", self.coordinate_plugin_optimization
         )
         self.registry.register_service(
-            "conservation.coordinate_plugins",
-            self.coordinate_plugin_optimization
-        )
-        self.registry.register_service(
-            "conservation.get_service_info",
-            self.get_service_info
+            "conservation.get_service_info", self.get_service_info
         )
 
     def optimize_content(
@@ -98,7 +95,7 @@ class OptimizationServiceInterface:
         max_tokens: int,
         strategy: str = "balanced",
         priority: float = 0.5,
-        **kwargs
+        **kwargs,
     ) -> dict[str, Any]:
         """Optimize content to fit within token limits.
 
@@ -127,7 +124,7 @@ class OptimizationServiceInterface:
             max_tokens=max_tokens,
             strategy=strategy,
             priority=priority,
-            **kwargs
+            **kwargs,
         )
 
         # Perform optimization with condition-based waiting
@@ -142,7 +139,7 @@ class OptimizationServiceInterface:
         content: str | list[dict[str, Any]],
         max_tokens: int,
         strategy: str = "balanced",
-        **kwargs
+        **kwargs,
     ) -> str:
         """Start asynchronous optimization and return optimization ID.
 
@@ -156,7 +153,7 @@ class OptimizationServiceInterface:
             content_blocks=content_blocks,
             max_tokens=max_tokens,
             strategy=strategy,
-            **kwargs
+            **kwargs,
         )
 
         # Start optimization (in real implementation, this would be async)
@@ -168,7 +165,7 @@ class OptimizationServiceInterface:
         self,
         threshold: float = 0.8,
         timeout_ms: int = 30000,
-        plugin_name: str | None = None
+        plugin_name: str | None = None,
     ) -> dict[str, Any]:
         """Monitor context usage and wait for threshold breach.
 
@@ -182,36 +179,39 @@ class OptimizationServiceInterface:
 
         """
         pressure_info = self.optimizer.monitor_context_pressure(
-            threshold=threshold,
-            timeout_ms=timeout_ms
+            threshold=threshold, timeout_ms=timeout_ms
         )
 
         # Add optimization recommendations
         recommendations = []
         if pressure_info["pressure_level"] == "high":
-            recommendations.extend([
-                "Consider using 'priority' strategy to keep essential content",
-                "Enable structure preservation for better coherence",
-                "Increase monitoring frequency during peak usage"
-            ])
+            recommendations.extend(
+                [
+                    "Consider using 'priority' strategy to keep essential content",
+                    "Enable structure preservation for better coherence",
+                    "Increase monitoring frequency during peak usage",
+                ]
+            )
         elif pressure_info["pressure_level"] == "moderate":
-            recommendations.extend([
-                "Use 'balanced' strategy for general optimization",
-                "Monitor for additional context pressure"
-            ])
+            recommendations.extend(
+                [
+                    "Use 'balanced' strategy for general optimization",
+                    "Monitor for additional context pressure",
+                ]
+            )
 
         return {
             **pressure_info,
             "recommendations": recommendations,
             "plugin_context": plugin_name,
-            "optimization_service": "conservation"
+            "optimization_service": "conservation",
         }
 
     def coordinate_plugin_optimization(
         self,
         plugins: list[str],
         optimization_type: str = "context",
-        timeout_ms: int = 20000
+        timeout_ms: int = 20000,
     ) -> dict[str, Any]:
         """Coordinate optimization across multiple plugins.
 
@@ -219,9 +219,7 @@ class OptimizationServiceInterface:
         before proceeding with coordinated optimization.
         """
         coordination_result = self.optimizer.wait_for_plugin_coordination(
-            plugins=plugins,
-            coordination_type=optimization_type,
-            timeout_ms=timeout_ms
+            plugins=plugins, coordination_type=optimization_type, timeout_ms=timeout_ms
         )
 
         # Add coordination metadata
@@ -230,7 +228,7 @@ class OptimizationServiceInterface:
             "plugin_readiness": coordination_result,
             "optimization_type": optimization_type,
             "coordinated_plugins": plugins,
-            "timestamp": time.time()
+            "timestamp": time.time(),
         }
 
     def get_service_info(self) -> dict[str, Any]:
@@ -243,8 +241,8 @@ class OptimizationServiceInterface:
                     "Condition-based waiting",
                     "Multiple optimization strategies",
                     "Async optimization support",
-                    "MECW compliance"
-                ]
+                    "MECW compliance",
+                ],
             ),
             OptimizationServiceInfo(
                 service_name="context_monitoring",
@@ -253,8 +251,8 @@ class OptimizationServiceInterface:
                     "Real-time monitoring",
                     "Threshold-based alerts",
                     "Pressure level detection",
-                    "Optimization recommendations"
-                ]
+                    "Optimization recommendations",
+                ],
             ),
             OptimizationServiceInfo(
                 service_name="plugin_coordination",
@@ -263,9 +261,9 @@ class OptimizationServiceInterface:
                     "Multi-plugin synchronization",
                     "Condition-based coordination",
                     "Resource sharing",
-                    "Conflict resolution"
-                ]
-            )
+                    "Conflict resolution",
+                ],
+            ),
         ]
 
         return {
@@ -276,42 +274,47 @@ class OptimizationServiceInterface:
                 "MECW compliance (50% context rule)",
                 "Plugin coordination",
                 "Async optimization",
-                "Real-time monitoring"
+                "Real-time monitoring",
             ],
             "supported_strategies": [
-                "priority", "recency", "importance",
-                "semantic", "balanced"
-            ]
+                "priority",
+                "recency",
+                "importance",
+                "semantic",
+                "balanced",
+            ],
         }
 
     def _prepare_content_blocks(
-        self,
-        content: str | list[dict[str, Any]],
-        default_priority: float = 0.5
+        self, content: str | list[dict[str, Any]], default_priority: float = 0.5
     ) -> list[ContentBlock]:
         """Convert content input to ContentBlock objects."""
         if isinstance(content, str):
             # Split content into logical blocks
-            return [ContentBlock(
-                content=content,
-                priority=default_priority,
-                source="plugin_content",
-                token_estimate=len(content.split()) * 1.3,
-                metadata={"section": "main", "timestamp": time.time()}
-            )]
+            return [
+                ContentBlock(
+                    content=content,
+                    priority=default_priority,
+                    source="plugin_content",
+                    token_estimate=len(content.split()) * 1.3,
+                    metadata={"section": "main", "timestamp": time.time()},
+                )
+            ]
         elif isinstance(content, list):
             # Assume list of dictionaries with content info
             blocks = []
             for item in content:
                 if isinstance(item, dict):
-                    blocks.append(ContentBlock(
-                        content=item.get("content", ""),
-                        priority=item.get("priority", default_priority),
-                        source=item.get("source", "plugin"),
-                        token_estimate=item.get("token_estimate", 0) or
-                            len(str(item.get("content", "")).split()) * 1.3,
-                        metadata=item.get("metadata", {})
-                    ))
+                    blocks.append(
+                        ContentBlock(
+                            content=item.get("content", ""),
+                            priority=item.get("priority", default_priority),
+                            source=item.get("source", "plugin"),
+                            token_estimate=item.get("token_estimate", 0)
+                            or len(str(item.get("content", "")).split()) * 1.3,
+                            metadata=item.get("metadata", {}),
+                        )
+                    )
             return blocks
         else:
             raise ValueError(f"Unsupported content type: {type(content)}")
@@ -326,16 +329,16 @@ class OptimizationServiceInterface:
             "metrics": result.metrics,
             "error_message": result.error_message,
             "duration_seconds": (
-                result.end_time - result.start_time
-                if result.end_time else None
+                result.end_time - result.start_time if result.end_time else None
             ),
             "service": "conservation_optimization",
-            "condition_based": True
+            "condition_based": True,
         }
 
 
 # Create global service instance
 optimization_service = OptimizationServiceInterface()
+
 
 # Convenience functions for easy import
 def optimize_content(
@@ -343,7 +346,7 @@ def optimize_content(
     content: str | list[dict[str, Any]],
     max_tokens: int,
     strategy: str = "balanced",
-    **kwargs
+    **kwargs,
 ) -> dict[str, Any]:
     """Quick optimization function for other plugins to use.
 
@@ -365,13 +368,12 @@ def optimize_content(
         content=content,
         max_tokens=max_tokens,
         strategy=strategy,
-        **kwargs
+        **kwargs,
     )
 
 
 def monitor_context(
-    threshold: float = 0.8,
-    plugin_name: str | None = None
+    threshold: float = 0.8, plugin_name: str | None = None
 ) -> dict[str, Any]:
     """Quick context monitoring function.
 
@@ -385,14 +387,12 @@ def monitor_context(
 
     """
     return optimization_service.monitor_context_pressure(
-        threshold=threshold,
-        plugin_name=plugin_name
+        threshold=threshold, plugin_name=plugin_name
     )
 
 
 def coordinate_plugins(
-    plugins: list[str],
-    optimization_type: str = "context"
+    plugins: list[str], optimization_type: str = "context"
 ) -> dict[str, Any]:
     """Quick plugin coordination function.
 
@@ -410,8 +410,7 @@ def coordinate_plugins(
 
     """
     return optimization_service.coordinate_plugin_optimization(
-        plugins=plugins,
-        optimization_type=optimization_type
+        plugins=plugins, optimization_type=optimization_type
     )
 
 
@@ -430,28 +429,16 @@ def register_services():
     registry = ConservationServiceRegistry()
 
     # Register main optimization service
-    registry.register_service(
-        "conservation.optimize",
-        optimize_content
-    )
+    registry.register_service("conservation.optimize", optimize_content)
 
     # Register monitoring service
-    registry.register_service(
-        "conservation.monitor",
-        monitor_context
-    )
+    registry.register_service("conservation.monitor", monitor_context)
 
     # Register coordination service
-    registry.register_service(
-        "conservation.coordinate",
-        coordinate_plugins
-    )
+    registry.register_service("conservation.coordinate", coordinate_plugins)
 
     # Register discovery service
-    registry.register_service(
-        "conservation.discover",
-        get_conservation_services
-    )
+    registry.register_service("conservation.discover", get_conservation_services)
 
 
 # Auto-register on import
@@ -491,7 +478,7 @@ if __name__ == "__main__":
         plugin_name="demo_plugin",
         content=test_content,
         max_tokens=100,
-        strategy="importance"
+        strategy="importance",
     )
 
     print(f"   Status: {result['status']}")
@@ -514,11 +501,12 @@ if __name__ == "__main__":
     # 4. Plugin coordination
     print("4. Plugin coordination:")
     coordination = coordinate_plugins(
-        plugins=["abstract", "sanctum", "imbue"],
-        optimization_type="context"
+        plugins=["abstract", "sanctum", "imbue"], optimization_type="context"
     )
 
     print(f"   Coordination successful: {coordination['coordination_successful']}")
-    print(f"   Plugins ready: {sum(coordination['plugin_readiness'].values())}/{len(coordination['plugin_readiness'])}")
+    print(
+        f"   Plugins ready: {sum(coordination['plugin_readiness'].values())}/{len(coordination['plugin_readiness'])}"
+    )
 
     print("\n=== Service Demo Complete ===")

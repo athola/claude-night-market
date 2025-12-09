@@ -30,9 +30,21 @@ class TestEdgeCasesAndErrorScenarios:
         with tempfile.TemporaryDirectory() as temp_dir:
             empty_repo = Path(temp_dir)
             # Initialize empty git repository
-            subprocess.run(["git", "init"], check=False, cwd=empty_repo, capture_output=True)
-            subprocess.run(["git", "config", "user.email", "test@example.com"], check=False, cwd=empty_repo, capture_output=True)
-            subprocess.run(["git", "config", "user.name", "Test"], check=False, cwd=empty_repo, capture_output=True)
+            subprocess.run(
+                ["git", "init"], check=False, cwd=empty_repo, capture_output=True
+            )
+            subprocess.run(
+                ["git", "config", "user.email", "test@example.com"],
+                check=False,
+                cwd=empty_repo,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "config", "user.name", "Test"],
+                check=False,
+                cwd=empty_repo,
+                capture_output=True,
+            )
 
             skill = UnifiedReviewSkill()
             context = Mock()
@@ -57,7 +69,7 @@ class TestEdgeCasesAndErrorScenarios:
         context.repo_path = Path("/tmp")
 
         # Test with non-UTF-8 content
-        malformed_content = b'\xff\xfe\x00\x41\x00\x42\x00\x43'  # Invalid UTF-8
+        malformed_content = b"\xff\xfe\x00\x41\x00\x42\x00\x43"  # Invalid UTF-8
         context.get_file_content.return_value = malformed_content
         context.get_files.return_value = ["broken_file.txt"]
 
@@ -72,7 +84,7 @@ class TestEdgeCasesAndErrorScenarios:
     def test_extremely_large_file_handling(self):
         """Given extremely large files, when analyzing, then handles memory efficiently."""
         # Arrange
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
             # Create a 10MB file
             for i in range(100000):
                 f.write(f"fn function_{i}() -> i32 {{ {i} }}\n")
@@ -109,7 +121,7 @@ class TestEdgeCasesAndErrorScenarios:
 
         skill = RustReviewSkill()
 
-        with patch('subprocess.run') as mock_subprocess:
+        with patch("subprocess.run") as mock_subprocess:
             # Simulate cargo not found
             mock_subprocess.side_effect = FileNotFoundError("cargo not found")
 
@@ -122,7 +134,11 @@ class TestEdgeCasesAndErrorScenarios:
 
             # Assert
             assert result is not None
-            assert "error" in result or "missing" in result.lower() or "cargo" in result.lower()
+            assert (
+                "error" in result
+                or "missing" in result.lower()
+                or "cargo" in result.lower()
+            )
 
     @pytest.mark.unit
     def test_circular_dependency_detection(self):
@@ -137,7 +153,7 @@ class TestEdgeCasesAndErrorScenarios:
         dependencies = [
             {"from": "module_a.py", "to": "module_b.py"},
             {"from": "module_b.py", "to": "module_c.py"},
-            {"from": "module_c.py", "to": "module_a.py"}  # Circular
+            {"from": "module_c.py", "to": "module_a.py"},  # Circular
         ]
         context.analyze_dependencies.return_value = dependencies
 
@@ -146,7 +162,11 @@ class TestEdgeCasesAndErrorScenarios:
 
         # Assert
         assert "violations" in coupling_analysis
-        circular_violations = [v for v in coupling_analysis["violations"] if "circular" in v["issue"].lower()]
+        circular_violations = [
+            v
+            for v in coupling_analysis["violations"]
+            if "circular" in v["issue"].lower()
+        ]
         assert len(circular_violations) > 0
 
     @pytest.mark.unit
@@ -191,7 +211,7 @@ class TestEdgeCasesAndErrorScenarios:
         skill = BugReviewSkill()
         context = Mock()
 
-        with patch('requests.get') as mock_get:
+        with patch("requests.get") as mock_get:
             # Simulate network timeout
             mock_get.side_effect = TimeoutError("Network timeout")
 
@@ -210,7 +230,7 @@ class TestEdgeCasesAndErrorScenarios:
 
         memory_manager = MemoryManager()
 
-        with patch('psutil.virtual_memory') as mock_memory:
+        with patch("psutil.virtual_memory") as mock_memory:
             # Simulate low memory
             mock_memory.return_value.available = 100 * 1024 * 1024  # 100MB only
 
@@ -219,7 +239,7 @@ class TestEdgeCasesAndErrorScenarios:
 
             # Assert
             assert not strategy["concurrent"]  # Should disable concurrent processing
-            assert strategy["batch_size"] < 1000    # Should reduce batch size
+            assert strategy["batch_size"] < 1000  # Should reduce batch size
 
     @pytest.mark.unit
     def test_configuration_errors(self):
@@ -228,7 +248,9 @@ class TestEdgeCasesAndErrorScenarios:
         from pensive.config.configuration import Configuration
 
         # Test malformed YAML
-        malformed_config = tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False)
+        malformed_config = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".yml", delete=False
+        )
         malformed_config.write("""
 pensive:
   skills:
@@ -242,7 +264,10 @@ pensive:
             with pytest.raises(ConfigurationError) as exc_info:
                 Configuration.load_from_file(Path(malformed_config.name))
 
-            assert "yaml" in str(exc_info.value).lower() or "syntax" in str(exc_info.value).lower()
+            assert (
+                "yaml" in str(exc_info.value).lower()
+                or "syntax" in str(exc_info.value).lower()
+            )
 
         finally:
             os.unlink(malformed_config.name)
@@ -292,7 +317,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
 
             # Create symlink
             symlink_file = repo_path / "linked.rs"
-            if os.name != 'nt':  # Skip on Windows
+            if os.name != "nt":  # Skip on Windows
                 symlink_file.symlink_to(real_file)
 
                 skill = UnifiedReviewSkill()
@@ -341,9 +366,9 @@ const EMOJI: &str = "🦀 Rust 🚀";
         """Given files with invalid or unexpected formats, when analyzing, then handles gracefully."""
         # Arrange
         invalid_files = {
-            "empty_file.txt": "",                          # Empty file
-            "only_whitespace.py": "   \n\t  \n  ",          # Only whitespace
-            "very_long_line.rs": "x" * 10000,              # Very long line
+            "empty_file.txt": "",  # Empty file
+            "only_whitespace.py": "   \n\t  \n  ",  # Only whitespace
+            "very_long_line.rs": "x" * 10000,  # Very long line
             "special_chars.sql": "SELECT '😀' FROM table",  # SQL with emoji
         }
 
@@ -369,9 +394,11 @@ const EMOJI: &str = "🦀 Rust 🚀";
 
         workflow = CodeReviewWorkflow()
 
-        with patch('pensive.skills.rust_review.RustReviewSkill.analyze') as mock_rust, \
-             patch('pensive.skills.api_review.ApiReviewSkill.analyze') as mock_api:
-
+        with patch(
+            "pensive.skills.rust_review.RustReviewSkill.analyze"
+        ) as mock_rust, patch(
+            "pensive.skills.api_review.ApiReviewSkill.analyze"
+        ) as mock_api:
             # Make one skill fail, another succeed
             mock_rust.side_effect = Exception("Rust analysis failed")
             mock_api.return_value = "API review completed successfully"
@@ -386,7 +413,9 @@ const EMOJI: &str = "🦀 Rust 🚀";
             # Assert
             assert result is not None
             assert len(result) == 2
-            assert result[0] is None or "error" in str(result[0]).lower()  # Failed skill
+            assert (
+                result[0] is None or "error" in str(result[0]).lower()
+            )  # Failed skill
             assert result[1] is not None  # Successful skill
 
     @pytest.mark.unit

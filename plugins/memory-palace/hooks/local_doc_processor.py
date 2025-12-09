@@ -23,14 +23,14 @@ def main() -> None:
     except json.JSONDecodeError:
         sys.exit(0)
 
-    tool_name = payload.get('tool_name', '')
+    tool_name = payload.get("tool_name", "")
 
     # Fast path: not a Read tool
-    if tool_name != 'Read':
+    if tool_name != "Read":
         sys.exit(0)
 
-    tool_input = payload.get('tool_input', {})
-    file_path = tool_input.get('file_path', '')
+    tool_input = payload.get("tool_input", {})
+    file_path = tool_input.get("file_path", "")
 
     # Fast path: no file path
     if not file_path:
@@ -38,7 +38,7 @@ def main() -> None:
 
     # Fast path: not a documentation file type
     path_lower = file_path.lower()
-    doc_extensions = ('.md', '.rst', '.txt', '.adoc')
+    doc_extensions = (".md", ".rst", ".txt", ".adoc")
     if not any(path_lower.endswith(ext) for ext in doc_extensions):
         sys.exit(0)
 
@@ -48,24 +48,24 @@ def main() -> None:
     from shared.safety_checks import is_safe_content
 
     config = get_config()
-    if not config.get('enabled', True):
+    if not config.get("enabled", True):
         sys.exit(0)
 
     # Check if path should be processed
     if not should_process_path(file_path):
         sys.exit(0)
 
-    tool_response = payload.get('tool_response', {})
+    tool_response = payload.get("tool_response", {})
 
     # Extract content from Read response
     content = ""
     if isinstance(tool_response, str):
         content = tool_response
     elif isinstance(tool_response, dict):
-        content = tool_response.get('content', '')
+        content = tool_response.get("content", "")
         # Sometimes response has different structure
-        if not content and 'output' in tool_response:
-            content = tool_response['output']
+        if not content and "output" in tool_response:
+            content = tool_response["output"]
 
     if not content or len(content) < 50:
         sys.exit(0)  # Too short to be valuable
@@ -108,7 +108,7 @@ def main() -> None:
         response = {
             "hookSpecificOutput": {
                 "hookEventName": "PostToolUse",
-                "additionalContext": "\n".join(context_parts)
+                "additionalContext": "\n".join(context_parts),
             }
         }
         print(json.dumps(response))
@@ -116,5 +116,5 @@ def main() -> None:
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

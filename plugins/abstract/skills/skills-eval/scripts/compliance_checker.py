@@ -11,6 +11,7 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
+# ruff: noqa: E402  (import must come after sys.path modification)
 from abstract.skills_eval import ComplianceChecker as CoreComplianceChecker
 
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Migration analyzer for detecting overlapping functionality between plugins and superpowers.
+"""Migration analyzer for detecting overlapping functionality between plugins
+and superpowers.
 
 This module analyzes plugin code to identify functionality that might overlap
 with existing superpowers, helping with migration decisions.

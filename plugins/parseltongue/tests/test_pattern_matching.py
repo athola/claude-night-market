@@ -47,7 +47,7 @@ class TestPatternMatchingSkill:
     def test_identifies_ddd_patterns(self):
         """Given Domain-Driven Design code, when skill analyzes, then identifies DDD patterns."""
         # Arrange
-        ddd_code = '''
+        ddd_code = """
 from dataclasses import dataclass
 from typing import List
 from abc import ABC, abstractmethod
@@ -109,7 +109,7 @@ class Customer:
         if len(self.orders) > 10:
             # Business rule
             raise ValueError("Too many orders")
-        '''
+        """
 
         # Act
         result = self.skill.recognize_ddd_patterns(ddd_code)
@@ -137,7 +137,7 @@ class Customer:
     def test_identifies_gof_patterns(self):
         """Given Gang of Four patterns, when skill analyzes, then identifies GoF patterns."""
         # Arrange
-        gof_code = '''
+        gof_code = """
 from abc import ABC, abstractmethod
 
 # Factory Method
@@ -200,7 +200,7 @@ class PayPalPayment(PaymentStrategy):
     def pay(self, amount: float) -> bool:
         # Process PayPal payment
         return True
-        '''
+        """
 
         # Act
         result = self.skill.recognize_gof_patterns(gof_code)
@@ -271,7 +271,7 @@ class PayPalPayment(PaymentStrategy):
     def test_detects_architectural_patterns(self):
         """Given architectural code, when skill analyzes, then identifies architectural patterns."""
         # Arrange
-        arch_code = '''
+        arch_code = """
 # MVC Pattern
 class User:
     def __init__(self, name: str, email: str):
@@ -321,7 +321,7 @@ class UnitOfWork:
             self.users.add(obj)
         for obj in self._dirty_objects:
             self.users.update(obj)
-        '''
+        """
 
         # Act
         result = self.skill.recognize_architectural_patterns(arch_code)
@@ -367,7 +367,7 @@ class UnitOfWork:
     def test_matches_dsl_patterns(self):
         """Given DSL code, when skill analyzes, then matches DSL patterns."""
         # Arrange
-        dsl_code = '''
+        dsl_code = """
 # Configuration DSL
 database {
     host: "localhost"
@@ -398,7 +398,7 @@ validate User {
     email: required, email
     age: optional, integer, min_value: 0
 }
-        '''
+        """
 
         # Act
         result = self.skill.match_dsl_patterns(dsl_code)
@@ -442,8 +442,7 @@ validate User {
 
         # Should suggest set-based approach for O(n²) problem
         optimization_suggestion = next(
-            (s for s in suggestions if "set" in s["improvement"].lower()),
-            None
+            (s for s in suggestions if "set" in s["improvement"].lower()), None
         )
         assert optimization_suggestion is not None
 
@@ -451,7 +450,7 @@ validate User {
     def test_validates_pattern_consistency(self):
         """Given multiple patterns, when skill analyzes, then validates consistency."""
         # Arrange
-        mixed_patterns_code = '''
+        mixed_patterns_code = """
 class InconsistentPattern:
     def __init__(self):
         self.data = []
@@ -472,7 +471,7 @@ class InconsistentPattern:
     def save_to_database(self):
         # Adding persistence breaks single responsibility
         db.execute("INSERT INTO items VALUES (?)", self.data)
-        '''
+        """
         # Act
         result = self.skill.validate_pattern_consistency(mixed_patterns_code)
 
@@ -491,7 +490,7 @@ class InconsistentPattern:
     def test_detects_pattern_variations(self):
         """Given pattern variations, when skill analyzes, then recognizes different implementations."""
         # Arrange
-        singleton_variations = '''
+        singleton_variations = """
 # Classic Singleton
 class DatabaseConnection:
     _instance = None
@@ -526,7 +525,7 @@ class SingletonMeta(type):
 
 class Logger(metaclass=SingletonMeta):
     pass
-        '''
+        """
 
         # Act
         result = self.skill.detect_pattern_variations(singleton_variations, "singleton")
@@ -609,7 +608,7 @@ class UserService:
     def test_compares_pattern_alternatives(self):
         """Given multiple approaches, when skill analyzes, then compares alternatives."""
         # Arrange
-        factory_alternatives = '''
+        factory_alternatives = """
 # Simple Factory
 def create_notification(type: str) -> Notification:
     if type == "email":
@@ -635,10 +634,12 @@ class ModernNotificationFactory(NotificationFactory):
 
     def create_sms_notification(self) -> SMSNotification:
         return ModernSMSNotification()
-        '''
+        """
 
         # Act
-        result = self.skill.compare_pattern_alternatives(factory_alternatives, "factory")
+        result = self.skill.compare_pattern_alternatives(
+            factory_alternatives, "factory"
+        )
 
         # Assert
         comparison = result["comparison"]

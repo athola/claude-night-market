@@ -73,13 +73,9 @@ class ConditionBasedOptimizer:
 
         # Register as enhanced service
         registry = ConservationServiceRegistry()
+        registry.register_service("condition_based_optimizer", self)
         registry.register_service(
-            "condition_based_optimizer",
-            self
-        )
-        registry.register_service(
-            "optimize_with_conditions",
-            self.optimize_with_conditions
+            "optimize_with_conditions", self.optimize_with_conditions
         )
 
         logging.basicConfig(level=logging.INFO)
@@ -87,20 +83,22 @@ class ConditionBasedOptimizer:
 
     def _register_condition_checkers(self):
         """Register built-in condition checkers."""
-        self.condition_checkers.update({
-            "compression_ratio": lambda r: r.get("compression_ratio", 0) > 0.3,
-            "token_reduction": lambda r: r.get("tokens_saved", 0) > 100,
-            "priority_preserved": lambda r: r.get("high_priority_kept", 0) > 0,
-            "structure_intact": lambda r: r.get("structure_preserved", False),
-            "semantic_coherence": lambda r: r.get("coherence_score", 0) > 0.7
-        })
+        self.condition_checkers.update(
+            {
+                "compression_ratio": lambda r: r.get("compression_ratio", 0) > 0.3,
+                "token_reduction": lambda r: r.get("tokens_saved", 0) > 100,
+                "priority_preserved": lambda r: r.get("high_priority_kept", 0) > 0,
+                "structure_intact": lambda r: r.get("structure_preserved", False),
+                "semantic_coherence": lambda r: r.get("coherence_score", 0) > 0.7,
+            }
+        )
 
     def wait_for_condition(
         self,
         condition: Callable[[], Any],
         description: str,
         timeout_ms: int = 5000,
-        poll_interval_ms: int = 10
+        poll_interval_ms: int = 10,
     ) -> Any:
         """Wait for a condition to be met with proper error handling.
 
@@ -119,8 +117,7 @@ class ConditionBasedOptimizer:
                 if result:
                     elapsed_ms = (time.time() - start_time) * 1000
                     self.logger.info(
-                        f"Condition met: {description} "
-                        f"(elapsed: {elapsed_ms:.0f}ms)"
+                        f"Condition met: {description} (elapsed: {elapsed_ms:.0f}ms)"
                     )
                     return result
             except Exception as e:
@@ -134,8 +131,7 @@ class ConditionBasedOptimizer:
             time.sleep(poll_interval)
 
     def optimize_with_conditions(
-        self,
-        request: OptimizationRequest
+        self, request: OptimizationRequest
     ) -> OptimizationResult:
         """Perform optimization with condition-based completion monitoring.
 
@@ -147,7 +143,7 @@ class ConditionBasedOptimizer:
         result = OptimizationResult(
             optimization_id=optimization_id,
             plugin_name=request.plugin_name,
-            status="pending"
+            status="pending",
         )
 
         self.active_optimizations[optimization_id] = result
@@ -163,7 +159,7 @@ class ConditionBasedOptimizer:
                 content_blocks=request.content_blocks,
                 max_tokens=request.max_tokens,
                 strategy=request.strategy,
-                preserve_structure=True
+                preserve_structure=True,
             )
 
             # Step 2: Wait for optimization to complete successfully
@@ -179,7 +175,7 @@ class ConditionBasedOptimizer:
             self.wait_for_condition(
                 condition=lambda: completion_condition(optimization_result),
                 description=f"optimization {optimization_id} completion",
-                timeout_ms=request.timeout_ms
+                timeout_ms=request.timeout_ms,
             )
 
             # Step 3: Validate result meets requirements
@@ -188,7 +184,7 @@ class ConditionBasedOptimizer:
                     optimization_result, request
                 ),
                 description=f"optimization {optimization_id} validation",
-                timeout_ms=5000
+                timeout_ms=5000,
             )
 
             # Step 4: Finalize result
@@ -221,9 +217,7 @@ class ConditionBasedOptimizer:
         return result
 
     def _validate_optimization_result(
-        self,
-        result: dict[str, Any],
-        request: OptimizationRequest
+        self, result: dict[str, Any], request: OptimizationRequest
     ) -> bool:
         """Validate that optimization meets minimum requirements."""
         # Check we actually reduced token usage
@@ -241,9 +235,7 @@ class ConditionBasedOptimizer:
         return True
 
     async def optimize_batch_async(
-        self,
-        requests: list[OptimizationRequest],
-        max_concurrent: int = 3
+        self, requests: list[OptimizationRequest], max_concurrent: int = 3
     ) -> list[OptimizationResult]:
         """Optimize multiple requests concurrently with condition-based waiting.
 
@@ -275,9 +267,7 @@ class ConditionBasedOptimizer:
 
         def completion_condition():
             nonlocal completed_count
-            completed_tasks = sum(
-                1 for task in tasks if task.done()
-            )
+            completed_tasks = sum(1 for task in tasks if task.done())
             completed_count = completed_tasks
             return completed_tasks >= total_count
 
@@ -290,7 +280,7 @@ class ConditionBasedOptimizer:
             self.wait_for_condition,
             completion_condition,
             f"batch completion ({total_count} optimizations)",
-            60000  # 60 second timeout for batch
+            60000,  # 60 second timeout for batch
         )
 
         # Collect results
@@ -301,7 +291,7 @@ class ConditionBasedOptimizer:
                     optimization_id=f"batch_{i}_{int(time.time())}",
                     plugin_name=requests[i].plugin_name,
                     status="failed",
-                    error_message=str(task_result)
+                    error_message=str(task_result),
                 )
                 results.append(failed_result)
             else:
@@ -309,8 +299,9 @@ class ConditionBasedOptimizer:
 
         self.logger.info(
             f"Batch optimization completed: "
-            f"{sum(1 for r in results if
-                r.status == 'completed')}/{total_count} successful"
+            f"{sum(1 for r in results if r.status == 'completed')}/{
+                total_count
+            } successful"
         )
 
         return results
@@ -319,7 +310,7 @@ class ConditionBasedOptimizer:
         self,
         plugins: list[str],
         coordination_type: str = "optimization",
-        timeout_ms: int = 20000
+        timeout_ms: int = 20000,
     ) -> dict[str, bool]:
         """Wait for multiple plugins to be ready for coordinated optimization.
 
@@ -336,8 +327,7 @@ class ConditionBasedOptimizer:
 
         def coordination_condition():
             ready_plugins = {
-                plugin: check_plugin_readiness(plugin)
-                for plugin in plugins
+                plugin: check_plugin_readiness(plugin) for plugin in plugins
             }
             all_ready = all(ready_plugins.values())
             return ready_plugins if all_ready else None
@@ -345,14 +335,14 @@ class ConditionBasedOptimizer:
         return self.wait_for_condition(
             coordination_condition,
             f"{coordination_type} coordination for {plugins}",
-            timeout_ms
+            timeout_ms,
         )
 
     def monitor_context_pressure(
         self,
         threshold: float = 0.8,
         check_interval_ms: int = 100,
-        timeout_ms: int = 30000
+        timeout_ms: int = 30000,
     ) -> dict[str, Any]:
         """Monitor context usage and wait for threshold breach.
 
@@ -368,7 +358,7 @@ class ConditionBasedOptimizer:
                     "usage": usage,
                     "threshold": threshold,
                     "timestamp": time.time(),
-                    "pressure_level": "high" if usage > 0.9 else "moderate"
+                    "pressure_level": "high" if usage > 0.9 else "moderate",
                 }
             return None
 
@@ -376,7 +366,7 @@ class ConditionBasedOptimizer:
             pressure_condition,
             f"context pressure threshold {threshold}",
             timeout_ms,
-            poll_interval_ms=check_interval_ms
+            poll_interval_ms=check_interval_ms,
         )
 
     def _get_current_context_usage(self) -> float:
@@ -384,11 +374,13 @@ class ConditionBasedOptimizer:
         # In real implementation, this would check actual token usage
         # For demo, simulate varying usage
         import random
+
         return random.uniform(0.3, 0.95)
 
 
 # Create global instance for service registry
 condition_optimizer = ConditionBasedOptimizer()
+
 
 # Export key functions for easy import by other plugins
 def optimize_content_with_conditions(
@@ -396,7 +388,7 @@ def optimize_content_with_conditions(
     content_blocks: list[ContentBlock],
     max_tokens: int,
     strategy: str = "balanced",
-    **kwargs
+    **kwargs,
 ) -> OptimizationResult:
     """Convenience function for plugins to optimize content with condition-based waiting.
 
@@ -408,15 +400,14 @@ def optimize_content_with_conditions(
         content_blocks=content_blocks,
         max_tokens=max_tokens,
         strategy=strategy,
-        **kwargs
+        **kwargs,
     )
 
     return condition_optimizer.optimize_with_conditions(request)
 
 
 def wait_for_optimal_conditions(
-    optimization_type: str = "context",
-    **kwargs
+    optimization_type: str = "context", **kwargs
 ) -> dict[str, Any]:
     """Wait for optimal conditions before performing optimization.
 
@@ -441,22 +432,22 @@ if __name__ == "__main__":
             priority=0.9,
             source="core_code",
             token_estimate=100,
-            metadata={"section": "main"}
+            metadata={"section": "main"},
         ),
         ContentBlock(
             content="# TODO: Add error handling\n# Debug code",
             priority=0.5,
             source="comments",
             token_estimate=50,
-            metadata={"section": "notes"}
+            metadata={"section": "notes"},
         ),
         ContentBlock(
             content="def helper():\n    return None",
             priority=0.7,
             source="helper_code",
             token_estimate=60,
-            metadata={"section": "helpers"}
-        )
+            metadata={"section": "helpers"},
+        ),
     ]
 
     # Example 1: Basic optimization with conditions
@@ -465,7 +456,7 @@ if __name__ == "__main__":
         plugin_name="demo_plugin",
         content_blocks=test_blocks,
         max_tokens=150,
-        strategy="priority"
+        strategy="priority",
     )
 
     result = condition_optimizer.optimize_with_conditions(request)
@@ -477,15 +468,14 @@ if __name__ == "__main__":
     print("\n=== Plugin Coordination ===")
     coordination = condition_optimizer.wait_for_plugin_coordination(
         plugins=["abstract", "sanctum", "imbue"],
-        coordination_type="resource_optimization"
+        coordination_type="resource_optimization",
     )
     print(f"Coordination result: {coordination}")
 
     # Example 3: Context pressure monitoring
     print("\n=== Context Pressure Monitoring ===")
     pressure = condition_optimizer.monitor_context_pressure(
-        threshold=0.7,
-        check_interval_ms=50
+        threshold=0.7, check_interval_ms=50
     )
     print(f"Pressure detected: {pressure}")
 

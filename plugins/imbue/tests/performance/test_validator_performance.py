@@ -4,7 +4,6 @@ This module tests the validation tool performance with large plugins
 and complex scenarios, ensuring it scales appropriately.
 """
 
-
 # ruff: noqa: S101
 import time
 
@@ -32,7 +31,7 @@ class TestValidatorPerformance:
             "description": "Large plugin for performance testing",
             "skills": [],
             "commands": [],
-            "agents": []
+            "agents": [],
         }
 
         # Create many skills
@@ -74,10 +73,9 @@ Use this skill for testing purposes.
             skill_file = skill_dir / "SKILL.md"
             skill_file.write_text(skill_content)
 
-            plugin_config["skills"].append({
-                "name": f"skill-{i:03d}",
-                "file": f"skills/skill-{i:03d}/SKILL.md"
-            })
+            plugin_config["skills"].append(
+                {"name": f"skill-{i:03d}", "file": f"skills/skill-{i:03d}/SKILL.md"}
+            )
 
         # Create many commands
         commands_dir = plugin_root / "commands"
@@ -97,10 +95,9 @@ Test command for performance testing.
 """
             command_file.write_text(command_content)
 
-            plugin_config["commands"].append({
-                "name": f"command-{i:03d}",
-                "file": f"commands/command-{i:03d}.md"
-            })
+            plugin_config["commands"].append(
+                {"name": f"command-{i:03d}", "file": f"commands/command-{i:03d}.md"}
+            )
 
         # Write plugin.json
         (plugin_root / "plugin.json").write_text(
@@ -139,14 +136,19 @@ Test command for performance testing.
         # Assert performance
         assert execution_time < 5.0  # Should complete in under 5 seconds
         assert len(scan_result["skills_found"]) == 100
-        assert len(scan_result["review_workflow_skills"]) >= 50  # About half should match patterns
+        assert (
+            len(scan_result["review_workflow_skills"]) >= 50
+        )  # About half should match patterns
         assert isinstance(validation_issues, list)
         assert len(report) > 0  # Report should be generated
 
         # Memory usage check (basic)
         import sys
+
         validator_size = sys.getsizeof(validator)
-        assert validator_size < 100_000  # Should be under 100KB for in-memory representation
+        assert (
+            validator_size < 100_000
+        )  # Should be under 100KB for in-memory representation
 
     @pytest.mark.slow
     def test_validator_scan_performance_patterns(self, large_plugin_structure):
@@ -194,7 +196,10 @@ Test command for performance testing.
         # All scans should be identical
         for i in range(1, len(scan_results)):
             assert scan_results[i]["skills_found"] == scan_results[0]["skills_found"]
-            assert scan_results[i]["review_workflow_skills"] == scan_results[0]["review_workflow_skills"]
+            assert (
+                scan_results[i]["review_workflow_skills"]
+                == scan_results[0]["review_workflow_skills"]
+            )
 
     @pytest.mark.slow
     def test_validator_memory_efficiency(self, tmp_path):
@@ -229,7 +234,9 @@ Test command for performance testing.
             for i in range(skill_count):
                 skill_dir = skills_dir / f"skill-{i:03d}"
                 skill_dir.mkdir()
-                (skill_dir / "SKILL.md").write_text(f"---\nname: skill-{i:03d}\n---\nContent {i}")
+                (skill_dir / "SKILL.md").write_text(
+                    f"---\nname: skill-{i:03d}\n---\nContent {i}"
+                )
 
             # Create plugin.json
             (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')
@@ -244,12 +251,14 @@ Test command for performance testing.
 
             # Get memory snapshot
             current, peak = tracemalloc.get_traced_memory()
-            memory_snapshots.append({
-                "skill_count": skill_count,
-                "current_memory": current,
-                "peak_memory": peak,
-                "files_processed": len(validator.skill_files)
-            })
+            memory_snapshots.append(
+                {
+                    "skill_count": skill_count,
+                    "current_memory": current,
+                    "peak_memory": peak,
+                    "files_processed": len(validator.skill_files),
+                }
+            )
 
             tracemalloc.stop()
 
@@ -268,8 +277,8 @@ Test command for performance testing.
 
         # Check linear scaling ( shouldn't grow exponentially)
         if len(memory_per_skill) > 2:
-            first_quarter = memory_per_skill[:len(memory_per_skill)//2]
-            second_quarter = memory_per_skill[len(memory_per_skill)//2:]
+            first_quarter = memory_per_skill[: len(memory_per_skill) // 2]
+            second_quarter = memory_per_skill[len(memory_per_skill) // 2 :]
 
             avg_first = sum(first_quarter) / len(first_quarter)
             avg_second = sum(second_quarter) / len(second_quarter)
@@ -307,7 +316,9 @@ Test command for performance testing.
             for j in range(20):  # 20 skills per plugin
                 skill_dir = skills_dir / f"skill-{j:03d}"
                 skill_dir.mkdir()
-                (skill_dir / "SKILL.md").write_text(f"---\nname: plugin-{i}-skill-{j}\n---\nContent")
+                (skill_dir / "SKILL.md").write_text(
+                    f"---\nname: plugin-{i}-skill-{j}\n---\nContent"
+                )
 
             (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')
             plugin_roots.append(plugin_root)
@@ -324,7 +335,7 @@ Test command for performance testing.
                 "execution_time": end_time - start_time,
                 "skills_found": len(scan_result["skills_found"]),
                 "issues_count": len(issues),
-                "thread_id": threading.get_ident()
+                "thread_id": threading.get_ident(),
             }
 
         # Test sequential performance
@@ -337,7 +348,9 @@ Test command for performance testing.
 
         # Test concurrent performance
         concurrent_start = time.time()
-        with concurrent.futures.ThreadPoolExecutor(max_workers=plugin_count) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=plugin_count
+        ) as executor:
             concurrent_results = list(executor.map(validate_plugin, plugin_roots))
         concurrent_time = time.time() - concurrent_start
 
@@ -347,7 +360,9 @@ Test command for performance testing.
 
         # Assert concurrent efficiency
         # Concurrent should be faster (though may not be perfectly parallel due to GIL)
-        assert concurrent_time < sequential_time * 1.2  # Within 20% of optimal parallel speedup
+        assert (
+            concurrent_time < sequential_time * 1.2
+        )  # Within 20% of optimal parallel speedup
 
         # Verify all plugins processed correctly
         assert len(concurrent_results) == plugin_count
@@ -435,7 +450,7 @@ Test command for performance testing.
             r"deliverable",
             r"pattern1",
             r"pattern2",
-            r"pattern3"
+            r"pattern3",
         ]
 
         # Strategy 1: Compile each time
@@ -520,7 +535,9 @@ Test command for performance testing.
         for i in range(file_count):
             skill_dir = skills_dir / f"skill-{i:03d}"
             skill_dir.mkdir()
-            (skill_dir / "SKILL.md").write_text("Content " * (file_size // 8))  # ~1KB content
+            (skill_dir / "SKILL.md").write_text(
+                "Content " * (file_size // 8)
+            )  # ~1KB content
 
         (plugin_root / "plugin.json").write_text('{"name": "test", "skills": []}')
 

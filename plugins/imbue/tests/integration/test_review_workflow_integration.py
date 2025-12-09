@@ -4,7 +4,6 @@ This module tests end-to-end workflow scenarios with multiple skills
 and commands working together, following TDD/BDD principles.
 """
 
-
 # ruff: noqa: S101
 from datetime import UTC, datetime
 from unittest.mock import Mock
@@ -56,7 +55,9 @@ def test_auth():
 
     @pytest.mark.integration
     @pytest.mark.bdd
-    def test_end_to_end_review_workflow(self, mock_workflow_environment, mock_claude_tools):
+    def test_end_to_end_review_workflow(
+        self, mock_workflow_environment, mock_claude_tools
+    ):
         """Scenario: Full review workflow from command to deliverable
         Given a repository with changes
         When running /review command
@@ -72,7 +73,7 @@ def test_auth():
             "repository_path": str(mock_workflow_environment),
             "session_id": "integration-test-session",
             "findings": [],
-            "evidence": []
+            "evidence": [],
         }
 
         def mock_skill_call(skill_name, context):
@@ -84,22 +85,24 @@ def test_auth():
                     "review-core:context-established",
                     "review-core:scope-inventoried",
                     "review-core:evidence-captured",
-                    "review-core:deliverables-structured"
+                    "review-core:deliverables-structured",
                 ]
                 context["scope"] = {
                     "source_files": ["src/auth.py", "src/payment.py"],
                     "test_files": ["tests/test_auth.py"],
                     "config_files": ["config/app.json"],
-                    "docs": ["docs/api.md"]
+                    "docs": ["docs/api.md"],
                 }
 
             elif skill_name == "evidence-logging":
                 # Initialize evidence logging
-                context["evidence_session"] = context.get("session_id", "default-session")
+                context["evidence_session"] = context.get(
+                    "session_id", "default-session"
+                )
                 context["evidence_log"] = {
                     "session_id": context["evidence_session"],
                     "evidence": [],
-                    "citations": []
+                    "citations": [],
                 }
 
             elif skill_name == "diff-analysis":
@@ -109,7 +112,7 @@ def test_auth():
                         "file": "src/auth.py",
                         "type": "modified",
                         "semantic_category": "security",
-                        "risk_level": "High"
+                        "risk_level": "High",
                     }
                 ]
 
@@ -117,21 +120,28 @@ def test_auth():
                 # Generate deliverable
                 context["deliverable"] = {
                     "template": "security_review_report",
-                    "sections": ["Executive Summary", "Findings", "Actions", "Evidence"],
+                    "sections": [
+                        "Executive Summary",
+                        "Findings",
+                        "Actions",
+                        "Evidence",
+                    ],
                     "findings": context.get("findings", []),
-                    "evidence_refs": [f"E{i+1}" for i in range(len(context.get("evidence", [])))]
+                    "evidence_refs": [
+                        f"E{i + 1}" for i in range(len(context.get("evidence", [])))
+                    ],
                 }
 
             shared_context.update(context)
             return f"{skill_name} completed"
 
-        mock_claude_tools['Skill'] = Mock(side_effect=mock_skill_call)
+        mock_claude_tools["Skill"] = Mock(side_effect=mock_skill_call)
 
         # Act - execute complete workflow
         initial_context = {
             "command": "/review",
             "target": str(mock_workflow_environment),
-            "focus": "security"
+            "focus": "security",
         }
 
         # Step 1: Execute /review command (this would orchestrate skills)
@@ -139,15 +149,20 @@ def test_auth():
             "command_executed": "/review",
             "skills_executed": [],
             "final_deliverable": None,
-            "evidence_log": None
+            "evidence_log": None,
         }
 
         # Simulate skill orchestration
-        skills_to_execute = ["review-core", "evidence-logging", "diff-analysis", "structured-output"]
+        skills_to_execute = [
+            "review-core",
+            "evidence-logging",
+            "diff-analysis",
+            "structured-output",
+        ]
         current_context = initial_context.copy()
 
         for skill in skills_to_execute:
-            mock_claude_tools['Skill'](skill, current_context)
+            mock_claude_tools["Skill"](skill, current_context)
             workflow_result["skills_executed"].append(skill)
             current_context.update(shared_context)
 
@@ -158,7 +173,7 @@ def test_auth():
                 "title": "SQL injection vulnerability",
                 "severity": "Critical",
                 "file": "src/auth.py",
-                "evidence_refs": ["E1"]
+                "evidence_refs": ["E1"],
             }
         ]
 
@@ -167,8 +182,8 @@ def test_auth():
             {
                 "id": "E1",
                 "command": "grep -n 'SELECT.*username' src/auth.py",
-                "output": "src/auth.py:3: query = \"SELECT * FROM users WHERE username = '\" + username + \"'\"",
-                "timestamp": datetime.now(UTC).isoformat()
+                "output": 'src/auth.py:3: query = "SELECT * FROM users WHERE username = \'" + username + "\'"',
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         ]
 
@@ -178,7 +193,9 @@ def test_auth():
         # Assert
         assert workflow_result["command_executed"] == "/review"
         assert len(workflow_result["skills_executed"]) == 4
-        assert all(skill in workflow_result["skills_executed"] for skill in skills_to_execute)
+        assert all(
+            skill in workflow_result["skills_executed"] for skill in skills_to_execute
+        )
 
         # Verify workflow sequence
         execution_order = [call[0] for call in skill_execution_log]
@@ -219,7 +236,7 @@ def test_auth():
                     "branch": "feature/payment-processing",
                     "baseline": "main",
                     "commits_ahead": 12,
-                    "files_changed": 8
+                    "files_changed": 8,
                 }
                 return {"status": "context_confirmed"}
 
@@ -228,10 +245,10 @@ def test_auth():
                     "changes": [
                         {"type": "feature", "category": "payment", "count": 5},
                         {"type": "test", "category": "test", "count": 2},
-                        {"type": "docs", "category": "documentation", "count": 1}
+                        {"type": "docs", "category": "documentation", "count": 1},
                     ],
                     "total_files": 8,
-                    "lines_changed": 150
+                    "lines_changed": 150,
                 }
                 return {"status": "delta_captured"}
 
@@ -240,7 +257,7 @@ def test_auth():
                 workflow_state["insights"] = [
                     "Payment processing feature implemented with 5 components",
                     "Test coverage added for payment flows",
-                    "API documentation updated"
+                    "API documentation updated",
                 ]
                 return {"status": "insights_extracted"}
 
@@ -248,7 +265,7 @@ def test_auth():
                 workflow_state["followups"] = [
                     "[ ] Review payment security implementation",
                     "[ ] Update API documentation with new endpoints",
-                    "[ ] Coordinate with finance team for payment testing"
+                    "[ ] Coordinate with finance team for payment testing",
                 ]
                 return {"status": "followups_recorded"}
 
@@ -267,14 +284,18 @@ def test_auth():
             "key_changes": workflow_state["delta"]["changes"],
             "insights": workflow_state["insights"],
             "followups": workflow_state["followups"],
-            "summary": f"Payment processing feature added with {workflow_state['delta']['total_files']} files changed"
+            "summary": f"Payment processing feature added with {workflow_state['delta']['total_files']} files changed",
         }
 
         # Assert
         assert len(workflow_results) == 4
-        assert all(result["status"].endswith("confirmed") or result["status"].endswith("captured") or
-                      result["status"].endswith("extracted") or result["status"].endswith("recorded")
-                      for result in workflow_results)
+        assert all(
+            result["status"].endswith("confirmed")
+            or result["status"].endswith("captured")
+            or result["status"].endswith("extracted")
+            or result["status"].endswith("recorded")
+            for result in workflow_results
+        )
 
         # Verify workflow completeness
         assert "context" in workflow_state
@@ -312,17 +333,17 @@ def test_auth():
                 context["agent_workflow"] = {
                     "context_established": True,
                     "scope_discovered": ["src/auth.py", "src/payment.py"],
-                    "autonomous_mode": True
+                    "autonomous_mode": True,
                 }
 
             elif skill_name == "evidence-logging":
                 # Agent logs evidence systematically
                 evidence_item = {
-                    "id": f"E{len(shared_evidence)+1}",
+                    "id": f"E{len(shared_evidence) + 1}",
                     "command": f"agent analysis of {context.get('target', 'unknown')}",
                     "output": "Security vulnerability detected",
                     "timestamp": datetime.now(UTC).isoformat(),
-                    "agent": "review-analyst"
+                    "agent": "review-analyst",
                 }
                 shared_evidence.append(evidence_item)
                 context["agent_evidence"] = shared_evidence.copy()
@@ -333,10 +354,10 @@ def test_auth():
                     "template": "security_audit_report",
                     "agent_generated": True,
                     "evidence_refs": [e["id"] for e in shared_evidence],
-                    "compliance_standards": ["OWASP", "NIST"]
+                    "compliance_standards": ["OWASP", "NIST"],
                 }
 
-        mock_claude_tools['Skill'] = Mock(side_effect=mock_agent_with_skills)
+        mock_claude_tools["Skill"] = Mock(side_effect=mock_agent_with_skills)
 
         # Act - execute agent workflow
         agent_workflow = {
@@ -344,22 +365,28 @@ def test_auth():
             "skills_used": [],
             "findings": [],
             "evidence_log": None,
-            "final_report": None
+            "final_report": None,
         }
 
         # Simulate agent executing skills
         skills_sequence = [
             ("review-core", {"agent": "review-analyst", "focus": "security_audit"}),
             ("evidence-logging", {"agent": "review-analyst", "target": "src/auth.py"}),
-            ("structured-output", {"agent": "review-analyst", "findings_count": 2})
+            ("structured-output", {"agent": "review-analyst", "findings_count": 2}),
         ]
 
         current_agent_context = {}
         for skill_name, context in skills_sequence:
             current_agent_context.update(context)
-            mock_claude_tools['Skill'](skill_name, current_agent_context)
+            mock_claude_tools["Skill"](skill_name, current_agent_context)
             agent_workflow["skills_used"].append(skill_name)
-            current_agent_context.update({k: v for k, v in current_agent_context.items() if k.startswith("agent")})
+            current_agent_context.update(
+                {
+                    k: v
+                    for k, v in current_agent_context.items()
+                    if k.startswith("agent")
+                }
+            )
 
         # Add agent findings
         agent_workflow["findings"] = [
@@ -368,7 +395,7 @@ def test_auth():
                 "title": "Autonomously detected SQL injection",
                 "severity": "Critical",
                 "agent_detected": True,
-                "confidence": 0.95
+                "confidence": 0.95,
             }
         ]
 
@@ -405,8 +432,8 @@ def test_auth():
         # Arrange - set up evidence chain tracking
         evidence_chain = {
             "evidence_registry": {},  # ID -> evidence mapping
-            "reference_tracker": {},   # Finding -> [evidence_refs] mapping
-            "skill_contributions": {}  # Skill -> evidence_count mapping
+            "reference_tracker": {},  # Finding -> [evidence_refs] mapping
+            "skill_contributions": {},  # Skill -> evidence_count mapping
         }
 
         def mock_evidence_aware_skill(skill_name, context):
@@ -416,7 +443,7 @@ def test_auth():
                 evidence_log = {
                     "session_id": context.get("session_id", "default"),
                     "evidence": [],
-                    "next_evidence_id": 1
+                    "next_evidence_id": 1,
                 }
                 evidence_chain["skill_contributions"]["evidence-logging"] = 0
                 context["evidence_log"] = evidence_log
@@ -430,13 +457,15 @@ def test_auth():
                         "command": "git diff HEAD~1..HEAD",
                         "output": "2 files changed, 15 insertions(+), 5 deletions(-)",
                         "skill": "diff-analysis",
-                        "timestamp": datetime.now(UTC).isoformat()
+                        "timestamp": datetime.now(UTC).isoformat(),
                     }
                     evidence_log["evidence"].append(diff_evidence)
                     evidence_log["next_evidence_id"] += 1
 
                     # Update registry
-                    evidence_chain["evidence_registry"][diff_evidence["id"]] = diff_evidence
+                    evidence_chain["evidence_registry"][diff_evidence["id"]] = (
+                        diff_evidence
+                    )
                     evidence_chain["skill_contributions"]["diff-analysis"] = 1
 
             elif skill_name == "structured-output":
@@ -448,17 +477,21 @@ def test_auth():
                     {
                         "id": "F1",
                         "title": "Code change detected",
-                        "evidence_refs": available_evidence[:1] if available_evidence else []
+                        "evidence_refs": available_evidence[:1]
+                        if available_evidence
+                        else [],
                     }
                 ]
 
                 # Track references
                 for finding in findings:
-                    evidence_chain["reference_tracker"][finding["id"]] = finding["evidence_refs"]
+                    evidence_chain["reference_tracker"][finding["id"]] = finding[
+                        "evidence_refs"
+                    ]
 
                 context["findings"] = findings
 
-        mock_claude_tools['Skill'] = Mock(side_effect=mock_evidence_aware_skill)
+        mock_claude_tools["Skill"] = Mock(side_effect=mock_evidence_aware_skill)
 
         # Act - execute evidence chain workflow
         workflow_context = {"session_id": "evidence-chain-test"}
@@ -467,8 +500,14 @@ def test_auth():
         current_context = workflow_context.copy()
 
         for skill_name in skills_sequence:
-            mock_claude_tools['Skill'](skill_name, current_context)
-            current_context.update({k: v for k, v in current_context.items() if k in ["evidence_log", "findings"]})
+            mock_claude_tools["Skill"](skill_name, current_context)
+            current_context.update(
+                {
+                    k: v
+                    for k, v in current_context.items()
+                    if k in ["evidence_log", "findings"]
+                }
+            )
 
         # Verify evidence chain integrity
         # Assert
@@ -482,7 +521,9 @@ def test_auth():
         # Check reference resolution
         for _finding_id, evidence_refs in evidence_chain["reference_tracker"].items():
             for ref in evidence_refs:
-                assert ref in evidence_chain["evidence_registry"], f"Evidence reference {ref} not found"
+                assert ref in evidence_chain["evidence_registry"], (
+                    f"Evidence reference {ref} not found"
+                )
 
         # Check skill contributions tracking
         assert evidence_chain["skill_contributions"]["diff-analysis"] == 1
@@ -503,7 +544,7 @@ def test_auth():
             "command_invoked": None,
             "skill_calls": [],
             "context_flow": [],
-            "results_chain": []
+            "results_chain": [],
         }
 
         def mock_orchestrated_skill(skill_name, context):
@@ -515,48 +556,55 @@ def test_auth():
             if skill_name == "review-core":
                 context["workflow_scaffold"] = {
                     "items_created": 5,
-                    "context": {"repo": "/test", "branch": "main"}
+                    "context": {"repo": "/test", "branch": "main"},
                 }
 
             elif skill_name == "evidence-logging":
                 context["evidence_infrastructure"] = {
                     "session_id": "orchestration-test",
-                    "tracking_enabled": True
+                    "tracking_enabled": True,
                 }
 
             return {"skill": skill_name, "status": "completed"}
 
-        mock_claude_tools['Skill'] = Mock(side_effect=mock_orchestrated_skill)
+        mock_claude_tools["Skill"] = Mock(side_effect=mock_orchestrated_skill)
 
         # Act - simulate command orchestration
         def mock_review_command(args, context):
             """Mock /review command orchestrating skills."""
             orchestration_log["command_invoked"] = "/review"
-            orchestration_log["results_chain"].append({"stage": "command_start", "args": args})
+            orchestration_log["results_chain"].append(
+                {"stage": "command_start", "args": args}
+            )
 
             # Orchestrate skills in sequence
-            skills_to_orchestrate = ["review-core", "evidence-logging", "structured-output"]
+            skills_to_orchestrate = [
+                "review-core",
+                "evidence-logging",
+                "structured-output",
+            ]
 
             for skill in skills_to_orchestrate:
                 skill_context = context.copy()
                 skill_context["command_context"] = {
                     "command": "/review",
                     "args": args,
-                    "orchestrated": True
+                    "orchestrated": True,
                 }
 
-                result = mock_claude_tools['Skill'](skill, skill_context)
-                orchestration_log["results_chain"].append({
-                    "stage": f"skill_{skill}_completed",
-                    "result": result
-                })
+                result = mock_claude_tools["Skill"](skill, skill_context)
+                orchestration_log["results_chain"].append(
+                    {"stage": f"skill_{skill}_completed", "result": result}
+                )
 
                 # Propagate context changes
                 for key, value in skill_context.items():
                     if key not in context:
                         context[key] = value
 
-            orchestration_log["results_chain"].append({"stage": "command_complete", "final_context": context})
+            orchestration_log["results_chain"].append(
+                {"stage": "command_complete", "final_context": context}
+            )
             return context
 
         # Execute orchestration
@@ -568,7 +616,11 @@ def test_auth():
         # Assert orchestration quality
         assert orchestration_log["command_invoked"] == "/review"
         assert len(orchestration_log["skill_calls"]) == 3
-        assert orchestration_log["skill_calls"] == ["review-core", "evidence-logging", "structured-output"]
+        assert orchestration_log["skill_calls"] == [
+            "review-core",
+            "evidence-logging",
+            "structured-output",
+        ]
 
         # Verify context propagation
         context_flows = orchestration_log["context_flow"]
@@ -610,7 +662,7 @@ def test_auth():
                     "skill": skill_name,
                     "error_type": "GitCommandError",
                     "message": "Git command failed: invalid reference",
-                    "context": context.copy()
+                    "context": context.copy(),
                 }
                 error_log.append(error)
                 raise Exception("Git command failed")
@@ -618,7 +670,7 @@ def test_auth():
             # Other skills succeed
             return {"skill": skill_name, "status": "success"}
 
-        mock_claude_tools['Skill'] = Mock(side_effect=mock_failing_skill)
+        mock_claude_tools["Skill"] = Mock(side_effect=mock_failing_skill)
 
         # Act - execute workflow with error handling
         workflow_result = {
@@ -627,7 +679,7 @@ def test_auth():
             "skills_completed": [],
             "errors_encountered": [],
             "fallback_actions": [],
-            "final_status": None
+            "final_status": None,
         }
 
         skills_to_execute = ["review-core", "diff-analysis", "structured-output"]
@@ -636,15 +688,14 @@ def test_auth():
         for skill in skills_to_execute:
             workflow_result["skills_attempted"].append(skill)
             try:
-                result = mock_claude_tools['Skill'](skill, current_context)
+                result = mock_claude_tools["Skill"](skill, current_context)
                 workflow_result["skills_completed"].append(skill)
                 current_context.update(result)
 
             except Exception as e:
-                workflow_result["errors_encountered"].append({
-                    "skill": skill,
-                    "error": str(e)
-                })
+                workflow_result["errors_encountered"].append(
+                    {"skill": skill, "error": str(e)}
+                )
 
                 # Implement fallback action
                 if skill == "diff-analysis":
@@ -665,7 +716,9 @@ def test_auth():
 
         # Assert error handling
         assert len(workflow_result["skills_attempted"]) == 3
-        assert len(workflow_result["skills_completed"]) == 2  # review-core, structured-output
+        assert (
+            len(workflow_result["skills_completed"]) == 2
+        )  # review-core, structured-output
         assert len(workflow_result["errors_encountered"]) == 1  # diff-analysis failed
         assert workflow_result["errors_encountered"][0]["skill"] == "diff-analysis"
 
@@ -699,14 +752,14 @@ def test_auth():
             {"target": "src/api/", "focus": "performance"},
             {"target": "src/payment/", "focus": "correctness"},
             {"target": "src/utils/", "focus": "style"},
-            {"target": "docs/", "focus": "documentation"}
+            {"target": "docs/", "focus": "documentation"},
         ]
 
         performance_metrics = {
             "workflow_times": [],
             "skill_execution_times": {},
             "total_duration": 0,
-            "concurrent_efficiency": True
+            "concurrent_efficiency": True,
         }
 
         # Act - execute workflows with timing
@@ -716,7 +769,12 @@ def test_auth():
             workflow_start = time.time()
 
             # Simulate skill execution with timing
-            skills = ["review-core", "evidence-logging", "diff-analysis", "structured-output"]
+            skills = [
+                "review-core",
+                "evidence-logging",
+                "diff-analysis",
+                "structured-output",
+            ]
             f"workflow_{i}_{config['target']}"
 
             skill_times = []
@@ -732,7 +790,9 @@ def test_auth():
                 # Track per-skill timing
                 if skill not in performance_metrics["skill_execution_times"]:
                     performance_metrics["skill_execution_times"][skill] = []
-                performance_metrics["skill_execution_times"][skill].append(skill_duration)
+                performance_metrics["skill_execution_times"][skill].append(
+                    skill_duration
+                )
 
             workflow_duration = time.time() - workflow_start
             performance_metrics["workflow_times"].append(workflow_duration)

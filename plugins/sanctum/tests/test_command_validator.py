@@ -1,6 +1,5 @@
 """Tests for command file validation."""
 
-
 from sanctum.validators import CommandValidationResult, CommandValidator
 
 
@@ -119,7 +118,10 @@ class TestCommandFileValidation:
         """Fails when file doesn't exist."""
         result = CommandValidator.validate_file(tmp_path / "nonexistent.md")
         assert not result.is_valid
-        assert any("not found" in error.lower() or "exist" in error.lower() for error in result.errors)
+        assert any(
+            "not found" in error.lower() or "exist" in error.lower()
+            for error in result.errors
+        )
 
     def test_extracts_command_name_from_filename(self, tmp_path):
         """Extracts command name from filename when no heading present."""
@@ -161,7 +163,9 @@ Just run `git status`.
         refs = CommandValidator.extract_skill_references(content)
         assert refs == []
 
-    def test_validates_skill_references_exist(self, temp_full_plugin, sample_command_content):
+    def test_validates_skill_references_exist(
+        self, temp_full_plugin, sample_command_content
+    ):
         """Validates that referenced skills exist in the plugin."""
         result = CommandValidator.validate_skill_references(
             sample_command_content, temp_full_plugin

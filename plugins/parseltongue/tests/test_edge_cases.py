@@ -63,7 +63,7 @@ class TestEdgeCasesAndErrorScenarios:
         """Given malformed Unicode input, when analyzing, then handles gracefully."""
         # Arrange
         skill = LanguageDetectionSkill()
-        malformed_unicode = b'\xff\xfe\x00\x41\x00\x42'  # Invalid UTF-8
+        malformed_unicode = b"\xff\xfe\x00\x41\x00\x42"  # Invalid UTF-8
 
         # Act & Assert
         with pytest.raises(UnicodeDecodeError):
@@ -74,7 +74,7 @@ class TestEdgeCasesAndErrorScenarios:
         """Given mixed language content, when analyzing, then identifies dominant language."""
         # Arrange
         skill = LanguageDetectionSkill()
-        mixed_code = '''
+        mixed_code = """
 # JavaScript section
 class JSClass {
     constructor() {
@@ -91,13 +91,16 @@ def python_function():
 interface TypeScriptInterface {
     name: string;
 }
-        '''
+        """
 
         # Act
         result = skill.detect_language(mixed_code)
 
         # Assert
-        assert result["language"] in ["javascript", "typescript"]  # Should detect actual code over comments
+        assert result["language"] in [
+            "javascript",
+            "typescript",
+        ]  # Should detect actual code over comments
         assert result["confidence"] > 0.5
 
     @pytest.mark.unit
@@ -105,10 +108,10 @@ interface TypeScriptInterface {
         """Given code with syntax errors, when analyzing, then handles gracefully."""
         # Arrange
         skill = LanguageDetectionSkill()
-        syntax_error_code = '''
+        syntax_error_code = """
 def broken_function(
     print("Missing closing parenthesis")
-        '''
+        """
 
         # Act
         result = skill.detect_language(syntax_error_code)
@@ -125,15 +128,18 @@ def broken_function(
         from parseltongue.skills.async_analyzer import AsyncAnalysisSkill
 
         skill = AsyncAnalysisSkill()
-        large_async_code = '''
+        large_async_code = (
+            """
 async def slow_function():
     for i in range(100000):
         await asyncio.sleep(0.001)
         print(f"Processing {i}")
-        ''' * 100  # Very large async code
+        """
+            * 100
+        )  # Very large async code
 
         # Mock timeout
-        with patch('asyncio.wait_for') as mock_wait_for:
+        with patch("asyncio.wait_for") as mock_wait_for:
             mock_wait_for.side_effect = asyncio.TimeoutError()
 
             # Act & Assert
@@ -168,7 +174,7 @@ async def slow_function():
     def test_network_timeout_simulation(self):
         """Given network operations, when timeout occurs, then handles gracefully."""
         # Arrange
-        with patch('requests.get') as mock_get:
+        with patch("requests.get") as mock_get:
             mock_get.side_effect = TimeoutError("Network timeout")
 
             # Act
@@ -184,7 +190,7 @@ async def slow_function():
     def test_memory_pressure_scenarios(self):
         """Given memory pressure, when analyzing, then uses fallback strategies."""
         # Arrange
-        with patch('psutil.virtual_memory') as mock_memory:
+        with patch("psutil.virtual_memory") as mock_memory:
             # Simulate low memory
             mock_memory.return_value.available = 100 * 1024 * 1024  # 100MB only
 
@@ -195,16 +201,20 @@ async def slow_function():
             strategy = manager.get_optimal_strategy(1000)  # Many files
 
             # Assert
-            assert strategy["concurrent"] is False  # Should disable concurrent processing
-            assert strategy["batch_size"] < 1000     # Should reduce batch size
+            assert (
+                strategy["concurrent"] is False
+            )  # Should disable concurrent processing
+            assert strategy["batch_size"] < 1000  # Should reduce batch size
 
     @pytest.mark.unit
     def test_corrupted_file_handling(self):
         """Given corrupted files, when analyzing, then handles gracefully."""
         # Arrange
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
             # Write partial/incomplete Python code
-            f.write('class IncompleteClass:\n    def __init__(self\n        # Missing closing parenthesis and colon')
+            f.write(
+                "class IncompleteClass:\n    def __init__(self\n        # Missing closing parenthesis and colon"
+            )
             temp_file = f.name
 
         try:
@@ -215,7 +225,9 @@ async def slow_function():
             result = reader.read_file(Path(temp_file))
 
             # Assert
-            assert "error" in result.lower() or result is not None  # Should handle gracefully
+            assert (
+                "error" in result.lower() or result is not None
+            )  # Should handle gracefully
 
         finally:
             os.unlink(temp_file)
@@ -224,7 +236,7 @@ async def slow_function():
     def test_circular_dependency_detection(self):
         """Given circular dependency scenarios, when analyzing, then detects correctly."""
         # Arrange
-        circular_dependency_code = '''
+        circular_dependency_code = """
 # module_a.py
 import module_b
 class ClassA:
@@ -236,7 +248,7 @@ import module_a
 class ClassB:
     def __init__(self):
         self.a_instance = module_a.ClassA()
-        '''
+        """
 
         # Act
         from parseltongue.utils.dependency_analyzer import DependencyAnalyzer
@@ -277,7 +289,7 @@ class ClassB:
         """Given deeply nested code, when analyzing, then handles efficiently."""
         # Arrange
         skill = LanguageDetectionSkill()
-        deeply_nested_code = '''\
+        deeply_nested_code = """\
 def deeply_nested_function():
     if True:
         if True:
@@ -291,7 +303,7 @@ def deeply_nested_function():
                                         if True:
                                             if True:
                                                 return "deeply nested"
-        '''
+        """
 
         # Act
         result = skill.analyze_complexity(deeply_nested_code)
@@ -343,14 +355,16 @@ def deeply_nested_function():
             # Malformed JSON
             '{"skills": ["python", "javascript"',  # Missing closing brace
             # Invalid YAML
-            'skills:\n  - python\n  - javascript\ninvalid: [unclosed',
+            "skills:\n  - python\n  - javascript\ninvalid: [unclosed",
             # Invalid data types
             '{"python_version": 3.11, "invalid": ["should", "be", "string"]}',
         ]
 
         # Act & Assert
         for config in invalid_configs:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False
+            ) as f:
                 f.write(config)
                 temp_file = f.name
 
@@ -405,8 +419,10 @@ def deeply_nested_function():
                 from parseltongue.skills.async_analyzer import AsyncAnalysisSkill
 
                 skill = AsyncAnalysisSkill()
-                with patch('asyncio.sleep') as mock_sleep:
-                    mock_sleep.side_effect = lambda _: signal.raise_signal(signal.SIGINT)
+                with patch("asyncio.sleep") as mock_sleep:
+                    mock_sleep.side_effect = lambda _: signal.raise_signal(
+                        signal.SIGINT
+                    )
                     await skill.analyze_concurrency_patterns("async def test(): pass")
 
         finally:
@@ -417,9 +433,11 @@ def deeply_nested_function():
     def test_resource_exhaustion_recovery(self):
         """Given resource exhaustion, when analyzing, then recovers gracefully."""
         # Arrange
-        with patch('psutil.Process') as mock_process:
+        with patch("psutil.Process") as mock_process:
             # Simulate high memory usage
-            mock_process.return_value.memory_info.return_value.rss = 8 * 1024 * 1024 * 1024  # 8GB
+            mock_process.return_value.memory_info.return_value.rss = (
+                8 * 1024 * 1024 * 1024
+            )  # 8GB
 
             # Act
             from parseltongue.utils.resource_monitor import ResourceMonitor
@@ -435,7 +453,7 @@ def deeply_nested_function():
     def test_database_connection_failures(self):
         """Given database connection issues, when analyzing, then handles gracefully."""
         # Arrange
-        with patch('sqlite3.connect') as mock_connect:
+        with patch("sqlite3.connect") as mock_connect:
             mock_connect.side_effect = Exception("Database connection failed")
 
             # Act
@@ -455,7 +473,7 @@ def deeply_nested_function():
             "name": "",  # Empty name
             "description": None,  # None description
             "tools": "not_a_list",  # Wrong type
-            "invalid_field": "should be ignored"
+            "invalid_field": "should be ignored",
         }
 
         # Act
@@ -485,7 +503,9 @@ def deeply_nested_function():
 
         # Act & Assert
         for filename in edge_cases:
-            with tempfile.NamedTemporaryFile(prefix=filename[:50], suffix='.py', delete=False) as f:
+            with tempfile.NamedTemporaryFile(
+                prefix=filename[:50], suffix=".py", delete=False
+            ) as f:
                 f.write("def test_function(): pass")
                 temp_file = f.name
 
@@ -506,11 +526,11 @@ def deeply_nested_function():
     def test_asyncio_event_loop_errors(self):
         """Given asyncio event loop issues, when analyzing, then handles correctly."""
         # Arrange
-        async_code = '''
+        async_code = """
 async def test_function():
     await asyncio.sleep(0.1)
     return "result"
-        '''
+        """
 
         # Act - Test with no event loop
         try:
@@ -533,13 +553,16 @@ async def test_function():
 
         except Exception as e:
             # Expected behavior for certain test environments
-            assert "no running event loop" in str(e).lower() or "event loop" in str(e).lower()
+            assert (
+                "no running event loop" in str(e).lower()
+                or "event loop" in str(e).lower()
+            )
 
     @pytest.mark.unit
     def test_version_compatibility_issues(self):
         """Given version compatibility issues, when analyzing, then handles gracefully."""
         # Arrange
-        version_specific_code = '''
+        version_specific_code = """
 # Python 3.8+ features
 from typing import Literal, TypedDict
 
@@ -558,7 +581,7 @@ def process_data(data: list[str]) -> None:
             print(f"Single item: {item}")
         case items:
             print(f"Multiple items: {len(items)}")
-        '''
+        """
 
         # Act
         from parseltongue.skills.compatibility_checker import CompatibilityChecker
@@ -587,8 +610,7 @@ def process_data(data: list[str]) -> None:
         logger.error("Error message")
 
         # Test structured logging
-        logger.info("Processing completed", extra={
-            "file_count": 10,
-            "duration": 1.5,
-            "success": True
-        })
+        logger.info(
+            "Processing completed",
+            extra={"file_count": 10, "duration": 1.5, "success": True},
+        )

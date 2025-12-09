@@ -99,4 +99,15 @@ safety:
 
 # Storage locations
 index_file: "memory-palace-index.yaml"
+indexes_dir: "data/indexes"
 corpus_dir: "docs/knowledge-corpus/"
+
+# Knowledge governance defaults
+autonomy_level: 0
+intake_threshold: 70
+domains_of_interest: []
+tending_frequency: "weekly"
+
+telemetry:
+  enabled: true
+  file: "data/telemetry/memory-palace.csv"

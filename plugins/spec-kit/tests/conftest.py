@@ -70,7 +70,7 @@ def sample_task_list():
                     "description": "Create directory structure for authentication module",
                     "dependencies": [],
                     "estimated_time": "30m",
-                    "priority": "high"
+                    "priority": "high",
                 },
                 {
                     "id": "setup-002",
@@ -78,9 +78,9 @@ def sample_task_list():
                     "description": "Install bcrypt, jwt, and related packages",
                     "dependencies": ["setup-001"],
                     "estimated_time": "15m",
-                    "priority": "high"
-                }
-            ]
+                    "priority": "high",
+                },
+            ],
         },
         {
             "phase": "1 - Foundation",
@@ -91,7 +91,7 @@ def sample_task_list():
                     "description": "Define User entity with authentication fields",
                     "dependencies": ["setup-002"],
                     "estimated_time": "45m",
-                    "priority": "high"
+                    "priority": "high",
                 },
                 {
                     "id": "found-002",
@@ -99,10 +99,10 @@ def sample_task_list():
                     "description": "Create secure password hashing and verification functions",
                     "dependencies": ["setup-002"],
                     "estimated_time": "30m",
-                    "priority": "high"
-                }
-            ]
-        }
+                    "priority": "high",
+                },
+            ],
+        },
     ]
 
 
@@ -116,22 +116,19 @@ def sample_plugin_manifest():
         "commands": [
             "./commands/speckit.specify.md",
             "./commands/speckit.plan.md",
-            "./commands/speckit.implement.md"
+            "./commands/speckit.implement.md",
         ],
         "skills": [
             "./skills/speckit-orchestrator",
             "./skills/spec-writing",
-            "./skills/task-planning"
+            "./skills/task-planning",
         ],
         "agents": [
             "./agents/spec-analyzer.md",
             "./agents/task-generator.md",
-            "./agents/implementation-executor.md"
+            "./agents/implementation-executor.md",
         ],
-        "dependencies": {
-            "abstract": ">=2.0.0",
-            "superpowers": ">=1.0.0"
-        }
+        "dependencies": {"abstract": ">=2.0.0", "superpowers": ">=1.0.0"},
     }
 
 
@@ -251,23 +248,24 @@ def mock_todowrite():
 @pytest.fixture
 def mock_skill_loader():
     """Mock skill loading functionality."""
+
     def load_skill(skill_name):
         skills = {
             "spec-writing": {
                 "name": "spec-writing",
                 "description": "Create clear specifications",
-                "category": "specification"
+                "category": "specification",
             },
             "task-planning": {
                 "name": "task-planning",
                 "description": "Generate implementation tasks",
-                "category": "planning"
+                "category": "planning",
             },
             "speckit-orchestrator": {
                 "name": "speckit-orchestrator",
                 "description": "Workflow orchestration",
-                "category": "workflow"
-            }
+                "category": "workflow",
+            },
         }
         return skills.get(skill_name)
 
@@ -282,7 +280,7 @@ def workflow_progress_items():
         "Prerequisites validated",
         "Command-specific skills loaded",
         "Artifacts created/updated",
-        "Verification completed"
+        "Verification completed",
     ]
 
 
@@ -304,23 +302,27 @@ def mock_agent_responses():
             data={
                 "complexity": "medium",
                 "estimated_effort": "2-3 days",
-                "key_components": ["authentication", "authorization", "session management"]
-            }
+                "key_components": [
+                    "authentication",
+                    "authorization",
+                    "session management",
+                ],
+            },
         ),
         "task_generator": MockAgentResponse(
             success=True,
             data={
                 "total_tasks": 12,
                 "phases": ["setup", "foundation", "implementation", "integration"],
-                "estimated_duration": "2-3 days"
-            }
+                "estimated_duration": "2-3 days",
+            },
         ),
         "implementation_executor": MockAgentResponse(
             success=True,
             data={
                 "implementation_status": "ready",
                 "prerequisites_met": True,
-                "blocking_issues": []
-            }
-        )
+                "blocking_issues": [],
+            },
+        ),
     }

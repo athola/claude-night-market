@@ -35,11 +35,7 @@ class KeywordIndexer:
         self.corpus_dir = Path(corpus_dir)
         self.index_dir = Path(index_dir)
         self.index_file = self.index_dir / "keyword-index.yaml"
-        self.index: dict[str, Any] = {
-            "entries": {},
-            "keywords": defaultdict(list),
-            "metadata": {}
-        }
+        self.index: dict[str, Any] = {"entries": {}, "keywords": defaultdict(list), "metadata": {}}
 
     def extract_keywords(self, entry_path: Path) -> list[str]:
         """Extract keywords from a single knowledge entry.
@@ -75,16 +71,20 @@ class KeywordIndexer:
                             if "title" in metadata:
                                 title = metadata["title"].lower()
                                 # Extract significant words from title (3+ chars)
-                                title_words = re.findall(r'\b[a-z]{3,}\b', title)
+                                title_words = re.findall(r"\b[a-z]{3,}\b", title)
                                 keywords.update(title_words)
 
                             # Extract from palace/district
                             if "palace" in metadata:
-                                palace_words = re.findall(r'\b[a-z]{3,}\b', metadata["palace"].lower())
+                                palace_words = re.findall(
+                                    r"\b[a-z]{3,}\b", metadata["palace"].lower()
+                                )
                                 keywords.update(palace_words)
 
                             if "district" in metadata:
-                                district_words = re.findall(r'\b[a-z]{3,}\b', metadata["district"].lower())
+                                district_words = re.findall(
+                                    r"\b[a-z]{3,}\b", metadata["district"].lower()
+                                )
                                 keywords.update(district_words)
 
                     except yaml.YAMLError:
@@ -92,28 +92,28 @@ class KeywordIndexer:
 
                     # Extract from content
                     # Get headings (## Something)
-                    headings = re.findall(r'^#{1,3}\s+(.+)$', body, re.MULTILINE)
+                    headings = re.findall(r"^#{1,3}\s+(.+)$", body, re.MULTILINE)
                     for heading in headings:
-                        heading_words = re.findall(r'\b[a-z]{3,}\b', heading.lower())
+                        heading_words = re.findall(r"\b[a-z]{3,}\b", heading.lower())
                         keywords.update(heading_words)
 
                     # Get emphasized terms (**term** or *term*)
-                    emphasized = re.findall(r'\*\*([^*]+)\*\*|\*([^*]+)\*', body)
+                    emphasized = re.findall(r"\*\*([^*]+)\*\*|\*([^*]+)\*", body)
                     for match in emphasized:
                         term = match[0] or match[1]
-                        term_words = re.findall(r'\b[a-z]{3,}\b', term.lower())
+                        term_words = re.findall(r"\b[a-z]{3,}\b", term.lower())
                         keywords.update(term_words)
 
                     # Extract key technical terms (hyphenated, camelCase)
-                    technical_terms = re.findall(r'\b[a-z]+(?:-[a-z]+)+\b', body.lower())
+                    technical_terms = re.findall(r"\b[a-z]+(?:-[a-z]+)+\b", body.lower())
                     keywords.update(technical_terms)
 
                     # Extract significant noun phrases (simple approach - consecutive capitalized words)
                     # This helps catch "Gradient Descent", "Machine Learning", etc.
-                    noun_phrases = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', body)
+                    noun_phrases = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", body)
                     for phrase in noun_phrases:
                         # Add both the phrase and individual words
-                        phrase_words = re.findall(r'\b[a-z]{3,}\b', phrase.lower())
+                        phrase_words = re.findall(r"\b[a-z]{3,}\b", phrase.lower())
                         keywords.update(phrase_words)
 
         except Exception:
@@ -122,10 +122,44 @@ class KeywordIndexer:
 
         # Remove common stop words
         stop_words = {
-            'the', 'and', 'for', 'that', 'this', 'with', 'from', 'are', 'was', 'were',
-            'been', 'have', 'has', 'had', 'not', 'but', 'can', 'will', 'what', 'when',
-            'where', 'who', 'why', 'how', 'all', 'each', 'which', 'their', 'said',
-            'them', 'these', 'than', 'into', 'very', 'her', 'our', 'out', 'only'
+            "the",
+            "and",
+            "for",
+            "that",
+            "this",
+            "with",
+            "from",
+            "are",
+            "was",
+            "were",
+            "been",
+            "have",
+            "has",
+            "had",
+            "not",
+            "but",
+            "can",
+            "will",
+            "what",
+            "when",
+            "where",
+            "who",
+            "why",
+            "how",
+            "all",
+            "each",
+            "which",
+            "their",
+            "said",
+            "them",
+            "these",
+            "than",
+            "into",
+            "very",
+            "her",
+            "our",
+            "out",
+            "only",
         }
         keywords = {k for k in keywords if k not in stop_words}
 
@@ -171,7 +205,7 @@ class KeywordIndexer:
                 "file": str(md_file.relative_to(self.corpus_dir.parent)),
                 "keywords": keywords,
                 "title": title,
-                "tags": tags
+                "tags": tags,
             }
 
             # Build reverse index
@@ -185,8 +219,8 @@ class KeywordIndexer:
             "metadata": {
                 "total_entries": len(entries),
                 "total_keywords": len(keyword_to_entries),
-                "last_updated": datetime.now().isoformat()
-            }
+                "last_updated": datetime.now().isoformat(),
+            },
         }
 
         # Save to disk
@@ -196,18 +230,14 @@ class KeywordIndexer:
         """Save the index to disk as YAML."""
         self.index_dir.mkdir(parents=True, exist_ok=True)
 
-        with open(self.index_file, 'w') as f:
+        with open(self.index_file, "w") as f:
             yaml.safe_dump(self.index, f, default_flow_style=False, sort_keys=False)
 
     def load_index(self) -> None:
         """Load the index from disk."""
         if self.index_file.exists():
             with open(self.index_file) as f:
-                self.index = yaml.safe_load(f) or {
-                    "entries": {},
-                    "keywords": {},
-                    "metadata": {}
-                }
+                self.index = yaml.safe_load(f) or {"entries": {}, "keywords": {}, "metadata": {}}
 
     def search(self, query: str | list[str]) -> list[dict[str, Any]]:
         """Search the index by keyword(s).

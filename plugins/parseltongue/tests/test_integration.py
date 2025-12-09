@@ -149,7 +149,9 @@ async def test_get_user_not_found(mock_client):
 
         # Should detect async patterns
         assert "async_patterns" in insights
-        assert any("AsyncUserClient" in str(insight) for insight in insights["async_patterns"])
+        assert any(
+            "AsyncUserClient" in str(insight) for insight in insights["async_patterns"]
+        )
 
         # Should detect testing patterns
         assert "testing_insights" in insights
@@ -214,7 +216,10 @@ def test_data_processor():
         # Assert - Python Tester Agent analysis
         assert tester_analysis is not None
         assert "testing_issues" in tester_analysis
-        assert any("implementation_details" in issue for issue in tester_analysis["testing_issues"])
+        assert any(
+            "implementation_details" in issue
+            for issue in tester_analysis["testing_issues"]
+        )
         assert "recommendations" in tester_analysis
 
         # Assert - Python Optimizer Agent analysis
@@ -233,7 +238,7 @@ def test_data_processor():
         multi_language_code = {
             "python": language_samples["python"],
             "typescript": language_samples["typescript"],
-            "javascript": language_samples["javascript"]
+            "javascript": language_samples["javascript"],
         }
 
         # Act
@@ -253,12 +258,14 @@ def test_data_processor():
             pattern_result = pattern_skill.recognize_patterns(code, language)
 
             # Step 3: Suggest improvements
-            transformation_result = transformation_skill.suggest_improvements(code, language)
+            transformation_result = transformation_skill.suggest_improvements(
+                code, language
+            )
 
             results[language] = {
                 "language_features": language_result,
                 "patterns": pattern_result,
-                "improvements": transformation_result
+                "improvements": transformation_result,
             }
 
         # Assert
@@ -354,17 +361,23 @@ def test_no_assertion():
 
         # Execute profiler command
         profiler_command = RunProfilerCommand()
-        profiler_analysis = await profiler_command.execute(temp_project_directory / "src" / "slow_code.py")
+        profiler_analysis = await profiler_command.execute(
+            temp_project_directory / "src" / "slow_code.py"
+        )
 
         # Execute async check command
         async_command = CheckAsyncCommand()
-        async_analysis = await async_command.execute(temp_project_directory / "src" / "slow_code.py")
+        async_analysis = await async_command.execute(
+            temp_project_directory / "src" / "slow_code.py"
+        )
 
         # Assert
         # Test analysis should detect issues
         assert test_analysis is not None
         assert "issues_found" in test_analysis
-        assert len(test_analysis["issues_found"]) >= 2  # No fixture, testing private method
+        assert (
+            len(test_analysis["issues_found"]) >= 2
+        )  # No fixture, testing private method
 
         # Profiler analysis should detect performance issues
         assert profiler_analysis is not None
@@ -380,7 +393,7 @@ def test_no_assertion():
     async def test_error_handling_and_recovery(self):
         """Given error scenarios, when workflow encounters errors, then handles gracefully."""
         # Arrange
-        invalid_code = '''
+        invalid_code = """
 def syntax_error(
     # Missing closing parenthesis
     pass
@@ -389,7 +402,7 @@ class AnotherClass:
     def method(self
         # Missing closing parenthesis and colon
             return "syntax error"
-        '''
+        """
 
         # Act
 
@@ -412,17 +425,16 @@ class AnotherClass:
             "python_version": "3.11",
             "focus_areas": ["performance", "async", "testing"],
             "exclude_patterns": ["*_test.py", "test_*.py"],
-            "quality_thresholds": {
-                "complexity": 10,
-                "coverage": 80
-            }
+            "quality_thresholds": {"complexity": 10, "coverage": 80},
         }
 
         # Add configuration file
-        (temp_project_directory / "parseltongue.json").write_text(json.dumps(config, indent=2))
+        (temp_project_directory / "parseltongue.json").write_text(
+            json.dumps(config, indent=2)
+        )
 
         # Add some code files
-        (temp_project_directory / "app.py").write_text('''
+        (temp_project_directory / "app.py").write_text("""
 import asyncio
 from typing import List
 
@@ -438,13 +450,13 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main)
-        ''')
+        """)
 
-        (temp_project_directory / "test_app.py").write_text('''
+        (temp_project_directory / "test_app.py").write_text("""
 def test_app_config():
     config = AppConfig()
     assert config.settings == {}
-        ''')
+        """)
 
         # Act
         from parseltongue.workflow.configurable_workflow import ConfigurableWorkflow
@@ -472,7 +484,7 @@ def test_app_config():
             # Create many Python files
             for i in range(50):
                 file_path = project_path / f"module_{i}.py"
-                file_path.write_text(f'''
+                file_path.write_text(f"""
 class Module{i}:
     def __init__(self):
         self.name = "module_{i}"
@@ -491,10 +503,11 @@ class Module{i}:
     async def async_process_item(self, item):
         await asyncio.sleep(0.001)
         return item.upper()
-                ''')
+                """)
 
             # Act
             import time
+
             start_time = time.time()
 
             from parseltongue.workflows.batch_analyzer import BatchAnalyzer

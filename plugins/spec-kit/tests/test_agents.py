@@ -13,10 +13,12 @@ class TestSpeckitAgents:
         def test_spec_complexity_analysis(self, sample_spec_content):
             """Test specification complexity analysis."""
             # Analyze spec content
-            lines = sample_spec_content.split('\n')
-            sections = len([line for line in lines if line.startswith('## ')])
-            user_scenarios = len([line for line in lines if '### As a' in line])
-            functional_requirements = len([line for line in lines if line.startswith('-')])
+            lines = sample_spec_content.split("\n")
+            sections = len([line for line in lines if line.startswith("## ")])
+            user_scenarios = len([line for line in lines if "### As a" in line])
+            functional_requirements = len(
+                [line for line in lines if line.startswith("-")]
+            )
 
             # Calculate complexity metrics
             complexity_factors = {
@@ -24,14 +26,14 @@ class TestSpeckitAgents:
                 "user_scenarios": user_scenarios,
                 "functional_requirements": functional_requirements,
                 "total_lines": len([line for line in lines if line.strip()]),
-                "has_open_questions": "[CLARIFY]" in sample_spec_content
+                "has_open_questions": "[CLARIFY]" in sample_spec_content,
             }
 
             # Determine complexity level
             complexity_score = (
-                min(complexity_factors["sections"] / 5, 1) * 0.3 +
-                min(complexity_factors["user_scenarios"] / 3, 1) * 0.3 +
-                min(complexity_factors["functional_requirements"] / 10, 1) * 0.4
+                min(complexity_factors["sections"] / 5, 1) * 0.3
+                + min(complexity_factors["user_scenarios"] / 3, 1) * 0.3
+                + min(complexity_factors["functional_requirements"] / 10, 1) * 0.4
             )
 
             if complexity_score < 0.3:
@@ -49,28 +51,51 @@ class TestSpeckitAgents:
             # Count implementation indicators
             implementation_indicators = {
                 "user_scenarios": sample_spec_content.count("### As a"),
-                "functional_requirements": len([
-                    line for line in sample_spec_content.split('\n')
-                    if line.strip().startswith('-')
-                ]),
-                "integrations": len([
-                    line for line in sample_spec_content.lower().split('\n')
-                    if any(term in line for term in ["api", "database", "service", "external"])
-                ]),
-                "complexity_markers": len([
-                    line for line in sample_spec_content.lower().split('\n')
-                    if any(term in line for term in ["security", "performance", "scalability"])
-                ])
+                "functional_requirements": len(
+                    [
+                        line
+                        for line in sample_spec_content.split("\n")
+                        if line.strip().startswith("-")
+                    ]
+                ),
+                "integrations": len(
+                    [
+                        line
+                        for line in sample_spec_content.lower().split("\n")
+                        if any(
+                            term in line
+                            for term in ["api", "database", "service", "external"]
+                        )
+                    ]
+                ),
+                "complexity_markers": len(
+                    [
+                        line
+                        for line in sample_spec_content.lower().split("\n")
+                        if any(
+                            term in line
+                            for term in ["security", "performance", "scalability"]
+                        )
+                    ]
+                ),
             }
 
             # Calculate effort in story points or days
             base_effort = 3  # Base effort in days
             scenario_effort = implementation_indicators["user_scenarios"] * 1
-            requirement_effort = implementation_indicators["functional_requirements"] * 0.5
+            requirement_effort = (
+                implementation_indicators["functional_requirements"] * 0.5
+            )
             integration_effort = implementation_indicators["integrations"] * 2
             complexity_effort = implementation_indicators["complexity_markers"] * 1.5
 
-            total_effort = base_effort + scenario_effort + requirement_effort + integration_effort + complexity_effort
+            total_effort = (
+                base_effort
+                + scenario_effort
+                + requirement_effort
+                + integration_effort
+                + complexity_effort
+            )
 
             assert total_effort > 0, "Should estimate positive effort"
             assert total_effort < 30, "Effort should be reasonable (< 30 days)"
@@ -87,7 +112,7 @@ class TestSpeckitAgents:
                 r"email",
                 r"role",
                 r"api",
-                r"database"
+                r"database",
             ]
 
             found_components = []
@@ -98,7 +123,9 @@ class TestSpeckitAgents:
                     found_components.append(pattern)
 
             # Should find meaningful components
-            assert len(found_components) >= 3, f"Should extract key components, found: {found_components}"
+            assert len(found_components) >= 3, (
+                f"Should extract key components, found: {found_components}"
+            )
 
         def test_dependency_identification(self, sample_spec_content):
             """Test identification of external dependencies."""
@@ -108,7 +135,7 @@ class TestSpeckitAgents:
                 "external api",
                 "third-party",
                 "library",
-                "framework"
+                "framework",
             ]
 
             spec_lower = sample_spec_content.lower()
@@ -127,7 +154,7 @@ class TestSpeckitAgents:
                 "security": ["password", "authentication", "authorization", "session"],
                 "complexity": ["multiple", "various", "several", "complex"],
                 "integration": ["external", "third-party", "api"],
-                "performance": ["performance", "scalability", "optimization"]
+                "performance": ["performance", "scalability", "optimization"],
             }
 
             risk_scores = {}
@@ -143,7 +170,9 @@ class TestSpeckitAgents:
 
             # Security-related specs should have security risk indicators
             if "authentication" in spec_lower:
-                assert risk_scores["security"] > 0, "Authentication specs should identify security risks"
+                assert risk_scores["security"] > 0, (
+                    "Authentication specs should identify security risks"
+                )
 
     class TestTaskGenerator:
         """Test task-generator agent."""
@@ -151,22 +180,29 @@ class TestSpeckitAgents:
         def test_task_count_estimation(self, sample_spec_content):
             """Test estimation of task count from specification."""
             # Analyze spec complexity for task estimation
-            functional_requirements = len([
-                line for line in sample_spec_content.split('\n')
-                if line.strip().startswith('-') and len(line.strip()) > 2
-            ])
+            functional_requirements = len(
+                [
+                    line
+                    for line in sample_spec_content.split("\n")
+                    if line.strip().startswith("-") and len(line.strip()) > 2
+                ]
+            )
 
             user_scenarios = sample_spec_content.count("### As a")
 
             # Estimate tasks (rough heuristic)
             estimated_tasks = max(
                 functional_requirements * 2,  # Tasks per requirement
-                user_scenarios * 3,           # Tasks per scenario
-                5                             # Minimum tasks
+                user_scenarios * 3,  # Tasks per scenario
+                5,  # Minimum tasks
             )
 
-            assert estimated_tasks >= 5, f"Should estimate reasonable task count: {estimated_tasks}"
-            assert estimated_tasks <= 50, f"Task count should be reasonable: {estimated_tasks}"
+            assert estimated_tasks >= 5, (
+                f"Should estimate reasonable task count: {estimated_tasks}"
+            )
+            assert estimated_tasks <= 50, (
+                f"Task count should be reasonable: {estimated_tasks}"
+            )
 
         def test_phase_breakdown(self, sample_task_list):
             """Test task phase breakdown."""
@@ -175,13 +211,13 @@ class TestSpeckitAgents:
                 "1 - Foundation",
                 "2 - Core Implementation",
                 "3 - Integration",
-                "4 - Polish"
+                "4 - Polish",
             ]
 
             actual_phases = [phase["phase"] for phase in sample_task_list]
 
             # Should have phases in correct order
-            for i, expected_phase in enumerate(expected_phases[:len(actual_phases)]):
+            for i, expected_phase in enumerate(expected_phases[: len(actual_phases)]):
                 assert actual_phases[i] == expected_phase
 
         def test_dependency_analysis(self, sample_task_list):
@@ -240,9 +276,14 @@ class TestSpeckitAgents:
                     parallel_groups.append(independent_tasks)
 
             # Should identify parallel opportunities
-            setup_phase = next((phase for phase in sample_task_list if phase["phase"] == "0 - Setup"), None)
+            setup_phase = next(
+                (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"),
+                None,
+            )
             if setup_phase and len(setup_phase["tasks"]) > 1:
-                assert len(parallel_groups) > 0, "Should identify parallel tasks in setup phase"
+                assert len(parallel_groups) > 0, (
+                    "Should identify parallel tasks in setup phase"
+                )
 
     class TestImplementationExecutor:
         """Test implementation-executor agent."""
@@ -252,32 +293,45 @@ class TestSpeckitAgents:
             prerequisites = {
                 "specification_exists": len(sample_spec_content.strip()) > 0,
                 "tasks_defined": len(sample_task_list) > 0,
-                "spec_has_requirements": "## Functional Requirements" in sample_spec_content,
-                "spec_has_success_criteria": "## Success Criteria" in sample_spec_content,
+                "spec_has_requirements": "## Functional Requirements"
+                in sample_spec_content,
+                "spec_has_success_criteria": "## Success Criteria"
+                in sample_spec_content,
                 "tasks_have_dependencies": any(
                     task["dependencies"]
                     for phase in sample_task_list
                     for task in phase["tasks"]
-                )
+                ),
             }
 
             # All prerequisites should be met
             for prereq, met in prerequisites.items():
                 assert met, f"Prerequisite not met: {prereq}"
 
-        def test_implementation_readiness_score(self, sample_spec_content, sample_task_list):
+        def test_implementation_readiness_score(
+            self, sample_spec_content, sample_task_list
+        ):
             """Test calculation of implementation readiness score."""
             readiness_factors = {
                 "spec_completeness": 0.3,
                 "task_clarity": 0.3,
                 "dependency_structure": 0.2,
-                "resource_estimation": 0.2
+                "resource_estimation": 0.2,
             }
 
             # Calculate individual scores
-            spec_score = 1.0 if all(section in sample_spec_content for section in [
-                "## Overview", "## Functional Requirements", "## Success Criteria"
-            ]) else 0.5
+            spec_score = (
+                1.0
+                if all(
+                    section in sample_spec_content
+                    for section in [
+                        "## Overview",
+                        "## Functional Requirements",
+                        "## Success Criteria",
+                    ]
+                )
+                else 0.5
+            )
 
             task_score = 1.0 if len(sample_task_list) >= 3 else 0.5
 
@@ -298,14 +352,18 @@ class TestSpeckitAgents:
             estimate_score = 1.0 if has_estimates else 0.5
 
             readiness_score = (
-                spec_score * readiness_factors["spec_completeness"] +
-                task_score * readiness_factors["task_clarity"] +
-                dependency_score * readiness_factors["dependency_structure"] +
-                estimate_score * readiness_factors["resource_estimation"]
+                spec_score * readiness_factors["spec_completeness"]
+                + task_score * readiness_factors["task_clarity"]
+                + dependency_score * readiness_factors["dependency_structure"]
+                + estimate_score * readiness_factors["resource_estimation"]
             )
 
-            assert 0 <= readiness_score <= 1, f"Readiness score should be between 0 and 1: {readiness_score}"
-            assert readiness_score >= 0.7, f"Should be ready for implementation: {readiness_score}"
+            assert 0 <= readiness_score <= 1, (
+                f"Readiness score should be between 0 and 1: {readiness_score}"
+            )
+            assert readiness_score >= 0.7, (
+                f"Should be ready for implementation: {readiness_score}"
+            )
 
         def test_blocking_issues_detection(self, sample_spec_content, sample_task_list):
             """Test detection of blocking implementation issues."""
@@ -329,10 +387,14 @@ class TestSpeckitAgents:
                 for dep_id in task["dependencies"]:
                     dep_task = next((t for t in all_tasks if t["id"] == dep_id), None)
                     if dep_task and task["id"] in dep_task.get("dependencies", []):
-                        blocking_issues.append(f"Circular dependency: {task['id']} <-> {dep_id}")
+                        blocking_issues.append(
+                            f"Circular dependency: {task['id']} <-> {dep_id}"
+                        )
 
             # Should have minimal blocking issues for good specs
-            assert len(blocking_issues) <= 1, f"Too many blocking issues: {blocking_issues}"
+            assert len(blocking_issues) <= 1, (
+                f"Too many blocking issues: {blocking_issues}"
+            )
 
         def test_implementation_status_assessment(self, sample_task_list):
             """Test assessment of implementation status."""
@@ -340,19 +402,33 @@ class TestSpeckitAgents:
             completed_tasks = set()  # Tasks that are completed
             current_phase_index = 0
 
-            phases = ["0 - Setup", "1 - Foundation", "2 - Core Implementation", "3 - Integration", "4 - Polish"]
+            phases = [
+                "0 - Setup",
+                "1 - Foundation",
+                "2 - Core Implementation",
+                "3 - Integration",
+                "4 - Polish",
+            ]
 
             # Find current phase based on completed tasks
             for i, phase in enumerate(phases):
-                phase_tasks = next((p["tasks"] for p in sample_task_list if p["phase"] == phase), [])
+                phase_tasks = next(
+                    (p["tasks"] for p in sample_task_list if p["phase"] == phase), []
+                )
                 if all(task["id"] in completed_tasks for task in phase_tasks):
                     current_phase_index = i + 1
                 else:
                     break
 
-            current_phase = phases[current_phase_index] if current_phase_index < len(phases) else "Completed"
+            current_phase = (
+                phases[current_phase_index]
+                if current_phase_index < len(phases)
+                else "Completed"
+            )
 
-            assert current_phase in phases + ["Completed"], f"Invalid phase: {current_phase}"
+            assert current_phase in phases + ["Completed"], (
+                f"Invalid phase: {current_phase}"
+            )
 
         def test_resource_requirements_estimation(self, sample_task_list):
             """Test estimation of resource requirements."""

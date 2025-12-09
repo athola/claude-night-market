@@ -1,6 +1,5 @@
 """Tests for skill frontmatter and content validation."""
 
-
 from sanctum.validators import SkillValidationResult, SkillValidator
 
 
@@ -191,7 +190,10 @@ class TestSkillFileValidation:
         """Fails when file doesn't exist."""
         result = SkillValidator.validate_file(tmp_path / "nonexistent.md")
         assert not result.is_valid
-        assert any("not found" in error.lower() or "exist" in error.lower() for error in result.errors)
+        assert any(
+            "not found" in error.lower() or "exist" in error.lower()
+            for error in result.errors
+        )
 
     def test_validates_skill_directory(self, tmp_path, sample_skill_frontmatter):
         """Validates a skill directory with SKILL.md."""
@@ -243,7 +245,10 @@ Use Skill(invalid-format) to continue.
 """
         result = SkillValidator.validate_references(content)
         # Should warn about potentially invalid reference format
-        assert any("reference" in msg.lower() for msg in result.warnings + result.errors) or result.is_valid
+        assert (
+            any("reference" in msg.lower() for msg in result.warnings + result.errors)
+            or result.is_valid
+        )
 
     def test_extracts_skill_dependencies(self, sample_skill_frontmatter):
         """Extracts list of skill dependencies from content."""

@@ -34,7 +34,7 @@ class TestArchitectureReviewSkill:
             "src/controllers/user_controller.py",
             "src/services/user_service.py",
             "src/repositories/user_repository.py",
-            "src/models/user.py"
+            "src/models/user.py",
         ]
 
         # Act
@@ -56,7 +56,7 @@ class TestArchitectureReviewSkill:
             "src/ports/output/database_port.py",
             "src/adapters/database/mongodb_adapter.py",
             "src/adapters/web/rest_adapter.py",
-            "src/core/domain/user.py"
+            "src/core/domain/user.py",
         ]
 
         # Act
@@ -77,7 +77,7 @@ class TestArchitectureReviewSkill:
             "services/order-service/src/main.py",
             "services/payment-service/src/main.py",
             "services/notification-service/src/main.py",
-            "api-gateway/src/main.py"
+            "api-gateway/src/main.py",
         ]
 
         # Act
@@ -86,7 +86,9 @@ class TestArchitectureReviewSkill:
         # Assert
         assert "microservices" in architecture["patterns"]
         assert len(architecture["services"]) >= 4
-        assert "api-gateway" in [service["name"] for service in architecture["services"]]
+        assert "api-gateway" in [
+            service["name"] for service in architecture["services"]
+        ]
 
     @pytest.mark.unit
     def test_detects_event_driven_architecture(self, mock_skill_context):
@@ -97,7 +99,7 @@ class TestArchitectureReviewSkill:
             "src/handlers/user_event_handler.py",
             "src/publishers/event_publisher.py",
             "src/subscribers/event_subscriber.py",
-            "src/event_bus/event_bus.py"
+            "src/event_bus/event_bus.py",
         ]
 
         # Act
@@ -117,7 +119,11 @@ class TestArchitectureReviewSkill:
             {"from": "controller.py", "to": "service.py", "type": "import"},
             {"from": "service.py", "to": "repository.py", "type": "import"},
             {"from": "repository.py", "to": "database.py", "type": "import"},
-            {"from": "controller.py", "to": "database.py", "type": "import"}  # Violates layering
+            {
+                "from": "controller.py",
+                "to": "database.py",
+                "type": "import",
+            },  # Violates layering
         ]
 
         mock_skill_context.analyze_dependencies.return_value = dependencies
@@ -128,7 +134,9 @@ class TestArchitectureReviewSkill:
         # Assert
         assert "coupling_score" in coupling_analysis
         assert "violations" in coupling_analysis
-        assert len(coupling_analysis["violations"]) >= 1  # Should detect controller directly accessing database
+        assert (
+            len(coupling_analysis["violations"]) >= 1
+        )  # Should detect controller directly accessing database
         assert coupling_analysis["coupling_score"] > 0
 
     @pytest.mark.unit
@@ -148,13 +156,17 @@ class TestArchitectureReviewSkill:
         mock_skill_context.get_file_content.return_value = module_content
 
         # Act
-        cohesion_analysis = self.skill.analyze_cohesion(mock_skill_context, "user_service.py")
+        cohesion_analysis = self.skill.analyze_cohesion(
+            mock_skill_context, "user_service.py"
+        )
 
         # Assert
         assert "cohesion_score" in cohesion_analysis
         assert "responsibilities" in cohesion_analysis
         assert cohesion_analysis["cohesion_score"] < 0.8  # Should detect low cohesion
-        assert len(cohesion_analysis["responsibilities"]) >= 3  # Should detect multiple responsibilities
+        assert (
+            len(cohesion_analysis["responsibilities"]) >= 3
+        )  # Should detect multiple responsibilities
 
     @pytest.mark.unit
     def test_checks_separation_of_concerns(self, mock_skill_context):
@@ -183,7 +195,9 @@ class TestArchitectureReviewSkill:
         mock_skill_context.get_file_content.return_value = mixed_concerns_code
 
         # Act
-        soc_violations = self.skill.check_separation_of_concerns(mock_skill_context, "handler.py")
+        soc_violations = self.skill.check_separation_of_concerns(
+            mock_skill_context, "handler.py"
+        )
 
         # Assert
         assert len(soc_violations) > 0
@@ -210,12 +224,16 @@ class TestArchitectureReviewSkill:
         mock_skill_context.get_file_content.return_value = violating_code
 
         # Act
-        dip_violations = self.skill.check_dependency_inversion(mock_skill_context, "order_service.py")
+        dip_violations = self.skill.check_dependency_inversion(
+            mock_skill_context, "order_service.py"
+        )
 
         # Assert
         assert len(dip_violations) > 0
         concrete_deps = [v for v in dip_violations if "concrete" in v["issue"].lower()]
-        assert len(concrete_deps) >= 2  # Should detect MySQLDatabase and SMTPEmailSender
+        assert (
+            len(concrete_deps) >= 2
+        )  # Should detect MySQLDatabase and SMTPEmailSender
 
     @pytest.mark.unit
     def test_analyzes_sOLID_principles_compliance(self, mock_skill_context):
@@ -252,7 +270,9 @@ class TestArchitectureReviewSkill:
         mock_skill_context.get_file_content.return_value = code_with_violations
 
         # Act
-        solid_analysis = self.skill.analyze_solid_principles(mock_skill_context, "shapes.py")
+        solid_analysis = self.skill.analyze_solid_principles(
+            mock_skill_context, "shapes.py"
+        )
 
         # Assert
         assert "single_responsibility" in solid_analysis
@@ -269,7 +289,7 @@ class TestArchitectureReviewSkill:
         adr_files = [
             "docs/adr/0001-use-microservices.md",
             "docs/adr/0002-database-selection.md",
-            "docs/adr/0003-communication-pattern.md"
+            "docs/adr/0003-communication-pattern.md",
         ]
 
         mock_adr_content = """
@@ -300,7 +320,9 @@ class TestArchitectureReviewSkill:
         assert "total_adrs" in adr_analysis
         assert adr_analysis["total_adrs"] >= 3
         assert "completeness_score" in adr_analysis
-        assert adr_analysis["completeness_score"] > 0.8  # Should find proper ADR structure
+        assert (
+            adr_analysis["completeness_score"] > 0.8
+        )  # Should find proper ADR structure
 
     @pytest.mark.unit
     def test_analyzes_data_flow_architecture(self, mock_skill_context):
@@ -310,7 +332,7 @@ class TestArchitectureReviewSkill:
             "src/pipes/user_data_pipe.py",
             "src/filters/data_filter.py",
             "src/transforms/data_transformer.py",
-            "src/sinks/data_sink.py"
+            "src/sinks/data_sink.py",
         ]
 
         mock_skill_context.get_files.return_value = data_flow_files
@@ -320,7 +342,11 @@ class TestArchitectureReviewSkill:
 
         # Assert
         assert "pattern_detected" in data_flow_analysis
-        assert data_flow_analysis["pattern_detected"] in ["pipes_filters", "batch_sequential", "streams"]
+        assert data_flow_analysis["pattern_detected"] in [
+            "pipes_filters",
+            "batch_sequential",
+            "streams",
+        ]
         assert "flow_components" in data_flow_analysis
 
     @pytest.mark.unit
@@ -356,12 +382,16 @@ class TestArchitectureReviewSkill:
         mock_skill_context.get_file_content.return_value = scalability_code
 
         # Act
-        scalability_analysis = self.skill.analyze_scalability_patterns(mock_skill_context)
+        scalability_analysis = self.skill.analyze_scalability_patterns(
+            mock_skill_context
+        )
 
         # Assert
         assert "scalability_score" in scalability_analysis
         assert "bottlenecks" in scalability_analysis
-        assert len(scalability_analysis["bottlenecks"]) >= 2  # Should detect stateful and sequential issues
+        assert (
+            len(scalability_analysis["bottlenecks"]) >= 2
+        )  # Should detect stateful and sequential issues
 
     @pytest.mark.unit
     def test_analyzes_security_architecture(self, mock_skill_context):
@@ -429,20 +459,20 @@ class TestArchitectureReviewSkill:
                 "type": "coupling",
                 "severity": "high",
                 "issue": "Controller directly accesses database",
-                "location": "user_controller.py:25"
+                "location": "user_controller.py:25",
             },
             {
                 "type": "cohesion",
                 "severity": "medium",
                 "issue": "UserService handles multiple responsibilities",
-                "location": "user_service.py:10-50"
+                "location": "user_service.py:10-50",
             },
             {
                 "type": "scalability",
                 "severity": "low",
                 "issue": "Sequential processing in batch job",
-                "location": "batch_processor.py:100"
-            }
+                "location": "batch_processor.py:100",
+            },
         ]
 
         # Act
@@ -462,7 +492,7 @@ class TestArchitectureReviewSkill:
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/main.py",
-            "src/utils.py"
+            "src/utils.py",
             # No architecture documentation files
         ]
 
@@ -482,7 +512,7 @@ class TestArchitectureReviewSkill:
         debt_indicators = [
             {"type": "code_smell", "count": 15, "impact": "medium"},
             {"type": "architectural_violation", "count": 5, "impact": "high"},
-            {"type": "duplicate_code", "count": 8, "impact": "low"}
+            {"type": "duplicate_code", "count": 8, "impact": "low"},
         ]
 
         # Act
@@ -504,7 +534,7 @@ class TestArchitectureReviewSkill:
             "architecture_score": 7.5,
             "violations": sample_findings,
             "recommendations": ["Implement interfaces", "Add service layer"],
-            "technical_debt_score": 3.2
+            "technical_debt_score": 3.2,
         }
 
         # Act

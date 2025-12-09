@@ -1,6 +1,5 @@
 """Integration tests for wrapped commands with superpowers integration."""
 
-
 # ruff: noqa: S101
 from unittest.mock import Mock, patch
 

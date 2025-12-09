@@ -1,6 +1,5 @@
 """Tests for speckit-orchestrator skill functionality."""
 
-
 # ruff: noqa: S101
 from unittest.mock import Mock, patch
 
@@ -23,19 +22,21 @@ class TestSpeckitOrchestrator:
             "speckit.tasks": "task-planning",
             "speckit.implement": None,
             "speckit.analyze": None,
-            "speckit.checklist": None
+            "speckit.checklist": None,
         }
         orchestrator.complementary_skills = {
             "spec-writing": ["brainstorming"],
             "task-planning": ["writing-plans"],
             "speckit.implement": ["executing-plans", "systematic-debugging"],
             "speckit.analyze": ["systematic-debugging", "verification"],
-            "speckit.checklist": ["verification-before-completion"]
+            "speckit.checklist": ["verification-before-completion"],
         }
         orchestrator.load_skill = mock_skill_loader
         return orchestrator
 
-    def test_session_initialization_repository_context(self, orchestrator, temp_speckit_project):
+    def test_session_initialization_repository_context(
+        self, orchestrator, temp_speckit_project
+    ):
         """Test repository context verification during session initialization."""
         orchestrator.plugin_root = temp_speckit_project
 
@@ -61,13 +62,15 @@ class TestSpeckitOrchestrator:
             "speckit.plan": "task-planning",
             "speckit.tasks": "task-planning",
             "speckit.implement": None,  # No primary skill
-            "speckit.analyze": None,     # No primary skill
-            "speckit.checklist": None    # No primary skill
+            "speckit.analyze": None,  # No primary skill
+            "speckit.checklist": None,  # No primary skill
         }
 
         for command, expected_skill in expected_mappings.items():
             actual_skill = orchestrator.command_skill_map.get(command)
-            assert actual_skill == expected_skill, f"Command {command} should map to {expected_skill}"
+            assert actual_skill == expected_skill, (
+                f"Command {command} should map to {expected_skill}"
+            )
 
     def test_load_command_dependencies_specify_command(self, orchestrator):
         """Test loading dependencies for /speckit.specify command."""
@@ -110,8 +113,10 @@ class TestSpeckitOrchestrator:
         assert "executing-plans" in complementary_skills
         assert "systematic-debugging" in complementary_skills
 
-    @patch('speckit_orchestrator.TodoWrite')
-    def test_progress_tracking_initialization(self, mock_todowrite, orchestrator, workflow_progress_items):
+    @patch("speckit_orchestrator.TodoWrite")
+    def test_progress_tracking_initialization(
+        self, mock_todowrite, orchestrator, workflow_progress_items
+    ):
         """Test progress tracking initialization creates proper todo items."""
         # Simulate progress tracking setup
         mock_todowrite.return_value = None
@@ -124,13 +129,17 @@ class TestSpeckitOrchestrator:
         assert "Repository context verified" in progress_items
         assert "Artifacts created/updated" in progress_items
 
-    def test_cross_artifact_consistency_validation(self, orchestrator, temp_speckit_project):
+    def test_cross_artifact_consistency_validation(
+        self, orchestrator, temp_speckit_project
+    ):
         """Test validation of consistency across speckit artifacts."""
         # Create related artifacts
         specs_dir = temp_speckit_project / ".specify" / "specs"
         spec_file = specs_dir / "1-user-auth" / "SPECIFICATION.md"
         spec_file.parent.mkdir(parents=True)
-        spec_file.write_text("# User Authentication Spec\n\n## Overview\nUser auth feature")
+        spec_file.write_text(
+            "# User Authentication Spec\n\n## Overview\nUser auth feature"
+        )
 
         # Validate artifact consistency
         assert spec_file.exists()
@@ -141,7 +150,7 @@ class TestSpeckitOrchestrator:
         # Mock skill with dependencies
         skill_with_deps = {
             "name": "test-skill",
-            "dependencies": ["abstract", "superpowers"]
+            "dependencies": ["abstract", "superpowers"],
         }
 
         # Should validate dependencies exist
@@ -157,7 +166,7 @@ class TestSpeckitOrchestrator:
             "specifying",
             "planning",
             "implementing",
-            "completed"
+            "completed",
         ]
 
         # Should track state transitions
@@ -184,7 +193,7 @@ class TestSpeckitOrchestrator:
         assert create_script.exists()
         assert create_script.stat().st_mode & 0o111  # Executable bit set
 
-    @patch('speckit_orchestrator.Skill')
+    @patch("speckit_orchestrator.Skill")
     def test_skill_loading_with_context(self, mock_skill, orchestrator):
         """Test skill loading with proper context."""
         # Mock skill loading
@@ -215,7 +224,7 @@ class TestSpeckitOrchestrator:
         progress_items = [
             "Repository context verified",
             "Command-specific skills loaded",
-            "Artifacts created/updated"
+            "Artifacts created/updated",
         ]
 
         # Step 4: Validate completion

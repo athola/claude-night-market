@@ -1,0 +1,27 @@
+# Memory Palace Curation Workflow Touchpoint
+
+This note explains how the Memory Palace cache interceptor collaborates with the knowledge-intake skill.
+
+## Intake flag payload
+
+- The hook now builds an `IntakeFlagPayload` dataclass (`memory_palace/curation/models.py`) every time a research query runs.
+- It tracks three signals:
+  - `should_flag_for_intake`: whether the query should be queued for ingestion.
+  - `novelty_score`: heuristic derived from cache overlap and marginal-value redundancy levels.
+  - `domain_alignment`: matches against `domains_of_interest` in `hooks/shared/config.py`.
+- Duplicate entry IDs (cache hits with ≥0.9 score) are recorded so intake systems can de-duplicate without re-searching the corpus.
+
+## Hook decision + telemetry linkage
+
+- The hook attaches the serialized payload under `hookSpecificOutput.intakeFlagPayload`.
+- Additional context includes a `[Memory Palace Intake]` line summarizing novelty, domain alignment, duplicates, and whether the flag is set. This makes intake reasoning visible to the runtime transcript.
+- Telemetry rows (`data/telemetry/memory-palace.csv`) now include `novelty_score`, `aligned_domains`, and `intake_delta_reasoning`, enabling downstream analytics to compare cache activity with intake routing.
+
+## Knowledge-intake handoff
+
+1. Knowledge-intake watches telemetry or hook payloads for `should_flag_for_intake=True`.
+2. The payload’s duplicate list and delta reasoning guide whether to auto-merge, request operator review, or drop the sample.
+3. When a query aligns with configured domains but lacked cache matches, intake can short-circuit to existing domain-specific templates rather than running the entire marginal value filter.
+4. When duplicates are detected, intake is skipped (flag stays off) but telemetry still records the reasoning so curators know overlap caused the suppression.
+
+This shared schema keeps curation signals consistent between the hook and the knowledge-intake skill while remaining lightweight enough to run on every intercepted query.

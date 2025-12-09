@@ -20,30 +20,32 @@ def verify_test_file(filepath):
         # Check for test classes
         tree = ast.parse(content)
         test_classes = [
-            node.name for node in ast.walk(tree)
-            if isinstance(node, ast.ClassDef) and node.name.startswith('Test')
+            node.name
+            for node in ast.walk(tree)
+            if isinstance(node, ast.ClassDef) and node.name.startswith("Test")
         ]
 
         # Check for test methods
         test_methods = [
-            node.name for node in ast.walk(tree)
-            if isinstance(node, ast.FunctionDef) and node.name.startswith('test')
+            node.name
+            for node in ast.walk(tree)
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test")
         ]
 
         return {
-            'valid_syntax': True,
-            'test_classes': test_classes,
-            'test_methods': test_methods,
-            'line_count': len(content.splitlines())
+            "valid_syntax": True,
+            "test_classes": test_classes,
+            "test_methods": test_methods,
+            "line_count": len(content.splitlines()),
         }
 
     except SyntaxError as e:
         return {
-            'valid_syntax': False,
-            'error': str(e),
-            'test_classes': [],
-            'test_methods': [],
-            'line_count': 0
+            "valid_syntax": False,
+            "error": str(e),
+            "test_classes": [],
+            "test_methods": [],
+            "line_count": 0,
         }
 
 
@@ -60,8 +62,13 @@ def verify_fixtures(conftest_path):
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef):
                 for decorator in node.decorator_list:
-                    if (isinstance(decorator, ast.Name) and decorator.id == 'pytest.fixture') or \
-                       (isinstance(decorator, ast.Attribute) and decorator.attr == 'fixture'):
+                    if (
+                        isinstance(decorator, ast.Name)
+                        and decorator.id == "pytest.fixture"
+                    ) or (
+                        isinstance(decorator, ast.Attribute)
+                        and decorator.attr == "fixture"
+                    ):
                         fixtures.append(node.name)
 
         return fixtures
@@ -78,7 +85,7 @@ def main():
     print("=" * 50)
 
     # Verify test files
-    test_files = list(tests_dir.glob('test_*.py'))
+    test_files = list(tests_dir.glob("test_*.py"))
     total_test_methods = 0
     total_test_classes = 0
 
@@ -86,13 +93,13 @@ def main():
         result = verify_test_file(test_file)
         filename = test_file.name
 
-        if result['valid_syntax']:
+        if result["valid_syntax"]:
             print(f"✅ {filename}")
             print(f"   Classes: {len(result['test_classes'])}")
             print(f"   Methods: {len(result['test_methods'])}")
             print(f"   Lines:   {result['line_count']}")
-            total_test_methods += len(result['test_methods'])
-            total_test_classes += len(result['test_classes'])
+            total_test_methods += len(result["test_methods"])
+            total_test_classes += len(result["test_classes"])
         else:
             print(f"❌ {filename} - Syntax Error")
             print(f"   Error: {result['error']}")
@@ -103,13 +110,13 @@ def main():
     print(f"   Test methods: {total_test_methods}")
 
     # Verify fixtures
-    conftest_path = tests_dir / 'conftest.py'
+    conftest_path = tests_dir / "conftest.py"
     if conftest_path.exists():
         fixtures = verify_fixtures(conftest_path)
         print(f"   Fixtures: {len(fixtures)}")
 
     # Verify other files
-    other_files = ['pytest.ini', 'requirements.txt', 'Makefile', 'README.md']
+    other_files = ["pytest.ini", "requirements.txt", "Makefile", "README.md"]
     for other_file in other_files:
         file_path = tests_dir / other_file
         if file_path.exists():
@@ -119,7 +126,9 @@ def main():
 
     # Coverage estimation
     print("\n🎯 Coverage Estimate:")
-    print("   Unit tests: test_orchestrator.py, test_spec_writing.py, test_task_planning.py")
+    print(
+        "   Unit tests: test_orchestrator.py, test_spec_writing.py, test_task_planning.py"
+    )
     print("   Command tests: test_commands.py")
     print("   Agent tests: test_agents.py")
     print("   Integration tests: test_integration.py")
@@ -136,5 +145,5 @@ def main():
     print("Verification complete! 🎉")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

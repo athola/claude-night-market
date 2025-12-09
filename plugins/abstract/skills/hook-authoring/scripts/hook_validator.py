@@ -167,7 +167,8 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
                     and "command" not in hook_action
                 ):
                     result["errors"].append(
-                        f"{event_type}[{idx}].hooks[{hook_idx}]: missing 'command' field"
+                        f"{event_type}[{idx}].hooks[{hook_idx}]: "
+                        "missing 'command' field"
                     )
                     result["valid"] = False
 

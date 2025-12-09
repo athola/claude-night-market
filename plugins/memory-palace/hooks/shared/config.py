@@ -15,40 +15,62 @@ _config_mtime: float = 0
 
 CONFIG_DEFAULTS: dict[str, Any] = {
     "enabled": True,
-
     # Research interception mode
     # - cache_only: Never hit web, use local knowledge
     # - cache_first: Check cache, fall back to web (default)
     # - augment: Always combine cache + web
     # - web_only: Skip cache, use web (current behavior)
     "research_mode": "cache_first",
-
     "local_knowledge_paths": [
         "docs/",
         "knowledge-corpus/",
         "references/",
     ],
-
     "exclude_patterns": [
         # Version control
-        ".git/", ".gitignore", ".gitattributes", ".gitmodules",
+        ".git/",
+        ".gitignore",
+        ".gitattributes",
+        ".gitmodules",
         # Dependencies & builds
-        "node_modules/", "__pycache__/", ".venv/", "venv/",
-        ".uv-cache/", "dist/", "build/", "target/", "*.egg-info/",
+        "node_modules/",
+        "__pycache__/",
+        ".venv/",
+        "venv/",
+        ".uv-cache/",
+        "dist/",
+        "build/",
+        "target/",
+        "*.egg-info/",
         # IDE & editor
-        ".vscode/", ".idea/", "*.swp", "*.swo", ".DS_Store",
+        ".vscode/",
+        ".idea/",
+        "*.swp",
+        "*.swo",
+        ".DS_Store",
         # Test artifacts
-        ".pytest_cache/", ".coverage", "htmlcov/", ".tox/",
+        ".pytest_cache/",
+        ".coverage",
+        "htmlcov/",
+        ".tox/",
         # Lock files
-        "*.lock", "package-lock.json", "yarn.lock", "uv.lock",
+        "*.lock",
+        "package-lock.json",
+        "yarn.lock",
+        "uv.lock",
         # Secrets & env
-        ".env", ".env.*", "*.pem", "*.key", "credentials.*", "secrets.*",
+        ".env",
+        ".env.*",
+        "*.pem",
+        "*.key",
+        "credentials.*",
+        "secrets.*",
         # Generated docs
-        "_build/", "site/", ".docusaurus/",
+        "_build/",
+        "site/",
+        ".docusaurus/",
     ],
-
     "respect_gitignore": True,
-
     "safety": {
         "max_content_size_kb": 500,
         "max_line_length": 10000,
@@ -60,9 +82,18 @@ CONFIG_DEFAULTS: dict[str, Any] = {
         "block_bidi_override": True,
         "parsing_timeout_ms": 5000,
     },
-
     "index_file": "memory-palace-index.yaml",
+    "indexes_dir": "data/indexes",
     "corpus_dir": "docs/knowledge-corpus/",
+    # New governance + lifecycle controls
+    "autonomy_level": 0,
+    "intake_threshold": 70,
+    "domains_of_interest": [],
+    "tending_frequency": "weekly",
+    "telemetry": {
+        "enabled": True,
+        "file": "data/telemetry/memory-palace.csv",
+    },
 }
 
 
@@ -96,11 +127,14 @@ def get_config() -> dict[str, Any]:
         # Merge with defaults
         _config_cache = {**CONFIG_DEFAULTS, **user_config}
 
-        # Deep merge safety settings
+        # Deep merge nested sections
         if "safety" in user_config:
-            _config_cache["safety"] = {
-                **CONFIG_DEFAULTS["safety"],
-                **user_config["safety"]
+            _config_cache["safety"] = {**CONFIG_DEFAULTS["safety"], **user_config["safety"]}
+
+        if "telemetry" in user_config:
+            _config_cache["telemetry"] = {
+                **CONFIG_DEFAULTS["telemetry"],
+                **user_config["telemetry"],
             }
 
         _config_mtime = current_mtime
@@ -174,11 +208,11 @@ def is_path_safe(path: str) -> bool:
 
         # Check for path traversal indicators
         path_str = str(resolved)
-        if '..' in path or path_str != os.path.normpath(path_str):
+        if ".." in path or path_str != os.path.normpath(path_str):
             return False
 
         # Ensure path doesn't escape to sensitive locations
-        sensitive_paths = ['/etc/', '/root/', '/var/log/', '/.ssh/']
+        sensitive_paths = ["/etc/", "/root/", "/var/log/", "/.ssh/"]
         return all(not path_str.startswith(sensitive) for sensitive in sensitive_paths)
     except (ValueError, OSError):
         return False

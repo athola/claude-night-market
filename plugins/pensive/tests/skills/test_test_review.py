@@ -31,7 +31,9 @@ class TestTestReviewSkill:
         """Given source and test files, when skill analyzes, then calculates coverage metrics."""
         # Arrange
         source_files = [
-            ("src/calculator.py", """
+            (
+                "src/calculator.py",
+                """
 def add(a, b):
     return a + b
 
@@ -51,11 +53,14 @@ def complex_calculation(x, y, z):
             return x - y + z
     else:
         return z
-            """)
+            """,
+            )
         ]
 
         test_files = [
-            ("tests/test_calculator.py", """
+            (
+                "tests/test_calculator.py",
+                """
 import pytest
 from calculator import add, subtract
 
@@ -67,7 +72,8 @@ def test_subtract():
 
 def test_add_negative():
     assert add(-1, 1) == 0
-            """)
+            """,
+            )
         ]
 
         def mock_get_file_content(path):
@@ -80,7 +86,7 @@ def test_add_negative():
         mock_skill_context.get_file_content.side_effect = mock_get_file_content
         mock_skill_context.get_files.return_value = [
             "src/calculator.py",
-            "tests/test_calculator.py"
+            "tests/test_calculator.py",
         ]
 
         # Act
@@ -91,8 +97,12 @@ def test_add_negative():
         assert "file_coverage" in coverage_analysis
         assert "uncovered_functions" in coverage_analysis
         assert "branch_coverage" in coverage_analysis
-        assert coverage_analysis["overall_coverage"] < 100  # Should detect incomplete coverage
-        assert len(coverage_analysis["uncovered_functions"]) >= 2  # divide and complex_calculation
+        assert (
+            coverage_analysis["overall_coverage"] < 100
+        )  # Should detect incomplete coverage
+        assert (
+            len(coverage_analysis["uncovered_functions"]) >= 2
+        )  # divide and complex_calculation
 
     @pytest.mark.unit
     def test_detects_test_structure_quality(self, mock_skill_context):
@@ -143,28 +153,47 @@ class TestCalculator:
         mock_service.assert_called_once()
         """
 
-
         mock_skill_context.get_file_content.return_value = well_structured_test
 
         # Act
-        structure_analysis = self.skill.analyze_test_structure(mock_skill_context, "test_calculator.py")
+        structure_analysis = self.skill.analyze_test_structure(
+            mock_skill_context, "test_calculator.py"
+        )
 
         # Assert
         assert "structure_score" in structure_analysis
         assert "organization_issues" in structure_analysis
         assert "best_practices" in structure_analysis
         assert "documentation_quality" in structure_analysis
-        assert structure_analysis["structure_score"] > 0.8  # Well-structured test should score high
+        assert (
+            structure_analysis["structure_score"] > 0.8
+        )  # Well-structured test should score high
 
     @pytest.mark.unit
     def test_evaluates_tdd_compliance(self, mock_skill_context):
         """Given development workflow, when skill analyzes, then checks TDD compliance."""
         # Arrange
         development_history = [
-            {"file": "tests/test_user.py", "action": "created", "content": "def test_user_creation(): pass"},
-            {"file": "src/user.py", "action": "created", "content": "def create_user(): pass"},
-            {"file": "tests/test_user.py", "action": "modified", "content": "def test_user_creation(): assert create_user('name')"},
-            {"file": "src/user.py", "action": "modified", "content": "def create_user(name): return User(name)"},
+            {
+                "file": "tests/test_user.py",
+                "action": "created",
+                "content": "def test_user_creation(): pass",
+            },
+            {
+                "file": "src/user.py",
+                "action": "created",
+                "content": "def create_user(): pass",
+            },
+            {
+                "file": "tests/test_user.py",
+                "action": "modified",
+                "content": "def test_user_creation(): assert create_user('name')",
+            },
+            {
+                "file": "src/user.py",
+                "action": "modified",
+                "content": "def create_user(name): return User(name)",
+            },
         ]
 
         mock_skill_context.get_git_history.return_value = development_history
@@ -227,7 +256,9 @@ def test_calculator_addition():
         mock_skill_context.get_file_content.return_value = bdd_style_test
 
         # Act
-        bdd_analysis = self.skill.analyze_bdd_patterns(mock_skill_context, "test_features.py")
+        bdd_analysis = self.skill.analyze_bdd_patterns(
+            mock_skill_context, "test_features.py"
+        )
 
         # Assert
         assert "bdd_detected" in bdd_analysis
@@ -295,7 +326,9 @@ counter = 0
         mock_skill_context.get_file_content.return_value = anti_pattern_test
 
         # Act
-        anti_patterns = self.skill.identify_test_anti_patterns(mock_skill_context, "anti_patterns.py")
+        anti_patterns = self.skill.identify_test_anti_patterns(
+            mock_skill_context, "anti_patterns.py"
+        )
 
         # Assert
         assert len(anti_patterns) >= 6  # Should detect multiple anti-patterns
@@ -363,7 +396,9 @@ def test_hardcoded_data():
         mock_skill_context.get_file_content.return_value = test_with_fixtures
 
         # Act
-        data_analysis = self.skill.analyze_test_data_management(mock_skill_context, "test_data.py")
+        data_analysis = self.skill.analyze_test_data_management(
+            mock_skill_context, "test_data.py"
+        )
 
         # Assert
         assert "fixture_quality" in data_analysis
@@ -424,7 +459,9 @@ def test_spy_usage():
         mock_skill_context.get_file_content.return_value = mock_usage_test
 
         # Act
-        mock_analysis = self.skill.analyze_mock_usage(mock_skill_context, "test_mocks.py")
+        mock_analysis = self.skill.analyze_mock_usage(
+            mock_skill_context, "test_mocks.py"
+        )
 
         # Assert
         assert "mock_patterns" in mock_analysis
@@ -443,13 +480,15 @@ def test_spy_usage():
                 {"name": "test_database_query", "duration": 2.5},
                 {"name": "test_api_call", "duration": 5.2},
                 {"name": "test_file_processing", "duration": 15.7},
-                {"name": "test_quick_check", "duration": 0.0005}
+                {"name": "test_quick_check", "duration": 0.0005},
             ],
             "total_duration": 23.405,
-            "parallelizable": ["test_fast_operation", "test_quick_check"]
+            "parallelizable": ["test_fast_operation", "test_quick_check"],
         }
 
-        mock_skill_context.get_test_performance_data.return_value = performance_test_info
+        mock_skill_context.get_test_performance_data.return_value = (
+            performance_test_info
+        )
 
         # Act
         performance_analysis = self.skill.analyze_test_performance(mock_skill_context)
@@ -466,27 +505,34 @@ def test_spy_usage():
         """Given test suite, when skill analyzes, then assesses integration vs unit test balance."""
         # Arrange
         test_files = [
-            ("tests/unit/test_calculator.py", """
+            (
+                "tests/unit/test_calculator.py",
+                """
 def test_add():
     from calculator import add
     assert add(2, 3) == 5
-            """),
-
-            ("tests/integration/test_user_flow.py", """
+            """,
+            ),
+            (
+                "tests/integration/test_user_flow.py",
+                """
 def test_user_registration_flow():
     # Tests database, email, and user service integration
     user_service = UserService(database=TestDatabase(), email_service=MockEmailService())
     result = user_service.register_user("test@example.com", "password123")
     assert result.success
-            """),
-
-            ("tests/test_api.py", """
+            """,
+            ),
+            (
+                "tests/test_api.py",
+                """
 def test_api_endpoint():
     # Full stack integration test
     client = TestClient(app)
     response = client.post("/api/users", json={"email": "test@example.com"})
     assert response.status_code == 201
-            """)
+            """,
+            ),
         ]
 
         def mock_get_file_content(path):
@@ -499,14 +545,18 @@ def test_api_endpoint():
         mock_skill_context.get_files.return_value = [file[0] for file in test_files]
 
         # Act
-        integration_analysis = self.skill.analyze_integration_test_coverage(mock_skill_context)
+        integration_analysis = self.skill.analyze_integration_test_coverage(
+            mock_skill_context
+        )
 
         # Assert
         assert "unit_test_ratio" in integration_analysis
         assert "integration_scenarios" in integration_analysis
         assert "coverage_gaps" in integration_analysis
         assert "test_pyramid_balance" in integration_analysis
-        assert integration_analysis["unit_test_ratio"] < 1.0  # More integration than unit tests
+        assert (
+            integration_analysis["unit_test_ratio"] < 1.0
+        )  # More integration than unit tests
 
     @pytest.mark.unit
     def test_detects_test_flakiness_patterns(self, mock_skill_context):
@@ -514,10 +564,22 @@ def test_api_endpoint():
         # Arrange
         test_execution_history = [
             {"test": "test_random_data", "results": ["pass", "fail", "pass", "fail"]},
-            {"test": "test_time_sensitive", "results": ["pass", "pass", "fail", "pass"]},
-            {"test": "test_concurrent_operations", "results": ["fail", "pass", "fail", "pass"]},
-            {"test": "test_stable_operation", "results": ["pass", "pass", "pass", "pass"]},
-            {"test": "test_external_dependency", "results": ["pass", "fail", "fail", "pass"]}
+            {
+                "test": "test_time_sensitive",
+                "results": ["pass", "pass", "fail", "pass"],
+            },
+            {
+                "test": "test_concurrent_operations",
+                "results": ["fail", "pass", "fail", "pass"],
+            },
+            {
+                "test": "test_stable_operation",
+                "results": ["pass", "pass", "pass", "pass"],
+            },
+            {
+                "test": "test_external_dependency",
+                "results": ["pass", "fail", "fail", "pass"],
+            },
         ]
 
         mock_skill_context.get_test_history.return_value = test_execution_history
@@ -547,7 +609,7 @@ def test_api_endpoint():
             "flaky_tests": 3,
             "anti_patterns": 8,
             "tdd_compliance": 0.6,
-            "findings": sample_findings
+            "findings": sample_findings,
         }
 
         # Act
@@ -573,7 +635,7 @@ def test_api_endpoint():
             "integration_ratio": 0.2,
             "avg_test_duration": 2.5,
             "flaky_tests": 5,
-            "anti_patterns": 12
+            "anti_patterns": 12,
         }
 
         # Act

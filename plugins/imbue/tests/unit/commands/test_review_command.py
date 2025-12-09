@@ -4,7 +4,6 @@ This module tests the review command orchestration and workflow integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
-
 # ruff: noqa: S101
 from pathlib import Path
 from unittest.mock import Mock
@@ -31,15 +30,15 @@ class TestReviewCommand:
                 {
                     "name": "target",
                     "type": "optional",
-                    "description": "Specific path or scope to review"
+                    "description": "Specific path or scope to review",
                 }
             ],
             "integrates_with": [
                 "review-core",
                 "evidence-logging",
                 "structured-output",
-                "diff-analysis"
-            ]
+                "diff-analysis",
+            ],
         }
 
     @pytest.fixture
@@ -50,35 +49,24 @@ class TestReviewCommand:
             "git_branch": "feature/auth-improvement",
             "git_status": "clean",
             "baseline": "main",
-            "commits_ahead": 3
+            "commits_ahead": 3,
         }
 
     @pytest.fixture
     def sample_scope_inventory(self):
         """Sample scope inventory for review."""
         return {
-            "source_files": [
-                "src/auth.py",
-                "src/middleware.py",
-                "src/models/user.py"
-            ],
-            "config_files": [
-                "config/auth.json",
-                ".env.example"
-            ],
-            "documentation": [
-                "docs/auth-flow.md",
-                "README.md"
-            ],
-            "test_files": [
-                "tests/test_auth.py",
-                "tests/test_middleware.py"
-            ]
+            "source_files": ["src/auth.py", "src/middleware.py", "src/models/user.py"],
+            "config_files": ["config/auth.json", ".env.example"],
+            "documentation": ["docs/auth-flow.md", "README.md"],
+            "test_files": ["tests/test_auth.py", "tests/test_middleware.py"],
         }
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_command_creates_workflow_scaffold(self, mock_todo_write, sample_session_state):
+    def test_command_creates_workflow_scaffold(
+        self, mock_todo_write, sample_session_state
+    ):
         """Scenario: /review creates complete workflow
         Given a repository ready for review
         When executing /review command
@@ -100,7 +88,7 @@ class TestReviewCommand:
             "review-core:scope-inventoried",
             "review-core:evidence-captured",
             "review-core:deliverables-structured",
-            "review-core:contingencies-documented"
+            "review-core:contingencies-documented",
         ]
 
         for item in review_core_items:
@@ -114,18 +102,27 @@ class TestReviewCommand:
 
         # Assert
         assert "context_established" in workflow_components
-        assert len([c for c in workflow_components if c.startswith("todowrite_created:")]) == 5
+        assert (
+            len([c for c in workflow_components if c.startswith("todowrite_created:")])
+            == 5
+        )
         assert "evidence_logging_initialized" in workflow_components
         assert "structured_output_prepared" in workflow_components
 
         # Verify specific TodoWrite items
         expected_items = set(review_core_items)
-        created_items = {c.split(":")[1] for c in workflow_components if c.startswith("todowrite_created:")}
+        created_items = {
+            c.split(":")[1]
+            for c in workflow_components
+            if c.startswith("todowrite_created:")
+        }
         assert expected_items == created_items
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_command_handles_target_parameter(self, mock_claude_tools, sample_scope_inventory):
+    def test_command_handles_target_parameter(
+        self, mock_claude_tools, sample_scope_inventory
+    ):
         """Scenario: /review accepts scope targets
         Given a /review command with target path
         When parsing parameters
@@ -140,15 +137,17 @@ class TestReviewCommand:
         scoped_review = {
             "target": target_path,
             "scope_type": "directory",
-            "workflow_adjustments": []
+            "workflow_adjustments": [],
         }
 
         # Filter scope inventory to target
         scoped_files = []
-        all_files = (sample_scope_inventory["source_files"] +
-                    sample_scope_inventory["config_files"] +
-                    sample_scope_inventory["documentation"] +
-                    sample_scope_inventory["test_files"])
+        all_files = (
+            sample_scope_inventory["source_files"]
+            + sample_scope_inventory["config_files"]
+            + sample_scope_inventory["documentation"]
+            + sample_scope_inventory["test_files"]
+        )
 
         for file_path in all_files:
             if file_path.startswith(target_path):
@@ -183,18 +182,30 @@ class TestReviewCommand:
             {
                 "args": ["--focus", "security"],
                 "expected_focus": "security",
-                "expected_skills": ["review-core", "evidence-logging", "security-analysis"]
+                "expected_skills": [
+                    "review-core",
+                    "evidence-logging",
+                    "security-analysis",
+                ],
             },
             {
                 "args": ["--focus", "performance"],
                 "expected_focus": "performance",
-                "expected_skills": ["review-core", "evidence-logging", "performance-analysis"]
+                "expected_skills": [
+                    "review-core",
+                    "evidence-logging",
+                    "performance-analysis",
+                ],
             },
             {
                 "args": ["--focus", "correctness"],
                 "expected_focus": "correctness",
-                "expected_skills": ["review-core", "evidence-logging", "logic-analysis"]
-            }
+                "expected_skills": [
+                    "review-core",
+                    "evidence-logging",
+                    "logic-analysis",
+                ],
+            },
         ]
 
         for test_case in test_cases:
@@ -254,36 +265,48 @@ class TestReviewCommand:
 
             return f"{skill_name} completed"
 
-        mock_claude_tools['Skill'] = Mock(side_effect=mock_skill_execution)
+        mock_claude_tools["Skill"] = Mock(side_effect=mock_skill_execution)
 
         # Act - execute orchestrated workflow
         initial_context = {"target": "src/", "baseline": "main"}
 
         # 1. review-core - establishes workflow foundation
-        mock_claude_tools['Skill']("review-core", initial_context)
+        mock_claude_tools["Skill"]("review-core", initial_context)
 
         # 2. evidence-logging - captures evidence infrastructure
-        mock_claude_tools['Skill']("evidence-logging", skill_contexts["review-core"])
+        mock_claude_tools["Skill"]("evidence-logging", skill_contexts["review-core"])
 
         # 3. structured-output - prepares deliverable format
-        mock_claude_tools['Skill']("structured-output", skill_contexts["evidence-logging"])
+        mock_claude_tools["Skill"](
+            "structured-output", skill_contexts["evidence-logging"]
+        )
 
         # 4. diff-analysis - if there are changes to analyze
-        mock_claude_tools['Skill']("diff-analysis", skill_contexts["structured-output"])
+        mock_claude_tools["Skill"]("diff-analysis", skill_contexts["structured-output"])
 
         # Assert
-        expected_order = ["review-core", "evidence-logging", "structured-output", "diff-analysis"]
+        expected_order = [
+            "review-core",
+            "evidence-logging",
+            "structured-output",
+            "diff-analysis",
+        ]
         assert skill_execution_order == expected_order
 
         # Verify context passing
         assert skill_contexts["review-core"]["target"] == "src/"
         assert "workflow_items" in skill_contexts["review-core"]
-        assert skill_contexts["evidence-logging"]["workflow_items"] == ["context-established", "scope-inventoried"]
+        assert skill_contexts["evidence-logging"]["workflow_items"] == [
+            "context-established",
+            "scope-inventoried",
+        ]
         assert skill_contexts["evidence-logging"]["evidence_session"] == "session-123"
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_command_output_formatting(self, sample_session_state, sample_scope_inventory):
+    def test_command_output_formatting(
+        self, sample_session_state, sample_scope_inventory
+    ):
         """Scenario: /review provides structured output format
         Given completed review initialization
         When generating command output
@@ -299,10 +322,10 @@ class TestReviewCommand:
                 "review-core:scope-inventoried",
                 "review-core:evidence-captured",
                 "review-core:deliverables-structured",
-                "review-core:contingencies-documented"
+                "review-core:contingencies-documented",
             ],
             "evidence_session": "review-session-123",
-            "template": "review_report_template"
+            "template": "review_report_template",
         }
 
         # Act - format command output
@@ -325,16 +348,18 @@ class TestReviewCommand:
         for item in workflow_status["todo_items"]:
             output_lines.append(f"  - [ ] {item}")
 
-        output_lines.extend([
-            "",
-            f"Evidence session: {workflow_status['evidence_session']}",
-            f"Deliverable template: {workflow_status['template']}",
-            "",
-            "Next steps:",
-            "1. Begin detailed analysis of scoped files",
-            "2. Use evidence logging to capture findings",
-            "3. Populate structured output template with results"
-        ])
+        output_lines.extend(
+            [
+                "",
+                f"Evidence session: {workflow_status['evidence_session']}",
+                f"Deliverable template: {workflow_status['template']}",
+                "",
+                "Next steps:",
+                "1. Begin detailed analysis of scoped files",
+                "2. Use evidence logging to capture findings",
+                "3. Populate structured output template with results",
+            ]
+        )
 
         output = "\n".join(output_lines)
 
@@ -358,11 +383,11 @@ class TestReviewCommand:
         And suggest recovery actions.
         """
         # Test case 1: Git repository not found
-        mock_claude_tools['Bash'].return_value = "fatal: not a git repository"
+        mock_claude_tools["Bash"].return_value = "fatal: not a git repository"
 
         # Act & Assert
         try:
-            result = mock_claude_tools['Bash']("git status")
+            result = mock_claude_tools["Bash"]("git status")
             git_error_handled = False
         except Exception:
             git_error_handled = True
@@ -375,7 +400,7 @@ class TestReviewCommand:
         skill_errors = {
             "review-core": "Failed to establish context - invalid working directory",
             "evidence-logging": "Failed to initialize evidence log - permission denied",
-            "structured-output": "Failed to load template - template not found"
+            "structured-output": "Failed to load template - template not found",
         }
 
         for skill, error in skill_errors.items():
@@ -384,7 +409,7 @@ class TestReviewCommand:
                 recovery_actions = {
                     "review-core": "Check working directory and git status",
                     "evidence-logging": "Check file permissions for evidence log location",
-                    "structured-output": "Verify template files exist"
+                    "structured-output": "Verify template files exist",
                 }
 
                 assert skill in recovery_actions
@@ -405,32 +430,32 @@ class TestReviewCommand:
                 "args": [],
                 "valid": True,
                 "expected_target": None,
-                "description": "No arguments - review current state"
+                "description": "No arguments - review current state",
             },
             {
                 "args": ["src/"],
                 "valid": True,
                 "expected_target": "src/",
-                "description": "Directory target - valid"
+                "description": "Directory target - valid",
             },
             {
                 "args": ["--focus", "security"],
                 "valid": True,
                 "expected_focus": "security",
-                "description": "Focus parameter - valid"
+                "description": "Focus parameter - valid",
             },
             {
                 "args": ["--invalid-flag"],
                 "valid": False,
                 "error": "Unknown flag: --invalid-flag",
-                "description": "Invalid flag - should fail"
+                "description": "Invalid flag - should fail",
             },
             {
                 "args": ["--focus"],
                 "valid": False,
                 "error": "Missing focus value after --focus",
-                "description": "Incomplete focus parameter - should fail"
-            }
+                "description": "Incomplete focus parameter - should fail",
+            },
         ]
 
         for test_case in test_cases:
@@ -438,11 +463,7 @@ class TestReviewCommand:
             valid = test_case["valid"]
 
             # Simulate parameter parsing
-            parsed_params = {
-                "target": None,
-                "focus": None,
-                "errors": []
-            }
+            parsed_params = {"target": None, "focus": None, "errors": []}
 
             i = 0
             while i < len(args):
@@ -454,7 +475,9 @@ class TestReviewCommand:
                             parsed_params["focus"] = args[i + 1]
                             i += 1
                         else:
-                            parsed_params["errors"].append("Missing focus value after --focus")
+                            parsed_params["errors"].append(
+                                "Missing focus value after --focus"
+                            )
                     else:
                         parsed_params["errors"].append(f"Unknown flag: {arg}")
                 # Assume it's a target
@@ -467,9 +490,13 @@ class TestReviewCommand:
 
             # Validate results
             if valid:
-                assert len(parsed_params["errors"]) == 0, f"Valid case failed: {test_case['description']}"
+                assert len(parsed_params["errors"]) == 0, (
+                    f"Valid case failed: {test_case['description']}"
+                )
             else:
-                assert len(parsed_params["errors"]) > 0, f"Invalid case should have errors: {test_case['description']}"
+                assert len(parsed_params["errors"]) > 0, (
+                    f"Invalid case should have errors: {test_case['description']}"
+                )
                 if "error" in test_case:
                     assert test_case["error"] in parsed_params["errors"]
 
@@ -482,34 +509,38 @@ class TestReviewCommand:
         And enhance scope with git information.
         """
         # Arrange - mock git workspace responses
-        mock_claude_tools['Bash'].side_effect = [
-            "feature/auth-improvement",                    # git branch
-            "abc123",                                      # git rev-parse HEAD
-            "def456",                                      # git merge-base HEAD main
-            " src/auth.py\n src/middleware.py",            # git diff --name-only
-            "2 files changed, 15 insertions(+), 5 deletions(-)"  # git diff --stat
+        mock_claude_tools["Bash"].side_effect = [
+            "feature/auth-improvement",  # git branch
+            "abc123",  # git rev-parse HEAD
+            "def456",  # git merge-base HEAD main
+            " src/auth.py\n src/middleware.py",  # git diff --name-only
+            "2 files changed, 15 insertions(+), 5 deletions(-)",  # git diff --stat
         ]
 
         # Act - simulate git workspace integration
         git_context = {}
 
         # Get git information
-        git_context["branch"] = mock_claude_tools['Bash']("git branch --show-current")
-        git_context["commit_hash"] = mock_claude_tools['Bash']("git rev-parse HEAD")
-        git_context["baseline"] = mock_claude_tools['Bash']("git merge-base HEAD main")
+        git_context["branch"] = mock_claude_tools["Bash"]("git branch --show-current")
+        git_context["commit_hash"] = mock_claude_tools["Bash"]("git rev-parse HEAD")
+        git_context["baseline"] = mock_claude_tools["Bash"]("git merge-base HEAD main")
 
         # Get changed files
-        changed_files = mock_claude_tools['Bash']("git diff --name-only HEAD~5").strip()
-        git_context["changed_files"] = changed_files.split('\n') if changed_files else []
+        changed_files = mock_claude_tools["Bash"]("git diff --name-only HEAD~5").strip()
+        git_context["changed_files"] = (
+            changed_files.split("\n") if changed_files else []
+        )
 
         # Get change statistics
-        git_context["change_stats"] = mock_claude_tools['Bash']("git diff --stat HEAD~5")
+        git_context["change_stats"] = mock_claude_tools["Bash"](
+            "git diff --stat HEAD~5"
+        )
 
         # Enhance review scope with git information
         review_scope = {
             "git_context": git_context,
             "priority_files": git_context["changed_files"],
-            "has_changes": len(git_context["changed_files"]) > 0
+            "has_changes": len(git_context["changed_files"]) > 0,
         }
 
         # Assert
@@ -532,10 +563,14 @@ class TestReviewCommand:
 
         # Arrange - simulate large repository
         large_scope = {
-            "source_files": [f"src/module_{i}/file_{j}.py" for i in range(20) for j in range(10)],
+            "source_files": [
+                f"src/module_{i}/file_{j}.py" for i in range(20) for j in range(10)
+            ],
             "config_files": [f"config/env_{i}.json" for i in range(50)],
-            "documentation": [f"docs/section_{i}/page_{j}.md" for i in range(10) for j in range(5)],
-            "test_files": [f"tests/test_{i}.py" for i in range(200)]
+            "documentation": [
+                f"docs/section_{i}/page_{j}.md" for i in range(10) for j in range(5)
+            ],
+            "test_files": [f"tests/test_{i}.py" for i in range(200)],
         }
 
         # Act - measure review initialization performance
@@ -551,7 +586,7 @@ class TestReviewCommand:
         total_files = sum(len(files) for files in large_scope.values())
         scope_summary = {
             "total_files": total_files,
-            "categories": {k: len(v) for k, v in large_scope.items()}
+            "categories": {k: len(v) for k, v in large_scope.items()},
         }
         initialization_steps.append("scope_inventoried")
 

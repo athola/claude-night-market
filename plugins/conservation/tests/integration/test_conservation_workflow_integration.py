@@ -18,7 +18,9 @@ class TestConservationWorkflowIntegration:
 
     @pytest.mark.bdd
     @pytest.mark.integration
-    def test_end_to_end_context_optimization_workflow(self, mock_claude_tools, mock_mecw_analyzer):
+    def test_end_to_end_context_optimization_workflow(
+        self, mock_claude_tools, mock_mecw_analyzer
+    ):
         """Scenario: End-to-end context optimization workflow integrates all components
         Given a complete conservation workflow
         When executing from command to results
@@ -31,7 +33,7 @@ class TestConservationWorkflowIntegration:
             "context_analysis",
             "optimization_execution",
             "result_integration",
-            "feedback_generation"
+            "feedback_generation",
         ]
 
         # Act - simulate workflow execution
@@ -41,7 +43,7 @@ class TestConservationWorkflowIntegration:
         workflow_results["parameter_parsing"] = {
             "status": "success",
             "target": "src/",
-            "aggressiveness": "moderate"
+            "aggressiveness": "moderate",
         }
 
         # Step 2: Context analysis
@@ -49,7 +51,7 @@ class TestConservationWorkflowIntegration:
         workflow_results["context_analysis"] = {
             "status": "success",
             "analysis": context_analysis,
-            "optimization_needed": not context_analysis["mecw_compliant"]
+            "optimization_needed": not context_analysis["mecw_compliant"],
         }
 
         # Step 3: Optimization execution (skills)
@@ -57,24 +59,38 @@ class TestConservationWorkflowIntegration:
             "status": "success",
             "skills_executed": ["context-optimization", "token-conservation"],
             "results": {
-                "context-optimization": {"tokens_saved": 1200, "strategies": ["compression", "pruning"]},
-                "token-conservation": {"tokens_saved": 800, "strategies": ["delegation", "optimization"]}
-            }
+                "context-optimization": {
+                    "tokens_saved": 1200,
+                    "strategies": ["compression", "pruning"],
+                },
+                "token-conservation": {
+                    "tokens_saved": 800,
+                    "strategies": ["delegation", "optimization"],
+                },
+            },
         }
 
         # Step 4: Result integration
-        total_saved = sum(result["tokens_saved"] for result in workflow_results["optimization_execution"]["results"].values())
+        total_saved = sum(
+            result["tokens_saved"]
+            for result in workflow_results["optimization_execution"]["results"].values()
+        )
         workflow_results["result_integration"] = {
             "status": "success",
             "total_tokens_saved": total_saved,
-            "strategies_applied": ["compression", "pruning", "delegation", "optimization"]
+            "strategies_applied": [
+                "compression",
+                "pruning",
+                "delegation",
+                "optimization",
+            ],
         }
 
         # Step 5: Feedback generation
         workflow_results["feedback_generation"] = {
             "status": "success",
             "summary": f"Optimization completed with {total_saved} tokens saved",
-            "recommendations": ["Continue monitoring", "Schedule regular optimization"]
+            "recommendations": ["Continue monitoring", "Schedule regular optimization"],
         }
 
         # Assert
@@ -105,15 +121,15 @@ class TestConservationWorkflowIntegration:
             "execution_context": {
                 "target": "src/",
                 "aggressiveness": "moderate",
-                "session_id": "session_123"
-            }
+                "session_id": "session_123",
+            },
         }
 
         # Act - simulate skill coordination
         skill_coordination = {
             "skills_instantiated": [],
             "data_flow": [],
-            "integration_points": []
+            "integration_points": [],
         }
 
         # Simulate skill instantiation and execution
@@ -122,41 +138,47 @@ class TestConservationWorkflowIntegration:
                 "skill": skill_name,
                 "input_context": command_execution["execution_context"],
                 "execution_status": "running",
-                "output": None
+                "output": None,
             }
 
             # Simulate skill execution with data flow
             if skill_name == "context-optimization":
                 skill_execution["output"] = {
                     "context_analysis": {"utilization": 65, "compliance": False},
-                    "optimization_plan": ["compression", "restructuring"]
+                    "optimization_plan": ["compression", "restructuring"],
                 }
-                skill_coordination["data_flow"].append({
-                    "from": "command_parameters",
-                    "to": "context-optimization",
-                    "data": "target, aggressiveness"
-                })
+                skill_coordination["data_flow"].append(
+                    {
+                        "from": "command_parameters",
+                        "to": "context-optimization",
+                        "data": "target, aggressiveness",
+                    }
+                )
 
             elif skill_name == "token-conservation":
                 skill_execution["output"] = {
                     "quota_analysis": {"usage": 45000, "limit": 100000},
-                    "conservation_plan": ["delegation", "optimization"]
+                    "conservation_plan": ["delegation", "optimization"],
                 }
-                skill_coordination["data_flow"].append({
-                    "from": "context-optimization",
-                    "to": "token-conservation",
-                    "data": "optimization_plan"
-                })
+                skill_coordination["data_flow"].append(
+                    {
+                        "from": "context-optimization",
+                        "to": "token-conservation",
+                        "data": "optimization_plan",
+                    }
+                )
 
             skill_execution["execution_status"] = "completed"
             skill_coordination["skills_instantiated"].append(skill_execution)
 
         # Simulate integration
-        skill_coordination["integration_points"].append({
-            "type": "result_synthesis",
-            "skills_involved": command_execution["required_skills"],
-            "output": "combined_optimization_results"
-        })
+        skill_coordination["integration_points"].append(
+            {
+                "type": "result_synthesis",
+                "skills_involved": command_execution["required_skills"],
+                "output": "combined_optimization_results",
+            }
+        )
 
         # Assert
         assert len(skill_coordination["skills_instantiated"]) == 2
@@ -186,14 +208,14 @@ class TestConservationWorkflowIntegration:
             {"phase": "initialization", "expected_time": 0.5, "expected_memory": 100},
             {"phase": "analysis", "expected_time": 2.0, "expected_memory": 200},
             {"phase": "optimization", "expected_time": 5.0, "expected_memory": 500},
-            {"phase": "validation", "expected_time": 1.0, "expected_memory": 150}
+            {"phase": "validation", "expected_time": 1.0, "expected_memory": 150},
         ]
 
         # Act - simulate performance monitoring across workflow
         performance_tracking = {
             "phase_metrics": [],
             "workflow_summary": {},
-            "optimization_opportunities": []
+            "optimization_opportunities": [],
         }
 
         total_time = 0
@@ -201,14 +223,18 @@ class TestConservationWorkflowIntegration:
 
         for phase in workflow_phases:
             # Simulate phase execution with performance metrics
-            actual_time = phase["expected_time"] * (1 + (hash(phase["phase"]) % 10) / 100)  # Add variance
-            actual_memory = phase["expected_memory"] * (1 + (hash(phase["phase"]) % 20) / 100)
+            actual_time = phase["expected_time"] * (
+                1 + (hash(phase["phase"]) % 10) / 100
+            )  # Add variance
+            actual_memory = phase["expected_memory"] * (
+                1 + (hash(phase["phase"]) % 20) / 100
+            )
 
             phase_metrics = {
                 "phase": phase["phase"],
                 "execution_time": actual_time,
                 "memory_usage": actual_memory,
-                "efficiency_score": phase["expected_time"] / actual_time
+                "efficiency_score": phase["expected_time"] / actual_time,
             }
 
             performance_tracking["phase_metrics"].append(phase_metrics)
@@ -220,19 +246,25 @@ class TestConservationWorkflowIntegration:
         performance_tracking["workflow_summary"] = {
             "total_execution_time": total_time,
             "peak_memory_usage": peak_memory,
-            "average_efficiency": sum(m["efficiency_score"] for m in performance_tracking["phase_metrics"]) / len(performance_tracking["phase_metrics"]),
-            "phases_completed": len(performance_tracking["phase_metrics"])
+            "average_efficiency": sum(
+                m["efficiency_score"] for m in performance_tracking["phase_metrics"]
+            )
+            / len(performance_tracking["phase_metrics"]),
+            "phases_completed": len(performance_tracking["phase_metrics"]),
         }
 
         # Identify optimization opportunities
         for metrics in performance_tracking["phase_metrics"]:
             if metrics["efficiency_score"] < 0.95:
-                performance_tracking["optimization_opportunities"].append({
-                    "phase": metrics["phase"],
-                    "current_efficiency": metrics["efficiency_score"],
-                    "potential_improvement": (1 - metrics["efficiency_score"]) * 100,
-                    "recommendation": f"Optimize {metrics['phase']} for better performance"
-                })
+                performance_tracking["optimization_opportunities"].append(
+                    {
+                        "phase": metrics["phase"],
+                        "current_efficiency": metrics["efficiency_score"],
+                        "potential_improvement": (1 - metrics["efficiency_score"])
+                        * 100,
+                        "recommendation": f"Optimize {metrics['phase']} for better performance",
+                    }
+                )
 
         # Assert
         assert len(performance_tracking["phase_metrics"]) == 4
@@ -245,5 +277,7 @@ class TestConservationWorkflowIntegration:
         assert summary["phases_completed"] == 4
 
         # Verify optimization opportunities are identified when appropriate
-        if any(m["efficiency_score"] < 0.95 for m in performance_tracking["phase_metrics"]):
+        if any(
+            m["efficiency_score"] < 0.95 for m in performance_tracking["phase_metrics"]
+        ):
             assert len(performance_tracking["optimization_opportunities"]) >= 1

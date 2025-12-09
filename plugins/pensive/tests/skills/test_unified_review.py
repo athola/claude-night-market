@@ -33,7 +33,7 @@ class TestUnifiedReviewSkill:
         mock_skill_context.get_files.return_value = [
             "Cargo.toml",
             "src/main.rs",
-            "src/lib.rs"
+            "src/lib.rs",
         ]
 
         # Act
@@ -52,7 +52,7 @@ class TestUnifiedReviewSkill:
             "requirements.txt",
             "setup.py",
             "src/app.py",
-            "tests/test_app.py"
+            "tests/test_app.py",
         ]
 
         # Act
@@ -72,7 +72,7 @@ class TestUnifiedReviewSkill:
             "package.json",
             "src/index.js",
             "src/utils.js",
-            "dist/bundle.js"
+            "dist/bundle.js",
         ]
 
         # Act
@@ -90,7 +90,7 @@ class TestUnifiedReviewSkill:
         mock_skill_context.get_files.return_value = [
             "Makefile",
             "src/main.c",
-            "src/utils.c"
+            "src/utils.c",
         ]
 
         # Act
@@ -104,10 +104,7 @@ class TestUnifiedReviewSkill:
     def test_selects_rust_review_for_rust_project(self, mock_skill_context):
         """Given a Rust project, when skill selects reviews, then includes rust-review."""
         # Arrange
-        mock_skill_context.get_files.return_value = [
-            "Cargo.toml",
-            "src/main.rs"
-        ]
+        mock_skill_context.get_files.return_value = ["Cargo.toml", "src/main.rs"]
 
         # Act
         selected_skills = self.skill.select_review_skills(mock_skill_context)
@@ -123,7 +120,7 @@ class TestUnifiedReviewSkill:
         mock_skill_context.get_files.return_value = [
             "src/app.py",
             "tests/test_app.py",
-            "test/integration_test.py"
+            "test/integration_test.py",
         ]
 
         # Act
@@ -136,10 +133,7 @@ class TestUnifiedReviewSkill:
     def test_selects_makefile_review_for_make_projects(self, mock_skill_context):
         """Given a project with Makefile, when skill selects reviews, then includes makefile-review."""
         # Arrange
-        mock_skill_context.get_files.return_value = [
-            "Makefile",
-            "src/main.c"
-        ]
+        mock_skill_context.get_files.return_value = ["Makefile", "src/main.c"]
 
         # Act
         selected_skills = self.skill.select_review_skills(mock_skill_context)
@@ -153,7 +147,7 @@ class TestUnifiedReviewSkill:
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/algorithms.py",
-            "src/matrix_math.py"
+            "src/matrix_math.py",
         ]
         mock_skill_context.get_file_content.return_value = """
         import numpy as np
@@ -176,10 +170,7 @@ class TestUnifiedReviewSkill:
     def test_excludes_irrelevant_skills_for_simple_project(self, mock_skill_context):
         """Given a simple project, when skill selects reviews, then excludes specialized skills."""
         # Arrange
-        mock_skill_context.get_files.return_value = [
-            "src/utils.js",
-            "README.md"
-        ]
+        mock_skill_context.get_files.return_value = ["src/utils.js", "README.md"]
 
         # Act
         selected_skills = self.skill.select_review_skills(mock_skill_context)
@@ -209,7 +200,17 @@ class TestUnifiedReviewSkill:
     def test_consolidates_duplicate_findings(self, sample_findings):
         """Given duplicate findings, when skill consolidates, then removes duplicates."""
         # Arrange
-        duplicate_findings = [*sample_findings, {"id": "SEC001", "title": "Hardcoded API Key", "location": "src/auth.ts:5", "severity": "high", "issue": "API key is hardcoded", "fix": "Use environment variables"}]
+        duplicate_findings = [
+            *sample_findings,
+            {
+                "id": "SEC001",
+                "title": "Hardcoded API Key",
+                "location": "src/auth.ts:5",
+                "severity": "high",
+                "issue": "API key is hardcoded",
+                "fix": "Use environment variables",
+            },
+        ]
 
         # Act
         consolidated = self.skill.consolidate_findings(duplicate_findings)
@@ -242,13 +243,7 @@ class TestUnifiedReviewSkill:
     def test_recommends_approval_for_no_critical_issues(self):
         """Given no critical findings, when skill recommends, then suggests approval."""
         # Arrange
-        findings = [
-            {
-                "id": "STYLE001",
-                "severity": "low",
-                "issue": "Minor style issue"
-            }
-        ]
+        findings = [{"id": "STYLE001", "severity": "low", "issue": "Minor style issue"}]
 
         # Act
         recommendation = self.skill.generate_recommendation(findings)
@@ -265,7 +260,7 @@ class TestUnifiedReviewSkill:
             {
                 "id": "SEC001",
                 "severity": "critical",
-                "issue": "SQL injection vulnerability"
+                "issue": "SQL injection vulnerability",
             }
         ]
 
@@ -293,7 +288,10 @@ class TestUnifiedReviewSkill:
             assert "deadline" in item
             # High severity items should have sooner deadlines
             if item["severity"] == "high":
-                assert "today" in item["deadline"].lower() or "asap" in item["deadline"].lower()
+                assert (
+                    "today" in item["deadline"].lower()
+                    or "asap" in item["deadline"].lower()
+                )
 
     @pytest.mark.unit
     def test_handles_empty_repository_gracefully(self, mock_skill_context):
@@ -335,7 +333,9 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert "exports" in api_surface
-        assert api_surface["exports"] >= 3  # User interface, AuthService class, calculateTotal function
+        assert (
+            api_surface["exports"] >= 3
+        )  # User interface, AuthService class, calculateTotal function
         assert "classes" in api_surface
         assert api_surface["classes"] >= 1  # AuthService
 
@@ -345,18 +345,17 @@ class TestUnifiedReviewSkill:
         # Arrange
         selected_skills = ["code-reviewer", "rust-review", "test-review"]
 
-        with patch('pensive.skills.unified_review.dispatch_agent') as mock_dispatch:
+        with patch("pensive.skills.unified_review.dispatch_agent") as mock_dispatch:
             # Configure mock dispatch to return different results for each skill
             mock_dispatch.side_effect = [
                 "Code review findings...",
                 "Rust review findings...",
-                "Test review findings..."
+                "Test review findings...",
             ]
 
             # Act
             results = await self.skill.execute_skills_concurrently(
-                selected_skills,
-                mock_skill_context
+                selected_skills, mock_skill_context
             )
 
             # Assert
@@ -371,11 +370,13 @@ class TestUnifiedReviewSkill:
         analysis_data = {
             "languages_detected": ["rust", "javascript"],
             "files_analyzed": 10,
-            "skills_executed": 3
+            "skills_executed": 3,
         }
 
         # Act
-        confidence = self.skill.calculate_confidence_score(sample_findings, analysis_data)
+        confidence = self.skill.calculate_confidence_score(
+            sample_findings, analysis_data
+        )
 
         # Assert
         assert 0 <= confidence <= 100  # Score should be between 0 and 100

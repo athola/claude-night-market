@@ -1,6 +1,5 @@
 """Tests for agent file validation."""
 
-
 from sanctum.validators import AgentValidationResult, AgentValidator
 
 
@@ -94,7 +93,10 @@ class TestAgentFileValidation:
         """Fails when file doesn't exist."""
         result = AgentValidator.validate_file(tmp_path / "nonexistent.md")
         assert not result.is_valid
-        assert any("not found" in error.lower() or "exist" in error.lower() for error in result.errors)
+        assert any(
+            "not found" in error.lower() or "exist" in error.lower()
+            for error in result.errors
+        )
 
     def test_extracts_agent_name_from_filename(self, temp_agent_file):
         """Extracts agent name from heading (preferred) or filename."""

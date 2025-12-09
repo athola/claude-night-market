@@ -63,13 +63,21 @@ class TestRustReviewSkill:
         mock_skill_context.get_file_content.return_value = unsafe_code
 
         # Act
-        unsafe_analysis = self.skill.analyze_unsafe_code(mock_skill_context, "raw_ops.rs")
+        unsafe_analysis = self.skill.analyze_unsafe_code(
+            mock_skill_context, "raw_ops.rs"
+        )
 
         # Assert
         assert "unsafe_blocks" in unsafe_analysis
         assert len(unsafe_analysis["unsafe_blocks"]) >= 3
-        assert any(block.get("lacks_documentation") for block in unsafe_analysis["unsafe_blocks"])
-        assert any(not block.get("lacks_documentation") for block in unsafe_analysis["unsafe_blocks"])
+        assert any(
+            block.get("lacks_documentation")
+            for block in unsafe_analysis["unsafe_blocks"]
+        )
+        assert any(
+            not block.get("lacks_documentation")
+            for block in unsafe_analysis["unsafe_blocks"]
+        )
 
     @pytest.mark.unit
     def test_analyzes_ownership_patterns(self, mock_skill_context):
@@ -121,7 +129,9 @@ class TestRustReviewSkill:
         mock_skill_context.get_file_content.return_value = ownership_code
 
         # Act
-        ownership_analysis = self.skill.analyze_ownership(mock_skill_context, "ownership.rs")
+        ownership_analysis = self.skill.analyze_ownership(
+            mock_skill_context, "ownership.rs"
+        )
 
         # Assert
         assert "violations" in ownership_analysis
@@ -192,13 +202,17 @@ class TestRustReviewSkill:
         mock_skill_context.get_file_content.return_value = concurrent_code
 
         # Act
-        race_analysis = self.skill.analyze_data_races(mock_skill_context, "concurrent.rs")
+        race_analysis = self.skill.analyze_data_races(
+            mock_skill_context, "concurrent.rs"
+        )
 
         # Assert
         assert "data_races" in race_analysis
         assert "thread_safety_issues" in race_analysis
         assert "safe_patterns" in race_analysis
-        assert len(race_analysis["thread_safety_issues"]) >= 1  # Should detect RefCell usage
+        assert (
+            len(race_analysis["thread_safety_issues"]) >= 1
+        )  # Should detect RefCell usage
 
     @pytest.mark.unit
     def test_analyzes_memory_safety(self, mock_skill_context):
@@ -253,7 +267,9 @@ class TestRustReviewSkill:
         mock_skill_context.get_file_content.return_value = memory_code
 
         # Act
-        memory_analysis = self.skill.analyze_memory_safety(mock_skill_context, "memory.rs")
+        memory_analysis = self.skill.analyze_memory_safety(
+            mock_skill_context, "memory.rs"
+        )
 
         # Assert
         assert "unsafe_operations" in memory_analysis
@@ -311,7 +327,9 @@ class TestRustReviewSkill:
         mock_skill_context.get_file_content.return_value = panic_code
 
         # Act
-        panic_analysis = self.skill.analyze_panic_propagation(mock_skill_context, "error_handling.rs")
+        panic_analysis = self.skill.analyze_panic_propagation(
+            mock_skill_context, "error_handling.rs"
+        )
 
         # Assert
         assert "panic_points" in panic_analysis
@@ -380,7 +398,9 @@ class TestRustReviewSkill:
         mock_skill_context.get_file_content.return_value = async_code
 
         # Act
-        async_analysis = self.skill.analyze_async_patterns(mock_skill_context, "async_code.rs")
+        async_analysis = self.skill.analyze_async_patterns(
+            mock_skill_context, "async_code.rs"
+        )
 
         # Assert
         assert "blocking_operations" in async_analysis
@@ -622,7 +642,9 @@ class TestRustReviewSkill:
         mock_skill_context.get_file_content.return_value = const_generic_code
 
         # Act
-        const_generic_analysis = self.skill.analyze_const_generics(mock_skill_context, "const_generics.rs")
+        const_generic_analysis = self.skill.analyze_const_generics(
+            mock_skill_context, "const_generics.rs"
+        )
 
         # Assert
         assert "const_generic_structs" in const_generic_analysis
@@ -655,7 +677,7 @@ class TestRustReviewSkill:
             fn main() {
                 println!("Hello, world!");
             }
-            """
+            """,
         }
 
         def mock_get_file_content(path):
@@ -686,7 +708,7 @@ class TestRustReviewSkill:
             "dependency_vulnerabilities": 1,
             "panic_points": 6,
             "security_score": 7.2,
-            "findings": sample_findings
+            "findings": sample_findings,
         }
 
         # Act
@@ -734,7 +756,7 @@ class TestRustReviewSkill:
             "async_code": True,
             "macro_heavy": True,
             "dependency_count": 25,
-            "test_coverage": 0.6
+            "test_coverage": 0.6,
         }
 
         # Act

@@ -4,7 +4,6 @@ This module tests the evidence capture and reproducibility functionality,
 following TDD/BDD principles and testing all evidence management scenarios.
 """
 
-
 # ruff: noqa: S101
 import json
 from datetime import UTC, datetime
@@ -114,10 +113,10 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "context": {
                 "repository": "/test/review-project",
                 "branch": "feature/new-feature",
-                "baseline": "main"
+                "baseline": "main",
             },
             "evidence": [],
-            "citations": []
+            "citations": [],
         }
 
     @pytest.mark.bdd
@@ -165,7 +164,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "command": command,
             "output": output,
             "timestamp": datetime.now(UTC).isoformat(),
-            "working_directory": evidence_log["context"]["repository"]
+            "working_directory": evidence_log["context"]["repository"],
         }
         evidence_log["evidence"].append(evidence_item)
 
@@ -175,7 +174,9 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         assert evidence_log["evidence"][0]["command"] == command
         assert evidence_log["evidence"][0]["output"] == output
         assert "timestamp" in evidence_log["evidence"][0]
-        assert evidence_log["evidence"][0]["working_directory"] == "/test/review-project"
+        assert (
+            evidence_log["evidence"][0]["working_directory"] == "/test/review-project"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -191,7 +192,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         commands = [
             ("pwd", "/test/review-project"),
             ("git status", "On branch feature/new-feature"),
-            ("git log --oneline -5", "abc123 Fix bug\ndef456 Add feature")
+            ("git log --oneline -5", "abc123 Fix bug\ndef456 Add feature"),
         ]
 
         # Act - log multiple commands
@@ -201,7 +202,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "command": command,
                 "output": output,
                 "timestamp": datetime.now(UTC).isoformat(),
-                "working_directory": evidence_log["context"]["repository"]
+                "working_directory": evidence_log["context"]["repository"],
             }
             evidence_log["evidence"].append(evidence_item)
 
@@ -231,7 +232,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "url": "https://docs.python.org/3/library/json.html",
             "title": "JSON encoder and decoder",
             "accessed": datetime.now(UTC).isoformat(),
-            "relevant_snippet": "JSON (JavaScript Object Notation) is a lightweight data interchange format."
+            "relevant_snippet": "JSON (JavaScript Object Notation) is a lightweight data interchange format.",
         }
 
         # Act - add citation
@@ -240,7 +241,10 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         # Assert
         assert len(evidence_log["citations"]) == 1
         assert evidence_log["citations"][0]["id"] == "C1"
-        assert evidence_log["citations"][0]["url"] == "https://docs.python.org/3/library/json.html"
+        assert (
+            evidence_log["citations"][0]["url"]
+            == "https://docs.python.org/3/library/json.html"
+        )
         assert evidence_log["citations"][0]["title"] == "JSON encoder and decoder"
         assert "accessed" in evidence_log["citations"][0]
         assert "relevant_snippet" in evidence_log["citations"][0]
@@ -255,20 +259,24 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         And include all evidence and citations.
         """
         # Arrange - populate evidence log
-        sample_evidence_session["evidence"].append({
-            "id": "E1",
-            "command": "git diff",
-            "output": "diff content",
-            "timestamp": "2024-12-04T10:00:00Z",
-            "working_directory": "/test/repo"
-        })
-        sample_evidence_session["citations"].append({
-            "id": "C1",
-            "url": "https://example.com",
-            "title": "Example",
-            "accessed": "2024-12-04T10:00:00Z",
-            "relevant_snippet": "snippet"
-        })
+        sample_evidence_session["evidence"].append(
+            {
+                "id": "E1",
+                "command": "git diff",
+                "output": "diff content",
+                "timestamp": "2024-12-04T10:00:00Z",
+                "working_directory": "/test/repo",
+            }
+        )
+        sample_evidence_session["citations"].append(
+            {
+                "id": "C1",
+                "url": "https://example.com",
+                "title": "Example",
+                "accessed": "2024-12-04T10:00:00Z",
+                "relevant_snippet": "snippet",
+            }
+        )
 
         # Act - export to JSON
         json_output = json.dumps(sample_evidence_session, indent=2)
@@ -293,13 +301,15 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         And maintain reference integrity.
         """
         # Arrange - populate evidence log
-        sample_evidence_session["evidence"].append({
-            "id": "E1",
-            "command": "git status",
-            "output": "On branch main\nnothing to commit",
-            "timestamp": "2024-12-04T10:00:00Z",
-            "working_directory": "/test/repo"
-        })
+        sample_evidence_session["evidence"].append(
+            {
+                "id": "E1",
+                "command": "git status",
+                "output": "On branch main\nnothing to commit",
+                "timestamp": "2024-12-04T10:00:00Z",
+                "working_directory": "/test/repo",
+            }
+        )
 
         # Act - generate markdown
         markdown_lines = [
@@ -309,21 +319,23 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             f"**Branch:** {sample_evidence_session['context']['branch']}",
             "",
             "## Evidence",
-            ""
+            "",
         ]
 
         for evidence in sample_evidence_session["evidence"]:
-            markdown_lines.extend([
-                f"### {evidence['id']}",
-                f"**Command:** `{evidence['command']}`",
-                f"**Working Directory:** {evidence['working_directory']}",
-                f"**Timestamp:** {evidence['timestamp']}",
-                "",
-                "```",
-                evidence['output'],
-                "```",
-                ""
-            ])
+            markdown_lines.extend(
+                [
+                    f"### {evidence['id']}",
+                    f"**Command:** `{evidence['command']}`",
+                    f"**Working Directory:** {evidence['working_directory']}",
+                    f"**Timestamp:** {evidence['timestamp']}",
+                    "",
+                    "```",
+                    evidence["output"],
+                    "```",
+                    "",
+                ]
+            )
 
         markdown_output = "\n".join(markdown_lines)
 
@@ -344,31 +356,31 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         With proper escaping and headers.
         """
         # Arrange - populate evidence log
-        sample_evidence_session["evidence"].extend([
-            {
-                "id": "E1",
-                "command": "git diff --stat",
-                "output": "2 files changed",
-                "timestamp": "2024-12-04T10:00:00Z",
-                "working_directory": "/test/repo"
-            },
-            {
-                "id": "E2",
-                "command": "find . -name '*.py'",
-                "output": "./src/main.py\n./test/test_main.py",
-                "timestamp": "2024-12-04T10:01:00Z",
-                "working_directory": "/test/repo"
-            }
-        ])
+        sample_evidence_session["evidence"].extend(
+            [
+                {
+                    "id": "E1",
+                    "command": "git diff --stat",
+                    "output": "2 files changed",
+                    "timestamp": "2024-12-04T10:00:00Z",
+                    "working_directory": "/test/repo",
+                },
+                {
+                    "id": "E2",
+                    "command": "find . -name '*.py'",
+                    "output": "./src/main.py\n./test/test_main.py",
+                    "timestamp": "2024-12-04T10:01:00Z",
+                    "working_directory": "/test/repo",
+                },
+            ]
+        )
 
         # Act - generate CSV
-        csv_lines = [
-            "ID,Timestamp,Command,Working Directory,Output"
-        ]
+        csv_lines = ["ID,Timestamp,Command,Working Directory,Output"]
 
         for evidence in sample_evidence_session["evidence"]:
             # Escape commas and quotes in output
-            escaped_output = evidence['output'].replace('"', '""')
+            escaped_output = evidence["output"].replace('"', '""')
             csv_line = f'{evidence["id"]},{evidence["timestamp"]},"{evidence["command"]}","{evidence["working_directory"]}","{escaped_output}"'
             csv_lines.append(csv_line)
 
@@ -377,7 +389,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         # Assert
         assert "ID,Timestamp,Command,Working Directory,Output" in csv_output
         assert 'E1,2024-12-04T10:00:00Z,"git diff --stat"' in csv_output
-        assert 'E2,2024-12-04T10:01:00Z,"find . -name \'*.py\'"' in csv_output
+        assert "E2,2024-12-04T10:01:00Z,\"find . -name '*.py'\"" in csv_output
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -394,7 +406,10 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
 
         # Act - handle large output by creating snippet
         if len(large_output) > max_snippet_length:
-            snippet = large_output[:max_snippet_length] + f"\n... ({len(large_output)} total lines, truncated)"
+            snippet = (
+                large_output[:max_snippet_length]
+                + f"\n... ({len(large_output)} total lines, truncated)"
+            )
         else:
             snippet = large_output
 
@@ -403,14 +418,17 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "command": "find . -type f",
             "output": snippet,
             "timestamp": datetime.now(UTC).isoformat(),
-            "working_directory": "/test/repo"
+            "working_directory": "/test/repo",
         }
         sample_evidence_session["evidence"].append(evidence_item)
 
         # Assert
         assert len(sample_evidence_session["evidence"]) == 1
         assert "truncated" in sample_evidence_session["evidence"][0]["output"]
-        assert len(sample_evidence_session["evidence"][0]["output"]) <= max_snippet_length + 100
+        assert (
+            len(sample_evidence_session["evidence"][0]["output"])
+            <= max_snippet_length + 100
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -422,22 +440,24 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         And maintain bidirectional links.
         """
         # Arrange - add evidence
-        sample_evidence_session["evidence"].extend([
-            {
-                "id": "E1",
-                "command": "git diff src/main.py",
-                "output": "function signature changed",
-                "timestamp": "2024-12-04T10:00:00Z",
-                "working_directory": "/test/repo"
-            },
-            {
-                "id": "E2",
-                "command": "grep -r 'TODO' src/",
-                "output": "src/utils.py:5: TODO: Add error handling",
-                "timestamp": "2024-12-04T10:01:00Z",
-                "working_directory": "/test/repo"
-            }
-        ])
+        sample_evidence_session["evidence"].extend(
+            [
+                {
+                    "id": "E1",
+                    "command": "git diff src/main.py",
+                    "output": "function signature changed",
+                    "timestamp": "2024-12-04T10:00:00Z",
+                    "working_directory": "/test/repo",
+                },
+                {
+                    "id": "E2",
+                    "command": "grep -r 'TODO' src/",
+                    "output": "src/utils.py:5: TODO: Add error handling",
+                    "timestamp": "2024-12-04T10:01:00Z",
+                    "working_directory": "/test/repo",
+                },
+            ]
+        )
 
         # Act - create findings with evidence references
         findings = [
@@ -447,7 +467,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "description": "Function signature was changed without compatibility",
                 "severity": "High",
                 "file": "src/main.py",
-                "evidence_refs": ["E1"]
+                "evidence_refs": ["E1"],
             },
             {
                 "id": "F2",
@@ -455,15 +475,17 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "description": "TODO items found in production code",
                 "severity": "Medium",
                 "file": "src/utils.py",
-                "evidence_refs": ["E2"]
-            }
+                "evidence_refs": ["E2"],
+            },
         ]
 
         # Assert - verify evidence references resolve
         evidence_ids = {e["id"] for e in sample_evidence_session["evidence"]}
         for finding in findings:
             for ref in finding["evidence_refs"]:
-                assert ref in evidence_ids, f"Evidence reference {ref} not found in evidence log"
+                assert ref in evidence_ids, (
+                    f"Evidence reference {ref} not found in evidence log"
+                )
 
         # Verify specific references
         assert "E1" in findings[0]["evidence_refs"]
@@ -488,7 +510,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "output": f"ERROR: {error_output}",
             "timestamp": datetime.now(UTC).isoformat(),
             "working_directory": sample_evidence_session["context"]["repository"],
-            "status": "failed"
+            "status": "failed",
         }
         sample_evidence_session["evidence"].append(error_evidence)
 
@@ -499,7 +521,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "output": "/test/review-project",
             "timestamp": datetime.now(UTC).isoformat(),
             "working_directory": sample_evidence_session["context"]["repository"],
-            "status": "success"
+            "status": "success",
         }
         sample_evidence_session["evidence"].append(success_evidence)
 
@@ -508,7 +530,9 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         assert sample_evidence_session["evidence"][0]["status"] == "failed"
         assert "ERROR:" in sample_evidence_session["evidence"][0]["output"]
         assert sample_evidence_session["evidence"][1]["status"] == "success"
-        assert sample_evidence_session["evidence"][1]["output"] == "/test/review-project"
+        assert (
+            sample_evidence_session["evidence"][1]["output"] == "/test/review-project"
+        )
 
     @pytest.mark.unit
     def test_evidence_file_output_persistence(self, sample_evidence_session, tmp_path):
@@ -520,13 +544,15 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         """
         # Arrange
         evidence_file = tmp_path / "evidence_log.json"
-        sample_evidence_session["evidence"].append({
-            "id": "E1",
-            "command": "git log --oneline -1",
-            "output": "abc123 Latest commit message",
-            "timestamp": datetime.now(UTC).isoformat(),
-            "working_directory": sample_evidence_session["context"]["repository"]
-        })
+        sample_evidence_session["evidence"].append(
+            {
+                "id": "E1",
+                "command": "git log --oneline -1",
+                "output": "abc123 Latest commit message",
+                "timestamp": datetime.now(UTC).isoformat(),
+                "working_directory": sample_evidence_session["context"]["repository"],
+            }
+        )
 
         # Act - write evidence to file
         evidence_file.write_text(json.dumps(sample_evidence_session, indent=2))
@@ -556,7 +582,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "session_id": f"evidence-session-{i}-{datetime.now(UTC).isoformat()}",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "evidence": [],
-                "citations": []
+                "citations": [],
             }
             sessions.append(session)
 
@@ -580,13 +606,15 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         # Arrange - prepare large evidence dataset
         evidence_items = []
         for i in range(1000):
-            evidence_items.append({
-                "id": f"E{i+1}",
-                "command": f"test-command-{i}",
-                "output": f"output-{i}",
-                "timestamp": datetime.now(UTC).isoformat(),
-                "working_directory": "/test/repo"
-            })
+            evidence_items.append(
+                {
+                    "id": f"E{i + 1}",
+                    "command": f"test-command-{i}",
+                    "output": f"output-{i}",
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "working_directory": "/test/repo",
+                }
+            )
 
         # Act - measure performance
         start_time = time.time()

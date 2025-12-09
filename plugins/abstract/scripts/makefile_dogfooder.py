@@ -413,11 +413,14 @@ class MakefileDogfooder:
 
     def _generate_help_target(self, inventory: MakefileInventory) -> str:
         """Generate a help target"""
-        return """help: ## Show this help message
-\t@echo ""
-\t@echo "$$(basename $$(pwd)) - Available Targets"
-\t@echo "=================================="
-\t@awk -F':.*?## ' '/^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\\n", $$1, $$2}' $$(MAKEFILE_LIST)"""
+        return (
+            "help: ## Show this help message\n"
+            '\t@echo ""\n'
+            '\t@echo "$$(basename $$(pwd)) - Available Targets"\n'
+            '\t@echo "=================================="\n'
+            "\t@awk -F':.*?## ' '/^[a-zA-Z_-]+:.*?## / "
+            '{printf "  %-15s %s\\\\n", $$1, $$2}\' $$(MAKEFILE_LIST)"'
+        )
 
     def _generate_demo_target(self, inventory: MakefileInventory) -> str:
         """Generate a demo target for leaf plugins"""

@@ -20,7 +20,9 @@ class TestAnalyzeGrowthCommand:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_analyzes_growth_patterns_across_timeframes(self, sample_growth_analysis):
+    def test_command_analyzes_growth_patterns_across_timeframes(
+        self, sample_growth_analysis
+    ):
         """Scenario: Command analyzes growth patterns across different timeframes
         Given various analysis timeframes
         When analyzing resource growth
@@ -41,27 +43,24 @@ class TestAnalyzeGrowthCommand:
                     "trend": "stable",
                     "growth_percentage": 5.2,
                     "peak_hour": "14:00",
-                    "recommendation": "Current usage is optimal"
+                    "recommendation": "Current usage is optimal",
                 }
             elif timeframe == "7_days":
                 pattern = {
                     "trend": "increasing",
                     "growth_percentage": growth_data["growth_percentage"],
                     "peak_hour": growth_data["peak_usage_hour"],
-                    "recommendation": growth_data["recommendations"][0]
+                    "recommendation": growth_data["recommendations"][0],
                 }
             else:  # 30_days
                 pattern = {
                     "trend": "accelerating",
                     "growth_percentage": 280.5,
                     "peak_hour": "15:30",
-                    "recommendation": "Consider optimization strategies and scaling plans"
+                    "recommendation": "Consider optimization strategies and scaling plans",
                 }
 
-            analysis_results.append({
-                "timeframe": timeframe,
-                "pattern": pattern
-            })
+            analysis_results.append({"timeframe": timeframe, "pattern": pattern})
 
         # Assert
         assert len(analysis_results) == 3
@@ -91,19 +90,19 @@ class TestAnalyzeGrowthCommand:
                 "current": 2500,
                 "baseline": 1000,
                 "quota_limit": 100000,
-                "efficiency_target": 0.8
+                "efficiency_target": 0.8,
             },
             "context_usage": {
                 "current_window": 85000,
                 "total_window": 200000,
-                "efficiency_target": 0.5
+                "efficiency_target": 0.5,
             },
             "performance": {
                 "response_time": 1.2,
                 "target_time": 1.0,
                 "success_rate": 0.95,
-                "target_success": 0.98
-            }
+                "target_success": 0.98,
+            },
         }
 
         # Act - calculate efficiency metrics
@@ -111,12 +110,22 @@ class TestAnalyzeGrowthCommand:
 
         for resource_type, metrics in resource_metrics.items():
             if resource_type == "token_usage":
-                efficiency_score = (metrics["quota_limit"] - metrics["current"]) / metrics["quota_limit"]
+                efficiency_score = (
+                    metrics["quota_limit"] - metrics["current"]
+                ) / metrics["quota_limit"]
                 efficiency_analysis["token_efficiency"] = {
                     "score": efficiency_score,
-                    "status": "excellent" if efficiency_score > 0.9 else "good" if efficiency_score > 0.7 else "needs_improvement",
-                    "growth_rate": ((metrics["current"] - metrics["baseline"]) / metrics["baseline"]) * 100,
-                    "quota_utilization": (metrics["current"] / metrics["quota_limit"]) * 100
+                    "status": "excellent"
+                    if efficiency_score > 0.9
+                    else "good"
+                    if efficiency_score > 0.7
+                    else "needs_improvement",
+                    "growth_rate": (
+                        (metrics["current"] - metrics["baseline"]) / metrics["baseline"]
+                    )
+                    * 100,
+                    "quota_utilization": (metrics["current"] / metrics["quota_limit"])
+                    * 100,
                 }
 
             elif resource_type == "context_usage":
@@ -124,7 +133,11 @@ class TestAnalyzeGrowthCommand:
                 efficiency_analysis["context_efficiency"] = {
                     "utilization_percentage": utilization_rate * 100,
                     "mecw_compliant": utilization_rate <= metrics["efficiency_target"],
-                    "status": "optimal" if utilization_rate < 0.3 else "acceptable" if utilization_rate < 0.5 else "high"
+                    "status": "optimal"
+                    if utilization_rate < 0.3
+                    else "acceptable"
+                    if utilization_rate < 0.5
+                    else "high",
                 }
 
             elif resource_type == "performance":
@@ -136,7 +149,11 @@ class TestAnalyzeGrowthCommand:
                     "response_efficiency": response_efficiency,
                     "success_efficiency": success_efficiency,
                     "overall_score": overall_efficiency,
-                    "status": "excellent" if overall_efficiency > 0.9 else "good" if overall_efficiency > 0.8 else "needs_attention"
+                    "status": "excellent"
+                    if overall_efficiency > 0.9
+                    else "good"
+                    if overall_efficiency > 0.8
+                    else "needs_attention",
                 }
 
         # Assert
@@ -170,60 +187,73 @@ class TestAnalyzeGrowthCommand:
             "growth_percentage": 150.0,
             "efficiency_score": 0.75,
             "peak_usage_times": ["14:00-16:00"],
-            "resource_pressure_points": ["token_usage", "context_utilization"]
+            "resource_pressure_points": ["token_usage", "context_utilization"],
         }
 
         # Act - generate recommendations
         recommendations = []
 
         # Growth-based recommendations
-        if analysis_data["growth_trend"] == "increasing" and analysis_data["growth_percentage"] > 100:
-            recommendations.append({
-                "category": "growth_management",
-                "priority": "high",
-                "action": "Implement proactive optimization strategies",
-                "impact": "Prevent resource exhaustion",
-                "implementation": "Set up automated monitoring and alerts"
-            })
+        if (
+            analysis_data["growth_trend"] == "increasing"
+            and analysis_data["growth_percentage"] > 100
+        ):
+            recommendations.append(
+                {
+                    "category": "growth_management",
+                    "priority": "high",
+                    "action": "Implement proactive optimization strategies",
+                    "impact": "Prevent resource exhaustion",
+                    "implementation": "Set up automated monitoring and alerts",
+                }
+            )
 
         # Efficiency-based recommendations
         if analysis_data["efficiency_score"] < 0.8:
-            recommendations.append({
-                "category": "efficiency_improvement",
-                "priority": "medium",
-                "action": "Optimize resource usage patterns",
-                "impact": f"Improve efficiency by {(1 - analysis_data['efficiency_score']) * 100:.1f}%",
-                "implementation": "Apply token conservation and context optimization"
-            })
+            recommendations.append(
+                {
+                    "category": "efficiency_improvement",
+                    "priority": "medium",
+                    "action": "Optimize resource usage patterns",
+                    "impact": f"Improve efficiency by {(1 - analysis_data['efficiency_score']) * 100:.1f}%",
+                    "implementation": "Apply token conservation and context optimization",
+                }
+            )
 
         # Peak usage recommendations
         if analysis_data["peak_usage_times"]:
-            recommendations.append({
-                "category": "peak_optimization",
-                "priority": "medium",
-                "action": "Optimize for peak usage periods",
-                "impact": "Reduce performance degradation during peak hours",
-                "implementation": f"Schedule resource-intensive tasks outside {analysis_data['peak_usage_times'][0]}"
-            })
+            recommendations.append(
+                {
+                    "category": "peak_optimization",
+                    "priority": "medium",
+                    "action": "Optimize for peak usage periods",
+                    "impact": "Reduce performance degradation during peak hours",
+                    "implementation": f"Schedule resource-intensive tasks outside {analysis_data['peak_usage_times'][0]}",
+                }
+            )
 
         # Resource pressure recommendations
         for pressure_point in analysis_data["resource_pressure_points"]:
             if pressure_point == "token_usage":
-                recommendations.append({
-                    "category": "token_optimization",
-                    "priority": "high",
-                    "action": "Apply token conservation techniques",
-                    "impact": "Reduce token consumption by 20-40%",
-                    "implementation": "Use /optimize-context command regularly"
-                })
+                recommendations.append(
+                    {
+                        "category": "token_optimization",
+                        "priority": "high",
+                        "action": "Apply token conservation techniques",
+                        "impact": "Reduce token consumption by 20-40%",
+                        "implementation": "Use /optimize-context command regularly",
+                    }
+                )
             elif pressure_point == "context_utilization":
-                recommendations.append({
-                    "category": "context_optimization",
-                    "priority": "medium",
-                    "action": "Apply MECW principles",
-                    "impact": "Maintain context under 50% threshold",
-                    "implementation": "Enable progressive loading and context compression"
-                })
+                recommendations.append(
+                    {
+                        "category": "context_optimization",
+                        "priority": "medium",
+                        "action": "Apply MECW principles",
+                        "impact": "Maintain context under 50% threshold",
+                        "implementation": "Enable progressive loading and context compression",
+                    }
+                )
 
         # Assert
         assert len(recommendations) >= 4

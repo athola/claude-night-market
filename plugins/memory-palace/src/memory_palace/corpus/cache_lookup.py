@@ -46,10 +46,7 @@ class CacheLookup:
         self.query_manager.build_index()
 
     def search(
-        self,
-        query: str | list[str],
-        mode: str = "unified",
-        min_score: float = 0.0
+        self, query: str | list[str], mode: str = "unified", min_score: float = 0.0
     ) -> list[dict[str, Any]]:
         """Search the knowledge corpus.
 
@@ -80,10 +77,7 @@ class CacheLookup:
         merged_results = self._merge_and_score_results(results)
 
         # Filter by minimum score
-        filtered_results = [
-            r for r in merged_results
-            if r["match_score"] >= min_score
-        ]
+        filtered_results = [r for r in merged_results if r["match_score"] >= min_score]
 
         # Sort by score (highest first)
         return sorted(filtered_results, key=lambda x: x["match_score"], reverse=True)

@@ -118,51 +118,51 @@ def sample_plugin_json():
             {
                 "name": "context-optimization",
                 "description": "Optimize context usage by implementing MECW principles",
-                "file": "skills/context-optimization/SKILL.md"
+                "file": "skills/context-optimization/SKILL.md",
             },
             {
                 "name": "token-conservation",
                 "description": "Minimize token usage through conservative prompting",
-                "file": "skills/resource-management/token-conservation/SKILL.md"
+                "file": "skills/resource-management/token-conservation/SKILL.md",
             },
             {
                 "name": "mcp-code-execution",
                 "description": "Optimize code execution using MCP patterns",
-                "file": "skills/mcp-code-execution/SKILL.md"
+                "file": "skills/mcp-code-execution/SKILL.md",
             },
             {
                 "name": "performance-monitoring",
                 "description": "Monitor CPU/GPU performance and resource usage",
-                "file": "skills/performance-monitoring/cpu-gpu-performance/SKILL.md"
+                "file": "skills/performance-monitoring/cpu-gpu-performance/SKILL.md",
             },
             {
                 "name": "optimizing-large-skills",
                 "description": "Optimize large skills for better performance",
-                "file": "skills/optimizing-large-skills/SKILL.md"
-            }
+                "file": "skills/optimizing-large-skills/SKILL.md",
+            },
         ],
         "commands": [
             {
                 "name": "optimize-context",
                 "description": "Optimize context usage and apply MECW principles",
                 "usage": "/optimize-context [target]",
-                "file": "commands/optimize-context.md"
+                "file": "commands/optimize-context.md",
             },
             {
                 "name": "analyze-growth",
                 "description": "Analyze resource usage and growth patterns",
                 "usage": "/analyze-growth [timeframe]",
-                "file": "commands/analyze-growth.md"
-            }
+                "file": "commands/analyze-growth.md",
+            },
         ],
         "agents": [
             {
                 "name": "context-optimizer",
                 "description": "Autonomous agent for context optimization",
                 "file": "agents/context-optimizer.md",
-                "tools": ["Read", "Glob", "Grep", "Bash", "TodoWrite"]
+                "tools": ["Read", "Glob", "Grep", "Bash", "TodoWrite"],
             }
-        ]
+        ],
     }
 
 
@@ -175,7 +175,7 @@ def sample_token_quota():
         "weekly_limit_tokens": 100000,
         "remaining_budget_tokens": 55000,
         "rolling_cap_hours": 5,
-        "task_max_tokens": 5000
+        "task_max_tokens": 5000,
     }
 
 
@@ -191,8 +191,8 @@ def sample_context_analysis():
         "risk_factors": [],
         "recommendations": [
             "Context usage is within optimal range",
-            "Continue with current approach"
-        ]
+            "Continue with current approach",
+        ],
     }
 
 
@@ -207,7 +207,7 @@ def sample_performance_metrics():
         "token_generation_rate": 45.5,
         "response_time_seconds": 1.2,
         "context_compression_ratio": 0.85,
-        "tool_calls_per_minute": 3.2
+        "tool_calls_per_minute": 3.2,
     }
 
 
@@ -224,8 +224,8 @@ def sample_growth_analysis():
         "efficiency_score": 0.75,
         "recommendations": [
             "Consider context optimization techniques",
-            "Monitor token usage during peak hours"
-        ]
+            "Monitor token usage during peak hours",
+        ],
     }
 
 
@@ -251,7 +251,7 @@ def temp_skill_dir(tmp_path):
         ("token-conservation", "Token optimization and quota management"),
         ("performance-monitoring", "Resource usage and performance tracking"),
         ("mcp-code-execution", "MCP pattern optimization"),
-        ("optimizing-large-skills", "Large skill optimization patterns")
+        ("optimizing-large-skills", "Large skill optimization patterns"),
     ]
 
     for skill_name, description in skill_configs:
@@ -282,21 +282,21 @@ def mock_todo_write():
 def mock_claude_tools():
     """Mock Claude Code tools."""
     tools = {
-        'Read': Mock(),
-        'Glob': Mock(),
-        'Grep': Mock(),
-        'Bash': Mock(),
-        'Write': Mock(),
-        'Edit': Mock(),
-        'TodoWrite': Mock(),
-        'AskUserQuestion': Mock()
+        "Read": Mock(),
+        "Glob": Mock(),
+        "Grep": Mock(),
+        "Bash": Mock(),
+        "Write": Mock(),
+        "Edit": Mock(),
+        "TodoWrite": Mock(),
+        "AskUserQuestion": Mock(),
     }
 
     # Configure default return values
-    tools['Read'].return_value = "Mock file content"
-    tools['Glob'].return_value = []
-    tools['Grep'].return_value = []
-    tools['Bash'].return_value = "Mock bash output"
+    tools["Read"].return_value = "Mock file content"
+    tools["Glob"].return_value = []
+    tools["Grep"].return_value = []
+    tools["Bash"].return_value = "Mock bash output"
 
     return tools
 
@@ -304,6 +304,7 @@ def mock_claude_tools():
 @pytest.fixture
 def mock_performance_monitor():
     """Mock performance monitoring functionality."""
+
     class MockPerformanceMonitor:
         def __init__(self):
             self.metrics_history = []
@@ -314,7 +315,7 @@ def mock_performance_monitor():
                 "cpu_usage": 20.5,
                 "memory_usage": 1024,
                 "token_usage": 5000,
-                "context_efficiency": 0.85
+                "context_efficiency": 0.85,
             }
 
         def check_thresholds(self, metrics):
@@ -330,7 +331,7 @@ def mock_performance_monitor():
                 "average_cpu": 25.3,
                 "peak_memory": 2048,
                 "total_tokens": 50000,
-                "efficiency_score": 0.88
+                "efficiency_score": 0.88,
             }
 
     return MockPerformanceMonitor()
@@ -339,6 +340,7 @@ def mock_performance_monitor():
 @pytest.fixture
 def mock_mecw_analyzer():
     """Mock MECW (Maximum Effective Context Window) analyzer."""
+
     class MockMECWAnalyzer:
         def __init__(self):
             self.context_window = 200000
@@ -350,7 +352,7 @@ def mock_mecw_analyzer():
                 "utilization_percentage": utilization * 100,
                 "status": self._classify_status(utilization),
                 "mecw_compliant": utilization <= self.mecw_threshold,
-                "recommended_actions": self._get_recommendations(utilization)
+                "recommended_actions": self._get_recommendations(utilization),
             }
 
         def _classify_status(self, utilization):
@@ -371,7 +373,10 @@ def mock_mecw_analyzer():
             elif utilization < 0.7:
                 return ["Consider context compression", "Evaluate token efficiency"]
             else:
-                return ["Immediate context optimization required", "Use subagent delegation"]
+                return [
+                    "Immediate context optimization required",
+                    "Use subagent delegation",
+                ]
 
     return MockMECWAnalyzer()
 
@@ -379,6 +384,7 @@ def mock_mecw_analyzer():
 @pytest.fixture
 def mock_token_quota_tracker():
     """Mock token quota tracking functionality."""
+
     class MockTokenQuotaTracker:
         def __init__(self):
             self.session_start = datetime.now(timezone.utc)
@@ -386,14 +392,16 @@ def mock_token_quota_tracker():
             self.weekly_limit = 100000
 
         def check_quota(self):
-            session_duration = (datetime.now(timezone.utc) - self.session_start).total_seconds() / 3600
+            session_duration = (
+                datetime.now(timezone.utc) - self.session_start
+            ).total_seconds() / 3600
             remaining = self.weekly_limit - self.weekly_usage
             return {
                 "session_duration_hours": session_duration,
                 "weekly_usage": self.weekly_usage,
                 "weekly_limit": self.weekly_limit,
                 "remaining_budget": remaining,
-                "within_limits": session_duration < 5 and remaining > 0
+                "within_limits": session_duration < 5 and remaining > 0,
             }
 
         def track_usage(self, tokens_used):
@@ -408,6 +416,7 @@ def mock_conservation_validator(conservation_plugin_root):
     """Create ConservationValidator instance with mocked dependencies."""
     try:
         from scripts.conservation_validator import ConservationValidator
+
         # Initialize with real plugin root but mock file operations
         validator = ConservationValidator(str(conservation_plugin_root))
         return validator
@@ -424,37 +433,37 @@ def mock_conservation_validator(conservation_plugin_root):
 # Test markers for pytest configuration
 def pytest_configure(config):
     """Configure custom pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: Unit tests for individual components"
-    )
+    config.addinivalue_line("markers", "unit: Unit tests for individual components")
     config.addinivalue_line(
         "markers", "integration: Integration tests for workflow orchestration"
     )
-    config.addinivalue_line(
-        "markers", "performance: Performance and scalability tests"
-    )
-    config.addinivalue_line(
-        "markers", "slow: Tests that take longer to execute"
-    )
-    config.addinivalue_line(
-        "markers", "bdd: Behavior-driven development style tests"
-    )
+    config.addinivalue_line("markers", "performance: Performance and scalability tests")
+    config.addinivalue_line("markers", "slow: Tests that take longer to execute")
+    config.addinivalue_line("markers", "bdd: Behavior-driven development style tests")
 
 
 def pytest_collection_modifyitems(config, items):
     """Add custom markers to items based on their content."""
     for item in items:
         # Add performance marker to performance tests
-        if "performance" in item.nodeid or any(keyword in item.nodeid for keyword in ["performance", "scalability", "benchmark"]):
+        if "performance" in item.nodeid or any(
+            keyword in item.nodeid
+            for keyword in ["performance", "scalability", "benchmark"]
+        ):
             item.add_marker(pytest.mark.performance)
 
         # Add bdd marker to BDD-style tests
-        if "bdd" in item.nodeid or any(keyword in item.nodeid for keyword in ["bdd", "behavior", "feature", "scenario"]):
+        if "bdd" in item.nodeid or any(
+            keyword in item.nodeid
+            for keyword in ["bdd", "behavior", "feature", "scenario"]
+        ):
             item.add_marker(pytest.mark.bdd)
 
 
 # Helper functions for test data generation
-def create_mock_conservation_skill(name: str, category: str = "conservation") -> dict[str, Any]:
+def create_mock_conservation_skill(
+    name: str, category: str = "conservation"
+) -> dict[str, Any]:
     """Create a mock conservation skill configuration."""
     return {
         "name": name,
@@ -462,39 +471,49 @@ def create_mock_conservation_skill(name: str, category: str = "conservation") ->
         "file": f"skills/{name}/SKILL.md",
         "category": category,
         "token_budget": 200,
-        "progressive_loading": True
+        "progressive_loading": True,
     }
 
 
-def create_mock_token_log_entry(session_id: str, tokens_used: int, operation: str) -> dict[str, Any]:
+def create_mock_token_log_entry(
+    session_id: str, tokens_used: int, operation: str
+) -> dict[str, Any]:
     """Create a mock token usage log entry."""
     return {
         "session_id": session_id,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "tokens_used": tokens_used,
         "operation": operation,
-        "efficiency_score": 0.85
+        "efficiency_score": 0.85,
     }
 
 
-def create_mock_performance_metric(metric_name: str, value: float, unit: str) -> dict[str, Any]:
+def create_mock_performance_metric(
+    metric_name: str, value: float, unit: str
+) -> dict[str, Any]:
     """Create a mock performance metric."""
     return {
         "name": metric_name,
         "value": value,
         "unit": unit,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "threshold_exceeded": False
+        "threshold_exceeded": False,
     }
 
 
-def create_mock_context_analysis(context_tokens: int, window_size: int = 200000) -> dict[str, Any]:
+def create_mock_context_analysis(
+    context_tokens: int, window_size: int = 200000
+) -> dict[str, Any]:
     """Create a mock context analysis result."""
     utilization = context_tokens / window_size
     return {
         "context_tokens": context_tokens,
         "window_size": window_size,
         "utilization_percentage": utilization * 100,
-        "status": "OPTIMAL" if utilization < 0.5 else "HIGH" if utilization < 0.7 else "CRITICAL",
-        "mecw_compliant": utilization <= 0.5
+        "status": "OPTIMAL"
+        if utilization < 0.5
+        else "HIGH"
+        if utilization < 0.7
+        else "CRITICAL",
+        "mecw_compliant": utilization <= 0.5,
     }

@@ -23,7 +23,7 @@ class TestGitWorkspaceAgent:
             "status_checking",
             "change_detection",
             "diff_analysis",
-            "todo_coordination"
+            "todo_coordination",
         ]
 
         # Act - Simulate agent initialization
@@ -33,7 +33,7 @@ class TestGitWorkspaceAgent:
             "change_detection": True,
             "diff_analysis": True,
             "todo_coordination": True,
-            "git_operations": True
+            "git_operations": True,
         }
 
         # Assert
@@ -53,7 +53,7 @@ class TestGitWorkspaceAgent:
             "On branch main\nChanges to be committed:\n  new file:   test.py",
             "main",
             "true",  # is git repo
-            "origin  https://github.com/test/repo.git (fetch)"
+            "origin  https://github.com/test/repo.git (fetch)",
         ]
 
         # Act - simulate calling tools through mock
@@ -61,7 +61,7 @@ class TestGitWorkspaceAgent:
             "status": mock_bash("git status"),
             "branch": mock_bash("git branch --show-current"),
             "is_git_repo": mock_bash("git rev-parse --git-dir") != "false",
-            "remotes": mock_bash("git remote -v")
+            "remotes": mock_bash("git remote -v"),
         }
 
         # Assert
@@ -80,7 +80,7 @@ class TestGitWorkspaceAgent:
         mock_bash.side_effect = [
             "M src/main.py\nA README.md\nD old_file.py\n?? temp.tmp",
             "src/main.py\nREADME.md\nold_file.py",
-            "150\n50\n25"
+            "150\n50\n25",
         ]
 
         # Act - simulate calling tools through mock
@@ -110,7 +110,7 @@ class TestGitWorkspaceAgent:
             "repository_status": "clean",
             "has_staged_changes": True,
             "staged_files": ["feature.py", "test_feature.py"],
-            "change_summary": "Added new feature with tests"
+            "change_summary": "Added new feature with tests",
         }
 
         # Act
@@ -133,16 +133,16 @@ class TestGitWorkspaceAgent:
         error_scenarios = [
             {
                 "error": "fatal: not a git repository",
-                "recovery": ["git init", "git clone"]
+                "recovery": ["git init", "git clone"],
             },
             {
                 "error": "fatal: couldn't find remote ref refs/heads/main",
-                "recovery": ["git branch -m main", "git push origin main"]
+                "recovery": ["git branch -m main", "git push origin main"],
             },
             {
                 "error": "permission denied",
-                "recovery": ["Check file permissions", "Run as appropriate user"]
-            }
+                "recovery": ["Check file permissions", "Run as appropriate user"],
+            },
         ]
 
         # Act & Assert
@@ -150,8 +150,10 @@ class TestGitWorkspaceAgent:
             # Agent should catch error and suggest recovery
             recovery_suggestions = self._handle_git_error(scenario["error"])
             assert len(recovery_suggestions) > 0
-            assert any(action in " ".join(recovery_suggestions)
-                      for action in scenario["recovery"])
+            assert any(
+                action in " ".join(recovery_suggestions)
+                for action in scenario["recovery"]
+            )
 
     def test_agent_provides_workflow_recommendations(self, staged_changes_context):
         """GIVEN a repository state analysis
@@ -164,20 +166,20 @@ class TestGitWorkspaceAgent:
                 "has_staged_changes": True,
                 "has_unstaged_changes": False,
                 "is_clean": False,
-                "expected_recommendations": ["commit", "commit-messages"]
+                "expected_recommendations": ["commit", "commit-messages"],
             },
             {
                 "has_staged_changes": False,
                 "has_unstaged_changes": True,
                 "is_clean": False,
-                "expected_recommendations": ["stage", "git add"]
+                "expected_recommendations": ["stage", "git add"],
             },
             {
                 "has_staged_changes": False,
                 "has_unstaged_changes": False,
                 "is_clean": True,
-                "expected_recommendations": ["clean", "push", "pr"]
-            }
+                "expected_recommendations": ["clean", "push", "pr"],
+            },
         ]
 
         # Act & Assert
@@ -190,31 +192,31 @@ class TestGitWorkspaceAgent:
     def _parse_git_status(self, status: str) -> dict[str, list[str]]:
         """Parse git status porcelain output."""
         changes = {"modified": [], "added": [], "deleted": [], "untracked": []}
-        for line in status.split('\n'):
+        for line in status.split("\n"):
             if line and len(line) > 2:
                 status_code = line[:2]
                 # Git porcelain format: XY filename (where XY is 2 chars + space)
-                file_path = line[3:] if line[2] == ' ' else line[2:]
-                if status_code[0] == 'M' or status_code[1] == 'M':
+                file_path = line[3:] if line[2] == " " else line[2:]
+                if status_code[0] == "M" or status_code[1] == "M":
                     changes["modified"].append(file_path)
-                elif status_code[0] == 'A' or status_code[1] == 'A':
+                elif status_code[0] == "A" or status_code[1] == "A":
                     changes["added"].append(file_path)
-                elif status_code[0] == 'D' or status_code[1] == 'D':
+                elif status_code[0] == "D" or status_code[1] == "D":
                     changes["deleted"].append(file_path)
-                elif status_code == '??':
+                elif status_code == "??":
                     changes["untracked"].append(file_path)
         return changes
 
     def _parse_git_stats(self, stats: str) -> dict[str, int]:
         """Parse git diff --stat output."""
-        lines = stats.split('\n')
+        lines = stats.split("\n")
         # Extract numbers from stat output and sum deletions
         additions = int(lines[0]) if lines[0].isdigit() else 0
         deletions = sum(int(line) for line in lines[1:] if line.isdigit())
         return {
             "total_additions": additions,
             "total_deletions": deletions,
-            "files_changed": len([line for line in lines if line.isdigit()])
+            "files_changed": len([line for line in lines if line.isdigit()]),
         }
 
     def _create_analysis_todos(self, analysis: dict) -> list[dict]:
@@ -223,33 +225,39 @@ class TestGitWorkspaceAgent:
             {
                 "content": f"Analyzed repository: {analysis['repository_status']}",
                 "status": "completed",
-                "activeForm": "Repository analysis complete"
+                "activeForm": "Repository analysis complete",
             },
             {
                 "content": f"Found {len(analysis['staged_files'])} staged files",
                 "status": "completed",
-                "activeForm": "Staged files identified"
+                "activeForm": "Staged files identified",
             },
             {
                 "content": f"Change summary: {analysis['change_summary']}",
                 "status": "completed",
-                "activeForm": "Change summary created"
-            }
+                "activeForm": "Change summary created",
+            },
         ]
 
     def _handle_git_error(self, error: str) -> list[str]:
         """Handle Git errors with recovery suggestions."""
         if "not a git repository" in error:
-            return ["Initialize repository with git init",
-                   "Clone existing repository with git clone"]
+            return [
+                "Initialize repository with git init",
+                "Clone existing repository with git clone",
+            ]
         elif "couldn't find remote ref" in error:
-            return ["Check remote configuration with git branch -m main",
-                   "Ensure branch exists remotely",
-                   "Push branch with git push origin main"]
+            return [
+                "Check remote configuration with git branch -m main",
+                "Ensure branch exists remotely",
+                "Push branch with git push origin main",
+            ]
         elif "permission denied" in error.lower():
-            return ["Check file permissions",
-                   "Verify Git configuration",
-                   "Run as appropriate user"]
+            return [
+                "Check file permissions",
+                "Verify Git configuration",
+                "Run as appropriate user",
+            ]
         else:
             return ["Check Git status for details"]
 
@@ -278,20 +286,32 @@ class TestCommitAgent:
         THEN it should produce a conventional commit message.
         """
         # Arrange
-        conventional_types = ["feat", "fix", "docs", "style", "refactor",
-                            "test", "chore", "perf", "ci", "build"]
+        conventional_types = [
+            "feat",
+            "fix",
+            "docs",
+            "style",
+            "refactor",
+            "test",
+            "chore",
+            "perf",
+            "ci",
+            "build",
+        ]
 
         mock_bash = Mock()
-        mock_bash.return_value = "feat(auth): Add OAuth2 authentication\n\nImplements secure login flow"
+        mock_bash.return_value = (
+            "feat(auth): Add OAuth2 authentication\n\nImplements secure login flow"
+        )
 
         # Act - simulate calling tools through mock
         commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
 
         # Assert
-        assert ':' in commit_msg
-        commit_type = commit_msg.split(':')[0]
+        assert ":" in commit_msg
+        commit_type = commit_msg.split(":")[0]
         # Handle scope: feat(auth) -> feat
-        base_type = commit_type.split('(')[0] if '(' in commit_type else commit_type
+        base_type = commit_type.split("(")[0] if "(" in commit_type else commit_type
         assert base_type in conventional_types
         assert "Add OAuth2" in commit_msg
 
@@ -325,9 +345,9 @@ class TestCommitAgent:
                 {"path": "src/api.py", "type": "feature", "changes": 100},
                 {"path": "src/config.py", "type": "refactor", "changes": 50},
                 {"path": "tests/test_api.py", "type": "test", "changes": 75},
-                {"path": "README.md", "type": "docs", "changes": 25}
+                {"path": "README.md", "type": "docs", "changes": 25},
             ],
-            "breaking_changes": True
+            "breaking_changes": True,
         }
 
         # Act
@@ -345,21 +365,31 @@ class TestCommitAgent:
         if not message:
             return False
 
-        lines = message.split('\n')
+        lines = message.split("\n")
         subject = lines[0]
 
         # Check format: type(scope): description
-        if ':' not in subject:
+        if ":" not in subject:
             return False
 
-        type_part, description = subject.split(':', 1)
+        type_part, description = subject.split(":", 1)
         type_part = type_part.strip()
         description = description.strip()
 
         # Check type is valid
-        valid_types = ["feat", "fix", "docs", "style", "refactor",
-                      "test", "chore", "perf", "ci", "build"]
-        if type_part.rstrip('!') not in valid_types:
+        valid_types = [
+            "feat",
+            "fix",
+            "docs",
+            "style",
+            "refactor",
+            "test",
+            "chore",
+            "perf",
+            "ci",
+            "build",
+        ]
+        if type_part.rstrip("!") not in valid_types:
             return False
 
         # Check description exists and is properly formatted
@@ -371,7 +401,7 @@ class TestCommitAgent:
             return False
 
         # Check imperative mood (basic check)
-        if description.lower().startswith(('added', 'fixed', 'updated', 'removed')):
+        if description.lower().startswith(("added", "fixed", "updated", "removed")):
             return False
 
         return True
@@ -420,7 +450,7 @@ class TestPRAgent:
             "Changes Made",
             "Test Plan",
             "Breaking Changes",
-            "Checklist"
+            "Checklist",
         ]
 
         # Act
@@ -441,7 +471,7 @@ class TestPRAgent:
             "has_tests": True,
             "has_documentation": True,
             "passes_ci": False,  # Simulate CI failure
-            "has_breaking_changes": False
+            "has_breaking_changes": False,
         }
 
         # Act
@@ -451,7 +481,9 @@ class TestPRAgent:
         assert gate_status["description_check"] == "passed"
         assert gate_status["test_check"] == "passed"
         assert gate_status["ci_check"] == "failed"
-        assert gate_status["overall_status"] == "failed"  # CI failure causes overall failure
+        assert (
+            gate_status["overall_status"] == "failed"
+        )  # CI failure causes overall failure
 
     def test_agent_suggests_reviewers(self, pull_request_context):
         """GIVEN changes in specific areas
@@ -463,11 +495,13 @@ class TestPRAgent:
             "src/": ["@backend-team", "@tech-lead"],
             "tests/": ["@qa-team"],
             "docs/": ["@docs-team", "@technical-writers"],
-            "frontend/": ["@frontend-team"]
+            "frontend/": ["@frontend-team"],
         }
 
         # Act
-        suggested_reviewers = self._suggest_reviewers(pull_request_context, reviewer_map)
+        suggested_reviewers = self._suggest_reviewers(
+            pull_request_context, reviewer_map
+        )
 
         # Assert
         assert "@backend-team" in suggested_reviewers
@@ -519,13 +553,19 @@ None
 
         # Determine overall status
         failed_checks = [k for k, v in status.items() if v == "failed"]
-        status["overall_status"] = "failed" if failed_checks else \
-                                  "warning" if status.get("breaking_check") == "warning" else \
-                                  "passed"
+        status["overall_status"] = (
+            "failed"
+            if failed_checks
+            else "warning"
+            if status.get("breaking_check") == "warning"
+            else "passed"
+        )
 
         return status
 
-    def _suggest_reviewers(self, context: dict, reviewer_map: dict[str, list[str]]) -> list[str]:
+    def _suggest_reviewers(
+        self, context: dict, reviewer_map: dict[str, list[str]]
+    ) -> list[str]:
         """Suggest reviewers based on changed files."""
         reviewers = set()
 

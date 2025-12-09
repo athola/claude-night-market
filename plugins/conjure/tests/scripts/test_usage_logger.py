@@ -21,10 +21,7 @@ class TestUsageEntry:
 
     def test_usage_entry_creation_minimal(self):
         """Given minimal required data when creating UsageEntry then should instantiate correctly."""
-        entry = UsageEntry(
-            command="test command",
-            estimated_tokens=100
-        )
+        entry = UsageEntry(command="test command", estimated_tokens=100)
 
         assert entry.command == "test command"
         assert entry.estimated_tokens == 100
@@ -41,7 +38,7 @@ class TestUsageEntry:
             actual_tokens=150,
             success=False,
             duration=2.5,
-            error="Something went wrong"
+            error="Something went wrong",
         )
 
         assert entry.command == "test command"
@@ -57,7 +54,7 @@ class TestGeminiUsageLogger:
 
     def test_initialization(self, tmp_path):
         """Given temp directory when initializing logger then should set correct paths."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         expected_log_dir = tmp_path / ".claude" / "hooks" / "gemini" / "logs"
@@ -65,13 +62,13 @@ class TestGeminiUsageLogger:
         assert logger.usage_log == expected_log_dir / "usage.jsonl"
         assert logger.session_file == expected_log_dir / "current_session.json"
 
-    @patch('builtins.open', new_callable=mock_open)
-    @patch('usage_logger.GeminiUsageLogger._get_session_id')
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("usage_logger.GeminiUsageLogger._get_session_id")
     def test_log_usage_success(self, mock_session_id, mock_file, tmp_path):
         """Given successful entry when logging usage then should write to log and update session."""
         mock_session_id.return_value = "test_session_123"
 
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         entry = UsageEntry(
@@ -79,7 +76,7 @@ class TestGeminiUsageLogger:
             estimated_tokens=100,
             actual_tokens=150,
             success=True,
-            duration=2.5
+            duration=2.5,
         )
 
         logger.log_usage(entry)
@@ -99,13 +96,13 @@ class TestGeminiUsageLogger:
         assert log_entry["duration_seconds"] == 2.5
         assert log_entry["session_id"] == "test_session_123"
 
-    @patch('builtins.open', new_callable=mock_open)
-    @patch('usage_logger.GeminiUsageLogger._get_session_id')
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("usage_logger.GeminiUsageLogger._get_session_id")
     def test_log_usage_failure(self, mock_session_id, mock_file, tmp_path):
         """Given failed entry when logging usage then should record error information."""
         mock_session_id.return_value = "test_session_123"
 
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         entry = UsageEntry(
@@ -113,7 +110,7 @@ class TestGeminiUsageLogger:
             estimated_tokens=100,
             success=False,
             duration=1.0,
-            error="API rate limit exceeded"
+            error="API rate limit exceeded",
         )
 
         logger.log_usage(entry)
@@ -129,10 +126,10 @@ class TestGeminiUsageLogger:
 
     def test_get_session_id_new_session(self, tmp_path):
         """Given no existing session when getting session ID then should create new session."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
-        with patch('time.time', return_value=1640995200):  # Fixed timestamp
+        with patch("time.time", return_value=1640995200):  # Fixed timestamp
             session_id = logger._get_session_id()
 
         assert session_id == "session_1640995200"
@@ -149,7 +146,7 @@ class TestGeminiUsageLogger:
 
     def test_get_session_id_existing_session(self, tmp_path):
         """Given existing recent session when getting session ID then should reuse existing."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         # Create an existing session file
@@ -169,7 +166,7 @@ class TestGeminiUsageLogger:
 
     def test_get_session_id_expired_session(self, tmp_path):
         """Given expired session when getting session ID then should create new session."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         # Create an expired session file (older than 1 hour)
@@ -183,7 +180,7 @@ class TestGeminiUsageLogger:
         with open(logger.session_file, "w") as f:
             json.dump(expired_session, f)
 
-        with patch('time.time', return_value=1640995200):
+        with patch("time.time", return_value=1640995200):
             session_id = logger._get_session_id()
 
         # Should create a new session
@@ -192,7 +189,7 @@ class TestGeminiUsageLogger:
 
     def test_get_session_id_invalid_file(self, tmp_path):
         """Given corrupt session file when getting session ID then should create new session."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         # Create invalid session file
@@ -200,19 +197,19 @@ class TestGeminiUsageLogger:
         with open(logger.session_file, "w") as f:
             f.write("invalid json content")
 
-        with patch('time.time', return_value=1640995200):
+        with patch("time.time", return_value=1640995200):
             session_id = logger._get_session_id()
 
         # Should create a new session despite file corruption
         assert session_id == "session_1640995200"
 
-    @patch('builtins.open', new_callable=mock_open)
-    @patch('usage_logger.GeminiUsageLogger._get_session_id')
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("usage_logger.GeminiUsageLogger._get_session_id")
     def test_update_session_stats(self, mock_session_id, mock_file, tmp_path):
         """Given log entry when updating session stats then should increment counters."""
         mock_session_id.return_value = "test_session"
 
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         # Create initial session data
@@ -223,7 +220,9 @@ class TestGeminiUsageLogger:
             "successful_requests": 4,
         }
 
-        mock_file.return_value.__enter__.return_value.read.return_value = json.dumps(initial_session)
+        mock_file.return_value.__enter__.return_value.read.return_value = json.dumps(
+            initial_session
+        )
 
         log_entry = {
             "timestamp": datetime.now().isoformat(),
@@ -242,13 +241,13 @@ class TestGeminiUsageLogger:
         assert updated_session["total_tokens"] == 1200
         assert updated_session["successful_requests"] == 5
 
-    @patch('builtins.open', new_callable=mock_open)
-    @patch('usage_logger.GeminiUsageLogger._get_session_id')
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("usage_logger.GeminiUsageLogger._get_session_id")
     def test_update_session_stats_no_file(self, mock_session_id, mock_file, tmp_path):
         """Given no session file when updating stats then should create new session data."""
         mock_session_id.return_value = "test_session"
 
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         # Mock file not existing for read
@@ -273,7 +272,7 @@ class TestGeminiUsageLogger:
 
     def test_get_usage_summary_no_log(self, tmp_path):
         """Given no usage log when getting summary then should return empty stats."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         summary = logger.get_usage_summary()
@@ -285,7 +284,7 @@ class TestGeminiUsageLogger:
 
     def test_get_usage_summary_with_data(self, tmp_path):
         """Given usage log with data when getting summary then should calculate correctly."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         # Create sample log entries
@@ -337,7 +336,7 @@ class TestGeminiUsageLogger:
 
     def test_get_usage_summary_time_filtering(self, tmp_path):
         """Given mixed time data when getting summary then should only include recent entries."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         now = datetime.now()
@@ -368,7 +367,7 @@ class TestGeminiUsageLogger:
 
     def test_get_recent_errors_no_log(self, tmp_path):
         """Given no usage log when getting recent errors then should return empty list."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         errors = logger.get_recent_errors()
@@ -377,7 +376,7 @@ class TestGeminiUsageLogger:
 
     def test_get_recent_errors_with_errors(self, tmp_path):
         """Given usage log with errors when getting recent errors then should return error entries."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         now = datetime.now()
@@ -415,17 +414,19 @@ class TestGeminiUsageLogger:
 
     def test_get_recent_errors_limit_count(self, tmp_path):
         """Given many errors when getting recent errors with limit then should return only requested count."""
-        with patch('pathlib.Path.home', return_value=tmp_path):
+        with patch("pathlib.Path.home", return_value=tmp_path):
             logger = GeminiUsageLogger()
 
         entries = []
         for i in range(10):
-            entries.append({
-                "timestamp": datetime.now().isoformat(),
-                "command": f"gemini error{i}",
-                "success": False,
-                "error": f"Error {i}",
-            })
+            entries.append(
+                {
+                    "timestamp": datetime.now().isoformat(),
+                    "command": f"gemini error{i}",
+                    "success": False,
+                    "error": f"Error {i}",
+                }
+            )
 
         logger.usage_log.parent.mkdir(parents=True, exist_ok=True)
         with open(logger.usage_log, "w") as f:
@@ -444,15 +445,18 @@ class TestGeminiUsageLogger:
 class TestUsageLoggerCli:
     """Test CLI functionality of usage logger."""
 
-    @patch('usage_logger.GeminiUsageLogger')
-    @patch('sys.argv', ['usage_logger.py', '--log', 'gemini test', '150', 'true', '2.5'])
+    @patch("usage_logger.GeminiUsageLogger")
+    @patch(
+        "sys.argv", ["usage_logger.py", "--log", "gemini test", "150", "true", "2.5"]
+    )
     def test_cli_log_usage_success(self, mock_logger_class):
         """Given valid log arguments when running CLI then should log usage."""
         mock_logger = MagicMock()
         mock_logger_class.return_value = mock_logger
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from usage_logger import main
+
             main()
 
         # Verify UsageEntry was created with correct data
@@ -465,22 +469,26 @@ class TestUsageLoggerCli:
 
         mock_print.assert_any_call("Logged usage for gemini test")
 
-    @patch('usage_logger.GeminiUsageLogger')
-    @patch('sys.argv', ['usage_logger.py', '--log', 'gemini test', 'invalid', 'true', '2.5'])
+    @patch("usage_logger.GeminiUsageLogger")
+    @patch(
+        "sys.argv",
+        ["usage_logger.py", "--log", "gemini test", "invalid", "true", "2.5"],
+    )
     def test_cli_log_usage_invalid_tokens(self, mock_logger_class):
         """Given invalid tokens argument when running CLI then should show error."""
         mock_logger = MagicMock()
         mock_logger_class.return_value = mock_logger
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from usage_logger import main
+
             main()
 
         mock_logger.log_usage.assert_not_called()
         mock_print.assert_any_call("Error parsing arguments: invalid literal for int()")
 
-    @patch('usage_logger.GeminiUsageLogger')
-    @patch('sys.argv', ['usage_logger.py', '--report'])
+    @patch("usage_logger.GeminiUsageLogger")
+    @patch("sys.argv", ["usage_logger.py", "--report"])
     def test_cli_report(self, mock_logger_class):
         """Given --report flag when running CLI then should show usage report."""
         mock_logger = MagicMock()
@@ -491,8 +499,9 @@ class TestUsageLoggerCli:
         }
         mock_logger_class.return_value = mock_logger
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from usage_logger import main
+
             main()
 
         mock_print.assert_any_call("Gemini Usage Report")
@@ -501,8 +510,8 @@ class TestUsageLoggerCli:
         mock_print.assert_any_call("Success rate: 92.5%")
         mock_print.assert_any_call("Total tokens: 5000")
 
-    @patch('usage_logger.GeminiUsageLogger')
-    @patch('sys.argv', ['usage_logger.py', '--validate'])
+    @patch("usage_logger.GeminiUsageLogger")
+    @patch("sys.argv", ["usage_logger.py", "--validate"])
     def test_cli_validate(self, mock_logger_class):
         """Given --validate flag when running CLI then should show validation info."""
         mock_logger = MagicMock()
@@ -511,8 +520,9 @@ class TestUsageLoggerCli:
         mock_logger.session_file = Path("/test/logs/session.json")
         mock_logger_class.return_value = mock_logger
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from usage_logger import main
+
             main()
 
         mock_print.assert_any_call("Usage logger validation:")
@@ -521,8 +531,8 @@ class TestUsageLoggerCli:
         mock_print.assert_any_call("Session file: /test/logs/session.json")
         mock_print.assert_any_call("Configuration is valid")
 
-    @patch('usage_logger.GeminiUsageLogger')
-    @patch('sys.argv', ['usage_logger.py', '--status'])
+    @patch("usage_logger.GeminiUsageLogger")
+    @patch("sys.argv", ["usage_logger.py", "--status"])
     def test_cli_status(self, mock_logger_class):
         """Given --status flag when running CLI then should show status info."""
         mock_logger = MagicMock()
@@ -530,27 +540,31 @@ class TestUsageLoggerCli:
         mock_logger.session_file.exists.return_value = True
         mock_logger_class.return_value = mock_logger
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from usage_logger import main
+
             main()
 
         mock_print.assert_any_call("Usage logger status:")
         mock_print.assert_any_call("Log directory exists: True")
         mock_print.assert_any_call("Current session active: True")
 
-    @patch('usage_logger.GeminiUsageLogger')
-    @patch('sys.argv', ['usage_logger.py'])
+    @patch("usage_logger.GeminiUsageLogger")
+    @patch("sys.argv", ["usage_logger.py"])
     def test_cli_no_arguments(self, mock_logger_class):
         """Given no arguments when running CLI then should show usage help."""
         mock_logger = MagicMock()
         mock_logger_class.return_value = mock_logger
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from usage_logger import main
-# ruff: noqa: S101
+
+            # ruff: noqa: S101
             main()
 
-        mock_print.assert_any_call("Usage: usage-logger --log <command> <tokens> <success> <duration>")
+        mock_print.assert_any_call(
+            "Usage: usage-logger --log <command> <tokens> <success> <duration>"
+        )
         mock_print.assert_any_call("       usage-logger --report")
         mock_print.assert_any_call("       usage-logger --validate")
         mock_print.assert_any_call("       usage-logger --status")

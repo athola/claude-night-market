@@ -16,32 +16,46 @@ if TYPE_CHECKING:
     from typing import Any
 
 # Simple URL pattern for fast detection (full validation happens later)
-_URL_QUICK_PATTERN = re.compile(
-    r'https?://[^\s<>"\')\]]+',
-    re.IGNORECASE
-)
+_URL_QUICK_PATTERN = re.compile(r'https?://[^\s<>"\')\]]+', re.IGNORECASE)
 
 # Domains to skip (not knowledge sources)
-_SKIP_DOMAINS = frozenset([
-    'localhost',
-    '127.0.0.1',
-    'github.com/anthropics/claude-code',  # Claude Code repo (we have local docs)
-])
+_SKIP_DOMAINS = frozenset(
+    [
+        "localhost",
+        "127.0.0.1",
+        "github.com/anthropics/claude-code",  # Claude Code repo (we have local docs)
+    ]
+)
 
 # File extensions that aren't articles/knowledge
-_SKIP_EXTENSIONS = frozenset([
-    '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico',
-    '.mp4', '.mp3', '.wav', '.webm',
-    '.zip', '.tar', '.gz', '.rar',
-    '.exe', '.dmg', '.pkg',
-    '.pdf',  # Could be knowledge but needs special handling
-])
+_SKIP_EXTENSIONS = frozenset(
+    [
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".svg",
+        ".ico",
+        ".mp4",
+        ".mp3",
+        ".wav",
+        ".webm",
+        ".zip",
+        ".tar",
+        ".gz",
+        ".rar",
+        ".exe",
+        ".dmg",
+        ".pkg",
+        ".pdf",  # Could be knowledge but needs special handling
+    ]
+)
 
 
 def extract_urls(text: str) -> list[str]:
     """Extract URLs from text quickly."""
     # Fast path: no URL indicators
-    if '://' not in text:
+    if "://" not in text:
         return []
 
     urls = _URL_QUICK_PATTERN.findall(text)
@@ -71,10 +85,10 @@ def main() -> None:
     except json.JSONDecodeError:
         sys.exit(0)  # Invalid input, exit silently
 
-    prompt = payload.get('prompt', '')
+    prompt = payload.get("prompt", "")
 
     # Fast path: no URL indicators
-    if '://' not in prompt and 'www.' not in prompt:
+    if "://" not in prompt and "www." not in prompt:
         sys.exit(0)
 
     urls = extract_urls(prompt)
@@ -87,7 +101,7 @@ def main() -> None:
     from shared.deduplication import is_known
 
     config = get_config()
-    if not config.get('enabled', True):
+    if not config.get("enabled", True):
         sys.exit(0)
 
     # Check which URLs are new
@@ -125,7 +139,7 @@ def main() -> None:
         response = {
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
-                "additionalContext": "\n".join(context_parts)
+                "additionalContext": "\n".join(context_parts),
             }
         }
 
@@ -134,5 +148,5 @@ def main() -> None:
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

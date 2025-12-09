@@ -4,7 +4,6 @@ This module tests how imbue workflows scale with large datasets,
 concurrent executions, and complex scenarios.
 """
 
-
 # ruff: noqa: S101
 import threading
 import time
@@ -26,12 +25,14 @@ class TestWorkflowScalability:
     def large_change_set(self):
         """Create a large change set for scalability testing."""
         return {
-            "files_changed": [f"src/module_{i//100}/file_{i}.py" for i in range(1000)],
+            "files_changed": [
+                f"src/module_{i // 100}/file_{i}.py" for i in range(1000)
+            ],
             "lines_added": sum(i % 100 + 1 for i in range(1000)),
             "lines_removed": sum(i % 50 for i in range(1000)),
             "commit_count": 150,
             "authors": [f"author_{i % 10}" for i in range(50)],
-            "time_span_days": 30
+            "time_span_days": 30,
         }
 
     @pytest.fixture
@@ -41,7 +42,7 @@ class TestWorkflowScalability:
             "concurrent_reviews": 10,
             "concurrent_catchups": 5,
             "concurrent_agents": 3,
-            "total_operations": 18
+            "total_operations": 18,
         }
 
     @pytest.mark.slow
@@ -64,7 +65,7 @@ class TestWorkflowScalability:
             "additions": [],
             "modifications": [],
             "deletions": [],
-            "renames": []
+            "renames": [],
         }
 
         # Process changes with O(n) complexity
@@ -78,7 +79,7 @@ class TestWorkflowScalability:
                 "lines_added": lines_in_file,
                 "lines_removed": lines_in_file // 4,
                 "semantic_category": self._categorize_file_type(file_path),
-                "risk_level": self._assess_risk_level(file_path, lines_in_file)
+                "risk_level": self._assess_risk_level(file_path, lines_in_file),
             }
 
             categorized_changes[change_type + "s"].append(change)
@@ -89,7 +90,7 @@ class TestWorkflowScalability:
             "total_lines_added": lines_added,
             "total_lines_removed": lines_removed,
             "categories": {},
-            "risk_levels": {}
+            "risk_levels": {},
         }
 
         # Aggregate by category (O(n) operation)
@@ -112,6 +113,7 @@ class TestWorkflowScalability:
 
         # Memory efficiency check
         import sys
+
         total_memory = sys.getsizeof(categorized_changes) + sys.getsizeof(summary)
         assert total_memory < 10_000_000  # Under 10MB for processing 1000 files
 
@@ -160,7 +162,7 @@ class TestWorkflowScalability:
                 "timestamp": datetime.now(UTC).isoformat(),
                 "working_directory": "/test/repo",
                 "file": f"src/file_{i % 100}.py",
-                "line": (i % 200) + 1
+                "line": (i % 200) + 1,
             }
             large_evidence_set.append(evidence_item)
 
@@ -173,13 +175,13 @@ class TestWorkflowScalability:
             "timestamp": datetime.now(UTC).isoformat(),
             "evidence": [],
             "citations": [],
-            "evidence_index": {}  # For quick lookup
+            "evidence_index": {},  # For quick lookup
         }
 
         # Process evidence in batches (scalable approach)
         batch_size = 1000
         for i in range(0, len(large_evidence_set), batch_size):
-            batch = large_evidence_set[i:i + batch_size]
+            batch = large_evidence_set[i : i + batch_size]
 
             # Process batch
             for evidence in batch:
@@ -191,12 +193,14 @@ class TestWorkflowScalability:
             "total_evidence": len(evidence_log["evidence"]),
             "session_duration": time.time() - start_time,
             "evidence_by_file": {},
-            "commands_used": set()
+            "commands_used": set(),
         }
 
         for evidence in evidence_log["evidence"]:
             file_path = evidence["file"]
-            summary["evidence_by_file"][file_path] = summary["evidence_by_file"].get(file_path, 0) + 1
+            summary["evidence_by_file"][file_path] = (
+                summary["evidence_by_file"].get(file_path, 0) + 1
+            )
             summary["commands_used"].add(evidence["command"])
 
         # Test lookup performance
@@ -219,6 +223,7 @@ class TestWorkflowScalability:
 
         # Memory efficiency
         import sys
+
         log_memory = sys.getsizeof(evidence_log)
         assert log_memory < 50_000_000  # Under 50MB for 10,000 evidence items
 
@@ -250,7 +255,7 @@ class TestWorkflowScalability:
                 ("scope_inventory", 0.2),
                 ("evidence_logging", 0.15),
                 ("analysis", 0.3),
-                ("report_generation", 0.1)
+                ("report_generation", 0.1),
             ]
 
             for _step_name, step_duration in workflow_steps:
@@ -259,13 +264,15 @@ class TestWorkflowScalability:
             end_time = time.time()
 
             with execution_lock:
-                execution_results.append({
-                    "workflow_id": workflow_id,
-                    "workflow_type": "review",
-                    "execution_time": end_time - start_time,
-                    "thread_id": thread_id,
-                    "steps_completed": len(workflow_steps)
-                })
+                execution_results.append(
+                    {
+                        "workflow_id": workflow_id,
+                        "workflow_type": "review",
+                        "execution_time": end_time - start_time,
+                        "thread_id": thread_id,
+                        "steps_completed": len(workflow_steps),
+                    }
+                )
 
             return f"review-{workflow_id}-completed"
 
@@ -279,7 +286,7 @@ class TestWorkflowScalability:
                 ("baseline_establishment", 0.05),
                 ("change_enumeration", 0.1),
                 ("insight_extraction", 0.08),
-                ("followup_generation", 0.02)
+                ("followup_generation", 0.02),
             ]
 
             for _step_name, step_duration in catchup_steps:
@@ -288,13 +295,15 @@ class TestWorkflowScalability:
             end_time = time.time()
 
             with execution_lock:
-                execution_results.append({
-                    "workflow_id": workflow_id,
-                    "workflow_type": "catchup",
-                    "execution_time": end_time - start_time,
-                    "thread_id": thread_id,
-                    "steps_completed": len(catchup_steps)
-                })
+                execution_results.append(
+                    {
+                        "workflow_id": workflow_id,
+                        "workflow_type": "catchup",
+                        "execution_time": end_time - start_time,
+                        "thread_id": thread_id,
+                        "steps_completed": len(catchup_steps),
+                    }
+                )
 
             return f"catchup-{workflow_id}-completed"
 
@@ -309,7 +318,7 @@ class TestWorkflowScalability:
                 ("deep_analysis", 0.4),
                 ("finding_categorization", 0.15),
                 ("recommendation_generation", 0.1),
-                ("report_compilation", 0.15)
+                ("report_compilation", 0.15),
             ]
 
             for _step_name, step_duration in agent_steps:
@@ -318,13 +327,15 @@ class TestWorkflowScalability:
             end_time = time.time()
 
             with execution_lock:
-                execution_results.append({
-                    "workflow_id": workflow_id,
-                    "workflow_type": "agent",
-                    "execution_time": end_time - start_time,
-                    "thread_id": thread_id,
-                    "steps_completed": len(agent_steps)
-                })
+                execution_results.append(
+                    {
+                        "workflow_id": workflow_id,
+                        "workflow_type": "agent",
+                        "execution_time": end_time - start_time,
+                        "thread_id": thread_id,
+                        "steps_completed": len(agent_steps),
+                    }
+                )
 
             return f"agent-{workflow_id}-completed"
 
@@ -359,18 +370,24 @@ class TestWorkflowScalability:
 
         # Analyze results
         assert len(results) == concurrent_workflow_scenario["total_operations"]
-        assert len(execution_results) == concurrent_workflow_scenario["total_operations"]
+        assert (
+            len(execution_results) == concurrent_workflow_scenario["total_operations"]
+        )
 
         # Check performance efficiency
-        review_results = [r for r in execution_results if r["workflow_type"] == "review"]
-        catchup_results = [r for r in execution_results if r["workflow_type"] == "catchup"]
+        review_results = [
+            r for r in execution_results if r["workflow_type"] == "review"
+        ]
+        catchup_results = [
+            r for r in execution_results if r["workflow_type"] == "catchup"
+        ]
         agent_results = [r for r in execution_results if r["workflow_type"] == "agent"]
 
         # Concurrent execution should be faster than sequential
         sequential_time_estimate = (
-            sum(r["execution_time"] for r in review_results) +
-            sum(r["execution_time"] for r in catchup_results) +
-            sum(r["execution_time"] for r in agent_results)
+            sum(r["execution_time"] for r in review_results)
+            + sum(r["execution_time"] for r in catchup_results)
+            + sum(r["execution_time"] for r in agent_results)
         )
 
         efficiency_ratio = sequential_time_estimate / total_execution_time
@@ -407,13 +424,14 @@ class TestWorkflowScalability:
                 {
                     "id": f"F{i:05d}",
                     "title": f"Finding {i}",
-                    "description": f"Description for finding {i} " + "x" * 100,  # Larger content
+                    "description": f"Description for finding {i} "
+                    + "x" * 100,  # Larger content
                     "severity": ["Critical", "High", "Medium", "Low"][i % 4],
                     "file": f"src/file_{i % 100}.py",
                     "line": (i % 500) + 1,
                     "evidence_refs": [f"E{j}" for j in range(i % 10)],
                     "recommendation": f"Recommendation {i} " + "y" * 200,
-                    "metadata": {"extra_data": "z" * 50}
+                    "metadata": {"extra_data": "z" * 50},
                 }
                 for i in range(5000)  # 5000 findings
             ],
@@ -423,10 +441,10 @@ class TestWorkflowScalability:
                     "command": f"command_{i}",
                     "output": f"Output {i} " + "a" * 300,
                     "timestamp": "2024-12-04T10:00:00Z",
-                    "context": {"extra": "b" * 100}
+                    "context": {"extra": "b" * 100},
                 }
                 for i in range(10000)  # 10000 evidence items
-            ]
+            ],
         }
 
         # Measure memory after dataset creation
@@ -446,19 +464,23 @@ class TestWorkflowScalability:
             severity_findings = [
                 f for f in large_dataset["findings"] if f["severity"] == severity
             ]
-            generated_report[f"{severity}_Findings"] = severity_findings[:100]  # Limit for memory
+            generated_report[f"{severity}_Findings"] = severity_findings[
+                :100
+            ]  # Limit for memory
 
         # Generate summary statistics
         summary = {
             "total_findings": len(large_dataset["findings"]),
             "total_evidence": len(large_dataset["evidence"]),
             "severity_distribution": {},
-            "memory_efficient": True
+            "memory_efficient": True,
         }
 
         for finding in large_dataset["findings"]:
             severity = finding["severity"]
-            summary["severity_distribution"][severity] = summary["severity_distribution"].get(severity, 0) + 1
+            summary["severity_distribution"][severity] = (
+                summary["severity_distribution"].get(severity, 0) + 1
+            )
 
         # Clear large dataset to test memory cleanup
         large_dataset.clear()
@@ -482,7 +504,9 @@ class TestWorkflowScalability:
         assert dataset_memory_usage < 150  # Dataset itself under 150MB
 
         # Memory cleanup should be effective
-        assert final_memory_usage < dataset_memory_usage * 1.5  # Should not leak much memory
+        assert (
+            final_memory_usage < dataset_memory_usage * 1.5
+        )  # Should not leak much memory
 
     @pytest.mark.slow
     def test_token_conservation_scalability(self):
@@ -494,18 +518,27 @@ class TestWorkflowScalability:
         # Simulate large content that needs token conservation
         large_content = []
         for i in range(1000):
-            large_content.append({
-                "file": f"src/module_{i//50}/file_{i}.py",
-                "content": "Line of content " * 100,  # 100 lines per file
-                "size_chars": len("Line of content " * 100)
-            })
+            large_content.append(
+                {
+                    "file": f"src/module_{i // 50}/file_{i}.py",
+                    "content": "Line of content " * 100,  # 100 lines per file
+                    "size_chars": len("Line of content " * 100),
+                }
+            )
 
         # Test different token conservation strategies
         strategies = {
-            "full_content": lambda items: [{"file": item["file"], "content": item["content"]} for item in items],
-            "summary_only": lambda items: [{"file": item["file"], "size": len(item["content"])} for item in items],
-            "sample_first_10": lambda items: [{"file": item["file"], "content": item["content"][:200]} for item in items[:10]],
-            "categorized_summary": self._categorized_summary_strategy
+            "full_content": lambda items: [
+                {"file": item["file"], "content": item["content"]} for item in items
+            ],
+            "summary_only": lambda items: [
+                {"file": item["file"], "size": len(item["content"])} for item in items
+            ],
+            "sample_first_10": lambda items: [
+                {"file": item["file"], "content": item["content"][:200]}
+                for item in items[:10]
+            ],
+            "categorized_summary": self._categorized_summary_strategy,
         }
 
         strategy_results = {}
@@ -523,7 +556,8 @@ class TestWorkflowScalability:
                 "processing_time": end_time - start_time,
                 "output_items": len(result),
                 "output_size_chars": result_size,
-                "compression_ratio": result_size / sum(item["size_chars"] for item in large_content)
+                "compression_ratio": result_size
+                / sum(item["size_chars"] for item in large_content),
             }
 
         # Analyze strategy effectiveness
@@ -535,11 +569,16 @@ class TestWorkflowScalability:
         assert strategy_results["summary_only"]["compression_ratio"] < 0.1
 
         # sample_first_10 should be much smaller
-        assert strategy_results["sample_first_10"]["output_size_chars"] < full_size * 0.05
+        assert (
+            strategy_results["sample_first_10"]["output_size_chars"] < full_size * 0.05
+        )
         assert strategy_results["sample_first_10"]["compression_ratio"] < 0.05
 
         # categorized_summary should be efficient
-        assert strategy_results["categorized_summary"]["output_size_chars"] < full_size * 0.2
+        assert (
+            strategy_results["categorized_summary"]["output_size_chars"]
+            < full_size * 0.2
+        )
         assert strategy_results["categorized_summary"]["compression_ratio"] < 0.2
 
         # All strategies should process quickly
@@ -552,7 +591,9 @@ class TestWorkflowScalability:
 
         # Should retain key information while being compact
         assert summary_result["output_items"] == 1000  # All files represented
-        assert categorized_result["output_items"] <= 50  # Reasonable number of categories
+        assert (
+            categorized_result["output_items"] <= 50
+        )  # Reasonable number of categories
 
     def _categorized_summary_strategy(self, items):
         """Token-efficient categorization strategy."""
@@ -574,7 +615,7 @@ class TestWorkflowScalability:
                 "category": category,
                 "file_count": details["count"],
                 "total_chars": details["total_size"],
-                "samples": details["sample_files"]
+                "samples": details["sample_files"],
             }
             for category, details in categories.items()
         ]
@@ -593,7 +634,7 @@ class TestWorkflowScalability:
                 "type": ["finding", "evidence", "action", "citation"][i % 4],
                 "data": f"Data {i} " + "x" * (i % 100 + 50),  # Variable size data
                 "timestamp": f"2024-12-{(i % 30) + 1:02d}",
-                "tags": [f"tag_{j}" for j in range(i % 5)]
+                "tags": [f"tag_{j}" for j in range(i % 5)],
             }
             for i in range(10000)  # 10,000 records
         ]
@@ -634,9 +675,11 @@ class TestWorkflowScalability:
         start_time = time.time()
         stats = {
             "total_records": len(records),
-            "records_by_type": dict.fromkeys(["finding", "evidence", "action", "citation"], 0),
+            "records_by_type": dict.fromkeys(
+                ["finding", "evidence", "action", "citation"], 0
+            ),
             "avg_data_size": sum(len(r["data"]) for r in records) / len(records),
-            "unique_tags": set()
+            "unique_tags": set(),
         }
 
         for record in records:
@@ -655,11 +698,12 @@ class TestWorkflowScalability:
         join_results = []
         for finding in findings[:100]:  # Limit for performance
             # Find related evidence (simplified join)
-            related_evidence = [e for e in evidence[:100] if finding["id"] % 10 == e["id"] % 10]
-            join_results.append({
-                "finding": finding,
-                "related_evidence": related_evidence
-            })
+            related_evidence = [
+                e for e in evidence[:100] if finding["id"] % 10 == e["id"] % 10
+            ]
+            join_results.append(
+                {"finding": finding, "related_evidence": related_evidence}
+            )
         operations_performance["complex_join"] = time.time() - start_time
 
         # Assert scalability

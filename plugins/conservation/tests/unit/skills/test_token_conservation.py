@@ -4,7 +4,6 @@ This module tests token optimization, quota management, and conservation
 functionality following TDD/BDD principles.
 """
 
-
 # ruff: noqa: S101
 from datetime import datetime, timezone
 
@@ -96,7 +95,7 @@ tags:
             "token-conservation:context-plan",
             "token-conservation:delegation-check",
             "token-conservation:compression-review",
-            "token-conservation:logging"
+            "token-conservation:logging",
         ]
 
         # Act - simulate token-conservation skill execution
@@ -105,14 +104,16 @@ tags:
             "token-conservation:context-plan",
             "token-conservation:delegation-check",
             "token-conservation:compression-review",
-            "token-conservation:logging"
+            "token-conservation:logging",
         ]
 
         # Assert
         assert len(token_conservation_items) == 5
         for expected_item in expected_items:
             assert expected_item in token_conservation_items
-        assert all(item.startswith("token-conservation:") for item in token_conservation_items)
+        assert all(
+            item.startswith("token-conservation:") for item in token_conservation_items
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -131,7 +132,7 @@ tags:
             {"tokens": 1000, "operation": "code_analysis", "time_minutes": 15},
             {"tokens": 2500, "operation": "documentation", "time_minutes": 30},
             {"tokens": 800, "operation": "debugging", "time_minutes": 10},
-            {"tokens": 1200, "operation": "refactoring", "time_minutes": 20}
+            {"tokens": 1200, "operation": "refactoring", "time_minutes": 20},
         ]
 
         quota_states = []
@@ -164,7 +165,7 @@ tags:
         task_requirements = {
             "goal": "analyze authentication bug",
             "target_files": ["src/auth.py", "tests/test_auth.py"],
-            "context_preference": "minimal"
+            "context_preference": "minimal",
         }
 
         # Act - simulate context planning
@@ -173,20 +174,20 @@ tags:
                 "approach": "grep_patterns",
                 "description": "Use rg to find specific authentication patterns",
                 "estimated_tokens": 50,
-                "tools": ["Grep"]
+                "tools": ["Grep"],
             },
             {
                 "approach": "targeted_reads",
                 "description": "Read specific line ranges with sed",
                 "estimated_tokens": 200,
-                "tools": ["Bash", "Read"]
+                "tools": ["Bash", "Read"],
             },
             {
                 "approach": "full_file_reads",
                 "description": "Read entire auth-related files",
                 "estimated_tokens": 2000,
-                "tools": ["Read"]
-            }
+                "tools": ["Read"],
+            },
         ]
 
         # Select optimal strategy based on task requirements
@@ -205,7 +206,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_delegation_check_identifies_optimization_opportunities(self, mock_claude_tools):
+    def test_delegation_check_identifies_optimization_opportunities(
+        self, mock_claude_tools
+    ):
         """Scenario: Delegation check identifies external processing opportunities
         Given compute-intensive tasks and available MCP tools
         When checking delegation opportunities
@@ -218,26 +221,26 @@ tags:
                 "task": "large_code_analysis",
                 "complexity": "high",
                 "compute_intensity": "high",
-                "estimated_tokens": 15000
+                "estimated_tokens": 15000,
             },
             {
                 "task": "simple_string_search",
                 "complexity": "low",
                 "compute_intensity": "low",
-                "estimated_tokens": 100
+                "estimated_tokens": 100,
             },
             {
                 "task": "performance_profiling",
                 "complexity": "medium",
                 "compute_intensity": "high",
-                "estimated_tokens": 3000
+                "estimated_tokens": 3000,
             },
             {
                 "task": "documentation_generation",
                 "complexity": "medium",
                 "compute_intensity": "medium",
-                "estimated_tokens": 2000
-            }
+                "estimated_tokens": 2000,
+            },
         ]
 
         # Act - analyze delegation opportunities
@@ -245,23 +248,30 @@ tags:
 
         for task in current_tasks:
             should_delegate = (
-                task["compute_intensity"] in ["high", "medium"] and
-                task["estimated_tokens"] > 1000 and
-                task["complexity"] in ["high", "medium"]
+                task["compute_intensity"] in ["high", "medium"]
+                and task["estimated_tokens"] > 1000
+                and task["complexity"] in ["high", "medium"]
             )
 
             if should_delegate:
-                delegation_opportunities.append({
-                    "task": task["task"],
-                    "reason": f"High compute ({task['compute_intensity']}) and token cost ({task['estimated_tokens']})",
-                    "recommended_tool": "qwen_code_executor",
-                    "estimated_savings": task["estimated_tokens"] * 0.7  # 70% savings
-                })
+                delegation_opportunities.append(
+                    {
+                        "task": task["task"],
+                        "reason": f"High compute ({task['compute_intensity']}) and token cost ({task['estimated_tokens']})",
+                        "recommended_tool": "qwen_code_executor",
+                        "estimated_savings": task["estimated_tokens"]
+                        * 0.7,  # 70% savings
+                    }
+                )
 
         # Assert
         assert len(delegation_opportunities) == 3  # All but simple_string_search
-        assert any(opp["task"] == "large_code_analysis" for opp in delegation_opportunities)
-        assert any(opp["task"] == "performance_profiling" for opp in delegation_opportunities)
+        assert any(
+            opp["task"] == "large_code_analysis" for opp in delegation_opportunities
+        )
+        assert any(
+            opp["task"] == "performance_profiling" for opp in delegation_opportunities
+        )
         assert all(opp["estimated_savings"] > 0 for opp in delegation_opportunities)
 
     @pytest.mark.bdd
@@ -278,18 +288,18 @@ tags:
             {
                 "type": "instruction",
                 "text": "I would like you to please carefully analyze the following code and provide me with a comprehensive explanation of what it does, how it works, and any potential issues or improvements that could be made.",
-                "word_count": 35
+                "word_count": 35,
             },
             {
                 "type": "instruction",
                 "text": "Analyze code: explain functionality, identify issues, suggest improvements.",
-                "word_count": 8
+                "word_count": 8,
             },
             {
                 "type": "response",
                 "text": "The code you provided is a Python function that takes a list of strings as input and returns a new list containing only the strings that have a length greater than five characters. The function uses a list comprehension to filter the input list based on the length of each string, which is an efficient and Pythonic way to accomplish this task.",
-                "word_count": 58
-            }
+                "word_count": 58,
+            },
         ]
 
         # Act - analyze compression opportunities
@@ -303,7 +313,7 @@ tags:
                 "provide me with a comprehensive explanation of",
                 "what it does, how it works, and any",
                 "The code you provided is",
-                "which is an efficient and Pythonic way to"
+                "which is an efficient and Pythonic way to",
             ]
 
             compression_suggestions = []
@@ -318,33 +328,43 @@ tags:
                         "provide me with a comprehensive explanation of": "Explain:",
                         "what it does, how it works, and any": "function, issues,",
                         "The code you provided is": "This code",
-                        "which is an efficient and Pythonic way to": ""
+                        "which is an efficient and Pythonic way to": "",
                     }
 
                     if pattern in alternatives:
-                        compressed_text = sample["text"].replace(pattern, alternatives[pattern])
+                        compressed_text = sample["text"].replace(
+                            pattern, alternatives[pattern]
+                        )
                         savings = len(sample["text"]) - len(compressed_text)
                         potential_savings += savings
 
-                        compression_suggestions.append({
-                            "pattern": pattern,
-                            "alternative": alternatives[pattern],
-                            "estimated_savings": savings
-                        })
+                        compression_suggestions.append(
+                            {
+                                "pattern": pattern,
+                                "alternative": alternatives[pattern],
+                                "estimated_savings": savings,
+                            }
+                        )
 
             if compression_suggestions:
-                compression_opportunities.append({
-                    "type": sample["type"],
-                    "original_length": len(sample["text"]),
-                    "suggestions": compression_suggestions,
-                    "total_potential_savings": potential_savings,
-                    "compression_ratio": potential_savings / len(sample["text"])
-                })
+                compression_opportunities.append(
+                    {
+                        "type": sample["type"],
+                        "original_length": len(sample["text"]),
+                        "suggestions": compression_suggestions,
+                        "total_potential_savings": potential_savings,
+                        "compression_ratio": potential_savings / len(sample["text"]),
+                    }
+                )
 
         # Assert
         assert len(compression_opportunities) >= 1
-        assert all(opp["total_potential_savings"] > 0 for opp in compression_opportunities)
-        assert all(0 < opp["compression_ratio"] <= 1 for opp in compression_opportunities)
+        assert all(
+            opp["total_potential_savings"] > 0 for opp in compression_opportunities
+        )
+        assert all(
+            0 < opp["compression_ratio"] <= 1 for opp in compression_opportunities
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -366,7 +386,7 @@ tags:
                 "tokens_used": 45,
                 "tokens_saved": 150,
                 "strategy": "grep_over_full_read",
-                "efficiency_score": 0.77
+                "efficiency_score": 0.77,
             },
             {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -374,7 +394,7 @@ tags:
                 "tokens_used": 200,
                 "tokens_saved": 800,
                 "strategy": "mcp_code_execution",
-                "efficiency_score": 0.80
+                "efficiency_score": 0.80,
             },
             {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -382,8 +402,8 @@ tags:
                 "tokens_used": 25,
                 "tokens_saved": 75,
                 "strategy": "prompt_optimization",
-                "efficiency_score": 0.75
-            }
+                "efficiency_score": 0.75,
+            },
         ]
 
         for activity in activities:
@@ -392,7 +412,9 @@ tags:
         # Calculate aggregate metrics
         total_tokens_used = sum(activity["tokens_used"] for activity in activities)
         total_tokens_saved = sum(activity["tokens_saved"] for activity in activities)
-        average_efficiency = sum(activity["efficiency_score"] for activity in activities) / len(activities)
+        average_efficiency = sum(
+            activity["efficiency_score"] for activity in activities
+        ) / len(activities)
         net_savings = total_tokens_saved - total_tokens_used
 
         # Assert
@@ -412,7 +434,9 @@ tags:
             assert "efficiency_score" in entry
 
     @pytest.mark.unit
-    def test_token_conservation_handles_quota_exceeded_gracefully(self, mock_token_quota_tracker):
+    def test_token_conservation_handles_quota_exceeded_gracefully(
+        self, mock_token_quota_tracker
+    ):
         """Scenario: Token conservation handles quota exceeded situations gracefully
         Given approaching or exceeded quota limits
         When quota limits are reached
@@ -429,31 +453,35 @@ tags:
         conservation_measures = []
 
         if not quota_status["within_limits"] or quota_status["remaining_budget"] < 5000:
-            conservation_measures.extend([
-                {
-                    "measure": "emergency_compression",
-                    "priority": "P1",
-                    "description": "Apply maximum token compression to all communications",
-                    "expected_savings": "40-60%"
-                },
-                {
-                    "measure": "delegate_all_compute",
-                    "priority": "P1",
-                    "description": "Delegate all compute-intensive tasks to external tools",
-                    "expected_savings": "70-80%"
-                },
-                {
-                    "measure": "minimal_context_only",
-                    "priority": "P2",
-                    "description": "Restrict to absolutely essential context only",
-                    "expected_savings": "50-70%"
-                }
-            ])
+            conservation_measures.extend(
+                [
+                    {
+                        "measure": "emergency_compression",
+                        "priority": "P1",
+                        "description": "Apply maximum token compression to all communications",
+                        "expected_savings": "40-60%",
+                    },
+                    {
+                        "measure": "delegate_all_compute",
+                        "priority": "P1",
+                        "description": "Delegate all compute-intensive tasks to external tools",
+                        "expected_savings": "70-80%",
+                    },
+                    {
+                        "measure": "minimal_context_only",
+                        "priority": "P2",
+                        "description": "Restrict to absolutely essential context only",
+                        "expected_savings": "50-70%",
+                    },
+                ]
+            )
 
         # Assert
         assert quota_status["remaining_budget"] == 5000
         assert len(conservation_measures) == 3
-        assert all(measure["priority"] in ["P1", "P2"] for measure in conservation_measures)
+        assert all(
+            measure["priority"] in ["P1", "P2"] for measure in conservation_measures
+        )
 
         # Verify all measures have expected savings
         for measure in conservation_measures:
@@ -474,20 +502,20 @@ tags:
                 "name": "simple_bug_fix",
                 "complexity": "low",
                 "estimated_tokens": 500,
-                "conservation_priority": "high"
+                "conservation_priority": "high",
             },
             {
                 "name": "feature_implementation",
                 "complexity": "medium",
                 "estimated_tokens": 3000,
-                "conservation_priority": "medium"
+                "conservation_priority": "medium",
             },
             {
                 "name": "system_refactoring",
                 "complexity": "high",
                 "estimated_tokens": 8000,
-                "conservation_priority": "low"
-            }
+                "conservation_priority": "low",
+            },
         ]
 
         # Act - adapt conservation strategies
@@ -499,38 +527,39 @@ tags:
                     "approach": "minimal_viable",
                     "compression_level": "maximum",
                     "delegation_threshold": 100,  # Delegate anything > 100 tokens
-                    "context_limit": 200
+                    "context_limit": 200,
                 }
             elif task["complexity"] == "medium":
                 strategy = {
                     "approach": "balanced",
                     "compression_level": "moderate",
                     "delegation_threshold": 500,
-                    "context_limit": 1000
+                    "context_limit": 1000,
                 }
             else:  # high complexity
                 strategy = {
                     "approach": "comprehensive",
                     "compression_level": "light",
                     "delegation_threshold": 1000,
-                    "context_limit": "no_limit"
+                    "context_limit": "no_limit",
                 }
 
-            adapted_strategies.append({
-                "task": task["name"],
-                "strategy": strategy
-            })
+            adapted_strategies.append({"task": task["name"], "strategy": strategy})
 
         # Assert
         assert len(adapted_strategies) == 3
 
         # Check simple bug fix strategy
-        simple_task = next(s for s in adapted_strategies if s["task"] == "simple_bug_fix")
+        simple_task = next(
+            s for s in adapted_strategies if s["task"] == "simple_bug_fix"
+        )
         assert simple_task["strategy"]["approach"] == "minimal_viable"
         assert simple_task["strategy"]["compression_level"] == "maximum"
 
         # Check system refactoring strategy
-        complex_task = next(s for s in adapted_strategies if s["task"] == "system_refactoring")
+        complex_task = next(
+            s for s in adapted_strategies if s["task"] == "system_refactoring"
+        )
         assert complex_task["strategy"]["approach"] == "comprehensive"
         assert complex_task["strategy"]["compression_level"] == "light"
 
@@ -547,7 +576,7 @@ tags:
             "daily_tokens": 10000,
             "weekly_tokens": 70000,
             "cost_per_token": 0.00001,  # $0.00001 per token
-            "efficiency_score": 0.6
+            "efficiency_score": 0.6,
         }
 
         # Act - simulate conservation measures applied
@@ -555,30 +584,54 @@ tags:
             "daily_after_conservation": 6500,  # 35% reduction
             "weekly_after_conservation": 45500,  # 35% reduction
             "conservation_overhead_tokens": 500,  # Tokens spent on conservation itself
-            "time_spent_conservation_minutes": 30
+            "time_spent_conservation_minutes": 30,
         }
 
         # Calculate effectiveness metrics
-        daily_savings = baseline_usage["daily_tokens"] - conservation_results["daily_after_conservation"]
-        weekly_savings = baseline_usage["weekly_tokens"] - conservation_results["weekly_after_conservation"]
-        net_weekly_savings = weekly_savings - conservation_results["conservation_overhead_tokens"]
+        daily_savings = (
+            baseline_usage["daily_tokens"]
+            - conservation_results["daily_after_conservation"]
+        )
+        weekly_savings = (
+            baseline_usage["weekly_tokens"]
+            - conservation_results["weekly_after_conservation"]
+        )
+        net_weekly_savings = (
+            weekly_savings - conservation_results["conservation_overhead_tokens"]
+        )
 
         cost_savings = net_weekly_savings * baseline_usage["cost_per_token"]
         roi_time_minutes = conservation_results["time_spent_conservation_minutes"]
 
         effectiveness_metrics = {
-            "daily_savings_percentage": (daily_savings / baseline_usage["daily_tokens"]) * 100,
-            "weekly_savings_percentage": (weekly_savings / baseline_usage["weekly_tokens"]) * 100,
+            "daily_savings_percentage": (daily_savings / baseline_usage["daily_tokens"])
+            * 100,
+            "weekly_savings_percentage": (
+                weekly_savings / baseline_usage["weekly_tokens"]
+            )
+            * 100,
             "net_weekly_savings": net_weekly_savings,
             "cost_savings_weekly": cost_savings,
-            "efficiency_improvement": (conservation_results["weekly_after_conservation"] / baseline_usage["weekly_tokens"]) * 100,
-            "roi_tokens_per_minute": net_weekly_savings / roi_time_minutes
+            "efficiency_improvement": (
+                conservation_results["weekly_after_conservation"]
+                / baseline_usage["weekly_tokens"]
+            )
+            * 100,
+            "roi_tokens_per_minute": net_weekly_savings / roi_time_minutes,
         }
 
         # Assert
         assert effectiveness_metrics["daily_savings_percentage"] == 35.0
         assert effectiveness_metrics["weekly_savings_percentage"] == 35.0
-        assert effectiveness_metrics["net_weekly_savings"] > 24000  # Significant net savings
-        assert effectiveness_metrics["cost_savings_weekly"] > 0.24  # $0.24+ weekly savings
-        assert effectiveness_metrics["efficiency_improvement"] == 65.0  # Better efficiency
-        assert effectiveness_metrics["roi_tokens_per_minute"] > 800  # Good ROI per minute
+        assert (
+            effectiveness_metrics["net_weekly_savings"] > 24000
+        )  # Significant net savings
+        assert (
+            effectiveness_metrics["cost_savings_weekly"] > 0.24
+        )  # $0.24+ weekly savings
+        assert (
+            effectiveness_metrics["efficiency_improvement"] == 65.0
+        )  # Better efficiency
+        assert (
+            effectiveness_metrics["roi_tokens_per_minute"] > 800
+        )  # Good ROI per minute

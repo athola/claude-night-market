@@ -144,7 +144,7 @@ index abcdef..0000000
                     "lines_added": 3,
                     "lines_removed": 1,
                     "semantic_category": "feature",
-                    "risk_level": "Low"
+                    "risk_level": "Low",
                 },
                 {
                     "file": "tests/test_main.py",
@@ -152,7 +152,7 @@ index abcdef..0000000
                     "lines_added": 5,
                     "lines_removed": 0,
                     "semantic_category": "tests",
-                    "risk_level": "Low"
+                    "risk_level": "Low",
                 },
                 {
                     "file": "README.md",
@@ -160,7 +160,7 @@ index abcdef..0000000
                     "lines_added": 1,
                     "lines_removed": 0,
                     "semantic_category": "docs",
-                    "risk_level": "Low"
+                    "risk_level": "Low",
                 },
                 {
                     "file": "old_config.json",
@@ -168,24 +168,16 @@ index abcdef..0000000
                     "lines_added": 0,
                     "lines_removed": 5,
                     "semantic_category": "config",
-                    "risk_level": "Medium"
-                }
+                    "risk_level": "Medium",
+                },
             ],
             "summary": {
                 "total_files": 4,
                 "total_lines_added": 9,
                 "total_lines_removed": 6,
-                "categories": {
-                    "feature": 1,
-                    "tests": 1,
-                    "docs": 1,
-                    "config": 1
-                },
-                "risk_levels": {
-                    "Low": 3,
-                    "Medium": 1
-                }
-            }
+                "categories": {"feature": 1, "tests": 1, "docs": 1, "config": 1},
+                "risk_levels": {"Low": 3, "Medium": 1},
+            },
         }
 
     @pytest.mark.unit
@@ -198,12 +190,12 @@ index abcdef..0000000
         And extract line counts accurately.
         """
         # Arrange & Act - parse diff output
-        diff_lines = sample_git_diff_output.split('\n')
+        diff_lines = sample_git_diff_output.split("\n")
         changes = []
         current_change = {}
 
         for line in diff_lines:
-            if line.startswith('diff --git'):
+            if line.startswith("diff --git"):
                 # Save previous change if exists
                 if current_change:
                     changes.append(current_change)
@@ -211,20 +203,20 @@ index abcdef..0000000
                 # Parse file names
                 parts = line.split()
                 current_change = {
-                    "file": parts[2].lstrip('b/'),
+                    "file": parts[2].lstrip("b/"),
                     "type": "unknown",
                     "lines_added": 0,
-                    "lines_removed": 0
+                    "lines_removed": 0,
                 }
-            elif line.startswith('new file mode'):
+            elif line.startswith("new file mode"):
                 current_change["type"] = "added"
-            elif line.startswith('deleted file mode'):
+            elif line.startswith("deleted file mode"):
                 current_change["type"] = "deleted"
-            elif line.startswith('rename from'):
+            elif line.startswith("rename from"):
                 current_change["type"] = "renamed"
-            elif line.startswith('+') and not line.startswith('+++'):
+            elif line.startswith("+") and not line.startswith("+++"):
                 current_change["lines_added"] += 1
-            elif line.startswith('-') and not line.startswith('---'):
+            elif line.startswith("-") and not line.startswith("---"):
                 current_change["lines_removed"] += 1
 
         # Add last change
@@ -233,7 +225,9 @@ index abcdef..0000000
 
         # Set type for modifications (default)
         for change in changes:
-            if change["type"] == "unknown" and (change["lines_added"] > 0 or change["lines_removed"] > 0):
+            if change["type"] == "unknown" and (
+                change["lines_added"] > 0 or change["lines_removed"] > 0
+            ):
                 change["type"] = "modified"
 
         # Assert
@@ -268,7 +262,7 @@ index abcdef..0000000
             "old_config.json": "config",
             "requirements.txt": "deps",
             "setup.py": "config",
-            "Dockerfile": "config"
+            "Dockerfile": "config",
         }
 
         # Extract files from diff (simplified)
@@ -276,7 +270,7 @@ index abcdef..0000000
             "src/main.py",
             "tests/test_main.py",
             "README.md",
-            "old_config.json"
+            "old_config.json",
         ]
 
         categorized_changes = []
@@ -287,13 +281,15 @@ index abcdef..0000000
                     category = cat
                     break
 
-            categorized_changes.append({
-                "file": file_path,
-                "semantic_category": category
-            })
+            categorized_changes.append(
+                {"file": file_path, "semantic_category": category}
+            )
 
         # Assert
-        file_to_category = {change["file"]: change["semantic_category"] for change in categorized_changes}
+        file_to_category = {
+            change["file"]: change["semantic_category"]
+            for change in categorized_changes
+        }
 
         assert file_to_category["src/main.py"] == "feature"
         assert file_to_category["tests/test_main.py"] == "tests"
@@ -315,25 +311,31 @@ index abcdef..0000000
             ("tests", "added"): "Low",
             ("docs", "modified"): "Low",
             ("docs", "added"): "Low",
-
             # Medium risk
             ("config", "modified"): "Medium",
             ("deps", "modified"): "Medium",
             ("feature", "modified"): "Medium",
-
             # High risk
             ("feature", "deleted"): "High",
             ("config", "deleted"): "High",
-            ("deps", "deleted"): "High"
+            ("deps", "deleted"): "High",
         }
 
         # Test cases
         test_changes = [
-            {"file": "tests/test_new.py", "semantic_category": "tests", "type": "added"},
+            {
+                "file": "tests/test_new.py",
+                "semantic_category": "tests",
+                "type": "added",
+            },
             {"file": "README.md", "semantic_category": "docs", "type": "modified"},
             {"file": "config.json", "semantic_category": "config", "type": "modified"},
             {"file": "src/api.py", "semantic_category": "feature", "type": "deleted"},
-            {"file": "requirements.txt", "semantic_category": "deps", "type": "modified"}
+            {
+                "file": "requirements.txt",
+                "semantic_category": "deps",
+                "type": "modified",
+            },
         ]
 
         # Act - assess risk for each change
@@ -367,7 +369,7 @@ index abcdef..0000000
             "total_lines_added": sum(c["lines_added"] for c in changes),
             "total_lines_removed": sum(c["lines_removed"] for c in changes),
             "categories": {},
-            "risk_levels": {}
+            "risk_levels": {},
         }
 
         # Aggregate by category
@@ -399,22 +401,25 @@ index abcdef..0000000
         And handle various baseline specification formats.
         """
         # Arrange
-        mock_claude_tools['Bash'].return_value = "abc123"
+        mock_claude_tools["Bash"].return_value = "abc123"
 
         # Test different baseline specifications
         test_cases = [
             ("HEAD~1", "git merge-base HEAD HEAD~1"),
             ("main", "git merge-base HEAD main"),
             ("abc123", "echo abc123"),
-            ("--since 1 week ago", "git log --since '1 week ago' --format=format:%H | tail -1")
+            (
+                "--since 1 week ago",
+                "git log --since '1 week ago' --format=format:%H | tail -1",
+            ),
         ]
 
         # Act & Assert for each case
         for _baseline_spec, expected_command in test_cases:
-            mock_claude_tools['Bash'].return_value = "baseline-hash"
-            baseline = mock_claude_tools['Bash'](expected_command)
+            mock_claude_tools["Bash"].return_value = "baseline-hash"
+            baseline = mock_claude_tools["Bash"](expected_command)
             assert baseline == "baseline-hash"
-            mock_claude_tools['Bash'].assert_called_with(expected_command)
+            mock_claude_tools["Bash"].assert_called_with(expected_command)
 
     @pytest.mark.unit
     @pytest.mark.unit
@@ -433,7 +438,7 @@ index abcdef..0000000
             "test_function": r"^\+def\s+test_\w+\s*\(",
             "decorator_addition": r"^\+@\w+",
             "comment_addition": r"^\+\s*#.*",
-            "debug_statement": r"^\+.*print\(|^\+.*console\.log\(|^\+.*debug\("
+            "debug_statement": r"^\+.*print\(|^\+.*console\.log\(|^\+.*debug\(",
         }
 
         # Sample diff lines
@@ -444,8 +449,8 @@ index abcdef..0000000
             "+class NewClass:",
             "+@pytest.fixture",
             "+def test_function():",
-            "+print(\"Debug info\")",
-            "+# This is a comment"
+            '+print("Debug info")',
+            "+# This is a comment",
         ]
 
         # Act - detect patterns
@@ -453,11 +458,9 @@ index abcdef..0000000
         for line in sample_lines:
             for pattern_name, pattern_regex in diff_patterns.items():
                 import re
+
                 if re.match(pattern_regex, line):
-                    detected_patterns.append({
-                        "pattern": pattern_name,
-                        "line": line
-                    })
+                    detected_patterns.append({"pattern": pattern_name, "line": line})
                     break
 
         # Assert
@@ -482,9 +485,17 @@ index abcdef..0000000
         # Arrange - simulate cross-cutting changes
         changes = [
             {"file": "src/api.py", "type": "modified", "semantic_category": "feature"},
-            {"file": "tests/test_api.py", "type": "modified", "semantic_category": "tests"},
+            {
+                "file": "tests/test_api.py",
+                "type": "modified",
+                "semantic_category": "tests",
+            },
             {"file": "docs/api.md", "type": "modified", "semantic_category": "docs"},
-            {"file": "config/api.json", "type": "modified", "semantic_category": "config"}
+            {
+                "file": "config/api.json",
+                "type": "modified",
+                "semantic_category": "config",
+            },
         ]
 
         # Act - detect cross-cutting patterns
@@ -493,7 +504,7 @@ index abcdef..0000000
         # Group by base file name (without extension)
         base_name_groups = {}
         for change in changes:
-            base_name = change["file"].split('/')[-1].split('.')[0]
+            base_name = change["file"].split("/")[-1].split(".")[0]
             if base_name not in base_name_groups:
                 base_name_groups[base_name] = []
             base_name_groups[base_name].append(change)
@@ -501,11 +512,13 @@ index abcdef..0000000
         # Identify groups with multiple files
         for base_name, group_changes in base_name_groups.items():
             if len(group_changes) > 1:
-                cross_cutting_groups.append({
-                    "base_name": base_name,
-                    "files": [c["file"] for c in group_changes],
-                    "categories": [c["semantic_category"] for c in group_changes]
-                })
+                cross_cutting_groups.append(
+                    {
+                        "base_name": base_name,
+                        "files": [c["file"] for c in group_changes],
+                        "categories": [c["semantic_category"] for c in group_changes],
+                    }
+                )
 
         # Assert
         assert len(cross_cutting_groups) == 1
@@ -526,10 +539,30 @@ index abcdef..0000000
         """
         # Arrange
         changes = [
-            {"file": "file1.py", "lines_added": 10, "lines_removed": 5, "type": "modified"},
-            {"file": "file2.py", "lines_added": 0, "lines_removed": 3, "type": "deleted"},
-            {"file": "file3.py", "lines_added": 15, "lines_removed": 0, "type": "added"},
-            {"file": "file4.py", "lines_added": 7, "lines_removed": 7, "type": "modified"}
+            {
+                "file": "file1.py",
+                "lines_added": 10,
+                "lines_removed": 5,
+                "type": "modified",
+            },
+            {
+                "file": "file2.py",
+                "lines_added": 0,
+                "lines_removed": 3,
+                "type": "deleted",
+            },
+            {
+                "file": "file3.py",
+                "lines_added": 15,
+                "lines_removed": 0,
+                "type": "added",
+            },
+            {
+                "file": "file4.py",
+                "lines_added": 7,
+                "lines_removed": 7,
+                "type": "modified",
+            },
         ]
 
         # Act - calculate statistics
@@ -543,13 +576,15 @@ index abcdef..0000000
             "total_lines_removed": total_removed,
             "total_lines_changed": total_changed,
             "net_change": total_added - total_removed,
-            "files_by_type": {}
+            "files_by_type": {},
         }
 
         # Group by type
         for change in changes:
             change_type = change["type"]
-            stats["files_by_type"][change_type] = stats["files_by_type"].get(change_type, 0) + 1
+            stats["files_by_type"][change_type] = (
+                stats["files_by_type"].get(change_type, 0) + 1
+            )
 
         # Assert
         assert stats["total_files"] == 4
@@ -569,14 +604,14 @@ index abcdef..0000000
         Then it should handle errors and provide meaningful feedback.
         """
         # Arrange - simulate git command failure
-        mock_claude_tools['Bash'].side_effect = [
+        mock_claude_tools["Bash"].side_effect = [
             "fatal: not a git repository",  # git status fails
-            "Error: Invalid baseline"        # git diff fails
+            "Error: Invalid baseline",  # git diff fails
         ]
 
         # Act & Assert - handle errors gracefully
         try:
-            mock_claude_tools['Bash']("git status")
+            mock_claude_tools["Bash"]("git status")
         except Exception as e:
             error_handled = True
             error_message = str(e)
@@ -590,7 +625,7 @@ no proper headers
 just some text"""
 
         # Should handle gracefully without crashing
-        lines = malformed_diff.split('\n')
+        lines = malformed_diff.split("\n")
         assert len(lines) == 3
         # No assertion about parsing - just that it doesn't crash
 
@@ -606,14 +641,16 @@ just some text"""
         # Arrange - simulate large diff with many files
         large_changes = []
         for i in range(1000):
-            large_changes.append({
-                "file": f"src/file_{i}.py",
-                "type": "modified" if i % 3 != 0 else "added",
-                "lines_added": i % 20,
-                "lines_removed": i % 10,
-                "semantic_category": ["feature", "fix", "refactor", "tests"][i % 4],
-                "risk_level": ["Low", "Medium", "High"][i % 3]
-            })
+            large_changes.append(
+                {
+                    "file": f"src/file_{i}.py",
+                    "type": "modified" if i % 3 != 0 else "added",
+                    "lines_added": i % 20,
+                    "lines_removed": i % 10,
+                    "semantic_category": ["feature", "fix", "refactor", "tests"][i % 4],
+                    "risk_level": ["Low", "Medium", "High"][i % 3],
+                }
+            )
 
         # Act - measure analysis performance
         start_time = time.time()
@@ -624,7 +661,7 @@ just some text"""
             "categories": {},
             "risk_levels": {},
             "total_lines_added": sum(c["lines_added"] for c in large_changes),
-            "total_lines_removed": sum(c["lines_removed"] for c in large_changes)
+            "total_lines_removed": sum(c["lines_removed"] for c in large_changes),
         }
 
         for change in large_changes:

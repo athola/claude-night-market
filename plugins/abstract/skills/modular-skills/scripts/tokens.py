@@ -43,7 +43,8 @@ if __name__ == "__main__":
         print(f"📝 Frontmatter: {result['frontmatter_tokens']:,}")
         print(f"📄 Body content: {result['body_tokens']:,}")
         print(
-            f"💻 Code blocks: {result['code_tokens']:,} ({result['code_blocks_count']} blocks)"
+            f"💻 Code blocks: {result['code_tokens']:,} "
+            f"({result['code_blocks_count']} blocks)"
         )
 
         # Visual breakdown

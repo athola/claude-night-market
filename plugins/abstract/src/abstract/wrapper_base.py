@@ -1,4 +1,6 @@
-"""Superpower wrapper infrastructure for translating between plugin commands and superpowers."""
+"""Superpower wrapper infrastructure for translating between plugin commands
+and superpowers.
+"""
 
 from pathlib import Path
 from typing import Any
@@ -122,7 +124,9 @@ class SuperpowerWrapper:
                 ToolError(
                     severity=ErrorSeverity.MEDIUM,
                     error_code="PARAMETER_TRANSLATION_ERROR",
-                    message=f"Parameter translation completed with {len(translation_errors)} errors",
+                    message=(
+                        f"Parameter translation completed with {len(translation_errors)} errors"
+                    ),
                     details="; ".join(translation_errors),
                     context={
                         "original_params": params,
@@ -184,7 +188,7 @@ class SuperpowerWrapper:
                         context={"config_path": str(self.config_path)},
                     )
                 )
-                raise ValueError(f"Invalid YAML config: {str(e)}")
+                raise ValueError(f"Invalid YAML config: {str(e)}") from e
             except Exception as e:
                 self.error_handler.log_error(
                     ToolError(
@@ -194,13 +198,15 @@ class SuperpowerWrapper:
                         context={"config_path": str(self.config_path)},
                     )
                 )
-                raise ValueError(f"Failed to load config: {str(e)}")
+                raise ValueError(f"Failed to load config: {str(e)}") from e
         else:
             self.error_handler.log_error(
                 ToolError(
                     severity=ErrorSeverity.MEDIUM,
                     error_code="CONFIG_NOT_FOUND",
-                    message=f"Config file not found, using defaults: {self.config_path}",
+                    message=(
+                        f"Config file not found, using defaults: {self.config_path}"
+                    ),
                     suggestion="Create a config file or use default mapping",
                     context={"config_path": str(self.config_path)},
                 )
@@ -225,7 +231,9 @@ class SuperpowerWrapper:
                 ToolError(
                     severity=ErrorSeverity.HIGH,
                     error_code="TRANSLATION_FAILED",
-                    message="Translation resulted in empty parameters from non-empty input",
+                    message=(
+                        "Translation resulted in empty parameters from non-empty input"
+                    ),
                     context={
                         "original": original_params,
                         "translated": translated_params,
@@ -247,8 +255,12 @@ class SuperpowerWrapper:
                 ToolError(
                     severity=ErrorSeverity.MEDIUM,
                     error_code="MISSING_MAPPINGS",
-                    message=f"No mapping found for parameters: {', '.join(missing_mappings)}",
-                    suggestion=f"Add mappings for: {', '.join(missing_mappings)}",
+                    message=(
+                        f"No mapping found for parameters: {', '.join(missing_mappings)}"
+                    ),
+                    suggestion=(
+                        f"Add mappings for: {', '.join(missing_mappings)}"
+                    ),
                     context={"missing_mappings": missing_mappings},
                 )
             )

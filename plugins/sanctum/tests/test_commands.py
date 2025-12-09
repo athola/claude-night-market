@@ -37,8 +37,12 @@ class TestCatchupCommand:
             branch="main",
             behind=3,
             ahead=0,
-            commit_details=["Fix critical bug", "Update dependencies", "Add new feature"],
-            remote="origin"
+            commit_details=[
+                "Fix critical bug",
+                "Update dependencies",
+                "Add new feature",
+            ],
+            remote="origin",
         )
 
         # Assert
@@ -57,10 +61,7 @@ class TestCatchupCommand:
 
         # Act - simulate calling catchup workflow
         catchup_result = self._execute_catchup_workflow(
-            branch="feature/branch",
-            behind=0,
-            ahead=2,
-            local_commits=2
+            branch="feature/branch", behind=0, ahead=2, local_commits=2
         )
 
         # Assert
@@ -79,14 +80,17 @@ class TestCatchupCommand:
             behind=2,
             ahead=1,
             is_diverged=True,
-            recommendations=["merge", "rebase"]
+            recommendations=["merge", "rebase"],
         )
 
         # Assert
         assert catchup_result["status"]["ahead"] == 1
         assert catchup_result["status"]["behind"] == 2
         assert catchup_result["is_diverged"] is True
-        assert "merge" in catchup_result["recommendations"] or "rebase" in catchup_result["recommendations"]
+        assert (
+            "merge" in catchup_result["recommendations"]
+            or "rebase" in catchup_result["recommendations"]
+        )
 
     def test_catchup_command_handles_clean_repository(self):
         """GIVEN a clean repository up to date with remote
@@ -95,10 +99,7 @@ class TestCatchupCommand:
         """
         # Act - simulate calling catchup workflow with clean state
         catchup_result = self._execute_catchup_workflow(
-            branch="main",
-            behind=0,
-            ahead=0,
-            is_clean=True
+            branch="main", behind=0, ahead=0, is_clean=True
         )
 
         # Assert
@@ -118,27 +119,29 @@ class TestCatchupCommand:
         local_commits: int = 0,
         is_diverged: bool = False,
         is_clean: bool = False,
-        recommendations: list[str] = None
+        recommendations: list[str] = None,
     ) -> dict:
         """Execute the catchup workflow simulation with configurable state."""
         workflow_result = {
             "command": "/catchup",
             "skills_used": ["git-workspace-review"],
             "actions_taken": [],
-            "message": "Repository is up to date" if is_clean else "Changes detected"
+            "message": "Repository is up to date" if is_clean else "Changes detected",
         }
 
-        workflow_result.update({
-            "current_branch": branch,
-            "status": {"behind": behind, "ahead": ahead},
-            "missing_commits": behind,
-            "remote": remote,
-            "commit_details": commit_details or [],
-            "local_commits": local_commits,
-            "is_diverged": is_diverged,
-            "is_clean": is_clean,
-            "recommendations": recommendations or []
-        })
+        workflow_result.update(
+            {
+                "current_branch": branch,
+                "status": {"behind": behind, "ahead": ahead},
+                "missing_commits": behind,
+                "remote": remote,
+                "commit_details": commit_details or [],
+                "local_commits": local_commits,
+                "is_diverged": is_diverged,
+                "is_clean": is_clean,
+                "recommendations": recommendations or [],
+            }
+        )
 
         return workflow_result
 
@@ -146,7 +149,9 @@ class TestCatchupCommand:
 class TestCommitMsgCommand:
     """BDD tests for the /commit-msg command."""
 
-    def test_commit_msg_command_generates_conventional_commit(self, staged_changes_context):
+    def test_commit_msg_command_generates_conventional_commit(
+        self, staged_changes_context
+    ):
         """GIVEN staged changes in the repository
         WHEN /commit-msg is executed
         THEN it should generate a conventional commit message.
@@ -154,7 +159,7 @@ class TestCommitMsgCommand:
         # Act - simulate commit message generation with staged files
         commit_result = self._execute_commit_msg_workflow(
             has_staged=True,
-            commit_message="feat: Add user authentication feature\n\nImplements login functionality with OAuth2 support"
+            commit_message="feat: Add user authentication feature\n\nImplements login functionality with OAuth2 support",
         )
 
         # Assert
@@ -171,7 +176,7 @@ class TestCommitMsgCommand:
         # Act - simulate commit message generation for bug fix
         commit_result = self._execute_commit_msg_workflow(
             has_staged=True,
-            commit_message="fix: Resolve null pointer exception in module initialization"
+            commit_message="fix: Resolve null pointer exception in module initialization",
         )
 
         # Assert
@@ -198,7 +203,7 @@ class TestCommitMsgCommand:
         # Arrange
         skill_sequence = [
             {"skill": "sanctum:git-workspace-review", "expected_todos": 2},
-            {"skill": "sanctum:commit-messages", "expected_todos": 3}
+            {"skill": "sanctum:commit-messages", "expected_todos": 3},
         ]
 
         captured_calls = []
@@ -218,9 +223,7 @@ class TestCommitMsgCommand:
         assert captured_calls[1]["count"] == 3  # commit-messages todos
 
     def _execute_commit_msg_workflow(
-        self,
-        has_staged: bool = True,
-        commit_message: str = None
+        self, has_staged: bool = True, commit_message: str = None
     ) -> dict:
         """Execute the commit-msg workflow simulation with configurable state."""
         workflow_result = {
@@ -231,10 +234,14 @@ class TestCommitMsgCommand:
         if has_staged:
             workflow_result["status"] = "success"
             workflow_result["commit_message"] = commit_message or "feat: Add feature"
-            workflow_result["suggested_command"] = f'git commit -m "{workflow_result["commit_message"].split(chr(10))[0]}"'
+            workflow_result["suggested_command"] = (
+                f'git commit -m "{workflow_result["commit_message"].split(chr(10))[0]}"'
+            )
         else:
             workflow_result["status"] = "no_changes"
-            workflow_result["message"] = "No staged changes found. Stage changes with 'git add' first."
+            workflow_result["message"] = (
+                "No staged changes found. Stage changes with 'git add' first."
+            )
 
         return workflow_result
 
@@ -242,7 +249,10 @@ class TestCommitMsgCommand:
         """Simulate the command's skill execution sequence."""
         for step in sequence:
             # Simulate skill creating todos
-            todos = [{"content": f"Todo {i}", "status": "completed"} for i in range(step["expected_todos"])]
+            todos = [
+                {"content": f"Todo {i}", "status": "completed"}
+                for i in range(step["expected_todos"])
+            ]
             mock_todo(todos)
 
 
@@ -291,7 +301,9 @@ class TestPRCommand:
         # Assert
         assert "suggested_reviewers" in pr_result
         assert len(pr_result["suggested_reviewers"]) > 0
-        assert any("team" in reviewer.lower() for reviewer in pr_result["suggested_reviewers"])
+        assert any(
+            "team" in reviewer.lower() for reviewer in pr_result["suggested_reviewers"]
+        )
 
     def _execute_pr_workflow(self, context: dict = None) -> dict:
         """Execute the PR preparation workflow simulation."""
@@ -301,16 +313,17 @@ class TestPRCommand:
         workflow_result = {
             "command": "/pr",
             "skills_used": ["git-workspace-review", "file-analysis", "pr-prep"],
-            "status": "ready"
+            "status": "ready",
         }
 
         # Simulate PR analysis
-        workflow_result.update({
-            "source_branch": context.get("feature_branch", "feature/branch"),
-            "target_branch": context.get("base_branch", "main"),
-            "commit_count": len(context.get("commits", [])),
-            "changed_files": [f["path"] for f in context.get("changed_files", [])],
-            "pr_description": """## Summary
+        workflow_result.update(
+            {
+                "source_branch": context.get("feature_branch", "feature/branch"),
+                "target_branch": context.get("base_branch", "main"),
+                "commit_count": len(context.get("commits", [])),
+                "changed_files": [f["path"] for f in context.get("changed_files", [])],
+                "pr_description": """## Summary
 
 Implements new functionality with comprehensive test coverage.
 
@@ -326,15 +339,20 @@ Implements new functionality with comprehensive test coverage.
 - [ ] Run integration tests
 - [ ] Review documentation
 """,
-            "quality_gates": {
-                "has_tests": any(f["type"] == "test" for f in context.get("changed_files", [])),
-                "has_documentation": any(f["type"] == "docs" for f in context.get("changed_files", [])),
-                "describes_changes": len(context.get("commits", [])) > 0,
-                "passes_ci": True,  # Would check actual CI status
-                "overall_status": "ready"
-            },
-            "suggested_reviewers": ["@backend-team", "@qa-team", "@docs-team"]
-        })
+                "quality_gates": {
+                    "has_tests": any(
+                        f["type"] == "test" for f in context.get("changed_files", [])
+                    ),
+                    "has_documentation": any(
+                        f["type"] == "docs" for f in context.get("changed_files", [])
+                    ),
+                    "describes_changes": len(context.get("commits", [])) > 0,
+                    "passes_ci": True,  # Would check actual CI status
+                    "overall_status": "ready",
+                },
+                "suggested_reviewers": ["@backend-team", "@qa-team", "@docs-team"],
+            }
+        )
 
         return workflow_result
 
@@ -378,20 +396,25 @@ class TestUpdateDocsCommand:
 
         if has_changes:
             workflow_result["status"] = "updates_needed"
-            workflow_result.update({
-                "code_changes": ["api.py", "utils.py"],
-                "new_functions": ["get_data", "helper"],
-                "existing_docs": ["README.md", "api.md"],
-                "suggestions": [
-                    "Document get_data() function in api.md",
-                    "Add usage examples to README.md",
-                    "Update API documentation with new endpoints"
-                ],
-                "auto_updates": [
-                    {"file": "README.md", "change": "Add get_data to API reference"},
-                    {"file": "api.md", "change": "Document new endpoint"}
-                ]
-            })
+            workflow_result.update(
+                {
+                    "code_changes": ["api.py", "utils.py"],
+                    "new_functions": ["get_data", "helper"],
+                    "existing_docs": ["README.md", "api.md"],
+                    "suggestions": [
+                        "Document get_data() function in api.md",
+                        "Add usage examples to README.md",
+                        "Update API documentation with new endpoints",
+                    ],
+                    "auto_updates": [
+                        {
+                            "file": "README.md",
+                            "change": "Add get_data to API reference",
+                        },
+                        {"file": "api.md", "change": "Document new endpoint"},
+                    ],
+                }
+            )
         else:
             workflow_result["status"] = "no_changes"
             workflow_result["message"] = "No code changes detected"
@@ -422,7 +445,7 @@ class TestUpdateReadmeCommand:
         workflow_result = {
             "command": "/update-readme",
             "skills_used": ["git-workspace-review", "update-readme"],
-            "status": "updated"
+            "status": "updated",
         }
 
         # Simulate README modernization
@@ -456,18 +479,20 @@ main()
 This project is licensed under the MIT License - see the LICENSE file for details.
 """
 
-        workflow_result.update({
-            "original_sections": ["Project", "Simple project description"],
-            "added_sections": ["Installation", "Usage", "Contributing", "License"],
-            "updated_content": updated_readme,
-            "improvements": [
-                "Added installation instructions",
-                "Added usage examples",
-                "Added contributing guidelines",
-                "Added license section",
-                "Improved formatting and structure"
-            ]
-        })
+        workflow_result.update(
+            {
+                "original_sections": ["Project", "Simple project description"],
+                "added_sections": ["Installation", "Usage", "Contributing", "License"],
+                "updated_content": updated_readme,
+                "improvements": [
+                    "Added installation instructions",
+                    "Added usage examples",
+                    "Added contributing guidelines",
+                    "Added license section",
+                    "Improved formatting and structure",
+                ],
+            }
+        )
 
         return workflow_result
 
@@ -507,8 +532,9 @@ class TestUpdateVersionCommand:
         # Act & Assert
         for case in test_cases:
             new_version = self._calculate_version_bump(case["current"], case["bump"])
-            assert new_version == case["expected"], \
+            assert new_version == case["expected"], (
                 f"Failed: {case['current']} + {case['bump']} should be {case['expected']}"
+            )
 
     def _execute_update_version_workflow(self, bump_type: str) -> dict:
         """Execute the update-version workflow simulation."""
@@ -516,28 +542,42 @@ class TestUpdateVersionCommand:
             "command": "/update-version",
             "skills_used": ["git-workspace-review", "version-updates"],
             "status": "updated",
-            "bump_type": bump_type
+            "bump_type": bump_type,
         }
 
         current_version = "1.0.0"
         new_version = self._calculate_version_bump(current_version, bump_type)
 
-        workflow_result.update({
-            "old_version": current_version,
-            "new_version": new_version,
-            "updated_files": [
-                {"file": "package.json", "old": f'"version": "{current_version}"', "new": f'"version": "{new_version}"'},
-                {"file": "setup.py", "old": f"version='{current_version}'", "new": f"version='{new_version}'"},
-                {"file": "src/__init__.py", "old": f'__version__ = "{current_version}"', "new": f'__version__ = "{new_version}"'}
-            ],
-            "changes_committed": True
-        })
+        workflow_result.update(
+            {
+                "old_version": current_version,
+                "new_version": new_version,
+                "updated_files": [
+                    {
+                        "file": "package.json",
+                        "old": f'"version": "{current_version}"',
+                        "new": f'"version": "{new_version}"',
+                    },
+                    {
+                        "file": "setup.py",
+                        "old": f"version='{current_version}'",
+                        "new": f"version='{new_version}'",
+                    },
+                    {
+                        "file": "src/__init__.py",
+                        "old": f'__version__ = "{current_version}"',
+                        "new": f'__version__ = "{new_version}"',
+                    },
+                ],
+                "changes_committed": True,
+            }
+        )
 
         return workflow_result
 
     def _calculate_version_bump(self, current: str, bump_type: str) -> str:
         """Calculate new version after bump."""
-        major, minor, patch = map(int, current.split('.'))
+        major, minor, patch = map(int, current.split("."))
 
         if bump_type == "patch":
             patch += 1

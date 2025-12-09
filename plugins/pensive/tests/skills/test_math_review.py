@@ -71,7 +71,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = precision_issues_code
 
         # Act
-        precision_analysis = self.skill.analyze_numerical_precision(mock_skill_context, "math_utils.py")
+        precision_analysis = self.skill.analyze_numerical_precision(
+            mock_skill_context, "math_utils.py"
+        )
 
         # Assert
         assert "precision_issues" in precision_analysis
@@ -124,7 +126,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = overflow_code
 
         # Act
-        overflow_analysis = self.skill.analyze_integer_overflow(mock_skill_context, "combinatorics.py")
+        overflow_analysis = self.skill.analyze_integer_overflow(
+            mock_skill_context, "combinatorics.py"
+        )
 
         # Assert
         assert "overflow_risks" in overflow_analysis
@@ -177,7 +181,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = matrix_code
 
         # Act
-        matrix_analysis = self.skill.analyze_matrix_stability(mock_skill_context, "linear_algebra.py")
+        matrix_analysis = self.skill.analyze_matrix_stability(
+            mock_skill_context, "linear_algebra.py"
+        )
 
         # Assert
         assert "instability_patterns" in matrix_analysis
@@ -234,7 +240,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = statistical_code
 
         # Act
-        statistical_analysis = self.skill.analyze_statistical_fallacies(mock_skill_context, "statistics.py")
+        statistical_analysis = self.skill.analyze_statistical_fallacies(
+            mock_skill_context, "statistics.py"
+        )
 
         # Assert
         assert "correlation_causation_fallacy" in statistical_analysis
@@ -302,7 +310,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = optimization_code
 
         # Act
-        optimization_analysis = self.skill.analyze_optimization_algorithms(mock_skill_context, "optimization.py")
+        optimization_analysis = self.skill.analyze_optimization_algorithms(
+            mock_skill_context, "optimization.py"
+        )
 
         # Assert
         assert "convergence_issues" in optimization_analysis
@@ -367,7 +377,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = calculus_code
 
         # Act
-        calculus_analysis = self.skill.analyze_calculus_implementations(mock_skill_context, "calculus.py")
+        calculus_analysis = self.skill.analyze_calculus_implementations(
+            mock_skill_context, "calculus.py"
+        )
 
         # Assert
         assert "numerical_errors" in calculus_analysis
@@ -428,7 +440,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = probability_code
 
         # Act
-        probability_analysis = self.skill.analyze_probability_distributions(mock_skill_context, "probability.py")
+        probability_analysis = self.skill.analyze_probability_distributions(
+            mock_skill_context, "probability.py"
+        )
 
         # Assert
         assert "distribution_errors" in probability_analysis
@@ -491,7 +505,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = geometry_code
 
         # Act
-        geometry_analysis = self.skill.analyze_geometry_trigonometry(mock_skill_context, "geometry.py")
+        geometry_analysis = self.skill.analyze_geometry_trigonometry(
+            mock_skill_context, "geometry.py"
+        )
 
         # Assert
         assert "formula_errors" in geometry_analysis
@@ -552,7 +568,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = complexity_code
 
         # Act
-        complexity_analysis = self.skill.analyze_computational_complexity(mock_skill_context, "algorithms.py")
+        complexity_analysis = self.skill.analyze_computational_complexity(
+            mock_skill_context, "algorithms.py"
+        )
 
         # Assert
         assert "complexity_issues" in complexity_analysis
@@ -616,7 +634,9 @@ class TestMathReviewSkill:
         mock_skill_context.get_file_content.return_value = proof_code
 
         # Act
-        proof_analysis = self.skill.analyze_mathematical_proofs(mock_skill_context, "proofs.py")
+        proof_analysis = self.skill.analyze_mathematical_proofs(
+            mock_skill_context, "proofs.py"
+        )
 
         # Assert
         assert "logical_correctness" in proof_analysis
@@ -637,7 +657,7 @@ class TestMathReviewSkill:
             "statistical_fallacies": 2,
             "total_algorithms": 15,
             "high_risk_algorithms": 3,
-            "findings": sample_findings
+            "findings": sample_findings,
         }
 
         # Act
@@ -661,11 +681,13 @@ class TestMathReviewSkill:
             "has_stability_problems": True,
             "uses_unstable_algorithms": True,
             "lacks_error_bounds": True,
-            "missing_convergence_checks": True
+            "missing_convergence_checks": True,
         }
 
         # Act
-        recommendations = self.skill.generate_mathematical_recommendations(analysis_results)
+        recommendations = self.skill.generate_mathematical_recommendations(
+            analysis_results
+        )
 
         # Assert
         assert len(recommendations) > 0

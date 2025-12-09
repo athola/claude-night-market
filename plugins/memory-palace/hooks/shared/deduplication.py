@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 # Try to use xxhash for speed, fall back to hashlib
 try:
     import xxhash
+
     _USE_XXHASH = True
 except ImportError:
     _USE_XXHASH = False
@@ -41,7 +42,7 @@ def get_content_hash(content: str | bytes) -> str:
     Uses xxhash if available (10x faster), otherwise SHA256.
     """
     if isinstance(content, str):
-        content = content.encode('utf-8')
+        content = content.encode("utf-8")
 
     if _USE_XXHASH:
         return f"xxh:{xxhash.xxh64(content).hexdigest()}"
@@ -52,15 +53,16 @@ def get_content_hash(content: str | bytes) -> str:
 def get_url_key(url: str) -> str:
     """Normalize URL for consistent keying."""
     # Remove trailing slashes, fragments, common tracking params
-    url = url.rstrip('/')
-    if '#' in url:
-        url = url.split('#')[0]
+    url = url.rstrip("/")
+    if "#" in url:
+        url = url.split("#")[0]
 
     # Remove common tracking parameters
-    for param in ['utm_source', 'utm_medium', 'utm_campaign', 'ref']:
-        if f'?{param}=' in url or f'&{param}=' in url:
+    for param in ["utm_source", "utm_medium", "utm_campaign", "ref"]:
+        if f"?{param}=" in url or f"&{param}=" in url:
             import re
-            url = re.sub(rf'[?&]{param}=[^&]*', '', url)
+
+            url = re.sub(rf"[?&]{param}=[^&]*", "", url)
 
     return url.lower()
 
@@ -95,7 +97,9 @@ def _load_index() -> dict[str, Any]:
         return _index_cache
 
 
-def is_known(content_hash: str | None = None, url: str | None = None, path: str | None = None) -> bool:
+def is_known(
+    content_hash: str | None = None, url: str | None = None, path: str | None = None
+) -> bool:
     """Fast check if content is already indexed.
 
     Can check by hash, URL, or path. Returns True if any match.
@@ -208,12 +212,10 @@ def update_index(
 
     # Write to temp file in same directory (ensures same filesystem for atomic rename)
     fd, tmp_path = tempfile.mkstemp(
-        suffix='.tmp',
-        prefix='memory-palace-index-',
-        dir=index_path.parent
+        suffix=".tmp", prefix="memory-palace-index-", dir=index_path.parent
     )
     try:
-        with os.fdopen(fd, 'w') as f:
+        with os.fdopen(fd, "w") as f:
             yaml.safe_dump(index, f, default_flow_style=False, sort_keys=False)
         # Atomic rename (works on POSIX, best-effort on Windows)
         os.replace(tmp_path, index_path)

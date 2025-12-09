@@ -32,11 +32,7 @@ class QueryTemplateManager:
         self.corpus_dir = Path(corpus_dir)
         self.index_dir = Path(index_dir)
         self.index_file = self.index_dir / "query-templates.yaml"
-        self.index: dict[str, Any] = {
-            "entries": {},
-            "queries": {},
-            "metadata": {}
-        }
+        self.index: dict[str, Any] = {"entries": {}, "queries": {}, "metadata": {}}
 
     def extract_queries(self, entry_path: Path) -> list[str]:
         """Extract query templates from a single knowledge entry.
@@ -89,10 +85,10 @@ class QueryTemplateManager:
         normalized = query.lower()
 
         # Remove punctuation except spaces and hyphens
-        normalized = re.sub(r'[^\w\s-]', ' ', normalized)
+        normalized = re.sub(r"[^\w\s-]", " ", normalized)
 
         # Collapse multiple spaces
-        normalized = re.sub(r'\s+', ' ', normalized)
+        normalized = re.sub(r"\s+", " ", normalized)
 
         return normalized.strip()
 
@@ -112,11 +108,49 @@ class QueryTemplateManager:
 
         # Filter stop words
         stop_words = {
-            'the', 'and', 'for', 'that', 'this', 'with', 'from', 'are', 'was', 'were',
-            'been', 'have', 'has', 'had', 'not', 'but', 'can', 'will', 'what', 'when',
-            'where', 'who', 'why', 'how', 'all', 'each', 'which', 'their', 'said',
-            'them', 'these', 'than', 'into', 'very', 'her', 'our', 'out', 'only',
-            'does', 'did', 'should', 'could', 'would'
+            "the",
+            "and",
+            "for",
+            "that",
+            "this",
+            "with",
+            "from",
+            "are",
+            "was",
+            "were",
+            "been",
+            "have",
+            "has",
+            "had",
+            "not",
+            "but",
+            "can",
+            "will",
+            "what",
+            "when",
+            "where",
+            "who",
+            "why",
+            "how",
+            "all",
+            "each",
+            "which",
+            "their",
+            "said",
+            "them",
+            "these",
+            "than",
+            "into",
+            "very",
+            "her",
+            "our",
+            "out",
+            "only",
+            "does",
+            "did",
+            "should",
+            "could",
+            "would",
         }
 
         keywords = {w for w in words if len(w) >= 3 and w not in stop_words}
@@ -186,7 +220,7 @@ class QueryTemplateManager:
             entries[entry_id] = {
                 "file": str(md_file.relative_to(self.corpus_dir.parent)),
                 "queries": queries,
-                "title": title
+                "title": title,
             }
 
             # Build query mappings
@@ -202,8 +236,8 @@ class QueryTemplateManager:
             "metadata": {
                 "total_entries": len(entries),
                 "total_queries": total_queries,
-                "last_updated": datetime.now().isoformat()
-            }
+                "last_updated": datetime.now().isoformat(),
+            },
         }
 
         # Save to disk
@@ -213,18 +247,14 @@ class QueryTemplateManager:
         """Save the index to disk as YAML."""
         self.index_dir.mkdir(parents=True, exist_ok=True)
 
-        with open(self.index_file, 'w') as f:
+        with open(self.index_file, "w") as f:
             yaml.safe_dump(self.index, f, default_flow_style=False, sort_keys=False)
 
     def load_index(self) -> None:
         """Load the index from disk."""
         if self.index_file.exists():
             with open(self.index_file) as f:
-                self.index = yaml.safe_load(f) or {
-                    "entries": {},
-                    "queries": {},
-                    "metadata": {}
-                }
+                self.index = yaml.safe_load(f) or {"entries": {}, "queries": {}, "metadata": {}}
 
     def search(self, query: str, threshold: float = 0.3) -> list[dict[str, Any]]:
         """Search for entries that answer the given query.

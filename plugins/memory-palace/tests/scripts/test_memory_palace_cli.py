@@ -11,7 +11,6 @@ Note: The actual CLI at scripts/memory_palace_cli.py has import path issues
 underlying business logic directly via the MemoryPalaceManager class.
 """
 
-
 # ruff: noqa: S101
 import json
 from datetime import datetime
@@ -24,9 +23,7 @@ from memory_palace.palace_manager import MemoryPalaceManager
 class TestPalaceManagementWorkflows:
     """Integration tests for complete palace management workflows."""
 
-    def test_create_list_delete_workflow(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_create_list_delete_workflow(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Complete workflow: create palace, verify in list, delete."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -170,9 +167,7 @@ class TestGardenTendingWorkflows:
 class TestConcurrentOperations:
     """Tests for concurrent/interleaved operations."""
 
-    def test_multiple_managers_same_directory(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_multiple_managers_same_directory(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Multiple managers can operate on same directory."""
         manager1 = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -235,13 +230,13 @@ class TestEdgeCases:
             palaces_dir_override=str(temp_palaces_dir),
         )
 
-        palace = manager.create_palace("Test's \"Special\" Palace!", "testing")
+        palace = manager.create_palace('Test\'s "Special" Palace!', "testing")
 
-        assert palace["name"] == "Test's \"Special\" Palace!"
+        assert palace["name"] == 'Test\'s "Special" Palace!'
 
         # Can reload
         loaded = manager.load_palace(palace["id"])
-        assert loaded["name"] == "Test's \"Special\" Palace!"
+        assert loaded["name"] == 'Test\'s "Special" Palace!'
 
     def test_empty_search_query(
         self, temp_config_file: Path, temp_palaces_dir: Path, multiple_palaces: list
@@ -257,9 +252,7 @@ class TestEdgeCases:
         # Should not crash, may return all or none depending on implementation
         assert isinstance(results, list)
 
-    def test_very_long_palace_name(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_very_long_palace_name(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Very long palace names are handled."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -271,9 +264,7 @@ class TestEdgeCases:
 
         assert palace["name"] == long_name
 
-    def test_unicode_in_palace_data(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_unicode_in_palace_data(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Unicode characters in palace data are preserved."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -292,9 +283,7 @@ class TestEdgeCases:
 class TestDataIntegrity:
     """Tests for data integrity and consistency."""
 
-    def test_master_index_consistency(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_master_index_consistency(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Master index stays consistent with actual palace files."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -318,12 +307,12 @@ class TestDataIntegrity:
 
         index_after = manager.get_master_index()
         assert index_after["global_stats"]["total_palaces"] == 2
-        assert "domain2" not in index_after["global_stats"]["domains"] or \
-               index_after["global_stats"]["domains"]["domain2"] == 0
+        assert (
+            "domain2" not in index_after["global_stats"]["domains"]
+            or index_after["global_stats"]["domains"]["domain2"] == 0
+        )
 
-    def test_palace_file_contains_valid_json(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_palace_file_contains_valid_json(self, temp_config_file: Path, temp_palaces_dir: Path):
         """All palace files are valid JSON."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),

@@ -71,7 +71,9 @@ help:
         assert "error_handling" in structure_analysis
         assert "hardcoded_paths" in structure_analysis
         assert "variable_usage" in structure_analysis
-        assert len(structure_analysis["missing_phony"]) >= 4  # build, test, clean, install
+        assert (
+            len(structure_analysis["missing_phony"]) >= 4
+        )  # build, test, clean, install
 
     @pytest.mark.unit
     def test_analyzes_dependency_management(self, mock_skill_context):
@@ -550,11 +552,13 @@ old_style:
             "portability_issues": 4,
             "security_vulnerabilities": 2,
             "variable_problems": 3,
-            "target_organization_issues": 4
+            "target_organization_issues": 4,
         }
 
         # Act
-        recommendations = self.skill.generate_makefile_recommendations(makefile_analysis)
+        recommendations = self.skill.generate_makefile_recommendations(
+            makefile_analysis
+        )
 
         # Assert
         assert len(recommendations) > 0
@@ -585,7 +589,7 @@ old_style:
             "missing_phony": 9,
             "security_issues": 2,
             "optimization_opportunities": 8,
-            "findings": sample_findings
+            "findings": sample_findings,
         }
 
         # Act
@@ -600,7 +604,7 @@ old_style:
         assert "## Recommendations" in report
         assert "6.5" in report  # Overall score
         assert "12" in report  # Total targets
-        assert "2" in report   # Security issues
+        assert "2" in report  # Security issues
 
     @pytest.mark.unit
     def test_handles_multiple_makefiles(self, mock_skill_context):
@@ -614,7 +618,6 @@ all: main
 main: main.c
 	$(CC) $(CFLAGS) -o main main.c
             """,
-
             "tests/Makefile": """
 CC = gcc
 CFLAGS = -g -Wall
@@ -622,13 +625,12 @@ all: test_runner
 test_runner: test_main.c
 	$(CC) $(CFLAGS) -o test_runner test_main.c
             """,
-
             "docs/Makefile": """
 all:
 	doxygen Doxyfile
 clean:
 	rm -rf html/
-            """
+            """,
         }
 
         def mock_get_file_content(path):
@@ -657,19 +659,16 @@ clean:
 include config.mk
 all: $(TARGET)
             """,
-
             "config.mk": """
 CC = gcc
 CFLAGS = -Wall -O2
 TARGET = myapp
             """,
-
             "CMakeLists.txt": """
 cmake_minimum_required(VERSION 3.10)
 project(MyApp)
 add_executable(myapp main.c)
             """,
-
             "package.json": """
 {
   "name": "myapp",
@@ -679,7 +678,6 @@ add_executable(myapp main.c)
   }
 }
             """,
-
             ".github/workflows/build.yml": """
 name: Build
 on: [push]
@@ -689,7 +687,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: make
-    """
+    """,
         }
 
         def mock_get_file_content(path):
@@ -700,7 +698,9 @@ jobs:
         mock_skill_context.get_files.return_value = list(project_files.keys())
 
         # Act
-        integration_analysis = self.skill.analyze_build_system_integration(mock_skill_context)
+        integration_analysis = self.skill.analyze_build_system_integration(
+            mock_skill_context
+        )
 
         # Assert
         assert "build_system_conflicts" in integration_analysis

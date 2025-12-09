@@ -6,7 +6,6 @@ BDD-style tests organized by behavior:
 - Handling edge cases (empty gardens, missing data)
 """
 
-
 # ruff: noqa: S101
 import json
 from datetime import timezone
@@ -197,9 +196,7 @@ class TestLinkDensityEdgeCases:
     def test_single_plot_isolated(self, fixed_timestamp):
         """Single isolated plot has zero link density."""
         data = {
-            "garden": {
-                "plots": [{"name": "lonely", "inbound_links": [], "outbound_links": []}]
-            }
+            "garden": {"plots": [{"name": "lonely", "inbound_links": [], "outbound_links": []}]}
         }
         metrics = compute_metrics(data, fixed_timestamp)
         assert metrics["link_density"] == 0.0
@@ -233,9 +230,7 @@ class TestRecencyEdgeCases:
     def test_just_tended_plot(self, fixed_timestamp):
         """Plot tended at exactly 'now' has 0 days since tend."""
         data = {
-            "garden": {
-                "plots": [{"name": "fresh", "last_tended": fixed_timestamp.isoformat()}]
-            }
+            "garden": {"plots": [{"name": "fresh", "last_tended": fixed_timestamp.isoformat()}]}
         }
         metrics = compute_metrics(data, fixed_timestamp)
         assert metrics["avg_days_since_tend"] == 0.0

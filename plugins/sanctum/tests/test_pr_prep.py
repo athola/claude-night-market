@@ -19,7 +19,7 @@ class TestPRPrepSkill:
         "has_documentation",
         "passes_checks",
         "describes_changes",
-        "includes_breaking_changes"
+        "includes_breaking_changes",
     ]
 
     def test_generates_comprehensive_pr_description(self, pull_request_context):
@@ -36,7 +36,7 @@ class TestPRPrepSkill:
             "feat: Add initial feature implementation\ntest: Add comprehensive test suite\ndocs: Update documentation",
             "src/feature.py\ntests/test_feature.py\ndocs/feature.md",  # Changed files
             "150",  # Lines added
-            "75",   # Lines deleted
+            "75",  # Lines deleted
         ]
 
         # Act - simulate PR description generation
@@ -56,7 +56,9 @@ class TestPRPrepSkill:
         # Arrange
         commits = pull_request_context["commits"]
         mock_bash = Mock()
-        mock_bash.return_value = "\n".join([f"{c['hash']} {c['message']}" for c in commits])
+        mock_bash.return_value = "\n".join(
+            [f"{c['hash']} {c['message']}" for c in commits]
+        )
 
         # Act - simulate getting commit history from mock
         commit_history = mock_bash("git log --oneline main..HEAD")
@@ -89,7 +91,9 @@ class TestPRPrepSkill:
         THEN it should report test coverage and quality metrics.
         """
         # Arrange
-        test_files = [f for f in pull_request_context["changed_files"] if f["type"] == "test"]
+        test_files = [
+            f for f in pull_request_context["changed_files"] if f["type"] == "test"
+        ]
 
         # Act
         test_analysis = self._analyze_test_coverage(test_files, pull_request_context)
@@ -110,11 +114,11 @@ class TestPRPrepSkill:
             "feature_branch": "feature/breaking",
             "commits": [
                 {"hash": "abc123", "message": "feat!: Change API response format"},
-                {"hash": "def456", "message": "feat: Add new endpoint"}
+                {"hash": "def456", "message": "feat: Add new endpoint"},
             ],
             "changed_files": [
                 {"path": "src/api.py", "changes": 200, "type": "breaking"}
-            ]
+            ],
         }
 
         # Act
@@ -152,7 +156,9 @@ class TestPRPrepSkill:
         quality_checklist = self._initialize_quality_gates()
 
         # Act
-        quality_status = self._validate_quality_gates(pull_request_context, quality_checklist)
+        quality_status = self._validate_quality_gates(
+            pull_request_context, quality_checklist
+        )
 
         # Assert
         assert quality_status["has_tests"] is True
@@ -189,7 +195,7 @@ class TestPRPrepSkill:
         reviewer_mapping = {
             "src/": ["@backend-team", "@tech-lead"],
             "tests/": ["@qa-team"],
-            "docs/": ["@docs-team"]
+            "docs/": ["@docs-team"],
         }
 
         # Act
@@ -209,12 +215,12 @@ class TestPRPrepSkill:
         performance_context = {
             "changed_files": [
                 {"path": "src/database.py", "changes": 150, "type": "performance"},
-                {"path": "src/cache.py", "changes": 80, "type": "performance"}
+                {"path": "src/cache.py", "changes": 80, "type": "performance"},
             ],
             "benchmarks": {
                 "before": {"queries_per_second": 1000, "response_time": 50},
-                "after": {"queries_per_second": 1500, "response_time": 35}
-            }
+                "after": {"queries_per_second": 1500, "response_time": 35},
+            },
         }
 
         # Act
@@ -253,11 +259,11 @@ class TestPRPrepSkill:
         compatibility_context = {
             "api_changes": [
                 {"endpoint": "/api/v1/users", "change": "response format updated"},
-                {"endpoint": "/api/v1/auth", "change": "deprecated"}
+                {"endpoint": "/api/v1/auth", "change": "deprecated"},
             ],
             "config_changes": [
                 {"file": "config.yaml", "parameter": "timeout", "change": "new default"}
-            ]
+            ],
         }
 
         # Act
@@ -278,7 +284,7 @@ class TestPRPrepSkill:
             "base_branch": "main",
             "feature_branch": "feature/empty",
             "changed_files": [],
-            "commits": []
+            "commits": [],
         }
 
         # Act
@@ -296,12 +302,12 @@ class TestPRPrepSkill:
         security_context = {
             "changed_files": [
                 {"path": "src/auth.py", "changes": 100, "type": "security"},
-                {"path": "src/crypto.py", "changes": 50, "type": "security"}
+                {"path": "src/crypto.py", "changes": 50, "type": "security"},
             ],
             "security_changes": [
                 {"type": "authentication", "impact": "high"},
-                {"type": "encryption", "impact": "medium"}
-            ]
+                {"type": "encryption", "impact": "medium"},
+            ],
         }
 
         # Act
@@ -323,23 +329,23 @@ class TestPRPrepSkill:
             {
                 "content": "Analyze feature branch changes and commit history",
                 "status": "completed",
-                "activeForm": "Analyzed branch changes"
+                "activeForm": "Analyzed branch changes",
             },
             {
                 "content": "Generate comprehensive PR description with sections",
                 "status": "completed",
-                "activeForm": "Generated PR description"
+                "activeForm": "Generated PR description",
             },
             {
                 "content": "Validate PR quality gates and test coverage",
                 "status": "completed",
-                "activeForm": "Validated quality gates"
+                "activeForm": "Validated quality gates",
             },
             {
                 "content": "Create review checklist and merge recommendations",
                 "status": "completed",
-                "activeForm": "Created review checklist"
-            }
+                "activeForm": "Created review checklist",
+            },
         ]
 
         # Act
@@ -393,18 +399,26 @@ This pull request implements new functionality for the feature branch.
             "has_new_tests": len(test_files) > 0,
             "test_file_count": len(test_files),
             "test_changes": sum(f["changes"] for f in test_files),
-            "has_feature_tests": any("test" in f["path"] for f in context["changed_files"])
+            "has_feature_tests": any(
+                "test" in f["path"] for f in context["changed_files"]
+            ),
         }
 
     def _detect_breaking_changes(self, context: dict) -> dict:
         """Detect breaking changes in commits and files."""
-        breaking_commits = [c["hash"] for c in context.get("commits", []) if "!" in c["message"]]
-        affected_files = [f["path"] for f in context.get("changed_files", []) if f["type"] == "breaking"]
+        breaking_commits = [
+            c["hash"] for c in context.get("commits", []) if "!" in c["message"]
+        ]
+        affected_files = [
+            f["path"]
+            for f in context.get("changed_files", [])
+            if f["type"] == "breaking"
+        ]
 
         return {
             "has_breaking_changes": bool(breaking_commits or affected_files),
             "breaking_commits": breaking_commits,
-            "affected_apis": affected_files
+            "affected_apis": affected_files,
         }
 
     def _generate_test_plan(self, files: list[dict]) -> str:
@@ -429,9 +443,13 @@ This pull request implements new functionality for the feature branch.
     def _validate_quality_gates(self, context: dict, gates: dict) -> dict:
         """Validate quality gates against PR context."""
         gates["has_tests"] = any(f["type"] == "test" for f in context["changed_files"])
-        gates["has_documentation"] = any(f["type"] == "docs" for f in context["changed_files"])
+        gates["has_documentation"] = any(
+            f["type"] == "docs" for f in context["changed_files"]
+        )
         gates["describes_changes"] = len(context["commits"]) > 0
-        gates["has_breaking_changes"] = any("!" in c["message"] for c in context["commits"])
+        gates["has_breaking_changes"] = any(
+            "!" in c["message"] for c in context["commits"]
+        )
         gates["passes_checks"] = True  # Would check CI status in real implementation
         return gates
 
@@ -464,18 +482,31 @@ This pull request implements new functionality for the feature branch.
             "has_performance_changes": len(perf_files) > 0,
             "affected_files": [f["path"] for f in perf_files],
             "metrics": context.get("benchmarks", {}),
-            "improvement": context.get("benchmarks", {}).get("after", {}).get("queries_per_second", 0) >
-                        context.get("benchmarks", {}).get("before", {}).get("queries_per_second", 0)
+            "improvement": context.get("benchmarks", {})
+            .get("after", {})
+            .get("queries_per_second", 0)
+            > context.get("benchmarks", {})
+            .get("before", {})
+            .get("queries_per_second", 0),
         }
 
     def _recommend_merge_strategy(self, files: list[dict]) -> dict:
         """Recommend merge strategy based on changes."""
         if any(f["type"] == "breaking" for f in files):
-            return {"strategy": "merge", "reasoning": "Preserve commit history for breaking changes"}
+            return {
+                "strategy": "merge",
+                "reasoning": "Preserve commit history for breaking changes",
+            }
         elif len(files) > 10:
-            return {"strategy": "squash", "reasoning": "Clean history for large feature branch"}
+            return {
+                "strategy": "squash",
+                "reasoning": "Clean history for large feature branch",
+            }
         else:
-            return {"strategy": "rebase", "reasoning": "Linear history for small feature branch"}
+            return {
+                "strategy": "rebase",
+                "reasoning": "Linear history for small feature branch",
+            }
 
     def _generate_compatibility_notes(self, context: dict) -> str:
         """Generate backward compatibility notes."""
@@ -494,7 +525,9 @@ This pull request implements new functionality for the feature branch.
         """Generate security review checklist."""
         checklist = "## Security Review\n\n"
         for change in context.get("security_changes", []):
-            checklist += f"- [ ] Review {change['type']} changes (Impact: {change['impact']})\n"
+            checklist += (
+                f"- [ ] Review {change['type']} changes (Impact: {change['impact']})\n"
+            )
         checklist += "\n### Required Reviewers\n"
         checklist += "- @security-team\n"
         return checklist

@@ -172,9 +172,7 @@ def test_context():
     def setup_method(self):
         """Setup test instance."""
         self.instance = CLASS_NAME()
-'''.replace(
-                "CLASS_NAME", cls.name
-            )
+'''.replace("CLASS_NAME", cls.name)
 
         for method in methods:
             test_content += f"\n    {self._generate_method_test(method, cls.name)}"

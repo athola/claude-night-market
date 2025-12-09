@@ -4,7 +4,6 @@ This module tests CPU/GPU performance monitoring, resource tracking,
 and alert functionality following TDD/BDD principles.
 """
 
-
 # ruff: noqa: S101
 from datetime import datetime, timezone
 
@@ -82,7 +81,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_performance_monitoring_creates_required_todowrite_items(self, mock_todo_write):
+    def test_performance_monitoring_creates_required_todowrite_items(
+        self, mock_todo_write
+    ):
         """Scenario: Performance monitoring creates required TodoWrite items
         Given the performance-monitoring skill is executed
         When establishing the monitoring workflow
@@ -95,7 +96,7 @@ tags:
             "performance-monitoring:threshold-analysis",
             "performance-monitoring:alert-evaluation",
             "performance-monitoring:optimization-recommendations",
-            "performance-monitoring:trend-analysis"
+            "performance-monitoring:trend-analysis",
         ]
 
         # Act - simulate performance-monitoring skill execution
@@ -104,18 +105,23 @@ tags:
             "performance-monitoring:threshold-analysis",
             "performance-monitoring:alert-evaluation",
             "performance-monitoring:optimization-recommendations",
-            "performance-monitoring:trend-analysis"
+            "performance-monitoring:trend-analysis",
         ]
 
         # Assert
         assert len(performance_monitoring_items) == 5
         for expected_item in expected_items:
             assert expected_item in performance_monitoring_items
-        assert all(item.startswith("performance-monitoring:") for item in performance_monitoring_items)
+        assert all(
+            item.startswith("performance-monitoring:")
+            for item in performance_monitoring_items
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_metrics_collection_gathers_comprehensive_data(self, mock_performance_monitor):
+    def test_metrics_collection_gathers_comprehensive_data(
+        self, mock_performance_monitor
+    ):
         """Scenario: Metrics collection gathers comprehensive performance data
         Given system resources in various states
         When collecting metrics
@@ -148,7 +154,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_threshold_analysis_identifies_performance_issues(self, mock_performance_monitor):
+    def test_threshold_analysis_identifies_performance_issues(
+        self, mock_performance_monitor
+    ):
         """Scenario: Threshold analysis identifies performance issues
         Given collected performance metrics
         When analyzing against thresholds
@@ -163,9 +171,9 @@ tags:
                     "cpu_usage": 25.5,
                     "memory_usage": 1024,
                     "token_usage": 5000,
-                    "context_efficiency": 0.85
+                    "context_efficiency": 0.85,
                 },
-                "expected_alerts": []
+                "expected_alerts": [],
             },
             {
                 "name": "warning_condition",
@@ -173,9 +181,12 @@ tags:
                     "cpu_usage": 85.2,
                     "memory_usage": 6144,
                     "token_usage": 8000,
-                    "context_efficiency": 0.65
+                    "context_efficiency": 0.65,
                 },
-                "expected_alerts": ["High CPU usage detected", "High token usage detected"]
+                "expected_alerts": [
+                    "High CPU usage detected",
+                    "High token usage detected",
+                ],
             },
             {
                 "name": "critical_condition",
@@ -183,10 +194,13 @@ tags:
                     "cpu_usage": 95.8,
                     "memory_usage": 14336,
                     "token_usage": 12000,
-                    "context_efficiency": 0.45
+                    "context_efficiency": 0.45,
                 },
-                "expected_alerts": ["High CPU usage detected", "High token usage detected"]
-            }
+                "expected_alerts": [
+                    "High CPU usage detected",
+                    "High token usage detected",
+                ],
+            },
         ]
 
         # Act & Assert
@@ -202,7 +216,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_alert_evaluation_prioritizes_critical_issues(self, mock_performance_monitor):
+    def test_alert_evaluation_prioritizes_critical_issues(
+        self, mock_performance_monitor
+    ):
         """Scenario: Alert evaluation prioritizes critical performance issues
         Given multiple performance alerts
         When evaluating alert priorities
@@ -216,7 +232,7 @@ tags:
                     "cpu_usage": 92.5,
                     "memory_usage": 8192,
                     "token_usage": 11000,
-                    "context_efficiency": 0.55
+                    "context_efficiency": 0.55,
                 }
             },
             {
@@ -224,9 +240,9 @@ tags:
                     "cpu_usage": 45.0,
                     "memory_usage": 15360,
                     "token_usage": 9000,
-                    "context_efficiency": 0.70
+                    "context_efficiency": 0.70,
                 }
-            }
+            },
         ]
 
         # Act - evaluate alerts and prioritize
@@ -236,7 +252,11 @@ tags:
             all_alerts.extend(alerts)
 
         # Prioritize alerts
-        critical_alerts = [alert for alert in all_alerts if "critical" in alert.lower() or "95%" in alert]
+        critical_alerts = [
+            alert
+            for alert in all_alerts
+            if "critical" in alert.lower() or "95%" in alert
+        ]
         [alert for alert in all_alerts if "warning" in alert.lower() or "80%" in alert]
 
         # Assert
@@ -251,7 +271,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_optimization_recommendations_suggest_improvements(self, sample_performance_metrics):
+    def test_optimization_recommendations_suggest_improvements(
+        self, sample_performance_metrics
+    ):
         """Scenario: Optimization recommendations suggest performance improvements
         Given performance metrics indicating inefficiencies
         When generating recommendations
@@ -264,7 +286,7 @@ tags:
             "memory_peak": 12288,
             "token_efficiency": 0.65,
             "context_waste": 0.35,
-            "response_time_avg": 2.8
+            "response_time_avg": 2.8,
         }
 
         # Act - generate optimization recommendations
@@ -272,33 +294,39 @@ tags:
 
         # CPU optimization
         if performance_data["cpu_avg"] > 70:
-            recommendations.append({
-                "area": "CPU Optimization",
-                "current_state": f"Average CPU usage: {performance_data['cpu_avg']}%",
-                "recommendation": "Implement task batching and reduce concurrent operations",
-                "estimated_improvement": "15-25% CPU reduction",
-                "implementation_effort": "Medium"
-            })
+            recommendations.append(
+                {
+                    "area": "CPU Optimization",
+                    "current_state": f"Average CPU usage: {performance_data['cpu_avg']}%",
+                    "recommendation": "Implement task batching and reduce concurrent operations",
+                    "estimated_improvement": "15-25% CPU reduction",
+                    "implementation_effort": "Medium",
+                }
+            )
 
         # Memory optimization
         if performance_data["memory_peak"] > 8192:  # > 8GB
-            recommendations.append({
-                "area": "Memory Optimization",
-                "current_state": f"Peak memory usage: {performance_data['memory_peak']}MB",
-                "recommendation": "Implement memory pooling and reduce object retention",
-                "estimated_improvement": "20-30% memory reduction",
-                "implementation_effort": "High"
-            })
+            recommendations.append(
+                {
+                    "area": "Memory Optimization",
+                    "current_state": f"Peak memory usage: {performance_data['memory_peak']}MB",
+                    "recommendation": "Implement memory pooling and reduce object retention",
+                    "estimated_improvement": "20-30% memory reduction",
+                    "implementation_effort": "High",
+                }
+            )
 
         # Token efficiency optimization
         if performance_data["token_efficiency"] < 0.8:
-            recommendations.append({
-                "area": "Token Efficiency",
-                "current_state": f"Token efficiency: {performance_data['token_efficiency']:.2%}",
-                "recommendation": "Apply context compression and prompt optimization",
-                "estimated_improvement": "25-40% token savings",
-                "implementation_effort": "Low"
-            })
+            recommendations.append(
+                {
+                    "area": "Token Efficiency",
+                    "current_state": f"Token efficiency: {performance_data['token_efficiency']:.2%}",
+                    "recommendation": "Apply context compression and prompt optimization",
+                    "estimated_improvement": "25-40% token savings",
+                    "implementation_effort": "Low",
+                }
+            )
 
         # Assert
         assert len(recommendations) >= 2  # At least CPU and token recommendations
@@ -318,7 +346,9 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_trend_analysis_identifies_patterns_over_time(self, mock_performance_monitor):
+    def test_trend_analysis_identifies_patterns_over_time(
+        self, mock_performance_monitor
+    ):
         """Scenario: Trend analysis identifies performance patterns over time
         Given historical performance data
         When analyzing trends
@@ -335,19 +365,33 @@ tags:
         for i in range(24):  # 24 hours of data
             hour_offset = i
             # Simulate daily pattern with growth trend
-            cpu_usage = base_cpu + (hour_offset * 0.5) + (10 if 14 <= hour_offset <= 18 else 0)  # Peak afternoon
-            memory_usage = base_memory + (hour_offset * 50) + (1024 if 14 <= hour_offset <= 18 else 0)
+            cpu_usage = (
+                base_cpu + (hour_offset * 0.5) + (10 if 14 <= hour_offset <= 18 else 0)
+            )  # Peak afternoon
+            memory_usage = (
+                base_memory
+                + (hour_offset * 50)
+                + (1024 if 14 <= hour_offset <= 18 else 0)
+            )
 
-            historical_data.append({
-                "timestamp": datetime.now(timezone.utc).replace(hour=hour_offset).isoformat(),
-                "cpu_usage": min(cpu_usage, 95.0),  # Cap at 95%
-                "memory_usage": min(memory_usage, 16384),  # Cap at 16GB
-                "token_usage": 5000 + (i * 100)
-            })
+            historical_data.append(
+                {
+                    "timestamp": datetime.now(timezone.utc)
+                    .replace(hour=hour_offset)
+                    .isoformat(),
+                    "cpu_usage": min(cpu_usage, 95.0),  # Cap at 95%
+                    "memory_usage": min(memory_usage, 16384),  # Cap at 16GB
+                    "token_usage": 5000 + (i * 100),
+                }
+            )
 
         # Act - analyze trends
-        cpu_trend = (historical_data[-1]["cpu_usage"] - historical_data[0]["cpu_usage"]) / len(historical_data)
-        memory_trend = (historical_data[-1]["memory_usage"] - historical_data[0]["memory_usage"]) / len(historical_data)
+        cpu_trend = (
+            historical_data[-1]["cpu_usage"] - historical_data[0]["cpu_usage"]
+        ) / len(historical_data)
+        memory_trend = (
+            historical_data[-1]["memory_usage"] - historical_data[0]["memory_usage"]
+        ) / len(historical_data)
 
         # Identify peak hours
         hourly_avg = {}
@@ -367,7 +411,7 @@ tags:
             "peak_usage_hour": highest_usage_hour,
             "peak_usage_average": peak_hours[highest_usage_hour],
             "growth_rate": cpu_trend / base_cpu if base_cpu > 0 else 0,
-            "recommendations": []
+            "recommendations": [],
         }
 
         # Add recommendations based on trends
@@ -388,7 +432,9 @@ tags:
         assert len(trend_analysis["recommendations"]) >= 1
 
     @pytest.mark.unit
-    def test_performance_monitoring_handles_missing_gpu_gracefully(self, mock_claude_tools):
+    def test_performance_monitoring_handles_missing_gpu_gracefully(
+        self, mock_claude_tools
+    ):
         """Scenario: Performance monitoring handles missing GPU gracefully
         Given systems without GPU availability
         When monitoring performance
@@ -396,10 +442,10 @@ tags:
         And not fail on missing GPU metrics.
         """
         # Arrange - simulate missing GPU
-        mock_claude_tools['Bash'].side_effect = [
+        mock_claude_tools["Bash"].side_effect = [
             "0",  # No GPU detected
             "N/A",  # GPU usage not available
-            "Command not found: nvidia-smi"  # GPU tools not installed
+            "Command not found: nvidia-smi",  # GPU tools not installed
         ]
 
         # Act - monitor performance without GPU
@@ -407,14 +453,18 @@ tags:
         error_count = 0
 
         try:
-            gpu_available = bool(int(mock_claude_tools['Bash']("nvidia-smi --list-gpus | wc -l")))
+            gpu_available = bool(
+                int(mock_claude_tools["Bash"]("nvidia-smi --list-gpus | wc -l"))
+            )
             performance_status["gpu_available"] = gpu_available
         except (ValueError, Exception):
             performance_status["gpu_available"] = False
             error_count += 1
 
         try:
-            gpu_usage = mock_claude_tools['Bash']("nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits")
+            gpu_usage = mock_claude_tools["Bash"](
+                "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits"
+            )
             performance_status["gpu_usage"] = gpu_usage
         except Exception:
             performance_status["gpu_usage"] = "N/A"
@@ -446,22 +496,22 @@ tags:
                 "total_memory_gb": 4,
                 "cpu_cores": 2,
                 "expected_cpu_threshold": 70,
-                "expected_memory_threshold": 80
+                "expected_memory_threshold": 80,
             },
             {
                 "name": "mid_range_system",
                 "total_memory_gb": 16,
                 "cpu_cores": 8,
                 "expected_cpu_threshold": 80,
-                "expected_memory_threshold": 85
+                "expected_memory_threshold": 85,
             },
             {
                 "name": "high_end_system",
                 "total_memory_gb": 64,
                 "cpu_cores": 16,
                 "expected_cpu_threshold": 85,
-                "expected_memory_threshold": 90
-            }
+                "expected_memory_threshold": 90,
+            },
         ]
 
         # Act - adapt monitoring thresholds
@@ -481,16 +531,17 @@ tags:
             if config["cpu_cores"] < 4:
                 cpu_threshold -= 10  # Stricter on low-core systems
             elif config["cpu_cores"] > 12:
-                cpu_threshold += 5   # More lenient on high-core systems
+                cpu_threshold += 5  # More lenient on high-core systems
 
             adapted_config = {
                 "system": config["name"],
                 "cpu_warning_threshold": cpu_threshold,
                 "memory_warning_threshold": memory_threshold,
                 "adaptations": {
-                    "memory_adjustment": memory_threshold - config["expected_memory_threshold"],
-                    "cpu_adjustment": cpu_threshold - config["expected_cpu_threshold"]
-                }
+                    "memory_adjustment": memory_threshold
+                    - config["expected_memory_threshold"],
+                    "cpu_adjustment": cpu_threshold - config["expected_cpu_threshold"],
+                },
             }
 
             adapted_configurations.append(adapted_config)
@@ -499,17 +550,23 @@ tags:
         assert len(adapted_configurations) == 3
 
         # Check low-end system has stricter thresholds
-        low_end = next(c for c in adapted_configurations if c["system"] == "low_end_system")
+        low_end = next(
+            c for c in adapted_configurations if c["system"] == "low_end_system"
+        )
         assert low_end["cpu_warning_threshold"] < 70
         assert low_end["memory_warning_threshold"] < 80
 
         # Check high-end system has more lenient thresholds
-        high_end = next(c for c in adapted_configurations if c["system"] == "high_end_system")
+        high_end = next(
+            c for c in adapted_configurations if c["system"] == "high_end_system"
+        )
         assert high_end["cpu_warning_threshold"] >= 85
         assert high_end["memory_warning_threshold"] >= 90
 
     @pytest.mark.unit
-    def test_performance_monitoring_generates_comprehensive_reports(self, mock_performance_monitor):
+    def test_performance_monitoring_generates_comprehensive_reports(
+        self, mock_performance_monitor
+    ):
         """Scenario: Performance monitoring generates comprehensive reports
         Given collected performance data and analysis
         When generating reports
@@ -518,12 +575,14 @@ tags:
         """
         # Arrange - populate mock with data
         for i in range(10):
-            mock_performance_monitor.metrics_history.append({
-                "cpu_usage": 50 + (i * 2),
-                "memory_usage": 4096 + (i * 256),
-                "token_usage": 5000 + (i * 100),
-                "context_efficiency": 0.85 - (i * 0.01)
-            })
+            mock_performance_monitor.metrics_history.append(
+                {
+                    "cpu_usage": 50 + (i * 2),
+                    "memory_usage": 4096 + (i * 256),
+                    "token_usage": 5000 + (i * 100),
+                    "context_efficiency": 0.85 - (i * 0.01),
+                }
+            )
 
         # Act - generate comprehensive report
         report = mock_performance_monitor.generate_report()

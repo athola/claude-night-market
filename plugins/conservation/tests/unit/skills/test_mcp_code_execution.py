@@ -91,7 +91,7 @@ tags:
             "mcp-code-execution:delegation-assessment",
             "mcp-code-execution:external-execution",
             "mcp-code-execution:result-integration",
-            "mcp-code-execution:performance-validation"
+            "mcp-code-execution:performance-validation",
         ]
 
         # Act - simulate mcp-code-execution skill execution
@@ -100,14 +100,16 @@ tags:
             "mcp-code-execution:delegation-assessment",
             "mcp-code-execution:external-execution",
             "mcp-code-execution:result-integration",
-            "mcp-code-execution:performance-validation"
+            "mcp-code-execution:performance-validation",
         ]
 
         # Assert
         assert len(mcp_execution_items) == 5
         for expected_item in expected_items:
             assert expected_item in mcp_execution_items
-        assert all(item.startswith("mcp-code-execution:") for item in mcp_execution_items)
+        assert all(
+            item.startswith("mcp-code-execution:") for item in mcp_execution_items
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -125,29 +127,29 @@ tags:
                 "description": "Find text patterns in files",
                 "estimated_tokens": 200,
                 "compute_complexity": "low",
-                "expected_delegation": False
+                "expected_delegation": False,
             },
             {
                 "name": "large_dataset_processing",
                 "description": "Process 100MB CSV file with calculations",
                 "estimated_tokens": 5000,
                 "compute_complexity": "high",
-                "expected_delegation": True
+                "expected_delegation": True,
             },
             {
                 "name": "code_compilation",
                 "description": "Compile C++ project with optimization",
                 "estimated_tokens": 3000,
                 "compute_complexity": "high",
-                "expected_delegation": True
+                "expected_delegation": True,
             },
             {
                 "name": "documentation_generation",
                 "description": "Generate API documentation from code",
                 "estimated_tokens": 1500,
                 "compute_complexity": "medium",
-                "expected_delegation": False
-            }
+                "expected_delegation": False,
+            },
         ]
 
         # Act - analyze tasks for delegation potential
@@ -155,17 +157,19 @@ tags:
         for task in tasks:
             # Determine delegation suitability
             should_delegate = (
-                task["compute_complexity"] in ["high", "medium"] and
-                task["estimated_tokens"] > 1000
+                task["compute_complexity"] in ["high", "medium"]
+                and task["estimated_tokens"] > 1000
             )
 
             if should_delegate:
-                delegation_candidates.append({
-                    "task": task["name"],
-                    "reason": f"High compute ({task['compute_complexity']}) and token cost ({task['estimated_tokens']})",
-                    "recommended_tool": "qwen_mcp_executor",
-                    "estimated_savings": task["estimated_tokens"] * 0.7
-                })
+                delegation_candidates.append(
+                    {
+                        "task": task["name"],
+                        "reason": f"High compute ({task['compute_complexity']}) and token cost ({task['estimated_tokens']})",
+                        "recommended_tool": "qwen_mcp_executor",
+                        "estimated_savings": task["estimated_tokens"] * 0.7,
+                    }
+                )
 
         # Assert
         assert len(delegation_candidates) == 2  # Large dataset and compilation
@@ -188,22 +192,26 @@ tags:
         mcp_tools = [
             {
                 "name": "qwen_code_executor",
-                "capabilities": ["python_execution", "data_processing", "statistical_analysis"],
+                "capabilities": [
+                    "python_execution",
+                    "data_processing",
+                    "statistical_analysis",
+                ],
                 "max_tokens": 50000,
-                "execution_time_limit": "10m"
+                "execution_time_limit": "10m",
             },
             {
                 "name": "bash_processor",
                 "capabilities": ["shell_commands", "file_operations", "compilation"],
                 "max_tokens": 10000,
-                "execution_time_limit": "5m"
+                "execution_time_limit": "5m",
             },
             {
                 "name": "json_formatter",
                 "capabilities": ["json_processing", "data_transformation"],
                 "max_tokens": 5000,
-                "execution_time_limit": "2m"
-            }
+                "execution_time_limit": "2m",
+            },
         ]
 
         tasks_to_assess = [
@@ -211,20 +219,20 @@ tags:
                 "name": "statistical_analysis",
                 "requirements": ["python_execution", "data_processing"],
                 "estimated_tokens": 8000,
-                "complexity": "high"
+                "complexity": "high",
             },
             {
                 "name": "file_compilation",
                 "requirements": ["shell_commands", "compilation"],
                 "estimated_tokens": 3000,
-                "complexity": "medium"
+                "complexity": "medium",
             },
             {
                 "name": "json_transformation",
                 "requirements": ["json_processing", "data_transformation"],
                 "estimated_tokens": 2000,
-                "complexity": "low"
-            }
+                "complexity": "low",
+            },
         ]
 
         # Act - assess delegation options
@@ -240,34 +248,47 @@ tags:
                 if required_caps.issubset(tool_caps):
                     # Check token limits
                     if task["estimated_tokens"] <= tool["max_tokens"]:
-                        suitability_score = len(required_caps) / len(tool["capabilities"])
-                        suitable_tools.append({
-                            "tool": tool["name"],
-                            "suitability_score": suitability_score,
-                            "token_margin": tool["max_tokens"] - task["estimated_tokens"]
-                        })
+                        suitability_score = len(required_caps) / len(
+                            tool["capabilities"]
+                        )
+                        suitable_tools.append(
+                            {
+                                "tool": tool["name"],
+                                "suitability_score": suitability_score,
+                                "token_margin": tool["max_tokens"]
+                                - task["estimated_tokens"],
+                            }
+                        )
 
             if suitable_tools:
                 # Select best tool
                 best_tool = max(suitable_tools, key=lambda x: x["suitability_score"])
-                delegation_recommendations.append({
-                    "task": task["name"],
-                    "recommended_tool": best_tool["tool"],
-                    "suitability_score": best_tool["suitability_score"],
-                    "token_margin": best_tool["token_margin"]
-                })
+                delegation_recommendations.append(
+                    {
+                        "task": task["name"],
+                        "recommended_tool": best_tool["tool"],
+                        "suitability_score": best_tool["suitability_score"],
+                        "token_margin": best_tool["token_margin"],
+                    }
+                )
 
         # Assert
         assert len(delegation_recommendations) == 3
 
         # Check specific recommendations
-        stat_analysis = next(r for r in delegation_recommendations if r["task"] == "statistical_analysis")
+        stat_analysis = next(
+            r for r in delegation_recommendations if r["task"] == "statistical_analysis"
+        )
         assert stat_analysis["recommended_tool"] == "qwen_code_executor"
 
-        file_compilation = next(r for r in delegation_recommendations if r["task"] == "file_compilation")
+        file_compilation = next(
+            r for r in delegation_recommendations if r["task"] == "file_compilation"
+        )
         assert file_compilation["recommended_tool"] == "bash_processor"
 
-        json_transform = next(r for r in delegation_recommendations if r["task"] == "json_transformation")
+        json_transform = next(
+            r for r in delegation_recommendations if r["task"] == "json_transformation"
+        )
         assert json_transform["recommended_tool"] == "json_formatter"
 
     @pytest.mark.bdd
@@ -285,16 +306,22 @@ tags:
                 "id": "task_1",
                 "name": "data_analysis",
                 "tool": "qwen_code_executor",
-                "input_data": {"dataset": "large_file.csv", "analysis_type": "statistical"},
-                "expected_output_format": "json"
+                "input_data": {
+                    "dataset": "large_file.csv",
+                    "analysis_type": "statistical",
+                },
+                "expected_output_format": "json",
             },
             {
                 "id": "task_2",
                 "name": "code_compilation",
                 "tool": "bash_processor",
-                "input_data": {"source_files": ["main.cpp", "utils.cpp"], "flags": "-O2"},
-                "expected_output_format": "text"
-            }
+                "input_data": {
+                    "source_files": ["main.cpp", "utils.cpp"],
+                    "flags": "-O2",
+                },
+                "expected_output_format": "text",
+            },
         ]
 
         # Act - simulate external execution workflow
@@ -307,7 +334,7 @@ tags:
                 "tool": task["tool"],
                 "input": task["input_data"],
                 "output_format": task["expected_output_format"],
-                "timeout": 300  # 5 minutes
+                "timeout": 300,  # 5 minutes
             }
 
             # Simulate execution
@@ -315,15 +342,18 @@ tags:
                 mock_result = {
                     "status": "success",
                     "execution_time": 45.2,
-                    "output": {"analysis_result": "Completed", "statistics": {"mean": 25.5, "std": 3.2}},
-                    "tokens_used": 12000
+                    "output": {
+                        "analysis_result": "Completed",
+                        "statistics": {"mean": 25.5, "std": 3.2},
+                    },
+                    "tokens_used": 12000,
                 }
             elif task["tool"] == "bash_processor":
                 mock_result = {
                     "status": "success",
                     "execution_time": 12.8,
                     "output": "Compilation successful. Output: a.out",
-                    "tokens_used": 800
+                    "tokens_used": 800,
                 }
 
             # Process result
@@ -333,7 +363,7 @@ tags:
                 "status": mock_result["status"],
                 "execution_time": mock_result["execution_time"],
                 "tokens_used": mock_result["tokens_used"],
-                "output": mock_result["output"]
+                "output": mock_result["output"],
             }
 
             execution_results.append(processed_result)
@@ -348,11 +378,15 @@ tags:
             assert "output" in result
 
         # Check specific results
-        analysis_result = next(r for r in execution_results if r["task_name"] == "data_analysis")
+        analysis_result = next(
+            r for r in execution_results if r["task_name"] == "data_analysis"
+        )
         assert analysis_result["tokens_used"] == 12000
         assert "statistics" in analysis_result["output"]
 
-        compilation_result = next(r for r in execution_results if r["task_name"] == "code_compilation")
+        compilation_result = next(
+            r for r in execution_results if r["task_name"] == "code_compilation"
+        )
         assert compilation_result["tokens_used"] == 800
         assert "Compilation successful" in compilation_result["output"]
 
@@ -373,13 +407,13 @@ tags:
                 "raw_output": {
                     "analysis_complete": True,
                     "data_summary": {"total_records": 1000, "processed": 985},
-                    "statistics": {"mean": 45.2, "median": 43.1, "mode": 42.0}
+                    "statistics": {"mean": 45.2, "median": 43.1, "mode": 42.0},
                 },
                 "execution_metadata": {
                     "execution_time": 67.3,
                     "memory_usage": "512MB",
-                    "tokens_consumed": 15000
-                }
+                    "tokens_consumed": 15000,
+                },
             },
             {
                 "task_id": "processing_1",
@@ -388,9 +422,9 @@ tags:
                 "execution_metadata": {
                     "execution_time": 15.7,
                     "exit_code": 0,
-                    "tokens_consumed": 500
-                }
-            }
+                    "tokens_consumed": 500,
+                },
+            },
         ]
 
         # Act - integrate and format results
@@ -401,13 +435,15 @@ tags:
             validation_status = {
                 "has_output": "raw_output" in result,
                 "has_metadata": "execution_metadata" in result,
-                "output_complete": False
+                "output_complete": False,
             }
 
             # Check output completeness
             if isinstance(result["raw_output"], dict):
                 required_fields = ["analysis_complete", "data_summary", "statistics"]
-                validation_status["output_complete"] = all(field in result["raw_output"] for field in required_fields)
+                validation_status["output_complete"] = all(
+                    field in result["raw_output"] for field in required_fields
+                )
             elif isinstance(result["raw_output"], str):
                 validation_status["output_complete"] = len(result["raw_output"]) > 10
 
@@ -417,23 +453,28 @@ tags:
                 "source_tool": result["source_tool"],
                 "validation": validation_status,
                 "summary": {
-                    "success": validation_status["has_output"] and validation_status["output_complete"],
+                    "success": validation_status["has_output"]
+                    and validation_status["output_complete"],
                     "execution_time": result["execution_metadata"]["execution_time"],
-                    "tokens_consumed": result["execution_metadata"]["tokens_consumed"]
+                    "tokens_consumed": result["execution_metadata"]["tokens_consumed"],
                 },
-                "processed_output": result["raw_output"]
+                "processed_output": result["raw_output"],
             }
 
             # Add tool-specific formatting
             if result["source_tool"] == "qwen_code_executor":
                 formatted_result["tool_specific"] = {
                     "result_type": "statistical_analysis",
-                    "data_quality": "high" if validation_status["output_complete"] else "medium"
+                    "data_quality": "high"
+                    if validation_status["output_complete"]
+                    else "medium",
                 }
             elif result["source_tool"] == "bash_processor":
                 formatted_result["tool_specific"] = {
                     "result_type": "command_execution",
-                    "exit_status": "success" if "successfully" in result["raw_output"] else "unknown"
+                    "exit_status": "success"
+                    if "successfully" in result["raw_output"]
+                    else "unknown",
                 }
 
             integrated_results.append(formatted_result)
@@ -448,11 +489,15 @@ tags:
             assert "tool_specific" in result
 
         # Check specific formatting
-        analysis_result = next(r for r in integrated_results if r["source_tool"] == "qwen_code_executor")
+        analysis_result = next(
+            r for r in integrated_results if r["source_tool"] == "qwen_code_executor"
+        )
         assert analysis_result["tool_specific"]["result_type"] == "statistical_analysis"
         assert analysis_result["tool_specific"]["data_quality"] == "high"
 
-        processing_result = next(r for r in integrated_results if r["source_tool"] == "bash_processor")
+        processing_result = next(
+            r for r in integrated_results if r["source_tool"] == "bash_processor"
+        )
         assert processing_result["tool_specific"]["result_type"] == "command_execution"
         assert processing_result["tool_specific"]["exit_status"] == "success"
 
@@ -472,29 +517,29 @@ tags:
                 "local_execution": {
                     "tokens_used": 25000,
                     "execution_time": 120.5,
-                    "success_rate": 0.85
+                    "success_rate": 0.85,
                 },
                 "delegated_execution": {
                     "tokens_used": 7500,  # 70% savings
                     "execution_time": 45.2,  # Much faster
-                    "success_rate": 0.95,   # Higher success
-                    "delegation_overhead": 200  # Overhead tokens
-                }
+                    "success_rate": 0.95,  # Higher success
+                    "delegation_overhead": 200,  # Overhead tokens
+                },
             },
             {
                 "task": "code_compilation",
                 "local_execution": {
                     "tokens_used": 8000,
                     "execution_time": 35.7,
-                    "success_rate": 0.90
+                    "success_rate": 0.90,
                 },
                 "delegated_execution": {
-                    "tokens_used": 2400,   # 70% savings
+                    "tokens_used": 2400,  # 70% savings
                     "execution_time": 12.8,  # Much faster
-                    "success_rate": 0.88,   # Slightly lower
-                    "delegation_overhead": 150  # Overhead tokens
-                }
-            }
+                    "success_rate": 0.88,  # Slightly lower
+                    "delegation_overhead": 150,  # Overhead tokens
+                },
+            },
         ]
 
         # Act - calculate delegation benefits
@@ -505,38 +550,44 @@ tags:
             delegated = comparison["delegated_execution"]
 
             # Calculate savings and improvements
-            token_savings = local["tokens_used"] - (delegated["tokens_used"] + delegated["delegation_overhead"])
+            token_savings = local["tokens_used"] - (
+                delegated["tokens_used"] + delegated["delegation_overhead"]
+            )
             token_savings_percentage = (token_savings / local["tokens_used"]) * 100
 
             time_improvement = local["execution_time"] - delegated["execution_time"]
-            time_improvement_percentage = (time_improvement / local["execution_time"]) * 100
+            time_improvement_percentage = (
+                time_improvement / local["execution_time"]
+            ) * 100
 
             success_rate_change = delegated["success_rate"] - local["success_rate"]
 
             # Calculate ROI
             net_token_savings = token_savings
-            time_value = time_improvement * 100  # Value time at 100 tokens per minute saved
+            time_value = (
+                time_improvement * 100
+            )  # Value time at 100 tokens per minute saved
             total_roi = net_token_savings + time_value
 
             analysis = {
                 "task": comparison["task"],
                 "token_savings": {
                     "absolute": net_token_savings,
-                    "percentage": token_savings_percentage
+                    "percentage": token_savings_percentage,
                 },
                 "time_improvement": {
                     "absolute_seconds": time_improvement,
-                    "percentage": time_improvement_percentage
+                    "percentage": time_improvement_percentage,
                 },
                 "quality_impact": {
                     "success_rate_change": success_rate_change,
-                    "improved": success_rate_change > 0
+                    "improved": success_rate_change > 0,
                 },
                 "roi_metrics": {
                     "net_token_roi": net_token_savings,
                     "time_value_tokens": time_value,
-                    "total_roi": total_roi
-                }
+                    "total_roi": total_roi,
+                },
             }
 
             delegation_analysis.append(analysis)
@@ -553,13 +604,19 @@ tags:
             assert analysis["roi_metrics"]["total_roi"] > 0
 
         # Check specific task benefits
-        data_analysis = next(a for a in delegation_analysis if a["task"] == "large_data_analysis")
+        data_analysis = next(
+            a for a in delegation_analysis if a["task"] == "large_data_analysis"
+        )
         assert data_analysis["token_savings"]["absolute"] > 15000
         assert data_analysis["roi_metrics"]["total_roi"] > 20000
 
-        compilation = next(a for a in delegation_analysis if a["task"] == "code_compilation")
+        compilation = next(
+            a for a in delegation_analysis if a["task"] == "code_compilation"
+        )
         assert compilation["token_savings"]["absolute"] > 5000
-        assert compilation["quality_impact"]["success_rate_change"] < 0  # Slightly lower success rate
+        assert (
+            compilation["quality_impact"]["success_rate_change"] < 0
+        )  # Slightly lower success rate
 
     @pytest.mark.unit
     def test_mcp_execution_handles_failures_gracefully(self, mock_claude_tools):
@@ -574,18 +631,27 @@ tags:
             {
                 "task_id": "timeout_task",
                 "failure_type": "timeout",
-                "simulated_response": {"status": "timeout", "message": "Execution exceeded time limit"}
+                "simulated_response": {
+                    "status": "timeout",
+                    "message": "Execution exceeded time limit",
+                },
             },
             {
                 "task_id": "resource_error_task",
                 "failure_type": "resource_limit",
-                "simulated_response": {"status": "error", "message": "Insufficient memory for execution"}
+                "simulated_response": {
+                    "status": "error",
+                    "message": "Insufficient memory for execution",
+                },
             },
             {
                 "task_id": "format_error_task",
                 "failure_type": "invalid_format",
-                "simulated_response": {"status": "error", "message": "Invalid output format from tool"}
-            }
+                "simulated_response": {
+                    "status": "error",
+                    "message": "Invalid output format from tool",
+                },
+            },
         ]
 
         # Act - handle failures with fallback strategies
@@ -602,7 +668,7 @@ tags:
                 "failure_type": scenario["failure_type"],
                 "fallback_applied": None,
                 "fallback_success": False,
-                "additional_tokens_used": 0
+                "additional_tokens_used": 0,
             }
 
             if scenario["failure_type"] == "timeout":
@@ -614,7 +680,9 @@ tags:
             elif scenario["failure_type"] == "resource_limit":
                 # Try local execution with resource optimization
                 fallback_strategy["fallback_applied"] = "local_optimized"
-                fallback_strategy["additional_tokens_used"] = 5000  # More expensive but works
+                fallback_strategy["additional_tokens_used"] = (
+                    5000  # More expensive but works
+                )
                 fallback_strategy["fallback_success"] = True
 
             elif scenario["failure_type"] == "invalid_format":
@@ -635,12 +703,18 @@ tags:
             assert result["additional_tokens_used"] >= 0
 
         # Check specific fallback strategies
-        timeout_result = next(r for r in failure_handling_results if r["failure_type"] == "timeout")
+        timeout_result = next(
+            r for r in failure_handling_results if r["failure_type"] == "timeout"
+        )
         assert timeout_result["fallback_applied"] == "simplified_input"
 
-        resource_result = next(r for r in failure_handling_results if r["failure_type"] == "resource_limit")
+        resource_result = next(
+            r for r in failure_handling_results if r["failure_type"] == "resource_limit"
+        )
         assert resource_result["fallback_applied"] == "local_optimized"
-        assert resource_result["additional_tokens_used"] == 5000  # Most expensive fallback
+        assert (
+            resource_result["additional_tokens_used"] == 5000
+        )  # Most expensive fallback
 
     @pytest.mark.unit
     def test_mcp_execution_optimizes_task_batching(self):
@@ -657,29 +731,29 @@ tags:
                 "type": "statistical_analysis",
                 "dataset": "sales_q1.csv",
                 "operations": ["mean", "std", "correlation"],
-                "estimated_tokens": 4000
+                "estimated_tokens": 4000,
             },
             {
                 "id": "data_analysis_2",
                 "type": "statistical_analysis",
                 "dataset": "sales_q2.csv",
                 "operations": ["mean", "std", "correlation"],
-                "estimated_tokens": 4200
+                "estimated_tokens": 4200,
             },
             {
                 "id": "data_visualization",
                 "type": "chart_generation",
                 "dataset": "sales_combined.csv",
                 "operations": ["plot", "trend"],
-                "estimated_tokens": 3000
+                "estimated_tokens": 3000,
             },
             {
                 "id": "file_conversion",
                 "type": "format_conversion",
                 "input_format": "xml",
                 "output_format": "json",
-                "estimated_tokens": 1500
-            }
+                "estimated_tokens": 1500,
+            },
         ]
 
         # Act - optimize task batching
@@ -696,14 +770,17 @@ tags:
 
         # Create batches
         for task_type, tasks in task_groups.items():
-            if len(tasks) >= 2 and task_type in ["statistical_analysis", "format_conversion"]:
+            if len(tasks) >= 2 and task_type in [
+                "statistical_analysis",
+                "format_conversion",
+            ]:
                 # Batch compatible tasks
                 batch = {
                     "batch_id": f"batch_{task_type}",
                     "task_type": task_type,
                     "tasks": tasks,
                     "combined_tokens": sum(task["estimated_tokens"] for task in tasks),
-                    "batch_efficiency": len(tasks)  # Efficiency gain from batching
+                    "batch_efficiency": len(tasks),  # Efficiency gain from batching
                 }
                 batched_tasks.append(batch)
             else:
@@ -714,14 +791,18 @@ tags:
         total_tasks_original = len(tasks_for_delegation)
         total_delegations_with_batching = len(batched_tasks) + len(unbatched_tasks)
         delegation_reduction = total_tasks_original - total_delegations_with_batching
-        delegation_reduction_percentage = (delegation_reduction / total_tasks_original) * 100
+        delegation_reduction_percentage = (
+            delegation_reduction / total_tasks_original
+        ) * 100
 
         # Assert
         assert len(batched_tasks) >= 1  # At least one batch created
         assert delegation_reduction_percentage > 20  # Significant reduction
 
         # Verify statistical analysis batch
-        stat_batch = next(b for b in batched_tasks if b["task_type"] == "statistical_analysis")
+        stat_batch = next(
+            b for b in batched_tasks if b["task_type"] == "statistical_analysis"
+        )
         assert len(stat_batch["tasks"]) == 2
         assert stat_batch["combined_tokens"] == 8200
         assert stat_batch["batch_efficiency"] == 2

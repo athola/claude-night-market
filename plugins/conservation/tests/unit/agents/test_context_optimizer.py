@@ -32,7 +32,7 @@ class TestContextOptimizerAgent:
             {"tokens": 30000, "expected_action": "continue_monitoring"},
             {"tokens": 80000, "expected_action": "light_optimization"},
             {"tokens": 110000, "expected_action": "moderate_optimization"},
-            {"tokens": 150000, "expected_action": "aggressive_optimization"}
+            {"tokens": 150000, "expected_action": "aggressive_optimization"},
         ]
 
         # Act - simulate autonomous monitoring
@@ -52,13 +52,15 @@ class TestContextOptimizerAgent:
             else:
                 action = "continue_monitoring"
 
-            monitoring_actions.append({
-                "context_tokens": scenario["tokens"],
-                "utilization": analysis["utilization_percentage"],
-                "status": analysis["status"],
-                "action_taken": action,
-                "compliance": analysis["mecw_compliant"]
-            })
+            monitoring_actions.append(
+                {
+                    "context_tokens": scenario["tokens"],
+                    "utilization": analysis["utilization_percentage"],
+                    "status": analysis["status"],
+                    "action_taken": action,
+                    "compliance": analysis["mecw_compliant"],
+                }
+            )
 
         # Assert
         assert len(monitoring_actions) == 4
@@ -87,29 +89,29 @@ class TestContextOptimizerAgent:
                 "effectiveness": 0.7,
                 "risk": "low",
                 "cost": 100,
-                "applicable_conditions": ["moderate_pressure", "preservation_needed"]
+                "applicable_conditions": ["moderate_pressure", "preservation_needed"],
             },
             {
                 "name": "content_pruning",
                 "effectiveness": 0.9,
                 "risk": "high",
                 "cost": 50,
-                "applicable_conditions": ["high_pressure", "urgent_need"]
+                "applicable_conditions": ["high_pressure", "urgent_need"],
             },
             {
                 "name": "progressive_loading",
                 "effectiveness": 0.6,
                 "risk": "low",
                 "cost": 200,
-                "applicable_conditions": ["large_context", "time_sensitive"]
+                "applicable_conditions": ["large_context", "time_sensitive"],
             },
             {
                 "name": "delegation_to_external",
                 "effectiveness": 0.8,
                 "risk": "medium",
                 "cost": 300,
-                "applicable_conditions": ["compute_intensive", "time_available"]
-            }
+                "applicable_conditions": ["compute_intensive", "time_available"],
+            },
         ]
 
         # Act - simulate decision making for different contexts
@@ -117,23 +119,23 @@ class TestContextOptimizerAgent:
             {
                 "context": "moderate_pressure_with_preservation",
                 "conditions": ["moderate_pressure", "preservation_needed"],
-                "expected_strategy": "context_compression"
+                "expected_strategy": "context_compression",
             },
             {
                 "context": "high_pressure_urgent",
                 "conditions": ["high_pressure", "urgent_need"],
-                "expected_strategy": "content_pruning"
+                "expected_strategy": "content_pruning",
             },
             {
                 "context": "large_context_time_sensitive",
                 "conditions": ["large_context", "time_sensitive"],
-                "expected_strategy": "progressive_loading"
+                "expected_strategy": "progressive_loading",
             },
             {
                 "context": "compute_intensive_with_time",
                 "conditions": ["compute_intensive", "time_available"],
-                "expected_strategy": "delegation_to_external"
-            }
+                "expected_strategy": "delegation_to_external",
+            },
         ]
 
         agent_decisions = []
@@ -144,19 +146,28 @@ class TestContextOptimizerAgent:
 
             for strategy in optimization_strategies:
                 # Check if strategy is applicable
-                if any(condition in strategy["applicable_conditions"] for condition in scenario["conditions"]):
+                if any(
+                    condition in strategy["applicable_conditions"]
+                    for condition in scenario["conditions"]
+                ):
                     # Calculate decision score (effectiveness / risk_factor) - cost_penalty
-                    risk_factor = {"low": 1.0, "medium": 1.5, "high": 2.0}[strategy["risk"]]
+                    risk_factor = {"low": 1.0, "medium": 1.5, "high": 2.0}[
+                        strategy["risk"]
+                    ]
                     cost_penalty = strategy["cost"] / 1000  # Normalize cost
-                    decision_score = (strategy["effectiveness"] / risk_factor) - cost_penalty
+                    decision_score = (
+                        strategy["effectiveness"] / risk_factor
+                    ) - cost_penalty
 
-                    candidate_strategies.append({
-                        "strategy": strategy["name"],
-                        "score": decision_score,
-                        "effectiveness": strategy["effectiveness"],
-                        "risk": strategy["risk"],
-                        "cost": strategy["cost"]
-                    })
+                    candidate_strategies.append(
+                        {
+                            "strategy": strategy["name"],
+                            "score": decision_score,
+                            "effectiveness": strategy["effectiveness"],
+                            "risk": strategy["risk"],
+                            "cost": strategy["cost"],
+                        }
+                    )
 
             # Select best strategy
             if candidate_strategies:
@@ -167,7 +178,8 @@ class TestContextOptimizerAgent:
                     "selected_strategy": best_strategy["strategy"],
                     "decision_score": best_strategy["score"],
                     "expected_strategy": scenario["expected_strategy"],
-                    "decision_correct": best_strategy["strategy"] == scenario["expected_strategy"]
+                    "decision_correct": best_strategy["strategy"]
+                    == scenario["expected_strategy"],
                 }
 
                 agent_decisions.append(agent_decision)
@@ -198,22 +210,22 @@ class TestContextOptimizerAgent:
                 "outcome": "success",
                 "effectiveness_achieved": 0.75,
                 "user_satisfaction": 0.8,
-                "context_type": "moderate_pressure"
+                "context_type": "moderate_pressure",
             },
             {
                 "strategy": "content_pruning",
                 "outcome": "partial_success",
                 "effectiveness_achieved": 0.6,
                 "user_satisfaction": 0.5,
-                "context_type": "high_pressure"
+                "context_type": "high_pressure",
             },
             {
                 "strategy": "progressive_loading",
                 "outcome": "success",
                 "effectiveness_achieved": 0.8,
                 "user_satisfaction": 0.9,
-                "context_type": "large_context"
-            }
+                "context_type": "large_context",
+            },
         ]
 
         # Act - simulate learning from outcomes
@@ -225,7 +237,9 @@ class TestContextOptimizerAgent:
             context = outcome["context_type"]
 
             # Calculate success score
-            success_score = (outcome["effectiveness_achieved"] + outcome["user_satisfaction"]) / 2
+            success_score = (
+                outcome["effectiveness_achieved"] + outcome["user_satisfaction"]
+            ) / 2
 
             # Update learning weights
             if strategy not in learning_weights:
@@ -237,8 +251,11 @@ class TestContextOptimizerAgent:
         improved_decisions = []
 
         test_scenarios = [
-            {"context_type": "moderate_pressure", "expected_best": "context_compression"},
-            {"context_type": "large_context", "expected_best": "progressive_loading"}
+            {
+                "context_type": "moderate_pressure",
+                "expected_best": "context_compression",
+            },
+            {"context_type": "large_context", "expected_best": "progressive_loading"},
         ]
 
         for scenario in test_scenarios:
@@ -246,21 +263,26 @@ class TestContextOptimizerAgent:
 
             for strategy, context_scores in learning_weights.items():
                 if scenario["context_type"] in context_scores:
-                    strategy_scores.append({
-                        "strategy": strategy,
-                        "learned_score": context_scores[scenario["context_type"]]
-                    })
+                    strategy_scores.append(
+                        {
+                            "strategy": strategy,
+                            "learned_score": context_scores[scenario["context_type"]],
+                        }
+                    )
 
             if strategy_scores:
                 best_strategy = max(strategy_scores, key=lambda x: x["learned_score"])
 
-                improved_decisions.append({
-                    "context": scenario["context_type"],
-                    "selected_strategy": best_strategy["strategy"],
-                    "learned_score": best_strategy["learned_score"],
-                    "expected_strategy": scenario["expected_best"],
-                    "improvement_applied": best_strategy["strategy"] == scenario["expected_best"]
-                })
+                improved_decisions.append(
+                    {
+                        "context": scenario["context_type"],
+                        "selected_strategy": best_strategy["strategy"],
+                        "learned_score": best_strategy["learned_score"],
+                        "expected_strategy": scenario["expected_best"],
+                        "improvement_applied": best_strategy["strategy"]
+                        == scenario["expected_best"],
+                    }
+                )
 
         # Assert
         assert len(improved_decisions) >= 2

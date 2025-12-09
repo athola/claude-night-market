@@ -1,6 +1,5 @@
 """Tests for safety_checks module."""
 
-
 # ruff: noqa: S101
 from __future__ import annotations
 
@@ -10,7 +9,7 @@ import sys
 import pytest
 
 # Add hooks to path for testing
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
 from shared.safety_checks import (
     SafetyCheckTimeout,
@@ -236,8 +235,8 @@ class TestTimeout:
         assert SafetyCheckTimeout is not None
 
     @pytest.mark.skipif(
-        not hasattr(__import__('signal'), 'SIGALRM'),
-        reason="SIGALRM not available on this platform"
+        not hasattr(__import__("signal"), "SIGALRM"),
+        reason="SIGALRM not available on this platform",
     )
     def test_timeout_config_respected(self, default_config: dict) -> None:
         """Timeout from config should be used."""

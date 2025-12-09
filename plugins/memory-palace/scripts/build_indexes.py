@@ -21,10 +21,7 @@ def main():
     print(f"Output directory: {index_dir}")
 
     # Create cache lookup and build indexes
-    lookup = CacheLookup(
-        corpus_dir=str(corpus_dir),
-        index_dir=str(index_dir)
-    )
+    lookup = CacheLookup(corpus_dir=str(corpus_dir), index_dir=str(index_dir))
 
     print("\nBuilding indexes...")
     lookup.build_indexes()

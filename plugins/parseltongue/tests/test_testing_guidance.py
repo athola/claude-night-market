@@ -39,7 +39,9 @@ class TestTestingGuideSkill:
         # Should detect test methods
         assert "test_methods" in structure
         assert len(structure["test_methods"]) >= 1
-        assert "test_create_user" in [method["name"] for method in structure["test_methods"]]
+        assert "test_create_user" in [
+            method["name"] for method in structure["test_methods"]
+        ]
 
         # Should detect fixtures
         assert "fixtures" in structure
@@ -68,7 +70,7 @@ class TestTestingGuideSkill:
     def test_analyzes_coverage_gaps(self):
         """Given test code and source code, when skill analyzes, then identifies coverage gaps."""
         # Arrange
-        source_code = '''
+        source_code = """
 class UserService:
     def __init__(self):
         self.users = []
@@ -86,9 +88,9 @@ class UserService:
         if 0 <= index < len(self.users):
             return self.users.pop(index)
         raise IndexError("User not found")
-        '''
+        """
 
-        test_code = '''
+        test_code = """
 def test_create_user():
     service = UserService()
     user = service.create_user("Alice", "alice@example.com")
@@ -99,7 +101,7 @@ def test_get_user():
     service.create_user("Alice", "alice@example.com")
     user = service.get_user(0)
     assert user["name"] == "Alice"
-        '''
+        """
 
         # Act
         result = self.skill.analyze_coverage_gaps(source_code, test_code)
@@ -207,7 +209,7 @@ User Authentication System:
     def test_generates_test_fixtures(self):
         """Given source code, when skill analyzes, then generates appropriate test fixtures."""
         # Arrange
-        source_code = '''
+        source_code = """
 class Order:
     def __init__(self, id, customer_name, items, total):
         self.id = id
@@ -222,7 +224,7 @@ class Order:
 
     def mark_complete(self):
         self.status = "completed"
-        '''
+        """
 
         # Act
         result = self.skill.generate_test_fixtures(source_code)
@@ -246,7 +248,7 @@ class Order:
     def test_analyzes_mock_usage(self):
         """Given test code, when skill analyzes, then evaluates mock usage patterns."""
         # Arrange
-        test_with_mocks = '''
+        test_with_mocks = """
 import pytest
 from unittest.mock import Mock, patch
 
@@ -266,7 +268,7 @@ def test_database_interaction():
 
     assert len(users) == 1
     mock_db.query.assert_called_once()
-        '''
+        """
 
         # Act
         result = self.skill.analyze_mock_usage(test_with_mocks)
@@ -290,7 +292,7 @@ def test_database_interaction():
     def test_recommends_test_types(self):
         """Given code structure, when skill analyzes, then recommends types of tests needed."""
         # Arrange
-        code_structure = '''
+        code_structure = """
 src/
 ├── user/
 │   ├── __init__.py
@@ -302,7 +304,7 @@ src/
 │   ├── models.py      # Token, Permission models
 │   ├── services.py    # AuthService
 │   └── middleware.py  # Authentication middleware
-        '''
+        """
 
         # Act
         result = self.skill.recommend_test_types(code_structure)
@@ -328,7 +330,7 @@ src/
     def test_validates_async_testing(self):
         """Given async test code, when skill analyzes, then validates async testing patterns."""
         # Arrange
-        async_test_code = '''
+        async_test_code = """
 import pytest
 import asyncio
 from unittest.mock import AsyncMock
@@ -349,7 +351,7 @@ async def test_with_async_mock():
 
     assert result["data"] == "test"
     mock_client.fetch.assert_called_once()
-        '''
+        """
 
         # Act
         result = self.skill.validate_async_testing(async_test_code)
@@ -373,7 +375,7 @@ async def test_with_async_mock():
     def test_analyzes_test_performance(self):
         """Given test suite, when skill analyzes, then evaluates test performance."""
         # Arrange
-        slow_tests = '''
+        slow_tests = """
 import time
 import pytest
 
@@ -391,7 +393,7 @@ def test_inefficient_setup():
 def test_parameterized_heavy(item):
     result = expensive_calculation(item)
     assert result > 0
-        '''
+        """
 
         # Act
         result = self.skill.analyze_test_performance(slow_tests)
@@ -421,7 +423,7 @@ def test_parameterized_heavy(item):
             "framework": "fastapi",
             "database": "postgresql",
             "async": True,
-            "testing_requirements": ["unit", "integration", "api"]
+            "testing_requirements": ["unit", "integration", "api"],
         }
 
         # Act
@@ -440,7 +442,10 @@ def test_parameterized_heavy(item):
 
         # Should recommend API testing tools
         assert "api_testing" in recommendations
-        assert "httpx" in recommendations["api_testing"]["tools"] or "aiohttp" in recommendations["api_testing"]["tools"]
+        assert (
+            "httpx" in recommendations["api_testing"]["tools"]
+            or "aiohttp" in recommendations["api_testing"]["tools"]
+        )
 
         # Should recommend database testing tools
         assert "database_testing" in recommendations
@@ -482,7 +487,10 @@ class TestUserService:
         # Should generate overview
         assert "overview" in documentation
         assert documentation["overview"]["test_class"] == "TestUserService"
-        assert documentation["overview"]["purpose"] == "Test suite for UserService functionality"
+        assert (
+            documentation["overview"]["purpose"]
+            == "Test suite for UserService functionality"
+        )
 
         # Should document test cases
         assert "test_cases" in documentation

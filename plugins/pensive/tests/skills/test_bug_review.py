@@ -56,7 +56,11 @@ class TestBugReviewSkill:
 
         # Assert
         assert len(bugs) > 0
-        npd_bugs = [bug for bug in bugs if "null" in bug["issue"].lower() or "undefined" in bug["issue"].lower()]
+        npd_bugs = [
+            bug
+            for bug in bugs
+            if "null" in bug["issue"].lower() or "undefined" in bug["issue"].lower()
+        ]
         assert len(npd_bugs) >= 2  # Should detect both NPD instances
 
     @pytest.mark.unit
@@ -95,7 +99,9 @@ class TestBugReviewSkill:
         mock_skill_context.get_file_content.return_value = race_condition_code
 
         # Act
-        race_bugs = self.skill.detect_race_conditions(mock_skill_context, "bank_account.py")
+        race_bugs = self.skill.detect_race_conditions(
+            mock_skill_context, "bank_account.py"
+        )
 
         # Assert
         assert len(race_bugs) > 0
@@ -187,7 +193,9 @@ class TestBugReviewSkill:
         mock_skill_context.get_file_content.return_value = sql_injection_code
 
         # Act
-        sql_bugs = self.skill.detect_sql_injection(mock_skill_context, "user_service.py")
+        sql_bugs = self.skill.detect_sql_injection(
+            mock_skill_context, "user_service.py"
+        )
 
         # Assert
         assert len(sql_bugs) >= 2  # Should detect 2 vulnerabilities, not the safe one
@@ -233,7 +241,9 @@ class TestBugReviewSkill:
         mock_skill_context.get_file_content.return_value = off_by_one_code
 
         # Act
-        off_by_one_bugs = self.skill.detect_off_by_one_errors(mock_skill_context, "arrays.js")
+        off_by_one_bugs = self.skill.detect_off_by_one_errors(
+            mock_skill_context, "arrays.js"
+        )
 
         # Assert
         assert len(off_by_one_bugs) > 0
@@ -272,7 +282,9 @@ class TestBugReviewSkill:
         mock_skill_context.get_file_content.return_value = overflow_code
 
         # Act
-        overflow_bugs = self.skill.detect_integer_overflow(mock_skill_context, "calculator.py")
+        overflow_bugs = self.skill.detect_integer_overflow(
+            mock_skill_context, "calculator.py"
+        )
 
         # Assert
         assert len(overflow_bugs) > 0
@@ -319,13 +331,19 @@ class TestBugReviewSkill:
         mock_skill_context.get_file_content.return_value = resource_leak_code
 
         # Act
-        resource_bugs = self.skill.detect_resource_leaks(mock_skill_context, "resource_manager.py")
+        resource_bugs = self.skill.detect_resource_leaks(
+            mock_skill_context, "resource_manager.py"
+        )
 
         # Assert
         assert len(resource_bugs) > 0
         leak_types = [bug["issue"].lower() for bug in resource_bugs]
-        assert any("file" in leak_type and "leak" in leak_type for leak_type in leak_types)
-        assert any("socket" in leak_type and "leak" in leak_type for leak_type in leak_types)
+        assert any(
+            "file" in leak_type and "leak" in leak_type for leak_type in leak_types
+        )
+        assert any(
+            "socket" in leak_type and "leak" in leak_type for leak_type in leak_types
+        )
 
     @pytest.mark.unit
     def test_detects_logical_errors(self, mock_skill_context):
@@ -370,7 +388,9 @@ class TestBugReviewSkill:
         mock_skill_context.get_file_content.return_value = logical_error_code
 
         # Act
-        logic_bugs = self.skill.detect_logical_errors(mock_skill_context, "validator.py")
+        logic_bugs = self.skill.detect_logical_errors(
+            mock_skill_context, "validator.py"
+        )
 
         # Assert
         assert len(logic_bugs) > 0
@@ -493,9 +513,17 @@ class TestBugReviewSkill:
         # Assert
         severity_map = {bug["issue"]: bug["severity"] for bug in categorized_bugs}
         assert "sql injection" in severity_map
-        assert categorized_bugs[0]["severity"] == "critical"  # SQL injection should be critical
-        assert categorized_bugs[1]["severity"] in ["high", "medium"]  # NPD should be high/medium
-        assert categorized_bugs[2]["severity"] in ["medium", "low"]   # Off-by-one should be medium/low
+        assert (
+            categorized_bugs[0]["severity"] == "critical"
+        )  # SQL injection should be critical
+        assert categorized_bugs[1]["severity"] in [
+            "high",
+            "medium",
+        ]  # NPD should be high/medium
+        assert categorized_bugs[2]["severity"] in [
+            "medium",
+            "low",
+        ]  # Off-by-one should be medium/low
 
     @pytest.mark.unit
     def test_generates_fix_recommendations(self, mock_skill_context):
@@ -506,14 +534,14 @@ class TestBugReviewSkill:
                 "type": "sql_injection",
                 "location": "user_service.py:15",
                 "issue": "String concatenation in SQL query",
-                "code": 'query = "SELECT * FROM users WHERE name = \'" + name + "\'"'
+                "code": 'query = "SELECT * FROM users WHERE name = \'" + name + "\'"',
             },
             {
                 "type": "null_pointer",
                 "location": "processor.js:25",
                 "issue": "Accessing user.name without null check",
-                "code": "console.log(user.name.toUpperCase())"
-            }
+                "code": "console.log(user.name.toUpperCase())",
+            },
         ]
 
         # Act
@@ -562,13 +590,13 @@ class TestBugReviewSkill:
             {
                 "bug": "SQL injection vulnerability",
                 "original": "query = 'SELECT * FROM users WHERE id = ' + user_id",
-                "fixed": "query = 'SELECT * FROM users WHERE id = ?', (user_id,)"
+                "fixed": "query = 'SELECT * FROM users WHERE id = ?', (user_id,)",
             },
             {
                 "bug": "Null pointer dereference",
                 "original": "return user.name.toUpperCase()",
-                "fixed": "return user?.name?.toUpperCase() || 'Unknown'"
-            }
+                "fixed": "return user?.name?.toUpperCase() || 'Unknown'",
+            },
         ]
 
         # Act
@@ -613,7 +641,9 @@ class TestBugReviewSkill:
         mock_skill_context.get_file_content.return_value = benign_code
 
         # Act
-        false_positives = self.skill.detect_false_positives(mock_skill_context, "safe_code.py")
+        false_positives = self.skill.detect_false_positives(
+            mock_skill_context, "safe_code.py"
+        )
 
         # Assert
         # Should identify these as potential false positives
@@ -636,9 +666,9 @@ class TestBugReviewSkill:
                 "security": 5,
                 "performance": 3,
                 "logic": 4,
-                "memory": 3
+                "memory": 3,
             },
-            "fix_recommendations": sample_findings
+            "fix_recommendations": sample_findings,
         }
 
         # Act

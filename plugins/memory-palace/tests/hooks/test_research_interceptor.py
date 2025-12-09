@@ -1,6 +1,5 @@
 """Tests for research_interceptor hook."""
 
-
 # ruff: noqa: S101
 from __future__ import annotations
 
@@ -15,6 +14,7 @@ import pytest
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
+import research_interceptor
 from research_interceptor import (
     # ruff: noqa: S101
     extract_query_intent,
@@ -115,20 +115,20 @@ class TestMakeDecision:
     def test_web_only_mode(self) -> None:
         """web_only mode should always proceed."""
         decision = make_decision("test query", [], "web_only")
-        assert decision["action"] == "proceed"
-        assert len(decision["context"]) == 0
+        assert decision.action == "proceed"
+        assert len(decision.context) == 0
 
     def test_cache_only_no_match(self) -> None:
         """cache_only with no match should block."""
         decision = make_decision("test query", [], "cache_only")
-        assert decision["action"] == "block"
-        assert "cache_only mode" in decision["context"][0]
+        assert decision.action == "block"
+        assert "cache_only mode" in decision.context[0]
 
     def test_cache_first_no_match(self) -> None:
         """cache_first with no match should proceed and flag for intake."""
         decision = make_decision("test query", [], "cache_first")
-        assert decision["action"] == "proceed"
-        assert decision["should_flag_for_intake"] is True
+        assert decision.action == "proceed"
+        assert decision.should_flag_for_intake is True
 
     def test_strong_match_evergreen_cache_first(self) -> None:
         """Strong match on evergreen topic in cache_first should augment."""
@@ -141,8 +141,8 @@ class TestMakeDecision:
             }
         ]
         decision = make_decision("async error handling patterns", results, "cache_first")
-        assert decision["action"] == "augment"
-        assert "strong cached match" in decision["context"][0]
+        assert decision.action == "augment"
+        assert "strong cached match" in decision.context[0]
 
     def test_strong_match_needs_freshness(self) -> None:
         """Strong match but needs freshness should augment."""
@@ -155,8 +155,8 @@ class TestMakeDecision:
             }
         ]
         decision = make_decision("latest python 2025 features", results, "cache_first")
-        assert decision["action"] == "augment"
-        assert "fresh data" in decision["context"][0]
+        assert decision.action == "augment"
+        assert "fresh data" in decision.context[0]
 
     def test_partial_match_cache_first(self) -> None:
         """Partial match in cache_first should augment and flag for intake."""
@@ -169,9 +169,9 @@ class TestMakeDecision:
             }
         ]
         decision = make_decision("python advanced patterns", results, "cache_first")
-        assert decision["action"] == "augment"
-        assert decision["should_flag_for_intake"] is True
-        assert "partial match" in decision["context"][0]
+        assert decision.action == "augment"
+        assert decision.should_flag_for_intake is True
+        assert "partial match" in decision.context[0]
 
     def test_weak_match_cache_first(self) -> None:
         """Weak match in cache_first should proceed."""
@@ -184,7 +184,7 @@ class TestMakeDecision:
             }
         ]
         decision = make_decision("python async patterns", results, "cache_first")
-        assert decision["should_flag_for_intake"] is True
+        assert decision.should_flag_for_intake is True
 
     def test_augment_mode_partial_match(self) -> None:
         """Augment mode should always augment with cache."""
@@ -197,8 +197,8 @@ class TestMakeDecision:
             }
         ]
         decision = make_decision("python patterns", results, "augment")
-        assert decision["action"] == "augment"
-        assert "cached_entries" in decision
+        assert decision.action == "augment"
+        assert len(decision.cached_entries) > 0
 
     def test_cache_only_partial_match(self) -> None:
         """cache_only with partial match should block."""
@@ -211,7 +211,65 @@ class TestMakeDecision:
             }
         ]
         decision = make_decision("python patterns", results, "cache_only")
-        assert decision["action"] == "block"
+        assert decision.action == "block"
+
+    def test_domain_alignment_surface(self) -> None:
+        """Domains of interest should surface in the intake payload."""
+        config = {"domains_of_interest": ["python async", "security"]}
+        decision = make_decision(
+            "python async telemetry strategy", [], "cache_first", config=config
+        )
+        assert decision.intake_payload is not None
+        assert decision.aligned_domains == ["python async"]
+        assert decision.intake_payload.domain_alignment.is_aligned
+        assert decision.novelty_score == pytest.approx(1.0)
+
+    def test_duplicate_detection_toggles_intake(self) -> None:
+        """High-overlap duplicates should disable intake flagging."""
+        results = [
+            {
+                "match_score": 0.95,
+                "match_strength": "strong",
+                "title": "Python Async Patterns",
+                "file": "docs/async.md",
+                "entry_id": "entry-123",
+            }
+        ]
+        config = {"intake_threshold": 80}
+        decision = make_decision("python async patterns", results, "cache_first", config=config)
+        assert decision.should_flag_for_intake is False
+        assert decision.intake_payload is not None
+        assert decision.intake_payload.duplicate_entry_ids == ["entry-123"]
+        assert decision.novelty_score == pytest.approx(0.05)
+
+    def test_domain_alignment_surface(self) -> None:
+        """Domains of interest should surface in the intake payload."""
+        config = {"domains_of_interest": ["python async", "security"]}
+        decision = make_decision(
+            "python async telemetry strategy", [], "cache_first", config=config
+        )
+        assert decision.intake_payload is not None
+        assert decision.aligned_domains == ["python async"]
+        assert decision.intake_payload.domain_alignment.is_aligned
+        assert decision.novelty_score == pytest.approx(1.0)
+
+    def test_duplicate_detection_toggles_intake(self) -> None:
+        """High-overlap duplicates should disable intake flagging."""
+        results = [
+            {
+                "match_score": 0.95,
+                "match_strength": "strong",
+                "title": "Python Async Patterns",
+                "file": "docs/async.md",
+                "entry_id": "entry-123",
+            }
+        ]
+        config = {"intake_threshold": 80}
+        decision = make_decision("python async patterns", results, "cache_first", config=config)
+        assert decision.should_flag_for_intake is False
+        assert decision.intake_payload is not None
+        assert decision.intake_payload.duplicate_entry_ids == ["entry-123"]
+        assert decision.novelty_score == pytest.approx(0.05)
 
 
 class TestFormatCachedEntry:
@@ -249,36 +307,39 @@ class TestSearchLocalKnowledge:
 
     def test_successful_search(self) -> None:
         """Successful search should return results."""
-        # Since CacheLookup is imported inside the function, we need to mock sys.modules
-        mock_cache_lookup = MagicMock()
-        mock_instance = MagicMock()
-        mock_instance.search.return_value = [{"title": "Test", "match_score": 0.8}]
-        mock_cache_lookup.CacheLookup.return_value = mock_instance
+        config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
+        with patch.object(research_interceptor, "CacheLookup") as mock_lookup:
+            mock_instance = MagicMock()
+            mock_instance.search.return_value = [{"title": "Test", "match_score": 0.8}]
+            mock_lookup.return_value = mock_instance
 
-        with patch.dict("sys.modules", {"memory_palace.corpus.cache_lookup": mock_cache_lookup}):
-            results = search_local_knowledge("test query")
+            results = search_local_knowledge("test query", config)
             assert len(results) == 1
             assert results[0]["title"] == "Test"
+            mock_instance.search.assert_called_once_with(
+                "test query", mode="unified", min_score=0.0
+            )
+            expected_corpus = str(research_interceptor.PLUGIN_ROOT / "docs/knowledge-corpus/")
+            expected_index = str(research_interceptor.PLUGIN_ROOT / "data/indexes")
+            mock_lookup.assert_called_once_with(expected_corpus, expected_index)
 
     def test_search_error_handling(self) -> None:
         """Search errors should return empty results."""
-        # Mock a failing import
-        mock_cache_lookup = MagicMock()
-        mock_cache_lookup.CacheLookup.side_effect = Exception("Search failed")
-
-        with patch.dict("sys.modules", {"memory_palace.corpus.cache_lookup": mock_cache_lookup}):
-            results = search_local_knowledge("test query")
+        config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
+        with patch.object(research_interceptor, "CacheLookup") as mock_lookup:
+            mock_lookup.side_effect = Exception("Search failed")
+            results = search_local_knowledge("test query", config)
             assert results == []
 
     def test_search_with_unified_mode(self) -> None:
         """Search should use unified mode."""
-        mock_cache_lookup = MagicMock()
-        mock_instance = MagicMock()
-        mock_instance.search.return_value = []
-        mock_cache_lookup.CacheLookup.return_value = mock_instance
+        config = {"corpus_dir": "docs/knowledge-corpus/", "indexes_dir": "data/indexes"}
+        with patch.object(research_interceptor, "CacheLookup") as mock_lookup:
+            mock_instance = MagicMock()
+            mock_instance.search.return_value = []
+            mock_lookup.return_value = mock_instance
 
-        with patch.dict("sys.modules", {"memory_palace.corpus.cache_lookup": mock_cache_lookup}):
-            search_local_knowledge("test query")
+            search_local_knowledge("test query", config)
             mock_instance.search.assert_called_once_with(
                 "test query", mode="unified", min_score=0.0
             )
@@ -301,8 +362,8 @@ class TestEndToEnd:
         ]
 
         decision = make_decision("evergreen test query", results, "cache_first")
-        assert decision["action"] == "augment"
-        assert "cached_entries" in decision
+        assert decision.action == "augment"
+        assert len(decision.cached_entries) > 0
 
     def test_complete_workflow_cache_only(self) -> None:
         """Test complete workflow in cache_only mode."""
@@ -316,8 +377,8 @@ class TestEndToEnd:
         ]
 
         decision = make_decision("test query", results, "cache_only")
-        assert decision["action"] == "block"
-        assert "cache_only" in decision["context"][0]
+        assert decision.action == "block"
+        assert "cache_only" in decision.context[0]
 
     def test_complete_workflow_augment(self) -> None:
         """Test complete workflow in augment mode."""
@@ -331,8 +392,8 @@ class TestEndToEnd:
         ]
 
         decision = make_decision("test query", results, "augment")
-        assert decision["action"] == "augment"
-        assert "cached_entries" in decision
+        assert decision.action == "augment"
+        assert len(decision.cached_entries) > 0
 
     def test_hook_output_format_deny(self) -> None:
         """Test hook JSON output uses correct API fields for deny action."""
@@ -349,7 +410,11 @@ class TestEndToEnd:
         )
 
         # Mock config to enable cache_only mode
-        mock_config = {"enabled": True, "research_mode": "cache_only"}
+        mock_config = {
+            "enabled": True,
+            "research_mode": "cache_only",
+            "telemetry": {"enabled": False},
+        }
 
         # Mock search to return a strong match
         mock_results = [
@@ -369,9 +434,7 @@ class TestEndToEnd:
             patch("sys.stdin", mock_stdin),
             patch("sys.stdout", mock_stdout),
             patch("shared.config.get_config", return_value=mock_config),
-            patch(
-                "research_interceptor.search_local_knowledge", return_value=mock_results
-            ),
+            patch("research_interceptor.search_local_knowledge", return_value=mock_results),
             pytest.raises(SystemExit) as exc_info,
         ):
             main()
@@ -411,7 +474,11 @@ class TestEndToEnd:
         )
 
         # Mock config to enable cache_first mode
-        mock_config = {"enabled": True, "research_mode": "cache_first"}
+        mock_config = {
+            "enabled": True,
+            "research_mode": "cache_first",
+            "telemetry": {"enabled": False},
+        }
 
         # Mock search to return a partial match (augment mode)
         mock_results = [
@@ -431,9 +498,7 @@ class TestEndToEnd:
             patch("sys.stdin", mock_stdin),
             patch("sys.stdout", mock_stdout),
             patch("shared.config.get_config", return_value=mock_config),
-            patch(
-                "research_interceptor.search_local_knowledge", return_value=mock_results
-            ),
+            patch("research_interceptor.search_local_knowledge", return_value=mock_results),
             pytest.raises(SystemExit) as exc_info,
         ):
             main()
@@ -456,6 +521,53 @@ class TestEndToEnd:
             # Verify incorrect fields are NOT present
             assert "blockToolExecution" not in hook_output
             assert "blockReason" not in hook_output
+
+    def test_telemetry_logging_enabled(self) -> None:
+        """Telemetry logger should receive a structured event when enabled."""
+        from research_interceptor import main
+
+        mock_stdin = StringIO(
+            json.dumps(
+                {
+                    "tool_name": "WebSearch",
+                    "tool_input": {"query": "async error handling"},
+                }
+            )
+        )
+        mock_config = {
+            "enabled": True,
+            "research_mode": "cache_first",
+            "telemetry": {"enabled": True, "file": "data/telemetry/test.csv"},
+        }
+        mock_results = [
+            {
+                "match_score": 0.9,
+                "match_strength": "strong",
+                "title": "Async Patterns",
+                "file": "docs/test.md",
+                "entry_id": "async-patterns",
+                "content": "Structured concurrency keeps resources safe.",
+            }
+        ]
+        mock_logger = MagicMock()
+
+        with (
+            patch("sys.stdin", mock_stdin),
+            patch("sys.stdout", StringIO()),
+            patch("shared.config.get_config", return_value=mock_config),
+            patch("research_interceptor.search_local_knowledge", return_value=mock_results),
+            patch("research_interceptor.TelemetryLogger", return_value=mock_logger),
+            pytest.raises(SystemExit),
+        ):
+            main()
+
+        mock_logger.log_event.assert_called_once()
+        telemetry_event = mock_logger.log_event.call_args[0][0]
+        assert telemetry_event.decision == "augment"
+        assert telemetry_event.cache_hits == 1
+        assert telemetry_event.returned_entries == 1
+        assert telemetry_event.novelty_score is not None
+        assert telemetry_event.intake_delta_reasoning
 
 
 if __name__ == "__main__":

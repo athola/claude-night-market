@@ -1,6 +1,5 @@
 """Tests for query template functionality."""
 
-
 # ruff: noqa: S101
 from pathlib import Path
 
@@ -68,8 +67,7 @@ class TestQueryTemplateManager:
     def test_initialization(self, temp_corpus_dir, temp_index_dir):
         """Test manager initialization."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         assert manager.corpus_dir == Path(temp_corpus_dir)
@@ -79,8 +77,7 @@ class TestQueryTemplateManager:
     def test_extract_queries_from_entry(self, temp_corpus_dir, temp_index_dir):
         """Test query extraction from a single entry."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         entry_path = temp_corpus_dir / "franklin-protocol.md"
@@ -95,8 +92,7 @@ class TestQueryTemplateManager:
     def test_build_index(self, temp_corpus_dir, temp_index_dir):
         """Test building the full query template index."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         manager.build_index()
@@ -127,8 +123,7 @@ class TestQueryTemplateManager:
     def test_search_by_query(self, temp_corpus_dir, temp_index_dir):
         """Test searching the index by query text."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         manager.build_index()
@@ -142,8 +137,7 @@ class TestQueryTemplateManager:
     def test_search_similarity_matching(self, temp_corpus_dir, temp_index_dir):
         """Test that similar queries match even without exact wording."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         manager.build_index()
@@ -157,8 +151,7 @@ class TestQueryTemplateManager:
     def test_search_no_results(self, temp_corpus_dir, temp_index_dir):
         """Test searching for non-matching query."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         manager.build_index()
@@ -171,8 +164,7 @@ class TestQueryTemplateManager:
     def test_load_existing_index(self, temp_corpus_dir, temp_index_dir):
         """Test loading an existing index from disk."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         # Build and save index
@@ -180,8 +172,7 @@ class TestQueryTemplateManager:
 
         # Create new manager instance and load
         manager2 = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         manager2.load_index()
@@ -193,8 +184,7 @@ class TestQueryTemplateManager:
     def test_metadata_tracking(self, temp_corpus_dir, temp_index_dir):
         """Test that index metadata is tracked correctly."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         manager.build_index()
@@ -212,8 +202,7 @@ class TestQueryTemplateManager:
     def test_query_normalization(self, temp_corpus_dir, temp_index_dir):
         """Test that queries are normalized for better matching."""
         manager = QueryTemplateManager(
-            corpus_dir=str(temp_corpus_dir),
-            index_dir=str(temp_index_dir)
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
         )
 
         manager.build_index()

@@ -138,9 +138,7 @@ def fixed_timestamp() -> datetime:
 
 
 @pytest.fixture
-def multiple_palaces(
-    temp_palaces_dir: Path, temp_config_file: Path
-) -> list[dict[str, Any]]:
+def multiple_palaces(temp_palaces_dir: Path, temp_config_file: Path) -> list[dict[str, Any]]:
     """Create multiple palace files for testing search and index operations.
 
     Also builds the master index so tests can query it immediately.
@@ -158,7 +156,11 @@ def multiple_palaces(
                 "decorators": {"label": "Python Decorators", "explanation": "syntactic sugar"},
             },
             "sensory_encoding": {},
-            "metadata": {"concept_count": 1, "complexity_level": "intermediate", "access_patterns": []},
+            "metadata": {
+                "concept_count": 1,
+                "complexity_level": "intermediate",
+                "access_patterns": [],
+            },
         },
         {
             "id": "palace02",

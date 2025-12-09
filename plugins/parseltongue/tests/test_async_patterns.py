@@ -83,7 +83,9 @@ class TestAsyncAnalysisSkill:
         assert "fetch_multiple_users" in concurrency["gather_usage"]["functions"]
 
         # Should analyze concurrency potential
-        assert concurrency["fetch_multiple_users"]["concurrent_operations"] == "fetch_user"
+        assert (
+            concurrency["fetch_multiple_users"]["concurrent_operations"] == "fetch_user"
+        )
 
         # Should detect return_exceptions usage
         assert concurrency["gather_usage"]["error_handling"] == "return_exceptions"
@@ -106,7 +108,9 @@ class TestAsyncAnalysisSkill:
 
         # Should detect sync_operation call in async context
         assert "sync_function_call" in blocking_patterns
-        assert blocking_patterns["sync_function_call"]["function_name"] == "sync_operation"
+        assert (
+            blocking_patterns["sync_function_call"]["function_name"] == "sync_operation"
+        )
 
         # Should provide recommendations
         assert len(blocking_patterns["recommendations"]) >= 1
@@ -239,7 +243,9 @@ async def fetch_item(item):
 
         # Should identify sequential processing issue
         assert "sequential_processing" in performance["issues"]
-        sequential_func = performance["issues"]["sequential_processing"]["process_items_sequential"]
+        sequential_func = performance["issues"]["sequential_processing"][
+            "process_items_sequential"
+        ]
         assert sequential_func["problem"] == "sequential_async_calls"
 
         # Should identify better alternative
@@ -290,7 +296,12 @@ async def main():
 
         # Should detect shared state access without synchronization
         assert "unsynchronized_shared_state" in race_conditions
-        assert race_conditions["unsynchronized_shared_state"]["increment_counter"]["accesses"] == 2
+        assert (
+            race_conditions["unsynchronized_shared_state"]["increment_counter"][
+                "accesses"
+            ]
+            == 2
+        )
 
         # Should identify safe patterns
         assert "safe_patterns" in race_conditions
@@ -356,7 +367,9 @@ async def callback_example():
     async def test_suggests_async_improvements(self, async_issues):
         """Given async code with issues, when skill analyzes, then suggests improvements."""
         # Arrange
-        problematic_code = async_issues["missing_await"] + '\n\n' + async_issues["blocking_io"]
+        problematic_code = (
+            async_issues["missing_await"] + "\n\n" + async_issues["blocking_io"]
+        )
 
         # Act
         result = await self.skill.suggest_improvements(problematic_code)

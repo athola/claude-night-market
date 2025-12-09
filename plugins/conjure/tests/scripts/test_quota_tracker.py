@@ -25,7 +25,10 @@ class TestGeminiQuotaTracker:
         tracker = GeminiQuotaTracker()
 
         assert tracker.limits == DEFAULT_LIMITS
-        assert tracker.usage_file == Path.home() / ".claude" / "hooks" / "gemini" / "usage.json"
+        assert (
+            tracker.usage_file
+            == Path.home() / ".claude" / "hooks" / "gemini" / "usage.json"
+        )
 
     def test_initialization_custom_limits(self):
         """Given custom limits when initializing tracker then should use provided limits."""
@@ -44,7 +47,7 @@ class TestGeminiQuotaTracker:
         """Given no usage file when loading data then should create new structure."""
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         assert "requests" in tracker.usage_data
@@ -79,7 +82,7 @@ class TestGeminiQuotaTracker:
 
         usage_file.write_text(json.dumps(existing_data))
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         # Should have cleaned old data and reset daily counter
@@ -92,19 +95,19 @@ class TestGeminiQuotaTracker:
         usage_file = tmp_path / "usage.json"
         usage_file.write_text("invalid json content")
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         assert tracker.usage_data["daily_tokens"] == 0
         assert len(tracker.usage_data["requests"]) == 0
 
-    @patch('builtins.open', new_callable=mock_open)
-    @patch('pathlib.Path.mkdir')
+    @patch("builtins.open", new_callable=mock_open)
+    @patch("pathlib.Path.mkdir")
     def test_record_request_success(self, mock_mkdir, mock_file, tmp_path):
         """Given successful request when recording then should update usage data."""
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         initial_daily_tokens = tracker.usage_data["daily_tokens"]
@@ -129,7 +132,7 @@ class TestGeminiQuotaTracker:
         """Given failed request when recording then should not add to daily tokens."""
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         initial_daily_tokens = tracker.usage_data["daily_tokens"]
@@ -138,13 +141,15 @@ class TestGeminiQuotaTracker:
 
         # Daily tokens should not increase for failed requests
         assert tracker.usage_data["daily_tokens"] == initial_daily_tokens
-        assert len(tracker.usage_data["requests"]) == 1  # Still recorded in requests list
+        assert (
+            len(tracker.usage_data["requests"]) == 1
+        )  # Still recorded in requests list
 
     def test_get_current_usage_empty(self, tmp_path):
         """Given no usage data when getting current usage then should return zeros."""
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         usage = tracker.get_current_usage()
@@ -159,7 +164,7 @@ class TestGeminiQuotaTracker:
         usage_file = tmp_path / "usage.json"
 
         # Create tracker and add some test data
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         # Add requests at different times
@@ -201,7 +206,7 @@ class TestGeminiQuotaTracker:
             "tokens_per_day": 10000000,
         }
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker(limits=high_limits)
 
         status, warnings = tracker.get_quota_status()
@@ -221,7 +226,7 @@ class TestGeminiQuotaTracker:
             "tokens_per_day": 10000,
         }
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker(limits=low_limits)
 
         # Add usage that exceeds warning threshold (80%)
@@ -253,7 +258,7 @@ class TestGeminiQuotaTracker:
             "tokens_per_day": 10000,
         }
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker(limits=critical_limits)
 
         # Add usage that exceeds critical threshold (95%)
@@ -272,15 +277,17 @@ class TestGeminiQuotaTracker:
         assert len(warnings) > 0
         assert any("IMMEDIATE" in warning for warning in warnings)
 
-    @patch('quota_tracker.tiktoken.get_encoding')
-    def test_estimate_task_tokens_with_encoder(self, mock_get_encoding, sample_files, tmp_path):
+    @patch("quota_tracker.tiktoken.get_encoding")
+    def test_estimate_task_tokens_with_encoder(
+        self, mock_get_encoding, sample_files, tmp_path
+    ):
         """Given tiktoken available when estimating tokens then should use encoder."""
         mock_encoder = MagicMock()
         mock_encoder.encode.return_value = list(range(50))  # 50 tokens
         mock_get_encoding.return_value = mock_encoder
 
         usage_file = tmp_path / "usage.json"
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         file_paths = [str(f) for f in sample_files]
@@ -289,13 +296,15 @@ class TestGeminiQuotaTracker:
         assert estimated > 100  # More than just the prompt
         mock_get_encoding.assert_called_once_with("cl100k_base")
 
-    @patch('quota_tracker.tiktoken.get_encoding')
-    def test_estimate_task_tokens_without_encoder(self, mock_get_encoding, sample_files, tmp_path):
+    @patch("quota_tracker.tiktoken.get_encoding")
+    def test_estimate_task_tokens_without_encoder(
+        self, mock_get_encoding, sample_files, tmp_path
+    ):
         """Given no tiktoken when estimating tokens then should use heuristic."""
         mock_get_encoding.side_effect = Exception("tiktoken not available")
 
         usage_file = tmp_path / "usage.json"
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         file_paths = [str(f) for f in sample_files]
@@ -307,7 +316,7 @@ class TestGeminiQuotaTracker:
     def test_iter_source_paths_files_only(self, sample_files, tmp_path):
         """Given file paths when iterating source paths then should yield files."""
         usage_file = tmp_path / "usage.json"
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         file_paths = [str(f) for f in sample_files]
@@ -315,12 +324,12 @@ class TestGeminiQuotaTracker:
 
         assert len(paths) == len(file_paths)
         for path in paths:
-            assert Path(path).suffix.lower() in {'.py', '.md', '.json'}
+            assert Path(path).suffix.lower() in {".py", ".md", ".json"}
 
     def test_iter_source_paths_directory(self, tmp_path):
         """Given directory when iterating source paths then should yield source files."""
         usage_file = tmp_path / "usage.json"
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         # Create a test directory structure
@@ -329,7 +338,7 @@ class TestGeminiQuotaTracker:
 
         (test_dir / "main.py").write_text("print('hello')")
         (test_dir / "README.md").write_text("# Project")
-        (test_dir / "config.json").write_text('{}')
+        (test_dir / "config.json").write_text("{}")
         (test_dir / "data.txt").write_text("some data")
         (test_dir / "__pycache__").mkdir()
         (test_dir / "__pycache__" / "cache.pyc").write_text("binary")
@@ -345,7 +354,7 @@ class TestGeminiQuotaTracker:
     def test_estimate_file_tokens_different_types(self, tmp_path):
         """Given different file types when estimating tokens then should use correct ratios."""
         usage_file = tmp_path / "usage.json"
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         # Create test files of different types with same content length
@@ -374,7 +383,7 @@ class TestGeminiQuotaTracker:
         """Given available capacity when checking task then should return can_handle=True."""
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
         can_handle, issues = tracker.can_handle_task(estimated_tokens=100)
@@ -394,7 +403,7 @@ class TestGeminiQuotaTracker:
             "tokens_per_day": 10000,
         }
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker(limits=low_limits)
 
         # Add usage that reaches the limit
@@ -425,7 +434,7 @@ class TestGeminiQuotaTracker:
             "tokens_per_day": 1000,
         }
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker(limits=low_limits)
 
         # Set daily tokens near the limit
@@ -440,8 +449,10 @@ class TestGeminiQuotaTracker:
 class TestTokenEstimation:
     """Test token estimation utility functions."""
 
-    @patch('quota_tracker.GeminiQuotaTracker')
-    def test_estimate_tokens_from_gemini_command_with_files(self, mock_tracker_class, tmp_path):
+    @patch("quota_tracker.GeminiQuotaTracker")
+    def test_estimate_tokens_from_gemini_command_with_files(
+        self, mock_tracker_class, tmp_path
+    ):
         """Given command with file references when estimating then should extract paths."""
         mock_tracker = MagicMock()
         mock_tracker.estimate_task_tokens.return_value = 500
@@ -456,7 +467,7 @@ class TestTokenEstimation:
             ["src/main.py", "docs/README.md"], len(command)
         )
 
-    @patch('quota_tracker.GeminiQuotaTracker')
+    @patch("quota_tracker.GeminiQuotaTracker")
     def test_estimate_tokens_from_gemini_command_no_files(self, mock_tracker_class):
         """Given command without files when estimating then should use default."""
         mock_tracker = MagicMock()
@@ -484,68 +495,68 @@ class TestTokenEstimation:
 class TestQuotaTrackerCli:
     """Test CLI functionality of quota tracker."""
 
-    @patch('quota_tracker.GeminiQuotaTracker')
-    @patch('sys.argv', ['quota_tracker.py', '--status'])
+    @patch("quota_tracker.GeminiQuotaTracker")
+    @patch("sys.argv", ["quota_tracker.py", "--status"])
     def test_cli_status(self, mock_tracker_class):
         """Given --status flag when running CLI then should show quota status."""
         mock_tracker = MagicMock()
-        mock_tracker.get_quota_status.return_value = (
-            "[OK] Healthy",
-            ["Some warning"]
-        )
+        mock_tracker.get_quota_status.return_value = ("[OK] Healthy", ["Some warning"])
         mock_tracker_class.return_value = mock_tracker
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from quota_tracker import main
+
             main()
 
         mock_print.assert_any_call("Status: [OK] Healthy")
         mock_print.assert_any_call("  Warning: Some warning")
 
-    @patch('quota_tracker.GeminiQuotaTracker')
-    @patch('sys.argv', ['quota_tracker.py', '--estimate', 'file1.py', 'file2.md'])
+    @patch("quota_tracker.GeminiQuotaTracker")
+    @patch("sys.argv", ["quota_tracker.py", "--estimate", "file1.py", "file2.md"])
     def test_cli_estimate(self, mock_tracker_class):
         """Given --estimate flag when running CLI then should estimate tokens."""
         mock_tracker = MagicMock()
         mock_tracker.estimate_task_tokens.return_value = 1500
         mock_tracker_class.return_value = mock_tracker
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from quota_tracker import main
+
             main()
 
-        mock_print.assert_any_call("Estimated tokens for ['file1.py', 'file2.md']: 1,500")
+        mock_print.assert_any_call(
+            "Estimated tokens for ['file1.py', 'file2.md']: 1,500"
+        )
 
-    @patch('quota_tracker.GeminiQuotaTracker')
-    @patch('sys.argv', ['quota_tracker.py', '--validate-config'])
+    @patch("quota_tracker.GeminiQuotaTracker")
+    @patch("sys.argv", ["quota_tracker.py", "--validate-config"])
     def test_cli_validate_config(self, mock_tracker_class):
         """Given --validate-config flag when running CLI then should validate config."""
         mock_tracker = MagicMock()
         mock_tracker.limits = {"test": 123}
         mock_tracker_class.return_value = mock_tracker
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from quota_tracker import main
+
             main()
 
         mock_print.assert_any_call("Quota configuration validation:")
         mock_print.assert_any_call("  test: 123")
         mock_print.assert_any_call("  Configuration is valid")
 
-    @patch('quota_tracker.GeminiQuotaTracker')
-    @patch('sys.argv', ['quota_tracker.py'])
+    @patch("quota_tracker.GeminiQuotaTracker")
+    @patch("sys.argv", ["quota_tracker.py"])
     def test_cli_default_status(self, mock_tracker_class):
         """Given no flags when running CLI then should show status by default."""
         mock_tracker = MagicMock()
-        mock_tracker.get_quota_status.return_value = (
-            "[OK] Healthy",
-            []
-        )
+        mock_tracker.get_quota_status.return_value = ("[OK] Healthy", [])
         mock_tracker_class.return_value = mock_tracker
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             from quota_tracker import main
-# ruff: noqa: S101
+
+            # ruff: noqa: S101
             main()
 
         mock_tracker.get_quota_status.assert_called_once()

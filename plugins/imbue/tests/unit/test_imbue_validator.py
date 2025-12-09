@@ -4,7 +4,6 @@ This module tests the core validation functionality of the imbue validator,
 following TDD/BDD principles and testing all business logic scenarios.
 """
 
-
 # ruff: noqa: S101
 import json
 from pathlib import Path
@@ -41,8 +40,11 @@ class TestImbueValidator:
             "version": "2.0.0",
             "skills": [
                 {"name": "review-core", "file": "skills/review-core/SKILL.md"},
-                {"name": "evidence-logging", "file": "skills/evidence-logging/SKILL.md"}
-            ]
+                {
+                    "name": "evidence-logging",
+                    "file": "skills/evidence-logging/SKILL.md",
+                },
+            ],
         }
         (plugin_root / "plugin.json").write_text(json.dumps(plugin_config))
 
@@ -153,7 +155,11 @@ This skill doesn't do reviews.
         result = validator.scan_review_workflows()
 
         # Assert
-        assert result["skills_found"] == {"review-core", "evidence-logging", "other-skill"}
+        assert result["skills_found"] == {
+            "review-core",
+            "evidence-logging",
+            "other-skill",
+        }
         assert "review-core" in result["review_workflow_skills"]
         assert "evidence-logging" in result["review_workflow_skills"]
         assert "other-skill" not in result["review_workflow_skills"]
@@ -238,7 +244,9 @@ This provides workflow orchestration.
         assert len(result["issues"]) == 1
 
     @pytest.mark.unit
-    def test_validate_review_workflows_review_core_components(self, mock_plugin_structure):
+    def test_validate_review_workflows_review_core_components(
+        self, mock_plugin_structure
+    ):
         """Scenario: Validation checks review-core skill components
         Given a review-core skill missing components
         When validating review workflows
@@ -270,7 +278,9 @@ This skill has checklist but no deliverable section.
         issues = validator.validate_review_workflows()
 
         # Assert
-        review_core_issues = [issue for issue in issues if issue.startswith("review-core:")]
+        review_core_issues = [
+            issue for issue in issues if issue.startswith("review-core:")
+        ]
         assert len(review_core_issues) > 0
         assert any("Missing review components" in issue for issue in review_core_issues)
 
@@ -304,11 +314,15 @@ This skill doesn't mention evidence or logging.
         issues = validator.validate_review_workflows()
 
         # Assert
-        evidence_issues = [issue for issue in issues if "evidence logging patterns" in issue]
+        evidence_issues = [
+            issue for issue in issues if "evidence logging patterns" in issue
+        ]
         assert any("no-evidence" in issue for issue in evidence_issues)
 
     @pytest.mark.unit
-    def test_validate_review_workflows_excludes_review_core_from_evidence_check(self, mock_plugin_structure):
+    def test_validate_review_workflows_excludes_review_core_from_evidence_check(
+        self, mock_plugin_structure
+    ):
         """Scenario: Validation excludes review-core from evidence pattern requirement
         Given a review-core skill without evidence keywords
         When validating review workflows
@@ -336,7 +350,11 @@ This skill provides review scaffolding with checklist and deliverables.
 
         # Assert
         review_core_issues = [issue for issue in issues if "review-core:" in issue]
-        evidence_issues = [issue for issue in review_core_issues if "evidence logging patterns" in issue]
+        evidence_issues = [
+            issue
+            for issue in review_core_issues
+            if "evidence logging patterns" in issue
+        ]
         assert len(evidence_issues) == 0
 
     @pytest.mark.unit
@@ -552,7 +570,9 @@ class TestImbueValidatorIntegration:
         skill_file.write_text("Test content")
 
         # Mock file reading to simulate permission error
-        with patch.object(skill_file, 'read_text', side_effect=PermissionError("Permission denied")):
+        with patch.object(
+            skill_file, "read_text", side_effect=PermissionError("Permission denied")
+        ):
             validator = ImbueValidator(plugin_root)
 
             # This should not crash, though behavior depends on implementation
@@ -600,6 +620,7 @@ This is test skill number {i} with review workflow patterns.
 
         # Act
         import time
+
         validator = ImbueValidator(plugin_root)
 
         start_time = time.time()

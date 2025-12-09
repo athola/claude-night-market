@@ -11,6 +11,7 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
+# ruff: noqa: E402  (import must come after sys.path modification)
 import logging
 
 logger = logging.getLogger(__name__)
@@ -80,8 +81,10 @@ class TokenUsageTracker:
             f"- **Total Skills:** {results['total_skills']}",
             f"- **Total Tokens:** {results['total_tokens']:,}",
             f"- **Average Tokens:** {results['average_tokens']:,}",
-            f"- **Skills Over Limit ({self.optimal_limit}):** {results['skills_over_limit']}",
-            f"- **Optimal Usage (≤{self.optimal_limit}):** {results['optimal_usage_count']}",
+            f"- **Skills Over Limit ({self.optimal_limit}):** "
+            f"{results['skills_over_limit']}",
+            f"- **Optimal Usage (≤{self.optimal_limit}):** "
+            f"{results['optimal_usage_count']}",
             "",
         ]
 

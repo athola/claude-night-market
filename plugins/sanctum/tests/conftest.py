@@ -32,7 +32,9 @@ class GitRepository:
 
     def config(self, key: str, value: str) -> None:
         """Set Git configuration."""
-        subprocess.run(self.git_cmd + ["config", key, value], check=True, capture_output=True)
+        subprocess.run(
+            self.git_cmd + ["config", key, value], check=True, capture_output=True
+        )
 
     def add_file(self, file_path: str, content: str = "") -> Path:
         """Add a file to the repository."""
@@ -43,29 +45,44 @@ class GitRepository:
 
     def stage_file(self, file_path: str) -> None:
         """Stage a file for commit."""
-        subprocess.run(self.git_cmd + ["add", file_path], check=True, capture_output=True)
+        subprocess.run(
+            self.git_cmd + ["add", file_path], check=True, capture_output=True
+        )
 
     def commit(self, message: str = "Test commit") -> str:
         """Create a commit."""
-        subprocess.run(self.git_cmd + ["commit", "-m", message], check=True, capture_output=True)
+        subprocess.run(
+            self.git_cmd + ["commit", "-m", message], check=True, capture_output=True
+        )
         # Get commit hash
-        result = subprocess.run(self.git_cmd + ["rev-parse", "HEAD"],
-                               check=True, capture_output=True, text=True)
+        result = subprocess.run(
+            self.git_cmd + ["rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
         return result.stdout.strip()
 
     def create_branch(self, branch_name: str) -> None:
         """Create and checkout a new branch."""
-        subprocess.run(self.git_cmd + ["checkout", "-b", branch_name],
-                      check=True, capture_output=True)
+        subprocess.run(
+            self.git_cmd + ["checkout", "-b", branch_name],
+            check=True,
+            capture_output=True,
+        )
 
     def get_status(self) -> dict[str, Any]:
         """Get repository status as a dictionary."""
-        result = subprocess.run(self.git_cmd + ["status", "--porcelain"],
-                               check=True, capture_output=True, text=True)
+        result = subprocess.run(
+            self.git_cmd + ["status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
         return {
             "porcelain": result.stdout.strip(),
             "has_changes": bool(result.stdout.strip()),
-            "lines": result.stdout.strip().split("\n") if result.stdout.strip() else []
+            "lines": result.stdout.strip().split("\n") if result.stdout.strip() else [],
         }
 
     def get_diff(self, cached: bool = False) -> str:
@@ -76,8 +93,9 @@ class GitRepository:
 
     def add_remote(self, name: str, url: str) -> None:
         """Add a remote repository."""
-        subprocess.run(self.git_cmd + ["remote", "add", name, url],
-                      check=True, capture_output=True)
+        subprocess.run(
+            self.git_cmd + ["remote", "add", name, url], check=True, capture_output=True
+        )
 
 
 @pytest.fixture
@@ -132,14 +150,19 @@ def staged_changes_context():
         "staged_files": [
             {"path": "src/main.py", "status": "M", "additions": 10, "deletions": 5},
             {"path": "README.md", "status": "A", "additions": 25, "deletions": 0},
-            {"path": "tests/test_main.py", "status": "M", "additions": 15, "deletions": 3}
+            {
+                "path": "tests/test_main.py",
+                "status": "M",
+                "additions": 15,
+                "deletions": 3,
+            },
         ],
         "git_status": {
             "branch": "main",
             "ahead": 0,
             "behind": 0,
-            "has_untracked": True
-        }
+            "has_untracked": True,
+        },
     }
 
 
@@ -152,13 +175,13 @@ def pull_request_context():
         "changed_files": [
             {"path": "src/feature.py", "changes": 150, "type": "feature"},
             {"path": "tests/test_feature.py", "changes": 75, "type": "test"},
-            {"path": "docs/feature.md", "changes": 50, "type": "docs"}
+            {"path": "docs/feature.md", "changes": 50, "type": "docs"},
         ],
         "commits": [
             {"hash": "abc123", "message": "feat: Add initial feature implementation"},
             {"hash": "def456", "message": "test: Add comprehensive test suite"},
-            {"hash": "ghi789", "message": "docs: Update documentation for new feature"}
-        ]
+            {"hash": "ghi789", "message": "docs: Update documentation for new feature"},
+        ],
     }
 
 
@@ -195,9 +218,7 @@ def sample_repository_state():
         "staged_files": ["file1.txt", "file2.py"],
         "unstaged_files": [],
         "untracked_files": ["temp.tmp"],
-        "remotes": {
-            "origin": "https://github.com/user/repo.git"
-        }
+        "remotes": {"origin": "https://github.com/user/repo.git"},
     }
 
 

@@ -51,7 +51,7 @@ class TestDelegationExecutorEdgeCases:
         # Should still have default services
         assert "gemini" in delegator.SERVICES
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_service_verification_command_not_found(self, mock_run, tmp_path):
         """Given missing command when verifying service then should handle gracefully."""
         mock_run.side_effect = FileNotFoundError("Command not found")
@@ -63,7 +63,7 @@ class TestDelegationExecutorEdgeCases:
         assert len(issues) > 0
         assert any("not found" in issue.lower() for issue in issues)
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_service_verification_timeout(self, mock_run, tmp_path):
         """Given command timeout when verifying service then should handle gracefully."""
         mock_run.side_effect = subprocess.TimeoutExpired("test", 10)
@@ -74,33 +74,33 @@ class TestDelegationExecutorEdgeCases:
         assert is_available is False
         assert len(issues) > 0
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_service_verification_authentication_failure(self, mock_run, tmp_path):
         """Given authentication failure when verifying service then should provide specific error."""
         # Mock version check success but auth check failure
         mock_run.side_effect = [
             MagicMock(returncode=0, stdout="version info"),  # Version check
-            MagicMock(returncode=1, stderr="Authentication failed")  # Auth check
+            MagicMock(returncode=1, stderr="Authentication failed"),  # Auth check
         ]
 
         delegator = Delegator(config_dir=tmp_path)
-        with patch.dict('os.environ', {}, clear=False):  # Remove auth env var
-            if 'GEMINI_API_KEY' in os.environ:
-                del os.environ['GEMINI_API_KEY']
+        with patch.dict("os.environ", {}, clear=False):  # Remove auth env var
+            if "GEMINI_API_KEY" in os.environ:
+                del os.environ["GEMINI_API_KEY"]
 
         is_available, issues = delegator.verify_service("gemini")
 
         assert is_available is False
-        assert any("authentication" in issue.lower() or "GEMINI_API_KEY" in issue for issue in issues)
+        assert any(
+            "authentication" in issue.lower() or "GEMINI_API_KEY" in issue
+            for issue in issues
+        )
 
     def test_token_estimation_with_nonexistent_files(self, tmp_path):
         """Given nonexistent files when estimating tokens then should handle gracefully."""
         delegator = Delegator(config_dir=tmp_path)
 
-        nonexistent_files = [
-            "/nonexistent/file1.py",
-            "/nonexistent/file2.py"
-        ]
+        nonexistent_files = ["/nonexistent/file1.py", "/nonexistent/file2.py"]
 
         # Should not raise exception
         estimated = delegator.estimate_tokens(nonexistent_files, "test prompt")
@@ -115,13 +115,15 @@ class TestDelegationExecutorEdgeCases:
         test_file = tmp_path / "test.py"
         test_file.write_text("test content")
 
-        with patch('pathlib.Path.read_text', side_effect=PermissionError("Permission denied")):
+        with patch(
+            "pathlib.Path.read_text", side_effect=PermissionError("Permission denied")
+        ):
             estimated = delegator.estimate_tokens([str(test_file)], "test prompt")
 
         assert isinstance(estimated, int)
         # Should fall back to size-based estimation or skip the file
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_execution_with_very_long_command(self, mock_run, tmp_path):
         """Given very long command when executing then should handle correctly."""
         mock_result = MagicMock()
@@ -144,7 +146,7 @@ class TestDelegationExecutorEdgeCases:
         assert isinstance(command, list)
         assert len(" ".join(command)) > 10000  # Command should be long
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_execution_with_unicode_content(self, mock_run, tmp_path):
         """Given unicode content in files when executing then should handle correctly."""
         mock_result = MagicMock()
@@ -160,12 +162,14 @@ class TestDelegationExecutorEdgeCases:
         unicode_content = "Test with unicode: αβγδε漢字𐍈"  # Greek, Chinese, and Gothic
         unicode_file.write_text(unicode_content)
 
-        result = delegator.execute("gemini", "Process unicode content", files=[str(unicode_file)])
+        result = delegator.execute(
+            "gemini", "Process unicode content", files=[str(unicode_file)]
+        )
 
         assert result.success is True
         # Should handle unicode without encoding errors
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_execution_with_zero_timeout(self, mock_run, tmp_path):
         """Given zero timeout when executing then should handle appropriately."""
         mock_run.side_effect = subprocess.TimeoutExpired("command", 0)
@@ -181,16 +185,24 @@ class TestDelegationExecutorEdgeCases:
         """Given invalid usage directory when logging then should create directories as needed."""
         invalid_dir = tmp_path / "nonexistent" / "deep" / "path"
 
-        with patch.object(Delegator, 'usage_log', invalid_dir / "usage.jsonl"):
+        with patch.object(Delegator, "usage_log", invalid_dir / "usage.jsonl"):
             delegator = Delegator(config_dir=tmp_path)
 
             # Should not raise exception when trying to log
-            with patch('builtins.open', mock_open()):
+            with patch("builtins.open", mock_open()):
                 try:
                     # This would normally create the directory structure
-                    delegator.log_usage("test", [], ExecutionResult(
-                        success=True, stdout="", stderr="", exit_code=0, duration=1.0
-                    ))
+                    delegator.log_usage(
+                        "test",
+                        [],
+                        ExecutionResult(
+                            success=True,
+                            stdout="",
+                            stderr="",
+                            exit_code=0,
+                            duration=1.0,
+                        ),
+                    )
                 except Exception as e:
                     # If it fails, it should be a directory creation issue, not a crash
                     assert "directory" in str(e).lower() or "path" in str(e).lower()
@@ -204,7 +216,7 @@ class TestQuotaTrackerEdgeCases:
         usage_file = tmp_path / "usage.json"
         usage_file.write_text("corrupted json content\n{invalid json")
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
             # Should create new structure instead of crashing
@@ -221,21 +233,21 @@ class TestQuotaTrackerEdgeCases:
                 {
                     "timestamp": "9999-12-31T23:59:59",  # Future timestamp
                     "tokens": 100,
-                    "success": True
+                    "success": True,
                 },
                 {
                     "timestamp": "1970-01-01T00:00:00",  # Unix epoch
                     "tokens": 200,
-                    "success": True
-                }
+                    "success": True,
+                },
             ],
             "daily_tokens": 300,
-            "last_reset": datetime.now().isoformat()
+            "last_reset": datetime.now().isoformat(),
         }
 
         usage_file.write_text(json.dumps(extreme_data, indent=2))
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
             # Should handle extreme timestamps without crashing
@@ -253,16 +265,16 @@ class TestQuotaTrackerEdgeCases:
                 {
                     "timestamp": datetime.now().isoformat(),
                     "tokens": -100,  # Negative tokens
-                    "success": True
+                    "success": True,
                 }
             ],
             "daily_tokens": -50,  # Negative daily total
-            "last_reset": datetime.now().isoformat()
+            "last_reset": datetime.now().isoformat(),
         }
 
         usage_file.write_text(json.dumps(corrupted_data, indent=2))
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
             # Should handle negative values gracefully
@@ -279,16 +291,16 @@ class TestQuotaTrackerEdgeCases:
                 {
                     "timestamp": datetime.now().isoformat(),
                     "tokens": 10**12,  # Trillion tokens
-                    "success": True
+                    "success": True,
                 }
             ],
             "daily_tokens": 10**15,  # Quadrillion tokens
-            "last_reset": datetime.now().isoformat()
+            "last_reset": datetime.now().isoformat(),
         }
 
         usage_file.write_text(json.dumps(huge_data, indent=2))
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
             # Should handle huge values without overflow
@@ -297,7 +309,7 @@ class TestQuotaTrackerEdgeCases:
             # Should show critical status due to huge usage
             assert "[CRITICAL]" in status
 
-    @patch('quota_tracker.tiktoken.get_encoding')
+    @patch("quota_tracker.tiktoken.get_encoding")
     def test_token_estimation_with_empty_files(self, mock_encoder, tmp_path):
         """Given empty files when estimating tokens then should handle gracefully."""
         mock_encoder_instance = MagicMock()
@@ -306,7 +318,7 @@ class TestQuotaTrackerEdgeCases:
 
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
             # Create empty file
@@ -322,12 +334,17 @@ class TestQuotaTrackerEdgeCases:
         """Given file permission errors when tracking quota then should handle gracefully."""
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             tracker = GeminiQuotaTracker()
 
             # Mock permission errors
-            with patch('builtins.open', side_effect=PermissionError("Permission denied")):
-                with patch('pathlib.Path.mkdir', side_effect=PermissionError("Permission denied")):
+            with patch(
+                "builtins.open", side_effect=PermissionError("Permission denied")
+            ):
+                with patch(
+                    "pathlib.Path.mkdir",
+                    side_effect=PermissionError("Permission denied"),
+                ):
                     # Should not raise exception
                     try:
                         tracker.record_request(1000, success=True)
@@ -343,7 +360,7 @@ class TestQuotaTrackerEdgeCases:
         """Given concurrent access when tracking quota then should handle race conditions."""
         usage_file = tmp_path / "usage.json"
 
-        with patch.object(GeminiQuotaTracker, 'usage_file', usage_file):
+        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
             # Simulate multiple instances writing to the same file
             trackers = [GeminiQuotaTracker() for _ in range(5)]
 
@@ -365,7 +382,7 @@ class TestUsageLoggerEdgeCases:
         """Given very long commands when logging usage then should handle gracefully."""
         usage_log = tmp_path / "usage.jsonl"
 
-        with patch.object(GeminiUsageLogger, 'usage_log', usage_log):
+        with patch.object(GeminiUsageLogger, "usage_log", usage_log):
             logger = GeminiUsageLogger()
 
             # Create extremely long command
@@ -375,7 +392,7 @@ class TestUsageLoggerEdgeCases:
                 command=long_command,
                 estimated_tokens=50000,
                 success=True,
-                duration=10.0
+                duration=10.0,
             )
 
             # Should not raise exception
@@ -391,17 +408,19 @@ class TestUsageLoggerEdgeCases:
         """Given special characters in commands when logging usage then should handle correctly."""
         usage_log = tmp_path / "usage.jsonl"
 
-        with patch.object(GeminiUsageLogger, 'usage_log', usage_log):
+        with patch.object(GeminiUsageLogger, "usage_log", usage_log):
             logger = GeminiUsageLogger()
 
             # Command with various special characters
-            special_command = 'gemini -p "Test with \n\t\r and quotes \'\" and \\ backslashes"'
+            special_command = (
+                'gemini -p "Test with \n\t\r and quotes \'" and \\ backslashes"'
+            )
 
             entry = UsageEntry(
                 command=special_command,
                 estimated_tokens=1000,
                 success=True,
-                duration=2.0
+                duration=2.0,
             )
 
             logger.log_usage(entry)
@@ -419,8 +438,8 @@ class TestUsageLoggerEdgeCases:
         # Create corrupted session file
         session_file.write_text("corrupted json content {invalid")
 
-        with patch.object(GeminiUsageLogger, 'session_file', session_file):
-            with patch.object(GeminiUsageLogger, 'usage_log', usage_log):
+        with patch.object(GeminiUsageLogger, "session_file", session_file):
+            with patch.object(GeminiUsageLogger, "usage_log", usage_log):
                 logger = GeminiUsageLogger()
 
                 entry = UsageEntry("test command", 1000, success=True)
@@ -436,15 +455,17 @@ class TestUsageLoggerEdgeCases:
         """Given session timeout edge cases when logging usage then should handle correctly."""
         session_file = tmp_path / "current_session.json"
 
-        with patch.object(GeminiUsageLogger, 'session_file', session_file):
+        with patch.object(GeminiUsageLogger, "session_file", session_file):
             logger = GeminiUsageLogger()
 
             # Test exactly at timeout boundary
-            with patch('time.time', return_value=int(time.time())):
+            with patch("time.time", return_value=int(time.time())):
                 session_id1 = logger._get_session_id()
 
             # Test just after timeout
-            with patch('time.time', return_value=int(time.time()) + 3601):  # 1 hour + 1 second
+            with patch(
+                "time.time", return_value=int(time.time()) + 3601
+            ):  # 1 hour + 1 second
                 session_id2 = logger._get_session_id()
 
             # Should create new session after timeout
@@ -454,11 +475,11 @@ class TestUsageLoggerEdgeCases:
         """Given disk full condition when logging usage then should handle gracefully."""
         usage_log = tmp_path / "usage.jsonl"
 
-        with patch.object(GeminiUsageLogger, 'usage_log', usage_log):
+        with patch.object(GeminiUsageLogger, "usage_log", usage_log):
             logger = GeminiUsageLogger()
 
             # Simulate disk full error
-            with patch('builtins.open', side_effect=OSError("No space left on device")):
+            with patch("builtins.open", side_effect=OSError("No space left on device")):
                 entry = UsageEntry("test command", 1000, success=True)
 
                 # Should not raise exception to caller
@@ -472,7 +493,7 @@ class TestUsageLoggerEdgeCases:
         """Given very high frequency requests when logging usage then should handle performance."""
         usage_log = tmp_path / "usage.jsonl"
 
-        with patch.object(GeminiUsageLogger, 'usage_log', usage_log):
+        with patch.object(GeminiUsageLogger, "usage_log", usage_log):
             logger = GeminiUsageLogger()
 
             # Log many requests rapidly
@@ -494,7 +515,7 @@ class TestUsageLoggerEdgeCases:
 class TestSystemIntegrationEdgeCases:
     """Test system integration edge cases."""
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_network_connectivity_issues(self, mock_run, tmp_path):
         """Given network connectivity issues when executing delegation then should handle gracefully."""
         # Mock various network errors
@@ -515,16 +536,22 @@ class TestSystemIntegrationEdgeCases:
             assert result.success is False
             assert result.stderr is not None
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_api_rate_limiting_scenarios(self, mock_run, tmp_path):
         """Given various API rate limiting scenarios when executing delegation then should handle appropriately."""
         rate_limit_responses = [
             # HTTP 429 with retry-after
-            subprocess.CalledProcessError(1, "gemini", stderr="HTTP/1.1 429 Too Many Requests\nRetry-After: 60"),
+            subprocess.CalledProcessError(
+                1, "gemini", stderr="HTTP/1.1 429 Too Many Requests\nRetry-After: 60"
+            ),
             # HTTP 429 without retry-after
-            subprocess.CalledProcessError(1, "gemini", stderr="HTTP/1.1 429 Too Many Requests"),
+            subprocess.CalledProcessError(
+                1, "gemini", stderr="HTTP/1.1 429 Too Many Requests"
+            ),
             # Custom rate limit message
-            subprocess.CalledProcessError(1, "gemini", stderr="Rate limit exceeded. Try again later."),
+            subprocess.CalledProcessError(
+                1, "gemini", stderr="Rate limit exceeded. Try again later."
+            ),
         ]
 
         delegator = Delegator(config_dir=tmp_path)
@@ -536,13 +563,18 @@ class TestSystemIntegrationEdgeCases:
 
             assert result.success is False
             # Should indicate rate limiting in the error
-            assert any(keyword in result.stderr.lower() for keyword in ["429", "rate limit", "too many"])
+            assert any(
+                keyword in result.stderr.lower()
+                for keyword in ["429", "rate limit", "too many"]
+            )
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_memory_exhaustion_scenarios(self, mock_run, tmp_path):
         """Given memory exhaustion scenarios when executing delegation then should handle gracefully."""
         memory_errors = [
-            subprocess.CalledProcessError(1, "gemini", stderr="MemoryError: Out of memory"),
+            subprocess.CalledProcessError(
+                1, "gemini", stderr="MemoryError: Out of memory"
+            ),
             subprocess.CalledProcessError(1, "gemini", stderr="Killed"),
             subprocess.CalledProcessError(1, "gemini", stderr="Segmentation fault"),
         ]
@@ -562,19 +594,19 @@ class TestSystemIntegrationEdgeCases:
         delegator = Delegator(config_dir=tmp_path)
 
         # Test with empty environment variables
-        with patch.dict(os.environ, {'GEMINI_API_KEY': ''}, clear=False):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": ""}, clear=False):
             is_available, issues = delegator.verify_service("gemini")
             # Empty API key should be treated as missing
 
         # Test with None-like environment variables
         with patch.dict(os.environ, {}, clear=False):
-            if 'GEMINI_API_KEY' in os.environ:
-                del os.environ['GEMINI_API_KEY']
+            if "GEMINI_API_KEY" in os.environ:
+                del os.environ["GEMINI_API_KEY"]
 
             is_available, issues = delegator.verify_service("gemini")
             assert is_available is False
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_filesystem_edge_cases(self, mock_run, tmp_path):
         """Given filesystem edge cases when executing delegation then should handle appropriately."""
         # Create a very deep directory structure
@@ -606,16 +638,18 @@ class TestSystemIntegrationEdgeCases:
             """Worker function for concurrent delegation."""
             try:
                 # Mock the actual execution for thread safety
-                with patch.object(delegator, 'build_command') as mock_build:
+                with patch.object(delegator, "build_command") as mock_build:
                     mock_build.return_value = ["echo", f"worker_{worker_id}"]
-                    with patch('subprocess.run') as mock_run:
+                    with patch("subprocess.run") as mock_run:
                         mock_result = MagicMock()
                         mock_result.returncode = 0
                         mock_result.stdout = f"Result from worker {worker_id}"
                         mock_result.stderr = ""
                         mock_run.return_value = mock_result
 
-                        result = delegator.execute("gemini", f"test from worker {worker_id}")
+                        result = delegator.execute(
+                            "gemini", f"test from worker {worker_id}"
+                        )
                         results_queue.put((worker_id, result.success))
             except Exception as e:
                 results_queue.put((worker_id, e))
@@ -672,6 +706,7 @@ class TestSystemIntegrationEdgeCases:
             except Exception as e:
                 # Should handle specific types of corruption gracefully
                 assert not isinstance(e, RecursionError)  # Should not infinite loop
+
 
 # Import os for environment variable tests
 import os

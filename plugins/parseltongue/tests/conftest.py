@@ -53,7 +53,7 @@ class UserService:
         return [user for user in self.users if user.is_active]
 '''
 
-JAVASCRIPT_SAMPLE_CODE = '''
+JAVASCRIPT_SAMPLE_CODE = """
 class UserService {
     constructor() {
         this.users = [];
@@ -98,9 +98,9 @@ class UserService {
         return this.cache.get(id);
     }
 }
-'''
+"""
 
-RUST_SAMPLE_CODE = '''
+RUST_SAMPLE_CODE = """
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
@@ -162,9 +162,9 @@ pub fn find_user_optimized(users: &[User], target_id: u64) -> Option<&User> {
     // Binary search would be better for sorted data
     users.iter().find(|user| user.id == target_id)
 }
-'''
+"""
 
-TYPESCRIPT_SAMPLE_CODE = '''
+TYPESCRIPT_SAMPLE_CODE = """
 interface User {
     id: number;
     name: string;
@@ -223,7 +223,7 @@ class UserService {
             .filter(predicate);
     }
 }
-'''
+"""
 
 ASYNC_PYTHON_SAMPLE = '''
 import asyncio
@@ -395,30 +395,36 @@ async def process_batch(items: List[dict], batch_size: int = 10):
                 print(f"Processed: {result}")
 '''
 
+
 @pytest.fixture
 def sample_python_code():
     """Fixture providing sample Python code for testing."""
     return PYTHON_SAMPLE_CODE
+
 
 @pytest.fixture
 def sample_javascript_code():
     """Fixture providing sample JavaScript code for testing."""
     return JAVASCRIPT_SAMPLE_CODE
 
+
 @pytest.fixture
 def sample_rust_code():
     """Fixture providing sample Rust code for testing."""
     return RUST_SAMPLE_CODE
+
 
 @pytest.fixture
 def sample_typescript_code():
     """Fixture providing sample TypeScript code for testing."""
     return TYPESCRIPT_SAMPLE_CODE
 
+
 @pytest.fixture
 def sample_async_code():
     """Fixture providing sample async Python code for testing."""
     return ASYNC_PYTHON_SAMPLE
+
 
 @pytest.fixture
 def sample_test_patterns():
@@ -426,8 +432,9 @@ def sample_test_patterns():
     return {
         "pytest_fixture": textwrap.dedent(PYTHON_TEST_PATTERN),
         "performance_pattern": textwrap.dedent(PYTHON_PERFORMANCE_PATTERN),
-        "async_pattern": textwrap.dedent(PYTHON_ASYNC_PATTERN)
+        "async_pattern": textwrap.dedent(PYTHON_ASYNC_PATTERN),
     }
+
 
 @pytest.fixture
 def temp_project_directory():
@@ -460,13 +467,34 @@ dependencies = [
 
         # Initialize git repository
         import subprocess
-        subprocess.run(["git", "init"], check=False, cwd=project_path, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@example.com"], check=False, cwd=project_path, capture_output=True)
-        subprocess.run(["git", "config", "user.name", "Test User"], check=False, cwd=project_path, capture_output=True)
-        subprocess.run(["git", "add", "."], check=False, cwd=project_path, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit"], check=False, cwd=project_path, capture_output=True)
+
+        subprocess.run(
+            ["git", "init"], check=False, cwd=project_path, capture_output=True
+        )
+        subprocess.run(
+            ["git", "config", "user.email", "test@example.com"],
+            check=False,
+            cwd=project_path,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Test User"],
+            check=False,
+            cwd=project_path,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "add", "."], check=False, cwd=project_path, capture_output=True
+        )
+        subprocess.run(
+            ["git", "commit", "-m", "Initial commit"],
+            check=False,
+            cwd=project_path,
+            capture_output=True,
+        )
 
         yield project_path
+
 
 @pytest.fixture
 def mock_skill_context():
@@ -479,6 +507,7 @@ def mock_skill_context():
     context.get_unstaged_files.return_value = []
     return context
 
+
 @pytest.fixture
 def language_samples():
     """Fixture providing code samples in multiple languages."""
@@ -486,29 +515,28 @@ def language_samples():
         "python": PYTHON_SAMPLE_CODE,
         "javascript": JAVASCRIPT_SAMPLE_CODE,
         "rust": RUST_SAMPLE_CODE,
-        "typescript": TYPESCRIPT_SAMPLE_CODE
+        "typescript": TYPESCRIPT_SAMPLE_CODE,
     }
+
 
 @pytest.fixture
 def performance_issues():
     """Fixture containing code with performance issues."""
     return {
-        "nested_loops": '''
+        "nested_loops": """
 # O(n²) nested loop - performance issue
 for i in range(len(items)):
     for j in range(len(items)):
         if i != j and items[i] == items[j]:
             duplicates.append(items[i])
-        ''',
-
-        "memory_leak": '''
+        """,
+        "memory_leak": """
 # Memory leak - growing list without cleanup
 cache = []
 def add_to_cache(item):
     cache.append(item)  # Never cleared
-        ''',
-
-        "blocking_io": '''
+        """,
+        "blocking_io": """
 # Blocking I/O in async context
 def sync_operation():
     time.sleep(1)  # Blocks event loop
@@ -517,59 +545,58 @@ def sync_operation():
 async def async_function():
     result = sync_operation()  # Bad: blocking call in async
     return result
-        '''
+        """,
     }
+
 
 @pytest.fixture
 def async_issues():
     """Fixture containing code with async issues."""
     return {
-        "missing_await": '''
+        "missing_await": """
 async def fetch_data():
     data = api_call()  # Missing await
     return data
-        ''',
-
-        "context_not_used": '''
+        """,
+        "context_not_used": """
 async def process_items(items):
     results = []
     for item in items:
         result = await process_item(item)
         results.append(result)
     return results  # Could use gather() for concurrency
-        ''',
-
-        "no_error_handling": '''
+        """,
+        "no_error_handling": """
 async def risky_operation():
     data = await fetch_from_api()
     return data.json()  # No error handling
-        '''
+        """,
     }
+
 
 @pytest.fixture
 def testing_issues():
     """Fixture containing code with testing issues."""
     return {
-        "no_fixtures": '''
+        "no_fixtures": """
 def test_user_service():
     service = UserService()  # No fixture, creates new instance each test
     user = service.create_user("Alice", "alice@example.com")
     assert user.name == "Alice"
-        ''',
-
-        "testing_implementation": '''
+        """,
+        "testing_implementation": """
 def test_internal_method():
     service = UserService()
     result = service._validate_email("test@example.com")  # Testing private method
     assert result is True
-        ''',
-
-        "no_assertions": '''
+        """,
+        "no_assertions": """
 def test_user_creation():
     user = create_user("Alice", "alice@example.com")
     print(f"Created user: {user}")  # No assertions
-        '''
+        """,
     }
+
 
 class MockAgentResponse:
     """Mock agent response for testing."""
@@ -580,45 +607,42 @@ class MockAgentResponse:
         self.metadata = {
             "tokens_used": 100,
             "execution_time": 1.5,
-            "language_detected": "python"
+            "language_detected": "python",
         }
+
 
 @pytest.fixture
 def mock_agent_responses():
     """Create mock agent responses for testing."""
     return {
-        "python_pro": MockAgentResponse("Here's a modern Python implementation using type hints and asyncio."),
-        "python_tester": MockAgentResponse("Here's a comprehensive test suite using pytest fixtures."),
-        "python_optimizer": MockAgentResponse("I've optimized this by using sets instead of nested loops."),
-        "error_response": MockAgentResponse("I encountered an error processing this request.", False)
+        "python_pro": MockAgentResponse(
+            "Here's a modern Python implementation using type hints and asyncio."
+        ),
+        "python_tester": MockAgentResponse(
+            "Here's a comprehensive test suite using pytest fixtures."
+        ),
+        "python_optimizer": MockAgentResponse(
+            "I've optimized this by using sets instead of nested loops."
+        ),
+        "error_response": MockAgentResponse(
+            "I encountered an error processing this request.", False
+        ),
     }
+
 
 # Test markers for categorization
 pytest_plugins = []
 
+
 def pytest_configure(config):
     """Configure custom pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: Mark test as unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Mark test as integration test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: Mark test as slow running"
-    )
-    config.addinivalue_line(
-        "markers", "performance: Mark test as performance-focused"
-    )
-    config.addinivalue_line(
-        "markers", "asyncio: Mark test as async-focused"
-    )
-    config.addinivalue_line(
-        "markers", "testing: Mark test as testing-focused"
-    )
-    config.addinivalue_line(
-        "markers", "packaging: Mark test as packaging-focused"
-    )
+    config.addinivalue_line("markers", "unit: Mark test as unit test")
+    config.addinivalue_line("markers", "integration: Mark test as integration test")
+    config.addinivalue_line("markers", "slow: Mark test as slow running")
+    config.addinivalue_line("markers", "performance: Mark test as performance-focused")
+    config.addinivalue_line("markers", "asyncio: Mark test as async-focused")
+    config.addinivalue_line("markers", "testing: Mark test as testing-focused")
+    config.addinivalue_line("markers", "packaging: Mark test as packaging-focused")
     config.addinivalue_line(
         "markers", "language_detection: Mark test as language detection test"
     )

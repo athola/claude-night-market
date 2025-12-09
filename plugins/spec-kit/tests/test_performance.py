@@ -1,6 +1,5 @@
 """Performance tests for spec-kit wrapped commands."""
 
-
 # ruff: noqa: S101
 import os
 import time
@@ -204,9 +203,9 @@ class TestPerformanceBenchmarks:
                 execution_time = time.time() - start_time
 
                 # Should complete within time limit
-                assert (
-                    execution_time < time_limit
-                ), f"{command} took {execution_time:.2f}s, limit is {time_limit}s"
+                assert execution_time < time_limit, (
+                    f"{command} took {execution_time:.2f}s, limit is {time_limit}s"
+                )
 
     class TestResourceOptimization:
         """Test resource optimization features."""

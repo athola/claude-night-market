@@ -4,7 +4,6 @@ This module tests the conservation workflow validation, pattern matching,
 and report generation functionality following TDD/BDD principles.
 """
 
-
 # ruff: noqa: S101
 import json
 
@@ -21,7 +20,9 @@ class TestConservationValidator:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validator_detects_conservation_workflow_patterns(self, mock_conservation_validator):
+    def test_validator_detects_conservation_workflow_patterns(
+        self, mock_conservation_validator
+    ):
         """Scenario: Validator detects conservation workflow patterns
         Given a conservation plugin with multiple skills
         When scanning for conservation patterns
@@ -34,23 +35,25 @@ class TestConservationValidator:
                 "file": "skills/context-optimization/SKILL.md",
                 "type": "mecw_principles",
                 "confidence": 0.9,
-                "indicators": ["MECW", "context optimization", "50% rule"]
+                "indicators": ["MECW", "context optimization", "50% rule"],
             },
             {
                 "file": "skills/resource-management/token-conservation/SKILL.md",
                 "type": "token_conservation",
                 "confidence": 0.95,
-                "indicators": ["token budget", "quota", "conservation"]
+                "indicators": ["token budget", "quota", "conservation"],
             },
             {
                 "file": "skills/performance-monitoring/cpu-gpu-performance/SKILL.md",
                 "type": "performance_monitoring",
                 "confidence": 0.85,
-                "indicators": ["performance metrics", "resource monitoring"]
-            }
+                "indicators": ["performance metrics", "resource monitoring"],
+            },
         ]
 
-        mock_conservation_validator.scan_conservation_workflows.return_value = mock_patterns
+        mock_conservation_validator.scan_conservation_workflows.return_value = (
+            mock_patterns
+        )
 
         # Act
         patterns = mock_conservation_validator.scan_conservation_workflows()
@@ -78,14 +81,17 @@ class TestConservationValidator:
         test_contexts = [
             {"tokens": 5000, "window": 200000, "expected_status": "LOW"},
             {"tokens": 90000, "window": 200000, "expected_status": "HIGH"},
-            {"tokens": 150000, "window": 200000, "expected_status": "CRITICAL"}
+            {"tokens": 150000, "window": 200000, "expected_status": "CRITICAL"},
         ]
 
         # Act & Assert
         for context in test_contexts:
             analysis = mock_mecw_analyzer.analyze_context_usage(context["tokens"])
 
-            assert analysis["utilization_percentage"] == (context["tokens"] / context["window"]) * 100
+            assert (
+                analysis["utilization_percentage"]
+                == (context["tokens"] / context["window"]) * 100
+            )
             assert "status" in analysis
             assert "mecw_compliant" in analysis
             assert "recommended_actions" in analysis
@@ -96,7 +102,9 @@ class TestConservationValidator:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validator_analyzes_token_conservation_patterns(self, mock_token_quota_tracker):
+    def test_validator_analyzes_token_conservation_patterns(
+        self, mock_token_quota_tracker
+    ):
         """Scenario: Validator analyzes token conservation patterns
         Given token usage logs and quota information
         When analyzing conservation patterns
@@ -125,7 +133,9 @@ class TestConservationValidator:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validator_detects_performance_monitoring_patterns(self, mock_performance_monitor):
+    def test_validator_detects_performance_monitoring_patterns(
+        self, mock_performance_monitor
+    ):
         """Scenario: Validator detects performance monitoring capabilities
         Given performance monitoring skills and metrics
         When detecting monitoring patterns
@@ -152,7 +162,9 @@ class TestConservationValidator:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validator_validates_skill_configuration_compliance(self, sample_skill_content):
+    def test_validator_validates_skill_configuration_compliance(
+        self, sample_skill_content
+    ):
         """Scenario: Validator validates conservation skill configuration
         Given conservation skill files with frontmatter
         When validating configuration compliance
@@ -163,10 +175,10 @@ class TestConservationValidator:
         skill_content = sample_skill_content
 
         # Act - parse frontmatter and validate conservation-specific fields
-        lines = skill_content.split('\n')
-        frontmatter_end = lines.index('---', 1) if '---' in lines[1:] else -1
+        lines = skill_content.split("\n")
+        frontmatter_end = lines.index("---", 1) if "---" in lines[1:] else -1
 
-        frontmatter = '\n'.join(lines[1:frontmatter_end]) if frontmatter_end > 0 else ""
+        frontmatter = "\n".join(lines[1:frontmatter_end]) if frontmatter_end > 0 else ""
 
         # Assert conservation-specific fields
         assert "token_budget:" in frontmatter
@@ -176,7 +188,9 @@ class TestConservationValidator:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validator_generates_comprehensive_report(self, mock_conservation_validator):
+    def test_validator_generates_comprehensive_report(
+        self, mock_conservation_validator
+    ):
         """Scenario: Validator generates comprehensive conservation report
         Given conservation analysis results
         When generating report
@@ -189,22 +203,24 @@ class TestConservationValidator:
                 "total_skills": 5,
                 "compliant_skills": 4,
                 "average_utilization": 35.2,
-                "optimization_opportunities": 2
+                "optimization_opportunities": 2,
             },
             "token_analysis": {
                 "weekly_usage": 45000,
                 "weekly_limit": 100000,
                 "efficiency_score": 0.85,
-                "quota_status": "healthy"
+                "quota_status": "healthy",
             },
             "performance_analysis": {
                 "monitoring_coverage": 0.8,
                 "alert_configuration": "proper",
-                "resource_efficiency": 0.75
-            }
+                "resource_efficiency": 0.75,
+            },
         }
 
-        mock_conservation_validator.generate_report.return_value = json.dumps(mock_analysis_results, indent=2)
+        mock_conservation_validator.generate_report.return_value = json.dumps(
+            mock_analysis_results, indent=2
+        )
 
         # Act
         report = mock_conservation_validator.generate_report()
@@ -216,12 +232,16 @@ class TestConservationValidator:
         assert "performance_analysis" in report_data
 
         mecw = report_data["mecw_analysis"]
-        assert mecw["compliant_skills"] < mecw["total_skills"]  # Some optimization needed
+        assert (
+            mecw["compliant_skills"] < mecw["total_skills"]
+        )  # Some optimization needed
         assert mecw["average_utilization"] < 50.0  # Should be under MECW threshold
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_validator_identifies_optimization_opportunities(self, mock_conservation_validator):
+    def test_validator_identifies_optimization_opportunities(
+        self, mock_conservation_validator
+    ):
         """Scenario: Validator identifies resource optimization opportunities
         Given conservation plugin configuration and usage patterns
         When identifying optimization opportunities
@@ -235,28 +255,32 @@ class TestConservationValidator:
                 "severity": "high",
                 "description": "Context usage exceeds 50% threshold",
                 "impact": "Reduced response quality and increased costs",
-                "recommendation": "Implement context compression techniques"
+                "recommendation": "Implement context compression techniques",
             },
             {
                 "type": "token_inefficiency",
                 "severity": "medium",
                 "description": "Redundant prompts in token conservation workflows",
                 "impact": "Increased token consumption without added value",
-                "recommendation": "Consolidate similar prompts and use templates"
+                "recommendation": "Consolidate similar prompts and use templates",
             },
             {
                 "type": "performance_gap",
                 "severity": "low",
                 "description": "Missing performance monitoring for CPU usage",
                 "impact": "Limited visibility into resource consumption",
-                "recommendation": "Add CPU monitoring thresholds and alerts"
-            }
+                "recommendation": "Add CPU monitoring thresholds and alerts",
+            },
         ]
 
-        mock_conservation_validator.identify_optimization_opportunities.return_value = mock_opportunities
+        mock_conservation_validator.identify_optimization_opportunities.return_value = (
+            mock_opportunities
+        )
 
         # Act
-        opportunities = mock_conservation_validator.identify_optimization_opportunities()
+        opportunities = (
+            mock_conservation_validator.identify_optimization_opportunities()
+        )
 
         # Assert
         assert len(opportunities) == 3
@@ -270,7 +294,9 @@ class TestConservationValidator:
             assert "recommendation" in opp
 
     @pytest.mark.unit
-    def test_validator_handles_invalid_skill_files_gracefully(self, mock_conservation_validator):
+    def test_validator_handles_invalid_skill_files_gracefully(
+        self, mock_conservation_validator
+    ):
         """Scenario: Validator handles invalid or malformed skill files
         Given skill files with missing or invalid frontmatter
         When validating skills
@@ -281,25 +307,25 @@ class TestConservationValidator:
         invalid_skill_files = [
             "skills/invalid-syntax/SKILL.md",  # Invalid YAML syntax
             "skills/missing-fields/SKILL.md",  # Missing required fields
-            "skills/no-frontmatter/SKILL.md"   # No frontmatter at all
+            "skills/no-frontmatter/SKILL.md",  # No frontmatter at all
         ]
 
         validation_errors = [
             {
                 "file": "skills/invalid-syntax/SKILL.md",
                 "error": "Invalid YAML syntax in frontmatter",
-                "line": 5
+                "line": 5,
             },
             {
                 "file": "skills/missing-fields/SKILL.md",
                 "error": "Missing required field: token_budget",
-                "line": 8
+                "line": 8,
             },
             {
                 "file": "skills/no-frontmatter/SKILL.md",
                 "error": "No frontmatter found in skill file",
-                "line": 1
-            }
+                "line": 1,
+            },
         ]
 
         mock_conservation_validator.validate_skill_file.side_effect = validation_errors
@@ -333,15 +359,21 @@ class TestConservationValidator:
         def mock_large_scan():
             # Simulate processing time
             import time
+
             time.sleep(0.01)  # Small delay to simulate work
 
-            return [{"file": skill, "type": "conservation", "confidence": 0.8}
-                   for skill in large_skill_set]
+            return [
+                {"file": skill, "type": "conservation", "confidence": 0.8}
+                for skill in large_skill_set
+            ]
 
-        mock_conservation_validator.scan_conservation_workflows.side_effect = mock_large_scan
+        mock_conservation_validator.scan_conservation_workflows.side_effect = (
+            mock_large_scan
+        )
 
         # Act
         import time
+
         start_time = time.time()
         results = mock_conservation_validator.scan_conservation_workflows()
         end_time = time.time()
@@ -353,7 +385,9 @@ class TestConservationValidator:
         assert all(result["confidence"] > 0.7 for result in results)
 
     @pytest.mark.unit
-    def test_validator_integration_with_abstract_plugin(self, mock_conservation_validator):
+    def test_validator_integration_with_abstract_plugin(
+        self, mock_conservation_validator
+    ):
         """Scenario: Validator integrates properly with abstract plugin dependencies
         Given conservation plugin depends on abstract plugin
         When validating dependencies
@@ -365,11 +399,13 @@ class TestConservationValidator:
             "abstract": {
                 "required_version": ">=2.0.0",
                 "current_version": "2.1.0",
-                "compatibility": True
+                "compatibility": True,
             }
         }
 
-        mock_conservation_validator.check_dependencies.return_value = plugin_dependencies
+        mock_conservation_validator.check_dependencies.return_value = (
+            plugin_dependencies
+        )
 
         # Act
         dependency_check = mock_conservation_validator.check_dependencies()
@@ -404,14 +440,14 @@ class TestConservationWorkflowValidation:
             "token_optimization",
             "performance_monitoring",
             "resource_allocation",
-            "efficiency_measurement"
+            "efficiency_measurement",
         ]
 
         mock_conservation_validator.validate_workflow_phases.return_value = {
             "validated_phases": workflow_phases,
             "missing_phases": [],
             "phase_transitions": "proper",
-            "workflow_completeness": 1.0
+            "workflow_completeness": 1.0,
         }
 
         # Act
@@ -425,7 +461,9 @@ class TestConservationWorkflowValidation:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_workflow_validation_measures_efficiency_metrics(self, mock_conservation_validator):
+    def test_workflow_validation_measures_efficiency_metrics(
+        self, mock_conservation_validator
+    ):
         """Scenario: Workflow validation measures efficiency metrics
         Given conservation workflows with measurable outcomes
         When validating efficiency
@@ -438,7 +476,7 @@ class TestConservationWorkflowValidation:
             "performance_improvement_percentage": 15.8,
             "resource_optimization_score": 0.82,
             "context_efficiency_ratio": 0.91,
-            "overall_efficiency_grade": "A-"
+            "overall_efficiency_grade": "A-",
         }
 
         mock_conservation_validator.measure_efficiency.return_value = efficiency_metrics
@@ -448,6 +486,13 @@ class TestConservationWorkflowValidation:
 
         # Assert
         assert metrics["token_savings_percentage"] > 20.0  # Significant savings
-        assert metrics["performance_improvement_percentage"] > 10.0  # Notable improvement
+        assert (
+            metrics["performance_improvement_percentage"] > 10.0
+        )  # Notable improvement
         assert metrics["resource_optimization_score"] > 0.8  # Good optimization
-        assert metrics["overall_efficiency_grade"] in ["A", "A-", "B+", "B"]  # Acceptable grades
+        assert metrics["overall_efficiency_grade"] in [
+            "A",
+            "A-",
+            "B+",
+            "B",
+        ]  # Acceptable grades

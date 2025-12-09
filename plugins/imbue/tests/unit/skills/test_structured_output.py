@@ -4,7 +4,6 @@ This module tests the deliverable formatting and template functionality,
 following TDD/BDD principles and testing all output formatting scenarios.
 """
 
-
 # ruff: noqa: S101
 from datetime import UTC, datetime
 from typing import Any
@@ -120,7 +119,7 @@ Common template variables that should be populated:
                 "file": "src/database.py",
                 "line": 45,
                 "evidence_refs": ["E1", "E2"],
-                "recommendation": "Use parameterized queries or ORM to prevent SQL injection"
+                "recommendation": "Use parameterized queries or ORM to prevent SQL injection",
             },
             {
                 "id": "F2",
@@ -131,7 +130,7 @@ Common template variables that should be populated:
                 "file": "src/image_processor.py",
                 "line": 120,
                 "evidence_refs": ["E3"],
-                "recommendation": "Implement proper resource cleanup using context managers"
+                "recommendation": "Implement proper resource cleanup using context managers",
             },
             {
                 "id": "F3",
@@ -142,8 +141,8 @@ Common template variables that should be populated:
                 "file": "src/utils.py",
                 "line": 15,
                 "evidence_refs": ["E4"],
-                "recommendation": "Standardize variable naming to snake_case"
-            }
+                "recommendation": "Standardize variable naming to snake_case",
+            },
         ]
 
     @pytest.fixture
@@ -156,27 +155,27 @@ Common template variables that should be populated:
                     "id": "E1",
                     "command": "grep -r 'execute(' src/",
                     "output": "src/database.py:45: query.execute(user_input)",
-                    "timestamp": "2024-12-04T10:00:00Z"
+                    "timestamp": "2024-12-04T10:00:00Z",
                 },
                 {
                     "id": "E2",
                     "command": "git log -p src/database.py",
                     "output": "Added user input handling without sanitization",
-                    "timestamp": "2024-12-04T10:01:00Z"
+                    "timestamp": "2024-12-04T10:01:00Z",
                 },
                 {
                     "id": "E3",
                     "command": "memory_profiler run src/image_processor.py",
                     "output": "Memory usage increases by 50MB per image processed",
-                    "timestamp": "2024-12-04T10:02:00Z"
+                    "timestamp": "2024-12-04T10:02:00Z",
                 },
                 {
                     "id": "E4",
                     "command": "grep -n 'camelCase' src/utils.py",
                     "output": "src/utils.py:15: userName = getUser()",
-                    "timestamp": "2024-12-04T10:03:00Z"
-                }
-            ]
+                    "timestamp": "2024-12-04T10:03:00Z",
+                },
+            ],
         }
 
     @pytest.mark.unit
@@ -202,15 +201,19 @@ Common template variables that should be populated:
                 "Findings by Severity",
                 "Detailed Findings",
                 "Action Items",
-                "Evidence Appendix"
-            ]
+                "Evidence Appendix",
+            ],
         }
 
         # Confirm template selection based on findings complexity
         critical_findings = [f for f in findings if f["severity"] == "Critical"]
         if critical_findings:
             template_selection["priority"] = "High"
-            template_selection["distribution"] = ["dev-team", "security-team", "management"]
+            template_selection["distribution"] = [
+                "dev-team",
+                "security-team",
+                "management",
+            ]
 
         # Assert
         assert template_selection["type"] == "review_report"
@@ -234,7 +237,7 @@ Common template variables that should be populated:
             "files_changed": 5,
             "lines_added": 150,
             "lines_removed": 45,
-            "test_coverage": "Added unit tests for new functionality"
+            "test_coverage": "Added unit tests for new functionality",
         }
 
         # Act - select PR template
@@ -246,13 +249,13 @@ Common template variables that should be populated:
                 "Change Summary",
                 "Testing Instructions",
                 "Checklist",
-                "Breaking Changes"
+                "Breaking Changes",
             ],
             "formatting": {
                 "use_markdown": True,
                 "include_diff_stats": True,
-                "max_length": 2000
-            }
+                "max_length": 2000,
+            },
         }
 
         # Customize based on changes
@@ -279,8 +282,7 @@ Common template variables that should be populated:
         severity_order = {"Critical": 1, "High": 2, "Medium": 3, "Low": 4}
 
         sorted_findings = sorted(
-            sample_review_findings,
-            key=lambda f: severity_order.get(f["severity"], 5)
+            sample_review_findings, key=lambda f: severity_order.get(f["severity"], 5)
         )
 
         # Group by severity
@@ -298,7 +300,7 @@ Common template variables that should be populated:
                 section = {
                     "severity": severity,
                     "count": len(grouped_findings[severity]),
-                    "findings": []
+                    "findings": [],
                 }
 
                 for finding in grouped_findings[severity]:
@@ -309,7 +311,7 @@ Common template variables that should be populated:
                         "line": finding["line"],
                         "description": finding["description"],
                         "recommendation": finding["recommendation"],
-                        "evidence_refs": finding["evidence_refs"]
+                        "evidence_refs": finding["evidence_refs"],
                     }
                     section["findings"].append(formatted_finding)
 
@@ -337,7 +339,7 @@ Common template variables that should be populated:
             "title": "Security and Performance Review",
             "review_id": "REV-2024-001",
             "timestamp": datetime.now(UTC).isoformat(),
-            "findings": sample_review_findings[:2]  # Use first 2 findings
+            "findings": sample_review_findings[:2],  # Use first 2 findings
         }
 
         # Act - generate markdown
@@ -350,21 +352,23 @@ Common template variables that should be populated:
             f"This review identified {len(review_data['findings'])} findings requiring attention.",
             "",
             "## Findings by Severity",
-            ""
+            "",
         ]
 
         for finding in review_data["findings"]:
-            markdown_lines.extend([
-                f"### {finding['severity']}: {finding['title']}",
-                f"**File:** `{finding['file']}:{finding['line']}`",
-                f"**Category:** {finding['category']}",
-                "",
-                f"**Description:** {finding['description']}",
-                "",
-                f"**Recommendation:** {finding['recommendation']}",
-                f"**Evidence:** {', '.join(finding['evidence_refs'])}",
-                ""
-            ])
+            markdown_lines.extend(
+                [
+                    f"### {finding['severity']}: {finding['title']}",
+                    f"**File:** `{finding['file']}:{finding['line']}`",
+                    f"**Category:** {finding['category']}",
+                    "",
+                    f"**Description:** {finding['description']}",
+                    "",
+                    f"**Recommendation:** {finding['recommendation']}",
+                    f"**Evidence:** {', '.join(finding['evidence_refs'])}",
+                    "",
+                ]
+            )
 
         markdown_output = "\n".join(markdown_lines)
 
@@ -374,12 +378,14 @@ Common template variables that should be populated:
         assert "## Executive Summary" in markdown_output
         assert "### Critical: SQL injection vulnerability" in markdown_output
         assert "`src/database.py:45`" in markdown_output
-        assert "**Description:** User input is not properly sanitized" in markdown_output
+        assert (
+            "**Description:** User input is not properly sanitized" in markdown_output
+        )
         assert "**Evidence:** E1, E2" in markdown_output
 
         # Verify markdown structure
-        lines = markdown_output.split('\n')
-        header_lines = [line for line in lines if line.startswith('#')]
+        lines = markdown_output.split("\n")
+        header_lines = [line for line in lines if line.startswith("#")]
         assert len(header_lines) >= 3  # Main title, sections, subsections
 
     @pytest.mark.unit
@@ -396,12 +402,7 @@ Common template variables that should be populated:
 
         for i, finding in enumerate(sample_review_findings, 1):
             # Determine priority based on severity
-            priority_map = {
-                "Critical": "P1",
-                "High": "P2",
-                "Medium": "P3",
-                "Low": "P4"
-            }
+            priority_map = {"Critical": "P1", "High": "P2", "Medium": "P3", "Low": "P4"}
             priority = priority_map.get(finding["severity"], "P3")
 
             # Create action item
@@ -414,7 +415,7 @@ Common template variables that should be populated:
                 "assignee": self._determine_assignee(finding),
                 "due_date": self._calculate_due_date(priority),
                 "related_finding": finding["id"],
-                "status": "Open"
+                "status": "Open",
             }
 
             action_items.append(action_item)
@@ -429,7 +430,9 @@ Common template variables that should be populated:
         assert "P4" in priorities  # Low finding
 
         # Check assignee determination
-        critical_action = next(item for item in action_items if item["priority"] == "P1")
+        critical_action = next(
+            item for item in action_items if item["priority"] == "P1"
+        )
         assert critical_action["assignee"] == "security-team"
 
         # Check due date calculation
@@ -444,7 +447,7 @@ Common template variables that should be populated:
             "Performance": "performance-team",
             "Correctness": "dev-team",
             "Style": "dev-team",
-            "Documentation": "docs-team"
+            "Documentation": "docs-team",
         }
         return category_assignees.get(finding.get("category", ""), "dev-team")
 
@@ -454,10 +457,10 @@ Common template variables that should be populated:
 
         today = datetime.now(UTC)
         days_map = {
-            "P1": 1,   # Critical: 1 day
-            "P2": 3,   # High: 3 days
-            "P3": 7,   # Medium: 1 week
-            "P4": 14   # Low: 2 weeks
+            "P1": 1,  # Critical: 1 day
+            "P2": 3,  # High: 3 days
+            "P3": 7,  # Medium: 1 week
+            "P4": 14,  # Low: 2 weeks
         }
 
         days = days_map.get(priority, 7)
@@ -466,7 +469,9 @@ Common template variables that should be populated:
 
     @pytest.mark.unit
     @pytest.mark.unit
-    def test_appendix_compilation_and_navigation(self, sample_review_findings, sample_evidence_log):
+    def test_appendix_compilation_and_navigation(
+        self, sample_review_findings, sample_evidence_log
+    ):
         """Scenario: Appendix is compiled with proper navigation
         Given evidence log and findings
         When creating appendix
@@ -480,7 +485,7 @@ Common template variables that should be populated:
             "## Evidence Appendix",
             f"*Evidence Session: {sample_evidence_log['session_id']}*",
             "",
-            "### Evidence References"
+            "### Evidence References",
         ]
 
         # Create evidence index
@@ -495,23 +500,29 @@ Common template variables that should be populated:
         for evidence_id, related_findings in evidence_index.items():
             if evidence_id in evidence_map:
                 evidence = evidence_map[evidence_id]
-                appendix_sections.extend([
-                    f"#### {evidence_id}",
-                    f"**Command:** `{evidence['command']}`",
-                    f"**Timestamp:** {evidence['timestamp']}",
-                    "",
-                    "```",
-                    evidence['output'][:200] + ("..." if len(evidence['output']) > 200 else ""),
-                    "```",
-                    f"**Referenced by findings:** {', '.join(related_findings)}",
-                    ""
-                ])
+                appendix_sections.extend(
+                    [
+                        f"#### {evidence_id}",
+                        f"**Command:** `{evidence['command']}`",
+                        f"**Timestamp:** {evidence['timestamp']}",
+                        "",
+                        "```",
+                        evidence["output"][:200]
+                        + ("..." if len(evidence["output"]) > 200 else ""),
+                        "```",
+                        f"**Referenced by findings:** {', '.join(related_findings)}",
+                        "",
+                    ]
+                )
 
         appendix_output = "\n".join(appendix_sections)
 
         # Assert
         assert "## Evidence Appendix" in appendix_output
-        assert f"*Evidence Session: {sample_evidence_log['session_id']}*" in appendix_output
+        assert (
+            f"*Evidence Session: {sample_evidence_log['session_id']}*"
+            in appendix_output
+        )
         assert "#### E1" in appendix_output
         assert "**Command:** `grep -r 'execute(' src/`" in appendix_output
         assert "**Referenced by findings:** F1" in appendix_output
@@ -564,7 +575,7 @@ Common template variables that should be populated:
             "findings_count": 3,
             "summary": "Critical security vulnerabilities require immediate attention.",
             "findings": "1. SQL injection vulnerability\n2. Memory leak in processing\n3. Inconsistent naming",
-            "actions": "1. Fix SQL injection (P1)\n2. Implement resource cleanup (P2)\n3. Refactor variable names (P4)"
+            "actions": "1. Fix SQL injection (P1)\n2. Implement resource cleanup (P2)\n3. Refactor variable names (P4)",
         }
 
         # Act - substitute variables
@@ -594,7 +605,7 @@ Common template variables that should be populated:
         templates = {
             "review_report": self._generate_review_report(sample_review_findings),
             "pull_request": self._generate_pr_description(sample_review_findings),
-            "security_brief": self._generate_security_brief(sample_review_findings)
+            "security_brief": self._generate_security_brief(sample_review_findings),
         }
 
         # Act - check consistency elements
@@ -602,10 +613,17 @@ Common template variables that should be populated:
 
         for template_type, output in templates.items():
             checks = {
-                "has_title": bool(output and output.strip().startswith('#')),
-                "has_findings": "finding" in output.lower() or "issue" in output.lower(),
-                "has_metadata": any(key in output.lower() for key in ["id:", "date:", "reviewer:"]),
-                "proper_markdown": not any("<" in output and ">" in output for output in [output] if "<" in output)
+                "has_title": bool(output and output.strip().startswith("#")),
+                "has_findings": "finding" in output.lower()
+                or "issue" in output.lower(),
+                "has_metadata": any(
+                    key in output.lower() for key in ["id:", "date:", "reviewer:"]
+                ),
+                "proper_markdown": not any(
+                    "<" in output and ">" in output
+                    for output in [output]
+                    if "<" in output
+                ),
             }
             consistency_checks.append((template_type, checks))
 
@@ -659,14 +677,14 @@ This PR addresses {len(findings)} security-related items.
             {
                 # Missing id, severity, title
                 "description": "Some issue",
-                "file": "test.py"
+                "file": "test.py",
             },
             {
                 "id": "F2",
                 "severity": "InvalidSeverity",  # Invalid severity
                 "title": "Valid finding",
-                "description": "Proper finding"
-            }
+                "description": "Proper finding",
+            },
         ]
 
         # Act - format with error handling
@@ -677,7 +695,7 @@ This PR addresses {len(findings)} security-related items.
                 "title": finding.get("title", "Untitled Finding"),
                 "severity": self._validate_severity(finding.get("severity", "Medium")),
                 "description": finding.get("description", "No description available"),
-                "file": finding.get("file", "Unknown file")
+                "file": finding.get("file", "Unknown file"),
             }
             formatted_findings.append(formatted_finding)
 
@@ -704,14 +722,16 @@ This PR addresses {len(findings)} security-related items.
         # Arrange - generate many findings
         large_findings = []
         for i in range(500):
-            large_findings.append({
-                "id": f"F{i+1:04d}",
-                "title": f"Finding {i+1}",
-                "severity": ["Critical", "High", "Medium", "Low"][i % 4],
-                "description": f"Description for finding {i+1}",
-                "file": f"src/file_{i%20}.py",
-                "line": (i * 7) % 200 + 1
-            })
+            large_findings.append(
+                {
+                    "id": f"F{i + 1:04d}",
+                    "title": f"Finding {i + 1}",
+                    "severity": ["Critical", "High", "Medium", "Low"][i % 4],
+                    "description": f"Description for finding {i + 1}",
+                    "file": f"src/file_{i % 20}.py",
+                    "line": (i * 7) % 200 + 1,
+                }
+            )
 
         # Act - measure formatting performance
         start_time = time.time()
@@ -728,7 +748,9 @@ This PR addresses {len(findings)} security-related items.
         markdown_lines = ["# Large Review Report", ""]
         for severity in ["Critical", "High", "Medium", "Low"]:
             if severity in grouped_findings:
-                markdown_lines.append(f"## {severity} Findings ({len(grouped_findings[severity])})")
+                markdown_lines.append(
+                    f"## {severity} Findings ({len(grouped_findings[severity])})"
+                )
                 # Show only first 10 for each category to avoid huge output
                 for finding in grouped_findings[severity][:10]:
                     markdown_lines.append(f"- {finding['id']}: {finding['title']}")

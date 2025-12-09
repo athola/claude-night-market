@@ -15,11 +15,21 @@ class TestCommitMessagesSkill:
 
     # Test constants
     CONVENTIONAL_COMMIT_TYPES = [
-        "feat", "fix", "docs", "style", "refactor",
-        "test", "chore", "perf", "ci", "build"
+        "feat",
+        "fix",
+        "docs",
+        "style",
+        "refactor",
+        "test",
+        "chore",
+        "perf",
+        "ci",
+        "build",
     ]
 
-    def test_generates_conventional_commit_for_feature_changes(self, staged_changes_context):
+    def test_generates_conventional_commit_for_feature_changes(
+        self, staged_changes_context
+    ):
         """GIVEN staged changes that add new functionality
         WHEN the commit-messages skill analyzes the changes
         THEN it should generate a conventional commit message with 'feat' type.
@@ -29,7 +39,7 @@ class TestCommitMessagesSkill:
         mock_bash = Mock()
         mock_bash.side_effect = [
             "feat: Add new feature implementation\n\nImplements core functionality for XYZ feature",
-            "src/new_feature.py"
+            "src/new_feature.py",
         ]
 
         # Act - simulate tool calls through mock
@@ -59,7 +69,9 @@ class TestCommitMessagesSkill:
         assert "resolve" in commit_msg.lower()
         assert "null pointer" in commit_msg.lower()
 
-    def test_generates_conventional_commit_for_documentation(self, staged_changes_context):
+    def test_generates_conventional_commit_for_documentation(
+        self, staged_changes_context
+    ):
         """GIVEN staged changes that only affect documentation
         WHEN the commit-messages skill analyzes the changes
         THEN it should generate a conventional commit message with 'docs' type.
@@ -76,7 +88,9 @@ class TestCommitMessagesSkill:
         assert commit_msg.startswith("docs:")
         assert "documentation" in commit_msg.lower() or "readme" in commit_msg.lower()
 
-    def test_generates_conventional_commit_for_refactoring(self, staged_changes_context):
+    def test_generates_conventional_commit_for_refactoring(
+        self, staged_changes_context
+    ):
         """GIVEN staged changes that refactor code without changing functionality
         WHEN the commit-messages skill analyzes the changes
         THEN it should generate a conventional commit message with 'refactor' type.
@@ -147,7 +161,7 @@ index abc123..def456 100644
         mock_bash = Mock()
         mock_bash.side_effect = [
             sample_diff,
-            "feat(calculator): Add multiplication method\n\nAdds multiply() method to support arithmetic operations"
+            "feat(calculator): Add multiplication method\n\nAdds multiply() method to support arithmetic operations",
         ]
 
         # Act - simulate tool calls through mock
@@ -159,7 +173,9 @@ index abc123..def456 100644
         assert "multiply" in commit_msg.lower()
         assert "calculator" in commit_msg
 
-    def test_handles_multiple_file_changes_in_single_commit(self, staged_changes_context):
+    def test_handles_multiple_file_changes_in_single_commit(
+        self, staged_changes_context
+    ):
         """GIVEN multiple files staged for commit
         WHEN the commit-messages skill analyzes all changes
         THEN it should generate a cohesive message covering all changes.
@@ -168,7 +184,7 @@ index abc123..def456 100644
         mock_bash = Mock()
         mock_bash.side_effect = [
             "src/main.py\nREADME.md\ntests/test_main.py",
-            "feat: Implement user authentication system\n\n- Add user login/logout functionality\n- Update documentation with setup instructions\n- Add comprehensive test coverage"
+            "feat: Implement user authentication system\n\n- Add user login/logout functionality\n- Update documentation with setup instructions\n- Add comprehensive test coverage",
         ]
 
         # Act - simulate tool calls through mock
@@ -176,7 +192,7 @@ index abc123..def456 100644
         commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
 
         # Assert
-        assert len(changed_files.split('\n')) >= 3
+        assert len(changed_files.split("\n")) >= 3
         assert "authentication" in commit_msg.lower()
         assert "user" in commit_msg.lower()
 
@@ -196,7 +212,7 @@ index abc123..def456 100644
             "chore(deps): Update dependencies",
             "perf: Optimize database queries",
             "ci: Configure GitHub Actions",
-            "build: Update build configuration"
+            "build: Update build configuration",
         ]
 
         mock_bash = Mock()
@@ -206,9 +222,9 @@ index abc123..def456 100644
         commit_msg = mock_bash("git log -1 --pretty=format:%s")
 
         # Assert - verify conventional commit format
-        assert ':' in commit_msg
-        assert commit_msg.split(':')[0] in self.CONVENTIONAL_COMMIT_TYPES
-        assert len(commit_msg.split(':')[1].strip()) > 0
+        assert ":" in commit_msg
+        assert commit_msg.split(":")[0] in self.CONVENTIONAL_COMMIT_TYPES
+        assert len(commit_msg.split(":")[1].strip()) > 0
 
     def test_creates_required_todo_items(self, mock_todo_tool):
         """GIVEN analysis of staged changes is complete
@@ -220,18 +236,18 @@ index abc123..def456 100644
             {
                 "content": "Analyze staged changes for commit type and scope",
                 "status": "completed",
-                "activeForm": "Analyzed staged changes"
+                "activeForm": "Analyzed staged changes",
             },
             {
                 "content": "Generate conventional commit message with appropriate type and description",
                 "status": "completed",
-                "activeForm": "Generated commit message"
+                "activeForm": "Generated commit message",
             },
             {
                 "content": "Validate commit message follows conventional commit specification",
                 "status": "completed",
-                "activeForm": "Validated commit message format"
-            }
+                "activeForm": "Validated commit message format",
+            },
         ]
 
         # Act
@@ -249,7 +265,7 @@ index abc123..def456 100644
         mock_bash = Mock()
         mock_bash.side_effect = [
             "",  # No files in git diff --cached --name-only
-            None  # No commit message generated
+            None,  # No commit message generated
         ]
 
         # Act - simulate tool calls through mock
@@ -267,7 +283,7 @@ index abc123..def456 100644
         mock_bash = Mock()
         mock_bash.side_effect = [
             "assets/logo.png\ndocs/manual.pdf",
-            "feat: Add company branding and documentation\n\n- Add new company logo\n- Include product manual in PDF format"
+            "feat: Add company branding and documentation\n\n- Add new company logo\n- Include product manual in PDF format",
         ]
 
         # Act - simulate tool calls through mock
@@ -293,12 +309,17 @@ index abc123..def456 100644
             mock_bash.return_value = "Add user authentication feature"  # Imperative
 
             # Act - simulate tool calls through mock
-            subject = mock_bash("git log -1 --pretty=format:%s").split('\n')[0]
+            subject = mock_bash("git log -1 --pretty=format:%s").split("\n")[0]
 
             # Assert
-            assert subject.startswith("Add") or subject.startswith("Fix") or \
-                   subject.startswith("Update") or subject.startswith("Remove") or \
-                   subject.startswith("Refactor") or subject.startswith("Improve")
+            assert (
+                subject.startswith("Add")
+                or subject.startswith("Fix")
+                or subject.startswith("Update")
+                or subject.startswith("Remove")
+                or subject.startswith("Refactor")
+                or subject.startswith("Improve")
+            )
 
         def test_limits_subject_line_length(self):
             """GIVEN a commit message being generated
@@ -307,7 +328,9 @@ index abc123..def456 100644
             """
             # Arrange
             mock_bash = Mock()
-            mock_bash.return_value = "feat: Add comprehensive user authentication system"  # Within limits
+            mock_bash.return_value = (
+                "feat: Add comprehensive user authentication system"  # Within limits
+            )
 
             # Act - simulate tool calls through mock
             subject = mock_bash("git log -1 --pretty=format:%s")
@@ -332,8 +355,8 @@ The authentication flow uses JWT tokens for session management."""
             commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
 
             # Assert
-            lines = commit_msg.split('\n')
-            assert lines[1] == ''  # Blank line after subject
+            lines = commit_msg.split("\n")
+            assert lines[1] == ""  # Blank line after subject
 
         def test_wraps_body_lines_at_72_characters(self):
             """GIVEN a commit message body
@@ -343,17 +366,19 @@ The authentication flow uses JWT tokens for session management."""
             # Arrange
             wrapped_lines = [
                 "This is a very long line that should be wrapped at exactly 72",
-                "characters to ensure proper readability in git log output and"
+                "characters to ensure proper readability in git log output and",
             ]
 
             mock_bash = Mock()
-            mock_bash.return_value = f"feat: Add feature\n\n{wrapped_lines[0]}\n{wrapped_lines[1]}"
+            mock_bash.return_value = (
+                f"feat: Add feature\n\n{wrapped_lines[0]}\n{wrapped_lines[1]}"
+            )
 
             # Act - simulate tool calls through mock
             commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
 
             # Assert
-            body_lines = commit_msg.split('\n\n')[1].split('\n')
+            body_lines = commit_msg.split("\n\n")[1].split("\n")
             for line in body_lines:
                 if line:  # Skip empty lines
                     assert len(line) <= 72

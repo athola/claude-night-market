@@ -38,19 +38,39 @@ class TestGitWorkflowIntegration:
             {
                 "skill": "git-workspace-review",
                 "todos": [
-                    {"content": "git-review:repo-confirmed", "status": "completed", "activeForm": "Confirmed repository"},
-                    {"content": "git-review:status-overview", "status": "completed", "activeForm": "Analyzed status"}
-                ]
+                    {
+                        "content": "git-review:repo-confirmed",
+                        "status": "completed",
+                        "activeForm": "Confirmed repository",
+                    },
+                    {
+                        "content": "git-review:status-overview",
+                        "status": "completed",
+                        "activeForm": "Analyzed status",
+                    },
+                ],
             },
             # Step 2: Commit message generation
             {
                 "skill": "commit-messages",
                 "todos": [
-                    {"content": "Analyze staged changes", "status": "completed", "activeForm": "Analyzed changes"},
-                    {"content": "Generate commit message", "status": "completed", "activeForm": "Generated message"},
-                    {"content": "Validate commit format", "status": "completed", "activeForm": "Validated format"}
-                ]
-            }
+                    {
+                        "content": "Analyze staged changes",
+                        "status": "completed",
+                        "activeForm": "Analyzed changes",
+                    },
+                    {
+                        "content": "Generate commit message",
+                        "status": "completed",
+                        "activeForm": "Generated message",
+                    },
+                    {
+                        "content": "Validate commit format",
+                        "status": "completed",
+                        "activeForm": "Validated format",
+                    },
+                ],
+            },
         ]
 
         # Execute workflow
@@ -126,7 +146,7 @@ class TestGitWorkflowIntegration:
         # Assert - Verify catchup analysis
         assert current_branch == "main"
         assert "behind 3" in status_output
-        assert len(missing_commits.split('\n')) == 3
+        assert len(missing_commits.split("\n")) == 3
         assert "src/main.py" in changed_files
 
     def test_documentation_update_workflow(self, temp_git_repo):
@@ -179,7 +199,9 @@ class TestGitWorkflowIntegration:
         ]
 
         # Act - Simulate version update workflow through mock calls
-        version_files = mock_bash("grep -r 'version' --include='*.json' --include='*.py' .")
+        version_files = mock_bash(
+            "grep -r 'version' --include='*.json' --include='*.py' ."
+        )
         package_version = mock_bash("grep version package.json")
         setup_version = mock_bash("grep version setup.py")
         mock_bash("grep __version__ src/__init__.py")
@@ -205,8 +227,8 @@ class TestGitWorkflowIntegration:
             "analysis": {
                 "repository_status": "clean",
                 "staged_files": ["feature.py"],
-                "recommendations": ["Ready for commit"]
-            }
+                "recommendations": ["Ready for commit"],
+            },
         }
 
         # Act
@@ -249,7 +271,7 @@ class TestCommandSkillIntegration:
         # This tests the command wrapper that coordinates skills
         command_sequence = [
             {"skill": "sanctum:git-workspace-review", "params": {}},
-            {"skill": "sanctum:commit-messages", "params": {}}
+            {"skill": "sanctum:commit-messages", "params": {}},
         ]
 
         # Mock the skill invocations
@@ -273,7 +295,7 @@ class TestCommandSkillIntegration:
         command_sequence = [
             {"skill": "sanctum:git-workspace-review", "params": {}},
             {"skill": "sanctum:file-analysis", "params": {}},
-            {"skill": "sanctum:pr-prep", "params": {}}
+            {"skill": "sanctum:pr-prep", "params": {}},
         ]
 
         # Mock skill execution with proper context passing
@@ -307,7 +329,7 @@ class TestToolIntegration:
         mock_bash = Mock()
         mock_bash.side_effect = [
             "On branch main\nChanges to be committed:\n  new file:   test.py",
-            "diff --git a/test.py b/test.py\nnew file mode 100644\n+++ b/test.py\n@@ -0,0 +1 @@\n+print('hello')"
+            "diff --git a/test.py b/test.py\nnew file mode 100644\n+++ b/test.py\n@@ -0,0 +1 @@\n+print('hello')",
         ]
 
         # Act - Simulate coordinated tool usage
@@ -318,7 +340,10 @@ class TestToolIntegration:
         # TodoWrite creates tasks based on Bash output
         todos = [
             {"content": f"Process status: {status[:50]}...", "status": "completed"},
-            {"content": f"Analyze diff with {len(diff)} characters", "status": "completed"}
+            {
+                "content": f"Analyze diff with {len(diff)} characters",
+                "status": "completed",
+            },
         ]
         mock_todo_tool(todos)
 
@@ -374,6 +399,7 @@ class TestWorkflowPerformance:
 
         # Act - Time the execution
         import time
+
         start_time = time.time()
 
         # Simulate workflow through mock calls
@@ -385,7 +411,7 @@ class TestWorkflowPerformance:
 
         # Assert
         assert execution_time < 1.0  # Should complete within 1 second
-        assert len(files.split('\n')) == 1000
+        assert len(files.split("\n")) == 1000
         assert len(diff) == 100000
 
     def test_concurrent_workflow_execution(self):

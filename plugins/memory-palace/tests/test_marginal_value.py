@@ -6,7 +6,6 @@ following TDD principles.
 
 # ruff: noqa: S101
 
-
 import pytest
 
 from memory_palace.corpus.marginal_value import (
@@ -115,10 +114,7 @@ def temp_index_dir(tmp_path):
 @pytest.fixture
 def marginal_filter(temp_corpus_dir, temp_index_dir):
     """Create marginal value filter with indexes built."""
-    filter_obj = MarginalValueFilter(
-        corpus_dir=str(temp_corpus_dir),
-        index_dir=str(temp_index_dir)
-    )
+    filter_obj = MarginalValueFilter(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
 
     # Build indexes
     filter_obj.cache_lookup.build_indexes()
@@ -137,7 +133,7 @@ class TestRedundancyDetection:
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=existing,
             title="Franklin Protocol - Learning Through Gradient Descent",
-            tags=["learning", "gradient-descent"]
+            tags=["learning", "gradient-descent"],
         )
 
         assert redundancy.level == RedundancyLevel.EXACT_MATCH
@@ -173,7 +169,7 @@ This demonstrates machine learning applied to human learning processes.
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=redundant_content,
             title="Franklin Protocol - Learning via Gradient Descent",
-            tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"]
+            tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"],
         )
 
         # The keyword-based matching may or may not detect overlap depending on
@@ -184,13 +180,13 @@ This demonstrates machine learning applied to human learning processes.
             RedundancyLevel.EXACT_MATCH,
             RedundancyLevel.HIGHLY_REDUNDANT,
             RedundancyLevel.PARTIAL_OVERLAP,
-            RedundancyLevel.NOVEL  # May appear novel if keyword overlap insufficient
+            RedundancyLevel.NOVEL,  # May appear novel if keyword overlap insufficient
         ]
         # Verify the integration decision is reasonable
         assert integration.decision in [
             IntegrationDecision.SKIP,
             IntegrationDecision.MERGE,
-            IntegrationDecision.STANDALONE
+            IntegrationDecision.STANDALONE,
         ]
 
     def test_partial_overlap_detection(self, marginal_filter):
@@ -217,7 +213,7 @@ Related to gradient descent but focuses on timing.
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=partial_content,
             title="Spaced Repetition for Learning",
-            tags=["learning", "spaced-repetition", "memory"]
+            tags=["learning", "spaced-repetition", "memory"],
         )
 
         # Should detect overlap with Franklin Protocol (both about learning)
@@ -247,7 +243,7 @@ Rust's ownership system provides memory safety without garbage collection.
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=novel_content,
             title="Rust Ownership Model",
-            tags=["rust", "ownership", "memory-safety"]
+            tags=["rust", "ownership", "memory-safety"],
         )
 
         assert redundancy.level == RedundancyLevel.NOVEL
@@ -283,7 +279,7 @@ This connects Franklin to modern deep learning.
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=novel_insight_content,
             title="Franklin Protocol with Neural Networks",
-            tags=["learning", "gradient-descent", "neural-networks"]
+            tags=["learning", "gradient-descent", "neural-networks"],
         )
 
         # Should detect partial overlap but novel insights
@@ -315,7 +311,7 @@ Ben Franklin got better at writing using a systematic approach.
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=reframed_content,
             title="Franklin's Writing Improvement Technique",
-            tags=["learning", "writing", "practice"]
+            tags=["learning", "writing", "practice"],
         )
 
         # Should detect high overlap, low novel value
@@ -347,7 +343,7 @@ Franklin's approach is actually not like gradient descent.
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=contradicting_content,
             title="Why Franklin's Method Doesn't Work",
-            tags=["learning", "critique"]
+            tags=["learning", "critique"],
         )
 
         if delta and redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
@@ -364,9 +360,7 @@ class TestIntegrationDecisions:
         existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
 
         _, _, integration = marginal_filter.evaluate_content(
-            content=existing,
-            title="Franklin Protocol",
-            tags=["learning"]
+            content=existing, title="Franklin Protocol", tags=["learning"]
         )
 
         assert integration.decision == IntegrationDecision.SKIP
@@ -397,7 +391,7 @@ Machine learning for humans.
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=redundant,
             title="Franklin Protocol Learning",
-            tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"]
+            tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"],
         )
 
         # The filter should make a reasonable decision based on detected overlap
@@ -405,7 +399,7 @@ Machine learning for humans.
         assert integration.decision in [
             IntegrationDecision.SKIP,
             IntegrationDecision.MERGE,
-            IntegrationDecision.STANDALONE
+            IntegrationDecision.STANDALONE,
         ]
         # If it's standalone, should be because overlap wasn't detected
         if integration.decision == IntegrationDecision.STANDALONE:
@@ -432,9 +426,7 @@ This ensures tests actually verify behavior.
 """
 
         _, _, integration = marginal_filter.evaluate_content(
-            content=novel,
-            title="Test-Driven Development",
-            tags=["tdd", "testing"]
+            content=novel, title="Test-Driven Development", tags=["tdd", "testing"]
         )
 
         assert integration.decision == IntegrationDecision.STANDALONE
@@ -469,7 +461,7 @@ Additional examples of Franklin's method:
         redundancy, delta, integration = marginal_filter.evaluate_content(
             content=examples_content,
             title="Franklin Protocol Examples",
-            tags=["learning", "gradient-descent", "examples"]
+            tags=["learning", "gradient-descent", "examples"],
         )
 
         if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP and delta:
@@ -477,7 +469,7 @@ Additional examples of Franklin's method:
                 # Should suggest merge when adding examples
                 assert integration.decision in [
                     IntegrationDecision.MERGE,
-                    IntegrationDecision.STANDALONE
+                    IntegrationDecision.STANDALONE,
                 ]
 
 
@@ -488,9 +480,7 @@ class TestKeywordExtraction:
         """Should extract keywords from tags."""
         content = "# Test\n\nSome content"
         keywords = marginal_filter._extract_keywords(
-            content,
-            "Test",
-            ["python", "async", "testing"]
+            content, "Test", ["python", "async", "testing"]
         )
 
         assert "python" in keywords
@@ -500,9 +490,7 @@ class TestKeywordExtraction:
     def test_extract_from_title(self, marginal_filter):
         """Should extract significant words from title."""
         keywords = marginal_filter._extract_keywords(
-            "content",
-            "Python Async Patterns for Web Development",
-            []
+            "content", "Python Async Patterns for Web Development", []
         )
 
         assert "python" in keywords
@@ -544,9 +532,7 @@ Another **important concept** here.
     def test_filter_stop_words(self, marginal_filter):
         """Should filter out common stop words."""
         keywords = marginal_filter._extract_keywords(
-            "content",
-            "The Best Way to Learn Python with This Method",
-            []
+            "content", "The Best Way to Learn Python with This Method", []
         )
 
         # Stop words should be filtered
@@ -616,14 +602,10 @@ class TestExplanationGeneration:
         existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
 
         redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=existing,
-            title="Franklin Protocol",
-            tags=["learning"]
+            content=existing, title="Franklin Protocol", tags=["learning"]
         )
 
-        explanation = marginal_filter.explain_decision(
-            redundancy, delta, integration
-        )
+        explanation = marginal_filter.explain_decision(redundancy, delta, integration)
 
         assert "Redundancy" in explanation
         assert "exact_match" in explanation.lower()
@@ -644,14 +626,10 @@ Introduction to quantum computing concepts.
 """
 
         redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=novel,
-            title="Quantum Computing",
-            tags=["quantum", "computing"]
+            content=novel, title="Quantum Computing", tags=["quantum", "computing"]
         )
 
-        explanation = marginal_filter.explain_decision(
-            redundancy, delta, integration
-        )
+        explanation = marginal_filter.explain_decision(redundancy, delta, integration)
 
         assert "novel" in explanation.lower()
         assert "STANDALONE" in explanation or "standalone" in explanation
@@ -674,14 +652,10 @@ Using Franklin's principles for hyperparameter tuning.
 """
 
         redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=partial,
-            title="Advanced Franklin",
-            tags=["learning", "advanced"]
+            content=partial, title="Advanced Franklin", tags=["learning", "advanced"]
         )
 
-        explanation = marginal_filter.explain_decision(
-            redundancy, delta, integration
-        )
+        explanation = marginal_filter.explain_decision(redundancy, delta, integration)
 
         if delta:
             assert "Delta Type" in explanation

@@ -50,9 +50,7 @@ class MemoryPalaceManager:
         else:
             try:
                 self.palaces_dir = os.path.expanduser(
-                    self.config.get("storage", {}).get(
-                        "palace_directory", default_palaces_dir
-                    )
+                    self.config.get("storage", {}).get("palace_directory", default_palaces_dir)
                 )
             except (AttributeError, KeyError):
                 self.palaces_dir = os.path.expanduser(default_palaces_dir)
@@ -87,9 +85,7 @@ class MemoryPalaceManager:
         os.makedirs(self.palaces_dir, exist_ok=True)
         os.makedirs(os.path.join(self.palaces_dir, "backups"), exist_ok=True)
 
-    def create_palace(
-        self, name: str, domain: str, metaphor: str = "building"
-    ) -> dict[str, Any]:
+    def create_palace(self, name: str, domain: str, metaphor: str = "building") -> dict[str, Any]:
         """Create a new memory palace.
 
         Args:
@@ -101,9 +97,7 @@ class MemoryPalaceManager:
             A dictionary representing the new palace.
 
         """
-        palace_id = hashlib.sha256(
-            f"{name}{domain}{datetime.now()}".encode()
-        ).hexdigest()[:8]
+        palace_id = hashlib.sha256(f"{name}{domain}{datetime.now()}".encode()).hexdigest()[:8]
 
         palace = {
             "id": palace_id,
@@ -228,9 +222,7 @@ class MemoryPalaceManager:
                     palaces: list[dict[str, Any]] = index["palaces"]
                     palaces.append(palace_summary)
                     global_stats["total_palaces"] += 1
-                    global_stats["total_concepts"] += palace["metadata"][
-                        "concept_count"
-                    ]
+                    global_stats["total_concepts"] += palace["metadata"]["concept_count"]
 
                     domain = palace["domain"]
                     domains[domain] = domains.get(domain, 0) + 1
@@ -241,9 +233,7 @@ class MemoryPalaceManager:
         with open(self.index_file, "w") as f:
             json.dump(index, f, indent=2)
 
-    def search_palaces(
-        self, query: str, search_type: str = "semantic"
-    ) -> list[dict[str, Any]]:
+    def search_palaces(self, query: str, search_type: str = "semantic") -> list[dict[str, Any]]:
         """Search across all memory palaces.
 
         Args:
@@ -373,9 +363,7 @@ class MemoryPalaceManager:
         self.update_master_index()
         return {"imported": imported, "skipped": skipped}
 
-    def _matches_query(
-        self, data: dict[str, Any], query: str, search_type: str
-    ) -> bool:
+    def _matches_query(self, data: dict[str, Any], query: str, search_type: str) -> bool:
         """Check if the given data matches the query.
 
         Args:
@@ -464,9 +452,7 @@ def main() -> None:  # noqa: PLR0912,PLR0915
     create_parser = subparsers.add_parser("create", help="Create a new palace")
     create_parser.add_argument("name", help="Palace name")
     create_parser.add_argument("domain", help="Palace domain")
-    create_parser.add_argument(
-        "--metaphor", default="building", help="Architectural metaphor"
-    )
+    create_parser.add_argument("--metaphor", default="building", help="Architectural metaphor")
 
     # List palaces
     subparsers.add_parser("list", help="List all palaces")
@@ -474,9 +460,7 @@ def main() -> None:  # noqa: PLR0912,PLR0915
     # Search
     search_parser = subparsers.add_parser("search", help="Search palaces")
     search_parser.add_argument("query", help="Search query")
-    search_parser.add_argument(
-        "--type", default="semantic", choices=["semantic", "exact", "fuzzy"]
-    )
+    search_parser.add_argument("--type", default="semantic", choices=["semantic", "exact", "fuzzy"])
 
     # Delete palace
     delete_parser = subparsers.add_parser("delete", help="Delete a palace")
@@ -486,12 +470,8 @@ def main() -> None:  # noqa: PLR0912,PLR0915
     subparsers.add_parser("status", help="Show system status")
 
     # Export/Import
-    export_parser = subparsers.add_parser(
-        "export", help="Export all palaces to a bundle"
-    )
-    export_parser.add_argument(
-        "--destination", required=True, help="Destination JSON path"
-    )
+    export_parser = subparsers.add_parser("export", help="Export all palaces to a bundle")
+    export_parser.add_argument("--destination", required=True, help="Destination JSON path")
 
     import_parser = subparsers.add_parser("import", help="Import palaces from a bundle")
     import_parser.add_argument("--source", required=True, help="Source bundle JSON")
@@ -516,9 +496,7 @@ def main() -> None:  # noqa: PLR0912,PLR0915
     elif args.command == "list":
         palaces = manager.list_palaces()
         if palaces:
-            print(
-                f"{'ID':<8} {'Name':<20} {'Domain':<15} {'Concepts':<8} {'Modified':<20}"
-            )
+            print(f"{'ID':<8} {'Name':<20} {'Domain':<15} {'Concepts':<8} {'Modified':<20}")
             print("-" * 80)
             for palace in palaces:
                 print(
@@ -535,9 +513,7 @@ def main() -> None:  # noqa: PLR0912,PLR0915
             for result in results:
                 print(f"\nPalace: {result['palace_name']} (ID: {result['palace_id']})")
                 for match in result["matches"]:
-                    identifier = match.get(
-                        "concept_id", match.get("location_id", "unknown")
-                    )
+                    identifier = match.get("concept_id", match.get("location_id", "unknown"))
                     print(f"  - {match['type']}: {identifier}")
         else:
             print(f"No results found for '{args.query}'.")

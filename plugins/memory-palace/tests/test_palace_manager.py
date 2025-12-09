@@ -7,7 +7,6 @@ BDD-style tests organized by behavior:
 - Export/Import functionality
 """
 
-
 # ruff: noqa: S101
 import json
 from datetime import datetime
@@ -109,9 +108,7 @@ class TestPalaceCreation:
         palace = manager.create_palace("Rust Fortress", "rust", metaphor="fortress")
         assert palace["metaphor"] == "fortress"
 
-    def test_generates_unique_palace_ids(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_generates_unique_palace_ids(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Each palace gets a unique ID."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -123,9 +120,7 @@ class TestPalaceCreation:
 
         assert palace1["id"] != palace2["id"]
 
-    def test_persists_palace_to_disk(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_persists_palace_to_disk(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Created palace is saved to a JSON file."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -140,9 +135,7 @@ class TestPalaceCreation:
             saved_data = json.load(f)
         assert saved_data["name"] == "Persisted Palace"
 
-    def test_updates_master_index_on_create(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_updates_master_index_on_create(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Master index is updated after palace creation."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -337,9 +330,7 @@ class TestMasterIndex:
         assert "mathematics" in domains
         assert domains["programming"] == 2  # Two programming palaces
 
-    def test_handles_empty_directory(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_handles_empty_directory(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Empty directory returns valid empty index."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -482,9 +473,7 @@ class TestExportImport:
         assert "exported_at" in bundle
         assert len(bundle["palaces"]) == 3
 
-    def test_imports_palaces_from_bundle(
-        self, temp_config_file: Path, tmp_path: Path
-    ):
+    def test_imports_palaces_from_bundle(self, temp_config_file: Path, tmp_path: Path):
         """Import loads palaces from bundle into storage."""
         # Create a bundle to import
         bundle = {
@@ -500,7 +489,11 @@ class TestExportImport:
                     "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
                     "associations": {},
                     "sensory_encoding": {},
-                    "metadata": {"concept_count": 0, "complexity_level": "basic", "access_patterns": []},
+                    "metadata": {
+                        "concept_count": 0,
+                        "complexity_level": "basic",
+                        "access_patterns": [],
+                    },
                 }
             ],
         }
@@ -523,7 +516,11 @@ class TestExportImport:
         assert (import_dir / "imported1.json").exists()
 
     def test_import_skips_existing_by_default(
-        self, temp_config_file: Path, temp_palaces_dir: Path, sample_palace_file: Path, tmp_path: Path
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        sample_palace_file: Path,
+        tmp_path: Path,
     ):
         """Import skips palaces that already exist by default."""
         manager = MemoryPalaceManager(
@@ -545,7 +542,11 @@ class TestExportImport:
                     "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
                     "associations": {},
                     "sensory_encoding": {},
-                    "metadata": {"concept_count": 0, "complexity_level": "basic", "access_patterns": []},
+                    "metadata": {
+                        "concept_count": 0,
+                        "complexity_level": "basic",
+                        "access_patterns": [],
+                    },
                 }
             ],
         }
@@ -559,7 +560,11 @@ class TestExportImport:
         assert stats["imported"] == 0
 
     def test_import_overwrites_when_requested(
-        self, temp_config_file: Path, temp_palaces_dir: Path, sample_palace_file: Path, tmp_path: Path
+        self,
+        temp_config_file: Path,
+        temp_palaces_dir: Path,
+        sample_palace_file: Path,
+        tmp_path: Path,
     ):
         """Import overwrites existing palaces when keep_existing=False."""
         manager = MemoryPalaceManager(
@@ -581,7 +586,11 @@ class TestExportImport:
                     "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
                     "associations": {},
                     "sensory_encoding": {},
-                    "metadata": {"concept_count": 0, "complexity_level": "basic", "access_patterns": []},
+                    "metadata": {
+                        "concept_count": 0,
+                        "complexity_level": "basic",
+                        "access_patterns": [],
+                    },
                 }
             ],
         }
@@ -639,9 +648,7 @@ class TestBackupCreation:
         assert backup_data["name"] == sample_palace_data["name"]
         assert backup_data["id"] == sample_palace_data["id"]
 
-    def test_no_backup_for_nonexistent_palace(
-        self, temp_config_file: Path, temp_palaces_dir: Path
-    ):
+    def test_no_backup_for_nonexistent_palace(self, temp_config_file: Path, temp_palaces_dir: Path):
         """Creating backup for nonexistent palace is a no-op."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),

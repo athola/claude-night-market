@@ -301,8 +301,9 @@ class SkillValidator:
 
         if len(desc) < MIN_DESCRIPTION_LENGTH:
             msg = (
-                f"Description short ({len(desc)} chars). Consider "
-                f"{MIN_OPTIMAL_DESCRIPTION}-{MAX_OPTIMAL_DESCRIPTION} for better discovery."
+                f"Description short ({len(desc)} chars). "
+                f"Consider {MIN_OPTIMAL_DESCRIPTION}-{MAX_OPTIMAL_DESCRIPTION} "
+                "for better discovery."
             )
             self.result.add_warning(msg)
         elif MIN_OPTIMAL_DESCRIPTION <= len(desc) <= MAX_OPTIMAL_DESCRIPTION:

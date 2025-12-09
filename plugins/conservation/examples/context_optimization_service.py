@@ -34,27 +34,29 @@ class ConservationContextOptimizer:
             "recency": self._optimize_by_recency,
             "importance": self._optimize_by_importance,
             "semantic": self._optimize_by_semantic_importance,
-            "balanced": self._optimize_balanced
+            "balanced": self._optimize_balanced,
         }
         self.optimizers = {}
         self._register_builtin_optimizers()
 
     def _register_builtin_optimizers(self):
         """Register built-in optimization strategies."""
-        self.optimizers.update({
-            "conservation.priority": self._optimize_by_priority,
-            "conservation.recency": self._optimize_by_recency,
-            "conservation.importance": self._optimize_by_importance,
-            "conservation.semantic": self._optimize_by_semantic_importance,
-            "conservation.balanced": self._optimize_balanced
-        })
+        self.optimizers.update(
+            {
+                "conservation.priority": self._optimize_by_priority,
+                "conservation.recency": self._optimize_by_recency,
+                "conservation.importance": self._optimize_by_importance,
+                "conservation.semantic": self._optimize_by_semantic_importance,
+                "conservation.balanced": self._optimize_balanced,
+            }
+        )
 
     def optimize_content(
         self,
         content_blocks: list[ContentBlock],
         max_tokens: int,
         strategy: str = "balanced",
-        preserve_structure: bool = True
+        preserve_structure: bool = True,
     ) -> dict[str, Any]:
         """Optimize content blocks to fit within max_tokens.
 
@@ -76,7 +78,7 @@ class ConservationContextOptimizer:
             "blocks_kept": 0,
             "blocks_dropped": 0,
             "strategy_used": strategy,
-            "preserved_structure": preserve_structure
+            "preserved_structure": preserve_structure,
         }
 
         # Select optimization strategy
@@ -89,13 +91,12 @@ class ConservationContextOptimizer:
         if preserve_structure:
             result["optimized_content"] = self._rebuild_structure(optimized_blocks)
         else:
-            result["optimized_content"] = "\n\n".join(b.content for b in
-                optimized_blocks)
+            result["optimized_content"] = "\n\n".join(
+                b.content for b in optimized_blocks
+            )
 
         # Calculate metrics
-        result["optimized_tokens"] = sum(
-            b.token_estimate for b in optimized_blocks
-        )
+        result["optimized_tokens"] = sum(b.token_estimate for b in optimized_blocks)
         result["compression_ratio"] = (
             result["optimized_tokens"] / result["original_tokens"]
         )
@@ -105,9 +106,7 @@ class ConservationContextOptimizer:
         return result
 
     def _optimize_by_priority(
-        self,
-        blocks: list[ContentBlock],
-        max_tokens: int
+        self, blocks: list[ContentBlock], max_tokens: int
     ) -> list[ContentBlock]:
         """Keep blocks with highest priority scores."""
         # Sort by priority (descending)
@@ -132,15 +131,14 @@ class ConservationContextOptimizer:
                 break
 
         # Restore original order for consistency
-        kept_blocks.sort(key=lambda b: blocks.index(b) if b in blocks else float('inf'))
+        kept_blocks.sort(key=lambda b: blocks.index(b) if b in blocks else float("inf"))
         return kept_blocks
 
     def _optimize_by_recency(
-        self,
-        blocks: list[ContentBlock],
-        max_tokens: int
+        self, blocks: list[ContentBlock], max_tokens: int
     ) -> list[ContentBlock]:
         """Keep most recent blocks based on metadata."""
+
         # Sort by timestamp if available
         def get_timestamp(block):
             return block.metadata.get("timestamp", 0)
@@ -159,9 +157,7 @@ class ConservationContextOptimizer:
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
     def _optimize_by_importance(
-        self,
-        blocks: list[ContentBlock],
-        max_tokens: int
+        self, blocks: list[ContentBlock], max_tokens: int
     ) -> list[ContentBlock]:
         """Keep blocks based on importance keywords and patterns."""
         # Importance indicators
@@ -208,16 +204,14 @@ class ConservationContextOptimizer:
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
     def _optimize_by_semantic_importance(
-        self,
-        blocks: list[ContentBlock],
-        max_tokens: int
+        self, blocks: list[ContentBlock], max_tokens: int
     ) -> list[ContentBlock]:
         """Semantic optimization based on content analysis."""
         # Simple semantic scoring based on content characteristics
         semantic_keywords = {
             "high": ["main", "init", "core", "key", "primary", "essential", "critical"],
             "medium": ["helper", "util", "support", "secondary", "additional"],
-            "low": ["test", "example", "demo", "temp", "debug"]
+            "low": ["test", "example", "demo", "temp", "debug"],
         }
 
         scored_blocks = []
@@ -257,9 +251,7 @@ class ConservationContextOptimizer:
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
     def _optimize_balanced(
-        self,
-        blocks: list[ContentBlock],
-        max_tokens: int
+        self, blocks: list[ContentBlock], max_tokens: int
     ) -> list[ContentBlock]:
         """Balanced optimization considering multiple factors."""
         # Combine multiple scoring methods
@@ -273,9 +265,7 @@ class ConservationContextOptimizer:
             score += recency_score * 0.2
 
             # Add importance factor
-            importance_patterns = [
-                "error", "exception", "critical", "main", "key"
-            ]
+            importance_patterns = ["error", "exception", "critical", "main", "key"]
             for pattern in importance_patterns:
                 if pattern in block.content.lower():
                     score += 0.1
@@ -306,13 +296,15 @@ class ConservationContextOptimizer:
 
         return sorted(kept_blocks, key=lambda b: blocks.index(b))
 
-    def _truncate_block(self, block: ContentBlock, max_tokens: int) -> ContentBlock | None:
+    def _truncate_block(
+        self, block: ContentBlock, max_tokens: int
+    ) -> ContentBlock | None:
         """Truncate a block to fit within token limit."""
         if block.token_estimate <= max_tokens:
             return block
 
         # Rough truncation - split by lines and keep what fits
-        lines = block.content.split('\n')
+        lines = block.content.split("\n")
         kept_lines = []
         current_tokens = 0
 
@@ -327,11 +319,11 @@ class ConservationContextOptimizer:
 
         if kept_lines:
             return ContentBlock(
-                content='\n'.join(kept_lines),
+                content="\n".join(kept_lines),
                 priority=block.priority,
                 source=block.source,
                 token_estimate=int(current_tokens),
-                metadata={**block.metadata, "truncated": True}
+                metadata={**block.metadata, "truncated": True},
             )
         return None
 
@@ -354,7 +346,7 @@ class ConservationContextOptimizer:
             for block in section_blocks:
                 content_parts.append(block.content)
 
-        return '\n\n'.join(content_parts)
+        return "\n\n".join(content_parts)
 
 
 # Service registration for other plugins to discover
@@ -385,8 +377,12 @@ class ConservationServiceRegistry:
 # Register the optimizer as a service
 registry = ConservationServiceRegistry()
 registry.register_service("context_optimizer", ConservationContextOptimizer())
-registry.register_service("optimize_content", lambda *args, **kwargs:
-    ConservationContextOptimizer().optimize_content(*args, **kwargs))
+registry.register_service(
+    "optimize_content",
+    lambda *args, **kwargs: ConservationContextOptimizer().optimize_content(
+        *args, **kwargs
+    ),
+)
 
 
 # Example usage patterns for other plugins
@@ -405,14 +401,14 @@ def example_abstract_usage():
             priority=0.9,
             source="function_definition",
             token_estimate=50,
-            metadata={"section": "core", "timestamp": 1640995200}
+            metadata={"section": "core", "timestamp": 1640995200},
         ),
         ContentBlock(
             content="# This is a comment explaining the logic",
             priority=0.3,
             source="comment",
             token_estimate=20,
-            metadata={"section": "documentation", "timestamp": 1640995200}
+            metadata={"section": "documentation", "timestamp": 1640995200},
         ),
         # ... more blocks
     ]
@@ -420,10 +416,7 @@ def example_abstract_usage():
     # Use Conservation to optimize
     optimizer = ConservationContextOptimizer()
     result = optimizer.optimize_content(
-        blocks,
-        max_tokens=2000,
-        strategy="importance",
-        preserve_structure=True
+        blocks, max_tokens=2000, strategy="importance", preserve_structure=True
     )
 
     return result["optimized_content"]
@@ -441,9 +434,7 @@ def example_sanctum_usage():
     if optimize:
         # Use it to optimize git commit messages and diffs
         optimized = optimize(
-            content_blocks=git_content_blocks,
-            max_tokens=1500,
-            strategy="recency"
+            content_blocks=git_content_blocks, max_tokens=1500, strategy="recency"
         )
         return optimized
 
@@ -459,38 +450,36 @@ if __name__ == "__main__":
             priority=0.9,
             source="core_code",
             token_estimate=100,
-            metadata={"section": "main", "timestamp": 1640995200}
+            metadata={"section": "main", "timestamp": 1640995200},
         ),
         ContentBlock(
             content="# TODO: Add error handling\n# FIXME: This is slow",
             priority=0.7,
             source="comments",
             token_estimate=50,
-            metadata={"section": "notes", "timestamp": 1640995300}
+            metadata={"section": "notes", "timestamp": 1640995300},
         ),
         ContentBlock(
             content="def helper_function():\n    pass",
             priority=0.5,
             source="helper_code",
             token_estimate=60,
-            metadata={"section": "helpers", "timestamp": 1640995400}
+            metadata={"section": "helpers", "timestamp": 1640995400},
         ),
         ContentBlock(
             content="# Debug information\nprint('Debug info')",
             priority=0.2,
             source="debug_code",
             token_estimate=40,
-            metadata={"section": "debug", "timestamp": 1640995500}
-        )
+            metadata={"section": "debug", "timestamp": 1640995500},
+        ),
     ]
 
     # Test different strategies
     for strategy in ["priority", "importance", "balanced"]:
         print(f"\nStrategy: {strategy}")
         result = optimizer.optimize_content(
-            example_blocks,
-            max_tokens=150,
-            strategy=strategy
+            example_blocks, max_tokens=150, strategy=strategy
         )
         print(f"  Original tokens: {result['original_tokens']}")
         print(f"  Optimized tokens: {result['optimized_tokens']}")

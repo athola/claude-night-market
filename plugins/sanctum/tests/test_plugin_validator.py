@@ -1,6 +1,5 @@
 """Tests for plugin.json validation."""
 
-
 from sanctum.validators import PluginValidationResult, PluginValidator
 
 
@@ -214,4 +213,6 @@ class TestPluginValidatorFromFile:
 
         result = PluginValidator.validate_plugin_dir(tmp_path)
         assert not result.is_valid
-        assert any("JSON" in error or "parse" in error.lower() for error in result.errors)
+        assert any(
+            "JSON" in error or "parse" in error.lower() for error in result.errors
+        )

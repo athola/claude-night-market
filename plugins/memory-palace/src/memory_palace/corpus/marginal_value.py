@@ -18,29 +18,29 @@ from memory_palace.corpus.query_templates import QueryTemplateManager
 class RedundancyLevel(Enum):
     """Classification of content redundancy."""
 
-    EXACT_MATCH = "exact_match"      # Duplicate - reject
-    HIGHLY_REDUNDANT = "redundant"   # 80%+ overlap - reject
-    PARTIAL_OVERLAP = "partial"      # Some overlap - evaluate delta
-    NOVEL = "novel"                   # New content - likely valuable
+    EXACT_MATCH = "exact_match"  # Duplicate - reject
+    HIGHLY_REDUNDANT = "redundant"  # 80%+ overlap - reject
+    PARTIAL_OVERLAP = "partial"  # Some overlap - evaluate delta
+    NOVEL = "novel"  # New content - likely valuable
 
 
 class DeltaType(Enum):
     """Type of new information in partially overlapping content."""
 
-    NOVEL_INSIGHT = "novel_insight"           # New pattern/concept - valuable
-    DIFFERENT_FRAMING = "different_framing"   # Same info, different words - low value
-    MORE_EXAMPLES = "more_examples"           # Additional examples - marginal
-    CONTRADICTS = "contradicts"               # Contradicts existing - investigate
-    NONE = "none"                             # No new information
+    NOVEL_INSIGHT = "novel_insight"  # New pattern/concept - valuable
+    DIFFERENT_FRAMING = "different_framing"  # Same info, different words - low value
+    MORE_EXAMPLES = "more_examples"  # Additional examples - marginal
+    CONTRADICTS = "contradicts"  # Contradicts existing - investigate
+    NONE = "none"  # No new information
 
 
 class IntegrationDecision(Enum):
     """How to handle new knowledge."""
 
-    STANDALONE = "standalone"     # Store as new entry
-    MERGE = "merge"               # Enhance existing entry
-    REPLACE = "replace"           # Supersedes existing entry
-    SKIP = "skip"                 # No marginal value
+    STANDALONE = "standalone"  # Store as new entry
+    MERGE = "merge"  # Enhance existing entry
+    REPLACE = "replace"  # Supersedes existing entry
+    SKIP = "skip"  # No marginal value
 
 
 @dataclass
@@ -48,9 +48,9 @@ class RedundancyCheck:
     """Result of redundancy analysis."""
 
     level: RedundancyLevel
-    overlap_score: float          # 0.0 to 1.0
-    matching_entries: list[str]   # IDs of overlapping entries
-    reasons: list[str]            # Why this redundancy classification
+    overlap_score: float  # 0.0 to 1.0
+    matching_entries: list[str]  # IDs of overlapping entries
+    reasons: list[str]  # Why this redundancy classification
 
 
 @dataclass
@@ -58,10 +58,10 @@ class DeltaAnalysis:
     """Analysis of what's new in partially overlapping content."""
 
     delta_type: DeltaType
-    value_score: float            # 0.0 to 1.0 (marginal value)
-    novel_aspects: list[str]      # What's new/different
+    value_score: float  # 0.0 to 1.0 (marginal value)
+    novel_aspects: list[str]  # What's new/different
     redundant_aspects: list[str]  # What's already covered
-    teaching_delta: str           # "What can this teach that existing can't?"
+    teaching_delta: str  # "What can this teach that existing can't?"
 
 
 @dataclass
@@ -69,9 +69,9 @@ class IntegrationPlan:
     """Decision on how to integrate new knowledge."""
 
     decision: IntegrationDecision
-    target_entries: list[str]     # Entries to merge/replace
-    rationale: str                # Why this decision
-    confidence: float             # 0.0 to 1.0
+    target_entries: list[str]  # Entries to merge/replace
+    rationale: str  # Why this decision
+    confidence: float  # 0.0 to 1.0
 
 
 class MarginalValueFilter:
@@ -104,10 +104,7 @@ class MarginalValueFilter:
         self.query_manager = QueryTemplateManager(corpus_dir, index_dir)
 
     def evaluate_content(
-        self,
-        content: str,
-        title: str = "",
-        tags: list[str] | None = None
+        self, content: str, title: str = "", tags: list[str] | None = None
     ) -> tuple[RedundancyCheck, DeltaAnalysis | None, IntegrationPlan]:
         """Evaluate new content for marginal value.
 
@@ -131,24 +128,14 @@ class MarginalValueFilter:
         # Step 2: Analyze delta (only for partial overlap)
         delta = None
         if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
-            delta = self._analyze_delta(
-                content,
-                title,
-                redundancy.matching_entries,
-                keywords
-            )
+            delta = self._analyze_delta(content, title, redundancy.matching_entries, keywords)
 
         # Step 3: Make integration decision
         integration = self._decide_integration(redundancy, delta)
 
         return redundancy, delta, integration
 
-    def _extract_keywords(
-        self,
-        content: str,
-        title: str,
-        tags: list[str]
-    ) -> set[str]:
+    def _extract_keywords(self, content: str, title: str, tags: list[str]) -> set[str]:
         """Extract keywords from content for comparison.
 
         Args:
@@ -166,32 +153,66 @@ class MarginalValueFilter:
         keywords.update(tag.lower() for tag in tags)
 
         # Extract from title
-        title_words = re.findall(r'\b[a-z]{3,}\b', title.lower())
+        title_words = re.findall(r"\b[a-z]{3,}\b", title.lower())
         keywords.update(title_words)
 
         # Extract technical terms (hyphenated)
-        technical_terms = re.findall(r'\b[a-z]+(?:-[a-z]+)+\b', content.lower())
+        technical_terms = re.findall(r"\b[a-z]+(?:-[a-z]+)+\b", content.lower())
         keywords.update(technical_terms)
 
         # Extract emphasized terms
-        emphasized = re.findall(r'\*\*([^*]+)\*\*|\*([^*]+)\*', content)
+        emphasized = re.findall(r"\*\*([^*]+)\*\*|\*([^*]+)\*", content)
         for match in emphasized:
             term = match[0] or match[1]
-            term_words = re.findall(r'\b[a-z]{3,}\b', term.lower())
+            term_words = re.findall(r"\b[a-z]{3,}\b", term.lower())
             keywords.update(term_words)
 
         # Extract headings
-        headings = re.findall(r'^#{1,3}\s+(.+)$', content, re.MULTILINE)
+        headings = re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE)
         for heading in headings:
-            heading_words = re.findall(r'\b[a-z]{3,}\b', heading.lower())
+            heading_words = re.findall(r"\b[a-z]{3,}\b", heading.lower())
             keywords.update(heading_words)
 
         # Remove stop words
         stop_words = {
-            'the', 'and', 'for', 'that', 'this', 'with', 'from', 'are', 'was', 'were',
-            'been', 'have', 'has', 'had', 'not', 'but', 'can', 'will', 'what', 'when',
-            'where', 'who', 'why', 'how', 'all', 'each', 'which', 'their', 'said',
-            'them', 'these', 'than', 'into', 'very', 'her', 'our', 'out', 'only'
+            "the",
+            "and",
+            "for",
+            "that",
+            "this",
+            "with",
+            "from",
+            "are",
+            "was",
+            "were",
+            "been",
+            "have",
+            "has",
+            "had",
+            "not",
+            "but",
+            "can",
+            "will",
+            "what",
+            "when",
+            "where",
+            "who",
+            "why",
+            "how",
+            "all",
+            "each",
+            "which",
+            "their",
+            "said",
+            "them",
+            "these",
+            "than",
+            "into",
+            "very",
+            "her",
+            "our",
+            "out",
+            "only",
         }
         keywords = {k for k in keywords if k not in stop_words}
 
@@ -211,30 +232,27 @@ class MarginalValueFilter:
         queries = []
 
         # Common question patterns from title/headings
-        headings = [title] + re.findall(r'^#{1,3}\s+(.+)$', content, re.MULTILINE)
+        headings = [title] + re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE)
 
         for heading in headings:
             heading_lower = heading.lower()
 
             # "How to X" patterns
-            if 'how' in heading_lower:
+            if "how" in heading_lower:
                 queries.append(heading_lower)
 
             # "X pattern" or "X approach"
-            if 'pattern' in heading_lower or 'approach' in heading_lower:
+            if "pattern" in heading_lower or "approach" in heading_lower:
                 queries.append(f"what is {heading_lower}")
 
             # "X best practices"
-            if 'practice' in heading_lower or 'tip' in heading_lower:
+            if "practice" in heading_lower or "tip" in heading_lower:
                 queries.append(f"best practices for {heading_lower}")
 
         return queries
 
     def _check_redundancy(
-        self,
-        keywords: set[str],
-        queries: list[str],
-        content: str
+        self, keywords: set[str], queries: list[str], content: str
     ) -> RedundancyCheck:
         """Check if content is redundant with existing corpus.
 
@@ -254,9 +272,7 @@ class MarginalValueFilter:
         # Search by keywords
         if keywords:
             keyword_results = self.cache_lookup.search(
-                list(keywords),
-                mode="keywords",
-                min_score=0.3
+                list(keywords), mode="keywords", min_score=0.3
             )
 
             for result in keyword_results:
@@ -269,11 +285,7 @@ class MarginalValueFilter:
 
         # Search by queries
         for query in queries:
-            query_results = self.cache_lookup.search(
-                query,
-                mode="queries",
-                min_score=0.3
-            )
+            query_results = self.cache_lookup.search(query, mode="queries", min_score=0.3)
 
             for result in query_results:
                 entry_id = result["entry_id"]
@@ -293,7 +305,7 @@ class MarginalValueFilter:
                     level=RedundancyLevel.EXACT_MATCH,
                     overlap_score=1.0,
                     matching_entries=[entry_id],
-                    reasons=reasons
+                    reasons=reasons,
                 )
 
         # Determine redundancy level from overlap scores
@@ -302,7 +314,7 @@ class MarginalValueFilter:
                 level=RedundancyLevel.NOVEL,
                 overlap_score=0.0,
                 matching_entries=[],
-                reasons=["No matching entries found"]
+                reasons=["No matching entries found"],
             )
 
         max_overlap = max(overlap_scores)
@@ -311,7 +323,9 @@ class MarginalValueFilter:
             reasons.append(f"High overlap ({max_overlap:.0%}) with {len(matching_entries)} entries")
             level = RedundancyLevel.HIGHLY_REDUNDANT
         elif max_overlap >= 0.4:
-            reasons.append(f"Partial overlap ({max_overlap:.0%}) with {len(matching_entries)} entries")
+            reasons.append(
+                f"Partial overlap ({max_overlap:.0%}) with {len(matching_entries)} entries"
+            )
             level = RedundancyLevel.PARTIAL_OVERLAP
         else:
             reasons.append(f"Low overlap ({max_overlap:.0%}), appears novel")
@@ -321,7 +335,7 @@ class MarginalValueFilter:
             level=level,
             overlap_score=max_overlap,
             matching_entries=matching_entries,
-            reasons=reasons
+            reasons=reasons,
         )
 
     def _analyze_delta(
@@ -329,7 +343,7 @@ class MarginalValueFilter:
         new_content: str,
         new_title: str,
         matching_entry_ids: list[str],
-        new_keywords: set[str]
+        new_keywords: set[str],
     ) -> DeltaAnalysis:
         """Analyze what's genuinely new in partially overlapping content.
 
@@ -371,17 +385,25 @@ class MarginalValueFilter:
             redundant_aspects.append(f"Already covered: {', '.join(list(overlap_keywords)[:5])}")
 
         # Analyze content structure differences
-        new_headings = set(re.findall(r'^#{1,3}\s+(.+)$', new_content, re.MULTILINE))
+        new_headings = set(re.findall(r"^#{1,3}\s+(.+)$", new_content, re.MULTILINE))
         existing_headings = set()
         for content in existing_contents:
-            existing_headings.update(re.findall(r'^#{1,3}\s+(.+)$', content, re.MULTILINE))
+            existing_headings.update(re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE))
 
         novel_headings = new_headings - existing_headings
         if novel_headings:
             novel_aspects.append(f"New topics: {', '.join(list(novel_headings)[:3])}")
 
         # Check for contradictions (heuristic: "not", "wrong", "incorrect" near existing concepts)
-        contradiction_markers = ['not', 'wrong', 'incorrect', 'avoid', 'instead', 'better', 'prefer']
+        contradiction_markers = [
+            "not",
+            "wrong",
+            "incorrect",
+            "avoid",
+            "instead",
+            "better",
+            "prefer",
+        ]
         has_contradiction = any(marker in new_content.lower() for marker in contradiction_markers)
 
         # Determine delta type and value
@@ -411,13 +433,11 @@ class MarginalValueFilter:
             value_score=value_score,
             novel_aspects=novel_aspects,
             redundant_aspects=redundant_aspects,
-            teaching_delta=teaching_delta
+            teaching_delta=teaching_delta,
         )
 
     def _decide_integration(
-        self,
-        redundancy: RedundancyCheck,
-        delta: DeltaAnalysis | None
+        self, redundancy: RedundancyCheck, delta: DeltaAnalysis | None
     ) -> IntegrationPlan:
         """Decide how to integrate new knowledge (or skip it).
 
@@ -435,7 +455,7 @@ class MarginalValueFilter:
                 decision=IntegrationDecision.SKIP,
                 target_entries=redundancy.matching_entries,
                 rationale="Exact duplicate of existing content",
-                confidence=1.0
+                confidence=1.0,
             )
 
         # Highly redundant: skip unless special case
@@ -444,7 +464,7 @@ class MarginalValueFilter:
                 decision=IntegrationDecision.SKIP,
                 target_entries=redundancy.matching_entries,
                 rationale=f"80%+ overlap with existing entries: {', '.join(redundancy.matching_entries[:3])}",
-                confidence=0.9
+                confidence=0.9,
             )
 
         # Novel: store as standalone
@@ -453,7 +473,7 @@ class MarginalValueFilter:
                 decision=IntegrationDecision.STANDALONE,
                 target_entries=[],
                 rationale="Novel content with no significant overlap",
-                confidence=0.9
+                confidence=0.9,
             )
 
         # Partial overlap: decide based on delta
@@ -463,7 +483,7 @@ class MarginalValueFilter:
                     decision=IntegrationDecision.STANDALONE,
                     target_entries=[],
                     rationale=f"Novel insights justify standalone: {delta.teaching_delta}",
-                    confidence=0.8
+                    confidence=0.8,
                 )
 
             if delta.delta_type == DeltaType.CONTRADICTS:
@@ -471,7 +491,7 @@ class MarginalValueFilter:
                     decision=IntegrationDecision.REPLACE,
                     target_entries=redundancy.matching_entries[:1],
                     rationale=f"Contradicts/corrects existing: {delta.teaching_delta}",
-                    confidence=0.6
+                    confidence=0.6,
                 )
 
             if delta.delta_type == DeltaType.MORE_EXAMPLES and delta.value_score >= 0.4:
@@ -479,7 +499,7 @@ class MarginalValueFilter:
                     decision=IntegrationDecision.MERGE,
                     target_entries=redundancy.matching_entries[:1],
                     rationale=f"Enhances existing with examples: {delta.teaching_delta}",
-                    confidence=0.7
+                    confidence=0.7,
                 )
 
             if delta.value_score < 0.3:
@@ -487,7 +507,7 @@ class MarginalValueFilter:
                     decision=IntegrationDecision.SKIP,
                     target_entries=redundancy.matching_entries,
                     rationale=f"Insufficient marginal value: {delta.teaching_delta}",
-                    confidence=0.7
+                    confidence=0.7,
                 )
 
         # Default: suggest merge but with low confidence
@@ -495,14 +515,11 @@ class MarginalValueFilter:
             decision=IntegrationDecision.MERGE,
             target_entries=redundancy.matching_entries[:1] if redundancy.matching_entries else [],
             rationale="Partial overlap suggests merge, but needs human review",
-            confidence=0.5
+            confidence=0.5,
         )
 
     def explain_decision(
-        self,
-        redundancy: RedundancyCheck,
-        delta: DeltaAnalysis | None,
-        integration: IntegrationPlan
+        self, redundancy: RedundancyCheck, delta: DeltaAnalysis | None, integration: IntegrationPlan
     ) -> str:
         """Generate human-readable explanation of the filtering decision.
 

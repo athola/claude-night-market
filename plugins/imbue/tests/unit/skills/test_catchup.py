@@ -4,7 +4,6 @@ This module tests the repository catchup and change summarization functionality,
 following TDD/BDD principles and testing all catchup scenarios.
 """
 
-
 # ruff: noqa: S101
 from unittest.mock import call
 
@@ -124,46 +123,41 @@ Untracked files:
                 "branch": "feature/user-auth",
                 "baseline": "main",
                 "status": "ahead",
-                "uncommitted_changes": True
+                "uncommitted_changes": True,
             },
             "delta": {
                 "commits_since_baseline": 7,
                 "files_changed": 10,
                 "lines_added": 150,
                 "lines_removed": 45,
-                "changes_by_category": {
-                    "code": 5,
-                    "tests": 2,
-                    "docs": 1,
-                    "config": 2
-                }
+                "changes_by_category": {"code": 5, "tests": 2, "docs": 1, "config": 2},
             },
             "insights": [
                 {
                     "type": "feature_complete",
                     "description": "User authentication feature implementation",
                     "impact": "High",
-                    "files": ["src/auth.py", "src/middleware.py"]
+                    "files": ["src/auth.py", "src/middleware.py"],
                 },
                 {
                     "type": "coordination_needed",
                     "description": "API changes require frontend team coordination",
                     "impact": "Medium",
-                    "files": ["src/api.py"]
-                }
+                    "files": ["src/api.py"],
+                },
             ],
             "followups": [
                 {
                     "action": "Review authentication implementation",
                     "priority": "High",
-                    "category": "code_review"
+                    "category": "code_review",
                 },
                 {
                     "action": "Update API documentation",
                     "priority": "Medium",
-                    "category": "documentation"
-                }
-            ]
+                    "category": "documentation",
+                },
+            ],
         }
 
     @pytest.mark.unit
@@ -176,34 +170,38 @@ Untracked files:
         And identify uncommitted changes.
         """
         # Arrange
-        mock_claude_tools['Bash'].side_effect = [
-            "/test/project",                    # pwd
-            "feature/user-auth",                # git branch
-            "ahead",                           # git status summary
-            "True"                             # has uncommitted changes
+        mock_claude_tools["Bash"].side_effect = [
+            "/test/project",  # pwd
+            "feature/user-auth",  # git branch
+            "ahead",  # git status summary
+            "True",  # has uncommitted changes
         ]
 
         # Act - capture repository context
         context = {}
-        context['working_directory'] = mock_claude_tools['Bash']("pwd")
-        context['branch'] = mock_claude_tools['Bash']("git branch --show-current")
-        context['status'] = mock_claude_tools['Bash']("git status --porcelain | head -1")
-        context['uncommitted_changes'] = bool(mock_claude_tools['Bash']("git status --porcelain"))
+        context["working_directory"] = mock_claude_tools["Bash"]("pwd")
+        context["branch"] = mock_claude_tools["Bash"]("git branch --show-current")
+        context["status"] = mock_claude_tools["Bash"](
+            "git status --porcelain | head -1"
+        )
+        context["uncommitted_changes"] = bool(
+            mock_claude_tools["Bash"]("git status --porcelain")
+        )
 
         # Assert
-        assert context['working_directory'] == "/test/project"
-        assert context['branch'] == "feature/user-auth"
-        assert context['status'] == "ahead"
-        assert context['uncommitted_changes'] is True
+        assert context["working_directory"] == "/test/project"
+        assert context["branch"] == "feature/user-auth"
+        assert context["status"] == "ahead"
+        assert context["uncommitted_changes"] is True
 
         # Verify proper commands were called
         expected_calls = [
             call("pwd"),
             call("git branch --show-current"),
             call("git status --porcelain | head -1"),
-            call("git status --porcelain")
+            call("git status --porcelain"),
         ]
-        mock_claude_tools['Bash'].assert_has_calls(expected_calls)
+        mock_claude_tools["Bash"].assert_has_calls(expected_calls)
 
     @pytest.mark.unit
     @pytest.mark.unit
@@ -215,13 +213,9 @@ Untracked files:
         And identify conflicts or blocking issues.
         """
         # Arrange & Act - parse git status and categorize changes
-        status_lines = sample_git_status_output.split('\n')
+        status_lines = sample_git_status_output.split("\n")
 
-        changes = {
-            "staged": [],
-            "unstaged": [],
-            "untracked": []
-        }
+        changes = {"staged": [], "unstaged": [], "untracked": []}
 
         current_section = None
         for line in status_lines:
@@ -233,15 +227,13 @@ Untracked files:
                 change_info = line.strip()
                 if ":" in change_info:
                     change_type, file_path = change_info.split(": ", 1)
-                    changes[current_section].append({
-                        "file": file_path,
-                        "status": change_type
-                    })
+                    changes[current_section].append(
+                        {"file": file_path, "status": change_type}
+                    )
                 elif change_info and not change_info.endswith(":"):
-                    changes[current_section].append({
-                        "file": change_info,
-                        "status": "untracked"
-                    })
+                    changes[current_section].append(
+                        {"file": change_info, "status": "untracked"}
+                    )
 
         # Categorize by relevance
         relevance_priority = {
@@ -249,7 +241,7 @@ Untracked files:
             "config": ["config/", ".env", "Dockerfile", "docker-compose.yml"],
             "tests": ["tests/", "test/", "spec/"],
             "docs": ["docs/", "README.md", "CHANGELOG.md"],
-            "build": ["build/", "dist/", "node_modules/"]
+            "build": ["build/", "dist/", "node_modules/"],
         }
 
         categorized_changes = {"high": [], "medium": [], "low": []}
@@ -267,15 +259,15 @@ Untracked files:
                             relevance = "medium"
                         break
 
-                categorized_changes[relevance].append({
-                    "file": file_path,
-                    "section": section,
-                    "status": change["status"]
-                })
+                categorized_changes[relevance].append(
+                    {"file": file_path, "section": section, "status": change["status"]}
+                )
 
         # Assert
         assert len(categorized_changes["high"]) == 2  # src/auth.py, src/middleware.py
-        assert len(categorized_changes["medium"]) == 2  # tests/test_auth.py, config/auth_config.json
+        assert (
+            len(categorized_changes["medium"]) == 2
+        )  # tests/test_auth.py, config/auth_config.json
         high_priority_files = [c["file"] for c in categorized_changes["high"]]
         assert "src/auth.py" in high_priority_files
         assert "src/middleware.py" in high_priority_files
@@ -290,38 +282,42 @@ Untracked files:
         And conserve tokens by avoiding full content reproduction.
         """
         # Arrange & Act - parse git log output efficiently
-        log_lines = sample_git_log_output.split('\n')
+        log_lines = sample_git_log_output.split("\n")
 
         commits = []
         for line in log_lines:
-            parts = line.split(' ', 3)
+            parts = line.split(" ", 3)
             if len(parts) >= 4:
                 commit_hash = parts[0]
                 commit_date = parts[1]
                 commit_time = parts[2]
                 commit_message = parts[3]
 
-                commits.append({
-                    "hash": commit_hash[:8],  # Short hash
-                    "date": commit_date,
-                    "time": commit_time,
-                    "message": commit_message,
-                    "type": self._categorize_commit_type(commit_message)
-                })
+                commits.append(
+                    {
+                        "hash": commit_hash[:8],  # Short hash
+                        "date": commit_date,
+                        "time": commit_time,
+                        "message": commit_message,
+                        "type": self._categorize_commit_type(commit_message),
+                    }
+                )
 
         # Generate summary statistics
         summary = {
             "total_commits": len(commits),
             "date_range": {
                 "earliest": commits[-1]["date"] if commits else None,
-                "latest": commits[0]["date"] if commits else None
+                "latest": commits[0]["date"] if commits else None,
             },
-            "commit_types": {}
+            "commit_types": {},
         }
 
         for commit in commits:
             commit_type = commit["type"]
-            summary["commit_types"][commit_type] = summary["commit_types"].get(commit_type, 0) + 1
+            summary["commit_types"][commit_type] = (
+                summary["commit_types"].get(commit_type, 0) + 1
+            )
 
         # Assert
         assert summary["total_commits"] == 7
@@ -335,7 +331,7 @@ Untracked files:
         # Verify token efficiency - no full file contents reproduced
         for commit in commits:
             assert len(commit["message"]) < 100  # Reasonable length
-            assert len(commit["hash"]) == 8     # Short hash
+            assert len(commit["hash"]) == 8  # Short hash
 
     def _categorize_commit_type(self, message: str) -> str:
         """Helper to categorize commit type from message."""
@@ -369,7 +365,7 @@ Untracked files:
             {"file": "src/auth.py", "type": "feature", "impact": "High"},
             {"file": "src/middleware.py", "type": "feature", "impact": "High"},
             {"file": "tests/test_auth.py", "type": "test", "impact": "Low"},
-            {"file": "config/auth_config.json", "type": "config", "impact": "Medium"}
+            {"file": "config/auth_config.json", "type": "config", "impact": "Medium"},
         ]
 
         insights = []
@@ -377,32 +373,38 @@ Untracked files:
         # Look for feature completion patterns
         feature_files = [c for c in changes if c["type"] == "feature"]
         if len(feature_files) > 1:
-            insights.append({
-                "type": "feature_complete",
-                "description": f"Feature implementation with {len(feature_files)} components",
-                "impact": "High",
-                "files": [c["file"] for c in feature_files]
-            })
+            insights.append(
+                {
+                    "type": "feature_complete",
+                    "description": f"Feature implementation with {len(feature_files)} components",
+                    "impact": "High",
+                    "files": [c["file"] for c in feature_files],
+                }
+            )
 
         # Look for test additions
         test_files = [c for c in changes if c["type"] == "test"]
         if test_files:
-            insights.append({
-                "type": "test_coverage_added",
-                "description": f"Test coverage added for {len(test_files)} areas",
-                "impact": "Medium",
-                "files": [c["file"] for c in test_files]
-            })
+            insights.append(
+                {
+                    "type": "test_coverage_added",
+                    "description": f"Test coverage added for {len(test_files)} areas",
+                    "impact": "Medium",
+                    "files": [c["file"] for c in test_files],
+                }
+            )
 
         # Look for configuration changes
         config_files = [c for c in changes if c["type"] == "config"]
         if config_files:
-            insights.append({
-                "type": "configuration_updated",
-                "description": "Configuration changes affecting deployment",
-                "impact": "Medium",
-                "files": [c["file"] for c in config_files]
-            })
+            insights.append(
+                {
+                    "type": "configuration_updated",
+                    "description": "Configuration changes affecting deployment",
+                    "impact": "Medium",
+                    "files": [c["file"] for c in config_files],
+                }
+            )
 
         # Assert
         assert len(insights) == 3
@@ -432,26 +434,32 @@ Untracked files:
 
         for insight in insights:
             if insight["type"] == "feature_complete":
-                followups.append({
-                    "action": "Review new feature implementation",
-                    "priority": "High",
-                    "category": "code_review",
-                    "files": insight["files"]
-                })
-                followups.append({
-                    "action": "Update feature documentation",
-                    "priority": "Medium",
-                    "category": "documentation",
-                    "files": insight["files"]
-                })
+                followups.append(
+                    {
+                        "action": "Review new feature implementation",
+                        "priority": "High",
+                        "category": "code_review",
+                        "files": insight["files"],
+                    }
+                )
+                followups.append(
+                    {
+                        "action": "Update feature documentation",
+                        "priority": "Medium",
+                        "category": "documentation",
+                        "files": insight["files"],
+                    }
+                )
 
             elif insight["type"] == "coordination_needed":
-                followups.append({
-                    "action": "Coordinate with affected teams",
-                    "priority": "High",
-                    "category": "coordination",
-                    "files": insight["files"]
-                })
+                followups.append(
+                    {
+                        "action": "Coordinate with affected teams",
+                        "priority": "High",
+                        "category": "coordination",
+                        "files": insight["files"],
+                    }
+                )
 
         # Sort by priority
         priority_order = {"High": 1, "Medium": 2, "Low": 3}
@@ -478,12 +486,14 @@ Untracked files:
         # Arrange - simulate many changes
         many_changes = []
         for i in range(100):
-            many_changes.append({
-                "file": f"src/component_{i}.py",
-                "type": "modified",
-                "lines_added": i % 10,
-                "lines_removed": i % 5
-            })
+            many_changes.append(
+                {
+                    "file": f"src/component_{i}.py",
+                    "type": "modified",
+                    "lines_added": i % 10,
+                    "lines_removed": i % 5,
+                }
+            )
 
         # Act - implement token conservation
         summary = {
@@ -491,13 +501,15 @@ Untracked files:
             "total_lines_added": sum(c["lines_added"] for c in many_changes),
             "total_lines_removed": sum(c["lines_removed"] for c in many_changes),
             "highlights": [],  # Only show top changes
-            "sample_files": []  # Show sample, not all
+            "sample_files": [],  # Show sample, not all
         }
 
         # Prioritize by impact (lines changed)
-        sorted_changes = sorted(many_changes,
-                              key=lambda c: c["lines_added"] + c["lines_removed"],
-                              reverse=True)
+        sorted_changes = sorted(
+            many_changes,
+            key=lambda c: c["lines_added"] + c["lines_removed"],
+            reverse=True,
+        )
 
         # Show top 10 most impactful changes
         summary["highlights"] = sorted_changes[:10]
@@ -526,19 +538,19 @@ Untracked files:
             ("main", "git rev-parse main"),
             ("yesterday", "git log --since='yesterday' --format=format:%H | tail -1"),
             ("--tags", "git describe --tags"),
-            ("origin/feature", "git rev-parse origin/feature")
+            ("origin/feature", "git rev-parse origin/feature"),
         ]
 
         for _baseline_spec, expected_command in test_cases:
             # Arrange
-            mock_claude_tools['Bash'].return_value = "baseline-hash"
+            mock_claude_tools["Bash"].return_value = "baseline-hash"
 
             # Act
-            baseline = mock_claude_tools['Bash'](expected_command)
+            baseline = mock_claude_tools["Bash"](expected_command)
 
             # Assert
             assert baseline == "baseline-hash"
-            mock_claude_tools['Bash'].assert_called_with(expected_command)
+            mock_claude_tools["Bash"].assert_called_with(expected_command)
 
     @pytest.mark.unit
     @pytest.mark.unit
@@ -550,10 +562,26 @@ Untracked files:
         """
         # Arrange - simulate problematic changes
         changes = [
-            {"file": "src/database.py", "change_type": "schema_change", "breaking": True},
-            {"file": "api/users.py", "change_type": "endpoint_removed", "breaking": True},
-            {"file": "requirements.txt", "change_type": "dependency_major_update", "breaking": True},
-            {"file": "src/utils.py", "change_type": "function_signature_change", "breaking": True}
+            {
+                "file": "src/database.py",
+                "change_type": "schema_change",
+                "breaking": True,
+            },
+            {
+                "file": "api/users.py",
+                "change_type": "endpoint_removed",
+                "breaking": True,
+            },
+            {
+                "file": "requirements.txt",
+                "change_type": "dependency_major_update",
+                "breaking": True,
+            },
+            {
+                "file": "src/utils.py",
+                "change_type": "function_signature_change",
+                "breaking": True,
+            },
         ]
 
         # Act - detect blockers and conflicts
@@ -566,23 +594,27 @@ Untracked files:
                     "file": change["file"],
                     "type": change["change_type"],
                     "severity": "High",
-                    "impact": "breaking_change"
+                    "impact": "breaking_change",
                 }
                 blockers.append(blocker)
 
                 # Specific conflict types
                 if "schema" in change["change_type"]:
-                    conflicts.append({
-                        "type": "database_migration_required",
-                        "affected_files": [change["file"]],
-                        "action": "Coordinate with DB team for migration"
-                    })
+                    conflicts.append(
+                        {
+                            "type": "database_migration_required",
+                            "affected_files": [change["file"]],
+                            "action": "Coordinate with DB team for migration",
+                        }
+                    )
                 elif "endpoint" in change["change_type"]:
-                    conflicts.append({
-                        "type": "api_contract_break",
-                        "affected_files": [change["file"]],
-                        "action": "Update API clients and documentation"
-                    })
+                    conflicts.append(
+                        {
+                            "type": "api_contract_break",
+                            "affected_files": [change["file"]],
+                            "action": "Update API clients and documentation",
+                        }
+                    )
 
         # Assert
         assert len(blockers) == 4
@@ -607,16 +639,16 @@ Untracked files:
         error_cases = [
             ("fatal: not a git repository", "not_a_repo"),
             ("fatal: not a valid object name: INVALID_REF", "invalid_baseline"),
-            ("error: git command not found", "git_not_available")
+            ("error: git command not found", "git_not_available"),
         ]
 
         for error_output, _error_type in error_cases:
             # Arrange
-            mock_claude_tools['Bash'].return_value = error_output
+            mock_claude_tools["Bash"].return_value = error_output
 
             # Act - handle error gracefully
             try:
-                mock_claude_tools['Bash']("git status")
+                mock_claude_tools["Bash"]("git status")
             except Exception:
                 pass
 
@@ -636,12 +668,14 @@ Untracked files:
         # Arrange - simulate large commit history
         large_history = []
         for i in range(500):
-            large_history.append({
-                "hash": f"{i:08x}",
-                "date": f"2024-{12-(i%12):02d}-{(i%28)+1:02d}",
-                "message": f"Commit {i}: Various changes",
-                "files_changed": i % 10 + 1
-            })
+            large_history.append(
+                {
+                    "hash": f"{i:08x}",
+                    "date": f"2024-{12 - (i % 12):02d}-{(i % 28) + 1:02d}",
+                    "message": f"Commit {i}: Various changes",
+                    "files_changed": i % 10 + 1,
+                }
+            )
 
         # Act - measure performance of analysis
         start_time = time.time()
@@ -651,16 +685,18 @@ Untracked files:
             "total_commits": len(large_history),
             "date_range": {
                 "earliest": large_history[-1]["date"],
-                "latest": large_history[0]["date"]
+                "latest": large_history[0]["date"],
             },
             "files_changed_total": sum(c["files_changed"] for c in large_history),
-            "commits_by_month": {}
+            "commits_by_month": {},
         }
 
         # Group by month for summary
         for commit in large_history:
             month = commit["date"][:7]  # YYYY-MM
-            summary["commits_by_month"][month] = summary["commits_by_month"].get(month, 0) + 1
+            summary["commits_by_month"][month] = (
+                summary["commits_by_month"].get(month, 0) + 1
+            )
 
         end_time = time.time()
 

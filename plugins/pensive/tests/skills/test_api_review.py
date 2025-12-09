@@ -60,11 +60,15 @@ class TestApiReviewSkill:
         """
 
         # Act
-        api_surface = self.skill.analyze_typescript_api(mock_skill_context, "src/auth.ts")
+        api_surface = self.skill.analyze_typescript_api(
+            mock_skill_context, "src/auth.ts"
+        )
 
         # Assert
         assert "exports" in api_surface
-        assert api_surface["exports"] >= 4  # User interface, AuthService class, API_VERSION, validateEmail
+        assert (
+            api_surface["exports"] >= 4
+        )  # User interface, AuthService class, API_VERSION, validateEmail
         assert "classes" in api_surface
         assert api_surface["classes"] >= 1  # AuthService
         assert "interfaces" in api_surface
@@ -110,7 +114,9 @@ class TestApiReviewSkill:
         """
 
         # Act
-        api_surface = self.skill.analyze_rust_api(mock_skill_context, "src/user_service.rs")
+        api_surface = self.skill.analyze_rust_api(
+            mock_skill_context, "src/user_service.rs"
+        )
 
         # Assert
         assert "structs" in api_surface
@@ -153,11 +159,15 @@ class TestApiReviewSkill:
         """
 
         # Act
-        api_surface = self.skill.analyze_python_api(mock_skill_context, "auth_service.py")
+        api_surface = self.skill.analyze_python_api(
+            mock_skill_context, "auth_service.py"
+        )
 
         # Assert
         assert "exports" in api_surface
-        assert api_surface["exports"] >= 4  # User, AuthService, calculate_total, API_VERSION
+        assert (
+            api_surface["exports"] >= 4
+        )  # User, AuthService, calculate_total, API_VERSION
         assert "classes" in api_surface
         assert api_surface["classes"] >= 2  # User, AuthService
         assert "functions" in api_surface
@@ -195,11 +205,15 @@ class TestApiReviewSkill:
         """
 
         # Act
-        api_surface = self.skill.analyze_javascript_api(mock_skill_context, "calculator.js")
+        api_surface = self.skill.analyze_javascript_api(
+            mock_skill_context, "calculator.js"
+        )
 
         # Assert
         assert "exports" in api_surface
-        assert api_surface["exports"] >= 4  # Calculator class, PI constant, factorial function, default export
+        assert (
+            api_surface["exports"] >= 4
+        )  # Calculator class, PI constant, factorial function, default export
         assert "classes" in api_surface
         assert api_surface["classes"] >= 1  # Calculator
         assert "functions" in api_surface
@@ -230,7 +244,9 @@ class TestApiReviewSkill:
 
         # Assert
         assert len(issues) > 0
-        doc_issues = [issue for issue in issues if "documentation" in issue["issue"].lower()]
+        doc_issues = [
+            issue for issue in issues if "documentation" in issue["issue"].lower()
+        ]
         assert len(doc_issues) >= 2  # Should flag missing docs for class and function
 
     @pytest.mark.unit
@@ -253,11 +269,15 @@ class TestApiReviewSkill:
         """
 
         # Act
-        issues = self.skill.check_naming_consistency(mock_skill_context, "user_service.ts")
+        issues = self.skill.check_naming_consistency(
+            mock_skill_context, "user_service.ts"
+        )
 
         # Assert
         assert len(issues) > 0
-        naming_issues = [issue for issue in issues if "naming" in issue["issue"].lower()]
+        naming_issues = [
+            issue for issue in issues if "naming" in issue["issue"].lower()
+        ]
         assert len(naming_issues) >= 1  # Should detect inconsistent naming patterns
 
     @pytest.mark.unit
@@ -291,7 +311,9 @@ class TestApiReviewSkill:
         # Assert
         assert len(issues) > 0
         error_issues = [issue for issue in issues if "error" in issue["issue"].lower()]
-        assert len(error_issues) >= 2  # Should flag both methods for missing error handling
+        assert (
+            len(error_issues) >= 2
+        )  # Should flag both methods for missing error handling
 
     @pytest.mark.unit
     def test_identifies_breaking_changes(self, mock_skill_context):
@@ -318,13 +340,19 @@ class TestApiReviewSkill:
         """
 
         # Act
-        issues = self.skill.check_breaking_changes(mock_skill_context, "api.ts", {
-            "previous_version": True  # Simulate we have previous version context
-        })
+        issues = self.skill.check_breaking_changes(
+            mock_skill_context,
+            "api.ts",
+            {
+                "previous_version": True  # Simulate we have previous version context
+            },
+        )
 
         # Assert
         assert len(issues) > 0
-        breaking_issues = [issue for issue in issues if "breaking" in issue["issue"].lower()]
+        breaking_issues = [
+            issue for issue in issues if "breaking" in issue["issue"].lower()
+        ]
         assert len(breaking_issues) >= 1
 
     @pytest.mark.unit
@@ -364,7 +392,11 @@ class TestApiReviewSkill:
         issues = self.skill.validate_rest_patterns(mock_skill_context, "user_api.ts")
 
         # Assert
-        rest_issues = [issue for issue in issues if "rest" in issue["issue"].lower() or "method" in issue["issue"].lower()]
+        rest_issues = [
+            issue
+            for issue in issues
+            if "rest" in issue["issue"].lower() or "method" in issue["issue"].lower()
+        ]
         assert len(rest_issues) >= 1  # Should detect improper HTTP method usage
 
     @pytest.mark.unit
@@ -396,11 +428,15 @@ class TestApiReviewSkill:
         """
 
         # Act
-        issues = self.skill.check_input_validation(mock_skill_context, "user_service.ts")
+        issues = self.skill.check_input_validation(
+            mock_skill_context, "user_service.ts"
+        )
 
         # Assert
         assert len(issues) > 0
-        validation_issues = [issue for issue in issues if "validation" in issue["issue"].lower()]
+        validation_issues = [
+            issue for issue in issues if "validation" in issue["issue"].lower()
+        ]
         assert len(validation_issues) >= 2  # Should flag multiple methods
 
     @pytest.mark.unit
@@ -433,7 +469,9 @@ class TestApiReviewSkill:
         """
 
         # Act
-        versioning_analysis = self.skill.analyze_versioning(mock_skill_context, "auth_service.ts")
+        versioning_analysis = self.skill.analyze_versioning(
+            mock_skill_context, "auth_service.ts"
+        )
 
         # Assert
         assert "versioning_detected" in versioning_analysis
@@ -472,11 +510,17 @@ class TestApiReviewSkill:
         """
 
         # Act
-        security_issues = self.skill.check_security_practices(mock_skill_context, "api_client.ts")
+        security_issues = self.skill.check_security_practices(
+            mock_skill_context, "api_client.ts"
+        )
 
         # Assert
         assert len(security_issues) > 0
-        critical_issues = [issue for issue in security_issues if issue["severity"] == "critical" or "api key" in issue["issue"].lower()]
+        critical_issues = [
+            issue
+            for issue in security_issues
+            if issue["severity"] == "critical" or "api key" in issue["issue"].lower()
+        ]
         assert len(critical_issues) >= 1  # Should detect API key exposure
 
     @pytest.mark.unit
@@ -513,11 +557,18 @@ class TestApiReviewSkill:
         """
 
         # Act
-        performance_issues = self.skill.analyze_performance_implications(mock_skill_context, "data_service.ts")
+        performance_issues = self.skill.analyze_performance_implications(
+            mock_skill_context, "data_service.ts"
+        )
 
         # Assert
         assert len(performance_issues) > 0
-        perf_issues = [issue for issue in performance_issues if "performance" in issue["issue"].lower() or "pagination" in issue["issue"].lower()]
+        perf_issues = [
+            issue
+            for issue in performance_issues
+            if "performance" in issue["issue"].lower()
+            or "pagination" in issue["issue"].lower()
+        ]
         assert len(perf_issues) >= 1  # Should detect pagination or N+1 issues
 
     @pytest.mark.unit
@@ -540,7 +591,9 @@ class TestApiReviewSkill:
         """
 
         # Act
-        api_surface = self.skill.analyze_typescript_api(mock_skill_context, "internal.ts")
+        api_surface = self.skill.analyze_typescript_api(
+            mock_skill_context, "internal.ts"
+        )
 
         # Assert
         assert api_surface is not None
@@ -555,7 +608,7 @@ class TestApiReviewSkill:
             "total_exports": 15,
             "languages": ["typescript", "rust"],
             "files_analyzed": 5,
-            "issues_found": sample_findings
+            "issues_found": sample_findings,
         }
 
         # Act

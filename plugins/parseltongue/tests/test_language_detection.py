@@ -185,7 +185,7 @@ class TestLanguageDetectionSkill:
     def test_detects_python_version_features(self, language_samples):
         """Given Python code, when skill analyzes, then detects Python version features."""
         # Arrange
-        modern_python = '''
+        modern_python = """
 from __future__ import annotations
 from typing import TypeAlias, Literal
 
@@ -198,7 +198,7 @@ def process_user(user_id: UserId, status: Status) -> None:
             print(f"User {user_id} is active")
         case "inactive":
             print(f"User {user_id} is inactive")
-        '''
+        """
 
         # Act
         result = self.skill.analyze_python_version(modern_python)
@@ -235,7 +235,10 @@ def process_user(user_id: UserId, status: Status) -> None:
 
         # Assert
         assert result["typescript_version"] >= "3.0"
-        assert "optional_chaining" in result["features"] or "nullish_coalescing" in result["features"]
+        assert (
+            "optional_chaining" in result["features"]
+            or "nullish_coalescing" in result["features"]
+        )
         assert "generic_classes" in result["features"]
 
     @pytest.mark.unit
@@ -257,7 +260,7 @@ def process_user(user_id: UserId, status: Status) -> None:
     def test_detects_frameworks_and_libraries(self, language_samples):
         """Given code, when skill analyzes, then detects frameworks and libraries."""
         # Arrange
-        django_code = '''
+        django_code = """
 from django.db import models
 from django.views.generic import ListView
 from rest_framework import serializers
@@ -267,7 +270,7 @@ class User(models.Model):
 
 class UserView(ListView):
     model = User
-        '''
+        """
 
         # Act
         result = self.skill.detect_frameworks(django_code, "python")
@@ -300,7 +303,7 @@ class UserView(ListView):
     def test_handles_mixed_language_files(self, language_samples):
         """Given mixed language content, when skill analyzes, then handles appropriately."""
         # Arrange
-        mixed_content = '''
+        mixed_content = """
 // JavaScript section
 class JavaScriptClass {
     method() {}
@@ -310,7 +313,7 @@ class JavaScriptClass {
 # This is actually commented Python
 def python_function():
     pass
-        '''
+        """
 
         # Act
         result = self.skill.detect_primary_language(mixed_content)
@@ -325,7 +328,7 @@ def python_function():
     def test_detects_code_complexity(self, language_samples):
         """Given code, when skill analyzes, then calculates complexity metrics."""
         # Arrange
-        complex_code = '''
+        complex_code = """
 def complex_function(items):
     results = []
     for i, item in enumerate(items):
@@ -344,7 +347,7 @@ def complex_function(items):
             # Another nested structure
             pass
     return results
-        '''
+        """
 
         # Act
         result = self.skill.analyze_complexity(complex_code, "python")
@@ -363,7 +366,7 @@ def complex_function(items):
             ("", "empty"),
             ("   \n\t  \n  ", "whitespace_only"),
             ("// Just comments", "comments_only"),
-            ("invalid syntax with {{", "invalid_syntax")
+            ("invalid syntax with {{", "invalid_syntax"),
         ]
 
         for code, _case_type in test_cases:
@@ -399,12 +402,12 @@ def complex_function(items):
     def test_identifies_imports_and_dependencies(self, language_samples):
         """Given code, when skill analyzes, then identifies imports and dependencies."""
         # Arrange
-        python_code = '''
+        python_code = """
 import asyncio
 from typing import List, Optional
 import requests as http_requests
 from .internal_module import helper
-        '''
+        """
 
         # Act
         result = self.skill.analyze_dependencies(python_code, "python")
@@ -448,7 +451,7 @@ from .internal_module import helper
             "python": "def hello(): pass",
             "javascript": "function hello() {}",
             "typescript": "function hello(): void {}",
-            "rust": "fn hello() {}"
+            "rust": "fn hello() {}",
         }
 
         for language, code in minimal_samples.items():

@@ -1,6 +1,5 @@
 """Tests for deduplication module."""
 
-
 # ruff: noqa: S101
 from __future__ import annotations
 
@@ -8,7 +7,7 @@ import os
 import sys
 
 # Add hooks to path for testing
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
 from shared.deduplication import (
     get_content_hash,

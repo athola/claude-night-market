@@ -542,21 +542,21 @@ def format_report(results: dict) -> str:
 Test Quality Report
 ==================
 
-Overall Quality Score: {results['quality_score']}/100 ({results['quality_level'].value.upper()})
+Overall Quality Score: {results["quality_score"]}/100 ({results["quality_level"].value.upper()})
 
 Dynamic Validation
 ------------------
-Tests Passed: {results['dynamic_validation']['passed']}
-Tests Failed: {results['dynamic_validation']['failures']}
-Tests Errors: {results['dynamic_validation']['errors']}
-Test Duration: {results['dynamic_validation']['test_duration']:.2f}s
+Tests Passed: {results["dynamic_validation"]["passed"]}
+Tests Failed: {results["dynamic_validation"]["failures"]}
+Tests Errors: {results["dynamic_validation"]["errors"]}
+Test Duration: {results["dynamic_validation"]["test_duration"]:.2f}s
 
 Metrics
 -------
-Test Count: {results['metrics']['test_count']}
-Assertion Count: {results['metrics']['assertion_count']}
-Average Test Length: {results['metrics']['average_test_length']:.1f} lines
-Documentation Ratio: {results['metrics']['documentation_ratio']:.1%}
+Test Count: {results["metrics"]["test_count"]}
+Assertion Count: {results["metrics"]["assertion_count"]}
+Average Test Length: {results["metrics"]["average_test_length"]:.1f} lines
+Documentation Ratio: {results["metrics"]["documentation_ratio"]:.1%}
 
 Recommendations
 --------------

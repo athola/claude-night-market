@@ -17,14 +17,14 @@ def analyze_skill_file(file_path: str) -> dict[str, Any]:
     with open(file_path) as f:
         content = f.read()
 
-    lines = content.split('\n')
+    lines = content.split("\n")
     total_lines = len(lines)
 
     # Count code blocks
-    code_blocks = content.count('```')
+    code_blocks = content.count("```")
 
     # Count Python functions
-    python_functions = len(re.findall(r'^def\s+\w+', content, re.MULTILINE))
+    python_functions = len(re.findall(r"^def\s+\w+", content, re.MULTILINE))
 
     # Find functions over 20 lines
     long_functions = []
@@ -34,13 +34,13 @@ def analyze_skill_file(file_path: str) -> dict[str, Any]:
         function_lines = 0
 
         for i, line in enumerate(lines):
-            if re.match(r'^def\s+\w+', line):
+            if re.match(r"^def\s+\w+", line):
                 if in_function:
                     long_functions.append((function_start, function_lines))
                 in_function = True
                 function_start = i + 1
                 function_lines = 0
-            elif in_function and line.strip() and not line.startswith('    '):
+            elif in_function and line.strip() and not line.startswith("    "):
                 long_functions.append((function_start, function_lines))
                 in_function = False
             elif in_function:
@@ -50,21 +50,28 @@ def analyze_skill_file(file_path: str) -> dict[str, Any]:
             long_functions.append((function_start, function_lines))
 
     return {
-        'file_path': file_path,
-        'total_lines': total_lines,
-        'code_blocks': code_blocks,
-        'python_functions': python_functions,
-        'long_functions': [(start+1, lines) for start, lines in long_functions if lines > 20],
-        'needs_optimization': total_lines > 300 or code_blocks > 5 or python_functions > 10
+        "file_path": file_path,
+        "total_lines": total_lines,
+        "code_blocks": code_blocks,
+        "python_functions": python_functions,
+        "long_functions": [
+            (start + 1, lines) for start, lines in long_functions if lines > 20
+        ],
+        "needs_optimization": total_lines > 300
+        or code_blocks > 5
+        or python_functions > 10,
     }
 
-def calculate_size_reduction(original_lines: int, optimizations: list[str]) -> dict[str, float]:
+
+def calculate_size_reduction(
+    original_lines: int, optimizations: list[str]
+) -> dict[str, float]:
     """Calculate expected size reduction from optimizations."""
     reductions = {
-        'externalize_heavy_implementations': 0.65,  # 60-70% reduction
-        'consolidate_similar_functions': 0.175,       # 15-20% reduction
-        'replace_code_with_structured_data': 0.125,  # 10-15% reduction
-        'progressive_loading': 0.075                  # 5-10% reduction
+        "externalize_heavy_implementations": 0.65,  # 60-70% reduction
+        "consolidate_similar_functions": 0.175,  # 15-20% reduction
+        "replace_code_with_structured_data": 0.125,  # 10-15% reduction
+        "progressive_loading": 0.075,  # 5-10% reduction
     }
 
     total_reduction = 0.0
@@ -79,63 +86,73 @@ def calculate_size_reduction(original_lines: int, optimizations: list[str]) -> d
     total_reduction = min(total_reduction, 0.9)
 
     return {
-        'original_lines': original_lines,
-        'expected_lines': int(original_lines * (1 - total_reduction)),
-        'reduction_percentage': total_reduction * 100,
-        'applied_optimizations': applied_optimizations
+        "original_lines": original_lines,
+        "expected_lines": int(original_lines * (1 - total_reduction)),
+        "reduction_percentage": total_reduction * 100,
+        "applied_optimizations": applied_optimizations,
     }
+
 
 def generate_optimization_plan(analysis: dict[str, Any]) -> dict[str, Any]:
     """Generate systematic optimization plan based on analysis."""
     plan = {
-        'analysis': analysis,
-        'optimizations_needed': [],
-        'file_structure': {},
-        'expected_outcome': {}
+        "analysis": analysis,
+        "optimizations_needed": [],
+        "file_structure": {},
+        "expected_outcome": {},
     }
 
     # Determine optimizations needed
-    if analysis['total_lines'] > 300:
-        plan['optimizations_needed'].append('externalize_heavy_implementations')
+    if analysis["total_lines"] > 300:
+        plan["optimizations_needed"].append("externalize_heavy_implementations")
 
-    if analysis['python_functions'] > 5:
-        plan['optimizations_needed'].append('consolidate_similar_functions')
+    if analysis["python_functions"] > 5:
+        plan["optimizations_needed"].append("consolidate_similar_functions")
 
-    if analysis['code_blocks'] > 3:
-        plan['optimizations_needed'].append('replace_code_with_structured_data')
+    if analysis["code_blocks"] > 3:
+        plan["optimizations_needed"].append("replace_code_with_structured_data")
 
-    if analysis['total_lines'] > 200:
-        plan['optimizations_needed'].append('progressive_loading')
+    if analysis["total_lines"] > 200:
+        plan["optimizations_needed"].append("progressive_loading")
 
     # Generate file structure
-    if plan['optimizations_needed']:
-        Path(analysis['file_path']).stem
-        plan['file_structure'] = {
-            'SKILL.md': 'Optimized documentation (~150-200 lines)',
-            'tools/': {
-                'analyzer.py': 'Heavy implementations with CLI',
-                'controller.py': 'Control logic and strategy generation',
-                'config.yaml': 'Structured configuration data'
+    if plan["optimizations_needed"]:
+        Path(analysis["file_path"]).stem
+        plan["file_structure"] = {
+            "SKILL.md": "Optimized documentation (~150-200 lines)",
+            "tools/": {
+                "analyzer.py": "Heavy implementations with CLI",
+                "controller.py": "Control logic and strategy generation",
+                "config.yaml": "Structured configuration data",
             },
-            'examples/': {
-                'basic-usage.py': 'Minimal working example'
-            }
+            "examples/": {"basic-usage.py": "Minimal working example"},
         }
 
     # Calculate expected outcome
-    if plan['optimizations_needed']:
-        outcome = calculate_size_reduction(analysis['total_lines'], plan['optimizations_needed'])
-        plan['expected_outcome'] = outcome
+    if plan["optimizations_needed"]:
+        outcome = calculate_size_reduction(
+            analysis["total_lines"], plan["optimizations_needed"]
+        )
+        plan["expected_outcome"] = outcome
 
     return plan
 
+
 def main():
     """CLI interface for skill optimization analysis."""
-    parser = argparse.ArgumentParser(description='Analyze and plan skill file optimization')
-    parser.add_argument('skill_file', help='Path to skill file (SKILL.md)')
-    parser.add_argument('--output-json', action='store_true', help='Output results as JSON')
-    parser.add_argument('--verbose', action='store_true', help='Detailed analysis output')
-    parser.add_argument('--generate-plan', action='store_true', help='Generate optimization plan')
+    parser = argparse.ArgumentParser(
+        description="Analyze and plan skill file optimization"
+    )
+    parser.add_argument("skill_file", help="Path to skill file (SKILL.md)")
+    parser.add_argument(
+        "--output-json", action="store_true", help="Output results as JSON"
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Detailed analysis output"
+    )
+    parser.add_argument(
+        "--generate-plan", action="store_true", help="Generate optimization plan"
+    )
 
     args = parser.parse_args()
 
@@ -154,9 +171,9 @@ def main():
         print(f"Code blocks: {analysis['code_blocks']}")
         print(f"Python functions: {analysis['python_functions']}")
 
-        if analysis['long_functions']:
+        if analysis["long_functions"]:
             print(f"Long functions (>20 lines): {len(analysis['long_functions'])}")
-            for start, lines in analysis['long_functions']:
+            for start, lines in analysis["long_functions"]:
                 print(f"  Line {start}: {lines} lines")
 
         print(f"Needs optimization: {analysis['needs_optimization']}")
@@ -166,21 +183,21 @@ def main():
         plan = generate_optimization_plan(analysis)
         print("=== OPTIMIZATION PLAN ===")
 
-        if plan['optimizations_needed']:
+        if plan["optimizations_needed"]:
             print("Optimizations recommended:")
-            for opt in plan['optimizations_needed']:
+            for opt in plan["optimizations_needed"]:
                 print(f"  - {opt}")
             print()
 
             print("Expected outcome:")
-            outcome = plan['expected_outcome']
+            outcome = plan["expected_outcome"]
             print(f"  Original: {outcome['original_lines']} lines")
             print(f"  Expected: {outcome['expected_lines']} lines")
             print(f"  Reduction: {outcome['reduction_percentage']:.1f}%")
             print()
 
             print("File structure:")
-            for item, description in plan['file_structure'].items():
+            for item, description in plan["file_structure"].items():
                 if isinstance(description, dict):
                     print(f"  {item}/")
                     for subitem, subdesc in description.items():
@@ -198,6 +215,7 @@ def main():
             print(json.dumps(analysis, indent=2))
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

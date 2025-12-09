@@ -132,12 +132,12 @@ def delegation_service_config():
 @pytest.fixture
 def gemini_hook_script_content():
     """Content for gemini bridge hook script."""
-    return '''#!/bin/bash
+    return """#!/bin/bash
 # Gemini bridge hook script
 
 echo "Gemini bridge hook executed"
 echo "Arguments: $@"
-'''
+"""
 
 
 @pytest.fixture

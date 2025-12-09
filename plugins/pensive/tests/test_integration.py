@@ -55,16 +55,17 @@ class TestPensiveIntegration:
 
         # Act
         skills_to_execute = ["code-reviewer", "api-review"]
-        with patch('pensive.workflows.skill_coordinator.dispatch_agent') as mock_dispatch:
+        with patch(
+            "pensive.workflows.skill_coordinator.dispatch_agent"
+        ) as mock_dispatch:
             # Mock different skill responses
             mock_dispatch.side_effect = [
                 "Code review findings: 3 issues found",
-                "API review findings: 2 issues found"
+                "API review findings: 2 issues found",
             ]
 
             results = unified_skill.execute_skills_concurrently(
-                skills_to_execute,
-                context
+                skills_to_execute, context
             )
 
         # Assert
@@ -154,7 +155,7 @@ test:
 
 clean:
 	cargo clean
-            """
+            """,
         }
 
         # Create the repository structure
@@ -164,8 +165,15 @@ clean:
             full_path.write_text(content)
 
         # Initialize git
-        subprocess.run(["git", "add", "."], check=False, cwd=temp_repository, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Add Rust user service"], check=False, cwd=temp_repository, capture_output=True)
+        subprocess.run(
+            ["git", "add", "."], check=False, cwd=temp_repository, capture_output=True
+        )
+        subprocess.run(
+            ["git", "commit", "-m", "Add Rust user service"],
+            check=False,
+            cwd=temp_repository,
+            capture_output=True,
+        )
 
         # Act
         from pensive.analysis.repository_analyzer import RepositoryAnalyzer
@@ -189,7 +197,7 @@ clean:
 
         workflow = CodeReviewWorkflow()
 
-        with patch('pensive.workflows.code_review.TodoWrite') as mock_todo:
+        with patch("pensive.workflows.code_review.TodoWrite") as mock_todo:
             mock_todo.return_value = Mock()
 
             # Act
@@ -209,9 +217,11 @@ clean:
 
         workflow = CodeReviewWorkflow()
 
-        with patch('pensive.skills.rust_review.RustReviewSkill') as mock_rust_skill:
+        with patch("pensive.skills.rust_review.RustReviewSkill") as mock_rust_skill:
             # Make rust skill fail
-            mock_rust_skill.return_value.analyze.side_effect = Exception("Rust toolchain not found")
+            mock_rust_skill.return_value.analyze.side_effect = Exception(
+                "Rust toolchain not found"
+            )
 
             # Act
             result = workflow.execute_full_review(temp_repository)
@@ -220,7 +230,9 @@ clean:
             # Workflow should continue despite rust skill failure
             assert result is not None
             assert "errors" in result or "skipped_skills" in result
-            assert len(result.get("findings", [])) >= 0  # Other skills should still work
+            assert (
+                len(result.get("findings", [])) >= 0
+            )  # Other skills should still work
 
     @pytest.mark.integration
     def test_performance_with_large_repository(self, temp_repository):
@@ -464,18 +476,17 @@ custom_rules:
         skills = ["code-reviewer", "api-review", "test-review"]
 
         # Act
-        with patch('pensive.workflows.skill_coordinator.dispatch_agent') as mock_dispatch:
+        with patch(
+            "pensive.workflows.skill_coordinator.dispatch_agent"
+        ) as mock_dispatch:
             # Configure mock to return different responses
             mock_dispatch.side_effect = [
                 "Code review completed",
                 "API review completed",
-                "Test review completed"
+                "Test review completed",
             ]
 
-            results = coordinator.execute_skills_concurrently(
-                skills,
-                temp_repository
-            )
+            results = coordinator.execute_skills_concurrently(skills, temp_repository)
 
         # Assert
         assert len(results) == 3
@@ -494,7 +505,7 @@ custom_rules:
                 "severity": "critical",
                 "location": "src/config.rs:15",
                 "issue": "API key is hardcoded in source code",
-                "fix": "Use environment variables"
+                "fix": "Use environment variables",
             },
             {
                 "id": "PERF001",
@@ -502,8 +513,8 @@ custom_rules:
                 "severity": "medium",
                 "location": "src/processor.rs:42",
                 "issue": "Nested loop with O(n²) complexity",
-                "fix": "Consider using HashMap for O(1) lookup"
-            }
+                "fix": "Consider using HashMap for O(1) lookup",
+            },
         ]
 
         from pensive.reporting.formatters import MarkdownFormatter, SarifFormatter

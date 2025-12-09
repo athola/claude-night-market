@@ -17,10 +17,7 @@ class TestGitWorkspaceReviewSkill:
 
     # Test constants
     EXPECTED_TODO_ITEMS = 2
-    REQUIRED_TODOS = [
-        "git-review:repo-confirmed",
-        "git-review:status-overview"
-    ]
+    REQUIRED_TODOS = ["git-review:repo-confirmed", "git-review:status-overview"]
 
     def test_skill_identifies_valid_git_repository(self, temp_git_repo, mock_todo_tool):
         """GIVEN a valid Git repository
@@ -50,7 +47,7 @@ class TestGitWorkspaceReviewSkill:
         mock_bash = Mock()
         mock_bash.side_effect = [
             "On branch main\nChanges to be committed:\n  new file:   test.py",
-            "diff --git a/test.py b/test.py\nnew file mode 100644\nindex 0000000..8c7be5c\n--- /dev/null\n+++ b/test.py\n@@ -0,0 +1 @@\n+print('hello')\n"
+            "diff --git a/test.py b/test.py\nnew file mode 100644\nindex 0000000..8c7be5c\n--- /dev/null\n+++ b/test.py\n@@ -0,0 +1 @@\n+print('hello')\n",
         ]
 
         # Act - simulate tool calls through mock
@@ -72,12 +69,14 @@ class TestGitWorkspaceReviewSkill:
         temp_git_repo.add_file("test.py", "print('hello')")
         temp_git_repo.stage_file("test.py")
         temp_git_repo.commit("Initial commit")
-        temp_git_repo.add_file("test.py", "print('hello world')")  # Modify without staging
+        temp_git_repo.add_file(
+            "test.py", "print('hello world')"
+        )  # Modify without staging
 
         mock_bash = Mock()
         mock_bash.side_effect = [
             "On branch main\nChanges not staged for commit:\n  modified:   test.py",
-            "diff --git a/test.py b/test.py\nindex 8c7be5c..d5a823e 100644\n--- a/test.py\n+++ b/test.py\n@@ -1 +1 @@\n-print('hello')\n+print('hello world')\n"
+            "diff --git a/test.py b/test.py\nindex 8c7be5c..d5a823e 100644\n--- a/test.py\n+++ b/test.py\n@@ -1 +1 @@\n-print('hello')\n+print('hello world')\n",
         ]
 
         # Act - simulate tool calls through mock
@@ -146,7 +145,7 @@ nothing added to commit but untracked files present
         mock_bash = Mock()
         mock_bash.side_effect = [
             "On branch feature/test-branch\nnothing to commit, working tree clean",
-            "feature/test-branch"
+            "feature/test-branch",
         ]
 
         # Act - simulate tool calls through mock
@@ -168,7 +167,7 @@ nothing added to commit but untracked files present
         mock_bash = Mock()
         mock_bash.side_effect = [
             "On branch main\nYour branch is up to date with 'origin/main'.\nnothing to commit, working tree clean",
-            "origin\nhttps://github.com/test/repo.git (fetch)\nhttps://github.com/test/repo.git (push)"
+            "origin\nhttps://github.com/test/repo.git (fetch)\nhttps://github.com/test/repo.git (push)",
         ]
 
         # Act - simulate tool calls through mock
@@ -189,7 +188,7 @@ nothing added to commit but untracked files present
         mock_bash = Mock()
         mock_bash.side_effect = [
             "On branch main\nYour branch is ahead of 'origin/main' by 2 commits.\nnothing to commit, working tree clean",
-            "0 2"  # Format: behind ahead
+            "0 2",  # Format: behind ahead
         ]
 
         # Act - simulate tool calls through mock
@@ -211,13 +210,13 @@ nothing added to commit but untracked files present
             {
                 "content": "Confirm repository path and Git repository validity",
                 "status": "completed",
-                "activeForm": "Confirmed repository path and Git validity"
+                "activeForm": "Confirmed repository path and Git validity",
             },
             {
                 "content": "Analyze current repository status including staged/unstaged changes",
                 "status": "completed",
-                "activeForm": "Analyzed repository status and changes"
-            }
+                "activeForm": "Analyzed repository status and changes",
+            },
         ]
 
         # Act
@@ -273,8 +272,16 @@ nothing added to commit but untracked files present
 
             # Simulate skill execution
             skill_todos = [
-                {"content": "git-review:repo-confirmed", "status": "completed", "activeForm": "Repository confirmed"},
-                {"content": "git-review:status-overview", "status": "completed", "activeForm": "Status analyzed"}
+                {
+                    "content": "git-review:repo-confirmed",
+                    "status": "completed",
+                    "activeForm": "Repository confirmed",
+                },
+                {
+                    "content": "git-review:status-overview",
+                    "status": "completed",
+                    "activeForm": "Status analyzed",
+                },
             ]
             mock_todo_tool(skill_todos)
 
@@ -296,7 +303,7 @@ nothing added to commit but untracked files present
             context = {
                 "repository_status": mock_bash("git status"),
                 "has_staged_changes": "file2.py" in mock_bash("git status"),
-                "has_unstaged_changes": "file1.py" in mock_bash("git status")
+                "has_unstaged_changes": "file1.py" in mock_bash("git status"),
             }
 
             # Assert context is ready for dependent skills
@@ -382,7 +389,7 @@ no changes added to commit (use "git add" and/or "git commit -a")
             mock_bash = Mock()
             mock_bash.side_effect = [
                 "On branch main\nChanges to be committed:\n  modified:   large_file.py",
-                large_diff
+                large_diff,
             ]
 
             # Act - simulate tool calls through mock

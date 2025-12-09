@@ -3,13 +3,15 @@
 This module provides a test implementation of the skill wrapper
 for testing and demonstration purposes.
 """
+
 from typing import Any
 
 from .wrapper_base import SuperpowerWrapper
 
 
 class TestSkillWrapper(SuperpowerWrapper):
-    """Wrapper for the test-skill command that delegates to test-driven-development superpower
+    """Wrapper for the test-skill command that delegates to test-driven-development
+    superpower
 
     This wrapper translates plugin-specific parameters to superpower parameters
     and adds skill-specific validation and extensions for TDD-based skill testing.

@@ -4,7 +4,6 @@ This module tests the review workflow scaffolding functionality,
 following TDD/BDD principles and testing all business scenarios.
 """
 
-
 # ruff: noqa: S101
 from unittest.mock import call
 
@@ -105,7 +104,7 @@ Foundational workflow scaffolding for any detailed review.
             "git_branch": "main",
             "git_status": "clean",
             "baseline": "HEAD~1",
-            "targets": ["src/", "config/"]
+            "targets": ["src/", "config/"],
         }
 
     @pytest.mark.bdd
@@ -123,7 +122,7 @@ Foundational workflow scaffolding for any detailed review.
             "review-core:scope-inventoried",
             "review-core:evidence-captured",
             "review-core:deliverables-structured",
-            "review-core:contingencies-documented"
+            "review-core:contingencies-documented",
         ]
 
         # Act - simulate review-core skill execution
@@ -132,7 +131,7 @@ Foundational workflow scaffolding for any detailed review.
             "review-core:scope-inventoried",
             "review-core:evidence-captured",
             "review-core:deliverables-structured",
-            "review-core:contingencies-documented"
+            "review-core:contingencies-documented",
         ]
 
         # Assert
@@ -151,35 +150,35 @@ Foundational workflow scaffolding for any detailed review.
         And log commands used for discovery.
         """
         # Arrange
-        mock_claude_tools['Bash'].return_value = "/test/repo"
-        mock_claude_tools['Bash'].side_effect = [
+        mock_claude_tools["Bash"].return_value = "/test/repo"
+        mock_claude_tools["Bash"].side_effect = [
             "/test/repo",  # pwd
-            "main",        # git branch
-            "clean",       # git status --porcelain
-            "HEAD~1"       # baseline calculation
+            "main",  # git branch
+            "clean",  # git status --porcelain
+            "HEAD~1",  # baseline calculation
         ]
 
         # Act - simulate context establishment
         context = {}
-        context['working_directory'] = mock_claude_tools['Bash']("pwd")
-        context['git_branch'] = mock_claude_tools['Bash']("git branch --show-current")
-        context['git_status'] = mock_claude_tools['Bash']("git status --porcelain")
-        context['baseline'] = mock_claude_tools['Bash']("git merge-base HEAD HEAD~1")
+        context["working_directory"] = mock_claude_tools["Bash"]("pwd")
+        context["git_branch"] = mock_claude_tools["Bash"]("git branch --show-current")
+        context["git_status"] = mock_claude_tools["Bash"]("git status --porcelain")
+        context["baseline"] = mock_claude_tools["Bash"]("git merge-base HEAD HEAD~1")
 
         # Assert
-        assert context['working_directory'] == "/test/repo"
-        assert context['git_branch'] == "main"
-        assert context['git_status'] == "clean"
-        assert context['baseline'] == "HEAD~1"
+        assert context["working_directory"] == "/test/repo"
+        assert context["git_branch"] == "main"
+        assert context["git_status"] == "clean"
+        assert context["baseline"] == "HEAD~1"
 
         # Verify commands were called
         expected_calls = [
             call("pwd"),
             call("git branch --show-current"),
             call("git status --porcelain"),
-            call("git merge-base HEAD HEAD~1")
+            call("git merge-base HEAD HEAD~1"),
         ]
-        mock_claude_tools['Bash'].assert_has_calls(expected_calls)
+        mock_claude_tools["Bash"].assert_has_calls(expected_calls)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -191,12 +190,12 @@ Foundational workflow scaffolding for any detailed review.
         And record discovery commands.
         """
         # Arrange
-        mock_claude_tools['Glob'].return_value = [
+        mock_claude_tools["Glob"].return_value = [
             "src/main.py",
             "src/utils.py",
             "config/app.json",
             "docs/readme.md",
-            "build/output.bin"
+            "build/output.bin",
         ]
 
         # Act - simulate scope inventory
@@ -204,10 +203,10 @@ Foundational workflow scaffolding for any detailed review.
             "source_files": [],
             "config_files": [],
             "documentation": [],
-            "generated_artifacts": []
+            "generated_artifacts": [],
         }
 
-        all_files = mock_claude_tools['Glob']("**/*")
+        all_files = mock_claude_tools["Glob"]("**/*")
         for file_path in all_files:
             if file_path.startswith("src/"):
                 scope["source_files"].append(file_path)
@@ -238,16 +237,20 @@ Foundational workflow scaffolding for any detailed review.
         And identify configuration changes for review.
         """
         # Arrange
-        mock_claude_tools['Bash'].return_value = "M src/main.py\nM config/database.json\nA docs/api.md"
+        mock_claude_tools[
+            "Bash"
+        ].return_value = "M src/main.py\nM config/database.json\nA docs/api.md"
 
         # Act - simulate target identification
-        modified_files_output = mock_claude_tools['Bash']("git diff --name-only HEAD~1")
-        modified_files = modified_files_output.split('\n') if modified_files_output else []
+        modified_files_output = mock_claude_tools["Bash"]("git diff --name-only HEAD~1")
+        modified_files = (
+            modified_files_output.split("\n") if modified_files_output else []
+        )
 
         review_targets = {
             "source_changes": [],
             "config_changes": [],
-            "documentation_changes": []
+            "documentation_changes": [],
         }
 
         for file_path in modified_files:
@@ -306,7 +309,7 @@ Foundational workflow scaffolding for any detailed review.
             "command": "git diff --stat",
             "output": " 2 files changed, 5 insertions(+), 2 deletions(-)",
             "timestamp": "2024-12-04T10:00:02Z",
-            "working_directory": "/test/repo"
+            "working_directory": "/test/repo",
         }
         evidence_log["evidence"].append(new_evidence)
 
@@ -332,7 +335,7 @@ Foundational workflow scaffolding for any detailed review.
                 "title": "Test Finding",
                 "description": "Test description",
                 "severity": "Medium",
-                "evidence_refs": ["E1", "E2"]
+                "evidence_refs": ["E1", "E2"],
             }
         ]
 
@@ -341,15 +344,12 @@ Foundational workflow scaffolding for any detailed review.
             "metadata": {
                 "review_id": "review-123",
                 "timestamp": "2024-12-04T10:00:00Z",
-                "reviewer": "Test Reviewer"
+                "reviewer": "Test Reviewer",
             },
             "executive_summary": "Review completed with 1 finding",
             "detailed_findings": review_findings,
             "action_items": [],
-            "evidence_appendix": {
-                "total_evidence": 2,
-                "evidence_items": ["E1", "E2"]
-            }
+            "evidence_appendix": {"total_evidence": 2, "evidence_items": ["E1", "E2"]},
         }
 
         # Assert
@@ -378,7 +378,7 @@ Foundational workflow scaffolding for any detailed review.
         contingency_plan = {
             "available_tools": available_tools,
             "missing_tools": missing_tools,
-            "fallback_strategies": []
+            "fallback_strategies": [],
         }
 
         for missing_tool in missing_tools:
@@ -412,7 +412,7 @@ Foundational workflow scaffolding for any detailed review.
             "review-core:scope-inventoried",
             "review-core:evidence-captured",
             "review-core:deliverables-structured",
-            "review-core:contingencies-documented"
+            "review-core:contingencies-documented",
         ]
 
         # Act - simulate workflow completion
@@ -435,31 +435,33 @@ Foundational workflow scaffolding for any detailed review.
         And document issues in evidence log.
         """
         # Arrange
-        mock_claude_tools['Bash'].side_effect = [
+        mock_claude_tools["Bash"].side_effect = [
             "/test/repo",  # pwd succeeds
-            "main",        # git branch succeeds
+            "main",  # git branch succeeds
             "Error: Not a git repository",  # git status fails
-            "HEAD~1"       # fallback baseline
+            "HEAD~1",  # fallback baseline
         ]
 
         # Act - simulate workflow with error
         context = {}
         try:
-            context['working_directory'] = mock_claude_tools['Bash']("pwd")
-            context['git_branch'] = mock_claude_tools['Bash']("git branch --show-current")
-            context['git_status'] = mock_claude_tools['Bash']("git status --porcelain")
+            context["working_directory"] = mock_claude_tools["Bash"]("pwd")
+            context["git_branch"] = mock_claude_tools["Bash"](
+                "git branch --show-current"
+            )
+            context["git_status"] = mock_claude_tools["Bash"]("git status --porcelain")
         except Exception as e:
-            context['git_status_error'] = str(e)
+            context["git_status_error"] = str(e)
 
         # Fallback for baseline
-        context['baseline'] = mock_claude_tools['Bash']("git rev-parse HEAD~1")
+        context["baseline"] = mock_claude_tools["Bash"]("git rev-parse HEAD~1")
 
         # Assert
-        assert context['working_directory'] == "/test/repo"
-        assert context['git_branch'] == "main"
-        assert context['git_status'] == "Error: Not a git repository"
-        assert 'git_status_error' in context
-        assert context['baseline'] == "HEAD~1"
+        assert context["working_directory"] == "/test/repo"
+        assert context["git_branch"] == "main"
+        assert context["git_status"] == "Error: Not a git repository"
+        assert "git_status_error" in context
+        assert context["baseline"] == "HEAD~1"
 
     @pytest.mark.unit
     def test_review_core_token_conservation(self):
@@ -476,13 +478,15 @@ Foundational workflow scaffolding for any detailed review.
         scope_summary = {
             "total_files": len(all_files),
             "file_types": {},
-            "sample_files": all_files[:10]  # Only first 10 as examples
+            "sample_files": all_files[:10],  # Only first 10 as examples
         }
 
         # Categorize by file type
         for file_path in all_files:
-            ext = file_path.split('.')[-1]
-            scope_summary["file_types"][ext] = scope_summary["file_types"].get(ext, 0) + 1
+            ext = file_path.split(".")[-1]
+            scope_summary["file_types"][ext] = (
+                scope_summary["file_types"].get(ext, 0) + 1
+            )
 
         # Assert
         assert scope_summary["total_files"] == 1000

@@ -194,6 +194,7 @@ class TestAuthService:
         assert new_token == old_token + "_refreshed"
 """
 
+
 @pytest.fixture
 def temp_repository():
     """Create a temporary repository structure with sample files."""
@@ -247,11 +248,29 @@ tokio = { version = "1.0", features = ["full"] }
 
         # Initialize git repository
         import subprocess
+
         subprocess.run(["git", "init"], check=False, cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@example.com"], check=False, cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "config", "user.name", "Test User"], check=False, cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "add", "."], check=False, cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit"], check=False, cwd=repo_path, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@example.com"],
+            check=False,
+            cwd=repo_path,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Test User"],
+            check=False,
+            cwd=repo_path,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "add", "."], check=False, cwd=repo_path, capture_output=True
+        )
+        subprocess.run(
+            ["git", "commit", "-m", "Initial commit"],
+            check=False,
+            cwd=repo_path,
+            capture_output=True,
+        )
 
         yield repo_path
 
@@ -279,7 +298,7 @@ def sample_findings():
             "severity": "high",
             "issue": "API key is hardcoded in source code",
             "fix": "Use environment variables or secret management",
-            "code_snippet": "private apiKey: string = 'hardcoded-key';"
+            "code_snippet": "private apiKey: string = 'hardcoded-key';",
         },
         {
             "id": "BUG001",
@@ -288,7 +307,7 @@ def sample_findings():
             "severity": "medium",
             "issue": "Generic exception catching may mask errors",
             "fix": "Catch specific exception types",
-            "code_snippet": "} catch (error) { console.error('Auth failed:', error); }"
+            "code_snippet": "} catch (error) { console.error('Auth failed:', error); }",
         },
         {
             "id": "PERF001",
@@ -297,8 +316,8 @@ def sample_findings():
             "severity": "low",
             "issue": "Linear search through users for every query",
             "fix": "Consider using HashMap for O(1) lookup",
-            "code_snippet": "users.iter().find(|u| u.id == id)"
-        }
+            "code_snippet": "users.iter().find(|u| u.id == id)",
+        },
     ]
 
 
@@ -338,13 +357,13 @@ class MockTodoWrite:
     def __init__(self):
         self.todos = []
 
-    def add(self, content: str, status: str = "pending", active_form: str | None = None):
+    def add(
+        self, content: str, status: str = "pending", active_form: str | None = None
+    ):
         """Add a todo item."""
-        self.todos.append({
-            "content": content,
-            "status": status,
-            "activeForm": active_form or content
-        })
+        self.todos.append(
+            {"content": content, "status": status, "activeForm": active_form or content}
+        )
 
     def update_status(self, index: int, status: str):
         """Update todo status."""
@@ -365,23 +384,14 @@ def mock_todo_write():
 # Test markers for categorization
 pytest_plugins = []
 
+
 def pytest_configure(config):
     """Configure custom pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: Mark test as unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Mark test as integration test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: Mark test as slow running"
-    )
-    config.addinivalue_line(
-        "markers", "security: Mark test as security-focused"
-    )
+    config.addinivalue_line("markers", "unit: Mark test as unit test")
+    config.addinivalue_line("markers", "integration: Mark test as integration test")
+    config.addinivalue_line("markers", "slow: Mark test as slow running")
+    config.addinivalue_line("markers", "security: Mark test as security-focused")
     config.addinivalue_line(
         "markers", "architecture: Mark test as architecture-focused"
     )
-    config.addinivalue_line(
-        "markers", "performance: Mark test as performance-focused"
-    )
+    config.addinivalue_line("markers", "performance: Mark test as performance-focused")
