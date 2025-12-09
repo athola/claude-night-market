@@ -18,7 +18,8 @@
   "agents": [
     "./agents/review-analyst.md"
   ],
-  "keywords": ["workflow", "analysis", "evidence", "structured-output", "methodology", "review", "catchup"],
+  "hooks": "./hooks/hooks.json",
+  "keywords": ["workflow", "analysis", "evidence", "structured-output", "methodology", "review", "catchup", "scope-guard", "anti-overengineering"],
   "author": {
     "name": "Claude Skills",
     "url": "https://github.com/superpowers-marketplace"
