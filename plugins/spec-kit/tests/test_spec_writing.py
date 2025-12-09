@@ -1,5 +1,7 @@
 """Tests for spec-writing skill functionality."""
 
+
+# ruff: noqa: S101
 import re
 
 

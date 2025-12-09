@@ -1,182 +1,77 @@
 # Weekly Status Report Template
 
+> **Clarity Standard**: Follow the `writing-clearly-and-concisely` guidance from `plugins/abstract/docs/skill-selection.md` (active voice, ≤20-word sentences, GitHub-first references).
+
 **Week**: [Week Number]
-**Date Range**: [Start Date] - [End Date]
-**Reporting Period**: [Reporting Period]
+**Date Range**: [Start Date] – [End Date]
+**Reporting Period**: [Sprint / Release]
 
 ## Executive Summary
 
-### Key Accomplishments This Week
-- [Accomplishment 1]
-- [Accomplishment 2]
-- [Accomplishment 3]
+> **Paste latest Initiative Pulse snippet (Tracker output)**
+> 1. `uv run python plugins/minister/scripts/tracker.py status --github-comment > .claude/minister/latest.md`
+> 2. `gh issue comment <issue_id> --body-file .claude/minister/latest.md`
+> 3. Paste the rendered markdown block here and capture the comment permalink in the Appendix.
 
-### Overall Progress
-- **Architecture Review**: [X]% Complete
-- **Test Modernization**: [X]% Complete
-- **Documentation Drive**: [X]% Complete
+### Highlights (≤3 bullet sentences)
+- `[GitHub Artifact] – one sentence on impact.`
+- `[GitHub Artifact] – one sentence on impact.`
+- `[GitHub Artifact] – one sentence on impact.`
 
-### Blockers and Risks
-- [Blocker 1] - [Impact] - [Mitigation]
-- [Blocker 2] - [Impact] - [Mitigation]
+### Blockers & Risks
+- `[Issue/PR link] – impact – mitigation owner.`
+- `[Project view link] – impact – mitigation owner.`
 
-### GitHub Signals
-- GitHub Projects View: [Link] – [Green/Yellow/Red]
-- Open PRs Awaiting Review: [Count] ([Link to search query])
-- Issues with `risk:*` labels: [Count] ([Link to board])
+## GitHub Signals
 
-## Initiative Details
+| Signal | `gh` Command or Search URL | Tracker Field | Interpretation (≤15 words) |
+| --- | --- | --- | --- |
+| Open PRs awaiting review | ``gh pr list --search "label:needs-review is:open"`` | `prs_waiting_review` | `3 PRs idle >48h` |
+| Risk issues | `https://github.com/org/repo/issues?q=label:risk:red+is:open` | `risk_issue_count` | `2 blocking risks` |
+| Deployment checks | ``gh run list --workflow deploy`` | `deployment_status` | `Most recent run passed` |
+| Custom signal | `[Link or command]` | `[tracker_field]` | `[One-line take]` |
+
+*Update the table weekly; keep commentary short and reference the tracker field that feeds the number.*
+
+## Initiative Checklists
+
+> Copy this section per active initiative. Reference tracker IDs so the checklist mirrors `tracker.py` output.
 
 ### Architecture Review
-
-#### Completed Tasks
-- [x] [Task 1]
-- [x] [Task 2]
-
-#### In Progress Tasks
-- [ ] [Task 1] - [Owner] - [Status]
-- [ ] [Task 2] - [Owner] - [Status]
-
-#### Upcoming Tasks (Next Week)
-- [ ] [Task 1]
-- [ ] [Task 2]
-
-#### Metrics
-- Code duplication reduction: [X]%
-- Plugins migrated to shared framework: [X]/8
-- Framework performance: [X]ms average response time
+- [ ] Tracker Task `AR-101` – Owner @handle – [PR/Issue link] – Status `(On track / At risk)`.
+- [ ] Tracker Task `AR-115` – Owner @handle – [Project view note] – Status `(Blocked)`.
+- **Pulse**: `[One sentence referencing Initiative Pulse metrics]`.
 
 ### Test Infrastructure Modernization
-
-#### Completed Tasks
-- [x] [Task 1]
-- [x] [Task 2]
-
-#### In Progress Tasks
-- [ ] [Task 1] - [Owner] - [Status]
-- [ ] [Task 2] - [Owner] - [Status]
-
-#### Upcoming Tasks (Next Week)
-- [ ] [Task 1]
-- [ ] [Task 2]
-
-#### Metrics
-- Average code coverage: [X]%
-- Test execution time: [X] minutes
-- Number of flaky tests: [X]
+- [ ] Tracker Task `TI-210` – Owner @handle – [Issue search link] – Status `(In progress)`.
+- [ ] Tracker Task `TI-214` – Owner @handle – [PR link] – Status `(Needs review)`.
+- **Pulse**: `[Cycle time / coverage summary]`.
 
 ### Documentation Drive
+- [ ] Tracker Task `DD-080` – Owner @handle – [Discussion link] – Status `(On track)`.
+- [ ] Tracker Task `DD-085` – Owner @handle – [PR link] – Status `(Awaiting approvals)`.
+- **Pulse**: `[Docs freshness, reviewers assigned]`.
 
-#### Completed Tasks
-- [x] [Task 1]
-- [x] [Task 2]
-
-#### In Progress Tasks
-- [ ] [Task 1] - [Owner] - [Status]
-- [ ] [Task 2] - [Owner] - [Status]
-
-#### Upcoming Tasks (Next Week)
-- [ ] [Task 1]
-- [ ] [Task 2]
-
-#### Metrics
-- API documentation coverage: [X]%
-- Number of tutorials created: [X]
-- Documentation build success rate: [X]%
-
-## Team Status
-
-### Team Members
-| Member | Initiative | Availability | Blockers |
-|--------|------------|--------------|----------|
-| [Name] | [Initiative] | [X]% | [Blocker if any] |
-| [Name] | [Initiative] | [X]% | [Blocker if any] |
-
-### Resource Utilization
-- **Planned FTE-weeks**: [X]
-- **Actual FTE-weeks**: [X]
-- **Variance**: [+/- X]
-
-## Budget Tracking
-
-### Budget Overview
-| Category | Budgeted | Spent | Remaining |
-|----------|----------|-------|-----------|
-| Personnel | $X | $X | $X |
-| Tools | $X | $X | $X |
-| Infrastructure | $X | $X | $X |
-| **Total** | **$X** | **$X** | **$X** |
-
-### Unexpected Expenses
-- [Expense 1]: $X - [Reason]
-- [Expense 2]: $X - [Reason]
-
-## Risks and Issues
-
-### New Risks Identified
-- [Risk 1] - [Probability] - [Impact] - [Mitigation]
-- [Risk 2] - [Probability] - [Impact] - [Mitigation]
-
-### Risk Status Updates
-- [Existing Risk 1] - [Status Update]
-- [Existing Risk 2] - [Status Update]
+*Remove unused initiatives; keep ≤6 checklist lines per initiative.*
 
 ## Next Week's Focus
-
-### Priorities
-1. [Priority 1]
-2. [Priority 2]
-3. [Priority 3]
-
-### Key Milestones
-- [Milestone 1] - Target: [Date]
-- [Milestone 2] - Target: [Date]
-
-## Questions and Support Needs
-
-- [Question 1]
-- [Question 2]
-- [Support need 1]
-- [Support need 2]
-
-## Lessons Learned
-
-### What Went Well
-- [Success 1]
-- [Success 2]
-
-### Challenges
-- [Challenge 1]
-- [Challenge 2]
-
-### Improvements for Next Week
-- [Improvement 1]
-- [Improvement 2]
-
----
+1. `[GitHub milestone or issue] – expected outcome – owner.`
+2. `[GitHub automation run] – verification step – owner.`
+3. `[Tracker task] – due date – GitHub link.`
 
 ## Appendix
 
 ### GitHub References
-- Status issue comment: [Link]
-- Deployment PR: [Link]
-- Project board snapshot: [Link]
-- Discussion thread for approvals: [Link]
+- Status issue comment permalink: `<link>`
+- Deployment PR thread: `<link>`
+- Project board snapshot: `<link>`
+- Discussion for approvals: `<link>`
 
-### Detailed Task List
-| Task | Owner | Status | Due Date | Completion % |
-|------|-------|--------|----------|--------------|
-| [Task 1] | [Owner] | [Status] | [Date] | [X]% |
-| [Task 2] | [Owner] | [Status] | [Date] | [X]% |
+### Refresh + Publish Checklist
+1. `uv run python plugins/minister/scripts/tracker.py status --github-comment > .claude/minister/status.md`
+2. `gh issue comment <issue_id> --body-file .claude/minister/status.md`
+3. Paste the rendered snippet into the Executive Summary block and store the comment permalink above.
+4. Re-read the report; trim sentences that exceed 20 words or lack a GitHub surface reference.
 
-### Metrics Dashboard
-[Link to metrics dashboard or charts]
-
-### Artifacts Produced
-- [Artifact 1]
-- [Artifact 2]
-- [Artifact 3]
-
----
 *Report prepared by: [Name]*
 *Next report due: [Date]*

@@ -11,6 +11,8 @@ Note: The actual CLI at scripts/memory_palace_cli.py has import path issues
 underlying business logic directly via the MemoryPalaceManager class.
 """
 
+
+# ruff: noqa: S101
 import json
 from datetime import datetime
 from pathlib import Path

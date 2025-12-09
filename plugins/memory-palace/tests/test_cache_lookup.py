@@ -1,5 +1,7 @@
 """Tests for unified cache lookup functionality."""
 
+
+# ruff: noqa: S101
 from pathlib import Path
 
 import pytest

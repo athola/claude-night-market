@@ -4,6 +4,8 @@ This module tests the conservation workflow validation, pattern matching,
 and report generation functionality following TDD/BDD principles.
 """
 
+
+# ruff: noqa: S101
 import json
 
 import pytest

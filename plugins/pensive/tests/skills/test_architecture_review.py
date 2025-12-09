@@ -7,10 +7,10 @@ and architectural pattern validation.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import Mock, patch, mock_open
 from pathlib import Path
-import json
+from unittest.mock import Mock
+
+import pytest
 
 # Import the skill we're testing
 from pensive.skills.architecture_review import ArchitectureReviewSkill

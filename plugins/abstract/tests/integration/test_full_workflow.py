@@ -10,7 +10,7 @@ def test_end_to_end_test_skill_migration():
         skill_path = os.path.join(tmpdir, "test-skill")
         os.makedirs(skill_path)
 
-        with open(os.path.join(skill_path, "SKILL.md"), 'w') as f:
+        with open(os.path.join(skill_path, "SKILL.md"), "w") as f:
             f.write("""
 ---
 name: test-skill
@@ -21,9 +21,11 @@ This is a test skill.
 """)
 
         # Run the wrapper
-        result = subprocess.run([
-            "python", "-c",
-            f"""
+        result = subprocess.run(
+            [
+                "python",
+                "-c",
+                f"""
 from src.test_skill_wrapper import TestSkillWrapper
 wrapper = TestSkillWrapper()
 result = wrapper.execute({{
@@ -31,8 +33,12 @@ result = wrapper.execute({{
     'phase': 'red'
 }})
 print(result)
-"""
-        ], check=False, capture_output=True, text=True)
+""",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
 
         assert result.returncode == 0
         assert "superpower_called" in result.stdout

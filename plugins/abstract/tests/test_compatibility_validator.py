@@ -12,7 +12,7 @@ def test_validates_feature_parity():
     with tempfile.TemporaryDirectory() as tmpdir:
         # Create mock original command file
         original_file = os.path.join(tmpdir, "test-skill.md")
-        with open(original_file, 'w') as f:
+        with open(original_file, "w") as f:
             f.write("""---
 name: test-skill
 description: Test skill for TDD workflows
@@ -36,7 +36,7 @@ This command implements TDD workflow for skills.
 
         # Create mock wrapper file
         wrapper_file = os.path.join(tmpdir, "test_skill_wrapper.py")
-        with open(wrapper_file, 'w') as f:
+        with open(wrapper_file, "w") as f:
             f.write('''from wrapper_base import SuperpowerWrapper
 
 class TestSkillWrapper(SuperpowerWrapper):
@@ -62,8 +62,11 @@ class TestSkillWrapper(SuperpowerWrapper):
         # We should have decent parity with reasonable expectations
         assert result["feature_parity"] >= 0.4
         # Allow missing features but check they're not all critical
-        critical_missing = [f for f in result["missing_features"] if f.get("severity") == "critical"]
+        critical_missing = [
+            f for f in result["missing_features"] if f.get("severity") == "critical"
+        ]
         assert len(critical_missing) <= 1  # At most 1 critical missing feature
+
 
 def test_detects_missing_features():
     """Test that validator detects missing features"""
@@ -72,7 +75,7 @@ def test_detects_missing_features():
     with tempfile.TemporaryDirectory() as tmpdir:
         # Create original with many features
         original_file = os.path.join(tmpdir, "feature-rich.md")
-        with open(original_file, 'w') as f:
+        with open(original_file, "w") as f:
             f.write("""---
 name: feature-rich
 parameters:
@@ -94,7 +97,7 @@ options:
 
         # Create minimal wrapper
         wrapper_file = os.path.join(tmpdir, "minimal.py")
-        with open(wrapper_file, 'w') as f:
+        with open(wrapper_file, "w") as f:
             f.write('''class MinimalWrapper:
     def execute(self, skill_path):
         """Minimal implementation"""
@@ -106,8 +109,11 @@ options:
         # Minimal wrapper should have lower but not terrible parity
         assert result["feature_parity"] <= 0.8
         assert len(result["missing_features"]) > 0  # Should detect missing features
-        assert any(feature["name"] in ["verbose", "debug", "timeout"]
-                  for feature in result["missing_features"])
+        assert any(
+            feature["name"] in ["verbose", "debug", "timeout"]
+            for feature in result["missing_features"]
+        )
+
 
 def test_calculates_parity_score_correctly():
     """Test parity score calculation"""
@@ -118,14 +124,14 @@ def test_calculates_parity_score_correctly():
         "parameters": ["skill-path", "phase"],
         "options": ["red", "green", "refactor"],
         "output_format": "markdown",
-        "error_handling": ["validation", "fallback"]
+        "error_handling": ["validation", "fallback"],
     }
 
     wrapper_features = {
         "parameters": ["skill-path", "phase"],
         "options": ["red", "green", "refactor"],
         "output_format": "markdown",
-        "error_handling": ["validation", "fallback"]
+        "error_handling": ["validation", "fallback"],
     }
 
     score = validator._calculate_parity(original_features, wrapper_features)
@@ -134,13 +140,14 @@ def test_calculates_parity_score_correctly():
     # Test partial parity
     partial_features = {
         "parameters": ["skill-path"],  # missing 'phase'
-        "options": ["red", "green"],   # missing 'refactor'
-        "output_format": "json",      # different format
-        "error_handling": ["validation"]  # missing 'fallback'
+        "options": ["red", "green"],  # missing 'refactor'
+        "output_format": "json",  # different format
+        "error_handling": ["validation"],  # missing 'fallback'
     }
 
     score = validator._calculate_parity(original_features, partial_features)
     assert 0.3 <= score <= 0.5  # Should be around 0.4 based on weights
+
 
 def test_parses_different_file_types():
     """Test parsing different file types"""
@@ -149,7 +156,7 @@ def test_parses_different_file_types():
     with tempfile.TemporaryDirectory() as tmpdir:
         # Test markdown parsing
         md_file = os.path.join(tmpdir, "test.md")
-        with open(md_file, 'w') as f:
+        with open(md_file, "w") as f:
             f.write("""---
 parameters:
   - name: skill-path
@@ -167,7 +174,7 @@ options:
 
         # Test Python parsing
         py_file = os.path.join(tmpdir, "test.py")
-        with open(py_file, 'w') as f:
+        with open(py_file, "w") as f:
             f.write('''
 def execute(skill_path, phase="red", debug=False):
     """Execute with parameters"""
@@ -177,8 +184,11 @@ def execute(skill_path, phase="red", debug=False):
 ''')
 
         py_features = validator._parse_python_wrapper(py_file)
-        assert "skill_path" in py_features["parameters"] or "skill_path" in str(py_features)
+        assert "skill_path" in py_features["parameters"] or "skill_path" in str(
+            py_features
+        )
         assert "phase" in py_features["parameters"] or "phase" in str(py_features)
+
 
 def test_feature_weights():
     """Test that feature weights are applied correctly"""

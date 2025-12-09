@@ -4,6 +4,8 @@ This module tests the repository catchup and change summarization functionality,
 following TDD/BDD principles and testing all catchup scenarios.
 """
 
+
+# ruff: noqa: S101
 from unittest.mock import call
 
 import pytest

@@ -5,6 +5,8 @@ growth analysis, and resource monitoring following TDD/BDD principles.
 """
 
 
+# ruff: noqa: S101
+
 import pytest
 
 

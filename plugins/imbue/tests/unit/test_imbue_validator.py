@@ -4,6 +4,8 @@ This module tests the core validation functionality of the imbue validator,
 following TDD/BDD principles and testing all business logic scenarios.
 """
 
+
+# ruff: noqa: S101
 import json
 from pathlib import Path
 from unittest.mock import patch

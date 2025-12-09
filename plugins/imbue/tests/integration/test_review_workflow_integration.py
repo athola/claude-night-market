@@ -4,6 +4,8 @@ This module tests end-to-end workflow scenarios with multiple skills
 and commands working together, following TDD/BDD principles.
 """
 
+
+# ruff: noqa: S101
 from datetime import UTC, datetime
 from unittest.mock import Mock
 

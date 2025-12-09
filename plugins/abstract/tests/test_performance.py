@@ -12,10 +12,7 @@ def test_wrapper_performance_overhead():
 
     # Execute wrapper 100 times
     for _ in range(100):
-        wrapper.execute({
-            "skill-path": "test/skill",
-            "phase": "red"
-        })
+        wrapper.execute({"skill-path": "test/skill", "phase": "red"})
 
     end_time = time.perf_counter()
     avg_time = (end_time - start_time) / 100

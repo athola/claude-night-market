@@ -1,5 +1,7 @@
 """Tests for speckit-orchestrator skill functionality."""
 
+
+# ruff: noqa: S101
 from unittest.mock import Mock, patch
 
 import pytest

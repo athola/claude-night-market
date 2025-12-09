@@ -5,6 +5,8 @@ following TDD/BDD principles and testing all diff analysis scenarios.
 """
 
 
+# ruff: noqa: S101
+
 import pytest
 
 

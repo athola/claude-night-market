@@ -6,6 +6,8 @@ BDD-style tests organized by behavior:
 - Handling edge cases (empty gardens, missing data)
 """
 
+
+# ruff: noqa: S101
 import json
 from datetime import timezone
 

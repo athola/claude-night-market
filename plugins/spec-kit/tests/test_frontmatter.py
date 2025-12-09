@@ -1,5 +1,7 @@
 """Tests for frontmatter validation in spec-kit skill files."""
 
+
+# ruff: noqa: S101
 import re
 
 import pytest

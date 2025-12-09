@@ -148,7 +148,9 @@ class PluginValidator:
             paths = (
                 [value]
                 if isinstance(value, str)
-                else value if isinstance(value, list) else []
+                else value
+                if isinstance(value, list)
+                else []
             )
 
             for path in paths:

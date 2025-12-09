@@ -5,6 +5,8 @@ and performance enhancement following TDD/BDD principles.
 """
 
 
+# ruff: noqa: S101
+
 import pytest
 
 

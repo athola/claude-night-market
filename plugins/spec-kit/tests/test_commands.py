@@ -1,5 +1,7 @@
 """Tests for spec-kit command functionality."""
 
+
+# ruff: noqa: S101
 import json
 from unittest.mock import Mock, patch
 

@@ -7,17 +7,14 @@ and real repository analysis scenarios.
 
 from __future__ import annotations
 
-import pytest
 import json
-import tempfile
 import subprocess
-from pathlib import Path
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock, patch
+
+import pytest
 
 # Import pensive components for testing
 from pensive.skills.unified_review import UnifiedReviewSkill
-from pensive.skills.api_review import ApiReviewSkill
-from pensive.agents.code_reviewer import CodeReviewerAgent
 
 
 class TestPensiveIntegration:
@@ -167,8 +164,8 @@ clean:
             full_path.write_text(content)
 
         # Initialize git
-        subprocess.run(["git", "add", "."], cwd=temp_repository, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Add Rust user service"], cwd=temp_repository, capture_output=True)
+        subprocess.run(["git", "add", "."], check=False, cwd=temp_repository, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Add Rust user service"], check=False, cwd=temp_repository, capture_output=True)
 
         # Act
         from pensive.analysis.repository_analyzer import RepositoryAnalyzer
@@ -196,7 +193,7 @@ clean:
             mock_todo.return_value = Mock()
 
             # Act
-            result = workflow.execute_full_review(temp_repository)
+            workflow.execute_full_review(temp_repository)
 
             # Assert
             assert mock_todo.called
@@ -265,8 +262,9 @@ mod tests {{
 }}
             """)
 
-        from pensive.workflows.code_review import CodeReviewWorkflow
         import time
+
+        from pensive.workflows.code_review import CodeReviewWorkflow
 
         workflow = CodeReviewWorkflow()
 
@@ -431,8 +429,9 @@ custom_rules:
     def test_memory_usage_and_resource_management(self, temp_repository):
         """Given large analysis, when executing, then manages memory efficiently."""
         # Arrange
-        import psutil
         import os
+
+        import psutil
 
         # Create many files to test memory usage
         for i in range(100):
@@ -537,7 +536,7 @@ custom_rules:
 
         # Act
         try:
-            result = plugin.execute_review(temp_repository)
+            plugin.execute_review(temp_repository)
         finally:
             # Simulate cleanup
             plugin.cleanup()

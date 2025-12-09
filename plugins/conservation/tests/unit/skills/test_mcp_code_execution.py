@@ -5,6 +5,8 @@ and external tool delegation following TDD/BDD principles.
 """
 
 
+# ruff: noqa: S101
+
 import pytest
 
 

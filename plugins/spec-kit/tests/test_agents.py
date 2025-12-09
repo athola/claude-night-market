@@ -1,6 +1,8 @@
 """Tests for spec-kit agent functionality."""
 
 
+# ruff: noqa: S101
+
 
 class TestSpeckitAgents:
     """Test cases for speckit agents."""

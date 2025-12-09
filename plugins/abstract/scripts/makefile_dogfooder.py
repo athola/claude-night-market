@@ -24,18 +24,24 @@ MIN_HELP_COMMANDS = 3
 
 
 class Scope(Enum):
+    """Enumeration for analysis scope levels."""
+
     ROOT = "root"
     PLUGINS = "plugins"
     ALL = "all"
 
 
 class Mode(Enum):
+    """Enumeration for operation modes."""
+
     ANALYZE = "analyze"
     TEST = "test"
     FULL = "full"
 
 
 class TargetType(Enum):
+    """Enumeration for Makefile target safety levels."""
+
     SAFE = "safe"  # Always safe to run (help, status)
     CONDITIONAL = "conditional"  # Requires inspection (test, lint)
     RISKY = "risky"  # Never run in CI (clean, install)
@@ -43,6 +49,8 @@ class TargetType(Enum):
 
 @dataclass
 class Target:
+    """Represents a Makefile target with its metadata."""
+
     name: str
     description: str
     phony: bool
@@ -54,6 +62,8 @@ class Target:
 
 @dataclass
 class MakefileInventory:
+    """Inventory of a Makefile's contents and structure."""
+
     file_path: str
     targets: dict[str, Target]
     variables: dict[str, str]
@@ -63,6 +73,8 @@ class MakefileInventory:
 
 @dataclass
 class AnalysisResult:
+    """Results from analyzing a Makefile for completeness."""
+
     makefile: str
     score: int
     missing_essential: list[str]
@@ -193,7 +205,7 @@ class MakefileDogfooder:
         # Check .PHONY declaration
         if ".PHONY" in targets:
             phony_targets = targets[".PHONY"].dependencies
-            for target_name in targets:
+            for target_name, _target in targets.items():
                 if target_name in phony_targets:
                     targets[target_name].phony = True
 
@@ -241,7 +253,7 @@ class MakefileDogfooder:
 
         # Check convenience targets
         convenience_found = 0
-        for convenience, desc in self.convenience_targets.items():
+        for convenience, _desc in self.convenience_targets.items():
             if convenience in target_names:
                 convenience_found += 1
                 score += 5
@@ -253,7 +265,7 @@ class MakefileDogfooder:
                 f in target_name.lower() for f in [".o", ".so", ".a"]
             ):
                 anti_patterns.append(
-                    f"Target '{target_name}' appears to be phony but not declared in .PHONY"
+                    f"Target '{target_name}' appears phony but not in .PHONY"
                 )
 
             # Commands without error handling
@@ -261,7 +273,7 @@ class MakefileDogfooder:
                 if not any(flag in cmd for flag in ["set -e", "-e", "||"]):
                     if not cmd.startswith("@echo") and not cmd.startswith("#"):
                         anti_patterns.append(
-                            f"Command in '{target_name}' lacks error handling: {cmd[:50]}..."
+                            f"Command in '{target_name}' lacks error handling"
                         )
 
         # Check for help target quality
@@ -311,7 +323,7 @@ class MakefileDogfooder:
         # Test 1: Makefile syntax
         try:
             subprocess.run(
-                ["make", "-n", "help"],
+                ["/usr/bin/make", "-n", "help"],
                 cwd=makefile_dir,
                 capture_output=True,
                 check=True,
@@ -330,7 +342,7 @@ class MakefileDogfooder:
             if target in inventory.targets:
                 try:
                     subprocess.run(
-                        ["make", "-n", target],
+                        ["/usr/bin/make", "-n", target],
                         cwd=makefile_dir,
                         capture_output=True,
                         check=True,
@@ -357,9 +369,11 @@ class MakefileDogfooder:
                     for var_ref in vars_in_cmd:
                         var_name = var_ref[2:-1]  # Remove $() wrapper
                         if var_name not in inventory.variables:
-                            results["warnings"].append(
-                                f"Variable '{var_name}' used in target '{target_name}' may be undefined"
+                            msg = (
+                                f"Variable '{var_name}' in target '{target_name}' "
+                                f"may be undefined"
                             )
+                            results["warnings"].append(msg)
 
         return results
 
@@ -403,7 +417,7 @@ class MakefileDogfooder:
 \t@echo ""
 \t@echo "$$(basename $$(pwd)) - Available Targets"
 \t@echo "=================================="
-\t@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\\n", $$1, $$2}' $$(MAKEFILE_LIST)"""
+\t@awk -F':.*?## ' '/^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\\n", $$1, $$2}' $$(MAKEFILE_LIST)"""
 
     def _generate_demo_target(self, inventory: MakefileInventory) -> str:
         """Generate a demo target for leaf plugins"""

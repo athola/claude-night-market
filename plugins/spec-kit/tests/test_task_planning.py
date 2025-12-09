@@ -1,5 +1,7 @@
 """Tests for task-planning skill functionality."""
 
+
+# ruff: noqa: S101
 import re
 
 # Constants for magic numbers

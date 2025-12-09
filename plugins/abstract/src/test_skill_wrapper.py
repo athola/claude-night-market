@@ -1,3 +1,8 @@
+"""Test skill wrapper implementation.
+
+This module provides a test implementation of the skill wrapper
+for testing and demonstration purposes.
+"""
 from typing import Any
 
 from .wrapper_base import SuperpowerWrapper

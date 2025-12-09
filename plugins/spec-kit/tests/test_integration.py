@@ -1,5 +1,7 @@
 """Integration tests for spec-kit workflows."""
 
+
+# ruff: noqa: S101
 import json
 import subprocess
 from unittest.mock import Mock, patch

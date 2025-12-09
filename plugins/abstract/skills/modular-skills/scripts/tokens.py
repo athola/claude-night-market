@@ -21,7 +21,7 @@ LARGE_FRONTMATTER_THRESHOLD = 500
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from abstract.skill_tools import estimate_tokens
+from abstract.skill_tools import estimate_tokens  # noqa: E402
 
 if __name__ == "__main__":
     import argparse

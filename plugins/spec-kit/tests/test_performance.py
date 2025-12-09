@@ -1,5 +1,7 @@
 """Performance tests for spec-kit wrapped commands."""
 
+
+# ruff: noqa: S101
 import os
 import time
 from unittest.mock import Mock

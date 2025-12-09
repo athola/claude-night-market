@@ -56,8 +56,7 @@ category: comprehensive
 
 """
             + "This skill has a lot of content that makes it hard to manage "
-                "effectively. "
-            * 150,
+            "effectively. " * 150,
         }
 
         for skill_name, content in skills_data.items():

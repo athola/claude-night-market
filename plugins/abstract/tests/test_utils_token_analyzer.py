@@ -1,6 +1,5 @@
 """Tests for TokenAnalyzer class in tokens.py."""
 
-
 from abstract.tokens import TokenAnalyzer
 
 
@@ -121,17 +120,13 @@ class TestTokenAnalyzerCheckEfficiency:
 
     def test_check_efficiency_custom_thresholds(self):
         """Test with custom threshold values."""
-        result = TokenAnalyzer.check_efficiency(
-            500, optimal=1000, max_acceptable=2000
-        )
+        result = TokenAnalyzer.check_efficiency(500, optimal=1000, max_acceptable=2000)
         assert result["status"] == "OPTIMAL"
         assert result["is_efficient"] is True
 
     def test_check_efficiency_message_describes_status(self):
         """Test that message provides useful feedback."""
-        result = TokenAnalyzer.check_efficiency(
-            5000, optimal=2000, max_acceptable=4000
-        )
+        result = TokenAnalyzer.check_efficiency(5000, optimal=2000, max_acceptable=4000)
         msg = result["message"].lower()
         assert "exceed" in msg or "over" in msg
 

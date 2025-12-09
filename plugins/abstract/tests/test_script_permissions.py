@@ -34,16 +34,16 @@ def find_executable_scripts(root_dir: Path) -> list[Path]:
     for pattern in script_patterns:
         for file_path in root_dir.glob(pattern):
             # Skip hidden files and directories
-            if any(part.startswith('.') for part in file_path.parts):
+            if any(part.startswith(".") for part in file_path.parts):
                 continue
 
             # Skip .venv, test files, docs, and examples
-            skip_patterns = ['.venv', 'test', 'docs/', 'examples/']
+            skip_patterns = [".venv", "test", "docs/", "examples/"]
             if any(pattern in str(file_path) for pattern in skip_patterns):
                 continue
 
             # Skip skill subdirectories since they have their own tooling
-            if 'skills/' in str(file_path) and '/scripts/' not in str(file_path):
+            if "skills/" in str(file_path) and "/scripts/" not in str(file_path):
                 continue
 
             # Only include files with shebang lines (meant to be executed directly)
@@ -64,9 +64,9 @@ def _has_shebang(file_path: Path) -> bool:
 
     """
     try:
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             first_line = f.readline().strip()
-            return first_line.startswith('#!') and 'python' in first_line.lower()
+            return first_line.startswith("#!") and "python" in first_line.lower()
     except (UnicodeDecodeError, PermissionError, OSError):
         return False
 
@@ -115,13 +115,13 @@ class TestScriptPermissions:
     def test_all_executables_have_shebang(self, executable_scripts: list[Path]) -> None:
         """Test that all executable scripts have proper shebang."""
         for script in executable_scripts:
-            if script.suffix == '.py':
-                with open(script, 'rb') as f:
-                    first_line = f.readline().decode('utf-8', errors='ignore').strip()
+            if script.suffix == ".py":
+                with open(script, "rb") as f:
+                    first_line = f.readline().decode("utf-8", errors="ignore").strip()
 
                 # Check for proper Python shebang
-                assert first_line.startswith('#!'), f"{script}: Missing shebang"
-                has_python = 'python' in first_line.lower()
+                assert first_line.startswith("#!"), f"{script}: Missing shebang"
+                has_python = "python" in first_line.lower()
                 assert has_python, f"{script}: Invalid shebang: {first_line}"
 
     def test_executable_permissions(self, executable_scripts: list[Path]) -> None:
@@ -151,7 +151,7 @@ class TestScriptPermissions:
 
         if tools_dir.exists():
             for tool_path in tools_dir.iterdir():
-                if tool_path.is_file() and not tool_path.name.startswith('.'):
+                if tool_path.is_file() and not tool_path.name.startswith("."):
                     is_exec = os.access(tool_path, os.X_OK)
                     assert is_exec, f"Tool not executable: {tool_path}"
 

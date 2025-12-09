@@ -4,6 +4,8 @@ This module tests the autonomous review agent capabilities and workflow integrat
 following TDD/BDD principles and testing all agent scenarios.
 """
 
+
+# ruff: noqa: S101
 from datetime import UTC, datetime
 from unittest.mock import Mock
 

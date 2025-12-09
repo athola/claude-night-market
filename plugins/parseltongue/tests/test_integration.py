@@ -7,16 +7,16 @@ and real-world usage scenarios.
 
 from __future__ import annotations
 
-import pytest
-import tempfile
 import json
+import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch, AsyncMock
+
+import pytest
+from parseltongue.agents.python_pro import PythonProAgent
+from parseltongue.skills.language_detection import LanguageDetectionSkill
 
 # Import parseltongue components for testing
 from parseltongue.workflows.code_review import CodeReviewWorkflow
-from parseltongue.agents.python_pro import PythonProAgent
-from parseltongue.skills.language_detection import LanguageDetectionSkill
 
 
 class TestParseltongueIntegration:
@@ -192,9 +192,8 @@ def test_data_processor():
         '''
 
         # Act
-        from parseltongue.agents.python_pro import PythonProAgent
-        from parseltongue.agents.python_tester import PythonTesterAgent
         from parseltongue.agents.python_optimizer import PythonOptimizerAgent
+        from parseltongue.agents.python_tester import PythonTesterAgent
 
         # Coordinate multiple agents
         python_pro = PythonProAgent()
@@ -238,9 +237,8 @@ def test_data_processor():
         }
 
         # Act
-        from parseltongue.skills.language_detection import LanguageDetectionSkill
-        from parseltongue.skills.pattern_matching import PatternMatchingSkill
         from parseltongue.skills.code_transformation import CodeTransformationSkill
+        from parseltongue.skills.pattern_matching import PatternMatchingSkill
 
         detection_skill = LanguageDetectionSkill()
         pattern_skill = PatternMatchingSkill()
@@ -278,7 +276,7 @@ def test_data_processor():
             assert len(patterns) > 0
 
             # Should provide improvement suggestions
-            improvements = result["improvements"]["suggestions"]
+            result["improvements"]["suggestions"]
             # (May be empty for good code, but structure should exist)
 
     @pytest.mark.integration
@@ -286,8 +284,8 @@ def test_data_processor():
         """Given command execution, when workflow runs, then integrates all components."""
         # Arrange
         from parseltongue.commands.analyze_tests import AnalyzeTestsCommand
-        from parseltongue.commands.run_profiler import RunProfilerCommand
         from parseltongue.commands.check_async import CheckAsyncCommand
+        from parseltongue.commands.run_profiler import RunProfilerCommand
 
         # Add test files with issues
         (project_path / "src" / "slow_code.py").write_text("""
@@ -394,7 +392,6 @@ class AnotherClass:
         '''
 
         # Act
-        from parseltongue.skills.language_detection import LanguageDetectionSkill
 
         skill = LanguageDetectionSkill()
 

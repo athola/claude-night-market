@@ -4,6 +4,8 @@ This module tests CPU/GPU performance monitoring, resource tracking,
 and alert functionality following TDD/BDD principles.
 """
 
+
+# ruff: noqa: S101
 from datetime import datetime, timezone
 
 import pytest

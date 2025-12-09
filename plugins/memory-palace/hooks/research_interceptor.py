@@ -107,7 +107,7 @@ def search_local_knowledge(query: str) -> list[dict[str, Any]]:
 
         return results
 
-    except Exception as e:
+    except Exception:
         # If search fails, return empty results
         # Don't block the request
         return []
@@ -160,7 +160,7 @@ def make_decision(
 
     # We have matches
     match_score = best_match.get("match_score", 0.0)
-    match_strength = best_match.get("match_strength", "weak")
+    best_match.get("match_strength", "weak")
 
     # Strong match (>80%)
     if match_score > 0.8:
@@ -195,7 +195,7 @@ def make_decision(
             # Needs freshness, proceed with web
             decision["action"] = "augment"
             decision["context"].append(
-                f"Memory Palace: Found cached match but query needs fresh data. "
+                "Memory Palace: Found cached match but query needs fresh data. "
                 "Combining cache with web search."
             )
             decision["cached_entries"] = results[:2]

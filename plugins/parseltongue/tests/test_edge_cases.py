@@ -7,17 +7,18 @@ unexpected input scenarios.
 
 from __future__ import annotations
 
-import pytest
-import tempfile
-import os
 import asyncio
-from pathlib import Path
-from unittest.mock import Mock, patch
 import json
+import os
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+from parseltongue.exceptions import AnalysisError
 
 # Import parseltongue components for testing
 from parseltongue.skills.language_detection import LanguageDetectionSkill
-from parseltongue.exceptions import ParseltongError, AnalysisError
 
 
 class TestEdgeCasesAndErrorScenarios:
@@ -305,7 +306,6 @@ def deeply_nested_function():
         """Given concurrent access, when analyzing, then handles race conditions."""
         # Arrange
         import threading
-        import time
 
         skill = LanguageDetectionSkill()
         results = []
@@ -387,7 +387,6 @@ def deeply_nested_function():
         """Given interrupted operations, when analyzing, then cleanup properly."""
         # Arrange
         import signal
-        from unittest.mock import Mock
 
         class InterruptException(Exception):
             pass

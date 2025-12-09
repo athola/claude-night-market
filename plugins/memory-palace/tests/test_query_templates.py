@@ -1,5 +1,7 @@
 """Tests for query template functionality."""
 
+
+# ruff: noqa: S101
 from pathlib import Path
 
 import pytest

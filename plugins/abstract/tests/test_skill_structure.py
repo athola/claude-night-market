@@ -35,12 +35,12 @@ class TestSkillDescriptionBestPractices:
         - Files starting with underscore - private components
         """
         skill_files = []
-        exclude_dirs = {'modules', 'examples', '__pycache__'}
+        exclude_dirs = {"modules", "examples", "__pycache__"}
 
         for skill_path in skills_dir.rglob("*.md"):
             # Skip if any parent directory is in exclude list
             parts = skill_path.relative_to(skills_dir).parts
-            if any(part in exclude_dirs or part.startswith('_') for part in parts[:-1]):
+            if any(part in exclude_dirs or part.startswith("_") for part in parts[:-1]):
                 continue
             # Include SKILL.md files and standalone skill files
             if skill_path.name == "SKILL.md" or skill_path.suffix == ".md":
@@ -56,7 +56,7 @@ class TestSkillDescriptionBestPractices:
         Then it should contain action verbs describing capabilities
         """
         action_patterns = [
-            r'\b(validate|check|analyze|create|build|generate|evaluate|test|review|guide|help|provide|decision|framework|implement|optimize|manage|configure|design|develop|enable|ensure|enforce|monitor|track|audit|assess)\b',
+            r"\b(validate|check|analyze|create|build|generate|evaluate|test|review|guide|help|provide|decision|framework|implement|optimize|manage|configure|design|develop|enable|ensure|enforce|monitor|track|audit|assess)\b",
         ]
 
         for skill_file in skill_files:
@@ -74,7 +74,7 @@ class TestSkillDescriptionBestPractices:
                 for pattern in action_patterns
             )
 
-            desc_preview = result.parsed['description'][:100]
+            desc_preview = result.parsed["description"][:100]
             assert has_action, (
                 f"Skill '{skill_file.name}' description should include "
                 f"action verbs. Current: {desc_preview}..."
@@ -88,12 +88,12 @@ class TestSkillDescriptionBestPractices:
         Then it should contain trigger phrases like "Use when" or "Use for"
         """
         trigger_patterns = [
-            r'use when',
-            r'use for',
-            r'use this',
-            r'trigger',
-            r'activate',
-            r'invoke',
+            r"use when",
+            r"use for",
+            r"use this",
+            r"trigger",
+            r"activate",
+            r"invoke",
         ]
 
         for skill_file in skill_files:
@@ -111,7 +111,7 @@ class TestSkillDescriptionBestPractices:
                 for pattern in trigger_patterns
             )
 
-            desc_preview = result.parsed['description'][:100]
+            desc_preview = result.parsed["description"][:100]
             assert has_trigger, (
                 f"Skill '{skill_file.name}' description should include "
                 f"trigger phrases. Current: {desc_preview}..."
@@ -176,14 +176,26 @@ class TestSkillConflictAvoidance:
         When I compare their trigger phrases
         Then each skill should have unique key terms
         """
+
         # Extract key terms from each description
         def extract_key_terms(description):
             # Remove common words and extract meaningful terms
             stop_words = {
-                'the', 'a', 'an', 'is', 'are', 'for', 'to',
-                'and', 'or', 'this', 'that', 'when', 'use',
+                "the",
+                "a",
+                "an",
+                "is",
+                "are",
+                "for",
+                "to",
+                "and",
+                "or",
+                "this",
+                "that",
+                "when",
+                "use",
             }
-            words = re.findall(r'\b[a-z]{4,}\b', description.lower())
+            words = re.findall(r"\b[a-z]{4,}\b", description.lower())
             return set(words) - stop_words
 
         skill_terms = {
@@ -194,7 +206,7 @@ class TestSkillConflictAvoidance:
         # Check for high overlap between skills
         skill_names = list(skill_terms.keys())
         for i, name1 in enumerate(skill_names):
-            for name2 in skill_names[i+1:]:
+            for name2 in skill_names[i + 1 :]:
                 terms1 = skill_terms[name1]
                 terms2 = skill_terms[name2]
 
@@ -263,14 +275,19 @@ class TestHookScopeGuideSkill:
 
         # Should focus on WHERE/location
         location_terms = [
-            'where', 'scope', 'location', 'plugin', 'project', 'global',
+            "where",
+            "scope",
+            "location",
+            "plugin",
+            "project",
+            "global",
         ]
         has_location_focus = any(term in description for term in location_terms)
         assert has_location_focus, "Description should focus on WHERE"
 
         # Should cross-reference hookify for HOW
-        has_hookify = 'hookify' in description
-        has_rules = 'writing-rules' in description
+        has_hookify = "hookify" in description
+        has_rules = "writing-rules" in description
         assert has_hookify or has_rules, "Should cross-reference hookify"
 
     def test_skill_has_distinct_triggers(self, skill_path):
@@ -287,7 +304,10 @@ class TestHookScopeGuideSkill:
 
         # These are hookify triggers that should NOT appear
         hookify_triggers = [
-            'create a hook', 'write a hook', 'hook rule', 'hookify rule',
+            "create a hook",
+            "write a hook",
+            "hook rule",
+            "hookify rule",
         ]
 
         for trigger in triggers:
@@ -307,7 +327,7 @@ class TestHookScopeGuideSkill:
         """
         content = skill_path.read_text()
 
-        scopes = ['plugin hook', 'project hook', 'global hook']
+        scopes = ["plugin hook", "project hook", "global hook"]
 
         for scope in scopes:
             assert scope.lower() in content.lower(), (
@@ -324,18 +344,15 @@ class TestHookScopeGuideSkill:
         content = skill_path.read_text()
 
         decision_indicators = [
-            'decision',
-            'question',
-            'who needs',
-            'should this',
-            'when to use',
+            "decision",
+            "question",
+            "who needs",
+            "should this",
+            "when to use",
         ]
 
         has_decision_content = any(
-            indicator in content.lower()
-            for indicator in decision_indicators
+            indicator in content.lower() for indicator in decision_indicators
         )
 
-        assert has_decision_content, (
-            "Skill should include decision framework questions"
-        )
+        assert has_decision_content, "Skill should include decision framework questions"

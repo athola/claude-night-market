@@ -1,4 +1,10 @@
 # plugins/abstract/scripts/performance_benchmark.py
+"""Performance benchmarking utilities for Abstract plugin components.
+
+This module provides tools for measuring and analyzing performance characteristics
+of various plugin operations.
+"""
+
 import os
 import statistics
 import sys
@@ -32,6 +38,6 @@ def benchmark_wrapper(iterations: int = 1000) -> dict:
 if __name__ == "__main__":
     result = benchmark_wrapper()
     print(f"Performance Results ({result['iterations']} iterations):")
-    print(f"Mean: {result['mean']*1000:.2f}ms")
-    print(f"P95: {result['p95']*1000:.2f}ms")
-    print(f"Max: {result['max']*1000:.2f}ms")
+    print(f"Mean: {result['mean'] * 1000:.2f}ms")
+    print(f"P95: {result['p95'] * 1000:.2f}ms")
+    print(f"Max: {result['max'] * 1000:.2f}ms")

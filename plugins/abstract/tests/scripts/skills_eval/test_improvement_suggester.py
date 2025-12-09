@@ -1,6 +1,5 @@
 """Tests for improvement suggestion functionality."""
 
-
 import pytest
 
 from abstract.skills_eval import ImprovementSuggester

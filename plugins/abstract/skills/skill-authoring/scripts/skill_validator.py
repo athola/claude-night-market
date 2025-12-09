@@ -300,9 +300,11 @@ class SkillValidator:
             )
 
         if len(desc) < MIN_DESCRIPTION_LENGTH:
-            self.result.add_warning(
-                f"Description short ({len(desc)} chars). Consider {MIN_OPTIMAL_DESCRIPTION}-{MAX_OPTIMAL_DESCRIPTION} for better discovery."
+            msg = (
+                f"Description short ({len(desc)} chars). Consider "
+                f"{MIN_OPTIMAL_DESCRIPTION}-{MAX_OPTIMAL_DESCRIPTION} for better discovery."
             )
+            self.result.add_warning(msg)
         elif MIN_OPTIMAL_DESCRIPTION <= len(desc) <= MAX_OPTIMAL_DESCRIPTION:
             self.result.add_info("Description length optimal (200-400 chars)")
 
@@ -418,7 +420,8 @@ class SkillValidator:
         modules_dir = self.skill_dir / "modules"
         if not modules_dir.exists() and referenced_modules:
             self.result.add_error(
-                f"References {len(referenced_modules)} modules but modules/ doesn't exist"
+                f"References {len(referenced_modules)} modules but "
+                f"modules/ doesn't exist"
             )
             return
 
@@ -456,7 +459,8 @@ class SkillValidator:
             # Line count check
             if lines > self.MAX_MODULE_LINES:
                 self.result.add_warning(
-                    f"{module_path.name}: {lines} lines (recommend <{self.MAX_MODULE_LINES})"
+                    f"{module_path.name}: {lines} lines "
+                    f"(recommend <{self.MAX_MODULE_LINES})"
                 )
             elif lines < self.MIN_MODULE_LINES:
                 self.result.add_warning(

@@ -1,5 +1,7 @@
 """Tests for keyword indexing functionality."""
 
+
+# ruff: noqa: S101
 from pathlib import Path
 
 import pytest

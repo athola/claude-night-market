@@ -4,6 +4,8 @@ This module tests the review workflow scaffolding functionality,
 following TDD/BDD principles and testing all business scenarios.
 """
 
+
+# ruff: noqa: S101
 from unittest.mock import call
 
 import pytest

@@ -1,5 +1,7 @@
 """Tests for research_interceptor hook."""
 
+
+# ruff: noqa: S101
 from __future__ import annotations
 
 import json

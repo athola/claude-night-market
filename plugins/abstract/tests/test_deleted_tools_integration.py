@@ -79,7 +79,7 @@ class TestDeletedToolsIntegration:
         references = []
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
         except (UnicodeDecodeError, PermissionError):
             return references
@@ -115,7 +115,7 @@ class TestDeletedToolsIntegration:
         references = []
 
         try:
-            with open(file_path, encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
         except (UnicodeDecodeError, PermissionError):
             return references

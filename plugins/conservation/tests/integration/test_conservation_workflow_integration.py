@@ -3,6 +3,7 @@
 This module tests end-to-end conservation workflows following TDD/BDD principles.
 """
 
+# ruff: noqa: S101
 
 import pytest
 

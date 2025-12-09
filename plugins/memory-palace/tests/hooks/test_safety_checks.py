@@ -1,5 +1,7 @@
 """Tests for safety_checks module."""
 
+
+# ruff: noqa: S101
 from __future__ import annotations
 
 import os

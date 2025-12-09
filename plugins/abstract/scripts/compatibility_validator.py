@@ -22,7 +22,12 @@ PARITY_THRESHOLD = 0.9
 
 
 class CompatibilityValidator:
-    """Validates wrapper implementations maintain feature parity with original commands."""
+    """Validates wrapper implementations maintain feature parity with original commands.
+
+    This class analyzes both markdown command files and Python wrapper implementations
+    to ensure that wrapper scripts maintain the same functionality as the original
+    plugin commands they replace.
+    """
 
     def __init__(self):
         self.feature_weights = {
@@ -40,7 +45,7 @@ class CompatibilityValidator:
             wrapper: Path to wrapper implementation file (.py)
 
         Returns:
-            Dictionary containing validation results with feature parity score and missing features.
+            dict: Validation results with feature parity score and missing features.
 
         """
         original_features = self._extract_features(original)
@@ -111,54 +116,75 @@ class CompatibilityValidator:
                 content = f.read()
 
             # Parse YAML frontmatter
-            frontmatter_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
-            if frontmatter_match:
-                frontmatter = yaml.safe_load(frontmatter_match.group(1))
-
-                # Extract parameters - handle both string and dict formats
-                if "parameters" in frontmatter:
-                    params = frontmatter["parameters"]
-                    if isinstance(params, list):
-                        for param in params:
-                            if isinstance(param, dict) and "name" in param:
-                                features["parameters"].append(param["name"])
-                            elif isinstance(param, str):
-                                features["parameters"].append(param)
-
-                # Extract options
-                if "options" in frontmatter:
-                    features["options"] = frontmatter["options"]
-
-                # Extract usage to infer output format
-                if "usage" in frontmatter:
-                    usage = frontmatter["usage"]
-                    if "report" in usage.lower() or "output" in usage.lower():
-                        features["output_format"] = "markdown_report"
-                    elif "json" in usage.lower():
-                        features["output_format"] = "json"
-
-                # Look for error handling indicators
-                if "error_handling" in frontmatter:
-                    features["error_handling"] = frontmatter["error_handling"]
+            self._extract_frontmatter_features(content, features)
 
             # Scan content for additional features
-            content_lower = content.lower()
-
-            # Detect error handling patterns
-            error_patterns = ["validation", "error", "exception", "fallback", "recover"]
-            for pattern in error_patterns:
-                if (
-                    pattern in content_lower
-                    and pattern not in features["error_handling"]
-                ):
-                    features["error_handling"].append(pattern)
+            self._extract_content_features(content, features)
 
         except Exception as e:
             # If parsing fails, return empty features
             logging.warning(f"Failed to parse {file_path}: {e}")
-            pass
 
         return features
+
+    def _extract_frontmatter_features(self, content: str, features: dict) -> None:
+        """Extract features from YAML frontmatter.
+
+        Args:
+            content: File content
+            features: Features dict to update
+
+        """
+        frontmatter_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if not frontmatter_match:
+            return
+
+        frontmatter = yaml.safe_load(frontmatter_match.group(1))
+        if not frontmatter:
+            return
+
+        # Extract parameters - handle both string and dict formats
+        if "parameters" in frontmatter:
+            params = frontmatter["parameters"]
+            if isinstance(params, list):
+                for param in params:
+                    if isinstance(param, dict) and "name" in param:
+                        features["parameters"].append(param["name"])
+                    elif isinstance(param, str):
+                        features["parameters"].append(param)
+
+        # Extract options
+        if "options" in frontmatter:
+            features["options"] = frontmatter["options"]
+
+        # Extract usage to infer output format
+        if "usage" in frontmatter:
+            usage = frontmatter["usage"]
+            usage_lower = usage.lower()
+            if "report" in usage_lower or "output" in usage_lower:
+                features["output_format"] = "markdown_report"
+            elif "json" in usage_lower:
+                features["output_format"] = "json"
+
+        # Look for error handling indicators
+        if "error_handling" in frontmatter:
+            features["error_handling"] = frontmatter["error_handling"]
+
+    def _extract_content_features(self, content: str, features: dict) -> None:
+        """Extract features from content scanning.
+
+        Args:
+            content: File content
+            features: Features dict to update
+
+        """
+        content_lower = content.lower()
+
+        # Detect error handling patterns
+        error_patterns = ["validation", "error", "exception", "fallback", "recover"]
+        for pattern in error_patterns:
+            if pattern in content_lower and pattern not in features["error_handling"]:
+                features["error_handling"].append(pattern)
 
     def _parse_python_wrapper(self, file_path: str) -> dict:
         """Parse Python wrapper file for features.
@@ -181,87 +207,15 @@ class CompatibilityValidator:
             with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
-            # Parse AST to extract function signatures
-            tree = ast.parse(content)
-
-            for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
-                    # Extract function parameters
-                    for arg in node.args.args:
-                        if arg.arg not in features["parameters"]:
-                            features["parameters"].append(arg.arg)
-
-                    # Look for error handling patterns
-                    for child in ast.walk(node):
-                        if isinstance(child, (ast.Try, ast.ExceptHandler)):
-                            if "exception" not in features["error_handling"]:
-                                features["error_handling"].append("exception")
-                        elif isinstance(child, ast.Call):
-                            if isinstance(child.func, ast.Name):
-                                if child.func.id in ["validate", "check", "verify"]:
-                                    if "validation" not in features["error_handling"]:
-                                        features["error_handling"].append("validation")
+            # Parse AST for structural features
+            self._extract_ast_features(content, features)
 
             # Use regex for additional pattern matching
-            content_lower = content.lower()
-
-            # Detect option patterns (only from command line style options, exclude common words)
-            option_patterns = re.findall(r"--?(\w+)(?=\W)", content)
-            # Filter out common words that aren't really options
-            filtered_options = [
-                opt
-                for opt in option_patterns
-                if opt
-                not in [
-                    "development",
-                    "skill",
-                    "driven",
-                    "test",
-                    "superpower",
-                    "wrapper",
-                ]
-            ]
-            features["options"].extend(filtered_options)
-
-            # Detect output format
-            if "json" in content_lower:
-                features["output_format"] = "json"
-            elif "markdown" in content_lower or "md" in content_lower:
-                features["output_format"] = "markdown"
-
-            # Detect fallback mechanisms
-            if "fallback" in content_lower or "backup" in content_lower:
-                if "fallback" not in features["error_handling"]:
-                    features["error_handling"].append("fallback")
-
-            # For testing purposes, detect known parameter patterns in dict.get() calls
-            get_patterns = re.findall(r'get\([\'"]([^\'"]+)[\'"]\)', content)
-            features["parameters"].extend(get_patterns)
-
-            # Detect options in string literals (for testing purposes)
-            option_literals = re.findall(
-                r'\[([\'"]([a-zA-Z]+)[\'"](?:,\s*[\'"][a-zA-Z]+[\'"])*?)\]', content
-            )
-            for literal in option_literals:
-                # Extract individual quoted values
-                options = re.findall(r'[\'"]([a-zA-Z]+)[\'"]', literal)
-                features["options"].extend(options)
+            self._extract_regex_features(content, features)
 
         except Exception:
-            # If parsing fails, use regex-based extraction
-            content_lower = content.lower()
-
-            # Basic parameter detection
-            param_patterns = re.findall(r"def.*?\((.*?)\):", content, re.DOTALL)
-            for params in param_patterns:
-                for param_raw in params.split(","):
-                    param = param_raw.strip().split("=")[0].strip()
-                    if param and param != "self":
-                        features["parameters"].append(param)
-
-            # Detect get() patterns for dict access
-            get_patterns = re.findall(r'get\([\'"]([^\'"]+)[\'"]\)', content)
-            features["parameters"].extend(get_patterns)
+            # If parsing fails, use regex-based extraction only
+            self._extract_fallback_features(content, features)
 
         # Remove duplicates and clean up
         features["parameters"] = list(set(features["parameters"]))
@@ -269,6 +223,138 @@ class CompatibilityValidator:
         features["error_handling"] = list(set(features["error_handling"]))
 
         return features
+
+    def _extract_ast_features(self, content: str, features: dict) -> None:
+        """Extract features using AST parsing.
+
+        Args:
+            content: Python source code
+            features: Features dict to update
+
+        """
+        try:
+            tree = ast.parse(content)
+        except SyntaxError:
+            return
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                self._extract_function_features(node, features)
+
+    def _extract_function_features(self, node: ast.FunctionDef, features: dict) -> None:
+        """Extract features from a function definition.
+
+        Args:
+            node: AST FunctionDef node
+            features: Features dict to update
+
+        """
+        # Extract function parameters
+        for arg in node.args.args:
+            if arg.arg not in features["parameters"]:
+                features["parameters"].append(arg.arg)
+
+        # Look for error handling patterns
+        for child in ast.walk(node):
+            if isinstance(child, (ast.Try, ast.ExceptHandler)):
+                if "exception" not in features["error_handling"]:
+                    features["error_handling"].append("exception")
+            elif isinstance(child, ast.Call):
+                if isinstance(child.func, ast.Name):
+                    if child.func.id in ["validate", "check", "verify"]:
+                        if "validation" not in features["error_handling"]:
+                            features["error_handling"].append("validation")
+
+    def _extract_regex_features(self, content: str, features: dict) -> None:
+        """Extract features using regex patterns.
+
+        Args:
+            content: Python source code
+            features: Features dict to update
+
+        """
+        content_lower = content.lower()
+
+        # Detect option patterns (filter common words)
+        self._extract_option_patterns(content, features)
+
+        # Detect output format
+        if "json" in content_lower:
+            features["output_format"] = "json"
+        elif "markdown" in content_lower or "md" in content_lower:
+            features["output_format"] = "markdown"
+
+        # Detect fallback mechanisms
+        if (
+            "fallback" in content_lower or "backup" in content_lower
+        ) and "fallback" not in features["error_handling"]:
+            features["error_handling"].append("fallback")
+
+        # Detect parameter patterns in get() calls
+        get_patterns = re.findall(r'get\([\'"]([^\'"]+)[\'"]\)', content)
+        features["parameters"].extend(get_patterns)
+
+        # Detect options in string literals
+        self._extract_option_literals(content, features)
+
+    def _extract_option_patterns(self, content: str, features: dict) -> None:
+        """Extract option patterns while filtering common words.
+
+        Args:
+            content: Python source code
+            features: Features dict to update
+
+        """
+        excluded_words = {
+            "development",
+            "skill",
+            "driven",
+            "test",
+            "superpower",
+            "wrapper",
+        }
+
+        option_patterns = re.findall(r"--?(\w+)(?=\W)", content)
+        filtered_options = [opt for opt in option_patterns if opt not in excluded_words]
+        features["options"].extend(filtered_options)
+
+    def _extract_option_literals(self, content: str, features: dict) -> None:
+        """Extract options from string literals.
+
+        Args:
+            content: Python source code
+            features: Features dict to update
+
+        """
+        option_literals = re.findall(
+            r'\[([\'"]([a-zA-Z]+)[\'"](?:,\s*[\'"][a-zA-Z]+[\'"])*?)\]', content
+        )
+        for literal in option_literals:
+            # Extract individual quoted values
+            options = re.findall(r'[\'"]([a-zA-Z]+)[\'"]', literal)
+            features["options"].extend(options)
+
+    def _extract_fallback_features(self, content: str, features: dict) -> None:
+        """Extract features using basic regex when AST parsing fails.
+
+        Args:
+            content: Python source code
+            features: Features dict to update
+
+        """
+        content.lower()
+
+        # Basic parameter detection
+        param_patterns = re.findall(r"def.*?\((.*?)\):", content, re.DOTALL)
+        for params in param_patterns:
+            for param_raw in params.split(","):
+                param = param_raw.strip().split("=")[0].strip()
+                if param and param != "self":
+                    features["parameters"].append(param)
+
+        # Detect get() patterns for dict access
+        get_patterns = re.findall(r'get\([\'"]([^\'"]+)[\'"]\)', content)
+        features["parameters"].extend(get_patterns)
 
     def _calculate_parity(self, original: dict, wrapper: dict) -> float:
         """Calculate feature parity score between original and wrapper.
@@ -302,7 +388,8 @@ class CompatibilityValidator:
                     overlap = len(original_set & wrapper_set)
                     total = len(original_set)
 
-                    # For parameters, be more flexible with naming (e.g., skill-path vs skill_path)
+                    # For parameters, be more flexible with naming
+                    # (e.g., skill-path vs skill_path)
                     if feature == "parameters":
                         normalized_overlap = 0
                         for orig in original_set:
@@ -377,7 +464,10 @@ class CompatibilityValidator:
                         "category": feature,
                         "name": str(original_value),
                         "severity": severity,
-                        "description": f"Different {feature}: expected {original_value}, got {wrapper_value}",
+                        "description": (
+                            f"Different {feature}: expected {original_value}, "
+                            f"got {wrapper_value}"
+                        ),
                     }
                 )
 
@@ -442,7 +532,10 @@ class CompatibilityValidator:
 def main():
     """Main entry point for compatibility validation"""
     parser = argparse.ArgumentParser(
-        description="Validate feature parity between original commands and wrapper implementations"
+        description=(
+            "Validate feature parity between original commands and "
+            "wrapper implementations"
+        )
     )
     parser.add_argument("original", help="Path to original command file (.md)")
     parser.add_argument("wrapper", help="Path to wrapper implementation file (.py)")

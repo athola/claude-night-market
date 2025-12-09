@@ -17,27 +17,30 @@ def test_wrapper_translates_parameters():
     wrapper = SuperpowerWrapper(
         source_plugin="abstract",
         source_command="test-skill",
-        target_superpower="test-driven-development"
+        target_superpower="test-driven-development",
     )
 
     print("✅ Wrapper created successfully")
 
     # Test parameter translation - this should fail initially
-    input_params = {
-        "skill-path": "skills/my-skill",
-        "phase": "red"
-    }
+    input_params = {"skill-path": "skills/my-skill", "phase": "red"}
 
     print(f"🔍 Translating parameters: {input_params}")
     result = wrapper.translate_parameters(input_params)
     print(f"📝 Translation result: {result}")
 
     # Validate expected mappings exist
-    assert "target_under_test" in result, f"Expected 'target_under_test' in result, got: {result.keys()}"
-    assert "tdd_phase" in result, f"Expected 'tdd_phase' in result, got: {result.keys()}"
+    assert "target_under_test" in result, (
+        f"Expected 'target_under_test' in result, got: {result.keys()}"
+    )
+    assert "tdd_phase" in result, (
+        f"Expected 'tdd_phase' in result, got: {result.keys()}"
+    )
 
     # Validate correct values
-    assert result["target_under_test"] == "skills/my-skill", f"Expected 'skills/my-skill', got '{result['target_under_test']}'"
+    assert result["target_under_test"] == "skills/my-skill", (
+        f"Expected 'skills/my-skill', got '{result['target_under_test']}'"
+    )
     assert result["tdd_phase"] == "red", f"Expected 'red', got '{result['tdd_phase']}'"
 
     print("✅ All assertions passed!")
@@ -62,7 +65,9 @@ def test_wrapper_validation():
 
     try:
         SuperpowerWrapper("abstract", "test-skill", "")
-        raise AssertionError("Should have raised ValueError for empty target_superpower")
+        raise AssertionError(
+            "Should have raised ValueError for empty target_superpower"
+        )
     except ValueError as e:
         print(f"✅ Correctly caught invalid target_superpower: {e}")
 
@@ -76,7 +81,7 @@ def test_parameter_validation():
     wrapper = SuperpowerWrapper(
         source_plugin="abstract",
         source_command="test-skill",
-        target_superpower="test-driven-development"
+        target_superpower="test-driven-development",
     )
 
     # Test invalid parameter types
@@ -105,5 +110,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

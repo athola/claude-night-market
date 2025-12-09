@@ -4,6 +4,8 @@ This module tests the validation tool performance with large plugins
 and complex scenarios, ensuring it scales appropriately.
 """
 
+
+# ruff: noqa: S101
 import time
 
 import pytest

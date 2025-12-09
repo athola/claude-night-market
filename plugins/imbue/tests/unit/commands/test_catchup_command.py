@@ -4,6 +4,8 @@ This module tests the catchup command workflow and change analysis integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
+
+# ruff: noqa: S101
 from unittest.mock import Mock
 
 import pytest

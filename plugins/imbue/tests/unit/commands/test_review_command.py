@@ -4,6 +4,8 @@ This module tests the review command orchestration and workflow integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
+
+# ruff: noqa: S101
 from pathlib import Path
 from unittest.mock import Mock
 

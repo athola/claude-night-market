@@ -4,6 +4,8 @@ This module tests the deliverable formatting and template functionality,
 following TDD/BDD principles and testing all output formatting scenarios.
 """
 
+
+# ruff: noqa: S101
 from datetime import UTC, datetime
 from typing import Any
 

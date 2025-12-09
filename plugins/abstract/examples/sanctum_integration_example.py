@@ -328,4 +328,4 @@ if __name__ == "__main__":
     print(f"  Sanctum available: {analyzer.sanctum.sanctum_available}")
     print(f"  Sanctum version: {analyzer.sanctum.sanctum_version}")
     if not analyzer.sanctum.sanctum_available:
-        print("  Note: Install Sanctum plugin to enable " "git context enhancement")
+        print("  Note: Install Sanctum plugin to enable git context enhancement")
