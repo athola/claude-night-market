@@ -9,9 +9,6 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any
-
-import yaml
 
 from memory_palace.corpus.cache_lookup import CacheLookup
 from memory_palace.corpus.keyword_index import KeywordIndexer
@@ -20,6 +17,7 @@ from memory_palace.corpus.query_templates import QueryTemplateManager
 
 class RedundancyLevel(Enum):
     """Classification of content redundancy."""
+
     EXACT_MATCH = "exact_match"      # Duplicate - reject
     HIGHLY_REDUNDANT = "redundant"   # 80%+ overlap - reject
     PARTIAL_OVERLAP = "partial"      # Some overlap - evaluate delta
@@ -28,6 +26,7 @@ class RedundancyLevel(Enum):
 
 class DeltaType(Enum):
     """Type of new information in partially overlapping content."""
+
     NOVEL_INSIGHT = "novel_insight"           # New pattern/concept - valuable
     DIFFERENT_FRAMING = "different_framing"   # Same info, different words - low value
     MORE_EXAMPLES = "more_examples"           # Additional examples - marginal
@@ -37,6 +36,7 @@ class DeltaType(Enum):
 
 class IntegrationDecision(Enum):
     """How to handle new knowledge."""
+
     STANDALONE = "standalone"     # Store as new entry
     MERGE = "merge"               # Enhance existing entry
     REPLACE = "replace"           # Supersedes existing entry
@@ -46,6 +46,7 @@ class IntegrationDecision(Enum):
 @dataclass
 class RedundancyCheck:
     """Result of redundancy analysis."""
+
     level: RedundancyLevel
     overlap_score: float          # 0.0 to 1.0
     matching_entries: list[str]   # IDs of overlapping entries
@@ -55,6 +56,7 @@ class RedundancyCheck:
 @dataclass
 class DeltaAnalysis:
     """Analysis of what's new in partially overlapping content."""
+
     delta_type: DeltaType
     value_score: float            # 0.0 to 1.0 (marginal value)
     novel_aspects: list[str]      # What's new/different
@@ -65,6 +67,7 @@ class DeltaAnalysis:
 @dataclass
 class IntegrationPlan:
     """Decision on how to integrate new knowledge."""
+
     decision: IntegrationDecision
     target_entries: list[str]     # Entries to merge/replace
     rationale: str                # Why this decision
@@ -90,6 +93,7 @@ class MarginalValueFilter:
         Args:
             corpus_dir: Directory containing knowledge corpus markdown files
             index_dir: Directory where index files are stored
+
         """
         self.corpus_dir = Path(corpus_dir)
         self.index_dir = Path(index_dir)
@@ -115,6 +119,7 @@ class MarginalValueFilter:
         Returns:
             Tuple of (redundancy check, delta analysis, integration plan)
             Delta analysis is None if content is exact match or novel
+
         """
         # Extract concepts from new content
         keywords = self._extract_keywords(content, title, tags or [])
@@ -153,8 +158,9 @@ class MarginalValueFilter:
 
         Returns:
             Set of keywords
+
         """
-        keywords = set()
+        keywords: set[str] = set()
 
         # Add tags
         keywords.update(tag.lower() for tag in tags)
@@ -200,6 +206,7 @@ class MarginalValueFilter:
 
         Returns:
             List of inferred query strings
+
         """
         queries = []
 
@@ -238,6 +245,7 @@ class MarginalValueFilter:
 
         Returns:
             RedundancyCheck result
+
         """
         matching_entries = []
         overlap_scores = []
@@ -276,10 +284,10 @@ class MarginalValueFilter:
                     overlap_scores.append(score)
 
         # Check for exact content match
-        content_hash = hash(content.strip())
+        normalized_content = content.strip()
         for entry_id in matching_entries:
             existing_content = self.cache_lookup.get_entry_content(entry_id)
-            if existing_content and hash(existing_content.strip()) == content_hash:
+            if existing_content and existing_content.strip() == normalized_content:
                 reasons.append(f"Exact content match with {entry_id}")
                 return RedundancyCheck(
                     level=RedundancyLevel.EXACT_MATCH,
@@ -333,13 +341,14 @@ class MarginalValueFilter:
 
         Returns:
             DeltaAnalysis result
+
         """
         novel_aspects = []
         redundant_aspects = []
 
         # Gather existing content
         existing_contents = []
-        existing_keywords = set()
+        existing_keywords: set[str] = set()
 
         for entry_id in matching_entry_ids:
             content = self.cache_lookup.get_entry_content(entry_id)
@@ -418,6 +427,7 @@ class MarginalValueFilter:
 
         Returns:
             IntegrationPlan with decision
+
         """
         # Exact match: always skip
         if redundancy.level == RedundancyLevel.EXACT_MATCH:
@@ -503,6 +513,7 @@ class MarginalValueFilter:
 
         Returns:
             Formatted explanation string
+
         """
         lines = []
         lines.append("=== Marginal Value Assessment ===\n")
