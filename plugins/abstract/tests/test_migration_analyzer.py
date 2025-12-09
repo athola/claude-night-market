@@ -1,5 +1,5 @@
-import pytest
 from scripts.migration_analyzer import MigrationAnalyzer
+
 
 def test_detects_overlapping_functionality():
     analyzer = MigrationAnalyzer("abstract")

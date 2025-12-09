@@ -1,10 +1,11 @@
 # plugins/abstract/tests/test_performance.py
 import time
+
 from src.test_skill_wrapper import TestSkillWrapper
+
 
 def test_wrapper_performance_overhead():
     """Ensure wrapper overhead is under 10ms"""
-
     wrapper = TestSkillWrapper()
 
     start_time = time.perf_counter()

@@ -7,17 +7,17 @@ unexpected input scenarios.
 
 from __future__ import annotations
 
-import pytest
-import tempfile
 import os
-import json
 import subprocess
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+import pytest
+from pensive.exceptions import ConfigurationError
+
 # Import pensive components for testing
 from pensive.skills.unified_review import UnifiedReviewSkill
-from pensive.exceptions import PensiveError, RepositoryError, ConfigurationError
 
 
 class TestEdgeCasesAndErrorScenarios:
@@ -30,9 +30,9 @@ class TestEdgeCasesAndErrorScenarios:
         with tempfile.TemporaryDirectory() as temp_dir:
             empty_repo = Path(temp_dir)
             # Initialize empty git repository
-            subprocess.run(["git", "init"], cwd=empty_repo, capture_output=True)
-            subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=empty_repo, capture_output=True)
-            subprocess.run(["git", "config", "user.name", "Test"], cwd=empty_repo, capture_output=True)
+            subprocess.run(["git", "init"], check=False, cwd=empty_repo, capture_output=True)
+            subprocess.run(["git", "config", "user.email", "test@example.com"], check=False, cwd=empty_repo, capture_output=True)
+            subprocess.run(["git", "config", "user.name", "Test"], check=False, cwd=empty_repo, capture_output=True)
 
             skill = UnifiedReviewSkill()
             context = Mock()
@@ -218,7 +218,7 @@ class TestEdgeCasesAndErrorScenarios:
             strategy = memory_manager.get_optimal_strategy(1000)  # Many files
 
             # Assert
-            assert strategy["concurrent"] == False  # Should disable concurrent processing
+            assert not strategy["concurrent"]  # Should disable concurrent processing
             assert strategy["batch_size"] < 1000    # Should reduce batch size
 
     @pytest.mark.unit

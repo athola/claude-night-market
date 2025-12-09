@@ -160,9 +160,11 @@ def main() -> int:
                     "# TYPE garden_avg_days_since_tend gauge",
                     line(
                         "garden_avg_days_since_tend",
-                        metrics["avg_days_since_tend"]
-                        if metrics["avg_days_since_tend"] is not None
-                        else 0,
+                        (
+                            metrics["avg_days_since_tend"]
+                            if metrics["avg_days_since_tend"] is not None
+                            else 0
+                        ),
                     ),
                 ]
             )

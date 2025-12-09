@@ -6,6 +6,7 @@ Implements atomic writes for data integrity.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import os
 import tempfile
@@ -218,10 +219,8 @@ def update_index(
         os.replace(tmp_path, index_path)
     except Exception:
         # Clean up temp file on failure
-        try:
+        with contextlib.suppress(OSError):
             os.unlink(tmp_path)
-        except OSError:
-            pass
         raise
 
     # Update cache

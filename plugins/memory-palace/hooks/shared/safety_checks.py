@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import re
 import signal
-import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 

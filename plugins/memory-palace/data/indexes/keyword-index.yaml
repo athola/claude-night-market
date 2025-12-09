@@ -1,0 +1,893 @@
+entries:
+  franklin-protocol-learning:
+    file: knowledge-corpus/franklin-protocol-learning.md
+    keywords:
+    - adjustment
+    - algorithm
+    - algorithms
+    - anders
+    - antechamber
+    - anvil
+    - application
+    - apply
+    - article
+    - ask
+    - attribution
+    - authors
+    - autobiography
+    - backpropagation
+    - benjamin
+    - bright
+    - built
+    - built-in
+    - calculation
+    - challenge
+    - chamber
+    - choose
+    - collection
+    - compare
+    - comparison
+    - compress
+    - compression
+    - concept
+    - concepts
+    - connections
+    - convert
+    - cool
+    - core
+    - correct
+    - cross
+    - cross-references
+    - curated
+    - data
+    - delay
+    - deliberate
+    - deliberate-practice
+    - detailed
+    - development
+    - digital-garden-cultivator
+    - discovered
+    - draft
+    - encoding
+    - equivalent
+    - ericsson
+    - error
+    - eval
+    - exemplar
+    - expertise
+    - extract
+    - extraction
+    - feature
+    - feedback-loops
+    - find
+    - forge
+    - forward
+    - franklin
+    - function
+    - gaps
+    - generate
+    - gradient
+    - hall
+    - hammering
+    - heat
+    - high-quality
+    - his
+    - historical
+    - how-benjamin-franklin-invented-machine-learning-in
+    - identify
+    - insight
+    - internal
+    - internalize
+    - invented
+    - iterate
+    - iterative
+    - key
+    - layout
+    - lean
+    - learning
+    - location
+    - loop
+    - loss
+    - machine
+    - machine-learning
+    - mastery
+    - memory
+    - memory-palace-architect
+    - meta
+    - meta-insight
+    - meta-skill
+    - method
+    - methods
+    - modular
+    - modular-skills
+    - new
+    - original
+    - output
+    - palace
+    - parallel
+    - parameter
+    - pass
+    - patterns
+    - peak
+    - plugin
+    - practical
+    - practice
+    - protocol
+    - re-evaluate
+    - reconstruct
+    - reconstruction
+    - record
+    - reference
+    - referenced
+    - references
+    - regularization
+    - related
+    - reverse-engineered
+    - room
+    - run
+    - science
+    - secrets
+    - select
+    - sensory
+    - short
+    - side
+    - side-by-side
+    - skill
+    - skill-acquisition
+    - skills
+    - skills-eval
+    - source
+    - spectator
+    - spend
+    - started
+    - study
+    - techniques
+    - thesis
+    - tight
+    - training
+    - update
+    - user
+    - uses
+    - validate
+    - waiting
+    - works
+    - workshop
+    - your
+    title: Franklin Protocol - Learning Algorithms
+    tags:
+    - learning
+    - machine-learning
+    - deliberate-practice
+    - feedback-loops
+    - skill-acquisition
+  konmari-method-tidying:
+    file: knowledge-corpus/konmari-method-tidying.md
+    keywords:
+    - about
+    - about-the-konmari-method
+    - acknowledge
+    - act
+    - action
+    - actions
+    - adapted
+    - alignment
+    - approval
+    - archive
+    - ask
+    - aspirational
+    - attribution
+    - autonomously
+    - before
+    - books
+    - build
+    - cannot
+    - category
+    - chamber
+    - changing
+    - claude
+    - clothes
+    - commit
+    - commitment
+    - concepts
+    - connections
+    - core
+    - criterion
+    - critical
+    - curation
+    - curator
+    - decision
+    - decision-making
+    - decluttering
+    - delete
+    - detect
+    - digital-garden-cultivator
+    - discarding
+    - does
+    - don
+    - enthusiasm
+    - explicit
+    - 'false'
+    - fear
+    - feel
+    - finish
+    - first
+    - follow
+    - frameworks
+    - franklin
+    - full
+    - gate
+    - gather
+    - governance
+    - gratitude
+    - half-measures
+    - half-tidy
+    - hall
+    - hold
+    - human
+    - ideal
+    - identity
+    - imagine
+    - insight
+    - insights
+    - internal
+    - iterative
+    - joy
+    - keep
+    - key
+    - knowledge
+    - knowledge-intake
+    - komono
+    - kondo
+    - konmari
+    - layout
+    - library
+    - life
+    - life-changing
+    - lifestyle
+    - location
+    - magic
+    - marie
+    - marie-kondo-rules-of-tidying-sparks-joy
+    - master
+    - meaning
+    - memory
+    - mental
+    - method
+    - miscellaneous
+    - moving
+    - neutral
+    - never
+    - notices
+    - obligation
+    - order
+    - organization
+    - palace
+    - papers
+    - partial
+    - path
+    - philosophy
+    - pick
+    - progressive
+    - protocol
+    - references
+    - related
+    - release
+    - releasing
+    - require
+    - required
+    - requirement
+    - response
+    - revisit
+    - right
+    - rule
+    - rules
+    - sanctuary
+    - sentimental
+    - showing
+    - signs
+    - six
+    - skills
+    - source
+    - spark
+    - sparks
+    - suggest
+    - techniques
+    - tending
+    - test
+    - thank
+    - thesis
+    - tidy
+    - tidying
+    - time
+    - traditional
+    - unprocessed
+    - uses
+    - vision
+    - warning
+    - what-is-konmari-method
+    - works
+    - your
+    - yourself
+    title: KonMari Method - Knowledge Tidying Philosophy
+    tags:
+    - konmari
+    - tidying
+    - curation
+    - philosophy
+    - joy
+    - decluttering
+    - organization
+  README:
+    file: knowledge-corpus/README.md
+    keywords: []
+    title: README
+    tags: []
+keywords:
+  adjustment:
+  - franklin-protocol-learning
+  algorithm:
+  - franklin-protocol-learning
+  algorithms:
+  - franklin-protocol-learning
+  anders:
+  - franklin-protocol-learning
+  antechamber:
+  - franklin-protocol-learning
+  anvil:
+  - franklin-protocol-learning
+  application:
+  - franklin-protocol-learning
+  apply:
+  - franklin-protocol-learning
+  article:
+  - franklin-protocol-learning
+  ask:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  attribution:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  authors:
+  - franklin-protocol-learning
+  autobiography:
+  - franklin-protocol-learning
+  backpropagation:
+  - franklin-protocol-learning
+  benjamin:
+  - franklin-protocol-learning
+  bright:
+  - franklin-protocol-learning
+  built:
+  - franklin-protocol-learning
+  built-in:
+  - franklin-protocol-learning
+  calculation:
+  - franklin-protocol-learning
+  challenge:
+  - franklin-protocol-learning
+  chamber:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  choose:
+  - franklin-protocol-learning
+  collection:
+  - franklin-protocol-learning
+  compare:
+  - franklin-protocol-learning
+  comparison:
+  - franklin-protocol-learning
+  compress:
+  - franklin-protocol-learning
+  compression:
+  - franklin-protocol-learning
+  concept:
+  - franklin-protocol-learning
+  concepts:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  connections:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  convert:
+  - franklin-protocol-learning
+  cool:
+  - franklin-protocol-learning
+  core:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  correct:
+  - franklin-protocol-learning
+  cross:
+  - franklin-protocol-learning
+  cross-references:
+  - franklin-protocol-learning
+  curated:
+  - franklin-protocol-learning
+  data:
+  - franklin-protocol-learning
+  delay:
+  - franklin-protocol-learning
+  deliberate:
+  - franklin-protocol-learning
+  deliberate-practice:
+  - franklin-protocol-learning
+  detailed:
+  - franklin-protocol-learning
+  development:
+  - franklin-protocol-learning
+  digital-garden-cultivator:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  discovered:
+  - franklin-protocol-learning
+  draft:
+  - franklin-protocol-learning
+  encoding:
+  - franklin-protocol-learning
+  equivalent:
+  - franklin-protocol-learning
+  ericsson:
+  - franklin-protocol-learning
+  error:
+  - franklin-protocol-learning
+  eval:
+  - franklin-protocol-learning
+  exemplar:
+  - franklin-protocol-learning
+  expertise:
+  - franklin-protocol-learning
+  extract:
+  - franklin-protocol-learning
+  extraction:
+  - franklin-protocol-learning
+  feature:
+  - franklin-protocol-learning
+  feedback-loops:
+  - franklin-protocol-learning
+  find:
+  - franklin-protocol-learning
+  forge:
+  - franklin-protocol-learning
+  forward:
+  - franklin-protocol-learning
+  franklin:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  function:
+  - franklin-protocol-learning
+  gaps:
+  - franklin-protocol-learning
+  generate:
+  - franklin-protocol-learning
+  gradient:
+  - franklin-protocol-learning
+  hall:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  hammering:
+  - franklin-protocol-learning
+  heat:
+  - franklin-protocol-learning
+  high-quality:
+  - franklin-protocol-learning
+  his:
+  - franklin-protocol-learning
+  historical:
+  - franklin-protocol-learning
+  how-benjamin-franklin-invented-machine-learning-in:
+  - franklin-protocol-learning
+  identify:
+  - franklin-protocol-learning
+  insight:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  internal:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  internalize:
+  - franklin-protocol-learning
+  invented:
+  - franklin-protocol-learning
+  iterate:
+  - franklin-protocol-learning
+  iterative:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  key:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  layout:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  lean:
+  - franklin-protocol-learning
+  learning:
+  - franklin-protocol-learning
+  location:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  loop:
+  - franklin-protocol-learning
+  loss:
+  - franklin-protocol-learning
+  machine:
+  - franklin-protocol-learning
+  machine-learning:
+  - franklin-protocol-learning
+  mastery:
+  - franklin-protocol-learning
+  memory:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  memory-palace-architect:
+  - franklin-protocol-learning
+  meta:
+  - franklin-protocol-learning
+  meta-insight:
+  - franklin-protocol-learning
+  meta-skill:
+  - franklin-protocol-learning
+  method:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  methods:
+  - franklin-protocol-learning
+  modular:
+  - franklin-protocol-learning
+  modular-skills:
+  - franklin-protocol-learning
+  new:
+  - franklin-protocol-learning
+  original:
+  - franklin-protocol-learning
+  output:
+  - franklin-protocol-learning
+  palace:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  parallel:
+  - franklin-protocol-learning
+  parameter:
+  - franklin-protocol-learning
+  pass:
+  - franklin-protocol-learning
+  patterns:
+  - franklin-protocol-learning
+  peak:
+  - franklin-protocol-learning
+  plugin:
+  - franklin-protocol-learning
+  practical:
+  - franklin-protocol-learning
+  practice:
+  - franklin-protocol-learning
+  protocol:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  re-evaluate:
+  - franklin-protocol-learning
+  reconstruct:
+  - franklin-protocol-learning
+  reconstruction:
+  - franklin-protocol-learning
+  record:
+  - franklin-protocol-learning
+  reference:
+  - franklin-protocol-learning
+  referenced:
+  - franklin-protocol-learning
+  references:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  regularization:
+  - franklin-protocol-learning
+  related:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  reverse-engineered:
+  - franklin-protocol-learning
+  room:
+  - franklin-protocol-learning
+  run:
+  - franklin-protocol-learning
+  science:
+  - franklin-protocol-learning
+  secrets:
+  - franklin-protocol-learning
+  select:
+  - franklin-protocol-learning
+  sensory:
+  - franklin-protocol-learning
+  short:
+  - franklin-protocol-learning
+  side:
+  - franklin-protocol-learning
+  side-by-side:
+  - franklin-protocol-learning
+  skill:
+  - franklin-protocol-learning
+  skill-acquisition:
+  - franklin-protocol-learning
+  skills:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  skills-eval:
+  - franklin-protocol-learning
+  source:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  spectator:
+  - franklin-protocol-learning
+  spend:
+  - franklin-protocol-learning
+  started:
+  - franklin-protocol-learning
+  study:
+  - franklin-protocol-learning
+  techniques:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  thesis:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  tight:
+  - franklin-protocol-learning
+  training:
+  - franklin-protocol-learning
+  update:
+  - franklin-protocol-learning
+  user:
+  - franklin-protocol-learning
+  uses:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  validate:
+  - franklin-protocol-learning
+  waiting:
+  - franklin-protocol-learning
+  works:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  workshop:
+  - franklin-protocol-learning
+  your:
+  - franklin-protocol-learning
+  - konmari-method-tidying
+  about:
+  - konmari-method-tidying
+  about-the-konmari-method:
+  - konmari-method-tidying
+  acknowledge:
+  - konmari-method-tidying
+  act:
+  - konmari-method-tidying
+  action:
+  - konmari-method-tidying
+  actions:
+  - konmari-method-tidying
+  adapted:
+  - konmari-method-tidying
+  alignment:
+  - konmari-method-tidying
+  approval:
+  - konmari-method-tidying
+  archive:
+  - konmari-method-tidying
+  aspirational:
+  - konmari-method-tidying
+  autonomously:
+  - konmari-method-tidying
+  before:
+  - konmari-method-tidying
+  books:
+  - konmari-method-tidying
+  build:
+  - konmari-method-tidying
+  cannot:
+  - konmari-method-tidying
+  category:
+  - konmari-method-tidying
+  changing:
+  - konmari-method-tidying
+  claude:
+  - konmari-method-tidying
+  clothes:
+  - konmari-method-tidying
+  commit:
+  - konmari-method-tidying
+  commitment:
+  - konmari-method-tidying
+  criterion:
+  - konmari-method-tidying
+  critical:
+  - konmari-method-tidying
+  curation:
+  - konmari-method-tidying
+  curator:
+  - konmari-method-tidying
+  decision:
+  - konmari-method-tidying
+  decision-making:
+  - konmari-method-tidying
+  decluttering:
+  - konmari-method-tidying
+  delete:
+  - konmari-method-tidying
+  detect:
+  - konmari-method-tidying
+  discarding:
+  - konmari-method-tidying
+  does:
+  - konmari-method-tidying
+  don:
+  - konmari-method-tidying
+  enthusiasm:
+  - konmari-method-tidying
+  explicit:
+  - konmari-method-tidying
+  'false':
+  - konmari-method-tidying
+  fear:
+  - konmari-method-tidying
+  feel:
+  - konmari-method-tidying
+  finish:
+  - konmari-method-tidying
+  first:
+  - konmari-method-tidying
+  follow:
+  - konmari-method-tidying
+  frameworks:
+  - konmari-method-tidying
+  full:
+  - konmari-method-tidying
+  gate:
+  - konmari-method-tidying
+  gather:
+  - konmari-method-tidying
+  governance:
+  - konmari-method-tidying
+  gratitude:
+  - konmari-method-tidying
+  half-measures:
+  - konmari-method-tidying
+  half-tidy:
+  - konmari-method-tidying
+  hold:
+  - konmari-method-tidying
+  human:
+  - konmari-method-tidying
+  ideal:
+  - konmari-method-tidying
+  identity:
+  - konmari-method-tidying
+  imagine:
+  - konmari-method-tidying
+  insights:
+  - konmari-method-tidying
+  joy:
+  - konmari-method-tidying
+  keep:
+  - konmari-method-tidying
+  knowledge:
+  - konmari-method-tidying
+  knowledge-intake:
+  - konmari-method-tidying
+  komono:
+  - konmari-method-tidying
+  kondo:
+  - konmari-method-tidying
+  konmari:
+  - konmari-method-tidying
+  library:
+  - konmari-method-tidying
+  life:
+  - konmari-method-tidying
+  life-changing:
+  - konmari-method-tidying
+  lifestyle:
+  - konmari-method-tidying
+  magic:
+  - konmari-method-tidying
+  marie:
+  - konmari-method-tidying
+  marie-kondo-rules-of-tidying-sparks-joy:
+  - konmari-method-tidying
+  master:
+  - konmari-method-tidying
+  meaning:
+  - konmari-method-tidying
+  mental:
+  - konmari-method-tidying
+  miscellaneous:
+  - konmari-method-tidying
+  moving:
+  - konmari-method-tidying
+  neutral:
+  - konmari-method-tidying
+  never:
+  - konmari-method-tidying
+  notices:
+  - konmari-method-tidying
+  obligation:
+  - konmari-method-tidying
+  order:
+  - konmari-method-tidying
+  organization:
+  - konmari-method-tidying
+  papers:
+  - konmari-method-tidying
+  partial:
+  - konmari-method-tidying
+  path:
+  - konmari-method-tidying
+  philosophy:
+  - konmari-method-tidying
+  pick:
+  - konmari-method-tidying
+  progressive:
+  - konmari-method-tidying
+  release:
+  - konmari-method-tidying
+  releasing:
+  - konmari-method-tidying
+  require:
+  - konmari-method-tidying
+  required:
+  - konmari-method-tidying
+  requirement:
+  - konmari-method-tidying
+  response:
+  - konmari-method-tidying
+  revisit:
+  - konmari-method-tidying
+  right:
+  - konmari-method-tidying
+  rule:
+  - konmari-method-tidying
+  rules:
+  - konmari-method-tidying
+  sanctuary:
+  - konmari-method-tidying
+  sentimental:
+  - konmari-method-tidying
+  showing:
+  - konmari-method-tidying
+  signs:
+  - konmari-method-tidying
+  six:
+  - konmari-method-tidying
+  spark:
+  - konmari-method-tidying
+  sparks:
+  - konmari-method-tidying
+  suggest:
+  - konmari-method-tidying
+  tending:
+  - konmari-method-tidying
+  test:
+  - konmari-method-tidying
+  thank:
+  - konmari-method-tidying
+  tidy:
+  - konmari-method-tidying
+  tidying:
+  - konmari-method-tidying
+  time:
+  - konmari-method-tidying
+  traditional:
+  - konmari-method-tidying
+  unprocessed:
+  - konmari-method-tidying
+  vision:
+  - konmari-method-tidying
+  warning:
+  - konmari-method-tidying
+  what-is-konmari-method:
+  - konmari-method-tidying
+  yourself:
+  - konmari-method-tidying
+metadata:
+  total_entries: 3
+  total_keywords: 268
+  last_updated: '2025-12-08T22:54:15.257425'

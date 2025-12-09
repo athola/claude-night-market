@@ -10,7 +10,7 @@ import pytest
 
 
 class TestCatchupCommand:
-    """Feature: /catchup command provides efficient change summarization
+    """Feature: /catchup command provides efficient change summarization.
 
     As a developer returning to work
     I want to quickly understand what changed
@@ -70,7 +70,7 @@ def5678 2024-12-04 test: Add payment flow tests
         Given a repository with recent changes
         When executing /catchup command
         Then it should execute Baseline → Current → Delta → Insights → Follow-ups
-        And integrate multiple skills appropriately
+        And integrate multiple skills appropriately.
         """
         # Arrange - mock skill execution tracking
         workflow_steps = []
@@ -101,16 +101,16 @@ def5678 2024-12-04 test: Add payment flow tests
         initial_context = {"baseline": "main", "current": "HEAD"}
 
         # 1. Confirm context
-        result1 = mock_claude_tools['Skill']("catchup", initial_context)
+        mock_claude_tools['Skill']("catchup", initial_context)
 
         # 2. Capture delta (using diff-analysis)
-        result2 = mock_claude_tools['Skill']("diff-analysis", skill_contexts["catchup"])
+        mock_claude_tools['Skill']("diff-analysis", skill_contexts["catchup"])
 
         # 3. Extract insights (using catchup skill)
-        result3 = mock_claude_tools['Skill']("catchup", skill_contexts["diff-analysis"])
+        mock_claude_tools['Skill']("catchup", skill_contexts["diff-analysis"])
 
         # 4. Record follow-ups (using catchup skill)
-        result4 = mock_claude_tools['Skill']("catchup", skill_contexts["catchup"])
+        mock_claude_tools['Skill']("catchup", skill_contexts["catchup"])
 
         # Assert
         assert len(workflow_steps) == 4
@@ -130,7 +130,7 @@ def5678 2024-12-04 test: Add payment flow tests
         """Scenario: /catchup handles various baseline specifications
         Given different baseline reference formats
         When specifying baseline parameter
-        Then it should parse and validate different baseline types
+        Then it should parse and validate different baseline types.
         """
         # Test cases for different baseline specifications
         test_cases = [
@@ -194,7 +194,7 @@ def5678 2024-12-04 test: Add payment flow tests
         Given many commits and changes
         When generating catchup summary
         Then it should summarize rather than reproduce content
-        And focus on high-impact items
+        And focus on high-impact items.
         """
         # Arrange - simulate large git log
         many_commits = []
@@ -257,7 +257,7 @@ def5678 2024-12-04 test: Add payment flow tests
         Given completed catchup analysis
         When formatting output
         Then it should follow consistent markdown structure
-        With summary, key changes, and follow-ups
+        With summary, key changes, and follow-ups.
         """
         # Arrange - simulated catchup results
         catchup_results = {
@@ -343,7 +343,7 @@ def5678 2024-12-04 test: Add payment flow tests
         Given changes that need semantic understanding
         When analyzing changes
         Then it should use diff-analysis for categorization
-        And incorporate semantic insights
+        And incorporate semantic insights.
         """
         # Arrange - mock diff-analysis integration
         mock_claude_tools['Bash'].side_effect = [
@@ -402,7 +402,7 @@ def5678 2024-12-04 test: Add payment flow tests
         Given various types of changes
         When generating follow-ups
         Then it should create specific, actionable items
-        And assign appropriate priority levels
+        And assign appropriate priority levels.
         """
         # Arrange - simulate different change scenarios
         change_scenarios = [
@@ -481,7 +481,7 @@ def5678 2024-12-04 test: Add payment flow tests
         Given various git repository issues
         When running catchup analysis
         Then it should provide helpful error messages
-        And suggest recovery actions
+        And suggest recovery actions.
         """
         # Test case 1: Not a git repository
         mock_claude_tools['Bash'].return_value = "fatal: not a git repository"
@@ -528,7 +528,7 @@ def5678 2024-12-04 test: Add payment flow tests
         Given various argument combinations
         When parsing command line
         Then it should handle all parameter formats
-        And validate parameter combinations
+        And validate parameter combinations.
         """
         # Test cases for parameter parsing
         test_cases = [
@@ -598,7 +598,7 @@ def5678 2024-12-04 test: Add payment flow tests
         """Scenario: /catchup performs efficiently with extensive commit history
         Given repository with many commits to analyze
         When running catchup analysis
-        Then it should complete in reasonable time
+        Then it should complete in reasonable time.
         """
         import time
 

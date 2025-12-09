@@ -1,9 +1,9 @@
 """Tests for spec-kit command functionality."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import subprocess
 import json
+from unittest.mock import Mock, patch
+
+import pytest
 
 
 class TestSpeckitCommands:
@@ -153,7 +153,7 @@ class TestSpeckitCommands:
             lines = sample_spec_content.split('\n')
             in_fr_section = False
 
-            for i, line in enumerate(lines):
+            for _i, line in enumerate(lines):
                 if "## Functional Requirements" in line:
                     in_fr_section = True
                     continue
@@ -304,7 +304,7 @@ class TestSpeckitCommands:
             lines = sample_spec_content.split('\n')
             in_success_section = False
 
-            for i, line in enumerate(lines):
+            for _i, line in enumerate(lines):
                 if "## Success Criteria" in line:
                     in_success_section = True
                     continue

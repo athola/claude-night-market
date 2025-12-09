@@ -172,11 +172,7 @@ def is_path_safe(path: str) -> bool:
 
         # Ensure path doesn't escape to sensitive locations
         sensitive_paths = ['/etc/', '/root/', '/var/log/', '/.ssh/']
-        for sensitive in sensitive_paths:
-            if path_str.startswith(sensitive):
-                return False
-
-        return True
+        return all(not path_str.startswith(sensitive) for sensitive in sensitive_paths)
     except (ValueError, OSError):
         return False
 

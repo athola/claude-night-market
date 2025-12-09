@@ -7,11 +7,10 @@ and fix recommendation generation.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import Mock, patch
 from pathlib import Path
-import ast
-import re
+from unittest.mock import Mock
+
+import pytest
 
 # Import the skill we're testing
 from pensive.skills.bug_review import BugReviewSkill

@@ -7,9 +7,10 @@ and dependency management validation.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import Mock, patch
 from pathlib import Path
+from unittest.mock import Mock
+
+import pytest
 
 # Import the skill we're testing
 from pensive.skills.makefile_review import MakefileReviewSkill

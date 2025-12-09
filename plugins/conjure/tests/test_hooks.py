@@ -1,20 +1,19 @@
 """Tests for Gemini bridge hooks following TDD/BDD principles."""
 
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-import pytest
 
 # Import hook modules with proper error handling
 import sys
+from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "hooks" / "gemini"))
 
 # Mock modules that might not be available
 with patch.dict(sys.modules, {'quota_tracker': MagicMock()}):
     try:
-        import bridge.on_tool_start as bridge_start
         import bridge.after_tool_use as bridge_after
+        import bridge.on_tool_start as bridge_start
     except ImportError as e:
         # Create mock modules if actual ones can't be imported
         bridge_start = MagicMock()

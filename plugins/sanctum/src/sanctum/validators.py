@@ -16,21 +16,21 @@ import yaml
 
 def _parse_yaml_frontmatter(content: str) -> dict[str, Any] | None:
     """Parse YAML frontmatter from markdown content."""
-    if not content.strip().startswith('---'):
+    if not content.strip().startswith("---"):
         return None
 
     # Find the closing ---
-    lines = content.split('\n')
+    lines = content.split("\n")
     end_index = None
     for i, line in enumerate(lines[1:], start=1):
-        if line.strip() == '---':
+        if line.strip() == "---":
             end_index = i
             break
 
     if end_index is None:
         return None
 
-    frontmatter_text = '\n'.join(lines[1:end_index])
+    frontmatter_text = "\n".join(lines[1:end_index])
     try:
         return yaml.safe_load(frontmatter_text) or {}
     except yaml.YAMLError:
@@ -126,19 +126,23 @@ class AgentValidator:
         agent_name = None
 
         # Check for main heading
-        heading_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+        heading_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
         if not heading_match:
             errors.append("Missing main heading (# Agent Name)")
         else:
             agent_name = heading_match.group(1).strip()
 
         # Check for capabilities section
-        has_capabilities = bool(re.search(r'^##\s+Capabilities', content, re.MULTILINE | re.IGNORECASE))
+        has_capabilities = bool(
+            re.search(r"^##\s+Capabilities", content, re.MULTILINE | re.IGNORECASE)
+        )
         if not has_capabilities:
             warnings.append("Missing Capabilities section")
 
         # Check for tools section
-        has_tools = bool(re.search(r'^##\s+Tools', content, re.MULTILINE | re.IGNORECASE))
+        has_tools = bool(
+            re.search(r"^##\s+Tools", content, re.MULTILINE | re.IGNORECASE)
+        )
         if not has_tools:
             warnings.append("Missing Tools section")
 
@@ -177,11 +181,15 @@ class AgentValidator:
         """Extract tool names from agent content."""
         tools = []
         # Find Tools section and extract list items
-        tools_match = re.search(r'^##\s+Tools\s*\n((?:[-*]\s+.+\n?)+)', content, re.MULTILINE | re.IGNORECASE)
+        tools_match = re.search(
+            r"^##\s+Tools\s*\n((?:[-*]\s+.+\n?)+)",
+            content,
+            re.MULTILINE | re.IGNORECASE,
+        )
         if tools_match:
             tool_section = tools_match.group(1)
-            for line in tool_section.split('\n'):
-                match = re.match(r'^[-*]\s+(\w+)', line)
+            for line in tool_section.split("\n"):
+                match = re.match(r"^[-*]\s+(\w+)", line)
                 if match:
                     tools.append(match.group(1))
         return tools
@@ -191,11 +199,15 @@ class AgentValidator:
         """Extract capabilities from agent content."""
         capabilities = []
         # Find Capabilities section and extract list items
-        caps_match = re.search(r'^##\s+Capabilities\s*\n((?:[-*]\s+.+\n?)+)', content, re.MULTILINE | re.IGNORECASE)
+        caps_match = re.search(
+            r"^##\s+Capabilities\s*\n((?:[-*]\s+.+\n?)+)",
+            content,
+            re.MULTILINE | re.IGNORECASE,
+        )
         if caps_match:
             caps_section = caps_match.group(1)
-            for line in caps_section.split('\n'):
-                match = re.match(r'^[-*]\s+(.+)', line)
+            for line in caps_section.split("\n"):
+                match = re.match(r"^[-*]\s+(.+)", line)
                 if match:
                     capabilities.append(match.group(1).strip())
         return capabilities
@@ -213,7 +225,7 @@ class SkillValidator:
         frontmatter = None
 
         # Check for frontmatter
-        has_frontmatter = content.strip().startswith('---')
+        has_frontmatter = content.strip().startswith("---")
         if not has_frontmatter:
             errors.append("Missing YAML frontmatter")
             return SkillValidationResult(
@@ -239,25 +251,31 @@ class SkillValidator:
             )
 
         # Validate required fields
-        skill_name = frontmatter.get('name')
+        skill_name = frontmatter.get("name")
         if not skill_name:
             errors.append("Missing 'name' field in frontmatter")
 
-        if not frontmatter.get('description'):
+        if not frontmatter.get("description"):
             errors.append("Missing 'description' field in frontmatter")
 
         # Validate recommended fields (warnings)
-        if not frontmatter.get('category'):
+        if not frontmatter.get("category"):
             warnings.append("Missing 'category' field in frontmatter")
 
-        if not frontmatter.get('tags'):
+        if not frontmatter.get("tags"):
             warnings.append("Missing 'tags' field in frontmatter")
 
-        if not frontmatter.get('tools'):
+        if not frontmatter.get("tools"):
             warnings.append("Missing 'tools' field in frontmatter")
 
         # Check for workflow section
-        has_workflow = bool(re.search(r'^##\s+(Workflow|When to Use|Steps)', content, re.MULTILINE | re.IGNORECASE))
+        has_workflow = bool(
+            re.search(
+                r"^##\s+(Workflow|When to Use|Steps)",
+                content,
+                re.MULTILINE | re.IGNORECASE,
+            )
+        )
 
         return SkillValidationResult(
             is_valid=len(errors) == 0,
@@ -278,12 +296,12 @@ class SkillValidator:
         warnings = list(result.warnings)
 
         # Check for main heading
-        heading_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+        heading_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
         if not heading_match:
             warnings.append("Missing main heading in skill body")
 
         # Check for When to Use section
-        if not re.search(r'^##\s+When to Use', content, re.MULTILINE | re.IGNORECASE):
+        if not re.search(r"^##\s+When to Use", content, re.MULTILINE | re.IGNORECASE):
             warnings.append("Missing 'When to Use' section")
 
         return SkillValidationResult(
@@ -345,15 +363,15 @@ class SkillValidator:
         warnings = []
 
         # Find all Skill() references
-        refs = re.findall(r'Skill\(([^)]+)\)', content)
+        refs = re.findall(r"Skill\(([^)]+)\)", content)
         for ref in refs:
             # Valid format: plugin:skill-name or just skill-name
-            if not re.match(r'^[\w-]+(:[\w-]+)?$', ref):
+            if not re.match(r"^[\w-]+(:[\w-]+)?$", ref):
                 warnings.append(f"Potentially invalid skill reference format: {ref}")
 
         # Parse frontmatter to get skill name
         frontmatter = _parse_yaml_frontmatter(content)
-        skill_name = frontmatter.get('name') if frontmatter else None
+        skill_name = frontmatter.get("name") if frontmatter else None
 
         return SkillValidationResult(
             is_valid=len(errors) == 0,
@@ -369,18 +387,18 @@ class SkillValidator:
         """Extract skill references from content."""
         refs = []
         # Find Skill(plugin:skill-name) patterns
-        matches = re.findall(r'Skill\(([^)]+)\)', content)
+        matches = re.findall(r"Skill\(([^)]+)\)", content)
         for match in matches:
             # Extract skill name (after : if present)
-            if ':' in match:
-                refs.append(match.split(':')[1])
+            if ":" in match:
+                refs.append(match.split(":")[1])
             else:
                 refs.append(match)
 
         # Also check frontmatter dependencies
         frontmatter = _parse_yaml_frontmatter(content)
-        if frontmatter and 'dependencies' in frontmatter:
-            deps = frontmatter['dependencies']
+        if frontmatter and "dependencies" in frontmatter:
+            deps = frontmatter["dependencies"]
             if isinstance(deps, list):
                 refs.extend(deps)
 
@@ -390,11 +408,15 @@ class SkillValidator:
     def extract_dependencies(content: str) -> list[str]:
         """Extract skill dependencies from content."""
         deps = []
-        deps_match = re.search(r'^##\s+Dependencies\s*\n((?:[-*]\s+.+\n?)+)', content, re.MULTILINE | re.IGNORECASE)
+        deps_match = re.search(
+            r"^##\s+Dependencies\s*\n((?:[-*]\s+.+\n?)+)",
+            content,
+            re.MULTILINE | re.IGNORECASE,
+        )
         if deps_match:
             deps_section = deps_match.group(1)
-            for line in deps_section.split('\n'):
-                match = re.match(r'^[-*]\s+(.+)', line)
+            for line in deps_section.split("\n"):
+                match = re.match(r"^[-*]\s+(.+)", line)
                 if match:
                     deps.append(match.group(1).strip())
         return deps
@@ -412,7 +434,7 @@ class CommandValidator:
         description = None
 
         # Check for frontmatter
-        has_frontmatter = content.strip().startswith('---')
+        has_frontmatter = content.strip().startswith("---")
         if not has_frontmatter:
             errors.append("Missing YAML frontmatter")
             return CommandValidationResult(
@@ -438,12 +460,12 @@ class CommandValidator:
             )
 
         # Extract description (required)
-        description = frontmatter.get('description')
+        description = frontmatter.get("description")
         if not description:
             errors.append("Missing 'description' field in frontmatter")
 
         # Extract command name from heading
-        heading_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+        heading_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
         if heading_match:
             command_name = heading_match.group(1).strip()
 
@@ -463,12 +485,18 @@ class CommandValidator:
         warnings = list(result.warnings)
 
         # Check for main heading
-        heading_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+        heading_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
         if not heading_match:
             warnings.append("Missing main heading in command body")
 
         # Check for usage section
-        has_usage = bool(re.search(r'^##\s+(Usage|Arguments|Options)', content, re.MULTILINE | re.IGNORECASE))
+        has_usage = bool(
+            re.search(
+                r"^##\s+(Usage|Arguments|Options)",
+                content,
+                re.MULTILINE | re.IGNORECASE,
+            )
+        )
         if not has_usage:
             warnings.append("Missing usage section")
 
@@ -507,17 +535,19 @@ class CommandValidator:
         """Extract skill references from command content."""
         refs = []
         # Find Skill(plugin:skill-name) patterns
-        matches = re.findall(r'Skill\(([^)]+)\)', content)
+        matches = re.findall(r"Skill\(([^)]+)\)", content)
         for match in matches:
             # Extract skill name (after : if present)
-            if ':' in match:
-                refs.append(match.split(':')[1])
+            if ":" in match:
+                refs.append(match.split(":")[1])
             else:
                 refs.append(match)
         return refs
 
     @staticmethod
-    def validate_skill_references(content: str, plugin_path: Path) -> CommandValidationResult:
+    def validate_skill_references(
+        content: str, plugin_path: Path
+    ) -> CommandValidationResult:
         """Validate that referenced skills exist in the plugin."""
         errors = []
         warnings = []
@@ -529,14 +559,14 @@ class CommandValidator:
             skill_dir = skills_dir / ref
             if not skill_dir.exists():
                 # It might be a different plugin reference
-                if ':' not in ref:
+                if ":" not in ref:
                     warnings.append(f"Referenced skill '{ref}' not found locally")
 
         # Parse for command name
         frontmatter = _parse_yaml_frontmatter(content)
-        description = frontmatter.get('description') if frontmatter else None
+        description = frontmatter.get("description") if frontmatter else None
 
-        heading_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+        heading_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
         command_name = heading_match.group(1).strip() if heading_match else None
 
         return CommandValidationResult(
@@ -621,6 +651,7 @@ class PluginValidator:
             )
 
         import json
+
         try:
             content = json.loads(plugin_json_path.read_text())
         except json.JSONDecodeError as e:

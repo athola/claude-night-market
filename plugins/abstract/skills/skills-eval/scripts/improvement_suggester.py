@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """CLI wrapper for improvement-suggester script.
+
 Uses core functionality from src/abstract/skills_eval.
 """
 
@@ -18,6 +19,7 @@ class ImprovementSuggester(CoreImprovementSuggester):
 
     pass
 
+
 # For direct execution
 if __name__ == "__main__":
     import argparse
@@ -27,10 +29,11 @@ if __name__ == "__main__":
         description="Generate improvement suggestions for skills"
     )
 
-    parser.add_argument('skill_path', type=Path, help='Path to skill file or directory')
-    parser.add_argument('--format', choices=['text', 'json'], default='text',
-                       help='Output format')
-    parser.add_argument('--output', type=Path, help='Output file path')
+    parser.add_argument("skill_path", type=Path, help="Path to skill file or directory")
+    parser.add_argument(
+        "--format", choices=["text", "json"], default="text", help="Output format"
+    )
+    parser.add_argument("--output", type=Path, help="Output file path")
 
     args = parser.parse_args()
 
@@ -44,16 +47,18 @@ if __name__ == "__main__":
     else:
         skill_name = args.skill_path.parent.name
 
-    suggester = ImprovementSuggester(args.skill_path.parent if args.skill_path.is_file() else args.skill_path.parent)
+    suggester = ImprovementSuggester(
+        args.skill_path.parent if args.skill_path.is_file() else args.skill_path.parent
+    )
 
-    if args.format == 'json':
+    if args.format == "json":
         plan = suggester.generate_improvement_plan(skill_name)
         output = json.dumps(plan, indent=2, default=str)
     else:
         output = suggester.generate_improvement_plan(skill_name)
 
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             f.write(output)
         print(f"Improvement plan saved to {args.output}")
     else:

@@ -12,14 +12,8 @@ underlying business logic directly via the MemoryPalaceManager class.
 """
 
 import json
-import subprocess
-import sys
-from datetime import datetime, timezone
-from io import StringIO
+from datetime import datetime
 from pathlib import Path
-from typing import Any
-
-import pytest
 
 from memory_palace.garden_metrics import compute_garden_metrics
 from memory_palace.palace_manager import MemoryPalaceManager
@@ -120,7 +114,7 @@ class TestPalaceManagementWorkflows:
 
         # Create some palaces
         palace1 = manager.create_palace("Export Test 1", "testing")
-        palace2 = manager.create_palace("Export Test 2", "testing")
+        manager.create_palace("Export Test 2", "testing")
 
         # Add some data
         palace1["associations"]["key1"] = {"value": "data1"}
@@ -306,9 +300,9 @@ class TestDataIntegrity:
         )
 
         # Create palaces
-        p1 = manager.create_palace("Palace 1", "domain1")
+        manager.create_palace("Palace 1", "domain1")
         p2 = manager.create_palace("Palace 2", "domain2")
-        p3 = manager.create_palace("Palace 3", "domain1")
+        manager.create_palace("Palace 3", "domain1")
 
         index = manager.get_master_index()
 

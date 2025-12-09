@@ -1,0 +1,60 @@
+entries:
+  franklin-protocol-learning:
+    file: knowledge-corpus/franklin-protocol-learning.md
+    queries:
+    - How to improve writing skills systematically?
+    - What is gradient descent for learning?
+    - How did Benjamin Franklin learn to write?
+    - Best practices for deliberate practice
+    - How to apply machine learning principles to human learning?
+    - What is the Franklin Protocol?
+    - How to learn like a neural network?
+    title: Franklin Protocol - Learning Algorithms
+  konmari-method-tidying:
+    file: knowledge-corpus/konmari-method-tidying.md
+    queries:
+    - How to declutter knowledge base?
+    - What is the KonMari method?
+    - How to decide what knowledge to keep?
+    - Philosophy of tidying and curation
+    - Does it spark joy principle for knowledge
+    - How to organize information intentionally?
+    - Knowledge governance best practices
+    title: KonMari Method - Knowledge Tidying Philosophy
+  README:
+    file: knowledge-corpus/README.md
+    queries: []
+    title: README
+queries:
+  how to improve writing skills systematically:
+  - franklin-protocol-learning
+  what is gradient descent for learning:
+  - franklin-protocol-learning
+  how did benjamin franklin learn to write:
+  - franklin-protocol-learning
+  best practices for deliberate practice:
+  - franklin-protocol-learning
+  how to apply machine learning principles to human learning:
+  - franklin-protocol-learning
+  what is the franklin protocol:
+  - franklin-protocol-learning
+  how to learn like a neural network:
+  - franklin-protocol-learning
+  how to declutter knowledge base:
+  - konmari-method-tidying
+  what is the konmari method:
+  - konmari-method-tidying
+  how to decide what knowledge to keep:
+  - konmari-method-tidying
+  philosophy of tidying and curation:
+  - konmari-method-tidying
+  does it spark joy principle for knowledge:
+  - konmari-method-tidying
+  how to organize information intentionally:
+  - konmari-method-tidying
+  knowledge governance best practices:
+  - konmari-method-tidying
+metadata:
+  total_entries: 3
+  total_queries: 14
+  last_updated: '2025-12-08T22:54:15.282519'

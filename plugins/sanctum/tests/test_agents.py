@@ -15,7 +15,7 @@ class TestGitWorkspaceAgent:
     def test_agent_initializes_with_correct_capabilities(self):
         """GIVEN the Git Workspace agent is created
         WHEN it initializes
-        THEN it should have the correct capabilities and tools
+        THEN it should have the correct capabilities and tools.
         """
         # Arrange
         expected_capabilities = [
@@ -42,7 +42,7 @@ class TestGitWorkspaceAgent:
     def test_agent_analyzes_repository_state(self, temp_git_repo):
         """GIVEN a Git repository
         WHEN the agent analyzes the repository state
-        THEN it should provide comprehensive repository information
+        THEN it should provide comprehensive repository information.
         """
         # Arrange
         temp_git_repo.add_file("test.py", "print('test')")
@@ -73,7 +73,7 @@ class TestGitWorkspaceAgent:
     def test_agent_detects_and_categorizes_changes(self, staged_changes_context):
         """GIVEN a repository with various types of changes
         WHEN the agent analyzes the changes
-        THEN it should categorize them appropriately
+        THEN it should categorize them appropriately.
         """
         # Arrange
         mock_bash = Mock()
@@ -85,7 +85,7 @@ class TestGitWorkspaceAgent:
 
         # Act - simulate calling tools through mock
         porcelain_status = mock_bash("git status --porcelain")
-        tracked_files = mock_bash("git diff --cached --name-only")
+        mock_bash("git diff --cached --name-only")
         stats = mock_bash("git diff --cached --stat")
 
         # Parse and categorize changes
@@ -103,7 +103,7 @@ class TestGitWorkspaceAgent:
     def test_agent_coordinates_todo_creation(self, mock_todo_tool):
         """GIVEN the agent completes repository analysis
         WHEN it creates TodoWrite items
-        THEN it should create appropriate tasks for the workflow
+        THEN it should create appropriate tasks for the workflow.
         """
         # Arrange
         analysis_result = {
@@ -127,7 +127,7 @@ class TestGitWorkspaceAgent:
     def test_agent_handles_error_states_gracefully(self):
         """GIVEN a repository in an error state
         WHEN the agent encounters the error
-        THEN it should handle it gracefully and provide recovery options
+        THEN it should handle it gracefully and provide recovery options.
         """
         # Arrange
         error_scenarios = [
@@ -156,7 +156,7 @@ class TestGitWorkspaceAgent:
     def test_agent_provides_workflow_recommendations(self, staged_changes_context):
         """GIVEN a repository state analysis
         WHEN the agent provides recommendations
-        THEN it should suggest appropriate next steps
+        THEN it should suggest appropriate next steps.
         """
         # Arrange
         contexts = [
@@ -275,7 +275,7 @@ class TestCommitAgent:
     def test_agent_generates_conventional_commits(self, staged_changes_context):
         """GIVEN staged changes in the repository
         WHEN the commit agent analyzes and generates a commit
-        THEN it should produce a conventional commit message
+        THEN it should produce a conventional commit message.
         """
         # Arrange
         conventional_types = ["feat", "fix", "docs", "style", "refactor",
@@ -298,7 +298,7 @@ class TestCommitAgent:
     def test_agent_validates_commit_message_quality(self):
         """GIVEN a generated commit message
         WHEN the agent validates it
-        THEN it should ensure quality standards are met
+        THEN it should ensure quality standards are met.
         """
         # Arrange
         commit_messages = [
@@ -317,7 +317,7 @@ class TestCommitAgent:
     def test_agent_handles_complex_change_scenarios(self):
         """GIVEN complex changes involving multiple files and types
         WHEN the agent generates a commit message
-        THEN it should appropriately summarize all changes
+        THEN it should appropriately summarize all changes.
         """
         # Arrange
         complex_context = {
@@ -412,7 +412,7 @@ class TestPRAgent:
     def test_agent_preparates_comprehensive_pr(self, pull_request_context):
         """GIVEN a feature branch ready for PR
         WHEN the PR agent prepares the pull request
-        THEN it should generate a comprehensive PR description
+        THEN it should generate a comprehensive PR description.
         """
         # Arrange
         pr_sections = [
@@ -433,7 +433,7 @@ class TestPRAgent:
     def test_agent_analyzes_pr_quality_gates(self, pull_request_context):
         """GIVEN a pull request
         WHEN the agent checks quality gates
-        THEN it should validate all required criteria
+        THEN it should validate all required criteria.
         """
         # Arrange
         quality_gates = {
@@ -456,7 +456,7 @@ class TestPRAgent:
     def test_agent_suggests_reviewers(self, pull_request_context):
         """GIVEN changes in specific areas
         WHEN the agent suggests reviewers
-        THEN it should recommend appropriate team members
+        THEN it should recommend appropriate team members.
         """
         # Arrange
         reviewer_map = {

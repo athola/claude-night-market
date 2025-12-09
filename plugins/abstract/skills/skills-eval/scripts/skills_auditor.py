@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """CLI wrapper for skills-auditor script.
+
 Uses core functionality from src/abstract/skills_eval.
 """
 
@@ -19,6 +20,7 @@ class SkillsAuditor(CoreSkillsAuditor):
 
     pass
 
+
 # For direct execution
 if __name__ == "__main__":
     import argparse
@@ -28,16 +30,19 @@ if __name__ == "__main__":
         description="Audit skills and generate comprehensive reports"
     )
 
-    parser.add_argument('skills_dir', type=Path, help='Directory containing skills to audit')
-    parser.add_argument('--format', choices=['text', 'json'], default='text',
-                       help='Output format')
-    parser.add_argument('--output', type=Path, help='Output file path')
+    parser.add_argument(
+        "skills_dir", type=Path, help="Directory containing skills to audit"
+    )
+    parser.add_argument(
+        "--format", choices=["text", "json"], default="text", help="Output format"
+    )
+    parser.add_argument("--output", type=Path, help="Output file path")
 
     args = parser.parse_args()
 
     auditor = SkillsAuditor(args.skills_dir)
 
-    if args.format == 'json':
+    if args.format == "json":
         results = auditor.audit_skills()
         output = json.dumps(results, indent=2, default=str)
     else:
@@ -52,18 +57,18 @@ if __name__ == "__main__":
             f"- **Average Score:** {results['average_score']:.1f}/100",
             f"- **Well Structured (>=80):** {results['well_structured']}",
             f"- **Needs Improvement (<70):** {results['needs_improvement']}",
-            ""
+            "",
         ]
 
-        if results['recommendations']:
+        if results["recommendations"]:
             lines.extend(["## Recommendations", ""])
-            for rec in results['recommendations']:
+            for rec in results["recommendations"]:
                 lines.append(f"- {rec}")
 
         output = "\n".join(lines)
 
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             f.write(output)
         print(f"Audit report saved to {args.output}")
     else:

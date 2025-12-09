@@ -1,0 +1,55 @@
+---
+name: github-initiative-pulse
+description: Generate program dashboards, GitHub-ready comment digests, and CSV summaries sourced from Minister's tracker data.
+category: project-management
+tags: [github, projects, reporting, status, dashboards]
+dependencies: []
+tools: [minister-tracker]
+provides:
+  reporting: [status-digest, github-comment]
+  governance: [blocker-radar, initiative-health]
+usage_patterns:
+  - weekly-status
+  - issue-digests
+  - release-briefings
+complexity: foundational
+estimated_tokens: 650
+progressive_loading: true
+modules:
+  - modules/status-digest.md
+  - modules/github-comment-snippets.md
+---
+
+# GitHub Initiative Pulse
+
+## Overview
+
+Turns tracker data + GitHub board metadata into concise, initiative-level pulses. Provides markdown helpers and CSV exports so PMs can copy/paste into issues, PRs, or Discussions without extra formatting.
+
+## Ritual
+
+1. Capture work via `tracker.py add` or sync from GitHub Projects.
+2. Review blockers/highlights using the **Blocker Radar** table.
+3. Generate GitHub comment via `tracker.py status --github-comment` or module snippets.
+4. Cross-link the weekly Status Template and share with stakeholders.
+
+## Key Metrics
+
+| Metric | Description |
+|--------|-------------|
+| Completion % | Done tasks / total tasks per initiative. |
+| Avg Task % | Mean completion percent for all in-flight tasks. |
+| Burn Rate | Hours burned per week (auto-calculated). |
+| Risk Hotlist | Tasks flagged `priority=High` or due date in past. |
+
+## GitHub Integrations
+
+- Links every task to an issue/PR URL.
+- Supports auto-labeling by referencing `phase` in the tracker record.
+- Encourages posting digests to coordination issues or PR timelines.
+
+## Exit Criteria
+
+- All initiatives represented with updated metrics.
+- Markdown digest pasted into relevant GitHub thread.
+- Risk follow-ups filed as issues with owners + due dates.

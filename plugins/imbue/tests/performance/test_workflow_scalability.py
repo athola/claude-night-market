@@ -13,7 +13,7 @@ import pytest
 
 
 class TestWorkflowScalability:
-    """Feature: Imbue workflow scalability under various loads
+    """Feature: Imbue workflow scalability under various loads.
 
     As a workflow system
     I want to scale efficiently with large inputs
@@ -47,7 +47,7 @@ class TestWorkflowScalability:
         """Scenario: Diff analysis scales with large change sets
         Given 1000+ files changed
         When performing diff analysis
-        Then performance should remain acceptable
+        Then performance should remain acceptable.
         """
         # Simulate large diff analysis
         files_changed = large_change_set["files_changed"]
@@ -66,7 +66,7 @@ class TestWorkflowScalability:
         }
 
         # Process changes with O(n) complexity
-        for i, file_path in enumerate(files_changed):
+        for _i, file_path in enumerate(files_changed):
             change_type = "modified"  # Simplified categorization
             lines_in_file = lines_added // len(files_changed)
 
@@ -142,7 +142,7 @@ class TestWorkflowScalability:
         """Scenario: Evidence logging scales with large evidence sets
         Given 10,000+ evidence items to log
         When managing evidence during review
-        Then performance should remain efficient
+        Then performance should remain efficient.
         """
         from datetime import datetime
 
@@ -226,7 +226,7 @@ class TestWorkflowScalability:
         """Scenario: Concurrent workflow execution scales properly
         Given multiple workflows running simultaneously
         When executing in parallel
-        Then resource usage should be controlled
+        Then resource usage should be controlled.
         """
         # Simulate concurrent workflow execution
         concurrent_reviews = concurrent_workflow_scenario["concurrent_reviews"]
@@ -251,7 +251,7 @@ class TestWorkflowScalability:
                 ("report_generation", 0.1)
             ]
 
-            for step_name, step_duration in workflow_steps:
+            for _step_name, step_duration in workflow_steps:
                 time.sleep(step_duration)  # Simulate work
 
             end_time = time.time()
@@ -280,7 +280,7 @@ class TestWorkflowScalability:
                 ("followup_generation", 0.02)
             ]
 
-            for step_name, step_duration in catchup_steps:
+            for _step_name, step_duration in catchup_steps:
                 time.sleep(step_duration)
 
             end_time = time.time()
@@ -310,7 +310,7 @@ class TestWorkflowScalability:
                 ("report_compilation", 0.15)
             ]
 
-            for step_name, step_duration in agent_steps:
+            for _step_name, step_duration in agent_steps:
                 time.sleep(step_duration)
 
             end_time = time.time()
@@ -375,7 +375,7 @@ class TestWorkflowScalability:
         assert efficiency_ratio > 3  # At least 3x speedup from parallelization
 
         # Check thread utilization
-        thread_ids = set(r["thread_id"] for r in execution_results)
+        thread_ids = {r["thread_id"] for r in execution_results}
         assert len(thread_ids) >= 4  # Should use multiple threads
 
         # Verify workflow completion
@@ -388,7 +388,7 @@ class TestWorkflowScalability:
         """Scenario: Memory usage scales appropriately with large datasets
         Given large amounts of data to process
         When performing workflow operations
-        Then memory usage should be controlled
+        Then memory usage should be controlled.
         """
         import gc
         import os
@@ -436,15 +436,6 @@ class TestWorkflowScalability:
         start_time = time.time()
 
         # Simulate report generation
-        report_sections = [
-            "Executive Summary",
-            "Critical Findings",
-            "High Severity Findings",
-            "Medium Severity Findings",
-            "Low Severity Findings",
-            "Action Items",
-            "Evidence Appendix"
-        ]
 
         generated_report = {}
 
@@ -496,7 +487,7 @@ class TestWorkflowScalability:
         """Scenario: Token conservation scales with large inputs
         Given large amounts of content to process
         When applying token conservation strategies
-        Then output should remain token-efficient
+        Then output should remain token-efficient.
         """
         # Simulate large content that needs token conservation
         large_content = []
@@ -591,7 +582,7 @@ class TestWorkflowScalability:
         """Scenario: Workflow scales with database-like operations
         Given large numbers of records to process
         When performing database-style operations
-        Then performance should remain acceptable
+        Then performance should remain acceptable.
         """
         # Simulate database-style operations for workflow
         records = [

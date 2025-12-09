@@ -11,7 +11,7 @@ import pytest
 
 
 class TestReviewWorkflowIntegration:
-    """Feature: Complete review workflow integration
+    """Feature: Complete review workflow integration.
 
     As a user
     I want skills and commands to work together seamlessly
@@ -62,7 +62,7 @@ def test_auth():
         And capture evidence using evidence-logging
         And analyze changes with diff-analysis
         And generate report with structured-output
-        And provide evidence-referenced findings
+        And provide evidence-referenced findings.
         """
         # Arrange - set up mocks for skill calls
         skill_execution_log = []
@@ -145,7 +145,7 @@ def test_auth():
         current_context = initial_context.copy()
 
         for skill in skills_to_execute:
-            result = mock_claude_tools['Skill'](skill, current_context)
+            mock_claude_tools['Skill'](skill, current_context)
             workflow_result["skills_executed"].append(skill)
             current_context.update(shared_context)
 
@@ -203,7 +203,7 @@ def test_auth():
         Then it should establish context
         And analyze changes with semantic categorization
         And extract actionable insights
-        And record follow-ups
+        And record follow-ups.
         """
         # Arrange - set up catchup workflow mocks
         workflow_state = {}
@@ -234,7 +234,7 @@ def test_auth():
                 return {"status": "delta_captured"}
 
             elif phase == "insights":
-                changes = workflow_state["delta"]["changes"]
+                workflow_state["delta"]["changes"]
                 workflow_state["insights"] = [
                     "Payment processing feature implemented with 5 components",
                     "Test coverage added for payment flows",
@@ -295,14 +295,9 @@ def test_auth():
         Given autonomous review execution
         When agent analyzes repository
         Then it should use imbue skills consistently
-        And provide evidence-referenced findings
+        And provide evidence-referenced findings.
         """
         # Arrange - set up agent integration
-        agent_session = {
-            "session_id": "agent-autonomous-123",
-            "focus": "security_audit",
-            "autonomous": True
-        }
 
         agent_execution_log = []
         shared_evidence = []
@@ -360,7 +355,7 @@ def test_auth():
         current_agent_context = {}
         for skill_name, context in skills_sequence:
             current_agent_context.update(context)
-            result = mock_claude_tools['Skill'](skill_name, current_agent_context)
+            mock_claude_tools['Skill'](skill_name, current_agent_context)
             agent_workflow["skills_used"].append(skill_name)
             current_agent_context.update({k: v for k, v in current_agent_context.items() if k.startswith("agent")})
 
@@ -403,7 +398,7 @@ def test_auth():
         Given multi-skill review workflow
         When skills exchange evidence
         Then all citations should resolve correctly
-        And evidence IDs should be unique
+        And evidence IDs should be unique.
         """
         # Arrange - set up evidence chain tracking
         evidence_chain = {
@@ -470,7 +465,7 @@ def test_auth():
         current_context = workflow_context.copy()
 
         for skill_name in skills_sequence:
-            result = mock_claude_tools['Skill'](skill_name, current_context)
+            mock_claude_tools['Skill'](skill_name, current_context)
             current_context.update({k: v for k, v in current_context.items() if k in ["evidence_log", "findings"]})
 
         # Verify evidence chain integrity
@@ -483,7 +478,7 @@ def test_auth():
         assert len(evidence_ids) == len(set(evidence_ids))  # All unique
 
         # Check reference resolution
-        for finding_id, evidence_refs in evidence_chain["reference_tracker"].items():
+        for _finding_id, evidence_refs in evidence_chain["reference_tracker"].items():
             for ref in evidence_refs:
                 assert ref in evidence_chain["evidence_registry"], f"Evidence reference {ref} not found"
 
@@ -499,7 +494,7 @@ def test_auth():
         When dispatching to skills
         Then skills should receive correct context
         And return structured results
-        And maintain workflow state
+        And maintain workflow state.
         """
         # Arrange - track orchestration
         orchestration_log = {
@@ -601,7 +596,7 @@ def test_auth():
         Given skill execution failures
         When propagating through workflow
         Then errors should be captured and handled
-        And workflow should provide meaningful feedback
+        And workflow should provide meaningful feedback.
         """
         # Arrange - simulate skill failure
         error_log = []
@@ -692,7 +687,7 @@ def test_auth():
         Given multiple concurrent workflows
         When executing review workflows
         Then performance should remain acceptable
-        And resource usage should be controlled
+        And resource usage should be controlled.
         """
         import time
 
@@ -720,7 +715,7 @@ def test_auth():
 
             # Simulate skill execution with timing
             skills = ["review-core", "evidence-logging", "diff-analysis", "structured-output"]
-            workflow_context = f"workflow_{i}_{config['target']}"
+            f"workflow_{i}_{config['target']}"
 
             skill_times = []
             for skill in skills:

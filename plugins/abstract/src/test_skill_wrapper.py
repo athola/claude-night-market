@@ -1,7 +1,7 @@
+from typing import Any
+
 from .wrapper_base import SuperpowerWrapper
-import subprocess
-import json
-from typing import Dict, Any, Optional
+
 
 class TestSkillWrapper(SuperpowerWrapper):
     """Wrapper for the test-skill command that delegates to test-driven-development superpower
@@ -15,10 +15,10 @@ class TestSkillWrapper(SuperpowerWrapper):
         super().__init__(
             source_plugin="abstract",
             source_command="test-skill",
-            target_superpower="test-driven-development"
+            target_superpower="test-driven-development",
         )
 
-    def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def execute(self, params: dict[str, Any]) -> dict[str, Any]:
         """Execute the wrapped test-skill command
 
         Args:
@@ -32,6 +32,7 @@ class TestSkillWrapper(SuperpowerWrapper):
         Raises:
             ValueError: If required parameters are missing
             TypeError: If parameters have invalid types
+
         """
         # Validate required parameters
         if not params:
@@ -63,12 +64,12 @@ class TestSkillWrapper(SuperpowerWrapper):
             "superpower_called": self.target_superpower,
             "phase_executed": superpower_params.get("tdd_phase"),
             "target": superpower_params.get("target_under_test"),
-            "extensions": self._apply_skill_extensions(superpower_params)
+            "extensions": self._apply_skill_extensions(superpower_params),
         }
 
         return result
 
-    def _apply_skill_extensions(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_skill_extensions(self, params: dict[str, Any]) -> dict[str, Any]:
         """Apply skill-specific extensions to superpower call
 
         Args:
@@ -76,11 +77,12 @@ class TestSkillWrapper(SuperpowerWrapper):
 
         Returns:
             Dictionary of skill-specific extensions
+
         """
         extensions = {
             "skill_validation": True,
             "rationalization_detection": True,
-            "skill_specific_reporting": True
+            "skill_specific_reporting": True,
         }
 
         # Add skill path to extensions for validation

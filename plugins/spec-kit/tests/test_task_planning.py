@@ -1,8 +1,10 @@
 """Tests for task-planning skill functionality."""
 
-import pytest
 import re
-from unittest.mock import Mock, patch
+
+# Constants for magic numbers
+MAX_DAYS_PER_TASK = 5
+MIN_MINUTES_PER_TASK = 15
 
 
 class TestTaskPlanning:
@@ -206,7 +208,7 @@ class TestTaskPlanning:
                     "create", "implement", "add", "build", "design", "develop",
                     "setup", "configure", "install", "write", "define", "establish"
                 ]
-                starts_with_verb = any(
+                any(
                     description.lower().startswith(verb) for verb in action_verbs
                 )
                 # Not strictly required but good practice
@@ -248,18 +250,17 @@ class TestTaskPlanning:
                 time_est = task["estimated_time"].lower()
                 if "day" in time_est:
                     # Extract number of days
-                    import re
                     days_match = re.search(r'(\d+(?:\.\d+)?)\s*day', time_est)
                     if days_match:
                         days = float(days_match.group(1))
-                        assert days <= 5, f"Task too large: {task['id']} - {days} days"
+                        assert days <= MAX_DAYS_PER_TASK, f"Task too large: {task['id']} - {days} days"
 
                 # Tasks shouldn't be too small (less than 15 minutes)
                 if "m" in time_est or "minute" in time_est:
                     minutes_match = re.search(r'(\d+(?:\.\d+)?)\s*m', time_est)
                     if minutes_match:
                         minutes = float(minutes_match.group(1))
-                        assert minutes >= 15, f"Task too small: {task['id']} - {minutes} minutes"
+                        assert minutes >= MIN_MINUTES_PER_TASK, f"Task too small: {task['id']} - {minutes} minutes"
 
     def test_task_id_consistency(self, sample_task_list):
         """Test task IDs follow consistent pattern."""
@@ -279,7 +280,7 @@ class TestTaskPlanning:
         # Check no cross-phase dependencies
         for phase in sample_task_list:
             phase_name = phase["phase"]
-            current_phase_tasks = phase_tasks[phase_name]
+            phase_tasks[phase_name]
 
             for task in phase["tasks"]:
                 for dep_id in task["dependencies"]:

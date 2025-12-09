@@ -8,8 +8,6 @@ and transformation pattern recognition.
 from __future__ import annotations
 
 import pytest
-from unittest.mock import Mock, patch
-from pathlib import Path
 
 # Import the skills we're testing
 from parseltongue.skills.pattern_matching import PatternMatchingSkill

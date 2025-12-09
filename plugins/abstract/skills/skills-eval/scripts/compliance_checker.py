@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """CLI wrapper for compliance-checker script.
+
 Uses core functionality from src/abstract/skills_eval.
 """
 
@@ -18,6 +19,7 @@ class ComplianceChecker(CoreComplianceChecker):
 
     pass
 
+
 # For direct execution
 if __name__ == "__main__":
     import argparse
@@ -27,24 +29,27 @@ if __name__ == "__main__":
         description="Check compliance of skills in directory"
     )
 
-    parser.add_argument('directory', type=Path, help='Directory containing skills to check')
-    parser.add_argument('--rules-file', type=Path, help='Custom rules file')
-    parser.add_argument('--output', type=Path, help='Output file path')
-    parser.add_argument('--format', choices=['text', 'json'], default='text',
-                       help='Output format')
+    parser.add_argument(
+        "directory", type=Path, help="Directory containing skills to check"
+    )
+    parser.add_argument("--rules-file", type=Path, help="Custom rules file")
+    parser.add_argument("--output", type=Path, help="Output file path")
+    parser.add_argument(
+        "--format", choices=["text", "json"], default="text", help="Output format"
+    )
 
     args = parser.parse_args()
 
     checker = ComplianceChecker(args.directory, args.rules_file)
 
-    if args.format == 'json':
+    if args.format == "json":
         results = checker.check_compliance()
         output = json.dumps(results, indent=2)
     else:
         output = checker.generate_report()
 
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             f.write(output)
         print(f"Compliance report saved to {args.output}")
     else:

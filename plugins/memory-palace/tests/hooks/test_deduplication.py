@@ -2,21 +2,18 @@
 
 from __future__ import annotations
 
-import pytest
-import sys
 import os
-import tempfile
-from pathlib import Path
+import sys
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))
 
 from shared.deduplication import (
     get_content_hash,
+    get_index_stats,
     get_url_key,
     is_known,
     needs_update,
-    get_index_stats,
 )
 
 

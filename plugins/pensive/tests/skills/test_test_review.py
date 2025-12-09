@@ -7,10 +7,10 @@ and testing best practices evaluation.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import Mock, patch
 from pathlib import Path
-import ast
+from unittest.mock import Mock
+
+import pytest
 
 # Import the skill we're testing
 from pensive.skills.test_review import TestReviewSkill
@@ -143,23 +143,6 @@ class TestCalculator:
         mock_service.assert_called_once()
         """
 
-        poorly_structured_test = """
-def test_1():
-    assert add(1, 2) == 3
-
-def test_something():
-    x = 5
-    # No assertion
-
-def test_multiple_things():
-    # Testing multiple things in one test
-    assert add(1, 2) == 3
-    assert subtract(3, 2) == 1
-    # Should be separate tests
-    import time
-    time.sleep(1)  # Slow test
-    assert True  # Trivial assertion
-    """
 
         mock_skill_context.get_file_content.return_value = well_structured_test
 

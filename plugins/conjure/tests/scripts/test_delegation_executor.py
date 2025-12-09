@@ -2,20 +2,20 @@
 
 import json
 import subprocess
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-from datetime import datetime
-import pytest
 
 # Import the module under test
 import sys
+from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
+
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from delegation_executor import (
     Delegator,
-    ServiceConfig,
     ExecutionResult,
+    ServiceConfig,
     main,
 )
 
@@ -259,7 +259,7 @@ class TestDelegator:
 
         delegator = Delegator(config_dir=temp_config_dir)
 
-        result = delegator.execute("gemini", "test prompt")
+        delegator.execute("gemini", "test prompt")
 
         # Verify log file was opened and written to
         mock_file.assert_called_with(delegator.usage_log, "a")
@@ -370,7 +370,7 @@ class TestDelegatorCli:
         mock_delegator.verify_service.return_value = (True, [])
         mock_delegator_class.return_value = mock_delegator
 
-        with patch('builtins.print') as mock_print:
+        with patch('builtins.print'):
             main()
 
         mock_delegator.verify_service.assert_called_once_with("gemini")
@@ -391,7 +391,7 @@ class TestDelegatorCli:
         mock_delegator.execute.return_value = mock_result
         mock_delegator_class.return_value = mock_delegator
 
-        with patch('builtins.print') as mock_print:
+        with patch('builtins.print'):
             main()
 
         mock_delegator.execute.assert_called_once_with("gemini", "test prompt", None, {}, 300)

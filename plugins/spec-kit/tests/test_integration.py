@@ -1,10 +1,10 @@
 """Integration tests for spec-kit workflows."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import tempfile
 import json
-from pathlib import Path
+import subprocess
+from unittest.mock import Mock, patch
+
+import pytest
 
 
 class TestSpeckitIntegration:

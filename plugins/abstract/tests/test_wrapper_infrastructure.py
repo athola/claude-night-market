@@ -49,20 +49,20 @@ def test_wrapper_validation():
 
     # Test invalid inputs - should raise ValueError
     try:
-        wrapper = SuperpowerWrapper("", "test-skill", "test-driven-development")
-        assert False, "Should have raised ValueError for empty source_plugin"
+        SuperpowerWrapper("", "test-skill", "test-driven-development")
+        raise AssertionError("Should have raised ValueError for empty source_plugin")
     except ValueError as e:
         print(f"✅ Correctly caught invalid source_plugin: {e}")
 
     try:
-        wrapper = SuperpowerWrapper("abstract", None, "test-driven-development")
-        assert False, "Should have raised ValueError for None source_command"
+        SuperpowerWrapper("abstract", None, "test-driven-development")
+        raise AssertionError("Should have raised ValueError for None source_command")
     except ValueError as e:
         print(f"✅ Correctly caught invalid source_command: {e}")
 
     try:
-        wrapper = SuperpowerWrapper("abstract", "test-skill", "")
-        assert False, "Should have raised ValueError for empty target_superpower"
+        SuperpowerWrapper("abstract", "test-skill", "")
+        raise AssertionError("Should have raised ValueError for empty target_superpower")
     except ValueError as e:
         print(f"✅ Correctly caught invalid target_superpower: {e}")
 
@@ -82,7 +82,7 @@ def test_parameter_validation():
     # Test invalid parameter types
     try:
         wrapper.translate_parameters("not a dict")
-        assert False, "Should have raised ValueError for non-dict parameters"
+        raise AssertionError("Should have raised ValueError for non-dict parameters")
     except ValueError as e:
         print(f"✅ Correctly caught invalid parameter type: {e}")
 

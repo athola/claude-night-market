@@ -7,9 +7,10 @@ of multiple review skills based on repository characteristics.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
 
 # Import the skill we're testing
 from pensive.skills.unified_review import UnifiedReviewSkill
@@ -208,16 +209,7 @@ class TestUnifiedReviewSkill:
     def test_consolidates_duplicate_findings(self, sample_findings):
         """Given duplicate findings, when skill consolidates, then removes duplicates."""
         # Arrange
-        duplicate_findings = sample_findings + [
-            {
-                "id": "SEC001",
-                "title": "Hardcoded API Key",
-                "location": "src/auth.ts:5",
-                "severity": "high",
-                "issue": "API key is hardcoded",
-                "fix": "Use environment variables"
-            }
-        ]
+        duplicate_findings = [*sample_findings, {"id": "SEC001", "title": "Hardcoded API Key", "location": "src/auth.ts:5", "severity": "high", "issue": "API key is hardcoded", "fix": "Use environment variables"}]
 
         # Act
         consolidated = self.skill.consolidate_findings(duplicate_findings)

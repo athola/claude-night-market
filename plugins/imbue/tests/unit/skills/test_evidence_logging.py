@@ -11,7 +11,7 @@ import pytest
 
 
 class TestEvidenceLoggingSkill:
-    """Feature: Evidence logging ensures reproducible review findings
+    """Feature: Evidence logging ensures reproducible review findings.
 
     As a reviewer
     I want all commands and citations logged systematically
@@ -125,7 +125,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given starting a review workflow
         When initializing evidence logging
         Then it should create structured evidence log
-        With session ID, timestamp, and context
+        With session ID, timestamp, and context.
         """
         # Arrange & Act - evidence session is already initialized
         evidence_log = sample_evidence_session
@@ -182,7 +182,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given multiple commands being logged
         When capturing evidence
         Then it should assign sequential IDs [E1], [E2], [E3]
-        And maintain consistent formatting
+        And maintain consistent formatting.
         """
         # Arrange
         evidence_log = sample_evidence_session
@@ -220,7 +220,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given web.run citations in review
         When logging evidence
         Then it should capture URLs and access timestamps
-        And format citations consistently
+        And format citations consistently.
         """
         # Arrange
         evidence_log = sample_evidence_session
@@ -250,7 +250,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given a complete evidence log
         When exporting to JSON
         Then it should maintain structure and validity
-        And include all evidence and citations
+        And include all evidence and citations.
         """
         # Arrange - populate evidence log
         sample_evidence_session["evidence"].append({
@@ -288,7 +288,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given a complete evidence log
         When exporting to Markdown
         Then it should format evidence and citations clearly
-        And maintain reference integrity
+        And maintain reference integrity.
         """
         # Arrange - populate evidence log
         sample_evidence_session["evidence"].append({
@@ -339,7 +339,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given a complete evidence log
         When exporting to CSV
         Then it should create tabular evidence data
-        With proper escaping and headers
+        With proper escaping and headers.
         """
         # Arrange - populate evidence log
         sample_evidence_session["evidence"].extend([
@@ -384,7 +384,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given commands with substantial output
         When logging evidence
         Then it should manage output size appropriately
-        And provide relevant snippets for large content
+        And provide relevant snippets for large content.
         """
         # Arrange - generate large output
         large_output = "\n".join([f"Line {i} of command output" for i in range(1000)])
@@ -417,7 +417,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given review findings referencing evidence
         When creating findings
         Then evidence references should resolve correctly
-        And maintain bidirectional links
+        And maintain bidirectional links.
         """
         # Arrange - add evidence
         sample_evidence_session["evidence"].extend([
@@ -473,7 +473,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given command execution failures
         When logging evidence
         Then it should capture error information
-        And continue logging subsequent commands
+        And continue logging subsequent commands.
         """
         # Arrange
         error_command = "git status --invalid-option"
@@ -514,7 +514,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given evidence logging session
         When saving evidence log
         Then it should write valid JSON to file
-        And be readable for later analysis
+        And be readable for later analysis.
         """
         # Arrange
         evidence_file = tmp_path / "evidence_log.json"
@@ -545,7 +545,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given multiple evidence logging sessions
         When creating new sessions
         Then each should have unique identifiers
-        And prevent session conflicts
+        And prevent session conflicts.
         """
         # Arrange & Act - create multiple sessions
         sessions = []
@@ -571,7 +571,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Given many evidence items to log
         When processing evidence
         Then it should maintain reasonable performance
-        And memory usage
+        And memory usage.
         """
         import time
 

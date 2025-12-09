@@ -1,20 +1,19 @@
 """Edge case and error handling tests for conjure plugin following TDD/BDD principles."""
 
 import json
-import tempfile
 import subprocess
-import time
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-from datetime import datetime, timedelta
-import pytest
 
 # Import modules for testing
 import sys
+import time
+from datetime import datetime
+from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from delegation_executor import Delegator, ServiceConfig, ExecutionResult
-from quota_tracker import GeminiQuotaTracker, DEFAULT_LIMITS
+from delegation_executor import Delegator, ExecutionResult
+from quota_tracker import GeminiQuotaTracker
 from usage_logger import GeminiUsageLogger, UsageEntry
 
 
@@ -137,7 +136,7 @@ class TestDelegationExecutorEdgeCases:
         long_prompt = "x" * 10000  # 10K characters
         many_files = [f"file{i}.py" for i in range(100)]  # Many files
 
-        result = delegator.execute("gemini", long_prompt, files=many_files)
+        delegator.execute("gemini", long_prompt, files=many_files)
 
         # Should handle without errors
         assert mock_run.called
@@ -349,7 +348,7 @@ class TestQuotaTrackerEdgeCases:
             trackers = [GeminiQuotaTracker() for _ in range(5)]
 
             # All trackers record requests simultaneously
-            for i, tracker in enumerate(trackers):
+            for _i, tracker in enumerate(trackers):
                 tracker.record_request(1000, success=True)
 
             # Should have handled concurrent access gracefully
@@ -597,8 +596,8 @@ class TestSystemIntegrationEdgeCases:
 
     def test_concurrent_delegation_scenarios(self, tmp_path):
         """Given concurrent delegation scenarios when executing then should handle thread safety."""
-        import threading
         import queue
+        import threading
 
         delegator = Delegator(config_dir=tmp_path)
         results_queue = queue.Queue()

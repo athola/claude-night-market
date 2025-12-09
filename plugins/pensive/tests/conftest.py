@@ -7,10 +7,8 @@ for testing pensive skills, agents, and workflows.
 
 from __future__ import annotations
 
-import json
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List
 from unittest.mock import Mock
 
 import pytest
@@ -249,11 +247,11 @@ tokio = { version = "1.0", features = ["full"] }
 
         # Initialize git repository
         import subprocess
-        subprocess.run(["git", "init"], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "add", "."], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=repo_path, capture_output=True)
+        subprocess.run(["git", "init"], check=False, cwd=repo_path, capture_output=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], check=False, cwd=repo_path, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Test User"], check=False, cwd=repo_path, capture_output=True)
+        subprocess.run(["git", "add", "."], check=False, cwd=repo_path, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Initial commit"], check=False, cwd=repo_path, capture_output=True)
 
         yield repo_path
 
@@ -340,7 +338,7 @@ class MockTodoWrite:
     def __init__(self):
         self.todos = []
 
-    def add(self, content: str, status: str = "pending", active_form: str = None):
+    def add(self, content: str, status: str = "pending", active_form: str | None = None):
         """Add a todo item."""
         self.todos.append({
             "content": content,

@@ -1,8 +1,8 @@
 """Tests for frontmatter validation in spec-kit skill files."""
 
-import pytest
 import re
-from pathlib import Path
+
+import pytest
 
 
 class TestFrontmatterValidation:

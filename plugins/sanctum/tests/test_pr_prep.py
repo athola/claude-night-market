@@ -25,7 +25,7 @@ class TestPRPrepSkill:
     def test_generates_comprehensive_pr_description(self, pull_request_context):
         """GIVEN a feature branch with changes and commits
         WHEN the pr-prep skill analyzes the branch
-        THEN it should generate a comprehensive PR description with sections
+        THEN it should generate a comprehensive PR description with sections.
         """
         # Arrange
         mock_bash = Mock()
@@ -51,7 +51,7 @@ class TestPRPrepSkill:
     def test_includes_commit_history_in_pr_description(self, pull_request_context):
         """GIVEN multiple commits on the feature branch
         WHEN the pr-prep skill generates the PR description
-        THEN it should include a summary of commit history
+        THEN it should include a summary of commit history.
         """
         # Arrange
         commits = pull_request_context["commits"]
@@ -69,7 +69,7 @@ class TestPRPrepSkill:
     def test_analyzes_changed_files_and_categorizes_them(self, pull_request_context):
         """GIVEN various types of files changed in the PR
         WHEN the pr-prep skill analyzes the changes
-        THEN it should categorize files by type (feature, test, docs, etc.)
+        THEN it should categorize files by type (feature, test, docs, etc.).
         """
         # Arrange
         changed_files = pull_request_context["changed_files"]
@@ -86,7 +86,7 @@ class TestPRPrepSkill:
     def test_identifies_test_coverage_changes(self, pull_request_context):
         """GIVEN test files included in the PR
         WHEN the pr-prep skill analyzes the changes
-        THEN it should report test coverage and quality metrics
+        THEN it should report test coverage and quality metrics.
         """
         # Arrange
         test_files = [f for f in pull_request_context["changed_files"] if f["type"] == "test"]
@@ -102,7 +102,7 @@ class TestPRPrepSkill:
     def test_detects_breaking_changes_and_highlights_them(self):
         """GIVEN changes that break backward compatibility
         WHEN the pr-prep skill analyzes the changes
-        THEN it should identify and highlight breaking changes
+        THEN it should identify and highlight breaking changes.
         """
         # Arrange
         breaking_context = {
@@ -128,7 +128,7 @@ class TestPRPrepSkill:
     def test_generates_test_plan_based_on_changes(self, pull_request_context):
         """GIVEN various types of changes in the PR
         WHEN the pr-prep skill creates a test plan
-        THEN it should generate relevant test cases for each change type
+        THEN it should generate relevant test cases for each change type.
         """
         # Arrange
         changes = pull_request_context["changed_files"]
@@ -146,7 +146,7 @@ class TestPRPrepSkill:
     def test_validates_pr_quality_gates(self, pull_request_context):
         """GIVEN a PR with various changes
         WHEN the pr-prep skill checks quality gates
-        THEN it should validate each gate and report status
+        THEN it should validate each gate and report status.
         """
         # Arrange
         quality_checklist = self._initialize_quality_gates()
@@ -164,7 +164,7 @@ class TestPRPrepSkill:
     def test_generates_pr_checklist(self, pull_request_context):
         """GIVEN a PR being prepared
         WHEN the pr-prep skill creates a checklist
-        THEN it should include relevant review items
+        THEN it should include relevant review items.
         """
         # Arrange
         changes = pull_request_context["changed_files"]
@@ -182,7 +182,7 @@ class TestPRPrepSkill:
     def test_handles_pr_with_multiple_reviewers(self, pull_request_context):
         """GIVEN a PR that requires multiple reviewers
         WHEN the pr-prep skill prepares the description
-        THEN it should suggest appropriate reviewers based on file changes
+        THEN it should suggest appropriate reviewers based on file changes.
         """
         # Arrange
         changes = pull_request_context["changed_files"]
@@ -203,7 +203,7 @@ class TestPRPrepSkill:
     def test_includes_performance_impact_analysis(self):
         """GIVEN changes that might affect performance
         WHEN the pr-prep skill analyzes the changes
-        THEN it should include performance impact assessment
+        THEN it should include performance impact assessment.
         """
         # Arrange
         performance_context = {
@@ -230,7 +230,7 @@ class TestPRPrepSkill:
     def test_creates_merge_strategy_recommendations(self, pull_request_context):
         """GIVEN a PR with specific types of changes
         WHEN the pr-prep skill prepares the description
-        THEN it should recommend appropriate merge strategies
+        THEN it should recommend appropriate merge strategies.
         """
         # Arrange
         changes = pull_request_context["changed_files"]
@@ -247,7 +247,7 @@ class TestPRPrepSkill:
     def test_generates_backward_compatibility_notes(self):
         """GIVEN changes that might affect backward compatibility
         WHEN the pr-prep skill prepares the description
-        THEN it should include backward compatibility notes
+        THEN it should include backward compatibility notes.
         """
         # Arrange
         compatibility_context = {
@@ -271,7 +271,7 @@ class TestPRPrepSkill:
     def test_handles_empty_feature_branch(self):
         """GIVEN an empty feature branch with no meaningful changes
         WHEN the pr-prep skill attempts to prepare a PR
-        THEN it should handle the empty state gracefully
+        THEN it should handle the empty state gracefully.
         """
         # Arrange
         empty_context = {
@@ -290,7 +290,7 @@ class TestPRPrepSkill:
     def test_includes_security_considerations(self):
         """GIVEN changes that might have security implications
         WHEN the pr-prep skill analyzes the changes
-        THEN it should include security review checklist
+        THEN it should include security review checklist.
         """
         # Arrange
         security_context = {
@@ -316,7 +316,7 @@ class TestPRPrepSkill:
     def test_creates_required_todo_items(self, mock_todo_tool):
         """GIVEN PR preparation is complete
         WHEN the pr-prep skill finishes
-        THEN it should create the required TodoWrite items
+        THEN it should create the required TodoWrite items.
         """
         # Arrange
         expected_todos = [

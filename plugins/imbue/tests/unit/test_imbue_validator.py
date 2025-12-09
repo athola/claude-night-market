@@ -20,7 +20,7 @@ except ImportError:
 
 
 class TestImbueValidator:
-    """Feature: Imbue plugin validates review workflow infrastructure
+    """Feature: Imbue plugin validates review workflow infrastructure.
 
     As a plugin developer
     I want validation to ensure review workflows are properly structured
@@ -103,7 +103,7 @@ This skill doesn't do reviews.
         """Scenario: Validator initializes with plugin structure
         Given a valid plugin directory
         When initializing ImbueValidator
-        Then it should load skill files and configuration
+        Then it should load skill files and configuration.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -121,7 +121,7 @@ This skill doesn't do reviews.
         """Scenario: Validator handles non-existent directory gracefully
         Given a non-existent plugin directory
         When initializing ImbueValidator
-        Then it should initialize with empty skill list
+        Then it should initialize with empty skill list.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -139,7 +139,7 @@ This skill doesn't do reviews.
         Given a plugin with review and non-review skills
         When scanning for review workflows
         Then it should identify review-pattern skills
-        And ignore non-review skills
+        And ignore non-review skills.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -162,7 +162,7 @@ This skill doesn't do reviews.
         Given skills with different review-related keywords
         When scanning for review workflows
         Then it should match multiple patterns
-        And categorize appropriately
+        And categorize appropriately.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -195,7 +195,7 @@ This provides workflow orchestration.
         Given a valid plugin.json file
         When scanning for review workflows
         Then it should add evidence logging patterns
-        And parse JSON without errors
+        And parse JSON without errors.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -219,7 +219,7 @@ This provides workflow orchestration.
         Given an invalid plugin.json file
         When scanning for review workflows
         Then it should record error in issues
-        And continue processing skills
+        And continue processing skills.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -241,7 +241,7 @@ This provides workflow orchestration.
         Given a review-core skill missing components
         When validating review workflows
         Then it should identify missing components
-        And report specific issues
+        And report specific issues.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -278,7 +278,7 @@ This skill has checklist but no deliverable section.
         Given skills without evidence logging patterns
         When validating review workflows
         Then it should flag missing evidence patterns
-        Except for review-core skill
+        Except for review-core skill.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -310,7 +310,7 @@ This skill doesn't mention evidence or logging.
         """Scenario: Validation excludes review-core from evidence pattern requirement
         Given a review-core skill without evidence keywords
         When validating review workflows
-        Then it should not flag review-core for missing evidence patterns
+        Then it should not flag review-core for missing evidence patterns.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -342,7 +342,7 @@ This skill provides review scaffolding with checklist and deliverables.
         """Scenario: Report generation includes all required sections
         Given a plugin with various validation results
         When generating a report
-        Then it should include all sections with appropriate content
+        Then it should include all sections with appropriate content.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -367,7 +367,7 @@ This skill provides review scaffolding with checklist and deliverables.
         """Scenario: Report displays validation issues
         Given validation with issues found
         When generating a report
-        Then it should list all issues with numbering
+        Then it should list all issues with numbering.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -394,7 +394,7 @@ This skill provides review scaffolding with checklist and deliverables.
         """Scenario: Report shows success when no issues found
         Given validation without issues
         When generating a report
-        Then it should display success message
+        Then it should display success message.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -420,7 +420,7 @@ This skill provides review scaffolding with checklist and deliverables.
         """Scenario: Pattern matching is case insensitive
         Given skills with mixed case keywords
         When scanning for review workflows
-        Then it should match patterns regardless of case
+        Then it should match patterns regardless of case.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -452,7 +452,7 @@ Also includes EVIDENCE logging.
         """Scenario: Validation handles empty plugin directory
         Given an empty plugin directory
         When scanning for review workflows
-        Then it should return empty results
+        Then it should return empty results.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -475,7 +475,7 @@ Also includes EVIDENCE logging.
         """Scenario: Validation handles missing plugin.json
         Given a plugin directory without plugin.json
         When scanning for review workflows
-        Then it should continue processing skills
+        Then it should continue processing skills.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -495,7 +495,7 @@ Also includes EVIDENCE logging.
 
 
 class TestImbueValidatorIntegration:
-    """Feature: Imbue validator integration with real file system
+    """Feature: Imbue validator integration with real file system.
 
     As a validation tool
     I want to work with real file system operations
@@ -507,7 +507,7 @@ class TestImbueValidatorIntegration:
         """Scenario: Validate real imbue plugin structure
         Given the actual imbue plugin directory
         When running validation
-        Then it should process actual skills and configuration
+        Then it should process actual skills and configuration.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -533,7 +533,7 @@ class TestImbueValidatorIntegration:
         """Scenario: Validation handles file permission issues
         Given files with permission restrictions
         When running validation
-        Then it should handle permissions gracefully
+        Then it should handle permissions gracefully.
         """
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
@@ -561,7 +561,7 @@ class TestImbueValidatorIntegration:
 
 @pytest.mark.skipif(ImbueValidator is None, reason="ImbueValidator not available")
 class TestImbueValidatorPerformance:
-    """Feature: Imbue validator performance with large plugins
+    """Feature: Imbue validator performance with large plugins.
 
     As a validation tool
     I want to handle large plugin structures efficiently
@@ -573,7 +573,7 @@ class TestImbueValidatorPerformance:
         """Scenario: Validation performance with many skills
         Given a plugin with many skill files
         When running validation
-        Then it should complete within reasonable time
+        Then it should complete within reasonable time.
         """
         # Arrange - create many skills
         plugin_root = tmp_path / "large-plugin"
@@ -614,7 +614,7 @@ This is test skill number {i} with review workflow patterns.
         """Scenario: Memory usage with large plugin structures
         Given a plugin with large skill files
         When running validation
-        Then memory usage should remain reasonable
+        Then memory usage should remain reasonable.
         """
         # This is a placeholder for memory testing
         # In practice, you'd use memory profiling tools

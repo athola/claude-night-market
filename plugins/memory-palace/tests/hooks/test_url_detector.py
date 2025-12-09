@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-import sys
 import os
+import sys
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))

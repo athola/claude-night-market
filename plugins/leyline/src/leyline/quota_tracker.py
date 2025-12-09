@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Universal quota tracking for rate-limited services.
+"""Universal quota tracking for rate-limited services.
 
 This is a generalized quota tracker that can be used by any plugin
 integrating with rate-limited external services.
@@ -15,12 +14,10 @@ Usage:
 from __future__ import annotations
 
 import json
-import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 
 @dataclass
@@ -154,8 +151,7 @@ class QuotaTracker:
         return self.usage
 
     def get_quota_status(self) -> tuple[str, list[str]]:
-        """
-        Get current quota status.
+        """Get current quota status.
 
         Returns:
             Tuple of (status_level, list of warnings)
@@ -168,9 +164,7 @@ class QuotaTracker:
         rpm_percent = (
             self.usage.requests_this_minute / self.config.requests_per_minute
         ) * 100
-        daily_percent = (
-            self.usage.requests_today / self.config.requests_per_day
-        ) * 100
+        daily_percent = (self.usage.requests_today / self.config.requests_per_day) * 100
         tpm_percent = (
             self.usage.tokens_this_minute / self.config.tokens_per_minute
         ) * 100
@@ -187,17 +181,22 @@ class QuotaTracker:
 
         # Generate warnings
         if rpm_percent >= 80:
-            warnings.append(f"RPM at {rpm_percent:.1f}% ({self.usage.requests_this_minute}/{self.config.requests_per_minute})")
+            warnings.append(
+                f"RPM at {rpm_percent:.1f}% ({self.usage.requests_this_minute}/{self.config.requests_per_minute})"
+            )
         if daily_percent >= 80:
-            warnings.append(f"Daily requests at {daily_percent:.1f}% ({self.usage.requests_today}/{self.config.requests_per_day})")
+            warnings.append(
+                f"Daily requests at {daily_percent:.1f}% ({self.usage.requests_today}/{self.config.requests_per_day})"
+            )
         if tpm_percent >= 80:
-            warnings.append(f"TPM at {tpm_percent:.1f}% ({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})")
+            warnings.append(
+                f"TPM at {tpm_percent:.1f}% ({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})"
+            )
 
         return level, warnings
 
     def can_handle_task(self, estimated_tokens: int) -> tuple[bool, list[str]]:
-        """
-        Check if quota can handle a task.
+        """Check if quota can handle a task.
 
         Returns:
             Tuple of (can_proceed, list of issues)
@@ -206,7 +205,10 @@ class QuotaTracker:
         issues = []
 
         # Check if tokens would exceed limits
-        if self.usage.tokens_this_minute + estimated_tokens > self.config.tokens_per_minute:
+        if (
+            self.usage.tokens_this_minute + estimated_tokens
+            > self.config.tokens_per_minute
+        ):
             issues.append(
                 f"Would exceed TPM limit ({self.usage.tokens_this_minute + estimated_tokens} > {self.config.tokens_per_minute})"
             )

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test Generation Tool
+"""Test Generation Tool.
 
 Generates test scaffolding following TDD/BDD principles.
 Part of the test-updates skill tooling suite.
@@ -24,6 +24,7 @@ class TestStyle(Enum):
     DOCSTRING_BDD = "docstring_bdd"
     GHERKIN = "gherkin"
 
+
 @dataclass
 class TestConfig:
     """Configuration for test generation."""
@@ -33,6 +34,7 @@ class TestConfig:
     include_fixtures: bool = True
     include_edge_cases: bool = True
     include_error_cases: bool = True
+
 
 class TestGenerator:
     """Generates test scaffolding from source code analysis."""
@@ -70,14 +72,15 @@ class TestGenerator:
 
     def _extract_functions(self, tree: ast.AST) -> list[ast.FunctionDef]:
         """Extract function definitions from AST."""
-        return [node for node in ast.walk(tree)
-                if isinstance(node, ast.FunctionDef)
-                and not node.name.startswith('_')]
+        return [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+        ]
 
     def _extract_classes(self, tree: ast.AST) -> list[ast.ClassDef]:
         """Extract class definitions from AST."""
-        return [node for node in ast.walk(tree)
-                if isinstance(node, ast.ClassDef)]
+        return [node for node in ast.walk(tree) if isinstance(node, ast.ClassDef)]
 
     def _generate_test_header(self, module_name: str) -> str:
         """Generate test file header."""
@@ -144,7 +147,6 @@ def test_context():
 
     def _generate_function_test(self, func: ast.FunctionDef) -> str:
         """Generate test for a function."""
-        test_name = f"test_{func.name}"
         params = self._extract_function_params(func)
 
         if self.config.style == TestStyle.PYTEST_BDD:
@@ -156,11 +158,13 @@ def test_context():
 
     def _generate_class_test(self, cls: ast.ClassDef) -> str:
         """Generate test for a class."""
-        methods = [node for node in cls.body
-                  if isinstance(node, ast.FunctionDef)
-                  and not node.name.startswith('_')]
+        methods = [
+            node
+            for node in cls.body
+            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+        ]
 
-        test_content = f'\n\nclass Test{cls.name}:\n'
+        test_content = f"\n\nclass Test{cls.name}:\n"
         test_content += f'    """BDD-style tests for {cls.name} class."""\n'
 
         if self.config.include_fixtures:
@@ -168,17 +172,18 @@ def test_context():
     def setup_method(self):
         """Setup test instance."""
         self.instance = CLASS_NAME()
-'''.replace('CLASS_NAME', cls.name)
+'''.replace(
+                "CLASS_NAME", cls.name
+            )
 
         for method in methods:
-            test_content += f'\n    {self._generate_method_test(method, cls.name)}'
+            test_content += f"\n    {self._generate_method_test(method, cls.name)}"
 
         return test_content
 
     def _generate_method_test(self, method: ast.FunctionDef, class_name: str) -> str:
         """Generate test for class method."""
         method_name = method.name
-        test_name = f"test_{method_name}"
 
         if self.config.style == TestStyle.PYTEST_BDD:
             return f'''@pytest.mark.bdd
@@ -211,7 +216,7 @@ def test_context():
 '''
 
         else:  # GHERKIN style placeholder
-            return f'# Scenario: {method_name} behavior\n'
+            return f"# Scenario: {method_name} behavior\n"
 
     def _extract_function_params(self, func: ast.FunctionDef) -> list[str]:
         """Extract parameter names from function."""
@@ -219,13 +224,15 @@ def test_context():
 
     def _generate_pytest_bdd_test(self, func_name: str, params: list[str]) -> str:
         """Generate pytest BDD-style test."""
-        param_str = ', '.join(params) if params else ''
-        setup_code = ''
+        param_str = ", ".join(params) if params else ""
+        setup_code = ""
 
         if params:
-            setup_code = '\n        # TODO: Setup test parameters\n'
+            setup_code = "\n        # TODO: Setup test parameters\n"
             for param in params:
-                setup_code += f'        {param} = "test_{param}"  # TODO: Provide test value\n'
+                setup_code += (
+                    f'        {param} = "test_{param}"  # TODO: Provide test value\n'
+                )
 
         return f'''
 @pytest.mark.bdd
@@ -244,12 +251,12 @@ def test_{func_name}_with_valid_input():
 '''
 
         if self.config.include_error_cases:
-            return f'''{error_test}
-'''
+            return f"""{error_test}
+"""
 
     def _generate_docstring_test(self, func_name: str, params: list[str]) -> str:
         """Generate docstring BDD-style test."""
-        param_str = ', '.join(params) if params else ''
+        param_str = ", ".join(params) if params else ""
 
         return f'''
 def test_{func_name}_behavior():
@@ -275,15 +282,15 @@ def test_{func_name}_behavior():
 
     def _generate_gherkin_scenario(self, func_name: str, params: list[str]) -> str:
         """Generate Gherkin scenario."""
-        param_desc = ' and '.join(params) if params else 'required parameters'
+        param_desc = " and ".join(params) if params else "required parameters"
 
-        return f'''
+        return f"""
   Scenario: {func_name} with valid {param_desc}
     Given a configured context with {param_desc}
     When {func_name} is called
     Then the result should be successful
 
-'''
+"""
 
     def save_test_file(self, test_content: str, source_path: Path) -> Path:
         """Save generated test to appropriate location."""
@@ -291,11 +298,11 @@ def test_{func_name}_behavior():
             output_path = self.config.output_path
         else:
             # Determine test file path
-            test_dir = source_path.parent / 'tests'
+            test_dir = source_path.parent / "tests"
             test_dir.mkdir(exist_ok=True)
-            output_path = test_dir / f'test_{source_path.stem}.py'
+            output_path = test_dir / f"test_{source_path.stem}.py"
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             f.write(test_content)
 
         return output_path
@@ -303,15 +310,25 @@ def test_{func_name}_behavior():
 
 def main():
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description='Generate test scaffolding')
-    parser.add_argument('--source', type=str, help='Source file to generate tests for')
-    parser.add_argument('--module', type=str, help='Module name to generate tests for')
-    parser.add_argument('--output', type=str, help='Output test file path')
-    parser.add_argument('--style', choices=['pytest_bdd', 'docstring_bdd', 'gherkin'],
-                       default='pytest_bdd', help='Test style to generate')
-    parser.add_argument('--no-fixtures', action='store_true', help='Skip fixture generation')
-    parser.add_argument('--no-edge-cases', action='store_true', help='Skip edge case generation')
-    parser.add_argument('--no-error-cases', action='store_true', help='Skip error case generation')
+    parser = argparse.ArgumentParser(description="Generate test scaffolding")
+    parser.add_argument("--source", type=str, help="Source file to generate tests for")
+    parser.add_argument("--module", type=str, help="Module name to generate tests for")
+    parser.add_argument("--output", type=str, help="Output test file path")
+    parser.add_argument(
+        "--style",
+        choices=["pytest_bdd", "docstring_bdd", "gherkin"],
+        default="pytest_bdd",
+        help="Test style to generate",
+    )
+    parser.add_argument(
+        "--no-fixtures", action="store_true", help="Skip fixture generation"
+    )
+    parser.add_argument(
+        "--no-edge-cases", action="store_true", help="Skip edge case generation"
+    )
+    parser.add_argument(
+        "--no-error-cases", action="store_true", help="Skip error case generation"
+    )
 
     args = parser.parse_args()
 
@@ -320,7 +337,7 @@ def main():
         output_path=Path(args.output) if args.output else None,
         include_fixtures=not args.no_fixtures,
         include_edge_cases=not args.no_edge_cases,
-        include_error_cases=not args.no_error_cases
+        include_error_cases=not args.no_error_cases,
     )
 
     generator = TestGenerator(config)
@@ -336,5 +353,5 @@ def main():
         parser.print_help()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

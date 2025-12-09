@@ -7,6 +7,14 @@ palace: Learning Techniques
 district: Historical Methods
 maturity: evergreen
 tags: [learning, machine-learning, deliberate-practice, feedback-loops, skill-acquisition]
+queries:
+  - How to improve writing skills systematically?
+  - What is gradient descent for learning?
+  - How did Benjamin Franklin learn to write?
+  - Best practices for deliberate practice
+  - How to apply machine learning principles to human learning?
+  - What is the Franklin Protocol?
+  - How to learn like a neural network?
 ---
 
 # Franklin Protocol: The Original Learning Algorithm

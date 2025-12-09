@@ -368,9 +368,7 @@ class AbstractConfig:
 
             max_thresh = self.skill_analyzer.MAX_THRESHOLD
             if default > max_thresh:
-                issues.append(
-                    f"Threshold {default} above maximum {max_thresh}"
-                )
+                issues.append(f"Threshold {default} above maximum {max_thresh}")
 
         # Validate weights sum to 1.0
         if self.skills_eval is not None:

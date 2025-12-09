@@ -11,7 +11,7 @@ import pytest
 
 
 class TestStructuredOutputSkill:
-    """Feature: Structured output ensures consistent deliverable formatting
+    """Feature: Structured output ensures consistent deliverable formatting.
 
     As a review consumer
     I want consistent report structure
@@ -184,7 +184,7 @@ Common template variables that should be populated:
         Given comprehensive review findings
         When selecting template for review report
         Then it should choose review report template
-        And include all required sections
+        And include all required sections.
         """
         # Arrange
         deliverable_type = "review_report"
@@ -224,7 +224,7 @@ Common template variables that should be populated:
         Given code changes for review
         When selecting template for PR description
         Then it should choose PR template
-        With concise summary and testing instructions
+        With concise summary and testing instructions.
         """
         # Arrange
         deliverable_type = "pull_request"
@@ -271,7 +271,7 @@ Common template variables that should be populated:
         Given mixed severity findings
         When formatting findings
         Then it should group by severity
-        And order Critical -> High -> Medium -> Low
+        And order Critical -> High -> Medium -> Low.
         """
         # Arrange & Act - sort findings by severity
         severity_order = {"Critical": 1, "High": 2, "Medium": 3, "Low": 4}
@@ -328,7 +328,7 @@ Common template variables that should be populated:
         Given structured review data
         When generating markdown
         Then it should produce valid markdown
-        With proper headers, lists, and code blocks
+        With proper headers, lists, and code blocks.
         """
         # Arrange
         review_data = {
@@ -387,7 +387,7 @@ Common template variables that should be populated:
         Given review findings with recommendations
         When creating action items
         Then it should convert findings to actionable tasks
-        And assign appropriate priority levels
+        And assign appropriate priority levels.
         """
         # Arrange & Act - convert findings to action items
         action_items = []
@@ -469,7 +469,7 @@ Common template variables that should be populated:
         Given evidence log and findings
         When creating appendix
         Then it should provide evidence references
-        And enable easy navigation between findings and evidence
+        And enable easy navigation between findings and evidence.
         """
         # Arrange & Act - create evidence appendix
         evidence_map = {e["id"]: e for e in sample_evidence_log["evidence"]}
@@ -526,7 +526,7 @@ Common template variables that should be populated:
         """Scenario: Template variables are properly substituted
         Given template with placeholders
         When generating final output
-        Then it should replace all variables with actual values
+        Then it should replace all variables with actual values.
         """
         # Arrange - template with variables
         template = """# {{title}}
@@ -586,7 +586,7 @@ Common template variables that should be populated:
         """Scenario: Output format maintains consistency across templates
         Given different template types
         When generating outputs
-        Then key elements should be consistently formatted
+        Then key elements should be consistently formatted.
         """
         # Arrange - generate outputs from different templates
         templates = {
@@ -650,7 +650,7 @@ This PR addresses {len(findings)} security-related items.
         Given malformed or missing data
         When generating output
         Then it should provide sensible defaults
-        And not crash on missing fields
+        And not crash on missing fields.
         """
         # Arrange - malformed finding data
         malformed_findings = [
@@ -695,7 +695,7 @@ This PR addresses {len(findings)} security-related items.
         """Scenario: Template formatting performs efficiently with many findings
         Given a large set of findings
         When generating output
-        Then it should complete in reasonable time
+        Then it should complete in reasonable time.
         """
         import time
 

@@ -1,7 +1,5 @@
 """Tests for spec-writing skill functionality."""
 
-import pytest
-from unittest.mock import Mock, patch
 import re
 
 
@@ -40,7 +38,7 @@ class TestSpecWriting:
             "## Open Questions"
         ]
 
-        for section in optional_sections:
+        for _section in optional_sections:
             # Optional sections may or may not be present
             pass  # No assertion needed for optional sections
 
@@ -113,7 +111,7 @@ class TestSpecWriting:
         ]
 
         spec_lower = sample_spec_content.lower()
-        found_terms = [term for term in implementation_terms if term in spec_lower]
+        [term for term in implementation_terms if term in spec_lower]
 
         # Allow some technical terms but not specific implementation details
         implementation_detail_patterns = [
@@ -175,7 +173,7 @@ class TestSpecWriting:
         ]
 
         spec_lower = sample_spec_content.lower()
-        edge_cases_found = [indicator for indicator in edge_case_indicators if indicator in spec_lower]
+        [indicator for indicator in edge_case_indicators if indicator in spec_lower]
 
         # Edge cases are optional but good to have
         # assert len(edge_cases_found) > 0, "Should consider edge cases"

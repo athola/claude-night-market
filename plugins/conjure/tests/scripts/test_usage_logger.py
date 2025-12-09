@@ -1,21 +1,18 @@
 """Tests for usage_logger.py following TDD/BDD principles."""
 
 import json
-import tempfile
-import time
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-from datetime import datetime, timedelta
-import pytest
 
 # Import the module under test
 import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from usage_logger import (
-    UsageEntry,
     GeminiUsageLogger,
-    SESSION_TIMEOUT_SECONDS,
+    UsageEntry,
 )
 
 

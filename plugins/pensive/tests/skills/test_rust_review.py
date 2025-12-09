@@ -7,10 +7,10 @@ and security auditing capabilities.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import Mock, patch
 from pathlib import Path
-import re
+from unittest.mock import Mock
+
+import pytest
 
 # Import the skill we're testing
 from pensive.skills.rust_review import RustReviewSkill

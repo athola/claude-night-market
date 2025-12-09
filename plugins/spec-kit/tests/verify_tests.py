@@ -4,17 +4,14 @@ Simple test verification script for spec-kit test suite.
 Verifies test structure and basic functionality without requiring pytest installation.
 """
 
-import os
-import sys
 import ast
-import importlib.util
 from pathlib import Path
 
 
 def verify_test_file(filepath):
     """Verify a single test file has proper structure."""
     try:
-        with open(filepath, 'r') as f:
+        with open(filepath) as f:
             content = f.read()
 
         # Parse the AST to verify syntax
@@ -53,7 +50,7 @@ def verify_test_file(filepath):
 def verify_fixtures(conftest_path):
     """Verify conftest.py has proper fixtures."""
     try:
-        with open(conftest_path, 'r') as f:
+        with open(conftest_path) as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -69,7 +66,7 @@ def verify_fixtures(conftest_path):
 
         return fixtures
 
-    except Exception as e:
+    except Exception:
         return []
 
 
@@ -100,7 +97,7 @@ def main():
             print(f"❌ {filename} - Syntax Error")
             print(f"   Error: {result['error']}")
 
-    print(f"\n📊 Summary:")
+    print("\n📊 Summary:")
     print(f"   Test files: {len(test_files)}")
     print(f"   Test classes: {total_test_classes}")
     print(f"   Test methods: {total_test_methods}")
@@ -121,12 +118,12 @@ def main():
             print(f"❌ {other_file} - Missing")
 
     # Coverage estimation
-    print(f"\n🎯 Coverage Estimate:")
-    print(f"   Unit tests: test_orchestrator.py, test_spec_writing.py, test_task_planning.py")
-    print(f"   Command tests: test_commands.py")
-    print(f"   Agent tests: test_agents.py")
-    print(f"   Integration tests: test_integration.py")
-    print(f"   Validation tests: test_frontmatter.py")
+    print("\n🎯 Coverage Estimate:")
+    print("   Unit tests: test_orchestrator.py, test_spec_writing.py, test_task_planning.py")
+    print("   Command tests: test_commands.py")
+    print("   Agent tests: test_agents.py")
+    print("   Integration tests: test_integration.py")
+    print("   Validation tests: test_frontmatter.py")
 
     if total_test_methods >= 50:
         print(f"   ✅ Comprehensive test coverage ({total_test_methods} test methods)")

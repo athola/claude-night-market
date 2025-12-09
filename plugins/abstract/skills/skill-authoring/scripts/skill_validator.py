@@ -18,6 +18,13 @@ import re
 import sys
 from pathlib import Path
 
+# Constants for magic numbers
+MAX_ESTIMATED_TOKENS = 5000
+MIN_DESCRIPTION_LENGTH = 100
+MIN_OPTIMAL_DESCRIPTION = 200
+MAX_OPTIMAL_DESCRIPTION = 400
+MIN_DESCRIPTION_WORDS = 15
+
 try:
     import yaml
 except ImportError:
@@ -75,21 +82,33 @@ class SkillValidator:
 
     # Third person indicators (skills should use these)
     THIRD_PERSON_VERBS = {
-        "guides", "teaches", "provides", "implements", "analyzes",
-        "validates", "enforces", "ensures", "prevents", "detects",
-        "optimizes", "automates", "generates", "manages", "coordinates"
+        "guides",
+        "teaches",
+        "provides",
+        "implements",
+        "analyzes",
+        "validates",
+        "enforces",
+        "ensures",
+        "prevents",
+        "detects",
+        "optimizes",
+        "automates",
+        "generates",
+        "manages",
+        "coordinates",
     }
 
     # First person indicators (skills should NOT use these)
     FIRST_PERSON_PATTERNS = [
-        r'\bI\s+',
-        r'\bwe\s+',
-        r'\bour\s+',
-        r'\bmy\s+',
-        r'\byou\s+',  # Direct address
-        r'\byour\s+',
-        r'help(s)?\s+you',
-        r'let(s)?\s+you',
+        r"\bI\s+",
+        r"\bwe\s+",
+        r"\bour\s+",
+        r"\bmy\s+",
+        r"\byou\s+",  # Direct address
+        r"\byour\s+",
+        r"help(s)?\s+you",
+        r"let(s)?\s+you",
     ]
 
     def __init__(self, skill_path: Path, strict: bool = False):
@@ -153,7 +172,7 @@ class SkillValidator:
     def _read_file(self) -> str | None:
         """Read skill file content."""
         try:
-            return self.skill_path.read_text(encoding='utf-8')
+            return self.skill_path.read_text(encoding="utf-8")
         except Exception as e:
             self.result.add_error(f"Failed to read file: {e}")
             return None
@@ -166,11 +185,13 @@ class SkillValidator:
 
         """
         # Match YAML frontmatter: ---\n...\n---
-        pattern = r'^---\s*\n(.*?)\n---\s*\n(.*)$'
+        pattern = r"^---\s*\n(.*?)\n---\s*\n(.*)$"
         match = re.match(pattern, content, re.DOTALL)
 
         if not match:
-            self.result.add_error("YAML frontmatter not found (expected ---\\n...\\n---)")
+            self.result.add_error(
+                "YAML frontmatter not found (expected ---\\n...\\n---)"
+            )
             return None, content
 
         yaml_text = match.group(1)
@@ -186,51 +207,58 @@ class SkillValidator:
     def _validate_frontmatter(self, fm: dict) -> None:
         """Validate YAML frontmatter fields."""
         # Required fields
-        required = ['name', 'description', 'version', 'category', 'tags', 'estimated_tokens']
+        required = [
+            "name",
+            "description",
+            "version",
+            "category",
+            "tags",
+            "estimated_tokens",
+        ]
 
         for field in required:
             if field not in fm:
                 self.result.add_error(f"Required field missing: {field}")
 
         # Name validation
-        if 'name' in fm:
-            self._validate_name(fm['name'])
+        if "name" in fm:
+            self._validate_name(fm["name"])
 
         # Description validation
-        if 'description' in fm:
-            self._validate_description(fm['description'])
+        if "description" in fm:
+            self._validate_description(fm["description"])
 
         # Version validation
-        if 'version' in fm:
-            self._validate_version(fm['version'])
+        if "version" in fm:
+            self._validate_version(fm["version"])
 
         # Category validation
-        if 'category' in fm:
-            if not isinstance(fm['category'], str) or not fm['category'].strip():
+        if "category" in fm:
+            if not isinstance(fm["category"], str) or not fm["category"].strip():
                 self.result.add_error("Category must be non-empty string")
 
         # Tags validation
-        if 'tags' in fm:
-            if not isinstance(fm['tags'], list):
+        if "tags" in fm:
+            if not isinstance(fm["tags"], list):
                 self.result.add_error("Tags must be a list")
-            elif len(fm['tags']) == 0:
+            elif len(fm["tags"]) == 0:
                 self.result.add_warning("No tags specified (affects discoverability)")
 
         # Estimated tokens validation
-        if 'estimated_tokens' in fm:
-            if not isinstance(fm['estimated_tokens'], int):
+        if "estimated_tokens" in fm:
+            if not isinstance(fm["estimated_tokens"], int):
                 self.result.add_error("estimated_tokens must be an integer")
-            elif fm['estimated_tokens'] <= 0:
+            elif fm["estimated_tokens"] <= 0:
                 self.result.add_error("estimated_tokens must be positive")
-            elif fm['estimated_tokens'] > 5000:
+            elif fm["estimated_tokens"] > MAX_ESTIMATED_TOKENS:
                 self.result.add_warning(
                     f"estimated_tokens very high ({fm['estimated_tokens']}). "
                     "Consider modularization."
                 )
 
         # Dependencies (optional but validate if present)
-        if 'dependencies' in fm:
-            if not isinstance(fm['dependencies'], list):
+        if "dependencies" in fm:
+            if not isinstance(fm["dependencies"], list):
                 self.result.add_error("dependencies must be a list")
 
     def _validate_name(self, name: str) -> None:
@@ -246,17 +274,17 @@ class SkillValidator:
             )
 
         # Format check: lowercase, numbers, hyphens only
-        if not re.match(r'^[a-z0-9-]+$', name):
+        if not re.match(r"^[a-z0-9-]+$", name):
             self.result.add_error(
                 "Name must be lowercase letters, numbers, and hyphens only"
             )
 
         # No leading/trailing hyphens
-        if name.startswith('-') or name.endswith('-'):
+        if name.startswith("-") or name.endswith("-"):
             self.result.add_error("Name cannot start or end with hyphen")
 
         # No consecutive hyphens
-        if '--' in name:
+        if "--" in name:
             self.result.add_warning("Name contains consecutive hyphens")
 
     def _validate_description(self, desc: str) -> None:
@@ -271,15 +299,15 @@ class SkillValidator:
                 f"Description too long: {len(desc)} chars (max {self.MAX_DESC_LENGTH})"
             )
 
-        if len(desc) < 100:
+        if len(desc) < MIN_DESCRIPTION_LENGTH:
             self.result.add_warning(
-                f"Description short ({len(desc)} chars). Consider 200-400 for better discovery."
+                f"Description short ({len(desc)} chars). Consider {MIN_OPTIMAL_DESCRIPTION}-{MAX_OPTIMAL_DESCRIPTION} for better discovery."
             )
-        elif 200 <= len(desc) <= 400:
+        elif MIN_OPTIMAL_DESCRIPTION <= len(desc) <= MAX_OPTIMAL_DESCRIPTION:
             self.result.add_info("Description length optimal (200-400 chars)")
 
         # Third person check
-        first_sentence = desc.split('.')[0].lower()
+        first_sentence = desc.split(".")[0].lower()
 
         # Check for first person patterns
         has_first_person = any(
@@ -295,8 +323,7 @@ class SkillValidator:
 
         # Check for third person verbs
         has_third_person = any(
-            verb in first_sentence
-            for verb in self.THIRD_PERSON_VERBS
+            verb in first_sentence for verb in self.THIRD_PERSON_VERBS
         )
 
         if not has_third_person and not has_first_person:
@@ -306,13 +333,13 @@ class SkillValidator:
             )
 
         # "Use when" clause check
-        if 'use when' not in desc.lower():
+        if "use when" not in desc.lower():
             self.result.add_warning(
                 "Description missing 'Use when...' clause (helps activation)"
             )
 
         # Discovery terms check
-        if len(desc.split()) < 15:
+        if len(desc.split()) < MIN_DESCRIPTION_WORDS:
             self.result.add_warning(
                 "Description has few words. Include more discovery terms."
             )
@@ -324,7 +351,7 @@ class SkillValidator:
             return
 
         # Basic semver check: X.Y.Z
-        if not re.match(r'^\d+\.\d+\.\d+(-[a-z0-9.]+)?$', version):
+        if not re.match(r"^\d+\.\d+\.\d+(-[a-z0-9.]+)?$", version):
             self.result.add_error(
                 f"Version '{version}' invalid. Use semver: X.Y.Z (e.g., 1.0.0)"
             )
@@ -333,8 +360,8 @@ class SkillValidator:
         """Validate skill body content."""
         # Check for essential sections
         required_sections = [
-            ('## Overview', 'Overview section'),
-            ('## When to Use', 'When to Use section'),
+            ("## Overview", "Overview section"),
+            ("## When to Use", "When to Use section"),
         ]
 
         for pattern, name in required_sections:
@@ -342,7 +369,7 @@ class SkillValidator:
                 self.result.add_warning(f"Missing recommended section: {name}")
 
         # Check for at least one example
-        if '```' not in body:
+        if "```" not in body:
             self.result.add_warning("No code examples found (recommended)")
 
         # Check for broken markdown links
@@ -352,7 +379,7 @@ class SkillValidator:
 
     def _validate_line_count(self, body: str) -> None:
         """Check if SKILL.md is within line count limits."""
-        lines = body.count('\n') + 1
+        lines = body.count("\n") + 1
 
         if lines > self.MAX_SKILL_LINES:
             self.result.add_warning(
@@ -367,12 +394,12 @@ class SkillValidator:
         broken = []
 
         # Find markdown links: [text](path)
-        link_pattern = r'\[([^\]]+)\]\(([^)]+)\)'
+        link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
         for match in re.finditer(link_pattern, content):
             link_path = match.group(2)
 
             # Skip URLs
-            if link_path.startswith(('http://', 'https://', '#')):
+            if link_path.startswith(("http://", "https://", "#")):
                 continue
 
             # Check if file exists
@@ -385,10 +412,10 @@ class SkillValidator:
     def _check_module_references(self, body: str) -> None:
         """Check that referenced modules exist."""
         # Find references to modules/
-        module_pattern = r'`?modules/([a-z0-9-]+\.md)`?'
+        module_pattern = r"`?modules/([a-z0-9-]+\.md)`?"
         referenced_modules = set(re.findall(module_pattern, body))
 
-        modules_dir = self.skill_dir / 'modules'
+        modules_dir = self.skill_dir / "modules"
         if not modules_dir.exists() and referenced_modules:
             self.result.add_error(
                 f"References {len(referenced_modules)} modules but modules/ doesn't exist"
@@ -396,19 +423,21 @@ class SkillValidator:
             return
 
         if modules_dir.exists():
-            existing_modules = {f.name for f in modules_dir.glob('*.md')}
+            existing_modules = {f.name for f in modules_dir.glob("*.md")}
 
             for module in referenced_modules:
                 if module not in existing_modules:
-                    self.result.add_error(f"Referenced module not found: modules/{module}")
+                    self.result.add_error(
+                        f"Referenced module not found: modules/{module}"
+                    )
 
     def _validate_modules(self) -> None:
         """Validate module files if they exist."""
-        modules_dir = self.skill_dir / 'modules'
+        modules_dir = self.skill_dir / "modules"
         if not modules_dir.exists():
             return
 
-        module_files = list(modules_dir.glob('*.md'))
+        module_files = list(modules_dir.glob("*.md"))
         if not module_files:
             self.result.add_warning("modules/ directory exists but is empty")
             return
@@ -421,8 +450,8 @@ class SkillValidator:
     def _validate_single_module(self, module_path: Path) -> None:
         """Validate a single module file."""
         try:
-            content = module_path.read_text(encoding='utf-8')
-            lines = content.count('\n') + 1
+            content = module_path.read_text(encoding="utf-8")
+            lines = content.count("\n") + 1
 
             # Line count check
             if lines > self.MAX_MODULE_LINES:
@@ -516,19 +545,15 @@ Examples:
 
   # Strict mode (treat warnings as errors)
   python skill_validator.py --strict
-        """
+        """,
     )
 
     parser.add_argument(
-        '--path',
-        type=Path,
-        help='Path to SKILL.md file (default: ./SKILL.md)'
+        "--path", type=Path, help="Path to SKILL.md file (default: ./SKILL.md)"
     )
 
     parser.add_argument(
-        '--strict',
-        action='store_true',
-        help='Treat warnings as errors'
+        "--strict", action="store_true", help="Treat warnings as errors"
     )
 
     args = parser.parse_args()
@@ -537,7 +562,7 @@ Examples:
     if args.path:
         skill_path = args.path
     else:
-        skill_path = Path.cwd() / 'SKILL.md'
+        skill_path = Path.cwd() / "SKILL.md"
 
     # Validate
     validator = SkillValidator(skill_path, strict=args.strict)
@@ -554,5 +579,5 @@ Examples:
     sys.exit(exit_code)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

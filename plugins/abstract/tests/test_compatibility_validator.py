@@ -1,7 +1,8 @@
-import pytest
 import os
 import tempfile
+
 from scripts.compatibility_validator import CompatibilityValidator
+
 
 def test_validates_feature_parity():
     """Test that compatibility validator correctly validates feature parity"""

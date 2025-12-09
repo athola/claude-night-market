@@ -106,9 +106,7 @@ class ComplianceChecker:
 
                 # Check for parse errors (invalid YAML or missing frontmatter)
                 if result.parse_error:
-                    issues.append(
-                        f"{skill_file.parent.name}: {result.parse_error}"
-                    )
+                    issues.append(f"{skill_file.parent.name}: {result.parse_error}")
                     continue
 
                 # Check for missing required fields

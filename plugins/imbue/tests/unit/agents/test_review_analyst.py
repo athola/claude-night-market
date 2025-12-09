@@ -11,7 +11,7 @@ import pytest
 
 
 class TestReviewAnalystAgent:
-    """Feature: Review analyst agent conducts autonomous reviews
+    """Feature: Review analyst agent conducts autonomous reviews.
 
     As a user delegating review work
     I want the agent to follow imbue methodology
@@ -113,7 +113,7 @@ class TestReviewAnalystAgent:
         When conducting review
         Then it should use review-core for scaffolding
         And evidence-logging for citations
-        And structured-output for reporting
+        And structured-output for reporting.
         """
         # Arrange - track skill usage
         used_skills = []
@@ -130,7 +130,7 @@ class TestReviewAnalystAgent:
         agent_context = sample_agent_session.copy()
 
         # Step 1: Initialize with review-core
-        result1 = mock_claude_tools['Skill']("review-core", {
+        mock_claude_tools['Skill']("review-core", {
             "agent": "review-analyst",
             "focus": agent_context["focus"],
             "target": agent_context["target"]
@@ -138,14 +138,14 @@ class TestReviewAnalystAgent:
         agent_context["completed_steps"].append("workflow_scaffolded")
 
         # Step 2: Set up evidence logging
-        result2 = mock_claude_tools['Skill']("evidence-logging", {
+        mock_claude_tools['Skill']("evidence-logging", {
             "session_id": agent_context["session_id"],
             "agent": "review-analyst"
         })
         agent_context["completed_steps"].append("evidence_logging_ready")
 
         # Step 3: Analyze changes with diff-analysis
-        result3 = mock_claude_tools['Skill']("diff-analysis", {
+        mock_claude_tools['Skill']("diff-analysis", {
             "baseline": "main",
             "target": agent_context["target"],
             "focus": agent_context["focus"]
@@ -153,7 +153,7 @@ class TestReviewAnalystAgent:
         agent_context["completed_steps"].append("changes_analyzed")
 
         # Step 4: Format output with structured-output
-        result4 = mock_claude_tools['Skill']("structured-output", {
+        mock_claude_tools['Skill']("structured-output", {
             "template_type": "security_review",
             "findings_count": 3,  # Would be populated from actual analysis
             "evidence_count": 6
@@ -178,7 +178,7 @@ class TestReviewAnalystAgent:
         Given an agent conducting review
         When analyzing artifacts
         Then every finding should have evidence reference
-        And commands should be logged
+        And commands should be logged.
         """
         # Arrange - simulate evidence gathering
         evidence_log = {
@@ -207,7 +207,7 @@ class TestReviewAnalystAgent:
             search_results = mock_claude_tools['Grep'](search_pattern)
 
             # Read the relevant file
-            file_content = mock_claude_tools['Read'](finding["file"])
+            mock_claude_tools['Read'](finding["file"])
 
             # Log evidence
             evidence_item = {
@@ -256,7 +256,7 @@ class TestReviewAnalystAgent:
         Given multiple findings identified
         When categorizing findings
         Then severity levels should be justified
-        And follow consistent criteria
+        And follow consistent criteria.
         """
         # Arrange & Act - analyze and categorize findings
         categorized_findings = {
@@ -330,7 +330,7 @@ class TestReviewAnalystAgent:
         Given security findings identified
         When creating recommendations
         Then they should be specific and actionable
-        With implementation guidance
+        With implementation guidance.
         """
         # Arrange & Act - enhance findings with actionable recommendations
         enhanced_findings = []
@@ -418,7 +418,7 @@ class TestReviewAnalystAgent:
         Given completed analysis with findings
         When generating final report
         Then it should follow imbue structured-output standards
-        With all required sections
+        With all required sections.
         """
         # Arrange & Act - generate structured report
         report = {
@@ -520,7 +520,7 @@ Immediate remediation of critical findings is essential before production deploy
         Given tool execution failures during review
         When conducting analysis
         Then it should handle errors and continue analysis
-        And report limitations in findings
+        And report limitations in findings.
         """
         # Arrange - simulate tool failures
         mock_claude_tools['Read'].side_effect = [
@@ -544,10 +544,10 @@ Immediate remediation of critical findings is essential before production deploy
         for i, file_path in enumerate(test_files):
             try:
                 # Try to read file
-                content = mock_claude_tools['Read'](file_path)
+                mock_claude_tools['Read'](file_path)
 
                 # Try to search for patterns
-                search_results = mock_claude_tools['Grep']("pattern", file_path)
+                mock_claude_tools['Grep']("pattern", file_path)
 
                 # Create finding if successful
                 findings.append({
@@ -587,7 +587,7 @@ Immediate remediation of critical findings is essential before production deploy
         Given many files to analyze
         When conducting review
         Then it should complete analysis in reasonable time
-        With focused analysis on high-risk areas
+        With focused analysis on high-risk areas.
         """
         import time
 

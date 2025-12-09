@@ -7,6 +7,14 @@ palace: Governance Techniques
 district: Curation Philosophy
 maturity: evergreen
 tags: [konmari, tidying, curation, philosophy, joy, decluttering, organization]
+queries:
+  - How to declutter knowledge base?
+  - What is the KonMari method?
+  - How to decide what knowledge to keep?
+  - Philosophy of tidying and curation
+  - Does it spark joy principle for knowledge
+  - How to organize information intentionally?
+  - Knowledge governance best practices
 ---
 
 # KonMari Method: The Philosophy of Tidying

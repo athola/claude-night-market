@@ -10,7 +10,7 @@ import pytest
 
 
 class TestReviewCoreSkill:
-    """Feature: Review core provides structured workflow scaffolding
+    """Feature: Review core provides structured workflow scaffolding.
 
     As a review workflow initiator
     I want consistent context establishment and scope inventory
@@ -113,7 +113,7 @@ Foundational workflow scaffolding for any detailed review.
         Given the review-core skill is executed
         When establishing the workflow
         Then it should create all 5 required TodoWrite items
-        And each item should have proper naming convention
+        And each item should have proper naming convention.
         """
         # Arrange
         expected_items = [
@@ -146,7 +146,7 @@ Foundational workflow scaffolding for any detailed review.
         Given a repository in review state
         When establishing context
         Then it should capture pwd, branch, and baseline
-        And log commands used for discovery
+        And log commands used for discovery.
         """
         # Arrange
         mock_claude_tools['Bash'].return_value = "/test/repo"
@@ -186,7 +186,7 @@ Foundational workflow scaffolding for any detailed review.
         Given a project with various file types
         When inventorying scope
         Then it should list source, config, docs, and generated assets
-        And record discovery commands
+        And record discovery commands.
         """
         # Arrange
         mock_claude_tools['Glob'].return_value = [
@@ -233,7 +233,7 @@ Foundational workflow scaffolding for any detailed review.
         Given modified files and configuration changes
         When inventorying scope
         Then it should prioritize modified files
-        And identify configuration changes for review
+        And identify configuration changes for review.
         """
         # Arrange
         mock_claude_tools['Bash'].return_value = "M src/main.py\nM config/database.json\nA docs/api.md"
@@ -271,7 +271,7 @@ Foundational workflow scaffolding for any detailed review.
         Given a review workflow starting
         When initializing evidence capture
         Then it should create structured evidence log
-        With session context and metadata
+        With session context and metadata.
         """
         # Arrange & Act - evidence log is already initialized by fixture
         evidence_log = sample_evidence_log
@@ -292,7 +292,7 @@ Foundational workflow scaffolding for any detailed review.
         Given commands being executed during review
         When capturing evidence
         Then it should record command, output, and timestamp
-        And provide unique evidence identifiers
+        And provide unique evidence identifiers.
         """
         # Arrange
         evidence_log = sample_evidence_log
@@ -321,7 +321,7 @@ Foundational workflow scaffolding for any detailed review.
         Given review findings and evidence
         When generating deliverables
         Then it should create structured report with required sections
-        And maintain evidence reference integrity
+        And maintain evidence reference integrity.
         """
         # Arrange
         review_findings = [
@@ -365,7 +365,7 @@ Foundational workflow scaffolding for any detailed review.
         Given required tools not available
         When planning contingencies
         Then it should provide fallback strategies
-        And document tool availability
+        And document tool availability.
         """
         # Arrange
         available_tools = ["Read", "Glob"]  # Missing Grep, Bash
@@ -402,7 +402,7 @@ Foundational workflow scaffolding for any detailed review.
         Given a full review workflow
         When executing review-core skill
         Then it should complete all 5 TodoWrite items
-        And provide structured review foundation
+        And provide structured review foundation.
         """
         # Arrange
         workflow_phases = [
@@ -430,7 +430,7 @@ Foundational workflow scaffolding for any detailed review.
         Given command execution failures
         When running review workflow
         Then it should handle errors and continue
-        And document issues in evidence log
+        And document issues in evidence log.
         """
         # Arrange
         mock_claude_tools['Bash'].side_effect = [
@@ -465,7 +465,7 @@ Foundational workflow scaffolding for any detailed review.
         Given a project with many files
         When inventorying scope
         Then it should summarize rather than list all files
-        And focus on relevant artifacts
+        And focus on relevant artifacts.
         """
         # Arrange
         all_files = [f"src/file_{i}.py" for i in range(1000)]  # Large project

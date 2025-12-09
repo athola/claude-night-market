@@ -10,7 +10,7 @@ import pytest
 
 
 class TestValidatorPerformance:
-    """Feature: Imbue validator performance under load
+    """Feature: Imbue validator performance under load.
 
     As a validation tool
     I want to handle large plugin structures efficiently
@@ -112,7 +112,7 @@ Test command for performance testing.
         """Scenario: Validator performance with large plugin
         Given a plugin with 100+ skills and 50+ commands
         When running validation
-        Then it should complete within reasonable time
+        Then it should complete within reasonable time.
         """
         # Arrange - import validator
         try:
@@ -151,7 +151,7 @@ Test command for performance testing.
         """Scenario: Pattern matching performance optimization
         Given many skill files with various patterns
         When scanning for review patterns
-        Then pattern matching should be optimized
+        Then pattern matching should be optimized.
         """
         try:
             from scripts.imbue_validator import ImbueValidator
@@ -167,7 +167,7 @@ Test command for performance testing.
         # Test multiple scans
         for i in range(5):
             start_time = time.time()
-            scan_result = validator.scan_review_workflows()
+            validator.scan_review_workflows()
             end_time = time.time()
 
             scan_time = end_time - start_time
@@ -199,7 +199,7 @@ Test command for performance testing.
         """Scenario: Memory usage remains reasonable
         Given validation processing many files
         When processing large datasets
-        Then memory usage should scale linearly
+        Then memory usage should scale linearly.
         """
         try:
             from scripts.imbue_validator import ImbueValidator
@@ -238,7 +238,7 @@ Test command for performance testing.
 
             # Run validation
             validator = ImbueValidator(plugin_root)
-            scan_result = validator.scan_review_workflows()
+            validator.scan_review_workflows()
 
             # Get memory snapshot
             current, peak = tracemalloc.get_traced_memory()
@@ -280,7 +280,7 @@ Test command for performance testing.
         """Scenario: Validator handles concurrent processing
         Given multiple validation requests
         When processing in parallel
-        Then performance should scale appropriately
+        Then performance should scale appropriately.
         """
         try:
             from scripts.imbue_validator import ImbueValidator
@@ -340,8 +340,8 @@ Test command for performance testing.
         concurrent_time = time.time() - concurrent_start
 
         # Analyze results
-        avg_sequential_time = sequential_time / plugin_count
-        avg_concurrent_time = concurrent_time / plugin_count
+        sequential_time / plugin_count
+        concurrent_time / plugin_count
 
         # Assert concurrent efficiency
         # Concurrent should be faster (though may not be perfectly parallel due to GIL)
@@ -363,7 +363,7 @@ Test command for performance testing.
         """Scenario: Report generation performs efficiently
         Given large validation results
         When generating reports
-        Then report generation should be fast
+        Then report generation should be fast.
         """
         try:
             from scripts.imbue_validator import ImbueValidator
@@ -372,7 +372,7 @@ Test command for performance testing.
 
         # Arrange
         validator = ImbueValidator(large_plugin_structure)
-        scan_result = validator.scan_review_workflows()
+        validator.scan_review_workflows()
 
         # Act - measure report generation performance
         report_generation_times = []
@@ -412,7 +412,7 @@ Test command for performance testing.
         """Scenario: Regex pattern matching is optimized
         Given many patterns to match against content
         When scanning skills
-        Then regex compilation should be optimized
+        Then regex compilation should be optimized.
         """
         try:
             from scripts.imbue_validator import ImbueValidator
@@ -498,7 +498,7 @@ Test command for performance testing.
         """Scenario: File I/O operations are optimized
         Given many files to read
         When scanning plugin directory
-        Then file I/O should be efficient
+        Then file I/O should be efficient.
         """
         try:
             from scripts.imbue_validator import ImbueValidator

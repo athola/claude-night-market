@@ -22,16 +22,9 @@ class TestCommitMessagesSkill:
     def test_generates_conventional_commit_for_feature_changes(self, staged_changes_context):
         """GIVEN staged changes that add new functionality
         WHEN the commit-messages skill analyzes the changes
-        THEN it should generate a conventional commit message with 'feat' type
+        THEN it should generate a conventional commit message with 'feat' type.
         """
         # Arrange
-        feature_context = {
-            **staged_changes_context,
-            "staged_files": [
-                {"path": "src/new_feature.py", "status": "A", "additions": 50, "deletions": 0},
-                {"path": "tests/test_new_feature.py", "status": "A", "additions": 30, "deletions": 0}
-            ]
-        }
 
         mock_bash = Mock()
         mock_bash.side_effect = [
@@ -51,16 +44,9 @@ class TestCommitMessagesSkill:
     def test_generates_conventional_commit_for_bug_fixes(self, staged_changes_context):
         """GIVEN staged changes that fix bugs
         WHEN the commit-messages skill analyzes the changes
-        THEN it should generate a conventional commit message with 'fix' type
+        THEN it should generate a conventional commit message with 'fix' type.
         """
         # Arrange
-        fix_context = {
-            **staged_changes_context,
-            "staged_files": [
-                {"path": "src/buggy_module.py", "status": "M", "additions": 5, "deletions": 15},
-                {"path": "tests/test_fix.py", "status": "A", "additions": 20, "deletions": 0}
-            ]
-        }
 
         mock_bash = Mock()
         mock_bash.return_value = "fix: Resolve null pointer exception in module initialization\n\nFixes issue #123 where null values caused crashes"
@@ -76,16 +62,9 @@ class TestCommitMessagesSkill:
     def test_generates_conventional_commit_for_documentation(self, staged_changes_context):
         """GIVEN staged changes that only affect documentation
         WHEN the commit-messages skill analyzes the changes
-        THEN it should generate a conventional commit message with 'docs' type
+        THEN it should generate a conventional commit message with 'docs' type.
         """
         # Arrange
-        docs_context = {
-            **staged_changes_context,
-            "staged_files": [
-                {"path": "README.md", "status": "M", "additions": 25, "deletions": 5},
-                {"path": "docs/api.md", "status": "A", "additions": 100, "deletions": 0}
-            ]
-        }
 
         mock_bash = Mock()
         mock_bash.return_value = "docs: Update README and add API documentation\n\nClarify installation steps and document new endpoints"
@@ -100,16 +79,9 @@ class TestCommitMessagesSkill:
     def test_generates_conventional_commit_for_refactoring(self, staged_changes_context):
         """GIVEN staged changes that refactor code without changing functionality
         WHEN the commit-messages skill analyzes the changes
-        THEN it should generate a conventional commit message with 'refactor' type
+        THEN it should generate a conventional commit message with 'refactor' type.
         """
         # Arrange
-        refactor_context = {
-            **staged_changes_context,
-            "staged_files": [
-                {"path": "src/legacy_module.py", "status": "M", "additions": 30, "deletions": 50},
-                {"path": "src/utils.py", "status": "M", "additions": 20, "deletions": 10}
-            ]
-        }
 
         mock_bash = Mock()
         mock_bash.return_value = "refactor: Simplify module structure and improve code organization\n\nExtract common utilities and remove duplicate code"
@@ -124,7 +96,7 @@ class TestCommitMessagesSkill:
     def test_includes_scope_in_commit_message_when_appropriate(self):
         """GIVEN changes that affect a specific component or module
         WHEN the commit-messages skill generates the message
-        THEN it should include the scope in parentheses
+        THEN it should include the scope in parentheses.
         """
         # Arrange
         mock_bash = Mock()
@@ -140,7 +112,7 @@ class TestCommitMessagesSkill:
     def test_includes_breaking_change_indicator_when_needed(self):
         """GIVEN changes that break backward compatibility
         WHEN the commit-messages skill generates the message
-        THEN it should include the breaking change indicator
+        THEN it should include the breaking change indicator.
         """
         # Arrange
         mock_bash = Mock()
@@ -156,7 +128,7 @@ class TestCommitMessagesSkill:
     def test_analyzes_diff_content_for_context(self):
         """GIVEN staged changes with specific code patterns
         WHEN the commit-messages skill analyzes the diff
-        THEN it should extract meaningful context from the diff
+        THEN it should extract meaningful context from the diff.
         """
         # Arrange
         sample_diff = """diff --git a/src/calculator.py b/src/calculator.py
@@ -190,7 +162,7 @@ index abc123..def456 100644
     def test_handles_multiple_file_changes_in_single_commit(self, staged_changes_context):
         """GIVEN multiple files staged for commit
         WHEN the commit-messages skill analyzes all changes
-        THEN it should generate a cohesive message covering all changes
+        THEN it should generate a cohesive message covering all changes.
         """
         # Arrange - context already has multiple files
         mock_bash = Mock()
@@ -211,7 +183,7 @@ index abc123..def456 100644
     def test_follows_conventional_commit_specification(self):
         """GIVEN any commit message generated by the skill
         WHEN it's validated against the conventional commit specification
-        THEN it should comply with the format requirements
+        THEN it should comply with the format requirements.
         """
         # Arrange
         valid_formats = [
@@ -241,7 +213,7 @@ index abc123..def456 100644
     def test_creates_required_todo_items(self, mock_todo_tool):
         """GIVEN analysis of staged changes is complete
         WHEN the commit-messages skill finishes
-        THEN it should create the required TodoWrite items
+        THEN it should create the required TodoWrite items.
         """
         # Arrange
         expected_todos = [
@@ -271,7 +243,7 @@ index abc123..def456 100644
     def test_handles_empty_staged_changes(self):
         """GIVEN no staged changes in the repository
         WHEN the commit-messages skill attempts to generate a message
-        THEN it should handle the empty state gracefully
+        THEN it should handle the empty state gracefully.
         """
         # Arrange
         mock_bash = Mock()
@@ -289,7 +261,7 @@ index abc123..def456 100644
     def test_handles_binary_files_in_staged_changes(self):
         """GIVEN binary files (images, PDFs, etc.) staged for commit
         WHEN the commit-messages skill analyzes the changes
-        THEN it should handle binary files appropriately in the message
+        THEN it should handle binary files appropriately in the message.
         """
         # Arrange
         mock_bash = Mock()
@@ -314,7 +286,7 @@ index abc123..def456 100644
         def test_uses_imperative_mood_in_subject(self):
             """GIVEN a commit message being generated
             WHEN the subject line is created
-            THEN it should use imperative mood (Add, Fix, Update, not Added, Fixed, Updated)
+            THEN it should use imperative mood (Add, Fix, Update, not Added, Fixed, Updated).
             """
             # Arrange
             mock_bash = Mock()
@@ -331,7 +303,7 @@ index abc123..def456 100644
         def test_limits_subject_line_length(self):
             """GIVEN a commit message being generated
             WHEN the subject line is created
-            THEN it should be within conventional length limits (50-72 characters)
+            THEN it should be within conventional length limits (50-72 characters).
             """
             # Arrange
             mock_bash = Mock()
@@ -347,7 +319,7 @@ index abc123..def456 100644
         def test_separates_subject_from_body_with_blank_line(self):
             """GIVEN a commit message with subject and body
             WHEN the full message is generated
-            THEN it should separate subject and body with a blank line
+            THEN it should separate subject and body with a blank line.
             """
             # Arrange
             mock_bash = Mock()
@@ -366,10 +338,9 @@ The authentication flow uses JWT tokens for session management."""
         def test_wraps_body_lines_at_72_characters(self):
             """GIVEN a commit message body
             WHEN the body is generated
-            THEN it should wrap lines at 72 characters for readability
+            THEN it should wrap lines at 72 characters for readability.
             """
             # Arrange
-            long_line = "This is a very long line that should be wrapped at exactly 72 characters to ensure proper readability in git log output and various git tools that display commit messages."
             wrapped_lines = [
                 "This is a very long line that should be wrapped at exactly 72",
                 "characters to ensure proper readability in git log output and"
@@ -390,7 +361,7 @@ The authentication flow uses JWT tokens for session management."""
         def test_explains_what_and_why_in_commit_body(self):
             """GIVEN changes being committed
             WHEN the commit body is written
-            THEN it should explain both what changed and why it was necessary
+            THEN it should explain both what changed and why it was necessary.
             """
             # Arrange
             mock_bash = Mock()

@@ -1,0 +1,246 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "spec-kit"
+version = "3.1.0"
+description = "Spec Driven Development toolkit with enhanced superpowers integration"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    {name = "Claude Skills", email = "claude@anthropic.com"},
+]
+keywords = ["speckit", "spec-driven-development", "specification", "planning", "implementation", "workflow", "tdd", "requirements"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Testing",
+]
+
+dependencies = [
+    # Core dependencies with version pinning
+    "pydantic>=2.5.0,<3.0.0",          # For data validation and settings
+    "click>=8.1.0,<9.0.0",              # For CLI interface
+    "rich>=13.6.0,<14.0.0",             # For rich text output
+    "jinja2>=3.1.0,<4.0.0",             # For template rendering
+    "pyyaml>=6.0.0,<7.0.0",             # For YAML configuration
+    "jsonschema>=4.19.0,<5.0.0",        # For schema validation
+    "gitpython>=3.1.40,<4.0.0",         # For git operations
+    "pathlib2>=2.3.7,<3.0.0; python_version<'3.4'",  # Backport for older Python
+
+    # Testing dependencies
+    "pytest>=7.4.0,<8.0.0",
+    "pytest-cov>=4.1.0,<5.0.0",
+    "pytest-mock>=3.12.0,<4.0.0",
+    "pytest-asyncio>=0.21.0,<1.0.0",
+
+    # Performance and monitoring
+    "psutil>=5.9.0,<6.0.0",             # For system monitoring
+    "memory-profiler>=0.61.0,<1.0.0",   # For memory profiling
+
+    # Documentation
+    "mkdocs>=1.5.0,<2.0.0",
+    "mkdocs-material>=9.4.0,<10.0.0",
+    "mkdocstrings[python]>=0.23.0,<1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Development tools
+    "black>=23.9.0,<24.0.0",            # Code formatting
+    "ruff>=0.1.0,<1.0.0",               # Linting and formatting
+    "mypy>=1.6.0,<2.0.0",               # Type checking
+    "pre-commit>=3.5.0,<4.0.0",         # Git hooks
+
+    # Advanced testing
+    "pytest-xdist>=3.3.0,<4.0.0",       # Parallel testing
+    "pytest-benchmark>=4.0.0,<5.0.0",   # Performance testing
+    "factory-boy>=3.3.0,<4.0.0",        # Test data generation
+
+    # Security scanning
+    "bandit>=1.7.5,<2.0.0",             # Security vulnerability scanner
+    "safety>=2.3.0,<3.0.0",             # Dependency vulnerability checker
+]
+
+performance = [
+    # Performance optimization dependencies
+    "orjson>=3.9.0,<4.0.0",             # Fast JSON parsing
+    "ujson>=5.8.0,<6.0.0",              # Ultra fast JSON
+    "cachetools>=5.3.0,<6.0.0",         # Caching utilities
+    "redis>=5.0.0,<6.0.0",              # For distributed caching (optional)
+]
+
+monitoring = [
+    # Monitoring and observability
+    "prometheus-client>=0.18.0,<1.0.0",  # Prometheus metrics
+    "structlog>=23.2.0,<24.0.0",         # Structured logging
+    "opentelemetry-api>=1.20.0,<2.0.0", # OpenTelemetry support
+]
+
+[project.urls]
+Homepage = "https://github.com/superpowers-marketplace/spec-kit"
+Documentation = "https://spec-kit.readthedocs.io"
+Repository = "https://github.com/superpowers-marketplace/spec-kit"
+"Bug Tracker" = "https://github.com/superpowers-marketplace/spec-kit/issues"
+Changelog = "https://github.com/superpowers-marketplace/spec-kit/blob/main/CHANGELOG.md"
+
+[project.scripts]
+speckit = "speckit.cli:main"
+
+# [tool.hatch.version]
+# path = "src/speckit/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/commands",
+    "/skills",
+    "/agents",
+    "/README.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+# Don't build wheel for now as this is a plugin
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# Ruff configuration
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["B011"]
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "git.*",
+    "rich.*",
+    "psutil.*",
+    "memory_profiler.*",
+]
+ignore_missing_imports = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=src/speckit",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=80",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "performance: marks tests as performance tests",
+    "security: marks tests as security-related tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/speckit"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# Bandit configuration
+[tool.bandit]
+exclude_dirs = ["tests", "build", "dist"]
+skips = ["B101", "B601"]
+
+[dependency-groups]
+dev = [
+    "black",
+    "mypy",
+    "ruff",
+]

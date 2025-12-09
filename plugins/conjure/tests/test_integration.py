@@ -1,19 +1,18 @@
 """Integration tests for conjure plugin following TDD/BDD principles."""
 
 import json
-import tempfile
-import time
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-from datetime import datetime, timedelta
-import pytest
 
 # Import modules for testing
 import sys
+import time
+from datetime import datetime, timedelta
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from delegation_executor import Delegator, ServiceConfig, ExecutionResult
-from quota_tracker import GeminiQuotaTracker, DEFAULT_LIMITS
+from delegation_executor import Delegator
+from quota_tracker import GeminiQuotaTracker
 from usage_logger import GeminiUsageLogger, UsageEntry
 
 
@@ -377,7 +376,7 @@ class TestEndToEndWorkflows:
         delegator = Delegator(config_dir=tmp_path)
 
         # Test error handling and recovery
-        for i, expected_result in enumerate(error_results):
+        for i, _expected_result in enumerate(error_results):
             result = delegator.execute(
                 "gemini",
                 f"Test request {i}",

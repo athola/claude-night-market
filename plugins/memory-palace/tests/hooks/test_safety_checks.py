@@ -2,21 +2,21 @@
 
 from __future__ import annotations
 
-import pytest
-import sys
 import os
+import sys
+
+import pytest
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))
 
 from shared.safety_checks import (
-    SafetyCheckResult,
     SafetyCheckTimeout,
-    is_safe_content,
-    quick_size_check,
-    check_secrets,
     check_data_bombs,
     check_prompt_injection,
+    check_secrets,
+    is_safe_content,
+    quick_size_check,
 )
 
 

@@ -7,11 +7,9 @@ for testing parseltongue skills, agents, and workflows.
 
 from __future__ import annotations
 
-import json
 import tempfile
 import textwrap
 from pathlib import Path
-from typing import Any, Dict, List
 from unittest.mock import Mock
 
 import pytest
@@ -462,11 +460,11 @@ dependencies = [
 
         # Initialize git repository
         import subprocess
-        subprocess.run(["git", "init"], cwd=project_path, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=project_path, capture_output=True)
-        subprocess.run(["git", "config", "user.name", "Test User"], cwd=project_path, capture_output=True)
-        subprocess.run(["git", "add", "."], cwd=project_path, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=project_path, capture_output=True)
+        subprocess.run(["git", "init"], check=False, cwd=project_path, capture_output=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], check=False, cwd=project_path, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "Test User"], check=False, cwd=project_path, capture_output=True)
+        subprocess.run(["git", "add", "."], check=False, cwd=project_path, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Initial commit"], check=False, cwd=project_path, capture_output=True)
 
         yield project_path
 

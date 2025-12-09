@@ -8,8 +8,6 @@ and pattern recognition capabilities.
 from __future__ import annotations
 
 import pytest
-from unittest.mock import Mock, patch
-from pathlib import Path
 
 # Import the skills we're testing
 from parseltongue.skills.language_detection import LanguageDetectionSkill
@@ -296,7 +294,7 @@ class UserView(ListView):
         assert "service" in patterns
 
         # Should detect Repository-like pattern
-        assert any("repository" in pattern.lower() for pattern in patterns.keys())
+        assert any("repository" in pattern.lower() for pattern in patterns)
 
     @pytest.mark.unit
     def test_handles_mixed_language_files(self, language_samples):
@@ -368,7 +366,7 @@ def complex_function(items):
             ("invalid syntax with {{", "invalid_syntax")
         ]
 
-        for code, case_type in test_cases:
+        for code, _case_type in test_cases:
             # Act
             result = self.skill.detect_language(code)
 

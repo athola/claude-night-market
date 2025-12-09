@@ -1,8 +1,5 @@
 """Tests for spec-kit agent functionality."""
 
-import pytest
-from unittest.mock import Mock, patch, AsyncMock
-import json
 
 
 class TestSpeckitAgents:

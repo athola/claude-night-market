@@ -8,10 +8,8 @@ BDD-style tests organized by behavior:
 """
 
 import json
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -36,7 +34,7 @@ class TestMemoryPalaceManagerInitialization:
         new_palaces_dir = tmp_path / "new_palaces"
         assert not new_palaces_dir.exists()
 
-        manager = MemoryPalaceManager(
+        MemoryPalaceManager(
             config_path=str(temp_config_file),
             palaces_dir_override=str(new_palaces_dir),
         )

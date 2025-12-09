@@ -55,6 +55,7 @@ class GeminiQuotaTracker(QuotaTracker):
         Args:
             limits: Optional dict with quota limits. If provided, overrides
                    GEMINI_QUOTA_CONFIG defaults.
+
         """
         # Convert limits dict to QuotaConfig if provided
         if limits:
@@ -102,6 +103,7 @@ class GeminiQuotaTracker(QuotaTracker):
 
         Returns:
             Estimated total tokens
+
         """
         encoder = self._get_encoder()
         if encoder:
@@ -163,8 +165,17 @@ class GeminiQuotaTracker(QuotaTracker):
         }
 
         valid_extensions = {
-            ".py", ".js", ".ts", ".md", ".yaml", ".yml",
-            ".json", ".toml", ".txt", ".rs", ".go",
+            ".py",
+            ".js",
+            ".ts",
+            ".md",
+            ".yaml",
+            ".yml",
+            ".json",
+            ".toml",
+            ".txt",
+            ".rs",
+            ".go",
         }
 
         for file_path in file_paths:
@@ -194,6 +205,7 @@ def estimate_tokens_from_gemini_command(command: str) -> int:
 
     Returns:
         Estimated token count
+
     """
     try:
         parts = shlex.split(command)

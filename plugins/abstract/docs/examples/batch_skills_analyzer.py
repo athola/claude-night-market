@@ -62,8 +62,8 @@ def generate_batch_report(skills_dir: Path, output_dir: Path) -> None:
         "token_efficiency": {
             "optimal_usage": token_stats.get("optimal_usage_count", 0),
             "over_limit": token_stats.get("skills_over_limit", 0),
-            "average_tokens": token_stats.get("average_tokens", 0)
-        }
+            "average_tokens": token_stats.get("average_tokens", 0),
+        },
     }
 
     # Save detailed reports
@@ -72,7 +72,7 @@ def generate_batch_report(skills_dir: Path, output_dir: Path) -> None:
         "audit": audit_results,
         "token_usage": token_stats,
         "compliance": compliance_results,
-        "recommendations": audit_results.get("recommendations", [])
+        "recommendations": audit_results.get("recommendations", []),
     }
 
     # Write JSON report
@@ -101,7 +101,7 @@ def generate_batch_report(skills_dir: Path, output_dir: Path) -> None:
     print(f"  Over limit: {summary['token_efficiency']['over_limit']}")
     print(f"  Average tokens: {summary['token_efficiency']['average_tokens']:,}")
 
-    if summary['compliance_issues'] > 0:
+    if summary["compliance_issues"] > 0:
         print(f"\nCompliance Issues: {summary['compliance_issues']}")
 
     print(f"\nReports saved to: {output_dir}")
@@ -144,28 +144,29 @@ def generate_markdown_summary(summary: dict[str, Any], issues: list[str]) -> str
         "",
         f"- **Compliant Skills:** {summary['compliant_skills']}",
         f"- **Compliance Issues:** {summary['compliance_issues']}",
-        ""
+        "",
     ]
 
     if issues:
-        lines.extend([
-            "### Issues Found",
-            ""
-        ])
-        for issue in issues[:MAX_ISSUES_DISPLAY]:  # Limit to first MAX_ISSUES_DISPLAY issues
+        lines.extend(["### Issues Found", ""])
+        for issue in issues[
+            :MAX_ISSUES_DISPLAY
+        ]:  # Limit to first MAX_ISSUES_DISPLAY issues
             lines.append(f"- {issue}")
 
         if len(issues) > MAX_ISSUES_DISPLAY:
             lines.append(f"- ... and {len(issues) - MAX_ISSUES_DISPLAY} more issues")
 
-    lines.extend([
-        "",
-        "## Detailed Reports",
-        "",
-        "- `skills_analysis_report.json` - Complete analysis data",
-        "- Individual skill details available in the JSON report",
-        ""
-    ])
+    lines.extend(
+        [
+            "",
+            "## Detailed Reports",
+            "",
+            "- `skills_analysis_report.json` - Complete analysis data",
+            "- Individual skill details available in the JSON report",
+            "",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -179,13 +180,13 @@ def main():
         "--skills-dir",
         type=Path,
         default="skills",
-        help="Directory containing skills (default: skills)"
+        help="Directory containing skills (default: skills)",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
         default="reports",
-        help="Output directory for reports (default: reports)"
+        help="Output directory for reports (default: reports)",
     )
 
     args = parser.parse_args()

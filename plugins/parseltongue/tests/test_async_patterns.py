@@ -8,9 +8,6 @@ and optimization recommendations.
 from __future__ import annotations
 
 import pytest
-import asyncio
-from unittest.mock import Mock, patch
-from pathlib import Path
 
 # Import the skills we're testing
 from parseltongue.skills.async_analyzer import AsyncAnalysisSkill

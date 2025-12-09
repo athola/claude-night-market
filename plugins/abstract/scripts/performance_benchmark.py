@@ -1,17 +1,18 @@
 # plugins/abstract/scripts/performance_benchmark.py
-import time
-import statistics
-from typing import List, Dict
-import sys
 import os
+import statistics
+import sys
+import time
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.test_skill_wrapper import TestSkillWrapper
 
-def benchmark_wrapper(iterations: int = 1000) -> Dict:
+
+def benchmark_wrapper(iterations: int = 1000) -> dict:
     """Benchmark wrapper performance"""
     wrapper = TestSkillWrapper()
 
-    times: List[float] = []
+    times: list[float] = []
 
     for _ in range(iterations):
         start = time.perf_counter()
@@ -24,8 +25,9 @@ def benchmark_wrapper(iterations: int = 1000) -> Dict:
         "mean": statistics.mean(times),
         "median": statistics.median(times),
         "p95": statistics.quantiles(times, n=20)[18],  # 95th percentile
-        "max": max(times)
+        "max": max(times),
     }
+
 
 if __name__ == "__main__":
     result = benchmark_wrapper()

@@ -12,7 +12,7 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Any
+    pass
 
 REMINDER = """
 ## Post-Implementation Checklist Reminder
@@ -32,20 +32,17 @@ If not applicable (simple fix, research, etc.), disregard this reminder.
 def main() -> None:
     """Provide workflow reminder at session end."""
     try:
-        payload: dict[str, Any] = json.load(sys.stdin)
+        json.load(sys.stdin)
     except json.JSONDecodeError:
         # No payload or invalid JSON - still provide reminder
         pass
 
     response = {
-        "hookSpecificOutput": {
-            "hookEventName": "Stop",
-            "additionalContext": REMINDER
-        }
+        "hookSpecificOutput": {"hookEventName": "Stop", "additionalContext": REMINDER}
     }
     print(json.dumps(response))
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

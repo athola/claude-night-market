@@ -19,7 +19,7 @@ class TestCatchupCommand:
     def test_catchup_command_analyzes_diverged_branch(self, temp_git_repo):
         """GIVEN a branch that has diverged from remote
         WHEN /catchup is executed
-        THEN it should analyze differences and prepare for synchronization
+        THEN it should analyze differences and prepare for synchronization.
         """
         # Arrange
         mock_bash = Mock()
@@ -51,7 +51,7 @@ class TestCatchupCommand:
     def test_catchup_command_handles_ahead_branch(self, temp_git_repo):
         """GIVEN a branch that is ahead of remote
         WHEN /catchup is executed
-        THEN it should identify commits to push
+        THEN it should identify commits to push.
         """
         # Arrange - repository with a commit is set up by fixture
 
@@ -71,7 +71,7 @@ class TestCatchupCommand:
     def test_catchup_command_handles_diverged_branch(self):
         """GIVEN a branch that has both local and remote changes
         WHEN /catchup is executed
-        THEN it should identify the diverged state and suggest merge/rebase
+        THEN it should identify the diverged state and suggest merge/rebase.
         """
         # Act - simulate calling catchup workflow with diverged state
         catchup_result = self._execute_catchup_workflow(
@@ -91,7 +91,7 @@ class TestCatchupCommand:
     def test_catchup_command_handles_clean_repository(self):
         """GIVEN a clean repository up to date with remote
         WHEN /catchup is executed
-        THEN it should report no action needed
+        THEN it should report no action needed.
         """
         # Act - simulate calling catchup workflow with clean state
         catchup_result = self._execute_catchup_workflow(
@@ -149,7 +149,7 @@ class TestCommitMsgCommand:
     def test_commit_msg_command_generates_conventional_commit(self, staged_changes_context):
         """GIVEN staged changes in the repository
         WHEN /commit-msg is executed
-        THEN it should generate a conventional commit message
+        THEN it should generate a conventional commit message.
         """
         # Act - simulate commit message generation with staged files
         commit_result = self._execute_commit_msg_workflow(
@@ -166,7 +166,7 @@ class TestCommitMsgCommand:
     def test_commit_msg_command_handles_bug_fixes(self):
         """GIVEN staged changes that fix bugs
         WHEN /commit-msg is executed
-        THEN it should generate a fix-type commit message
+        THEN it should generate a fix-type commit message.
         """
         # Act - simulate commit message generation for bug fix
         commit_result = self._execute_commit_msg_workflow(
@@ -181,7 +181,7 @@ class TestCommitMsgCommand:
     def test_commit_msg_command_handles_no_staged_changes(self):
         """GIVEN no staged changes in the repository
         WHEN /commit-msg is executed
-        THEN it should inform user to stage changes first
+        THEN it should inform user to stage changes first.
         """
         # Act - simulate commit message workflow with no staged changes
         commit_result = self._execute_commit_msg_workflow(has_staged=False)
@@ -193,7 +193,7 @@ class TestCommitMsgCommand:
     def test_commit_msg_command_follows_skill_sequence(self, mock_todo_tool):
         """GIVEN the /commit-msg command is executed
         WHEN it runs the skill sequence
-        THEN it should execute skills in the correct order
+        THEN it should execute skills in the correct order.
         """
         # Arrange
         skill_sequence = [
@@ -252,7 +252,7 @@ class TestPRCommand:
     def test_pr_command_prepares_pull_request(self, pull_request_context):
         """GIVEN a feature branch ready for PR
         WHEN /pr is executed
-        THEN it should prepare a comprehensive pull request
+        THEN it should prepare a comprehensive pull request.
         """
         # Act - simulate PR workflow with context
         pr_result = self._execute_pr_workflow(pull_request_context)
@@ -269,7 +269,7 @@ class TestPRCommand:
     def test_pr_command_includes_quality_gates(self, pull_request_context):
         """GIVEN a feature branch
         WHEN /pr prepares the pull request
-        THEN it should include quality gate validation
+        THEN it should include quality gate validation.
         """
         # Act - simulate PR workflow with context
         pr_result = self._execute_pr_workflow(pull_request_context)
@@ -283,7 +283,7 @@ class TestPRCommand:
     def test_pr_command_suggests_reviewers(self, pull_request_context):
         """GIVEN changes in specific areas
         WHEN /pr prepares the pull request
-        THEN it should suggest appropriate reviewers
+        THEN it should suggest appropriate reviewers.
         """
         # Act - simulate PR workflow with context
         pr_result = self._execute_pr_workflow(pull_request_context)
@@ -345,7 +345,7 @@ class TestUpdateDocsCommand:
     def test_update_docs_command_identifies_documentation_needs(self, temp_git_repo):
         """GIVEN code changes that require documentation updates
         WHEN /update-docs is executed
-        THEN it should identify and suggest documentation changes
+        THEN it should identify and suggest documentation changes.
         """
         # Act - simulate docs workflow with changes
         docs_result = self._execute_update_docs_workflow(has_changes=True)
@@ -360,7 +360,7 @@ class TestUpdateDocsCommand:
     def test_update_docs_command_handles_no_changes(self):
         """GIVEN no code changes
         WHEN /update-docs is executed
-        THEN it should report no documentation updates needed
+        THEN it should report no documentation updates needed.
         """
         # Act - simulate docs workflow with no changes
         docs_result = self._execute_update_docs_workflow(has_changes=False)
@@ -405,7 +405,7 @@ class TestUpdateReadmeCommand:
     def test_update_readme_command_modernizes_readme(self, temp_git_repo):
         """GIVEN an outdated README file
         WHEN /update-readme is executed
-        THEN it should modernize the README with current best practices
+        THEN it should modernize the README with current best practices.
         """
         # Act - simulate update readme workflow
         readme_result = self._execute_update_readme_workflow()
@@ -478,7 +478,7 @@ class TestUpdateVersionCommand:
     def test_update_version_command_bumps_all_version_files(self, temp_git_repo):
         """GIVEN a project with version information in multiple files
         WHEN /update-version is executed with patch version
-        THEN it should update version in all relevant files
+        THEN it should update version in all relevant files.
         """
         # Act - simulate version bump workflow
         version_result = self._execute_update_version_workflow("patch")
@@ -492,7 +492,7 @@ class TestUpdateVersionCommand:
     def test_update_version_command_handles_major_minor_patch(self):
         """GIVEN different version bump types
         WHEN /update-version is executed
-        THEN it should correctly calculate the new version
+        THEN it should correctly calculate the new version.
         """
         # Arrange
         test_cases = [

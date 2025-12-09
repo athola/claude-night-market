@@ -25,7 +25,7 @@ class TestGitWorkspaceReviewSkill:
     def test_skill_identifies_valid_git_repository(self, temp_git_repo, mock_todo_tool):
         """GIVEN a valid Git repository
         WHEN the git-workspace-review skill is executed
-        THEN it should confirm the repository is valid and create required todos
+        THEN it should confirm the repository is valid and create required todos.
         """
         # Arrange - repository already set up by fixture
         mock_bash = Mock()
@@ -41,7 +41,7 @@ class TestGitWorkspaceReviewSkill:
     def test_skill_detects_staged_changes(self, temp_git_repo, mock_todo_tool):
         """GIVEN a Git repository with staged changes
         WHEN the git-workspace-review skill analyzes the repository
-        THEN it should detect and report the staged changes
+        THEN it should detect and report the staged changes.
         """
         # Arrange - create a repository with staged changes
         temp_git_repo.add_file("test.py", "print('hello')")
@@ -66,7 +66,7 @@ class TestGitWorkspaceReviewSkill:
     def test_skill_detects_unstaged_changes(self, temp_git_repo):
         """GIVEN a Git repository with unstaged changes
         WHEN the git-workspace-review skill analyzes the repository
-        THEN it should detect and report the unstaged changes
+        THEN it should detect and report the unstaged changes.
         """
         # Arrange - create unstaged changes
         temp_git_repo.add_file("test.py", "print('hello')")
@@ -93,7 +93,7 @@ class TestGitWorkspaceReviewSkill:
     def test_skill_detects_untracked_files(self, temp_git_repo):
         """GIVEN a Git repository with untracked files
         WHEN the git-workspace-review skill analyzes the repository
-        THEN it should detect and report the untracked files
+        THEN it should detect and report the untracked files.
         """
         # Arrange - create untracked files
         temp_git_repo.add_file("untracked.txt", "untracked content")
@@ -119,7 +119,7 @@ nothing added to commit but untracked files present
     def test_skill_handles_repository_with_no_changes(self, temp_git_repo):
         """GIVEN a clean Git repository with no changes
         WHEN the git-workspace-review skill analyzes the repository
-        THEN it should report the repository is clean
+        THEN it should report the repository is clean.
         """
         # Arrange - ensure clean repository
         mock_bash = Mock()
@@ -135,7 +135,7 @@ nothing added to commit but untracked files present
     def test_skill_reports_branch_information(self, temp_git_repo):
         """GIVEN a Git repository on a specific branch
         WHEN the git-workspace-review skill analyzes the repository
-        THEN it should report the current branch information
+        THEN it should report the current branch information.
         """
         # Arrange - create a feature branch
         temp_git_repo.create_branch("feature/test-branch")
@@ -160,7 +160,7 @@ nothing added to commit but untracked files present
     def test_skill_detects_remote_tracking(self, temp_git_repo):
         """GIVEN a Git repository with remote tracking
         WHEN the git-workspace-review skill analyzes the repository
-        THEN it should report remote tracking information
+        THEN it should report remote tracking information.
         """
         # Arrange - add a remote
         temp_git_repo.add_remote("origin", "https://github.com/test/repo.git")
@@ -184,7 +184,7 @@ nothing added to commit but untracked files present
     def test_skill_detects_ahead_behind_status(self, temp_git_repo):
         """GIVEN a Git repository that is ahead/behind remote
         WHEN the git-workspace-review skill analyzes the repository
-        THEN it should report ahead/behind information
+        THEN it should report ahead/behind information.
         """
         mock_bash = Mock()
         mock_bash.side_effect = [
@@ -204,7 +204,7 @@ nothing added to commit but untracked files present
     def test_skill_creates_required_todo_items(self, mock_todo_tool):
         """GIVEN any repository state
         WHEN the git-workspace-review skill completes analysis
-        THEN it should create the required TodoWrite items
+        THEN it should create the required TodoWrite items.
         """
         # Arrange
         expected_todos = [
@@ -229,7 +229,7 @@ nothing added to commit but untracked files present
     def test_skill_handles_non_git_directory(self):
         """GIVEN a directory that is not a Git repository
         WHEN the git-workspace-review skill attempts analysis
-        THEN it should handle the error gracefully
+        THEN it should handle the error gracefully.
         """
         # Arrange
         mock_bash = Mock()
@@ -244,7 +244,7 @@ nothing added to commit but untracked files present
     def test_skill_handles_permission_errors(self):
         """GIVEN a directory with permission restrictions
         WHEN the git-workspace-review skill attempts analysis
-        THEN it should handle permission errors gracefully
+        THEN it should handle permission errors gracefully.
         """
         # Arrange
         mock_bash = Mock()
@@ -260,7 +260,7 @@ nothing added to commit but untracked files present
         def test_skill_integration_with_todo_tool(self, temp_git_repo, mock_todo_tool):
             """GIVEN a Git repository
             WHEN git-workspace-review skill executes
-            THEN it should properly integrate with TodoWrite tool
+            THEN it should properly integrate with TodoWrite tool.
             """
             # This tests the integration pattern used by the actual skill
             todos_created = []
@@ -285,7 +285,7 @@ nothing added to commit but untracked files present
         def test_skill_dependency_chain(self, temp_git_repo):
             """GIVEN multiple skills that depend on git-workspace-review
             WHEN the dependency chain is executed
-            THEN git-workspace-review should provide necessary context
+            THEN git-workspace-review should provide necessary context.
             """
             # This tests the concept that other skills depend on the output
             # of git-workspace-review for their operation
@@ -310,7 +310,7 @@ nothing added to commit but untracked files present
         def test_handles_empty_repository(self, temp_git_repo):
             """GIVEN an empty Git repository (no commits)
             WHEN the skill analyzes the repository
-            THEN it should handle the empty state correctly
+            THEN it should handle the empty state correctly.
             """
             # Arrange - new repository has no commits
             mock_bash = Mock()
@@ -331,7 +331,7 @@ nothing to commit
         def test_handles_detached_head_state(self, temp_git_repo):
             """GIVEN a repository in detached HEAD state
             WHEN the skill analyzes the repository
-            THEN it should handle detached HEAD correctly
+            THEN it should handle detached HEAD correctly.
             """
             # Arrange
             mock_bash = Mock()
@@ -349,7 +349,7 @@ nothing to commit, working tree clean
         def test_handles_merge_conflicts(self, temp_git_repo):
             """GIVEN a repository with merge conflicts
             WHEN the skill analyzes the repository
-            THEN it should detect and report conflicts
+            THEN it should detect and report conflicts.
             """
             # Arrange
             mock_bash = Mock()
@@ -375,7 +375,7 @@ no changes added to commit (use "git add" and/or "git commit -a")
         def test_handles_large_diff_output(self, temp_git_repo):
             """GIVEN a repository with very large diffs
             WHEN the skill analyzes changes
-            THEN it should handle large output efficiently
+            THEN it should handle large output efficiently.
             """
             # Arrange
             large_diff = "a" * 100000  # Simulate large diff output

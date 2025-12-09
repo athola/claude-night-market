@@ -84,7 +84,7 @@ def main() -> None:
 
     # Lazy import for slow path
     from shared.config import get_config
-    from shared.deduplication import is_known, get_url_key
+    from shared.deduplication import is_known
 
     config = get_config()
     if not config.get('enabled', True):

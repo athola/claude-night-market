@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import pytest
-import sys
 import os
+import sys
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))
@@ -12,8 +11,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../hooks'))
 from shared.config import (
     CONFIG_DEFAULTS,
     get_config,
-    is_path_excluded,
     is_knowledge_path,
+    is_path_excluded,
     is_path_safe,
     should_process_path,
 )

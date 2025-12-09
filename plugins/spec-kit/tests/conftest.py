@@ -1,10 +1,8 @@
 """Pytest configuration and shared fixtures for spec-kit testing."""
 
-import pytest
-import tempfile
-import json
-from pathlib import Path
 from unittest.mock import Mock
+
+import pytest
 
 
 @pytest.fixture

@@ -10,7 +10,7 @@ import pytest
 
 
 class TestCatchupSkill:
-    """Feature: Catchup skill efficiently reviews recent changes
+    """Feature: Catchup skill efficiently reviews recent changes.
 
     As a developer returning to work
     I want to quickly understand what changed
@@ -171,7 +171,7 @@ Untracked files:
         Given a git repository in any state
         When starting catchup analysis
         Then it should capture pwd, branch, and synchronization status
-        And identify uncommitted changes
+        And identify uncommitted changes.
         """
         # Arrange
         mock_claude_tools['Bash'].side_effect = [
@@ -210,7 +210,7 @@ Untracked files:
         Given a repository with various changes
         When running catchup analysis
         Then it should prioritize code changes over docs
-        And identify conflicts or blocking issues
+        And identify conflicts or blocking issues.
         """
         # Arrange & Act - parse git status and categorize changes
         status_lines = sample_git_status_output.split('\n')
@@ -285,7 +285,7 @@ Untracked files:
         Given recent commits and changes
         When analyzing delta
         Then it should summarize metadata and structure
-        And conserve tokens by avoiding full content reproduction
+        And conserve tokens by avoiding full content reproduction.
         """
         # Arrange & Act - parse git log output efficiently
         log_lines = sample_git_log_output.split('\n')
@@ -360,7 +360,7 @@ Untracked files:
         Given categorized changes and commit history
         When extracting insights
         Then it should identify high-impact changes
-        And detect coordination requirements
+        And detect coordination requirements.
         """
         # Arrange & Act - simulate insight extraction
         changes = [
@@ -421,7 +421,7 @@ Untracked files:
         Given insights from change analysis
         When recording follow-ups
         Then it should prioritize actions by impact
-        And categorize by action type
+        And categorize by action type.
         """
         # Arrange & Act - generate follow-ups from insights
         insights = sample_catchup_result["insights"]
@@ -471,7 +471,7 @@ Untracked files:
         Given a repository with many changes
         When generating catchup summary
         Then it should summarize rather than reproduce content
-        And focus on high-priority items
+        And focus on high-priority items.
         """
         # Arrange - simulate many changes
         many_changes = []
@@ -516,7 +516,7 @@ Untracked files:
         """Scenario: Catchup handles various baseline specifications
         Given different baseline reference formats
         When establishing baseline for catchup
-        Then it should handle relative refs, dates, and branches
+        Then it should handle relative refs, dates, and branches.
         """
         # Test cases for different baseline specifications
         test_cases = [
@@ -527,7 +527,7 @@ Untracked files:
             ("origin/feature", "git rev-parse origin/feature")
         ]
 
-        for baseline_spec, expected_command in test_cases:
+        for _baseline_spec, expected_command in test_cases:
             # Arrange
             mock_claude_tools['Bash'].return_value = "baseline-hash"
 
@@ -599,7 +599,7 @@ Untracked files:
         """Scenario: Catchup handles repository errors gracefully
         Given various git repository issues
         When running catchup analysis
-        Then it should handle errors and provide meaningful feedback
+        Then it should handle errors and provide meaningful feedback.
         """
         # Test cases for repository errors
         error_cases = [
@@ -608,16 +608,15 @@ Untracked files:
             ("error: git command not found", "git_not_available")
         ]
 
-        for error_output, error_type in error_cases:
+        for error_output, _error_type in error_cases:
             # Arrange
             mock_claude_tools['Bash'].return_value = error_output
 
             # Act - handle error gracefully
             try:
-                result = mock_claude_tools['Bash']("git status")
-                error_handled = False
+                mock_claude_tools['Bash']("git status")
             except Exception:
-                error_handled = True
+                pass
 
             # Assert
             # In a real implementation, this would return error info rather than raising
@@ -628,7 +627,7 @@ Untracked files:
         """Scenario: Catchup performs efficiently with large commit history
         Given a repository with extensive commit history
         When running catchup analysis
-        Then it should complete in reasonable time
+        Then it should complete in reasonable time.
         """
         import time
 
@@ -675,7 +674,7 @@ Untracked files:
         Given completed catchup analysis
         When generating final output
         Then it should produce consistent structure
-        With all required sections and metadata
+        With all required sections and metadata.
         """
         # Arrange & Act - generate structured output
         catchup_result = sample_catchup_result

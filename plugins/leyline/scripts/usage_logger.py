@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Session-aware usage logging for audit trails and analytics.
+"""Session-aware usage logging for audit trails and analytics.
 
 This is a generalized usage logger that can be used by any plugin
 for tracking operations, costs, and building analytics.
@@ -15,7 +14,6 @@ Usage:
 from __future__ import annotations
 
 import json
-import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -230,8 +228,10 @@ def main():
     parser.add_argument("--recent", type=int, default=24, help="Hours of recent data")
     parser.add_argument("--errors", type=int, help="Show N recent errors")
     parser.add_argument(
-        "--log", nargs=4, metavar=("OPERATION", "TOKENS", "SUCCESS", "DURATION"),
-        help="Log an operation"
+        "--log",
+        nargs=4,
+        metavar=("OPERATION", "TOKENS", "SUCCESS", "DURATION"),
+        help="Log an operation",
     )
 
     args = parser.parse_args()
@@ -250,14 +250,16 @@ def main():
         errors = logger.get_recent_errors(args.errors)
         print(f"Recent Errors ({len(errors)}):")
         for err in errors:
-            print(f"  [{err['timestamp']}] {err.get('error_type', 'Unknown')}: {err.get('error_message', 'No message')}")
+            print(
+                f"  [{err['timestamp']}] {err.get('error_type', 'Unknown')}: {err.get('error_message', 'No message')}"
+            )
     elif args.log:
         operation, tokens, success, duration = args.log
         logger.log_usage(
             operation=operation,
             tokens=int(tokens),
             success=success.lower() == "true",
-            duration=float(duration)
+            duration=float(duration),
         )
         print(f"Logged: {operation}")
     else:
@@ -265,7 +267,9 @@ def main():
         print(f"Recent Operations ({len(operations)} in last {args.recent}h):")
         for op in operations[-10:]:
             status = "✓" if op.get("success") else "✗"
-            print(f"  {status} [{op['timestamp'][:19]}] {op['operation']} ({op.get('tokens', 0)} tokens)")
+            print(
+                f"  {status} [{op['timestamp'][:19]}] {op['operation']} ({op.get('tokens', 0)} tokens)"
+            )
 
 
 if __name__ == "__main__":

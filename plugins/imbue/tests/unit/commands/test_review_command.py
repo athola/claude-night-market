@@ -11,7 +11,7 @@ import pytest
 
 
 class TestReviewCommand:
-    """Feature: /review command initiates structured review workflow
+    """Feature: /review command initiates structured review workflow.
 
     As a user starting a review
     I want the command to set up the entire workflow
@@ -82,16 +82,14 @@ class TestReviewCommand:
         When executing /review command
         Then it should initialize all review-core TodoWrite items
         And invoke evidence-logging setup
-        And prepare structured-output template
+        And prepare structured-output template.
         """
         # Arrange
-        command_args = []  # No target, review current state
 
         # Act - simulate /review command execution
         workflow_components = []
 
         # 1. Establish context
-        context = sample_session_state
         workflow_components.append("context_established")
 
         # 2. Create review-core TodoWrite items
@@ -107,20 +105,9 @@ class TestReviewCommand:
             workflow_components.append(f"todowrite_created:{item}")
 
         # 3. Initialize evidence logging
-        evidence_log = {
-            "session_id": "review-session-123",
-            "context": context,
-            "evidence": [],
-            "citations": []
-        }
         workflow_components.append("evidence_logging_initialized")
 
         # 4. Prepare structured output template
-        deliverable_template = {
-            "type": "review_report",
-            "sections": ["Executive Summary", "Findings", "Actions", "Evidence"],
-            "status": "ready"
-        }
         workflow_components.append("structured_output_prepared")
 
         # Assert
@@ -131,7 +118,7 @@ class TestReviewCommand:
 
         # Verify specific TodoWrite items
         expected_items = set(review_core_items)
-        created_items = set(c.split(":")[1] for c in workflow_components if c.startswith("todowrite_created:"))
+        created_items = {c.split(":")[1] for c in workflow_components if c.startswith("todowrite_created:")}
         assert expected_items == created_items
 
     @pytest.mark.unit
@@ -141,7 +128,7 @@ class TestReviewCommand:
         Given a /review command with target path
         When parsing parameters
         Then it should scope inventory to target
-        And adjust workflow accordingly
+        And adjust workflow accordingly.
         """
         # Arrange
         command_args = ["src/auth/"]
@@ -187,7 +174,7 @@ class TestReviewCommand:
         Given a /review command with focus flags
         When parsing parameters
         Then it should configure specialized analysis
-        And adjust skill priorities
+        And adjust skill priorities.
         """
         # Arrange
         test_cases = [
@@ -242,7 +229,7 @@ class TestReviewCommand:
         Given a review command execution
         When coordinating skills
         Then it should call skills in correct order
-        And pass appropriate context between them
+        And pass appropriate context between them.
         """
         # Arrange - mock skill execution
         skill_execution_order = []
@@ -271,16 +258,16 @@ class TestReviewCommand:
         initial_context = {"target": "src/", "baseline": "main"}
 
         # 1. review-core - establishes workflow foundation
-        result1 = mock_claude_tools['Skill']("review-core", initial_context)
+        mock_claude_tools['Skill']("review-core", initial_context)
 
         # 2. evidence-logging - captures evidence infrastructure
-        result2 = mock_claude_tools['Skill']("evidence-logging", skill_contexts["review-core"])
+        mock_claude_tools['Skill']("evidence-logging", skill_contexts["review-core"])
 
         # 3. structured-output - prepares deliverable format
-        result3 = mock_claude_tools['Skill']("structured-output", skill_contexts["evidence-logging"])
+        mock_claude_tools['Skill']("structured-output", skill_contexts["evidence-logging"])
 
         # 4. diff-analysis - if there are changes to analyze
-        result4 = mock_claude_tools['Skill']("diff-analysis", skill_contexts["structured-output"])
+        mock_claude_tools['Skill']("diff-analysis", skill_contexts["structured-output"])
 
         # Assert
         expected_order = ["review-core", "evidence-logging", "structured-output", "diff-analysis"]
@@ -299,7 +286,7 @@ class TestReviewCommand:
         Given completed review initialization
         When generating command output
         Then it should display clear workflow status
-        And show next steps for user
+        And show next steps for user.
         """
         # Arrange
         workflow_status = {
@@ -366,7 +353,7 @@ class TestReviewCommand:
         Given repository or skill execution errors
         When running review command
         Then it should provide helpful error messages
-        And suggest recovery actions
+        And suggest recovery actions.
         """
         # Test case 1: Git repository not found
         mock_claude_tools['Bash'].return_value = "fatal: not a git repository"
@@ -379,8 +366,6 @@ class TestReviewCommand:
             git_error_handled = True
 
         # In real implementation, this would return error info
-        error_message = "Error: Not in a git repository. /review requires a git repository."
-        recovery_suggestion = "Suggestion: Run 'git init' to initialize a repository."
 
         assert git_error_handled or "fatal:" in result
 
@@ -410,7 +395,7 @@ class TestReviewCommand:
         Given various command argument combinations
         When parsing parameters
         Then it should validate all parameters
-        And provide usage guidance for invalid inputs
+        And provide usage guidance for invalid inputs.
         """
         # Test cases for parameter validation
         test_cases = [
@@ -492,7 +477,7 @@ class TestReviewCommand:
         Given a git repository with changes
         When running review command
         Then it should use git workspace data for context
-        And enhance scope with git information
+        And enhance scope with git information.
         """
         # Arrange - mock git workspace responses
         mock_claude_tools['Bash'].side_effect = [
@@ -539,7 +524,7 @@ class TestReviewCommand:
         """Scenario: /review performs efficiently with large repositories
         Given a repository with many files
         When running review command
-        Then it should complete initialization in reasonable time
+        Then it should complete initialization in reasonable time.
         """
         import time
 
@@ -573,7 +558,6 @@ class TestReviewCommand:
         initialization_steps.append("evidence_logging_initialized")
 
         # 4. Template preparation (quick)
-        template_type = "review_report"
         initialization_steps.append("structured_output_prepared")
 
         end_time = time.time()

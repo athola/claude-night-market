@@ -44,7 +44,7 @@ def main() -> None:
 
     # Lazy imports for slow path
     from shared.config import get_config, should_process_path
-    from shared.deduplication import is_known, get_content_hash, needs_update
+    from shared.deduplication import get_content_hash, is_known, needs_update
     from shared.safety_checks import is_safe_content
 
     config = get_config()

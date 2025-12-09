@@ -1,22 +1,19 @@
 """Tests for quota_tracker.py following TDD/BDD principles."""
 
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-from datetime import datetime, timedelta
-import pytest
 
 # Import the module under test
 import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+from unittest.mock import MagicMock, mock_open, patch
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from quota_tracker import (
+    DEFAULT_LIMITS,
     GeminiQuotaTracker,
     estimate_tokens_from_gemini_command,
-    DEFAULT_LIMITS,
-    WARN_THRESHOLD,
-    CRITICAL_THRESHOLD,
 )
 
 

@@ -51,12 +51,12 @@ def main() -> None:
     response = {
         "hookSpecificOutput": {
             "hookEventName": "SessionStart",
-            "additionalContext": GOVERNANCE_POLICY
+            "additionalContext": GOVERNANCE_POLICY,
         }
     }
     print(json.dumps(response))
     sys.exit(0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

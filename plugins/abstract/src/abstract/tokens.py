@@ -259,6 +259,7 @@ class TokenAnalyzer:
 
 # Module-level convenience functions for common use cases
 
+
 def analyze_content(content: str) -> dict[str, int]:
     """Analyze content and return detailed token breakdown.
 

@@ -1,11 +1,10 @@
-import pytest
+import os
 import subprocess
 import tempfile
-import os
+
 
 def test_end_to_end_test_skill_migration():
     """Test that /test-skill wrapper works end-to-end"""
-
     # Create a test skill
     with tempfile.TemporaryDirectory() as tmpdir:
         skill_path = os.path.join(tmpdir, "test-skill")
@@ -33,7 +32,7 @@ result = wrapper.execute({{
 }})
 print(result)
 """
-        ], capture_output=True, text=True)
+        ], check=False, capture_output=True, text=True)
 
         assert result.returncode == 0
         assert "superpower_called" in result.stdout

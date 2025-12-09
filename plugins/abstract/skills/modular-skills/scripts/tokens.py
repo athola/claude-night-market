@@ -13,6 +13,10 @@ Usage:
 import sys
 from pathlib import Path
 
+# Constants for magic numbers
+LARGE_SKILL_THRESHOLD = 4000
+LARGE_FRONTMATTER_THRESHOLD = 500
+
 # Add project root to Python path
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root / "src"))
@@ -24,9 +28,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Estimate token usage for skills")
     parser.add_argument(
-        "--file",
-        default="SKILL.md",
-        help="File to analyze (default: SKILL.md)"
+        "--file", default="SKILL.md", help="File to analyze (default: SKILL.md)"
     )
 
     args = parser.parse_args()
@@ -36,19 +38,21 @@ if __name__ == "__main__":
 
         print("\n🔤 Token Estimation Results")
         print(f"📁 File: {Path(result['file_path']).name}")
-        print("="*50)
+        print("=" * 50)
         print(f"📊 Total tokens: {result['total_tokens']:,}")
         print(f"📝 Frontmatter: {result['frontmatter_tokens']:,}")
         print(f"📄 Body content: {result['body_tokens']:,}")
-        print(f"💻 Code blocks: {result['code_tokens']:,} ({result['code_blocks_count']} blocks)")
+        print(
+            f"💻 Code blocks: {result['code_tokens']:,} ({result['code_blocks_count']} blocks)"
+        )
 
         # Visual breakdown
-        total = result['total_tokens']
+        total = result["total_tokens"]
         if total > 0:
             print("\n📈 Token Breakdown:")
-            frontmatter_pct = (result['frontmatter_tokens'] / total) * 100
-            body_pct = (result['body_tokens'] / total) * 100
-            code_pct = (result['code_tokens'] / total) * 100
+            frontmatter_pct = (result["frontmatter_tokens"] / total) * 100
+            body_pct = (result["body_tokens"] / total) * 100
+            code_pct = (result["code_tokens"] / total) * 100
 
             print(f"   📝 Frontmatter: {frontmatter_pct:.1f}%")
             print(f"   📄 Body: {body_pct:.1f}%")
@@ -66,11 +70,13 @@ if __name__ == "__main__":
 
         # Recommendations
         print("\n💡 Recommendations:")
-        if total > 4000:
+        if total > LARGE_SKILL_THRESHOLD:
             print("   ⚠️  Consider modularizing for smaller context windows")
-        if result['code_tokens'] > total * 0.3:
-            print("   💡 High code-to-text ratio - consider externalizing code examples")
-        if result['frontmatter_tokens'] > 500:
+        if result["code_tokens"] > total * 0.3:
+            print(
+                "   💡 High code-to-text ratio - consider externalizing code examples"
+            )
+        if result["frontmatter_tokens"] > LARGE_FRONTMATTER_THRESHOLD:
             print("   📝 Large frontmatter - consider moving some content to body")
 
         print("\n✨ Done!")

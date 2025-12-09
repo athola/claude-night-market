@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Consolidation Planner - Fast model triage for doc consolidation.
+"""Consolidation Planner - Fast model triage for doc consolidation.
 
 Delegates Phase 1 analysis tasks to haiku-class models for efficiency.
 Phase 2 execution remains on the main conversation model.
@@ -24,7 +23,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    pass
 
 # Standard locations to exclude from candidate detection
 STANDARD_LOCATIONS = {
@@ -281,7 +280,9 @@ def scan_for_candidates(repo_path: str = ".") -> list[CandidateFile]:
 
         # Threshold: score >= 2
         if score >= 2:
-            candidates.append(CandidateFile(path=file_path, score=score, reasons=reasons))
+            candidates.append(
+                CandidateFile(path=file_path, score=score, reasons=reasons)
+            )
 
     return sorted(candidates, key=lambda c: c.score, reverse=True)
 
@@ -418,7 +419,9 @@ def compute_relevance(chunk: ContentChunk, doc_path: str) -> float:
     return score
 
 
-def route_chunk(chunk: ContentChunk, existing_docs: list[str], source_file: str) -> Route:
+def route_chunk(
+    chunk: ContentChunk, existing_docs: list[str], source_file: str
+) -> Route:
     """Determine routing for a single chunk."""
     # Find best semantic match
     best_match = None
@@ -498,7 +501,9 @@ def generate_plan(source_file: str, docs_dir: str = "docs") -> ConsolidationPlan
         "updates": sum(1 for r in routes if r.strategy != "CREATE_NEW"),
     }
 
-    return ConsolidationPlan(source=source_file, routes=routes, skipped=skipped, summary=summary)
+    return ConsolidationPlan(
+        source=source_file, routes=routes, skipped=skipped, summary=summary
+    )
 
 
 def format_plan_markdown(plan: ConsolidationPlan) -> str:
@@ -522,7 +527,9 @@ def format_plan_markdown(plan: ConsolidationPlan) -> str:
         lines.append("")
 
     if plan.skipped:
-        lines.extend(["### Skipped (Low Value)", "", "| Chunk | Reason |", "|-------|--------|"])
+        lines.extend(
+            ["### Skipped (Low Value)", "", "| Chunk | Reason |", "|-------|--------|"]
+        )
         for item in plan.skipped:
             lines.append(f"| {item['header']} | {item['reason']} |")
         lines.append("")
@@ -550,23 +557,31 @@ def format_plan_markdown(plan: ConsolidationPlan) -> str:
 
 def main() -> int:
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Consolidation planner for doc-consolidation skill")
+    parser = argparse.ArgumentParser(
+        description="Consolidation planner for doc-consolidation skill"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # scan command
-    scan_parser = subparsers.add_parser("scan", help="Scan for consolidation candidates")
+    scan_parser = subparsers.add_parser(
+        "scan", help="Scan for consolidation candidates"
+    )
     scan_parser.add_argument("--repo-path", default=".", help="Repository path")
     scan_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     # analyze command
-    analyze_parser = subparsers.add_parser("analyze", help="Analyze files and generate chunks")
+    analyze_parser = subparsers.add_parser(
+        "analyze", help="Analyze files and generate chunks"
+    )
     analyze_parser.add_argument("files", nargs="+", help="Files to analyze")
     analyze_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     # plan command
     plan_parser = subparsers.add_parser("plan", help="Generate consolidation plan")
     plan_parser.add_argument("file", help="Source file to plan")
-    plan_parser.add_argument("--docs-dir", default="docs", help="Documentation directory")
+    plan_parser.add_argument(
+        "--docs-dir", default="docs", help="Documentation directory"
+    )
     plan_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     args = parser.parse_args()
@@ -575,16 +590,15 @@ def main() -> int:
         candidates = scan_for_candidates(args.repo_path)
         if args.json:
             print(json.dumps([asdict(c) for c in candidates], indent=2))
+        elif not candidates:
+            print("No consolidation candidates found.")
         else:
-            if not candidates:
-                print("No consolidation candidates found.")
-            else:
-                print(f"Found {len(candidates)} candidate(s):\n")
-                for c in candidates:
-                    print(f"  {c.path} (score: {c.score})")
-                    for reason in c.reasons:
-                        print(f"    - {reason}")
-                    print()
+            print(f"Found {len(candidates)} candidate(s):\n")
+            for c in candidates:
+                print(f"  {c.path} (score: {c.score})")
+                for reason in c.reasons:
+                    print(f"    - {reason}")
+                print()
 
     elif args.command == "analyze":
         all_chunks = []
@@ -595,7 +609,9 @@ def main() -> int:
             else:
                 print(f"\n## {file_path}\n")
                 for chunk in chunks:
-                    print(f"  [{chunk.category}] {chunk.header} ({chunk.value}, {chunk.char_count} chars)")
+                    print(
+                        f"  [{chunk.category}] {chunk.header} ({chunk.value}, {chunk.char_count} chars)"
+                    )
 
         if args.json:
             print(json.dumps(all_chunks, indent=2))

@@ -7,11 +7,10 @@ and computational accuracy validation.
 
 from __future__ import annotations
 
-import pytest
-from unittest.mock import Mock, patch
 from pathlib import Path
-import math
-import numpy as np
+from unittest.mock import Mock
+
+import pytest
 
 # Import the skill we're testing
 from pensive.skills.math_review import MathReviewSkill

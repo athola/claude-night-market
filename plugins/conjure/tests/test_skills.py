@@ -1,16 +1,13 @@
 """Tests for conjure skill loading and execution following TDD/BDD principles."""
 
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-import pytest
-
 # Import modules for testing
 import sys
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from delegation_executor import Delegator, ServiceConfig, ExecutionResult
+from delegation_executor import Delegator, ExecutionResult, ServiceConfig
 
 
 class TestSkillStructure:
@@ -314,7 +311,7 @@ class TestSkillPerformanceConsiderations:
         }
 
         assert len(estimates) == 4
-        for task, (min_tokens, max_tokens) in estimates.items():
+        for _task, (min_tokens, max_tokens) in estimates.items():
             assert isinstance(min_tokens, int)
             assert isinstance(max_tokens, int)
             assert max_tokens >= min_tokens

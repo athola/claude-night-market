@@ -17,7 +17,7 @@ class TestGitWorkflowIntegration:
     def test_complete_commit_workflow(self, temp_git_repo, mock_todo_tool):
         """GIVEN a Git repository with staged changes
         WHEN a user runs the complete commit workflow
-        THEN it should execute git-workspace-review and commit-messages in sequence
+        THEN it should execute git-workspace-review and commit-messages in sequence.
         """
         # Arrange - Create repository with staged changes
         temp_git_repo.add_file("feature.py", "def new_feature():\n    pass")
@@ -65,7 +65,7 @@ class TestGitWorkflowIntegration:
     def test_pr_workflow_from_feature_branch(self, temp_git_repo):
         """GIVEN a feature branch with multiple commits
         WHEN a user prepares a pull request
-        THEN it should execute the complete PR preparation workflow
+        THEN it should execute the complete PR preparation workflow.
         """
         # Arrange - Create feature branch with commits
         temp_git_repo.add_file("initial.py", "# initial")
@@ -92,10 +92,10 @@ class TestGitWorkflowIntegration:
 
         # Act - Simulate PR workflow through mock calls
         branch_info = mock_bash("git branch --show-current")
-        base_branch = mock_bash("git rev-parse --abbrev-ref origin/main")
+        mock_bash("git rev-parse --abbrev-ref origin/main")
         commits = mock_bash("git log --oneline main..HEAD")
         files = mock_bash("git diff --name-only main...HEAD")
-        stats = mock_bash("git diff --stat main...HEAD")
+        mock_bash("git diff --stat main...HEAD")
 
         # Assert - Verify PR analysis
         assert branch_info == "feature/user-auth"
@@ -106,7 +106,7 @@ class TestGitWorkflowIntegration:
     def test_catchup_workflow_integration(self, temp_git_repo):
         """GIVEN a Git repository that has diverged from remote
         WHEN a user runs the catchup workflow
-        THEN it should analyze changes and prepare for merging
+        THEN it should analyze changes and prepare for merging.
         """
         # Arrange - Simulate diverged branch state
         mock_bash = Mock()
@@ -132,7 +132,7 @@ class TestGitWorkflowIntegration:
     def test_documentation_update_workflow(self, temp_git_repo):
         """GIVEN changes that require documentation updates
         WHEN the documentation update workflow is executed
-        THEN it should identify and update relevant documentation
+        THEN it should identify and update relevant documentation.
         """
         # Arrange - Create code changes
         temp_git_repo.add_file("api.py", "# API endpoints\ndef get_data(): pass")
@@ -148,7 +148,7 @@ class TestGitWorkflowIntegration:
 
         # Act - Simulate documentation workflow through mock calls
         changed_files = mock_bash("git diff --cached --name-only")
-        new_functions = mock_bash("git diff --cached | grep '^+' | grep 'def '")
+        mock_bash("git diff --cached | grep '^+' | grep 'def '")
         existing_docs = mock_bash("find . -name '*.md' -not -path './.git/*'")
 
         # Assert - Verify documentation workflow
@@ -158,7 +158,7 @@ class TestGitWorkflowIntegration:
     def test_version_update_workflow(self, temp_git_repo):
         """GIVEN a repository ready for release
         WHEN the version update workflow is executed
-        THEN it should update version numbers across the project
+        THEN it should update version numbers across the project.
         """
         # Arrange - Create version files
         temp_git_repo.add_file("package.json", '{"version": "1.0.0"}')
@@ -182,7 +182,7 @@ class TestGitWorkflowIntegration:
         version_files = mock_bash("grep -r 'version' --include='*.json' --include='*.py' .")
         package_version = mock_bash("grep version package.json")
         setup_version = mock_bash("grep version setup.py")
-        python_version = mock_bash("grep __version__ src/__init__.py")
+        mock_bash("grep __version__ src/__init__.py")
 
         # Assert - Verify version detection
         assert "package.json" in version_files
@@ -192,7 +192,7 @@ class TestGitWorkflowIntegration:
     def test_agent_skill_integration(self, temp_git_repo):
         """GIVEN a Git repository requiring analysis
         WHEN an agent is invoked to analyze the repository
-        THEN it should coordinate with the appropriate skills
+        THEN it should coordinate with the appropriate skills.
         """
         # Arrange
         temp_git_repo.add_file("feature.py", "def new_feature(): pass")
@@ -220,7 +220,7 @@ class TestGitWorkflowIntegration:
     def test_error_handling_workflow(self, temp_git_repo):
         """GIVEN a repository in an error state
         WHEN a workflow encounters an error
-        THEN it should handle the error gracefully and provide recovery options
+        THEN it should handle the error gracefully and provide recovery options.
         """
         # Arrange - Simulate error condition
         mock_bash = Mock()
@@ -235,7 +235,7 @@ class TestGitWorkflowIntegration:
         assert "not a git repository" in str(exc_info.value)
 
         # Recovery workflow should handle error
-        recovery_result = mock_bash("git init")
+        mock_bash("git init")
 
 
 class TestCommandSkillIntegration:
@@ -244,7 +244,7 @@ class TestCommandSkillIntegration:
     def test_commit_msg_command_integration(self):
         """GIVEN the /commit-msg command is invoked
         WHEN the command executes
-        THEN it should properly invoke git-workspace-review and commit-messages skills
+        THEN it should properly invoke git-workspace-review and commit-messages skills.
         """
         # This tests the command wrapper that coordinates skills
         command_sequence = [
@@ -258,7 +258,7 @@ class TestCommandSkillIntegration:
 
         # Act - Simulate command execution
         for step in command_sequence:
-            result = mock_skill(step["skill"], **step["params"])
+            mock_skill(step["skill"], **step["params"])
 
         # Assert
         assert mock_skill.call_count == 2
@@ -268,7 +268,7 @@ class TestCommandSkillIntegration:
     def test_pr_command_integration(self):
         """GIVEN the /pr command is invoked
         WHEN the command executes
-        THEN it should coordinate multiple skills for PR preparation
+        THEN it should coordinate multiple skills for PR preparation.
         """
         command_sequence = [
             {"skill": "sanctum:git-workspace-review", "params": {}},
@@ -301,7 +301,7 @@ class TestToolIntegration:
     def test_bash_todo_coordination(self, temp_git_repo, mock_todo_tool):
         """GIVEN skills that use both Bash and TodoWrite tools
         WHEN the skills execute
-        THEN the tools should coordinate properly with shared state
+        THEN the tools should coordinate properly with shared state.
         """
         # Arrange
         mock_bash = Mock()
@@ -331,7 +331,7 @@ class TestToolIntegration:
     def test_read_write_file_operations(self, tmp_path):
         """GIVEN skills that need to read and write files
         WHEN the skills execute
-        THEN file operations should work correctly with proper paths
+        THEN file operations should work correctly with proper paths.
         """
         # Arrange
         test_file = tmp_path / "test.md"
@@ -359,7 +359,7 @@ class TestWorkflowPerformance:
     def test_large_repository_handling(self):
         """GIVEN a repository with many files and changes
         WHEN workflows execute
-        THEN they should complete within reasonable time limits
+        THEN they should complete within reasonable time limits.
         """
         # Arrange - Simulate large repository
         large_file_list = "\n".join([f"src/file_{i}.py" for i in range(1000)])
@@ -379,7 +379,7 @@ class TestWorkflowPerformance:
         # Simulate workflow through mock calls
         files = mock_bash("git diff --name-only")
         diff = mock_bash("git diff")
-        status = mock_bash("git status --porcelain=v1 | wc -l")
+        mock_bash("git status --porcelain=v1 | wc -l")
 
         execution_time = time.time() - start_time
 
@@ -391,7 +391,7 @@ class TestWorkflowPerformance:
     def test_concurrent_workflow_execution(self):
         """GIVEN multiple workflows that could run concurrently
         WHEN the plugin coordinates them
-        THEN they should execute efficiently without interference
+        THEN they should execute efficiently without interference.
         """
         # This test would verify that multiple skill executions don't interfere
         # In a real implementation, this might test thread safety or async execution

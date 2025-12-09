@@ -162,7 +162,10 @@ def validate_json_hook(hook_file: Path) -> ValidationResult:
                     )
 
                 # Check for 'command' field if type is 'command'
-                if hook_action.get("type") == "command" and "command" not in hook_action:
+                if (
+                    hook_action.get("type") == "command"
+                    and "command" not in hook_action
+                ):
                     result["errors"].append(
                         f"{event_type}[{idx}].hooks[{hook_idx}]: missing 'command' field"
                     )
@@ -293,7 +296,9 @@ def validate_python_hook(hook_file: Path) -> ValidationResult:
     return result
 
 
-def validate_hook_file(hook_file: Path, file_type: str | None = None) -> ValidationResult:
+def validate_hook_file(
+    hook_file: Path, file_type: str | None = None
+) -> ValidationResult:
     """Validate a hook file (auto-detect type or use specified type).
 
     Args:
@@ -313,7 +318,9 @@ def validate_hook_file(hook_file: Path, file_type: str | None = None) -> Validat
         else:
             return {
                 "valid": False,
-                "errors": [f"Cannot determine file type from extension: {hook_file.suffix}"],
+                "errors": [
+                    f"Cannot determine file type from extension: {hook_file.suffix}"
+                ],
                 "warnings": [],
                 "info": [],
             }

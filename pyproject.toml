@@ -101,9 +101,39 @@ target-version = "py312"
 src = ["plugins", "tests"]
 
 [tool.ruff.lint]
-select = ["E","W","F","I","B","C4","UP"]
-ignore = ["E501","B008","PLR2004","S101","PLC0415","E402"]
-per-file-ignores = {"tests/*" = ["E501", "B011"], "__init__.py" = ["F401"]}
+select = ["ALL"]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function calls in argument defaults
+    "PLR2004",  # Magic value comparison
+    "S101",  # Use of assert (acceptable in tests)
+    "PLC0415",  # Import outside top-level (acceptable in some cases)
+    "E402",  # Module imports not at top of file (acceptable in some cases)
+    "D205",  # 1 blank line required between summary line and description
+    "D401",  # First line of docstring should be in imperative mood
+    "D101",  # Missing docstring in public class
+    "D100",  # Missing docstring in public module
+    "D107",  # Missing docstring in __init__
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D102",  # Missing docstring in public method
+    "D105",  # Missing docstring in magic method
+]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101",  # Use of assert in tests
+    "E501",  # Line too long in tests
+    "B011",  # Do not assert False
+    "PLR2004",  # Magic values in tests
+    "S603",  # subprocess without shell=true
+    "S607",  # Start process with partial path
+    "S108",  # Hardcoded temp file
+    "S311",  # Non-cryptographic random usage
+    "S103",  # Bad file permissions
+    "S602",  # subprocess-popen-with-shell-equals-true
+    "S110",  # try-except-pass
+]
+"__init__.py" = ["F401"]  # Unused imports in __init__.py
 
 [tool.mypy]
 python_version = "3.12"

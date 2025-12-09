@@ -1,10 +1,8 @@
 """Pytest configuration and shared fixtures for conjure tests."""
 
 import json
-import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock
-from typing import Any, Dict
 
 import pytest
 

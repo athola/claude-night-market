@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """CLI wrapper for token-usage-tracker script.
+
 Uses core functionality from src/abstract/skills_eval.
 """
 
@@ -14,10 +15,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class TokenUsageTracker:
     """CLI wrapper for token usage tracking functionality."""
 
-    def __init__(self, skills_dir: Path, optimal_limit: int = 2000, max_limit: int = 4000):
+    def __init__(
+        self, skills_dir: Path, optimal_limit: int = 2000, max_limit: int = 4000
+    ):
         self.skills_dir = skills_dir
         self.optimal_limit = optimal_limit
         self.max_limit = max_limit
@@ -32,7 +36,7 @@ class TokenUsageTracker:
                 "total_tokens": 0,
                 "average_tokens": 0,
                 "skills_over_limit": 0,
-                "optimal_usage_count": 0
+                "optimal_usage_count": 0,
             }
 
         total_tokens = 0
@@ -41,7 +45,7 @@ class TokenUsageTracker:
 
         for skill_file in skill_files:
             try:
-                with open(skill_file, encoding='utf-8') as f:
+                with open(skill_file, encoding="utf-8") as f:
                     content = f.read()
                 tokens = len(content) // 4
                 total_tokens += tokens
@@ -61,7 +65,7 @@ class TokenUsageTracker:
             "total_tokens": total_tokens,
             "average_tokens": total_tokens // len(skill_files) if skill_files else 0,
             "skills_over_limit": skills_over_limit,
-            "optimal_usage_count": optimal_usage_count
+            "optimal_usage_count": optimal_usage_count,
         }
 
     def get_usage_report(self) -> str:
@@ -78,23 +82,25 @@ class TokenUsageTracker:
             f"- **Average Tokens:** {results['average_tokens']:,}",
             f"- **Skills Over Limit ({self.optimal_limit}):** {results['skills_over_limit']}",
             f"- **Optimal Usage (≤{self.optimal_limit}):** {results['optimal_usage_count']}",
-            ""
+            "",
         ]
 
         return "\n".join(lines)
+
 
 # For direct execution
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Track token usage for skills"
-    )
+    parser = argparse.ArgumentParser(description="Track token usage for skills")
 
-    parser.add_argument('skills_dir', type=Path, help='Directory containing skills to analyze')
-    parser.add_argument('--optimal-limit', type=int, default=2000,
-                       help='Optimal token limit per skill')
-    parser.add_argument('--output', type=Path, help='Output file path')
+    parser.add_argument(
+        "skills_dir", type=Path, help="Directory containing skills to analyze"
+    )
+    parser.add_argument(
+        "--optimal-limit", type=int, default=2000, help="Optimal token limit per skill"
+    )
+    parser.add_argument("--output", type=Path, help="Output file path")
 
     args = parser.parse_args()
 
@@ -102,7 +108,7 @@ if __name__ == "__main__":
     output = tracker.get_usage_report()
 
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             f.write(output)
         print(f"Token usage report saved to {args.output}")
     else:

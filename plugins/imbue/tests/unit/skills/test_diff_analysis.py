@@ -9,7 +9,7 @@ import pytest
 
 
 class TestDiffAnalysisSkill:
-    """Feature: Diff analysis categorizes changes by type and impact
+    """Feature: Diff analysis categorizes changes by type and impact.
 
     As a reviewer
     I want changes automatically categorized
@@ -193,12 +193,11 @@ index abcdef..0000000
         Given various git diff outputs
         When analyzing changes
         Then it should categorize by type (additions, modifications, deletions)
-        And extract line counts accurately
+        And extract line counts accurately.
         """
         # Arrange & Act - parse diff output
         diff_lines = sample_git_diff_output.split('\n')
         changes = []
-        current_file = None
         current_change = {}
 
         for line in diff_lines:
@@ -257,7 +256,7 @@ index abcdef..0000000
         """Scenario: Changes are categorized semantically
         Given files in different directories
         When analyzing semantic meaning
-        Then it should categorize as feature, fix, test, docs, config
+        Then it should categorize as feature, fix, test, docs, config.
         """
         # Arrange & Act - categorize files semantically
         file_categories = {
@@ -306,7 +305,7 @@ index abcdef..0000000
         Given various types of changes
         When assessing risk
         Then it should assign appropriate risk levels
-        Based on change type and file importance
+        Based on change type and file importance.
         """
         # Arrange - define risk assessment rules
         risk_rules = {
@@ -356,7 +355,7 @@ index abcdef..0000000
         Given categorized changes with risk assessments
         When generating summary
         Then it should aggregate statistics by category and risk
-        And provide totals for quick understanding
+        And provide totals for quick understanding.
         """
         # Arrange & Act - generate summary from changes
         changes = sample_diff_analysis_result["changes"]
@@ -395,7 +394,7 @@ index abcdef..0000000
         Given a git repository
         When establishing baseline for diff analysis
         Then it should determine appropriate comparison point
-        And handle various baseline specification formats
+        And handle various baseline specification formats.
         """
         # Arrange
         mock_claude_tools['Bash'].return_value = "abc123"
@@ -409,7 +408,7 @@ index abcdef..0000000
         ]
 
         # Act & Assert for each case
-        for baseline_spec, expected_command in test_cases:
+        for _baseline_spec, expected_command in test_cases:
             mock_claude_tools['Bash'].return_value = "baseline-hash"
             baseline = mock_claude_tools['Bash'](expected_command)
             assert baseline == "baseline-hash"
@@ -422,7 +421,7 @@ index abcdef..0000000
         Given typical code change patterns
         When analyzing diffs
         Then it should identify imports, new functions, tests, etc.
-        And provide appropriate review focus areas
+        And provide appropriate review focus areas.
         """
         # Arrange - various diff patterns
         diff_patterns = {
@@ -476,7 +475,7 @@ index abcdef..0000000
         Given changes affecting multiple files or components
         When analyzing diffs
         Then it should identify related changes
-        And flag potential coordination requirements
+        And flag potential coordination requirements.
         """
         # Arrange - simulate cross-cutting changes
         changes = [
@@ -521,7 +520,7 @@ index abcdef..0000000
         """Scenario: Diff statistics are calculated accurately
         Given diff output with various change metrics
         When calculating statistics
-        Then it should provide accurate totals and percentages
+        Then it should provide accurate totals and percentages.
         """
         # Arrange
         changes = [
@@ -565,7 +564,7 @@ index abcdef..0000000
         """Scenario: Diff analysis handles errors gracefully
         Given git command failures or malformed diff output
         When analyzing diffs
-        Then it should handle errors and provide meaningful feedback
+        Then it should handle errors and provide meaningful feedback.
         """
         # Arrange - simulate git command failure
         mock_claude_tools['Bash'].side_effect = [
@@ -575,7 +574,7 @@ index abcdef..0000000
 
         # Act & Assert - handle errors gracefully
         try:
-            result = mock_claude_tools['Bash']("git status")
+            mock_claude_tools['Bash']("git status")
         except Exception as e:
             error_handled = True
             error_message = str(e)
@@ -598,7 +597,7 @@ just some text"""
         """Scenario: Large diff analysis performs efficiently
         Given diff output with many changed files
         When analyzing large diffs
-        Then it should complete in reasonable time
+        Then it should complete in reasonable time.
         """
         import time
 

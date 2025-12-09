@@ -7,8 +7,7 @@ BDD-style tests organized by behavior:
 """
 
 import json
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import timezone
 
 import pytest
 

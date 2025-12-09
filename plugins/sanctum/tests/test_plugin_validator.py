@@ -140,7 +140,7 @@ class TestPluginValidatorPathValidation:
         assert any("skills" in warning.lower() for warning in result.warnings)
 
     def test_validates_path_format(self):
-        """Path references should start with ./"""
+        """Path references should start with ./."""
         plugin_json = {
             "name": "test",
             "version": "1.0.0",

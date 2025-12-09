@@ -1,5 +1,5 @@
-import pytest
 from src.test_skill_wrapper import TestSkillWrapper
+
 
 def test_test_skill_invokes_tdd_superpower():
     wrapper = TestSkillWrapper()

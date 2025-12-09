@@ -22,23 +22,19 @@ from abstract.skill_tools import analyze_skill
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Analyze skill complexity and token usage")
+    parser = argparse.ArgumentParser(
+        description="Analyze skill complexity and token usage"
+    )
     parser.add_argument(
-        "--path",
-        default=".",
-        help="Path to analyze (default: current directory)"
+        "--path", default=".", help="Path to analyze (default: current directory)"
     )
     parser.add_argument(
         "--threshold",
         type=int,
         default=150,
-        help="Line count threshold for complexity warnings (default: 150)"
+        help="Line count threshold for complexity warnings (default: 150)",
     )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose output"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
 
     args = parser.parse_args()
 
@@ -51,7 +47,7 @@ if __name__ == "__main__":
         print(f"⚠️  Threshold: {args.threshold} lines")
 
         if result["results"]:
-            print("\n" + "="*60)
+            print("\n" + "=" * 60)
             for r in result["results"]:
                 if "error" in r:
                     print(f"❌ {Path(r['path']).name}: {r['error']}")
@@ -65,10 +61,12 @@ if __name__ == "__main__":
                     print()
 
         # Summary
-        above_threshold = sum(1 for r in result["results"] if r.get("above_threshold", False))
+        above_threshold = sum(
+            1 for r in result["results"] if r.get("above_threshold", False)
+        )
         total_tokens = sum(r.get("tokens", 0) for r in result["results"])
 
-        print("="*60)
+        print("=" * 60)
         print("📈 Summary:")
         print(f"   Above threshold: {above_threshold}/{result['total_files']}")
         print(f"   Total tokens: {total_tokens:,}")
