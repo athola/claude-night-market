@@ -10,12 +10,12 @@ from unittest.mock import Mock
 import pytest
 
 # Constants for PLR2004 magic values
-TWO = TWO
-TWO_POINT_ZERO = TWO_POINT_ZERO
-FOUR = FOUR
-FIVE = FIVE
-TEN = TEN
-FIVE_HUNDRED = FIVE_HUNDRED
+TWO = 2
+TWO_POINT_ZERO = 2.0
+FOUR = 4
+FIVE = 5
+TEN = 10
+FIVE_HUNDRED = 500
 
 
 class TestReviewCommand:

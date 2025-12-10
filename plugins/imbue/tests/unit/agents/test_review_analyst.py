@@ -10,12 +10,12 @@ from unittest.mock import Mock
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_FIVE = ZERO_POINT_FIVE
-TWO = TWO
-TWO_POINT_ZERO = TWO_POINT_ZERO
-THREE = THREE
-FOUR = FOUR
-TWENTY = TWENTY
+ZERO_POINT_FIVE = 0.5
+TWO = 2
+TWO_POINT_ZERO = 2.0
+THREE = 3
+FOUR = 4
+TWENTY = 20
 
 
 class TestReviewAnalystAgent:
@@ -475,9 +475,21 @@ class TestReviewAnalystAgent:
     def _generate_implementation_guidance(self, finding):
         """Generate specific implementation guidance for finding."""
         guidance_map = {
-            "SQL injection": "Replace string concatenation with parameterized queries using prepared statements or ORM. Example: cursor.execute('SELECT * FROM users WHERE email = %s', (email,))",
-            "password": "Implement strong password hashing using bcrypt or Argon2. Store only salted hashes, never plaintext passwords. Example: bcrypt.hashpw(password.encode(), bcrypt.gensalt())",
-            "rate limiting": "Implement rate limiting using exponential backoff. Track attempts per IP/user and delay responses after threshold exceeded. Use libraries like flask-limiter or redis for distributed limiting",
+            "SQL injection": (
+                "Replace string concatenation with parameterized queries using "
+                "prepared statements or ORM. Example: cursor.execute('SELECT * FROM "
+                "users WHERE email = %s', (email,))"
+            ),
+            "password": (
+                "Implement strong password hashing using bcrypt or Argon2. Store only "
+                "salted hashes, never plaintext passwords. Example: "
+                "bcrypt.hashpw(password.encode(), bcrypt.gensalt())"
+            ),
+            "rate limiting": (
+                "Implement rate limiting using exponential backoff. Track attempts per "
+                "IP/user and delay responses after threshold exceeded. Use libraries "
+                "like flask-limiter or redis for distributed limiting"
+            ),
         }
         return guidance_map.get(
             finding["title"].split()[-1],
