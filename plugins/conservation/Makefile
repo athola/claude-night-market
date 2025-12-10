@@ -12,7 +12,7 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
 
 # Plugin-specific variables
-SRC_DIRS ?= tools scripts
+override SRC_DIRS := scripts services
 
 # Default target
 help: ## Show this help message
@@ -49,27 +49,27 @@ deps-report: ## Generate detailed dependency report
 # ---------- Code Quality ----------
 format: ## Format Python code
 	@echo "Formatting Python code..."
-	uv run ruff format $(SRC_DIRS) 2>/dev/null || uv run ruff format tools/
-	uv run ruff check --fix $(SRC_DIRS) 2>/dev/null || uv run ruff check --fix tools/
+	uv run ruff format $(SRC_DIRS)
+	uv run ruff check --fix $(SRC_DIRS)
 
 lint: ## Run linting checks
 	@echo "Running linting checks..."
-	uv run ruff check $(SRC_DIRS) 2>/dev/null || uv run ruff check tools/
+	uv run ruff check $(SRC_DIRS)
 
 type-check: ## Run type checking
 	@echo "Running type checking..."
-	uv run mypy tools/ || { echo "⚠ Type checking failed"; exit 1; }
+	uv run mypy $(SRC_DIRS) || { echo "⚠ Type checking failed"; exit 1; }
 
 # Alias for backwards compatibility
 typecheck: type-check
 
 spellcheck: ## Run spell check
 	@echo "Running spell check..."
-	uv run typos $(SRC_DIRS) 2>/dev/null || uv run typos tools/
+	uv run typos $(SRC_DIRS)
 
 security: ## Run security checks
 	@echo "Running security checks..."
-	uv run bandit -r tools/ || { echo "⚠ Security check failed"; exit 1; }
+	uv run bandit -r $(SRC_DIRS) || { echo "⚠ Security check failed"; exit 1; }
 
 test: check lint type-check security ## Run all quality checks
 	@echo "All checks passed!"

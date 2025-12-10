@@ -7,19 +7,21 @@ parameter handling, and skill coordination following TDD/BDD principles.
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_FIVE = ZERO_POINT_FIVE
-TWO = TWO
-THREE = THREE
-FOUR = FOUR
-FIVE = FIVE
-TEN = TEN
-FIFTEEN = FIFTEEN
-TWENTY_POINT_ZERO = TWENTY_POINT_ZERO
-THIRTY = THIRTY
-FIFTY = FIFTY
-EIGHT_HUNDRED = EIGHT_HUNDRED
-TWO_THOUSAND = TWO_THOUSAND
-TWENTY_THOUSAND = TWENTY_THOUSAND
+ZERO_POINT_FIVE = 0.5
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+TEN = 10
+FIFTEEN = 15
+TWENTY_POINT_ZERO = 20.0
+THIRTY = 30
+FIFTY = 50
+EIGHT_HUNDRED = 800
+TWO_THOUSAND = 2000
+TWENTY_THOUSAND = 20000
+TWELVE_HUNDRED = 1200
+FIFTEEN_HUNDRED = 1500
 
 
 class TestOptimizeContextCommand:
@@ -225,7 +227,7 @@ class TestOptimizeContextCommand:
         # Verify skill results
         context_result = workflow_execution["results"]["context-optimization"]
         assert context_result["status"] == "success"
-        assert context_result["tokens_saved"] == 1200
+        assert context_result["tokens_saved"] == TWELVE_HUNDRED
 
         token_result = workflow_execution["results"]["token-conservation"]
         assert token_result["status"] == "success"
@@ -629,7 +631,7 @@ class TestOptimizeContextCommand:
         achievements = user_feedback["achievements"]
         assert achievements["total_tokens_saved"] > TWO_THOUSAND
         assert achievements["context_reduction_percentage"] == TWENTY_POINT_ZERO
-        assert achievements["quota_conservation"] == 1500
+        assert achievements["quota_conservation"] == FIFTEEN_HUNDRED
 
         # Verify changes are detailed
         assert len(user_feedback["changes_made"]) >= FOUR  # From both skills

@@ -9,16 +9,30 @@ from datetime import UTC, datetime
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_SEVEN = ZERO_POINT_SEVEN
-TWO = TWO
-THREE = THREE
-FOUR = FOUR
-FIVE = FIVE
-FIFTY = FIFTY
-EIGHT_HUNDRED = EIGHT_HUNDRED
-THOUSAND = THOUSAND
-TWO_THOUSAND = TWO_THOUSAND
-FIVE_THOUSAND = FIVE_THOUSAND
+ZERO_POINT_SEVEN = 0.7
+ZERO_POINT_EIGHTY_FIVE = 0.85
+ZERO_POINT_TWENTY_FOUR = 0.24
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+FIFTY = 50
+SEVENTY = 70
+SEVENTY_FIVE = 75
+EIGHTY = 80
+NINETY = 90
+TWO_HUNDRED_SEVENTY = 270
+SEVEN_HUNDRED_FIFTY_FIVE = 755
+TWO_HUNDRED = 200
+EIGHT_HUNDRED = 800
+THOUSAND = 1000
+TWO_THOUSAND = 2000
+FIVE_THOUSAND = 5000
+TWENTY_THOUSAND = 20000
+TWENTY_FOUR_THOUSAND = 24000
+THIRTY_FIVE_POINT_ZERO = 35.0
+SIXTY_FIVE_POINT_ZERO = 65.0
+ONE_THOUSAND_TWENTY_FIVE = 1025
 
 
 class TestTokenConservationSkill:
@@ -278,10 +292,13 @@ tags:
                 delegation_opportunities.append(
                     {
                         "task": task["task"],
-                        "reason": f"High compute ({task['compute_intensity']}) and token cost ({task['estimated_tokens']})",
+                        "reason": (
+                            f"High compute ({task['compute_intensity']}) and "
+                            f"token cost ({task['estimated_tokens']})"
+                        ),
                         "recommended_tool": "qwen_code_executor",
                         "estimated_savings": task["estimated_tokens"]
-                        * 0.7,  # 70% savings
+                        * ZERO_POINT_SEVEN,  # 70% savings
                     },
                 )
 
@@ -309,17 +326,32 @@ tags:
         text_samples = [
             {
                 "type": "instruction",
-                "text": "I would like you to please carefully analyze the following code and provide me with a comprehensive explanation of what it does, how it works, and any potential issues or improvements that could be made.",
+                "text": (
+                    "I would like you to please carefully analyze the following code "
+                    "and provide me with a comprehensive explanation of what it does, "
+                    "how it works, and any potential issues or improvements that "
+                    "could be made."
+                ),
                 "word_count": 35,
             },
             {
                 "type": "instruction",
-                "text": "Analyze code: explain functionality, identify issues, suggest improvements.",
+                "text": (
+                    "Analyze code: explain functionality, identify issues, "
+                    "suggest improvements."
+                ),
                 "word_count": 8,
             },
             {
                 "type": "response",
-                "text": "The code you provided is a Python function that takes a list of strings as input and returns a new list containing only the strings that have a length greater than five characters. The function uses a list comprehension to filter the input list based on the length of each string, which is an efficient and Pythonic way to accomplish this task.",
+                "text": (
+                    "The code you provided is a Python function that takes a list of "
+                    "strings as input and returns a new list containing only the "
+                    "strings that have a length greater than five characters. The "
+                    "function uses a list comprehension to filter the input list "
+                    "based on the length of each string, which is an efficient and "
+                    "Pythonic way to accomplish this task."
+                ),
                 "word_count": 58,
             },
         ]
@@ -443,10 +475,10 @@ tags:
 
         # Assert
         assert len(conservation_log) == THREE
-        assert total_tokens_used == 270
-        assert total_tokens_saved == 1025
-        assert net_savings == 755
-        assert 0.7 <= average_efficiency <= 0.85
+        assert total_tokens_used == TWO_HUNDRED_SEVENTY
+        assert total_tokens_saved == ONE_THOUSAND_TWENTY_FIVE
+        assert net_savings == SEVEN_HUNDRED_FIFTY_FIVE
+        assert ZERO_POINT_SEVEN <= average_efficiency <= ZERO_POINT_EIGHTY_FIVE
 
         # Verify log entries have required fields
         for entry in conservation_log:
@@ -487,13 +519,15 @@ tags:
                     {
                         "measure": "emergency_compression",
                         "priority": "P1",
-                        "description": "Apply maximum token compression to all communications",
+                        "description": "Apply maximum token compression to all comms",
                         "expected_savings": "40-60%",
                     },
                     {
                         "measure": "delegate_all_compute",
                         "priority": "P1",
-                        "description": "Delegate all compute-intensive tasks to external tools",
+                        "description": (
+                            "Delegate compute-intensive tasks to external tools"
+                        ),
                         "expected_savings": "70-80%",
                     },
                     {
@@ -654,16 +688,20 @@ tags:
         }
 
         # Assert
-        assert effectiveness_metrics["daily_savings_percentage"] == 35.0
-        assert effectiveness_metrics["weekly_savings_percentage"] == 35.0
         assert (
-            effectiveness_metrics["net_weekly_savings"] > 24000
+            effectiveness_metrics["daily_savings_percentage"] == THIRTY_FIVE_POINT_ZERO
+        )
+        assert (
+            effectiveness_metrics["weekly_savings_percentage"] == THIRTY_FIVE_POINT_ZERO
+        )
+        assert (
+            effectiveness_metrics["net_weekly_savings"] > TWENTY_FOUR_THOUSAND
         )  # Significant net savings
         assert (
-            effectiveness_metrics["cost_savings_weekly"] > 0.24
+            effectiveness_metrics["cost_savings_weekly"] > ZERO_POINT_TWENTY_FOUR
         )  # $0.24+ weekly savings
         assert (
-            effectiveness_metrics["efficiency_improvement"] == 65.0
+            effectiveness_metrics["efficiency_improvement"] == SIXTY_FIVE_POINT_ZERO
         )  # Better efficiency
         assert (
             effectiveness_metrics["roi_tokens_per_minute"] > EIGHT_HUNDRED

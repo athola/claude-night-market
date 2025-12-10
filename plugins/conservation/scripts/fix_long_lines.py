@@ -119,7 +119,7 @@ def fix_skill_file(file_path: str, max_length: int = 80) -> bool:
         return False
 
 
-def main() -> None:
+def main() -> int:
     """Fix long lines in skill files."""
     parser = argparse.ArgumentParser(description="Fix very long lines in skill files")
     parser.add_argument("files", nargs="+", help="Skill files to fix")
@@ -138,7 +138,6 @@ def main() -> None:
     args = parser.parse_args()
 
     success_count = 0
-    len(args.files)
 
     for file_path in args.files:
         if not Path(file_path).exists():
@@ -146,6 +145,8 @@ def main() -> None:
 
         if args.dry_run or fix_skill_file(file_path, args.max_length):
             success_count += 1
+
+    return 0 if success_count == len(args.files) else 1
 
 
 if __name__ == "__main__":

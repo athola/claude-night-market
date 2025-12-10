@@ -9,6 +9,7 @@ import argparse
 import json
 import sys
 from datetime import datetime
+from typing import Any
 
 # Constants
 CONTROLLABLE_THRESHOLD = 50  # Percentage threshold for controllable growth
@@ -42,7 +43,9 @@ class GrowthController:
             },
         }
 
-    def generate_control_strategies(self, analysis_results, strategy_type="moderate"):
+    def generate_control_strategies(
+        self, analysis_results: dict, strategy_type: str = "moderate"
+    ) -> dict:
         """Generate control strategies based on analysis results."""
         if strategy_type not in self.strategy_types:
             msg = f"Invalid strategy type: {strategy_type}"
@@ -82,7 +85,9 @@ class GrowthController:
             "monitoring_requirements": self._generate_monitoring_requirements(severity),
         }
 
-    def _calculate_target_growth_rate(self, current_rate, strategy_type):
+    def _calculate_target_growth_rate(
+        self, current_rate: float, strategy_type: str
+    ) -> float:
         """Calculate target growth rate based on strategy type."""
         if strategy_type == "conservative":
             return min(current_rate * 0.7, 0.05)  # 30% reduction, max 5%
@@ -91,9 +96,11 @@ class GrowthController:
         # aggressive
         return min(current_rate * 0.3, 0.02)  # 70% reduction, max 2%
 
-    def _generate_automated_controls(self, severity, urgency, strategy_type):
+    def _generate_automated_controls(
+        self, severity: str, urgency: str, strategy_type: str
+    ) -> list[dict]:
         """Generate automated control strategies."""
-        controls = []
+        controls: list[dict] = []
 
         # Base controls for all situations
         controls.append(
@@ -147,7 +154,9 @@ class GrowthController:
 
         return controls
 
-    def _generate_manual_controls(self, controllable_percentage, strategy_type):
+    def _generate_manual_controls(
+        self, controllable_percentage: float, strategy_type: str
+    ) -> list[dict]:
         """Generate manual control strategies."""
         controls = []
 
@@ -192,7 +201,9 @@ class GrowthController:
 
         return controls
 
-    def _generate_preventive_strategies(self, growth_rate, strategy_type):
+    def _generate_preventive_strategies(
+        self, growth_rate: float, strategy_type: str
+    ) -> list[dict]:
         """Generate preventive strategies."""
         strategies = []
 
@@ -231,9 +242,11 @@ class GrowthController:
 
         return strategies
 
-    def _generate_implementation_plan(self, strategy_type):
+    def _generate_implementation_plan(
+        self, strategy_type: str
+    ) -> dict[str, dict[str, object]]:
         """Generate implementation timeline and steps."""
-        self.strategy_types[strategy_type]
+        _ = self.strategy_types[strategy_type]
 
         if strategy_type == "conservative":
             return {
@@ -301,9 +314,9 @@ class GrowthController:
             },
         }
 
-    def _generate_monitoring_requirements(self, severity):
+    def _generate_monitoring_requirements(self, severity: str) -> dict[str, Any]:
         """Generate monitoring requirements based on severity."""
-        base_requirements = {
+        base_requirements: dict[str, Any] = {
             "frequency": "Every 10 turns",
             "metrics": ["context_usage", "growth_rate", "content_breakdown"],
             "alerts": ["threshold_breach"],
@@ -313,7 +326,7 @@ class GrowthController:
             base_requirements.update(
                 {
                     "frequency": "Every 5 turns",
-                    "alerts": base_requirements["alerts"]
+                    "alerts": list(base_requirements["alerts"])
                     + ["growth_spike", "acceleration_detected"],
                 },
             )
@@ -322,7 +335,7 @@ class GrowthController:
             base_requirements.update(
                 {
                     "frequency": "Every 2 turns",
-                    "alerts": base_requirements["alerts"]
+                    "alerts": list(base_requirements["alerts"])
                     + ["critical_threshold", "strategy_failure"],
                     "real_time_monitoring": True,
                 },

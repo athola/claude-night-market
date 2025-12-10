@@ -5,10 +5,10 @@ CLI interface for systematic skill file optimization.
 """
 
 import argparse
+import json
 import os
 import re
 import sys
-from pathlib import Path
 from typing import Any
 
 # Constants for optimization thresholds
@@ -129,7 +129,6 @@ def generate_optimization_plan(analysis: dict[str, Any]) -> dict[str, Any]:
 
     # Generate file structure
     if plan["optimizations_needed"]:
-        Path(analysis["file_path"]).stem
         plan["file_structure"] = {
             "SKILL.md": "Optimized documentation (~150-200 lines)",
             "tools/": {
@@ -182,35 +181,50 @@ def main() -> int:
     # Analyze skill file
     analysis = analyze_skill_file(args.skill_file)
 
+    # Handle verbose output for long functions
+    _handle_verbose_output(args, analysis)
+
+    # Generate optimization plan if requested
+    plan = None
+    if args.generate_plan:
+        plan = generate_optimization_plan(analysis)
+        _process_plan_details(plan)
+
+    # Handle JSON output
+    if args.output_json:
+        output_data = {"analysis": analysis}
+        if plan:
+            output_data["plan"] = plan
+        json.dumps(output_data, indent=2)
+
+    return 0
+
+
+def _handle_verbose_output(args, analysis):
+    """Handle verbose output for long functions."""
     if (args.verbose or args.generate_plan) and analysis["long_functions"]:
         for _start, _lines in analysis["long_functions"]:
             pass
 
-    if args.generate_plan:
-        plan = generate_optimization_plan(analysis)
 
-        if plan["optimizations_needed"]:
-            for _opt in plan["optimizations_needed"]:
+def _process_plan_details(plan):
+    """Process optimization plan details."""
+    if not plan["optimizations_needed"]:
+        return
+
+    for _opt in plan["optimizations_needed"]:
+        pass
+
+    # Access expected outcome
+    plan["expected_outcome"]
+
+    # Process file structure
+    for description in plan["file_structure"].values():
+        if isinstance(description, dict):
+            for _subitem, _subdesc in description.items():
                 pass
-
-            plan["expected_outcome"]
-
-            for description in plan["file_structure"].values():
-                if isinstance(description, dict):
-                    for _subitem, _subdesc in description.items():
-                        pass
-                else:
-                    pass
         else:
             pass
-
-    if args.output_json:
-        if args.generate_plan:
-            plan = generate_optimization_plan(analysis)
-        else:
-            pass
-
-    return 0
 
 
 if __name__ == "__main__":

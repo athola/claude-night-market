@@ -9,18 +9,30 @@ from datetime import UTC, datetime
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_EIGHT = ZERO_POINT_EIGHT
-TWO = TWO
-THREE = THREE
-FOUR = FOUR
-FIVE = FIVE
-EIGHT = EIGHT
-TEN = TEN
-FIFTY = FIFTY
-SEVENTY = SEVENTY
-EIGHTY = EIGHTY
-NINETY = NINETY
-HUNDRED = HUNDRED
+ZERO_POINT_EIGHT = 0.8
+ZERO_POINT_EIGHT_FIVE = 0.85
+ZERO_POINT_ZERO_TWO = 0.02
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+EIGHT = 8
+TEN = 10
+TWELVE = 12
+FOURTEEN = 14
+EIGHTEEN = 18
+TWENTY = 20
+THIRTY = 30
+THIRTY_TWO = 32
+FIFTY = 50
+SEVENTY = 70
+EIGHTY = 80
+EIGHTY_FIVE = 85
+NINETY = 90
+HUNDRED = 100
+ONE_HUNDRED_TWENTY_EIGHT = 128
+EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO = 8192
+FOUR_THOUSAND_NINETY_SIX = 4096
 
 
 class TestPerformanceMonitoringSkill:
@@ -252,7 +264,7 @@ tags:
             {
                 "metrics": {
                     "cpu_usage": 92.5,
-                    "memory_usage": 8192,
+                    "memory_usage": EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO,
                     "token_usage": 11000,
                     "context_efficiency": 0.55,
                 },
@@ -321,20 +333,30 @@ tags:
             recommendations.append(
                 {
                     "area": "CPU Optimization",
-                    "current_state": f"Average CPU usage: {performance_data['cpu_avg']}%",
-                    "recommendation": "Implement task batching and reduce concurrent operations",
+                    "current_state": (
+                        f"Average CPU usage: {performance_data['cpu_avg']}%"
+                    ),
+                    "recommendation": (
+                        "Implement task batching and reduce concurrent operations"
+                    ),
                     "estimated_improvement": "15-25% CPU reduction",
                     "implementation_effort": "Medium",
                 },
             )
 
         # Memory optimization
-        if performance_data["memory_peak"] > 8192:  # > EIGHTGB
+        if (
+            performance_data["memory_peak"] > EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO
+        ):  # > 8GB
             recommendations.append(
                 {
                     "area": "Memory Optimization",
-                    "current_state": f"Peak memory usage: {performance_data['memory_peak']}MB",
-                    "recommendation": "Implement memory pooling and reduce object retention",
+                    "current_state": (
+                        f"Peak memory usage: {performance_data['memory_peak']}MB"
+                    ),
+                    "recommendation": (
+                        "Implement memory pooling and reduce object retention"
+                    ),
                     "estimated_improvement": "20-30% memory reduction",
                     "implementation_effort": "High",
                 },
@@ -345,8 +367,12 @@ tags:
             recommendations.append(
                 {
                     "area": "Token Efficiency",
-                    "current_state": f"Token efficiency: {performance_data['token_efficiency']:.2%}",
-                    "recommendation": "Apply context compression and prompt optimization",
+                    "current_state": (
+                        f"Token efficiency: {performance_data['token_efficiency']:.2%}"
+                    ),
+                    "recommendation": (
+                        "Apply context compression and prompt optimization"
+                    ),
                     "estimated_improvement": "25-40% token savings",
                     "implementation_effort": "Low",
                 },
@@ -392,12 +418,14 @@ tags:
             hour_offset = i
             # Simulate daily pattern with growth trend
             cpu_usage = (
-                base_cpu + (hour_offset * 0.5) + (10 if 14 <= hour_offset <= 18 else 0)
+                base_cpu
+                + (hour_offset * 0.5)
+                + (10 if FOURTEEN <= hour_offset <= EIGHTEEN else 0)
             )  # Peak afternoon
             memory_usage = (
                 base_memory
                 + (hour_offset * 50)
-                + (1024 if 14 <= hour_offset <= 18 else 0)
+                + (1024 if FOURTEEN <= hour_offset <= EIGHTEEN else 0)
             )
 
             historical_data.append(
@@ -441,7 +469,7 @@ tags:
         }
 
         # Add recommendations based on trends
-        if trend_analysis["growth_rate"] > 0.02:  # 2% growth per hour
+        if trend_analysis["growth_rate"] > ZERO_POINT_ZERO_TWO:  # 2% growth per hour
             trend_analysis["recommendations"].append(
                 "Monitor resource growth - consider scaling strategies",
             )
@@ -454,8 +482,8 @@ tags:
         # Assert
         assert trend_analysis["cpu_trend_per_hour"] > 0  # Increasing trend
         assert trend_analysis["memory_trend_per_hour"] > 0  # Increasing trend
-        assert highest_usage_hour >= 14
-        assert highest_usage_hour <= 18
+        assert highest_usage_hour >= FOURTEEN
+        assert highest_usage_hour <= EIGHTEEN
         assert len(trend_analysis["recommendations"]) >= 1
 
     @pytest.mark.unit
@@ -555,12 +583,12 @@ tags:
             # Adjust expectations based on resources
             if config["total_memory_gb"] < EIGHT:
                 memory_threshold -= FIVE  # Stricter on low-memory systems
-            elif config["total_memory_gb"] > 32:
+            elif config["total_memory_gb"] > THIRTY_TWO:
                 memory_threshold += FIVE  # More lenient on high-memory systems
 
             if config["cpu_cores"] < FOUR:
                 cpu_threshold -= TEN  # Stricter on low-core systems
-            elif config["cpu_cores"] > 12:
+            elif config["cpu_cores"] > TWELVE:
                 cpu_threshold += FIVE  # More lenient on high-core systems
 
             adapted_config = {
@@ -590,7 +618,7 @@ tags:
         high_end = next(
             c for c in adapted_configurations if c["system"] == "high_end_system"
         )
-        assert high_end["cpu_warning_threshold"] >= 85
+        assert high_end["cpu_warning_threshold"] >= EIGHTY_FIVE
         assert high_end["memory_warning_threshold"] >= NINETY
 
     @pytest.mark.unit
@@ -627,8 +655,12 @@ tags:
 
         # Validate report content quality
         assert report["average_cpu"] > FIFTY  # Should show increasing trend
-        assert report["peak_memory"] > 4096  # Should show peak usage
-        assert report["efficiency_score"] < 0.85  # Should show efficiency degradation
+        assert (
+            report["peak_memory"] > FOUR_THOUSAND_NINETY_SIX
+        )  # Should show peak usage
+        assert (
+            report["efficiency_score"] < ZERO_POINT_EIGHT_FIVE
+        )  # Should show efficiency degradation
 
         # Verify report provides insights
         assert isinstance(report["average_cpu"], (int, float))

@@ -218,7 +218,7 @@ class CacheLookup:
         # Merge and score
         merged = []
 
-        for entry_id, group in entry_groups.items():
+        for group in entry_groups.values():
             # Start with the first result as base
             merged_entry = group[0].copy()
 

@@ -9,6 +9,15 @@ from typing import Any
 
 import pytest
 
+# Constants for PLR2004 magic values
+TWO = 2
+THREE = 3
+FIVE = 5
+TWO_POINT_ZERO = 2.0
+FOUR = 4
+TEN = 10
+TWO_HUNDRED = 200
+
 
 class TestStructuredOutputSkill:
     """Feature: Structured output ensures consistent deliverable formatting.

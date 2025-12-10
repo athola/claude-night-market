@@ -5,26 +5,28 @@ and report generation functionality following TDD/BDD principles.
 """
 
 import json
+import time
 
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_SEVEN = ZERO_POINT_SEVEN
-ZERO_POINT_EIGHT = ZERO_POINT_EIGHT
-TWO_POINT_ZERO = TWO_POINT_ZERO
-THREE = THREE
-FIVE = FIVE
-TEN_POINT_ZERO = TEN_POINT_ZERO
-TWENTY_POINT_ZERO = TWENTY_POINT_ZERO
-FIFTY_POINT_ZERO = FIFTY_POINT_ZERO
-HUNDRED = HUNDRED
+ZERO_POINT_SEVEN = 0.7
+ZERO_POINT_EIGHT = 0.8
+TWO_POINT_ZERO = 2.0
+THREE = 3
+FIVE = 5
+TEN_POINT_ZERO = 10.0
+TWENTY_POINT_ZERO = 20.0
+FIFTY_POINT_ZERO = 50.0
+HUNDRED = 100
 
 
 class TestConservationValidator:
     """Feature: Conservation validator analyzes resource optimization patterns.
 
     As a conservation workflow validator
-    I want to identify resource optimization opportunities and validate conservation patterns
+    I want to identify resource optimization opportunities and validate
+    conservation patterns
     So that users can achieve efficient resource utilization and performance
     """
 
@@ -38,7 +40,8 @@ class TestConservationValidator:
 
         Given a conservation plugin with multiple skills
         When scanning for conservation patterns
-        Then it should identify MECW principles, token conservation, and performance monitoring
+        Then it should identify MECW principles, token conservation, and
+        performance monitoring
         And categorize patterns by conservation type.
         """
         # Arrange
@@ -215,7 +218,8 @@ class TestConservationValidator:
 
         Given conservation analysis results
         When generating report
-        Then it should include MECW compliance, token efficiency, and performance metrics
+        Then it should include MECW compliance, token efficiency, and
+        performance metrics
         And provide actionable recommendations.
         """
         # Arrange
@@ -271,7 +275,8 @@ class TestConservationValidator:
 
         Given conservation plugin configuration and usage patterns
         When identifying optimization opportunities
-        Then it should highlight MECW violations, token waste, and performance bottlenecks
+        Then it should highlight MECW violations, token waste, and performance
+        bottlenecks
         And prioritize opportunities by impact.
         """
         # Arrange
@@ -389,8 +394,6 @@ class TestConservationValidator:
         # Mock large dataset processing
         def mock_large_scan():
             # Simulate processing time
-            import time
-
             time.sleep(0.01)  # Small delay to simulate work
 
             return [
@@ -403,8 +406,6 @@ class TestConservationValidator:
         )
 
         # Act
-        import time
-
         start_time = time.time()
         results = mock_conservation_validator.scan_conservation_workflows()
         end_time = time.time()
@@ -451,7 +452,7 @@ class TestConservationValidator:
 
 
 class TestConservationWorkflowValidation:
-    """Feature: Conservation workflow validation ensures resource optimization effectiveness.
+    """Feature: Conservation workflow validation ensures optimization effectiveness.
 
     As a conservation workflow validator
     I want to validate end-to-end conservation workflows
@@ -505,7 +506,8 @@ class TestConservationWorkflowValidation:
 
         Given conservation workflows with measurable outcomes
         When validating efficiency
-        Then it should measure token savings, performance improvements, and resource optimization
+        Then it should measure token savings, performance improvements, and
+        resource optimization
         And provide quantified efficiency scores.
         """
         # Arrange

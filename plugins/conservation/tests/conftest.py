@@ -12,10 +12,16 @@ from unittest.mock import Mock
 
 import pytest
 
-# Constants for PLR2004 magic values
-FIVE = FIVE
 # Add the scripts directory to Python path for importing conservation scripts
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+
+try:
+    from scripts.conservation_validator import ConservationValidator
+except ImportError:
+    ConservationValidator = None
+
+# Constants for PLR2004 magic values
+FIVE = 5
 
 # Constants for test thresholds and limits
 CPU_USAGE_THRESHOLD = 80
@@ -425,12 +431,10 @@ def mock_token_quota_tracker():
 @pytest.fixture
 def mock_conservation_validator(conservation_plugin_root):
     """Create ConservationValidator instance with mocked dependencies."""
-    try:
-        from scripts.conservation_validator import ConservationValidator
-
+    if ConservationValidator is not None:
         # Initialize with real plugin root but mock file operations
         return ConservationValidator(str(conservation_plugin_root))
-    except ImportError:
+    else:
         # If the module doesn't exist yet, create a mock
         mock_validator = Mock()
         mock_validator.plugin_root = str(conservation_plugin_root)

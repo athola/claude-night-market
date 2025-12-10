@@ -7,11 +7,11 @@ following TDD/BDD principles.
 import pytest
 
 # Constants for PLR2004 magic values
-TWO = TWO
-THREE = THREE
-FOUR = FOUR
-FIFTY = FIFTY
-SEVENTY = SEVENTY
+TWO = 2
+THREE = 3
+FOUR = 4
+FIFTY = 50
+SEVENTY = 70
 
 
 class TestContextOptimizerAgent:

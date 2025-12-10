@@ -4,12 +4,13 @@
 import argparse
 import os
 import re
+from typing import Any
 
 # Constants
 LARGE_FUNCTION_THRESHOLD = 15  # Minimum lines for a function to be considered large
 
 
-def extract_python_blocks(skill_file):
+def extract_python_blocks(skill_file: str) -> list[dict[str, Any]]:
     """Extract all Python code blocks from skill file."""
     with open(skill_file) as f:
         content = f.read()
@@ -28,7 +29,7 @@ def extract_python_blocks(skill_file):
     return functions
 
 
-def create_tool_reference(function_name, tool_name) -> str:
+def create_tool_reference(function_name: str, tool_name: str) -> str:
     """Create standardized tool reference."""
     return f"""Uses `tools/{tool_name}.py` for {function_name.replace("_", " ")}:
 
@@ -41,7 +42,7 @@ python tools/{tool_name}.py --input data.json --verbose --output results.json
 ```"""
 
 
-def quick_optimize_skill(skill_file):
+def quick_optimize_skill(skill_file: str) -> int:
     """Fast optimization focused on externalization."""
     # 1. Extract large functions
     functions = extract_python_blocks(skill_file)

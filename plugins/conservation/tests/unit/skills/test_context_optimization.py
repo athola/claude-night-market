@@ -7,22 +7,25 @@ functionality following TDD/BDD principles.
 import pytest
 
 # Constants for PLR2004 magic values
-TWO = TWO
-THREE = THREE
-FOUR = FOUR
-FIVE = FIVE
-THIRTY = THIRTY
-THIRTY_POINT_ZERO = THIRTY_POINT_ZERO
-FORTY_TWO_POINT_FIVE = FORTY_TWO_POINT_FIVE
-FIFTY = FIFTY
-SIXTY = SIXTY
-SEVENTY = SEVENTY
-EIGHTY = EIGHTY
-HUNDRED_THOUSAND = HUNDRED_THOUSAND
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+THIRTY = 30
+THIRTY_POINT_ZERO = 30.0
+FORTY_TWO_POINT_FIVE = 42.5
+FIFTY = 50
+SIXTY = 60
+SEVENTY = 70
+EIGHTY = 80
+EIGHTY_FIVE_THOUSAND = 85000
+NINETY_POINT_ZERO = 90.0
+HUNDRED_EIGHT_THOUSAND = 108000
+HUNDRED_THOUSAND = 100000
 
 
 class TestContextOptimizationSkill:
-    """Feature: Context optimization implements MECW principles for efficient resource usage.
+    """Feature: Context optimization implements MECW principles for efficient usage.
 
     As a context optimization workflow
     I want to analyze context usage and apply MECW principles
@@ -174,7 +177,7 @@ tags:
         """
         # Arrange
         mock_claude_tools["Bash"].side_effect = [
-            "85000",  # Current context tokens
+            str(EIGHTY_FIVE_THOUSAND),  # Current context tokens
             "200000",  # Total window size
         ]
 
@@ -198,7 +201,7 @@ tags:
             priority = "P1"
 
         # Assert
-        assert current_context == 85000
+        assert current_context == EIGHTY_FIVE_THOUSAND
         assert utilization_percentage == FORTY_TWO_POINT_FIVE
         assert status == "OPTIMAL"
         assert priority == "P3"
@@ -393,9 +396,9 @@ tags:
 
         # Assert
         assert current_context == large_context_size
-        assert utilization == 90.0
+        assert utilization == NINETY_POINT_ZERO
         assert strategy == "aggressive_compression"
-        assert target_tokens == 108000  # 60% of window size
+        assert target_tokens == HUNDRED_EIGHT_THOUSAND  # 60% of window size
 
     @pytest.mark.unit
     def test_context_optimization_error_handling(self, mock_claude_tools) -> None:

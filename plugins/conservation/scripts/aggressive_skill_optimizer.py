@@ -10,7 +10,7 @@ BATCH_THRESHOLD = 300
 DEFAULT_THRESHOLD = 300
 
 
-def aggressive_optimize_skill(skill_file):
+def aggressive_optimize_skill(skill_file: str) -> int:
     """Fast optimization that actually replaces code blocks."""
     with open(skill_file) as f:
         content = f.read()
@@ -20,7 +20,7 @@ def aggressive_optimize_skill(skill_file):
     # 1. Remove excessive code blocks and replace with references
     python_pattern = r"```python\n(.*?)\n```"
 
-    def replace_large_code_block(match):
+    def replace_large_code_block(match: re.Match[str]) -> str:
         code = match.group(1)
         lines = code.split("\n")
 
@@ -62,7 +62,7 @@ python tools/{tool_name}.py --input data.json --verbose --output results.json
 
     new_lines = len(content.split("\n"))
     reduction = original_lines - new_lines
-    (reduction / original_lines) * 100
+    _ = (reduction / original_lines) * 100
 
     return reduction
 

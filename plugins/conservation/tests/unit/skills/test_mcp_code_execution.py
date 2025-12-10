@@ -7,17 +7,19 @@ and external tool delegation following TDD/BDD principles.
 import pytest
 
 # Constants for PLR2004 magic values
-TWO = TWO
-THREE = THREE
-FIVE = FIVE
-TEN = TEN
-TWENTY = TWENTY
-FIFTY = FIFTY
-EIGHT_HUNDRED = EIGHT_HUNDRED
-THOUSAND = THOUSAND
-FIVE_THOUSAND = FIVE_THOUSAND
-FIFTEEN_THOUSAND = FIFTEEN_THOUSAND
-TWENTY_THOUSAND = TWENTY_THOUSAND
+TWO = 2
+THREE = 3
+FIVE = 5
+TEN = 10
+TWENTY = 20
+FIFTY = 50
+EIGHT_HUNDRED = 800
+THOUSAND = 1000
+FIVE_THOUSAND = 5000
+FIFTEEN_THOUSAND = 15000
+TWENTY_THOUSAND = 20000
+TWELVE_THOUSAND = 12000
+EIGHT_THOUSAND_TWO_HUNDRED = 8200
 
 
 class TestMCPCodeExecutionSkill:
@@ -180,7 +182,10 @@ tags:
                 delegation_candidates.append(
                     {
                         "task": task["name"],
-                        "reason": f"High compute ({task['compute_complexity']}) and token cost ({task['estimated_tokens']})",
+                        "reason": (
+                            f"High compute ({task['compute_complexity']}) and "
+                            f"token cost ({task['estimated_tokens']})"
+                        ),
                         "recommended_tool": "qwen_mcp_executor",
                         "estimated_savings": task["estimated_tokens"] * 0.7,
                     },
@@ -367,7 +372,7 @@ tags:
                         "analysis_result": "Completed",
                         "statistics": {"mean": 25.5, "std": 3.2},
                     },
-                    "tokens_used": 12000,
+                    "tokens_used": TWELVE_THOUSAND,
                 }
             elif task["tool"] == "bash_processor":
                 mock_result = {
@@ -402,7 +407,7 @@ tags:
         analysis_result = next(
             r for r in execution_results if r["task_name"] == "data_analysis"
         )
-        assert analysis_result["tokens_used"] == 12000
+        assert analysis_result["tokens_used"] == TWELVE_THOUSAND
         assert "statistics" in analysis_result["output"]
 
         compilation_result = next(
@@ -414,7 +419,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_result_integration_validates_and_formats_outputs(self) -> None:
-        """Scenario: Result integration validates and formats external execution outputs.
+        """Scenario: Result integration validates and formats execution outputs.
 
         Given results from external MCP execution
         When integrating results into workflow
@@ -440,7 +445,10 @@ tags:
             {
                 "task_id": "processing_1",
                 "source_tool": "bash_processor",
-                "raw_output": "Processing completed successfully. Generated files: output.json, report.txt",
+                "raw_output": (
+                    "Processing completed successfully. "
+                    "Generated files: output.json, report.txt"
+                ),
                 "execution_metadata": {
                     "execution_time": 15.7,
                     "exit_code": 0,
@@ -829,7 +837,7 @@ tags:
             b for b in batched_tasks if b["task_type"] == "statistical_analysis"
         )
         assert len(stat_batch["tasks"]) == TWO
-        assert stat_batch["combined_tokens"] == 8200
+        assert stat_batch["combined_tokens"] == EIGHT_THOUSAND_TWO_HUNDRED
         assert stat_batch["batch_efficiency"] == TWO
 
         # Verify unbatched tasks count

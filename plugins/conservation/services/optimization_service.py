@@ -11,13 +11,14 @@ from pathlib import Path
 from typing import Any
 
 # Import Conservation components
+# Import skill helpers (mypy: no stubs available)
 try:
-    from ..skills.context_optimization.condition_based_optimizer import (
+    from ..skills.context_optimization.condition_based_optimizer import (  # type: ignore[import-not-found]
         ConditionBasedOptimizer,
         OptimizationRequest,
         OptimizationResult,
     )
-    from ..skills.context_optimization.context_optimization_service import (
+    from ..skills.context_optimization.context_optimization_service import (  # type: ignore[import-not-found]
         ConservationServiceRegistry,
         ContentBlock,
     )
@@ -28,12 +29,12 @@ except ImportError:
 
     sys.path.append(str(Path(__file__).parent.parent))
 
-    from skills.context_optimization.condition_based_optimizer import (
+    from skills.context_optimization.condition_based_optimizer import (  # type: ignore[import-not-found]
         ConditionBasedOptimizer,
         OptimizationRequest,
         OptimizationResult,
     )
-    from skills.context_optimization.context_optimization_service import (
+    from skills.context_optimization.context_optimization_service import (  # type: ignore[import-not-found]
         ConservationServiceRegistry,
         ContentBlock,
     )
@@ -47,9 +48,9 @@ class OptimizationServiceInfo:
     description: str
     capabilities: list[str]
     version: str = "2.0.0"
-    supported_strategies: list[str] = None
+    supported_strategies: list[str] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize default values after dataclass creation."""
         if self.supported_strategies is None:
             self.supported_strategies = [
@@ -100,7 +101,7 @@ class OptimizationServiceInterface:
         max_tokens: int,
         strategy: str = "balanced",
         priority: float = 0.5,
-        **kwargs,
+        **kwargs: Any,
     ) -> dict[str, Any]:
         """Optimize content to fit within token limits.
 
@@ -144,7 +145,7 @@ class OptimizationServiceInterface:
         content: str | list[dict[str, Any]],
         max_tokens: int,
         strategy: str = "balanced",
-        **kwargs,
+        **kwargs: Any,
     ) -> str:
         """Start asynchronous optimization and return optimization ID.
 
@@ -164,7 +165,7 @@ class OptimizationServiceInterface:
         # Start optimization (in real implementation, this would be async)
         result = self.optimizer.optimize_with_conditions(request)
 
-        return result.optimization_id
+        return str(result.optimization_id)
 
     def monitor_context_pressure(
         self,
@@ -189,7 +190,7 @@ class OptimizationServiceInterface:
         )
 
         # Add optimization recommendations
-        recommendations = []
+        recommendations: list[str] = []
         if pressure_info["pressure_level"] == "high":
             recommendations.extend(
                 [
@@ -356,7 +357,7 @@ def optimize_content(
     content: str | list[dict[str, Any]],
     max_tokens: int,
     strategy: str = "balanced",
-    **kwargs,
+    **kwargs: Any,
 ) -> dict[str, Any]:
     """Quick optimization function for other plugins to use.
 

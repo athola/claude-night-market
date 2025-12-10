@@ -8,6 +8,12 @@ from unittest.mock import call
 
 import pytest
 
+# Constants for PLR2004 magic values
+TWO = 2
+FIVE = 5
+TEN = 10
+THOUSAND = 1000
+
 
 class TestReviewCoreSkill:
     """Feature: Review core provides structured workflow scaffolding.

@@ -7,23 +7,25 @@ and performance enhancement following TDD/BDD principles.
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_FIVE = ZERO_POINT_FIVE
-ZERO_POINT_SEVEN = ZERO_POINT_SEVEN
-THREE = THREE
-FOUR = FOUR
-FIVE = FIVE
-SIX = SIX
-EIGHT = EIGHT
-TEN = TEN
-FIFTEEN = FIFTEEN
-TWENTY = TWENTY
-THIRTY = THIRTY
-SEVENTY = SEVENTY
-HUNDRED = HUNDRED
-THREE_HUNDRED = THREE_HUNDRED
-THOUSAND = THOUSAND
-TWO_THOUSAND = TWO_THOUSAND
-THREE_THOUSAND = THREE_THOUSAND
+ZERO_POINT_FIVE = 0.5
+ZERO_POINT_SEVEN = 0.7
+THREE = 3
+FOUR = 4
+FIVE = 5
+SIX = 6
+EIGHT = 8
+TEN = 10
+FIFTEEN = 15
+TWENTY = 20
+THIRTY = 30
+SEVENTY = 70
+HUNDRED = 100
+THREE_HUNDRED = 300
+THOUSAND = 1000
+TWO_THOUSAND = 2000
+THREE_THOUSAND = 3000
+TWENTY_FIVE = 25
+THIRTY_FIVE = 35
 
 
 class TestOptimizingLargeSkills:
@@ -473,7 +475,9 @@ tags:
                         "operation": operation["operation"],
                         "impact_percentage": time_percentage,
                         "total_time": total_time,
-                        "reason": f"Takes {time_percentage:.1f}% of total execution time",
+                        "reason": (
+                            f"Takes {time_percentage:.1f}% of total execution time"
+                        ),
                     },
                 )
 
@@ -550,7 +554,7 @@ tags:
                 {
                     "operation": "file_parsing",
                     "impact": "high",
-                    "estimated_improvement": 25,
+                    "estimated_improvement": TWENTY_FIVE,
                     "implementation_effort": "low",
                 },
             ],
@@ -605,7 +609,10 @@ tags:
                     "priority_score": priority_score,
                     "estimated_improvement": bottleneck["estimated_improvement"],
                     "implementation_effort": bottleneck["implementation_effort"],
-                    "description": f"Optimize {bottleneck['operation']} for {bottleneck['estimated_improvement']}% improvement",
+                    "description": (
+                        f"Optimize {bottleneck['operation']} for "
+                        f"{bottleneck['estimated_improvement']}% improvement"
+                    ),
                 },
             )
 
@@ -645,7 +652,9 @@ tags:
                     "priority_score": priority_score,
                     "estimated_improvement": inefficiency["potential_savings"],
                     "implementation_effort": inefficiency["implementation_effort"],
-                    "description": f"Fix {inefficiency['source']} to reduce {inefficiency['type']}",
+                    "description": (
+                        f"Fix {inefficiency['source']} to reduce {inefficiency['type']}"
+                    ),
                 },
             )
 
@@ -832,7 +841,7 @@ tags:
             "token_efficiency_target_met": validation_results[
                 "token_efficiency_improvement"
             ]
-            >= 25,
+            >= TWENTY_FIVE,
             "overall_success": all(
                 [
                     validation_results["load_time_improvement_percentage"] >= FIFTEEN,
@@ -846,7 +855,7 @@ tags:
         # Assert
         assert validation_results["load_time_improvement_percentage"] >= TWENTY
         assert validation_results["memory_savings_percentage"] >= TWENTY
-        assert validation_results["token_efficiency_improvement"] >= 35
+        assert validation_results["token_efficiency_improvement"] >= THIRTY_FIVE
         assert validation_results["success_rate_improvement"] >= TEN
         assert validation_results["satisfaction_improvement"] >= 1.0
 

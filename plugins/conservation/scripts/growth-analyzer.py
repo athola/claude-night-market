@@ -38,7 +38,7 @@ class GrowthAnalyzer:
             "urgent": (1.0, 0.020),
         }
 
-    def analyze_growth_patterns(self, context_data):
+    def analyze_growth_patterns(self, context_data: dict) -> dict:
         """Analyze growth patterns and determine severity."""
         growth_trend = context_data.get("growth_trend", {})
         current_usage = growth_trend.get("current_usage", 0)
@@ -69,7 +69,7 @@ class GrowthAnalyzer:
             "analysis_timestamp": datetime.now().isoformat(),
         }
 
-    def _assess_severity(self, growth_rate) -> str:
+    def _assess_severity(self, growth_rate: float) -> str:
         """Determine growth severity level."""
         if growth_rate < self.growth_thresholds["mild"]:
             return "STABLE"
@@ -81,14 +81,14 @@ class GrowthAnalyzer:
             return "SEVERE"
         return "CRITICAL"
 
-    def _assess_urgency(self, growth_rate, acceleration):
+    def _assess_urgency(self, growth_rate: float, acceleration: float) -> str:
         """Determine control urgency level."""
         for level, (rate_threshold, acc_threshold) in self.urgency_levels.items():
             if growth_rate <= rate_threshold and acceleration <= acc_threshold:
                 return level.upper()
         return "URGENT"
 
-    def _calculate_controllable_growth(self, content_breakdown):
+    def _calculate_controllable_growth(self, content_breakdown: dict) -> float:
         """Calculate percentage of growth that can be controlled."""
         total_contribution = 0
         controllable_contribution = 0
@@ -107,9 +107,15 @@ class GrowthAnalyzer:
 
         return round((controllable_contribution / total_contribution) * 100, 2)
 
-    def _project_growth(self, current_usage, growth_rate, acceleration, turns=20):
+    def _project_growth(
+        self,
+        current_usage: float,
+        growth_rate: float,
+        acceleration: float,
+        turns: int = 20,
+    ) -> dict[str, float | dict[str, float]]:
         """Project growth over specified number of turns."""
-        projections = {}
+        projections: dict[str, float | dict[str, float]] = {}
 
         for turn in PROJECTION_TURNS:
             if turn > turns:
@@ -144,7 +150,12 @@ class GrowthAnalyzer:
 
         return projections
 
-    def _estimate_mecw_violation(self, current_usage, growth_rate, acceleration):
+    def _estimate_mecw_violation(
+        self,
+        current_usage: float,
+        growth_rate: float,
+        acceleration: float,
+    ) -> float:
         """Estimate turns until MECW violation (100% usage)."""
         if current_usage >= MECW_USAGE_LIMIT:
             return 0
