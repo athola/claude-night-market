@@ -3,95 +3,116 @@
 
 from pathlib import Path
 
+# Define common constants with their actual values
+_COMMON_CONSTANTS = {
+    "ZERO": "0",
+    "ONE": "1",
+    "TWO": "2",
+    "THREE": "3",
+    "FOUR": "4",
+    "FIVE": "5",
+    "SIX": "6",
+    "SEVEN": "7",
+    "EIGHT": "8",
+    "NINE": "9",
+    "TEN": "10",
+    "ELEVEN": "11",
+    "TWELVE": "12",
+    "THIRTEEN": "13",
+    "FOURTEEN": "14",
+    "FIFTEEN": "15",
+    "SIXTEEN": "16",
+    "SEVENTEEN": "17",
+    "EIGHTEEN": "18",
+    "NINETEEN": "19",
+    "TWENTY": "20",
+    "TWENTY_FIVE": "25",
+    "THIRTY": "30",
+    "THIRTY_FIVE": "35",
+    "FORTY": "40",
+    "FIFTY": "50",
+    "SIXTY": "60",
+    "SEVENTY": "70",
+    "EIGHTY": "80",
+    "NINETY": "90",
+    "HUNDRED": "100",
+    "ONE_HUNDRED": "100",
+    "TWO_HUNDRED": "200",
+    "THREE_HUNDRED": "300",
+    "FOUR_HUNDRED": "400",
+    "FIVE_HUNDRED": "500",
+    "THOUSAND": "1000",
+    "ONE_THOUSAND": "1000",
+    "TWO_THOUSAND": "2000",
+    "FIVE_THOUSAND": "5000",
+    "TEN_THOUSAND": "10000",
+    "FIFTY_THOUSAND": "50000",
+    "HUNDRED_THOUSAND": "100000",
+    "MILLION": "1000000",
+    "TEN_MILLION": "10000000",
+    "FIFTY_MILLION": "50000000",
+    "HUNDRED_MILLION": "100000000",
+    "POINT_ONE": "0.1",
+    "POINT_TWO": "0.2",
+    "POINT_THREE": "0.3",
+    "POINT_FOUR": "0.4",
+    "POINT_FIVE": "0.5",
+    "POINT_SIX": "0.6",
+    "POINT_SEVEN": "0.7",
+    "POINT_EIGHT": "0.8",
+    "POINT_NINE": "0.9",
+    "ONE_POINT_FIVE": "1.5",
+    "TWO_POINT_FIVE": "2.5",
+    "NINETY_POINT_ZERO": "90.0",
+}
+
+
+def _find_constants_section(lines: list[str]) -> tuple[int, int]:
+    """Find the start and end of the constants section."""
+    constants_start = -1
+    constants_end = -1
+
+    for i, line in enumerate(lines):
+        if "# Constants for PLR2004 magic values" in line:
+            constants_start = i
+        elif (
+            constants_start >= 0
+            and line.strip()
+            and not line.startswith(" ")
+            and not line.startswith("#")
+        ):
+            # Found end of constants section
+            constants_end = i
+            break
+
+    return constants_start, constants_end
+
+
+def _process_constants_line(line: str) -> str:
+    """Process a single constants line to fix self-referential constants."""
+    if "=" in line and not line.strip().startswith("#"):
+        # Extract constant name
+        parts = line.split("=", 1)
+        if len(parts) == 2:
+            const_name = parts[0].strip()
+            const_value = parts[1].strip()
+
+            # Check if it's self-referential
+            if const_name == const_value and const_name in _COMMON_CONSTANTS:
+                return f"{const_name} = {_COMMON_CONSTANTS[const_name]}"
+
+    return line
+
 
 def fix_constants_in_file(file_path: Path) -> bool:
     """Fix self-referential constants in a file."""
     try:
-        with open(file_path, encoding="utf-8") as f:
-            content = f.read()
-
+        content = file_path.read_text(encoding="utf-8")
         original_content = content
-
-        # Define common constants with their actual values
-        common_constants = {
-            "ZERO": "0",
-            "ONE": "1",
-            "TWO": "2",
-            "THREE": "3",
-            "FOUR": "4",
-            "FIVE": "5",
-            "SIX": "6",
-            "SEVEN": "7",
-            "EIGHT": "8",
-            "NINE": "9",
-            "TEN": "10",
-            "ELEVEN": "11",
-            "TWELVE": "12",
-            "THIRTEEN": "13",
-            "FOURTEEN": "14",
-            "FIFTEEN": "15",
-            "SIXTEEN": "16",
-            "SEVENTEEN": "17",
-            "EIGHTEEN": "18",
-            "NINETEEN": "19",
-            "TWENTY": "20",
-            "TWENTY_FIVE": "25",
-            "THIRTY": "30",
-            "THIRTY_FIVE": "35",
-            "FORTY": "40",
-            "FIFTY": "50",
-            "SIXTY": "60",
-            "SEVENTY": "70",
-            "EIGHTY": "80",
-            "NINETY": "90",
-            "HUNDRED": "100",
-            "ONE_HUNDRED": "100",
-            "TWO_HUNDRED": "200",
-            "THREE_HUNDRED": "300",
-            "FOUR_HUNDRED": "400",
-            "FIVE_HUNDRED": "500",
-            "THOUSAND": "1000",
-            "ONE_THOUSAND": "1000",
-            "TWO_THOUSAND": "2000",
-            "FIVE_THOUSAND": "5000",
-            "TEN_THOUSAND": "10000",
-            "FIFTY_THOUSAND": "50000",
-            "HUNDRED_THOUSAND": "100000",
-            "MILLION": "1000000",
-            "TEN_MILLION": "10000000",
-            "FIFTY_MILLION": "50000000",
-            "HUNDRED_MILLION": "100000000",
-            "POINT_ONE": "0.1",
-            "POINT_TWO": "0.2",
-            "POINT_THREE": "0.3",
-            "POINT_FOUR": "0.4",
-            "POINT_FIVE": "0.5",
-            "POINT_SIX": "0.6",
-            "POINT_SEVEN": "0.7",
-            "POINT_EIGHT": "0.8",
-            "POINT_NINE": "0.9",
-            "ONE_POINT_FIVE": "1.5",
-            "TWO_POINT_FIVE": "2.5",
-            "NINETY_POINT_ZERO": "90.0",
-        }
 
         # Find the constants section
         lines = content.split("\n")
-        constants_start = -1
-        constants_end = -1
-
-        for i, line in enumerate(lines):
-            if "# Constants for PLR2004 magic values" in line:
-                constants_start = i
-            elif (
-                constants_start >= 0
-                and line.strip()
-                and not line.startswith(" ")
-                and not line.startswith("#")
-            ):
-                # Found end of constants section
-                constants_end = i
-                break
+        constants_start, constants_end = _find_constants_section(lines)
 
         if constants_start >= 0:
             if constants_end == -1:
@@ -99,28 +120,16 @@ def fix_constants_in_file(file_path: Path) -> bool:
 
             # Process the constants section
             for i in range(constants_start + 1, constants_end):
-                line = lines[i]
-                if "=" in line and not line.strip().startswith("#"):
-                    # Extract constant name
-                    parts = line.split("=", 1)
-                    if len(parts) == 2:
-                        const_name = parts[0].strip()
-                        const_value = parts[1].strip()
-
-                        # Check if it's self-referential
-                        if const_name == const_value and const_name in common_constants:
-                            lines[i] = f"{const_name} = {common_constants[const_name]}"
+                lines[i] = _process_constants_line(lines[i])
 
             content = "\n".join(lines)
 
         if content != original_content:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(content)
+            file_path.write_text(content, encoding="utf-8")
             return True
-
         return False
 
-    except Exception:
+    except (OSError, UnicodeError):
         return False
 
 
