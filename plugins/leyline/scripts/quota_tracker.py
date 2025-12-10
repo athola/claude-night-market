@@ -13,6 +13,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 from dataclasses import dataclass, field
@@ -67,6 +68,11 @@ TOKEN_RATIOS = {
 }
 DEFAULT_TOKEN_RATIO = 4.0
 
+# Constants for quota thresholds
+SECONDS_IN_MINUTE = 60
+CRITICAL_THRESHOLD = 95
+WARNING_THRESHOLD = 80
+
 
 class QuotaTracker:
     """Universal quota tracker for rate-limited services."""
@@ -120,7 +126,7 @@ class QuotaTracker:
         now = time.time()
 
         # Reset minute counters if more than 60 seconds
-        if now - self.usage.last_request_time > 60:
+        if now - self.usage.last_request_time > SECONDS_IN_MINUTE:
             self.usage.requests_this_minute = 0
             self.usage.tokens_this_minute = 0
 
@@ -176,25 +182,25 @@ class QuotaTracker:
         # Determine status level
         max_usage = max(rpm_percent, daily_percent, tpm_percent)
 
-        if max_usage >= 95:
+        if max_usage >= CRITICAL_THRESHOLD:
             level = "critical"
-        elif max_usage >= 80:
+        elif max_usage >= WARNING_THRESHOLD:
             level = "warning"
         else:
             level = "healthy"
 
         # Generate warnings
-        if rpm_percent >= 80:
+        if rpm_percent >= WARNING_THRESHOLD:
             warnings.append(
                 f"RPM at {rpm_percent:.1f}% "
                 f"({self.usage.requests_this_minute}/{self.config.requests_per_minute})"
             )
-        if daily_percent >= 80:
+        if daily_percent >= WARNING_THRESHOLD:
             warnings.append(
                 f"Daily requests at {daily_percent:.1f}% "
                 f"({self.usage.requests_today}/{self.config.requests_per_day})"
             )
-        if tpm_percent >= 80:
+        if tpm_percent >= WARNING_THRESHOLD:
             warnings.append(
                 f"TPM at {tpm_percent:.1f}% "
                 f"({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})"
@@ -267,8 +273,6 @@ class QuotaTracker:
 
 def main() -> None:
     """CLI interface for quota tracker."""
-    import argparse
-
     parser = argparse.ArgumentParser(description="Check service quota status")
     parser.add_argument("service", help="Service name")
     parser.add_argument("--check", action="store_true", help="Check quota status")

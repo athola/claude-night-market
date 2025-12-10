@@ -14,6 +14,16 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Import tiktoken if available
+try:
+    import tiktoken
+except ImportError:  # pragma: no cover - optional dependency
+    tiktoken = None
+    logger.debug("tiktoken not available, falling back to heuristic estimation")
+except Exception as e:  # pragma: no cover - edge case
+    tiktoken = None
+    logger.debug("Failed to import tiktoken: %s", e)
+
 # Token estimation ratios: characters per token for different file types
 FILE_TOKEN_RATIOS = {
     "code": 3.2,  # .py, .js, .ts, .rs
@@ -60,13 +70,12 @@ def _get_encoder() -> Any | None:
         tiktoken encoder instance or None if tiktoken is not installed
 
     """
-    try:
-        import tiktoken
-
-        return tiktoken.get_encoding("cl100k_base")
-    except ImportError:  # pragma: no cover - optional dependency
+    if tiktoken is None:
         logger.debug("tiktoken not available, falling back to heuristic estimation")
         return None
+
+    try:
+        return tiktoken.get_encoding("cl100k_base")
     except Exception as e:  # pragma: no cover - edge case
         logger.debug("Failed to load tiktoken encoder: %s", e)
         return None

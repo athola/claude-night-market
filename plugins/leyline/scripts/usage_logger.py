@@ -13,6 +13,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 import time
 from dataclasses import dataclass, field
@@ -220,8 +221,6 @@ class UsageLogger:
 
 def main() -> None:
     """CLI interface for usage logger."""
-    import argparse
-
     parser = argparse.ArgumentParser(description="Query usage logs")
     parser.add_argument("service", help="Service name")
     parser.add_argument("--summary", action="store_true", help="Show usage summary")

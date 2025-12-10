@@ -15,6 +15,11 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Constants for context management
+MAX_HISTORY_LENGTH = 10
+GROWTH_CHECK_MINIMUM = 3
+GROWTH_WARNING_PERCENTAGE = 0.1
+
 # MECW threshold levels
 MECW_THRESHOLDS = {
     "LOW": 0.30,  # < 30%: Optimal performance, high accuracy
@@ -188,8 +193,8 @@ class MECWMonitor:
         self._usage_history.append(tokens)
 
         # Keep only recent history (last 10 measurements)
-        if len(self._usage_history) > 10:
-            self._usage_history = self._usage_history[-10:]
+        if len(self._usage_history) > MAX_HISTORY_LENGTH:
+            self._usage_history = self._usage_history[-MAX_HISTORY_LENGTH:]
 
     def get_status(self) -> MECWStatus:
         """Get current MECW compliance status.
@@ -227,9 +232,11 @@ class MECWMonitor:
             recommendations.append("Plan context optimization strategy")
 
         # Check for rapid growth
-        if len(self._usage_history) >= 3:
-            recent_growth = self._usage_history[-1] - self._usage_history[-3]
-            if recent_growth > (self.max_context * 0.1):  # >10% growth in 3 checks
+        if len(self._usage_history) >= GROWTH_CHECK_MINIMUM:
+            idx = -GROWTH_CHECK_MINIMUM
+            recent_growth = self._usage_history[-1] - self._usage_history[idx]
+            growth_threshold = self.max_context * GROWTH_WARNING_PERCENTAGE
+            if recent_growth > growth_threshold:  # >10% growth in 3 checks
                 warnings.append(
                     f"Rapid context growth detected: +{recent_growth:,} tokens",
                 )
