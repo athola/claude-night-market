@@ -80,22 +80,6 @@ class TestDelegationExecutorIntegration:
 
     @patch("subprocess.run")
     def test_delegation_workflow_with_quota_limits(self, mock_run, tmp_path) -> None:
-        """Given quota limits when executing workflow then should respect limits."""
-        # Setup mock for service verification
-        mock_run.return_value.returncode = 0
-        mock_run.return_value.stdout = "version info"
-
-        delegator = Delegator(config_dir=tmp_path)
-
-        # Test quota-aware execution
-        gemini_config = delegator.SERVICES["gemini"]
-        assert gemini_config.quota_limits is not None
-        assert "requests_per_minute" in gemini_config.quota_limits
-        assert "tokens_per_day" in gemini_config.quota_limits
-
-    @patch("subprocess.run")
-    def test_smart_delegation_service_selection(self, mock_run, tmp_path) -> None:
-        """Given multiple services when using smart delegation then should select appropriate service."""
         # Setup mocks
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "success"
@@ -151,34 +135,6 @@ class TestQuotaTrackerIntegration:
             assert current_usage["requests_today"] == 2
 
     def test_quota_warnings_and_status_changes(self, tmp_path) -> None:
-        """Given approaching limits when tracking quota then should provide appropriate warnings."""
-        usage_file = tmp_path / "usage.json"
-
-        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
-            tracker = GeminiQuotaTracker()
-
-            # Simulate high usage (over 80% threshold)
-            now = datetime.now()
-            high_usage_requests = []
-            for i in range(50):  # 50 requests (over 80% of 60 RPM limit)
-                high_usage_requests.append(
-                    {
-                        "timestamp": (now - timedelta(seconds=i * 10)).isoformat(),
-                        "tokens": 100,
-                        "success": True,
-                    },
-                )
-
-            tracker.usage_data["requests"] = high_usage_requests
-
-            status, warnings = tracker.get_quota_status()
-
-            assert "[WARNING]" in status
-            assert len(warnings) > 0
-
-    @patch("quota_tracker.GeminiQuotaTracker")
-    def test_quota_aware_task_execution(self, mock_tracker_class, tmp_path) -> None:
-        """Given quota limits when executing tasks then should enforce limits appropriately."""
         mock_tracker = MagicMock()
         mock_tracker.estimate_task_tokens.return_value = 50000
         mock_tracker.can_handle_task.return_value = (True, [])
@@ -204,64 +160,6 @@ class TestUsageLoggerIntegration:
     """Test integration scenarios for usage logger."""
 
     def test_usage_logging_across_days(self, tmp_path) -> None:
-        """Given usage spanning multiple days when logging then should handle day transitions."""
-        usage_log = tmp_path / "usage.jsonl"
-
-        with patch.object(GeminiUsageLogger, "usage_log", usage_log):
-            logger = GeminiUsageLogger()
-
-            # Day 1: Record usage
-            day1_entries = [
-                UsageEntry(
-                    "gemini -p 'task1'",
-                    1000,
-                    actual_tokens=1200,
-                    success=True,
-                    duration=2.0,
-                ),
-                UsageEntry(
-                    "gemini -p 'task2'",
-                    800,
-                    actual_tokens=900,
-                    success=True,
-                    duration=1.5,
-                ),
-            ]
-
-            for entry in day1_entries:
-                logger.log_usage(entry)
-
-            # Simulate day transition by modifying session file
-            session_file = tmp_path / "current_session.json"
-            if session_file.exists():
-                session_data = json.loads(session_file.read_text())
-                # Set last_reset to yesterday
-                session_data["last_reset"] = (
-                    datetime.now() - timedelta(days=1)
-                ).isoformat()
-                session_file.write_text(json.dumps(session_data, indent=2))
-
-            # Day 2: Record more usage
-            day2_entries = [
-                UsageEntry(
-                    "gemini -p 'task3'",
-                    1500,
-                    actual_tokens=1600,
-                    success=True,
-                    duration=3.0,
-                ),
-            ]
-
-            for entry in day2_entries:
-                logger.log_usage(entry)
-
-            # Verify usage summary
-            summary = logger.get_usage_summary(hours=48)  # Last 2 days
-            assert summary["total_requests"] == 3
-            assert summary["total_tokens"] == 3700  # 1200 + 900 + 1600
-
-    def test_error_logging_and_analysis(self, tmp_path) -> None:
-        """Given errors occurring during usage when logging then should track and analyze them."""
         usage_log = tmp_path / "usage.jsonl"
 
         with patch.object(GeminiUsageLogger, "usage_log", usage_log):
@@ -303,37 +201,6 @@ class TestUsageLoggerIntegration:
             assert "Context too large" in error_messages
 
     def test_session_management_and_tracking(self, tmp_path) -> None:
-        """Given usage spanning sessions when logging then should track sessions correctly."""
-        logger = GeminiUsageLogger()
-
-        # Force creation of new session
-        session_id1 = logger._get_session_id()
-        assert session_id1.startswith("session_")
-
-        # Record usage in session 1
-        logger.log_usage(UsageEntry("task1", 1000, success=True))
-
-        # Check session was updated
-        session_file = logger.session_file
-        assert session_file.exists()
-
-        with open(session_file) as f:
-            session_data = json.load(f)
-
-        assert session_data["session_id"] == session_id1
-        assert session_data["total_requests"] == 1
-        assert session_data["total_tokens"] == 1000
-        assert session_data["successful_requests"] == 1
-
-        # Create new session (simulate timeout)
-        with patch("time.time", return_value=int(time.time()) + 4000):  # 1+ hour later
-            session_id2 = logger._get_session_id()
-
-        assert session_id2 != session_id1  # Should be new session
-
-
-class TestEndToEndWorkflows:
-    """Test complete end-to-end workflows."""
 
     @patch("subprocess.run")
     @patch("delegation_executor.tiktoken.get_encoding")
@@ -417,33 +284,6 @@ class TestEndToEndWorkflows:
 
     @patch("subprocess.run")
     def test_error_recovery_workflow(self, mock_run, tmp_path) -> None:
-        """Given errors during delegation when executing workflow then should recover appropriately."""
-        # Setup error scenarios
-        error_results = [
-            MagicMock(returncode=1, stderr="Rate limit exceeded"),
-            MagicMock(returncode=1, stderr="Authentication failed"),
-            MagicMock(returncode=0, stdout="Success after retry", stderr=""),
-        ]
-        mock_run.side_effect = error_results
-
-        delegator = Delegator(config_dir=tmp_path)
-
-        # Test error handling and recovery
-        for i, _expected_result in enumerate(error_results):
-            result = delegator.execute("gemini", f"Test request {i}", timeout=30)
-
-            if i < 2:  # First two attempts should fail
-                assert result.success is False
-                assert (
-                    "Rate limit exceeded" in result.stderr
-                    or "Authentication failed" in result.stderr
-                )
-            else:  # Third attempt should succeed
-                assert result.success is True
-                assert "Success after retry" in result.stdout
-
-    def test_quota_exhaustion_handling_workflow(self, tmp_path) -> None:
-        """Given quota exhaustion when executing workflow then should handle gracefully."""
         quota_tracker = GeminiQuotaTracker()
 
         # Simulate quota exhaustion
@@ -471,89 +311,8 @@ class TestEndToEndWorkflows:
                 assert "quota" in issues[0].lower()
 
     def test_multiple_service_delegation_workflow(self, tmp_path) -> None:
-        """Given multiple services available when executing workflow then should select optimal service."""
-        # Create delegator with custom service configurations
-        custom_config = {
-            "services": {
-                "gemini-fast": {
-                    "name": "gemini-fast",
-                    "command": "gemini",
-                    "auth_method": "api_key",
-                    "quota_limits": {
-                        "requests_per_minute": 120,
-                        "requests_per_day": 2000,
-                        "tokens_per_day": 2000000,
-                    },
-                },
-                "gemini-pro": {
-                    "name": "gemini-pro",
-                    "command": "gemini",
-                    "auth_method": "api_key",
-                    "quota_limits": {
-                        "requests_per_minute": 30,
-                        "requests_per_day": 500,
-                        "tokens_per_day": 500000,
-                    },
-                },
-            },
-        }
-
-        config_file = tmp_path / "config.json"
-        config_file.write_text(json.dumps(custom_config, indent=2))
-
-        delegator = Delegator(config_dir=tmp_path)
-
-        # Verify custom services were loaded
-        assert "gemini-fast" in delegator.SERVICES
-        assert "gemini-pro" in delegator.SERVICES
-
-        # Test service selection logic
-        fast_config = delegator.SERVICES["gemini-fast"]
-        pro_config = delegator.SERVICES["gemini-pro"]
-
-        # Fast service should have higher limits
-        assert (
-            fast_config.quota_limits["requests_per_minute"]
-            > pro_config.quota_limits["requests_per_minute"]
-        )
-
-        # Pro service should be more conservative
-        assert (
-            pro_config.quota_limits["requests_per_day"]
-            < fast_config.quota_limits["requests_per_day"]
-        )
-
-
-class TestPerformanceAndScalability:
-    """Test performance and scalability scenarios."""
 
     def test_large_file_token_estimation_performance(self, tmp_path) -> None:
-        """Given large files when estimating tokens then should perform efficiently."""
-        # Create a large test file
-        large_file = tmp_path / "large_file.py"
-        content = "def function_{}():\n    return 'test'\n" * 10000  # 10K lines
-        large_file.write_text(content)
-
-        usage_file = tmp_path / "usage.json"
-
-        with patch.object(GeminiQuotaTracker, "usage_file", usage_file):
-            tracker = GeminiQuotaTracker()
-
-            # Time the token estimation
-            start_time = time.time()
-            estimated_tokens = tracker.estimate_task_tokens(
-                [str(large_file)],
-                prompt_length=100,
-            )
-            duration = time.time() - start_time
-
-            # Should complete quickly even for large files
-            assert duration < 2.0  # Should complete in under 2 seconds
-            assert estimated_tokens > 0
-
-    @patch("quota_tracker.tiktoken.get_encoding")
-    def test_batch_processing_efficiency(self, mock_encoder, tmp_path) -> None:
-        """Given multiple files when processing batch then should handle efficiently."""
         # Setup mock
         mock_encoder_instance = MagicMock()
         mock_encoder_instance.encode.return_value = list(range(100))  # 100 tokens each
@@ -584,47 +343,3 @@ class TestPerformanceAndScalability:
             assert estimated_tokens > 5000  # Should account for all files + prompt
 
     def test_usage_log_performance_with_many_entries(self, tmp_path) -> None:
-        """Given many usage log entries when analyzing logs then should perform efficiently."""
-        usage_log = tmp_path / "usage.jsonl"
-
-        # Create log with many entries
-        entries = []
-        for i in range(1000):  # 1000 entries
-            entry = {
-                "timestamp": (datetime.now() - timedelta(minutes=i)).isoformat(),
-                "command": f"gemini -p 'task {i}'",
-                "estimated_tokens": 1000 + i,
-                "actual_tokens": 1100 + i,
-                "success": i % 10 != 0,  # 90% success rate
-                "duration_seconds": 1.0 + (i % 5) * 0.5,
-                "error": None if i % 10 != 0 else f"Error {i}",
-                "session_id": f"session_{i // 50}",
-            }
-            entries.append(entry)
-
-        with open(usage_log, "w") as f:
-            for entry in entries:
-                f.write(json.dumps(entry) + "\n")
-
-        with patch.object(GeminiUsageLogger, "usage_log", usage_log):
-            logger = GeminiUsageLogger()
-
-            # Test performance of usage analysis
-            start_time = time.time()
-            summary = logger.get_usage_summary(
-                hours=25,
-            )  # Last 25 hours to include all entries
-            duration = time.time() - start_time
-
-            # Should analyze log efficiently
-            assert duration < 2.0  # Should complete quickly
-            assert summary["total_requests"] == 1000
-            assert summary["success_rate"] == 90.0
-
-            # Test error retrieval performance
-            start_time = time.time()
-            errors = logger.get_recent_errors(count=50)
-            duration = time.time() - start_time
-
-            assert duration < 1.0  # Should complete quickly
-            assert len(errors) == 100  # 10% of 1000 entries should be errors

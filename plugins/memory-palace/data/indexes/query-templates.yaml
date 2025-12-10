@@ -26,14 +26,14 @@ entries:
     queries: []
     title: README
   structured-concurrency-task-groups:
-    file: knowledge-corpus/structured-concurrency-task-groups.md
+    file: knowledge-corpus/structured-concurrency/task-groups.md
     queries:
     - How to apply structured concurrency to TaskGroup orchestration for API workers?
     - Structured Concurrency best practices for python teams
     - Task Group Patterns guidance for TaskGroup orchestration for API workers
     title: "Structured Concurrency \u2014 Task Group Patterns"
   structured-concurrency-cancellation-graphs:
-    file: knowledge-corpus/structured-concurrency-cancellation-graphs.md
+    file: knowledge-corpus/structured-concurrency/cancellation-graphs.md
     queries:
     - How to apply structured concurrency to propagating cancellations across goroutine
       trees?
@@ -42,7 +42,7 @@ entries:
       trees
     title: "Structured Concurrency \u2014 Cancellation Graphs"
   structured-concurrency-service-boundaries:
-    file: knowledge-corpus/structured-concurrency-service-boundaries.md
+    file: knowledge-corpus/structured-concurrency/service-boundaries.md
     queries:
     - How to apply structured concurrency to structuring coroutines across microservice
       boundaries?
@@ -50,14 +50,14 @@ entries:
     - Service Boundaries guidance for structuring coroutines across microservice boundaries
     title: "Structured Concurrency \u2014 Service Boundaries"
   structured-concurrency-load-shedding:
-    file: knowledge-corpus/structured-concurrency-load-shedding.md
+    file: knowledge-corpus/structured-concurrency/load-shedding.md
     queries:
     - How to apply structured concurrency to structured concurrency for overload protection?
     - Structured Concurrency best practices for rust teams
     - Load Shedding guidance for structured concurrency for overload protection
     title: "Structured Concurrency \u2014 Load Shedding"
   structured-concurrency-observability:
-    file: knowledge-corpus/structured-concurrency-observability.md
+    file: knowledge-corpus/structured-concurrency/observability.md
     queries:
     - How to apply structured concurrency to instrumenting structured tasks with trace
       spans?
@@ -65,7 +65,7 @@ entries:
     - Observability Hooks guidance for instrumenting structured tasks with trace spans
     title: "Structured Concurrency \u2014 Observability Hooks"
   async-error-handling-boundary-contracts:
-    file: knowledge-corpus/async-error-handling-boundary-contracts.md
+    file: knowledge-corpus/async-error-handling/boundary-contracts.md
     queries:
     - How to apply async error handling to ensuring awaitable boundaries enforce retries
       + timeouts?
@@ -74,35 +74,35 @@ entries:
       + timeouts
     title: "Async Error Handling \u2014 Boundary Contracts"
   async-error-handling-idempotent-retries:
-    file: knowledge-corpus/async-error-handling-idempotent-retries.md
+    file: knowledge-corpus/async-error-handling/idempotent-retries.md
     queries:
     - How to apply async error handling to ensuring retried operations stay idempotent?
     - Async Error Handling best practices for go teams
     - Idempotent Retries guidance for ensuring retried operations stay idempotent
     title: "Async Error Handling \u2014 Idempotent Retries"
   async-error-handling-fallback-strategies:
-    file: knowledge-corpus/async-error-handling-fallback-strategies.md
+    file: knowledge-corpus/async-error-handling/fallback-strategies.md
     queries:
     - How to apply async error handling to graceful degradation for async pipelines?
     - Async Error Handling best practices for node.js teams
     - Fallback Strategies guidance for graceful degradation for async pipelines
     title: "Async Error Handling \u2014 Fallback Strategies"
   async-error-handling-error-budget-alerts:
-    file: knowledge-corpus/async-error-handling-error-budget-alerts.md
+    file: knowledge-corpus/async-error-handling/error-budget-alerts.md
     queries:
     - How to apply async error handling to surfacing async failures via budgets?
     - Async Error Handling best practices for python teams
     - Error Budget Alerts guidance for surfacing async failures via budgets
     title: "Async Error Handling \u2014 Error Budget Alerts"
   async-error-handling-dead-letter-streams:
-    file: knowledge-corpus/async-error-handling-dead-letter-streams.md
+    file: knowledge-corpus/async-error-handling/dead-letter-streams.md
     queries:
     - How to apply async error handling to capturing irrecoverable async messages?
     - Async Error Handling best practices for python teams
     - Dead Letter Streams guidance for capturing irrecoverable async messages
     title: "Async Error Handling \u2014 Dead Letter Streams"
   cache-eviction-strategies-vitality-decay:
-    file: knowledge-corpus/cache-eviction-strategies-vitality-decay.md
+    file: knowledge-corpus/cache-eviction-strategies/vitality-decay.md
     queries:
     - How to apply cache eviction strategies to evicting entries when vitality drops
       below 10?
@@ -110,14 +110,14 @@ entries:
     - Vitality Decay guidance for evicting entries when vitality drops below 10
     title: "Cache Eviction Strategies \u2014 Vitality Decay"
   cache-eviction-strategies-konmari-sessions:
-    file: knowledge-corpus/cache-eviction-strategies-konmari-sessions.md
+    file: knowledge-corpus/cache-eviction-strategies/konmari-sessions.md
     queries:
     - How to apply cache eviction strategies to structured tidy sessions with gratitude?
     - Cache Eviction Strategies best practices for notebook teams
     - KonMari Sessions guidance for structured tidy sessions with gratitude
     title: "Cache Eviction Strategies \u2014 KonMari Sessions"
   cache-eviction-strategies-context-budgeting:
-    file: knowledge-corpus/cache-eviction-strategies-context-budgeting.md
+    file: knowledge-corpus/cache-eviction-strategies/context-budgeting.md
     queries:
     - How to apply cache eviction strategies to evicting large entries to maintain
       context budgets?
@@ -125,7 +125,7 @@ entries:
     - Context Budgeting guidance for evicting large entries to maintain context budgets
     title: "Cache Eviction Strategies \u2014 Context Budgeting"
   cache-eviction-strategies-marginal-value-score:
-    file: knowledge-corpus/cache-eviction-strategies-marginal-value-score.md
+    file: knowledge-corpus/cache-eviction-strategies/marginal-value-score.md
     queries:
     - How to apply cache eviction strategies to evicting duplicates using marginal
       value filter results?
@@ -134,7 +134,7 @@ entries:
       results
     title: "Cache Eviction Strategies \u2014 Marginal Value Score"
   cache-eviction-strategies-intake-quarantine:
-    file: knowledge-corpus/cache-eviction-strategies-intake-quarantine.md
+    file: knowledge-corpus/cache-eviction-strategies/intake-quarantine.md
     queries:
     - How to apply cache eviction strategies to keeping new knowledge in probation
       before promotion?
@@ -142,154 +142,154 @@ entries:
     - Intake Quarantine guidance for keeping new knowledge in probation before promotion
     title: "Cache Eviction Strategies \u2014 Intake Quarantine"
   knowledge-indexing-keyword-curation:
-    file: knowledge-corpus/knowledge-indexing-keyword-curation.md
+    file: knowledge-corpus/knowledge-indexing/keyword-curation.md
     queries:
     - How to apply knowledge indexing to standardizing keyword vocabularies?
     - Knowledge Indexing best practices for python teams
     - Keyword Curation guidance for standardizing keyword vocabularies
     title: "Knowledge Indexing \u2014 Keyword Curation"
   knowledge-indexing-query-templates:
-    file: knowledge-corpus/knowledge-indexing-query-templates.md
+    file: knowledge-corpus/knowledge-indexing/query-templates.md
     queries:
     - How to apply knowledge indexing to mapping question phrasings to palace entries?
     - Knowledge Indexing best practices for python teams
     - Query Templates guidance for mapping question phrasings to palace entries
     title: "Knowledge Indexing \u2014 Query Templates"
   knowledge-indexing-semantic-tags:
-    file: knowledge-corpus/knowledge-indexing-semantic-tags.md
+    file: knowledge-corpus/knowledge-indexing/semantic-tags.md
     queries:
     - How to apply knowledge indexing to adding semantic tags for multi-modal lookup?
     - Knowledge Indexing best practices for python teams
     - Semantic Tags guidance for adding semantic tags for multi-modal lookup
     title: "Knowledge Indexing \u2014 Semantic Tags"
   knowledge-indexing-index-refresh:
-    file: knowledge-corpus/knowledge-indexing-index-refresh.md
+    file: knowledge-corpus/knowledge-indexing/index-refresh.md
     queries:
     - How to apply knowledge indexing to rebuilding indexes on each intake batch?
     - Knowledge Indexing best practices for python teams
     - Index Refresh guidance for rebuilding indexes on each intake batch
     title: "Knowledge Indexing \u2014 Index Refresh"
   knowledge-indexing-index-telemetry:
-    file: knowledge-corpus/knowledge-indexing-index-telemetry.md
+    file: knowledge-corpus/knowledge-indexing/index-telemetry.md
     queries:
     - How to apply knowledge indexing to tracking search hits per entry?
     - Knowledge Indexing best practices for python teams
     - Index Telemetry guidance for tracking search hits per entry
     title: "Knowledge Indexing \u2014 Index Telemetry"
   autonomy-scoring-level-promotions:
-    file: knowledge-corpus/autonomy-scoring-level-promotions.md
+    file: knowledge-corpus/autonomy-scoring/level-promotions.md
     queries:
     - How to apply autonomy scoring to criteria for promoting autonomy levels?
     - Autonomy Scoring best practices for python teams
     - Level Promotions guidance for criteria for promoting autonomy levels
     title: "Autonomy Scoring \u2014 Level Promotions"
   autonomy-scoring-domain-overrides:
-    file: knowledge-corpus/autonomy-scoring-domain-overrides.md
+    file: knowledge-corpus/autonomy-scoring/domain-overrides.md
     queries:
     - How to apply autonomy scoring to locking sensitive domains at Level 0?
     - Autonomy Scoring best practices for python teams
     - Domain Overrides guidance for locking sensitive domains at Level 0
     title: "Autonomy Scoring \u2014 Domain Overrides"
   autonomy-scoring-regret-rate-tracking:
-    file: knowledge-corpus/autonomy-scoring-regret-rate-tracking.md
+    file: knowledge-corpus/autonomy-scoring/regret-rate-tracking.md
     queries:
     - How to apply autonomy scoring to monitoring regret rate spikes?
     - Autonomy Scoring best practices for python teams
     - Regret Rate Tracking guidance for monitoring regret rate spikes
     title: "Autonomy Scoring \u2014 Regret Rate Tracking"
   autonomy-scoring-human-in-loop:
-    file: knowledge-corpus/autonomy-scoring-human-in-loop.md
+    file: knowledge-corpus/autonomy-scoring/human-in-loop.md
     queries:
     - How to apply autonomy scoring to ensuring sample audits even at Level 3?
     - Autonomy Scoring best practices for python teams
     - Human-in-the-Loop guidance for ensuring sample audits even at Level 3
     title: "Autonomy Scoring \u2014 Human-in-the-Loop"
   autonomy-scoring-cli-workflows:
-    file: knowledge-corpus/autonomy-scoring-cli-workflows.md
+    file: knowledge-corpus/autonomy-scoring/cli-workflows.md
     queries:
     - How to apply autonomy scoring to command palette for trust adjustments?
     - Autonomy Scoring best practices for python teams
     - CLI Workflows guidance for command palette for trust adjustments
     title: "Autonomy Scoring \u2014 CLI Workflows"
   garden-tending-stale-sweeps:
-    file: knowledge-corpus/garden-tending-stale-sweeps.md
+    file: knowledge-corpus/garden-tending/stale-sweeps.md
     queries:
     - How to apply garden tending to automated stale queue generation?
     - Garden Tending best practices for python teams
     - Stale Sweeps guidance for automated stale queue generation
     title: "Garden Tending \u2014 Stale Sweeps"
   garden-tending-konmari-prompts:
-    file: knowledge-corpus/garden-tending-konmari-prompts.md
+    file: knowledge-corpus/garden-tending/konmari-prompts.md
     queries:
     - How to apply garden tending to embedding spark-joy prompts into CLI?
     - Garden Tending best practices for python teams
     - KonMari Prompts guidance for embedding spark-joy prompts into CLI
     title: "Garden Tending \u2014 KonMari Prompts"
   garden-tending-garden-reports:
-    file: knowledge-corpus/garden-tending-garden-reports.md
+    file: knowledge-corpus/garden-tending/garden-reports.md
     queries:
     - How to apply garden tending to weekly lifecycle health reports?
     - Garden Tending best practices for python teams
     - Garden Reports guidance for weekly lifecycle health reports
     title: "Garden Tending \u2014 Garden Reports"
   garden-tending-tending-cli:
-    file: knowledge-corpus/garden-tending-tending-cli.md
+    file: knowledge-corpus/garden-tending/tending-cli.md
     queries:
     - How to apply garden tending to interactive CLI for lifecycle decisions?
     - Garden Tending best practices for python teams
     - Tending CLI guidance for interactive CLI for lifecycle decisions
     title: "Garden Tending \u2014 Tending CLI"
   garden-tending-evergreen-guards:
-    file: knowledge-corpus/garden-tending-evergreen-guards.md
+    file: knowledge-corpus/garden-tending/evergreen-guards.md
     queries:
     - How to apply garden tending to regressions preventing evergreen deletions?
     - Garden Tending best practices for python teams
     - Evergreen Guards guidance for regressions preventing evergreen deletions
     title: "Garden Tending \u2014 Evergreen Guards"
   telemetry-pipeline-cache-hit-dashboard:
-    file: knowledge-corpus/telemetry-pipeline-cache-hit-dashboard.md
+    file: knowledge-corpus/telemetry-pipeline/cache-hit-dashboard.md
     queries:
     - How to apply telemetry pipeline to visualizing cache hit rates?
     - Telemetry Pipeline best practices for notebook teams
     - Cache Hit Dashboard guidance for visualizing cache hit rates
     title: "Telemetry Pipeline \u2014 Cache Hit Dashboard"
   telemetry-pipeline-latency-profiling:
-    file: knowledge-corpus/telemetry-pipeline-latency-profiling.md
+    file: knowledge-corpus/telemetry-pipeline/latency-profiling.md
     queries:
     - How to apply telemetry pipeline to profiling hook latency?
     - Telemetry Pipeline best practices for python teams
     - Latency Profiling guidance for profiling hook latency
     title: "Telemetry Pipeline \u2014 Latency Profiling"
   telemetry-pipeline-intake-flags:
-    file: knowledge-corpus/telemetry-pipeline-intake-flags.md
+    file: knowledge-corpus/telemetry-pipeline/intake-flags.md
     queries:
     - How to apply telemetry pipeline to tracking intake flag volume?
     - Telemetry Pipeline best practices for python teams
     - Intake Flags guidance for tracking intake flag volume
     title: "Telemetry Pipeline \u2014 Intake Flags"
   telemetry-pipeline-autonomy-alerts:
-    file: knowledge-corpus/telemetry-pipeline-autonomy-alerts.md
+    file: knowledge-corpus/telemetry-pipeline/autonomy-alerts.md
     queries:
     - How to apply telemetry pipeline to alerting on autonomy events?
     - Telemetry Pipeline best practices for python teams
     - Autonomy Alerts guidance for alerting on autonomy events
     title: "Telemetry Pipeline \u2014 Autonomy Alerts"
   telemetry-pipeline-token-savings:
-    file: knowledge-corpus/telemetry-pipeline-token-savings.md
+    file: knowledge-corpus/telemetry-pipeline/token-savings.md
     queries:
     - How to apply telemetry pipeline to measuring context savings per cache interception?
     - Telemetry Pipeline best practices for python teams
     - Token Savings guidance for measuring context savings per cache interception
     title: "Telemetry Pipeline \u2014 Token Savings"
   feature-flag-governance-flag-matrix:
-    file: knowledge-corpus/feature-flag-governance-flag-matrix.md
+    file: knowledge-corpus/feature-flag-governance/flag-matrix.md
     queries:
     - How to apply feature flag governance to documenting flag dependencies?
     - Feature Flag Governance best practices for markdown teams
     - Flag Matrix guidance for documenting flag dependencies
     title: "Feature Flag Governance \u2014 Flag Matrix"
   feature-flag-governance-staged-rollout:
-    file: knowledge-corpus/feature-flag-governance-staged-rollout.md
+    file: knowledge-corpus/feature-flag-governance/staged-rollout.md
     queries:
     - How to apply feature flag governance to rolling cache intercept flag through
       stages?
@@ -297,91 +297,91 @@ entries:
     - Staged Rollout guidance for rolling cache intercept flag through stages
     title: "Feature Flag Governance \u2014 Staged Rollout"
   feature-flag-governance-flag-telemetry:
-    file: knowledge-corpus/feature-flag-governance-flag-telemetry.md
+    file: knowledge-corpus/feature-flag-governance/flag-telemetry.md
     queries:
     - How to apply feature flag governance to linking telemetry to flag states?
     - Feature Flag Governance best practices for python teams
     - Flag Telemetry guidance for linking telemetry to flag states
     title: "Feature Flag Governance \u2014 Flag Telemetry"
   feature-flag-governance-oncall-runbooks:
-    file: knowledge-corpus/feature-flag-governance-oncall-runbooks.md
+    file: knowledge-corpus/feature-flag-governance/oncall-runbooks.md
     queries:
     - How to apply feature flag governance to on-call guides for flipping flags?
     - Feature Flag Governance best practices for markdown teams
     - On-call Runbooks guidance for on-call guides for flipping flags
     title: "Feature Flag Governance \u2014 On-call Runbooks"
   feature-flag-governance-audit-trails:
-    file: knowledge-corpus/feature-flag-governance-audit-trails.md
+    file: knowledge-corpus/feature-flag-governance/audit-trails.md
     queries:
     - How to apply feature flag governance to logging flag changes for audits?
     - Feature Flag Governance best practices for python teams
     - Audit Trails guidance for logging flag changes for audits
     title: "Feature Flag Governance \u2014 Audit Trails"
   semantic-embedding-local-embeddings:
-    file: knowledge-corpus/semantic-embedding-local-embeddings.md
+    file: knowledge-corpus/semantic-embedding/local-embeddings.md
     queries:
     - How to apply semantic embedding to building local sentence-transformer index?
     - Semantic Embedding best practices for python teams
     - Local Embeddings guidance for building local sentence-transformer index
     title: "Semantic Embedding \u2014 Local Embeddings"
   semantic-embedding-fusion-ranking:
-    file: knowledge-corpus/semantic-embedding-fusion-ranking.md
+    file: knowledge-corpus/semantic-embedding/fusion-ranking.md
     queries:
     - How to apply semantic embedding to combining keyword + embedding scores?
     - Semantic Embedding best practices for python teams
     - Fusion Ranking guidance for combining keyword + embedding scores
     title: "Semantic Embedding \u2014 Fusion Ranking"
   semantic-embedding-evaluation-suite:
-    file: knowledge-corpus/semantic-embedding-evaluation-suite.md
+    file: knowledge-corpus/semantic-embedding/evaluation-suite.md
     queries:
     - How to apply semantic embedding to benchmarking semantic search?
     - Semantic Embedding best practices for notebook teams
     - Evaluation Suite guidance for benchmarking semantic search
     title: "Semantic Embedding \u2014 Evaluation Suite"
   semantic-embedding-provider-toggles:
-    file: knowledge-corpus/semantic-embedding-provider-toggles.md
+    file: knowledge-corpus/semantic-embedding/provider-toggles.md
     queries:
     - How to apply semantic embedding to toggling embedding providers?
     - Semantic Embedding best practices for yaml teams
     - Provider Toggles guidance for toggling embedding providers
     title: "Semantic Embedding \u2014 Provider Toggles"
   semantic-embedding-vector-maintenance:
-    file: knowledge-corpus/semantic-embedding-vector-maintenance.md
+    file: knowledge-corpus/semantic-embedding/vector-maintenance.md
     queries:
     - How to apply semantic embedding to keeping vector indexes fresh?
     - Semantic Embedding best practices for python teams
     - Vector Maintenance guidance for keeping vector indexes fresh
     title: "Semantic Embedding \u2014 Vector Maintenance"
   marginal-value-filter-redundancy-checks:
-    file: knowledge-corpus/marginal-value-filter-redundancy-checks.md
+    file: knowledge-corpus/marginal-value-filter/redundancy-checks.md
     queries:
     - How to apply marginal value filter to classifying overlap levels?
     - Marginal Value Filter best practices for python teams
     - Redundancy Checks guidance for classifying overlap levels
     title: "Marginal Value Filter \u2014 Redundancy Checks"
   marginal-value-filter-delta-analysis:
-    file: knowledge-corpus/marginal-value-filter-delta-analysis.md
+    file: knowledge-corpus/marginal-value-filter/delta-analysis.md
     queries:
     - How to apply marginal value filter to summarizing what's new?
     - Marginal Value Filter best practices for python teams
     - Delta Analysis guidance for summarizing what's new
     title: "Marginal Value Filter \u2014 Delta Analysis"
   marginal-value-filter-integration-decisions:
-    file: knowledge-corpus/marginal-value-filter-integration-decisions.md
+    file: knowledge-corpus/marginal-value-filter/integration-decisions.md
     queries:
     - How to apply marginal value filter to automating store/merge/replace/skip?
     - Marginal Value Filter best practices for python teams
     - Integration Decisions guidance for automating store/merge/replace/skip
     title: "Marginal Value Filter \u2014 Integration Decisions"
   marginal-value-filter-explanations:
-    file: knowledge-corpus/marginal-value-filter-explanations.md
+    file: knowledge-corpus/marginal-value-filter/explanations.md
     queries:
     - How to apply marginal value filter to producing curator-friendly explanations?
     - Marginal Value Filter best practices for python teams
     - Explanations guidance for producing curator-friendly explanations
     title: "Marginal Value Filter \u2014 Explanations"
   marginal-value-filter-cli-workbench:
-    file: knowledge-corpus/marginal-value-filter-cli-workbench.md
+    file: knowledge-corpus/marginal-value-filter/cli-workbench.md
     queries:
     - How to apply marginal value filter to interactive marginal value review?
     - Marginal Value Filter best practices for python teams
@@ -689,4 +689,4 @@ queries:
 metadata:
   total_entries: 53
   total_queries: 134
-  last_updated: '2025-12-09T08:16:30.367786+00:00'
+  last_updated: '2025-12-09T21:52:46.984628+00:00'

@@ -6,6 +6,13 @@ following TDD/BDD principles.
 
 import pytest
 
+# Constants for PLR2004 magic values
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FIFTY = FIFTY
+SEVENTY = SEVENTY
+
 
 class TestContextOptimizerAgent:
     """Feature: Context optimizer agent autonomously manages context optimization.
@@ -43,9 +50,9 @@ class TestContextOptimizerAgent:
 
             # Determine agent action based on analysis
             if not analysis["mecw_compliant"]:
-                if analysis["utilization_percentage"] > 70:
+                if analysis["utilization_percentage"] > SEVENTY:
                     action = "aggressive_optimization"
-                elif analysis["utilization_percentage"] > 50:
+                elif analysis["utilization_percentage"] > FIFTY:
                     action = "moderate_optimization"
                 else:
                     action = "light_optimization"
@@ -63,7 +70,7 @@ class TestContextOptimizerAgent:
             )
 
         # Assert
-        assert len(monitoring_actions) == 4
+        assert len(monitoring_actions) == FOUR
 
         # Verify correct actions for each scenario
         for i, action in enumerate(monitoring_actions):
@@ -71,7 +78,7 @@ class TestContextOptimizerAgent:
 
         # Check compliance status
         non_compliant = [a for a in monitoring_actions if not a["compliance"]]
-        assert len(non_compliant) >= 2  # Should detect violations
+        assert len(non_compliant) >= TWO  # Should detect violations
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -187,11 +194,11 @@ class TestContextOptimizerAgent:
                 agent_decisions.append(agent_decision)
 
         # Assert
-        assert len(agent_decisions) == 4
+        assert len(agent_decisions) == FOUR
 
         # Verify decision accuracy
         correct_decisions = [d for d in agent_decisions if d["decision_correct"]]
-        assert len(correct_decisions) >= 3  # Should make mostly correct decisions
+        assert len(correct_decisions) >= THREE  # Should make mostly correct decisions
 
         # Verify all decisions have positive scores
         for decision in agent_decisions:
@@ -199,7 +206,7 @@ class TestContextOptimizerAgent:
 
     @pytest.mark.unit
     def test_agent_learns_from_optimization_outcomes(self) -> None:
-        """Scenario: Agent learns from optimization outcomes
+        """Scenario: Agent learns from optimization outcomes.
 
         Given historical optimization results
         When making future decisions
@@ -288,7 +295,7 @@ class TestContextOptimizerAgent:
                 )
 
         # Assert
-        assert len(improved_decisions) >= 2
+        assert len(improved_decisions) >= TWO
 
         # Verify learning improved decisions
         improvements = [d for d in improved_decisions if d["improvement_applied"]]

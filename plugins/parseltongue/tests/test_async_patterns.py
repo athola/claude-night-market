@@ -13,15 +13,24 @@ from parseltongue.skills.async_analyzer import AsyncAnalysisSkill
 
 
 class TestAsyncAnalysisSkill:
-    """Test suite for AsyncAnalysisSkill."""
+    """
+
+    Test suite for AsyncAnalysisSkill.
+    """
 
     def setup_method(self) -> None:
-        """Set up test fixtures before each test."""
+        """
+
+        Set up test fixtures before each test.
+        """
         self.skill = AsyncAnalysisSkill()
 
     @pytest.mark.asyncio
     async def test_detects_async_functions(self, sample_async_code) -> None:
-        """Given async code, when skill analyzes, then identifies all async functions."""
+        """Given async code, when skill analyzes, then identifies all async.
+
+        functions.
+        """
         # Arrange
         code = sample_async_code
 
@@ -46,7 +55,10 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_identifies_async_context_managers(self, sample_async_code) -> None:
-        """Given async code, when skill analyzes, then identifies async context managers."""
+        """Given async code, when skill analyzes, then identifies async context.
+
+        managers.
+        """
         # Arrange
         code = sample_async_code
 
@@ -67,7 +79,10 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_analyzes_concurrency_patterns(self, sample_async_code) -> None:
-        """Given async code, when skill analyzes, then identifies concurrency patterns."""
+        """
+
+        Given async code, when skill analyzes, then identifies concurrency patterns.
+        """
         # Arrange
         code = sample_async_code
 
@@ -91,7 +106,10 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_detects_blocking_calls(self, async_issues) -> None:
-        """Given async code with blocking calls, when skill analyzes, then identifies blocking patterns."""
+        """
+
+        Given async code with blocking calls, when skill analyzes, then identifies blocking patterns.
+        """
         # Arrange
         blocking_code = async_issues["blocking_io"]
 
@@ -116,7 +134,10 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_identifies_missing_await(self, async_issues) -> None:
-        """Given async code with missing await, when skill analyzes, then detect missing awaits."""
+        """
+
+        Given async code with missing await, when skill analyzes, then detect missing awaits.
+        """
         # Arrange
         missing_await_code = async_issues["missing_await"]
 
@@ -136,7 +157,10 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_analyzes_error_handling(self, sample_async_code) -> None:
-        """Given async code, when skill analyzes, then evaluates error handling patterns."""
+        """
+
+        Given async code, when skill analyzes, then evaluates error handling patterns.
+        """
         # Arrange
         code = sample_async_code
 
@@ -160,7 +184,10 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_analyzes_timeout_handling(self, sample_async_code) -> None:
-        """Given async code with timeouts, when skill analyzes, then evaluates timeout patterns."""
+        """
+
+        Given async code with timeouts, when skill analyzes, then evaluates timeout patterns.
+        """
         # Arrange
         code = sample_async_code
 
@@ -184,7 +211,10 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_identifies_resource_management(self, sample_async_code) -> None:
-        """Given async code, when skill analyzes, then identifies resource management patterns."""
+        """
+
+        Given async code, when skill analyzes, then identifies resource management patterns.
+        """
         # Arrange
         code = sample_async_code
 
@@ -208,14 +238,20 @@ class TestAsyncAnalysisSkill:
 
     @pytest.mark.asyncio
     async def test_analyzes_performance_issues(self, sample_async_code) -> None:
-        """Given async code, when skill analyzes, then identifies performance opportunities."""
+        """
+
+        Given async code, when skill analyzes, then identifies performance opportunities.
+        """
         # Arrange
         code_with_issues = '''
 import asyncio
 import aiohttp
 
 async def process_items_sequential(items):
-    """Sequential processing - performance issue."""
+    """
+
+Sequential processing - performance issue.
+"""
     results = []
     for item in items:
         result = await fetch_item(item)  # Sequential
@@ -223,13 +259,19 @@ async def process_items_sequential(items):
     return results
 
 async def process_items_concurrent(items):
-    """Concurrent processing - better performance."""
+    """
+
+Concurrent processing - better performance.
+"""
     tasks = [fetch_item(item) for item in items]
     results = await asyncio.gather(*tasks)
     return results
 
 async def fetch_item(item):
-    """Simulate network call."""
+    """
+
+Simulate network call.
+"""
     await asyncio.sleep(0.1)
     return {"item": item, "processed": True}
         '''
@@ -256,7 +298,10 @@ async def fetch_item(item):
 
     @pytest.mark.asyncio
     async def test_detects_race_conditions(self) -> None:
-        """Given async code, when skill analyzes, then identifies potential race conditions."""
+        """
+
+        Given async code, when skill analyzes, then identifies potential race conditions.
+        """
         # Arrange
         race_condition_code = '''
 import asyncio
@@ -264,13 +309,19 @@ import asyncio
 shared_state = {"counter": 0}
 
 async def increment_counter():
-    """Potential race condition - shared state without synchronization."""
+    """
+
+Potential race condition - shared state without synchronization.
+"""
     current = shared_state["counter"]
     await asyncio.sleep(0.001)  # Simulate async operation
     shared_state["counter"] = current + 1
 
 async def safe_increment(counter):
-    """Thread-safe increment using asyncio.Lock."""
+    """
+
+Thread-safe increment using asyncio.Lock.
+"""
     async with counter["lock"]:
         current = counter["value"]
         await asyncio.sleep(0.001)
@@ -311,19 +362,28 @@ async def main():
 
     @pytest.mark.asyncio
     async def test_analyzes_event_loop_usage(self) -> None:
-        """Given async code, when skill analyzes, then evaluates event loop patterns."""
+        """
+
+        Given async code, when skill analyzes, then evaluates event loop patterns.
+        """
         # Arrange
         event_loop_code = '''
 import asyncio
 
 async def custom_loop_example():
-    """Custom event loop usage."""
+    """
+
+Custom event loop usage.
+"""
     loop = asyncio.get_event_loop()
     loop.call_soon(some_callback)
     await asyncio.sleep(1)
 
 def run_with_custom_loop():
-    """Running with custom loop configuration."""
+    """
+
+Running with custom loop configuration.
+"""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
@@ -332,12 +392,18 @@ def run_with_custom_loop():
         loop.close()
 
 async def background_task():
-    """Background task pattern."""
+    """
+
+Background task pattern.
+"""
     loop = asyncio.get_running_loop()
     loop.create_background_task(long_running_operation())
 
 async def callback_example():
-    """Callback registration pattern."""
+    """
+
+Callback registration pattern.
+"""
     loop = asyncio.get_running_loop()
     loop.set_debug(True)
     # Schedule callbacks
@@ -364,7 +430,10 @@ async def callback_example():
 
     @pytest.mark.asyncio
     async def test_suggests_async_improvements(self, async_issues) -> None:
-        """Given async code with issues, when skill analyzes, then suggests improvements."""
+        """
+
+        Given async code with issues, when skill analyzes, then suggests improvements.
+        """
         # Arrange
         problematic_code = (
             async_issues["missing_await"] + "\n\n" + async_issues["blocking_io"]
@@ -394,7 +463,10 @@ async def callback_example():
 
     @pytest.mark.asyncio
     async def test_validates_async_best_practices(self, sample_async_code) -> None:
-        """Given well-structured async code, when skill analyzes, then validates best practices."""
+        """
+
+        Given well-structured async code, when skill analyzes, then validates best practices.
+        """
         # Arrange
         good_async_code = sample_async_code
 
@@ -420,7 +492,10 @@ async def callback_example():
 
     @pytest.mark.asyncio
     async def test_analyzes_async_testing_patterns(self) -> None:
-        """Given async test code, when skill analyzes, then evaluates testing patterns."""
+        """
+
+        Given async test code, when skill analyzes, then evaluates testing patterns.
+        """
         # Arrange
         async_test_code = '''
 import pytest
@@ -429,13 +504,19 @@ from unittest.mock import AsyncMock
 
 @pytest.mark.asyncio
 async def test_async_function():
-    """Test async function directly."""
+    """
+
+Test async function directly.
+"""
     result = await my_async_function()
     assert result.success is True
 
 @pytest.mark.asyncio
 async def test_with_mock():
-    """Test with async mock."""
+    """
+
+Test with async mock.
+"""
     mock_api = AsyncMock()
     mock_api.get.return_value = {"data": "test"}
 
@@ -444,7 +525,10 @@ async def test_with_mock():
 
 @pytest.mark.asyncio
 async def test_timeout_handling():
-    """Test timeout handling."""
+    """
+
+Test timeout handling.
+"""
     with pytest.raises(asyncio.TimeoutError):
         await asyncio.wait_for(
             slow_operation(),
@@ -453,7 +537,10 @@ async def test_timeout_handling():
 
 @pytest.mark.asyncio
 async def test_concurrent_operations():
-    """Test concurrent async operations."""
+    """
+
+Test concurrent async operations.
+"""
     tasks = [
         fetch_user(1),
         fetch_user(2),
@@ -485,7 +572,10 @@ async def test_concurrent_operations():
 
     @pytest.mark.asyncio
     async def test_handles_complex_async_scenarios(self) -> None:
-        """Given complex async scenarios, when skill analyzes, then handles correctly."""
+        """
+
+        Given complex async scenarios, when skill analyzes, then handles correctly.
+        """
         # Arrange
         complex_async_code = '''
 import asyncio
@@ -525,7 +615,10 @@ class AsyncCache:
             raise
 
 async def process_with_rate_limit(items, rate_limiter):
-    """Process items with rate limiting."""
+    """
+
+Process items with rate limiting.
+"""
     async with rate_limiter:
         for item in items:
             async with rate_limiter.acquire():

@@ -50,6 +50,7 @@ class ImprovementSuggester:
     """Core improvement suggestion functionality."""
 
     def __init__(self, skills_dir: Path) -> None:
+        """Initialize the improvement suggester."""
         self.skills_dir = skills_dir
         self.skills_root = skills_dir  # Add alias for compatibility
         self.skill_root = skills_dir  # Add alias for test compatibility

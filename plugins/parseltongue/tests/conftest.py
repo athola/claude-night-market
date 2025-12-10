@@ -6,6 +6,7 @@ for testing parseltongue skills, agents, and workflows.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import tempfile
 import textwrap
@@ -466,32 +467,38 @@ dependencies = [
         """)
 
         # Initialize git repository
+        git_executable = shutil.which("git") or "git"
+        # nosec: S607 - git_executable is from shutil.which, commands are safe
         subprocess.run(
-            ["git", "init"],
+            [git_executable, "init"],
             check=False,
             cwd=project_path,
             capture_output=True,
         )
+        # nosec: S607 - git_executable is from shutil.which, commands are safe
         subprocess.run(
-            ["git", "config", "user.email", "test@example.com"],
+            [git_executable, "config", "user.email", "test@example.com"],
             check=False,
             cwd=project_path,
             capture_output=True,
         )
+        # nosec: S607 - git_executable is from shutil.which, commands are safe
         subprocess.run(
-            ["git", "config", "user.name", "Test User"],
+            [git_executable, "config", "user.name", "Test User"],
             check=False,
             cwd=project_path,
             capture_output=True,
         )
+        # nosec: S607 - git_executable is from shutil.which, commands are safe
         subprocess.run(
-            ["git", "add", "."],
+            [git_executable, "add", "."],
             check=False,
             cwd=project_path,
             capture_output=True,
         )
+        # nosec: S607 - git_executable is from shutil.which, commands are safe
         subprocess.run(
-            ["git", "commit", "-m", "Initial commit"],
+            [git_executable, "commit", "-m", "Initial commit"],
             check=False,
             cwd=project_path,
             capture_output=True,
@@ -606,6 +613,7 @@ class MockAgentResponse:
     """Mock agent response for testing."""
 
     def __init__(self, content: str, success: bool = True) -> None:
+        """Initialize the mock agent response."""
         self.content = content
         self.success = success
         self.metadata = {

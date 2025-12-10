@@ -8,14 +8,23 @@ import time
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_FIVE = ZERO_POINT_FIVE
+TWO = TWO
+TWO_POINT_ZERO = TWO_POINT_ZERO
+THREE_POINT_ZERO = THREE_POINT_ZERO
+FIVE_POINT_ZERO = FIVE_POINT_ZERO
+TWENTY = TWENTY
+HUNDRED = HUNDRED
+THOUSAND = THOUSAND
 # Constants for performance thresholds
 MIN_REVIEW_WORKFLOW_SKILLS = 50
 MAX_VALIDATOR_SIZE_BYTES = 100_000  # 100KB
 MAX_AVG_MEMORY_PER_SKILL_FILE = 50_000  # 50KB
 MAX_MEMORY_PER_SKILL_FILE = 100_000  # 100KB
-MIN_REPORT_LENGTH = 1000
-ITERATIONS_FOR_STRESS_TEST = 1000
-MAX_EXECUTION_TIME_SECONDS = 5.0
+MIN_REPORT_LENGTH = THOUSAND
+ITERATIONS_FOR_STRESS_TEST = THOUSAND
+MAX_EXECUTION_TIME_SECONDS = FIVE_POINT_ZERO
 
 
 class TestValidatorPerformance:
@@ -143,8 +152,10 @@ Test command for performance testing.
         execution_time = end_time - start_time
 
         # Assert performance
-        assert execution_time < MAX_EXECUTION_TIME_SECONDS  # Should complete in under 5 seconds
-        assert len(scan_result["skills_found"]) == 100
+        assert (
+            execution_time < MAX_EXECUTION_TIME_SECONDS
+        )  # Should complete in under 5 seconds
+        assert len(scan_result["skills_found"]) == HUNDRED
         assert (
             len(scan_result["review_workflow_skills"]) >= MIN_REVIEW_WORKFLOW_SKILLS
         )  # About half should match patterns
@@ -179,7 +190,7 @@ Test command for performance testing.
         pattern_matching_times = []
 
         # Test multiple scans
-        for i in range(5):
+        for _i in range(5):
             start_time = time.time()
             validator.scan_review_workflows()
             end_time = time.time()
@@ -194,12 +205,14 @@ Test command for performance testing.
 
         # Assert consistent performance
         assert avg_scan_time < 1.0  # Average scan under 1 second
-        assert max_scan_time < 2.0  # Maximum scan under 2 seconds
-        assert max_scan_time - min_scan_time < 0.5  # Consistent timing (within 500ms)
+        assert max_scan_time < TWO_POINT_ZERO  # Maximum scan under 2 seconds
+        assert (
+            max_scan_time - min_scan_time < ZERO_POINT_FIVE
+        )  # Consistent timing (within 500ms)
 
         # Verify all scans produce same results
         scan_results = []
-        for i in range(3):
+        for _i in range(3):
             result = validator.scan_review_workflows()
             scan_results.append(result)
 
@@ -283,11 +296,15 @@ Test command for performance testing.
         max_memory_per_file = max(memory_per_skill)
 
         # Assert memory efficiency
-        assert avg_memory_per_file < MAX_AVG_MEMORY_PER_SKILL_FILE  # Less than 50KB per skill file
-        assert max_memory_per_file < MAX_MEMORY_PER_SKILL_FILE  # Less than 100KB per skill file
+        assert (
+            avg_memory_per_file < MAX_AVG_MEMORY_PER_SKILL_FILE
+        )  # Less than 50KB per skill file
+        assert (
+            max_memory_per_file < MAX_MEMORY_PER_SKILL_FILE
+        )  # Less than 100KB per skill file
 
         # Check linear scaling ( shouldn't grow exponentially)
-        if len(memory_per_skill) > 2:
+        if len(memory_per_skill) > TWO:
             first_quarter = memory_per_skill[: len(memory_per_skill) // 2]
             second_quarter = memory_per_skill[len(memory_per_skill) // 2 :]
 
@@ -379,9 +396,11 @@ Test command for performance testing.
         # Verify all plugins processed correctly
         assert len(concurrent_results) == plugin_count
         for result in concurrent_results:
-            assert result["skills_found"] == 20
+            assert result["skills_found"] == TWENTY
             assert isinstance(result["execution_time"], float)
-            assert result["execution_time"] < 5.0  # Each plugin under 5 seconds
+            assert (
+                result["execution_time"] < FIVE_POINT_ZERO
+            )  # Each plugin under 5 seconds
 
         # Verify thread safety
         thread_ids = [result["thread_id"] for result in concurrent_results]
@@ -409,7 +428,7 @@ Test command for performance testing.
         # Act - measure report generation performance
         report_generation_times = []
 
-        for i in range(10):  # Generate report multiple times
+        for _i in range(10):  # Generate report multiple times
             start_time = time.time()
             report = validator.generate_report()
             end_time = time.time()
@@ -421,17 +440,17 @@ Test command for performance testing.
         avg_report_time = sum(report_generation_times) / len(report_generation_times)
         max_report_time = max(report_generation_times)
 
-        assert avg_report_time < 0.5  # Average under 500ms
+        assert avg_report_time < ZERO_POINT_FIVE  # Average under 500ms
         assert max_report_time < 1.0  # Maximum under 1 second
 
         # Verify report quality is maintained
-        assert len(report) > 1000  # Substantial report content
+        assert len(report) > THOUSAND  # Substantial report content
         assert "Imbue Plugin Review Workflow Report" in report
         assert f"Skill Files: {len(validator.skill_files)}" in report
 
         # Check consistency across multiple generations
         reports = []
-        for i in range(5):
+        for _i in range(5):
             report = validator.generate_report()
             reports.append(report)
 
@@ -448,7 +467,7 @@ Test command for performance testing.
         Then regex compilation should be optimized.
         """
         try:
-            from scripts.imbue_validator import ImbueValidator
+            from scripts.imbue_validator import ImbueValidator  # noqa: F401
         except ImportError:
             pytest.skip("ImbueValidator not available for performance testing")
 
@@ -498,7 +517,7 @@ Test command for performance testing.
             "This is a review workflow with evidence logging "
             "and structured output patterns"
         )
-        iterations = 1000
+        iterations = THOUSAND
 
         # Strategy 1: Compile each time
         start_time = time.time()
@@ -527,7 +546,7 @@ Test command for performance testing.
 
         # Performance improvement should be significant
         improvement_factor = time1 / time3
-        assert improvement_factor > 2  # At least 2x improvement
+        assert improvement_factor > TWO  # At least 2x improvement
 
     @pytest.mark.slow
     def test_validator_io_performance(self, tmp_path) -> None:
@@ -570,7 +589,7 @@ Test command for performance testing.
         io_time = time.time() - start_time
 
         # Assert I/O efficiency
-        assert io_time < 3.0  # Should read 200 files in under 3 seconds
+        assert io_time < THREE_POINT_ZERO  # Should read 200 files in under 3 seconds
 
         # Calculate I/O throughput
         total_bytes = file_count * file_size

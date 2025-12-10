@@ -35,6 +35,7 @@ class ValidationResult:
     """Container for validation results."""
 
     def __init__(self) -> None:
+        """Initialize the validation result container."""
         self.errors: list[str] = []
         self.warnings: list[str] = []
         self.info: list[str] = []
@@ -503,7 +504,7 @@ def print_report(validator: SkillValidator, result: ValidationResult) -> None:
 
 
 def main() -> None:
-    """Main entry point."""
+    """Validate Claude Code skills."""
     parser = argparse.ArgumentParser(
         description="Validate Claude Code skill structure and content",
         formatter_class=argparse.RawDescriptionHelpFormatter,

@@ -13,6 +13,7 @@ Usage:
 import argparse
 import ast
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -21,6 +22,7 @@ class TestAnalyzer:
     """Analyzes codebases for test coverage and gaps."""
 
     def __init__(self, codebase_path: Path) -> None:
+        """Initialize the test analyzer."""
         self.codebase_path = Path(codebase_path)
         self.test_patterns = ["test_*.py", "*_test.py"]
         self.source_patterns = ["*.py"]
@@ -77,7 +79,7 @@ class TestAnalyzer:
         try:
             with open(source_file) as f:
                 source_tree = ast.parse(f.read())
-        except:
+        except (OSError, SyntaxError):
             return None
 
         # Extract functions and classes
@@ -106,7 +108,7 @@ class TestAnalyzer:
         try:
             with open(test_file) as f:
                 test_tree = ast.parse(f.read())
-        except:
+        except (OSError, SyntaxError):
             return {
                 "file": str(source_file),
                 "missing_tests": functions + classes,
@@ -170,8 +172,10 @@ class TestAnalyzer:
         """Analyze git changes to identify files needing test updates."""
         try:
             # Get changed files
-            result = subprocess.run(
-                ["git", "diff", "--name-only", "HEAD~1"],
+            git_executable = shutil.which("git") or "git"
+            # nosec: S607 - git_executable is from shutil.which, commands are safe
+            result = subprocess.run(  # noqa: S603 safe: git_executable from PATH, args constant
+                [git_executable, "diff", "--name-only", "HEAD~1"],
                 check=False,
                 capture_output=True,
                 text=True,
@@ -193,9 +197,10 @@ class TestAnalyzer:
             for file_path in changed_files:
                 if file_path.exists():
                     # Get diff type
-                    diff_result = subprocess.run(
+                    # nosec: S607 - git_executable is from shutil.which, commands are safe
+                    diff_result = subprocess.run(  # noqa: S603 safe: git_executable from PATH, args constant
                         [
-                            "git",
+                            git_executable,
                             "diff",
                             "--name-status",
                             "HEAD~1",

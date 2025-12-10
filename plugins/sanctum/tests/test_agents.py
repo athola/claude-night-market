@@ -13,11 +13,6 @@ class TestGitWorkspaceAgent:
     """BDD tests for the Git Workspace agent."""
 
     def test_agent_initializes_with_correct_capabilities(self) -> None:
-        """GIVEN the Git Workspace agent is created
-
-        WHEN it initializes
-        THEN it should have the correct capabilities and tools.
-        """
         # Arrange
         expected_capabilities = [
             "repository_analysis",
@@ -41,11 +36,6 @@ class TestGitWorkspaceAgent:
         assert all(cap in agent_capabilities for cap in expected_capabilities)
 
     def test_agent_analyzes_repository_state(self, temp_git_repo) -> None:
-        """GIVEN a Git repository
-
-        WHEN the agent analyzes the repository state
-        THEN it should provide comprehensive repository information.
-        """
         # Arrange
         temp_git_repo.add_file("test.py", "print('test')")
         temp_git_repo.stage_file("test.py")
@@ -75,7 +65,7 @@ class TestGitWorkspaceAgent:
     def test_agent_detects_and_categorizes_changes(
         self, staged_changes_context
     ) -> None:
-        """GIVEN a repository with various types of changes
+        """GIVEN a repository with various types of changes.
 
         WHEN the agent analyzes the changes
         THEN it should categorize them appropriately.
@@ -106,11 +96,6 @@ class TestGitWorkspaceAgent:
         assert change_stats["total_deletions"] == 75  # 50 + 25
 
     def test_agent_coordinates_todo_creation(self, mock_todo_tool) -> None:
-        """GIVEN the agent completes repository analysis
-
-        WHEN it creates TodoWrite items
-        THEN it should create appropriate tasks for the workflow.
-        """
         # Arrange
         analysis_result = {
             "repository_status": "clean",
@@ -131,11 +116,6 @@ class TestGitWorkspaceAgent:
         mock_todo_tool.assert_called_once_with(todos)
 
     def test_agent_handles_error_states_gracefully(self) -> None:
-        """GIVEN a repository in an error state
-
-        WHEN the agent encounters the error
-        THEN it should handle it gracefully and provide recovery options.
-        """
         # Arrange
         error_scenarios = [
             {
@@ -165,7 +145,7 @@ class TestGitWorkspaceAgent:
     def test_agent_provides_workflow_recommendations(
         self, staged_changes_context
     ) -> None:
-        """GIVEN a repository state analysis
+        """GIVEN a repository state analysis.
 
         WHEN the agent provides recommendations
         THEN it should suggest appropriate next steps.
@@ -200,25 +180,6 @@ class TestGitWorkspaceAgent:
 
     # Helper methods
     def _parse_git_status(self, status: str) -> dict[str, list[str]]:
-        """Parse git status porcelain output."""
-        changes = {"modified": [], "added": [], "deleted": [], "untracked": []}
-        for line in status.split("\n"):
-            if line and len(line) > 2:
-                status_code = line[:2]
-                # Git porcelain format: XY filename (where XY is 2 chars + space)
-                file_path = line[3:] if line[2] == " " else line[2:]
-                if status_code[0] == "M" or status_code[1] == "M":
-                    changes["modified"].append(file_path)
-                elif status_code[0] == "A" or status_code[1] == "A":
-                    changes["added"].append(file_path)
-                elif status_code[0] == "D" or status_code[1] == "D":
-                    changes["deleted"].append(file_path)
-                elif status_code == "??":
-                    changes["untracked"].append(file_path)
-        return changes
-
-    def _parse_git_stats(self, stats: str) -> dict[str, int]:
-        """Parse git diff --stat output."""
         lines = stats.split("\n")
         # Extract numbers from stat output and sum deletions
         additions = int(lines[0]) if lines[0].isdigit() else 0
@@ -230,27 +191,6 @@ class TestGitWorkspaceAgent:
         }
 
     def _create_analysis_todos(self, analysis: dict) -> list[dict]:
-        """Create TodoWrite items based on analysis."""
-        return [
-            {
-                "content": f"Analyzed repository: {analysis['repository_status']}",
-                "status": "completed",
-                "activeForm": "Repository analysis complete",
-            },
-            {
-                "content": f"Found {len(analysis['staged_files'])} staged files",
-                "status": "completed",
-                "activeForm": "Staged files identified",
-            },
-            {
-                "content": f"Change summary: {analysis['change_summary']}",
-                "status": "completed",
-                "activeForm": "Change summary created",
-            },
-        ]
-
-    def _handle_git_error(self, error: str) -> list[str]:
-        """Handle Git errors with recovery suggestions."""
         if "not a git repository" in error:
             return [
                 "Initialize repository with git init",
@@ -271,30 +211,8 @@ class TestGitWorkspaceAgent:
         return ["Check Git status for details"]
 
     def _generate_workflow_recommendations(self, context: dict) -> list[str]:
-        """Generate workflow recommendations based on context."""
-        recommendations = []
-        if context["has_staged_changes"]:
-            recommendations.append("Ready to commit with /commit-msg")
-            recommendations.append("Use commit-messages skill for conventional commits")
-        if context["has_unstaged_changes"] and not context["has_staged_changes"]:
-            recommendations.append("Stage changes with 'git add'")
-            recommendations.append("Review changes with 'git diff'")
-        if context["is_clean"]:
-            recommendations.append("Working tree clean - ready for next steps")
-            recommendations.append("Consider pushing changes")
-            recommendations.append("Create pull request with /pr")
-        return recommendations
-
-
-class TestCommitAgent:
-    """BDD tests for the Commit agent."""
 
     def test_agent_generates_conventional_commits(self, staged_changes_context) -> None:
-        """GIVEN staged changes in the repository
-
-        WHEN the commit agent analyzes and generates a commit
-        THEN it should produce a conventional commit message.
-        """
         # Arrange
         conventional_types = [
             "feat",
@@ -326,11 +244,6 @@ class TestCommitAgent:
         assert "Add OAuth2" in commit_msg
 
     def test_agent_validates_commit_message_quality(self) -> None:
-        """GIVEN a generated commit message
-
-        WHEN the agent validates it
-        THEN it should ensure quality standards are met.
-        """
         # Arrange
         commit_messages = [
             ("feat: Add new feature", True),  # Good
@@ -346,11 +259,6 @@ class TestCommitAgent:
             assert validation_result == should_pass, f"Failed on: {msg}"
 
     def test_agent_handles_complex_change_scenarios(self) -> None:
-        """GIVEN complex changes involving multiple files and types
-
-        WHEN the agent generates a commit message
-        THEN it should appropriately summarize all changes.
-        """
         # Arrange
         complex_context = {
             "staged_files": [
@@ -373,52 +281,6 @@ class TestCommitAgent:
         assert "documentation" in commit_msg.lower() or "update" in commit_msg.lower()
 
     def _validate_commit_message(self, message: str) -> bool:
-        """Validate conventional commit message format."""
-        if not message:
-            return False
-
-        lines = message.split("\n")
-        subject = lines[0]
-
-        # Check format: type(scope): description
-        if ":" not in subject:
-            return False
-
-        type_part, description = subject.split(":", 1)
-        type_part = type_part.strip()
-        description = description.strip()
-
-        # Check type is valid
-        valid_types = [
-            "feat",
-            "fix",
-            "docs",
-            "style",
-            "refactor",
-            "test",
-            "chore",
-            "perf",
-            "ci",
-            "build",
-        ]
-        if type_part.rstrip("!") not in valid_types:
-            return False
-
-        # Check description exists and is properly formatted
-        if not description:
-            return False
-
-        # Check subject length
-        if len(subject) > 72:
-            return False
-
-        # Check imperative mood (basic check)
-        return not description.lower().startswith(
-            ("added", "fixed", "updated", "removed")
-        )
-
-    def _generate_complex_commit_message(self, context: dict) -> str:
-        """Generate commit message for complex changes."""
         # Determine primary change type
         feature_files = [f for f in context["staged_files"] if f["type"] == "feature"]
         breaking_indicator = "!" if context.get("breaking_changes") else ""
@@ -448,11 +310,6 @@ class TestPRAgent:
     """BDD tests for the Pull Request agent."""
 
     def test_agent_preparates_comprehensive_pr(self, pull_request_context) -> None:
-        """GIVEN a feature branch ready for PR
-
-        WHEN the PR agent prepares the pull request
-        THEN it should generate a comprehensive PR description.
-        """
         # Arrange
         pr_sections = [
             "Summary",
@@ -470,11 +327,6 @@ class TestPRAgent:
             assert f"## {section}" in pr_description
 
     def test_agent_analyzes_pr_quality_gates(self, pull_request_context) -> None:
-        """GIVEN a pull request
-
-        WHEN the agent checks quality gates
-        THEN it should validate all required criteria.
-        """
         # Arrange
         quality_gates = {
             "has_description": True,
@@ -496,11 +348,6 @@ class TestPRAgent:
         )  # CI failure causes overall failure
 
     def test_agent_suggests_reviewers(self, pull_request_context) -> None:
-        """GIVEN changes in specific areas
-
-        WHEN the agent suggests reviewers
-        THEN it should recommend appropriate team members.
-        """
         # Arrange
         reviewer_map = {
             "src/": ["@backend-team", "@tech-lead"],
@@ -521,8 +368,6 @@ class TestPRAgent:
         assert "@docs-team" in suggested_reviewers
 
     def _generate_pr_description(self, context: dict) -> str:
-        """Generate comprehensive PR description."""
-        return """## Summary
 
 This pull request implements new functionality for the feature branch.
 
@@ -550,36 +395,6 @@ None
 """
 
     def _check_quality_gates(self, gates: dict[str, bool]) -> dict[str, str]:
-        """Check PR quality gates."""
-        status = {}
-        status["description_check"] = "passed" if gates["has_description"] else "failed"
-        status["test_check"] = "passed" if gates["has_tests"] else "failed"
-        status["docs_check"] = "passed" if gates["has_documentation"] else "failed"
-        status["ci_check"] = "passed" if gates["passes_ci"] else "failed"
-
-        if gates["has_breaking_changes"]:
-            status["breaking_check"] = "warning"
-        else:
-            status["breaking_check"] = "passed"
-
-        # Determine overall status
-        failed_checks = [k for k, v in status.items() if v == "failed"]
-        status["overall_status"] = (
-            "failed"
-            if failed_checks
-            else "warning"
-            if status.get("breaking_check") == "warning"
-            else "passed"
-        )
-
-        return status
-
-    def _suggest_reviewers(
-        self,
-        context: dict,
-        reviewer_map: dict[str, list[str]],
-    ) -> list[str]:
-        """Suggest reviewers based on changed files."""
         reviewers = set()
 
         for file_change in context["changed_files"]:

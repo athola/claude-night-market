@@ -11,6 +11,30 @@ from datetime import UTC
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_ONE = ZERO_POINT_ONE
+ZERO_POINT_TWO = ZERO_POINT_TWO
+TWO_POINT_ZERO = TWO_POINT_ZERO
+THREE_POINT_ZERO = THREE_POINT_ZERO
+THREE = THREE
+FOUR = FOUR
+FIVE_POINT_ZERO = FIVE_POINT_ZERO
+THIRTY = THIRTY
+FIFTY = FIFTY
+HUNDRED = HUNDRED
+THOUSAND = THOUSAND
+FIVE_THOUSAND = FIVE_THOUSAND
+TEN_THOUSAND = TEN_THOUSAND
+# Constants for scalability thresholds
+MAX_MEMORY_FOR_1000_FILES = 10_000_000  # 10MB
+HIGH_RISK_LINE_CHANGE_THRESHOLD = 10
+MEDIUM_RISK_LINE_CHANGE_THRESHOLD = FIFTY
+MAX_PROCESSING_TIME_SECONDS = FIVE_POINT_ZERO
+MAX_UNIQUE_FILES_IN_EVIDENCE = HUNDRED
+MAX_EVIDENCE_LOG_MEMORY = 50_000_000  # 50MB
+MAX_TOTAL_MEMORY_USAGE_MB = 200
+MAX_DATASET_MEMORY_USAGE_MB = 150
+
 
 class TestWorkflowScalability:
     """Feature: Imbue workflow scalability under various loads.
@@ -105,9 +129,11 @@ class TestWorkflowScalability:
         execution_time = end_time - start_time
 
         # Assert scalability
-        assert execution_time < 2.0  # Should process 1000 files in under 2 seconds
-        assert len(categorized_changes["modifications"]) == 1000
-        assert summary["total_files"] == 1000
+        assert (
+            execution_time < TWO_POINT_ZERO
+        )  # Should process 1000 files in under 2 seconds
+        assert len(categorized_changes["modifications"]) == THOUSAND
+        assert summary["total_files"] == THOUSAND
         assert len(summary["categories"]) > 0
         assert len(summary["risk_levels"]) > 0
 
@@ -115,10 +141,12 @@ class TestWorkflowScalability:
         import sys
 
         total_memory = sys.getsizeof(categorized_changes) + sys.getsizeof(summary)
-        assert total_memory < 10_000_000  # Under 10MB for processing 1000 files
+        assert (
+            total_memory < MAX_MEMORY_FOR_1000_FILES
+        )  # Under 10MB for processing 1000 files
 
     def _categorize_file_type(self, file_path) -> str:
-        """Helper to categorize file by path."""
+        """Categorize a file by its path."""
         if "auth" in file_path or "security" in file_path:
             return "security"
         if "test" in file_path:
@@ -130,12 +158,14 @@ class TestWorkflowScalability:
         return "application"
 
     def _assess_risk_level(self, file_path, lines_changed) -> str:
-        """Helper to assess risk level based on file and changes."""
+        """Assess risk level based on file and changes."""
         if "auth" in file_path or "security" in file_path:
-            return "High" if lines_changed > 10 else "Medium"
+            return (
+                "High" if lines_changed > HIGH_RISK_LINE_CHANGE_THRESHOLD else "Medium"
+            )
         if "test" in file_path:
             return "Low"
-        if lines_changed > 50:
+        if lines_changed > MEDIUM_RISK_LINE_CHANGE_THRESHOLD:
             return "Medium"
         return "Low"
 
@@ -150,7 +180,7 @@ class TestWorkflowScalability:
         from datetime import datetime
 
         # Generate large evidence set
-        evidence_count = 10000
+        evidence_count = TEN_THOUSAND
         large_evidence_set = []
 
         for i in range(evidence_count):
@@ -178,7 +208,7 @@ class TestWorkflowScalability:
         }
 
         # Process evidence in batches (scalable approach)
-        batch_size = 1000
+        batch_size = THOUSAND
         for i in range(0, len(large_evidence_set), batch_size):
             batch = large_evidence_set[i : i + batch_size]
 
@@ -214,9 +244,13 @@ class TestWorkflowScalability:
         total_time = end_time - start_time
 
         # Assert scalability
-        assert total_time < 5.0  # Should process 10,000 items in under 5 seconds
+        assert (
+            total_time < MAX_PROCESSING_TIME_SECONDS
+        )  # Should process 10,000 items in under 5 seconds
         assert summary["total_evidence"] == evidence_count
-        assert len(summary["evidence_by_file"]) <= 100  # Max 100 unique files
+        assert (
+            len(summary["evidence_by_file"]) <= MAX_UNIQUE_FILES_IN_EVIDENCE
+        )  # Max 100 unique files
         assert len(summary["commands_used"]) > 0
         assert lookup_time < 0.001  # Very fast lookup with index
 
@@ -224,7 +258,9 @@ class TestWorkflowScalability:
         import sys
 
         log_memory = sys.getsizeof(evidence_log)
-        assert log_memory < 50_000_000  # Under 50MB for 10,000 evidence items
+        assert (
+            log_memory < MAX_EVIDENCE_LOG_MEMORY
+        )  # Under 50MB for 10,000 evidence items
 
     @pytest.mark.slow
     @pytest.mark.asyncio
@@ -393,11 +429,11 @@ class TestWorkflowScalability:
         )
 
         efficiency_ratio = sequential_time_estimate / total_execution_time
-        assert efficiency_ratio > 3  # At least 3x speedup from parallelization
+        assert efficiency_ratio > THREE  # At least 3x speedup from parallelization
 
         # Check thread utilization
         thread_ids = {r["thread_id"] for r in execution_results}
-        assert len(thread_ids) >= 4  # Should use multiple threads
+        assert len(thread_ids) >= FOUR  # Should use multiple threads
 
         # Verify workflow completion
         for result in execution_results:
@@ -497,14 +533,18 @@ class TestWorkflowScalability:
         final_memory_usage = final_memory - initial_memory
 
         # Assert memory efficiency
-        assert processing_time < 3.0  # Processing should be fast
-        assert summary["total_findings"] == 5000
-        assert summary["total_evidence"] == 10000
-        assert len(summary["severity_distribution"]) == 4
+        assert processing_time < THREE_POINT_ZERO  # Processing should be fast
+        assert summary["total_findings"] == FIVE_THOUSAND
+        assert summary["total_evidence"] == TEN_THOUSAND
+        assert len(summary["severity_distribution"]) == FOUR
 
         # Memory usage should be reasonable (allow for test environment variation)
-        assert final_memory_usage < 200  # Under 200MB total memory usage
-        assert dataset_memory_usage < 150  # Dataset itself under 150MB
+        assert (
+            final_memory_usage < MAX_TOTAL_MEMORY_USAGE_MB
+        )  # Under 200MB total memory usage
+        assert (
+            dataset_memory_usage < MAX_DATASET_MEMORY_USAGE_MB
+        )  # Dataset itself under 150MB
 
         # Memory cleanup should be effective
         assert (
@@ -570,7 +610,7 @@ class TestWorkflowScalability:
         # Assert conservation effectiveness
         # summary_only should be much smaller
         assert strategy_results["summary_only"]["output_size_chars"] < full_size * 0.1
-        assert strategy_results["summary_only"]["compression_ratio"] < 0.1
+        assert strategy_results["summary_only"]["compression_ratio"] < ZERO_POINT_ONE
 
         # sample_first_10 should be much smaller
         assert (
@@ -583,10 +623,13 @@ class TestWorkflowScalability:
             strategy_results["categorized_summary"]["output_size_chars"]
             < full_size * 0.2
         )
-        assert strategy_results["categorized_summary"]["compression_ratio"] < 0.2
+        assert (
+            strategy_results["categorized_summary"]["compression_ratio"]
+            < ZERO_POINT_TWO
+        )
 
         # All strategies should process quickly
-        for strategy_name, result in strategy_results.items():
+        for _strategy_name, result in strategy_results.items():
             assert result["processing_time"] < 1.0  # Each strategy under 1 second
 
         # Verify information retention balance
@@ -594,9 +637,9 @@ class TestWorkflowScalability:
         categorized_result = strategy_results["categorized_summary"]
 
         # Should retain key information while being compact
-        assert summary_result["output_items"] == 1000  # All files represented
+        assert summary_result["output_items"] == THOUSAND  # All files represented
         assert (
-            categorized_result["output_items"] <= 50
+            categorized_result["output_items"] <= FIFTY
         )  # Reasonable number of categories
 
     def _categorized_summary_strategy(self, items):
@@ -610,7 +653,7 @@ class TestWorkflowScalability:
 
             categories[module]["count"] += 1
             categories[module]["total_size"] += item["size_chars"]
-            if len(categories[module]["sample_files"]) < 3:
+            if len(categories[module]["sample_files"]) < THREE:
                 categories[module]["sample_files"].append(item["file"])
 
         # Return compact representation
@@ -714,20 +757,20 @@ class TestWorkflowScalability:
 
         # Assert scalability
         total_time = sum(operations_performance.values())
-        assert total_time < 5.0  # All operations under 5 seconds
+        assert total_time < FIVE_POINT_ZERO  # All operations under 5 seconds
 
         # Individual operation performance
         assert operations_performance["filter_by_type"] < 1.0
         assert operations_performance["group_by_date"] < 1.0
-        assert operations_performance["search_content"] < 2.0
+        assert operations_performance["search_content"] < TWO_POINT_ZERO
         assert operations_performance["aggregate_stats"] < 1.0
         assert operations_performance["complex_join"] < 1.0
 
         # Verify operation correctness
-        assert len(filtered_by_type) == 4  # 4 types
-        assert len(grouped_by_date) == 30  # 30 unique dates
-        assert stats["total_records"] == 10000
-        assert len(join_results) == 100  # Limited as expected
+        assert len(filtered_by_type) == FOUR  # 4 types
+        assert len(grouped_by_date) == THIRTY  # 30 unique dates
+        assert stats["total_records"] == TEN_THOUSAND
+        assert len(join_results) == HUNDRED  # Limited as expected
         assert stats["unique_tags"] > 0
 
         # Performance scaling check (should be roughly O(n))

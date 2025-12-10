@@ -6,6 +6,21 @@ parameter handling, and skill coordination following TDD/BDD principles.
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_FIVE = ZERO_POINT_FIVE
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FIVE = FIVE
+TEN = TEN
+FIFTEEN = FIFTEEN
+TWENTY_POINT_ZERO = TWENTY_POINT_ZERO
+THIRTY = THIRTY
+FIFTY = FIFTY
+EIGHT_HUNDRED = EIGHT_HUNDRED
+TWO_THOUSAND = TWO_THOUSAND
+TWENTY_THOUSAND = TWENTY_THOUSAND
+
 
 class TestOptimizeContextCommand:
     """Feature: /optimize-context command orchestrates context optimization workflows.
@@ -46,7 +61,7 @@ class TestOptimizeContextCommand:
     def test_command_parses_parameters_correctly(
         self, mock_optimize_context_command
     ) -> None:
-        """Scenario: Command parses parameters correctly
+        """Scenario: Command parses parameters correctly.
 
         Given various parameter combinations
         When parsing the command
@@ -59,7 +74,7 @@ class TestOptimizeContextCommand:
             "/optimize-context src/main.py",  # Target only
             "/optimize-context --aggressiveness aggressive",  # Aggressiveness only
             "/optimize-context src/ --aggressiveness light",  # Both parameters
-            "/optimize-context docs/api.md --aggressiveness moderate",  # Full parameters
+            "/optimize-context docs/api.md --aggressiveness moderate",  # Full params
         ]
 
         # Act - parse each command input
@@ -95,7 +110,7 @@ class TestOptimizeContextCommand:
             )
 
         # Assert
-        assert len(parsed_results) == 5
+        assert len(parsed_results) == FIVE
 
         # Check specific parsing results
         no_params = next(r for r in parsed_results if r["input"] == "/optimize-context")
@@ -123,7 +138,7 @@ class TestOptimizeContextCommand:
         mock_optimize_context_command,
         mock_claude_tools,
     ) -> None:
-        """Scenario: Command orchestrates context optimization workflow
+        """Scenario: Command orchestrates context optimization workflow.
 
         Given parsed parameters and available skills
         When executing the optimization workflow
@@ -203,7 +218,7 @@ class TestOptimizeContextCommand:
         # Assert
         assert workflow_execution["parameters"]["target"] == "src/main.py"
         assert workflow_execution["parameters"]["aggressiveness"] == "moderate"
-        assert len(workflow_execution["skills_executed"]) == 2
+        assert len(workflow_execution["skills_executed"]) == TWO
         assert "context-optimization" in workflow_execution["skills_executed"]
         assert "token-conservation" in workflow_execution["skills_executed"]
 
@@ -214,13 +229,13 @@ class TestOptimizeContextCommand:
 
         token_result = workflow_execution["results"]["token-conservation"]
         assert token_result["status"] == "success"
-        assert token_result["tokens_saved"] == 800
+        assert token_result["tokens_saved"] == EIGHT_HUNDRED
 
         # Verify overall summary
         summary = workflow_execution["summary"]
-        assert summary["skills_successful"] == 2
-        assert summary["skills_total"] == 2
-        assert summary["total_tokens_saved"] == 2000
+        assert summary["skills_successful"] == TWO
+        assert summary["skills_total"] == TWO
+        assert summary["total_tokens_saved"] == TWO_THOUSAND
         assert summary["workflow_success"] is True
 
     @pytest.mark.bdd
@@ -229,7 +244,7 @@ class TestOptimizeContextCommand:
         self,
         mock_claude_tools,
     ) -> None:
-        """Scenario: Command adapts optimization based on aggressiveness level
+        """Scenario: Command adapts optimization based on aggressiveness level.
 
         Given different aggressiveness parameters
         When applying optimization strategies
@@ -313,7 +328,7 @@ class TestOptimizeContextCommand:
             optimization_results.append(result)
 
         # Assert
-        assert len(optimization_results) == 3
+        assert len(optimization_results) == THREE
 
         # Check light optimization
         light_result = next(
@@ -321,7 +336,7 @@ class TestOptimizeContextCommand:
         )
         assert "basic_compression" in light_result["strategies_applied"]
         assert light_result["max_risk_level"] == "low"
-        assert light_result["improvement_percentage"] >= 10
+        assert light_result["improvement_percentage"] >= TEN
 
         # Check moderate optimization
         moderate_result = next(
@@ -329,7 +344,7 @@ class TestOptimizeContextCommand:
         )
         assert "context_compression" in moderate_result["strategies_applied"]
         assert moderate_result["max_risk_level"] == "medium"
-        assert moderate_result["improvement_percentage"] >= 30
+        assert moderate_result["improvement_percentage"] >= THIRTY
 
         # Check aggressive optimization
         aggressive_result = next(
@@ -337,7 +352,7 @@ class TestOptimizeContextCommand:
         )
         assert "deep_compression" in aggressive_result["strategies_applied"]
         assert aggressive_result["max_risk_level"] == "high"
-        assert aggressive_result["improvement_percentage"] >= 50
+        assert aggressive_result["improvement_percentage"] >= FIFTY
 
         # Verify progression - more aggressive should save more tokens
         assert (
@@ -349,7 +364,7 @@ class TestOptimizeContextCommand:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_handles_different_target_types(self, mock_claude_tools) -> None:
-        """Scenario: Command handles different optimization target types
+        """Scenario: Command handles different optimization target types.
 
         Given various target types (file, directory, session)
         When optimizing different targets
@@ -457,7 +472,7 @@ class TestOptimizeContextCommand:
             target_optimization_results.append(result)
 
         # Assert
-        assert len(target_optimization_results) == 4
+        assert len(target_optimization_results) == FOUR
 
         # Check file optimization
         file_result = next(
@@ -490,12 +505,12 @@ class TestOptimizeContextCommand:
             assert "strategies_applied" in result
             assert "expected_effectiveness" in result
             assert (
-                result["expected_effectiveness"] >= 0.5
+                result["expected_effectiveness"] >= ZERO_POINT_FIVE
             )  # Should be reasonably effective
 
     @pytest.mark.unit
     def test_command_provides_comprehensive_feedback(self, mock_claude_tools) -> None:
-        """Scenario: Command provides comprehensive feedback on optimization results
+        """Scenario: Command provides comprehensive feedback on optimization results.
 
         Given completed optimization workflow
         When generating user feedback
@@ -583,12 +598,12 @@ class TestOptimizeContextCommand:
                 )
 
         # Generate recommendations
-        if user_feedback["achievements"]["context_reduction_percentage"] > 15:
+        if user_feedback["achievements"]["context_reduction_percentage"] > FIFTEEN:
             user_feedback["recommendations"].append(
                 "Consider similar optimization for related files",
             )
 
-        if token_result["quota_after"]["remaining"] < 20000:
+        if token_result["quota_after"]["remaining"] < TWENTY_THOUSAND:
             user_feedback["recommendations"].append(
                 "Monitor weekly quota usage closely",
             )
@@ -612,12 +627,12 @@ class TestOptimizeContextCommand:
 
         # Verify achievements
         achievements = user_feedback["achievements"]
-        assert achievements["total_tokens_saved"] > 2000
-        assert achievements["context_reduction_percentage"] == 20.0
+        assert achievements["total_tokens_saved"] > TWO_THOUSAND
+        assert achievements["context_reduction_percentage"] == TWENTY_POINT_ZERO
         assert achievements["quota_conservation"] == 1500
 
         # Verify changes are detailed
-        assert len(user_feedback["changes_made"]) >= 4  # From both skills
+        assert len(user_feedback["changes_made"]) >= FOUR  # From both skills
         assert any(
             "context-optimization" in change for change in user_feedback["changes_made"]
         )
@@ -626,14 +641,14 @@ class TestOptimizeContextCommand:
         )
 
         # Verify recommendations are actionable
-        assert len(user_feedback["recommendations"]) >= 3
+        assert len(user_feedback["recommendations"]) >= THREE
         assert all(isinstance(rec, str) for rec in user_feedback["recommendations"])
 
     @pytest.mark.unit
     def test_command_handles_optimization_errors_gracefully(
         self, mock_claude_tools
     ) -> None:
-        """Scenario: Command handles optimization errors gracefully
+        """Scenario: Command handles optimization errors gracefully.
 
         Given various error conditions during optimization
         When errors occur
@@ -731,19 +746,19 @@ class TestOptimizeContextCommand:
             error_handling_results.append(error_response)
 
         # Assert
-        assert len(error_handling_results) == 4
+        assert len(error_handling_results) == FOUR
 
         # Check that recovery was attempted when possible
         recoverable_errors = [
             r for r in error_handling_results if r["recovery_attempted"]
         ]
-        assert len(recoverable_errors) >= 3
+        assert len(recoverable_errors) >= THREE
 
         # Verify successful recoveries
         successful_recoveries = [
             r for r in error_handling_results if r["recovery_successful"]
         ]
-        assert len(successful_recoveries) >= 2
+        assert len(successful_recoveries) >= TWO
 
         # Check permission denied handling
         permission_error = next(
@@ -751,13 +766,13 @@ class TestOptimizeContextCommand:
         )
         assert permission_error["recovery_attempted"] is False
         assert permission_error["recovery_successful"] is False
-        assert len(permission_error["user_guidance"]) >= 2
+        assert len(permission_error["user_guidance"]) >= TWO
 
         # Check fallback strategies
         scenarios_with_fallback = [
             r for r in error_handling_results if r["fallback_applied"]
         ]
-        assert len(scenarios_with_fallback) >= 2
+        assert len(scenarios_with_fallback) >= TWO
 
         fallback_types = [r["fallback_applied"] for r in scenarios_with_fallback]
         assert "suggest_similar_files" in fallback_types

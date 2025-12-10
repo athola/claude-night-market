@@ -6,6 +6,25 @@ and performance enhancement following TDD/BDD principles.
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_FIVE = ZERO_POINT_FIVE
+ZERO_POINT_SEVEN = ZERO_POINT_SEVEN
+THREE = THREE
+FOUR = FOUR
+FIVE = FIVE
+SIX = SIX
+EIGHT = EIGHT
+TEN = TEN
+FIFTEEN = FIFTEEN
+TWENTY = TWENTY
+THIRTY = THIRTY
+SEVENTY = SEVENTY
+HUNDRED = HUNDRED
+THREE_HUNDRED = THREE_HUNDRED
+THOUSAND = THOUSAND
+TWO_THOUSAND = TWO_THOUSAND
+THREE_THOUSAND = THREE_THOUSAND
+
 
 class TestOptimizingLargeSkills:
     """Feature: Optimizing large skills improves performance through modularization.
@@ -77,7 +96,7 @@ tags:
         self,
         mock_todo_write,
     ) -> None:
-        """Scenario: Optimizing large skills creates required TodoWrite items
+        """Scenario: Optimizing large skills creates required TodoWrite items.
 
         Given the optimizing-large-skills skill is executed
         When establishing the optimization workflow
@@ -103,7 +122,7 @@ tags:
         ]
 
         # Assert
-        assert len(optimization_items) == 5
+        assert len(optimization_items) == FIVE
         for expected_item in expected_items:
             assert expected_item in optimization_items
         assert all(
@@ -113,7 +132,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_skill_analysis_identifies_optimization_candidates(self) -> None:
-        """Scenario: Skill analysis identifies skills needing optimization
+        """Scenario: Skill analysis identifies skills needing optimization.
 
         Given various skill files with different characteristics
         When analyzing for optimization opportunities
@@ -168,11 +187,11 @@ tags:
             total_score = (size_score + complexity_score + dependency_score) / 3
 
             # Determine priority
-            if total_score >= 8:
+            if total_score >= EIGHT:
                 priority = "critical"
-            elif total_score >= 6:
+            elif total_score >= SIX:
                 priority = "high"
-            elif total_score >= 4:
+            elif total_score >= FOUR:
                 priority = "medium"
             else:
                 priority = "low"
@@ -202,7 +221,7 @@ tags:
         )
 
         # Assert
-        assert len(optimization_candidates) == 4
+        assert len(optimization_candidates) == FOUR
 
         # Check priority assignments
         mega_skill = next(
@@ -226,7 +245,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_modularization_assessment_identifies_breakdown_opportunities(self) -> None:
-        """Scenario: Modularization assessment identifies skill breakdown opportunities
+        """Scenario: Modularization assessment identifies skill breakdown opportunities.
 
         Given large skills with multiple responsibilities
         When assessing modularization potential
@@ -289,7 +308,7 @@ tags:
         for section in large_skill_content["sections"]:
             # Determine if section should be separate module
             should_be_module = (
-                section["lines"] > 100  # Large sections
+                section["lines"] > HUNDRED  # Large sections
                 or len(section["dependencies"]) == 0  # Independent sections
                 or "scanning" in section["responsibility"]  # Specialized functionality
                 or "generation" in section["responsibility"]  # Output functionality
@@ -333,7 +352,7 @@ tags:
             "modules_created": len(modularization_analysis["identified_modules"]),
             "modularization_percentage": modularization_ratio * 100,
             "maintainability_improvement": "High"
-            if modularization_ratio > 0.7
+            if modularization_ratio > ZERO_POINT_SEVEN
             else "Medium",
             "reusability_potential": len(
                 [
@@ -345,9 +364,11 @@ tags:
         }
 
         # Assert
-        assert len(modularization_analysis["identified_modules"]) >= 3
-        assert len(modularization_analysis["breakdown_points"]) >= 3
-        assert modularization_analysis["benefits"]["modularization_percentage"] > 70
+        assert len(modularization_analysis["identified_modules"]) >= THREE
+        assert len(modularization_analysis["breakdown_points"]) >= THREE
+        assert (
+            modularization_analysis["benefits"]["modularization_percentage"] > SEVENTY
+        )
 
         # Verify specific modules identified
         module_names = [
@@ -369,7 +390,7 @@ tags:
     def test_performance_profiling_identifies_bottlenecks(
         self, mock_claude_tools
     ) -> None:
-        """Scenario: Performance profiling identifies skill execution bottlenecks
+        """Scenario: Performance profiling identifies skill execution bottlenecks.
 
         Given skill execution metrics and resource usage
         When profiling performance
@@ -437,7 +458,7 @@ tags:
             )
             performance_analysis["total_token_usage"] += total_tokens
 
-            # Identify bottlenecks (operations taking > 20% of total time)
+            # Identify bottlenecks (operations taking > TWENTY% of total time)
             time_percentage = (
                 total_time
                 / sum(
@@ -446,7 +467,7 @@ tags:
                 )
             ) * 100
 
-            if time_percentage > 20:
+            if time_percentage > TWENTY:
                 performance_analysis["bottlenecks"].append(
                     {
                         "operation": operation["operation"],
@@ -457,16 +478,18 @@ tags:
                 )
 
             # Identify optimization targets (high resource usage)
-            if total_tokens > 1000 or total_memory > 300:
+            if total_tokens > THOUSAND or total_memory > THREE_HUNDRED:
                 performance_analysis["optimization_targets"].append(
                     {
                         "operation": operation["operation"],
-                        "resource_type": "tokens" if total_tokens > 1000 else "memory",
+                        "resource_type": "tokens"
+                        if total_tokens > THOUSAND
+                        else "memory",
                         "usage_amount": total_tokens
-                        if total_tokens > 1000
+                        if total_tokens > THOUSAND
                         else total_memory,
                         "optimization_potential": "High"
-                        if total_tokens > 2000
+                        if total_tokens > TWO_THOUSAND
                         else "Medium",
                     },
                 )
@@ -479,9 +502,9 @@ tags:
 
         # Assert
         assert (
-            performance_analysis["total_execution_time"] > 30
+            performance_analysis["total_execution_time"] > THIRTY
         )  # Should be significant
-        assert performance_analysis["total_token_usage"] > 3000
+        assert performance_analysis["total_token_usage"] > THREE_THOUSAND
         assert len(performance_analysis["bottlenecks"]) >= 1
         assert len(performance_analysis["optimization_targets"]) >= 1
 
@@ -495,7 +518,7 @@ tags:
             None,
         )
         assert data_processing is not None
-        assert data_processing["impact_percentage"] > 20
+        assert data_processing["impact_percentage"] > TWENTY
 
         # Verify optimization targets
         token_optimizations = [
@@ -508,7 +531,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_optimization_recommendations_prioritize_high_impact_changes(self) -> None:
-        """Scenario: Optimization recommendations prioritize high-impact changes
+        """Scenario: Optimization recommendations prioritize high-impact changes.
 
         Given performance analysis and modularization assessment
         When generating optimization recommendations
@@ -643,7 +666,7 @@ tags:
         }
 
         # Assert
-        assert len(recommendations) >= 5
+        assert len(recommendations) >= FIVE
         assert (
             recommendations[0]["priority_score"]
             >= recommendations[-1]["priority_score"]
@@ -662,12 +685,12 @@ tags:
         # Verify high-priority recommendations
         top_recommendations = recommendations[:3]
         for rec in top_recommendations:
-            assert rec["priority_score"] > 20  # Should be high priority
-            assert rec["estimated_improvement"] > 15
+            assert rec["priority_score"] > TWENTY  # Should be high priority
+            assert rec["estimated_improvement"] > FIFTEEN
 
     @pytest.mark.unit
     def test_validation_testing_measures_optimization_effectiveness(self) -> None:
-        """Scenario: Validation testing measures optimization effectiveness
+        """Scenario: Validation testing measures optimization effectiveness.
 
         Given before and after optimization metrics
         When validating optimization results
@@ -803,27 +826,28 @@ tags:
             "load_time_target_met": validation_results[
                 "load_time_improvement_percentage"
             ]
-            >= 20,
-            "memory_target_met": validation_results["memory_savings_percentage"] >= 15,
+            >= TWENTY,
+            "memory_target_met": validation_results["memory_savings_percentage"]
+            >= FIFTEEN,
             "token_efficiency_target_met": validation_results[
                 "token_efficiency_improvement"
             ]
             >= 25,
             "overall_success": all(
                 [
-                    validation_results["load_time_improvement_percentage"] >= 15,
-                    validation_results["memory_savings_percentage"] >= 10,
-                    validation_results["token_efficiency_improvement"] >= 20,
-                    validation_results["satisfaction_improvement"] >= 0.5,
+                    validation_results["load_time_improvement_percentage"] >= FIFTEEN,
+                    validation_results["memory_savings_percentage"] >= TEN,
+                    validation_results["token_efficiency_improvement"] >= TWENTY,
+                    validation_results["satisfaction_improvement"] >= ZERO_POINT_FIVE,
                 ],
             ),
         }
 
         # Assert
-        assert validation_results["load_time_improvement_percentage"] >= 20
-        assert validation_results["memory_savings_percentage"] >= 20
+        assert validation_results["load_time_improvement_percentage"] >= TWENTY
+        assert validation_results["memory_savings_percentage"] >= TWENTY
         assert validation_results["token_efficiency_improvement"] >= 35
-        assert validation_results["success_rate_improvement"] >= 10
+        assert validation_results["success_rate_improvement"] >= TEN
         assert validation_results["satisfaction_improvement"] >= 1.0
 
         # Verify success criteria

@@ -426,7 +426,7 @@ class TestGeminiQuotaTracker:
         assert len(issues) == 0
 
     def test_can_handle_task_rate_limit(self, tmp_path) -> None:
-        """Given rate limit reached when checking task then should return
+        """Given rate limit reached when checking task then should return.
 
         can_handle=False.
         """
@@ -460,7 +460,7 @@ class TestGeminiQuotaTracker:
         assert any("limit" in issue.lower() for issue in issues)
 
     def test_can_handle_task_daily_quota(self, tmp_path) -> None:
-        """Given daily quota exhausted when checking task then should return
+        """Given daily quota exhausted when checking task then should return.
 
         can_handle=False.
         """
@@ -495,7 +495,7 @@ class TestTokenEstimation:
         mock_tracker_class,
         tmp_path,
     ) -> None:
-        """Given command with file references when estimating then should
+        """Given command with file references when estimating then should.
 
         extract paths.
         """

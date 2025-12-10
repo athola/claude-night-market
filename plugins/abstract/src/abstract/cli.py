@@ -22,6 +22,7 @@ class ComplianceCLI(AbstractCLI):
     """CLI for compliance checking."""
 
     def __init__(self) -> None:
+        """Initialize the compliance CLI."""
         super().__init__(
             name="abstract compliance",
             description="Check skills compliance against standards",
@@ -84,6 +85,7 @@ class AuditCLI(AbstractCLI):
     """CLI for skills auditing."""
 
     def __init__(self) -> None:
+        """Initialize the audit CLI."""
         super().__init__(
             name="abstract audit",
             description="Audit skills for quality and best practices",
@@ -142,6 +144,7 @@ class SuggestCLI(AbstractCLI):
     """CLI for improvement suggestions."""
 
     def __init__(self) -> None:
+        """Initialize the suggest CLI."""
         super().__init__(
             name="abstract suggest",
             description="Generate improvement suggestions for skills",
@@ -209,6 +212,7 @@ class TokenCLI(AbstractCLI):
     """CLI for token usage tracking."""
 
     def __init__(self) -> None:
+        """Initialize the token CLI."""
         super().__init__(
             name="abstract tokens",
             description="Track and analyze token usage in skills",
@@ -363,7 +367,7 @@ def _add_tokens_subparser(subparsers: argparse._SubParsersAction) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Main entry point for the unified CLI."""
+    """Run the unified abstract CLI."""
     parser = create_main_parser()
     args = parser.parse_args(argv)
 

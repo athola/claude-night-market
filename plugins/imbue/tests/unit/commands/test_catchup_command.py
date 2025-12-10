@@ -8,6 +8,19 @@ from unittest.mock import Mock
 
 import pytest
 
+# Constants for PLR2004 magic values
+ONE_POINT_FIVE = ONE_POINT_FIVE
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FIVE = FIVE
+TEN = TEN
+THIRTY = THIRTY
+FIFTY = FIFTY
+SIXTY = SIXTY
+TWO_HUNDRED = TWO_HUNDRED
+TWO_THOUSAND = TWO_THOUSAND
+
 
 class TestCatchupCommand:
     """Feature: /catchup command provides efficient change summarization.
@@ -123,7 +136,7 @@ def5678 2024-12-04 test: Add payment flow tests
         mock_claude_tools["Skill"]("catchup", skill_contexts["catchup"])
 
         # Assert
-        assert len(workflow_steps) == 4
+        assert len(workflow_steps) == FOUR
         assert all(step in workflow_steps for step in ["catchup", "diff-analysis"])
 
         # Verify workflow progression
@@ -182,7 +195,7 @@ def5678 2024-12-04 test: Add payment flow tests
                 baseline = "HEAD~1"  # Default
             elif len(args) == 1:
                 baseline = args[0]
-            elif len(args) == 2 and args[0] == "--since":
+            elif len(args) == TWO and args[0] == "--since":
                 baseline = f"--since {args[1]}"
             else:
                 baseline = args[0]  # Fallback
@@ -244,7 +257,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
         # Extract key themes (commit types with significant changes)
         for commit_type, count in commit_types.items():
-            if count >= 5:  # Only show significant themes
+            if count >= FIVE:  # Only show significant themes
                 catchup_summary["themes"].append(
                     {
                         "type": commit_type,
@@ -254,14 +267,14 @@ def5678 2024-12-04 test: Add payment flow tests
                 )
 
         # Assert
-        assert catchup_summary["total_commits"] == 50
-        assert len(catchup_summary["recent_examples"]) == 5  # Not all 50
+        assert catchup_summary["total_commits"] == FIFTY
+        assert len(catchup_summary["recent_examples"]) == FIVE  # Not all 50
         assert len(catchup_summary["themes"]) >= 1  # At least one significant theme
         assert catchup_summary["statistics"]["feature"] >= 1
 
         # Verify no full commit reproduction
         summary_text = str(catchup_summary)
-        assert len(summary_text) < 2000  # Reasonable length
+        assert len(summary_text) < TWO_THOUSAND  # Reasonable length
 
     @pytest.mark.unit
     @pytest.mark.unit
@@ -429,10 +442,10 @@ def5678 2024-12-04 test: Add payment flow tests
         catchup_analysis["insights"] = insights
 
         # Assert
-        assert len(catchup_analysis["raw_changes"]) == 3
+        assert len(catchup_analysis["raw_changes"]) == THREE
         assert "src/payment.py" in catchup_analysis["raw_changes"]
         assert "150 lines added" in catchup_analysis["change_stats"]
-        assert len(catchup_analysis["insights"]) >= 2
+        assert len(catchup_analysis["insights"]) >= TWO
         assert any(
             "New functionality added" in insight
             for insight in catchup_analysis["insights"]
@@ -496,7 +509,7 @@ def5678 2024-12-04 test: Add payment flow tests
         followups.sort(key=lambda f: priority_order[f["priority"]])
 
         # Assert
-        assert len(followups) == 4
+        assert len(followups) == FOUR
         assert followups[0]["priority"] == "Critical"  # Security sensitive first
         assert followups[1]["priority"] == "High"  # API changes second
         assert followups[-1]["priority"] == "Low"  # Documentation last
@@ -512,7 +525,7 @@ def5678 2024-12-04 test: Add payment flow tests
         assert api_followup["suggested_owner"] == "dev-team"
 
     def _determine_followup_owner(self, change_type):
-        """Helper to determine follow-up owner based on change type."""
+        """Determine follow-up owner based on change type."""
         owner_map = {
             "security_sensitive": "security-team",
             "api_change": "dev-team",
@@ -685,7 +698,7 @@ def5678 2024-12-04 test: Add payment flow tests
 
         # Identify themes (significant activity)
         for category, count in commit_categories.items():
-            if count >= 30:  # Significant threshold
+            if count >= THIRTY:  # Significant threshold
                 analysis_result["key_themes"].append(
                     {
                         "type": category,
@@ -701,10 +714,12 @@ def5678 2024-12-04 test: Add payment flow tests
 
         # Assert
         processing_time = end_time - start_time
-        assert processing_time < 1.5  # Should process 200 commits in under 1.5 seconds
-        assert analysis_result["total_commits"] == 200
-        assert len(analysis_result["key_themes"]) >= 1
-        assert len(analysis_result["sample_commits"]) == 10  # Not all 200
         assert (
-            analysis_result["summary_stats"]["feat"] >= 60
+            processing_time < ONE_POINT_FIVE
+        )  # Should process 200 commits in under 1.5 seconds
+        assert analysis_result["total_commits"] == TWO_HUNDRED
+        assert len(analysis_result["key_themes"]) >= 1
+        assert len(analysis_result["sample_commits"]) == TEN  # Not all 200
+        assert (
+            analysis_result["summary_stats"]["feat"] >= SIXTY
         )  # Approximate (1/3 of commits)

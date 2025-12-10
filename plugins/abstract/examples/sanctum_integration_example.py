@@ -68,6 +68,7 @@ class SanctumIntegration:
     """Handles integration with Sanctum plugin for git context."""
 
     def __init__(self) -> None:
+        """Initialize the Sanctum integration handler."""
         self.sanctum_available = PluginDetector.is_plugin_available("sanctum")
         self.sanctum_version = PluginDetector.get_plugin_version("sanctum")
         self._sanctum_module = None
@@ -173,6 +174,7 @@ class AbstractSkillAnalyzer:
     """Abstract plugin skill analyzer with Sanctum integration."""
 
     def __init__(self) -> None:
+        """Initialize the Abstract skill analyzer."""
         self.sanctum = SanctumIntegration()
 
     def analyze_skill_with_git_context(self, skill_path: Path) -> dict[str, Any]:

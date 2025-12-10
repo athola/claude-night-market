@@ -6,6 +6,20 @@ functionality following TDD/BDD principles.
 
 import pytest
 
+# Constants for PLR2004 magic values
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FIVE = FIVE
+THIRTY = THIRTY
+THIRTY_POINT_ZERO = THIRTY_POINT_ZERO
+FORTY_TWO_POINT_FIVE = FORTY_TWO_POINT_FIVE
+FIFTY = FIFTY
+SIXTY = SIXTY
+SEVENTY = SEVENTY
+EIGHTY = EIGHTY
+HUNDRED_THOUSAND = HUNDRED_THOUSAND
+
 
 class TestContextOptimizationSkill:
     """Feature: Context optimization implements MECW principles for efficient resource usage.
@@ -63,10 +77,10 @@ tags:
 ### Context Classification
 | Utilization | Status | Action |
 |-------------|--------|--------|
-| < 30% | LOW | Continue normally |
+| < THIRTY% | LOW | Continue normally |
 | 30-50% | OPTIMAL | Maintain current approach |
 | 50-70% | HIGH | Consider optimization |
-| > 70% | CRITICAL | Immediate optimization required |
+| > SEVENTY% | CRITICAL | Immediate optimization required |
 """
 
     @pytest.mark.bdd
@@ -75,7 +89,7 @@ tags:
         self,
         mock_todo_write,
     ) -> None:
-        """Scenario: Context optimization creates required TodoWrite items
+        """Scenario: Context optimization creates required TodoWrite items.
 
         Given the context-optimization skill is executed
         When establishing the optimization workflow
@@ -101,7 +115,7 @@ tags:
         ]
 
         # Assert
-        assert len(context_optimization_items) == 5
+        assert len(context_optimization_items) == FIVE
         for expected_item in expected_items:
             assert expected_item in context_optimization_items
         assert all(
@@ -112,7 +126,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_mecw_assessment_analyzes_context_usage(self, mock_mecw_analyzer) -> None:
-        """Scenario: MECW assessment analyzes context usage accurately
+        """Scenario: MECW assessment analyzes context usage accurately.
 
         Given different context usage scenarios
         When performing MECW assessment
@@ -140,7 +154,7 @@ tags:
             assert analysis["status"] == scenario["expected_status"]
 
             # Check MECW compliance (50% rule)
-            is_compliant = scenario["context_tokens"] <= 100000  # 50% of 200k
+            is_compliant = scenario["context_tokens"] <= HUNDRED_THOUSAND  # 50% of 200k
             assert analysis["mecw_compliant"] == is_compliant
 
             # Verify recommendations exist
@@ -151,7 +165,7 @@ tags:
     def test_context_classification_categorizes_usage_patterns(
         self, mock_claude_tools
     ) -> None:
-        """Scenario: Context classification categorizes usage patterns effectively
+        """Scenario: Context classification categorizes usage patterns effectively.
 
         Given various context usage patterns
         When classifying context usage
@@ -170,13 +184,13 @@ tags:
         utilization_percentage = (current_context / window_size) * 100
 
         # Classify based on utilization
-        if utilization_percentage < 30:
+        if utilization_percentage < THIRTY:
             status = "LOW"
             priority = "P4"
-        elif utilization_percentage < 50:
+        elif utilization_percentage < FIFTY:
             status = "OPTIMAL"
             priority = "P3"
-        elif utilization_percentage < 70:
+        elif utilization_percentage < SEVENTY:
             status = "HIGH"
             priority = "P2"
         else:
@@ -185,7 +199,7 @@ tags:
 
         # Assert
         assert current_context == 85000
-        assert utilization_percentage == 42.5
+        assert utilization_percentage == FORTY_TWO_POINT_FIVE
         assert status == "OPTIMAL"
         assert priority == "P3"
 
@@ -194,7 +208,7 @@ tags:
     def test_module_coordination_selects_optimal_modules(
         self, mock_claude_tools
     ) -> None:
-        """Scenario: Module coordination selects optimal optimization modules
+        """Scenario: Module coordination selects optimal optimization modules.
 
         Given different context situations and task complexities
         When coordinating modules
@@ -245,7 +259,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_synthesis_combines_module_results_effectively(self) -> None:
-        """Scenario: Synthesis combines module results into coherent recommendations
+        """Scenario: Synthesis combines module results into coherent recommendations.
 
         Given results from multiple optimization modules
         When synthesizing results
@@ -297,8 +311,8 @@ tags:
         )
 
         # Assert
-        assert len(synthesized_findings) == 4
-        assert len(prioritized_recommendations) >= 3
+        assert len(synthesized_findings) == FOUR
+        assert len(prioritized_recommendations) >= THREE
 
         # Check for key recommendations
         assert any("compression" in rec.lower() for rec in prioritized_recommendations)
@@ -309,7 +323,7 @@ tags:
     def test_validation_confirms_optimization_effectiveness(
         self, mock_mecw_analyzer
     ) -> None:
-        """Scenario: Validation confirms optimization effectiveness
+        """Scenario: Validation confirms optimization effectiveness.
 
         Given context optimization applied
         When validating results
@@ -340,14 +354,14 @@ tags:
         assert after_optimization["status"] == "OPTIMAL"
         assert after_optimization["mecw_compliant"] is True
 
-        assert improvement_percentage > 30.0  # Significant improvement
+        assert improvement_percentage > THIRTY_POINT_ZERO  # Significant improvement
 
     @pytest.mark.unit
     def test_context_optimization_handles_large_contexts_efficiently(
         self,
         mock_claude_tools,
     ) -> None:
-        """Scenario: Context optimization handles large contexts efficiently
+        """Scenario: Context optimization handles large contexts efficiently.
 
         Given very large context windows approaching limits
         When applying optimization
@@ -364,10 +378,10 @@ tags:
         utilization = (current_context / window_size) * 100
 
         # Determine optimization strategy
-        if utilization > 80:
+        if utilization > EIGHTY:
             strategy = "aggressive_compression"
             target_reduction = 0.4  # Reduce by 40%
-        elif utilization > 60:
+        elif utilization > SIXTY:
             strategy = "moderate_compression"
             target_reduction = 0.2  # Reduce by 20%
         else:
@@ -385,7 +399,7 @@ tags:
 
     @pytest.mark.unit
     def test_context_optimization_error_handling(self, mock_claude_tools) -> None:
-        """Scenario: Context optimization handles errors gracefully
+        """Scenario: Context optimization handles errors gracefully.
 
         Given invalid context measurements or module failures
         When optimizing context
@@ -421,8 +435,8 @@ tags:
                 )
 
         # Assert
-        assert len(error_log) == 3
-        assert len(fallback_strategies) == 3
+        assert len(error_log) == THREE
+        assert len(fallback_strategies) == THREE
         assert all(
             strategy["strategy"] == "use_estimated_context"
             for strategy in fallback_strategies
@@ -434,7 +448,7 @@ tags:
         self,
         sample_context_analysis,
     ) -> None:
-        """Scenario: Context optimization conserves token budget effectively
+        """Scenario: Context optimization conserves token budget effectively.
 
         Given limited token budget for optimization tasks
         When optimizing context
@@ -477,7 +491,7 @@ tags:
         total_cost = sum(task["cost"] for task in selected_tasks)
 
         # Assert
-        assert len(selected_tasks) >= 2  # At least high impact tasks
+        assert len(selected_tasks) >= TWO  # At least high impact tasks
         assert total_cost <= optimization_budget
         assert any(task["task"] == "context_analysis" for task in selected_tasks)
         assert any(task["task"] == "compression_strategy" for task in selected_tasks)

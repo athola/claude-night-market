@@ -20,6 +20,7 @@ def _load_seed_module():
 
 
 def test_seed_script_populates_cache_catalog(tmp_path):
+    """Test that seed script populates cache catalog."""
     module = _load_seed_module()
     keyword_index = tmp_path / "keyword-index.yaml"
 

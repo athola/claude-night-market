@@ -7,6 +7,7 @@ unexpected input scenarios.
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -36,20 +37,24 @@ class TestEdgeCasesAndErrorScenarios:
         with tempfile.TemporaryDirectory() as temp_dir:
             empty_repo = Path(temp_dir)
             # Initialize empty git repository
+            git_executable = shutil.which("git") or "git"
+            # nosec: S607 - git_executable is from shutil.which, commands are safe
             subprocess.run(
-                ["git", "init"],
+                [git_executable, "init"],
                 check=False,
                 cwd=empty_repo,
                 capture_output=True,
             )
+            # nosec: S607 - git_executable is from shutil.which, commands are safe
             subprocess.run(
-                ["git", "config", "user.email", "test@example.com"],
+                [git_executable, "config", "user.email", "test@example.com"],
                 check=False,
                 cwd=empty_repo,
                 capture_output=True,
             )
+            # nosec: S607 - git_executable is from shutil.which, commands are safe
             subprocess.run(
-                ["git", "config", "user.name", "Test"],
+                [git_executable, "config", "user.name", "Test"],
                 check=False,
                 cwd=empty_repo,
                 capture_output=True,
@@ -75,7 +80,7 @@ class TestEdgeCasesAndErrorScenarios:
         # Arrange
         skill = UnifiedReviewSkill()
         context = Mock()
-        context.repo_path = Path("/tmp")
+        context.repo_path = Path(tempfile.gettempdir())
 
         # Test with non-UTF-8 content
         malformed_content = b"\xff\xfe\x00\x41\x00\x42\x00\x43"  # Invalid UTF-8
@@ -133,7 +138,7 @@ class TestEdgeCasesAndErrorScenarios:
             mock_subprocess.side_effect = FileNotFoundError("cargo not found")
 
             context = Mock()
-            context.repo_path = Path("/tmp")
+            context.repo_path = Path(tempfile.gettempdir())
             context.get_files.return_value = ["Cargo.toml", "src/main.rs"]
 
             # Act
@@ -404,7 +409,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
             mock_api.return_value = "API review completed successfully"
 
             context = Mock()
-            context.repo_path = Path("/tmp")
+            context.repo_path = Path(tempfile.gettempdir())
             context.get_files.return_value = ["src/main.rs"]
 
             # Act

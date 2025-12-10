@@ -14,7 +14,7 @@ def generate_wrapper(
 
 
 def main() -> None:
-    """Main entry point for wrapper generation."""
+    """Generate wrapper implementations."""
     # TODO: Implement CLI interface
 
 

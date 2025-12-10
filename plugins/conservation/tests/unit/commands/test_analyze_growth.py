@@ -6,6 +6,19 @@ growth analysis, and resource monitoring following TDD/BDD principles.
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_THREE = ZERO_POINT_THREE
+ZERO_POINT_FIVE = ZERO_POINT_FIVE
+ZERO_POINT_SEVEN = ZERO_POINT_SEVEN
+ZERO_POINT_EIGHT = ZERO_POINT_EIGHT
+ZERO_POINT_NINE = ZERO_POINT_NINE
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FORTY_TWO_POINT_FIVE = FORTY_TWO_POINT_FIVE
+HUNDRED = HUNDRED
+ONE_FIFTY_POINT_ZERO = ONE_FIFTY_POINT_ZERO
+
 
 class TestAnalyzeGrowthCommand:
     """Feature: /analyze-growth command analyzes resource usage and growth patterns.
@@ -21,7 +34,7 @@ class TestAnalyzeGrowthCommand:
         self,
         sample_growth_analysis,
     ) -> None:
-        """Scenario: Command analyzes growth patterns across different timeframes
+        """Scenario: Command analyzes growth patterns across different timeframes.
 
         Given various analysis timeframes
         When analyzing resource growth
@@ -64,11 +77,11 @@ class TestAnalyzeGrowthCommand:
             analysis_results.append({"timeframe": timeframe, "pattern": pattern})
 
         # Assert
-        assert len(analysis_results) == 3
+        assert len(analysis_results) == THREE
 
         # Verify 7-day analysis matches sample data
         week_analysis = next(r for r in analysis_results if r["timeframe"] == "7_days")
-        assert week_analysis["pattern"]["growth_percentage"] == 150.0
+        assert week_analysis["pattern"]["growth_percentage"] == ONE_FIFTY_POINT_ZERO
         assert week_analysis["pattern"]["peak_hour"] == "14:00"
 
         # Verify trend progression
@@ -79,7 +92,7 @@ class TestAnalyzeGrowthCommand:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_generates_resource_efficiency_metrics(self) -> None:
-        """Scenario: Command generates comprehensive resource efficiency metrics
+        """Scenario: Command generates comprehensive resource efficiency metrics.
 
         Given resource usage data across multiple dimensions
         When calculating efficiency metrics
@@ -118,9 +131,9 @@ class TestAnalyzeGrowthCommand:
                 efficiency_analysis["token_efficiency"] = {
                     "score": efficiency_score,
                     "status": "excellent"
-                    if efficiency_score > 0.9
+                    if efficiency_score > ZERO_POINT_NINE
                     else "good"
-                    if efficiency_score > 0.7
+                    if efficiency_score > ZERO_POINT_SEVEN
                     else "needs_improvement",
                     "growth_rate": (
                         (metrics["current"] - metrics["baseline"]) / metrics["baseline"]
@@ -136,9 +149,9 @@ class TestAnalyzeGrowthCommand:
                     "utilization_percentage": utilization_rate * 100,
                     "mecw_compliant": utilization_rate <= metrics["efficiency_target"],
                     "status": "optimal"
-                    if utilization_rate < 0.3
+                    if utilization_rate < ZERO_POINT_THREE
                     else "acceptable"
-                    if utilization_rate < 0.5
+                    if utilization_rate < ZERO_POINT_FIVE
                     else "high",
                 }
 
@@ -152,9 +165,9 @@ class TestAnalyzeGrowthCommand:
                     "success_efficiency": success_efficiency,
                     "overall_score": overall_efficiency,
                     "status": "excellent"
-                    if overall_efficiency > 0.9
+                    if overall_efficiency > ZERO_POINT_NINE
                     else "good"
-                    if overall_efficiency > 0.8
+                    if overall_efficiency > ZERO_POINT_EIGHT
                     else "needs_attention",
                 }
 
@@ -165,13 +178,13 @@ class TestAnalyzeGrowthCommand:
 
         # Verify token efficiency calculations
         token_eff = efficiency_analysis["token_efficiency"]
-        assert token_eff["score"] > 0.9  # 97500/100000
+        assert token_eff["score"] > ZERO_POINT_NINE  # 97500/100000
         assert token_eff["status"] == "excellent"
-        assert token_eff["growth_rate"] == 150.0
+        assert token_eff["growth_rate"] == ONE_FIFTY_POINT_ZERO
 
         # Verify context efficiency
         context_eff = efficiency_analysis["context_efficiency"]
-        assert context_eff["utilization_percentage"] == 42.5
+        assert context_eff["utilization_percentage"] == FORTY_TWO_POINT_FIVE
         assert context_eff["mecw_compliant"] is True
         assert context_eff["status"] == "acceptable"
 
@@ -179,7 +192,7 @@ class TestAnalyzeGrowthCommand:
     def test_command_provides_actionable_recommendations(
         self, sample_growth_analysis
     ) -> None:
-        """Scenario: Command provides actionable optimization recommendations
+        """Scenario: Command provides actionable optimization recommendations.
 
         Given growth analysis and efficiency metrics
         When generating recommendations
@@ -201,7 +214,7 @@ class TestAnalyzeGrowthCommand:
         # Growth-based recommendations
         if (
             analysis_data["growth_trend"] == "increasing"
-            and analysis_data["growth_percentage"] > 100
+            and analysis_data["growth_percentage"] > HUNDRED
         ):
             recommendations.append(
                 {
@@ -214,7 +227,7 @@ class TestAnalyzeGrowthCommand:
             )
 
         # Efficiency-based recommendations
-        if analysis_data["efficiency_score"] < 0.8:
+        if analysis_data["efficiency_score"] < ZERO_POINT_EIGHT:
             recommendations.append(
                 {
                     "category": "efficiency_improvement",
@@ -224,7 +237,9 @@ class TestAnalyzeGrowthCommand:
                         f"Improve efficiency by "
                         f"{(1 - analysis_data['efficiency_score']) * 100:.1f}%"
                     ),
-                    "implementation": "Apply token conservation and context optimization",
+                    "implementation": (
+                        "Apply token conservation and context optimization"
+                    ),
                 },
             )
 
@@ -236,7 +251,10 @@ class TestAnalyzeGrowthCommand:
                     "priority": "medium",
                     "action": "Optimize for peak usage periods",
                     "impact": "Reduce performance degradation during peak hours",
-                    "implementation": f"Schedule resource-intensive tasks outside {analysis_data['peak_usage_times'][0]}",
+                    "implementation": (
+                        f"Schedule resource-intensive tasks outside "
+                        f"{analysis_data['peak_usage_times'][0]}"
+                    ),
                 },
             )
 
@@ -259,16 +277,18 @@ class TestAnalyzeGrowthCommand:
                         "priority": "medium",
                         "action": "Apply MECW principles",
                         "impact": "Maintain context under 50% threshold",
-                        "implementation": "Enable progressive loading and context compression",
+                        "implementation": (
+                            "Enable progressive loading and context compression"
+                        ),
                     },
                 )
 
         # Assert
-        assert len(recommendations) >= 4
+        assert len(recommendations) >= FOUR
 
         # Verify high priority recommendations
         high_priority = [r for r in recommendations if r["priority"] == "high"]
-        assert len(high_priority) >= 2
+        assert len(high_priority) >= TWO
 
         # Verify recommendation structure
         for rec in recommendations:

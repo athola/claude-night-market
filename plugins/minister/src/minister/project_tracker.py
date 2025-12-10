@@ -48,6 +48,7 @@ class ProjectTracker:
     ]
 
     def __init__(self, data_file: Path | None = None, initiatives: list[str] | None = None) -> None:
+        """Initialize the project tracker."""
         plugin_root = Path(__file__).resolve().parents[2]
         default_data = plugin_root / "data" / "project-data.json"
         self.data_file = data_file or default_data

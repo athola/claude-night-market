@@ -28,6 +28,7 @@ class MigrationAnalyzer:
     """Analyzes plugins for overlapping functionality with superpowers."""
 
     def __init__(self, plugin_name: str) -> None:
+        """Initialize the migration analyzer."""
         self.plugin_name = plugin_name
         # When running from within the plugin directory, use current directory
         self.plugin_path = os.path.abspath(".")

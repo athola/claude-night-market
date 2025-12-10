@@ -6,6 +6,19 @@ and external tool delegation following TDD/BDD principles.
 
 import pytest
 
+# Constants for PLR2004 magic values
+TWO = TWO
+THREE = THREE
+FIVE = FIVE
+TEN = TEN
+TWENTY = TWENTY
+FIFTY = FIFTY
+EIGHT_HUNDRED = EIGHT_HUNDRED
+THOUSAND = THOUSAND
+FIVE_THOUSAND = FIVE_THOUSAND
+FIFTEEN_THOUSAND = FIFTEEN_THOUSAND
+TWENTY_THOUSAND = TWENTY_THOUSAND
+
 
 class TestMCPCodeExecutionSkill:
     """Feature: MCP code execution optimizes compute tasks through external delegation.
@@ -79,7 +92,7 @@ tags:
     def test_mcp_code_execution_creates_required_todowrite_items(
         self, mock_todo_write
     ) -> None:
-        """Scenario: MCP code execution creates required TodoWrite items
+        """Scenario: MCP code execution creates required TodoWrite items.
 
         Given the mcp-code-execution skill is executed
         When establishing the delegation workflow
@@ -105,7 +118,7 @@ tags:
         ]
 
         # Assert
-        assert len(mcp_execution_items) == 5
+        assert len(mcp_execution_items) == FIVE
         for expected_item in expected_items:
             assert expected_item in mcp_execution_items
         assert all(
@@ -115,7 +128,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_task_analysis_identifies_delegation_candidates(self) -> None:
-        """Scenario: Task analysis identifies suitable delegation candidates
+        """Scenario: Task analysis identifies suitable delegation candidates.
 
         Given various computational tasks
         When analyzing for delegation potential
@@ -160,7 +173,7 @@ tags:
             # Determine delegation suitability
             should_delegate = (
                 task["compute_complexity"] in ["high", "medium"]
-                and task["estimated_tokens"] > 1000
+                and task["estimated_tokens"] > THOUSAND
             )
 
             if should_delegate:
@@ -174,7 +187,7 @@ tags:
                 )
 
         # Assert
-        assert len(delegation_candidates) == 2  # Large dataset and compilation
+        assert len(delegation_candidates) == TWO  # Large dataset and compilation
 
         delegated_tasks = [candidate["task"] for candidate in delegation_candidates]
         assert "large_dataset_processing" in delegated_tasks
@@ -186,7 +199,7 @@ tags:
     def test_delegation_assessment_evaluates_tool_suitability(
         self, mock_claude_tools
     ) -> None:
-        """Scenario: Delegation assessment evaluates MCP tool suitability
+        """Scenario: Delegation assessment evaluates MCP tool suitability.
 
         Given available MCP tools and task requirements
         When assessing delegation options
@@ -278,7 +291,7 @@ tags:
                 )
 
         # Assert
-        assert len(delegation_recommendations) == 3
+        assert len(delegation_recommendations) == THREE
 
         # Check specific recommendations
         stat_analysis = next(
@@ -301,7 +314,7 @@ tags:
     def test_external_execution_manages_delegation_workflow(
         self, mock_claude_tools
     ) -> None:
-        """Scenario: External execution manages delegation workflow effectively
+        """Scenario: External execution manages delegation workflow effectively.
 
         Given selected delegation tasks and tools
         When executing external delegation
@@ -377,7 +390,7 @@ tags:
             execution_results.append(processed_result)
 
         # Assert
-        assert len(execution_results) == 2
+        assert len(execution_results) == TWO
 
         for result in execution_results:
             assert result["status"] == "success"
@@ -395,13 +408,13 @@ tags:
         compilation_result = next(
             r for r in execution_results if r["task_name"] == "code_compilation"
         )
-        assert compilation_result["tokens_used"] == 800
+        assert compilation_result["tokens_used"] == EIGHT_HUNDRED
         assert "Compilation successful" in compilation_result["output"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_result_integration_validates_and_formats_outputs(self) -> None:
-        """Scenario: Result integration validates and formats external execution outputs
+        """Scenario: Result integration validates and formats external execution outputs.
 
         Given results from external MCP execution
         When integrating results into workflow
@@ -454,7 +467,7 @@ tags:
                     field in result["raw_output"] for field in required_fields
                 )
             elif isinstance(result["raw_output"], str):
-                validation_status["output_complete"] = len(result["raw_output"]) > 10
+                validation_status["output_complete"] = len(result["raw_output"]) > TEN
 
             # Format for local consumption
             formatted_result = {
@@ -489,7 +502,7 @@ tags:
             integrated_results.append(formatted_result)
 
         # Assert
-        assert len(integrated_results) == 2
+        assert len(integrated_results) == TWO
 
         for result in integrated_results:
             assert result["validation"]["has_output"] is True
@@ -513,7 +526,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_performance_validation_measures_delegation_benefits(self) -> None:
-        """Scenario: Performance validation measures delegation benefits
+        """Scenario: Performance validation measures delegation benefits.
 
         Given local and external execution performance data
         When validating delegation benefits
@@ -603,34 +616,34 @@ tags:
             delegation_analysis.append(analysis)
 
         # Assert
-        assert len(delegation_analysis) == 2
+        assert len(delegation_analysis) == TWO
 
         for analysis in delegation_analysis:
             # Verify significant savings
             assert analysis["token_savings"]["absolute"] > 0
-            assert analysis["token_savings"]["percentage"] > 50
+            assert analysis["token_savings"]["percentage"] > FIFTY
             assert analysis["time_improvement"]["absolute_seconds"] > 0
-            assert analysis["time_improvement"]["percentage"] > 50
+            assert analysis["time_improvement"]["percentage"] > FIFTY
             assert analysis["roi_metrics"]["total_roi"] > 0
 
         # Check specific task benefits
         data_analysis = next(
             a for a in delegation_analysis if a["task"] == "large_data_analysis"
         )
-        assert data_analysis["token_savings"]["absolute"] > 15000
-        assert data_analysis["roi_metrics"]["total_roi"] > 20000
+        assert data_analysis["token_savings"]["absolute"] > FIFTEEN_THOUSAND
+        assert data_analysis["roi_metrics"]["total_roi"] > TWENTY_THOUSAND
 
         compilation = next(
             a for a in delegation_analysis if a["task"] == "code_compilation"
         )
-        assert compilation["token_savings"]["absolute"] > 5000
+        assert compilation["token_savings"]["absolute"] > FIVE_THOUSAND
         assert (
             compilation["quality_impact"]["success_rate_change"] < 0
         )  # Slightly lower success rate
 
     @pytest.mark.unit
     def test_mcp_execution_handles_failures_gracefully(self, mock_claude_tools) -> None:
-        """Scenario: MCP execution handles external tool failures gracefully
+        """Scenario: MCP execution handles external tool failures gracefully.
 
         Given external execution failures and timeouts
         When delegating tasks
@@ -705,7 +718,7 @@ tags:
             failure_handling_results.append(fallback_strategy)
 
         # Assert
-        assert len(failure_handling_results) == 3
+        assert len(failure_handling_results) == THREE
 
         # Verify all failures were handled with fallbacks
         for result in failure_handling_results:
@@ -724,12 +737,12 @@ tags:
         )
         assert resource_result["fallback_applied"] == "local_optimized"
         assert (
-            resource_result["additional_tokens_used"] == 5000
+            resource_result["additional_tokens_used"] == FIVE_THOUSAND
         )  # Most expensive fallback
 
     @pytest.mark.unit
     def test_mcp_execution_optimizes_task_batching(self) -> None:
-        """Scenario: MCP execution optimizes task batching for efficiency
+        """Scenario: MCP execution optimizes task batching for efficiency.
 
         Given multiple similar tasks suitable for external execution
         When optimizing delegation strategy
@@ -782,7 +795,7 @@ tags:
 
         # Create batches
         for task_type, tasks in task_groups.items():
-            if len(tasks) >= 2 and task_type in [
+            if len(tasks) >= TWO and task_type in [
                 "statistical_analysis",
                 "format_conversion",
             ]:
@@ -809,15 +822,15 @@ tags:
 
         # Assert
         assert len(batched_tasks) >= 1  # At least one batch created
-        assert delegation_reduction_percentage > 20  # Significant reduction
+        assert delegation_reduction_percentage > TWENTY  # Significant reduction
 
         # Verify statistical analysis batch
         stat_batch = next(
             b for b in batched_tasks if b["task_type"] == "statistical_analysis"
         )
-        assert len(stat_batch["tasks"]) == 2
+        assert len(stat_batch["tasks"]) == TWO
         assert stat_batch["combined_tokens"] == 8200
-        assert stat_batch["batch_efficiency"] == 2
+        assert stat_batch["batch_efficiency"] == TWO
 
         # Verify unbatched tasks count
-        assert len(unbatched_tasks) == 2  # visualization and conversion
+        assert len(unbatched_tasks) == TWO  # visualization and conversion

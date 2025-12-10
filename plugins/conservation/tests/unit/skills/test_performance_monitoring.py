@@ -8,6 +8,20 @@ from datetime import UTC, datetime
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_EIGHT = ZERO_POINT_EIGHT
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FIVE = FIVE
+EIGHT = EIGHT
+TEN = TEN
+FIFTY = FIFTY
+SEVENTY = SEVENTY
+EIGHTY = EIGHTY
+NINETY = NINETY
+HUNDRED = HUNDRED
+
 
 class TestPerformanceMonitoringSkill:
     """Feature: Performance monitoring tracks resource usage and optimizes efficiency.
@@ -74,7 +88,7 @@ tags:
 
 ## Alert Thresholds
 
-- CPU Usage: > 80% (warning), > 90% (critical)
+- CPU Usage: > EIGHTY% (warning), > NINETY% (critical)
 - Memory Usage: > 85% (warning), > 95% (critical)
 - GPU Usage: > 85% (warning), > 95% (critical)
 """
@@ -85,7 +99,7 @@ tags:
         self,
         mock_todo_write,
     ) -> None:
-        """Scenario: Performance monitoring creates required TodoWrite items
+        """Scenario: Performance monitoring creates required TodoWrite items.
 
         Given the performance-monitoring skill is executed
         When establishing the monitoring workflow
@@ -111,7 +125,7 @@ tags:
         ]
 
         # Assert
-        assert len(performance_monitoring_items) == 5
+        assert len(performance_monitoring_items) == FIVE
         for expected_item in expected_items:
             assert expected_item in performance_monitoring_items
         assert all(
@@ -125,7 +139,7 @@ tags:
         self,
         mock_performance_monitor,
     ) -> None:
-        """Scenario: Metrics collection gathers comprehensive performance data
+        """Scenario: Metrics collection gathers comprehensive performance data.
 
         Given system resources in various states
         When collecting metrics
@@ -143,7 +157,7 @@ tags:
             samples.append(metrics)
 
         # Assert
-        assert len(samples) == 5
+        assert len(samples) == FIVE
         for metrics in samples:
             assert "cpu_usage" in metrics
             assert "memory_usage" in metrics
@@ -151,7 +165,7 @@ tags:
             assert "context_efficiency" in metrics
 
             # Validate metric ranges
-            assert 0 <= metrics["cpu_usage"] <= 100
+            assert 0 <= metrics["cpu_usage"] <= HUNDRED
             assert metrics["memory_usage"] > 0
             assert metrics["token_usage"] >= 0
             assert 0 <= metrics["context_efficiency"] <= 1
@@ -162,7 +176,7 @@ tags:
         self,
         mock_performance_monitor,
     ) -> None:
-        """Scenario: Threshold analysis identifies performance issues
+        """Scenario: Threshold analysis identifies performance issues.
 
         Given collected performance metrics
         When analyzing against thresholds
@@ -226,7 +240,7 @@ tags:
         self,
         mock_performance_monitor,
     ) -> None:
-        """Scenario: Alert evaluation prioritizes critical performance issues
+        """Scenario: Alert evaluation prioritizes critical performance issues.
 
         Given multiple performance alerts
         When evaluating alert priorities
@@ -275,7 +289,7 @@ tags:
 
         # All alerts should have remediation suggestions
         for alert in all_alerts:
-            assert len(alert) > 10  # Substantive alert message
+            assert len(alert) > TEN  # Substantive alert message
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -283,7 +297,7 @@ tags:
         self,
         sample_performance_metrics,
     ) -> None:
-        """Scenario: Optimization recommendations suggest performance improvements
+        """Scenario: Optimization recommendations suggest performance improvements.
 
         Given performance metrics indicating inefficiencies
         When generating recommendations
@@ -303,7 +317,7 @@ tags:
         recommendations = []
 
         # CPU optimization
-        if performance_data["cpu_avg"] > 70:
+        if performance_data["cpu_avg"] > SEVENTY:
             recommendations.append(
                 {
                     "area": "CPU Optimization",
@@ -315,7 +329,7 @@ tags:
             )
 
         # Memory optimization
-        if performance_data["memory_peak"] > 8192:  # > 8GB
+        if performance_data["memory_peak"] > 8192:  # > EIGHTGB
             recommendations.append(
                 {
                     "area": "Memory Optimization",
@@ -327,7 +341,7 @@ tags:
             )
 
         # Token efficiency optimization
-        if performance_data["token_efficiency"] < 0.8:
+        if performance_data["token_efficiency"] < ZERO_POINT_EIGHT:
             recommendations.append(
                 {
                     "area": "Token Efficiency",
@@ -339,7 +353,7 @@ tags:
             )
 
         # Assert
-        assert len(recommendations) >= 2  # At least CPU and token recommendations
+        assert len(recommendations) >= TWO  # At least CPU and token recommendations
 
         # Verify recommendation structure
         for rec in recommendations:
@@ -360,7 +374,7 @@ tags:
         self,
         mock_performance_monitor,
     ) -> None:
-        """Scenario: Trend analysis identifies performance patterns over time
+        """Scenario: Trend analysis identifies performance patterns over time.
 
         Given historical performance data
         When analyzing trends
@@ -432,7 +446,7 @@ tags:
                 "Monitor resource growth - consider scaling strategies",
             )
 
-        if trend_analysis["peak_usage_average"] > 80:
+        if trend_analysis["peak_usage_average"] > EIGHTY:
             trend_analysis["recommendations"].append(
                 f"Optimize for peak hours around {highest_usage_hour}:00",
             )
@@ -449,7 +463,7 @@ tags:
         self,
         mock_claude_tools,
     ) -> None:
-        """Scenario: Performance monitoring handles missing GPU gracefully
+        """Scenario: Performance monitoring handles missing GPU gracefully.
 
         Given systems without GPU availability
         When monitoring performance
@@ -494,11 +508,11 @@ tags:
         assert performance_status["gpu_usage"] == "N/A"
         assert performance_status["cpu_monitoring"] == "active"
         assert performance_status["memory_monitoring"] == "active"
-        assert error_count >= 2  # Gracefully handled GPU errors
+        assert error_count >= TWO  # Gracefully handled GPU errors
 
     @pytest.mark.unit
     def test_performance_monitoring_adapts_to_system_resources(self) -> None:
-        """Scenario: Performance monitoring adapts to different system configurations
+        """Scenario: Performance monitoring adapts to different system configurations.
 
         Given systems with varying resource capacities
         When monitoring performance
@@ -539,15 +553,15 @@ tags:
             memory_threshold = config["expected_memory_threshold"]
 
             # Adjust expectations based on resources
-            if config["total_memory_gb"] < 8:
-                memory_threshold -= 5  # Stricter on low-memory systems
+            if config["total_memory_gb"] < EIGHT:
+                memory_threshold -= FIVE  # Stricter on low-memory systems
             elif config["total_memory_gb"] > 32:
-                memory_threshold += 5  # More lenient on high-memory systems
+                memory_threshold += FIVE  # More lenient on high-memory systems
 
-            if config["cpu_cores"] < 4:
-                cpu_threshold -= 10  # Stricter on low-core systems
+            if config["cpu_cores"] < FOUR:
+                cpu_threshold -= TEN  # Stricter on low-core systems
             elif config["cpu_cores"] > 12:
-                cpu_threshold += 5  # More lenient on high-core systems
+                cpu_threshold += FIVE  # More lenient on high-core systems
 
             adapted_config = {
                 "system": config["name"],
@@ -563,28 +577,28 @@ tags:
             adapted_configurations.append(adapted_config)
 
         # Assert
-        assert len(adapted_configurations) == 3
+        assert len(adapted_configurations) == THREE
 
         # Check low-end system has stricter thresholds
         low_end = next(
             c for c in adapted_configurations if c["system"] == "low_end_system"
         )
-        assert low_end["cpu_warning_threshold"] < 70
-        assert low_end["memory_warning_threshold"] < 80
+        assert low_end["cpu_warning_threshold"] < SEVENTY
+        assert low_end["memory_warning_threshold"] < EIGHTY
 
         # Check high-end system has more lenient thresholds
         high_end = next(
             c for c in adapted_configurations if c["system"] == "high_end_system"
         )
         assert high_end["cpu_warning_threshold"] >= 85
-        assert high_end["memory_warning_threshold"] >= 90
+        assert high_end["memory_warning_threshold"] >= NINETY
 
     @pytest.mark.unit
     def test_performance_monitoring_generates_comprehensive_reports(
         self,
         mock_performance_monitor,
     ) -> None:
-        """Scenario: Performance monitoring generates comprehensive reports
+        """Scenario: Performance monitoring generates comprehensive reports.
 
         Given collected performance data and analysis
         When generating reports
@@ -612,7 +626,7 @@ tags:
         assert "efficiency_score" in report
 
         # Validate report content quality
-        assert report["average_cpu"] > 50  # Should show increasing trend
+        assert report["average_cpu"] > FIFTY  # Should show increasing trend
         assert report["peak_memory"] > 4096  # Should show peak usage
         assert report["efficiency_score"] < 0.85  # Should show efficiency degradation
 

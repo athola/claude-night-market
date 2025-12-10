@@ -85,7 +85,7 @@ if __name__ == "__main__":
     else:
         print(result)
 """)
-            os.chmod(tool_path, 0o755)
+            os.chmod(tool_path, 0o755)  # noqa: S103  # Intentionally executable
             optimized_count += 1
 
     # 3. Update skill file with references

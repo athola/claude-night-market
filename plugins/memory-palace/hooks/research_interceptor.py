@@ -39,7 +39,8 @@ _FRESHNESS_PATTERNS = re.compile(
 
 # Evergreen indicators - timeless concepts that cache well
 _EVERGREEN_PATTERNS = re.compile(
-    r"\b(patterns?|principles?|concept|theory|fundamental|basic|how to|guide|tutorial)\b",
+    r"\b(patterns?|principles?|concept|theory|fundamental|basic|how to|guide|"
+    r"tutorial)\b",
     re.IGNORECASE,
 )
 
@@ -277,11 +278,12 @@ def make_decision(
     if not best_match:
         if mode == "cache_only":
             decision.action = "block"
-            decision.context.append(
-                "Memory Palace (cache_only mode): No local knowledge found for this query. "
-                "Web search blocked. Consider switching to cache_first mode or adding "
-                "knowledge manually.",
+            msg = (
+                "Memory Palace (cache_only mode): No local knowledge found for "
+                "this query. Web search blocked. Consider switching to "
+                "cache_first mode or adding knowledge manually."
             )
+            decision.context.append(msg)
         else:
             decision.should_flag_for_intake = True
             decision.context.append(
@@ -454,7 +456,7 @@ def emit_telemetry_event(
 
 
 def main() -> None:
-    """Main hook entry point."""
+    """Intercept research requests through the hook."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
     except json.JSONDecodeError:

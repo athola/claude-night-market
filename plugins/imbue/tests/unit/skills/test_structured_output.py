@@ -448,7 +448,7 @@ Common template variables that should be populated:
             assert isinstance(action["due_date"], str)
 
     def _determine_assignee(self, finding: dict[str, Any]) -> str:
-        """Helper to determine assignee based on finding category."""
+        """Determine assignee based on finding category."""
         category_assignees = {
             "Security": "security-team",
             "Performance": "performance-team",
@@ -459,7 +459,7 @@ Common template variables that should be populated:
         return category_assignees.get(finding.get("category", ""), "dev-team")
 
     def _calculate_due_date(self, priority: str) -> str:
-        """Helper to calculate due date based on priority."""
+        """Calculate due date based on priority."""
         from datetime import timedelta
 
         today = datetime.now(UTC)
@@ -646,7 +646,7 @@ Common template variables that should be populated:
             assert checks["proper_markdown"], f"{template_type} has invalid markdown"
 
     def _generate_review_report(self, findings) -> str:
-        """Helper to generate review report output."""
+        """Generate review report output."""
         return f"""# Security Review Report
 
 **Review ID:** REV-001
@@ -657,7 +657,7 @@ Common template variables that should be populated:
 {chr(10).join(f"- {f['severity']}: {f['title']}" for f in findings)}"""
 
     def _generate_pr_description(self, findings) -> str:
-        """Helper to generate PR description output."""
+        """Generate PR description output."""
         return f"""# Pull Request: Security Improvements
 
 ## Changes Summary
@@ -667,7 +667,7 @@ This PR addresses {len(findings)} security-related items.
 {chr(10).join(f"- [ ] Fix {f['title'].lower()}" for f in findings)}"""
 
     def _generate_security_brief(self, findings) -> str:
-        """Helper to generate security brief output."""
+        """Generate security brief output."""
         critical_findings = [f for f in findings if f["severity"] == "Critical"]
         return f"""# Security Brief
 
@@ -719,7 +719,7 @@ This PR addresses {len(findings)} security-related items.
         assert formatted_findings[1]["severity"] == "Medium"  # Corrected from invalid
 
     def _validate_severity(self, severity):
-        """Helper to validate and correct severity levels."""
+        """Validate and correct severity levels."""
         valid_severities = ["Critical", "High", "Medium", "Low"]
         return severity if severity in valid_severities else "Medium"
 

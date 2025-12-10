@@ -186,15 +186,18 @@ class QuotaTracker:
         # Generate warnings
         if rpm_percent >= 80:
             warnings.append(
-                f"RPM at {rpm_percent:.1f}% ({self.usage.requests_this_minute}/{self.config.requests_per_minute})",
+                f"RPM at {rpm_percent:.1f}% "
+                f"({self.usage.requests_this_minute}/{self.config.requests_per_minute})"
             )
         if daily_percent >= 80:
             warnings.append(
-                f"Daily requests at {daily_percent:.1f}% ({self.usage.requests_today}/{self.config.requests_per_day})",
+                f"Daily requests at {daily_percent:.1f}% "
+                f"({self.usage.requests_today}/{self.config.requests_per_day})"
             )
         if tpm_percent >= 80:
             warnings.append(
-                f"TPM at {tpm_percent:.1f}% ({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})",
+                f"TPM at {tpm_percent:.1f}% "
+                f"({self.usage.tokens_this_minute}/{self.config.tokens_per_minute})"
             )
 
         return level, warnings
@@ -214,14 +217,20 @@ class QuotaTracker:
             self.usage.tokens_this_minute + estimated_tokens
             > self.config.tokens_per_minute
         ):
-            issues.append(
-                f"Would exceed TPM limit ({self.usage.tokens_this_minute + estimated_tokens} > {self.config.tokens_per_minute})",
+            msg = (
+                "Would exceed TPM limit "
+                f"({self.usage.tokens_this_minute + estimated_tokens} "
+                f"> {self.config.tokens_per_minute})"
             )
+            issues.append(msg)
 
         if self.usage.tokens_today + estimated_tokens > self.config.tokens_per_day:
-            issues.append(
-                f"Would exceed daily token limit ({self.usage.tokens_today + estimated_tokens} > {self.config.tokens_per_day})",
+            msg = (
+                "Would exceed daily token limit "
+                f"({self.usage.tokens_today + estimated_tokens} "
+                f"> {self.config.tokens_per_day})"
             )
+            issues.append(msg)
 
         # Check request counts
         if self.usage.requests_this_minute >= self.config.requests_per_minute:

@@ -17,10 +17,16 @@ from pensive.skills.api_review import ApiReviewSkill
 
 
 class TestApiReviewSkill:
-    """Test suite for ApiReviewSkill business logic."""
+    """
+
+    Test suite for ApiReviewSkill business logic.
+    """
 
     def setup_method(self) -> None:
-        """Set up test fixtures before each test."""
+        """
+
+        Set up test fixtures before each test.
+        """
         self.skill = ApiReviewSkill()
         self.mock_context = Mock()
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
@@ -28,7 +34,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_detects_typescript_exports(self, mock_skill_context) -> None:
-        """Given TypeScript code with exports, when skill analyzes, then identifies API exports."""
+        """Given TypeScript code with exports, when skill analyzes, then identifies.
+
+        API exports.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export interface User {
@@ -77,7 +86,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_detects_rust_public_api(self, mock_skill_context) -> None:
-        """Given Rust code with pub items, when skill analyzes, then identifies public API."""
+        """
+
+        Given Rust code with pub items, when skill analyzes, then identifies public API.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         use serde::{Deserialize, Serialize};
@@ -130,7 +142,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_detects_python_exports(self, mock_skill_context) -> None:
-        """Given Python code with __all__, when skill analyzes, then identifies public API."""
+        """
+
+        Given Python code with __all__, when skill analyzes, then identifies public API.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         from typing import List, Optional
@@ -178,7 +193,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_detects_javascript_es6_exports(self, mock_skill_context) -> None:
-        """Given JavaScript ES6 modules, when skill analyzes, then identifies exports."""
+        """
+
+        Given JavaScript ES6 modules, when skill analyzes, then identifies exports.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class Calculator {
@@ -225,7 +243,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_identifies_missing_documentation(self, mock_skill_context) -> None:
-        """Given undocumented API exports, when skill analyzes, then flags missing docs."""
+        """
+
+        Given undocumented API exports, when skill analyzes, then flags missing docs.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class Service {
@@ -255,7 +276,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_identifies_inconsistent_naming(self, mock_skill_context) -> None:
-        """Given API with inconsistent naming, when skill analyzes, then flags naming issues."""
+        """
+
+        Given API with inconsistent naming, when skill analyzes, then flags naming issues.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class UserService {
@@ -287,7 +311,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_identifies_missing_error_handling(self, mock_skill_context) -> None:
-        """Given API without error handling, when skill analyzes, then flags missing error handling."""
+        """
+
+        Given API without error handling, when skill analyzes, then flags missing error handling.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class ApiClient {
@@ -322,7 +349,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_identifies_breaking_changes(self, mock_skill_context) -> None:
-        """Given potential breaking changes, when skill analyzes, then flags compatibility issues."""
+        """
+
+        Given potential breaking changes, when skill analyzes, then flags compatibility issues.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         // Breaking change: removing existing export
@@ -362,7 +392,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_validates_rest_api_patterns(self, mock_skill_context) -> None:
-        """Given REST API implementation, when skill analyzes, then validates REST patterns."""
+        """
+
+        Given REST API implementation, when skill analyzes, then validates REST patterns.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class UserAPI {
@@ -406,7 +439,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_checks_input_validation(self, mock_skill_context) -> None:
-        """Given API methods without validation, when skill analyzes, then flags missing validation."""
+        """
+
+        Given API methods without validation, when skill analyzes, then flags missing validation.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class UserService {
@@ -447,7 +483,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_api_versioning(self, mock_skill_context) -> None:
-        """Given API implementation, when skill analyzes, then checks versioning strategy."""
+        """
+
+        Given API implementation, when skill analyzes, then checks versioning strategy.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         // Good: Versioned API
@@ -488,7 +527,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_checks_api_security_practices(self, mock_skill_context) -> None:
-        """Given API implementation, when skill analyzes, then checks security practices."""
+        """
+
+        Given API implementation, when skill analyzes, then checks security practices.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class APIClient {
@@ -533,7 +575,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_api_performance_implications(self, mock_skill_context) -> None:
-        """Given API implementation, when skill analyzes, then identifies performance issues."""
+        """
+
+        Given API implementation, when skill analyzes, then identifies performance issues.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         export class DataService {
@@ -582,7 +627,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_handles_empty_api_surface(self, mock_skill_context) -> None:
-        """Given file with no exports, when skill analyzes, then handles gracefully."""
+        """
+
+        Given file with no exports, when skill analyzes, then handles gracefully.
+        """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
         // Internal utility functions, no public API
@@ -612,7 +660,10 @@ class TestApiReviewSkill:
 
     @pytest.mark.unit
     def test_generates_api_summary_report(self, sample_findings) -> None:
-        """Given API analysis findings, when skill generates report, then creates comprehensive summary."""
+        """
+
+        Given API analysis findings, when skill generates report, then creates comprehensive summary.
+        """
         # Arrange
         analysis_data = {
             "total_exports": 15,

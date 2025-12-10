@@ -385,7 +385,7 @@ class AbstractCLI(ABC):
 
 
 def cli_main(cli_class: type[AbstractCLI], **kwargs) -> None:
-    """Convenience function to run a CLI.
+    """Run a CLI class with the given arguments.
 
     Args:
         cli_class: The CLI class to instantiate and run.

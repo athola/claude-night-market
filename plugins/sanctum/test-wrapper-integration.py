@@ -5,18 +5,22 @@ This script validates that the wrapper commands properly integrate with both
 Sanctum's existing functionality and superpowers code review capabilities.
 """
 
+import shlex
 import subprocess
 import sys
 from pathlib import Path
+
+ROOT = Path("/home/alext/claude-night-market/plugins/sanctum")
 
 
 def run_command(cmd, description):
     """Run a command and return success status."""
     try:
+        cmd_list = shlex.split(cmd) if isinstance(cmd, str) else cmd
         result = subprocess.run(
-            cmd,
+            cmd_list,
             check=False,
-            shell=True,
+            shell=False,
             capture_output=True,
             text=True,
             timeout=30,
@@ -39,9 +43,9 @@ def run_command(cmd, description):
 def validate_wrapper_files():
     """Validate that wrapper files exist and have correct structure."""
     wrapper_files = [
-        "/home/alext/claude-night-market/plugins/sanctum/commands/pr-wrapper.md",
-        "/home/alext/claude-night-market/plugins/sanctum/commands/fix-pr-wrapper.md",
-        "/home/alext/claude-night-market/plugins/sanctum/commands/pr-review-wrapper.md",
+        ROOT / "commands" / "pr-wrapper.md",
+        ROOT / "commands" / "fix-pr-wrapper.md",
+        ROOT / "commands" / "pr-review-wrapper.md",
     ]
 
     all_valid = True
@@ -87,13 +91,13 @@ def test_skill_dependencies() -> None:
 
     for skill in sanctum_skills:
         # Just validate the skill files exist
-        skill_path = f"/home/alext/claude-night-market/plugins/sanctum/skills/{skill.split(':')[1]}/SKILL.md"
-        if Path(skill_path).exists():
+        skill_path = ROOT / "skills" / skill.split(":")[1] / "SKILL.md"
+        if skill_path.exists():
             pass
         else:
             pass
 
-    for skill in superpowers_skills:
+    for _skill in superpowers_skills:
         pass
 
 
@@ -106,7 +110,7 @@ def test_wrapper_structure() -> None:
     ]
 
     for wrapper_name, _description in wrappers:
-        file_path = f"/home/alext/claude-night-market/plugins/sanctum/commands/{wrapper_name}.md"
+        file_path = ROOT / "commands" / f"{wrapper_name}.md"
         content = Path(file_path).read_text()
 
         # Check wrapper pattern compliance

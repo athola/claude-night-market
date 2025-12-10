@@ -90,7 +90,9 @@ class KeywordIndexer:
                                 keywords.update(district_words)
 
                     except yaml.YAMLError:
-                        pass  # Skip if YAML parsing fails
+                        # Skip if YAML parsing fails
+                        # YAML parsing errors are expected and can be safely ignored
+                        pass
 
                     # Extract from content
                     # Get headings (## Something)
@@ -120,6 +122,7 @@ class KeywordIndexer:
 
         except Exception:
             # If file read fails, return empty set
+            # File read errors are expected and can be safely ignored
             pass
 
         # Remove common stop words

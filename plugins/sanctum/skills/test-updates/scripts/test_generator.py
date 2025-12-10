@@ -40,6 +40,7 @@ class TestGenerator:
     """Generates test scaffolding from source code analysis."""
 
     def __init__(self, config: TestConfig) -> None:
+        """Initialize the test generator."""
         self.config = config
 
     def generate_from_source(self, source_path: Path) -> str:
@@ -232,6 +233,21 @@ def test_context():
                     f'        {param} = "test_{param}"  # TODO: Provide test value\n'
                 )
 
+        error_section = ""
+        if self.config.include_error_cases:
+            error_section = f"""
+@pytest.mark.bdd
+def test_{func_name}_with_invalid_input():
+    \"""
+    GIVEN invalid input parameters
+    WHEN calling {func_name}({param_str})
+    THEN it should raise a ValueError
+    \"""{setup_code}
+    with pytest.raises(ValueError):
+        {func_name}({param_str})
+
+"""
+
         return f'''
 @pytest.mark.bdd
 def test_{func_name}_with_valid_input():
@@ -246,12 +262,7 @@ def test_{func_name}_with_valid_input():
     # TODO: Assert - Verify the outcome
     assert result is not None
 
-'''
-
-        if self.config.include_error_cases:
-            return f"""{error_test}
-"""
-        return None
+''' + error_section
 
     def _generate_docstring_test(self, func_name: str, params: list[str]) -> str:
         """Generate docstring BDD-style test."""

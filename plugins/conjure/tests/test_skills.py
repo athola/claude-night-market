@@ -425,7 +425,7 @@ class TestSkillPerformanceConsiderations:
 
         for description, cost in sample_costs:
             assert isinstance(description, str)
-            assert isinstance(cost, (int, float))
+            assert isinstance(cost, int | float)
             assert cost >= 0
 
 

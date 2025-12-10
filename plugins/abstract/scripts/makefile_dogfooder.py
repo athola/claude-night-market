@@ -87,6 +87,7 @@ class MakefileDogfooder:
     """Main orchestrator for makefile analysis and enhancement."""
 
     def __init__(self, root_dir: Path | None = None) -> None:
+        """Initialize the makefile dogfooder."""
         self.root_dir = root_dir or Path.cwd()
         self.inventory: dict[str, MakefileInventory] = {}
         self.analysis_results: list[AnalysisResult] = []
@@ -341,6 +342,7 @@ class MakefileDogfooder:
         for target in ["help", "status"]:
             if target in inventory.targets:
                 try:
+                    # nosec: S603 - Using absolute path to /usr/bin/make, target is validated against inventory.targets
                     subprocess.run(
                         ["/usr/bin/make", "-n", target],
                         cwd=makefile_dir,
@@ -474,7 +476,7 @@ class MakefileDogfooder:
         mode: Mode,
         plugin_filter: str | None = None,
     ) -> dict[str, Any]:
-        """Main orchestration method."""
+        """Orchestrate the makefile analysis process."""
         results = {
             "scope": scope.value,
             "mode": mode.value,

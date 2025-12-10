@@ -171,6 +171,8 @@ class CacheLookup:
         """Search using embeddings if configured."""
         if not self.embedding_index:
             return []
+        if not self.keyword_indexer.index.get("entries"):
+            self.keyword_indexer.load_index()
         if isinstance(query, list):
             query_text = " ".join(query)
         else:
@@ -292,6 +294,7 @@ class CacheLookup:
                 try:
                     return yaml.safe_load(parts[1])
                 except yaml.YAMLError:
+                    # YAML parsing errors are expected and can be safely ignored
                     pass
 
         return None

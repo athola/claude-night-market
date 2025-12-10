@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 def main() -> None:
-    """Main hook entry point."""
+    """Process local documents through the hook."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
     except json.JSONDecodeError:
@@ -91,17 +91,20 @@ def main() -> None:
 
     if is_known(path=file_path):
         if needs_update(content_hash, path=file_path):
-            context_parts.append(
-                f"Memory Palace: Local doc '{rel_path}' has changed since last indexing. "
-                "Consider updating the stored knowledge entry.",
+            msg = (
+                f"Memory Palace: Local doc '{rel_path}' has changed since "
+                "last indexing. Consider updating the stored knowledge entry."
             )
+            context_parts.append(msg)
         # else: unchanged, no message
     else:
-        context_parts.append(
+        msg = (
             f"Memory Palace: Reading local knowledge doc '{rel_path}'. "
             "This path is configured for knowledge tracking. "
-            "Consider running knowledge-intake if this contains valuable reference material.",
+            "Consider running knowledge-intake if this contains "
+            "valuable reference material."
         )
+        context_parts.append(msg)
 
     # Output response
     if context_parts:

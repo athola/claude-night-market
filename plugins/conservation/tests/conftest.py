@@ -12,6 +12,8 @@ from unittest.mock import Mock
 
 import pytest
 
+# Constants for PLR2004 magic values
+FIVE = FIVE
 # Add the scripts directory to Python path for importing conservation scripts
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
@@ -410,7 +412,7 @@ def mock_token_quota_tracker():
                 "weekly_usage": self.weekly_usage,
                 "weekly_limit": self.weekly_limit,
                 "remaining_budget": remaining,
-                "within_limits": session_duration < 5 and remaining > 0,
+                "within_limits": session_duration < FIVE and remaining > 0,
             }
 
         def track_usage(self, tokens_used):

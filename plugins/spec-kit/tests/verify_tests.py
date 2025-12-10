@@ -78,7 +78,7 @@ def verify_fixtures(conftest_path):
 
 
 def main() -> None:
-    """Main verification function."""
+    """Verify all tests in the test suite."""
     tests_dir = Path(__file__).parent
 
     # Verify test files

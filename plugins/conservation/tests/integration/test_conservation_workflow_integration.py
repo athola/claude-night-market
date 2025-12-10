@@ -5,6 +5,16 @@ This module tests end-to-end conservation workflows following TDD/BDD principles
 
 import pytest
 
+# Constants for test thresholds
+MIN_SKILLS_INSTANTIATED = 2
+MIN_DATA_FLOW_ITEMS = 2
+MIN_INTEGRATION_POINTS = 1
+EFFICIENCY_THRESHOLD = 0.95
+EXPECTED_PHASE_COUNT = 4
+MIN_EXECUTION_TIME = 8.0
+MIN_PEAK_MEMORY = 500
+MIN_OPTIMIZATION_OPPORTUNITIES = 1
+
 
 class TestConservationWorkflowIntegration:
     """Feature: Conservation workflows integrate seamlessly across skills and commands.
@@ -183,9 +193,9 @@ class TestConservationWorkflowIntegration:
         )
 
         # Assert
-        assert len(skill_coordination["skills_instantiated"]) == 2
-        assert len(skill_coordination["data_flow"]) >= 2
-        assert len(skill_coordination["integration_points"]) >= 1
+        assert len(skill_coordination["skills_instantiated"]) == MIN_SKILLS_INSTANTIATED
+        assert len(skill_coordination["data_flow"]) >= MIN_DATA_FLOW_ITEMS
+        assert len(skill_coordination["integration_points"]) >= MIN_INTEGRATION_POINTS
 
         # Verify skill completion
         for skill in skill_coordination["skills_instantiated"]:
@@ -260,7 +270,7 @@ class TestConservationWorkflowIntegration:
 
         # Identify optimization opportunities
         for metrics in performance_tracking["phase_metrics"]:
-            if metrics["efficiency_score"] < 0.95:
+            if metrics["efficiency_score"] < EFFICIENCY_THRESHOLD:
                 performance_tracking["optimization_opportunities"].append(
                     {
                         "phase": metrics["phase"],
@@ -274,17 +284,27 @@ class TestConservationWorkflowIntegration:
                 )
 
         # Assert
-        assert len(performance_tracking["phase_metrics"]) == 4
-        assert performance_tracking["workflow_summary"]["total_execution_time"] > 8.0
-        assert performance_tracking["workflow_summary"]["peak_memory_usage"] > 500
+        assert len(performance_tracking["phase_metrics"]) == EXPECTED_PHASE_COUNT
+        assert (
+            performance_tracking["workflow_summary"]["total_execution_time"]
+            > MIN_EXECUTION_TIME
+        )
+        assert (
+            performance_tracking["workflow_summary"]["peak_memory_usage"]
+            > MIN_PEAK_MEMORY
+        )
 
         # Verify efficiency tracking
         summary = performance_tracking["workflow_summary"]
         assert 0 < summary["average_efficiency"] <= 1.0
-        assert summary["phases_completed"] == 4
+        assert summary["phases_completed"] == EXPECTED_PHASE_COUNT
 
         # Verify optimization opportunities are identified when appropriate
         if any(
-            m["efficiency_score"] < 0.95 for m in performance_tracking["phase_metrics"]
+            m["efficiency_score"] < EFFICIENCY_THRESHOLD
+            for m in performance_tracking["phase_metrics"]
         ):
-            assert len(performance_tracking["optimization_opportunities"]) >= 1
+            assert (
+                len(performance_tracking["optimization_opportunities"])
+                >= MIN_OPTIMIZATION_OPPORTUNITIES
+            )

@@ -21,6 +21,14 @@ from dataclasses import asdict, dataclass, field
 from datetime import date
 from pathlib import Path
 
+MAX_PREVIEW_LINES = 100
+SUPPORTING_THRESHOLD = 2
+HIGH_SCORE_THRESHOLD = 2
+CONTENT_HIGH_LEN = 500
+CONTENT_LOW_LEN = 200
+CONTENT_OVERVIEW_LEN = 300
+RELEVANCE_MIN_SCORE = 0.5
+
 # Standard locations to exclude from candidate detection
 STANDARD_LOCATIONS = {
     "docs/",
@@ -180,7 +188,7 @@ def git_untracked_files(repo_path: str = ".") -> list[str]:
         if not git_path:
             return []
 
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
             [git_path, "status", "--porcelain"],
             cwd=repo_path,
             capture_output=True,
@@ -258,11 +266,11 @@ def scan_for_candidates(repo_path: str = ".") -> list[CandidateFile]:
         full_path = Path(repo_path) / file_path
         if full_path.exists():
             try:
-                # Read first 100 lines
+                # Read a bounded number of lines to avoid large files
                 with open(full_path) as f:
                     lines = []
                     for i, line in enumerate(f):
-                        if i >= 100:
+                        if i >= MAX_PREVIEW_LINES:
                             break
                         lines.append(line)
                     content = "".join(lines)
@@ -273,14 +281,14 @@ def scan_for_candidates(repo_path: str = ".") -> list[CandidateFile]:
                     score += 3
                     reasons.append(f"Strong markers: {strong}")
 
-                if supporting >= 2:
-                    score += 2
+                if supporting >= SUPPORTING_THRESHOLD:
+                    score += SUPPORTING_THRESHOLD
                     reasons.append(f"Supporting markers: {supporting}")
             except (OSError, UnicodeDecodeError):
                 pass
 
-        # Threshold: score >= 2
-        if score >= 2:
+        # Threshold: score >= HIGH_SCORE_THRESHOLD
+        if score >= HIGH_SCORE_THRESHOLD:
             candidates.append(
                 CandidateFile(path=file_path, score=score, reasons=reasons),
             )
@@ -348,7 +356,7 @@ def score_value(content: str, category: str) -> str:
     """Score content value as high, medium, or low."""
     # High value indicators
     high_indicators = [
-        len(content) > 500,  # Substantial content
+        len(content) > CONTENT_HIGH_LEN,  # Substantial content
         bool(re.search(r"\b\d+\b", content)),  # Contains specific numbers
         bool(re.search(r"```", content)),  # Contains code blocks
         bool(re.search(r"\|.*\|.*\|", content)),  # Contains tables
@@ -357,18 +365,18 @@ def score_value(content: str, category: str) -> str:
 
     # Low value indicators
     low_indicators = [
-        len(content) < 200,  # Short content
+        len(content) < CONTENT_LOW_LEN,  # Short content
         "generic" in content.lower(),
-        "overview" in content.lower() and len(content) < 300,
+        "overview" in content.lower() and len(content) < CONTENT_OVERVIEW_LEN,
         content.lower().startswith("this ") and "review" in content.lower(),
     ]
 
     high_count = sum(high_indicators)
     low_count = sum(low_indicators)
 
-    if high_count >= 2:
+    if high_count >= SUPPORTING_THRESHOLD:
         return "high"
-    if low_count >= 2:
+    if low_count >= SUPPORTING_THRESHOLD:
         return "low"
     return "medium"
 
@@ -432,7 +440,7 @@ def route_chunk(
 
     for doc_path in existing_docs:
         relevance = compute_relevance(chunk, doc_path)
-        if relevance > best_score and relevance >= 0.5:
+        if relevance > best_score and relevance >= RELEVANCE_MIN_SCORE:
             best_match = doc_path
             best_score = relevance
 
@@ -562,7 +570,7 @@ def format_plan_markdown(plan: ConsolidationPlan) -> str:
 
 
 def main() -> int:
-    """Main entry point."""
+    """Plan document consolidation."""
     parser = argparse.ArgumentParser(
         description="Consolidation planner for doc-consolidation skill",
     )

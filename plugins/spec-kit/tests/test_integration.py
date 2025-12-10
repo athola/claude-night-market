@@ -58,7 +58,10 @@ class TestSpeckitIntegration:
             """Test complete workflow from specification to implementation."""
             # Mock script execution
             mock_run.return_value = Mock(
-                stdout='{"success": true, "branch": "5-user-auth", "directory": "specs/5-user-auth"}',
+                stdout=(
+                    '{"success": true, "branch": "5-user-auth", '
+                    '"directory": "specs/5-user-auth"}'
+                ),
                 returncode=0,
             )
 

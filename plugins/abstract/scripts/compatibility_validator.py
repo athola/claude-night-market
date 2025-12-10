@@ -30,6 +30,7 @@ class CompatibilityValidator:
     """
 
     def __init__(self) -> None:
+        """Initialize the compatibility validator."""
         self.feature_weights = {
             "parameters": 0.3,
             "options": 0.2,
@@ -530,7 +531,7 @@ class CompatibilityValidator:
 
 
 def main() -> None:
-    """Main entry point for compatibility validation."""
+    """Validate compatibility between original commands and wrapper implementations."""
     parser = argparse.ArgumentParser(
         description=(
             "Validate feature parity between original commands and "

@@ -19,6 +19,7 @@ class ToolPerformanceAnalyzer:
     """CLI wrapper for tool performance analysis functionality."""
 
     def __init__(self, skills_dir: Path) -> None:
+        """Initialize the tool performance analyzer."""
         self.skills_dir = skills_dir
 
     def analyze_tools(self) -> dict:
@@ -38,7 +39,8 @@ class ToolPerformanceAnalyzer:
         for tool_name, tool_path in tools.items():
             try:
                 start_time = time.time()
-                result = subprocess.run(  # nosec: B603
+                # nosec: S603 - tool_path is from tools configuration, --help is safe argument
+                result = subprocess.run(
                     [str(tool_path), "--help"],
                     check=False,
                     capture_output=True,

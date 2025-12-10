@@ -463,7 +463,7 @@ def print_result(result: ValidationResult, verbose: bool = False) -> None:
 
 
 def main() -> None:
-    """Main entry point for hook validator."""
+    """Validate Claude Code hooks."""
     parser = argparse.ArgumentParser(
         description="Validate Claude Code hooks (JSON) and SDK hooks (Python)",
     )

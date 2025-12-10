@@ -49,7 +49,9 @@ export class AuthService {
 }
 
 // Utility functions
-export function calculateTotal(items: Array<{price: number, quantity: number}>): number {
+export function calculateTotal(
+    items: Array<{price: number, quantity: number}>
+): number {
     return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 }
 

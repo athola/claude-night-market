@@ -1,6 +1,7 @@
 """Tests for spec-kit command functionality."""
 
 import json
+import tempfile
 from unittest.mock import Mock, patch
 
 import pytest
@@ -80,7 +81,10 @@ class TestSpeckitCommands:
         ) -> None:
             """Test execution of create-new-feature.sh script."""
             mock_run.return_value = Mock(
-                stdout='{"success": true, "branch": "5-user-auth", "directory": "specs/5-user-auth"}',
+                stdout=(
+                    '{"success": true, "branch": "5-user-auth", '
+                    '"directory": "specs/5-user-auth"}'
+                ),
                 returncode=0,
             )
 
@@ -360,8 +364,9 @@ class TestSpeckitCommands:
     @pytest.fixture
     def mock_command_execution(self):
         """Mock command execution environment."""
+        temp_dir = tempfile.gettempdir()
         return {
-            "PWD": "/tmp/test-project",
+            "PWD": f"{temp_dir}/test-project",
             "GIT_BRANCH": "feature/user-auth",
-            "SPEC_DIR": "/tmp/test-project/.specify",
+            "SPEC_DIR": f"{temp_dir}/test-project/.specify",
         }

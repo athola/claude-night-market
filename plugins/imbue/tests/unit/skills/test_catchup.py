@@ -9,6 +9,18 @@ from unittest.mock import call
 
 import pytest
 
+# Constants for PLR2004 magic values
+TWO = 2
+TWO_POINT_ZERO = 2.0
+THREE = 3
+FOUR = 4
+FIVE = 5
+SEVEN = 7
+EIGHT = 8
+TEN = 10
+HUNDRED = 100
+FIVE_HUNDRED = 500
+
 
 class TestCatchupSkill:
     """Feature: Catchup skill efficiently reviews recent changes.
@@ -339,7 +351,7 @@ Untracked files:
             assert len(commit["hash"]) == 8  # Short hash
 
     def _categorize_commit_type(self, message: str) -> str:
-        """Helper to categorize commit type from message."""
+        """Categorize commit type from message."""
         message_lower = message.lower()
         if "add" in message_lower or "implement" in message_lower:
             return "feature"

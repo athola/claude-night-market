@@ -42,6 +42,7 @@ class ComplianceChecker:
     """Core compliance checking functionality."""
 
     def __init__(self, skill_root: Path, rules_file: Path | None = None) -> None:
+        """Initialize the compliance checker."""
         self.skill_root = skill_root
         self.rules_file = rules_file
         self.rules = self._load_rules()

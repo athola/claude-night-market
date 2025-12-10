@@ -153,7 +153,7 @@ def generate_markdown_summary(summary: dict[str, Any], issues: list[str]) -> str
 
 
 def main() -> None:
-    """Main entry point."""
+    """Run the batch skills analyzer."""
     parser = argparse.ArgumentParser(
         description="Batch analyze skills and generate comprehensive reports",
     )

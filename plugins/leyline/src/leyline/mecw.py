@@ -220,7 +220,8 @@ class MECWMonitor:
             recommendations.append("Consider using subagents for complex tasks")
         elif compliance["pressure_level"] == "MODERATE" and not compliance["compliant"]:
             warnings.append(
-                f"Approaching MECW limit: {compliance['overage']:,} tokens over threshold",
+                f"Approaching MECW limit: "
+                f"{compliance['overage']:,} tokens over threshold",
             )
             recommendations.append("Monitor context usage closely")
             recommendations.append("Plan context optimization strategy")

@@ -255,7 +255,7 @@ class SanctumGitOperations:
             git_path = shutil.which("git")
             if not git_path:
                 return []
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
                 [
                     git_path,
                     "diff-tree",
@@ -280,7 +280,7 @@ class SanctumGitOperations:
                 return {"path": file_path, "error": "Git not found"}
 
             # Get file stats from commit
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
                 [git_path, "show", "--stat", "--format=", f"{commit_hash}:{file_path}"],
                 capture_output=True,
                 text=True,
@@ -288,7 +288,7 @@ class SanctumGitOperations:
             )
 
             # Get author and date
-            log_result = subprocess.run(
+            log_result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
                 [
                     git_path,
                     "log",
@@ -418,7 +418,7 @@ class SanctumGitOperations:
             git_path = shutil.which("git")
             if not git_path:
                 return []
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
                 [git_path, "log", "--format=%H", f"{to_branch}..{from_branch}"],
                 capture_output=True,
                 text=True,
@@ -481,7 +481,7 @@ if __name__ == "__main__":
     try:
         git_path = shutil.which("git")
         if git_path:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
                 [git_path, "rev-parse", "HEAD"],
                 capture_output=True,
                 text=True,
@@ -497,7 +497,7 @@ if __name__ == "__main__":
     try:
         git_path = shutil.which("git")
         if git_path:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 safe: git_path from PATH, args constant
                 [git_path, "branch", "--show-current"],
                 capture_output=True,
                 text=True,

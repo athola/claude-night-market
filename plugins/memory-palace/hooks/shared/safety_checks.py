@@ -189,7 +189,7 @@ def check_prompt_injection(content: str) -> SafetyCheckResult | None:
 
 
 def is_safe_content(content: str | bytes, config: dict[str, Any]) -> SafetyCheckResult:
-    """Main safety check function.
+    """Check if content is safe to process.
 
     Runs checks in order of speed (fast checks first).
     Returns immediately on first failure.

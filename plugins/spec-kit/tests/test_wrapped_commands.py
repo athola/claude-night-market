@@ -33,7 +33,8 @@ class TestWrappedCommands:
             setup_script = specify_dir / "scripts" / "bash" / "setup-plan.sh"
             setup_script.write_text(
                 """#!/bin/bash
-echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", "SPECS_DIR": "/tmp", "BRANCH": "test"}'
+echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
+                '''"SPECS_DIR": "/tmp", "BRANCH": "test"}'
 """,
             )
 

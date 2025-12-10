@@ -67,7 +67,9 @@ def sample_task_list():
                 {
                     "id": "setup-001",
                     "title": "Initialize project structure",
-                    "description": "Create directory structure for authentication module",
+                    "description": (
+                        "Create directory structure for authentication module"
+                    ),
                     "dependencies": [],
                     "estimated_time": "30m",
                     "priority": "high",
@@ -96,7 +98,9 @@ def sample_task_list():
                 {
                     "id": "found-002",
                     "title": "Implement password hashing utilities",
-                    "description": "Create secure password hashing and verification functions",
+                    "description": (
+                        "Create secure password hashing and verification functions"
+                    ),
                     "dependencies": ["setup-002"],
                     "estimated_time": "30m",
                     "priority": "high",
@@ -274,7 +278,7 @@ def mock_skill_loader():
 
 @pytest.fixture
 def workflow_progress_items():
-    """Standard workflow progress tracking items."""
+    """Provide standard workflow progress tracking items."""
     return [
         "Repository context verified",
         "Prerequisites validated",
@@ -288,6 +292,7 @@ class MockAgentResponse:
     """Mock agent response for testing."""
 
     def __init__(self, success=True, data=None, error=None) -> None:
+        """Initialize the mock agent response."""
         self.success = success
         self.data = data or {}
         self.error = error
@@ -295,7 +300,7 @@ class MockAgentResponse:
 
 @pytest.fixture
 def mock_agent_responses():
-    """Collection of mock agent responses."""
+    """Provide a collection of mock agent responses."""
     return {
         "spec_analyzer": MockAgentResponse(
             success=True,

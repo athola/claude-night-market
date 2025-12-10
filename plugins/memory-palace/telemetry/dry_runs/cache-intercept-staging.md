@@ -1,7 +1,7 @@
 # Cache Intercept Dry Run — Staging
 
-**Date**: 2025-12-08  
-**Participants**: Memory Palace maintainers  
+**Date**: 2025-12-08
+**Participants**: Memory Palace maintainers
 **Flags**: `memory_palace.cache_intercept=true`, `memory_palace.autonomy=false`, `memory_palace.lifecycle=false`
 
 ## Transcript Summary

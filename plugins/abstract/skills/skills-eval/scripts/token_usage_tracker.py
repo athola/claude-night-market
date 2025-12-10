@@ -26,6 +26,7 @@ class TokenUsageTracker:
         optimal_limit: int = 2000,
         max_limit: int = 4000,
     ) -> None:
+        """Initialize the token usage tracker."""
         self.skills_dir = skills_dir
         self.optimal_limit = optimal_limit
         self.max_limit = max_limit

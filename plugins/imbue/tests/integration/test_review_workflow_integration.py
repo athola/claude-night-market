@@ -9,6 +9,15 @@ from unittest.mock import Mock
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_ONE = ZERO_POINT_ONE
+ZERO_POINT_NINE = ZERO_POINT_NINE
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FIVE = FIVE
+FIFTY = FIFTY
+
 
 class TestReviewWorkflowIntegration:
     """Feature: Complete review workflow integration.
@@ -186,6 +195,7 @@ def test_auth():
                 "id": "E1",
                 "command": "grep -n 'SELECT.*username' src/auth.py",
                 "output": (
+                    # nosec: S608 - Test data demonstrating SQL injection pattern
                     "src/auth.py:3: query = \"SELECT * FROM users WHERE username = '"
                     + "test_user"
                     + "'"
@@ -199,7 +209,7 @@ def test_auth():
 
         # Assert
         assert workflow_result["command_executed"] == "/review"
-        assert len(workflow_result["skills_executed"]) == 4
+        assert len(workflow_result["skills_executed"]) == FOUR
         assert all(
             skill in workflow_result["skills_executed"] for skill in skills_to_execute
         )
@@ -300,7 +310,7 @@ def test_auth():
         }
 
         # Assert
-        assert len(workflow_results) == 4
+        assert len(workflow_results) == FOUR
         assert all(
             result["status"].endswith("confirmed")
             or result["status"].endswith("captured")
@@ -318,9 +328,9 @@ def test_auth():
         # Verify final summary content
         assert final_summary["context"]["branch"] == "feature/payment-processing"
         assert final_summary["context"]["commits_ahead"] == 12
-        assert len(final_summary["key_changes"]) == 3
-        assert len(final_summary["insights"]) == 3
-        assert len(final_summary["followups"]) == 3
+        assert len(final_summary["key_changes"]) == THREE
+        assert len(final_summary["insights"]) == THREE
+        assert len(final_summary["followups"]) == THREE
         assert "Payment processing feature added" in final_summary["summary"]
 
     @pytest.mark.integration
@@ -417,7 +427,7 @@ def test_auth():
 
         # Assert
         assert agent_workflow["agent"] == "review-analyst"
-        assert len(agent_workflow["skills_used"]) == 3
+        assert len(agent_workflow["skills_used"]) == THREE
         assert "review-core" in agent_workflow["skills_used"]
         assert "evidence-logging" in agent_workflow["skills_used"]
         assert "structured-output" in agent_workflow["skills_used"]
@@ -431,7 +441,7 @@ def test_auth():
         # Verify finding quality
         finding = agent_workflow["findings"][0]
         assert finding["agent_detected"] is True
-        assert finding["confidence"] > 0.9
+        assert finding["confidence"] > ZERO_POINT_NINE
 
     @pytest.mark.integration
     @pytest.mark.bdd
@@ -630,7 +640,7 @@ def test_auth():
 
         # Assert orchestration quality
         assert orchestration_log["command_invoked"] == "/review"
-        assert len(orchestration_log["skill_calls"]) == 3
+        assert len(orchestration_log["skill_calls"]) == THREE
         assert orchestration_log["skill_calls"] == [
             "review-core",
             "evidence-logging",
@@ -639,7 +649,7 @@ def test_auth():
 
         # Verify context propagation
         context_flows = orchestration_log["context_flow"]
-        assert len(context_flows) == 3
+        assert len(context_flows) == THREE
 
         # Check command context propagation
         for skill_context in context_flows:
@@ -649,14 +659,14 @@ def test_auth():
 
         # Verify results chain
         results_chain = orchestration_log["results_chain"]
-        assert len(results_chain) == 5  # start + 3 skills + complete
+        assert len(results_chain) == FIVE  # start + 3 skills + complete
         assert results_chain[0]["stage"] == "command_start"
         assert results_chain[-1]["stage"] == "command_complete"
 
         # Verify final context has all skill contributions
         assert "workflow_scaffold" in final_context
         assert "evidence_infrastructure" in final_context
-        assert final_context["workflow_scaffold"]["items_created"] == 5
+        assert final_context["workflow_scaffold"]["items_created"] == FIVE
         assert final_context["evidence_infrastructure"]["tracking_enabled"] is True
 
     @pytest.mark.integration
@@ -732,9 +742,9 @@ def test_auth():
             workflow_result["final_status"] = "completed_successfully"
 
         # Assert error handling
-        assert len(workflow_result["skills_attempted"]) == 3
+        assert len(workflow_result["skills_attempted"]) == THREE
         assert (
-            len(workflow_result["skills_completed"]) == 2
+            len(workflow_result["skills_completed"]) == TWO
         )  # review-core, structured-output
         assert len(workflow_result["errors_encountered"]) == 1  # diff-analysis failed
         assert workflow_result["errors_encountered"][0]["skill"] == "diff-analysis"
@@ -823,10 +833,10 @@ def test_auth():
 
         # Verify individual workflow times
         for workflow_time in performance_metrics["workflow_times"]:
-            assert workflow_time < 0.1  # Each workflow under 100ms
+            assert workflow_time < ZERO_POINT_ONE  # Each workflow under 100ms
 
         # Verify skill performance consistency
-        for skill, times in performance_metrics["skill_execution_times"].items():
+        for _skill, times in performance_metrics["skill_execution_times"].items():
             avg_time = sum(times) / len(times)
             assert avg_time < 0.01  # Average skill time under 10ms
             assert max(times) - min(times) < 0.005  # Consistent timing
@@ -836,4 +846,4 @@ def test_auth():
         total_skills_executed = total_workflows * 4  # 4 skills per workflow
         skills_per_second = total_skills_executed / total_duration
 
-        assert skills_per_second > 50  # Should execute at least 50 skills per second
+        assert skills_per_second > FIFTY  # Should execute at least 50 skills per second

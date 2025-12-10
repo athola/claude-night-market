@@ -71,7 +71,8 @@ class TestTaskPlanning:
         # Setup tasks should have no dependencies or only external deps
         for task in setup_tasks:
             if task["dependencies"]:
-                # Allow external dependencies but check they don't reference tasks in same phase
+                # Allow external dependencies but check they don't reference tasks
+                # in same phase
                 for dep_id in task["dependencies"]:
                     internal_dep = any(
                         dep_id == other_task["id"]
@@ -147,7 +148,8 @@ class TestTaskPlanning:
 
     def test_parallel_execution_identification(self, sample_task_list) -> None:
         """Test identification of tasks that can run in parallel."""
-        # Tasks can run in parallel if they're in same phase and have no dependencies on each other
+        # Tasks can run in parallel if they're in same phase and have no
+        # dependencies on each other
         parallel_groups = []
 
         for phase in sample_task_list:
@@ -167,7 +169,8 @@ class TestTaskPlanning:
             if len(independent_tasks) > 1:
                 parallel_groups.append(independent_tasks)
 
-        # Should identify at least one parallel opportunity if we have multiple setup tasks
+        # Should identify at least one parallel opportunity if we have multiple
+        # setup tasks
         setup_phase = next(
             (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"),
             None,
@@ -241,7 +244,9 @@ class TestTaskPlanning:
                 ]
                 any(description.lower().startswith(verb) for verb in action_verbs)
                 # Not strictly required but good practice
-                # assert starts_with_verb, f"Description should start with action verb: {description}"
+                # assert starts_with_verb, (
+                #     f"Description should start with action verb: {description}"
+                # )
 
     def test_phase_content_appropriateness(self, sample_task_list) -> None:
         """Test each phase contains appropriate types of tasks."""
@@ -269,7 +274,9 @@ class TestTaskPlanning:
                             break
 
                 # Should have some expected content (not strictly required)
-                # assert len(found_keywords) > 0, f"Phase {phase_name} should contain expected types of tasks"
+                # assert len(found_keywords) > 0, (
+                #     f"Phase {phase_name} should contain expected types of tasks"
+                # )
 
     def test_task_breakdown_granularity(self, sample_task_list) -> None:
         """Test tasks are broken down at appropriate granularity."""
@@ -339,5 +346,6 @@ class TestTaskPlanning:
                         dep_index = phase_order.index(dep_phase)
 
                         assert dep_index <= current_index, (
-                            f"Cross-phase forward dependency: {task['id']} depends on {dep_id}"
+                            f"Cross-phase forward dependency: "
+                            f"{task['id']} depends on {dep_id}"
                         )

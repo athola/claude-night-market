@@ -8,6 +8,18 @@ from datetime import UTC, datetime
 
 import pytest
 
+# Constants for PLR2004 magic values
+ZERO_POINT_SEVEN = ZERO_POINT_SEVEN
+TWO = TWO
+THREE = THREE
+FOUR = FOUR
+FIVE = FIVE
+FIFTY = FIFTY
+EIGHT_HUNDRED = EIGHT_HUNDRED
+THOUSAND = THOUSAND
+TWO_THOUSAND = TWO_THOUSAND
+FIVE_THOUSAND = FIVE_THOUSAND
+
 
 class TestTokenConservationSkill:
     """Feature: Token conservation maximizes efficiency while minimizing resource usage.
@@ -85,7 +97,7 @@ tags:
     def test_token_conservation_creates_required_todowrite_items(
         self, mock_todo_write
     ) -> None:
-        """Scenario: Token conservation creates required TodoWrite items
+        """Scenario: Token conservation creates required TodoWrite items.
 
         Given the token-conservation skill is executed
         When establishing the conservation workflow
@@ -111,7 +123,7 @@ tags:
         ]
 
         # Assert
-        assert len(token_conservation_items) == 5
+        assert len(token_conservation_items) == FIVE
         for expected_item in expected_items:
             assert expected_item in token_conservation_items
         assert all(
@@ -121,7 +133,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_quota_check_monitors_usage_limits(self, mock_token_quota_tracker) -> None:
-        """Scenario: Quota check monitors usage against limits
+        """Scenario: Quota check monitors usage against limits.
 
         Given session duration and usage data
         When checking quotas
@@ -146,7 +158,7 @@ tags:
             quota_states.append(state)
 
         # Assert
-        assert len(quota_states) == 4
+        assert len(quota_states) == FOUR
         assert all("session_duration_hours" in state for state in quota_states)
         assert all("weekly_usage" in state for state in quota_states)
         assert all("remaining_budget" in state for state in quota_states)
@@ -159,7 +171,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_context_plan_optimizes_token_usage(self, mock_claude_tools) -> None:
-        """Scenario: Context planning optimizes token usage for tasks
+        """Scenario: Context planning optimizes token usage for tasks.
 
         Given a task requiring file analysis
         When planning context usage
@@ -198,16 +210,18 @@ tags:
         # Select optimal strategy based on task requirements
         if task_requirements["context_preference"] == "minimal":
             selected_strategy = context_strategies[0]  # grep_patterns
-        elif len(task_requirements["target_files"]) <= 2:
+        elif len(task_requirements["target_files"]) <= TWO:
             selected_strategy = context_strategies[1]  # targeted_reads
         else:
             selected_strategy = context_strategies[2]  # full_file_reads
 
         # Assert
         assert selected_strategy["approach"] == "grep_patterns"
-        assert selected_strategy["estimated_tokens"] == 50
+        assert selected_strategy["estimated_tokens"] == FIFTY
         assert selected_strategy["tools"] == ["Grep"]
-        assert selected_strategy["estimated_tokens"] < 2000  # Much more efficient
+        assert (
+            selected_strategy["estimated_tokens"] < TWO_THOUSAND
+        )  # Much more efficient
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -215,7 +229,7 @@ tags:
         self,
         mock_claude_tools,
     ) -> None:
-        """Scenario: Delegation check identifies external processing opportunities
+        """Scenario: Delegation check identifies external processing opportunities.
 
         Given compute-intensive tasks and available MCP tools
         When checking delegation opportunities
@@ -256,7 +270,7 @@ tags:
         for task in current_tasks:
             should_delegate = (
                 task["compute_intensity"] in ["high", "medium"]
-                and task["estimated_tokens"] > 1000
+                and task["estimated_tokens"] > THOUSAND
                 and task["complexity"] in ["high", "medium"]
             )
 
@@ -272,7 +286,7 @@ tags:
                 )
 
         # Assert
-        assert len(delegation_opportunities) == 3  # All but simple_string_search
+        assert len(delegation_opportunities) == THREE  # All but simple_string_search
         assert any(
             opp["task"] == "large_code_analysis" for opp in delegation_opportunities
         )
@@ -284,7 +298,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_compression_review_identifies_optimization_patterns(self) -> None:
-        """Scenario: Compression review identifies text optimization opportunities
+        """Scenario: Compression review identifies text optimization opportunities.
 
         Given existing prompts and responses
         When reviewing for compression opportunities
@@ -378,7 +392,7 @@ tags:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_logging_tracks_conservation_metrics(self, sample_token_quota) -> None:
-        """Scenario: Logging tracks conservation metrics for analysis
+        """Scenario: Logging tracks conservation metrics for analysis.
 
         Given ongoing conservation activities
         When logging metrics
@@ -428,7 +442,7 @@ tags:
         net_savings = total_tokens_saved - total_tokens_used
 
         # Assert
-        assert len(conservation_log) == 3
+        assert len(conservation_log) == THREE
         assert total_tokens_used == 270
         assert total_tokens_saved == 1025
         assert net_savings == 755
@@ -448,7 +462,7 @@ tags:
         self,
         mock_token_quota_tracker,
     ) -> None:
-        """Scenario: Token conservation handles quota exceeded situations gracefully
+        """Scenario: Token conservation handles quota exceeded situations gracefully.
 
         Given approaching or exceeded quota limits
         When quota limits are reached
@@ -464,7 +478,10 @@ tags:
         # Act - implement conservation measures
         conservation_measures = []
 
-        if not quota_status["within_limits"] or quota_status["remaining_budget"] < 5000:
+        if (
+            not quota_status["within_limits"]
+            or quota_status["remaining_budget"] < FIVE_THOUSAND
+        ):
             conservation_measures.extend(
                 [
                     {
@@ -489,8 +506,8 @@ tags:
             )
 
         # Assert
-        assert quota_status["remaining_budget"] == 5000
-        assert len(conservation_measures) == 3
+        assert quota_status["remaining_budget"] == FIVE_THOUSAND
+        assert len(conservation_measures) == THREE
         assert all(
             measure["priority"] in ["P1", "P2"] for measure in conservation_measures
         )
@@ -502,7 +519,7 @@ tags:
 
     @pytest.mark.unit
     def test_token_conservation_adapts_to_task_complexity(self) -> None:
-        """Scenario: Token conservation adapts strategies based on task complexity
+        """Scenario: Token conservation adapts strategies based on task complexity.
 
         Given tasks with varying complexity levels
         When applying conservation strategies
@@ -560,7 +577,7 @@ tags:
             adapted_strategies.append({"task": task["name"], "strategy": strategy})
 
         # Assert
-        assert len(adapted_strategies) == 3
+        assert len(adapted_strategies) == THREE
 
         # Check simple bug fix strategy
         simple_task = next(
@@ -580,7 +597,7 @@ tags:
     def test_token_conservation_measures_effectiveness(
         self, sample_token_quota
     ) -> None:
-        """Scenario: Token conservation measures actual effectiveness
+        """Scenario: Token conservation measures actual effectiveness.
 
         Given applied conservation strategies
         When measuring effectiveness
@@ -649,5 +666,5 @@ tags:
             effectiveness_metrics["efficiency_improvement"] == 65.0
         )  # Better efficiency
         assert (
-            effectiveness_metrics["roi_tokens_per_minute"] > 800
+            effectiveness_metrics["roi_tokens_per_minute"] > EIGHT_HUNDRED
         )  # Good ROI per minute

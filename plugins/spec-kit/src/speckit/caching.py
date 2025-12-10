@@ -187,7 +187,7 @@ def cached(
     key: str | None = None,
     data_arg: str | None = None,
 ) -> Any:
-    """Decorator for caching function results.
+    """Cache function results with TTL.
 
     Args:
         ttl: Time to live in seconds
@@ -247,7 +247,7 @@ class CacheManager:
 
     @classmethod
     def cache_result(cls, category: str, key: str | None = None) -> Any:
-        """Decorator with category-based TTL."""
+        """Create a decorator with category-based TTL."""
         ttl = cls.CACHE_CATEGORIES.get(category, cls.CACHE_CATEGORIES["spec_parsing"])
         return cached(ttl=ttl, key=key)
 

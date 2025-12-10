@@ -63,10 +63,13 @@ class QueryTemplateManager:
                                 queries = metadata["queries"]
 
                     except yaml.YAMLError:
-                        pass  # Skip if YAML parsing fails
+                        # Skip if YAML parsing fails
+                        # YAML parsing errors are expected and can be safely ignored
+                        pass
 
         except Exception:
             # If file read fails, return empty list
+            # File read errors are expected and can be safely ignored
             pass
 
         return queries

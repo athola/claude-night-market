@@ -9,6 +9,14 @@ from unittest.mock import Mock
 
 import pytest
 
+# Constants for PLR2004 magic values
+TWO = TWO
+TWO_POINT_ZERO = TWO_POINT_ZERO
+FOUR = FOUR
+FIVE = FIVE
+TEN = TEN
+FIVE_HUNDRED = FIVE_HUNDRED
+
 
 class TestReviewCommand:
     """Feature: /review command initiates structured review workflow.
@@ -106,7 +114,7 @@ class TestReviewCommand:
         assert "context_established" in workflow_components
         assert (
             len([c for c in workflow_components if c.startswith("todowrite_created:")])
-            == 5
+            == FIVE
         )
         assert "evidence_logging_initialized" in workflow_components
         assert "structured_output_prepared" in workflow_components
@@ -161,7 +169,7 @@ class TestReviewCommand:
         scoped_review["scoped_files"] = scoped_files
 
         # Adjust workflow for scoped review
-        if len(scoped_files) < 10:
+        if len(scoped_files) < TEN:
             scoped_review["workflow_adjustments"].append("detailed_analysis")
         else:
             scoped_review["workflow_adjustments"].append("sampling_strategy")
@@ -564,7 +572,7 @@ class TestReviewCommand:
         assert "src/auth.py" in git_context["changed_files"]
         assert "src/middleware.py" in git_context["changed_files"]
         assert review_scope["has_changes"] is True
-        assert len(review_scope["priority_files"]) == 2
+        assert len(review_scope["priority_files"]) == TWO
 
     @pytest.mark.performance
     def test_command_performance_large_repositories(self) -> None:
@@ -616,7 +624,7 @@ class TestReviewCommand:
 
         # Assert
         processing_time = end_time - start_time
-        assert processing_time < 2.0  # Should initialize in under 2 seconds
-        assert len(initialization_steps) == 4
-        assert scope_summary["total_files"] > 500  # Large repository
+        assert processing_time < TWO_POINT_ZERO  # Should initialize in under 2 seconds
+        assert len(initialization_steps) == FOUR
+        assert scope_summary["total_files"] > FIVE_HUNDRED  # Large repository
         assert evidence_session.startswith("session-")

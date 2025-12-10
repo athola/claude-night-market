@@ -160,7 +160,7 @@ class TestQualityChecker:
         imports = [
             node
             for node in ast.walk(tree)
-            if isinstance(node, (ast.Import, ast.ImportFrom))
+            if isinstance(node, ast.Import | ast.ImportFrom)
         ]
 
         if not imports:
@@ -227,7 +227,8 @@ class TestQualityChecker:
                                     QualityIssue(
                                         "warning",
                                         "assertion",
-                                        f"Vague assertion in '{node.name}' - be more specific",
+                                        f"Vague assertion in '{node.name}' - "
+                                        f"be more specific",
                                         assert_node.lineno,
                                         "Example: assert result.status == 'success'",
                                     ),
@@ -270,7 +271,9 @@ class TestQualityChecker:
                                 "warning",
                                 "bdd",
                                 f"Test '{test_name}' missing BDD patterns",
-                                suggestion=f"Add {', '.join(missing_patterns)} patterns",
+                                suggestion=(
+                                    f"Add {', '.join(missing_patterns)} patterns"
+                                ),
                             ),
                         )
 
@@ -323,11 +326,13 @@ class TestQualityChecker:
             if not python_path:
                 raise RuntimeError("Python not found")
 
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp_file:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False
+            ) as tmp_file:
                 tmp_path = tmp_file.name
 
             try:
-                result = subprocess.run(
+                result = subprocess.run(  # noqa: S603 safe: python_path from PATH, args fixed
                     [
                         python_path,
                         "-m",
@@ -349,10 +354,16 @@ class TestQualityChecker:
                 try:
                     with open(tmp_path) as f:
                         report = json.load(f)
-                        validation["passed"] = report.get("summary", {}).get("passed", 0)
-                        validation["failures"] = report.get("summary", {}).get("failed", 0)
+                        validation["passed"] = report.get("summary", {}).get(
+                            "passed", 0
+                        )
+                        validation["failures"] = report.get("summary", {}).get(
+                            "failed", 0
+                        )
                         validation["errors"] = report.get("summary", {}).get("error", 0)
-                        validation["skipped"] = report.get("summary", {}).get("skipped", 0)
+                        validation["skipped"] = report.get("summary", {}).get(
+                            "skipped", 0
+                        )
                 except (json.JSONDecodeError, FileNotFoundError, OSError):
                     # Fallback to parsing output
                     if result.returncode == 0:
@@ -442,7 +453,7 @@ class TestQualityChecker:
 
         for node in ast.walk(tree):
             if isinstance(
-                node, (ast.If, ast.While, ast.For, ast.With, ast.ExceptHandler)
+                node, ast.If | ast.While | ast.For | ast.With | ast.ExceptHandler
             ):
                 complexity += 1
             elif isinstance(node, ast.BoolOp):
@@ -529,17 +540,17 @@ class TestQualityChecker:
         if dynamic["execution_result"] != 0:
             recommendations.append("Fix failing tests before proceeding")
 
-        if dynamic["test_duration"] > 5:
+        if dynamic["test_duration"] > MAX_TEST_DURATION:
             recommendations.append(
                 "Optimize test performance - tests should run quickly",
             )
 
         # From metrics
         metrics = results["metrics"]
-        if metrics["average_test_length"] > 50:
+        if metrics["average_test_length"] > MAX_TEST_LENGTH:
             recommendations.append("Break down long tests into smaller, focused tests")
 
-        if metrics["assertion_count"] / max(metrics["test_count"], 1) < 2:
+        if metrics["assertion_count"] / max(metrics["test_count"], 1) < MIN_ASSERTIONS_PER_TEST:
             recommendations.append("Add more assertions to thoroughly test behavior")
 
         return recommendations

@@ -143,7 +143,9 @@ class TestSpeckitAgents:
                     found_dependencies.append(indicator)
 
             # Dependencies are optional but should be identified if present
-            # assert len(found_dependencies) > 0, "Should identify dependencies if mentioned"
+            # assert len(found_dependencies) > 0, (
+            #     "Should identify dependencies if mentioned"
+            # )
 
         def test_risk_assessment(self, sample_spec_content) -> None:
             """Test risk assessment from specification."""

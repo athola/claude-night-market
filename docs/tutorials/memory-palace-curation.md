@@ -28,7 +28,7 @@ This shared schema keeps curation signals consistent between the hook and the kn
 
 ## Dual-output prompt workflow
 
-- `knowledge-intake/scripts/intake_cli.py` now accepts `--dual-output` plus an optional `--prompt-pack` flag.  
+- `knowledge-intake/scripts/intake_cli.py` now accepts `--dual-output` plus an optional `--prompt-pack` flag.
   - When enabled, the CLI continues to emit the palace entry and developer doc, **and** hydrates a prompt artifact under `docs/prompts/<prompt-pack>.md`.
   - The default pack is `marginal-value-dual`, sourced from `skills/knowledge-intake/prompts/marginal_value_dual.md`; pass another slug to pilot new templates.
 - Each prompt file is populated with the candidate metadata, integration decision, and raw intake content so downstream operators (or automated follow-ups) can reuse the curated delta immediately.

@@ -45,6 +45,7 @@ def get_commits_since_tag(tag: str | None = None) -> list[tuple[str, str]]:
     """
     try:
         if tag:
+            # nosec: S603 - Using absolute path to /usr/bin/git, tag is from git command output
             result = subprocess.run(
                 ["/usr/bin/git", "log", f"{tag}..HEAD", "--oneline"],
                 capture_output=True,
@@ -52,6 +53,7 @@ def get_commits_since_tag(tag: str | None = None) -> list[tuple[str, str]]:
                 check=True,
             )
         else:
+            # nosec: S603 - Using absolute path to /usr/bin/git
             result = subprocess.run(
                 ["/usr/bin/git", "log", "--oneline"],
                 capture_output=True,

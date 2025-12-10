@@ -16,11 +16,8 @@ try:
         ConditionBasedOptimizer,
         OptimizationRequest,
         OptimizationResult,
-        optimize_content_with_conditions,
-        wait_for_optimal_conditions,
     )
     from ..skills.context_optimization.context_optimization_service import (
-        ConservationContextOptimizer,
         ConservationServiceRegistry,
         ContentBlock,
     )
@@ -53,6 +50,7 @@ class OptimizationServiceInfo:
     supported_strategies: list[str] = None
 
     def __post_init__(self):
+        """Initialize default values after dataclass creation."""
         if self.supported_strategies is None:
             self.supported_strategies = [
                 "priority",
@@ -70,6 +68,7 @@ class OptimizationServiceInterface:
     """
 
     def __init__(self) -> None:
+        """Initialize the optimization service interface."""
         self.optimizer = ConditionBasedOptimizer()
         self.registry = ConservationServiceRegistry()
         self._register_services()
