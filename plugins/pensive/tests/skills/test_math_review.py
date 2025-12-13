@@ -28,7 +28,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_detects_numerical_precision_issues(self, mock_skill_context) -> None:
-        """Given floating-point operations, when skill analyzes, then flags precision issues."""
+        """Given floating-point ops, skill flags precision issues."""
         # Arrange
         precision_issues_code = """
         import math
@@ -140,7 +140,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_matrix_operation_stability(self, mock_skill_context) -> None:
-        """Given matrix operations, when skill analyzes, then assesses numerical stability."""
+        """Given matrix ops, skill assesses numerical stability."""
         # Arrange
         matrix_code = """
         import numpy as np
@@ -196,7 +196,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_detects_statistical_fallacies(self, mock_skill_context) -> None:
-        """Given statistical code, when skill analyzes, then flags statistical fallacies."""
+        """Given statistical code, skill flags fallacies."""
         # Arrange
         statistical_code = """
         import numpy as np
@@ -259,7 +259,7 @@ class TestMathReviewSkill:
     def test_analyzes_optimization_algorithm_correctness(
         self, mock_skill_context
     ) -> None:
-        """Given optimization algorithms, when skill analyzes, then checks convergence and correctness."""
+        """Given optimization algorithms, skill checks convergence and correctness."""
         # Arrange
         optimization_code = """
         import numpy as np
@@ -272,7 +272,9 @@ class TestMathReviewSkill:
                 # No convergence check
             return x
 
-        def gradient_descent_proper(f, df, x0, learning_rate=0.01, max_iter=1000, tol=1e-6):
+        def gradient_descent_proper(
+            f, df, x0, learning_rate=0.01, max_iter=1000, tol=1e-6
+        ):
             x = x0
             for i in range(max_iter):
                 gradient = df(x)
@@ -329,7 +331,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_detects_calculus_implementation_errors(self, mock_skill_context) -> None:
-        """Given calculus implementations, when skill analyzes, then flags mathematical errors."""
+        """Given calculus code, skill flags mathematical errors."""
         # Arrange
         calculus_code = """
         import numpy as np
@@ -397,7 +399,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_probability_distributions(self, mock_skill_context) -> None:
-        """Given probability code, when skill analyzes, then checks distribution correctness."""
+        """Given probability code, skill checks distribution correctness."""
         # Arrange
         probability_code = """
         import numpy as np
@@ -461,7 +463,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_detects_geometry_trigonometry_errors(self, mock_skill_context) -> None:
-        """Given geometry/trig code, when skill analyzes, then flags mathematical errors."""
+        """Given geometry/trig code, skill flags math errors."""
         # Arrange
         geometry_code = """
         import math
@@ -527,7 +529,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_computational_complexity(self, mock_skill_context) -> None:
-        """Given mathematical algorithms, when skill analyzes, then assesses computational complexity."""
+        """Given algorithms, skill assesses computational complexity."""
         # Arrange
         complexity_code = """
         def fibonacci_recursive(n):
@@ -591,7 +593,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_validates_mathematical_proofs(self, mock_skill_context) -> None:
-        """Given proof implementations, when skill analyzes, then checks logical correctness."""
+        """Given proofs, skill checks logical correctness."""
         # Arrange
         proof_code = """
         def is_prime_bruteforce(n):
@@ -658,7 +660,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_generates_math_correctness_report(self, sample_findings) -> None:
-        """Given comprehensive math analysis, when skill generates report, then creates structured summary."""
+        """Given full math analysis, skill creates structured summary."""
         # Arrange
         math_analysis = {
             "correctness_score": 7.5,
@@ -686,7 +688,7 @@ class TestMathReviewSkill:
 
     @pytest.mark.unit
     def test_recommends_mathematical_improvements(self, mock_skill_context) -> None:
-        """Given math code analysis, when skill recommends, then provides specific mathematical improvements."""
+        """Given math analysis, skill recommends improvements."""
         # Arrange
         analysis_results = {
             "has_precision_issues": True,

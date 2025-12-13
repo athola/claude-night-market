@@ -73,6 +73,8 @@ def temp_index_dir(tmp_path):
 class TestKeywordIndexer:
     """Test suite for KeywordIndexer."""
 
+    TOTAL_ENTRIES_EXPECTED = 2
+
     def test_initialization(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test indexer initialization."""
         indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
@@ -118,7 +120,7 @@ class TestKeywordIndexer:
         assert "metadata" in index
 
         # Should have indexed both entries
-        assert len(index["entries"]) == 2
+        assert len(index["entries"]) == self.TOTAL_ENTRIES_EXPECTED
 
         # Check entry structure
         for entry_data in index["entries"].values():
@@ -212,5 +214,5 @@ class TestKeywordIndexer:
         assert "total_entries" in metadata
         assert "total_keywords" in metadata
         assert "last_updated" in metadata
-        assert metadata["total_entries"] == 2
+        assert metadata["total_entries"] == self.TOTAL_ENTRIES_EXPECTED
         assert metadata["total_keywords"] > 0

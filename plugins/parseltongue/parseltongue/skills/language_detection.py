@@ -24,12 +24,12 @@ class LanguageDetectionSkill:
         """
         # First, try to detect based on filename
         language_map = {
-            '.py': ("python", 0.95),
-            '.js': ("javascript", 0.95),
-            '.jsx': ("javascript", 0.95),
-            '.ts': ("typescript", 0.95),
-            '.tsx': ("typescript", 0.95),
-            '.rs': ("rust", 0.95),
+            ".py": ("python", 0.95),
+            ".js": ("javascript", 0.95),
+            ".jsx": ("javascript", 0.95),
+            ".ts": ("typescript", 0.95),
+            ".tsx": ("typescript", 0.95),
+            ".rs": ("rust", 0.95),
         }
 
         for ext, (language, confidence) in language_map.items():
@@ -37,9 +37,9 @@ class LanguageDetectionSkill:
                 return {"language": language, "confidence": confidence}
 
         # If filename doesn't give a clear answer, use heuristics on code content
-        if 'def ' in code or 'import ' in code:
+        if "def " in code or "import " in code:
             return {"language": "python", "confidence": 0.8}
-        if 'function ' in code or 'const ' in code:
+        if "function " in code or "const " in code:
             return {"language": "javascript", "confidence": 0.8}
 
         # Default case

@@ -2,6 +2,7 @@
 
 import json
 import subprocess
+import time
 from unittest.mock import Mock, patch
 
 import pytest
@@ -440,8 +441,6 @@ class TestSpeckitIntegration:
             assert len(large_spec_content) > 10000, "Large spec should be substantial"
 
             # Test parsing performance (should be fast)
-            import time
-
             start_time = time.time()
 
             # Simulate parsing
@@ -490,8 +489,6 @@ class TestSpeckitIntegration:
             assert total_tasks == 100, f"Should handle {total_tasks} tasks"
 
             # Test dependency analysis performance
-            import time
-
             start_time = time.time()
 
             # Check for cycles (should be fast)

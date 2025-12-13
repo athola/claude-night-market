@@ -1,3 +1,4 @@
+# ruff: noqa: D101,D102,D103,PLR2004,E501
 """Integration tests for conjure plugin following TDD/BDD principles."""
 
 import json
@@ -5,13 +6,12 @@ import json
 # Import modules for testing
 import sys
 import time
-from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from delegation_executor import Delegator
+from delegation_executor import Delegator, ExecutionResult
 from quota_tracker import GeminiQuotaTracker
 from usage_logger import GeminiUsageLogger, UsageEntry
 
@@ -135,12 +135,6 @@ class TestQuotaTrackerIntegration:
             assert current_usage["requests_today"] == 2
 
     def test_quota_warnings_and_status_changes(self, tmp_path) -> None:
-        mock_tracker = MagicMock()
-        mock_tracker.estimate_task_tokens.return_value = 50000
-        mock_tracker.can_handle_task.return_value = (True, [])
-        mock_tracker_class.return_value = mock_tracker
-
-        # Test quota-aware execution
         with patch.object(GeminiQuotaTracker, "usage_file", tmp_path / "usage.json"):
             tracker = GeminiQuotaTracker()
 
@@ -149,11 +143,13 @@ class TestQuotaTrackerIntegration:
             assert can_handle is True
             assert len(issues) == 0
 
-            # Test quota exceeded scenario
-            mock_tracker.can_handle_task.return_value = (False, ["Rate limit exceeded"])
-            can_handle, issues = tracker.can_handle_task(estimated_tokens=50000)
+            # Test quota exceeded scenario by lowering threshold via record_request
+            tracker.record_request(
+                estimated_tokens=tracker.DAILY_LIMIT_TOKENS, success=True
+            )
+            can_handle, issues = tracker.can_handle_task(estimated_tokens=100)
             assert can_handle is False
-            assert len(issues) > 0
+            assert issues
 
 
 class TestUsageLoggerIntegration:
@@ -201,6 +197,13 @@ class TestUsageLoggerIntegration:
             assert "Context too large" in error_messages
 
     def test_session_management_and_tracking(self, tmp_path) -> None:
+        """Placeholder session management test."""
+        # Ensure logger can be constructed with shared directory
+        config_dir = tmp_path / ".claude" / "hooks" / "delegation"
+        config_dir.mkdir(parents=True)
+        logger = GeminiUsageLogger(config_dir=config_dir)
+        logger.log_usage(UsageEntry("cmd", 10, success=True))
+        assert (config_dir / "usage.jsonl").exists()
 
     @patch("subprocess.run")
     @patch("delegation_executor.tiktoken.get_encoding")
@@ -311,8 +314,14 @@ class TestUsageLoggerIntegration:
                 assert "quota" in issues[0].lower()
 
     def test_multiple_service_delegation_workflow(self, tmp_path) -> None:
+        delegator = Delegator(config_dir=tmp_path)
+        result = delegator.execute("gemini", "hello")
+        assert isinstance(result, ExecutionResult)
 
-    def test_large_file_token_estimation_performance(self, tmp_path) -> None:
+    @patch("delegation_executor.tiktoken.get_encoding")
+    def test_large_file_token_estimation_performance(
+        self, mock_encoder, tmp_path
+    ) -> None:
         # Setup mock
         mock_encoder_instance = MagicMock()
         mock_encoder_instance.encode.return_value = list(range(100))  # 100 tokens each
@@ -343,3 +352,9 @@ class TestUsageLoggerIntegration:
             assert estimated_tokens > 5000  # Should account for all files + prompt
 
     def test_usage_log_performance_with_many_entries(self, tmp_path) -> None:
+        usage_log = tmp_path / "usage.jsonl"
+        with patch.object(GeminiUsageLogger, "usage_log", usage_log):
+            logger = GeminiUsageLogger()
+            for i in range(10):
+                logger.log_usage(UsageEntry(f"cmd{i}", tokens=10, success=True))
+        assert usage_log.exists()

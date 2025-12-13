@@ -1,5 +1,7 @@
 """Performance tests for spec-kit wrapped commands."""
 
+import concurrent.futures
+import gc
 import os
 import time
 from unittest.mock import Mock
@@ -76,7 +78,6 @@ class TestPerformanceBenchmarks:
 
         def test_concurrent_skill_execution(self) -> None:
             """Test concurrent execution of multiple skills."""
-            import concurrent.futures
 
             def simulate_skill_execution(skill_name) -> str:
                 """Simulate skill execution with delay."""
@@ -286,8 +287,6 @@ class TestPerformanceBenchmarks:
             del large_data
 
             # Force garbage collection
-            import gc
-
             gc.collect()
 
             # Measure memory after cleanup

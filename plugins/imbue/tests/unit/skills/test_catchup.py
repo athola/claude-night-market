@@ -5,6 +5,7 @@ following TDD/BDD principles and testing all catchup scenarios.
 """
 
 import contextlib
+import time
 from unittest.mock import call
 
 import pytest
@@ -353,18 +354,17 @@ Untracked files:
     def _categorize_commit_type(self, message: str) -> str:
         """Categorize commit type from message."""
         message_lower = message.lower()
-        if "add" in message_lower or "implement" in message_lower:
-            return "feature"
-        if "fix" in message_lower or "bug" in message_lower:
-            return "fix"
-        if "refactor" in message_lower or "restructure" in message_lower:
-            return "refactor"
-        if "update" in message_lower or "upgrade" in message_lower:
-            return "update"
-        if "test" in message_lower:
-            return "test"
-        if "config" in message_lower or "configure" in message_lower:
-            return "config"
+        keyword_map = {
+            "feature": ("add", "implement"),
+            "fix": ("fix", "bug"),
+            "refactor": ("refactor", "restructure"),
+            "update": ("update", "upgrade"),
+            "test": ("test",),
+            "config": ("config", "configure"),
+        }
+        for commit_type, keywords in keyword_map.items():
+            if any(keyword in message_lower for keyword in keywords):
+                return commit_type
         return "other"
 
     @pytest.mark.unit
@@ -684,8 +684,6 @@ Untracked files:
         When running catchup analysis
         Then it should complete in reasonable time.
         """
-        import time
-
         # Arrange - simulate large commit history
         large_history = []
         for i in range(500):

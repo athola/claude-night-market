@@ -4,10 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-authors = [
-    {name = "Claude", email = "claude@anthropic.com"},
-]
-description = "Comprehensive code review plugin with specialized analysis skills"
+version = "1.0.0"
+authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
+description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -170,10 +169,7 @@ select = [
     "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501",   # line too long, handled by black
     "B008",   # do not perform function calls in argument defaults
-    "C901",   # too complex
-    "PLW0603", # using the global statement
 ]
 unfixable = [
     "B006",   # Do not use mutable data structures for argument defaults

@@ -18,6 +18,7 @@ def _load_front_matter(path: Path) -> dict:
 
 
 def test_evergreen_entries_exist() -> None:
+    """Evergreen reference files should remain present with proper maturity."""
     expected = {
         "franklin-protocol-learning",
         "konmari-method-tidying",
@@ -30,6 +31,7 @@ def test_evergreen_entries_exist() -> None:
 
 
 def test_maturity_metadata_is_valid_yaml() -> None:
+    """Front matter in corpus files must parse to valid YAML."""
     for path in KNOWLEDGE_DIR.glob("*.md"):
         content = path.read_text(encoding="utf-8")
         if not content.startswith("---"):
@@ -40,6 +42,7 @@ def test_maturity_metadata_is_valid_yaml() -> None:
 
 
 def test_vitality_scores_preserve_evergreen_entries() -> None:
+    """Vitality scores index must retain evergreen entries."""
     data = yaml.safe_load(VITALITY_PATH.read_text(encoding="utf-8"))
     entries = data.get("entries", {})
     slug = "konmari-method-tidying"

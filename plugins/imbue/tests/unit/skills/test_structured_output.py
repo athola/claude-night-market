@@ -4,7 +4,8 @@ This module tests the deliverable formatting and template functionality,
 following TDD/BDD principles and testing all output formatting scenarios.
 """
 
-from datetime import UTC, datetime
+import time
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
@@ -469,8 +470,6 @@ Common template variables that should be populated:
 
     def _calculate_due_date(self, priority: str) -> str:
         """Calculate due date based on priority."""
-        from datetime import timedelta
-
         today = datetime.now(UTC)
         days_map = {
             "P1": 1,  # Critical: 1 day
@@ -740,8 +739,6 @@ This PR addresses {len(findings)} security-related items.
         When generating output
         Then it should complete in reasonable time.
         """
-        import time
-
         # Arrange - generate many findings
         large_findings = []
         for i in range(500):

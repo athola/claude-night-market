@@ -96,7 +96,7 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.unit
     def test_extremely_large_file_handling(self) -> None:
-        """Given extremely large files, when analyzing, then handles memory efficiently."""
+        """Given huge files, analyzer handles memory efficiently."""
         # Arrange
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
             # Create a 10MB file
@@ -129,7 +129,7 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.unit
     def test_missing_dependencies_handling(self) -> None:
-        """Given missing external dependencies, when analyzing, then provides helpful error."""
+        """Given missing dependencies, analyzer provides helpful error."""
         # Arrange
         skill = RustReviewSkill()
 
@@ -181,7 +181,7 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.unit
     def test_permission_denied_scenarios(self) -> None:
-        """Given permission denied errors, when accessing files, then handles gracefully."""
+        """Given permission errors, analyzer handles gracefully."""
         # Arrange
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create a file and remove read permissions
@@ -233,7 +233,7 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.unit
     def test_memory_pressure_scenarios(self) -> None:
-        """Given low memory conditions, when analyzing, then uses fallback strategies."""
+        """Given low memory, analyzer uses fallback strategies."""
         # Arrange
         memory_manager = MemoryManager()
 
@@ -250,7 +250,7 @@ class TestEdgeCasesAndErrorScenarios:
 
     @pytest.mark.unit
     def test_configuration_errors(self) -> None:
-        """Given invalid configuration, when loading, then provides helpful error messages."""
+        """Given invalid config, loader provides helpful errors."""
         # Arrange
         # Test malformed YAML
         with tempfile.NamedTemporaryFile(
@@ -281,7 +281,7 @@ pensive:
 
     @pytest.mark.unit
     def test_unicode_and_special_characters(self) -> None:
-        """Given files with unicode and special characters, when analyzing, then handles correctly."""
+        """Given unicode/special chars, analyzer handles correctly."""
         # Arrange
         unicode_content = """
 // File with unicode and special characters
@@ -313,7 +313,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
 
     @pytest.mark.unit
     def test_symlink_handling(self) -> None:
-        """Given symbolic links in repository, when analyzing, then handles correctly."""
+        """Given symlinks in repo, analyzer handles correctly."""
         # Arrange
         with tempfile.TemporaryDirectory() as temp_dir:
             repo_path = Path(temp_dir)
@@ -341,7 +341,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
 
     @pytest.mark.unit
     def test_deep_directory_structures(self) -> None:
-        """Given deeply nested directory structures, when analyzing, then handles efficiently."""
+        """Given deep directories, analyzer handles efficiently."""
         # Arrange
         with tempfile.TemporaryDirectory() as temp_dir:
             repo_path = Path(temp_dir)
@@ -370,7 +370,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
 
     @pytest.mark.unit
     def test_invalid_file_formats(self) -> None:
-        """Given files with invalid or unexpected formats, when analyzing, then handles gracefully."""
+        """Given invalid formats, analyzer handles gracefully."""
         # Arrange
         invalid_files = {
             "empty_file.txt": "",  # Empty file
@@ -395,7 +395,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
 
     @pytest.mark.unit
     def test_partial_failure_scenarios(self) -> None:
-        """Given partial failures in multi-step processes, when analyzing, then continues gracefully."""
+        """Given partial failures, analyzer continues gracefully."""
         # Arrange
         workflow = CodeReviewWorkflow()
 
@@ -425,7 +425,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
 
     @pytest.mark.unit
     def test_plugin_discovery_failures(self) -> None:
-        """Given plugin discovery issues, when loading plugins, then handles gracefully."""
+        """Given plugin discovery issues, loader handles gracefully."""
         # Arrange
         loader = PluginLoader()
 

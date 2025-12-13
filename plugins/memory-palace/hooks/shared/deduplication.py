@@ -9,10 +9,13 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import os
+import re
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+import yaml
 
 if TYPE_CHECKING:
     from typing import Any
@@ -59,8 +62,6 @@ def get_url_key(url: str) -> str:
     # Remove common tracking parameters
     for param in ["utm_source", "utm_medium", "utm_campaign", "ref"]:
         if f"?{param}=" in url or f"&{param}=" in url:
-            import re
-
             url = re.sub(rf"[?&]{param}=[^&]*", "", url)
 
     return url.lower()
@@ -77,9 +78,6 @@ def _load_index() -> dict[str, Any]:
 
         if _index_cache is not None and current_mtime <= _index_mtime:
             return _index_cache
-
-        # Lazy import
-        import yaml
 
         with open(index_path) as f:
             _index_cache = yaml.safe_load(f) or {"entries": {}, "hashes": {}}
@@ -207,8 +205,6 @@ def update_index(
     index["hashes"][content_hash] = stored_at
 
     # Atomic write back using tempfile + rename
-    import yaml
-
     index_path = _get_index_path()
     index_path.parent.mkdir(parents=True, exist_ok=True)
 

@@ -17,6 +17,7 @@ INTAKE_CLI_PATH = (
 
 
 def load_cli_module():
+    """Dynamically load the intake CLI module for testing."""
     spec = importlib.util.spec_from_file_location("intake_cli", INTAKE_CLI_PATH)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
@@ -43,6 +44,7 @@ def _write_candidate(tmp_path: Path, *, title: str = "Cache Intercept Design Not
 
 
 def test_process_candidate_generates_outputs(tmp_path: Path) -> None:
+    """Ensure processing a candidate writes expected files and summary."""
     candidate_path = _write_candidate(tmp_path)
     intake_cli = load_cli_module()
     corpus_dir = intake_cli.PLUGIN_ROOT / "docs" / "knowledge-corpus"
@@ -68,6 +70,7 @@ def test_process_candidate_generates_outputs(tmp_path: Path) -> None:
 
 
 def test_dual_output_prompt_pack(tmp_path: Path) -> None:
+    """Verify dual-output prompt pack generation succeeds."""
     intake_cli = load_cli_module()
     candidate_path = _write_candidate(tmp_path, title="Garden Cache Audit")
 

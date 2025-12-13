@@ -4,6 +4,7 @@ This module tests the review command orchestration and workflow integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
+import time
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -582,8 +583,6 @@ class TestReviewCommand:
         When running review command
         Then it should complete initialization in reasonable time.
         """
-        import time
-
         # Arrange - simulate large repository
         large_scope = {
             "source_files": [

@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 # Singleton cache
 _config_cache: dict[str, Any] | None = None
 _config_mtime: float = 0
@@ -123,9 +125,6 @@ def get_config() -> dict[str, Any]:
         current_mtime = config_path.stat().st_mtime
         if _config_cache is not None and current_mtime <= _config_mtime:
             return _config_cache
-
-        # Lazy import yaml only when needed
-        import yaml
 
         with open(config_path) as f:
             user_config = yaml.safe_load(f) or {}

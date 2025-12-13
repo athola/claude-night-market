@@ -4,6 +4,9 @@ This module tests the change categorization and risk assessment functionality,
 following TDD/BDD principles and testing all diff analysis scenarios.
 """
 
+import re
+import time
+
 import pytest
 
 
@@ -460,8 +463,6 @@ index abcdef..0000000
         detected_patterns = []
         for line in sample_lines:
             for pattern_name, pattern_regex in diff_patterns.items():
-                import re
-
                 if re.match(pattern_regex, line):
                     detected_patterns.append({"pattern": pattern_name, "line": line})
                     break
@@ -643,8 +644,6 @@ just some text"""
         When analyzing large diffs
         Then it should complete in reasonable time.
         """
-        import time
-
         # Arrange - simulate large diff with many files
         large_changes = []
         for i in range(1000):

@@ -278,7 +278,7 @@ class TestApiReviewSkill:
     def test_identifies_inconsistent_naming(self, mock_skill_context) -> None:
         """
 
-        Given API with inconsistent naming, when skill analyzes, then flags naming issues.
+        Given inconsistent API naming, skill flags naming issues.
         """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -313,7 +313,7 @@ class TestApiReviewSkill:
     def test_identifies_missing_error_handling(self, mock_skill_context) -> None:
         """
 
-        Given API without error handling, when skill analyzes, then flags missing error handling.
+        Given API lacks error handling, skill flags missing handling.
         """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -351,7 +351,7 @@ class TestApiReviewSkill:
     def test_identifies_breaking_changes(self, mock_skill_context) -> None:
         """
 
-        Given potential breaking changes, when skill analyzes, then flags compatibility issues.
+        Given potential breaking changes, skill flags compatibility risks.
         """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -394,7 +394,7 @@ class TestApiReviewSkill:
     def test_validates_rest_api_patterns(self, mock_skill_context) -> None:
         """
 
-        Given REST API implementation, when skill analyzes, then validates REST patterns.
+        Given REST API, skill validates standard REST patterns.
         """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -421,7 +421,8 @@ class TestApiReviewSkill:
 
             // Issue: Using GET for mutation
             async deleteUser(id) {
-                return fetch(`${this.baseURL}/users/delete/${id}`);  // Should use DELETE
+                return fetch(`${this.baseURL}/users/delete/${id}`);
+                // Should use DELETE
             }
         }
         """
@@ -441,7 +442,7 @@ class TestApiReviewSkill:
     def test_checks_input_validation(self, mock_skill_context) -> None:
         """
 
-        Given API methods without validation, when skill analyzes, then flags missing validation.
+        Given API methods lack validation, skill flags missing checks.
         """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -577,7 +578,7 @@ class TestApiReviewSkill:
     def test_analyzes_api_performance_implications(self, mock_skill_context) -> None:
         """
 
-        Given API implementation, when skill analyzes, then identifies performance issues.
+        Given API implementation, skill identifies performance issues.
         """
         # Arrange
         mock_skill_context.get_file_content.return_value = """
@@ -593,7 +594,9 @@ class TestApiReviewSkill:
                 const user = await database.collection('users').findOne({id: userId});
                 const orders = [];
                 for (const orderId of user.orderIds) {
-                    const order = await database.collection('orders').findOne({id: orderId});
+                    const order = await database
+                        .collection("orders")
+                        .findOne({ id: orderId });
                     orders.push(order);
                 }
                 return {user, orders};
@@ -662,7 +665,7 @@ class TestApiReviewSkill:
     def test_generates_api_summary_report(self, sample_findings) -> None:
         """
 
-        Given API analysis findings, when skill generates report, then creates comprehensive summary.
+        Given analysis findings, skill generates a concise summary.
         """
         # Arrange
         analysis_data = {

@@ -3,6 +3,7 @@
 import re
 
 import pytest
+import yaml
 
 
 class TestFrontmatterValidation:
@@ -76,8 +77,6 @@ class TestFrontmatterValidation:
 
     def test_frontmatter_yaml_validity(self, temp_skill_files) -> None:
         """Test frontmatter is valid YAML."""
-        import yaml
-
         skill_dirs = ["spec-writing", "task-planning", "speckit-orchestrator"]
 
         for skill_name in skill_dirs:
@@ -101,8 +100,6 @@ class TestFrontmatterValidation:
 
     def test_optional_frontmatter_fields(self, temp_skill_files) -> None:
         """Test optional frontmatter fields are properly formatted."""
-        import yaml
-
         skill_file = temp_skill_files / "spec-writing" / "SKILL.md"
         content = skill_file.read_text()
 
@@ -159,8 +156,6 @@ class TestFrontmatterValidation:
 
     def test_consistent_frontmatter_structure(self, temp_skill_files) -> None:
         """Test all skills follow consistent frontmatter structure."""
-        import yaml
-
         skill_dirs = ["spec-writing", "task-planning", "speckit-orchestrator"]
         frontmatter_structures = []
 

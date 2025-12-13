@@ -248,7 +248,8 @@ def test_{func_name}_with_invalid_input():
 
 """
 
-        return f'''
+        return (
+            f'''
 @pytest.mark.bdd
 def test_{func_name}_with_valid_input():
     """
@@ -262,7 +263,9 @@ def test_{func_name}_with_valid_input():
     # TODO: Assert - Verify the outcome
     assert result is not None
 
-''' + error_section
+'''
+            + error_section
+        )
 
     def _generate_docstring_test(self, func_name: str, params: list[str]) -> str:
         """Generate docstring BDD-style test."""

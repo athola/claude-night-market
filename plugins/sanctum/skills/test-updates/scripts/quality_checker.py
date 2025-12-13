@@ -550,7 +550,10 @@ class TestQualityChecker:
         if metrics["average_test_length"] > MAX_TEST_LENGTH:
             recommendations.append("Break down long tests into smaller, focused tests")
 
-        if metrics["assertion_count"] / max(metrics["test_count"], 1) < MIN_ASSERTIONS_PER_TEST:
+        if (
+            metrics["assertion_count"] / max(metrics["test_count"], 1)
+            < MIN_ASSERTIONS_PER_TEST
+        ):
             recommendations.append("Add more assertions to thoroughly test behavior")
 
         return recommendations
@@ -593,7 +596,8 @@ def format_report(results: dict) -> str:
 Test Quality Report
 ==================
 
-Overall Quality Score: {results["quality_score"]}/100 ({results["quality_level"].upper()})
+Overall Quality Score: {results["quality_score"]}/100
+Quality Level: {results["quality_level"].upper()}
 
 Dynamic Validation
 ------------------

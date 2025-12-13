@@ -14,6 +14,8 @@ from typing import Any
 
 import pytest
 
+from memory_palace.palace_manager import MemoryPalaceManager
+
 
 @pytest.fixture
 def temp_palaces_dir(tmp_path: Path) -> Path:
@@ -198,8 +200,6 @@ def multiple_palaces(temp_palaces_dir: Path, temp_config_file: Path) -> list[dic
         palace_file.write_text(json.dumps(palace, indent=2))
 
     # Build the master index so tests can query it
-    from memory_palace.palace_manager import MemoryPalaceManager
-
     manager = MemoryPalaceManager(
         config_path=str(temp_config_file),
         palaces_dir_override=str(temp_palaces_dir),

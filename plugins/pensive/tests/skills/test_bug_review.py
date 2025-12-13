@@ -28,7 +28,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_null_pointer_dereference(self, mock_skill_context) -> None:
-        """Given potential null pointer usage, when skill analyzes, then flags NPD risks."""
+        """Given potential null pointer use, skill flags NPD risks."""
         # Arrange
         code_with_npd = """
         function processUser(user) {
@@ -65,7 +65,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_race_conditions(self, mock_skill_context) -> None:
-        """Given concurrent code patterns, when skill analyzes, then flags race condition risks."""
+        """Given concurrent code, skill flags race condition risks."""
         # Arrange
         race_condition_code = """
         import threading
@@ -111,7 +111,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_memory_leaks(self, mock_skill_context) -> None:
-        """Given memory management code, when skill analyzes, then flags memory leak risks."""
+        """Given memory management code, skill flags leak risks."""
         # Arrange
         memory_leak_code = """
         // JavaScript memory leaks
@@ -163,7 +163,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_sql_injection_vulnerabilities(self, mock_skill_context) -> None:
-        """Given database queries, when skill analyzes, then flags SQL injection risks."""
+        """Given database queries, skill flags SQL injection risks."""
         # Arrange
         sql_injection_code = """
         import sqlite3
@@ -206,7 +206,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_off_by_one_errors(self, mock_skill_context) -> None:
-        """Given loop and array access code, when skill analyzes, then flags off-by-one risks."""
+        """Given loops/array access, skill flags off-by-one risks."""
         # Arrange
         off_by_one_code = """
         function processArray(items) {
@@ -296,7 +296,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_resource_leaks(self, mock_skill_context) -> None:
-        """Given resource management code, when skill analyzes, then flags resource leaks."""
+        """Given resource management code, skill flags resource leaks."""
         # Arrange
         resource_leak_code = """
         import os
@@ -352,7 +352,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_logical_errors(self, mock_skill_context) -> None:
-        """Given conditional logic, when skill analyzes, then flags logical fallacies."""
+        """Given conditional logic, skill flags logical fallacies."""
         # Arrange
         logical_error_code = """
         def validate_age(age):
@@ -404,7 +404,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_type_confusion_bugs(self, mock_skill_context) -> None:
-        """Given dynamic typing code, when skill analyzes, then flags type confusion risks."""
+        """Given dynamic typing code, skill flags type confusion risks."""
         # Arrange
         type_confusion_code = """
         # JavaScript type confusion
@@ -437,7 +437,7 @@ class TestBugReviewSkill:
 
         # PHP type juggling vulnerabilities
         function validate_password($input) {
-            $expected = "0e123456789";  // String that evaluates to 0 in loose comparison
+            $expected = "0e123456789";  // Loose comparison string
             if ($input == $expected) {  // Type juggling vulnerability
                 return true;
             }
@@ -456,7 +456,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_detects_timing_attacks(self, mock_skill_context) -> None:
-        """Given authentication/authorization code, when skill analyzes, then flags timing attack risks."""
+        """Given auth code, skill flags timing attack risks."""
         # Arrange
         timing_attack_code = """
         import time
@@ -504,7 +504,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_categorizes_bug_severity(self) -> None:
-        """Given various bugs, when skill categorizes, then assigns appropriate severity."""
+        """Given bugs, skill categorizes severities."""
         # Arrange
         bugs = [
             {"type": "sql_injection", "issue": "SQL injection in user query"},
@@ -533,7 +533,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_generates_fix_recommendations(self, mock_skill_context) -> None:
-        """Given detected bugs, when skill generates fixes, then provides actionable solutions."""
+        """Given detected bugs, skill suggests fixes."""
         # Arrange
         bug_findings = [
             {
@@ -564,7 +564,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_bug_patterns(self, mock_skill_context) -> None:
-        """Given bug history, when skill analyzes patterns, then identifies common bug types."""
+        """Given bug history, skill identifies common types."""
         # Arrange
         bug_history = [
             {"type": "sql_injection", "file": "database.py", "date": "2024-01-01"},
@@ -590,7 +590,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_validates_bug_fixes(self, mock_skill_context) -> None:
-        """Given proposed bug fixes, when skill validates, then checks for correctness."""
+        """Given proposed bug fixes, skill checks correctness."""
         # Arrange
         bug_fixes = [
             {
@@ -617,7 +617,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_handles_false_positives(self, mock_skill_context) -> None:
-        """Given benign code patterns, when skill analyzes, then avoids false positives."""
+        """Given benign code, skill avoids false positives."""
         # Arrange
         benign_code = """
         # These look like bugs but are actually correct
@@ -661,7 +661,7 @@ class TestBugReviewSkill:
 
     @pytest.mark.unit
     def test_creates_bug_summary_report(self, sample_findings) -> None:
-        """Given comprehensive bug analysis, when skill creates report, then generates structured summary."""
+        """Given full bug analysis, skill creates structured summary."""
         # Arrange
         bug_analysis = {
             "total_bugs": 15,

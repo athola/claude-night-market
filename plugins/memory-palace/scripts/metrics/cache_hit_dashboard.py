@@ -48,6 +48,7 @@ def summarize(rows: list[dict[str, str]]) -> dict[str, Counter]:
 
 
 def render_markdown(summary: dict[str, Counter]) -> str:
+    """Render a markdown dashboard from summary counters."""
     lines = ["# Cache Hit Dashboard", ""]
     lines.append("## Decisions")
     lines.append("| Decision | Count |")
@@ -65,7 +66,7 @@ def render_markdown(summary: dict[str, Counter]) -> str:
 
 
 def main() -> None:
-    """Main entry point for the cache hit dashboard generator."""
+    """Generate cache hit dashboard markdown from telemetry CSV."""
     parser = argparse.ArgumentParser(description="Generate cache hit dashboard markdown")
     parser.add_argument("--telemetry", type=Path, default=TELEMETRY_FILE)
     parser.add_argument("--output", type=Path, default=OUTPUT_DOC)

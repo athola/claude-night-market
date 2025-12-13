@@ -4,6 +4,7 @@ This module tests the autonomous review agent capabilities and workflow integrat
 following TDD/BDD principles and testing all agent scenarios.
 """
 
+import time
 from datetime import UTC, datetime
 from unittest.mock import Mock
 
@@ -710,8 +711,6 @@ Immediate remediation of critical findings is essential before production deploy
         Then it should complete analysis in reasonable time
         With focused analysis on high-risk areas.
         """
-        import time
-
         # Arrange - simulate large codebase
         large_codebase = {
             "total_files": 500,

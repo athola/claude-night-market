@@ -28,7 +28,7 @@ class TestMakefileReviewSkill:
 
     @pytest.mark.unit
     def test_detects_makefile_structure_issues(self, mock_skill_context) -> None:
-        """Given makefile content, when skill analyzes, then identifies structural problems."""
+        """Given makefile content, skill identifies structural problems."""
         # Arrange
         problematic_makefile = """
 # Missing .PHONY declaration
@@ -77,7 +77,7 @@ help:
 
     @pytest.mark.unit
     def test_analyzes_dependency_management(self, mock_skill_context) -> None:
-        """Given makefile dependencies, when skill analyzes, then checks dependency correctness."""
+        """Given makefile deps, skill checks dependency correctness."""
         # Arrange
         dependency_makefile = """
 CC = gcc
@@ -133,7 +133,7 @@ format_code:
 
     @pytest.mark.unit
     def test_detects_performance_issues(self, mock_skill_context) -> None:
-        """Given makefile, when skill analyzes, then identifies performance bottlenecks."""
+        """Given makefile, skill identifies performance bottlenecks."""
         # Arrange
         performance_makefile = """
 # Bad: No parallel execution
@@ -200,7 +200,7 @@ all: $(PROGRAMS)
 
     @pytest.mark.unit
     def test_analyzes_portability_issues(self, mock_skill_context) -> None:
-        """Given makefile, when skill analyzes, then checks portability across platforms."""
+        """Given makefile, skill checks portability across platforms."""
         # Arrange
         unportable_makefile = """
 # Hardcoded paths
@@ -265,7 +265,7 @@ endif
 
     @pytest.mark.unit
     def test_detects_security_issues(self, mock_skill_context) -> None:
-        """Given makefile, when skill analyzes, then identifies security vulnerabilities."""
+        """Given makefile, skill flags security vulnerabilities."""
         # Arrange
         security_makefile = """
 # Security issues in makefile
@@ -398,7 +398,7 @@ DEPS = $(OBJECTS:.o=.d)
 
     @pytest.mark.unit
     def test_analyzes_target_organization(self, mock_skill_context) -> None:
-        """Given makefile, when skill analyzes, then evaluates target structure and organization."""
+        """Given makefile, skill evaluates target structure and org."""
         # Arrange
         target_makefile = """
 # Poor target organization
@@ -470,7 +470,7 @@ release: $(TARGET)
 
     @pytest.mark.unit
     def test_detects_modern_makefile_best_practices(self, mock_skill_context) -> None:
-        """Given makefile, when skill analyzes, then checks for modern best practices."""
+        """Given makefile, skill checks modern best practices."""
         # Arrange
         modern_makefile = """
 # Modern makefile best practices
@@ -546,7 +546,7 @@ old_style:
     def test_generates_makefile_optimization_recommendations(
         self, mock_skill_context
     ) -> None:
-        """Given makefile analysis, when skill generates recommendations, then provides actionable improvements."""
+        """Given analysis, skill recommends actionable improvements."""
         # Arrange
         makefile_analysis = {
             "structure_issues": 5,
@@ -578,7 +578,7 @@ old_style:
 
     @pytest.mark.unit
     def test_creates_makefile_quality_report(self, sample_findings) -> None:
-        """Given comprehensive makefile analysis, when skill creates report, then generates structured summary."""
+        """Given full makefile analysis, skill creates structured summary."""
         # Arrange
         makefile_analysis = {
             "overall_score": 6.5,
@@ -610,7 +610,7 @@ old_style:
 
     @pytest.mark.unit
     def test_handles_multiple_makefiles(self, mock_skill_context) -> None:
-        """Given multiple makefiles, when skill analyzes, then evaluates consistency across files."""
+        """Given multiple makefiles, skill evaluates consistency."""
         # Arrange
         makefiles = {
             "Makefile": """
@@ -654,7 +654,7 @@ clean:
 
     @pytest.mark.unit
     def test_analyzes_makefile_integration(self, mock_skill_context) -> None:
-        """Given makefile in project context, when skill analyzes, then evaluates integration with build ecosystem."""
+        """Given project makefile, skill evaluates build integration."""
         # Arrange
         project_files = {
             "Makefile": """

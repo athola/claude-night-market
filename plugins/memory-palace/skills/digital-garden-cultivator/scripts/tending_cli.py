@@ -14,10 +14,12 @@ DEFAULT_VITALITY = Path("data/indexes/vitality-scores.yaml")
 
 
 def load_vitality(path: Path) -> dict[str, Any]:
+    """Load vitality scores YAML."""
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
 def build_queue(data: dict[str, Any]) -> dict[str, list[str]]:
+    """Build tending queues grouped by state."""
     entries = data.get("entries", {})
     stale_threshold = data.get("metadata", {}).get("stale_threshold", 10)
     queue = {"stale": [], "probation": [], "evergreen": []}
@@ -30,12 +32,13 @@ def build_queue(data: dict[str, Any]) -> dict[str, list[str]]:
             queue["probation"].append(entry_id)
         if state == "evergreen":
             queue["evergreen"].append(entry_id)
-    for key in queue:
-        queue[key].sort()
+    for _key, values in queue.items():
+        values.sort()
     return queue
 
 
 def main() -> None:
+    """Generate tending queue markdown from vitality file."""
     parser = argparse.ArgumentParser(description="Garden tending queue generator")
     parser.add_argument("--vitality-file", type=Path, default=DEFAULT_VITALITY)
     parser.add_argument("--export", type=Path, help="Optional path to export JSON queue")

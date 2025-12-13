@@ -12,6 +12,9 @@ from typing import Any
 
 import yaml
 
+MIN_WORD_LEN = 3
+FRONTMATTER_PARTS = 3
+
 
 class KeywordIndexer:
     """Extract and index keywords from palace entries for fast lookup.
@@ -55,7 +58,7 @@ class KeywordIndexer:
             # Split frontmatter and content
             if content.startswith("---"):
                 parts = content.split("---", 2)
-                if len(parts) >= 3:
+                if len(parts) >= FRONTMATTER_PARTS:
                     frontmatter = parts[1]
                     body = parts[2]
 
@@ -70,21 +73,20 @@ class KeywordIndexer:
                             # Extract from title
                             if "title" in metadata:
                                 title = metadata["title"].lower()
-                                # Extract significant words from title (3+ chars)
-                                title_words = re.findall(r"\b[a-z]{3,}\b", title)
+                                title_words = re.findall(rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b", title)
                                 keywords.update(title_words)
 
                             # Extract from palace/district
                             if "palace" in metadata:
                                 palace_words = re.findall(
-                                    r"\b[a-z]{3,}\b",
+                                    rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b",
                                     metadata["palace"].lower(),
                                 )
                                 keywords.update(palace_words)
 
                             if "district" in metadata:
                                 district_words = re.findall(
-                                    r"\b[a-z]{3,}\b",
+                                    rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b",
                                     metadata["district"].lower(),
                                 )
                                 keywords.update(district_words)
@@ -112,8 +114,8 @@ class KeywordIndexer:
                     technical_terms = re.findall(r"\b[a-z]+(?:-[a-z]+)+\b", body.lower())
                     keywords.update(technical_terms)
 
-                    # Extract significant noun phrases (simple approach - consecutive capitalized words)
-                    # This helps catch "Gradient Descent", "Machine Learning", etc.
+                    # Extract significant noun phrases (consecutive capitalized words)
+                    # Helps catch phrases like "Gradient Descent" or "Machine Learning"
                     noun_phrases = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", body)
                     for phrase in noun_phrases:
                         # Add both the phrase and individual words
@@ -121,9 +123,8 @@ class KeywordIndexer:
                         keywords.update(phrase_words)
 
         except Exception:
-            # If file read fails, return empty set
-            # File read errors are expected and can be safely ignored
-            pass
+            # File read errors are expected in some tests; treat as no keywords.
+            return []
 
         # Remove common stop words
         stop_words = {
@@ -200,7 +201,7 @@ class KeywordIndexer:
 
             if content.startswith("---"):
                 parts = content.split("---", 2)
-                if len(parts) >= 3:
+                if len(parts) >= FRONTMATTER_PARTS:
                     try:
                         metadata = yaml.safe_load(parts[1])
                         if metadata:

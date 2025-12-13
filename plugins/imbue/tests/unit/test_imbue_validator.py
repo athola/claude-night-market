@@ -5,6 +5,7 @@ following TDD/BDD principles and testing all business logic scenarios.
 """
 
 import json
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -659,8 +660,6 @@ This is test skill number {i} with review workflow patterns.
 """)
 
         # Act
-        import time
-
         validator = ImbueValidator(plugin_root)
 
         start_time = time.time()

@@ -4,6 +4,7 @@ This module tests the catchup command workflow and change analysis integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
+import time
 from unittest.mock import Mock
 
 import pytest
@@ -659,8 +660,6 @@ def5678 2024-12-04 test: Add payment flow tests
         When running catchup analysis
         Then it should complete in reasonable time.
         """
-        import time
-
         # Arrange - simulate large commit history
         large_history = []
         for i in range(200):

@@ -125,6 +125,14 @@ class TestBridgeAfterToolUse:
 
     @patch("sys.stdin", new_callable=mock_open)
     def test_hook_main_flow_no_recommendation(self, mock_stdin, tmp_path) -> None:
+        """Ensure hook exits cleanly when no recommendation is produced."""
+        mock_stdin.return_value.read.return_value = "{}"
+        bridge_after = __import__("hooks.bridge.after_run", fromlist=["main"]).main
+        with patch("sys.argv", ["after_run", "--event", "after_run"]):
+            try:
+                bridge_after()
+            except SystemExit as exc:  # expected exit
+                assert exc.code == 0
 
     def test_calculate_context_size_single_file(self, tmp_path) -> None:
         args = {
@@ -149,7 +157,8 @@ class TestBridgeAfterToolUse:
 
         assert result is True
 
-    def test_is_data_processing_task_complex(self) -> None:
+    def test_is_data_processing_task_complex(self, tmp_path) -> None:
+        """Large file should not trigger suggestion automatically."""
         test_file = tmp_path / "small.py"
         test_file.write_text("x" * 1000)  # 1KB file
 
@@ -184,7 +193,11 @@ class TestBridgeAfterToolUse:
         assert any("Explore" in suggestion for suggestion in suggestions)
         assert any("gemini-delegation" in suggestion for suggestion in suggestions)
 
-    def test_format_collaborative_suggestion(self) -> None:
+    @patch("bridge.on_tool_start.GeminiQuotaTracker")
+    @patch("sys.stdin", new_callable=mock_open)
+    def test_format_collaborative_suggestion(
+        self, mock_stdin, mock_tracker_class
+    ) -> None:
         # Setup input payload
         payload = {
             "tool_use": {"name": "Read", "input": {"file_path": "large_file.py"}},
@@ -257,9 +270,19 @@ class TestBridgeAfterToolUse:
                 for suggestion in collaborative_suggestions
             )
 
+    class TestHookIntegration:
+        """Test integration between hooks and quota tracking."""
 
-class TestHookIntegration:
-    """Test integration between hooks and quota tracking."""
+        @patch("bridge.on_tool_start.GeminiQuotaTracker")
+        def test_quota_integration_available(self, mock_tracker_class) -> None:
+            tracker_instance = mock_tracker_class.return_value
+            tracker_instance.verify.return_value = (True, [])
 
-    @patch("bridge.on_tool_start.GeminiQuotaTracker")
-    def test_quota_integration_available(self, mock_tracker_class) -> None:
+            # Simulate on_tool_start calling tracker
+            result = bridge_start.main()
+
+            assert mock_tracker_class.called
+            assert result is None
+
+
+# ruff: noqa: D101,D102,D103,PLR2004,E501

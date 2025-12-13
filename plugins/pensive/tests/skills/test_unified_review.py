@@ -28,7 +28,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_detects_rust_project_by_cargo_toml(self, mock_skill_context) -> None:
-        """Given a repository with Cargo.toml, when skill detects languages, then identifies Rust."""
+        """Given Cargo.toml, skill detects Rust."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "Cargo.toml",
@@ -46,7 +46,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_detects_python_project_by_requirements(self, mock_skill_context) -> None:
-        """Given a repository with requirements.txt, when skill detects languages, then identifies Python."""
+        """Given requirements.txt, skill detects Python."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "requirements.txt",
@@ -68,7 +68,7 @@ class TestUnifiedReviewSkill:
     def test_detects_javascript_project_by_package_json(
         self, mock_skill_context
     ) -> None:
-        """Given a repository with package.json, when skill detects languages, then identifies JavaScript."""
+        """Given package.json, skill detects JavaScript."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "package.json",
@@ -87,7 +87,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_detects_makefile_build_system(self, mock_skill_context) -> None:
-        """Given a repository with Makefile, when skill detects build systems, then identifies make."""
+        """Given Makefile, skill detects make build system."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "Makefile",
@@ -104,7 +104,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_selects_rust_review_for_rust_project(self, mock_skill_context) -> None:
-        """Given a Rust project, when skill selects reviews, then includes rust-review."""
+        """Given a Rust project, skill selects rust-review."""
         # Arrange
         mock_skill_context.get_files.return_value = ["Cargo.toml", "src/main.rs"]
 
@@ -119,7 +119,7 @@ class TestUnifiedReviewSkill:
     def test_selects_test_review_for_projects_with_tests(
         self, mock_skill_context
     ) -> None:
-        """Given a project with test files, when skill selects reviews, then includes test-review."""
+        """Given test files, skill selects test-review."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/app.py",
@@ -137,7 +137,7 @@ class TestUnifiedReviewSkill:
     def test_selects_makefile_review_for_make_projects(
         self, mock_skill_context
     ) -> None:
-        """Given a project with Makefile, when skill selects reviews, then includes makefile-review."""
+        """Given Makefile, skill selects makefile-review."""
         # Arrange
         mock_skill_context.get_files.return_value = ["Makefile", "src/main.c"]
 
@@ -151,7 +151,7 @@ class TestUnifiedReviewSkill:
     def test_selects_math_review_for_mathematical_code(
         self, mock_skill_context
     ) -> None:
-        """Given mathematical code patterns, when skill selects reviews, then includes math-review."""
+        """Given math patterns, skill selects math-review."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/algorithms.py",
@@ -178,7 +178,7 @@ class TestUnifiedReviewSkill:
     def test_excludes_irrelevant_skills_for_simple_project(
         self, mock_skill_context
     ) -> None:
-        """Given a simple project, when skill selects reviews, then excludes specialized skills."""
+        """Given simple project, skill excludes specialized skills."""
         # Arrange
         mock_skill_context.get_files.return_value = ["src/utils.js", "README.md"]
 
@@ -208,7 +208,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_consolidates_duplicate_findings(self, sample_findings) -> None:
-        """Given duplicate findings, when skill consolidates, then removes duplicates."""
+        """Given duplicate findings, skill removes duplicates."""
         # Arrange
         duplicate_findings = [
             *sample_findings,
@@ -234,7 +234,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_generates_comprehensive_summary(self, sample_findings) -> None:
-        """Given findings, when skill generates summary, then includes all key sections."""
+        """Given findings, skill generates summary with key sections."""
         # Arrange
         findings = sample_findings
 
@@ -264,7 +264,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_recommends_block_for_critical_security_issues(self) -> None:
-        """Given critical security issues, when skill recommends, then suggests block."""
+        """Given critical security issues, skill recommends block."""
         # Arrange
         findings = [
             {
@@ -283,7 +283,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_creates_actionable_items(self, sample_findings) -> None:
-        """Given findings, when skill creates action items, then assigns owners and deadlines."""
+        """Given findings, skill creates action items with owners and deadlines."""
         # Arrange
         findings = sample_findings
 
@@ -305,7 +305,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_handles_empty_repository_gracefully(self, mock_skill_context) -> None:
-        """Given an empty repository, when skill analyzes, then returns appropriate response."""
+        """Given empty repository, skill returns appropriate response."""
         # Arrange
         mock_skill_context.get_files.return_value = []
 
@@ -378,7 +378,7 @@ class TestUnifiedReviewSkill:
 
     @pytest.mark.unit
     def test_calculate_review_confidence_score(self, sample_findings) -> None:
-        """Given findings and analysis, when skill calculates confidence, then returns appropriate score."""
+        """Given findings, skill calculates confidence score."""
         # Arrange
         analysis_data = {
             "languages_detected": ["rust", "javascript"],

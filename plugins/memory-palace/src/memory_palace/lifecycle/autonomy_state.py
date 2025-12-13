@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 AUTONOMY_STATE_ENV_VAR = "MEMORY_PALACE_AUTONOMY_STATE"
 _MIN_LEVEL = 0
 _MAX_LEVEL = 5
+_LEVEL_PARTIAL = 2
+_LEVEL_ALL = 3
 
 
 def _iso_now() -> str:
@@ -40,6 +42,7 @@ class PerformanceMetrics:
     last_domains: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize metrics to a dictionary."""
         return {
             "auto_approvals": self.auto_approvals,
             "flagged_requests": self.flagged_requests,
@@ -52,6 +55,7 @@ class PerformanceMetrics:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any] | None) -> PerformanceMetrics:
+        """Rehydrate metrics from a mapping."""
         if not data:
             return cls()
         return cls(
@@ -75,6 +79,7 @@ class DomainControl:
     updated_at: str = field(default_factory=_iso_now)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize domain control to a dictionary."""
         return {
             "level": self.level,
             "locked": self.locked,
@@ -84,6 +89,7 @@ class DomainControl:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any] | None) -> DomainControl | None:
+        """Rehydrate domain control from mapping data."""
         if not data:
             return None
         level = int(data.get("level", 0) or 0)
@@ -105,6 +111,7 @@ class AutonomyState:
     last_updated: str = field(default_factory=_iso_now)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize autonomy state to a dictionary."""
         return {
             "current_level": self.current_level,
             "domain_controls": {
@@ -116,6 +123,7 @@ class AutonomyState:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any] | None) -> AutonomyState:
+        """Rehydrate autonomy state from mapping data."""
         if not data:
             return cls()
         controls: dict[str, DomainControl] = {}
@@ -141,6 +149,7 @@ class AutonomyProfile:
     domain_controls: dict[str, DomainControl] = field(default_factory=dict)
 
     def effective_level_for(self, domains: Iterable[str] | None = None) -> int:
+        """Return effective autonomy level considering domain overrides."""
         level = max(_MIN_LEVEL, min(self.global_level, _MAX_LEVEL))
         if not domains:
             return level
@@ -160,15 +169,19 @@ class AutonomyProfile:
         return max(_MIN_LEVEL, min(level, _MAX_LEVEL))
 
     def should_auto_approve_duplicates(self, domains: Iterable[str] | None = None) -> bool:
+        """Allow automatic duplicate approvals when level >=1."""
         return self.effective_level_for(domains) >= 1
 
     def should_auto_approve_partial(self, domains: Iterable[str] | None = None) -> bool:
-        return self.effective_level_for(domains) >= 2
+        """Allow partial overlap approvals when level >=2."""
+        return self.effective_level_for(domains) >= _LEVEL_PARTIAL
 
     def should_auto_approve_all(self, domains: Iterable[str] | None = None) -> bool:
-        return self.effective_level_for(domains) >= 3
+        """Allow all approvals when level >=3."""
+        return self.effective_level_for(domains) >= _LEVEL_ALL
 
     def describe(self) -> dict[str, Any]:
+        """Return dictionary description of profile."""
         return {
             "global_level": self.global_level,
             "domain_controls": {
@@ -186,6 +199,7 @@ class AutonomyStateStore:
         state_path: str | Path | None = None,
         plugin_root: Path | None = None,
     ) -> None:
+        """Initialize state store with optional explicit path or env override."""
         env_override = os.environ.get(AUTONOMY_STATE_ENV_VAR)
         if state_path:
             resolved = Path(state_path)
@@ -198,15 +212,18 @@ class AutonomyStateStore:
 
     @staticmethod
     def _default_state_path(plugin_root: Path | None) -> Path:
+        """Return default state file path under plugin data directory."""
         if plugin_root is None:
             plugin_root = Path(__file__).resolve().parents[3]
         return plugin_root / "data" / "state" / "autonomy-state.yaml"
 
     @staticmethod
     def _clamp_level(level: int) -> int:
+        """Clamp level within allowed bounds."""
         return max(_MIN_LEVEL, min(level, _MAX_LEVEL))
 
     def load(self) -> AutonomyState:
+        """Load autonomy state from disk, creating default if missing."""
         if not self.state_path.exists():
             state = AutonomyState()
             self.save(state)
@@ -221,12 +238,14 @@ class AutonomyStateStore:
         return AutonomyState.from_dict(data)
 
     def save(self, state: AutonomyState) -> AutonomyState:
+        """Persist autonomy state to disk."""
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
         with self.state_path.open("w", encoding="utf-8") as handle:
             yaml.safe_dump(state.to_dict(), handle, sort_keys=False)
         return state
 
     def snapshot(self, *, config_level: int | None = None) -> dict[str, Any]:
+        """Return a summary snapshot including effective levels and locks."""
         state = self.load()
         profile = self.build_profile(config_level=config_level)
         locked = {
@@ -252,6 +271,7 @@ class AutonomyStateStore:
         lock: bool | None = None,
         reason: str | None = None,
     ) -> AutonomyState:
+        """Set global or domain-specific level and persist."""
         state = self.load()
         next_level = self._clamp_level(level)
         if domain:
@@ -276,6 +296,7 @@ class AutonomyStateStore:
         return self.save(state)
 
     def promote(self, *, domain: str | None = None) -> AutonomyState:
+        """Promote global or domain level by one."""
         state = self.load()
         if domain:
             key = _normalize_domain(domain)
@@ -290,6 +311,7 @@ class AutonomyStateStore:
         return self.save(state)
 
     def demote(self, *, domain: str | None = None) -> AutonomyState:
+        """Demote global or domain level by one."""
         state = self.load()
         if domain:
             key = _normalize_domain(domain)
@@ -304,6 +326,7 @@ class AutonomyStateStore:
         return self.save(state)
 
     def build_profile(self, *, config_level: int | None = None) -> AutonomyProfile:
+        """Build an AutonomyProfile combining persisted state and optional config override."""
         state = self.load()
         base_level = state.current_level
         if config_level is not None:
@@ -322,6 +345,7 @@ class AutonomyStateStore:
         blocked: bool,
         domains: Iterable[str] | None = None,
     ) -> None:
+        """Record a decision outcome and update metrics/timestamps."""
         try:
             state = self.load()
         except Exception:

@@ -19,7 +19,7 @@ Personal Claude Code plugin marketplace featuring architecture patterns, intelli
 ### Foundation Layer
 
 #### imbue
-Intelligent workflow methodologies for analysis, evidence gathering, and structured output.
+Intelligent workflow methodologies for analysis, evidence gathering, and structured output. Forms a basis for building additional workflow plugins.
 
 | Skill | Purpose |
 |-------|---------|
@@ -54,7 +54,7 @@ Resource optimization and performance monitoring.
 | `token-estimator` | Usage estimation |
 
 #### conjure
-Delegation to external LLM services.
+Delegation to external LLM services, primarly through headless calls.
 
 | Skill | Purpose |
 |-------|---------|
@@ -73,17 +73,17 @@ Architecture paradigm selection and implementation planning.
 | `architecture-paradigm-*` | 13 specific paradigm guides |
 
 #### pensive
-Code review toolkit.
+Reflective thinking toolkit to review code.
 
 | Skill | Purpose |
 |-------|---------|
+| `api-review` | API surface evaluation |
 | `architecture-review` | Principal-level architecture review |
 | `bug-review` | Deep bug hunting |
-| `api-review` | API surface evaluation |
-| `test-review` | TDD/BDD test suite review |
+| `makefile-review` | Makefile structure review |
 | `math-review` | Mathematical correctness |
 | `rust-review` | Rust-specific review |
-| `makefile-review` | Makefile structure review |
+| `test-review` | TDD/BDD test suite review |
 
 #### memory-palace
 Spatial memory techniques for knowledge organization.
@@ -146,4 +146,4 @@ Then update `.claude-plugin/marketplace.json` with your actual GitHub URLs.
 
 ## License
 
-MIT License
+[MIT](LICENSE)

@@ -39,7 +39,7 @@ class SkillLoader:
             "pattern_matching",
             "testing_guide",
             "code_transformation",
-            "compatibility_checker"
+            "compatibility_checker",
         ]
 
     async def validate_skill(self, skill: Any) -> dict[str, Any]:
@@ -56,11 +56,7 @@ class SkillLoader:
             return {
                 "valid": False,
                 "issues": ["Skill is None"],
-                "recommendations": ["Provide a valid skill instance"]
+                "recommendations": ["Provide a valid skill instance"],
             }
 
-        return {
-            "valid": True,
-            "issues": [],
-            "recommendations": []
-        }
+        return {"valid": True, "issues": [], "recommendations": []}

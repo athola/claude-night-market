@@ -9,6 +9,9 @@ from pathlib import Path
 from memory_palace import cli as memory_palace_cli
 from memory_palace.lifecycle.autonomy_state import AutonomyStateStore
 
+GLOBAL_AFTER_TWO = 2
+GLOBAL_ALERT_THRESHOLD = 0.05
+
 SCRIPT_PATH = Path(__file__).resolve().parents[2] / "scripts" / "update_autonomy_state.py"
 
 
@@ -39,8 +42,8 @@ def test_adjust_state_promotes_on_high_accuracy(tmp_path: Path) -> None:
     store = AutonomyStateStore(state_path=tmp_path / "state.yaml")
     store.set_level(1)
     changes = module.adjust_state(store, aggregate, per_domain, dry_run=False)
-    assert changes["global_after"] == 2
-    assert store.load().current_level == 2
+    assert changes["global_after"] == GLOBAL_AFTER_TWO
+    assert store.load().current_level == GLOBAL_AFTER_TWO
 
 
 def test_adjust_state_demotes_when_regret_spikes(tmp_path: Path) -> None:
@@ -59,8 +62,8 @@ def test_regret_alerts_fire_for_garden_commands(tmp_path: Path, monkeypatch) -> 
     """Test that regret alerts fire for garden commands."""
     module = load_module()
     history = [{"result": "regret", "domains": ["trust"]} for _ in range(5)]
-    alerts = module.compute_regret_alerts(history, global_threshold=0.05)
-    assert alerts["global"]["regret_rate"] > 0.05
+    alerts = module.compute_regret_alerts(history, global_threshold=GLOBAL_ALERT_THRESHOLD)
+    assert alerts["global"]["regret_rate"] > GLOBAL_ALERT_THRESHOLD
     assert "recommended_command" in alerts["global"]
     state_path = tmp_path / "state.yaml"
     monkeypatch.setenv("MEMORY_PALACE_AUTONOMY_STATE", str(state_path))

@@ -102,13 +102,15 @@ src = ["plugins", "tests"]
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = [
+extend-ignore = [
     "E501",  # Line too long (handled by black)
     "B008",  # Do not perform function calls in argument defaults
     "PLR2004",  # Magic value comparison
     "S101",  # Use of assert (acceptable in tests and production code)
-    "PLC0415",  # Import outside top-level (acceptable in some cases)
     "E402",  # Module imports not at top of file (acceptable in some cases)
+    "D203",  # One blank line before class docstring (conflicts with D211)
+    "D213",  # Multi-line summary second line (conflicts with D212)
+    "COM812",  # Trailing commas clash with formatter
     "D205",  # 1 blank line required between summary line and description
     "D401",  # First line of docstring should be in imperative mood
     "D101",  # Missing docstring in public class

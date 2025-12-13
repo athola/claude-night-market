@@ -13,6 +13,7 @@ def _read_text(relative_path: str) -> str:
 
 
 def test_rollout_docs_cover_required_sections() -> None:
+    """Rollout documentation should include required sections and links."""
     dry_run_doc = _read_text("docs/runbooks/memory-palace-rollout-dry-run.md")
     assert "# Dry Run Transcript" in dry_run_doc
     assert "## Validation Checklist" in dry_run_doc

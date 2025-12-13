@@ -14,6 +14,16 @@ from memory_palace.corpus.cache_lookup import CacheLookup
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
+OVERLAP_STRONG = 0.8
+OVERLAP_PARTIAL = 0.4
+VALUE_NOVEL = 0.8
+VALUE_CONTRADICTION = 0.7
+VALUE_MORE_EXAMPLES = 0.4
+VALUE_LOW = 0.3
+VALUE_NONE = 0.1
+MIN_NOVEL_HEADINGS = 2
+MIN_NOVEL_KEYWORD_RATIO = 0.5
+
 
 class RedundancyLevel(Enum):
     """Classification of content redundancy."""
@@ -325,10 +335,10 @@ class MarginalValueFilter:
 
         max_overlap = max(overlap_scores)
 
-        if max_overlap >= 0.8:
+        if max_overlap >= OVERLAP_STRONG:
             reasons.append(f"High overlap ({max_overlap:.0%}) with {len(matching_entries)} entries")
             level = RedundancyLevel.HIGHLY_REDUNDANT
-        elif max_overlap >= 0.4:
+        elif max_overlap >= OVERLAP_PARTIAL:
             reasons.append(
                 f"Partial overlap ({max_overlap:.0%}) with {len(matching_entries)} entries",
             )
@@ -413,25 +423,25 @@ class MarginalValueFilter:
         has_contradiction = any(marker in new_content.lower() for marker in contradiction_markers)
 
         # Determine delta type and value
-        if len(novel_keywords) > len(overlap_keywords) / 2:
+        if len(novel_keywords) > len(overlap_keywords) * MIN_NOVEL_KEYWORD_RATIO:
             delta_type = DeltaType.NOVEL_INSIGHT
-            value_score = 0.8
+            value_score = VALUE_NOVEL
             teaching_delta = f"Introduces {len(novel_keywords)} new concepts"
         elif has_contradiction and len(novel_aspects) > 0:
             delta_type = DeltaType.CONTRADICTS
-            value_score = 0.7
+            value_score = VALUE_CONTRADICTION
             teaching_delta = "Presents alternative perspective or correction"
-        elif len(novel_headings) >= 2:
+        elif len(novel_headings) >= MIN_NOVEL_HEADINGS:
             delta_type = DeltaType.MORE_EXAMPLES
-            value_score = 0.5
+            value_score = VALUE_MORE_EXAMPLES
             teaching_delta = "Provides additional examples/coverage"
         elif len(novel_keywords) > 0:
             delta_type = DeltaType.DIFFERENT_FRAMING
-            value_score = 0.3
+            value_score = VALUE_LOW
             teaching_delta = "Mostly reframing of existing knowledge"
         else:
             delta_type = DeltaType.NONE
-            value_score = 0.1
+            value_score = VALUE_NONE
             teaching_delta = "No significant new teaching value"
 
         return DeltaAnalysis(
@@ -442,7 +452,7 @@ class MarginalValueFilter:
             teaching_delta=teaching_delta,
         )
 
-    def _decide_integration(
+    def _decide_integration(  # noqa: PLR0911 - explicit branch decisions for clarity
         self,
         redundancy: RedundancyCheck,
         delta: DeltaAnalysis | None,
@@ -471,7 +481,10 @@ class MarginalValueFilter:
             return IntegrationPlan(
                 decision=IntegrationDecision.SKIP,
                 target_entries=redundancy.matching_entries,
-                rationale=f"80%+ overlap with existing entries: {', '.join(redundancy.matching_entries[:3])}",
+                rationale=(
+                    "80%+ overlap with existing entries: "
+                    f"{', '.join(redundancy.matching_entries[:3])}"
+                ),
                 confidence=0.9,
             )
 
@@ -486,7 +499,10 @@ class MarginalValueFilter:
 
         # Partial overlap: decide based on delta
         if delta:
-            if delta.delta_type == DeltaType.NOVEL_INSIGHT and delta.value_score >= 0.7:
+            if (
+                delta.delta_type == DeltaType.NOVEL_INSIGHT
+                and delta.value_score >= VALUE_CONTRADICTION
+            ):
                 return IntegrationPlan(
                     decision=IntegrationDecision.STANDALONE,
                     target_entries=[],
@@ -502,7 +518,10 @@ class MarginalValueFilter:
                     confidence=0.6,
                 )
 
-            if delta.delta_type == DeltaType.MORE_EXAMPLES and delta.value_score >= 0.4:
+            if (
+                delta.delta_type == DeltaType.MORE_EXAMPLES
+                and delta.value_score >= VALUE_MORE_EXAMPLES
+            ):
                 return IntegrationPlan(
                     decision=IntegrationDecision.MERGE,
                     target_entries=redundancy.matching_entries[:1],
@@ -510,7 +529,7 @@ class MarginalValueFilter:
                     confidence=0.7,
                 )
 
-            if delta.value_score < 0.3:
+            if delta.value_score < VALUE_LOW:
                 return IntegrationPlan(
                     decision=IntegrationDecision.SKIP,
                     target_entries=redundancy.matching_entries,

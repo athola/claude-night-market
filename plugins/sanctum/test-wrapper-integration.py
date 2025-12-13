@@ -17,7 +17,7 @@ def run_command(cmd, description):
     """Run a command and return success status."""
     try:
         cmd_list = shlex.split(cmd) if isinstance(cmd, str) else cmd
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S603 - commands are controlled test fixtures
             cmd_list,
             check=False,
             shell=False,

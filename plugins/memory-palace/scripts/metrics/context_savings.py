@@ -28,6 +28,7 @@ def estimate_savings(rows: list[dict[str, str]]) -> int:
 
 
 def main() -> None:
+    """Estimate context/token savings from telemetry CSV."""
     parser = argparse.ArgumentParser(description="Estimate context/token savings")
     parser.add_argument("--telemetry", type=Path, default=TELEMETRY_FILE)
     args = parser.parse_args()

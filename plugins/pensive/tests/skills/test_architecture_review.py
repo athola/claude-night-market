@@ -28,7 +28,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_detects_layered_architecture(self, mock_skill_context) -> None:
-        """Given layered architecture, when skill analyzes, then identifies layer structure."""
+        """Given layered architecture, skill identifies layer structure."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/controllers/user_controller.py",
@@ -49,7 +49,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_detects_hexagonal_architecture(self, mock_skill_context) -> None:
-        """Given hexagonal architecture, when skill analyzes, then identifies ports and adapters."""
+        """Given hexagonal architecture, skill finds ports and adapters."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/ports/input/user_port.py",
@@ -70,7 +70,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_detects_microservices_architecture(self, mock_skill_context) -> None:
-        """Given microservices architecture, when skill analyzes, then identifies service boundaries."""
+        """Given microservices architecture, skill finds service boundaries."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "services/user-service/src/main.py",
@@ -92,7 +92,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_detects_event_driven_architecture(self, mock_skill_context) -> None:
-        """Given event-driven architecture, when skill analyzes, then identifies event components."""
+        """Given event-driven architecture, skill identifies event components."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/events/user_created_event.py",
@@ -113,7 +113,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_coupling_between_modules(self, mock_skill_context) -> None:
-        """Given module dependencies, when skill analyzes, then assesses coupling levels."""
+        """Given module deps, skill assesses coupling levels."""
         # Arrange
         dependencies = [
             {"from": "controller.py", "to": "service.py", "type": "import"},
@@ -148,8 +148,8 @@ class TestArchitectureReviewSkill:
             def create_user(self, user_data): pass
             def update_user(self, id, data): pass
             def delete_user(self, id): pass
-            def send_notification_email(self, user, message): pass  # Low cohesion - notification logic
-            def calculate_invoice_total(self, user_id): pass      # Low cohesion - billing logic
+            def send_notification_email(self, user, message): pass  # Notification logic
+            def calculate_invoice_total(self, user_id): pass      # Billing logic here
             def validate_user_data(self, data): pass
         """
 
@@ -171,7 +171,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_checks_separation_of_concerns(self, mock_skill_context) -> None:
-        """Given mixed responsibilities, when skill analyzes, then flags SoC violations."""
+        """Given mixed responsibilities, skill flags SoC violations."""
         # Arrange
         mixed_concerns_code = """
         class UserHandler:
@@ -210,13 +210,13 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_validates_dependency_inversion_principle(self, mock_skill_context) -> None:
-        """Given dependency violations, when skill analyzes, then flags DIP violations."""
+        """Given DIP violations, skill flags the issues."""
         # Arrange
         violating_code = """
         class OrderService:
             def __init__(self):
-                self.database = MySQLDatabase()  # Direct dependency on concrete class
-                self.email_sender = SMTPEmailSender()  # Direct dependency on concrete class
+                self.database = MySQLDatabase()  # Depends on concrete class
+                self.email_sender = SMTPEmailSender()  # Depends on concrete class
 
             def process_order(self, order):
                 self.database.save(order)
@@ -240,7 +240,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_sOLID_principles_compliance(self, mock_skill_context) -> None:
-        """Given code implementation, when skill analyzes, then checks SOLID principles."""
+        """Given code implementation, skill checks SOLID principles."""
         # Arrange
         code_with_violations = """
         # Single Responsibility Violation
@@ -288,7 +288,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_checks_architectural_decision_records(self, mock_skill_context) -> None:
-        """Given ADR files, when skill analyzes, then validates ADR structure and compliance."""
+        """Given ADR files, skill validates structure and compliance."""
         # Arrange
         adr_files = [
             "docs/adr/0001-use-microservices.md",
@@ -330,7 +330,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_data_flow_architecture(self, mock_skill_context) -> None:
-        """Given data flow implementation, when skill analyzes, then maps data flow patterns."""
+        """Given data flow implementation, skill maps patterns."""
         # Arrange
         data_flow_files = [
             "src/pipes/user_data_pipe.py",
@@ -355,7 +355,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_checks_scalability_patterns(self, mock_skill_context) -> None:
-        """Given architecture implementation, when skill analyzes, then evaluates scalability patterns."""
+        """Given architecture implementation, skill evaluates scalability patterns."""
         # Arrange
         scalability_code = """
         # Good: Horizontal scaling ready
@@ -399,7 +399,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_security_architecture(self, mock_skill_context) -> None:
-        """Given security implementation, when skill analyzes, then evaluates security patterns."""
+        """Given security implementation, skill evaluates security patterns."""
         # Arrange
         security_code = """
         # Good: Proper authentication
@@ -436,7 +436,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_detects_architectural_drift(self, mock_skill_context) -> None:
-        """Given codebase evolution, when skill analyzes, then detects architectural drift."""
+        """Given codebase evolution, skill detects architectural drift."""
         # Arrange
         # Simulate detected patterns vs intended architecture
         intended_patterns = ["layered", "dependency_injection"]
@@ -456,7 +456,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_generates_architecture_recommendations(self, sample_findings) -> None:
-        """Given architecture analysis findings, when skill generates recommendations, then provides actionable advice."""
+        """Given findings, skill generates actionable architecture advice."""
         # Arrange
         architecture_findings = [
             {
@@ -493,7 +493,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_handles_missing_architecture_docs(self, mock_skill_context) -> None:
-        """Given missing architecture documentation, when skill analyzes, then flags documentation gaps."""
+        """Given missing architecture docs, skill flags gaps."""
         # Arrange
         mock_skill_context.get_files.return_value = [
             "src/main.py",
@@ -512,7 +512,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_technical_debt_impact(self, mock_skill_context) -> None:
-        """Given technical debt indicators, when skill analyzes, then quantifies impact."""
+        """Given debt indicators, skill quantifies impact."""
         # Arrange
         debt_indicators = [
             {"type": "code_smell", "count": 15, "impact": "medium"},
@@ -532,7 +532,7 @@ class TestArchitectureReviewSkill:
 
     @pytest.mark.unit
     def test_creates_architecture_quality_report(self, sample_findings) -> None:
-        """Given comprehensive analysis, when skill creates report, then generates structured summary."""
+        """Given analysis, skill creates structured summary."""
         # Arrange
         analysis_results = {
             "patterns_detected": ["layered", "dependency_injection"],

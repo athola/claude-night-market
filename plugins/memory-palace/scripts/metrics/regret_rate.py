@@ -14,6 +14,7 @@ HISTORY_PATH = Path("telemetry/autonomy_history.json")
 
 
 def main() -> None:
+    """Calculate regret rate metrics from autonomy history JSON."""
     parser = argparse.ArgumentParser(description="Regret rate calculator")
     parser.add_argument("--history", type=Path, default=HISTORY_PATH)
     parser.add_argument(

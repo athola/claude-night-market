@@ -35,7 +35,7 @@ class ResearchTelemetryEvent:
     notes: str | None = None
 
     @classmethod
-    def build(
+    def build(  # noqa: PLR0913 - telemetry events require rich fields
         cls,
         *,
         query_id: str,
@@ -58,7 +58,7 @@ class ResearchTelemetryEvent:
         duplicate_entry_ids: str | None,
         notes: str | None = None,
     ) -> ResearchTelemetryEvent:
-        """Convenience constructor that stamps the event."""
+        """Build and stamp the event with current timestamp."""
         timestamp = datetime.now(UTC).isoformat()
         return cls(
             timestamp=timestamp,
@@ -88,6 +88,7 @@ class TelemetryLogger:
     """Append-only CSV writer with automatic header management."""
 
     def __init__(self, file_path: str | Path) -> None:
+        """Initialize logger and ensure directory exists."""
         self.file_path = Path(file_path)
         self.file_path.parent.mkdir(parents=True, exist_ok=True)
         self._fieldnames = [

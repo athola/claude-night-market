@@ -34,7 +34,11 @@ def test_decay_skips_evergreen_and_emits_queue(tmp_path: Path) -> None:
 
     queue = module.decay_entries(vitality, decay=2)
 
-    assert vitality["entries"]["evergreen-note"]["vitality"] == 10
-    assert vitality["entries"]["probation-note"]["vitality"] == 4
+    assert vitality["entries"]["evergreen-note"]["vitality"] == VITALITY_EVERGREEN
+    assert vitality["entries"]["probation-note"]["vitality"] == VITALITY_PROBATION
     assert queue["stale"] == ["probation-note"]
     assert vitality["metadata"]["last_recomputed"]
+
+
+VITALITY_EVERGREEN = 10
+VITALITY_PROBATION = 4

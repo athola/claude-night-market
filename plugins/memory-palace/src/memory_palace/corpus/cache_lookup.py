@@ -15,6 +15,11 @@ from memory_palace.corpus.embedding_index import EmbeddingIndex
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
+MATCH_LEN_MIN = 3
+MATCH_STRONG = 0.8
+MATCH_PARTIAL = 0.4
+FRONTMATTER_PARTS = 3
+
 
 class CacheLookup:
     """Unified search interface for memory palace knowledge corpus.
@@ -33,6 +38,7 @@ class CacheLookup:
         Args:
             corpus_dir: Directory containing knowledge corpus markdown files
             index_dir: Directory where index files are stored
+            embedding_provider: Active embedding provider name (if configured)
 
         """
         self.corpus_dir = Path(corpus_dir)
@@ -115,7 +121,7 @@ class CacheLookup:
         # Convert string query to list of keywords
         if isinstance(query, str):
             # Split into words and filter short words
-            keywords = [w for w in query.lower().split() if len(w) >= 3]
+            keywords = [w for w in query.lower().split() if len(w) >= MATCH_LEN_MIN]
             if not keywords:
                 return []
             search_query = keywords
@@ -243,9 +249,9 @@ class CacheLookup:
             merged_entry["query_score"] = query_score
 
             # Classify match strength
-            if match_score > 0.8:
+            if match_score > MATCH_STRONG:
                 merged_entry["match_strength"] = "strong"
-            elif match_score >= 0.4:
+            elif match_score >= MATCH_PARTIAL:
                 merged_entry["match_strength"] = "partial"
             else:
                 merged_entry["match_strength"] = "weak"
@@ -287,10 +293,9 @@ class CacheLookup:
 
         """
         content = self.get_entry_content(entry_id)
-
         if content and content.startswith("---"):
             parts = content.split("---", 2)
-            if len(parts) >= 3:
+            if len(parts) >= FRONTMATTER_PARTS:
                 try:
                     return yaml.safe_load(parts[1])
                 except yaml.YAMLError:

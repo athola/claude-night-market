@@ -6,9 +6,9 @@
 
 ## Overview
 
-This guide documents the wrapper patterns created to integrate Sanctum's PR workflow capabilities with `superpowers:receiving-code-review`. The wrappers maintain backward compatibility while adding enhanced code review automation and quality validation.
+This guide documents the enhanced command patterns (formerly wrappers) created to integrate Sanctum's PR workflow capabilities with `superpowers:receiving-code-review`. The commands maintain backward compatibility while adding enhanced code review automation and quality validation.
 
-## Wrapper Architecture
+## Enhanced Command Architecture
 
 ### Design Principles
 
@@ -17,23 +17,23 @@ This guide documents the wrapper patterns created to integrate Sanctum's PR work
 3. **Clear Delegation**: Wrappers explicitly delegate to superpowers for code review
 4. **Sanctum Extensions**: Preserve Sanctum's unique GitHub integrations and scope validation
 
-### Wrapper Pattern Structure
+### Enhanced Command Pattern Structure
 
-Each wrapper follows this consistent pattern:
+Each command follows this consistent pattern:
 
 ```yaml
 ---
-name: <command>-wrapper
+name: <command>
 description: Enhanced <command> that combines Sanctum's <feature> with superpowers:receiving-code-review
 extends: "superpowers:receiving-code-review"
 ---
 ```
 
-## Implemented Wrappers
+## Implemented Enhanced Commands
 
-### 1. `/pr-wrapper` - Enhanced PR Preparation
+### 1. `/pr` - Enhanced PR Preparation
 
-**File**: `/commands/pr-wrapper.md`
+**File**: `/commands/pr.md`
 
 **Purpose**: Combines PR preparation workflow with automated code review
 
@@ -52,11 +52,11 @@ extends: "superpowers:receiving-code-review"
 1. Analyze repository state (Sanctum)
 2. Run quality gates (Sanctum)
 3. Perform code review (Superpowers)
-4. Generate comprehensive PR description (Wrapper synthesis)
+4. Generate comprehensive PR description (Command synthesis)
 
-### 2. `/fix-pr-wrapper` - Enhanced PR Fix Automation
+### 2. `/fix-pr` - Enhanced PR Fix Automation
 
-**File**: `/commands/fix-pr-wrapper.md`
+**File**: `/commands/fix-pr.md`
 
 **Purpose**: Systematically address PR review comments with intelligent fix generation
 
@@ -79,9 +79,9 @@ extends: "superpowers:receiving-code-review"
 4. Apply fixes systematically
 5. Resolve GitHub threads automatically
 
-### 3. `/pr-review-wrapper` - Enhanced PR Review
+### 3. `/pr-review` - Enhanced PR Review
 
-**File**: `/commands/pr-review-wrapper.md`
+**File**: `/commands/pr-review.md`
 
 **Purpose**: Scope-aware code review that validates against requirements
 
@@ -166,7 +166,7 @@ dependencies:
 
 ### Skill Orchestration
 
-The wrappers implement a consistent orchestration pattern:
+The commands implement a consistent orchestration pattern:
 
 1. **Foundation Phase**: Sanctum provides context and workflow
 2. **Analysis Phase**: Superpowers performs deep code analysis
@@ -174,7 +174,7 @@ The wrappers implement a consistent orchestration pattern:
 
 ### Error Handling
 
-Each wrapper implements robust error handling:
+Each command implements robust error handling:
 
 ```yaml
 # Superpowers not available
@@ -193,8 +193,8 @@ manual_review_mode: true
 
 **Gradual Adoption Path**:
 1. Continue using original commands (`/pr`, `/fix-pr`, `/pr-review`)
-2. Try wrapper with `--dry-run` to preview enhancements
-3. Adopt wrapper features progressively
+2. Try the enhanced command with `--dry-run` to preview enhancements
+3. Adopt enhanced features progressively
 4. Full migration when comfortable
 
 **Backward Compatibility**:
@@ -207,13 +207,13 @@ manual_review_mode: true
 **Recommended Starting Points**:
 ```bash
 # New PR workflow
-/pr-wrapper
+/pr
 
 # Addressing review feedback
-/fix-pr-wrapper
+/fix-pr
 
 # Code review process
-/pr-review-wrapper --scope-mode standard --create-backlog-issues
+/pr-review --scope-mode standard --create-backlog-issues
 ```
 
 ## Configuration
@@ -278,7 +278,7 @@ python3 test-wrapper-integration.py
 
 ### Extension Points
 
-The wrapper architecture supports easy extension:
+The enhanced-command architecture supports easy extension:
 - New superpowers skills can be added as dependencies
 - Custom Sanctum integrations preserved
 - Additional workflow steps can be inserted
@@ -318,4 +318,4 @@ claude plugin install superpowers
 
 ---
 
-**Summary**: The Sanctum × Superpowers integration successfully creates enhanced PR workflows that combine the best of both plugins while maintaining full backward compatibility. The wrapper pattern provides a clean architecture for future integrations and extensions.
+**Summary**: The Sanctum × Superpowers integration successfully creates enhanced PR workflows that combine the best of both plugins while maintaining full backward compatibility. The enhanced command pattern provides a clean architecture for future integrations and extensions.

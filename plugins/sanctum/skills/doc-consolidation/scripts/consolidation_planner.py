@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import subprocess
@@ -607,8 +608,6 @@ def main() -> int:
     if args.command == "scan":
         candidates = scan_for_candidates(args.repo_path)
         if args.json:
-            import json
-
             print(json.dumps([asdict(c) for c in candidates], indent=2))
         elif candidates:
             for c in candidates:
@@ -621,8 +620,6 @@ def main() -> int:
             all_chunks.extend(chunks)
 
         if args.json:
-            import json
-
             print(json.dumps([asdict(c) for c in all_chunks], indent=2))
         else:
             for chunk in all_chunks:
@@ -631,8 +628,6 @@ def main() -> int:
     elif args.command == "plan":
         plan = generate_plan(args.file, args.docs_dir)
         if args.json:
-            import json
-
             plan_dict = {
                 "source": plan.source,
                 "routes": [asdict(r) for r in plan.routes],

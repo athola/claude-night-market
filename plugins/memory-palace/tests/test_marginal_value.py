@@ -13,6 +13,14 @@ from memory_palace.corpus.marginal_value import (
     RedundancyLevel,
 )
 
+CONFIDENCE_HIGH = 0.9
+CONFIDENCE_MERGE = 0.7
+OVERLAP_PARTIAL = 0.3
+OVERLAP_NOVEL_THRESHOLD = 0.4
+VALUE_SCORE_MIN = 0.4
+VALUE_SCORE_DIFF_FRAMING = 0.5
+VALUE_SCORE_MAX = 0.8
+
 
 @pytest.fixture
 def temp_corpus_dir(tmp_path):
@@ -138,7 +146,7 @@ class TestRedundancyDetection:
         assert redundancy.overlap_score == 1.0
         assert delta is None
         assert integration.decision == IntegrationDecision.SKIP
-        assert integration.confidence >= 0.9
+        assert integration.confidence >= CONFIDENCE_HIGH
 
     def test_highly_redundant_content(self, marginal_filter) -> None:
         """Content with high overlap should be detected when keywords match well."""
@@ -218,7 +226,7 @@ Related to gradient descent but focuses on timing.
         assert redundancy.level in [RedundancyLevel.PARTIAL_OVERLAP, RedundancyLevel.NOVEL]
         if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
             assert delta is not None
-            assert redundancy.overlap_score >= 0.3
+            assert redundancy.overlap_score >= OVERLAP_PARTIAL
 
     def test_novel_content_detection(self, marginal_filter) -> None:
         """Completely new content should be marked as novel."""
@@ -245,7 +253,7 @@ Rust's ownership system provides memory safety without garbage collection.
         )
 
         assert redundancy.level == RedundancyLevel.NOVEL
-        assert redundancy.overlap_score < 0.4
+        assert redundancy.overlap_score < OVERLAP_NOVEL_THRESHOLD
         assert delta is None
         assert integration.decision == IntegrationDecision.STANDALONE
 
@@ -283,7 +291,7 @@ This connects Franklin to modern deep learning.
         # Should detect partial overlap but novel insights
         if delta:
             assert delta.delta_type in [DeltaType.NOVEL_INSIGHT, DeltaType.MORE_EXAMPLES]
-            assert delta.value_score >= 0.4
+            assert delta.value_score >= VALUE_SCORE_MIN
             assert len(delta.novel_aspects) > 0
 
     def test_different_framing_detection(self, marginal_filter) -> None:
@@ -315,9 +323,9 @@ Ben Franklin got better at writing using a systematic approach.
         # Should detect high overlap, low novel value
         if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP and delta:
             # May be different framing or just redundant
-            assert delta.value_score <= 0.8  # Not high value
+            assert delta.value_score <= VALUE_SCORE_MAX  # Not high value
             if delta.delta_type == DeltaType.DIFFERENT_FRAMING:
-                assert delta.value_score <= 0.5
+                assert delta.value_score <= VALUE_SCORE_DIFF_FRAMING
 
     def test_contradiction_detection(self, marginal_filter) -> None:
         """Content that contradicts existing knowledge should be flagged."""
@@ -365,7 +373,7 @@ class TestIntegrationDecisions:
 
         assert integration.decision == IntegrationDecision.SKIP
         assert "duplicate" in integration.rationale.lower()
-        assert integration.confidence >= 0.9
+        assert integration.confidence >= CONFIDENCE_HIGH
 
     def test_skip_highly_redundant(self, marginal_filter) -> None:
         """Highly redundant content should be skipped or merged."""
@@ -432,7 +440,7 @@ This ensures tests actually verify behavior.
         )
 
         assert integration.decision == IntegrationDecision.STANDALONE
-        assert integration.confidence >= 0.7
+        assert integration.confidence >= CONFIDENCE_MERGE
 
     def test_merge_for_examples(self, marginal_filter) -> None:
         """Content adding examples should merge with existing."""

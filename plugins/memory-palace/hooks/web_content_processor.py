@@ -11,6 +11,10 @@ import json
 import sys
 from typing import TYPE_CHECKING
 
+from shared.config import get_config
+from shared.deduplication import get_content_hash, is_known, needs_update
+from shared.safety_checks import is_safe_content
+
 if TYPE_CHECKING:
     from typing import Any
 
@@ -73,11 +77,6 @@ def main() -> None:
     # Fast path: not a web tool
     if tool_name not in ("WebFetch", "WebSearch"):
         sys.exit(0)
-
-    # Lazy imports for slow path
-    from shared.config import get_config
-    from shared.deduplication import get_content_hash, is_known, needs_update
-    from shared.safety_checks import is_safe_content
 
     config = get_config()
     if not config.get("enabled", True):

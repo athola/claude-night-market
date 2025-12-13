@@ -12,6 +12,9 @@ from typing import Any
 
 import yaml
 
+MIN_WORD_LEN = 3
+FRONTMATTER_PARTS = 3
+
 
 class QueryTemplateManager:
     """Manage query templates mapping questions to knowledge entries.
@@ -52,7 +55,7 @@ class QueryTemplateManager:
             # Split frontmatter and content
             if content.startswith("---"):
                 parts = content.split("---", 2)
-                if len(parts) >= 3:
+                if len(parts) >= FRONTMATTER_PARTS:
                     frontmatter = parts[1]
 
                     # Parse YAML frontmatter
@@ -68,9 +71,8 @@ class QueryTemplateManager:
                         pass
 
         except Exception:
-            # If file read fails, return empty list
-            # File read errors are expected and can be safely ignored
-            pass
+            # Treat unreadable files as no queries.
+            return queries
 
         return queries
 
@@ -156,7 +158,7 @@ class QueryTemplateManager:
             "would",
         }
 
-        return {w for w in words if len(w) >= 3 and w not in stop_words}
+        return {w for w in words if len(w) >= MIN_WORD_LEN and w not in stop_words}
 
     def _calculate_similarity(self, query1: str, query2: str) -> float:
         """Calculate similarity score between two queries.
@@ -214,7 +216,7 @@ class QueryTemplateManager:
 
             if content.startswith("---"):
                 parts = content.split("---", 2)
-                if len(parts) >= 3:
+                if len(parts) >= FRONTMATTER_PARTS:
                     try:
                         metadata = yaml.safe_load(parts[1])
                         if metadata:

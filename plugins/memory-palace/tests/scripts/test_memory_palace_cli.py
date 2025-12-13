@@ -144,7 +144,7 @@ class TestPalaceManagementWorkflows:
         )
         stats = manager2.import_state(str(export_file))
 
-        assert stats["imported"] == 2
+        assert stats["imported"] == IMPORTED_COUNT
         assert stats["skipped"] == 0
 
         # Verify data preserved
@@ -319,15 +319,15 @@ class TestDataIntegrity:
         index = manager.get_master_index()
 
         # Count matches
-        assert index["global_stats"]["total_palaces"] == 3
-        assert index["global_stats"]["domains"]["domain1"] == 2
-        assert index["global_stats"]["domains"]["domain2"] == 1
+        assert index["global_stats"]["total_palaces"] == TOTAL_PALACES_THREE
+        assert index["global_stats"]["domains"]["domain1"] == DOMAIN1_COUNT
+        assert index["global_stats"]["domains"]["domain2"] == DOMAIN2_COUNT
 
         # Delete one
         manager.delete_palace(p2["id"])
 
         index_after = manager.get_master_index()
-        assert index_after["global_stats"]["total_palaces"] == 2
+        assert index_after["global_stats"]["total_palaces"] == TOTAL_PALACES_TWO
         assert (
             "domain2" not in index_after["global_stats"]["domains"]
             or index_after["global_stats"]["domains"]["domain2"] == 0
@@ -414,3 +414,10 @@ class TestSearchTypes:
         if results:
             palace_names = [r["palace_name"] for r in results]
             assert any("Python" in name for name in palace_names)
+
+
+TOTAL_PALACES_THREE = 3
+TOTAL_PALACES_TWO = 2
+DOMAIN1_COUNT = 2
+DOMAIN2_COUNT = 1
+IMPORTED_COUNT = 2

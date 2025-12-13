@@ -4,27 +4,35 @@ This module tests how imbue workflows scale with large datasets,
 concurrent executions, and complex scenarios.
 """
 
+import gc
+import os
+import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import UTC
+from datetime import UTC, datetime
 
+import psutil
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_ONE = ZERO_POINT_ONE
-ZERO_POINT_TWO = ZERO_POINT_TWO
-TWO_POINT_ZERO = TWO_POINT_ZERO
-THREE_POINT_ZERO = THREE_POINT_ZERO
-THREE = THREE
-FOUR = FOUR
-FIVE_POINT_ZERO = FIVE_POINT_ZERO
-THIRTY = THIRTY
-FIFTY = FIFTY
-HUNDRED = HUNDRED
-THOUSAND = THOUSAND
-FIVE_THOUSAND = FIVE_THOUSAND
-TEN_THOUSAND = TEN_THOUSAND
+ZERO_POINT_ONE = 0.1
+ZERO_POINT_TWO = 0.2
+TWO_POINT_ZERO = 2.0
+THREE_POINT_ZERO = 3.0
+THREE = 3
+FOUR = 4
+FIVE_POINT_ZERO = 5.0
+THIRTY = 30
+FIFTY = 50
+HUNDRED = 100
+THOUSAND = 1000
+FIVE_THOUSAND = 5000
+TEN_THOUSAND = 10000
+# Threshold constants
+LOOKUP_TIME_THRESHOLD = 0.001
+COMPRESSION_RATIO_THRESHOLD = 0.05
+TIME_PER_RECORD_THRESHOLD = 0.001
 # Constants for scalability thresholds
 MAX_MEMORY_FOR_1000_FILES = 10_000_000  # 10MB
 HIGH_RISK_LINE_CHANGE_THRESHOLD = 10
@@ -138,8 +146,6 @@ class TestWorkflowScalability:
         assert len(summary["risk_levels"]) > 0
 
         # Memory efficiency check
-        import sys
-
         total_memory = sys.getsizeof(categorized_changes) + sys.getsizeof(summary)
         assert (
             total_memory < MAX_MEMORY_FOR_1000_FILES
@@ -177,8 +183,6 @@ class TestWorkflowScalability:
         When managing evidence during review
         Then performance should remain efficient.
         """
-        from datetime import datetime
-
         # Generate large evidence set
         evidence_count = TEN_THOUSAND
         large_evidence_set = []
@@ -252,11 +256,9 @@ class TestWorkflowScalability:
             len(summary["evidence_by_file"]) <= MAX_UNIQUE_FILES_IN_EVIDENCE
         )  # Max 100 unique files
         assert len(summary["commands_used"]) > 0
-        assert lookup_time < 0.001  # Very fast lookup with index
+        assert lookup_time < LOOKUP_TIME_THRESHOLD  # Very fast lookup with index
 
         # Memory efficiency
-        import sys
-
         log_memory = sys.getsizeof(evidence_log)
         assert (
             log_memory < MAX_EVIDENCE_LOG_MEMORY
@@ -448,11 +450,6 @@ class TestWorkflowScalability:
         When performing workflow operations
         Then memory usage should be controlled.
         """
-        import gc
-        import os
-
-        import psutil
-
         # Get initial memory usage
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
@@ -614,9 +611,13 @@ class TestWorkflowScalability:
 
         # sample_first_10 should be much smaller
         assert (
-            strategy_results["sample_first_10"]["output_size_chars"] < full_size * 0.05
+            strategy_results["sample_first_10"]["output_size_chars"]
+            < full_size * COMPRESSION_RATIO_THRESHOLD
         )
-        assert strategy_results["sample_first_10"]["compression_ratio"] < 0.05
+        assert (
+            strategy_results["sample_first_10"]["compression_ratio"]
+            < COMPRESSION_RATIO_THRESHOLD
+        )
 
         # categorized_summary should be efficient
         assert (
@@ -777,4 +778,4 @@ class TestWorkflowScalability:
         # If we double the records, time should roughly double
         # (not exponentially increase)
         time_per_record = total_time / len(records)
-        assert time_per_record < 0.001  # Less than 1ms per record
+        assert time_per_record < TIME_PER_RECORD_THRESHOLD  # Less than 1ms per record

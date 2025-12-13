@@ -139,6 +139,7 @@ def compute_garden_metrics(
         path: Path to the digital garden's JSON file.
         now: Optional `datetime` object to use as the current time. If not
              provided, use the actual current UTC time.
+        queue_path: Optional path to tending queue data for queue-aware metrics.
 
     Returns:
         Dictionary containing the computed metrics.

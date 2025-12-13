@@ -15,6 +15,9 @@ import pytest
 
 from memory_palace.palace_manager import MemoryPalaceManager
 
+PALACE_COUNT = 3
+PROGRAMMING_COUNT = 2
+
 
 class TestMemoryPalaceManagerInitialization:
     """Tests for MemoryPalaceManager initialization."""
@@ -354,8 +357,8 @@ class TestMasterIndex:
 
         index = manager.get_master_index()
 
-        assert len(index["palaces"]) == 3
-        assert index["global_stats"]["total_palaces"] == 3
+        assert len(index["palaces"]) == PALACE_COUNT
+        assert index["global_stats"]["total_palaces"] == PALACE_COUNT
 
     def test_counts_concepts_per_domain(
         self,
@@ -374,7 +377,7 @@ class TestMasterIndex:
 
         assert "programming" in domains
         assert "mathematics" in domains
-        assert domains["programming"] == 2  # Two programming palaces
+        assert domains["programming"] == PROGRAMMING_COUNT  # Two programming palaces
 
     def test_handles_empty_directory(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
         """Empty directory returns valid empty index."""
@@ -428,7 +431,7 @@ class TestListPalaces:
         )
 
         palaces = manager.list_palaces()
-        assert len(palaces) == 3
+        assert len(palaces) == PALACE_COUNT
 
     def test_returns_empty_list_when_no_palaces(
         self,
@@ -541,7 +544,7 @@ class TestExportImport:
         with open(result_path) as f:
             bundle = json.load(f)
         assert "exported_at" in bundle
-        assert len(bundle["palaces"]) == 3
+        assert len(bundle["palaces"]) == PALACE_COUNT
 
     def test_imports_palaces_from_bundle(self, temp_config_file: Path, tmp_path: Path) -> None:
         """Import loads palaces from bundle into storage."""

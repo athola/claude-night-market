@@ -18,6 +18,7 @@ DEFAULT_QUEUE_FILE = PLUGIN_ROOT / "data" / "indexes" / "vitality-tending-queue.
 
 
 def load_vitality(path: Path) -> dict[str, Any]:
+    """Load vitality scores YAML into a dictionary."""
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
@@ -32,6 +33,7 @@ def _persist_queue(queue: dict[str, Any], queue_path: Path) -> None:
 
 
 def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
+    """Apply decay to vitality entries and build tending queue."""
     entries = data.get("entries", {})
     stale_threshold = data.get("metadata", {}).get("stale_threshold", 10)
     now = dt.datetime.now(dt.timezone.utc).isoformat()
@@ -52,7 +54,8 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
         last_accessed = payload.get("last_accessed")
         if state == "probation" and last_accessed:
             last_dt = dt.datetime.fromisoformat(last_accessed.replace("Z", "+00:00"))
-            if (dt.datetime.now(dt.timezone.utc) - last_dt).days >= 14:
+            OVERDUE_DAYS = 14
+            if (dt.datetime.now(dt.timezone.utc) - last_dt).days >= OVERDUE_DAYS:
                 queue["probation_overdue"].append(entry_id)
 
     metadata = data.setdefault("metadata", {})
@@ -61,6 +64,7 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
 
 
 def main() -> None:
+    """Update vitality scores and emit queue summaries."""
     parser = argparse.ArgumentParser(description="Update vitality scores and emit tending queues")
     parser.add_argument("--file", type=Path, default=DEFAULT_FILE)
     parser.add_argument("--decay", type=int, default=None, help="Override decay amount")

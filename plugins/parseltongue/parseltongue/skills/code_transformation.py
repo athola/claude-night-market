@@ -26,18 +26,24 @@ class CodeTransformationSkill:
         transformations = []
 
         # Example optimization
-        if target_pattern == "optimize_performance" and "for " in code and " in " in code:
-            transformations.append({
-                "type": "optimization",
-                "description": "Optimized loop structure",
-                "impact": "performance"
-            })
+        if (
+            target_pattern == "optimize_performance"
+            and "for " in code
+            and " in " in code
+        ):
+            transformations.append(
+                {
+                    "type": "optimization",
+                    "description": "Optimized loop structure",
+                    "impact": "performance",
+                }
+            )
 
         return {
             "transformed_code": code,  # Return original as placeholder
             "transformations": transformations,
             "improvements": [
                 "Code structure optimized",
-                "Performance improvements applied"
-            ]
+                "Performance improvements applied",
+            ],
         }

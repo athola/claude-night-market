@@ -22,7 +22,7 @@ from shared.safety_checks import (
 
 @pytest.fixture
 def default_config() -> dict:
-    """Default safety configuration."""
+    """Return default safety configuration."""
     return {
         "safety": {
             "max_content_size_kb": 500,

@@ -17,6 +17,17 @@ from memory_palace.garden_metrics import (
     iso_to_datetime,
 )
 
+YEAR_2025 = 2025
+MONTH_DEC = 12
+DAY_ONE = 1
+HOUR_NOON = 12
+PLOTS_THREE = 3
+LINK_DENSITY_TWO = 2.0
+AVG_DAYS_TWO = 2.0
+LINK_DENSITY_FIVE = 5.0
+AVG_DAYS_HUNDRED = 100.0
+AVG_DAYS_HALF = 0.5
+
 
 class TestIsoToDatetime:
     """Tests for ISO 8601 timestamp parsing."""
@@ -24,24 +35,24 @@ class TestIsoToDatetime:
     def test_parses_utc_timestamp(self) -> None:
         """Parse UTC timestamp correctly."""
         result = iso_to_datetime("2025-12-01T12:00:00+00:00")
-        assert result.year == 2025
-        assert result.month == 12
-        assert result.day == 1
-        assert result.hour == 12
+        assert result.year == YEAR_2025
+        assert result.month == MONTH_DEC
+        assert result.day == DAY_ONE
+        assert result.hour == HOUR_NOON
         assert result.tzinfo == UTC
 
     def test_converts_non_utc_to_utc(self) -> None:
         """Convert non-UTC timestamps to UTC."""
         # EST is UTC-5
         result = iso_to_datetime("2025-12-01T07:00:00-05:00")
-        assert result.hour == 12  # 7 AM EST = 12 PM UTC
+        assert result.hour == HOUR_NOON  # 7 AM EST = 12 PM UTC
         assert result.tzinfo == UTC
 
     def test_handles_naive_timestamps(self) -> None:
         """Handle naive timestamps (no timezone info)."""
         # Should still parse, converting to local then UTC
         result = iso_to_datetime("2025-12-01T12:00:00")
-        assert result.year == 2025
+        assert result.year == YEAR_2025
 
 
 class TestComputeMetrics:
@@ -59,7 +70,7 @@ class TestComputeMetrics:
             },
         }
         metrics = compute_metrics(data, fixed_timestamp)
-        assert metrics["plots"] == 3
+        assert metrics["plots"] == PLOTS_THREE
 
     def test_computes_link_density_for_interconnected_garden(self, fixed_timestamp) -> None:
         """Link density = average (inbound + outbound) links per plot."""
@@ -74,7 +85,7 @@ class TestComputeMetrics:
         }
         # Average: (2 + 2 + 2) / 3 = 2.0
         metrics = compute_metrics(data, fixed_timestamp)
-        assert metrics["link_density"] == 2.0
+        assert metrics["link_density"] == LINK_DENSITY_TWO
 
     def test_handles_duplicate_links(self, fixed_timestamp) -> None:
         """Duplicate links should be deduplicated before counting."""
@@ -87,7 +98,7 @@ class TestComputeMetrics:
         }
         # Unique: 1 inbound + 1 outbound = 2
         metrics = compute_metrics(data, fixed_timestamp)
-        assert metrics["link_density"] == 2.0
+        assert metrics["link_density"] == LINK_DENSITY_TWO
 
     def test_computes_avg_days_since_tend(self, fixed_timestamp) -> None:
         """Compute average days since last tending."""
@@ -105,7 +116,7 @@ class TestComputeMetrics:
         }
         # Average: (1 + 3) / 2 = 2.0
         metrics = compute_metrics(data, fixed_timestamp)
-        assert metrics["avg_days_since_tend"] == 2.0
+        assert metrics["avg_days_since_tend"] == AVG_DAYS_TWO
 
     def test_handles_mixed_tended_untended_plots(self, fixed_timestamp) -> None:
         """Average only includes plots with last_tended timestamps."""
@@ -170,7 +181,7 @@ class TestComputeGardenMetrics:
         assert "plots" in metrics
         assert "link_density" in metrics
         assert "avg_days_since_tend" in metrics
-        assert metrics["plots"] == 3
+        assert metrics["plots"] == PLOTS_THREE
 
     def test_uses_current_time_when_not_specified(self, sample_garden_file) -> None:
         """Use current time if no timestamp provided."""
@@ -178,7 +189,7 @@ class TestComputeGardenMetrics:
 
         # Should still compute without error
         assert "plots" in metrics
-        assert metrics["plots"] == 3
+        assert metrics["plots"] == PLOTS_THREE
 
     def test_raises_on_nonexistent_file(self, tmp_path) -> None:
         """Raise FileNotFoundError for missing garden file."""
@@ -226,7 +237,7 @@ class TestLinkDensityEdgeCases:
         }
         # Average: (10 + 0) / 2 = 5.0
         metrics = compute_metrics(data, fixed_timestamp)
-        assert metrics["link_density"] == 5.0
+        assert metrics["link_density"] == LINK_DENSITY_FIVE
 
 
 class TestRecencyEdgeCases:
@@ -247,7 +258,7 @@ class TestRecencyEdgeCases:
         data = {"garden": {"plots": [{"name": "ancient", "last_tended": ancient}]}}
 
         metrics = compute_metrics(data, fixed_timestamp)
-        assert metrics["avg_days_since_tend"] == 100.0
+        assert metrics["avg_days_since_tend"] == AVG_DAYS_HUNDRED
 
     def test_fractional_days(self, fixed_timestamp) -> None:
         """Partial days are rounded to 2 decimal places."""
@@ -256,4 +267,4 @@ class TestRecencyEdgeCases:
         data = {"garden": {"plots": [{"name": "recent", "last_tended": half_day_ago}]}}
 
         metrics = compute_metrics(data, fixed_timestamp)
-        assert metrics["avg_days_since_tend"] == 0.5
+        assert metrics["avg_days_since_tend"] == AVG_DAYS_HALF

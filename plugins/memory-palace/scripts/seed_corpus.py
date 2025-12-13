@@ -24,6 +24,8 @@ DEFAULT_CACHE_CATALOG = CORPUS_DIR / "cache_intercept_catalog.yaml"
 
 @dataclasses.dataclass
 class Variation:
+    """Concrete knowledge entry variation description."""
+
     slug: str
     title: str
     language: str
@@ -35,6 +37,8 @@ class Variation:
 
 @dataclasses.dataclass
 class Topic:
+    """Topic grouping multiple variations for seeding."""
+
     slug: str
     title: str
     palace: str
@@ -50,7 +54,7 @@ TODAY = dt.datetime.now(dt.timezone.utc).date()
 def _topics() -> list[Topic]:
     """Define the base topic catalogue used for seeding."""
 
-    def variation(
+    def variation(  # noqa: PLR0913 - helper requires explicit fields
         slug: str,
         title: str,
         language: str,
@@ -76,7 +80,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "TaskGroup orchestration for API workers",
                     ["taskgroup", "context", "python", "api"],
-                    "Use Python's TaskGroup to keep concurrent child tasks scoped to the lifetime of a request handler.",
+                    (
+                        "Use Python's TaskGroup to keep concurrent child tasks scoped to the "
+                        "lifetime of a request handler."
+                    ),
                     [
                         "Create a TaskGroup per inbound request context.",
                         "Spawn child tasks for background I/O and await group completion.",
@@ -89,7 +96,10 @@ def _topics() -> list[Topic]:
                     "Go",
                     "propagating cancellations across goroutine trees",
                     ["context", "goroutine", "cancellation", "go"],
-                    "Attach child contexts for each spawned goroutine so cancellation flows downward deterministically.",
+                    (
+                        "Attach child contexts for each spawned goroutine so cancellation flows "
+                        "downward deterministically."
+                    ),
                     [
                         "Derive child contexts with timeout budgets per subsystem.",
                         "Log cancellation reasons at the parent before bubbling up errors.",
@@ -102,7 +112,10 @@ def _topics() -> list[Topic]:
                     "Kotlin",
                     "structuring coroutines across microservice boundaries",
                     ["kotlin", "coroutines", "supervisorjob"],
-                    "Leverage SupervisorJob to isolate failures inside service-specific coroutine scopes.",
+                    (
+                        "Leverage SupervisorJob to isolate failures inside service-specific "
+                        "coroutine scopes."
+                    ),
                     [
                         "Define a SupervisorJob per inbound transport session.",
                         "Launch child coroutines for downstream calls and instrumentation.",
@@ -115,7 +128,10 @@ def _topics() -> list[Topic]:
                     "Rust",
                     "structured concurrency for overload protection",
                     ["rust", "tokio", "budget", "load-shed"],
-                    "Integrate budget-aware cancellation tokens so excess work is dropped before saturating executors.",
+                    (
+                        "Integrate budget-aware cancellation tokens so excess work is dropped "
+                        "before saturating executors."
+                    ),
                     [
                         "Attach a Budget token to each TaskSet.",
                         "Abort subordinate tasks when budgets expire.",
@@ -128,7 +144,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "instrumenting structured tasks with trace spans",
                     ["otel", "spans", "instrumentation"],
-                    "Wrap TaskGroup creation with OpenTelemetry spans to trace child task lifecycles.",
+                    (
+                        "Wrap TaskGroup creation with OpenTelemetry spans to trace child task "
+                        "lifecycles."
+                    ),
                     [
                         "Use contextvars to carry trace ids into TaskGroup scopes.",
                         "Record start/stop events for each spawned task.",
@@ -151,7 +170,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "ensuring awaitable boundaries enforce retries + timeouts",
                     ["interface", "timeout", "retry"],
-                    "Define awaitable service contracts that centralize retry, timeout, and circuit-breaker policies.",
+                    (
+                        "Define awaitable service contracts that centralize retry, timeout, and "
+                        "circuit-breaker policies."
+                    ),
                     [
                         "Wrap outbound awaitables with `asyncio.timeout` contexts.",
                         "Track retry budget per logical request.",
@@ -164,7 +186,10 @@ def _topics() -> list[Topic]:
                     "Go",
                     "ensuring retried operations stay idempotent",
                     ["idempotent", "retries", "go"],
-                    "Mark operations as idempotent via request ids and persist dedupe tokens to survive restarts.",
+                    (
+                        "Mark operations as idempotent via request ids and persist dedupe tokens "
+                        "to survive restarts."
+                    ),
                     [
                         "Generate deterministic request ids at ingress.",
                         "Persist request ledger entries before invoking downstream systems.",
@@ -177,7 +202,10 @@ def _topics() -> list[Topic]:
                     "Node.js",
                     "graceful degradation for async pipelines",
                     ["fallback", "node", "graceful", "degradation"],
-                    "Provide typed fallback implementations so UI flows return helpful responses during outages.",
+                    (
+                        "Provide typed fallback implementations so UI flows return "
+                        "helpful responses during outages."
+                    ),
                     [
                         "Define fallback resolvers per feature flag.",
                         "Route to cached responses when primary providers fail.",
@@ -190,7 +218,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "surfacing async failures via budgets",
                     ["error-budget", "alerts", "slo"],
-                    "Track error budgets for async workers and raise structured alerts when burn rates exceed policy.",
+                    (
+                        "Track error budgets for async workers and raise structured alerts "
+                        "when burn rates exceed policy."
+                    ),
                     [
                         "Derive budgets from service level objectives.",
                         "Instrument awaitable failures with severity tags.",
@@ -203,7 +234,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "capturing irrecoverable async messages",
                     ["dead-letter", "queue", "stream"],
-                    "Publish irrecoverable tasks into a dead-letter stream with enough metadata for replay.",
+                    (
+                        "Publish irrecoverable tasks into a dead-letter stream with enough "
+                        "metadata for replay."
+                    ),
                     [
                         "Attach failure snapshots (payload + error) to DLS events.",
                         "Add replay CLI for curated re-processing.",
@@ -226,7 +260,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "evicting entries when vitality drops below 10",
                     ["vitality", "decay", "lifecycle"],
-                    "Apply a daily decay to vitality scores and flag entries under 10 for review / eviction.",
+                    (
+                        "Apply a daily decay to vitality scores and flag entries under 10 for "
+                        "review / eviction."
+                    ),
                     [
                         "Subtract configured decay per day of inactivity.",
                         "Promote entries when referenced frequently.",
@@ -239,7 +276,10 @@ def _topics() -> list[Topic]:
                     "Notebook",
                     "structured tidy sessions with gratitude",
                     ["konmari", "tidy", "gratitude"],
-                    "Schedule weekly KonMari reviews to archive stale entries with gratitude rituals.",
+                    (
+                        "Schedule weekly KonMari reviews to archive stale entries with gratitude "
+                        "rituals."
+                    ),
                     [
                         "Generate stale list from `vitality-scores.yaml`.",
                         "Prompt human curator with spark-joy question set.",
@@ -252,7 +292,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "evicting large entries to maintain context budgets",
                     ["context-budget", "token-limit"],
-                    "Estimate token footprint per entry and trim oversized notes when caches exceed budgets.",
+                    (
+                        "Estimate token footprint per entry and trim oversized notes when caches "
+                        "exceed budgets."
+                    ),
                     [
                         "Store approximate token counts per entry.",
                         "Prefer summarization over deletion when knowledge is rare.",
@@ -265,7 +308,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "evicting duplicates using marginal value filter results",
                     ["marginal", "duplicate", "filter"],
-                    "Use marginal value scores to reject redundant entries before they pollute the palace.",
+                    (
+                        "Use marginal value scores to reject redundant entries before they pollute "
+                        "the palace."
+                    ),
                     [
                         "Reject EXACT/HIGH overlap entries automatically.",
                         "Merge partial overlaps via knowledge-orchestrator prompts.",
@@ -278,7 +324,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "keeping new knowledge in probation before promotion",
                     ["probation", "quarantine", "intake"],
-                    "Place fresh knowledge into probation with heightened monitoring before it becomes evergreen.",
+                    (
+                        "Place fresh knowledge into probation with heightened monitoring before it "
+                        "becomes evergreen."
+                    ),
                     [
                         "Set maturity=probation for new entries.",
                         "Require ≥3 references before promoting to growing.",
@@ -464,7 +513,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "embedding spark-joy prompts into CLI",
                     ["konmari", "prompts", "cli"],
-                    "Guide curators through spark-joy prompts before deleting knowledge.",
+                    ("Guide curators through spark-joy prompts before deleting knowledge."),
                     [
                         "Prompt for aspiration alignment + enthusiasm.",
                         "Require gratitude statement before archive.",
@@ -477,7 +526,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "weekly lifecycle health reports",
                     ["report", "garden", "health"],
-                    "Generate weekly reports summarizing probation/growing/evergreen ratios.",
+                    ("Generate weekly reports summarizing probation/growing/evergreen ratios."),
                     [
                         "Compute per-stage counts from vitality file.",
                         "Highlight overdue probation entries.",
@@ -490,7 +539,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "interactive CLI for lifecycle decisions",
                     ["cli", "tending", "workflow"],
-                    "Provide interactive CLI to cycle through stale entries and capture actions.",
+                    ("Provide interactive CLI to cycle through stale entries and capture actions."),
                     [
                         "Load queue from `vitality-scores.yaml`.",
                         "Offer actions: promote, refresh, archive, merge.",
@@ -503,7 +552,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "regressions preventing evergreen deletions",
                     ["evergreen", "regression", "tests"],
-                    "Add regression tests that fail when evergreen entries disappear without archive notes.",
+                    (
+                        "Add regression tests that fail when evergreen entries disappear without "
+                        "archive notes."
+                    ),
                     [
                         "Map evergreen ids to docs referencing them.",
                         "Fail CI when references break.",
@@ -614,7 +666,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "rolling cache intercept flag through stages",
                     ["staged", "rollout", "flag"],
-                    "Define staged rollout steps for cache intercept flag from dev → staging → prod.",
+                    (
+                        "Define staged rollout steps for cache intercept flag from dev → staging "
+                        "→ prod."
+                    ),
                     [
                         "Automate toggles via CLI/Env var combos.",
                         "Capture dry-run transcripts with telemetry snapshots.",
@@ -640,7 +695,7 @@ def _topics() -> list[Topic]:
                     "Markdown",
                     "on-call guides for flipping flags",
                     ["oncall", "runbook", "flag"],
-                    "Document on-call runbooks for feature flag adjustments during incidents.",
+                    ("Document on-call runbooks for feature flag adjustments during incidents."),
                     [
                         "List commands to disable cache/autonomy/lifecycle flags.",
                         "Specify verification steps post-change.",
@@ -676,7 +731,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "building local sentence-transformer index",
                     ["sentence-transformers", "local", "index"],
-                    "Generate local embeddings with sentence-transformers to improve semantic recall.",
+                    (
+                        "Generate local embeddings with sentence-transformers to improve semantic "
+                        "recall."
+                    ),
                     [
                         "Use MiniLM-based model for fast inference.",
                         "Persist vectors under `data/embeddings/`.",
@@ -689,7 +747,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "combining keyword + embedding scores",
                     ["fusion", "ranking", "hybrid"],
-                    "Fuse keyword and embedding scores using weighted sums to improve precision.",
+                    ("Fuse keyword and embedding scores using weighted sums to improve precision."),
                     [
                         "Normalize scores before blending.",
                         "Expose config for weighting knobs.",
@@ -715,7 +773,7 @@ def _topics() -> list[Topic]:
                     "YAML",
                     "toggling embedding providers",
                     ["provider", "toggle", "config"],
-                    "Expose config flag to switch between none/local/api embedding providers.",
+                    ("Expose config flag to switch between none/local/api embedding providers."),
                     [
                         "Update config schema with `embedding_provider`.",
                         "Teach unified search to branch accordingly.",
@@ -728,7 +786,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "keeping vector indexes fresh",
                     ["vector", "maintenance", "cron"],
-                    "Add cron to rebuild or update vectors when entries change.",
+                    ("Add cron to rebuild or update vectors when entries change."),
                     [
                         "Track last embedding timestamp per entry.",
                         "Incrementally update vectors for changed docs.",
@@ -764,7 +822,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "summarizing what's new",
                     ["delta", "novel-insight", "analysis"],
-                    "Explain what is genuinely new so curators can accept or merge with confidence.",
+                    (
+                        "Explain what is genuinely new so curators can accept or merge with "
+                        "confidence."
+                    ),
                     [
                         "Highlight novel headings/keywords.",
                         "Score value 0..1 to guide decisions.",
@@ -777,7 +838,10 @@ def _topics() -> list[Topic]:
                     "Python",
                     "automating store/merge/replace/skip",
                     ["integration", "decision", "automation"],
-                    "Recommend integration actions (store/merge/replace/skip) with confidence bands.",
+                    (
+                        "Recommend integration actions (store/merge/replace/skip) with confidence "
+                        "bands."
+                    ),
                     [
                         "Auto-store high-scoring novel insights.",
                         "Route merge candidates with targeted entry ids.",
@@ -790,7 +854,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "producing curator-friendly explanations",
                     ["explanation", "curator", "payload"],
-                    "Generate curator-friendly explanations for each suggestion.",
+                    ("Generate curator-friendly explanations for each suggestion."),
                     [
                         "Summarize novelty, overlaps, and duplicates.",
                         "Link to supporting entries by id.",
@@ -803,7 +867,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "interactive marginal value review",
                     ["cli", "workbench", "curation"],
-                    "Provide CLI workbench to review marginal value assessments interactively.",
+                    ("Provide CLI workbench to review marginal value assessments interactively."),
                     [
                         "Render color-coded overlap summaries.",
                         "Collect curator decision + notes.",
@@ -941,6 +1005,7 @@ def write_markdown(entry: dict[str, Any]) -> None:
 
 
 def update_keyword_index(entries: list[dict[str, Any]]) -> None:
+    """Update keyword index YAML with newly generated entries."""
     index_path = INDEX_DIR / "keyword-index.yaml"
     with index_path.open("r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle)
@@ -976,6 +1041,7 @@ def update_keyword_index(entries: list[dict[str, Any]]) -> None:
 
 
 def update_query_templates(entries: list[dict[str, Any]]) -> None:
+    """Refresh query templates index based on seed entries."""
     templates_path = INDEX_DIR / "query-templates.yaml"
     with templates_path.open("r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle)
@@ -1011,6 +1077,7 @@ def update_query_templates(entries: list[dict[str, Any]]) -> None:
 
 
 def main() -> None:
+    """Seed corpus, keyword index, and query templates for Memory Palace."""
     cache_catalog = DEFAULT_CACHE_CATALOG
     if cache_catalog.exists():
         seed_cache_catalog(index_dir=INDEX_DIR, fixture_path=cache_catalog)

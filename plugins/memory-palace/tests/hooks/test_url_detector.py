@@ -14,6 +14,8 @@ from url_detector import extract_urls
 class TestExtractUrls:
     """Tests for URL extraction."""
 
+    MULTIPLE_URL_COUNT = 2
+
     def test_no_urls(self) -> None:
         """Text without URLs should return empty list."""
         assert extract_urls("Hello world, no URLs here.") == []
@@ -33,7 +35,7 @@ class TestExtractUrls:
         """Multiple URLs should be extracted."""
         text = "Visit https://one.com and https://two.com for info."
         urls = extract_urls(text)
-        assert len(urls) == 2
+        assert len(urls) == self.MULTIPLE_URL_COUNT
 
     def test_localhost_skipped(self) -> None:
         """Localhost URLs should be skipped."""

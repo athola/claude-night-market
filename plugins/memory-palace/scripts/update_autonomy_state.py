@@ -18,10 +18,23 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_HISTORY = PLUGIN_ROOT / "telemetry" / "autonomy_history.json"
 DEFAULT_STATE = PLUGIN_ROOT / "data" / "state" / "autonomy-state.yaml"
 DEFAULT_ALERTS = PLUGIN_ROOT / "telemetry" / "alerts" / "autonomy.json"
+GLOBAL_MIN_EVENTS = 20
+GLOBAL_PROMOTE_ACCURACY = 0.9
+GLOBAL_PROMOTE_REGRET = 0.02
+GLOBAL_MAX_LEVEL = 5
+GLOBAL_DEMOTE_REGRET = 0.05
+DOMAIN_MIN_EVENTS = 10
+DOMAIN_PROMOTE_ACCURACY = 0.92
+DOMAIN_PROMOTE_REGRET = 0.015
+DOMAIN_MAX_LEVEL = 5
+DOMAIN_DEMOTE_REGRET = 0.05
+MIN_LEVEL = 0
 
 
 @dataclass
 class HistoryStats:
+    """Aggregate accuracy/regret stats for autonomy decisions."""
+
     total: int
     correct: int
     regret: int
@@ -30,12 +43,14 @@ class HistoryStats:
 
 
 def load_history(path: Path) -> list[dict[str, Any]]:
+    """Load autonomy decision history from JSON."""
     if not path.exists():
         raise FileNotFoundError(f"History file not found: {path}")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def compute_stats(events: list[dict[str, Any]]) -> tuple[HistoryStats, dict[str, HistoryStats]]:
+    """Compute aggregate and per-domain accuracy/regret statistics."""
     if not events:
         return HistoryStats(0, 0, 0, 0.0, 0.0), {}
 
@@ -124,6 +139,7 @@ def adjust_state(
     per_domain: dict[str, HistoryStats],
     dry_run: bool,
 ) -> dict[str, Any]:
+    """Adjust global and per-domain autonomy levels based on stats."""
     state = store.load()
     changes: dict[str, Any] = {
         "global_before": state.current_level,
@@ -131,12 +147,16 @@ def adjust_state(
         "domains": {},
     }
 
-    if aggregate.total >= 20:
-        if aggregate.accuracy >= 0.9 and aggregate.regret_rate <= 0.02 and state.current_level < 5:
+    if aggregate.total >= GLOBAL_MIN_EVENTS:
+        if (
+            aggregate.accuracy >= GLOBAL_PROMOTE_ACCURACY
+            and aggregate.regret_rate <= GLOBAL_PROMOTE_REGRET
+            and state.current_level < GLOBAL_MAX_LEVEL
+        ):
             changes["global_after"] = state.current_level + 1
             if not dry_run:
                 store.set_level(changes["global_after"])
-        elif aggregate.regret_rate >= 0.05 and state.current_level > 0:
+        elif aggregate.regret_rate >= GLOBAL_DEMOTE_REGRET and state.current_level > MIN_LEVEL:
             changes["global_after"] = state.current_level - 1
             if not dry_run:
                 store.set_level(changes["global_after"])
@@ -147,12 +167,16 @@ def adjust_state(
         before = state.domain_controls.get(domain)
         level_before = before.level if before else state.current_level
         level_after = level_before
-        if stats.total >= 10:
-            if stats.accuracy >= 0.92 and stats.regret_rate <= 0.015 and level_before < 5:
+        if stats.total >= DOMAIN_MIN_EVENTS:
+            if (
+                stats.accuracy >= DOMAIN_PROMOTE_ACCURACY
+                and stats.regret_rate <= DOMAIN_PROMOTE_REGRET
+                and level_before < DOMAIN_MAX_LEVEL
+            ):
                 level_after += 1
                 if not dry_run:
                     store.set_level(level_after, domain=domain)
-            elif stats.regret_rate >= 0.05 and level_before > 0:
+            elif stats.regret_rate >= DOMAIN_DEMOTE_REGRET and level_before > MIN_LEVEL:
                 level_after -= 1
                 if not dry_run:
                     store.set_level(level_after, domain=domain)
@@ -166,6 +190,7 @@ def adjust_state(
 
 
 def main() -> None:
+    """Update autonomy state based on decision history."""
     parser = argparse.ArgumentParser(description="Update autonomy state based on decision history")
     parser.add_argument("--history", type=Path, default=DEFAULT_HISTORY)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)

@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from shared.config import get_config
+
 # Setup path before importing from memory_palace
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PLUGIN_ROOT / "src"
@@ -467,8 +469,6 @@ def main() -> None:
 
     if tool_name not in ("WebFetch", "WebSearch"):
         sys.exit(0)
-
-    from shared.config import get_config
 
     config = get_config()
     if not config.get("enabled", True):

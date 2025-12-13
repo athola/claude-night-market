@@ -12,7 +12,9 @@ class CompatibilityChecker:
         """Initialize the compatibility checker skill."""
         pass
 
-    async def check_compatibility(self, code: str, target_versions: list[str]) -> dict[str, Any]:
+    async def check_compatibility(
+        self, code: str, target_versions: list[str]
+    ) -> dict[str, Any]:
         """Check code compatibility across Python versions.
 
         Args:
@@ -31,18 +33,20 @@ class CompatibilityChecker:
 
         # Example compatibility checks
         if "from __future__ import annotations" in code:
-            issues.append({
-                "feature": "from __future__ import annotations",
-                "min_version": "3.7",
-                "status": "compatible",
-                "note": "Available in Python 3.7+"
-            })
+            issues.append(
+                {
+                    "feature": "from __future__ import annotations",
+                    "min_version": "3.7",
+                    "status": "compatible",
+                    "note": "Available in Python 3.7+",
+                }
+            )
 
         return {
             "compatible_versions": target_versions,
             "issues": issues,
             "recommendations": [
                 "Consider using typing.Any for type hints",
-                "Test on minimum supported version"
-            ]
+                "Test on minimum supported version",
+            ],
         }

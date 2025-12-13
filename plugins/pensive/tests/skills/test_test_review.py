@@ -28,7 +28,7 @@ class TestTestReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_test_coverage(self, mock_skill_context) -> None:
-        """Given source and test files, when skill analyzes, then calculates coverage metrics."""
+        """Given source and tests, skill calculates coverage metrics."""
         # Arrange
         source_files = [
             (
@@ -106,7 +106,7 @@ def test_add_negative():
 
     @pytest.mark.unit
     def test_detects_test_structure_quality(self, mock_skill_context) -> None:
-        """Given test files, when skill analyzes, then evaluates test structure and organization."""
+        """Given test files, skill evaluates structure and organization."""
         # Arrange
         well_structured_test = """
 import pytest
@@ -172,7 +172,7 @@ class TestCalculator:
 
     @pytest.mark.unit
     def test_evaluates_tdd_compliance(self, mock_skill_context) -> None:
-        """Given development workflow, when skill analyzes, then checks TDD compliance."""
+        """Given dev workflow, skill checks TDD compliance."""
         # Arrange
         development_history = [
             {
@@ -211,7 +211,7 @@ class TestCalculator:
 
     @pytest.mark.unit
     def test_detects_bdd_patterns(self, mock_skill_context) -> None:
-        """Given test specifications, when skill analyzes, then identifies BDD patterns."""
+        """Given test specs, skill identifies BDD patterns."""
         # Arrange
         bdd_style_test = """
 import pytest
@@ -343,7 +343,7 @@ counter = 0
 
     @pytest.mark.unit
     def test_analyzes_test_data_management(self, mock_skill_context) -> None:
-        """Given test fixtures and data, when skill analyzes, then evaluates data management."""
+        """Given fixtures and data, skill evaluates data management."""
         # Arrange
         test_with_fixtures = """
 import pytest
@@ -507,7 +507,7 @@ def test_spy_usage():
 
     @pytest.mark.unit
     def test_evaluates_integration_test_coverage(self, mock_skill_context) -> None:
-        """Given test suite, when skill analyzes, then assesses integration vs unit test balance."""
+        """Given test suite, skill assesses integration vs unit balance."""
         # Arrange
         test_files = [
             (
@@ -523,7 +523,9 @@ def test_add():
                 """
 def test_user_registration_flow():
     # Tests database, email, and user service integration
-    user_service = UserService(database=TestDatabase(), email_service=MockEmailService())
+    user_service = UserService(
+        database=TestDatabase(), email_service=MockEmailService()
+    )
     result = user_service.register_user("test@example.com", "password123")
     assert result.success
             """,
@@ -565,7 +567,7 @@ def test_api_endpoint():
 
     @pytest.mark.unit
     def test_detects_test_flakiness_patterns(self, mock_skill_context) -> None:
-        """Given test history, when skill analyzes, then identifies flaky test patterns."""
+        """Given test history, skill spots flaky patterns."""
         # Arrange
         test_execution_history = [
             {"test": "test_random_data", "results": ["pass", "fail", "pass", "fail"]},
@@ -601,7 +603,7 @@ def test_api_endpoint():
 
     @pytest.mark.unit
     def test_generates_test_quality_report(self, sample_findings) -> None:
-        """Given comprehensive test analysis, when skill generates report, then creates structured summary."""
+        """Given analysis, skill generates structured summary."""
         # Arrange
         test_analysis = {
             "overall_score": 7.8,
@@ -632,7 +634,7 @@ def test_api_endpoint():
 
     @pytest.mark.unit
     def test_recommends_testing_improvements(self, mock_skill_context) -> None:
-        """Given test analysis, when skill recommends, then provides actionable testing improvements."""
+        """Given analysis, skill recommends testing improvements."""
         # Arrange
         current_state = {
             "coverage": 65,

@@ -6,8 +6,17 @@ import hashlib
 import math
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import yaml
+
+try:
+    from sentence_transformers import SentenceTransformer
+
+    _HAS_ST = True
+except Exception:  # pragma: no cover - optional dependency
+    SentenceTransformer = None  # type: ignore[assignment]
+    _HAS_ST = False
 
 
 def _hash_vector(text: str, dim: int = 16) -> list[float]:
@@ -26,6 +35,7 @@ class EmbeddingIndex:
     """Simple embedding index that supports local + hashed providers."""
 
     def __init__(self, embeddings_path: str, provider: str = "none") -> None:
+        """Initialize embedding index with optional provider name."""
         self.requested_provider = provider
         self.embeddings_path = Path(embeddings_path)
         self.raw_store = self._load_store()
@@ -35,6 +45,7 @@ class EmbeddingIndex:
             self._maybe_load_model()
 
     def _load_store(self) -> dict[str, Any]:
+        """Load embeddings YAML into a dictionary structure."""
         if not self.embeddings_path.exists():
             return {"providers": {}, "metadata": {}}
         data = yaml.safe_load(self.embeddings_path.read_text(encoding="utf-8")) or {}
@@ -45,6 +56,7 @@ class EmbeddingIndex:
         return data
 
     def _select_entries(self) -> tuple[str, dict[str, list[float]]]:
+        """Select active provider + embeddings from stored payload."""
         providers = self.raw_store.get("providers", {})
         metadata = self.raw_store.get("metadata", {})
 
@@ -77,11 +89,12 @@ class EmbeddingIndex:
         return self.requested_provider, {}
 
     def _maybe_load_model(self) -> None:
-        try:
-            from sentence_transformers import SentenceTransformer
-
-            self.model = SentenceTransformer("all-MiniLM-L6-v2")
-        except Exception:
+        if _HAS_ST and SentenceTransformer is not None:
+            try:
+                self.model = SentenceTransformer("all-MiniLM-L6-v2")
+            except Exception:
+                self.model = None
+        else:
             self.model = None
 
     @property
@@ -90,6 +103,7 @@ class EmbeddingIndex:
         return self.active_provider
 
     def vectorize(self, text: str) -> list[float]:
+        """Vectorize text using the active provider."""
         if self.active_provider == "local" and self.model is not None:
             vector = self.model.encode(text).tolist()  # type: ignore[assignment]
             norm = math.sqrt(sum(v * v for v in vector)) or 1.0
@@ -97,6 +111,7 @@ class EmbeddingIndex:
         return _hash_vector(text)
 
     def search(self, query: str, top_k: int = 5) -> list[tuple[str, float]]:
+        """Return top-k matches for a query."""
         if not self.entries:
             return []
         query_vec = self.vectorize(query)

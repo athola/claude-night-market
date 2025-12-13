@@ -8,6 +8,7 @@ from pathlib import Path
 
 FIXTURE_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "cache_intercept_catalog.yaml"
 SCRIPT_PATH = Path(__file__).resolve().parents[2] / "scripts" / "seed_corpus.py"
+MIN_CURATED = 50
 
 
 def _load_seed_module():
@@ -31,6 +32,6 @@ def test_seed_script_populates_cache_catalog(tmp_path):
     )
 
     cache_meta = catalog["metadata"]["cache_intercept"]
-    assert cache_meta["curated_count"] >= 50
-    assert len(catalog["entries"]) >= 50
+    assert cache_meta["curated_count"] >= MIN_CURATED
+    assert len(catalog["entries"]) >= MIN_CURATED
     assert keyword_index.exists()

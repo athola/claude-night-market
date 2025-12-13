@@ -15,9 +15,11 @@ class DomainAlignment:
 
     @property
     def is_aligned(self) -> bool:
+        """Return True when any configured domain matches."""
         return bool(self.matched_domains)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize alignment summary."""
         return {
             "configured_domains": self.configured_domains,
             "matched_domains": self.matched_domains,

@@ -28,7 +28,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_detects_unsafe_code_blocks(self, mock_skill_context) -> None:
-        """Given unsafe code, when skill analyzes, then identifies and validates unsafe blocks."""
+        """Given unsafe code, skill identifies and validates unsafe blocks."""
         # Arrange
         unsafe_code = """
         use std::ffi::CStr;
@@ -82,7 +82,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_ownership_patterns(self, mock_skill_context) -> None:
-        """Given ownership code, when skill analyzes, then detects ownership violations."""
+        """Given ownership code, skill detects ownership violations."""
         # Arrange
         ownership_code = """
         use std::rc::Rc;
@@ -106,7 +106,9 @@ class TestRustReviewSkill:
             }
 
             let node1 = Rc::new(RefCell::new(Node { next: None, value: 1 }));
-            let node2 = Rc::new(RefCell::new(Node { next: Some(node1.clone()), value: 2 }));
+            let node2 = Rc::new(
+                RefCell::new(Node { next: Some(node1.clone()), value: 2 })
+            );
             node1.borrow_mut().next = Some(node2);  // Reference cycle
         }
 
@@ -219,7 +221,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_memory_safety(self, mock_skill_context) -> None:
-        """Given memory management code, when skill analyzes, then detects memory safety issues."""
+        """Given memory management code, skill detects safety issues."""
         # Arrange
         memory_code = """
         use std::ptr;
@@ -284,7 +286,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_detects_panic_propagation(self, mock_skill_context) -> None:
-        """Given error handling code, when skill analyzes, then flags improper panic usage."""
+        """Given error handling code, skill flags improper panic usage."""
         # Arrange
         panic_code = """
         fn bad_error_handling() {
@@ -416,7 +418,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_checks_cargo_toml_dependencies(self, mock_skill_context) -> None:
-        """Given Cargo.toml, when skill analyzes, then validates dependencies and features."""
+        """Given Cargo.toml, skill validates dependencies and features."""
         # Arrange
         cargo_toml_content = """
         [package]
@@ -455,7 +457,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_detects_macro_usage_patterns(self, mock_skill_context) -> None:
-        """Given macro usage, when skill analyzes, then identifies problematic macro patterns."""
+        """Given macros, skill identifies problematic patterns."""
         # Arrange
         macro_code = """
         use serde_derive::{Serialize, Deserialize};
@@ -519,7 +521,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_analyzes_trait_implementations(self, mock_skill_context) -> None:
-        """Given trait implementations, when skill analyzes, then detects trait-related issues."""
+        """Given trait implementations, skill detects related issues."""
         # Arrange
         trait_code = """
         use std::fmt;
@@ -591,7 +593,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_checks_const_generic_usage(self, mock_skill_context) -> None:
-        """Given const generics, when skill analyzes, then validates const generic patterns."""
+        """Given const generics, skill validates those patterns."""
         # Arrange
         const_generic_code = """
         // Good: const generic usage
@@ -661,7 +663,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_detects_build_optimization_issues(self, mock_skill_context) -> None:
-        """Given build configuration, when skill analyzes, then identifies optimization opportunities."""
+        """Given build config, skill finds optimization opportunities."""
         # Arrange
         build_files = {
             "Cargo.toml": """
@@ -704,7 +706,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_generates_rust_security_report(self, sample_findings) -> None:
-        """Given comprehensive Rust analysis, when skill generates report, then creates security-focused summary."""
+        """Given full Rust analysis, skill creates security-focused summary."""
         # Arrange
         rust_analysis = {
             "unsafe_blocks": 5,
@@ -733,7 +735,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_categorizes_rust_issue_severity(self) -> None:
-        """Given Rust-specific issues, when skill categorizes, then assigns appropriate severity."""
+        """Given Rust issues, skill assigns severities."""
         # Arrange
         rust_issues = [
             {"type": "buffer_overflow", "context": "unsafe block"},
@@ -756,7 +758,7 @@ class TestRustReviewSkill:
 
     @pytest.mark.unit
     def test_recommends_rust_best_practices(self, mock_skill_context) -> None:
-        """Given Rust codebase analysis, when skill recommends, then provides Rust-specific best practices."""
+        """Given Rust analysis, skill recommends best practices."""
         # Arrange
         codebase_analysis = {
             "uses_unsafe": True,

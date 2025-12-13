@@ -4,19 +4,30 @@ This module tests the validation tool performance with large plugins
 and complex scenarios, ensuring it scales appropriately.
 """
 
+import concurrent.futures
+import gc
+import re
+import sys
+import threading
 import time
+import tracemalloc
 
 import pytest
 
+try:
+    from scripts.imbue_validator import ImbueValidator
+except ImportError:
+    ImbueValidator = None
+
 # Constants for PLR2004 magic values
-ZERO_POINT_FIVE = ZERO_POINT_FIVE
-TWO = TWO
-TWO_POINT_ZERO = TWO_POINT_ZERO
-THREE_POINT_ZERO = THREE_POINT_ZERO
-FIVE_POINT_ZERO = FIVE_POINT_ZERO
-TWENTY = TWENTY
-HUNDRED = HUNDRED
-THOUSAND = THOUSAND
+ZERO_POINT_FIVE = 0.5
+TWO = 2
+TWO_POINT_ZERO = 2.0
+THREE_POINT_ZERO = 3.0
+FIVE_POINT_ZERO = 5.0
+TWENTY = 20
+HUNDRED = 100
+THOUSAND = 1000
 # Constants for performance thresholds
 MIN_REVIEW_WORKFLOW_SKILLS = 50
 MAX_VALIDATOR_SIZE_BYTES = 100_000  # 100KB
@@ -25,6 +36,13 @@ MAX_MEMORY_PER_SKILL_FILE = 100_000  # 100KB
 MIN_REPORT_LENGTH = THOUSAND
 ITERATIONS_FOR_STRESS_TEST = THOUSAND
 MAX_EXECUTION_TIME_SECONDS = FIVE_POINT_ZERO
+
+
+def _require_validator() -> type:
+    """Ensure ImbueValidator is available for performance tests."""
+    if ImbueValidator is None:
+        pytest.skip("ImbueValidator not available for performance testing")
+    return ImbueValidator
 
 
 class TestValidatorPerformance:
@@ -132,15 +150,12 @@ Test command for performance testing.
         Then it should complete within reasonable time.
         """
         # Arrange - import validator
-        try:
-            from scripts.imbue_validator import ImbueValidator
-        except ImportError:
-            pytest.skip("ImbueValidator not available for performance testing")
+        validator_cls = _require_validator()
 
         # Act - measure validation performance
         start_time = time.time()
 
-        validator = ImbueValidator(large_plugin_structure)
+        validator = validator_cls(large_plugin_structure)
 
         # Perform validation operations
         scan_result = validator.scan_review_workflows()
@@ -163,7 +178,6 @@ Test command for performance testing.
         assert len(report) > 0  # Report should be generated
 
         # Memory usage check (basic)
-        import sys
 
         validator_size = sys.getsizeof(validator)
         assert (
@@ -178,13 +192,10 @@ Test command for performance testing.
         When scanning for review patterns
         Then pattern matching should be optimized.
         """
-        try:
-            from scripts.imbue_validator import ImbueValidator
-        except ImportError:
-            pytest.skip("ImbueValidator not available for performance testing")
+        validator_cls = _require_validator()
 
         # Arrange
-        validator = ImbueValidator(large_plugin_structure)
+        validator = validator_cls(large_plugin_structure)
 
         # Act - measure pattern matching performance
         pattern_matching_times = []
@@ -232,13 +243,7 @@ Test command for performance testing.
         When processing large datasets
         Then memory usage should scale linearly.
         """
-        try:
-            from scripts.imbue_validator import ImbueValidator
-        except ImportError:
-            pytest.skip("ImbueValidator not available for performance testing")
-
-        import gc
-        import tracemalloc
+        validator_cls = _require_validator()
 
         # Memory tracking
         memory_snapshots = []
@@ -270,7 +275,8 @@ Test command for performance testing.
             gc.collect()  # Force garbage collection
 
             # Run validation
-            validator = ImbueValidator(plugin_root)
+            validator_cls = _require_validator()
+            validator = validator_cls(plugin_root)
             validator.scan_review_workflows()
 
             # Get memory snapshot
@@ -322,13 +328,7 @@ Test command for performance testing.
         When processing in parallel
         Then performance should scale appropriately.
         """
-        try:
-            from scripts.imbue_validator import ImbueValidator
-        except ImportError:
-            pytest.skip("ImbueValidator not available for performance testing")
-
-        import concurrent.futures
-        import threading
+        _require_validator()
 
         # Create multiple plugins
         plugin_count = 5
@@ -416,13 +416,10 @@ Test command for performance testing.
         When generating reports
         Then report generation should be fast.
         """
-        try:
-            from scripts.imbue_validator import ImbueValidator
-        except ImportError:
-            pytest.skip("ImbueValidator not available for performance testing")
+        validator_cls = _require_validator()
 
         # Arrange
-        validator = ImbueValidator(large_plugin_structure)
+        validator = validator_cls(large_plugin_structure)
         validator.scan_review_workflows()
 
         # Act - measure report generation performance
@@ -466,12 +463,7 @@ Test command for performance testing.
         When scanning skills
         Then regex compilation should be optimized.
         """
-        try:
-            from scripts.imbue_validator import ImbueValidator  # noqa: F401
-        except ImportError:
-            pytest.skip("ImbueValidator not available for performance testing")
-
-        import re
+        _require_validator()  # Ensure validator module available for regex benchmarks
 
         # Test different pattern compilation strategies
         patterns = [
@@ -556,10 +548,7 @@ Test command for performance testing.
         When scanning plugin directory
         Then file I/O should be efficient.
         """
-        try:
-            from scripts.imbue_validator import ImbueValidator
-        except ImportError:
-            pytest.skip("ImbueValidator not available for performance testing")
+        validator_cls = _require_validator()
 
         # Create plugin with many small files
         plugin_root = tmp_path / "io-performance-plugin"
@@ -583,7 +572,7 @@ Test command for performance testing.
         # Test I/O performance
         start_time = time.time()
 
-        validator = ImbueValidator(plugin_root)
+        validator = validator_cls(plugin_root)
         scan_result = validator.scan_review_workflows()
 
         io_time = time.time() - start_time

@@ -12,6 +12,9 @@ import re
 import sys
 from typing import TYPE_CHECKING
 
+from shared.config import get_config
+from shared.deduplication import is_known
+
 if TYPE_CHECKING:
     from typing import Any
 
@@ -95,10 +98,6 @@ def main() -> None:
 
     if not urls:
         sys.exit(0)
-
-    # Lazy import for slow path
-    from shared.config import get_config
-    from shared.deduplication import is_known
 
     config = get_config()
     if not config.get("enabled", True):

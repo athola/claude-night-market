@@ -79,6 +79,15 @@ extend-ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/**" = [
+    "D103",  # Missing docstrings in tests
+    "E501",  # Long test lines are acceptable
+    "PLR2004",  # Magic values in tests
+    "PLR0915",  # Complex test flows
+    "S603",  # Subprocess usage in test fixtures
+    "S608",  # SQL strings in test data
+    "B007",  # Unused loop variables in tests
+]
 
 [tool.ruff.format]
 quote-style = "double"

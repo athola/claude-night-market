@@ -5,6 +5,7 @@ following TDD/BDD principles and testing all evidence management scenarios.
 """
 
 import json
+import time
 from datetime import UTC, datetime
 
 import pytest
@@ -615,8 +616,6 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         Then it should maintain reasonable performance
         And memory usage.
         """
-        import time
-
         # Arrange - prepare large evidence dataset
         evidence_items = []
         for i in range(1000):

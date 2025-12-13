@@ -37,42 +37,51 @@ DEFAULT_PROMPT_PACK = "marginal-value-dual"
 
 @dataclass
 class Candidate:
+    """Parsed intake candidate with convenience accessors."""
+
     raw: dict[str, Any]
     content: str
 
     @property
     def title(self) -> str:
+        """Return candidate title or fallback."""
         summary = self.raw.get("summary", {})
         return summary.get("title") or "Untitled Intake Candidate"
 
     @property
     def tags(self) -> list[str]:
+        """Return candidate tags."""
         summary = self.raw.get("summary", {})
         return summary.get("tags") or []
 
     @property
     def actor(self) -> str:
+        """Reviewer identifier from audit metadata."""
         audit = self.raw.get("audit", {})
         return audit.get("reviewed_by") or os.getenv("USER", "unknown")
 
     @property
     def autonomy_level(self) -> int:
+        """Autonomy level of the candidate."""
         evaluation = self.raw.get("evaluation", {})
         return int(evaluation.get("autonomy_level", 0))
 
     @property
     def source_identifier(self) -> str:
+        """Source identifier for traceability."""
         source = self.raw.get("source", {})
         return source.get("identifier", "unknown")
 
 
 def slugify(value: str) -> str:
+    """Convert a string to a filesystem-safe slug."""
     slug = "".join(ch.lower() if ch.isalnum() else "-" for ch in value)
     slug = "-".join(filter(None, slug.split("-")))
     return slug or "intake-entry"
 
 
 def load_candidate(path: Path) -> Candidate:
+    """Load candidate JSON file into Candidate object."""
     data = json.loads(path.read_text(encoding="utf-8"))
     content = data.get("content")
     if not content:
@@ -84,6 +93,7 @@ def load_candidate(path: Path) -> Candidate:
 
 
 def ensure_dirs(path: Path) -> None:
+    """Ensure parent directory exists."""
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -94,6 +104,7 @@ def write_palace_entry(
     slug: str,
     confidence: float | None,
 ) -> Path:
+    """Write palace entry markdown for a candidate."""
     palace_dir = root / "docs" / "knowledge-corpus"
     palace_path = palace_dir / f"{slug}.md"
     ensure_dirs(palace_path)
@@ -125,6 +136,7 @@ def write_palace_entry(
 
 
 def write_developer_doc(root: Path, candidate: Candidate, slug: str, palace_path: Path) -> Path:
+    """Write a developer-facing draft doc for the intake candidate."""
     drafts_dir = root / "docs" / "developer-drafts"
     doc_path = drafts_dir / f"{slug}.md"
     ensure_dirs(doc_path)
@@ -148,6 +160,7 @@ def write_developer_doc(root: Path, candidate: Candidate, slug: str, palace_path
 
 
 def render_prompt_template(template: str, context: dict[str, str]) -> str:
+    """Render a prompt template by replacing context placeholders."""
     rendered = template
     for key, value in context.items():
         rendered = rendered.replace(f"{{{{{key}}}}}", value)
@@ -156,6 +169,7 @@ def render_prompt_template(template: str, context: dict[str, str]) -> str:
 
 
 def load_prompt_template(prompt_pack: str) -> str:
+    """Load prompt template content from the prompts directory."""
     normalized = prompt_pack.strip().lower()
     candidates = [
         normalized.replace("-", "_"),
@@ -165,8 +179,9 @@ def load_prompt_template(prompt_pack: str) -> str:
         template_path = PROMPT_TEMPLATE_DIR / f"{name}.md"
         if template_path.exists():
             return template_path.read_text(encoding="utf-8")
+    expected = [f"{name}.md" for name in candidates]
     raise FileNotFoundError(
-        f"No prompt template found for '{prompt_pack}'. Expected one of {[f'{name}.md' for name in candidates]}"
+        f"No prompt template found for '{prompt_pack}'. Expected one of {expected}"
     )
 
 
@@ -176,6 +191,7 @@ def write_prompt_pack(
     candidate: Candidate,
     integration: IntegrationPlan,
 ) -> Path:
+    """Write a prompt pack markdown file using rendered template."""
     template = load_prompt_template(prompt_pack)
     tags = ", ".join(candidate.tags) if candidate.tags else "n/a"
     summary = candidate.raw.get("summary", {})
@@ -202,7 +218,7 @@ def write_prompt_pack(
     return prompt_path
 
 
-def append_curation_log(
+def append_curation_log(  # noqa: PLR0913 - log needs explicit context fields
     log_path: Path,
     candidate: Candidate,
     decision: IntegrationDecision,
@@ -211,6 +227,7 @@ def append_curation_log(
     prompt_path: Path | None = None,
     prompt_pack: str | None = None,
 ) -> None:
+    """Append a Markdown table row to the curation log."""
     ensure_dirs(log_path)
     if not log_path.exists():
         log_path.write_text(
@@ -228,12 +245,15 @@ def append_curation_log(
         prompt_label = prompt_pack or prompt_path.stem
         notes_parts.append(f"prompt:{prompt_label}")
     notes = ", ".join(notes_parts)
-    row = f"| {timestamp} | {candidate.actor} | {candidate.source_identifier} | {decision.value} | {candidate.autonomy_level} | {notes} |\n"
+    row = (
+        f"| {timestamp} | {candidate.actor} | {candidate.source_identifier} | "
+        f"{decision.value} | {candidate.autonomy_level} | {notes} |\n"
+    )
     with log_path.open("a", encoding="utf-8") as handle:
         handle.write(row)
 
 
-def process_candidate(
+def process_candidate(  # noqa: PLR0913 - CLI surface mirrors command options
     candidate_path: Path,
     corpus_dir: Path,
     index_dir: Path,
@@ -242,7 +262,8 @@ def process_candidate(
     auto_accept: bool,
     dual_output: bool = False,
     prompt_pack: str | None = None,
-) -> dict[str, Any]:
+) -> dict[str, Any]:  # noqa: PLR0913 - CLI command surface requires these args
+    """Process an intake candidate end-to-end and write outputs."""
     candidate = load_candidate(candidate_path)
     mv_filter = MarginalValueFilter(str(corpus_dir), str(index_dir))
     redundancy, delta, integration = mv_filter.evaluate_content(
@@ -303,6 +324,7 @@ def process_candidate(
 
 
 def main(argv: list[str] | None = None) -> None:
+    """CLI entrypoint for processing knowledge intake candidates."""
     parser = argparse.ArgumentParser(description="Process knowledge intake candidates")
     parser.add_argument(
         "--candidate", required=True, type=Path, help="Path to intake_candidate.json"

@@ -371,7 +371,7 @@ wheels = [
 
 [[package]]
 name = "conservation-dev"
-version = "1.1.0"
+version = "1.0.0"
 source = { editable = "plugins/conservation" }
 dependencies = [
     { name = "pre-commit" },

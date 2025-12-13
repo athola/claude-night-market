@@ -54,7 +54,7 @@ def benchmark(query_file: Path, provider: str, top_k: int) -> None:
 
 
 def main() -> None:
-    """Main entry point for the script."""
+    """Build or benchmark embeddings from the command line."""
     parser = argparse.ArgumentParser(description="Embedding builder/benchmark")
     parser.add_argument(
         "--provider",

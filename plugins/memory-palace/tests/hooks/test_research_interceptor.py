@@ -244,38 +244,6 @@ class TestMakeDecision:
         assert decision.intake_payload.duplicate_entry_ids == ["entry-123"]
         assert decision.novelty_score == pytest.approx(0.05)
 
-    def test_domain_alignment_surface(self) -> None:
-        """Domains of interest should surface in the intake payload."""
-        config = {"domains_of_interest": ["python async", "security"]}
-        decision = make_decision(
-            "python async telemetry strategy",
-            [],
-            "cache_first",
-            config=config,
-        )
-        assert decision.intake_payload is not None
-        assert decision.aligned_domains == ["python async"]
-        assert decision.intake_payload.domain_alignment.is_aligned
-        assert decision.novelty_score == pytest.approx(1.0)
-
-    def test_duplicate_detection_toggles_intake(self) -> None:
-        """High-overlap duplicates should disable intake flagging."""
-        results = [
-            {
-                "match_score": 0.95,
-                "match_strength": "strong",
-                "title": "Python Async Patterns",
-                "file": "docs/async.md",
-                "entry_id": "entry-123",
-            },
-        ]
-        config = {"intake_threshold": 80}
-        decision = make_decision("python async patterns", results, "cache_first", config=config)
-        assert decision.should_flag_for_intake is False
-        assert decision.intake_payload is not None
-        assert decision.intake_payload.duplicate_entry_ids == ["entry-123"]
-        assert decision.novelty_score == pytest.approx(0.05)
-
 
 class TestFormatCachedEntry:
     """Tests for cached entry formatting."""
@@ -408,8 +376,6 @@ class TestEndToEnd:
 
     def test_hook_output_format_deny(self) -> None:
         """Test hook JSON output uses correct API fields for deny action."""
-        from research_interceptor import main
-
         # Mock stdin with a WebSearch request
         mock_stdin = StringIO(
             json.dumps(
@@ -448,7 +414,7 @@ class TestEndToEnd:
             patch("research_interceptor.search_local_knowledge", return_value=mock_results),
             pytest.raises(SystemExit) as exc_info,
         ):
-            main()
+            research_interceptor.main()
 
         assert exc_info.value.code == 0
 
@@ -474,8 +440,6 @@ class TestEndToEnd:
 
     def test_hook_output_format_allow(self) -> None:
         """Test hook JSON output uses correct API fields for allow action."""
-        from research_interceptor import main
-
         # Mock stdin with a WebSearch request
         mock_stdin = StringIO(
             json.dumps(
@@ -514,7 +478,7 @@ class TestEndToEnd:
             patch("research_interceptor.search_local_knowledge", return_value=mock_results),
             pytest.raises(SystemExit) as exc_info,
         ):
-            main()
+            research_interceptor.main()
 
         assert exc_info.value.code == 0
 
@@ -539,8 +503,6 @@ class TestEndToEnd:
 
     def test_telemetry_logging_enabled(self) -> None:
         """Telemetry logger should receive a structured event when enabled."""
-        from research_interceptor import main
-
         mock_stdin = StringIO(
             json.dumps(
                 {
@@ -574,7 +536,7 @@ class TestEndToEnd:
             patch("research_interceptor.TelemetryLogger", return_value=mock_logger),
             pytest.raises(SystemExit),
         ):
-            main()
+            research_interceptor.main()
 
         mock_logger.log_event.assert_called_once()
         telemetry_event = mock_logger.log_event.call_args[0][0]

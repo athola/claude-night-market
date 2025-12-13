@@ -15,7 +15,7 @@ import threading
 import time
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
@@ -67,19 +67,19 @@ class TestDelegationExecutorEdgeCases:
             for issue in issues
         )
 
-    def test_token_estimation_with_nonexistent_files(self, tmp_path) -> None:
+    @patch("subprocess.run")
+    def test_token_estimation_with_nonexistent_files(self, mock_run, tmp_path) -> None:
+        """Unicode inputs should be handled safely."""
         mock_result = MagicMock()
         mock_result.returncode = 0
-        mock_result.stdout = "Unicode success ✓ ✓ ✓"
+        mock_result.stdout = "Unicode success"
         mock_result.stderr = ""
         mock_run.return_value = mock_result
 
         delegator = Delegator(config_dir=tmp_path)
 
-        # Create file with unicode content
         unicode_file = tmp_path / "unicode.txt"
-        unicode_content = "Test with unicode: αβγδε漢字𐍈"  # Greek, Chinese, and Gothic
-        unicode_file.write_text(unicode_content)
+        unicode_file.write_text("Test with unicode: αβγδε漢字𐍈")
 
         result = delegator.execute(
             "gemini",
@@ -87,11 +87,20 @@ class TestDelegationExecutorEdgeCases:
             files=[str(unicode_file)],
         )
 
+        assert isinstance(result, ExecutionResult)
         assert result.success is True
-        # Should handle unicode without encoding errors
 
     @patch("subprocess.run")
     def test_execution_with_zero_timeout(self, mock_run, tmp_path) -> None:
+        """Zero timeout should result in a timeout error response."""
+        mock_run.side_effect = subprocess.TimeoutExpired(cmd="gemini", timeout=0)
+
+        delegator = Delegator(config_dir=tmp_path)
+        result = delegator.execute("gemini", "prompt", timeout=0)
+
+        assert isinstance(result, ExecutionResult)
+        assert result.success is False
+        assert "timeout" in result.stderr.lower()
 
     def test_quota_tracker_with_corrupted_usage_file(self, tmp_path) -> None:
         usage_file = tmp_path / "usage.json"
@@ -147,8 +156,7 @@ class TestDelegationExecutorEdgeCases:
                 assert isinstance(usage, dict)
 
     def test_quota_tracker_concurrent_access_simulation(self, tmp_path) -> None:
-        correctly.
-        """Test test usage logger with very long commands."""
+        """Concurrent access should recreate corrupted session files safely."""
         session_file = tmp_path / "current_session.json"
         usage_log = tmp_path / "usage.jsonl"
 
@@ -169,8 +177,21 @@ class TestDelegationExecutorEdgeCases:
                     assert "session_id" in session_data
 
     def test_usage_logger_session_timeout_edge_cases(self, tmp_path) -> None:
-        performance.
-        """Test test usage logger with disk full simulation."""
+        """Session timeout should rollover to new session without crashing."""
+        session_file = tmp_path / "current_session.json"
+        usage_log = tmp_path / "usage.jsonl"
+
+        with (
+            patch.object(GeminiUsageLogger, "session_file", session_file),
+            patch.object(GeminiUsageLogger, "usage_log", usage_log),
+        ):
+            logger = GeminiUsageLogger(session_timeout=0.001)
+            logger.log_usage(UsageEntry("cmd", 10, success=True))
+            time.sleep(0.01)
+            logger.log_usage(UsageEntry("cmd2", 5, success=False))
+
+        assert session_file.exists()
+        assert usage_log.exists()
 
     @patch("subprocess.run")
     def test_network_connectivity_issues(self, mock_run, tmp_path) -> None:
@@ -228,9 +249,35 @@ class TestDelegationExecutorEdgeCases:
 
     @patch("subprocess.run")
     def test_filesystem_edge_cases(self, mock_run, tmp_path) -> None:
-        # queue imported at top
-        # threading imported at top
-        delegator = Delegator(config_dir=tmp_path)
-        results_queue = queue.Queue()
+        """Delegator should handle concurrent filesystem access."""
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "ok"
+        mock_result.stderr = ""
+        mock_run.return_value = mock_result
 
-        def delegate_worker(worker_id) -> None:
+        delegator = Delegator(config_dir=tmp_path)
+        results_queue: queue.Queue[ExecutionResult] = queue.Queue()
+
+        def delegate_worker(worker_id: int) -> None:
+            result = delegator.execute(
+                "gemini",
+                f"Task {worker_id}",
+                files=[],
+            )
+            results_queue.put(result)
+
+        threads = [
+            threading.Thread(target=delegate_worker, args=(i,)) for i in range(3)
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        while not results_queue.empty():
+            result = results_queue.get()
+            assert isinstance(result, ExecutionResult)
+
+
+# ruff: noqa: D101,D102,D103,PLR2004,E501

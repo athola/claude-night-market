@@ -4,19 +4,23 @@ This module tests end-to-end workflow scenarios with multiple skills
 and commands working together, following TDD/BDD principles.
 """
 
+import time
 from datetime import UTC, datetime
 from unittest.mock import Mock
 
 import pytest
 
 # Constants for PLR2004 magic values
-ZERO_POINT_ONE = ZERO_POINT_ONE
-ZERO_POINT_NINE = ZERO_POINT_NINE
-TWO = TWO
-THREE = THREE
-FOUR = FOUR
-FIVE = FIVE
-FIFTY = FIFTY
+ZERO_POINT_ONE = 0.1
+ZERO_POINT_NINE = 0.9
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+FIFTY = 50
+COMMITS_AHEAD = 12
+AVG_TIME_THRESHOLD = 0.01
+TIME_RANGE_THRESHOLD = 0.005
 
 
 class TestReviewWorkflowIntegration:
@@ -194,8 +198,7 @@ def test_auth():
             {
                 "id": "E1",
                 "command": "grep -n 'SELECT.*username' src/auth.py",
-                "output": (
-                    # nosec: S608 - Test data demonstrating SQL injection pattern
+                "output": (  # noqa: S608 - deliberate SQL string for test data
                     "src/auth.py:3: query = \"SELECT * FROM users WHERE username = '"
                     + "test_user"
                     + "'"
@@ -327,7 +330,7 @@ def test_auth():
 
         # Verify final summary content
         assert final_summary["context"]["branch"] == "feature/payment-processing"
-        assert final_summary["context"]["commits_ahead"] == 12
+        assert final_summary["context"]["commits_ahead"] == COMMITS_AHEAD
         assert len(final_summary["key_changes"]) == THREE
         assert len(final_summary["insights"]) == THREE
         assert len(final_summary["followups"]) == THREE
@@ -772,8 +775,6 @@ def test_auth():
         Then performance should remain acceptable
         And resource usage should be controlled.
         """
-        import time
-
         # Arrange - simulate multiple workflow executions
         workflow_configs = [
             {"target": "src/auth/", "focus": "security"},
@@ -838,8 +839,8 @@ def test_auth():
         # Verify skill performance consistency
         for _skill, times in performance_metrics["skill_execution_times"].items():
             avg_time = sum(times) / len(times)
-            assert avg_time < 0.01  # Average skill time under 10ms
-            assert max(times) - min(times) < 0.005  # Consistent timing
+            assert avg_time < AVG_TIME_THRESHOLD  # Average skill time under 10ms
+            assert max(times) - min(times) < TIME_RANGE_THRESHOLD  # Consistent timing
 
         # Calculate efficiency metrics
         total_workflows = len(workflow_configs)

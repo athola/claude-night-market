@@ -1,98 +1,94 @@
-"""Tests for skill frontmatter and content validation."""
+# ruff: noqa: D101,D102,D103,PLR2004,E501
+"""Tests for skill validator helpers."""
+
+from pathlib import Path
 
 from sanctum.validators import SkillValidationResult, SkillValidator
 
 
-class TestSkillValidationResult:
-    """Tests for SkillValidationResult dataclass."""
+def test_valid_result_creation() -> None:
+    result = SkillValidationResult(
+        is_valid=True, errors=[], warnings=[], frontmatter={}
+    )
+    assert result.is_valid is True
 
-    def test_valid_result_creation(self) -> None:
 
-    def test_parses_valid_frontmatter(self, sample_skill_frontmatter) -> None:
-        result = SkillValidator.parse_frontmatter(sample_skill_frontmatter)
-        assert result.is_valid
-        assert result.frontmatter["complexity"] == "low"
+def test_parses_valid_frontmatter() -> None:
+    frontmatter = """---
+name: test-skill
+description: A test skill
+complexity: low
+---
+"""
+    result = SkillValidator.parse_frontmatter(frontmatter)
+    assert result.is_valid
+    assert result.frontmatter["complexity"] == "low"
 
-    def test_extracts_estimated_tokens(self, sample_skill_frontmatter) -> None:
-description: A skill without a name
-category: testing
+
+def test_fails_on_missing_frontmatter() -> None:
+    content = "# Skill without frontmatter"
+    result = SkillValidator.validate_content(content)
+    assert result.is_valid is False
+
+
+def test_warns_when_missing_category() -> None:
+    content = """---
+name: test-skill
+description: A test skill
 ---
 
 # Test Skill
-"""Test test requires name field."""
-        result = SkillValidator.parse_frontmatter(sample_skill_with_missing_fields)
-        assert not result.is_valid
-        assert any("description" in error.lower() for error in result.errors)
+"""
+    result = SkillValidator.parse_frontmatter(content)
+    assert any("category" in warning.lower() for warning in result.warnings)
 
-    def test_fails_on_missing_frontmatter(
-        self, sample_skill_without_frontmatter
-    ) -> None:
-        """Test test fails on missing frontmatter."""
 
-    def test_warns_when_missing_category(
-        self, sample_skill_with_missing_fields
-    ) -> None:
-        """Test test warns when missing category."""
-        content = """---
+def test_validates_has_heading() -> None:
+    content = """---
 name: test-skill
 description: A test skill
 category: testing
 ---
 
 # Test Skill
-"""Test test warns when missing category."""
-        content = """---
-name: test-skill
-description: A test skill
+## When to Use
+Use when testing validators.
+"""
+    result = SkillValidator.validate_content(content)
+    assert result.is_valid
+    assert result.has_workflow is True
+
+
+def test_validate_directory_missing_skill_file(tmp_path: Path) -> None:
+    skill_dir = tmp_path / "missing-skill"
+    skill_dir.mkdir()
+
+    result = SkillValidator.validate_directory(skill_dir)
+
+    assert result.is_valid is False
+    assert any("SKILL.md" in err for err in result.errors)
+
+
+def test_validate_directory_success(tmp_path: Path) -> None:
+    skill_dir = tmp_path / "demo-skill"
+    skill_dir.mkdir()
+    skill_file = skill_dir / "SKILL.md"
+    skill_file.write_text(
+        """---
+name: demo-skill
+description: Demo skill
 category: testing
-tags: [test]
+tags: [demo]
+tools: [Bash]
 ---
 
-# Test Skill
-"""Test test warns when missing category."""
+# Demo Skill
+## When to Use
+Always demo.
+"""
+    )
 
-    def test_validates_has_heading(self, sample_skill_frontmatter) -> None:
-name: test-skill
-description: A test skill
----
+    result = SkillValidator.validate_directory(skill_dir)
 
-Just some text without a heading.
-"""Test test validates has heading."""
-        result = SkillValidator.validate_content(sample_skill_frontmatter)
-        assert result.is_valid
-
-    def test_warns_when_missing_when_to_use(self) -> None:
-
-    def test_validates_existing_skill_file(self, temp_skill_file) -> None:
-        skill_dir = tmp_path / "empty-skill"
-        skill_dir.mkdir()
-
-        result = SkillValidator.validate_directory(skill_dir)
-        assert not result.is_valid
-        assert any("SKILL.md" in error for error in result.errors)
-
-
-class TestSkillCrossReferences:
-    """Tests for skill cross-reference validation."""
-
-    def test_validates_skill_references(self, sample_skill_frontmatter) -> None:
-        content = """---
-name: test-skill
-description: Test skill
----
-
-# Test Skill
-
-Use Skill(invalid-format) to continue.
-"""Test test validates skill references."""
-        content = """---
-name: commit-messages
-description: Generate commit messages
-dependencies: [git-workspace-review]
----
-
-# Commit Messages
-
-Run `Skill(sanctum:git-workspace-review)` first.
-Then use `Skill(sanctum:file-analysis)`.
-"""Test test validates skill references."""
+    assert result.is_valid is True
+    assert result.skill_name == "demo-skill"

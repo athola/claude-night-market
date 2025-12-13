@@ -35,7 +35,7 @@ class TestPensiveIntegration:
 
     @pytest.mark.integration
     def test_end_to_end_code_review_workflow(self, temp_repository) -> None:
-        """Given a repository with code, when running full review, then generates comprehensive report."""
+        """Given repo code, full review generates comprehensive report."""
         # Arrange
         workflow = CodeReviewWorkflow()
         repo_path = temp_repository
@@ -57,7 +57,7 @@ class TestPensiveIntegration:
 
     @pytest.mark.integration
     def test_skill_coordination_and_result_consolidation(self, temp_repository) -> None:
-        """Given multiple skills, when executing in parallel, then consolidates results correctly."""
+        """Given multiple skills, parallel execution consolidates results."""
         # Arrange
         unified_skill = UnifiedReviewSkill()
         context = Mock()
@@ -87,7 +87,7 @@ class TestPensiveIntegration:
 
     @pytest.mark.integration
     async def test_real_repository_analysis(self, temp_repository) -> None:
-        """Given a real repository structure, when analyzing, then detects patterns correctly."""
+        """Given real repository structure, analysis detects patterns."""
         # Arrange
         files = {
             "src/main.rs": """
@@ -204,7 +204,7 @@ clean:
 
     @pytest.mark.integration
     def test_todo_write_integration(self, temp_repository) -> None:
-        """Given review workflow, when finding issues, then integrates with TodoWrite correctly."""
+        """Given review workflow, issues integrate with TodoWrite."""
         # Arrange
         workflow = CodeReviewWorkflow()
 
@@ -222,7 +222,7 @@ clean:
 
     @pytest.mark.integration
     def test_error_handling_and_recovery(self, temp_repository) -> None:
-        """Given errors during review, when skill fails, then handles gracefully and continues."""
+        """Given errors during review, workflow handles gracefully and continues."""
         # Arrange
         workflow = CodeReviewWorkflow()
 
@@ -245,7 +245,7 @@ clean:
 
     @pytest.mark.integration
     def test_performance_with_large_repository(self, temp_repository) -> None:
-        """Given larger repository, when executing review, then completes within reasonable time."""
+        """Given large repo, review completes within reasonable time."""
         # Arrange
         # Create a larger repository with many files
         for i in range(20):
@@ -298,7 +298,7 @@ mod tests {{
 
     @pytest.mark.integration
     def test_cross_language_repository_analysis(self, temp_repository) -> None:
-        """Given multi-language repository, when analyzing, then handles all languages correctly."""
+        """Given multi-language repo, analysis handles all languages."""
         # Arrange
         # Create JavaScript files
         (temp_repository / "src" / "api.js").write_text("""
@@ -356,7 +356,7 @@ def export_to_json(data: List[Dict], filename: str) -> None:
 
     @pytest.mark.integration
     def test_ci_cd_integration(self, temp_repository) -> None:
-        """Given CI/CD configuration, when integrating, then works with build systems."""
+        """Given CI/CD config, workflow works with build systems."""
         # Arrange
         # Create GitHub Actions workflow
         workflows_dir = temp_repository / ".github" / "workflows"
@@ -469,7 +469,7 @@ custom_rules:
 
     @pytest.mark.integration
     def test_concurrent_skill_execution(self, temp_repository) -> None:
-        """Given multiple skills, when executing, then runs concurrently when possible."""
+        """Given multiple skills, executor runs concurrently when possible."""
         # Arrange
 
         coordinator = SkillCoordinator()
@@ -536,7 +536,7 @@ custom_rules:
 
     @pytest.mark.integration
     def test_plugin_lifecycle_and_cleanup(self, temp_repository) -> None:
-        """Given plugin execution, when completing, then cleans up resources properly."""
+        """Given plugin execution, system cleans up resources properly."""
         # Arrange
 
         plugin = PensivePlugin()

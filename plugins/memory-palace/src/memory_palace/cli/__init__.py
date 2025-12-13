@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Create the root CLI parser for Memory Palace utilities."""
     parser = argparse.ArgumentParser(
         prog="python -m memory_palace.cli",
         description="Memory Palace management commands",
@@ -62,6 +63,7 @@ def _add_autonomy_parser(subparsers: argparse._SubParsersAction[argparse.Argumen
 
 
 def main(argv: Sequence[str] | None = None) -> None:
+    """CLI entrypoint for memory_palace."""
     parser = build_parser()
     args = parser.parse_args(argv)
 
