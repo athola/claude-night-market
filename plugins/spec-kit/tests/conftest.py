@@ -339,6 +339,33 @@ def sample_task_list(valid_task_list: List[Dict[str, Any]]) -> List[Dict[str, An
     return valid_task_list
 
 
+@pytest.fixture
+def sample_spec_content(valid_authentication_spec_content: str) -> str:
+    """Alias for valid_authentication_spec_content for backward compatibility.
+
+    Use this when test names reference 'sample' instead of 'valid'.
+    """
+    return valid_authentication_spec_content
+
+
+@pytest.fixture
+def sample_feature_description(detailed_feature_description: str) -> str:
+    """Alias for detailed_feature_description for backward compatibility.
+
+    Use this when test names reference 'sample' instead of 'detailed'.
+    """
+    return detailed_feature_description
+
+
+@pytest.fixture
+def sample_plugin_manifest(valid_plugin_manifest: Dict[str, Any]) -> Dict[str, Any]:
+    """Alias for valid_plugin_manifest for backward compatibility.
+
+    Use this when test names reference 'sample' instead of 'valid'.
+    """
+    return valid_plugin_manifest
+
+
 # ============================================================================
 # Plugin and Manifest Fixtures
 # ============================================================================

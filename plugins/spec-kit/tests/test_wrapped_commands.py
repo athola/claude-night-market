@@ -22,14 +22,11 @@ class TestWrappedCommands:
 
         def test_spec_kit_context_initialization(self, temp_speckit_project) -> None:
             """Test spec-kit context initialization."""
+            # Given: a speckit project (fixture already creates .specify)
             project_dir = temp_speckit_project
-
-            # Create mock .specify structure
             specify_dir = project_dir / ".specify"
-            specify_dir.mkdir(parents=True)
-            (specify_dir / "scripts" / "bash").mkdir(parents=True)
 
-            # Create mock setup script
+            # When: creating a mock setup script
             setup_script = specify_dir / "scripts" / "bash" / "setup-plan.sh"
             setup_script.write_text(
                 """#!/bin/bash
@@ -38,6 +35,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
 """,
             )
 
+            # Then: script should exist and be a file
             assert setup_script.exists()
             assert setup_script.is_file()
 

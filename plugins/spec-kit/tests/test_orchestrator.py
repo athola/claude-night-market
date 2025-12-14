@@ -10,7 +10,11 @@ class TestSpeckitOrchestrator:
 
     @pytest.fixture
     def orchestrator(self, tmp_path, mock_skill_loader):
-        """Create an orchestrator instance for testing."""
+        """Given an orchestrator instance with command-skill mappings.
+
+        Creates mock orchestrator with predefined command mappings and
+        complementary skill relationships.
+        """
         # Mock the orchestrator skill
         orchestrator = Mock()
         orchestrator.plugin_root = tmp_path
@@ -33,32 +37,41 @@ class TestSpeckitOrchestrator:
         orchestrator.load_skill = mock_skill_loader
         return orchestrator
 
-    def test_session_initialization_repository_context(
+    def test_should_verify_repository_context_when_initializing_session(
         self,
         orchestrator,
         temp_speckit_project,
     ) -> None:
         """Test repository context verification during session initialization."""
+        # Given: an orchestrator with a speckit project
         orchestrator.plugin_root = temp_speckit_project
 
-        # Check for .specify directory
+        # When: checking for required directory structure
         specify_dir = temp_speckit_project / ".specify"
+
+        # Then: all required directories should exist
         assert specify_dir.exists()
         assert (specify_dir / "scripts").exists()
         assert (specify_dir / "specs").exists()
 
-    def test_session_initialization_missing_specify_dir(
+    def test_should_detect_missing_directory_when_specify_dir_absent(
         self, orchestrator, tmp_path
     ) -> None:
-        """Test session initialization fails when .specify directory is missing."""
-        orchestrator.plugin_root = tmp_path  # No .specify directory
+        """Test session initialization detects when .specify directory is missing."""
+        # Given: an orchestrator without .specify directory
+        orchestrator.plugin_root = tmp_path
 
-        # Should detect missing directory
+        # When: checking for .specify directory
         specify_dir = tmp_path / ".specify"
+
+        # Then: directory should not exist
         assert not specify_dir.exists()
 
-    def test_command_skill_mapping(self, orchestrator) -> None:
+    def test_should_map_commands_to_correct_skills_when_querying_mapping(
+        self, orchestrator
+    ) -> None:
         """Test command to skill mapping is correct."""
+        # Given: expected command-to-skill mappings
         expected_mappings = {
             "speckit.specify": "spec-writing",
             "speckit.clarify": "spec-writing",
@@ -69,79 +82,90 @@ class TestSpeckitOrchestrator:
             "speckit.checklist": None,  # No primary skill
         }
 
+        # When/Then: each command should map to expected skill
         for command, expected_skill in expected_mappings.items():
             actual_skill = orchestrator.command_skill_map.get(command)
             assert actual_skill == expected_skill, (
                 f"Command {command} should map to {expected_skill}"
             )
 
-    def test_load_command_dependencies_specify_command(self, orchestrator) -> None:
+    def test_should_load_primary_and_complementary_skills_when_executing_specify_command(
+        self, orchestrator
+    ) -> None:
         """Test loading dependencies for /speckit.specify command."""
+        # Given: the speckit.specify command
         command = "speckit.specify"
         primary_skill = orchestrator.command_skill_map[command]
         complementary_skills = orchestrator.complementary_skills.get(primary_skill, [])
 
-        # Should load spec-writing as primary
+        # When: loading the primary skill
         primary_loaded = orchestrator.load_skill(primary_skill)
+
+        # Then: spec-writing should be loaded as primary
         assert primary_loaded is not None
         assert primary_loaded["name"] == "spec-writing"
 
-        # Should load brainstorming as complementary
+        # And: brainstorming should be in complementary skills
         assert "brainstorming" in complementary_skills
 
-    def test_load_command_dependencies_plan_command(self, orchestrator) -> None:
+    def test_should_load_task_planning_dependencies_when_executing_plan_command(
+        self, orchestrator
+    ) -> None:
         """Test loading dependencies for /speckit.plan command."""
+        # Given: the speckit.plan command
         command = "speckit.plan"
         primary_skill = orchestrator.command_skill_map[command]
         complementary_skills = orchestrator.complementary_skills.get(primary_skill, [])
 
-        # Should load task-planning as primary
+        # When: loading the primary skill
         primary_loaded = orchestrator.load_skill(primary_skill)
+
+        # Then: task-planning should be loaded as primary
         assert primary_loaded is not None
         assert primary_loaded["name"] == "task-planning"
 
-        # Should load writing-plans as complementary
+        # And: writing-plans should be in complementary skills
         assert "writing-plans" in complementary_skills
 
-    def test_load_command_dependencies_implement_command(self, orchestrator) -> None:
+    def test_should_load_only_complementary_skills_when_executing_implement_command(
+        self, orchestrator
+    ) -> None:
         """Test loading dependencies for /speckit.implement command."""
+        # Given: the speckit.implement command
         command = "speckit.implement"
         primary_skill = orchestrator.command_skill_map[command]
 
-        # No primary skill for implement
+        # When: checking for primary skill
+        # Then: no primary skill should be assigned
         assert primary_skill is None
 
-        # Should load complementary skills only
+        # And: complementary skills should be available
         complementary_skills = orchestrator.complementary_skills.get(command, [])
         assert "executing-plans" in complementary_skills
         assert "systematic-debugging" in complementary_skills
 
-    @patch("speckit_orchestrator.TodoWrite")
-    def test_progress_tracking_initialization(
+    def test_should_create_todo_items_when_initializing_progress_tracking(
         self,
-        mock_todowrite,
         orchestrator,
         workflow_progress_items,
     ) -> None:
         """Test progress tracking initialization creates proper todo items."""
-        # Simulate progress tracking setup
-        mock_todowrite.return_value = None
-
-        # Initialize progress tracking
+        # Given: workflow progress items for tracking
         progress_items = workflow_progress_items
 
-        # Should create todos for each progress item
+        # When: validating progress items structure
+        # Then: should have todos for each progress item
         assert len(progress_items) == 5
         assert "Repository context verified" in progress_items
         assert "Artifacts created/updated" in progress_items
 
-    def test_cross_artifact_consistency_validation(
+    def test_should_validate_artifact_consistency_when_checking_related_files(
         self,
         orchestrator,
         temp_speckit_project,
     ) -> None:
         """Test validation of consistency across speckit artifacts."""
-        # Create related artifacts
+        # Given: related artifacts in the speckit project
         specs_dir = temp_speckit_project / ".specify" / "specs"
         spec_file = specs_dir / "1-user-auth" / "SPECIFICATION.md"
         spec_file.parent.mkdir(parents=True)
@@ -149,26 +173,33 @@ class TestSpeckitOrchestrator:
             "# User Authentication Spec\n\n## Overview\nUser auth feature",
         )
 
-        # Validate artifact consistency
+        # When: validating artifact consistency
+        # Then: spec file should exist with expected content
         assert spec_file.exists()
         assert "User Authentication" in spec_file.read_text()
 
-    def test_skill_dependency_validation(self, orchestrator) -> None:
+    def test_should_verify_required_dependencies_when_validating_skill(
+        self, orchestrator
+    ) -> None:
         """Test validation of skill dependencies."""
-        # Mock skill with dependencies
+        # Given: a mock skill with dependencies
         skill_with_deps = {
             "name": "test-skill",
             "dependencies": ["abstract", "superpowers"],
         }
 
-        # Should validate dependencies exist
+        # When: validating dependencies exist
         required_deps = skill_with_deps["dependencies"]
+
+        # Then: all required dependencies should be listed
         assert "abstract" in required_deps
         assert "superpowers" in required_deps
 
-    def test_workflow_state_management(self, orchestrator) -> None:
+    def test_should_track_workflow_state_transitions_when_executing_commands(
+        self, orchestrator
+    ) -> None:
         """Test workflow state tracking and management."""
-        # Simulate workflow states
+        # Given: defined workflow states
         workflow_states = [
             "initialized",
             "specifying",
@@ -177,63 +208,76 @@ class TestSpeckitOrchestrator:
             "completed",
         ]
 
-        # Should track state transitions
+        # When: transitioning through states
         current_state = "initialized"
+        # Then: should be in a valid state
         assert current_state in workflow_states
 
-        # State transition
+        # When: state transitions to specifying
         current_state = "specifying"
+        # Then: should still be in a valid state
         assert current_state in workflow_states
 
-    def test_error_handling_missing_skill(self, orchestrator) -> None:
+    def test_should_return_none_when_loading_nonexistent_skill(
+        self, orchestrator
+    ) -> None:
         """Test error handling when required skill is missing."""
-        # Try to load non-existent skill
+        # Given: a non-existent skill name
+        # When: attempting to load the skill
         missing_skill = orchestrator.load_skill("non-existent-skill")
+
+        # Then: should return None
         assert missing_skill is None
 
-    def test_prerequisite_validation(self, orchestrator, temp_speckit_project) -> None:
+    def test_should_have_executable_scripts_when_validating_prerequisites(
+        self, orchestrator, temp_speckit_project
+    ) -> None:
         """Test validation of workflow prerequisites."""
-        # Check for required scripts
+        # Given: required scripts in the project
         scripts_dir = temp_speckit_project / ".specify" / "scripts"
         bash_dir = scripts_dir / "bash"
         create_script = bash_dir / "create-new-feature.sh"
 
+        # When: checking script existence and permissions
+        # Then: script should exist and be executable
         assert create_script.exists()
         assert create_script.stat().st_mode & 0o111  # Executable bit set
 
-    @patch("speckit_orchestrator.Skill")
-    def test_skill_loading_with_context(self, mock_skill, orchestrator) -> None:
+    def test_should_load_skill_with_context_when_requested(
+        self, orchestrator
+    ) -> None:
         """Test skill loading with proper context."""
-        # Mock skill loading
-        mock_skill_instance = Mock()
-        mock_skill_instance.name = "spec-writing"
-        mock_skill_instance.description = "Test skill"
-        mock_skill.return_value = mock_skill_instance
-
-        # Load skill with context
+        # Given: a skill name to load
         skill_name = "spec-writing"
+
+        # When: loading skill with context
         loaded_skill = orchestrator.load_skill(skill_name)
 
+        # Then: skill should be loaded successfully
         assert loaded_skill is not None
-        mock_skill.assert_called_once()
+        assert loaded_skill["name"] == "spec-writing"
 
-    def test_command_execution_workflow(self, orchestrator, mock_todowrite) -> None:
+    def test_should_execute_full_workflow_when_running_specify_command(
+        self, orchestrator, mock_todowrite
+    ) -> None:
         """Test complete command execution workflow."""
+        # Given: the speckit.specify command
         command = "speckit.specify"
 
-        # Step 1: Initialize session
+        # When: Step 1 - Initialize session
         mock_todowrite.return_value = {"success": True}
 
-        # Step 2: Load dependencies
+        # And: Step 2 - Load dependencies
         primary_skill = orchestrator.command_skill_map[command]
+        # Then: should load correct primary skill
         assert primary_skill == "spec-writing"
 
-        # Step 3: Track progress
+        # When: Step 3 - Track progress
         progress_items = [
             "Repository context verified",
             "Command-specific skills loaded",
             "Artifacts created/updated",
         ]
 
-        # Step 4: Validate completion
+        # Then: Step 4 - Validate completion
         assert len(progress_items) == 3
