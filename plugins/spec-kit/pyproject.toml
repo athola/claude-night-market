@@ -114,7 +114,7 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-# Don't build wheel for now as this is a plugin
+packages = ["src/speckit"]
 
 # Black configuration
 [tool.black]
