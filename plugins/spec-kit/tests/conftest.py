@@ -329,6 +329,15 @@ def task_with_missing_dependency() -> List[Dict[str, Any]]:
     ]
 
 
+@pytest.fixture
+def sample_task_list(valid_task_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Alias for valid_task_list for backward compatibility.
+
+    Use this when test names reference 'sample' instead of 'valid'.
+    """
+    return valid_task_list
+
+
 # ============================================================================
 # Plugin and Manifest Fixtures
 # ============================================================================

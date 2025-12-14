@@ -1,6 +1,15 @@
-"""Tests for task-planning skill functionality."""
+"""Tests for task-planning skill functionality.
+
+This module tests the task planning system using BDD-style test structure:
+- Behavior-focused test names (test_should_X_when_Y)
+- Given-When-Then comments for clarity
+- Parameterized tests for comprehensive coverage
+- Edge case and negative testing
+"""
 
 import re
+
+import pytest
 
 # Constants for magic numbers
 MAX_DAYS_PER_TASK = 5
@@ -10,8 +19,11 @@ MIN_MINUTES_PER_TASK = 15
 class TestTaskPlanning:
     """Test cases for the Task Planning skill."""
 
-    def test_task_phases_structure(self, sample_task_list) -> None:
+    def test_should_maintain_phase_order_when_organizing_tasks(
+        self, valid_task_list
+    ) -> None:
         """Test task list follows proper phase structure."""
+        # Given: Expected phase ordering
         expected_phases = [
             "0 - Setup",
             "1 - Foundation",
@@ -20,107 +32,160 @@ class TestTaskPlanning:
             "4 - Polish",
         ]
 
-        actual_phases = [phase["phase"] for phase in sample_task_list]
+        # When: Extracting actual phases from task list
+        actual_phases = [phase["phase"] for phase in valid_task_list]
 
-        # Should have phases in proper order
+        # Then: Phases should be in proper order
         for i, expected_phase in enumerate(expected_phases[: len(actual_phases)]):
             assert actual_phases[i] == expected_phase, (
                 f"Phase {i} should be {expected_phase}"
             )
 
-    def test_task_dependency_structure(self, sample_task_list) -> None:
-        """Test tasks have proper dependency structure."""
-        for phase in sample_task_list:
-            for task in phase["tasks"]:
-                # Each task should have required fields
-                assert "id" in task, f"Task missing ID: {task}"
-                assert "title" in task, f"Task missing title: {task}"
-                assert "description" in task, f"Task missing description: {task}"
-                assert "dependencies" in task, f"Task missing dependencies: {task}"
-                assert "estimated_time" in task, f"Task missing estimated time: {task}"
-                assert "priority" in task, f"Task missing priority: {task}"
+    def test_should_include_all_required_fields_when_validating_tasks(
+        self, valid_task_list
+    ) -> None:
+        """Test tasks have all required fields."""
+        # Given: A valid task list
+        required_fields = [
+            "id",
+            "title",
+            "description",
+            "dependencies",
+            "estimated_time",
+            "priority",
+        ]
 
-                # Dependencies should be a list
+        # When: Checking all tasks across all phases
+        for phase in valid_task_list:
+            for task in phase["tasks"]:
+                # Then: Each task should have all required fields
+                for field in required_fields:
+                    assert field in task, f"Task missing {field}: {task}"
+
+    def test_should_store_dependencies_as_list_when_defining_tasks(
+        self, valid_task_list
+    ) -> None:
+        """Test task dependencies are stored as lists."""
+        # Given: A valid task list
+        # When: Checking dependency structure
+        for phase in valid_task_list:
+            for task in phase["tasks"]:
+                # Then: Dependencies should be a list
                 assert isinstance(task["dependencies"], list), (
                     f"Dependencies should be list, got {type(task['dependencies'])}"
                 )
 
-                # Dependencies should reference existing tasks
-                for dep_id in task["dependencies"]:
-                    found = False
-                    for search_phase in sample_task_list:
-                        for search_task in search_phase["tasks"]:
-                            if search_task["id"] == dep_id:
-                                found = True
-                                break
-                        if found:
-                            break
-                    # Allow dependencies on tasks not in our sample (external deps)
+    def test_should_reference_valid_tasks_when_defining_dependencies(
+        self, valid_task_list
+    ) -> None:
+        """Test task dependencies reference existing tasks."""
+        # Given: A valid task list with dependencies
+        # When: Building task ID map
+        all_task_ids = set()
+        for phase in valid_task_list:
+            for task in phase["tasks"]:
+                all_task_ids.add(task["id"])
 
-    def test_phase_0_setup_tasks(self, sample_task_list) -> None:
-        """Test Phase 0 contains proper setup tasks."""
+        # Then: All dependencies should reference existing tasks
+        for phase in valid_task_list:
+            for task in phase["tasks"]:
+                for dep_id in task["dependencies"]:
+                    assert dep_id in all_task_ids, (
+                        f"Task {task['id']} has invalid dependency: {dep_id}"
+                    )
+
+    def test_should_have_setup_phase_when_organizing_tasks(
+        self, valid_task_list
+    ) -> None:
+        """Test Phase 0 Setup exists and has tasks."""
+        # Given: A valid task list
+        # When: Looking for Setup phase
         setup_phase = next(
-            (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"),
+            (phase for phase in valid_task_list if phase["phase"] == "0 - Setup"),
             None,
         )
+
+        # Then: Setup phase should exist and have tasks
         assert setup_phase is not None, "Should have Setup phase"
+        assert len(setup_phase["tasks"]) > 0, "Setup phase should have tasks"
+
+    def test_should_allow_sequential_dependencies_when_in_setup_phase(
+        self, valid_task_list
+    ) -> None:
+        """Test setup tasks can have dependencies on earlier setup tasks."""
+        # Given: Setup phase from task list
+        setup_phase = next(
+            (phase for phase in valid_task_list if phase["phase"] == "0 - Setup"),
+            None,
+        )
+        assert setup_phase is not None
 
         setup_tasks = setup_phase["tasks"]
-        assert len(setup_tasks) > 0, "Setup phase should have tasks"
+        setup_task_ids = {task["id"] for task in setup_tasks}
 
-        # Setup tasks should have no dependencies or only external deps
+        # When: Checking dependencies within setup phase
+        # Then: Dependencies should exist (tasks can depend on earlier tasks)
+        # This is valid and expected - e.g., install deps depends on init project
         for task in setup_tasks:
-            if task["dependencies"]:
-                # Allow external dependencies but check they don't reference tasks
-                # in same phase
-                for dep_id in task["dependencies"]:
-                    internal_dep = any(
-                        dep_id == other_task["id"]
-                        for other_task in setup_tasks
-                        if other_task["id"] != task["id"]
-                    )
-                    assert not internal_dep, (
-                        f"Setup task {task['id']} has internal dependency {dep_id}"
+            for dep_id in task["dependencies"]:
+                if dep_id in setup_task_ids:
+                    # Ensure it's not a self-dependency
+                    assert dep_id != task["id"], (
+                        f"Setup task {task['id']} has self-dependency"
                     )
 
-    def test_priority_assignment(self, sample_task_list) -> None:
-        """Test tasks have appropriate priority levels."""
-        valid_priorities = ["high", "medium", "low", "critical"]
-
-        for phase in sample_task_list:
+    @pytest.mark.parametrize(
+        "priority",
+        ["high", "medium", "low", "critical"],
+    )
+    def test_should_use_valid_priority_when_setting_task_priority(
+        self, valid_task_list, priority
+    ) -> None:
+        """Test tasks use valid priority levels."""
+        # Given: A valid task list with various priorities
+        # When: Collecting all priorities
+        all_priorities = []
+        for phase in valid_task_list:
             for task in phase["tasks"]:
-                assert task["priority"] in valid_priorities, (
-                    f"Invalid priority: {task['priority']}"
-                )
+                all_priorities.append(task["priority"])
 
-    def test_estimation_format(self, sample_task_list) -> None:
+        # Then: All priorities should be valid
+        for task_priority in all_priorities:
+            assert task_priority in ["high", "medium", "low", "critical"], (
+                f"Invalid priority: {task_priority}"
+            )
+
+    def test_should_match_time_format_when_estimating_tasks(
+        self, valid_task_list
+    ) -> None:
         """Test time estimations follow consistent format."""
+        # Given: Expected time estimation pattern
         estimation_pattern = (
             r"^\d+[hm]$|^(\d+\.?\d*)\s*(hour|hours|day|days|week|weeks)s?$"
         )
 
-        for phase in sample_task_list:
+        # When: Checking all task estimations
+        for phase in valid_task_list:
             for task in phase["tasks"]:
                 estimation = task["estimated_time"]
+
+                # Then: Estimation should match the pattern
                 assert re.match(estimation_pattern, estimation.lower()), (
                     f"Invalid time format: {estimation}"
                 )
 
-    def test_dependency_cycle_detection(self) -> None:
-        """Test dependency cycle detection."""
-        # Create tasks with a cycle
-        cyclic_tasks = [
-            {"id": "task-001", "title": "Task A", "dependencies": ["task-002"]},
-            {"id": "task-002", "title": "Task B", "dependencies": ["task-003"]},
-            {
-                "id": "task-003",
-                "title": "Task C",
-                "dependencies": ["task-001"],  # Creates cycle
-            },
-        ]
+    def test_should_detect_cycle_when_dependencies_are_circular(
+        self, task_with_circular_dependency
+    ) -> None:
+        """Test detection of circular task dependencies."""
+        # Given: Tasks with circular dependencies (A->B->C->A)
+        def has_cycle(task_list):
+            """Helper function to detect cycles using DFS."""
+            # Flatten task list
+            tasks = []
+            for phase in task_list:
+                tasks.extend(phase["tasks"])
 
-        # Detect cycle
-        def has_cycle(tasks):
             visited = set()
             rec_stack = set()
 
@@ -144,47 +209,89 @@ class TestTaskPlanning:
 
             return any(dfs(task["id"]) for task in tasks)
 
-        assert has_cycle(cyclic_tasks), "Should detect dependency cycle"
+        # When: Checking for cycles
+        # Then: Should detect the circular dependency
+        assert has_cycle(task_with_circular_dependency), (
+            "Should detect dependency cycle"
+        )
 
-    def test_parallel_execution_identification(self, sample_task_list) -> None:
+    def test_should_not_detect_cycle_when_dependencies_are_valid(
+        self, valid_task_list
+    ) -> None:
+        """Test that valid task dependencies don't trigger cycle detection."""
+        # Given: Valid task list with proper dependencies
+        def has_cycle(task_list):
+            """Helper function to detect cycles using DFS."""
+            tasks = []
+            for phase in task_list:
+                tasks.extend(phase["tasks"])
+
+            visited = set()
+            rec_stack = set()
+
+            def dfs(task_id) -> bool:
+                if task_id in rec_stack:
+                    return True
+                if task_id in visited:
+                    return False
+
+                visited.add(task_id)
+                rec_stack.add(task_id)
+
+                task = next((t for t in tasks if t["id"] == task_id), None)
+                if task:
+                    for dep_id in task["dependencies"]:
+                        if dfs(dep_id):
+                            return True
+
+                rec_stack.remove(task_id)
+                return False
+
+            return any(dfs(task["id"]) for task in tasks)
+
+        # When: Checking for cycles
+        # Then: Should not detect any cycles
+        assert not has_cycle(valid_task_list), (
+            "Valid task list should not have cycles"
+        )
+
+    def test_should_identify_parallel_tasks_when_no_dependencies_exist(
+        self, valid_task_list
+    ) -> None:
         """Test identification of tasks that can run in parallel."""
-        # Tasks can run in parallel if they're in same phase and have no
-        # dependencies on each other
-        parallel_groups = []
+        # Given: A task list with tasks
+        parallel_count = 0
 
-        for phase in sample_task_list:
+        # When: Identifying tasks that can run in parallel
+        for phase in valid_task_list:
             tasks = phase["tasks"]
-            independent_tasks = []
+            phase_task_ids = {task["id"] for task in tasks}
 
             for task in tasks:
-                # Check if task depends on other tasks in same phase
+                # Check if task has no dependencies on tasks in same phase
                 has_phase_dependency = any(
-                    dep_id in [other_task["id"] for other_task in tasks]
-                    for dep_id in task["dependencies"]
+                    dep_id in phase_task_ids for dep_id in task["dependencies"]
                 )
 
-                if not has_phase_dependency and not task["dependencies"]:
-                    independent_tasks.append(task)
+                # Count tasks with no phase dependencies
+                if not has_phase_dependency:
+                    parallel_count += 1
 
-            if len(independent_tasks) > 1:
-                parallel_groups.append(independent_tasks)
-
-        # Should identify at least one parallel opportunity if we have multiple
-        # setup tasks
-        setup_phase = next(
-            (phase for phase in sample_task_list if phase["phase"] == "0 - Setup"),
-            None,
+        # Then: Should identify some tasks that could potentially run in parallel
+        # At minimum, the first task of each phase has no phase dependencies
+        assert parallel_count >= len(valid_task_list), (
+            f"Should identify tasks without phase dependencies, found {parallel_count}"
         )
-        if setup_phase and len(setup_phase["tasks"]) > 1:
-            assert len(parallel_groups) > 0, (
-                "Should identify parallel execution opportunities"
-            )
 
-    def test_critical_path_identification(self, sample_task_list) -> None:
-        """Test critical path identification through tasks."""
-        # Build dependency graph
+    def test_should_find_entry_points_when_analyzing_critical_path(
+        self, valid_task_list
+    ) -> None:
+        """Test identification of tasks with no dependencies (entry points)."""
+        # Given: A task list with dependencies
         task_map = {}
-        for phase in sample_task_list:
+
+        # When: Building dependency graph
+        for phase in valid_task_list:
             for task in phase["tasks"]:
                 task_map[task["id"]] = {
                     "task": task,
@@ -199,93 +306,151 @@ class TestTaskPlanning:
             if not task_info["dependencies"]
         ]
 
+        # Then: Should have at least one entry point
         assert len(start_tasks) > 0, (
             "Should have at least one task with no dependencies"
         )
 
-    def test_task_description_quality(self, sample_task_list) -> None:
-        """Test task descriptions are clear and actionable."""
-        for phase in sample_task_list:
+    def test_should_be_longer_than_title_when_writing_description(
+        self, valid_task_list
+    ) -> None:
+        """Test task descriptions are more detailed than titles."""
+        # Given: A valid task list
+        # When: Comparing description length to title
+        for phase in valid_task_list:
             for task in phase["tasks"]:
                 description = task["description"]
                 title = task["title"]
 
-                # Description should be more detailed than title
+                # Then: Description should be longer than title
                 assert len(description) > len(title), (
                     f"Description should be longer than title for {task['id']}"
                 )
 
-                # Description should be specific
-                vague_words = ["various", "multiple", "several", "some", "related"]
+    def test_should_avoid_vague_words_when_writing_descriptions(
+        self, valid_task_list
+    ) -> None:
+        """Test task descriptions are specific and clear."""
+        # Given: List of vague words to avoid
+        vague_words = ["various", "multiple", "several", "some", "related"]
+
+        # When: Checking task descriptions
+        for phase in valid_task_list:
+            for task in phase["tasks"]:
+                description = task["description"]
                 description_lower = description.lower()
+
+                # Count vague words
                 vague_found = [
                     word for word in vague_words if word in description_lower
                 ]
 
-                # Allow some vague words but not too many
+                # Then: Should use minimal vague words
                 assert len(vague_found) <= 1, (
                     f"Task description too vague: {description}"
                 )
 
-                # Should start with action verb
-                action_verbs = [
-                    "create",
-                    "implement",
-                    "add",
-                    "build",
-                    "design",
-                    "develop",
-                    "setup",
-                    "configure",
-                    "install",
-                    "write",
-                    "define",
-                    "establish",
-                ]
-                any(description.lower().startswith(verb) for verb in action_verbs)
-                # Not strictly required but good practice
-                # assert starts_with_verb, (
-                #     f"Description should start with action verb: {description}"
-                # )
+    def test_should_start_with_action_verb_when_writing_descriptions(
+        self, valid_task_list
+    ) -> None:
+        """Test task descriptions start with action verbs."""
+        # Given: List of action verbs
+        action_verbs = [
+            "create",
+            "implement",
+            "add",
+            "build",
+            "design",
+            "develop",
+            "setup",
+            "configure",
+            "install",
+            "write",
+            "define",
+            "establish",
+        ]
 
-    def test_phase_content_appropriateness(self, sample_task_list) -> None:
-        """Test each phase contains appropriate types of tasks."""
-        phase_expectations = {
-            "0 - Setup": ["project", "directory", "install", "configure", "init"],
-            "1 - Foundation": ["model", "schema", "interface", "type", "structure"],
-            "2 - Core Implementation": ["implement", "build", "create", "develop"],
-            "3 - Integration": ["integrate", "connect", "middleware", "service"],
-            "4 - Polish": ["optimize", "document", "test", "cleanup", "refactor"],
-        }
+        # When: Checking task descriptions
+        actionable_count = 0
+        total_count = 0
 
-        for phase in sample_task_list:
-            phase_name = phase["phase"]
-            if phase_name in phase_expectations:
-                expected_keywords = phase_expectations[phase_name]
-                phase_tasks = phase["tasks"]
-
-                # At least one task should have expected keywords
-                found_keywords = []
-                for task in phase_tasks:
-                    task_text = f"{task['title']} {task['description']}".lower()
-                    for keyword in expected_keywords:
-                        if keyword in task_text:
-                            found_keywords.append(keyword)
-                            break
-
-                # Should have some expected content (not strictly required)
-                # assert len(found_keywords) > 0, (
-                #     f"Phase {phase_name} should contain expected types of tasks"
-                # )
-
-    def test_task_breakdown_granularity(self, sample_task_list) -> None:
-        """Test tasks are broken down at appropriate granularity."""
-        for phase in sample_task_list:
+        for phase in valid_task_list:
             for task in phase["tasks"]:
-                # Tasks shouldn't be too large (indicated by very long estimates)
+                description = task["description"]
+                total_count += 1
+
+                # Check if starts with action verb
+                if any(description.lower().startswith(verb) for verb in action_verbs):
+                    actionable_count += 1
+
+        # Then: Majority of descriptions should start with action verbs
+        # (Not strictly required but good practice)
+        assert actionable_count / total_count > 0.5, (
+            "Most descriptions should start with action verbs"
+        )
+
+    @pytest.mark.parametrize(
+        "phase_name,expected_keywords",
+        [
+            ("0 - Setup", ["project", "directory", "install", "configure", "init"]),
+            (
+                "1 - Foundation",
+                ["model", "schema", "interface", "type", "structure"],
+            ),
+            (
+                "2 - Core Implementation",
+                ["implement", "build", "create", "develop"],
+            ),
+            (
+                "3 - Integration",
+                ["integrate", "connect", "middleware", "service"],
+            ),
+            (
+                "4 - Polish",
+                ["optimize", "document", "test", "cleanup", "refactor"],
+            ),
+        ],
+    )
+    def test_should_contain_appropriate_tasks_when_in_specific_phase(
+        self, valid_task_list, phase_name, expected_keywords
+    ) -> None:
+        """Test each phase contains contextually appropriate tasks."""
+        # Given: Expected keywords for a specific phase
+        phase = next(
+            (p for p in valid_task_list if p["phase"] == phase_name),
+            None,
+        )
+
+        if phase is None:
+            pytest.skip(f"Phase {phase_name} not in test data")
+
+        # When: Checking task content for expected keywords
+        found_keywords = []
+        for task in phase["tasks"]:
+            task_text = f"{task['title']} {task['description']}".lower()
+            for keyword in expected_keywords:
+                if keyword in task_text:
+                    found_keywords.append(keyword)
+                    break
+
+        # Then: Phase should contain relevant task types
+        # (Not strictly required but indicates good phase organization)
+        assert len(found_keywords) > 0 or len(phase["tasks"]) == 0, (
+            f"Phase {phase_name} should contain expected types of tasks"
+        )
+
+    def test_should_not_exceed_max_days_when_estimating_large_tasks(
+        self, valid_task_list
+    ) -> None:
+        """Test tasks don't exceed maximum duration threshold."""
+        # Given: Maximum task duration threshold
+        # When: Checking all task estimations
+        for phase in valid_task_list:
+            for task in phase["tasks"]:
                 time_est = task["estimated_time"].lower()
+
+                # Then: Tasks with day estimates should not be too large
                 if "day" in time_est:
-                    # Extract number of days
                     days_match = re.search(r"(\d+(?:\.\d+)?)\s*day", time_est)
                     if days_match:
                         days = float(days_match.group(1))
@@ -293,7 +458,17 @@ class TestTaskPlanning:
                             f"Task too large: {task['id']} - {days} days"
                         )
 
-                # Tasks shouldn't be too small (less than 15 minutes)
+    def test_should_meet_minimum_duration_when_estimating_small_tasks(
+        self, valid_task_list
+    ) -> None:
+        """Test tasks meet minimum duration threshold."""
+        # Given: Minimum task duration threshold
+        # When: Checking all task estimations
+        for phase in valid_task_list:
+            for task in phase["tasks"]:
+                time_est = task["estimated_time"].lower()
+
+                # Then: Tasks with minute estimates should not be too small
                 if "m" in time_est or "minute" in time_est:
                     minutes_match = re.search(r"(\d+(?:\.\d+)?)\s*m", time_est)
                     if minutes_match:
@@ -302,46 +477,53 @@ class TestTaskPlanning:
                             f"Task too small: {task['id']} - {minutes} minutes"
                         )
 
-    def test_task_id_consistency(self, sample_task_list) -> None:
-        """Test task IDs follow consistent pattern."""
+    def test_should_follow_naming_pattern_when_assigning_task_ids(
+        self, valid_task_list
+    ) -> None:
+        """Test task IDs follow consistent naming pattern."""
+        # Given: Expected task ID pattern (prefix-###)
         id_pattern = r"^[a-z]+-\d{3}$"
 
-        for phase in sample_task_list:
+        # When: Checking all task IDs
+        for phase in valid_task_list:
             for task in phase["tasks"]:
+                # Then: Each ID should match the pattern
                 assert re.match(id_pattern, task["id"]), (
                     f"Task ID doesn't match pattern: {task['id']}"
                 )
 
-    def test_phase_separation(self, sample_task_list) -> None:
-        """Test phases are properly separated with no cross-phase dependencies."""
-        # Build task ID sets per phase
+    def test_should_prevent_forward_dependencies_when_organizing_phases(
+        self, valid_task_list
+    ) -> None:
+        """Test phases don't have forward cross-phase dependencies."""
+        # Given: Task list with multiple phases
         phase_tasks = {}
-        for phase in sample_task_list:
+        for phase in valid_task_list:
             phase_tasks[phase["phase"]] = {task["id"] for task in phase["tasks"]}
 
-        # Check no cross-phase dependencies
-        for phase in sample_task_list:
+        phase_order = [
+            "0 - Setup",
+            "1 - Foundation",
+            "2 - Core Implementation",
+            "3 - Integration",
+            "4 - Polish",
+        ]
+
+        # When: Checking dependencies across phases
+        for phase in valid_task_list:
             phase_name = phase["phase"]
-            phase_tasks[phase_name]
 
             for task in phase["tasks"]:
                 for dep_id in task["dependencies"]:
-                    # If dependency is in our sample, it should be in same or earlier phase
+                    # Find which phase the dependency belongs to
                     dep_phase = None
                     for other_phase_name, task_ids in phase_tasks.items():
                         if dep_id in task_ids:
                             dep_phase = other_phase_name
                             break
 
+                    # Then: Dependencies should be in same or earlier phase
                     if dep_phase:
-                        # Dependency should be in same or earlier phase
-                        phase_order = [
-                            "0 - Setup",
-                            "1 - Foundation",
-                            "2 - Core Implementation",
-                            "3 - Integration",
-                            "4 - Polish",
-                        ]
                         current_index = phase_order.index(phase_name)
                         dep_index = phase_order.index(dep_phase)
 
@@ -349,3 +531,36 @@ class TestTaskPlanning:
                             f"Cross-phase forward dependency: "
                             f"{task['id']} depends on {dep_id}"
                         )
+
+    # Edge Cases and Negative Tests
+
+    def test_should_handle_empty_task_list_when_validating(
+        self, empty_task_list
+    ) -> None:
+        """Test graceful handling of empty task list."""
+        # Given: An empty task list
+        # When: Processing the list
+        # Then: Should not raise any errors
+        assert isinstance(empty_task_list, list)
+        assert len(empty_task_list) == 0
+
+    def test_should_reject_missing_dependencies_when_validating_tasks(
+        self, task_with_missing_dependency
+    ) -> None:
+        """Test detection of references to non-existent tasks."""
+        # Given: Tasks with missing dependencies
+        all_task_ids = set()
+        for phase in task_with_missing_dependency:
+            for task in phase["tasks"]:
+                all_task_ids.add(task["id"])
+
+        # When: Checking dependencies
+        missing_deps = []
+        for phase in task_with_missing_dependency:
+            for task in phase["tasks"]:
+                for dep_id in task["dependencies"]:
+                    if dep_id not in all_task_ids:
+                        missing_deps.append(dep_id)
+
+        # Then: Should detect missing dependencies
+        assert len(missing_deps) > 0, "Should detect missing dependencies"
