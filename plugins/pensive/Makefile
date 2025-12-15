@@ -9,12 +9,12 @@
         deps-outdated mutation-test dev ci benchmark memory-profile coverage-badge test-structure \
         help status demo-makefile-review demo-bug-review demo-skills plugin-check
 
+# Plugin-specific variables (must be before include)
+SRC_DIRS := src tests
+
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
-
-# Plugin-specific variables
-SRC_DIRS ?= src tests
 
 # Default target
 all: test lint ## Run tests and linting

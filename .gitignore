@@ -68,6 +68,7 @@ Thumbs.db
 # local docs
 docs/plans/
 docs/backlog/
+**/*/docs/plans/
 
 # Git worktrees
 .worktrees/

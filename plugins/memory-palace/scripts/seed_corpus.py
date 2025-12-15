@@ -544,7 +544,8 @@ def _topics() -> list[Topic]:
                     "interactive CLI for lifecycle decisions",
                     ["cli", "tending", "workflow"],
                     (
-                        "Provide interactive CLI to cycle through stale entries and capture actions."
+                        "Provide interactive CLI to cycle through stale entries "
+                        "and capture actions."
                     ),
                     [
                         "Load queue from `vitality-scores.yaml`.",
@@ -756,7 +757,8 @@ def _topics() -> list[Topic]:
                     "combining keyword + embedding scores",
                     ["fusion", "ranking", "hybrid"],
                     (
-                        "Fuse keyword and embedding scores using weighted sums to improve precision."
+                        "Fuse keyword and embedding scores using weighted sums "
+                        "to improve precision."
                     ),
                     [
                         "Normalize scores before blending.",
@@ -1016,7 +1018,8 @@ def write_markdown(entry: dict[str, Any]) -> None:
         f"1. {step}" if idx == 0 else f"{idx + 1}. {step}"
         for idx, step in enumerate(entry["steps"])
     )
-    content = f"---\n{yaml.safe_dump(front_matter, sort_keys=False).strip()}\n---\n\n{body}\n{steps}\n"
+    yaml_header = yaml.safe_dump(front_matter, sort_keys=False).strip()
+    content = f"---\n{yaml_header}\n---\n\n{body}\n{steps}\n"
     path.write_text(content, encoding="utf-8")
 
 

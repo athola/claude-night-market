@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, ClassVar
 
 
 @dataclass
@@ -42,14 +42,14 @@ class AnalysisResult:
 class BaseReviewSkill:
     """Base class for all review skills."""
 
-    skill_name: str = "base"
-    supported_languages: list[str] = []
+    skill_name: ClassVar[str] = "base"
+    supported_languages: ClassVar[list[str]] = []
 
     def __init__(self) -> None:
         """Initialize the skill."""
         self.findings: list[ReviewFinding] = []
 
-    def analyze(self, context: Any, file_path: str) -> AnalysisResult:
+    def analyze(self, _context: Any, _file_path: str) -> AnalysisResult:
         """Analyze a file and return findings."""
         return AnalysisResult()
 

@@ -24,7 +24,8 @@ class TestProjectTrackerInitialization:
     def test_initialize_with_default_data_file_creates_empty_tracker(
         self, temp_data_file: Path
     ) -> None:
-        """GIVEN no existing data file
+        """GIVEN no existing data file.
+
         WHEN tracker is initialized with default settings
         THEN it creates empty tracker with default initiatives.
         """
@@ -38,7 +39,8 @@ class TestProjectTrackerInitialization:
         assert isinstance(tracker.data, InitiativeTracker)
 
     def test_initialize_with_custom_data_file_path(self, temp_data_dir: Path) -> None:
-        """GIVEN custom data file path
+        """GIVEN custom data file path.
+
         WHEN tracker is initialized
         THEN it uses the specified path.
         """
@@ -52,7 +54,8 @@ class TestProjectTrackerInitialization:
         assert tracker.data_file == custom_path
 
     def test_initialize_with_custom_initiatives(self, temp_data_file: Path) -> None:
-        """GIVEN custom initiative list
+        """GIVEN custom initiative list.
+
         WHEN tracker is initialized
         THEN it uses custom initiatives instead of defaults.
         """
@@ -71,7 +74,8 @@ class TestProjectTrackerInitialization:
     def test_initialize_loads_existing_data_file(
         self, seeded_data_file: Path, sample_tasks: list[Task]
     ) -> None:
-        """GIVEN existing data file with tasks
+        """GIVEN existing data file with tasks.
+
         WHEN tracker is initialized
         THEN it loads tasks from file.
         """
@@ -86,7 +90,8 @@ class TestProjectTrackerInitialization:
     def test_initialize_with_nonexistent_file_creates_empty_tracker(
         self, temp_data_dir: Path
     ) -> None:
-        """GIVEN nonexistent data file path
+        """GIVEN nonexistent data file path.
+
         WHEN tracker is initialized
         THEN it creates empty tracker without error.
         """
@@ -112,7 +117,8 @@ class TestDataPersistence:
     def test_save_creates_data_file_with_correct_structure(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN empty tracker
+        """GIVEN empty tracker.
+
         WHEN task is added (triggering save)
         THEN data file is created with correct JSON structure.
         """
@@ -147,7 +153,8 @@ class TestDataPersistence:
     def test_save_creates_parent_directories_if_needed(
         self, temp_data_dir: Path
     ) -> None:
-        """GIVEN data file path with nonexistent parent directories
+        """GIVEN data file path with nonexistent parent directories.
+
         WHEN save is triggered
         THEN parent directories are created automatically.
         """
@@ -179,7 +186,8 @@ class TestDataPersistence:
     def test_load_then_save_preserves_all_task_fields(
         self, seeded_data_file: Path, sample_tasks: list[Task]
     ) -> None:
-        """GIVEN tracker loaded from file
+        """GIVEN tracker loaded from file.
+
         WHEN data is saved back
         THEN all task fields are preserved correctly.
         """
@@ -208,7 +216,8 @@ class TestDataPersistence:
     def test_save_updates_last_updated_timestamp(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with tasks
+        """GIVEN tracker with tasks.
+
         WHEN save is called
         THEN last_updated timestamp is set to current time.
         """
@@ -250,7 +259,8 @@ class TestAddTask:
     def test_add_single_task_increases_task_count(
         self, empty_tracker: ProjectTracker, minimal_task: Task
     ) -> None:
-        """GIVEN empty tracker
+        """GIVEN empty tracker.
+
         WHEN single task is added
         THEN task count increases by one.
         """
@@ -266,7 +276,8 @@ class TestAddTask:
     def test_add_task_stores_task_with_all_fields(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker and task with all fields
+        """GIVEN tracker and task with all fields.
+
         WHEN task is added
         THEN all fields are stored correctly.
         """
@@ -307,7 +318,8 @@ class TestAddTask:
     def test_add_multiple_tasks_preserves_order(
         self, empty_tracker: ProjectTracker, sample_tasks: list[Task]
     ) -> None:
-        """GIVEN empty tracker and multiple tasks
+        """GIVEN empty tracker and multiple tasks.
+
         WHEN tasks are added sequentially
         THEN tasks are stored in addition order.
         """
@@ -322,7 +334,8 @@ class TestAddTask:
     def test_add_task_persists_to_file(
         self, empty_tracker: ProjectTracker, minimal_task: Task
     ) -> None:
-        """GIVEN empty tracker
+        """GIVEN empty tracker.
+
         WHEN task is added
         THEN task is persisted to data file.
         """
@@ -339,7 +352,8 @@ class TestUpdateTask:
     """Test task update functionality."""
 
     def test_update_task_status(self, populated_tracker: ProjectTracker) -> None:
-        """GIVEN tracker with existing task
+        """GIVEN tracker with existing task.
+
         WHEN task status is updated
         THEN status changes and file is saved.
         """
@@ -356,7 +370,8 @@ class TestUpdateTask:
     def test_update_task_completion_percent(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with task
+        """GIVEN tracker with task.
+
         WHEN completion percentage is updated
         THEN value is changed correctly.
         """
@@ -373,7 +388,8 @@ class TestUpdateTask:
     def test_update_task_multiple_fields(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with task
+        """GIVEN tracker with task.
+
         WHEN multiple fields are updated
         THEN all fields are changed.
         """
@@ -397,7 +413,8 @@ class TestUpdateTask:
     def test_update_task_sets_updated_date(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with task
+        """GIVEN tracker with task.
+
         WHEN task is updated
         THEN updated_date is set to current time.
         """
@@ -418,7 +435,8 @@ class TestUpdateTask:
     def test_update_task_persists_changes(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with task
+        """GIVEN tracker with task.
+
         WHEN task is updated
         THEN changes are persisted to file.
         """
@@ -436,7 +454,8 @@ class TestUpdateTask:
     def test_update_nonexistent_task_does_nothing(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with tasks
+        """GIVEN tracker with tasks.
+
         WHEN update is called with nonexistent task ID
         THEN no tasks are modified.
         """
@@ -462,7 +481,8 @@ class TestGetTasksByInitiative:
     def test_get_tasks_for_existing_initiative_returns_matching_tasks(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with tasks across initiatives
+        """GIVEN tracker with tasks across initiatives.
+
         WHEN filtering by specific initiative
         THEN only tasks from that initiative are returned.
         """
@@ -476,7 +496,8 @@ class TestGetTasksByInitiative:
     def test_get_tasks_for_initiative_with_no_tasks_returns_empty_list(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with tasks
+        """GIVEN tracker with tasks.
+
         WHEN filtering by initiative with no tasks
         THEN empty list is returned.
         """
@@ -489,7 +510,8 @@ class TestGetTasksByInitiative:
     def test_get_tasks_from_empty_tracker_returns_empty_list(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN empty tracker
+        """GIVEN empty tracker.
+
         WHEN filtering by any initiative
         THEN empty list is returned.
         """
@@ -502,7 +524,8 @@ class TestGetTasksByInitiative:
     def test_get_tasks_preserves_task_order(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with multiple tasks in same initiative
+        """GIVEN tracker with multiple tasks in same initiative.
+
         WHEN filtering by initiative
         THEN tasks are returned in original order.
         """
@@ -526,7 +549,8 @@ class TestCalculateInitiativeMetrics:
     def test_calculate_metrics_for_empty_task_list(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN empty task list
+        """GIVEN empty task list.
+
         WHEN metrics are calculated
         THEN all metrics are zero.
         """
@@ -545,7 +569,8 @@ class TestCalculateInitiativeMetrics:
     def test_calculate_metrics_for_single_completed_task(
         self, empty_tracker: ProjectTracker, completed_task: Task
     ) -> None:
-        """GIVEN single completed task
+        """GIVEN single completed task.
+
         WHEN metrics are calculated
         THEN completion is 100%.
         """
@@ -564,7 +589,8 @@ class TestCalculateInitiativeMetrics:
     def test_calculate_metrics_for_mixed_status_tasks(
         self, empty_tracker: ProjectTracker, single_initiative_tasks: list[Task]
     ) -> None:
-        """GIVEN tasks with different statuses
+        """GIVEN tasks with different statuses.
+
         WHEN metrics are calculated
         THEN metrics reflect mixed completion.
         """
@@ -583,7 +609,8 @@ class TestCalculateInitiativeMetrics:
     def test_calculate_metrics_rounds_percentages_to_one_decimal(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tasks that produce non-round percentages
+        """GIVEN tasks that produce non-round percentages.
+
         WHEN metrics are calculated
         THEN percentages are rounded to one decimal place.
         """
@@ -616,7 +643,8 @@ class TestCalculateInitiativeMetrics:
     def test_calculate_metrics_counts_only_done_tasks_as_completed(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tasks with various statuses including Review
+        """GIVEN tasks with various statuses including Review.
+
         WHEN metrics are calculated
         THEN only 'Done' status counts as completed.
         """
@@ -666,7 +694,8 @@ class TestCalculateOverallMetrics:
     def test_calculate_overall_metrics_for_empty_tracker(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with no tasks
+        """GIVEN tracker with no tasks.
+
         WHEN overall metrics are calculated
         THEN all metrics are zero.
         """
@@ -682,7 +711,8 @@ class TestCalculateOverallMetrics:
     def test_calculate_overall_metrics_with_all_completed_tasks(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker where all tasks are completed
+        """GIVEN tracker where all tasks are completed.
+
         WHEN overall metrics are calculated
         THEN completion is 100%.
         """
@@ -715,7 +745,8 @@ class TestCalculateOverallMetrics:
     def test_calculate_overall_metrics_burn_rate(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tasks created over time with some completed
+        """GIVEN tasks created over time with some completed.
+
         WHEN overall metrics are calculated
         THEN burn rate reflects hours per week.
         """
@@ -747,7 +778,8 @@ class TestCalculateOverallMetrics:
     def test_calculate_overall_metrics_rounds_to_one_decimal(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tasks that produce non-round percentages
+        """GIVEN tasks that produce non-round percentages.
+
         WHEN overall metrics are calculated
         THEN values are rounded to one decimal.
         """
@@ -788,7 +820,8 @@ class TestGetStatusReport:
     def test_status_report_includes_all_sections(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN populated tracker
+        """GIVEN populated tracker.
+
         WHEN status report is generated
         THEN report contains all required sections.
         """
@@ -803,7 +836,8 @@ class TestGetStatusReport:
     def test_status_report_includes_all_initiatives(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with tasks in multiple initiatives
+        """GIVEN tracker with tasks in multiple initiatives.
+
         WHEN status report is generated
         THEN report includes all initiatives with tasks.
         """
@@ -819,7 +853,8 @@ class TestGetStatusReport:
     def test_status_report_includes_initiatives_without_tasks(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with default initiatives but no tasks
+        """GIVEN tracker with default initiatives but no tasks.
+
         WHEN status report is generated
         THEN report includes all default initiatives with zero metrics.
         """
@@ -835,7 +870,8 @@ class TestGetStatusReport:
     def test_status_report_sorts_initiatives_alphabetically(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with multiple initiatives
+        """GIVEN tracker with multiple initiatives.
+
         WHEN status report is generated
         THEN initiatives are sorted alphabetically.
         """
@@ -849,7 +885,8 @@ class TestGetStatusReport:
     def test_status_report_overall_metrics_match_all_tasks(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN populated tracker
+        """GIVEN populated tracker.
+
         WHEN status report is generated
         THEN overall metrics aggregate all tasks correctly.
         """
@@ -872,7 +909,8 @@ class TestFormatGitHubComment:
     def test_format_github_comment_includes_header(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN populated tracker
+        """GIVEN populated tracker.
+
         WHEN GitHub comment is formatted
         THEN output includes proper header.
         """
@@ -886,7 +924,8 @@ class TestFormatGitHubComment:
     def test_format_github_comment_includes_markdown_table(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN populated tracker
+        """GIVEN populated tracker.
+
         WHEN GitHub comment is formatted
         THEN output includes properly formatted markdown table.
         """
@@ -904,7 +943,8 @@ class TestFormatGitHubComment:
     def test_format_github_comment_includes_all_initiatives(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker with multiple initiatives
+        """GIVEN tracker with multiple initiatives.
+
         WHEN GitHub comment is formatted
         THEN all initiatives appear in table.
         """
@@ -919,7 +959,8 @@ class TestFormatGitHubComment:
     def test_format_github_comment_includes_overall_metrics_section(
         self, populated_tracker: ProjectTracker
     ) -> None:
-        """GIVEN populated tracker
+        """GIVEN populated tracker.
+
         WHEN GitHub comment is formatted
         THEN overall metrics section is included.
         """
@@ -936,7 +977,8 @@ class TestFormatGitHubComment:
     def test_format_github_comment_with_custom_report(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN custom report dict
+        """GIVEN custom report dict.
+
         WHEN formatting with explicit report
         THEN custom report is used instead of generating new one.
         """
@@ -971,7 +1013,8 @@ class TestFormatGitHubComment:
     def test_format_github_comment_for_empty_tracker(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN empty tracker
+        """GIVEN empty tracker.
+
         WHEN GitHub comment is formatted
         THEN output contains zero values but proper structure.
         """
@@ -995,7 +1038,8 @@ class TestExportCSV:
     def test_export_csv_creates_file_with_header(
         self, empty_tracker: ProjectTracker, temp_data_dir: Path
     ) -> None:
-        """GIVEN tracker with tasks
+        """GIVEN tracker with tasks.
+
         WHEN CSV export is called
         THEN file is created with proper header row.
         """
@@ -1033,7 +1077,8 @@ class TestExportCSV:
     def test_export_csv_includes_all_tasks(
         self, populated_tracker: ProjectTracker, temp_data_dir: Path
     ) -> None:
-        """GIVEN tracker with multiple tasks
+        """GIVEN tracker with multiple tasks.
+
         WHEN CSV export is called
         THEN all tasks are exported.
         """
@@ -1052,7 +1097,8 @@ class TestExportCSV:
     def test_export_csv_preserves_task_data(
         self, populated_tracker: ProjectTracker, temp_data_dir: Path
     ) -> None:
-        """GIVEN tracker with tasks
+        """GIVEN tracker with tasks.
+
         WHEN CSV export is called
         THEN task data is accurately exported.
         """
@@ -1076,7 +1122,8 @@ class TestExportCSV:
     def test_export_csv_handles_empty_tracker(
         self, empty_tracker: ProjectTracker, temp_data_dir: Path
     ) -> None:
-        """GIVEN empty tracker
+        """GIVEN empty tracker.
+
         WHEN CSV export is called
         THEN file contains only header row.
         """
@@ -1095,7 +1142,8 @@ class TestExportCSV:
     def test_export_csv_handles_null_github_issue(
         self, empty_tracker: ProjectTracker, temp_data_dir: Path
     ) -> None:
-        """GIVEN task with no GitHub issue
+        """GIVEN task with no GitHub issue.
+
         WHEN CSV export is called
         THEN github_issue field is empty string.
         """
@@ -1130,7 +1178,8 @@ class TestExportCSV:
     def test_export_csv_includes_expected_columns(
         self, populated_tracker: ProjectTracker, temp_data_dir: Path
     ) -> None:
-        """GIVEN populated tracker
+        """GIVEN populated tracker.
+
         WHEN CSV export is called
         THEN exported CSV has all expected columns.
         """
@@ -1171,7 +1220,8 @@ class TestEdgeCases:
     def test_tracker_handles_very_large_task_count(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tracker
+        """GIVEN tracker.
+
         WHEN many tasks are added
         THEN tracker handles large dataset efficiently.
         """
@@ -1201,7 +1251,8 @@ class TestEdgeCases:
     def test_tracker_with_single_task_calculates_metrics_correctly(
         self, empty_tracker: ProjectTracker, minimal_task: Task
     ) -> None:
-        """GIVEN tracker with exactly one task
+        """GIVEN tracker with exactly one task.
+
         WHEN metrics are calculated
         THEN percentages and averages are correct.
         """
@@ -1219,7 +1270,8 @@ class TestEdgeCases:
     def test_tracker_with_zero_effort_tasks(
         self, empty_tracker: ProjectTracker
     ) -> None:
-        """GIVEN tasks with zero effort hours
+        """GIVEN tasks with zero effort hours.
+
         WHEN metrics are calculated
         THEN no division by zero errors occur.
         """
@@ -1251,7 +1303,8 @@ class TestEdgeCases:
     def test_complete_workflow_add_update_report_export(
         self, empty_tracker: ProjectTracker, temp_data_dir: Path
     ) -> None:
-        """GIVEN empty tracker
+        """GIVEN empty tracker.
+
         WHEN complete workflow is executed (add, update, report, export)
         THEN all operations work together correctly.
         """

@@ -3,34 +3,52 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
 
 
-async def dispatch_agent(skill_name: str, context: Any) -> str:
+def dispatch_agent(skill_name: str, _context: Any) -> str:
     """Dispatch an agent to execute a specific skill.
 
     Args:
         skill_name: Name of the skill to execute
-        context: Analysis context
+        _context: Analysis context (unused in placeholder)
 
     Returns:
         Skill execution result
     """
-    # Placeholder implementation for agent dispatch
-    # In production, this would invoke the actual agent system
-    return f"{skill_name} execution result"
+    import asyncio
+
+    from pensive.workflows.skill_coordinator import (
+        dispatch_agent as coordinator_dispatch,
+    )
+
+    # Run the async dispatch synchronously
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+    return loop.run_until_complete(coordinator_dispatch(skill_name, _context))
 
 
 class UnifiedReviewSkill(BaseReviewSkill):
     """Orchestrates all review skills for comprehensive code review."""
 
-    skill_name = "unified-review"
-    supported_languages = ["python", "javascript", "typescript", "rust", "go", "java"]
+    skill_name: ClassVar[str] = "unified-review"
+    supported_languages: ClassVar[list[str]] = [
+        "python",
+        "javascript",
+        "typescript",
+        "rust",
+        "go",
+        "java",
+    ]
 
     # File extension to language mapping
-    LANGUAGE_MARKERS = {
+    LANGUAGE_MARKERS: ClassVar[dict[str, dict[str, list[str]]]] = {
         "rust": {
             "extensions": [".rs"],
             "config_files": ["Cargo.toml", "Cargo.lock"],
@@ -51,7 +69,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
     }
 
     # Mathematical library imports to detect
-    MATH_IMPORTS = [
+    MATH_IMPORTS: ClassVar[list[str]] = [
         "numpy",
         "scipy",
         "sympy",
@@ -75,25 +93,27 @@ class UnifiedReviewSkill(BaseReviewSkill):
         for lang, markers in self.LANGUAGE_MARKERS.items():
             file_count = 0
             lang_info: dict[str, Any] = {"files": 0}
+            extensions = markers["extensions"]
 
             # Count files by extension
             for file in files:
-                if any(file.endswith(ext) for ext in markers["extensions"]):
+                if any(file.endswith(ext) for ext in extensions):
                     file_count += 1
 
-            # Check for config files
+            # Check for config files (only count if not already counted by extension)
             for config_file in markers["config_files"]:
                 if config_file in files:
                     if config_file == "Cargo.toml":
                         lang_info["cargo_toml"] = True
-                    file_count += 1
+                    # Only add to count if config file doesn't match the extensions
+                    if not any(config_file.endswith(ext) for ext in extensions):
+                        file_count += 1
 
             # Check for test patterns
             if "test_patterns" in markers:
                 test_file_count = 0
                 for file in files:
-                    # Match test patterns in the file path
-                    # Patterns like "test_*.py" should match "test_app.py" or "tests/test_app.py"
+                    # Match test patterns like "test_*.py" -> "test_app.py"
                     for pattern in markers["test_patterns"]:
                         if (pattern.startswith("test_") and "test_" in file) or (
                             pattern.endswith("_test.") and "_test." in file
@@ -290,11 +310,11 @@ class UnifiedReviewSkill(BaseReviewSkill):
         has_high = any(f.get("severity") == "high" for f in findings)
 
         if has_critical:
-            return "Block - Critical security or functionality issues must be resolved"
+            return "Block - Critical security/functionality issues must be resolved"
         elif has_high:
-            return "Request changes - High severity issues should be addressed before merging"
+            return "Request changes - High severity issues before merging"
         else:
-            return "Approve with minor changes - Low/medium severity issues can be addressed in follow-up"
+            return "Approve with minor changes - Low/medium issues in follow-up"
 
     def create_action_items(
         self, findings: list[dict[str, Any]]
@@ -334,12 +354,12 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         return action_items
 
-    def analyze(self, context: Any, file_path: str = "") -> str:
+    def analyze(self, context: Any, _file_path: str = "") -> str:
         """Run unified analysis across all applicable skills.
 
         Args:
             context: Analysis context
-            file_path: Optional specific file path
+            _file_path: Optional specific file path (unused)
 
         Returns:
             Analysis result string
@@ -353,7 +373,10 @@ class UnifiedReviewSkill(BaseReviewSkill):
         languages = self.detect_languages(context)
         selected_skills = self.select_review_skills(context)
 
-        return f"Analyzed {len(files)} files, detected {len(languages)} languages, selected {len(selected_skills)} review skills"
+        return (
+            f"Analyzed {len(files)} files, {len(languages)} languages, "
+            f"{len(selected_skills)} skills"
+        )
 
     def detect_api_surface(self, context: Any) -> dict[str, Any]:
         """Detect public API surface in the codebase.
@@ -400,9 +423,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         return api_surface
 
-    async def execute_skills_concurrently(
-        self, skills: list[str], context: Any
-    ) -> list[str]:
+    def execute_skills_concurrently(self, skills: list[str], context: Any) -> list[str]:
         """Execute multiple skills concurrently.
 
         Args:
@@ -412,9 +433,10 @@ class UnifiedReviewSkill(BaseReviewSkill):
         Returns:
             List of skill execution results
         """
+        # Use module-level dispatch_agent for testability
         results = []
         for skill in skills:
-            result = await dispatch_agent(skill, context)
+            result = dispatch_agent(skill, context)
             results.append(result)
         return results
 

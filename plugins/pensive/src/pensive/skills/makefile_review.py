@@ -14,16 +14,21 @@ This skill analyzes makefiles for:
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
+
+# Makefile analysis thresholds
+MIN_TARGETS_FOR_PARALLEL = 5  # Minimum targets to suggest parallelization
+MIN_RECIPE_LINES_FOR_LARGE_TARGET = 3  # Recipe lines threshold
+MIN_CP_OPERATIONS_FOR_WARNING = 3  # Sequential cp commands threshold
 
 
 class MakefileReviewSkill(BaseReviewSkill):
     """Skill for reviewing makefiles and build system configurations."""
 
-    skill_name: str = "makefile_review"
-    supported_languages: list[str] = ["makefile", "make"]
+    skill_name: ClassVar[str] = "makefile_review"
+    supported_languages: ClassVar[list[str]] = ["makefile", "make"]
 
     def __init__(self) -> None:
         """Initialize the makefile review skill."""
@@ -121,14 +126,14 @@ class MakefileReviewSkill(BaseReviewSkill):
                 if re.search(r"(rm|cp|mv|mkdir|gcc|make|wget|curl)", cmd):
                     # No error handling markers
                     if not re.search(r"(\|\||set -e|; exit|\?=|@-)", cmd):
-                        error_handling.append(f"Line {i+1}: {cmd[:50]}")
+                        error_handling.append(f"Line {i + 1}: {cmd[:50]}")
 
         # Check for hardcoded paths
         hardcoded_paths = []
         hardcoded_pattern = re.compile(r"(\/usr\/|\/bin\/|\/tmp\/|C:\\|\/home\/)")
         for i, line in enumerate(lines):
             if hardcoded_pattern.search(line):
-                hardcoded_paths.append(f"Line {i+1}: {line.strip()[:60]}")
+                hardcoded_paths.append(f"Line {i + 1}: {line.strip()[:60]}")
 
         # Check for variable usage (variables should be used, not hardcoded)
         variable_usage = []
@@ -177,7 +182,7 @@ class MakefileReviewSkill(BaseReviewSkill):
             # Check if target compiles source without listing dependencies
             if re.match(r"^main:", line) and "main.c" not in line:
                 missing_dependencies.append(
-                    f"Line {i+1}: main target missing source dependencies"
+                    f"Line {i + 1}: main target missing source dependencies"
                 )
 
             # Check for .o targets that compile without listing all dependencies
@@ -192,7 +197,7 @@ class MakefileReviewSkill(BaseReviewSkill):
                 # parser.o likely needs parser.h but it's not listed
                 if "parser.h" not in target_block and "parser.c" in target_block:
                     missing_dependencies.append(
-                        f"Line {i+1}: parser.o missing header dependencies"
+                        f"Line {i + 1}: parser.o missing header dependencies"
                     )
 
         # 2. Look for header dependencies missing
@@ -248,14 +253,14 @@ class MakefileReviewSkill(BaseReviewSkill):
         # Look for many independent build targets without parallelization hints
         targets = self._extract_targets(content)
         build_targets = [t for t in targets if re.match(r"build\d+|source\d+\.o", t)]
-        if len(build_targets) >= 5:
+        if len(build_targets) >= MIN_TARGETS_FOR_PARALLEL:
             parallelization_issues.append(
                 f"{len(build_targets)} sequential build targets detected"
             )
 
         # Check if -j flag guidance is missing
         if not re.search(r"(-j|MAKEFLAGS.*-j|parallel)", content):
-            if len(targets) > 5:
+            if len(targets) > MIN_TARGETS_FOR_PARALLEL:
                 parallelization_issues.append(
                     "No parallel execution configuration found"
                 )
@@ -277,10 +282,10 @@ class MakefileReviewSkill(BaseReviewSkill):
 
         # Look for multiple cp commands
         cp_count = 0
-        for i, line in enumerate(lines):
+        for _i, line in enumerate(lines):
             if line.startswith("\t") and re.search(r"cp -r", line):
                 cp_count += 1
-        if cp_count >= 3:
+        if cp_count >= MIN_CP_OPERATIONS_FOR_WARNING:
             inefficient_operations.append("Multiple sequential cp commands detected")
 
         # Check for file operations that could be optimized
@@ -288,7 +293,7 @@ class MakefileReviewSkill(BaseReviewSkill):
         for i, line in enumerate(lines):
             if re.search(r"(cp -r|tar czf|rsync)", line):
                 file_operations.append(
-                    f"Line {i+1}: File operation - {line.strip()[:50]}"
+                    f"Line {i + 1}: File operation - {line.strip()[:50]}"
                 )
 
         return {
@@ -314,7 +319,7 @@ class MakefileReviewSkill(BaseReviewSkill):
         lines = content.split("\n")
         for i, line in enumerate(lines):
             if re.search(r"(\/usr\/bin|\/usr\/local|C:\\|\\\\)", line):
-                hardcoded_paths.append(f"Line {i+1}: {line.strip()[:60]}")
+                hardcoded_paths.append(f"Line {i + 1}: {line.strip()[:60]}")
 
         # Check for platform-specific commands
         platform_specific = []
@@ -322,12 +327,12 @@ class MakefileReviewSkill(BaseReviewSkill):
             # Unix-specific
             if re.search(r"(^|\s)(rm -f|chmod|mkdir -p|gdb|cp |mv )", line):
                 platform_specific.append(
-                    f"Line {i+1}: Unix command - {line.strip()[:50]}"
+                    f"Line {i + 1}: Unix command - {line.strip()[:50]}"
                 )
             # Windows-specific
             if re.search(r"(copy |del |xcopy)", line):
                 platform_specific.append(
-                    f"Line {i+1}: Windows command - {line.strip()[:50]}"
+                    f"Line {i + 1}: Windows command - {line.strip()[:50]}"
                 )
 
         # Check for GNU extensions
@@ -373,24 +378,24 @@ class MakefileReviewSkill(BaseReviewSkill):
             # Piping to shell
             if re.search(r"\|\s*(sh|bash)(\s|$)", line):
                 command_injection.append(
-                    f"Line {i+1}: Piping to shell - {line.strip()[:50]}"
+                    f"Line {i + 1}: Piping to shell - {line.strip()[:50]}"
                 )
             # Using read without validation
             if re.search(r"read -p.*\$\$", line):
-                command_injection.append(f"Line {i+1}: User input without validation")
+                command_injection.append(f"Line {i + 1}: User input without validation")
             # Unsafe rm with wildcards
             if re.search(r"rm -rf\s+/tmp/\*", line):
-                command_injection.append(f"Line {i+1}: Dangerous rm with wildcards")
+                command_injection.append(f"Line {i + 1}: Dangerous rm with wildcards")
 
         # Check for privilege escalation
         privilege_escalation = []
         for i, line in enumerate(lines):
             if re.search(r"(^|\s)sudo\s", line):
-                privilege_escalation.append(f"Line {i+1}: sudo usage in makefile")
+                privilege_escalation.append(f"Line {i + 1}: sudo usage in makefile")
             if re.search(r"chmod.*\+s", line):
-                privilege_escalation.append(f"Line {i+1}: setuid bit modification")
+                privilege_escalation.append(f"Line {i + 1}: setuid bit modification")
             if re.search(r"EUID.*0", line):
-                privilege_escalation.append(f"Line {i+1}: Root check in makefile")
+                privilege_escalation.append(f"Line {i + 1}: Root check in makefile")
 
         # Check for path traversal
         path_traversal = []
@@ -401,10 +406,10 @@ class MakefileReviewSkill(BaseReviewSkill):
         insecure_downloads = []
         for i, line in enumerate(lines):
             if re.search(r"(curl|wget).*http://", line):
-                insecure_downloads.append(f"Line {i+1}: Insecure HTTP download")
+                insecure_downloads.append(f"Line {i + 1}: Insecure HTTP download")
             if re.search(r"(tar xzf|unzip)", line):
                 insecure_downloads.append(
-                    f"Line {i+1}: Archive extraction without validation"
+                    f"Line {i + 1}: Archive extraction without validation"
                 )
 
         return {
@@ -453,7 +458,7 @@ class MakefileReviewSkill(BaseReviewSkill):
         for i, line in enumerate(lines):
             if re.match(r"^(CFLAGS|LDFLAGS|SOURCES)\s*=\s*$", line):
                 var_name = line.split("=")[0].strip()
-                entry = f"Line {i+1}: Empty {var_name}"
+                entry = f"Line {i + 1}: Empty {var_name}"
                 if entry not in undefined_variables:
                     undefined_variables.append(entry)
 
@@ -574,7 +579,7 @@ class MakefileReviewSkill(BaseReviewSkill):
         recipe_lines = 0
         for line in lines:
             if re.match(r"^[a-zA-Z0-9_\-]+:", line):
-                if in_target and recipe_lines > 3:
+                if in_target and recipe_lines > MIN_RECIPE_LINES_FOR_LARGE_TARGET:
                     dependency_chain.append(
                         f"{in_target} has {recipe_lines} recipe lines"
                     )
@@ -676,7 +681,7 @@ class MakefileReviewSkill(BaseReviewSkill):
             makefile_analysis: Analysis results from various checks
 
         Returns:
-            List of recommendation dictionaries with priority, action, example, and benefit
+            List of recommendation dicts with priority, action, example, benefit
         """
         recommendations = []
 
@@ -688,7 +693,7 @@ class MakefileReviewSkill(BaseReviewSkill):
                     "priority": "high",
                     "action": "Add .PHONY declarations for non-file targets",
                     "example": ".PHONY: all clean test install",
-                    "benefit": "Prevents conflicts with files of the same name and improves build reliability",
+                    "benefit": "Prevents file conflicts and improves build reliability",
                 }
             )
 
@@ -712,7 +717,7 @@ class MakefileReviewSkill(BaseReviewSkill):
                     "priority": "high",
                     "action": "Remove sudo and privilege escalation from makefiles",
                     "example": "Use DESTDIR and user-level installation instead",
-                    "benefit": "Prevents security vulnerabilities and follows principle of least privilege",
+                    "benefit": "Prevents security vulns and follows least privilege",
                 }
             )
 

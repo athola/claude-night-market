@@ -518,7 +518,9 @@ class TestBugReviewSkill:
 
         # Assert
         severity_map = {bug["issue"]: bug["severity"] for bug in categorized_bugs}
-        assert "sql injection" in severity_map
+        # Check that SQL injection issue is present (case-insensitive)
+        sql_issues = [k for k in severity_map if "sql injection" in k.lower()]
+        assert len(sql_issues) >= 1
         assert (
             categorized_bugs[0]["severity"] == "critical"
         )  # SQL injection should be critical

@@ -47,6 +47,11 @@ extend-ignore = [
     "S607",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "PLR2004",  # Magic values in test assertions are acceptable
+]
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 

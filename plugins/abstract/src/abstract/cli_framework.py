@@ -19,7 +19,6 @@ from .base import AbstractScript
 from .config import AbstractConfig
 from .errors import ErrorHandler
 
-# Type variable for generic result types
 T = TypeVar("T")
 
 

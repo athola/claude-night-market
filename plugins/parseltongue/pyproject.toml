@@ -201,6 +201,9 @@ unfixable = [
 "__init__.py" = [
     "F401",   # Unused import
 ]
+"parseltongue/skills/async_analysis.py" = [
+    "PLR0912", # Too many branches - inherent in AST analysis code
+]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10

@@ -8,14 +8,13 @@ version = "1.0.0"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -185,6 +184,30 @@ unfixable = [
 ]
 "__init__.py" = [
     "F401",   # Unused import
+]
+"src/pensive/skills/makefile_review.py" = [
+    "SIM102",  # Complex nested checks in analysis logic
+    "PLR0912", # Complex analysis functions have many branches
+]
+"src/pensive/skills/architecture_review.py" = [
+    "SIM102",  # Complex nested checks in analysis logic
+    "PLR0912", # Complex analysis functions have many branches
+    "PLC0415", # Deferred imports for lazy loading
+]
+"src/pensive/skills/rust_review.py" = [
+    "PLR0912", # Complex analysis functions have many branches
+]
+"src/pensive/skills/test_review.py" = [
+    "PLR0912", # Complex analysis functions have many branches
+]
+"src/pensive/reporting/formatters.py" = [
+    "PLC0415", # Deferred import for json module
+]
+"src/pensive/skills/unified_review.py" = [
+    "PLR0912", # Complex language detection function has many branches
+]
+"src/pensive/workflows/code_review.py" = [
+    "PLC0415", # Deferred import for dynamic skill loading
 ]
 
 [tool.ruff.lint.mccabe]

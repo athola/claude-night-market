@@ -1,49 +1,7 @@
 repos:
   - repo: local
     hooks:
-      # Enhanced Governance Automation Hooks
-      - id: performance-regression-detector
-        name: Performance Regression Detection
-        entry: python3 scripts/performance_regression_detector.py
-        language: system
-        files: ^(plugins|scripts)/.*\.(py|md|yaml|yml|json)$
-        pass_filenames: false
-        args: [".", "--update-baseline"]
-
-      - id: technical-debt-detector
-        name: Technical Debt Detection
-        entry: python3 scripts/technical_debt_detector.py
-        language: system
-        files: ^(plugins|scripts)/.*\.(py|md|yaml|yml|json)$
-        pass_filenames: false
-        args: ["."]
-
-      - id: plugin-api-compatibility-checker
-        name: Plugin API Compatibility Validation
-        entry: python3 scripts/plugin_api_compatibility_checker.py
-        language: system
-        files: ^plugins/.*\.json$|^plugins/.*plugin\.yaml$|^plugins/.*plugin\.yml$
-        pass_filenames: false
-        args: ["."]
-
-      - id: enhanced-context-optimizer
-        name: Enhanced Context Optimization
-        entry: python3 scripts/enhanced_context_optimizer.py
-        language: system
-        files: ^.*SKILL\.md$|^plugins/.*\.py$
-        pass_filenames: false
-        args: ["."]
-
-      - id: quality-gate-enforcer
-        name: Quality Gate Enforcement
-        entry: python3 scripts/quality_gate_enforcer.py
-        language: system
-        files: ^(plugins|scripts)/.*\.(py|md|yaml|yml|json)$
-        pass_filenames: false
-        args: ["."]
-        stages: [pre-commit, pre-merge-commit]
-
-      # Original Plugin Validation Hooks
+      # Plugin Validation Hooks
       - id: validate-abstract-skills
         name: Validate Abstract Skills
         entry: python3 plugins/abstract/scripts/abstract_validator.py

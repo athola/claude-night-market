@@ -43,9 +43,11 @@ PYTHONPATH ?= src
 
 # Source directories (override via environment or Makefile.local)
 SCRIPTS_DIR ?= scripts
-HOOKS_DIR ?= .pre-commit
+HOOKS_DIR ?= hooks
 SKILLS_DIR ?= skills
-SRC_DIRS := $(SCRIPTS_DIR) $(HOOKS_DIR)
+# Note: SRC_DIRS should be set by each plugin BEFORE including this file
+# Default only applies if plugin doesn't set it
+SRC_DIRS ?= $(SCRIPTS_DIR)
 
 # Helper function to check if a file exists
 define file_exists

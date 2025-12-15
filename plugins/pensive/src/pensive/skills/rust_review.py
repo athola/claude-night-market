@@ -13,16 +13,20 @@ Provides Rust-specific analysis capabilities including:
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
+
+# Rust analysis thresholds
+MIN_TEST_COVERAGE = 0.8  # Minimum acceptable test coverage
+MAX_DEPENDENCIES = 20  # Maximum recommended dependencies
 
 
 class RustReviewSkill(BaseReviewSkill):
     """Skill for reviewing Rust code with safety and security focus."""
 
-    skill_name = "rust_review"
-    supported_languages = ["rust"]
+    skill_name: ClassVar[str] = "rust_review"
+    supported_languages: ClassVar[list[str]] = ["rust"]
 
     def analyze_unsafe_code(
         self,
@@ -135,7 +139,9 @@ class RustReviewSkill(BaseReviewSkill):
                             {
                                 "line": j + 1,
                                 "type": "rc_refcell_cycle",
-                                "description": "Potential reference cycle with Rc<RefCell>",
+                                "description": (
+                                    "Potential reference cycle with Rc<RefCell>"
+                                ),
                             }
                         )
                         break
@@ -186,7 +192,7 @@ class RustReviewSkill(BaseReviewSkill):
                             {
                                 "line": i + 1,
                                 "type": "refcell_threading",
-                                "description": "RefCell is not thread-safe (not Send+Sync)",
+                                "description": "RefCell not thread-safe (Send+Sync)",
                             }
                         )
                         break
@@ -206,7 +212,7 @@ class RustReviewSkill(BaseReviewSkill):
                     {
                         "line": i + 1,
                         "type": "atomic_usage",
-                        "description": "Safe: Using atomic types for thread-safe access",
+                        "description": "Safe: Using atomic types for thread safety",
                     }
                 )
 
@@ -253,7 +259,7 @@ class RustReviewSkill(BaseReviewSkill):
                         {
                             "line": i + 1,
                             "type": "potential_overflow",
-                            "description": "Potentially large offset - risk of buffer overflow",
+                            "description": "Large offset - buffer overflow risk",
                         }
                     )
 
@@ -266,7 +272,7 @@ class RustReviewSkill(BaseReviewSkill):
                             {
                                 "line": j + 1,
                                 "type": "box_free",
-                                "description": "Box::from_raw - ensure no use after this point",
+                                "description": "Box::from_raw - ensure no use after",
                             }
                         )
                         break
@@ -286,7 +292,7 @@ class RustReviewSkill(BaseReviewSkill):
                     {
                         "line": i + 1,
                         "type": "lifetime_annotation",
-                        "description": "Lifetime annotation present - verify correctness",
+                        "description": "Lifetime annotation - verify correctness",
                     }
                 )
 
@@ -397,7 +403,7 @@ class RustReviewSkill(BaseReviewSkill):
                     {
                         "line": i + 1,
                         "type": "blocking_sleep",
-                        "description": "Using std::thread::sleep in async context - use tokio::time::sleep",
+                        "description": "std::thread::sleep in async - use tokio::time",
                     }
                 )
 
@@ -424,7 +430,7 @@ class RustReviewSkill(BaseReviewSkill):
                     {
                         "line": i + 1,
                         "type": "rc_in_async",
-                        "description": "Rc is not Send+Sync - problematic in async context",
+                        "description": "Rc not Send+Sync - problematic in async",
                     }
                 )
 
@@ -465,7 +471,7 @@ class RustReviewSkill(BaseReviewSkill):
         in_dependencies = False
         in_features = False
 
-        for i, line in enumerate(lines):
+        for _i, line in enumerate(lines):
             # Track sections
             if "[dependencies]" in line:
                 in_dependencies = True
@@ -492,7 +498,7 @@ class RustReviewSkill(BaseReviewSkill):
                         version_issues.append(
                             {
                                 "dependency": name,
-                                "issue": "Exact version specified - consider using version ranges",
+                                "issue": "Exact version - consider version ranges",
                             }
                         )
 
@@ -501,7 +507,7 @@ class RustReviewSkill(BaseReviewSkill):
                     version_issues.append(
                         {
                             "dependency": "tokio",
-                            "issue": "Using 'full' features - consider selecting only needed features",
+                            "issue": "'full' features - consider selecting only needed",
                         }
                     )
 
@@ -510,7 +516,7 @@ class RustReviewSkill(BaseReviewSkill):
                     security_concerns.append(
                         {
                             "dependency": "openssl",
-                            "issue": "Older version - check for security vulnerabilities",
+                            "issue": "Older version - check security issues",
                         }
                     )
 
@@ -668,16 +674,19 @@ class RustReviewSkill(BaseReviewSkill):
                             }
                         )
 
-                    if re.search(r"fn\s+\w+\(\)", line) and "->" in line:
+                    if (
+                        re.search(r"fn\s+\w+\(\)", line)
+                        and "->" in line
+                        and "self" not in line
+                    ):
                         # Static method (no self)
-                        if "self" not in line:
-                            object_safety_issues.append(
-                                {
-                                    "line": i + 1,
-                                    "trait": current_trait,
-                                    "issue": "Static method - not object-safe",
-                                }
-                            )
+                        object_safety_issues.append(
+                            {
+                                "line": i + 1,
+                                "trait": current_trait,
+                                "issue": "Static method - not object-safe",
+                            }
+                        )
 
             # End of trait definition
             if current_trait and line.strip() == "}":
@@ -755,7 +764,7 @@ class RustReviewSkill(BaseReviewSkill):
                             {
                                 "line": i + 1,
                                 "struct": struct_name,
-                                "issue": f"Const generic {const_param} may not constrain the type",
+                                "issue": f"Const generic {const_param} unconstrained",
                             }
                         )
 
@@ -774,7 +783,7 @@ class RustReviewSkill(BaseReviewSkill):
                     {
                         "line": i + 1,
                         "struct": current_struct,
-                        "issue": "PhantomData usage - may indicate unconstrained type parameter",
+                        "issue": "PhantomData usage - may indicate unconstrained type",
                     }
                 )
 
@@ -987,11 +996,11 @@ Panic points detected: {panic_points}
                     "category": "async",
                     "practice": "Use tokio::time instead of std::thread::sleep",
                     "benefit": "Prevents blocking the async runtime",
-                    "implementation": "Replace blocking operations with async equivalents",
+                    "implementation": "Replace blocking ops with async equivalents",
                 }
             )
 
-        if analysis.get("test_coverage", 1.0) < 0.8:
+        if analysis.get("test_coverage", 1.0) < MIN_TEST_COVERAGE:
             recommendations.append(
                 {
                     "category": "testing",
@@ -1001,7 +1010,7 @@ Panic points detected: {panic_points}
                 }
             )
 
-        if analysis.get("dependency_count", 0) > 20:
+        if analysis.get("dependency_count", 0) > MAX_DEPENDENCIES:
             recommendations.append(
                 {
                     "category": "dependencies",

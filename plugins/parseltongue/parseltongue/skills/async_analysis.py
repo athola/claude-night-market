@@ -252,31 +252,32 @@ class AsyncAnalysisSkill:
 
                 # Look for direct assignment from a call (potential missing await)
                 for child in node.body:
-                    if isinstance(child, ast.Assign):
-                        # Check if right side is a call (not wrapped in await)
-                        if isinstance(child.value, ast.Call):
-                            # This is a call without await
-                            call_name = None
-                            if isinstance(child.value.func, ast.Name):
-                                call_name = child.value.func.id
-                            elif isinstance(child.value.func, ast.Attribute):
-                                call_name = child.value.func.attr
+                    # Check if right side is a call (not wrapped in await)
+                    if isinstance(child, ast.Assign) and isinstance(
+                        child.value, ast.Call
+                    ):
+                        # This is a call without await
+                        call_name = None
+                        if isinstance(child.value.func, ast.Name):
+                            call_name = child.value.func.id
+                        elif isinstance(child.value.func, ast.Attribute):
+                            call_name = child.value.func.attr
 
-                            # Common async function patterns
-                            if call_name and any(
-                                keyword in call_name.lower()
-                                for keyword in [
-                                    "fetch",
-                                    "get",
-                                    "post",
-                                    "api",
-                                    "async",
-                                    "call",
-                                ]
-                            ):
-                                missing_awaits[function_name] = {
-                                    "suggestion": "Add await before the coroutine call"
-                                }
+                        # Common async function patterns
+                        if call_name and any(
+                            keyword in call_name.lower()
+                            for keyword in [
+                                "fetch",
+                                "get",
+                                "post",
+                                "api",
+                                "async",
+                                "call",
+                            ]
+                        ):
+                            missing_awaits[function_name] = {
+                                "suggestion": "Add await before the coroutine call"
+                            }
 
         return {"missing_awaits": missing_awaits}
 
@@ -380,23 +381,24 @@ class AsyncAnalysisSkill:
 
                 # Check for asyncio.wait_for
                 for child in ast.walk(node):
-                    if isinstance(child, ast.Call):
-                        if self._is_call_to(
-                            child, "asyncio.wait_for"
-                        ) or self._is_call_to(child, "wait_for"):
-                            has_timeout = True
-                            wait_for_usage.append(
-                                {
-                                    "function": function_name,
-                                    "line_number": child.lineno,
-                                }
-                            )
+                    if isinstance(child, ast.Call) and (
+                        self._is_call_to(child, "asyncio.wait_for")
+                        or self._is_call_to(child, "wait_for")
+                    ):
+                        has_timeout = True
+                        wait_for_usage.append(
+                            {
+                                "function": function_name,
+                                "line_number": child.lineno,
+                            }
+                        )
 
-                            # Try to extract timeout value from call
-                            for keyword in child.keywords:
-                                if keyword.arg == "timeout":
-                                    if isinstance(keyword.value, ast.Constant):
-                                        timeout_value = keyword.value.value
+                        # Try to extract timeout value from call
+                        for keyword in child.keywords:
+                            if keyword.arg == "timeout" and isinstance(
+                                keyword.value, ast.Constant
+                            ):
+                                timeout_value = keyword.value.value
 
                 if has_timeout:
                     functions[function_name] = {
@@ -447,12 +449,12 @@ class AsyncAnalysisSkill:
                         has_aexit = True
                         # Check if __aexit__ calls close()
                         for child in ast.walk(item):
-                            if isinstance(child, ast.Call):
-                                if (
-                                    isinstance(child.func, ast.Attribute)
-                                    and child.func.attr == "close"
-                                ):
-                                    cleanup_in_finally = True
+                            if (
+                                isinstance(child, ast.Call)
+                                and isinstance(child.func, ast.Attribute)
+                                and child.func.attr == "close"
+                            ):
+                                cleanup_in_finally = True
 
                 # Check for session creation/cleanup in methods
                 for item in ast.walk(node):
@@ -466,12 +468,11 @@ class AsyncAnalysisSkill:
                                 creates_session = True
 
                     # Check for session closure
-                    if isinstance(item, ast.Call):
-                        if (
-                            isinstance(item.func, ast.Attribute)
-                            and item.func.attr == "close"
-                        ):
-                            closes_session = True
+                    if isinstance(item, ast.Call) and (
+                        isinstance(item.func, ast.Attribute)
+                        and item.func.attr == "close"
+                    ):
+                        closes_session = True
 
                 if creates_session or closes_session:
                     services[class_name] = {
@@ -568,11 +569,13 @@ class AsyncAnalysisSkill:
                     if isinstance(child, ast.AsyncWith):
                         # Check if it's using a lock
                         for item in child.items:
-                            if isinstance(item.context_expr, ast.Subscript):
-                                # counter["lock"] pattern
-                                if isinstance(item.context_expr.slice, ast.Constant):
-                                    if item.context_expr.slice.value == "lock":
-                                        uses_lock = True
+                            # counter["lock"] pattern
+                            if (
+                                isinstance(item.context_expr, ast.Subscript)
+                                and isinstance(item.context_expr.slice, ast.Constant)
+                                and item.context_expr.slice.value == "lock"
+                            ):
+                                uses_lock = True
 
                 if uses_lock:
                     safe_patterns[function_name] = {"uses_lock": True}
@@ -592,11 +595,11 @@ class AsyncAnalysisSkill:
                     # Check for asyncio.Lock usage
                     if isinstance(item, ast.AsyncFunctionDef):
                         for child in ast.walk(item):
-                            if isinstance(child, ast.Call):
-                                if self._is_call_to(
-                                    child, "asyncio.Lock"
-                                ) or self._is_call_to(child, "Lock"):
-                                    uses_lock = True
+                            if isinstance(child, ast.Call) and (
+                                self._is_call_to(child, "asyncio.Lock")
+                                or self._is_call_to(child, "Lock")
+                            ):
+                                uses_lock = True
 
                 if has_shared_state and not uses_lock:
                     unsynchronized_shared_state.append(
@@ -643,14 +646,15 @@ class AsyncAnalysisSkill:
                     async_test_count += 1
 
                 for decorator in node.decorator_list:
-                    if isinstance(decorator, ast.Attribute):
-                        if decorator.attr == "asyncio":
-                            uses_pytest_asyncio = True
+                    if (
+                        isinstance(decorator, ast.Attribute)
+                        and decorator.attr == "asyncio"
+                    ):
+                        uses_pytest_asyncio = True
 
             # Check for AsyncMock
-            if isinstance(node, ast.Call):
-                if self._is_call_to(node, "AsyncMock"):
-                    uses_asyncmock = True
+            if isinstance(node, ast.Call) and self._is_call_to(node, "AsyncMock"):
+                uses_asyncmock = True
 
         return {
             "testing_analysis": {

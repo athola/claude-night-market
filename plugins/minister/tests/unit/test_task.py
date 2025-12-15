@@ -63,8 +63,6 @@ def test_given_minimal_task_fixture_when_accessing_fields_then_all_fields_match_
     THEN: All required fields have correct values and github_issue is None
     """
     # This test verifies the fixture works correctly and can be reused
-    from minister.project_tracker import Task
-
     task = Task(
         id="TSK-001",
         title="Minimal Task",

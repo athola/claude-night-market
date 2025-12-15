@@ -7,6 +7,9 @@
         status clean install-hooks enable disable skills install create list search delete manager export \
         import garden-metrics garden-tend demo-reset demo-import demo-export plugin-check demo-status
 
+# Plugin-specific variables (must be before include)
+SRC_DIRS := scripts src
+
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
@@ -15,7 +18,6 @@ ABSTRACT_DIR := ../abstract
 UV              ?= UV_CACHE_DIR=$(PWD)/.uv-cache uv
 PY              ?= $(UV) run python
 CLI             ?= $(PY) tools/memory_palace_cli.py
-SRC_DIRS        ?= tools src
 PALACES_DIR     ?= $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
 IMPORT_SRC      ?= examples/palaces-sample.json

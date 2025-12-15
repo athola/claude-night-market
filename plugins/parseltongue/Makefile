@@ -10,12 +10,13 @@
         test-pattern test-duplicates test-fixtures mutation-test help status \
         demo-async demo-testing demo-perf demo-skills plugin-check
 
+# Plugin-specific variables (must be before include)
+# Note: source is in 'parseltongue/' not 'src/'
+SRC_DIRS := parseltongue tests
+
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
-
-# Plugin-specific variables
-SRC_DIRS ?= src tests
 
 # Default target
 all: test lint ## Run tests and linting

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 
@@ -14,13 +15,35 @@ class PensivePlugin:
     def __init__(self, config: Any = None) -> None:
         """Initialize plugin."""
         self.config = config or {}
+        self._initialized = False
 
     def initialize(self) -> None:
         """Initialize the plugin."""
+        self._initialized = True
 
-    def analyze(self, context: Any) -> dict[str, Any]:
+    def analyze(self, _context: Any) -> dict[str, Any]:
         """Run analysis."""
         return {}
 
+    def execute_review(self, repo_path: Path | str) -> dict[str, Any]:
+        """Execute a code review on a repository.
+
+        Args:
+            repo_path: Path to the repository
+
+        Returns:
+            Review results dictionary
+        """
+        from pensive.workflows.code_review import CodeReviewWorkflow
+
+        workflow = CodeReviewWorkflow(config=self.config)
+        return workflow.execute_full_review(repo_path)
+
     def cleanup(self) -> None:
         """Cleanup resources."""
+        self._initialized = False
+
+    @property
+    def is_initialized(self) -> bool:
+        """Check if plugin is initialized."""
+        return self._initialized

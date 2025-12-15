@@ -3,16 +3,36 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
+
+# Test quality thresholds
+MIN_COVERAGE_RATIO = 0.8
+ACCEPTABLE_COVERAGE_RATIO = 0.5
+MIN_ASSERTION_DENSITY = 0.5
+MIN_MUTATION_SCORE = 0.7
+MIN_COVERAGE_PERCENT = 80
+MIN_MOCK_RATIO = 0.2
+MAX_AVG_TEST_DURATION = 2.0
+SLOW_TEST_THRESHOLD = 10.0
+VERY_SLOW_TEST_THRESHOLD = 5.0
+MIN_COMPLEX_ASSERTIONS = 3
+MIN_EDGE_CASES = 5
+MAX_ANTI_PATTERNS = 5
+MAX_UNSAFE_BLOCKS = 20
 
 
 class TestReviewSkill(BaseReviewSkill):
     """Skill for reviewing test quality, coverage, and patterns."""
 
-    skill_name = "test-review"
-    supported_languages = ["python", "javascript", "typescript", "rust"]
+    skill_name: ClassVar[str] = "test-review"
+    supported_languages: ClassVar[list[str]] = [
+        "python",
+        "javascript",
+        "typescript",
+        "rust",
+    ]
 
     def analyze_test_coverage(self, context: Any) -> dict[str, Any]:
         """Analyze test coverage metrics and gaps."""
@@ -60,9 +80,9 @@ class TestReviewSkill(BaseReviewSkill):
             "overall_coverage": coverage_percentage,
             "file_coverage": {
                 source_file: {
-                    "covered": True
-                    if any(f in str(source_file) for f in tested_functions)
-                    else False
+                    "covered": bool(
+                        any(f in str(source_file) for f in tested_functions)
+                    )
                 }
                 for source_file in source_files
             },
@@ -108,7 +128,7 @@ class TestReviewSkill(BaseReviewSkill):
             score += 0.15
         if has_teardown:
             score += 0.1
-        if documentation_ratio > 0.8:
+        if documentation_ratio > MIN_COVERAGE_RATIO:
             score += 0.2
         if has_parametrize:
             score += 0.15
@@ -120,7 +140,7 @@ class TestReviewSkill(BaseReviewSkill):
         organization_issues = []
         if not has_test_classes:
             organization_issues.append("No test class organization found")
-        if documentation_ratio < 0.5:
+        if documentation_ratio < ACCEPTABLE_COVERAGE_RATIO:
             organization_issues.append("Low documentation coverage")
 
         best_practices = []
@@ -149,7 +169,7 @@ class TestReviewSkill(BaseReviewSkill):
         code_first_count = 0
         test_created = False
 
-        for i, entry in enumerate(history):
+        for _i, entry in enumerate(history):
             is_test_file = "test" in entry["file"]
 
             if is_test_file and entry["action"] == "created":
@@ -167,7 +187,7 @@ class TestReviewSkill(BaseReviewSkill):
         red_green_refactor = self._detect_red_green_refactor(history)
 
         compliance_issues = []
-        if tdd_score < 0.5:
+        if tdd_score < ACCEPTABLE_COVERAGE_RATIO:
             compliance_issues.append("Low test-first adherence")
         if not red_green_refactor:
             compliance_issues.append("Red-green-refactor pattern not detected")
@@ -288,7 +308,7 @@ class TestReviewSkill(BaseReviewSkill):
                     anti_patterns.append(
                         {
                             "type": "shared_state",
-                            "message": f"Global variable '{var}' may cause shared state issues",
+                            "message": f"Global '{var}' may cause state issues",
                             "variable": var,
                         }
                     )
@@ -340,11 +360,11 @@ class TestReviewSkill(BaseReviewSkill):
         for match in test_funcs:
             func_body = match.group(2)
             assert_count = len(re.findall(r"\bassert\b", func_body))
-            if assert_count > 5:
+            if assert_count > MIN_EDGE_CASES:
                 anti_patterns.append(
                     {
                         "type": "multiple_concerns",
-                        "message": f"Test has {assert_count} assertions, may be testing too much",
+                        "message": f"Test has {assert_count} assertions - too many",
                         "assertion_count": assert_count,
                     }
                 )
@@ -403,7 +423,7 @@ class TestReviewSkill(BaseReviewSkill):
             # Find dict literals with multiple keys
             dict_literals = re.finditer(r"\{[^}]{50,}\}", func_body, re.DOTALL)
             for dict_match in dict_literals:
-                if dict_match.group(0).count(":") >= 3:  # At least 3 key-value pairs
+                if dict_match.group(0).count(":") >= MIN_COMPLEX_ASSERTIONS:
                     hardcoded_data.append(
                         {
                             "type": "dict_literal",
@@ -451,11 +471,11 @@ class TestReviewSkill(BaseReviewSkill):
             func_name = match.group(1)
             func_full = match.group(0)
             # Count patches, including multi-line with statements
-            # Need to handle both @patch and "with patch" statements (can be on multiple lines with \)
+            # Handle @patch and "with patch" statements (multi-line ok)
             # Count individual patch calls by looking for patch('...')
             patch_matches = re.findall(r"patch\(['\"][\w.]+['\"]", func_full)
             patch_count = len(patch_matches)
-            if patch_count >= 3:
+            if patch_count >= MIN_COMPLEX_ASSERTIONS:
                 over_mocking.append(
                     {
                         "function": func_name,
@@ -496,7 +516,7 @@ class TestReviewSkill(BaseReviewSkill):
         # Identify performance bottlenecks
         bottlenecks = []
         for test in slow_tests:
-            if test["duration"] > 10.0:
+            if test["duration"] > SLOW_TEST_THRESHOLD:
                 bottlenecks.append(
                     {
                         "test": test["name"],
@@ -504,7 +524,7 @@ class TestReviewSkill(BaseReviewSkill):
                         "severity": "critical",
                     }
                 )
-            elif test["duration"] > 5.0:
+            elif test["duration"] > VERY_SLOW_TEST_THRESHOLD:
                 bottlenecks.append(
                     {
                         "test": test["name"],
@@ -566,7 +586,7 @@ class TestReviewSkill(BaseReviewSkill):
         }
 
     def analyze_integration_test_coverage(
-        self, context: Any, file_path: str = ""
+        self, context: Any, _file_path: str = ""
     ) -> dict[str, Any]:
         """Analyze integration test coverage."""
         files = context.get_files()
@@ -607,7 +627,7 @@ class TestReviewSkill(BaseReviewSkill):
 
         # Identify coverage gaps
         coverage_gaps = []
-        if unit_ratio < 0.7:
+        if unit_ratio < MIN_MUTATION_SCORE:
             coverage_gaps.append("Insufficient unit test coverage (should be ~70%)")
         if len(integration_tests) == 0:
             coverage_gaps.append("No integration tests found")
@@ -766,31 +786,31 @@ class TestReviewSkill(BaseReviewSkill):
         recommendations = []
 
         # Coverage recommendations
-        if current_state["coverage"] < 80:
+        if current_state["coverage"] < MIN_COVERAGE_PERCENT:
             recommendations.append(
                 {
                     "category": "coverage",
                     "priority": "high",
                     "action": "Increase test coverage to at least 80%",
                     "benefit": "Reduce bugs and improve code quality",
-                    "implementation": "Add unit tests for uncovered functions and branches",
+                    "implementation": "Add tests for uncovered functions/branches",
                 }
             )
 
         # TDD recommendations
-        if current_state["tdd_compliance"] < 0.5:
+        if current_state["tdd_compliance"] < ACCEPTABLE_COVERAGE_RATIO:
             recommendations.append(
                 {
                     "category": "tdd",
                     "priority": "medium",
                     "action": "Adopt test-first development practices",
                     "benefit": "Better test coverage and design",
-                    "implementation": "Write failing tests before implementing features",
+                    "implementation": "Write failing tests before implementation",
                 }
             )
 
         # Integration test recommendations
-        if current_state["integration_ratio"] < 0.2:
+        if current_state["integration_ratio"] < MIN_MOCK_RATIO:
             recommendations.append(
                 {
                     "category": "integration",
@@ -802,14 +822,14 @@ class TestReviewSkill(BaseReviewSkill):
             )
 
         # Performance recommendations
-        if current_state["avg_test_duration"] > 2.0:
+        if current_state["avg_test_duration"] > MAX_AVG_TEST_DURATION:
             recommendations.append(
                 {
                     "category": "performance",
                     "priority": "high",
                     "action": "Optimize slow tests",
                     "benefit": "Faster feedback and CI/CD pipeline",
-                    "implementation": "Mock external dependencies and use in-memory databases",
+                    "implementation": "Mock external deps and use in-memory DBs",
                 }
             )
 
@@ -821,12 +841,12 @@ class TestReviewSkill(BaseReviewSkill):
                     "priority": "high",
                     "action": f"Fix {current_state['flaky_tests']} flaky tests",
                     "benefit": "Improve CI/CD reliability and developer confidence",
-                    "implementation": "Remove non-deterministic behavior and external dependencies",
+                    "implementation": "Remove non-deterministic behavior and deps",
                 }
             )
 
         # Anti-pattern recommendations
-        if current_state["anti_patterns"] > 5:
+        if current_state["anti_patterns"] > MAX_ANTI_PATTERNS:
             recommendations.append(
                 {
                     "category": "quality",

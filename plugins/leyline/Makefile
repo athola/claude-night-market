@@ -6,12 +6,12 @@
 .PHONY: help deps test test-unit test-coverage lint format type-check typecheck security clean \
         install-hooks status ci demo-tokens demo-quota demo-skills plugin-check
 
+# Plugin-specific variables (must be before include)
+SRC_DIRS := src tests scripts
+
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
-
-# Plugin-specific variables
-SRC_DIRS ?= src tests scripts
 
 # Default target
 help: ## Show this help message

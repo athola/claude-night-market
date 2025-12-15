@@ -10,6 +10,14 @@ from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
 
+# Architecture detection thresholds
+MIN_LAYERS_FOR_LAYERED = 3  # Minimum layers to detect layered architecture
+MIN_SERVICES_FOR_MICROSERVICES = 2  # Minimum services to detect microservices
+MIN_EVENT_COMPONENTS = 3  # Minimum event components for event-driven
+MIN_RESPONSIBILITIES_FOR_LOW_COHESION = 3  # Threshold for cohesion calculation
+MIN_VIOLATIONS_TO_REPORT = 2  # Minimum violations before flagging
+MIN_ADR_SECTIONS = 3  # Minimum ADR sections for completeness
+
 
 class ArchitectureReviewSkill(BaseReviewSkill):
     """Skill for reviewing software architecture and design patterns."""
@@ -46,7 +54,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             if any(layer in f.lower() for f in files):
                 detected_layers.append(layer)
 
-        if len(detected_layers) >= 3:
+        if len(detected_layers) >= MIN_LAYERS_FOR_LAYERED:
             patterns.append("layered")
             layers.extend(detected_layers)
 
@@ -75,7 +83,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                 elif "-service" in part or (part == "api-gateway" and i == 0):
                     service_dirs.add(part)
 
-        if len(service_dirs) >= 2:
+        if len(service_dirs) >= MIN_SERVICES_FOR_MICROSERVICES:
             patterns.append("microservices")
             for service_name in service_dirs:
                 services.append({"name": service_name})
@@ -87,7 +95,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             if any(keyword in f.lower() for f in files):
                 detected_event_components.append(keyword)
 
-        if len(detected_event_components) >= 3:
+        if len(detected_event_components) >= MIN_EVENT_COMPONENTS:
             patterns.append("event_driven")
             for component in detected_event_components:
                 components[component] = True
@@ -124,7 +132,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                         "type": "layering_violation",
                         "from": from_module,
                         "to": to_module,
-                        "issue": "Controller directly accesses database, bypassing service layer",
+                        "issue": "Controller accesses DB, bypassing service layer",
                     }
                 )
 
@@ -138,7 +146,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                         "type": "layering_violation",
                         "from": from_module,
                         "to": to_module,
-                        "issue": "Controller directly accesses repository, should use service layer",
+                        "issue": "Controller accesses repo, should use service layer",
                     }
                 )
 
@@ -191,9 +199,9 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                 responsibilities.append(responsibility)
 
         # Calculate cohesion score - lower score for more diverse responsibilities
-        if len(responsibilities) >= 3:
+        if len(responsibilities) >= MIN_RESPONSIBILITIES_FOR_LOW_COHESION:
             cohesion_score = 1.0 / len(responsibilities)
-        elif len(responsibilities) == 2:
+        elif len(responsibilities) == MIN_SERVICES_FOR_MICROSERVICES:
             cohesion_score = 0.7
         else:
             cohesion_score = 0.9
@@ -284,7 +292,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                 )
 
         # Only return violations if we found multiple concerns mixed together
-        if len(violations) >= 2:
+        if len(violations) >= MIN_VIOLATIONS_TO_REPORT:
             return violations
         return []
 
@@ -398,7 +406,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
             responsibility_types = sum(
                 1 for count in diverse_keywords.values() if count > 0
             )
-            if responsibility_types >= 3:
+            if responsibility_types >= MIN_RESPONSIBILITIES_FOR_LOW_COHESION:
                 srp_violations += 1
                 srp_issues.append("Class has multiple responsibilities")
 
@@ -486,7 +494,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                 }
                 adrs.append(adr_info)
 
-                if sections_found >= 3:  # At least 3 out of 4 sections
+                if sections_found >= MIN_ADR_SECTIONS:
                     complete_count += 1
 
             completeness_score = complete_count / total_adrs if total_adrs > 0 else 0.0
@@ -722,7 +730,7 @@ class ArchitectureReviewSkill(BaseReviewSkill):
                     {
                         "pattern": pattern,
                         "type": "unintended",
-                        "issue": f"Pattern '{pattern}' detected but not in intended architecture",
+                        "issue": f"Pattern '{pattern}' detected but not intended",
                     }
                 )
                 drift_detected = True

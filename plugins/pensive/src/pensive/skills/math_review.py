@@ -7,7 +7,7 @@ and computational accuracy validation.
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
 
@@ -15,8 +15,13 @@ from .base import BaseReviewSkill
 class MathReviewSkill(BaseReviewSkill):
     """Skill for reviewing mathematical correctness in code."""
 
-    skill_name = "math_review"
-    supported_languages = ["python", "rust", "javascript", "typescript"]
+    skill_name: ClassVar[str] = "math_review"
+    supported_languages: ClassVar[list[str]] = [
+        "python",
+        "rust",
+        "javascript",
+        "typescript",
+    ]
 
     def analyze_numerical_precision(
         self,
@@ -177,11 +182,12 @@ class MathReviewSkill(BaseReviewSkill):
             )
 
         # Pattern for inverse without condition number check
-        if re.search(r"def\s+\w*inverse.*np\.linalg\.inv.*return", content, re.DOTALL):
-            if not re.search(r"np\.linalg\.cond", content):
-                condition_number_ignored.append(
-                    "Matrix inversion without condition number check"
-                )
+        if re.search(
+            r"def\s+\w*inverse.*np\.linalg\.inv.*return", content, re.DOTALL
+        ) and not re.search(r"np\.linalg\.cond", content):
+            condition_number_ignored.append(
+                "Matrix inversion without condition number check"
+            )
 
         return {
             "instability_patterns": instability_patterns,
@@ -402,9 +408,8 @@ class MathReviewSkill(BaseReviewSkill):
             r"def\s+bayesian_update_bad.*posterior\s*=\s*prior\s*\*\s*likelihood",
             content,
             re.DOTALL,
-        ):
-            if not re.search(r"bayesian_update_bad.*/", content):
-                statistical_formulas.append("Bayesian update missing normalization")
+        ) and not re.search(r"bayesian_update_bad.*/", content):
+            statistical_formulas.append("Bayesian update missing normalization")
 
         return {
             "distribution_errors": distribution_errors,
@@ -436,11 +441,11 @@ class MathReviewSkill(BaseReviewSkill):
         numerical_stability = []
 
         # Pattern for missing square root in distance
-        if re.search(
-            r"def\s+distance_between_points_bad\([^)]+\):\s*#\s*Missing square root\s*return\s+\([^)]+\)\*\*2\s*\+",
-            content,
-            re.DOTALL,
-        ):
+        sqrt_pattern = (
+            r"def\s+distance_between_points_bad\([^)]+\):\s*#\s*Missing square root"
+            r"\s*return\s+\([^)]+\)\*\*2\s*\+"
+        )
+        if re.search(sqrt_pattern, content, re.DOTALL):
             formula_errors.append("Missing square root in distance calculation")
 
         # Pattern for acos without clamping

@@ -9,16 +9,20 @@ Provides reusable fixtures following TDD/BDD best practices:
 from __future__ import annotations
 
 import json
+import random
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
 
+from minister.project_tracker import ProjectTracker, Task
+
+# Seed RNG for deterministic test data generation
+_test_rng = random.Random(42)  # noqa: S311
+
 if TYPE_CHECKING:
     from collections.abc import Generator
-
-from minister.project_tracker import ProjectTracker, Task
 
 # =============================================================================
 # Base Fixtures: Isolation & Cleanup
@@ -320,8 +324,6 @@ def generate_tasks_batch(
         status_distribution: Optional dict mapping status to proportion
             e.g., {"Done": 0.5, "In Progress": 0.3, "To Do": 0.2}
     """
-    import random
-
     statuses = ["To Do", "In Progress", "Review", "Done"]
     if status_distribution:
         weights = [status_distribution.get(s, 0.25) for s in statuses]
@@ -331,18 +333,18 @@ def generate_tasks_batch(
     base_date = datetime(2025, 1, 1, 10, 0, 0)
 
     for i in range(1, count + 1):
-        status = random.choices(statuses, weights=weights, k=1)[0]
-        completion = 100.0 if status == "Done" else random.uniform(0, 99)
+        status = _test_rng.choices(statuses, weights=weights, k=1)[0]
+        completion = 100.0 if status == "Done" else _test_rng.uniform(0, 99)
 
         yield Task(
             id=generate_task_id("GEN", i),
             title=f"Generated Task {i}",
             initiative=initiative,
-            phase=random.choice(["Phase 1", "Phase 2", "Phase 3"]),
-            priority=random.choice(["High", "Medium", "Low"]),
+            phase=_test_rng.choice(["Phase 1", "Phase 2", "Phase 3"]),
+            priority=_test_rng.choice(["High", "Medium", "Low"]),
             status=status,
             owner=f"user{i % 5}",
-            effort_hours=float(random.randint(1, 20)),
+            effort_hours=float(_test_rng.randint(1, 20)),
             completion_percent=round(completion, 1),
             due_date=(base_date + timedelta(days=i * 3)).strftime("%Y-%m-%d"),
             created_date=base_date.isoformat(),

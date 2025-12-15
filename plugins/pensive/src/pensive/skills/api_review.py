@@ -8,7 +8,7 @@ REST patterns, input validation, security practices, and performance.
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, ClassVar
 
 from .base import BaseReviewSkill
 
@@ -16,8 +16,13 @@ from .base import BaseReviewSkill
 class ApiReviewSkill(BaseReviewSkill):
     """Skill for reviewing API surface and quality."""
 
-    skill_name = "api_review"
-    supported_languages = ["typescript", "javascript", "python", "rust"]
+    skill_name: ClassVar[str] = "api_review"
+    supported_languages: ClassVar[list[str]] = [
+        "typescript",
+        "javascript",
+        "python",
+        "rust",
+    ]
 
     def _get_code_content(self, context: Any, filename: str) -> str:
         """Get code content from context."""
@@ -42,23 +47,23 @@ class ApiReviewSkill(BaseReviewSkill):
         """
         code = self._get_code_content(context, filename)
 
-        # Count export statements
-        exports = len(re.findall(r"^export\s+", code, re.MULTILINE))
+        # Count export statements (allow leading whitespace)
+        exports = len(re.findall(r"^\s*export\s+", code, re.MULTILINE))
 
         # Count exported classes
-        classes = len(re.findall(r"export\s+class\s+\w+", code))
+        classes = len(re.findall(r"\bexport\s+class\s+\w+", code))
 
         # Count exported interfaces
-        interfaces = len(re.findall(r"export\s+interface\s+\w+", code))
+        interfaces = len(re.findall(r"\bexport\s+interface\s+\w+", code))
 
         # Count exported functions (including async)
-        functions = len(re.findall(r"export\s+(?:async\s+)?function\s+\w+", code))
+        functions = len(re.findall(r"\bexport\s+(?:async\s+)?function\s+\w+", code))
 
         # Count default exports
-        default_exports = len(re.findall(r"export\s+default\s+", code))
+        default_exports = len(re.findall(r"\bexport\s+default\s+", code))
 
         # Count const/let/var exports
-        const_exports = len(re.findall(r"export\s+const\s+\w+", code))
+        const_exports = len(re.findall(r"\bexport\s+const\s+\w+", code))
 
         return {
             "exports": exports,
@@ -86,20 +91,20 @@ class ApiReviewSkill(BaseReviewSkill):
         """
         code = self._get_code_content(context, filename)
 
-        # Count export statements
-        exports = len(re.findall(r"^export\s+", code, re.MULTILINE))
+        # Count export statements (allow leading whitespace)
+        exports = len(re.findall(r"^\s*export\s+", code, re.MULTILINE))
 
         # Count exported classes
-        classes = len(re.findall(r"export\s+class\s+\w+", code))
+        classes = len(re.findall(r"\bexport\s+class\s+\w+", code))
 
         # Count exported functions
-        functions = len(re.findall(r"export\s+function\s+\w+", code))
+        functions = len(re.findall(r"\bexport\s+function\s+\w+", code))
 
         # Count default exports
-        default_exports = len(re.findall(r"export\s+default\s+", code))
+        default_exports = len(re.findall(r"\bexport\s+default\s+", code))
 
         # Count const/let/var exports
-        const_exports = len(re.findall(r"export\s+const\s+\w+", code))
+        const_exports = len(re.findall(r"\bexport\s+const\s+\w+", code))
 
         return {
             "exports": exports,
@@ -132,12 +137,12 @@ class ApiReviewSkill(BaseReviewSkill):
         if all_match:
             exports = len(re.findall(r'[\'"](\w+)[\'"]', all_match.group(1)))
 
-        # Count classes (both with and without decorators)
-        classes = len(re.findall(r"^(?:@\w+\s+)?class\s+\w+", code, re.MULTILINE))
+        # Count classes (with/without decorators, allow leading whitespace)
+        class_pattern = r"^\s*(?:@\w+\s*\n\s*)?class\s+\w+"
+        classes = len(re.findall(class_pattern, code, re.MULTILINE))
 
-        # Count top-level functions (not methods)
-        # Match def at start of line but not indented
-        functions = len(re.findall(r"^def\s+\w+\s*\(", code, re.MULTILINE))
+        # Count top-level functions (not methods) - allow leading whitespace
+        functions = len(re.findall(r"^\s*def\s+\w+\s*\(", code, re.MULTILINE))
 
         return {
             "exports": exports,
@@ -290,7 +295,10 @@ class ApiReviewSkill(BaseReviewSkill):
                     "type": "naming_inconsistency",
                     "location": filename,
                     "severity": "medium",
-                    "issue": "Inconsistent naming conventions detected (mix of camelCase, PascalCase, and snake_case)",
+                    "issue": (
+                        "Inconsistent naming conventions detected "
+                        "(mix of camelCase, PascalCase, and snake_case)"
+                    ),
                 }
             )
 
@@ -305,17 +313,20 @@ class ApiReviewSkill(BaseReviewSkill):
             ):
                 # This is camelCase which is acceptable
                 pass
-            elif not const_name.isupper() and "_" in const_name:
+            elif (
+                not const_name.isupper()
+                and "_" in const_name
+                and not re.match(r"^[A-Z_]+$", const_name)
+            ):
                 # snake_case constant but not all uppercase
-                if not re.match(r"^[A-Z_]+$", const_name):
-                    issues.append(
-                        {
-                            "type": "naming_inconsistency",
-                            "location": filename,
-                            "severity": "low",
-                            "issue": f"Constant {const_name} has inconsistent naming style",
-                        }
-                    )
+                issues.append(
+                    {
+                        "type": "naming_inconsistency",
+                        "location": filename,
+                        "severity": "low",
+                        "issue": f"Constant {const_name} inconsistent naming",
+                    }
+                )
 
         return issues
 
@@ -356,7 +367,7 @@ class ApiReviewSkill(BaseReviewSkill):
                         "type": "missing_error_handling",
                         "location": filename,
                         "severity": "high",
-                        "issue": f"Method {method_name} uses fetch without error handling",
+                        "issue": f"Method {method_name} fetch lacks error handling",
                     }
                 )
 
@@ -366,7 +377,7 @@ class ApiReviewSkill(BaseReviewSkill):
         self,
         context: Any,
         filename: str,
-        options: dict[str, Any] | None = None,
+        _options: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """Check for potential breaking changes in API.
 
@@ -439,13 +450,13 @@ class ApiReviewSkill(BaseReviewSkill):
             re.IGNORECASE,
         )
 
-        for match in delete_endpoints:
+        for _match in delete_endpoints:
             issues.append(
                 {
                     "type": "rest_violation",
                     "location": filename,
                     "severity": "medium",
-                    "issue": "Using GET for delete operation - should use DELETE method",
+                    "issue": "Using GET for delete - should use DELETE method",
                 }
             )
 
@@ -457,13 +468,13 @@ class ApiReviewSkill(BaseReviewSkill):
             re.IGNORECASE | re.DOTALL,
         )
 
-        for match in improper_methods:
+        for _match in improper_methods:
             issues.append(
                 {
                     "type": "rest_violation",
                     "location": filename,
                     "severity": "medium",
-                    "issue": "Delete method not specifying HTTP method - should use DELETE",
+                    "issue": "Delete method missing HTTP method - use DELETE",
                 }
             )
 
@@ -516,7 +527,7 @@ class ApiReviewSkill(BaseReviewSkill):
                         "type": "missing_validation",
                         "location": filename,
                         "severity": "medium",
-                        "issue": f"Method {method_name} accepts input without validation",
+                        "issue": f"Method {method_name} input lacks validation",
                     }
                 )
 
@@ -585,10 +596,10 @@ class ApiReviewSkill(BaseReviewSkill):
         issues: list[dict[str, Any]] = []
 
         # Check for API keys stored in client code (even if passed as parameter)
-        # Pattern: this.apiKey = apiKey or similar
+        # Detects patterns like: this.apiKey = apiKey
         api_key_storage = re.finditer(r"this\.(apiKey|api_key|API_KEY)\s*=", code)
 
-        for match in api_key_storage:
+        for _match in api_key_storage:
             issues.append(
                 {
                     "type": "security_issue",
@@ -603,7 +614,7 @@ class ApiReviewSkill(BaseReviewSkill):
             r'(apiKey|api_key|API_KEY)\s*[:=]\s*[\'"][^\'"]+[\'"]', code
         )
 
-        for match in hardcoded_keys:
+        for _match in hardcoded_keys:
             issues.append(
                 {
                     "type": "security_issue",
@@ -671,50 +682,59 @@ class ApiReviewSkill(BaseReviewSkill):
         issues: list[dict[str, Any]] = []
 
         # Check for methods that return all records without pagination
+        # Match patterns like find({}).toArray() or findAll() or getAll()
         all_records_patterns = re.finditer(
-            r"(getAll|findAll|find\(\{\}\))\s*[^{]*\{[^}]*(?:find|collection)[^}]*toArray",
+            r"(getAll\(\)|findAll\(\)|\.find\(\{\s*\}\)[^)]*\.toArray\(\))",
             code,
             re.DOTALL | re.IGNORECASE,
         )
 
-        for match in all_records_patterns:
-            if "limit" not in match.group(0) and "pagination" not in match.group(0):
+        for _match in all_records_patterns:
+            # Check context around match for pagination indicators
+            match_start = max(0, _match.start() - 100)
+            match_end = min(len(code), _match.end() + 100)
+            context_text = code[match_start:match_end]
+            if "limit" not in context_text and "pagination" not in context_text:
                 issues.append(
                     {
                         "type": "performance_issue",
                         "location": filename,
                         "severity": "high",
-                        "issue": "Method returns all records without pagination - potential performance issue",
+                        "issue": "Returns all records without pagination - perf issue",
                     }
                 )
 
         # Check for N+1 query patterns (loops with await inside)
+        # Match for...of or for...in loops with await in body
         n_plus_one_patterns = re.finditer(
-            r"for\s*\([^)]+\)\s*\{[^}]*await[^}]*\}", code, re.DOTALL
+            r"for\s*\([^)]+(?:of|in)[^)]+\)\s*\{[\s\S]*?await[\s\S]*?\}",
+            code,
         )
 
-        for match in n_plus_one_patterns:
+        for _match in n_plus_one_patterns:
             issues.append(
                 {
                     "type": "performance_issue",
                     "location": filename,
                     "severity": "medium",
-                    "issue": "Potential N+1 query pattern detected - consider batch queries",
+                    "issue": "N+1 query pattern detected - use batch queries",
                 }
             )
 
-        # Check for filter after fetch (inefficient)
+        # Check for filter after fetch (inefficient) - in same method/block
+        # Look for find({}) followed eventually by .filter(
         filter_after_fetch = re.finditer(
-            r"(find\(\{\}\)|findAll\(\))[^}]*\.filter\(", code, re.DOTALL
+            r"\.find\(\{\s*\}\)[\s\S]{0,200}\.filter\(",
+            code,
         )
 
-        for match in filter_after_fetch:
+        for _match in filter_after_fetch:
             issues.append(
                 {
                     "type": "performance_issue",
                     "location": filename,
                     "severity": "medium",
-                    "issue": "Filtering in application instead of database - performance concern",
+                    "issue": "Filtering in app instead of DB - perf concern",
                 }
             )
 
