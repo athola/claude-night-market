@@ -41,10 +41,76 @@ jobs:
     - name: Run Bandit security linter
       run: |
         source .venv/bin/activate
-        bandit -r . -f sarif -o bandit-report.sarif || true
         bandit -r . -f json -o bandit-report.json || true
         bandit -r . -f txt
       continue-on-error: true
+
+    - name: Convert Bandit JSON to SARIF
+      if: always()
+      run: |
+        python - <<'PY'
+        import json
+        from pathlib import Path
+        from datetime import datetime, timezone
+        import uuid
+        in_path = Path("bandit-report.json")
+        out_path = Path("bandit-report.sarif")
+        if not in_path.exists():
+          sarif = {
+            "version": "2.1.0",
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "runs": [{
+              "tool": {"driver": {"name": "Bandit", "informationUri": "https://bandit.readthedocs.io/"}},
+              "results": [],
+            }],
+          }
+          out_path.write_text(json.dumps(sarif, indent=2))
+          raise SystemExit(0)
+        report = json.loads(in_path.read_text())
+        results = report.get("results", []) or []
+        severity_to_level = {"LOW": "note", "MEDIUM": "warning", "HIGH": "error"}
+        rules = {}
+        sarif_results = []
+        for item in results:
+          rule_id = item.get("test_id") or "BANDIT"
+          severity = (item.get("issue_severity") or "MEDIUM").upper()
+          level = severity_to_level.get(severity, "warning")
+          message = item.get("issue_text") or item.get("issue") or "Bandit finding"
+          filename = item.get("filename") or item.get("file_path") or "UNKNOWN"
+          line = int(item.get("line_number") or 1)
+          rules.setdefault(rule_id, {"id": rule_id, "name": rule_id, "help": {"text": message}})
+          sarif_results.append({
+            "ruleId": rule_id,
+            "level": level,
+            "message": {"text": message},
+            "locations": [{
+              "physicalLocation": {
+                "artifactLocation": {"uri": filename},
+                "region": {"startLine": line},
+              }
+            }],
+          })
+        sarif = {
+          "version": "2.1.0",
+          "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+          "runs": [{
+            "tool": {
+              "driver": {
+                "name": "Bandit",
+                "informationUri": "https://bandit.readthedocs.io/",
+                "rules": list(rules.values()),
+              }
+            },
+            "invocations": [{
+              "executionSuccessful": True,
+              "endTimeUtc": datetime.now(timezone.utc).isoformat(),
+              "properties": {"runId": str(uuid.uuid4())},
+            }],
+            "results": sarif_results,
+          }],
+        }
+        out_path.write_text(json.dumps(sarif, indent=2))
+        PY
 
     - name: Run Safety dependency vulnerability scan
       run: |
