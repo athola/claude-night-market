@@ -1,0 +1,13 @@
+{
+  "enforce_strict_limits": false,
+  "require_progressive_disclosure": true,
+  "require_modular_structure": true,
+  "require_optimization_level": "standard",
+  "block_on_critical_violations": false,
+  "max_violations_per_file": 5,
+  "optimization_patterns": {
+    "progressive_disclosure": ["overview", "basic", "advanced", "reference"],
+    "modular_structure": ["modules/", "examples/", "scripts/"],
+    "content_hierarchy": ["#", "##", "###", "####"]
+  }
+}

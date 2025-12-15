@@ -1,0 +1,208 @@
+---
+name: test-updates
+description: Update and maintain tests following TDD/BDD principles with comprehensive quality assurance. Use when updating existing tests, generating new tests, or enhancing test quality across codebases.
+version: 1.0.0
+category: testing-automation
+tags: [tdd, bdd, testing, quality-assurance, test-generation, pytest]
+dependencies: [test-driven-development, git-workspace-review, file-analysis]
+tools: [test_analyzer, test_generator, quality_checker]
+usage_patterns:
+  - test-maintenance
+  - test-generation
+  - test-enhancement
+  - quality-validation
+complexity: intermediate
+estimated_tokens: 1500
+---
+
+# Test Updates and Maintenance
+
+## Overview
+
+Comprehensive test management system that applies TDD/BDD principles to maintain, generate, and enhance tests across codebases. This skill practices what it preaches - it uses TDD principles for its own development and serves as a living example of best practices.
+
+### Core Philosophy
+
+- **RED-GREEN-REFACTOR**: Strict adherence to TDD cycle
+- **Behavior-First**: BDD patterns that describe what code should do
+- **Meta Dogfooding**: The skill's own tests demonstrate the principles it teaches
+- **Quality Gates**: Comprehensive validation before considering tests complete
+
+## What It Is
+
+A modular test management system that:
+- Discovers what needs testing or updating
+- Generates tests following TDD principles
+- Enhances existing tests with BDD patterns
+- Validates test quality through multiple lenses
+
+## Quick Start
+
+### Quick Checklist for First Time Use
+- [ ] Ensure pytest is installed (`pip install pytest`)
+- [ ] Have your source code in `src/` or similar directory
+- [ ] Create a `tests/` directory if it doesn't exist
+- [ ] Run `Skill(sanctum:git-workspace-review)` first to understand changes
+- [ ] Start with `Skill(test-updates) --target <specific-module>` for focused updates
+
+### Comprehensive Test Update
+```bash
+# Run full test update workflow
+Skill(test-updates)
+```
+
+### Targeted Test Updates
+```bash
+# Update tests for specific paths
+Skill(test-updates) --target src/sanctum/agents
+Skill(test-updates) --target tests/test_commit_messages.py
+```
+
+### TDD for New Features
+```bash
+# Apply TDD to new code
+Skill(test-updates) --tdd-only --target new_feature.py
+```
+
+### Using the Scripts Directly
+```bash
+# Analyze test coverage gaps
+python plugins/sanctum/skills/test-updates/scripts/test_analyzer.py --scan src/
+
+# Generate test scaffolding
+python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
+    --source src/my_module.py --style pytest_bdd
+
+# Check test quality
+python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
+    --validate tests/test_my_module.py
+```
+
+## When to Use It
+
+**Use this skill when you need to:**
+- Update tests after code changes
+- Generate tests for new features
+- Improve existing test quality
+- Ensure comprehensive test coverage
+
+**Perfect for:**
+- Pre-commit test validation
+- CI/CD pipeline integration
+- Refactoring with test safety
+- Onboarding new developers
+
+## Workflow Integration
+
+### Phase 1: Discovery
+1. Scan codebase for test gaps
+2. Analyze recent changes
+3. Identify broken or outdated tests
+
+### Phase 2: Strategy
+1. Choose appropriate BDD style
+2. Plan test structure
+3. Define quality criteria
+
+### Phase 3: Implementation
+1. Write failing tests (RED)
+2. Implement minimal passing code (GREEN)
+3. Refactor for clarity (REFACTOR)
+
+### Phase 4: Validation
+1. Static analysis and linting
+2. Dynamic test execution
+3. Coverage and quality metrics
+
+## Quality Assurance
+
+The skill applies multiple quality checks:
+- **Static**: Linting, type checking, pattern validation
+- **Dynamic**: Test execution in sandboxed environments
+- **Metrics**: Coverage, mutation score, complexity analysis
+- **Review**: Structured checklists for peer validation
+
+## Examples
+
+### BDD-Style Test Generation
+```python
+class TestGitWorkflow:
+    """BDD-style tests for Git workflow operations."""
+
+    def test_commit_workflow_with_staged_changes(self):
+        """
+        GIVEN a Git repository with staged changes
+        WHEN the user runs the commit workflow
+        THEN it should create a commit with proper message format
+        AND all tests should pass
+        """
+        # Test implementation following TDD principles
+        pass
+```
+
+### Test Enhancement
+- Add edge cases and error scenarios
+- Include performance benchmarks
+- Add mutation testing for robustness
+
+## Integration with Existing Skills
+
+1. **git-workspace-review**: Get context of changes
+2. **file-analysis**: Understand code structure
+3. **test-driven-development**: Apply strict TDD discipline
+4. **skills-eval**: Validate quality and compliance
+
+## Success Metrics
+
+- Test coverage > 85%
+- All tests follow BDD patterns
+- Zero broken tests in CI
+- Mutation score > 80%
+
+## Troubleshooting FAQ
+
+### Common Issues
+
+**Q: Tests are failing after generation**
+A: This is expected! The skill follows TDD principles - generated tests are designed to fail first. Follow the RED-GREEN-REFACTOR cycle:
+1. Run the test and confirm it fails for the right reason
+2. Implement minimal code to make it pass
+3. Refactor for clarity
+
+**Q: Quality score is low despite having tests**
+A: Check for these common issues:
+- Missing BDD patterns (Given/When/Then)
+- Vague assertions like `assert result is not None`
+- Tests without documentation
+- Long, complex tests (>50 lines)
+
+**Q: Generated tests don't match my code structure**
+A: The scripts analyze AST patterns and may need guidance:
+- Use `--style` flag to match your preferred BDD style
+- Check that source files have proper function/class definitions
+- Review the generated scaffolding and customize as needed
+
+**Q: Mutation testing takes too long**
+A: Mutation testing is resource-intensive:
+- Use `--quick-mutation` flag for subset testing
+- Focus on critical modules first
+- Run overnight for comprehensive analysis
+
+**Q: Can't find tests for my file**
+A: The analyzer uses naming conventions:
+- Source: `my_module.py` → Test: `test_my_module.py`
+- Check that test files follow pytest naming patterns
+- Ensure test directory structure is standard
+
+### Performance Tips
+
+- **Large codebases**: Use `--target` to focus on specific directories
+- **CI integration**: Run validation in parallel with other checks
+- **Memory usage**: Process files in batches for very large projects
+
+### Getting Help
+
+1. Check script outputs for detailed error messages
+2. Use `--verbose` flag for more information
+3. Review the validation report for specific recommendations
+4. Start with small modules to understand patterns before scaling

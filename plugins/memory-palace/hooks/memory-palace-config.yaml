@@ -1,0 +1,127 @@
+# Memory Palace Hook Configuration
+# Customize which content gets processed for knowledge intake
+
+enabled: true
+
+# Research interception mode
+#   cache_only  - never hit web, rely on corpus
+#   cache_first - prefer corpus, verify via web (default)
+#   augment     - always mix corpus context into web responses
+#   web_only    - bypass cache entirely
+research_mode: cache_first
+
+# Paths to monitor for local documentation
+# Relative to project root
+local_knowledge_paths:
+  - "docs/"
+  - "knowledge-corpus/"
+  - "references/"
+  - "wiki/"
+  # Uncomment to include root markdown files:
+  # - "*.md"
+
+# Patterns to exclude (always skipped)
+exclude_patterns:
+  # Version control
+  - ".git/"
+  - ".gitignore"
+  - ".gitattributes"
+  - ".gitmodules"
+
+  # Dependencies & builds
+  - "node_modules/"
+  - "__pycache__/"
+  - ".venv/"
+  - "venv/"
+  - ".uv-cache/"
+  - "dist/"
+  - "build/"
+  - "target/"
+  - "*.egg-info/"
+
+  # IDE & editor
+  - ".vscode/"
+  - ".idea/"
+  - "*.swp"
+  - "*.swo"
+  - ".DS_Store"
+
+  # Test artifacts
+  - ".pytest_cache/"
+  - ".coverage"
+  - "htmlcov/"
+  - ".tox/"
+
+  # Lock files (generated, not knowledge)
+  - "*.lock"
+  - "package-lock.json"
+  - "yarn.lock"
+  - "uv.lock"
+
+  # Secrets & env (NEVER store)
+  - ".env"
+  - ".env.*"
+  - "*.pem"
+  - "*.key"
+  - "credentials.*"
+  - "secrets.*"
+
+  # Generated docs (source is what matters)
+  - "_build/"
+  - "site/"
+  - ".docusaurus/"
+
+  # Logs and temp files
+  - "*.log"
+  - "tmp/"
+  - "temp/"
+
+# Honor project's .gitignore for exclusions
+respect_gitignore: true
+
+# Safety settings (protect against data bombs and malicious content)
+safety:
+  # Maximum content size in KB
+  max_content_size_kb: 500
+
+  # Maximum line length (chars)
+  max_line_length: 10000
+
+  # Maximum lines per file
+  max_lines: 50000
+
+  # Detect repetition bombs (mostly identical content)
+  detect_repetition_bombs: true
+  repetition_threshold: 0.95
+
+  # Detect unicode bombs (excessive combining chars)
+  detect_unicode_bombs: true
+  max_combining_chars: 10
+
+  # Block bidirectional text override attacks
+  block_bidi_override: true
+
+  # Timeout for content parsing (ms)
+  parsing_timeout_ms: 5000
+
+# Storage locations
+index_file: "memory-palace-index.yaml"
+indexes_dir: "data/indexes"
+corpus_dir: "docs/knowledge-corpus/"
+embedding_provider: "none"  # none|local|api
+
+# Knowledge governance defaults
+autonomy_level: 0
+intake_threshold: 70
+domains_of_interest: []
+tending_frequency: "weekly"
+
+telemetry:
+  enabled: true
+  file: "data/telemetry/memory-palace.csv"
+
+# Feature flags provide coarse rollout controls
+feature_flags:
+  cache_intercept: true     # Gate PreToolUse interception hook
+  autonomy: true            # Enable autonomy state tracking + overrides
+  lifecycle: true           # Enable vitality scoring + tending prompts

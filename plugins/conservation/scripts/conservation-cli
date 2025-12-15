@@ -1,0 +1,153 @@
+#!/bin/bash
+# Conservation Plugin CLI Tool
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Helper functions
+log_info() {
+    echo -e "${BLUE}[INFO] $1${NC}"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS] $1${NC}"
+}
+
+log_warning() {
+    echo -e "${YELLOW}[WARNING] $1${NC}"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR] $1${NC}"
+}
+
+# Main CLI logic
+show_help() {
+    cat << EOF
+Conservation Plugin CLI Tool
+
+Usage: $0 [COMMAND] [OPTIONS]
+
+Commands:
+  check           Check for dependency issues
+  report          Generate comprehensive dependency report
+  fix [--apply]   Fix dependency issues (use --apply to actually fix)
+  validate        Validate all skills and configuration
+  status          Show current status
+  help            Show this help message
+
+Examples:
+  $0 check                    # Check for issues
+  $0 report                   # Generate detailed report
+  $0 fix --apply              # Actually fix issues
+  $0 validate                 # Run full validation
+
+EOF
+}
+
+# Command implementations
+cmd_check() {
+    log_info "Checking for dependency issues..."
+    cd "$PROJECT_ROOT"
+    uv run python tools/dependency_manager.py --scan
+}
+
+cmd_report() {
+    log_info "Generating dependency report..."
+    cd "$PROJECT_ROOT"
+    uv run python tools/dependency_manager.py --report
+}
+
+cmd_fix() {
+    local apply_fix=${1:-""}
+
+    if [[ "$apply_fix" == "--apply" ]]; then
+        log_info "Applying dependency fixes..."
+        cd "$PROJECT_ROOT"
+        uv run python tools/dependency_manager.py --fix
+    else
+        log_info "Dry run: showing what would be fixed..."
+        cd "$PROJECT_ROOT"
+        uv run python tools/dependency_manager.py --fix --dry-run
+        log_warning "Use --apply to actually fix these issues"
+    fi
+}
+
+cmd_validate() {
+    log_info "Running full validation..."
+    cd "$PROJECT_ROOT"
+
+    log_info "1. Running safe replacement check..."
+    uv run python tools/safe_replacer.py
+
+    log_info "2. Generating dependency report..."
+    uv run python tools/dependency_manager.py --report
+
+    log_info "3. Running pre-commit checks..."
+    uv run pre-commit run --all-files || log_warning "Some pre-commit checks failed"
+}
+
+cmd_status() {
+    cd "$PROJECT_ROOT"
+
+    local skill_count=$(find skills/ -name 'SKILL.md' | wc -l)
+    local tool_count=$(find tools/ .pre-commit/ -name '*.py' | wc -l)
+    local issue_count=$(uv run python tools/dependency_manager.py --scan 2>&1 | grep -c 'Found\|issues' || echo "0")
+
+    echo "Conservation Plugin Status"
+    echo "=========================="
+    echo "Location: $PROJECT_ROOT"
+    echo "Skill Files: $skill_count"
+    echo "Tool Files: $tool_count"
+    echo "Issues: $issue_count"
+
+    if [[ $issue_count -eq 0 ]]; then
+        log_success "All systems healthy!"
+    else
+        log_warning "Run '$0 check' for details"
+    fi
+}
+
+# Main execution
+main() {
+    cd "$PROJECT_ROOT"
+
+    case "${1:-help}" in
+        check)
+            cmd_check
+            ;;
+        report)
+            cmd_report
+            ;;
+        fix)
+            cmd_fix "${2:-}"
+            ;;
+        validate)
+            cmd_validate
+            ;;
+        status)
+            cmd_status
+            ;;
+        help|--help|-h)
+            show_help
+            ;;
+        *)
+            log_error "Unknown command: $1"
+            echo
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function with all arguments
+main "$@"

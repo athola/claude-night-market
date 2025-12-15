@@ -1,0 +1,30 @@
+test-driven-development:
+  - "RED phase"
+  - "GREEN phase"
+  - "REFACTOR phase"
+  - "Baseline Testing"
+  - "Without Skill Testing"
+  - "Bulletproofing"
+  - "TDD phases"
+  - "test-driven development"
+
+systematic-debugging:
+  - "root cause"
+  - "investigation"
+  - "hypothesis"
+  - "pattern analysis"
+  - "debug"
+
+requesting-code-review:
+  - "code review"
+  - "pull request"
+  - "PR"
+  - "review feedback"
+  - "quality check"
+
+writing-plans:
+  - "implementation plan"
+  - "design document"
+  - "break down"
+  - "tasks"
+  - "architecture"

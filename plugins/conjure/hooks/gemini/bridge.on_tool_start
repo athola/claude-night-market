@@ -1,0 +1,460 @@
+#!/usr/bin/env python3
+"""Gemini CLI Bridge Hook.
+
+Detects operations that should delegate to Gemini's large context window and
+surfaces suggestions via the gemini-delegation skill. Monitors quota usage to
+avoid rate-limit exhaustion while keeping Claude in charge of strategy.
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+import sys
+from collections.abc import Iterable
+from pathlib import Path
+from typing import Any
+
+# Configuration limits for security and performance
+MAX_FILES_TO_SCAN = 100
+MAX_CONTEXT_SCAN_DEPTH = 5
+ALLOWED_BASE_PATHS = [
+    Path.home(),
+    Path("/tmp"),
+    Path.cwd(),
+]
+
+logger = logging.getLogger(__name__)
+
+# Import quota tracker for runtime use (with clean sys.path handling)
+_hook_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _hook_dir)
+try:
+    import quota_tracker as _quota_tracker  # type: ignore[import-not-found]
+
+    _QUOTA_AVAILABLE = True
+except ImportError:
+    _QUOTA_AVAILABLE = False
+finally:
+    # Clean up sys.path to avoid polluting global module path
+    if _hook_dir in sys.path:
+        sys.path.remove(_hook_dir)
+
+if _QUOTA_AVAILABLE:
+    GeminiQuotaTracker = _quota_tracker.GeminiQuotaTracker  # type: ignore[attr-defined]
+    estimate_tokens_from_gemini_command = (
+        _quota_tracker.estimate_tokens_from_gemini_command  # type: ignore[attr-defined]
+    )
+else:
+
+    class _FallbackQuotaTracker:  # type: ignore[override]
+        """Fallback quota tracker when the real module is unavailable."""
+
+        def __init__(self) -> None:
+            """Initialize fallback tracker."""
+
+        def get_quota_status(self) -> tuple[str, list[str]]:
+            """Return unknown quota status."""
+            return "❓ Unknown", []
+
+        def estimate_task_tokens(
+            self, paths: Iterable[str], prompt_len: int = 100
+        ) -> int:
+            """Return a conservative token estimate."""
+            return 10000
+
+        def can_handle_task(self, tokens: int) -> tuple[bool, list[str]]:
+            """Assume the task can be handled."""
+            return True, []
+
+    def _fallback_estimate_tokens(cmd: str) -> int:
+        """Fallback estimation when gemini command parsing is unavailable."""
+        return 10000
+
+    GeminiQuotaTracker = _FallbackQuotaTracker
+    estimate_tokens_from_gemini_command = _fallback_estimate_tokens
+
+
+CONTEXT_THRESHOLD_BYTES = 100 * 1024
+DESCRIPTION_PREVIEW_CHARS = 100
+MIN_PATH_TOKEN_LENGTH = 3
+
+
+def validate_path(path_str: str) -> Path | None:
+    """Validate that a path is safe to access.
+
+    Returns resolved Path if valid, None otherwise.
+    """
+    try:
+        path = Path(path_str).resolve(strict=False)
+        # Check if path is under an allowed base
+        for allowed_base in ALLOWED_BASE_PATHS:
+            try:
+                path.relative_to(allowed_base)
+                return path
+            except ValueError:
+                continue
+        logger.warning(f"Path outside allowed bases: {path_str}")
+        return None
+    except (OSError, ValueError) as e:
+        logger.warning(f"Invalid path {path_str}: {e}")
+        return None
+
+
+def calculate_context_size(file_paths: Iterable[str]) -> int:
+    """Estimate the total context size for given files with security limits."""
+    total_size = 0
+    files_scanned = 0
+
+    for file_path in file_paths:
+        if files_scanned >= MAX_FILES_TO_SCAN:
+            logger.info(f"Reached MAX_FILES_TO_SCAN limit ({MAX_FILES_TO_SCAN})")
+            break
+
+        validated_path = validate_path(file_path)
+        if validated_path is None:
+            continue
+
+        try:
+            if validated_path.is_file():
+                total_size += validated_path.stat().st_size
+                files_scanned += 1
+            elif validated_path.is_dir():
+                dir_files = 0
+                for root, dirs, files in os.walk(validated_path):
+                    # Limit traversal depth
+                    depth = len(Path(root).relative_to(validated_path).parts)
+                    if depth >= MAX_CONTEXT_SCAN_DEPTH:
+                        dirs[:] = []  # Don't recurse deeper
+                        continue
+
+                    # Skip common non-source directories
+                    dirs[:] = [
+                        d
+                        for d in dirs
+                        if d
+                        not in [
+                            "__pycache__",
+                            "node_modules",
+                            ".git",
+                            "venv",
+                            ".venv",
+                            "dist",
+                            "build",
+                            ".pytest_cache",
+                        ]
+                    ]
+
+                    for file in files:
+                        if files_scanned >= MAX_FILES_TO_SCAN:
+                            break
+                        if file.endswith(
+                            (
+                                ".py",
+                                ".js",
+                                ".ts",
+                                ".md",
+                                ".yaml",
+                                ".yml",
+                                ".json",
+                                ".toml",
+                            )
+                        ):
+                            file_path_full = Path(root) / file
+                            total_size += file_path_full.stat().st_size
+                            files_scanned += 1
+                            dir_files += 1
+
+                    if files_scanned >= MAX_FILES_TO_SCAN:
+                        break
+        except (OSError, PermissionError) as e:
+            logger.debug(f"Could not access {file_path}: {e}")
+            continue
+
+    return total_size
+
+
+def is_intelligence_requiring_task(tool_name: str, args: dict[str, Any]) -> bool:
+    """Determine if a task needs Claude-led reasoning."""
+    intelligence_keywords = [
+        "architecture",
+        "design",
+        "review",
+        "analyze",
+        "evaluate",
+        "assess",
+        "recommend",
+        "strategy",
+        "pattern",
+        "optimization",
+        "refactor",
+        "critique",
+        "improve",
+        "decision",
+        "trade-off",
+        "best practice",
+    ]
+
+    # Check Task descriptions for intelligence requirements
+    if tool_name == "Task" and "description" in args:
+        description = args["description"].lower()
+        return any(keyword in description for keyword in intelligence_keywords)
+
+    # Check Task prompts for complexity indicators
+    if tool_name == "Task" and "prompt" in args:
+        prompt = args["prompt"].lower()
+        complexity_indicators = [
+            "comprehensive",
+            "detailed",
+            "thorough",
+            "in-depth",
+            "holistic",
+            "evaluate",
+            "assess",
+            "recommend",
+            "design",
+            "architecture",
+            "strategy",
+            "optimization",
+            "improvement",
+        ]
+        return any(indicator in prompt for indicator in complexity_indicators)
+
+    return False
+
+
+def is_data_processing_task(tool_name: str, args: dict[str, Any]) -> bool:
+    """Identify tasks that are primarily data processing rather than reasoning."""
+    data_processing_patterns = [
+        "summarize",
+        "list",
+        "count",
+        "find",
+        "search",
+        "locate",
+        "extract",
+        "catalog",
+        "inventory",
+        "enumerate",
+        "identify patterns",
+        "grep",
+    ]
+
+    if tool_name == "Task" and "description" in args:
+        description = args["description"].lower()
+        return any(pattern in description for pattern in data_processing_patterns)
+
+    if tool_name == "Task" and "prompt" in args:
+        prompt = args["prompt"].lower()
+        return any(pattern in prompt for pattern in data_processing_patterns)
+
+    return False
+
+
+def should_suggest_gemini(tool_name: str, args: dict[str, Any]) -> bool:
+    """Determine if Gemini CLI would be beneficial for this operation."""
+    # IMPORTANT: Block delegation of intelligence-requiring tasks
+    if is_intelligence_requiring_task(tool_name, args):
+        return False  # Claude should handle these tasks directly
+
+    if tool_name in ["Read", "Glob", "Grep", "Task"]:
+        # Extract file paths from args
+        file_paths = []
+
+        if tool_name == "Read" and "file_path" in args:
+            file_paths.append(args["file_path"])
+
+        elif tool_name == "Glob" and "pattern" in args:
+            # For glob, we can't easily calculate beforehand, so be conservative
+            if "**" in args["pattern"] or args["pattern"].endswith("/**"):
+                return True
+
+        elif tool_name == "Grep":
+            # For large grep operations, suggest Gemini
+            if "path" in args:
+                search_path = Path(args["path"])
+                if search_path.is_dir():
+                    return True
+
+        elif tool_name == "Task" and "subagent_type" in args:
+            # Only suggest Gemini for data-processing exploration tasks
+            if args.get("subagent_type") in [
+                "Explore",
+                "general-purpose",
+            ] and is_data_processing_task(tool_name, args):
+                return True
+
+        # Calculate context size for specific files
+        if file_paths:
+            total_size = calculate_context_size(file_paths)
+            return total_size > CONTEXT_THRESHOLD_BYTES
+
+    return False
+
+
+def format_gemini_suggestion(tool_name: str, args: dict[str, Any]) -> list[str]:
+    """Format a helpful suggestion for using Gemini CLI."""
+    suggestions: list[str] = []
+
+    if tool_name == "Read":
+        file_path = args.get("file_path", "")
+        suggestions.append(
+            f"Data processing: `gemini -p '@{file_path} Extract and summarize content'`"
+        )
+
+    elif tool_name == "Glob":
+        pattern = args.get("pattern", "")
+        suggestions.append(
+            "File cataloging: `gemini -p '@"
+            f"{pattern} List and categorize matching files'`"
+        )
+
+    elif tool_name == "Grep":
+        search_path = args.get("path", ".")
+        pattern = args.get("pattern", "")
+        suggestions.append(
+            "Pattern enumeration: `gemini -p '@"
+            f"{search_path} Count and list all {pattern} instances'`"
+        )
+
+    elif tool_name == "Task":
+        task_type = args.get("subagent_type", "")
+        suggestions.append(
+            f"Large-scale data processing with gemini-delegation skill for {task_type}"
+        )
+
+    return suggestions
+
+
+def format_collaborative_suggestion(tool_name: str, args: dict[str, Any]) -> list[str]:
+    """Format suggestions for Claude+Gemini collaborative workflows."""
+    collaborative_suggestions: list[str] = []
+
+    if tool_name == "Task":
+        description = args.get("description", "")
+        collaborative_suggestions.extend(
+            [
+                "Intelligence Task Detected - Claude should lead this analysis",
+                "",
+                "Suggested Collaborative Workflow:",
+                "1. Claude: Perform sophisticated reasoning and evaluation",
+                "2. Gemini: Process large datasets and identify patterns at scale",
+                "3. Claude: Synthesize Gemini's findings with strategic insights",
+                "",
+                "Example for this task:",
+                (
+                    f"   Claude: {description[:DESCRIPTION_PREVIEW_CHARS]}..."
+                    if len(description) > DESCRIPTION_PREVIEW_CHARS
+                    else f"   Claude: {description}"
+                ),
+                "   Gemini: Process large codebase for pattern data",
+                "   Claude: Analyze patterns + provide architectural recommendations",
+                "",
+                "Use gemini-delegation skill for step 2 only",
+            ]
+        )
+
+    return collaborative_suggestions
+
+
+# Main hook logic
+payload: dict[str, Any] = json.load(sys.stdin)
+tool_use: dict[str, Any] = payload.get("tool_use", {})
+
+# Initialize quota tracker
+quota_tracker = GeminiQuotaTracker()
+quota_status, quota_warnings = quota_tracker.get_quota_status()
+
+if tool_use:
+    tool_name = tool_use.get("name", "")
+    tool_args = tool_use.get("input", {})
+
+    # Check if this is an intelligence-requiring task
+    if is_intelligence_requiring_task(tool_name, tool_args):
+        # Suggest collaborative workflow for complex tasks
+        collaborative_suggestions = format_collaborative_suggestion(
+            tool_name, tool_args
+        )
+
+        print(file=sys.stderr)
+        for suggestion in collaborative_suggestions:
+            print(suggestion, file=sys.stderr)
+        print(file=sys.stderr)
+
+    elif should_suggest_gemini(tool_name, tool_args):
+        # Estimate tokens needed for this task
+        file_paths = []
+        if tool_name == "Read" and "file_path" in tool_args:
+            file_paths.append(tool_args["file_path"])
+        elif tool_name == "Glob" and "pattern" in tool_args:
+            # Estimate based on pattern
+            estimated_tokens = 50000  # Conservative estimate for globs
+        else:
+            # Extract paths from task description/prompt
+            description = tool_args.get("description", "") + tool_args.get("prompt", "")
+            for word in description.split():
+                path_like = word.startswith(("@", "./", "/"))
+                if path_like and len(word) >= MIN_PATH_TOKEN_LENGTH:
+                    file_paths.append(word.lstrip("@").strip("./"))
+
+        estimated_tokens = quota_tracker.estimate_task_tokens(file_paths)
+        can_handle, issues = quota_tracker.can_handle_task(estimated_tokens)
+
+        print("Gemini CLI Data Processing Suggestion", file=sys.stderr)
+        print(
+            "This data processing operation might benefit from Gemini's large context "
+            "window.",
+            file=sys.stderr,
+        )
+        print(f"Estimated tokens needed: ~{estimated_tokens:,}", file=sys.stderr)
+        print(file=sys.stderr)
+
+        # Show quota status and warnings
+        print(f"Gemini Quota Status: {quota_status}", file=sys.stderr)
+        if quota_warnings:
+            for warning in quota_warnings:
+                print(f"  - {warning}", file=sys.stderr)
+        print(file=sys.stderr)
+
+        # Show task-specific warnings
+        if not can_handle:
+            print("Quota Issues Detected:", file=sys.stderr)
+            for issue in issues:
+                print(f"  - {issue}", file=sys.stderr)
+            print(file=sys.stderr)
+            print(
+                "Recommendation: Wait for quota reset or break into smaller tasks",
+                file=sys.stderr,
+            )
+        else:
+            print("Quota Available - Task can proceed", file=sys.stderr)
+
+        print(file=sys.stderr)
+
+        # Suggestions
+        suggestions = format_gemini_suggestion(tool_name, tool_args)
+        for suggestion in suggestions:
+            print(f"  -> {suggestion}", file=sys.stderr)
+
+        print(file=sys.stderr)
+        print(
+            "Use the gemini-delegation skill: `/skill gemini-delegation`",
+            file=sys.stderr,
+        )
+        print(
+            "Or run directly with the `gemini` CLI if you have it configured.",
+            file=sys.stderr,
+        )
+
+        if quota_status not in ["[OK] Healthy"]:
+            print(file=sys.stderr)
+        print(
+            "Pro Tip: Monitor quota with: `python3 ~/.claude/hooks/gemini/"
+            "quota_tracker.py`",
+            file=sys.stderr,
+        )
+
+        print(file=sys.stderr)
+
+sys.exit(0)

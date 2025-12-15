@@ -1,0 +1,29 @@
+{
+  "name": "memory-palace",
+  "version": "1.0.0",
+  "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management",
+  "commands": [
+    "./commands/palace.md",
+    "./commands/garden.md",
+    "./commands/navigate.md"
+  ],
+  "skills": [
+    "./skills/memory-palace-architect",
+    "./skills/knowledge-locator",
+    "./skills/session-palace-builder",
+    "./skills/digital-garden-cultivator",
+    "./skills/knowledge-intake"
+  ],
+  "agents": [
+    "./agents/palace-architect.md",
+    "./agents/knowledge-navigator.md",
+    "./agents/garden-curator.md",
+    "./agents/knowledge-librarian.md"
+  ],
+  "keywords": ["memory-palace", "spatial-memory", "knowledge-organization", "digital-garden", "recall", "navigation", "mnemonic"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

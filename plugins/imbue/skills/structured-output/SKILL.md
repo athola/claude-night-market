@@ -1,0 +1,101 @@
+---
+name: structured-output
+description: A guide to formatting review deliverables for consistency, ensuring findings are comparable across different types of analysis.
+category: output-patterns
+tags: [formatting, deliverables, consistency, reporting, structure]
+dependencies: [imbue:evidence-logging]
+tools: []
+usage_patterns:
+  - deliverable-formatting
+  - report-structure
+  - consistent-output
+complexity: beginner
+estimated_tokens: 1000
+---
+
+# Structured Output
+
+## When to Use
+- When finalizing any review or analysis.
+- To format findings in a consistent and actionable way.
+- Before presenting results to stakeholders or committing them to documentation.
+
+## Activation Patterns
+**Trigger Keywords**: format, structure, deliverable, report, organize, present, consistent
+**Contextual Cues**:
+- "format this as a report" or "structure the output"
+- "create a deliverable" or "present these findings"
+- "organize this consistently" or "standardize the format"
+- "make this actionable" or "prepare for stakeholders"
+
+**Auto-Load When**: Finalizing any analysis deliverable or when consistent formatting is requested.
+
+## Required TodoWrite Items
+1. `structured-output:template-selected`
+2. `structured-output:findings-formatted`
+3. `structured-output:actions-assigned`
+4. `structured-output:appendix-attached`
+
+Mark each item complete as you finish the corresponding step.
+
+## Step 1: Select Template (`structured-output:template-selected`)
+- Choose output format based on deliverable type:
+  - **Review Report**: Summary, Findings, Recommendations, Evidence.
+  - **PR Description**: Summary, Changes, Test Plan, Notes.
+  - **Release Notes**: Highlights, Breaking Changes, Fixes, Credits.
+  - **Incident Report**: Timeline, Impact, Root Cause, Remediation.
+- Confirm audience and required detail level.
+
+## Step 2: Format Findings (`structured-output:findings-formatted`)
+- Use consistent finding structure:
+  ```markdown
+  ### [SEVERITY] Finding Title
+  **Location**: file.rs:123
+  **Category**: Security | Performance | Correctness | Style
+  **Description**: Brief explanation of the issue.
+  **Evidence**: [E1, E2] - Reference to evidence log.
+  **Recommendation**: Specific remediation steps.
+  ```
+- Severity levels: CRITICAL, HIGH, MEDIUM, LOW, INFO.
+- Order findings by severity, then by file location.
+
+## Step 3: Assign Actions (`structured-output:actions-assigned`)
+- Convert findings to actionable items:
+  ```markdown
+  ## Action Items
+  - [ ] [HIGH] Fix SQL injection in auth.py:45 (@security-team, P1)
+  - [ ] [MEDIUM] Add input validation to API endpoint (@backend, P2)
+  - [ ] [LOW] Update deprecated dependency (@devops, P3)
+  ```
+- Include owner assignment where known.
+- Add priority indicators (P1/P2/P3) for triage.
+- Note dependencies between actions.
+
+## Step 4: Attach Appendix (`structured-output:appendix-attached`)
+- Compile supporting materials:
+  ```markdown
+  ## Appendix
+  ### A. Commands Run
+  [Full evidence log from imbue:evidence-logging]
+
+  ### B. External References
+  [Citations and documentation links]
+
+  ### C. Raw Data
+  [Large outputs, full diffs, or data exports]
+  ```
+- Keep main report concise; details in appendix.
+- Ensure appendix is navigable with clear section headers.
+
+## Output Quality Checklist
+Before finalizing:
+- [ ] All findings have evidence references.
+- [ ] Severity levels are justified.
+- [ ] Recommendations are specific and actionable.
+- [ ] No orphaned sections or placeholder text.
+- [ ] Format renders correctly in target medium (GitHub, Confluence, etc.).
+
+## Exit Criteria
+- Todos completed with formatted deliverable.
+- Output follows selected template structure.
+- Stakeholders can act on findings without clarification.

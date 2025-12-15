@@ -1,0 +1,6 @@
+timestamp,query_id,query,tool_name,mode,decision,cache_hits,returned_entries,top_entry_id,match_score,match_strength,freshness_required,evergreen_topic,should_flag_for_intake,latency_ms,novelty_score,aligned_domains,intake_delta_reasoning,duplicate_entry_ids,notes
+2025-12-13T06:56:55.025057+00:00,4a11146142b44863b1e62f319ab802b8,test query,WebSearch,cache_first,augment,1,1,,0.85,strong,False,False,False,0,0.15,,novelty_score=0.15; total_matches=1; intake_flag=off,,
+2025-12-13T06:56:55.055007+00:00,25465d62d34f41c09b243e36ae2c100b,test query,WebSearch,cache_first,augment,1,1,,0.6,partial,False,False,True,0,0.45,,novelty_score=0.45; total_matches=1; intake_flag=on,,
+2025-12-13T06:58:05.386133+00:00,1284f22ef30244fca916abd9c45009bc,test query,WebSearch,cache_first,augment,1,1,,0.85,strong,False,False,False,0,0.15,,novelty_score=0.15; total_matches=1; intake_flag=off,,
+2025-12-13T07:01:10.865459+00:00,db8eba3cc2ab40139db71772f0dc1711,test query,WebSearch,cache_first,augment,1,1,,0.85,strong,False,False,False,0,0.15,,novelty_score=0.15; total_matches=1; intake_flag=off,,
+2025-12-13T07:02:15.138110+00:00,d45b69856a9f4652a915277caf1472ba,test query,WebSearch,cache_first,augment,1,1,,0.85,strong,False,False,False,0,0.15,,novelty_score=0.15; total_matches=1; intake_flag=off,,

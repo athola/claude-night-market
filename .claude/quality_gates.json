@@ -1,0 +1,35 @@
+{
+  "enforce_blocking": true,
+  "max_critical_issues": 3,
+  "max_warnings_per_dimension": 5,
+  "dimensions": {
+    "performance": {
+      "enabled": true,
+      "max_file_size_kb": 20,
+      "max_tokens_per_file": 5000,
+      "max_function_lines": 60,
+      "max_complexity_score": 12,
+      "block_on_violation": false
+    },
+    "security": {
+      "enabled": true,
+      "block_hardcoded_secrets": true,
+      "block_insecure_functions": true,
+      "require_input_validation": true,
+      "block_on_violation": true
+    },
+    "maintainability": {
+      "enabled": true,
+      "max_technical_debt_ratio": 0.3,
+      "require_code_comments": false,
+      "max_nesting_depth": 5,
+      "block_on_violation": false
+    },
+    "compliance": {
+      "enabled": true,
+      "require_plugin_structure": true,
+      "require_proper_metadata": true,
+      "block_on_violation": false
+    }
+  }
+}

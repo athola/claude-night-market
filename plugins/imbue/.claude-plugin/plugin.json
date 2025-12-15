@@ -1,0 +1,27 @@
+{
+  "name": "imbue",
+  "version": "1.0.0",
+  "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
+  "skills": [
+    "./skills/shared",
+    "./skills/review-core",
+    "./skills/evidence-logging",
+    "./skills/structured-output",
+    "./skills/diff-analysis",
+    "./skills/catchup",
+    "./skills/scope-guard"
+  ],
+  "commands": [
+    "./commands/full-review.md",
+    "./commands/catchup.md"
+  ],
+  "agents": [
+    "./agents/review-analyst.md"
+  ],
+  "keywords": ["workflow", "analysis", "evidence", "structured-output", "methodology", "review", "catchup", "scope-guard", "anti-overengineering"],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

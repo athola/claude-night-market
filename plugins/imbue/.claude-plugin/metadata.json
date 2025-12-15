@@ -1,0 +1,37 @@
+{
+  "name": "imbue",
+  "version": "2.0.0",
+  "main": "skills",
+  "skills": [
+    "skills/review-core",
+    "skills/evidence-logging",
+    "skills/structured-output",
+    "skills/diff-analysis",
+    "skills/catchup"
+  ],
+  "dependencies": {
+    "abstract": ">=2.0.0"
+  },
+  "provides": {
+    "infrastructure": [
+      "workflow-analysis",
+      "evidence-gathering",
+      "structured-output"
+    ],
+    "patterns": [
+      "review-methodology",
+      "diff-analysis",
+      "catchup-workflow"
+    ],
+    "tools": [
+      "review-analyst"
+    ]
+  },
+  "claude": {
+    "skill_prefix": "imbue",
+    "auto_load": false,
+    "categories": {
+      "workflow": "Intelligent workflow methodologies for analysis and structured output"
+    }
+  }
+}

@@ -1,0 +1,196 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "claude-night-market"
+version = "0.1.0"
+description = "Root workspace config for tests and linting"
+requires-python = ">=3.12"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "pyproject.toml",
+    "README.md",
+    "LICENSE"
+]
+dependencies = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "pytest-cov>=6.0.0",
+  "pytest-mock>=3.14.0",
+  "pytest-bdd>=7.2.0",
+  "pytest-xdist>=3.6.0",
+  "pytest-json-report>=1.5.0",
+  "coverage[toml]>=7.6.0",
+  "jsonschema>=4.22.0",
+  "pyyaml>=6.0.2",
+  "toml>=0.10.2",
+  "rich>=13.9.0",
+  "click>=8.1.7"
+]
+
+[project.optional-dependencies]
+dev = [
+  "black>=24.10.0",
+  "ruff>=0.7.0",
+  "mypy>=1.13.0",
+  "pre-commit>=4.0.0"
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "-ra",
+    "--disable-warnings",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "slow: Slow running tests",
+    "network: Tests requiring network access",
+    "plugin: Plugin-specific tests",
+    "skill: Skill-specific tests",
+    "hook: Hook-specific tests",
+    "command: Command-specific tests",
+]
+
+[tool.coverage.run]
+source = ["." ]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+fail_under = 85
+show_missing = true
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["plugins", "tests"]
+
+[tool.ruff.lint]
+# Start with a reasonable subset instead of ALL
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+extend-ignore = [
+    "E501",  # Line too long (handled by formatter)
+    "B007",  # unused-loop-control-variable (often intentional)
+    "B008",  # Do not perform function calls in argument defaults
+    "B905",  # zip-without-explicit-strict (Python 3.10+ strict default ok)
+    "E402",  # Module imports not at top of file (acceptable in some cases)
+    "UP038",  # isinstance(X, (A, B)) vs isinstance(X, A | B) - both valid
+]
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = [
+    "S101",  # Use of assert in tests
+    "E501",  # Line too long in tests
+    "B011",  # Do not assert False
+    "PLR2004",  # Magic values in tests
+    "S603",  # subprocess without shell=true
+    "S607",  # Start process with partial path
+    "S108",  # Hardcoded temp file
+    "S311",  # Non-cryptographic random usage
+    "S103",  # Bad file permissions
+    "S602",  # subprocess-popen-with-shell-equals-true
+    "S110",  # try-except-pass
+    "F841",  # unused-variable (often placeholders in tests)
+    "ARG001",  # unused-function-argument
+    "ARG002",  # unused-method-argument
+]
+"**/__init__.py" = ["F401"]  # Unused imports in __init__.py
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.uv.workspace]
+# Allow uv to discover plugin and tool projects (minimal set for linting)
+members = [
+    "plugins/abstract",
+    "plugins/leyline",
+    "plugins/conservation",
+    "plugins/core"
+]
+
+[tool.uv.sources]
+# Explicit workspace member configuration
+leyline = { workspace = true }
+conservation = { workspace = true }
+core = { workspace = true }
+
+[tool.bandit]
+exclude_dirs = [
+    ".venv",
+    ".uv-cache",
+    "__pycache__",
+    "node_modules",
+    "*.egg-info",
+    "build",
+    "dist",
+]
+# Skip common false positives in this codebase:
+# B101: assert_used - common in tests
+# B103: set_bad_file_permissions - intentionally executable scripts
+# B110: try_except_pass - intentional error suppression in non-critical paths
+# B112: try_except_continue - intentional loop continuation on errors
+# B311: random - used for test data generation, not security
+# B404: import_subprocess - necessary for git/tool integration
+# B603: subprocess_without_shell_equals_true - intentional for security
+# B607: start_process_with_partial_path - tools found via shutil.which
+# B608: hardcoded_sql_expressions - false positives on string formatting
+skips = ["B101", "B103", "B108", "B110", "B112", "B311", "B404", "B603", "B607", "B608"]

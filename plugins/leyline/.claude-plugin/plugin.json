@@ -1,0 +1,34 @@
+{
+  "name": "leyline",
+  "version": "1.0.0",
+  "description": "Infrastructure and pipeline building blocks for Claude Code plugins. Like ancient ley lines connecting sacred sites, leyline provides the foundational patterns that connect and power plugin ecosystems.",
+  "skills": [
+    "./skills/shared",
+    "./skills/quota-management",
+    "./skills/usage-logging",
+    "./skills/service-registry",
+    "./skills/error-patterns",
+    "./skills/authentication-patterns",
+    "./skills/mecw-patterns",
+    "./skills/evaluation-framework",
+    "./skills/storage-templates",
+    "./skills/progressive-loading",
+    "./skills/testing-quality-standards",
+    "./skills/pytest-config"
+  ],
+  "keywords": [
+    "infrastructure",
+    "pipeline",
+    "building-blocks",
+    "shared-utilities",
+    "cross-plugin",
+    "quota",
+    "logging",
+    "service-registry"
+  ],
+  "author": {
+    "name": "Claude Night Market",
+    "url": "https://github.com/claude-night-market"
+  },
+  "license": "MIT"
+}

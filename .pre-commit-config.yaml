@@ -1,0 +1,130 @@
+repos:
+  - repo: local
+    hooks:
+      # Plugin Validation Hooks
+      - id: validate-abstract-skills
+        name: Validate Abstract Skills
+        entry: python3 plugins/abstract/scripts/abstract_validator.py
+        language: system
+        files: ^plugins/abstract/.*SKILL\.md$
+        pass_filenames: false
+        args: ["--root", "plugins/abstract", "--scan"]
+
+      - id: validate-imbue-skills
+        name: Validate Imbue Skills
+        entry: python3 plugins/imbue/scripts/imbue_validator.py
+        language: system
+        files: ^plugins/imbue/.*SKILL\.md$
+        pass_filenames: false
+        args: ["--root", "plugins/imbue", "--scan"]
+
+      - id: validate-abstract-plugin
+        name: Validate Abstract Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/abstract
+        language: system
+        files: ^plugins/abstract/
+        pass_filenames: false
+
+      - id: validate-imbue-plugin
+        name: Validate Imbue Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/imbue
+        language: system
+        files: ^plugins/imbue/
+        pass_filenames: false
+
+      - id: validate-archetypes-plugin
+        name: Validate Archetypes Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/archetypes
+        language: system
+        files: ^plugins/archetypes/
+        pass_filenames: false
+
+      - id: validate-conjure-plugin
+        name: Validate Conjure Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conjure
+        language: system
+        files: ^plugins/conjure/
+        pass_filenames: false
+
+      - id: validate-conservation-plugin
+        name: Validate Conservation Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conservation
+        language: system
+        files: ^plugins/conservation/
+        pass_filenames: false
+
+      - id: validate-memory-palace-plugin
+        name: Validate Memory Palace Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/memory-palace
+        language: system
+        files: ^plugins/memory-palace/
+        pass_filenames: false
+
+      - id: check-context-optimization
+        name: Check Context Optimization
+        entry: python3 plugins/abstract/scripts/context_optimizer.py stats plugins/
+        language: system
+        files: ^.*SKILL\.md$
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-ast
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: requirements-txt-fixer
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-r", "plugins/"]
+        exclude: \.venv/|\.uv-cache/|__pycache__/|node_modules/|\.egg-info/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.0
+    hooks:
+      - id: ruff
+        args: [--fix, --config, pyproject.toml]
+      - id: ruff-format
+        args: [--config, pyproject.toml]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.0
+    hooks:
+      - id: mypy
+        args: [
+          --ignore-missing-imports,
+          --explicit-package-bases,
+          --no-strict-optional,
+          --allow-untyped-defs,
+          --enable-incomplete-feature=NewGenericSyntax,
+          --disable-error-code=unreachable,
+          --disable-error-code=call-overload,
+          --disable-error-code=operator,
+          --disable-error-code=no-any-return,
+          --disable-error-code=var-annotated,
+          --disable-error-code=assignment,
+          --disable-error-code=unused-ignore,
+          --disable-error-code=no-untyped-def
+        ]
+        additional_dependencies:
+          - types-PyYAML
+        exclude: \.venv/|\.uv-cache/|__pycache__/|^fix_.*\.py$|tests/
+        files: ^plugins/abstract/src/abstract/
+
+default_stages: [pre-commit]
+default_language_version:
+  python: python3
+default_install_hook_types: [pre-commit, pre-push, pre-merge-commit]
+minimum_pre_commit_version: 2.9.0

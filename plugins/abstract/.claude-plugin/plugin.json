@@ -1,0 +1,61 @@
+{
+  "name": "abstract",
+  "version": "1.0.0",
+  "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design patterns, and evaluation frameworks",
+  "commands": [
+    "./commands/skills-eval.md",
+    "./commands/validate-plugin.md",
+    "./commands/analyze-skill.md",
+    "./commands/estimate-tokens.md",
+    "./commands/context-report.md",
+    "./commands/analyze-hook.md",
+    "./commands/hooks-eval.md",
+    "./commands/create-skill.md",
+    "./commands/create-hook.md",
+    "./commands/create-command.md",
+    "./commands/test-skill.md",
+    "./commands/bulletproof-skill.md",
+    "./commands/validate-hook.md",
+    "./commands/make-dogfood.md"
+  ],
+  "skills": [
+    "./skills/modular-skills",
+    "./skills/skills-eval",
+    "./skills/skill-authoring",
+    "./skills/hook-authoring",
+    "./skills/hooks-eval",
+    "./skills/shared-patterns",
+    "./skills/validate-plugin-structure.md",
+    "./skills/hook-scope-guide.md",
+    "./skills/makefile-dogfooder"
+  ],
+  "agents": [
+    "./agents/meta-architect.md",
+    "./agents/skill-auditor.md",
+    "./agents/plugin-validator.md"
+  ],
+  "keywords": [
+    "meta-skills",
+    "infrastructure",
+    "patterns",
+    "evaluation",
+    "modular",
+    "framework",
+    "agent-sdk",
+    "performance",
+    "optimization",
+    "hooks",
+    "scope",
+    "authoring",
+    "tdd",
+    "validation",
+    "security",
+    "bulletproofing",
+    "persuasion"
+  ],
+  "author": {
+    "name": "Claude Skills",
+    "url": "https://github.com/superpowers-marketplace"
+  },
+  "license": "MIT"
+}

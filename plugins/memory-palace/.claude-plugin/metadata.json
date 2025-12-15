@@ -1,0 +1,107 @@
+{
+  "name": "memory-palace",
+  "version": "2.0.0",
+  "main": "skills",
+  "skills": [
+    "skills/memory-palace-architect",
+    "skills/knowledge-locator",
+    "skills/session-palace-builder",
+    "skills/digital-garden-cultivator",
+    "skills/knowledge-intake"
+  ],
+  "dependencies": {},
+  "provides": {
+    "infrastructure": [
+      "spatial-knowledge-organization",
+      "memory-palace-design",
+      "digital-garden-management",
+      "session-context-preservation",
+      "knowledge-governance"
+    ],
+    "patterns": [
+      "spatial-memory-techniques",
+      "mnemonic-architecture",
+      "knowledge-navigation",
+      "bidirectional-linking",
+      "knowledge-intake-evaluation",
+      "knowledge-pruning"
+    ],
+    "tools": [
+      "palace-manager",
+      "garden-metrics",
+      "knowledge-locator",
+      "knowledge-librarian"
+    ]
+  },
+  "defaults": {
+    "enabled": false,
+    "auto_save": true,
+    "max_palaces": 20,
+    "default_palace": "default",
+    "sensory_encoding": true,
+    "cross_domain_connections": true,
+    "session_integration": true,
+    "storage": {
+      "palace_directory": "~/memory-palaces",
+      "index_format": "json",
+      "backup_enabled": true,
+      "backup_frequency": "daily",
+      "compression": true
+    },
+    "performance": {
+      "cache_size": "100MB",
+      "index_cache_ttl": 3600,
+      "search_timeout": 30,
+      "max_search_results": 50,
+      "parallel_search": true
+    },
+    "ui": {
+      "default_view": "spatial",
+      "navigation_mode": "intuitive",
+      "auto_navigate": true,
+      "show_hidden_connections": false,
+      "sensory_cues": true
+    },
+    "learning": {
+      "adapt_to_user": true,
+      "track_usage_patterns": true,
+      "optimize_layouts": true,
+      "personalize_associations": true
+    },
+    "integrations": {
+      "superpowers": true,
+      "skills_evaluation": true,
+      "session_management": true,
+      "project_tracking": false,
+      "documentation_sync": false
+    }
+  },
+  "claude": {
+    "skill_prefix": "memory-palace",
+    "auto_load": false,
+    "categories": {
+      "architecture": "Design and construct virtual memory palaces for spatial knowledge organization",
+      "navigation": "Find and retrieve information using spatial memory techniques",
+      "cultivation": "Manage evolving knowledge bases as digital gardens"
+    },
+    "provides_infrastructure": false,
+    "base_plugin": false,
+    "sdk_compatibility": {
+      "version": "2024.1",
+      "features": [
+        "spatial-indexing",
+        "knowledge-retrieval",
+        "session-persistence",
+        "garden-metrics",
+        "cross-reference-mapping"
+      ]
+    },
+    "agent_integration": {
+      "skill_discovery": true,
+      "dynamic_loading": true,
+      "context_management": true,
+      "tool_optimization": false,
+      "performance_monitoring": false
+    }
+  }
+}

@@ -1,0 +1,88 @@
+# Pre-commit configuration for imbue plugin
+# Ensures code quality and consistency before commits
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: debug-statements
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+        types_or: [python, pyi, jupyter]
+      - id: ruff-format
+        types_or: [python, pyi, jupyter]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.14.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-all]
+        args: [--ignore-missing-imports]
+        files: ^scripts/
+        pass_filenames: false
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: [-c, pyproject.toml]
+        files: ^scripts/
+        pass_filenames: false
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.28.4
+    hooks:
+      - id: typos
+        types_or: [python, markdown, text, toml, yaml, json]
+        exclude: ^(tests/fixtures/|\.git/|\.pytest_cache/)
+
+  - repo: local
+    hooks:
+      - id: pytest-check
+        name: pytest-check
+        entry: uv run pytest tests/unit/ -x --tb=short
+        language: system
+        pass_filenames: false
+        always_run: false
+        stages: [commit]
+
+  - repo: local
+    hooks:
+      - id: validate-imbue-plugin
+        name: validate-imbue-plugin
+        entry: uv run python scripts/imbue_validator.py --root . --scan
+        language: system
+        pass_filenames: false
+        always_run: true
+
+# Configuration
+default_language_version:
+  python: python3.12
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [pytest-check]
+  submodules: false

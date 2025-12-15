@@ -1,0 +1,79 @@
+[project]
+name = "minister"
+version = "1.0.0"
+description = "GitHub-centric project management plugin for Claude Code"
+authors = [{name = "Claude Night Market"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "ruff>=0.7.0",
+    "mypy>=1.11.0",
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+]
+
+[project.optional-dependencies]
+github = [
+    "pygithub>=2.4.0",
+    "requests>=2.32.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/minister"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv", ".uv-cache"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "S", "PL", "D"]
+extend-ignore = [
+    "S101",   # Use of assert (acceptable)
+    "E203",
+    "D203",
+    "D213",
+    "D107",
+    "PLR0913",
+    "S603",
+    "S607",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "PLR2004",  # Magic values in test assertions are acceptable
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --cov=minister --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src/minister"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
