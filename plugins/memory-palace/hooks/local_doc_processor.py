@@ -24,7 +24,10 @@ def main() -> None:
     """Process local documents through the hook."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        import logging
+
+        logging.warning("local_doc_processor: Failed to parse payload: %s", e)
         sys.exit(0)
 
     tool_name = payload.get("tool_name", "")

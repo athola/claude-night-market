@@ -6,6 +6,7 @@ unexpected input scenarios.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import subprocess
@@ -399,14 +400,13 @@ const EMOJI: &str = "🦀 Rust 🚀";
         # Arrange
         workflow = CodeReviewWorkflow()
 
-        with (
-            patch(
-                "pensive.skills.rust_review.RustReviewSkill.analyze",
-            ) as mock_rust,
-            patch(
-                "pensive.skills.api_review.ApiReviewSkill.analyze",
-            ) as mock_api,
-        ):
+        with contextlib.ExitStack() as stack:
+            mock_rust = stack.enter_context(
+                patch("pensive.skills.rust_review.RustReviewSkill.analyze")
+            )
+            mock_api = stack.enter_context(
+                patch("pensive.skills.api_review.ApiReviewSkill.analyze")
+            )
             # Make one skill fail, another succeed
             mock_rust.side_effect = Exception("Rust analysis failed")
             mock_api.return_value = "API review completed successfully"

@@ -195,3 +195,7 @@ def print_summary(
         print("\n[NOTE] Restart Claude Code to apply the updated plugins.")
 
     print("\nUpdate process complete!")
+
+
+if __name__ == "__main__":
+    main()

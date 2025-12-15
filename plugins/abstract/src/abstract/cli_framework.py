@@ -365,9 +365,12 @@ class AbstractCLI(ABC):
             result = self.execute(args)
         except KeyboardInterrupt:
             return 130
-        except Exception:
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
             if args.verbose > 0:
                 traceback.print_exc()
+            else:
+                print("  Use --verbose for full traceback.", file=sys.stderr)
             return 1
 
         # Handle warnings

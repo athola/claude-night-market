@@ -476,7 +476,8 @@ def main() -> None:
     """Intercept research requests through the hook."""
     try:
         payload: dict[str, Any] = json.load(sys.stdin)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.warning("research_interceptor: Failed to parse payload: %s", e)
         sys.exit(0)
 
     tool_name = payload.get("tool_name", "")
