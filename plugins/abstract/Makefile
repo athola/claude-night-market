@@ -15,7 +15,8 @@
         update-changelog check-changelog format lint type-check typecheck security unit-tests test-unit \
         test-coverage test-quick analyze-skill estimate-tokens audit-skill improve-skill \
         check-compliance audit-all eval-report dev-setup ci-check verify-install debug-variables \
-        validate-skill-descriptions validate-plugin validate-self test-wrappers validate-migration generate-wrappers
+        validate-skill-descriptions validate-plugin validate-self test-wrappers validate-migration generate-wrappers \
+        demo-skills plugin-check
 
 # Default shell with error handling
 SHELL := /bin/bash
@@ -307,6 +308,25 @@ generate-wrappers: ## Generate wrapper boilerplate for detected functionality
 		echo "⚠ wrapper_generator.py not found in $(SCRIPTS_DIR)/"; \
 	fi
 	@echo "✓ Wrapper generation completed"
+
+# ---------- Demo/Dogfood Targets ----------
+demo-skills: ## Validate abstract skill structure
+	@echo "=== Abstract Skills Demo ==="
+	@echo "Skill authoring and evaluation tools:"
+	@for skill in $(SKILLS_DIR)/*/SKILL.md; do \
+		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		echo "  - $$name"; \
+	done
+	@echo ""
+	@echo "Step 2: Running skill validator on abstract plugin..."
+	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py . || echo "  (validation completed with warnings)"
+	@echo ""
+	@echo "Step 3: Token estimation sample"
+	@$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file $(SKILLS_DIR)/skill-authoring/SKILL.md 2>/dev/null || echo "  (token estimator sample skipped)"
+
+plugin-check: validate-self demo-skills ## Run all demo workflows
+	@echo ""
+	@echo "=== Abstract Plugin Check Complete ==="
 
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;

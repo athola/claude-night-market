@@ -6,7 +6,7 @@
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test status clean \
         install-hooks validate-all quota-status usage-report validate-delegation delegate-status \
         delegate-verify delegate-usage delegate-test delegate-gemini delegate-qwen delegate-auto \
-        demo-token-estimate precommit
+        demo-token-estimate precommit demo-delegation demo-skills plugin-check
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
@@ -173,3 +173,36 @@ delegate-test:
 	uv run python scripts/delegation_executor.py qwen "Respond with 'OK'" || echo "Qwen not available"
 	@echo "Showing usage..."
 	uv run python scripts/delegation_executor.py --usage
+
+# ---------- Demo/Dogfood Targets ----------
+demo-delegation: ## Demo delegation workflow
+	@echo "=== Conjure Delegation Demo ==="
+	@echo "Demonstrating delegation-core skill workflow..."
+	@echo ""
+	@echo "Step 1: Service availability"
+	@uv run python scripts/delegation_executor.py --list-services 2>/dev/null || echo "  (services not configured)"
+	@echo ""
+	@echo "Step 2: Quota status"
+	@uv run python scripts/quota_tracker.py --status 2>/dev/null || echo "  (quota tracking inactive)"
+	@echo ""
+	@echo "Step 3: Token estimation sample"
+	@uv run python -c "from tools.delegation_executor import Delegator; d=Delegator(); print(f'Estimated tokens for test prompt: {d.estimate_tokens([], \"Hello world\")}')" 2>/dev/null || echo "  (token estimator not available)"
+	@echo ""
+	@echo "Delegation demo complete. Use conjure:delegation-core for full workflow."
+
+demo-skills: ## Validate conjure skill structure
+	@echo "=== Conjure Skills Demo ==="
+	@echo "Delegation skills:"
+	@for skill in skills/*/SKILL.md; do \
+		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		echo "  - $$name"; \
+	done
+	@echo ""
+	@echo "Skill coverage:"
+	@echo "  delegation-core:    $$(test -f skills/delegation-core/SKILL.md && echo '✓' || echo '✗')"
+	@echo "  gemini-delegation:  $$(test -f skills/gemini-delegation/SKILL.md && echo '✓' || echo '✗')"
+	@echo "  qwen-delegation:    $$(test -f skills/qwen-delegation/SKILL.md && echo '✓' || echo '✗')"
+
+plugin-check: demo-delegation demo-skills status ## Run all demo workflows
+	@echo ""
+	@echo "=== Conjure Plugin Check Complete ==="
