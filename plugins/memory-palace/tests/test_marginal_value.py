@@ -5,7 +5,6 @@ following TDD principles.
 """
 
 import pytest
-
 from memory_palace.corpus.marginal_value import (
     DeltaType,
     IntegrationDecision,
@@ -120,7 +119,9 @@ def temp_index_dir(tmp_path):
 @pytest.fixture
 def marginal_filter(temp_corpus_dir, temp_index_dir):
     """Create marginal value filter with indexes built."""
-    filter_obj = MarginalValueFilter(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+    filter_obj = MarginalValueFilter(
+        corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+    )
 
     # Build indexes
     filter_obj.cache_lookup.build_indexes()
@@ -175,7 +176,12 @@ This demonstrates machine learning applied to human learning processes.
         redundancy, _delta, integration = marginal_filter.evaluate_content(
             content=redundant_content,
             title="Franklin Protocol - Learning via Gradient Descent",
-            tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"],
+            tags=[
+                "learning",
+                "gradient-descent",
+                "deliberate-practice",
+                "machine-learning",
+            ],
         )
 
         # The keyword-based matching may or may not detect overlap depending on
@@ -223,7 +229,10 @@ Related to gradient descent but focuses on timing.
         )
 
         # Should detect overlap with Franklin Protocol (both about learning)
-        assert redundancy.level in [RedundancyLevel.PARTIAL_OVERLAP, RedundancyLevel.NOVEL]
+        assert redundancy.level in [
+            RedundancyLevel.PARTIAL_OVERLAP,
+            RedundancyLevel.NOVEL,
+        ]
         if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
             assert delta is not None
             assert redundancy.overlap_score >= OVERLAP_PARTIAL
@@ -290,7 +299,10 @@ This connects Franklin to modern deep learning.
 
         # Should detect partial overlap but novel insights
         if delta:
-            assert delta.delta_type in [DeltaType.NOVEL_INSIGHT, DeltaType.MORE_EXAMPLES]
+            assert delta.delta_type in [
+                DeltaType.NOVEL_INSIGHT,
+                DeltaType.MORE_EXAMPLES,
+            ]
             assert delta.value_score >= VALUE_SCORE_MIN
             assert len(delta.novel_aspects) > 0
 
@@ -399,7 +411,12 @@ Machine learning for humans.
         redundancy, _delta, integration = marginal_filter.evaluate_content(
             content=redundant,
             title="Franklin Protocol Learning",
-            tags=["learning", "gradient-descent", "deliberate-practice", "machine-learning"],
+            tags=[
+                "learning",
+                "gradient-descent",
+                "deliberate-practice",
+                "machine-learning",
+            ],
         )
 
         # The filter should make a reasonable decision based on detected overlap

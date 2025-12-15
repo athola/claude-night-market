@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-modular-monolith
-description: Maintain a single deployable artifact while enforcing strong internal boundaries between modules.
+description: Maintain a single deployable artifact while enforcing strong internal boundaries between modules. Use when building systems that need module boundaries without distributed complexity.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, modular-monolith, monolith, internal-boundaries, team-autonomy]
 dependencies: []

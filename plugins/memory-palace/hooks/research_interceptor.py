@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-import contextlib
 import json
+import logging
 import re
 import sys
 import time
@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any
 
 from shared.config import get_config
+
+logger = logging.getLogger(__name__)
 
 # Setup path before importing from memory_palace
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
@@ -26,7 +28,10 @@ if str(SRC_DIR) not in sys.path:
 from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
 from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
 from memory_palace.curation import DomainAlignment, IntakeFlagPayload  # noqa: E402
-from memory_palace.lifecycle.autonomy_state import AutonomyProfile, AutonomyStateStore  # noqa: E402
+from memory_palace.lifecycle.autonomy_state import (  # noqa: E402
+    AutonomyProfile,
+    AutonomyStateStore,
+)
 from memory_palace.observability.telemetry import (  # noqa: E402
     ResearchTelemetryEvent,
     TelemetryLogger,
@@ -103,9 +108,12 @@ def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str,
         corpus_dir = PLUGIN_ROOT / config.get("corpus_dir", "docs/knowledge-corpus/")
         index_dir = PLUGIN_ROOT / config.get("indexes_dir", "data/indexes")
         provider = config.get("embedding_provider", "none")
-        lookup = CacheLookup(str(corpus_dir), str(index_dir), embedding_provider=provider)
+        lookup = CacheLookup(
+            str(corpus_dir), str(index_dir), embedding_provider=provider
+        )
         return lookup.search(query, mode="unified", min_score=0.0)
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed to search local knowledge: %s", e)
         return []
 
 
@@ -119,7 +127,9 @@ def _classify_redundancy(score: float) -> RedundancyLevel:
     return RedundancyLevel.NOVEL
 
 
-def _calculate_novelty_and_duplicates(results: list[dict[str, Any]]) -> tuple[float, list[str]]:
+def _calculate_novelty_and_duplicates(
+    results: list[dict[str, Any]],
+) -> tuple[float, list[str]]:
     if not results:
         return 1.0, []
 
@@ -140,7 +150,9 @@ def _calculate_novelty_and_duplicates(results: list[dict[str, Any]]) -> tuple[fl
 
 def _detect_domain_alignment(query: str, domains: list[str]) -> DomainAlignment:
     normalized_query = query.lower()
-    matched = [domain for domain in domains if domain and domain.lower() in normalized_query]
+    matched = [
+        domain for domain in domains if domain and domain.lower() in normalized_query
+    ]
     return DomainAlignment(configured_domains=domains, matched_domains=matched)
 
 
@@ -187,7 +199,9 @@ def _finalize_decision(
     effective_level = 0
     if autonomy_profile is None:
         fallback_level = int(cfg.get("autonomy_level", 0) or 0)
-        autonomy_profile = AutonomyProfile(global_level=fallback_level, domain_controls={})
+        autonomy_profile = AutonomyProfile(
+            global_level=fallback_level, domain_controls={}
+        )
 
     effective_level = autonomy_profile.effective_level_for(effective_domains)
 
@@ -453,7 +467,8 @@ def emit_telemetry_event(
             duplicate_entry_ids=duplicate_ids,
         )
         logger.log_event(event)
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed to emit telemetry: %s", e)
         return
 
 
@@ -485,7 +500,8 @@ def main() -> None:
             autonomy_profile = autonomy_store.build_profile(
                 config_level=config.get("autonomy_level")
             )
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to load autonomy profile: %s", e)
             autonomy_profile = None
             autonomy_store = None
 
@@ -506,17 +522,21 @@ def main() -> None:
     query_id = uuid.uuid4().hex
     search_started = time.perf_counter()
     results = search_local_knowledge(query, config)
-    decision = make_decision(query, results, mode, config=config, autonomy_profile=autonomy_profile)
+    decision = make_decision(
+        query, results, mode, config=config, autonomy_profile=autonomy_profile
+    )
     latency_ms = int((time.perf_counter() - search_started) * 1000)
 
     if autonomy_store is not None:
-        with contextlib.suppress(Exception):
+        try:
             autonomy_store.record_decision(
                 auto_approved=not decision.should_flag_for_intake,
                 flagged=decision.should_flag_for_intake,
                 blocked=decision.action == "block",
                 domains=decision.autonomy_domains or decision.aligned_domains,
             )
+        except Exception as e:
+            logger.debug("Failed to record decision: %s", e)
 
     response_parts: list[str] = []
     if decision.context:
@@ -537,7 +557,9 @@ def main() -> None:
             "additionalContext": "\n".join(response_parts),
         }
         if permission == "deny":
-            output["permissionDecisionReason"] = "cache_only mode: local knowledge available"
+            output["permissionDecisionReason"] = (
+                "cache_only mode: local knowledge available"
+            )
         if decision.intake_payload:
             output["intakeFlagPayload"] = decision.intake_payload.to_dict()
         if decision.delta_reasoning:
@@ -547,7 +569,11 @@ def main() -> None:
     hook_payload: dict[str, Any] | None = None
     if decision.action == "block":
         hook_payload = {"hookSpecificOutput": _build_hook_output("deny")}
-    elif decision.action == "augment" or decision.should_flag_for_intake or response_parts:
+    elif (
+        decision.action == "augment"
+        or decision.should_flag_for_intake
+        or response_parts
+    ):
         hook_payload = {"hookSpecificOutput": _build_hook_output("allow")}
 
     if hook_payload:

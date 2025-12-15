@@ -12,7 +12,6 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-
 from memory_palace.palace_manager import MemoryPalaceManager
 
 PALACE_COUNT = 3
@@ -34,7 +33,9 @@ class TestMemoryPalaceManagerInitialization:
         )
         assert manager.palaces_dir == str(temp_palaces_dir)
 
-    def test_creates_directories_on_init(self, temp_config_file: Path, tmp_path: Path) -> None:
+    def test_creates_directories_on_init(
+        self, temp_config_file: Path, tmp_path: Path
+    ) -> None:
         """Create palaces and backups directories if they don't exist."""
         new_palaces_dir = tmp_path / "new_palaces"
         assert not new_palaces_dir.exists()
@@ -136,7 +137,9 @@ class TestPalaceCreation:
 
         assert palace1["id"] != palace2["id"]
 
-    def test_persists_palace_to_disk(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
+    def test_persists_palace_to_disk(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Created palace is saved to a JSON file."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -379,7 +382,9 @@ class TestMasterIndex:
         assert "mathematics" in domains
         assert domains["programming"] == PROGRAMMING_COUNT  # Two programming palaces
 
-    def test_handles_empty_directory(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
+    def test_handles_empty_directory(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Empty directory returns valid empty index."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -546,7 +551,9 @@ class TestExportImport:
         assert "exported_at" in bundle
         assert len(bundle["palaces"]) == PALACE_COUNT
 
-    def test_imports_palaces_from_bundle(self, temp_config_file: Path, tmp_path: Path) -> None:
+    def test_imports_palaces_from_bundle(
+        self, temp_config_file: Path, tmp_path: Path
+    ) -> None:
         """Import loads palaces from bundle into storage."""
         # Create a bundle to import
         bundle = {
@@ -559,7 +566,12 @@ class TestExportImport:
                     "metaphor": "house",
                     "created": "2025-01-01T00:00:00",
                     "last_modified": "2025-01-01T00:00:00",
-                    "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
+                    "layout": {
+                        "districts": [],
+                        "buildings": [],
+                        "rooms": [],
+                        "connections": [],
+                    },
                     "associations": {},
                     "sensory_encoding": {},
                     "metadata": {
@@ -612,7 +624,12 @@ class TestExportImport:
                     "metaphor": "building",
                     "created": "2025-01-01T00:00:00",
                     "last_modified": "2025-01-01T00:00:00",
-                    "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
+                    "layout": {
+                        "districts": [],
+                        "buildings": [],
+                        "rooms": [],
+                        "connections": [],
+                    },
                     "associations": {},
                     "sensory_encoding": {},
                     "metadata": {
@@ -656,7 +673,12 @@ class TestExportImport:
                     "metaphor": "building",
                     "created": "2025-01-01T00:00:00",
                     "last_modified": "2025-01-01T00:00:00",
-                    "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
+                    "layout": {
+                        "districts": [],
+                        "buildings": [],
+                        "rooms": [],
+                        "connections": [],
+                    },
                     "associations": {},
                     "sensory_encoding": {},
                     "metadata": {

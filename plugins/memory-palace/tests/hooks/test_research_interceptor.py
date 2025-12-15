@@ -139,7 +139,9 @@ class TestMakeDecision:
                 "file": "docs/async.md",
             },
         ]
-        decision = make_decision("async error handling patterns", results, "cache_first")
+        decision = make_decision(
+            "async error handling patterns", results, "cache_first"
+        )
         assert decision.action == "augment"
         assert "strong cached match" in decision.context[0]
 
@@ -238,7 +240,9 @@ class TestMakeDecision:
             },
         ]
         config = {"intake_threshold": 80}
-        decision = make_decision("python async patterns", results, "cache_first", config=config)
+        decision = make_decision(
+            "python async patterns", results, "cache_first", config=config
+        )
         assert decision.should_flag_for_intake is False
         assert decision.intake_payload is not None
         assert decision.intake_payload.duplicate_entry_ids == ["entry-123"]
@@ -250,7 +254,11 @@ class TestFormatCachedEntry:
 
     def test_basic_formatting(self) -> None:
         """Entry should be formatted with title and match score."""
-        entry = {"title": "Python Async Patterns", "file": "docs/async.md", "match_score": 0.85}
+        entry = {
+            "title": "Python Async Patterns",
+            "file": "docs/async.md",
+            "match_score": 0.85,
+        }
         formatted = format_cached_entry_context(entry)
         assert "Python Async Patterns" in formatted
         assert "85%" in formatted
@@ -262,7 +270,8 @@ class TestFormatCachedEntry:
             "title": "Test Entry",
             "file": "docs/test.md",
             "match_score": 0.70,
-            "content": "This is a long piece of content that should be truncated. " * 10,
+            "content": "This is a long piece of content that should be truncated. "
+            * 10,
         }
         formatted = format_cached_entry_context(entry)
         assert "Excerpt:" in formatted
@@ -294,7 +303,9 @@ class TestSearchLocalKnowledge:
                 mode="unified",
                 min_score=0.0,
             )
-            expected_corpus = str(research_interceptor.PLUGIN_ROOT / "docs/knowledge-corpus/")
+            expected_corpus = str(
+                research_interceptor.PLUGIN_ROOT / "docs/knowledge-corpus/"
+            )
             expected_index = str(research_interceptor.PLUGIN_ROOT / "data/indexes")
             mock_lookup.assert_called_once_with(
                 expected_corpus, expected_index, embedding_provider="none"
@@ -411,7 +422,9 @@ class TestEndToEnd:
             patch("sys.stdin", mock_stdin),
             patch("sys.stdout", mock_stdout),
             patch("shared.config.get_config", return_value=mock_config),
-            patch("research_interceptor.search_local_knowledge", return_value=mock_results),
+            patch(
+                "research_interceptor.search_local_knowledge", return_value=mock_results
+            ),
             pytest.raises(SystemExit) as exc_info,
         ):
             research_interceptor.main()
@@ -475,7 +488,9 @@ class TestEndToEnd:
             patch("sys.stdin", mock_stdin),
             patch("sys.stdout", mock_stdout),
             patch("shared.config.get_config", return_value=mock_config),
-            patch("research_interceptor.search_local_knowledge", return_value=mock_results),
+            patch(
+                "research_interceptor.search_local_knowledge", return_value=mock_results
+            ),
             pytest.raises(SystemExit) as exc_info,
         ):
             research_interceptor.main()
@@ -532,7 +547,9 @@ class TestEndToEnd:
             patch("sys.stdin", mock_stdin),
             patch("sys.stdout", StringIO()),
             patch("shared.config.get_config", return_value=mock_config),
-            patch("research_interceptor.search_local_knowledge", return_value=mock_results),
+            patch(
+                "research_interceptor.search_local_knowledge", return_value=mock_results
+            ),
             patch("research_interceptor.TelemetryLogger", return_value=mock_logger),
             pytest.raises(SystemExit),
         ):

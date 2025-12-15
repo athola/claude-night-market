@@ -48,7 +48,7 @@ class Topic:
     variations: list[Variation]
 
 
-TODAY = dt.datetime.now(dt.timezone.utc).date()
+TODAY = dt.datetime.now(dt.UTC).date()
 
 
 def _topics() -> list[Topic]:
@@ -513,7 +513,9 @@ def _topics() -> list[Topic]:
                     "Python",
                     "embedding spark-joy prompts into CLI",
                     ["konmari", "prompts", "cli"],
-                    ("Guide curators through spark-joy prompts before deleting knowledge."),
+                    (
+                        "Guide curators through spark-joy prompts before deleting knowledge."
+                    ),
                     [
                         "Prompt for aspiration alignment + enthusiasm.",
                         "Require gratitude statement before archive.",
@@ -526,7 +528,9 @@ def _topics() -> list[Topic]:
                     "Python",
                     "weekly lifecycle health reports",
                     ["report", "garden", "health"],
-                    ("Generate weekly reports summarizing probation/growing/evergreen ratios."),
+                    (
+                        "Generate weekly reports summarizing probation/growing/evergreen ratios."
+                    ),
                     [
                         "Compute per-stage counts from vitality file.",
                         "Highlight overdue probation entries.",
@@ -539,7 +543,9 @@ def _topics() -> list[Topic]:
                     "Python",
                     "interactive CLI for lifecycle decisions",
                     ["cli", "tending", "workflow"],
-                    ("Provide interactive CLI to cycle through stale entries and capture actions."),
+                    (
+                        "Provide interactive CLI to cycle through stale entries and capture actions."
+                    ),
                     [
                         "Load queue from `vitality-scores.yaml`.",
                         "Offer actions: promote, refresh, archive, merge.",
@@ -695,7 +701,9 @@ def _topics() -> list[Topic]:
                     "Markdown",
                     "on-call guides for flipping flags",
                     ["oncall", "runbook", "flag"],
-                    ("Document on-call runbooks for feature flag adjustments during incidents."),
+                    (
+                        "Document on-call runbooks for feature flag adjustments during incidents."
+                    ),
                     [
                         "List commands to disable cache/autonomy/lifecycle flags.",
                         "Specify verification steps post-change.",
@@ -747,7 +755,9 @@ def _topics() -> list[Topic]:
                     "Python",
                     "combining keyword + embedding scores",
                     ["fusion", "ranking", "hybrid"],
-                    ("Fuse keyword and embedding scores using weighted sums to improve precision."),
+                    (
+                        "Fuse keyword and embedding scores using weighted sums to improve precision."
+                    ),
                     [
                         "Normalize scores before blending.",
                         "Expose config for weighting knobs.",
@@ -773,7 +783,9 @@ def _topics() -> list[Topic]:
                     "YAML",
                     "toggling embedding providers",
                     ["provider", "toggle", "config"],
-                    ("Expose config flag to switch between none/local/api embedding providers."),
+                    (
+                        "Expose config flag to switch between none/local/api embedding providers."
+                    ),
                     [
                         "Update config schema with `embedding_provider`.",
                         "Teach unified search to branch accordingly.",
@@ -867,7 +879,9 @@ def _topics() -> list[Topic]:
                     "Python",
                     "interactive marginal value review",
                     ["cli", "workbench", "curation"],
-                    ("Provide CLI workbench to review marginal value assessments interactively."),
+                    (
+                        "Provide CLI workbench to review marginal value assessments interactively."
+                    ),
                     [
                         "Render color-coded overlap summaries.",
                         "Collect curator decision + notes.",
@@ -887,7 +901,9 @@ def generate_entries() -> list[dict[str, Any]]:
         for variation in topic.variations:
             entry_id = f"{topic.slug}-{variation.slug}"
             title = f"{topic.title} — {variation.title}"
-            tags = sorted(set(topic.tags + [topic.slug, variation.slug.replace("-", "_")]))
+            tags = sorted(
+                set(topic.tags + [topic.slug, variation.slug.replace("-", "_")])
+            )
             keywords = sorted({*(topic.base_keywords), *variation.keywords})
             queries = [
                 f"How to apply {topic.title.lower()} to {variation.focus}?",
@@ -956,9 +972,11 @@ def seed_cache_catalog(
     metadata = existing.setdefault("metadata", {})
     cache_meta = metadata.setdefault("cache_intercept", {})
     cache_meta["curated_count"] = len(curated_entries)
-    cache_meta["last_seeded"] = dt.datetime.now(dt.timezone.utc).isoformat()
+    cache_meta["last_seeded"] = dt.datetime.now(dt.UTC).isoformat()
 
-    keyword_index.write_text(yaml.safe_dump(existing, sort_keys=False), encoding="utf-8")
+    keyword_index.write_text(
+        yaml.safe_dump(existing, sort_keys=False), encoding="utf-8"
+    )
     return existing
 
 
@@ -998,9 +1016,7 @@ def write_markdown(entry: dict[str, Any]) -> None:
         f"1. {step}" if idx == 0 else f"{idx + 1}. {step}"
         for idx, step in enumerate(entry["steps"])
     )
-    content = (
-        f"---\n{yaml.safe_dump(front_matter, sort_keys=False).strip()}\n---\n\n{body}\n{steps}\n"
-    )
+    content = f"---\n{yaml.safe_dump(front_matter, sort_keys=False).strip()}\n---\n\n{body}\n{steps}\n"
     path.write_text(content, encoding="utf-8")
 
 
@@ -1034,7 +1050,7 @@ def update_keyword_index(entries: list[dict[str, Any]]) -> None:
     data.setdefault("metadata", {})
     data["metadata"]["total_entries"] = len(entries_map)
     data["metadata"]["total_keywords"] = len(keyword_map)
-    data["metadata"]["last_updated"] = dt.datetime.now(dt.timezone.utc).isoformat()
+    data["metadata"]["last_updated"] = dt.datetime.now(dt.UTC).isoformat()
 
     with index_path.open("w", encoding="utf-8") as handle:
         yaml.safe_dump(data, handle, sort_keys=False)
@@ -1070,7 +1086,7 @@ def update_query_templates(entries: list[dict[str, Any]]) -> None:
     data.setdefault("metadata", {})
     data["metadata"]["total_entries"] = len(entry_map)
     data["metadata"]["total_queries"] = len(query_map)
-    data["metadata"]["last_updated"] = dt.datetime.now(dt.timezone.utc).isoformat()
+    data["metadata"]["last_updated"] = dt.datetime.now(dt.UTC).isoformat()
 
     with templates_path.open("w", encoding="utf-8") as handle:
         yaml.safe_dump(data, handle, sort_keys=False)
@@ -1082,7 +1098,9 @@ def main() -> None:
     if cache_catalog.exists():
         seed_cache_catalog(index_dir=INDEX_DIR, fixture_path=cache_catalog)
     else:
-        print(f"[seed] cache intercept catalog missing at {cache_catalog}, skipping curated merge.")
+        print(
+            f"[seed] cache intercept catalog missing at {cache_catalog}, skipping curated merge."
+        )
 
     entries = generate_entries()
     for entry in entries:

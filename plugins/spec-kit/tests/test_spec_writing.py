@@ -105,9 +105,9 @@ class TestSpecWriting:
             assert title.strip(), "FR subsection title should not be empty"
             assert content.strip(), "FR subsection content should not be empty"
             # Should contain bullet points or numbered lists
-            assert ("-" in content) or (":" in content), (
-                "FR subsection should have structured items"
-            )
+            assert ("-" in content) or (
+                ":" in content
+            ), "FR subsection should have structured items"
 
     def test_should_contain_measurable_elements_when_validating_success_criteria(
         self, valid_authentication_spec_content
@@ -153,16 +153,16 @@ class TestSpecWriting:
         clarification_count = spec.count("[CLARIFY]")
 
         # Then: should have at most 3 clarification markers
-        assert clarification_count <= 3, (
-            f"Too many clarification markers: {clarification_count} (max 3 allowed)"
-        )
+        assert (
+            clarification_count <= 3
+        ), f"Too many clarification markers: {clarification_count} (max 3 allowed)"
 
     @pytest.mark.parametrize(
         "clarify_count,expected_valid",
         [
-            (0, True),   # No clarifications is valid
-            (1, True),   # One clarification is valid
-            (3, True),   # Three clarifications is the limit
+            (0, True),  # No clarifications is valid
+            (1, True),  # One clarification is valid
+            (3, True),  # Three clarifications is the limit
             (4, False),  # Four clarifications exceeds limit
         ],
     )
@@ -174,11 +174,14 @@ class TestSpecWriting:
         clarify_markers = "\n".join(
             [f"[CLARIFY] Question {i}?" for i in range(clarify_count)]
         )
-        spec = spec_content_factory(
-            "Test Feature",
-            "Testing clarification limits",
-            ["Requirement 1"],
-        ) + f"\n## Open Questions\n{clarify_markers}"
+        spec = (
+            spec_content_factory(
+                "Test Feature",
+                "Testing clarification limits",
+                ["Requirement 1"],
+            )
+            + f"\n## Open Questions\n{clarify_markers}"
+        )
 
         # When: counting clarification markers
         actual_count = spec.count("[CLARIFY]")
@@ -209,9 +212,9 @@ class TestSpecWriting:
         )
 
         # Then: should not contain implementation-specific phrases
-        assert not has_implementation_details, (
-            "Specification should avoid implementation details"
-        )
+        assert (
+            not has_implementation_details
+        ), "Specification should avoid implementation details"
 
     def test_should_focus_on_business_value_when_validating_spec(
         self, valid_authentication_spec_content
@@ -239,9 +242,9 @@ class TestSpecWriting:
         ]
 
         # Then: should include at least 3 business value terms
-        assert len(business_terms_found) >= 3, (
-            f"Should include business value terms, found: {business_terms_found}"
-        )
+        assert (
+            len(business_terms_found) >= 3
+        ), f"Should include business value terms, found: {business_terms_found}"
 
     def test_should_include_acceptance_criteria_when_validating_spec(
         self, valid_authentication_spec_content
@@ -259,8 +262,7 @@ class TestSpecWriting:
         ]
 
         has_acceptance_criteria = any(
-            re.search(pattern, spec.lower())
-            for pattern in acceptance_patterns
+            re.search(pattern, spec.lower()) for pattern in acceptance_patterns
         )
 
         # Then: should include at least one acceptance criteria pattern
@@ -311,9 +313,9 @@ class TestSpecWriting:
         long_sentences = [s for s in sentences if len(s.split()) > 30]
 
         # Then: should avoid extremely long sentences (less than 10% of total)
-        assert len(long_sentences) < len(sentences) * 0.1, (
-            "Too many very long sentences"
-        )
+        assert (
+            len(long_sentences) < len(sentences) * 0.1
+        ), "Too many very long sentences"
 
         # And: should have clear heading structure
         headings = re.findall(r"^#{1,6}\s+(.+)$", spec, re.MULTILINE)
@@ -337,9 +339,9 @@ class TestSpecWriting:
         if assumptions_section:
             assumptions_text = assumptions_section.group(1)
             # Should have bullet points or numbered list
-            assert ("-" in assumptions_text) or ("1." in assumptions_text), (
-                "Assumptions should be structured"
-            )
+            assert ("-" in assumptions_text) or (
+                "1." in assumptions_text
+            ), "Assumptions should be structured"
 
     def test_should_avoid_personal_pronouns_outside_scenarios_when_validating_spec(
         self, valid_authentication_spec_content
@@ -366,9 +368,9 @@ class TestSpecWriting:
             if not scenario_context:
                 non_scenario_pronouns.append(pronoun)
 
-        assert len(non_scenario_pronouns) == 0, (
-            f"Found personal pronouns outside scenarios: {non_scenario_pronouns}"
-        )
+        assert (
+            len(non_scenario_pronouns) == 0
+        ), f"Found personal pronouns outside scenarios: {non_scenario_pronouns}"
 
     def test_should_achieve_high_completeness_score_when_validating_spec(
         self, valid_authentication_spec_content
@@ -386,8 +388,7 @@ class TestSpecWriting:
             "assumptions": "## Assumptions" in spec,
             "has_user_roles": "### As a" in spec,
             "has_acceptance_criteria": any(
-                term in spec.lower()
-                for term in ["can ", "will ", "should "]
+                term in spec.lower() for term in ["can ", "will ", "should "]
             ),
             "limited_clarifications": spec.count("[CLARIFY]") <= 3,
         }
@@ -397,9 +398,9 @@ class TestSpecWriting:
         )
 
         # Then: should achieve at least 80% completeness
-        assert completeness_score >= 0.8, (
-            f"Completeness score too low: {completeness_score:.2%}"
-        )
+        assert (
+            completeness_score >= 0.8
+        ), f"Completeness score too low: {completeness_score:.2%}"
 
     def test_should_fail_completeness_when_missing_critical_sections(
         self, minimal_spec_content
@@ -417,8 +418,7 @@ class TestSpecWriting:
             "assumptions": "## Assumptions" in spec,
             "has_user_roles": "### As a" in spec,
             "has_acceptance_criteria": any(
-                term in spec.lower()
-                for term in ["can ", "will ", "should "]
+                term in spec.lower() for term in ["can ", "will ", "should "]
             ),
             "limited_clarifications": spec.count("[CLARIFY]") <= 3,
         }
@@ -428,9 +428,9 @@ class TestSpecWriting:
         )
 
         # Then: minimal spec should have lower completeness score
-        assert completeness_score < 0.8, (
-            f"Minimal spec should not achieve high completeness: {completeness_score:.2%}"
-        )
+        assert (
+            completeness_score < 0.8
+        ), f"Minimal spec should not achieve high completeness: {completeness_score:.2%}"
 
     @pytest.mark.parametrize(
         "spec_type,min_score",
@@ -456,8 +456,7 @@ class TestSpecWriting:
             "assumptions": "## Assumptions" in spec,
             "has_user_roles": "### As a" in spec,
             "has_acceptance_criteria": any(
-                term in spec.lower()
-                for term in ["can ", "will ", "should "]
+                term in spec.lower() for term in ["can ", "will ", "should "]
             ),
             "limited_clarifications": spec.count("[CLARIFY]") <= 3,
         }
@@ -467,6 +466,6 @@ class TestSpecWriting:
         )
 
         # Then: score should meet the minimum threshold for that type
-        assert completeness_score >= min_score, (
-            f"{spec_type} completeness score {completeness_score:.2%} below minimum {min_score:.2%}"
-        )
+        assert (
+            completeness_score >= min_score
+        ), f"{spec_type} completeness score {completeness_score:.2%} below minimum {min_score:.2%}"

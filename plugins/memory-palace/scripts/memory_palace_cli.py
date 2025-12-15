@@ -76,7 +76,9 @@ class MemoryPalaceCLI:
 
     def _manager(self, palaces_dir: str | None = None) -> MemoryPalaceManager:
         """Create a palace manager with optional directory override."""
-        return MemoryPalaceManager(str(self.config_file), self._palaces_dir(palaces_dir))
+        return MemoryPalaceManager(
+            str(self.config_file), self._palaces_dir(palaces_dir)
+        )
 
     def print_status(self, message: str) -> None:
         """Print a status message to the console."""
@@ -219,7 +221,9 @@ class MemoryPalaceCLI:
             except Exception as e:
                 self.print_warning(f"Could not get palace statistics: {e}")
 
-            garden_path = Path(os.environ.get("GARDEN_FILE", str(self.plugin_dir / "garden.json")))
+            garden_path = Path(
+                os.environ.get("GARDEN_FILE", str(self.plugin_dir / "garden.json"))
+            )
             if garden_path.exists():
                 self.print_status(f"Digital Garden Metrics ({garden_path}):")
                 try:
@@ -235,7 +239,9 @@ class MemoryPalaceCLI:
         label: str | None = None,
     ) -> None:
         """Compute and print digital garden metrics."""
-        target = path or os.environ.get("GARDEN_FILE", str(self.plugin_dir / "garden.json"))
+        target = path or os.environ.get(
+            "GARDEN_FILE", str(self.plugin_dir / "garden.json")
+        )
         if not Path(target).exists():
             self.print_warning(f"Garden file not found: {target}")
             return
@@ -444,7 +450,9 @@ class MemoryPalaceCLI:
                                 break
 
                     except Exception as e:
-                        self.print_warning(f"Could not read skill {skill_dir.name}: {e}")
+                        self.print_warning(
+                            f"Could not read skill {skill_dir.name}: {e}"
+                        )
 
     def create_palace(self, name: str, domain: str, metaphor: str = "building") -> bool:
         """Create a new memory palace with a given name, domain, and metaphor.
@@ -617,7 +625,9 @@ Examples:
     garden_parser = subparsers.add_parser("garden", help="Digital garden utilities")
     garden_sub = garden_parser.add_subparsers(dest="garden_cmd", help="Garden commands")
 
-    garden_metrics_parser = garden_sub.add_parser("metrics", help="Compute digital garden metrics")
+    garden_metrics_parser = garden_sub.add_parser(
+        "metrics", help="Compute digital garden metrics"
+    )
     garden_metrics_parser.add_argument(
         "--path",
         help="Path to garden JSON (default: GARDEN_FILE or ./garden.json)",
@@ -632,7 +642,9 @@ Examples:
         default="json",
         help="Output format",
     )
-    garden_metrics_parser.add_argument("--label", help="Prometheus label (defaults to file stem)")
+    garden_metrics_parser.add_argument(
+        "--label", help="Prometheus label (defaults to file stem)"
+    )
 
     garden_tend_parser = garden_sub.add_parser(
         "tend",
@@ -683,8 +695,12 @@ Examples:
         help="Prometheus garden label (defaults to file stem)",
     )
 
-    export_parser = subparsers.add_parser("export", help="Export all palaces to a bundle")
-    export_parser.add_argument("--destination", required=True, help="Destination JSON path")
+    export_parser = subparsers.add_parser(
+        "export", help="Export all palaces to a bundle"
+    )
+    export_parser.add_argument(
+        "--destination", required=True, help="Destination JSON path"
+    )
     export_parser.add_argument("--palaces-dir", help="Override palaces directory")
 
     import_parser = subparsers.add_parser("import", help="Import palaces from a bundle")
@@ -699,7 +715,9 @@ Examples:
     create_parser = subparsers.add_parser("create", help="Create a new memory palace")
     create_parser.add_argument("name", help="Palace name")
     create_parser.add_argument("domain", help="Palace domain")
-    create_parser.add_argument("--metaphor", default="building", help="Architectural metaphor")
+    create_parser.add_argument(
+        "--metaphor", default="building", help="Architectural metaphor"
+    )
 
     subparsers.add_parser("list", help="List all memory palaces")
 
@@ -712,7 +730,9 @@ Examples:
         help="Search type",
     )
 
-    manager_parser = subparsers.add_parser("manager", help="Run palace manager directly")
+    manager_parser = subparsers.add_parser(
+        "manager", help="Run palace manager directly"
+    )
     manager_parser.add_argument(
         "manager_args",
         nargs=argparse.REMAINDER,

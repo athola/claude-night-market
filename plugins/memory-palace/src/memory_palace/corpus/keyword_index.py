@@ -38,7 +38,11 @@ class KeywordIndexer:
         self.corpus_dir = Path(corpus_dir)
         self.index_dir = Path(index_dir)
         self.index_file = self.index_dir / "keyword-index.yaml"
-        self.index: dict[str, Any] = {"entries": {}, "keywords": defaultdict(list), "metadata": {}}
+        self.index: dict[str, Any] = {
+            "entries": {},
+            "keywords": defaultdict(list),
+            "metadata": {},
+        }
 
     def extract_keywords(self, entry_path: Path) -> list[str]:
         """Extract keywords from a single knowledge entry.
@@ -67,13 +71,17 @@ class KeywordIndexer:
                         metadata = yaml.safe_load(frontmatter)
                         if metadata:
                             # Extract from tags
-                            if "tags" in metadata and isinstance(metadata["tags"], list):
+                            if "tags" in metadata and isinstance(
+                                metadata["tags"], list
+                            ):
                                 keywords.update(tag.lower() for tag in metadata["tags"])
 
                             # Extract from title
                             if "title" in metadata:
                                 title = metadata["title"].lower()
-                                title_words = re.findall(rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b", title)
+                                title_words = re.findall(
+                                    rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b", title
+                                )
                                 keywords.update(title_words)
 
                             # Extract from palace/district
@@ -111,12 +119,16 @@ class KeywordIndexer:
                         keywords.update(term_words)
 
                     # Extract key technical terms (hyphenated, camelCase)
-                    technical_terms = re.findall(r"\b[a-z]+(?:-[a-z]+)+\b", body.lower())
+                    technical_terms = re.findall(
+                        r"\b[a-z]+(?:-[a-z]+)+\b", body.lower()
+                    )
                     keywords.update(technical_terms)
 
                     # Extract significant noun phrases (consecutive capitalized words)
                     # Helps catch phrases like "Gradient Descent" or "Machine Learning"
-                    noun_phrases = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", body)
+                    noun_phrases = re.findall(
+                        r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", body
+                    )
                     for phrase in noun_phrases:
                         # Add both the phrase and individual words
                         phrase_words = re.findall(r"\b[a-z]{3,}\b", phrase.lower())
@@ -247,7 +259,11 @@ class KeywordIndexer:
         """Load the index from disk."""
         if self.index_file.exists():
             with open(self.index_file) as f:
-                self.index = yaml.safe_load(f) or {"entries": {}, "keywords": {}, "metadata": {}}
+                self.index = yaml.safe_load(f) or {
+                    "entries": {},
+                    "keywords": {},
+                    "metadata": {},
+                }
 
     def search(self, query: str | list[str]) -> list[dict[str, Any]]:
         """Search the index by keyword(s).

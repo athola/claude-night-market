@@ -52,7 +52,6 @@ extend-ignore = [
     "D401",   # First line should be in imperative mood (not always appropriate)
     "D415",   # First line should end with punctuation (too strict)
     "S603",   # Subprocess call check (we validate inputs)
-    "UP046",  # Generic subclass style (backwards compatible)
 ]
 
 [tool.ruff.lint.per-file-ignores]

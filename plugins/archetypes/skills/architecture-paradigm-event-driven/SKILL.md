@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-event-driven
-description: Structure systems around asynchronous, event-based communication to decouple producers and consumers for improved scalability and resilience.
+description: Structure systems around asynchronous, event-based communication to decouple producers and consumers for improved scalability and resilience. Use when building loosely coupled systems with asynchronous message-based communication.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, event-driven, asynchronous, decoupling, scalability, resilience]
 dependencies: []

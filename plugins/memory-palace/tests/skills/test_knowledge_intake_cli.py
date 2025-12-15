@@ -26,7 +26,9 @@ def load_cli_module():
     return module
 
 
-def _write_candidate(tmp_path: Path, *, title: str = "Cache Intercept Design Notes") -> Path:
+def _write_candidate(
+    tmp_path: Path, *, title: str = "Cache Intercept Design Notes"
+) -> Path:
     candidate = {
         "source": {"type": "web_fetch", "identifier": "https://example.com/cache"},
         "summary": {

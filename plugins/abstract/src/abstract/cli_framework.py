@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, Generic, TypeVar
 
 from .base import AbstractScript
 from .config import AbstractConfig
@@ -24,7 +24,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class CLIResult[T]:
+class CLIResult(Generic[T]):
     """Standard result wrapper for CLI operations."""
 
     success: bool
@@ -369,17 +369,19 @@ class AbstractCLI(ABC):
 
         # Handle warnings
         if result.warnings and not args.quiet:
-            for _warning in result.warnings:
-                pass
+            for warning in result.warnings:
+                print(f"Warning: {warning}", file=sys.stderr)
 
         # Format and print output
         if not args.quiet or result.success:
-            self.format_output(
+            output = self.format_output(
                 result,
                 args.format,
                 summary_func=getattr(self, "summary_func", None),
                 table_columns=getattr(self, "table_columns", None),
             )
+            if output:
+                print(output)
 
         return 0 if result.success else 1
 

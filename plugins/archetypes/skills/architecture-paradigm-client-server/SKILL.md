@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-client-server
-description: Model system responsibilities across clients, servers, and optional peer-to-peer nodes.
+description: Model system responsibilities across clients, servers, and optional peer-to-peer nodes. Use when designing systems with clear client-server communication needs.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, client-server, peer-to-peer, distributed-systems]
 dependencies: []

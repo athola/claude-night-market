@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-hexagonal
-description: Employ the Hexagonal (Ports & Adapters) pattern to decouple domain logic from infrastructure, maximizing flexibility and testability.
+description: Employ the Hexagonal (Ports & Adapters) pattern to decouple domain logic from infrastructure, maximizing flexibility and testability. Use when designing systems that need strong separation between business logic and external dependencies.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, hexagonal, ports-adapters, infrastructure-independence, testability]
 dependencies: []

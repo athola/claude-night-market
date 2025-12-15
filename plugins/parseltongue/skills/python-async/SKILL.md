@@ -1,6 +1,7 @@
 ---
 name: python-async
 description: Master Python asyncio, concurrent programming, and async/await patterns for high-performance applications. Use when building async APIs, concurrent systems, or I/O-bound applications.
+version: 1.0.0
 category: async
 tags: [python, async, asyncio, concurrency, await, coroutines]
 tools: [async-analyzer, concurrency-checker]
@@ -10,7 +11,7 @@ usage_patterns:
   - websocket-servers
   - background-tasks
 complexity: intermediate
-estimated_tokens: 150
+estimated_tokens: 400
 progressive_loading: true
 modules:
   - basic-patterns

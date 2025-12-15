@@ -81,55 +81,10 @@ jobs:
         PR_NUMBER: ${{ github.event.number }}
         REPO_OWNER: ${{ github.repository_owner }}
         REPO_NAME: ${{ github.event.repository.name }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        python -c "
-import json
-import os
-from github import Github
-
-# Load results safely
-with open('debt_scan_results.json', 'r') as f:
-    debt_results = json.load(f)
-
-with open('escalations.json', 'r') as f:
-    escalations = json.load(f)
-
-# Build comment safely
-comment_lines = [
-    '## 🔍 Technical Debt Analysis\\n',
-    '### Summary',
-    f'- **Total Issues**: {debt_results.get(\"total_issues\", 0)}',
-    f'- **Total Debt Score**: {debt_results.get(\"total_score\", 0):,}',
-    f'- **Critical Issues**: {len([i for i in debt_results.get(\"issues\", []) if i.get(\"severity\") == \"critical\"])}',
-    f'- **High Priority Issues**: {len([i for i in debt_results.get(\"issues\", []) if i.get(\"severity\") == \"high\"])}',
-    ''
-]
-
-# Add top issues
-top_issues = debt_results.get('issues', [])[:5]
-if top_issues:
-    comment_lines.append('### Top Priority Issues')
-    for idx, issue in enumerate(top_issues, 1):
-        safe_file_path = issue.get('file_path', 'unknown').replace('<', '&lt;').replace('>', '&gt;')
-        safe_description = issue.get('description', 'No description').replace('<', '&lt;').replace('>', '&gt;')
-        comment_lines.append(f'{idx}. **[{issue.get(\"severity\", \"unknown\").upper()}]** {safe_file_path}:{issue.get(\"line_number\", 0)}')
-        comment_lines.append(f'   - Score: {issue.get(\"debt_score\", 0)}')
-        comment_lines.append(f'   - {safe_description}')
-        comment_lines.append('')
-
-# Add escalations
-if escalations:
-    comment_lines.append(f'### 🚨 Escalations ({len(escalations)})')
-    for escalation in escalations[:3]:
-        safe_desc = escalation.get('description', 'No description').replace('<', '&lt;').replace('>', '&gt;')
-        comment_lines.append(f'- {safe_desc}')
-    if len(escalations) > 3:
-        comment_lines.append(f'- ... and {len(escalations) - 3} more')
-    comment_lines.append('')
-
-comment = '\\n'.join(comment_lines)
-print('Generated comment safely')
-"
+        echo "PR comment generation - results in debt_scan_results.json"
+        cat debt_scan_results.json | head -20
 
     - name: Upload Debt Scan Results
       uses: actions/upload-artifact@v4
@@ -207,25 +162,11 @@ print('Generated comment safely')
     - name: Determine Quarter and Year
       id: quarter
       run: |
-        python -c "
-import datetime
-import json
-import os
-from pathlib import Path
-
-now = datetime.datetime.now()
-quarter = f'Q{((now.month - 1) // 3) + 1}'
-year = now.year
-
-# Save to output for later steps
-with open(Path('${{ github.workspace }}') / 'quarter_info.json', 'w') as f:
-    json.dump({'quarter': quarter, 'year': year}, f)
-
-output_path = Path(os.environ['GITHUB_OUTPUT'])
-with open(output_path, 'a') as gh:
-    gh.write(f'quarter={quarter}\\n')
-    gh.write(f'year={year}\\n')
-"
+        QUARTER="Q$(( ($(date +%m) - 1) / 3 + 1 ))"
+        YEAR=$(date +%Y)
+        echo "quarter=${QUARTER}" >> "$GITHUB_OUTPUT"
+        echo "year=${YEAR}" >> "$GITHUB_OUTPUT"
+        echo "{\"quarter\": \"${QUARTER}\", \"year\": ${YEAR}}" > quarter_info.json
 
     - name: Generate Quarterly Sprint Plan
       run: |
@@ -273,26 +214,13 @@ with open(output_path, 'a') as gh:
       env:
         WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       run: |
-        python -c "
-import json
-import os
-from pathlib import Path
-
-# Load current KPIs safely
-try:
-    with open('current_kpis.json', 'r') as f:
-        kpis = json.load(f)
-
-    critical_kpis = [kpi for kpi in kpis.values() if kpi.get('status') == 'critical']
-
-    if critical_kpis:
-        print(f'Found {len(critical_kpis)} critical KPIs')
-        # Create alert issue would be done here with proper API calls
-        print('Alert would be created for critical KPIs')
-
-except Exception as e:
-    print(f'Could not process KPIs: {e}')
-"
+        echo "Checking for critical KPIs..."
+        if [ -f current_kpis.json ]; then
+          cat current_kpis.json | head -20
+          echo "Would create alert for critical KPIs if present"
+        else
+          echo "No KPI file found"
+        fi
 
   integration-tests:
     name: Technical Debt Integration Tests
@@ -319,45 +247,17 @@ except Exception as e:
 
     - name: Run Basic Technical Debt Tests
       run: |
-        python -c "
-import sys
-import json
-from pathlib import Path
-
-# Test that scripts can run without errors
-scripts_to_test = [
-    'scripts/enhanced_technical_debt_detector.py',
-    'scripts/debt_dashboard_generator.py',
-    'scripts/technical_debt_metrics_kpi.py'
-]
-
-failed_tests = []
-for script in scripts_to_test:
-    try:
-        script_path = Path(script)
-        if script_path.exists():
-            print(f'Testing {script}...')
-            # Test script can be imported
-            import importlib.util
-            spec = importlib.util.spec_from_file_location('test_module', script)
-            if spec and spec.loader:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                print(f'✓ {script} imports successfully')
-            else:
-                print(f'⚠ {script} could not be imported')
-        else:
-            print(f'⚠ {script} not found')
-    except Exception as e:
-        print(f'✗ {script} failed: {e}')
-        failed_tests.append(script)
-
-if failed_tests:
-    print(f'Failed tests: {failed_tests}')
-    sys.exit(1)
-else:
-    print('All tests passed')
-"
+        echo "Testing technical debt scripts..."
+        failed=0
+        for script in scripts/enhanced_technical_debt_detector.py scripts/debt_dashboard_generator.py scripts/technical_debt_metrics_kpi.py; do
+          if [ -f "$script" ]; then
+            echo "Testing $script..."
+            python -c "import importlib.util; spec = importlib.util.spec_from_file_location('m', '$script'); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)" && echo "✓ $script OK" || { echo "✗ $script failed"; failed=1; }
+          else
+            echo "⚠ $script not found"
+          fi
+        done
+        [ $failed -eq 0 ] && echo "All tests passed" || exit 1
 
     - name: Upload Test Results
       uses: actions/upload-artifact@v4
@@ -389,70 +289,30 @@ else:
 
     - name: Cleanup Old Debt Data
       run: |
-        python -c "
-import json
-import os
-from datetime import datetime, timedelta
-from pathlib import Path
-
-# Clean up old debt data (older than 1 year)
-claude_dir = Path('.claude')
-if claude_dir.exists():
-    cutoff_date = datetime.now() - timedelta(days=365)
-
-    # Clean up old trend data
-    trends_file = claude_dir / 'debt_trends.json'
-    if trends_file.exists():
-        try:
-            with open(trends_file, 'r') as f:
-                trends = json.load(f)
-
-            # Filter old trends
-            recent_trends = [
-                trend for trend in trends
-                if datetime.fromisoformat(trend['date']) > cutoff_date
-            ]
-
-            with open(trends_file, 'w') as f:
-                json.dump(recent_trends, f, indent=2)
-
-            print(f'Cleaned trends: {len(trends)} -> {len(recent_trends)}')
-        except Exception as e:
-            print(f'Error cleaning trends: {e}')
-
-print('Cleanup completed')
-"
+        echo "Cleaning up old debt data..."
+        if [ -d ".claude" ] && [ -f ".claude/debt_trends.json" ]; then
+          # Keep only trends from the last year (365 days)
+          cutoff=$(date -d "365 days ago" +%Y-%m-%d 2>/dev/null || date -v-365d +%Y-%m-%d)
+          echo "Cutoff date: $cutoff"
+          # Use jq if available, otherwise skip cleanup
+          if command -v jq &> /dev/null; then
+            jq --arg cutoff "$cutoff" '[.[] | select(.date >= $cutoff)]' .claude/debt_trends.json > .claude/debt_trends.json.tmp && mv .claude/debt_trends.json.tmp .claude/debt_trends.json
+            echo "Trends cleaned"
+          else
+            echo "jq not available, skipping cleanup"
+          fi
+        fi
+        echo "Cleanup completed"
 
     - name: Archive Old Reports
       run: |
-        python -c "
-import json
-import os
-from datetime import datetime, timedelta
-from pathlib import Path
-import shutil
-
-# Archive reports older than 6 months
-reports_dir = Path('debt_reports')
-archive_dir = Path('archived_reports')
-
-if reports_dir.exists():
-    archive_dir.mkdir(exist_ok=True)
-    cutoff_date = datetime.now() - timedelta(days=180)
-
-    archived_count = 0
-    for report_file in reports_dir.glob('*'):
-        if report_file.is_file():
-            try:
-                file_time = datetime.fromtimestamp(report_file.stat().st_mtime)
-                if file_time < cutoff_date:
-                    archive_path = archive_dir / report_file.name
-                    shutil.move(str(report_file), str(archive_path))
-                    archived_count += 1
-            except Exception as e:
-                print(f'Error archiving {report_file}: {e}')
-
-    print(f'Archived {archived_count} old reports')
-
-print('Archive cleanup completed')
-"
+        echo "Archiving old reports..."
+        if [ -d "debt_reports" ]; then
+          mkdir -p archived_reports
+          # Archive reports older than 180 days
+          archived=0
+          find debt_reports -type f -mtime +180 -exec sh -c 'mv "$1" archived_reports/ && echo "Archived: $1"' _ {} \; 2>/dev/null || true
+          archived=$(find archived_reports -type f 2>/dev/null | wc -l)
+          echo "Archived $archived old reports"
+        fi
+        echo "Archive cleanup completed"

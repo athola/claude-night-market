@@ -548,9 +548,9 @@ def test_auth():
         # Check reference resolution
         for evidence_refs in evidence_chain["reference_tracker"].values():
             for ref in evidence_refs:
-                assert ref in evidence_chain["evidence_registry"], (
-                    f"Evidence reference {ref} not found"
-                )
+                assert (
+                    ref in evidence_chain["evidence_registry"]
+                ), f"Evidence reference {ref} not found"
 
         # Check skill contributions tracking
         assert evidence_chain["skill_contributions"]["diff-analysis"] == 1

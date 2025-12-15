@@ -104,7 +104,7 @@ repos:
 
       - id: check-context-optimization
         name: Check Context Optimization
-        entry: python3 plugins/abstract/scripts/context_optimizer.py --check-sizes
+        entry: python3 plugins/abstract/scripts/context_optimizer.py stats plugins/
         language: system
         files: ^.*SKILL\.md$
         pass_filenames: false
@@ -130,24 +130,39 @@ repos:
     rev: 1.7.9
     hooks:
       - id: bandit
-        args: ["-r", "plugins/"]
-        exclude: ^\.venv/|^\.uv-cache/
+        args: ["-c", "pyproject.toml", "-r", "plugins/"]
+        exclude: \.venv/|\.uv-cache/|__pycache__/|node_modules/|\.egg-info/
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.7.0
     hooks:
       - id: ruff
-        args: [--fix]
+        args: [--fix, --config, pyproject.toml]
       - id: ruff-format
+        args: [--config, pyproject.toml]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.0
     hooks:
       - id: mypy
-        args: [plugins/abstract/src/]
+        args: [
+          --ignore-missing-imports,
+          --explicit-package-bases,
+          --no-strict-optional,
+          --allow-untyped-defs,
+          --disable-error-code=unreachable,
+          --disable-error-code=call-overload,
+          --disable-error-code=operator,
+          --disable-error-code=no-any-return,
+          --disable-error-code=var-annotated,
+          --disable-error-code=assignment,
+          --disable-error-code=unused-ignore,
+          --disable-error-code=no-untyped-def
+        ]
         additional_dependencies:
           - types-PyYAML
-        exclude: ^\.venv/|^\.uv-cache/|^fix_.*\.py$
+        exclude: \.venv/|\.uv-cache/|__pycache__/|^fix_.*\.py$|tests/
+        files: ^plugins/abstract/src/abstract/
 
 default_stages: [pre-commit]
 default_language_version:

@@ -30,7 +30,9 @@ def main() -> None:
     lookup.query_manager.index.get("metadata", {})
 
     # Test a search
-    results = lookup.search("How to improve writing skills systematically", mode="unified")
+    results = lookup.search(
+        "How to improve writing skills systematically", mode="unified"
+    )
 
     for _i, _result in enumerate(results, 1):
         pass

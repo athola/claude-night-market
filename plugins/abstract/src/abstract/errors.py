@@ -212,13 +212,15 @@ class ErrorHandler:
             ErrorSeverity.INFO: "ℹ️",
         }
 
-        severity_symbols.get(error.severity, "❓")
+        symbol = severity_symbols.get(error.severity, "❓")
+        message = f"{symbol} [{error.error_code}] {error.message}"
+        print(message, file=sys.stderr)
 
         if error.details:
-            pass
+            print(f"  Details: {error.details}", file=sys.stderr)
 
         if error.suggestion:
-            pass
+            print(f"  Suggestion: {error.suggestion}", file=sys.stderr)
 
     def print_error_summary(self) -> None:
         """Print summary of all errors encountered."""
@@ -229,14 +231,18 @@ class ErrorHandler:
         for error in self.errors:
             severity_counts[error.severity] = severity_counts.get(error.severity, 0) + 1
 
-        for severity in severity_counts:
-            {
-                "critical": "🔴",
-                "high": "🟠",
-                "medium": "🟡",
-                "low": "🟢",
-                "info": "ℹ️",
-            }.get(severity.value, "❓")
+        symbol_map = {
+            "critical": "🔴",
+            "high": "🟠",
+            "medium": "🟡",
+            "low": "🟢",
+            "info": "ℹ️",
+        }
+
+        print("Error summary:", file=sys.stderr)
+        for severity, count in severity_counts.items():
+            symbol = symbol_map.get(severity.value, "❓")
+            print(f"  {symbol} {severity.value.title()}: {count}", file=sys.stderr)
 
     def exit_with_error(self, error: ToolError) -> None:
         """Log error and exit program."""

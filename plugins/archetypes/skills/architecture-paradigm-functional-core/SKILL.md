@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-functional-core
-description: Employ the "Functional Core, Imperative Shell" pattern to isolate deterministic business logic from side-effecting code for superior testability.
+description: Employ the "Functional Core, Imperative Shell" pattern to isolate deterministic business logic from side-effecting code for superior testability. Use when designing systems where pure functions and immutable data improve testability.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, functional-core, imperative-shell, testability, business-logic, side-effects]
 dependencies: []

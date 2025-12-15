@@ -4,6 +4,7 @@
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
 from typing import TypedDict
 
@@ -96,7 +97,7 @@ class ImbueValidator:
                     r"checklist",
                     r"deliverable",
                     r"evidence",
-                    r"structured.*output",
+                    r"structured",
                     r"workflow",
                 ]
 
@@ -107,7 +108,9 @@ class ImbueValidator:
 
                 if missing_components:
                     missing_str = ", ".join(missing_components)
-                issues.append(f"{skill_name}: Missing review components: {missing_str}")
+                    issues.append(
+                        f"{skill_name}: Missing review components: {missing_str}"
+                    )
 
             # Check for evidence logging patterns
             evidence_patterns = [
@@ -177,16 +180,27 @@ def main() -> None:
     validator = ImbueValidator(Path(args.root))
 
     if args.report:
-        pass
+        print(validator.generate_report())
+        return
     elif args.scan:
-        validator.scan_review_workflows()
+        scan_result = validator.scan_review_workflows()
         issues = validator.validate_review_workflows()
+        for key in [
+            "skills_found",
+            "review_workflow_skills",
+            "evidence_logging_patterns",
+        ]:
+            print(f"{key}: {sorted(scan_result[key])}")
         if issues:
-            pass
-        else:
-            pass
-    else:
-        pass
+            print("\nIssues:")
+            for issue in issues:
+                print(f"- {issue}")
+            sys.exit(1)
+        print("\nNo issues found.")
+        return
+
+    # Default action: print help
+    parser.print_help()
 
 
 if __name__ == "__main__":

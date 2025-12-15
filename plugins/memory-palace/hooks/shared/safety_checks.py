@@ -75,7 +75,9 @@ class SafetyCheckResult:
     sanitized_content: str | None = None
 
 
-def quick_size_check(content: str | bytes, config: dict[str, Any]) -> SafetyCheckResult | None:
+def quick_size_check(
+    content: str | bytes, config: dict[str, Any]
+) -> SafetyCheckResult | None:
     """Fast size check - returns result if fails, None if passes."""
     safety = config.get("safety", {})
     max_size = safety.get("max_content_size_kb", 500) * 1024
@@ -112,7 +114,9 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
     max_line = safety.get("max_line_length", 10000)
     for i, line in enumerate(content.split("\n")[:1000]):  # Check first 1000 lines
         if len(line) > max_line:
-            return SafetyCheckResult(False, f"Line {i + 1} exceeds {max_line} char limit")
+            return SafetyCheckResult(
+                False, f"Line {i + 1} exceeds {max_line} char limit"
+            )
 
     # 2. Repetition bomb - check entropy
     if safety.get("detect_repetition_bombs", True):
@@ -143,7 +147,9 @@ def check_data_bombs(content: str, config: dict[str, Any]) -> SafetyCheckResult 
                 combining_count += 1
             else:
                 if combining_count > max_combining:
-                    return SafetyCheckResult(False, "Unicode combining character bomb detected")
+                    return SafetyCheckResult(
+                        False, "Unicode combining character bomb detected"
+                    )
                 combining_count = 0
                 base_count += 1
 
@@ -174,10 +180,14 @@ def check_prompt_injection(content: str) -> SafetyCheckResult | None:
         match = pattern.search(sample)
         if match:
             # Sanitize by removing the injection attempt (cap content for safety)
-            sanitize_content = content[: _MAX_REGEX_INPUT_LEN * 10]  # Allow larger for sanitization
+            sanitize_content = content[
+                : _MAX_REGEX_INPUT_LEN * 10
+            ]  # Allow larger for sanitization
             sanitized = pattern.sub("[REMOVED]", sanitize_content)
             if len(content) > len(sanitize_content):
-                sanitized += content[len(sanitize_content) :]  # Append remainder unchanged
+                sanitized += content[
+                    len(sanitize_content) :
+                ]  # Append remainder unchanged
             return SafetyCheckResult(
                 is_safe=True,  # Safe after sanitization
                 reason="Prompt injection pattern sanitized",
@@ -218,7 +228,9 @@ def is_safe_content(content: str | bytes, config: dict[str, Any]) -> SafetyCheck
                 signal.signal(signal.SIGALRM, old_handler)
 
 
-def _is_safe_content_impl(content: str | bytes, config: dict[str, Any]) -> SafetyCheckResult:
+def _is_safe_content_impl(
+    content: str | bytes, config: dict[str, Any]
+) -> SafetyCheckResult:
     """Internal implementation of safety checks."""
     # Convert bytes to string if needed
     if isinstance(content, bytes):

@@ -32,7 +32,9 @@ class CacheLookup:
     - Weak match: <40% (tangentially related)
     """
 
-    def __init__(self, corpus_dir: str, index_dir: str, embedding_provider: str = "none") -> None:
+    def __init__(
+        self, corpus_dir: str, index_dir: str, embedding_provider: str = "none"
+    ) -> None:
         """Initialize the cache lookup system.
 
         Args:
@@ -57,7 +59,9 @@ class CacheLookup:
         embeddings_path = self.index_dir / "embeddings.yaml"
         self.embedding_index = None
         if resolved_provider != "none":
-            self.embedding_index = EmbeddingIndex(str(embeddings_path), provider=resolved_provider)
+            self.embedding_index = EmbeddingIndex(
+                str(embeddings_path), provider=resolved_provider
+            )
 
     def build_indexes(self) -> None:
         """Build both keyword and query template indexes."""
@@ -202,7 +206,9 @@ class CacheLookup:
             )
         return results
 
-    def _merge_and_score_results(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def _merge_and_score_results(
+        self, results: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Merge duplicate entries and calculate unified match scores.
 
         Args:

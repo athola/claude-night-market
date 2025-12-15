@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-serverless
-description: Build serverless, Function-as-a-Service (FaaS) systems for event-driven or operations-light workloads.
+description: Build serverless, Function-as-a-Service (FaaS) systems for event-driven or operations-light workloads. Use when building event-driven applications with minimal infrastructure management.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, serverless, faas, event-driven, cost-optimization]
 dependencies: []

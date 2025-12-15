@@ -40,7 +40,8 @@ class SpecKitCache:
         """Generate a unique cache key."""
         if data:
             # Include data hash in key for data-specific caching
-            data_hash = hashlib.md5(str(data).encode()).hexdigest()[:8]
+            # Using SHA256 for better collision resistance (not for cryptographic security)
+            data_hash = hashlib.sha256(str(data).encode()).hexdigest()[:8]
             return f"{key}_{data_hash}"
         return key
 

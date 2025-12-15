@@ -5,11 +5,15 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
-SCRIPT_PATH = Path(__file__).resolve().parents[2] / "scripts" / "update_vitality_scores.py"
+SCRIPT_PATH = (
+    Path(__file__).resolve().parents[2] / "scripts" / "update_vitality_scores.py"
+)
 
 
 def _load_script():
-    spec = importlib.util.spec_from_file_location("update_vitality_scores", SCRIPT_PATH.resolve())
+    spec = importlib.util.spec_from_file_location(
+        "update_vitality_scores", SCRIPT_PATH.resolve()
+    )
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     spec.loader.exec_module(module)  # type: ignore[attr-defined]

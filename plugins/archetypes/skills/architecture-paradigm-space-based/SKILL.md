@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-space-based
-description: Employ space-based or data-grid architectures to scale high-traffic, stateful workloads across multiple nodes.
+description: Employ space-based or data-grid architectures to scale high-traffic, stateful workloads across multiple nodes. Use when building high-scale systems with in-memory data grid patterns.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, space-based, data-grid, scalability, in-memory, stateful]
 dependencies: []

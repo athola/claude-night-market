@@ -8,12 +8,12 @@ This module provides reusable test fixtures following TDD/BDD principles:
 - Factory fixtures for generating variations
 """
 
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
-
 
 # ============================================================================
 # Specification Content Fixtures
@@ -164,7 +164,7 @@ Feature needs clarification.
 
 
 @pytest.fixture
-def spec_content_factory() -> Callable[[str, str, List[str]], str]:
+def spec_content_factory() -> Callable[[str, str, list[str]], str]:
     """Given a factory for generating spec variations.
 
     Returns a function that creates spec content with customizable:
@@ -178,7 +178,7 @@ def spec_content_factory() -> Callable[[str, str, List[str]], str]:
     def create_spec(
         feature_name: str,
         overview: str,
-        requirements: List[str],
+        requirements: list[str],
     ) -> str:
         reqs = "\n".join(f"- {req}" for req in requirements)
         return f"""# Feature Specification: {feature_name}
@@ -202,7 +202,7 @@ def spec_content_factory() -> Callable[[str, str, List[str]], str]:
 
 
 @pytest.fixture
-def valid_task_list() -> List[Dict[str, Any]]:
+def valid_task_list() -> list[dict[str, Any]]:
     """Given a valid, well-structured task list with dependencies.
 
     Contains multiple phases with properly linked tasks.
@@ -259,7 +259,7 @@ def valid_task_list() -> List[Dict[str, Any]]:
 
 
 @pytest.fixture
-def empty_task_list() -> List[Dict[str, Any]]:
+def empty_task_list() -> list[dict[str, Any]]:
     """Given an empty task list.
 
     Use this for testing edge cases in task processing.
@@ -268,7 +268,7 @@ def empty_task_list() -> List[Dict[str, Any]]:
 
 
 @pytest.fixture
-def task_with_circular_dependency() -> List[Dict[str, Any]]:
+def task_with_circular_dependency() -> list[dict[str, Any]]:
     """Given a task list with circular dependencies.
 
     Task A depends on B, B depends on C, C depends on A.
@@ -308,7 +308,7 @@ def task_with_circular_dependency() -> List[Dict[str, Any]]:
 
 
 @pytest.fixture
-def task_with_missing_dependency() -> List[Dict[str, Any]]:
+def task_with_missing_dependency() -> list[dict[str, Any]]:
     """Given a task list referencing non-existent dependencies.
 
     Use this for testing dependency validation.
@@ -331,7 +331,7 @@ def task_with_missing_dependency() -> List[Dict[str, Any]]:
 
 
 @pytest.fixture
-def sample_task_list(valid_task_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def sample_task_list(valid_task_list: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Alias for valid_task_list for backward compatibility.
 
     Use this when test names reference 'sample' instead of 'valid'.
@@ -358,7 +358,7 @@ def sample_feature_description(detailed_feature_description: str) -> str:
 
 
 @pytest.fixture
-def sample_plugin_manifest(valid_plugin_manifest: Dict[str, Any]) -> Dict[str, Any]:
+def sample_plugin_manifest(valid_plugin_manifest: dict[str, Any]) -> dict[str, Any]:
     """Alias for valid_plugin_manifest for backward compatibility.
 
     Use this when test names reference 'sample' instead of 'valid'.
@@ -372,7 +372,7 @@ def sample_plugin_manifest(valid_plugin_manifest: Dict[str, Any]) -> Dict[str, A
 
 
 @pytest.fixture
-def valid_plugin_manifest() -> Dict[str, Any]:
+def valid_plugin_manifest() -> dict[str, Any]:
     """Given a valid spec-kit plugin manifest.
 
     Contains all required plugin metadata fields.
@@ -402,7 +402,7 @@ def valid_plugin_manifest() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def minimal_plugin_manifest() -> Dict[str, Any]:
+def minimal_plugin_manifest() -> dict[str, Any]:
     """Given a minimal plugin manifest with only required fields.
 
     Use this for testing minimal configuration scenarios.
@@ -415,7 +415,7 @@ def minimal_plugin_manifest() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def plugin_manifest_missing_version() -> Dict[str, Any]:
+def plugin_manifest_missing_version() -> dict[str, Any]:
     """Given an invalid plugin manifest missing version field.
 
     Use this for testing manifest validation.
@@ -646,14 +646,14 @@ def mock_todowrite_failure() -> Mock:
 
 
 @pytest.fixture
-def mock_skill_loader() -> Callable[[str], Dict[str, Any] | None]:
+def mock_skill_loader() -> Callable[[str], dict[str, Any] | None]:
     """Given a mock skill loader function.
 
     Returns skill metadata for known skills, None for unknown.
     Use this for testing skill-based workflows without file I/O.
     """
 
-    def load_skill(skill_name: str) -> Dict[str, Any] | None:
+    def load_skill(skill_name: str) -> dict[str, Any] | None:
         skills = {
             "spec-writing": {
                 "name": "spec-writing",
@@ -677,7 +677,7 @@ def mock_skill_loader() -> Callable[[str], Dict[str, Any] | None]:
 
 
 @pytest.fixture
-def workflow_progress_items() -> List[str]:
+def workflow_progress_items() -> list[str]:
     """Given standard workflow progress tracking items.
 
     Use this for asserting on workflow completion steps.
@@ -702,7 +702,7 @@ class MockAgentResponse:
     def __init__(
         self,
         success: bool = True,
-        data: Dict[str, Any] | None = None,
+        data: dict[str, Any] | None = None,
         error: str | None = None,
     ) -> None:
         """Initialize the mock agent response.
@@ -718,7 +718,7 @@ class MockAgentResponse:
 
 
 @pytest.fixture
-def successful_agent_responses() -> Dict[str, MockAgentResponse]:
+def successful_agent_responses() -> dict[str, MockAgentResponse]:
     """Given successful responses from all agents.
 
     Use this for testing happy path agent workflows.

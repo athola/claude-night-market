@@ -24,14 +24,20 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _add_autonomy_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+def _add_autonomy_parser(
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser],
+) -> None:
     autonomy_parser = subparsers.add_parser(
         "autonomy",
         help="Inspect and adjust autonomy governance levels",
     )
-    autonomy_sub = autonomy_parser.add_subparsers(dest="autonomy_command", required=True)
+    autonomy_sub = autonomy_parser.add_subparsers(
+        dest="autonomy_command", required=True
+    )
 
-    status_parser = autonomy_sub.add_parser("status", help="Show persisted autonomy state")
+    status_parser = autonomy_sub.add_parser(
+        "status", help="Show persisted autonomy state"
+    )
     status_parser.add_argument(
         "--json",
         action="store_true",
@@ -39,14 +45,20 @@ def _add_autonomy_parser(subparsers: argparse._SubParsersAction[argparse.Argumen
     )
 
     set_parser = autonomy_sub.add_parser("set", help="Set the autonomy level")
-    set_parser.add_argument("--level", type=int, required=True, help="Desired autonomy level (0-5)")
+    set_parser.add_argument(
+        "--level", type=int, required=True, help="Desired autonomy level (0-5)"
+    )
     set_parser.add_argument(
         "--domain",
         help="Optional domain override (defaults to global level when omitted)",
     )
     lock_group = set_parser.add_mutually_exclusive_group()
-    lock_group.add_argument("--lock", action="store_true", help="Lock the domain override")
-    lock_group.add_argument("--unlock", action="store_true", help="Unlock the domain override")
+    lock_group.add_argument(
+        "--lock", action="store_true", help="Lock the domain override"
+    )
+    lock_group.add_argument(
+        "--unlock", action="store_true", help="Unlock the domain override"
+    )
     set_parser.add_argument("--reason", help="Optional note explaining the change")
 
     promote_parser = autonomy_sub.add_parser(
@@ -166,20 +178,30 @@ def _print_status(snapshot: dict[str, object]) -> None:
     print()
 
 
-def _add_garden_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
+def _add_garden_parser(
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser],
+) -> None:
     garden_parser = subparsers.add_parser(
         "garden",
         help="Lifecycle and tending utilities (garden:trust, garden:demote)",
     )
     garden_sub = garden_parser.add_subparsers(dest="garden_command", required=True)
 
-    trust_parser = garden_sub.add_parser("trust", help="Grant trust for a specific domain")
+    trust_parser = garden_sub.add_parser(
+        "trust", help="Grant trust for a specific domain"
+    )
     trust_parser.add_argument("--domain", required=True, help="Domain to trust")
-    trust_parser.add_argument("--level", type=int, default=1, help="Target level for the domain")
-    trust_parser.add_argument("--lock", action="store_true", help="Lock trust level for the domain")
+    trust_parser.add_argument(
+        "--level", type=int, default=1, help="Target level for the domain"
+    )
+    trust_parser.add_argument(
+        "--lock", action="store_true", help="Lock trust level for the domain"
+    )
     trust_parser.add_argument("--reason", help="Optional reason for audit log")
 
-    demote_parser = garden_sub.add_parser("demote", help="Demote or unlock trust for a domain")
+    demote_parser = garden_sub.add_parser(
+        "demote", help="Demote or unlock trust for a domain"
+    )
     demote_parser.add_argument("--domain", required=True)
     demote_parser.add_argument(
         "--unlock", action="store_true", help="Unlock the domain after demotion"

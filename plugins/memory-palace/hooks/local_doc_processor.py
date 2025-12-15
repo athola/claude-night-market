@@ -107,12 +107,13 @@ def main() -> None:
 
     # Output response
     if context_parts:
-        {
+        response = {
             "hookSpecificOutput": {
                 "hookEventName": "PostToolUse",
                 "additionalContext": "\n".join(context_parts),
             },
         }
+        print(json.dumps(response))
 
     sys.exit(0)
 

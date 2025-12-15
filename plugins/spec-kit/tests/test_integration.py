@@ -150,9 +150,9 @@ class TestSpeckitIntegration:
 
             completed_tasks = progress_data.get("completed_tasks", [])
             for completed_id in completed_tasks:
-                assert completed_id in all_task_ids, (
-                    f"Progress references invalid task: {completed_id}"
-                )
+                assert (
+                    completed_id in all_task_ids
+                ), f"Progress references invalid task: {completed_id}"
 
         def test_workflow_state_persistence(self, complete_speckit_project) -> None:
             """Test workflow state persistence across commands."""
@@ -214,17 +214,17 @@ class TestSpeckitIntegration:
                 concept for concept in key_concepts if concept in spec_text
             ]
 
-            assert len(found_concepts) >= 3, (
-                f"Spec should have key concepts: {found_concepts}"
-            )
+            assert (
+                len(found_concepts) >= 3
+            ), f"Spec should have key concepts: {found_concepts}"
 
             # Tasks should reference some of these concepts
             task_concepts = [
                 concept for concept in found_concepts if concept in task_text
             ]
-            assert len(task_concepts) >= 2, (
-                f"Tasks should reference spec concepts: {task_concepts}"
-            )
+            assert (
+                len(task_concepts) >= 2
+            ), f"Tasks should reference spec concepts: {task_concepts}"
 
         def test_task_to_progress_data_flow(self, sample_task_list) -> None:
             """Test data flow from tasks to progress tracking."""
@@ -257,18 +257,18 @@ class TestSpeckitIntegration:
                 }
 
             # Validate progress data
-            assert len(progress_data["completed_tasks"]) > 0, (
-                "Should have completed some tasks"
-            )
-            assert len(progress_data["phase_progress"]) == len(sample_task_list), (
-                "Should track all phases"
-            )
+            assert (
+                len(progress_data["completed_tasks"]) > 0
+            ), "Should have completed some tasks"
+            assert len(progress_data["phase_progress"]) == len(
+                sample_task_list
+            ), "Should track all phases"
 
             # Check progress calculation
             for phase_name, phase_data in progress_data["phase_progress"].items():
-                assert 0 <= phase_data["percentage"] <= 100, (
-                    f"Invalid percentage for {phase_name}"
-                )
+                assert (
+                    0 <= phase_data["percentage"] <= 100
+                ), f"Invalid percentage for {phase_name}"
 
         def test_progress_to_checklist_data_flow(
             self,
@@ -304,12 +304,12 @@ class TestSpeckitIntegration:
 
             # Validate checklist
             assert len(checklist_items) >= 4, "Should generate comprehensive checklist"
-            assert any("tasks completed" in item for item in checklist_items), (
-                "Should show task progress"
-            )
-            assert any("implementation complete" in item for item in checklist_items), (
-                "Should show completion percentage"
-            )
+            assert any(
+                "tasks completed" in item for item in checklist_items
+            ), "Should show task progress"
+            assert any(
+                "implementation complete" in item for item in checklist_items
+            ), "Should show completion percentage"
 
     class TestErrorRecovery:
         """Test error recovery and resilience."""
@@ -406,12 +406,12 @@ class TestSpeckitIntegration:
                     if task_id not in all_task_ids
                 ]
 
-                assert len(invalid_tasks) > 0, (
-                    "Should detect inconsistent task references"
-                )
-                assert "non-existent-task" in invalid_tasks, (
-                    "Should identify specific invalid task"
-                )
+                assert (
+                    len(invalid_tasks) > 0
+                ), "Should detect inconsistent task references"
+                assert (
+                    "non-existent-task" in invalid_tasks
+                ), "Should identify specific invalid task"
 
     class TestPerformance:
         """Test performance characteristics of workflows."""
@@ -479,7 +479,9 @@ class TestSpeckitIntegration:
             # Should handle many tasks
             total_tasks = sum(len(phase["tasks"]) for phase in expanded_tasks)
             expected_tasks = len(sample_task_list) * 20  # 20 tasks per phase
-            assert total_tasks == expected_tasks, f"Should handle {expected_tasks} tasks"
+            assert (
+                total_tasks == expected_tasks
+            ), f"Should handle {expected_tasks} tasks"
 
             # Test dependency analysis performance
             start_time = time.time()
@@ -490,6 +492,6 @@ class TestSpeckitIntegration:
                 return False  # No cycles in our test data
 
             cycle_check_time = time.time() - start_time
-            assert cycle_check_time < 0.5, (
-                f"Cycle check should be fast, took {cycle_check_time:.2f}s"
-            )
+            assert (
+                cycle_check_time < 0.5
+            ), f"Cycle check should be fast, took {cycle_check_time:.2f}s"

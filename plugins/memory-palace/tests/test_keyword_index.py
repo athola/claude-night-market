@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-
 from memory_palace.corpus.keyword_index import KeywordIndexer
 
 
@@ -77,7 +76,9 @@ class TestKeywordIndexer:
 
     def test_initialization(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test indexer initialization."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         assert indexer.corpus_dir == Path(temp_corpus_dir)
         assert indexer.index_dir == Path(temp_index_dir)
@@ -85,7 +86,9 @@ class TestKeywordIndexer:
 
     def test_extract_keywords_from_entry(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test keyword extraction from a single entry."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         entry_path = temp_corpus_dir / "franklin-protocol.md"
         keywords = indexer.extract_keywords(entry_path)
@@ -104,7 +107,9 @@ class TestKeywordIndexer:
 
     def test_build_index(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test building the full keyword index."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         indexer.build_index()
 
@@ -139,7 +144,9 @@ class TestKeywordIndexer:
 
     def test_keyword_deduplication(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test that keywords are deduplicated and normalized."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         entry_path = temp_corpus_dir / "franklin-protocol.md"
         keywords = indexer.extract_keywords(entry_path)
@@ -152,7 +159,9 @@ class TestKeywordIndexer:
 
     def test_search_by_keyword(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test searching the index by keyword."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         indexer.build_index()
 
@@ -164,7 +173,9 @@ class TestKeywordIndexer:
 
     def test_search_multiple_keywords(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test searching with multiple keywords (AND logic)."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         indexer.build_index()
 
@@ -176,7 +187,9 @@ class TestKeywordIndexer:
 
     def test_search_no_results(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test searching for non-existent keyword."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         indexer.build_index()
 
@@ -187,13 +200,17 @@ class TestKeywordIndexer:
 
     def test_load_existing_index(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test loading an existing index from disk."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         # Build and save index
         indexer.build_index()
 
         # Create new indexer instance and load
-        indexer2 = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer2 = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         indexer2.load_index()
 
@@ -203,7 +220,9 @@ class TestKeywordIndexer:
 
     def test_metadata_tracking(self, temp_corpus_dir, temp_index_dir) -> None:
         """Test that index metadata is tracked correctly."""
-        indexer = KeywordIndexer(corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir))
+        indexer = KeywordIndexer(
+            corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
+        )
 
         indexer.build_index()
 

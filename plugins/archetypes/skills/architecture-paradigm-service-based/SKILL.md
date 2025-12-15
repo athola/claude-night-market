@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-service-based
-description: Employ a coarse-grained, service-based architecture (a lighter form of SOA) when microservices are not yet necessary but modular deployment is required.
+description: Employ a coarse-grained, service-based architecture (a lighter form of SOA) when microservices are not yet necessary but modular deployment is required. Use when building coarse-grained service-oriented systems.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, service-based, soa, modular, shared-database]
 dependencies: []

@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-layered
-description: Use a Layered (or N-Tier) architecture to separate presentation, domain logic, and data access responsibilities within a system.
+description: Use a Layered (or N-Tier) architecture to separate presentation, domain logic, and data access responsibilities within a system. Use when building traditional applications with clear separation of concerns.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, layered, n-tier, separation-of-concerns, monolith]
 dependencies: []

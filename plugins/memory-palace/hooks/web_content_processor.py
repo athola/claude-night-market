@@ -19,7 +19,9 @@ if TYPE_CHECKING:
     from typing import Any
 
 
-def extract_content_from_webfetch(tool_response: dict[str, Any]) -> tuple[str, str | None]:
+def extract_content_from_webfetch(
+    tool_response: dict[str, Any],
+) -> tuple[str, str | None]:
     """Extract content and URL from WebFetch response."""
     # WebFetch returns content directly or in a structured response
     content = ""
@@ -42,7 +44,9 @@ def extract_content_from_webfetch(tool_response: dict[str, Any]) -> tuple[str, s
     return content, url
 
 
-def extract_results_from_websearch(tool_response: dict[str, Any]) -> list[dict[str, str]]:
+def extract_results_from_websearch(
+    tool_response: dict[str, Any],
+) -> list[dict[str, str]]:
     """Extract search results from WebSearch response."""
     results = []
 
@@ -56,7 +60,9 @@ def extract_results_from_websearch(tool_response: dict[str, Any]) -> list[dict[s
                         {
                             "url": result.get("url", ""),
                             "title": result.get("title", ""),
-                            "snippet": result.get("snippet", result.get("description", "")),
+                            "snippet": result.get(
+                                "snippet", result.get("description", "")
+                            ),
                         },
                     )
 
@@ -145,7 +151,9 @@ def main() -> None:
                     "not in memory palace:",
                 )
                 for r in new_urls[:5]:
-                    context_parts.append(f"  - {r.get('title', 'Untitled')}: {r.get('url')}")
+                    context_parts.append(
+                        f"  - {r.get('title', 'Untitled')}: {r.get('url')}"
+                    )
 
             if known_urls:
                 context_parts.append(

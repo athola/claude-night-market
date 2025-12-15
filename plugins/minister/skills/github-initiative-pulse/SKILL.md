@@ -1,6 +1,7 @@
 ---
 name: github-initiative-pulse
-description: Generate program dashboards, GitHub-ready comment digests, and CSV summaries sourced from Minister's tracker data.
+description: Generate program dashboards, GitHub-ready comment digests, and CSV summaries sourced from Minister's tracker data. Use when creating status reports, weekly updates, or stakeholder briefings.
+version: 1.0.0
 category: project-management
 tags: [github, projects, reporting, status, dashboards]
 dependencies: []

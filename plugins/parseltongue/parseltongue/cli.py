@@ -1,10 +1,9 @@
 """Command-line interface for parseltongue."""
 
 import sys
-from typing import List
 
 
-def main(argv: List[str] | None = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """Main entry point for the CLI.
 
     Args:

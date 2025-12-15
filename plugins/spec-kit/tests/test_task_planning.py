@@ -37,9 +37,9 @@ class TestTaskPlanning:
 
         # Then: Phases should be in proper order
         for i, expected_phase in enumerate(expected_phases[: len(actual_phases)]):
-            assert actual_phases[i] == expected_phase, (
-                f"Phase {i} should be {expected_phase}"
-            )
+            assert (
+                actual_phases[i] == expected_phase
+            ), f"Phase {i} should be {expected_phase}"
 
     def test_should_include_all_required_fields_when_validating_tasks(
         self, valid_task_list
@@ -71,9 +71,9 @@ class TestTaskPlanning:
         for phase in valid_task_list:
             for task in phase["tasks"]:
                 # Then: Dependencies should be a list
-                assert isinstance(task["dependencies"], list), (
-                    f"Dependencies should be list, got {type(task['dependencies'])}"
-                )
+                assert isinstance(
+                    task["dependencies"], list
+                ), f"Dependencies should be list, got {type(task['dependencies'])}"
 
     def test_should_reference_valid_tasks_when_defining_dependencies(
         self, valid_task_list
@@ -90,9 +90,9 @@ class TestTaskPlanning:
         for phase in valid_task_list:
             for task in phase["tasks"]:
                 for dep_id in task["dependencies"]:
-                    assert dep_id in all_task_ids, (
-                        f"Task {task['id']} has invalid dependency: {dep_id}"
-                    )
+                    assert (
+                        dep_id in all_task_ids
+                    ), f"Task {task['id']} has invalid dependency: {dep_id}"
 
     def test_should_have_setup_phase_when_organizing_tasks(
         self, valid_task_list
@@ -130,9 +130,9 @@ class TestTaskPlanning:
             for dep_id in task["dependencies"]:
                 if dep_id in setup_task_ids:
                     # Ensure it's not a self-dependency
-                    assert dep_id != task["id"], (
-                        f"Setup task {task['id']} has self-dependency"
-                    )
+                    assert (
+                        dep_id != task["id"]
+                    ), f"Setup task {task['id']} has self-dependency"
 
     @pytest.mark.parametrize(
         "priority",
@@ -151,9 +151,12 @@ class TestTaskPlanning:
 
         # Then: All priorities should be valid
         for task_priority in all_priorities:
-            assert task_priority in ["high", "medium", "low", "critical"], (
-                f"Invalid priority: {task_priority}"
-            )
+            assert task_priority in [
+                "high",
+                "medium",
+                "low",
+                "critical",
+            ], f"Invalid priority: {task_priority}"
 
     def test_should_match_time_format_when_estimating_tasks(
         self, valid_task_list
@@ -170,14 +173,15 @@ class TestTaskPlanning:
                 estimation = task["estimated_time"]
 
                 # Then: Estimation should match the pattern
-                assert re.match(estimation_pattern, estimation.lower()), (
-                    f"Invalid time format: {estimation}"
-                )
+                assert re.match(
+                    estimation_pattern, estimation.lower()
+                ), f"Invalid time format: {estimation}"
 
     def test_should_detect_cycle_when_dependencies_are_circular(
         self, task_with_circular_dependency
     ) -> None:
         """Test detection of circular task dependencies."""
+
         # Given: Tasks with circular dependencies (A->B->C->A)
         def has_cycle(task_list):
             """Helper function to detect cycles using DFS."""
@@ -211,14 +215,15 @@ class TestTaskPlanning:
 
         # When: Checking for cycles
         # Then: Should detect the circular dependency
-        assert has_cycle(task_with_circular_dependency), (
-            "Should detect dependency cycle"
-        )
+        assert has_cycle(
+            task_with_circular_dependency
+        ), "Should detect dependency cycle"
 
     def test_should_not_detect_cycle_when_dependencies_are_valid(
         self, valid_task_list
     ) -> None:
         """Test that valid task dependencies don't trigger cycle detection."""
+
         # Given: Valid task list with proper dependencies
         def has_cycle(task_list):
             """Helper function to detect cycles using DFS."""
@@ -251,9 +256,7 @@ class TestTaskPlanning:
 
         # When: Checking for cycles
         # Then: Should not detect any cycles
-        assert not has_cycle(valid_task_list), (
-            "Valid task list should not have cycles"
-        )
+        assert not has_cycle(valid_task_list), "Valid task list should not have cycles"
 
     def test_should_identify_parallel_tasks_when_no_dependencies_exist(
         self, valid_task_list
@@ -279,9 +282,9 @@ class TestTaskPlanning:
 
         # Then: Should identify some tasks that could potentially run in parallel
         # At minimum, the first task of each phase has no phase dependencies
-        assert parallel_count >= len(valid_task_list), (
-            f"Should identify tasks without phase dependencies, found {parallel_count}"
-        )
+        assert parallel_count >= len(
+            valid_task_list
+        ), f"Should identify tasks without phase dependencies, found {parallel_count}"
 
     def test_should_find_entry_points_when_analyzing_critical_path(
         self, valid_task_list
@@ -307,9 +310,9 @@ class TestTaskPlanning:
         ]
 
         # Then: Should have at least one entry point
-        assert len(start_tasks) > 0, (
-            "Should have at least one task with no dependencies"
-        )
+        assert (
+            len(start_tasks) > 0
+        ), "Should have at least one task with no dependencies"
 
     def test_should_be_longer_than_title_when_writing_description(
         self, valid_task_list
@@ -323,9 +326,9 @@ class TestTaskPlanning:
                 title = task["title"]
 
                 # Then: Description should be longer than title
-                assert len(description) > len(title), (
-                    f"Description should be longer than title for {task['id']}"
-                )
+                assert len(description) > len(
+                    title
+                ), f"Description should be longer than title for {task['id']}"
 
     def test_should_avoid_vague_words_when_writing_descriptions(
         self, valid_task_list
@@ -346,9 +349,9 @@ class TestTaskPlanning:
                 ]
 
                 # Then: Should use minimal vague words
-                assert len(vague_found) <= 1, (
-                    f"Task description too vague: {description}"
-                )
+                assert (
+                    len(vague_found) <= 1
+                ), f"Task description too vague: {description}"
 
     def test_should_start_with_action_verb_when_writing_descriptions(
         self, valid_task_list
@@ -385,9 +388,9 @@ class TestTaskPlanning:
 
         # Then: Majority of descriptions should start with action verbs
         # (Not strictly required but good practice)
-        assert actionable_count / total_count > 0.5, (
-            "Most descriptions should start with action verbs"
-        )
+        assert (
+            actionable_count / total_count > 0.5
+        ), "Most descriptions should start with action verbs"
 
     @pytest.mark.parametrize(
         "phase_name,expected_keywords",
@@ -435,9 +438,9 @@ class TestTaskPlanning:
 
         # Then: Phase should contain relevant task types
         # (Not strictly required but indicates good phase organization)
-        assert len(found_keywords) > 0 or len(phase["tasks"]) == 0, (
-            f"Phase {phase_name} should contain expected types of tasks"
-        )
+        assert (
+            len(found_keywords) > 0 or len(phase["tasks"]) == 0
+        ), f"Phase {phase_name} should contain expected types of tasks"
 
     def test_should_not_exceed_max_days_when_estimating_large_tasks(
         self, valid_task_list
@@ -454,9 +457,9 @@ class TestTaskPlanning:
                     days_match = re.search(r"(\d+(?:\.\d+)?)\s*day", time_est)
                     if days_match:
                         days = float(days_match.group(1))
-                        assert days <= MAX_DAYS_PER_TASK, (
-                            f"Task too large: {task['id']} - {days} days"
-                        )
+                        assert (
+                            days <= MAX_DAYS_PER_TASK
+                        ), f"Task too large: {task['id']} - {days} days"
 
     def test_should_meet_minimum_duration_when_estimating_small_tasks(
         self, valid_task_list
@@ -473,9 +476,9 @@ class TestTaskPlanning:
                     minutes_match = re.search(r"(\d+(?:\.\d+)?)\s*m", time_est)
                     if minutes_match:
                         minutes = float(minutes_match.group(1))
-                        assert minutes >= MIN_MINUTES_PER_TASK, (
-                            f"Task too small: {task['id']} - {minutes} minutes"
-                        )
+                        assert (
+                            minutes >= MIN_MINUTES_PER_TASK
+                        ), f"Task too small: {task['id']} - {minutes} minutes"
 
     def test_should_follow_naming_pattern_when_assigning_task_ids(
         self, valid_task_list
@@ -488,9 +491,9 @@ class TestTaskPlanning:
         for phase in valid_task_list:
             for task in phase["tasks"]:
                 # Then: Each ID should match the pattern
-                assert re.match(id_pattern, task["id"]), (
-                    f"Task ID doesn't match pattern: {task['id']}"
-                )
+                assert re.match(
+                    id_pattern, task["id"]
+                ), f"Task ID doesn't match pattern: {task['id']}"
 
     def test_should_prevent_forward_dependencies_when_organizing_phases(
         self, valid_task_list

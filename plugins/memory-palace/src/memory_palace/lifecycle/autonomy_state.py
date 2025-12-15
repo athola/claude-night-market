@@ -115,7 +115,8 @@ class AutonomyState:
         return {
             "current_level": self.current_level,
             "domain_controls": {
-                domain: control.to_dict() for domain, control in self.domain_controls.items()
+                domain: control.to_dict()
+                for domain, control in self.domain_controls.items()
             },
             "metrics": self.metrics.to_dict(),
             "last_updated": self.last_updated,
@@ -168,7 +169,9 @@ class AutonomyProfile:
             return max(_MIN_LEVEL, min(*locked_levels, _MAX_LEVEL))
         return max(_MIN_LEVEL, min(level, _MAX_LEVEL))
 
-    def should_auto_approve_duplicates(self, domains: Iterable[str] | None = None) -> bool:
+    def should_auto_approve_duplicates(
+        self, domains: Iterable[str] | None = None
+    ) -> bool:
         """Allow automatic duplicate approvals when level >=1."""
         return self.effective_level_for(domains) >= 1
 
@@ -185,7 +188,8 @@ class AutonomyProfile:
         return {
             "global_level": self.global_level,
             "domain_controls": {
-                domain: control.to_dict() for domain, control in self.domain_controls.items()
+                domain: control.to_dict()
+                for domain, control in self.domain_controls.items()
             },
         }
 
@@ -249,7 +253,9 @@ class AutonomyStateStore:
         state = self.load()
         profile = self.build_profile(config_level=config_level)
         locked = {
-            domain: ctrl.to_dict() for domain, ctrl in state.domain_controls.items() if ctrl.locked
+            domain: ctrl.to_dict()
+            for domain, ctrl in state.domain_controls.items()
+            if ctrl.locked
         }
         return {
             "state_file": str(self.state_path),
@@ -278,7 +284,9 @@ class AutonomyStateStore:
             key = _normalize_domain(domain)
             control = state.domain_controls.get(key)
             if control is None:
-                control = DomainControl(level=next_level, locked=bool(lock), reason=reason)
+                control = DomainControl(
+                    level=next_level, locked=bool(lock), reason=reason
+                )
             else:
                 control.level = next_level
                 if lock is not None:
@@ -300,7 +308,9 @@ class AutonomyStateStore:
         state = self.load()
         if domain:
             key = _normalize_domain(domain)
-            control = state.domain_controls.get(key) or DomainControl(level=state.current_level)
+            control = state.domain_controls.get(key) or DomainControl(
+                level=state.current_level
+            )
             control.level = self._clamp_level(control.level + 1)
             control.updated_at = _iso_now()
             state.domain_controls[key] = control
@@ -315,7 +325,9 @@ class AutonomyStateStore:
         state = self.load()
         if domain:
             key = _normalize_domain(domain)
-            control = state.domain_controls.get(key) or DomainControl(level=state.current_level)
+            control = state.domain_controls.get(key) or DomainControl(
+                level=state.current_level
+            )
             control.level = self._clamp_level(control.level - 1)
             control.updated_at = _iso_now()
             state.domain_controls[key] = control
@@ -362,7 +374,9 @@ class AutonomyStateStore:
             metrics.last_decision = "blocked"
         else:
             metrics.last_decision = "neutral"
-        metrics.last_domains = [_normalize_domain(domain) for domain in (domains or []) if domain]
+        metrics.last_domains = [
+            _normalize_domain(domain) for domain in (domains or []) if domain
+        ]
         state.metrics = metrics
         state.last_updated = _iso_now()
         self.save(state)

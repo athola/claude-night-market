@@ -512,13 +512,13 @@ class TestReviewCommand:
 
             # Validate results
             if valid:
-                assert len(parsed_params["errors"]) == 0, (
-                    f"Valid case failed: {test_case['description']}"
-                )
+                assert (
+                    len(parsed_params["errors"]) == 0
+                ), f"Valid case failed: {test_case['description']}"
             else:
-                assert len(parsed_params["errors"]) > 0, (
-                    f"Invalid case should have errors: {test_case['description']}"
-                )
+                assert (
+                    len(parsed_params["errors"]) > 0
+                ), f"Invalid case should have errors: {test_case['description']}"
                 if "error" in test_case:
                     assert test_case["error"] in parsed_params["errors"]
 

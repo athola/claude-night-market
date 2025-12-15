@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from memory_palace import cli as memory_palace_cli
 from memory_palace.lifecycle.autonomy_state import (
     AutonomyProfile,
@@ -77,7 +76,9 @@ def test_record_decision_updates_metrics(temp_state_path: Path) -> None:
     assert state.metrics.last_domains == ["python"]
 
 
-def test_cli_set_and_status(temp_state_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_cli_set_and_status(
+    temp_state_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     """CLI set and status commands should reflect updated level."""
     memory_palace_cli.main(["autonomy", "set", "--level", str(LEVEL_TWO)])
     memory_palace_cli.main(["autonomy", "status"])

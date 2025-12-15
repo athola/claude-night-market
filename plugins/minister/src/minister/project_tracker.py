@@ -47,7 +47,9 @@ class ProjectTracker:
         "Docs & Enablement",
     ]
 
-    def __init__(self, data_file: Path | None = None, initiatives: list[str] | None = None) -> None:
+    def __init__(
+        self, data_file: Path | None = None, initiatives: list[str] | None = None
+    ) -> None:
         """Initialize the project tracker."""
         plugin_root = Path(__file__).resolve().parents[2]
         default_data = plugin_root / "data" / "project-data.json"
@@ -61,7 +63,9 @@ class ProjectTracker:
             with open(self.data_file, encoding="utf-8") as file:
                 data = json.load(file)
             tasks = [Task(**task) for task in data.get("tasks", [])]
-            return InitiativeTracker(tasks, data.get("last_updated", datetime.now().isoformat()))
+            return InitiativeTracker(
+                tasks, data.get("last_updated", datetime.now().isoformat())
+            )
 
         return InitiativeTracker([], datetime.now().isoformat())
 
@@ -107,7 +111,9 @@ class ProjectTracker:
         )
         for initiative in initiative_names:
             tasks = self.get_tasks_by_initiative(initiative)
-            report["initiatives"][initiative] = self._calculate_initiative_metrics(tasks)
+            report["initiatives"][initiative] = self._calculate_initiative_metrics(
+                tasks
+            )
 
         return report
 
@@ -126,13 +132,19 @@ class ProjectTracker:
 
         total_tasks = len(tasks)
         completed_tasks = len([task for task in tasks if task.status == "Done"])
-        in_progress_tasks = len([task for task in tasks if task.status == "In Progress"])
+        in_progress_tasks = len(
+            [task for task in tasks if task.status == "In Progress"]
+        )
 
         total_effort = sum(task.effort_hours for task in tasks)
-        completed_effort = sum(task.effort_hours for task in tasks if task.status == "Done")
+        completed_effort = sum(
+            task.effort_hours for task in tasks if task.status == "Done"
+        )
 
         completion_percentage = (completed_tasks / total_tasks) * 100
-        average_task_completion = sum(task.completion_percent for task in tasks) / total_tasks
+        average_task_completion = (
+            sum(task.completion_percent for task in tasks) / total_tasks
+        )
 
         return {
             "total_tasks": total_tasks,
@@ -160,10 +172,13 @@ class ProjectTracker:
         overall_completion = (completed_tasks / total_tasks) * 100
         total_effort = sum(task.effort_hours for task in all_tasks)
 
-        start_date = datetime.fromisoformat(min(task.created_date for task in all_tasks))
+        start_date = datetime.fromisoformat(
+            min(task.created_date for task in all_tasks)
+        )
         weeks_elapsed = max(1, (datetime.now() - start_date).days / 7)
         burn_rate = (
-            sum(task.effort_hours for task in all_tasks if task.status == "Done") / weeks_elapsed
+            sum(task.effort_hours for task in all_tasks if task.status == "Done")
+            / weeks_elapsed
         )
 
         return {
@@ -253,7 +268,9 @@ def build_cli_parser() -> argparse.ArgumentParser:
     add_parser = subparsers.add_parser("add", help="Add a new task")
     add_parser.add_argument("--id", required=True, help="Task ID")
     add_parser.add_argument("--title", required=True, help="Task title")
-    add_parser.add_argument("--initiative", required=True, help="Name of the initiative")
+    add_parser.add_argument(
+        "--initiative", required=True, help="Name of the initiative"
+    )
     add_parser.add_argument(
         "--phase",
         required=True,
@@ -276,8 +293,12 @@ def build_cli_parser() -> argparse.ArgumentParser:
 
     update_parser = subparsers.add_parser("update", help="Update a task")
     update_parser.add_argument("--id", required=True, help="Task ID")
-    update_parser.add_argument("--status", choices=["To Do", "In Progress", "Review", "Done"])
-    update_parser.add_argument("--completion", type=float, help="Completion percentage (0-100)")
+    update_parser.add_argument(
+        "--status", choices=["To Do", "In Progress", "Review", "Done"]
+    )
+    update_parser.add_argument(
+        "--completion", type=float, help="Completion percentage (0-100)"
+    )
     update_parser.add_argument("--github-issue", help="GitHub issue or PR URL/number")
 
     status_parser = subparsers.add_parser("status", help="Show status report")

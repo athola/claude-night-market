@@ -318,48 +318,60 @@ class PluginValidator:
 
     def _print_report(self) -> None:
         """Print validation report."""
-        self.config.get("name", "unknown") if self.config else "unknown"
+        name = self.config.get("name", "unknown") if self.config else "unknown"
+        print(f"\n{Colors.BOLD}Plugin Validation Report: {name}{Colors.END}\n")
 
         # Critical issues
         if self.issues["critical"]:
-            for _issue in self.issues["critical"]:
-                pass
+            print(f"{Colors.RED}{Colors.BOLD}Critical Issues:{Colors.END}")
+            for issue in self.issues["critical"]:
+                print(f"  {Colors.RED}✗{Colors.END} {issue}")
+            print()
 
         # Warnings
         if self.issues["warnings"]:
-            for _issue in self.issues["warnings"]:
-                pass
+            print(f"{Colors.YELLOW}{Colors.BOLD}Warnings:{Colors.END}")
+            for issue in self.issues["warnings"]:
+                print(f"  {Colors.YELLOW}⚠{Colors.END} {issue}")
+            print()
 
         # Recommendations
         if self.issues["recommendations"]:
-            for _issue in self.issues["recommendations"]:
-                pass
+            print(f"{Colors.BLUE}{Colors.BOLD}Recommendations:{Colors.END}")
+            for issue in self.issues["recommendations"]:
+                print(f"  {Colors.BLUE}→{Colors.END} {issue}")
+            print()
 
         # Info messages
         if self.issues["info"]:
-            for _info in self.issues["info"]:
-                pass
+            print(f"{Colors.GREEN}{Colors.BOLD}Info:{Colors.END}")
+            for info in self.issues["info"]:
+                print(f"  {Colors.GREEN}✓{Colors.END} {info}")
+            print()
 
         # Summary
-        if (not self.issues["critical"] and not self.issues["warnings"]) or self.issues[
-            "critical"
-        ]:
-            pass
+        if not self.issues["critical"] and not self.issues["warnings"]:
+            print(f"{Colors.GREEN}{Colors.BOLD}✓ Plugin validation passed{Colors.END}")
+        elif self.issues["critical"]:
+            print(f"{Colors.RED}{Colors.BOLD}✗ Plugin validation failed{Colors.END}")
         else:
-            pass
+            print(f"{Colors.YELLOW}{Colors.BOLD}⚠ Plugin has warnings{Colors.END}")
 
 
 def main() -> int:
     """Run the plugin validator CLI."""
     if len(sys.argv) < MIN_ARGS:
+        print(f"Usage: {sys.argv[0]} <plugin-directory>", file=sys.stderr)
         return 1
 
     plugin_path = Path(sys.argv[1]).expanduser()
 
     if not plugin_path.exists():
+        print(f"Error: Path does not exist: {plugin_path}", file=sys.stderr)
         return 1
 
     if not plugin_path.is_dir():
+        print(f"Error: Path is not a directory: {plugin_path}", file=sys.stderr)
         return 1
 
     validator = PluginValidator(plugin_path)

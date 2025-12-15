@@ -1,6 +1,6 @@
 """Tests for speckit-orchestrator skill functionality."""
 
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -85,9 +85,9 @@ class TestSpeckitOrchestrator:
         # When/Then: each command should map to expected skill
         for command, expected_skill in expected_mappings.items():
             actual_skill = orchestrator.command_skill_map.get(command)
-            assert actual_skill == expected_skill, (
-                f"Command {command} should map to {expected_skill}"
-            )
+            assert (
+                actual_skill == expected_skill
+            ), f"Command {command} should map to {expected_skill}"
 
     def test_should_load_primary_and_complementary_skills_when_executing_specify_command(
         self, orchestrator
@@ -243,9 +243,7 @@ class TestSpeckitOrchestrator:
         assert create_script.exists()
         assert create_script.stat().st_mode & 0o111  # Executable bit set
 
-    def test_should_load_skill_with_context_when_requested(
-        self, orchestrator
-    ) -> None:
+    def test_should_load_skill_with_context_when_requested(self, orchestrator) -> None:
         """Test skill loading with proper context."""
         # Given: a skill name to load
         skill_name = "spec-writing"

@@ -36,7 +36,7 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
     """Apply decay to vitality entries and build tending queue."""
     entries = data.get("entries", {})
     stale_threshold = data.get("metadata", {}).get("stale_threshold", 10)
-    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    now = dt.datetime.now(dt.UTC).isoformat()
     queue = {"stale": [], "probation_overdue": []}
 
     for entry_id, payload in entries.items():
@@ -55,7 +55,7 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
         if state == "probation" and last_accessed:
             last_dt = dt.datetime.fromisoformat(last_accessed.replace("Z", "+00:00"))
             OVERDUE_DAYS = 14
-            if (dt.datetime.now(dt.timezone.utc) - last_dt).days >= OVERDUE_DAYS:
+            if (dt.datetime.now(dt.UTC) - last_dt).days >= OVERDUE_DAYS:
                 queue["probation_overdue"].append(entry_id)
 
     metadata = data.setdefault("metadata", {})
@@ -65,7 +65,9 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
 
 def main() -> None:
     """Update vitality scores and emit queue summaries."""
-    parser = argparse.ArgumentParser(description="Update vitality scores and emit tending queues")
+    parser = argparse.ArgumentParser(
+        description="Update vitality scores and emit tending queues"
+    )
     parser.add_argument("--file", type=Path, default=DEFAULT_FILE)
     parser.add_argument("--decay", type=int, default=None, help="Override decay amount")
     parser.add_argument("--dry-run", action="store_true")

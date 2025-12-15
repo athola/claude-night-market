@@ -330,9 +330,9 @@ class TestHookScopeGuideSkill:
         scopes = ["plugin hook", "project hook", "global hook"]
 
         for scope in scopes:
-            assert scope.lower() in content.lower(), (
-                f"Skill should cover '{scope}' scope"
-            )
+            assert (
+                scope.lower() in content.lower()
+            ), f"Skill should cover '{scope}' scope"
 
     def test_skill_includes_decision_framework(self, skill_path) -> None:
         """Scenario: Skill includes a decision framework.

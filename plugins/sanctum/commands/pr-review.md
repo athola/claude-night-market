@@ -100,46 +100,95 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 
 After generating findings, you MUST post them to GitHub as PR review comments.
 
-7. **Determine PR Number**
+7. **Determine PR Number and Check Authorship**
    ```bash
-   # If PR number not provided, get from current branch
-   gh pr view --json number -q '.number'
+   # Get PR number if not provided
+   PR_NUMBER=$(gh pr view --json number -q '.number')
+
+   # CRITICAL: Check if reviewing own PR (approval will fail)
+   PR_AUTHOR=$(gh pr view $PR_NUMBER --json author -q '.author.login')
+   CURRENT_USER=$(gh api user -q '.login')
+   IS_OWN_PR=$([[ "$PR_AUTHOR" == "$CURRENT_USER" ]] && echo "true" || echo "false")
+
+   # If own PR, can only use COMMENT event (not APPROVE/REQUEST_CHANGES)
+   if [[ "$IS_OWN_PR" == "true" ]]; then
+     echo "Note: Reviewing own PR - will use COMMENT event"
+   fi
    ```
 
-8. **Get PR Diff for Line Mapping**
+8. **Get PR Diff and Head Commit**
    ```bash
-   # Get the diff to map file:line to diff positions
-   gh pr diff <PR_NUMBER>
+   # Get head commit (required for review API)
+   COMMIT_ID=$(gh pr view $PR_NUMBER --json headRefOid -q '.headRefOid')
+
+   # Get the diff to identify which lines are reviewable
+   gh pr diff $PR_NUMBER > /tmp/pr_diff.txt
    ```
 
-9. **Post Line-Specific Comments and Capture Thread IDs**
-   For each finding with a file location (e.g., `auth.py:45`):
+9. **Post Line-Specific Comments via Reviews API**
+
+   **IMPORTANT:** Use the reviews endpoint with a comments array. The individual comments endpoint does NOT support `line`/`side` parameters reliably.
+
+   For findings on lines IN THE DIFF:
    ```bash
-   # Create a review comment on specific line and capture the response
-   COMMENT_RESPONSE=$(gh api repos/{owner}/{repo}/pulls/{pr_number}/comments \
-     -f body="**[B1] Missing token validation**
+   # Use the reviews API with comments array
+   # Note: -F for integers, -f for strings
+   gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews \
+     --method POST \
+     -f event="COMMENT" \
+     -f body="Inline comments attached." \
+     -f 'comments[][path]=middleware/auth.py' \
+     -F 'comments[][line]=45' \
+     -f 'comments[][body]=**[B1] Missing token validation**
 
    Issue: Always returns True, validation not implemented
    Severity: BLOCKING
 
-   **Fix:** Implement JWT signature verification" \
-     -f path="middleware/auth.py" \
-     -f line=45 \
-     -f side="RIGHT")
-
-   # Extract the comment ID for later thread resolution
-   COMMENT_ID=$(echo "$COMMENT_RESPONSE" | jq -r '.id')
-   echo "Created comment $COMMENT_ID for B1"
+   **Fix:** Implement JWT signature verification'
    ```
 
-   **IMPORTANT:** Track all created comment IDs so `/fix-pr` can later reply to and resolve them.
+   **For multiple inline comments in one review:**
+   ```bash
+   gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews \
+     --method POST \
+     -f event="COMMENT" \
+     -f body="Review with inline comments" \
+     -f 'comments[0][path]=middleware/auth.py' \
+     -F 'comments[0][line]=45' \
+     -f 'comments[0][body]=**[B1] Issue description**' \
+     -f 'comments[1][path]=models/user.py' \
+     -F 'comments[1][line]=123' \
+     -f 'comments[1][body]=**[B2] Another issue**'
+   ```
+
+   **For findings on lines NOT in the diff** (suggestions on unchanged code):
+   ```bash
+   # Fall back to PR comment (not inline)
+   gh pr comment $PR_NUMBER --body "**[G2] Suggestion for unchanged code**
+
+   Location: app.rs:1933 (not in PR diff - general observation)
+
+   Consider further modularization as this file approaches size thresholds.
+
+   **Suggestion:** Extract SkillCache to its own module."
+   ```
 
 10. **Submit Review with Summary**
     ```bash
-    # Submit the review with overall assessment
-    # Use: APPROVE, REQUEST_CHANGES, or COMMENT
-    gh pr review <PR_NUMBER> \
-      --event REQUEST_CHANGES \
+    # Determine review event based on findings AND authorship
+    if [[ "$IS_OWN_PR" == "true" ]]; then
+      # Can only comment on own PRs
+      EVENT="COMMENT"
+    elif [[ $BLOCKING_COUNT -gt 0 ]]; then
+      EVENT="REQUEST_CHANGES"
+    elif [[ $IN_SCOPE_COUNT -gt 0 ]]; then
+      EVENT="COMMENT"
+    else
+      EVENT="APPROVE"
+    fi
+
+    gh pr review $PR_NUMBER \
+      --event $EVENT \
       --body "$(cat <<'EOF'
     ## PR Review Summary
 
@@ -163,11 +212,12 @@ After generating findings, you MUST post them to GitHub as PR review comments.
     ```
 
 **Review Event Selection:**
-| Condition | Event |
-|-----------|-------|
-| No blocking issues, no in-scope issues | `APPROVE` |
-| No blocking issues, has in-scope issues | `COMMENT` |
-| Has blocking issues | `REQUEST_CHANGES` |
+| Condition | Own PR? | Event |
+|-----------|---------|-------|
+| Any findings | Yes | `COMMENT` (approval blocked by GitHub) |
+| No blocking issues, no in-scope issues | No | `APPROVE` |
+| No blocking issues, has in-scope issues | No | `COMMENT` |
+| Has blocking issues | No | `REQUEST_CHANGES` |
 
 **Comment Format for Line Comments:**
 ```markdown
@@ -178,6 +228,13 @@ Severity: BLOCKING | IN_SCOPE | SUGGESTION
 
 **Fix:** <recommended action>
 ```
+
+**Key API Differences:**
+| Endpoint | Use Case | Notes |
+|----------|----------|-------|
+| `gh api .../pulls/{n}/reviews` | Inline comments on diff lines | Use `-F` for line numbers (integers) |
+| `gh pr comment` | General comments, lines not in diff | Simple, always works |
+| `gh pr review` | Summary submission | Use after inline comments |
 
 11. **Document Created Threads for `/fix-pr`**
     After posting all comments, output a summary that can be used by `/fix-pr`:
@@ -437,15 +494,62 @@ gh pr view --json number -q '.number'
 Warning: No PR found for current branch. Review saved locally only.
 ```
 
-**Line Comment Fails (line not in diff):**
+**Cannot Approve Own PR:**
 ```bash
-# If a file:line isn't in the PR diff, post as general comment instead
-gh pr comment <PR_NUMBER> --body "**[B1] Missing token validation**
+# Error: "Review Can not approve your own pull request"
+# This occurs when using --approve or REQUEST_CHANGES on your own PR
 
-Location: middleware/auth.py:45 (not in PR diff)
-Issue: Always returns True, validation not implemented
+# SOLUTION: Check authorship first, use COMMENT event for own PRs
+PR_AUTHOR=$(gh pr view $PR_NUMBER --json author -q '.author.login')
+CURRENT_USER=$(gh api user -q '.login')
+if [[ "$PR_AUTHOR" == "$CURRENT_USER" ]]; then
+  # Use COMMENT instead of APPROVE/REQUEST_CHANGES
+  gh pr review $PR_NUMBER --comment --body "Review summary..."
+fi
+```
 
-**Fix:** Implement JWT signature verification"
+**Line Comment API Errors:**
+```bash
+# Error: "line is not a permitted key" or "No subschema in oneOf matched"
+# This happens when using the comments endpoint with line/side parameters
+
+# WRONG - Individual comments endpoint doesn't support line/side:
+gh api repos/{owner}/{repo}/pulls/{pr}/comments \
+  -f body="..." -f path="file.rs" -f line=45 -f side="RIGHT"  # FAILS
+
+# CORRECT - Use the reviews endpoint with comments array:
+gh api repos/{owner}/{repo}/pulls/{pr}/reviews \
+  --method POST \
+  -f event="COMMENT" \
+  -f body="" \
+  -f 'comments[][path]=file.rs' \
+  -F 'comments[][line]=45' \              # Note: -F for integer
+  -f 'comments[][body]=Comment text'
+```
+
+**Line Not In Diff (422 Unprocessable Entity):**
+```bash
+# Error: "Line could not be resolved"
+# This occurs when the line number isn't part of the PR diff
+
+# SOLUTION: Post as a general PR comment instead
+gh pr comment $PR_NUMBER --body "**[G2] Suggestion**
+
+Location: app.rs:1933 (not in PR diff - general observation)
+Issue: File approaching size threshold
+
+**Suggestion:** Consider modularization."
+```
+
+**Integer vs String Parameters:**
+```bash
+# Error: "128 is not an integer" (when passed as string)
+
+# WRONG - Using -f passes as string:
+-f 'comments[][line]=128'
+
+# CORRECT - Using -F passes as raw/integer:
+-F 'comments[][line]=128'
 ```
 
 **Pending Review Already Exists:**

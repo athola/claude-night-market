@@ -44,7 +44,7 @@ def estimate_tokens(text: str) -> int:
     """
     if not text:
         return 0
-    return len(text) // CHARS_PER_TOKEN
+    return TokenAnalyzer.analyze_content(text)["total_tokens"]
 
 
 def extract_code_blocks(content: str) -> list[str]:

@@ -12,12 +12,16 @@ from memory_palace.lifecycle.autonomy_state import AutonomyStateStore
 GLOBAL_AFTER_TWO = 2
 GLOBAL_ALERT_THRESHOLD = 0.05
 
-SCRIPT_PATH = Path(__file__).resolve().parents[2] / "scripts" / "update_autonomy_state.py"
+SCRIPT_PATH = (
+    Path(__file__).resolve().parents[2] / "scripts" / "update_autonomy_state.py"
+)
 
 
 def load_module():
     """Load the update_autonomy_state module."""
-    spec = importlib.util.spec_from_file_location("update_autonomy_state", SCRIPT_PATH.resolve())
+    spec = importlib.util.spec_from_file_location(
+        "update_autonomy_state", SCRIPT_PATH.resolve()
+    )
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     sys.modules["update_autonomy_state"] = module
@@ -62,7 +66,9 @@ def test_regret_alerts_fire_for_garden_commands(tmp_path: Path, monkeypatch) -> 
     """Test that regret alerts fire for garden commands."""
     module = load_module()
     history = [{"result": "regret", "domains": ["trust"]} for _ in range(5)]
-    alerts = module.compute_regret_alerts(history, global_threshold=GLOBAL_ALERT_THRESHOLD)
+    alerts = module.compute_regret_alerts(
+        history, global_threshold=GLOBAL_ALERT_THRESHOLD
+    )
     assert alerts["global"]["regret_rate"] > GLOBAL_ALERT_THRESHOLD
     assert "recommended_command" in alerts["global"]
     state_path = tmp_path / "state.yaml"

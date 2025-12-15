@@ -70,6 +70,19 @@ python scripts/garden_metrics.py path/to/garden.json --format brief
 | `knowledge-navigator` | Searches and retrieves information |
 | `garden-curator` | Maintains digital gardens |
 
+## Hooks
+
+The plugin registers several hooks to integrate with Claude Code tool events:
+
+| Hook | Event | Description |
+|------|-------|-------------|
+| `research_interceptor.py` | PreToolUse | Intercepts WebSearch/WebFetch to check local knowledge cache before web requests |
+| `local_doc_processor.py` | PostToolUse | Monitors Read operations on configured knowledge paths for indexing suggestions |
+| `url_detector.py` | PostToolUse | Detects URLs in tool responses for potential knowledge intake |
+| `web_content_processor.py` | PostToolUse | Processes web content for knowledge extraction |
+
+Hooks are configured via `hooks/hooks.json` and `hooks/memory-palace-config.yaml`.
+
 ## Architecture
 
 ```

@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+
 from pensive.config.configuration import Configuration
 from pensive.exceptions import ConfigurationError
 from pensive.plugin.loader import PluginLoader
@@ -399,11 +400,14 @@ const EMOJI: &str = "🦀 Rust 🚀";
         # Arrange
         workflow = CodeReviewWorkflow()
 
-        with patch(
-            "pensive.skills.rust_review.RustReviewSkill.analyze",
-        ) as mock_rust, patch(
-            "pensive.skills.api_review.ApiReviewSkill.analyze",
-        ) as mock_api:
+        with (
+            patch(
+                "pensive.skills.rust_review.RustReviewSkill.analyze",
+            ) as mock_rust,
+            patch(
+                "pensive.skills.api_review.ApiReviewSkill.analyze",
+            ) as mock_api,
+        ):
             # Make one skill fail, another succeed
             mock_rust.side_effect = Exception("Rust analysis failed")
             mock_api.return_value = "API review completed successfully"

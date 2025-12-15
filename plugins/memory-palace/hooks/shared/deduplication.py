@@ -136,7 +136,9 @@ def get_entry(url: str | None = None, path: str | None = None) -> dict[str, Any]
     return None
 
 
-def needs_update(content_hash: str, url: str | None = None, path: str | None = None) -> bool:
+def needs_update(
+    content_hash: str, url: str | None = None, path: str | None = None
+) -> bool:
     """Check if existing entry needs update (content changed)."""
     entry = get_entry(url=url, path=path)
 

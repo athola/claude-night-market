@@ -10,7 +10,6 @@ import json
 from datetime import UTC
 
 import pytest
-
 from memory_palace.garden_metrics import (
     compute_garden_metrics,
     compute_metrics,
@@ -72,14 +71,28 @@ class TestComputeMetrics:
         metrics = compute_metrics(data, fixed_timestamp)
         assert metrics["plots"] == PLOTS_THREE
 
-    def test_computes_link_density_for_interconnected_garden(self, fixed_timestamp) -> None:
+    def test_computes_link_density_for_interconnected_garden(
+        self, fixed_timestamp
+    ) -> None:
         """Link density = average (inbound + outbound) links per plot."""
         data = {
             "garden": {
                 "plots": [
-                    {"name": "a", "inbound_links": ["b"], "outbound_links": ["c"]},  # 2 links
-                    {"name": "b", "inbound_links": [], "outbound_links": ["a", "c"]},  # 2 links
-                    {"name": "c", "inbound_links": ["a", "b"], "outbound_links": []},  # 2 links
+                    {
+                        "name": "a",
+                        "inbound_links": ["b"],
+                        "outbound_links": ["c"],
+                    },  # 2 links
+                    {
+                        "name": "b",
+                        "inbound_links": [],
+                        "outbound_links": ["a", "c"],
+                    },  # 2 links
+                    {
+                        "name": "c",
+                        "inbound_links": ["a", "b"],
+                        "outbound_links": [],
+                    },  # 2 links
                 ],
             },
         }
@@ -92,7 +105,11 @@ class TestComputeMetrics:
         data = {
             "garden": {
                 "plots": [
-                    {"name": "a", "inbound_links": ["b", "b", "b"], "outbound_links": ["c", "c"]},
+                    {
+                        "name": "a",
+                        "inbound_links": ["b", "b", "b"],
+                        "outbound_links": ["c", "c"],
+                    },
                 ],
             },
         }
@@ -212,7 +229,9 @@ class TestLinkDensityEdgeCases:
     def test_single_plot_isolated(self, fixed_timestamp) -> None:
         """Single isolated plot has zero link density."""
         data = {
-            "garden": {"plots": [{"name": "lonely", "inbound_links": [], "outbound_links": []}]},
+            "garden": {
+                "plots": [{"name": "lonely", "inbound_links": [], "outbound_links": []}]
+            },
         }
         metrics = compute_metrics(data, fixed_timestamp)
         assert metrics["link_density"] == 0.0
@@ -246,7 +265,9 @@ class TestRecencyEdgeCases:
     def test_just_tended_plot(self, fixed_timestamp) -> None:
         """Plot tended at exactly 'now' has 0 days since tend."""
         data = {
-            "garden": {"plots": [{"name": "fresh", "last_tended": fixed_timestamp.isoformat()}]},
+            "garden": {
+                "plots": [{"name": "fresh", "last_tended": fixed_timestamp.isoformat()}]
+            },
         }
         metrics = compute_metrics(data, fixed_timestamp)
         assert metrics["avg_days_since_tend"] == 0.0

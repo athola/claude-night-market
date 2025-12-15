@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-cqrs-es
-description: Apply Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) for collaboration-heavy domains that require strong auditability and independent scaling of reads and writes.
+description: Apply Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) for collaboration-heavy domains that require strong auditability and independent scaling of reads and writes. Use when designing systems requiring audit trails, event replay, or separate read/write scaling.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, CQRS, Event-Sourcing, distributed-systems, audit-trail, scalability]
 dependencies: []

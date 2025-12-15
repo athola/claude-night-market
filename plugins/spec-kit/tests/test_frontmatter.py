@@ -31,9 +31,9 @@ class TestFrontmatterValidation:
 
         # And: field values should match expectations
         assert "name: spec-writing" in frontmatter, "Name should match directory"
-        assert "category: specification" in frontmatter, (
-            "Category should be specification"
-        )
+        assert (
+            "category: specification" in frontmatter
+        ), "Category should be specification"
 
     def test_should_have_valid_frontmatter_when_loading_task_planning_skill(
         self, temp_skill_files
@@ -80,12 +80,10 @@ class TestFrontmatterValidation:
             assert f"{field}:" in frontmatter, f"Missing required field: {field}"
 
         # And: field values should match expectations
-        assert "name: speckit-orchestrator" in frontmatter, (
-            "Name should match directory"
-        )
-        assert "category: workflow" in frontmatter, (
-            "Category should be workflow"
-        )
+        assert (
+            "name: speckit-orchestrator" in frontmatter
+        ), "Name should match directory"
+        assert "category: workflow" in frontmatter, "Category should be workflow"
 
     def test_should_parse_as_valid_yaml_when_validating_frontmatter(
         self, temp_skill_files
@@ -107,9 +105,9 @@ class TestFrontmatterValidation:
             # Then: should be valid YAML
             try:
                 parsed = yaml.safe_load(frontmatter)
-                assert parsed is not None, (
-                    f"Frontmatter should be parseable for {skill_name}"
-                )
+                assert (
+                    parsed is not None
+                ), f"Frontmatter should be parseable for {skill_name}"
             except yaml.YAMLError as e:
                 pytest.fail(f"Invalid YAML in {skill_name} frontmatter: {e}")
 
@@ -143,9 +141,9 @@ class TestFrontmatterValidation:
                 elif field in ["complexity"]:
                     assert isinstance(value, str), f"{field} should be a string"
                 elif field == "estimated_tokens":
-                    assert isinstance(value, (int, str)), (
-                        f"{field} should be a number or string"
-                    )
+                    assert isinstance(
+                        value, (int, str)
+                    ), f"{field} should be a number or string"
 
     def test_should_match_content_when_validating_frontmatter_consistency(
         self, temp_skill_files
@@ -193,9 +191,9 @@ class TestFrontmatterValidation:
         common_fields = set.intersection(*frontmatter_structures)
         expected_common = {"name", "description", "category"}
 
-        assert expected_common.issubset(common_fields), (
-            f"Skills should have common fields: {expected_common}"
-        )
+        assert expected_common.issubset(
+            common_fields
+        ), f"Skills should have common fields: {expected_common}"
 
     def test_should_have_required_fields_when_validating_plugin_manifest(
         self, sample_plugin_manifest
@@ -216,26 +214,18 @@ class TestFrontmatterValidation:
 
         # Then: all required fields should be present
         for field in required_fields:
-            assert field in manifest, (
-                f"Plugin manifest missing required field: {field}"
-            )
+            assert field in manifest, f"Plugin manifest missing required field: {field}"
 
         # And: field types should be correct
-        assert isinstance(manifest["commands"], list), (
-            "Commands should be a list"
-        )
-        assert isinstance(manifest["skills"], list), (
-            "Skills should be a list"
-        )
-        assert isinstance(manifest["agents"], list), (
-            "Agents should be a list"
-        )
+        assert isinstance(manifest["commands"], list), "Commands should be a list"
+        assert isinstance(manifest["skills"], list), "Skills should be a list"
+        assert isinstance(manifest["agents"], list), "Agents should be a list"
 
         # And: version should follow semantic versioning
         version_pattern = r"^\d+\.\d+\.\d+$"
-        assert re.match(version_pattern, manifest["version"]), (
-            f"Invalid version format: {manifest['version']}"
-        )
+        assert re.match(
+            version_pattern, manifest["version"]
+        ), f"Invalid version format: {manifest['version']}"
 
     def test_should_reference_existing_skills_when_validating_manifest(
         self,
@@ -253,9 +243,9 @@ class TestFrontmatterValidation:
             skill_dir = temp_skill_files / skill_name
 
             # Then: skill directory should exist
-            assert skill_dir.exists(), (
-                f"Manifest references non-existent skill: {skill_ref}"
-            )
+            assert (
+                skill_dir.exists()
+            ), f"Manifest references non-existent skill: {skill_ref}"
 
             # And: should have SKILL.md file
             skill_file = skill_dir / "SKILL.md"
@@ -271,11 +261,11 @@ class TestFrontmatterValidation:
         # When/Then: each command should follow conventions
         for command_ref in manifest_commands:
             # Should be a markdown file
-            assert command_ref.endswith(".md"), (
-                f"Command should be markdown: {command_ref}"
-            )
+            assert command_ref.endswith(
+                ".md"
+            ), f"Command should be markdown: {command_ref}"
 
             # Should be in commands directory
-            assert command_ref.startswith("./commands/"), (
-                f"Command should be in commands directory: {command_ref}"
-            )
+            assert command_ref.startswith(
+                "./commands/"
+            ), f"Command should be in commands directory: {command_ref}"

@@ -89,96 +89,111 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
 
 **CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
 
+> **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
+
 8. **Get All Review Threads**
    ```bash
    # Fetch all review threads with their IDs and resolution status
+   # Note: Use literal owner/repo/pr values - do NOT use $() substitution inside gh commands
    gh api graphql -f query='
-     query($owner: String!, $repo: String!, $pr: Int!) {
-       repository(owner: $owner, name: $repo) {
-         pullRequest(number: $pr) {
-           reviewThreads(first: 100) {
-             nodes {
-               id
-               isResolved
-               path
-               line
-               comments(first: 1) {
-                 nodes {
-                   body
-                   author { login }
-                 }
+   query {
+     repository(owner: "OWNER", name: "REPO") {
+       pullRequest(number: PR_NUMBER) {
+         reviewThreads(first: 100) {
+           nodes {
+             id
+             isResolved
+             path
+             line
+             comments(first: 1) {
+               nodes {
+                 body
+                 author { login }
                }
              }
            }
          }
        }
      }
-   ' -f owner="{owner}" -f repo="{repo}" -F pr={pr_number}
+   }'
    ```
 
+   Replace `OWNER`, `REPO`, and `PR_NUMBER` with actual values. The thread `id` field returns the `PRRT_*` ID needed for replies and resolution.
+
 9. **Reply to Each Thread with Fix Description**
-   For EACH review comment that was addressed, reply with what was done:
+   For EACH review comment that was addressed, use the GraphQL mutation (NOT REST API):
    ```bash
-   # Reply to the review thread explaining the fix
-   gh api repos/{owner}/{repo}/pulls/{pr_number}/comments/{comment_id}/replies \
-     -f body="Fixed in commit {commit_sha}.
-
-   **Changes made:**
-   - Added input validation for slug parameter
-   - Rejects characters that could enable injection
-   - Added unit tests for validator
-
-   See: {file_path}:{line_range}"
+   # Reply using addPullRequestReviewThreadReply mutation
+   # The pullRequestReviewThreadId is the PRRT_* ID from step 8
+   gh api graphql -f query='
+   mutation {
+     addPullRequestReviewThreadReply(input: {
+       pullRequestReviewThreadId: "PRRT_kwDOxxxxxx"
+       body: "✅ Fixed - added input validation for slug parameter. Rejects injection characters."
+     }) {
+       comment { id }
+     }
+   }'
    ```
 
    **Reply format requirements:**
-   - Reference the commit SHA
+   - Use ✅ prefix for fixed items
    - Briefly describe what was changed
-   - Reference the file/line if applicable
-   - Keep it concise but informative
+   - Reference the file/line if helpful
+   - Keep it concise (1-2 sentences)
+
+   **Common mistakes to avoid:**
+   - ❌ Do NOT use `addPullRequestReviewComment` - it lacks thread support
+   - ❌ Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
+   - ✅ Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
 
 10. **Resolve the Thread**
-    After replying, resolve the thread to mark it as addressed:
+    After replying, resolve the thread:
     ```bash
     # Resolve the review thread via GraphQL mutation
     gh api graphql -f query='
-      mutation($threadId: ID!) {
-        resolveReviewThread(input: {threadId: $threadId}) {
-          thread {
-            id
-            isResolved
-          }
-        }
+    mutation {
+      resolveReviewThread(input: {threadId: "PRRT_kwDOxxxxxx"}) {
+        thread { isResolved }
       }
-    ' -f threadId="{thread_node_id}"
+    }'
+    ```
+
+    **Batch resolution pattern:**
+    ```bash
+    # Resolve multiple threads in a loop
+    for thread_id in PRRT_abc123 PRRT_def456 PRRT_ghi789; do
+      gh api graphql -f query="
+    mutation {
+      resolveReviewThread(input: {threadId: \"$thread_id\"}) {
+        thread { isResolved }
+      }
+    }"
+    done
     ```
 
 11. **Verify All Threads Resolved**
     ```bash
-    # Confirm all actionable threads are now resolved
+    # Count unresolved threads - should return 0
     gh api graphql -f query='
-      query($owner: String!, $repo: String!, $pr: Int!) {
-        repository(owner: $owner, name: $repo) {
-          pullRequest(number: $pr) {
-            reviewThreads(first: 100) {
-              nodes {
-                isResolved
-                path
-              }
+    query {
+      repository(owner: "OWNER", name: "REPO") {
+        pullRequest(number: PR_NUMBER) {
+          reviewThreads(first: 100) {
+            nodes {
+              isResolved
+              path
             }
           }
         }
       }
-    ' -f owner="{owner}" -f repo="{repo}" -F pr={pr_number} \
-      --jq '.data.repository.pullRequest.reviewThreads.nodes | map(select(.isResolved == false)) | length'
-
-    # Should return 0 for all threads resolved
+    }' --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length'
     ```
 
 **Thread Resolution Checklist:**
-- [ ] Retrieved all review thread IDs
-- [ ] Replied to each addressed thread with fix description
-- [ ] Resolved each thread via GraphQL mutation
+- [ ] Retrieved all review thread IDs (format: `PRRT_*`)
+- [ ] Replied to each addressed thread using `addPullRequestReviewThreadReply`
+- [ ] Resolved each thread via `resolveReviewThread` mutation
 - [ ] Verified no unresolved threads remain (or documented why)
 
 ## Options
@@ -414,6 +429,75 @@ Manual review required: "Consider broader architectural implications"
 ```bash
 Error: Fix conflicts with recent changes
 Solution: Pull latest, resolve conflicts, re-run the command
+```
+
+## Known Issues and Workarounds
+
+### Bash Command Substitution in gh Commands
+
+**Problem:** Using `$()` substitution inside `gh api` commands causes shell syntax errors.
+
+```bash
+# ❌ This FAILS with syntax errors
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+gh api repos/$REPO/pulls/40/comments  # Breaks due to escaping issues
+```
+
+**Solution:** Get repo info separately, then use literal values:
+
+```bash
+# ✅ This works - get info first, then use literals
+gh repo view --json nameWithOwner -q .nameWithOwner
+# Returns: owner/repo
+
+# Then use the actual values directly in the query
+gh api repos/owner/repo/pulls/40/comments
+```
+
+### Wrong Mutation for Thread Replies
+
+**Problem:** `addPullRequestReviewComment` mutation doesn't accept `pullRequestReviewThreadId`.
+
+```bash
+# ❌ This FAILS
+gh api graphql -f query='
+mutation {
+  addPullRequestReviewComment(input: {
+    pullRequestReviewThreadId: "PRRT_xxx"  # Not a valid field!
+    body: "Fixed"
+  }) { comment { id } }
+}'
+```
+
+**Solution:** Use `addPullRequestReviewThreadReply` instead:
+
+```bash
+# ✅ This works
+gh api graphql -f query='
+mutation {
+  addPullRequestReviewThreadReply(input: {
+    pullRequestReviewThreadId: "PRRT_xxx"
+    body: "Fixed"
+  }) { comment { id } }
+}'
+```
+
+### REST API for Review Thread Replies
+
+**Problem:** REST API endpoint for comment replies doesn't work for review threads.
+
+**Solution:** Always use GraphQL `addPullRequestReviewThreadReply` for review threads.
+
+### Thread ID vs Comment ID Confusion
+
+**Problem:** Review comments have both comment IDs (numeric) and thread IDs (`PRRT_*`). Resolution requires thread IDs.
+
+**Solution:** When fetching review threads, extract the `id` field which contains the `PRRT_*` thread ID:
+
+```bash
+# The 'id' field in reviewThreads.nodes is the PRRT_* thread ID
+gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.nodes[].id'
+# Returns: PRRT_kwDOQcL40c5l9_nO
 ```
 
 ## Migration Notes

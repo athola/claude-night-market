@@ -106,7 +106,6 @@ ignore = [
     "TRY002",  # raise-vanilla-class
     "TRY003",  # raise-vanilla-args
     "UP041",   # timeout-error-alias
-    "UP046",   # non-pep695-generic-class
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -134,7 +134,10 @@ def get_config() -> dict[str, Any]:
 
         # Deep merge nested sections
         if "safety" in user_config:
-            _config_cache["safety"] = {**CONFIG_DEFAULTS["safety"], **user_config["safety"]}
+            _config_cache["safety"] = {
+                **CONFIG_DEFAULTS["safety"],
+                **user_config["safety"],
+            }
 
         if "telemetry" in user_config:
             _config_cache["telemetry"] = {
@@ -175,7 +178,9 @@ def is_path_excluded(path: str) -> bool:
 
         # Directory pattern (ends with /)
         if pattern_lower.endswith("/"):
-            if f"/{pattern_lower}" in f"/{path_lower}/" or path_lower.startswith(pattern_lower):
+            if f"/{pattern_lower}" in f"/{path_lower}/" or path_lower.startswith(
+                pattern_lower
+            ):
                 return True
         # Wildcard pattern
         elif pattern_lower.startswith("*"):
@@ -198,7 +203,10 @@ def is_knowledge_path(path: str) -> bool:
 
         # Directory pattern
         if knowledge_lower.endswith("/"):
-            if path_lower.startswith(knowledge_lower) or f"/{knowledge_lower}" in f"/{path_lower}":
+            if (
+                path_lower.startswith(knowledge_lower)
+                or f"/{knowledge_lower}" in f"/{path_lower}"
+            ):
                 return True
         # Wildcard pattern
         elif knowledge_lower.startswith("*"):

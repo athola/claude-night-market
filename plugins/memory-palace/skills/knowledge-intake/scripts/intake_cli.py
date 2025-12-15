@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-
 from memory_palace.corpus.marginal_value import (
     IntegrationDecision,
     IntegrationPlan,
@@ -113,7 +112,7 @@ def write_palace_entry(
         "title": candidate.title,
         "source": candidate.raw.get("source", {}),
         "author": candidate.actor,
-        "date_captured": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d"),
+        "date_captured": dt.datetime.now(dt.UTC).strftime("%Y-%m-%d"),
         "palace": candidate.raw.get("summary", {}).get("palace", "Intake"),
         "district": candidate.raw.get("summary", {}).get("district", "Curation"),
         "maturity": "probation",
@@ -135,7 +134,9 @@ def write_palace_entry(
     return palace_path
 
 
-def write_developer_doc(root: Path, candidate: Candidate, slug: str, palace_path: Path) -> Path:
+def write_developer_doc(
+    root: Path, candidate: Candidate, slug: str, palace_path: Path
+) -> Path:
     """Write a developer-facing draft doc for the intake candidate."""
     drafts_dir = root / "docs" / "developer-drafts"
     doc_path = drafts_dir / f"{slug}.md"
@@ -203,7 +204,9 @@ def write_prompt_pack(
         "district": summary.get("district", "Curation"),
         "integration_decision": integration.decision.value,
         "integration_confidence": (
-            f"{integration.confidence:.0%}" if isinstance(integration.confidence, float) else "n/a"
+            f"{integration.confidence:.0%}"
+            if isinstance(integration.confidence, float)
+            else "n/a"
         ),
         "autonomy_level": str(candidate.autonomy_level),
         "actor": candidate.actor,
@@ -235,7 +238,7 @@ def append_curation_log(  # noqa: PLR0913 - log needs explicit context fields
             "|-----------|-------|--------|----------|----------------|-------|\n",
             encoding="utf-8",
         )
-    timestamp = dt.datetime.now(dt.timezone.utc).isoformat()
+    timestamp = dt.datetime.now(dt.UTC).isoformat()
     notes_parts = [
         f"title:{candidate.title}",
         f"palace:{palace_path.name}",
@@ -282,7 +285,9 @@ def process_candidate(  # noqa: PLR0913 - CLI surface mirrors command options
     print(f"  Redundancy: {redundancy.level.value} ({redundancy.overlap_score:.0%})")
     if delta:
         print(f"  Delta type: {delta.delta_type.value} value {delta.value_score:.0%}")
-    print(f"  Integration decision: {integration.decision.value} ({integration.confidence:.0%})")
+    print(
+        f"  Integration decision: {integration.decision.value} ({integration.confidence:.0%})"
+    )
 
     if integration.decision == IntegrationDecision.SKIP:
         summary["status"] = "skipped"
@@ -304,7 +309,9 @@ def process_candidate(  # noqa: PLR0913 - CLI surface mirrors command options
     if dual_output:
         pack_value = (prompt_pack or DEFAULT_PROMPT_PACK).strip() or DEFAULT_PROMPT_PACK
         prompt_slug = pack_value.lower().replace("_", "-")
-        prompt_path = write_prompt_pack(output_root, prompt_slug, candidate, integration)
+        prompt_path = write_prompt_pack(
+            output_root, prompt_slug, candidate, integration
+        )
         summary["prompt_pack"] = prompt_slug
         summary["prompt_path"] = str(prompt_path)
     append_curation_log(
@@ -332,7 +339,9 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--corpus-dir", type=Path, default=PLUGIN_ROOT / "docs" / "knowledge-corpus"
     )
-    parser.add_argument("--index-dir", type=Path, default=PLUGIN_ROOT / "data" / "indexes")
+    parser.add_argument(
+        "--index-dir", type=Path, default=PLUGIN_ROOT / "data" / "indexes"
+    )
     parser.add_argument("--output-root", type=Path, default=PLUGIN_ROOT)
     parser.add_argument(
         "--curation-log",
@@ -340,7 +349,9 @@ def main(argv: list[str] | None = None) -> None:
         default=REPO_ROOT / "docs" / "curation-log.md",
         help="Path to curation log markdown file",
     )
-    parser.add_argument("--auto-accept", action="store_true", help="Apply decision without prompt")
+    parser.add_argument(
+        "--auto-accept", action="store_true", help="Apply decision without prompt"
+    )
     parser.add_argument(
         "--dual-output",
         action="store_true",

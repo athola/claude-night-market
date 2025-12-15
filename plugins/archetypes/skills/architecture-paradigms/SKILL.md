@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigms
-description: Interactive selector and implementation planner for architecture paradigms.
+description: Interactive selector and implementation planner for architecture paradigms. Use when selecting or comparing architecture patterns for a new system.
+version: 1.0.0
 category: architecture-decision
 tags: [architecture, patterns, selection, implementation, adr]
 dependencies: [architecture-paradigm-functional-core, architecture-paradigm-hexagonal, architecture-paradigm-cqrs-es, architecture-paradigm-event-driven, architecture-paradigm-layered, architecture-paradigm-modular-monolith, architecture-paradigm-microkernel, architecture-paradigm-microservices, architecture-paradigm-service-based, architecture-paradigm-space-based, architecture-paradigm-pipeline, architecture-paradigm-serverless, architecture-paradigm-client-server]

@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-microservices
-description: Decompose systems into a suite of small, independently deployable services that are aligned to specific business capabilities.
+description: Decompose systems into a suite of small, independently deployable services that are aligned to specific business capabilities. Use when building large-scale distributed systems with independent deployability.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, microservices, distributed-systems, team-autonomy, scalability]
 dependencies: []

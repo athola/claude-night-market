@@ -7,7 +7,9 @@ from pathlib import Path
 import yaml
 
 KNOWLEDGE_DIR = Path(__file__).resolve().parents[1] / "docs" / "knowledge-corpus"
-VITALITY_PATH = Path(__file__).resolve().parents[1] / "data" / "indexes" / "vitality-scores.yaml"
+VITALITY_PATH = (
+    Path(__file__).resolve().parents[1] / "data" / "indexes" / "vitality-scores.yaml"
+)
 
 
 def _load_front_matter(path: Path) -> dict:

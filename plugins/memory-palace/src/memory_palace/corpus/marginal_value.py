@@ -141,7 +141,9 @@ class MarginalValueFilter:
         # Step 2: Analyze delta (only for partial overlap)
         delta = None
         if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
-            delta = self._analyze_delta(content, title, redundancy.matching_entries, keywords)
+            delta = self._analyze_delta(
+                content, title, redundancy.matching_entries, keywords
+            )
 
         # Step 3: Make integration decision
         integration = self._decide_integration(redundancy, delta)
@@ -301,7 +303,9 @@ class MarginalValueFilter:
 
         # Search by queries
         for query in queries:
-            query_results = self.cache_lookup.search(query, mode="queries", min_score=0.3)
+            query_results = self.cache_lookup.search(
+                query, mode="queries", min_score=0.3
+            )
 
             for result in query_results:
                 entry_id = result["entry_id"]
@@ -336,7 +340,9 @@ class MarginalValueFilter:
         max_overlap = max(overlap_scores)
 
         if max_overlap >= OVERLAP_STRONG:
-            reasons.append(f"High overlap ({max_overlap:.0%}) with {len(matching_entries)} entries")
+            reasons.append(
+                f"High overlap ({max_overlap:.0%}) with {len(matching_entries)} entries"
+            )
             level = RedundancyLevel.HIGHLY_REDUNDANT
         elif max_overlap >= OVERLAP_PARTIAL:
             reasons.append(
@@ -398,13 +404,17 @@ class MarginalValueFilter:
         # Find redundant keywords
         overlap_keywords = new_keywords & existing_keywords
         if overlap_keywords:
-            redundant_aspects.append(f"Already covered: {', '.join(list(overlap_keywords)[:5])}")
+            redundant_aspects.append(
+                f"Already covered: {', '.join(list(overlap_keywords)[:5])}"
+            )
 
         # Analyze content structure differences
         new_headings = set(re.findall(r"^#{1,3}\s+(.+)$", new_content, re.MULTILINE))
         existing_headings = set()
         for content in existing_contents:
-            existing_headings.update(re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE))
+            existing_headings.update(
+                re.findall(r"^#{1,3}\s+(.+)$", content, re.MULTILINE)
+            )
 
         novel_headings = new_headings - existing_headings
         if novel_headings:
@@ -420,7 +430,9 @@ class MarginalValueFilter:
             "better",
             "prefer",
         ]
-        has_contradiction = any(marker in new_content.lower() for marker in contradiction_markers)
+        has_contradiction = any(
+            marker in new_content.lower() for marker in contradiction_markers
+        )
 
         # Determine delta type and value
         if len(novel_keywords) > len(overlap_keywords) * MIN_NOVEL_KEYWORD_RATIO:
@@ -540,7 +552,9 @@ class MarginalValueFilter:
         # Default: suggest merge but with low confidence
         return IntegrationPlan(
             decision=IntegrationDecision.MERGE,
-            target_entries=redundancy.matching_entries[:1] if redundancy.matching_entries else [],
+            target_entries=redundancy.matching_entries[:1]
+            if redundancy.matching_entries
+            else [],
             rationale="Partial overlap suggests merge, but needs human review",
             confidence=0.5,
         )

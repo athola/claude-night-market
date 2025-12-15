@@ -262,7 +262,11 @@ class QueryTemplateManager:
         """Load the index from disk."""
         if self.index_file.exists():
             with open(self.index_file) as f:
-                self.index = yaml.safe_load(f) or {"entries": {}, "queries": {}, "metadata": {}}
+                self.index = yaml.safe_load(f) or {
+                    "entries": {},
+                    "queries": {},
+                    "metadata": {},
+                }
 
     def search(self, query: str, threshold: float = 0.3) -> list[dict[str, Any]]:
         """Search for entries that answer the given query.

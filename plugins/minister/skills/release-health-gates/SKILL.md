@@ -1,6 +1,7 @@
 ---
 name: release-health-gates
-description: Declarative release readiness checklist that mirrors GitHub checks, deployment issues, and documentation requirements.
+description: Declarative release readiness checklist that mirrors GitHub checks, deployment issues, and documentation requirements. Use when preparing releases, validating deployment gates, or conducting release reviews.
+version: 1.0.0
 category: governance
 tags: [release, github, readiness, quality, governance]
 dependencies: []
@@ -45,3 +46,10 @@ Standardize release approvals by expressing gates as GitHub-aware checklists. En
 - Release Gate markdown snippet (embed in PR/issue).
 - QA Handshake summary referencing GitHub Checks.
 - Rollout scorecard that persists in tracker data for retros.
+
+## Exit Criteria
+
+- All release gates evaluated and documented.
+- Any blocking gates have waiver approvals recorded.
+- Deployment PR contains embedded Release Gate snippet.
+- Rollout scorecard saved for post-release retrospective.

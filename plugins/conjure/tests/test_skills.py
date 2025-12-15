@@ -110,9 +110,9 @@ class TestSkillDependencyResolution:
                 if line.strip().startswith("-"):
                     dependencies.append(line.strip().lstrip("- ").strip())
 
-        assert "delegation-core" in dependencies, (
-            "gemini-delegation should depend on delegation-core"
-        )
+        assert (
+            "delegation-core" in dependencies
+        ), "gemini-delegation should depend on delegation-core"
 
     def test_skill_tool_requirements(self) -> None:
         """Given skill files when checking tool requirements.
@@ -220,9 +220,9 @@ class TestGeminiDelegationSkill:
 
             # Verify expected patterns are in the command
             if "expected_pattern" in case:
-                assert case["expected_pattern"] in command, (
-                    f"Pattern {case['expected_pattern']} not found in {command}"
-                )
+                assert (
+                    case["expected_pattern"] in command
+                ), f"Pattern {case['expected_pattern']} not found in {command}"
 
     def test_usage_logging_flow(self) -> None:
         """Given usage logging step when executing gemini-delegation.

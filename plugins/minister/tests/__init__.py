@@ -1,0 +1,1 @@
+"""Minister plugin test suite."""

@@ -167,7 +167,9 @@ class TestGardenTendingWorkflows:
         assert "avg_days_since_tend" in metrics
         assert metrics["plots"] > 0
 
-    def test_empty_garden_metrics(self, empty_garden_file: Path, fixed_timestamp: datetime) -> None:
+    def test_empty_garden_metrics(
+        self, empty_garden_file: Path, fixed_timestamp: datetime
+    ) -> None:
         """Empty garden returns valid zero metrics."""
         metrics = compute_garden_metrics(empty_garden_file, fixed_timestamp)
 
@@ -273,7 +275,9 @@ class TestEdgeCases:
         # Should not crash, may return all or none depending on implementation
         assert isinstance(results, list)
 
-    def test_very_long_palace_name(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
+    def test_very_long_palace_name(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Very long palace names are handled."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -285,7 +289,9 @@ class TestEdgeCases:
 
         assert palace["name"] == long_name
 
-    def test_unicode_in_palace_data(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
+    def test_unicode_in_palace_data(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Unicode characters in palace data are preserved."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -304,7 +310,9 @@ class TestEdgeCases:
 class TestDataIntegrity:
     """Tests for data integrity and consistency."""
 
-    def test_master_index_consistency(self, temp_config_file: Path, temp_palaces_dir: Path) -> None:
+    def test_master_index_consistency(
+        self, temp_config_file: Path, temp_palaces_dir: Path
+    ) -> None:
         """Master index stays consistent with actual palace files."""
         manager = MemoryPalaceManager(
             config_path=str(temp_config_file),
@@ -408,7 +416,9 @@ class TestSearchTypes:
         )
 
         # Multi-word query
-        results = manager.search_palaces("python decorators functions", search_type="fuzzy")
+        results = manager.search_palaces(
+            "python decorators functions", search_type="fuzzy"
+        )
 
         # Should find Python Palace (has "decorators")
         if results:

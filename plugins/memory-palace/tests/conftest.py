@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 from memory_palace.palace_manager import MemoryPalaceManager
 
 
@@ -140,7 +139,9 @@ def fixed_timestamp() -> datetime:
 
 
 @pytest.fixture
-def multiple_palaces(temp_palaces_dir: Path, temp_config_file: Path) -> list[dict[str, Any]]:
+def multiple_palaces(
+    temp_palaces_dir: Path, temp_config_file: Path
+) -> list[dict[str, Any]]:
     """Create multiple palace files for testing search and index operations.
 
     Also builds the master index so tests can query it immediately.
@@ -153,9 +154,17 @@ def multiple_palaces(temp_palaces_dir: Path, temp_config_file: Path) -> list[dic
             "metaphor": "library",
             "created": "2025-01-01T00:00:00",
             "last_modified": "2025-01-15T00:00:00",
-            "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
+            "layout": {
+                "districts": [],
+                "buildings": [],
+                "rooms": [],
+                "connections": [],
+            },
             "associations": {
-                "decorators": {"label": "Python Decorators", "explanation": "syntactic sugar"},
+                "decorators": {
+                    "label": "Python Decorators",
+                    "explanation": "syntactic sugar",
+                },
             },
             "sensory_encoding": {},
             "metadata": {
@@ -171,13 +180,25 @@ def multiple_palaces(temp_palaces_dir: Path, temp_config_file: Path) -> list[dic
             "metaphor": "fortress",
             "created": "2025-02-01T00:00:00",
             "last_modified": "2025-02-10T00:00:00",
-            "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
+            "layout": {
+                "districts": [],
+                "buildings": [],
+                "rooms": [],
+                "connections": [],
+            },
             "associations": {
-                "ownership": {"label": "Rust Ownership", "explanation": "memory safety"},
+                "ownership": {
+                    "label": "Rust Ownership",
+                    "explanation": "memory safety",
+                },
                 "borrowing": {"label": "Borrowing Rules", "explanation": "references"},
             },
             "sensory_encoding": {},
-            "metadata": {"concept_count": 2, "complexity_level": "advanced", "access_patterns": []},
+            "metadata": {
+                "concept_count": 2,
+                "complexity_level": "advanced",
+                "access_patterns": [],
+            },
         },
         {
             "id": "palace03",
@@ -186,12 +207,24 @@ def multiple_palaces(temp_palaces_dir: Path, temp_config_file: Path) -> list[dic
             "metaphor": "manor",
             "created": "2025-03-01T00:00:00",
             "last_modified": "2025-03-05T00:00:00",
-            "layout": {"districts": [], "buildings": [], "rooms": [], "connections": []},
+            "layout": {
+                "districts": [],
+                "buildings": [],
+                "rooms": [],
+                "connections": [],
+            },
             "associations": {
-                "calculus": {"label": "Calculus", "explanation": "derivatives and integrals"},
+                "calculus": {
+                    "label": "Calculus",
+                    "explanation": "derivatives and integrals",
+                },
             },
             "sensory_encoding": {},
-            "metadata": {"concept_count": 1, "complexity_level": "basic", "access_patterns": []},
+            "metadata": {
+                "concept_count": 1,
+                "complexity_level": "basic",
+                "access_patterns": [],
+            },
         },
     ]
 

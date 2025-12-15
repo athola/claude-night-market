@@ -67,7 +67,9 @@ def render_markdown(summary: dict[str, Counter]) -> str:
 
 def main() -> None:
     """Generate cache hit dashboard markdown from telemetry CSV."""
-    parser = argparse.ArgumentParser(description="Generate cache hit dashboard markdown")
+    parser = argparse.ArgumentParser(
+        description="Generate cache hit dashboard markdown"
+    )
     parser.add_argument("--telemetry", type=Path, default=TELEMETRY_FILE)
     parser.add_argument("--output", type=Path, default=OUTPUT_DOC)
     parser.add_argument("--preview", action="store_true")

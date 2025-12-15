@@ -24,17 +24,17 @@ def test_wrapper_translates_parameters() -> None:
     result = wrapper.translate_parameters(input_params)
 
     # Validate expected mappings exist
-    assert "target_under_test" in result, (
-        f"Expected 'target_under_test' in result, got: {result.keys()}"
-    )
-    assert "tdd_phase" in result, (
-        f"Expected 'tdd_phase' in result, got: {result.keys()}"
-    )
+    assert (
+        "target_under_test" in result
+    ), f"Expected 'target_under_test' in result, got: {result.keys()}"
+    assert (
+        "tdd_phase" in result
+    ), f"Expected 'tdd_phase' in result, got: {result.keys()}"
 
     # Validate correct values
-    assert result["target_under_test"] == "skills/my-skill", (
-        f"Expected 'skills/my-skill', got '{result['target_under_test']}'"
-    )
+    assert (
+        result["target_under_test"] == "skills/my-skill"
+    ), f"Expected 'skills/my-skill', got '{result['target_under_test']}'"
     assert result["tdd_phase"] == "red", f"Expected 'red', got '{result['tdd_phase']}'"
 
 

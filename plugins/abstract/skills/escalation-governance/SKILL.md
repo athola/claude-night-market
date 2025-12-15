@@ -1,6 +1,11 @@
 ---
 name: escalation-governance
 description: Guide to deciding whether to escalate from a lower model (haiku/sonnet) to a higher one (sonnet/opus). Use when evaluating escalation decisions. Ensures escalation is justified by genuine reasoning requirements, not convenience or thrashing.
+version: 1.0.0
+category: agent-workflow
+tags: [escalation, model-selection, governance, agents, orchestration]
+dependencies: []
+estimated_tokens: 800
 ---
 
 # Escalation Governance

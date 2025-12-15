@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-microkernel
-description: Build a minimal, stable core system that loads plug-ins to provide feature variability and extensibility.
+description: Build a minimal, stable core system that loads plug-ins to provide feature variability and extensibility. Use when building extensible plugin-based systems.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, microkernel, plugin, extensibility, platform-design]
 dependencies: []

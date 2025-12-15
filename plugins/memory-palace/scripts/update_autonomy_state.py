@@ -49,7 +49,9 @@ def load_history(path: Path) -> list[dict[str, Any]]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def compute_stats(events: list[dict[str, Any]]) -> tuple[HistoryStats, dict[str, HistoryStats]]:
+def compute_stats(
+    events: list[dict[str, Any]],
+) -> tuple[HistoryStats, dict[str, HistoryStats]]:
     """Compute aggregate and per-domain accuracy/regret statistics."""
     if not events:
         return HistoryStats(0, 0, 0, 0.0, 0.0), {}
@@ -156,7 +158,10 @@ def adjust_state(
             changes["global_after"] = state.current_level + 1
             if not dry_run:
                 store.set_level(changes["global_after"])
-        elif aggregate.regret_rate >= GLOBAL_DEMOTE_REGRET and state.current_level > MIN_LEVEL:
+        elif (
+            aggregate.regret_rate >= GLOBAL_DEMOTE_REGRET
+            and state.current_level > MIN_LEVEL
+        ):
             changes["global_after"] = state.current_level - 1
             if not dry_run:
                 store.set_level(changes["global_after"])
@@ -191,7 +196,9 @@ def adjust_state(
 
 def main() -> None:
     """Update autonomy state based on decision history."""
-    parser = argparse.ArgumentParser(description="Update autonomy state based on decision history")
+    parser = argparse.ArgumentParser(
+        description="Update autonomy state based on decision history"
+    )
     parser.add_argument("--history", type=Path, default=DEFAULT_HISTORY)
     parser.add_argument("--state", type=Path, default=DEFAULT_STATE)
     parser.add_argument("--dry-run", action="store_true")

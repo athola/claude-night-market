@@ -41,7 +41,9 @@ def main() -> None:
     """Generate tending queue markdown from vitality file."""
     parser = argparse.ArgumentParser(description="Garden tending queue generator")
     parser.add_argument("--vitality-file", type=Path, default=DEFAULT_VITALITY)
-    parser.add_argument("--export", type=Path, help="Optional path to export JSON queue")
+    parser.add_argument(
+        "--export", type=Path, help="Optional path to export JSON queue"
+    )
     args = parser.parse_args()
 
     data = load_vitality(args.vitality_file)

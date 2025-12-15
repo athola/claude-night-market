@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from src.abstract.frontmatter import FrontmatterProcessor
-from src.abstract.tokens import estimate_tokens
+from src.abstract.tokens import TokenAnalyzer, estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -63,9 +63,10 @@ class TokenUsageTracker:
                 "needs_modularization": False,
             }
 
-        total_tokens = estimate_tokens(content)
-        frontmatter_tokens = self._calculate_frontmatter_tokens(content)
-        content_tokens = total_tokens - frontmatter_tokens
+        analysis = TokenAnalyzer.analyze_content(content)
+        total_tokens = analysis["total_tokens"]
+        frontmatter_tokens = self._calculate_frontmatter_tokens(content, analysis)
+        content_tokens = analysis["body_tokens"] + analysis["code_tokens"]
 
         # Extract sections
         sections = re.findall(r"^##\s+(.+)$", content, re.MULTILINE)
@@ -323,9 +324,10 @@ class TokenUsageTracker:
             raise OSError(msg) from e
 
         # Calculate tokens
-        total_tokens = estimate_tokens(content)
-        frontmatter_tokens = self._calculate_frontmatter_tokens(content)
-        content_tokens = total_tokens - frontmatter_tokens
+        analysis = TokenAnalyzer.analyze_content(content)
+        total_tokens = analysis["total_tokens"]
+        frontmatter_tokens = self._calculate_frontmatter_tokens(content, analysis)
+        content_tokens = analysis["body_tokens"] + analysis["code_tokens"]
 
         return {
             "skill_name": skill_path.parent.name,
@@ -441,7 +443,13 @@ class TokenUsageTracker:
 
         return suggestions
 
-    def _calculate_frontmatter_tokens(self, content: str) -> int:
+    def _calculate_frontmatter_tokens(
+        self,
+        content: str,
+        parsed: dict[str, Any] | None = None,
+    ) -> int:
         """Calculate tokens used in frontmatter."""
+        if parsed is not None and "frontmatter_tokens" in parsed:
+            return int(parsed.get("frontmatter_tokens", 0))
         frontmatter, _ = FrontmatterProcessor.extract_raw(content)
         return estimate_tokens(frontmatter)

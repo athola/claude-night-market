@@ -14,7 +14,6 @@
     "./commands/create-hook.md",
     "./commands/create-command.md",
     "./commands/test-skill.md",
-    "./commands/test-skill-wrapper.md",
     "./commands/bulletproof-skill.md",
     "./commands/validate-hook.md",
     "./commands/make-dogfood.md"

@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from leyline.tokens import FILE_TOKEN_RATIOS, estimate_tokens
+from leyline.tokens import estimate_tokens
 
 # Configure logging
 logger = logging.getLogger(__name__)

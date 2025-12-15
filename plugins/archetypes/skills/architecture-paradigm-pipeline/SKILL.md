@@ -1,6 +1,7 @@
 ---
 name: architecture-paradigm-pipeline
-description: Compose processing stages using a pipes-and-filters model for ETL, media processing, or compiler-like workloads.
+description: Compose processing stages using a pipes-and-filters model for ETL, media processing, or compiler-like workloads. Use when building data processing or transformation pipelines.
+version: 1.0.0
 category: architectural-pattern
 tags: [architecture, pipeline, pipes-filters, ETL, streaming, data-processing]
 dependencies: []

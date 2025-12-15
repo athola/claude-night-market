@@ -68,7 +68,9 @@ class EmbeddingIndex:
 
             default_provider = metadata.get("default_provider")
             if default_provider in providers:
-                return default_provider, providers[default_provider].get("embeddings", {})
+                return default_provider, providers[default_provider].get(
+                    "embeddings", {}
+                )
 
             fallback_provider = next(iter(providers))
             return fallback_provider, providers[fallback_provider].get("embeddings", {})
@@ -80,7 +82,9 @@ class EmbeddingIndex:
             self.raw_store["providers"] = {
                 legacy_provider: {"embeddings": embeddings},
             }
-            self.raw_store.setdefault("metadata", {})["default_provider"] = legacy_provider
+            self.raw_store.setdefault("metadata", {})["default_provider"] = (
+                legacy_provider
+            )
             self.raw_store.pop("embeddings", None)
             self.raw_store.pop("provider", None)
             return legacy_provider, embeddings

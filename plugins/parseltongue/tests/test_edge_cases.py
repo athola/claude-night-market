@@ -16,6 +16,7 @@ from typing import Never
 from unittest.mock import patch
 
 import pytest
+
 from parseltongue.config.config_loader import ConfigLoader
 from parseltongue.exceptions import AnalysisError
 from parseltongue.plugin.loader import PluginLoader
