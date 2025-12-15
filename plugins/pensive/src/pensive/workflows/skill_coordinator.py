@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 async def dispatch_agent(skill_name: str, _context: Any) -> str:

@@ -197,6 +197,7 @@ unfixable = [
     "ARG002", # Unused method args in tests
     "PLR2004", # Magic value used in comparison
     "S101",   # Use of assert detected
+    "ERA001", # BDD-style comments (Given/When/Then) misdetected as commented code
 ]
 "__init__.py" = [
     "F401",   # Unused import

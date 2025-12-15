@@ -682,7 +682,6 @@ class TestSpeckitAgents:
             """Blocking issues detection should find missing required sections."""
             # Given: Incomplete specification without requirements
             spec_content = spec_without_requirements
-            task_list = valid_task_list
 
             # When: Detecting blocking issues
             blocking_issues = []

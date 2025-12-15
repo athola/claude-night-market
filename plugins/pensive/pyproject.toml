@@ -8,14 +8,13 @@ version = "1.0.0"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -127,7 +126,7 @@ directory = "htmlcov"
 
 [tool.black]
 line-length = 88
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312"]
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -146,7 +145,7 @@ extend-exclude = '''
 '''
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py310"
 line-length = 88
 
 [tool.ruff.lint]
@@ -202,12 +201,27 @@ unfixable = [
 ]
 "src/pensive/reporting/formatters.py" = [
     "PLC0415", # Deferred import for json module
+    "ARG002", # repo_path kept for API consistency
 ]
 "src/pensive/skills/unified_review.py" = [
     "PLR0912", # Complex language detection function has many branches
+    "PLC0415", # Deferred imports for async coordination
 ]
 "src/pensive/workflows/code_review.py" = [
     "PLC0415", # Deferred import for dynamic skill loading
+]
+"src/pensive/workflows/skill_coordinator.py" = [
+    "PLC0415", # Deferred import for async context
+]
+"src/pensive/plugin/base.py" = [
+    "PLC0415", # Deferred imports for plugin base
+]
+"src/pensive/analysis/repository_analyzer.py" = [
+    "SIM102", # Complex conditional logic in analysis
+]
+"src/pensive/integrations/cicd.py" = [
+    "SIM102", # Complex conditional logic in CI/CD detection
+    "ARG002", # repo_path kept for API consistency
 ]
 
 [tool.ruff.lint.mccabe]

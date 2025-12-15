@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 from .base import AbstractScript
 from .config import AbstractConfig
@@ -23,7 +23,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class CLIResult(Generic[T]):
+class CLIResult[T]:
     """Standard result wrapper for CLI operations."""
 
     success: bool
@@ -354,7 +354,11 @@ class AbstractCLI(ABC):
         if args.config:
             try:
                 self.config = AbstractConfig.from_yaml(args.config)
-            except Exception:
+            except FileNotFoundError:
+                print(f"Error: Config file not found: {args.config}", file=sys.stderr)
+                return 1
+            except Exception as e:
+                print(f"Error loading config '{args.config}': {e}", file=sys.stderr)
                 return 1
 
         try:

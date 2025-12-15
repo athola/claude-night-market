@@ -132,7 +132,7 @@ class TestSpeckitIntegration:
             task_file = spec_dir / "TASKS.md"
             progress_file = spec_dir / "implementation" / "progress.json"
 
-            spec_content = spec_file.read_text()
+            spec_file.read_text()
             tasks_data = json.loads(task_file.read_text())
             progress_data = json.loads(progress_file.read_text())
 

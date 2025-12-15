@@ -74,6 +74,7 @@ no_implicit_optional = true
 explicit_package_bases = true
 mypy_path = ["src"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
+enable_incomplete_feature = ["NewGenericSyntax"]
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

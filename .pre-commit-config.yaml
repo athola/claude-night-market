@@ -108,6 +108,7 @@ repos:
           --explicit-package-bases,
           --no-strict-optional,
           --allow-untyped-defs,
+          --enable-incomplete-feature=NewGenericSyntax,
           --disable-error-code=unreachable,
           --disable-error-code=call-overload,
           --disable-error-code=operator,

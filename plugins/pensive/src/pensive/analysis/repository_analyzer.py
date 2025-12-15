@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 
 class RepositoryAnalyzer:
     """Analyzes code repositories."""
 
     # Language detection mappings
-    LANGUAGE_EXTENSIONS: dict[str, list[str]] = {
+    LANGUAGE_EXTENSIONS: ClassVar[dict[str, list[str]]] = {
         "rust": [".rs"],
         "python": [".py"],
         "javascript": [".js", ".mjs"],
@@ -21,7 +21,7 @@ class RepositoryAnalyzer:
         "c": [".c", ".h"],
     }
 
-    LANGUAGE_CONFIG_FILES: dict[str, list[str]] = {
+    LANGUAGE_CONFIG_FILES: ClassVar[dict[str, list[str]]] = {
         "rust": ["Cargo.toml"],
         "python": ["setup.py", "pyproject.toml", "requirements.txt"],
         "javascript": ["package.json"],
@@ -30,7 +30,7 @@ class RepositoryAnalyzer:
         "go": ["go.mod"],
     }
 
-    BUILD_SYSTEM_FILES: dict[str, str] = {
+    BUILD_SYSTEM_FILES: ClassVar[dict[str, str]] = {
         "Makefile": "make",
         "makefile": "make",
         "CMakeLists.txt": "cmake",
@@ -41,7 +41,7 @@ class RepositoryAnalyzer:
         "go.mod": "go",
     }
 
-    TEST_FRAMEWORK_MARKERS: dict[str, str] = {
+    TEST_FRAMEWORK_MARKERS: ClassVar[dict[str, str]] = {
         "Cargo.toml": "cargo",
         "pytest.ini": "pytest",
         "pyproject.toml": "pytest",
