@@ -413,5 +413,5 @@ class SkillIntegrationTest:
 ## See Also
 
 - [Cross-Plugin Collaboration](./cross-plugin-collaboration.md) - Plugin-level workflows
-- [SUPERPOWERS_INTEGRATION.md](./SUPERPOWERS_INTEGRATION.md) - Superpowers skill integration
+- [Superpowers Integration](./superpowers-integration.md) - Superpowers skill integration
 - [Plugin Development Guide](./plugin-development-guide.md) - Creating plugins

@@ -1,6 +1,6 @@
 # Pensive
 
-Code review skills for Claude Code. Includes domain-specific reviewers for Rust, APIs, tests, architecture, and more.
+Code review skills for Claude Code. Includes domain-specific reviewers for Rust, APIs, tests, and architecture.
 
 ## Installation
 
@@ -22,11 +22,11 @@ Or reference directly from the marketplace:
 
 | Skill | Description |
 |-------|-------------|
-| **unified-review** | Intelligent review orchestration and skill selection |
-| **api-review** | Public API surface evaluation against exemplars |
-| **architecture-review** | Principal-level architecture assessment |
+| **unified-review** | Review orchestration and skill selection |
+| **api-review** | Public API surface evaluation |
+| **architecture-review** | Architecture assessment |
 | **bug-review** | Systematic bug detection and fixing |
-| **rust-review** | Expert Rust audits (ownership, unsafe, concurrency) |
+| **rust-review** | Rust audits (ownership, unsafe, concurrency) |
 | **test-review** | TDD/BDD test suite evaluation |
 | **math-review** | Mathematical algorithm and numerical stability review |
 | **makefile-review** | Build system audit and optimization |
@@ -35,7 +35,7 @@ Or reference directly from the marketplace:
 
 | Command | Description |
 |---------|-------------|
-| `/full-review` | Unified review with intelligent skill selection |
+| `/full-review` | Unified review with skill selection |
 | `/api-review` | API surface and consistency audit |
 | `/architecture-review` | Architecture and ADR assessment |
 | `/bug-review` | Systematic bug hunting |
@@ -48,9 +48,9 @@ Or reference directly from the marketplace:
 
 | Agent | Description |
 |-------|-------------|
-| **code-reviewer** | Comprehensive code review with bug detection |
-| **architecture-reviewer** | Principal-level architecture assessment |
-| **rust-auditor** | Expert Rust safety and security auditing |
+| **code-reviewer** | General code review with bug detection |
+| **architecture-reviewer** | Architecture assessment |
+| **rust-auditor** | Rust safety and security auditing |
 
 ## Quick Start
 

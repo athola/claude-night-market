@@ -1,6 +1,6 @@
 # Abstract Plugin Infrastructure
 
-Tools for building and evaluating Claude Code skills. Provides modular patterns, quality checks, and plugin validation.
+Tools for building and evaluating Claude Code skills. Includes modular patterns, quality checks, and plugin validation.
 
 ## Quick Start
 
@@ -31,27 +31,36 @@ Claude loads the plugin on startup.
 
 ## What's Included
 
-**Skills** handle specific tasks: `modular-skills` guides skill architecture and splitting large skills into modules. `skills-eval` scores skill quality and suggests fixes. `hook-scope-guide` helps decide where hooks belong (plugin, project, or global). `validate-plugin-structure` walks through plugin validation step by step.
+*   **Skills**:
+    *   `modular-skills`: Guides skill architecture and module splitting.
+    *   `skills-eval`: Scores skill quality and suggests fixes.
+    *   `hook-scope-guide`: Helps decide where hooks belong.
+    *   `validate-plugin-structure`: Step-by-step plugin validation.
+*   **Commands**:
+    *   `/validate-plugin [path]`: Checks plugin structure against requirements.
+*   **Agents**:
+    *   `plugin-validator`: Validates plugins during development.
+    *   `meta-architect`: Advises on plugin design.
+    *   `skill-auditor`: Reviews skill quality.
 
-**Commands**: `/validate-plugin [path]` checks a plugin's structure against Claude Code requirements.
-
-**Agents**: `plugin-validator` validates plugins during development. `meta-architect` advises on plugin design. `skill-auditor` reviews skill quality.
-
-The plugin helps with token usage (keeping skills lean), finding modularization opportunities in existing code, and catching plugin.json errors before they cause problems.
+Use this plugin to manage token usage (keep skills lean), find modularization opportunities, and catch `plugin.json` errors.
 
 ## Structure
 
-The `skills/` directory contains skill implementations. `scripts/` has validation and analysis tools (previously scattered across plugins, now centralized here). `src/abstract/` is the shared Python package. `docs/` holds technical documentation and ADRs.
+*   `skills/`: Skill implementations.
+*   `scripts/`: Validation and analysis tools.
+*   `src/abstract/`: Shared Python package.
+*   `docs/`: Technical documentation and ADRs.
 
 ## Documentation
 
-For migration from older tool locations, see `docs/migration-guide.md`. The Python package structure is documented in `docs/python-structure.md`. Each skill has its own `SKILL.md` with usage details. Run `make status` for a project overview.
+For migration info, see `docs/migration-guide.md`. The Python package structure is documented in `docs/python-structure.md`. Each skill has its own `SKILL.md` with usage details. Run `make status` for a project overview.
 
-Architecture decisions are recorded in `docs/adr/`. The plugin composition model for claude-night-market is explained in `docs/multi-plugin-design.md`.
+Architecture decisions are recorded in `docs/adr/`. The plugin composition model is explained in `docs/multi-plugin-design.md`.
 
 ## Security
 
-The CI pipeline runs Bandit, Safety, and Semgrep on each push. Pre-commit hooks catch issues locally before commits reach the repo. See [SECURITY.md](SECURITY.md) for the vulnerability reporting process.
+The CI pipeline runs Bandit, Safety, and Semgrep on each push. Pre-commit hooks catch issues locally.
 
 ```bash
 make security   # Run security scans locally
@@ -68,4 +77,4 @@ make unit-tests    # Run tests
 make test-coverage # Tests with coverage report
 ```
 
-The tests in `test_skill_structure.py` check that skill descriptions contain action verbs, include "Use when..." triggers, and are long enough to be useful. This catches skills that would be hard to discover or understand.
+Tests in `test_skill_structure.py` check that skill descriptions contain action verbs, include "Use when..." triggers, and are detailed enough to be useful. This ensures skills are discoverable and understandable.

@@ -307,8 +307,8 @@ claude plugin install superpowers
 ## Resources
 
 ### Documentation
-- [Wrapper Development Guide](../abstract/docs/wrapper-development-guide.md)
-- [Sanctum Plugin Documentation](README.md)
+- [Wrapper Development Guide](../../abstract/docs/wrapper-development-guide.md)
+- [Sanctum Plugin Documentation](../README.md)
 - [Superpowers Documentation](https://github.com/superpowers-marketplace/docs)
 
 ### Support

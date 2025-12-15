@@ -1,6 +1,8 @@
 # Claude Night Market
 
-Personal Claude Code plugin marketplace featuring architecture patterns, intelligent delegation, resource optimization, code review workflows, spec-driven development, and spatial memory systems.
+A collection of Claude Code plugins for software engineering workflows.
+
+[**View Capabilities Reference**](docs/capabilities-reference.md) for a detailed list of all skills, commands, and agents.
 
 ## Installation
 
@@ -34,7 +36,7 @@ Meta-skills infrastructure for the plugin ecosystem—skill authoring, hook deve
 ### Foundation Layer
 
 #### imbue
-Intelligent workflow methodologies for analysis, evidence gathering, and structured output. Forms a basis for building additional workflow plugins.
+Workflow methodologies for analysis, evidence gathering, and structured output. Base layer for building additional workflow plugins.
 
 | Skill | Purpose |
 |-------|---------|
@@ -57,7 +59,7 @@ Git and workspace operations for active development workflows.
 | `version-updates` | Version bumping |
 
 #### leyline
-Infrastructure and pipeline building blocks for plugins—like ancient ley lines connecting sacred sites.
+Infrastructure and pipeline building blocks for plugins.
 
 | Skill | Purpose |
 |-------|---------|
@@ -99,7 +101,7 @@ Architecture paradigm selection and implementation planning.
 | `architecture-paradigm-*` | 13 specific paradigm guides |
 
 #### pensive
-Reflective thinking toolkit to review code.
+Code review toolkit.
 
 | Skill | Purpose |
 |-------|---------|
@@ -122,7 +124,7 @@ Modern Python development suite—testing, performance optimization, async patte
 | `python-packaging` | Modern packaging with uv |
 
 #### memory-palace
-Spatial memory techniques for knowledge organization.
+Knowledge organization using spatial memory concepts.
 
 | Skill | Purpose |
 |-------|---------|
@@ -132,7 +134,7 @@ Spatial memory techniques for knowledge organization.
 | `garden-curator` | Digital garden maintenance |
 
 #### spec-kit
-Spec Driven Development toolkit—structured specification, planning, and implementation workflows.
+Specification-Driven Development (SDD) toolkit—structured specification, planning, and implementation workflows.
 
 | Skill | Purpose |
 |-------|---------|
@@ -222,10 +224,10 @@ Then update `.claude-plugin/marketplace.json` with your actual GitHub URLs.
 
 ## Philosophy
 
-- **Modular**: Shallow dependency chains, single responsibility
-- **Progressive**: Load only what you need
-- **Composable**: Plugins work together seamlessly
-- **Spec-driven**: Define what before implementing how
+- **Modular**: Shallow dependency chains, single responsibility.
+- **Progressive**: Load only what you need.
+- **Composable**: Plugins are designed to work together.
+- **Spec-driven**: Define what before implementing how.
 
 ## Contributing
 

@@ -1,6 +1,6 @@
 ---
 name: speckit-orchestrator
-description: Workflow orchestrator for Spec Driven Development. Coordinates skill loading, tracks progress, and ensures consistency across speckit commands.
+description: Workflow orchestrator for Spec Driven Development. Coordinates skill loading, tracks progress, and ensures consistency.
 category: workflow-orchestration
 tags: [speckit, workflow, orchestration, planning, specification]
 dependencies:
@@ -27,31 +27,31 @@ estimated_tokens: 1500
 
 ## Overview
 
-Coordinates the Spec Driven Development workflow, ensuring proper skill loading, progress tracking, and cross-artifact consistency throughout the speckit command lifecycle.
+Coordinates the Spec Driven Development workflow, skill loading, and progress tracking throughout the command lifecycle.
 
 ## When to Use
 
-- Starting any `/speckit.*` command
-- Coordinating multi-phase development workflows
-- Tracking progress across specification, planning, and implementation
-- Ensuring skill dependencies are loaded
+- Starting any `/speckit.*` command.
+- Coordinating multi-phase development workflows.
+- Tracking progress across specification, planning, and implementation.
+- Ensuring skill dependencies are loaded.
 
 ## Core Workflow
 
 ### Session Initialization
 
 1. **Verify Repository Context**
-   - Confirm working directory is a speckit-enabled project
-   - Check for `.specify/` directory structure
-   - Validate required scripts exist
+   - Confirm working directory is a speckit-enabled project.
+   - Check for `.specify/` directory structure.
+   - Validate required scripts exist.
 
 2. **Load Command Dependencies**
-   - Match current command to required skills
-   - Load complementary superpowers skills
+   - Match current command to required skills.
+   - Load complementary superpowers skills.
 
 3. **Initialize Progress Tracking**
-   - Create TodoWrite items for workflow phases
-   - Track completion status
+   - Create TodoWrite items for workflow phases.
+   - Track completion status.
 
 ### Command-Skill Matrix
 
@@ -67,30 +67,30 @@ Quick reference for command-to-skill mappings:
 | `/speckit.analyze` | - | systematic-debugging, verification |
 | `/speckit.checklist` | - | verification-before-completion |
 
-**For detailed patterns**: See `modules/command-skill-matrix.md` for complete mappings, loading orders, priorities, and conditional loading rules.
+**For detailed patterns**: See `modules/command-skill-matrix.md` for complete mappings and loading rules.
 
 ### Progress Tracking Items
 
 For each workflow session, track:
-- [ ] Repository context verified
-- [ ] Prerequisites validated
-- [ ] Command-specific skills loaded
-- [ ] Artifacts created/updated
-- [ ] Verification completed
+- [ ] Repository context verified.
+- [ ] Prerequisites validated.
+- [ ] Command-specific skills loaded.
+- [ ] Artifacts created/updated.
+- [ ] Verification completed.
 
-**For detailed patterns**: See `modules/progress-tracking.md` for TodoWrite patterns, phase tracking, completion verification, and metrics.
+**For detailed patterns**: See `modules/progress-tracking.md` for TodoWrite patterns and metrics.
 
 ## Exit Criteria
 
-- Active command completed successfully
-- All required artifacts exist and are valid
-- Progress tracking reflects current state
-- No unresolved blockers
+- Active command completed successfully.
+- All required artifacts exist and are valid.
+- Progress tracking reflects current state.
+- No unresolved blockers.
 
 ## Related Skills
 
-- `spec-writing`: Specification creation and refinement
-- `task-planning`: Task generation and planning
-- `superpowers:brainstorming`: Idea refinement
-- `superpowers:writing-plans`: Implementation planning
-- `superpowers:executing-plans`: Task execution
+- `spec-writing`: Specification creation and refinement.
+- `task-planning`: Task generation and planning.
+- `superpowers:brainstorming`: Idea refinement.
+- `superpowers:writing-plans`: Implementation planning.
+- `superpowers:executing-plans`: Task execution.

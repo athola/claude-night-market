@@ -1,6 +1,6 @@
 ---
 name: service-registry
-description: Registry pattern for managing external service connections, configurations, and health checks. Provides unified interface for service discovery and execution.
+description: Registry pattern for managing external service connections, configurations, and health checks.
 category: infrastructure
 tags: [services, registry, execution, health-checks, integration]
 dependencies: [quota-management, usage-logging]
@@ -25,14 +25,14 @@ modules:
 
 ## Overview
 
-A registry pattern for managing connections to external services. Provides unified configuration, health checking, and execution across multiple service integrations.
+A registry pattern for managing connections to external services. Handles configuration, health checking, and execution across multiple service integrations.
 
 ## When to Use
 
-- Managing multiple external services
-- Need consistent execution interface
-- Want health monitoring across services
-- Building service failover logic
+- Managing multiple external services.
+- Need consistent execution interface.
+- Want health monitoring across services.
+- Building service failover logic.
 
 ## Core Concepts
 
@@ -135,11 +135,11 @@ dependencies: [leyline:service-registry]
 
 ## Detailed Resources
 
-- **Service Config**: See `modules/service-config.md` for configuration options
-- **Execution Patterns**: See `modules/execution-patterns.md` for advanced usage
+- **Service Config**: See `modules/service-config.md` for configuration options.
+- **Execution Patterns**: See `modules/execution-patterns.md` for advanced usage.
 
 ## Exit Criteria
 
-- Services registered with configuration
-- Health checks passing
-- Execution results properly handled
+- Services registered with configuration.
+- Health checks passing.
+- Execution results properly handled.

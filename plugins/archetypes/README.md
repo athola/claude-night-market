@@ -1,108 +1,108 @@
 # Architecture Paradigms Collection
 
-A comprehensive collection of Claude Skills for software architecture decision-making, implementation guidance, and best practices across 14 major architectural paradigms.
+A collection of Claude Skills for software architecture decision-making and implementation guidance across 14 major architectural paradigms.
 
 ## Quick Start
 
 **New to architecture?** Start with [Learning Paths](#learning-paths) below.
 
-**Experienced architect?** Jump to the [architecture-paradigms](skills/architecture-paradigms/SKILL.md) orchestrator skill for rapid paradigm selection.
+**Experienced architect?** Jump to the [architecture-paradigms](skills/architecture-paradigms/SKILL.md) orchestrator skill for paradigm selection.
 
-**Need a quick decision?** Use the [Quick Reference Matrix](#quick-reference-matrix) to compare paradigms at a glance.
+**Need a decision?** Use the [Quick Reference Matrix](#quick-reference-matrix) to compare paradigms.
 
 ## Collection Overview
 
 This collection provides:
 
-- **1 Orchestrator Skill**: `architecture-paradigms` - Interactive paradigm selection and implementation planning
-- **13 Paradigm Skills**: Detailed implementation guidance for each architectural pattern
-- **Real-world Examples**: Industry case studies and technology recommendations
-- **Decision Frameworks**: Structured approaches for architecture selection
-- **Integration Patterns**: How paradigms combine and evolve
+- **1 Orchestrator Skill**: `architecture-paradigms` - Paradigm selection and implementation planning
+- **13 Paradigm Skills**: Implementation guidance for architectural patterns
+- **Examples**: Industry case studies and technology recommendations
+- **Decision Frameworks**: Approaches for architecture selection
+- **Integration Patterns**: How paradigms combine
 
 ## Featured Paradigms
 
 ### Core Architectural Patterns
-- **Layered Architecture** - Traditional N-tier separation of concerns
-- **Hexagonal (Ports & Adapters)** - Infrastructure independence and flexibility
-- **Functional Core, Imperative Shell** - Business logic isolation for testability
+- **Layered Architecture**: Traditional N-tier separation of concerns.
+- **Hexagonal (Ports & Adapters)**: Infrastructure independence and flexibility.
+- **Functional Core, Imperative Shell**: Business logic isolation for testability.
 
 ### Distributed Systems
-- **Microservices** - Independent business capability services
-- **Service-Based Architecture** - Coarse-grained services (SOA-lite)
-- **Event-Driven Architecture** - Asynchronous, decoupled communication
-- **CQRS + Event Sourcing** - Command/query separation with audit trails
+- **Microservices**: Independent business capability services.
+- **Service-Based Architecture**: Coarse-grained services (SOA-lite).
+- **Event-Driven Architecture**: Asynchronous, decoupled communication.
+- **CQRS + Event Sourcing**: Command/query separation with audit trails.
 
 ### Specialized Patterns
-- **Modular Monolith** - Single deployable with strong internal boundaries
-- **Serverless** - Function-as-a-Service systems
-- **Space-Based** - In-memory data grids for linear scalability
-- **Pipeline** - Processing stages for ETL workflows
-- **Microkernel** - Plugin architecture for extensible platforms
-- **Client-Server** - Traditional centralized or P2P systems
+- **Modular Monolith**: Single deployable with strong internal boundaries.
+- **Serverless**: Function-as-a-Service systems.
+- **Space-Based**: In-memory data grids for linear scalability.
+- **Pipeline**: Processing stages for ETL workflows.
+- **Microkernel**: Plugin architecture for extensible platforms.
+- **Client-Server**: Traditional centralized or P2P systems.
 
 ## Learning Paths
 
 ### 1. Architecture Fundamentals (Beginner)
 **Duration**: 2-3 weeks
-**Goal**: Understanding basic architectural concepts and patterns
+**Goal**: Understand basic architectural concepts and patterns.
 
-1. **Start**: `architecture-paradigms` (overview and selection)
-2. **Core**: Study `architecture-paradigm-layered` (fundamental pattern)
-3. **Progress**: Learn `architecture-paradigm-functional-core` (testability principles)
-4. **Practice**: Apply layered architecture to a simple project
+1. **Start**: `architecture-paradigms` (overview and selection).
+2. **Core**: Study `architecture-paradigm-layered` (fundamental pattern).
+3. **Progress**: Learn `architecture-paradigm-functional-core` (testability principles).
+4. **Practice**: Apply layered architecture to a simple project.
 
-**Skills Covered**: Layered, Functional Core, basic architecture principles
+**Skills Covered**: Layered, Functional Core, basic architecture principles.
 
 ### 2. Modern Architecture Patterns (Intermediate)
 **Duration**: 3-4 weeks
-**Goal**: Master contemporary architectural approaches
+**Goal**: Learn contemporary architectural approaches.
 
-1. **Foundation**: Complete Architecture Fundamentals path
-2. **Flexibility**: Study `architecture-paradigm-hexagonal` (infrastructure independence)
-3. **Evolution**: Learn `architecture-paradigm-modular-monolith` (strong boundaries)
-4. **Integration**: Practice combining paradigms in a single system
+1. **Foundation**: Complete Architecture Fundamentals path.
+2. **Flexibility**: Study `architecture-paradigm-hexagonal` (infrastructure independence).
+3. **Evolution**: Learn `architecture-paradigm-modular-monolith` (strong boundaries).
+4. **Integration**: Practice combining paradigms in a single system.
 
-**Skills Covered**: Hexagonal, Modular Monolith, paradigm combination
+**Skills Covered**: Hexagonal, Modular Monolith, paradigm combination.
 
 ### 3. Distributed Systems Architecture (Advanced)
 **Duration**: 4-6 weeks
-**Goal**: Design and implement distributed architectures
+**Goal**: Design and implement distributed architectures.
 
-1. **Prerequisites**: Complete Modern Architecture Patterns path
-2. **Distributed Basics**: Study `architecture-paradigm-microservices` (independent services)
-3. **Communication**: Learn `architecture-paradigm-event-driven` (asynchronous systems)
-4. **Advanced**: Master `architecture-paradigm-cqrs-es` (complex collaboration domains)
-5. **Specialization**: Choose serverless, space-based, or service-based patterns
+1. **Prerequisites**: Complete Modern Architecture Patterns path.
+2. **Distributed Basics**: Study `architecture-paradigm-microservices` (independent services).
+3. **Communication**: Learn `architecture-paradigm-event-driven` (asynchronous systems).
+4. **Advanced**: Learn `architecture-paradigm-cqrs-es` (complex collaboration domains).
+5. **Specialization**: Choose serverless, space-based, or service-based patterns.
 
-**Skills Covered**: Microservices, Event-Driven, CQRS/ES, and one specialized pattern
+**Skills Covered**: Microservices, Event-Driven, CQRS/ES, specialized patterns.
 
 ### 4. Domain-Specific Architecture (Specialized)
 **Duration**: 2-3 weeks each
-**Goal**: Deep expertise in specific architectural domains
+**Goal**: Gain expertise in specific architectural domains.
 
 #### Real-time & Streaming Systems
-- **Primary**: Event-Driven Architecture
-- **Secondary**: Space-Based Architecture
-- **Tertiary**: Pipeline Architecture
-- **Use Case**: IoT, financial trading, logistics platforms
+- **Primary**: Event-Driven Architecture.
+- **Secondary**: Space-Based Architecture.
+- **Tertiary**: Pipeline Architecture.
+- **Use Case**: IoT, financial trading, logistics platforms.
 
 #### High-Throughput Web Applications
-- **Primary**: Microservices
-- **Secondary**: Serverless
-- **Tertiary**: CQRS/ES
-- **Use Case**: Social media, e-commerce, content platforms
+- **Primary**: Microservices.
+- **Secondary**: Serverless.
+- **Tertiary**: CQRS/ES.
+- **Use Case**: Social media, e-commerce, content platforms.
 
 #### Enterprise Integration
-- **Primary**: Service-Based Architecture
-- **Secondary**: Hexagonal Architecture
-- **Tertiary**: Modular Monolith
-- **Use Case**: ERP systems, banking, legacy modernization
+- **Primary**: Service-Based Architecture.
+- **Secondary**: Hexagonal Architecture.
+- **Tertiary**: Modular Monolith.
+- **Use Case**: ERP systems, banking, legacy modernization.
 
 #### Extensible Platforms
-- **Primary**: Microkernel Architecture
-- **Secondary**: Plugin-based design patterns
-- **Use Case**: IDEs, marketplaces, integration platforms
+- **Primary**: Microkernel Architecture.
+- **Secondary**: Plugin-based design patterns.
+- **Use Case**: IDEs, marketplaces, integration platforms.
 
 ## Quick Reference Matrix
 
@@ -157,29 +157,29 @@ Layered → Modular Monolith → Serverless → Event-Driven
 ### Architecture Decision Triggers
 
 **Scale Triggers** (When to evolve architecture):
-- Team size crosses threshold (5, 15, 50, 200 engineers)
-- Deployment frequency needs increase
-- Independent scaling requirements emerge
-- Geographic distribution becomes necessary
+- Team size crosses threshold (5, 15, 50, 200 engineers).
+- Deployment frequency needs increase.
+- Independent scaling requirements emerge.
+- Geographic distribution becomes necessary.
 
 **Complexity Triggers** (When to adopt patterns):
-- Business rules become complex (Functional Core)
-- Integration points increase (Hexagonal)
-- Real-time requirements emerge (Event-Driven)
-- Audit/compliance needs arise (CQRS/ES)
+- Business rules become complex (Functional Core).
+- Integration points increase (Hexagonal).
+- Real-time requirements emerge (Event-Driven).
+- Audit/compliance needs arise (CQRS/ES).
 
 **Technology Triggers** (When to change patterns):
-- Framework migration needed (Hexagonal)
-- Cloud migration planned (Serverless/Microservices)
-- Performance bottlenecks appear (Space-Based/Pipeline)
-- Platform requirements emerge (Microkernel)
+- Framework migration needed (Hexagonal).
+- Cloud migration planned (Serverless/Microservices).
+- Performance bottlenecks appear (Space-Based/Pipeline).
+- Platform requirements emerge (Microkernel).
 
 ## Repository Structure
 
 ```
 archetypes/
 ├── plugin.json                              # Plugin configuration
-├── README.md                               # This comprehensive guide
+├── README.md                               # This guide
 └── skills/
     ├── architecture-paradigms/             # Main orchestrator skill
     │   └── SKILL.md                        # Interactive paradigm selection
@@ -196,7 +196,7 @@ archetypes/
     ├── architecture-paradigm-pipeline/
     ├── architecture-paradigm-microkernel/
     └── architecture-paradigm-client-server/
-        └── SKILL.md                        # Each contains detailed guidance
+        └── SKILL.md                        # Detailed guidance
 ```
 
 ## Usage Guidelines
@@ -231,27 +231,23 @@ Skill(architecture-paradigm-microservices)
 
 ## Integration with Other Skills
 
-This collection integrates effectively with:
+This collection integrates with:
 
-- **architecture-review**: Comprehensive architecture evaluation
-- **writing-plans**: Detailed implementation planning
-- **systematic-debugging**: Architecture refactoring approaches
-- **brainstorming**: Architecture design refinement
+- **architecture-review**: Architecture evaluation.
+- **writing-plans**: Detailed implementation planning.
+- **systematic-debugging**: Architecture refactoring approaches.
+- **brainstorming**: Architecture design refinement.
 
 ## Community and Contributions
 
-This collection represents industry best practices and real-world architectural experience. Each paradigm skill includes:
+This collection represents industry best practices. Each paradigm skill includes:
 
-- Proven implementation patterns
-- Real-world case studies and examples
-- Technology-specific guidance
-- Risk mitigation strategies
-- Evolution pathways
+- Implementation patterns.
+- Case studies and examples.
+- Technology-specific guidance.
+- Risk mitigation strategies.
+- Evolution pathways.
 
 ## License
 
-MIT License - feel free to use these patterns in your projects and contribute back improvements.
-
----
-
-**Getting Started Tip**: Begin with the `architecture-paradigms` orchestrator skill to identify the most suitable paradigms for your specific context, then dive deep into the relevant paradigm skills for implementation guidance.
+MIT License.

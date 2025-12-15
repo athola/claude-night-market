@@ -2,13 +2,11 @@
 
 Delegation to external models for Claude Code. Route long-context analysis, bulk work, and summarization to external LLM services (Gemini, Qwen) while keeping design and review in Claude.
 
-The plugin tracks quotas, logs usage, and provides hooks that suggest delegation when tasks grow large.
+The plugin tracks quotas, logs usage, and suggests delegation when tasks grow large.
 
 ## Installation
 
 ### As a Claude Code plugin (recommended)
-
-The plugin wires in skills, hooks, and delegation tooling automatically.
 
 ```bash
 /plugin install athola@claude-night-market
@@ -23,9 +21,7 @@ make install-hooks  # pre-commit hooks
 make test           # lint + type + security checks
 ```
 
-Requirements: Python 3.10+, [uv](https://docs.astral.sh/uv/), and `tiktoken`
-for accurate token estimates:
-`uv add tiktoken`
+Requirements: Python 3.10+, [uv](https://docs.astral.sh/uv/), and `tiktoken`.
 
 ## Usage
 
@@ -111,13 +107,13 @@ Skill(conjure:gemini-delegation)
 Skill(conjure:qwen-delegation)
 ```
 
-Hooks (`bridge.on_tool_start`, `bridge.after_tool_use`) surface delegation suggestions when tasks grow large or noisy.
+Hooks surface delegation suggestions when tasks grow large.
 
 ## Commands
 
 ### `delegate-auto`
 
-Auto-selects the best external service based on requirements (e.g., large context vs. sandbox execution).
+Auto-selects the best external service based on requirements.
 
 ### `delegate-gemini` / `delegate-qwen`
 
@@ -125,40 +121,39 @@ Force a specific service with optional file globs and model hints.
 
 ### `quota-status`
 
-Shows current Gemini quota usage with warnings for approaching per-minute or daily limits.
+Shows current Gemini quota usage with warnings.
 
 ### `usage-report`
 
-Summarizes recent Gemini requests, token counts, and success rate from `~/.claude/hooks/gemini/logs/usage.jsonl`.
+Summarizes recent requests, token counts, and success rate.
 
 ### `validate-delegation`
 
-Checks configuration integrity for delegation limits and paths.
+Checks configuration integrity.
 
 ## Architecture
 
-- **Claude Code plugin** – Registers skills, commands, and Gemini hooks.
-- **Skills** – `delegation-core`, `gemini-delegation`, `qwen-delegation` for assessment and execution paths.
-- **Delegation executor** – `tools/delegation_executor.py` provides unified command construction, verification, and execution with token estimation.
-- **Quota tracker** – `tools/quota_tracker.py` monitors rate/daily limits with warnings.
-- **Usage logger** – `tools/usage_logger.py` records requests, tokens, success, and duration with session rollups.
-- **Hooks** – `hooks/gemini/bridge.*` recommend delegation when tool output size or volume suggests it.
-- **Makefile** – Single entry point for dev, validation, and delegation workflows.
+- **Claude Code plugin**: Registers skills, commands, and hooks.
+- **Skills**: Assessment and execution paths.
+- **Delegation executor**: Unified execution with token estimation.
+- **Quota tracker**: Monitors limits.
+- **Usage logger**: Records outcomes.
+- **Hooks**: Recommend delegation based on output size.
+- **Makefile**: Entry point for dev and validation.
 
 ## How It Works
 
-1. **Assess** – `delegation-core` evaluates if a task should delegate based on size, repetition, or sandbox needs.
-2. **Select** – `delegate-auto` picks Gemini (large context) or Qwen (sandbox/CLI) using service metadata and requirements.
-3. **Execute** – `delegation_executor` builds and runs service-specific commands, capturing stdout/stderr, timing, and estimated tokens.
-4. **Monitor** – `quota_tracker` warns on rate/daily limits; `usage_logger` logs outcomes for reports.
-5. **Integrate** – Results return to Claude for review, edits, and next actions.
+1. **Assess**: Evaluate if a task should delegate (`delegation-core`).
+2. **Select**: Pick Gemini or Qwen (`delegate-auto`).
+3. **Execute**: Run commands and capture output (`delegation_executor`).
+4. **Monitor**: Track limits and log outcomes.
+5. **Integrate**: Return results to Claude.
 
 ## Configuration & Paths
 
-- Delegation config overrides: `~/.claude/hooks/delegation/config.json`
+- Delegation config: `~/.claude/hooks/delegation/config.json`
 - Quota data: `~/.claude/hooks/gemini/usage.json`
 - Usage logs: `~/.claude/hooks/gemini/logs/usage.jsonl`
-- Make targets reference `uv` for dependency management; adjust limits via `DEFAULT_LIMITS` in `tools/quota_tracker.py`.
 
 ## Development
 
@@ -168,7 +163,7 @@ make lint typecheck security-check
 make test
 ```
 
-See `CHANGELOG.md` for release notes (current: 1.1.0) and `LICENSE` (MIT).
+See `CHANGELOG.md` for release notes and `LICENSE` (MIT).
 
 ## License
 

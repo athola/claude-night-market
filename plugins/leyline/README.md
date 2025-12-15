@@ -1,10 +1,10 @@
 # Leyline
 
-> *Like ancient ley lines connecting sacred sites, leyline provides the foundational patterns that connect and power plugin ecosystems.*
+Infrastructure and pipeline building blocks plugin for Claude Code.
 
 ## Overview
 
-Leyline is the infrastructure and pipeline building blocks plugin for Claude Code. It provides shared utilities, patterns, and services that other plugins can leverage to build robust, consistent functionality.
+Leyline provides shared utilities, patterns, and services that other plugins can leverage to build consistent functionality.
 
 ## Philosophy
 
@@ -23,7 +23,7 @@ Leyline is the infrastructure and pipeline building blocks plugin for Claude Cod
 | `quota-management` | Track and enforce resource limits | Building services with rate limits |
 | `usage-logging` | Session-aware usage tracking | Need audit trails or cost tracking |
 | `service-registry` | Manage external service connections | Integrating multiple services |
-| `error-patterns` | Standardized error handling | Building robust error recovery |
+| `error-patterns` | Standardized error handling | Building error recovery |
 | `authentication-patterns` | Common auth flows | Connecting to external APIs |
 
 ## Integration
@@ -54,13 +54,13 @@ python -m leyline.service_registry --verify myservice
 
 ## Design Principles
 
-1. **Zero coupling** - Patterns are reference-only, no hard dependencies
-2. **Progressive adoption** - Use what you need, ignore the rest
-3. **Consistent interfaces** - Same patterns across all utilities
-4. **Plugin-agnostic** - Works with any plugin architecture
+1. **Zero coupling**: Patterns are reference-only, no hard dependencies.
+2. **Progressive adoption**: Use what you need.
+3. **Consistent interfaces**: Same patterns across all utilities.
+4. **Plugin-agnostic**: Works with any plugin architecture.
 
 ## Related Plugins
 
-- **abstract** - Meta-skills for Claude (evaluation, modular design)
-- **conjure** - LLM delegation (uses leyline for quota/logging)
-- **conservation** - Context optimization (can use leyline metrics)
+- **abstract**: Meta-skills for Claude (evaluation, modular design).
+- **conjure**: LLM delegation (uses leyline for quota/logging).
+- **conservation**: Context optimization (can use leyline metrics).

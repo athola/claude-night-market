@@ -17,11 +17,11 @@ estimated_tokens: 560
 
 # Architecture Paradigm Selector & Implementation Planner
 
-## Quick Start (Experienced Architects)
+## Quick Start
 
-**For rapid decisions**: Jump to Common Scenarios (below) or use the selection matrix.
+**For decisions**: Jump to Common Scenarios (below) or use the selection matrix.
 
-**For detailed planning**: Complete the 3-step workflow to generate implementation roadmaps.
+**For planning**: Complete the 3-step workflow to generate implementation roadmaps.
 
 ## Common Scenarios
 
@@ -168,8 +168,8 @@ compatibility-checker --paradigm microservices --team-profile current-team
 
 ### During Architecture Review
 - Load this skill first to select paradigms.
-- Then load `/architecture-review` for a comprehensive evaluation.
-- Use specific paradigm skills for detailed implementation guidance.
+- Then load `/architecture-review` for evaluation.
+- Use specific paradigm skills for implementation guidance.
 
 ### During Implementation Planning
 - Load this skill for paradigm selection and roadmap creation.

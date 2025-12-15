@@ -293,7 +293,6 @@ Error: Circular dependency detected
 ## Resources
 
 ### Related Documentation
-- [Modular Skills Architecture](../architecture/modular-skills.md)
 - [Skill Authoring Guide](../skills/skill-authoring/SKILL.md)
 - [Shared Patterns Reference](../skills/shared-patterns/SKILL.md)
 - [Skills Evaluation Framework](../skills/skills-eval/SKILL.md)
@@ -314,6 +313,4 @@ make check-deps WRAPPER=your-wrapper-skill
 ```
 
 ### Examples
-- [API Development Wrapper](../examples/api-wrapper.md)
-- [Testing Workflow Wrapper](../examples/testing-wrapper.md)
-- [Documentation Generation Wrapper](../examples/docs-wrapper.md)
+- [Skill Migration Example](../examples/test-skill-migration-example.md)

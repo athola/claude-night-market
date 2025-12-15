@@ -22,26 +22,26 @@ Or reference directly from the marketplace:
 
 | Skill | Description |
 |-------|-------------|
-| **python-testing** | Comprehensive pytest patterns, fixtures, mocking, TDD workflows |
-| **python-performance** | CPU/memory profiling, optimization patterns, benchmarking |
-| **python-async** | asyncio, concurrent programming, async/await patterns |
-| **python-packaging** | Modern pyproject.toml, uv, PyPI publishing |
+| **python-testing** | Pytest patterns, fixtures, mocking, TDD workflows. |
+| **python-performance** | CPU/memory profiling, optimization patterns, benchmarking. |
+| **python-async** | asyncio, concurrent programming, async/await patterns. |
+| **python-packaging** | Modern pyproject.toml, uv, PyPI publishing. |
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/analyze-tests` | Analyze test suites for quality and coverage |
-| `/run-profiler` | Profile Python code for performance bottlenecks |
-| `/check-async` | Validate async code patterns and detect issues |
+| `/analyze-tests` | Analyze test suites for quality and coverage. |
+| `/run-profiler` | Profile Python code for performance bottlenecks. |
+| `/check-async` | Validate async code patterns and detect issues. |
 
 ### Agents
 
 | Agent | Description |
 |-------|-------------|
-| **python-pro** | Expert Python development with modern 3.12+ features |
-| **python-tester** | Specialized testing agent for pytest and TDD |
-| **python-optimizer** | Performance profiling and optimization expert |
+| **python-pro** | Python development assistant (modern 3.12+ features). |
+| **python-tester** | Testing assistant for pytest and TDD. |
+| **python-optimizer** | Performance profiling and optimization assistant. |
 
 ## Quick Start
 
@@ -104,7 +104,7 @@ dependencies = ["requests>=2.0.0"]
 
 ## Ecosystem Integration
 
-All skills integrate with the modern Python ecosystem:
+Integrates with the modern Python ecosystem:
 
 - **Package Manager**: uv (preferred), pip, poetry
 - **Linting**: ruff, mypy, pyright
@@ -119,9 +119,9 @@ parseltongue/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
 ├── agents/
-│   ├── python-pro.md        # General Python expert
-│   ├── python-tester.md     # Testing specialist
-│   └── python-optimizer.md  # Performance specialist
+│   ├── python-pro.md        # General Python assistant
+│   ├── python-tester.md     # Testing assistant
+│   └── python-optimizer.md  # Performance assistant
 ├── commands/
 │   ├── analyze-tests.md     # Test analysis command
 │   ├── run-profiler.md      # Profiler command

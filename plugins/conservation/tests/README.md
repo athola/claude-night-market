@@ -231,4 +231,3 @@ When adding tests:
 - [pytest Documentation](https://docs.pytest.org/)
 - [TDD/BDD Best Practices](https://docs.pytest.org/en/stable/explanation/goodpractices.html)
 - [Conservation Plugin Documentation](../README.md)
-- [Claude Code Testing Guidelines](../../../docs/testing.md)

@@ -16,7 +16,7 @@ make deps
 
 ## Key Concepts
 
-**MECW (Maximum Effective Context Window)**: Keep context pressure under 50% of the total window. Beyond this threshold, response quality degrades. Conservation skills enforce this automatically.
+**MECW (Maximum Effective Context Window)**: Keep context pressure under 50% of the total window. Beyond this threshold, response quality degrades. Conservation skills enforce this.
 
 **MCP Patterns**: Instead of passing large datasets through conversation context, use MCP tools to process data at the source and return only results. This works well for tool chains that would otherwise consume thousands of tokens.
 

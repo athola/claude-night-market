@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
-"""Consolidated token estimation for Abstract.
+"""Token estimation logic.
 
-Single source of truth for all token-related calculations.
+Centralized token estimation.
 Uses ~4 characters per token as the base estimation ratio.
-
-This module consolidates token estimation logic previously scattered across:
-- src/abstract/utils.py (estimate_tokens, count_tokens_detailed,
-  analyze_token_components, TokenAnalyzer class)
-- Various scripts that did ad-hoc token calculations
 
 Key principles:
 - Standard ratio: 4 characters per token (based on OpenAI's guidance)
@@ -67,15 +62,9 @@ def extract_code_blocks(content: str) -> list[str]:
 
 
 class TokenAnalyzer:
-    """Unified token analysis and efficiency checking.
+    """Token analysis and efficiency checking.
 
-    Consolidates all token-related analysis logic into a single interface.
     Uses a standard ratio of ~4 characters per token for estimation.
-
-    This class provides:
-    - Content analysis with component breakdown (frontmatter, body, code)
-    - Efficiency checking against configurable thresholds
-    - Consistent token counting across all Abstract tools
 
     Example:
         >>> analyzer = TokenAnalyzer()
@@ -96,11 +85,6 @@ class TokenAnalyzer:
     @staticmethod
     def analyze_content(content: str) -> dict[str, int]:
         """Analyze content and return token breakdown by component type.
-
-        This method provides detailed token analysis including:
-        - Total tokens (with content-type adjustments)
-        - Character and word counts
-        - Separate counts for frontmatter, body, and code blocks
 
         Args:
             content: The text content to analyze.
@@ -175,7 +159,7 @@ class TokenAnalyzer:
     ) -> dict:
         """Check token efficiency against thresholds.
 
-        Evaluates token count and provides status, rating, and actionable feedback.
+        Evaluates token count and provides status and rating.
         The rating system:
         - OPTIMAL: <= optimal threshold (rating 1.0)
         - GOOD: Between optimal and midpoint (rating 0.9-0.7)

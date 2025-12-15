@@ -57,7 +57,7 @@ def select_optimal_modules(context_situation, task_complexity):
 
 ## Detailed Resources
 
-For comprehensive implementation details:
+For implementation details:
 
 - **MECW Theory**: See `modules/mecw-principles.md` for core concepts and 50% rule
 - **Context Analysis**: See `modules/mecw-assessment.md` for risk identification

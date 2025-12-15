@@ -25,7 +25,7 @@ modules:
 
 ## Overview
 
-Turns tracker data + GitHub board metadata into concise, initiative-level pulses. Provides markdown helpers and CSV exports so PMs can copy/paste into issues, PRs, or Discussions without extra formatting.
+Turns tracker data and GitHub board metadata into initiative-level summaries. Provides markdown helpers and CSV exports for pasting into issues, PRs, or Discussions.
 
 ## Ritual
 

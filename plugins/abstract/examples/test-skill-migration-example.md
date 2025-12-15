@@ -381,5 +381,3 @@ make validate-migration COMMAND=[command-name]
 
 ### Related Documentation
 - [Wrapper Development Guide](../docs/wrapper-development-guide.md)
-- [Modular Skills Architecture](../docs/architecture/modular-skills.md)
-- [Command Authoring Best Practices](../docs/command-authoring.md)

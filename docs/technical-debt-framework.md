@@ -1,19 +1,19 @@
-# Comprehensive Quarterly Technical Debt Sprint Framework
+# Technical Debt Management Framework
 
 ## Overview
 
-This framework provides a complete solution for managing technical debt through quarterly sprint cycles, incorporating automated detection, scoring, planning, workflow management, and continuous monitoring.
+A system for managing technical debt through quarterly sprint cycles, incorporating automated detection, scoring, planning, workflow management, and continuous monitoring.
 
 ## Architecture
 
 The framework consists of seven main components:
 
 1. **Automated Technical Debt Detection** - Scans codebase for debt patterns
-2. **Advanced Scoring Algorithm** - Calculates comprehensive debt scores
+2. **Scoring Algorithm** - Calculates debt scores
 3. **Dashboard & Visualization** - Real-time monitoring and reporting
-4. **Quarterly Sprint Planning** - Automated sprint creation and capacity planning
-5. **Workflow Management** - Complete lifecycle management of debt issues
-6. **Metrics & KPI System** - Comprehensive performance tracking
+4. **Sprint Planning** - Automated sprint creation and capacity planning
+5. **Workflow Management** - Lifecycle management of debt issues
+6. **Metrics & KPI System** - Performance tracking
 7. **Integration Layer** - GitHub Actions, JIRA, Slack, and other tool integrations
 
 ## Quick Start
@@ -56,13 +56,13 @@ git push
 
 ## Core Components
 
-### 1. Enhanced Technical Debt Detection
+### 1. Technical Debt Detection
 
 **File:** `scripts/enhanced_technical_debt_detector.py`
 
 **Features:**
 - Multi-language support (Python, Markdown, YAML)
-- Advanced pattern recognition
+- Pattern recognition
 - Debt categorization (Architectural, Performance, Security, Usability, etc.)
 - Historical tracking and trend analysis
 - Automatic issue creation
@@ -84,7 +84,7 @@ The detector uses configurable patterns and thresholds. Customize by editing the
 **File:** `scripts/debt_dashboard_generator.py`
 
 **Features:**
-- Interactive HTML dashboard with Chart.js visualizations
+- Interactive HTML dashboard
 - Real-time metrics and trends
 - Sprint planning insights
 - Health scoring
@@ -103,7 +103,7 @@ python scripts/debt_dashboard_generator.py /path/to/project --output-dir /custom
 - **Overview Metrics**: Total issues, debt score, health score
 - **Trend Analysis**: Historical debt patterns and predictions
 - **Category Breakdown**: Debt by type and severity
-- **Sprint Recommendations**: AI-driven sprint planning insights
+- **Sprint Recommendations**: Automated sprint planning insights
 - **Quick Wins**: High-impact, low-effort opportunities
 
 ### 3. Quarterly Sprint Planning
@@ -139,7 +139,7 @@ python scripts/quarterly_debt_sprint_planner.py /path/to/project --output-dir /r
 **File:** `scripts/technical_debt_workflow_manager.py`
 
 **Features:**
-- Complete lifecycle management (Identify → Triage → Plan → Resolve → Validate)
+- Lifecycle management (Identify → Triage → Plan → Resolve → Validate)
 - Automated triage with configurable rules
 - Sprint assignment and tracking
 - Status management and reporting
@@ -170,7 +170,7 @@ python scripts/technical_debt_workflow_manager.py /path/to/project escalations
 **File:** `scripts/technical_debt_metrics_kpi.py`
 
 **Features:**
-- Comprehensive metric collection and storage
+- Metric collection and storage
 - KPI calculation and trending
 - SQLite database for persistence
 - Threshold monitoring and alerting
@@ -223,7 +223,7 @@ python scripts/technical_debt_integration.py /path/to/project teamcity-integrati
 
 ## GitHub Actions Integration
 
-The framework includes comprehensive GitHub Actions automation:
+The framework includes GitHub Actions automation:
 
 ### Workflow Triggers
 
@@ -273,7 +273,7 @@ export DEBT_HIGH_THRESHOLD=50
 
 ### 1. Preparation (Week 1)
 
-1. **Run Comprehensive Debt Scan**
+1. **Run Debt Scan**
    ```bash
    python scripts/enhanced_technical_debt_detector.py . --output json
    ```
@@ -473,7 +473,3 @@ Add integration scripts in `scripts/technical_debt_integration.py` or create sep
 ## License
 
 This framework is part of the Claude Night Market project and follows the same licensing terms.
-
----
-
-*This framework is designed to be comprehensive, flexible, and maintainable. It provides a solid foundation for technical debt management that can be customized to fit your specific project needs and organizational processes.*

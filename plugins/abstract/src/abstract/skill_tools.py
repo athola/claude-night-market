@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Shared skill tools that can be imported by any skill.
 
-This module provides common functionality that skills can use without
-duplicating code or maintaining separate script implementations.
+Shared functionality for skills.
 
 Usage from within a skill:
     from abstract.skill_tools import analyze_skill, estimate_tokens
@@ -107,8 +106,6 @@ def analyze_skill(
 
 def estimate_tokens(file_path: str) -> dict[str, Any]:
     """Estimate token usage for a skill file.
-
-    Uses TokenAnalyzer for consistent token estimation across the codebase.
 
     Args:
         file_path: Path to the skill file

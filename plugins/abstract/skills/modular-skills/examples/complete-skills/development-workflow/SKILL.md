@@ -120,6 +120,9 @@ This workflow is designed to be adaptable:
 
 ## Support and Resources
 
-- [Implementation Guide](guide.md) - Detailed workflow implementation guide
-- [Troubleshooting](modules/troubleshooting.md) - Common issues and solutions
-- [Best Practices](modules/best-practices.md) - Proven patterns for teams
+See the modules directory for detailed documentation on:
+- Code review workflows
+- Deployment procedures
+- Documentation guidelines
+- Git workflow patterns
+- Testing strategies

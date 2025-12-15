@@ -1,10 +1,10 @@
 # spec-kit
 
-Spec Driven Development toolkit for Claude Code. Provides structured specification, planning, and implementation workflows.
+Spec Driven Development toolkit for Claude Code.
 
 ## Overview
 
-Spec-kit implements the Speckit workflow for feature development. You write a specification, generate a plan, break it into tasks, and implement them with tracking across all three artifacts.
+Spec-kit implements the Speckit workflow: write a specification, generate a plan, break it into tasks, and implement them with tracking.
 
 ## Installation
 
@@ -37,11 +37,11 @@ claude plugins add spec-kit
 
 ### speckit-orchestrator
 
-Workflow coordinator that ensures proper skill loading, progress tracking, and cross-artifact consistency throughout the speckit command lifecycle.
+Workflow coordinator that ensures skill loading, progress tracking, and consistency throughout the speckit command lifecycle.
 
 ### spec-writing
 
-Guides creation of clear, complete, and testable specifications from natural language feature descriptions.
+Guides creation of clear, complete, and testable specifications from natural language descriptions.
 
 ### task-planning
 
@@ -51,7 +51,7 @@ Transforms specifications and implementation plans into actionable, dependency-o
 
 ### spec-analyzer
 
-Analyzes specification artifacts for consistency, coverage, and quality issues across spec.md, plan.md, and tasks.md.
+Analyzes specification artifacts for consistency, coverage, and quality issues.
 
 ### task-generator
 
@@ -59,7 +59,7 @@ Generates dependency-ordered implementation tasks from specifications and plans.
 
 ### implementation-executor
 
-Executes implementation tasks systematically following the task plan with TDD approach.
+Executes implementation tasks systematically following the task plan.
 
 ## Typical Workflow
 
@@ -76,7 +76,7 @@ Executes implementation tasks systematically following the task plan with TDD ap
 
 ## Dependencies
 
-- **abstract**: Provides meta-skills infrastructure and evaluation frameworks
+- **abstract**: Provides meta-skills infrastructure.
 
 ## License
 

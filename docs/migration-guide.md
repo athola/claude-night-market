@@ -4,7 +4,7 @@
 
 ## Overview
 
-This guide helps plugin maintainers migrate their code to use the new shared constants and follow the function extraction guidelines.
+Use this guide to migrate plugin code to shared constants and follow function extraction guidelines.
 
 ## Quick Start
 
@@ -86,7 +86,7 @@ def _optimize_content(content: str, strategy: str) -> str:
 
 ## Detailed Migration Steps
 
-### Step 1: Audit Your Plugin
+### 1. Audit Plugin
 
 Find all magic numbers and complex functions:
 
@@ -101,7 +101,7 @@ find your_plugin -name "*.py" -exec wc -l {} + | awk '$1 > 30 {print}'
 grep -n "def .*\(.*," your_plugin/**/*.py | grep -oE "\([^)]*\)" | grep -o "," | wc -l
 ```
 
-### Step 2: Plan Your Migration
+### 2. Plan Migration
 
 Create a migration plan for your plugin:
 
@@ -120,7 +120,7 @@ Create a migration plan for your plugin:
    - Refactor simple functions next
    - Tackle complex functions last
 
-### Step 3: Replace Magic Numbers
+### 3. Replace Magic Numbers
 
 #### File Size Constants
 ```python
@@ -167,7 +167,7 @@ from plugins.shared.constants import (
 )
 ```
 
-### Step 4: Refactor Complex Functions
+### 4. Refactor Complex Functions
 
 Follow this iterative approach:
 
@@ -240,7 +240,7 @@ def process_item(item, mode):
     return processor.process(item)
 ```
 
-### Step 5: Update Configuration
+### 5. Update Configuration
 
 If your plugin has configuration files:
 
@@ -443,9 +443,8 @@ If you encounter problems:
 ## Getting Help
 
 ### Resources
-- [Function Extraction Guidelines](FUNCTION_EXTRACTION_GUIDELINES.md)
-- [Technical Debt Backlog](../TECHNICAL_DEBT_BACKLOG.md)
-- [Shared Constants Documentation](../plugins/shared/README.md)
+- [Function Extraction Guidelines](./function-extraction-guidelines.md)
+- [Technical Debt Backlog](./backlog/technical-debt.md)
 
 ### Support
 - Create an issue for migration problems
@@ -459,9 +458,9 @@ If you encounter problems:
 
 ---
 
-## Success Stories
+## Migration Examples
 
-### Memory Palace Plugin Migration
+### Example: Memory Palace Plugin
 
 **Challenges:**
 - 15 magic numbers scattered across files
@@ -478,7 +477,7 @@ If you encounter problems:
 - Improved test coverage from 60% to 85%
 - Easier to add new content types
 
-### Parseltongue Plugin Migration
+### Example: Parseltongue Plugin
 
 **Challenges:**
 - Complex analysis functions with 8+ parameters
@@ -499,12 +498,10 @@ If you encounter problems:
 
 ## Conclusion
 
-Migrating to shared constants and following function extraction guidelines significantly improves code quality. While it requires effort upfront, the long-term benefits in maintainability, testability, and developer productivity make it worthwhile.
+Migrating to shared constants and following function extraction guidelines improves code quality and maintainability.
 
-Remember to:
-- **Migrate incrementally** - don't try to do everything at once
-- **Test thoroughly** - ensure behavior doesn't change
-- **Document changes** - help others understand the migration
-- **Ask for help** - leverage the community's experience
-
-Good luck with your migration!
+**Key Steps:**
+-   **Migrate incrementally**: Don't try to do everything at once.
+-   **Test thoroughly**: Ensure behavior doesn't change.
+-   **Document changes**: Help others understand the migration.
+-   **Ask for help**: Leverage the community's experience.

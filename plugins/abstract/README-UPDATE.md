@@ -322,14 +322,10 @@ make readme-stats
 ```
 
 ### Templates
-- [README Template](templates/README-template.md)
-- [Section Templates](templates/sections/)
-- [Example Generation](scripts/generate-examples.py)
+Planned template files should be created in `templates/` directory.
 
 ### Related Documentation
-- [Documentation Standards](docs/documentation-standards.md)
-- [Style Guide](docs/style-guide.md)
-- [Review Process](docs/review-process.md)
+- [Wrapper Development Guide](docs/wrapper-development-guide.md)
 
 ---
 

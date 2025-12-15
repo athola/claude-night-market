@@ -1,218 +1,93 @@
-# Superpowers Integration Guide for Night-Market Plugins
+# Superpowers Integration Guide
 
-This guide documents the integration of superpowers marketplace skills with the night-market plugin ecosystem.
+Documentation for integrating superpowers marketplace skills with night-market plugins.
 
 ## Overview
 
-The superpowers marketplace provides 18 specialized skills that implement rigorous methodologies like RED-GREEN-REFACTOR, systematic debugging, and evidence-based operations. This integration enhances existing plugin capabilities without replacing them, creating a more cohesive and powerful development workflow.
+The superpowers marketplace provides specialized skills for methodologies like RED-GREEN-REFACTOR, debugging, and evidence-based operations. This guide explains how to integrate these skills into plugins.
 
-## Integration Philosophy
+## Integration Principles
 
-### Core Principles
-1. **Enhance, Don't Replace** - Superpowers skills elevate existing capabilities
-2. **Evidence-Based Operations** - Every claim backed by verification
-3. **Methodology Over Features** - Focus on how work is done, not just what is done
-4. **Incremental Quality** - Small improvements with verification at each step
+1.  **Enhancement**: Superpowers skills add capability to existing workflows.
+2.  **Evidence-Based**: Prioritize verification and evidence.
+3.  **Methodology**: Focus on structured approaches to tasks.
 
-### Integration Patterns
-1. **Direct Call** - Replace duplicate logic with superpowers skill calls
-2. **Complementary Enhancement** - Add quality gates to existing workflows
-3. **Workflow Integration** - Insert methodology steps into existing processes
+## Integration Patterns
 
-## Plugin Integrations
+1.  **Direct Call**: Replace duplicate logic with superpowers skill calls.
+2.  **Enhancement**: Add quality gates to existing workflows.
+3.  **Workflow Integration**: Insert methodology steps into existing processes.
 
-### Abstract Plugin (Meta-Skills Infrastructure)
+## Current Integrations
 
-#### Components Enhanced
-- `/create-skill` command - Already properly references `superpowers:brainstorming`
-- `/create-command` command - Uses brainstorming for concept refinement
-- `/create-hook` command - Uses brainstorming for security-first design
+### Abstract Plugin
 
-#### Superpowers Skills Added
-- **superpowers:brainstorming** - Socratic questioning for idea refinement
-- **superpowers:writing-skills** - TDD for skill documentation (future)
+*   `/create-skill`: Uses `superpowers:brainstorming`.
+*   `/create-command`: Uses `superpowers:brainstorming`.
+*   `/create-hook`: Uses `superpowers:brainstorming`.
 
-### Spec-Kit Plugin (Spec Driven Development)
+### Spec-Kit Plugin
 
-#### Components Enhanced
-- `speckit-orchestrator` skill - Already has comprehensive superpowers dependencies
-- `command-skill-matrix` - Already maps commands to superpowers skills
-- `task-planning` skill - Uses writing-plans and executing-plans
+*   `task-planning`: Uses `superpowers:writing-plans` and `superpowers:executing-plans`.
+*   `speckit-orchestrator`: Integrates multiple superpowers skills for debugging and verification.
 
-#### Superpowers Skills Already Integrated
-- **superpowers:brainstorming** - For specification refinement
-- **superpowers:writing-plans** - For detailed implementation planning
-- **superpowers:executing-plans** - For task execution with checkpoints
-- **superpowers:systematic-debugging** - For implementation error handling
-- **superpowers:verification-before-completion** - For artifact analysis
+### Pensive Plugin
 
-### Pensive Plugin (Code Review)
+*   `/full-review`: Includes `superpowers:systematic-debugging` and `superpowers:verification-before-completion`.
 
-#### Components Enhanced
-- `/full-review` command - Added systematic debugging and verification
+### Sanctum Plugin
 
-#### Superpowers Skills Added
-- **superpowers:systematic-debugging** - Four-phase framework for complex issues
-- **superpowers:verification-before-completion** - Evidence-based review standards
-- **superpowers:receiving-code-review** - Technical rigor for feedback processing
+*   `/fix-pr`: Uses `superpowers:receiving-code-review`.
+*   Commit messages: Uses `elements-of-style:writing-clearly-and-concisely`.
 
-### Sanctum Plugin (Git & Workspace Operations)
+### Parseltongue Plugin
 
-#### Components Enhanced
-- `/fix-pr` command - Added code review processing methodology
+*   `python-testing`: Integrates `superpowers:test-driven-development` and `superpowers:testing-anti-patterns`.
 
-#### Superpowers Skills Added
-- **superpowers:receiving-code-review** - Evaluate suggestions with technical rigor
-- **superpowers:systematic-debugging** - For complex issue investigation
-- **elements-of-style:writing-clearly-and-concisely** - For commit message clarity
+### Minister Plugin
 
-### Parseltongue Plugin (Python Development)
+*   `issue-management`: Uses `superpowers:systematic-debugging` for bug reports.
 
-#### Components Enhanced
-- `python-testing` skill - Added TDD methodology and anti-pattern prevention
+### Conservation Plugin
 
-#### Superpowers Skills Added
-- **superpowers:test-driven-development** - RED-GREEN-REFACTOR cycle
-- **superpowers:testing-anti-patterns** - Prevent common testing mistakes
-- **superpowers:systematic-debugging** - For test failure investigation
-- **superpowers:verification-before-completion** - For test quality validation
-
-### Minister Plugin (Project Management)
-
-#### Components Enhanced
-- `issue-management` skill - Added systematic debugging for bug reports
-
-#### Superpowers Skills Added
-- **superpowers:systematic-debugging** - Methodical bug investigation
-- **superpowers:verification-before-completion** - Before issue resolution
-- **superpowers:root-cause-tracing** - For recurring systemic issues
-
-### Conservation Plugin (Resource Optimization)
-
-#### Components Enhanced
-- `/optimize-context` command - Added condition-based waiting and verification
-
-#### Superpowers Skills Added
-- **superpowers:condition-based-waiting** - Replace arbitrary timeouts
-- **superpowers:verification-before-completion** - Before optimization claims
-- **superpowers:systematic-debugging** - For context optimization issues
-
-## Cross-Cutting Enhancements
-
-### Quality Gates
-All plugins now integrate:
-- **superpowers:verification-before-completion** - Evidence before assertions
-- **superpowers:systematic-debugging** - Standardized debugging approach
-
-### Workflow Standards
-Common patterns across plugins:
-- TDD methodology for new development
-- Evidence-based decision making
-- Systematic problem investigation
-- No rationalization or assumptions without proof
+*   `/optimize-context`: Uses `superpowers:condition-based-waiting`.
 
 ## Usage Examples
 
-### Example 1: Creating a New Skill
+### Creating a New Skill
 ```bash
-# Abstract's create-skill command now:
+# Abstract's create-skill command:
 /create-skill "async error handling"
-
-# Automatically invokes:
-I'll use superpowers:brainstorming to refine this skill idea...
+# Invokes superpowers:brainstorming
 ```
 
-### Example 2: Reviewing Code
+### Reviewing Code
 ```bash
-# Pensive's full-review command now:
+# Pensive's full-review command:
 /full-review
-
-# Automatically includes:
-I'll use superpowers:verification-before-completion to ensure all findings are evidence-based...
+# Includes superpowers:verification-before-completion
 ```
 
-### Example 3: Fixing PR Comments
+### Fixing PR Comments
 ```bash
-# Sanctum's fix-pr command now:
+# Sanctum's fix-pr command:
 /fix-pr 123
-
-# Automatically includes:
-I'll use superpowers:receiving-code-review to evaluate suggestions with technical rigor...
+# Includes superpowers:receiving-code-review
 ```
 
-### Example 4: Writing Tests
+### Writing Tests
 ```bash
-# Parseltongue's python-testing skill now:
-I'll use superpowers:test-driven-development to follow RED-GREEN-REFACTOR...
+# Parseltongue's python-testing skill:
+# Uses superpowers:test-driven-development
 ```
 
-## Implementation Checklist
+## Developer Guide
 
-### Phase 1: Quick Wins ✅
-- [x] Abstract plugin brainstorming integration
-- [x] Spec-kit dependency completion
-- [x] Pensive review quality gates
-- [x] Sanctum PR feedback processing
-- [x] Parseltongue TDD methodology
-- [x] Minister issue debugging
-- [x] Conservation condition-based waiting
-
-### Phase 2: Workflow Enhancements (Future)
-- [ ] Add systematic debugging to all error handling
-- [ ] Integrate defense-in-depth patterns across security-sensitive plugins
-- [ ] Add parallel agent dispatch for multi-plugin operations
-- [ ] Create unified completion workflows
-
-### Phase 3: Advanced Features (Future)
-- [ ] Centralized skill discovery and management
-- [ ] Cross-plugin workflow orchestration
-- [ ] Advanced analytics and optimization
-
-## Benefits Realized
-
-### Immediate Benefits
-1. **Consistent Methodology** - All plugins follow evidence-based practices
-2. **Higher Quality** - Systematic debugging and verification prevent issues
-3. **Better Documentation** - Writing clarity enforced across plugins
-4. **Reduced Duplication** - Common patterns centralized in superpowers
-
-### Long-term Benefits
-1. **Ecosystem Cohesion** - Shared methodology across all plugins
-2. **Easier Maintenance** - Centralized best practices
-3. **Better Testing** - TDD methodology prevents regressions
-4. **User Confidence** - Evidence-based operations build trust
-
-## Migration Guide
-
-### For Plugin Developers
-1. Identify where your plugin implements common patterns (brainstorming, debugging, verification)
-2. Add superpowers integration sections to your skill/command documentation
-3. Include superpowers calls in your workflows where appropriate
-4. Test integrations to ensure they enhance rather than complicate workflows
-
-### For Users
-1. No changes required - integrations are automatic
-2. You may see more methodical approaches to problem-solving
-3. Reviews will include evidence-based findings
-4. Debugging will follow systematic investigation patterns
-
-## Future Roadmap
-
-### Planned Enhancements
-1. **Dispatching Parallel Agents** - Coordinate multiple agents for complex tasks
-2. **Using Git Worktrees** - Isolated workspace management for all plugins
-3. **Defense in Depth** - Multi-layer validation across security-sensitive operations
-4. **Skill Discovery** - Centralized management of skill dependencies
-
-### Community Contributions
-Contributions welcome for:
-- Additional integration patterns
-- New workflow orchestrations
-- Cross-plugin synergies
-- Documentation improvements
+1.  **Identify Patterns**: Find where your plugin uses brainstorming, debugging, or verification.
+2.  **Document**: Add integration details to skill/command documentation.
+3.  **Implement**: Call superpowers skills in your workflows.
+4.  **Test**: Verify the integration works as expected.
 
 ## Conclusion
 
-The integration of superpowers skills with night-market plugins creates a more cohesive, rigorous, and powerful development ecosystem. By focusing on methodology over features and evidence over assumptions, we elevate the quality and reliability of the entire plugin system while maintaining the unique value proposition of each plugin.
-
-The phased approach ensures immediate value while building toward a more integrated future, where systematic quality and continuous improvement become the standard rather than the exception.
+Integrating superpowers skills standardizes methodologies across the plugin ecosystem, ensuring consistent and rigorous approaches to development tasks.
