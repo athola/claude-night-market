@@ -41,8 +41,8 @@ jobs:
     - name: Run Bandit security linter
       run: |
         source .venv/bin/activate
-        bandit -r . -f json -o bandit-report.json || true
-        bandit -r . -f txt
+        bandit -r . -f json -o bandit-report.json --exclude .venv,.git,__pycache__,*.pyc,dist,build,.eggs || true
+        bandit -r . -f txt --exclude .venv,.git,__pycache__,*.pyc,dist,build,.eggs
       continue-on-error: true
 
     - name: Convert Bandit JSON to SARIF
@@ -121,8 +121,8 @@ jobs:
 
     - name: Run Semgrep static analysis
       run: |
-        semgrep --config=auto --json --output=semgrep-report.json || true
-        semgrep --config=auto
+        semgrep --config=auto --json --output=semgrep-report.json --exclude=venv --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' || true
+        semgrep --config=auto --exclude=venv --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc'
       continue-on-error: true
 
     - name: Upload Bandit scan results to GitHub Security tab
