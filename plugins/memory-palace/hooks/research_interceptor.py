@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from shared.config import get_config
+from shared import config as shared_config
 
 logger = logging.getLogger(__name__)
 
@@ -486,7 +486,7 @@ def main() -> None:
     if tool_name not in ("WebFetch", "WebSearch"):
         sys.exit(0)
 
-    config = get_config()
+    config = shared_config.get_config()
     if not config.get("enabled", True):
         sys.exit(0)
     feature_flags = dict(config.get("feature_flags") or {})
