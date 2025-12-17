@@ -22,7 +22,7 @@ Add to your `marketplace.json`:
     "url": "https://github.com/athola/abstract.git"
   },
   "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - modular design patterns and evaluation frameworks",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "strict": true
 }
 ```
@@ -50,7 +50,8 @@ Use this plugin to manage token usage (keep skills lean), find modularization op
 *   `skills/`: Skill implementations.
 *   `scripts/`: Validation and analysis tools.
 *   `src/abstract/`: Shared Python package.
-*   `docs/`: Technical documentation and ADRs.
+*   `docs/`: Technical documentation, ADRs, and examples.
+    *   `docs/examples/modular-skills/`: Implementation examples for modular skill patterns.
 
 ## Documentation
 

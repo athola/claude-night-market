@@ -57,7 +57,11 @@ Use to get up to speed after time away or when joining a team. Helps understand 
 ### Workflow Guards
 
 #### scope-guard
-Prevents overengineering via scoring and opportunity cost comparison.
+Prevents overengineering via scoring and opportunity cost comparison. Uses a modular structure with four components:
+- `decision-framework`: Worthiness formula and scoring system
+- `anti-overengineering`: Rules to prevent scope creep and premature abstraction
+- `branch-management`: Threshold monitoring (lines, commits, days)
+- `baseline-scenarios`: Validated test scenarios
 
 **When to Use:**
 Use during planning to evaluate if features should be implemented now or deferred. Also triggered by hooks for branch metrics.
@@ -101,7 +105,10 @@ imbue/
 ├── plugin.json              # Plugin configuration
 ├── README.md               # This file
 ├── hooks/
-│   └── pre-pr-scope-check.sh  # Branch threshold monitoring
+│   ├── hooks.json           # Hook configuration
+│   ├── session-start.sh     # Session initialization
+│   ├── user-prompt-submit.sh # Per-prompt threshold checks
+│   └── pre-pr-scope-check.sh # Branch threshold monitoring
 └── skills/
     ├── review-core/        # Review workflow scaffolding
     ├── evidence-logging/   # Evidence capture methodology

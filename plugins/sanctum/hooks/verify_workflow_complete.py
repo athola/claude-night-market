@@ -33,6 +33,14 @@ def main() -> None:
         # No payload or invalid JSON - still provide reminder
         pass
 
+    # Output reminder as hook context (Stop hooks are informational-only)
+    output = {
+        "hookSpecificOutput": {
+            "hookEventName": "Stop",
+            "additionalContext": REMINDER,
+        }
+    }
+    print(json.dumps(output))
     sys.exit(0)
 
 

@@ -11,11 +11,11 @@ from sanctum.validators import SanctumValidationReport, SanctumValidator
 
 def test_report_creation() -> None:
     report = SanctumValidationReport(
+        is_valid=True,
         plugin_result=None,
         skill_results=[],
         command_results=[],
         agent_results=[],
-        errors=[],
     )
     assert isinstance(report, SanctumValidationReport)
 
@@ -23,13 +23,14 @@ def test_report_creation() -> None:
 @pytest.mark.integration
 def test_report_is_valid_with_no_errors() -> None:
     report = SanctumValidationReport(
+        is_valid=True,
         plugin_result=None,
         skill_results=[],
         command_results=[],
         agent_results=[],
-        errors=[],
     )
-    assert report.errors == []
+    assert report.total_errors == 0
+    assert report.all_errors() == []
 
 
 def test_all_errors_collects_nested_errors() -> None:

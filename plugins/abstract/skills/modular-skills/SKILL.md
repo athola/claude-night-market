@@ -122,7 +122,7 @@ Here are a few common ways we use the tools:
 
 - **To assess the complexity of a skill**, use the `skill-analyzer`. This helps us decide if a skill needs to be modularized.
 - **To design the modules**, we follow the detailed workflow in the `guide.md`.
-- **To see examples of how to implement the patterns**, we reference the `examples/` directory.
+- **To see examples of how to implement the patterns**, we reference the `../../docs/examples/modular-skills/` directory.
 - **To validate the structure of our modules**, we run the `module-validator` before deploying.
 - **To estimate token usage**, we use the `token-estimator`. This helps us make design decisions based on their impact on the context window.
 
@@ -139,4 +139,4 @@ For comprehensive implementation details and advanced techniques:
   - `skill_analyzer.py` - Complexity analysis and recommendations
   - `token_estimator.py` - Token usage estimation with dependencies
   - `abstract_validator.py` - Pattern validation and auto-fixing
-- **Examples**: See `examples/` directory for concrete implementations
+- **Examples**: See `../../docs/examples/modular-skills/` directory for concrete implementations
