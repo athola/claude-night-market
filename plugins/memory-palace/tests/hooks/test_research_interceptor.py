@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import sys
 from io import StringIO
@@ -515,6 +516,86 @@ class TestEndToEnd:
             # Verify incorrect fields are NOT present
             assert "blockToolExecution" not in hook_output
             assert "blockReason" not in hook_output
+
+    def test_decision_record_failure_logged_as_warning(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Decision record failures should be visible in production logs."""
+        mock_stdin = StringIO(
+            json.dumps(
+                {
+                    "tool_name": "WebSearch",
+                    "tool_input": {"query": "test query"},
+                },
+            ),
+        )
+        mock_config = {
+            "enabled": True,
+            "research_mode": "cache_first",
+            "telemetry": {"enabled": False},
+            "feature_flags": {"autonomy": True},
+        }
+
+        mock_autonomy_store = MagicMock()
+        mock_autonomy_store.build_profile.return_value = MagicMock()
+        mock_autonomy_store.record_decision.side_effect = RuntimeError("boom")
+
+        caplog.set_level(logging.WARNING, logger="research_interceptor")
+
+        with (
+            patch("sys.stdin", mock_stdin),
+            patch("sys.stdout", StringIO()),
+            patch("shared.config.get_config", return_value=mock_config),
+            patch("research_interceptor.search_local_knowledge", return_value=[]),
+            patch(
+                "research_interceptor.AutonomyStateStore",
+                return_value=mock_autonomy_store,
+            ),
+            pytest.raises(SystemExit),
+        ):
+            research_interceptor.main()
+
+        assert "Failed to record decision" in caplog.text
+        assert any(record.levelno == logging.WARNING for record in caplog.records)
+
+    def test_autonomy_profile_failure_logged_as_warning(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """Autonomy profile load failures should be visible in production logs."""
+        mock_stdin = StringIO(
+            json.dumps(
+                {
+                    "tool_name": "WebSearch",
+                    "tool_input": {"query": "test query"},
+                },
+            ),
+        )
+        mock_config = {
+            "enabled": True,
+            "research_mode": "cache_first",
+            "telemetry": {"enabled": False},
+        }
+
+        caplog.set_level(logging.WARNING, logger="research_interceptor")
+
+        with (
+            patch("sys.stdin", mock_stdin),
+            patch("sys.stdout", StringIO()),
+            patch("shared.config.get_config", return_value=mock_config),
+            patch(
+                "research_interceptor.search_local_knowledge",
+                return_value=[],
+            ),
+            patch(
+                "research_interceptor.AutonomyStateStore",
+                side_effect=PermissionError("nope"),
+            ),
+            pytest.raises(SystemExit),
+        ):
+            research_interceptor.main()
+
+        assert "Failed to load autonomy profile" in caplog.text
+        assert any(record.levelno == logging.WARNING for record in caplog.records)
 
     def test_telemetry_logging_enabled(self) -> None:
         """Telemetry logger should receive a structured event when enabled."""

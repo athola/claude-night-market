@@ -128,7 +128,6 @@ class TestReviewAnalystAgent:
         ]
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_agent_follows_imbue_workflow(
         self,
         mock_claude_tools,
@@ -212,7 +211,6 @@ class TestReviewAnalystAgent:
         assert skill_contexts["diff-analysis"]["target"] == "src/auth/"
         assert skill_contexts["structured-output"]["template_type"] == "security_review"
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_agent_gathers_reproducible_evidence(
         self,
@@ -314,7 +312,6 @@ class TestReviewAnalystAgent:
         return finding["title"].lower().split()[0]
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_agent_categorizes_findings_by_severity(
         self, sample_agent_findings
     ) -> None:
@@ -405,7 +402,6 @@ class TestReviewAnalystAgent:
         assert critical_finding["severity_justification"]["cvss_score"] == 9.8
         assert critical_finding["severity_justification"]["matches_criteria"] is True
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_agent_generates_actionable_recommendations(
         self, sample_agent_findings
@@ -520,7 +516,6 @@ class TestReviewAnalystAgent:
             return ["Rate limiting service setup", "Monitoring configuration"]
         return []
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_agent_produces_consistent_report_structure(
         self, sample_agent_findings

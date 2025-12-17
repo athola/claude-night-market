@@ -1,13 +1,16 @@
 """Tests for conjure skill loading and execution following TDD/BDD principles."""
 
 # Import modules for testing
+import json
+import os
+import subprocess
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from delegation_executor import Delegator, ExecutionResult, ServiceConfig
+from delegation_executor import Delegator, ExecutionResult
 
 # Constants for magic values
 MIN_RECOVERY_STRATEGIES = 2
@@ -171,58 +174,39 @@ class TestGeminiDelegationSkill:
         assert len(quota_commands) == 2
         assert "quota_tracker.py" in quota_commands[1]
 
-    @patch("delegation_executor.Delegator")
-    def test_command_construction_patterns(
-        self, mock_delegator_class, sample_files
-    ) -> None:
+    def test_command_construction_patterns(self, tmp_path, monkeypatch) -> None:
         """Given command construction step when executing gemini-delegation.
 
-        then should build correct commands.
+        then should build correct commands using Delegator.build_command().
         """
-        # Test the patterns described in step 3
-        test_cases = [
-            {
-                "description": "Basic file analysis",
-                "files": ["src/main.py"],
-                "prompt": "Analyze this code",
-                "expected_pattern": "@src/main.py",
-            },
-            {
-                "description": "Multiple files",
-                "files": ["src/**/*.py"],
-                "prompt": "Summarize these files",
-                "expected_pattern": "@src/**/*.py",
-            },
-            {
-                "description": "Specific model",
-                "files": [],
-                "prompt": "test",
-                "model": "gemini-2.5-pro-exp",
-                "expected_pattern": "--model gemini-2.5-pro-exp",
-            },
-        ]
+        monkeypatch.chdir(tmp_path)
 
-        for case in test_cases:
-            # Test the logic that would be used in command construction
-            command_parts = ["gemini"]
+        (tmp_path / "src").mkdir()
+        (tmp_path / "src" / "main.py").write_text("print('hi')\n")
+        (tmp_path / "docs").mkdir()
 
-            if "model" in case:
-                command_parts.extend(["--model", case["model"]])
+        delegator = Delegator(config_dir=tmp_path / "config")
 
-            # Add files to command
-            if case["files"]:
-                file_refs = [f"@{f}" for f in case["files"]]
-                command_parts.extend(["-p", " ".join(file_refs) + " " + case["prompt"]])
-            else:
-                command_parts.extend(["-p", case["prompt"]])
+        # Existing file should be referenced with @<path>
+        cmd = delegator.build_command(
+            "gemini", "Analyze this code", files=["src/main.py"]
+        )
+        assert cmd[0] == "gemini"
+        assert "-p" in cmd
+        assert "@src/main.py Analyze this code" in cmd[cmd.index("-p") + 1]
 
-            command = " ".join(command_parts)
+        # Existing directory should be referenced with @<dir>/**/*
+        cmd = delegator.build_command("gemini", "Summarize", files=["docs"])
+        assert "@docs/**/* Summarize" in cmd[cmd.index("-p") + 1]
 
-            # Verify expected patterns are in the command
-            if "expected_pattern" in case:
-                assert (
-                    case["expected_pattern"] in command
-                ), f"Pattern {case['expected_pattern']} not found in {command}"
+        # Options should be translated into service flags
+        cmd = delegator.build_command(
+            "gemini",
+            "test",
+            options={"model": "gemini-2.5-pro-exp"},
+        )
+        assert "--model" in cmd
+        assert "gemini-2.5-pro-exp" in cmd
 
     def test_usage_logging_flow(self) -> None:
         """Given usage logging step when executing gemini-delegation.
@@ -240,57 +224,72 @@ class TestGeminiDelegationSkill:
         assert "success" in log_pattern
         assert "duration_seconds" in log_pattern
 
-    @patch("delegation_executor.Delegator")
-    def test_delegation_workflow_integration(
-        self, mock_delegator_class, tmp_path
-    ) -> None:
+    def test_delegation_workflow_integration(self, tmp_path, monkeypatch) -> None:
         """Given complete workflow when executing gemini-delegation.
 
-        then should follow all steps.
+        then should exercise real build_command() and execute() behavior.
         """
-        # Mock the delegator
-        mock_delegator = MagicMock()
-        mock_delegator.SERVICES = {
-            "gemini": ServiceConfig("gemini", "gemini", "api_key", "GEMINI_API_KEY"),
-        }
-        mock_delegator.verify_service.return_value = (True, [])
-        mock_delegator.estimate_tokens.return_value = 50000
-        mock_delegator.can_handle_task.return_value = (True, [])
-        mock_delegator.execute.return_value = ExecutionResult(
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "test.py").write_text("print('hello')\n")
+
+        delegator = Delegator(config_dir=tmp_path / "config")
+
+        def fake_run(args, **_kwargs):
+            # Simulate the CLI invocation without requiring an installed binary.
+            if args[:2] == ["gemini", "--version"]:
+                return subprocess.CompletedProcess(
+                    args, 0, stdout="gemini 1.0.0", stderr=""
+                )
+            return subprocess.CompletedProcess(
+                args, 0, stdout="Analysis complete", stderr=""
+            )
+
+        with (
+            patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}),
+            patch(
+                "delegation_executor.subprocess.run", side_effect=fake_run
+            ) as mock_run,
+            patch("delegation_executor.estimate_tokens", return_value=50000),
+        ):
+            # Step 1: Verify authentication
+            is_available, issues = delegator.verify_service("gemini")
+            assert is_available is True
+            assert issues == []
+
+            # Step 2: Execute command (build_command() runs inside execute()).
+            result = delegator.execute(
+                "gemini",
+                "Analyze this code",
+                files=["test.py"],
+                options={"model": "gemini-2.5-pro-exp"},
+            )
+
+        assert result == ExecutionResult(
             success=True,
             stdout="Analysis complete",
             stderr="",
             exit_code=0,
-            duration=5.0,
+            duration=result.duration,
             tokens_used=50000,
             service="gemini",
         )
-        mock_delegator_class.return_value = mock_delegator
 
-        # Test the workflow as described in the skill
-        delegator = Delegator(config_dir=tmp_path)
-
-        # Step 1: Verify authentication
-        is_available, issues = delegator.verify_service("gemini")
-        assert is_available is True
-        assert len(issues) == 0
-
-        # Step 2: Check quota (simplified test)
-        estimated_tokens = delegator.estimate_tokens(["test.py"], "Analyze this code")
-        assert isinstance(estimated_tokens, int)
-        assert estimated_tokens > 0
-
-        # Step 3: Execute command
-        result = delegator.execute(
-            "gemini",
-            "Analyze this code",
-            files=["test.py"],
-            options={"model": "gemini-2.5-pro-exp"},
+        # Verify the real command passed to subprocess.run contains expected flags/prompt.
+        executed_args = mock_run.call_args_list[-1].args[0]
+        assert executed_args[:3] == ["gemini", "--model", "gemini-2.5-pro-exp"]
+        assert "-p" in executed_args
+        assert (
+            "@test.py Analyze this code" in executed_args[executed_args.index("-p") + 1]
         )
-        assert result.success is True
-        assert result.service == "gemini"
 
-        # Step 4: Usage would be logged (tested in usage_logger tests)
+        # Verify usage log was written.
+        usage_lines = (
+            (tmp_path / "config" / "usage.jsonl").read_text().strip().splitlines()
+        )
+        assert len(usage_lines) == 1
+        log_entry = json.loads(usage_lines[0])
+        assert log_entry["service"] == "gemini"
+        assert log_entry["success"] is True
 
 
 class TestQwenDelegationSkill:

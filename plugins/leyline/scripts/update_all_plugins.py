@@ -20,8 +20,21 @@ def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
         print(f"[ERROR] Plugins configuration file not found: {plugins_file}")
         sys.exit(1)
 
-    with open(plugins_file) as f:
-        data = json.load(f)
+    try:
+        with plugins_file.open(encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] Plugins configuration file is not valid JSON: {plugins_file}")
+        print(f"        {type(e).__name__}: {e}")
+        print(
+            "[HINT] Fix the JSON, or delete the file and reinstall your plugins to "
+            "recreate it."
+        )
+        sys.exit(1)
+    except OSError as e:
+        print(f"[ERROR] Could not read plugins configuration file: {plugins_file}")
+        print(f"        {type(e).__name__}: {e}")
+        sys.exit(1)
 
     # Ensure we return the expected type structure
     plugins: dict[str, list[dict[str, Any]]] = data.get("plugins", {})
@@ -71,7 +84,7 @@ def update_plugin(plugin_full_name: str) -> tuple[bool, str, str]:
         return False, "timeout", "timeout"
 
     except Exception as e:
-        print(f"[ERROR] Error updating {plugin_full_name}: {e}")
+        print(f"[ERROR] Error updating {plugin_full_name}: {type(e).__name__}: {e}")
         return False, "error", "error"
 
 

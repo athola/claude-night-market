@@ -28,7 +28,7 @@ class TestReadInstalledPlugins:
     So that I can determine which plugins need updating.
     """
 
-    @patch("builtins.open", new_callable=mock_open, read_data='{"plugins": {}}')
+    @patch("pathlib.Path.open", new_callable=mock_open, read_data='{"plugins": {}}')
     @patch("pathlib.Path.exists", return_value=True)
     def test_read_valid_config(
         self, mock_exists: MagicMock, mock_file: MagicMock
@@ -48,7 +48,7 @@ class TestReadInstalledPlugins:
 
         assert result == {"test@marketplace": [{"version": "1.0.0"}]}
 
-    @patch("builtins.open", new_callable=mock_open, read_data='{"plugins": {}}')
+    @patch("pathlib.Path.open", new_callable=mock_open, read_data='{"plugins": {}}')
     @patch("pathlib.Path.exists", return_value=True)
     def test_read_config_with_no_plugins(
         self, mock_exists: MagicMock, mock_file: MagicMock
@@ -81,19 +81,72 @@ class TestReadInstalledPlugins:
 
         assert excinfo.value.code == 1
 
-    @patch("builtins.open", new_callable=mock_open)
+    @patch("pathlib.Path.open", new_callable=mock_open)
     @patch("pathlib.Path.exists", return_value=True)
     def test_invalid_json(self, mock_exists: MagicMock, mock_file: MagicMock) -> None:
         """Scenario: Handling invalid JSON in configuration file.
 
         Given a configuration file exists with invalid JSON
         When the read_installed_plugins function is called
-        Then it should raise a JSONDecodeError.
+        Then it should exit with code 1.
         """
         mock_file.return_value.read.return_value = "invalid json"
 
-        with pytest.raises(json.JSONDecodeError):
-            update_all_plugins.read_installed_plugins()
+        with patch("builtins.print") as mock_print:
+            with pytest.raises(SystemExit) as excinfo:
+                update_all_plugins.read_installed_plugins()
+
+        assert excinfo.value.code == 1
+        assert any(
+            "Plugins configuration file is not valid JSON" in str(call)
+            for call in mock_print.call_args_list
+        )
+
+    @patch("pathlib.Path.open", new_callable=mock_open)
+    @patch("pathlib.Path.exists", return_value=True)
+    def test_permission_error_on_open(
+        self, mock_exists: MagicMock, mock_file: MagicMock
+    ) -> None:
+        """Scenario: Handling a PermissionError when reading configuration file.
+
+        Given a configuration file exists but is not readable
+        When the read_installed_plugins function is called
+        Then it should exit with code 1.
+        """
+        mock_file.side_effect = PermissionError("permission denied")
+
+        with patch("builtins.print") as mock_print:
+            with pytest.raises(SystemExit) as excinfo:
+                update_all_plugins.read_installed_plugins()
+
+        assert excinfo.value.code == 1
+        assert any(
+            "Could not read plugins configuration file" in str(call)
+            for call in mock_print.call_args_list
+        )
+
+    @patch("pathlib.Path.open", new_callable=mock_open)
+    @patch("pathlib.Path.exists", return_value=True)
+    def test_io_error_on_open(
+        self, mock_exists: MagicMock, mock_file: MagicMock
+    ) -> None:
+        """Scenario: Handling an IOError/OSError when reading configuration file.
+
+        Given a configuration file exists but an I/O error occurs while opening it
+        When the read_installed_plugins function is called
+        Then it should exit with code 1.
+        """
+        mock_file.side_effect = OSError("I/O error")
+
+        with patch("builtins.print") as mock_print:
+            with pytest.raises(SystemExit) as excinfo:
+                update_all_plugins.read_installed_plugins()
+
+        assert excinfo.value.code == 1
+        assert any(
+            "Could not read plugins configuration file" in str(call)
+            for call in mock_print.call_args_list
+        )
 
 
 @pytest.mark.unit
@@ -237,7 +290,7 @@ class TestUpdatePlugin:
         assert old_version == "error"
         assert new_version == "error"
         mock_print.assert_called_with(
-            "[ERROR] Error updating test@marketplace: Unexpected error"
+            "[ERROR] Error updating test@marketplace: Exception: Unexpected error"
         )
 
     @patch("subprocess.run")

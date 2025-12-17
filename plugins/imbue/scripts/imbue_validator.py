@@ -42,25 +42,34 @@ class ImbueValidator:
         # Load plugin configuration
         if self.plugin_config.exists():
             try:
-                json.loads(self.plugin_config.read_text())
+                plugin_config_content = self.plugin_config.read_text()
+                json.loads(plugin_config_content)
+            except (OSError, UnicodeDecodeError) as e:
+                issues.append(
+                    f"Unable to read plugin.json at {self.plugin_config}: {e}"
+                )
+            except json.JSONDecodeError as e:
+                issues.append(f"Invalid plugin.json at line {e.lineno}: {e.msg}")
+            else:
                 # Imbue provides review workflow infrastructure to other plugins
                 evidence_logging_patterns.add("review-workflows")
                 evidence_logging_patterns.add("evidence-logging")
                 evidence_logging_patterns.add("structured-output")
                 evidence_logging_patterns.add("workflow-orchestration")
-            except json.JSONDecodeError:
-                issues.append("Invalid plugin.json")
 
         # Scan skills for review workflow patterns
         for skill_file in self.skill_files:
             skill_name = skill_file.parent.name
             skills_found.add(skill_name)
 
-            content = skill_file.read_text()
+            try:
+                content = skill_file.read_text()
+            except (OSError, UnicodeDecodeError) as e:
+                issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
+                continue
 
             # Check for review workflow patterns
             review_patterns = [
-                r"review",
                 r"workflow",
                 r"evidence",
                 r"structured",
@@ -87,8 +96,12 @@ class ImbueValidator:
         issues: list[str] = []
 
         for skill_file in self.skill_files:
-            content = skill_file.read_text()
             skill_name = skill_file.parent.name
+            try:
+                content = skill_file.read_text()
+            except (OSError, UnicodeDecodeError) as e:
+                issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
+                continue
 
             # Check for review-specific indicators
             if skill_name == "review-core":
@@ -135,7 +148,9 @@ class ImbueValidator:
     def generate_report(self) -> str:
         """Generate comprehensive validation report."""
         result = self.scan_review_workflows()
-        issues = self.validate_review_workflows()
+        issues = list(
+            dict.fromkeys(result["issues"] + self.validate_review_workflows())
+        )
 
         report = ["Imbue Plugin Review Workflow Report", "=" * 50]
         report.append(f"\nPlugin Root: {self.plugin_root}")

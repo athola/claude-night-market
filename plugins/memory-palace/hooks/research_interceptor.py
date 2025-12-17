@@ -113,7 +113,7 @@ def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str,
         )
         return lookup.search(query, mode="unified", min_score=0.0)
     except Exception as e:
-        logger.debug("Failed to search local knowledge: %s", e)
+        logger.warning("research_interceptor: Failed to search local knowledge: %s", e)
         return []
 
 
@@ -502,7 +502,10 @@ def main() -> None:
                 config_level=config.get("autonomy_level")
             )
         except Exception as e:
-            logger.debug("Failed to load autonomy profile: %s", e)
+            logger.warning(
+                "research_interceptor: Failed to load autonomy profile; autonomy governance disabled: %s",
+                e,
+            )
             autonomy_profile = None
             autonomy_store = None
 
@@ -537,7 +540,7 @@ def main() -> None:
                 domains=decision.autonomy_domains or decision.aligned_domains,
             )
         except Exception as e:
-            logger.debug("Failed to record decision: %s", e)
+            logger.warning("research_interceptor: Failed to record decision: %s", e)
 
     response_parts: list[str] = []
     if decision.context:

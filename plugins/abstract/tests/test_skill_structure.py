@@ -46,6 +46,12 @@ class TestSkillDescriptionBestPractices:
             if skill_path.name == "SKILL.md" or skill_path.suffix == ".md":
                 skill_files.append(skill_path)
 
+        if not skill_files:
+            pytest.skip(
+                f"No skill files found under {skills_dir}. "
+                "Skill structure tests require at least one skill markdown file."
+            )
+
         return skill_files
 
     def test_skill_description_includes_what_it_does(self, skill_files) -> None:

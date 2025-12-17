@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 import traceback
+import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
@@ -20,6 +21,14 @@ try:
     import yaml  # type: ignore[import-untyped]
 except ImportError:
     yaml = None  # type: ignore[assignment]
+    warnings.warn(
+        (
+            "PyYAML is not installed; YAML parsing features are disabled. "
+            "Install with: pip install pyyaml"
+        ),
+        category=RuntimeWarning,
+        stacklevel=2,
+    )
 
 
 class ErrorSeverity(Enum):
