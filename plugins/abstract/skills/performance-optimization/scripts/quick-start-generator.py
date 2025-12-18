@@ -196,22 +196,20 @@ class QuickStartGenerator:
             if match:
                 use_text = match.group(1).strip()
                 # Extract bullet points or create them
-                bullets = re.findall(r"[✓✅❌-]\s*(.*?)(?=\n|$)", use_text)
+                bullets = re.findall(r"[OK-]\s*(.*?)(?=\n|$)", use_text)
                 if bullets:
                     for bullet in bullets[:4]:  # Limit to 4 key points
                         cleaned_bullet = re.sub(r"\s+", " ", bullet.strip())
                         if cleaned_bullet:
                             prefix = (
-                                "✅"
-                                if not cleaned_bullet.startswith(("✅", "❌"))
-                                else ""
+                                "" if not cleaned_bullet.startswith(("", "")) else ""
                             )
                             when_to_use_lines.append(f"{prefix} {cleaned_bullet}\n")
                     return when_to_use_lines
 
         # Generate generic when to use
-        when_to_use_lines.append("✅ Common use cases and scenarios\n")
-        when_to_use_lines.append("❌ Not suitable for alternative approaches\n")
+        when_to_use_lines.append(" Common use cases and scenarios\n")
+        when_to_use_lines.append(" Not suitable for alternative approaches\n")
 
         return when_to_use_lines
 

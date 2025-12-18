@@ -325,14 +325,14 @@ class PluginValidator:
         if self.issues["critical"]:
             print(f"{Colors.RED}{Colors.BOLD}Critical Issues:{Colors.END}")
             for issue in self.issues["critical"]:
-                print(f"  {Colors.RED}✗{Colors.END} {issue}")
+                print(f"  {Colors.RED}FAIL{Colors.END} {issue}")
             print()
 
         # Warnings
         if self.issues["warnings"]:
             print(f"{Colors.YELLOW}{Colors.BOLD}Warnings:{Colors.END}")
             for issue in self.issues["warnings"]:
-                print(f"  {Colors.YELLOW}⚠{Colors.END} {issue}")
+                print(f"  {Colors.YELLOW}[WARN]{Colors.END} {issue}")
             print()
 
         # Recommendations
@@ -346,16 +346,16 @@ class PluginValidator:
         if self.issues["info"]:
             print(f"{Colors.GREEN}{Colors.BOLD}Info:{Colors.END}")
             for info in self.issues["info"]:
-                print(f"  {Colors.GREEN}✓{Colors.END} {info}")
+                print(f"  {Colors.GREEN}OK{Colors.END} {info}")
             print()
 
         # Summary
         if not self.issues["critical"] and not self.issues["warnings"]:
-            print(f"{Colors.GREEN}{Colors.BOLD}✓ Plugin validation passed{Colors.END}")
+            print(f"{Colors.GREEN}{Colors.BOLD}OK Plugin validation passed{Colors.END}")
         elif self.issues["critical"]:
-            print(f"{Colors.RED}{Colors.BOLD}✗ Plugin validation failed{Colors.END}")
+            print(f"{Colors.RED}{Colors.BOLD}FAIL Plugin validation failed{Colors.END}")
         else:
-            print(f"{Colors.YELLOW}{Colors.BOLD}⚠ Plugin has warnings{Colors.END}")
+            print(f"{Colors.YELLOW}{Colors.BOLD}[WARN] Plugin has warnings{Colors.END}")
 
 
 def main() -> int:

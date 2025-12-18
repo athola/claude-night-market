@@ -27,9 +27,9 @@ You **MUST** consider the user input before proceeding (if not empty).
      ```text
      | Checklist | Total | Completed | Incomplete | Status |
      |-----------|-------|-----------|------------|--------|
-     | ux.md     | 12    | 12        | 0          | ✓ PASS |
-     | test.md   | 8     | 5         | 3          | ✗ FAIL |
-     | security.md | 6   | 6         | 0          | ✓ PASS |
+     | ux.md     | 12    | 12        | 0          | PASS |
+     | test.md   | 8     | 5         | 3          | FAIL |
+     | security.md | 6   | 6         | 0          | PASS |
      ```
 
    - Calculate overall status:

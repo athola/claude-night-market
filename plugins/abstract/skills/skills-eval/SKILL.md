@@ -60,14 +60,14 @@ A meta-skill for evaluating and improving existing skills. It runs quality asses
 
 **Use this skill when you're evaluating or improving existing skills**
 
-✅ **Perfect for:**
+ **Perfect for:**
 - Systematic quality assessment of existing skills across your entire skill library
 - Generating specific, prioritized improvement recommendations
 - Performance benchmarking and optimization analysis
 - Compliance checking against standards and best practices
 - Advanced tool use evaluation (discovery, calling patterns, context efficiency)
 
-❌ **Don't use when:**
+ **Don't use when:**
 - Creating new skills from scratch (use modular-skills instead)
 - Writing prose for humans (use writing-clearly-and-concisely)
 - Need architectural design patterns (use modular-skills instead)

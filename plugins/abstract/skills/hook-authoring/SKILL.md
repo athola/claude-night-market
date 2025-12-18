@@ -36,7 +36,7 @@ This skill teaches you how to write effective, secure, and performant hooks for 
 
 ### When to Use Hooks
 
-✅ **Perfect for:**
+ **Perfect for:**
 - Validating tool inputs against security policies or conventions
 - Logging operations for audit trails or debugging
 - Injecting additional context before user prompts
@@ -44,7 +44,7 @@ This skill teaches you how to write effective, secure, and performant hooks for 
 - Transforming tool outputs for downstream consumption
 - Preventing dangerous operations in production environments
 
-❌ **Don't use when:**
+ **Don't use when:**
 - The logic should be in the core skill (hooks are for cross-cutting concerns)
 - You need complex multi-step workflows (use Skills or Agents instead)
 - The behavior is better suited for a custom tool

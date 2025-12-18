@@ -403,12 +403,12 @@ class ModuleLoader:
 
 ## Anti-Patterns
 
-**❌ Eager Loading Everything**: Defeats progressive loading purpose
-**❌ Complex Load Logic**: If loading is hard to debug, simplify
-**❌ Ignoring Dependencies**: Load dependencies before dependents
-**❌ No Unloading**: Memory/context grows unbounded
-**❌ Silent Load Failures**: User should know if module unavailable
-**❌ Circular Dependencies**: Modules should form DAG, not cycles
+**Eager Loading Everything**: Defeats progressive loading purpose
+**Complex Load Logic**: If loading is hard to debug, simplify
+**Ignoring Dependencies**: Load dependencies before dependents
+**No Unloading**: Memory/context grows unbounded
+**Silent Load Failures**: User should know if module unavailable
+**Circular Dependencies**: Modules should form DAG, not cycles
 
 ## Integration Examples
 

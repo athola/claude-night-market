@@ -468,14 +468,14 @@ if ./hooks/scripts/validate.sh; then
     echo "ERROR: Dangerous command should be blocked"
     exit 1
 else
-    echo "✓ Dangerous command blocked"
+    echo "[OK] Dangerous command blocked"
 fi
 
 # Test safe command
 export CLAUDE_TOOL_INPUT='{"command": "ls -la"}'
 
 if ./hooks/scripts/validate.sh; then
-    echo "✓ Safe command allowed"
+    echo "[OK] Safe command allowed"
 else
     echo "ERROR: Safe command should be allowed"
     exit 1
@@ -587,7 +587,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "✓ Hook tests passed"
+echo "[OK] Hook tests passed"
 ```
 
 ### CI/CD Pipeline

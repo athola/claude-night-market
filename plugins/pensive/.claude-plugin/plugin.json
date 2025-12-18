@@ -30,8 +30,8 @@
   ],
   "keywords": ["review", "code-quality", "architecture", "testing", "analysis", "rust", "api", "bugs", "audit"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

@@ -100,7 +100,7 @@ image:
 
 ## Anti-Patterns to Avoid
 
-### ❌ Repeated Commands
+### Repeated Commands
 ```makefile
 # Bad - duplicated logic
 test-unit:
@@ -114,7 +114,7 @@ test-%:
 	pytest tests/$*
 ```
 
-### ❌ Missing PHONY
+### Missing PHONY
 ```makefile
 # Bad - 'clean' file blocks target
 clean:
@@ -126,7 +126,7 @@ clean:
 	rm -rf build/
 ```
 
-### ❌ Hardcoded Paths
+### Hardcoded Paths
 ```makefile
 # Bad - not portable
 clean:
@@ -138,7 +138,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 ```
 
-### ❌ Shell-Specific Commands
+### Shell-Specific Commands
 ```makefile
 # Bad - Bash-only
 check:
@@ -149,7 +149,7 @@ check:
 	[ -f config.yaml ] && echo "Found"
 ```
 
-### ❌ Unguarded Variable References
+### Unguarded Variable References
 ```makefile
 # Bad - fails if undefined
 clean:
@@ -161,7 +161,7 @@ clean:
 	rm -rf $(BUILD_DIR)
 ```
 
-### ❌ Non-Idempotent Targets
+### Non-Idempotent Targets
 ```makefile
 # Bad - appends every time
 configure:

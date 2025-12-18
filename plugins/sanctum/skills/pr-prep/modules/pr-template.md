@@ -154,23 +154,23 @@ For security-related changes:
 ## Best Practices for PR Descriptions
 
 ### Do's
-- ✅ Be concise but complete
-- ✅ Focus on "why" not just "what"
-- ✅ Use bullet points for scannability
-- ✅ Include actual commands and results
-- ✅ Link to relevant issues
-- ✅ Highlight breaking changes prominently
-- ✅ Use code blocks for examples
-- ✅ Group related changes together
+- Be concise but complete
+- Focus on "why" not just "what"
+- Use bullet points for scannability
+- Include actual commands and results
+- Link to relevant issues
+- Highlight breaking changes prominently
+- Use code blocks for examples
+- Group related changes together
 
 ### Don'ts
-- ❌ Include AI/tool attribution
-- ❌ Copy-paste entire file diffs
-- ❌ Use vague descriptions
-- ❌ Skip testing documentation
-- ❌ Hide breaking changes in middle of list
-- ❌ Include work-in-progress notes
-- ❌ Reference internal tool commands unless relevant
+- Include AI/tool attribution
+- Copy-paste entire file diffs
+- Use vague descriptions
+- Skip testing documentation
+- Hide breaking changes in middle of list
+- Include work-in-progress notes
+- Reference internal tool commands unless relevant
 
 ## Template Variations
 

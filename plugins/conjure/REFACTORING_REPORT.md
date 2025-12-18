@@ -139,14 +139,14 @@ estimate_tokens_from_gemini_command = _quota_tracker.estimate_tokens_from_gemini
 
 All functionality verified:
 
-1. ✅ Instantiation with default and custom limits
-2. ✅ Quota status checking (`get_quota_status()`)
-3. ✅ Request recording (`record_request()`)
-4. ✅ Task capacity checking (`can_handle_task()`)
-5. ✅ Token estimation (`estimate_task_tokens()`)
-6. ✅ Gemini command parsing (`estimate_tokens_from_gemini_command()`)
-7. ✅ File-based token estimation
-8. ✅ Hook import patterns
+1. Instantiation with default and custom limits
+2. Quota status checking (`get_quota_status()`)
+3. Request recording (`record_request()`)
+4. Task capacity checking (`can_handle_task()`)
+5. Token estimation (`estimate_task_tokens()`)
+6. Gemini command parsing (`estimate_tokens_from_gemini_command()`)
+7. File-based token estimation
+8. Hook import patterns
 
 ### CLI Tests
 
@@ -255,11 +255,11 @@ Not in base class:
 
 The refactoring successfully:
 
-- ✅ Reduced code by 32 lines (11.1%)
-- ✅ Eliminated 11 duplicate methods
-- ✅ Maintained 100% backward compatibility
-- ✅ Preserved all Gemini-specific features
-- ✅ Enabled code reuse across plugins
-- ✅ Improved maintainability and testability
+- Reduced code by 32 lines (11.1%)
+- Eliminated 11 duplicate methods
+- Maintained 100% backward compatibility
+- Preserved all Gemini-specific features
+- Enabled code reuse across plugins
+- Improved maintainability and testability
 
 All tests pass, hooks work correctly, and the CLI interface remains functional.

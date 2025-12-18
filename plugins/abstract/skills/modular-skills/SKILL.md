@@ -97,14 +97,14 @@ python scripts/abstract_validator.py --fix --dry-run
 
 **Use this skill when you're designing or restructuring skills**
 
-✅ **Perfect for:**
+ **Perfect for:**
 - Creating new skills that will be >150 lines or cover multiple distinct topics
 - Breaking down complex, monolithic skills into focused, maintainable modules
 - Planning skill architecture with predictable token usage
 - Refactoring overlapping skills into clear, single-responsibility modules
 - Architecture reviews and maintainability planning
 
-❌ **Don't use when:**
+ **Don't use when:**
 - Just evaluating existing skill quality (use skills-eval instead)
 - Writing prose for humans (use writing-clearly-and-concisely)
 - Need specific improvement recommendations (use skills-eval's improvement-suggester)

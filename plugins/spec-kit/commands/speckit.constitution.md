@@ -48,7 +48,7 @@ Follow this execution flow:
    - List of modified principles (old title → new title if renamed)
    - Added sections
    - Removed sections
-   - Templates requiring updates (✅ updated / ⚠ pending) with file paths
+   - Templates requiring updates (updated / pending) with file paths
    - Follow-up TODOs if any placeholders intentionally deferred.
 
 6. Validation before final output:

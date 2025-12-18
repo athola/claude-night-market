@@ -460,7 +460,7 @@ class TestGitHubIntegrationWorkflow:
         lines = github_comment.split("\n")
 
         # Verify header
-        assert lines[0] == "### 🗂️ Initiative Pulse"
+        assert lines[0] == "### Initiative Pulse"
         assert "Last updated:" in lines[1]
 
         # Verify table headers present
@@ -484,7 +484,7 @@ class TestGitHubIntegrationWorkflow:
         assert "0 |" in pr_row  # 0 in progress
 
         # Verify overall metrics section
-        assert "### 📊 Overall Metrics" in github_comment
+        assert "### Overall Metrics" in github_comment
         assert "- Total tasks: 3" in github_comment
         assert "- Completion:" in github_comment
         assert "- Total effort:" in github_comment
@@ -769,7 +769,7 @@ class TestCrossScenarioWorkflow:
         github_comment = empty_tracker.format_github_comment(mid_sprint_report)
         assert "Initiative A" in github_comment
         assert "100.0%" in github_comment
-        assert "### 📊 Overall Metrics" in github_comment
+        assert "### Overall Metrics" in github_comment
 
         # PHASE 5: Stakeholder CSV Export
         # ---------------------------------

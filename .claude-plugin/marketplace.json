@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal Claude Code plugin collection: architecture patterns, intelligent delegation, resource optimization, code review, and spatial memory systems",
-    "version": "1.0.0"
+    "version": "1.0.2"
   },
   "plugins": [
     {
@@ -50,6 +50,12 @@
       "source": "./plugins/memory-palace",
       "description": "Spatial memory techniques based on Matteo Ricci's method of loci for enhanced knowledge organization",
       "version": "1.0.0"
+    },
+    {
+      "name": "minister",
+      "source": "./plugins/minister",
+      "description": "Project management plugin that aligns initiatives with GitHub data - turns repositories, issues, and projects into status dashboards",
+      "version": "1.0.1"
     },
     {
       "name": "parseltongue",

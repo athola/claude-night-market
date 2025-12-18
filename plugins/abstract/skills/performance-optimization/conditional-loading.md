@@ -174,9 +174,9 @@ estimated_tokens: 280
 Break complex skills into focused, maintainable modules.
 
 ## When to Use
-✅ Creating skills >150 lines
-✅ Multiple distinct topics in one skill
-✅ Planning skill architecture
+ Creating skills >150 lines
+ Multiple distinct topics in one skill
+ Planning skill architecture
 
 ## Quick Usage
 ```bash

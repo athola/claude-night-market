@@ -217,7 +217,7 @@ Claude: **Phase 2: Executing**
 Created: docs/api-overview.md (1,247 bytes)
 Created: docs/plans/2025-12-06-api-consistency.md (892 bytes)
 Created: docs/adr/0002-2025-12-06-cli-naming.md (634 bytes)
-Deleted: API_REVIEW_REPORT.md ✓
+Deleted: API_REVIEW_REPORT.md
 
 Consolidation complete. Review the created files and commit when ready.
 ```

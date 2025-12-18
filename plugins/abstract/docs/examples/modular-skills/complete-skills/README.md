@@ -242,33 +242,33 @@ git checkout -b develop
 Running the comparison analysis shows:
 
 ```
-📊 TOKEN COMPARISON REPORT
+ TOKEN COMPARISON REPORT
 ============================================================
 
-📁 Files Analyzed:
+Files Analyzed:
   Monolithic: 1 file
   Modular: 7 files (5 modules + 1 hub + 1 tool)
 
-🔢 Token Usage:
+Token Usage:
   Monolithic: 850 tokens
   Modular: 645 tokens
   Savings: 205 tokens
   Reduction: 24.1%
 
-🎯 Usage Scenarios:
+ Usage Scenarios:
   Loading only hub for overview: 45 tokens (94.7% reduction)
   Hub + single module: ~165 tokens (80.6% reduction)
   Common workflow (hub + 3 modules): ~510 tokens (40.0% reduction)
 
-📈 Quality Metrics:
+Quality Metrics:
   Modularity Score: 6/10
   Reusability Score: 10/20
   Maintainability Score: 7/15
 
-💡 Efficiency Recommendations:
-  ✅ Good token efficiency improvement
-  ✅ Strong modularity with focused components
-  ⚠️  Consider adding more specialized tools
+ Efficiency Recommendations:
+   Good token efficiency improvement
+   Strong modularity with focused components
+  [WARN]  Consider adding more specialized tools
 ```
 
 ## Migration Process

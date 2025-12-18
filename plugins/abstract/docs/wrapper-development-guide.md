@@ -142,19 +142,19 @@ Uses these modules:
 ## Best Practices
 
 ### DO
-- ✅ Keep wrappers focused and simple
-- ✅ Always declare dependencies
-- ✅ Use clear delegation language
-- ✅ Provide domain-specific context
-- ✅ Include usage examples
-- ✅ Maintain token efficiency
+-  Keep wrappers focused and simple
+-  Always declare dependencies
+-  Use clear delegation language
+-  Provide domain-specific context
+-  Include usage examples
+-  Maintain token efficiency
 
 ### DON'T
-- ❌ Duplicate module functionality
-- ❌ Create deep dependency chains
-- ❌ Override module behavior without clear reason
-- ❌ Include implementation details
-- ❌ Make wrappers overly complex
+-  Duplicate module functionality
+-  Create deep dependency chains
+-  Override module behavior without clear reason
+-  Include implementation details
+-  Make wrappers overly complex
 
 ## Migration Examples
 

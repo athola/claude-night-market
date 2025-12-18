@@ -154,10 +154,10 @@ class SecureValidationHooks(AgentHooks):
 Always use parameterized approaches instead of string concatenation:
 
 ```python
-# ❌ UNSAFE: String concatenation
+#  UNSAFE: String concatenation
 command = f"grep {user_pattern} {file_path}"  # Injection risk!
 
-# ✅ SAFE: Parameterized execution
+#  SAFE: Parameterized execution
 import shlex
 safe_command = ["grep", user_pattern, file_path]
 ```
@@ -536,12 +536,12 @@ Before deploying hooks, verify:
 ### Vulnerability: Secret in Logs
 
 ```python
-# ❌ VULNERABLE
+#  VULNERABLE
 async def on_post_tool_use(self, tool_name: str, tool_input: dict, tool_output: str) -> str | None:
     print(f"Tool output: {tool_output}")  # May contain secrets!
     return None
 
-# ✅ SECURE
+#  SECURE
 async def on_post_tool_use(self, tool_name: str, tool_input: dict, tool_output: str) -> str | None:
     safe_output = self._sanitize_secrets(tool_output)
     print(f"Tool output: {safe_output}")
@@ -551,14 +551,14 @@ async def on_post_tool_use(self, tool_name: str, tool_input: dict, tool_output: 
 ### Vulnerability: Path Traversal
 
 ```python
-# ❌ VULNERABLE
+#  VULNERABLE
 async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
     file_path = tool_input.get("file_path")
     if "/etc" in file_path:  # Insufficient check!
         raise ValueError("Cannot access /etc")
     return None
 
-# ✅ SECURE
+#  SECURE
 async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
     file_path = Path(tool_input.get("file_path")).resolve()
     if not self._is_path_allowed(file_path):
@@ -569,10 +569,10 @@ async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None
 ### Vulnerability: Command Injection
 
 ```python
-# ❌ VULNERABLE
+#  VULNERABLE
 command = f"grep {user_input} file.txt"  # Injection risk!
 
-# ✅ SECURE
+#  SECURE
 import shlex
 command = ["grep", user_input, "file.txt"]
 ```

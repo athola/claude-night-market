@@ -20,8 +20,8 @@
   ],
   "keywords": ["python", "testing", "pytest", "performance", "optimization", "async", "asyncio", "packaging", "uv", "profiling"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

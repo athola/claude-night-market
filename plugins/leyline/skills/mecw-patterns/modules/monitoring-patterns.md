@@ -293,10 +293,10 @@ class MECWAlerting:
     def emit_alert(self, level, message):
         """Emit alert based on severity."""
         icons = {
-            'LOW': 'ℹ️',
-            'MODERATE': '⚠️',
-            'HIGH': '🔶',
-            'CRITICAL': '🚨'
+            'LOW': '[INFO]',
+            'MODERATE': '[WARN]',
+            'HIGH': '[HIGH]',
+            'CRITICAL': '[CRIT]'
         }
         print(f"{icons[level]} {level}: {message}")
 ```
@@ -319,14 +319,14 @@ class ProgressReporter:
         print(f"Safe Budget: {self.mecw.get_safe_budget():,} tokens")
 
         if status.warnings:
-            print("\n⚠️  Warnings:")
+            print("\nWarnings:")
             for warning in status.warnings:
-                print(f"  • {warning}")
+                print(f"  - {warning}")
 
         if status.recommendations:
-            print("\n💡 Recommendations:")
+            print("\nRecommendations:")
             for rec in status.recommendations:
-                print(f"  • {rec}")
+                print(f"  - {rec}")
 
         print("=" * 30 + "\n")
 ```

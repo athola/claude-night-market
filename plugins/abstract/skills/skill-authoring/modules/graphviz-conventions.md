@@ -6,14 +6,14 @@ Process diagrams help visualize skill workflows, decision trees, and error handl
 
 ## When to Include Diagrams
 
-✅ **Use diagrams for:**
+ **Use diagrams for:**
 - Complex decision trees (3+ decision points)
 - Multi-step workflows with branches
 - Error handling flows
 - State transitions
 - Tool orchestration sequences
 
-❌ **Skip diagrams for:**
+ **Skip diagrams for:**
 - Simple linear workflows (just use numbered lists)
 - Single decision points
 - Purely conceptual relationships (use tables instead)
@@ -527,31 +527,31 @@ dot -Tpdf workflow.dot -o workflow.pdf
 
 ## Anti-Patterns
 
-### ❌ Overly Complex Diagrams
+###  Overly Complex Diagrams
 
 **Problem**: Too many nodes, hard to follow
 
 **Solution**: Break into multiple focused diagrams or use hierarchical grouping
 
-### ❌ Missing Labels
+###  Missing Labels
 
 **Problem**: Unlabeled edges in complex flows
 
 **Solution**: Always label decision edges, optional for obvious sequences
 
-### ❌ Inconsistent Shapes
+###  Inconsistent Shapes
 
 **Problem**: Using box for both questions and actions
 
 **Solution**: Follow shape conventions consistently
 
-### ❌ Decoration-Only Diagrams
+###  Decoration-Only Diagrams
 
 **Problem**: Diagram doesn't add information beyond text
 
 **Solution**: Only include diagrams that clarify complex flows
 
-### ❌ Unreadable Text
+###  Unreadable Text
 
 **Problem**: Font too small or labels too long
 

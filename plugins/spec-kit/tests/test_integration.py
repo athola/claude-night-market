@@ -285,21 +285,21 @@ class TestSpeckitIntegration:
 
             # Specification-based items
             if "## Overview" in sample_spec_content:
-                checklist_items.append("✓ Specification overview created")
+                checklist_items.append("[OK] Specification overview created")
             if "## Functional Requirements" in sample_spec_content:
-                checklist_items.append("✓ Functional requirements defined")
+                checklist_items.append("[OK] Functional requirements defined")
             if "## Success Criteria" in sample_spec_content:
-                checklist_items.append("✓ Success criteria established")
+                checklist_items.append("[OK] Success criteria established")
 
             # Task-based items
             checklist_items.append(
-                f"✓ {len(completed_tasks)}/{total_tasks} tasks completed",
+                f"[OK] {len(completed_tasks)}/{total_tasks} tasks completed",
             )
 
             # Progress-based items
             completion_percentage = (len(completed_tasks) / total_tasks) * 100
             checklist_items.append(
-                f"✓ {completion_percentage:.1f}% implementation complete",
+                f"[OK] {completion_percentage:.1f}% implementation complete",
             )
 
             # Validate checklist

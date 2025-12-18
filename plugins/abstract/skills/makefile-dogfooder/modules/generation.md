@@ -30,9 +30,9 @@ demo: ## Run plugin demonstration
 demo-features: ## Demonstrate plugin features
 	@echo "=== $(PLUGIN_NAME) Feature Demo ==="
 	@echo "Plugin capabilities:"
-	@echo "  ✓ Feature 1: $(FEATURE_1_DESC)"
-	@echo "  ✓ Feature 2: $(FEATURE_2_DESC)"
-	@echo "  ✓ Feature 3: $(FEATURE_3_DESC)"
+	@echo "  - Feature 1: $(FEATURE_1_DESC)"
+	@echo "  - Feature 2: $(FEATURE_2_DESC)"
+	@echo "  - Feature 3: $(FEATURE_3_DESC)"
 	@echo ""
 	@echo "Running feature demonstrations..."
 	@echo "Demo complete."
@@ -52,8 +52,8 @@ plugin-check: ## Run plugin self-validation
 	@echo "Tests:  $$(find tests/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo ""
 	@echo "Checking dependencies..."
-	@test -f pyproject.toml && echo "  ✓ pyproject.toml" || echo "  ✗ Missing pyproject.toml"
-	@test -f uv.lock && echo "  ✓ uv.lock" || echo "  ✗ Missing uv.lock"
+	@test -f pyproject.toml && echo "  OK pyproject.toml" || echo "  MISSING pyproject.toml"
+	@test -f uv.lock && echo "  OK uv.lock" || echo "  MISSING uv.lock"
 	@echo ""
 	@echo "Plugin check complete."
 ```
@@ -84,9 +84,9 @@ quick-status: ## Quick project status
 ```makefile
 quick-validate: ## Quick validation check
 	@echo "Validating $(PLUGIN_NAME)..."
-	@test -f pyproject.toml || { echo "✗ Missing pyproject.toml"; exit 1; }
-	@test -d skills/ || { echo "✗ Missing skills/ directory"; exit 1; }
-	@echo "✓ Basic structure valid"
+	@test -f pyproject.toml || { echo "MISSING pyproject.toml"; exit 1; }
+	@test -d skills/ || { echo "MISSING skills/ directory"; exit 1; }
+	@echo "OK - Basic structure valid"
 ```
 
 ## Plugin Type Patterns
@@ -143,7 +143,7 @@ quick-status: ## Quick status check
 	@echo "$(PLUGIN_NAME): $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l) skills"
 
 quick-validate: ## Quick validation
-	@test -f pyproject.toml && echo "✓ $(PLUGIN_NAME) structure valid"
+	@test -f pyproject.toml && echo "OK - $(PLUGIN_NAME) structure valid"
 ```
 
 ### Aggregator Plugin Templates
@@ -422,9 +422,9 @@ demo: ## Run plugin demonstration
 demo-advanced: ## Demonstrate advanced features
 	@echo "=== MyPlugin Advanced Demo ==="
 	@echo "Advanced capabilities:"
-	@echo "  ✓ Batch processing of multiple files"
-	@echo "  ✓ Real-time progress monitoring"
-	@echo "  ✓ Export to multiple formats"
+	@echo "  - Batch processing of multiple files"
+	@echo "  - Real-time progress monitoring"
+	@echo "  - Export to multiple formats"
 
 plugin-check: demo demo-advanced ## Run plugin validation
 	@echo ""
@@ -432,9 +432,9 @@ plugin-check: demo demo-advanced ## Run plugin validation
 
 quick-validate: ## Quick validation check
 	@echo "Validating MyPlugin..."
-	@test -f pyproject.toml || { echo "✗ Missing pyproject.toml"; exit 1; }
-	@test -d skills/ || { echo "✗ Missing skills/ directory"; exit 1; }
-	@echo "✓ MyPlugin structure valid"
+	@test -f pyproject.toml || { echo "MISSING pyproject.toml"; exit 1; }
+	@test -d skills/ || { echo "MISSING skills/ directory"; exit 1; }
+	@echo "OK - MyPlugin structure valid"
 ```
 
 ## Best Practices
@@ -454,7 +454,7 @@ quick-validate: ## Quick validation check
 ### 3. Output Formatting
 
 - Use consistent section headers (`=== ===`)
-- Include status indicators (`✓` and `✗`)
+- Include status indicators (OK and FAIL/MISSING)
 - Provide summary messages
 
 ### 4. Customization Points

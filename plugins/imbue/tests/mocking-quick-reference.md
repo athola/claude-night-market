@@ -105,14 +105,14 @@ assert call("arg") in mock.call_args_list
 
 ## Best Practices
 
-✅ **DO**
+**DO**
 - Use `MagicMock` with `name=` parameter
 - Use fixtures from conftest.py
 - Use `side_effect=` for sequences
 - Add `spec=` when practical
 - Document custom mocks
 
-❌ **DON'T**
+**DON'T**
 - Use `Mock()` without a name
 - Create duplicate mock setups
 - Use direct assignment for sequential values

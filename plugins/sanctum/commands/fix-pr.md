@@ -129,7 +129,7 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
    mutation {
      addPullRequestReviewThreadReply(input: {
        pullRequestReviewThreadId: "PRRT_kwDOxxxxxx"
-       body: "✅ Fixed - added input validation for slug parameter. Rejects injection characters."
+       body: "Fixed - added input validation for slug parameter. Rejects injection characters."
      }) {
        comment { id }
      }
@@ -137,15 +137,15 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
    ```
 
    **Reply format requirements:**
-   - Use ✅ prefix for fixed items
+   - Use "Fixed" prefix for fixed items
    - Briefly describe what was changed
    - Reference the file/line if helpful
    - Keep it concise (1-2 sentences)
 
    **Common mistakes to avoid:**
-   - ❌ Do NOT use `addPullRequestReviewComment` - it lacks thread support
-   - ❌ Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
-   - ✅ Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
+   - Do NOT use `addPullRequestReviewComment` - it lacks thread support
+   - Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
+   - Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
 
 10. **Resolve the Thread**
     After replying, resolve the thread:
@@ -303,11 +303,11 @@ After fixes are applied and committed:
 
 | Thread ID | File | Status | Action |
 |-----------|------|--------|--------|
-| PRRT_abc123 | api.py:45 | ✅ Replied + Resolved | "Fixed in a1b2c3d" |
-| PRRT_def456 | utils.py:87 | ✅ Replied + Resolved | "Fixed in a1b2c3d" |
-| PRRT_ghi789 | models.py:23 | ✅ Replied + Resolved | "Fixed in a1b2c3d" |
-| PRRT_jkl012 | views.py:156 | ⏭️ Skipped (suggestion) | Author discretion |
-| PRRT_mno345 | config.py:10 | 📋 Created Issue #234 | Out of scope |
+| PRRT_abc123 | api.py:45 | Replied + Resolved | "Fixed in a1b2c3d" |
+| PRRT_def456 | utils.py:87 | Replied + Resolved | "Fixed in a1b2c3d" |
+| PRRT_ghi789 | models.py:23 | Replied + Resolved | "Fixed in a1b2c3d" |
+| PRRT_jkl012 | views.py:156 | Skipped (suggestion) | Author discretion |
+| PRRT_mno345 | config.py:10 | Created Issue #234 | Out of scope |
 
 **Summary:**
 - 3 threads replied to and resolved
@@ -438,7 +438,7 @@ Solution: Pull latest, resolve conflicts, re-run the command
 **Problem:** Using `$()` substitution inside `gh api` commands causes shell syntax errors.
 
 ```bash
-# ❌ This FAILS with syntax errors
+# WRONG - This FAILS with syntax errors
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 gh api repos/$REPO/pulls/40/comments  # Breaks due to escaping issues
 ```
@@ -446,7 +446,7 @@ gh api repos/$REPO/pulls/40/comments  # Breaks due to escaping issues
 **Solution:** Get repo info separately, then use literal values:
 
 ```bash
-# ✅ This works - get info first, then use literals
+# CORRECT - get info first, then use literals
 gh repo view --json nameWithOwner -q .nameWithOwner
 # Returns: owner/repo
 
@@ -459,7 +459,7 @@ gh api repos/owner/repo/pulls/40/comments
 **Problem:** `addPullRequestReviewComment` mutation doesn't accept `pullRequestReviewThreadId`.
 
 ```bash
-# ❌ This FAILS
+# WRONG - This FAILS
 gh api graphql -f query='
 mutation {
   addPullRequestReviewComment(input: {
@@ -472,7 +472,7 @@ mutation {
 **Solution:** Use `addPullRequestReviewThreadReply` instead:
 
 ```bash
-# ✅ This works
+# CORRECT - This works
 gh api graphql -f query='
 mutation {
   addPullRequestReviewThreadReply(input: {

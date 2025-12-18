@@ -161,7 +161,7 @@ main() {
     # Final verdict
     if [[ $has_red == true ]]; then
         echo ""
-        printf "${RED}🛑 SCOPE GUARD: RED ZONE${NC}\n"
+        printf "${RED}SCOPE GUARD: RED ZONE${NC}\n"
         echo ""
         echo "Branch exceeds thresholds. Required before PR:"
         echo "  1. Document why scope expanded"
@@ -180,7 +180,7 @@ main() {
 
     elif [[ $has_yellow == true ]]; then
         echo ""
-        printf "${YELLOW}⚠️  SCOPE GUARD: YELLOW ZONE${NC}\n"
+        printf "${YELLOW}SCOPE GUARD: YELLOW ZONE${NC}\n"
         echo ""
         echo "Branch approaching thresholds. Before continuing:"
         echo "  1. Does this still match the original scope?"
@@ -191,7 +191,7 @@ main() {
 
     else
         echo ""
-        printf "${GREEN}✓ SCOPE GUARD: GREEN ZONE${NC}\n"
+        printf "${GREEN}SCOPE GUARD: GREEN ZONE${NC}\n"
         echo ""
         echo "All metrics within acceptable limits. Proceed with PR."
         echo ""

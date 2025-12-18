@@ -125,8 +125,8 @@ done
 
 ### Test-to-Feature Mapping
 - Feature: User registration → `tests/test_registration.py` (95%)
-- Feature: Password reset → `tests/test_auth.py` (60%) ⚠️
-- Feature: Email validation → Missing tests ❌
+- Feature: Password reset → `tests/test_auth.py` (60%) [WARN]
+- Feature: Email validation → Missing tests [FAIL]
 ```
 
 ## Best Practices

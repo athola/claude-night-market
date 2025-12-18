@@ -5,7 +5,7 @@ Use these markdown snippets with `tracker.py status --github-comment` output for
 ## Initiative Scorecard
 
 ```
-| Initiative | ✅ Done | 🧱 Blockers | 🔁 Next |
+| Initiative | Done | Blockers | Next |
 |------------|---------|-------------|--------|
 | <Name> | <count> | <issue links> | <key tasks> |
 ```
@@ -26,8 +26,8 @@ Use these markdown snippets with `tracker.py status --github-comment` output for
 
 ```
 ### PRs awaiting review
-- #1234 Ready for Docs ✅
-- #5678 Needs Performance Sign-off ⚠️
+- #1234 Ready for Docs
+- #5678 Needs Performance Sign-off
 ```
 
 ## Discussion Template

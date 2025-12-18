@@ -63,13 +63,13 @@ We use consistent naming patterns for our skills and modules to make them more d
 - **Directories**: `skills/skill-name/scripts/`
 
 **Examples**:
-✅ `skills/modular-skills/modules/design-patterns.md`
-✅ `scripts/skill_analyzer.py`
-✅ `skills/api-scaffolding/scripts/backend-generator`
+ `skills/modular-skills/modules/design-patterns.md`
+ `scripts/skill_analyzer.py`
+ `skills/api-scaffolding/scripts/backend-generator`
 
-❌ `skills/ModularSkill/module/DesignPatterns`
-❌ `skills/skill-name/Scripts/analyzer`
-❌ `random_module_file.md`
+ `skills/ModularSkill/module/DesignPatterns`
+ `skills/skill-name/Scripts/analyzer`
+ `random_module_file.md`
 
 ### Tool Integration
 We believe that the most powerful skills are those that integrate with tools to automate tasks.

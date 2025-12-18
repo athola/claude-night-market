@@ -5,6 +5,7 @@
   "commands": [
     "./commands/catchup.md",
     "./commands/commit-msg.md",
+    "./commands/fix-issue.md",
     "./commands/fix-workflow.md",
     "./commands/fix-pr.md",
     "./commands/merge-docs.md",
@@ -41,8 +42,8 @@
   ],
   "keywords": ["git", "workspace", "commit", "pr", "documentation", "version", "changelog", "conventional-commits"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

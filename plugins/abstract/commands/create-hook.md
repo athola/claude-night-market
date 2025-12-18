@@ -113,12 +113,12 @@ Before scaffolding, validate security considerations:
 
 ```
 Security Checklist:
-  ☐ Input validation for all payload fields
-  ☐ No shell injection vulnerabilities
-  ☐ No path traversal vulnerabilities
-  ☐ Timeout configured appropriately
-  ☐ Error handling doesn't leak secrets
-  ☐ Logging doesn't capture sensitive data
+  [ ] Input validation for all payload fields
+  [ ] No shell injection vulnerabilities
+  [ ] No path traversal vulnerabilities
+  [ ] Timeout configured appropriately
+  [ ] Error handling doesn't leak secrets
+  [ ] Logging doesn't capture sensitive data
 ```
 
 ### Phase 3: Create Hook Structure
@@ -222,10 +222,10 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/hooks_eval/hook_analyzer.py \
 Output:
 ```
 Validation Results:
-  ✓ Hook structure valid
-  ✓ Security checks passed
-  ✓ Timeout configured
-  ⚠ Consider adding unit tests
+  OK Hook structure valid
+  OK Security checks passed
+  OK Timeout configured
+  [WARN] Consider adding unit tests
 
 Status: READY FOR TESTING
 ```
@@ -235,7 +235,7 @@ Status: READY FOR TESTING
 Provides testing instructions:
 
 ```
-✓ Hook scaffolding complete: hooks/${hook_name}.py
+OK Hook scaffolding complete: hooks/${hook_name}.py
 
 Next Steps:
 
@@ -279,9 +279,9 @@ Brainstorming questions:
   A: Warn only - add context message
 
 Created:
-  ✓ hooks/deployment-warner.py (45 lines)
-  ✓ hooks/hooks.json (updated)
-  ✓ tests/hooks/test_deployment_warner.py
+  OK hooks/deployment-warner.py (45 lines)
+  OK hooks/hooks.json (updated)
+  OK tests/hooks/test_deployment_warner.py
 
 Security: PASSED
 Next: Test manually, then reload Claude Code
@@ -303,9 +303,9 @@ Design decisions:
   - Non-blocking (fire and forget)
 
 Created:
-  ✓ hooks/file-audit-logger.py (78 lines)
-  ✓ hooks/shared/audit_utils.py (42 lines)
-  ✓ hooks/hooks.json (updated)
+  OK hooks/file-audit-logger.py (78 lines)
+  OK hooks/shared/audit_utils.py (42 lines)
+  OK hooks/hooks.json (updated)
 
 Security: PASSED (1 warning about log rotation)
 ```
@@ -320,7 +320,7 @@ Event: PreToolUse
 Type: Declarative (JSON only)
 
 Created:
-  ✓ hooks/hooks.json (updated with inline config)
+  OK hooks/hooks.json (updated with inline config)
 
 No script needed - pure JSON configuration
 ```

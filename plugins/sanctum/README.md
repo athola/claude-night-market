@@ -39,6 +39,7 @@ Or reference directly from the marketplace:
 |---------|-------------|
 | `/catchup` | Git repository catchup with imbue methodology |
 | `/commit-msg` | Draft conventional commit message |
+| `/fix-issue` | Fix GitHub issues using subagent-driven-development with parallel execution |
 | `/fix-workflow` | Retrospective to improve the most recent workflow slice |
 | `/fix-pr` | Address PR review comments, implement fixes, resolve threads |
 | `/pr` | Prepare PR description with quality gates |
@@ -150,6 +151,7 @@ sanctum/
 ├── commands/
 │   ├── catchup.md
 │   ├── commit-msg.md
+│   ├── fix-issue.md
 │   ├── fix-workflow.md
 │   ├── fix-pr.md
 │   ├── merge-docs.md

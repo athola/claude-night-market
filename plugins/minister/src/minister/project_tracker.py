@@ -192,7 +192,7 @@ class ProjectTracker:
         """Render a markdown snippet suitable for GitHub issues/PRs."""
         report = report or self.get_status_report()
         lines = [
-            "### 🗂️ Initiative Pulse",
+            "### Initiative Pulse",
             f"Last updated: {report['last_updated']}",
             "",
             "| Initiative | Done | In Progress | Completion | Avg Task % |",
@@ -212,7 +212,7 @@ class ProjectTracker:
         lines.extend(
             [
                 "",
-                "### 📊 Overall Metrics",
+                "### Overall Metrics",
                 f"- Total tasks: {overall['total_tasks']}",
                 f"- Completion: {overall['overall_completion']}%",
                 f"- Total effort: {overall['total_effort']}h",

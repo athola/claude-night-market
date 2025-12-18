@@ -312,7 +312,7 @@ load_essential_context(checkpoint)
 
 ## Anti-Patterns to Avoid
 
-### ❌ Loading Everything Upfront
+### Loading Everything Upfront
 
 ```python
 # Bad: Load entire codebase
@@ -328,7 +328,7 @@ for file in relevant_files[:5]:  # Top 5 most relevant
     analyze_file(file)
 ```
 
-### ❌ Ignoring Growth Trends
+### Ignoring Growth Trends
 
 ```python
 # Bad: No monitoring
@@ -347,7 +347,7 @@ for i in range(100):
     execute_operation(i)
 ```
 
-### ❌ Reactive Optimization
+### Reactive Optimization
 
 ```python
 # Bad: Wait for problems
@@ -366,7 +366,7 @@ if monitor.current_tokens > mecw_threshold * 0.80:
 execute_safely()
 ```
 
-### ❌ Skipping Subagent Delegation
+### Skipping Subagent Delegation
 
 ```python
 # Bad: Try to handle everything in one session

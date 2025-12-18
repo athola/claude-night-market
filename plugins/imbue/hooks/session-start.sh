@@ -62,9 +62,9 @@ if [ "$in_git_repo" = true ]; then
 
     # Build zone-specific message
     if [ "$zone" = "red" ]; then
-        scope_guard_reminder="\\n\\n**🛑 SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
+        scope_guard_reminder="\\n\\n**SCOPE-GUARD RED ZONE**: Branch has ${lines_changed} lines, ${commits} commits, ${days_on_branch} days. Before adding features, run \`Skill(imbue:scope-guard)\` to evaluate scope."
     elif [ "$zone" = "yellow" ]; then
-        scope_guard_reminder="\\n\\n**⚠️ SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
+        scope_guard_reminder="\\n\\n**SCOPE-GUARD YELLOW ZONE**: Branch approaching thresholds (${lines_changed} lines, ${commits} commits, ${days_on_branch} days). Consider scope when adding features."
     fi
 fi
 

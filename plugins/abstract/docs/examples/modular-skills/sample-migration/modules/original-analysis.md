@@ -22,10 +22,10 @@ Results:
 - Sub-sections: 12 (multiple main sections detected)
 
 ### Warning Signs
-- Skill file >2KB ❌
-- More than 3 main themes ❌
-- Complex workflow patterns ❌
-- High token footprint ❌
+- Skill file >2KB
+- More than 3 main themes
+- Complex workflow patterns
+- High token footprint
 
 ### Quick Assessment
 **Score: 45/100 (Poor)**

@@ -237,10 +237,10 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate-plugin.py
 Output:
 ```
 Validation Results:
-  ✓ Frontmatter valid
-  ✓ Description present
-  ✓ Usage syntax correct
-  ✓ Referenced in plugin.json
+  OK Frontmatter valid
+  OK Description present
+  OK Usage syntax correct
+  OK Referenced in plugin.json
 
 Status: READY FOR USE
 ```
@@ -248,7 +248,7 @@ Status: READY FOR USE
 ### Phase 5: Next Steps
 
 ```
-✓ Command created: commands/${command_name}.md
+OK Command created: commands/${command_name}.md
 
 Next Steps:
 
@@ -278,7 +278,7 @@ Creating command: check-deps
 Type: Prompt
 
 Created:
-  ✓ commands/check-deps.md
+  OK commands/check-deps.md
 
 Content preview:
 ---
@@ -305,7 +305,7 @@ Brainstorming:
   A: Yes, use pensive:test-review skill
 
 Created:
-  ✓ commands/review-pr-tests.md
+  OK commands/review-pr-tests.md
 
 Content preview:
 ---
@@ -331,7 +331,7 @@ Creating command: pre-commit
 Type: Workflow
 
 Created:
-  ✓ commands/pre-commit.md
+  OK commands/pre-commit.md
 
 Content preview:
 ---

@@ -4,16 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.0.1"
+version = "1.0.2"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
-
-[tool.hatch.build.targets.wheel]
-include = [
-    "pyproject.toml",
-    "README.md",
-    "LICENSE"
-]
 dependencies = [
   "pytest>=8.0.0",
   "pytest-asyncio>=0.23.0",
@@ -28,6 +21,13 @@ dependencies = [
   "toml>=0.10.2",
   "rich>=13.9.0",
   "click>=8.1.7"
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "pyproject.toml",
+    "README.md",
+    "LICENSE"
 ]
 
 [project.optional-dependencies]

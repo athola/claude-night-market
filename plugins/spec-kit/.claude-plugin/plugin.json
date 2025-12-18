@@ -26,8 +26,8 @@
   ],
   "keywords": ["speckit", "spec-driven-development", "specification", "planning", "implementation", "workflow", "tdd", "requirements"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

@@ -918,7 +918,7 @@ class TestFormatGitHubComment:
         comment = populated_tracker.format_github_comment()
 
         # Assert
-        assert "### 🗂️ Initiative Pulse" in comment
+        assert "### Initiative Pulse" in comment
         assert "Last updated:" in comment
 
     def test_format_github_comment_includes_markdown_table(
@@ -968,7 +968,7 @@ class TestFormatGitHubComment:
         comment = populated_tracker.format_github_comment()
 
         # Assert
-        assert "### 📊 Overall Metrics" in comment
+        assert "### Overall Metrics" in comment
         assert "Total tasks:" in comment
         assert "Completion:" in comment
         assert "Total effort:" in comment
@@ -1022,8 +1022,8 @@ class TestFormatGitHubComment:
         comment = empty_tracker.format_github_comment()
 
         # Assert
-        assert "### 🗂️ Initiative Pulse" in comment
-        assert "### 📊 Overall Metrics" in comment
+        assert "### Initiative Pulse" in comment
+        assert "### Overall Metrics" in comment
         assert "Total tasks: 0" in comment
 
 

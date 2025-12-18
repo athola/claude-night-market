@@ -450,7 +450,7 @@ class SanctumGitOperations:
                 )
                 if avg_complexity > MANY_FILES_THRESHOLD:
                     recommendations.append(
-                        "⚠️ High complexity skills modified - consider additional "
+                        "High complexity skills modified - consider additional "
                         "testing",
                     )
             else:
@@ -458,13 +458,13 @@ class SanctumGitOperations:
                 total_files = len(skill_analysis)
                 if total_files > MANY_FILES_THRESHOLD:
                     recommendations.append(
-                        "📝 Multiple skills modified - ensure comprehensive review",
+                        "Multiple skills modified - ensure comprehensive review",
                     )
 
         # Check commit patterns
         if len(commits) > MAX_RECOMMENDATIONS:
             recommendations.append(
-                "🔄 Many commits in PR - consider squashing for cleaner history",
+                "Many commits in PR - consider squashing for cleaner history",
             )
 
         return recommendations

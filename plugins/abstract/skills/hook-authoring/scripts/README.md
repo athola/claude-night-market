@@ -50,20 +50,20 @@ chmod +x hook_validator.py
 
 **Valid JSON hook:**
 ```
-✓ Valid
+OK Valid
 
 Info:
-  ℹ  Loaded JSON from hooks/hooks.json
-  ℹ  Validated 2 event type(s)
+  [INFO]  Loaded JSON from hooks/hooks.json
+  [INFO]  Validated 2 event type(s)
 ```
 
 **Invalid Python hook:**
 ```
-✗ Invalid
+FAIL Invalid
 
 Errors:
-  ✗ MyHooks.on_pre_tool_use: should be async (async def)
-  ✗ MyHooks.on_post_tool_use: incorrect arguments. Expected ['self', 'tool_name', 'tool_input', 'tool_output'], got ['self', 'tool', 'output']
+  FAIL MyHooks.on_pre_tool_use: should be async (async def)
+  FAIL MyHooks.on_post_tool_use: incorrect arguments. Expected ['self', 'tool_name', 'tool_input', 'tool_output'], got ['self', 'tool', 'output']
 ```
 
 ### JSON Hook Validation
@@ -119,7 +119,7 @@ for hook in $python_hooks; do
     fi
 done
 
-echo "✓ All hooks validated"
+echo "OK All hooks validated"
 ```
 
 ### GitHub Actions

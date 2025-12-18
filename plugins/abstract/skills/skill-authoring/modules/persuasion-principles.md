@@ -37,13 +37,13 @@ The study validated Cialdini's classic persuasion principles in LLM contexts:
 **Implementation:**
 
 ```markdown
-❌ Weak (Suggestive):
+ Weak (Suggestive):
 "Consider adding input validation to your API endpoints."
 
-✅ Strong (Authoritative):
+ Strong (Authoritative):
 "MUST include input validation on every API endpoint."
 
-✅ Stronger (Imperative + Reason):
+ Stronger (Imperative + Reason):
 "Every API endpoint MUST validate all inputs. This is a
 foundational security requirement to prevent injection attacks."
 ```
@@ -104,14 +104,14 @@ I commit to:
 **Implementation:**
 
 ```markdown
-❌ Weak (Open-ended):
+ Weak (Open-ended):
 "Authentication should be added to APIs at some point."
 
-✅ Strong (Immediate):
+ Strong (Immediate):
 "Authentication MUST be included in the initial implementation.
 Adding it later requires refactoring and creates security gaps."
 
-✅ Stronger (Scarcity + Consequence):
+ Stronger (Scarcity + Consequence):
 "Authentication MUST be included NOW. Every minute without
 auth is a security exposure. 'Adding it later' has 80% failure
 rate in production systems."
@@ -130,14 +130,14 @@ rate in production systems."
 **Implementation:**
 
 ```markdown
-❌ Weak (Isolated):
+ Weak (Isolated):
 "Input validation is important."
 
-✅ Strong (Universal):
+ Strong (Universal):
 "Every production API validates inputs. This is a universal
 security baseline across all modern systems."
 
-✅ Stronger (Consensus + Statistics):
+ Stronger (Consensus + Statistics):
 "97% of API security breaches involve inadequate input validation.
 Every major framework (Django, Rails, Spring) validates by default.
 Industry consensus: validation is non-negotiable."
@@ -156,15 +156,15 @@ Industry consensus: validation is non-negotiable."
 **Implementation:**
 
 ```markdown
-❌ Weak (Adversarial):
+ Weak (Adversarial):
 "You must follow these rules or your code will be insecure."
 
-✅ Strong (Collaborative):
+ Strong (Collaborative):
 "Together, we'll ensure this API meets security standards.
 Following these requirements protects users and prevents
 common vulnerabilities."
 
-✅ Stronger (Shared Goals):
+ Stronger (Shared Goals):
 "We both want secure, reliable code. These requirements
 represent collective wisdom from thousands of security incidents.
 They help us avoid repeating others' mistakes."
@@ -182,13 +182,13 @@ They help us avoid repeating others' mistakes."
 **Implementation:**
 
 ```markdown
-❌ Weak (Generic):
+ Weak (Generic):
 "Developers should write tests."
 
-✅ Strong (In-group):
+ Strong (In-group):
 "Professional developers write tests. It's part of our craft."
 
-✅ Stronger (Identity + Pride):
+ Stronger (Identity + Pride):
 "As engineers who take pride in our work, we write
 comprehensive tests. This is what separates professionals
 from amateurs. Our code reflects our values."
@@ -236,7 +236,7 @@ If no: Stop. Write test first.
 
 ### When Persuasion Is Appropriate
 
-✅ **Use persuasive techniques for:**
+ **Use persuasive techniques for:**
 - **Safety-critical practices**: Security, correctness, data integrity
 - **Empirically-validated best practices**: TDD, code review, testing
 - **Preventing documented failure modes**: Known antipatterns, common mistakes
@@ -244,7 +244,7 @@ If no: Stop. Write test first.
 
 ### When to Dial It Back
 
-⚠️ **Moderate persuasion for:**
+[WARN] **Moderate persuasion for:**
 - **Stylistic preferences**: Formatting, naming, organization
 - **Context-dependent choices**: Performance vs. readability trade-offs
 - **Emerging practices**: New patterns without long track record
@@ -254,14 +254,14 @@ If no: Stop. Write test first.
 
 **Ask: "Would this serve the user's genuine interests?"**
 
-✅ **Ethical**:
+ **Ethical**:
 ```markdown
 "Every API endpoint MUST validate inputs. This protects
 users from injection attacks and data corruption."
 ```
 *Rationale*: Prevents real harm, serves user security interests
 
-❌ **Unethical**:
+ **Unethical**:
 ```markdown
 "You MUST use tabs for indentation. Spaces are objectively
 wrong and used only by inferior developers."
@@ -296,12 +296,12 @@ assumes production-quality requirements.
 
 | Scenario | Required? | Rationale |
 |----------|-----------|-----------|
-| Production code | ✓ Always | Security non-negotiable |
-| Internal tools | ✓ Always | Common attack vector |
-| Prototypes | ✓ Always | Become production |
-| "Simple" endpoints | ✓ Always | Complexity ≠ security need |
-| Time pressure | ✓ Always | Breaches are permanent |
-| Trusted users | ✓ Always | Users make mistakes |
+| Production code | OK Always | Security non-negotiable |
+| Internal tools | OK Always | Common attack vector |
+| Prototypes | OK Always | Become production |
+| "Simple" endpoints | OK Always | Complexity ≠ security need |
+| Time pressure | OK Always | Breaches are permanent |
+| Trusted users | OK Always | Users make mistakes |
 
 **No exceptions**. The only valid exception is explicit user
 statement: "Skip security for [specific reason]."
@@ -398,17 +398,17 @@ Research from 2025 used Claude 3.x models. Claude 4.x (Opus, Sonnet) may require
 ### Recommended Adjustments
 
 ```markdown
-❌ Too Aggressive for 4.x:
+ Too Aggressive for 4.x:
 "You MUST NEVER skip validation. This is NON-NEGOTIABLE."
 
-✅ Adjusted for 4.x:
+ Adjusted for 4.x:
 "Every endpoint requires input validation. This is a
 foundational security requirement with no exceptions."
 
-❌ Too Aggressive:
+ Too Aggressive:
 "STOP. You're rationalizing. This is a red flag."
 
-✅ Adjusted:
+ Adjusted:
 "Check: Is this a valid exception or rationalization?
 Review the exception table before proceeding."
 ```

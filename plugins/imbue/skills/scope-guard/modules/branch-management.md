@@ -39,7 +39,7 @@ echo "Lines: $lines | Files: $files | Commits: $commits | Days: $days"
 
 **Prompt Template:**
 ```
-⚠️ Branch approaching thresholds:
+Branch approaching thresholds:
 - Lines: 1,247 (Yellow zone)
 - Commits: 18 (Yellow zone)
 
@@ -61,7 +61,7 @@ Before continuing, confirm:
 
 **Prompt Template:**
 ```
-🛑 Branch exceeds thresholds:
+Branch exceeds thresholds:
 - Lines: 2,341 (Red zone)
 - Days: 9 (Red zone)
 

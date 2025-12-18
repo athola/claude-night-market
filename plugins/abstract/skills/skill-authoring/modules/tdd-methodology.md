@@ -200,10 +200,10 @@ Just needs email and password. Standard REST approach."
 [Paste complete response]
 
 ### Improvements Observed
-✓ Input validation included
-✓ Error handling present
-✓ Password hashing implemented
-✓ Rate limiting mentioned
+OK Input validation included
+OK Error handling present
+OK Password hashing implemented
+OK Rate limiting mentioned
 
 ### Remaining Issues
 - Didn't mention CSRF protection
@@ -223,16 +223,16 @@ Compare baseline vs. with-skill results:
 - Database integration
 
 ### With-Skill Compliance: 7/10 requirements met
-- ✓ Input validation
-- ✓ Error handling
-- ✓ Password hashing
-- ✓ Rate limiting
-- ✓ Duplicate checking
-- ✓ Appropriate responses
-- ✓ Code example
-- ✗ CSRF protection (mentioned but not required)
-- ✗ Logging (optional language)
-- ✗ Testing (suggested but not mandatory)
+- OK Input validation
+- OK Error handling
+- OK Password hashing
+- OK Rate limiting
+- OK Duplicate checking
+- OK Appropriate responses
+- OK Code example
+- FAIL CSRF protection (mentioned but not required)
+- FAIL Logging (optional language)
+- FAIL Testing (suggested but not mandatory)
 
 ### Improvement: 250% increase in requirement compliance
 ```
@@ -306,11 +306,11 @@ Stop immediately if you're thinking:
 ## No Exceptions
 
 Security requirements apply to:
-- ✓ Internal APIs
-- ✓ Prototype code
-- ✓ "Simple" endpoints
-- ✓ Trusted users
-- ✓ Development environments
+- OK Internal APIs
+- OK Prototype code
+- OK "Simple" endpoints
+- OK Trusted users
+- OK Development environments
 
 The ONLY exception: Explicit user statement
 "This is deliberately insecure for [specific reason]"
@@ -457,39 +457,39 @@ Success will be measured by:
 
 ## Anti-Patterns
 
-### ❌ Writing Skill First
+###  Writing Skill First
 ```
 1. Write skill based on theory
 2. Hope it works
 3. Maybe test later
 ```
 
-### ✅ TDD Approach
+###  TDD Approach
 ```
 1. Document real failures
 2. Write minimal fix
 3. Bulletproof against gaming
 ```
 
-### ❌ Theoretical Examples
+###  Theoretical Examples
 ```
 "Here's how you should handle errors..."
 [Shows perfect code that never happens]
 ```
 
-### ✅ Real Failure Examples
+###  Real Failure Examples
 ```
 "Without this skill, Claude did X (see baseline).
 With skill, Claude does Y (see improvement)."
 ```
 
-### ❌ Assumed Rationalizations
+###  Assumed Rationalizations
 ```
 "Claude might try to skip validation..."
 [Never actually tested this]
 ```
 
-### ✅ Documented Rationalizations
+###  Documented Rationalizations
 ```
 "In test 3, Claude said: 'Since this is internal...'
 Counter added to prevent this rationalization."

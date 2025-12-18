@@ -18,6 +18,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/verify_workflow_complete.py",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py",
+            "timeout": 5
           }
         ]
       }

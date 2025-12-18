@@ -78,7 +78,7 @@ class ValidationResult:
     suggestion: str | None = None
 
 def format_result(result: ValidationResult) -> str:
-    icon = {'error': '✗', 'warning': '⚠', 'info': 'ℹ'}[result.level]
+    icon = {'error': 'X', 'warning': '!', 'info': 'i'}[result.level]
     msg = f"{icon} [{result.code}] {result.message}"
     if result.location:
         msg += f" ({result.location})"

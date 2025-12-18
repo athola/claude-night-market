@@ -1,6 +1,6 @@
 {
   "name": "conservation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/context-optimization",
@@ -18,8 +18,8 @@
   ],
   "keywords": ["conservation", "performance", "resource-management", "token-optimization", "context-optimization", "MECW", "efficiency"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

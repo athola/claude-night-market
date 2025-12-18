@@ -29,17 +29,17 @@ This modular skill provides a comprehensive framework for software development w
 
 Get started quickly with this development workflow framework:
 
-**🚀 Quick Start**: Set up repository structure and basic workflow in minutes
+** Quick Start**: Set up repository structure and basic workflow in minutes
 - Initialize with git-workflow module
 - Add code-review process for team collaboration
 - Implement testing strategies for quality assurance
 
-**📚 Progressive Learning**: Start simple, add complexity as needed
+**Progressive Learning**: Start simple, add complexity as needed
 1. **Basic workflow** → git-workflow + code-review
 2. **Quality focus** → add testing-strategies + documentation
 3. **Production ready** → add deployment-procedures + monitoring
 
-**🎯 Use Case-Based**: Jump directly to what you need
+** Use Case-Based**: Jump directly to what you need
 - New project? → Start with git-workflow
 - Team scaling? → Focus on code-review + testing
 - Production deployment? → Use deployment-procedures
