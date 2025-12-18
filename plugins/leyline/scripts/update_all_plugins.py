@@ -77,6 +77,8 @@ def update_plugin(plugin_full_name: str) -> tuple[bool, str, str]:
             return True, "unknown", "unknown"
 
         else:
+            if result.stderr:
+                print(f"[ERROR] {plugin_full_name}: {result.stderr.strip()}")
             return False, "error", "error"
 
     except subprocess.TimeoutExpired:
@@ -167,6 +169,9 @@ def main() -> None:
 
     # Print summary
     print_summary(total_plugins, updated_plugins, already_latest, failed_plugins)
+
+    if failed_plugins:
+        sys.exit(1)
 
 
 def print_summary(
