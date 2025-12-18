@@ -4,6 +4,7 @@ Cross-platform toast notification when Claude session awaits input.
 Supports: Linux (notify-send), macOS (osascript), Windows (PowerShell toast).
 """
 
+import html
 import os
 import platform
 import subprocess
@@ -76,7 +77,10 @@ def notify_linux(title: str, message: str) -> bool:
 
 def notify_macos(title: str, message: str) -> bool:
     """Send notification on macOS using osascript."""
-    script = f'display notification "{message}" with title "{title}" sound name "Glass"'
+    # Escape for AppleScript string literals
+    safe_title = title.replace("\\", "\\\\").replace('"', '\\"')
+    safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
+    script = f'display notification "{safe_message}" with title "{safe_title}" sound name "Glass"'
     try:
         subprocess.run(["osascript", "-e", script], check=True, timeout=3)
         return True
@@ -90,6 +94,10 @@ def notify_macos(title: str, message: str) -> bool:
 
 def notify_windows(title: str, message: str) -> bool:
     """Send notification on Windows using PowerShell toast."""
+    # Escape for XML content (prevents injection via <, >, &, ", ')
+    safe_title = html.escape(title)
+    safe_message = html.escape(message)
+
     # PowerShell script for Windows toast notification
     ps_script = f"""
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
@@ -99,8 +107,8 @@ $template = @"
 <toast>
     <visual>
         <binding template="ToastText02">
-            <text id="1">{title}</text>
-            <text id="2">{message}</text>
+            <text id="1">{safe_title}</text>
+            <text id="2">{safe_message}</text>
         </binding>
     </visual>
     <audio src="ms-winsoundevent:Notification.Default"/>
@@ -126,13 +134,16 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         subprocess.TimeoutExpired,
     ):
         # Fallback: try simpler BurntToast if available
+        # Escape for PowerShell string (backtick escapes quotes)
+        ps_title = title.replace('"', '`"')
+        ps_message = message.replace('"', '`"')
         try:
             subprocess.run(
                 [
                     "powershell",
                     "-NoProfile",
                     "-Command",
-                    f'New-BurntToastNotification -Text "{title}", "{message}"',
+                    f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"',
                 ],
                 check=True,
                 timeout=5,

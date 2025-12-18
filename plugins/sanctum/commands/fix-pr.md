@@ -196,10 +196,112 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
 - [ ] Resolved each thread via `resolveReviewThread` mutation
 - [ ] Verified no unresolved threads remain (or documented why)
 
+### Phase 5: Issue Linkage & Closure
+
+After resolving review threads, analyze whether this PR addresses any open issues.
+
+12. **Fetch Open Issues**
+    ```bash
+    # Get all open issues for the repository
+    gh issue list --state open --json number,title,body,labels --limit 50
+    ```
+
+13. **Analyze Issue Coverage**
+
+    For each open issue, analyze whether the PR's changes address it:
+
+    ```bash
+    # Get PR changed files and commit messages
+    gh pr view --json files,commits -q '{files: .files[].path, commits: .commits[].messageHeadline}'
+
+    # Compare against issue requirements:
+    # - Extract acceptance criteria from issue body
+    # - Check if changed files relate to issue scope
+    # - Review commit messages for issue references
+    ```
+
+    **Classification:**
+    | Status | Criteria | Action |
+    |--------|----------|--------|
+    | **Fully Addressed** | All acceptance criteria met, all required changes made | Comment + Close |
+    | **Partially Addressed** | Some criteria met, some work remaining | Comment with follow-up details |
+    | **Not Related** | PR doesn't touch issue scope | Skip |
+
+14. **Comment on Fully Addressed Issues**
+    ```bash
+    gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
+    ## ✅ Addressed in PR #PR_NUMBER
+
+    This issue has been fully addressed by the linked pull request.
+
+    **Changes made:**
+    - [List specific changes that address the issue]
+
+    **Files modified:**
+    - `path/to/file.py`
+    - `path/to/another.py`
+
+    Closing this issue. The fix will be available after PR merge.
+    EOF
+    )"
+
+    # Close the issue
+    gh issue close ISSUE_NUMBER --reason completed
+    ```
+
+15. **Comment on Partially Addressed Issues**
+    ```bash
+    gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
+    ## 🔄 Partially Addressed in PR #PR_NUMBER
+
+    This PR addresses some aspects of this issue but additional work is needed.
+
+    **What was addressed:**
+    - [List completed items]
+
+    **What still needs to be done (follow-up PR):**
+    - [ ] [Remaining task 1]
+    - [ ] [Remaining task 2]
+    - [ ] [Remaining task 3]
+
+    **Suggested next steps:**
+    1. Create follow-up branch from main after this PR merges
+    2. Address remaining items listed above
+    3. Reference this issue in the follow-up PR
+
+    Keeping this issue open until fully resolved.
+    EOF
+    )"
+    ```
+
+16. **Generate Issue Linkage Report**
+    ```markdown
+    ### Issue Linkage Summary
+
+    | Issue | Title | Status | Action Taken |
+    |-------|-------|--------|--------------|
+    | #42 | Add user authentication | ✅ Fully Addressed | Commented + Closed |
+    | #43 | Fix validation bugs | 🔄 Partially Addressed | Commented (3 items remaining) |
+    | #44 | Improve performance | ❌ Not Related | Skipped |
+
+    **Closed Issues:** 1
+    **Partially Addressed:** 1 (follow-up items documented)
+    **Not Related:** 1
+    ```
+
+**Issue Linkage Checklist:**
+- [ ] Fetched all open issues for the repository
+- [ ] Analyzed PR changes against each issue's requirements
+- [ ] Commented on and closed fully addressed issues
+- [ ] Documented remaining work for partially addressed issues
+- [ ] Generated linkage summary report
+
 ## Options
 
 - `--dry-run`: Analyze and show planned fixes without applying
 - `--commit-strategy`: Choose commit approach (default: single)
+- `--skip-issue-linkage`: Skip Phase 5 issue analysis (faster execution)
+- `--close-issues`: Automatically close fully addressed issues (default: prompt)
 - `pr-number`/`pr-url`: Target specific PR (default: current branch)
 
 ## Enhanced Features
@@ -294,6 +396,39 @@ PR #42: Found 12 review comments
 Proceed with 7 fixes? [y/n/select]
 ```
 
+### Issue Linkage Output
+
+After thread resolution, issue analysis runs:
+
+```markdown
+PR #42: Analyzing 8 open issues...
+
+### Issue Analysis Results
+
+**#15 - Add input validation for API endpoints**
+Status: ✅ FULLY ADDRESSED
+Evidence:
+  - Added validation in api/validators.py (lines 45-89)
+  - Tests added in tests/test_validators.py
+  - All acceptance criteria met
+Action: Commented and closed issue #15
+
+**#18 - Improve error messages**
+Status: 🔄 PARTIALLY ADDRESSED
+Evidence:
+  - Updated error messages in auth module
+  - Database errors still use generic messages
+Remaining work:
+  - [ ] Update database error messages in db/errors.py
+  - [ ] Add user-friendly messages for validation failures
+Action: Commented with follow-up tasks
+
+**#22 - Refactor payment module**
+Status: ❌ NOT RELATED
+Evidence: No changes to payment/* files
+Action: Skipped
+```
+
 ### Thread Resolution Output
 
 After fixes are applied and committed:
@@ -381,6 +516,14 @@ fix_pr:
   create_backlog_issues: true
   batch_operations: true
   dry_run_default: false
+
+  # Issue linkage settings
+  issue_linkage:
+    enabled: true                    # Enable Phase 5 issue analysis
+    auto_close_issues: false         # Prompt before closing (true = auto-close)
+    max_issues_to_analyze: 50        # Limit for performance
+    skip_labels: ["wontfix", "duplicate"]  # Ignore issues with these labels
+    require_explicit_reference: false  # If true, only match issues referenced in commits
 
   # Superpowers integration
   code_review_context:
@@ -514,3 +657,5 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
 - Adds intelligent fix generation and contextual understanding
 - **Thread resolution is MANDATORY** - every addressed comment MUST receive a reply and be resolved
 - If thread resolution fails, document the failure and attempt manual resolution
+- **Issue linkage** automatically analyzes open issues and closes/comments on addressed ones
+- Use `--skip-issue-linkage` for faster execution when issue analysis is not needed

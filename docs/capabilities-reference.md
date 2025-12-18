@@ -497,8 +497,8 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 | `/commit-msg` | Generates a commit message. |
 | `/pr` | Prepares a Pull Request. |
 | `/pr-review` | Enhanced PR review with quality checks. |
-| `/fix-pr` | Helps address PR review comments. |
-| `/fix-issue` | Workflow for fixing GitHub issues systematically. |
+| `/fix-pr` | Addresses PR review comments with thread resolution and automatic issue linkage (closes/comments on related issues). |
+| `/fix-issue` | Workflow for fixing GitHub issues systematically with parallel execution. |
 | `/fix-workflow` | Runs workflow retrospective and improves components. |
 | `/merge-docs` | Consolidates ephemeral docs into permanent documentation. |
 | `/update-docs` | Updates documentation. |
@@ -523,9 +523,9 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `post_implementation_policy.py` | After | Enforces policies after implementation. |
-| `verify_workflow_complete.py` | After | Verifies workflow completion. |
-| `session_complete_notify.py` | Stop | Cross-platform toast notification when Claude awaits input. |
+| `post_implementation_policy.py` | Session | Injects post-implementation protocol requiring docs/tests/readme updates. |
+| `verify_workflow_complete.py` | Stop | Verifies workflow completion. |
+| `session_complete_notify.py` | Stop | Cross-platform toast notification (Linux/macOS/Windows) when Claude awaits input. |
 
 ---
 

@@ -10,6 +10,7 @@ other prompts, skills, or hooks.
 
 from __future__ import annotations
 
+import json
 import sys
 
 GOVERNANCE_POLICY = """
@@ -46,7 +47,13 @@ You MUST execute these commands IN ORDER:
 
 def main() -> None:
     """Inject governance policy at session start."""
-    # SessionStart doesn't require input parsing, just output the policy
+    output = {
+        "hookSpecificOutput": {
+            "hookEventName": "SessionStart",
+            "additionalContext": GOVERNANCE_POLICY,
+        }
+    }
+    print(json.dumps(output))
     sys.exit(0)
 
 
