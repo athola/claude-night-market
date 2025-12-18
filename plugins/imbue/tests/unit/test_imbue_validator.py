@@ -14,11 +14,16 @@ import pytest
 
 # Import the validator - handle both development and test environments
 try:
-    from scripts.imbue_validator import ImbueValidationResult, ImbueValidator
+    from scripts.imbue_validator import (
+        ImbueValidationResult,
+        ImbueValidator,
+        main as imbue_main,
+    )
 except ImportError:
     # For testing before module exists
     ImbueValidator = None
     ImbueValidationResult = None
+    imbue_main = None
 
 
 class TestImbueValidator:
@@ -611,10 +616,8 @@ Also includes EVIDENCE logging.
         self, mock_plugin_structure, capsys
     ) -> None:
         """Scenario: CLI scan exits non-zero when issues exist."""
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
-
-        from scripts.imbue_validator import main
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
 
         with patch.object(
             sys,
@@ -622,7 +625,7 @@ Also includes EVIDENCE logging.
             ["prog", "--root", str(mock_plugin_structure), "--scan"],
         ):
             with pytest.raises(SystemExit) as exc:
-                main()
+                imbue_main()
             assert exc.value.code == 1
 
         out = capsys.readouterr().out
@@ -634,10 +637,8 @@ Also includes EVIDENCE logging.
         self, mock_plugin_structure, capsys
     ) -> None:
         """Scenario: CLI scan prints results and exits cleanly when no issues."""
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
-
-        from scripts.imbue_validator import main
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
 
         # Ensure all skills mention evidence so validation passes.
         for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
@@ -650,7 +651,7 @@ Also includes EVIDENCE logging.
             "argv",
             ["prog", "--root", str(mock_plugin_structure), "--scan"],
         ):
-            main()
+            imbue_main()
 
         out = capsys.readouterr().out
         assert "skills_found:" in out
@@ -661,17 +662,15 @@ Also includes EVIDENCE logging.
     @pytest.mark.unit
     def test_cli_report_outputs_report(self, mock_plugin_structure, capsys) -> None:
         """Scenario: CLI report prints a full report."""
-        if ImbueValidator is None:
-            pytest.skip("ImbueValidator not available")
-
-        from scripts.imbue_validator import main
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
 
         with patch.object(
             sys,
             "argv",
             ["prog", "--root", str(mock_plugin_structure), "--report"],
         ):
-            main()
+            imbue_main()
 
         out = capsys.readouterr().out
         assert "Imbue Plugin Review Workflow Report" in out

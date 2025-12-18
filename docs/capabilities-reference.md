@@ -263,6 +263,7 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | `doc-updates` | Documentation maintenance. | Keeping docs in sync with code. | `Skill(sanctum:doc-updates)` |
 | `update-readme` | README modernization. | Refreshing project entry points. | `Skill(sanctum:update-readme)` |
 | `version-updates` | Version bumping. | Managing semantic versioning. | `Skill(sanctum:version-updates)` |
+| `workflow-improvement` | Workflow retrospectives. | Improving slow, confusing, or fragile workflows. | `Skill(sanctum:workflow-improvement)` |
 
 ### Commands
 
@@ -272,6 +273,7 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | `/commit-msg` | Generates a commit message. |
 | `/pr` | Prepares a Pull Request. |
 | `/fix-pr` | Helps address PR review comments. |
+| `/fix-workflow` | Runs workflow retrospective and improves skill/agent/command/hook components. |
 | `/update-docs` | Updates documentation. |
 
 ### Agents
@@ -279,6 +281,11 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 *   **`git-workspace-agent`**: Analyzer.
 *   **`commit-agent`**: Message generator.
 *   **`pr-agent`**: PR author.
+*   **`workflow-recreate-agent`**: Reconstructs workflow slices and surfaces inefficiencies.
+*   **`workflow-improvement-analysis-agent`**: Generates improvement approaches with trade-offs.
+*   **`workflow-improvement-planner-agent`**: Selects approach and creates execution plan.
+*   **`workflow-improvement-implementer-agent`**: Applies focused changes with tests.
+*   **`workflow-improvement-validator-agent`**: Validates improvements via replay and metrics.
 
 ---
 
