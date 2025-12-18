@@ -31,6 +31,7 @@ Or reference directly from the marketplace:
 | **test-updates** | Test generation and enhancement with TDD/BDD patterns |
 | **update-readme** | README modernization with exemplar research |
 | **version-updates** | Version bumping across configs and changelogs |
+| **workflow-improvement** | Retrospective workflow to improve skills, agents, commands, and hooks from the most recent session slice |
 
 ### Commands
 
@@ -38,6 +39,7 @@ Or reference directly from the marketplace:
 |---------|-------------|
 | `/catchup` | Git repository catchup with imbue methodology |
 | `/commit-msg` | Draft conventional commit message |
+| `/fix-workflow` | Retrospective to improve the most recent workflow slice |
 | `/fix-pr` | Address PR review comments, implement fixes, resolve threads |
 | `/pr` | Prepare PR description with quality gates |
 | `/update-docs` | Update project documentation |
@@ -52,6 +54,11 @@ Or reference directly from the marketplace:
 | **git-workspace-agent** | Repository state analysis and change tracking |
 | **commit-agent** | Conventional commit message generation |
 | **pr-agent** | Pull request preparation and documentation |
+| **workflow-recreate-agent** | Recreates the most recent workflow slice and surfaces inefficiencies |
+| **workflow-improvement-analysis-agent** | Generates improvement approaches with trade-offs and metrics |
+| **workflow-improvement-planner-agent** | Converges on a bounded plan with acceptance criteria |
+| **workflow-improvement-implementer-agent** | Implements the agreed workflow improvements |
+| **workflow-improvement-validator-agent** | Validates improvements via tests and minimal reproduction replay |
 
 ## Quick Start
 
@@ -134,10 +141,16 @@ sanctum/
 ├── agents/
 │   ├── git-workspace-agent.md
 │   ├── commit-agent.md
-│   └── pr-agent.md
+│   ├── pr-agent.md
+│   ├── workflow-recreate-agent.md
+│   ├── workflow-improvement-analysis-agent.md
+│   ├── workflow-improvement-planner-agent.md
+│   ├── workflow-improvement-implementer-agent.md
+│   └── workflow-improvement-validator-agent.md
 ├── commands/
 │   ├── catchup.md
 │   ├── commit-msg.md
+│   ├── fix-workflow.md
 │   ├── fix-pr.md
 │   ├── merge-docs.md
 │   ├── pr.md
@@ -155,6 +168,7 @@ sanctum/
 │   ├── pr-prep/
 │   ├── doc-updates/
 │   ├── update-readme/
+│   ├── workflow-improvement/
 │   └── version-updates/
 └── README.md
 ```

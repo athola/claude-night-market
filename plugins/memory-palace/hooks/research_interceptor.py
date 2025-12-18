@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from shared.config import get_config
+from shared import config as shared_config
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +113,7 @@ def search_local_knowledge(query: str, config: dict[str, Any]) -> list[dict[str,
         )
         return lookup.search(query, mode="unified", min_score=0.0)
     except Exception as e:
-        logger.debug("Failed to search local knowledge: %s", e)
+        logger.warning("research_interceptor: Failed to search local knowledge: %s", e)
         return []
 
 
@@ -486,7 +486,7 @@ def main() -> None:
     if tool_name not in ("WebFetch", "WebSearch"):
         sys.exit(0)
 
-    config = get_config()
+    config = shared_config.get_config()
     if not config.get("enabled", True):
         sys.exit(0)
     feature_flags = dict(config.get("feature_flags") or {})
@@ -502,7 +502,10 @@ def main() -> None:
                 config_level=config.get("autonomy_level")
             )
         except Exception as e:
-            logger.debug("Failed to load autonomy profile: %s", e)
+            logger.warning(
+                "research_interceptor: Failed to load autonomy profile; autonomy governance disabled: %s",
+                e,
+            )
             autonomy_profile = None
             autonomy_store = None
 
@@ -537,7 +540,7 @@ def main() -> None:
                 domains=decision.autonomy_domains or decision.aligned_domains,
             )
         except Exception as e:
-            logger.debug("Failed to record decision: %s", e)
+            logger.warning("research_interceptor: Failed to record decision: %s", e)
 
     response_parts: list[str] = []
     if decision.context:

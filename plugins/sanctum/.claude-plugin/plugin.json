@@ -1,10 +1,11 @@
 {
   "name": "sanctum",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
     "./commands/catchup.md",
     "./commands/commit-msg.md",
+    "./commands/fix-workflow.md",
     "./commands/fix-pr.md",
     "./commands/merge-docs.md",
     "./commands/pr.md",
@@ -25,12 +26,18 @@
     "./skills/doc-updates",
     "./skills/test-updates",
     "./skills/update-readme",
+    "./skills/workflow-improvement",
     "./skills/version-updates"
   ],
   "agents": [
     "./agents/git-workspace-agent.md",
     "./agents/commit-agent.md",
-    "./agents/pr-agent.md"
+    "./agents/pr-agent.md",
+    "./agents/workflow-recreate-agent.md",
+    "./agents/workflow-improvement-analysis-agent.md",
+    "./agents/workflow-improvement-planner-agent.md",
+    "./agents/workflow-improvement-implementer-agent.md",
+    "./agents/workflow-improvement-validator-agent.md"
   ],
   "keywords": ["git", "workspace", "commit", "pr", "documentation", "version", "changelog", "conventional-commits"],
   "author": {

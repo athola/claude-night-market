@@ -14,8 +14,8 @@ from unittest.mock import Mock
 
 import pytest
 
-# Add the scripts directory to Python path for importing imbue_validator
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+# Add the plugin root to Python path so `scripts.*` imports work.
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from scripts.imbue_validator import ImbueValidator

@@ -3,10 +3,20 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add src to Python path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from abstract.wrapper_base import SuperpowerWrapper
+
+
+def _make_wrapper() -> SuperpowerWrapper:
+    return SuperpowerWrapper(
+        source_plugin="abstract",
+        source_command="test-skill",
+        target_superpower="test-driven-development",
+    )
 
 
 def test_wrapper_translates_parameters() -> None:
@@ -84,6 +94,68 @@ def test_parameter_validation() -> None:
     # Test empty parameters
     result = wrapper.translate_parameters({})
     assert result == {}, f"Expected empty dict for empty input, got: {result}"
+
+
+def test_load_parameter_map_malformed_yaml(tmp_path: Path) -> None:
+    wrapper = _make_wrapper()
+
+    config_path = tmp_path / "wrapper.yml"
+    config_path.write_text("parameter_mapping: [unclosed\n", encoding="utf-8")
+
+    wrapper.config_path = config_path
+    with pytest.raises(ValueError, match=r"^Invalid YAML config:"):
+        wrapper._load_parameter_map()
+
+    assert any(
+        err.error_code == "CONFIG_PARSE_ERROR" for err in wrapper.error_handler.errors
+    )
+
+
+def test_load_parameter_map_missing_config_file_uses_defaults(tmp_path: Path) -> None:
+    wrapper = _make_wrapper()
+
+    wrapper.config_path = tmp_path / "missing.yml"
+    mapping = wrapper._load_parameter_map()
+
+    assert mapping == {"skill-path": "target_under_test", "phase": "tdd_phase"}
+    assert any(
+        err.error_code == "CONFIG_NOT_FOUND" for err in wrapper.error_handler.errors
+    )
+
+
+def test_load_parameter_map_invalid_schema_parameter_mapping_not_dict(
+    tmp_path: Path,
+) -> None:
+    wrapper = _make_wrapper()
+
+    config_path = tmp_path / "wrapper.yml"
+    config_path.write_text(
+        "parameter_mapping:\n  - not\n  - a\n  - dict\n",
+        encoding="utf-8",
+    )
+
+    wrapper.config_path = config_path
+    with pytest.raises(ValueError, match=r"parameter_mapping must be a dictionary"):
+        wrapper._load_parameter_map()
+
+    assert any(
+        err.error_code == "CONFIG_LOAD_ERROR" for err in wrapper.error_handler.errors
+    )
+
+
+def test_load_parameter_map_invalid_schema_mapping_types(tmp_path: Path) -> None:
+    wrapper = _make_wrapper()
+
+    config_path = tmp_path / "wrapper.yml"
+    config_path.write_text("parameter_mapping:\n  skill-path: 123\n", encoding="utf-8")
+
+    wrapper.config_path = config_path
+    with pytest.raises(ValueError, match=r"Invalid mapping:"):
+        wrapper._load_parameter_map()
+
+    assert any(
+        err.error_code == "CONFIG_LOAD_ERROR" for err in wrapper.error_handler.errors
+    )
 
 
 if __name__ == "__main__":

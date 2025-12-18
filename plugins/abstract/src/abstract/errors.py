@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 import traceback
+import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
@@ -20,6 +21,14 @@ try:
     import yaml  # type: ignore[import-untyped]
 except ImportError:
     yaml = None  # type: ignore[assignment]
+    warnings.warn(
+        (
+            "PyYAML is not installed; YAML parsing features are disabled. "
+            "Install with: pip install pyyaml"
+        ),
+        category=RuntimeWarning,
+        stacklevel=2,
+    )
 
 
 class ErrorSeverity(Enum):
@@ -367,7 +376,17 @@ def safe_yaml_load(
             f"parsing YAML from {file_path}",
             content,
         )
-        return result if isinstance(result, dict) else {}
+        if result is None:
+            return {}
+        if not isinstance(result, dict):
+            error_handler.log_error(
+                error_handler.handle_validation_error(
+                    f"Expected YAML dict, got {type(result).__name__}",
+                    context={"file_path": str(file_path)},
+                )
+            )
+            return {}
+        return result
     except Exception as e:
         error = error_handler.handle_yaml_error(e, file_path)
         error_handler.exit_with_error(error)

@@ -63,10 +63,12 @@ def mock_todo_tool() -> Mock:
 
 @pytest.fixture
 def pull_request_context() -> dict[str, Any]:
+    changes = ["src/feature.py", "tests/test_feature.py"]
     return {
         "title": "feat: Add feature",
         "description": "Implements new functionality with tests",
-        "changes": ["src/feature.py", "tests/test_feature.py"],
+        "changes": changes,
+        "changed_files": changes,
     }
 
 
@@ -99,7 +101,16 @@ def sample_agent_file(tmp_path: Path, sample_agent_content: str) -> Path:
 
 @pytest.fixture
 def sample_command_content() -> str:
-    return """# Command\n\n## Description\nDo the thing.\n"""
+    return """---
+description: Conventional Commit message drafting command for staged changes.
+---
+
+# Commit Message Command
+
+## Usage
+1. Run `Skill(sanctum:git-workspace-review)` to capture repo context.
+2. Run `Skill(sanctum:commit-messages)` to draft the commit message.
+"""
 
 
 @pytest.fixture
@@ -108,11 +119,68 @@ def sample_command_with_tags() -> str:
 
 
 @pytest.fixture
+def sample_command_without_description() -> str:
+    return """---
+name: commit-msg
+---
+
+# Commit Message
+
+## Usage
+Do the thing.
+"""
+
+
+@pytest.fixture
+def temp_command_file(tmp_path: Path, sample_command_content: str) -> Path:
+    cmd_file = tmp_path / "command.md"
+    cmd_file.write_text(sample_command_content)
+    return cmd_file
+
+
+@pytest.fixture
+def temp_full_plugin(tmp_path: Path) -> Path:
+    plugin_root = tmp_path / "sanctum"
+    (plugin_root / "skills" / "git-workspace-review").mkdir(parents=True)
+    (plugin_root / "skills" / "commit-messages").mkdir(parents=True)
+
+    (plugin_root / "skills" / "git-workspace-review" / "SKILL.md").write_text(
+        """---
+name: git-workspace-review
+description: Check repo state
+tools: [Bash]
+---
+
+# Git Workspace Review
+
+## When to Use
+Use before downstream workflows.
+"""
+    )
+    (plugin_root / "skills" / "commit-messages" / "SKILL.md").write_text(
+        """---
+name: commit-messages
+description: Draft commit messages
+tools: [Bash]
+---
+
+# Commit Messages
+
+## When to Use
+Use after staging changes.
+"""
+    )
+
+    return plugin_root
+
+
+@pytest.fixture
 def sample_plugin_json() -> dict[str, Any]:
     return {
         "name": "sanctum",
         "version": "0.1.0",
-        "skills": ["git-workspace-review"],
+        "description": "Test plugin manifest",
+        "skills": ["./skills/git-workspace-review"],
     }
 
 

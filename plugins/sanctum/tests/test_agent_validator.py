@@ -19,8 +19,8 @@ def test_valid_result_creation() -> None:
 
 def test_validates_valid_agent(sample_agent_content: str) -> None:
     result = AgentValidator.validate_content(sample_agent_content)
-    assert not result.is_valid
-    assert any("heading" in error.lower() for error in result.errors)
+    assert result.is_valid is True
+    assert result.errors == []
 
 
 def test_warns_when_missing_capabilities() -> None:

@@ -4,6 +4,17 @@
 
 set -euo pipefail
 
+# Portable number extraction (works without grep -P)
+extract_stat_number() {
+    local stats="$1"
+    local pattern="$2"
+    if echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
+        echo "$stats" | grep -oP "\d+(?= $pattern)" || echo "0"
+    else
+        echo "$stats" | grep -oE "[0-9]+ $pattern" | sed 's/ .*//' || echo "0"
+    fi
+}
+
 # Only run in git repositories
 if ! git rev-parse --git-dir > /dev/null 2>&1; then
     # Not in a git repo, output empty JSON
@@ -27,8 +38,9 @@ fi
 
 # Get metrics
 lines_changed=0
-insertions=$(git diff "$base_branch" --stat 2>/dev/null | tail -1 | grep -oP '\d+(?= insertion)' || echo "0")
-deletions=$(git diff "$base_branch" --stat 2>/dev/null | tail -1 | grep -oP '\d+(?= deletion)' || echo "0")
+stat_line=$(git diff "$base_branch" --stat 2>/dev/null | tail -1)
+insertions=$(extract_stat_number "$stat_line" "insertion")
+deletions=$(extract_stat_number "$stat_line" "deletion")
 lines_changed=$((insertions + deletions))
 
 commits=$(git rev-list --count "$base_branch"..HEAD 2>/dev/null || echo "0")
@@ -93,10 +105,14 @@ elif [ "$zone" = "yellow" ]; then
     context="scope-guard: ⚠️ YELLOW - ${warnings}Monitor scope carefully."
 fi
 
-# Escape for JSON
+# Escape for JSON - uses jq when available, falls back to sed
 escape_for_json() {
     local input="$1"
-    printf '%s' "$input" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\n/\\n/g; s/\r/\\r/g; s/\t/\\t/g'
+    if command -v jq >/dev/null 2>&1; then
+        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
+    else
+        printf '%s' "$input" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\n/\\n/g; s/\r/\\r/g; s/\t/\\t/g'
+    fi
 }
 
 context_escaped=$(escape_for_json "$context")

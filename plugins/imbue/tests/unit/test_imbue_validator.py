@@ -5,6 +5,7 @@ following TDD/BDD principles and testing all business logic scenarios.
 """
 
 import json
+import sys
 import time
 from pathlib import Path
 from unittest.mock import patch
@@ -13,11 +14,16 @@ import pytest
 
 # Import the validator - handle both development and test environments
 try:
-    from scripts.imbue_validator import ImbueValidationResult, ImbueValidator
+    from scripts.imbue_validator import (
+        ImbueValidationResult,
+        ImbueValidator,
+        main as imbue_main,
+    )
 except ImportError:
     # For testing before module exists
     ImbueValidator = None
     ImbueValidationResult = None
+    imbue_main = None
 
 
 class TestImbueValidator:
@@ -258,8 +264,65 @@ This provides workflow orchestration.
         result = validator.scan_review_workflows()
 
         # Assert
-        assert "Invalid plugin.json" in result["issues"]
+        assert result["issues"][0].startswith("Invalid plugin.json at line 1:")
         assert len(result["issues"]) == 1
+
+    @pytest.mark.unit
+    def test_scan_review_workflows_handles_plugin_config_read_error(
+        self, mock_plugin_structure
+    ) -> None:
+        """Scenario: Scan handles plugin.json read errors gracefully.
+
+        Given a plugin.json file that cannot be decoded as text
+        When scanning for review workflows
+        Then it should record an issue instead of crashing
+        And continue processing skills.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Arrange - write bytes that are invalid UTF-8
+        (mock_plugin_structure / "plugin.json").write_bytes(b"\xff")
+        validator = ImbueValidator(mock_plugin_structure)
+
+        # Act
+        result = validator.scan_review_workflows()
+
+        # Assert
+        assert any("Unable to read plugin.json" in issue for issue in result["issues"])
+        assert result["skills_found"] == {
+            "review-core",
+            "evidence-logging",
+            "other-skill",
+        }
+
+    @pytest.mark.unit
+    def test_scan_review_workflows_handles_skill_file_read_error(
+        self, mock_plugin_structure
+    ) -> None:
+        """Scenario: Scan handles skill file read errors gracefully.
+
+        Given a SKILL.md file that cannot be decoded as text
+        When scanning for review workflows
+        Then it should record an issue instead of crashing
+        And continue processing other skills.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Arrange - make one skill file invalid UTF-8
+        (mock_plugin_structure / "skills" / "other-skill" / "SKILL.md").write_bytes(
+            b"\xff"
+        )
+        validator = ImbueValidator(mock_plugin_structure)
+
+        # Act
+        result = validator.scan_review_workflows()
+
+        # Assert
+        assert any("other-skill: Unable to read" in issue for issue in result["issues"])
+        assert "review-core" in result["skills_found"]
+        assert "evidence-logging" in result["skills_found"]
 
     @pytest.mark.unit
     def test_validate_review_workflows_review_core_components(
@@ -320,18 +383,18 @@ This skill has checklist but no deliverable section.
             pytest.skip("ImbueValidator not available")
 
         # Arrange - create skill without evidence patterns
-        no_evidence_dir = mock_plugin_structure / "skills" / "no-evidence"
+        no_evidence_dir = mock_plugin_structure / "skills" / "no-audit"
         no_evidence_dir.mkdir()
         (no_evidence_dir / "SKILL.md").write_text("""---
 
-name: no-evidence
-description: Skill without evidence patterns
----
+	name: no-audit
+	description: Skill without audit patterns
+	---
 
-# No Evidence Skill
+	# No Audit Skill
 
-This skill doesn't mention evidence or logging.
-""")
+	This skill omits traceability details.
+	""")
 
         validator = ImbueValidator(mock_plugin_structure)
 
@@ -342,7 +405,7 @@ This skill doesn't mention evidence or logging.
         evidence_issues = [
             issue for issue in issues if "evidence logging patterns" in issue
         ]
-        assert any("no-evidence" in issue for issue in evidence_issues)
+        assert any("no-audit" in issue for issue in evidence_issues)
 
     @pytest.mark.unit
     def test_validate_review_workflows_excludes_review_core_from_evidence_check(
@@ -427,7 +490,7 @@ This skill provides review scaffolding with checklist and deliverables.
 
         no_evidence_dir = mock_plugin_structure / "skills" / "no-evidence"
         no_evidence_dir.mkdir()
-        (no_evidence_dir / "SKILL.md").write_text("No evidence patterns")
+        (no_evidence_dir / "SKILL.md").write_text("No traceability patterns")
 
         validator = ImbueValidator(mock_plugin_structure)
 
@@ -436,7 +499,7 @@ This skill provides review scaffolding with checklist and deliverables.
 
         # Assert
         assert "Issues Found" in report
-        assert "Invalid plugin.json" in report
+        assert "Invalid plugin.json at line 1:" in report
         assert "no-evidence: Should have evidence logging patterns" in report
 
     @pytest.mark.unit
@@ -548,6 +611,70 @@ Also includes EVIDENCE logging.
         # No evidence patterns added without plugin.json
         assert len(result["evidence_logging_patterns"]) == 0
 
+    @pytest.mark.unit
+    def test_cli_scan_exits_nonzero_when_issues(
+        self, mock_plugin_structure, capsys
+    ) -> None:
+        """Scenario: CLI scan exits non-zero when issues exist."""
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
+
+        with patch.object(
+            sys,
+            "argv",
+            ["prog", "--root", str(mock_plugin_structure), "--scan"],
+        ):
+            with pytest.raises(SystemExit) as exc:
+                imbue_main()
+            assert exc.value.code == 1
+
+        out = capsys.readouterr().out
+        assert "skills_found:" in out
+        assert "Issues:" in out
+
+    @pytest.mark.unit
+    def test_cli_scan_success_outputs_no_issues(
+        self, mock_plugin_structure, capsys
+    ) -> None:
+        """Scenario: CLI scan prints results and exits cleanly when no issues."""
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
+
+        # Ensure all skills mention evidence so validation passes.
+        for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
+            content = skill_file.read_text(errors="ignore")
+            if "evidence" not in content.lower():
+                skill_file.write_text(content + "\n\n## Evidence\nWe capture evidence.")
+
+        with patch.object(
+            sys,
+            "argv",
+            ["prog", "--root", str(mock_plugin_structure), "--scan"],
+        ):
+            imbue_main()
+
+        out = capsys.readouterr().out
+        assert "skills_found:" in out
+        assert "review_workflow_skills:" in out
+        assert "evidence_logging_patterns:" in out
+        assert "Issues:" not in out
+
+    @pytest.mark.unit
+    def test_cli_report_outputs_report(self, mock_plugin_structure, capsys) -> None:
+        """Scenario: CLI report prints a full report."""
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
+
+        with patch.object(
+            sys,
+            "argv",
+            ["prog", "--root", str(mock_plugin_structure), "--report"],
+        ):
+            imbue_main()
+
+        out = capsys.readouterr().out
+        assert "Imbue Plugin Review Workflow Report" in out
+
 
 class TestImbueValidatorIntegration:
     """Feature: Imbue validator integration with real file system.
@@ -595,29 +722,21 @@ class TestImbueValidatorIntegration:
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
 
-        # This test would require more complex setup for permission testing
-        # For now, we'll test with a non-readable file simulation
         plugin_root = tmp_path / "permission-test"
         plugin_root.mkdir()
 
         # Create a skill file
         skill_dir = plugin_root / "skills" / "test-skill"
-        skill_dir.mkdir()
+        skill_dir.mkdir(parents=True)
         skill_file = skill_dir / "SKILL.md"
         skill_file.write_text("Test content")
 
-        # Mock file reading to simulate permission error
-        with patch.object(
-            skill_file,
-            "read_text",
-            side_effect=PermissionError("Permission denied"),
-        ):
-            validator = ImbueValidator(plugin_root)
+        # Make the file unreadable to simulate a permission error.
+        skill_file.chmod(0)
 
-            # This should not crash, though behavior depends on implementation
-            # The test verifies graceful handling
-            with pytest.raises(PermissionError):
-                validator.validate_review_workflows()
+        validator = ImbueValidator(plugin_root)
+        issues = validator.validate_review_workflows()
+        assert any("Unable to read" in issue for issue in issues)
 
 
 @pytest.mark.skipif(ImbueValidator is None, reason="ImbueValidator not available")
@@ -683,10 +802,12 @@ This is test skill number {i} with review workflow patterns.
         # In practice, you'd use memory profiling tools
         plugin_root = tmp_path / "memory-test"
         plugin_root.mkdir()
+        skills_dir = plugin_root / "skills"
+        skills_dir.mkdir()
 
         # Create large skill files
         for i in range(10):
-            skill_dir = plugin_root / "skills" / f"large-skill-{i}"
+            skill_dir = skills_dir / f"large-skill-{i}"
             skill_dir.mkdir()
             skill_file = skill_dir / "SKILL.md"
             # Create a large content file

@@ -24,7 +24,8 @@
     "dependency_check": {
       "required": true,
       "validate_paths": true,
-      "check_circular": true
+      "check_circular": true,
+      "max_retries": 3
     }
   },
   "actions": {

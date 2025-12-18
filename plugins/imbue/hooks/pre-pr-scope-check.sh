@@ -37,6 +37,17 @@ YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+# Portable number extraction (works without grep -P)
+extract_stat_number() {
+    local stats="$1"
+    local pattern="$2"
+    if echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
+        echo "$stats" | grep -oP "\d+(?= $pattern)" || echo "0"
+    else
+        echo "$stats" | grep -oE "[0-9]+ $pattern" | sed 's/ .*//' || echo "0"
+    fi
+}
+
 # Get metrics
 get_lines_changed() {
     local stats
@@ -45,10 +56,10 @@ get_lines_changed() {
         echo "0"
         return
     fi
-    # Extract insertions and deletions
+    # Extract insertions and deletions using portable helper
     local insertions deletions
-    insertions=$(echo "$stats" | grep -oP '\d+(?= insertion)' || echo "0")
-    deletions=$(echo "$stats" | grep -oP '\d+(?= deletion)' || echo "0")
+    insertions=$(extract_stat_number "$stats" "insertion")
+    deletions=$(extract_stat_number "$stats" "deletion")
     echo $((insertions + deletions))
 }
 
