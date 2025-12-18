@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import json
+import os
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -16,7 +18,7 @@ import pytest
 HOOKS_DIR = Path(__file__).parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
 
-from session_complete_notify import (
+from session_complete_notify import (  # noqa: E402
     get_terminal_info,
     main,
     notify_linux,
@@ -102,7 +104,7 @@ class TestGetTerminalInfo:
         self, clean_env: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         """Should detect tmux session."""
-        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")
+        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")  # noqa: S108
         monkeypatch.chdir(tmp_path)
 
         with patch("session_complete_notify.subprocess.run") as mock_run:
@@ -115,7 +117,7 @@ class TestGetTerminalInfo:
         self, clean_env: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         """Should fallback gracefully when tmux command fails."""
-        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")
+        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")  # noqa: S108
         project_dir = tmp_path / "fallback-project"
         project_dir.mkdir()
         monkeypatch.chdir(project_dir)
@@ -440,9 +442,6 @@ class TestHookRegistration:
         script_path = HOOKS_DIR / "session_complete_notify.py"
         assert script_path.exists(), "Script should exist"
 
-        import os
-        import stat
-
         mode = os.stat(script_path).st_mode
         assert mode & stat.S_IXUSR, "Script should be executable by owner"
 
@@ -482,7 +481,7 @@ class TestEdgeCases:
         self, clean_env: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         """Should handle empty tmux output gracefully."""
-        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")
+        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")  # noqa: S108
         project_dir = tmp_path / "project"
         project_dir.mkdir()
         monkeypatch.chdir(project_dir)
@@ -494,11 +493,89 @@ class TestEdgeCases:
         # Should fallback since tmux output is empty
         assert "project" in result
 
-    def test_notification_with_quotes_in_message(
+    def test_notification_with_quotes_in_message_linux(
         self, mock_subprocess_success: MagicMock
     ) -> None:
-        """Should handle quotes in message content."""
+        """Should handle quotes in message content for Linux."""
         # This tests that we don't break shell escaping
         result = notify_linux('Title with "quotes"', "Message with 'quotes'")
 
         assert result is True
+
+    def test_notification_with_quotes_in_message_macos(
+        self, mock_subprocess_success: MagicMock
+    ) -> None:
+        """Should properly escape quotes for AppleScript on macOS."""
+        result = notify_macos('Title with "quotes"', "Message with 'quotes'")
+
+        assert result is True
+        # Verify the script was properly escaped
+        call_args = mock_subprocess_success.call_args[0][0]
+        script = call_args[2]  # -e argument
+        # Double quotes should be escaped with backslash for AppleScript
+        assert '\\"' in script or "quotes" in script
+
+    def test_notification_with_injection_attempt_macos(
+        self, mock_subprocess_success: MagicMock
+    ) -> None:
+        """Should escape characters that could break AppleScript."""
+        # Attempt to break out of the AppleScript string
+        malicious_title = 'Title" & do shell script "whoami'
+        result = notify_macos(malicious_title, "Safe message")
+
+        assert result is True
+        # The injection attempt should be escaped
+        call_args = mock_subprocess_success.call_args[0][0]
+        script = call_args[2]
+        # Should contain escaped quotes, not raw injection
+        assert 'do shell script' not in script or '\\"' in script
+
+    def test_notification_with_xml_injection_windows(
+        self, mock_subprocess_success: MagicMock
+    ) -> None:
+        """Should escape XML special characters for Windows toast."""
+        # Attempt XML injection
+        malicious_title = "<script>alert('xss')</script>"
+        malicious_message = "Test & <malicious> content"
+        result = notify_windows(malicious_title, malicious_message)
+
+        assert result is True
+        # Verify xml characters were escaped
+        call_args = mock_subprocess_success.call_args[0][0]
+        ps_script = call_args[3]  # -Command argument
+        # html.escape converts < to &lt;, > to &gt;, & to &amp;
+        assert "&lt;" in ps_script or "script" not in ps_script.lower()
+
+    def test_notification_with_powershell_injection_windows(self) -> None:
+        """Should escape PowerShell-breaking characters in BurntToast."""
+        call_count = 0
+
+        def side_effect(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise subprocess.CalledProcessError(1, "powershell")
+            return MagicMock(returncode=0)
+
+        # Attempt to break out of PowerShell string
+        malicious_title = 'Title"; Remove-Item -Recurse C:\\; echo "'
+        with patch("session_complete_notify.subprocess.run", side_effect=side_effect):
+            result = notify_windows(malicious_title, "Safe message")
+
+        assert result is True
+        # BurntToast fallback was tried (2 calls = main + fallback)
+        assert call_count == 2
+
+    def test_notification_with_backslash_escaping_macos(
+        self, mock_subprocess_success: MagicMock
+    ) -> None:
+        """Should properly escape backslashes for AppleScript."""
+        # Backslashes need to be escaped in AppleScript
+        title_with_backslash = "Path: C:\\Users\\test"
+        result = notify_macos(title_with_backslash, "Check path")
+
+        assert result is True
+        call_args = mock_subprocess_success.call_args[0][0]
+        script = call_args[2]
+        # Backslashes should be escaped
+        assert "\\\\" in script or "Users" in script

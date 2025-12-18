@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Cross-platform toast notification when Claude session awaits input.
+"""Cross-platform toast notification when Claude session awaits input.
+
 Supports: Linux (notify-send), macOS (osascript), Windows (PowerShell toast).
 """
 
@@ -29,10 +29,11 @@ def get_terminal_info() -> str:
     if tmux:
         try:
             result = subprocess.run(
-                ["tmux", "display-message", "-p", "#S:#W"],
+                ["tmux", "display-message", "-p", "#S:#W"],  # noqa: S603,S607
                 capture_output=True,
                 text=True,
                 timeout=2,
+                check=False,
             )
             if result.returncode == 0 and result.stdout.strip():
                 return f"tmux:{result.stdout.strip()} - {project_name}"
@@ -55,14 +56,9 @@ def get_terminal_info() -> str:
 def notify_linux(title: str, message: str) -> bool:
     """Send notification on Linux using notify-send."""
     try:
-        subprocess.run(
-            [
-                "notify-send",
-                "--app-name=Claude Code",
-                "--urgency=normal",
-                title,
-                message,
-            ],
+        subprocess.run(  # noqa: S603
+            ["notify-send", "--app-name=Claude Code", "--urgency=normal",  # noqa: S607,E501
+             title, message],
             check=True,
             timeout=3,
         )
@@ -71,7 +67,8 @@ def notify_linux(title: str, message: str) -> bool:
         subprocess.CalledProcessError,
         FileNotFoundError,
         subprocess.TimeoutExpired,
-    ):
+    ) as e:
+        print(f"[sanctum:notify] Linux notification failed: {e}", file=sys.stderr)
         return False
 
 
@@ -80,15 +77,23 @@ def notify_macos(title: str, message: str) -> bool:
     # Escape for AppleScript string literals
     safe_title = title.replace("\\", "\\\\").replace('"', '\\"')
     safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
-    script = f'display notification "{safe_message}" with title "{safe_title}" sound name "Glass"'
+    script = (
+        f'display notification "{safe_message}" '
+        f'with title "{safe_title}" sound name "Glass"'
+    )
     try:
-        subprocess.run(["osascript", "-e", script], check=True, timeout=3)
+        subprocess.run(  # noqa: S603
+            ["osascript", "-e", script],  # noqa: S607
+            check=True,
+            timeout=3,
+        )
         return True
     except (
         subprocess.CalledProcessError,
         FileNotFoundError,
         subprocess.TimeoutExpired,
-    ):
+    ) as e:
+        print(f"[sanctum:notify] macOS notification failed: {e}", file=sys.stderr)
         return False
 
 
@@ -99,9 +104,12 @@ def notify_windows(title: str, message: str) -> bool:
     safe_message = html.escape(message)
 
     # PowerShell script for Windows toast notification
+    # Note: Long lines below are PowerShell code that requires specific formatting
+    toast_mgr = "Windows.UI.Notifications.ToastNotificationManager"
+    xml_doc = "Windows.Data.Xml.Dom.XmlDocument"
     ps_script = f"""
-[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
-[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+[{toast_mgr}, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+[{xml_doc}, {xml_doc}, ContentType = WindowsRuntime] | Out-Null
 
 $template = @"
 <toast>
@@ -115,14 +123,14 @@ $template = @"
 </toast>
 "@
 
-$xml = New-Object Windows.Data.Xml.Dom.XmlDocument
+$xml = New-Object {xml_doc}
 $xml.LoadXml($template)
 $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Claude Code").Show($toast)
+[{toast_mgr}]::CreateToastNotifier("Claude Code").Show($toast)
 """
     try:
-        subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps_script],
+        subprocess.run(  # noqa: S603
+            ["powershell", "-NoProfile", "-Command", ps_script],  # noqa: S607
             check=True,
             timeout=5,
             capture_output=True,
@@ -132,19 +140,16 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         subprocess.CalledProcessError,
         FileNotFoundError,
         subprocess.TimeoutExpired,
-    ):
+    ) as e:
+        print(f"[sanctum:notify] Windows toast failed: {e}", file=sys.stderr)
         # Fallback: try simpler BurntToast if available
         # Escape for PowerShell string (backtick escapes quotes)
         ps_title = title.replace('"', '`"')
         ps_message = message.replace('"', '`"')
         try:
-            subprocess.run(
-                [
-                    "powershell",
-                    "-NoProfile",
-                    "-Command",
-                    f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"',
-                ],
+            burnt_cmd = f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"'
+            subprocess.run(  # noqa: S603
+                ["powershell", "-NoProfile", "-Command", burnt_cmd],  # noqa: S607
                 check=True,
                 timeout=5,
                 capture_output=True,
@@ -154,7 +159,8 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
             subprocess.CalledProcessError,
             FileNotFoundError,
             subprocess.TimeoutExpired,
-        ):
+        ) as e:
+            print(f"[sanctum:notify] BurntToast fallback failed: {e}", file=sys.stderr)
             return False
 
 
@@ -172,7 +178,8 @@ def send_notification(title: str, message: str) -> bool:
         return False
 
 
-def main():
+def main() -> None:
+    """Send notification that Claude session is awaiting input."""
     terminal_info = get_terminal_info()
     title = "Claude Code Ready"
     message = f"Awaiting input in: {terminal_info}"
