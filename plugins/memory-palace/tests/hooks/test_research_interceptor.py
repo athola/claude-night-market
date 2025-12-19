@@ -645,6 +645,49 @@ class TestEndToEnd:
         assert telemetry_event.intake_delta_reasoning
         assert telemetry_event.duplicate_entry_ids == "async-patterns"
 
+    def test_intake_queue_persistence(self, tmp_path: pytest.TempPathFactory) -> None:
+        """Test that high-novelty queries are persisted to intake queue."""
+        mock_stdin = StringIO(
+            json.dumps(
+                {
+                    "tool_name": "WebSearch",
+                    "tool_input": {"query": "novel quantum computing research 2025"},
+                },
+            ),
+        )
+        mock_config = {
+            "enabled": True,
+            "research_mode": "cache_first",
+            "telemetry": {"enabled": False},
+        }
+
+        # Create a temp data directory for queue file
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        queue_file = data_dir / "intake_queue.jsonl"
+
+        with (
+            patch("sys.stdin", mock_stdin),
+            patch("sys.stdout", StringIO()),
+            patch("shared.config.get_config", return_value=mock_config),
+            patch("research_interceptor.search_local_knowledge", return_value=[]),
+            patch.object(research_interceptor, "PLUGIN_ROOT", tmp_path),
+            pytest.raises(SystemExit),
+        ):
+            research_interceptor.main()
+
+        # Verify queue file was created with the entry
+        assert queue_file.exists(), "Intake queue file should be created"
+        content = queue_file.read_text()
+        assert content.strip(), "Queue file should not be empty"
+
+        entry = json.loads(content.strip())
+        assert entry["tool_name"] == "WebSearch"
+        assert entry["query"] == "novel quantum computing research 2025"
+        assert "intake_payload" in entry
+        assert entry["intake_payload"]["should_flag_for_intake"] is True
+        assert "timestamp" in entry
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
