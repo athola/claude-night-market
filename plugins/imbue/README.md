@@ -72,6 +72,26 @@ Use during planning to evaluate if features should be implemented now or deferre
 3. `scope-guard:budget-checked`: Verify branch budget.
 4. `scope-guard:decision-documented`: Record decision.
 
+### Feature Planning
+
+#### feature-review
+Evidence-based feature prioritization using hybrid RICE+WSJF scoring. Uses a modular structure with four components:
+- `scoring-framework`: Hybrid RICE+WSJF scoring with configurable weights
+- `classification-system`: Proactive/Reactive and Static/Dynamic feature classification
+- `tradeoff-dimensions`: Nine quality dimensions based on ISO 25010
+- `configuration`: YAML configuration with guardrails and project-type templates
+
+**When to Use:**
+Use to inventory implemented features, score and prioritize them, analyze tradeoffs, and suggest new features. Can create GitHub issues for accepted suggestions.
+
+**Required TodoWrite Items:**
+1. `feature-review:inventory-complete`: Discover and catalog features.
+2. `feature-review:classification-applied`: Classify features on both axes.
+3. `feature-review:scoring-complete`: Calculate priority scores.
+4. `feature-review:tradeoffs-analyzed`: Evaluate quality dimensions.
+5. `feature-review:gaps-identified`: Identify improvement opportunities.
+6. `feature-review:issues-created`: Create GitHub issues (if requested).
+
 ### Output Patterns
 
 #### evidence-logging
@@ -109,13 +129,18 @@ imbue/
 │   ├── session-start.sh     # Session initialization
 │   ├── user-prompt-submit.sh # Per-prompt threshold checks
 │   └── pre-pr-scope-check.sh # Branch threshold monitoring
+├── commands/
+│   ├── full-review.md       # Structured review command
+│   ├── catchup.md           # Quick catchup command
+│   └── feature-review.md    # Feature prioritization command
 └── skills/
     ├── review-core/        # Review workflow scaffolding
     ├── evidence-logging/   # Evidence capture methodology
     ├── structured-output/  # Output formatting patterns
     ├── diff-analysis/      # Change analysis methodology
     ├── catchup/            # Summarization methodology
-    └── scope-guard/        # Anti-overengineering guardrails
+    ├── scope-guard/        # Anti-overengineering guardrails
+    └── feature-review/     # Feature prioritization framework
 ```
 
 ## Dependencies
@@ -135,9 +160,18 @@ Skill(imbue:catchup)
 # Workflow guards
 Skill(imbue:scope-guard)
 
+# Feature planning
+Skill(imbue:feature-review)
+
 # Output patterns
 Skill(imbue:evidence-logging)
 Skill(imbue:structured-output)
+
+# Commands
+/feature-review              # Full review: inventory, score, suggest
+/feature-review --inventory  # Only discover features
+/feature-review --suggest    # Include new feature suggestions
+/feature-review --suggest --create-issues  # Create GitHub issues
 ```
 
 ## Integration
