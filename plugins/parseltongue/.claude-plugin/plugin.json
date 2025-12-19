@@ -1,6 +1,6 @@
 {
   "name": "parseltongue",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Modern Python development suite - testing, performance optimization, async patterns, and packaging",
   "commands": [
     "./commands/analyze-tests.md",
@@ -20,8 +20,8 @@
   ],
   "keywords": ["python", "testing", "pytest", "performance", "optimization", "async", "asyncio", "packaging", "uv", "profiling"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

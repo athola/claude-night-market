@@ -41,11 +41,11 @@ Analysis of original content revealed:
 
 | Original Content | Target Module | Status |
 |------------------|---------------|---------|
-| TDD methodology | `skill-authoring/modules/tdd-methodology.md` | ✅ Exists |
-| Baseline testing | `skills-eval/modules/pressure-testing.md` | ✅ Exists |
-| Comparison logic | `skills-eval/modules/evaluation-workflows.md` | ✅ Exists |
-| Error patterns | `shared-patterns/modules/error-handling.md` | ✅ Exists |
-| Command orchestration | Keep in wrapper | ✅ New |
+| TDD methodology | `skill-authoring/modules/tdd-methodology.md` | Exists |
+| Baseline testing | `skills-eval/modules/pressure-testing.md` | Exists |
+| Comparison logic | `skills-eval/modules/evaluation-workflows.md` | Exists |
+| Error patterns | `shared-patterns/modules/error-handling.md` | Exists |
+| Command orchestration | Keep in wrapper | New |
 
 ## After Migration
 
@@ -324,22 +324,22 @@ Warning: Test results vary between runs
 ### Pre-Migration Tests
 ```bash
 make test-wrapper WRAPPER=test-skill
-Result: ✅ All tests passed (baseline)
+Result: [PASS] All tests passed (baseline)
 
 make check-tokens commands/test-skill.md
-Result: ⚠️ 650 lines (exceeds 500 limit)
+Result: [WARN] 650 lines (exceeds 500 limit)
 ```
 
 ### Post-Migration Tests
 ```bash
 make test-wrapper WRAPPER=test-skill
-Result: ✅ All tests passed (maintained)
+Result: [PASS] All tests passed (maintained)
 
 make check-tokens commands/test-skill.md
-Result: ✅ 120 lines (within limit)
+Result: [PASS] 120 lines (within limit)
 
 make check-deps commands/test-skill.md
-Result: ✅ All dependencies satisfied
+Result: [PASS] All dependencies satisfied
 ```
 
 ### Functional Validation

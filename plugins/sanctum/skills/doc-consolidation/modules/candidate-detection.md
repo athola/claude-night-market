@@ -72,7 +72,7 @@ Scan first 100 lines for LLM output markers:
 - `- [ ]` checkbox lists
 - `## 1.` numbered top-level sections
 - `**Scope**:` or `**Status**:`
-- Lines starting with `✅` or `⚠️` or `❌`
+- Lines starting with status markers
 
 ## Detection Algorithm
 

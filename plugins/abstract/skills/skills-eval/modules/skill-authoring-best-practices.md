@@ -87,9 +87,9 @@ What works for Opus might need more detail for Haiku. If using across multiple m
 ### Naming Conventions
 
 Use gerund form (verb + -ing) for clarity:
-- ✓ `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`
-- ✓ Alternative: `pdf-processing`, `process-pdfs`
-- ✗ Avoid: `helper`, `utils`, `tools`, `documents`
+- OK `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`
+- OK Alternative: `pdf-processing`, `process-pdfs`
+- FAIL Avoid: `helper`, `utils`, `tools`, `documents`
 
 Consistent naming makes it easier to:
 - Reference Skills in documentation and conversations
@@ -100,9 +100,9 @@ Consistent naming makes it easier to:
 ### Writing Effective Descriptions
 
 **Always write in third person** (injected into system prompt):
-- ✓ "Processes Excel files and generates reports"
-- ✗ "I can help you process Excel files"
-- ✗ "You can use this to process Excel files"
+- OK "Processes Excel files and generates reports"
+- FAIL "I can help you process Excel files"
+- FAIL "You can use this to process Excel files"
 
 **Be specific with key terms** - Claude uses description to select from 100+ Skills:
 
@@ -290,7 +290,7 @@ The v1 API used: `api.example.com/v1/messages`
 
 Choose one term and use throughout:
 
-| ✓ Consistent | ✗ Inconsistent |
+| OK Consistent | FAIL Inconsistent |
 |--------------|----------------|
 | Always "API endpoint" | Mix "URL", "route", "path" |
 | Always "field" | Mix "box", "element", "control" |
@@ -471,8 +471,8 @@ The 'name' and 'description' in your Skill's metadata are particularly critical.
 ## Anti-Patterns to Avoid
 
 ### Windows-Style Paths
-- ✓ `scripts/helper.py`, `reference/guide.md`
-- ✗ `scripts\helper.py`, `reference\guide.md`
+- OK `scripts/helper.py`, `reference/guide.md`
+- FAIL `scripts\helper.py`, `reference\guide.md`
 
 Unix-style paths work across all platforms.
 
@@ -595,9 +595,9 @@ List required packages in SKILL.md and verify availability.
 ### MCP Tool References
 
 Always use fully qualified names:
-- ✓ `BigQuery:bigquery_schema`
-- ✓ `GitHub:create_issue`
-- ✗ `bigquery_schema` (may fail with multiple servers)
+- OK `BigQuery:bigquery_schema`
+- OK `GitHub:create_issue`
+- FAIL `bigquery_schema` (may fail with multiple servers)
 
 Format: `ServerName:tool_name`
 

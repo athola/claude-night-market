@@ -329,7 +329,7 @@ def _validate_callback_method(
         )
         result["valid"] = False
 
-    result["info"].append(f"  ✓ {method_name}: signature correct")
+    result["info"].append(f"  OK {method_name}: signature correct")
 
 
 def _validate_agent_hooks_class(cls: ast.ClassDef, result: ValidationResult) -> None:

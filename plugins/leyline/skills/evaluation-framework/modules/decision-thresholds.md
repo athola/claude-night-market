@@ -382,8 +382,8 @@ status_transitions:
 ### Clear Boundaries
 
 Avoid overlapping ranges:
-- ✅ Good: `80-100`, `60-79`, `0-59`
-- ❌ Bad: `80-100`, `60-80`, `0-60`
+- Good: `80-100`, `60-79`, `0-59`
+- Bad: `80-100`, `60-80`, `0-60`
 
 ### Document Rationale
 

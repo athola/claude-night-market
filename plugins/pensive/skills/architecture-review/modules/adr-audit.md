@@ -109,9 +109,9 @@ Superseded-by: [ADR-XXX] (if applicable)
 - Accepted → Superseded (via new ADR only)
 
 ### Invalid Transitions
-- ❌ Proposed → Accepted (skip review)
-- ❌ Accepted → Rejected (use Superseded)
-- ❌ Superseded → Accepted (immutable)
+- Proposed -> Accepted (skip review)
+- Accepted -> Rejected (use Superseded)
+- Superseded -> Accepted (immutable)
 
 ## Immutability Rules
 

@@ -17,7 +17,7 @@ through separation of concerns and strategic code organization.
 ## When to Use
 
 **Symptoms that trigger this skill:**
-- Skills-eval validation shows "⚠ Large skill file" warnings
+- Skills-eval validation shows "[WARN] Large skill file" warnings
 - SKILL.md files exceed 300 lines
 - Multiple code blocks (10+) with similar functionality
 - Heavy Python implementations inline with markdown
@@ -171,13 +171,13 @@ python skills/optimizing-large-skills/tools/optimization-patterns.py your-skill.
 
 **Before optimization:**
 - growth-management skill: 654 lines (6 code blocks, 12 Python functions)
-- Skills-eval: ⚠ Large skill file warning
+- Skills-eval: [WARN] Large skill file warning
 - Loading time: High (full context usage)
 - Maintainability: Poor (everything mixed together)
 
 **After optimization:**
 - growth-management skill: 178 lines (3 tool references, 0 inline functions)
-- Skills-eval: ✓ No warnings
+- Skills-eval: OK No warnings
 - Loading time: Low (focused context)
 - Maintainability: Excellent (separation of concerns)
 
@@ -186,17 +186,17 @@ through external tools and progressive loading patterns.
 
 ## Anti-Patterns to Avoid
 
-### ❌ Narrative Documentation
+###  Narrative Documentation
 "During the session on 2025-11-27, we discovered that context growth was problematic..."
 
-### ❌ Template Code
+###  Template Code
 Don't create fill-in-the-blank templates in the skill itself - put them in examples/
 
-### ❌ Multiple Languages
+###  Multiple Languages
 One excellent Python example beats mediocre JavaScript and Go examples.
 
-### ✅ Tool References
+###  Tool References
 "For advanced pattern analysis, use `tools/analyzer.py` with appropriate context data."
 
-### ✅ Focused Scope
+###  Focused Scope
 Each tool should do one thing well with clear parameters and outputs.

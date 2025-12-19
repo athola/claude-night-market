@@ -286,11 +286,11 @@ Common signals for module selection:
 
 ## Anti-Patterns
 
-**❌ Loading Everything**: Defeats purpose of progressive loading
-**❌ Complex Selection Logic**: If selection is hard to understand, simplify
-**❌ Ignoring Budget**: Selection must respect MECW constraints
-**❌ Silent Failures**: If module can't load, inform user why
-**❌ Implicit Dependencies**: Module loading should be deterministic from context
+**Loading Everything**: Defeats purpose of progressive loading
+**Complex Selection Logic**: If selection is hard to understand, simplify
+**Ignoring Budget**: Selection must respect MECW constraints
+**Silent Failures**: If module can't load, inform user why
+**Implicit Dependencies**: Module loading should be deterministic from context
 
 ## Integration Points
 

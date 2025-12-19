@@ -21,11 +21,11 @@ Integrates condition-based-waiting principles with context optimization to elimi
 ### 1. Context Pressure Waiting
 
 ```python
-# ❌ BEFORE: Arbitrary timeout
+#  BEFORE: Arbitrary timeout
 time.sleep(2)  # Guess optimization will finish in 2 seconds
 context_status = check_context_usage()
 
-# ✅ AFTER: Wait for condition
+#  AFTER: Wait for condition
 context_status = wait_for_context_pressure(
     threshold=0.5,
     timeout_ms=5000
@@ -35,11 +35,11 @@ context_status = wait_for_context_pressure(
 ### 2. Optimization Completion Waiting
 
 ```python
-# ❌ BEFORE: Fixed delay
+#  BEFORE: Fixed delay
 await asyncio.sleep(3)  # Hope optimization finishes
 result = get_optimization_result()
 
-# ✅ AFTER: Wait for completion
+#  AFTER: Wait for completion
 result = wait_for_optimization_completion(
     optimization_id=opt_id,
     success_condition=lambda r: r.compression_ratio > 0.3
@@ -49,11 +49,11 @@ result = wait_for_optimization_completion(
 ### 3. Resource Availability Waiting
 
 ```python
-# ❌ BEFORE: Poll with sleep
+#  BEFORE: Poll with sleep
 while not resource_available():
     time.sleep(0.5)  # Arbitrary polling interval
 
-# ✅ AFTER: Condition-based polling
+#  AFTER: Condition-based polling
 wait_for_resource(
     resource_type="memory",
     min_available_mb=100,

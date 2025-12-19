@@ -60,7 +60,7 @@
 
    # Good: Explicit error handling
    test:
-       @pytest -v || { echo "⚠ Tests failed"; exit 1; }
+       @pytest -v || { echo "Tests failed"; exit 1; }
    ```
 
 2. **Hardcoded Paths**
@@ -128,7 +128,7 @@
 - **Naming Convention**: Hyphenated names (test-unit, not test_unit)
 - **Help Comments**: All targets should have `##` comments
 - **Error Handling**: Consistent error message format
-- **Output Formatting**: Consistent status indicators (✓/⚠)
+- **Output Formatting**: Consistent status indicators (OK/WARN)
 
 #### Variable Patterns
 - **Configurable Variables**: Use `?=` for override capability
@@ -250,7 +250,7 @@ test: ## Run all tests
 3. **Implement Error Handling**
    ```makefile
    test:
-       @pytest -v || { echo "⚠ Tests failed"; exit 1; }
+       @pytest -v || { echo "Tests failed"; exit 1; }
    ```
 
 ### High Priority (Next Update)
@@ -325,7 +325,7 @@ help: ## Show this help message
     @awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 test-coverage: ## Run tests with coverage
-    @pytest --cov=example --cov-report=html --cov-report=term-missing || { echo "⚠ Coverage failed"; exit 1; }
+    @pytest --cov=example --cov-report=html --cov-report=term-missing || { echo "Coverage failed"; exit 1; }
 ```
 ```
 

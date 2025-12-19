@@ -60,9 +60,11 @@ class SetupValidator:
         # Check for .gitignore
         gitignore_path = self.project_path / ".gitignore"
         if gitignore_path.exists():
-            self.successes.append("✅ .gitignore exists")
+            self.successes.append(" .gitignore exists")
         else:
-            self.warnings.append("⚠️  .gitignore missing. Recommended for all projects")
+            self.warnings.append(
+                "[WARN]  .gitignore missing. Recommended for all projects"
+            )
 
         # Check for remotes
         try:
@@ -80,13 +82,13 @@ class SetupValidator:
                     shell=False,
                 )
                 if result.returncode == 0 and result.stdout.strip():
-                    self.successes.append("✅ Git remotes configured")
+                    self.successes.append(" Git remotes configured")
                 else:
-                    self.warnings.append("⚠️  No Git remotes configured")
+                    self.warnings.append("[WARN]  No Git remotes configured")
             else:
-                self.warnings.append("⚠️  Git not found in PATH")
+                self.warnings.append("[WARN]  Git not found in PATH")
         except FileNotFoundError:
-            self.errors.append("❌ Git not installed or not in PATH")
+            self.errors.append(" Git not installed or not in PATH")
 
     def validate_git_hooks(self) -> None:
         """Validate Git hooks setup."""
@@ -104,9 +106,9 @@ class SetupValidator:
                 found_hooks.append(hook)
 
         if found_hooks:
-            self.successes.append(f"✅ Git hooks found: {', '.join(found_hooks)}")
+            self.successes.append(f" Git hooks found: {', '.join(found_hooks)}")
         else:
-            self.warnings.append("⚠️  No Git hooks configured")
+            self.warnings.append("[WARN]  No Git hooks configured")
 
     def validate_python_environment(self) -> None:
         """Validate Python development environment."""
@@ -124,9 +126,9 @@ class SetupValidator:
 
         venv_found = any(path.exists() for path in venv_paths)
         if venv_found:
-            self.successes.append("✅ Virtual environment detected")
+            self.successes.append(" Virtual environment detected")
         else:
-            self.warnings.append("⚠️  No virtual environment found")
+            self.warnings.append("[WARN]  No virtual environment found")
 
         # Check for requirements files
         req_files = [
@@ -140,9 +142,9 @@ class SetupValidator:
         found_reqs = [f for f in req_files if (self.project_path / f).exists()]
         if found_reqs:
             reqs_str = ", ".join(found_reqs)
-            self.successes.append(f"✅ Dependencies configured: {reqs_str}")
+            self.successes.append(f" Dependencies configured: {reqs_str}")
         else:
-            self.errors.append("❌ No dependency configuration found")
+            self.errors.append(" No dependency configuration found")
 
     def validate_node_environment(self) -> None:
         """Validate Node.js development environment."""
@@ -159,15 +161,15 @@ class SetupValidator:
             return  # Not a Node.js project
 
         node_files_str = ", ".join(node_files_found)
-        self.successes.append(f"✅ Node.js project detected: {node_files_str}")
+        self.successes.append(f" Node.js project detected: {node_files_str}")
 
         # Check for node_modules
         node_modules = self.project_path / "node_modules"
         if node_modules.exists():
-            self.successes.append("✅ Dependencies installed")
+            self.successes.append(" Dependencies installed")
         else:
             self.warnings.append(
-                "⚠️  Dependencies not installed. Run 'npm install' or equivalent",
+                "[WARN]  Dependencies not installed. Run 'npm install' or equivalent",
             )
 
     def validate_testing_setup(self) -> None:
@@ -178,7 +180,7 @@ class SetupValidator:
 
         if test_dirs_found:
             test_dirs_str = ", ".join(test_dirs_found)
-            self.successes.append(f"✅ Test directories found: {test_dirs_str}")
+            self.successes.append(f" Test directories found: {test_dirs_str}")
 
         # Check for test configuration
         test_configs = [
@@ -196,7 +198,7 @@ class SetupValidator:
         found_configs = [c for c in test_configs if (self.project_path / c).exists()]
         if found_configs:
             configs_str = ", ".join(found_configs)
-            self.successes.append(f"✅ Test configuration found: {configs_str}")
+            self.successes.append(f" Test configuration found: {configs_str}")
 
         # Check for actual test files
         test_files = list(self.project_path.rglob("test_*.py"))
@@ -205,9 +207,9 @@ class SetupValidator:
         test_files.extend(list(self.project_path.rglob("*.spec.js")))
 
         if test_files:
-            self.successes.append(f"✅ Test files found: {len(test_files)}")
+            self.successes.append(f" Test files found: {len(test_files)}")
         else:
-            self.warnings.append("⚠️  No test files found")
+            self.warnings.append("[WARN]  No test files found")
 
     def validate_code_quality_tools(self) -> None:
         """Validate code quality and linting setup."""
@@ -229,9 +231,9 @@ class SetupValidator:
 
         if found_tools:
             tools_str = ", ".join(found_tools)
-            self.successes.append(f"✅ Code quality tools configured: {tools_str}")
+            self.successes.append(f" Code quality tools configured: {tools_str}")
         else:
-            self.warnings.append("⚠️  No code quality tools configured")
+            self.warnings.append("[WARN]  No code quality tools configured")
 
     def validate_ci_cd_setup(self) -> None:
         """Validate CI/CD setup."""
@@ -262,9 +264,9 @@ class SetupValidator:
                 found_ci_cd.append(f".github/workflows ({len(workflows)} workflows)")
 
         if found_ci_cd:
-            self.successes.append(f"✅ CI/CD configured: {', '.join(found_ci_cd)}")
+            self.successes.append(f" CI/CD configured: {', '.join(found_ci_cd)}")
         else:
-            self.warnings.append("⚠️  No CI/CD configuration found")
+            self.warnings.append("[WARN]  No CI/CD configuration found")
 
     def validate_documentation(self) -> None:
         """Validate documentation setup."""
@@ -278,7 +280,7 @@ class SetupValidator:
 
         found_docs = [d for d in docs_files if (self.project_path / d).exists()]
         if found_docs:
-            self.successes.append(f"✅ Documentation found: {', '.join(found_docs)}")
+            self.successes.append(f" Documentation found: {', '.join(found_docs)}")
 
         # Check for advanced documentation
         advanced_docs = [
@@ -292,7 +294,7 @@ class SetupValidator:
         found_advanced = [d for d in advanced_docs if (self.project_path / d).exists()]
         if found_advanced:
             advanced_str = ", ".join(found_advanced)
-            self.successes.append(f"✅ Advanced documentation tools: {advanced_str}")
+            self.successes.append(f" Advanced documentation tools: {advanced_str}")
 
     def validate_directory_structure(self) -> None:
         """Validate project directory structure."""
@@ -301,7 +303,7 @@ class SetupValidator:
         found_src = [d for d in src_dirs if (self.project_path / d).exists()]
 
         if found_src:
-            self.successes.append(f"✅ Source directories: {', '.join(found_src)}")
+            self.successes.append(f" Source directories: {', '.join(found_src)}")
 
         # Configuration directories
         config_dirs = [".config", "config", "conf"]
@@ -309,7 +311,7 @@ class SetupValidator:
 
         if found_config:
             config_str = ", ".join(found_config)
-            self.successes.append(f"✅ Configuration directories: {config_str}")
+            self.successes.append(f" Configuration directories: {config_str}")
 
         # Build/output directories (should be in .gitignore)
         build_dirs = ["build", "dist", "target", "__pycache__", ".pytest_cache"]
@@ -323,12 +325,12 @@ class SetupValidator:
                 if ignored_builds:
                     ignored_str = ", ".join(ignored_builds)
                     self.successes.append(
-                        f"✅ Build directories properly ignored: {ignored_str}",
+                        f" Build directories properly ignored: {ignored_str}",
                     )
                 else:
                     builds_str = ", ".join(found_build)
                     self.warnings.append(
-                        f"⚠️  Build directories not in .gitignore: {builds_str}",
+                        f"[WARN]  Build directories not in .gitignore: {builds_str}",
                     )
 
     def print_results(self) -> None:
@@ -362,7 +364,7 @@ class SetupValidator:
         script_lines = [
             "#!/bin/bash",
             "# Auto-generated setup script",
-            "echo '🚀 Setting up development environment...'",
+            "echo ' Setting up development environment...'",
             "",
         ]
 
@@ -413,7 +415,7 @@ class SetupValidator:
 
         script_lines.extend(
             [
-                "echo '✅ Setup complete!'",
+                "echo ' Setup complete!'",
                 "echo 'Run this script to complete your development "
                 "environment setup.'",
             ],

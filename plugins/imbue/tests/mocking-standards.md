@@ -218,31 +218,31 @@ def test_error_handling(mock_claude_tools):
 
 ## Anti-Patterns to Avoid
 
-### ❌ Don't: Create Mocks Without Names
+### Don't: Create Mocks Without Names
 ```python
 # Hard to debug
 mock = MagicMock()
 ```
 
-### ✅ Do: Always Name Your Mocks
+### Do: Always Name Your Mocks
 ```python
 # Easy to identify in error messages
 mock = MagicMock(name="BashTool")
 ```
 
-### ❌ Don't: Use Direct Assignment for Sequential Values
+### Don't: Use Direct Assignment for Sequential Values
 ```python
 # Doesn't work as expected
 mock.return_value = "first"
 mock.return_value = "second"  # Overwrites first
 ```
 
-### ✅ Do: Use side_effect for Sequences
+### Do: Use side_effect for Sequences
 ```python
 mock.side_effect = ["first", "second", "third"]
 ```
 
-### ❌ Don't: Duplicate Mock Setup Across Tests
+### Don't: Duplicate Mock Setup Across Tests
 ```python
 # Every test creates the same mock
 def test_one():
@@ -252,7 +252,7 @@ def test_two():
     mock_tools = {"Read": Mock(), "Bash": Mock()}  # Duplicate
 ```
 
-### ✅ Do: Use Fixtures for Common Mocks
+### Do: Use Fixtures for Common Mocks
 ```python
 def test_one(mock_claude_tools):
     # Use shared fixture

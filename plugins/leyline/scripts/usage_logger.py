@@ -254,7 +254,7 @@ def main() -> None:
     else:
         operations = logger.get_recent_operations(hours=args.recent)
         for op in operations[-10:]:
-            "✓" if op.get("success") else "✗"
+            "OK" if op.get("success") else "FAIL"
 
 
 if __name__ == "__main__":

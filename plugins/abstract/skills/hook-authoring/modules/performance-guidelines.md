@@ -55,7 +55,7 @@ class PerformanceMonitoringHooks(AgentHooks):
             })
 
             if duration_ms > 100:  # Warn if over target
-                print(f"⚠️  Slow hook: {tool_name} validation took {duration_ms:.2f}ms")
+                print(f"[WARN]  Slow hook: {tool_name} validation took {duration_ms:.2f}ms")
 
     async def on_stop(self, reason: str, result: Any) -> None:
         """Report hook performance."""
@@ -87,11 +87,11 @@ class AsyncIOHooks(AgentHooks):
         self, tool_name: str, tool_input: dict, tool_output: str
     ) -> str | None:
         """Log asynchronously without blocking."""
-        # ❌ BLOCKING (slow)
+        #  BLOCKING (slow)
         # with open('log.txt', 'a') as f:
         #     f.write(f"{tool_name}\n")
 
-        # ✅ NON-BLOCKING (fast)
+        #  NON-BLOCKING (fast)
         async with aiofiles.open('log.txt', 'a') as f:
             await f.write(f"{tool_name}\n")
 
@@ -101,11 +101,11 @@ class AsyncIOHooks(AgentHooks):
         """Async HTTP request."""
         import aiohttp
 
-        # ❌ BLOCKING
+        #  BLOCKING
         # import requests
         # return requests.get('http://api.example.com/config').json()
 
-        # ✅ NON-BLOCKING
+        #  NON-BLOCKING
         async with aiohttp.ClientSession() as session:
             async with session.get('http://api.example.com/config') as resp:
                 return await resp.json()
@@ -235,10 +235,10 @@ class BoundedStateHooks(AgentHooks):
     """Maintain bounded state to prevent memory growth."""
 
     def __init__(self, max_history: int = 1000):
-        # ❌ UNBOUNDED (memory leak)
+        #  UNBOUNDED (memory leak)
         # self._all_operations = []
 
-        # ✅ BOUNDED (fixed size)
+        #  BOUNDED (fixed size)
         self._recent_operations = deque(maxlen=max_history)
         self._tool_counts = {}  # OK - bounded by number of tools
 
@@ -351,10 +351,10 @@ class CompiledPatternHooks(AgentHooks):
     """Use compiled patterns for speed."""
 
     def __init__(self):
-        # ❌ SLOW: Compile every time
+        #  SLOW: Compile every time
         # self.pattern_str = r'rm\s+-rf'
 
-        # ✅ FAST: Compile once
+        #  FAST: Compile once
         self.dangerous_cmd = re.compile(r'rm\s+-rf\s+/', re.IGNORECASE)
         self.secret_api_key = re.compile(r'(api[_-]?key["\s:=]+)([^\s,}]+)', re.IGNORECASE)
         self.secret_token = re.compile(r'(token["\s:=]+)([^\s,}]+)', re.IGNORECASE)
@@ -555,11 +555,11 @@ Before deploying hooks, verify:
 ### Issue 1: Blocking I/O
 
 ```python
-# ❌ SLOW: Blocking I/O
+#  SLOW: Blocking I/O
 with open('log.txt', 'a') as f:
     f.write(f"{tool_name}\n")
 
-# ✅ FAST: Async I/O
+#  FAST: Async I/O
 async with aiofiles.open('log.txt', 'a') as f:
     await f.write(f"{tool_name}\n")
 ```
@@ -567,21 +567,21 @@ async with aiofiles.open('log.txt', 'a') as f:
 ### Issue 2: Unbounded State
 
 ```python
-# ❌ MEMORY LEAK: Unbounded list
+#  MEMORY LEAK: Unbounded list
 self._all_operations.append(operation)
 
-# ✅ BOUNDED: Fixed-size deque
+#  BOUNDED: Fixed-size deque
 self._recent_operations.append(operation)  # maxlen=1000
 ```
 
 ### Issue 3: Expensive Validation
 
 ```python
-# ❌ SLOW: Recompile every time
+#  SLOW: Recompile every time
 if re.search(r'dangerous', command):
     ...
 
-# ✅ FAST: Compiled once
+#  FAST: Compiled once
 if self._dangerous_pattern.search(command):
     ...
 ```
@@ -589,11 +589,11 @@ if self._dangerous_pattern.search(command):
 ### Issue 4: Synchronous Network
 
 ```python
-# ❌ SLOW: Blocking HTTP
+#  SLOW: Blocking HTTP
 import requests
 config = requests.get('http://api.example.com/config').json()
 
-# ✅ FAST: Async HTTP
+#  FAST: Async HTTP
 import aiohttp
 async with aiohttp.ClientSession() as session:
     async with session.get('http://api.example.com/config') as resp:

@@ -10,7 +10,7 @@
 ## GitHub Comment Skeleton
 
 ```
-### 🚀 Release <name> Readiness
+### Release <name> Readiness
 - Scope freeze: <yes/no> (issue links)
 - QA status: <check summary>
 - Docs merged: <PR link>

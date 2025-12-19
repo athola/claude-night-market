@@ -323,13 +323,13 @@ Design scenarios to trigger specific rationalizations:
 
 Make module references clear and actionable:
 
-✅ **Good:**
+**Good:**
 ```markdown
 For detailed description optimization techniques,
 see `modules/description-writing.md`
 ```
 
-❌ **Vague:**
+**Vague:**
 ```markdown
 More information is available in the modules directory.
 ```
@@ -356,7 +356,7 @@ See `modules/description-writing.md` for:
 
 Don't force module loading upfront:
 
-❌ **Eager Loading:**
+**Eager Loading (avoid):**
 ```markdown
 Before using this skill, read all modules:
 - modules/tdd-methodology.md
@@ -364,7 +364,7 @@ Before using this skill, read all modules:
 - modules/anti-rationalization.md
 ```
 
-✅ **Lazy Loading:**
+**Lazy Loading (preferred):**
 ```markdown
 Start with Quick Start below.
 Reference modules as needed for specific tasks.
@@ -416,7 +416,7 @@ modules/
 
 Use tables instead of prose:
 
-❌ **Verbose (20 lines):**
+ **Verbose (20 lines):**
 ```markdown
 The first principle is Authority. This means using
 directive language. For example, instead of saying
@@ -424,7 +424,7 @@ directive language. For example, instead of saying
 This is because...
 ```
 
-✅ **Compressed (5 lines):**
+ **Compressed (5 lines):**
 ```markdown
 | Principle | Weak | Strong |
 |-----------|------|--------|
@@ -475,7 +475,7 @@ secure-api/
 
 ### Example 3: Monolithic (Anti-Pattern)
 
-❌ **Don't do this:**
+ **Don't do this:**
 ```
 skill-name/
 └── SKILL.md (1,500 lines)

@@ -26,17 +26,17 @@ Comprehensive Git workflow management for teams, covering repository initializat
 
 Master Git collaboration with this complete workflow guide:
 
-**🚀 Quick Start**: Get your team working efficiently in 10 minutes
+** Quick Start**: Get your team working efficiently in 10 minutes
 - Set up repository with proper branching structure
 - Configure commit message standards with hooks
 - Start using feature branch workflow immediately
 
-**📚 Progressive Learning**: Advance from basic to advanced Git practices
+**Progressive Learning**: Advance from basic to advanced Git practices
 1. **Essentials** → Repository setup + basic branching + commit standards
 2. **Team Workflow** → Feature branches + pull requests + code review
 3. **Advanced** → Rebase + cherry-pick + hooks + performance optimization
 
-**🎯 Use Case-Based**: Jump directly to your specific needs
+** Use Case-Based**: Jump directly to your specific needs
 - New repository? → Use repository initialization + branching strategy setup
 - Team conflicts? → Apply conflict resolution + collaboration practices
 - Production hotfix? → Follow hotfix workflow + merge procedures

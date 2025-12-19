@@ -682,7 +682,7 @@ This PR addresses {len(findings)} security-related items.
 **Critical Issues:** {len(critical_findings)}
 **Total Issues:** {len(findings)}
 
-{chr(10).join(f"🚨 {f['title']}" for f in critical_findings if critical_findings)}"""
+{chr(10).join(f"[ALERT] {f['title']}" for f in critical_findings if critical_findings)}"""
 
     @pytest.mark.unit
     def test_error_handling_invalid_data(self) -> None:

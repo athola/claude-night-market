@@ -14,16 +14,16 @@ This plan addresses DRY violations and modularization opportunities identified t
 
 | Skill | Tokens | Status | Recommendation |
 |-------|--------|--------|----------------|
-| `delegation-core/SKILL.md` | 3,085 | ⚠️ High | MODULARIZE (exceeds 3000 threshold) |
-| `gemini-delegation/SKILL.md` | 782 | ✅ Optimal | No changes needed |
-| `qwen-delegation/SKILL.md` | 948 | ✅ Good | No changes needed |
+| `delegation-core/SKILL.md` | 3,085 | High | MODULARIZE (exceeds 3000 threshold) |
+| `gemini-delegation/SKILL.md` | 782 | Optimal | No changes needed |
+| `qwen-delegation/SKILL.md` | 948 | Good | No changes needed |
 
 ### Hooks Evaluation Summary
 
 | Hook | Lines | Security | Performance |
 |------|-------|----------|-------------|
-| `bridge.on_tool_start` | 437 | ✅ Good path validation | ⚠️ Duplicate token estimation |
-| `bridge.after_tool_use` | 124 | ✅ Clean | ✅ Lightweight |
+| `bridge.on_tool_start` | 437 | Good path validation | Duplicate token estimation |
+| `bridge.after_tool_use` | 124 | Clean | Lightweight |
 
 ### Critical DRY Violations
 

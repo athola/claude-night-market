@@ -100,9 +100,9 @@ fi
 # Build context message based on zone
 context=""
 if [ "$zone" = "red" ]; then
-    context="scope-guard: 🛑 RED ZONE - ${warnings}Before adding features, evaluate with Skill(imbue:scope-guard). Consider splitting branch or deferring work to backlog."
+    context="scope-guard: RED ZONE - ${warnings}Before adding features, evaluate with Skill(imbue:scope-guard). Consider splitting branch or deferring work to backlog."
 elif [ "$zone" = "yellow" ]; then
-    context="scope-guard: ⚠️ YELLOW - ${warnings}Monitor scope carefully."
+    context="scope-guard: YELLOW - ${warnings}Monitor scope carefully."
 fi
 
 # Escape for JSON - uses jq when available, falls back to sed

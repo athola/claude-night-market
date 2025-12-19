@@ -18,9 +18,9 @@
 
 ```
 ### <Initiative>
-- ✅ Wins: <PR 1>, <PR 2>
-- ⚠️ Risks: <Issue 1>, <Issue 2>
-- 📆 Next Milestone: <Date>
+- Wins: <PR 1>, <PR 2>
+- Risks: <Issue 1>, <Issue 2>
+- Next Milestone: <Date>
 ```
 
 5. Include table of metrics using tracker values.

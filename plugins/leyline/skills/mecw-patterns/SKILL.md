@@ -92,7 +92,7 @@ status = monitor.get_status()
 
 if status.warnings:
     for warning in status.warnings:
-        print(f"⚠️  {warning}")
+        print(f"[WARN] {warning}")
 
 if status.recommendations:
     print("\nRecommended actions:")

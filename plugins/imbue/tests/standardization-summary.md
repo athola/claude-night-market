@@ -147,7 +147,7 @@ Enhanced conftest.py docstring with:
 ```bash
 # Single test verification
 uv run pytest tests/unit/agents/test_review_analyst.py::TestReviewAnalystAgent::test_agent_follows_imbue_workflow -v
-Result: PASSED ✓
+Result: PASSED
 
 # Agent tests suite
 uv run pytest tests/unit/agents/ --no-cov
@@ -155,14 +155,14 @@ Result: 5 passed, 2 failed (pre-existing failures, not related to mocking change
 
 # Skill tests verification
 uv run pytest tests/unit/skills/test_catchup.py::TestCatchupSkill::test_catchup_confirms_repository_context -v
-Result: PASSED ✓
+Result: PASSED
 ```
 
 ### Impact Assessment
-- ✅ No new test failures introduced
-- ✅ Existing passing tests continue to pass
-- ✅ Pre-existing failures remain unchanged
-- ✅ Mock setup code now consistent across files
+- [OK]No new test failures introduced
+- [OK]Existing passing tests continue to pass
+- [OK]Pre-existing failures remain unchanged
+- [OK]Mock setup code now consistent across files
 
 ## Benefits Achieved
 
@@ -280,11 +280,11 @@ When updating other test files:
 The mocking standardization effort successfully established consistent patterns across the imbue plugin test suite. The changes improve maintainability, type safety, and debugging capabilities without introducing any new test failures.
 
 Key achievements:
-- ✅ Standardized to `MagicMock` with named parameters
-- ✅ Centralized mock configuration in conftest.py
-- ✅ Added factory fixtures for common patterns
-- ✅ Created comprehensive documentation
-- ✅ Verified no regression in existing tests
+- [OK]Standardized to `MagicMock` with named parameters
+- [OK]Centralized mock configuration in conftest.py
+- [OK]Added factory fixtures for common patterns
+- [OK]Created comprehensive documentation
+- [OK]Verified no regression in existing tests
 
 The foundation is now in place for continued improvement of the test suite.
 

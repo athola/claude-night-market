@@ -456,7 +456,7 @@ class MakefileDogfooder:
 \t\tpython3 scripts/validate-plugin.py .; \\
 \tfi
 \t@echo ""
-\t@echo "✓ All dogfood tests completed!" """
+\t@echo "OK All dogfood tests completed!" """
 
     def _generate_check_all_target(self, inventory: MakefileInventory) -> str:
         """Generate a check-all target for aggregator Makefiles."""

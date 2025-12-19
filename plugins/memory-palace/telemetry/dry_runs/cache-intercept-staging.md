@@ -28,8 +28,8 @@ The transcript above was copied into the incident log along with the generated a
 
 ## Validation
 
-- `pytest tests/hooks/test_research_interceptor.py` ✅
-- `uv run python scripts/seed_corpus.py` (no changes) ✅
+- `pytest tests/hooks/test_research_interceptor.py` PASS
+- `uv run python scripts/seed_corpus.py` (no changes) PASS
 
 ## Rollback Plan
 

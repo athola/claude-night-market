@@ -214,14 +214,14 @@ class ErrorHandler:
     def print_error(self, error: ToolError) -> None:
         """Print user-friendly error message."""
         severity_symbols = {
-            ErrorSeverity.CRITICAL: "🔴",
-            ErrorSeverity.HIGH: "🟠",
-            ErrorSeverity.MEDIUM: "🟡",
-            ErrorSeverity.LOW: "🟢",
-            ErrorSeverity.INFO: "ℹ️",
+            ErrorSeverity.CRITICAL: "[CRIT]",
+            ErrorSeverity.HIGH: "[HIGH]",
+            ErrorSeverity.MEDIUM: "[MED]",
+            ErrorSeverity.LOW: "[LOW]",
+            ErrorSeverity.INFO: "[INFO]",
         }
 
-        symbol = severity_symbols.get(error.severity, "❓")
+        symbol = severity_symbols.get(error.severity, "[?]")
         message = f"{symbol} [{error.error_code}] {error.message}"
         print(message, file=sys.stderr)
 
@@ -241,16 +241,16 @@ class ErrorHandler:
             severity_counts[error.severity] = severity_counts.get(error.severity, 0) + 1
 
         symbol_map = {
-            "critical": "🔴",
-            "high": "🟠",
-            "medium": "🟡",
-            "low": "🟢",
-            "info": "ℹ️",
+            "critical": "[CRIT]",
+            "high": "[HIGH]",
+            "medium": "[MED]",
+            "low": "[LOW]",
+            "info": "[INFO]",
         }
 
         print("Error summary:", file=sys.stderr)
         for severity, count in severity_counts.items():
-            symbol = symbol_map.get(severity.value, "❓")
+            symbol = symbol_map.get(severity.value, "[?]")
             print(f"  {symbol} {severity.value.title()}: {count}", file=sys.stderr)
 
     def exit_with_error(self, error: ToolError) -> None:

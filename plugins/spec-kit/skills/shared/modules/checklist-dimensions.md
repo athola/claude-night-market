@@ -18,18 +18,18 @@ Every checklist item MUST evaluate the REQUIREMENTS THEMSELVES, not whether code
 
 ### What Checklists Are NOT
 
-- ❌ NOT "Verify the button clicks correctly"
-- ❌ NOT "Test error handling works"
-- ❌ NOT "Confirm the API returns 200"
-- ❌ NOT checking if code/implementation matches the spec
+- NOT "Verify the button clicks correctly"
+- NOT "Test error handling works"
+- NOT "Confirm the API returns 200"
+- NOT checking if code/implementation matches the spec
 
 ### What Checklists ARE
 
-- ✅ "Are visual hierarchy requirements defined for all card types?" (completeness)
-- ✅ "Is 'prominent display' quantified with specific sizing/positioning?" (clarity)
-- ✅ "Are hover state requirements consistent across all interactive elements?" (consistency)
-- ✅ "Are accessibility requirements defined for keyboard navigation?" (coverage)
-- ✅ "Does the spec define what happens when logo image fails to load?" (edge cases)
+- "Are visual hierarchy requirements defined for all card types?" (completeness)
+- "Is 'prominent display' quantified with specific sizing/positioning?" (clarity)
+- "Are hover state requirements consistent across all interactive elements?" (consistency)
+- "Are accessibility requirements defined for keyboard navigation?" (coverage)
+- "Does the spec define what happens when logo image fails to load?" (edge cases)
 
 ## Quality Dimensions
 
@@ -124,20 +124,20 @@ Components:
 
 These patterns test implementation, not requirements:
 
-- ❌ Any item starting with "Verify", "Test", "Confirm", "Check" + implementation behavior
-- ❌ References to code execution, user actions, system behavior
-- ❌ "Displays correctly", "works properly", "functions as expected"
-- ❌ "Click", "navigate", "render", "load", "execute"
-- ❌ Test cases, test plans, QA procedures
-- ❌ Implementation details (frameworks, APIs, algorithms)
+- Any item starting with "Verify", "Test", "Confirm", "Check" + implementation behavior
+- References to code execution, user actions, system behavior
+- "Displays correctly", "works properly", "functions as expected"
+- "Click", "navigate", "render", "load", "execute"
+- Test cases, test plans, QA procedures
+- Implementation details (frameworks, APIs, algorithms)
 
 ## Required Patterns
 
 These patterns test requirements quality:
 
-- ✅ "Are [requirement type] defined/specified/documented for [scenario]?"
-- ✅ "Is [vague term] quantified/clarified with specific criteria?"
-- ✅ "Are requirements consistent between [section A] and [section B]?"
-- ✅ "Can [requirement] be objectively measured/verified?"
-- ✅ "Are [edge cases/scenarios] addressed in requirements?"
-- ✅ "Does the spec define [missing aspect]?"
+- "Are [requirement type] defined/specified/documented for [scenario]?"
+- "Is [vague term] quantified/clarified with specific criteria?"
+- "Are requirements consistent between [section A] and [section B]?"
+- "Can [requirement] be objectively measured/verified?"
+- "Are [edge cases/scenarios] addressed in requirements?"
+- "Does the spec define [missing aspect]?"

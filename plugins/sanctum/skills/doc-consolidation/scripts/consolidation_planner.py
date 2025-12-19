@@ -83,7 +83,7 @@ SUPPORTING_MARKERS = [
     r"^##\s+\d+\.",  # Numbered sections
     r"^\*?\*?Scope\*?\*?:",
     r"^\*?\*?Status\*?\*?:",
-    r"^[✅⚠️❌]",  # Status emojis
+    r"^(DONE|WARNING|ERROR|OK|FAIL)",  # Status markers
 ]
 
 # Content category patterns

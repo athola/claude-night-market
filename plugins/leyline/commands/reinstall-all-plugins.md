@@ -154,9 +154,9 @@ Found 21 installed plugins (1 excluded):
 
 | Plugin | Marketplace | Scope | Local |
 |--------|-------------|-------|-------|
-| sanctum | claude-night-market | user | ✓ |
-| spec-kit | claude-night-market | user | ✓ |
-| episodic-memory | superpowers-marketplace | user | ✗ |
+| sanctum | claude-night-market | user | yes |
+| spec-kit | claude-night-market | user | yes |
+| episodic-memory | superpowers-marketplace | user | no |
 | ... | ... | ... | ... |
 
 To reinstall all plugins, copy and paste these commands one at a time:

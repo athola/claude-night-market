@@ -213,7 +213,7 @@ if __name__ == "__main__":
             if "error" in r:
                 pass
             else:
-                status = "⚠️" if r["above_threshold"] else "✅"
+                status = "WARN" if r["above_threshold"] else "OK"
                 lines = r["lines"]
                 tokens = r["tokens"]
                 complexity = r["complexity"]

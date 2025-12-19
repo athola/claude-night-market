@@ -18,15 +18,15 @@ When Claude encounters a task:
 
 ### Common Failures
 
-❌ **Too Vague**: "Helps with coding"
+ **Too Vague**: "Helps with coding"
 - Matches everything, provides no signal
 - Can't distinguish from other skills
 
-❌ **Too Specific**: "Implements OAuth2 PKCE flow with rotating refresh tokens"
+ **Too Specific**: "Implements OAuth2 PKCE flow with rotating refresh tokens"
 - Only matches exact terminology
 - Misses general queries like "add authentication"
 
-❌ **Missing Context**: "Provides testing guidelines"
+ **Missing Context**: "Provides testing guidelines"
 - Unclear when to use vs. other testing skills
 - No activation triggers
 
@@ -57,14 +57,14 @@ description: Guides secure API endpoint design with input validation, error hand
 
 ### Third Person Always
 
-✅ **Correct:**
+ **Correct:**
 - "Teaches..."
 - "Provides..."
 - "Guides..."
 - "Implements..."
 - "Analyzes..."
 
-❌ **Incorrect:**
+ **Incorrect:**
 - "I teach..."
 - "We provide..."
 - "Helps you..."
@@ -72,24 +72,24 @@ description: Guides secure API endpoint design with input validation, error hand
 
 ### Active, Specific Verbs
 
-✅ **Strong Verbs:**
+ **Strong Verbs:**
 - Guides, teaches, implements, validates, enforces
 - Analyzes, optimizes, automates, generates
 - Ensures, prevents, detects, corrects
 
-❌ **Weak Verbs:**
+ **Weak Verbs:**
 - Helps with, deals with, handles
 - Supports, provides support for
 - Assists in, aids in
 
 ### Example Transformation
 
-❌ **Weak:**
+ **Weak:**
 ```yaml
 description: Helps you write better tests for your code.
 ```
 
-✅ **Strong:**
+ **Strong:**
 ```yaml
 description: Guides test-driven development using RED-GREEN-REFACTOR methodology. Use when writing new tests, refactoring code, or establishing testing discipline. Covers unit tests, integration tests, and test coverage strategies.
 ```
@@ -110,27 +110,27 @@ Use when [primary use case], [secondary use case], or [tertiary use case].
 
 ### Examples
 
-✅ **Specific Conditions:**
+ **Specific Conditions:**
 ```
 Use when creating new API endpoints, reviewing security implementations, or debugging authentication issues.
 ```
 
-✅ **Task Types:**
+ **Task Types:**
 ```
 Use when refactoring large files, optimizing code structure, or improving maintainability.
 ```
 
-✅ **Problem Scenarios:**
+ **Problem Scenarios:**
 ```
 Use when tests are missing, coverage is low, or regression bugs appear frequently.
 ```
 
-❌ **Too Vague:**
+ **Too Vague:**
 ```
 Use when working with APIs.
 ```
 
-❌ **Too Narrow:**
+ **Too Narrow:**
 ```
 Use when implementing OAuth2 PKCE flow specifically for mobile applications.
 ```
@@ -275,60 +275,60 @@ description: Implements repository pattern for data access layer separation. Use
 
 ### 1. First Person Voice
 
-❌ **Wrong:**
+ **Wrong:**
 ```yaml
 description: I help you write better commit messages using conventional commits.
 ```
 
-✅ **Correct:**
+ **Correct:**
 ```yaml
 description: Guides commit message writing using conventional commits standard. Use when committing changes, reviewing git history, or establishing commit conventions.
 ```
 
 ### 2. Marketing Language
 
-❌ **Wrong:**
+ **Wrong:**
 ```yaml
 description: The ultimate, comprehensive, enterprise-grade solution for all your testing needs! Revolutionary approach that will transform your development workflow!
 ```
 
-✅ **Correct:**
+ **Correct:**
 ```yaml
 description: Guides test-driven development using RED-GREEN-REFACTOR methodology. Use when writing tests, refactoring code, or improving coverage. Covers unit, integration, and end-to-end testing.
 ```
 
 ### 3. Missing "Use When"
 
-❌ **Wrong:**
+ **Wrong:**
 ```yaml
 description: Provides API security guidelines and best practices for authentication and validation.
 ```
 
-✅ **Correct:**
+ **Correct:**
 ```yaml
 description: Provides API security guidelines for authentication and input validation. Use when designing endpoints, reviewing security, or implementing access controls. Covers OAuth, JWT, and rate limiting.
 ```
 
 ### 4. Too Technical
 
-❌ **Wrong:**
+ **Wrong:**
 ```yaml
 description: Implements CQRS/ES architectural pattern with event sourcing, domain events, aggregate roots, and eventual consistency patterns for distributed systems using message brokers.
 ```
 
-✅ **Better:**
+ **Better:**
 ```yaml
 description: Guides CQRS and event sourcing architecture for scalable systems. Use when designing command/query separation, implementing event-driven patterns, or building distributed applications. Covers aggregates, events, and consistency.
 ```
 
 ### 5. No Discovery Terms
 
-❌ **Wrong:**
+ **Wrong:**
 ```yaml
 description: Helps with code organization and structure improvements.
 ```
 
-✅ **Better:**
+ **Better:**
 ```yaml
 description: Guides code refactoring for improved structure and maintainability. Use when cleaning up legacy code, applying SOLID principles, or reducing technical debt. Covers extract method, dependency injection, and module organization.
 ```
@@ -428,8 +428,8 @@ description: [Second version]
 ### Results
 | Query | Version A | Version B |
 |-------|-----------|-----------|
-| Q1    | ✓/✗       | ✓/✗       |
-| Q2    | ✓/✗       | ✓/✗       |
+| Q1    | OK/FAIL       | OK/FAIL       |
+| Q2    | OK/FAIL       | OK/FAIL       |
 
 **Winner**: Version [A/B] ([X]% activation rate)
 ```

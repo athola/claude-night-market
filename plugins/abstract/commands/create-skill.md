@@ -266,12 +266,12 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/abstract_validator.py \
 Output:
 ```
 Validation Results:
-  ✓ Frontmatter valid
-  ✓ Directory structure correct
-  ✓ Name follows conventions
-  ✓ Description includes "Use when"
-  ⚠ No modules yet (expected for new skill)
-  ⚠ Baseline scenarios need completion
+  OK Frontmatter valid
+  OK Directory structure correct
+  OK Name follows conventions
+  OK Description includes "Use when"
+  [WARN] No modules yet (expected for new skill)
+  [WARN] Baseline scenarios need completion
 
 Status: READY FOR DEVELOPMENT
 ```
@@ -281,7 +281,7 @@ Status: READY FOR DEVELOPMENT
 Provides actionable guidance:
 
 ```
-✓ Skill scaffolding complete: skills/${skill_name}/
+OK Skill scaffolding complete: skills/${skill_name}/
 
 Next Steps (TDD Workflow):
 
@@ -329,10 +329,10 @@ Prompts:
   Tags: logs, debugging, troubleshooting
 
 Created:
-  ✓ skills/analyzing-logs/SKILL.md (412 bytes)
-  ✓ skills/analyzing-logs/modules/ (empty)
-  ✓ skills/analyzing-logs/scripts/ (empty)
-  ✓ skills/analyzing-logs/baseline-scenarios.md (1,247 bytes)
+  OK skills/analyzing-logs/SKILL.md (412 bytes)
+  OK skills/analyzing-logs/modules/ (empty)
+  OK skills/analyzing-logs/scripts/ (empty)
+  OK skills/analyzing-logs/baseline-scenarios.md (1,247 bytes)
 
 Validation: PASSED (2 warnings)
 
@@ -353,10 +353,10 @@ Prompts:
   Tags: patterns, architecture, decision-making
 
 Created:
-  ✓ skills/mental-models/SKILL.md (534 bytes)
-  ✓ skills/mental-models/modules/
-  ✓ skills/mental-models/modules/README.md
-  ✓ skills/mental-models/baseline-scenarios.md
+  OK skills/mental-models/SKILL.md (534 bytes)
+  OK skills/mental-models/modules/
+  OK skills/mental-models/modules/README.md
+  OK skills/mental-models/baseline-scenarios.md
 
 Pattern skills typically benefit from modularization.
 Consider: /analyze-skill skills/mental-models after initial content
@@ -376,9 +376,9 @@ Prompts:
   Tags: api, rest, graphql, reference
 
 Created:
-  ✓ skills/api-reference/SKILL.md (398 bytes)
-  ✓ skills/api-reference/modules/
-  ✓ skills/api-reference/scripts/
+  OK skills/api-reference/SKILL.md (398 bytes)
+  OK skills/api-reference/modules/
+  OK skills/api-reference/scripts/
 
 Reference skills work best as modular hubs.
 Recommend: Create focused modules for each API type

@@ -280,39 +280,39 @@ TRIGGER PHRASES (9 identified)
 -------------------------------------------------
 These phrases often precede skill bypass. Add self-check.
 
-🚩 "Let me just quickly..."
+FLAG: "Let me just quickly..."
    Context: Attempting shortcut before methodology
    Counter: "No 'quick' actions. Use methodology first."
 
-🚩 "This doesn't really need..."
+FLAG: "This doesn't really need..."
    Context: Judging necessity subjectively
    Counter: "If asked to analyze, use full methodology."
 
-🚩 "I'll use the skill next time..."
+FLAG: "I'll use the skill next time..."
    Context: Deferral rationalization
    Counter: "Use the skill NOW. Every time."
 
-🚩 "The spirit of the skill is..."
+FLAG: "The spirit of the skill is..."
    Context: Interpreting vs following literally
    Counter: "Follow the LETTER of the skill."
 
-🚩 "This is obviously..."
+FLAG: "This is obviously..."
    Context: Assuming without analysis
    Counter: "No assumptions. Establish baseline first."
 
-🚩 "Usually this means..."
+FLAG: "Usually this means..."
    Context: Generalizing from past experience
    Counter: "Use THIS data only. No 'usually' statements."
 
-🚩 "Simple check before..."
+FLAG: "Simple check before..."
    Context: Pre-methodology shortcut
    Counter: "No checks before baseline. Follow order."
 
-🚩 "I remember the skill says..."
+FLAG: "I remember the skill says..."
    Context: Memory vs current version
    Counter: "READ current skill. Don't rely on memory."
 
-🚩 "Overkill for..."
+FLAG: "Overkill for..."
    Context: Dismissing methodology as excessive
    Counter: "Use full skill. It exists for a reason."
 
@@ -444,10 +444,10 @@ Recommendation: Apply bulletproofing before production use
 
 SUGGESTED ADDITIONS
 -------------------------------------------------
-✓ Rationalization Table (9 entries)
-✓ Red Flag Self-Check section
-✓ 12 language edits
-✓ 3 explicit exception definitions
+OK Rationalization Table (9 entries)
+OK Red Flag Self-Check section
+OK 12 language edits
+OK 3 explicit exception definitions
 
 Estimated Changes:
   Lines added: ~45
@@ -490,7 +490,7 @@ Severity: HIGH
 Suggested fix:
   ALWAYS follow these steps in exact order...
 
-Apply? (y/n/edit/skip): y ✓
+Apply? (y/n/edit/skip): y OK
 
 --- Loophole #2 ---
 Line 34: "Follow methodology for complex logs"
@@ -499,7 +499,7 @@ Severity: CRITICAL
 Suggested fix:
   Follow this methodology for ALL log analysis...
 
-Apply? (y/n/edit/skip): y ✓
+Apply? (y/n/edit/skip): y OK
 
 [... continues for all issues ...]
 
@@ -508,8 +508,8 @@ Summary:
   Skipped: 2
   Edited: 0
 
-Generate rationalization table? (y/n): y ✓
-Add red flag section? (y/n): y ✓
+Generate rationalization table? (y/n): y OK
+Add red flag section? (y/n): y OK
 
 Bulletproofing complete!
 New version: 0.3.0
@@ -579,10 +579,10 @@ Part of the TDD bulletproofing workflow:
 
 ### Common Mistakes
 
-❌ Over-bulletproofing simple skills (adds noise)
-❌ Generic counters ("follow the skill" - not specific enough)
-❌ Adding counters without testing (may not address real patterns)
-❌ Bulletproofing without rationalization table (miss common patterns)
+ Over-bulletproofing simple skills (adds noise)
+ Generic counters ("follow the skill" - not specific enough)
+ Adding counters without testing (may not address real patterns)
+ Bulletproofing without rationalization table (miss common patterns)
 
 ## Implementation
 

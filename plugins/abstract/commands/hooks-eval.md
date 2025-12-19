@@ -162,19 +162,19 @@ Comprehensive evaluation framework for analyzing all hooks within a plugin (or a
 # Hook Performance Benchmarks:
 #
 # hooks/pre-skill-load.json:
-#   Estimated execution: 15ms (threshold: 100ms) ✓
-#   Memory usage: 2MB (threshold: 50MB) ✓
-#   I/O operations: 0 (minimal) ✓
+#   Estimated execution: 15ms (threshold: 100ms) OK
+#   Memory usage: 2MB (threshold: 50MB) OK
+#   I/O operations: 0 (minimal) OK
 #
 # hooks/post-evaluation.json:
-#   Estimated execution: 25ms (threshold: 200ms) ✓
-#   Memory usage: 5MB (threshold: 100MB) ✓
-#   Complex logic: Medium complexity ⚠️
+#   Estimated execution: 25ms (threshold: 200ms) OK
+#   Memory usage: 5MB (threshold: 100MB) OK
+#   Complex logic: Medium complexity [WARN]
 #
 # hooks/gemini/bridge.on_tool_start:
-#   Estimated execution: 180ms (threshold: 100ms) ❌
-#   Memory usage: 45MB (threshold: 50MB) ⚠️
-#   File I/O: Multiple stat() calls ⚠️
+#   Estimated execution: 180ms (threshold: 100ms)
+#   Memory usage: 45MB (threshold: 50MB) [WARN]
+#   File I/O: Multiple stat() calls [WARN]
 #
 # === Performance Recommendations ===
 # 1. Optimize gemini bridge hook for better performance

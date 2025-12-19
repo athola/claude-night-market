@@ -34,14 +34,14 @@ Every skill must begin with documented evidence of Claude failing without it. Th
 
 ## When to Use This Skill
 
-✅ **Use when:**
+ **Use when:**
 - Creating new skills from scratch
 - Improving existing skills with low compliance rates
 - Learning skill authoring best practices
 - Validating skill quality before deployment
 - Understanding what makes skills effective
 
-❌ **Don't use when:**
+ **Don't use when:**
 - Evaluating existing skills (use skills-eval instead)
 - Analyzing skill architecture (use modular-skills instead)
 - Writing general documentation for humans
@@ -115,13 +115,13 @@ Skill descriptions are critical for Claude's discovery process. They must be opt
 
 ### Requirements
 
-✅ **Always:**
+ **Always:**
 - Third person voice ("Teaches...", "Provides...", "Guides...")
 - Include "Use when..." clause
 - Specific, concrete language
 - Key discovery terms
 
-❌ **Never:**
+ **Never:**
 - First person ("I teach...", "We provide...")
 - Vague descriptions ("Helps with coding")
 - Marketing language
@@ -264,12 +264,12 @@ When exceptions truly exist, document them explicitly:
 ```markdown
 ## When NOT to Use This Skill
 
-❌ **Don't use when:**
+ **Don't use when:**
 - User explicitly requests prototype/draft quality
 - Exploring multiple approaches quickly (note for follow-up)
 - Working in non-production environment (document shortcut)
 
-✅ **Still use for:**
+ **Still use for:**
 - "Quick" production changes
 - "Simple" fixes to production code
 - Internal tools and scripts

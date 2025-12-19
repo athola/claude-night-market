@@ -24,17 +24,17 @@ Comprehensive deployment framework that ensures reliable, automated, and monitor
 
 Master deployment practices with this comprehensive framework:
 
-**🚀 Quick Start**: Get your deployments working reliably in 20 minutes
+** Quick Start**: Get your deployments working reliably in 20 minutes
 - Set up basic CI/CD pipeline with automated testing
 - Configure staging and production environments
 - Implement deployment monitoring and alerting
 
-**📚 Progressive Learning**: Build deployment expertise gradually
+**Progressive Learning**: Build deployment expertise gradually
 1. **Foundation** → Basic deployment + environment setup + monitoring
 2. **CI/CD Pipeline** → Automated testing + release management + rollback
 3. **Production Ready** → Performance monitoring + scaling + disaster recovery
 
-**🎯 Use Case-Based**: Jump directly to what you need right now
+** Use Case-Based**: Jump directly to what you need right now
 - First deployment? → Focus on environment setup + basic pipeline + monitoring
 - Production issues? → Apply rollback procedures + health checks + debugging
 - Scaling challenges? → Implement auto-scaling + load balancing + performance optimization

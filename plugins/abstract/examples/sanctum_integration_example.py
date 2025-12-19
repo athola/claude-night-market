@@ -228,18 +228,18 @@ class AbstractSkillAnalyzer:
         # Add git-aware recommendations
         if git_context.get("file_changes", 0) > FILE_CHANGES_THRESHOLD:
             recommendations.append(
-                "⚠️ File has been modified frequently - consider "
+                "File has been modified frequently - consider "
                 "stabilizing the interface",
             )
 
         if len(git_context.get("authors", [])) > MULTIPLE_AUTHORS_THRESHOLD:
             recommendations.append(
-                "👥 Multiple authors involved - ensure documentation is clear",
+                "Multiple authors involved - ensure documentation is clear",
             )
 
         if git_context.get("status") == "modified":
             recommendations.append(
-                "📝 File has uncommitted changes - ensure analysis is up to date",
+                "File has uncommitted changes - ensure analysis is up to date",
             )
 
         # Combine with Abstract recommendations

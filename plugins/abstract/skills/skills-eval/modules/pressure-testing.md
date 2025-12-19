@@ -153,15 +153,15 @@ From EmotionPrompt research, these phrases demonstrably improve performance:
 
 Don't use vague or theatrical stakes:
 
-❌ "The fate of the world depends on this!"
-❌ "You must get this right!"
-❌ "This is the most important test ever!"
+ "The fate of the world depends on this!"
+ "You must get this right!"
+ "This is the most important test ever!"
 
 These feel contrived. Instead, use specific, measurable, workflow-connected consequences.
 
-✅ "Incorrect escalation here means 4x cost for identical quality"
-✅ "Thrashing wastes 3 attempts that could have been one investigation"
-✅ "This pattern, if learned, will propagate to 100+ future invocations"
+ "Incorrect escalation here means 4x cost for identical quality"
+ "Thrashing wastes 3 attempts that could have been one investigation"
+ "This pattern, if learned, will propagate to 100+ future invocations"
 
 ## Pressure Test Anatomy
 

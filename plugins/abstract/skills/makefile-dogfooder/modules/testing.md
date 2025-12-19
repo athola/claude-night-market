@@ -550,7 +550,7 @@ if undocumented:
     print(f'Undocumented targets: {undocumented}')
     exit(1)
 
-print('All targets documented ✓')
+print('All targets documented [OK]')
 "
 
         # Test risky targets in dry-run

@@ -69,7 +69,7 @@ Wrap potentially failing commands:
 
 ```make
 target:
-	@command || { echo "⚠ Command failed"; exit 1; }
+	@command || { echo "WARNING: Command failed"; exit 1; }
 ```
 
 For optional commands that shouldn't block:

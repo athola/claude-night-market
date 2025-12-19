@@ -4,6 +4,8 @@ A collection of Claude Code plugins for software engineering workflows.
 
 [**View Capabilities Reference**](docs/capabilities-reference.md) for a detailed list of all skills, commands, and agents.
 
+> **Recommended Dependency**: Many skills in this marketplace achieve their full potential when used alongside the [**superpowers**](https://github.com/obra/superpowers) skills. While plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns) that enhance workflows significantly. See [Superpowers Dependencies](docs/capabilities-reference.md#superpowers-dependencies) for details.
+
 ## Installation
 
 ```bash

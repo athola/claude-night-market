@@ -134,14 +134,14 @@ we're demoing to investors tomorrow."
 
 ### Analysis
 Improvements:
-✓ Input validation included (email format, password strength)
-✓ Error handling present (duplicate check, error responses)
-✓ Password hashing implemented
-✓ Rate limiting mentioned
+[OK]Input validation included (email format, password strength)
+[OK]Error handling present (duplicate check, error responses)
+[OK]Password hashing implemented
+[OK]Rate limiting mentioned
 
 Remaining Issues:
-⚠ "Consider adding" language for rate limiting (not required)
-⚠ Security headers mentioned but not implemented
+[WARN]"Consider adding" language for rate limiting (not required)
+[WARN]Security headers mentioned but not implemented
 
 Compliance: 8/10 requirements met (baseline: 3/10)
 ```
@@ -386,8 +386,8 @@ tests/
 ## Analysis
 
 ### Requirements Met
-- ✓ [Requirement met]
-- ✗ [Requirement missed]
+- [OK][Requirement met]
+- [FAIL][Requirement missed]
 
 ### Compliance Score
 [X]/[Y] requirements = [Z]%
@@ -485,7 +485,7 @@ def calculate_compliance(requirements: list[str],
 
 ## Best Practices
 
-### ✓ Do
+### [OK]Do
 
 1. **Always use fresh instances** for each test
 2. **Copy responses verbatim** (no editing)
@@ -494,7 +494,7 @@ def calculate_compliance(requirements: list[str],
 5. **Run regression tests** after each skill update
 6. **Compare quantitatively** (compliance percentages)
 
-### ✗ Don't
+### Don't
 
 1. **Don't test in same conversation** where skill was developed
 2. **Don't prime Claude** with context about what you're testing
@@ -507,14 +507,14 @@ def calculate_compliance(requirements: list[str],
 
 ### Pitfall 1: Testing in Development Context
 
-❌ **Wrong:**
+**Wrong:**
 ```
 [While writing skill]
 You: "Let me test if this works"
 [Loads skill in same conversation]
 ```
 
-✅ **Right:**
+**Right:**
 ```
 [Finish skill development]
 [Open new conversation]
@@ -523,13 +523,13 @@ You: "Let me test if this works"
 
 ### Pitfall 2: Insufficient Pressure
 
-❌ **Wrong:**
+**Wrong:**
 ```
 Prompt: "Create a user registration endpoint."
 ```
 No pressure factors—Claude will naturally do well.
 
-✅ **Right:**
+**Right:**
 ```
 Prompt: "Quick internal registration endpoint for our dev team.
 Just basic email/password—demo is tomorrow."
@@ -538,14 +538,14 @@ Multiple pressure factors trigger realistic behavior.
 
 ### Pitfall 3: Accepting Suggestions
 
-❌ **Failure:**
+**Failure:**
 ```
 Claude: "Here's the endpoint. You might want to consider
 adding rate limiting before production."
 ```
 Skill failed—requirement was deferred, not implemented.
 
-✅ **Success:**
+**Success:**
 ```
 Claude: "Here's the endpoint with required rate limiting
 (10 requests/minute) implemented."

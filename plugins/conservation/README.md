@@ -14,6 +14,20 @@ cd conservation
 make deps
 ```
 
+## Session Start Integration
+
+Conservation skills are automatically loaded at session start via hooks. This ensures optimized performance, token usage, and context management from the beginning of every Claude Code session.
+
+### Bypass Modes
+
+Set the `CONSERVATION_MODE` environment variable to control behavior:
+
+| Mode | Command | Behavior |
+|------|---------|----------|
+| `normal` | `claude` | Full conservation guidance (default) |
+| `quick` | `CONSERVATION_MODE=quick claude` | Skip guidance for fast processing |
+| `deep` | `CONSERVATION_MODE=deep claude` | Extended resources for thorough analysis |
+
 ## Key Concepts
 
 **MECW (Maximum Effective Context Window)**: Keep context pressure under 50% of the total window. Beyond this threshold, response quality degrades. Conservation skills enforce this.
@@ -27,9 +41,16 @@ make deps
 | Skill | Purpose |
 |-------|---------|
 | `context-optimization` | MECW assessment and subagent coordination |
+| `token-conservation` | Token budget enforcement and quota tracking |
+| `cpu-gpu-performance` | Hardware resource tracking and selective testing |
 | `mcp-code-execution` | MCP patterns for data pipelines |
-| `performance-monitoring/cpu-gpu-performance` | Hardware resource tracking |
-| `resource-management/token-conservation` | Token budget enforcement |
+| `optimizing-large-skills` | Breaking down oversized skills |
+
+## Thresholds
+
+- **Context**: < 30% LOW | 30-50% MODERATE | > 50% CRITICAL
+- **Token Quota**: 5-hour rolling cap + weekly cap
+- **CPU/GPU**: Establish baseline before heavy tasks
 
 ## Requirements
 

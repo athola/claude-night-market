@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/shared",
@@ -20,8 +20,8 @@
   ],
   "keywords": ["workflow", "analysis", "evidence", "structured-output", "methodology", "review", "catchup", "scope-guard", "anti-overengineering"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

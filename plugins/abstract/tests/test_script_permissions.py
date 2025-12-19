@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
     for script in sorted(scripts):
         permissions_ok = check_script_permissions(script)
-        status = "✓" if permissions_ok else "✗"
+        status = "OK" if permissions_ok else "FAIL"
 
     # Fix permissions if requested
     if len(sys.argv) > 1 and sys.argv[1] == "--fix":

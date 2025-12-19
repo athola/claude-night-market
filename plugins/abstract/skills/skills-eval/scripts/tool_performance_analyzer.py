@@ -98,7 +98,7 @@ class ToolPerformanceAnalyzer:
             )
 
             for tool_name, perf in results["tools"].items():
-                status = "✅" if perf["success"] else "❌"
+                status = "" if perf["success"] else ""
                 " (timeout)" if perf.get("timeout") else ""
                 " (error)" if perf.get("error") else ""
 

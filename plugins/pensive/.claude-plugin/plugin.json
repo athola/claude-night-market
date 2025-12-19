@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/full-review.md",
@@ -30,8 +30,8 @@
   ],
   "keywords": ["review", "code-quality", "architecture", "testing", "analysis", "rust", "api", "bugs", "audit"],
   "author": {
-    "name": "Claude Skills",
-    "url": "https://github.com/superpowers-marketplace"
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
   },
   "license": "MIT"
 }

@@ -52,12 +52,12 @@ so I'll focus on core functionality first."
 
 | Scope | Required? | Rationale |
 |-------|-----------|-----------|
-| Production | ✓ | Security non-negotiable |
-| Prototype | ✓ | Prototypes → production |
-| Internal | ✓ | Internal = attack vector |
-| Simple | ✓ | Complexity ≠ security need |
-| Testing | ✓ | Test environments get exposed |
-| Quick fix | ✓ | Breaches are permanent |
+| Production | OK | Security non-negotiable |
+| Prototype | OK | Prototypes → production |
+| Internal | OK | Internal = attack vector |
+| Simple | OK | Complexity ≠ security need |
+| Testing | OK | Test environments get exposed |
+| Quick fix | OK | Breaches are permanent |
 
 **No exceptions**. Only valid override: Explicit user statement
 "Skip [requirement] because [documented reason]."
@@ -181,16 +181,16 @@ Fixing breaches costs 1000% more later.
 ```markdown
 ## Foundational Requirements Come First
 
-✓ **Follow these EXACTLY:**
+OK **Follow these EXACTLY:**
 1. [Specific requirement 1]
 2. [Specific requirement 2]
 
-✓ **Then apply judgment:**
+OK **Then apply judgment:**
 - Adapt implementation details
 - Choose appropriate tools
 - Optimize for context
 
-❌ **Don't reinterpret:**
+ **Don't reinterpret:**
 - Core requirements
 - Security controls
 - Quality gates
@@ -517,7 +517,7 @@ deadline, so keep it simple."
 
 ## Common Mistakes
 
-### ❌ Vague Requirements
+###  Vague Requirements
 
 **Problem:**
 ```markdown
@@ -535,13 +535,13 @@ Too much interpretation room.
 4. Rate limiting (10 req/min)
 ```
 
-### ❌ Missing Red Flags
+###  Missing Red Flags
 
 **Problem:** No self-checking mechanism
 
 **Solution:** Include explicit red flags list
 
-### ❌ Assuming Compliance
+###  Assuming Compliance
 
 **Problem:** Not testing against rationalization scenarios
 

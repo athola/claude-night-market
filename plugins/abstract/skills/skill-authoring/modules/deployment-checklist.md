@@ -10,7 +10,7 @@ Skills must pass ALL gates before deployment. No exceptions.
 
 ### Gate 1: Empirical Testing Complete
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### RED Phase Verification
 
@@ -47,7 +47,7 @@ Skills must pass ALL gates before deployment. No exceptions.
 
 ### Gate 2: Structure and Format
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### SKILL.md Requirements
 
@@ -84,7 +84,7 @@ Skills must pass ALL gates before deployment. No exceptions.
 
 ### Gate 3: Description Optimization
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### Voice and Clarity
 
@@ -111,7 +111,7 @@ Skills must pass ALL gates before deployment. No exceptions.
 
 ### Gate 4: Content Quality
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### Core Content
 
@@ -140,7 +140,7 @@ Skills must pass ALL gates before deployment. No exceptions.
 
 ### Gate 5: Technical Validation
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### Automated Validation
 
@@ -170,7 +170,7 @@ Validation results:
 
 ### Gate 6: Integration Testing
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### Isolation Testing
 
@@ -197,7 +197,7 @@ Validation results:
 
 ### Gate 7: Documentation
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### User-Facing Documentation
 
@@ -217,7 +217,7 @@ Validation results:
 
 ### Gate 8: Compliance and Standards
 
-**Status**: ☐ Not Started | ☐ In Progress | ☐ Complete
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 
 #### Skill Standards
 
@@ -266,27 +266,27 @@ Path: /path/to/skill/SKILL.md
 
 Structure Checks
 ----------------
-✓ SKILL.md exists
-✓ YAML frontmatter valid
-✓ Required fields present
-✓ Name format valid
-✓ Description format valid
-✓ Line count: 456/500
-✓ Module references valid
+OK SKILL.md exists
+OK YAML frontmatter valid
+OK Required fields present
+OK Name format valid
+OK Description format valid
+OK Line count: 456/500
+OK Module references valid
 
 Content Checks
 --------------
-✓ Third person voice
-✓ "Use when" clause present
-✓ Discovery terms included
-✓ Examples present
-✓ No broken links
+OK Third person voice
+OK "Use when" clause present
+OK Discovery terms included
+OK Examples present
+OK No broken links
 
 Quality Checks
 --------------
-✓ Token estimate reasonable
-✓ No empty sections
-✓ Version valid (semver)
+OK Token estimate reasonable
+OK No empty sections
+OK Version valid (semver)
 ! Warning: Description could include more discovery terms
 
 Result: PASS (1 warning)
@@ -306,7 +306,7 @@ After passing all gates:
 cat deployment-checklist.md
 
 # Verify all gates marked complete
-grep "☑" deployment-checklist.md
+grep "\[x\]" deployment-checklist.md
 ```
 
 ### 2. Version Tag
@@ -387,14 +387,14 @@ If issues discovered post-deployment:
 
 **Minimum requirements for deployment:**
 
-1. ✅ **Empirical Testing**: 3+ baseline scenarios, ≥50% improvement, 3+ consecutive 100% compliance tests
-2. ✅ **Structure**: Valid YAML, <500 lines, proper file organization
-3. ✅ **Description**: Third person, "Use when" clause, 200-400 chars, discovery optimized
-4. ✅ **Content**: Clear overview, examples, anti-rationalization, no orphans
-5. ✅ **Validation**: Passes `skill_validator.py` with exit code 0 or 1
-6. ✅ **Integration**: Loads without errors, no conflicts, workflows tested
-7. ✅ **Documentation**: Complete user and developer docs
-8. ✅ **Standards**: Follows best practices, ethical review passed
+1.  **Empirical Testing**: 3+ baseline scenarios, ≥50% improvement, 3+ consecutive 100% compliance tests
+2.  **Structure**: Valid YAML, <500 lines, proper file organization
+3.  **Description**: Third person, "Use when" clause, 200-400 chars, discovery optimized
+4.  **Content**: Clear overview, examples, anti-rationalization, no orphans
+5.  **Validation**: Passes `skill_validator.py` with exit code 0 or 1
+6.  **Integration**: Loads without errors, no conflicts, workflows tested
+7.  **Documentation**: Complete user and developer docs
+8.  **Standards**: Follows best practices, ethical review passed
 
 **Any gate failure = DO NOT DEPLOY**
 
@@ -486,9 +486,9 @@ Issues found: [Count]
 Critical issues: [Count]
 
 ## Deployment Decision
-☐ APPROVED - All gates passed
-☐ APPROVED WITH WARNINGS - Minor issues documented
-☐ REJECTED - Must fix critical issues
+[ ] APPROVED - All gates passed
+[ ] APPROVED WITH WARNINGS - Minor issues documented
+[ ] REJECTED - Must fix critical issues
 
 Signature: ________________
 Date: ________________

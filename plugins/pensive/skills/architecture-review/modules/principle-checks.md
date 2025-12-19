@@ -144,13 +144,13 @@ grep -rn "process\|handle\|manage\|do_\|data\|item\|thing" src/
 try:
     critical_operation()
 except Exception:
-    pass  # 🚨 Swallowed error
+    pass  # Swallowed error
 
 # Bad: Implicit coupling
-global_state = {}  # 🚨 Hidden dependency
+global_state = {}  # Hidden dependency
 
 # Bad: Magic values
-if status == 42:  # 🚨 What does 42 mean?
+if status == 42:  # What does 42 mean?
 ```
 
 **Search:**
