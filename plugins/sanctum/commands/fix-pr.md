@@ -230,7 +230,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
 14. **Comment on Fully Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
-    ## ✅ Addressed in PR #PR_NUMBER
+    ## Addressed in PR #PR_NUMBER
 
     This issue has been fully addressed by the linked pull request.
 
@@ -252,7 +252,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
 15. **Comment on Partially Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
-    ## 🔄 Partially Addressed in PR #PR_NUMBER
+    ## Partially Addressed in PR #PR_NUMBER
 
     This PR addresses some aspects of this issue but additional work is needed.
 
@@ -280,9 +280,9 @@ After resolving review threads, analyze whether this PR addresses any open issue
 
     | Issue | Title | Status | Action Taken |
     |-------|-------|--------|--------------|
-    | #42 | Add user authentication | ✅ Fully Addressed | Commented + Closed |
-    | #43 | Fix validation bugs | 🔄 Partially Addressed | Commented (3 items remaining) |
-    | #44 | Improve performance | ❌ Not Related | Skipped |
+    | #42 | Add user authentication | Fully Addressed | Commented + Closed |
+    | #43 | Fix validation bugs | Partially Addressed | Commented (3 items remaining) |
+    | #44 | Improve performance | Not Related | Skipped |
 
     **Closed Issues:** 1
     **Partially Addressed:** 1 (follow-up items documented)
@@ -406,7 +406,7 @@ PR #42: Analyzing 8 open issues...
 ### Issue Analysis Results
 
 **#15 - Add input validation for API endpoints**
-Status: ✅ FULLY ADDRESSED
+Status: FULLY ADDRESSED
 Evidence:
   - Added validation in api/validators.py (lines 45-89)
   - Tests added in tests/test_validators.py
@@ -414,7 +414,7 @@ Evidence:
 Action: Commented and closed issue #15
 
 **#18 - Improve error messages**
-Status: 🔄 PARTIALLY ADDRESSED
+Status: PARTIALLY ADDRESSED
 Evidence:
   - Updated error messages in auth module
   - Database errors still use generic messages
@@ -424,7 +424,7 @@ Remaining work:
 Action: Commented with follow-up tasks
 
 **#22 - Refactor payment module**
-Status: ❌ NOT RELATED
+Status: NOT RELATED
 Evidence: No changes to payment/* files
 Action: Skipped
 ```
