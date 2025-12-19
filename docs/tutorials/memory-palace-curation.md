@@ -19,8 +19,8 @@ This note explains how the Memory Palace cache interceptor collaborates with the
 
 ## Knowledge-intake handoff
 
-1. Knowledge-intake watches telemetry or hook payloads for `should_flag_for_intake=True`.
-2. The payload’s duplicate list and delta reasoning guide whether to auto-merge, request operator review, or drop the sample.
+1. When `should_flag_for_intake=True`, the hook persists the intake payload directly to `data/intake_queue.jsonl`. This bypasses hook chain isolation (PreToolUse cannot pass data to PostToolUse).
+2. Knowledge-intake processes the queue asynchronously, using the payload's duplicate list and delta reasoning to auto-merge, request operator review, or drop the sample.
 3. When a query aligns with configured domains but lacked cache matches, intake can short-circuit to existing domain-specific templates rather than running the entire marginal value filter.
 4. When duplicates are detected, intake is skipped (flag stays off) but telemetry still records the reasoning so curators know overlap caused the suppression.
 

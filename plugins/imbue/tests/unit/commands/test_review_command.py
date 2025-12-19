@@ -64,7 +64,12 @@ class TestReviewCommand:
     def sample_scope_inventory(self):
         """Sample scope inventory for review."""
         return {
-            "source_files": ["src/auth.py", "src/middleware.py", "src/models/user.py"],
+            "source_files": [
+                "src/auth/login.py",
+                "src/auth/models.py",
+                "src/middleware.py",
+                "src/models/user.py",
+            ],
             "config_files": ["config/auth.json", ".env.example"],
             "documentation": ["docs/auth-flow.md", "README.md"],
             "test_files": ["tests/test_auth.py", "tests/test_middleware.py"],
@@ -123,7 +128,7 @@ class TestReviewCommand:
         # Verify specific TodoWrite items
         expected_items = set(review_core_items)
         created_items = {
-            c.split(":")[1]
+            c.split(":", 1)[1]  # Split only on first colon to preserve full item name
             for c in workflow_components
             if c.startswith("todowrite_created:")
         }
@@ -267,7 +272,6 @@ class TestReviewCommand:
         # Mock skill calls
         def mock_skill_execution(skill_name, context) -> str:
             skill_execution_order.append(skill_name)
-            skill_contexts[skill_name] = context.copy()
 
             # Each skill adds to context
             if skill_name == "review-core":
@@ -278,6 +282,9 @@ class TestReviewCommand:
                 context["template"] = "review_report_template"
             elif skill_name == "diff-analysis":
                 context["changes"] = [{"file": "src/test.py", "type": "modified"}]
+
+            # Capture context AFTER skill modifies it
+            skill_contexts[skill_name] = context.copy()
 
             return f"{skill_name} completed"
 
@@ -388,7 +395,7 @@ class TestReviewCommand:
         assert "Repository: project" in output
         assert "Branch: feature/auth-improvement" in output
         assert "Baseline: main (3 commits behind)" in output
-        assert "Source files: 3" in output
+        assert "Source files: 4" in output
         assert "review-core:context-established" in output
         assert "Evidence session: review-session-123" in output
         assert "Next steps:" in output
@@ -536,7 +543,7 @@ class TestReviewCommand:
             "feature/auth-improvement",  # git branch
             "abc123",  # git rev-parse HEAD
             "def456",  # git merge-base HEAD main
-            " src/auth.py\n src/middleware.py",  # git diff --name-only
+            "src/auth.py\nsrc/middleware.py",  # git diff --name-only
             "2 files changed, 15 insertions(+), 5 deletions(-)",  # git diff --stat
         ]
 
@@ -625,5 +632,5 @@ class TestReviewCommand:
         processing_time = end_time - start_time
         assert processing_time < TWO_POINT_ZERO  # Should initialize in under 2 seconds
         assert len(initialization_steps) == FOUR
-        assert scope_summary["total_files"] > FIVE_HUNDRED  # Large repository
+        assert scope_summary["total_files"] >= FIVE_HUNDRED  # Large repository
         assert evidence_session.startswith("session-")

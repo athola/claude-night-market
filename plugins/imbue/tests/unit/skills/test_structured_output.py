@@ -271,7 +271,7 @@ Common template variables that should be populated:
 
         # Customize based on changes
         if changes_summary["files_changed"] > 3:
-            template_selection["sections"].append("Large Change Notice")
+            template_selection["required_sections"].append("Large Change Notice")
 
         # Assert
         assert template_selection["type"] == "pull_request"
@@ -669,7 +669,7 @@ Common template variables that should be populated:
         return f"""# Pull Request: Security Improvements
 
 ## Changes Summary
-This PR addresses {len(findings)} security-related items.
+This PR addresses {len(findings)} security findings.
 
 ## Checklist
 {chr(10).join(f"- [ ] Fix {f['title'].lower()}" for f in findings)}"""

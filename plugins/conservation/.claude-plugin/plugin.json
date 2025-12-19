@@ -1,6 +1,6 @@
 {
   "name": "conservation",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/context-optimization",

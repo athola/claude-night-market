@@ -104,13 +104,13 @@ Priority order for change categories:
     @pytest.fixture
     def sample_git_log_output(self) -> str:
         """Sample git log output for catchup testing."""
-        return """abc1234 2024-12-04 Add user authentication feature
-def5678 2024-12-03 Fix database connection timeout
-9012345 2024-12-02 Update API documentation
-2345678 2024-12-01 Refactor user service module
-3456789 2024-11-30 Add integration tests for auth
-4567890 2024-11-29 Configure CI/CD pipeline
-5678901 2024-11-28 Update dependencies"""
+        return """abc12345 2024-12-04 10:00:00 Add user authentication feature
+def56789 2024-12-03 15:30:00 Fix database connection timeout
+90123456 2024-12-02 09:00:00 Update API documentation
+23456789 2024-12-01 14:00:00 Refactor user service module
+34567890 2024-11-30 11:00:00 Add integration tests
+45678901 2024-11-29 16:00:00 Configure CI/CD pipeline
+56789012 2024-11-28 08:00:00 Update dependencies"""
 
     @pytest.fixture
     def sample_git_status_output(self) -> str:
@@ -120,9 +120,9 @@ Your branch is ahead of 'origin/feature/user-auth' by 2 commits.
   (use "git push" to publish your local commits)
 
 Changes to be committed:
-  modified:   src/auth.py
-  new file:   src/middleware.py
-  modified:   tests/test_auth.py
+  modified: src/auth.py
+  new file: src/middleware.py
+  modified: tests/test_auth.py
 
 Untracked files:
   config/auth_config.json"""
@@ -341,9 +341,9 @@ Untracked files:
         assert summary["total_commits"] == 7
         assert summary["date_range"]["earliest"] == "2024-11-28"
         assert summary["date_range"]["latest"] == "2024-12-04"
-        assert summary["commit_types"]["feature"] == 1
+        assert summary["commit_types"]["feature"] == 2  # Add auth, Add tests
         assert summary["commit_types"]["fix"] == 1
-        assert summary["commit_types"]["update"] == 1
+        assert summary["commit_types"]["update"] == 2  # Update docs, Update deps
         assert summary["commit_types"]["refactor"] == 1
 
         # Verify token efficiency - no full file contents reproduced
