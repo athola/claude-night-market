@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 from io import StringIO
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -645,7 +646,7 @@ class TestEndToEnd:
         assert telemetry_event.intake_delta_reasoning
         assert telemetry_event.duplicate_entry_ids == "async-patterns"
 
-    def test_intake_queue_persistence(self, tmp_path: pytest.TempPathFactory) -> None:
+    def test_intake_queue_persistence(self, tmp_path: Path) -> None:
         """Test that high-novelty queries are persisted to intake queue."""
         mock_stdin = StringIO(
             json.dumps(

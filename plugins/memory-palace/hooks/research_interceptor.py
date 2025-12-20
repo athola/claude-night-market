@@ -25,7 +25,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 # Import from memory_palace after path setup
-from datetime import UTC
+from datetime import UTC, datetime
 
 from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
 from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
@@ -599,8 +599,6 @@ def main() -> None:
     # Queue high-novelty queries for knowledge-intake processing
     if decision.should_flag_for_intake and decision.intake_payload:
         try:
-            from datetime import datetime
-
             queue_path = PLUGIN_ROOT / "data" / "intake_queue.jsonl"
             queue_path.parent.mkdir(parents=True, exist_ok=True)
 
