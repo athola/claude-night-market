@@ -59,6 +59,7 @@ The table below shows which Night Market components depend on superpowers skills
 | **pensive** | `/full-review` | Command | `superpowers:systematic-debugging`, `superpowers:verification-before-completion` | Four-phase debugging + evidence standards |
 | **parseltongue** | `python-testing` | Skill | `superpowers:test-driven-development`, `superpowers:testing-anti-patterns` | TDD cycles + anti-pattern detection |
 | **imbue** | `scope-guard` | Skill | `superpowers:brainstorming`, `superpowers:writing-plans`, `superpowers:execute-plan` | Anti-overengineering during workflows |
+| **imbue** | `/feature-review` | Command | `superpowers:brainstorming` | Evidence-based feature prioritization |
 | **conservation** | `/optimize-context` | Command | `superpowers:condition-based-waiting` | Smart waiting strategies for optimization |
 | **minister** | `issue-management` | Skill | `superpowers:systematic-debugging` | Methodical bug investigation |
 
@@ -159,8 +160,8 @@ For the full Night Market experience:
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `post-evaluation.json` | After | Runs after skill evaluation completes. |
-| `pre-skill-load.json` | Before | Validates skills before loading. |
+| `post-evaluation.json` | Config | Configuration for post-evaluation actions (quality scoring, improvement tracking). |
+| `pre-skill-load.json` | Config | Configuration for pre-load validation (YAML frontmatter, dependencies). |
 
 ---
 
@@ -213,8 +214,8 @@ For the full Night Market experience:
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `bridge.on_tool_start` | Before | Suggests delegation when input files exceed context thresholds. |
-| `bridge.after_tool_use` | After | Suggests delegation if tool output is truncated or massive. |
+| `bridge.on_tool_start` | PreToolUse | Suggests delegation when input files exceed context thresholds. |
+| `bridge.after_tool_use` | PostToolUse | Suggests delegation if tool output is truncated or massive. |
 
 ---
 
@@ -249,7 +250,7 @@ For the full Night Market experience:
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `session-start.sh` | Session | Loads conservation skills guidance at session start. Supports bypass modes via `CONSERVATION_MODE` env var. |
+| `session-start.sh` | SessionStart | Loads conservation skills guidance at session start. Supports bypass modes via `CONSERVATION_MODE` env var. |
 
 ### Bypass Modes
 
@@ -283,6 +284,7 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 | `evidence-logging` | Capture methodology. | Creating a verifiable audit trail of findings. | `Skill(imbue:evidence-logging)` |
 | `structured-output` | Formatting patterns. | Creating consistent reports. | `Skill(imbue:structured-output)` |
 | `scope-guard` | Anti-overengineering. | Evaluating if a feature is worth the cost. | `Skill(imbue:scope-guard)` |
+| `feature-review` | Feature prioritization and gap analysis. | Sprint planning, roadmap reviews, deciding what to build next. | `Skill(imbue:feature-review)` |
 
 ### Commands
 
@@ -291,6 +293,7 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 | `/catchup` | Quickly understand recent changes and extract actionable insights. |
 | `/review` | Start a structured review workflow with evidence logging. |
 | `/full-review` | Comprehensive review workflow with formatted output. |
+| `/feature-review` | Review implemented features using RICE+WSJF scoring and suggest new features with GitHub integration. |
 
 ### Agents
 
@@ -302,9 +305,9 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `session-start.sh` | Session | Initializes session with scope-guard and learning mode. |
-| `user-prompt-submit.sh` | Prompt | Validates prompts against scope thresholds. |
-| `pre-pr-scope-check.sh` | Pre-PR | Checks scope before PR creation. |
+| `session-start.sh` | SessionStart | Initializes session with scope-guard and learning mode. |
+| `user-prompt-submit.sh` | UserPromptSubmit | Validates prompts against scope thresholds. |
+| `pre-pr-scope-check.sh` | Manual | Checks scope before PR creation (available for manual configuration). |
 
 ---
 
@@ -372,10 +375,10 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `research_interceptor.py` | Before | Checks local knowledge before web searches. |
-| `url_detector.py` | After | Suggests intake for URLs in output. |
-| `local_doc_processor.py` | Process | Processes local documentation files. |
-| `web_content_processor.py` | Process | Processes web content for storage. |
+| `research_interceptor.py` | PreToolUse | Checks local knowledge before web searches (WebFetch/WebSearch). |
+| `url_detector.py` | UserPromptSubmit | Detects URLs in user prompts and suggests knowledge intake. |
+| `local_doc_processor.py` | PostToolUse | Processes local documentation files after Read operations. |
+| `web_content_processor.py` | PostToolUse | Processes web content for storage after WebFetch/WebSearch. |
 
 ---
 
@@ -523,7 +526,7 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `post_implementation_policy.py` | Session | Injects post-implementation protocol requiring docs/tests/readme updates. |
+| `post_implementation_policy.py` | SessionStart | Injects post-implementation protocol requiring docs/tests/readme updates. |
 | `verify_workflow_complete.py` | Stop | Verifies workflow completion. |
 | `session_complete_notify.py` | Stop | Cross-platform toast notification (Linux/macOS/Windows) when Claude awaits input. |
 
