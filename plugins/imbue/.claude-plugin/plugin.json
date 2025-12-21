@@ -13,7 +13,7 @@
     "./skills/feature-review"
   ],
   "commands": [
-    "./commands/full-review.md",
+    "./commands/structured-review.md",
     "./commands/catchup.md",
     "./commands/feature-review.md"
   ],

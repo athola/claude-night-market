@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
-    "./commands/catchup.md",
+    "./commands/git-catchup.md",
     "./commands/commit-msg.md",
     "./commands/fix-issue.md",
     "./commands/fix-workflow.md",

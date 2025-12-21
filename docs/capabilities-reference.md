@@ -2,6 +2,214 @@
 
 A detailed guide to the skills, commands, agents, and hooks available across the Claude Night Market ecosystem.
 
+---
+
+## Quick Reference Index
+
+### All Skills (Alphabetical)
+
+| Skill | Plugin | Description |
+|-------|--------|-------------|
+| `api-review` | [pensive](#pensive) | API surface evaluation |
+| `architecture-paradigm-client-server` | [archetypes](#archetypes) | Client-server communication |
+| `architecture-paradigm-cqrs-es` | [archetypes](#archetypes) | CQRS and Event Sourcing |
+| `architecture-paradigm-event-driven` | [archetypes](#archetypes) | Asynchronous communication |
+| `architecture-paradigm-functional-core` | [archetypes](#archetypes) | Functional Core, Imperative Shell |
+| `architecture-paradigm-hexagonal` | [archetypes](#archetypes) | Ports & Adapters architecture |
+| `architecture-paradigm-layered` | [archetypes](#archetypes) | Traditional N-tier architecture |
+| `architecture-paradigm-microkernel` | [archetypes](#archetypes) | Plugin-based extensibility |
+| `architecture-paradigm-microservices` | [archetypes](#archetypes) | Independent distributed services |
+| `architecture-paradigm-modular-monolith` | [archetypes](#archetypes) | Single deployment with internal boundaries |
+| `architecture-paradigm-pipeline` | [archetypes](#archetypes) | Pipes-and-filters model |
+| `architecture-paradigm-serverless` | [archetypes](#archetypes) | Function-as-a-Service |
+| `architecture-paradigm-service-based` | [archetypes](#archetypes) | Coarse-grained SOA |
+| `architecture-paradigm-space-based` | [archetypes](#archetypes) | Data-grid architecture |
+| `architecture-paradigms` | [archetypes](#archetypes) | Orchestrator for paradigm selection |
+| `architecture-review` | [pensive](#pensive) | Architecture assessment |
+| `authentication-patterns` | [leyline](#leyline) | Auth flow patterns |
+| `bug-review` | [pensive](#pensive) | Bug hunting |
+| `catchup` | [imbue](#imbue) | Context recovery |
+| `commit-messages` | [sanctum](#sanctum) | Conventional commits |
+| `context-optimization` | [conservation](#conservation) | MECW principles and 50% context rule |
+| `cpu-gpu-performance` | [conservation](#conservation) | Resource monitoring and selective testing |
+| `delegation-core` | [conjure](#conjure) | Framework for delegation decisions |
+| `diff-analysis` | [imbue](#imbue) | Semantic changeset analysis |
+| `digital-garden-cultivator` | [memory-palace](#memory-palace) | Digital garden maintenance |
+| `doc-consolidation` | [sanctum](#sanctum) | Document merging |
+| `doc-updates` | [sanctum](#sanctum) | Documentation maintenance |
+| `error-patterns` | [leyline](#leyline) | Standardized error handling |
+| `escalation-governance` | [abstract](#abstract) | Model escalation decisions |
+| `evaluation-framework` | [leyline](#leyline) | Decision thresholds |
+| `evidence-logging` | [imbue](#imbue) | Capture methodology |
+| `feature-review` | [imbue](#imbue) | Feature prioritization and gap analysis |
+| `file-analysis` | [sanctum](#sanctum) | File structure analysis |
+| `gemini-delegation` | [conjure](#conjure) | Gemini CLI integration |
+| `git-workspace-review` | [sanctum](#sanctum) | Repo state analysis |
+| `github-initiative-pulse` | [minister](#minister) | Initiative progress tracking |
+| `hook-authoring` | [abstract](#abstract) | Security-first hook development |
+| `hooks-eval` | [abstract](#abstract) | Hook security scanning |
+| `knowledge-intake` | [memory-palace](#memory-palace) | Intake and curation |
+| `knowledge-locator` | [memory-palace](#memory-palace) | Spatial search |
+| `makefile-dogfooder` | [abstract](#abstract) | Makefile analysis and enhancement |
+| `makefile-review` | [pensive](#pensive) | Makefile best practices |
+| `math-review` | [pensive](#pensive) | Mathematical correctness |
+| `mcp-code-execution` | [conservation](#conservation) | MCP patterns for data pipelines |
+| `mecw-patterns` | [leyline](#leyline) | MECW implementation |
+| `memory-palace-architect` | [memory-palace](#memory-palace) | Building virtual palaces |
+| `modular-skills` | [abstract](#abstract) | Modular design patterns |
+| `optimizing-large-skills` | [conservation](#conservation) | Large skill optimization |
+| `performance-optimization` | [abstract](#abstract) | Skill loading optimization |
+| `pr-prep` | [sanctum](#sanctum) | PR preparation |
+| `pr-review` | [sanctum](#sanctum) | PR review workflows |
+| `progressive-loading` | [leyline](#leyline) | Dynamic content loading |
+| `python-async` | [parseltongue](#parseltongue) | Async patterns |
+| `python-packaging` | [parseltongue](#parseltongue) | Packaging with uv |
+| `python-performance` | [parseltongue](#parseltongue) | Profiling and optimization |
+| `python-testing` | [parseltongue](#parseltongue) | Pytest/TDD workflows |
+| `pytest-config` | [leyline](#leyline) | Pytest configuration patterns |
+| `qwen-delegation` | [conjure](#conjure) | Qwen MCP integration |
+| `quota-management` | [leyline](#leyline) | Rate limiting and quotas |
+| `release-health-gates` | [minister](#minister) | Release readiness checks |
+| `review-core` | [imbue](#imbue) | Scaffolding for detailed reviews |
+| `rust-review` | [pensive](#pensive) | Rust-specific checking |
+| `scope-guard` | [imbue](#imbue) | Anti-overengineering |
+| `service-registry` | [leyline](#leyline) | Service discovery patterns |
+| `session-palace-builder` | [memory-palace](#memory-palace) | Session-specific palaces |
+| `shared-patterns` | [abstract](#abstract) | Reusable plugin development patterns |
+| `skill-authoring` | [abstract](#abstract) | TDD methodology for skill creation |
+| `skills-eval` | [abstract](#abstract) | Skill quality assessment |
+| `spec-writing` | [spec-kit](#spec-kit) | Specification authoring |
+| `speckit-orchestrator` | [spec-kit](#spec-kit) | Workflow coordination |
+| `storage-templates` | [leyline](#leyline) | Storage abstraction patterns |
+| `structured-output` | [imbue](#imbue) | Formatting patterns |
+| `task-planning` | [spec-kit](#spec-kit) | Task generation |
+| `test-review` | [pensive](#pensive) | Test quality review |
+| `test-updates` | [sanctum](#sanctum) | Test maintenance |
+| `testing-quality-standards` | [leyline](#leyline) | Test quality guidelines |
+| `token-conservation` | [conservation](#conservation) | Token usage strategies and quota tracking |
+| `unified-review` | [pensive](#pensive) | Review orchestration |
+| `update-readme` | [sanctum](#sanctum) | README modernization |
+| `usage-logging` | [leyline](#leyline) | Telemetry tracking |
+| `version-updates` | [sanctum](#sanctum) | Version bumping |
+| `workflow-improvement` | [sanctum](#sanctum) | Workflow retrospectives |
+
+### All Commands (Alphabetical)
+
+| Command | Plugin | Description |
+|---------|--------|-------------|
+| `/analyze-growth` | [conservation](#conservation) | Analyzes skill growth patterns and predicts context budget impact |
+| `/analyze-hook` | [abstract](#abstract) | Analyzes individual hook files for security and performance |
+| `/analyze-skill` | [abstract](#abstract) | Analyzes skill complexity and gets modularization recommendations |
+| `/analyze-tests` | [parseltongue](#parseltongue) | Reports on test suite health |
+| `/api-review` | [pensive](#pensive) | Runs API review |
+| `/architecture-review` | [pensive](#pensive) | Runs architecture review |
+| `/bug-review` | [pensive](#pensive) | Runs bug review |
+| `/bulletproof-skill` | [abstract](#abstract) | Anti-rationalization workflow for hardening skills |
+| `/catchup` | [imbue](#imbue) | Quickly understand recent changes and extract actionable insights |
+| `/check-async` | [parseltongue](#parseltongue) | Validates async patterns |
+| `/commit-msg` | [sanctum](#sanctum) | Generates a commit message |
+| `/context-report` | [abstract](#abstract) | Generates context optimization report for skill directories |
+| `/create-command` | [abstract](#abstract) | Scaffolds a new command |
+| `/create-hook` | [abstract](#abstract) | Scaffolds a new hook with security-first design |
+| `/create-skill` | [abstract](#abstract) | Scaffolds a new skill using best practices |
+| `/estimate-tokens` | [abstract](#abstract) | Estimates token usage for skill files and dependencies |
+| `/feature-review` | [imbue](#imbue) | Review implemented features using RICE+WSJF scoring |
+| `/fix-issue` | [sanctum](#sanctum) | Workflow for fixing GitHub issues systematically |
+| `/fix-pr` | [sanctum](#sanctum) | Addresses PR review comments with thread resolution |
+| `/fix-workflow` | [sanctum](#sanctum) | Runs workflow retrospective and improves components |
+| `/full-review` | [pensive](#pensive) | Unified code review with intelligent skill selection |
+| `/garden` | [memory-palace](#memory-palace) | Manage digital gardens |
+| `/git-catchup` | [sanctum](#sanctum) | Git repository catchup using imbue methodology |
+| `/hooks-eval` | [abstract](#abstract) | Comprehensive hook evaluation framework |
+| `/make-dogfood` | [abstract](#abstract) | Analyzes and enhances Makefiles for functionality coverage |
+| `/makefile-review` | [pensive](#pensive) | Runs Makefile review |
+| `/math-review` | [pensive](#pensive) | Runs mathematical review |
+| `/merge-docs` | [sanctum](#sanctum) | Consolidates ephemeral docs into permanent documentation |
+| `/navigate` | [memory-palace](#memory-palace) | Search and traverse palaces |
+| `/optimize-context` | [conservation](#conservation) | Analyzes and optimizes context window usage using MECW principles |
+| `/palace` | [memory-palace](#memory-palace) | Manage memory palaces |
+| `/pr` | [sanctum](#sanctum) | Prepares a Pull Request |
+| `/pr-review` | [sanctum](#sanctum) | Enhanced PR review with quality checks |
+| `/reinstall-all-plugins` | [leyline](#leyline) | Uninstalls and reinstalls all plugins to refresh cache |
+| `/review` | [imbue](#imbue) | Start a structured review workflow with evidence logging |
+| `/run-profiler` | [parseltongue](#parseltongue) | Profiles code execution |
+| `/rust-review` | [pensive](#pensive) | Runs Rust-specific review |
+| `/skills-eval` | [abstract](#abstract) | Runs skill quality assessment |
+| `/speckit.analyze` | [spec-kit](#spec-kit) | Check consistency across artifacts |
+| `/speckit.checklist` | [spec-kit](#spec-kit) | Generate a custom checklist for the feature |
+| `/speckit.clarify` | [spec-kit](#spec-kit) | Identify underspecified areas with targeted questions |
+| `/speckit.constitution` | [spec-kit](#spec-kit) | Create or update project constitution |
+| `/speckit.implement` | [spec-kit](#spec-kit) | Execute the tasks |
+| `/speckit.plan` | [spec-kit](#spec-kit) | Generate an implementation plan |
+| `/speckit.specify` | [spec-kit](#spec-kit) | Create a new specification |
+| `/speckit.startup` | [spec-kit](#spec-kit) | Bootstrap speckit workflow at session start |
+| `/speckit.tasks` | [spec-kit](#spec-kit) | Generate tasks from the plan |
+| `/structured-review` | [imbue](#imbue) | Start structured review workflow with evidence logging |
+| `/test-review` | [pensive](#pensive) | Runs test quality review |
+| `/test-skill` | [abstract](#abstract) | Skill testing workflow with TDD methodology |
+| `/update-all-plugins` | [leyline](#leyline) | Updates all installed plugins from marketplaces |
+| `/update-docs` | [sanctum](#sanctum) | Updates documentation |
+| `/update-readme` | [sanctum](#sanctum) | Updates README with language-aware exemplar mining |
+| `/update-tests` | [sanctum](#sanctum) | Updates and maintains tests |
+| `/update-version` | [sanctum](#sanctum) | Bumps project versions |
+| `/validate-hook` | [abstract](#abstract) | Validates hook security, performance, and compliance |
+| `/validate-plugin` | [abstract](#abstract) | Checks a plugin's structure against requirements |
+| `make delegate-auto` | [conjure](#conjure) | Auto-selects best service for a task |
+| `make quota-status` | [conjure](#conjure) | Shows current quota usage |
+| `make usage-report` | [conjure](#conjure) | Summarizes token usage and costs |
+
+### All Agents (Alphabetical)
+
+| Agent | Plugin | Description |
+|-------|--------|-------------|
+| `architecture-reviewer` | [pensive](#pensive) | Principal-level architecture review specialist |
+| `code-reviewer` | [pensive](#pensive) | Expert code review for bugs, security, and quality |
+| `commit-agent` | [sanctum](#sanctum) | Conventional commit message generator |
+| `context-optimizer` | [conservation](#conservation) | Autonomous agent for context window optimization and MECW compliance |
+| `garden-curator` | [memory-palace](#memory-palace) | Maintains digital gardens |
+| `git-workspace-agent` | [sanctum](#sanctum) | Repository state analyzer |
+| `implementation-executor` | [spec-kit](#spec-kit) | Executes tasks and writes code |
+| `knowledge-librarian` | [memory-palace](#memory-palace) | Evaluates and routes knowledge for storage |
+| `knowledge-navigator` | [memory-palace](#memory-palace) | Searches and retrieves from palaces |
+| `meta-architect` | [abstract](#abstract) | Designs architectures for the plugin ecosystem |
+| `palace-architect` | [memory-palace](#memory-palace) | Designs memory palace architectures |
+| `plugin-validator` | [abstract](#abstract) | Validates plugin structure against official requirements |
+| `pr-agent` | [sanctum](#sanctum) | Pull request preparation specialist |
+| `python-optimizer` | [parseltongue](#parseltongue) | Expert performance optimization and profiling agent |
+| `python-pro` | [parseltongue](#parseltongue) | Master Python 3.12+ with modern features and best practices |
+| `python-tester` | [parseltongue](#parseltongue) | Expert testing agent for pytest, TDD, and mocking strategies |
+| `review-analyst` | [imbue](#imbue) | Autonomous agent for structured reviews with evidence gathering |
+| `rust-auditor` | [pensive](#pensive) | Expert Rust security and safety auditor |
+| `skill-auditor` | [abstract](#abstract) | Audits skills for quality and compliance |
+| `spec-analyzer` | [spec-kit](#spec-kit) | Validates consistency across spec artifacts |
+| `task-generator` | [spec-kit](#spec-kit) | Creates implementation tasks |
+| `workflow-improvement-analysis-agent` | [sanctum](#sanctum) | Generates improvement approaches with trade-offs |
+| `workflow-improvement-implementer-agent` | [sanctum](#sanctum) | Applies focused changes with tests |
+| `workflow-improvement-planner-agent` | [sanctum](#sanctum) | Selects approach and creates execution plan |
+| `workflow-improvement-validator-agent` | [sanctum](#sanctum) | Validates improvements via replay and metrics |
+| `workflow-recreate-agent` | [sanctum](#sanctum) | Reconstructs workflow slices and surfaces inefficiencies |
+
+### All Hooks (Alphabetical)
+
+| Hook | Plugin | Type | Description |
+|------|--------|------|-------------|
+| `bridge.after_tool_use` | [conjure](#conjure) | PostToolUse | Suggests delegation if tool output is truncated or massive |
+| `bridge.on_tool_start` | [conjure](#conjure) | PreToolUse | Suggests delegation when input files exceed context thresholds |
+| `local_doc_processor.py` | [memory-palace](#memory-palace) | PostToolUse | Processes local documentation files after Read operations |
+| `post-evaluation.json` | [abstract](#abstract) | Config | Configuration for post-evaluation actions (quality scoring, improvement tracking) |
+| `post_implementation_policy.py` | [sanctum](#sanctum) | SessionStart | Injects post-implementation protocol requiring docs/tests/readme updates |
+| `pre-pr-scope-check.sh` | [imbue](#imbue) | Manual | Checks scope before PR creation (available for manual configuration) |
+| `pre-skill-load.json` | [abstract](#abstract) | Config | Configuration for pre-load validation (YAML frontmatter, dependencies) |
+| `research_interceptor.py` | [memory-palace](#memory-palace) | PreToolUse | Checks local knowledge before web searches (WebFetch/WebSearch) |
+| `session-start.sh` | [conservation](#conservation), [imbue](#imbue) | SessionStart | Loads conservation/scope-guard guidance at session start |
+| `session_complete_notify.py` | [sanctum](#sanctum) | Stop | Cross-platform toast notification when Claude awaits input |
+| `url_detector.py` | [memory-palace](#memory-palace) | UserPromptSubmit | Detects URLs in user prompts and suggests knowledge intake |
+| `user-prompt-submit.sh` | [imbue](#imbue) | UserPromptSubmit | Validates prompts against scope thresholds |
+| `verify_workflow_complete.py` | [sanctum](#sanctum) | Stop | Verifies workflow completion |
+| `web_content_processor.py` | [memory-palace](#memory-palace) | PostToolUse | Processes web content for storage after WebFetch/WebSearch |
+
+---
+
 ## Table of Contents
 
 - [Abstract](#abstract)
@@ -292,7 +500,7 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 |---------|-------------|
 | `/catchup` | Quickly understand recent changes and extract actionable insights. |
 | `/review` | Start a structured review workflow with evidence logging. |
-| `/full-review` | Comprehensive review workflow with formatted output. |
+| `/structured-review` | Structured review workflow with evidence logging and formatted output. |
 | `/feature-review` | Review implemented features using RICE+WSJF scoring and suggest new features with GitHub integration. |
 
 ### Agents
@@ -496,7 +704,7 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 
 | Command | Description |
 |---------|-------------|
-| `/catchup` | Summarizes recent repo activity. |
+| `/git-catchup` | Git repository catchup using imbue methodology. |
 | `/commit-msg` | Generates a commit message. |
 | `/pr` | Prepares a Pull Request. |
 | `/pr-review` | Enhanced PR review with quality checks. |

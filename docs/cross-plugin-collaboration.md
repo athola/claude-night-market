@@ -188,7 +188,7 @@ shared_patterns:
 
 **Step 2: Process Branch with Optimization (Sanctum + Conservation)**
 ```bash
-/sanctum:catchup feature/auth-refactor --context-optimized
+/git-catchup feature/auth-refactor --context-optimized
 # Optimization applied:
 # 1. Use summary mode for large diffs
 # 2. Progressive loading of file details
@@ -252,7 +252,7 @@ Total: 400 tokens (vs 2,000 without optimization)
 # Output: Recommends modular architecture with 5 interconnected skills
 
 # 3. Check git workspace (Sanctum)
-/sanctum:catchup
+/git-catchup
 # Output: Clean workspace, ready for new feature branch
 ```
 
@@ -406,7 +406,7 @@ quality_gates:
 - `/abstract:validate-plugin` - Ensure quality after optimization
 
 ### Sanctum Commands
-- `/sanctum:catchup` - Efficient branch analysis
+- `/git-catchup` - Efficient git branch analysis
 - `/sanctum:pr` - Generate comprehensive PR description
 - `/sanctum:show-details <path>` - Progressive detail loading
 

@@ -1,7 +1,7 @@
 ---
-name: full-review
+name: structured-review
 description: Start a structured review workflow with evidence logging and formatted output
-usage: /full-review [target]
+usage: /structured-review [target]
 ---
 
 # Start Review Workflow
@@ -12,13 +12,13 @@ Initializes a structured review workflow using imbue's core methodology: context
 
 ```bash
 # Start review of current branch
-/full-review
+/structured-review
 
 # Review specific target
-/full-review src/auth/
+/structured-review src/auth/
 
 # Review with specific focus
-/full-review --focus security src/api/
+/structured-review --focus security src/api/
 ```
 
 ## What It Does
@@ -39,7 +39,7 @@ This command orchestrates multiple imbue skills:
 ## Examples
 
 ```bash
-/full-review
+/structured-review
 # Output:
 # Review Workflow Initialized
 # ===========================
@@ -53,7 +53,7 @@ This command orchestrates multiple imbue skills:
 # - [ ] review-core:evidence-captured
 # - [ ] review-core:deliverables-structured
 
-/full-review src/api --focus performance
+/structured-review src/api --focus performance
 # Scoped review with performance focus
 ```
 
