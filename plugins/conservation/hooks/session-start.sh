@@ -54,9 +54,11 @@ conservation_summary='## Conservation Skills - Session Optimization
 | `token-conservation` | Token usage strategies, quota tracking | Start of session, before heavy loads |
 | `cpu-gpu-performance` | Resource monitoring, selective testing | Before builds/tests/training |
 
-### Key Thresholds
+### Key Thresholds (Two-Tier MECW Alerts)
 
-- **Context**: < 30% LOW | 30-50% MODERATE | > 50% CRITICAL (optimize immediately)
+- **Context (40%)**: WARNING - Plan optimization soon, monitor growth rate
+- **Context (50%)**: CRITICAL - Immediate optimization required, summarize/delegate
+- **Context (< 40%)**: OK - Continue normally
 - **Token Quota**: 5-hour rolling cap + weekly cap (check with `/status`)
 - **CPU/GPU**: Establish baseline before heavy tasks
 

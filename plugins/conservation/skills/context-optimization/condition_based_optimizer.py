@@ -22,6 +22,10 @@ HIGH_PRESSURE_THRESHOLD = 0.9
 LOW_USAGE_SIMULATION = 0.3
 HIGH_USAGE_SIMULATION = 0.95
 
+# Two-tier MECW context warning thresholds
+WARNING_THRESHOLD = 0.40
+CRITICAL_THRESHOLD = 0.50
+
 # Import the base optimizer
 try:
     from context_optimization_service import (
@@ -377,6 +381,7 @@ class ConditionBasedOptimizer:
         """Monitor context usage and wait for threshold breach.
 
         Proactively monitors instead of using fixed monitoring intervals.
+        Supports two-tier MECW alerts at 40% (WARNING) and 50% (CRITICAL).
         """
         self.logger.info(f"Monitoring context pressure threshold: {threshold}")
 
@@ -384,6 +389,25 @@ class ConditionBasedOptimizer:
             # Get current context usage
             usage = self._get_current_context_usage()
             if usage >= threshold:
+                # Determine alert level based on two-tier thresholds
+                if usage >= CRITICAL_THRESHOLD:
+                    alert_level = "critical"
+                    recommendations = [
+                        "Summarize completed work immediately",
+                        "Delegate remaining tasks to subagents",
+                        "Consider /clear + /catchup workflow",
+                    ]
+                elif usage >= WARNING_THRESHOLD:
+                    alert_level = "warning"
+                    recommendations = [
+                        "Monitor context growth rate",
+                        "Prepare optimization strategy",
+                        "Invoke Skill(conservation:optimize-context)",
+                    ]
+                else:
+                    alert_level = "ok"
+                    recommendations = []
+
                 return {
                     "usage": usage,
                     "threshold": threshold,
@@ -391,6 +415,8 @@ class ConditionBasedOptimizer:
                     "pressure_level": (
                         "high" if usage > HIGH_PRESSURE_THRESHOLD else "moderate"
                     ),
+                    "alert_level": alert_level,
+                    "recommendations": recommendations,
                 }
             return None
 
