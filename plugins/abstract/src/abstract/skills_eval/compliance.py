@@ -97,7 +97,12 @@ def check_trigger_isolation(description: str, body: str) -> TriggerIsolationResu
 
     Returns:
         TriggerIsolationResult with analysis details.
+
     """
+    # Handle None inputs gracefully
+    description = description or ""
+    body = body or ""
+
     issues = []
 
     # Check description for required trigger patterns
@@ -159,7 +164,12 @@ def detect_enforcement_level(description: str) -> str:
 
     Returns:
         Enforcement level: 'maximum', 'high', 'medium', 'low', or 'none'.
+
     """
+    # Handle None input gracefully
+    if not description:
+        return "none"
+
     for level in ["maximum", "high", "medium", "low"]:
         for pattern in ENFORCEMENT_PATTERNS[level]:
             if pattern.search(description):
@@ -179,8 +189,12 @@ class ComplianceChecker:
     def _load_rules(self) -> dict[str, Any]:
         """Load compliance rules from file or use defaults."""
         if self.rules_file and self.rules_file.exists():
-            with open(self.rules_file) as f:
-                return json.load(f)
+            try:
+                with open(self.rules_file, encoding="utf-8") as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.error("Failed to load rules from %s: %s", self.rules_file, e)
+                # Fall through to defaults
 
         # Default rules
         return {
@@ -261,16 +275,20 @@ class ComplianceChecker:
                     trigger_result = check_trigger_isolation(description, result.body)
 
                     # Report trigger isolation issues as warnings
+                    # Skip "DO NOT use when" issues if require_negative_triggers
+                    # is True, since we handle that separately below
                     min_score = self.rules.get("min_trigger_isolation_score", 7)
+                    require_negative = self.rules.get("require_negative_triggers", True)
                     if trigger_result.score < min_score:
-                        for issue in trigger_result.issues:
-                            warnings.append(f"{skill_name}: {issue}")
+                        filtered = (
+                            i
+                            for i in trigger_result.issues
+                            if not (require_negative and "DO NOT use when" in i)
+                        )
+                        warnings.extend(f"{skill_name}: {i}" for i in filtered)
 
                     # Missing negative triggers is a more serious issue
-                    if (
-                        self.rules.get("require_negative_triggers", True)
-                        and not trigger_result.has_not_use_when
-                    ):
+                    if require_negative and not trigger_result.has_not_use_when:
                         warnings.append(
                             f"{skill_name}: Missing 'DO NOT use when:' "
                             "(negative triggers required)"
@@ -286,8 +304,13 @@ class ComplianceChecker:
 
                 compliant_count += 1
 
-            except Exception as e:
-                issues.append(f"{skill_file.parent.name}: Error reading file - {e}")
+            except (
+                FileNotFoundError,
+                PermissionError,
+                UnicodeDecodeError,
+                OSError,
+            ) as e:
+                issues.append(f"{skill_file.parent.name}: {e}")
 
         compliant = compliant_count == total_skills and len(issues) == 0
 
