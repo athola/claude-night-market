@@ -1,6 +1,18 @@
 ---
 name: gemini-delegation
-description: Gemini CLI delegation workflow implementing delegation-core for Google's Gemini models.
+description: |
+  Gemini CLI delegation workflow implementing delegation-core for Google's Gemini models.
+
+  Triggers: gemini cli, gemini delegation, google gemini, 1M context, large file analysis,
+  gemini batch, gemini summarization, gemini extraction
+
+  Use when: delegation-core selected Gemini, need Gemini's 1M+ token context window,
+  batch processing or large document summarization required
+
+  DO NOT use when: deciding which model to use - use delegation-core first.
+  DO NOT use when: gemini CLI not installed or authenticated.
+
+  Consult this skill when implementing Gemini-specific delegation workflows.
 category: delegation-implementation
 tags: [gemini, cli, delegation, google, large-context]
 dependencies: [delegation-core]

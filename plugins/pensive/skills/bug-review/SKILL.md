@@ -1,6 +1,19 @@
 ---
 name: bug-review
-description: Systematically uncover and fix bugs using language-specific expertise and reproducible evidence. Use for deep bug hunting, defect documentation, and fix verification.
+description: |
+  Systematically uncover and fix bugs using language-specific expertise and
+  reproducible evidence.
+
+  Triggers: bug hunting, defect detection, debugging, fix verification, bug fix,
+  regression check, error investigation, defect documentation
+
+  Use when: deep bug hunting needed, documenting defects, verifying fixes,
+  systematic debugging required
+
+  DO NOT use when: test coverage audit - use test-review instead.
+  DO NOT use when: architecture issues - use architecture-review.
+
+  Use this skill for systematic bug hunting with evidence trails.
 category: code-review
 tags: [bugs, defects, debugging, code-quality, fixes, verification]
 tools: [defect-tracker, fix-generator, verification-runner]

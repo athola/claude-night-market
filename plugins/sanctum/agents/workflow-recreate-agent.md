@@ -1,6 +1,19 @@
 ---
 name: workflow-recreate-agent
-description: Recreates the most recent command/session slice workflow from context, identifies involved skills/agents/commands/hooks, and surfaces inefficiencies and failure modes.
+description: |
+  Recreates the most recent command/session slice workflow from context,
+  identifies involved skills/agents/commands/hooks, and surfaces inefficiencies.
+
+  Triggers: workflow recreate, session slice, workflow analysis, command replay,
+  inefficiency detection, failure modes, workflow reconstruction
+
+  Use when: analyzing a recent command that felt slow/repetitive/fragile,
+  identifying which workflow assets were involved, extracting friction points
+
+  DO NOT use when: directly improving workflows - use workflow-improvement-analysis-agent next.
+  DO NOT use when: implementing changes - use workflow-improvement-implementer-agent.
+
+  First step in /fix-workflow: reconstructs what happened before analysis.
 tools: [Read, Write, Edit, Bash, Glob, Grep, TodoWrite]
 model: sonnet
 escalation:

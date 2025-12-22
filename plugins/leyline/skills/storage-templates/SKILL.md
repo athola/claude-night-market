@@ -1,6 +1,18 @@
 ---
 name: storage-templates
-description: Generic template patterns and lifecycle stages for knowledge storage, configuration management, and structured documentation. Provides maturity progression, file naming conventions, and reusable templates.
+description: |
+  Generic template patterns and lifecycle stages for knowledge storage,
+  configuration management, and structured documentation.
+
+  Triggers: storage templates, lifecycle stages, maturity progression, naming
+  conventions, knowledge storage, configuration templates, documentation patterns
+
+  Use when: organizing knowledge storage, managing configuration lifecycle,
+  creating structured documentation, establishing naming conventions
+
+  DO NOT use when: simple storage without lifecycle or structure needs.
+
+  Consult this skill when designing storage and documentation systems.
 category: infrastructure
 tags: [templates, storage, lifecycle, maturity, organization, patterns]
 dependencies: []

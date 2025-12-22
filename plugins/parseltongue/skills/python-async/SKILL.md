@@ -1,6 +1,19 @@
 ---
 name: python-async
-description: Master Python asyncio, concurrent programming, and async/await patterns for high-performance applications. Use when building async APIs, concurrent systems, or I/O-bound applications.
+description: |
+  Master Python asyncio, concurrent programming, and async/await patterns
+  for high-performance applications.
+
+  Triggers: asyncio, async/await, coroutines, concurrent programming, async API,
+  I/O-bound, websockets, background tasks, semaphores, async context managers
+
+  Use when: building async APIs, concurrent systems, I/O-bound applications,
+  implementing rate limiting, async context managers
+
+  DO NOT use when: CPU-bound optimization - use python-performance instead.
+  DO NOT use when: testing async code - use python-testing async module.
+
+  Consult this skill for async Python patterns and concurrency.
 version: 1.0.0
 category: async
 tags: [python, async, asyncio, concurrency, await, coroutines]

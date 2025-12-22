@@ -1,6 +1,16 @@
 ---
 name: context-optimizer
-description: Autonomous agent for context window optimization and MECW compliance
+description: |
+  Autonomous agent for context window optimization and MECW compliance.
+
+  Triggers: context audit, MECW compliance, token optimization, skill optimization,
+  context analysis, growth monitoring, context health check
+
+  Use when: comprehensive context audits needed, skills exceed token budgets,
+  pre-release compliance verification, periodic health checks
+
+  DO NOT use when: single skill optimization - use optimizing-large-skills skill.
+  DO NOT use when: quick token counts - use skills-eval instead.
 tools: [Read, Glob, Grep, Bash, Write]
 model: haiku
 escalation:

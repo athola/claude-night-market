@@ -1,6 +1,19 @@
 ---
 name: pr-agent
-description: Pull request preparation agent specializing in quality gate execution, change summarization, and PR template completion. Use for preparing comprehensive PR descriptions before submission.
+description: |
+  Pull request preparation agent specializing in quality gate execution,
+  change summarization, and PR template completion.
+
+  Triggers: pull request, PR preparation, quality gates, PR description,
+  change summary, testing documentation, PR template, PR review
+
+  Use when: preparing comprehensive PR descriptions, running pre-PR quality gates,
+  documenting testing evidence, completing PR checklists
+
+  DO NOT use when: just writing commit messages - use commit-agent.
+  DO NOT use when: only analyzing workspace state - use git-workspace-agent.
+
+  Executes quality gates and produces complete PR descriptions ready for submission.
 tools: [Read, Write, Edit, Bash, Glob, Grep, TodoWrite]
 model: sonnet
 escalation:

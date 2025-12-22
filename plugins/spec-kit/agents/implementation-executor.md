@@ -1,6 +1,19 @@
 ---
 name: implementation-executor
-description: Use this agent when the user wants to execute implementation tasks, implement a feature from tasks.md, or needs systematic code generation. Also trigger proactively during /speckit.implement commands.
+description: |
+  Execute implementation tasks systematically following the task plan with
+  TDD approach and progress tracking.
+
+  Triggers: implement tasks, execute tasks, systematic implementation, phase
+  execution, task completion, TDD implementation, code generation
+
+  Use when: executing implementation tasks from tasks.md, continuing
+  implementation, implementing specific phases, systematic code generation
+
+  DO NOT use when: generating tasks - use task-generator agent first.
+  DO NOT use when: analyzing specs - use spec-analyzer agent.
+
+  Trigger proactively during /speckit.implement commands.
 tools: [Read, Write, Edit, Bash, Grep, Glob]
 examples:
   - context: User has tasks.md ready and wants to start coding

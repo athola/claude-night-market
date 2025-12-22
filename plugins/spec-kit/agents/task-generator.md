@@ -1,6 +1,19 @@
 ---
 name: task-generator
-description: Use this agent when the user needs to generate implementation tasks from a specification and plan. Also trigger proactively during /speckit.tasks commands.
+description: |
+  Generate dependency-ordered implementation tasks from specification and
+  planning artifacts.
+
+  Triggers: task generation, generate tasks, implementation tasks, dependency
+  ordering, phased tasks, task breakdown, tasks.md creation
+
+  Use when: generating tasks from spec and plan, breaking down implementation
+  work, creating ordered task lists, starting implementation phase
+
+  DO NOT use when: analyzing specifications - use spec-analyzer agent.
+  DO NOT use when: executing tasks - use implementation-executor agent.
+
+  Trigger proactively during /speckit.tasks commands.
 tools: [Read, Write, Grep, Glob]
 examples:
   - context: User has a completed spec and plan

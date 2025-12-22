@@ -1,6 +1,19 @@
 ---
 name: commit-agent
-description: Conventional commit message generation agent specializing in change classification, semantic versioning awareness, and consistent commit formatting. Use for drafting commit messages from staged changes.
+description: |
+  Conventional commit message generation agent specializing in change classification,
+  semantic versioning awareness, and consistent commit formatting.
+
+  Triggers: commit message, conventional commit, semantic versioning, change
+  classification, commit type, breaking change, commit format
+
+  Use when: drafting commit messages for staged changes, classifying change types,
+  formatting breaking change footers, linking issues in commits
+
+  DO NOT use when: analyzing repository state - use git-workspace-agent first.
+  DO NOT use when: preparing full PR - use pr-agent.
+
+  Generates complete conventional commit messages ready for use.
 tools: [Read, Write, Bash, TodoWrite]
 model: haiku
 escalation:

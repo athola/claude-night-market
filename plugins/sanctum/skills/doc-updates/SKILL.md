@@ -1,6 +1,19 @@
 ---
 name: doc-updates
-description: Update documentation files based on recent changes while enforcing project writing guidelines.
+description: |
+  Update documentation files based on recent changes while enforcing project
+  writing guidelines.
+
+  Triggers: documentation update, docs update, ADR, docstrings, writing guidelines,
+  readme update, documentation maintenance
+
+  Use when: updating documentation after code changes, enforcing writing guidelines,
+  maintaining ADRs, updating docstrings
+
+  DO NOT use when: README-specific updates - use update-readme instead.
+  DO NOT use when: consolidating ephemeral docs - use doc-consolidation.
+
+  Use this skill for general documentation updates.
 category: artifact-generation
 tags: [documentation, readme, adr, docstrings, writing]
 tools: [Read, Write, Edit, Bash, TodoWrite]

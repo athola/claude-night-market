@@ -1,6 +1,18 @@
 ---
 name: python-testing
-description: Python testing with pytest, fixtures, mocking, and TDD workflows. Use when writing unit tests, setting up test suites, or implementing test-driven development.
+description: |
+  Python testing with pytest, fixtures, mocking, and TDD workflows.
+
+  Triggers: pytest, unit tests, test fixtures, mocking, TDD, test suite, coverage,
+  test-driven development, testing patterns, parameterized tests
+
+  Use when: writing unit tests, setting up test suites, implementing TDD,
+  configuring pytest, creating fixtures, async testing
+
+  DO NOT use when: evaluating test quality - use pensive:test-review instead.
+  DO NOT use when: infrastructure test config - use leyline:pytest-config.
+
+  Consult this skill for Python testing implementation and patterns.
 category: testing
 tags: [python, testing, pytest, tdd, test-automation, quality-assurance]
 tools: [test-analyzer, coverage-reporter, test-runner]

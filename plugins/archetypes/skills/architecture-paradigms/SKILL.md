@@ -1,6 +1,21 @@
 ---
 name: architecture-paradigms
-description: Interactive selector and implementation planner for architecture paradigms. Use when selecting or comparing architecture patterns for a new system.
+description: |
+  Interactive selector and implementation planner for architecture paradigms.
+
+  Triggers: architecture selection, pattern comparison, system design, ADR creation,
+  architecture decision, paradigm evaluation, new system architecture, architecture
+  planning, which architecture, compare architectures
+
+  Use when: selecting architecture patterns for new systems, comparing paradigm
+  trade-offs, creating architecture decision records, evaluating architecture fit
+  for team size and domain complexity, planning implementation roadmaps
+
+  DO NOT use when: implementing a specific known paradigm - use the specific
+  architecture-paradigm-* skill (hexagonal, layered, microservices, etc.) instead.
+  DO NOT use when: reviewing existing architecture - use architecture-review instead.
+
+  Use this skill BEFORE making architecture decisions. Check even if unsure about needs.
 version: 1.0.0
 category: architecture-decision
 tags: [architecture, patterns, selection, implementation, adr]

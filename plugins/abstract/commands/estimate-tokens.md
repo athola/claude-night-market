@@ -1,6 +1,20 @@
 ---
 name: estimate-tokens
-description: Estimate token usage for skill files and their dependencies
+description: |
+  Estimate token usage for skill files and their dependencies.
+
+  Triggers: estimate tokens, token count, token usage, context budget,
+  token estimation, skill tokens, context window, token analysis
+
+  Use when: planning context budgets before adding content, comparing
+  modularization approaches for token efficiency, validating progressive
+  disclosure patterns, checking if skill fits context window
+
+  DO NOT use when: analyzing skill complexity - use /analyze-skill instead.
+  DO NOT use when: full context optimization report - use /context-report.
+  DO NOT use when: evaluating skill quality - use /skills-eval instead.
+
+  Use this command for token budgeting decisions.
 usage: /estimate-tokens [skill-path]
 ---
 

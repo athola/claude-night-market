@@ -1,6 +1,21 @@
 ---
 name: architecture-paradigm-microservices
-description: Decompose systems into a suite of small, independently deployable services that are aligned to specific business capabilities. Use when building large-scale distributed systems with independent deployability.
+description: |
+  Decompose systems into a suite of small, independently deployable services aligned
+  to specific business capabilities.
+
+  Triggers: microservices, service decomposition, independent deployment, team autonomy,
+  distributed system, API gateway, service mesh, bounded contexts, polyglot persistence
+
+  Use when: teams need high autonomy and independent releases, different capabilities
+  have distinct scaling needs, strong DevOps/SRE maturity exists, polyglot tech stacks needed
+
+  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
+  DO NOT use when: small team with low organizational complexity.
+  DO NOT use when: lack of DevOps maturity or limited platform engineering resources.
+  DO NOT use when: strong transactional consistency required across operations.
+
+  Consult this skill when designing or evolving microservices architectures.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, microservices, distributed-systems, team-autonomy, scalability]

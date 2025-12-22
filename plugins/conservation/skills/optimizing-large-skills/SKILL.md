@@ -1,9 +1,19 @@
 ---
 name: optimizing-large-skills
 description: |
-  Use when skills exceed 300 lines or contain excessive inline code -
-  systematic methodology to reduce context usage through externalization,
+  Systematic methodology to reduce skill file size through externalization,
   consolidation, and progressive loading patterns.
+
+  Triggers: large skill, skill optimization, skill size, 300 lines, inline code,
+  skill refactoring, skill context reduction, skill modularization
+
+  Use when: skills exceed 300 lines, multiple code blocks (10+) with similar
+  functionality, heavy Python inline with markdown, functions >20 lines embedded
+
+  DO NOT use when: skill is under 300 lines and well-organized.
+  DO NOT use when: creating new skills - use modular-skills instead.
+
+  Consult this skill when skills-eval shows "Large skill file" warnings.
 token_budget: 25
 progressive_loading: true
 ---

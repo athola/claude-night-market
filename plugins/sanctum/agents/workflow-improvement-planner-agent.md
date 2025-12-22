@@ -1,6 +1,19 @@
 ---
 name: workflow-improvement-planner-agent
-description: Converges on the best workflow improvement approach, defines acceptance criteria, and produces an execution plan coordinating implementer and validator subagents.
+description: |
+  Converges on the best workflow improvement approach, defines acceptance criteria,
+  and produces an execution plan coordinating implementer and validator subagents.
+
+  Triggers: improvement planning, acceptance criteria, execution plan, approach
+  selection, validation steps, file-by-file plan, improvement coordination
+
+  Use when: selecting best approach from analysis, defining acceptance criteria,
+  creating bounded execution plan, coordinating implementer/validator agents
+
+  DO NOT use when: still analyzing approaches - use workflow-improvement-analysis-agent.
+  DO NOT use when: ready to implement - use workflow-improvement-implementer-agent.
+
+  Third step in /fix-workflow: produces bounded plan with acceptance criteria.
 tools: [Read, Write, Edit, Bash, Glob, Grep, TodoWrite]
 model: sonnet
 escalation:

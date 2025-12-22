@@ -1,6 +1,19 @@
 ---
 name: update-readme
-description: Consolidate README content using language-aware exemplars, internal doc linkage, and reproducible evidence.
+description: |
+  Consolidate README content using language-aware exemplars, internal doc linkage,
+  and reproducible evidence.
+
+  Triggers: README update, documentation refresh, readme structure, exemplar research,
+  language-aware docs, readme modernization, project documentation
+
+  Use when: README requires structural refresh, adding features to documentation,
+  aligning readme with exemplar standards, improving project presentation
+
+  DO NOT use when: updating inline docs - use doc-updates.
+  DO NOT use when: consolidating ephemeral reports - use doc-consolidation.
+
+  Run git-workspace-review first to capture repo context.
 category: artifact-generation
 tags: [readme, documentation, exemplars, research, structure]
 tools: [Read, Write, Edit, Bash, WebSearch, TodoWrite]

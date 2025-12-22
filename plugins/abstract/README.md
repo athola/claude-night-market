@@ -55,9 +55,13 @@ Use this plugin to manage token usage (keep skills lean), find modularization op
 
 ## Documentation
 
-For migration info, see `docs/migration-guide.md`. The Python package structure is documented in `docs/python-structure.md`. Each skill has its own `SKILL.md` with usage details. Run `make status` for a project overview.
+- **Skill Assurance Framework**: `docs/skill-assurance-framework.md` - patterns for reliable skill discovery (frontmatter-only triggers, enforcement language, migration guide)
+- **Migration Guide**: `docs/migration-guide.md` - updating skills to new patterns
+- **Python Structure**: `docs/python-structure.md` - package organization
+- **ADRs**: `docs/adr/` - architecture decisions
+- **Multi-Plugin Design**: `docs/multi-plugin-design.md` - composition model
 
-Architecture decisions are recorded in `docs/adr/`. The plugin composition model is explained in `docs/multi-plugin-design.md`.
+Each skill has its own `SKILL.md` with usage details. Run `make status` for a project overview.
 
 ## Security
 

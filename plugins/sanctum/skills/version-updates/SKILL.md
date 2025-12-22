@@ -1,6 +1,19 @@
 ---
 name: version-updates
-description: Bump project versions across configs, docs, and changelog using git-workspace-review context.
+description: |
+  Bump project versions across configs, docs, and changelog using
+  git-workspace-review context.
+
+  Triggers: version bump, semver, release version, changelog update, version
+  update, package version, release preparation
+
+  Use when: bumping project versions, updating changelogs, preparing releases,
+  coordinating version changes across files
+
+  DO NOT use when: just documentation updates - use doc-updates.
+  DO NOT use when: full PR preparation - use pr-prep.
+
+  Use this skill for version management and release preparation.
 category: artifact-generation
 tags: [version, release, changelog, semver, bump]
 tools: [Read, Write, Edit, Bash, TodoWrite]

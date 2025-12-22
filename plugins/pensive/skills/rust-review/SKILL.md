@@ -1,6 +1,19 @@
 ---
 name: rust-review
-description: Expert-level Rust audits covering ownership, concurrency, unsafe blocks, traits, and Cargo dependencies. Use for Rust-specific code review.
+description: |
+  Expert-level Rust audits covering ownership, concurrency, unsafe blocks,
+  traits, and Cargo dependencies.
+
+  Triggers: Rust review, ownership analysis, borrowing, unsafe audit, concurrency,
+  Cargo dependencies, lifetime annotations, trait bounds
+
+  Use when: reviewing Rust code, auditing unsafe blocks, analyzing ownership patterns,
+  scanning Cargo dependencies for security
+
+  DO NOT use when: general code review without Rust - use unified-review.
+  DO NOT use when: performance profiling - use parseltongue:python-performance pattern.
+
+  Use this skill for Rust-specific code audits.
 category: code-review
 tags: [rust, ownership, concurrency, unsafe, traits, cargo]
 tools: [borrow-checker-analyzer, unsafe-auditor, dependency-scanner]

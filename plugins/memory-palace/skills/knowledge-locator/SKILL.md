@@ -1,6 +1,19 @@
 ---
 name: knowledge-locator
-description: Spatial indexing and retrieval system for finding information within memory palaces
+description: |
+  Spatial indexing and retrieval system for finding information within memory
+  palaces using multi-modal search.
+
+  Triggers: knowledge search, find information, locate concept, recall, spatial
+  query, cross-reference, discovery, memory retrieval
+
+  Use when: searching for stored knowledge, cross-referencing concepts,
+  discovering connections, retrieving from palaces
+
+  DO NOT use when: creating new palace structures - use memory-palace-architect.
+  DO NOT use when: processing new external resources - use knowledge-intake.
+
+  Consult this skill when searching or navigating stored knowledge.
 category: navigation
 tags: [retrieval, search, indexing, recall, spatial-memory]
 dependencies: [memory-palace-architect]

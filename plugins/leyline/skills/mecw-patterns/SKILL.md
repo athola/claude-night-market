@@ -1,6 +1,18 @@
 ---
 name: mecw-patterns
-description: Maximum Effective Context Window (MECW) theory and practical patterns for preventing hallucinations through context management. Implements the critical 50% rule.
+description: |
+  Maximum Effective Context Window (MECW) theory and practical patterns for
+  preventing hallucinations through context management. Implements the 50% rule.
+
+  Triggers: MECW, context window, hallucination prevention, 50% rule, context pressure,
+  token optimization, context management, safe budgeting
+
+  Use when: implementing context-aware systems, preventing hallucinations,
+  monitoring context pressure, planning token budgets
+
+  DO NOT use when: simple operations without context pressure concerns.
+
+  Consult this skill when implementing MECW-compliant context management.
 category: infrastructure
 tags: [context-management, mecw, hallucination-prevention, token-optimization, thresholds]
 dependencies: []

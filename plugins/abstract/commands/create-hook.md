@@ -1,6 +1,19 @@
 ---
 name: create-hook
-description: Guided hook creation with brainstorming and security-first design. Refines hook concepts through Socratic questioning, scaffolds proper structure, and validates against security best practices. Use when creating new hooks.
+description: |
+  Guided hook creation with brainstorming and security-first design.
+
+  Triggers: new hook, create hook, hook creation, start hook, build hook,
+  add hook, write hook, PreToolUse, PostToolUse, UserPromptSubmit
+
+  Use when: creating a new hook from scratch, need security-first design guidance,
+  want structured workflow for hook development with Socratic questioning
+
+  DO NOT use when: evaluating existing hooks - use /hooks-eval instead.
+  DO NOT use when: deciding where to place hooks - use hook-scope-guide skill.
+  DO NOT use when: validating hook security - use /validate-hook instead.
+
+  Use this command to create any new hook. Security validation is automatic.
 usage: /create-hook [hook-description] [--skip-brainstorm] [--plugin <name>] [--event <type>]
 ---
 

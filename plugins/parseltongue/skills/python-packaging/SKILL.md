@@ -1,6 +1,18 @@
 ---
 name: python-packaging
-description: Create distributable Python packages with proper structure and publishing. Use for libraries, CLI tools, and code distribution.
+description: |
+  Create distributable Python packages with proper structure and publishing.
+
+  Triggers: Python packaging, pyproject.toml, uv, pip, PyPI, distribution, CLI tools,
+  entry points, package structure, publishing
+
+  Use when: creating Python packages, configuring pyproject.toml, setting up
+  entry points, publishing to PyPI, CI/CD for packages
+
+  DO NOT use when: testing packages - use python-testing instead.
+  DO NOT use when: optimizing package performance - use python-performance.
+
+  Consult this skill for Python package creation and distribution.
 category: packaging
 tags: [python, packaging, pyproject.toml, uv, pip, pypi, distribution]
 tools: [package-analyzer, build-runner]

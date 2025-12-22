@@ -1,6 +1,19 @@
 ---
 name: evidence-logging
-description: A workflow for capturing evidence and citations to create reproducible analyses and audit trails.
+description: |
+  Workflow for capturing evidence and citations to create reproducible analyses
+  and audit trails.
+
+  Triggers: evidence capture, citations, reproducible analysis, audit trail,
+  documentation, evidence logging, findings documentation
+
+  Use when: conducting any review that needs evidence trails, creating audit
+  documentation, ensuring reproducibility of analyses
+
+  DO NOT use when: quick informal checks without documentation needs.
+  DO NOT use when: structured output is the focus - use structured-output.
+
+  Use this skill as foundation for all evidence-based review workflows.
 category: output-patterns
 tags: [evidence, citations, reproducible, audit-trail, documentation]
 dependencies: []
