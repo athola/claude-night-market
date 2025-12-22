@@ -1,0 +1,171 @@
+# imbue
+
+Workflow methodologies for analysis, evidence gathering, and structured output.
+
+## Overview
+
+Imbue provides reusable patterns for approaching analysis tasks. It's a methodology plugin - the patterns apply to various inputs (git diffs, specs, logs) and chain together for complex workflows.
+
+## Installation
+
+```bash
+/plugin install imbue@claude-night-market
+```
+
+## Principles
+
+- **Generalizable**: Patterns work across different input types
+- **Composable**: Skills chain together naturally
+- **Evidence-based**: Emphasizes capturing proof for reproducibility
+
+## Skills
+
+### Review Patterns
+
+| Skill | Description | When to Use |
+|-------|-------------|-------------|
+| `review-core` | Scaffolding for detailed reviews | Starting architecture, security, or code quality reviews |
+| `evidence-logging` | Evidence capture methodology | Creating audit trails during analysis |
+| `structured-output` | Output formatting patterns | Preparing final reports |
+
+### Analysis Methods
+
+| Skill | Description | When to Use |
+|-------|-------------|-------------|
+| `diff-analysis` | Semantic changeset analysis | Understanding impact of changes |
+| `catchup` | Context recovery | Getting up to speed after time away |
+
+### Workflow Guards
+
+| Skill | Description | When to Use |
+|-------|-------------|-------------|
+| `scope-guard` | Anti-overengineering | Evaluating if features should be built now |
+
+### Feature Planning
+
+| Skill | Description | When to Use |
+|-------|-------------|-------------|
+| `feature-review` | Feature prioritization | Sprint planning, roadmap reviews |
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/catchup` | Quick context recovery from recent changes |
+| `/review` | Start structured review workflow |
+| `/structured-review` | Review with evidence logging |
+| `/feature-review` | Feature prioritization with RICE+WSJF scoring |
+
+## Agents
+
+| Agent | Description |
+|-------|-------------|
+| `review-analyst` | Autonomous structured reviews with evidence gathering |
+
+## Hooks
+
+| Hook | Type | Description |
+|------|------|-------------|
+| `session-start.sh` | SessionStart | Initializes scope-guard and learning mode |
+| `user-prompt-submit.sh` | UserPromptSubmit | Validates prompts against scope thresholds |
+| `pre-pr-scope-check.sh` | Manual | Checks scope before PR creation |
+
+## Usage Examples
+
+### Structured Review
+
+```bash
+Skill(imbue:review-core)
+
+# Required TodoWrite items:
+# 1. review-core:context-established
+# 2. review-core:scope-inventoried
+# 3. review-core:evidence-captured
+# 4. review-core:deliverables-structured
+# 5. review-core:contingencies-documented
+```
+
+### Diff Analysis
+
+```bash
+Skill(imbue:diff-analysis)
+
+# Answers: "What changed and why does it matter?"
+# - Categorizes changes by function
+# - Assesses risks
+# - Summarizes implications
+```
+
+### Quick Catchup
+
+```bash
+/catchup
+
+# Summarizes:
+# - Recent commits
+# - Changed files
+# - Key decisions
+# - Action items
+```
+
+### Feature Prioritization
+
+```bash
+/feature-review
+
+# Uses hybrid RICE+WSJF scoring:
+# - Reach, Impact, Confidence, Effort
+# - Weighted Shortest Job First
+# - ISO 25010 quality dimensions
+```
+
+## Scope Guard
+
+The scope-guard skill prevents overengineering via four components:
+
+| Component | Purpose |
+|-----------|---------|
+| `decision-framework` | Worthiness formula and scoring |
+| `anti-overengineering` | Rules to prevent scope creep |
+| `branch-management` | Threshold monitoring (lines, commits, days) |
+| `baseline-scenarios` | Validated test scenarios |
+
+## TodoWrite Integration
+
+All skills output TodoWrite items for progress tracking:
+
+```
+review-core:context-established
+review-core:scope-inventoried
+diff-analysis:baseline-established
+diff-analysis:changes-categorized
+catchup:context-confirmed
+catchup:delta-captured
+```
+
+## Integration Pattern
+
+Imbue is foundational - other plugins build on it:
+
+```bash
+# Sanctum uses imbue for review patterns
+Skill(imbue:review-core)
+Skill(sanctum:git-workspace-review)
+
+# Pensive uses imbue for evidence gathering
+Skill(imbue:evidence-logging)
+Skill(pensive:architecture-review)
+```
+
+## Superpowers Integration
+
+| Skill | Enhancement |
+|-------|-------------|
+| `scope-guard` | Uses `brainstorming`, `writing-plans`, `execute-plan` |
+| `/feature-review` | Uses `brainstorming` for feature suggestions |
+
+## Related Plugins
+
+- **sanctum**: Uses imbue for review scaffolding
+- **pensive**: Uses imbue for evidence gathering
+- **spec-kit**: Uses imbue for analysis patterns
