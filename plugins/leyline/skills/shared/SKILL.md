@@ -1,6 +1,17 @@
 ---
 name: shared
-description: Foundational infrastructure patterns shared across all leyline skills
+description: |
+  Foundational infrastructure patterns shared across all leyline skills.
+
+  Triggers: leyline patterns, shared infrastructure, python imports, config patterns,
+  leyline foundation, cross-skill patterns
+
+  Use when: other leyline skills need common patterns, creating new infrastructure
+  skills, ensuring consistency across leyline plugin
+
+  DO NOT use directly: this skill is infrastructure for other leyline skills.
+
+  This skill provides shared patterns consumed by other leyline skills.
 category: infrastructure
 tags: [shared, patterns, infrastructure, foundation]
 provides:

@@ -1,6 +1,18 @@
 ---
 name: quota-management
-description: Universal quota tracking and enforcement patterns for rate-limited services. Provides threshold monitoring, estimation, and graceful degradation strategies.
+description: |
+  Universal quota tracking and enforcement patterns for rate-limited services.
+  Provides threshold monitoring, estimation, and graceful degradation strategies.
+
+  Triggers: quota tracking, rate limiting, usage limits, cost tracking, thresholds,
+  resource management, API quotas, usage monitoring
+
+  Use when: integrating rate-limited services, tracking API usage costs,
+  implementing graceful degradation, monitoring resource consumption
+
+  DO NOT use when: services have no rate limits or quota concerns.
+
+  Consult this skill when managing quotas for external service integration.
 category: infrastructure
 tags: [quota, rate-limiting, resource-management, cost-tracking, thresholds]
 dependencies: []

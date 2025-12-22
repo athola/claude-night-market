@@ -1,6 +1,20 @@
 ---
 name: makefile-dogfooder
-description: Analyze and enhance Makefiles for complete user functionality coverage
+description: |
+  Analyze and enhance Makefiles for complete user functionality coverage.
+
+  Triggers: Makefile analysis, Makefile gaps, missing targets, plugin release,
+  Makefile coverage, build targets, make dogfood, plugin quality
+
+  Use when: analyzing Makefile completeness before releasing plugins, identifying
+  gaps during plugin maintenance, scoring Makefiles against best practices,
+  verifying Makefiles support standard developer workflows
+
+  DO NOT use when: writing initial Makefiles from scratch.
+  DO NOT use when: debugging specific build target failures.
+  DO NOT use when: creating custom non-standard build systems.
+
+  Use this skill BEFORE releasing any plugin to verify Makefile coverage.
 version: 1.0.0
 author: Claude Skills
 modules: true
@@ -13,13 +27,6 @@ Analyzes Makefiles to identify gaps in user-facing functionality, safely tests e
 ## Overview
 
 This skill provides comprehensive Makefile analysis and enhancement for the claude-night-market project. It helps ensure that all plugins have complete, consistent, and functional Makefile targets that support common user workflows.
-
-## When to Use
-
-- **Before releasing a new plugin**: Ensure your Makefile has all essential targets
-- **During plugin maintenance**: Identify gaps and inconsistencies in Makefile coverage
-- **When reviewing plugin quality**: Score Makefiles against best practices
-- **For onboarding new developers**: Verify Makefiles support standard workflows
 
 ## Workflow
 

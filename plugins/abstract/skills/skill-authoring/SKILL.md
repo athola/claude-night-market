@@ -1,6 +1,21 @@
 ---
 name: skill-authoring
-description: Guide to effective Claude Code skill authoring using TDD methodology and persuasion principles. Use when creating new skills, improving existing skills, or learning skill authoring best practices. Covers description writing, progressive disclosure, anti-rationalization, and deployment validation through empirical testing.
+description: |
+  Guide to effective Claude Code skill authoring using TDD methodology and
+  persuasion principles.
+
+  Triggers: skill authoring, skill writing, new skill, TDD skills, skill creation,
+  skill best practices, skill validation, skill deployment, skill compliance
+
+  Use when: creating new skills from scratch, improving existing skills with
+  low compliance rates, learning skill authoring best practices, validating
+  skill quality before deployment, understanding what makes skills effective
+
+  DO NOT use when: evaluating existing skills - use skills-eval instead.
+  DO NOT use when: analyzing skill architecture - use modular-skills instead.
+  DO NOT use when: writing general documentation for humans.
+
+  YOU MUST write a failing test before writing any skill. This is the Iron Law.
 version: 1.0.0
 category: skill-development
 tags: [authoring, tdd, skills, writing, best-practices, validation]
@@ -31,20 +46,6 @@ Skills are not essays or documentation—they are **behavioral interventions** d
 **NO SKILL WITHOUT A FAILING TEST FIRST**
 
 Every skill must begin with documented evidence of Claude failing without it. This ensures you're solving real problems, not building imaginary solutions.
-
-## When to Use This Skill
-
- **Use when:**
-- Creating new skills from scratch
-- Improving existing skills with low compliance rates
-- Learning skill authoring best practices
-- Validating skill quality before deployment
-- Understanding what makes skills effective
-
- **Don't use when:**
-- Evaluating existing skills (use skills-eval instead)
-- Analyzing skill architecture (use modular-skills instead)
-- Writing general documentation for humans
 
 ## Skill Types
 

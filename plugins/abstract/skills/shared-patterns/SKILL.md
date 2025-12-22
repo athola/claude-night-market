@@ -1,6 +1,20 @@
 ---
 name: shared-patterns
-description: Reusable patterns and templates for Claude Code skill and hook development. Use when creating new skills or hooks to ensure consistency. Contains validation patterns, error handling, testing templates, and common workflows shared across the abstract plugin ecosystem.
+description: |
+  Reusable patterns and templates for Claude Code skill and hook development.
+
+  Triggers: validation patterns, error handling, testing templates, workflow patterns,
+  shared patterns, reusable templates, DRY patterns, common workflows
+
+  Use when: creating new skills or hooks that need consistent patterns, implementing
+  validation logic, setting up error handling, creating test scaffolding,
+  referencing standard workflow structures
+
+  DO NOT use when: pattern is specific to one skill only.
+  DO NOT use when: pattern is still evolving - wait for stability.
+  DO NOT use when: pattern is context-dependent requiring variations.
+
+  Reference these patterns to ensure consistency across the ecosystem.
 version: 1.0.0
 category: meta-infrastructure
 tags: [patterns, templates, shared, validation, reusable]
@@ -54,15 +68,3 @@ Reference these patterns from other skills:
 For validation patterns, see the `shared-patterns` skill's
 [validation-patterns](../shared-patterns/modules/validation-patterns.md) module.
 ```
-
-## When to Add Patterns Here
-
-Add a pattern to this skill when:
-- It's used by 3+ other skills
-- It's boilerplate that shouldn't be duplicated
-- It defines a standard that should be consistent
-
-Do NOT add patterns that are:
-- Specific to one skill
-- Still evolving (wait for stability)
-- Context-dependent (different skills need variations)

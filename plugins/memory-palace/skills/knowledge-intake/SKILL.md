@@ -1,6 +1,19 @@
 ---
 name: knowledge-intake
-description: Process external resources (articles, blog posts, papers) into actionable knowledge with systematic evaluation, storage, and application decisions
+description: |
+  Process external resources (articles, blog posts, papers) into actionable
+  knowledge with systematic evaluation, storage, and application decisions.
+
+  Triggers: knowledge intake, article evaluation, paper review, external resource,
+  knowledge curation, content assessment, importance scoring, storage decision
+
+  Use when: user shares links to external resources, evaluating articles for
+  storage, routing knowledge to appropriate palaces or gardens
+
+  DO NOT use when: searching existing knowledge - use knowledge-locator.
+  DO NOT use when: designing new palace structures - use memory-palace-architect.
+
+  Use this skill when processing any external knowledge source.
 category: governance
 tags: [knowledge-management, intake, evaluation, curation, external-resources]
 dependencies: [memory-palace-architect, digital-garden-cultivator, leyline:evaluation-framework, leyline:storage-templates]

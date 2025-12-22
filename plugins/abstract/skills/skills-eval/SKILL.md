@@ -1,6 +1,21 @@
 ---
 name: skills-eval
-description: Assess and improve skill quality. Use when auditing skills, generating improvement suggestions, checking standards compliance, or analyzing token usage.
+description: |
+  Evaluate and improve Claude skill quality through comprehensive auditing.
+
+  Triggers: skill audit, quality review, compliance check, improvement suggestions,
+  token usage analysis, skill evaluation, skill assessment, skill optimization,
+  skill standards, skill metrics, skill performance
+
+  Use when: reviewing skill quality, preparing skills for production, auditing
+  existing skills, generating improvement recommendations, checking compliance
+  with standards, analyzing token efficiency, benchmarking skill performance
+
+  DO NOT use when: creating new skills from scratch - use modular-skills instead.
+  DO NOT use when: writing prose for humans - use writing-clearly-and-concisely.
+  DO NOT use when: need architectural design patterns - use modular-skills.
+
+  Use this skill BEFORE shipping any skill to production. Check even if unsure.
 version: 2.0.0
 category: skill-management
 tags: [evaluation, improvement, skills, optimization, quality-assurance, tool-use, performance-metrics]
@@ -56,29 +71,6 @@ Analyze and improve Claude skills across `~/.claude/` locations. The tools audit
 
 A meta-skill for evaluating and improving existing skills. It runs quality assessments, performance analysis, and generates improvement plans.
 
-## When to Use It
-
-**Use this skill when you're evaluating or improving existing skills**
-
- **Perfect for:**
-- Systematic quality assessment of existing skills across your entire skill library
-- Generating specific, prioritized improvement recommendations
-- Performance benchmarking and optimization analysis
-- Compliance checking against standards and best practices
-- Advanced tool use evaluation (discovery, calling patterns, context efficiency)
-
- **Don't use when:**
-- Creating new skills from scratch (use modular-skills instead)
-- Writing prose for humans (use writing-clearly-and-concisely)
-- Need architectural design patterns (use modular-skills instead)
-
-**Key differentiator:** This skill focuses on **evaluation and improvement**, while modular-skills focuses on **design patterns and architecture**.
-
-### Integration with modular-skills
-1. Use **skills-eval** to identify improvement opportunities
-2. Switch to **modular-skills** for structural/architectural changes
-3. Return to **skills-eval** for validation and compliance checking
-
 ## Quick Start
 
 ### Basic Skill Audit
@@ -128,16 +120,6 @@ make check-compliance PATH=path/to/skill/SKILL.md
 5. **Compliance**: Verify standards with `make check-compliance PATH=...`
 6. **Optimization**: Check tokens with `make estimate-tokens PATH=...`
 
-## When to Use It
-
-We use this framework in a few common situations:
-
-- **Regular Audits**: We run audits periodically to check for quality and consistency across all our skills. This helps us catch issues before they become major problems.
-- **Quality Assurance**: Before shipping a new skill or a significant update, we use these tools to ensure the changes meet our standards.
-- **Performance Tuning**: If we notice that context windows are getting full or skills are not performing as expected, we use `skills-eval` to identify optimization opportunities.
-- **Staying Up-to-Date**: The Claude Skills landscape is always evolving. We use this to ensure our skills adhere to the latest standards and best practices.
-- **Inventory Management**: It helps us get a clear picture of our skill library, so we can identify gaps and decide what to build next.
-
 ## Common Tasks
 
 ### Quality Assessment
@@ -182,11 +164,14 @@ We use this framework in a few common situations:
 The framework evaluates skills across multiple dimensions with weighted scoring:
 
 **Primary Categories (100 points total):**
-- **Structure Compliance** (25 points): YAML frontmatter, progressive disclosure, organization
-- **Content Quality** (25 points): Clarity, completeness, examples, user experience
-- **Token Efficiency** (20 points): Content density, progressive loading, context optimization
-- **Activation Reliability** (20 points): Trigger effectiveness, context indicators, discovery patterns
+- **Structure Compliance** (20 points): YAML frontmatter, progressive disclosure, organization
+- **Content Quality** (20 points): Clarity, completeness, examples, user experience
+- **Token Efficiency** (15 points): Content density, progressive loading, context optimization
+- **Activation Reliability** (15 points): Trigger effectiveness, context indicators, discovery patterns
 - **Tool Integration** (10 points): Executable components, API integration, workflow support
+- **Trigger Isolation** (10 points): ALL conditional logic in description field, no body duplicates
+- **Enforcement Language** (5 points): Appropriate intensity for skill category
+- **Negative Triggers** (5 points): Explicit "DO NOT use when" with alternatives named
 
 ### Scoring System
 - **91-100**: Excellent quality, best practices implemented
@@ -205,7 +190,14 @@ The framework evaluates skills across multiple dimensions with weighted scoring:
 
 For comprehensive implementation details and advanced techniques:
 
-- **Skill Authoring Best Practices**: See `modules/skill-authoring-best-practices.md` for official Claude guidance on writing effective Skills (core principles, progressive disclosure, workflows, anti-patterns)
+### Shared Modules (Cross-Skill Patterns)
+- **Anti-Rationalization Patterns**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md) for red flags table and bypass patterns
+- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md) for tiered intensity templates
+- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field structure and CSO
+
+### Skill-Specific Modules
+- **Trigger Isolation Analysis**: See `modules/trigger-isolation-analysis.md` for evaluating frontmatter compliance
+- **Skill Authoring Best Practices**: See `modules/skill-authoring-best-practices.md` for official Claude guidance
 - **Authoring Checklist**: See `modules/authoring-checklist.md` for quick-reference validation checklist
 - **Implementation Guide**: See `modules/evaluation-workflows.md` for detailed workflows
 - **Quality Metrics**: See `modules/quality-metrics.md` for scoring criteria and evaluation levels
@@ -214,5 +206,7 @@ For comprehensive implementation details and advanced techniques:
 - **Integration Patterns**: See `modules/integration.md` for workflow integration with other skills
 - **Troubleshooting**: See `modules/troubleshooting.md` for common issues and solutions
 - **Pressure Testing**: See `modules/pressure-testing.md` for adversarial validation methodology
+
+### Tools and Automation
 - **Tools**: Executable analysis utilities in `scripts/` directory
 - **Automation**: Setup and validation scripts in `scripts/automation/`

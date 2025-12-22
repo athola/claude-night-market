@@ -1,6 +1,19 @@
 ---
 name: python-performance
-description: Profile and optimize Python code using cProfile, memory profilers, and performance best practices. Use when debugging slow code, optimizing bottlenecks, or improving application performance.
+description: |
+  Profile and optimize Python code using cProfile, memory profilers, and
+  performance best practices.
+
+  Triggers: profiling, optimization, cProfile, memory profiler, bottleneck,
+  slow code, performance, benchmarking, py-spy, tracemalloc
+
+  Use when: debugging slow code, identifying bottlenecks, optimizing memory,
+  benchmarking performance, production profiling
+
+  DO NOT use when: async concurrency - use python-async instead.
+  DO NOT use when: CPU/GPU system monitoring - use conservation:cpu-gpu-performance.
+
+  Consult this skill for Python performance profiling and optimization.
 category: performance
 tags: [python, performance, profiling, optimization, cProfile, memory]
 tools: [profiler-runner, memory-analyzer, benchmark-suite]

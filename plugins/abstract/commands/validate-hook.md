@@ -1,6 +1,20 @@
 ---
 name: validate-hook
-description: Hook validation command. Performs security scan, performance check, and compliance verification for Claude Code and SDK hooks. Use when developing or auditing hooks to ensure safety and correctness.
+description: |
+  Hook validation with security scan, performance check, and compliance verification.
+
+  Triggers: validate hook, hook security, hook performance, hook compliance,
+  hook audit, check hook, verify hook, hook safety
+
+  Use when: developing hooks and need validation before deployment, auditing
+  existing hooks for security vulnerabilities, checking hook performance,
+  verifying compliance with best practices, before committing hook changes
+
+  DO NOT use when: creating new hooks - use /create-hook instead.
+  DO NOT use when: evaluating all hooks in plugin - use /hooks-eval instead.
+  DO NOT use when: deciding hook placement - use hook-scope-guide skill.
+
+  Use this command before deploying any hook to production.
 usage: /validate-hook [hook-path] [--security] [--performance] [--compliance] [--all]
 ---
 
@@ -175,7 +189,7 @@ ERROR HANDLING
 -------------------------------------------------
  Try/except blocks present
  Errors logged appropriately
-  SUGGESTION: Add specific error types for better handling
+ï¿½ SUGGESTION: Add specific error types for better handling
   Line: 89
   Current: except Exception as e
   Suggested: except (ValueError, IOError) as e
@@ -305,7 +319,7 @@ TIMEOUT HANDLING
 -------------------------------------------------
  Timeout set for API calls (15s)
  Timeout error handling present
-  SUGGESTION: Consider shorter timeout for health checks
+ï¿½ SUGGESTION: Consider shorter timeout for health checks
   Line: 45
   Current: timeout=15
   Suggested: timeout=5 for non-critical checks
@@ -314,7 +328,7 @@ MEMORY MANAGEMENT
 -------------------------------------------------
  No unbounded accumulation
  Large objects properly scoped
-  SUGGESTION: Consider batching log writes
+ï¿½ SUGGESTION: Consider batching log writes
   Line: 78-92
   Current: Individual writes in loop
   Suggested: Batch writes every 100 iterations
@@ -331,7 +345,7 @@ I/O EFFICIENCY
  File handles closed (context managers)
  Minimal I/O operations
  Buffered writes used
-  SUGGESTION: Cache repeated file reads
+ï¿½ SUGGESTION: Cache repeated file reads
   Line: 134
   Called in loop: read_config()
 
@@ -463,7 +477,7 @@ SDK COMPATIBILITY
  Imports from correct SDK (v2024.1)
  Uses supported API methods
  No deprecated functionality
-  SUGGESTION: Pin SDK version in requirements
+ï¿½ SUGGESTION: Pin SDK version in requirements
   Current: claude-code-sdk>=2024.1
   Suggested: claude-code-sdk>=2024.1,<2025.0
 
@@ -471,7 +485,7 @@ SCOPE APPROPRIATENESS
 -------------------------------------------------
  Hook scope: plugin (gemini)
  Scope matches usage pattern
-  SUGGESTION: Consider plugin scope instead of global
+ï¿½ SUGGESTION: Consider plugin scope instead of global
   Context: Hook only used for Gemini delegation
   Current: Affects all tool calls
   Suggested: Scope to plugin or specific tools
@@ -580,7 +594,7 @@ AUTO-FIX MODE
 =================================================
 Hook: hooks/my-hook.py
 
-Analyzing... [ˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆˆ] 100%
+Analyzing... [ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½] 100%
 
 Found 3 auto-fixable issues:
 
@@ -685,7 +699,7 @@ Part of the hook development workflow:
 
 1. Create hook skeleton
 2. Implement functionality
-3. **`/validate-hook`** ’ Security, performance, compliance check
+3. **`/validate-hook`** ï¿½ Security, performance, compliance check
 4. Fix issues and re-validate
 5. Test with `/test-skill`
 6. Deploy with confidence

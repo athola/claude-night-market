@@ -1,6 +1,19 @@
 ---
 name: review-core
-description: A foundational workflow for preparing and structuring detailed reviews (e.g., architecture, API).
+description: |
+  Foundational workflow for preparing and structuring detailed reviews
+  (architecture, API, code quality).
+
+  Triggers: review workflow, structured review, review scaffolding, evidence capture,
+  review preparation, analysis framework, review template
+
+  Use when: starting any detailed review workflow, needing consistent structure
+  for capturing context and findings, ensuring comparable review outputs
+
+  DO NOT use when: quick catchup without formal review - use catchup.
+  DO NOT use when: diff-focused analysis - use diff-analysis.
+
+  Use this skill at the BEGINNING of any detailed review for consistent structure.
 category: review-patterns
 tags: [workflow, scaffolding, evidence, reporting, analysis]
 dependencies: []

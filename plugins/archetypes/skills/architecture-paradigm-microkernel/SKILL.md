@@ -1,6 +1,20 @@
 ---
 name: architecture-paradigm-microkernel
-description: Build a minimal, stable core system that loads plug-ins to provide feature variability and extensibility. Use when building extensible plugin-based systems.
+description: |
+  Build a minimal, stable core system that loads plug-ins to provide feature
+  variability and extensibility for platform development.
+
+  Triggers: microkernel, plugin architecture, plugin system, extensibility,
+  platform design, IDE architecture, marketplace, core system, plugin loader
+
+  Use when: building platforms, IDEs, or marketplaces with third-party extensions,
+  core stability is critical while features vary, plugin isolation is needed
+
+  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
+  DO NOT use when: no extensibility requirements exist.
+  DO NOT use when: plugin isolation overhead isn't justified.
+
+  Consult this skill when designing plugin architectures or building platforms.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, microkernel, plugin, extensibility, platform-design]

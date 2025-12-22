@@ -1,6 +1,18 @@
 ---
 name: makefile-review
-description: Audit Makefiles for duplication, portability, and idiomatic GNU Make usage. Use for build system reviews.
+description: |
+  Audit Makefiles for duplication, portability, and idiomatic GNU Make usage.
+
+  Triggers: Makefile review, build system, GNU Make, portability, deduplication,
+  pattern rules, automatic variables, dependency graph
+
+  Use when: auditing Makefiles, reviewing build system, checking portability,
+  eliminating recipe duplication
+
+  DO NOT use when: creating new Makefiles - use abstract:make-dogfood.
+  DO NOT use when: architecture review - use architecture-review.
+
+  Use this skill for Makefile audit and optimization.
 category: build
 tags: [makefile, build, make, portability, automation]
 tools: [dependency-mapper, dedup-finder, portability-checker]

@@ -1,6 +1,22 @@
 ---
 name: architecture-paradigm-layered
-description: Use a Layered (or N-Tier) architecture to separate presentation, domain logic, and data access responsibilities within a system. Use when building traditional applications with clear separation of concerns.
+description: |
+  Use a Layered (N-Tier) architecture to separate presentation, domain logic, and
+  data access responsibilities within a system.
+
+  Triggers: layered architecture, n-tier, separation of concerns, presentation layer,
+  data access layer, service layer, traditional architecture, monolith structure,
+  layer enforcement, dependency direction
+
+  Use when: building traditional applications with clear boundaries, working with
+  moderate-sized teams, needing familiar and well-understood patterns, compliance
+  requirements demand clear separation
+
+  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
+  DO NOT use when: high scalability needs independent component scaling.
+  DO NOT use when: teams need independent deployment cycles - use microservices.
+
+  Consult this skill when implementing layered patterns or enforcing layer boundaries.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, layered, n-tier, separation-of-concerns, monolith]

@@ -1,6 +1,19 @@
 ---
 name: git-workspace-review
-description: Lightweight preflight checklist for verifying repo path, staged changes, and diffs before other workflows.
+description: |
+  Lightweight preflight checklist for verifying repo path, staged changes, and
+  diffs before other workflows.
+
+  Triggers: git status, preflight, workspace check, staged changes, diff review,
+  git verification, repo state
+
+  Use when: verifying workspace state before other git operations, checking
+  staged changes, preflight checks before commits or PRs
+
+  DO NOT use when: full commit workflow - use commit-messages instead.
+  DO NOT use when: full PR preparation - use pr-prep.
+
+  Use this skill as foundation for git workflows.
 category: workspace-ops
 tags: [git, preflight, status, diff, staged]
 tools: [Bash, TodoWrite]

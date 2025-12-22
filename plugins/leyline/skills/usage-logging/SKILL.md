@@ -1,6 +1,18 @@
 ---
 name: usage-logging
-description: Session-aware usage logging infrastructure for audit trails, cost tracking, and analytics. Provides structured logging with JSONL format and session management.
+description: |
+  Session-aware usage logging infrastructure for audit trails, cost tracking,
+  and analytics. Provides structured logging with JSONL format and session management.
+
+  Triggers: usage logging, audit trails, cost tracking, session logging, analytics,
+  structured logging, JSONL, usage metrics
+
+  Use when: implementing audit trails, tracking costs, collecting usage analytics,
+  managing session-based logging
+
+  DO NOT use when: simple operations without logging needs.
+
+  Consult this skill when implementing usage logging and audit trails.
 category: infrastructure
 tags: [logging, usage, audit, metrics, sessions, analytics]
 dependencies: []

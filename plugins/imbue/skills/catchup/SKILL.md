@@ -1,6 +1,18 @@
 ---
 name: catchup
-description: Methodology for summarizing changes, extracting insights, and identifying follow-up actions.
+description: |
+  Methodology for summarizing changes, extracting insights, and identifying follow-up actions.
+
+  Triggers: catchup, what changed, summarize changes, context acquisition, handoff,
+  progress review, recent changes, git log analysis, sprint summary
+
+  Use when: resuming work after absence, preparing handoff documentation, reviewing
+  sprint progress, analyzing git history for context
+
+  DO NOT use when: doing detailed diff analysis - use diff-analysis instead.
+  DO NOT use when: full code review needed - use review-core instead.
+
+  Use this skill to quickly understand "what changed and what matters".
 category: analysis-methods
 tags: [summarization, context-acquisition, insights, follow-ups]
 dependencies: [imbue:evidence-logging]

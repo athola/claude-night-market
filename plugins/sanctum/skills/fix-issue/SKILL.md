@@ -1,6 +1,20 @@
 ---
 name: fix-issue
-description: Fix GitHub issues using subagent-driven-development with parallel execution where appropriate
+description: |
+  Fix GitHub issues using subagent-driven-development with parallel execution
+  where appropriate.
+
+  Triggers: fix issue, github issue, issue resolution, subagent development,
+  parallel execution, issue workflow, gh issue, fix github
+
+  Use when: addressing GitHub issues systematically, multiple related issues
+  need fixing, tasks can be parallelized across subagents, quality gates needed
+  between task batches
+
+  DO NOT use when: single simple fix - just implement directly.
+  DO NOT use when: issue needs clarification - comment first to clarify scope.
+
+  Uses subagents for parallel execution with code review gates between batches.
 category: workflow-automation
 tags: [github, issues, subagents, parallel, automation]
 dependencies:

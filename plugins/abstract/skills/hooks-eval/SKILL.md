@@ -1,6 +1,20 @@
 ---
 name: hooks-eval
-description: Comprehensive hook evaluation framework for Claude Code and Agent SDK hooks. Covers security scanning, performance analysis, compliance checking, and SDK hook types. Use when auditing hooks, understanding hook architecture, or implementing hooks programmatically.
+description: |
+  Comprehensive hook evaluation framework for Claude Code and Agent SDK hooks.
+
+  Triggers: hook audit, hook security, hook performance, hook compliance,
+  SDK hooks, hook evaluation, hook benchmarking, hook vulnerability
+
+  Use when: auditing existing hooks for security vulnerabilities, benchmarking
+  hook performance, implementing hooks using Python SDK, understanding hook
+  callback signatures, validating hooks against compliance standards
+
+  DO NOT use when: deciding hook placement - use hook-scope-guide instead.
+  DO NOT use when: writing hook rules from scratch - use hookify instead.
+  DO NOT use when: validating plugin structure - use validate-plugin instead.
+
+  Use this skill BEFORE deploying hooks to production.
 version: 1.0.0
 category: hook-management
 tags: [hooks, evaluation, security, performance, claude-sdk, agent-sdk]
@@ -36,20 +50,6 @@ This skill provides a comprehensive framework for evaluating, auditing, and impl
 | **Evaluation Criteria** | Scoring system and quality gates |
 | **Security Patterns** | Common vulnerabilities and mitigations |
 | **Performance Benchmarks** | Thresholds and optimization guidance |
-
-## When to Use
-
-**Use this skill when:**
-- Auditing existing hooks for security vulnerabilities
-- Benchmarking hook performance
-- Implementing hooks using the Python SDK
-- Understanding hook callback signatures and return values
-- Validating hooks against compliance standards
-
-**Don't use when:**
-- Deciding where to place hooks (use `hook-scope-guide` instead)
-- Writing hook rules from scratch (use `hookify:writing-rules`)
-- Validating plugin structure (use `validate-plugin`)
 
 ## Quick Reference
 

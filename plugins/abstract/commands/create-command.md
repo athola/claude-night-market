@@ -1,6 +1,19 @@
 ---
 name: create-command
-description: Guided slash command creation with brainstorming. Refines command concepts through Socratic questioning, scaffolds proper structure, and validates against best practices. Use when creating new slash commands.
+description: |
+  Guided slash command creation with brainstorming and best practices.
+
+  Triggers: new command, create command, slash command, start command,
+  build command, add command, write command
+
+  Use when: creating a new slash command from scratch, need guided brainstorming
+  for command design, want structured workflow for command development
+
+  DO NOT use when: creating skills - use /create-skill instead.
+  DO NOT use when: creating hooks - use /create-hook instead.
+  DO NOT use when: modifying existing commands - edit directly.
+
+  Use this command to create any new slash command.
 usage: /create-command [command-description] [--skip-brainstorm] [--plugin <name>]
 ---
 

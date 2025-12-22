@@ -1,6 +1,21 @@
 ---
 name: modular-skills
-description: Design skills as modular building blocks for predictable token usage and maintainable architecture. Use when creating new skills that need modular structure, refactoring large skills into components, or optimizing skill token consumption.
+description: |
+  Design skills as modular building blocks for predictable token usage
+  and maintainable architecture.
+
+  Triggers: skill design, skill architecture, modularization, token optimization,
+  skill structure, refactoring skills, new skill creation, skill complexity
+
+  Use when: creating new skills that will be >150 lines, breaking down complex
+  monolithic skills, planning skill architecture, refactoring overlapping skills,
+  reviewing skill maintainability, designing skill module structure
+
+  DO NOT use when: evaluating existing skill quality - use skills-eval instead.
+  DO NOT use when: writing prose for humans - use writing-clearly-and-concisely.
+  DO NOT use when: need improvement recommendations - use skills-eval.
+
+  Use this skill BEFORE creating any new skill. Check even if unsure.
 category: workflow-optimization
 tags: [architecture, modularity, tokens, skills, design-patterns]
 dependencies: []
@@ -93,29 +108,6 @@ python scripts/abstract_validator.py --fix --dry-run
 4. **Validate**: Run `abstract_validator.py` to ensure proper structure and patterns
 5. **Iterate**: Refine based on validation feedback and usage patterns
 
-## When to Use It
-
-**Use this skill when you're designing or restructuring skills**
-
- **Perfect for:**
-- Creating new skills that will be >150 lines or cover multiple distinct topics
-- Breaking down complex, monolithic skills into focused, maintainable modules
-- Planning skill architecture with predictable token usage
-- Refactoring overlapping skills into clear, single-responsibility modules
-- Architecture reviews and maintainability planning
-
- **Don't use when:**
-- Just evaluating existing skill quality (use skills-eval instead)
-- Writing prose for humans (use writing-clearly-and-concisely)
-- Need specific improvement recommendations (use skills-eval's improvement-suggester)
-
-**Key differentiator:** This skill focuses on **design patterns and architecture**, while skills-eval focuses on **evaluation and improvement**.
-
-### Integration with skills-eval
-1. Use **skills-eval** first to identify what needs improvement
-2. Switch to **modular-skills** for architectural changes
-3. Return to **skills-eval** for quality validation
-
 ## Common Tasks
 
 Here are a few common ways we use the tools:
@@ -130,11 +122,20 @@ Here are a few common ways we use the tools:
 
 For comprehensive implementation details and advanced techniques:
 
+### Shared Modules (Cross-Skill Patterns)
+- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field templates
+- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md) for intensity calibration
+- **Anti-Rationalization**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md) for bypass prevention
+
+### Skill-Specific Modules
+- **Enforcement Patterns**: See `modules/enforcement-patterns.md` for frontmatter design patterns
 - **Core Workflow**: See `modules/core-workflow.md` for detailed modularization process
 - **Implementation Patterns**: See `modules/implementation-patterns.md` for coding and structure patterns
 - **Migration Guide**: See `modules/antipatterns-and-migration.md` for converting existing skills
 - **Design Philosophy**: See `modules/design-philosophy.md` for underlying principles and thinking
 - **Troubleshooting**: See `modules/troubleshooting.md` for common issues and solutions
+
+### Tools and Examples
 - **Tools**: Python analysis utilities in `../../scripts/` directory:
   - `skill_analyzer.py` - Complexity analysis and recommendations
   - `token_estimator.py` - Token usage estimation with dependencies

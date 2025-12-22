@@ -1,6 +1,20 @@
 ---
 name: architecture-paradigm-pipeline
-description: Compose processing stages using a pipes-and-filters model for ETL, media processing, or compiler-like workloads. Use when building data processing or transformation pipelines.
+description: |
+  Compose processing stages using a pipes-and-filters model for ETL, media
+  processing, or compiler-like workloads.
+
+  Triggers: pipeline architecture, pipes and filters, ETL, data transformation,
+  stream processing, CI/CD pipeline, media processing, batch processing
+
+  Use when: data flows through fixed sequence of transformations, stages can be
+  independently developed and tested, parallel processing of stages is beneficial
+
+  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
+  DO NOT use when: data flow isn't sequential or predictable.
+  DO NOT use when: complex branching/merging logic dominates.
+
+  Consult this skill when designing data pipelines or transformation workflows.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, pipeline, pipes-filters, ETL, streaming, data-processing]

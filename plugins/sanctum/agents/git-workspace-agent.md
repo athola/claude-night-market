@@ -1,6 +1,19 @@
 ---
 name: git-workspace-agent
-description: Git workspace analysis agent specializing in repository state assessment, file structure mapping, and change tracking. Use for preflight checks before commits, PRs, or code reviews.
+description: |
+  Git workspace analysis agent specializing in repository state assessment,
+  file structure mapping, and change tracking.
+
+  Triggers: git workspace, repository state, file structure, change tracking,
+  preflight check, git status, diff analysis, codebase mapping
+
+  Use when: preflight checks before commits/PRs/reviews, understanding repository
+  state, mapping codebase structure, analyzing staged and unstaged changes
+
+  DO NOT use when: generating commit messages - use commit-agent.
+  DO NOT use when: preparing PR descriptions - use pr-agent.
+
+  Provides read-only analysis and state assessment for downstream workflows.
 tools: [Read, Bash, Glob, Grep, TodoWrite]
 model: haiku
 escalation:

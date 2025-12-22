@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -10,6 +11,42 @@ from src.abstract.frontmatter import FrontmatterProcessor
 from src.abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
+
+
+# Patterns for trigger isolation checks
+TRIGGER_PATTERNS = {
+    "triggers": re.compile(r"Triggers?:\s*", re.IGNORECASE),
+    "use_when": re.compile(r"Use when:\s*", re.IGNORECASE),
+    "not_use_when": re.compile(r"DO NOT use when:\s*", re.IGNORECASE),
+}
+
+# Patterns that indicate trigger logic in body (violations)
+BODY_TRIGGER_PATTERNS = {
+    "when_to_use": re.compile(r"^##?\s*When to Use", re.MULTILINE | re.IGNORECASE),
+    "perfect_for": re.compile(r"Perfect for:", re.IGNORECASE),
+    "dont_use_when": re.compile(r"Don'?t use when:", re.IGNORECASE),
+}
+
+# Enforcement language intensity patterns
+ENFORCEMENT_PATTERNS = {
+    "maximum": [
+        re.compile(r"YOU MUST", re.IGNORECASE),
+        re.compile(r"NON-NEGOTIABLE", re.IGNORECASE),
+        re.compile(r"NEVER skip", re.IGNORECASE),
+    ],
+    "high": [
+        re.compile(r"Use.*BEFORE", re.IGNORECASE),
+        re.compile(r"Check even if", re.IGNORECASE),
+    ],
+    "medium": [
+        re.compile(r"Use when", re.IGNORECASE),
+        re.compile(r"Consider.*when", re.IGNORECASE),
+    ],
+    "low": [
+        re.compile(r"Available for", re.IGNORECASE),
+        re.compile(r"Consult when", re.IGNORECASE),
+    ],
+}
 
 
 @dataclass
@@ -38,6 +75,98 @@ class ComplianceReport:
     failed_checks: list[str]
 
 
+@dataclass
+class TriggerIsolationResult:
+    """Result of trigger isolation analysis."""
+
+    has_triggers: bool
+    has_use_when: bool
+    has_not_use_when: bool
+    body_has_when_to_use: bool
+    body_has_duplicates: bool
+    score: int  # 0-10
+    issues: list[str]
+
+
+def check_trigger_isolation(description: str, body: str) -> TriggerIsolationResult:
+    """Check if trigger logic is properly isolated in description.
+
+    Args:
+        description: The skill's description field from frontmatter.
+        body: The skill's markdown body (after frontmatter).
+
+    Returns:
+        TriggerIsolationResult with analysis details.
+    """
+    issues = []
+
+    # Check description for required trigger patterns
+    has_triggers = bool(TRIGGER_PATTERNS["triggers"].search(description))
+    has_use_when = bool(TRIGGER_PATTERNS["use_when"].search(description))
+    has_not_use_when = bool(TRIGGER_PATTERNS["not_use_when"].search(description))
+
+    # Check body for patterns that should be in description
+    body_has_when_to_use = bool(BODY_TRIGGER_PATTERNS["when_to_use"].search(body))
+    body_has_duplicates = bool(
+        BODY_TRIGGER_PATTERNS["perfect_for"].search(body)
+        or BODY_TRIGGER_PATTERNS["dont_use_when"].search(body)
+    )
+
+    # Calculate score (10 points max)
+    score = 0
+
+    if has_triggers:
+        score += 2
+    else:
+        issues.append("Missing 'Triggers:' in description")
+
+    if has_use_when:
+        score += 3
+    else:
+        issues.append("Missing 'Use when:' in description")
+
+    if has_not_use_when:
+        score += 3
+    else:
+        issues.append("Missing 'DO NOT use when:' in description")
+
+    if not body_has_when_to_use:
+        score += 1
+    else:
+        issues.append("Body contains 'When to Use' section (should be in description)")
+
+    if not body_has_duplicates:
+        score += 1
+    else:
+        issues.append("Body contains trigger patterns that duplicate description")
+
+    return TriggerIsolationResult(
+        has_triggers=has_triggers,
+        has_use_when=has_use_when,
+        has_not_use_when=has_not_use_when,
+        body_has_when_to_use=body_has_when_to_use,
+        body_has_duplicates=body_has_duplicates,
+        score=score,
+        issues=issues,
+    )
+
+
+def detect_enforcement_level(description: str) -> str:
+    """Detect the enforcement language intensity in a description.
+
+    Args:
+        description: The skill's description field.
+
+    Returns:
+        Enforcement level: 'maximum', 'high', 'medium', 'low', or 'none'.
+    """
+    for level in ["maximum", "high", "medium", "low"]:
+        for pattern in ENFORCEMENT_PATTERNS[level]:
+            if pattern.search(description):
+                return level
+    return "none"
+
+
 class ComplianceChecker:
     """Core compliance checking functionality."""
 
@@ -58,6 +187,10 @@ class ComplianceChecker:
             "required_fields": ["name", "description"],
             "max_tokens": 4000,
             "required_sections": ["Overview", "Quick Start"],
+            # Trigger isolation settings
+            "check_trigger_isolation": True,
+            "min_trigger_isolation_score": 7,  # Out of 10
+            "require_negative_triggers": True,
         }
 
     def check_compliance(self) -> dict[str, Any]:
@@ -119,6 +252,37 @@ class ComplianceChecker:
                         f"{skill_name}: Missing required fields: {fields_str}",
                     )
                     continue
+
+                skill_name = skill_file.parent.name
+
+                # Check trigger isolation if enabled
+                if self.rules.get("check_trigger_isolation", True):
+                    description = result.parsed.get("description", "")
+                    trigger_result = check_trigger_isolation(description, result.body)
+
+                    # Report trigger isolation issues as warnings
+                    min_score = self.rules.get("min_trigger_isolation_score", 7)
+                    if trigger_result.score < min_score:
+                        for issue in trigger_result.issues:
+                            warnings.append(f"{skill_name}: {issue}")
+
+                    # Missing negative triggers is a more serious issue
+                    if (
+                        self.rules.get("require_negative_triggers", True)
+                        and not trigger_result.has_not_use_when
+                    ):
+                        warnings.append(
+                            f"{skill_name}: Missing 'DO NOT use when:' "
+                            "(negative triggers required)"
+                        )
+
+                    # Body containing "When to Use" is a compliance issue
+                    if trigger_result.body_has_when_to_use:
+                        issues.append(
+                            f"{skill_name}: Body contains 'When to Use' section "
+                            "(trigger logic should be in description only)"
+                        )
+                        continue
 
                 compliant_count += 1
 

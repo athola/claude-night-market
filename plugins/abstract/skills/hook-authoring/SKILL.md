@@ -1,6 +1,20 @@
 ---
 name: hook-authoring
-description: Complete guide for writing Claude Code and SDK hooks. Use when creating hooks for tool validation, logging, context injection, or workflow automation. Covers security patterns, performance optimization, scope selection, and testing methodology.
+description: |
+  Complete guide for writing Claude Code and SDK hooks with security-first design.
+
+  Triggers: hook creation, hook writing, PreToolUse, PostToolUse, UserPromptSubmit,
+  tool validation, logging hooks, context injection, workflow automation
+
+  Use when: creating new hooks for tool validation, logging operations for audit,
+  injecting context before prompts, enforcing project-specific workflows,
+  preventing dangerous operations in production
+
+  DO NOT use when: logic belongs in core skill - use Skills instead.
+  DO NOT use when: complex multi-step workflows needed - use Agents instead.
+  DO NOT use when: behavior better suited for custom tool.
+
+  Use this skill BEFORE writing any hook. Check even if unsure.
 version: 1.0.0
 category: hook-development
 tags: [hooks, sdk, security, performance, automation, validation]
@@ -33,21 +47,6 @@ This skill teaches you how to write effective, secure, and performant hooks for 
 - **UserPromptSubmit**: Inject context or filter user messages before processing
 - **Stop/SubagentStop**: Cleanup, final reporting, or result aggregation
 - **PreCompact**: State preservation before context window compaction
-
-### When to Use Hooks
-
- **Perfect for:**
-- Validating tool inputs against security policies or conventions
-- Logging operations for audit trails or debugging
-- Injecting additional context before user prompts
-- Enforcing project-specific workflows (e.g., require tests before commit)
-- Transforming tool outputs for downstream consumption
-- Preventing dangerous operations in production environments
-
- **Don't use when:**
-- The logic should be in the core skill (hooks are for cross-cutting concerns)
-- You need complex multi-step workflows (use Skills or Agents instead)
-- The behavior is better suited for a custom tool
 
 ## Quick Start
 

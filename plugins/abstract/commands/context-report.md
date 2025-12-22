@@ -1,6 +1,20 @@
 ---
 name: context-report
-description: Generate context optimization report for skill directories
+description: |
+  Generate context optimization report for skill directories.
+
+  Triggers: context report, context optimization, skill portfolio, context analysis,
+  optimization report, large files, context budget, skill efficiency
+
+  Use when: assessing overall skill portfolio efficiency, pre-publish verification
+  before releasing plugins, planning modularization priorities across many skills,
+  identifying large files that need optimization
+
+  DO NOT use when: analyzing single skill - use /analyze-skill instead.
+  DO NOT use when: estimating specific file tokens - use /estimate-tokens.
+  DO NOT use when: evaluating skill quality - use /skills-eval instead.
+
+  Use this command for portfolio-level context optimization.
 usage: /context-report [directory-path]
 ---
 

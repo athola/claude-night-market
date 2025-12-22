@@ -1,6 +1,19 @@
 ---
 name: diff-analysis
-description: A methodology for categorizing changes, assessing risks, and creating summaries from any changeset.
+description: |
+  Methodology for categorizing changes, assessing risks, and creating summaries
+  from any changeset.
+
+  Triggers: diff analysis, changeset review, risk assessment, change categorization,
+  semantic analysis, release preparation, change summary, git diff
+
+  Use when: analyzing specific changesets, assessing risk of changes, preparing
+  release notes, categorizing changes by type and impact
+
+  DO NOT use when: quick context catchup - use catchup instead.
+  DO NOT use when: full PR review - use review-core with pensive skills.
+
+  Use this skill for systematic change analysis with risk scoring.
 category: analysis-methods
 tags: [changes, semantic-analysis, risk-assessment, categorization, summaries]
 dependencies: [imbue:evidence-logging]

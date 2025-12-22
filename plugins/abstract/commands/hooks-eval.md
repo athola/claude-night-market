@@ -1,6 +1,20 @@
 ---
 name: hooks-eval
-description: Comprehensive evaluation framework for analyzing all hooks in a plugin with security scanning, performance analysis, and compliance checking
+description: |
+  Comprehensive evaluation framework for all hooks in a plugin.
+
+  Triggers: hooks eval, evaluate hooks, hook evaluation, plugin hooks,
+  all hooks, hook framework, hook quality, hook portfolio
+
+  Use when: evaluating all hooks in a plugin comprehensively, comparing
+  multiple hooks, validating quality gates across hook portfolio,
+  security scanning entire plugin's hooks
+
+  DO NOT use when: analyzing single hook - use /analyze-hook instead.
+  DO NOT use when: validating specific hook - use /validate-hook instead.
+  DO NOT use when: creating new hooks - use /create-hook instead.
+
+  Use this command for plugin-wide hook evaluation.
 usage: /hooks-eval [plugin-path] [options]
 ---
 

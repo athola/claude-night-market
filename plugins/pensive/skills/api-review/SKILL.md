@@ -1,6 +1,18 @@
 ---
 name: api-review
-description: Evaluate public API surfaces against internal guidelines and external exemplars. Use for API design review, consistency audits, and documentation governance.
+description: |
+  Evaluate public API surfaces against internal guidelines and external exemplars.
+
+  Triggers: API review, API design, consistency audit, API documentation,
+  versioning, surface inventory, exemplar research
+
+  Use when: reviewing API design, auditing consistency, governing documentation,
+  researching API exemplars
+
+  DO NOT use when: architecture review - use architecture-review.
+  DO NOT use when: implementation bugs - use bug-review.
+
+  Use this skill for API surface evaluation and design review.
 category: code-review
 tags: [api, design, consistency, documentation, versioning]
 tools: [surface-analyzer, exemplar-finder, consistency-checker]
