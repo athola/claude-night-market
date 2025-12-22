@@ -1,6 +1,6 @@
 {
   "name": "archetypes",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Architecture paradigm selection and implementation planning for software systems",
   "keywords": [
     "architecture",

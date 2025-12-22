@@ -34,6 +34,8 @@ Meta-skills infrastructure for the plugin ecosystem—skill authoring, hook deve
 | `skills-eval` | Skill quality assessment |
 | `hooks-eval` | Hook security scanning |
 | `escalation-governance` | Model escalation decisions |
+| `makefile-dogfooder` | Makefile completeness analysis |
+| `shared-patterns` | Cross-skill patterns and utilities |
 
 ### Foundation Layer
 
@@ -47,6 +49,8 @@ Workflow methodologies for analysis, evidence gathering, and structured output. 
 | `catchup` | Quick context recovery for any delta |
 | `evidence-logging` | Evidence capture methodology |
 | `structured-output` | Output formatting patterns |
+| `feature-review` | Evidence-based feature prioritization |
+| `scope-guard` | Branch scope management and anti-overengineering |
 
 #### sanctum
 Git and workspace operations for active development workflows.
@@ -56,9 +60,14 @@ Git and workspace operations for active development workflows.
 | `git-workspace-review` | Preflight git status and diffs |
 | `commit-messages` | Conventional commit generation |
 | `pr-prep` | Pull request preparation |
+| `pr-review` | PR analysis and feedback |
 | `doc-updates` | Documentation updates |
+| `doc-consolidation` | Merge ephemeral docs into permanent |
 | `update-readme` | README modernization |
 | `version-updates` | Version bumping |
+| `test-updates` | Test suite maintenance |
+| `fix-issue` | GitHub issue resolution workflow |
+| `workflow-improvement` | Workflow optimization analysis |
 
 #### leyline
 Infrastructure and pipeline building blocks for plugins.
@@ -70,6 +79,12 @@ Infrastructure and pipeline building blocks for plugins.
 | `service-registry` | Service discovery patterns |
 | `error-patterns` | Standardized error handling |
 | `testing-quality-standards` | Test quality enforcement |
+| `authentication-patterns` | Auth implementation patterns |
+| `mecw-patterns` | Minimum effective context patterns |
+| `progressive-loading` | Lazy loading strategies |
+| `pytest-config` | Pytest configuration templates |
+| `storage-templates` | Data persistence patterns |
+| `evaluation-framework` | Skill evaluation infrastructure |
 
 ### Utility Layer
 
@@ -114,6 +129,7 @@ Code review toolkit.
 | `math-review` | Mathematical correctness |
 | `rust-review` | Rust-specific review |
 | `test-review` | TDD/BDD test suite review |
+| `unified-review` | Multi-discipline review orchestration |
 
 #### parseltongue
 Modern Python development suite—testing, performance optimization, async patterns, and packaging.
@@ -130,10 +146,11 @@ Knowledge organization using spatial memory concepts.
 
 | Skill | Purpose |
 |-------|---------|
-| `palace-architect` | Palace building and management |
-| `knowledge-navigator` | Spatial search and retrieval |
-| `knowledge-librarian` | Knowledge intake and curation |
-| `garden-curator` | Digital garden maintenance |
+| `memory-palace-architect` | Palace building and management |
+| `knowledge-locator` | Spatial search and retrieval |
+| `knowledge-intake` | Knowledge intake and curation |
+| `digital-garden-cultivator` | Digital garden maintenance |
+| `session-palace-builder` | Session-scoped knowledge capture |
 
 #### spec-kit
 Specification-Driven Development (SDD) toolkit—structured specification, planning, and implementation workflows.

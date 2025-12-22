@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management",
   "commands": [
     "./commands/palace.md",

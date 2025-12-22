@@ -5,6 +5,23 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-12-22
+
+### Added
+
+- **Abstract skill assurance framework**: Reliable skill discovery and validation infrastructure
+- **Compliance tests**: Trigger isolation and enforcement level tests for skill assurance
+
+### Changed
+
+- **Sanctum fix-pr**: Out-of-scope issue creation now mandatory for PR workflows
+- **Commands restructured**: Eliminated duplicate command names across plugins (fix-issue, reinstall-all-plugins)
+- **Capabilities documentation**: Added feature-review and standardized hook types
+
+### Fixed
+
+- **Compliance**: Addressed PR #42 review feedback for skill assurance
+
 ## [1.0.3] - 2025-12-19
 
 ### Added
