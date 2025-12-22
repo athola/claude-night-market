@@ -243,6 +243,127 @@ The marginal value filter respects autonomy levels (see plan Phase 4):
 
 Current implementation: Level 0 (all human-in-the-loop).
 
+## RL-Based Quality Scoring
+
+The knowledge corpus uses reinforcement learning signals to dynamically score entry quality based on actual usage patterns.
+
+### Usage Signals
+
+| Signal | Weight | Description |
+|--------|--------|-------------|
+| `ACCESS` | +0.1 | Entry was accessed/read |
+| `CITATION` | +0.3 | Entry was cited in another context |
+| `POSITIVE_FEEDBACK` | +0.5 | User marked as helpful |
+| `NEGATIVE_FEEDBACK` | -0.3 | User marked as unhelpful |
+| `CORRECTION` | +0.2 | Entry was corrected/updated |
+| `STALE_FLAG` | -0.4 | Entry marked as potentially outdated |
+
+### Quality Decay Model
+
+Knowledge entries decay over time unless validated:
+
+| Maturity | Half-Life | Decay Curve |
+|----------|-----------|-------------|
+| Seedling | 14 days | Exponential |
+| Growing | 30 days | Exponential |
+| Evergreen | 90 days | Logarithmic |
+
+Entries are classified by decay status:
+- **Fresh**: >70% quality retained
+- **Stale**: 40-70% quality retained
+- **Critical**: 20-40% quality retained
+- **Archived**: <20% quality retained
+
+### Source Lineage Tracking
+
+Hybrid lineage tracking based on source importance:
+
+**Full Lineage** (for important sources):
+- Primary source with complete metadata
+- Derivation chain (what entries it was derived from)
+- Transformation history (summarization, extraction, etc.)
+- Validation chain (who validated and when)
+
+**Simple Lineage** (for standard sources):
+- Source type and URL
+- Retrieval timestamp
+
+Full lineage is used for:
+- Research papers
+- Documentation
+- Entries with importance score >= 0.7
+
+### Knowledge Orchestrator
+
+The `KnowledgeOrchestrator` coordinates all quality systems:
+
+```python
+from memory_palace.corpus import KnowledgeOrchestrator, UsageSignal
+
+# Initialize orchestrator
+orchestrator = KnowledgeOrchestrator(
+    corpus_dir="docs/knowledge-corpus",
+    index_dir="docs/knowledge-corpus/indexes"
+)
+
+# Record usage events
+orchestrator.record_usage("entry-1", UsageSignal.ACCESS)
+orchestrator.record_usage("entry-1", UsageSignal.POSITIVE_FEEDBACK)
+
+# Assess entry quality
+entry = {"id": "entry-1", "maturity": "growing"}
+assessment = orchestrator.assess_entry(entry)
+print(f"Quality: {assessment.overall_score:.0%}")
+print(f"Status: {assessment.status}")
+print(f"Recommendations: {assessment.recommendations}")
+
+# Get maintenance queue
+entries = [...]  # Your entry list
+queue = orchestrator.get_maintenance_queue(entries)
+for item in queue:
+    print(f"{item.entry_id}: {item.status} - {item.recommendations}")
+
+# Ingest new content with lineage
+from memory_palace.corpus import SourceReference, SourceType
+
+source = SourceReference(
+    source_id="src-1",
+    source_type=SourceType.DOCUMENTATION,
+    url="https://docs.example.com/api",
+    title="API Documentation"
+)
+entry_id, decision = orchestrator.ingest_with_lineage(
+    content="# API Reference\n...",
+    title="API Documentation",
+    source=source
+)
+```
+
+### RL Integration with Marginal Value Filter
+
+The marginal value filter emits RL signals on integration decisions:
+
+```python
+from memory_palace.corpus import MarginalValueFilter
+
+filter = MarginalValueFilter(corpus_dir, index_dir)
+
+# Evaluate with RL signal emission
+redundancy, delta, integration, rl_signal = filter.evaluate_with_rl(
+    content=article_text,
+    title="New Article",
+    tags=["python", "async"]
+)
+
+# RL signal contains:
+# - signal_type: UsageSignal to emit
+# - weight: Signal weight for scoring
+# - action: What happened (new_entry_created, entry_enhanced, etc.)
+# - decision: Integration decision made
+# - confidence: Decision confidence
+print(f"RL Signal: {rl_signal['action']} (weight: {rl_signal['weight']})")
+```
+
 ## Workflow Example
 
 **User shares**: "Check out this article on structured concurrency"

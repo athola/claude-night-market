@@ -5,6 +5,7 @@ to ensure only valuable knowledge enters the corpus. Follows the principle:
 "If it can't teach something the existing corpus can't already teach → skip it."
 """
 
+import hashlib
 import re
 from dataclasses import dataclass
 from enum import Enum
@@ -13,6 +14,7 @@ from pathlib import Path
 from memory_palace.corpus.cache_lookup import CacheLookup
 from memory_palace.corpus.keyword_index import KeywordIndexer
 from memory_palace.corpus.query_templates import QueryTemplateManager
+from memory_palace.corpus.usage_tracker import UsageSignal
 
 OVERLAP_STRONG = 0.8
 OVERLAP_PARTIAL = 0.4
@@ -613,3 +615,92 @@ class MarginalValueFilter:
             lines.append(f"Target entries: {', '.join(integration.target_entries)}")
 
         return "\n".join(lines)
+
+    def emit_rl_signal(
+        self,
+        integration: IntegrationPlan,
+        content_hash: str | None = None,
+    ) -> dict:
+        """Emit RL signal based on integration decision.
+
+        Creates a signal dict that can be consumed by the UsageTracker
+        or other RL systems to reinforce or penalize integration decisions.
+
+        Args:
+            integration: The integration decision made
+            content_hash: Optional hash of the content for deduplication
+
+        Returns:
+            Signal dict with decision context for RL processing
+
+        """
+        # Map integration decisions to RL signals
+        decision_signals = {
+            IntegrationDecision.STANDALONE: {
+                "signal": UsageSignal.ACCESS,
+                "weight": 0.3,
+                "action": "new_entry_created",
+            },
+            IntegrationDecision.MERGE: {
+                "signal": UsageSignal.CORRECTION,
+                "weight": 0.2,
+                "action": "entry_enhanced",
+            },
+            IntegrationDecision.REPLACE: {
+                "signal": UsageSignal.CORRECTION,
+                "weight": 0.4,
+                "action": "entry_superseded",
+            },
+            IntegrationDecision.SKIP: {
+                "signal": UsageSignal.STALE_FLAG,
+                "weight": -0.1,
+                "action": "content_rejected",
+            },
+        }
+
+        signal_info = decision_signals.get(
+            integration.decision,
+            {"signal": UsageSignal.ACCESS, "weight": 0.0, "action": "unknown"},
+        )
+
+        return {
+            "signal_type": signal_info["signal"],
+            "weight": signal_info["weight"],
+            "action": signal_info["action"],
+            "decision": integration.decision.value,
+            "confidence": integration.confidence,
+            "target_entries": integration.target_entries,
+            "content_hash": content_hash,
+            "rationale": integration.rationale,
+        }
+
+    def evaluate_with_rl(
+        self,
+        content: str,
+        title: str = "",
+        tags: list[str] | None = None,
+    ) -> tuple[RedundancyCheck, DeltaAnalysis | None, IntegrationPlan, dict]:
+        """Evaluate content and emit RL signal.
+
+        Combines evaluate_content with RL signal emission for
+        reinforcement learning integration.
+
+        Args:
+            content: The new knowledge content (markdown)
+            title: Title/summary of the content
+            tags: Optional tags describing the content
+
+        Returns:
+            Tuple of (redundancy, delta, integration, rl_signal)
+
+        """
+        # Generate content hash for tracking
+        content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
+
+        # Evaluate content
+        redundancy, delta, integration = self.evaluate_content(content, title, tags)
+
+        # Emit RL signal
+        rl_signal = self.emit_rl_signal(integration, content_hash)
+
+        return redundancy, delta, integration, rl_signal

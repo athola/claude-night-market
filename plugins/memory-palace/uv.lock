@@ -960,7 +960,7 @@ wheels = [
 
 [[package]]
 name = "memory-palace"
-version = "1.0.3"
+version = "1.0.4"
 source = { editable = "." }
 dependencies = [
     { name = "pre-commit" },
