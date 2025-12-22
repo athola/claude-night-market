@@ -85,13 +85,85 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
    - **Separate**: One commit per fix category
    - **Manual**: Stage changes, user commits
 
+### Phase 3.5: Out-of-Scope Issue Creation (MANDATORY)
+
+**CRITICAL: You MUST create GitHub issues for ALL out-of-scope items. This is not optional.**
+
+For each comment classified as **Out-of-Scope** during triage, create a GitHub issue:
+
+8. **Create Issues for Out-of-Scope Items**
+   ```bash
+   gh issue create \
+     --title "<type>(<scope>): <description from review comment>" \
+     --body "$(cat <<'EOF'
+   ## Background
+
+   Identified during PR #PR_NUMBER review as out-of-scope.
+
+   **Original Review Comment:**
+   > [Quote the review comment here]
+
+   **Location:** `file/path.py:line` (if applicable)
+
+   ## Scope
+
+   [Describe what needs to be done based on the review feedback]
+
+   ## Suggested Implementation
+
+   [Any suggestions from the review or analysis]
+
+   ## Acceptance Criteria
+
+   - [ ] [Specific criteria based on the feedback]
+   - [ ] Tests added/updated
+   - [ ] Documentation updated (if applicable)
+
+   ## References
+
+   - PR #PR_NUMBER: [PR URL]
+   - Original review comment: [Link if available]
+
+   ---
+   *Created from PR #PR_NUMBER review triage*
+   EOF
+   )" \
+     --label "enhancement"
+   ```
+
+   **Issue Creation Rules:**
+   - Use conventional commit format for title: `type(scope): description`
+   - Common types: `feat`, `fix`, `test`, `docs`, `perf`, `refactor`
+   - Include the original review comment in the body
+   - Add relevant labels (enhancement, bug, documentation, etc.)
+   - Reference the source PR
+   - Define clear acceptance criteria
+
+9. **Track Created Issues**
+   After creating issues, document them in the PR comment:
+   ```markdown
+   ### Out-of-Scope Items → GitHub Issues
+
+   | Review Item | Issue Created | Description |
+   |-------------|---------------|-------------|
+   | C2 | #41 | Add tests for feature-review skill |
+   | S3 | #42 | Implement caching layer |
+   ```
+
+**Out-of-Scope Issue Checklist:**
+- [ ] Created GitHub issue for EACH out-of-scope item
+- [ ] Used conventional commit format for issue titles
+- [ ] Included original review comment context
+- [ ] Added appropriate labels
+- [ ] Documented created issues in PR comment
+
 ### Phase 4: Thread Resolution (MANDATORY)
 
 **CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
 
 > **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
 
-8. **Get All Review Threads**
+10. **Get All Review Threads**
    ```bash
    # Fetch all review threads with their IDs and resolution status
    # Note: Use literal owner/repo/pr values - do NOT use $() substitution inside gh commands
@@ -120,7 +192,7 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
 
    Replace `OWNER`, `REPO`, and `PR_NUMBER` with actual values. The thread `id` field returns the `PRRT_*` ID needed for replies and resolution.
 
-9. **Reply to Each Thread with Fix Description**
+11. **Reply to Each Thread with Fix Description**
    For EACH review comment that was addressed, use the GraphQL mutation (NOT REST API):
    ```bash
    # Reply using addPullRequestReviewThreadReply mutation
@@ -147,7 +219,7 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
    - Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
    - Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
 
-10. **Resolve the Thread**
+12. **Resolve the Thread**
     After replying, resolve the thread:
     ```bash
     # Resolve the review thread via GraphQL mutation
@@ -172,7 +244,7 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
     done
     ```
 
-11. **Verify All Threads Resolved**
+13. **Verify All Threads Resolved**
     ```bash
     # Count unresolved threads - should return 0
     gh api graphql -f query='
@@ -200,13 +272,13 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
 
 After resolving review threads, analyze whether this PR addresses any open issues.
 
-12. **Fetch Open Issues**
+14. **Fetch Open Issues**
     ```bash
     # Get all open issues for the repository
     gh issue list --state open --json number,title,body,labels --limit 50
     ```
 
-13. **Analyze Issue Coverage**
+15. **Analyze Issue Coverage**
 
     For each open issue, analyze whether the PR's changes address it:
 
@@ -227,7 +299,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
     | **Partially Addressed** | Some criteria met, some work remaining | Comment with follow-up details |
     | **Not Related** | PR doesn't touch issue scope | Skip |
 
-14. **Comment on Fully Addressed Issues**
+16. **Comment on Fully Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
     ## Addressed in PR #PR_NUMBER
@@ -249,7 +321,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
     gh issue close ISSUE_NUMBER --reason completed
     ```
 
-15. **Comment on Partially Addressed Issues**
+17. **Comment on Partially Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
     ## Partially Addressed in PR #PR_NUMBER
@@ -274,7 +346,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
     )"
     ```
 
-16. **Generate Issue Linkage Report**
+18. **Generate Issue Linkage Report**
     ```markdown
     ### Issue Linkage Summary
 
@@ -390,8 +462,12 @@ PR #42: Found 12 review comments
 2. [S2] views.py:156 - Handle edge case for empty lists
 ...
 
-**Out-of-Scope → GitHub Issues (1)**
-1. #234 - Add comprehensive logging system
+**Out-of-Scope → Creating GitHub Issues (2)**
+Creating issue for: "Add comprehensive logging system"...
+✓ Created issue #234: feat(logging): Add comprehensive logging system
+
+Creating issue for: "Add tests for feature-review skill"...
+✓ Created issue #235: test(imbue): Add comprehensive tests for feature-review skill
 
 Proceed with 7 fixes? [y/n/select]
 ```
@@ -442,12 +518,13 @@ After fixes are applied and committed:
 | PRRT_def456 | utils.py:87 | Replied + Resolved | "Fixed in a1b2c3d" |
 | PRRT_ghi789 | models.py:23 | Replied + Resolved | "Fixed in a1b2c3d" |
 | PRRT_jkl012 | views.py:156 | Skipped (suggestion) | Author discretion |
-| PRRT_mno345 | config.py:10 | Created Issue #234 | Out of scope |
+| PRRT_mno345 | config.py:10 | Issue #234 created | Out of scope |
+| PRRT_pqr678 | tests/ | Issue #235 created | Out of scope |
 
 **Summary:**
 - 3 threads replied to and resolved
 - 1 thread skipped (optional suggestion)
-- 1 thread triaged to backlog issue
+- 2 out-of-scope items → GitHub issues created (#234, #235)
 - 0 unresolved threads remaining
 ```
 
