@@ -91,5 +91,5 @@ python plugins/sanctum/skills/doc-consolidation/scripts/consolidation_planner.py
 ## See Also
 
 - `/update-docs` - General documentation updates
-- `/catchup` - Understand recent changes
+- `/git-catchup` - Understand recent git changes
 - `/pr` - PR preparation (warns about untracked reports)

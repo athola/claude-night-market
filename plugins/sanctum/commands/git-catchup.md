@@ -1,5 +1,7 @@
 ---
+name: git-catchup
 description: A git repository catchup using the imbue catchup methodology.
+usage: /git-catchup [baseline]
 ---
 
 # Git Repository Catchup

@@ -15,3 +15,19 @@
 | `plugins/memory-palace/data/indexes/vitality-scores.yaml` | Source-of-truth vitality ledger; only mutated on non-`--dry-run` executions. |
 
 `memory_palace.garden_metrics` reads the queue file (via the new `--tending-queue` flag) to append backlog counts to telemetry outputs, ensuring evergreen guards stay visible in dashboards.
+
+## Intake Queue
+
+| Artifact | Description |
+|----------|-------------|
+| `plugins/memory-palace/data/intake_queue.jsonl` | JSONL queue of high-novelty research queries flagged for knowledge intake processing. |
+
+The `research_interceptor` hook appends entries when `should_flag_for_intake=True`. Each entry contains:
+- `timestamp`: ISO 8601 timestamp
+- `query_id`: Unique identifier for the research query
+- `tool_name`: The tool that triggered the query (e.g., `WebSearch`)
+- `query`: The original search query
+- `intake_payload`: Structured metadata for the knowledge-intake skill
+- `tool_input`: Full tool input context
+
+The `knowledge-intake` skill processes this queue asynchronously. The file is excluded from version control via `.gitignore`.

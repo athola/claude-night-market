@@ -266,7 +266,14 @@ Foundational workflow scaffolding for any detailed review.
             "documentation_changes": [],
         }
 
-        for file_path in modified_files:
+        for line in modified_files:
+            # Parse git status output: "M src/main.py" -> extract path after status
+            parts = line.split()
+            if len(parts) >= 2:
+                file_path = parts[1]
+            else:
+                file_path = line
+
             if file_path.startswith("src/"):
                 review_targets["source_changes"].append(file_path)
             elif file_path.startswith("config/"):
@@ -328,9 +335,9 @@ Foundational workflow scaffolding for any detailed review.
         }
         evidence_log["evidence"].append(new_evidence)
 
-        # Assert
+        # Assert - fixture has E1, E2, so new one is E3
         assert len(evidence_log["evidence"]) == initial_count + 1
-        assert evidence_log["evidence"][-1]["id"] == "E2"
+        assert evidence_log["evidence"][-1]["id"] == f"E{initial_count + 1}"
         assert evidence_log["evidence"][-1]["command"] == "git diff --stat"
         assert "timestamp" in evidence_log["evidence"][-1]
 
@@ -463,14 +470,15 @@ Foundational workflow scaffolding for any detailed review.
 
         # Act - simulate workflow with error
         context = {}
-        try:
-            context["working_directory"] = mock_claude_tools["Bash"]("pwd")
-            context["git_branch"] = mock_claude_tools["Bash"](
-                "git branch --show-current",
-            )
-            context["git_status"] = mock_claude_tools["Bash"]("git status --porcelain")
-        except Exception as e:
-            context["git_status_error"] = str(e)
+        context["working_directory"] = mock_claude_tools["Bash"]("pwd")
+        context["git_branch"] = mock_claude_tools["Bash"](
+            "git branch --show-current",
+        )
+        context["git_status"] = mock_claude_tools["Bash"]("git status --porcelain")
+
+        # Check if git_status indicates an error (graceful handling)
+        if context["git_status"].startswith("Error:"):
+            context["git_status_error"] = context["git_status"]
 
         # Fallback for baseline
         context["baseline"] = mock_claude_tools["Bash"]("git rev-parse HEAD~1")

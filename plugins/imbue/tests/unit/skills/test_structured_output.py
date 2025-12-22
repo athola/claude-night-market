@@ -188,7 +188,6 @@ Common template variables that should be populated:
         }
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_template_selection_review_report(self, sample_review_findings) -> None:
         """Scenario: Template selection works for review reports.
 
@@ -233,7 +232,6 @@ Common template variables that should be populated:
         assert template_selection["priority"] == "High"
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_template_selection_pull_request(self) -> None:
         """Scenario: Template selection works for pull requests.
 
@@ -271,7 +269,7 @@ Common template variables that should be populated:
 
         # Customize based on changes
         if changes_summary["files_changed"] > 3:
-            template_selection["sections"].append("Large Change Notice")
+            template_selection["required_sections"].append("Large Change Notice")
 
         # Assert
         assert template_selection["type"] == "pull_request"
@@ -280,7 +278,6 @@ Common template variables that should be populated:
         assert "Checklist" in template_selection["required_sections"]
         assert template_selection["formatting"]["use_markdown"] is True
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_findings_formatting_by_severity(self, sample_review_findings) -> None:
         """Scenario: Findings are formatted by severity level.
@@ -338,7 +335,6 @@ Common template variables that should be populated:
         assert formatted_sections[0]["count"] == 1
         assert formatted_sections[0]["findings"][0]["id"] == "F1"
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_markdown_formatting_quality(self, sample_review_findings) -> None:
         """Scenario: Markdown output is properly formatted.
@@ -402,7 +398,6 @@ Common template variables that should be populated:
         header_lines = [line for line in lines if line.startswith("#")]
         assert len(header_lines) >= 3  # Main title, sections, subsections
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_action_item_conversion_and_assignment(
         self, sample_review_findings
@@ -483,7 +478,6 @@ Common template variables that should be populated:
         return due_date.strftime("%Y-%m-%d")
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_appendix_compilation_and_navigation(
         self,
         sample_review_findings,
@@ -551,7 +545,6 @@ Common template variables that should be populated:
         assert "E1" in evidence_index
         assert evidence_index["E1"] == ["F1"]
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_template_variable_substitution(self) -> None:
         """Scenario: Template variables are properly substituted.
@@ -669,7 +662,7 @@ Common template variables that should be populated:
         return f"""# Pull Request: Security Improvements
 
 ## Changes Summary
-This PR addresses {len(findings)} security-related items.
+This PR addresses {len(findings)} security findings.
 
 ## Checklist
 {chr(10).join(f"- [ ] Fix {f['title'].lower()}" for f in findings)}"""

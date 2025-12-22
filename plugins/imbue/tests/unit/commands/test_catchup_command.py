@@ -78,7 +78,6 @@ def5678 2024-12-04 test: Add payment flow tests
 5678901 2024-12-01 chore: Update Stripe SDK version"""
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_command_workflow_orchestration(self, mock_claude_tools) -> None:
         """Scenario: /catchup orchestrates complete workflow.
 
@@ -93,29 +92,29 @@ def5678 2024-12-04 test: Add payment flow tests
 
         def mock_skill_execution(skill_name, context) -> str:
             workflow_steps.append(skill_name)
-            skill_contexts[skill_name] = context.copy()
 
-            # Each skill adds to context
+            # Each skill adds to context - catchup adds multiple fields
             if skill_name == "catchup":
                 context["context_confirmed"] = True
+                context["insights_extracted"] = True
+                context["key_insights"] = [
+                    "Payment integration added",
+                    "Test coverage improved",
+                ]
+                context["followups_recorded"] = True
+                context["actions"] = [
+                    "Review security implications",
+                    "Update documentation",
+                ]
             elif skill_name == "diff-analysis":
                 context["delta_captured"] = True
                 context["changes"] = [
                     {"type": "feature", "count": 8},
                     {"type": "fix", "count": 2},
                 ]
-            elif skill_name == "catchup":  # insights step
-                context["insights_extracted"] = True
-                context["key_insights"] = [
-                    "Payment integration added",
-                    "Test coverage improved",
-                ]
-            elif skill_name == "catchup":  # follow-ups step
-                context["followups_recorded"] = True
-                context["actions"] = [
-                    "Review security implications",
-                    "Update documentation",
-                ]
+
+            # Capture context AFTER skill modifies it
+            skill_contexts[skill_name] = context.copy()
 
             return f"{skill_name} completed"
 
@@ -149,7 +148,6 @@ def5678 2024-12-04 test: Add payment flow tests
         assert skill_contexts["catchup"]["followups_recorded"] is True
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles various baseline specifications.
 
@@ -176,7 +174,7 @@ def5678 2024-12-04 test: Add payment flow tests
             },
             {
                 "args": ["--since", "2 days ago"],
-                "expected_baseline": "2 days ago",
+                "expected_baseline": "--since 2 days ago",
                 "description": "Date specification",
             },
             {
@@ -213,7 +211,6 @@ def5678 2024-12-04 test: Add payment flow tests
             assert validation_result is not None
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_token_conservation(self, sample_git_log_output) -> None:
         """Scenario: /catchup conserves tokens with large change sets.
 
@@ -222,11 +219,27 @@ def5678 2024-12-04 test: Add payment flow tests
         Then it should summarize rather than reproduce content
         And focus on high-impact items.
         """
-        # Arrange - simulate large git log
+        # Arrange - simulate large git log with varied commit types
         many_commits = []
+        commit_types_list = [
+            "feat: add new feature",
+            "fix: resolve bug",
+            "test: add unit tests",
+            "refactor: improve code structure",
+            "docs: update documentation",
+        ]
         for i in range(50):
+            # Distribute commit types: 20 features, 15 fixes, 10 tests, 5 refactors
+            if i < 20:
+                msg = "feat: add new functionality"
+            elif i < 35:
+                msg = "fix: resolve issue"
+            elif i < 45:
+                msg = "test: add test cases"
+            else:
+                msg = "refactor: improve code"
             many_commits.append(
-                f"{i:08x} 2024-12-{(i % 30) + 1:02d} commit {i}: Various changes",
+                f"{i:08x} 2024-12-{(i % 30) + 1:02d} {msg}",
             )
 
         # Act - implement token conservation strategy
@@ -241,7 +254,7 @@ def5678 2024-12-04 test: Add payment flow tests
         # Analyze commit messages for themes
         commit_types = {}
         for commit in many_commits:
-            message = commit.split(" ", 3)[-1]  # Get commit message
+            message = commit.split(" ", 2)[-1]  # Get commit message
             if "feat" in message.lower():
                 commit_types["feature"] = commit_types.get("feature", 0) + 1
             elif "fix" in message.lower():
@@ -277,7 +290,6 @@ def5678 2024-12-04 test: Add payment flow tests
         summary_text = str(catchup_summary)
         assert len(summary_text) < TWO_THOUSAND  # Reasonable length
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_generates_structured_output(
         self,
@@ -371,7 +383,6 @@ def5678 2024-12-04 test: Add payment flow tests
         assert "Stripe webhook endpoint testing" in output
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_integration_with_diff_analysis(self, mock_claude_tools) -> None:
         """Scenario: /catchup integrates with diff-analysis for semantic categorization.
 
@@ -456,7 +467,6 @@ def5678 2024-12-04 test: Add payment flow tests
         )
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_records_actionable_followups(self) -> None:
         """Scenario: /catchup records actionable follow-up items.
 
@@ -536,7 +546,6 @@ def5678 2024-12-04 test: Add payment flow tests
         return owner_map.get(change_type, "dev-team")
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_error_handling(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles repository errors gracefully.
 
@@ -564,6 +573,7 @@ def5678 2024-12-04 test: Add payment flow tests
         # Test case 2: Invalid baseline reference
         mock_claude_tools["Bash"].return_value = "fatal: invalid reference: INVALID_REF"
 
+        baseline_error = None
         try:
             result = mock_claude_tools["Bash"]("git rev-parse INVALID_REF")
         except Exception as e:

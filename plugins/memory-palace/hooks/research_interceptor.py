@@ -25,6 +25,8 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 # Import from memory_palace after path setup
+from datetime import UTC, datetime
+
 from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
 from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
 from memory_palace.curation import DomainAlignment, IntakeFlagPayload  # noqa: E402
@@ -593,6 +595,33 @@ def main() -> None:
         results=results,
         latency_ms=latency_ms,
     )
+
+    # Queue high-novelty queries for knowledge-intake processing
+    if decision.should_flag_for_intake and decision.intake_payload:
+        try:
+            queue_path = PLUGIN_ROOT / "data" / "intake_queue.jsonl"
+            queue_path.parent.mkdir(parents=True, exist_ok=True)
+
+            queue_entry = {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "query_id": query_id,
+                "tool_name": tool_name,
+                "query": query,
+                "intake_payload": decision.intake_payload.to_dict(),
+                "tool_input": tool_input,
+            }
+
+            with queue_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(queue_entry) + "\n")
+        except (PermissionError, OSError) as e:
+            logger.error(
+                "research_interceptor: Failed to queue intake entry (I/O error): %s", e
+            )
+        except (TypeError, ValueError) as e:
+            logger.error(
+                "research_interceptor: Failed to queue intake entry (serialization error): %s",
+                e,
+            )
 
     sys.exit(0)
 

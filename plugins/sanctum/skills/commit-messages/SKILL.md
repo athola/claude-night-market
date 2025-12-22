@@ -39,5 +39,5 @@ As a prerequisite, run `Skill(sanctum:git-workspace-review)` so the repository p
 - If multiple types apply, pick the highest-impact type (e.g., `feat` over `chore`).
 
 ## Integration Notes
-- Combine with `Skill(sanctum:catchup)` when you need additional context before drafting.
+- Combine with `Skill(imbue:catchup)` or `/git-catchup` when you need additional context before drafting.
 - If unsure about the type or scope, rerun the diff commands or consult the specification or plan before finalizing.

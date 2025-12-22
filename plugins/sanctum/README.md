@@ -37,7 +37,7 @@ Or reference directly from the marketplace:
 
 | Command | Description |
 |---------|-------------|
-| `/catchup` | Git repository catchup with imbue methodology |
+| `/git-catchup` | Git repository catchup with imbue methodology |
 | `/commit-msg` | Draft conventional commit message |
 | `/fix-issue` | Fix GitHub issues using subagent-driven-development with parallel execution |
 | `/fix-workflow` | Retrospective to improve the most recent workflow slice |

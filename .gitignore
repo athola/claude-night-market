@@ -72,3 +72,6 @@ docs/backlog/
 
 # Git worktrees
 .worktrees/
+
+# Intake queue for memory palace artifacts
+plugins/memory-palace/data/intake_queue.jsonl

@@ -87,7 +87,7 @@ class TestReviewAnalystAgent:
                 "category": "Security",
                 "file": "src/auth/login.py",
                 "line": 45,
-                "evidence_refs": ["E1", "E2", "E3"],
+                "evidence_refs": ["E1"],  # Each finding gets one evidence ref
                 "recommendation": (
                     "Use parameterized queries or ORM to prevent SQL injection"
                 ),
@@ -102,7 +102,7 @@ class TestReviewAnalystAgent:
                 "category": "Security",
                 "file": "src/auth/models.py",
                 "line": 23,
-                "evidence_refs": ["E4", "E5"],
+                "evidence_refs": ["E2"],  # Each finding gets one evidence ref
                 "recommendation": (
                     "Implement proper password hashing using bcrypt or Argon2"
                 ),
@@ -120,7 +120,7 @@ class TestReviewAnalystAgent:
                 "category": "Security",
                 "file": "src/auth/api.py",
                 "line": 15,
-                "evidence_refs": ["E6"],
+                "evidence_refs": ["E3"],  # Each finding gets one evidence ref
                 "recommendation": "Implement rate limiting with exponential backoff",
                 "cvss_score": 7.5,
                 "impact": "Account takeover through credential stuffing",
@@ -488,10 +488,12 @@ class TestReviewAnalystAgent:
                 "like flask-limiter or redis for distributed limiting"
             ),
         }
-        return guidance_map.get(
-            finding["title"].split()[-1],
-            "Review and update the identified code section",
-        )
+        # Match by finding keywords in the title
+        title = finding["title"].lower()
+        for key, guidance in guidance_map.items():
+            if key.lower() in title:
+                return guidance
+        return "Use best practices to address the identified issue"
 
     def _generate_verification_steps(self, finding):
         """Generate verification steps for finding."""

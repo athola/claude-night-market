@@ -1,8 +1,31 @@
 ---
 name: fix-issue
 description: Fix GitHub issues using subagent-driven-development with parallel execution where appropriate
-usage: /fix-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--parallel] [--no-review]
-extends: "superpowers:subagent-driven-development"
+category: workflow-automation
+tags: [github, issues, subagents, parallel, automation]
+dependencies:
+  - superpowers:subagent-driven-development
+  - superpowers:writing-plans
+  - superpowers:test-driven-development
+  - superpowers:requesting-code-review
+  - superpowers:finishing-a-development-branch
+tools:
+  - gh (GitHub CLI)
+  - Task (subagent dispatch)
+usage_patterns:
+  - issue-discovery
+  - task-planning
+  - parallel-execution
+  - quality-gates
+complexity: advanced
+estimated_tokens: 2500
+modules:
+  - modules/issue-discovery.md
+  - modules/task-planning.md
+  - modules/parallel-execution.md
+  - modules/quality-gates.md
+  - modules/completion.md
+  - modules/troubleshooting.md
 ---
 
 # Fix GitHub Issue(s)
@@ -16,22 +39,6 @@ Retrieves GitHub issue content and uses subagent-driven-development to systemati
 - **Quality Gates**: Code review between task groups
 - **Fresh Context**: Each subagent starts with clean context for focused work
 
-## Quick Start
-
-```bash
-# Single issue
-/fix-issue 42
-
-# Multiple issues (analyzes dependencies, runs in parallel where possible)
-/fix-issue 42 43 44
-
-# GitHub URL
-/fix-issue https://github.com/owner/repo/issues/42
-
-# Preview without executing
-/fix-issue 42 --dry-run
-```
-
 ## Workflow Overview
 
 | Phase | Description | Module |
@@ -42,21 +49,14 @@ Retrieves GitHub issue content and uses subagent-driven-development to systemati
 | 4. Quality | Code review gates between task batches | [quality-gates](modules/quality-gates.md) |
 | 5-6. Completion | Sequential tasks, final review, issue updates | [completion](modules/completion.md) |
 
-## Options
+## Required TodoWrite Items
 
-| Option | Description |
-|--------|-------------|
-| `--dry-run` | Analyze and show planned tasks without executing |
-| `--parallel` | Force parallel execution (skip dependency analysis) |
-| `--no-review` | Skip code review between tasks (not recommended) |
-| `--close` | Automatically close issues when fixed |
-
-## Required Skills
-
-- **superpowers:subagent-driven-development**: Core execution pattern
-- **superpowers:writing-plans**: Task breakdown structure
-- **superpowers:test-driven-development**: Subagents follow TDD
-- **superpowers:requesting-code-review**: Quality gates between tasks
+1. `fix-issue:discovery-complete`
+2. `fix-issue:tasks-planned`
+3. `fix-issue:parallel-batch-complete`
+4. `fix-issue:review-passed`
+5. `fix-issue:sequential-complete`
+6. `fix-issue:issues-updated`
 
 ## GitHub CLI Commands
 
