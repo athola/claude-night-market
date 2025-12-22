@@ -181,7 +181,6 @@ index abcdef..0000000
         }
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_change_categorization_by_type(self, sample_git_diff_output) -> None:
         """Scenario: Changes are categorized by type correctly.
 
@@ -251,7 +250,6 @@ index abcdef..0000000
         assert file_changes["old_config.json"]["lines_removed"] == 4
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_semantic_categorization_of_changes(self, sample_git_diff_output) -> None:
         """Scenario: Changes are categorized semantically.
 
@@ -301,7 +299,6 @@ index abcdef..0000000
         assert file_to_category["README.md"] == "docs"
         assert file_to_category["old_config.json"] == "config"
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_risk_assessment_by_change_type(self) -> None:
         """Scenario: Risk levels are assigned based on change characteristics.
@@ -359,7 +356,6 @@ index abcdef..0000000
         assert file_risks["requirements.txt"] == "Medium"
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_diff_summary_generation(self, sample_diff_analysis_result) -> None:
         """Scenario: Diff summary provides comprehensive overview.
 
@@ -399,7 +395,6 @@ index abcdef..0000000
         assert summary["risk_levels"]["Medium"] == 1
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_baseline_establishment(self, mock_claude_tools) -> None:
         """Scenario: Baseline is established for comparison.
 
@@ -429,7 +424,6 @@ index abcdef..0000000
             assert baseline == "baseline-hash"
             mock_claude_tools["Bash"].assert_called_with(expected_command)
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_diff_patterns_recognition(self) -> None:
         """Scenario: Common diff patterns are recognized.
@@ -482,7 +476,6 @@ index abcdef..0000000
         assert "debug_statement" in pattern_names
         assert "comment_addition" in pattern_names
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_cross_cutting_change_detection(self) -> None:
         """Scenario: Cross-cutting changes are identified.
@@ -539,7 +532,6 @@ index abcdef..0000000
         assert "docs" in cross_cutting_groups[0]["categories"]
         assert "config" in cross_cutting_groups[0]["categories"]
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_diff_statistics_calculation(self) -> None:
         """Scenario: Diff statistics are calculated accurately.

@@ -76,7 +76,6 @@ class TestReviewCommand:
         }
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_command_creates_workflow_scaffold(
         self,
         mock_todo_write,
@@ -135,7 +134,6 @@ class TestReviewCommand:
         assert expected_items == created_items
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_command_handles_target_parameter(
         self,
         mock_claude_tools,
@@ -187,7 +185,6 @@ class TestReviewCommand:
         assert all(f.startswith("src/auth/") for f in scoped_review["scoped_files"])
         assert len(scoped_review["workflow_adjustments"]) > 0
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_command_handles_focus_parameters(self) -> None:
         """Scenario: /review accepts focus parameters.
@@ -255,7 +252,6 @@ class TestReviewCommand:
             assert focus == test_case["expected_focus"]
             assert all_skills == test_case["expected_skills"]
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_command_orchestrates_multiple_skills(self, mock_claude_tools) -> None:
         """Scenario: /review orchestrates multiple imbue skills.
@@ -326,7 +322,6 @@ class TestReviewCommand:
         ]
         assert skill_contexts["evidence-logging"]["evidence_session"] == "session-123"
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_command_output_formatting(
         self,
@@ -401,7 +396,6 @@ class TestReviewCommand:
         assert "Next steps:" in output
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_command_error_handling(self, mock_claude_tools) -> None:
         """Scenario: /review handles errors gracefully.
 
@@ -443,7 +437,6 @@ class TestReviewCommand:
                 assert skill in recovery_actions
                 assert len(recovery_actions[skill]) > 0
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_command_parameter_validation(self) -> None:
         """Scenario: /review validates command parameters.

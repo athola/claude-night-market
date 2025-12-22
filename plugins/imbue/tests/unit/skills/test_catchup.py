@@ -174,7 +174,6 @@ Untracked files:
         }
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_confirms_repository_context(self, mock_claude_tools) -> None:
         """Scenario: Catchup confirms repository context and state.
 
@@ -217,7 +216,6 @@ Untracked files:
         ]
         mock_claude_tools["Bash"].assert_has_calls(expected_calls)
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_identifies_relevant_changes(
         self, sample_git_status_output
@@ -289,7 +287,6 @@ Untracked files:
         assert "src/auth.py" in high_priority_files
         assert "src/middleware.py" in high_priority_files
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_captures_delta_efficiently(self, sample_git_log_output) -> None:
         """Scenario: Catchup captures change delta without full reproduction.
@@ -368,7 +365,6 @@ Untracked files:
         return "other"
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_extracts_insights(self, sample_catchup_result) -> None:
         """Scenario: Catchup extracts actionable insights from changes.
 
@@ -436,7 +432,6 @@ Untracked files:
         assert len(feature_insight["files"]) == 2
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_records_followups(self, sample_catchup_result) -> None:
         """Scenario: Catchup records actionable follow-up items.
 
@@ -493,7 +488,6 @@ Untracked files:
         assert "code_review" in action_categories
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_token_conservation(self) -> None:
         """Scenario: Catchup conserves tokens in large repositories.
 
@@ -544,7 +538,6 @@ Untracked files:
         assert "src/component_99.py" not in summary["sample_files"]
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
         """Scenario: Catchup handles various baseline specifications.
 
@@ -572,7 +565,6 @@ Untracked files:
             assert baseline == "baseline-hash"
             mock_claude_tools["Bash"].assert_called_with(expected_command)
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_detects_blockers_and_conflicts(self) -> None:
         """Scenario: Catchup identifies potential blockers and conflicts.

@@ -78,7 +78,6 @@ def5678 2024-12-04 test: Add payment flow tests
 5678901 2024-12-01 chore: Update Stripe SDK version"""
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_command_workflow_orchestration(self, mock_claude_tools) -> None:
         """Scenario: /catchup orchestrates complete workflow.
 
@@ -149,7 +148,6 @@ def5678 2024-12-04 test: Add payment flow tests
         assert skill_contexts["catchup"]["followups_recorded"] is True
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles various baseline specifications.
 
@@ -212,7 +210,6 @@ def5678 2024-12-04 test: Add payment flow tests
             assert baseline == test_case["expected_baseline"]
             assert validation_result is not None
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_token_conservation(self, sample_git_log_output) -> None:
         """Scenario: /catchup conserves tokens with large change sets.
@@ -293,7 +290,6 @@ def5678 2024-12-04 test: Add payment flow tests
         summary_text = str(catchup_summary)
         assert len(summary_text) < TWO_THOUSAND  # Reasonable length
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_generates_structured_output(
         self,
@@ -387,7 +383,6 @@ def5678 2024-12-04 test: Add payment flow tests
         assert "Stripe webhook endpoint testing" in output
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_integration_with_diff_analysis(self, mock_claude_tools) -> None:
         """Scenario: /catchup integrates with diff-analysis for semantic categorization.
 
@@ -472,7 +467,6 @@ def5678 2024-12-04 test: Add payment flow tests
         )
 
     @pytest.mark.unit
-    @pytest.mark.unit
     def test_catchup_records_actionable_followups(self) -> None:
         """Scenario: /catchup records actionable follow-up items.
 
@@ -551,7 +545,6 @@ def5678 2024-12-04 test: Add payment flow tests
         }
         return owner_map.get(change_type, "dev-team")
 
-    @pytest.mark.unit
     @pytest.mark.unit
     def test_catchup_error_handling(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles repository errors gracefully.

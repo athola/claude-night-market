@@ -613,8 +613,15 @@ def main() -> None:
 
             with queue_path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(queue_entry) + "\n")
-        except Exception as e:
-            logger.warning("research_interceptor: Failed to queue intake entry: %s", e)
+        except (PermissionError, OSError) as e:
+            logger.error(
+                "research_interceptor: Failed to queue intake entry (I/O error): %s", e
+            )
+        except (TypeError, ValueError) as e:
+            logger.error(
+                "research_interceptor: Failed to queue intake entry (serialization error): %s",
+                e,
+            )
 
     sys.exit(0)
 
