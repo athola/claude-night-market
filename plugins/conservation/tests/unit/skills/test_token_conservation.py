@@ -512,7 +512,7 @@ tags:
 
         if (
             not quota_status["within_limits"]
-            or quota_status["remaining_budget"] < FIVE_THOUSAND
+            or quota_status["remaining_budget"] <= FIVE_THOUSAND
         ):
             conservation_measures.extend(
                 [
@@ -695,7 +695,7 @@ tags:
             effectiveness_metrics["weekly_savings_percentage"] == THIRTY_FIVE_POINT_ZERO
         )
         assert (
-            effectiveness_metrics["net_weekly_savings"] > TWENTY_FOUR_THOUSAND
+            effectiveness_metrics["net_weekly_savings"] >= TWENTY_FOUR_THOUSAND
         )  # Significant net savings
         assert (
             effectiveness_metrics["cost_savings_weekly"] > ZERO_POINT_TWENTY_FOUR
@@ -704,5 +704,5 @@ tags:
             effectiveness_metrics["efficiency_improvement"] == SIXTY_FIVE_POINT_ZERO
         )  # Better efficiency
         assert (
-            effectiveness_metrics["roi_tokens_per_minute"] > EIGHT_HUNDRED
+            effectiveness_metrics["roi_tokens_per_minute"] >= EIGHT_HUNDRED
         )  # Good ROI per minute

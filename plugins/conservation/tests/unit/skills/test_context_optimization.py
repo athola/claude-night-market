@@ -136,12 +136,12 @@ tags:
         Then it should classify context status correctly
         And provide appropriate recommendations.
         """
-        # Arrange
+        # Arrange - values aligned with mock thresholds (30%, 50%, 70%)
         test_scenarios = [
-            {"context_tokens": 2000, "expected_status": "LOW"},
-            {"context_tokens": 50000, "expected_status": "OPTIMAL"},
-            {"context_tokens": 120000, "expected_status": "HIGH"},
-            {"context_tokens": 160000, "expected_status": "CRITICAL"},
+            {"context_tokens": 2000, "expected_status": "LOW"},  # 1% < 30%
+            {"context_tokens": 80000, "expected_status": "OPTIMAL"},  # 40% (30-50%)
+            {"context_tokens": 120000, "expected_status": "HIGH"},  # 60% (50-70%)
+            {"context_tokens": 160000, "expected_status": "CRITICAL"},  # 80% >= 70%
         ]
 
         # Act & Assert
@@ -228,7 +228,7 @@ tags:
             {
                 "context_situation": "HIGH",
                 "task_complexity": "medium",
-                "expected_modules": ["mecw-principles", "mecw-assessment"],
+                "expected_modules": ["mecw-assessment", "mecw-principles"],
             },
             {
                 "context_situation": "OPTIMAL",

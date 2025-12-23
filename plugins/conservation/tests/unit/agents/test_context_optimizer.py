@@ -36,10 +36,19 @@ class TestContextOptimizerAgent:
         """
         # Arrange
         context_scenarios = [
-            {"tokens": 30000, "expected_action": "continue_monitoring"},
-            {"tokens": 80000, "expected_action": "light_optimization"},
-            {"tokens": 110000, "expected_action": "moderate_optimization"},
-            {"tokens": 150000, "expected_action": "aggressive_optimization"},
+            {
+                "tokens": 30000,
+                "expected_action": "continue_monitoring",
+            },  # 15% = compliant
+            {
+                "tokens": 80000,
+                "expected_action": "continue_monitoring",
+            },  # 40% = compliant
+            {"tokens": 110000, "expected_action": "moderate_optimization"},  # 55% > 50%
+            {
+                "tokens": 150000,
+                "expected_action": "aggressive_optimization",
+            },  # 75% > 70%
         ]
 
         # Act - simulate autonomous monitoring

@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: all test test-unit test-integration test-edge-case coverage coverage-check lint format \
-        type-check quality-check clean dev-install install test-parallel security perf-test \
+        type-check typecheck quality-check clean dev-install install test-parallel security perf-test \
         docs docs-serve test-file test-pattern duplication-check complexity-check deps-update \
         deps-outdated mutation-test dev ci benchmark memory-profile coverage-badge test-structure \
         help status demo-makefile-review demo-bug-review demo-skills plugin-check
@@ -58,6 +58,9 @@ format: ## Format code
 
 type-check: ## Run type checking
 	mypy src/ || { echo "⚠ Type checking failed"; exit 1; }
+
+# Alias for backwards compatibility
+typecheck: type-check
 
 security: ## Run security checks
 	bandit -r src/ || { echo "⚠ Security check failed"; exit 1; }

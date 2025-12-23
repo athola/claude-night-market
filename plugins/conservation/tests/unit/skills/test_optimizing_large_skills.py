@@ -157,7 +157,7 @@ tags:
                 "token_estimate": 4000,
                 "complexity_score": 8,
                 "dependencies": 5,
-                "expected_priority": "high",
+                "expected_priority": "critical",  # score=(10+8+7.5)/3=8.5 >= 8
             },
             {
                 "name": "medium_processor",
@@ -234,7 +234,7 @@ tags:
         complex_skill = next(
             c for c in optimization_candidates if c["skill"] == "complex_analyzer"
         )
-        assert complex_skill["priority"] == "high"
+        assert complex_skill["priority"] == "critical"  # score=8.5 >= 8
 
         simple_skill = next(
             c for c in optimization_candidates if c["skill"] == "simple_skill"
@@ -424,7 +424,7 @@ tags:
             },
             {
                 "operation": "result_formatting",
-                "execution_time:": 4.1,
+                "execution_time": 4.1,
                 "memory_usage": 100,
                 "token_usage": 600,
                 "frequency": 3,

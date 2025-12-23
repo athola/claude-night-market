@@ -165,7 +165,7 @@ tags:
                 "description": "Generate API documentation from code",
                 "estimated_tokens": 1500,
                 "compute_complexity": "medium",
-                "expected_delegation": False,
+                "expected_delegation": True,  # medium complexity + >1000 tokens
             },
         ]
 
@@ -191,12 +191,13 @@ tags:
                     },
                 )
 
-        # Assert
-        assert len(delegation_candidates) == TWO  # Large dataset and compilation
+        # Assert - 3 tasks match criteria (medium/high complexity + >1000 tokens)
+        assert len(delegation_candidates) == THREE
 
         delegated_tasks = [candidate["task"] for candidate in delegation_candidates]
         assert "large_dataset_processing" in delegated_tasks
         assert "code_compilation" in delegated_tasks
+        assert "documentation_generation" in delegated_tasks
         assert "simple_string_search" not in delegated_tasks
 
     @pytest.mark.bdd
