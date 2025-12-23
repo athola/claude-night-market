@@ -5,10 +5,13 @@ based on entry maturity. Knowledge that isn't validated decays
 over time, encouraging regular maintenance.
 """
 
+import logging
 import math
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 
 # Status thresholds
 STATUS_FRESH_THRESHOLD = 0.7
@@ -256,4 +259,11 @@ class DecayModel:
 
         """
         for entry_id, date_str in state_data.items():
-            self._validation_dates[entry_id] = datetime.fromisoformat(date_str)
+            try:
+                self._validation_dates[entry_id] = datetime.fromisoformat(date_str)
+            except ValueError:
+                logger.warning(
+                    "Skipping entry %s with invalid date format: %r",
+                    entry_id,
+                    date_str,
+                )

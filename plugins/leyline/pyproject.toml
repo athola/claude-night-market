@@ -59,7 +59,12 @@ strict = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-v --cov=leyline --cov-report=term-missing"
+addopts = "-v --cov=leyline --cov-report=term-missing --strict-markers"
+markers = [
+    "unit: Unit tests for individual components",
+    "integration: Integration tests for workflow orchestration",
+    "bdd: Behavior-driven development style tests",
+]
 
 [tool.coverage.run]
 source = ["src/leyline"]

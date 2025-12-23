@@ -4,11 +4,14 @@ Coordinates usage tracking, decay model, and source lineage
 for comprehensive knowledge quality assessment and management.
 """
 
+import logging
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from memory_palace.corpus.decay_model import DecayModel
 from memory_palace.corpus.marginal_value import IntegrationDecision, MarginalValueFilter
@@ -109,7 +112,12 @@ class KnowledgeOrchestrator:
         Returns:
             QualityAssessment with overall score and recommendations
 
+        Raises:
+            KeyError: If entry is missing required 'id' field.
+
         """
+        if "id" not in entry:
+            raise KeyError("Entry must contain 'id' field")
         entry_id = entry["id"]
         maturity = entry.get("maturity", "growing")
 
@@ -120,7 +128,15 @@ class KnowledgeOrchestrator:
         # Get decay score
         last_validated_str = entry.get("last_validated")
         if last_validated_str:
-            last_validated = datetime.fromisoformat(last_validated_str)
+            try:
+                last_validated = datetime.fromisoformat(last_validated_str)
+            except ValueError:
+                logger.warning(
+                    "Invalid last_validated date format for entry %s: %r",
+                    entry_id,
+                    last_validated_str,
+                )
+                last_validated = datetime.now(UTC)
         else:
             # Check decay model
             last_validated = self.decay_model.get_validation_date(entry_id)
@@ -128,7 +144,15 @@ class KnowledgeOrchestrator:
                 # Use creation date or now
                 created_str = entry.get("created_at")
                 if created_str:
-                    last_validated = datetime.fromisoformat(created_str)
+                    try:
+                        last_validated = datetime.fromisoformat(created_str)
+                    except ValueError:
+                        logger.warning(
+                            "Invalid created_at date format for entry %s: %r",
+                            entry_id,
+                            created_str,
+                        )
+                        last_validated = datetime.now(UTC)
                 else:
                     last_validated = datetime.now(UTC)
 

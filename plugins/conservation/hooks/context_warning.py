@@ -10,10 +10,15 @@ and provide proactive optimization guidance.
 """
 
 import json
+import logging
 import sys
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
+
+# Configure logging for hook diagnostics
+logging.basicConfig(level=logging.WARNING, format="%(name)s: %(message)s")
+logger = logging.getLogger("context_warning")
 
 # Threshold constants for two-tier MECW warnings
 WARNING_THRESHOLD = 0.40
@@ -55,7 +60,13 @@ def assess_context_usage(usage: float) -> ContextAlert:
 
     Returns:
         ContextAlert with severity, message, and recommendations.
+
+    Raises:
+        ValueError: If usage is not in the valid 0-1 range.
     """
+    if not 0.0 <= usage <= 1.0:
+        raise ValueError(f"context_usage must be between 0 and 1, got {usage}")
+
     if usage >= CRITICAL_THRESHOLD:
         return ContextAlert(
             severity=ContextSeverity.CRITICAL,
@@ -100,7 +111,9 @@ def get_context_usage_from_env() -> float | None:
         try:
             return float(usage_str)
         except ValueError:
-            pass
+            logger.warning(
+                "Invalid CLAUDE_CONTEXT_USAGE value: %r (expected float)", usage_str
+            )
 
     # Try to parse from stdin hook input
     return None
@@ -141,7 +154,8 @@ def main() -> int:
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.warning("Failed to parse hook input as JSON: %s", e)
         hook_input = {}
 
     # Get context usage - try environment first, then hook input
@@ -157,7 +171,12 @@ def main() -> int:
         return 0
 
     # Assess context and generate alert
-    alert = assess_context_usage(usage)
+    try:
+        alert = assess_context_usage(usage)
+    except ValueError as e:
+        logger.warning("Invalid context usage value: %s", e)
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
+        return 0
 
     # Only output for WARNING or CRITICAL
     if alert.severity == ContextSeverity.OK:

@@ -5,17 +5,24 @@ reinforcement learning signals. Each usage event contributes to
 an entry's overall quality score.
 """
 
+import logging
 import math
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 # Score normalization constants
 SCORE_SCALE_FACTOR = 10.0  # Scale for normalizing raw scores
 SCORE_MIN = 0.0
 SCORE_MAX = 1.0
+
+# Event storage limit to prevent unbounded memory growth
+MAX_EVENTS = 10000
 
 
 class UsageSignal(Enum):
@@ -71,9 +78,14 @@ class UsageTracker:
     decrease them.
     """
 
-    def __init__(self) -> None:
-        """Initialize the usage tracker."""
-        self._events: list[UsageEvent] = []
+    def __init__(self, max_events: int = MAX_EVENTS) -> None:
+        """Initialize the usage tracker.
+
+        Args:
+            max_events: Maximum number of events to retain (oldest discarded).
+
+        """
+        self._events: deque[UsageEvent] = deque(maxlen=max_events)
         self._event_handlers: list[Callable[[UsageEvent], None]] = []
 
     def record_event(
@@ -235,7 +247,11 @@ class UsageTracker:
             entry_id: The ID of the knowledge entry
 
         """
-        self._events = [e for e in self._events if e.entry_id != entry_id]
+        max_events = self._events.maxlen
+        self._events = deque(
+            (e for e in self._events if e.entry_id != entry_id),
+            maxlen=max_events,
+        )
 
     def add_event_handler(self, handler: Callable[[UsageEvent], None]) -> None:
         """Add a handler to be called on new events.
@@ -271,10 +287,17 @@ class UsageTracker:
 
         """
         for data in events_data:
-            event = UsageEvent(
-                entry_id=data["entry_id"],
-                signal=UsageSignal(data["signal"]),
-                timestamp=datetime.fromisoformat(data["timestamp"]),
-                context=data.get("context", {}),
-            )
-            self._events.append(event)
+            try:
+                event = UsageEvent(
+                    entry_id=data["entry_id"],
+                    signal=UsageSignal(data["signal"]),
+                    timestamp=datetime.fromisoformat(data["timestamp"]),
+                    context=data.get("context", {}),
+                )
+                self._events.append(event)
+            except (ValueError, KeyError) as e:
+                logger.warning(
+                    "Skipping event with invalid data: %r (error: %s)",
+                    data,
+                    e,
+                )
