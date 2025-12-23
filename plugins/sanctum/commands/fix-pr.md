@@ -368,6 +368,66 @@ After resolving review threads, analyze whether this PR addresses any open issue
 - [ ] Documented remaining work for partially addressed issues
 - [ ] Generated linkage summary report
 
+### Phase 6: Post Summary Comment (MANDATORY)
+
+**CRITICAL: You MUST post a summary comment to the PR after all fixes are applied. This is not optional.**
+
+After completing all fixes, thread resolutions, and issue linkage, post a comprehensive summary comment to the PR.
+
+19. **Post Summary Comment**
+    ```bash
+    gh pr comment PR_NUMBER --body "$(cat <<'EOF'
+    ## PR Review Feedback Addressed
+
+    All issues from the code review have been fixed in commit `COMMIT_SHA`.
+
+    ### Blocking Issues (N) ✅
+
+    | ID | Issue | Resolution |
+    |----|-------|------------|
+    | **B1** | [Description] | [How it was fixed] |
+
+    ### In-Scope Issues (N) ✅
+
+    | ID | Issue | Resolution |
+    |----|-------|------------|
+    | **S1** | [Description] | [How it was fixed] |
+
+    ### Suggestions (N) ✅
+
+    | ID | Issue | Resolution |
+    |----|-------|------------|
+    | **G1** | [Description] | [How it was fixed] |
+
+    ### Backlog Issues Created
+
+    | Review Item | Issue Created | Description |
+    |-------------|---------------|-------------|
+    | C2 | #41 | [Description] |
+
+    Or: **None** - [reason, e.g., "only advisory suggestions were identified"]
+
+    ---
+
+    Ready for re-review. All pre-commit hooks pass.
+    EOF
+    )"
+    ```
+
+    **Summary Comment Requirements:**
+    - Include commit SHA for reference
+    - Group fixes by category (Blocking, In-Scope, Suggestions)
+    - Use tables for clarity
+    - List any GitHub issues created for out-of-scope items
+    - End with clear status ("Ready for re-review")
+
+**Summary Comment Checklist:**
+- [ ] Posted comment to PR with comprehensive summary
+- [ ] Included commit SHA reference
+- [ ] Listed all fixed issues by category
+- [ ] Documented any backlog issues created
+- [ ] Indicated PR is ready for re-review
+
 ## Options
 
 - `--dry-run`: Analyze and show planned fixes without applying
@@ -627,9 +687,10 @@ fix_pr:
 1. Push changes to remote
 2. **VERIFY all threads have replies** - each addressed comment must have a response
 3. **VERIFY all threads are resolved** - run the verification query from Phase 4
-4. Check CI pipeline status
-5. Notify reviewers of updates
-6. If any threads couldn't be resolved, document them in a PR comment
+4. **POST SUMMARY COMMENT (MANDATORY)** - See Phase 6. This step is NOT optional.
+5. Check CI pipeline status
+6. Notify reviewers of updates
+7. If any threads couldn't be resolved, document them in a PR comment
 
 ## Troubleshooting
 
