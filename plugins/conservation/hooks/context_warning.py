@@ -11,6 +11,7 @@ and provide proactive optimization guidance.
 
 import json
 import logging
+import os
 import sys
 from dataclasses import dataclass
 from enum import Enum
@@ -103,8 +104,6 @@ def get_context_usage_from_env() -> float | None:
     Returns:
         Context usage as float 0-1, or None if unavailable.
     """
-    import os
-
     # Try to get from environment variable (set by Claude Code)
     usage_str = os.environ.get("CLAUDE_CONTEXT_USAGE")
     if usage_str:
