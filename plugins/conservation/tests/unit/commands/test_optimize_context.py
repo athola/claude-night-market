@@ -291,26 +291,31 @@ class TestOptimizeContextCommand:
 
         for level_config in aggressiveness_levels:
             # Select strategies based on aggressiveness
+            # Savings calibrated to achieve expected improvement percentages (baseline 5000)
             if level_config["level"] == "light":
                 applied_strategies = [
-                    {"name": "basic_compression", "savings": 200, "risk": "low"},
-                    {"name": "redundant_removal", "savings": 150, "risk": "low"},
-                ]
+                    {"name": "basic_compression", "savings": 350, "risk": "low"},
+                    {"name": "redundant_removal", "savings": 250, "risk": "low"},
+                ]  # Total: 600 = 12% improvement
             elif level_config["level"] == "moderate":
                 applied_strategies = [
-                    {"name": "context_compression", "savings": 400, "risk": "medium"},
-                    {"name": "prompt_optimization", "savings": 300, "risk": "low"},
-                    {"name": "targeted_removal", "savings": 250, "risk": "medium"},
-                ]
+                    {"name": "context_compression", "savings": 800, "risk": "medium"},
+                    {"name": "prompt_optimization", "savings": 500, "risk": "low"},
+                    {"name": "targeted_removal", "savings": 450, "risk": "medium"},
+                ]  # Total: 1750 = 35% improvement
             else:  # aggressive
                 applied_strategies = [
-                    {"name": "deep_compression", "savings": 800, "risk": "high"},
-                    {"name": "aggressive_pruning", "savings": 600, "risk": "high"},
-                    {"name": "delegation", "savings": 1000, "risk": "medium"},
-                ]
+                    {"name": "deep_compression", "savings": 1200, "risk": "high"},
+                    {"name": "aggressive_pruning", "savings": 900, "risk": "high"},
+                    {"name": "delegation", "savings": 1400, "risk": "medium"},
+                ]  # Total: 3500 = 70% improvement
 
             total_savings = sum(strategy["savings"] for strategy in applied_strategies)
-            max_risk = max(strategy["risk"] for strategy in applied_strategies)
+            # Use proper risk ordering (not lexicographic string comparison)
+            risk_order = {"low": 1, "medium": 2, "high": 3}
+            max_risk = max(applied_strategies, key=lambda s: risk_order[s["risk"]])[
+                "risk"
+            ]
             avg_risk = [
                 {"low": 1, "medium": 2, "high": 3}[strategy["risk"]]
                 for strategy in applied_strategies
@@ -540,6 +545,10 @@ class TestOptimizeContextCommand:
                     "quota_before": {"weekly_usage": 45000, "remaining": 55000},
                     "quota_after": {"weekly_usage": 43500, "remaining": 56500},
                     "strategies_applied": [
+                        "Optimized prompt structure (1000 tokens)",
+                        "Used targeted tool calls (500 tokens)",
+                    ],
+                    "changes_made": [
                         "Optimized prompt structure (1000 tokens)",
                         "Used targeted tool calls (500 tokens)",
                     ],

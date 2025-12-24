@@ -80,21 +80,21 @@ class KeywordIndexer:
                             if "title" in metadata:
                                 title = metadata["title"].lower()
                                 title_words = re.findall(
-                                    rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b", title
+                                    rf"\b[a-z]{{{MIN_WORD_LEN},}}\b", title
                                 )
                                 keywords.update(title_words)
 
                             # Extract from palace/district
                             if "palace" in metadata:
                                 palace_words = re.findall(
-                                    rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b",
+                                    rf"\b[a-z]{{{MIN_WORD_LEN},}}\b",
                                     metadata["palace"].lower(),
                                 )
                                 keywords.update(palace_words)
 
                             if "district" in metadata:
                                 district_words = re.findall(
-                                    rf"\\b[a-z]{{{MIN_WORD_LEN},}}\\b",
+                                    rf"\b[a-z]{{{MIN_WORD_LEN},}}\b",
                                     metadata["district"].lower(),
                                 )
                                 keywords.update(district_words)

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.0.4"
+version = "1.0.5"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -93,6 +93,7 @@ disallow_untyped_decorators = true
 no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
+mypy_path = "src"
 exclude = ['^\.venv', '^\.uv-cache']
 
 [tool.bandit]

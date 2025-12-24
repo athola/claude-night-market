@@ -380,7 +380,8 @@ class TestMain:
 
         Given a mix of plugins that need updates, are current, and fail
         When the main function is executed
-        Then it should display accurate statistics for each category.
+        Then it should display accurate statistics for each category
+        And exit with code 1 due to failed plugins.
         """
         mock_read.return_value = {
             "plugin1@marketplace1": [{"version": "1.0.0"}],
@@ -393,7 +394,11 @@ class TestMain:
             (False, "error", "error"),  # Failed
         ]
 
-        update_all_plugins.main()
+        # main() exits with code 1 when plugins fail
+        with pytest.raises(SystemExit) as excinfo:
+            update_all_plugins.main()
+
+        assert excinfo.value.code == 1
 
         print_calls = [str(call) for call in mock_print.call_args_list]
 

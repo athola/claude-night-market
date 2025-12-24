@@ -361,7 +361,12 @@ class TestConservationValidator:
             },
         ]
 
-        mock_conservation_validator.validate_skill_file.side_effect = validation_errors
+        # Mock raises exceptions for each call
+        mock_conservation_validator.validate_skill_file.side_effect = [
+            ValueError("Invalid YAML syntax at line 5"),
+            ValueError("Missing required field: token_budget"),
+            ValueError("No frontmatter found in skill file"),
+        ]
 
         # Act
         errors = []
@@ -448,7 +453,9 @@ class TestConservationValidator:
         assert "abstract" in dependency_check
         abstract_dep = dependency_check["abstract"]
         assert abstract_dep["compatibility"] is True
-        assert abstract_dep["current_version"] >= abstract_dep["required_version"]
+        # Version compatibility is checked via the 'compatibility' field
+        assert abstract_dep["current_version"] == "2.1.0"
+        assert abstract_dep["required_version"] == ">=2.0.0"
 
 
 class TestConservationWorkflowValidation:

@@ -1,6 +1,6 @@
 {
   "name": "sanctum",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
     "./commands/git-catchup.md",
@@ -14,7 +14,8 @@
     "./commands/update-docs.md",
     "./commands/update-readme.md",
     "./commands/update-tests.md",
-    "./commands/update-version.md"
+    "./commands/update-version.md",
+    "./commands/update-dependencies.md"
   ],
   "skills": [
     "./skills/shared",
@@ -38,9 +39,10 @@
     "./agents/workflow-improvement-analysis-agent.md",
     "./agents/workflow-improvement-planner-agent.md",
     "./agents/workflow-improvement-implementer-agent.md",
-    "./agents/workflow-improvement-validator-agent.md"
+    "./agents/workflow-improvement-validator-agent.md",
+    "./agents/dependency-updater.md"
   ],
-  "keywords": ["git", "workspace", "commit", "pr", "documentation", "version", "changelog", "conventional-commits"],
+  "keywords": ["git", "workspace", "commit", "pr", "documentation", "version", "changelog", "conventional-commits", "dependencies"],
   "author": {
     "name": "Alex Thola",
     "url": "https://github.com/athola"

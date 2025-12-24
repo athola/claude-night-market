@@ -3,7 +3,7 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help deps test test-unit test-integration test-coverage test-quick lint format type-check \
+.PHONY: help deps test test-unit test-integration test-coverage test-quick lint format type-check typecheck \
         security clean status install-hooks ci validate-plugin demo-spec demo-tasks demo-skills plugin-check
 
 # Include shared configuration from abstract plugin
@@ -53,6 +53,9 @@ format: ## Format code
 
 type-check: ## Run type checking
 	@echo "Type checking not configured for spec-kit (markdown-based plugin)"
+
+# Alias for backwards compatibility
+typecheck: type-check
 
 security: ## Run security checks
 	@echo "Security checking not configured for spec-kit (markdown-based plugin)"

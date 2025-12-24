@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/shared",

@@ -1,702 +1,795 @@
-"""Tests for marginal value filter functionality.
+"""Tests for marginal value filter for knowledge corpus anti-pollution.
 
-Tests redundancy detection, delta analysis, and integration decisions
-following TDD principles.
+Tests the MarginalValueFilter which implements redundancy detection,
+delta analysis, and integration decisions to ensure only valuable
+knowledge enters the corpus.
 """
+
+from unittest.mock import MagicMock, patch
 
 import pytest
 from memory_palace.corpus.marginal_value import (
+    OVERLAP_PARTIAL,
+    OVERLAP_STRONG,
+    VALUE_CONTRADICTION,
+    VALUE_LOW,
+    VALUE_MORE_EXAMPLES,
+    VALUE_NONE,
+    VALUE_NOVEL,
+    DeltaAnalysis,
     DeltaType,
     IntegrationDecision,
+    IntegrationPlan,
     MarginalValueFilter,
+    RedundancyCheck,
     RedundancyLevel,
 )
-
-CONFIDENCE_HIGH = 0.9
-CONFIDENCE_MERGE = 0.7
-OVERLAP_PARTIAL = 0.3
-OVERLAP_NOVEL_THRESHOLD = 0.4
-VALUE_SCORE_MIN = 0.4
-VALUE_SCORE_DIFF_FRAMING = 0.5
-VALUE_SCORE_MAX = 0.8
+from memory_palace.corpus.usage_tracker import UsageSignal
 
 
-@pytest.fixture
-def temp_corpus_dir(tmp_path):
-    """Create temporary corpus directory with sample entries."""
-    corpus_dir = tmp_path / "corpus"
-    corpus_dir.mkdir()
+class TestRedundancyLevel:
+    """Test RedundancyLevel enum."""
 
-    # Entry 1: Franklin Protocol
-    franklin_entry = """---
-title: Franklin Protocol - Learning Through Gradient Descent
-tags: [learning, machine-learning, deliberate-practice, gradient-descent]
-palace: Learning Techniques
-district: Historical Methods
-maturity: evergreen
-queries:
-  - How to improve writing skills systematically?
-  - What is gradient descent for learning?
-  - How did Benjamin Franklin learn to write?
----
+    def test_all_levels_defined(self) -> None:
+        """Should have all expected redundancy levels."""
+        assert RedundancyLevel.EXACT_MATCH.value == "exact_match"
+        assert RedundancyLevel.HIGHLY_REDUNDANT.value == "redundant"
+        assert RedundancyLevel.PARTIAL_OVERLAP.value == "partial"
+        assert RedundancyLevel.NOVEL.value == "novel"
 
-# Franklin Protocol
-
-Benjamin Franklin's learning method embodies **gradient descent**.
-
-## Key Concepts
-
-- **Feature extraction**: Identify key elements of good writing
-- **Deliberate delay**: Create temporal gap between study and reproduction
-- **Error calculation**: Compare output to original, measure delta
-- **Parameter updates**: Adjust approach based on errors
-
-This demonstrates machine learning principles applied to human learning.
-"""
-
-    (corpus_dir / "franklin-protocol.md").write_text(franklin_entry)
-
-    # Entry 2: KonMari Method
-    konmari_entry = """---
-title: KonMari Method - Knowledge Tidying
-tags: [konmari, tidying, curation, philosophy]
-palace: Knowledge Management
-district: Philosophies
-maturity: growing
-queries:
-  - How to organize knowledge effectively?
-  - What is the KonMari method?
-  - How to decide what knowledge to keep?
----
-
-# KonMari Method
-
-Marie Kondo's tidying philosophy applied to knowledge management.
-
-## Core Principles
-
-- **Spark joy test**: Keep only what resonates
-- **Gratitude**: Thank knowledge before releasing it
-- **Categories**: Tidy by type, not location
-"""
-
-    (corpus_dir / "konmari-method.md").write_text(konmari_entry)
-
-    # Entry 3: Async Patterns
-    async_entry = """---
-title: Python Async Patterns
-tags: [python, async, asyncio, concurrency]
-palace: Programming
-district: Python
-maturity: growing
-queries:
-  - How to handle async errors in Python?
-  - What are Python asyncio best practices?
----
-
-# Python Async Patterns
-
-Best practices for asynchronous programming in Python.
-
-## Error Handling
-
-Use structured concurrency with TaskGroup for safe error propagation.
-"""
-
-    (corpus_dir / "async-patterns.md").write_text(async_entry)
-
-    return corpus_dir
+    def test_redundancy_levels_count(self) -> None:
+        """Should have exactly 4 redundancy levels."""
+        assert len(RedundancyLevel) == 4
 
 
-@pytest.fixture
-def temp_index_dir(tmp_path):
-    """Create temporary index directory."""
-    index_dir = tmp_path / "indexes"
-    index_dir.mkdir()
-    return index_dir
+class TestDeltaType:
+    """Test DeltaType enum."""
+
+    def test_all_delta_types_defined(self) -> None:
+        """Should have all expected delta types."""
+        assert DeltaType.NOVEL_INSIGHT.value == "novel_insight"
+        assert DeltaType.DIFFERENT_FRAMING.value == "different_framing"
+        assert DeltaType.MORE_EXAMPLES.value == "more_examples"
+        assert DeltaType.CONTRADICTS.value == "contradicts"
+        assert DeltaType.NONE.value == "none"
+
+    def test_delta_types_count(self) -> None:
+        """Should have exactly 5 delta types."""
+        assert len(DeltaType) == 5
 
 
-@pytest.fixture
-def marginal_filter(temp_corpus_dir, temp_index_dir):
-    """Create marginal value filter with indexes built."""
-    filter_obj = MarginalValueFilter(
-        corpus_dir=str(temp_corpus_dir), index_dir=str(temp_index_dir)
-    )
+class TestIntegrationDecision:
+    """Test IntegrationDecision enum."""
 
-    # Build indexes
-    filter_obj.cache_lookup.build_indexes()
+    def test_all_decisions_defined(self) -> None:
+        """Should have all expected integration decisions."""
+        assert IntegrationDecision.STANDALONE.value == "standalone"
+        assert IntegrationDecision.MERGE.value == "merge"
+        assert IntegrationDecision.REPLACE.value == "replace"
+        assert IntegrationDecision.SKIP.value == "skip"
 
-    return filter_obj
+    def test_integration_decisions_count(self) -> None:
+        """Should have exactly 4 integration decisions."""
+        assert len(IntegrationDecision) == 4
 
 
-class TestRedundancyDetection:
-    """Test redundancy detection logic."""
+class TestRedundancyCheck:
+    """Test RedundancyCheck dataclass."""
 
-    def test_exact_match_detection(self, marginal_filter, temp_corpus_dir) -> None:
-        """Exact duplicate content should be detected and rejected."""
-        # Read existing content
-        existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
-
-        redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=existing,
-            title="Franklin Protocol - Learning Through Gradient Descent",
-            tags=["learning", "gradient-descent"],
+    def test_create_redundancy_check(self) -> None:
+        """Should create redundancy check with all fields."""
+        check = RedundancyCheck(
+            level=RedundancyLevel.PARTIAL_OVERLAP,
+            overlap_score=0.6,
+            matching_entries=["entry-1", "entry-2"],
+            reasons=["Partial overlap with existing content"],
         )
+        assert check.level == RedundancyLevel.PARTIAL_OVERLAP
+        assert check.overlap_score == 0.6
+        assert len(check.matching_entries) == 2
+        assert len(check.reasons) == 1
 
-        assert redundancy.level == RedundancyLevel.EXACT_MATCH
-        assert redundancy.overlap_score == 1.0
-        assert delta is None
-        assert integration.decision == IntegrationDecision.SKIP
-        assert integration.confidence >= CONFIDENCE_HIGH
-
-    def test_highly_redundant_content(self, marginal_filter) -> None:
-        """Content with high overlap should be detected when keywords match well."""
-        # Very similar to Franklin Protocol with matching keywords
-        # This test validates that the filter CAN detect redundancy when
-        # keyword/query overlap is sufficient
-        redundant_content = """---
-title: Franklin Protocol - Learning via Gradient Descent
-tags: [learning, gradient-descent, deliberate-practice, machine-learning]
----
-
-# Franklin Protocol
-
-Benjamin Franklin's learning method uses gradient descent principles.
-
-## Core Concepts
-
-- **Feature extraction**: Identify key elements from exemplars
-- **Deliberate delay**: Create gap between study and reproduction
-- **Error calculation**: Compare output to original
-- **Parameter updates**: Adjust based on measured errors
-
-This demonstrates machine learning applied to human learning processes.
-"""
-
-        redundancy, _delta, integration = marginal_filter.evaluate_content(
-            content=redundant_content,
-            title="Franklin Protocol - Learning via Gradient Descent",
-            tags=[
-                "learning",
-                "gradient-descent",
-                "deliberate-practice",
-                "machine-learning",
-            ],
+    def test_overlap_score_range(self) -> None:
+        """Overlap score should be between 0.0 and 1.0."""
+        check = RedundancyCheck(
+            level=RedundancyLevel.NOVEL,
+            overlap_score=0.0,
+            matching_entries=[],
+            reasons=["No matches"],
         )
-
-        # The keyword-based matching may or may not detect overlap depending on
-        # how the keywords are extracted and indexed. This is a limitation of
-        # keyword-only matching without embeddings. The important thing is that
-        # the filter makes a decision.
-        assert redundancy.level in [
-            RedundancyLevel.EXACT_MATCH,
-            RedundancyLevel.HIGHLY_REDUNDANT,
-            RedundancyLevel.PARTIAL_OVERLAP,
-            RedundancyLevel.NOVEL,  # May appear novel if keyword overlap insufficient
-        ]
-        # Verify the integration decision is reasonable
-        assert integration.decision in [
-            IntegrationDecision.SKIP,
-            IntegrationDecision.MERGE,
-            IntegrationDecision.STANDALONE,
-        ]
-
-    def test_partial_overlap_detection(self, marginal_filter) -> None:
-        """Content with 40-80% overlap should trigger delta analysis."""
-        partial_content = """---
-title: Spaced Repetition for Learning
-tags: [learning, spaced-repetition, memory, retention]
----
-
-# Spaced Repetition
-
-A learning technique using increasing intervals.
-
-## How It Works
-
-- Initial learning phase
-- Review at calculated intervals
-- Adjust spacing based on recall success
-- Optimize for long-term retention
-
-Related to gradient descent but focuses on timing.
-"""
-
-        redundancy, delta, _integration = marginal_filter.evaluate_content(
-            content=partial_content,
-            title="Spaced Repetition for Learning",
-            tags=["learning", "spaced-repetition", "memory"],
-        )
-
-        # Should detect overlap with Franklin Protocol (both about learning)
-        assert redundancy.level in [
-            RedundancyLevel.PARTIAL_OVERLAP,
-            RedundancyLevel.NOVEL,
-        ]
-        if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
-            assert delta is not None
-            assert redundancy.overlap_score >= OVERLAP_PARTIAL
-
-    def test_novel_content_detection(self, marginal_filter) -> None:
-        """Completely new content should be marked as novel."""
-        novel_content = """---
-title: Rust Ownership Model
-tags: [rust, ownership, memory-safety, programming]
----
-
-# Rust Ownership
-
-Rust's ownership system provides memory safety without garbage collection.
-
-## Core Rules
-
-- Each value has exactly one owner
-- When owner goes out of scope, value is dropped
-- Borrowing allows temporary access
-"""
-
-        redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=novel_content,
-            title="Rust Ownership Model",
-            tags=["rust", "ownership", "memory-safety"],
-        )
-
-        assert redundancy.level == RedundancyLevel.NOVEL
-        assert redundancy.overlap_score < OVERLAP_NOVEL_THRESHOLD
-        assert delta is None
-        assert integration.decision == IntegrationDecision.STANDALONE
+        assert 0.0 <= check.overlap_score <= 1.0
 
 
 class TestDeltaAnalysis:
-    """Test delta analysis for partially overlapping content."""
+    """Test DeltaAnalysis dataclass."""
 
-    def test_novel_insight_detection(self, marginal_filter) -> None:
-        """Novel insights should be valued highly."""
-        novel_insight_content = """---
-title: Franklin Protocol with Neural Networks
-tags: [learning, gradient-descent, neural-networks, backpropagation]
----
-
-# Franklin Protocol meets Neural Networks
-
-Franklin's method is literally backpropagation for humans.
-
-## New Insights
-
-- **Loss function**: Distance from exemplar (ground truth)
-- **Backpropagation**: Trace errors to their source
-- **Weight updates**: Adjust mental parameters
-- **Batch learning**: Multiple examples before update
-
-This connects Franklin to modern deep learning.
-"""
-
-        _redundancy, delta, _integration = marginal_filter.evaluate_content(
-            content=novel_insight_content,
-            title="Franklin Protocol with Neural Networks",
-            tags=["learning", "gradient-descent", "neural-networks"],
+    def test_create_delta_analysis(self) -> None:
+        """Should create delta analysis with all fields."""
+        delta = DeltaAnalysis(
+            delta_type=DeltaType.NOVEL_INSIGHT,
+            value_score=0.8,
+            novel_aspects=["New concept: async patterns"],
+            redundant_aspects=["Already covered: basic syntax"],
+            teaching_delta="Introduces 5 new concepts",
         )
+        assert delta.delta_type == DeltaType.NOVEL_INSIGHT
+        assert delta.value_score == 0.8
+        assert len(delta.novel_aspects) == 1
+        assert len(delta.redundant_aspects) == 1
+        assert "5 new concepts" in delta.teaching_delta
 
-        # Should detect partial overlap but novel insights
-        if delta:
-            assert delta.delta_type in [
-                DeltaType.NOVEL_INSIGHT,
-                DeltaType.MORE_EXAMPLES,
-            ]
-            assert delta.value_score >= VALUE_SCORE_MIN
-            assert len(delta.novel_aspects) > 0
-
-    def test_different_framing_detection(self, marginal_filter) -> None:
-        """Same concepts with different words should score low."""
-        reframed_content = """---
-title: Franklin's Writing Improvement Technique
-tags: [learning, writing, practice]
----
-
-# Franklin's Technique
-
-Ben Franklin got better at writing using a systematic approach.
-
-## His Process
-
-- Look at good examples
-- Wait a while
-- Try to recreate them
-- Check what you got wrong
-- Do better next time
-"""
-
-        redundancy, delta, _integration = marginal_filter.evaluate_content(
-            content=reframed_content,
-            title="Franklin's Writing Improvement Technique",
-            tags=["learning", "writing", "practice"],
+    def test_value_score_range(self) -> None:
+        """Value score should be between 0.0 and 1.0."""
+        delta = DeltaAnalysis(
+            delta_type=DeltaType.NONE,
+            value_score=VALUE_NONE,
+            novel_aspects=[],
+            redundant_aspects=[],
+            teaching_delta="No value",
         )
+        assert 0.0 <= delta.value_score <= 1.0
 
-        # Should detect high overlap, low novel value
-        if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP and delta:
-            # May be different framing or just redundant
-            assert delta.value_score <= VALUE_SCORE_MAX  # Not high value
-            if delta.delta_type == DeltaType.DIFFERENT_FRAMING:
-                assert delta.value_score <= VALUE_SCORE_DIFF_FRAMING
 
-    def test_contradiction_detection(self, marginal_filter) -> None:
-        """Content that contradicts existing knowledge should be flagged."""
-        contradicting_content = """---
-title: Why Franklin's Method Doesn't Work
-tags: [learning, critique, gradient-descent]
----
+class TestIntegrationPlan:
+    """Test IntegrationPlan dataclass."""
 
-# Franklin Method Critique
-
-Franklin's approach is actually not like gradient descent.
-
-## Problems
-
-- **Not gradient descent**: No continuous optimization
-- **Wrong analogy**: Discrete steps, not gradients
-- **Better approach**: Use spaced repetition instead
-- **Avoid this method**: Modern techniques are superior
-"""
-
-        redundancy, delta, _integration = marginal_filter.evaluate_content(
-            content=contradicting_content,
-            title="Why Franklin's Method Doesn't Work",
-            tags=["learning", "critique"],
+    def test_create_integration_plan(self) -> None:
+        """Should create integration plan with all fields."""
+        plan = IntegrationPlan(
+            decision=IntegrationDecision.MERGE,
+            target_entries=["entry-to-merge"],
+            rationale="Enhances existing with examples",
+            confidence=0.7,
         )
+        assert plan.decision == IntegrationDecision.MERGE
+        assert plan.target_entries == ["entry-to-merge"]
+        assert "examples" in plan.rationale
+        assert plan.confidence == 0.7
 
-        if delta and redundancy.level == RedundancyLevel.PARTIAL_OVERLAP:
-            # Should detect contradiction markers
-            # May be CONTRADICTS or just different framing with novel aspects
-            assert delta.value_score > 0  # Has some value (alternative view)
-
-
-class TestIntegrationDecisions:
-    """Test integration decision logic."""
-
-    def test_skip_exact_duplicate(self, marginal_filter, temp_corpus_dir) -> None:
-        """Exact duplicates should always be skipped."""
-        existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
-
-        _, _, integration = marginal_filter.evaluate_content(
-            content=existing,
-            title="Franklin Protocol",
-            tags=["learning"],
+    def test_confidence_range(self) -> None:
+        """Confidence should be between 0.0 and 1.0."""
+        plan = IntegrationPlan(
+            decision=IntegrationDecision.STANDALONE,
+            target_entries=[],
+            rationale="Novel content",
+            confidence=0.9,
         )
-
-        assert integration.decision == IntegrationDecision.SKIP
-        assert "duplicate" in integration.rationale.lower()
-        assert integration.confidence >= CONFIDENCE_HIGH
-
-    def test_skip_highly_redundant(self, marginal_filter) -> None:
-        """Highly redundant content should be skipped or merged."""
-        redundant = """---
-title: Franklin Protocol Learning
-tags: [learning, gradient-descent, deliberate-practice, machine-learning]
----
-
-# Franklin Protocol
-
-Benjamin Franklin's learning method using gradient descent.
-
-## Core Concepts
-
-- **Feature extraction**: Identify elements
-- **Deliberate delay**: Create temporal gap
-- **Error calculation**: Measure differences
-- **Parameter updates**: Adjust approach
-
-Machine learning for humans.
-"""
-
-        redundancy, _delta, integration = marginal_filter.evaluate_content(
-            content=redundant,
-            title="Franklin Protocol Learning",
-            tags=[
-                "learning",
-                "gradient-descent",
-                "deliberate-practice",
-                "machine-learning",
-            ],
-        )
-
-        # The filter should make a reasonable decision based on detected overlap
-        # Could be skip, merge, or standalone depending on exact matching
-        assert integration.decision in [
-            IntegrationDecision.SKIP,
-            IntegrationDecision.MERGE,
-            IntegrationDecision.STANDALONE,
-        ]
-        # If it's standalone, should be because overlap wasn't detected
-        if integration.decision == IntegrationDecision.STANDALONE:
-            assert redundancy.level == RedundancyLevel.NOVEL
-
-    def test_standalone_for_novel(self, marginal_filter) -> None:
-        """Novel content should be stored standalone."""
-        novel = """---
-title: Test-Driven Development Philosophy
-tags: [tdd, testing, development, red-green-refactor]
----
-
-# TDD Philosophy
-
-Write failing tests first, then make them pass.
-
-## Cycle
-
-1. Red: Write failing test
-2. Green: Make it pass
-3. Refactor: Clean up
-
-This ensures tests actually verify behavior.
-"""
-
-        _, _, integration = marginal_filter.evaluate_content(
-            content=novel,
-            title="Test-Driven Development",
-            tags=["tdd", "testing"],
-        )
-
-        assert integration.decision == IntegrationDecision.STANDALONE
-        assert integration.confidence >= CONFIDENCE_MERGE
-
-    def test_merge_for_examples(self, marginal_filter) -> None:
-        """Content adding examples should merge with existing."""
-        examples_content = """---
-title: Franklin Protocol Examples
-tags: [learning, gradient-descent, examples]
----
-
-# Franklin Protocol Examples
-
-Additional examples of Franklin's method:
-
-## Example 1: Learning Spanish
-
-- Read native texts
-- Wait 24 hours
-- Reconstruct from memory
-- Compare and learn errors
-
-## Example 2: Programming
-
-- Study elegant code
-- Close the file
-- Recreate the pattern
-- Diff and improve
-"""
-
-        redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=examples_content,
-            title="Franklin Protocol Examples",
-            tags=["learning", "gradient-descent", "examples"],
-        )
-
-        if redundancy.level == RedundancyLevel.PARTIAL_OVERLAP and delta:
-            if delta.delta_type == DeltaType.MORE_EXAMPLES:
-                # Should suggest merge when adding examples
-                assert integration.decision in [
-                    IntegrationDecision.MERGE,
-                    IntegrationDecision.STANDALONE,
-                ]
+        assert 0.0 <= plan.confidence <= 1.0
 
 
-class TestKeywordExtraction:
-    """Test keyword extraction from content."""
+class TestConstants:
+    """Test module constants."""
 
-    def test_extract_from_tags(self, marginal_filter) -> None:
-        """Should extract keywords from tags."""
-        content = "# Test\n\nSome content"
-        keywords = marginal_filter._extract_keywords(
-            content,
-            "Test",
-            ["python", "async", "testing"],
-        )
+    def test_overlap_thresholds_ordered(self) -> None:
+        """Strong overlap should be higher than partial."""
+        assert OVERLAP_STRONG > OVERLAP_PARTIAL
+
+    def test_value_scores_ordered(self) -> None:
+        """Value scores should be properly ordered by importance."""
+        assert VALUE_NOVEL > VALUE_CONTRADICTION
+        assert VALUE_CONTRADICTION > VALUE_MORE_EXAMPLES
+        assert VALUE_MORE_EXAMPLES > VALUE_LOW
+        assert VALUE_LOW > VALUE_NONE
+
+    def test_value_scores_in_range(self) -> None:
+        """All value scores should be between 0.0 and 1.0."""
+        for score in [
+            VALUE_NOVEL,
+            VALUE_CONTRADICTION,
+            VALUE_MORE_EXAMPLES,
+            VALUE_LOW,
+            VALUE_NONE,
+        ]:
+            assert 0.0 <= score <= 1.0
+
+
+class TestMarginalValueFilter:
+    """Test MarginalValueFilter main class."""
+
+    @pytest.fixture
+    def mock_filter(self, tmp_path):
+        """Create filter with mocked dependencies."""
+        corpus_dir = tmp_path / "corpus"
+        index_dir = tmp_path / "index"
+        corpus_dir.mkdir()
+        index_dir.mkdir()
+
+        with (
+            patch("memory_palace.corpus.marginal_value.CacheLookup") as mock_cache,
+            patch("memory_palace.corpus.marginal_value.KeywordIndexer") as mock_indexer,
+            patch(
+                "memory_palace.corpus.marginal_value.QueryTemplateManager"
+            ) as mock_query,
+        ):
+            mock_cache_instance = MagicMock()
+            mock_cache.return_value = mock_cache_instance
+
+            filter_instance = MarginalValueFilter(
+                corpus_dir=str(corpus_dir),
+                index_dir=str(index_dir),
+            )
+            filter_instance._mock_cache = mock_cache_instance
+            yield filter_instance
+
+    def test_init_creates_filter(self, mock_filter) -> None:
+        """Should initialize filter with corpus and index directories."""
+        assert mock_filter.corpus_dir.exists()
+        assert mock_filter.index_dir.exists()
+
+    def test_extract_keywords_from_tags(self, mock_filter) -> None:
+        """Should extract keywords from provided tags."""
+        content = "Some content"
+        title = "Test Title"
+        tags = ["python", "async", "concurrency"]
+
+        keywords = mock_filter._extract_keywords(content, title, tags)
 
         assert "python" in keywords
         assert "async" in keywords
-        assert "testing" in keywords
+        assert "concurrency" in keywords
 
-    def test_extract_from_title(self, marginal_filter) -> None:
-        """Should extract significant words from title."""
-        keywords = marginal_filter._extract_keywords(
-            "content",
-            "Python Async Patterns for Web Development",
-            [],
-        )
+    def test_extract_keywords_from_title(self, mock_filter) -> None:
+        """Should extract keywords from title."""
+        content = "Some content"
+        title = "Understanding Async Programming"
+        tags = []
 
-        assert "python" in keywords
+        keywords = mock_filter._extract_keywords(content, title, tags)
+
+        assert "understanding" in keywords
         assert "async" in keywords
-        assert "patterns" in keywords
-        assert "web" in keywords
-        assert "development" in keywords
+        assert "programming" in keywords
 
-    def test_extract_technical_terms(self, marginal_filter) -> None:
-        """Should extract hyphenated technical terms."""
-        content = """
-# Test
+    def test_extract_keywords_removes_stop_words(self, mock_filter) -> None:
+        """Should remove common stop words."""
+        content = "The quick and fast"
+        title = "The Big Test"
+        tags = ["the", "and"]
 
-This uses test-driven-development and continuous-integration.
-Also machine-learning patterns.
-"""
-        keywords = marginal_filter._extract_keywords(content, "Test", [])
+        keywords = mock_filter._extract_keywords(content, title, tags)
 
-        assert "test-driven-development" in keywords
-        assert "continuous-integration" in keywords
-        assert "machine-learning" in keywords
-
-    def test_extract_emphasized_terms(self, marginal_filter) -> None:
-        """Should extract **bold** and *italic* terms."""
-        content = """
-# Test
-
-The **gradient descent** algorithm uses *backpropagation*.
-Another **important concept** here.
-"""
-        keywords = marginal_filter._extract_keywords(content, "Test", [])
-
-        assert "gradient" in keywords
-        assert "descent" in keywords
-        assert "backpropagation" in keywords
-        assert "important" in keywords
-        assert "concept" in keywords
-
-    def test_filter_stop_words(self, marginal_filter) -> None:
-        """Should filter out common stop words."""
-        keywords = marginal_filter._extract_keywords(
-            "content",
-            "The Best Way to Learn Python with This Method",
-            [],
-        )
-
-        # Stop words should be filtered
         assert "the" not in keywords
-        assert "with" not in keywords
-        assert "this" not in keywords
+        assert "and" not in keywords
 
-        # Significant words should remain
-        assert "best" in keywords
-        assert "learn" in keywords
-        assert "python" in keywords
-        assert "method" in keywords
+    def test_extract_keywords_technical_terms(self, mock_filter) -> None:
+        """Should extract hyphenated technical terms."""
+        content = "Using event-driven architecture with async-await patterns"
+        title = "Test"
+        tags = []
 
+        keywords = mock_filter._extract_keywords(content, title, tags)
 
-class TestQueryInference:
-    """Test query inference from content."""
+        assert "event-driven" in keywords
+        assert "async-await" in keywords
 
-    def test_infer_how_to_queries(self, marginal_filter) -> None:
-        """Should infer 'how to' queries from headings."""
-        content = """
-# How to Learn Python
+    def test_extract_keywords_emphasized_text(self, mock_filter) -> None:
+        """Should extract emphasized (bold/italic) terms."""
+        content = "This is **important** and *critical* for understanding"
+        title = "Test"
+        tags = []
 
-## How to use async/await
+        keywords = mock_filter._extract_keywords(content, title, tags)
 
-Content here.
+        assert "important" in keywords
+        assert "critical" in keywords
+
+    def test_extract_keywords_from_headings(self, mock_filter) -> None:
+        """Should extract keywords from markdown headings."""
+        content = """# Main Topic
+## Subtopic One
+### Detailed Section
+Some body text here.
 """
-        queries = marginal_filter._infer_queries(content, "How to Learn Python")
+        title = "Test"
+        tags = []
 
-        assert len(queries) > 0
+        keywords = mock_filter._extract_keywords(content, title, tags)
+
+        assert "main" in keywords
+        assert "topic" in keywords
+        assert "subtopic" in keywords
+
+    def test_infer_queries_how_patterns(self, mock_filter) -> None:
+        """Should infer how-to queries from headings."""
+        content = """# How to Implement Caching
+## How to invalidate cache entries
+"""
+        title = "Caching Guide"
+
+        queries = mock_filter._infer_queries(content, title)
+
         assert any("how" in q.lower() for q in queries)
 
-    def test_infer_pattern_queries(self, marginal_filter) -> None:
-        """Should infer pattern/approach queries."""
-        content = """
-# Async Patterns
-
-## Error Handling Pattern
-
-Content.
+    def test_infer_queries_pattern_approach(self, mock_filter) -> None:
+        """Should infer 'what is' queries for patterns/approaches."""
+        content = """# Repository Pattern
+## CQRS Approach
 """
-        queries = marginal_filter._infer_queries(content, "Async Patterns")
+        title = "Design Patterns"
 
-        assert len(queries) > 0
-        # Should generate "what is" queries for patterns
+        queries = mock_filter._infer_queries(content, title)
+
         assert any("pattern" in q.lower() for q in queries)
 
-    def test_infer_best_practices_queries(self, marginal_filter) -> None:
-        """Should infer best practices queries."""
-        content = """
-# Python Best Practices
+    def test_check_redundancy_no_matches_novel(self, mock_filter) -> None:
+        """Should return NOVEL when no matching entries found."""
+        mock_filter._mock_cache.search.return_value = []
 
-## Testing Best Practices
+        keywords = {"python", "async", "testing"}
+        queries = ["how to test async code"]
+        content = "Test content"
 
-Content.
-"""
-        queries = marginal_filter._infer_queries(content, "Python Best Practices")
+        result = mock_filter._check_redundancy(keywords, queries, content)
 
-        assert len(queries) > 0
-        assert any("practice" in q.lower() for q in queries)
+        assert result.level == RedundancyLevel.NOVEL
+        assert result.overlap_score == 0.0
+        assert len(result.matching_entries) == 0
+
+    def test_check_redundancy_exact_match(self, mock_filter) -> None:
+        """Should detect exact content match."""
+        content = "This is the exact content"
+
+        mock_filter._mock_cache.search.return_value = [
+            {"entry_id": "existing-entry", "match_score": 0.9}
+        ]
+        mock_filter._mock_cache.get_entry_content.return_value = content
+
+        keywords = {"exact", "content"}
+        queries = []
+
+        result = mock_filter._check_redundancy(keywords, queries, content)
+
+        assert result.level == RedundancyLevel.EXACT_MATCH
+        assert result.overlap_score == 1.0
+
+    def test_check_redundancy_highly_redundant(self, mock_filter) -> None:
+        """Should detect highly redundant content (>= 80% overlap)."""
+        mock_filter._mock_cache.search.return_value = [
+            {"entry_id": "similar-entry", "match_score": 0.85}
+        ]
+        mock_filter._mock_cache.get_entry_content.return_value = "Different content"
+
+        keywords = {"python", "testing"}
+        queries = []
+        content = "Some new content"
+
+        result = mock_filter._check_redundancy(keywords, queries, content)
+
+        assert result.level == RedundancyLevel.HIGHLY_REDUNDANT
+        assert result.overlap_score >= OVERLAP_STRONG
+
+    def test_check_redundancy_partial_overlap(self, mock_filter) -> None:
+        """Should detect partial overlap (40-80%)."""
+        mock_filter._mock_cache.search.return_value = [
+            {"entry_id": "partial-entry", "match_score": 0.55}
+        ]
+        mock_filter._mock_cache.get_entry_content.return_value = "Different content"
+
+        keywords = {"python", "async"}
+        queries = []
+        content = "New content with some overlap"
+
+        result = mock_filter._check_redundancy(keywords, queries, content)
+
+        assert result.level == RedundancyLevel.PARTIAL_OVERLAP
+        assert OVERLAP_PARTIAL <= result.overlap_score < OVERLAP_STRONG
 
 
-class TestExplanationGeneration:
-    """Test human-readable explanation generation."""
+class TestMarginalValueFilterDecisions:
+    """Test integration decision logic."""
 
-    def test_explain_exact_match(self, marginal_filter, temp_corpus_dir) -> None:
-        """Should generate clear explanation for exact match."""
-        existing = (temp_corpus_dir / "franklin-protocol.md").read_text()
+    @pytest.fixture
+    def mock_filter(self, tmp_path):
+        """Create filter with mocked dependencies."""
+        corpus_dir = tmp_path / "corpus"
+        index_dir = tmp_path / "index"
+        corpus_dir.mkdir()
+        index_dir.mkdir()
 
-        redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=existing,
-            title="Franklin Protocol",
-            tags=["learning"],
+        with (
+            patch("memory_palace.corpus.marginal_value.CacheLookup"),
+            patch("memory_palace.corpus.marginal_value.KeywordIndexer"),
+            patch("memory_palace.corpus.marginal_value.QueryTemplateManager"),
+        ):
+            yield MarginalValueFilter(
+                corpus_dir=str(corpus_dir),
+                index_dir=str(index_dir),
+            )
+
+    def test_decide_integration_exact_match_skip(self, mock_filter) -> None:
+        """Exact match should always result in SKIP."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.EXACT_MATCH,
+            overlap_score=1.0,
+            matching_entries=["dup-entry"],
+            reasons=["Exact duplicate"],
         )
 
-        explanation = marginal_filter.explain_decision(redundancy, delta, integration)
+        plan = mock_filter._decide_integration(redundancy, None)
 
-        assert "Redundancy" in explanation
-        assert "exact_match" in explanation.lower()
-        assert "Decision" in explanation
-        assert "SKIP" in explanation
-        assert "duplicate" in explanation.lower()
+        assert plan.decision == IntegrationDecision.SKIP
+        assert plan.confidence == 1.0
 
-    def test_explain_novel_content(self, marginal_filter) -> None:
-        """Should explain why novel content is standalone."""
-        novel = """---
-title: Quantum Computing Basics
-tags: [quantum, computing, physics]
----
-
-# Quantum Computing
-
-Introduction to quantum computing concepts.
-"""
-
-        redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=novel,
-            title="Quantum Computing",
-            tags=["quantum", "computing"],
+    def test_decide_integration_highly_redundant_skip(self, mock_filter) -> None:
+        """Highly redundant content should result in SKIP."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.HIGHLY_REDUNDANT,
+            overlap_score=0.85,
+            matching_entries=["existing-1", "existing-2"],
+            reasons=["High overlap"],
         )
 
-        explanation = marginal_filter.explain_decision(redundancy, delta, integration)
+        plan = mock_filter._decide_integration(redundancy, None)
 
-        assert "novel" in explanation.lower()
-        assert "STANDALONE" in explanation or "standalone" in explanation
-        assert "Confidence" in explanation
+        assert plan.decision == IntegrationDecision.SKIP
+        assert plan.confidence == 0.9
 
-    def test_explain_with_delta(self, marginal_filter) -> None:
-        """Should include delta analysis in explanation."""
-        partial = """---
-title: Advanced Franklin Techniques
-tags: [learning, gradient-descent, advanced]
----
-
-# Advanced Franklin
-
-Advanced applications with new optimization techniques.
-
-## Neural Architecture Search
-
-Using Franklin's principles for hyperparameter tuning.
-"""
-
-        redundancy, delta, integration = marginal_filter.evaluate_content(
-            content=partial,
-            title="Advanced Franklin",
-            tags=["learning", "advanced"],
+    def test_decide_integration_novel_standalone(self, mock_filter) -> None:
+        """Novel content should result in STANDALONE."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.NOVEL,
+            overlap_score=0.1,
+            matching_entries=[],
+            reasons=["No matches"],
         )
 
-        explanation = marginal_filter.explain_decision(redundancy, delta, integration)
+        plan = mock_filter._decide_integration(redundancy, None)
 
-        if delta:
-            assert "Delta Type" in explanation
-            assert "Value Score" in explanation
-            assert "Teaching Delta" in explanation
+        assert plan.decision == IntegrationDecision.STANDALONE
+        assert plan.confidence == 0.9
+
+    def test_decide_integration_novel_insight_standalone(self, mock_filter) -> None:
+        """Novel insights should result in STANDALONE."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.PARTIAL_OVERLAP,
+            overlap_score=0.5,
+            matching_entries=["partial-match"],
+            reasons=["Partial overlap"],
+        )
+        delta = DeltaAnalysis(
+            delta_type=DeltaType.NOVEL_INSIGHT,
+            value_score=VALUE_NOVEL,
+            novel_aspects=["New pattern discovered"],
+            redundant_aspects=[],
+            teaching_delta="Introduces new concepts",
+        )
+
+        plan = mock_filter._decide_integration(redundancy, delta)
+
+        assert plan.decision == IntegrationDecision.STANDALONE
+        assert plan.confidence == 0.8
+
+    def test_decide_integration_contradicts_replace(self, mock_filter) -> None:
+        """Contradicting content should result in REPLACE."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.PARTIAL_OVERLAP,
+            overlap_score=0.6,
+            matching_entries=["outdated-entry"],
+            reasons=["Partial overlap"],
+        )
+        delta = DeltaAnalysis(
+            delta_type=DeltaType.CONTRADICTS,
+            value_score=VALUE_CONTRADICTION,
+            novel_aspects=["Corrects misconception"],
+            redundant_aspects=[],
+            teaching_delta="Alternative perspective",
+        )
+
+        plan = mock_filter._decide_integration(redundancy, delta)
+
+        assert plan.decision == IntegrationDecision.REPLACE
+        assert plan.confidence == 0.6
+
+    def test_decide_integration_more_examples_merge(self, mock_filter) -> None:
+        """More examples with sufficient value should result in MERGE."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.PARTIAL_OVERLAP,
+            overlap_score=0.5,
+            matching_entries=["base-entry"],
+            reasons=["Partial overlap"],
+        )
+        delta = DeltaAnalysis(
+            delta_type=DeltaType.MORE_EXAMPLES,
+            value_score=VALUE_MORE_EXAMPLES,
+            novel_aspects=["Additional examples"],
+            redundant_aspects=["Core concept"],
+            teaching_delta="Provides examples",
+        )
+
+        plan = mock_filter._decide_integration(redundancy, delta)
+
+        assert plan.decision == IntegrationDecision.MERGE
+        assert plan.confidence == 0.7
+
+    def test_decide_integration_low_value_skip(self, mock_filter) -> None:
+        """Low value content should result in SKIP."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.PARTIAL_OVERLAP,
+            overlap_score=0.5,
+            matching_entries=["existing"],
+            reasons=["Partial overlap"],
+        )
+        delta = DeltaAnalysis(
+            delta_type=DeltaType.DIFFERENT_FRAMING,
+            value_score=VALUE_NONE,
+            novel_aspects=[],
+            redundant_aspects=["Everything covered"],
+            teaching_delta="No new value",
+        )
+
+        plan = mock_filter._decide_integration(redundancy, delta)
+
+        assert plan.decision == IntegrationDecision.SKIP
+        assert plan.confidence == 0.7
+
+
+class TestMarginalValueFilterExplanation:
+    """Test explanation generation."""
+
+    @pytest.fixture
+    def mock_filter(self, tmp_path):
+        """Create filter with mocked dependencies."""
+        corpus_dir = tmp_path / "corpus"
+        index_dir = tmp_path / "index"
+        corpus_dir.mkdir()
+        index_dir.mkdir()
+
+        with (
+            patch("memory_palace.corpus.marginal_value.CacheLookup"),
+            patch("memory_palace.corpus.marginal_value.KeywordIndexer"),
+            patch("memory_palace.corpus.marginal_value.QueryTemplateManager"),
+        ):
+            yield MarginalValueFilter(
+                corpus_dir=str(corpus_dir),
+                index_dir=str(index_dir),
+            )
+
+    def test_explain_decision_includes_redundancy(self, mock_filter) -> None:
+        """Explanation should include redundancy level and score."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.PARTIAL_OVERLAP,
+            overlap_score=0.6,
+            matching_entries=["match-1"],
+            reasons=["60% overlap"],
+        )
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.MERGE,
+            target_entries=["match-1"],
+            rationale="Enhances existing",
+            confidence=0.7,
+        )
+
+        explanation = mock_filter.explain_decision(redundancy, None, integration)
+
+        assert "Redundancy:" in explanation
+        assert "partial" in explanation
+        assert "60%" in explanation
+
+    def test_explain_decision_includes_delta(self, mock_filter) -> None:
+        """Explanation should include delta analysis when available."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.PARTIAL_OVERLAP,
+            overlap_score=0.5,
+            matching_entries=["match-1"],
+            reasons=["Partial overlap"],
+        )
+        delta = DeltaAnalysis(
+            delta_type=DeltaType.NOVEL_INSIGHT,
+            value_score=0.8,
+            novel_aspects=["New async patterns"],
+            redundant_aspects=["Basic syntax"],
+            teaching_delta="Introduces 3 new concepts",
+        )
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.STANDALONE,
+            target_entries=[],
+            rationale="Novel insights",
+            confidence=0.8,
+        )
+
+        explanation = mock_filter.explain_decision(redundancy, delta, integration)
+
+        assert "Delta Type:" in explanation
+        assert "novel_insight" in explanation
+        assert "Novel aspects:" in explanation
+        assert "New async patterns" in explanation
+
+    def test_explain_decision_includes_final_decision(self, mock_filter) -> None:
+        """Explanation should include final integration decision."""
+        redundancy = RedundancyCheck(
+            level=RedundancyLevel.NOVEL,
+            overlap_score=0.0,
+            matching_entries=[],
+            reasons=["No matches"],
+        )
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.STANDALONE,
+            target_entries=[],
+            rationale="Novel content",
+            confidence=0.9,
+        )
+
+        explanation = mock_filter.explain_decision(redundancy, None, integration)
+
+        assert "Decision: STANDALONE" in explanation
+        assert "Confidence: 90%" in explanation
+        assert "Rationale:" in explanation
+
+
+class TestMarginalValueFilterRLSignals:
+    """Test RL signal emission."""
+
+    @pytest.fixture
+    def mock_filter(self, tmp_path):
+        """Create filter with mocked dependencies."""
+        corpus_dir = tmp_path / "corpus"
+        index_dir = tmp_path / "index"
+        corpus_dir.mkdir()
+        index_dir.mkdir()
+
+        with (
+            patch("memory_palace.corpus.marginal_value.CacheLookup"),
+            patch("memory_palace.corpus.marginal_value.KeywordIndexer"),
+            patch("memory_palace.corpus.marginal_value.QueryTemplateManager"),
+        ):
+            yield MarginalValueFilter(
+                corpus_dir=str(corpus_dir),
+                index_dir=str(index_dir),
+            )
+
+    def test_emit_rl_signal_standalone(self, mock_filter) -> None:
+        """STANDALONE decision should emit ACCESS signal."""
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.STANDALONE,
+            target_entries=[],
+            rationale="Novel",
+            confidence=0.9,
+        )
+
+        signal = mock_filter.emit_rl_signal(integration, "abc123")
+
+        assert signal["signal_type"] == UsageSignal.ACCESS
+        assert signal["action"] == "new_entry_created"
+        assert signal["content_hash"] == "abc123"
+
+    def test_emit_rl_signal_merge(self, mock_filter) -> None:
+        """MERGE decision should emit CORRECTION signal."""
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.MERGE,
+            target_entries=["target-1"],
+            rationale="Enhances",
+            confidence=0.7,
+        )
+
+        signal = mock_filter.emit_rl_signal(integration)
+
+        assert signal["signal_type"] == UsageSignal.CORRECTION
+        assert signal["action"] == "entry_enhanced"
+        assert signal["target_entries"] == ["target-1"]
+
+    def test_emit_rl_signal_replace(self, mock_filter) -> None:
+        """REPLACE decision should emit CORRECTION signal."""
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.REPLACE,
+            target_entries=["old-entry"],
+            rationale="Supersedes",
+            confidence=0.6,
+        )
+
+        signal = mock_filter.emit_rl_signal(integration)
+
+        assert signal["signal_type"] == UsageSignal.CORRECTION
+        assert signal["action"] == "entry_superseded"
+
+    def test_emit_rl_signal_skip(self, mock_filter) -> None:
+        """SKIP decision should emit STALE_FLAG signal."""
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.SKIP,
+            target_entries=["dup"],
+            rationale="Duplicate",
+            confidence=1.0,
+        )
+
+        signal = mock_filter.emit_rl_signal(integration)
+
+        assert signal["signal_type"] == UsageSignal.STALE_FLAG
+        assert signal["action"] == "content_rejected"
+        assert signal["weight"] < 0  # Negative signal
+
+    def test_emit_rl_signal_includes_metadata(self, mock_filter) -> None:
+        """RL signal should include decision metadata."""
+        integration = IntegrationPlan(
+            decision=IntegrationDecision.STANDALONE,
+            target_entries=[],
+            rationale="Test rationale",
+            confidence=0.85,
+        )
+
+        signal = mock_filter.emit_rl_signal(integration, "hash123")
+
+        assert signal["decision"] == "standalone"
+        assert signal["confidence"] == 0.85
+        assert signal["rationale"] == "Test rationale"
+        assert signal["content_hash"] == "hash123"
+
+
+class TestMarginalValueFilterIntegration:
+    """Integration tests for full evaluation workflow."""
+
+    @pytest.fixture
+    def mock_filter(self, tmp_path):
+        """Create filter with fully mocked dependencies."""
+        corpus_dir = tmp_path / "corpus"
+        index_dir = tmp_path / "index"
+        corpus_dir.mkdir()
+        index_dir.mkdir()
+
+        with (
+            patch("memory_palace.corpus.marginal_value.CacheLookup") as mock_cache,
+            patch("memory_palace.corpus.marginal_value.KeywordIndexer"),
+            patch("memory_palace.corpus.marginal_value.QueryTemplateManager"),
+        ):
+            mock_cache_instance = MagicMock()
+            mock_cache.return_value = mock_cache_instance
+            mock_cache_instance.search.return_value = []
+            mock_cache_instance.get_entry_content.return_value = None
+            mock_cache_instance.get_entry_metadata.return_value = None
+
+            filter_instance = MarginalValueFilter(
+                corpus_dir=str(corpus_dir),
+                index_dir=str(index_dir),
+            )
+            filter_instance._mock_cache = mock_cache_instance
+            yield filter_instance
+
+    def test_evaluate_content_novel(self, mock_filter) -> None:
+        """Should evaluate novel content as STANDALONE."""
+        content = """# New Topic
+
+This is completely new content that doesn't exist in the corpus.
+It covers **new concepts** and *fresh ideas*.
+"""
+
+        redundancy, delta, integration = mock_filter.evaluate_content(
+            content=content,
+            title="New Topic",
+            tags=["new", "fresh"],
+        )
+
+        assert redundancy.level == RedundancyLevel.NOVEL
+        assert delta is None  # No delta for novel content
+        assert integration.decision == IntegrationDecision.STANDALONE
+
+    def test_evaluate_content_duplicate(self, mock_filter) -> None:
+        """Should evaluate duplicate content as SKIP."""
+        content = "Exact duplicate content"
+
+        mock_filter._mock_cache.search.return_value = [
+            {"entry_id": "existing", "match_score": 0.95}
+        ]
+        mock_filter._mock_cache.get_entry_content.return_value = content
+
+        redundancy, delta, integration = mock_filter.evaluate_content(
+            content=content,
+            title="Duplicate",
+            tags=[],
+        )
+
+        assert redundancy.level == RedundancyLevel.EXACT_MATCH
+        assert integration.decision == IntegrationDecision.SKIP
+
+    def test_evaluate_with_rl_returns_signal(self, mock_filter) -> None:
+        """evaluate_with_rl should return RL signal with results."""
+        content = "Novel content for RL test"
+
+        redundancy, delta, integration, rl_signal = mock_filter.evaluate_with_rl(
+            content=content,
+            title="RL Test",
+            tags=["test"],
+        )
+
+        assert redundancy is not None
+        assert integration is not None
+        assert "signal_type" in rl_signal
+        assert "content_hash" in rl_signal
+        assert len(rl_signal["content_hash"]) == 16  # SHA256[:16]

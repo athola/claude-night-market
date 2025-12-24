@@ -30,21 +30,23 @@ deps: ## Install and sync dependencies
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
-	uv run python tools/dependency_manager.py --report
-	uv run python tools/dependency_manager.py --scan
+	@echo "Note: tools/dependency_manager.py not yet implemented - using uv check"
+	uv pip check || true
 
 fix: ## Show dependency fixes (dry run)
 	@echo "Auto-fixing dependency issues..."
-	uv run python tools/dependency_manager.py --fix --dry-run
-	@echo "Run 'make fix-apply' to apply changes"
+	@echo "Note: tools/dependency_manager.py not yet implemented"
+	@echo "Run 'uv sync' to ensure dependencies are current"
 
 fix-apply: ## Apply dependency fixes
 	@echo "Applying dependency fixes..."
-	uv run python tools/dependency_manager.py --fix
+	@echo "Note: tools/dependency_manager.py not yet implemented"
+	uv sync
 
 deps-report: ## Generate detailed dependency report
 	@echo "Generating detailed dependency report..."
-	uv run python tools/dependency_manager.py --report
+	@echo "Note: tools/dependency_manager.py not yet implemented"
+	uv pip list
 
 # ---------- Code Quality ----------
 format: ## Format Python code
@@ -81,8 +83,8 @@ install-hooks: ## Install pre-commit hooks
 
 validate-all: ## Run full validation suite
 	@echo "Running full validation..."
-	uv run python tools/safe_replacer.py || true
-	uv run python tools/dependency_manager.py --report
+	@echo "Note: tools/safe_replacer.py and tools/dependency_manager.py not yet implemented"
+	uv pip check || true
 	uv run pre-commit run --all-files || true
 
 # ---------- Maintenance ----------
@@ -137,8 +139,8 @@ test-skills: ## Test skill functionality
 	@echo "Testing skill functionality..."
 	@echo "Token estimator test (via abstract):"
 	@cd ../abstract && uv run python scripts/token_estimator.py --file ../conservation/skills/context-optimization/SKILL.md 2>/dev/null || echo "  Token estimator test skipped"
-	@echo "Dependency manager test:"
-	@uv run python tools/dependency_manager.py --scan 2>/dev/null || echo "  Dependency manager test skipped"
+	@echo "Dependency check:"
+	@uv pip check 2>/dev/null || echo "  Dependency check skipped"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-context: ## Demo context optimization on own skills

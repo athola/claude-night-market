@@ -58,7 +58,8 @@ class TestConservationWorkflowIntegration:
         }
 
         # Step 2: Context analysis
-        context_analysis = mock_mecw_analyzer.analyze_context_usage(85000)
+        # Use 120000 tokens (60%) to trigger optimization_needed (>50% = non-compliant)
+        context_analysis = mock_mecw_analyzer.analyze_context_usage(120000)
         workflow_results["context_analysis"] = {
             "status": "success",
             "analysis": context_analysis,

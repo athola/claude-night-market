@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help install install-dev test test-unit test-integration test-performance test-all test-coverage \
-        test-slow test-parallel lint format format-check type-check security clean docs check-all ci \
+        test-slow test-parallel lint format format-check type-check typecheck security clean docs check-all ci \
         dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests \
         demo-catchup demo-review demo-skills plugin-check
 
@@ -65,6 +65,9 @@ format-check: ## Check if code is formatted correctly
 
 type-check: ## Run type checking with mypy
 	uv run mypy scripts/
+
+# Alias for backwards compatibility
+typecheck: type-check
 
 security: ## Run security checks
 	uv run bandit -r scripts/

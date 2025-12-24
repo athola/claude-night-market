@@ -1,0 +1,36 @@
+[book]
+title = "Claude Night Market"
+authors = ["Alex Thola"]
+language = "en"
+src = "src"
+description = "A collection of Claude Code plugins for software engineering workflows"
+
+[build]
+build-dir = "build"
+create-missing = false
+
+[output.html]
+git-repository-url = "https://github.com/athola/claude-night-market"
+additional-css = ["theme/css/gamification.css"]
+additional-js = ["theme/js/achievements.js"]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+smart-punctuation = true
+no-section-label = false
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.playground]
+editable = false
+copyable = true
+
+[output.html.search]
+enable = true
+limit-results = 30
+use-hierarchical-grouping = true
+boost-title = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 3

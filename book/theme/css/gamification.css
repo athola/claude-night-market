@@ -1,0 +1,285 @@
+/* Claude Night Market - Gamification Styles */
+
+/* Achievement badges */
+.achievement-unlock {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  animation: achievement-pop 0.5s ease-out;
+}
+
+.achievement-unlock::before {
+  content: "★";
+  font-size: 1.5rem;
+  animation: star-spin 1s ease-out;
+}
+
+@keyframes achievement-pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes star-spin {
+  0% {
+    transform: rotate(0deg) scale(0);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Achievement hints */
+.achievement-hint {
+  background: #f8f9fa;
+  border-left: 4px solid #667eea;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  color: #555;
+  border-radius: 0 4px 4px 0;
+}
+
+.achievement-hint::before {
+  content: "🎯 ";
+}
+
+/* Progress tracker */
+.progress-tracker {
+  background: #e8f4fd;
+  border: 1px solid #b8daff;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+  font-weight: 500;
+}
+
+/* Achievement dashboard */
+#achievement-dashboard {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+.progress-summary {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  background: #2d3748;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  height: 100%;
+  width: 0%;
+  transition: width 0.5s ease-out;
+  border-radius: 6px;
+}
+
+/* Achievement status indicators */
+.achievement-status::after {
+  content: "○";
+  color: #ccc;
+}
+
+.achievement-status.unlocked::after {
+  content: "●";
+  color: #667eea;
+}
+
+.achievement-status.unlocked {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Achievement checkbox for tutorials */
+.achievement-checkbox::after {
+  content: "☐";
+  font-size: 1.2rem;
+}
+
+.achievement-checkbox.complete::after {
+  content: "☑";
+  color: #28a745;
+}
+
+/* Tutorial progress */
+.tutorial-progress {
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+
+/* Tier badges */
+.tier-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.tier-badge.bronze {
+  background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%);
+  color: white;
+}
+
+.tier-badge.silver {
+  background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+  color: #333;
+}
+
+.tier-badge.gold {
+  background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+  color: #333;
+}
+
+.tier-badge.platinum {
+  background: linear-gradient(135deg, #e5e4e2 0%, #bfc1c2 100%);
+  color: #333;
+  box-shadow: 0 0 10px rgba(229, 228, 226, 0.5);
+}
+
+/* Reset button */
+.reset-button {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.reset-button:hover {
+  background: #c53030;
+}
+
+/* Plugin layer styling */
+.layer-meta {
+  border-left: 4px solid #e65100;
+}
+
+.layer-foundation {
+  border-left: 4px solid #01579b;
+}
+
+.layer-utility {
+  border-left: 4px solid #4a148c;
+}
+
+.layer-domain {
+  border-left: 4px solid #1b5e20;
+}
+
+/* Code block enhancements */
+pre code {
+  position: relative;
+}
+
+/* Copy button for code blocks - uses mdbook's built-in */
+
+/* Skill invocation highlighting */
+code:has(> .skill-invocation) {
+  background: #e8f4fd;
+  border: 1px solid #b8daff;
+}
+
+/* Command highlighting */
+code:has(> .command) {
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .achievement-unlock {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  #achievement-dashboard {
+    padding: 1rem;
+  }
+
+  .progress-summary {
+    font-size: 1.2rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .achievement-hint {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-left-color: #667eea;
+  }
+
+  .progress-tracker {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+
+  .tutorial-progress {
+    background: #1a202c;
+    border-color: #2d3748;
+    color: #e2e8f0;
+  }
+}
+
+/* Navy theme overrides (mdbook default) */
+.navy .achievement-hint {
+  background: #1a1a2e;
+  color: #a0aec0;
+}
+
+.navy .progress-tracker {
+  background: #1a1a2e;
+  border-color: #2d3748;
+  color: #e2e8f0;
+}
+
+.navy .tutorial-progress {
+  background: #1a1a2e;
+  border-color: #2d3748;
+  color: #e2e8f0;
+}

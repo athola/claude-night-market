@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help install test test-unit test-integration test-all test-cov test-bdd test-git lint format \
-        type-check security qa clean watch-test docs ci-test ci-build install-hooks profile-test \
+        type-check typecheck security qa clean watch-test docs ci-test ci-build install-hooks profile-test \
         quick-check status deps demo-commit demo-pr-prep demo-git-workspace demo-skills plugin-check
 
 # Include shared configuration from abstract plugin
@@ -58,6 +58,9 @@ format: ## Format code
 
 type-check: ## Run type checking
 	uv run mypy . || { echo "⚠ Type checking failed"; exit 1; }
+
+# Alias for backwards compatibility
+typecheck: type-check
 
 security: ## Run security checks
 	uv run bandit -r src/ || { echo "⚠ Security check failed"; exit 1; }
