@@ -52,17 +52,35 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
 
 ### Phase 2: Intelligent Triage
 
-4. **Classify Comments**
+4. **Check Existing Backlog Context** (Optional but Recommended)
+
+   Before classifying comments, check if relevant backlog documentation exists:
+   ```bash
+   # Check for existing backlog files that may provide context
+   ls docs/backlog/*.md 2>/dev/null
+   # Key files to check:
+   # - docs/backlog/queue.md - Active backlog items with worthiness scores
+   # - docs/backlog/technical-debt.md - Known technical debt items
+   ```
+
+   If these files exist:
+   - Cross-reference out-of-scope items against existing backlog entries
+   - Avoid creating duplicate GitHub issues for items already tracked
+   - Link new issues to related existing items when appropriate
+
+5. **Classify Comments**
 
    | Type | Description | Action |
    |------|-------------|--------|
    | **Critical** | Bugs, security issues | Fix immediately |
    | **In-Scope** | Requirements-related | Address in this PR |
    | **Suggestion** | Improvements | Author's discretion |
-   | **Out-of-Scope** | Future work | Create GitHub issue |
+   | **Deferred** | Medium priority, future work, out-of-scope | **Create GitHub issue (Phase 3.5)** |
    | **Informational** | Questions, praise | Reply only |
 
-5. **Generate Fix Strategies**
+   > **Trigger terms for Phase 3.5:** If you classify ANY item as "deferred", "out-of-scope", "medium priority", "future work", or "follow-up", you MUST execute Phase 3.5.
+
+6. **Generate Fix Strategies**
    - For each actionable comment, superpowers analyzes:
      - Code context around comment location
      - Best practices for the suggested change
@@ -71,7 +89,7 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
 
 ### Phase 3: Execution
 
-6. **Apply Fixes Systematically**
+7. **Apply Fixes Systematically**
    ```bash
    # For each approved fix:
    1. Read code context (±20 lines)
@@ -80,18 +98,35 @@ Integrates superpowers:receiving-code-review analysis capabilities with Sanctum'
    4. Mark as completed
    ```
 
-7. **Commit with Strategy**
+8. **Commit with Strategy**
    - **Single**: "Address PR review feedback"
    - **Separate**: One commit per fix category
    - **Manual**: Stage changes, user commits
 
-### Phase 3.5: Out-of-Scope Issue Creation (MANDATORY)
+---
 
-**CRITICAL: You MUST create GitHub issues for ALL out-of-scope items. This is not optional.**
+### ⚠️ CHECKPOINT: Before Proceeding to Phase 4
 
-For each comment classified as **Out-of-Scope** during triage, create a GitHub issue:
+**STOP. Answer this question before continuing:**
 
-8. **Create Issues for Out-of-Scope Items**
+> Did you classify ANY items as **Deferred**, **Out-of-Scope**, **Medium Priority**, or **Future Work** during Phase 2 triage?
+
+- **YES** → You MUST execute Phase 3.5 NOW. Do not skip it.
+- **NO** → Skip to Phase 4.
+
+**If you proceed to Phase 4 without executing Phase 3.5 when deferred items exist, the workflow is incomplete.**
+
+---
+
+### Phase 3.5: Deferred/Out-of-Scope Issue Creation (MANDATORY IF APPLICABLE)
+
+**CRITICAL: You MUST create GitHub issues for ALL deferred/out-of-scope items. This is not optional.**
+
+**GitHub issues are the primary storage for backlog items.**
+
+For each comment classified as **Deferred** (including "out-of-scope", "medium priority", "future work") during triage, create a GitHub issue:
+
+9. **Create Issues for Out-of-Scope Items**
    ```bash
    gh issue create \
      --title "<type>(<scope>): <description from review comment>" \
@@ -139,7 +174,7 @@ For each comment classified as **Out-of-Scope** during triage, create a GitHub i
    - Reference the source PR
    - Define clear acceptance criteria
 
-9. **Track Created Issues**
+10. **Track Created Issues**
    After creating issues, document them in the PR comment:
    ```markdown
    ### Out-of-Scope Items → GitHub Issues
@@ -150,12 +185,13 @@ For each comment classified as **Out-of-Scope** during triage, create a GitHub i
    | S3 | #42 | Implement caching layer |
    ```
 
-**Out-of-Scope Issue Checklist:**
-- [ ] Created GitHub issue for EACH out-of-scope item
+**Deferred Item Issue Checklist:**
+- [ ] Created GitHub issue for EACH deferred/out-of-scope item
 - [ ] Used conventional commit format for issue titles
 - [ ] Included original review comment context
 - [ ] Added appropriate labels
 - [ ] Documented created issues in PR comment
+- [ ] Verified: Issue count matches deferred item count from Phase 2 triage
 
 ### Phase 4: Thread Resolution (MANDATORY)
 
@@ -163,7 +199,7 @@ For each comment classified as **Out-of-Scope** during triage, create a GitHub i
 
 > **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
 
-10. **Get All Review Threads**
+11. **Get All Review Threads**
    ```bash
    # Fetch all review threads with their IDs and resolution status
    # Note: Use literal owner/repo/pr values - do NOT use $() substitution inside gh commands
@@ -192,11 +228,11 @@ For each comment classified as **Out-of-Scope** during triage, create a GitHub i
 
    Replace `OWNER`, `REPO`, and `PR_NUMBER` with actual values. The thread `id` field returns the `PRRT_*` ID needed for replies and resolution.
 
-11. **Reply to Each Thread with Fix Description**
+12. **Reply to Each Thread with Fix Description**
    For EACH review comment that was addressed, use the GraphQL mutation (NOT REST API):
    ```bash
    # Reply using addPullRequestReviewThreadReply mutation
-   # The pullRequestReviewThreadId is the PRRT_* ID from step 8
+   # The pullRequestReviewThreadId is the PRRT_* ID from step 11
    gh api graphql -f query='
    mutation {
      addPullRequestReviewThreadReply(input: {
@@ -219,7 +255,7 @@ For each comment classified as **Out-of-Scope** during triage, create a GitHub i
    - Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
    - Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
 
-12. **Resolve the Thread**
+13. **Resolve the Thread**
     After replying, resolve the thread:
     ```bash
     # Resolve the review thread via GraphQL mutation
@@ -244,7 +280,7 @@ For each comment classified as **Out-of-Scope** during triage, create a GitHub i
     done
     ```
 
-13. **Verify All Threads Resolved**
+14. **Verify All Threads Resolved**
     ```bash
     # Count unresolved threads - should return 0
     gh api graphql -f query='
@@ -268,17 +304,27 @@ For each comment classified as **Out-of-Scope** during triage, create a GitHub i
 - [ ] Resolved each thread via `resolveReviewThread` mutation
 - [ ] Verified no unresolved threads remain (or documented why)
 
-### Phase 5: Issue Linkage & Closure
+---
 
-After resolving review threads, analyze whether this PR addresses any open issues.
+### ⚠️ CHECKPOINT: Before Proceeding to Phase 6
 
-14. **Fetch Open Issues**
+**STOP. You MUST execute Phase 5 to check if this PR addresses any open issues.**
+
+This phase is often skipped but is critical for closing the feedback loop. PRs that address issues should close them.
+
+---
+
+### Phase 5: Issue Linkage & Closure (MANDATORY)
+
+**You MUST analyze whether this PR addresses any open issues and close/comment on them accordingly.**
+
+15. **Fetch Open Issues**
     ```bash
     # Get all open issues for the repository
     gh issue list --state open --json number,title,body,labels --limit 50
     ```
 
-15. **Analyze Issue Coverage**
+16. **Analyze Issue Coverage**
 
     For each open issue, analyze whether the PR's changes address it:
 
@@ -299,7 +345,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
     | **Partially Addressed** | Some criteria met, some work remaining | Comment with follow-up details |
     | **Not Related** | PR doesn't touch issue scope | Skip |
 
-16. **Comment on Fully Addressed Issues**
+17. **Comment on Fully Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
     ## Addressed in PR #PR_NUMBER
@@ -321,7 +367,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
     gh issue close ISSUE_NUMBER --reason completed
     ```
 
-17. **Comment on Partially Addressed Issues**
+18. **Comment on Partially Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
     ## Partially Addressed in PR #PR_NUMBER
@@ -346,7 +392,7 @@ After resolving review threads, analyze whether this PR addresses any open issue
     )"
     ```
 
-18. **Generate Issue Linkage Report**
+19. **Generate Issue Linkage Report**
     ```markdown
     ### Issue Linkage Summary
 
@@ -364,9 +410,11 @@ After resolving review threads, analyze whether this PR addresses any open issue
 **Issue Linkage Checklist:**
 - [ ] Fetched all open issues for the repository
 - [ ] Analyzed PR changes against each issue's requirements
-- [ ] Commented on and closed fully addressed issues
+- [ ] **Closed ALL fully addressed issues** (with comment explaining changes)
 - [ ] Documented remaining work for partially addressed issues
-- [ ] Generated linkage summary report
+- [ ] Generated linkage summary report showing closed issue count
+
+> **Common failure mode:** Skipping this phase entirely. Even if you think there are no related issues, you MUST run `gh issue list` to verify.
 
 ### Phase 6: Post Summary Comment (MANDATORY)
 
@@ -374,26 +422,26 @@ After resolving review threads, analyze whether this PR addresses any open issue
 
 After completing all fixes, thread resolutions, and issue linkage, post a comprehensive summary comment to the PR.
 
-19. **Post Summary Comment**
+20. **Post Summary Comment**
     ```bash
     gh pr comment PR_NUMBER --body "$(cat <<'EOF'
     ## PR Review Feedback Addressed
 
     All issues from the code review have been fixed in commit `COMMIT_SHA`.
 
-    ### Blocking Issues (N) ✅
+    ### Blocking Issues (N) [FIXED]
 
     | ID | Issue | Resolution |
     |----|-------|------------|
     | **B1** | [Description] | [How it was fixed] |
 
-    ### In-Scope Issues (N) ✅
+    ### In-Scope Issues (N) [FIXED]
 
     | ID | Issue | Resolution |
     |----|-------|------------|
     | **S1** | [Description] | [How it was fixed] |
 
-    ### Suggestions (N) ✅
+    ### Suggestions (N) [FIXED]
 
     | ID | Issue | Resolution |
     |----|-------|------------|
@@ -427,6 +475,26 @@ After completing all fixes, thread resolutions, and issue linkage, post a compre
 - [ ] Listed all fixed issues by category
 - [ ] Documented any backlog issues created
 - [ ] Indicated PR is ready for re-review
+
+### Phase 7: Final Thread Verification (AUTOMATIC)
+
+**This phase runs automatically at the end of /fix-pr.**
+
+21. **Invoke /resolve-threads for Final Cleanup**
+    ```bash
+    Skill(sanctum:resolve-threads)
+    ```
+
+    This ensures any threads missed during Phase 4 are resolved via batch operation. The `/resolve-threads` command:
+    - Fetches all unresolved threads
+    - Resolves each one via GraphQL mutation
+    - Reports final resolution status
+    - Is idempotent (safe to run even if all threads already resolved)
+
+**Final Verification Checklist:**
+- [ ] Ran `/resolve-threads` as final step
+- [ ] Confirmed 0 unresolved threads remain
+- [ ] All PR review feedback fully addressed
 
 ## Options
 
@@ -524,10 +592,10 @@ PR #42: Found 12 review comments
 
 **Out-of-Scope → Creating GitHub Issues (2)**
 Creating issue for: "Add comprehensive logging system"...
-✓ Created issue #234: feat(logging): Add comprehensive logging system
+[OK] Created issue #234: feat(logging): Add comprehensive logging system
 
 Creating issue for: "Add tests for feature-review skill"...
-✓ Created issue #235: test(imbue): Add comprehensive tests for feature-review skill
+[OK] Created issue #235: test(imbue): Add comprehensive tests for feature-review skill
 
 Proceed with 7 fixes? [y/n/select]
 ```
@@ -686,7 +754,7 @@ fix_pr:
 ### After Completion
 1. Push changes to remote
 2. **VERIFY all threads have replies** - each addressed comment must have a response
-3. **VERIFY all threads are resolved** - run the verification query from Phase 4
+3. **Threads auto-resolved via Phase 7** - `/resolve-threads` runs automatically
 4. **POST SUMMARY COMMENT (MANDATORY)** - See Phase 6. This step is NOT optional.
 5. Check CI pipeline status
 6. Notify reviewers of updates
@@ -797,3 +865,10 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
 - If thread resolution fails, document the failure and attempt manual resolution
 - **Issue linkage** automatically analyzes open issues and closes/comments on addressed ones
 - Use `--skip-issue-linkage` for faster execution when issue analysis is not needed
+- **Threads auto-resolved** - `/resolve-threads` runs automatically as Phase 7 for final cleanup
+
+## See Also
+
+- `/resolve-threads` - Batch-resolve review threads (runs automatically as Phase 7)
+- `/pr-review` - Review a PR and post findings as GitHub comments
+- `/pr` - Prepare a PR for submission
