@@ -78,9 +78,9 @@ test: test-unit ## Run all scry tests
 test-unit: ## Run unit tests (no external dependencies)
 	@echo "=== Scry Unit Tests ==="
 	@if command -v pytest >/dev/null 2>&1; then \
-		pytest tests/ -v -m "not integration" --tb=short || true; \
+		pytest tests/ -v -m "not integration" --tb=short; \
 	elif command -v uv >/dev/null 2>&1; then \
-		uv run pytest tests/ -v -m "not integration" --tb=short || true; \
+		uv run pytest tests/ -v -m "not integration" --tb=short; \
 	else \
 		echo "  [SKIP] pytest not installed"; \
 	fi
@@ -89,9 +89,9 @@ test-unit: ## Run unit tests (no external dependencies)
 test-integration: ## Run integration tests (requires ffmpeg/vhs)
 	@echo "=== Scry Integration Tests ==="
 	@if command -v pytest >/dev/null 2>&1; then \
-		pytest tests/ -v -m "integration" --tb=short || true; \
+		pytest tests/ -v -m "integration" --tb=short; \
 	elif command -v uv >/dev/null 2>&1; then \
-		uv run pytest tests/ -v -m "integration" --tb=short || true; \
+		uv run pytest tests/ -v -m "integration" --tb=short; \
 	else \
 		echo "  [SKIP] pytest not installed"; \
 	fi

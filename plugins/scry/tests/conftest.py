@@ -56,5 +56,15 @@ def has_playwright() -> bool:
             timeout=10,
         )
         return result.returncode == 0
-    except (subprocess.TimeoutExpired, FileNotFoundError):
+    except subprocess.TimeoutExpired:
+        # npx or playwright took too long to respond
+        return False
+    except FileNotFoundError:
+        # npx command not found (Node.js not installed)
+        return False
+    except OSError as e:
+        # Other OS-level errors (permissions, etc.)
+        import warnings
+
+        warnings.warn(f"Playwright check failed with OSError: {e}", stacklevel=2)
         return False

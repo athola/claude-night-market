@@ -39,17 +39,18 @@ GIF_WIDTH="${GIF_WIDTH:-800}"
 mkdir -p "$TMP_DIR"
 
 if [[ ! -f "$INPUT" ]]; then
-  ffmpeg -hide_banner -loglevel error \
+  ffmpeg -y -hide_banner -loglevel error \
     -f lavfi -i "testsrc2=size=${SIZE}:rate=${INPUT_FPS}" \
     -t "$DURATION" -pix_fmt yuv420p "$INPUT"
 fi
 
-ffmpeg -hide_banner -loglevel error -i "$INPUT" \
+ffmpeg -y -hide_banner -loglevel error -i "$INPUT" \
   -vf "fps=${GIF_FPS},scale=${GIF_WIDTH}:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" \
   "$OUTPUT"
 
-if [[ ! -f "$OUTPUT" ]]; then
-  echo "Error: GIF generation failed"
+# Verify output file exists and is not empty
+if [[ ! -s "$OUTPUT" ]]; then
+  echo "Error: GIF generation failed or produced empty file"
   exit 1
 fi
 

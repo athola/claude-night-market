@@ -1,5 +1,6 @@
 """Tests for gif-demo.sh script functionality."""
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -76,7 +77,7 @@ class TestGifDemoExecution:
             env={
                 "TMP_DIR": str(tmp_path),
                 "DURATION": "1",  # Short duration for faster tests
-                "PATH": subprocess.os.environ.get("PATH", ""),
+                "PATH": os.environ.get("PATH", ""),
             },
         )
         assert result.returncode == 0, f"Script failed: {result.stderr}"
@@ -101,7 +102,7 @@ class TestGifDemoExecution:
                 "TMP_DIR": str(tmp_path),
                 "OUTPUT": str(custom_output),
                 "DURATION": "1",
-                "PATH": subprocess.os.environ.get("PATH", ""),
+                "PATH": os.environ.get("PATH", ""),
             },
         )
         assert result.returncode == 0, f"Script failed: {result.stderr}"
@@ -121,7 +122,7 @@ class TestGifDemoExecution:
             env={
                 "TMP_DIR": str(tmp_path),
                 "DURATION": "1",
-                "PATH": subprocess.os.environ.get("PATH", ""),
+                "PATH": os.environ.get("PATH", ""),
             },
         )
         assert result.returncode == 0
