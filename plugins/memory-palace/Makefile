@@ -5,18 +5,20 @@
 
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test test-unit precommit \
         status clean install-hooks enable disable skills install create list search delete manager export \
-        import garden-metrics garden-tend demo-reset demo-import demo-export plugin-check demo-status
+        import garden-metrics garden-tend demo-reset demo-import demo-export plugin-check demo-status debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts src
+UV ?= UV_CACHE_DIR=$(PWD)/.uv-cache uv
+COV_DIRS := $(SRC_DIRS)
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
+-include $(ABSTRACT_DIR)/config/make/python.mk
 
 # ---------- Plugin-specific Variables ----------
-UV              ?= UV_CACHE_DIR=$(PWD)/.uv-cache uv
-PY              ?= $(UV) run python
+PY              ?= $(UV_PYTHON)
 CLI             ?= $(PY) tools/memory_palace_cli.py
 PALACES_DIR     ?= $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
@@ -49,40 +51,17 @@ deps: ## Install and sync dependencies
 
 check: ## Run dependency validation
 	@echo "Running dependency validation..."
-	$(UV) run python -c "print('Dependencies synced and importable.')"
+	$(UV_PYTHON) -c "print('Dependencies synced and importable.')"
 
 fix: ## Auto-fix code style issues
 	@echo "Auto-fixing code style issues..."
-	$(UV) run ruff format $(SRC_DIRS)
-	$(UV) run ruff check --fix $(SRC_DIRS)
+	$(RUFF) format $(SRC_DIRS)
+	$(RUFF) check --fix $(SRC_DIRS)
 
 # ---------- Code quality ----------
-format: ## Format Python code
-	@echo "Formatting Python code..."
-	$(UV) run ruff format $(SRC_DIRS)
-
-lint: ## Run linting checks
-	@echo "Running linting checks..."
-	$(UV) run ruff check $(SRC_DIRS)
-
-type-check: ## Run type checking
-	@echo "Running type checking..."
-	$(UV) run mypy $(SRC_DIRS) || { echo "⚠ Type checking failed"; exit 1; }
-
-# Alias for backwards compatibility
-typecheck: type-check
-
 spellcheck: ## Run spell check
 	@echo "Running spell check..."
-	$(UV) run typos
-
-security: ## Run security checks
-	@echo "Running security checks..."
-	$(UV) run bandit -r $(SRC_DIRS) || { echo "⚠ Security check failed"; exit 1; }
-
-test-unit: ## Run unit and integration tests
-	@echo "Running unit and integration tests..."
-	$(UV) run pytest tests/ -v
+	$(UV_RUN) typos
 
 test: lint type-check spellcheck security test-unit plugin-check ## Run all quality checks
 	@echo "All checks passed!"
@@ -117,6 +96,22 @@ status: ## Show project overview
 	@echo "Skills: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
 	@echo "Tools:  $$(find tools/ src/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:  $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
+
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "PYTHON: $(PYTHON)"
+	@echo "UV: $(UV)"
+	@echo "UV_RUN: $(UV_RUN)"
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 # ---------- Plugin control ----------
 enable:
@@ -179,3 +174,13 @@ demo-status:
 
 plugin-check: demo-import garden-metrics list search demo-export
 	@echo "Plugin demo completed against $(PALACES_DIR)"
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

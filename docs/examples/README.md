@@ -7,7 +7,7 @@ This directory contains reference implementations and demo projects that showcas
 ### Context Optimization Demo
 [context-optimization-demo.md](./context-optimization-demo.md)
 
-A comprehensive demonstration of MECW principles and context optimization techniques including:
+A full demonstration of MECW principles and context optimization techniques including:
 - Progressive loading techniques
 - Subagent delegation patterns
 - Context pressure monitoring

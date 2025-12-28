@@ -5,10 +5,10 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from src.abstract.frontmatter import FrontmatterProcessor
-from src.abstract.tokens import estimate_tokens
+from abstract.frontmatter import FrontmatterProcessor
+from abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +191,7 @@ class ComplianceChecker:
         if self.rules_file and self.rules_file.exists():
             try:
                 with open(self.rules_file, encoding="utf-8") as f:
-                    return json.load(f)
+                    return cast(dict[str, Any], json.load(f))
             except (json.JSONDecodeError, OSError) as e:
                 logger.error("Failed to load rules from %s: %s", self.rules_file, e)
                 # Fall through to defaults

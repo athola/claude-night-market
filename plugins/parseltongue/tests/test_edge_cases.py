@@ -2,6 +2,9 @@
 
 Tests boundary conditions, error handling, and
 unexpected input scenarios.
+
+NOTE: These tests are for planned features not yet implemented.
+This file is in collect_ignore in conftest.py until the architecture is in place.
 """
 
 from __future__ import annotations
@@ -22,8 +25,6 @@ from parseltongue.exceptions import AnalysisError
 from parseltongue.plugin.loader import PluginLoader
 from parseltongue.skills.async_analyzer import AsyncAnalysisSkill
 from parseltongue.skills.compatibility_checker import CompatibilityChecker
-
-# Import parseltongue components for testing
 from parseltongue.skills.language_detection import LanguageDetectionSkill
 from parseltongue.skills.skill_loader import SkillLoader
 from parseltongue.storage.result_storage import ResultStorage

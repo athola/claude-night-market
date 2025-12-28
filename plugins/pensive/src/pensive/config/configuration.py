@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -33,7 +33,12 @@ class Configuration:
             List of skill names that are enabled
         """
         pensive_config = self._config.get("pensive", {})
-        return pensive_config.get("skills", [])
+        if not isinstance(pensive_config, dict):
+            return []
+        skills = pensive_config.get("skills", [])
+        if not isinstance(skills, list):
+            return []
+        return [skill for skill in skills if isinstance(skill, str)]
 
     @property
     def exclude_patterns(self) -> list[str]:
@@ -43,7 +48,12 @@ class Configuration:
             List of glob patterns to exclude from analysis
         """
         pensive_config = self._config.get("pensive", {})
-        return pensive_config.get("exclude", [])
+        if not isinstance(pensive_config, dict):
+            return []
+        exclude_patterns = pensive_config.get("exclude", [])
+        if not isinstance(exclude_patterns, list):
+            return []
+        return [pattern for pattern in exclude_patterns if isinstance(pattern, str)]
 
     @property
     def thresholds(self) -> dict[str, Any]:
@@ -53,7 +63,10 @@ class Configuration:
             Dictionary of threshold settings
         """
         pensive_config = self._config.get("pensive", {})
-        return pensive_config.get("thresholds", {})
+        if not isinstance(pensive_config, dict):
+            return {}
+        thresholds = pensive_config.get("thresholds", {})
+        return thresholds if isinstance(thresholds, dict) else {}
 
     @property
     def output_settings(self) -> dict[str, Any]:
@@ -63,7 +76,10 @@ class Configuration:
             Dictionary of output settings
         """
         pensive_config = self._config.get("pensive", {})
-        return pensive_config.get("output", {})
+        if not isinstance(pensive_config, dict):
+            return {}
+        output = pensive_config.get("output", {})
+        return output if isinstance(output, dict) else {}
 
     @property
     def custom_rules(self) -> list[dict[str, Any]]:
@@ -72,7 +88,12 @@ class Configuration:
         Returns:
             List of custom rule definitions
         """
-        return self._config.get("custom_rules", [])
+        rules = self._config.get("custom_rules", [])
+        if not isinstance(rules, list):
+            return []
+        return [
+            cast("dict[str, Any]", rule) for rule in rules if isinstance(rule, dict)
+        ]
 
     @classmethod
     def from_file(cls, path: str | Path) -> Configuration:
@@ -84,6 +105,8 @@ class Configuration:
         try:
             with path.open() as f:
                 config = yaml.safe_load(f)
+            if not isinstance(config, dict):
+                config = {}
             return cls(config)
         except yaml.YAMLError as e:
             msg = f"YAML syntax error in configuration: {e}"

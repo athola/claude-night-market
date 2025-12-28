@@ -13,7 +13,7 @@ docs-clean: ## Clean documentation build
 	@rm -rf $(DOCS_BUILD_DIR)
 
 docs-serve: ## Serve documentation locally (http://localhost:8000)
-	@test -d $(DOCS_BUILD_DIR)/html || { echo "⚠ Documentation not built. Run 'make docs' first."; exit 1; }
+	@test -d $(DOCS_BUILD_DIR)/html || { echo "[WARN] Documentation not built. Run 'make docs' first."; exit 1; }
 	@echo "Serving documentation at http://localhost:8000"
 	@cd $(DOCS_BUILD_DIR)/html && $(PYTHON) -m http.server 8000
 

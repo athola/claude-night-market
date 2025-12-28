@@ -12,7 +12,7 @@ description: |
   DO NOT use when: writing specifications - use spec-writing skill.
   DO NOT use when: generating tasks - use task-generator agent.
 
-  Trigger proactively during /speckit.analyze commands.
+  Trigger proactively during /speckit-analyze commands.
 tools: [Read, Grep, Glob]
 examples:
   - context: User wants to check spec quality

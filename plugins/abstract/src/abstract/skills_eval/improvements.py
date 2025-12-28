@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from src.abstract.frontmatter import FrontmatterProcessor
-from src.abstract.tokens import estimate_tokens
+from abstract.frontmatter import FrontmatterProcessor
+from abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class Improvement:
     code_example: str | None = None
     estimated_effort: str = "medium"  # low, medium, high
     impact: str = "medium"  # low, medium, high
-    dependencies: list[str] = None
+    dependencies: list[str] | None = None
 
     def __post_init__(self) -> None:
         """Initialize default values for mutable fields."""

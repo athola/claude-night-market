@@ -389,9 +389,8 @@ Test command for performance testing.
 
         # Assert concurrent efficiency
         # Concurrent should be faster (though may not be perfectly parallel due to GIL)
-        assert (
-            concurrent_time < sequential_time * 1.2
-        )  # Within 20% of optimal parallel speedup
+        max_allowed = max(sequential_time * 1.2, 0.5)
+        assert concurrent_time < max_allowed  # Allow overhead when work is tiny
 
         # Verify all plugins processed correctly
         assert len(concurrent_results) == plugin_count

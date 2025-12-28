@@ -21,16 +21,16 @@ Initialize the Spec Driven Development workflow for this session:
    - Mark items complete as verified
 
 4. **Proceed with Speckit Workflow**
-   - Run your intended `/speckit.*` command:
-     - `/speckit.specify` - Create feature specifications
-     - `/speckit.clarify` - Refine specifications with targeted questions
-     - `/speckit.plan` - Generate implementation plans
-     - `/speckit.tasks` - Create dependency-ordered tasks
-     - `/speckit.implement` - Execute implementation tasks
-     - `/speckit.analyze` - Cross-artifact consistency analysis
-     - `/speckit.checklist` - Generate requirement quality checklists
-     - `/speckit.constitution` - Manage project principles
+   - Run your intended `/speckit-*` command:
+     - `/speckit-specify` - Create feature specifications
+     - `/speckit-clarify` - Refine specifications with targeted questions
+     - `/speckit-plan` - Generate implementation plans
+     - `/speckit-tasks` - Create dependency-ordered tasks
+     - `/speckit-implement` - Execute implementation tasks
+     - `/speckit-analyze` - Cross-artifact consistency analysis
+     - `/speckit-checklist` - Generate requirement quality checklists
+     - `/speckit-constitution` - Manage project principles
 
 5. **Session Persistence**
-   - Re-run `/speckit.startup` at the beginning of each new Claude session
+   - Re-run `/speckit-startup` at the beginning of each new Claude session
    - The orchestrator maintains context across speckit commands

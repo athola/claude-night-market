@@ -2,10 +2,10 @@
 
 import json
 import os
-import subprocess
+import subprocess  # nosec B404
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 
 class ToolPerformanceAnalyzer:
@@ -77,8 +77,8 @@ class ToolPerformanceAnalyzer:
 
         try:
             start_time = time.time()
-            # nosec: S603 - tool_path is from tools configuration
-            result = subprocess.run(
+            # nosec B603 - tool_path is from tools configuration
+            result = subprocess.run(  # nosec B603
                 [str(tool_path)],
                 check=False,
                 capture_output=True,
@@ -374,7 +374,7 @@ class ToolPerformanceAnalyzer:
         comparison = self.compare_benchmarks(baseline, current)
         # Return all changes - both regressions and improvements count as
         # "detected regressions" for alerting purposes
-        return comparison.get("changes", [])
+        return cast(list[dict[str, Any]], comparison.get("changes", []))
 
     def analyze_tools(self) -> dict[str, Any]:
         """Analyze performance of all tools in skills directory.

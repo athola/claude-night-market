@@ -11,7 +11,9 @@ from typing import Any
 import yaml
 
 try:
-    from sentence_transformers import SentenceTransformer
+    from sentence_transformers import (
+        SentenceTransformer,  # type: ignore[import-not-found]
+    )
 
     _HAS_ST = True
 except Exception:  # pragma: no cover - optional dependency

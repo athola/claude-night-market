@@ -8,6 +8,7 @@ The Night Market plugin ecosystem is designed for collaboration. Each plugin spe
 
 - **Abstract** - Meta-infrastructure for skills, validation, and quality
 - **Sanctum** - Git workflows, PR generation, and documentation
+- **Scry** - Media generation (VHS terminal recordings, Playwright browser recordings)
 - **Conservation** - Context optimization and resource management
 
 ## Common Collaboration Patterns
@@ -30,7 +31,13 @@ Sanctum (Detect Need) -> Conservation (Optimize) -> Sanctum (Execute)
 ```
 Sanctum recognizes resource constraints, Conservation optimizes, Sanctum proceeds.
 
-### Pattern 4: Cross-Plugin Dependencies
+### Pattern 4: Media-Enhanced Documentation
+```
+Sanctum (Detect Tutorial Need) -> Scry (Generate Media) -> Sanctum (Update Docs)
+```
+Sanctum identifies documentation gaps, Scry generates GIFs, Sanctum integrates them.
+
+### Pattern 5: Cross-Plugin Dependencies
 ```yaml
 # Skills can depend on other plugins' capabilities
 dependencies:
@@ -38,6 +45,8 @@ dependencies:
     - conservation:context-optimization
     - sanctum:git-workspace-review
     - abstract:modular-skills
+    - scry:vhs-recording
+    - scry:gif-generation
 ```
 
 ---
@@ -236,6 +245,106 @@ Total: 400 tokens (vs 2,000 without optimization)
 
 ---
 
+### Sanctum + Scry: Tutorial Generation Pipeline
+
+**Use Case**: Creating and updating documentation tutorials with animated GIFs
+
+#### Challenge
+```bash
+# Documentation needs visual demos
+- Installation tutorials need terminal recordings
+- Web UI guides need browser screen captures
+- Combined workflows need multi-source compositions
+# Manual process is time-consuming and inconsistent
+```
+
+#### Workflow Steps
+
+**Step 1: Identify Tutorial Needs (Sanctum)**
+```bash
+/sanctum:update-tutorial --list
+# Output:
+# Available tutorials:
+#   quickstart     assets/tapes/quickstart.tape
+#   mcp            assets/tapes/mcp.manifest.yaml (terminal + browser)
+#   skill-debug    assets/tapes/skill-debug.tape
+```
+
+**Step 2: Generate Terminal Recordings (Scry)**
+```bash
+# Sanctum's tutorial-updates skill orchestrates scry:vhs-recording
+Skill(scry:vhs-recording) assets/tapes/quickstart.tape
+# VHS processes tape file, generates optimized GIF
+# Output: assets/gifs/quickstart.gif (1.2MB)
+```
+
+**Step 3: Generate Browser Recordings (Scry)**
+```bash
+# For web UI tutorials, Playwright captures video
+Skill(scry:browser-recording) specs/dashboard.spec.ts
+# Output: test-results/dashboard/video.webm
+
+# Convert to optimized GIF
+Skill(scry:gif-generation) --input video.webm --output dashboard.gif
+# Output: assets/gifs/dashboard.gif (980KB)
+```
+
+**Step 4: Compose Multi-Source Tutorials (Scry)**
+```bash
+# For combined terminal + browser tutorials
+Skill(scry:media-composition)
+# Reads manifest, combines components
+# Output: assets/gifs/mcp-combined.gif
+```
+
+**Step 5: Generate Documentation (Sanctum)**
+```bash
+/sanctum:update-tutorial quickstart mcp
+# Sanctum generates dual-tone markdown:
+# - docs/tutorials/quickstart.md (project docs, concise)
+# - book/src/tutorials/quickstart.md (technical book, detailed)
+# - Updates README.md demo section with GIF embeds
+```
+
+#### Manifest-Driven Composition
+```yaml
+# assets/tapes/mcp.manifest.yaml
+name: mcp
+title: "MCP Server Integration"
+components:
+  - type: tape
+    source: mcp.tape
+    output: assets/gifs/mcp-terminal.gif
+  - type: playwright
+    source: browser/mcp-browser.spec.ts
+    output: assets/gifs/mcp-browser.gif
+    requires:
+      - "npm run dev"  # Start server before recording
+combine:
+  output: assets/gifs/mcp-combined.gif
+  layout: vertical
+  options:
+    padding: 10
+    background: "#1a1a2e"
+```
+
+#### Results Comparison
+
+| Metric | Manual | Automated |
+|--------|--------|-----------|
+| Time per tutorial | 30-60 min | 2-5 min |
+| Consistency | Variable | 100% consistent |
+| GIF optimization | Often skipped | Always optimized |
+| Documentation sync | Often outdated | Always current |
+
+#### Benefits
+- **Automation**: End-to-end tutorial generation from tape files
+- **Consistency**: All GIFs use same quality settings and themes
+- **Dual-Tone Output**: Both project docs and technical book content
+- **Manifest-Driven**: Declarative composition for complex tutorials
+
+---
+
 ## Three-Way Ecosystem: Complete Development Lifecycle
 
 **Use Case**: End-to-end enterprise plugin development with full optimization
@@ -409,10 +518,15 @@ quality_gates:
 - `/git-catchup` - Efficient git branch analysis
 - `/sanctum:pr` - Generate comprehensive PR description
 - `/sanctum:show-details <path>` - Progressive detail loading
+- `/sanctum:update-tutorial` - Generate tutorials with media (uses Scry)
 
 ### Conservation Commands
 - `/conservation:analyze-growth` - Monitor resource usage trends
 - `/conservation:optimize-context` - Apply MECW optimization principles
+
+### Scry Commands
+- `/scry:record-terminal` - Record terminal sessions using VHS tape files
+- `/scry:record-browser` - Record browser sessions using Playwright specs
 
 ---
 

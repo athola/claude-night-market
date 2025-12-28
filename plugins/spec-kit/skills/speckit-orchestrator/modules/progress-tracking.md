@@ -21,7 +21,7 @@ For every speckit command session:
 
 ### Specification Phase Items
 
-**`/speckit.specify`**
+**`/speckit-specify`**
 ```
 - [ ] Load spec-writing and brainstorming skills
 - [ ] Analyze feature description and requirements
@@ -30,7 +30,7 @@ For every speckit command session:
 - [ ] Validate frontmatter metadata
 ```
 
-**`/speckit.clarify`**
+**`/speckit-clarify`**
 ```
 - [ ] Read existing spec.md
 - [ ] Identify underspecified areas
@@ -39,7 +39,7 @@ For every speckit command session:
 - [ ] Verify improved specification completeness
 ```
 
-**`/speckit.constitution`**
+**`/speckit-constitution`**
 ```
 - [ ] Gather project principles (interactive or provided)
 - [ ] Create/update constitution.md
@@ -49,7 +49,7 @@ For every speckit command session:
 
 ### Planning Phase Items
 
-**`/speckit.plan`**
+**`/speckit-plan`**
 ```
 - [ ] Load task-planning and writing-plans skills
 - [ ] Read spec.md and constitution.md
@@ -58,7 +58,7 @@ For every speckit command session:
 - [ ] Verify plan completeness and consistency
 ```
 
-**`/speckit.tasks`**
+**`/speckit-tasks`**
 ```
 - [ ] Read all available design artifacts (spec, plan, constitution)
 - [ ] Analyze dependencies and ordering constraints
@@ -69,7 +69,7 @@ For every speckit command session:
 
 ### Implementation Phase Items
 
-**`/speckit.implement`**
+**`/speckit-implement`**
 ```
 - [ ] Load executing-plans skill
 - [ ] Read and parse tasks.md
@@ -81,7 +81,7 @@ For every speckit command session:
 
 ### Verification Phase Items
 
-**`/speckit.analyze`**
+**`/speckit-analyze`**
 ```
 - [ ] Read spec.md, plan.md, tasks.md
 - [ ] Check cross-artifact consistency
@@ -90,7 +90,7 @@ For every speckit command session:
 - [ ] Provide actionable recommendations
 ```
 
-**`/speckit.checklist`**
+**`/speckit-checklist`**
 ```
 - [ ] Read feature requirements from spec.md
 - [ ] Generate custom verification checklist

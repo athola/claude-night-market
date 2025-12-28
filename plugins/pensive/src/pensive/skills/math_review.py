@@ -165,9 +165,9 @@ class MathReviewSkill(BaseReviewSkill):
         """
         content = context.get_file_content(file_path)
 
-        instability_patterns = []
-        condition_number_ignored = []
-        unstable_operations = []
+        instability_patterns: list[str] = []
+        condition_number_ignored: list[str] = []
+        unstable_operations: list[str] = []
 
         # Pattern for direct matrix inversion
         if re.search(r"np\.linalg\.inv\(A\)", content):
@@ -269,9 +269,9 @@ class MathReviewSkill(BaseReviewSkill):
         """
         content = context.get_file_content(file_path)
 
-        convergence_issues = []
-        stability_problems = []
-        algorithm_correctness = []
+        convergence_issues: list[str] = []
+        stability_problems: list[str] = []
+        algorithm_correctness: list[str] = []
 
         # Pattern for gradient descent without convergence check
         if re.search(
@@ -379,9 +379,9 @@ class MathReviewSkill(BaseReviewSkill):
         """
         content = context.get_file_content(file_path)
 
-        distribution_errors = []
-        sampling_issues = []
-        statistical_formulas = []
+        distribution_errors: list[str] = []
+        sampling_issues: list[str] = []
+        statistical_formulas: list[str] = []
 
         # Pattern for incorrect Box-Muller (only returning one value)
         if re.search(
@@ -503,9 +503,9 @@ class MathReviewSkill(BaseReviewSkill):
         """
         content = context.get_file_content(file_path)
 
-        complexity_issues = []
-        inefficient_algorithms = []
-        optimization_opportunities = []
+        complexity_issues: list[str] = []
+        inefficient_algorithms: list[str] = []
+        optimization_opportunities: list[str] = []
 
         # Pattern for recursive fibonacci (exponential complexity)
         if re.search(
@@ -551,10 +551,10 @@ class MathReviewSkill(BaseReviewSkill):
         """
         content = context.get_file_content(file_path)
 
-        logical_correctness = []
-        edge_case_handling = []
-        mathematical_rigor = []
-        safety_measures = []
+        logical_correctness: list[str] = []
+        edge_case_handling: list[str] = []
+        mathematical_rigor: list[str] = []
+        safety_measures: list[str] = []
 
         # Pattern for primality test with edge cases
         if re.search(r"def\s+is_prime.*if\s+n\s*<\s*2:", content, re.DOTALL):

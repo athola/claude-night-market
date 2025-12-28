@@ -1,110 +1,126 @@
 # API Overview
 
-*Consolidated: 2025-12-07*
+*Updated: 2025-12-26*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## Plugin API Surface Summary
 
-The Claude Night Market ecosystem contains 11 plugins with diverse API surfaces including CLI commands, Python packages, and skill-based APIs.
+The Claude Night Market ecosystem contains 13 plugins with diverse API surfaces including CLI commands, Python packages, and skill-based APIs.
 
 ## API Inventory
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 2.1.0 | 10 | 6 | 3 | Yes | abstract-skills |
-| archetypes | 1.0.0 | 0 | 15 | 0 | No | - |
+| abstract | 1.1.0 | 14 | 9 | 3 | Yes | abstract-skills |
+| archetypes | 1.1.0 | 0 | 14 | 0 | No | - |
 | conjure | 1.1.0 | 0 | 3 | 0 | Yes | - |
-| conservation | 2.0.0 | 2 | 4 | 1 | Yes | - |
-| imbue | 2.0.0 | 2 | 5 | 1 | Yes | - |
-| leyline | 1.0.0 | 0 | 8 | 0 | Yes | - |
-| memory-palace | 2.0.0 | 4 | 5 | 4 | Yes | - |
-| parseltongue | 2.0.0 | 4 | 4 | 3 | Yes | - |
-| pensive | 3.0.0 | 8 | 8 | 3 | Yes | - |
-| sanctum | 3.0.0 | 7 | 8 | 3 | Yes | - |
-| spec-kit | 3.0.0 | 9 | 3 | 3 | Yes | - |
+| conservation | 1.1.0 | 2 | 5 | 1 | Yes | - |
+| imbue | 1.1.0 | 4 | 8 | 1 | Yes | - |
+| leyline | 1.1.0 | 2 | 12 | 0 | Yes | - |
+| memory-palace | 1.1.0 | 3 | 5 | 4 | Yes | - |
+| minister | 1.1.0 | 0 | 2 | 0 | Yes | - |
+| parseltongue | 1.1.0 | 3 | 4 | 3 | Yes | - |
+| pensive | 1.1.0 | 8 | 9 | 3 | Yes | - |
+| sanctum | 1.1.0 | 15 | 14 | 9 | Yes | - |
+| scry | 1.1.0 | 2 | 4 | 0 | No | - |
+| spec-kit | 1.1.0 | 9 | 4 | 3 | Yes | - |
 
 ## API Types
 
 | Type | Count | Description |
 |------|-------|-------------|
-| CLI Commands | 46 | Slash commands across plugins |
-| Skills | 69 | Skill definitions with modular loading |
-| Agents | 24 | Specialized agents |
-| Python Packages | 9 | Packages with public APIs |
-| Hooks | 15 | Pre/post execution hooks |
+| CLI Commands | 62 | Slash commands across plugins |
+| Skills | 93 | Skill definitions with modular loading |
+| Agents | 27 | Specialized agents |
+| Python Packages | 11 | Packages with public APIs |
+| Hooks | 15+ | Pre/post execution hooks |
 
 ## Plugin Details
 
-### Abstract (v2.1.0)
+### Abstract (v1.1.0)
 Plugin validation and analysis framework.
 
-**Commands**: `analyze-skill`, `analyze-hook`, `validate-plugin`, `create-skill`, `create-hook`, `create-command`, `estimate-tokens`, `context-report`, `hooks-eval`, `skills-eval`
+**Commands**: `analyze-hook`, `analyze-skill`, `bulletproof-skill`, `context-report`, `create-command`, `create-hook`, `create-skill`, `estimate-tokens`, `hooks-eval`, `make-dogfood`, `skills-eval`, `test-skill`, `validate-hook`, `validate-plugin`
 
-**Skills**: `skill-authoring`, `skills-eval`, `modular-skills`, `hook-authoring`, `hooks-eval`, `shared-patterns`
+**Skills**: `escalation-governance`, `hook-authoring`, `hooks-eval`, `makefile-dogfooder`, `modular-skills`, `performance-optimization`, `shared-patterns`, `skill-authoring`, `skills-eval`
 
-### Archetypes (v1.0.0)
+### Archetypes (v1.1.0)
 Architecture paradigm reference library.
 
-**Skills**: 15 architecture paradigm skills (hexagonal, microservices, event-driven, etc.)
+**Skills**: 14 architecture paradigm skills (hexagonal, microservices, event-driven, etc.)
 
 ### Conjure (v1.1.0)
 Cross-model delegation framework.
 
 **Skills**: `delegation-core`, `gemini-delegation`, `qwen-delegation`
 
-### Conservation (v2.0.0)
+### Conservation (v1.1.0)
 Context window and resource management.
 
-**Commands**: `optimize-context`, `analyze-growth`
+**Commands**: `analyze-growth`, `optimize-context`
 
-**Skills**: `context-optimization`, `mcp-code-execution`, `optimizing-large-skills`, `performance-monitoring`
+**Skills**: `context-optimization`, `mcp-code-execution`, `optimizing-large-skills`, `performance-monitoring`, `resource-management`
 
-### Imbue (v2.0.0)
+### Imbue (v1.1.0)
 Structured review workflows.
 
-**Commands**: `catchup`, `full-review`
+**Commands**: `catchup`, `feature-review`, `review`, `structured-review`
 
-**Skills**: `catchup`, `diff-analysis`, `evidence-logging`, `review-core`, `structured-output`
+**Skills**: `catchup`, `diff-analysis`, `evidence-logging`, `feature-review`, `review-core`, `scope-guard`, `shared`, `structured-output`
 
-### Leyline (v1.0.0)
+### Leyline (v1.1.0)
 Shared patterns and utilities library.
 
-**Skills**: `authentication-patterns`, `error-patterns`, `evaluation-framework`, `mecw-patterns`, `progressive-loading`, `pytest-config`, `quota-management`, `service-registry`
+**Commands**: `reinstall-all-plugins`, `update-all-plugins`
 
-### Memory Palace (v2.0.0)
+**Skills**: `authentication-patterns`, `error-patterns`, `evaluation-framework`, `mecw-patterns`, `progressive-loading`, `pytest-config`, `quota-management`, `service-registry`, `shared`, `storage-templates`, `testing-quality-standards`, `usage-logging`
+
+### Memory Palace (v1.1.0)
 Knowledge management and organization.
 
-**Commands**: `palace`, `garden`, `navigate`, (4 total)
+**Commands**: `garden`, `navigate`, `palace`
 
 **Skills**: `digital-garden-cultivator`, `knowledge-intake`, `knowledge-locator`, `memory-palace-architect`, `session-palace-builder`
 
-### Parseltongue (v2.0.0)
+### Minister (v1.1.0)
+Governance and tracking plugin.
+
+**Skills**: `governance-tracking`, `tracker-comment`
+
+### Parseltongue (v1.1.0)
 Python development utilities.
 
-**Commands**: `analyze-tests`, `check-async`, `run-profiler`, (4 total)
+**Commands**: `analyze-tests`, `check-async`, `run-profiler`
 
 **Skills**: `python-async`, `python-packaging`, `python-performance`, `python-testing`
 
-### Pensive (v3.0.0)
+### Pensive (v1.1.0)
 Code review and analysis framework.
 
-**Commands**: `review`, `api-review`, `architecture-review`, `bug-review`, `makefile-review`, `math-review`, `rust-review`, `test-review`
+**Commands**: `api-review`, `architecture-review`, `bug-review`, `full-review`, `makefile-review`, `math-review`, `rust-review`, `test-review`
 
-**Skills**: `api-review`, `architecture-review`, `bug-review`, `makefile-review`, `math-review`, `rust-review`, `test-review`, `unified-review`
+**Skills**: `api-review`, `architecture-review`, `bug-review`, `makefile-review`, `math-review`, `rust-review`, `shared`, `test-review`, `unified-review`
 
-### Sanctum (v3.0.0)
+### Sanctum (v1.1.0)
 Git workflow automation.
 
-**Commands**: `catchup`, `commit-msg`, `pr`, `update-docs`, `update-readme`, `update-tests`, `update-version`
+**Commands**: `commit-msg`, `fix-issue`, `fix-pr`, `fix-workflow`, `git-catchup`, `merge-docs`, `pr`, `pr-review`, `resolve-threads`, `update-dependencies`, `update-docs`, `update-readme`, `update-tests`, `update-tutorial`, `update-version`
 
-**Skills**: `commit-messages`, `doc-updates`, `file-analysis`, `git-workspace-review`, `pr-prep`, `test-updates`, `update-readme`, `version-updates`
+**Skills**: `commit-messages`, `doc-consolidation`, `doc-updates`, `file-analysis`, `fix-issue`, `git-workspace-review`, `pr-prep`, `pr-review`, `shared`, `test-updates`, `tutorial-updates`, `update-readme`, `version-updates`, `workflow-improvement`
 
-### Spec-Kit (v3.0.0)
+### Scry (v1.1.0)
+Terminal and browser recording utilities.
+
+**Commands**: `record-browser`, `record-terminal`
+
+**Skills**: `browser-recording`, `gif-generation`, `media-composition`, `vhs-recording`
+
+### Spec-Kit (v1.1.0)
 Specification-driven development.
 
-**Commands**: `speckit.analyze`, `speckit.checklist`, `speckit.clarify`, `speckit.constitution`, `speckit.implement`, `speckit.plan`, `speckit.specify`, `speckit.startup`, `speckit.tasks`
+**Commands**: `speckit-analyze`, `speckit-checklist`, `speckit-clarify`, `speckit-constitution`, `speckit-implement`, `speckit-plan`, `speckit-specify`, `speckit-startup`, `speckit-tasks`
 
-**Skills**: `spec-analyzer`, `task-generator`, `implementation-executor`
+**Skills**: `shared`, `spec-writing`, `speckit-orchestrator`, `task-planning`
 
 ## API Quality Assessment
 
@@ -114,12 +130,13 @@ Specification-driven development.
 - Consistent quality tooling (ruff, mypy, bandit)
 
 ### Areas for Improvement
-- Versioning consistency
+- Versioning consistency (aligned at 1.1.0)
 - Command naming patterns (kebab-case vs dot-notation)
 - API export patterns
 - Cross-plugin integration documentation
 
 ## Related Documents
 
+- [API Updates](api-updates.md) - Changelog and documentation progress
 - [API Consistency Plan](plans/2025-12-06-api-consistency.md)
 - [Medium-Term Initiatives](plans/2025-12-06-medium-term-initiatives.md)

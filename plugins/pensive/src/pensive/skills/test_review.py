@@ -229,7 +229,7 @@ class TestReviewSkill(BaseReviewSkill):
         when_matches = re.findall(r"@when\(['\"](.+?)['\"]\)", content)
         then_matches = re.findall(r"@then\(['\"](.+?)['\"]\)", content)
 
-        for g, w, t in zip(given_matches, when_matches, then_matches):
+        for g, w, t in zip(given_matches, when_matches, then_matches, strict=False):
             given_when_then.append({"given": g, "when": w, "then": t})
 
         # Look for inline BDD comments

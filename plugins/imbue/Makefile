@@ -6,14 +6,28 @@
 .PHONY: help install install-dev test test-unit test-integration test-performance test-all test-coverage \
         test-slow test-parallel lint format format-check type-check typecheck security clean docs check-all ci \
         dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests \
-        demo-catchup demo-review demo-skills plugin-check
+        demo-catchup demo-review demo-skills plugin-check debug-variables
+
+# Override source directories for this plugin
+SRC_DIRS := scripts
+RUFF_TARGETS := .
+MYPY_TARGETS := scripts/
+BANDIT_TARGETS := scripts/
+COV_DIRS := scripts
+COV_REPORTS := --cov-report=html --cov-report=xml --cov-fail-under=85
+TEST_UNIT_TARGETS := tests/unit/
+TEST_UNIT_ARGS := -v
+TEST_COVERAGE_TARGETS := tests/
+TEST_COVERAGE_ARGS :=
+SECURITY_EXTRA = $(UV_RUN) safety check
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
+-include $(ABSTRACT_DIR)/config/make/python.mk
 
-# Override source directories for this plugin
-SRC_DIRS := scripts
+# Prevent parallel execution for targets that share resources
+.NOTPARALLEL: docs
 
 # Default target - auto-generated help from ## comments
 help: ## Show this help message
@@ -30,48 +44,26 @@ install-dev: ## Install development dependencies
 
 # Testing
 test: ## Run all tests
-	uv run pytest tests/
-
-test-unit: ## Run unit tests only
-	uv run pytest tests/unit/ -v
+	$(PYTEST) tests/
 
 test-integration: ## Run integration tests only
-	uv run pytest tests/integration/ -v
+	$(PYTEST) tests/integration/ -v
 
 test-performance: ## Run performance tests only
-	uv run pytest tests/performance/ -v -m performance
+	$(PYTEST) tests/performance/ -v -m performance
 
 test-slow: ## Run slow tests
-	uv run pytest tests/ -v -m slow
+	$(PYTEST) tests/ -v -m slow
 
 test-all: ## Run comprehensive test suite with coverage
-	uv run pytest tests/ -v --cov=scripts --cov-report=html --cov-report=term-missing
-
-test-coverage: ## Generate coverage report
-	uv run pytest tests/ --cov=scripts --cov-report=html --cov-report=xml --cov-fail-under=85
+	$(PYTEST) tests/ -v --cov=scripts --cov-report=html --cov-report=term-missing
 
 test-parallel: ## Run tests in parallel for speed
-	uv run pytest tests/ -n auto
+	$(PYTEST) tests/ -n auto
 
 # Code Quality
-lint: ## Run linting checks
-	uv run ruff check .
-
-format: ## Format code with ruff
-	uv run ruff format .
-
 format-check: ## Check if code is formatted correctly
-	uv run ruff format --check .
-
-type-check: ## Run type checking with mypy
-	uv run mypy scripts/
-
-# Alias for backwards compatibility
-typecheck: type-check
-
-security: ## Run security checks
-	uv run bandit -r scripts/
-	uv run safety check
+	$(RUFF) format --check .
 
 # Documentation
 docs: ## Generate documentation
@@ -105,7 +97,7 @@ dev-setup: ## Set up development environment
 	@echo "Development environment ready!"
 
 dev-test: ## Quick development test (unit tests only, fast feedback)
-	uv run pytest tests/unit/ -x --tb=short
+	$(PYTEST) tests/unit/ -x --tb=short
 
 dev-check: ## Quick development checks (lint + unit tests)
 	@echo "Running development checks..."
@@ -115,7 +107,7 @@ dev-check: ## Quick development checks (lint + unit tests)
 
 # Performance Profiling
 profile-tests: ## Profile test execution times
-	uv run pytest tests/ --durations=0
+	$(PYTEST) tests/ --durations=0
 
 # Validation
 validate-plugin: ## Run imbue validator on the plugin
@@ -139,6 +131,22 @@ status: ## Show project overview
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Scripts:  $$(find scripts/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
+
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "PYTHON: $(PYTHON)"
+	@echo "UV: $(UV)"
+	@echo "UV_RUN: $(UV_RUN)"
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-catchup: ## Demo catchup workflow on this repo's recent changes
@@ -183,8 +191,8 @@ demo-skills: ## Validate imbue skill structure and content
 	@for skill in skills/*/SKILL.md; do \
 		echo ""; \
 		echo ">>> $$skill"; \
-		head -1 "$$skill" | grep -q "^---" && echo "  ✓ Has frontmatter" || echo "  ✗ Missing frontmatter"; \
-		grep -q "## When to Use" "$$skill" && echo "  ✓ Has usage section" || echo "  ✗ Missing usage section"; \
+		head -1 "$$skill" | grep -q "^---" && echo "  [OK] Has frontmatter" || echo "  [X] Missing frontmatter"; \
+		grep -q "## When to Use" "$$skill" && echo "  [OK] Has usage section" || echo "  [X] Missing usage section"; \
 		wc -l < "$$skill" | xargs -I{} echo "  Lines: {}"; \
 	done
 	@echo ""
@@ -193,6 +201,16 @@ demo-skills: ## Validate imbue skill structure and content
 plugin-check: demo-catchup demo-review demo-skills ## Run all demo workflows
 	@echo ""
 	@echo "=== Imbue Plugin Check Complete ==="
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1
 
 # Cleanup
 clean: ## Clean up generated files

@@ -2,7 +2,7 @@
 # Delegates to plugin Makefiles for build operations
 
 .PHONY: help all test lint typecheck clean status validate-all plugin-check check-examples \
-        docs docs-fast \
+        docs docs-fast demo \
         technical-debt-scan technical-debt-dashboard technical-debt-plan technical-debt-kpis \
         technical-debt-setup technical-debt-integration \
         abstract abstract-% conjure conjure-% conservation conservation-% \
@@ -263,13 +263,13 @@ status: ## Show status of all plugins
 	@echo ""
 	@echo "=== Technical Debt Framework Status ==="
 	@if [ -f "current_kpis.json" ]; then \
-		echo "✅ Technical debt tracking is active"; \
+		echo "[OK] Technical debt tracking is active"; \
 		python -c "import json; data=json.load(open('current_kpis.json')); health = data.get('debt_health_score', {}).get('value', 'N/A'); echo f'   Health Score: {health}'"; \
 	else \
-		echo "❌ Technical debt tracking not initialized (run 'make technical-debt-scan')"; \
+		echo "[TODO] Technical debt tracking not initialized (run 'make technical-debt-scan')"; \
 	fi
 	@if [ -d "debt_reports" ]; then \
-		echo "✅ Dashboard available at: debt_reports/technical_debt_dashboard.html"; \
+		echo "[OK] Dashboard available at: debt_reports/technical_debt_dashboard.html"; \
 	fi
 
 clean: ## Clean all plugin artifacts and technical debt data
@@ -315,3 +315,26 @@ docs: ## Build marketplace docs (uses scripts/build-marketplace-docs.sh)
 
 docs-fast: ## Build docs for a single plugin without marketplace (PLUGIN=name, default abstract)
 	@./scripts/build-marketplace-docs.sh --plugin $(or $(PLUGIN),abstract) --no-marketplace
+
+demo: ## Demonstrate Claude Night Market capabilities
+	@echo "=== Claude Night Market Demo ==="
+	@echo ""
+	@echo "Installed Plugins:"
+	@for plugin in $(ALL_PLUGINS); do \
+		name=$$(basename $$plugin); \
+		desc=$$(head -5 $$plugin/.claude-plugin/plugin.json 2>/dev/null | grep '"description"' | cut -d'"' -f4 | head -c 50); \
+		echo "  - $$name: $$desc..."; \
+	done
+	@echo ""
+	@echo "Quick Commands:"
+	@echo "  make help           - Show all available targets"
+	@echo "  make status         - Show plugin status overview"
+	@echo "  make plugin-check   - Run all plugin self-tests"
+	@echo "  make test           - Run tests across all plugins"
+	@echo "  make lint           - Run linting across all plugins"
+	@echo ""
+	@echo "Per-Plugin Commands:"
+	@echo "  make <plugin>-help  - Show plugin-specific targets"
+	@echo "  make <plugin>-test  - Run plugin tests"
+	@echo ""
+	@echo "Example: make abstract-help"

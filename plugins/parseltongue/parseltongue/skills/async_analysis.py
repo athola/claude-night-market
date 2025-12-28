@@ -457,10 +457,10 @@ class AsyncAnalysisSkill:
                                 cleanup_in_finally = True
 
                 # Check for session creation/cleanup in methods
-                for item in ast.walk(node):
+                for walk_item in ast.walk(node):
                     # Check for session creation
-                    if isinstance(item, ast.Assign):
-                        for target in item.targets:
+                    if isinstance(walk_item, ast.Assign):
+                        for target in walk_item.targets:
                             if (
                                 isinstance(target, ast.Attribute)
                                 and "session" in target.attr.lower()
@@ -468,9 +468,9 @@ class AsyncAnalysisSkill:
                                 creates_session = True
 
                     # Check for session closure
-                    if isinstance(item, ast.Call) and (
-                        isinstance(item.func, ast.Attribute)
-                        and item.func.attr == "close"
+                    if isinstance(walk_item, ast.Call) and (
+                        isinstance(walk_item.func, ast.Attribute)
+                        and walk_item.func.attr == "close"
                     ):
                         closes_session = True
 
@@ -568,12 +568,14 @@ class AsyncAnalysisSkill:
                 for child in ast.walk(node):
                     if isinstance(child, ast.AsyncWith):
                         # Check if it's using a lock
-                        for item in child.items:
+                        for with_item in child.items:
                             # counter["lock"] pattern
                             if (
-                                isinstance(item.context_expr, ast.Subscript)
-                                and isinstance(item.context_expr.slice, ast.Constant)
-                                and item.context_expr.slice.value == "lock"
+                                isinstance(with_item.context_expr, ast.Subscript)
+                                and isinstance(
+                                    with_item.context_expr.slice, ast.Constant
+                                )
+                                and with_item.context_expr.slice.value == "lock"
                             ):
                                 uses_lock = True
 
@@ -587,14 +589,14 @@ class AsyncAnalysisSkill:
                 has_shared_state = False
                 uses_lock = False
 
-                for item in node.body:
+                for body_item in node.body:
                     # Check for class-level attributes
-                    if isinstance(item, ast.Assign):
+                    if isinstance(body_item, ast.Assign):
                         has_shared_state = True
 
                     # Check for asyncio.Lock usage
-                    if isinstance(item, ast.AsyncFunctionDef):
-                        for child in ast.walk(item):
+                    if isinstance(body_item, ast.AsyncFunctionDef):
+                        for child in ast.walk(body_item):
                             if isinstance(child, ast.Call) and (
                                 self._is_call_to(child, "asyncio.Lock")
                                 or self._is_call_to(child, "Lock")

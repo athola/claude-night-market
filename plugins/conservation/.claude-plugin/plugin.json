@@ -1,6 +1,6 @@
 {
   "name": "conservation",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/context-optimization",
@@ -16,7 +16,15 @@
   "agents": [
     "./agents/context-optimizer.md"
   ],
-  "keywords": ["conservation", "performance", "resource-management", "token-optimization", "context-optimization", "MECW", "efficiency"],
+  "keywords": [
+    "conservation",
+    "performance",
+    "resource-management",
+    "token-optimization",
+    "context-optimization",
+    "MECW",
+    "efficiency"
+  ],
   "author": {
     "name": "Alex Thola",
     "url": "https://github.com/athola"

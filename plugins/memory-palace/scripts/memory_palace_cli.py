@@ -15,8 +15,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from tools.garden_metrics import compute_garden_metrics
-from tools.palace_manager import MemoryPalaceManager
+from memory_palace.garden_metrics import compute_garden_metrics
+from memory_palace.palace_manager import MemoryPalaceManager
 
 
 @dataclass

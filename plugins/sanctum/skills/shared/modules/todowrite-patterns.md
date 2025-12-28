@@ -43,8 +43,10 @@ pr-prep:pr-drafted
 ```
 doc-updates:context-collected
 doc-updates:targets-identified
+doc-updates:consolidation-checked
 doc-updates:edits-applied
 doc-updates:guidelines-verified
+doc-updates:accuracy-verified
 doc-updates:preview
 ```
 

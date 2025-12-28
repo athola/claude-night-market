@@ -19,20 +19,20 @@ class TestSpeckitOrchestrator:
         orchestrator = Mock()
         orchestrator.plugin_root = tmp_path
         orchestrator.command_skill_map = {
-            "speckit.specify": "spec-writing",
-            "speckit.clarify": "spec-writing",
-            "speckit.plan": "task-planning",
-            "speckit.tasks": "task-planning",
-            "speckit.implement": None,
-            "speckit.analyze": None,
-            "speckit.checklist": None,
+            "speckit-specify": "spec-writing",
+            "speckit-clarify": "spec-writing",
+            "speckit-plan": "task-planning",
+            "speckit-tasks": "task-planning",
+            "speckit-implement": None,
+            "speckit-analyze": None,
+            "speckit-checklist": None,
         }
         orchestrator.complementary_skills = {
             "spec-writing": ["brainstorming"],
             "task-planning": ["writing-plans"],
-            "speckit.implement": ["executing-plans", "systematic-debugging"],
-            "speckit.analyze": ["systematic-debugging", "verification"],
-            "speckit.checklist": ["verification-before-completion"],
+            "speckit-implement": ["executing-plans", "systematic-debugging"],
+            "speckit-analyze": ["systematic-debugging", "verification"],
+            "speckit-checklist": ["verification-before-completion"],
         }
         orchestrator.load_skill = mock_skill_loader
         return orchestrator
@@ -73,13 +73,13 @@ class TestSpeckitOrchestrator:
         """Test command to skill mapping is correct."""
         # Given: expected command-to-skill mappings
         expected_mappings = {
-            "speckit.specify": "spec-writing",
-            "speckit.clarify": "spec-writing",
-            "speckit.plan": "task-planning",
-            "speckit.tasks": "task-planning",
-            "speckit.implement": None,  # No primary skill
-            "speckit.analyze": None,  # No primary skill
-            "speckit.checklist": None,  # No primary skill
+            "speckit-specify": "spec-writing",
+            "speckit-clarify": "spec-writing",
+            "speckit-plan": "task-planning",
+            "speckit-tasks": "task-planning",
+            "speckit-implement": None,  # No primary skill
+            "speckit-analyze": None,  # No primary skill
+            "speckit-checklist": None,  # No primary skill
         }
 
         # When/Then: each command should map to expected skill
@@ -92,9 +92,9 @@ class TestSpeckitOrchestrator:
     def test_should_load_primary_and_complementary_skills_when_executing_specify_command(
         self, orchestrator
     ) -> None:
-        """Test loading dependencies for /speckit.specify command."""
-        # Given: the speckit.specify command
-        command = "speckit.specify"
+        """Test loading dependencies for /speckit-specify command."""
+        # Given: the speckit-specify command
+        command = "speckit-specify"
         primary_skill = orchestrator.command_skill_map[command]
         complementary_skills = orchestrator.complementary_skills.get(primary_skill, [])
 
@@ -111,9 +111,9 @@ class TestSpeckitOrchestrator:
     def test_should_load_task_planning_dependencies_when_executing_plan_command(
         self, orchestrator
     ) -> None:
-        """Test loading dependencies for /speckit.plan command."""
-        # Given: the speckit.plan command
-        command = "speckit.plan"
+        """Test loading dependencies for /speckit-plan command."""
+        # Given: the speckit-plan command
+        command = "speckit-plan"
         primary_skill = orchestrator.command_skill_map[command]
         complementary_skills = orchestrator.complementary_skills.get(primary_skill, [])
 
@@ -130,9 +130,9 @@ class TestSpeckitOrchestrator:
     def test_should_load_only_complementary_skills_when_executing_implement_command(
         self, orchestrator
     ) -> None:
-        """Test loading dependencies for /speckit.implement command."""
-        # Given: the speckit.implement command
-        command = "speckit.implement"
+        """Test loading dependencies for /speckit-implement command."""
+        # Given: the speckit-implement command
+        command = "speckit-implement"
         primary_skill = orchestrator.command_skill_map[command]
 
         # When: checking for primary skill
@@ -259,8 +259,8 @@ class TestSpeckitOrchestrator:
         self, orchestrator, mock_todowrite
     ) -> None:
         """Test complete command execution workflow."""
-        # Given: the speckit.specify command
-        command = "speckit.specify"
+        # Given: the speckit-specify command
+        command = "speckit-specify"
 
         # When: Step 1 - Initialize session
         mock_todowrite.return_value = {"success": True}

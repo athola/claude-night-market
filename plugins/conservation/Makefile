@@ -5,14 +5,16 @@
 
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test clean install-hooks \
         status validate-all deps-report fix-apply cli-status cli-validate token-estimate perf-check \
-        validate-skills test-skills demo-context demo-tokens demo-skills plugin-check
+        validate-skills test-skills demo-context demo-tokens demo-skills plugin-check debug-variables
+
+# Plugin-specific variables (must be before include)
+SRC_DIRS := scripts services
+COV_DIRS := $(SRC_DIRS)
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
-
-# Plugin-specific variables
-override SRC_DIRS := scripts services
+-include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message
@@ -49,29 +51,9 @@ deps-report: ## Generate detailed dependency report
 	uv pip list
 
 # ---------- Code Quality ----------
-format: ## Format Python code
-	@echo "Formatting Python code..."
-	uv run ruff format $(SRC_DIRS)
-	uv run ruff check --fix $(SRC_DIRS)
-
-lint: ## Run linting checks
-	@echo "Running linting checks..."
-	uv run ruff check $(SRC_DIRS)
-
-type-check: ## Run type checking
-	@echo "Running type checking..."
-	uv run mypy $(SRC_DIRS) || { echo "⚠ Type checking failed"; exit 1; }
-
-# Alias for backwards compatibility
-typecheck: type-check
-
 spellcheck: ## Run spell check
 	@echo "Running spell check..."
-	uv run typos $(SRC_DIRS)
-
-security: ## Run security checks
-	@echo "Running security checks..."
-	uv run bandit -r $(SRC_DIRS) || { echo "⚠ Security check failed"; exit 1; }
+	$(UV_RUN) typos $(SRC_DIRS)
 
 test: check lint type-check security ## Run all quality checks
 	@echo "All checks passed!"
@@ -100,6 +82,22 @@ status: ## Show project overview
 	@echo "Skills: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
 	@echo "Tools:  $$(find tools/ -name '*.py' 2>/dev/null | wc -l)"
 	@echo "Tests:  $$(find tests/ -name '*.py' 2>/dev/null | wc -l)"
+
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "PYTHON: $(PYTHON)"
+	@echo "UV: $(UV)"
+	@echo "UV_RUN: $(UV_RUN)"
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 # ---------- CLI Tools ----------
 cli-status: ## Show plugin status via CLI
@@ -189,9 +187,9 @@ demo-skills: ## Validate conservation skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  context-optimization: $$(test -f skills/context-optimization/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  mcp-code-execution:   $$(test -f skills/mcp-code-execution/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  optimizing-large-skills: $$(test -f skills/optimizing-large-skills/SKILL.md && echo '✓' || echo '✗')"
+	@echo "  context-optimization: $$(test -f skills/context-optimization/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  mcp-code-execution:   $$(test -f skills/mcp-code-execution/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  optimizing-large-skills: $$(test -f skills/optimizing-large-skills/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo ""
 	@echo "Scripts:"
 	@find scripts/ -name "*.py" 2>/dev/null | wc -l | xargs -I{} echo "  {} Python scripts"
@@ -199,3 +197,13 @@ demo-skills: ## Validate conservation skill structure
 plugin-check: demo-context demo-tokens demo-skills test-skills ## Run all demo workflows
 	@echo ""
 	@echo "=== Conservation Plugin Check Complete ==="
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

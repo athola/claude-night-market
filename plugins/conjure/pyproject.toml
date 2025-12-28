@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conjure-dev"
-version = "1.0.5"
+version = "1.1.0"
 description = "Development tools for the conjure Claude Code plugin - intelligent delegation framework for external LLM services"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -15,7 +15,7 @@ maintainers = [
 license = {text = "MIT"}
 readme = "README.md"
 repository = "https://github.com/athola/conjure"
-requires-python = ">=3.10"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "pre-commit>=3.0.0",
     "tiktoken>=0.7.0",
@@ -107,6 +107,9 @@ ignore = [
     "TRY003",  # raise-vanilla-args
     "UP041",   # timeout-error-alias
 ]
+
+[tool.uv.sources]
+leyline = { path = "../leyline" }
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]  # Allow unused imports in __init__.py

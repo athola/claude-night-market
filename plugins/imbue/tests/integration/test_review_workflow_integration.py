@@ -160,6 +160,31 @@ def test_auth():
             "focus": "security",
         }
 
+        # Add findings from analysis before deliverable generation
+        shared_context["findings"] = [
+            {
+                "id": "F1",
+                "title": "SQL injection vulnerability",
+                "severity": "Critical",
+                "file": "src/auth.py",
+                "evidence_refs": ["E1"],
+            },
+        ]
+
+        # Add evidence items before structured output is generated
+        shared_context["evidence"] = [
+            {
+                "id": "E1",
+                "command": "grep -n 'SELECT.*username' src/auth.py",
+                "output": (  # noqa: S608 - deliberate SQL string for test data
+                    "src/auth.py:3: query = \"SELECT * FROM users WHERE username = '"
+                    + "test_user"
+                    + "'"
+                ),
+                "timestamp": datetime.now(UTC).isoformat(),
+            },
+        ]
+
         # Step 1: Execute /review command (this would orchestrate skills)
         workflow_result = {
             "command_executed": "/review",
@@ -181,31 +206,6 @@ def test_auth():
             mock_claude_tools["Skill"](skill, current_context)
             workflow_result["skills_executed"].append(skill)
             current_context.update(shared_context)
-
-        # Add findings from analysis
-        shared_context["findings"] = [
-            {
-                "id": "F1",
-                "title": "SQL injection vulnerability",
-                "severity": "Critical",
-                "file": "src/auth.py",
-                "evidence_refs": ["E1"],
-            },
-        ]
-
-        # Add evidence items
-        shared_context["evidence"] = [
-            {
-                "id": "E1",
-                "command": "grep -n 'SELECT.*username' src/auth.py",
-                "output": (  # noqa: S608 - deliberate SQL string for test data
-                    "src/auth.py:3: query = \"SELECT * FROM users WHERE username = '"
-                    + "test_user"
-                    + "'"
-                ),
-                "timestamp": datetime.now(UTC).isoformat(),
-            },
-        ]
 
         workflow_result["final_deliverable"] = shared_context.get("deliverable")
         workflow_result["evidence_log"] = shared_context.get("evidence_log")

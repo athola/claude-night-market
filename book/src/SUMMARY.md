@@ -28,6 +28,7 @@
   - [memory-palace](plugins/memory-palace.md)
   - [spec-kit](plugins/spec-kit.md)
   - [minister](plugins/minister.md)
+  - [scry](plugins/scry.md)
 
 # Tutorials
 

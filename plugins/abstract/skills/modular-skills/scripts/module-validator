@@ -267,11 +267,11 @@ def format_result(
     lines = [f"=== Validation Results for {skill_path} ==="]
 
     if result.is_valid() and not result.has_warnings():
-        lines.append("✓ PASSED: Skill structure is valid")
+        lines.append("[OK] PASSED: Skill structure is valid")
     elif result.is_valid():
-        lines.append("⚠ PASSED WITH WARNINGS")
+        lines.append("[WARN] PASSED WITH WARNINGS")
     else:
-        lines.append("✗ FAILED: Validation errors found")
+        lines.append("[X] FAILED: Validation errors found")
 
     if result.errors:
         lines.extend(["", "ERRORS:"])

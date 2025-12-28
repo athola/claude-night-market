@@ -104,15 +104,15 @@ class SanctumValidationReport:
 
     def all_errors(self) -> list[str]:
         """Get all errors from all validations."""
-        errors = []
+        errors: list[str] = []
         if self.plugin_result:
             errors.extend(self.plugin_result.errors)
-        for r in self.agent_results:
-            errors.extend(r.errors)
-        for r in self.skill_results:
-            errors.extend(r.errors)
-        for r in self.command_results:
-            errors.extend(r.errors)
+        for agent_result in self.agent_results:
+            errors.extend(agent_result.errors)
+        for skill_result in self.skill_results:
+            errors.extend(skill_result.errors)
+        for command_result in self.command_results:
+            errors.extend(command_result.errors)
         return errors
 
 
@@ -122,8 +122,8 @@ class AgentValidator:
     @staticmethod
     def validate_content(content: str) -> AgentValidationResult:
         """Validate agent markdown content."""
-        errors = []
-        warnings = []
+        errors: list[str] = []
+        warnings: list[str] = []
         agent_name = None
 
         # Check for main heading
@@ -220,8 +220,8 @@ class SkillValidator:
     @staticmethod
     def parse_frontmatter(content: str) -> SkillValidationResult:
         """Parse and validate skill frontmatter."""
-        errors = []
-        warnings = []
+        errors: list[str] = []
+        warnings: list[str] = []
         skill_name = None
         frontmatter = None
 
@@ -360,8 +360,8 @@ class SkillValidator:
     @staticmethod
     def validate_references(content: str) -> SkillValidationResult:
         """Validate skill references in content."""
-        errors = []
-        warnings = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         # Find all Skill() references
         refs = re.findall(r"Skill\(([^)]+)\)", content)
@@ -429,8 +429,8 @@ class CommandValidator:
     @staticmethod
     def parse_frontmatter(content: str) -> CommandValidationResult:
         """Parse and validate command frontmatter."""
-        errors = []
-        warnings = []
+        errors: list[str] = []
+        warnings: list[str] = []
         command_name = None
         description = None
 
@@ -551,8 +551,8 @@ class CommandValidator:
         plugin_path: Path,
     ) -> CommandValidationResult:
         """Validate that referenced skills exist in the plugin."""
-        errors = []
-        warnings = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         refs = CommandValidator.extract_skill_references(content)
         skills_dir = plugin_path / "skills"
@@ -587,8 +587,8 @@ class PluginValidator:
     @staticmethod
     def validate_structure(content: dict[str, Any]) -> PluginValidationResult:
         """Validate plugin.json structure."""
-        errors = []
-        warnings = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         plugin_name = content.get("name")
         plugin_version = content.get("version")
@@ -640,8 +640,8 @@ class PluginValidator:
     def validate_plugin_dir(path: Path) -> PluginValidationResult:
         """Validate plugin directory with file existence checks."""
         path = Path(path)
-        errors = []
-        warnings = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         # Check for plugin.json
         plugin_json_path = path / ".claude-plugin" / "plugin.json"
@@ -715,9 +715,9 @@ class SanctumValidator:
         # Validate plugin structure
         plugin_result = PluginValidator.validate_plugin_dir(path)
 
-        agent_results = []
-        skill_results = []
-        command_results = []
+        agent_results: list[AgentValidationResult] = []
+        skill_results: list[SkillValidationResult] = []
+        command_results: list[CommandValidationResult] = []
 
         # Validate agents
         agents_dir = path / "agents"
@@ -744,17 +744,17 @@ class SanctumValidator:
         total_errors = len(plugin_result.errors)
         total_warnings = len(plugin_result.warnings)
 
-        for r in agent_results:
-            total_errors += len(r.errors)
-            total_warnings += len(r.warnings)
+        for agent_result in agent_results:
+            total_errors += len(agent_result.errors)
+            total_warnings += len(agent_result.warnings)
 
-        for r in skill_results:
-            total_errors += len(r.errors)
-            total_warnings += len(r.warnings)
+        for skill_result in skill_results:
+            total_errors += len(skill_result.errors)
+            total_warnings += len(skill_result.warnings)
 
-        for r in command_results:
-            total_errors += len(r.errors)
-            total_warnings += len(r.warnings)
+        for command_result in command_results:
+            total_errors += len(command_result.errors)
+            total_warnings += len(command_result.warnings)
 
         is_valid = total_errors == 0
 

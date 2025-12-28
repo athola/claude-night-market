@@ -34,7 +34,11 @@ class ContextOptimizer:
     def __init__(self, config: AbstractConfig) -> None:
         """Initialize context optimizer with configuration."""
         self.config = config
-        self.optimizer_config = config.context_optimizer
+        optimizer_config = config.context_optimizer
+        if optimizer_config is None:
+            msg = "Context optimizer config not initialized"
+            raise ValueError(msg)
+        self.optimizer_config = optimizer_config
 
     def analyze_skill_size(self, skill_path: Path) -> dict[str, Any]:
         """Analyze skill file size and categorize for context optimization."""

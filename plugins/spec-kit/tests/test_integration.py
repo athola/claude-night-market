@@ -66,7 +66,7 @@ class TestSpeckitIntegration:
                 returncode=0,
             )
 
-            # Step 1: /speckit.specify
+            # Step 1: /speckit-specify
             # Should create branch and spec directory
             branch_name = "5-user-auth"
             spec_dir = temp_speckit_project / ".specify" / "specs" / branch_name
@@ -81,7 +81,7 @@ class TestSpeckitIntegration:
             assert spec_file.exists(), "Specification should be created"
             assert "User Authentication" in spec_file.read_text()
 
-            # Step 2: /speckit.plan
+            # Step 2: /speckit-plan
             # Should create task breakdown
             task_file = spec_dir / "TASKS.md"
             task_file.write_text(
@@ -104,7 +104,7 @@ class TestSpeckitIntegration:
 
             assert task_file.exists(), "Task file should be created"
 
-            # Step 3: /speckit.implement
+            # Step 3: /speckit-implement
             # Should start implementation
             impl_dir = spec_dir / "implementation"
             impl_dir.mkdir()

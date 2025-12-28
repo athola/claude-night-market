@@ -11,6 +11,7 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | Skill | Plugin | Description |
 |-------|--------|-------------|
 | `api-review` | [pensive](#pensive) | API surface evaluation |
+| `browser-recording` | [scry](#scry) | Playwright browser recording |
 | `architecture-paradigm-client-server` | [archetypes](#archetypes) | Client-server communication |
 | `architecture-paradigm-cqrs-es` | [archetypes](#archetypes) | CQRS and Event Sourcing |
 | `architecture-paradigm-event-driven` | [archetypes](#archetypes) | Asynchronous communication |
@@ -44,6 +45,7 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | `feature-review` | [imbue](#imbue) | Feature prioritization and gap analysis |
 | `file-analysis` | [sanctum](#sanctum) | File structure analysis |
 | `gemini-delegation` | [conjure](#conjure) | Gemini CLI integration |
+| `gif-generation` | [scry](#scry) | Video to GIF conversion |
 | `git-workspace-review` | [sanctum](#sanctum) | Repo state analysis |
 | `github-initiative-pulse` | [minister](#minister) | Initiative progress tracking |
 | `hook-authoring` | [abstract](#abstract) | Security-first hook development |
@@ -54,6 +56,7 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | `makefile-review` | [pensive](#pensive) | Makefile best practices |
 | `math-review` | [pensive](#pensive) | Mathematical correctness |
 | `mcp-code-execution` | [conservation](#conservation) | MCP patterns for data pipelines |
+| `media-composition` | [scry](#scry) | Multi-source GIF stitching |
 | `mecw-patterns` | [leyline](#leyline) | MECW implementation |
 | `memory-palace-architect` | [memory-palace](#memory-palace) | Building virtual palaces |
 | `modular-skills` | [abstract](#abstract) | Modular design patterns |
@@ -87,10 +90,12 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | `test-updates` | [sanctum](#sanctum) | Test maintenance |
 | `testing-quality-standards` | [leyline](#leyline) | Test quality guidelines |
 | `token-conservation` | [conservation](#conservation) | Token usage strategies and quota tracking |
+| `tutorial-updates` | [sanctum](#sanctum) | Tutorial GIF generation orchestration |
 | `unified-review` | [pensive](#pensive) | Review orchestration |
 | `update-readme` | [sanctum](#sanctum) | README modernization |
 | `usage-logging` | [leyline](#leyline) | Telemetry tracking |
 | `version-updates` | [sanctum](#sanctum) | Version bumping |
+| `vhs-recording` | [scry](#scry) | Terminal recordings via VHS |
 | `workflow-improvement` | [sanctum](#sanctum) | Workflow retrospectives |
 
 ### All Commands (Alphabetical)
@@ -130,27 +135,32 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | `/palace` | [memory-palace](#memory-palace) | Manage memory palaces |
 | `/pr` | [sanctum](#sanctum) | Prepares a Pull Request |
 | `/pr-review` | [sanctum](#sanctum) | Enhanced PR review with quality checks |
+| `/record-browser` | [scry](#scry) | Record browser sessions using Playwright |
+| `/record-terminal` | [scry](#scry) | Record terminal sessions using VHS |
 | `/reinstall-all-plugins` | [leyline](#leyline) | Uninstalls and reinstalls all plugins to refresh cache |
+| `/resolve-threads` | [sanctum](#sanctum) | Batch-resolve unresolved PR review threads |
 | `/review` | [imbue](#imbue) | Start a structured review workflow with evidence logging |
 | `/run-profiler` | [parseltongue](#parseltongue) | Profiles code execution |
 | `/rust-review` | [pensive](#pensive) | Runs Rust-specific review |
 | `/skills-eval` | [abstract](#abstract) | Runs skill quality assessment |
-| `/speckit.analyze` | [spec-kit](#spec-kit) | Check consistency across artifacts |
-| `/speckit.checklist` | [spec-kit](#spec-kit) | Generate a custom checklist for the feature |
-| `/speckit.clarify` | [spec-kit](#spec-kit) | Identify underspecified areas with targeted questions |
-| `/speckit.constitution` | [spec-kit](#spec-kit) | Create or update project constitution |
-| `/speckit.implement` | [spec-kit](#spec-kit) | Execute the tasks |
-| `/speckit.plan` | [spec-kit](#spec-kit) | Generate an implementation plan |
-| `/speckit.specify` | [spec-kit](#spec-kit) | Create a new specification |
-| `/speckit.startup` | [spec-kit](#spec-kit) | Bootstrap speckit workflow at session start |
-| `/speckit.tasks` | [spec-kit](#spec-kit) | Generate tasks from the plan |
+| `/speckit-analyze` | [spec-kit](#spec-kit) | Check consistency across artifacts |
+| `/speckit-checklist` | [spec-kit](#spec-kit) | Generate a custom checklist for the feature |
+| `/speckit-clarify` | [spec-kit](#spec-kit) | Identify underspecified areas with targeted questions |
+| `/speckit-constitution` | [spec-kit](#spec-kit) | Create or update project constitution |
+| `/speckit-implement` | [spec-kit](#spec-kit) | Execute the tasks |
+| `/speckit-plan` | [spec-kit](#spec-kit) | Generate an implementation plan |
+| `/speckit-specify` | [spec-kit](#spec-kit) | Create a new specification |
+| `/speckit-startup` | [spec-kit](#spec-kit) | Bootstrap speckit workflow at session start |
+| `/speckit-tasks` | [spec-kit](#spec-kit) | Generate tasks from the plan |
 | `/structured-review` | [imbue](#imbue) | Start structured review workflow with evidence logging |
 | `/test-review` | [pensive](#pensive) | Runs test quality review |
 | `/test-skill` | [abstract](#abstract) | Skill testing workflow with TDD methodology |
 | `/update-all-plugins` | [leyline](#leyline) | Updates all installed plugins from marketplaces |
+| `/update-dependencies` | [sanctum](#sanctum) | Scan and update dependencies across all ecosystems |
 | `/update-docs` | [sanctum](#sanctum) | Updates documentation |
 | `/update-readme` | [sanctum](#sanctum) | Updates README with language-aware exemplar mining |
 | `/update-tests` | [sanctum](#sanctum) | Updates and maintains tests |
+| `/update-tutorial` | [sanctum](#sanctum) | Generate tutorials with GIF recordings |
 | `/update-version` | [sanctum](#sanctum) | Bumps project versions |
 | `/validate-hook` | [abstract](#abstract) | Validates hook security, performance, and compliance |
 | `/validate-plugin` | [abstract](#abstract) | Checks a plugin's structure against requirements |
@@ -166,6 +176,7 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 | `code-reviewer` | [pensive](#pensive) | Expert code review for bugs, security, and quality |
 | `commit-agent` | [sanctum](#sanctum) | Conventional commit message generator |
 | `context-optimizer` | [conservation](#conservation) | Autonomous agent for context window optimization and MECW compliance |
+| `dependency-updater` | [sanctum](#sanctum) | Multi-ecosystem dependency analysis and updates |
 | `garden-curator` | [memory-palace](#memory-palace) | Maintains digital gardens |
 | `git-workspace-agent` | [sanctum](#sanctum) | Repository state analyzer |
 | `implementation-executor` | [spec-kit](#spec-kit) | Executes tasks and writes code |
@@ -223,6 +234,7 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 - [Parseltongue](#parseltongue)
 - [Pensive](#pensive)
 - [Sanctum](#sanctum)
+- [Scry](#scry)
 - [Spec Kit](#spec-kit)
 - [Superpowers Dependencies](#superpowers-dependencies)
 
@@ -256,12 +268,12 @@ The table below shows which Night Market components depend on superpowers skills
 | **sanctum** | `/pr-review` | Command | `superpowers:receiving-code-review` | Comprehensive scope-focused PR analysis |
 | **sanctum** | `/fix-pr` | Command | `superpowers:receiving-code-review` | Systematic review comment resolution |
 | **sanctum** | `/fix-issue` | Command | `superpowers:subagent-driven-development`, `superpowers:writing-plans`, `superpowers:test-driven-development`, `superpowers:requesting-code-review`, `superpowers:finishing-a-development-branch` | Full issue-to-PR workflow automation |
-| **spec-kit** | `/speckit.clarify` | Command | `superpowers:brainstorming` | Enhanced clarification questioning |
-| **spec-kit** | `/speckit.plan` | Command | `superpowers:writing-plans` | Structured implementation planning |
-| **spec-kit** | `/speckit.tasks` | Command | `superpowers:executing-plans`, `superpowers:systematic-debugging` | Task breakdown with debugging support |
-| **spec-kit** | `/speckit.implement` | Command | `superpowers:executing-plans`, `superpowers:systematic-debugging` | Execution with error handling |
-| **spec-kit** | `/speckit.analyze` | Command | `superpowers:systematic-debugging`, `superpowers:verification-before-completion` | Cross-artifact consistency checks |
-| **spec-kit** | `/speckit.checklist` | Command | `superpowers:verification-before-completion` | Evidence-based checklist validation |
+| **spec-kit** | `/speckit-clarify` | Command | `superpowers:brainstorming` | Enhanced clarification questioning |
+| **spec-kit** | `/speckit-plan` | Command | `superpowers:writing-plans` | Structured implementation planning |
+| **spec-kit** | `/speckit-tasks` | Command | `superpowers:executing-plans`, `superpowers:systematic-debugging` | Task breakdown with debugging support |
+| **spec-kit** | `/speckit-implement` | Command | `superpowers:executing-plans`, `superpowers:systematic-debugging` | Execution with error handling |
+| **spec-kit** | `/speckit-analyze` | Command | `superpowers:systematic-debugging`, `superpowers:verification-before-completion` | Cross-artifact consistency checks |
+| **spec-kit** | `/speckit-checklist` | Command | `superpowers:verification-before-completion` | Evidence-based checklist validation |
 | **spec-kit** | `speckit-orchestrator` | Skill | Multiple superpowers | Full SDD workflow coordination |
 | **spec-kit** | `task-planning` | Skill | `superpowers:writing-plans`, `superpowers:executing-plans` | Structured task generation |
 | **pensive** | `/full-review` | Command | `superpowers:systematic-debugging`, `superpowers:verification-before-completion` | Four-phase debugging + evidence standards |
@@ -697,6 +709,7 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 | `update-readme` | README modernization. | Refreshing project entry points. | `Skill(sanctum:update-readme)` |
 | `version-updates` | Version bumping. | Managing semantic versioning. | `Skill(sanctum:version-updates)` |
 | `test-updates` | Test maintenance. | Updating and maintaining tests with TDD/BDD. | `Skill(sanctum:test-updates)` |
+| `tutorial-updates` | Tutorial GIF generation orchestration. | Regenerating tutorial GIFs, updating documentation demos. | `Skill(sanctum:tutorial-updates)` |
 | `file-analysis` | File structure analysis. | Understanding file organization and dependencies. | `Skill(sanctum:file-analysis)` |
 | `workflow-improvement` | Workflow retrospectives. | Improving slow, confusing, or fragile workflows. | `Skill(sanctum:workflow-improvement)` |
 
@@ -710,11 +723,14 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 | `/pr-review` | Enhanced PR review with quality checks. |
 | `/fix-pr` | Addresses PR review comments with thread resolution and automatic issue linkage (closes/comments on related issues). |
 | `/fix-issue` | Workflow for fixing GitHub issues systematically with parallel execution. |
+| `/resolve-threads` | Batch-resolve all unresolved PR review threads via GraphQL. |
 | `/fix-workflow` | Runs workflow retrospective and improves components. |
 | `/merge-docs` | Consolidates ephemeral docs into permanent documentation. |
 | `/update-docs` | Updates documentation. |
 | `/update-readme` | Updates README with language-aware exemplar mining. |
 | `/update-tests` | Updates and maintains tests. |
+| `/update-tutorial` | Generate tutorials with accompanying GIF recordings. |
+| `/update-dependencies` | Scan and update dependencies across all ecosystems. |
 | `/update-version` | Bumps project versions. |
 
 ### Agents
@@ -724,6 +740,7 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 | `git-workspace-agent` | Repository state analyzer. |
 | `commit-agent` | Conventional commit message generator. |
 | `pr-agent` | Pull request preparation specialist. |
+| `dependency-updater` | Multi-ecosystem dependency analysis and updates. |
 | `workflow-recreate-agent` | Reconstructs workflow slices and surfaces inefficiencies. |
 | `workflow-improvement-analysis-agent` | Generates improvement approaches with trade-offs. |
 | `workflow-improvement-planner-agent` | Selects approach and creates execution plan. |
@@ -737,6 +754,28 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 | `post_implementation_policy.py` | SessionStart | Injects post-implementation protocol requiring docs/tests/readme updates. |
 | `verify_workflow_complete.py` | Stop | Verifies workflow completion. |
 | `session_complete_notify.py` | Stop | Cross-platform toast notification (Linux/macOS/Windows) when Claude awaits input. |
+
+---
+
+## Scry
+
+**Purpose**: Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition.
+
+### Skills
+
+| Skill | Description | Use Case | Example |
+|-------|-------------|----------|---------|
+| `vhs-recording` | Terminal recordings via VHS. | Creating terminal demos for tutorials. | `Skill(scry:vhs-recording)` |
+| `browser-recording` | Playwright browser recording. | Recording web UI interactions for documentation. | `Skill(scry:browser-recording)` |
+| `gif-generation` | Video to GIF conversion. | Converting WebM/MP4 to optimized GIFs. | `Skill(scry:gif-generation)` |
+| `media-composition` | Multi-source GIF stitching. | Combining terminal and browser recordings. | `Skill(scry:media-composition)` |
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `/record-terminal` | Record terminal sessions using VHS tape files. |
+| `/record-browser` | Record browser sessions using Playwright specs. |
 
 ---
 
@@ -756,15 +795,15 @@ The session-start hook supports three modes via the `CONSERVATION_MODE` environm
 
 | Command | Description |
 |---------|-------------|
-| `/speckit.specify` | Create a new specification. |
-| `/speckit.plan` | Generate an implementation plan. |
-| `/speckit.tasks` | Generate tasks from the plan. |
-| `/speckit.implement` | Execute the tasks. |
-| `/speckit.analyze` | Check consistency across artifacts. |
-| `/speckit.checklist` | Generate a custom checklist for the feature. |
-| `/speckit.clarify` | Identify underspecified areas with targeted questions. |
-| `/speckit.constitution` | Create or update project constitution. |
-| `/speckit.startup` | Bootstrap speckit workflow at session start. |
+| `/speckit-specify` | Create a new specification. |
+| `/speckit-plan` | Generate an implementation plan. |
+| `/speckit-tasks` | Generate tasks from the plan. |
+| `/speckit-implement` | Execute the tasks. |
+| `/speckit-analyze` | Check consistency across artifacts. |
+| `/speckit-checklist` | Generate a custom checklist for the feature. |
+| `/speckit-clarify` | Identify underspecified areas with targeted questions. |
+| `/speckit-constitution` | Create or update project constitution. |
+| `/speckit-startup` | Bootstrap speckit workflow at session start. |
 
 ### Agents
 

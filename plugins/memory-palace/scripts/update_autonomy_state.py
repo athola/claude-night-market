@@ -46,7 +46,10 @@ def load_history(path: Path) -> list[dict[str, Any]]:
     """Load autonomy decision history from JSON."""
     if not path.exists():
         raise FileNotFoundError(f"History file not found: {path}")
-    return json.loads(path.read_text(encoding="utf-8"))
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, list):
+        return []
+    return [item for item in data if isinstance(item, dict)]
 
 
 def compute_stats(

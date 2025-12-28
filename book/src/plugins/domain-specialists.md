@@ -20,6 +20,7 @@ Domain plugins offer:
 | [memory-palace](memory-palace.md) | Knowledge | Spatial memory organization |
 | [spec-kit](spec-kit.md) | Specifications | Spec-driven development |
 | [minister](minister.md) | Releases | Initiative tracking |
+| [scry](scry.md) | Media | Documentation recordings |
 
 ## When to Use
 
@@ -62,6 +63,13 @@ Use when you need to:
 - Monitor release readiness
 - Generate stakeholder reports
 
+### scry
+Use when you need to:
+- Record terminal demos with VHS
+- Capture browser sessions with Playwright
+- Generate GIFs for documentation
+- Compose multi-source tutorials
+
 ## Dependencies
 
 Most domain plugins depend on foundation layers:
@@ -73,6 +81,7 @@ parseltongue (standalone)
 memory-palace (standalone)
 spec-kit --> imbue
 minister (standalone)
+scry (standalone)
 ```
 
 ## Example Workflows
@@ -102,10 +111,19 @@ Skill(parseltongue:python-testing)
 
 ### Feature Development
 ```bash
-/speckit.specify Add user authentication
-/speckit.plan
-/speckit.tasks
-/speckit.implement
+/speckit-specify Add user authentication
+/speckit-plan
+/speckit-tasks
+/speckit-implement
+```
+
+### Media Recording
+```bash
+/record-terminal
+# Creates VHS tape script and records terminal to GIF
+
+/record-browser
+# Records browser session with Playwright
 ```
 
 ## Installation
@@ -130,6 +148,9 @@ Install based on your needs:
 
 # Release management
 /plugin install minister@claude-night-market
+
+# Media recording
+/plugin install scry@claude-night-market
 ```
 
 <div class="achievement-hint" data-achievement="domain-master">

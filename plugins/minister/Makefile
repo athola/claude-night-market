@@ -4,14 +4,20 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help deps test test-unit test-integration test-bdd test-coverage lint format type-check typecheck \
-        security clean install-hooks status ci demo-tracking demo-initiatives demo-skills plugin-check
+        security clean install-hooks status ci demo-tracking demo-initiatives demo-skills plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests scripts
+COV_DIRS := src/minister
+MYPY_TARGETS := src/
+BANDIT_TARGETS := src/
+TEST_UNIT_TARGETS := tests/unit/
+TEST_UNIT_ARGS := -v
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
+-include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message
@@ -25,40 +31,13 @@ deps: ## Install and sync dependencies
 
 # ---------- Testing ----------
 test: ## Run all tests
-	uv run pytest tests/ -v
-
-test-unit: ## Run unit tests only
-	uv run pytest tests/unit/ -v
+	$(PYTEST) tests/ -v
 
 test-integration: ## Run integration tests only
-	uv run pytest tests/integration/ -v
+	$(PYTEST) tests/integration/ -v
 
 test-bdd: ## Run BDD scenario tests
-	uv run pytest tests/bdd/ -v
-
-test-coverage: ## Run tests with coverage report
-	uv run pytest tests/ --cov=src/minister --cov-report=term-missing --cov-report=html
-
-# ---------- Code Quality ----------
-lint: ## Run linting checks
-	@echo "Running linting checks..."
-	uv run ruff check $(SRC_DIRS) || { echo "⚠ Linting failed"; exit 1; }
-
-format: ## Format code
-	@echo "Formatting code..."
-	uv run ruff format $(SRC_DIRS)
-	uv run ruff check --fix $(SRC_DIRS)
-
-type-check: ## Run type checking
-	@echo "Running type checking..."
-	uv run mypy src/ || { echo "⚠ Type checking failed"; exit 1; }
-
-# Alias for backwards compatibility
-typecheck: type-check
-
-security: ## Run security checks
-	@echo "Running security checks..."
-	uv run bandit -r src/ || { echo "⚠ Security check failed"; exit 1; }
+	$(PYTEST) tests/bdd/ -v
 
 # ---------- CI ----------
 ci: lint type-check test ## Run CI pipeline
@@ -76,6 +55,22 @@ status: ## Show project overview
 	@echo "Commands: $$(find commands/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Source:   $$(find src/ -name '*.py' 2>/dev/null | wc -l) Python files"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
+
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "PYTHON: $(PYTHON)"
+	@echo "UV: $(UV)"
+	@echo "UV_RUN: $(UV_RUN)"
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 install-hooks: ## Install pre-commit hooks
 	@echo "Installing pre-commit hooks..."
@@ -128,3 +123,13 @@ demo-skills: ## Validate minister skill structure
 plugin-check: demo-tracking demo-initiatives demo-skills status ## Run all demo workflows
 	@echo ""
 	@echo "=== Minister Plugin Check Complete ==="
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

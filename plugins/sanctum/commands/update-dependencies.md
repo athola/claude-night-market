@@ -70,14 +70,14 @@ Found 12 pyproject.toml, 0 Cargo.toml, 1 package.json, 0 go.mod
 Python Updates Available:
 | Package   | Current | Latest | Status    |
 |-----------|---------|--------|-----------|
-| requests  | 2.28.0  | 2.31.0 | ✓ safe    |
-| django    | 4.1     | 5.0    | ⚠ major   |
-| pydantic  | 1.10    | 2.5    | 🔧 code   |
+| requests  | 2.28.0  | 2.31.0 | [OK] safe    |
+| django    | 4.1     | 5.0    | [WARN] major   |
+| pydantic  | 1.10    | 2.5    | [FIX] code   |
 
 JavaScript Updates Available:
 | Package   | Current | Latest | Status    |
 |-----------|---------|--------|-----------|
-| typescript| 5.2.0   | 5.3.0  | ✓ safe    |
+| typescript| 5.2.0   | 5.3.0  | [OK] safe    |
 
 Apply updates? [y/N]
 ```

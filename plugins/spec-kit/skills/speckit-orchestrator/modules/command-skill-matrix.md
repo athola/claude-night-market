@@ -8,21 +8,21 @@ The Command-Skill Matrix defines which skills are required for each speckit comm
 
 ### Specification Phase
 
-**`/speckit.specify`**
+**`/speckit-specify`**
 - **Primary Skill**: `spec-writing`
 - **Complementary Skills**: `superpowers:brainstorming`
 - **Loading Order**: brainstorming → spec-writing
 - **When to Load**: At command start, before any specification work
 - **Purpose**: Create or refine feature specifications with collaborative ideation
 
-**`/speckit.clarify`**
+**`/speckit-clarify`**
 - **Primary Skill**: `spec-writing`
 - **Complementary Skills**: `superpowers:brainstorming`
 - **Loading Order**: brainstorming → spec-writing
 - **When to Load**: When specification needs refinement or has gaps
 - **Purpose**: Identify underspecified areas and encode clarifications
 
-**`/speckit.constitution`**
+**`/speckit-constitution`**
 - **Primary Skill**: `spec-writing`
 - **Complementary Skills**: None required
 - **Loading Order**: spec-writing only
@@ -31,14 +31,14 @@ The Command-Skill Matrix defines which skills are required for each speckit comm
 
 ### Planning Phase
 
-**`/speckit.plan`**
+**`/speckit-plan`**
 - **Primary Skill**: `task-planning`
 - **Complementary Skills**: `superpowers:writing-plans`
 - **Loading Order**: task-planning → writing-plans
 - **When to Load**: After specification is complete
 - **Purpose**: Generate detailed implementation design artifacts
 
-**`/speckit.tasks`**
+**`/speckit-tasks`**
 - **Primary Skill**: `task-planning`
 - **Complementary Skills**: `superpowers:executing-plans`
 - **Loading Order**: task-planning → executing-plans
@@ -47,7 +47,7 @@ The Command-Skill Matrix defines which skills are required for each speckit comm
 
 ### Implementation Phase
 
-**`/speckit.implement`**
+**`/speckit-implement`**
 - **Primary Skill**: None (uses loaded plan)
 - **Complementary Skills**: `superpowers:executing-plans`, `superpowers:systematic-debugging`
 - **Loading Order**: executing-plans → systematic-debugging (on-demand)
@@ -56,21 +56,21 @@ The Command-Skill Matrix defines which skills are required for each speckit comm
 
 ### Verification Phase
 
-**`/speckit.analyze`**
+**`/speckit-analyze`**
 - **Primary Skill**: None (analysis only)
 - **Complementary Skills**: `superpowers:systematic-debugging`, `superpowers:verification-before-completion`
 - **Loading Order**: Load both at analysis start
 - **When to Load**: After task generation or implementation
 - **Purpose**: Cross-artifact consistency and quality analysis
 
-**`/speckit.checklist`**
+**`/speckit-checklist`**
 - **Primary Skill**: None (generation only)
 - **Complementary Skills**: `superpowers:verification-before-completion`
 - **Loading Order**: verification-before-completion only
 - **When to Load**: When generating feature-specific checklists
 - **Purpose**: Create custom verification checklists
 
-**`/speckit.startup`**
+**`/speckit-startup`**
 - **Primary Skill**: None (bootstrap only)
 - **Complementary Skills**: None required
 - **Loading Order**: N/A

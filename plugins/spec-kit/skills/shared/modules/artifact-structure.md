@@ -244,10 +244,10 @@ checklists/[domain].md (validate implementation requirements)
 
 ## Usage in Commands
 
-- `/speckit.specify` → Creates spec.md, checklists/requirements.md
-- `/speckit.clarify` → Resolves [NEEDS CLARIFICATION] in spec.md
-- `/speckit.plan` → Creates plan.md, research.md, data-model.md, contracts/
-- `/speckit.tasks` → Generates tasks.md from plan.md + spec.md
-- `/speckit.checklist` → Creates domain-specific checklists (ux.md, api.md, etc.)
-- `/speckit.implement` → Executes tasks.md
-- `/speckit.analyze` → Cross-artifact consistency validation
+- `/speckit-specify` → Creates spec.md, checklists/requirements.md
+- `/speckit-clarify` → Resolves [NEEDS CLARIFICATION] in spec.md
+- `/speckit-plan` → Creates plan.md, research.md, data-model.md, contracts/
+- `/speckit-tasks` → Generates tasks.md from plan.md + spec.md
+- `/speckit-checklist` → Creates domain-specific checklists (ux.md, api.md, etc.)
+- `/speckit-implement` → Executes tasks.md
+- `/speckit-analyze` → Cross-artifact consistency validation

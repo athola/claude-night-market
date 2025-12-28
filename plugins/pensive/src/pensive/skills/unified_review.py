@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any, ClassVar
 
-from .base import BaseReviewSkill
+from .base import AnalysisResult, BaseReviewSkill
 
 
 def dispatch_agent(skill_name: str, _context: Any) -> str:
@@ -354,7 +354,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         return action_items
 
-    def analyze(self, context: Any, _file_path: str = "") -> str:
+    def analyze(self, context: Any, _file_path: str = "") -> AnalysisResult:
         """Run unified analysis across all applicable skills.
 
         Args:
@@ -365,17 +365,24 @@ class UnifiedReviewSkill(BaseReviewSkill):
             Analysis result string
         """
         files = context.get_files()
-
         if not files:
-            return "No code files found in the repository"
+            return AnalysisResult(warnings=["No code files found in the repository"])
 
         # Detect languages and skills
         languages = self.detect_languages(context)
         selected_skills = self.select_review_skills(context)
 
-        return (
+        summary = (
             f"Analyzed {len(files)} files, {len(languages)} languages, "
             f"{len(selected_skills)} skills"
+        )
+        return AnalysisResult(
+            info={
+                "summary": summary,
+                "files_analyzed": len(files),
+                "languages_detected": languages,
+                "skills_executed": selected_skills,
+            }
         )
 
     def detect_api_surface(self, context: Any) -> dict[str, Any]:
@@ -464,14 +471,20 @@ class UnifiedReviewSkill(BaseReviewSkill):
 
         # Multiple languages detected increases confidence
         languages_detected = analysis_data.get("languages_detected", [])
+        if not isinstance(languages_detected, list):
+            languages_detected = []
         language_bonus = min(len(languages_detected) * 5, 10)
 
         # More files analyzed increases confidence
         files_analyzed = analysis_data.get("files_analyzed", 0)
+        if not isinstance(files_analyzed, int):
+            files_analyzed = 0
         file_bonus = min(files_analyzed * 2, 15)
 
         # More skills executed increases confidence
         skills_executed = analysis_data.get("skills_executed", 0)
+        if not isinstance(skills_executed, int):
+            skills_executed = 0
         skill_bonus = min(skills_executed * 5, 15)
 
         total_score = (

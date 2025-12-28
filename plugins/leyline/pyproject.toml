@@ -1,6 +1,6 @@
 [project]
 name = "leyline"
-version = "1.0.5"
+version = "1.1.0"
 description = "Infrastructure and pipeline building blocks for Claude Code plugins"
 authors = [{name = "Claude Night Market"}]
 license = {text = "MIT"}
@@ -55,6 +55,15 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 strict = true
+mypy_path = ["src", "scripts"]
+
+[[tool.mypy.overrides]]
+module = ["tiktoken"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["pytest"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management",
   "commands": [
     "./commands/palace.md",
@@ -20,7 +20,15 @@
     "./agents/garden-curator.md",
     "./agents/knowledge-librarian.md"
   ],
-  "keywords": ["memory-palace", "spatial-memory", "knowledge-organization", "digital-garden", "recall", "navigation", "mnemonic"],
+  "keywords": [
+    "memory-palace",
+    "spatial-memory",
+    "knowledge-organization",
+    "digital-garden",
+    "recall",
+    "navigation",
+    "mnemonic"
+  ],
   "author": {
     "name": "Alex Thola",
     "url": "https://github.com/athola"

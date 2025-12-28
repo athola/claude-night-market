@@ -52,7 +52,21 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
    4. PR description and commit history
    ```
 
-2. **Establish Requirements Baseline**
+2. **Check Existing Backlog for Context**
+   ```bash
+   # Check for existing backlog files to avoid duplicate issue creation
+   ls docs/backlog/*.md 2>/dev/null
+   # Key files to check:
+   # - docs/backlog/queue.md - Active backlog items with worthiness scores
+   # - docs/backlog/technical-debt.md - Known technical debt items
+   ```
+
+   If these files exist:
+   - Cross-reference out-of-scope items against existing entries
+   - Avoid creating duplicate GitHub issues for items already tracked
+   - Link new issues to related existing items when appropriate
+
+3. **Establish Requirements Baseline**
    ```markdown
    This PR aims to: [extracted from artifacts]
 
@@ -64,7 +78,7 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 
 ### Phase 2: Code Analysis (Superpowers)
 
-3. **Comprehensive Code Review**
+4. **Comprehensive Code Review**
    ```bash
    Skill(superpowers:receiving-code-review)
    ```
@@ -73,7 +87,7 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
    - Identifies potential issues
    - Suggests improvements
 
-4. **Quality Classification**
+5. **Quality Classification**
    - Security vulnerabilities
    - Performance issues
    - Maintainability concerns
@@ -81,7 +95,7 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 
 ### Phase 3: Synthesis & Validation
 
-5. **Scope-Aware Triage**
+6. **Scope-Aware Triage**
    Each finding evaluated against scope:
 
    | Finding Type | In Scope? | Action |
@@ -93,14 +107,14 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
    | Style improvement | No | Ignore |
    | Performance optimization | No | Backlog |
 
-6. **Generate Structured Report**
+7. **Generate Structured Report**
    Combines scope validation with code analysis
 
 ### Phase 4: GitHub Review Submission (MANDATORY)
 
 After generating findings, you MUST post them to GitHub as PR review comments.
 
-7. **Determine PR Number and Check Authorship**
+8. **Determine PR Number and Check Authorship**
    ```bash
    # Get PR number if not provided
    PR_NUMBER=$(gh pr view --json number -q '.number')
@@ -116,7 +130,7 @@ After generating findings, you MUST post them to GitHub as PR review comments.
    fi
    ```
 
-8. **Get PR Diff and Head Commit**
+9. **Get PR Diff and Head Commit**
    ```bash
    # Get head commit (required for review API)
    COMMIT_ID=$(gh pr view $PR_NUMBER --json headRefOid -q '.headRefOid')
@@ -125,7 +139,7 @@ After generating findings, you MUST post them to GitHub as PR review comments.
    gh pr diff $PR_NUMBER > /tmp/pr_diff.txt
    ```
 
-9. **Post Line-Specific Comments via Reviews API**
+10. **Post Line-Specific Comments via Reviews API**
 
    **IMPORTANT:** Use the reviews endpoint with a comments array. The individual comments endpoint does NOT support `line`/`side` parameters reliably.
 
@@ -173,7 +187,7 @@ After generating findings, you MUST post them to GitHub as PR review comments.
    **Suggestion:** Extract SkillCache to its own module."
    ```
 
-10. **Submit Review with Summary**
+11. **Submit Review with Summary**
     ```bash
     # Determine review event based on findings AND authorship
     if [[ "$IS_OWN_PR" == "true" ]]; then
@@ -236,7 +250,7 @@ Severity: BLOCKING | IN_SCOPE | SUGGESTION
 | `gh pr comment` | General comments, lines not in diff | Simple, always works |
 | `gh pr review` | Summary submission | Use after inline comments |
 
-11. **Document Created Threads for `/fix-pr`**
+12. **Document Created Threads for `/fix-pr`**
     After posting all comments, output a summary that can be used by `/fix-pr`:
     ```markdown
     ### Review Threads Created
@@ -254,6 +268,154 @@ Severity: BLOCKING | IN_SCOPE | SUGGESTION
     - Reply to each thread with the fix description
     - Resolve the threads via GraphQL
     - Verify all issues have been addressed
+
+### Phase 5: Test Plan Generation (MANDATORY)
+
+After documenting review threads, generate a comprehensive test plan that `/fix-pr` can execute to verify fixes.
+
+13. **Generate Test Plan Document**
+
+    Create a structured test plan covering all blocking and in-scope issues:
+
+    ```markdown
+    ## Test Plan for PR #42
+
+    Generated from `/pr-review` on YYYY-MM-DD
+
+    ### Prerequisites
+    - [ ] All blocking issues (B1-BN) have been addressed
+    - [ ] All in-scope issues (S1-SN) have been addressed
+    - [ ] Code compiles without errors
+
+    ---
+
+    ### Blocking Issues Verification
+
+    #### B1: Missing token validation
+    **File:** `middleware/auth.py:45`
+    **Issue:** Always returns True, validation not implemented
+
+    **Verification Steps:**
+    1. [ ] Review the fix at `middleware/auth.py:45`
+    2. [ ] Run: `pytest tests/test_auth.py -k "token_validation" -v`
+    3. [ ] Manual check: Attempt login with invalid token, verify rejection
+    4. [ ] Verify error response includes appropriate message
+
+    **Expected Outcome:**
+    - Tests pass
+    - Invalid tokens return 401 Unauthorized
+    - No security regression
+
+    ---
+
+    #### B2: SQL injection vulnerability
+    **File:** `models/user.py:123`
+    **Issue:** String interpolation in query
+
+    **Verification Steps:**
+    1. [ ] Review the fix at `models/user.py:123`
+    2. [ ] Run: `bandit -r models/ -ll`
+    3. [ ] Run: `pytest tests/test_models.py -k "sql" -v`
+    4. [ ] Manual check: Verify parameterized queries used
+
+    **Expected Outcome:**
+    - Bandit reports no high-severity SQL issues
+    - All SQL queries use parameterized format
+    - Tests pass
+
+    ---
+
+    ### In-Scope Issues Verification
+
+    #### S1: Password reset flow missing
+    **Requirement:** Users must be able to reset passwords
+
+    **Verification Steps:**
+    1. [ ] Verify endpoint exists: `grep -r "password.*reset" routes/`
+    2. [ ] Run: `pytest tests/test_auth.py -k "password_reset" -v`
+    3. [ ] Manual check: Test password reset email flow
+
+    **Expected Outcome:**
+    - Password reset endpoint implemented
+    - Email sending functionality works
+    - Tests cover happy path and error cases
+
+    ---
+
+    ### Build & Quality Gates
+
+    **Run these commands to verify overall quality:**
+
+    ```bash
+    # Full test suite
+    make test
+
+    # Linting and formatting
+    make lint
+
+    # Security scan
+    make security-check
+
+    # Build verification
+    make build
+    ```
+
+    **All must pass before PR approval.**
+
+    ---
+
+    ### Summary Checklist
+
+    | Issue ID | File | Verified | Notes |
+    |----------|------|----------|-------|
+    | B1 | middleware/auth.py:45 | [ ] | |
+    | B2 | models/user.py:123 | [ ] | |
+    | S1 | routes/auth.py | [ ] | |
+    | S2 | auth.py:78 | [ ] | |
+
+    **Ready for merge when all boxes checked.**
+    ```
+
+14. **Output Test Plan Location**
+
+    Save the test plan and reference it in the summary:
+
+    ```markdown
+    ### Test Plan Created
+
+    A step-by-step verification checklist has been generated.
+
+    **Location:** Included above (or saved to `.pr-review/test-plan-{pr_number}.md`)
+
+    **Usage with /fix-pr:**
+    1. Run `/fix-pr {pr_number}` to address the issues
+    2. Execute each verification step in the test plan
+    3. Check off completed items
+    4. Run build/quality gates
+    5. All items must pass before requesting re-review
+
+    **Quick Verification Commands:**
+    ```bash
+    make test && make lint && make build
+    ```
+    ```
+
+**Test Plan Generation Rules:**
+
+| Finding Type | Include in Test Plan | Verification Depth |
+|--------------|---------------------|-------------------|
+| Blocking | Always | Full: code review + tests + manual |
+| In-Scope | Always | Standard: code review + tests |
+| Suggestion | If addressed | Light: code review only |
+| Backlog | Never | N/A (tracked in issues) |
+
+**Test Plan Section Requirements:**
+- Each issue must have numbered verification steps
+- Include specific commands to run
+- Define expected outcomes clearly
+- Provide manual check procedures where automated tests insufficient
+- Include overall quality gate commands
+- Format as checkboxes for `/fix-pr` execution
 
 ## Options
 
@@ -292,11 +454,13 @@ Nice improvements:
 - Documentation improvements
 
 ### Backlog Items
-Create GitHub issues:
+Create GitHub issues (primary storage):
 - Refactoring opportunities
 - "While we're here" improvements
 - Feature expansions
 - Technical debt in adjacent code
+
+**Important**: GitHub issues are the source of truth for backlog items. Reference existing `docs/backlog/*.md` files for context (e.g., `docs/backlog/queue.md`, `docs/backlog/technical-debt.md`) to avoid duplicates.
 
 ## Enhanced Example
 
@@ -626,3 +790,9 @@ pr_review:
 - **Automatically posts findings as GitHub PR review comments**
 - Use `--dry-run` to generate report without posting to GitHub
 - Use `--no-line-comments` to only submit summary without inline comments
+
+## See Also
+
+- `/fix-pr` - Address PR review comments and resolve threads
+- `/resolve-threads` - Batch-resolve unresolved review threads
+- `/pr` - Prepare a PR for submission

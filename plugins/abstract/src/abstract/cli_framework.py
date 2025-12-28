@@ -47,9 +47,12 @@ class OutputFormatter:
 
         """
         if is_dataclass(data) and not isinstance(data, type):
-            data = asdict(data)
+            data = asdict(data)  # type: ignore[arg-type]
         elif isinstance(data, list):
-            data = [asdict(item) if is_dataclass(item) else item for item in data]
+            data = [
+                asdict(item) if is_dataclass(item) else item  # type: ignore[arg-type]
+                for item in data
+            ]
         return json.dumps(data, indent=2, default=str)
 
     @staticmethod
@@ -312,10 +315,16 @@ class AbstractCLI(ABC):
 
         """
         if isinstance(data, list):
-            rows = [asdict(d) if is_dataclass(d) else d for d in data]
+            rows = [
+                asdict(d) if is_dataclass(d) else d  # type: ignore[arg-type]
+                for d in data
+            ]
             return self._formatter.format_table(rows, table_columns)
         if is_dataclass(data):
-            return self._formatter.format_table([asdict(data)], table_columns)
+            return self._formatter.format_table(
+                [asdict(data)],  # type: ignore[arg-type]
+                table_columns,
+            )
         return str(data)
 
     def format_text(self, data: Any) -> str:
@@ -392,7 +401,7 @@ class AbstractCLI(ABC):
         return 0 if result.success else 1
 
 
-def cli_main(cli_class: type[AbstractCLI], **kwargs) -> None:
+def cli_main(cli_class: type[AbstractCLI], **kwargs: Any) -> None:
     """Run a CLI class with the given arguments.
 
     Args:

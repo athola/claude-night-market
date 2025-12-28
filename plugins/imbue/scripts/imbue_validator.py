@@ -68,6 +68,27 @@ class ImbueValidator:
                 issues.append(f"{skill_name}: Unable to read {skill_file}: {e}")
                 continue
 
+            frontmatter = None
+            if content.startswith("---"):
+                parts = content.split("---", 2)
+                if len(parts) >= 3:
+                    frontmatter = parts[1]
+
+            if frontmatter:
+                has_review_category = re.search(
+                    r"^\s*category:\s*review-patterns\b",
+                    frontmatter,
+                    re.MULTILINE,
+                )
+                has_review_usage = re.search(
+                    r"^\s*-\s*review-workflow\b",
+                    frontmatter,
+                    re.MULTILINE,
+                )
+                if has_review_category or has_review_usage:
+                    review_workflow_skills.add(skill_name)
+                    continue
+
             # Check for review workflow patterns
             review_patterns = [
                 r"workflow",
@@ -200,12 +221,13 @@ def main() -> None:
     elif args.scan:
         scan_result = validator.scan_review_workflows()
         issues = validator.validate_review_workflows()
-        for key in [
-            "skills_found",
-            "review_workflow_skills",
-            "evidence_logging_patterns",
-        ]:
-            print(f"{key}: {sorted(scan_result[key])}")
+        fields: dict[str, set[str]] = {
+            "skills_found": scan_result["skills_found"],
+            "review_workflow_skills": scan_result["review_workflow_skills"],
+            "evidence_logging_patterns": scan_result["evidence_logging_patterns"],
+        }
+        for key, values in fields.items():
+            print(f"{key}: {sorted(values)}")
         if issues:
             print("\nIssues:")
             for issue in issues:

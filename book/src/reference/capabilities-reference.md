@@ -25,6 +25,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
+| `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
@@ -42,6 +43,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization and gap analysis |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
+| `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
@@ -52,6 +54,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conservation](../plugins/conservation.md) | MCP patterns for data pipelines |
+| `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `mecw-patterns` | [leyline](../plugins/leyline.md) | MECW implementation |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
@@ -88,6 +91,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README modernization |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
+| `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
 
 ### All Commands (Alphabetical)
@@ -127,20 +131,22 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/palace` | memory-palace | Manage palaces |
 | `/pr` | sanctum | Prepare pull request |
 | `/pr-review` | sanctum | Enhanced PR review |
+| `/record-browser` | scry | Record browser session |
+| `/record-terminal` | scry | Create terminal recording |
 | `/reinstall-all-plugins` | leyline | Refresh all plugins |
 | `/review` | imbue | Structured review |
 | `/run-profiler` | parseltongue | Profile code execution |
 | `/rust-review` | pensive | Rust-specific review |
 | `/skills-eval` | abstract | Skill quality assessment |
-| `/speckit.analyze` | spec-kit | Check artifact consistency |
-| `/speckit.checklist` | spec-kit | Generate checklist |
-| `/speckit.clarify` | spec-kit | Clarifying questions |
-| `/speckit.constitution` | spec-kit | Project constitution |
-| `/speckit.implement` | spec-kit | Execute tasks |
-| `/speckit.plan` | spec-kit | Generate plan |
-| `/speckit.specify` | spec-kit | Create specification |
-| `/speckit.startup` | spec-kit | Bootstrap workflow |
-| `/speckit.tasks` | spec-kit | Generate tasks |
+| `/speckit-analyze` | spec-kit | Check artifact consistency |
+| `/speckit-checklist` | spec-kit | Generate checklist |
+| `/speckit-clarify` | spec-kit | Clarifying questions |
+| `/speckit-constitution` | spec-kit | Project constitution |
+| `/speckit-implement` | spec-kit | Execute tasks |
+| `/speckit-plan` | spec-kit | Generate plan |
+| `/speckit-specify` | spec-kit | Create specification |
+| `/speckit-startup` | spec-kit | Bootstrap workflow |
+| `/speckit-tasks` | spec-kit | Generate tasks |
 | `/structured-review` | imbue | Structured review workflow |
 | `/test-review` | pensive | Test quality review |
 | `/test-skill` | abstract | Skill testing workflow |

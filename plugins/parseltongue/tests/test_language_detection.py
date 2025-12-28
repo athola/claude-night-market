@@ -8,15 +8,15 @@ from __future__ import annotations
 
 import pytest
 
-# Import the skills we're testing
-from parseltongue.skills.language_detection import LanguageDetectionSkill
-
 # Import test data from conftest
-from .conftest import (
+from conftest import (
     JAVASCRIPT_SAMPLE_CODE,
     PYTHON_SAMPLE_CODE,
     RUST_SAMPLE_CODE,
 )
+
+# Import the skills we're testing
+from parseltongue.skills.language_detection import LanguageDetectionSkill
 
 
 class TestLanguageDetectionSkill:

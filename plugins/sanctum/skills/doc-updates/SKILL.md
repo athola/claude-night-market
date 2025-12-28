@@ -2,26 +2,30 @@
 name: doc-updates
 description: |
   Update documentation files based on recent changes while enforcing project
-  writing guidelines.
+  writing guidelines. Includes consolidation detection, directory-specific
+  style rules, and accuracy verification.
 
   Triggers: documentation update, docs update, ADR, docstrings, writing guidelines,
-  readme update, documentation maintenance
+  readme update, documentation maintenance, debloat docs, consolidate docs
 
   Use when: updating documentation after code changes, enforcing writing guidelines,
-  maintaining ADRs, updating docstrings
+  maintaining ADRs, updating docstrings, cleaning up bloated docs
 
   DO NOT use when: README-specific updates - use update-readme instead.
-  DO NOT use when: consolidating ephemeral docs - use doc-consolidation.
+  DO NOT use when: complex multi-file consolidation - use doc-consolidation.
 
-  Use this skill for general documentation updates.
+  Use this skill for general documentation updates with built-in quality gates.
 category: artifact-generation
-tags: [documentation, readme, adr, docstrings, writing]
+tags: [documentation, readme, adr, docstrings, writing, consolidation, debloat]
 tools: [Read, Write, Edit, Bash, TodoWrite]
 complexity: medium
-estimated_tokens: 900
+estimated_tokens: 1200
 progressive_loading: true
 modules:
   - adr-patterns
+  - directory-style-rules
+  - accuracy-scanning
+  - consolidation-integration
 dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
@@ -31,44 +35,138 @@ dependencies:
 # Documentation Update Workflow
 
 ## When to Use
+
 Use this skill when code changes require updates to the README, plans, wikis, or docstrings.
 Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 
+**New capabilities:**
+- Detects consolidation opportunities (like /merge-docs)
+- Enforces directory-specific style rules (docs/ strict, book/ lenient)
+- Validates accuracy of version numbers and counts
+
 ## Required TodoWrite Items
+
 1. `doc-updates:context-collected`
 2. `doc-updates:targets-identified`
-3. `doc-updates:edits-applied`
-4. `doc-updates:guidelines-verified`
-5. `doc-updates:preview`
+3. `doc-updates:consolidation-checked` (NEW - skippable)
+4. `doc-updates:edits-applied`
+5. `doc-updates:guidelines-verified`
+6. `doc-updates:accuracy-verified` (NEW)
+7. `doc-updates:preview`
 
 ## Step 1: Collect Context (`context-collected`)
+
 - Ensure `Skill(sanctum:git-workspace-review)` has been run.
 - Use its notes to understand the delta.
 - Identify the features or bug fixes that need documentation updates.
 
 ## Step 2: Identify Targets (`targets-identified`)
+
 - List the relevant files from the scope (e.g., README.md, wiki entries, docstrings).
 - Prioritize user-facing documentation first, then supporting plans and specifications.
 - When architectural work is planned, confirm whether an Architecture Decision Record (ADR) already exists in `wiki/architecture/` (or wherever ADRs are located).
 - Add missing ADRs to the target list before any implementation begins.
 
+## Step 2.5: Check for Consolidation (`consolidation-checked`)
+
+Load: `@modules/consolidation-integration.md`
+
+**Purpose**: Detect redundancy and bloat before making edits.
+
+**Scan for:**
+- Untracked reports (ALL_CAPS *_REPORT.md, *_ANALYSIS.md files)
+- Bloated committed docs (files exceeding 500 lines in docs/, 1000 in book/)
+- Stale files (outdated content that should be deleted)
+
+**User approval required before:**
+- Merging content from one file to another
+- Deleting stale or redundant files
+- Splitting bloated files
+
+**Skip options:**
+- Use `--skip-consolidation` flag to bypass this phase
+- Select specific items instead of processing all
+
+**Exit criteria**: User has approved/skipped all consolidation opportunities.
+
 ## Step 3: Apply Edits (`edits-applied`)
+
 - Update each file with grounded language: explain what changed and why.
 - Reference specific commands, filenames, or configuration options where possible.
 - For docstrings, use the imperative mood and keep them concise.
 - For ADRs, see `modules/adr-patterns.md` for complete template structure, status flow, immutability rules, and best practices.
 
 ## Step 4: Enforce Guidelines (`guidelines-verified`)
-- Re-read the project's style rules (no filler phrases, avoid abstract adjectives, etc.).
-- Ensure the balance between bullet points and paragraphs matches the guidance.
-- Remove emojis and checkmarks; replace them with text equivalents.
 
-## Step 5: Preview Changes (`preview`)
+Load: `@modules/directory-style-rules.md`
+
+**Apply directory-specific rules:**
+
+| Location | Style | Max Lines | Max Paragraph |
+|----------|-------|-----------|---------------|
+| docs/ | Strict reference | 500 | 4 sentences |
+| book/ | Technical book | 1000 | 8 sentences |
+| Other | Default to strict | 500 | 4 sentences |
+
+**Common checks:**
+- No filler phrases ("in order to", "it should be noted")
+- No emojis in body text (callouts allowed in book/)
+- Grounded language (specific references, not vague claims)
+- Imperative mood for instructions
+- Bullets over prose for lists of 3+ items
+
+**Warn on:**
+- Wall-of-text paragraphs exceeding limits
+- Files exceeding line count thresholds
+- Marketing language ("powerful", "seamless")
+
+## Step 5: Verify Accuracy (`accuracy-verified`)
+
+Load: `@modules/accuracy-scanning.md`
+
+**Validate claims against codebase:**
+
+```bash
+# Quick version check
+for p in plugins/*/.claude-plugin/plugin.json; do
+    jq -r '"\(.name): \(.version)"' "$p"
+done
+
+# Quick counts
+echo "Plugins: $(ls -d plugins/*/.claude-plugin/plugin.json | wc -l)"
+echo "Skills: $(find plugins/*/skills -name 'SKILL.md' | wc -l)"
+```
+
+**Flag mismatches:**
+- Version numbers that don't match plugin.json
+- Plugin/skill/command counts that don't match actual directories
+- File paths that don't exist
+
+**Non-blocking**: Warnings are informational; user decides whether to fix.
+
+## Step 6: Preview Changes (`preview`)
+
 - Show diffs for each edited file (`git diff <file>` or `rg` snippets).
-- Summarize remaining TODOs or follow-ups.
+- Include accuracy warnings if any were flagged.
+- Summarize:
+  - Files created/modified/deleted
+  - Consolidation actions taken
+  - Style violations fixed
+  - Remaining TODOs or follow-ups
 
 ## Exit Criteria
+
 - All `TodoWrite` items are completed and documentation is updated.
 - New ADRs, if any, are in `wiki/architecture/` (or the established ADR directory) with the correct status and links to related work.
-- Guidelines are satisfied, and the content does not sound AI-generated.
+- Directory-specific style rules are satisfied.
+- Accuracy warnings addressed or acknowledged.
+- Content does not sound AI-generated.
 - Files are staged or ready for review.
+
+## Flags
+
+| Flag | Effect |
+|------|--------|
+| `--skip-consolidation` | Skip Phase 2.5 consolidation check |
+| `--strict` | Treat all warnings as errors |
+| `--book-style` | Apply book/ rules to all files |

@@ -23,15 +23,15 @@ claude plugins add spec-kit
 
 | Command | Description |
 |---------|-------------|
-| `/speckit.startup` | Bootstrap speckit workflow at session start |
-| `/speckit.specify` | Create feature specifications from natural language |
-| `/speckit.clarify` | Refine specifications with targeted questions |
-| `/speckit.plan` | Execute implementation planning workflow |
-| `/speckit.tasks` | Generate dependency-ordered tasks |
-| `/speckit.implement` | Execute implementation tasks |
-| `/speckit.analyze` | Cross-artifact consistency analysis |
-| `/speckit.checklist` | Generate requirement quality checklists |
-| `/speckit.constitution` | Manage project principles |
+| `/speckit-startup` | Bootstrap speckit workflow at session start |
+| `/speckit-specify` | Create feature specifications from natural language |
+| `/speckit-clarify` | Refine specifications with targeted questions |
+| `/speckit-plan` | Execute implementation planning workflow |
+| `/speckit-tasks` | Generate dependency-ordered tasks |
+| `/speckit-implement` | Execute implementation tasks |
+| `/speckit-analyze` | Cross-artifact consistency analysis |
+| `/speckit-checklist` | Generate requirement quality checklists |
+| `/speckit-constitution` | Manage project principles |
 
 ## Skills
 
@@ -64,14 +64,14 @@ Executes implementation tasks systematically following the task plan.
 ## Typical Workflow
 
 ```
-/speckit.startup           # Initialize session
-/speckit.specify <feature> # Create specification
-/speckit.clarify           # Refine requirements
-/speckit.plan              # Generate implementation plan
-/speckit.tasks             # Create task breakdown
-/speckit.analyze           # Verify consistency
-/speckit.implement         # Execute tasks
-/speckit.checklist         # Final quality check
+/speckit-startup           # Initialize session
+/speckit-specify <feature> # Create specification
+/speckit-clarify           # Refine requirements
+/speckit-plan              # Generate implementation plan
+/speckit-tasks             # Create task breakdown
+/speckit-analyze           # Verify consistency
+/speckit-implement         # Execute tasks
+/speckit-checklist         # Final quality check
 ```
 
 ## Dependencies

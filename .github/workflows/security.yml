@@ -154,10 +154,10 @@ jobs:
             const safetyReport = JSON.parse(fs.readFileSync('safety-report.json', 'utf8'));
             const semgrepReport = JSON.parse(fs.readFileSync('semgrep-report.json', 'utf8'));
 
-            let comment = '## 🔒 Security Scan Results\n\n';
+            let comment = '## Security Scan Results\n\n';
 
             if (banditReport.results.length === 0 && safetyReport.vulnerabilities.length === 0 && semgrepReport.results.length === 0) {
-              comment += '✅ No security issues found!\n';
+              comment += '[OK] No security issues found!\n';
             } else {
               if (banditReport.results.length > 0) {
                 comment += `### Bandit Issues: ${banditReport.results.length}\n`;

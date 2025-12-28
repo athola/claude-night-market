@@ -43,7 +43,8 @@ class MakefileReviewSkill(BaseReviewSkill):
         Returns:
             Makefile content as string
         """
-        return context.get_file_content()
+        content = context.get_file_content()
+        return content if isinstance(content, str) else ""
 
     def _extract_targets(self, content: str) -> list[str]:
         """Extract target names from makefile content.
@@ -817,12 +818,12 @@ class MakefileReviewSkill(BaseReviewSkill):
         # Get all makefiles
         makefiles = context.get_files()
 
-        consistency_issues = []
-        variable_conflicts = []
-        target_naming = []
+        consistency_issues: list[str] = []
+        variable_conflicts: list[str] = []
+        target_naming: list[str] = []
 
         # Track variables and their values across files
-        all_variables = {}
+        all_variables: dict[str, str] = {}
 
         for makefile in makefiles:
             content = context.get_file_content(makefile)
@@ -863,10 +864,10 @@ class MakefileReviewSkill(BaseReviewSkill):
         """
         files = context.get_files()
 
-        build_system_conflicts = []
-        ci_integration = []
-        package_manager_integration = []
-        tooling_compatibility = []
+        build_system_conflicts: list[str] = []
+        ci_integration: list[str] = []
+        package_manager_integration: list[str] = []
+        tooling_compatibility: list[str] = []
 
         # Check for multiple build systems
         has_makefile = any("Makefile" in f for f in files)

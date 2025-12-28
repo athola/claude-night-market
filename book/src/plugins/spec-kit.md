@@ -24,15 +24,15 @@ Spec-Kit enforces "define before implement" - you write specifications first, ge
 
 | Command | Description |
 |---------|-------------|
-| `/speckit.specify` | Create a new specification |
-| `/speckit.plan` | Generate implementation plan |
-| `/speckit.tasks` | Generate ordered tasks |
-| `/speckit.implement` | Execute tasks |
-| `/speckit.analyze` | Check artifact consistency |
-| `/speckit.checklist` | Generate custom checklist |
-| `/speckit.clarify` | Ask clarifying questions |
-| `/speckit.constitution` | Create project constitution |
-| `/speckit.startup` | Bootstrap workflow at session start |
+| `/speckit-specify` | Create a new specification |
+| `/speckit-plan` | Generate implementation plan |
+| `/speckit-tasks` | Generate ordered tasks |
+| `/speckit-implement` | Execute tasks |
+| `/speckit-analyze` | Check artifact consistency |
+| `/speckit-checklist` | Generate custom checklist |
+| `/speckit-clarify` | Ask clarifying questions |
+| `/speckit-constitution` | Create project constitution |
+| `/speckit-startup` | Bootstrap workflow at session start |
 
 ## Agents
 
@@ -48,28 +48,28 @@ Spec-Kit enforces "define before implement" - you write specifications first, ge
 
 ```bash
 # 1. Create specification
-/speckit.specify Add user authentication with OAuth2
+/speckit-specify Add user authentication with OAuth2
 
 # 2. Clarify requirements
-/speckit.clarify
+/speckit-clarify
 
 # 3. Generate plan
-/speckit.plan
+/speckit-plan
 
 # 4. Create tasks
-/speckit.tasks
+/speckit-tasks
 
 # 5. Execute implementation
-/speckit.implement
+/speckit-implement
 
 # 6. Verify consistency
-/speckit.analyze
+/speckit-analyze
 ```
 
 ### Quick Specification
 
 ```bash
-/speckit.specify Add dark mode toggle
+/speckit-specify Add dark mode toggle
 
 # Claude will:
 # 1. Ask clarifying questions
@@ -81,7 +81,7 @@ Spec-Kit enforces "define before implement" - you write specifications first, ge
 ### Session Startup
 
 ```bash
-/speckit.startup
+/speckit-startup
 
 # Loads:
 # - Existing spec.md
@@ -156,7 +156,7 @@ OAuth2-based authentication for web application.
 Project constitution defines principles:
 
 ```bash
-/speckit.constitution
+/speckit-constitution
 
 # Creates:
 # - Coding standards
@@ -168,7 +168,7 @@ Project constitution defines principles:
 ## Consistency Analysis
 
 ```bash
-/speckit.analyze
+/speckit-analyze
 
 # Checks:
 # - spec.md requirements map to plan.md
@@ -180,7 +180,7 @@ Project constitution defines principles:
 ## Checklist Generation
 
 ```bash
-/speckit.checklist
+/speckit-checklist
 
 # Generates custom checklist:
 # - [ ] All acceptance criteria met
@@ -204,19 +204,19 @@ imbue (diff-analysis, evidence-logging)
 
 | Command | Enhancement |
 |---------|-------------|
-| `/speckit.clarify` | Uses `brainstorming` for questions |
-| `/speckit.plan` | Uses `writing-plans` for structure |
-| `/speckit.tasks` | Uses `executing-plans`, `systematic-debugging` |
-| `/speckit.implement` | Uses `executing-plans`, `systematic-debugging` |
-| `/speckit.analyze` | Uses `systematic-debugging`, `verification-before-completion` |
-| `/speckit.checklist` | Uses `verification-before-completion` |
+| `/speckit-clarify` | Uses `brainstorming` for questions |
+| `/speckit-plan` | Uses `writing-plans` for structure |
+| `/speckit-tasks` | Uses `executing-plans`, `systematic-debugging` |
+| `/speckit-implement` | Uses `executing-plans`, `systematic-debugging` |
+| `/speckit-analyze` | Uses `systematic-debugging`, `verification-before-completion` |
+| `/speckit-checklist` | Uses `verification-before-completion` |
 
 ## Best Practices
 
 1. **Specify First**: Never skip the specification phase
-2. **Clarify Ambiguity**: Use `/speckit.clarify` liberally
+2. **Clarify Ambiguity**: Use `/speckit-clarify` liberally
 3. **Small Tasks**: Break into 1-2 hour chunks
-4. **Verify Often**: Run `/speckit.analyze` after changes
+4. **Verify Often**: Run `/speckit-analyze` after changes
 5. **Update Artifacts**: Keep spec/plan/tasks in sync
 
 ## Workflow Tips
@@ -224,24 +224,24 @@ imbue (diff-analysis, evidence-logging)
 ### Starting New Feature
 
 ```bash
-/speckit.specify [feature description]
-/speckit.clarify
-/speckit.plan
+/speckit-specify [feature description]
+/speckit-clarify
+/speckit-plan
 ```
 
 ### Resuming Work
 
 ```bash
-/speckit.startup
+/speckit-startup
 # Review current state
-/speckit.implement
+/speckit-implement
 ```
 
 ### Before PR
 
 ```bash
-/speckit.analyze
-/speckit.checklist
+/speckit-analyze
+/speckit-checklist
 ```
 
 ## Related Plugins

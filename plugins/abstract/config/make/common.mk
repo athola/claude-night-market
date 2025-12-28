@@ -28,11 +28,11 @@ HAS_SPHINX := $(shell $(PYTHON) -c "import sphinx" 2>/dev/null && echo yes)
 # Tool commands - abstracted for single-point-of-change
 UV_RUN := $(UV) run
 UV_PYTHON := $(UV_RUN) python
-PYTEST := $(PYTHON) -m pytest
-MYPY := $(PYTHON) -m mypy
-RUFF := $(PYTHON) -m ruff
-BANDIT := $(PYTHON) -m bandit
-SPHINXBUILD := $(PYTHON) -m sphinx-build
+PYTEST := $(UV_RUN) pytest
+MYPY := $(UV_RUN) mypy
+RUFF := $(UV_RUN) ruff
+BANDIT := $(UV_RUN) bandit
+SPHINXBUILD := $(UV_RUN) sphinx-build
 
 # Directories (configurable for portability)
 BUILD_DIR ?= build
