@@ -4,11 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spec-kit"
-version = "1.0.5"
+version = "1.1.0"
 description = "Spec Driven Development toolkit with enhanced superpowers integration"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [
     {name = "Claude Skills", email = "claude@anthropic.com"},
 ]
@@ -62,6 +62,7 @@ dev = [
     "ruff>=0.1.0,<1.0.0",               # Linting and formatting
     "mypy>=1.6.0,<2.0.0",               # Type checking
     "pre-commit>=3.5.0,<4.0.0",         # Git hooks
+    "types-cachetools>=5.3.0.0",
 
     # Advanced testing
     "pytest-xdist>=3.3.0,<4.0.0",       # Parallel testing
@@ -163,7 +164,7 @@ ignore = [
 
 # MyPy configuration
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

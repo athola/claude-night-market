@@ -5,7 +5,11 @@ This module analyzes plugin code to identify functionality that might overlap
 with existing superpowers, helping with migration decisions.
 """
 
+import importlib
 import os
+import sys
+from collections.abc import Mapping
+from typing import Any, Protocol, TypedDict, cast
 
 import yaml
 
@@ -13,15 +17,71 @@ import yaml
 OVERLAP_CONFIDENCE_THRESHOLD = 0.5
 HIGH_PRIORITY_THRESHOLD = 0.8
 MEDIUM_PRIORITY_THRESHOLD = 0.5
-try:
-    from .compatibility_validator import CompatibilityValidator
-except ImportError:
-    # Fallback for when running as script
-    import os
-    import sys
 
+
+class CompatibilityValidatorProtocol(Protocol):
+    """Protocol for compatibility validator implementations."""
+
+    def validate_wrapper(self, original: str, wrapper: str) -> Mapping[str, Any]:
+        """Validate wrapper compatibility."""
+
+
+class OverlapInfo(TypedDict):
+    """Overlap confidence and matched patterns."""
+
+    confidence: float
+    patterns_matched: list[str]
+
+
+class MigrationSummary(TypedDict):
+    """Aggregate migration counts."""
+
+    total_commands: int
+    high_priority_migrations: int
+    medium_priority_migrations: int
+    low_priority_migrations: int
+
+
+class MigrationPath(TypedDict):
+    """Per-command migration analysis."""
+
+    command: str
+    overlaps: dict[str, OverlapInfo]
+    migration_priority: float
+    suggested_superpower: str | None
+    wrapper_status: str | None
+    compatibility: Mapping[str, Any] | None
+
+
+class MigrationReport(TypedDict):
+    """Complete migration report."""
+
+    plugin: str
+    commands: dict[str, MigrationPath]
+    summary: MigrationSummary
+
+
+def _load_validator() -> CompatibilityValidatorProtocol:
+    """Load the compatibility validator for both module and script contexts."""
+    return COMPATIBILITY_VALIDATOR_CLS()
+
+
+CompatibilityValidatorType = type[CompatibilityValidatorProtocol]
+
+COMPATIBILITY_VALIDATOR_CLS: CompatibilityValidatorType
+
+try:
+    from .compatibility_validator import CompatibilityValidator as ImportedValidator
+
+    COMPATIBILITY_VALIDATOR_CLS = ImportedValidator
+except ImportError as exc:
+    # Fallback for when running as script
     sys.path.append(os.path.dirname(__file__))
-    from compatibility_validator import CompatibilityValidator
+    module = importlib.import_module("compatibility_validator")
+    validator_cls = getattr(module, "CompatibilityValidator", None)
+    if not isinstance(validator_cls, type):
+        raise RuntimeError("CompatibilityValidator not found") from exc
+    COMPATIBILITY_VALIDATOR_CLS = cast(CompatibilityValidatorType, validator_cls)
 
 
 class MigrationAnalyzer:
@@ -33,11 +93,11 @@ class MigrationAnalyzer:
         # When running from within the plugin directory, use current directory
         self.plugin_path = os.path.abspath(".")
         self.overlap_mappings = self._load_overlap_mappings()
-        self.compatibility_validator = CompatibilityValidator()
+        self.compatibility_validator = _load_validator()
 
-    def analyze_plugin(self, command_name: str) -> dict:
+    def analyze_plugin(self, command_name: str) -> dict[str, OverlapInfo]:
         """Analyze a plugin command for superpower overlaps."""
-        overlaps = {}
+        overlaps: dict[str, OverlapInfo] = {}
 
         # Load command content
         command_path = os.path.join(self.plugin_path, "commands", f"{command_name}.md")
@@ -63,7 +123,7 @@ class MigrationAnalyzer:
         self,
         command_name: str,
         wrapper_path: str | None = None,
-    ) -> dict:
+    ) -> MigrationPath:
         """Analyze migration path for a command to superpowers wrapper.
 
         Args:
@@ -77,7 +137,7 @@ class MigrationAnalyzer:
         # Analyze overlaps
         overlaps = self.analyze_plugin(command_name)
 
-        migration_path = {
+        migration_path: MigrationPath = {
             "command": command_name,
             "overlaps": overlaps,
             "migration_priority": self._calculate_migration_priority(overlaps),
@@ -103,7 +163,7 @@ class MigrationAnalyzer:
 
         return migration_path
 
-    def generate_migration_report(self) -> dict:
+    def generate_migration_report(self) -> MigrationReport | dict[str, str]:
         """Generate a comprehensive migration report for all commands.
 
         Returns:
@@ -114,7 +174,7 @@ class MigrationAnalyzer:
         if not os.path.exists(commands_dir):
             return {"error": "No commands directory found"}
 
-        report = {
+        report: MigrationReport = {
             "plugin": self.plugin_name,
             "commands": {},
             "summary": {
@@ -145,7 +205,7 @@ class MigrationAnalyzer:
 
         return report
 
-    def _calculate_migration_priority(self, overlaps: dict) -> float:
+    def _calculate_migration_priority(self, overlaps: dict[str, OverlapInfo]) -> float:
         """Calculate migration priority based on overlap confidence."""
         if not overlaps:
             return 0.0
@@ -159,7 +219,10 @@ class MigrationAnalyzer:
 
         return round(max_confidence, 2)
 
-    def _suggest_best_superpower(self, overlaps: dict) -> str | None:
+    def _suggest_best_superpower(
+        self,
+        overlaps: dict[str, OverlapInfo],
+    ) -> str | None:
         """Suggest the best superpower for migration based on overlap confidence."""
         if not overlaps:
             return None
@@ -167,12 +230,22 @@ class MigrationAnalyzer:
         # Return superpower with highest confidence
         return max(overlaps.keys(), key=lambda k: overlaps[k]["confidence"])
 
-    def _load_overlap_mappings(self) -> dict:
+    def _load_overlap_mappings(self) -> dict[str, list[str]]:
         """Load predefined overlap patterns."""
         mappings_path = os.path.join(self.plugin_path, "data", "overlap_mappings.yaml")
         if os.path.exists(mappings_path):
-            with open(mappings_path) as f:
-                return yaml.safe_load(f)
+            with open(mappings_path, encoding="utf-8") as f:
+                raw = yaml.safe_load(f)
+            if isinstance(raw, dict):
+                mappings: dict[str, list[str]] = {}
+                for key, value in raw.items():
+                    if not isinstance(key, str) or not isinstance(value, list):
+                        continue
+                    patterns = [item for item in value if isinstance(item, str)]
+                    if patterns:
+                        mappings[key] = patterns
+                if mappings:
+                    return mappings
 
         # Return default mappings if file doesn't exist
         return {

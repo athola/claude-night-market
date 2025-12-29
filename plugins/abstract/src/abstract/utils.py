@@ -191,12 +191,14 @@ def check_meta_skill_indicators(
         Warning message if no indicators found, None otherwise.
 
     """
+    meta_indicators = config.META_INDICATORS or []
+    meta_exceptions = config.META_SKILL_EXCEPTIONS or []
     has_meta_indicator = any(
         re.search(rf"\b{indicator}\b", content, re.IGNORECASE)
-        for indicator in config.META_INDICATORS
+        for indicator in meta_indicators
     )
 
-    if not has_meta_indicator and skill_name not in config.META_SKILL_EXCEPTIONS:
+    if not has_meta_indicator and skill_name not in meta_exceptions:
         return "WARNING: Should have meta-skill indicators"
 
     return None
@@ -269,7 +271,8 @@ def get_skill_name(frontmatter: dict, skill_path: Path) -> str:
         Skill name string.
 
     """
-    return frontmatter.get("name", skill_path.stem)
+    name = frontmatter.get("name", skill_path.stem)
+    return str(name)
 
 
 def format_score(score: float, max_score: float = 100) -> str:

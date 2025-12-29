@@ -33,7 +33,7 @@ def main() -> None:
     total = sum(counter.values()) or 1
     regret_rate = counter.get("regret", 0) / total
     generated_at = datetime.now(UTC).isoformat()
-    payload = {
+    payload: dict[str, float | int | str] = {
         "total": total,
         "regret_rate": regret_rate,
         "generated_at": generated_at,
@@ -51,7 +51,7 @@ def main() -> None:
         args.markdown_out.write_text(markdown + "\n", encoding="utf-8")
 
 
-def _render_markdown(payload: dict[str, object]) -> str:
+def _render_markdown(payload: dict[str, float | int | str]) -> str:
     percent = float(payload["regret_rate"]) * 100
     return textwrap.dedent(
         f"""\

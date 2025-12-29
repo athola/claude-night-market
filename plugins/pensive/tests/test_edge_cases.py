@@ -22,6 +22,7 @@ from pensive.plugin.loader import PluginLoader
 
 # Import pensive components for testing
 from pensive.skills.architecture_review import ArchitectureReviewSkill
+from pensive.skills.base import AnalysisResult
 from pensive.skills.bug_review import BugReviewSkill
 from pensive.skills.rust_review import RustReviewSkill
 from pensive.skills.unified_review import UnifiedReviewSkill
@@ -31,6 +32,17 @@ from pensive.workflows.memory_manager import MemoryManager
 
 class TestEdgeCasesAndErrorScenarios:
     """Test suite for edge cases and error handling."""
+
+    @staticmethod
+    def _result_text(result: AnalysisResult) -> str:
+        """Extract summary text from AnalysisResult."""
+        parts: list[str] = []
+        if result.warnings:
+            parts.append(" ".join(result.warnings))
+        summary = result.info.get("summary")
+        if isinstance(summary, str):
+            parts.append(summary)
+        return " ".join(parts)
 
     @pytest.mark.unit
     def test_empty_repository_handling(self) -> None:
@@ -71,10 +83,9 @@ class TestEdgeCasesAndErrorScenarios:
             result = skill.analyze(context)
 
             # Assert
-            assert result is not None
-            assert "no code files" in result.lower() or "empty" in result.lower()
-            assert isinstance(result, str)
-            assert len(result) > 0
+            assert isinstance(result, AnalysisResult)
+            result_text = self._result_text(result).lower()
+            assert "no code files" in result_text or "empty" in result_text
 
     @pytest.mark.unit
     def test_malformed_file_handling(self) -> None:
@@ -92,7 +103,7 @@ class TestEdgeCasesAndErrorScenarios:
         # Act & Assert - Should not raise exception
         try:
             result = skill.analyze(context)
-            assert result is not None
+            assert isinstance(result, AnalysisResult)
         except UnicodeDecodeError:
             pytest.fail("Should handle non-UTF-8 content gracefully")
 
@@ -123,8 +134,7 @@ class TestEdgeCasesAndErrorScenarios:
             result = skill.analyze(context)
 
             # Assert
-            assert result is not None
-            assert isinstance(result, str)
+            assert isinstance(result, AnalysisResult)
 
         finally:
             Path(large_file_path).unlink()
@@ -207,7 +217,7 @@ class TestEdgeCasesAndErrorScenarios:
                 result = skill.analyze(context)
 
                 # Assert
-                assert result is not None
+                assert isinstance(result, AnalysisResult)
                 # Should continue analysis despite permission error
 
             finally:
@@ -308,9 +318,8 @@ const EMOJI: &str = "🦀 Rust 🚀";
         result = skill.analyze(context)
 
         # Assert
-        assert result is not None
+        assert isinstance(result, AnalysisResult)
         # Should handle unicode without crashing
-        assert isinstance(result, str)
 
     @pytest.mark.unit
     def test_symlink_handling(self) -> None:
@@ -337,7 +346,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
                 result = skill.analyze(context)
 
                 # Assert
-                assert result is not None
+                assert isinstance(result, AnalysisResult)
                 # Should handle symlinks without infinite loops
 
     @pytest.mark.unit
@@ -366,7 +375,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
             result = skill.analyze(context)
 
             # Assert
-            assert result is not None
+            assert isinstance(result, AnalysisResult)
             # Should handle deep paths without path length issues
 
     @pytest.mark.unit
@@ -390,7 +399,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
             # Act & Assert - Should not crash
             try:
                 result = skill.analyze(context)
-                assert result is not None
+                assert isinstance(result, AnalysisResult)
             except Exception as e:
                 pytest.fail(f"Analysis failed for {filename}: {e}")
 

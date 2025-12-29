@@ -107,17 +107,17 @@ Show updates in table format:
 
 | Package | Current | Latest | Status | Notes |
 |---------|---------|--------|--------|-------|
-| requests | 2.28.0 | 2.31.0 | ✓ safe | |
-| django | 4.1 | 5.0 | ⚠ major | Breaking changes likely |
-| numpy | 1.24 | 1.26 | 🔧 code | Deprecated API usage found |
-| private-pkg | 1.0.0 | ? | ⊘ skip | Private registry |
+| requests | 2.28.0 | 2.31.0 | [OK] safe | |
+| django | 4.1 | 5.0 | [WARN] major | Breaking changes likely |
+| numpy | 1.24 | 1.26 | [FIX] code | Deprecated API usage found |
+| private-pkg | 1.0.0 | ? | [-] skip | Private registry |
 
 Status indicators:
-- ✓ safe: Can update without issues
-- ⚠ major: Major version bump, review changelog
-- 🔧 code: Code changes needed for compatibility
-- ⊘ skip: Cannot check (private, missing tool)
-- ✗ conflict: Version conflict with other dependency
+- [OK] safe: Can update without issues
+- [WARN] major: Major version bump, review changelog
+- [FIX] code: Code changes needed for compatibility
+- [-] skip: Cannot check (private, missing tool)
+- [X] conflict: Version conflict with other dependency
 
 ### Phase 5: Apply Updates (after approval)
 
@@ -149,7 +149,7 @@ Wait for final approval before committing.
 
 If ecosystem tooling isn't installed:
 ```
-⚠ cargo-outdated not installed
+[WARN] cargo-outdated not installed
   Install with: cargo install cargo-outdated
   Skipping Rust ecosystem checks
 ```

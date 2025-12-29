@@ -13,12 +13,35 @@ import logging
 import os
 import re
 import sys
-from typing import Any
+from typing import Any, Literal, TypedDict
 
 import yaml
 
 # Constants for magic numbers
 PARITY_THRESHOLD = 0.9
+FEATURE_KEYS: tuple[
+    Literal["parameters", "options", "output_format", "error_handling"],
+    ...,
+] = ("parameters", "options", "output_format", "error_handling")
+
+
+class FeatureMap(TypedDict):
+    """Feature extraction result shape."""
+
+    parameters: list[str]
+    options: list[str]
+    output_format: str | None
+    error_handling: list[str]
+
+
+class ValidationResult(TypedDict):
+    """Validation result payload."""
+
+    feature_parity: float
+    original_features: FeatureMap
+    wrapper_features: FeatureMap
+    missing_features: list[dict[str, Any]]
+    validation_passed: bool
 
 
 class CompatibilityValidator:
@@ -38,7 +61,16 @@ class CompatibilityValidator:
             "error_handling": 0.2,
         }
 
-    def validate_wrapper(self, original: str, wrapper: str) -> dict:
+    @staticmethod
+    def _empty_features() -> FeatureMap:
+        return {
+            "parameters": [],
+            "options": [],
+            "output_format": None,
+            "error_handling": [],
+        }
+
+    def validate_wrapper(self, original: str, wrapper: str) -> ValidationResult:
         """Validate that wrapper maintains feature parity with original command.
 
         Args:
@@ -67,7 +99,7 @@ class CompatibilityValidator:
             and not self._has_critical_missing_features(missing_features),
         }
 
-    def _extract_features(self, file_path: str) -> dict[str, Any]:
+    def _extract_features(self, file_path: str) -> FeatureMap:
         """Extract features from command implementation file.
 
         Args:
@@ -77,12 +109,7 @@ class CompatibilityValidator:
             Dictionary of extracted features
 
         """
-        features = {
-            "parameters": [],
-            "options": [],
-            "output_format": None,
-            "error_handling": [],
-        }
+        features = self._empty_features()
 
         if not os.path.exists(file_path):
             return features
@@ -94,7 +121,7 @@ class CompatibilityValidator:
 
         return features
 
-    def _parse_markdown_command(self, file_path: str) -> dict:
+    def _parse_markdown_command(self, file_path: str) -> FeatureMap:
         """Parse markdown command file for features.
 
         Args:
@@ -104,12 +131,7 @@ class CompatibilityValidator:
             Dictionary of extracted features
 
         """
-        features = {
-            "parameters": [],
-            "options": [],
-            "output_format": None,
-            "error_handling": [],
-        }
+        features = self._empty_features()
 
         try:
             with open(file_path, encoding="utf-8") as f:
@@ -127,7 +149,7 @@ class CompatibilityValidator:
 
         return features
 
-    def _extract_frontmatter_features(self, content: str, features: dict) -> None:
+    def _extract_frontmatter_features(self, content: str, features: FeatureMap) -> None:
         """Extract features from YAML frontmatter.
 
         Args:
@@ -140,37 +162,75 @@ class CompatibilityValidator:
             return
 
         frontmatter = yaml.safe_load(frontmatter_match.group(1))
-        if not frontmatter:
+        if not isinstance(frontmatter, dict):
             return
 
-        # Extract parameters - handle both string and dict formats
-        if "parameters" in frontmatter:
-            params = frontmatter["parameters"]
-            if isinstance(params, list):
-                for param in params:
-                    if isinstance(param, dict) and "name" in param:
-                        features["parameters"].append(param["name"])
-                    elif isinstance(param, str):
-                        features["parameters"].append(param)
+        self._extract_frontmatter_parameters(frontmatter, features)
+        self._extract_frontmatter_options(frontmatter, features)
+        self._extract_frontmatter_usage(frontmatter, features)
+        self._extract_frontmatter_error_handling(frontmatter, features)
 
-        # Extract options
-        if "options" in frontmatter:
-            features["options"] = frontmatter["options"]
+    def _extract_frontmatter_parameters(
+        self,
+        frontmatter: dict[str, Any],
+        features: FeatureMap,
+    ) -> None:
+        """Extract parameter names from frontmatter."""
+        params = frontmatter.get("parameters")
+        if isinstance(params, list):
+            for param in params:
+                if isinstance(param, dict):
+                    name = param.get("name")
+                    if isinstance(name, str):
+                        features["parameters"].append(name)
+                elif isinstance(param, str):
+                    features["parameters"].append(param)
+            return
+        if isinstance(params, str):
+            features["parameters"].append(params)
 
-        # Extract usage to infer output format
-        if "usage" in frontmatter:
-            usage = frontmatter["usage"]
-            usage_lower = usage.lower()
-            if "report" in usage_lower or "output" in usage_lower:
-                features["output_format"] = "markdown_report"
-            elif "json" in usage_lower:
-                features["output_format"] = "json"
+    def _extract_frontmatter_options(
+        self,
+        frontmatter: dict[str, Any],
+        features: FeatureMap,
+    ) -> None:
+        """Extract options from frontmatter."""
+        options = frontmatter.get("options")
+        if isinstance(options, list):
+            features["options"] = [opt for opt in options if isinstance(opt, str)]
+        elif isinstance(options, str):
+            features["options"] = [options]
 
-        # Look for error handling indicators
-        if "error_handling" in frontmatter:
-            features["error_handling"] = frontmatter["error_handling"]
+    def _extract_frontmatter_usage(
+        self,
+        frontmatter: dict[str, Any],
+        features: FeatureMap,
+    ) -> None:
+        """Infer output format from usage hints."""
+        usage = frontmatter.get("usage")
+        if not isinstance(usage, str):
+            return
+        usage_lower = usage.lower()
+        if "report" in usage_lower or "output" in usage_lower:
+            features["output_format"] = "markdown_report"
+        elif "json" in usage_lower:
+            features["output_format"] = "json"
 
-    def _extract_content_features(self, content: str, features: dict) -> None:
+    def _extract_frontmatter_error_handling(
+        self,
+        frontmatter: dict[str, Any],
+        features: FeatureMap,
+    ) -> None:
+        """Extract error handling hints from frontmatter."""
+        error_handling = frontmatter.get("error_handling")
+        if isinstance(error_handling, list):
+            features["error_handling"] = [
+                item for item in error_handling if isinstance(item, str)
+            ]
+        elif isinstance(error_handling, str):
+            features["error_handling"] = [error_handling]
+
+    def _extract_content_features(self, content: str, features: FeatureMap) -> None:
         """Extract features from content scanning.
 
         Args:
@@ -186,7 +246,7 @@ class CompatibilityValidator:
             if pattern in content_lower and pattern not in features["error_handling"]:
                 features["error_handling"].append(pattern)
 
-    def _parse_python_wrapper(self, file_path: str) -> dict:
+    def _parse_python_wrapper(self, file_path: str) -> FeatureMap:
         """Parse Python wrapper file for features.
 
         Args:
@@ -196,17 +256,16 @@ class CompatibilityValidator:
             Dictionary of extracted features
 
         """
-        features = {
-            "parameters": [],
-            "options": [],
-            "output_format": None,
-            "error_handling": [],
-        }
+        features = self._empty_features()
 
         try:
             with open(file_path, encoding="utf-8") as f:
                 content = f.read()
+        except OSError as exc:
+            logging.warning(f"Failed to read {file_path}: {exc}")
+            return features
 
+        try:
             # Parse AST for structural features
             self._extract_ast_features(content, features)
 
@@ -218,13 +277,13 @@ class CompatibilityValidator:
             self._extract_fallback_features(content, features)
 
         # Remove duplicates and clean up
-        features["parameters"] = list(set(features["parameters"]))
-        features["options"] = list(set(features["options"]))
-        features["error_handling"] = list(set(features["error_handling"]))
+        features["parameters"] = sorted(set(features["parameters"]))
+        features["options"] = sorted(set(features["options"]))
+        features["error_handling"] = sorted(set(features["error_handling"]))
 
         return features
 
-    def _extract_ast_features(self, content: str, features: dict) -> None:
+    def _extract_ast_features(self, content: str, features: FeatureMap) -> None:
         """Extract features using AST parsing.
 
         Args:
@@ -241,7 +300,11 @@ class CompatibilityValidator:
             if isinstance(node, ast.FunctionDef):
                 self._extract_function_features(node, features)
 
-    def _extract_function_features(self, node: ast.FunctionDef, features: dict) -> None:
+    def _extract_function_features(
+        self,
+        node: ast.FunctionDef,
+        features: FeatureMap,
+    ) -> None:
         """Extract features from a function definition.
 
         Args:
@@ -265,7 +328,7 @@ class CompatibilityValidator:
                         if "validation" not in features["error_handling"]:
                             features["error_handling"].append("validation")
 
-    def _extract_regex_features(self, content: str, features: dict) -> None:
+    def _extract_regex_features(self, content: str, features: FeatureMap) -> None:
         """Extract features using regex patterns.
 
         Args:
@@ -297,7 +360,7 @@ class CompatibilityValidator:
         # Detect options in string literals
         self._extract_option_literals(content, features)
 
-    def _extract_option_patterns(self, content: str, features: dict) -> None:
+    def _extract_option_patterns(self, content: str, features: FeatureMap) -> None:
         """Extract option patterns while filtering common words.
 
         Args:
@@ -318,7 +381,7 @@ class CompatibilityValidator:
         filtered_options = [opt for opt in option_patterns if opt not in excluded_words]
         features["options"].extend(filtered_options)
 
-    def _extract_option_literals(self, content: str, features: dict) -> None:
+    def _extract_option_literals(self, content: str, features: FeatureMap) -> None:
         """Extract options from string literals.
 
         Args:
@@ -327,7 +390,7 @@ class CompatibilityValidator:
 
         """
         option_literals = re.findall(
-            r'\[([\'"]([a-zA-Z]+)[\'"](?:,\s*[\'"][a-zA-Z]+[\'"])*?)\]',
+            r'\[(?:[\'"][a-zA-Z]+[\'"](?:,\s*[\'"][a-zA-Z]+[\'"])*)\]',
             content,
         )
         for literal in option_literals:
@@ -335,7 +398,7 @@ class CompatibilityValidator:
             options = re.findall(r'[\'"]([a-zA-Z]+)[\'"]', literal)
             features["options"].extend(options)
 
-    def _extract_fallback_features(self, content: str, features: dict) -> None:
+    def _extract_fallback_features(self, content: str, features: FeatureMap) -> None:
         """Extract features using basic regex when AST parsing fails.
 
         Args:
@@ -343,8 +406,6 @@ class CompatibilityValidator:
             features: Features dict to update
 
         """
-        content.lower()
-
         # Basic parameter detection
         param_patterns = re.findall(r"def.*?\((.*?)\):", content, re.DOTALL)
         for params in param_patterns:
@@ -357,7 +418,7 @@ class CompatibilityValidator:
         get_patterns = re.findall(r'get\([\'"]([^\'"]+)[\'"]\)', content)
         features["parameters"].extend(get_patterns)
 
-    def _calculate_parity(self, original: dict, wrapper: dict) -> float:
+    def _calculate_parity(self, original: FeatureMap, wrapper: FeatureMap) -> float:
         """Calculate feature parity score between original and wrapper.
 
         Args:
@@ -370,14 +431,16 @@ class CompatibilityValidator:
         """
         total_score = 0.0
 
-        for feature, weight in self.feature_weights.items():
-            original_value = original.get(feature, [])
-            wrapper_value = wrapper.get(feature, [])
+        for feature in FEATURE_KEYS:
+            weight = self.feature_weights[feature]
+            original_value = original[feature]
+            wrapper_value = wrapper[feature]
 
             if isinstance(original_value, list):
                 # Calculate overlap for lists
                 original_set = set(original_value)
-                wrapper_set = set(wrapper_value)
+                wrapper_list = wrapper_value if isinstance(wrapper_value, list) else []
+                wrapper_set = set(wrapper_list)
 
                 if not original_set and not wrapper_set:
                     feature_score = 1.0  # Both empty is perfect match
@@ -412,7 +475,11 @@ class CompatibilityValidator:
 
         return round(total_score, 3)
 
-    def _find_missing_features(self, original: dict, wrapper: dict) -> list[dict]:
+    def _find_missing_features(
+        self,
+        original: FeatureMap,
+        wrapper: FeatureMap,
+    ) -> list[dict[str, Any]]:
         """Identify features present in original but missing from wrapper.
 
         Args:
@@ -423,14 +490,16 @@ class CompatibilityValidator:
             List of missing feature dictionaries with severity information
 
         """
-        missing = []
+        missing: list[dict[str, Any]] = []
 
-        for feature, original_value in original.items():
-            wrapper_value = wrapper.get(feature, [])
+        for feature in FEATURE_KEYS:
+            original_value = original[feature]
+            wrapper_value = wrapper[feature]
 
             if isinstance(original_value, list):
                 original_set = set(original_value)
-                wrapper_set = set(wrapper_value)
+                wrapper_list = wrapper_value if isinstance(wrapper_value, list) else []
+                wrapper_set = set(wrapper_list)
 
                 if feature == "parameters":
                     # Use normalized comparison for parameters
@@ -446,7 +515,7 @@ class CompatibilityValidator:
                         if not found:
                             missing_items.append(orig)
                 else:
-                    missing_items = original_set - wrapper_set
+                    missing_items = sorted(original_set - wrapper_set)
 
                 for item in missing_items:
                     severity = self._determine_severity(feature, item)
@@ -459,7 +528,7 @@ class CompatibilityValidator:
                         },
                     )
             elif original_value != wrapper_value:
-                severity = self._determine_severity(feature, original_value)
+                severity = self._determine_severity(feature, str(original_value))
                 missing.append(
                     {
                         "category": feature,
@@ -517,7 +586,10 @@ class CompatibilityValidator:
         severity_map = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         return severity_map.get(severity, 3)
 
-    def _has_critical_missing_features(self, missing_features: list[dict]) -> bool:
+    def _has_critical_missing_features(
+        self,
+        missing_features: list[dict[str, Any]],
+    ) -> bool:
         """Check if any critical features are missing.
 
         Args:

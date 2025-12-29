@@ -16,7 +16,47 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from leyline.tokens import estimate_tokens
+try:
+    from leyline.tokens import estimate_tokens
+except ImportError:  # pragma: no cover
+
+    def estimate_tokens(file_paths: list[str], prompt: str) -> int:
+        """Fallback estimator when leyline isn't installed."""
+        total = len(prompt) // 4
+
+        skip_dirs = {
+            ".git",
+            ".venv",
+            "venv",
+            "node_modules",
+            "__pycache__",
+            "dist",
+            "build",
+        }
+        for p in file_paths:
+            path = Path(p)
+            if path.is_file():
+                try:
+                    total += (
+                        len(path.read_text(encoding="utf-8", errors="replace")) // 4
+                    )
+                except OSError:
+                    pass
+            elif path.is_dir():
+                for child in path.rglob("*"):
+                    if any(part in skip_dirs for part in child.parts):
+                        continue
+                    if child.is_file():
+                        try:
+                            total += (
+                                len(child.read_text(encoding="utf-8", errors="replace"))
+                                // 4
+                            )
+                        except OSError:
+                            pass
+
+        return total
+
 
 # Configure logging for error tracking
 logger = logging.getLogger(__name__)

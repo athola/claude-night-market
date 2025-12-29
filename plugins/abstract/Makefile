@@ -18,64 +18,24 @@
         validate-skill-descriptions validate-plugin validate-self test-wrappers validate-migration generate-wrappers \
         demo-skills plugin-check
 
-# Default shell with error handling
-SHELL := /bin/bash
-.SHELLFLAGS := -euo pipefail -c
-
-# Run all recipe lines in single shell (performance + variable persistence)
-.ONESHELL:
-
-# Prevent parallel execution for targets that share resources
-.NOTPARALLEL: docs docs-clean docs-serve docs-check
-
-# Tool detection with helpful error messages
-PYTHON ?= python3
-UV ?= uv
-
-# Verify required tools are available (fail fast with actionable errors)
-ifeq ($(shell command -v $(UV) 2>/dev/null),)
-$(error uv is required but not installed. Install via: curl -LsSf https://astral.sh/uv/install.sh | sh)
-endif
-
-ifeq ($(shell command -v $(PYTHON) 2>/dev/null),)
-$(error $(PYTHON) is required but not installed. Install Python 3.10+ from python.org or your package manager)
-endif
-
-# Optional tool detection (warn but don't fail)
-HAS_PRE_COMMIT := $(shell command -v pre-commit 2>/dev/null)
-HAS_SPHINX := $(shell $(PYTHON) -c "import sphinx" 2>/dev/null && echo yes)
-
-# Tool commands - abstracted for single-point-of-change
-UV_RUN := $(UV) run
-UV_PYTHON := $(UV_RUN) python
-PYTEST := $(UV_RUN) pytest
-MYPY := $(UV_RUN) mypy
-RUFF := $(UV_RUN) ruff
-BANDIT := $(UV_RUN) bandit
-SPHINXBUILD := $(UV_RUN) sphinx-build
-
-# Directories (configurable for portability)
-BUILD_DIR ?= build
-DIST_DIR ?= dist
-COV_DIR ?= htmlcov
-DOCS_BUILD_DIR ?= docs/build
-PYTHONPATH ?= src
-
-# Source directories (override via environment or Makefile.local)
+# Plugin-specific variables (must be before include)
+ABSTRACT_DIR := .
 SCRIPTS_DIR ?= scripts
 SRC_DIR ?= src/abstract
 SKILLS_DIR ?= skills
 SRC_DIRS := $(SCRIPTS_DIR) $(SRC_DIR)
+COV_DIRS := $(SRC_DIRS)
+RUFF_TARGETS := $(SRC_DIRS)
+MYPY_TARGETS := $(SRC_DIRS)
+BANDIT_TARGETS := $(SRC_DIRS)
+TEST_QUICK_ARGS := -v --no-cov --tb=short
 
-# Helper function to check if a file exists
-define file_exists
-$(shell test -f $(1) && echo yes || echo no)
-endef
+# Include shared configuration from abstract plugin (self)
+-include $(ABSTRACT_DIR)/config/make/common.mk
+-include $(ABSTRACT_DIR)/config/make/python.mk
 
-# Helper macro to require PATH argument (reduces repetition in skill analysis targets)
-define require_path
-@test -n "$(PATH)" || { echo "Usage: make $(1) PATH=<path>"; exit 1; }
-endef
+# Prevent parallel execution for targets that share resources
+.NOTPARALLEL: docs docs-clean docs-serve docs-check
 
 # Default target - auto-generated from ## comments
 help: ## Show this help message
@@ -104,46 +64,10 @@ check: ## Run all validation checks
 test: format lint type-check security test-unit ## Run all quality checks
 	@echo "All quality checks passed!"
 
-format: ## Format code with ruff
-	@echo "Formatting code..."
-	@$(RUFF) format $(SRC_DIRS) || { echo "⚠ Ruff format failed"; exit 1; }
-	@$(RUFF) check --fix $(SRC_DIRS) || { echo "⚠ Ruff check failed"; exit 1; }
-
-lint: ## Run linting checks
-	@echo "Running linting..."
-	@$(RUFF) check $(SRC_DIRS) || { echo "⚠ Linting failed"; exit 1; }
-
-type-check: ## Run type checking
-	@echo "Running type checking..."
-	@$(MYPY) $(SRC_DIRS) || { echo "⚠ Type checking failed"; exit 1; }
-
-# Alias for backwards compatibility
-typecheck: type-check
-
-security: ## Run security checks
-	@echo "Running security checks..."
-	@$(BANDIT) -r $(SRC_DIRS) || { echo "⚠ Security check failed"; exit 1; }
-
-# TESTING
-test-unit: ## Run unit tests only
-	@echo "Running unit tests..."
-	@$(PYTEST) tests/ -v || { echo "⚠ Tests failed"; exit 1; }
-
-# Alias for backwards compatibility
-unit-tests: test-unit
-
-test-coverage: ## Run tests with coverage report
-	@echo "Running tests with coverage..."
-	@$(PYTEST) tests/ -v --cov=scripts --cov=src/abstract --cov-report=term-missing --cov-report=html || { echo "⚠ Coverage tests failed"; $(PYTEST) tests/ -v --tb=short; }
-
-test-quick: ## Run tests without coverage
-	@echo "Running quick tests (no coverage)..."
-	@$(PYTEST) tests/ -v --no-cov --tb=short || { echo "⚠ Tests failed"; exit 1; }
-
 # SETUP
 install-hooks: ## Install pre-commit hooks
 ifndef HAS_PRE_COMMIT
-	@echo "⚠ pre-commit not found. Installing via uv..."
+	@echo "[WARNING] pre-commit not found. Installing via uv..."
 	@$(UV) pip install pre-commit
 endif
 	@echo "Installing pre-commit hooks..."
@@ -170,7 +94,7 @@ analyze-skill: ## Analyze skill complexity (PATH=<path>)
 
 validate-skill-descriptions: ## Validate skill descriptions follow best practices
 	@echo "Validating skill descriptions..."
-	@PYTHONPATH=src $(UV_RUN) pytest tests/test_skill_structure.py -v --tb=short || { echo "Some skills need description improvements"; exit 1; }
+	@PYTHONPATH=src $(PYTEST) tests/test_skill_structure.py -v --tb=short || { echo "Some skills need description improvements"; exit 1; }
 
 validate-plugin: ## Validate plugin structure (PATH=<path>, defaults to current dir)
 	@echo "Validating plugin structure..."
@@ -222,7 +146,7 @@ docs-clean: ## Clean documentation build
 	@rm -rf $(DOCS_BUILD_DIR)
 
 docs-serve: ## Serve documentation locally (http://localhost:8000)
-	@test -d $(DOCS_BUILD_DIR)/html || { echo "⚠ Documentation not built. Run 'make docs' first."; exit 1; }
+	@test -d $(DOCS_BUILD_DIR)/html || { echo "[WARNING] Documentation not built. Run 'make docs' first."; exit 1; }
 	@echo "Serving documentation at http://localhost:8000"
 	@cd $(DOCS_BUILD_DIR)/html && $(PYTHON) -m http.server 8000
 
@@ -247,7 +171,7 @@ dev-setup: ## Complete development environment setup
 	@echo "Setting up development environment..."
 	@$(UV) sync --dev || true
 	@make install-hooks
-	@echo "✓ Development environment ready!"
+	@echo "[OK] Development environment ready!"
 	@echo ""
 	@echo "Next steps:"
 	@echo "  1. Run 'make test' to verify setup"
@@ -261,14 +185,14 @@ ci-check: ## Run all CI checks locally
 	@make typecheck
 	@make security
 	@make unit-tests
-	@echo "✓ All CI checks passed!"
+	@echo "[OK] All CI checks passed!"
 
 verify-install: ## Verify installation works correctly
 	@echo "Verifying installation..."
-	@$(UV_PYTHON) -c "import abstract; print('✓ Abstract module imports successfully')" || echo "⚠ Abstract module import failed"
-	@$(UV_PYTHON) -c "from abstract.cli_framework import AbstractCLI; print('✓ CLI framework imports successfully')" || echo "⚠ CLI framework import failed"
-	@$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version 2>/dev/null && echo "✓ CLI tools work correctly" || echo "⚠ CLI tools may need adjustment"
-	@echo "✓ Installation verification complete"
+	@$(UV_PYTHON) -c "import abstract; print('[OK] Abstract module imports successfully')" || echo "[WARNING] Abstract module import failed"
+	@$(UV_PYTHON) -c "from abstract.cli_framework import AbstractCLI; print('[OK] CLI framework imports successfully')" || echo "[WARNING] CLI framework import failed"
+	@$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --version 2>/dev/null && echo "[OK] CLI tools work correctly" || echo "[WARNING] CLI tools may need adjustment"
+	@echo "[OK] Installation verification complete"
 
 debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "=== Makefile Variables ==="
@@ -283,12 +207,17 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "HOOKS_DIR: $(HOOKS_DIR)"
 	@echo "SKILLS_DIR: $(SKILLS_DIR)"
 	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
 	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 # WRAPPER TESTING AND VALIDATION
 test-wrappers: ## Run all wrapper-related tests
 	@echo "Running wrapper tests..."
-	@$(PYTEST) tests/test_*_wrapper.py -v --tb=short || { echo "⚠ Wrapper tests failed"; exit 1; }
+	@$(PYTEST) tests/test_*_wrapper.py -v --tb=short || { echo "[WARNING] Wrapper tests failed"; exit 1; }
 
 validate-migration: ## Validate migration compatibility and analyze overlaps
 	@echo "Running migration validation..."
@@ -298,16 +227,16 @@ validate-migration: ## Validate migration compatibility and analyze overlaps
 	@if [ -f "$(SCRIPTS_DIR)/migration_analyzer.py" ]; then \
 		$(UV_PYTHON) "$(SCRIPTS_DIR)/migration_analyzer.py" --all; \
 	fi
-	@echo "✓ Migration validation completed"
+	@echo "[OK] Migration validation completed"
 
 generate-wrappers: ## Generate wrapper boilerplate for detected functionality
 	@echo "Generating wrappers..."
 	@if [ -f "$(SCRIPTS_DIR)/wrapper_generator.py" ]; then \
 		$(UV_PYTHON) "$(SCRIPTS_DIR)/wrapper_generator.py" --auto-detect; \
 	else \
-		echo "⚠ wrapper_generator.py not found in $(SCRIPTS_DIR)/"; \
+		echo "[WARNING] wrapper_generator.py not found in $(SCRIPTS_DIR)/"; \
 	fi
-	@echo "✓ Wrapper generation completed"
+	@echo "[OK] Wrapper generation completed"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-skills: ## Validate abstract skill structure

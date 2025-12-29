@@ -13,7 +13,7 @@ description: |
   DO NOT use when: analyzing specifications - use spec-analyzer agent.
   DO NOT use when: executing tasks - use implementation-executor agent.
 
-  Trigger proactively during /speckit.tasks commands.
+  Trigger proactively during /speckit-tasks commands.
 tools: [Read, Write, Grep, Glob]
 examples:
   - context: User has a completed spec and plan

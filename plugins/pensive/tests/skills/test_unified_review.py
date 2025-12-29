@@ -13,6 +13,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Import the skill we're testing
+from pensive.skills.base import AnalysisResult
 from pensive.skills.unified_review import UnifiedReviewSkill
 
 
@@ -314,9 +315,9 @@ class TestUnifiedReviewSkill:
         result = self.skill.analyze(mock_skill_context)
 
         # Assert
-        assert "no code files found" in result.lower() or "empty" in result.lower()
-        assert result is not None
-        assert len(result) > 0
+        assert isinstance(result, AnalysisResult)
+        warnings_text = " ".join(result.warnings).lower()
+        assert "no code files found" in warnings_text or "empty" in warnings_text
 
     @pytest.mark.unit
     def test_detects_api_exports(self, mock_skill_context) -> None:

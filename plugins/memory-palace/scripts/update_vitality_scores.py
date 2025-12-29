@@ -19,7 +19,10 @@ DEFAULT_QUEUE_FILE = PLUGIN_ROOT / "data" / "indexes" / "vitality-tending-queue.
 
 def load_vitality(path: Path) -> dict[str, Any]:
     """Load vitality scores YAML into a dictionary."""
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict):
+        return {}
+    return data
 
 
 def _is_evergreen(payload: dict[str, Any]) -> bool:
@@ -37,7 +40,7 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
     entries = data.get("entries", {})
     stale_threshold = data.get("metadata", {}).get("stale_threshold", 10)
     now = dt.datetime.now(dt.UTC).isoformat()
-    queue = {"stale": [], "probation_overdue": []}
+    queue: dict[str, list[str]] = {"stale": [], "probation_overdue": []}
 
     for entry_id, payload in entries.items():
         if _is_evergreen(payload):

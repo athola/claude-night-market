@@ -56,13 +56,13 @@ class TokenEstimator:
         content = file_path.read_text(encoding="utf-8")
 
         # Use TokenAnalyzer for token analysis
-        analysis = TokenAnalyzer.analyze_content(content)
+        analysis: dict[str, int] = TokenAnalyzer.analyze_content(content)
 
         # Parse frontmatter for dependencies
         frontmatter_dict = parse_yaml_frontmatter(content)
         dependencies = extract_dependencies(frontmatter_dict)
 
-        result = {
+        result: dict[str, Any] = {
             "file": str(file_path),
             "total_tokens": analysis["total_tokens"],
             "frontmatter_tokens": analysis["frontmatter_tokens"],
@@ -76,7 +76,7 @@ class TokenEstimator:
         # Add dependency analysis if requested
         if include_dependencies and dependencies:
             dependency_tokens = 0
-            missing_deps = []
+            missing_deps: list[str] = []
 
             for dep in dependencies:
                 # Use shared utility to find dependency
@@ -97,7 +97,7 @@ class TokenEstimator:
             result["dependency_tokens"] = dependency_tokens
             result["missing_dependencies"] = missing_deps
             result["total_with_dependencies"] = (
-                result["total_tokens"] + dependency_tokens
+                int(result["total_tokens"]) + dependency_tokens
             )
 
         return result
@@ -228,6 +228,7 @@ class TokenEstimatorCLI(AbstractCLI, PathArgumentMixin):
             version="1.0.0",
         )
         self.estimator = TokenEstimator()
+        self._include_dependencies = False
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         """Add tool-specific arguments."""
@@ -245,6 +246,7 @@ class TokenEstimatorCLI(AbstractCLI, PathArgumentMixin):
 
     def execute(self, args: argparse.Namespace) -> CLIResult:
         """Execute the CLI command."""
+        self._include_dependencies = bool(args.include_dependencies)
         results = []
 
         if args.file:
@@ -278,7 +280,7 @@ class TokenEstimatorCLI(AbstractCLI, PathArgumentMixin):
             for result in data:
                 analysis = self.estimator.format_analysis(
                     result,
-                    hasattr(self, "_args") and self._args.include_dependencies,
+                    self._include_dependencies,
                 )
                 lines.append(analysis)
                 if len(data) > 1:

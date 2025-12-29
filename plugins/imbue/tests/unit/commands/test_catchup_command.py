@@ -221,13 +221,6 @@ def5678 2024-12-04 test: Add payment flow tests
         """
         # Arrange - simulate large git log with varied commit types
         many_commits = []
-        commit_types_list = [
-            "feat: add new feature",
-            "fix: resolve bug",
-            "test: add unit tests",
-            "refactor: improve code structure",
-            "docs: update documentation",
-        ]
         for i in range(50):
             # Distribute commit types: 20 features, 15 fixes, 10 tests, 5 refactors
             if i < 20:

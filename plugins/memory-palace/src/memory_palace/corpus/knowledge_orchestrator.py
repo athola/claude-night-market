@@ -11,8 +11,6 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
 from memory_palace.corpus.decay_model import DecayModel
 from memory_palace.corpus.marginal_value import IntegrationDecision, MarginalValueFilter
 from memory_palace.corpus.source_lineage import (
@@ -22,6 +20,8 @@ from memory_palace.corpus.source_lineage import (
     SourceReference,
 )
 from memory_palace.corpus.usage_tracker import UsageEvent, UsageSignal, UsageTracker
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -126,6 +126,7 @@ class KnowledgeOrchestrator:
         usage_score = usage_score_obj.normalized_score
 
         # Get decay score
+        last_validated: datetime | None
         last_validated_str = entry.get("last_validated")
         if last_validated_str:
             try:
@@ -152,9 +153,12 @@ class KnowledgeOrchestrator:
                             entry_id,
                             created_str,
                         )
-                        last_validated = datetime.now(UTC)
+                    last_validated = datetime.now(UTC)
                 else:
                     last_validated = datetime.now(UTC)
+
+        if last_validated is None:
+            last_validated = datetime.now(UTC)
 
         decay_state = self.decay_model.calculate_decay(
             entry_id, maturity, last_validated

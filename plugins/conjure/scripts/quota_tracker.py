@@ -12,14 +12,46 @@ import argparse
 import logging
 import os
 import shlex
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from leyline import QuotaConfig, QuotaTracker
+try:
+    from leyline import QuotaConfig, QuotaTracker
+except ImportError:  # pragma: no cover
+
+    @dataclass(frozen=True)
+    class QuotaConfig:
+        requests_per_minute: int
+        requests_per_day: int
+        tokens_per_minute: int
+        tokens_per_day: int
+
+    class QuotaTracker:  # noqa: D101
+        def __init__(
+            self,
+            service: str,
+            config: QuotaConfig,
+            storage_dir: Path | None = None,
+        ) -> None:
+            self.service = service
+            self.config = config
+            self.storage_dir = storage_dir
+
+        def estimate_file_tokens(self, path: Path) -> int:
+            try:
+                text = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                return 0
+            return (len(text) // 4) + 6
+
+        def get_quota_status(self) -> tuple[str, list[str]]:
+            return "[OK] Healthy", ["(leyline not installed; quota tracking disabled)"]
+
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
 
 try:
     import tiktoken
@@ -94,7 +126,7 @@ class GeminiQuotaTracker(QuotaTracker):
 
     def estimate_task_tokens(
         self,
-        file_paths: list[str],
+        file_paths: Sequence[str | Path],
         prompt_length: int = 100,
     ) -> int:
         """Estimate tokens with optional tiktoken encoder fallback.
@@ -129,7 +161,7 @@ class GeminiQuotaTracker(QuotaTracker):
     def _estimate_with_encoder(
         self,
         encoder: Any,
-        file_paths: list[str],
+        file_paths: Sequence[str | Path],
         prompt_length: int,
     ) -> int:
         """Estimate tokens using tiktoken encoder."""
@@ -146,7 +178,7 @@ class GeminiQuotaTracker(QuotaTracker):
 
     def _estimate_with_heuristic(
         self,
-        file_paths: list[str],
+        file_paths: Sequence[str | Path],
         prompt_length: int,
     ) -> int:
         """Estimate tokens using heuristic ratios."""
@@ -157,7 +189,7 @@ class GeminiQuotaTracker(QuotaTracker):
 
         return int(tokens)
 
-    def _iter_source_paths(self, file_paths: list[str]) -> Iterable[str]:
+    def _iter_source_paths(self, file_paths: Sequence[str | Path]) -> Iterable[str]:
         """Iterate over source file paths, walking directories.
 
         Skips common build/dependency directories and filters for relevant
@@ -188,11 +220,12 @@ class GeminiQuotaTracker(QuotaTracker):
         }
 
         for file_path in file_paths:
+            path_value = str(file_path)
             try:
-                if os.path.isfile(file_path):
-                    yield file_path
-                elif os.path.isdir(file_path):
-                    for root, dirs, files in os.walk(file_path):
+                if os.path.isfile(path_value):
+                    yield path_value
+                elif os.path.isdir(path_value):
+                    for root, dirs, files in os.walk(path_value):
                         # Filter out skip directories
                         dirs[:] = [d for d in dirs if d not in skip_dirs]
                         for file in files:

@@ -10,16 +10,16 @@ Start features with a specification:
 
 ```bash
 # Create specification from idea
-/speckit.specify Add user authentication with OAuth2
+/speckit-specify Add user authentication with OAuth2
 
 # Generate implementation plan
-/speckit.plan
+/speckit-plan
 
 # Create ordered tasks
-/speckit.tasks
+/speckit-tasks
 
 # Execute tasks
-/speckit.implement
+/speckit-implement
 ```
 
 ### Code Review with Pensive
@@ -116,12 +116,12 @@ sanctum depends on imbue (for some skills)
 
 | Command | Purpose |
 |---------|---------|
-| `/speckit.specify` | Create specification |
-| `/speckit.plan` | Generate plan |
-| `/speckit.tasks` | Create tasks |
-| `/speckit.implement` | Execute tasks |
-| `/speckit.analyze` | Check consistency |
-| `/speckit.clarify` | Ask clarifying questions |
+| `/speckit-specify` | Create specification |
+| `/speckit-plan` | Generate plan |
+| `/speckit-tasks` | Create tasks |
+| `/speckit-implement` | Execute tasks |
+| `/speckit-analyze` | Check consistency |
+| `/speckit-clarify` | Ask clarifying questions |
 
 ### Review (pensive)
 

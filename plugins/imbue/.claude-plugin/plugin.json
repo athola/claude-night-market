@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/shared",
@@ -20,7 +20,22 @@
   "agents": [
     "./agents/review-analyst.md"
   ],
-  "keywords": ["workflow", "analysis", "evidence", "structured-output", "methodology", "review", "catchup", "scope-guard", "anti-overengineering", "feature-review", "prioritization", "RICE", "WSJF", "roadmap"],
+  "keywords": [
+    "workflow",
+    "analysis",
+    "evidence",
+    "structured-output",
+    "methodology",
+    "review",
+    "catchup",
+    "scope-guard",
+    "anti-overengineering",
+    "feature-review",
+    "prioritization",
+    "RICE",
+    "WSJF",
+    "roadmap"
+  ],
   "author": {
     "name": "Alex Thola",
     "url": "https://github.com/athola"

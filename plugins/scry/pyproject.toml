@@ -1,0 +1,34 @@
+[project]
+name = "scry"
+version = "1.1.0"
+description = "Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition"
+authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["-v", "--strict-markers"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests (require ffmpeg/vhs)",
+    "slow: Slow running tests",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4"]

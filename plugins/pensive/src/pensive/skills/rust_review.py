@@ -177,9 +177,9 @@ class RustReviewSkill(BaseReviewSkill):
             Dictionary with data_races, thread_safety_issues, and safe_patterns
         """
         content = context.get_file_content(file_path)
-        data_races = []
-        thread_safety_issues = []
-        safe_patterns = []
+        data_races: list[dict[str, Any]] = []
+        thread_safety_issues: list[dict[str, Any]] = []
+        safe_patterns: list[dict[str, Any]] = []
 
         lines = content.split("\n")
         for i, line in enumerate(lines):
@@ -635,14 +635,14 @@ class RustReviewSkill(BaseReviewSkill):
             Dictionary with trait analysis
         """
         content = context.get_file_content(file_path)
-        trait_definitions = []
-        implementations = []
-        object_safety_issues = []
-        missing_methods = []
+        trait_definitions: list[dict[str, Any]] = []
+        implementations: list[dict[str, Any]] = []
+        object_safety_issues: list[dict[str, Any]] = []
+        missing_methods: list[str] = []
 
         lines = content.split("\n")
         current_trait = None
-        trait_methods = []
+        trait_methods: list[str] = []
 
         for i, line in enumerate(lines):
             # Detect trait definitions

@@ -54,7 +54,7 @@ class KeywordIndexer:
             List of extracted keywords (lowercase, deduplicated)
 
         """
-        keywords = set()
+        keywords: set[str] = set()
 
         try:
             content = entry_path.read_text()

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from memory_palace.lifecycle.autonomy_state import AutonomyStateStore
 
@@ -139,7 +139,7 @@ def _handle_autonomy(args: argparse.Namespace) -> None:
     raise SystemExit(msg)
 
 
-def _print_status(snapshot: dict[str, object]) -> None:
+def _print_status(snapshot: dict[str, Any]) -> None:
     current_level = snapshot.get("current_level")
     effective_level = snapshot.get("effective_level")
     print(f"Current level: {current_level}")

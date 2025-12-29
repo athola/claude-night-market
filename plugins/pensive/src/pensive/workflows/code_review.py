@@ -111,7 +111,7 @@ class CodeReviewWorkflow:
 
     def _collect_files(self, repo_path: Path) -> list[str]:
         """Collect files from repository."""
-        files = []
+        files: list[str] = []
         for ext in ["*.py", "*.rs", "*.js", "*.ts", "*.java", "*.go"]:
             files.extend(str(f.relative_to(repo_path)) for f in repo_path.rglob(ext))
         return files

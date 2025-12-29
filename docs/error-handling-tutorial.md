@@ -1,4 +1,4 @@
-# Comprehensive Error Handling Tutorial
+# Error Handling Tutorial
 
 This tutorial provides practical guidance for implementing robust error handling in Claude Code skills and plugins. It covers real-world scenarios, code examples, and best practices.
 
@@ -296,14 +296,14 @@ data = await degradation.execute(
 
 ## Real-World Examples
 
-### Example 1: API Client with Comprehensive Error Handling
+### Example 1: API Client with Relevant Error Handling
 ```python
 import aiohttp
 import asyncio
 from typing import Optional, Dict, Any
 
 class RobustAPIClient:
-    """API client with comprehensive error handling"""
+    """API client with relevant error handling"""
 
     def __init__(self, base_url: str, timeout: float = 30.0):
         self.base_url = base_url

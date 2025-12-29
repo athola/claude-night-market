@@ -20,7 +20,7 @@ class TestSpeckitCommands:
     """Test cases for speckit commands."""
 
     class TestSpecifyCommand:
-        """Test /speckit.specify command."""
+        """Test /speckit-specify command."""
 
         def test_should_extract_keywords_for_branch_name_when_given_feature_description(
             self,
@@ -269,7 +269,7 @@ class TestSpeckitCommands:
             ), "Should detect script execution failure"
 
     class TestPlanCommand:
-        """Test /speckit.plan command."""
+        """Test /speckit-plan command."""
 
         def test_should_detect_spec_file_when_file_exists(
             self,
@@ -430,7 +430,7 @@ class TestSpeckitCommands:
             assert has_requirements, "Minimal spec should have requirements"
 
     class TestImplementCommand:
-        """Test /speckit.implement command."""
+        """Test /speckit-implement command."""
 
         def test_should_detect_task_file_when_file_exists(
             self,
@@ -641,7 +641,7 @@ class TestSpeckitCommands:
             ), "Should identify the missing dependency"
 
     class TestAnalyzeCommand:
-        """Test /speckit.analyze command."""
+        """Test /speckit-analyze command."""
 
         def test_should_detect_source_files_when_analyzing_scope(
             self,
@@ -736,7 +736,7 @@ class TestSpeckitCommands:
             ), f"Coverage percentage should be 0-100, got {percentage}"
 
     class TestChecklistCommand:
-        """Test /speckit.checklist command."""
+        """Test /speckit-checklist command."""
 
         def test_should_generate_checklist_from_spec_when_processing(
             self,

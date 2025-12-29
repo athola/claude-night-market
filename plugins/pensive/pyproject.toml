@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.0.5"
+version = "1.1.0"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -47,6 +47,7 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.0.0",
     "pre-commit>=3.0.0",
+    "types-PyYAML>=6.0.0",
 ]
 docs = [
     "mkdocs>=1.5.0",
@@ -231,7 +232,7 @@ max-complexity = 10
 ignore-variadic-names = true
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

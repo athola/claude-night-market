@@ -1,6 +1,6 @@
 [project]
 name = "abstract"
-version = "1.0.5"
+version = "1.1.0"
 description = "Abstract Claude Code plugin - meta-skills infrastructure"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -75,6 +75,10 @@ explicit_package_bases = true
 mypy_path = ["src"]
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 enable_incomplete_feature = ["NewGenericSyntax"]
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

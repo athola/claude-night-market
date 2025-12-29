@@ -6137,72 +6137,72 @@
       "last_modified": 1764877643.8801646,
       "file_hash": "46eced28ef1b0c4d53dd5ccb40d0bd22"
     },
-    "plugins/spec-kit/commands/speckit.analyze.md": {
-      "path": "plugins/spec-kit/commands/speckit.analyze.md",
+    "plugins/spec-kit/commands/speckit-analyze.md": {
+      "path": "plugins/spec-kit/commands/speckit-analyze.md",
       "file_size": 7423,
       "estimated_tokens": 1854,
       "complexity_score": 65.019,
       "last_modified": 1764877740.2123506,
       "file_hash": "57139dd20a627c01071bb8dd435b37bc"
     },
-    "plugins/spec-kit/commands/speckit.checklist.md": {
-      "path": "plugins/spec-kit/commands/speckit.checklist.md",
+    "plugins/spec-kit/commands/speckit-checklist.md": {
+      "path": "plugins/spec-kit/commands/speckit-checklist.md",
       "file_size": 17017,
       "estimated_tokens": 4232,
       "complexity_score": 49.629,
       "last_modified": 1764877742.4447048,
       "file_hash": "23b51b88a9adb13768eeb221fb498980"
     },
-    "plugins/spec-kit/commands/speckit.clarify.md": {
-      "path": "plugins/spec-kit/commands/speckit.clarify.md",
+    "plugins/spec-kit/commands/speckit-clarify.md": {
+      "path": "plugins/spec-kit/commands/speckit-clarify.md",
       "file_size": 11403,
       "estimated_tokens": 2844,
       "complexity_score": 23.377,
       "last_modified": 1764877773.1479275,
       "file_hash": "3e046d36e9d5dc516db796e584235633"
     },
-    "plugins/spec-kit/commands/speckit.constitution.md": {
-      "path": "plugins/spec-kit/commands/speckit.constitution.md",
+    "plugins/spec-kit/commands/speckit-constitution.md": {
+      "path": "plugins/spec-kit/commands/speckit-constitution.md",
       "file_size": 5075,
       "estimated_tokens": 1264,
       "complexity_score": 11.158999999999999,
       "last_modified": 1764877456.6106138,
       "file_hash": "4114711bb658da6872f2b57cecc4cb57"
     },
-    "plugins/spec-kit/commands/speckit.implement.md": {
-      "path": "plugins/spec-kit/commands/speckit.implement.md",
+    "plugins/spec-kit/commands/speckit-implement.md": {
+      "path": "plugins/spec-kit/commands/speckit-implement.md",
       "file_size": 7657,
       "estimated_tokens": 1909,
       "complexity_score": 17.039,
       "last_modified": 1764877741.6629465,
       "file_hash": "e093b5d17df627d5d263c8f883962889"
     },
-    "plugins/spec-kit/commands/speckit.plan.md": {
-      "path": "plugins/spec-kit/commands/speckit.plan.md",
+    "plugins/spec-kit/commands/speckit-plan.md": {
+      "path": "plugins/spec-kit/commands/speckit-plan.md",
       "file_size": 3083,
       "estimated_tokens": 768,
       "complexity_score": 17.073,
       "last_modified": 1764877740.8551297,
       "file_hash": "bf36b2119d91c4fecc8c5e975013b67a"
     },
-    "plugins/spec-kit/commands/speckit.specify.md": {
-      "path": "plugins/spec-kit/commands/speckit.specify.md",
+    "plugins/spec-kit/commands/speckit-specify.md": {
+      "path": "plugins/spec-kit/commands/speckit-specify.md",
       "file_size": 12597,
       "estimated_tokens": 3147,
       "complexity_score": 43.289,
       "last_modified": 1764877456.6106138,
       "file_hash": "46abdcebb3250c1964741621868e9f65"
     },
-    "plugins/spec-kit/commands/speckit.startup.md": {
-      "path": "plugins/spec-kit/commands/speckit.startup.md",
+    "plugins/spec-kit/commands/speckit-startup.md": {
+      "path": "plugins/spec-kit/commands/speckit-startup.md",
       "file_size": 1485,
       "estimated_tokens": 371,
       "complexity_score": 2.3850000000000002,
       "last_modified": 1764877774.6239479,
       "file_hash": "dc93237615f732a7a090fe86e41a8668"
     },
-    "plugins/spec-kit/commands/speckit.tasks.md": {
-      "path": "plugins/spec-kit/commands/speckit.tasks.md",
+    "plugins/spec-kit/commands/speckit-tasks.md": {
+      "path": "plugins/spec-kit/commands/speckit-tasks.md",
       "file_size": 6307,
       "estimated_tokens": 1567,
       "complexity_score": 24.371,

@@ -9,7 +9,7 @@ class TestWrappedCommands:
     """Test cases for enhanced wrapped commands."""
 
     class TestWrappedPlanCommand:
-        """Test /speckit.plan.wrapped command."""
+        """Test /speckit-plan.wrapped command."""
 
         def test_skill_loading_sequence(self) -> None:
             """Test that writing-plans and speckit-orchestrator skills are loaded."""
@@ -100,7 +100,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
             assert len(enhanced_checks) >= 1
 
     class TestWrappedTasksCommand:
-        """Test /speckit.tasks.wrapped command."""
+        """Test /speckit-tasks.wrapped command."""
 
         def test_user_story_organization(self) -> None:
             """Test task organization by user stories."""
@@ -166,7 +166,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
             assert len(enhanced_tasks) >= 3
 
     class TestWrappedStartupCommand:
-        """Test /speckit.startup.wrapped command."""
+        """Test /speckit-startup.wrapped command."""
 
         def test_session_state_initialization(self) -> None:
             """Test enhanced session state initialization."""

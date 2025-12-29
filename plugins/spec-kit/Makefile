@@ -4,15 +4,21 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help deps test test-unit test-integration test-coverage test-quick lint format type-check typecheck \
-        security clean status install-hooks ci validate-plugin demo-spec demo-tasks demo-skills plugin-check
+        security clean status install-hooks ci validate-plugin demo-spec demo-tasks demo-skills plugin-check debug-variables
+
+# Plugin-specific variables (must be before include)
+SRC_DIRS := src tests
+COV_DIRS := src
+MYPY_TARGETS := src
+BANDIT_TARGETS := src
+TEST_UNIT_ARGS := -v -m "not integration"
+TEST_QUICK_ARGS := -m "not slow" --maxfail=1
+TEST_DIR ?= tests
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
-
-# Plugin-specific variables
-SRC_DIRS ?= skills commands agents
-TEST_DIR ?= tests
+-include $(ABSTRACT_DIR)/config/make/python.mk
 
 # Default target
 help: ## Show this help message
@@ -28,37 +34,10 @@ deps: ## Install and sync dependencies
 
 # ---------- Testing ----------
 test: ## Run all tests
-	$(MAKE) -C $(TEST_DIR) test
-
-test-unit: ## Run unit tests only
-	$(MAKE) -C $(TEST_DIR) test-unit
+	$(PYTEST) $(TEST_DIR)/ -v
 
 test-integration: ## Run integration tests only
-	$(MAKE) -C $(TEST_DIR) test-integration
-
-test-coverage: ## Run tests with coverage report
-	$(MAKE) -C $(TEST_DIR) test-coverage
-
-test-quick: ## Run quick tests (skip slow)
-	$(MAKE) -C $(TEST_DIR) test-quick
-
-# ---------- Code Quality ----------
-lint: ## Run linting checks
-	@echo "Linting spec-kit..."
-	@if [ -d $(TEST_DIR) ]; then $(MAKE) -C $(TEST_DIR) lint; fi
-
-format: ## Format code
-	@echo "Formatting spec-kit..."
-	@if [ -d $(TEST_DIR) ]; then $(MAKE) -C $(TEST_DIR) format; fi
-
-type-check: ## Run type checking
-	@echo "Type checking not configured for spec-kit (markdown-based plugin)"
-
-# Alias for backwards compatibility
-typecheck: type-check
-
-security: ## Run security checks
-	@echo "Security checking not configured for spec-kit (markdown-based plugin)"
+	$(PYTEST) $(TEST_DIR)/ -v -m integration
 
 # ---------- Validation ----------
 validate-plugin: ## Validate plugin structure
@@ -83,6 +62,22 @@ status: ## Show project overview
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "PYTHON: $(PYTHON)"
+	@echo "UV: $(UV)"
+	@echo "UV_RUN: $(UV_RUN)"
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"
+
 install-hooks: ## Install pre-commit hooks
 	@echo "Installing pre-commit hooks..."
 	@if [ -f .pre-commit-config.yaml ]; then \
@@ -104,10 +99,10 @@ demo-spec: ## Demo spec writing workflow
 	@echo "  ## Non-Functional Requirements"
 	@echo ""
 	@echo "Step 2: Skill validation"
-	@test -f skills/spec-writing/SKILL.md && echo "  ✓ spec-writing skill exists" || echo "  ✗ spec-writing skill missing"
+	@test -f skills/spec-writing/SKILL.md && echo "  [OK] spec-writing skill exists" || echo "  [X] spec-writing skill missing"
 	@head -10 skills/spec-writing/SKILL.md 2>/dev/null | grep -E '^(name|description):' || true
 	@echo ""
-	@echo "Spec demo complete. Use /spec-kit:speckit.specify for full workflow."
+	@echo "Spec demo complete. Use /spec-kit:speckit-specify for full workflow."
 
 demo-tasks: ## Demo task planning workflow
 	@echo "=== Spec-Kit Task Planning Demo ==="
@@ -120,13 +115,13 @@ demo-tasks: ## Demo task planning workflow
 	@echo "  - [ ] Estimated effort"
 	@echo ""
 	@echo "Step 2: Skill validation"
-	@test -f skills/task-planning/SKILL.md && echo "  ✓ task-planning skill exists" || echo "  ✗ task-planning skill missing"
+	@test -f skills/task-planning/SKILL.md && echo "  [OK] task-planning skill exists" || echo "  [X] task-planning skill missing"
 	@head -10 skills/task-planning/SKILL.md 2>/dev/null | grep -E '^(name|description):' || true
 	@echo ""
 	@echo "Step 3: Commands available"
 	@ls commands/*.md 2>/dev/null | xargs -n1 basename | sed 's/.md//' | sed 's/^/  - /'
 	@echo ""
-	@echo "Task demo complete. Use /spec-kit:speckit.tasks for full workflow."
+	@echo "Task demo complete. Use /spec-kit:speckit-tasks for full workflow."
 
 demo-skills: ## Validate spec-kit skill structure
 	@echo "=== Spec-Kit Skills Demo ==="
@@ -137,9 +132,9 @@ demo-skills: ## Validate spec-kit skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  spec-writing:        $$(test -f skills/spec-writing/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  task-planning:       $$(test -f skills/task-planning/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  speckit-orchestrator: $$(test -f skills/speckit-orchestrator/SKILL.md && echo '✓' || echo '✗')"
+	@echo "  spec-writing:        $$(test -f skills/spec-writing/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  task-planning:       $$(test -f skills/task-planning/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  speckit-orchestrator: $$(test -f skills/speckit-orchestrator/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo ""
 	@echo "Commands:"
 	@find commands/ -name "*.md" 2>/dev/null | wc -l | xargs -I{} echo "  {} commands defined"
@@ -147,3 +142,13 @@ demo-skills: ## Validate spec-kit skill structure
 plugin-check: demo-spec demo-tasks demo-skills ## Run all demo workflows
 	@echo ""
 	@echo "=== Spec-Kit Plugin Check Complete ==="
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

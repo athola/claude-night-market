@@ -22,38 +22,76 @@ Remove the shared extension registry and adopt a **plugin isolation pattern** wh
 3. **Degrades gracefully** when dependencies are missing
 4. **Documents** optional integrations clearly
 
+### Exception: leyline (intentional)
+
+`leyline` is the one intentional exception: it is a shared *infrastructure* plugin that provides reusable building blocks (e.g., token estimation, quota tracking) intended to be imported by other plugins.
+
+**Rule**: Any import of `leyline` must be optional (guarded with `try/except ImportError`) and must provide a safe fallback so the consumer plugin still loads and runs without leyline installed.
+
 ## Architecture
 
 ### Before (Shared Registry)
+
+```mermaid
+flowchart TB
+    subgraph Plugins
+        A[Abstract Plugin]
+        S[Sanctum Plugin]
+    end
+
+    subgraph SharedCode["Shared Python Code"]
+        ER[extension-registry]
+    end
+
+    A <-->|"Uses Shared"| ER
+    S <-->|"Uses Shared"| ER
+
+    style ER fill:#f66,stroke:#333
+    style SharedCode fill:#fdd,stroke:#c33
 ```
-┌─────────────────┐    ┌─────────────────┐
-│   Abstract      │    │    Sanctum      │
-├─────────────────┤    ├─────────────────┤
-│  Uses Shared    │◄──►│  Uses Shared    │
-│ Extension Repo  │    │ Extension Repo  │
-└─────────────────┘    └─────────────────┘
-          │                       │
-          └───────────────────────┘
-      ┌───────────────────────┐
-      │   Shared Python Code   │
-      │  (extension-registry)  │
-      └───────────────────────┘
-```
+
+**Problem**: Tight coupling through shared dependencies causes version conflicts and cascading failures.
 
 ### After (Plugin Isolation)
-```
-┌─────────────────┐    ┌─────────────────┐
-│   Abstract      │    │    Sanctum      │
-├─────────────────┤    ├─────────────────┤
-│ Checks for      │◄──►│ Checks for      │
-│ Other Plugins   │    │ Other Plugins   │
-└─────────────────┘    └─────────────────┘
-          │                       │
-          └───────────────────────┘
-          Plugin Detection & Fallbacks
+
+```mermaid
+flowchart TB
+    subgraph Plugins
+        A[Abstract Plugin]
+        S[Sanctum Plugin]
+        C[Conservation Plugin]
+    end
+
+    A -.->|"Detects at runtime"| S
+    A -.->|"Detects at runtime"| C
+    S -.->|"Detects at runtime"| A
+    S -.->|"Detects at runtime"| C
+
+    style A fill:#9f9,stroke:#333
+    style S fill:#9f9,stroke:#333
+    style C fill:#9f9,stroke:#333
 ```
 
+**Solution**: Plugins detect each other at runtime with graceful fallbacks when dependencies are missing.
+
 ## Implementation Pattern
+
+```mermaid
+sequenceDiagram
+    participant P as Plugin A
+    participant FS as Filesystem
+    participant D as Plugin B (optional)
+
+    P->>FS: Check if Plugin B exists
+    alt Plugin B available
+        FS-->>P: Plugin found
+        P->>D: Import enhancement
+        D-->>P: Enhanced result
+    else Plugin B missing
+        FS-->>P: Not found
+        P->>P: Use fallback logic
+    end
+```
 
 ### 1. Detection
 ```python
@@ -79,6 +117,27 @@ def enhance_with_plugin(data: dict) -> dict:
 ```
 
 ### 3. Service Provider Pattern
+
+```mermaid
+flowchart LR
+    subgraph Provider["Conservation Plugin"]
+        R1[ServiceRegistry]
+        O[optimize_function]
+    end
+
+    subgraph Consumer["Other Plugin"]
+        R2[ServiceRegistry]
+        C[Consumer Code]
+    end
+
+    O -->|register| R1
+    R1 -.->|shared registry| R2
+    R2 -->|get_service| C
+
+    style Provider fill:#e7f3ff,stroke:#0066cc
+    style Consumer fill:#fff3e7,stroke:#cc6600
+```
+
 ```python
 # Conservation plugin provides a service
 registry = ServiceRegistry()

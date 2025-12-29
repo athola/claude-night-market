@@ -7,8 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from src.abstract.frontmatter import FrontmatterProcessor
-from src.abstract.tokens import estimate_tokens
+from abstract.frontmatter import FrontmatterProcessor
+from abstract.tokens import estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class SkillsAuditor:
             }
 
         skills_metrics = []
-        total_score = 0
+        total_score = 0.0
 
         for skill_file in skill_files:
             metrics = self._analyze_skill_file(skill_file)
@@ -256,8 +256,8 @@ class SkillsAuditor:
 
     def _calculate_token_score(self, token_count: int) -> float:
         """Calculate token efficiency score."""
-        optimal = self.audit_metrics["token_optimal"]
-        acceptable = self.audit_metrics["token_acceptable"]
+        optimal = float(self.audit_metrics["token_optimal"])
+        acceptable = float(self.audit_metrics["token_acceptable"])
 
         if token_count <= optimal:
             return 100
@@ -339,7 +339,7 @@ class SkillsAuditor:
 
     def _generate_recommendations(self, skill_metrics: list[SkillMetrics]) -> list[str]:
         """Generate overall recommendations based on audit results."""
-        recommendations = []
+        recommendations: list[str] = []
 
         if not skill_metrics:
             return recommendations

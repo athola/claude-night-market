@@ -179,16 +179,16 @@ class TemplateEnhancer:
 ### Enhanced Planning Session
 ```bash
 # Start enhanced session
-/speckit.startup.wrapped
+/speckit-startup.wrapped
 
 # Generate specification with writing-plans refinement
-/speckit.specify "Add user authentication system"
+/speckit-specify "Add user authentication system"
 
 # Create enhanced plan with writing-plans methodology
-/speckit.plan.wrapped
+/speckit-plan.wrapped
 
 # Generate detailed tasks with specification-driven organization
-/speckit.tasks.wrapped
+/speckit-tasks.wrapped
 ```
 
 ### Quality Validation

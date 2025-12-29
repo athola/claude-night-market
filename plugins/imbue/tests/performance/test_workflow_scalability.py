@@ -102,7 +102,7 @@ class TestWorkflowScalability:
 
         # Process changes with O(n) complexity
         for _i, file_path in enumerate(files_changed):
-            change_type = "modified"  # Simplified categorization
+            change_type = "modification"  # Simplified categorization
             lines_in_file = lines_added // len(files_changed)
 
             change = {
@@ -238,7 +238,7 @@ class TestWorkflowScalability:
 
         # Test lookup performance
         lookup_start = time.time()
-        lookups = ["E0001", "E5000", "E9999"]
+        lookups = ["E00001", "E05000", "E09999"]
         for evidence_id in lookups:
             found = evidence_log["evidence_index"].get(evidence_id)
             assert found is not None

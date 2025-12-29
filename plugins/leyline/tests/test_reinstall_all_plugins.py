@@ -8,7 +8,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
@@ -18,8 +18,28 @@ script_path = Path(__file__).parent.parent / "scripts"
 sys.path.insert(0, str(script_path))
 
 # ruff: noqa: E402
-# mypy: ignore-errors
 import reinstall_all_plugins
+
+PluginEntry = dict[str, Any]
+PluginList = list[PluginEntry]
+
+
+class CaptureResult(Protocol):
+    """Captured output payload."""
+
+    out: str
+
+
+class CaptureFixture(Protocol):
+    """Protocol for pytest capsys fixture."""
+
+    def readouterr(self) -> CaptureResult:
+        """Return captured stdout/stderr."""
+        ...
+
+
+EXPECTED_REINSTALLABLE_COUNT = 2
+EXPECTED_SUBPROCESS_CALLS = 2
 
 
 @pytest.mark.unit
@@ -27,7 +47,7 @@ class TestExcludedPlugins:
     """Test the EXCLUDED_PLUGINS constant."""
 
     def test_hookify_is_excluded(self) -> None:
-        """hookify should be in EXCLUDED_PLUGINS to prevent breaking process."""
+        """Hookify should be in EXCLUDED_PLUGINS to prevent breaking process."""
         assert "hookify" in reinstall_all_plugins.EXCLUDED_PLUGINS
 
     def test_excluded_plugins_is_set(self) -> None:
@@ -155,7 +175,7 @@ class TestCategorizePlugins:
 
         reinstallable, excluded = reinstall_all_plugins.categorize_plugins(plugins)
 
-        assert len(reinstallable) == 2
+        assert len(reinstallable) == EXPECTED_REINSTALLABLE_COUNT
         assert len(excluded) == 1
         reinstallable_names = [p["name"] for p in reinstallable]
         assert "normal-plugin" in reinstallable_names
@@ -219,14 +239,14 @@ class TestCategorizePlugins:
 class TestPrintPluginTable:
     """Test the print_plugin_table function."""
 
-    def test_empty_plugins_prints_nothing(self, capsys) -> None:
+    def test_empty_plugins_prints_nothing(self, capsys: CaptureFixture) -> None:
         """Should print nothing for empty plugin list."""
         reinstall_all_plugins.print_plugin_table([], "Title")
 
         captured = capsys.readouterr()
         assert captured.out == ""
 
-    def test_prints_formatted_table(self, capsys) -> None:
+    def test_prints_formatted_table(self, capsys: CaptureFixture) -> None:
         """Should print a formatted table with plugin info."""
         plugins = [
             {
@@ -249,7 +269,7 @@ class TestPrintPluginTable:
 class TestGenerateCommands:
     """Test command generation for manual execution."""
 
-    def test_generate_commands_output(self, capsys) -> None:
+    def test_generate_commands_output(self, capsys: CaptureFixture) -> None:
         """Should generate uninstall and install commands."""
         reinstallable = [
             {
@@ -259,7 +279,7 @@ class TestGenerateCommands:
                 "is_local": False,
             }
         ]
-        excluded = []
+        excluded: PluginList = []
 
         reinstall_all_plugins.generate_commands(reinstallable, excluded)
 
@@ -269,10 +289,10 @@ class TestGenerateCommands:
         assert "UNINSTALL PHASE" in captured.out
         assert "INSTALL PHASE" in captured.out
 
-    def test_generate_commands_shows_excluded(self, capsys) -> None:
+    def test_generate_commands_shows_excluded(self, capsys: CaptureFixture) -> None:
         """Should show excluded plugins in output."""
-        reinstallable = []
-        excluded = [
+        reinstallable: PluginList = []
+        excluded: PluginList = [
             {
                 "full_name": "hookify@market",
                 "name": "hookify",
@@ -295,13 +315,16 @@ class TestGenerateScript:
     @patch("pathlib.Path.write_text")
     @patch("pathlib.Path.chmod")
     def test_generate_script_creates_file(
-        self, mock_chmod: MagicMock, mock_write: MagicMock, capsys
+        self,
+        mock_chmod: MagicMock,
+        mock_write: MagicMock,
+        capsys: CaptureFixture,
     ) -> None:
         """Should create a bash script file."""
         reinstallable = [
             {"full_name": "test@market", "name": "test", "marketplace": "market"}
         ]
-        excluded = []
+        excluded: PluginList = []
 
         reinstall_all_plugins.generate_script(reinstallable, excluded)
 
@@ -319,7 +342,7 @@ class TestGenerateScript:
     ) -> None:
         """Should set the script as executable (0o755)."""
         reinstallable = [{"full_name": "test@market", "name": "test"}]
-        excluded = []
+        excluded: PluginList = []
 
         reinstall_all_plugins.generate_script(reinstallable, excluded)
 
@@ -331,7 +354,9 @@ class TestExecuteReinstall:
     """Test the actual reinstall execution."""
 
     @patch("subprocess.run")
-    def test_execute_successful_reinstall(self, mock_run: MagicMock, capsys) -> None:
+    def test_execute_successful_reinstall(
+        self, mock_run: MagicMock, capsys: CaptureFixture
+    ) -> None:
         """Scenario: Successful plugin reinstall.
 
         Given all subprocess calls succeed
@@ -347,12 +372,12 @@ class TestExecuteReinstall:
                 "marketplace": "market",
             }
         ]
-        excluded = []
+        excluded: PluginList = []
 
         reinstall_all_plugins.execute_reinstall(reinstallable, excluded)
 
         # Should have called uninstall and install for each plugin
-        assert mock_run.call_count == 2
+        assert mock_run.call_count == EXPECTED_SUBPROCESS_CALLS
 
         captured = capsys.readouterr()
         assert "[OK]" in captured.out
@@ -360,7 +385,9 @@ class TestExecuteReinstall:
 
     @patch("subprocess.run")
     def test_execute_handles_uninstall_failure(
-        self, mock_run: MagicMock, capsys
+        self,
+        mock_run: MagicMock,
+        capsys: CaptureFixture,
     ) -> None:
         """Scenario: Handling uninstall failures gracefully.
 
@@ -375,7 +402,7 @@ class TestExecuteReinstall:
         ]
 
         reinstallable = [{"full_name": "test@market", "name": "test"}]
-        excluded = []
+        excluded: PluginList = []
 
         reinstall_all_plugins.execute_reinstall(reinstallable, excluded)
 
@@ -384,7 +411,9 @@ class TestExecuteReinstall:
         assert "[OK]" in captured.out  # Install success
 
     @patch("subprocess.run")
-    def test_execute_reports_install_failure(self, mock_run: MagicMock, capsys) -> None:
+    def test_execute_reports_install_failure(
+        self, mock_run: MagicMock, capsys: CaptureFixture
+    ) -> None:
         """Scenario: Reporting install failures.
 
         Given an install command fails
@@ -398,7 +427,7 @@ class TestExecuteReinstall:
         ]
 
         reinstallable = [{"full_name": "test@market", "name": "test"}]
-        excluded = []
+        excluded: PluginList = []
 
         with pytest.raises(SystemExit) as excinfo:
             reinstall_all_plugins.execute_reinstall(reinstallable, excluded)
@@ -408,7 +437,11 @@ class TestExecuteReinstall:
         assert "[FAILED]" in captured.out
 
     @patch("subprocess.run")
-    def test_execute_handles_timeout(self, mock_run: MagicMock, capsys) -> None:
+    def test_execute_handles_timeout(
+        self,
+        mock_run: MagicMock,
+        capsys: CaptureFixture,
+    ) -> None:
         """Scenario: Handling subprocess timeout.
 
         Given a subprocess times out
@@ -418,7 +451,7 @@ class TestExecuteReinstall:
         mock_run.side_effect = subprocess.TimeoutExpired(cmd="test", timeout=30)
 
         reinstallable = [{"full_name": "test@market", "name": "test"}]
-        excluded = []
+        excluded: PluginList = []
 
         with pytest.raises(SystemExit):
             reinstall_all_plugins.execute_reinstall(reinstallable, excluded)
@@ -427,7 +460,9 @@ class TestExecuteReinstall:
         assert "[TIMEOUT]" in captured.out
 
     @patch("subprocess.run")
-    def test_execute_shows_summary(self, mock_run: MagicMock, capsys) -> None:
+    def test_execute_shows_summary(
+        self, mock_run: MagicMock, capsys: CaptureFixture
+    ) -> None:
         """Scenario: Showing reinstall summary.
 
         Given the reinstall process completes
@@ -440,7 +475,7 @@ class TestExecuteReinstall:
             {"full_name": "p1@market", "name": "p1"},
             {"full_name": "p2@market", "name": "p2"},
         ]
-        excluded = [{"full_name": "hookify@market", "name": "hookify"}]
+        excluded: PluginList = [{"full_name": "hookify@market", "name": "hookify"}]
 
         reinstall_all_plugins.execute_reinstall(reinstallable, excluded)
 
@@ -504,7 +539,7 @@ class TestMain:
         mock_print: MagicMock,
         mock_categorize: MagicMock,
         mock_read: MagicMock,
-        capsys,
+        capsys: CaptureFixture,
     ) -> None:
         """Should show dry run info without executing."""
         mock_read.return_value = {"test@market": [{"version": "1.0.0"}]}
@@ -525,7 +560,7 @@ class TestMain:
         self,
         mock_categorize: MagicMock,
         mock_read: MagicMock,
-        capsys,
+        capsys: CaptureFixture,
     ) -> None:
         """Should handle case when all plugins are excluded."""
         mock_read.return_value = {"hookify@market": [{"version": "1.0.0"}]}

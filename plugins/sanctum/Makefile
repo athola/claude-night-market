@@ -5,14 +5,24 @@
 
 .PHONY: help install test test-unit test-integration test-all test-cov test-bdd test-git lint format \
         type-check typecheck security qa clean watch-test docs ci-test ci-build install-hooks profile-test \
-        quick-check status deps demo-commit demo-pr-prep demo-git-workspace demo-skills plugin-check
+        quick-check status deps demo-commit demo-pr-prep demo-git-workspace demo-skills plugin-check debug-variables
+
+# Plugin-specific variables
+SRC_DIRS ?= src tests
+RUFF_TARGETS := .
+MYPY_TARGETS := src/
+BANDIT_TARGETS := src/
+COV_DIRS := src/sanctum
+PYTEST_TARGETS := .
+TEST_UNIT_ARGS := -m "unit or not integration"
 
 # Include shared configuration from abstract plugin
 ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
+-include $(ABSTRACT_DIR)/config/make/python.mk
 
-# Plugin-specific variables
-SRC_DIRS ?= src tests
+# Prevent parallel execution for targets that share resources
+.NOTPARALLEL: docs
 
 # Default target
 help: ## Show this help message
@@ -29,47 +39,29 @@ deps: ## Sync dependencies
 
 # ---------- Testing ----------
 test: ## Run all tests
-	uv run pytest
-
-test-unit: ## Run only unit tests
-	uv run pytest -m "unit or not integration"
+	$(PYTEST)
 
 test-integration: ## Run only integration tests
-	uv run pytest -m "integration"
+	$(PYTEST) -m "integration"
 
 test-all: ## Run all tests with detailed output
-	uv run pytest -v --tb=short
+	$(PYTEST) -v --tb=short
 
 test-cov: ## Run tests with coverage report
-	uv run pytest --cov=src/sanctum --cov-report=term-missing --cov-report=html
+	$(PYTEST) --cov=src/sanctum --cov-report=term-missing --cov-report=html
 
 test-bdd: ## Run BDD-style tests
-	uv run pytest -m "bdd" -v
+	$(PYTEST) -m "bdd" -v
 
 test-git: ## Run Git-related tests
-	uv run pytest -m "git" -v
+	$(PYTEST) -m "git" -v
 
 # ---------- Code Quality ----------
-lint: ## Run linting checks
-	uv run ruff check . || { echo "⚠ Linting failed"; exit 1; }
-
-format: ## Format code
-	uv run ruff format .
-
-type-check: ## Run type checking
-	uv run mypy . || { echo "⚠ Type checking failed"; exit 1; }
-
-# Alias for backwards compatibility
-typecheck: type-check
-
-security: ## Run security checks
-	uv run bandit -r src/ || { echo "⚠ Security check failed"; exit 1; }
-
 qa: lint type-check test-cov ## Run all quality assurance checks
 
 # ---------- CI/CD ----------
 ci-test: ## Run tests in CI mode
-	uv run pytest --cov=src/sanctum --cov-report=xml --cov-report=term --junit-xml=junit.xml
+	$(PYTEST) --cov=src/sanctum --cov-report=xml --cov-report=term --junit-xml=junit.xml
 
 ci-build: ## Build package for CI
 	uv build
@@ -80,11 +72,11 @@ watch-test: ## Watch for changes and run tests
 
 quick-check: ## Run quick lint and test checks
 	@echo "Running quick checks..."
-	uv run ruff check . --quiet
-	uv run pytest -x -q
+	$(RUFF) check . --quiet
+	$(PYTEST) -x -q
 
 profile-test: ## Profile test execution
-	uv run pytest --profile --profile-svg || echo "pytest-profiling not installed"
+	$(PYTEST) --profile --profile-svg || echo "pytest-profiling not installed"
 
 docs: ## Generate documentation
 	@echo "Documentation is in markdown files in the docs/ directory"
@@ -109,6 +101,22 @@ status: ## Show project overview
 	@echo "Commands: $$(find commands/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Agents:   $$(find agents/ -name '*.md' 2>/dev/null | wc -l)"
 	@echo "Tests:    $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
+
+debug-variables: ## Show Makefile variable values (for debugging)
+	@echo "=== Makefile Variables ==="
+	@echo "PYTHON: $(PYTHON)"
+	@echo "UV: $(UV)"
+	@echo "UV_RUN: $(UV_RUN)"
+	@echo "SHELL: $(SHELL)"
+	@echo "SHELLFLAGS: $(SHELLFLAGS)"
+	@echo "PYTHONPATH: $(PYTHONPATH)"
+	@echo "SRC_DIRS: $(SRC_DIRS)"
+	@echo "RUFF_TARGETS: $(RUFF_TARGETS)"
+	@echo "MYPY_TARGETS: $(MYPY_TARGETS)"
+	@echo "BANDIT_TARGETS: $(BANDIT_TARGETS)"
+	@echo "COV_DIRS: $(COV_DIRS)"
+	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
+	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-commit: ## Demo commit message generation workflow
@@ -173,12 +181,22 @@ demo-skills: ## Validate sanctum skill structure
 	done
 	@echo ""
 	@echo "Skill coverage:"
-	@echo "  commit-messages:     $$(test -f skills/commit-messages/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  pr-prep:             $$(test -f skills/pr-prep/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  git-workspace-review: $$(test -f skills/git-workspace-review/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  doc-updates:         $$(test -f skills/doc-updates/SKILL.md && echo '✓' || echo '✗')"
-	@echo "  version-updates:     $$(test -f skills/version-updates/SKILL.md && echo '✓' || echo '✗')"
+	@echo "  commit-messages:     $$(test -f skills/commit-messages/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  pr-prep:             $$(test -f skills/pr-prep/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  git-workspace-review: $$(test -f skills/git-workspace-review/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  doc-updates:         $$(test -f skills/doc-updates/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  version-updates:     $$(test -f skills/version-updates/SKILL.md && echo '[OK]' || echo '[X]')"
 
 plugin-check: demo-commit demo-pr-prep demo-git-workspace demo-skills ## Run all demo workflows
 	@echo ""
 	@echo "=== Sanctum Plugin Check Complete ==="
+
+# Include local overrides if they exist (before catch-all rule)
+Makefile.local:;
+-include Makefile.local
+
+# Guard against accidental file creation (catch-all for unknown targets)
+%::
+	@echo "Error: Unknown target '$@'"
+	@echo "Run 'make help' to see available commands"
+	@exit 1

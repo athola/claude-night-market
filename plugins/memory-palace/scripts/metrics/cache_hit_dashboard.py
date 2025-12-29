@@ -29,7 +29,7 @@ def load_rows(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
-def summarize(rows: list[dict[str, str]]) -> dict[str, Counter]:
+def summarize(rows: list[dict[str, str]]) -> dict[str, Counter[str]]:
     """Summarize telemetry data by counting modes and decisions.
 
     Args:
@@ -39,15 +39,15 @@ def summarize(rows: list[dict[str, str]]) -> dict[str, Counter]:
         A dictionary with two Counters - one for modes and one for decisions.
 
     """
-    mode_counter = Counter()
-    decision_counter = Counter()
+    mode_counter: Counter[str] = Counter()
+    decision_counter: Counter[str] = Counter()
     for row in rows:
         mode_counter[row.get("mode", "unknown")] += 1
         decision_counter[row.get("decision", "unknown")] += 1
     return {"mode": mode_counter, "decision": decision_counter}
 
 
-def render_markdown(summary: dict[str, Counter]) -> str:
+def render_markdown(summary: dict[str, Counter[str]]) -> str:
     """Render a markdown dashboard from summary counters."""
     lines = ["# Cache Hit Dashboard", ""]
     lines.append("## Decisions")

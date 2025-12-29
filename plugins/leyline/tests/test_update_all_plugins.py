@@ -15,7 +15,6 @@ script_path = Path(__file__).parent.parent / "scripts"
 sys.path.insert(0, str(script_path))
 
 # ruff: noqa: E402
-# mypy: ignore-errors
 import update_all_plugins
 
 

@@ -9,7 +9,7 @@ This script helps maintain the CHANGELOG.md file by:
 
 import argparse
 import re
-import subprocess
+import subprocess  # nosec B404
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -22,7 +22,7 @@ MAX_DISPLAY_ITEMS = 3
 def get_last_tag() -> str | None:
     """Get the most recent git tag."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603
             ["/usr/bin/git", "describe", "--tags", "--abbrev=0"],
             capture_output=True,
             text=True,
@@ -45,16 +45,16 @@ def get_commits_since_tag(tag: str | None = None) -> list[tuple[str, str]]:
     """
     try:
         if tag:
-            # nosec: S603 - Using absolute path to /usr/bin/git, tag is from git command output
-            result = subprocess.run(
+            # nosec B603 - Using absolute path to /usr/bin/git, tag is from git command output
+            result = subprocess.run(  # nosec B603
                 ["/usr/bin/git", "log", f"{tag}..HEAD", "--oneline"],
                 capture_output=True,
                 text=True,
                 check=True,
             )
         else:
-            # nosec: S603 - Using absolute path to /usr/bin/git
-            result = subprocess.run(
+            # nosec B603 - Using absolute path to /usr/bin/git
+            result = subprocess.run(  # nosec B603
                 ["/usr/bin/git", "log", "--oneline"],
                 capture_output=True,
                 text=True,

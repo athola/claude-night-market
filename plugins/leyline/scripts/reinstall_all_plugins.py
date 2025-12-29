@@ -7,12 +7,80 @@ then reinstalls it. Useful for clearing cache corruption or version mismatches.
 
 import argparse
 import json
+import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
 # Plugins excluded from reinstall to prevent breaking the process
 EXCLUDED_PLUGINS = {"hookify"}
+SCRIPT_PREFIX = "reinstall-plugins-"
+SCRIPT_SUFFIX = ".sh"
+UNINSTALL_TIMEOUT = 30
+INSTALL_TIMEOUT = 60
+
+
+def _create_script_path() -> Path:
+    """Create a secure temporary path for the reinstall script."""
+    fd, path = tempfile.mkstemp(prefix=SCRIPT_PREFIX, suffix=SCRIPT_SUFFIX)
+    os.close(fd)
+    return Path(path)
+
+
+def _run_plugin_command(
+    command: list[str], timeout: int
+) -> subprocess.CompletedProcess[str]:
+    """Run a plugin command with timeout and captured output."""
+    return subprocess.run(
+        command,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+    )
+
+
+def _execute_phase(
+    title: str,
+    action_label: str,
+    command: str,
+    reinstallable: list[dict[str, Any]],
+    timeout: int,
+    failure_label: str,
+    show_error: bool,
+) -> list[dict[str, Any]]:
+    """Execute a reinstall phase and return failures."""
+    failed: list[dict[str, Any]] = []
+    print(f"{title}...")
+    print("-" * 40)
+    for plugin in reinstallable:
+        print(f"  {action_label} {plugin['name']}...", end=" ", flush=True)
+        try:
+            result = _run_plugin_command(
+                ["claude", "plugin", command, plugin["full_name"]],
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            print("[TIMEOUT]")
+            failed.append(plugin)
+            continue
+        except Exception as exc:
+            print(f"[ERROR: {exc}]")
+            failed.append(plugin)
+            continue
+
+        if result.returncode == 0:
+            print("[OK]")
+            continue
+
+        print(f"[{failure_label}]")
+        if show_error and result.stderr:
+            print(f"    Error: {result.stderr.strip()}")
+        failed.append(plugin)
+
+    return failed
 
 
 def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
@@ -123,7 +191,7 @@ def generate_script(
     reinstallable: list[dict[str, Any]], excluded: list[dict[str, Any]]
 ) -> None:
     """Generate a bash script for terminal execution."""
-    script_path = Path("/tmp/reinstall-plugins.sh")
+    script_path = _create_script_path()
 
     plugin_list = "\n".join(f'  "{p["full_name"]}"' for p in reinstallable)
     excluded_note = ", ".join(p["name"] for p in excluded) if excluded else "none"
@@ -147,7 +215,8 @@ echo ""
 echo "Phase 1: Uninstalling plugins..."
 for plugin in "${{PLUGINS[@]}}"; do
   echo "  Uninstalling $plugin..."
-  claude plugin uninstall "$plugin" 2>/dev/null || echo "    Warning: uninstall may have failed"
+  claude plugin uninstall "$plugin" 2>/dev/null || \\
+    echo "    Warning: uninstall may have failed"
 done
 
 echo ""
@@ -174,65 +243,29 @@ def execute_reinstall(
     reinstallable: list[dict[str, Any]], excluded: list[dict[str, Any]]
 ) -> None:
     """Execute the reinstall process directly."""
-    import subprocess
-
     print(f"\nReinstalling {len(reinstallable)} plugins...")
     if excluded:
         print(f"Excluded: {', '.join(p['name'] for p in excluded)}")
     print("")
 
-    failed_uninstall = []
-    failed_install = []
-
-    # Phase 1: Uninstall
-    print("Phase 1: Uninstalling plugins...")
-    print("-" * 40)
-    for p in reinstallable:
-        print(f"  Uninstalling {p['name']}...", end=" ", flush=True)
-        try:
-            result = subprocess.run(
-                ["claude", "plugin", "uninstall", p["full_name"]],
-                capture_output=True,
-                text=True,
-                timeout=30,
-            )
-            if result.returncode == 0:
-                print("[OK]")
-            else:
-                print("[WARN]")
-                failed_uninstall.append(p)
-        except subprocess.TimeoutExpired:
-            print("[TIMEOUT]")
-            failed_uninstall.append(p)
-        except Exception as e:
-            print(f"[ERROR: {e}]")
-            failed_uninstall.append(p)
-
-    # Phase 2: Install
-    print("\nPhase 2: Installing plugins...")
-    print("-" * 40)
-    for p in reinstallable:
-        print(f"  Installing {p['name']}...", end=" ", flush=True)
-        try:
-            result = subprocess.run(
-                ["claude", "plugin", "install", p["full_name"]],
-                capture_output=True,
-                text=True,
-                timeout=60,
-            )
-            if result.returncode == 0:
-                print("[OK]")
-            else:
-                print("[FAILED]")
-                if result.stderr:
-                    print(f"    Error: {result.stderr.strip()}")
-                failed_install.append(p)
-        except subprocess.TimeoutExpired:
-            print("[TIMEOUT]")
-            failed_install.append(p)
-        except Exception as e:
-            print(f"[ERROR: {e}]")
-            failed_install.append(p)
+    failed_uninstall = _execute_phase(
+        "Phase 1: Uninstalling plugins",
+        "Uninstalling",
+        "uninstall",
+        reinstallable,
+        UNINSTALL_TIMEOUT,
+        "WARN",
+        False,
+    )
+    failed_install = _execute_phase(
+        "\nPhase 2: Installing plugins",
+        "Installing",
+        "install",
+        reinstallable,
+        INSTALL_TIMEOUT,
+        "FAILED",
+        True,
+    )
 
     # Summary
     print("\n" + "=" * 50)

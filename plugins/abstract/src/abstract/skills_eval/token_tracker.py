@@ -7,8 +7,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from src.abstract.frontmatter import FrontmatterProcessor
-from src.abstract.tokens import TokenAnalyzer, estimate_tokens
+from abstract.frontmatter import FrontmatterProcessor
+from abstract.tokens import TokenAnalyzer, estimate_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -300,7 +300,7 @@ class TokenUsageTracker:
             "recommendations": recommendations,
         }
 
-    def track_usage(self, skill_path: Path | None = None):
+    def track_usage(self, skill_path: Path | None = None) -> dict[str, Any] | None:
         """Track token usage for a single skill."""
         if skill_path is None:
             # Find first skill if none specified
@@ -338,7 +338,7 @@ class TokenUsageTracker:
             "timestamp": datetime.now(),
         }
 
-    def get_usage_statistics(self):
+    def get_usage_statistics(self) -> dict[str, Any]:
         """Get comprehensive usage statistics."""
         # Track all skills first
         skill_files = list(self.skills_dir.rglob("SKILL.md"))
@@ -380,7 +380,7 @@ class TokenUsageTracker:
             "optimal_usage_count": optimal_usage_count,
         }
 
-    def get_usage_report(self):
+    def get_usage_report(self) -> str:
         """Generate formatted usage report."""
         stats = self.get_usage_statistics()
 
@@ -404,7 +404,7 @@ class TokenUsageTracker:
 
         return "\n".join(lines)
 
-    def optimize_suggestions(self, skill_name: str | None = None):
+    def optimize_suggestions(self, skill_name: str | None = None) -> list[str]:
         """Generate optimization suggestions for skills."""
         if skill_name:
             # Single skill suggestions

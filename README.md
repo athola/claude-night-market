@@ -169,6 +169,16 @@ GitHub initiative tracking and release management.
 | `github-initiative-pulse` | Initiative progress tracking |
 | `release-health-gates` | Release readiness checks |
 
+#### scry
+Media generation for terminal recordings, browser recordings, GIF processing, and media composition.
+
+| Skill | Purpose |
+|-------|---------|
+| `vhs-recording` | Terminal session recording via VHS |
+| `browser-recording` | Browser automation recording via Playwright |
+| `gif-generation` | Video-to-GIF conversion and optimization |
+| `media-composition` | Multi-source media stitching |
+
 ## Plugin Dependency Graph
 
 ```mermaid
@@ -195,12 +205,14 @@ graph TB
         memory_palace[memory-palace<br/>Spatial memory]
         spec_kit[spec-kit<br/>Spec-driven dev]
         minister[minister<br/>Release management]
+        scry[scry<br/>Media generation]
     end
 
     abstract --> leyline
     pensive --> imbue
     pensive --> sanctum
     sanctum --> imbue
+    sanctum --> scry
     conjure --> leyline
     spec_kit --> imbue
 
@@ -213,33 +225,35 @@ graph TB
 ## Quick Start
 
 ```bash
-# Start a spec-driven feature
-/speckit.specify Add user authentication with OAuth2
-
-# Review code changes
-/sanctum:pr
-
 # Get a quick catchup on changes
-/imbue:catchup
+/git-catchup
 
-# Run architecture analysis
-Skill(archetypes:architecture-paradigms)
+# Start a spec-driven feature
+/speckit-specify Add user authentication with OAuth2
+
+# Review code changes on current PR
+/pr-review
+
+# Fix PR comments/issues on current PR
+/fix-pr
+
+# Review architecture on current project
+/pensive:architecture-review
 ```
 
 ## Setup
 
-Before using this marketplace, push each plugin to GitHub:
+This marketplace contains individual plugins. To fork one or more plugins, create a new git repo.
 
 ```bash
 # For each plugin directory
 cd ~/archetypes && git init && git add . && git commit -m "Initial commit"
 gh repo create athola/archetypes --public --source=. --push
 
-# Repeat for all plugins: abstract, conjure, conservation, imbue, leyline,
-# memory-palace, minister, parseltongue, pensive, sanctum, spec-kit
+# Repeat for any plugins as necessary
 ```
 
-Then update `.claude-plugin/marketplace.json` with your actual GitHub URLs.
+Then update `.claude-plugin/marketplace.json` with your alternate GitHub URLs.
 
 ## Philosophy
 

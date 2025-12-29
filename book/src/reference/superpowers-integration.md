@@ -28,12 +28,12 @@ Many Night Market capabilities achieve their full potential when used alongside 
 | **sanctum** | `/pr-review` | Command | `receiving-code-review` | PR analysis |
 | **sanctum** | `/fix-pr` | Command | `receiving-code-review` | Comment resolution |
 | **sanctum** | `/fix-issue` | Command | Multiple | Full workflow |
-| **spec-kit** | `/speckit.clarify` | Command | `brainstorming` | Clarification |
-| **spec-kit** | `/speckit.plan` | Command | `writing-plans` | Planning |
-| **spec-kit** | `/speckit.tasks` | Command | `executing-plans`, `systematic-debugging` | Task breakdown |
-| **spec-kit** | `/speckit.implement` | Command | `executing-plans`, `systematic-debugging` | Execution |
-| **spec-kit** | `/speckit.analyze` | Command | `systematic-debugging`, `verification-before-completion` | Consistency |
-| **spec-kit** | `/speckit.checklist` | Command | `verification-before-completion` | Validation |
+| **spec-kit** | `/speckit-clarify` | Command | `brainstorming` | Clarification |
+| **spec-kit** | `/speckit-plan` | Command | `writing-plans` | Planning |
+| **spec-kit** | `/speckit-tasks` | Command | `executing-plans`, `systematic-debugging` | Task breakdown |
+| **spec-kit** | `/speckit-implement` | Command | `executing-plans`, `systematic-debugging` | Execution |
+| **spec-kit** | `/speckit-analyze` | Command | `systematic-debugging`, `verification-before-completion` | Consistency |
+| **spec-kit** | `/speckit-checklist` | Command | `verification-before-completion` | Validation |
 | **pensive** | `/full-review` | Command | `systematic-debugging`, `verification-before-completion` | Debugging + evidence |
 | **parseltongue** | `python-testing` | Skill | `test-driven-development`, `testing-anti-patterns` | TDD + anti-patterns |
 | **imbue** | `scope-guard` | Skill | `brainstorming`, `writing-plans`, `execute-plan` | Anti-overengineering |

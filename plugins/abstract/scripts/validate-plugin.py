@@ -8,6 +8,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 # Constants
 FRONTMATTER_PARTS_MIN = 3
@@ -31,7 +32,7 @@ class PluginValidator:
     def __init__(self, plugin_path: Path) -> None:
         """Initialize validator with plugin path."""
         self.plugin_path = plugin_path.resolve()
-        self.config: dict | None = None
+        self.config: dict[str, Any] | None = None
         self.issues: dict[str, list[str]] = {
             "critical": [],
             "warnings": [],
@@ -81,20 +82,40 @@ class PluginValidator:
 
         try:
             with open(json_path) as f:
-                self.config = json.load(f)
+                data = json.load(f)
+            if not isinstance(data, dict):
+                self.issues["critical"].append(
+                    "plugin.json must contain a JSON object at the top level",
+                )
+                return
+            self.config = data
             self.issues["info"].append(
                 "[OK] .claude-plugin/plugin.json exists and is valid JSON",
             )
         except json.JSONDecodeError as e:
             self.issues["critical"].append(f"plugin.json is not valid JSON: {e}")
 
+    def _require_config(self) -> dict[str, Any]:
+        """Return loaded config or raise if missing."""
+        if self.config is None:
+            msg = "plugin.json not loaded"
+            raise RuntimeError(msg)
+        return self.config
+
     def _validate_plugin_name(self) -> None:
         """Validate plugin name follows kebab-case convention."""
-        if "name" not in self.config:
+        config = self._require_config()
+
+        if "name" not in config:
             self.issues["critical"].append("Missing required field: name")
             return
 
-        name = self.config["name"]
+        name = config["name"]
+        if not isinstance(name, str):
+            self.issues["critical"].append(
+                "Plugin name must be a string (kebab-case)",
+            )
+            return
 
         # Check kebab-case format
         if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", name):
@@ -112,6 +133,7 @@ class PluginValidator:
 
     def _validate_recommended_fields(self) -> None:
         """Check for recommended metadata fields."""
+        config = self._require_config()
         recommended = {
             "version": "Semantic version (e.g., '1.0.0')",
             "description": "Clear description of plugin functionality",
@@ -120,14 +142,19 @@ class PluginValidator:
         }
 
         for field, description in recommended.items():
-            if field not in self.config:
+            if field not in config:
                 self.issues["recommendations"].append(
                     f"Missing recommended field: {field} - {description}",
                 )
 
         # Validate version format if present
-        if "version" in self.config:
-            version = self.config["version"]
+        if "version" in config:
+            version = config["version"]
+            if not isinstance(version, str):
+                self.issues["warnings"].append(
+                    "Version should be a string following semantic versioning",
+                )
+                return
             if not re.match(r"^\d+\.\d+\.\d+", version):
                 self.issues["warnings"].append(
                     f"Version '{version}' should follow semantic versioning "
@@ -136,22 +163,22 @@ class PluginValidator:
 
     def _validate_paths(self) -> None:
         """Validate path references in plugin.json."""
+        config = self._require_config()
         path_fields = ["skills", "commands", "agents"]
 
         for field in path_fields:
-            if field not in self.config:
+            if field not in config:
                 continue
 
-            value = self.config[field]
+            value = config[field]
 
             # Handle both string and list formats
-            paths = (
-                [value]
-                if isinstance(value, str)
-                else value
-                if isinstance(value, list)
-                else []
-            )
+            if isinstance(value, str):
+                paths = [value]
+            elif isinstance(value, list):
+                paths = [p for p in value if isinstance(p, str)]
+            else:
+                paths = []
 
             for path in paths:
                 # Check relative path format
@@ -176,10 +203,11 @@ class PluginValidator:
 
     def _validate_dependencies(self) -> None:
         """Validate dependencies format and versioning."""
-        if "dependencies" not in self.config:
+        config = self._require_config()
+        if "dependencies" not in config:
             return
 
-        deps = self.config["dependencies"]
+        deps = config["dependencies"]
 
         # Check if it's a list (old format)
         if isinstance(deps, list):
@@ -207,20 +235,21 @@ class PluginValidator:
 
     def _validate_directory_structure(self) -> None:
         """Validate plugin directory structure."""
+        config = self._require_config()
         # Check that component directories exist if referenced
-        if self.config.get("skills"):
+        if config.get("skills"):
             if not (self.plugin_path / "skills").exists():
                 self.issues["warnings"].append(
                     "Plugin references skills but skills/ directory is missing",
                 )
 
-        if self.config.get("commands"):
+        if config.get("commands"):
             if not (self.plugin_path / "commands").exists():
                 self.issues["warnings"].append(
                     "Plugin references commands but commands/ directory is missing",
                 )
 
-        if "agents" in self.config and self.config.get("agents"):
+        if "agents" in config and config.get("agents"):
             if not (self.plugin_path / "agents").exists():
                 self.issues["warnings"].append(
                     "Plugin references agents but agents/ directory is missing",
@@ -237,14 +266,17 @@ class PluginValidator:
 
     def _validate_skills(self) -> None:
         """Validate skill files and structure."""
-        if "skills" not in self.config:
+        config = self._require_config()
+        if "skills" not in config:
             return
 
-        skills_list = self.config["skills"]
+        skills_list = config["skills"]
         if not isinstance(skills_list, list):
             return
 
         for skill_path in skills_list:
+            if not isinstance(skill_path, str):
+                continue
             clean_path = skill_path.lstrip("./")
 
             # Check for YAML frontmatter
@@ -295,13 +327,19 @@ class PluginValidator:
 
     def _validate_claude_config(self) -> None:
         """Validate Claude-specific configuration."""
-        if "claude" not in self.config:
+        config = self._require_config()
+        if "claude" not in config:
             self.issues["recommendations"].append(
                 "Consider adding 'claude' configuration object for enhanced metadata",
             )
             return
 
-        claude_config = self.config["claude"]
+        claude_config = config["claude"]
+        if not isinstance(claude_config, dict):
+            self.issues["warnings"].append(
+                "claude configuration should be a JSON object",
+            )
+            return
 
         # Check for useful Claude config fields
         recommended_claude_fields = {

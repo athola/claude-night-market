@@ -13,7 +13,7 @@ description: |
   DO NOT use when: generating tasks - use task-generator agent first.
   DO NOT use when: analyzing specs - use spec-analyzer agent.
 
-  Trigger proactively during /speckit.implement commands.
+  Trigger proactively during /speckit-implement commands.
 tools: [Read, Write, Edit, Bash, Grep, Glob]
 examples:
   - context: User has tasks.md ready and wants to start coding

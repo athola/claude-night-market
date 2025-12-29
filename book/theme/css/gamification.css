@@ -15,7 +15,7 @@
 }
 
 .achievement-unlock::before {
-  content: "★";
+  content: "*";
   font-size: 1.5rem;
   animation: star-spin 1s ease-out;
 }
@@ -58,7 +58,7 @@
 }
 
 .achievement-hint::before {
-  content: "🎯 ";
+  content: "[!] ";
 }
 
 /* Progress tracker */
@@ -103,12 +103,12 @@
 
 /* Achievement status indicators */
 .achievement-status::after {
-  content: "○";
+  content: "o";
   color: #ccc;
 }
 
 .achievement-status.unlocked::after {
-  content: "●";
+  content: "*";
   color: #667eea;
 }
 
@@ -127,12 +127,12 @@
 
 /* Achievement checkbox for tutorials */
 .achievement-checkbox::after {
-  content: "☐";
+  content: "[ ]";
   font-size: 1.2rem;
 }
 
 .achievement-checkbox.complete::after {
-  content: "☑";
+  content: "[x]";
   color: #28a745;
 }
 

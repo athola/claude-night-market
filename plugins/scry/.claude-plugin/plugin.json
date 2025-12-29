@@ -1,0 +1,24 @@
+{
+  "name": "scry",
+  "version": "1.1.0",
+  "description": "Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition",
+  "commands": [
+    "./commands/record-terminal.md",
+    "./commands/record-browser.md"
+  ],
+  "skills": [
+    "./skills/vhs-recording",
+    "./skills/browser-recording",
+    "./skills/gif-generation",
+    "./skills/media-composition"
+  ],
+  "agents": [
+    "./agents/media-recorder.md"
+  ],
+  "keywords": ["media", "gif", "recording", "vhs", "playwright", "tutorial", "demo"],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "license": "MIT"
+}

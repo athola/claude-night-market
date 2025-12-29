@@ -398,19 +398,19 @@ class SourceLineageManager:
                     retrieved_at=datetime.fromisoformat(source_data["retrieved_at"]),
                     confidence=source_data.get("confidence", 1.0),
                 )
-                lineage = FullLineage(
+                full_lineage = FullLineage(
                     entry_id=entry_id,
                     primary_source=source,
                     derived_from=data.get("derived_from", []),
                     transformations=data.get("transformations", []),
                     validation_chain=data.get("validation_chain", []),
                 )
-                self._lineages[entry_id] = lineage
+                self._lineages[entry_id] = full_lineage
             else:
-                lineage = SimpleLineage(
+                simple_lineage = SimpleLineage(
                     entry_id=entry_id,
                     source_type=SourceType(data["source_type"]),
                     source_url=data.get("source_url"),
                     retrieved_at=datetime.fromisoformat(data["retrieved_at"]),
                 )
-                self._lineages[entry_id] = lineage
+                self._lineages[entry_id] = simple_lineage

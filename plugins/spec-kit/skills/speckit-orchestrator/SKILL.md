@@ -7,7 +7,7 @@ description: |
   Triggers: speckit workflow, spec driven development, speckit commands,
   workflow coordination, progress tracking, skill loading, speckit session
 
-  Use when: starting any /speckit.* command, coordinating multi-phase development,
+  Use when: starting any /speckit-* command, coordinating multi-phase development,
   tracking progress across specification/planning/implementation
 
   DO NOT use when: writing specifications - use spec-writing skill directly.
@@ -44,7 +44,7 @@ Coordinates the Spec Driven Development workflow, skill loading, and progress tr
 
 ## When to Use
 
-- Starting any `/speckit.*` command.
+- Starting any `/speckit-*` command.
 - Coordinating multi-phase development workflows.
 - Tracking progress across specification, planning, and implementation.
 - Ensuring skill dependencies are loaded.
@@ -72,13 +72,13 @@ Quick reference for command-to-skill mappings:
 
 | Command | Primary Skill | Complementary Skills |
 |---------|--------------|---------------------|
-| `/speckit.specify` | spec-writing | brainstorming |
-| `/speckit.clarify` | spec-writing | brainstorming |
-| `/speckit.plan` | task-planning | writing-plans |
-| `/speckit.tasks` | task-planning | executing-plans |
-| `/speckit.implement` | - | executing-plans, systematic-debugging |
-| `/speckit.analyze` | - | systematic-debugging, verification |
-| `/speckit.checklist` | - | verification-before-completion |
+| `/speckit-specify` | spec-writing | brainstorming |
+| `/speckit-clarify` | spec-writing | brainstorming |
+| `/speckit-plan` | task-planning | writing-plans |
+| `/speckit-tasks` | task-planning | executing-plans |
+| `/speckit-implement` | - | executing-plans, systematic-debugging |
+| `/speckit-analyze` | - | systematic-debugging, verification |
+| `/speckit-checklist` | - | verification-before-completion |
 
 **For detailed patterns**: See `modules/command-skill-matrix.md` for complete mappings and loading rules.
 

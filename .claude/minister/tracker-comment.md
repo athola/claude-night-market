@@ -1,4 +1,4 @@
-### 🗂️ Initiative Pulse
+### Initiative Pulse
 Last updated: 2024-12-20T09:00:00
 
 | Initiative | Done | In Progress | Completion | Avg Task % |
@@ -8,7 +8,7 @@ Last updated: 2024-12-20T09:00:00
 | Pull Request Readiness | 0/0 | 0 | 0% | 0% |
 | Release Health | 0/1 | 0 | 0.0% | 70.0% |
 
-### 📊 Overall Metrics
+### Overall Metrics
 - Total tasks: 3
 - Completion: 0.0%
 - Total effort: 28h

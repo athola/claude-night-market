@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.0.5"
+version = "1.1.0"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
 description = "Python development suite with specialized expertise in testing, performance, async, and packaging"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -213,7 +213,7 @@ max-complexity = 10
 ignore-variadic-names = true
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.0.5"
+version = "1.1.0"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -42,6 +42,7 @@ dev = [
     "pytest-asyncio>=0.25.0",
     "pytest-bdd>=7.0.0",
     "pytest-xdist>=3.6.1",
+    "psutil>=5.9.8",
 ]
 
 [build-system]

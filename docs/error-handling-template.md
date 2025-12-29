@@ -1,6 +1,6 @@
 # Error Handling Documentation Template
 
-This template provides a comprehensive structure for adding error handling documentation to skills. It covers common failure scenarios, recovery strategies, troubleshooting guides, and best practices.
+This template provides a cognitive structure for adding error handling documentation to skills. It covers common failure scenarios, recovery strategies, troubleshooting guides, and best practices.
 
 ## Template Structure
 
@@ -92,10 +92,29 @@ def process_batch(items):
 ### Troubleshooting Guide
 
 #### Quick Diagnosis Flowchart
-```
-Start → Check Error Message → Identify Category → Apply Recovery → Verify Success
-  ↓                      ↓                      ↓               ↓
-Error not clear? → Check Logs → Analyze Pattern → Try General Fix → Document Issue
+
+```mermaid
+flowchart TD
+    Start([Error Occurred]) --> CheckMsg{Error Message<br/>Clear?}
+
+    CheckMsg -->|Yes| Category[Identify Category]
+    CheckMsg -->|No| Logs[Check Logs]
+
+    Category --> Recovery[Apply Recovery Strategy]
+    Logs --> Pattern[Analyze Pattern]
+
+    Pattern --> Category
+
+    Recovery --> Verify{Success?}
+
+    Verify -->|Yes| Done([Resolved])
+    Verify -->|No| General[Try General Fix]
+
+    General --> Verify2{Success?}
+    Verify2 -->|Yes| Done
+    Verify2 -->|No| Document[Document Issue<br/>& Escalate]
+
+    Document --> Done
 ```
 
 #### Step-by-Step Resolution

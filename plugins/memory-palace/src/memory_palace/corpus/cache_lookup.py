@@ -279,12 +279,19 @@ class CacheLookup:
         # Look up entry in keyword index to find file path
         self.keyword_indexer.load_index()
 
-        if entry_id in self.keyword_indexer.index.get("entries", {}):
-            entry_data = self.keyword_indexer.index["entries"][entry_id]
-            file_path = self.corpus_dir.parent / entry_data["file"]
+        entries = self.keyword_indexer.index.get("entries", {})
+        if not isinstance(entries, dict):
+            return None
+        entry_data = entries.get(entry_id)
+        if not isinstance(entry_data, dict):
+            return None
+        file_value = entry_data.get("file")
+        if not isinstance(file_value, str):
+            return None
+        file_path = self.corpus_dir.parent / file_value
 
-            if file_path.exists():
-                return file_path.read_text()
+        if file_path.exists():
+            return file_path.read_text(encoding="utf-8")
 
         return None
 
@@ -303,7 +310,9 @@ class CacheLookup:
             parts = content.split("---", 2)
             if len(parts) >= FRONTMATTER_PARTS:
                 try:
-                    return yaml.safe_load(parts[1])
+                    payload = yaml.safe_load(parts[1])
+                    if isinstance(payload, dict):
+                        return payload
                 except yaml.YAMLError:
                     # YAML parsing errors are expected and can be safely ignored
                     pass

@@ -17,6 +17,8 @@ try:
     from scripts.imbue_validator import (
         ImbueValidationResult,
         ImbueValidator,
+    )
+    from scripts.imbue_validator import (
         main as imbue_main,
     )
 except ImportError:

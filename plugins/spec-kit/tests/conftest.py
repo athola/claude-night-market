@@ -383,9 +383,9 @@ def valid_plugin_manifest() -> dict[str, Any]:
         "version": "2.0.0",
         "description": "Spec Driven Development toolkit",
         "commands": [
-            "./commands/speckit.specify.md",
-            "./commands/speckit.plan.md",
-            "./commands/speckit.implement.md",
+            "./commands/speckit-specify.md",
+            "./commands/speckit-plan.md",
+            "./commands/speckit-implement.md",
         ],
         "skills": [
             "./skills/speckit-orchestrator",
