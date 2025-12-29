@@ -152,10 +152,10 @@ flowchart LR
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Plugin count | 12+ | 13 | ✅ |
-| Duplication | <75% | 77% | 🟡 |
-| Test coverage | >80% | ~75% | 🟡 |
-| Doc coverage | 100% | 100% | ✅ |
+| Plugin count | 12+ | 13 | PASS |
+| Duplication | <75% | 77% | WARN |
+| Test coverage | >80% | ~75% | WARN |
+| Doc coverage | 100% | 100% | PASS |
 
 ---
 

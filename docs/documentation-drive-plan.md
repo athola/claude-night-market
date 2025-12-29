@@ -87,7 +87,7 @@ Brief description of the plugin's purpose and value proposition.
 ```
 
 ## API Reference
-👉 See [API Documentation](https://claude-night-market.github.io/plugin-name/api/)
+See [API Documentation](https://claude-night-market.github.io/plugin-name/api/)
 
 ## Examples
 ### Example 1: Use Case Title
@@ -110,7 +110,7 @@ Brief description of the plugin's purpose and value proposition.
 ```
 
 ## Contributing
-👉 See [Contributing Guide](CONTRIBUTING.md)
+See [Contributing Guide](CONTRIBUTING.md)
 
 ## License
 License information
