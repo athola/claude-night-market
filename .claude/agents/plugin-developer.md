@@ -9,7 +9,7 @@ description: |
 tools: Read, Write, Edit, Bash, Glob, Grep, Task, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
-skills: abstract:validate-plugin, abstract:skill-authoring, plugin-dev:plugin-structure
+skills: abstract:validate-plugin, abstract:skill-authoring, abstract:modular-skills
 ---
 
 # Plugin Developer Mode
