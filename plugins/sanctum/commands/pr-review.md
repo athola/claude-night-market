@@ -1,7 +1,7 @@
 ---
 name: pr-review
-description: Enhanced PR review that combines Sanctum's scope-focused validation with superpowers:receiving-code-review for comprehensive analysis and automated quality checks, posting findings as GitHub review comments
-usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--create-backlog-issues] [--dry-run] [--no-line-comments]
+description: Enhanced PR review that combines Sanctum's scope-focused validation with superpowers:receiving-code-review for comprehensive analysis and automated quality checks, posting findings as GitHub review comments. ENFORCES version validation on all PRs.
+usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--create-backlog-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -75,6 +75,201 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
    2. [Requirement from spec]
    3. [Requirement from tasks]
    ```
+
+### Phase 1.5: Version Validation (MANDATORY)
+
+**CRITICAL: This phase is MANDATORY for all PR reviews unless explicitly bypassed.**
+
+Before proceeding to code analysis, validate version consistency across all version-bearing files.
+
+**Bypass Conditions (any of):**
+- CLI flag: `--skip-version-check` provided
+- GitHub label: PR has `skip-version-check` label
+- PR description: Contains `[skip-version-check]` marker
+
+**Validation Process:**
+
+1. **Check if bypass requested**
+   ```bash
+   # Check CLI flag (handled by command parsing)
+   SKIP_VERSION_CHECK=false
+
+   # Check PR label
+   if gh pr view $PR_NUMBER --json labels --jq '.labels[].name' | grep -q "skip-version-check"; then
+     SKIP_VERSION_CHECK=true
+     echo "⚠️ Version validation bypassed via GitHub label"
+   fi
+
+   # Check PR description
+   if gh pr view $PR_NUMBER --json body --jq '.body' | grep -q "\[skip-version-check\]"; then
+     SKIP_VERSION_CHECK=true
+     echo "⚠️ Version validation bypassed via PR description marker"
+   fi
+   ```
+
+2. **Detect version changes in PR diff**
+   ```bash
+   # Key version files to check
+   VERSION_FILES=(
+     ".claude-plugin/marketplace.json"
+     "CHANGELOG.md"
+     "CHANGELOG"
+     "package.json"
+     "pyproject.toml"
+     "Cargo.toml"
+     "setup.py"
+     "VERSION"
+   )
+
+   VERSION_CHANGED=false
+   for file in "${VERSION_FILES[@]}"; do
+     if gh pr diff $PR_NUMBER --name-only | grep -qF "$file"; then
+       # Check if version-related lines changed
+       if gh pr diff $PR_NUMBER | grep -qE "^\+.*version|^\+.*## \["; then
+         VERSION_CHANGED=true
+         echo "Version change detected in $file"
+         break
+       fi
+     fi
+   done
+
+   # If no version changed and not a release PR, skip validation
+   if [[ "$VERSION_CHANGED" == "false" ]]; then
+     echo "✅ Version validation: N/A (no version files changed)"
+     # Skip to Phase 2
+   fi
+   ```
+
+3. **Run comprehensive version validation**
+
+   If version files changed, invoke the version validation module:
+
+   ```bash
+   # Load module
+   # See: plugins/sanctum/skills/pr-review/modules/version-validation.md
+
+   # Project type detection
+   PROJECT_TYPE=""
+   if [[ -f ".claude-plugin/marketplace.json" ]]; then
+     PROJECT_TYPE="claude-marketplace"
+   elif [[ -f "pyproject.toml" ]]; then
+     PROJECT_TYPE="python"
+   elif [[ -f "package.json" ]]; then
+     PROJECT_TYPE="node"
+   elif [[ -f "Cargo.toml" ]]; then
+     PROJECT_TYPE="rust"
+   fi
+
+   # Run validations based on project type
+   ```
+
+4. **For Claude Marketplace Projects**
+
+   ```bash
+   if [[ "$PROJECT_TYPE" == "claude-marketplace" ]]; then
+     echo "### Version Validation: Claude Marketplace"
+
+     # Get ecosystem version
+     ECOSYSTEM_VERSION=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
+     echo "Ecosystem version: $ECOSYSTEM_VERSION"
+
+     # Check each plugin in marketplace matches actual plugin.json
+     MISMATCHES=()
+     jq -r '.plugins[] | "\(.name):\(.version)"' .claude-plugin/marketplace.json | while IFS=: read -r name version; do
+       if [[ -f "plugins/$name/.claude-plugin/plugin.json" ]]; then
+         ACTUAL_VERSION=$(jq -r '.version' "plugins/$name/.claude-plugin/plugin.json")
+
+         if [[ "$version" != "$ACTUAL_VERSION" ]]; then
+           MISMATCHES+=("$name: marketplace=$version, actual=$ACTUAL_VERSION")
+           echo "[B-VERSION] Version mismatch for $name"
+           echo "  Marketplace (.claude-plugin/marketplace.json): $version"
+           echo "  Actual (plugins/$name/.claude-plugin/plugin.json): $ACTUAL_VERSION"
+           echo "  Fix: Update marketplace.json to match actual version"
+         else
+           echo "  ✓ $name: $version"
+         fi
+       fi
+     done
+
+     # Check CHANGELOG has entry for new version
+     if [[ -f "CHANGELOG.md" ]]; then
+       if ! grep -q "\[$ECOSYSTEM_VERSION\]" CHANGELOG.md; then
+         echo "[B-VERSION] CHANGELOG.md missing entry for version $ECOSYSTEM_VERSION"
+         echo "  Fix: Add release entry to CHANGELOG.md"
+       else
+         echo "  ✓ CHANGELOG.md has entry for $ECOSYSTEM_VERSION"
+
+         # Check if marked as Unreleased
+         if grep -q "\[$ECOSYSTEM_VERSION\] - Unreleased" CHANGELOG.md; then
+           echo "[G-VERSION] CHANGELOG shows $ECOSYSTEM_VERSION as Unreleased"
+           echo "  Suggestion: Update release date before merge"
+         fi
+       fi
+     fi
+
+     # Add to blocking issues if any mismatches found
+     if [[ ${#MISMATCHES[@]} -gt 0 ]]; then
+       echo ""
+       echo "❌ Version validation FAILED - ${#MISMATCHES[@]} issues found"
+       # These will be added to blocking issues in Phase 3
+     else
+       echo ""
+       echo "✅ Version validation PASSED"
+     fi
+   fi
+   ```
+
+5. **Classification of version issues**
+
+   All version validation findings are classified as:
+
+   | Issue Type | Severity | Example |
+   |------------|----------|---------|
+   | Version mismatch between files | **BLOCKING** | marketplace.json says 1.1.1, plugin.json says 1.2.0 |
+   | Missing CHANGELOG entry | **BLOCKING** | Version bumped but no CHANGELOG entry |
+   | CHANGELOG marked Unreleased | **SUGGESTION** | Release date not set |
+   | README references old version | **IN-SCOPE** | Documentation accuracy issue |
+   | __version__ mismatch | **BLOCKING** | Python: pyproject.toml vs __init__.py |
+
+6. **If bypass enabled**
+
+   ```bash
+   if [[ "$SKIP_VERSION_CHECK" == "true" ]]; then
+     # Still run validation but classify as WAIVED instead of BLOCKING
+     echo ""
+     echo "⚠️ Version validation issues WAIVED by maintainer"
+     echo "Issues found will be marked as [WAIVED] instead of [BLOCKING]"
+
+     # Convert all [B-VERSION] to [WAIVED-VERSION] in findings
+   fi
+   ```
+
+**Output from this phase:**
+
+A version validation section that will be included in the final PR review:
+
+```markdown
+### Version Validation
+
+**Status:** ✅ PASSED | ⚠️ WAIVED | ❌ FAILED
+
+**Ecosystem Version:** 1.1.0 → 1.1.1
+
+**Validation Results:**
+- [x] Marketplace version: 1.1.1 ✓
+- [x] Plugin versions: 11 plugins at 1.1.1 ✓
+- [ ] memory-palace: Marketplace=1.1.1, Actual=1.2.0 ❌ MISMATCH
+- [x] CHANGELOG.md: Entry for 1.1.1 ✓
+- [x] README.md: Version references current ✓
+
+**Blocking Issues:**
+- [B-VERSION-1] Version mismatch for memory-palace (see details above)
+
+**Suggestions:**
+- [G-VERSION-1] CHANGELOG release date shows "Unreleased" - update before merge
+```
+
+**This section is PREPENDED to the review summary** so version issues are the first thing reviewers see.
 
 ### Phase 2: Code Analysis (Superpowers)
 
@@ -495,12 +690,17 @@ After documenting review threads, generate a comprehensive test plan that `/fix-
 - `--create-backlog-issues`: Create GitHub issues for improvements
 - `--dry-run`: Generate report locally without posting to GitHub
 - `--no-line-comments`: Skip individual line comments, only submit summary review
+- `--skip-version-check`: **BYPASS version validation** (maintainer override)
+  - Use when: intentional version skew, non-release PR touching version files
+  - Alternative: Add `skip-version-check` label to PR or `[skip-version-check]` in PR description
+  - **Still runs validation** but marks issues as [WAIVED] instead of [BLOCKING]
 - `pr-number`/`pr-url`: Target specific PR (default: current branch)
 
 ## Review Classification Framework
 
 ### Blocking Issues
 Must fix before merge:
+- **Version mismatches** (marketplace vs actual, CHANGELOG missing, etc.)
 - Bugs introduced by this change
 - Security vulnerabilities
 - Breaking changes without migration
@@ -860,6 +1060,20 @@ pr_review:
 - Use `--dry-run` to generate report without posting to GitHub
 - Use `--no-line-comments` to only submit summary without inline comments
 - Test plan includes verification steps for all blocking and in-scope issues
+
+### Version Validation Enforcement (NEW)
+
+**MANDATORY on every PR** unless explicitly bypassed:
+- Runs in Phase 1.5 (after scope, before code analysis)
+- Checks version consistency across:
+  - Claude marketplace: marketplace.json ↔ plugin.json files
+  - Python: pyproject.toml ↔ __version__ in code
+  - Node: package.json ↔ package-lock.json
+  - Rust: Cargo.toml ↔ Cargo.lock
+  - CHANGELOG: Has entry for new version
+- **All version mismatches are BLOCKING** (unless waived)
+- Bypass with: `--skip-version-check`, `skip-version-check` label, or `[skip-version-check]` in PR description
+- See `modules/version-validation.md` for complete validation procedures
 
 ## See Also
 

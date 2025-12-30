@@ -27,9 +27,11 @@ estimated_tokens: 500
 progressive_loading: true
 modules:
   - knowledge-capture.md
+  - version-validation.md
 dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
+  - sanctum:version-updates
   - pensive:unified-review
   - imbue:evidence-logging
   - memory-palace:review-chamber
@@ -99,6 +101,8 @@ Every finding must be classified:
 
 Before looking at ANY code, understand what this PR is supposed to accomplish.
 
+**Note:** Version validation (Phase 1.5) runs AFTER scope establishment but BEFORE code review. See `modules/version-validation.md` for details.
+
 **Search for scope artifacts in order:**
 
 1. **Plan file**: Most authoritative (check spec-kit locations first, then root)
@@ -161,6 +165,26 @@ Before detailed code review, check scope coverage:
 - [ ] Each requirement has corresponding implementation
 - [ ] No requirements are missing
 - [ ] Implementation doesn't exceed requirements (overengineering signal)
+
+### Phase 1.5: Version Validation (MANDATORY)
+
+**Run version validation checks BEFORE code review.**
+
+See `modules/version-validation.md` for comprehensive validation procedures.
+
+**Quick reference:**
+1. Check if bypass requested (`--skip-version-check`, label, or PR marker)
+2. Detect if version files changed in PR diff
+3. If changed, run project-specific validations:
+   - Claude marketplace: Check marketplace.json vs plugin.json versions
+   - Python: Check pyproject.toml vs __version__
+   - Node: Check package.json vs package-lock.json
+   - Rust: Check Cargo.toml vs Cargo.lock
+4. Validate CHANGELOG has entry for new version
+5. Check README/docs for version references
+6. Classify findings as BLOCKING (or WAIVED if bypassed)
+
+**All version mismatches are BLOCKING unless explicitly waived by maintainer.**
 
 ### Phase 4: Code Review with Scope Context
 
