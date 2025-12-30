@@ -23,10 +23,10 @@ Import candidate detection logic from `sanctum:doc-consolidation`:
 
 Extend detection to analyze committed documentation:
 
-**Bloat signals (docs/ only):**
-- File exceeds 500 lines
-- Any section exceeds 150 lines
-- Multiple "wall of text" paragraphs (>6 sentences)
+**Bloat signals:**
+- `docs/`: File exceeds 500 lines, section exceeds 150 lines
+- `book/`: File exceeds 1000 lines, section exceeds 300 lines
+- Multiple "wall of text" paragraphs (>4 sentences in docs/, >8 in book/)
 
 **Redundancy signals:**
 - Similar file names: `api-overview.md` vs `api-reference.md`
@@ -44,13 +44,17 @@ Extend detection to analyze committed documentation:
 
 ```bash
 # Find untracked .md files (doc-consolidation pattern)
-git status --porcelain | grep '^??' | grep '\.md$' | grep -v 'docs/\|skills/\|commands/\|agents/'
+git status --porcelain | grep '^??' | grep '\.md$' | grep -v 'docs/\|book/\|skills/\|commands/\|agents/'
 
-# Find bloated docs/ files
-find docs/ -name '*.md' -exec wc -l {} \; | awk '$1 > 500 {print}'
+# Find bloated docs/ files (500 line limit)
+find docs/ -name '*.md' -exec wc -l {} \; 2>/dev/null | awk '$1 > 500 {print}'
 
-# Find recently unchanged files (potential staleness)
-find docs/ -name '*.md' -mtime +90 -type f
+# Find bloated book/ files (1000 line limit)
+find book/ -name '*.md' -exec wc -l {} \; 2>/dev/null | awk '$1 > 1000 {print}'
+
+# Find recently unchanged files (potential staleness) - docs: 90 days, book: 180 days
+find docs/ -name '*.md' -mtime +90 -type f 2>/dev/null
+find book/ -name '*.md' -mtime +180 -type f 2>/dev/null
 ```
 
 ### Step 2: Present Opportunities

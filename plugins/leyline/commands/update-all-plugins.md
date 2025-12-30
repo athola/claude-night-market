@@ -49,6 +49,19 @@ This command currently has no options. It updates all plugins from all marketpla
 - The command will continue updating even if some plugins fail
 - Updates are applied at the user scope by default
 
+## Auto-Update Configuration (2.0.70+)
+
+Claude Code now supports per-marketplace auto-update toggles. This setting controls whether plugins from a marketplace update automatically when new versions are available.
+
+To configure auto-updates for a specific marketplace:
+1. Open Claude Code settings
+2. Navigate to plugin marketplace settings
+3. Toggle auto-update on/off per marketplace
+
+**When to use this command vs auto-update**:
+- **Auto-update**: Convenient for trusted marketplaces where you want latest versions automatically
+- **This command**: Manual control when you want to review changes before updating, or to trigger updates on-demand across all marketplaces
+
 Execute the update script:
 ```bash
 python3 /home/alext/claude-night-market/plugins/leyline/scripts/update_all_plugins.py

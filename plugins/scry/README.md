@@ -102,6 +102,8 @@ Skill(scry:vhs-recording)
 Skill(scry:browser-recording)
 ```
 
+> **💡 Claude Code 2.0.72+**: Native Chrome integration is now available for interactive browser control. Use Playwright (this plugin) for automated recording, CI/CD, and cross-browser support. See [Compatibility](#claude-code-compatibility) for details.
+
 ### GIF Generation
 ```bash
 # Process recordings into optimized GIFs
@@ -160,6 +162,55 @@ scry/
 **Demo Recording**: Quick terminal demo with `/record-terminal`, optimize output with `gif-generation`.
 
 **Documentation Assets**: Generate GIFs for README files and documentation using the full skill chain.
+
+## Claude Code Compatibility
+
+### Browser Recording Options
+
+**Playwright (this plugin)** - Best for:
+- Automated recording workflows
+- Headless execution
+- CI/CD integration
+- Cross-browser testing (Chrome, Firefox, Safari)
+- Programmatic control via TypeScript/JavaScript specs
+
+**Native Chrome (Claude Code 2.0.72+)** - Best for:
+- Interactive debugging
+- Live testing and exploration
+- Reading console logs and network requests
+- Quick browser interactions
+- No setup required (just Chrome extension)
+
+### Recommended Approach
+
+Combine both tools for maximum effectiveness:
+1. **Development**: Use native Chrome integration for interactive testing
+2. **Automation**: Convert workflows to Playwright specs for reliable recording
+3. **Documentation**: Use Playwright recording for consistent, reproducible demos
+
+### Image Viewing (Claude Code 2.0.73+)
+
+Claude Code 2.0.73+ adds clickable `[Image #N]` links that open images in your default viewer.
+
+**Benefits for Scry Workflows**:
+- **Quick preview**: View generated GIFs and screenshots without leaving terminal
+- **Verification**: Instantly check recording output quality
+- **Comparison**: Open multiple generated images side-by-side for comparison
+- **Iteration**: Fast preview → adjust → regenerate workflow
+
+**Example**:
+```bash
+# Generate terminal recording
+/record-terminal demo.tape
+
+# Claude shows: "Generated demo.gif [Image #1]"
+# Click [Image #1] to preview in default image viewer
+# Review quality, then iterate if needed
+```
+
+This complements scry's media generation by making quality verification faster and more ergonomic.
+
+See `plugins/abstract/docs/claude-code-compatibility.md` for detailed version information.
 
 ## License
 

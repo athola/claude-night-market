@@ -17,7 +17,8 @@
     "./commands/update-tests.md",
     "./commands/update-version.md",
     "./commands/update-dependencies.md",
-    "./commands/update-tutorial.md"
+    "./commands/update-tutorial.md",
+    "./commands/create-tag.md"
   ],
   "skills": [
     "./skills/shared",

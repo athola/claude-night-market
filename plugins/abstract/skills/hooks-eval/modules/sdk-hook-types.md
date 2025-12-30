@@ -12,12 +12,13 @@ Supported hook event types in the Python SDK.
 from typing import Literal
 
 HookEvent = Literal[
-    "PreToolUse",       # Called before tool execution
-    "PostToolUse",      # Called after tool execution
-    "UserPromptSubmit", # Called when user submits a prompt
-    "Stop",             # Called when stopping execution
-    "SubagentStop",     # Called when a subagent stops
-    "PreCompact"        # Called before message compaction
+    "PreToolUse",        # Called before tool execution
+    "PostToolUse",       # Called after tool execution
+    "PermissionRequest", # Called when permission dialog would appear (Claude Code CLI only)
+    "UserPromptSubmit",  # Called when user submits a prompt
+    "Stop",              # Called when stopping execution
+    "SubagentStop",      # Called when a subagent stops
+    "PreCompact"         # Called before message compaction
 ]
 ```
 
@@ -32,10 +33,13 @@ HookEvent = Literal[
 |-------|---------|-------------|
 | `PreToolUse` | Before any tool runs | Validation, blocking dangerous commands, logging |
 | `PostToolUse` | After tool completes | Audit logging, result transformation, cleanup |
+| `PermissionRequest` | Permission dialog would appear | Auto-approve safe ops, block dangerous commands, modify inputs |
 | `UserPromptSubmit` | User submits input | Input validation, preprocessing, redaction |
 | `Stop` | Agent stops | Cleanup, final logging, state persistence |
 | `SubagentStop` | Subagent completes | Coordination, result aggregation |
 | `PreCompact` | Before message compaction | Context preservation, important info extraction |
+
+**Note**: `PermissionRequest` is a Claude Code CLI-specific hook and is not available in the Python SDK. It runs via shell commands configured in hooks.json.
 
 ## Type Definitions
 
@@ -194,6 +198,50 @@ async for message in query(
     "tool_input": {"command": "ls -la"},
     "tool_result": "file1.txt\nfile2.txt",  # Tool output
     "error": None                            # Error if failed
+}
+```
+
+### PermissionRequest Input (Claude Code CLI only)
+
+```python
+{
+    "session_id": "abc123",
+    "hook_event_name": "PermissionRequest",
+    "tool_name": "Bash",
+    "tool_input": {
+        "command": "npm install"
+    },
+    "tool_use_id": "toolu_01ABC123...",
+    "permission_mode": "default",
+    "cwd": "/path/to/project",
+    "transcript_path": "/Users/.../.claude/projects/.../session.jsonl"
+}
+```
+
+**PermissionRequest Output** (JSON to stdout):
+
+```python
+# To allow (bypasses permission dialog)
+{
+    "hookSpecificOutput": {
+        "hookEventName": "PermissionRequest",
+        "decision": {
+            "behavior": "allow",
+            "updatedInput": {"command": "npm install --save"}  # Optional
+        }
+    }
+}
+
+# To deny (blocks operation)
+{
+    "hookSpecificOutput": {
+        "hookEventName": "PermissionRequest",
+        "decision": {
+            "behavior": "deny",
+            "message": "Reason for denial",  # Optional
+            "interrupt": True                 # Optional: stop execution
+        }
+    }
 }
 ```
 

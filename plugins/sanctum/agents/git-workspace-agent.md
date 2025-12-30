@@ -16,6 +16,7 @@ description: |
   Provides read-only analysis and state assessment for downstream workflows.
 tools: [Read, Bash, Glob, Grep, TodoWrite]
 model: haiku
+permissionMode: default
 escalation:
   to: sonnet
   hints:

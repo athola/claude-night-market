@@ -207,7 +207,7 @@ Use the AskUserQuestion tool:
 
 Question: "Close these issues?"
 Options:
-- "Yes, close all ready issues" - Close via gh issue close
+- "Yes, close all ready issues (Recommended)" - Close via gh issue close
 - "Review individually" - Prompt per issue
 - "No, just report" - End without closing
 ```
@@ -224,7 +224,7 @@ Use the AskUserQuestion tool:
 
 Question: "Work on remaining tasks now?"
 Options:
-- "Yes, fix now" - Create TodoWrite items and begin work
+- "Yes, fix now (Recommended)" - Create TodoWrite items and begin work
 - "Defer to later" - End with report only
 ```
 

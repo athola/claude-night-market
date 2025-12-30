@@ -2,6 +2,7 @@
 name: code-reviewer
 description: Expert code review agent specializing in bug detection, API analysis, test quality, and comprehensive code audits. Use PROACTIVELY for code quality assurance, pre-merge reviews, and systematic bug hunting.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
+skills: imbue:evidence-logging, pensive:bug-review
 examples:
   - context: User wants a code review
     user: "Review this code for bugs and issues"
@@ -26,6 +27,13 @@ Expert agent for comprehensive code review with systematic analysis and evidence
 - **Security Scanning**: Identify potential vulnerabilities
 - **Performance Review**: Detect optimization opportunities
 - **Style Compliance**: Check coding standards adherence
+- **Semantic Analysis (LSP)**: Code intelligence with Language Server Protocol
+  - Impact analysis: Find all references to changed functions
+  - Unused code detection: Identify unreferenced exports
+  - Type verification: Validate type usage across codebase
+  - API consistency: Check usage patterns semantically
+  - Definition lookup: Navigate code structure efficiently
+  - **Enable**: Set `ENABLE_LSP_TOOLS=1` for LSP-powered reviews
 
 ## Expertise Areas
 
@@ -69,6 +77,34 @@ Expert agent for comprehensive code review with systematic analysis and evidence
 4. **Prioritization**: Rank issues by severity
 5. **Recommendations**: Provide actionable fixes
 
+### LSP-Enhanced Review (2.0.74+)
+
+When `ENABLE_LSP_TOOLS=1` is set, the review process is enhanced with semantic analysis:
+
+1. **Impact Assessment**:
+   - Use LSP to find all references to modified functions
+   - Identify affected call sites and dependencies
+   - Assess ripple effects of changes
+
+2. **Dead Code Detection**:
+   - Query LSP for unused exports and functions
+   - Identify unreferenced code for cleanup
+   - Suggest safe deletions
+
+3. **Type Consistency**:
+   - Verify type usage across codebase
+   - Check for type mismatches
+   - Validate interface implementations
+
+4. **API Usage Analysis**:
+   - Find all API call sites
+   - Check consistency of usage patterns
+   - Identify deprecated or incorrect usage
+
+**Performance**: LSP queries (50ms) vs. grep searches (45s) - ~900x faster for reference finding.
+
+**Default Approach**: Code reviews should **prefer LSP** for all analysis tasks. Only fallback to grep when LSP unavailable.
+
 ## Usage
 
 When dispatched, provide:
@@ -76,6 +112,22 @@ When dispatched, provide:
 2. Review focus (bugs, API, tests, security)
 3. Project conventions to follow
 4. Severity thresholds
+5. (Optional) Set `ENABLE_LSP_TOOLS=1` for semantic analysis
+
+**Example**:
+```bash
+# RECOMMENDED: LSP-enhanced review (semantic analysis)
+ENABLE_LSP_TOOLS=1 claude "/pensive:code-review src/ --check-impact --find-unused"
+
+# Or enable globally (best practice):
+export ENABLE_LSP_TOOLS=1
+claude "/pensive:code-review src/"
+
+# Fallback: Standard review without LSP (when language server unavailable)
+claude "/pensive:code-review src/"
+```
+
+**Recommendation**: Enable `ENABLE_LSP_TOOLS=1` by default for all code reviews.
 
 ## Output
 

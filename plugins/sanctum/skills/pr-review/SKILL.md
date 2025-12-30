@@ -15,20 +15,24 @@ description: |
 
   Use this skill for scope-focused PR reviews.
 category: review
-tags: [pr, review, scope, github, code-quality]
+tags: [pr, review, scope, github, code-quality, knowledge-capture]
 tools: [gh, pensive:unified-review]
 usage_patterns:
   - scope-validation
   - backlog-triage
   - requirement-compliance
+  - knowledge-capture
 complexity: intermediate
 estimated_tokens: 500
 progressive_loading: true
+modules:
+  - knowledge-capture.md
 dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
   - pensive:unified-review
   - imbue:evidence-logging
+  - memory-palace:review-chamber
 ---
 
 # Scope-Focused PR Review
@@ -97,19 +101,25 @@ Before looking at ANY code, understand what this PR is supposed to accomplish.
 
 **Search for scope artifacts in order:**
 
-1. **Plan file**: Most authoritative
+1. **Plan file**: Most authoritative (check spec-kit locations first, then root)
    ```bash
+   # Spec-kit feature plans (preferred - structured implementation blueprints)
+   find specs -name "plan.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -100
+   # Legacy/alternative locations
    ls docs/plans/ 2>/dev/null
+   # Root plan.md (may be Claude Plan Mode artifact from v2.0.51+)
    cat plan.md 2>/dev/null | head -100
    ```
 
-2. **Spec file**: Requirements definition
+2. **Spec file**: Requirements definition (check spec-kit locations first)
    ```bash
+   find specs -name "spec.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -100
    cat spec.md 2>/dev/null | head -100
    ```
 
-3. **Tasks file**: Implementation checklist
+3. **Tasks file**: Implementation checklist (check spec-kit locations first)
    ```bash
+   find specs -name "tasks.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null
    cat tasks.md 2>/dev/null
    ```
 
@@ -226,6 +236,37 @@ None - no critical issues found.
 **APPROVE WITH CHANGES**
 Address S1 (in-scope issue) before merge.
 ```
+
+### Phase 7: Knowledge Capture
+
+After generating the report, evaluate findings for knowledge capture into the project's review chamber.
+
+**Trigger:** Automatically for findings scoring ≥60 on evaluation criteria.
+
+```bash
+# Capture significant findings to review-chamber
+# Uses memory-palace:review-chamber evaluation framework
+```
+
+**Candidates for capture:**
+- BLOCKING findings with architectural context → `decisions/`
+- Recurring patterns seen in multiple PRs → `patterns/`
+- Quality standards and conventions → `standards/`
+- Post-mortem insights and learnings → `lessons/`
+
+**Output:** Add to report:
+```markdown
+### Knowledge Captured 📚
+
+| Entry ID | Title | Room |
+|----------|-------|------|
+| abc123 | JWT over sessions | decisions/ |
+| def456 | Token refresh pattern | patterns/ |
+
+View: `/review-room list --palace <project>`
+```
+
+See `modules/knowledge-capture.md` for full workflow.
 
 ## Quality Gates
 

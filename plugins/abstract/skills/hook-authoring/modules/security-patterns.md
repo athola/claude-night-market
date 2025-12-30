@@ -485,6 +485,271 @@ class CommandSanitizationHooks(AgentHooks):
         return any(pattern in command for pattern in risky_patterns)
 ```
 
+## Bash Glob Pattern Validation (2.0.71+)
+
+### Permission System Improvements
+
+Claude Code 2.0.71 fixed permission rules to correctly handle valid bash glob patterns (`*.txt`, `*.png`, etc.). This eliminates false-positive rejections while maintaining security.
+
+**What Changed**:
+- Shell glob patterns like `ls *.txt` or `for f in *.png` now work without permission prompts
+- Permission system distinguishes between safe glob patterns and dangerous wildcards
+- Standard file operations with pattern matching no longer require workarounds
+
+### Glob Pattern Security Considerations
+
+Even with native glob support, hooks should still validate glob usage for dangerous patterns:
+
+```python
+from claude_agent_sdk import AgentHooks
+import re
+
+class GlobValidationHooks(AgentHooks):
+    """Validate glob patterns for security concerns."""
+
+    async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
+        """Validate glob patterns in bash commands."""
+        if tool_name != "Bash":
+            return None
+
+        command = tool_input.get("command", "")
+
+        # SAFE: Standard glob patterns for listing/reading
+        safe_glob_commands = [
+            r'^ls\s+.*\*',              # List files with pattern
+            r'^cat\s+.*\*',             # Read files with pattern
+            r'^grep\s+.*\*',            # Search files with pattern
+            r'^find\s+.*-name\s+.*\*',  # Find with pattern
+        ]
+
+        # DANGEROUS: Destructive operations with unconstrained globs
+        dangerous_glob_patterns = [
+            r'rm\s+-rf\s+/?\*',                    # Delete everything
+            r'chmod\s+.*\s+/?\*',                  # Change all permissions
+            r'chown\s+.*\s+/?\*',                  # Change all ownership
+            r'mv\s+\*\s+/',                        # Move everything to root
+            r'for\s+\w+\s+in\s+/?\*;\s*do\s+rm',  # Loop delete
+        ]
+
+        # Check for dangerous patterns
+        for pattern in dangerous_glob_patterns:
+            if re.search(pattern, command, re.IGNORECASE):
+                raise ValueError(
+                    f"Dangerous glob operation detected. "
+                    f"Pattern: {pattern}\n"
+                    f"Command: {command}\n"
+                    f"Requires explicit confirmation."
+                )
+
+        return None
+```
+
+### Safe Glob Usage Examples
+
+These patterns are now natively supported without permission dialogs:
+
+```bash
+# File operations
+ls *.txt                          # List text files
+cat src/*.py                      # Read Python files
+cp config/*.yaml backup/          # Copy config files
+
+# Iteration
+for f in *.log; do
+    gzip "$f"                     # Compress logs
+done
+
+for img in images/*.jpg; do
+    convert "$img" -resize 50%    # Resize images
+done
+
+# Cleanup operations
+rm *.tmp                          # Remove temp files
+rm -f build/*.o                   # Remove object files
+find . -name "*.pyc" -delete      # Remove bytecode
+```
+
+### Dangerous Glob Patterns to Block
+
+Hooks should still block these high-risk patterns:
+
+```bash
+# BLOCK: Root-level destructive operations
+rm -rf /*
+rm -rf /var/*
+chmod 777 /*
+
+# BLOCK: Unconstrained recursive operations
+find / -name "*" -delete
+chown -R user:group /*
+
+# BLOCK: Blind glob deletions without constraints
+rm -rf *                          # No directory constraint
+for f in /*; do rm -rf "$f"; done # Iterating root
+```
+
+### Migration from Pre-2.0.71 Hooks
+
+If you implemented workarounds for glob pattern permissions, you can now simplify:
+
+```python
+# BEFORE 2.0.71 - Required permission overrides
+class Pre2071Hooks(AgentHooks):
+    async def on_permission_request(self, tool_name: str, tool_input: dict) -> str:
+        if tool_name == "Bash":
+            command = tool_input.get("command", "")
+
+            # Auto-approve safe glob patterns
+            safe_globs = [
+                r'^ls\s+\*\.\w+$',
+                r'^cat\s+\*\.\w+$',
+                r'^for\s+\w+\s+in\s+\*\.\w+',
+            ]
+
+            for pattern in safe_globs:
+                if re.match(pattern, command):
+                    return "allow"  # Override permission dialog
+
+        return "ask"  # Default: show dialog
+
+# AFTER 2.0.71 - Simplified validation
+class Post2071Hooks(AgentHooks):
+    async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
+        if tool_name == "Bash":
+            command = tool_input.get("command", "")
+
+            # Only validate dangerous patterns
+            # Safe globs work natively - no override needed
+            if re.search(r'rm\s+-rf\s+/?\*', command):
+                raise ValueError("Dangerous glob delete requires confirmation")
+
+        return None
+```
+
+### Best Practices
+
+1. **Trust Native Glob Support**: Don't override permissions for standard glob patterns
+2. **Validate Destructive Globs**: Still check for dangerous combinations (`rm -rf /*`)
+3. **Scope Constraints**: Ensure glob operations are scoped to specific directories
+4. **Test Pattern Matching**: Verify hooks don't break legitimate glob usage
+5. **Update Documentation**: Remove workarounds from pre-2.0.71 hooks
+
+## PermissionRequest Security
+
+### Safe Auto-Approval Patterns
+
+When using PermissionRequest hooks to auto-approve operations, follow these security principles:
+
+```python
+#!/usr/bin/env python3
+"""Secure PermissionRequest hook implementation."""
+import json
+import re
+import sys
+
+# Allowlist patterns for safe auto-approval
+SAFE_READ_COMMANDS = re.compile(r'^(ls|pwd|cat|head|tail|wc|file|stat|which|type)\b')
+SAFE_GREP_COMMANDS = re.compile(r'^(grep|rg|ag|ack)\s+.*(?!-[^-]*r)')  # No recursive
+SAFE_GIT_COMMANDS = re.compile(r'^git\s+(status|log|diff|branch|show|blame)\b')
+
+# Denylist patterns - ALWAYS block these
+DANGEROUS_PATTERNS = [
+    r'rm\s+-rf\s+/',          # Root deletion
+    r':(){ :|:& };:',         # Fork bomb
+    r'dd\s+if=/dev/zero',     # Disk wipe
+    r'chmod\s+-R\s+777',      # Insecure permissions
+    r'curl.*\|\s*(bash|sh)',  # Pipe to shell
+    r'wget.*\|\s*(bash|sh)',
+    r'sudo\s+',               # Privilege escalation
+    r'su\s+',
+]
+
+def is_safe_command(command: str) -> bool:
+    """Check if command is safe to auto-approve."""
+    # Check denylist first (security priority)
+    for pattern in DANGEROUS_PATTERNS:
+        if re.search(pattern, command, re.IGNORECASE):
+            return False
+
+    # Check allowlist
+    if SAFE_READ_COMMANDS.match(command):
+        return True
+    if SAFE_GREP_COMMANDS.match(command):
+        return True
+    if SAFE_GIT_COMMANDS.match(command):
+        return True
+
+    return False  # Default deny for auto-approval
+
+def main():
+    try:
+        input_data = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        sys.exit(1)
+
+    tool_name = input_data.get("tool_name", "")
+    tool_input = input_data.get("tool_input", {})
+
+    if tool_name == "Bash":
+        command = tool_input.get("command", "")
+
+        # Check for dangerous patterns first
+        for pattern in DANGEROUS_PATTERNS:
+            if re.search(pattern, command, re.IGNORECASE):
+                print(json.dumps({
+                    "hookSpecificOutput": {
+                        "hookEventName": "PermissionRequest",
+                        "decision": {
+                            "behavior": "deny",
+                            "message": f"Blocked: dangerous pattern detected",
+                            "interrupt": True
+                        }
+                    }
+                }))
+                sys.exit(0)
+
+        # Auto-approve safe commands
+        if is_safe_command(command):
+            print(json.dumps({
+                "hookSpecificOutput": {
+                    "hookEventName": "PermissionRequest",
+                    "decision": {"behavior": "allow"}
+                }
+            }))
+            sys.exit(0)
+
+    # Default: let user decide via dialog
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+```
+
+### PermissionRequest Security Principles
+
+1. **Denylist Before Allowlist**: Always check dangerous patterns before safe patterns
+2. **Default to Dialog**: If uncertain, let the permission dialog appear
+3. **No Regex Bypass**: Use anchored patterns (`^`) to prevent command injection
+4. **Audit Auto-Approvals**: Log all automatic approvals for security review
+5. **Minimize Scope**: Only auto-approve truly safe, read-only operations
+6. **Never Auto-Approve**:
+   - Commands with pipes to shells
+   - Commands with privilege escalation
+   - Commands modifying system directories
+   - Commands with unconstrained wildcards
+
+### PermissionRequest vs PreToolUse
+
+Use both hooks together for defense-in-depth:
+
+```python
+# PermissionRequest: Control user experience (auto-approve/deny)
+# PreToolUse: Final validation before execution
+
+# Example: PermissionRequest auto-approves "ls" commands
+# But PreToolUse still validates path is not sensitive
+```
+
 ## Sandbox Awareness
 
 ### Respect Sandbox Boundaries
@@ -575,6 +840,60 @@ command = f"grep {user_input} file.txt"  # Injection risk!
 #  SECURE
 import shlex
 command = ["grep", user_input, "file.txt"]
+```
+
+## Shell Environment Troubleshooting
+
+### CLAUDE_CODE_SHELL Override
+
+If hooks fail due to shell detection issues (common when login shell differs from working shell), use the `CLAUDE_CODE_SHELL` environment variable added in Claude Code 2.0.65:
+
+```bash
+# Set CLAUDE_CODE_SHELL to your actual working shell
+export CLAUDE_CODE_SHELL=/bin/bash
+
+# Or for zsh users
+export CLAUDE_CODE_SHELL=/bin/zsh
+```
+
+### Common Shell Issues
+
+| Symptom | Cause | Solution |
+|---------|-------|----------|
+| "No suitable shell found" | Login shell differs from working shell | Set `CLAUDE_CODE_SHELL` |
+| Hooks fail on Windows/WSL | Path format mismatch | Use Unix-style paths in `CLAUDE_CODE_SHELL` |
+| `#!/usr/bin/env bash` not found | Shell environment not properly configured | Explicitly set shell path |
+
+### Cross-Platform Hook Compatibility
+
+For maximum compatibility, hooks should:
+
+1. **Use `#!/usr/bin/env bash`** - Portable shebang for bash scripts
+2. **Avoid shell-specific features** - Stick to POSIX-compatible syntax where possible
+3. **Handle missing commands gracefully** - Check for required tools before using them
+
+```bash
+#!/usr/bin/env bash
+# Cross-platform compatible hook example
+
+# Check for required tools
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Warning: jq not found, using fallback" >&2
+    # Fallback implementation...
+fi
+```
+
+### Debugging Shell Issues
+
+```bash
+# Check which shell Claude Code detects
+echo $SHELL
+
+# Verify your intended shell works
+/bin/bash --version
+
+# Test hook execution manually
+CLAUDE_CODE_SHELL=/bin/bash ./your-hook.sh
 ```
 
 ## Related Modules

@@ -19,6 +19,12 @@ This command now addresses:
 1. **Consolidation**: Detects redundant/bloated docs (like /merge-docs)
 2. **Debloating**: Enforces directory-specific line limits and style rules
 3. **Accuracy**: Validates version numbers and counts against codebase
+4. **LSP Integration (2.0.74+)**: **Default approach** for documentation verification
+   - Find all references to documented functions (semantic, not text-based)
+   - Verify API completeness (all public APIs documented)
+   - Check signature accuracy (docs match actual code)
+   - **Recommended**: Enable `ENABLE_LSP_TOOLS=1` permanently
+   - **Best Practice**: Always use LSP for documentation updates
 
 ## Workflow
 
@@ -63,6 +69,13 @@ Phase 5 validates documentation claims:
 - Plugin/skill/command counts vs actual directories
 - Referenced file paths exist
 
+**LSP-Enhanced Verification (2.0.74+)**:
+When `ENABLE_LSP_TOOLS=1` is set:
+- Find all public APIs and check documentation coverage
+- Verify function signatures match documented examples
+- Locate all references to show usage patterns
+- Cross-reference documentation with actual code structure
+
 Warnings are non-blocking; user decides whether to fix.
 
 ## Examples
@@ -85,7 +98,8 @@ Warnings are non-blocking; user decides whether to fix.
 
 If a skill cannot be loaded, follow these steps:
 - Manually gather the Git context (`pwd`, `git status -sb`, `git diff --stat`, `git diff`)
-- Check for bloated files: `find docs/ -name '*.md' -exec wc -l {} \; | awk '$1 > 500'`
+- Check for bloated docs/ files: `find docs/ -name '*.md' -exec wc -l {} \; | awk '$1 > 500'`
+- Check for bloated book/ files: `find book/ -name '*.md' -exec wc -l {} \; | awk '$1 > 1000'`
 - Validate versions: `for p in plugins/*/.claude-plugin/plugin.json; do jq -r '"\(.name): \(.version)"' "$p"; done`
 - Update each document using the guidelines and preview the resulting diffs
 
