@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-12-30
+
 ### Added
+
+- **Project-level agent configuration**: Added `.claude/agents/` with main-thread agent definitions
+  - `plugin-developer.md` - Default agent for night-market plugin development (set in `.claude/settings.json`)
+  - `code-review-mode.md` - Evidence-based code review sessions with imbue/pensive integration
+  - `documentation-mode.md` - Documentation-focused workflows with sanctum integration
+  - Enables consistent multi-session agent configuration across all project work
+  - Automatic agent loading when starting sessions in project directory
 
 - **LSP setup guidance in main README**: Quick start guide for Language Server Protocol integration
   - Added "Recommended Setup: LSP Integration" section prominently in README

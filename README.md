@@ -82,6 +82,16 @@ Plugins gracefully degrade to grep-based searches when LSP is unavailable. Howev
 
 **See**: [`plugins/abstract/docs/claude-code-compatibility.md`](plugins/abstract/docs/claude-code-compatibility.md) for comprehensive LSP integration patterns and usage examples.
 
+## Project-Level Agents
+
+The repository includes three main-thread agent configurations in `.claude/agents/` for consistent development workflows:
+
+- **`plugin-developer`** (default): Plugin development with validation-first workflows and skill authoring
+- **`code-review-mode`**: Comprehensive code review with evidence gathering and bug analysis
+- **`documentation-mode`**: Documentation creation, updates, and consolidation with writing standards
+
+These agents automatically load when starting Claude Code in this project directory. See [Project-Level Agents](docs/capabilities-reference.md#project-level-agents) for detailed usage and configuration.
+
 ## Plugins
 
 ### Meta Layer
