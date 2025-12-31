@@ -12,6 +12,7 @@ description: |
   DO NOT use when: quick code check without formal review - use pensive skills.
   DO NOT use when: just catching up on changes - use catchup skill.
 tools: [Read, Glob, Grep, Bash]
+skills: imbue:review-core, imbue:evidence-logging, imbue:structured-output, imbue:diff-analysis
 ---
 
 # Review Analyst Agent

@@ -164,6 +164,88 @@ api-review:docs-governance
 api-review:evidence-log
 ```
 
+## Session Forking Workflows (Claude Code 2.0.73+)
+
+Session forking enables multi-dimensional code reviews with specialized focus areas analyzed independently.
+
+### Use Cases
+
+**Multi-Dimensional Code Review**
+```bash
+# Main session: Code review request
+claude "/full-review src/"
+
+# Fork for security audit
+claude --fork-session --session-id "security-audit" --resume
+> "/rust-review --focus security"
+
+# Fork for performance analysis
+claude --fork-session --session-id "performance-audit" --resume
+> "Review the same code focusing exclusively on performance and optimization"
+
+# Fork for maintainability review
+claude --fork-session --session-id "maintainability-audit" --resume
+> "/architecture-review --focus maintainability"
+
+# Combine insights for comprehensive feedback
+```
+
+**Specialized Domain Reviews**
+```bash
+# Main session: API changes
+claude "We need to review API changes in this PR"
+
+# Fork A: Public API surface review
+claude --fork-session --session-id "api-surface-review" --resume
+> "/api-review --focus public-interface"
+
+# Fork B: Breaking changes review
+claude --fork-session --session-id "breaking-changes-review" --resume
+> "/api-review --focus breaking-changes"
+
+# Fork C: Backward compatibility review
+claude --fork-session --session-id "compatibility-review" --resume
+> "/api-review --focus backward-compat"
+
+# Consolidate into comprehensive API review report
+```
+
+**Parallel Test Strategy Exploration**
+```bash
+# Main session: Need test improvements
+claude "/test-review"
+
+# Fork for unit test strategy
+claude --fork-session --session-id "unit-test-strategy" --resume
+> "Focus on unit test coverage and quality"
+
+# Fork for integration test strategy
+claude --fork-session --session-id "integration-test-strategy" --resume
+> "Focus on integration test design"
+
+# Fork for property-based testing
+claude --fork-session --session-id "property-test-strategy" --resume
+> "Explore property-based testing opportunities"
+
+# Design comprehensive test strategy from all approaches
+```
+
+### Benefits
+
+- **Expert-level focus**: Each fork provides deep analysis on single dimension
+- **Avoid dilution**: Prevent mixing concerns that require different mental models
+- **Comprehensive coverage**: Ensure all review dimensions get proper attention
+- **Parallel workflows**: Run specialized reviews without waiting for sequential completion
+
+### Best Practices
+
+- **One concern per fork**: Security, performance, maintainability - don't mix
+- **Use appropriate agents**: Delegate to specialized agents in forks (e.g., `rust-auditor`)
+- **Extract findings**: Save review reports before closing forks
+- **Synthesize results**: Combine findings into actionable feedback
+
+See `plugins/abstract/docs/claude-code-compatibility.md` for comprehensive session forking patterns.
+
 ## License
 
 MIT

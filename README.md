@@ -19,6 +19,79 @@ A collection of Claude Code plugins for software engineering workflows.
 /plugin install spec-kit@claude-night-market
 ```
 
+## Recommended Setup: LSP Integration
+
+**As of v1.1.1**, this plugin ecosystem **defaults to using LSP** (Language Server Protocol) for all code navigation and analysis tasks. LSP provides **900x performance improvements** and semantic understanding vs. text-based grep searches.
+
+### Why LSP?
+
+| Capability | LSP (Preferred) | Grep (Fallback) |
+|------------|-----------------|-----------------|
+| Find references | 50ms, semantically accurate | 45s, text-based matches |
+| Code navigation | Understands structure | Pattern matching only |
+| Token efficiency | 90% token reduction | High context usage |
+| Type information | Full type system | Not available |
+
+### Quick Setup
+
+**1. Enable LSP in Claude Code** (recommended for all users):
+
+```bash
+# Add to your ~/.bashrc, ~/.zshrc, or shell rc file
+export ENABLE_LSP_TOOLS=1
+
+# Reload shell
+source ~/.bashrc  # or ~/.zshrc
+```
+
+**2. Install Language Servers** for your languages:
+
+```bash
+# TypeScript/JavaScript
+npm install -g typescript typescript-language-server
+
+# Python
+pip install python-lsp-server
+
+# Rust
+rustup component add rust-analyzer
+
+# Go
+go install golang.org/x/tools/gopls@latest
+
+# More languages: See https://github.com/Piebald-AI/claude-code-lsps
+```
+
+**3. Verify Setup**:
+
+```bash
+# Test LSP is working
+ENABLE_LSP_TOOLS=1 claude "Find all references to this function"
+```
+
+### Plugins Using LSP
+
+- **pensive**: Code review with semantic analysis, impact detection, unused code identification
+- **sanctum**: Documentation verification with API completeness checking
+- **conservation**: Token-efficient code navigation (~90% token reduction)
+- **All code-focused plugins**: Default to LSP, fallback to grep when unavailable
+
+### Without LSP
+
+Plugins gracefully degrade to grep-based searches when LSP is unavailable. However, for best performance and accuracy, **LSP is strongly recommended**.
+
+**See**: [`plugins/abstract/docs/claude-code-compatibility.md`](plugins/abstract/docs/claude-code-compatibility.md) for comprehensive LSP integration patterns and usage examples.
+
+## Project-Level Agents
+
+The repository includes three main-thread agent configurations in `.claude/agents/` for consistent development workflows:
+
+- **`plugin-developer`** (default): Plugin development with validation-first workflows and skill authoring
+- **`code-review-mode`**: Comprehensive code review with evidence gathering and bug analysis
+- **`documentation-mode`**: Documentation creation, updates, and consolidation with writing standards
+
+These agents automatically load when starting Claude Code in this project directory. See [Project-Level Agents](docs/capabilities-reference.md#project-level-agents) for detailed usage and configuration.
+
 ## Plugins
 
 ### Meta Layer

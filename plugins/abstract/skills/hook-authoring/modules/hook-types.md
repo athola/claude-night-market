@@ -77,6 +77,138 @@ async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None
 
 ---
 
+### PermissionRequest
+
+**Triggered**: When Claude Code displays a permission dialog to the user
+
+**Purpose**: Automatically approve or deny tool permissions, optionally modify inputs
+
+**Claude Code Signature** (JSON):
+```json
+{
+  "hooks": {
+    "PermissionRequest": [{
+      "matcher": "Bash",
+      "hooks": [{
+        "type": "command",
+        "command": "permission-handler.sh"
+      }]
+    }]
+  }
+}
+```
+
+**Environment Variables**:
+- `CLAUDE_TOOL_NAME`: Name of the tool requesting permission
+- `CLAUDE_TOOL_INPUT`: JSON string of tool input parameters
+- `CLAUDE_PERMISSION_MODE`: Current permission mode (e.g., "default")
+- `CLAUDE_EVENT`: "PermissionRequest"
+
+**Hook Input** (via stdin as JSON):
+```json
+{
+  "session_id": "abc123",
+  "hook_event_name": "PermissionRequest",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "npm install"
+  },
+  "tool_use_id": "toolu_01ABC123...",
+  "permission_mode": "default",
+  "cwd": "/path/to/project"
+}
+```
+
+**Hook Output** (JSON to stdout):
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PermissionRequest",
+    "decision": {
+      "behavior": "allow",
+      "updatedInput": {
+        "command": "npm install --save"
+      }
+    }
+  }
+}
+```
+
+**Decision Behaviors**:
+
+| Behavior | Effect |
+|----------|--------|
+| `"allow"` | Grants permission, bypasses dialog. Optional `updatedInput` modifies parameters. |
+| `"deny"` | Denies permission. Optional `message` explains why. Optional `interrupt: true` stops execution. |
+
+**Use Cases**:
+- Auto-approve safe read-only commands (ls, pwd, cat)
+- Block dangerous commands with explanations
+- Modify command parameters before approval (add safety flags)
+- Enforce organization security policies
+- Streamline development workflows by pre-approving known-safe operations
+
+**Example - Auto-Approve Safe Commands**:
+```bash
+#!/bin/bash
+input=$(cat)
+tool_name=$(echo "$input" | jq -r '.tool_name')
+command=$(echo "$input" | jq -r '.tool_input.command // ""')
+
+# Auto-approve safe read-only commands
+if [[ "$tool_name" == "Bash" ]] && [[ "$command" =~ ^(ls|pwd|cat|grep|find|head|tail) ]]; then
+  echo '{
+    "hookSpecificOutput": {
+      "hookEventName": "PermissionRequest",
+      "decision": { "behavior": "allow" }
+    }
+  }'
+  exit 0
+fi
+
+# Default: let permission dialog proceed
+exit 0
+```
+
+**Example - Deny with Explanation**:
+```python
+#!/usr/bin/env python3
+import json
+import sys
+
+input_data = json.load(sys.stdin)
+command = input_data.get("tool_input", {}).get("command", "")
+
+dangerous = ["rm -rf", "sudo", ":(){ :|:& };:"]
+if any(p in command for p in dangerous):
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "PermissionRequest",
+            "decision": {
+                "behavior": "deny",
+                "message": "Command blocked: contains dangerous pattern",
+                "interrupt": True
+            }
+        }
+    }))
+    sys.exit(0)
+
+sys.exit(0)
+```
+
+**Key Differences from PreToolUse**:
+
+| Aspect | PreToolUse | PermissionRequest |
+|--------|------------|-------------------|
+| **Timing** | Before tool execution | When permission dialog would appear |
+| **Purpose** | Validate/transform inputs | Control permission grant/deny |
+| **User Experience** | User may still see dialog | Can bypass dialog entirely |
+| **Blocking** | Raise exception to block | Return `deny` decision |
+
+**Note**: PermissionRequest hooks run when the user would normally see a permission dialog. If the operation is already allowed (via allowlist or permission mode), this hook won't trigger.
+
+---
+
 ### PostToolUse
 
 **Triggered**: After tool execution completes successfully
@@ -448,6 +580,164 @@ async def test_post_tool_use_logging():
     # Verify logging occurred
     assert len(hooks._log_entries) == 1
     assert hooks._log_entries[0]['tool'] == 'Bash'
+```
+
+## MCP Tool Permissions
+
+When working with MCP (Model Context Protocol) servers, Claude Code supports wildcard syntax for bulk permission management.
+
+### Wildcard Syntax (2.0.70+)
+
+Use `mcp__server__*` to allow or deny all tools from a specific MCP server:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "mcp__notion__*",
+      "mcp__github__*"
+    ],
+    "deny": [
+      "mcp__untrusted_server__*"
+    ]
+  }
+}
+```
+
+### Permission Patterns
+
+| Pattern | Effect |
+|---------|--------|
+| `mcp__server__*` | All tools from `server` |
+| `mcp__server__specific_tool` | Single tool from `server` |
+| `mcp__*` | All MCP tools (use cautiously) |
+
+### Integration with Hooks
+
+Combine MCP permissions with hooks for fine-grained control:
+
+```json
+{
+  "permissions": {
+    "allow": ["mcp__github__*"]
+  },
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": { "toolName": "mcp__github__push_files" },
+      "hooks": [{
+        "type": "command",
+        "command": "validate-push.sh"
+      }]
+    }]
+  }
+}
+```
+
+This allows all GitHub MCP tools but adds validation before push operations.
+
+### MCP Server Loading Fix (2.0.71+)
+
+**Fixed**: MCP servers defined in `.mcp.json` now load correctly when using `--dangerously-skip-permissions`.
+
+**Previous Behavior** (2.0.70 and earlier):
+- MCP servers from `.mcp.json` were not detected when running with `--dangerously-skip-permissions`
+- Required initial manual trust step before automation workflows could use MCP servers
+- CI/CD pipelines needed workarounds to trust MCP servers first
+
+**Current Behavior** (2.0.71+):
+- MCP servers automatically load from `.mcp.json` even with `--dangerously-skip-permissions`
+- Automated workflows and CI/CD pipelines work seamlessly
+- No manual trust step required for pre-configured MCP servers
+
+**Use Case - CI/CD with MCP**:
+```bash
+# .mcp.json in repository
+{
+  "mcpServers": {
+    "github": {
+      "command": "mcp-server-github",
+      "args": ["--token", "${GITHUB_TOKEN}"]
+    }
+  }
+}
+
+# GitHub Actions workflow
+- name: Run Claude Code with MCP
+  run: |
+    claude --dangerously-skip-permissions \
+           --max-turns 10 \
+           "Review PR and use GitHub MCP to comment"
+```
+
+**Impact**: This fix enables fully automated workflows that combine `--dangerously-skip-permissions` with MCP server capabilities, particularly valuable for CI/CD environments.
+
+## Bash Command Permissions
+
+### Glob Pattern Support (2.0.71+)
+
+**Fixed**: Permission rules now correctly allow valid bash commands containing shell glob patterns.
+
+**Previous Behavior** (2.0.70 and earlier):
+- Commands like `ls *.txt` or `for f in *.png` were incorrectly rejected
+- Permission system treated glob patterns as potential security risks
+- Required explicit permission dialogs for legitimate pattern matching
+
+**Current Behavior** (2.0.71+):
+- Shell glob patterns are recognized as valid bash syntax
+- No false-positive permission rejections for pattern matching
+- Standard glob operations work without permission prompts
+
+**Examples Now Supported**:
+```bash
+# File listing with patterns
+ls *.txt
+ls src/**/*.py
+
+# Iteration over matching files
+for f in *.png; do echo $f; done
+for img in images/*.jpg; do convert $img; done
+
+# Cleanup operations
+rm *.tmp
+rm -f build/*.o
+
+# Pattern-based operations
+cp src/*.js dist/
+mv *.log logs/
+```
+
+**Security Note**: This fix only affects **shell glob patterns** (wildcards expanded by the shell). It does not change validation for other potentially dangerous patterns. Hooks using `PreToolUse` or `PermissionRequest` should still validate glob patterns for appropriate use cases:
+
+```python
+async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
+    """Validate glob patterns are used appropriately."""
+    if tool_name == "Bash":
+        command = tool_input.get("command", "")
+
+        # Allow safe glob patterns
+        safe_patterns = [r'\*\.txt$', r'\*\.log$', r'\*\.tmp$']
+
+        # Block dangerous glob usage
+        if re.search(r'rm\s+-rf\s+\*', command):
+            raise ValueError("Recursive delete with glob requires confirmation")
+
+    return None
+```
+
+**Migration**: If you previously implemented workarounds for glob pattern permissions, you can now simplify your code:
+
+```python
+# BEFORE 2.0.71 - needed workarounds
+async def on_permission_request(self, tool_name: str, tool_input: dict) -> str:
+    if tool_name == "Bash":
+        command = tool_input.get("command", "")
+        # Auto-approve safe glob patterns
+        if re.match(r'^ls\s+\*\.\w+$', command):
+            return "allow"
+    return "ask"
+
+# AFTER 2.0.71 - no workaround needed, glob patterns work natively
+# Can remove permission overrides for standard glob operations
 ```
 
 ## Related Modules

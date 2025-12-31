@@ -178,6 +178,80 @@ Skill(imbue:structured-output)
 
 Use these skills for architecture reviews, code audits, and security assessments. For git-based work, run `Skill(sanctum:git-workspace-review)` first, then apply imbue's analysis patterns.
 
+## Session Forking Workflows (Claude Code 2.0.73+)
+
+Session forking enables parallel evidence analysis from multiple perspectives without context contamination.
+
+### Use Cases
+
+**Multi-Perspective Code Analysis**
+```bash
+# Main session: Initial analysis
+claude "Analyze this codebase for issues"
+
+# Fork for security perspective
+claude --fork-session --session-id "security-evidence" --resume
+> "Analyze the same codebase exclusively from a security perspective"
+
+# Fork for performance perspective
+claude --fork-session --session-id "performance-evidence" --resume
+> "Analyze the same codebase exclusively from a performance perspective"
+
+# Fork for maintainability perspective
+claude --fork-session --session-id "maintainability-evidence" --resume
+> "Analyze the same codebase exclusively from a maintainability perspective"
+
+# Consolidate findings from all perspectives
+```
+
+**Parallel Feature Evaluation**
+```bash
+# Main session: Feature request received
+claude "Evaluate this feature request"
+
+# Fork for RICE scoring
+claude --fork-session --session-id "rice-scoring" --resume
+> "Skill(imbue:feature-review) using RICE methodology"
+
+# Fork for WSJF scoring
+claude --fork-session --session-id "wsjf-scoring" --resume
+> "Skill(imbue:feature-review) using WSJF methodology"
+
+# Compare scores and make informed decision
+```
+
+**Alternative Evidence Collection Strategies**
+```bash
+# Main session: Review needed
+claude "Review this architecture"
+
+# Fork A: Bottom-up analysis
+claude --fork-session --session-id "bottom-up-review" --resume
+> "Skill(imbue:review-core) starting from implementation details"
+
+# Fork B: Top-down analysis
+claude --fork-session --session-id "top-down-review" --resume
+> "Skill(imbue:review-core) starting from high-level architecture"
+
+# Combine insights for comprehensive review
+```
+
+### Benefits
+
+- **Independent evidence logs**: Each fork maintains separate evidence without cross-contamination
+- **Specialized perspectives**: Deep focus on single concern (security, performance, etc.)
+- **Parallel analysis**: Explore multiple approaches simultaneously
+- **Comprehensive reviews**: Combine insights from multiple specialized forks
+
+### Best Practices
+
+- **Clear scope per fork**: Each fork should focus on one analytical perspective
+- **Evidence extraction**: Save evidence logs to files before closing forks
+- **Consolidation workflow**: Create summary that synthesizes findings from all forks
+- **Descriptive session IDs**: Use perspective name in ID (e.g., "security-audit-pr-42")
+
+See `plugins/abstract/docs/claude-code-compatibility.md` for comprehensive session forking patterns.
+
 ## License
 
 MIT

@@ -237,6 +237,66 @@ A detailed guide to the skills, commands, agents, and hooks available across the
 - [Scry](#scry)
 - [Spec Kit](#spec-kit)
 - [Superpowers Dependencies](#superpowers-dependencies)
+- [Project-Level Agents](#project-level-agents)
+
+---
+
+## Project-Level Agents
+
+The claude-night-market repository includes three main-thread agent configurations in `.claude/agents/` for consistent multi-session workflows. These are **not plugin agents** (which run in subagent mode), but rather main-thread configurations that shape your entire session.
+
+### Available Agents
+
+| Agent | File | Purpose |
+|-------|------|---------|
+| `plugin-developer` | `.claude/agents/plugin-developer.md` | **Default agent** for night-market plugin development (set in `.claude/settings.json`) |
+| `code-review-mode` | `.claude/agents/code-review-mode.md` | Evidence-based code review sessions with imbue/pensive integration |
+| `documentation-mode` | `.claude/agents/documentation-mode.md` | Documentation-focused workflows with sanctum integration |
+
+### Usage
+
+**Automatic (Project Default)**:
+```bash
+# When you start claude in the project directory, plugin-developer loads automatically
+cd claude-night-market
+claude
+```
+
+**Explicit Agent Selection**:
+```bash
+# Start with a specific agent
+claude --agent code-review-mode
+claude --agent documentation-mode
+```
+
+**Configuration**:
+The project default is set in `.claude/settings.json`:
+```json
+{
+  "agent": "plugin-developer",
+  "description": "claude-night-market project settings"
+}
+```
+
+### Agent Capabilities
+
+**plugin-developer**:
+- Tools: Read, Write, Edit, Bash, Glob, Grep, Task, WebFetch, WebSearch
+- Model: Sonnet
+- Skills: `abstract:validate-plugin`, `abstract:skill-authoring`, `plugin-dev:plugin-structure`
+- Focus: Validation-first development, skill quality, agent design
+
+**code-review-mode**:
+- Tools: Read, Grep, Glob, WebFetch, WebSearch (read-only analysis)
+- Model: Sonnet
+- Skills: `pensive:code-reviewer`, `imbue:evidence-logging`, `imbue:diff-analysis`
+- Focus: Evidence-based code review, security analysis, quality assessment
+
+**documentation-mode**:
+- Tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
+- Model: Sonnet
+- Skills: `sanctum:doc-updates`, `sanctum:git-workspace-review`, `conservation:context-optimization`
+- Focus: Documentation maintenance, writing guidelines, accuracy verification
 
 ---
 

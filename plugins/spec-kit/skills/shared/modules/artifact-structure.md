@@ -37,6 +37,18 @@ project-root/
             └── graphql/
 ```
 
+> **Note: Claude Code Plan Mode Namespace**
+>
+> Claude Code's native Plan Mode (v2.0.51+) creates a `plan.md` file at the
+> **project root** when users enter plan mode via `Shift+Tab` or `--permission-mode plan`.
+> Spec-kit plans are intentionally stored in `specs/{feature}/plan.md` to avoid
+> collision. When searching for scope artifacts:
+> 1. Always check `specs/*/plan.md` first (spec-kit feature plans)
+> 2. Then check root `plan.md` (may be Claude Plan Mode artifact)
+>
+> The two systems are complementary: Claude Plan Mode is for exploratory planning,
+> while spec-kit plans are structured implementation blueprints.
+
 ## Core Artifacts
 
 ### spec.md - Feature Specification

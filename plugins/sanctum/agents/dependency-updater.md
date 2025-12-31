@@ -17,6 +17,7 @@ description: |
   assistance for breaking changes.
 tools: [Bash, Read, Write, Edit, Glob, Grep, TodoWrite]
 model: sonnet
+permissionMode: acceptEdits
 escalation:
   to: opus
   hints:

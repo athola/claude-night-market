@@ -43,6 +43,7 @@ Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 - Detects consolidation opportunities (like /merge-docs)
 - Enforces directory-specific style rules (docs/ strict, book/ lenient)
 - Validates accuracy of version numbers and counts
+- LSP integration (2.0.74+) for semantic documentation verification
 
 ## Required TodoWrite Items
 
@@ -62,7 +63,12 @@ Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 
 ## Step 2: Identify Targets (`targets-identified`)
 
-- List the relevant files from the scope (e.g., README.md, wiki entries, docstrings).
+- List the relevant files from the scope across all documentation locations:
+  - `docs/` - Reference documentation (strict style)
+  - `book/` - Technical book content (lenient style)
+  - `README.md` files at project and plugin roots
+  - `wiki/` entries if present
+  - Docstrings in code files
 - Prioritize user-facing documentation first, then supporting plans and specifications.
 - When architectural work is planned, confirm whether an Architecture Decision Record (ADR) already exists in `wiki/architecture/` (or wherever ADRs are located).
 - Add missing ADRs to the target list before any implementation begins.
@@ -141,6 +147,34 @@ echo "Skills: $(find plugins/*/skills -name 'SKILL.md' | wc -l)"
 - Version numbers that don't match plugin.json
 - Plugin/skill/command counts that don't match actual directories
 - File paths that don't exist
+
+**LSP-Enhanced Verification (2.0.74+)**:
+
+When `ENABLE_LSP_TOOLS=1` is set, enhance accuracy verification with semantic analysis:
+
+1. **API Documentation Coverage**:
+   - Query LSP for all public functions/classes
+   - Check which lack documentation
+   - Verify all exported items are documented
+
+2. **Signature Verification**:
+   - Compare documented function signatures with actual code
+   - Detect parameter mismatches
+   - Flag return type discrepancies
+
+3. **Reference Finding**:
+   - Use LSP to find all usages of documented items
+   - Include real usage examples in documentation
+   - Verify cross-references are accurate
+
+4. **Code Structure Validation**:
+   - Check documented file paths exist (via LSP definitions)
+   - Verify module organization matches documentation
+   - Detect renamed/moved items
+
+**Efficiency**: LSP queries (50ms) vs. manual file tracing (minutes) - dramatically faster verification.
+
+**Default Strategy**: Documentation updates should **prefer LSP** for all verification tasks. Enable `ENABLE_LSP_TOOLS=1` permanently for best results.
 
 **Non-blocking**: Warnings are informational; user decides whether to fix.
 

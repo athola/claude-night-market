@@ -5,20 +5,21 @@ description: |
   palaces using multi-modal search.
 
   Triggers: knowledge search, find information, locate concept, recall, spatial
-  query, cross-reference, discovery, memory retrieval
+  query, cross-reference, discovery, memory retrieval, pr review search,
+  past decisions, review patterns
 
   Use when: searching for stored knowledge, cross-referencing concepts,
-  discovering connections, retrieving from palaces
+  discovering connections, retrieving from palaces, finding past PR decisions
 
   DO NOT use when: creating new palace structures - use memory-palace-architect.
   DO NOT use when: processing new external resources - use knowledge-intake.
 
   Consult this skill when searching or navigating stored knowledge.
 category: navigation
-tags: [retrieval, search, indexing, recall, spatial-memory]
-dependencies: [memory-palace-architect]
+tags: [retrieval, search, indexing, recall, spatial-memory, pr-review]
+dependencies: [memory-palace-architect, review-chamber]
 scripts: [palace_manager.py]
-usage_patterns: [search, cross-reference, discovery]
+usage_patterns: [search, cross-reference, discovery, review-search]
 complexity: intermediate
 estimated_tokens: 500
 ---
@@ -85,9 +86,56 @@ python scripts/palace_manager.py list
 - **Search Strategies**: See `modules/search-strategies.md`
 - **Cross-Reference Mapping**: See `modules/cross-references.md`
 
+## PR Review Search
+
+Search the review chamber within project palaces for past decisions and patterns.
+
+### Quick Commands
+
+```bash
+# Search review chamber by query
+python scripts/palace_manager.py search "authentication" \
+  --palace <project_id> \
+  --room review-chamber
+
+# List entries in specific room
+python scripts/palace_manager.py list-reviews \
+  --palace <project_id> \
+  --room decisions
+
+# Find by tags
+python scripts/palace_manager.py search-reviews \
+  --tags security,api \
+  --since 2025-01-01
+```
+
+### Review Chamber Rooms
+
+| Room | Content | Example Query |
+|------|---------|---------------|
+| `decisions/` | Architectural choices | "JWT vs sessions" |
+| `patterns/` | Recurring solutions | "error handling pattern" |
+| `standards/` | Quality conventions | "API error format" |
+| `lessons/` | Post-mortems | "outage learnings" |
+
+### Context-Aware Surfacing
+
+When starting work in a code area, surface relevant review knowledge:
+
+```bash
+# When in auth/ directory
+python scripts/palace_manager.py context-search auth/
+
+# Returns:
+# - Past decisions about authentication
+# - Known patterns in this area
+# - Relevant standards to follow
+```
+
 ## Integration
 
 Works with:
 - `memory-palace-architect` - Indexes palaces created by architect
 - `session-palace-builder` - Searches session-specific palaces
 - `digital-garden-cultivator` - Finds garden content and links
+- `review-chamber` - Searches PR review knowledge in project palaces

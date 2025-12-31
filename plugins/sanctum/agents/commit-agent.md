@@ -16,6 +16,7 @@ description: |
   Generates complete conventional commit messages ready for use.
 tools: [Read, Write, Bash, TodoWrite]
 model: haiku
+permissionMode: acceptEdits
 escalation:
   to: sonnet
   hints:

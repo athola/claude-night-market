@@ -7,6 +7,8 @@ description: Record browser sessions using Playwright
 
 Record browser sessions using Playwright specs for web UI tutorials.
 
+> **💡 Claude Code 2.0.72+**: For interactive browser control, consider using native Chrome integration. This command is optimized for **automated recording workflows and CI/CD**. Both approaches can be combined - test interactively with Chrome, record programmatically with Playwright.
+
 ## Usage
 
 ```bash

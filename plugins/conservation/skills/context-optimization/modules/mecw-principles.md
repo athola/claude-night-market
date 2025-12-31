@@ -63,6 +63,38 @@ When context exceeds MECW limits:
 
 ### Monitoring Context Usage
 
+**Native Visibility (Claude Code 2.0.65+)**: The status line displays context window utilization in real-time, providing immediate visibility into your current usage.
+
+**Improved Accuracy (2.0.70+)**: The `current_usage` field in the status line input enables precise context percentage calculations, eliminating estimation variance.
+
+**Improved Visualization (2.0.74+)**: The `/context` command now groups skills and agents by source plugin, showing:
+- Plugin organization and context contribution
+- Slash commands in use
+- Sorted token counts for optimization
+- Better visibility into which plugins consume context
+
+This complements our MECW thresholds:
+- **Status line** shows accurate current usage %
+- **/context command** shows detailed breakdown by plugin (2.0.74+)
+- **Conservation plugin** provides proactive optimization recommendations when approaching thresholds
+
+**Context Optimization with /context (2.0.74+)**:
+```bash
+# View detailed context breakdown
+/context
+
+# Identify high-consuming plugins:
+# - Look for plugins with unexpectedly high token counts
+# - Check if all loaded skills are actively needed
+# - Consider unloading unused plugins to free context
+
+# Example optimization strategy:
+# 1. Run /context to see breakdown
+# 2. Identify plugins using >10% context
+# 3. Evaluate if each plugin's value justifies its context cost
+# 4. Unload or defer plugins not needed for current task
+```
+
 ```python
 class MECWMonitor:
     def __init__(self, max_context=200000):
@@ -85,6 +117,13 @@ class MECWMonitor:
 2. **Content Chunking**: Process in MECW-compliant segments
 3. **Result Synthesis**: Combine partial results efficiently
 4. **Context Rotation**: Swap out completed context for new tasks
+5. **LSP Optimization (2.0.74+)**: **Default approach** for token-efficient code navigation
+   - **Old grep approach**: Load many files, search text (10,000+ tokens)
+   - **LSP approach (PREFERRED)**: Query semantic index, read only target (500 tokens)
+   - **Savings**: ~90% token reduction for reference finding
+   - **Default strategy**: Always use LSP when available
+   - **Enable permanently**: Add `export ENABLE_LSP_TOOLS=1` to shell rc
+   - **Fallback**: Only use grep when LSP unavailable for language
 
 ## Best Practices
 

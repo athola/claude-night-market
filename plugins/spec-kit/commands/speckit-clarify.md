@@ -102,13 +102,12 @@ Execution steps:
           - Common patterns in similar implementations
           - Risk reduction (security, performance, maintainability)
           - Alignment with any explicit project goals or constraints visible in the spec
-       - Present your **recommended option prominently** at the top with clear reasoning (1-2 sentences explaining why this is the best choice).
-       - Format as: `**Recommended:** Option [X] - <reasoning>`
-       - Then render all options as a Markdown table:
+       - Present your **recommended option first** with "(Recommended)" suffix and clear reasoning (1-2 sentences explaining why this is the best choice).
+       - Then render all options as a Markdown table with the recommended option first:
 
        | Option | Description |
        |--------|-------------|
-       | A | <Option A description> |
+       | A | <Option A description> (Recommended) |
        | B | <Option B description> |
        | C | <Option C description> (add D/E as needed up to 5) |
        | Short | Provide a different short answer (<=5 words) (Include only if free-form alternative is appropriate) |

@@ -5,6 +5,132 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.1.1] - 2025-12-30
+
+### Added
+
+- **Project-level agent configuration**: Added `.claude/agents/` with main-thread agent definitions
+  - `plugin-developer.md` - Default agent for night-market plugin development (set in `.claude/settings.json`)
+  - `code-review-mode.md` - Evidence-based code review sessions with imbue/pensive integration
+  - `documentation-mode.md` - Documentation-focused workflows with sanctum integration
+  - Enables consistent multi-session agent configuration across all project work
+  - Automatic agent loading when starting sessions in project directory
+
+- **LSP setup guidance in main README**: Quick start guide for Language Server Protocol integration
+  - Added "Recommended Setup: LSP Integration" section prominently in README
+  - Step-by-step setup instructions (enable environment variable, install language servers, verify)
+  - Comparison table showing LSP advantages (900x performance, 90% token reduction)
+  - List of plugins benefiting from LSP (pensive, sanctum, conservation)
+  - Graceful degradation explanation (grep fallback when LSP unavailable)
+  - Reference to comprehensive compatibility documentation
+
+- **Claude Code compatibility reference**: New documentation tracking version-specific features and fixes
+  - `plugins/abstract/docs/claude-code-compatibility.md` - Comprehensive compatibility matrix
+  - Version support matrix for ecosystem compatibility
+  - Migration guides for Claude Code version upgrades
+  - Testing checklist for compatibility verification
+
+### Documentation
+
+- **Claude Code 2.0.74 compatibility**: Updated documentation and agent capabilities for latest release
+  - **LSP (Language Server Protocol) Tool**: **Now the preferred default** for code navigation and analysis
+    - Added comprehensive LSP integration patterns section to compatibility documentation
+    - Updated `plugins/pensive/agents/code-reviewer.md` with LSP-enhanced review capabilities
+    - Updated `plugins/pensive/agents/architecture-reviewer.md` with semantic architecture analysis
+    - Updated `plugins/pensive/agents/rust-auditor.md` with rust-analyzer integration
+    - Updated `plugins/sanctum/commands/update-docs.md` with LSP documentation verification
+    - Updated `plugins/sanctum/skills/doc-updates/SKILL.md` with LSP accuracy checking
+    - Updated `plugins/conservation/skills/context-optimization/modules/mecw-principles.md` with LSP token optimization
+    - Documented 900x performance improvement for reference finding (50ms vs 45s)
+    - Language support: TypeScript, Rust, Python, Go, Java, Kotlin, C/C++, PHP, Ruby, C#, PowerShell, HTML/CSS
+    - **Strategic Positioning**: LSP is now the **default/preferred** approach across all plugins
+      - Pensive agents default to LSP for code review, architecture analysis, Rust audits
+      - Sanctum commands default to LSP for documentation verification
+      - Conservation skills recommend LSP for token optimization
+      - Grep positioned as fallback when LSP unavailable
+      - Recommendation: Enable `ENABLE_LSP_TOOLS=1` permanently in environment
+  - **Security Fix - allowed-tools enforcement**: Documented critical security bug fix
+    - Created "Tool Restriction Patterns" section in compatibility documentation
+    - Documented previous bug: `allowed-tools` restrictions were NOT being enforced (< 2.0.74)
+    - Documented fix: Tool restrictions now properly applied (2.0.74+)
+    - Added security patterns for read-only analysis, safe execution, and untrusted input processing
+    - Audit results: No current plugins use `allowed-tools` (verified via ecosystem scan)
+    - Added best practices for tool restriction design
+  - **Improved /context visualization**: Documented enhanced context monitoring
+    - Updated `plugins/conservation/skills/context-optimization/modules/mecw-principles.md`
+    - Skills/agents now grouped by source plugin
+    - Better visibility into plugin-level context consumption
+    - Sorted token counts for optimization
+    - Improved MECW compliance monitoring
+  - **Terminal setup improvements**: Documented extended terminal support
+    - Added support for Kitty, Alacritty, Zed, Warp terminals
+    - Enhanced cross-platform compatibility
+  - **User Experience**: Documented UX improvements
+    - ctrl+t shortcut in /theme to toggle syntax highlighting
+    - Syntax highlighting info in theme picker
+    - macOS keyboard shortcut improvements (opt vs alt display)
+  - **Bug Fixes**: Documented resolved issues
+    - Fixed visual bug in /plugins discover selection indicator
+    - Fixed syntax highlighting crash
+    - Fixed Opus 4.5 tip incorrectly showing
+
+- **Claude Code 2.0.73 compatibility**: Updated documentation for latest Claude Code release
+  - **Session Forking**: Documented `--session-id` + `--fork-session` workflow patterns (2.0.73+)
+    - Added comprehensive session forking patterns section to compatibility documentation
+    - Documented use cases for sanctum (git workflows), imbue (parallel analysis), pensive (code reviews), memory-palace (knowledge intake)
+    - Added best practices, naming conventions, and lifecycle management guidance
+    - Created advanced patterns: decision tree exploration, experiment-driven development, parallel testing
+    - Integration guidance with subagent delegation patterns
+  - **Plugin Discovery**: Enhanced metadata best practices for search filtering (2.0.73+)
+    - Plugin discover screen now supports search by name, description, marketplace
+    - Recommendations for search-friendly plugin descriptions
+    - Guidelines for descriptive keywords in plugin.json metadata
+  - **Image Viewing**: Documented clickable [Image #N] links for media workflows (2.0.73+)
+    - Updated scry plugin compatibility (media generation preview)
+    - Updated imbue plugin compatibility (visual evidence artifacts)
+    - Quick preview support for attached and generated images
+  - **User Experience**: Documented UX improvements
+    - alt-y yank-pop for kill ring history cycling
+    - Improved /theme command and theme picker UI
+    - Unified SearchBox across resume, permissions, and plugins screens
+  - **Performance**: Fixed slow input history cycling and message submission race condition
+  - **VSCode Extension**: Tab icon badges for pending permissions (blue) and unread completions (orange)
+
+- **Claude Code 2.0.72 compatibility**: Updated documentation for latest Claude Code release
+  - **Claude in Chrome (Beta)**: Documented native browser control integration
+    - Complements scry plugin's Playwright-based browser recording
+    - Added compatibility guidance to `plugins/scry/README.md`
+    - Updated `plugins/scry/skills/browser-recording/SKILL.md` with Chrome integration notes
+    - Updated `plugins/scry/commands/record-browser.md` with usage recommendations
+    - Positioning: Native Chrome for interactive debugging, Playwright for automation/CI/CD
+  - **User experience improvements**: Thinking toggle changed from Tab to Alt+T
+  - **Performance improvements**: 3x faster @ mention file suggestions in git repositories
+  - **Bug fixes**: `/context` command now respects custom system prompts in non-interactive mode
+
+- **Claude Code 2.0.71 compatibility**: Updated documentation for Claude Code release
+  - **Bash glob pattern support**: Documented fix for shell glob patterns (`*.txt`, `*.png`) in permission system
+    - Updated `plugins/abstract/skills/hook-authoring/modules/hook-types.md`
+    - Updated `plugins/abstract/skills/hook-authoring/modules/security-patterns.md`
+    - Added migration guidance for removing glob pattern workarounds
+  - **MCP server loading fix**: Documented fix for `.mcp.json` loading with `--dangerously-skip-permissions`
+    - Enables fully automated CI/CD workflows with MCP servers
+    - Updated hook authoring documentation with CI/CD examples
+  - **New commands**: Documented `/config toggle` and `/settings` alias for configuration management
+
+### Compatibility
+
+- **Verified**: Tested with Claude Code 2.0.74
+- **Recommended**: Claude Code 2.0.74+ for LSP integration, tool restrictions, and improved /context visualization
+- **Notable Features**:
+  - 2.0.74+: LSP tool, allowed-tools security fix, improved /context grouping
+  - 2.0.73+: Session forking, plugin discovery, image viewing
+  - 2.0.72+: Claude in Chrome integration
+  - 2.0.71+: Bash glob patterns, MCP loading fix
+  - 2.0.70+: Wildcard permissions, improved context accuracy
+- **Minimum**: Claude Code 2.0.65+ for full feature support
+
 ## [1.1.0] - 2025-12-27
 
 ### Changed
