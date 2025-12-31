@@ -466,7 +466,16 @@ Severity: BLOCKING | IN_SCOPE | SUGGESTION
 
 ### Phase 5: Test Plan Generation (MANDATORY)
 
+**⚠️ ENFORCEMENT CHECK: This phase MUST complete with a `gh pr comment` call.**
+**If you skip this phase, the workflow is INCOMPLETE.**
+
 After documenting review threads, generate a comprehensive test plan that `/fix-pr` can execute to verify fixes.
+
+**CRITICAL REQUIREMENT:**
+- The test plan MUST be posted as a **separate PR comment** using `gh pr comment`
+- Do NOT just include the test plan in your conversational output
+- Do NOT just include the test plan in the review summary
+- The test plan comment enables `/fix-pr` to find and execute verification steps
 
 13. **Generate Test Plan Document**
 
@@ -591,12 +600,12 @@ After documenting review threads, generate a comprehensive test plan that `/fix-
     ### Blocking Issues Verification
 
     #### B1: [Issue title]
-    **File:** `path/to/file.py:line`
+    **File:** \`path/to/file.py:line\`
     **Issue:** [Description]
 
     **Verification Steps:**
-    1. [ ] Review the fix at `path/to/file.py:line`
-    2. [ ] Run: `[specific test command]`
+    1. [ ] Review the fix at \`path/to/file.py:line\`
+    2. [ ] Run: \`[specific test command]\`
     3. [ ] Manual check: [verification procedure]
 
     **Expected Outcome:**
@@ -612,12 +621,12 @@ After documenting review threads, generate a comprehensive test plan that `/fix-
 
     **Run these commands to verify overall quality:**
 
-    ```bash
+    \`\`\`bash
     # Project-specific commands (detect from Makefile/pyproject.toml)
     make test && make lint && make build
     # OR
     uv run pytest && uv run ruff check . && uv run mypy src/
-    ```
+    \`\`\`
 
     **All must pass before PR approval.**
 
@@ -679,6 +688,17 @@ After documenting review threads, generate a comprehensive test plan that `/fix-
 - Provide manual check procedures where automated tests insufficient
 - Include overall quality gate commands
 - Format as checkboxes for `/fix-pr` execution
+
+### Phase 5 Completion Checklist
+
+Before proceeding, verify ALL items are complete:
+
+- [ ] Test plan generated with all blocking/in-scope issues
+- [ ] `gh pr comment $PR_NUMBER --body "## Test Plan..."` executed
+- [ ] Confirmation output: "✅ Test plan posted to PR #$PR_NUMBER"
+- [ ] If posting failed: Test plan saved locally + warning issued
+
+**If any item above is unchecked, GO BACK and complete Phase 5.**
 
 ## Options
 
@@ -1056,7 +1076,10 @@ pr_review:
 - All Sanctum scope validation preserved
 - Adds comprehensive code quality checks
 - **Automatically posts findings as GitHub PR review comments**
-- **MUST post test plan as a separate PR comment** (for `/fix-pr` integration)
+- **⚠️ MUST post test plan as a SEPARATE PR comment** (for `/fix-pr` integration)
+  - This is NOT optional - test plan must be a distinct `gh pr comment` call
+  - Do NOT just include in review summary or conversational output
+  - `/fix-pr` searches for "Test Plan for PR" to find verification steps
 - Use `--dry-run` to generate report without posting to GitHub
 - Use `--no-line-comments` to only submit summary without inline comments
 - Test plan includes verification steps for all blocking and in-scope issues
