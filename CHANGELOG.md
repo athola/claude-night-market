@@ -210,7 +210,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Documentation overhaul**: Expanded `docs/capabilities-reference.md` with complete skill, command, agent, and hook listings for all plugins
+- **Documentation overhaul**: Expanded `book/src/reference/capabilities-reference.md` with complete skill, command, agent, and hook listings for all plugins
 - **Conservation README**: Added session start integration docs, bypass modes table, and threshold guidelines
 - **Plugin versions**: All plugins bumped to 1.0.2 for consistency
 - **Skill modules**: Refined content across abstract, conservation, imbue, leyline, pensive, sanctum, and spec-kit

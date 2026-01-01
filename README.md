@@ -2,9 +2,9 @@
 
 A collection of Claude Code plugins for software engineering workflows.
 
-[**View Capabilities Reference**](docs/capabilities-reference.md) for a detailed list of all skills, commands, and agents.
+[**View Capabilities Reference**](book/src/reference/capabilities-reference.md) for a detailed list of all skills, commands, and agents.
 
-> **Recommended Dependency**: Many skills in this marketplace achieve their full potential when used alongside the [**superpowers**](https://github.com/obra/superpowers) skills. While plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns) that enhance workflows significantly. See [Superpowers Dependencies](docs/capabilities-reference.md#superpowers-dependencies) for details.
+> **Recommended Dependency**: Many skills in this marketplace achieve their full potential when used alongside the [**superpowers**](https://github.com/obra/superpowers) skills. While plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns) that enhance workflows significantly. See [Superpowers Dependencies](book/src/reference/capabilities-reference.md#superpowers-dependencies) for details.
 
 ## Installation
 
@@ -43,7 +43,7 @@ With 30K budget: 49.3% used (50.7% headroom for future growth).
 
 ### What We Optimized
 
-See [Budget Optimization Summary](docs/optimization-summary-2025-12-31.md) for details on the 404-character reduction through description refinement.
+See [Budget Optimization Summary](docs/budget-optimization-dec-2025.md) for details on the 404-character reduction through description refinement.
 
 **Background**: [Claude Code Skills Not Triggering](https://blog.fsck.com/2025/12/17/claude-code-skills-not-triggering/) - why this matters
 
@@ -182,7 +182,7 @@ The repository includes three main-thread agent configurations in `.claude/agent
 - **`code-review-mode`**: Comprehensive code review with evidence gathering and bug analysis
 - **`documentation-mode`**: Documentation creation, updates, and consolidation with writing standards
 
-These agents automatically load when starting Claude Code in this project directory. See [Project-Level Agents](docs/capabilities-reference.md#project-level-agents) for detailed usage and configuration.
+These agents automatically load when starting Claude Code in this project directory. See [Project-Level Agents](book/src/reference/capabilities-reference.md#project-level-agents) for detailed usage and configuration.
 
 ## Plugins
 
@@ -256,12 +256,15 @@ Infrastructure and pipeline building blocks for plugins.
 #### conservation
 Resource optimization and performance monitoring.
 
-| Skill | Purpose |
+| Command/Skill | Purpose |
 |-------|---------|
+| `/bloat-scan` | Progressive bloat detection (dead code, God classes, duplication) |
+| `/unbloat` | Safe bloat remediation with backups and test verification |
 | `context-optimization` | MECW context management |
 | `mcp-code-execution` | Tool-heavy workflow optimization |
 | `cpu-gpu-performance` | Performance guardrails |
 | `token-conservation` | Context efficiency |
+| `bloat-detector` | Bloat detection algorithms and remediation strategies |
 
 #### conjure
 Delegation to external LLM services, primarily through headless calls.
@@ -404,6 +407,10 @@ graph TB
 
 # Review architecture on current project
 /pensive:architecture-review
+
+# Detect and clean up codebase bloat
+/bloat-scan --level 2
+/unbloat --from-scan bloat-report.md
 ```
 
 ## Setup

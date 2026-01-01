@@ -159,21 +159,286 @@ fi
 
 ### 5. Duplication Pattern
 
+#### A. Duplicate Function Names (Cross-File)
+
 **Simple Duplicate Detection:**
 ```bash
-# Find duplicate functions by name
+# Find duplicate functions by name across files
 find . -name "*.py" -o -name "*.js" -o -name "*.ts" | \
 xargs grep -h "^def \|^function " | \
 sort | uniq -d
 ```
 
-**Advanced (requires SonarQube or similar):**
-- Detects code clones (> 100 tokens duplicated)
-- Semantic similarity (different names, same logic)
+**Confidence:** LOW (60%) - only detects name duplication, not logic
 
-**Confidence:** LOW (60%) with simple detection, HIGH (85%) with semantic analysis
+#### B. Duplicate Code Blocks (Intra-File)
 
-**Recommendation:** EXTRACT to shared utility or DRY refactor
+**Detect repeated code within the same file:**
+```python
+#!/usr/bin/env python3
+"""Detect duplicate code blocks within files"""
+import hashlib
+from collections import defaultdict
+from pathlib import Path
+
+def find_intra_file_duplication(file_path, min_lines=5):
+    """Find duplicate code blocks of min_lines or more within a file."""
+    with open(file_path) as f:
+        lines = f.readlines()
+
+    # Track blocks by hash
+    block_hashes = defaultdict(list)
+
+    # Sliding window to find duplicate blocks
+    for i in range(len(lines) - min_lines + 1):
+        block = ''.join(lines[i:i+min_lines])
+        # Normalize: strip whitespace for hash
+        normalized = ''.join(line.strip() for line in block.splitlines())
+
+        if len(normalized) < 20:  # Skip trivial blocks
+            continue
+
+        block_hash = hashlib.md5(normalized.encode()).hexdigest()
+        block_hashes[block_hash].append((i+1, block))
+
+    # Report duplicates
+    duplicates = []
+    for hash_val, occurrences in block_hashes.items():
+        if len(occurrences) > 1:
+            duplicates.append({
+                'lines': [occ[0] for occ in occurrences],
+                'count': len(occurrences),
+                'sample': occurrences[0][1][:100]
+            })
+
+    return duplicates
+
+# Usage
+EXCLUDED_DIRS = {
+    '.venv', 'venv', '__pycache__', '.pytest_cache',
+    '.mypy_cache', '.ruff_cache', '.tox', '.git',
+    'node_modules', 'dist', 'build', 'vendor'
+}
+
+for file_path in Path('.').rglob('*.py'):
+    if any(ex in file_path.parts for ex in EXCLUDED_DIRS):
+        continue
+
+    dups = find_intra_file_duplication(file_path, min_lines=5)
+    if dups:
+        print(f"\nDUPLICATION_INTRAFILE: {file_path}")
+        for dup in dups:
+            lines_str = ', '.join(map(str, dup['lines']))
+            print(f"  {dup['count']}x at lines {lines_str}")
+            print(f"  Sample: {dup['sample']!r}")
+        print(f"  Recommendation: Extract to helper function")
+```
+
+**Confidence:** HIGH (85%) - exact block matches
+
+#### C. Duplicate Functions (Cross-File)
+
+**Detect similar functions across different files:**
+```bash
+#!/bin/bash
+# find_duplicate_functions.sh
+
+# Create temp file to store function signatures
+tmpfile=$(mktemp)
+
+# Extract all function definitions with file info
+find . -name "*.py" -not -path '*/\.*' | while read file; do
+    grep -n "^def " "$file" | while IFS=: read line_num func_def; do
+        # Extract function signature (name + params)
+        func_sig=$(echo "$func_def" | sed 's/def //' | cut -d':' -f1)
+        # Remove whitespace for comparison
+        normalized=$(echo "$func_sig" | tr -d ' ')
+        echo "$normalized|$file:$line_num|$func_def" >> "$tmpfile"
+    done
+done
+
+# Find duplicates by signature
+cat "$tmpfile" | cut -d'|' -f1 | sort | uniq -d | while read dup_sig; do
+    echo "DUPLICATION_CROSSFILE: Function signature '$dup_sig' found in multiple files:"
+    grep "^$dup_sig|" "$tmpfile" | cut -d'|' -f2-
+    echo "  Recommendation: Consolidate into shared utility module"
+    echo
+done
+
+rm "$tmpfile"
+```
+
+**For JavaScript/TypeScript:**
+```bash
+# Similar approach for JS/TS
+find . -name "*.js" -o -name "*.ts" | while read file; do
+    grep -n "^\s*function\s\|^\s*const\s.*=\s.*=>" "$file"
+done | awk -F: '{...}' # Similar logic
+```
+
+**Confidence:** MEDIUM (75%) - signature match, may have different implementations
+
+#### D. Semantic Code Clones (Advanced)
+
+**Using Python AST for semantic similarity:**
+```python
+#!/usr/bin/env python3
+"""Detect semantically similar functions (different names, same logic)"""
+import ast
+from difflib import SequenceMatcher
+from pathlib import Path
+
+def normalize_ast(node):
+    """Normalize AST by removing names, keeping structure."""
+    if isinstance(node, ast.Name):
+        return 'VAR'
+    elif isinstance(node, ast.Constant):
+        return f'CONST_{type(node.value).__name__}'
+    return ast.dump(node, annotate_fields=False)
+
+def functions_similar(func1_ast, func2_ast, threshold=0.8):
+    """Check if two function ASTs are structurally similar."""
+    norm1 = normalize_ast(func1_ast)
+    norm2 = normalize_ast(func2_ast)
+    ratio = SequenceMatcher(None, norm1, norm2).ratio()
+    return ratio >= threshold
+
+def find_semantic_clones(directory='.', similarity=0.8):
+    """Find functions with similar logic but different names."""
+    functions = []
+
+    EXCLUDED_DIRS = {
+        '.venv', 'venv', '__pycache__', '.pytest_cache',
+        '.mypy_cache', '.ruff_cache', '.tox', '.git',
+        'node_modules', 'dist', 'build', 'vendor'
+    }
+
+    # Parse all functions
+    for file_path in Path(directory).rglob('*.py'):
+        if any(ex in file_path.parts for ex in EXCLUDED_DIRS):
+            continue
+
+        try:
+            with open(file_path) as f:
+                tree = ast.parse(f.read())
+
+            for node in ast.walk(tree):
+                if isinstance(node, ast.FunctionDef):
+                    functions.append((file_path, node.name, node))
+        except:
+            pass
+
+    # Compare all pairs
+    clones = []
+    for i, (file1, name1, ast1) in enumerate(functions):
+        for file2, name2, ast2 in functions[i+1:]:
+            if name1 != name2 and functions_similar(ast1, ast2, similarity):
+                clones.append({
+                    'function1': f"{file1}::{name1}",
+                    'function2': f"{file2}::{name2}",
+                    'similarity': 'HIGH'
+                })
+
+    return clones
+
+# Usage
+clones = find_semantic_clones('.', similarity=0.8)
+for clone in clones:
+    print(f"DUPLICATION_SEMANTIC: {clone['function1']} ≈ {clone['function2']}")
+    print(f"  Confidence: {clone['similarity']}")
+    print(f"  Recommendation: Consolidate or abstract common logic")
+```
+
+**Confidence:** HIGH (90%) with AST analysis
+
+#### E. Copy-Paste Detection (Token-Based)
+
+**Detect code blocks copied across files:**
+```bash
+#!/bin/bash
+# Requires: ccfinder or jscpd tool
+
+# Using jscpd (JavaScript Copy-Paste Detector - works for multiple languages)
+if command -v jscpd &> /dev/null; then
+    jscpd . --min-lines 5 --min-tokens 50 \
+        --format "json" \
+        --output "./bloat-report-duplication.json"
+
+    # Parse output
+    echo "DUPLICATION_COPYPASTE: Copy-paste detection results:"
+    cat bloat-report-duplication.json
+else
+    echo "Install jscpd for advanced copy-paste detection: npm install -g jscpd"
+fi
+```
+
+**Manual alternative (hash-based):**
+```python
+#!/usr/bin/env python3
+"""Hash-based copy-paste detection"""
+import hashlib
+from collections import defaultdict
+from pathlib import Path
+
+def tokenize_code(code):
+    """Simple tokenization: remove comments, normalize whitespace."""
+    # Remove Python comments
+    lines = [line.split('#')[0] for line in code.splitlines()]
+    # Normalize whitespace
+    return ' '.join(' '.join(lines).split())
+
+def find_copy_paste(directory='.', min_tokens=50):
+    """Find copied code blocks across files."""
+    blocks = defaultdict(list)
+
+    EXCLUDED_DIRS = {
+        '.venv', 'venv', '__pycache__', '.pytest_cache',
+        '.mypy_cache', '.ruff_cache', '.tox', '.git',
+        'node_modules', 'dist', 'build', 'vendor'
+    }
+
+    for file_path in Path(directory).rglob('*.py'):
+        if any(ex in file_path.parts for ex in EXCLUDED_DIRS):
+            continue
+
+        try:
+            with open(file_path) as f:
+                lines = f.readlines()
+
+            # Sliding window
+            for i in range(len(lines) - 10):
+                block = ''.join(lines[i:i+10])
+                tokens = tokenize_code(block)
+
+                if len(tokens.split()) < min_tokens:
+                    continue
+
+                block_hash = hashlib.md5(tokens.encode()).hexdigest()
+                blocks[block_hash].append((file_path, i+1, block[:100]))
+        except:
+            pass
+
+    # Report duplicates
+    for hash_val, occurrences in blocks.items():
+        if len(occurrences) > 1:
+            print(f"\nDUPLICATION_COPYPASTE: {len(occurrences)} instances found")
+            for file_path, line_num, sample in occurrences:
+                print(f"  {file_path}:{line_num}")
+            print(f"  Sample: {sample!r}")
+            print(f"  Recommendation: Extract to shared module")
+
+find_copy_paste('.', min_tokens=50)
+```
+
+**Confidence:** HIGH (85%) for exact matches
+
+**Summary - Duplication Detection:**
+- **Intra-file blocks**: Hash-based detection (HIGH confidence)
+- **Cross-file functions**: Signature matching (MEDIUM confidence)
+- **Semantic clones**: AST analysis (HIGH confidence)
+- **Copy-paste**: Token/hash-based (HIGH confidence)
+
+**Recommendation:** EXTRACT duplicated code to shared utilities, DRY refactor
 
 ## Language-Specific Patterns
 

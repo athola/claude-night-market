@@ -13,6 +13,8 @@ Detect and mitigate documentation bloat: redundancy, excessive verbosity, poor r
 
 ### 1. Duplicate Documentation
 
+#### A. Whole-File Duplication (Cross-File)
+
 **Similarity Detection (Jaccard):**
 ```bash
 # Simple word-based similarity
@@ -51,6 +53,237 @@ done
 - > 90%: DELETE one, keep most recent
 - 70-90%: MERGE, preserve unique sections
 - 50-70%: CROSS-LINK, explain differences
+
+#### B. Duplicate Sections (Intra-File)
+
+**Detect repeated sections within the same markdown file:**
+```python
+#!/usr/bin/env python3
+"""Detect duplicate sections within markdown files"""
+import hashlib
+import re
+from collections import defaultdict
+from pathlib import Path
+
+def extract_sections(md_content):
+    """Extract sections by headers (## or ###)."""
+    # Split by level-2 or level-3 headers
+    sections = re.split(r'\n(#{2,3}\s+.+)', md_content)
+
+    parsed_sections = []
+    for i in range(1, len(sections), 2):
+        if i+1 < len(sections):
+            header = sections[i].strip()
+            content = sections[i+1].strip()
+            parsed_sections.append((header, content))
+
+    return parsed_sections
+
+def find_duplicate_sections(file_path):
+    """Find duplicate or very similar sections within a markdown file."""
+    with open(file_path) as f:
+        content = f.read()
+
+    sections = extract_sections(content)
+    section_hashes = defaultdict(list)
+
+    for header, content in sections:
+        # Normalize content for comparison
+        normalized = re.sub(r'\s+', ' ', content.lower())
+
+        # Skip very short sections
+        if len(normalized) < 100:
+            continue
+
+        # Hash the normalized content
+        content_hash = hashlib.md5(normalized.encode()).hexdigest()
+        section_hashes[content_hash].append(header)
+
+    # Find duplicates
+    duplicates = []
+    for hash_val, headers in section_hashes.items():
+        if len(headers) > 1:
+            duplicates.append({
+                'headers': headers,
+                'count': len(headers)
+            })
+
+    return duplicates
+
+# Usage
+EXCLUDED_DIRS = {
+    '.venv', 'venv', '__pycache__', '.pytest_cache',
+    '.git', 'node_modules', 'dist', 'build', 'vendor'
+}
+
+for file_path in Path('.').rglob('*.md'):
+    if any(ex in file_path.parts for ex in EXCLUDED_DIRS):
+        continue
+
+    dups = find_duplicate_sections(file_path)
+    if dups:
+        print(f"\nDUPLICATION_INTRAFILE: {file_path}")
+        for dup in dups:
+            headers_str = '\n    - '.join(dup['headers'])
+            print(f"  {dup['count']} similar sections:")
+            print(f"    - {headers_str}")
+        print(f"  Recommendation: Consolidate or cross-reference")
+```
+
+**Confidence:** HIGH (85%) - exact content matches
+
+#### C. Duplicate Paragraphs (Intra-File)
+
+**Detect repeated paragraphs within the same document:**
+```python
+#!/usr/bin/env python3
+"""Detect duplicate paragraphs within markdown files"""
+import hashlib
+import re
+from collections import defaultdict
+from pathlib import Path
+
+def find_duplicate_paragraphs(file_path, min_words=20):
+    """Find duplicate paragraphs (blocks separated by blank lines)."""
+    with open(file_path) as f:
+        content = f.read()
+
+    # Split into paragraphs
+    paragraphs = [p.strip() for p in re.split(r'\n\s*\n', content)]
+
+    para_hashes = defaultdict(list)
+
+    for idx, paragraph in enumerate(paragraphs):
+        # Skip code blocks, headers, lists
+        if paragraph.startswith(('```', '#', '-', '*', '|')):
+            continue
+
+        # Normalize and check word count
+        normalized = re.sub(r'\s+', ' ', paragraph.lower())
+        word_count = len(normalized.split())
+
+        if word_count < min_words:
+            continue
+
+        # Hash the paragraph
+        para_hash = hashlib.md5(normalized.encode()).hexdigest()
+        para_hashes[para_hash].append((idx, paragraph[:100]))
+
+    # Find duplicates
+    duplicates = []
+    for hash_val, occurrences in para_hashes.items():
+        if len(occurrences) > 1:
+            duplicates.append({
+                'count': len(occurrences),
+                'positions': [occ[0] for occ in occurrences],
+                'sample': occurrences[0][1]
+            })
+
+    return duplicates
+
+# Usage
+EXCLUDED_DIRS = {
+    '.venv', 'venv', '__pycache__', '.git',
+    'node_modules', 'dist', 'build'
+}
+
+for file_path in Path('.').rglob('*.md'):
+    if any(ex in file_path.parts for ex in EXCLUDED_DIRS):
+        continue
+
+    dups = find_duplicate_paragraphs(file_path, min_words=20)
+    if dups:
+        print(f"\nDUPLICATION_PARAGRAPH: {file_path}")
+        for dup in dups:
+            positions = ', '.join(map(str, dup['positions']))
+            print(f"  {dup['count']}x repeated paragraph at positions {positions}")
+            print(f"  Sample: {dup['sample']}...")
+        print(f"  Recommendation: Remove duplicate or use reference")
+```
+
+**Confidence:** HIGH (90%) - exact paragraph matches
+
+#### D. Similar Explanations (Semantic)
+
+**Detect semantically similar text (different wording, same meaning):**
+```python
+#!/usr/bin/env python3
+"""Detect semantically similar paragraphs using TF-IDF"""
+from pathlib import Path
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import re
+
+def find_similar_paragraphs(file_path, similarity_threshold=0.75):
+    """Find paragraphs with similar meaning (different wording)."""
+    try:
+        with open(file_path) as f:
+            content = f.read()
+
+        # Split into paragraphs
+        paragraphs = [p.strip() for p in re.split(r'\n\s*\n', content)]
+
+        # Filter: skip short, code, headers
+        valid_paras = []
+        for para in paragraphs:
+            if (len(para.split()) >= 20 and
+                not para.startswith(('```', '#', '-', '*', '|'))):
+                valid_paras.append(para)
+
+        if len(valid_paras) < 2:
+            return []
+
+        # TF-IDF vectorization
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(valid_paras)
+
+        # Cosine similarity
+        similarity_matrix = cosine_similarity(tfidf_matrix)
+
+        # Find similar pairs
+        similar_pairs = []
+        for i in range(len(valid_paras)):
+            for j in range(i+1, len(valid_paras)):
+                if similarity_matrix[i][j] >= similarity_threshold:
+                    similar_pairs.append({
+                        'paragraphs': (i, j),
+                        'similarity': f"{similarity_matrix[i][j]:.2%}",
+                        'sample1': valid_paras[i][:100],
+                        'sample2': valid_paras[j][:100]
+                    })
+
+        return similar_pairs
+
+    except ImportError:
+        print("Install scikit-learn for semantic similarity: pip install scikit-learn")
+        return []
+    except Exception as e:
+        return []
+
+# Usage
+EXCLUDED_DIRS = {'.venv', 'venv', '.git', 'node_modules'}
+
+for file_path in Path('.').rglob('*.md'):
+    if any(ex in file_path.parts for ex in EXCLUDED_DIRS):
+        continue
+
+    similar = find_similar_paragraphs(file_path, similarity_threshold=0.75)
+    if similar:
+        print(f"\nDUPLICATION_SEMANTIC: {file_path}")
+        for pair in similar:
+            print(f"  Paragraphs {pair['paragraphs']} are {pair['similarity']} similar")
+            print(f"    Para 1: {pair['sample1']}...")
+            print(f"    Para 2: {pair['sample2']}...")
+        print(f"  Recommendation: Consolidate explanations or reference")
+```
+
+**Confidence:** MEDIUM (75%) - semantic similarity can have false positives
+
+**Summary - Documentation Duplication:**
+- **Whole-file**: Jaccard similarity for cross-file comparison
+- **Sections**: Hash-based for exact section matches within files
+- **Paragraphs**: Hash-based for repeated paragraphs within files
+- **Semantic**: TF-IDF + cosine similarity for similar meanings
 
 ### 2. Readability Metrics
 

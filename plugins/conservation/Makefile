@@ -5,7 +5,7 @@
 
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test clean install-hooks \
         status validate-all deps-report fix-apply cli-status cli-validate token-estimate perf-check \
-        validate-skills test-skills demo-context demo-tokens demo-skills plugin-check debug-variables
+        validate-skills test-skills demo-context demo-tokens demo-skills demo-bloat plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts services
@@ -190,11 +190,38 @@ demo-skills: ## Validate conservation skill structure
 	@echo "  context-optimization: $$(test -f skills/context-optimization/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  mcp-code-execution:   $$(test -f skills/mcp-code-execution/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo "  optimizing-large-skills: $$(test -f skills/optimizing-large-skills/SKILL.md && echo '[OK]' || echo '[X]')"
+	@echo "  bloat-detector:       $$(test -f skills/bloat-detector/SKILL.md && echo '[OK]' || echo '[X]')"
 	@echo ""
 	@echo "Scripts:"
 	@find scripts/ -name "*.py" 2>/dev/null | wc -l | xargs -I{} echo "  {} Python scripts"
 
-plugin-check: demo-context demo-tokens demo-skills test-skills ## Run all demo workflows
+demo-bloat: ## Demo bloat detection on conservation plugin itself
+	@echo "=== Conservation Bloat Detection Demo ==="
+	@echo "Demonstrating bloat-detector skill on own codebase..."
+	@echo ""
+	@echo "Step 1: Identify large files (potential God classes)"
+	@echo "Largest Python files:"
+	@find scripts/ tests/ -name "*.py" -exec wc -l {} \; 2>/dev/null | sort -rn | head -5 | \
+		awk '{if($$1>300) printf "  [WARN] %s (%d lines)\n", $$2, $$1; else printf "  [OK] %s (%d lines)\n", $$2, $$1}'
+	@echo ""
+	@echo "Step 2: Check for stale files (unchanged 6+ months)"
+	@echo "Files with old modification dates:"
+	@find skills/ scripts/ -type f -mtime +180 2>/dev/null | head -3 | \
+		xargs -I{} echo "  {}" || echo "  (none found - all actively maintained)"
+	@echo ""
+	@echo "Step 3: Documentation bloat analysis"
+	@echo "Documentation files:"
+	@find . -name "README*.md" -o -name "*.md" | grep -v ".venv\|node_modules" | wc -l | \
+		xargs -I{} echo "  {} markdown files"
+	@echo ""
+	@echo "Step 4: Cache and build artifacts"
+	@echo "Cache directories:"
+	@du -sh .pytest_cache .mypy_cache .ruff_cache 2>/dev/null | awk '{print "  " $$0}' || echo "  (clean - no cache bloat)"
+	@echo ""
+	@echo "Bloat demo complete. Use /bloat-scan for comprehensive analysis."
+	@echo "Run /unbloat to safely remediate identified issues."
+
+plugin-check: demo-context demo-tokens demo-skills demo-bloat test-skills ## Run all demo workflows
 	@echo ""
 	@echo "=== Conservation Plugin Check Complete ==="
 
