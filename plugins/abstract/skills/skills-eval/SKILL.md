@@ -1,7 +1,7 @@
 ---
 name: skills-eval
 description: |
-  Evaluate and improve Claude skill quality through comprehensive auditing.
+  Evaluate and improve Claude skill quality through auditing.
 
   Triggers: skill audit, quality review, compliance check, improvement suggestions,
   token usage analysis, skill evaluation, skill assessment, skill optimization,
@@ -57,7 +57,7 @@ evaluation_criteria:
 
 ## Overview
 
-Analyze and improve Claude skills across `~/.claude/` locations. The tools audit skills against quality standards, measure token usage, and generate improvement recommendations.
+Analyze and improve Claude skills. The tools audit skills against quality standards, measure token usage, and generate improvement recommendations.
 
 ### Tools
 
@@ -69,7 +69,7 @@ Analyze and improve Claude skills across `~/.claude/` locations. The tools audit
 
 ## What It Is
 
-A meta-skill for evaluating and improving existing skills. It runs quality assessments, performance analysis, and generates improvement plans.
+Evaluates and improves existing skills. It runs quality assessments, performance analysis, and generates improvement plans.
 
 ## Quick Start
 

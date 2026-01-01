@@ -31,10 +31,10 @@ Plugin Structure
 
 ### Quality Standards
 - Test coverage > 80%.
-- All linting passes.
-- Security scan clean.
-- Documentation complete.
-- Performance optimized.
+- Linting passes (ruff).
+- Security scan clean (bandit).
+- Documentation includes API and examples.
+- Performance meets 15K token budget.
 
 ### User Experience
 - Clear purpose and value.
@@ -51,28 +51,28 @@ Plugin Structure
 ## Development Path
 
 ### Phase 1: Foundation
-1. Set up development environment.
-2. Understand the architecture.
-3. Build a simple plugin.
-4. Learn the patterns.
+1. Install `uv` and `pre-commit`.
+2. Review `plugins/abstract` structure.
+3. Initialize plugin using `make create-plugin`.
+4. Review generated patterns.
 
 ### Phase 2: Expansion
-1. Add multiple skills.
-2. Implement commands.
-3. Include automation.
-4. Add tests.
+1. Implement skills in `skills/`.
+2. Add commands in `commands/`.
+3. Add automation hooks.
+4. Add tests in `tests/`.
 
 ### Phase 3: Production
-1. Optimize performance.
-2. Add security measures.
-3. Document features.
-4. Submit to marketplace.
+1. Profile token usage.
+2. Run security scans.
+3. Document features in `README.md`.
+4. Submit PR to marketplace.
 
 ### Phase 4: Maintenance
-1. Monitor usage.
-2. Fix issues.
+1. Monitor usage logs.
+2. Fix reported issues.
 3. Add features.
-4. Update dependencies.
+4. Update dependencies via `uv`.
 
 ## Essential Tools
 
@@ -247,8 +247,8 @@ uv run python scripts/complexity_calculator.py
 - [Skill Integration Guide](./skill-integration-guide.md)
 - [Superpowers Integration](./superpowers-integration.md)
 
-Good plugins are:
-- **Useful**: Solve real problems.
-- **Usable**: Easy to understand and use.
-- **Reliable**: Work consistently.
-- **Maintainable**: Well-structured and documented.
+Good plugins:
+- **Solve problems**: Address specific user needs.
+- **Are usable**: Have clear triggers and predictable outputs.
+- **Work consistently**: Handle edge cases and failures gracefully.
+- **Are maintainable**: Follow the modular structure and are tested.

@@ -19,20 +19,19 @@ A collection of Claude Code plugins for software engineering workflows.
 /plugin install spec-kit@claude-night-market
 ```
 
-## ✅ System Prompt Budget: Optimized
+## System Prompt Budget: Optimized
 
-**This ecosystem is optimized for Claude Code's default budget.** Through careful description optimization, all 160 skills and commands work within the standard 15K character limit.
+The ecosystem fits within Claude Code's 15K character budget. We optimized descriptions so all 160 skills and commands load without configuration.
 
 ### Current Status
 
 - **Description usage**: ~14,800 characters (98.7% of 15K default budget)
 - **Headroom**: ~200 characters (1.3% buffer)
 - **Budget enforcement**: Pre-commit hook prevents regression
-- **Result**: No manual configuration needed! ✅
 
 ### Optional: Increased Headroom
 
-For extra buffer or rapid skill development, you can optionally increase the budget:
+For extra buffer, you can increase the budget:
 
 ```bash
 # Add to ~/.bashrc, ~/.zshrc, etc. (OPTIONAL)
@@ -49,12 +48,12 @@ See [Budget Optimization Summary](docs/budget-optimization-dec-2025.md) for deta
 
 ## Recommended Setup: LSP Integration
 
-**As of v1.1.1**, this plugin ecosystem **defaults to using LSP** (Language Server Protocol) for all code navigation and analysis tasks. LSP provides **900x performance improvements** and semantic understanding vs. text-based grep searches.
+**As of v1.1.1**, this plugin ecosystem **defaults to using LSP** (Language Server Protocol) for code navigation and analysis. LSP provides semantic understanding vs. text-based grep searches.
 
 ### Why LSP?
 
-| Capability | LSP (Preferred) | Grep (Fallback) |
-|------------|-----------------|-----------------|
+| Capability | LSP (Preferred) | Grep (Secondary) |
+|------------|-----------------|------------------|
 | Find references | 50ms, semantically accurate | 45s, text-based matches |
 | Code navigation | Understands structure | Pattern matching only |
 | Token efficiency | 90% token reduction | High context usage |
@@ -170,7 +169,7 @@ claude  # Start new session with LSP enabled
 
 ### Without LSP
 
-Plugins gracefully degrade to grep-based searches when LSP is unavailable. However, for best performance and accuracy, **LSP is strongly recommended**.
+Plugins use grep-based searches when LSP is unavailable. However, for best performance and accuracy, **LSP is strongly recommended**.
 
 **See**: [`plugins/abstract/docs/claude-code-compatibility.md`](plugins/abstract/docs/claude-code-compatibility.md) for comprehensive LSP integration patterns and usage examples.
 
