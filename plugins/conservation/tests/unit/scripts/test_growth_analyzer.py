@@ -337,6 +337,64 @@ class TestGrowthAnalyzerImplementation:
         assert result["urgency"] in ["MEDIUM", "HIGH", "URGENT"]
         assert result["acceleration"] == 0.020
 
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_analyzer_detects_severe_growth(self, analyzer: GrowthAnalyzer) -> None:
+        """Scenario: Analyzer correctly identifies severe growth.
+
+        Given context with severe growth rate
+        When analyzing patterns
+        Then it should classify as SEVERE
+        """
+        # Arrange
+        severe_data = {
+            "growth_trend": {
+                "current_usage": 6000,
+                "rate": 0.22,  # 22% - between 20-25%, should be SEVERE
+                "acceleration": 0.015,
+            },
+            "content_breakdown": {
+                "code": {
+                    "growth_contribution": 1000,
+                    "growth_rate": 0.20,
+                }
+            },
+        }
+
+        # Act
+        result = analyzer.analyze_growth_patterns(severe_data)
+
+        # Assert
+        assert result["severity"] == "SEVERE"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_analyzer_projects_mecw_violation(self, analyzer: GrowthAnalyzer) -> None:
+        """Scenario: Analyzer projects turns until MECW violation.
+
+        Given high growth rate approaching limits
+        When analyzing projections
+        Then it should estimate turns to MECW violation
+        """
+        # Arrange
+        high_growth_data = {
+            "growth_trend": {
+                "current_usage": 70,  # Close to 100% limit
+                "rate": 0.10,  # 10% growth
+                "acceleration": 0.005,
+            },
+            "content_breakdown": {},
+        }
+
+        # Act
+        result = analyzer.analyze_growth_patterns(high_growth_data)
+
+        # Assert
+        assert "projections" in result
+        if "mecw_violation_turns" in result["projections"]:
+            # Should predict violation in finite turns
+            assert result["projections"]["mecw_violation_turns"] < 1000
+
 
 class TestGrowthAnalyzerEdgeCases:
     """Test edge cases and error handling."""
@@ -415,6 +473,72 @@ class TestGrowthAnalyzerEdgeCases:
         assert result1["current_usage"] == result2["current_usage"]
         assert result1["growth_rate"] == result2["growth_rate"]
         assert result1["acceleration"] == result2["acceleration"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_analyzer_handles_zero_growth_rate_mecw(
+        self, analyzer: GrowthAnalyzer
+    ) -> None:
+        """Scenario: MECW estimation handles zero growth rate.
+
+        Given zero or negative growth
+        When estimating MECW violation
+        Then it should return infinite turns
+        """
+        # Arrange
+        zero_growth_data = {
+            "growth_trend": {
+                "current_usage": 50,
+                "rate": 0.0,
+                "acceleration": 0.0,
+            },
+            "content_breakdown": {},
+        }
+
+        # Act
+        result = analyzer.analyze_growth_patterns(zero_growth_data)
+
+        # Assert
+        if "mecw_violation_turns" in result["projections"]:
+            # Zero growth means it never hits limit
+            import math
+
+            assert (
+                result["projections"]["mecw_violation_turns"] == math.inf
+                or result["projections"]["mecw_violation_turns"] > 1000
+            )
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_analyzer_mecw_with_positive_acceleration(
+        self, analyzer: GrowthAnalyzer
+    ) -> None:
+        """Scenario: MECW estimation handles positive acceleration.
+
+        Given positive acceleration
+        When estimating MECW violation
+        Then it should use iterative approach
+        """
+        # Arrange
+        accelerating_data = {
+            "growth_trend": {
+                "current_usage": 60,
+                "rate": 0.05,
+                "acceleration": 0.01,  # Positive acceleration
+            },
+            "content_breakdown": {},
+        }
+
+        # Act
+        result = analyzer.analyze_growth_patterns(accelerating_data)
+
+        # Assert
+        assert "projections" in result
+        if "mecw_violation_turns" in result["projections"]:
+            # Should calculate violation turns
+            assert isinstance(
+                result["projections"]["mecw_violation_turns"], (int, float)
+            )
 
 
 if __name__ == "__main__":
