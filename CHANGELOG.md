@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Conservation: Bloat Detection & Remediation** - Comprehensive codebase cleanup workflow
+  - **New Commands**:
+    - `/bloat-scan` - Progressive bloat detection (3 tiers: quick scan, targeted analysis, comprehensive audit)
+    - `/unbloat` - Safe bloat remediation with interactive approval and automatic backups
+  - **New Agents**:
+    - `bloat-auditor` - Orchestrates bloat detection scans and generates prioritized reports
+    - `unbloat-remediator` - Executes safe deletions, refactorings, and consolidations with rollback support
+  - **New Skill**:
+    - `bloat-detector` - Detection algorithms for dead code, God classes, documentation duplication, and dependency bloat
+  - **Detection Capabilities**:
+    - Tier 1 (2-5 min): Heuristic-based detection using git history (no external tools required)
+    - Tier 2 (10-20 min): Static analysis integration (Vulture, Knip) with anti-pattern detection
+    - Tier 3 (30-60 min): Comprehensive audit with cyclomatic complexity and cross-file redundancy
+  - **Safety Features**:
+    - Automatic backup branches before any changes
+    - Interactive approval workflow with dry-run mode
+    - Test verification after each change with auto-rollback on failure
+    - Reversible git operations (git rm/git mv)
+  - **Benefits**: 10-20% context reduction on average, identifies technical debt hotspots
+
 ## [1.1.1] - 2025-12-30
 
 ### Added

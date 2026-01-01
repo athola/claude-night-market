@@ -19,6 +19,34 @@ A collection of Claude Code plugins for software engineering workflows.
 /plugin install spec-kit@claude-night-market
 ```
 
+## ✅ System Prompt Budget: Optimized
+
+**This ecosystem is optimized for Claude Code's default budget.** Through careful description optimization, all 160 skills and commands work within the standard 15K character limit.
+
+### Current Status
+
+- **Description usage**: ~14,800 characters (98.7% of 15K default budget)
+- **Headroom**: ~200 characters (1.3% buffer)
+- **Budget enforcement**: Pre-commit hook prevents regression
+- **Result**: No manual configuration needed! ✅
+
+### Optional: Increased Headroom
+
+For extra buffer or rapid skill development, you can optionally increase the budget:
+
+```bash
+# Add to ~/.bashrc, ~/.zshrc, etc. (OPTIONAL)
+export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000
+```
+
+With 30K budget: 49.3% used (50.7% headroom for future growth).
+
+### What We Optimized
+
+See [Budget Optimization Summary](docs/optimization-summary-2025-12-31.md) for details on the 404-character reduction through description refinement.
+
+**Background**: [Claude Code Skills Not Triggering](https://blog.fsck.com/2025/12/17/claude-code-skills-not-triggering/) - why this matters
+
 ## Recommended Setup: LSP Integration
 
 **As of v1.1.1**, this plugin ecosystem **defaults to using LSP** (Language Server Protocol) for all code navigation and analysis tasks. LSP provides **900x performance improvements** and semantic understanding vs. text-based grep searches.
@@ -44,7 +72,17 @@ export ENABLE_LSP_TOOLS=1
 source ~/.bashrc  # or ~/.zshrc
 ```
 
-**2. Install Language Servers** for your languages:
+**2. Install cclsp MCP Server** (bridges LSP to Claude Code):
+
+```bash
+# Option 1: Quick setup (recommended)
+npx cclsp@latest setup
+
+# Option 2: Manual configuration (see setup guide below)
+npm install -g cclsp
+```
+
+**3. Install Language Servers** for your languages:
 
 ```bash
 # TypeScript/JavaScript
@@ -62,11 +100,65 @@ go install golang.org/x/tools/gopls@latest
 # More languages: See https://github.com/Piebald-AI/claude-code-lsps
 ```
 
-**3. Verify Setup**:
+**4. Verify Setup**:
 
 ```bash
-# Test LSP is working
-ENABLE_LSP_TOOLS=1 claude "Find all references to this function"
+# Test LSP is working (from within a code project)
+cd /path/to/your/project
+ENABLE_LSP_TOOLS=1 claude
+
+# Then ask about a specific function in your codebase, e.g.:
+# "Find all references to the processData function"
+# "Show me the definition of UserService.authenticate"
+```
+
+### Manual Setup (Alternative to Interactive Setup)
+
+If the interactive `npx cclsp@latest setup` doesn't work in your environment, configure manually:
+
+**1. Create project configuration** (`.cclsp.json` in your project root):
+
+```json
+{
+  "servers": [
+    {
+      "extensions": ["py", "pyi"],
+      "command": ["pylsp"],
+      "rootDir": "."
+    },
+    {
+      "extensions": ["js", "ts", "jsx", "tsx"],
+      "command": ["typescript-language-server", "--stdio"],
+      "rootDir": "."
+    }
+  ]
+}
+```
+
+**2. Configure MCP server** (`~/.claude/.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "cclsp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "cclsp@latest"],
+      "env": {
+        "CCLSP_CONFIG_PATH": "/home/YOUR_USERNAME/.config/cclsp/config.json"
+      }
+    }
+  }
+}
+```
+
+*Note*: Replace `YOUR_USERNAME` with your actual username, or use `~/.config/cclsp/config.json` if your shell expands `~`.
+
+**3. Restart Claude Code** to load the MCP server:
+
+```bash
+exit  # Exit current session
+claude  # Start new session with LSP enabled
 ```
 
 ### Plugins Using LSP

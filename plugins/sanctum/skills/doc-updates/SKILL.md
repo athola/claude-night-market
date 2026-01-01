@@ -1,15 +1,11 @@
 ---
 name: doc-updates
 description: |
-  Update documentation files based on recent changes while enforcing project
-  writing guidelines. Includes consolidation detection, directory-specific
-  style rules, and accuracy verification.
+  Update documentation with writing guideline enforcement, consolidation detection, and accuracy verification.
 
-  Triggers: documentation update, docs update, ADR, docstrings, writing guidelines,
-  readme update, documentation maintenance, debloat docs, consolidate docs
+  Triggers: documentation update, docs update, ADR, docstrings, writing guidelines, readme update, debloat docs
 
-  Use when: updating documentation after code changes, enforcing writing guidelines,
-  maintaining ADRs, updating docstrings, cleaning up bloated docs
+  Use when: updating documentation after code changes, enforcing writing guidelines, maintaining ADRs
 
   DO NOT use when: README-specific updates - use update-readme instead.
   DO NOT use when: complex multi-file consolidation - use doc-consolidation.

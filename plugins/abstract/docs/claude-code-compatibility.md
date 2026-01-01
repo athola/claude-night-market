@@ -36,8 +36,10 @@ This document tracks compatibility between the claude-night-market plugin ecosys
     - [Claude Code LSPs](https://github.com/Piebald-AI/claude-code-lsps) - Plugin marketplace with LSP servers
   - **Examples**:
     ```bash
-    # Enable LSP for session
-    ENABLE_LSP_TOOLS=1 claude "Find all references to this function"
+    # Enable LSP for session (from within a code project)
+    cd /path/to/your/project
+    ENABLE_LSP_TOOLS=1 claude
+    # Then: "Find all references to processData function"
 
     # Code review with semantic understanding
     ENABLE_LSP_TOOLS=1 claude "/pensive:code-review --use-lsp src/"
@@ -831,19 +833,154 @@ Find all call sites of a function:
 
 ### Enabling LSP
 
-**Environment Variable**:
+LSP integration requires three components: environment flag, MCP server bridge, and language servers.
+
+#### Step 1: Enable LSP Feature Flag
+
 ```bash
 # Enable for single session
 ENABLE_LSP_TOOLS=1 claude "review this code"
 
-# Enable permanently (add to shell rc)
+# Enable permanently (recommended - add to ~/.bashrc or ~/.zshrc)
 export ENABLE_LSP_TOOLS=1
 ```
 
-**Language Server Setup**:
-- LSP requires language servers installed for each language
-- Install via package managers or IDE extensions
-- See [cclsp](https://github.com/ktnyt/cclsp) for MCP integration
+#### Step 2: Install cclsp MCP Server
+
+The cclsp MCP server bridges Language Server Protocol to Claude Code's Model Context Protocol.
+
+**Quick Setup (Interactive)**:
+```bash
+# Run interactive setup wizard
+npx cclsp@latest setup
+
+# The wizard will:
+# 1. Detect your project languages
+# 2. Recommend language servers
+# 3. Configure .cclsp.json
+# 4. Update ~/.claude/.mcp.json
+# 5. Install language servers (optional)
+```
+
+**Manual Setup** (when interactive setup unavailable):
+
+1. **Install cclsp**:
+   ```bash
+   npm install -g cclsp
+   ```
+
+2. **Create project config** (`.cclsp.json` in project root):
+   ```json
+   {
+     "servers": [
+       {
+         "extensions": ["py", "pyi"],
+         "command": ["pylsp"],
+         "rootDir": ".",
+         "initializationOptions": {
+           "settings": {
+             "pylsp": {
+               "plugins": {
+                 "jedi_completion": { "enabled": true },
+                 "jedi_definition": { "enabled": true },
+                 "jedi_references": { "enabled": true }
+               }
+             }
+           }
+         }
+       },
+       {
+         "extensions": ["js", "ts", "jsx", "tsx"],
+         "command": ["typescript-language-server", "--stdio"],
+         "rootDir": "."
+       }
+     ]
+   }
+   ```
+
+3. **Configure MCP server** (`~/.claude/.mcp.json`):
+   ```json
+   {
+     "mcpServers": {
+       "cclsp": {
+         "type": "stdio",
+         "command": "npx",
+         "args": ["-y", "cclsp@latest"],
+         "env": {
+           "CCLSP_CONFIG_PATH": "/home/YOUR_USERNAME/.config/cclsp/config.json"
+         }
+       }
+     }
+   }
+   ```
+
+   *Notes*:
+   - Replace `YOUR_USERNAME` with your actual username
+   - If you already have other MCP servers, add `cclsp` to the existing `mcpServers` object
+   - You can use a global config (`~/.config/cclsp/config.json`) or project-specific configs
+
+4. **Restart Claude Code** to load the MCP server:
+   ```bash
+   exit  # Exit current session
+   claude  # Start new session
+   ```
+
+#### Step 3: Install Language Servers
+
+Install language servers for your project languages:
+
+```bash
+# TypeScript/JavaScript
+npm install -g typescript typescript-language-server
+
+# Python
+pip install python-lsp-server
+# Or with uv: uv tool install python-lsp-server
+
+# Rust
+rustup component add rust-analyzer
+
+# Go
+go install golang.org/x/tools/gopls@latest
+
+# More languages: https://github.com/Piebald-AI/claude-code-lsps
+```
+
+#### Verification
+
+After setup, verify LSP is working:
+
+```bash
+cd /path/to/your/project
+ENABLE_LSP_TOOLS=1 claude
+
+# Ask Claude to test LSP:
+# "Find all references to the main function"
+# "Show me the definition of MyClass"
+```
+
+Claude should respond with precise, semantic results instead of text-based grep matches.
+
+#### Troubleshooting
+
+**MCP server not loading**:
+- Check `~/.claude/.mcp.json` syntax (must be valid JSON)
+- Verify `npx` is in PATH: `which npx`
+- Check logs: `~/.claude/debug/` for MCP errors
+
+**Language server not working**:
+- Verify language server is installed: `which typescript-language-server` or `which pylsp`
+- Check `.cclsp.json` command paths match installed locations
+- Ensure project has proper language config files (tsconfig.json, pyproject.toml, etc.)
+
+**LSP queries failing**:
+- Confirm `ENABLE_LSP_TOOLS=1` is set in environment
+- Restart Claude Code after configuration changes
+- Check that file extensions in `.cclsp.json` match your project files
+
+**Resources**:
+- [cclsp](https://github.com/ktnyt/cclsp) - MCP server for LSP integration
+- [Claude Code LSPs](https://github.com/Piebald-AI/claude-code-lsps) - Language server marketplace
 
 ### Plugin-Specific Patterns
 

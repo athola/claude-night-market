@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Enhanced PR review that combines Sanctum's scope-focused validation with superpowers:receiving-code-review for comprehensive analysis and automated quality checks, posting findings as GitHub review comments. ENFORCES version validation on all PRs.
+description: Comprehensive PR review with scope validation, code analysis, and GitHub integration. Enforces version validation. Use for feature PRs and pre-merge quality gates.
 usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--create-backlog-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
 extends: "superpowers:receiving-code-review"
 ---

@@ -7,14 +7,19 @@
     "./skills/mcp-code-execution",
     "./skills/optimizing-large-skills",
     "./skills/performance-monitoring/cpu-gpu-performance",
-    "./skills/resource-management/token-conservation"
+    "./skills/resource-management/token-conservation",
+    "./skills/bloat-detector"
   ],
   "commands": [
     "./commands/optimize-context.md",
-    "./commands/analyze-growth.md"
+    "./commands/analyze-growth.md",
+    "./commands/bloat-scan.md",
+    "./commands/unbloat.md"
   ],
   "agents": [
-    "./agents/context-optimizer.md"
+    "./agents/context-optimizer.md",
+    "./agents/bloat-auditor.md",
+    "./agents/unbloat-remediator.md"
   ],
   "keywords": [
     "conservation",
@@ -23,7 +28,12 @@
     "token-optimization",
     "context-optimization",
     "MECW",
-    "efficiency"
+    "efficiency",
+    "bloat-detection",
+    "dead-code",
+    "code-cleanup",
+    "technical-debt",
+    "codebase-optimization"
   ],
   "author": {
     "name": "Alex Thola",

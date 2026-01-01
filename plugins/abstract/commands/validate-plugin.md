@@ -1,6 +1,6 @@
 ---
 name: validate-plugin
-description: Validate Claude Code plugin structure, check plugin.json schema, verify path references, and ensure naming conventions. Use when creating new plugins, debugging plugin loading issues, verifying plugin modifications, or checking if a plugin is correctly structured.
+description: Validate plugin structure, schema, and naming. Use for plugin creation, debugging, or verification.
 usage: /validate-plugin [plugin-path]
 ---
 
