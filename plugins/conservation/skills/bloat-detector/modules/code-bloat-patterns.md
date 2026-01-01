@@ -95,7 +95,8 @@ awk -F: '{
 **Python (Vulture):**
 ```bash
 if command -v vulture &> /dev/null; then
-  vulture . --min-confidence 80 --exclude=tests,venv
+  vulture . --min-confidence 80 \
+    --exclude=.venv,venv,__pycache__,.pytest_cache,.mypy_cache,.ruff_cache,.tox,.git,node_modules,dist,build,vendor
 fi
 ```
 
@@ -185,8 +186,15 @@ python3 << 'EOF'
 import ast
 import os
 
+EXCLUDED_DIRS = {
+    '.venv', 'venv', '__pycache__', '.pytest_cache',
+    '.mypy_cache', '.ruff_cache', '.tox', '.git',
+    'node_modules', 'dist', 'build', 'vendor',
+    '.vscode', '.idea'
+}
+
 for root, dirs, files in os.walk('.'):
-    dirs[:] = [d for d in dirs if d not in ['venv', '.venv', '__pycache__']]
+    dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS]
     for file in files:
         if file.endswith('.py'):
             path = os.path.join(root, file)

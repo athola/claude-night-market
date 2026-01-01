@@ -14,8 +14,19 @@ Fast heuristic-based bloat detection without external tools. Completes in < 5 mi
 ### 1. Large Files (God Class Candidates)
 
 ```bash
-# Find files > 500 lines
-find . -name "*.py" -o -name "*.js" -o -name "*.ts" | \
+# Find files > 500 lines (excluding cache and dependency directories)
+find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" \) \
+  -not -path "*/.venv/*" \
+  -not -path "*/venv/*" \
+  -not -path "*/__pycache__/*" \
+  -not -path "*/.pytest_cache/*" \
+  -not -path "*/node_modules/*" \
+  -not -path "*/.git/*" \
+  -not -path "*/dist/*" \
+  -not -path "*/build/*" \
+  -not -path "*/.tox/*" \
+  -not -path "*/.mypy_cache/*" \
+  -not -path "*/.ruff_cache/*" | \
 while read f; do
   lines=$(wc -l < "$f")
   if [ $lines -gt 500 ]; then
@@ -91,12 +102,24 @@ grep -rn "TODO\|FIXME\|HACK" --include="*.py" --include="*.js" --include="*.ts" 
 ### 5. Duplicate Patterns
 
 ```bash
-# Find potential duplicate files by name similarity
-find . -type f -name "*.py" -o -name "*.js" -o -name "*.ts" | \
+# Find potential duplicate files by name similarity (excluding cache directories)
+find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" \) \
+  -not -path "*/.venv/*" \
+  -not -path "*/venv/*" \
+  -not -path "*/__pycache__/*" \
+  -not -path "*/.pytest_cache/*" \
+  -not -path "*/node_modules/*" \
+  -not -path "*/.git/*" | \
   sed 's/.*\///' | sort | uniq -d
 
-# Find duplicate lines across files (simple approach)
-find . -name "*.py" -exec md5sum {} \; | \
+# Find duplicate files by content hash (excluding cache directories)
+find . -type f -name "*.py" \
+  -not -path "*/.venv/*" \
+  -not -path "*/venv/*" \
+  -not -path "*/__pycache__/*" \
+  -not -path "*/.pytest_cache/*" \
+  -not -path "*/.git/*" \
+  -exec md5sum {} \; | \
   sort | uniq -w32 -D | cut -d' ' -f3-
 ```
 
@@ -170,12 +193,41 @@ Quick scan coordinates with `git-history-analysis` module:
 Respect `.bloat-ignore` patterns:
 
 ```gitignore
-# .bloat-ignore
-tests/fixtures/*       # Test data
-config/*.template      # Templates
-vendor/*               # Third-party code
-generated/*            # Auto-generated
+# .bloat-ignore - Patterns to exclude from bloat detection
+
+# Cache directories (should always be excluded)
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.git/
+
+# Build and distribution
+dist/
+build/
+*.egg-info/
+
+# Dependencies
+node_modules/
+vendor/
+
+# IDE and editor
+.vscode/
+.idea/
+
+# Test fixtures and templates
+tests/fixtures/*
+config/*.template
+
+# Auto-generated code
+generated/*
+*_pb2.py
 ```
+
+**Default Exclusions**: The scan tools should automatically exclude common cache directories even without a `.bloat-ignore` file.
 
 ## Next Steps After Quick Scan
 

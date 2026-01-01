@@ -47,8 +47,19 @@ Expected:
 
 **Success Criteria:**
 ```bash
-# Expected output should match modules/quick-scan.md line 12-18:
-find . -name "*.py" -o -name "*.js" -o -name "*.ts" | \
+# Expected output should match modules/quick-scan.md (with cache exclusions):
+find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" \) \
+  -not -path "*/.venv/*" \
+  -not -path "*/venv/*" \
+  -not -path "*/__pycache__/*" \
+  -not -path "*/.pytest_cache/*" \
+  -not -path "*/node_modules/*" \
+  -not -path "*/.git/*" \
+  -not -path "*/dist/*" \
+  -not -path "*/build/*" \
+  -not -path "*/.tox/*" \
+  -not -path "*/.mypy_cache/*" \
+  -not -path "*/.ruff_cache/*" | \
 while read f; do
   lines=$(wc -l < "$f")
   if [ $lines -gt 500 ]; then
@@ -69,6 +80,39 @@ Expected:
 - Reads modules/git-history-analysis.md for validation
 - Synthesizes workflow across modules
 ```
+
+### Phase 5: Cache Directory Exclusion Test
+
+**Test:** Verify that cache directories are excluded from scans
+
+```
+Prompt: "Run a bloat scan on the conservation plugin. How many markdown files did you find?"
+Expected:
+- Should NOT count files in .venv/, node_modules/, .pytest_cache/, etc.
+- Should report count excluding cache directories
+- File list should not include paths with excluded directories
+```
+
+**Manual Verification:**
+```bash
+# Count all markdown files (including cache dirs)
+find plugins/conservation -name "*.md" | wc -l
+# Example output: 45 files
+
+# Count markdown files (excluding cache dirs) - should match bloat scan
+find plugins/conservation -type f -name "*.md" \
+  -not -path "*/.venv/*" \
+  -not -path "*/.pytest_cache/*" \
+  -not -path "*/node_modules/*" | wc -l
+# Example output: 12 files
+
+# The bloat scan count should match the second number, NOT the first
+```
+
+**Success Criteria:**
+- ✅ Bloat scan excludes cache directories automatically
+- ✅ File counts match manual count with exclusions
+- ✅ No .venv, node_modules, or .pytest_cache files in scan results
 
 ## Automated Test Script
 

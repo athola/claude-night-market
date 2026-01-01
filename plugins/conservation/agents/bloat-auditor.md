@@ -114,11 +114,28 @@ def initialize_scan(level, focus=None):
     """
     Set up scan parameters and load appropriate modules
     """
+    # Standard cache/dependency directories to always exclude
+    DEFAULT_EXCLUDES = {
+        '.venv', 'venv', '__pycache__', '.pytest_cache',
+        '.mypy_cache', '.ruff_cache', '.tox', '.git',
+        'node_modules', 'dist', 'build', 'vendor',
+        '.vscode', '.idea'
+    }
+
+    # Build comprehensive exclusion list
+    exclude_patterns = set(DEFAULT_EXCLUDES)
+
+    # Load from .gitignore (inherit project's ignore patterns)
+    exclude_patterns.update(load_gitignore_patterns())
+
+    # Load from .bloat-ignore (bloat-specific overrides)
+    exclude_patterns.update(load_bloat_ignore())
+
     scan_config = {
         'level': level,  # 1, 2, or 3
         'focus': focus,  # 'code', 'docs', 'deps', or None (all)
         'root': get_project_root(),
-        'exclude_patterns': load_bloat_ignore(),
+        'exclude_patterns': exclude_patterns,
         'tools_available': detect_available_tools()
     }
 
@@ -128,6 +145,32 @@ def initialize_scan(level, focus=None):
         scan_config['level'] = 1
 
     return scan_config
+
+def load_gitignore_patterns():
+    """
+    Parse .gitignore and extract directory/file patterns
+    """
+    patterns = set()
+    gitignore_path = Path('.gitignore')
+
+    if not gitignore_path.exists():
+        return patterns
+
+    for line in gitignore_path.read_text().splitlines():
+        line = line.strip()
+
+        # Skip comments and empty lines
+        if not line or line.startswith('#'):
+            continue
+
+        # Remove leading slash
+        if line.startswith('/'):
+            line = line[1:]
+
+        # Add pattern
+        patterns.add(line)
+
+    return patterns
 ```
 
 ### 2. Execute Scan

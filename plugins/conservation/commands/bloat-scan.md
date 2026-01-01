@@ -42,7 +42,9 @@ Execute progressive bloat detection across code, documentation, and dependencies
 | `--focus <type>` | Focus area: `code`, `docs`, `deps`, or `all` | `all` |
 | `--report <file>` | Save report to file | stdout |
 | `--dry-run` | Preview findings without taking action | false |
-| `--exclude <pattern>` | Exclude paths matching pattern | `.bloat-ignore` |
+| `--exclude <pattern>` | Additional exclude patterns beyond defaults | `.bloat-ignore` |
+
+**Note**: Cache directories (`.venv/`, `node_modules/`, `.pytest_cache/`, etc.) are automatically excluded from all scans.
 
 ## Scan Tiers
 

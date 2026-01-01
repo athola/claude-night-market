@@ -212,9 +212,48 @@ NEXT STEPS:
 - Support `--dry-run` flag for all operations
 - Create backup branches before bulk changes
 
+**Automatic Cache Directory Exclusion:**
+
+All scan operations automatically exclude files and directories using a three-tier approach:
+
+1. **Default Excludes** (always applied):
+   ```text
+   # Python
+   .venv/, venv/, __pycache__/, .pytest_cache/, .mypy_cache/, .ruff_cache/, .tox/
+
+   # JavaScript/Node
+   node_modules/
+
+   # Build artifacts
+   dist/, build/, *.egg-info/
+
+   # Version control
+   .git/
+
+   # Dependencies
+   vendor/
+
+   # IDE
+   .vscode/, .idea/
+   ```
+
+2. **`.gitignore` Integration** (if present):
+   - Automatically inherits patterns from your `.gitignore`
+   - Respects project-specific exclusions
+   - Prevents scanning generated files, build artifacts, etc.
+
+3. **`.bloat-ignore`** (optional, bloat-specific overrides):
+   - Additional patterns specific to bloat detection
+   - Can override or extend `.gitignore` patterns
+   - Useful for excluding test fixtures, templates, etc.
+
+**Exclusion Priority**: Default → `.gitignore` → `.bloat-ignore`
+
 **False Positive Mitigation:**
 - Multi-signal validation (git + static + heuristic)
-- Whitelist patterns (e.g., `# bloat-ignore`)
+- Automatic exclusion of cache/dependency directories
+- `.gitignore` pattern inheritance
+- Optional `.bloat-ignore` file support
 - Test file exemptions
 - Generated code detection
 

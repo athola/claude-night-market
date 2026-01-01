@@ -232,8 +232,22 @@ safe_paths:
   - migrations/
   - .github/
   - docs/api/  # API docs are references, not code
-  - vendor/
+
+excluded_from_bloat_analysis:
+  # Cache directories (always exclude from counts)
+  - .venv/
+  - venv/
+  - __pycache__/
+  - .pytest_cache/
+  - .mypy_cache/
+  - .ruff_cache/
+  - .tox/
+  - .git/
+  # Dependencies and build artifacts
   - node_modules/
+  - vendor/
+  - dist/
+  - build/
 ```
 
 ## Integration with Quick Scan

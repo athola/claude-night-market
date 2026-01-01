@@ -80,9 +80,17 @@ def flesch_reading_ease(text):
     score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words)
     return max(0, min(100, score))
 
+# Excluded directories for markdown scanning
+EXCLUDED_PATHS = {
+    '.venv', 'venv', '__pycache__', '.pytest_cache',
+    '.mypy_cache', '.ruff_cache', '.tox', '.git',
+    'node_modules', 'dist', 'build', 'vendor',
+    '.vscode', '.idea'
+}
+
 # Scan all markdown files
 for md_file in Path('.').rglob('*.md'):
-    if 'node_modules' in str(md_file) or '.venv' in str(md_file):
+    if any(excluded in md_file.parts for excluded in EXCLUDED_PATHS):
         continue
 
     text = md_file.read_text(errors='ignore')
