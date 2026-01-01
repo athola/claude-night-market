@@ -5,7 +5,7 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.2] - 2026-01-01
 
 ### Added
 
@@ -268,6 +268,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merged from PR #8
 - Commit: bd7d2ce
 
-[1.0.2]: https://github.com/athola/claude-night-market/compare/v1.0.1...HEAD
+[1.1.2]: https://github.com/athola/claude-night-market/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/athola/claude-night-market/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/athola/claude-night-market/compare/v1.0.4...v1.1.0
+[1.0.4]: https://github.com/athola/claude-night-market/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/athola/claude-night-market/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/athola/claude-night-market/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/athola/claude-night-market/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/athola/claude-night-market/releases/tag/v1.0.0

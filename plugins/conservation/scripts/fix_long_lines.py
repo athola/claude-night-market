@@ -115,7 +115,10 @@ def fix_skill_file(file_path: str, max_length: int = 80) -> bool:
 
         return True
 
-    except Exception:
+    except Exception as e:
+        import logging
+
+        logging.warning(f"Failed to fix {file_path}: {e}")
         return False
 
 
