@@ -3,10 +3,10 @@ name: review-analyst
 description: |
   Autonomous agent for conducting structured reviews with evidence gathering.
 
-  Triggers: comprehensive review, code review with evidence, architecture assessment,
+  Triggers: detailed review, code review with evidence, architecture assessment,
   security audit, quality review, structured findings
 
-  Use when: comprehensive code reviews requiring evidence trails, architecture
+  Use when: detailed code reviews requiring evidence trails, architecture
   assessments with structured outputs, security audits with reproducible findings
 
   DO NOT use when: quick code check without formal review - use pensive skills.
@@ -30,7 +30,7 @@ Autonomous agent specialized in conducting structured reviews using imbue's meth
 ## When to Use
 
 Dispatch this agent for:
-- Comprehensive code reviews requiring evidence trails
+- detailed code reviews requiring evidence trails
 - Architecture assessments with structured outputs
 - Security audits with reproducible findings
 - Quality reviews needing consistent formatting

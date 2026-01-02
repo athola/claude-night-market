@@ -77,7 +77,7 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 
 **Output:** Detailed findings with confidence levels, remediation steps
 
-### Tier 3: Comprehensive Audit (1 hour, full tooling)
+### Tier 3: Deep Audit (1 hour, full tooling)
 
 ```bash
 # Deep analysis across all dimensions
@@ -141,7 +141,7 @@ Output ranked by descending priority score.
 - **documentation-bloat.md**: Redundancy, readability, similarity
 - **static-analysis-integration.md**: Tool integration (Vulture, Knip, etc.)
 
-### Tier 3: Comprehensive (Full Tooling)
+### Tier 3: Deep Audit (Full Tooling)
 All above + deep cross-file analysis, dependency graphs, automated fixes
 
 ## Integration Points

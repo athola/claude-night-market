@@ -1,20 +1,20 @@
 ---
 name: pr-review
-description: Comprehensive PR review with scope validation, code analysis, and GitHub integration. Enforces version validation. Use for feature PRs and pre-merge quality gates.
+description: detailed PR review with scope validation, code analysis, and GitHub integration. Enforces version validation. Use for feature PRs and pre-merge quality gates.
 usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--create-backlog-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
 extends: "superpowers:receiving-code-review"
 ---
 
 # Enhanced PR Review
 
-Integrates Sanctum's disciplined scope validation with superpowers:receiving-code-review's comprehensive analysis to provide thorough, balanced PR reviews that prevent scope creep while ensuring code quality.
+Integrates Sanctum's disciplined scope validation with superpowers:receiving-code-review's detailed analysis to provide thorough, balanced PR reviews that prevent scope creep while ensuring code quality.
 
 ## Core Philosophy
 
 **Scope-Aware Quality Validation**
 - Validate implementation against stated requirements
 - Prevent overengineering through scope discipline
-- Ensure code quality without blocking valid implementations
+- validate code quality without blocking valid implementations
 - Route out-of-scope improvements to backlog
 
 ## Key Enhancements
@@ -140,7 +140,7 @@ Before proceeding to code analysis, validate version consistency across all vers
    fi
    ```
 
-3. **Run comprehensive version validation**
+3. **Run detailed version validation**
 
    If version files changed, invoke the version validation module:
 
@@ -273,7 +273,7 @@ A version validation section that will be included in the final PR review:
 
 ### Phase 2: Code Analysis (Superpowers)
 
-4. **Comprehensive Code Review**
+4. **detailed Code Review**
    ```bash
    Skill(superpowers:receiving-code-review)
    ```
@@ -469,7 +469,7 @@ Severity: BLOCKING | IN_SCOPE | SUGGESTION
 **⚠️ ENFORCEMENT CHECK: This phase MUST complete with a `gh pr comment` call.**
 **If you skip this phase, the workflow is INCOMPLETE.**
 
-After documenting review threads, generate a comprehensive test plan that `/fix-pr` can execute to verify fixes.
+After documenting review threads, generate a detailed test plan that `/fix-pr` can execute to verify fixes.
 
 **CRITICAL REQUIREMENT:**
 - The test plan MUST be posted as a **separate PR comment** using `gh pr comment`
@@ -1046,7 +1046,7 @@ pr_review:
 ## Best Practices
 
 ### Before Review
-1. Ensure PR description is clear
+1. validate PR description is clear
 2. Verify CI pipeline passed
 3. Check for scope artifacts
 4. Confirm tests are running
@@ -1074,7 +1074,7 @@ pr_review:
 - Requires superpowers plugin for enhanced analysis
 - GitHub CLI (`gh`) required for review submission and issue creation
 - All Sanctum scope validation preserved
-- Adds comprehensive code quality checks
+- Adds detailed code quality checks
 - **Automatically posts findings as GitHub PR review comments**
 - **⚠️ MUST post test plan as a SEPARATE PR comment** (for `/fix-pr` integration)
   - This is NOT optional - test plan must be a distinct `gh pr comment` call

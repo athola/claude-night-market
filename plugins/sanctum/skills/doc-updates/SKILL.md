@@ -53,7 +53,7 @@ Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 
 ## Step 1: Collect Context (`context-collected`)
 
-- Ensure `Skill(sanctum:git-workspace-review)` has been run.
+- validate `Skill(sanctum:git-workspace-review)` has been run.
 - Use its notes to understand the delta.
 - Identify the features or bug fixes that need documentation updates.
 
@@ -120,7 +120,7 @@ Load: `@modules/directory-style-rules.md`
 **Warn on:**
 - Wall-of-text paragraphs exceeding limits
 - Files exceeding line count thresholds
-- Marketing language ("powerful", "seamless")
+- Marketing language ("capable", "smooth")
 
 ## Step 5: Verify Accuracy (`accuracy-verified`)
 

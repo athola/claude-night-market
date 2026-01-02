@@ -516,7 +516,7 @@ def rollback_change(finding):
 ```python
 def generate_summary(results, config, backup_branch, start_time):
     """
-    Generate comprehensive summary report
+    Generate detailed summary report
     """
     duration = time.time() - start_time
 

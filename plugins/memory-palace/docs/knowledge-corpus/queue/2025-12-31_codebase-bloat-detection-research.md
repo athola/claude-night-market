@@ -129,7 +129,7 @@ git log --stat --oneline
 
 | Criterion | Score | Rationale |
 |-----------|-------|-----------|
-| Novelty | 80 | Comprehensive tool landscape, recent research (2024-2025) |
+| Novelty | 80 | detailed tool landscape, recent research (2024-2025) |
 | Applicability | 95 | Directly applicable to bloat-detector skill creation |
 | Durability | 85 | Tool APIs stable, patterns enduring |
 | Connectivity | 90 | Links to conservation, static analysis, git workflows |
@@ -237,6 +237,6 @@ git log --stat --oneline
 
 ## Notes
 
-This research session represents significant value for the conservation plugin ecosystem. The comprehensive coverage across tools, techniques, and language-specific patterns provides a strong foundation for implementing a production-quality bloat detection system.
+This research session represents significant value for the conservation plugin ecosystem. The detailed coverage across tools, techniques, and language-specific patterns provides a strong foundation for implementing a production-quality bloat detection system.
 
 The progressive 3-tier architecture (heuristics → static analysis → deep audit) aligns well with the conservation plugin's token-optimization philosophy.

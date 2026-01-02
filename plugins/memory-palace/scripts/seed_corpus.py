@@ -113,7 +113,7 @@ def _topics() -> list[Topic]:
                     "structuring coroutines across microservice boundaries",
                     ["kotlin", "coroutines", "supervisorjob"],
                     (
-                        "Leverage SupervisorJob to isolate failures inside service-specific "
+                        "use SupervisorJob to isolate failures inside service-specific "
                         "coroutine scopes."
                     ),
                     [
@@ -598,7 +598,7 @@ def _topics() -> list[Topic]:
                     "Python",
                     "profiling hook latency",
                     ["latency", "profiling", "hook"],
-                    "Measure cache interception latency to ensure hooks stay under 20ms.",
+                    "Measure cache interception latency to validate hooks stay under 20ms.",
                     [
                         "Record latency_ms for each query.",
                         "Compute P50/P95 per mode daily.",

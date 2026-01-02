@@ -124,7 +124,7 @@ Document specific examples at key score levels:
 criterion: documentation_quality
 
 anchors:
-  95: "See: project-alpha/docs - comprehensive, clear, examples"
+  95: "See: project-alpha/docs - detailed, clear, examples"
   80: "See: project-beta/docs - good coverage, minor gaps"
   65: "See: project-gamma/docs - basic, functional"
   40: "See: project-delta/docs - incomplete, unclear"
@@ -151,7 +151,7 @@ Use decision matrices for complex evaluations:
 Dimension 1: Completeness (columns)
 Dimension 2: Quality (rows)
 
-           Partial  Complete  Comprehensive
+           Partial  Complete  detailed
 Excellent    70       85         95
 Good         55       70         85
 Fair         40       55         70

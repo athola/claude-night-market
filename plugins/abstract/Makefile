@@ -108,7 +108,7 @@ estimate-tokens: ## Estimate token usage (PATH=<path>)
 	$(call require_path,$@)
 	$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file "$(PATH)"
 
-audit-skill: ## Comprehensive skill audit (PATH=<path>)
+audit-skill: ## detailed skill audit (PATH=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
 	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('$(PATH)').parent if '$(PATH)'.endswith('SKILL.md') else Path('$(PATH)')); result = auditor.audit_skills(); print(f'Score: {result.get(\"average_score\", 0):.1f}/100')" || echo "Audit completed with result in audit_results.json"
@@ -129,8 +129,8 @@ audit-all: ## Audit all skills in ~/.claude/
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
 	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('~/.claude').expanduser()); result = auditor.audit_skills(); print(f'Total: {result.get(\"total_skills\", 0)}'); print(f'Average Score: {result.get(\"average_score\", 0):.1f}/100'); print(f'Well-structured: {result.get(\"well_structured\", 0)}')" || echo "Audit completed"
 
-eval-report: ## Generate comprehensive evaluation report
-	@echo "Generating comprehensive evaluation report..."
+eval-report: ## Generate detailed evaluation report
+	@echo "Generating detailed evaluation report..."
 	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('.')); result = auditor.audit_skills(); lines = ['# Skills Evaluation Report', f'Total Skills: {result.get(\"total_skills\", 0)}', f'Average Score: {result.get(\"average_score\", 0):.1f}/100']; Path('evaluation-report.md').write_text('\n'.join(lines)); print('Report saved to evaluation-report.md')" || echo "Report generated with fallback"
 
 # DOCUMENTATION

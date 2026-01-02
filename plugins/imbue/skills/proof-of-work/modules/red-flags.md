@@ -4,7 +4,7 @@ Thought patterns that indicate you're about to violate proof-of-work discipline.
 
 ## The "Should Work" Family
 
-### ❌ "This should work"
+### "This should work"
 **Problem:** "Should" = untested assumption
 
 **Example:**
@@ -23,12 +23,12 @@ Let me verify this configuration works:
 $ CCLSP_CONFIG_PATH=config.json npx cclsp@latest
 Error: <actual error message>
 
-Result: ❌ Discovered issue - config path not recognized
+Result: FAIL - Discovered issue - config path not recognized
 ```
 
 ---
 
-### ❌ "Just restart and it will work"
+### "Just restart and it will work"
 **Problem:** Restart = magic wand thinking
 
 **Example:**
@@ -46,14 +46,14 @@ Let me verify a restart actually resolves this:
 [E1] Current session: LSP tools unavailable
 [E2] Exit and restart Claude Code
 [E3] New session: Check `ps aux | grep cclsp`
-Result: ❌ cclsp still not running
+Result: FAIL - cclsp still not running
 
 Conclusion: Restart does NOT fix this. Root cause is [explain actual issue]
 ```
 
 ---
 
-### ❌ "This looks correct"
+### "This looks correct"
 **Problem:** Visual inspection ≠ functional validation
 
 **Example:**
@@ -70,15 +70,15 @@ Validating configuration:
 
 [E1] Syntax check:
 $ cat .cclsp.json | jq '.'
-Result: ✅ Valid JSON
+Result: PASS - Valid JSON
 
 [E2] Load test:
 $ CCLSP_CONFIG_PATH=./.cclsp.json npx cclsp@latest &
-Result: ⚠️ Loads but language server initialization timeout
+Result: PARTIAL - Loads but language server initialization timeout
 
 [E3] Functional test:
 $ # Try to use LSP
-Result: ❌ Tools not available
+Result: FAIL - Tools not available
 
 Conclusion: Syntax valid but language servers not connecting properly.
 ```
@@ -87,7 +87,7 @@ Conclusion: Syntax valid but language servers not connecting properly.
 
 ## The "Installation" Family
 
-### ❌ "X is installed"
+### "X is installed"
 **Problem:** Installed ≠ functional
 
 **Example:**
@@ -104,26 +104,26 @@ Verifying pylsp installation:
 
 [E1] Binary exists:
 $ ls -la /usr/local/bin/pylsp
-Result: ✅ -rwxr-xr-x (executable)
+Result: PASS - -rwxr-xr-x (executable)
 
 [E2] Responds to queries:
 $ pylsp --help
-Result: ✅ Shows help text
+Result: PASS - Shows help text
 
 [E3] Version check:
 $ pylsp --version
-Result: ✅ v1.9.0 (compatible)
+Result: PASS - v1.9.0 (compatible)
 
 [E4] Smoke test:
 $ echo 'print("test")' | pylsp stdin
-Result: ✅ No errors
+Result: PASS - No errors
 
 Conclusion: pylsp is installed AND functional.
 ```
 
 ---
 
-### ❌ "Dependencies are satisfied"
+### "Dependencies are satisfied"
 **Problem:** Requirements.txt ≠ runtime reality
 
 **Example:**
@@ -140,15 +140,15 @@ Dependency validation:
 
 [E1] Direct dependencies:
 $ npm list --depth=0
-Result: ✅ All present
+Result: PASS - All present
 
 [E2] Peer dependencies:
 $ npm list --depth=1 | grep UNMET
-Result: ⚠️ typescript@4 required but typescript@5 installed
+Result: PARTIAL - typescript@4 required but typescript@5 installed
 
 [E3] Version compatibility:
 $ npx check-peer-deps
-Result: ❌ 2 peer dependency mismatches
+Result: FAIL - 2 peer dependency mismatches
 
 Conclusion: Dependencies installed but version conflicts exist.
 ```
@@ -157,7 +157,7 @@ Conclusion: Dependencies installed but version conflicts exist.
 
 ## The "Configuration" Family
 
-### ❌ "Environment variable is set"
+### "Environment variable is set"
 **Problem:** Set in shell ≠ set in process
 
 **Example:**
@@ -174,26 +174,26 @@ Environment variable validation:
 
 [E1] In .bashrc:
 $ grep ENABLE_LSP_TOOLS ~/.bashrc
-Result: ✅ export ENABLE_LSP_TOOLS=1
+Result: PASS - export ENABLE_LSP_TOOLS=1
 
 [E2] In current shell:
 $ echo $ENABLE_LSP_TOOLS
-Result: ✅ 1
+Result: PASS - 1
 
 [E3] In child process:
 $ bash -c 'echo $ENABLE_LSP_TOOLS'
-Result: ✅ 1 (properly exported)
+Result: PASS - 1 (properly exported)
 
 [E4] In Claude Code process:
 $ # Check if Claude sees it
-Result: ⚠️ Cannot directly verify, need to check logs
+Result: PARTIAL - Cannot directly verify, need to check logs
 
 Conclusion: Set correctly in shell, assumption that Claude inherits it.
 ```
 
 ---
 
-### ❌ "Config file is valid"
+### "Config file is valid"
 **Problem:** Valid syntax ≠ correct semantics
 
 **Example:**
@@ -210,22 +210,22 @@ Configuration validation:
 
 [E1] JSON syntax:
 $ jq '.' .cclsp.json
-Result: ✅ Valid JSON
+Result: PASS - Valid JSON
 
 [E2] Schema validation:
 $ # Check structure matches cclsp expectations
-Result: ✅ Has required "servers" array
+Result: PASS - Has required "servers" array
 
 [E3] Path validation:
 $ # For each server.command, check binary exists
 $ which pylsp
-Result: ✅ /usr/local/bin/pylsp
+Result: PASS - /usr/local/bin/pylsp
 $ which typescript-language-server
-Result: ✅ /usr/local/bin/typescript-language-server
+Result: PASS - /usr/local/bin/typescript-language-server
 
 [E4] Command validation:
 $ pylsp --help && typescript-language-server --version
-Result: ✅ Both respond correctly
+Result: PASS - Both respond correctly
 
 Conclusion: Config is valid AND all paths are functional.
 ```
@@ -234,7 +234,7 @@ Conclusion: Config is valid AND all paths are functional.
 
 ## The "Research" Family
 
-### ❌ "According to the docs..."
+### "According to the docs..."
 **Problem:** Docs ≠ current version reality
 
 **Example:**
@@ -259,18 +259,18 @@ Result: 2.0.76
 
 [E3] Known issues research:
 $ <web search: "claude code 2.0.76 LSP issues">
-Result: ❌ Issue #14803 - LSP broken in 2.0.69-2.0.76
+Result: FAIL - Issue #14803 - LSP broken in 2.0.69-2.0.76
 
 [E4] Changelog review:
 Source: https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md
-Result: ⚠️ No fix mentioned in 2.0.76
+Result: PARTIAL - No fix mentioned in 2.0.76
 
 Conclusion: Docs correct but current version has regression bug.
 ```
 
 ---
 
-### ❌ "This is the recommended approach"
+### "This is the recommended approach"
 **Problem:** Recommended ≠ working in your specific case
 
 **Example:**
@@ -297,11 +297,11 @@ User's environment:
 
 [E3] Testing in user's environment:
 $ CCLSP_CONFIG_PATH=config.json npx cclsp@latest
-Result: ✅ Starts successfully
+Result: PASS - Starts successfully
 
 [E4] Integration test:
 $ # Check if Claude Code picks it up
-Result: ❌ MCP server runs but tools not exposed (version bug)
+Result: FAIL - MCP server runs but tools not exposed (version bug)
 
 Conclusion: Recommended approach is sound but blocked by bug #14803.
 ```
@@ -310,7 +310,7 @@ Conclusion: Recommended approach is sound but blocked by bug #14803.
 
 ## The "Completion" Family
 
-### ❌ "I've finished implementing X"
+### "I've finished implementing X"
 **Problem:** Code written ≠ code working
 
 **Example:**
@@ -327,24 +327,24 @@ Completion validation:
 
 [E1] Code compiles:
 $ npm run build
-Result: ✅ 0 errors
+Result: PASS - 0 errors
 
 [E2] Tests pass:
 $ npm test
-Result: ✅ 24/24 passing
+Result: PASS - 24/24 passing
 
 [E3] Acceptance criteria:
-- User can register: [E2] test_user_registration ✅
-- User can login: [E2] test_user_login ✅
-- Passwords hashed: [E3] DB shows bcrypt hash ✅
-- Session persists: [E4] Manual test ✅
+- User can register: [E2] test_user_registration PASS
+- User can login: [E2] test_user_login PASS
+- Passwords hashed: [E3] DB shows bcrypt hash PASS
+- Session persists: [E4] Manual test PASS
 
-Status: ✅ COMPLETE - All criteria met
+Status: COMPLETE - All criteria met
 ```
 
 ---
 
-### ❌ "The setup is complete"
+### "The setup is complete"
 **Problem:** Steps followed ≠ working system
 
 **Example:**
@@ -360,19 +360,19 @@ Status: ✅ COMPLETE - All criteria met
 Setup validation:
 
 [E1] Component installation:
-- pylsp: ✅ Installed and functional
-- cclsp: ✅ Installed and functional
-- MCP config: ✅ Config file valid
+- pylsp: PASS - Installed and functional
+- cclsp: PASS - Installed and functional
+- MCP config: PASS - Config file valid
 
 [E2] Integration test:
-- cclsp starts: ✅ Process running
-- Language servers connect: ⚠️ Timeout errors
-- LSP tools available: ❌ Not exposed in Claude
+- cclsp starts: PASS - Process running
+- Language servers connect: PARTIAL - Timeout errors
+- LSP tools available: FAIL - Not exposed in Claude
 
 [E3] Blocker identification:
 - Issue #14803: LSP broken in 2.0.76
 
-Status: ❌ BLOCKED - Setup complete but unusable due to upstream bug
+Status: BLOCKED - Setup complete but unusable due to upstream bug
 Next steps: Downgrade to 2.0.67 OR wait for fix
 ```
 
@@ -419,10 +419,10 @@ Next steps: Downgrade to 2.0.67 OR wait for fix
 
 **Example recovery:**
 
-❌ **About to send:**
+**About to send (BAD):**
 > "LSP is configured. Restart Claude and it will work."
 
-✅ **After validation:**
+**After validation (GOOD):**
 > "I was about to claim LSP is ready, but let me verify first...
 >
 > [Testing reveals bug #14803]

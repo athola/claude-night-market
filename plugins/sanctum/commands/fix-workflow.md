@@ -29,7 +29,7 @@ Run a lightweight retrospective on the **most recent command or session slice** 
 3. Analyze improvement options:
    - Use `workflow-improvement-analysis-agent` to generate candidate improvements with trade-offs and expected impact.
 
-4. Plan collaboratively (converge on a small, high-leverage patch):
+4. Plan collaboratively (converge on a small, high-use patch):
    - Use `workflow-improvement-planner-agent` to choose the best approach, define acceptance criteria, and assign work.
 
 5. Implement the improvements:

@@ -144,7 +144,7 @@ class ContentLoader:
 
         if any(
             keyword in content
-            for keyword in ["advanced", "detailed", "comprehensive", "full"]
+            for keyword in ["advanced", "detailed", "detailed", "full"]
         ):
             return "full_content"
         if any(

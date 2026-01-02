@@ -114,7 +114,7 @@ class AbstractScript:
         """Set up import paths with fallback for running from any location.
 
         This allows scripts to be run directly or as part of a package.
-        The method ensures the abstract package is importable regardless
+        The method validates the abstract package is importable regardless
         of the current working directory.
         """
         # Imports are now handled at module level, but keep this for compatibility

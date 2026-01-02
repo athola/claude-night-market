@@ -92,7 +92,7 @@ class TestAnalyzeGrowthCommand:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_generates_resource_efficiency_metrics(self) -> None:
-        """Scenario: Command generates comprehensive resource efficiency metrics.
+        """Scenario: Command generates detailed resource efficiency metrics.
 
         Given resource usage data across multiple dimensions
         When calculating efficiency metrics

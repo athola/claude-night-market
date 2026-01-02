@@ -10,7 +10,7 @@ estimated_tokens: 400
 
 # ADR Audit Module
 
-Comprehensive ADR discovery, validation, and governance patterns.
+detailed ADR discovery, validation, and governance patterns.
 
 ## ADR Location Patterns
 

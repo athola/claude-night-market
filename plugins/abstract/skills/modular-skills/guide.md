@@ -1,6 +1,6 @@
 ---
 name: modular-skills-guide
-description: Comprehensive guide for implementing modular skills with hub-and-spoke architecture patterns. Use when learning modular skill design, understanding hub-and-spoke architecture, or following step-by-step implementation tutorials.
+description: detailed guide for implementing modular skills with hub-and-spoke architecture patterns. Use when learning modular skill design, understanding hub-and-spoke architecture, or following step-by-step implementation tutorials.
 category: documentation
 tags: [guide, modular-skills, architecture, implementation, patterns]
 dependencies: [modular-skills]

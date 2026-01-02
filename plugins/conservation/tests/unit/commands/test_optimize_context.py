@@ -430,7 +430,7 @@ class TestOptimizeContextCommand:
             elif scenario["type"] == "directory":
                 optimization_approach = {
                     "analysis_method": "bulk_analysis",
-                    "compression_level": "comprehensive",
+                    "compression_level": "detailed",
                     "context_preservation": "medium",
                     "strategies": [
                         {"name": "bulk_compression", "effectiveness": 0.6},
@@ -494,7 +494,7 @@ class TestOptimizeContextCommand:
             r for r in target_optimization_results if r["type"] == "directory"
         )
         assert dir_result["target"] == "src/"
-        assert dir_result["compression_level"] == "comprehensive"
+        assert dir_result["compression_level"] == "detailed"
         assert "bulk_compression" in dir_result["strategies_applied"]
 
         # Check session optimization
@@ -517,7 +517,7 @@ class TestOptimizeContextCommand:
 
     @pytest.mark.unit
     def test_command_provides_comprehensive_feedback(self, mock_claude_tools) -> None:
-        """Scenario: Command provides comprehensive feedback on optimization results.
+        """Scenario: Command provides detailed feedback on optimization results.
 
         Given completed optimization workflow
         When generating user feedback
@@ -557,7 +557,7 @@ class TestOptimizeContextCommand:
             },
         }
 
-        # Act - generate comprehensive feedback
+        # Act - generate detailed feedback
         user_feedback = {
             "summary": {
                 "status": optimization_results["workflow_status"],

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This plan addresses DRY violations and modularization opportunities identified through comprehensive skill evaluation. The conservation plugin should leverage abstract's token analysis infrastructure and extract reusable MECW patterns to leyline.
+This plan addresses DRY violations and modularization opportunities identified through detailed skill evaluation. The conservation plugin should use abstract's token analysis infrastructure and extract reusable MECW patterns to leyline.
 
 ## Current State Analysis
 

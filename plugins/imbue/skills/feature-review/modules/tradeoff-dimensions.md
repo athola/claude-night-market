@@ -270,7 +270,7 @@ For distributed features:
 
 | Score | Criteria |
 |-------|----------|
-| 5 | Seamless integration, follows all conventions, composable |
+| 5 | smooth integration, follows all conventions, composable |
 | 4 | Good integration, minor adaptations needed |
 | 3 | Integrates with effort, some friction |
 | 2 | Difficult integration, significant workarounds |

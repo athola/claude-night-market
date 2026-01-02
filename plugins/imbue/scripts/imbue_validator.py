@@ -126,7 +126,7 @@ class ImbueValidator:
 
             # Check for review-specific indicators
             if skill_name == "review-core":
-                # Core skill with comprehensive review functionality
+                # Core skill with detailed review functionality
                 review_components = [
                     r"checklist",
                     r"deliverable",
@@ -167,7 +167,7 @@ class ImbueValidator:
         return issues
 
     def generate_report(self) -> str:
-        """Generate comprehensive validation report."""
+        """Generate detailed validation report."""
         result = self.scan_review_workflows()
         issues = list(
             dict.fromkeys(result["issues"] + self.validate_review_workflows())

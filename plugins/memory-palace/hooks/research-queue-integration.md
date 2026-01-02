@@ -131,7 +131,7 @@ Before creating queue entry, validate:
 
 1. **No Duplicates**: Check if similar topic already queued
 2. **Content Quality**: Verify findings are coherent
-3. **Size Limits**: Ensure entry is reasonable size (< 100KB)
+3. **Size Limits**: validate entry is reasonable size (< 100KB)
 4. **No Secrets**: Scan for API keys, credentials
 
 ## Configuration
@@ -139,7 +139,7 @@ Before creating queue entry, validate:
 ### Research Keywords
 ```python
 RESEARCH_KEYWORDS = [
-    'research', 'investigate', 'deep dive', 'comprehensive',
+    'research', 'investigate', 'deep dive', 'detailed',
     'brainstorm', 'explore', 'analyze', 'study',
     'find tools', 'best practices', 'patterns', 'techniques',
     'survey', 'landscape', 'comparison', 'evaluation'

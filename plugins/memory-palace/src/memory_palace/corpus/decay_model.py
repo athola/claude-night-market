@@ -84,7 +84,7 @@ class DecayModel:
         """
         now = datetime.now(UTC)
 
-        # Ensure last_validated is timezone-aware
+        # validate last_validated is timezone-aware
         if last_validated.tzinfo is None:
             last_validated = last_validated.replace(tzinfo=UTC)
 

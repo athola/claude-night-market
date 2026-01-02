@@ -89,7 +89,6 @@ class SkillValidator:
         "analyzes",
         "validates",
         "enforces",
-        "ensures",
         "prevents",
         "detects",
         "optimizes",

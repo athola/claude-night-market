@@ -234,12 +234,12 @@ class AbstractSkillAnalyzer:
 
         if len(git_context.get("authors", [])) > MULTIPLE_AUTHORS_THRESHOLD:
             recommendations.append(
-                "Multiple authors involved - ensure documentation is clear",
+                "Multiple authors involved - validate documentation is clear",
             )
 
         if git_context.get("status") == "modified":
             recommendations.append(
-                "File has uncommitted changes - ensure analysis is up to date",
+                "File has uncommitted changes - validate analysis is up to date",
             )
 
         # Combine with Abstract recommendations

@@ -5,8 +5,8 @@
 ### modular-skills
 - **Purpose**: Provides structural analysis and modular design patterns
 - **Integration**: Uses `skill-analyzer` and `token-estimator` tools
-- **Workflow**: Run structural analysis before comprehensive evaluation
-- **Benefits**: Ensures proper modularization and token efficiency
+- **Workflow**: Run structural analysis before detailed evaluation
+- **Benefits**: validates proper modularization and token efficiency
 
 ```bash
 # Combined workflow example
@@ -19,10 +19,10 @@ skills/skills-eval/scripts/improvement-suggester --skill-path skill.md
 - **Purpose**: Validation and testing patterns for skills
 - **Integration**: Compatible with test-driven development approaches
 - **Workflow**: Use evaluation results to inform test coverage
-- **Benefits**: Comprehensive quality assurance across all dimensions
+- **Benefits**: detailed quality assurance across all dimensions
 
 ### documentation-standards
-- **Purpose**: Ensures consistent documentation practices
+- **Purpose**: validates consistent documentation practices
 - **Integration**: Aligns with documentation best practices
 - **Workflow**: Use documentation evaluation as part of overall assessment
 - **Benefits**: Unified documentation approach across skill ecosystem
@@ -68,7 +68,7 @@ evaluation_pipeline:
 
 ### Evaluation Frequency
 - **Pre-commit**: Quick compliance and security checks
-- **Pre-release**: Comprehensive evaluation and improvement planning
+- **Pre-release**: detailed evaluation and improvement planning
 - **Periodic**: Quarterly full-skill inventory and assessment
 - **Triggered**: After major changes or updates
 

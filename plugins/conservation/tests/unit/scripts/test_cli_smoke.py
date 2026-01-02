@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke tests for CLI entry points - ensures scripts don't crash on basic usage."""
+"""Smoke tests for CLI entry points - validates scripts don't crash on basic usage."""
 
 import importlib.util
 import json

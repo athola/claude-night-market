@@ -20,7 +20,7 @@ usage: /context-report [directory-path]
 
 # Context Optimization Report
 
-Generates a comprehensive context window optimization report for all skills in a directory. Identifies large files, categorizes by size, and provides actionable optimization recommendations.
+Generates a detailed context window optimization report for all skills in a directory. Identifies large files, categorizes by size, and provides actionable optimization recommendations.
 
 ## Usage
 
@@ -92,7 +92,7 @@ Get a bird's-eye view of your entire skill collection's context efficiency:
 ```
 
 ### Pre-Publish Check
-Before publishing a plugin, ensure all skills are within optimal bounds:
+Before publishing a plugin, validate all skills are within optimal bounds:
 ```bash
 /context-report ./skills
 ```

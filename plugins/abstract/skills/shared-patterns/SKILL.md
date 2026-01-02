@@ -14,7 +14,7 @@ description: |
   DO NOT use when: pattern is still evolving - wait for stability.
   DO NOT use when: pattern is context-dependent requiring variations.
 
-  Reference these patterns to ensure consistency across the ecosystem.
+  Reference these patterns to validate consistency across the ecosystem.
 version: 1.0.0
 category: meta-infrastructure
 tags: [patterns, templates, shared, validation, reusable]

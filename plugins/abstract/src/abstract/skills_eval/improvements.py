@@ -199,7 +199,7 @@ class ImprovementSuggester:
         return suggestions
 
     def generate_improvement_plan(self, skill_name: str) -> dict[str, Any]:
-        """Generate a comprehensive improvement plan for a skill."""
+        """Generate a detailed improvement plan for a skill."""
         analysis = self.analyze_skill(skill_name)
         modularization = self.suggest_modularization(skill_name)
         structure = self.suggest_improved_structure(skill_name)

@@ -143,7 +143,7 @@ Source common-setup.tape
 
 ### Require
 
-Ensure programs are available:
+validate programs are available:
 
 ```tape
 Require echo

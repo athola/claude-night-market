@@ -37,7 +37,7 @@ estimated_tokens: 700
 
 ## Adoption Steps
 1. **Define Filters**: Design each stage (filter) to perform a single, well-defined transformation. Each filter must have a clear input and output data schema.
-2. **Connect via Pipes**: Connect the filters using "pipes," which can be implemented as streams, message queues, or in-memory channels. Ensure these pipes support back-pressure and buffering.
+2. **Connect via Pipes**: Connect the filters using "pipes," which can be implemented as streams, message queues, or in-memory channels. validate these pipes support back-pressure and buffering.
 3. **Maintain Stateless Filters**: Where possible, design filters to be stateless. Any required state should be persisted externally or managed at the boundaries of the pipeline.
 4. **Instrument Each Stage**: Implement monitoring for each filter to track key metrics such as latency, throughput, and error rates.
 5. **Orchestrate Deployments**: Design the deployment strategy to allow each stage to be scaled horizontally and upgraded independently.

@@ -130,7 +130,7 @@ See modules for detailed information:
 2. **Pin direct dependencies** with minimum versions
 3. **Use optional dependency groups** for dev/docs/test
 4. **Include py.typed** for type hint support
-5. **Add comprehensive README** with usage examples
+5. **Add detailed README** with usage examples
 6. **Use semantic versioning** (MAJOR.MINOR.PATCH)
 7. **Test on multiple Python versions** before publishing
 

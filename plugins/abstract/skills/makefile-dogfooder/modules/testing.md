@@ -564,4 +564,4 @@ print('All targets documented [OK]')
         echo "Makefile validation passed for ${{ matrix.plugin }}"
 ```
 
-This testing module provides comprehensive safe testing strategies that can be run frequently without side effects, focusing on validation, documentation, and error detection rather than execution.
+This testing module provides detailed safe testing strategies that can be run frequently without side effects, focusing on validation, documentation, and error detection rather than execution.

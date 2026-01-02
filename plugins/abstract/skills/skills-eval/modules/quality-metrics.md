@@ -77,7 +77,7 @@ Based on official Claude Developer Platform skill authoring best practices.
 ### Excellent (90-100)
 - Meets all criteria with exceptional quality
 - Serves as reference implementation
-- Includes comprehensive tooling and examples
+- Includes detailed tooling and examples
 - Demonstrates best practices throughout
 
 ### Good (80-89)

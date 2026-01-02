@@ -41,7 +41,7 @@ estimated_tokens: 800
 2. **Model Commands and Events**: Define the schemas and validation rules for all commands and the events they produce. Document a clear strategy for versioning and schema evolution.
 3. **Implement the Write Side (Command Side)**: Command handlers are responsible for loading an aggregate's event stream, executing business logic, and atomically appending new events to the stream.
 4. **Build Projections to the Read Side**: Create separate read models (projections) that are fed by subscriptions to the event stream. Implement back-pressure and retry policies for these subscriptions.
-5. **Ensure Full Observability**: Implement comprehensive logging that includes event IDs, sequence numbers, and metrics for tracking the lag time of each projection.
+5. **validate Full Observability**: Implement detailed logging that includes event IDs, sequence numbers, and metrics for tracking the lag time of each projection.
 
 ## Key Deliverables
 - An Architecture Decision Record (ADR) detailing the aggregates, the chosen event store technology, the projection strategy, and the expected data consistency model (e.g., eventual consistency SLAs).

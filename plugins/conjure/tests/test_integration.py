@@ -198,7 +198,7 @@ class TestUsageLoggerIntegration:
 
     def test_session_management_and_tracking(self, tmp_path) -> None:
         """Placeholder session management test."""
-        # Ensure logger can be constructed with shared directory
+        # validate logger can be constructed with shared directory
         config_dir = tmp_path / ".claude" / "hooks" / "delegation"
         config_dir.mkdir(parents=True)
         logger = GeminiUsageLogger(config_dir=config_dir)

@@ -23,7 +23,7 @@ Minister turns GitHub Projects, issues, and pull requests into actionable status
 
 - **Program Review Mondays**: Run the tracker command above, paste the digest into the Program Review issue via `gh issue comment`, and store the permalink in the Projects view.
 - **Midweek Risk Sync**: Filter `tracker.py status` output for `priority="High"`, then drop only the blockers into the risk issue using `gh issue comment`.
-- **Release Cut Fridays**: Use `gh pr comment $DEPLOY_PR --body-file .claude/minister/latest.md`, follow the release-health gates checklist, and ensure the Projects item links to the deployment thread.
+- **Release Cut Fridays**: Use `gh pr comment $DEPLOY_PR --body-file .claude/minister/latest.md`, follow the release-health gates checklist, and validate the Projects item links to the deployment thread.
 
 ## Extending Minister
 

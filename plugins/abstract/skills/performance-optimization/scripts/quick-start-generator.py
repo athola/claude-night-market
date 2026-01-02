@@ -285,7 +285,7 @@ class QuickStartGenerator:
             "skill-analyzer": "Complexity analysis and recommendations",
             "token-estimator": "Usage forecasting and optimization",
             "module-validator": "Structure validation and compliance",
-            "skills-auditor": "Comprehensive skill discovery and analysis",
+            "skills-auditor": "detailed skill discovery and analysis",
             "improvement-suggester": "Prioritized improvement recommendations",
             "compliance-checker": "Standards validation and security checking",
         }

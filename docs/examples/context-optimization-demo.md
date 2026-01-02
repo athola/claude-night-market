@@ -1,6 +1,6 @@
 # Context Optimization Demo
 
-A comprehensive demonstration of MECW (Most Effective Context Window) principles and context optimization techniques. This reference shows how to manage context pressure in AI-assisted development workflows.
+A detailed demonstration of MECW (Most Effective Context Window) principles and context optimization techniques. This reference shows how to manage context pressure in AI-assisted development workflows.
 
 ## Overview
 

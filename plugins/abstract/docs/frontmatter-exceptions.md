@@ -68,4 +68,4 @@ When adding new markdown files to the skills directory:
 3. **Examples** (files in `examples/` directories) - Should be exceptions
 4. **Framework docs** (describing processes, criteria, methodologies) - Should be exceptions
 
-This approach ensures that only loadable skill content has metadata while preserving documentation clarity.
+This approach validates that only loadable skill content has metadata while preserving documentation clarity.

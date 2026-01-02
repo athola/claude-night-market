@@ -22,14 +22,14 @@ Based on [Agile acceptance criteria best practices](https://www.atlassian.com/ag
 - [ ] [Criterion 3 - specific, testable]
 
 ### Test Evidence
-- Criterion 1: [Evidence reference] → ✅ PASS / ❌ FAIL
-- Criterion 2: [Evidence reference] → ✅ PASS / ❌ FAIL
-- Criterion 3: [Evidence reference] → ✅ PASS / ❌ FAIL
+- Criterion 1: [Evidence reference] → PASS / FAIL
+- Criterion 2: [Evidence reference] → PASS / FAIL
+- Criterion 3: [Evidence reference] → PASS / FAIL
 
 ### Status
-- ✅ COMPLETE: All criteria passed
-- ⚠️ PARTIAL: Some criteria passed (list blockers)
-- ❌ BLOCKED: Cannot complete (explain why)
+- COMPLETE: All criteria passed
+- PARTIAL: Some criteria passed (list blockers)
+- BLOCKED: Cannot complete (explain why)
 
 ### User Verification Steps
 1. [Step-by-step instructions for user to verify]
@@ -53,14 +53,14 @@ Based on [Agile acceptance criteria best practices](https://www.atlassian.com/ag
 - [ ] LSP tools (find_definition, find_references) are callable from Claude
 
 ### Test Evidence
-- Language servers: [E1] `which pylsp` returns valid path → ✅ PASS
-- MCP config: [E2] `.mcp.json` contains cclsp entry → ✅ PASS
-- Env var: [E3] `echo $ENABLE_LSP_TOOLS` returns "1" → ✅ PASS
-- cclsp starts: [E4] `ps aux | grep cclsp` shows running process → ❌ FAIL
-- LSP tools available: [E5] Cannot test (blocked by E4) → ❌ BLOCKED
+- Language servers: [E1] `which pylsp` returns valid path → PASS
+- MCP config: [E2] `.mcp.json` contains cclsp entry → PASS
+- Env var: [E3] `echo $ENABLE_LSP_TOOLS` returns "1" → PASS
+- cclsp starts: [E4] `ps aux | grep cclsp` shows running process → FAIL
+- LSP tools available: [E5] Cannot test (blocked by E4) → BLOCKED
 
 ### Status
-❌ BLOCKED - cclsp does not start in Claude Code 2.0.76 due to bug #14803
+BLOCKED - cclsp does not start in Claude Code 2.0.76 due to bug #14803
 
 ### Known Issues
 - Issue #14803: LSP plugin loading broken in versions 2.0.69-2.0.76
@@ -92,17 +92,17 @@ Cannot provide verification steps - task is blocked by upstream bug.
 - [ ] Auth flow has >85% test coverage
 
 ### Test Evidence
-- Registration: [E1] `curl -X POST /register` returns 201 → ✅ PASS
-- Valid login: [E2] `curl -X POST /login` with correct creds → ✅ PASS
-- Invalid login: [E3] `curl -X POST /login` with wrong creds returns 401 → ✅ PASS
-- Session persistence: [E4] Tested in browser, session survives refresh → ✅ PASS
-- Logout: [E5] Session cleared after `/logout` → ✅ PASS
-- Password hashing: [E6] DB query shows bcrypt hash, not plaintext → ✅ PASS
-- Rate limiting: [E7] 6th request within 1min returns 429 → ✅ PASS
-- Test coverage: [E8] `pytest --cov` shows 87% for auth module → ✅ PASS
+- Registration: [E1] `curl -X POST /register` returns 201 → PASS
+- Valid login: [E2] `curl -X POST /login` with correct creds → PASS
+- Invalid login: [E3] `curl -X POST /login` with wrong creds returns 401 → PASS
+- Session persistence: [E4] Tested in browser, session survives refresh → PASS
+- Logout: [E5] Session cleared after `/logout` → PASS
+- Password hashing: [E6] DB query shows bcrypt hash, not plaintext → PASS
+- Rate limiting: [E7] 6th request within 1min returns 429 → PASS
+- Test coverage: [E8] `pytest --cov` shows 87% for auth module → PASS
 
 ### Status
-✅ COMPLETE - All criteria passed
+COMPLETE - All criteria passed
 
 ### User Verification Steps
 1. Run test suite: `pytest tests/test_auth.py -v`
@@ -132,15 +132,15 @@ Cannot provide verification steps - task is blocked by upstream bug.
 - [ ] Unit test added to prevent regression
 
 ### Test Evidence
-- Leak reproduced: [E1] `valgrind` shows 4KB unreleased per connection → ✅ CONFIRMED
-- Root cause: [E2] Code review shows missing `pool.release()` in error path → ✅ IDENTIFIED
-- Fix implemented: [E3] Added `finally` block with `pool.release()` → ✅ DONE
-- Memory stable: [E4] 1000 ops, memory growth <1% → ✅ PASS
-- No regression: [E5] Benchmark shows same throughput (±2%) → ✅ PASS
-- Regression test: [E6] Added `test_connection_cleanup_on_error()` → ✅ PASS
+- Leak reproduced: [E1] `valgrind` shows 4KB unreleased per connection → CONFIRMED
+- Root cause: [E2] Code review shows missing `pool.release()` in error path → IDENTIFIED
+- Fix implemented: [E3] Added `finally` block with `pool.release()` → DONE
+- Memory stable: [E4] 1000 ops, memory growth <1% → PASS
+- No regression: [E5] Benchmark shows same throughput (±2%) → PASS
+- Regression test: [E6] Added `test_connection_cleanup_on_error()` → PASS
 
 ### Status
-✅ COMPLETE - All criteria passed
+COMPLETE - All criteria passed
 
 ### User Verification Steps
 1. Run regression test: `pytest tests/test_connection_pool.py::test_connection_cleanup_on_error`
@@ -167,17 +167,17 @@ Cannot provide verification steps - task is blocked by upstream bug.
 - [ ] Documentation tested by someone unfamiliar with the feature
 
 ### Test Evidence
-- Description: [E1] README.md contains "## POST /api/users" section → ✅ PASS
-- Request format: [E2] JSON schema and curl example provided → ✅ PASS
-- Response format: [E3] Both 200 and 400 responses documented → ✅ PASS
-- Auth requirements: [E4] "Requires Bearer token" documented → ✅ PASS
-- Rate limits: [E5] "100 requests/hour" documented → ✅ PASS
-- Error codes: [E6] Table of 400, 401, 429, 500 with explanations → ✅ PASS
-- Code examples: [E7] Python and JavaScript examples provided → ✅ PASS
-- Testing: [E8] Junior dev followed docs successfully → ✅ PASS
+- Description: [E1] README.md contains "## POST /api/users" section → PASS
+- Request format: [E2] JSON schema and curl example provided → PASS
+- Response format: [E3] Both 200 and 400 responses documented → PASS
+- Auth requirements: [E4] "Requires Bearer token" documented → PASS
+- Rate limits: [E5] "100 requests/hour" documented → PASS
+- Error codes: [E6] Table of 400, 401, 429, 500 with explanations → PASS
+- Code examples: [E7] Python and JavaScript examples provided → PASS
+- Testing: [E8] Junior dev followed docs successfully → PASS
 
 ### Status
-✅ COMPLETE - All criteria passed
+COMPLETE - All criteria passed
 
 ### User Verification Steps
 1. Open `docs/API.md`
@@ -205,16 +205,16 @@ Cannot provide verification steps - task is blocked by upstream bug.
 - [ ] Reproduction steps documented for recommended approach
 
 ### Test Evidence
-- Approach 1 (native LSP): [E1] Tested in 2.0.76 → ❌ FAIL (bug #14803)
-- Approach 2 (cclsp MCP): [E2] Config tested, cclsp starts → ⚠️ PARTIAL (tools not exposed)
-- Approach 3 (downgrade to 2.0.67): [E3] Research shows this version works → ✅ VIABLE
-- Pros/cons: [E4] Comparison table created → ✅ DONE
-- Known issues: [E5] GitHub search completed, issues documented → ✅ DONE
-- Recommendation: [E6] "Downgrade to 2.0.67 until bug fixed" → ✅ PROVIDED
-- Reproduction steps: [E7] Step-by-step downgrade instructions → ✅ DOCUMENTED
+- Approach 1 (native LSP): [E1] Tested in 2.0.76 → FAIL (bug #14803)
+- Approach 2 (cclsp MCP): [E2] Config tested, cclsp starts → PARTIAL (tools not exposed)
+- Approach 3 (downgrade to 2.0.67): [E3] Research shows this version works → VIABLE
+- Pros/cons: [E4] Comparison table created → DONE
+- Known issues: [E5] GitHub search completed, issues documented → DONE
+- Recommendation: [E6] "Downgrade to 2.0.67 until bug fixed" → PROVIDED
+- Reproduction steps: [E7] Step-by-step downgrade instructions → DOCUMENTED
 
 ### Status
-✅ COMPLETE - Research concluded with recommendation
+COMPLETE - Research concluded with recommendation
 
 ### Findings Summary
 - Native LSP broken in 2.0.76 (blocker)
@@ -231,7 +231,7 @@ Cannot provide verification steps - task is blocked by upstream bug.
 
 ## Anti-Patterns (What NOT to Do)
 
-### ❌ Vague Criteria
+### Vague Criteria
 
 **Bad:**
 - [ ] LSP is set up correctly
@@ -240,7 +240,7 @@ Cannot provide verification steps - task is blocked by upstream bug.
 - [ ] `ps aux | grep cclsp` shows running process
 - [ ] `echo $ENABLE_LSP_TOOLS` returns "1"
 
-### ❌ Non-Testable Criteria
+### Non-Testable Criteria
 
 **Bad:**
 - [ ] Code looks good
@@ -249,21 +249,21 @@ Cannot provide verification steps - task is blocked by upstream bug.
 - [ ] `ruff check` passes with 0 errors
 - [ ] `pytest --cov` shows >85% coverage
 
-### ❌ Assumed Rather Than Proven
+### Assumed Rather Than Proven
 
 **Bad:**
-- Status: ✅ COMPLETE - Should work after restart
+- Status: COMPLETE - Should work after restart
 
 **Good:**
-- Status: ⚠️ PARTIAL - Restart required, tested in fresh session [E9]
+- Status: PARTIAL - Restart required, tested in fresh session [E9]
 
-### ❌ Missing Evidence Links
+### Missing Evidence Links
 
 **Bad:**
-- Session persistence: ✅ PASS
+- Session persistence: PASS
 
 **Good:**
-- Session persistence: [E4] Browser test shows cookie survives refresh → ✅ PASS
+- Session persistence: [E4] Browser test shows cookie survives refresh → PASS
 
 ---
 

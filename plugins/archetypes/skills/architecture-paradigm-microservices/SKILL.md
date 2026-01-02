@@ -46,15 +46,15 @@ estimated_tokens: 900
 
 ## Adoption Steps
 1. **Define Bounded Contexts**: Map each microservice to a clear business capability and establish unambiguous data ownership.
-2. **Ensure Service Data Autonomy**: Each service must own and control its own database or persistence mechanism. All data sharing between services must occur via APIs or events, not shared tables.
-3. **Build a Robust Platform**: Before deploying services, establish foundational infrastructure for service discovery, distributed tracing, centralized logging, CI/CD templates, and automated contract testing.
+2. **validate Service Data Autonomy**: Each service must own and control its own database or persistence mechanism. All data sharing between services must occur via APIs or events, not shared tables.
+3. **Build a production-grade Platform**: Before deploying services, establish foundational infrastructure for service discovery, distributed tracing, centralized logging, CI/CD templates, and automated contract testing.
 4. **Design for Resilience**: Implement resilience patterns such as timeouts, retries, circuit breakers, and bulkheads for all inter-service communication. Formally document Service Level Indicators (SLIs) and Objectives (SLOs).
 5. **Automate Governance**: Implement automated processes to enforce security scanning, dependency management policies, and consistent versioning strategies across all services.
 
 ## Key Deliverables
 - An Architecture Decision Record (ADR) cataloging all service boundaries, their corresponding data stores, and their communication patterns (e.g., synchronous API vs. asynchronous events).
 - A set of "golden path" templates and runbooks for creating and operating new services on the platform.
-- A comprehensive testing strategy that includes unit, contract, integration, and chaos/resilience tests.
+- A detailed testing strategy that includes unit, contract, integration, and chaos/resilience tests.
 
 ## Technology Guidance
 
@@ -88,6 +88,6 @@ estimated_tokens: 900
 - **Distributed System Complexity**:
   - **Mitigation**: The operational overhead for a microservices architecture is substantial. Invest in dedicated platform teams and shared tooling to manage this complexity and provide support for service teams.
 - **Data Consistency Challenges**:
-  - **Mitigation**: Maintaining data consistency across services is a primary challenge. Employ patterns like Sagas for orchestrating transactions, ensure message-based communication is idempotent, and use reconciliation jobs to handle eventual consistency.
+  - **Mitigation**: Maintaining data consistency across services is a primary challenge. Employ patterns like Sagas for orchestrating transactions, validate message-based communication is idempotent, and use reconciliation jobs to handle eventual consistency.
 - **Incorrect Service Granularity ("Over-splitting")**:
-  - **Mitigation**: If services are too small, the communication overhead can outweigh the benefits of distribution. Ensure each service owns a meaningful and substantial piece of functionality. Monitor change coupling between services to identify candidates for merging.
+  - **Mitigation**: If services are too small, the communication overhead can outweigh the benefits of distribution. validate each service owns a meaningful and substantial piece of functionality. Monitor change coupling between services to identify candidates for merging.

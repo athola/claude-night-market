@@ -4,7 +4,7 @@ This guide documents the integration of superpowers marketplace skills with the 
 
 ## Overview
 
-The superpowers marketplace provides 18 specialized skills that implement rigorous methodologies like RED-GREEN-REFACTOR, systematic debugging, and evidence-based operations. This integration enhances existing plugin capabilities without replacing them, creating a more cohesive and powerful development workflow.
+The superpowers marketplace provides 18 specialized skills that implement rigorous methodologies like RED-GREEN-REFACTOR, systematic debugging, and evidence-based operations. This integration enhances existing plugin capabilities without replacing them, creating a cohesive development workflow with better quality gates.
 
 ## Integration Philosophy
 
@@ -35,7 +35,7 @@ The superpowers marketplace provides 18 specialized skills that implement rigoro
 ### Spec-Kit Plugin (Spec Driven Development)
 
 #### Components Enhanced
-- `speckit-orchestrator` skill - Already has comprehensive superpowers dependencies
+- `speckit-orchestrator` skill - Already has full superpowers dependencies
 - `command-skill-matrix` - Already maps commands to superpowers skills
 - `task-planning` skill - Uses writing-plans and executing-plans
 
@@ -128,7 +128,7 @@ I'll use superpowers:brainstorming to refine this skill idea...
 /full-review
 
 # Automatically includes:
-I'll use superpowers:verification-before-completion to ensure all findings are evidence-based...
+I'll use superpowers:verification-before-completion to validate all findings are evidence-based...
 ```
 
 ### Example 3: Fixing PR Comments
@@ -188,7 +188,7 @@ I'll use superpowers:test-driven-development to follow RED-GREEN-REFACTOR...
 1. Identify where your plugin implements common patterns (brainstorming, debugging, verification)
 2. Add superpowers integration sections to your skill/command documentation
 3. Include superpowers calls in your workflows where appropriate
-4. Test integrations to ensure they enhance rather than complicate workflows
+4. Test integrations to verify they enhance rather than complicate workflows
 
 ### For Users
 1. No changes required - integrations are automatic
@@ -213,6 +213,6 @@ Contributions welcome for:
 
 ## Conclusion
 
-The integration of superpowers skills with night-market plugins creates a more cohesive, rigorous, and powerful development ecosystem. By focusing on methodology over features and evidence over assumptions, we elevate the quality and reliability of the entire plugin system while maintaining the unique value proposition of each plugin.
+The integration of superpowers skills with night-market plugins creates a cohesive, rigorous development ecosystem with improved quality gates. By focusing on methodology over features and evidence over assumptions, we elevate the quality and reliability of the entire plugin system while maintaining the unique value proposition of each plugin.
 
-The phased approach ensures immediate value while building toward a more integrated future, where systematic quality and continuous improvement become the standard rather than the exception.
+The phased approach delivers immediate value while building toward a more integrated future, where systematic quality and continuous improvement become the standard rather than the exception.

@@ -66,7 +66,7 @@ go test -covermode=count -coverprofile=coverage.out ./...
 | Minimum | 60% | Legacy code, initial cleanup |
 | Standard | 80% | Normal development |
 | High | 90% | Critical systems, libraries |
-| Comprehensive | 95%+ | Safety-critical, financial |
+| detailed | 95%+ | Safety-critical, financial |
 
 ## Gap Identification
 

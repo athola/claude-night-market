@@ -93,7 +93,7 @@ Analyzes tool use performance based on Claude Developer Platform research.
 
 ### skills-auditor
 
-Comprehensive skill discovery and analysis across all `~/.claude/` locations.
+detailed skill discovery and analysis across all `~/.claude/` locations.
 
 **Features:**
 - Multi-dimensional quality scoring

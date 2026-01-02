@@ -57,21 +57,13 @@ modules:
 
 ## Core Principle
 
-**BEFORE claiming completion, you MUST provide EVIDENCE that:**
-1. ✅ The solution actually works (tested)
-2. ✅ Edge cases are handled (validated)
-3. ✅ Claims are accurate (proven)
-4. ✅ Future verification is possible (reproducible)
+Before claiming completion, you must provide evidence that the solution actually works (tested), edge cases are handled (validated), claims are accurate (proven), and future verification is possible (reproducible).
 
 ## When to Use
 
 ### MANDATORY Usage (Non-Negotiable)
 
-- ✋ Before ANY statement like "this will work", "should work", "is ready"
-- ✋ Before claiming configuration/setup is complete
-- ✋ Before recommending solutions without testing them
-- ✋ Before saying "done" or "finished"
-- ✋ Before telling user to "try this" or "restart and test"
+This skill is required before any statement like "this will work", "should work", or "is ready". Apply it before claiming configuration or setup is complete, before recommending solutions without testing them, before saying "done" or "finished", and before telling users to "try this" or "restart and test".
 
 ### Red Flags (You're About to Violate This)
 
@@ -184,13 +176,12 @@ User can successfully use LSP tools after following these steps:
 - [ ] No known bugs in current Claude Code version block functionality
 
 ### Test Evidence
-- [E1] cclsp process running: ✅ (see evidence)
-- [E2] pylsp responds: ✅ (see evidence)
-- [E3] LSP tools available: ❌ **BLOCKED by bug #14803**
+- [E1] cclsp process running: PASS (see evidence)
+- [E2] pylsp responds: PASS (see evidence)
+- [E3] LSP tools available: FAIL - **BLOCKED by bug #14803**
 
 ### Conclusion
-❌ Cannot claim completion - fundamental blocker identified
-✅ CAN provide: Diagnosis with evidence, workaround options, next steps
+Cannot claim completion due to fundamental blocker identified. Can provide: diagnosis with evidence, workaround options, and next steps.
 ```
 
 ## Integration with Other Skills
@@ -236,9 +227,9 @@ Instead of: "LSP is configured. Restart and it will work."
 
 Required:
 "I've verified your LSP configuration with these tests:
-- ✅ cclsp installed and configured in .mcp.json [E1]
-- ✅ Language servers installed and responsive [E2]
-- ❌ LSP tools unavailable - discovered bug #14803 [E3]
+- [PASS] cclsp installed and configured in .mcp.json [E1]
+- [PASS] Language servers installed and responsive [E2]
+- [FAIL] LSP tools unavailable - discovered bug #14803 [E3]
 
 **Proven Status:** Blocked by known issue in Claude Code 2.0.76
 **Evidence:** See [E3] web search results
@@ -284,8 +275,8 @@ Required:
 
 ## Exit Criteria
 
-✅ All TodoWrite items completed
-✅ Evidence log created with reproducible proofs
-✅ Acceptance criteria defined and validated
-✅ User can independently verify all claims
-✅ Known blockers identified and documented
+- All TodoWrite items completed
+- Evidence log created with reproducible proofs
+- Acceptance criteria defined and validated
+- User can independently verify all claims
+- Known blockers identified and documented

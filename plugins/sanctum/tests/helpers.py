@@ -187,7 +187,7 @@ def generate_complex_commit_message(context: dict) -> str:
 
 
 def generate_pr_description(context: dict) -> str:
-    """Generate a comprehensive PR description.
+    """Generate a detailed PR description.
 
     Args:
         context: PR context with title, description, and changes

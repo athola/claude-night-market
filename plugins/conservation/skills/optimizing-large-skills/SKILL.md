@@ -81,7 +81,7 @@ skill-name/
 
 ### Analysis & Planning
 ```bash
-# Generate comprehensive optimization plan
+# Generate detailed optimization plan
 python skills/optimizing-large-skills/tools/optimization-patterns.py \
   your-skill.md --verbose --generate-plan
 

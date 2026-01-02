@@ -380,7 +380,7 @@ If workflows become large, push them into separate files.
 
 ### Build Evaluations First
 
-Create evaluations BEFORE extensive documentation. This ensures your Skill solves real problems rather than documenting imagined ones.
+Create evaluations BEFORE extensive documentation. This validates your Skill solves real problems rather than documenting imagined ones.
 
 **Evaluation-driven development:**
 1. **Identify gaps**: Run Claude on tasks without a Skill. Document specific failures
@@ -389,7 +389,7 @@ Create evaluations BEFORE extensive documentation. This ensures your Skill solve
 4. **Write minimal instructions**: Just enough to address gaps and pass evaluations
 5. **Iterate**: Execute, compare against baseline, refine
 
-This approach ensures you're solving actual problems rather than anticipating requirements that may never materialize.
+This approach validates you're solving actual problems rather than anticipating requirements that may never materialize.
 
 **Evaluation structure:**
 ```json
@@ -540,7 +540,7 @@ Benefits over Claude-generated code:
 - More reliable than generated code
 - Save tokens (no code in context)
 - Save time (no generation required)
-- Ensure consistency across uses
+- validate consistency across uses
 
 Make clear whether Claude should **execute** or **read** scripts:
 - "Run analyze_form.py to extract fields" (execute)
@@ -629,7 +629,7 @@ reader = PdfReader("file.pdf")
 **Implications:**
 - File paths matter (use forward slashes)
 - Name files descriptively (`form_validation.md` not `doc2.md`)
-- Bundle comprehensive resources freely
+- Bundle detailed resources freely
 - Prefer scripts for deterministic operations
 - Test file access patterns—verify Claude can navigate your structure
 

@@ -33,7 +33,7 @@ import time
 import sys
 
 def main():
-    # Simulate slow operation - use 0.3s to ensure clear difference from fast tool
+    # Simulate slow operation - use 0.3s to validate clear difference from fast tool
     # even with Python startup overhead variance
     time.sleep(0.3)
     print("Slow tool completed")
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         )
 
     def test_benchmark_all_tools(self, sample_tools_dir) -> None:
-        """Test comprehensive benchmarking of all tools."""
+        """Test detailed benchmarking of all tools."""
         analyzer = ToolPerformanceAnalyzer(sample_tools_dir)
         benchmark_results = analyzer.benchmark_all_tools()
 

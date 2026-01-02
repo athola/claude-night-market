@@ -50,7 +50,7 @@ modular-skills/
 
 ### Skills Evaluation (`skills-eval`)
 
-**Purpose:** Comprehensive quality assessment and improvement framework for existing skills.
+**Purpose:** detailed quality assessment and improvement framework for existing skills.
 
 **Core Capabilities:**
 - Skill discovery and cataloging

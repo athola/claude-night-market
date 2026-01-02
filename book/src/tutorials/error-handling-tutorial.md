@@ -1,6 +1,6 @@
 # Error Handling Tutorial
 
-This tutorial provides practical guidance for implementing robust error handling in Claude Code skills and plugins. It covers real-world scenarios, code examples, and best practices.
+This tutorial provides practical guidance for implementing production-grade error handling in Claude Code skills and plugins. It covers real-world scenarios, code examples, and best practices.
 
 ## Table of Contents
 
@@ -104,7 +104,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def robust_file_operation(filepath):
-    """Pattern for file operations with comprehensive error handling"""
+    """Pattern for file operations with detailed error handling"""
     try:
         # Try to open and process file
         with open(filepath, 'r') as f:
@@ -328,7 +328,7 @@ class RobustAPIClient:
         endpoint: str,
         **kwargs
     ) -> Dict[str, Any]:
-        """Make HTTP request with comprehensive error handling"""
+        """Make HTTP request with detailed error handling"""
 
         url = f"{self.base_url}/{endpoint}"
 
@@ -402,7 +402,7 @@ class ProcessingResult:
             self.warnings = []
 
 class DataProcessor:
-    """Robust data processing pipeline"""
+    """Production-grade data processing pipeline"""
 
     def __init__(self, max_workers: int = 4):
         self.max_workers = max_workers
@@ -443,7 +443,7 @@ class DataProcessor:
         return processed_results
 
     async def process_item(self, item: Any) -> ProcessingResult:
-        """Process single item with comprehensive error handling"""
+        """Process single item with detailed error handling"""
 
         warnings = []
 
@@ -672,7 +672,7 @@ def debug_errors(
 # Usage
 @debug_errors()
 async def problematic_function(data):
-    # This function will have comprehensive error logging
+    # This function will have detailed error logging
     return await process_data(data)
 ```
 
@@ -1019,7 +1019,7 @@ def operation_with_consistent_errors():
 
 ## Summary
 
-Effective error handling is crucial for building robust systems. Key takeaways:
+Effective error handling is crucial for building production-grade systems. Key takeaways:
 
 1. **Classify errors** - Use consistent error codes and categories
 2. **Handle gracefully** - Provide meaningful error messages and recovery options

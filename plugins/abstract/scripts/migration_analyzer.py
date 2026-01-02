@@ -164,7 +164,7 @@ class MigrationAnalyzer:
         return migration_path
 
     def generate_migration_report(self) -> MigrationReport | dict[str, str]:
-        """Generate a comprehensive migration report for all commands.
+        """Generate a detailed migration report for all commands.
 
         Returns:
             Report with migration priorities and recommendations

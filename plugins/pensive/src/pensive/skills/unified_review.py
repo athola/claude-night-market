@@ -35,7 +35,7 @@ def dispatch_agent(skill_name: str, _context: Any) -> str:
 
 
 class UnifiedReviewSkill(BaseReviewSkill):
-    """Orchestrates all review skills for comprehensive code review."""
+    """Orchestrates all review skills for detailed code review."""
 
     skill_name: ClassVar[str] = "unified-review"
     supported_languages: ClassVar[list[str]] = [
@@ -507,7 +507,7 @@ class UnifiedReviewSkill(BaseReviewSkill):
         valid_severities = {"critical", "high", "medium", "low"}
 
         for finding in findings:
-            # Ensure all required fields exist
+            # validate all required fields exist
             formatted_finding = {
                 "id": finding.get("id", "UNKNOWN"),
                 "title": finding.get("title", "Untitled"),

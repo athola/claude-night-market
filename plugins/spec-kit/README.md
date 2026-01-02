@@ -37,7 +37,7 @@ claude plugins add spec-kit
 
 ### speckit-orchestrator
 
-Workflow coordinator that ensures skill loading, progress tracking, and consistency throughout the speckit command lifecycle.
+Workflow coordinator that validates skill loading, progress tracking, and consistency throughout the speckit command lifecycle.
 
 ### spec-writing
 

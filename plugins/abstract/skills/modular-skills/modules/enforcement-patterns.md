@@ -2,7 +2,7 @@
 
 ## Overview
 
-This module provides patterns for designing skill frontmatter that ensures reliable discovery and appropriate enforcement. These patterns complement the shared modules in `shared-modules/` with skill-specific guidance.
+This module provides patterns for designing skill frontmatter that validates reliable discovery and appropriate enforcement. These patterns complement the shared modules in `shared-modules/` with skill-specific guidance.
 
 ## The Frontmatter-Only Trigger Pattern
 

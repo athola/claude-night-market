@@ -57,8 +57,8 @@
 ## Optimization Principles Applied
 
 1. **Remove Implementation Details** from descriptions → Move to skill body
-   - Before: "...combines X with Y for comprehensive analysis..."
-   - After: "Comprehensive analysis. Use for..."
+   - Before: "...combines X with Y for detailed analysis..."
+   - After: "detailed analysis. Use for..."
 
 2. **Condense Trigger Lists** → Keep only essential keywords
    - Before: "Triggers: X, Y, Z. Use when: A, B, C, D, E, F..."

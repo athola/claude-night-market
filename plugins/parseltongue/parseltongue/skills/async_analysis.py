@@ -1,6 +1,6 @@
 """Async code analysis skill for parseltongue.
 
-Provides comprehensive analysis of async Python code including:
+Provides detailed analysis of async Python code including:
 - Async function detection and analysis
 - Context manager pattern recognition
 - Concurrency pattern detection

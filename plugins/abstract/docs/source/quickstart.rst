@@ -108,7 +108,7 @@ Batch Operations
 
 .. code-block:: bash
 
-   # Generate comprehensive report
+   # Generate detailed report
    python3 docs/examples/batch_skills_analyzer.py \
        --skills-dir skills \
        --output-dir reports

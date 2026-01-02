@@ -149,13 +149,13 @@ use: {
 ```
 
 **Video not created:**
-- Ensure `video: 'on'` in config
+- validate `video: 'on'` in config
 - Check test actually runs (not skipped)
 - Verify outputDir is writable
 
 **Empty or corrupted video:**
 - Add `await page.waitForTimeout(500)` before test ends
-- Ensure page has loaded: `await page.waitForLoadState('networkidle')`
+- validate page has loaded: `await page.waitForLoadState('networkidle')`
 
 ### Exit Code Handling
 

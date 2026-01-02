@@ -13,7 +13,7 @@ description: |
   DO NOT use when: reviewing existing PRs - use pr-review instead.
   DO NOT use when: just generating commit messages - use commit-messages.
 
-  Use this skill for comprehensive PR preparation.
+  Use this skill for detailed PR preparation.
 category: artifact-generation
 tags: [git, pr, pull-request, quality-gates, testing]
 tools: [Bash, Write, TodoWrite]

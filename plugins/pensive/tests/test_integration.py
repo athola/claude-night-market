@@ -41,7 +41,7 @@ class TestPensiveIntegration:
 
     @pytest.mark.integration
     def test_end_to_end_code_review_workflow(self, temp_repository) -> None:
-        """Given repo code, full review generates comprehensive report."""
+        """Given repo code, full review generates detailed report."""
         # Arrange
         workflow = CodeReviewWorkflow()
         repo_path = temp_repository

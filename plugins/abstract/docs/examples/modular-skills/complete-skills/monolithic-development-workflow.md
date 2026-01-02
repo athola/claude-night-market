@@ -1,11 +1,11 @@
 ---
 name: development-workflow
-description: Comprehensive development workflow covering git, code review, testing, documentation, and deployment practices
+description: detailed development workflow covering git, code review, testing, documentation, and deployment practices
 version: 1.0.0
 created_by: abstract-examples
 tags: [development, workflow, git, testing, documentation, deployment]
 category: workflow
-type: comprehensive
+type: detailed
 estimated_tokens: 850
 dependencies: []
 companion_skills: []
@@ -23,7 +23,7 @@ tools:
 
 # Development Workflow
 
-This is a comprehensive skill that covers the complete software development workflow from initial setup to deployment. This monolithic approach demonstrates the challenges of large skills and serves as a candidate for modularization.
+This is a detailed skill that covers the complete software development workflow from initial setup to deployment. This monolithic approach demonstrates the challenges of large skills and serves as a candidate for modularization.
 
 ## Git Workflow Setup
 
@@ -93,7 +93,7 @@ test(auth): add unit tests for login function
 
 3. **End of day:**
    ```bash
-   # Ensure everything is committed and pushed
+   # validate everything is committed and pushed
    git status
    git push origin feature/new-work
    ```
@@ -156,7 +156,7 @@ Brief description of changes and their purpose.
 **For Reviewers:**
 1. **Check functionality**: Does the code work as intended?
 2. **Review code quality**: Is it readable, maintainable, and follows best practices?
-3. **Verify tests**: Are tests comprehensive and meaningful?
+3. **Verify tests**: Are tests detailed and meaningful?
 4. **Documentation**: Is documentation updated and accurate?
 
 **For Authors:**
@@ -272,7 +272,7 @@ def cleanup_database():
 ```python
 def calculate_user_metrics(user_id: int, date_range: DateRange) -> UserMetrics:
     """
-    Calculate comprehensive metrics for a user within the specified date range.
+    Calculate detailed metrics for a user within the specified date range.
 
     Args:
         user_id: Unique identifier for the user

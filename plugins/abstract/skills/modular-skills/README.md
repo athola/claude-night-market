@@ -51,7 +51,7 @@ skill-name/
 ## Validation Tools
 
 - **module-validator**: Structure and quality checks
-- **skill-analyzer**: Comprehensive skill analysis
+- **skill-analyzer**: detailed skill analysis
 - **token-estimator**: Context usage optimization
 
 ## Best Practices

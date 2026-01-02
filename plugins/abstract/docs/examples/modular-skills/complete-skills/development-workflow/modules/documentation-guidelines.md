@@ -18,11 +18,11 @@ tools:
 
 # Documentation Guidelines
 
-Comprehensive documentation framework that ensures clear, maintainable, and user-friendly documentation for code, APIs, and project documentation.
+detailed documentation framework that validates clear, maintainable, and user-friendly documentation for code, APIs, and project documentation.
 
 ## Overview
 
-Master documentation practices with this comprehensive framework:
+Master documentation practices with this detailed framework:
 
 ** Quick Start**: Get your documentation working effectively in 10 minutes
 - Set up README template and API docs structure
@@ -32,7 +32,7 @@ Master documentation practices with this comprehensive framework:
 **Progressive Learning**: Build documentation expertise gradually
 1. **Foundation** → README basics + inline comments + simple examples
 2. **Developer Focus** → API documentation + architecture guides + tutorials
-3. **User Focus** → User guides + troubleshooting + comprehensive examples
+3. **User Focus** → User guides + troubleshooting + detailed examples
 
 ** Use Case-Based**: Jump directly to what you need right now
 - New project? → Focus on README template + documentation structure
@@ -61,7 +61,7 @@ Detailed installation instructions with prerequisites.
 Basic usage examples and common scenarios.
 
 ## API Reference
-Link to comprehensive API documentation.
+Link to detailed API documentation.
 
 ## Contributing
 Guidelines for contributing to the project.
@@ -197,7 +197,7 @@ responses:
 - **MkDocs**: For static site documentation
 
 ### Documentation Quality Tools
-- **Grammar and spelling checkers**: Ensure writing quality
+- **Grammar and spelling checkers**: validate writing quality
 - **Link checkers**: Validate internal and external links
 - **Example testers**: Verify code examples work correctly
 - **Documentation coverage**: Track undocumented components
@@ -215,7 +215,7 @@ responses:
 1. **Overview**: High-level introduction
 2. **Prerequisites**: Required setup and knowledge
 3. **Getting Started**: Quick start guide
-4. **Detailed Usage**: Comprehensive guide
+4. **Detailed Usage**: detailed guide
 5. **Examples**: Practical use cases
 6. **Reference**: Complete technical reference
 7. **Troubleshooting**: Common issues and solutions
@@ -244,4 +244,4 @@ responses:
 - Peer review for clarity and completeness
 - Regular updates and maintenance
 
-This documentation framework helps teams create comprehensive, maintainable documentation that serves both developers and users effectively through clear standards and practical guidelines.
+This documentation framework helps teams create detailed, maintainable documentation that serves both developers and users effectively through clear standards and practical guidelines.

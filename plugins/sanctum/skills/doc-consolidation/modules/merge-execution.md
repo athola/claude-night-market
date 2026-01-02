@@ -51,7 +51,7 @@ def pre_execution_checks(plan: ConsolidationPlan) -> list[str]:
 def execute_create_new(route: Route) -> ExecutionResult:
     """Create a new file with content."""
 
-    # Ensure directory exists
+    # validate directory exists
     dest_path = Path(route.destination)
     dest_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -257,7 +257,7 @@ def rollback_last():
 
 ## Execution Summary
 
-Generate comprehensive summary:
+Generate detailed summary:
 
 ```markdown
 # Consolidation Complete

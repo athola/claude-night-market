@@ -134,7 +134,7 @@ class OptimizationRecommender:
 ```python
 def generate_compliance_report(session):
     """
-    Generate comprehensive MECW compliance report.
+    Generate detailed MECW compliance report.
     """
     usage = analyze_context_usage(session)
     total = sum(usage.values())

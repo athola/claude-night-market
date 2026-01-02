@@ -7,7 +7,7 @@ tags: [unsafe, ffi, safety, invariants]
 
 # Unsafe & FFI Audit
 
-Comprehensive audit of unsafe code and FFI boundaries.
+detailed audit of unsafe code and FFI boundaries.
 
 ## Unsafe Block Invariants
 

@@ -106,7 +106,7 @@ class OptimizationServiceInterface:
         """Optimize content to fit within token limits.
 
         This is the main entry point for other plugins to optimize their content.
-        Uses condition-based waiting to ensure reliable optimization.
+        Uses condition-based waiting to validate reliable optimization.
 
         Args:
             plugin_name: Name of the plugin requesting optimization
@@ -222,7 +222,7 @@ class OptimizationServiceInterface:
     ) -> dict[str, Any]:
         """Coordinate optimization across multiple plugins.
 
-        Uses condition-based waiting to ensure all plugins are ready
+        Uses condition-based waiting to validate all plugins are ready
         before proceeding with coordinated optimization.
         """
         coordination_result = self.optimizer.wait_for_plugin_coordination(

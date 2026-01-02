@@ -86,7 +86,7 @@ Focus on high-signal findings. Limit to 50 findings total; aggregate remainder i
 
 #### B. Ambiguity Detection
 
-- Flag vague adjectives (fast, scalable, secure, intuitive, robust) lacking measurable criteria
+- Flag vague adjectives (fast, scalable, secure, intuitive, production-grade) lacking measurable criteria
 - Flag unresolved placeholders (TODO, TKTK, ???, `<placeholder>`, etc.)
 
 #### C. Underspecification

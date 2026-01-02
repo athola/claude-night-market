@@ -639,7 +639,7 @@ class TestMathReviewSkill:
 
         def pythagorean_triple_test(a, b, c):
             \"\"\"Test if (a, b, c) forms a Pythagorean triple.\"\"\"
-            # Sort to ensure c is the largest
+            # Sort to validate c is the largest
             sides = sorted([a, b, c])
             return abs(sides[0]**2 + sides[1]**2 - sides[2]**2) < 1e-10
         """

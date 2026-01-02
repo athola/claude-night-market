@@ -745,4 +745,4 @@ async def on_permission_request(self, tool_name: str, tool_input: dict) -> str:
 - **sdk-callbacks.md**: Full SDK implementation patterns
 - **security-patterns.md**: Security best practices for hooks
 - **performance-guidelines.md**: Detailed optimization techniques
-- **testing-hooks.md**: Comprehensive testing strategies
+- **testing-hooks.md**: detailed testing strategies

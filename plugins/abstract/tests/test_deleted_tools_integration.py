@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Integration test to ensure no references to deleted tool files exist."""
+"""Integration test to validate no references to deleted tool files exist."""
 
 import ast
 import re

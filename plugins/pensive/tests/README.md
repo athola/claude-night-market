@@ -1,6 +1,6 @@
 # Pensive Plugin Test Suite
 
-This directory contains comprehensive tests for the pensive code review plugin, following TDD/BDD principles and ensuring high-quality coverage of all functionality.
+This directory contains thorough tests for the pensive code review plugin, following TDD/BDD principles and maintaining high-quality coverage of all functionality.
 
 ## Test Organization
 
@@ -226,7 +226,7 @@ pytest tests/ --lf
 
 When adding new functionality:
 1. Write tests first (TDD)
-2. Ensure coverage meets standards
+2. Verify coverage meets standards
 3. Add integration tests for workflows
 4. Document test scenarios
 5. Update this README if needed

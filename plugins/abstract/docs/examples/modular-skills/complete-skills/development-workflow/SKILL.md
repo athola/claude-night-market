@@ -1,6 +1,6 @@
 ---
 name: development-workflow
-description: Comprehensive development workflow with modular patterns for git, code review, testing, documentation, and deployment
+description: detailed development workflow with modular patterns for git, code review, testing, documentation, and deployment
 version: 2.0.0
 created_by: abstract-examples
 tags: [development, workflow, modular, hub-and-spoke]
@@ -23,7 +23,7 @@ tools:
 
 # Development Workflow Hub
 
-This modular skill provides a comprehensive framework for software development workflows. It's designed as a hub that coordinates specialized modules for different aspects of development.
+This modular skill provides a detailed framework for software development workflows. It's designed as a hub that coordinates specialized modules for different aspects of development.
 
 ## Overview
 
@@ -99,7 +99,7 @@ This modular approach provides several advantages over monolithic workflows:
 
 ## Quality Assurance
 
-Each module includes validation tools to ensure best practices:
+Each module includes validation tools to validate best practices:
 - Automated quality checks
 - Performance benchmarks
 - Security validations

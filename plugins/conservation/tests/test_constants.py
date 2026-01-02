@@ -1,7 +1,7 @@
 """Shared test constants for conservation plugin tests.
 
 This module provides magic number constants shared across all conservation
-plugin tests to avoid duplication and ensure consistency. Import these
+plugin tests to avoid duplication and validate consistency. Import these
 constants instead of defining them locally in test files.
 
 Categories:

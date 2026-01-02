@@ -173,7 +173,7 @@ def _format_changelog_entry(message: str) -> str:
     """
     # Capitalize first letter
     message = message[0].upper() + message[1:] if message else message
-    # Ensure it ends with a period
+    # validate it ends with a period
     if not message.endswith("."):
         message += "."
     return message

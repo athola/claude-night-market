@@ -1,6 +1,6 @@
 ---
 name: deployment-procedures
-description: Comprehensive deployment workflow including CI/CD pipelines, environment setup, monitoring, and production release management
+description: detailed deployment workflow including CI/CD pipelines, environment setup, monitoring, and production release management
 version: 1.0.0
 created_by: abstract-examples
 tags: [deployment, ci-cd, production, monitoring, devops]
@@ -18,11 +18,11 @@ tools:
 
 # Deployment Procedures
 
-Comprehensive deployment framework that ensures reliable, automated, and monitored releases with proper rollback procedures and environment management.
+detailed deployment framework that validates reliable, automated, and monitored releases with proper rollback procedures and environment management.
 
 ## Overview
 
-Master deployment practices with this comprehensive framework:
+Master deployment practices with this detailed framework:
 
 ** Quick Start**: Get your deployments working reliably in 20 minutes
 - Set up basic CI/CD pipeline with automated testing
@@ -427,4 +427,4 @@ fi
 - `kubectl exec` for debugging inside containers
 - Application performance monitoring (APM) tools
 
-This deployment framework provides comprehensive guidance for reliable, automated deployments with proper monitoring, rollback procedures, and security controls to ensure smooth production releases.
+This deployment framework provides detailed guidance for reliable, automated deployments with proper monitoring, rollback procedures, and security controls to validate smooth production releases.

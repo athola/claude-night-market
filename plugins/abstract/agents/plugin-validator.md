@@ -1,6 +1,6 @@
 ---
 name: plugin-validator
-description: Validates Claude Code plugin structure against official requirements - checks plugin.json schema, verifies referenced paths exist, validates kebab-case naming, and ensures skill frontmatter is complete. Use when the user asks to "validate my plugin", "check plugin structure", "verify plugin is correct", "validate plugin.json", "check plugin files", or mentions plugin validation. Trigger proactively after user creates or modifies plugin components.
+description: Validates Claude Code plugin structure against official requirements - checks plugin.json schema, verifies referenced paths exist, validates kebab-case naming, and validates skill frontmatter is complete. Use when the user asks to "validate my plugin", "check plugin structure", "verify plugin is correct", "validate plugin.json", "check plugin files", or mentions plugin validation. Trigger proactively after user creates or modifies plugin components.
 tools: [Read, Grep, Glob, Bash]
 model: haiku
 escalation:

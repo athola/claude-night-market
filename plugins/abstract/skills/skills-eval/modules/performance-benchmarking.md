@@ -2,7 +2,7 @@
 
 ## Overview
 
-The performance benchmarking framework provides comprehensive analysis of skill performance characteristics, including execution speed, memory usage, token efficiency, and scalability. This enables data-driven optimization decisions and ensures skills meet performance standards.
+The performance benchmarking framework provides detailed analysis of skill performance characteristics, including execution speed, memory usage, token efficiency, and scalability. This enables data-driven optimization decisions and validates skills meet performance standards.
 
 ## Benchmarking Categories
 
@@ -65,7 +65,7 @@ class MemoryProfiler:
     """Profile memory usage characteristics"""
 
     def profile_skill_memory(self, skill_path: str) -> MemoryProfile:
-        """Comprehensive memory profiling"""
+        """detailed memory profiling"""
         import tracemalloc
 
         profile = MemoryProfile()
@@ -124,7 +124,7 @@ class TokenEfficiencyBenchmark:
     """Benchmark token usage efficiency"""
 
     def benchmark_token_efficiency(self, skill_path: str) -> TokenBenchmark:
-        """Comprehensive token efficiency analysis"""
+        """detailed token efficiency analysis"""
         benchmark = TokenBenchmark()
 
         content = Path(skill_path).read_text()
@@ -239,13 +239,13 @@ class ScalabilityBenchmark:
         return results
 ```
 
-## Comprehensive Benchmarking Suite
+## detailed Benchmarking Suite
 
 ### Complete Benchmark Runner
 
 ```python
 class PerformanceBenchmarkSuite:
-    """Comprehensive performance benchmarking for Claude Skills"""
+    """detailed performance benchmarking for Claude Skills"""
 
     def benchmark_skill(self, skill_path: str) -> BenchmarkResults:
         """Run complete benchmark suite"""

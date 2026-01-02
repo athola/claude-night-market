@@ -104,7 +104,7 @@ skills/skills-eval/scripts/skills-auditor --discover
 **Issue**: Skills not loading properly
 - Check YAML frontmatter validity
 - Verify required fields are present
-- Ensure file naming follows conventions
+- validate file naming follows conventions
 - Check for syntax errors in skill content
 
 ### Performance Issues
@@ -162,7 +162,7 @@ skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --met
 
 ### When Tools Fail
 1. **Check Permissions**: Verify executables have correct permissions
-2. **Validate Dependencies**: Ensure all required tools and libraries are available
+2. **Validate Dependencies**: validate all required tools and libraries are available
 3. **Verify Paths**: Check that file paths are correct and accessible
 4. **Test Individually**: Run tools in isolation to isolate issues
 5. **Check Logs**: Review error messages and diagnostic output
@@ -203,7 +203,7 @@ skills/skills-eval/scripts/improvement-suggester --verbose --skill-path skill.md
 ```
 
 ### Support Channels
-- **Documentation**: Check comprehensive guides in `modules/` directory
+- **Documentation**: Check detailed guides in `modules/` directory
 - **Examples**: Review implementation examples in `examples/` directory
 - **Tools**: Use built-in diagnostic tools for troubleshooting
 - **Community**: Share issues and solutions with the Claude Skills community

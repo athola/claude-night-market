@@ -22,7 +22,7 @@ queries:
 
 ## Why it matters
 
-Measure cache interception latency to ensure hooks stay under 20ms.
+Measure cache interception latency to validate hooks stay under 20ms.
 
 ## Focus Area
 

@@ -27,7 +27,7 @@
 - **security** - Security vulnerability scans (bandit)
 - **quality-check** - Aggregate quality checks
 - **validate** - Structure and configuration validation
-- **audit** - Comprehensive quality audit
+- **audit** - detailed quality audit
 
 #### Documentation Targets (Optional)
 - **docs** - Generate documentation
@@ -207,7 +207,7 @@ test: ## Run all tests
 - Complete target coverage with advanced features
 - Excellent error handling and user experience
 - Follows all architectural patterns
-- Includes comprehensive demo/dogfood targets
+- Includes detailed demo/dogfood targets
 
 #### Good (80-89)
 - Strong core target coverage

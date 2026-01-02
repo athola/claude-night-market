@@ -1,5 +1,5 @@
 ---
-description: Update and maintain tests using the test-updates skill with TDD/BDD principles and comprehensive quality validation.
+description: Update and maintain tests using the test-updates skill with TDD/BDD principles and detailed quality validation.
 ---
 
 # Update Tests
@@ -7,7 +7,7 @@ description: Update and maintain tests using the test-updates skill with TDD/BDD
 To update tests following TDD/BDD principles with meta dogfooding, load skills in order:
 
 1. Run `Skill(sanctum:git-workspace-review)` to capture change context and complete its `TodoWrite` items.
-2. Run `Skill(test-updates)` and follow the comprehensive workflow:
+2. Run `Skill(test-updates)` and follow the detailed workflow:
    - **Discovery**: Analyze codebase for test gaps and changes
    - **Generation**: Create new tests using TDD principles
    - **Enhancement**: Apply BDD patterns to existing tests
@@ -16,7 +16,7 @@ To update tests following TDD/BDD principles with meta dogfooding, load skills i
 ## Workflow
 
 ### Discovery Phase
-- Comprehensive scan of codebase for test coverage gaps
+- detailed scan of codebase for test coverage gaps
 - Git-based change detection for recent modifications
 - Targeted analysis when specific paths provided
 - Priority scoring based on impact and risk
@@ -48,7 +48,7 @@ Skill(test-updates)
 
 # With git context
 Skill(sanctum:git-workspace-review)
-Skill(test-updates) --comprehensive
+Skill(test-updates) --detailed
 ```
 
 ### Targeted Updates
@@ -74,12 +74,12 @@ Skill(test-updates) --scaffold-only --target src/new_module/
 
 ## Quality Gates
 
-Before completing, ensure:
+Before completing, validate:
 - [ ] All tests follow BDD patterns
 - [ ] Coverage meets minimum standards (85% line, 80% branch)
 - [ ] Mutation score is acceptable (>80%)
 - [ ] Tests are independent and fast
-- [ ] Documentation is clear and comprehensive
+- [ ] Documentation is clear and detailed
 
 ## Manual Execution
 

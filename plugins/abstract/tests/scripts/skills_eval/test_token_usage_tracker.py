@@ -61,12 +61,12 @@ Here are some examples of how to use this skill effectively.
 """,
             "large-skill": """---
 name: large-skill
-description: A comprehensive skill with extensive content
+description: A detailed skill with extensive content
 category: advanced
 dependencies: [medium-skill]
 ---
 
-# Large Comprehensive Skill
+# Large detailed Skill
 
 ## Overview
 This skill contains extensive content covering multiple aspects of the topic.
@@ -98,7 +98,7 @@ This section covers all the configuration options available:
 Multiple examples showing how to integrate this skill with other tools and workflows.
 
 ### Troubleshooting Guide
-Comprehensive troubleshooting guide covering common issues and their solutions.
+detailed troubleshooting guide covering common issues and their solutions.
 """,
         }
 
@@ -155,7 +155,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         assert analysis["needs_modularization"]
 
     def test_analyze_all_skills(self, sample_skills_dir) -> None:
-        """Test comprehensive token analysis across all skills."""
+        """Test detailed token analysis across all skills."""
         tracker = TokenUsageTracker(sample_skills_dir)
         all_analysis = tracker.analyze_all_skills()
 
@@ -229,7 +229,7 @@ Comprehensive troubleshooting guide covering common issues and their solutions.
         assert len(tracker.usage_history) > 0
 
     def test_generate_usage_report(self, sample_skills_dir) -> None:
-        """Test comprehensive usage report generation."""
+        """Test detailed usage report generation."""
         tracker = TokenUsageTracker(sample_skills_dir)
         analysis = tracker.analyze_all_skills()
         report = tracker.generate_usage_report(analysis)

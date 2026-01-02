@@ -339,7 +339,7 @@ class TokenUsageTracker:
         }
 
     def get_usage_statistics(self) -> dict[str, Any]:
-        """Get comprehensive usage statistics."""
+        """Get detailed usage statistics."""
         # Track all skills first
         skill_files = list(self.skills_dir.rglob("SKILL.md"))
         entries = []

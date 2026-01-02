@@ -10,7 +10,7 @@ estimated_tokens: 350
 
 # Memory Palace Validation
 
-Systematic validation ensures your memory palace actually works for recall and navigation.
+Systematic validation validates your memory palace actually works for recall and navigation.
 
 ## Validation Metrics
 

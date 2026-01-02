@@ -38,7 +38,7 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 | `/bulletproof-skill` | Anti-rationalization workflow for hardening |
 | `/context-report` | Context optimization report |
 | `/estimate-tokens` | Estimate token usage for skills |
-| `/hooks-eval` | Comprehensive hook evaluation |
+| `/hooks-eval` | detailed hook evaluation |
 | `/make-dogfood` | Analyze and enhance Makefiles |
 | `/skills-eval` | Run skill quality assessment |
 | `/test-skill` | Skill testing with TDD methodology |

@@ -67,7 +67,7 @@ pytest tests/math/ --benchmark-compare=baseline
 **Regression Detection**
 ```python
 def test_algorithm_performance(benchmark):
-    """Ensure O(n log n) complexity maintained"""
+    """validate O(n log n) complexity maintained"""
     n = 10000
     data = np.random.rand(n)
 

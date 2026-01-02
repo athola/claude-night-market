@@ -23,7 +23,7 @@ tests/
 
 ### Prerequisites
 
-Ensure you have the required dependencies installed:
+validate you have the required dependencies installed:
 
 ```bash
 # Install test dependencies
@@ -114,7 +114,7 @@ python -m pytest tests/performance/ -v -k "stress"
 The tests use dynamically generated sample skills that cover various scenarios:
 
 - **Small skills**: Simple, focused content (50-100 tokens)
-- **Large skills**: Complex, comprehensive content (1000+ tokens)
+- **Large skills**: Complex, detailed content (1000+ tokens)
 - **Modular structures**: Hub with multiple focused modules
 - **Dependency chains**: Skills with inter-module dependencies
 - **Invalid structures**: Edge cases and error conditions
@@ -310,7 +310,7 @@ python -m pytest tests/unit/test_skill_analyzer.py::TestSkillAnalyzer::test_skil
 
 1. **Follow naming conventions**: `test_[functionality].py`
 2. **Use appropriate fixtures** for common setup
-3. **Add comprehensive coverage** for new functionality
+3. **Add detailed coverage** for new functionality
 4. **Include edge cases** and error conditions
 5. **Document test scenarios** in docstrings
 
@@ -375,7 +375,7 @@ def sample_skill_file(self):
 
 When modifying existing functionality:
 
-1. **Run related tests** to ensure no regressions
+1. **Run related tests** to validate no regressions
 2. **Update test expectations** if behavior changes intentionally
 3. **Add new tests** for modified functionality
 4. **Verify coverage** remains acceptable

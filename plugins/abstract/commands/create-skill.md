@@ -54,7 +54,7 @@ The brainstorming phase will:
    - What should this skill NOT be used for?
 
 2. **Explore approaches** - Present 2-3 alternatives:
-   - Single comprehensive skill vs. modular with hub
+   - Single detailed skill vs. modular with hub
    - Technique-focused vs. pattern-focused vs. reference-focused
    - Standalone vs. integrated with existing skills
 

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This plan addresses DRY violations and modularization opportunities identified through comprehensive skill evaluation. The conjure plugin should leverage leyline infrastructure instead of maintaining duplicate implementations.
+This plan addresses DRY violations and modularization opportunities identified through detailed skill evaluation. The conjure plugin should use leyline infrastructure instead of maintaining duplicate implementations.
 
 ## Current State Analysis
 

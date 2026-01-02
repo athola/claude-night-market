@@ -126,7 +126,7 @@ With 30K budget: **50.7% used** ✅ (healthy headroom)
 ### Coverage Analysis
 
 **Well-Covered Domains**:
-- ✅ sanctum: Comprehensive git/PR workflows (16 commands)
+- ✅ sanctum: detailed git/PR workflows (16 commands)
 - ✅ spec-kit: Complete SDD lifecycle (9 commands)
 - ✅ pensive: Multi-discipline code review (8 commands)
 
@@ -299,7 +299,7 @@ With 30K budget: **50.7% used** ✅ (healthy headroom)
 ### README Coverage
 
 **Excellent**:
-- ✅ Root README comprehensive
+- ✅ Root README detailed
 - ✅ Plugin dependency graph (Mermaid)
 - ✅ Capabilities reference
 
@@ -477,7 +477,7 @@ scry             1 subagent   ✅ Appropriate
 
 ## Conclusion
 
-The Claude Night Market ecosystem demonstrates **strong architectural foundations** with excellent modular design patterns, clear plugin separation, and comprehensive skill coverage. However, the **critical system prompt budget crisis** is preventing the ecosystem from reaching its full potential.
+The Claude Night Market ecosystem demonstrates **strong architectural foundations** with excellent modular design patterns, clear plugin separation, and detailed skill coverage. However, the **critical system prompt budget crisis** is preventing the ecosystem from reaching its full potential.
 
 **Immediate action required**: Setting `SLASH_COMMAND_TOOL_CHAR_BUDGET=30000` resolves the crisis and provides 49% headroom for growth.
 

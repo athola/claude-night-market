@@ -185,7 +185,7 @@ claude
 # Claude should read the module and show lines 34-48 from git-history-analysis.md
 
 # 4. Test cross-module synthesis
-> "How do I run a comprehensive bloat scan combining quick-scan and code-bloat-patterns?"
+> "How do I run a detailed bloat scan combining quick-scan and code-bloat-patterns?"
 # Claude should read both modules and synthesize a workflow
 ```
 

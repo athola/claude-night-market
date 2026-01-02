@@ -11,7 +11,7 @@ estimated_tokens: 900
 
 # Modular Skills Implementation Patterns
 
-This document covers the implementation patterns we use for our modular skills. We follow these patterns to ensure that our skills are easy to understand, maintain, and use.
+This document covers the implementation patterns we use for our modular skills. We follow these patterns to validate that our skills are easy to understand, maintain, and use.
 
 ## Phase 3: Implementing the Skill
 
@@ -45,7 +45,7 @@ Here's how we structure our skills:
 
 ### Script Integration
 
-We believe that the most powerful skills are those that integrate with scripts to automate tasks. When we build scripts, we follow these guidelines:
+We believe that the most capable skills are those that integrate with scripts to automate tasks. When we build scripts, we follow these guidelines:
 
 - They should be executable from the command line.
 - They should be self-contained and have a clear interface.

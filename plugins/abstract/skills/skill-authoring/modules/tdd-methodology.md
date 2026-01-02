@@ -2,7 +2,7 @@
 
 ## Overview
 
-Test-Driven Development (TDD) for skills means documenting Claude's failures before writing interventions. This ensures skills solve real problems rather than imagined ones.
+Test-Driven Development (TDD) for skills means documenting Claude's failures before writing interventions. This validates skills solve real problems rather than imagined ones.
 
 ## The RED-GREEN-REFACTOR Cycle
 
@@ -323,7 +323,7 @@ Force explicit acknowledgment:
 ```markdown
 ## Before Starting
 
-Declare: "I'm using secure-api-design skill to ensure
+Declare: "I'm using secure-api-design skill to validate
 complete security coverage regardless of scope or timeframe."
 
 ## During Work

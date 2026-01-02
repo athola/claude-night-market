@@ -69,7 +69,7 @@ Generate **3–5 distinct improvement approaches** and score each on:
 - Reversibility (easy to rollback)
 - Consistency (matches existing sanctum patterns)
 
-Prefer small, high-leverage changes:
+Prefer small, high-use changes:
 - Tighten a skill’s steps and exit criteria
 - Add a missing command option or usage clarity
 - Improve a hook guardrail or make it observable

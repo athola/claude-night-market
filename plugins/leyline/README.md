@@ -4,7 +4,7 @@ Infrastructure and pipeline building blocks plugin for Claude Code.
 
 ## Overview
 
-Leyline provides shared utilities, patterns, and services that other plugins can leverage to build consistent functionality.
+Leyline provides shared utilities, patterns, and services that other plugins can use to build consistent functionality.
 
 ## Philosophy
 

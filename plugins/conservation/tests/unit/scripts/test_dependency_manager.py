@@ -318,7 +318,7 @@ class TestDependencyManagerImplementation:
     def test_manager_generates_comprehensive_report(
         self, manager: DependencyManager
     ) -> None:
-        """Scenario: Manager generates comprehensive dependency report.
+        """Scenario: Manager generates detailed dependency report.
 
         Given a plugin with dependencies
         When generating a report

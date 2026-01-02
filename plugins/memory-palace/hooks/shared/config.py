@@ -233,7 +233,7 @@ def is_path_safe(path: str) -> bool:
         if ".." in path or path_str != os.path.normpath(path_str):
             return False
 
-        # Ensure path doesn't escape to sensitive locations
+        # validate path doesn't escape to sensitive locations
         sensitive_paths = ["/etc/", "/root/", "/var/log/", "/.ssh/"]
         return all(not path_str.startswith(sensitive) for sensitive in sensitive_paths)
     except (ValueError, OSError):

@@ -44,7 +44,7 @@ For each PR (explicit or inferred):
 Before creating tags:
 - Confirm PR is merged (`merged: true`)
 - Verify tag doesn't already exist: `git tag -l <version>`
-- Ensure version follows semver format
+- validate version follows semver format
 
 ### Step 4: Create Tags
 

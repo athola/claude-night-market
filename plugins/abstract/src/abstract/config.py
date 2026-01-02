@@ -357,7 +357,7 @@ class AbstractConfig:
         """Validate configuration and return list of issues."""
         issues = []
 
-        # Validate numeric ranges (ensure sub-configs exist)
+        # Validate numeric ranges (validate sub-configs exist)
         if self.skill_analyzer is not None:
             default = self.skill_analyzer.DEFAULT_THRESHOLD
             min_thresh = self.skill_analyzer.MIN_THRESHOLD
@@ -394,7 +394,7 @@ class AbstractConfig:
 
     def get_summary(self) -> str:
         """Get configuration summary."""
-        # Ensure sub-configs are initialized (they should be after __post_init__)
+        # validate sub-configs are initialized (they should be after __post_init__)
         if self.skill_validation is None:
             msg = "skill_validation not initialized"
             raise ValueError(msg)

@@ -80,7 +80,7 @@ modules = selector.select_modules(
 ### Hub Responsibilities
 1. **Context Detection**: Identify user intent, artifacts, workflow type
 2. **Module Selection**: Choose which modules to load based on context
-3. **Budget Management**: Ensure MECW compliance before loading
+3. **Budget Management**: Verify MECW compliance before loading
 4. **Integration Coordination**: Provide integration points with other skills
 5. **Exit Criteria**: Define completion criteria across all paths
 
@@ -121,7 +121,7 @@ See `modules/loading-patterns.md` for implementation patterns:
 2. **Tag Modules Clearly**: Use YAML frontmatter to indicate context triggers
 3. **Measure Token Cost**: Know the cost of each module for selection
 4. **Monitor Loading**: Track which modules are actually used
-5. **Validate Paths**: Ensure all context paths have required modules
+5. **Validate Paths**: Verify all context paths have required modules
 6. **Document Triggers**: Make context detection logic transparent
 
 ## Module References

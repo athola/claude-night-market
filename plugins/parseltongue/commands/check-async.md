@@ -67,4 +67,4 @@ Uses the `python-async` skill's analysis tools:
 - `async-analyzer`: Pattern and correctness analysis
 - `concurrency-checker`: Concurrent operation validation
 
-This command ensures async code follows best practices and avoids common pitfalls.
+This command validates async code follows best practices and avoids common pitfalls.

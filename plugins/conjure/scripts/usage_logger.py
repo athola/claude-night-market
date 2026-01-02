@@ -106,7 +106,7 @@ class GeminiUsageLogger:
             # Update stats
             session_data["last_activity"] = log_entry["timestamp"]
 
-            # Ensure numeric fields exist with correct type
+            # validate numeric fields exist with correct type
             total_requests: int = int(session_data.get("total_requests", 0))
             total_tokens: int = int(session_data.get("total_tokens", 0))
             successful_requests: int = int(session_data.get("successful_requests", 0))

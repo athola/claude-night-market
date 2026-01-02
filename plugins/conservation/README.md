@@ -16,7 +16,7 @@ make deps
 
 ## Session Start Integration
 
-Conservation skills are automatically loaded at session start via hooks. This ensures optimized performance, token usage, and context management from the beginning of every Claude Code session.
+Conservation skills are automatically loaded at session start via hooks. This optimizes performance, token usage, and context management from the beginning of every Claude Code session.
 
 ### Bypass Modes
 
@@ -30,7 +30,7 @@ Set the `CONSERVATION_MODE` environment variable to control behavior:
 
 ## Key Concepts
 
-**MECW (Maximum Effective Context Window)**: Keep context pressure under 50% of the total window. Beyond this threshold, response quality degrades. Conservation skills enforce this.
+**MECW (Maximum Effective Context Window)**: Keep context pressure under 50% of the total window. Beyond this threshold, response quality degrades. Conservation skills monitor and maintain this limit.
 
 **MCP Patterns**: Instead of passing large datasets through conversation context, use MCP tools to process data at the source and return only results. This works well for tool chains that would otherwise consume thousands of tokens.
 
@@ -46,7 +46,7 @@ Identify dead code, duplication, and documentation bloat through progressive ana
 /bloat-scan                              # Quick scan (Tier 1, 2-5 min)
 /bloat-scan --level 2                    # Targeted analysis (10-20 min)
 /bloat-scan --level 2 --focus code       # Focus on code bloat only
-/bloat-scan --level 3 --report audit.md  # Comprehensive audit (30-60 min)
+/bloat-scan --level 3 --report audit.md  # Deep audit (30-60 min)
 ```
 
 **Detects:**
@@ -127,7 +127,7 @@ The `bloat-detector` skill provides the intelligence behind `/bloat-scan` and `/
 **Detection Tiers:**
 - **Tier 1**: Heuristic-based (no tools required, 2-5 min)
 - **Tier 2**: Static analysis integration (Vulture/Knip, 10-20 min)
-- **Tier 3**: Comprehensive audit (full tooling, 30-60 min)
+- **Tier 3**: Deep audit (full tooling, 30-60 min)
 
 **Benefits:**
 - Reduces context usage by 10-20% on average

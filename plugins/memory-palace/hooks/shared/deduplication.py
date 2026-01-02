@@ -82,7 +82,7 @@ def _load_index() -> dict[str, Any]:
         with open(index_path) as f:
             _index_cache = yaml.safe_load(f) or {"entries": {}, "hashes": {}}
 
-        # Ensure required keys exist
+        # validate required keys exist
         _index_cache.setdefault("entries", {})
         _index_cache.setdefault("hashes", {})
 
@@ -210,7 +210,7 @@ def update_index(
     index_path = _get_index_path()
     index_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write to temp file in same directory (ensures same filesystem for atomic rename)
+    # Write to temp file in same directory (validates same filesystem for atomic rename)
     fd, tmp_path = tempfile.mkstemp(
         suffix=".tmp",
         prefix="memory-palace-index-",

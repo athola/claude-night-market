@@ -32,7 +32,7 @@ class TestImbueValidator:
     """Feature: Imbue plugin validates review workflow infrastructure.
 
     As a plugin developer
-    I want validation to ensure review workflows are properly structured
+    I want validation to validate review workflows are properly structured
     So that evidence logging and structured outputs work correctly
     """
 
@@ -515,7 +515,7 @@ This skill provides review scaffolding with checklist and deliverables.
         if ImbueValidator is None:
             pytest.skip("ImbueValidator not available")
 
-        # Arrange - ensure all skills have proper patterns
+        # Arrange - validate all skills have proper patterns
         for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
             content = skill_file.read_text()
             if "evidence" not in content.lower():
@@ -642,7 +642,7 @@ Also includes EVIDENCE logging.
         if imbue_main is None:
             pytest.skip("imbue_main not available")
 
-        # Ensure all skills mention evidence so validation passes.
+        # validate all skills mention evidence so validation passes.
         for skill_file in mock_plugin_structure.glob("skills/*/SKILL.md"):
             content = skill_file.read_text(errors="ignore")
             if "evidence" not in content.lower():

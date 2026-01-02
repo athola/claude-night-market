@@ -272,7 +272,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 **Recommendations**:
 - Use 2.0.70+ for accurate context percentage calculations
 - Use 2.0.74+ /context visualization for plugin-level optimization
-- Leverage LSP for token-efficient code navigation
+- use LSP for token-efficient code navigation
 - Native visibility replaces manual context estimation
 
 ### Sanctum Plugin
@@ -286,13 +286,13 @@ This document tracks compatibility between the claude-night-market plugin ecosys
   - Reference finding: Locate all usages of documented items
   - API completeness: Verify all public APIs are documented
   - Signature verification: Check docs match actual code
-  - Cross-reference validation: Ensure doc links are accurate
+  - Cross-reference validation: validate doc links are accurate
 
 **Recommendations**:
 - Use 2.0.71+ for automated PR workflows with MCP
-- Use 2.0.74+ with LSP for comprehensive documentation updates
+- Use 2.0.74+ with LSP for detailed documentation updates
 - GitHub Actions integration requires 2.0.71+ for reliable MCP
-- Leverage LSP to ensure documentation completeness and accuracy
+- use LSP to validate documentation completeness and accuracy
 
 ### Leyline Plugin
 
@@ -345,7 +345,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 - Use 2.0.74+ with `ENABLE_LSP_TOOLS=1` for semantic code review
 - Fork sessions for specialized reviews (security, performance, maintainability)
 - Combine LSP-powered analysis with traditional pattern matching
-- Leverage LSP for accurate impact assessments during refactoring reviews
+- use LSP for accurate impact assessments during refactoring reviews
 
 ### Memory-Palace Plugin
 
@@ -391,7 +391,7 @@ The ecosystem maintains backward compatibility with Claude Code 2.0.65+. All ver
    ```
 
 3. **Review Hook Validation**:
-   - Ensure hooks don't block legitimate glob patterns
+   - validate hooks don't block legitimate glob patterns
    - Update dangerous pattern lists to focus on actual risks
    - See: `abstract/skills/hook-authoring/modules/security-patterns.md`
 
@@ -596,7 +596,7 @@ claude --fork-session --session-id "maintainability-analysis" --resume
 - Parallel specialized reviews
 - Independent evidence logging
 - No cross-contamination of perspectives
-- Comprehensive multi-angle analysis
+- detailed multi-angle analysis
 
 #### Pensive: Multi-Perspective Code Reviews
 
@@ -623,7 +623,7 @@ claude --fork-session --session-id "test-review" --resume
 - Deep-dive specialized reviews
 - Avoid diluting focus across concerns
 - Expert-level analysis per dimension
-- Combine insights for comprehensive feedback
+- Combine insights for detailed feedback
 
 #### Memory-Palace: Exploratory Knowledge Intake
 
@@ -792,7 +792,7 @@ claude --fork-session --session-id "e2e-test-strategy" --resume
 # Fork: Contract test approach
 claude --fork-session --session-id "contract-test-strategy" --resume
 
-# Combine insights for comprehensive test strategy
+# Combine insights for detailed test strategy
 ```
 
 ## LSP Integration Patterns (2.0.74+)
@@ -971,7 +971,7 @@ Claude should respond with precise, semantic results instead of text-based grep 
 **Language server not working**:
 - Verify language server is installed: `which typescript-language-server` or `which pylsp`
 - Check `.cclsp.json` command paths match installed locations
-- Ensure project has proper language config files (tsconfig.json, pyproject.toml, etc.)
+- validate project has proper language config files (tsconfig.json, pyproject.toml, etc.)
 
 **LSP queries failing**:
 - Confirm `ENABLE_LSP_TOOLS=1` is set in environment
@@ -1010,7 +1010,7 @@ ENABLE_LSP_TOOLS=1 claude
 **Agent Integration**:
 When LSP is available, agents should:
 - Use LSP for reference finding instead of grep
-- Leverage type information for better analysis
+- use type information for better analysis
 - Detect unused code automatically
 - Provide accurate impact assessments
 
@@ -1019,7 +1019,7 @@ When LSP is available, agents should:
 **Enhanced Capabilities**:
 1. **Reference Finding**: Locate all usages of documented items
 2. **API Completeness**: Verify all public APIs are documented
-3. **Cross-Reference Validation**: Ensure doc links are accurate
+3. **Cross-Reference Validation**: validate doc links are accurate
 4. **Signature Verification**: Check docs match actual signatures
 
 **Example Workflow**:
@@ -1207,7 +1207,7 @@ allowed-tools: [Read, Bash, Grep, Glob]
 # ❌ Write new files
 ```
 
-**Note**: Bash is powerful - if allowed, skill can still do dangerous things. Consider carefully.
+**Note**: Bash is capable - if allowed, skill can still do dangerous things. Consider carefully.
 
 #### Pattern 3: No External Execution
 

@@ -1,6 +1,6 @@
 # Conjure Plugin Tests
 
-This directory contains comprehensive tests for the conjure plugin, following TDD/BDD principles and the patterns established in the abstract plugin.
+This directory contains detailed tests for the conjure plugin, following TDD/BDD principles and the patterns established in the abstract plugin.
 
 ## Test Structure
 

@@ -45,7 +45,7 @@ Review pull requests with discipline: validate against original requirements, pr
 
 **A PR review validates scope compliance, not code perfection.**
 
-The goal is to ensure the implementation meets its stated requirements without introducing regressions. Improvements beyond the scope belong in future PRs.
+The goal is to validate the implementation meets its stated requirements without introducing regressions. Improvements beyond the scope belong in future PRs.
 
 ## When to Use
 
@@ -170,7 +170,7 @@ Before detailed code review, check scope coverage:
 
 **Run version validation checks BEFORE code review.**
 
-See `modules/version-validation.md` for comprehensive validation procedures.
+See `modules/version-validation.md` for detailed validation procedures.
 
 **Quick reference:**
 1. Check if bypass requested (`--skip-version-check`, label, or PR marker)

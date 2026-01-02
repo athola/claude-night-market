@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Setup script for Skills Evaluation Framework.
 
-Ensures all tools are executable and dependencies are available.
+validates all tools are executable and dependencies are available.
 """
 
 import logging

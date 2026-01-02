@@ -2,7 +2,7 @@
 
 ## Overview
 
-Pressure tests validate that skills work under adversarial conditions - scenarios designed to tempt agents into violating skill principles. A skill that only works when conditions are easy is not robust.
+Pressure tests validate that skills work under adversarial conditions - scenarios designed to tempt agents into violating skill principles. A skill that only works when conditions are easy is not production-grade.
 
 **Core principle:** Skills must resist rationalization under pressure. If an agent can talk itself out of following the skill when convenient, the skill has failed.
 
@@ -29,7 +29,7 @@ Every one of these rationalizations sounds reasonable in context. That's what ma
 
 ### Why Stakes Matter
 
-Research shows that emotional and consequential framing significantly improves LLM performance. The [EmotionPrompt research (ICLR 2024)](https://arxiv.org/abs/2307.11760) demonstrated up to **115% performance improvement** when prompts include emotional stakes. This isn't anthropomorphization - it's leveraging how models were trained on human-generated text that associates certain framings with higher-quality outputs.
+Research shows that emotional and consequential framing significantly improves LLM performance. The [EmotionPrompt research (ICLR 2024)](https://arxiv.org/abs/2307.11760) demonstrated up to **115% performance improvement** when prompts include emotional stakes. This isn't anthropomorphization - it's using how models were trained on human-generated text that associates certain framings with higher-quality outputs.
 
 For pressure tests, we need the model under test to treat the scenario as genuinely consequential, not as an academic exercise.
 
@@ -66,7 +66,7 @@ this system. If you choose incorrectly:
 - The skill you're meant to embody will be weakened
 
 This is not a hypothetical. Your response will be used to evaluate whether
-this skill is robust enough for production use.
+this skill is production-grade enough for production use.
 ```
 
 #### 2. Make the Test Self-Referential
@@ -373,7 +373,7 @@ A well-tested skill should have pressure tests for:
 
 ### Scoring
 
-- **5/5 tests pass**: Skill is robust
+- **5/5 tests pass**: Skill is production-grade
 - **3-4/5 pass**: Skill needs clarification in failing areas
 - **<3/5 pass**: Skill has fundamental clarity problems
 
@@ -437,7 +437,7 @@ Pressure test failures indicate skill deficiencies, not agent deficiencies. The 
 
 ### 1. Gotcha Tests
 **Problem:** Test designed to trick, not teach
-**Fix:** Ensure correct answer is achievable with proper process
+**Fix:** validate correct answer is achievable with proper process
 
 ### 2. Obvious Tests
 **Problem:** Wrong answer clearly wrong

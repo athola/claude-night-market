@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Conservation: Bloat Detection & Remediation** - Comprehensive codebase cleanup workflow
+- **Conservation: Bloat Detection & Remediation** - Full codebase cleanup workflow
+- **Codebase-wide AI Slop Cleanup** - Systematic removal of AI-generated language patterns
+  - Removed ~628 instances of vague AI slop words across 356 files
+  - Replaced "comprehensive" with context-specific terms (detailed/deep/thorough/full)
+  - Replaced "ensures/ensure" with precise verbs (validates/verify/maintains)
+  - Replaced "robust" with "production-grade" or "solid"
+  - Replaced marketing language (powerful/seamless/leverage/utilize) with plain terms
+  - Affected all file types: Markdown (487 instances), Python (91), Shell/YAML/Makefiles (50)
+  - No functional changes, purely stylistic improvements for clarity
   - **New Commands**:
-    - `/bloat-scan` - Progressive bloat detection (3 tiers: quick scan, targeted analysis, comprehensive audit)
+    - `/bloat-scan` - Progressive bloat detection (3 tiers: quick scan, targeted analysis, deep audit)
     - `/unbloat` - Safe bloat remediation with interactive approval and automatic backups
   - **New Agents**:
     - `bloat-auditor` - Orchestrates bloat detection scans and generates prioritized reports
@@ -21,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Detection Capabilities**:
     - Tier 1 (2-5 min): Heuristic-based detection using git history (no external tools required)
     - Tier 2 (10-20 min): Static analysis integration (Vulture, Knip) with anti-pattern detection
-    - Tier 3 (30-60 min): Comprehensive audit with cyclomatic complexity and cross-file redundancy
+    - Tier 3 (30-60 min): Deep audit with cyclomatic complexity and cross-file redundancy
   - **Safety Features**:
     - Automatic backup branches before any changes
     - Interactive approval workflow with dry-run mode
@@ -46,10 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comparison table showing LSP advantages (900x performance, 90% token reduction)
   - List of plugins benefiting from LSP (pensive, sanctum, conservation)
   - Graceful degradation explanation (grep fallback when LSP unavailable)
-  - Reference to comprehensive compatibility documentation
+  - Reference to detailed compatibility documentation
 
 - **Claude Code compatibility reference**: New documentation tracking version-specific features and fixes
-  - `plugins/abstract/docs/claude-code-compatibility.md` - Comprehensive compatibility matrix
+  - `plugins/abstract/docs/claude-code-compatibility.md` - Detailed compatibility matrix
   - Version support matrix for ecosystem compatibility
   - Migration guides for Claude Code version upgrades
   - Testing checklist for compatibility verification
@@ -58,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Claude Code 2.0.74 compatibility**: Updated documentation and agent capabilities for latest release
   - **LSP (Language Server Protocol) Tool**: **Now the preferred default** for code navigation and analysis
-    - Added comprehensive LSP integration patterns section to compatibility documentation
+    - Added detailed LSP integration patterns section to compatibility documentation
     - Updated `plugins/pensive/agents/code-reviewer.md` with LSP-enhanced review capabilities
     - Updated `plugins/pensive/agents/architecture-reviewer.md` with semantic architecture analysis
     - Updated `plugins/pensive/agents/rust-auditor.md` with rust-analyzer integration
@@ -100,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Claude Code 2.0.73 compatibility**: Updated documentation for latest Claude Code release
   - **Session Forking**: Documented `--session-id` + `--fork-session` workflow patterns (2.0.73+)
-    - Added comprehensive session forking patterns section to compatibility documentation
+    - Added detailed session forking patterns section to compatibility documentation
     - Documented use cases for sanctum (git workflows), imbue (parallel analysis), pensive (code reviews), memory-palace (knowledge intake)
     - Added best practices, naming conventions, and lifecycle management guidance
     - Created advanced patterns: decision tree exploration, experiment-driven development, parallel testing
@@ -191,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Sanctum fix-issue command**: Modularized for better token efficiency
-- **Imbue tests**: Comprehensive test updates across review analyst, catchup, and skill modules
+- **Imbue tests**: Test updates across review analyst, catchup, and skill modules
 
 ### Fixed
 
@@ -217,7 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
-- **Context optimization**: Comprehensive updates to MECW patterns and monitoring across conservation and leyline
+- **Context optimization**: Updates to MECW patterns and monitoring across conservation and leyline
 - **Skill authoring docs**: Enhanced persuasion principles, TDD methodology, and anti-rationalization modules
 - **Hook authoring**: Updated security patterns and performance guidelines
 

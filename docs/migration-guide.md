@@ -263,7 +263,7 @@ specific_settings:
 ## Migration Checklist
 
 ### Pre-Migration
-- [ ] Run existing tests to ensure baseline
+- [ ] Run existing tests to establish baseline
 - [ ] Create backup of current code
 - [ ] Document current behavior
 - [ ] Identify all dependencies
@@ -365,7 +365,7 @@ def test_sort_refactor(data):
 
 ### 2. Integration Tests
 
-Ensure the whole workflow still works:
+Verify the whole workflow still works:
 
 ```python
 def test_complete_workflow():
@@ -383,7 +383,7 @@ def test_complete_workflow():
 
 ### 3. Performance Tests
 
-Ensure refactoring didn't hurt performance:
+Verify refactoring didn't hurt performance:
 
 ```python
 import time
@@ -502,6 +502,6 @@ Migrating to shared constants and following function extraction guidelines impro
 
 **Key Steps:**
 -   **Migrate incrementally**: Don't try to do everything at once.
--   **Test thoroughly**: Ensure behavior doesn't change.
+-   **Test thoroughly**: Verify behavior doesn't change.
 -   **Document changes**: Help others understand the migration.
--   **Ask for help**: Leverage the community's experience.
+-   **Ask for help**: Use the community's experience.

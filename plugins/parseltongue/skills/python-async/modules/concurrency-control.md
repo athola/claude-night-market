@@ -31,7 +31,7 @@ async def rate_limited_requests(urls: list[str], max_concurrent: int = 5):
 
 ## Pattern 10: Async Locks
 
-Locks ensure exclusive access to shared resources in async code.
+Locks validate exclusive access to shared resources in async code.
 
 ```python
 class AsyncCounter:

@@ -79,4 +79,4 @@ This command uses the skills-eval skill's specialized tools:
 - `improvement-suggester`: Actionable recommendation generation
 - `compliance-checker`: Standards and security validation
 
-This evaluation ensures an efficient skills ecosystem that follows Claude Skills best practices.
+This evaluation validates an efficient skills ecosystem that follows Claude Skills best practices.

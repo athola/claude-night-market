@@ -20,7 +20,7 @@ usage: /validate-hook [hook-path] [--security] [--performance] [--compliance] [-
 
 # Validate Hook Command
 
-Comprehensive validation for Claude Code and SDK hooks. Performs security scanning, performance analysis, and compliance verification to ensure hooks are safe, efficient, and correctly implemented.
+detailed validation for Claude Code and SDK hooks. Performs security scanning, performance analysis, and compliance verification to validate hooks are safe, efficient, and correctly implemented.
 
 ## Usage
 
@@ -515,7 +515,7 @@ RECOMMENDATION: Fully compliant. Consider suggestions for best practices.
 /validate-hook hooks/my-hook.py --all
 
 =================================================
-COMPREHENSIVE HOOK VALIDATION
+detailed HOOK VALIDATION
 =================================================
 Hook: hooks/my-hook.py
 Date: 2025-12-06 14:23:18

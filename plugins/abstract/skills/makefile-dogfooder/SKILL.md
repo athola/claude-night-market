@@ -26,7 +26,7 @@ Analyzes Makefiles to identify gaps in user-facing functionality, safely tests e
 
 ## Overview
 
-This skill provides comprehensive Makefile analysis and enhancement for the claude-night-market project. It helps ensure that all plugins have complete, consistent, and functional Makefile targets that support common user workflows.
+This skill provides detailed Makefile analysis and enhancement for the claude-night-market project. It helps validate that all plugins have complete, consistent, and functional Makefile targets that support common user workflows.
 
 ## Workflow
 
@@ -83,7 +83,7 @@ The generation phase creates:
 
 ### Discovery Module
 **File**: `modules/discovery.md`
-- Comprehensive file discovery algorithms
+- detailed file discovery algorithms
 - Target parsing with metadata extraction
 - Dependency graph construction
 - Inventory creation with validation
@@ -172,7 +172,7 @@ Machine-readable results for automation:
 
 ### For Aggregator Makefiles
 - Delegate to plugin Makefiles with pattern targets
-- Include check-all target for comprehensive validation
+- Include check-all target for detailed validation
 - Maintain consistent target naming across plugins
 - Provide helpful aggregate status information
 
@@ -220,7 +220,7 @@ Run as part of pre-commit hooks:
 
 1. **Parse Errors**: Check for complex Makefile syntax with conditionals
 2. **Timeouts**: Use `--mode analyze` instead of `--mode test` for slow targets
-3. **Missing Variables**: Ensure all referenced variables are defined
+3. **Missing Variables**: validate all referenced variables are defined
 4. **Permission Errors**: Check file permissions for Makefile access
 
 ### Debug Mode

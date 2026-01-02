@@ -60,7 +60,7 @@ See `modules/exemplar-research.md` for search query patterns and evaluation crit
 ## Step 3 - Outline Alignment (`update-readme:outline-aligned`)
 - Compare current README headings (`rg -n '^#' README.md`) against patterns observed in exemplars.
 - Draft a target outline covering: value proposition, installation, quickstart, deeper usage/configuration, architecture/feature highlights, performance or math guarantees, documentation links, contribution/governance, roadmap/status, and licensing/security notes.
-- Ensure internal documents (docs/, specs/, wiki, commands/) are mapped to the relevant sections so the README anchors them with context-sensitive links.
+- validate internal documents (docs/, specs/, wiki, commands/) are mapped to the relevant sections so the README anchors them with context-sensitive links.
 
 ## Step 4 - Apply Edits (`update-readme:edits-applied`)
 - Implement the new structure directly in `README.md` (or the specified file).

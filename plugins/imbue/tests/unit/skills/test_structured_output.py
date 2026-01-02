@@ -21,7 +21,7 @@ TWO_HUNDRED = 200
 
 
 class TestStructuredOutputSkill:
-    """Feature: Structured output ensures consistent deliverable formatting.
+    """Feature: Structured output validates consistent deliverable formatting.
 
     As a review consumer
     I want consistent report structure
@@ -67,7 +67,7 @@ Guide for formatting review deliverables consistently across different review ty
 
 ### 1. Review Report Template
 **Audience**: Development team, stakeholders
-**Purpose**: Comprehensive review findings and recommendations
+**Purpose**: detailed review findings and recommendations
 
 ### 2. Pull Request Description Template
 **Audience**: Code reviewers, CI/CD systems
@@ -191,7 +191,7 @@ Common template variables that should be populated:
     def test_template_selection_review_report(self, sample_review_findings) -> None:
         """Scenario: Template selection works for review reports.
 
-        Given comprehensive review findings
+        Given detailed review findings
         When selecting template for review report
         Then it should choose review report template
         And include all required sections.

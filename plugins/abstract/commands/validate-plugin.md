@@ -23,7 +23,7 @@ This command validates a Claude Code plugin's structure against the official doc
 
 ## What It Checks
 
-The validator performs comprehensive checks:
+The validator performs detailed checks:
 
 ### Critical Requirements
 - `.claude-plugin/plugin.json` exists and is valid JSON

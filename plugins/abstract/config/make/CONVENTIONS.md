@@ -25,7 +25,7 @@ SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 ```
 
-This ensures:
+This validates:
 - `-e`: Exit on error
 - `-u`: Error on undefined variables
 - `-o pipefail`: Return first failure in pipelines

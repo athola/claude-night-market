@@ -1,6 +1,6 @@
 # Complete Skills: Before/After Comparison
 
-This directory provides a comprehensive demonstration of modular skill patterns with concrete working examples and validation tools.
+This directory provides a detailed demonstration of modular skill patterns with concrete working examples and validation tools.
 
 ## Files Structure
 

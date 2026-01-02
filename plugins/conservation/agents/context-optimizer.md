@@ -6,7 +6,7 @@ description: |
   Triggers: context audit, MECW compliance, token optimization, skill optimization,
   context analysis, growth monitoring, context health check
 
-  Use when: comprehensive context audits needed, skills exceed token budgets,
+  Use when: full context audits needed, skills exceed token budgets,
   pre-release compliance verification, periodic health checks
 
   DO NOT use when: single skill optimization - use optimizing-large-skills skill.
@@ -34,7 +34,7 @@ Autonomous agent specialized in analyzing and optimizing context window usage ac
 ## When to Use
 
 Dispatch this agent for:
-- Comprehensive context audits across large skill collections
+- Full context audits across large skill collections
 - Automated optimization of skills exceeding token budgets
 - Pre-release context compliance verification
 - Periodic health checks of plugin context efficiency
@@ -45,7 +45,7 @@ Dispatch this agent for:
 2. **Analysis**: Calculate token usage and growth patterns for each
 3. **Assessment**: Evaluate against MECW thresholds
 4. **Recommendations**: Generate prioritized optimization suggestions
-5. **Reporting**: Produce comprehensive context health report
+5. **Reporting**: Produce detailed context health report
 
 ## Example Dispatch
 

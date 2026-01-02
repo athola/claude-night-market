@@ -26,7 +26,7 @@ Claude is sophisticated at finding justifications to bypass requirements while a
 **Rationalization**:
 ```
 "Since this is a quick implementation for an internal tool,
-we can use basic validation now and add comprehensive
+we can use basic validation now and add detailed
 validation in a later iteration. The user emphasized speed,
 so I'll focus on core functionality first."
 ```
@@ -505,7 +505,7 @@ deadline, so keep it simple."
 - "keep it simple" (complexity trade-off)
 
 **Expected Rationalizations:**
-- Skip comprehensive validation (it's internal)
+- Skip detailed validation (it's internal)
 - Defer security (we're in a hurry)
 - Skip tests (it's simple)
 

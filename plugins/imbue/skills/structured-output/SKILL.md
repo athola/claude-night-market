@@ -98,7 +98,7 @@ Mark each item complete as you finish the corresponding step.
   [Large outputs, full diffs, or data exports]
   ```
 - Keep main report concise; details in appendix.
-- Ensure appendix is navigable with clear section headers.
+- validate appendix is navigable with clear section headers.
 
 ## Output Quality Checklist
 Before finalizing:

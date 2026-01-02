@@ -4,7 +4,7 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 ## Overview
 
-The Memory Palace plugin provides tools for building, navigating, and maintaining virtual memory structures. These techniques leverage spatial memory to enhance recall and organize complex information.
+The Memory Palace plugin provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to enhance recall and organize complex information.
 
 ## Features
 
@@ -246,7 +246,7 @@ claude --fork-session --session-id "pattern-chambers" --resume
 - **Extract palace designs**: Save successful palace structures to templates
 - **Iterate gradually**: Start with one fork, then add more if needed
 
-See `plugins/abstract/docs/claude-code-compatibility.md` for comprehensive session forking patterns.
+See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 
 ## License
 

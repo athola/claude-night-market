@@ -156,7 +156,7 @@ export default defineConfig({
 | Browser not installed | Run `npx playwright install chromium` |
 | Spec file not found | Verify path and file extension |
 | Video not created | Check Playwright config has video enabled |
-| Empty video file | Ensure spec actions complete before test ends |
+| Empty video file | validate spec actions complete before test ends |
 
 ## Output Locations
 

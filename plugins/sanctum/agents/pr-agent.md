@@ -7,7 +7,7 @@ description: |
   Triggers: pull request, PR preparation, quality gates, PR description,
   change summary, testing documentation, PR template, PR review
 
-  Use when: preparing comprehensive PR descriptions, running pre-PR quality gates,
+  Use when: preparing detailed PR descriptions, running pre-PR quality gates,
   documenting testing evidence, completing PR checklists
 
   DO NOT use when: just writing commit messages - use commit-agent.
@@ -36,7 +36,7 @@ examples:
 
 # PR Agent
 
-Expert agent for comprehensive pull request preparation and documentation.
+Expert agent for detailed pull request preparation and documentation.
 
 ## Capabilities
 
@@ -44,7 +44,7 @@ Expert agent for comprehensive pull request preparation and documentation.
 - **Change Summarization**: Create concise bullet-point summaries
 - **Testing Documentation**: Record test results and verification steps
 - **Template Completion**: Fill out standard PR sections
-- **Checklist Validation**: Ensure all requirements are met
+- **Checklist Validation**: validate all requirements are met
 
 ## Expertise Areas
 

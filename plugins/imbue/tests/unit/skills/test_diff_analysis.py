@@ -357,7 +357,7 @@ index abcdef..0000000
 
     @pytest.mark.unit
     def test_diff_summary_generation(self, sample_diff_analysis_result) -> None:
-        """Scenario: Diff summary provides comprehensive overview.
+        """Scenario: Diff summary provides detailed overview.
 
         Given categorized changes with risk assessments
         When generating summary

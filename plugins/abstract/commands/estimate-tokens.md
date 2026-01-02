@@ -70,7 +70,7 @@ Estimates token consumption for skill files, including optional dependency analy
 ## Use Cases
 
 ### Context Budget Planning
-Before adding new content to a skill, estimate current usage to ensure you stay within optimal bounds.
+Before adding new content to a skill, estimate current usage to validate you stay within optimal bounds.
 
 ### Modularization Decisions
 Compare token costs of monolithic vs modular approaches:

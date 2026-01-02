@@ -27,7 +27,7 @@ Execute progressive bloat detection across code, documentation, and dependencies
 /bloat-scan --level 2 --focus code
 /bloat-scan --level 2 --focus docs
 
-# Comprehensive audit (Tier 3)
+# Deep audit (Tier 3)
 /bloat-scan --level 3 --report audit-report.md
 
 # Dry run (no changes)
@@ -38,7 +38,7 @@ Execute progressive bloat detection across code, documentation, and dependencies
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--level <1|2|3>` | Scan tier: 1=quick, 2=targeted, 3=comprehensive | `1` |
+| `--level <1|2|3>` | Scan tier: 1=quick, 2=targeted, 3=deep | `1` |
 | `--focus <type>` | Focus area: `code`, `docs`, `deps`, or `all` | `all` |
 | `--report <file>` | Save report to file | stdout |
 | `--dry-run` | Preview findings without taking action | false |
@@ -70,7 +70,7 @@ Execute progressive bloat detection across code, documentation, and dependencies
 
 **Requirements:** Optional static analysis tools (Vulture, Knip)
 
-### Tier 3: Comprehensive Audit (30-60 min)
+### Tier 3: Deep Audit (30-60 min)
 
 **Detects:**
 - All Tier 1 + Tier 2
@@ -282,12 +282,12 @@ Found 2 overly verbose guides (>5,000 words)
 Estimated token savings: ~12,000 tokens
 ```
 
-### Example 3: Comprehensive Pre-Release Audit
+### Example 3: Deep Pre-Release Audit
 
 ```bash
 $ /bloat-scan --level 3 --report Q1-2025-audit.md
 
-🔍 Running comprehensive bloat audit...
+🔍 Running deep bloat audit...
 This will take 30-60 minutes. Continue? (y/n) y
 
 [████████████████████] Deep analysis complete!

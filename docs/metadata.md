@@ -88,7 +88,7 @@ Additional metadata useful for the marketplace but not part of the official Clau
 
 ## Why Two Files?
 
-1. **plugin.json** ensures compatibility with Claude Code's validator and installation system
+1. **plugin.json** validates compatibility with Claude Code's validator and installation system
 2. **metadata.json** preserves rich marketplace metadata without causing validation errors
 3. Marketplace tooling can read both files to provide enhanced features while maintaining compatibility
 

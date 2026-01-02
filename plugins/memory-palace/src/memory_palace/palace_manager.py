@@ -84,7 +84,7 @@ class MemoryPalaceManager:
             sys.exit(1)
 
     def ensure_directories(self) -> None:
-        """Ensure necessary palace directories exist."""
+        """validate necessary palace directories exist."""
         os.makedirs(self.palaces_dir, exist_ok=True)
         os.makedirs(os.path.join(self.palaces_dir, "backups"), exist_ok=True)
 
@@ -408,7 +408,7 @@ class MemoryPalaceManager:
 
         Attempt to load the `master_index.json` file. If found, return its content.
         If the file does not exist, return a new default index structure. This
-        ensures operations relying on the master index always have a valid structure.
+        validates operations relying on the master index always have a valid structure.
 
         Returns:
             Dictionary representing the master index of all palaces, or a

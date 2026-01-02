@@ -187,7 +187,7 @@ claude --fork-session --session-id "performance-audit" --resume
 claude --fork-session --session-id "maintainability-audit" --resume
 > "/architecture-review --focus maintainability"
 
-# Combine insights for comprehensive feedback
+# Combine insights for detailed feedback
 ```
 
 **Specialized Domain Reviews**
@@ -207,7 +207,7 @@ claude --fork-session --session-id "breaking-changes-review" --resume
 claude --fork-session --session-id "compatibility-review" --resume
 > "/api-review --focus backward-compat"
 
-# Consolidate into comprehensive API review report
+# Consolidate into detailed API review report
 ```
 
 **Parallel Test Strategy Exploration**
@@ -227,14 +227,14 @@ claude --fork-session --session-id "integration-test-strategy" --resume
 claude --fork-session --session-id "property-test-strategy" --resume
 > "Explore property-based testing opportunities"
 
-# Design comprehensive test strategy from all approaches
+# Design detailed test strategy from all approaches
 ```
 
 ### Benefits
 
 - **Expert-level focus**: Each fork provides deep analysis on single dimension
 - **Avoid dilution**: Prevent mixing concerns that require different mental models
-- **Comprehensive coverage**: Ensure all review dimensions get proper attention
+- **detailed coverage**: validate all review dimensions get proper attention
 - **Parallel workflows**: Run specialized reviews without waiting for sequential completion
 
 ### Best Practices
@@ -244,7 +244,7 @@ claude --fork-session --session-id "property-test-strategy" --resume
 - **Extract findings**: Save review reports before closing forks
 - **Synthesize results**: Combine findings into actionable feedback
 
-See `plugins/abstract/docs/claude-code-compatibility.md` for comprehensive session forking patterns.
+See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 
 ## License
 

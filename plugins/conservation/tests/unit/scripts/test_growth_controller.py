@@ -162,7 +162,7 @@ class TestGrowthControllerImplementation:
     def test_controller_includes_strategy_metadata(
         self, controller: GrowthController, stable_analysis: dict
     ) -> None:
-        """Scenario: Controller includes comprehensive strategy metadata.
+        """Scenario: Controller includes detailed strategy metadata.
 
         Given any analysis results
         When generating strategies

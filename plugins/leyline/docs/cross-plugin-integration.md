@@ -2,7 +2,7 @@
 
 ## Overview
 
-Leyline provides infrastructure building blocks that other plugins can leverage for consistent, robust functionality. This guide explains how to integrate leyline patterns into your plugins.
+Leyline provides infrastructure building blocks that other plugins can use for consistent, production-grade functionality. This guide explains how to integrate leyline patterns into your plugins.
 
 ## Integration Patterns
 

@@ -209,7 +209,7 @@ Add support for exporting resumes to HTML format alongside existing PDF export.
 - `make test` - 52 tests passing (added 5 new tests)
 - `make lint` - no warnings
 - Manual verification: Generated HTML from 4 resume templates, verified in Chrome/Firefox
-- Snapshot tests ensure HTML output consistency
+- Snapshot tests validate HTML output consistency
 
 ## Checklist
 - [x] Code follows project style guidelines

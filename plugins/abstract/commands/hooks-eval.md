@@ -1,7 +1,7 @@
 ---
 name: hooks-eval
 description: |
-  Comprehensive evaluation framework for all hooks in a plugin.
+  detailed evaluation framework for all hooks in a plugin.
 
   Triggers: hooks eval, evaluate hooks, hook evaluation, plugin hooks,
   all hooks, hook framework, hook quality, hook portfolio
@@ -20,7 +20,7 @@ usage: /hooks-eval [plugin-path] [options]
 
 # Hooks-Eval
 
-Comprehensive evaluation framework for analyzing all hooks within a plugin (or across project/global scopes) with advanced security scanning, performance benchmarking, and compliance validation. Built on the same principles as skills-eval but specifically tailored for Claude Code hook architecture.
+detailed evaluation framework for analyzing all hooks within a plugin (or across project/global scopes) with advanced security scanning, performance benchmarking, and compliance validation. Built on the same principles as skills-eval but specifically tailored for Claude Code hook architecture.
 
 ## Usage
 
@@ -41,7 +41,7 @@ Comprehensive evaluation framework for analyzing all hooks within a plugin (or a
 /hooks-eval --compliance-report
 
 # Generate detailed report
-/hooks-eval --comprehensive --format detailed
+/hooks-eval --detailed --format detailed
 
 # Cross-scope evaluation (plugin → project → global)
 /hooks-eval --all-scopes
@@ -62,7 +62,7 @@ Comprehensive evaluation framework for analyzing all hooks within a plugin (or a
 - `--security-only`: Focus exclusively on security vulnerabilities
 - `--performance-check`: Analyze execution performance and resource usage
 - `--compliance-check`: Validate against hook development standards
-- `--comprehensive`: Full analysis across all dimensions (default)
+- `--detailed`: Full analysis across all dimensions (default)
 
 ### Output Control
 - `--format <type>`: Output format (summary, detailed, json, sarif, dashboard)
@@ -218,15 +218,15 @@ Comprehensive evaluation framework for analyzing all hooks within a plugin (or a
 /hooks-eval --compliance-check
 
 # Before release
-/hooks-eval --comprehensive --quality-gate
+/hooks-eval --detailed --quality-gate
 /hooks-eval --all-scopes --format detailed > release-report.md
 ```
 
 ### Integration with Skills-Eval
 ```bash
 # Complete plugin evaluation
-/skills-eval --comprehensive
-/hooks-eval --comprehensive
+/skills-eval --detailed
+/hooks-eval --detailed
 /validate-plugin .
 ```
 
@@ -236,7 +236,7 @@ Comprehensive evaluation framework for analyzing all hooks within a plugin (or a
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/hooks_eval/hooks_auditor.py \
   --plugin-path "${1:-.}" \
   --scope "${2:-plugin}" \
-  --analysis-type "${3:-comprehensive}" \
+  --analysis-type "${3:-detailed}" \
   --format "${4:-summary}"
 ```
 
@@ -273,7 +273,7 @@ quality_gates:
 
 For detailed guidance on hook types, SDK integration, and evaluation criteria:
 
-- **hooks-eval skill** (`skills/hooks-eval/SKILL.md`) - Comprehensive hook evaluation framework
+- **hooks-eval skill** (`skills/hooks-eval/SKILL.md`) - detailed hook evaluation framework
   - `modules/sdk-hook-types.md` - Python SDK hook types, callbacks, matchers
   - `modules/evaluation-criteria.md` - Detailed scoring rubric and quality gates
 - **hook-scope-guide** - Decision framework for hook placement (plugin/project/global)

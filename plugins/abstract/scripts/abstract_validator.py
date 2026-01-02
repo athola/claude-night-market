@@ -300,7 +300,7 @@ class AbstractValidator:
         return issues
 
     def generate_report(self) -> str:
-        """Generate a comprehensive validation report."""
+        """Generate a detailed validation report."""
         result = self.scan_infrastructure()
         issues = self.validate_patterns()
 

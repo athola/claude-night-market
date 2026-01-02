@@ -6,7 +6,7 @@ Identifies what needs testing or updating by analyzing code structure, git chang
 
 ## Discovery Strategies
 
-### 1. Comprehensive Codebase Scan
+### 1. detailed Codebase Scan
 - Analyze all Python files for test coverage
 - Identify functions, classes, and modules without tests
 - Check for public API without corresponding tests

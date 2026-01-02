@@ -61,7 +61,7 @@ The framework implements progressive disclosure: skills start with essential inf
 
 This skill provides a framework for designing modular skills. Breaking down large skills into smaller modules creates a more maintainable architecture and controls token usage.
 
-This skill is based on Anthropic's Agent Skills best practices, utilizing progressive disclosure: start with a high-level overview, then provide detail as needed.
+This skill is based on Anthropic's Agent Skills best practices, using progressive disclosure: start with a high-level overview, then provide detail as needed.
 
 ## Quick Start
 
@@ -104,7 +104,7 @@ python scripts/abstract_validator.py --fix --dry-run
 1. **Assess**: Use `skill_analyzer.py` to identify complexity and modularization needs
 2. **Design**: Break large skills into focused modules based on single responsibility
 3. **Estimate**: Use `token_estimator.py` to optimize for context window efficiency
-4. **Validate**: Run `abstract_validator.py` to ensure proper structure and patterns
+4. **Validate**: Run `abstract_validator.py` to validate proper structure and patterns
 5. **Iterate**: Refine based on validation feedback and usage patterns
 
 ## Common Tasks
@@ -119,7 +119,7 @@ Here are a few common ways we use the tools:
 
 ## Detailed Resources
 
-For comprehensive implementation details and advanced techniques:
+For detailed implementation details and advanced techniques:
 
 ### Shared Modules (Cross-Skill Patterns)
 - **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field templates

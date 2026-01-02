@@ -75,7 +75,7 @@ description: Guides secure API endpoint design with input validation, error hand
  **Strong Verbs:**
 - Guides, teaches, implements, validates, enforces
 - Analyzes, optimizes, automates, generates
-- Ensures, prevents, detects, corrects
+- validates, prevents, detects, corrects
 
  **Weak Verbs:**
 - Helps with, deals with, handles
@@ -218,7 +218,7 @@ description: Guides secure API endpoint design with input validation, error hand
 
 **Too Long (520 chars):**
 ```yaml
-description: Comprehensive guide to secure API endpoint design covering all aspects of security including input validation with regex and type checking, comprehensive error handling with proper HTTP status codes and error messages, authentication mechanisms including JWT and OAuth2, authorization with RBAC and ABAC, rate limiting strategies, CORS configuration, security headers like CSP and HSTS, and protection against common vulnerabilities including SQL injection, XSS, CSRF, and more.
+description: detailed guide to secure API endpoint design covering all aspects of security including input validation with regex and type checking, detailed error handling with proper HTTP status codes and error messages, authentication mechanisms including JWT and OAuth2, authorization with RBAC and ABAC, rate limiting strategies, CORS configuration, security headers like CSP and HSTS, and protection against common vulnerabilities including SQL injection, XSS, CSRF, and more.
 ```
 
 ## Pattern Library
@@ -289,7 +289,7 @@ description: Guides commit message writing using conventional commits standard. 
 
  **Wrong:**
 ```yaml
-description: The ultimate, comprehensive, enterprise-grade solution for all your testing needs! Revolutionary approach that will transform your development workflow!
+description: The ultimate, detailed, enterprise-grade solution for all your testing needs! Revolutionary approach that will transform your development workflow!
 ```
 
  **Correct:**

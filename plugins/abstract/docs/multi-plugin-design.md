@@ -188,7 +188,7 @@ When Claude loads plugins:
 1. **Parse declarations**: Read all `plugin.json` files
 2. **Build graph**: Map dependencies between plugins
 3. **Detect cycles**: Error if circular dependencies found
-4. **Order loading**: Topological sort ensures dependencies load first
+4. **Order loading**: Topological sort validates dependencies load first
 5. **Validate versions**: Check version constraints are satisfiable
 
 ### Load Order Example

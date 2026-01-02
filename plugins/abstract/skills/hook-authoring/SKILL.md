@@ -195,7 +195,7 @@ class SecureLoggingHooks(AgentHooks):
         return None  # Don't modify output
 ```
 
-See `modules/security-patterns.md` for comprehensive security guidance.
+See `modules/security-patterns.md` for detailed security guidance.
 
 ## Performance Guidelines
 
@@ -270,7 +270,7 @@ Should this hook apply to all my Claude sessions?
 | **Project** | `.claude/settings.json` | Team members | Yes (in repo) | Block production config edits |
 | **Global** | `~/.claude/settings.json` | Only you | Never | Personal audit logging |
 
-See `modules/scope-selection.md` for comprehensive scope decision guidance.
+See `modules/scope-selection.md` for detailed scope decision guidance.
 
 ## Common Patterns
 
@@ -346,7 +346,7 @@ async def test_safe_command_allowed():
     assert result is None  # Allows execution
 ```
 
-See `modules/testing-hooks.md` for comprehensive testing strategies.
+See `modules/testing-hooks.md` for detailed testing strategies.
 
 ## Module References
 
@@ -354,7 +354,7 @@ For detailed guidance on specific topics:
 
 - **Hook Types**: `modules/hook-types.md` - Detailed event signatures and parameters
 - **SDK Callbacks**: `modules/sdk-callbacks.md` - Python SDK implementation patterns
-- **Security Patterns**: `modules/security-patterns.md` - Comprehensive security guidance
+- **Security Patterns**: `modules/security-patterns.md` - detailed security guidance
 - **Performance Guidelines**: `modules/performance-guidelines.md` - Optimization techniques
 - **Scope Selection**: `modules/scope-selection.md` - Choosing plugin/project/global
 - **Testing Hooks**: `modules/testing-hooks.md` - Testing strategies and fixtures

@@ -44,7 +44,7 @@ estimated_tokens: 700
 
 ## Key Deliverables
 - An Architecture Decision Record (ADR) that outlines service boundaries, data ownership rules, and coordination mechanisms.
-- A suite of contract tests and consumer-driven contract tests for each service to ensure stability.
+- A suite of contract tests and consumer-driven contract tests for each service to validate stability.
 - Runbooks that describe deployment procedures, rollback plans, and service dependencies.
 
 ## Risks & Mitigations

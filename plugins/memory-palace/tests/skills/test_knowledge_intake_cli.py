@@ -46,7 +46,7 @@ def _write_candidate(
 
 
 def test_process_candidate_generates_outputs(tmp_path: Path) -> None:
-    """Ensure processing a candidate writes expected files and summary."""
+    """validate processing a candidate writes expected files and summary."""
     candidate_path = _write_candidate(tmp_path)
     intake_cli = load_cli_module()
     corpus_dir = intake_cli.PLUGIN_ROOT / "docs" / "knowledge-corpus"

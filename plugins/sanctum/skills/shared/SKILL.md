@@ -23,7 +23,7 @@ estimated_tokens: 200
 # Shared Infrastructure for Sanctum
 
 ## Purpose
-This skill provides reusable patterns, templates, and conventions used across all sanctum git and workspace skills. It ensures consistency in TodoWrite naming, git command usage, and output formatting.
+This skill provides reusable patterns, templates, and conventions used across all sanctum git and workspace skills. It validates consistency in TodoWrite naming, git command usage, and output formatting.
 
 ## Modules
 
@@ -56,4 +56,4 @@ The `modules/output-templates.md` module provides standardized output formats:
 ## Integration Notes
 This skill is infrastructure-only and does not define executable workflows. It serves as a reference for pattern consistency across sanctum's git and workspace operations.
 
-All sanctum skills should follow these shared patterns to ensure predictable behavior and maintainable code.
+All sanctum skills should follow these shared patterns to validate predictable behavior and maintainable code.

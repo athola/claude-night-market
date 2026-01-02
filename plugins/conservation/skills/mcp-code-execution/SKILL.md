@@ -142,9 +142,9 @@ def synthesize_module_results(module_results):
 - Coordinates token budget allocation
 
 ### Performance Skills Integration
-- Leverages python-performance-optimization through mcp-patterns
+- uses python-performance-optimization through mcp-patterns
 - Aligns with cpu-gpu-performance for resource-aware execution
-- Ensures optimizations maintain MECW compliance
+- validates optimizations maintain MECW compliance
 
 ## Emergency Protocols
 

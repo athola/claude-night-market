@@ -1,6 +1,6 @@
 # Spec-Kit Test Suite
 
-Comprehensive test suite for the spec-kit plugin following TDD/BDD principles with excellent coverage of unit and integration tests.
+detailed test suite for the spec-kit plugin following TDD/BDD principles with excellent coverage of unit and integration tests.
 
 ## Test Structure
 
@@ -253,7 +253,7 @@ pytest -x
 ### Adding Tests
 1. Write tests following the existing patterns
 2. Use appropriate fixtures and markers
-3. Ensure test coverage targets are met
+3. validate test coverage targets are met
 4. Update documentation if needed
 
 ### Test Review Checklist
@@ -271,7 +271,7 @@ pytest -x
 
 **Import Errors**
 ```bash
-# Ensure PYTHONPATH includes plugin directory
+# validate PYTHONPATH includes plugin directory
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 ```
 

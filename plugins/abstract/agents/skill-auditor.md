@@ -1,6 +1,6 @@
 {
   "name": "skill-auditor",
-  "description": "Agent for comprehensive skill quality auditing and improvement recommendations",
+  "description": "Agent for detailed skill quality auditing and improvement recommendations",
   "version": "1.0.0",
   "type": "evaluation",
   "capabilities": [
@@ -26,7 +26,7 @@
     "standards-check"
   ],
   "workflows": {
-    "comprehensive-audit": [
+    "detailed-audit": [
       "discover-skills",
       "analyze-structure",
       "evaluate-quality",

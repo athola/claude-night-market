@@ -192,4 +192,4 @@ rm test_hooks.json test_invalid.json
 - **modules/hook-types.md**: Hook event specifications
 - **modules/sdk-callbacks.md**: Python SDK patterns
 - **modules/security-patterns.md**: Security validation guidelines
-- **modules/testing-hooks.md**: Comprehensive testing strategies
+- **modules/testing-hooks.md**: detailed testing strategies

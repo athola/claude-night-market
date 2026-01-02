@@ -268,7 +268,7 @@ Suggested criteria based on title:
 ### Cross-Repo Without Access
 ```markdown
 Error: Cannot access other-org/private-repo
-Ensure you have read access to analyze issues from this repository.
+validate you have read access to analyze issues from this repository.
 ```
 
 ## Examples

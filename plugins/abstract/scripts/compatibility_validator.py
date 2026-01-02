@@ -48,7 +48,7 @@ class CompatibilityValidator:
     """Validates wrapper implementations maintain feature parity with original commands.
 
     This class analyzes both markdown command files and Python wrapper implementations
-    to ensure that wrapper scripts maintain the same functionality as the original
+    to validate that wrapper scripts maintain the same functionality as the original
     plugin commands they replace.
     """
 

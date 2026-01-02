@@ -39,7 +39,7 @@ MAX_EXECUTION_TIME_SECONDS = FIVE_POINT_ZERO
 
 
 def _require_validator() -> type:
-    """Ensure ImbueValidator is available for performance tests."""
+    """validate ImbueValidator is available for performance tests."""
     if ImbueValidator is None:
         pytest.skip("ImbueValidator not available for performance testing")
     return ImbueValidator
@@ -462,7 +462,7 @@ Test command for performance testing.
         When scanning skills
         Then regex compilation should be optimized.
         """
-        _require_validator()  # Ensure validator module available for regex benchmarks
+        _require_validator()  # validate validator module available for regex benchmarks
 
         # Test different pattern compilation strategies
         patterns = [

@@ -124,5 +124,5 @@ Standard templates for consistent review deliverables.
 1. Adapt section headings to domain (e.g., "Endpoints" for API, "Components" for architecture)
 2. Always link findings to evidence
 3. Keep Executive Summary under 5 sentences
-4. Ensure every finding has actionable recommendation
+4. validate every finding has actionable recommendation
 5. Use consistent severity assessment across entire review

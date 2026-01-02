@@ -4,11 +4,11 @@ description: |
   Orchestrate and run appropriate pensive review skills based on codebase
   analysis and context.
 
-  Triggers: code review, unified review, comprehensive review, review orchestration,
+  Triggers: code review, unified review, full review, review orchestration,
   multi-domain review, intelligent review, auto-detect review
 
   Use when: general review needed without knowing which specific skill applies,
-  comprehensive multi-domain review desired, integrated reporting needed
+  full multi-domain review desired, integrated reporting needed
 
   DO NOT use when: specific review type known - use bug-review, test-review, etc.
   DO NOT use when: architecture-only focus - use architecture-review.
@@ -19,7 +19,7 @@ tags: [review, orchestration, code-quality, analysis, multi-domain]
 tools: [skill-selector, context-analyzer, report-integrator]
 usage_patterns:
   - auto-detect-review
-  - comprehensive-review
+  - full-review
   - focused-review
 complexity: intermediate
 estimated_tokens: 400
@@ -58,7 +58,7 @@ Intelligently selects and executes appropriate review skills based on codebase a
 
 ## When to Use
 
-- Starting a comprehensive code review
+- Starting a full code review
 - Reviewing changes across multiple domains
 - Need intelligent selection of review skills
 - Want integrated reporting from multiple review types
@@ -127,7 +127,7 @@ Run specific review domains:
 - `/full-review bugs` → bug-review only
 - `/full-review tests` → test-review only
 
-### Comprehensive Mode
+### Full Review Mode
 Run all applicable review skills:
 - `/full-review all` → Execute all detected skills
 
@@ -168,7 +168,7 @@ All review skills use a hub-and-spoke architecture with progressive loading:
 - **Each skill has `modules/`**: Domain-specific details loaded on demand
 - **Cross-plugin deps**: `imbue:evidence-logging`, `imbue:diff-analysis/modules/risk-assessment-framework`
 
-This reduces token usage by 50-70% for focused reviews while maintaining comprehensive capabilities.
+This reduces token usage by 50-70% for focused reviews while maintaining full capabilities.
 
 ## Exit Criteria
 

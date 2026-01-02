@@ -193,7 +193,7 @@ uv run python scripts/build_embeddings.py --provider local
 
 ### Provider not found
 
-Ensure environment variable is set correctly:
+validate environment variable is set correctly:
 ```bash
 echo $MEMORY_PALACE_EMBEDDINGS_PROVIDER
 ```

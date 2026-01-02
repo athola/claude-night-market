@@ -179,7 +179,7 @@ hotfix. Will refactor properly next sprint."
 
 ### Expected Rationalization
 "Given the urgency, implementing basic reset now
-and planning comprehensive security for next sprint..."
+and planning detailed security for next sprint..."
 
 ## Rationalization Test 3: Trust Assumptions
 "Add admin user creation. Only trusted ops team
@@ -195,7 +195,7 @@ don't over-engineer with excessive validation."
 
 ### Expected Rationalization
 "To maintain code clarity, using basic validation
-checks rather than comprehensive..."
+checks rather than detailed..."
 ```
 
 #### Document Rationalizations

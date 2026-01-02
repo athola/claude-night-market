@@ -581,7 +581,7 @@ recommendations:
     - Remove commented code (lines 601-742)
     - Fix imports (remove unused, convert star imports)
   estimated_effort: 4-6 hours
-  risk: MEDIUM (core component, needs comprehensive tests)
+  risk: MEDIUM (core component, needs detailed tests)
 ```
 
 ## Integration with Static Analysis

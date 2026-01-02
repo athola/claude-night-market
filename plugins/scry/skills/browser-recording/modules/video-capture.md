@@ -193,7 +193,7 @@ ffmpeg -i video.webm -vf "fps=10,scale=800:-1,split[s0][s1];[s0]palettegen[p];[s
 
 ### Video is black or frozen
 
-- Ensure page has visible content before recording starts
+- validate page has visible content before recording starts
 - Add `await page.waitForLoadState('domcontentloaded')`
 - Check for CSS that hides content initially
 
@@ -201,7 +201,7 @@ ffmpeg -i video.webm -vf "fps=10,scale=800:-1,split[s0][s1];[s0]palettegen[p];[s
 
 - Test might be finishing before video flushes
 - Add `await page.waitForTimeout(500)` at end of test
-- Ensure `await page.close()` is not called (Playwright handles cleanup)
+- validate `await page.close()` is not called (Playwright handles cleanup)
 
 ### Video too large
 

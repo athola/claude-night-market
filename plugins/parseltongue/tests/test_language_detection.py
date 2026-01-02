@@ -470,7 +470,7 @@ from .internal_module import helper
 
     @pytest.mark.unit
     def test_provides_detailed_feature_analysis(self, language_samples) -> None:
-        """Given code, when skill analyzes, then provides comprehensive feature breakdown."""
+        """Given code, when skill analyzes, then provides detailed feature breakdown."""
         # Arrange
         code = language_samples["python"]
 

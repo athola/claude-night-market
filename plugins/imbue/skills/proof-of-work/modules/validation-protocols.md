@@ -20,7 +20,7 @@ Detailed testing protocols for common completion scenarios.
 2. **Test configuration loads**
    ```bash
    # Example: Validate config file
-   cat .cclsp.json | jq '.'  # Ensures valid JSON
+   cat .cclsp.json | jq '.'  # Validates JSON syntax
    ```
 
 3. **Attempt service start**
@@ -92,10 +92,10 @@ Detailed testing protocols for common completion scenarios.
 1. **Test each component in isolation**
    ```bash
    # Component A
-   pylsp --help  # ✅ Works standalone
+   pylsp --help  # PASS - Works standalone
 
    # Component B
-   npx cclsp@latest --help  # ✅ Works standalone
+   npx cclsp@latest --help  # PASS - Works standalone
    ```
 
 2. **Test pairwise integration**
@@ -283,7 +283,7 @@ For each protocol step, capture:
 <relevant output, truncated if long>
 ```
 
-**Result:** ✅ PASS / ❌ FAIL / ⚠️ WARNING
+**Result:** PASS / FAIL / WARNING
 
 **Notes:**
 - Any unexpected behavior

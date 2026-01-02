@@ -32,7 +32,7 @@ Shared quality standards and metrics for testing across all plugins in the Claud
 | Minimum | 60% | Legacy code |
 | Standard | 80% | Normal development |
 | High | 90% | Critical systems |
-| Comprehensive | 95%+ | Safety-critical |
+| detailed | 95%+ | Safety-critical |
 
 ## Quality Metrics
 

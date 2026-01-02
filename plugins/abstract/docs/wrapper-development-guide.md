@@ -6,7 +6,7 @@
 
 ## Overview
 
-This guide explains how to create wrapper skills that leverage the modular skills architecture. Wrappers provide a clean interface to complex functionality while maintaining the benefits of modular design.
+This guide explains how to create wrapper skills that use the modular skills architecture. Wrappers provide a clean interface to complex functionality while maintaining the benefits of modular design.
 
 ## What is a Wrapper Skill?
 
@@ -108,7 +108,7 @@ The skill-authoring module provides:
 Combines multiple modular skills:
 
 ```markdown
-This skill orchestrates multiple modules to provide comprehensive analysis:
+This skill orchestrates multiple modules to provide detailed analysis:
 
 1. **Discovery Phase** - Uses [skills-eval] for baseline assessment
 2. **Implementation Phase** - Uses [skill-authoring] for creation
@@ -164,7 +164,7 @@ Uses these modules:
 ```yaml
 ---
 name: complex-analysis-skill
-description: Performs comprehensive analysis including evaluation, creation, and validation...
+description: Performs detailed analysis including evaluation, creation, and validation...
 dependencies: []
 ---
 # 500+ lines of implementation
@@ -177,13 +177,13 @@ dependencies: []
 ```yaml
 ---
 name: complex-analysis-skill
-description: Performs comprehensive analysis using proven modular patterns
+description: Performs detailed analysis using proven modular patterns
 dependencies: [skills-eval, skill-authoring, shared-patterns]
 estimated_tokens: 300
 ---
 # Delegates to skills-eval for analysis
 # Uses skill-authoring for creation workflow
-# Leverages shared-patterns for validation
+# uses shared-patterns for validation
 # Domain-specific guidance only
 ```
 

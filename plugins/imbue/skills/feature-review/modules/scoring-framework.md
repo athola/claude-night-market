@@ -130,7 +130,7 @@ After scoring, classify the feature:
 
 - Users expect this; absence causes dissatisfaction
 - Doesn't increase satisfaction when present
-- **Action:** Ensure these exist before anything else
+- **Action:** validate these exist before anything else
 
 ### Performance (Linear)
 

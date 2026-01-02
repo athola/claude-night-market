@@ -38,7 +38,7 @@ check: ## Run dependency validation
 fix: ## Show dependency fixes (dry run)
 	@echo "Auto-fixing dependency issues..."
 	@echo "Note: tools/dependency_manager.py not yet implemented"
-	@echo "Run 'uv sync' to ensure dependencies are current"
+	@echo "Run 'uv sync' to validate dependencies are current"
 
 fix-apply: ## Apply dependency fixes
 	@echo "Applying dependency fixes..."
@@ -218,7 +218,7 @@ demo-bloat: ## Demo bloat detection on conservation plugin itself
 	@echo "Cache directories:"
 	@du -sh .pytest_cache .mypy_cache .ruff_cache 2>/dev/null | awk '{print "  " $$0}' || echo "  (clean - no cache bloat)"
 	@echo ""
-	@echo "Bloat demo complete. Use /bloat-scan for comprehensive analysis."
+	@echo "Bloat demo complete. Use /bloat-scan for detailed analysis."
 	@echo "Run /unbloat to safely remediate identified issues."
 
 plugin-check: demo-context demo-tokens demo-skills demo-bloat test-skills ## Run all demo workflows

@@ -284,7 +284,7 @@ claude --fork-session --session-id "refactor-composition" --resume
 - **Extract insights**: Save findings to files before closing forks
 - **Document decisions**: Record why you chose one approach over others
 
-See `plugins/abstract/docs/claude-code-compatibility.md` for comprehensive session forking patterns.
+See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 
 ## License
 

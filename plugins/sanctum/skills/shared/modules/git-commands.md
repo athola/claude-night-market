@@ -15,7 +15,7 @@ estimated_tokens: 200
 ```bash
 pwd
 ```
-Ensures you are in the correct repository before running git operations.
+validates you are in the correct repository before running git operations.
 
 ### Check Branch and Status
 ```bash

@@ -76,7 +76,7 @@ When dispatched, provide clear context about:
 1. **Understand Context**: Review existing code and patterns
 2. **Apply Modern Practices**: Use latest Python features appropriately
 3. **Prioritize Clarity**: Write readable, maintainable code
-4. **Ensure Quality**: Add type hints, tests, and documentation
+4. **validate Quality**: Add type hints, tests, and documentation
 5. **Optimize Pragmatically**: Profile before optimizing
 
 ## Output

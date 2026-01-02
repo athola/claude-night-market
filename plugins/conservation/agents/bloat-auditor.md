@@ -3,7 +3,7 @@ name: bloat-auditor
 description: |
   Execute progressive bloat detection scans (Tier 1-3), generate prioritized
   reports, and recommend cleanup actions. Orchestrates quick scans, git analysis,
-  static analysis, and comprehensive audits.
+  static analysis, and deep audits.
 
   Use when: user requests bloat scan, codebase cleanup, technical debt audit,
   context optimization through bloat reduction.
@@ -21,7 +21,7 @@ examples:
     assistant: "I'll use the bloat-auditor to perform a Tier 1 quick scan first, identifying high-confidence bloat with minimal overhead."
   - context: Quarterly maintenance
     user: "Let's do our quarterly codebase cleanup"
-    assistant: "I'll run a comprehensive Tier 2 audit to identify bloat across code, docs, and dependencies."
+    assistant: "I'll run a Tier 2 audit to identify bloat across code, docs, and dependencies."
   - context: Context pressure
     user: "Context usage is at 45%, can we reduce it?"
     assistant: "I'll scan for bloat to identify files consuming significant tokens without adding value."
@@ -29,7 +29,7 @@ examples:
 
 # Bloat Auditor Agent
 
-Orchestrates progressive bloat detection, from quick heuristic scans to comprehensive static analysis audits.
+Orchestrates progressive bloat detection, from quick heuristic scans to deep static analysis audits.
 
 ## Core Responsibilities
 
@@ -84,7 +84,7 @@ Orchestrates progressive bloat detection, from quick heuristic scans to comprehe
 /bloat-scan --level 2 --focus docs
 ```
 
-### Tier 3: Comprehensive Audit (Full Analysis)
+### Tier 3: Deep Audit (Full Analysis)
 
 **Duration**: 30-60 minutes
 **Tools**: All available static analysis
@@ -102,7 +102,7 @@ Orchestrates progressive bloat detection, from quick heuristic scans to comprehe
 
 **Command:**
 ```bash
-/bloat-scan --level 3 --report comprehensive-audit.md
+/bloat-scan --level 3 --report deep-audit.md
 ```
 
 ## Workflow
@@ -122,7 +122,7 @@ def initialize_scan(level, focus=None):
         '.vscode', '.idea'
     }
 
-    # Build comprehensive exclusion list
+    # Build complete exclusion list
     exclude_patterns = set(DEFAULT_EXCLUDES)
 
     # Load from .gitignore (inherit project's ignore patterns)
@@ -195,7 +195,7 @@ def execute_scan(config):
         if config['focus'] in [None, 'deps']:
             findings.extend(run_dependency_analysis(config))
 
-    # Tier 3: Comprehensive
+    # Tier 3: Deep analysis
     if config['level'] >= 3:
         findings.extend(run_cross_file_analysis(config))
         findings.extend(run_complexity_analysis(config))
@@ -327,7 +327,7 @@ NEXT STEPS:
      - Finally merge/deduplicate docs
   4. Run tests after each change
   5. Create PR with detailed rationale
-  6. Schedule Tier 3 audit for comprehensive analysis
+  6. Schedule Tier 3 audit for deep analysis
 ```
 
 ## Safety Protocol
@@ -391,7 +391,7 @@ fi
 **Tier Availability:**
 - Tier 1: Always available (built-in heuristics + git)
 - Tier 2: Requires at least one language-specific tool
-- Tier 3: Requires comprehensive tooling
+- Tier 3: Requires full tooling suite
 
 ## Integration Points
 
@@ -476,12 +476,12 @@ Agent: [Analyzes docs with similarity detection]
 Agent: "Found 3 duplicate doc sections (87% similarity). Recommend merging."
 ```
 
-### Example 3: Comprehensive Audit
+### Example 3: Deep Audit
 ```bash
 User: "Full bloat audit before our Q1 release"
-Agent: "Running Tier 3 comprehensive audit (all tools)..."
+Agent: "Running Tier 3 deep audit (all tools)..."
 Agent: [30-minute deep analysis]
-Agent: "Generated comprehensive-audit.md with 24 findings across code, docs, and deps."
+Agent: "Generated deep-audit.md with 24 findings across code, docs, and deps."
 ```
 
 ## Related Skills

@@ -49,7 +49,7 @@ Choose a metaphor that fits your knowledge domain:
 | Metaphor | Best For |
 |----------|----------|
 | `building` | General organization (default) |
-| `fortress` | Security, defense, robust systems |
+| `fortress` | Security, defense, production-grade systems |
 | `library` | Research, documentation |
 | `workshop` | Practical skills, tools |
 | `garden` | Evolving knowledge |

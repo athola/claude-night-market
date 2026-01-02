@@ -1,7 +1,7 @@
 """Central knowledge orchestrator.
 
 Coordinates usage tracking, decay model, and source lineage
-for comprehensive knowledge quality assessment and management.
+for detailed knowledge quality assessment and management.
 """
 
 import logging

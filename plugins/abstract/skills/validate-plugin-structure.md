@@ -1,6 +1,6 @@
 ---
 name: validate-plugin-structure
-description: Comprehensive checklist and reference guide for manually validating Claude Code plugin structure step-by-step. Use when you need the detailed validation checklist with implementation code samples, want to understand plugin.json schema requirements, or are building validation tooling. For quick automated validation, use /validate-plugin command instead.
+description: detailed checklist and reference guide for manually validating Claude Code plugin structure step-by-step. Use when you need the detailed validation checklist with implementation code samples, want to understand plugin.json schema requirements, or are building validation tooling. For quick automated validation, use /validate-plugin command instead.
 triggers:
   - plugin validation checklist
   - plugin.json schema reference
@@ -16,7 +16,7 @@ This skill validates a Claude Code plugin's structure against the official docum
 ## When to Use This Skill
 
 Use this skill when:
-- Creating a new plugin to ensure proper structure
+- Creating a new plugin to validate proper structure
 - Reviewing an existing plugin for compliance
 - Preparing a plugin for distribution
 - Debugging plugin loading issues
@@ -220,7 +220,7 @@ def validate_directory_structure(plugin_path: Path) -> dict[str, list[str]]:
 
 ```python
 def generate_report(plugin_path: Path) -> None:
-    """Generate comprehensive validation report."""
+    """Generate detailed validation report."""
     print(f"Validating plugin: {plugin_path.name}")
     print("=" * 60)
 
@@ -350,7 +350,7 @@ jobs:
 
 ## Conclusion
 
-Regular validation ensures your plugin:
+Regular validation validates your plugin:
 - Loads correctly in Claude Code
 - Follows official conventions
 - Works across different environments
