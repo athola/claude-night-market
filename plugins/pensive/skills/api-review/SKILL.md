@@ -85,7 +85,7 @@ Identify duplication, leaky abstractions, missing feature gates, and documentati
 
 ### Step 4: Documentation Governance
 
-Ensure documentation includes:
+validate documentation includes:
 - Entry points and quickstarts
 - Complete API reference
 - Changelogs and migration notes

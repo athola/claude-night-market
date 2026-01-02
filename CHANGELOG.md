@@ -5,7 +5,37 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.2] - 2026-01-01
+
+### Added
+
+- **Conservation: Bloat Detection & Remediation** - Full codebase cleanup workflow
+- **Codebase-wide AI Slop Cleanup** - Systematic removal of AI-generated language patterns
+  - Removed ~628 instances of vague AI slop words across 356 files
+  - Replaced "comprehensive" with context-specific terms (detailed/deep/thorough/full)
+  - Replaced "ensures/ensure" with precise verbs (validates/verify/maintains)
+  - Replaced "robust" with "production-grade" or "solid"
+  - Replaced marketing language (powerful/seamless/leverage/utilize) with plain terms
+  - Affected all file types: Markdown (487 instances), Python (91), Shell/YAML/Makefiles (50)
+  - No functional changes, purely stylistic improvements for clarity
+  - **New Commands**:
+    - `/bloat-scan` - Progressive bloat detection (3 tiers: quick scan, targeted analysis, deep audit)
+    - `/unbloat` - Safe bloat remediation with interactive approval and automatic backups
+  - **New Agents**:
+    - `bloat-auditor` - Orchestrates bloat detection scans and generates prioritized reports
+    - `unbloat-remediator` - Executes safe deletions, refactorings, and consolidations with rollback support
+  - **New Skill**:
+    - `bloat-detector` - Detection algorithms for dead code, God classes, documentation duplication, and dependency bloat
+  - **Detection Capabilities**:
+    - Tier 1 (2-5 min): Heuristic-based detection using git history (no external tools required)
+    - Tier 2 (10-20 min): Static analysis integration (Vulture, Knip) with anti-pattern detection
+    - Tier 3 (30-60 min): Deep audit with cyclomatic complexity and cross-file redundancy
+  - **Safety Features**:
+    - Automatic backup branches before any changes
+    - Interactive approval workflow with dry-run mode
+    - Test verification after each change with auto-rollback on failure
+    - Reversible git operations (git rm/git mv)
+  - **Benefits**: 10-20% context reduction on average, identifies technical debt hotspots
 
 ## [1.1.1] - 2025-12-30
 
@@ -24,10 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comparison table showing LSP advantages (900x performance, 90% token reduction)
   - List of plugins benefiting from LSP (pensive, sanctum, conservation)
   - Graceful degradation explanation (grep fallback when LSP unavailable)
-  - Reference to comprehensive compatibility documentation
+  - Reference to detailed compatibility documentation
 
 - **Claude Code compatibility reference**: New documentation tracking version-specific features and fixes
-  - `plugins/abstract/docs/claude-code-compatibility.md` - Comprehensive compatibility matrix
+  - `plugins/abstract/docs/claude-code-compatibility.md` - Detailed compatibility matrix
   - Version support matrix for ecosystem compatibility
   - Migration guides for Claude Code version upgrades
   - Testing checklist for compatibility verification
@@ -36,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Claude Code 2.0.74 compatibility**: Updated documentation and agent capabilities for latest release
   - **LSP (Language Server Protocol) Tool**: **Now the preferred default** for code navigation and analysis
-    - Added comprehensive LSP integration patterns section to compatibility documentation
+    - Added detailed LSP integration patterns section to compatibility documentation
     - Updated `plugins/pensive/agents/code-reviewer.md` with LSP-enhanced review capabilities
     - Updated `plugins/pensive/agents/architecture-reviewer.md` with semantic architecture analysis
     - Updated `plugins/pensive/agents/rust-auditor.md` with rust-analyzer integration
@@ -78,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Claude Code 2.0.73 compatibility**: Updated documentation for latest Claude Code release
   - **Session Forking**: Documented `--session-id` + `--fork-session` workflow patterns (2.0.73+)
-    - Added comprehensive session forking patterns section to compatibility documentation
+    - Added detailed session forking patterns section to compatibility documentation
     - Documented use cases for sanctum (git workflows), imbue (parallel analysis), pensive (code reviews), memory-palace (knowledge intake)
     - Added best practices, naming conventions, and lifecycle management guidance
     - Created advanced patterns: decision tree exploration, experiment-driven development, parallel testing
@@ -169,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Sanctum fix-issue command**: Modularized for better token efficiency
-- **Imbue tests**: Comprehensive test updates across review analyst, catchup, and skill modules
+- **Imbue tests**: Test updates across review analyst, catchup, and skill modules
 
 ### Fixed
 
@@ -188,14 +218,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Documentation overhaul**: Expanded `docs/capabilities-reference.md` with complete skill, command, agent, and hook listings for all plugins
+- **Documentation overhaul**: Expanded `book/src/reference/capabilities-reference.md` with complete skill, command, agent, and hook listings for all plugins
 - **Conservation README**: Added session start integration docs, bypass modes table, and threshold guidelines
 - **Plugin versions**: All plugins bumped to 1.0.2 for consistency
 - **Skill modules**: Refined content across abstract, conservation, imbue, leyline, pensive, sanctum, and spec-kit
 
 ### Improved
 
-- **Context optimization**: Comprehensive updates to MECW patterns and monitoring across conservation and leyline
+- **Context optimization**: Updates to MECW patterns and monitoring across conservation and leyline
 - **Skill authoring docs**: Enhanced persuasion principles, TDD methodology, and anti-rationalization modules
 - **Hook authoring**: Updated security patterns and performance guidelines
 
@@ -246,6 +276,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merged from PR #8
 - Commit: bd7d2ce
 
-[1.0.2]: https://github.com/athola/claude-night-market/compare/v1.0.1...HEAD
+[1.1.2]: https://github.com/athola/claude-night-market/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/athola/claude-night-market/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/athola/claude-night-market/compare/v1.0.4...v1.1.0
+[1.0.4]: https://github.com/athola/claude-night-market/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/athola/claude-night-market/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/athola/claude-night-market/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/athola/claude-night-market/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/athola/claude-night-market/releases/tag/v1.0.0

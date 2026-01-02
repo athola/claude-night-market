@@ -299,7 +299,7 @@ def5678 2024-12-04 test: Add payment flow tests
         # Arrange - simulated catchup results
         catchup_results = {
             "context": sample_catchup_context,
-            "summary": "Major payment processing feature added with comprehensive test coverage and documentation updates.",
+            "summary": "Major payment processing feature added with detailed test coverage and documentation updates.",
             "key_changes": [
                 {
                     "what": "Stripe payment integration",
@@ -312,8 +312,8 @@ def5678 2024-12-04 test: Add payment flow tests
                     "implication": "Accounting team notification required",
                 },
                 {
-                    "what": "Comprehensive test suite",
-                    "why": "Ensure payment reliability",
+                    "what": "detailed test suite",
+                    "why": "validate payment reliability",
                     "implication": "Confidence for production deployment",
                 },
             ],

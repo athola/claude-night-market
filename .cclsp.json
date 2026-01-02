@@ -1,0 +1,33 @@
+{
+  "servers": [
+    {
+      "extensions": ["py", "pyi"],
+      "command": ["pylsp"],
+      "rootDir": ".",
+      "initializationOptions": {
+        "settings": {
+          "pylsp": {
+            "plugins": {
+              "jedi_completion": { "enabled": true },
+              "jedi_definition": { "enabled": true },
+              "jedi_references": { "enabled": true },
+              "jedi_hover": { "enabled": true },
+              "pylint": { "enabled": false },
+              "pycodestyle": { "enabled": false }
+            }
+          }
+        }
+      }
+    },
+    {
+      "extensions": ["js", "ts", "jsx", "tsx", "mjs", "cjs"],
+      "command": ["typescript-language-server", "--stdio"],
+      "rootDir": "."
+    },
+    {
+      "extensions": ["md", "markdown"],
+      "command": ["typescript-language-server", "--stdio"],
+      "rootDir": "."
+    }
+  ]
+}

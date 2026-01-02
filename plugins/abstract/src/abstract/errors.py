@@ -93,7 +93,7 @@ class ErrorHandler:
                 severity=ErrorSeverity.HIGH,
                 error_code="NOT_A_FILE",
                 message=f"Path is not a file: {file_path}",
-                suggestion="Ensure the path points to a file, not a directory",
+                suggestion="validate the path points to a file, not a directory",
                 context={"operation": operation, "file_path": str(file_path)},
             )
 
@@ -102,7 +102,7 @@ class ErrorHandler:
                 severity=ErrorSeverity.HIGH,
                 error_code="FILE_PERMISSION",
                 message=f"Cannot read file: {file_path}",
-                suggestion="Check file permissions and ensure the file is readable",
+                suggestion="Check file permissions and validate the file is readable",
                 context={"operation": operation, "file_path": str(file_path)},
             )
 
@@ -130,7 +130,7 @@ class ErrorHandler:
                 severity=ErrorSeverity.HIGH,
                 error_code="NOT_A_DIRECTORY",
                 message=f"Path is not a directory: {dir_path}",
-                suggestion="Ensure the path points to a directory, not a file",
+                suggestion="validate the path points to a directory, not a file",
                 context={"operation": operation, "dir_path": str(dir_path)},
             )
 

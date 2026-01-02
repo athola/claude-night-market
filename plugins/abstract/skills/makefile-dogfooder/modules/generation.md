@@ -500,4 +500,4 @@ make -f ../abstract/Makefile generate-targets \
   FEATURE_FILE=features.txt
 ```
 
-This generation module provides comprehensive templates and workflows for creating contextually appropriate Makefile targets that align with the claude-night-market project's conventions and patterns.
+This generation module provides detailed templates and workflows for creating contextually appropriate Makefile targets that align with the claude-night-market project's conventions and patterns.

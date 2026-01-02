@@ -47,7 +47,7 @@ Delegate if: Benefit > Cost * 3 (safety margin for quality risks)
 
 **High-Cost Delegations ($0.10+):**
 - Review entire codebase (500K+ tokens): $0.25-0.75
-- Generate comprehensive documentation: $0.15-0.45
+- Generate detailed documentation: $0.15-0.45
 - Complex refactoring analysis: $0.20-0.60
 
 ## Cost Optimization Strategies

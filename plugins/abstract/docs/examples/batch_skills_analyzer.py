@@ -2,7 +2,7 @@
 """Example script for batch analyzing skills.
 
 This script demonstrates how to use the Abstract framework for batch processing
-of multiple skills, generating comprehensive reports.
+of multiple skills, generating detailed reports.
 """
 
 import argparse
@@ -21,7 +21,7 @@ MAX_ISSUES_DISPLAY = 10
 
 
 def generate_batch_report(skills_dir: Path, output_dir: Path) -> None:
-    """Generate a comprehensive batch analysis report.
+    """Generate a detailed batch analysis report.
 
     Args:
         skills_dir: Directory containing skills to analyze
@@ -155,7 +155,7 @@ def generate_markdown_summary(summary: dict[str, Any], issues: list[str]) -> str
 def main() -> None:
     """Run the batch skills analyzer."""
     parser = argparse.ArgumentParser(
-        description="Batch analyze skills and generate comprehensive reports",
+        description="Batch analyze skills and generate detailed reports",
     )
     parser.add_argument(
         "--skills-dir",

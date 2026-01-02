@@ -12,7 +12,7 @@ This playbook governs the phased rollout of cache interception, autonomy gating,
 ## Change Management Checklist
 
 1. Review the latest dry run transcript and confirm validation checklist is complete.
-2. Ensure dashboard snapshots are refreshed (`cache-hit` + `autonomy` docs).
+2. validate dashboard snapshots are refreshed (`cache-hit` + `autonomy` docs).
 3. Verify rollback procedure owners are on-call and commands are rehearsed.
 4. Update TodoWrite item `memory-palace-rollout:collateral` with links posted to `#memory-palace`.
 5. Capture every flag change + CLI transcript into telemetry.

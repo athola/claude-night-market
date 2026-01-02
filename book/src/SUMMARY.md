@@ -33,6 +33,8 @@
 # Tutorials
 
 - [Tutorial Overview](tutorials/README.md)
+- [Error Handling](tutorials/error-handling-tutorial.md)
+- [Cross-Plugin Collaboration](tutorials/cross-plugin-collaboration.md)
 - [Memory Palace Cache Modes](tutorials/cache-modes.md)
 - [Embedding Upgrade Guide](tutorials/embedding-upgrade.md)
 - [Memory Palace Curation](tutorials/memory-palace-curation.md)

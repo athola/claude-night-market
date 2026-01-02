@@ -1,10 +1,10 @@
 # Cross-Plugin Collaboration Guide
 
-This guide demonstrates how plugins in the Claude Night Market ecosystem work together through shared superpowers to create workflows more powerful than any single plugin could provide alone.
+This guide demonstrates how plugins in the Claude Night Market ecosystem work together through shared superpowers to create workflows that combine multiple domain specializations.
 
 ## Overview
 
-The Night Market plugin ecosystem is designed for collaboration. Each plugin specializes in a domain, but their true power emerges when combined:
+The Night Market plugin ecosystem is designed for collaboration. Each plugin specializes in a domain and exposes capabilities through skills:
 
 - **Abstract** - Meta-infrastructure for skills, validation, and quality
 - **Sanctum** - Git workflows, PR generation, and documentation
@@ -17,7 +17,7 @@ The Night Market plugin ecosystem is designed for collaboration. Each plugin spe
 ```
 Abstract (TDD/Bulletproofing) -> Sanctum (Quality Gates) -> Production
 ```
-Abstract ensures code quality, Sanctum validates before integration.
+Abstract enforces TDD and skill structure, Sanctum validates before integration.
 
 ### Pattern 2: Resource Optimization Loop
 ```
@@ -88,7 +88,7 @@ dependencies:
 ```markdown
 ## Summary
 - Add new `my-awesome-skill` skill for processing workflow data
-- Implements TDD methodology with comprehensive test coverage
+- Implements TDD methodology with 95%+ test coverage
 - Validated through Abstract's skill evaluation framework
 
 ## Testing
@@ -99,7 +99,7 @@ dependencies:
 ```
 
 #### Benefits
-- **Quality Assurance**: Abstract ensures skills are well-structured and tested
+- **Quality Assurance**: Abstract validates skills are well-structured and tested
 - **Security**: Bulletproofing prevents edge cases and bypass attempts
 - **Automation**: Sanctum handles mechanical PR creation
 - **Consistency**: Standardized PR format with all necessary information
@@ -113,7 +113,7 @@ dependencies:
 #### Initial Problem
 ```yaml
 # Skill consuming too much context
-name: comprehensive-skill-eval
+name: detailed-skill-eval
 token_budget: 2500  # Too high!
 estimated_tokens: 2300
 progressive_loading: false  # Loading everything at once
@@ -125,12 +125,12 @@ progressive_loading: false  # Loading everything at once
 ```bash
 /conservation:analyze-growth
 # Output: Current context usage: 45% (CRITICAL)
-# Top consumer: comprehensive-skill-eval: 2300 tokens
+# Top consumer: detailed-skill-eval: 2300 tokens
 ```
 
 **Step 2: Estimate Token Impact (Abstract)**
 ```bash
-/abstract:estimate-tokens comprehensive-skill-eval
+/abstract:estimate-tokens detailed-skill-eval
 # Breakdown: Core logic 900, Examples 600, Validation 400, Error handling 300
 ```
 
@@ -142,7 +142,7 @@ progressive_loading: false  # Loading everything at once
 
 **Step 4: Refactor with Abstract's Patterns**
 ```bash
-/abstract:analyze-skill comprehensive-skill-eval
+/abstract:analyze-skill detailed-skill-eval
 # Provides: Modular decomposition strategy, shared pattern extraction
 ```
 
@@ -417,7 +417,7 @@ done
 ### Phase 5: Documentation and PR Generation
 
 ```bash
-# Generate comprehensive PR (Sanctum)
+# Generate detailed PR (Sanctum)
 /sanctum:pr --include-performance-report
 
 # Sanctum automatically includes:
@@ -434,7 +434,7 @@ done
 | Development time | 2-3 weeks | 3-5 days |
 | Quality issues | Frequent, discovered late | Caught early |
 | Resource problems | Context overflow common | Eliminated |
-| Documentation | Manual, often incomplete | Automatic, comprehensive |
+| Documentation | Manual, often incomplete | Automatic, detailed |
 
 **Measurable Improvements:**
 - Development speed: 70% faster
@@ -498,7 +498,7 @@ quality_gates:
 
 ### Collaboration Metrics
 - **Interoperability**: How well plugins work together
-- **Integration**: Seamless handoffs between plugins
+- **Integration**: Clean handoffs between plugins
 - **Flexibility**: Ability to adapt to different scenarios
 - **Maintainability**: Long-term sustainability
 
@@ -512,11 +512,11 @@ quality_gates:
 - `/abstract:bulletproof-skill` - Harden skill against edge cases
 - `/abstract:estimate-tokens` - Calculate context impact
 - `/abstract:analyze-skill` - Get optimization recommendations
-- `/abstract:validate-plugin` - Ensure quality after optimization
+- `/abstract:validate-plugin` - validate quality after optimization
 
 ### Sanctum Commands
 - `/git-catchup` - Efficient git branch analysis
-- `/sanctum:pr` - Generate comprehensive PR description
+- `/sanctum:pr` - Generate detailed PR description
 - `/sanctum:show-details <path>` - Progressive detail loading
 - `/sanctum:update-tutorial` - Generate tutorials with media (uses Scry)
 
@@ -533,12 +533,12 @@ quality_gates:
 ## Key Takeaways
 
 1. **Synergy Over Silos**: Plugins working together create more value than separate usage
-2. **Complementary Strengths**: Each plugin specializes, together they're comprehensive
+2. **Complementary Strengths**: Each plugin specializes in a domain, combined they cover the development lifecycle
 3. **Adaptive Workflows**: Collaboration enables workflows that adapt to constraints
 4. **Quality at Scale**: Maintain high quality even with complex, multi-plugin workflows
 5. **Resource Efficiency**: Optimize for both development speed and operational cost
 
-The Claude Night Market ecosystem is designed for collaboration. Combining plugin superpowers creates workflows that are more powerful, efficient, and maintainable than any single plugin could achieve alone.
+The Claude Night Market ecosystem is designed for collaboration. Combining plugin superpowers creates workflows that are efficient and maintainable by composing specialized capabilities.
 
 ## See Also
 

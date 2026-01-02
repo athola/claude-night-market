@@ -66,7 +66,7 @@ Testing
 ~~~~~~~
 
 - Write tests for new functionality
-- Ensure all tests pass: ``make test``
+- validate all tests pass: ``make test``
 - Aim for high test coverage
 
 Documentation

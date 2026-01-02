@@ -26,10 +26,10 @@ skills/modular-skills/scripts/module-validator -s path/to/skill.md -c
 ```
 
 **Common Solutions**:
-- **Missing Required Fields**: Ensure `name`, `description`, and `category` are present in YAML frontmatter
+- **Missing Required Fields**: validate `name`, `description`, and `category` are present in YAML frontmatter
 - **Invalid YAML**: Check for proper indentation and syntax in frontmatter
 - **Token Limits**: Verify estimated tokens are reasonable for skill complexity
-- **Tool References**: Ensure all listed tools are accessible and executable
+- **Tool References**: validate all listed tools are accessible and executable
 
 ### Inaccurate Token Estimations
 
@@ -84,10 +84,10 @@ skills/modular-skills/scripts/skill-analyzer --help
 ```
 
 **Common Solutions**:
-- **File Permissions**: Ensure all tools have execute permissions (`chmod +x`)
+- **File Permissions**: validate all tools have execute permissions (`chmod +x`)
 - **Path Issues**: Verify tools are in correct directory structure
 - **Python Dependencies**: Install required packages (`pip install -r requirements.txt`)
-- **Shebang Lines**: Ensure Python scripts have proper `#!/usr/bin/env python3`
+- **Shebang Lines**: validate Python scripts have proper `#!/usr/bin/env python3`
 
 ## Advanced Troubleshooting
 

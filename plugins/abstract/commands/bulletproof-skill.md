@@ -20,7 +20,7 @@ usage: /bulletproof-skill [skill-path]
 
 # Bulletproof Skill Command
 
-Systematically hardens skills against rationalization and bypass behaviors. Identifies loopholes in skill language, generates comprehensive rationalization tables, and suggests explicit counters.
+Systematically hardens skills against rationalization and bypass behaviors. Identifies loopholes in skill language, generates detailed rationalization tables, and suggests explicit counters.
 
 ## Usage
 
@@ -247,7 +247,7 @@ Recommendation: Add Rationalization Table section to skill
 
 ### Step 3: Generate Rationalization Table
 
-Creates comprehensive table for inclusion in skill:
+Creates detailed table for inclusion in skill:
 
 ```markdown
 ## Rationalization Table

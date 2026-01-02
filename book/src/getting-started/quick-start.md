@@ -24,7 +24,7 @@ Start features with a specification:
 
 ### Code Review with Pensive
 
-Comprehensive code review:
+detailed code review:
 
 ```bash
 # Full review with intelligent skill selection
@@ -201,7 +201,7 @@ Skill(sanctum:git-workspace-review)
 Skill(sanctum:commit-messages)
 ```
 
-### 4. Leverage Superpowers
+### 4. use Superpowers
 
 If superpowers is installed, commands gain enhanced capabilities:
 - `/create-skill` uses brainstorming

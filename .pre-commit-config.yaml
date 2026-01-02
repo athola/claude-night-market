@@ -67,6 +67,13 @@ repos:
         files: ^.*SKILL\.md$
         pass_filenames: false
 
+      - id: validate-description-budget
+        name: Validate Description Budget
+        entry: python3 plugins/abstract/scripts/validate_budget.py
+        language: system
+        files: ^plugins/.*(SKILL\.md|commands/.*\.md)$
+        pass_filenames: false
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:

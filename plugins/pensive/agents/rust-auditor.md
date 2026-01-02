@@ -6,7 +6,7 @@ skills: pensive:rust-review
 examples:
   - context: User has Rust code to audit
     user: "Can you audit this Rust code for safety issues?"
-    assistant: "I'll use the rust-auditor agent to perform a comprehensive Rust audit."
+    assistant: "I'll use the rust-auditor agent to perform a detailed Rust audit."
   - context: User reviewing unsafe code
     user: "I'm using unsafe here, is it sound?"
     assistant: "Let me use the rust-auditor agent to verify the unsafe code."
@@ -83,7 +83,7 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
 
 ### LSP-Enhanced Rust Audit (2.0.74+)
 
-When `ENABLE_LSP_TOOLS=1` is set, leverage rust-analyzer for deeper analysis:
+When `ENABLE_LSP_TOOLS=1` is set, use rust-analyzer for deeper analysis:
 
 1. **Type Safety Verification**:
    - Use LSP to verify type inference correctness

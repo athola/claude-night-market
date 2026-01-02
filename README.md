@@ -2,9 +2,9 @@
 
 A collection of Claude Code plugins for software engineering workflows.
 
-[**View Capabilities Reference**](docs/capabilities-reference.md) for a detailed list of all skills, commands, and agents.
+[**View Capabilities Reference**](book/src/reference/capabilities-reference.md) for a detailed list of all skills, commands, and agents.
 
-> **Recommended Dependency**: Many skills in this marketplace achieve their full potential when used alongside the [**superpowers**](https://github.com/obra/superpowers) skills. While plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns) that enhance workflows significantly. See [Superpowers Dependencies](docs/capabilities-reference.md#superpowers-dependencies) for details.
+> **Recommended Dependency**: Many skills in this marketplace achieve their full potential when used alongside the [**superpowers**](https://github.com/obra/superpowers) skills. While plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns) that enhance workflows significantly. See [Superpowers Dependencies](book/src/reference/capabilities-reference.md#superpowers-dependencies) for details.
 
 ## Installation
 
@@ -19,14 +19,41 @@ A collection of Claude Code plugins for software engineering workflows.
 /plugin install spec-kit@claude-night-market
 ```
 
+## System Prompt Budget: Optimized
+
+The ecosystem fits within Claude Code's 15K character budget. We optimized descriptions so all 160 skills and commands load without configuration.
+
+### Current Status
+
+- **Description usage**: ~14,800 characters (98.7% of 15K default budget)
+- **Headroom**: ~200 characters (1.3% buffer)
+- **Budget enforcement**: Pre-commit hook prevents regression
+
+### Optional: Increased Headroom
+
+For extra buffer, you can increase the budget:
+
+```bash
+# Add to ~/.bashrc, ~/.zshrc, etc. (OPTIONAL)
+export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000
+```
+
+With 30K budget: 49.3% used (50.7% headroom for future growth).
+
+### What We Optimized
+
+See [Budget Optimization Summary](docs/budget-optimization-dec-2025.md) for details on the 404-character reduction through description refinement.
+
+**Background**: [Claude Code Skills Not Triggering](https://blog.fsck.com/2025/12/17/claude-code-skills-not-triggering/) - why this matters
+
 ## Recommended Setup: LSP Integration
 
-**As of v1.1.1**, this plugin ecosystem **defaults to using LSP** (Language Server Protocol) for all code navigation and analysis tasks. LSP provides **900x performance improvements** and semantic understanding vs. text-based grep searches.
+**As of v1.1.1**, this plugin ecosystem **defaults to using LSP** (Language Server Protocol) for code navigation and analysis. LSP provides semantic understanding vs. text-based grep searches.
 
 ### Why LSP?
 
-| Capability | LSP (Preferred) | Grep (Fallback) |
-|------------|-----------------|-----------------|
+| Capability | LSP (Preferred) | Grep (Secondary) |
+|------------|-----------------|------------------|
 | Find references | 50ms, semantically accurate | 45s, text-based matches |
 | Code navigation | Understands structure | Pattern matching only |
 | Token efficiency | 90% token reduction | High context usage |
@@ -44,7 +71,17 @@ export ENABLE_LSP_TOOLS=1
 source ~/.bashrc  # or ~/.zshrc
 ```
 
-**2. Install Language Servers** for your languages:
+**2. Install cclsp MCP Server** (bridges LSP to Claude Code):
+
+```bash
+# Option 1: Quick setup (recommended)
+npx cclsp@latest setup
+
+# Option 2: Manual configuration (see setup guide below)
+npm install -g cclsp
+```
+
+**3. Install Language Servers** for your languages:
 
 ```bash
 # TypeScript/JavaScript
@@ -62,11 +99,65 @@ go install golang.org/x/tools/gopls@latest
 # More languages: See https://github.com/Piebald-AI/claude-code-lsps
 ```
 
-**3. Verify Setup**:
+**4. Verify Setup**:
 
 ```bash
-# Test LSP is working
-ENABLE_LSP_TOOLS=1 claude "Find all references to this function"
+# Test LSP is working (from within a code project)
+cd /path/to/your/project
+ENABLE_LSP_TOOLS=1 claude
+
+# Then ask about a specific function in your codebase, e.g.:
+# "Find all references to the processData function"
+# "Show me the definition of UserService.authenticate"
+```
+
+### Manual Setup (Alternative to Interactive Setup)
+
+If the interactive `npx cclsp@latest setup` doesn't work in your environment, configure manually:
+
+**1. Create project configuration** (`.cclsp.json` in your project root):
+
+```json
+{
+  "servers": [
+    {
+      "extensions": ["py", "pyi"],
+      "command": ["pylsp"],
+      "rootDir": "."
+    },
+    {
+      "extensions": ["js", "ts", "jsx", "tsx"],
+      "command": ["typescript-language-server", "--stdio"],
+      "rootDir": "."
+    }
+  ]
+}
+```
+
+**2. Configure MCP server** (`~/.claude/.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "cclsp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "cclsp@latest"],
+      "env": {
+        "CCLSP_CONFIG_PATH": "/home/YOUR_USERNAME/.config/cclsp/config.json"
+      }
+    }
+  }
+}
+```
+
+*Note*: Replace `YOUR_USERNAME` with your actual username, or use `~/.config/cclsp/config.json` if your shell expands `~`.
+
+**3. Restart Claude Code** to load the MCP server:
+
+```bash
+exit  # Exit current session
+claude  # Start new session with LSP enabled
 ```
 
 ### Plugins Using LSP
@@ -78,19 +169,19 @@ ENABLE_LSP_TOOLS=1 claude "Find all references to this function"
 
 ### Without LSP
 
-Plugins gracefully degrade to grep-based searches when LSP is unavailable. However, for best performance and accuracy, **LSP is strongly recommended**.
+Plugins use grep-based searches when LSP is unavailable. However, for best performance and accuracy, **LSP is strongly recommended**.
 
-**See**: [`plugins/abstract/docs/claude-code-compatibility.md`](plugins/abstract/docs/claude-code-compatibility.md) for comprehensive LSP integration patterns and usage examples.
+**See**: [`plugins/abstract/docs/claude-code-compatibility.md`](plugins/abstract/docs/claude-code-compatibility.md) for detailed LSP integration patterns and usage examples.
 
 ## Project-Level Agents
 
 The repository includes three main-thread agent configurations in `.claude/agents/` for consistent development workflows:
 
 - **`plugin-developer`** (default): Plugin development with validation-first workflows and skill authoring
-- **`code-review-mode`**: Comprehensive code review with evidence gathering and bug analysis
+- **`code-review-mode`**: Code review with evidence gathering and bug analysis
 - **`documentation-mode`**: Documentation creation, updates, and consolidation with writing standards
 
-These agents automatically load when starting Claude Code in this project directory. See [Project-Level Agents](docs/capabilities-reference.md#project-level-agents) for detailed usage and configuration.
+These agents automatically load when starting Claude Code in this project directory. See [Project-Level Agents](book/src/reference/capabilities-reference.md#project-level-agents) for detailed usage and configuration.
 
 ## Plugins
 
@@ -164,12 +255,15 @@ Infrastructure and pipeline building blocks for plugins.
 #### conservation
 Resource optimization and performance monitoring.
 
-| Skill | Purpose |
+| Command/Skill | Purpose |
 |-------|---------|
+| `/bloat-scan` | Progressive bloat detection (dead code, God classes, duplication) |
+| `/unbloat` | Safe bloat remediation with backups and test verification |
 | `context-optimization` | MECW context management |
 | `mcp-code-execution` | Tool-heavy workflow optimization |
 | `cpu-gpu-performance` | Performance guardrails |
 | `token-conservation` | Context efficiency |
+| `bloat-detector` | Bloat detection algorithms and remediation strategies |
 
 #### conjure
 Delegation to external LLM services, primarily through headless calls.
@@ -312,6 +406,10 @@ graph TB
 
 # Review architecture on current project
 /pensive:architecture-review
+
+# Detect and clean up codebase bloat
+/bloat-scan --level 2
+/unbloat --from-scan bloat-report.md
 ```
 
 ## Setup

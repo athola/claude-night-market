@@ -20,7 +20,7 @@ pattern: meta-skill
 
 # Git Workflow
 
-Comprehensive Git workflow management for teams, covering repository initialization, branching strategies, commit standards, and daily practices.
+detailed Git workflow management for teams, covering repository initialization, branching strategies, commit standards, and daily practices.
 
 ## Overview
 
@@ -181,7 +181,7 @@ git log --oneline -5
 
 ### End of Day Routine
 ```bash
-# Ensure everything is committed and pushed
+# validate everything is committed and pushed
 git status
 git add .
 git commit -m "work: progress on feature X"
@@ -411,4 +411,4 @@ git log --stat --summary
 git log --name-only --pretty=format: | sort | uniq -c | sort -rg
 ```
 
-This git workflow module provides comprehensive guidance for teams to establish consistent, efficient version control practices that scale with project complexity.
+This git workflow module provides detailed guidance for teams to establish consistent, efficient version control practices that scale with project complexity.

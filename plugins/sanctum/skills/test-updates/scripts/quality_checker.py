@@ -532,7 +532,7 @@ class TestQualityChecker:
 
         if static["documentation"]:
             recommendations.append(
-                "Add comprehensive documentation to explain test scenarios",
+                "Add detailed documentation to explain test scenarios",
             )
 
         # From dynamic validation

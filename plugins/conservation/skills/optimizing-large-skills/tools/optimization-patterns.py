@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comprehensive skill optimization patterns and tools.
+"""detailed skill optimization patterns and tools.
 
 CLI interface for systematic skill file optimization.
 """

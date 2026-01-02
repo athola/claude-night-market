@@ -92,11 +92,11 @@ fi
 # Escape outputs for JSON - uses jq when available, falls back to pure bash
 escape_for_json() {
     local input="$1"
-    # Prefer jq for robust JSON escaping (handles unicode, control chars)
+    # Prefer jq for production-grade JSON escaping (handles unicode, control chars)
     if command -v jq >/dev/null 2>&1; then
         printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
     else
-        # Pure bash fallback - less robust but functional
+        # Pure bash fallback - less production-grade but functional
         echo "[conservation:session-start] Warning: jq not found, using bash fallback for JSON escaping" >&2
         local output=""
         local i char

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Comprehensive test quality assurance through static analysis, dynamic validation, metrics tracking, and structured peer review.
+detailed test quality assurance through static analysis, dynamic validation, metrics tracking, and structured peer review.
 
 ## Validation Categories
 
@@ -96,7 +96,7 @@ def run_validation_pipeline(test_path, source_path=None):
 - **Coverage**: 95% line, 90% branch, 100% function
 - **Mutation Score**: 90% or higher
 - **Test Speed**: < 0.5 seconds per test
-- **Documentation**: Comprehensive behavior description
+- **Documentation**: detailed behavior description
 - **Maintainability**: Clear, readable, well-structured
 
 ### Failure Modes

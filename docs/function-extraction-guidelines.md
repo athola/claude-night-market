@@ -4,7 +4,7 @@
 
 ## Overview
 
-This document provides standards and guidelines for function extraction and refactoring in the Claude Night Market plugin ecosystem. Following these guidelines ensures maintainable, testable, and readable code.
+This document provides standards and guidelines for function extraction and refactoring in the Claude Night Market plugin ecosystem. Following these guidelines validates maintainable, testable, and readable code.
 
 ## Principles
 
@@ -529,7 +529,7 @@ The original function was 60+ lines and handled multiple responsibilities.
 ### After Refactoring:
 ```python
 def generate_control_strategies(self, growth_rate: float) -> StrategyPlan:
-    """Generate comprehensive control strategies for growth management."""
+    """Generate detailed control strategies for growth management."""
     strategies = self._select_control_strategies(growth_rate)
     monitoring = self._define_monitoring_needs(strategies)
     implementation = self._plan_implementation(strategies, monitoring)

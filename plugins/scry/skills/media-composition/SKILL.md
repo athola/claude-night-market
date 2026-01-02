@@ -19,7 +19,7 @@ dependencies:
 
 # Media Composition Skill
 
-Combine multiple media assets (GIFs, videos, images) into composite outputs for comprehensive tutorials and documentation.
+Combine multiple media assets (GIFs, videos, images) into composite outputs for detailed tutorials and documentation.
 
 ## Overview
 

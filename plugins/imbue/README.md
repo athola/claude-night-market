@@ -110,7 +110,7 @@ Use during analysis to create a record of work and back recommendations with dat
 Formats final analysis output.
 
 **When to Use:**
-Use when preparing the final report to ensure consistency and readability.
+Use when preparing the final report to maintain consistency and readability.
 
 **Required TodoWrite Items:**
 1. `structured-output:template-selected`: Choose format.
@@ -233,7 +233,7 @@ claude --fork-session --session-id "bottom-up-review" --resume
 claude --fork-session --session-id "top-down-review" --resume
 > "Skill(imbue:review-core) starting from high-level architecture"
 
-# Combine insights for comprehensive review
+# Combine insights for full review
 ```
 
 ### Benefits
@@ -241,7 +241,7 @@ claude --fork-session --session-id "top-down-review" --resume
 - **Independent evidence logs**: Each fork maintains separate evidence without cross-contamination
 - **Specialized perspectives**: Deep focus on single concern (security, performance, etc.)
 - **Parallel analysis**: Explore multiple approaches simultaneously
-- **Comprehensive reviews**: Combine insights from multiple specialized forks
+- **Full reviews**: Combine insights from multiple specialized forks
 
 ### Best Practices
 
@@ -250,7 +250,7 @@ claude --fork-session --session-id "top-down-review" --resume
 - **Consolidation workflow**: Create summary that synthesizes findings from all forks
 - **Descriptive session IDs**: Use perspective name in ID (e.g., "security-audit-pr-42")
 
-See `plugins/abstract/docs/claude-code-compatibility.md` for comprehensive session forking patterns.
+See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 
 ## License
 

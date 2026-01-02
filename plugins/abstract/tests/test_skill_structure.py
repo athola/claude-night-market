@@ -62,7 +62,7 @@ class TestSkillDescriptionBestPractices:
         Then it should contain action verbs describing capabilities
         """
         action_patterns = [
-            r"\b(validate|check|analyze|create|build|generate|evaluate|test|review|guide|help|provide|decision|framework|implement|optimize|manage|configure|design|develop|enable|ensure|enforce|monitor|track|audit|assess)\b",
+            r"\b(validate|check|analyze|create|build|generate|evaluate|test|review|guide|help|provide|decision|framework|implement|optimize|manage|configure|design|develop|enable|validate|enforce|monitor|track|audit|assess)\b",
         ]
 
         for skill_file in skill_files:

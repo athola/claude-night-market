@@ -214,7 +214,7 @@ class TestConservationValidator:
         self,
         mock_conservation_validator,
     ) -> None:
-        """Scenario: Validator generates comprehensive conservation report.
+        """Scenario: Validator generates detailed conservation report.
 
         Given conservation analysis results
         When generating report
@@ -459,7 +459,7 @@ class TestConservationValidator:
 
 
 class TestConservationWorkflowValidation:
-    """Feature: Conservation workflow validation ensures optimization effectiveness.
+    """Feature: Conservation workflow validation validates optimization effectiveness.
 
     As a conservation workflow validator
     I want to validate end-to-end conservation workflows
@@ -476,7 +476,7 @@ class TestConservationWorkflowValidation:
         Given a complete conservation workflow
         When validating the workflow
         Then it should check analysis, optimization, and monitoring phases
-        And ensure proper phase transitions.
+        And validate proper phase transitions.
         """
         # Arrange
         workflow_phases = [

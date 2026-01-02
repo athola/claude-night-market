@@ -1,19 +1,19 @@
 ---
 name: pr
-description: Enhanced PR preparation that combines Sanctum's workspace review with superpowers:receiving-code-review for comprehensive PR validation
+description: Enhanced PR preparation that combines Sanctum's workspace review with superpowers:receiving-code-review for detailed PR validation
 usage: /pr [--no-code-review] [--reviewer-scope strict|standard|lenient] [destination-file]
 extends: "superpowers:receiving-code-review"
 ---
 
 # Enhanced PR Preparation
 
-Integrates Sanctum's proven PR preparation workflow with superpowers:receiving-code-review to provide comprehensive validation before creating pull requests.
+Integrates Sanctum's proven PR preparation workflow with superpowers:receiving-code-review to provide detailed validation before creating pull requests.
 
 ## Key Features
 
 - **Workspace Validation**: Uses sanctum:git-workspace-review for repository state analysis
 - **Quality Gates**: Runs project-specific formatting, linting, and tests
-- **Code Review Integration**: Leverages superpowers:receiving-code-review for automated review
+- **Code Review Integration**: uses superpowers:receiving-code-review for automated review
 - **Scope Compliance**: Validates changes against branch requirements
 - **PR Template Generation**: Creates structured PR descriptions
 
@@ -58,12 +58,12 @@ Integrates Sanctum's proven PR preparation workflow with superpowers:receiving-c
 
 4. **PR Template Generation**
    - Combines workspace analysis with code review findings
-   - Generates comprehensive PR description
+   - Generates detailed PR description
    - Includes quality gates results and review recommendations
 
 ## Options
 
-- `--no-code-review`: Skip superpowers code review (faster, less comprehensive)
+- `--no-code-review`: Skip superpowers code review (faster, less detailed)
 - `--reviewer-scope`: Set review strictness (default: standard)
 - `destination-file`: Output path for PR description (default: pr_description.md)
 
@@ -71,7 +71,7 @@ Integrates Sanctum's proven PR preparation workflow with superpowers:receiving-c
 
 ### Strict
 - All suggestions must be addressed
-- Comprehensive validation
+- detailed validation
 - Suitable for critical code paths
 
 ### Standard (Default)
@@ -154,7 +154,7 @@ Address these before creating PR:
 ## Integration Benefits
 
 ### For Developers
-- Comprehensive validation before PR
+- detailed validation before PR
 - Consistent PR descriptions
 - Early issue detection
 - Streamlined workflow
@@ -209,7 +209,7 @@ The command orchestrates these skills in sequence:
 ## Benefits
 
 ### For Developers
-- Comprehensive validation before PR
+- detailed validation before PR
 - Consistent PR descriptions
 - Early issue detection
 - Streamlined workflow

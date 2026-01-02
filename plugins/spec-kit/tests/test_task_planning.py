@@ -3,7 +3,7 @@
 This module tests the task planning system using BDD-style test structure:
 - Behavior-focused test names (test_should_X_when_Y)
 - Given-When-Then comments for clarity
-- Parameterized tests for comprehensive coverage
+- Parameterized tests for detailed coverage
 - Edge case and negative testing
 """
 
@@ -129,7 +129,7 @@ class TestTaskPlanning:
         for task in setup_tasks:
             for dep_id in task["dependencies"]:
                 if dep_id in setup_task_ids:
-                    # Ensure it's not a self-dependency
+                    # validate it's not a self-dependency
                     assert (
                         dep_id != task["id"]
                     ), f"Setup task {task['id']} has self-dependency"

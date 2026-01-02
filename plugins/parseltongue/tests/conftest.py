@@ -650,7 +650,7 @@ def mock_agent_responses():
             "Here's a modern Python implementation using type hints and asyncio.",
         ),
         "python_tester": MockAgentResponse(
-            "Here's a comprehensive test suite using pytest fixtures.",
+            "Here's a detailed test suite using pytest fixtures.",
         ),
         "python_optimizer": MockAgentResponse(
             "I've optimized this by using sets instead of nested loops.",

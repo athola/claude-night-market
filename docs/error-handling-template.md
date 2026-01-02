@@ -122,7 +122,7 @@ flowchart TD
 1. **Check the Basics**
    - [ ] Verify all dependencies are installed
    - [ ] Check configuration files are present and valid
-   - [ ] Ensure sufficient disk space and memory
+   - [ ] validate sufficient disk space and memory
    - [ ] Verify network connectivity
 
 2. **Analyze Error Messages**

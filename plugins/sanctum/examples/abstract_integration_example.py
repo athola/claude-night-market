@@ -458,7 +458,7 @@ class SanctumGitOperations:
                 total_files = len(skill_analysis)
                 if total_files > MANY_FILES_THRESHOLD:
                     recommendations.append(
-                        "Multiple skills modified - ensure comprehensive review",
+                        "Multiple skills modified - validate detailed review",
                     )
 
         # Check commit patterns

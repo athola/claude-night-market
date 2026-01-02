@@ -1,7 +1,7 @@
 """Tests for marginal value filter for knowledge corpus anti-pollution.
 
 Tests the MarginalValueFilter which implements redundancy detection,
-delta analysis, and integration decisions to ensure only valuable
+delta analysis, and integration decisions to validate only valuable
 knowledge enters the corpus.
 """
 

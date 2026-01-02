@@ -123,7 +123,7 @@ Plugin Not Detected
 Scripts Not Working
 ~~~~~~~~~~~~~~~~~~~
 
-1. Ensure dependencies are installed:
+1. validate dependencies are installed:
 
    .. code-block:: bash
 
@@ -162,7 +162,7 @@ Permission Errors
 Import Errors
 ~~~~~~~~~~~~~
 
-If you see import errors, ensure:
+If you see import errors, validate:
 
 1. You're in the project root directory
 2. The ``src`` directory exists

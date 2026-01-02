@@ -112,7 +112,7 @@ Hallucinations occur when:
 
 ### Prevention Through MECW
 
-By maintaining usage below 50%, we ensure:
+By maintaining usage below 50%, we validate:
 - **Full Context Attention**: Model can attend to all relevant information
 - **Reduced Inference Errors**: Less need to guess or interpolate
 - **Better Verification**: Model can cross-reference within context

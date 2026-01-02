@@ -26,7 +26,7 @@ if __name__ == "__main__":
     import json
 
     parser = argparse.ArgumentParser(
-        description="Audit skills and generate comprehensive reports",
+        description="Audit skills and generate detailed reports",
     )
 
     parser.add_argument(

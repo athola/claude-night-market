@@ -1,6 +1,6 @@
 # Conservation Plugin Test Suite
 
-This comprehensive test suite validates the conservation plugin's resource optimization, performance monitoring, and token conservation capabilities following TDD/BDD principles.
+This detailed test suite validates the conservation plugin's resource optimization, performance monitoring, and token conservation capabilities following TDD/BDD principles.
 
 ## Test Structure
 
@@ -193,7 +193,7 @@ class TestFeatureName:
 ### Adding New Tests
 1. Follow TDD/BDD patterns
 2. Use appropriate fixtures
-3. Include comprehensive scenarios
+3. Include detailed scenarios
 4. Add performance considerations
 5. Update documentation
 

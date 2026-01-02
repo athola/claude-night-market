@@ -2,7 +2,7 @@
 
 ## Overview
 
-Improves existing tests by applying BDD patterns, adding edge cases, and increasing test quality. Transforms basic tests into comprehensive behavior specifications.
+Improves existing tests by applying BDD patterns, adding edge cases, and increasing test quality. Transforms basic tests into detailed behavior specifications.
 
 ## Enhancement Strategies
 
@@ -11,7 +11,7 @@ Transforms traditional tests into BDD-style tests.
 See [enhancement/bdd-transformation](enhancement/bdd-transformation.md) for detailed examples and guidelines.
 
 ### 2. Edge Case Expansion
-Adds comprehensive edge case testing.
+Adds detailed edge case testing.
 See [enhancement/edge-cases](enhancement/edge-cases.md) for systematic edge case patterns.
 
 ### 3. Test Organization

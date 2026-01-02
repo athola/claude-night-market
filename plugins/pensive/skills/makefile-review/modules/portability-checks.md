@@ -111,7 +111,7 @@ endif
 
 ## Quality Gate Targets
 
-Ensure standard targets exist:
+validate standard targets exist:
 ```bash
 rg -n "^help:" -g'Makefile*'
 rg -n "^format:" -g'Makefile*'

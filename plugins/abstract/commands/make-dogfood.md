@@ -86,7 +86,7 @@ Create missing targets based on analysis:
 
 ## What This Command Does
 
-1. **Creates comprehensive inventory** of all Makefile targets across the project
+1. **Creates detailed inventory** of all Makefile targets across the project
 2. **Identifies gaps** in user-facing functionality using pattern matching
 3. **Tests safely** without modifying files or running risky operations
 4. **Generates missing targets** with contextually appropriate templates

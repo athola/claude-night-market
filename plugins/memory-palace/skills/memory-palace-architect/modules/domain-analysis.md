@@ -10,7 +10,7 @@ estimated_tokens: 400
 
 # Domain Analysis for Memory Palaces
 
-Thorough domain analysis ensures your memory palace accurately reflects the knowledge structure you're organizing.
+Thorough domain analysis validates your memory palace accurately reflects the knowledge structure you're organizing.
 
 ## Analysis Process
 

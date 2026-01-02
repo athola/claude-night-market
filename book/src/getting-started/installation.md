@@ -92,7 +92,7 @@ For active feature development:
 ```
 
 ### Full Setup
-For comprehensive workflow coverage:
+For detailed workflow coverage:
 ```bash
 /plugin install abstract@claude-night-market
 /plugin install imbue@claude-night-market
@@ -115,7 +115,7 @@ For comprehensive workflow coverage:
 
 Plugins are designed to be composable. If you experience issues:
 1. Check the plugin's README for dependency requirements
-2. Ensure foundation plugins (imbue, leyline) are installed if using domain plugins
+2. validate foundation plugins (imbue, leyline) are installed if using domain plugins
 
 ## Next Steps
 

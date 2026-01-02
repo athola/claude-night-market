@@ -32,7 +32,7 @@ skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --par
 - **Sequential Efficiency**: Optimize ordered tool execution
 - **Parallel Processing**: Identify concurrent tool opportunities
 - **Context Preservation**: Minimize context loss between calls
-- **Error Recovery**: Robust error handling and retry mechanisms
+- **Error Recovery**: production-grade error handling and retry mechanisms
 
 ## Context Preservation Analysis
 

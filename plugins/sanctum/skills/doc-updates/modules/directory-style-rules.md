@@ -59,7 +59,7 @@ Apply everywhere regardless of directory:
 - No emojis in headings or body (callouts excepted in book/)
 - Grounded language (specific references, not vague claims)
 - Imperative mood for docstrings
-- No marketing language ("powerful", "seamless", "elegant")
+- No marketing language ("capable", "smooth", "elegant")
 - No first-person plural ("we can see", "let's explore")
 
 ## Detection Patterns

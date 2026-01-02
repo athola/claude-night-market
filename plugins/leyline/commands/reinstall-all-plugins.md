@@ -62,7 +62,7 @@ The script will:
 ## Troubleshooting
 
 ### Plugin fails to reinstall
-- **Local plugins**: Ensure source directory still exists
+- **Local plugins**: validate source directory still exists
 - **Remote plugins**: Check network connectivity
 - **Version mismatch**: Plugin may have been removed from marketplace
 

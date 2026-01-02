@@ -1,5 +1,72 @@
 # Troubleshooting
 
+## Critical Issues
+
+### Skills Not Triggering (System Prompt Budget Exceeded)
+
+**Issue**: Skills exist but Claude doesn't invoke them, even when obviously relevant
+
+**Root Cause**: Claude Code learns about available skills through a system prompt that includes skill names and descriptions. When you have too many skills or lengthy descriptions, the system prompt becomes too large, and Claude stops receiving information about some skills. Since Claude is instructed never to use skills not listed in the prompt, it simply won't deploy them.
+
+**Symptoms**:
+- Skills are installed and visible in file system
+- Skills worked previously but stopped triggering
+- No error messages or warnings
+- Claude appears to "forget" certain skills exist
+- More prevalent with large skill ecosystems (10+ skills)
+
+**Technical Limits**:
+- **Default budget**: As of Claude Code 2.0.70, skill and command descriptions are limited to approximately 15,000 characters (around 4,000 tokens)
+- **No warning system**: There's currently no notification when you exceed this threshold
+- **Silent failure**: Skills beyond the budget are simply not included in Claude's system prompt
+
+**Solutions**:
+
+1. **Increase System Prompt Budget** (Recommended immediate fix):
+```bash
+# Set before launching Claude Code
+SLASH_COMMAND_TOOL_CHAR_BUDGET=30000 claude
+
+# Or add to your shell profile
+export SLASH_COMMAND_TOOL_CHAR_BUDGET=30000
+```
+
+2. **Optimize Skill Descriptions** (Long-term solution):
+- Keep `description` field concise (< 200 characters)
+- Focus on essential trigger keywords only
+- Remove verbose explanations from description field
+- Move detailed content to skill body
+- Use modular patterns to reduce per-skill overhead
+
+3. **Audit Skill Count and Size**:
+```bash
+# Count total skills
+find ~/.claude/skills -name "SKILL.md" | wc -l
+
+# Measure description field sizes
+grep -A 5 "^description:" ~/.claude/skills/*/SKILL.md
+
+# Estimate total description budget usage
+# (requires custom script - see skills-eval tools)
+```
+
+4. **Consolidate Related Skills**:
+- Combine underused skills with similar purposes
+- Use conditional sections within skills instead of separate skills
+- Archive rarely-used skills outside active directory
+
+**Prevention**:
+- Monitor skill description lengths during development
+- Implement budget tracking in CI/CD pipelines
+- Regular skill audits to identify consolidation opportunities
+- Follow description-writing best practices (see `modules/skill-authoring-best-practices.md`)
+
+**References**:
+- Blog post: https://blog.fsck.com/2025/12/17/claude-code-skills-not-triggering/
+- Related skill: `modular-skills` for creating budget-efficient skill architectures
+
+---
+
 ## Common Issues and Solutions
 
 ### Tool Execution Problems
@@ -37,7 +104,7 @@ skills/skills-eval/scripts/skills-auditor --discover
 **Issue**: Skills not loading properly
 - Check YAML frontmatter validity
 - Verify required fields are present
-- Ensure file naming follows conventions
+- validate file naming follows conventions
 - Check for syntax errors in skill content
 
 ### Performance Issues
@@ -95,7 +162,7 @@ skills/skills-eval/scripts/tool-performance-analyzer --skill-path skill.md --met
 
 ### When Tools Fail
 1. **Check Permissions**: Verify executables have correct permissions
-2. **Validate Dependencies**: Ensure all required tools and libraries are available
+2. **Validate Dependencies**: validate all required tools and libraries are available
 3. **Verify Paths**: Check that file paths are correct and accessible
 4. **Test Individually**: Run tools in isolation to isolate issues
 5. **Check Logs**: Review error messages and diagnostic output
@@ -136,7 +203,7 @@ skills/skills-eval/scripts/improvement-suggester --verbose --skill-path skill.md
 ```
 
 ### Support Channels
-- **Documentation**: Check comprehensive guides in `modules/` directory
+- **Documentation**: Check detailed guides in `modules/` directory
 - **Examples**: Review implementation examples in `examples/` directory
 - **Tools**: Use built-in diagnostic tools for troubleshooting
 - **Community**: Share issues and solutions with the Claude Skills community

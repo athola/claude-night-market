@@ -181,7 +181,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
                 },
             }
 
-            # Should initialize comprehensive session state
+            # Should initialize detailed session state
             assert "session_id" in session_state
             assert "writing-plans" in session_state["loaded_skills"]
             assert len(session_state["quality_gates"]) >= 2
@@ -323,7 +323,7 @@ echo '{"FEATURE_SPEC": "/tmp/spec.md", "IMPL_PLAN": "/tmp/plan.md", '''
                 "graceful_degradation",
             ]
 
-            # Should have comprehensive recovery mechanisms
+            # Should have detailed recovery mechanisms
             assert len(recovery_features) >= 4
 
     @pytest.fixture

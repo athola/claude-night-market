@@ -14,10 +14,10 @@ dependencies:
 ## Suitability Evaluation
 
 **Check Prerequisites:**
-- [ ] Authenticate and ensure external service is reachable
+- [ ] Authenticate and verify external service is reachable
 - [ ] Confirm quota/rate limits have capacity for the task
 - [ ] Verify task does not involve sensitive data requiring local processing
-- [ ] Ensure expected output format is well-defined
+- [ ] Verify expected output format is well-defined
 
 **Evaluate Service Fit:**
 - Does the external model excel at this task type?

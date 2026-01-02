@@ -1,6 +1,6 @@
 # Parseltongue Plugin Test Suite
 
-This directory contains comprehensive tests for the parseltongue Python development suite, following TDD/BDD principles and ensuring high-quality coverage of all functionality.
+This directory contains detailed tests for the parseltongue Python development suite, following TDD/BDD principles and ensuring high-quality coverage of all functionality.
 
 ## Test Organization
 
@@ -234,7 +234,7 @@ async def test_optimizes_sequential_async_calls():
 ## Performance Testing
 
 ### Metrics to Track
-- **Token Usage**: Ensure parseltongue itself is token-efficient
+- **Token Usage**: validate parseltongue itself is token-efficient
 - **Processing Speed**: Code analysis should be fast
 - **Memory Usage**: Should handle large codebases efficiently
 - **Scalability**: Performance with increasing code complexity
@@ -303,7 +303,7 @@ pytest tests/ --lf
 
 When adding new functionality:
 1. Write tests first (TDD)
-2. Ensure coverage meets standards
+2. validate coverage meets standards
 3. Add integration tests for workflows
 4. Document test scenarios
 5. Update this README if needed

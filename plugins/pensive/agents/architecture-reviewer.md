@@ -74,7 +74,7 @@ Principal-level architecture assessment with focus on design patterns, coupling,
 
 ### LSP-Enhanced Architecture Review (2.0.74+)
 
-When `ENABLE_LSP_TOOLS=1` is set, leverage semantic analysis for deeper insights:
+When `ENABLE_LSP_TOOLS=1` is set, use semantic analysis for deeper insights:
 
 1. **Dependency Analysis**:
    - Use LSP to map complete dependency graph

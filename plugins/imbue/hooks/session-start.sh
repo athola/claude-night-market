@@ -93,7 +93,7 @@ scope_guard_summary="## scope-guard Quick Reference
 # Escape outputs for JSON - uses jq when available, falls back to pure bash
 escape_for_json() {
     local input="$1"
-    # Prefer jq for robust JSON escaping (handles unicode, control chars)
+    # Prefer jq for production-grade JSON escaping (handles unicode, control chars)
     if command -v jq >/dev/null 2>&1; then
         printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
     else

@@ -82,4 +82,4 @@ make unit-tests    # Run tests
 make test-coverage # Tests with coverage report
 ```
 
-Tests in `test_skill_structure.py` check that skill descriptions contain action verbs, include "Use when..." triggers, and are detailed enough to be useful. This ensures skills are discoverable and understandable.
+Tests in `test_skill_structure.py` check that skill descriptions contain action verbs, include "Use when..." triggers, and are detailed enough to be useful. This validates skills are discoverable and understandable.

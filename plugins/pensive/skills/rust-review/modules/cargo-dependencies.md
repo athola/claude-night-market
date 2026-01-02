@@ -11,7 +11,7 @@ Audit and management of Cargo dependencies and build configuration.
 
 ## Audit Commands
 
-Run comprehensive dependency analysis:
+Run detailed dependency analysis:
 ```bash
 cargo tree -d              # Find duplicates
 cargo audit                # Security vulnerabilities

@@ -36,7 +36,7 @@ def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
         print(f"        {type(e).__name__}: {e}")
         sys.exit(1)
 
-    # Ensure we return the expected type structure
+    # validate we return the expected type structure
     plugins: dict[str, list[dict[str, Any]]] = data.get("plugins", {})
     return plugins
 

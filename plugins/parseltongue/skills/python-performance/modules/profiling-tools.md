@@ -9,7 +9,7 @@ estimated_tokens: 360
 
 # Profiling Tools
 
-Comprehensive tools for profiling Python code performance and memory usage.
+detailed tools for profiling Python code performance and memory usage.
 
 ## CPU Profiling with cProfile
 

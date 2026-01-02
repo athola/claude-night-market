@@ -20,7 +20,7 @@ This demo scraper demonstrates:
 - **Progress Tracking**: Real-time progress updates
 - **Data Export**: Save results in multiple formats (JSON, CSV)
 - **Extensible**: Easy to add new data extractors
-- **Logging**: Comprehensive logging for debugging and monitoring
+- **Logging**: detailed logging for debugging and monitoring
 
 ## Quick Start
 

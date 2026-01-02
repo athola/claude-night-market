@@ -259,7 +259,7 @@ class ConservationContextOptimizer:
             if re.match(r"^#+\s", content_lower):  # Markdown headers
                 score += 0.2
 
-            block.score = max(0, score)  # Ensure non-negative
+            block.score = max(0, score)  # validate non-negative
             scored_blocks.append(block)
 
         # Select top scoring blocks

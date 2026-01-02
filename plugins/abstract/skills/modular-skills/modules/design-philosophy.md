@@ -28,7 +28,7 @@ We start with a high-level overview and only provide more detail as needed. This
 - Reduces initial cognitive load
 - Allows users to control information depth
 - Improves loading performance
-- Maintains comprehensive functionality
+- Maintains detailed functionality
 
 ### Shallow Dependencies
 We prefer a "hub and spoke" model, where a central skill connects to modules, but modules don't depend on each other. This keeps the architecture simple and easy to understand.
@@ -72,7 +72,7 @@ We use consistent naming patterns for our skills and modules to make them more d
  `random_module_file.md`
 
 ### Tool Integration
-We believe that the most powerful skills are those that integrate with tools to automate tasks.
+We believe that the most capable skills are those that integrate with tools to automate tasks.
 
 **Tool Categories**:
 - **Analysis Tools**: Evaluate skill quality and structure
@@ -110,7 +110,7 @@ We're always mindful of token usage and look for ways to be more efficient in ou
 
 ### 2. Module Design
 - Apply single responsibility principle
-- Ensure loose coupling between modules
+- validate loose coupling between modules
 - Design clear interfaces and boundaries
 - Plan for extensibility and maintenance
 

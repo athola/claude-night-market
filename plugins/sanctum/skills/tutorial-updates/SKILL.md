@@ -1,15 +1,11 @@
 ---
 name: tutorial-updates
 description: |
-  Orchestrate tutorial generation with GIF recordings from VHS tape files
-  and Playwright browser specs. Parses manifests, invokes scry skills for
-  media generation, and produces dual-tone markdown.
+  Orchestrate tutorial generation from VHS tapes and Playwright specs to dual-tone markdown with GIF recording.
 
-  Triggers: tutorial update, gif generation, tape recording, documentation demo,
-  update tutorial, regenerate gifs, tutorial manifest
+  Triggers: tutorial update, gif generation, tape recording, update tutorial, regenerate gifs, tutorial manifest
 
-  Use when: regenerating tutorial GIFs, updating documentation demos,
-  creating new tutorials from tape files, syncing GIFs with markdown
+  Use when: regenerating tutorial GIFs, updating documentation demos, creating tutorials from tape files
 
   DO NOT use when: only updating text - use doc-updates.
   DO NOT use when: only capturing browser - use scry:browser-recording directly.

@@ -139,7 +139,7 @@ This command integrates with the broader hooks-eval framework:
 /analyze-hook hooks/ --scope-check        # Verify hook placement
 /analyze-hook hooks/*.json --compliance    # Check standards compliance
 /analyze-hook hooks/*.py --security-scan   # Security audit
-/hooks-eval --comprehensive               # Full plugin evaluation
+/hooks-eval --detailed               # Full plugin evaluation
 ```
 
 ## Implementation
@@ -160,6 +160,6 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/hooks_eval/hook_analyzer.py \
 
 ## Related Commands
 
-- `/hooks-eval` - Comprehensive hook evaluation for entire plugin
+- `/hooks-eval` - detailed hook evaluation for entire plugin
 - `/validate-plugin` - Complete plugin structure validation
 - `/skills-eval` - Skill quality evaluation (for hooks that interact with skills)

@@ -80,7 +80,7 @@ class SkillsAuditor:
         }
 
     def audit_skills(self) -> dict[str, Any]:
-        """Perform comprehensive audit of skills in directory."""
+        """Perform detailed audit of skills in directory."""
         skill_files = list(self.skills_dir.rglob("SKILL.md"))
         if not skill_files:
             return {

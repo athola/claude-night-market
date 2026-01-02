@@ -152,12 +152,12 @@ tags:
         self,
         mock_performance_monitor,
     ) -> None:
-        """Scenario: Metrics collection gathers comprehensive performance data.
+        """Scenario: Metrics collection gathers detailed performance data.
 
         Given system resources in various states
         When collecting metrics
         Then it should gather CPU, memory, GPU, and token efficiency metrics
-        And ensure data accuracy and completeness.
+        And validate data accuracy and completeness.
         """
         # Arrange
         mock_performance_monitor.metrics_history = []
@@ -629,7 +629,7 @@ tags:
         self,
         mock_performance_monitor,
     ) -> None:
-        """Scenario: Performance monitoring generates comprehensive reports.
+        """Scenario: Performance monitoring generates detailed reports.
 
         Given collected performance data and analysis
         When generating reports
@@ -647,7 +647,7 @@ tags:
                 },
             )
 
-        # Act - generate comprehensive report
+        # Act - generate detailed report
         report = mock_performance_monitor.generate_report()
 
         # Assert

@@ -1,14 +1,14 @@
 ---
 name: test-updates
 description: |
-  Update and maintain tests following TDD/BDD principles with comprehensive
+  Update and maintain tests following TDD/BDD principles with detailed
   quality assurance.
 
   Triggers: test updates, test maintenance, test generation, TDD workflow,
   BDD patterns, test coverage, pytest, test enhancement, quality assurance
 
   Use when: updating existing tests, generating new tests for features,
-  enhancing test quality, ensuring comprehensive coverage, pre-commit validation
+  enhancing test quality, ensuring detailed coverage, pre-commit validation
 
   DO NOT use when: auditing test suites - use pensive:test-review.
   DO NOT use when: writing production code - focus on implementation first.
@@ -32,14 +32,14 @@ estimated_tokens: 1500
 
 ## Overview
 
-Comprehensive test management system that applies TDD/BDD principles to maintain, generate, and enhance tests across codebases. This skill practices what it preaches - it uses TDD principles for its own development and serves as a living example of best practices.
+detailed test management system that applies TDD/BDD principles to maintain, generate, and enhance tests across codebases. This skill practices what it preaches - it uses TDD principles for its own development and serves as a living example of best practices.
 
 ### Core Philosophy
 
 - **RED-GREEN-REFACTOR**: Strict adherence to TDD cycle
 - **Behavior-First**: BDD patterns that describe what code should do
 - **Meta Dogfooding**: The skill's own tests demonstrate the principles it teaches
-- **Quality Gates**: Comprehensive validation before considering tests complete
+- **Quality Gates**: detailed validation before considering tests complete
 
 ## What It Is
 
@@ -52,13 +52,13 @@ A modular test management system that:
 ## Quick Start
 
 ### Quick Checklist for First Time Use
-- [ ] Ensure pytest is installed (`pip install pytest`)
+- [ ] validate pytest is installed (`pip install pytest`)
 - [ ] Have your source code in `src/` or similar directory
 - [ ] Create a `tests/` directory if it doesn't exist
 - [ ] Run `Skill(sanctum:git-workspace-review)` first to understand changes
 - [ ] Start with `Skill(test-updates) --target <specific-module>` for focused updates
 
-### Comprehensive Test Update
+### detailed Test Update
 ```bash
 # Run full test update workflow
 Skill(test-updates)
@@ -97,7 +97,7 @@ python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
 - Update tests after code changes
 - Generate tests for new features
 - Improve existing test quality
-- Ensure comprehensive test coverage
+- validate detailed test coverage
 
 **Perfect for:**
 - Pre-commit test validation
@@ -199,13 +199,13 @@ A: The scripts analyze AST patterns and may need guidance:
 A: Mutation testing is resource-intensive:
 - Use `--quick-mutation` flag for subset testing
 - Focus on critical modules first
-- Run overnight for comprehensive analysis
+- Run overnight for detailed analysis
 
 **Q: Can't find tests for my file**
 A: The analyzer uses naming conventions:
 - Source: `my_module.py` → Test: `test_my_module.py`
 - Check that test files follow pytest naming patterns
-- Ensure test directory structure is standard
+- validate test directory structure is standard
 
 ### Performance Tips
 

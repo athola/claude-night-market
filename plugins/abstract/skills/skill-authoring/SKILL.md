@@ -35,7 +35,7 @@ Skills are not essays or documentation—they are **behavioral interventions** d
 
 ### Key Benefits
 
-- **Empirical Validation**: TDD ensures skills address real failure modes, not imagined ones
+- **Empirical Validation**: TDD validates skills address real failure modes, not imagined ones
 - **Research-Backed Persuasion**: Compliance techniques proven to double adherence rates
 - **Discoverability**: Optimized descriptions for Claude's skill selection process
 - **Progressive Disclosure**: Efficient token usage through modular file structures
@@ -45,7 +45,7 @@ Skills are not essays or documentation—they are **behavioral interventions** d
 
 **NO SKILL WITHOUT A FAILING TEST FIRST**
 
-Every skill must begin with documented evidence of Claude failing without it. This ensures you're solving real problems, not building imaginary solutions.
+Every skill must begin with documented evidence of Claude failing without it. This validates you're solving real problems, not building imaginary solutions.
 
 ## Skill Types
 

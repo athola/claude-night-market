@@ -1,6 +1,6 @@
 ---
 name: testing-strategies
-description: Comprehensive testing framework including unit tests, integration tests, and end-to-end testing patterns
+description: detailed testing framework including unit tests, integration tests, and end-to-end testing patterns
 version: 1.0.0
 created_by: abstract-examples
 tags: [testing, quality, tdd, unit-tests, integration-tests, e2e]
@@ -18,11 +18,11 @@ tools:
 
 # Testing Strategies
 
-A comprehensive testing framework that ensures code quality, reliability, and maintainability through systematic testing practices.
+A detailed testing framework that validates code quality, reliability, and maintainability through systematic testing practices.
 
 ## Overview
 
-Master testing practices with this comprehensive framework:
+Master testing practices with this detailed framework:
 
 **Quick Start**: Get testing working in 5 minutes
 - Write your first unit test with AAA pattern
@@ -614,4 +614,4 @@ jobs:
 - [ ] Monitor test execution times
 - [ ] Maintain high coverage without sacrificing readability
 
-This comprehensive testing strategy ensures reliable, maintainable software through systematic quality assurance practices.
+This detailed testing strategy validates reliable, maintainable software through systematic quality assurance practices.

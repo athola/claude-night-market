@@ -12,7 +12,7 @@ import pytest
 
 
 class TestEvidenceLoggingSkill:
-    """Feature: Evidence logging ensures reproducible review findings.
+    """Feature: Evidence logging validates reproducible review findings.
 
     As a reviewer
     I want all commands and citations logged systematically

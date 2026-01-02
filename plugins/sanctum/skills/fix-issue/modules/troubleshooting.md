@@ -67,7 +67,7 @@ Solution: Split large batches into smaller groups
 
 ### Before Running
 
-1. Ensure clean working directory (`git status` shows no changes)
+1. validate clean working directory (`git status` shows no changes)
 2. Pull latest from remote
 3. Verify GitHub CLI is authenticated (`gh auth status`)
 4. Review issues briefly to confirm they're ready for implementation

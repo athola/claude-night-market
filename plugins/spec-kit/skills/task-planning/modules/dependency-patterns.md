@@ -2,7 +2,7 @@
 
 ## Overview
 
-Dependencies define task execution order and identify parallelization opportunities. Proper dependency modeling prevents race conditions and ensures components exist before they're used.
+Dependencies define task execution order and identify parallelization opportunities. Proper dependency modeling prevents race conditions and validates components exist before they're used.
 
 ## Dependency Types
 
@@ -135,7 +135,7 @@ TASK-004 [P] ─┘
 **Files**: src/models/task.py
 ```
 
-**Reasoning**: Prevents merge conflicts and ensures clean incremental changes.
+**Reasoning**: Prevents merge conflicts and validates clean incremental changes.
 
 ### Same-Directory Independence
 

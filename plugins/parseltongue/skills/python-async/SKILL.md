@@ -74,7 +74,7 @@ This skill uses progressive loading. Content is organized into focused modules:
 - **real-world-applications**: Web scraping and database operations
 - **pitfalls-best-practices**: Common mistakes and best practices
 
-Load specific modules based on your needs, or reference all for comprehensive guidance.
+Load specific modules based on your needs, or reference all for detailed guidance.
 
 ## Exit Criteria
 

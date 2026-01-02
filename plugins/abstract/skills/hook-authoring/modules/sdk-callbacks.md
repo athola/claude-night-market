@@ -98,7 +98,7 @@ class ValidationHooks(AgentHooks):
 
 ### Pattern 2: Logging Hook
 
-Comprehensive audit logging with sanitization:
+detailed audit logging with sanitization:
 
 ```python
 import asyncio
@@ -160,7 +160,7 @@ class LoggingHooks(AgentHooks):
             'timestamp': datetime.now().isoformat()
         })
 
-        # Ensure all logs are written before exit
+        # validate all logs are written before exit
         await self._flush_logs()
 
     def _sanitize_secrets(self, text: str) -> str:
@@ -594,4 +594,4 @@ async def test_hooks_integration():
 - **hook-types.md**: Event signatures and parameters
 - **security-patterns.md**: Security best practices
 - **performance-guidelines.md**: Optimization techniques
-- **testing-hooks.md**: Comprehensive testing strategies
+- **testing-hooks.md**: detailed testing strategies

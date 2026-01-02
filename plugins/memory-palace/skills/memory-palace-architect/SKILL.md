@@ -64,7 +64,7 @@ python scripts/palace_manager.py status
 
 | Template | Best For | Key Features |
 |----------|----------|--------------|
-| **Fortress** | Security, defense, robust systems | Strong boundaries, layered access |
+| **Fortress** | Security, defense, production-grade systems | Strong boundaries, layered access |
 | **Library** | Knowledge, research, documentation | Organized shelves, categorized sections |
 | **Workshop** | Practical skills, tools, techniques | Workbenches, tool areas, project spaces |
 | **Garden** | Organic growth, evolving knowledge | Plots, seasons, interconnected paths |

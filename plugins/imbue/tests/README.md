@@ -1,6 +1,6 @@
 # Imbue Plugin Test Suite
 
-This directory contains comprehensive tests for the imbue plugin, following TDD/BDD principles and mirroring the testing patterns from the abstract plugin.
+This directory contains detailed tests for the imbue plugin, following TDD/BDD principles and mirroring the testing patterns from the abstract plugin.
 
 ## Test Structure
 
@@ -155,7 +155,7 @@ class TestFeatureName:
 
 ### Shared Fixtures
 
-The `conftest.py` file provides comprehensive fixtures:
+The `conftest.py` file provides detailed fixtures:
 
 - `imbue_plugin_root` - Plugin root directory
 - `sample_skill_content` - Valid skill file content
@@ -316,7 +316,7 @@ uv run pytest tests/ -v -s --tb=long
 
 ### Common Issues
 
-1. **Import Errors**: Ensure `scripts/` directory is in Python path
+1. **Import Errors**: validate `scripts/` directory is in Python path
 2. **Fixture Not Found**: Check that fixtures are imported from `conftest.py`
 3. **Mock Not Applied**: Use proper patch decorators and context managers
 4. **Git Repository Issues**: Use `mock_git_repository` fixture for isolated git repos
@@ -370,7 +370,7 @@ When adding new functionality:
 2. **Use BDD Style**: Write descriptive test scenarios
 3. **Cover All Cases**: Test success, failure, and edge cases
 4. **Update Documentation**: Update this README if adding new test patterns
-5. **Maintain Coverage**: Ensure coverage standards are met
+5. **Maintain Coverage**: validate coverage standards are met
 
 ## Troubleshooting
 

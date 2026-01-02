@@ -85,7 +85,7 @@ The brainstorming phase will:
 3. **Design the implementation**:
    - Simple prompt expansion vs. skill invocation?
    - Does it need an agent for complex tasks?
-   - What existing skills/commands can it leverage?
+   - What existing skills/commands can it use?
    - What tools will Claude need to use?
 
 4. **Validate the design** - Present in sections:
@@ -377,7 +377,7 @@ Execute pre-commit workflow:
 
 ## Integration with Existing Infrastructure
 
-Commands can leverage:
+Commands can use:
 
 - **Skills**: `Use the <skill-name> skill to...`
 - **Agents**: `Spawn a <agent-type> agent to...`

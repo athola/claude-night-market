@@ -331,7 +331,7 @@ tags:
         Given context optimization applied
         When validating results
         Then it should confirm improved context utilization
-        And ensure MECW compliance.
+        And validate MECW compliance.
         """
         # Arrange
         before_optimization = mock_mecw_analyzer.analyze_context_usage(

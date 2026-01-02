@@ -157,7 +157,7 @@ When you see deprecation warnings:
 
 1. **Don't Ignore**: Update your code promptly
 2. **Check Migration Guide**: Follow recommended alternatives
-3. **Test Thoroughly**: Ensure new implementation works
+3. **Test Thoroughly**: validate new implementation works
 4. **Pin Versions**: If unable to update immediately
 
 .. code-block:: toml

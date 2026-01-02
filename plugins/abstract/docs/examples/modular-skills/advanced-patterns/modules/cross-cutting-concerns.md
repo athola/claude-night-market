@@ -50,7 +50,7 @@ Provides cost optimization recommendations
 1. Implement shared scripts in `shared-scripts/` directory
 2. Create cross-cutting concern modules
 3. Integrate with provider-specific modules
-4. Validate with comprehensive testing
+4. Validate with detailed testing
 
 ## Integration
 Works with **hierarchical-dependencies** for provider-specific governance.

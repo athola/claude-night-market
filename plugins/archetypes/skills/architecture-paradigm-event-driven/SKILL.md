@@ -39,8 +39,8 @@ estimated_tokens: 800
 1. **Model the Events**: Define canonical event schemas, establish a clear versioning strategy, and assign ownership for each event type.
 2. **Select the Right Topology**: For each data flow, make a deliberate choice between choreography (e.g., a simple pub/sub model) and orchestration (e.g., a central controller or saga orchestrator).
 3. **Engineer the Event Platform**: Choose the appropriate event brokers or message meshes. Configure critical parameters such as message ordering, topic partitions, and data retention policies.
-4. **Plan for Failure Handling**: Implement robust mechanisms for handling message failures, including Dead-Letter Queues (DLQs), automated retry logic, idempotent consumers, and tools for replaying events.
-5. **Instrument for Observability**: Implement comprehensive monitoring to track key metrics such as consumer lag, message throughput, schema validation failures, and the health of individual consumer applications.
+4. **Plan for Failure Handling**: Implement production-grade mechanisms for handling message failures, including Dead-Letter Queues (DLQs), automated retry logic, idempotent consumers, and tools for replaying events.
+5. **Instrument for Observability**: Implement detailed monitoring to track key metrics such as consumer lag, message throughput, schema validation failures, and the health of individual consumer applications.
 
 ## Key Deliverables
 - An Architecture Decision Record (ADR) that documents the event taxonomy, the chosen broker technology, and the governance policies (e.g., for naming, versioning, and retention).

@@ -55,7 +55,7 @@ test-performance: ## Run performance tests only
 test-slow: ## Run slow tests
 	$(PYTEST) tests/ -v -m slow
 
-test-all: ## Run comprehensive test suite with coverage
+test-all: ## Run detailed test suite with coverage
 	$(PYTEST) tests/ -v --cov=scripts --cov-report=html --cov-report=term-missing
 
 test-parallel: ## Run tests in parallel for speed

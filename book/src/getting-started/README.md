@@ -13,7 +13,7 @@ By the end of this section, you'll be able to:
 
 ## Prerequisites
 
-Before you begin, ensure you have:
+Before you begin, validate you have:
 
 1. **Claude Code** installed and configured
 2. A terminal or command-line interface

@@ -371,7 +371,7 @@ This command integrates with:
 ## See Also
 
 - `/analyze-hook` - Security and performance analysis
-- `/hooks-eval` - Comprehensive hook evaluation
+- `/hooks-eval` - detailed hook evaluation
 - `/validate-plugin` - Plugin structure validation
 - `/create-skill` - Similar workflow for skills
 - `skills/hook-authoring/SKILL.md` - Hook development best practices

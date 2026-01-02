@@ -99,7 +99,7 @@ class ProjectTracker:
         return [task for task in self.data.tasks if task.initiative == initiative]
 
     def get_status_report(self) -> dict[str, Any]:
-        """Generate comprehensive status report."""
+        """Generate detailed status report."""
         report: dict[str, Any] = {
             "last_updated": self.data.last_updated,
             "initiatives": {},

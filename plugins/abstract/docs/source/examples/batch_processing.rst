@@ -34,7 +34,7 @@ Using Python for Batch Processing
    from abstract.skills_eval import SkillsAuditor, TokenUsageTracker
 
    def batch_analyze_skills(skills_dir: Path):
-       """Analyze all skills and generate comprehensive report."""
+       """Analyze all skills and generate detailed report."""
 
        # Initialize analyzers
        auditor = SkillsAuditor(skills_dir)

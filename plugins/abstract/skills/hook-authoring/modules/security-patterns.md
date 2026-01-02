@@ -1,6 +1,6 @@
 # Security Patterns for Hook Development
 
-Comprehensive security guidance for writing safe, secure hooks that protect agents and systems from vulnerabilities.
+detailed security guidance for writing safe, secure hooks that protect agents and systems from vulnerabilities.
 
 ## Security Principles
 
@@ -166,7 +166,7 @@ safe_command = ["grep", user_pattern, file_path]
 
 ### Never Log Secrets
 
-Implement comprehensive secret sanitization:
+Implement detailed secret sanitization:
 
 ```python
 import re
@@ -176,7 +176,7 @@ from claude_agent_sdk import AgentHooks
 class SecretProtectionHooks(AgentHooks):
     """Protect secrets in logs and outputs."""
 
-    # Comprehensive secret patterns
+    # detailed secret patterns
     SECRET_PATTERNS: list[Pattern[str]] = [
         # API Keys
         re.compile(r'(api[_-]?key["\s:=]+)([^\s,}"\n]+)', re.IGNORECASE),
@@ -630,7 +630,7 @@ class Post2071Hooks(AgentHooks):
 
 1. **Trust Native Glob Support**: Don't override permissions for standard glob patterns
 2. **Validate Destructive Globs**: Still check for dangerous combinations (`rm -rf /*`)
-3. **Scope Constraints**: Ensure glob operations are scoped to specific directories
+3. **Scope Constraints**: validate glob operations are scoped to specific directories
 4. **Test Pattern Matching**: Verify hooks don't break legitimate glob usage
 5. **Update Documentation**: Remove workarounds from pre-2.0.71 hooks
 

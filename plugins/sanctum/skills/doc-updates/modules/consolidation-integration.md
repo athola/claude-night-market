@@ -75,8 +75,8 @@ Show consolidation candidates with recommended actions:
 
 | File | Lines | Threshold | Recommendation |
 |------|-------|-----------|----------------|
-| docs/error-handling-tutorial.md | 1031 | 500 | Split into multiple guides |
-| docs/capabilities-reference.md | 814 | 500 | Consider splitting by category |
+| book/src/tutorials/error-handling-tutorial.md | 1031 | 1000 | Moved to book (tutorial content) |
+| docs/function-extraction-guidelines.md | 571 | 500 | Consider splitting principles/patterns |
 
 ### Staleness Candidates (review or delete)
 

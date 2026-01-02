@@ -12,7 +12,7 @@
 
 ## Overview
 
-Implements strict Test-Driven Development workflow with RED-GREEN-REFACTOR cycle. This module ensures all test creation follows proper TDD discipline.
+Implements strict Test-Driven Development workflow with RED-GREEN-REFACTOR cycle. This module validates all test creation follows proper TDD discipline.
 
 ## The TDD Cycle
 
@@ -84,7 +84,7 @@ def perform_action(context):
 - [ ] Improve variable names
 - [ ] Remove code duplication
 - [ ] Add helpful comments
-- [ ] Ensure single responsibility
+- [ ] validate single responsibility
 
 ## TDD Discipline Rules
 

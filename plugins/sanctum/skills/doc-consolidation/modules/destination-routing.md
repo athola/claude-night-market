@@ -142,7 +142,7 @@ For each chunk-destination pair, determine how to merge:
 Is destination a new file?
 ├── Yes → CREATE_NEW
 └── No → Does destination have matching section?
-    ├── Yes → Is new content more comprehensive?
+    ├── Yes → Is new content more detailed?
     │   ├── Yes (2x+ detail OR newer date) → REPLACE_SECTION
     │   └── No → INTELLIGENT_WEAVE
     └── No → APPEND_WITH_CONTEXT

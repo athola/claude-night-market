@@ -111,7 +111,7 @@ CONSERVATION_MODE=deep claude
 ### Token Quotas
 
 - **5-hour rolling cap**: Prevents burst usage
-- **Weekly cap**: Ensures sustainable usage
+- **Weekly cap**: validates sustainable usage
 - **Check status**: Use `/status` to see current usage
 
 ## MECW Principles

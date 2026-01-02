@@ -1,14 +1,11 @@
 ---
 name: mcp-code-execution
 description: |
-  Transform tool-heavy workflows into MCP code execution patterns using MECW
-  principles for optimized token savings and hallucination prevention.
+  Transform tool-heavy workflows into MCP code execution patterns for token savings and optimized processing.
 
-  Triggers: MCP, code execution, tool chain, data pipeline, tool transformation,
-  batch processing, workflow optimization, tool consolidation
+  Triggers: MCP, code execution, tool chain, data pipeline, tool transformation, batch processing, workflow optimization
 
-  Use when: >3 tools chained sequentially, large datasets (>10k rows),
-  large files (>50KB), context usage >25% of window
+  Use when: >3 tools chained sequentially, large datasets (>10k rows), large files (>50KB), context usage >25%
 
   DO NOT use when: simple tool calls that don't chain.
   DO NOT use when: context pressure is low and tools are fast.
@@ -145,9 +142,9 @@ def synthesize_module_results(module_results):
 - Coordinates token budget allocation
 
 ### Performance Skills Integration
-- Leverages python-performance-optimization through mcp-patterns
+- uses python-performance-optimization through mcp-patterns
 - Aligns with cpu-gpu-performance for resource-aware execution
-- Ensures optimizations maintain MECW compliance
+- validates optimizations maintain MECW compliance
 
 ## Emergency Protocols
 

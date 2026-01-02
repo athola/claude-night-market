@@ -2,7 +2,7 @@
 
 ## Overview
 
-The integration testing framework ensures skills work correctly with Claude Agent SDK features, tool integrations, and context management patterns. This module provides comprehensive testing strategies for validating skill functionality in real-world usage scenarios.
+The integration testing framework validates skills work correctly with Claude Agent SDK features, tool integrations, and context management patterns. This module provides detailed testing strategies for validating skill functionality in real-world usage scenarios.
 
 ## Testing Categories
 
@@ -130,7 +130,7 @@ def test_context_management(skill_path: str) -> ContextResults:
 
 ### 4. Claude SDK API Compliance
 
-**Purpose:** Ensure compatibility with Claude Agent SDK standards
+**Purpose:** validate compatibility with Claude Agent SDK standards
 
 **Test Cases:**
 - Metadata follows SDK specifications
@@ -174,7 +174,7 @@ def test_sdk_compliance(skill_path: str) -> ComplianceResults:
 
 ```python
 class IntegrationTester:
-    """Comprehensive integration testing for Claude Skills"""
+    """detailed integration testing for Claude Skills"""
 
     def test_skill_integration(self, skill_path: str) -> IntegrationTestResults:
         """Run complete integration test suite"""
@@ -253,7 +253,7 @@ jobs:
 
 ### 1. Test Coverage
 
-- **Comprehensive:** Test all declared features and tools
+- **detailed:** Test all declared features and tools
 - **Realistic:** Use real-world usage scenarios
 - **Automated:** Integrate tests into development workflow
 - **Continuous:** Run tests on every skill update
@@ -288,7 +288,7 @@ Use Claude Code subagents for specialized testing:
 
 ```python
 def test_with_specialist_agents(skill_path: str) -> Dict:
-    """Deploy specialist subagents for comprehensive testing"""
+    """Deploy specialist subagents for detailed testing"""
     specialists = {
         "performance": "agents-network-engineer",
         "security": "superpowers:condition-based-waiting",

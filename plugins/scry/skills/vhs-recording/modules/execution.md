@@ -118,7 +118,7 @@ go install github.com/aspect-build/aspect-cli/pkg/ttyd@latest
 
 **ffmpeg errors**
 ```bash
-# Ensure ffmpeg is installed with required codecs
+# validate ffmpeg is installed with required codecs
 ffmpeg -version
 ```
 

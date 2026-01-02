@@ -23,7 +23,7 @@ Review after each sequential task following the subagent-driven-development patt
 
 ## Phase 6: Final Review
 
-Dispatch comprehensive review of all changes:
+Dispatch detailed review of all changes:
 
 ```
 Task tool (superpowers:code-reviewer):
@@ -33,7 +33,7 @@ Task tool (superpowers:code-reviewer):
 
     Verify:
     - All acceptance criteria met
-    - Tests comprehensive and passing
+    - Tests detailed and passing
     - No regressions introduced
     - Code quality meets standards
     - Documentation updated if needed
@@ -50,7 +50,7 @@ gh issue comment 42 --body "Fixed in commit $(git rev-parse --short HEAD)
 Changes:
 - Implemented auth middleware
 - Added login endpoint
-- Added comprehensive tests
+- Added detailed tests
 
 Ready for review."
 

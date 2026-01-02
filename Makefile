@@ -61,7 +61,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "Technical Debt Framework:"
 	@echo "  technical-debt-setup      Install technical debt framework dependencies"
-	@echo "  technical-debt-scan       Run comprehensive technical debt scan"
+	@echo "  technical-debt-scan       Run detailed technical debt scan"
 	@echo "  technical-debt-dashboard  Generate debt dashboard and reports"
 	@echo "  technical-debt-plan       Generate quarterly sprint plan"
 	@echo "  technical-debt-kpis       Calculate current KPIs and metrics"
@@ -92,7 +92,7 @@ technical-debt-setup: ## Install technical debt framework dependencies
 	pip install matplotlib psutil requests PyGithub
 	@echo "Technical Debt Framework dependencies installed"
 
-technical-debt-scan: ## Run comprehensive technical debt scan
+technical-debt-scan: ## Run detailed technical debt scan
 	@echo "Running technical debt scan..."
 	python scripts/enhanced_technical_debt_detector.py . --output json > debt_scan_results.json
 	@echo "Creating workflows from debt data..."
@@ -134,12 +134,12 @@ technical-debt-integration: ## Setup integrations with external tools
 	python scripts/technical_debt_integration.py . teamcity-integration
 	@echo "Integration files generated in current directory"
 
-technical-debt-report: ## Generate comprehensive technical debt report
-	@echo "Generating comprehensive technical debt report..."
+technical-debt-report: ## Generate detailed technical debt report
+	@echo "Generating detailed technical debt report..."
 	mkdir -p reports
 	python scripts/technical_debt_metrics_kpi.py . report 90 > reports/quarterly_debt_report.json
 	python scripts/debt_dashboard_generator.py . --output-dir reports
-	@echo "Comprehensive report generated in reports/ directory"
+	@echo "detailed report generated in reports/ directory"
 
 technical-debt-clean: ## Clean technical debt artifacts and data
 	@echo "Cleaning technical debt artifacts..."
@@ -336,5 +336,10 @@ demo: ## Demonstrate Claude Night Market capabilities
 	@echo "Per-Plugin Commands:"
 	@echo "  make <plugin>-help  - Show plugin-specific targets"
 	@echo "  make <plugin>-test  - Run plugin tests"
+	@echo ""
+	@echo "New in v1.1.2 - Bloat Detection:"
+	@echo "  make conservation-demo-bloat  - Demo bloat detection on conservation plugin"
+	@echo "  /bloat-scan --level 2         - Run bloat scan in Claude Code"
+	@echo "  /unbloat --from-scan report   - Safe bloat remediation"
 	@echo ""
 	@echo "Example: make abstract-help"

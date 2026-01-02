@@ -235,7 +235,7 @@ register_extensions()
 
 ### Common Issues
 
-1. **Registry Path Issues**: Ensure the registry path is writable
+1. **Registry Path Issues**: validate the registry path is writable
 2. **Permission Errors**: Check file permissions for registry directory
 3. **Version Conflicts**: Use explicit version constraints
 4. **Circular Dependencies**: Avoid circular dependencies between extensions

@@ -328,7 +328,7 @@ tags:
                 "type": "instruction",
                 "text": (
                     "I would like you to please carefully analyze the following code "
-                    "and provide me with a comprehensive explanation of what it does, "
+                    "and provide me with a detailed explanation of what it does, "
                     "how it works, and any potential issues or improvements that "
                     "could be made."
                 ),
@@ -364,7 +364,7 @@ tags:
             verbose_patterns = [
                 "I would like you to please",
                 "carefully analyze the following",
-                "provide me with a comprehensive explanation of",
+                "provide me with a detailed explanation of",
                 "what it does, how it works, and any",
                 "The code you provided is",
                 "which is an efficient and Pythonic way to",
@@ -379,7 +379,7 @@ tags:
                     alternatives = {
                         "I would like you to please": "",
                         "carefully analyze the following": "Analyze:",
-                        "provide me with a comprehensive explanation of": "Explain:",
+                        "provide me with a detailed explanation of": "Explain:",
                         "what it does, how it works, and any": "function, issues,",
                         "The code you provided is": "This code",
                         "which is an efficient and Pythonic way to": "",
@@ -602,7 +602,7 @@ tags:
                 }
             else:  # high complexity
                 strategy = {
-                    "approach": "comprehensive",
+                    "approach": "detailed",
                     "compression_level": "light",
                     "delegation_threshold": 1000,
                     "context_limit": "no_limit",
@@ -624,7 +624,7 @@ tags:
         complex_task = next(
             s for s in adapted_strategies if s["task"] == "system_refactoring"
         )
-        assert complex_task["strategy"]["approach"] == "comprehensive"
+        assert complex_task["strategy"]["approach"] == "detailed"
         assert complex_task["strategy"]["compression_level"] == "light"
 
     @pytest.mark.unit

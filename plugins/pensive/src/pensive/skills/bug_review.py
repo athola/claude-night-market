@@ -675,7 +675,7 @@ class BugReviewSkill(BaseReviewSkill):
                 "priority": "medium",
             },
             "resource_leak": {
-                "fix": "Use context managers or ensure cleanup in finally blocks",
+                "fix": "Use context managers or validate cleanup in finally blocks",
                 "example": "with open('file.txt') as f: content = f.read()",
                 "priority": "medium",
             },

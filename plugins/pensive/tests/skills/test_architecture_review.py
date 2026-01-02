@@ -552,4 +552,4 @@ class TestArchitectureReviewSkill:
         assert "## Recommendations" in report
         assert "7.5" in report  # Architecture score
         assert "layered" in report
-        assert len(report) > 500  # Should be comprehensive
+        assert len(report) > 500  # Should be detailed

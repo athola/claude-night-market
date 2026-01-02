@@ -41,7 +41,7 @@ estimated_tokens: 1200
 2. **Model the Core Logic**: Represent business rules and policies as pure functions. These functions should take domain data as input and return decisions or commands as output, avoiding shared mutable state.
 3. **Design the Command Schema**: Define a small, explicit set of command objects that the core can return and the shell can interpret (e.g., `PersistOrder`, `PublishEvent`, `NotifyUser`).
 4. **Refactor Incrementally**: Begin with high-churn or critical modules. Wrap legacy imperative code behind adapters while progressively extracting pure calculations into the functional core.
-5. **Enforce Boundaries**: Use code reviews and automated architecture tests to ensure a strict separation. The shell should only handle orchestration, sequencing, and retries, while the core should never call directly into frameworks or I/O libraries.
+5. **Enforce Boundaries**: Use code reviews and automated architecture tests to validate a strict separation. The shell should only handle orchestration, sequencing, and retries, while the core should never call directly into frameworks or I/O libraries.
 
 ## Key Deliverables
 - An Architecture Decision Record (ADR) detailing why this pattern was chosen, which modules are affected, and the scope of the migration.

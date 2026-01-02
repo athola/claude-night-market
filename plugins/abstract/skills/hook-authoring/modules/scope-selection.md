@@ -1,6 +1,6 @@
 # Hook Scope Selection Guide
 
-Comprehensive decision framework for choosing where to place hooks: plugin, project, or global scope.
+detailed decision framework for choosing where to place hooks: plugin, project, or global scope.
 
 ## The Three Scopes
 

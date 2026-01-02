@@ -1,6 +1,6 @@
 # Testing Hooks
 
-Comprehensive testing strategies for hook development, including unit tests, integration tests, security testing, and performance validation.
+detailed testing strategies for hook development, including unit tests, integration tests, security testing, and performance validation.
 
 ## Testing Philosophy
 

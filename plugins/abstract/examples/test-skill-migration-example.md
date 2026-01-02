@@ -135,7 +135,7 @@ This skill delegates to specialized modules for proven testing patterns:
 1. Compare baseline vs skill results
 2. Identify any rationalizations or loopholes
 3. Suggest improvements to the skill
-4. Generate comprehensive test report
+4. Generate detailed test report
 
 ## Output Format
 
@@ -194,7 +194,7 @@ REFACTOR Analysis:
 - Applies anti-rationalization techniques
 
 ### skills-eval Integration
-- Leverages pressure testing scenarios
+- uses pressure testing scenarios
 - Uses established evaluation workflows
 - Applies quality metrics and benchmarks
 
@@ -229,7 +229,7 @@ REFACTOR Analysis:
 ```
 Error: Cannot locate skill '[skill-name]'
 ```
-**Solution**: Verify skill name spelling and ensure skill exists in plugins/abstract/skills/
+**Solution**: Verify skill name spelling and validate skill exists in plugins/abstract/skills/
 
 ### Module Dependencies Missing
 ```
@@ -246,7 +246,7 @@ Warning: Test results vary between runs
 ## Related Commands
 
 - `/create-skill` - Create new skills with built-in testing
-- `/skills-eval` - Comprehensive skill evaluation
+- `/skills-eval` - detailed skill evaluation
 - `/bulletproof-skill` - Anti-rationalization hardening
 - `/validate-plugin` - Plugin structure validation
 
@@ -312,7 +312,7 @@ Warning: Test results vary between runs
 2. **Preserve Functionality**
    - Maintain all original use cases
    - Test migration thoroughly
-   - Ensure backward compatibility
+   - validate backward compatibility
 
 3. **Communicate Changes**
    - Document migration rationale
@@ -346,7 +346,7 @@ Result: [PASS] All dependencies satisfied
 - All original use cases preserved
 - Performance improved (faster loading)
 - User feedback positive on clearer focus
-- Integration with modules seamless
+- Integration with modules smooth
 
 ## Next Steps
 

@@ -226,7 +226,7 @@ def select_modules(context):
     # 4. Apply budget constraints
     selected = select_by_budget(candidate_modules, safe_budget)
 
-    # 5. Ensure core modules always loaded
+    # 5. validate core modules always loaded
     ensure_core_modules(selected)
 
     return selected
@@ -273,7 +273,7 @@ Common signals for module selection:
 ### Resource Signals
 - **Token budget**: Available MECW budget
 - **Context pressure**: Current utilization level
-- **Time constraints**: Need for quick vs comprehensive loading
+- **Time constraints**: Need for quick vs detailed loading
 
 ## Best Practices
 

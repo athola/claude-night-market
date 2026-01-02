@@ -2,6 +2,7 @@
 """Fix very long lines in skill files by breaking them appropriately."""
 
 import argparse
+import logging
 import sys
 from pathlib import Path
 
@@ -115,7 +116,8 @@ def fix_skill_file(file_path: str, max_length: int = 80) -> bool:
 
         return True
 
-    except Exception:
+    except Exception as e:
+        logging.warning(f"Failed to fix {file_path}: {e}")
         return False
 
 

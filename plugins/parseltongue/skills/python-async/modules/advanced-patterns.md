@@ -88,7 +88,7 @@ async def consumer(queue: Queue, consumer_id: int):
 
 ## Usage Notes
 
-- Context managers ensure proper resource cleanup
+- Context managers validate proper resource cleanup
 - Async iterators enable memory-efficient streaming
 - Queues decouple producers from consumers
 - Always signal completion in producer-consumer patterns

@@ -394,7 +394,7 @@ class TestUnifiedReviewSkill:
 
         # Assert
         assert 0 <= confidence <= 100  # Score should be between 0 and 100
-        # More findings and comprehensive analysis should increase confidence
+        # More findings and detailed analysis should increase confidence
         assert confidence > 50  # Should have reasonable confidence with sample data
 
     @pytest.mark.unit

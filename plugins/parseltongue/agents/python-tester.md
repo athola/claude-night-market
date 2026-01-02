@@ -1,6 +1,6 @@
 ---
 name: python-tester
-description: Expert Python testing agent specializing in pytest, TDD workflows, mocking strategies, and comprehensive test coverage. Use when writing tests, debugging test failures, or improving test quality.
+description: Expert Python testing agent specializing in pytest, TDD workflows, mocking strategies, and thorough test coverage. Use when writing tests, debugging test failures, or improving test quality.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: sonnet
 escalation:
@@ -11,7 +11,7 @@ escalation:
 examples:
   - context: User needs tests for Python code
     user: "Write tests for this module"
-    assistant: "I'll use the python-tester agent to create comprehensive tests with pytest."
+    assistant: "I'll use the python-tester agent to create thorough tests with pytest."
   - context: User has failing tests
     user: "My tests are failing, can you help debug?"
     assistant: "Let me use the python-tester agent to analyze and fix the test failures."
@@ -80,7 +80,7 @@ When dispatched, provide:
 2. **Review Patterns**: Match existing test style in codebase
 3. **Write Tests**: Follow AAA pattern with clear assertions
 4. **Add Fixtures**: Create reusable setup where beneficial
-5. **Verify Coverage**: Ensure meaningful test coverage
+5. **Verify Coverage**: Validate meaningful test coverage
 
 ## Output
 

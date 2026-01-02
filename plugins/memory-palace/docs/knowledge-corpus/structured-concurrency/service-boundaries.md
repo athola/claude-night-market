@@ -22,7 +22,7 @@ queries:
 
 ## Why it matters
 
-Leverage SupervisorJob to isolate failures inside service-specific coroutine scopes.
+use SupervisorJob to isolate failures inside service-specific coroutine scopes.
 
 ## Focus Area
 

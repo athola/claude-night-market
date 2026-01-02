@@ -70,7 +70,7 @@ estimated_tokens: 1500
   - Ordered findings (severity, file:line, principle violated, remediation)
   - Follow-up tasks (owner + due date)
   - Evidence appendix (commands, URLs, notebooks)
-- Ensure the domain-specific checklist will populate each section before concluding.
+- validate the domain-specific checklist will populate each section before concluding.
 
 ## Step 5 – Contingency Plan (`review-core:contingencies-documented`)
 - If a required tool or skill is unavailable (e.g., `web.run`), document the alternative steps that will be taken and any limitations this introduces. This helps reviewers understand any gaps in coverage.

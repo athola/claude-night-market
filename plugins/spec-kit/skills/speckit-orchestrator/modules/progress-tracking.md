@@ -2,7 +2,7 @@
 
 ## Overview
 
-Defines TodoWrite item patterns and progress tracking strategies for speckit workflows. Ensures consistent status reporting and verification throughout all workflow phases.
+Defines TodoWrite item patterns and progress tracking strategies for speckit workflows. validates consistent status reporting and verification throughout all workflow phases.
 
 ## TodoWrite Item Patterns
 

@@ -214,7 +214,7 @@ class TestGeminiQuotaTracker:
         """
         usage_file = tmp_path / "usage.json"
 
-        # Create tracker with very high limits to ensure low usage
+        # Create tracker with very high limits to validate low usage
         high_limits = {
             "requests_per_minute": 1000,
             "requests_per_day": 10000,

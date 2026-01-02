@@ -1,7 +1,7 @@
 ---
 name: skills-eval
 description: |
-  Evaluate and improve Claude skill quality through comprehensive auditing.
+  Evaluate and improve Claude skill quality through auditing.
 
   Triggers: skill audit, quality review, compliance check, improvement suggestions,
   token usage analysis, skill evaluation, skill assessment, skill optimization,
@@ -57,7 +57,7 @@ evaluation_criteria:
 
 ## Overview
 
-Analyze and improve Claude skills across `~/.claude/` locations. The tools audit skills against quality standards, measure token usage, and generate improvement recommendations.
+Analyze and improve Claude skills. The tools audit skills against quality standards, measure token usage, and generate improvement recommendations.
 
 ### Tools
 
@@ -69,13 +69,13 @@ Analyze and improve Claude skills across `~/.claude/` locations. The tools audit
 
 ## What It Is
 
-A meta-skill for evaluating and improving existing skills. It runs quality assessments, performance analysis, and generates improvement plans.
+Evaluates and improves existing skills. It runs quality assessments, performance analysis, and generates improvement plans.
 
 ## Quick Start
 
 ### Basic Skill Audit
 ```bash
-# Run comprehensive audit of all skills
+# Run detailed audit of all skills
 python scripts/skills_eval/skills_auditor.py --scan-all --format markdown
 
 # Audit specific skill
@@ -124,7 +124,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 
 ### Quality Assessment
 ```bash
-# Comprehensive evaluation with scoring
+# detailed evaluation with scoring
 ./scripts/skills-auditor --scan-all --format table --priority high
 
 # Detailed analysis of specific skill
@@ -178,7 +178,7 @@ The framework evaluates skills across multiple dimensions with weighted scoring:
 - **76-90**: Good quality with minor improvement opportunities
 - **51-75**: Meets basic requirements with room for enhancement
 - **26-50**: Below acceptable standards, needs significant improvement
-- **0-25**: Major issues requiring comprehensive overhaul
+- **0-25**: Major issues requiring detailed overhaul
 
 ### Priority Levels
 - **Critical**: Security issues, broken functionality, missing required fields
@@ -188,7 +188,7 @@ The framework evaluates skills across multiple dimensions with weighted scoring:
 
 ## Detailed Resources
 
-For comprehensive implementation details and advanced techniques:
+For detailed implementation details and advanced techniques:
 
 ### Shared Modules (Cross-Skill Patterns)
 - **Anti-Rationalization Patterns**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md) for red flags table and bypass patterns

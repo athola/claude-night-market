@@ -253,7 +253,7 @@ done
 | Missing source file | Check path is relative to manifest location |
 | Unknown component type | Use `tape`, `playwright`, or `static` |
 | Missing combine output | Add `combine.output` field if combine section exists |
-| Circular requires | Ensure background processes don't depend on each other |
+| Circular requires | validate background processes don't depend on each other |
 
 ## Example Manifests
 

@@ -12,7 +12,7 @@ import cachetools
 
 
 class SpecKitCache:
-    """Comprehensive caching system for spec-kit operations.
+    """detailed caching system for spec-kit operations.
 
     Features:
     - TTL-based cache expiration

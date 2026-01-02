@@ -88,7 +88,7 @@ class TelemetryLogger:
     """Append-only CSV writer with automatic header management."""
 
     def __init__(self, file_path: str | Path) -> None:
-        """Initialize logger and ensure directory exists."""
+        """Initialize logger and validate directory exists."""
         self.file_path = Path(file_path)
         self.file_path.parent.mkdir(parents=True, exist_ok=True)
         self._fieldnames = [

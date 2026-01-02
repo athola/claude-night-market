@@ -74,7 +74,7 @@ generate_docs.from_openapi(args.input, args.output_dir)
 ## Quick Start
 1. Make scripts executable: `chmod +x scripts/*`
 2. Test with example files: `./api-validator examples/petstore.yaml`
-3. Generate comprehensive workflow: `./doc-generator && ./test-generator`
+3. Generate detailed workflow: `./doc-generator && ./test-generator`
 
 ## Integration
 Continue with **migration-results** to see the overall improvements achieved.

@@ -272,7 +272,7 @@ class RustReviewSkill(BaseReviewSkill):
                             {
                                 "line": j + 1,
                                 "type": "box_free",
-                                "description": "Box::from_raw - ensure no use after",
+                                "description": "Box::from_raw - validate no use after",
                             }
                         )
                         break

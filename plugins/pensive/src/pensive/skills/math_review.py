@@ -694,7 +694,7 @@ class MathReviewSkill(BaseReviewSkill):
                 {
                     "category": "validation",
                     "technique": "Add convergence monitoring",
-                    "benefit": "Ensure iterative algorithms terminate correctly",
+                    "benefit": "validate iterative algorithms terminate correctly",
                     "implementation": "Track iteration count and residuals",
                     "examples": ["max_iterations", "tolerance checks"],
                 }

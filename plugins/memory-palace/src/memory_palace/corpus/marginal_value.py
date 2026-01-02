@@ -1,7 +1,7 @@
 """Marginal value filter for knowledge corpus anti-pollution.
 
 Implements redundancy detection, delta analysis, and integration decisions
-to ensure only valuable knowledge enters the corpus. Follows the principle:
+to validate only valuable knowledge enters the corpus. Follows the principle:
 "If it can't teach something the existing corpus can't already teach → skip it."
 """
 

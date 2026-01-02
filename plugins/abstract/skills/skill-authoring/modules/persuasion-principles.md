@@ -68,7 +68,7 @@ foundational security requirement to prevent injection attacks."
 ## Before Starting
 
 Declare out loud:
-"I am using the secure-api-design skill to ensure complete
+"I am using the secure-api-design skill to validate complete
 security coverage regardless of time pressure or scope."
 
 ## During Work
@@ -160,7 +160,7 @@ Industry consensus: validation is non-negotiable."
 "You must follow these rules or your code will be insecure."
 
  Strong (Collaborative):
-"Together, we'll ensure this API meets security standards.
+"Together, we'll validate this API meets security standards.
 Following these requirements protects users and prevents
 common vulnerabilities."
 
@@ -190,7 +190,7 @@ They help us avoid repeating others' mistakes."
 
  Stronger (Identity + Pride):
 "As engineers who take pride in our work, we write
-comprehensive tests. This is what separates professionals
+detailed tests. This is what separates professionals
 from amateurs. Our code reflects our values."
 ```
 
@@ -276,7 +276,7 @@ Skills should be transparent about their persuasive intent:
 ## About This Skill
 
 This skill uses directive language and commitment techniques
-to ensure security requirements are never skipped under time
+to validate security requirements are never skipped under time
 pressure. The authoritative tone is intentional—security
 breaches are permanent, while code can be refactored.
 
@@ -370,7 +370,7 @@ Is "saving 10 minutes" worth that risk?
 
 ### Pattern: The Universal Standard
 
-**Purpose**: Leverage social proof
+**Purpose**: use social proof
 
 ```markdown
 ## Industry Standard
@@ -453,7 +453,7 @@ Effective persuasion in skills:
 1. **Authority**: Use directive language for safety-critical requirements
 2. **Commitment**: Force explicit declarations before starting
 3. **Scarcity**: Frame requirements as immediate, not deferred
-4. **Social Proof**: Leverage universal standards and consensus
+4. **Social Proof**: use universal standards and consensus
 5. **Liking**: Use collaborative language and shared goals
 6. **Unity**: Appeal to professional identity and values
 

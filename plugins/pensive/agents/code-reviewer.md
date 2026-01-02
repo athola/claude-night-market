@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Expert code review agent specializing in bug detection, API analysis, test quality, and comprehensive code audits. Use PROACTIVELY for code quality assurance, pre-merge reviews, and systematic bug hunting.
+description: Expert code review agent specializing in bug detection, API analysis, test quality, and detailed code audits. Use PROACTIVELY for code quality assurance, pre-merge reviews, and systematic bug hunting.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 skills: imbue:evidence-logging, pensive:bug-review
 examples:
@@ -12,12 +12,12 @@ examples:
     assistant: "Let me use the code-reviewer agent to analyze your changes."
   - context: User investigating quality issues
     user: "This module has been problematic, can you audit it?"
-    assistant: "I'll use the code-reviewer agent to perform a comprehensive audit."
+    assistant: "I'll use the code-reviewer agent to perform a detailed audit."
 ---
 
 # Code Reviewer Agent
 
-Expert agent for comprehensive code review with systematic analysis and evidence-based findings.
+Expert agent for detailed code review with systematic analysis and evidence-based findings.
 
 ## Capabilities
 

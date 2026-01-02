@@ -92,7 +92,7 @@ def load_candidate(path: Path) -> Candidate:
 
 
 def ensure_dirs(path: Path) -> None:
-    """Ensure parent directory exists."""
+    """validate parent directory exists."""
     path.parent.mkdir(parents=True, exist_ok=True)
 
 

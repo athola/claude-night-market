@@ -40,7 +40,7 @@ Run `Skill(sanctum:git-workspace-review)` first to capture current changes.
 ## Step 1: Collect Context (`context-collected`)
 - Confirm which version to apply (default: bump patch).
 - If the prompt provides an explicit version, note it.
-- Ensure `Skill(sanctum:git-workspace-review)` has already captured the repository status.
+- validate `Skill(sanctum:git-workspace-review)` has already captured the repository status.
 
 ## Step 2: Identify Targets (`target-files`)
 - List configuration files that store the version (e.g., `Cargo.toml`, `package.json`, `pyproject.toml`).

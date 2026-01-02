@@ -71,7 +71,7 @@ Size ≠ complexity. Large PRs often have simple patterns:
 - 35 of 47 files are test files mirroring implementation changes
 - 8 files are the actual feature implementation
 - 4 files are config/documentation updates
-- Pattern: "Add feature X with comprehensive tests"
+- Pattern: "Add feature X with detailed tests"
 
 **The trap:** Volume creates false sense of complexity. Systematic reading reveals structure.
 

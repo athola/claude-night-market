@@ -52,7 +52,7 @@ extends: "superpowers:receiving-code-review"
 1. Analyze repository state (Sanctum)
 2. Run quality gates (Sanctum)
 3. Perform code review (Superpowers)
-4. Generate comprehensive PR description (Command synthesis)
+4. Generate detailed PR description (Command synthesis)
 
 ### 2. `/fix-pr` - Enhanced PR Fix Automation
 
@@ -88,7 +88,7 @@ extends: "superpowers:receiving-code-review"
 **Key Features**:
 - Scope baseline establishment from plan/spec artifacts
 - Requirements compliance validation
-- Superpowers comprehensive code analysis
+- Superpowers detailed code analysis
 - Structured finding classification
 - Automated GitHub issue creation for backlog items
 
@@ -115,7 +115,7 @@ extends: "superpowers:receiving-code-review"
 - Consistent PR descriptions and formatting
 
 **Quality Improvements**:
-- Comprehensive code quality checks
+- detailed code quality checks
 - Security vulnerability scanning
 - Performance impact assessment
 - Best practices validation
@@ -145,7 +145,7 @@ extends: "superpowers:receiving-code-review"
 **Quality Assurance**:
 - Scope creep prevention
 - Requirements compliance validation
-- Comprehensive security checks
+- detailed security checks
 - Performance regression detection
 
 ## Technical Implementation
@@ -174,7 +174,7 @@ The commands implement a consistent orchestration pattern:
 
 ### Error Handling
 
-Each command implements robust error handling:
+Each command implements production-grade error handling:
 
 ```yaml
 # Superpowers not available

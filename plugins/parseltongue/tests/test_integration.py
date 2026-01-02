@@ -36,7 +36,7 @@ class TestParseltongueIntegration:
     async def test_end_to_end_python_code_analysis(
         self, temp_project_directory
     ) -> None:
-        """Given a Python project, when analyzing, then provides comprehensive insights."""
+        """Given a Python project, when analyzing, then provides detailed insights."""
         # Arrange
         workflow = CodeReviewWorkflow()
         project_path = temp_project_directory
@@ -178,7 +178,7 @@ async def test_get_user_not_found(mock_client):
     async def test_agent_coordination_for_code_review(
         self, temp_project_directory
     ) -> None:
-        """Given code review request, when agents coordinate, then provides comprehensive analysis."""
+        """Given code review request, when agents coordinate, then provides detailed analysis."""
         # Arrange
         python_code = '''
 import asyncio
@@ -244,7 +244,7 @@ def test_data_processor():
 
     @pytest.mark.integration
     async def test_skill_workflow_coordination(self, language_samples) -> None:
-        """Given multi-language code, when skills coordinate, then provides comprehensive analysis."""
+        """Given multi-language code, when skills coordinate, then provides detailed analysis."""
         # Arrange
         multi_language_code = {
             "python": language_samples["python"],

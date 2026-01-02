@@ -207,7 +207,7 @@ superseded_by: [replacement path]
 2. Update maturity to evergreen
 3. Remove review_date (stable)
 4. Strengthen connections
-5. Add comprehensive examples
+5. Add detailed examples
 
 ### Evergreen → Archive
 

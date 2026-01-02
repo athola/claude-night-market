@@ -1,6 +1,6 @@
 # Skills Evaluation
 
-Comprehensive skill analysis and quality improvement tools.
+detailed skill analysis and quality improvement tools.
 
 ## Usage
 
@@ -36,5 +36,5 @@ compliance-checker --validate-all
 ## Quick Validation
 
 ```bash
-make check  # Run comprehensive validation
+make check  # Run detailed validation
 ```

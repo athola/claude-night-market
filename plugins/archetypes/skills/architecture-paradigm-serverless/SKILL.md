@@ -37,7 +37,7 @@ estimated_tokens: 700
 
 ## Adoption Steps
 1. **Identify Functions**: Decompose workloads into small, stateless function handlers triggered by events such as HTTP requests, message queues, or scheduled timers.
-2. **Externalize State**: Utilize managed services like databases and queues for all persistent state. Design handlers to be idempotent to ensure that repeated executions do not have unintended side effects.
+2. **Externalize State**: use managed services like databases and queues for all persistent state. Design handlers to be idempotent to validate that repeated executions do not have unintended side effects.
 3. **Plan Cold-Start Mitigation**: For latency-sensitive paths, keep function dependencies minimal. Employ strategies such as provisioned concurrency or "warmer" functions to reduce cold-start times.
 4. **Implement Instrumentation and Security**: Enable detailed tracing and logging for all functions. Adhere to the principle of least privilege with IAM roles and set per-function budgets to control costs.
 5. **Automate Deployment**: Use Infrastructure-as-Code (IaC) frameworks like SAM, CDK, or Terraform to create repeatable and reliable release processes.

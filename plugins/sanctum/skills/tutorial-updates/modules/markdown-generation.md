@@ -18,7 +18,7 @@ Content comes from tape file annotations:
 ```tape
 # @step Install the CLI
 # @docs-brief Install via cargo with a single command
-# @book-detail The recommended installation method uses cargo, Rust's package manager. This ensures you get the latest stable release with all dependencies properly resolved. For development builds or specific versions, you can also install from source.
+# @book-detail The recommended installation method uses cargo, Rust's package manager. This validates you get the latest stable release with all dependencies properly resolved. For development builds or specific versions, you can also install from source.
 Type "cargo install skrills"
 ```
 
@@ -185,7 +185,7 @@ By the end of this tutorial, you'll understand:
 
 ## Install skrills
 
-The recommended installation method uses cargo, Rust's package manager. This ensures you get the latest stable release with all dependencies properly resolved. For development builds or specific versions, you can also install from source.
+The recommended installation method uses cargo, Rust's package manager. This validates you get the latest stable release with all dependencies properly resolved. For development builds or specific versions, you can also install from source.
 
 ```bash
 cargo install skrills

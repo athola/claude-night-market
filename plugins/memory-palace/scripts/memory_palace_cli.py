@@ -119,7 +119,7 @@ class MemoryPalaceCLI:
         """
         self.print_status("Enabling Memory Palace plugin...")
 
-        # Ensure config directory exists
+        # validate config directory exists
         self.claude_config.parent.mkdir(parents=True, exist_ok=True)
 
         # Create or update Claude config

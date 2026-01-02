@@ -49,7 +49,7 @@ This skill needs work on structure and completeness.
             "large-skill": """---
 name: large-skill
 description: A very large skill
-category: comprehensive
+category: detailed
 ---
 
 # Large Skill
@@ -84,7 +84,7 @@ category: comprehensive
         assert "large-skill" in discovered_skills
 
     def test_audit_all_skills(self, sample_skills_dir) -> None:
-        """Test comprehensive auditing of all skills."""
+        """Test detailed auditing of all skills."""
         auditor = SkillsAuditor(sample_skills_dir)
         audit_results = auditor.audit_all_skills()
 
@@ -157,7 +157,7 @@ category: comprehensive
             assert rec["priority"] in ["high", "medium", "low"]
 
     def test_generate_audit_report(self, sample_skills_dir) -> None:
-        """Test comprehensive audit report generation."""
+        """Test detailed audit report generation."""
         auditor = SkillsAuditor(sample_skills_dir)
         audit_results = auditor.audit_all_skills()
         report = auditor.generate_report(audit_results)

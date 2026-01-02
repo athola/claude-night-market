@@ -159,7 +159,7 @@ category: testing
 class TestCheckTriggerIsolation:
     """BDD-style tests for check_trigger_isolation function.
 
-    Tests the trigger isolation analysis that ensures skill descriptions
+    Tests the trigger isolation analysis that validates skill descriptions
     contain proper trigger patterns and bodies don't duplicate them.
     """
 

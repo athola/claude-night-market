@@ -2,7 +2,7 @@
 
 ## Overview
 
-Systematically adds comprehensive edge case testing to existing tests.
+Systematically adds detailed edge case testing to existing tests.
 
 ## The Rule of Three
 

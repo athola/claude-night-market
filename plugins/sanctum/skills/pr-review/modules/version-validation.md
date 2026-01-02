@@ -54,7 +54,7 @@ done
 
 ### 3. If Version Changed, Run Full Validation
 
-If `VERSION_CHANGED=true`, perform comprehensive checks:
+If `VERSION_CHANGED=true`, perform detailed checks:
 
 #### A. Extract Version from Each Source
 

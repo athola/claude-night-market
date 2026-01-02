@@ -129,7 +129,7 @@ Example: Data Analysis Skill
 
    User: "Give me a statistical summary of customer_data.json"
 
-   Response: I'll provide a comprehensive statistical summary of your customer data.
+   Response: I'll provide a detailed statistical summary of your customer data.
 
    [Analyzes and presents key metrics...]
 
@@ -218,7 +218,7 @@ Token Optimization
 Error Handling
 ~~~~~~~~~~~~
 
-Create robust skills that handle errors gracefully:
+Create production-grade skills that handle errors gracefully:
 
 .. code-block:: markdown
 

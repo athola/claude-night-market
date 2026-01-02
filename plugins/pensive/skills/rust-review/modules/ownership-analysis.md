@@ -51,7 +51,7 @@ Verify:
 
 - **Unnecessary clones**: Use references when possible
 - **Lifetime complexity**: Simplify with helper methods
-- **Rc/Arc overuse**: Ensure shared ownership is needed
+- **Rc/Arc overuse**: validate shared ownership is needed
 - **Temporary allocations**: Use stack when possible
 
 ## Output Section

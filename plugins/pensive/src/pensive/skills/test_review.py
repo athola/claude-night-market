@@ -743,7 +743,7 @@ class TestReviewSkill(BaseReviewSkill):
         }
 
     def create_test_quality_report(self, analysis: dict[str, Any]) -> str:
-        """Create a comprehensive test quality report."""
+        """Create a detailed test quality report."""
         report_lines = [
             "## Test Quality Assessment",
             "",

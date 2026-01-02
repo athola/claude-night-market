@@ -1,8 +1,7 @@
 ---
 name: modular-skills
 description: |
-  Design skills as modular building blocks for predictable token usage
-  and maintainable architecture.
+  Design skills as modular building blocks for predictable token usage.
 
   Triggers: skill design, skill architecture, modularization, token optimization,
   skill structure, refactoring skills, new skill creation, skill complexity
@@ -33,17 +32,17 @@ estimated_tokens: 1200
 
 ## Overview
 
-This skill provides a framework for designing modular skills that maintain predictable token usage and sustainable architecture. It helps users break down complex, monolithic skills into focused, manageable modules that are easier to test, maintain, and optimize.
+A framework for designing modular skills to maintain predictable token usage. It breaks complex skills into focused modules that are easier to test and optimize.
 
-The framework implements progressive disclosure principles where skills start with essential information and provide deeper details only when needed. This approach keeps context windows efficient while ensuring comprehensive functionality is available when required.
+The framework implements progressive disclosure: skills start with essential information and provide deeper details only when needed. This approach keeps context windows efficient while ensuring functionality is available.
 
 ### Key Benefits
 
-- **Predictable Resource Usage**: Modular design keeps token consumption under control and performance consistent
-- **Maintainable Architecture**: Shallow dependencies and clear boundaries make skills easier to understand and modify
-- **Scalable Development**: Hub-and-spoke model allows skills to grow without becoming unwieldy
-- **Better Testing**: Focused modules are easier to test in isolation and compose into larger workflows
-- **Tool Integration**: Executable components automate common patterns and reduce manual overhead
+- **Predictable Resource Usage**: Modular design keeps token consumption controlled.
+- **Maintainable Architecture**: Shallow dependencies and clear boundaries.
+- **Scalable Development**: Hub-and-spoke model allows growth.
+- **Better Testing**: Focused modules are easier to test in isolation.
+- **Tool Integration**: Executable components automate patterns.
 
 ### Core Components
 
@@ -60,9 +59,9 @@ The framework implements progressive disclosure principles where skills start wi
 
 ## What It Is
 
-This skill provides a framework for designing modular skills. We've found that by breaking down large, complex skills into smaller, more manageable modules, we can create a more maintainable and predictable architecture. This approach also helps us keep our token usage in check.
+This skill provides a framework for designing modular skills. Breaking down large skills into smaller modules creates a more maintainable architecture and controls token usage.
 
-This skill is based on Anthropic's Agent Skills best practices, and it's built around the idea of progressive disclosure: start with a high-level overview, and then provide more detail as needed.
+This skill is based on Anthropic's Agent Skills best practices, using progressive disclosure: start with a high-level overview, then provide detail as needed.
 
 ## Quick Start
 
@@ -105,7 +104,7 @@ python scripts/abstract_validator.py --fix --dry-run
 1. **Assess**: Use `skill_analyzer.py` to identify complexity and modularization needs
 2. **Design**: Break large skills into focused modules based on single responsibility
 3. **Estimate**: Use `token_estimator.py` to optimize for context window efficiency
-4. **Validate**: Run `abstract_validator.py` to ensure proper structure and patterns
+4. **Validate**: Run `abstract_validator.py` to validate proper structure and patterns
 5. **Iterate**: Refine based on validation feedback and usage patterns
 
 ## Common Tasks
@@ -120,7 +119,7 @@ Here are a few common ways we use the tools:
 
 ## Detailed Resources
 
-For comprehensive implementation details and advanced techniques:
+For detailed implementation details and advanced techniques:
 
 ### Shared Modules (Cross-Skill Patterns)
 - **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field templates

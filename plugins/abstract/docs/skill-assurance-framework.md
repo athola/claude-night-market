@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Skill Assurance Framework ensures skills, agents, and hooks are reliably discovered and executed by Claude Code through three core patterns:
+The Skill Assurance Framework validates skills, agents, and hooks are reliably discovered and executed by Claude Code through three core patterns:
 
 1. **Frontmatter-Only Triggers**: All conditional logic in YAML `description` field
 2. **Tiered Enforcement Language**: Intensity calibrated to skill category
@@ -84,7 +84,7 @@ description: Evaluate skill quality.
 To:
 ```yaml
 description: |
-  Evaluate and improve Claude skill quality through comprehensive auditing.
+  Evaluate and improve Claude skill quality through thorough auditing.
 
   Triggers: skill audit, quality review, compliance check
 

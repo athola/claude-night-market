@@ -128,7 +128,7 @@ def test_last_updated_can_be_current_time() -> None:
     tracker = InitiativeTracker(tasks=[], last_updated=before)
 
     assert tracker.last_updated == before
-    # Ensure timestamp is parseable as valid datetime
+    # validate timestamp is parseable as valid datetime
     parsed = datetime.fromisoformat(tracker.last_updated)
     assert isinstance(parsed, datetime)
 

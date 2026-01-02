@@ -1,4 +1,4 @@
-"""Comprehensive unit tests for ProjectTracker class.
+"""detailed unit tests for ProjectTracker class.
 
 Tests follow TDD/BDD conventions with descriptive names and clear AAA pattern.
 Each test focuses on a single behavior with explicit assertions.
@@ -112,7 +112,7 @@ class TestProjectTrackerInitialization:
 
 
 class TestDataPersistence:
-    """Test save and load operations ensure data integrity."""
+    """Test save and load operations validate data integrity."""
 
     def test_save_creates_data_file_with_correct_structure(
         self, empty_tracker: ProjectTracker
@@ -815,7 +815,7 @@ class TestCalculateOverallMetrics:
 
 
 class TestGetStatusReport:
-    """Test comprehensive status report generation."""
+    """Test detailed status report generation."""
 
     def test_status_report_includes_all_sections(
         self, populated_tracker: ProjectTracker

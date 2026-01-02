@@ -1,6 +1,6 @@
 # Unified Review Command
 
-Run a comprehensive review using intelligent skill selection based on codebase analysis.
+Run a detailed review using intelligent skill selection based on codebase analysis.
 
 ## Usage
 

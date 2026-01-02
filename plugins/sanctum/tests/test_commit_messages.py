@@ -126,7 +126,7 @@ class TestCommitMessagesSkill:
 
     def test_uses_imperative_mood_in_subject(self) -> None:
         mock_bash = Mock()
-        mock_bash.return_value = "feat: Add comprehensive user authentication system"
+        mock_bash.return_value = "feat: Add detailed user authentication system"
         subject = mock_bash("git log -1 --pretty=format:%s")
         assert 20 <= len(subject) <= 72
 
@@ -147,7 +147,7 @@ Fixed the memory leak caused by unclosed database connections.
 The leak occurred when processing large datasets and would
 eventually cause the application to crash after several hours.
 
-This fix ensures connections are properly closed using context
+This fix validates connections are properly closed using context
 managers, preventing resource exhaustion."""
 
         commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")

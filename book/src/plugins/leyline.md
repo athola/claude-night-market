@@ -19,7 +19,7 @@ Leyline provides reusable infrastructure patterns that other plugins build on. T
 | `quota-management` | Rate limiting and quotas | Building services that consume APIs |
 | `usage-logging` | Telemetry tracking | Logging tool usage for analytics |
 | `service-registry` | Service discovery patterns | Managing external tool connections |
-| `error-patterns` | Standardized error handling | Implementing robust error recovery |
+| `error-patterns` | Standardized error handling | Implementing production-grade error recovery |
 | `authentication-patterns` | Auth flow patterns | Handling API keys and OAuth |
 | `evaluation-framework` | Decision thresholds | Building evaluation criteria |
 | `mecw-patterns` | MECW implementation | Minimal Effective Context Window |

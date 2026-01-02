@@ -38,7 +38,7 @@ Run once per session or whenever staged changes are updated.
 Mark each item as complete as you finish the corresponding step.
 
 ## Step 1: Confirm Repository (`repo-confirmed`)
-- Run `pwd` to ensure you are inside the correct repository.
+- Run `pwd` to validate you are inside the correct repository.
 - Run `git status -sb` to see the branch and short status.
 - Capture the branch name and upstream information.
 

@@ -51,7 +51,7 @@ Evaluate each change category for potential impact across these dimensions:
 Classify overall risk based on indicators:
 
 - **Low**: Internal refactors, documentation updates, test additions with no production code changes
-- **Medium**: Feature additions with comprehensive tests, non-breaking API extensions, configuration changes with rollback plans
+- **Medium**: Feature additions with detailed tests, non-breaking API extensions, configuration changes with rollback plans
 - **High**: Breaking changes requiring coordination, security modifications, schema migrations, changes to critical paths
 
 ## Test Coverage Flagging
@@ -67,7 +67,7 @@ Identify changes requiring additional testing attention:
 
 1. **Identify Indicators**: Note which risk dimensions apply to each change
 2. **Count High-Risk Indicators**: Breaking, security, data integrity take precedence
-3. **Assess Test Coverage**: Reduce risk level if comprehensive tests present
+3. **Assess Test Coverage**: Reduce risk level if detailed tests present
 4. **Consider Scope**: Smaller, isolated changes generally lower risk than widespread modifications
 5. **Assign Level**: Use conservative assessment (when in doubt, elevate risk)
 

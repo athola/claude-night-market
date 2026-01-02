@@ -37,7 +37,7 @@ modules:
 
 ## Overview
 
-Universal patterns for tracking and enforcing resource quotas across any rate-limited service. This skill provides the foundational infrastructure that other plugins can leverage for consistent quota handling.
+Universal patterns for tracking and enforcing resource quotas across any rate-limited service. This skill provides the foundational infrastructure that other plugins can use for consistent quota handling.
 
 ## When to Use
 

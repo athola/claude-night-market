@@ -109,7 +109,7 @@ criteria:
   correctness: {weight: 0.40, description: Does code work as intended?}
   maintainability: {weight: 0.25, description: Is it readable?}
   performance: {weight: 0.20, description: Meets performance needs?}
-  testing: {weight: 0.15, description: Tests comprehensive?}
+  testing: {weight: 0.15, description: Tests detailed?}
 
 thresholds:
   85-100: Approve immediately

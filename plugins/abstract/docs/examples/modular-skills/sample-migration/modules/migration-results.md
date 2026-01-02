@@ -29,7 +29,7 @@ skill-load api-design
 skill-load api-development
 
 # Token usage: ~4,400 (includes all modules + tools)
-# More efficient for comprehensive tasks
+# More efficient for detailed tasks
 ```
 
 ### Custom Combination

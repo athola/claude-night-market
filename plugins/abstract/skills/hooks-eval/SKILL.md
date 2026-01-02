@@ -1,7 +1,7 @@
 ---
 name: hooks-eval
 description: |
-  Comprehensive hook evaluation framework for Claude Code and Agent SDK hooks.
+  detailed hook evaluation framework for Claude Code and Agent SDK hooks.
 
   Triggers: hook audit, hook security, hook performance, hook compliance,
   SDK hooks, hook evaluation, hook benchmarking, hook vulnerability
@@ -33,7 +33,7 @@ estimated_tokens: 1200
 
 ## Overview
 
-This skill provides a comprehensive framework for evaluating, auditing, and implementing Claude Code hooks across all scopes (plugin, project, global) and both JSON-based and programmatic (Python SDK) hooks.
+This skill provides a detailed framework for evaluating, auditing, and implementing Claude Code hooks across all scopes (plugin, project, global) and both JSON-based and programmatic (Python SDK) hooks.
 
 ### Key Capabilities
 
@@ -109,8 +109,8 @@ return {
 ## Basic Evaluation Workflow
 
 ```bash
-# 1. Run comprehensive evaluation
-/hooks-eval --comprehensive
+# 1. Run detailed evaluation
+/hooks-eval --detailed
 
 # 2. Focus on security issues
 /hooks-eval --security-only --format sarif
@@ -126,7 +126,7 @@ return {
 
 ```bash
 # Complete plugin evaluation pipeline
-/hooks-eval --comprehensive          # Evaluate all hooks
+/hooks-eval --detailed          # Evaluate all hooks
 /analyze-hook hooks/specific.py      # Deep-dive on one hook
 /validate-plugin .                   # Validate overall structure
 ```

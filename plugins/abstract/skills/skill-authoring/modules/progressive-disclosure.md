@@ -2,7 +2,7 @@
 
 ## Overview
 
-Progressive disclosure structures skills so Claude loads only what's needed when it's needed. This keeps context windows efficient while maintaining comprehensive functionality.
+Progressive disclosure structures skills so Claude loads only what's needed when it's needed. This keeps context windows efficient while maintaining detailed functionality.
 
 ## Core Principle
 
@@ -189,7 +189,7 @@ High-level task list with module pointers:
 
 #### 1. Deep Dives
 
-Comprehensive coverage of specific topics:
+detailed coverage of specific topics:
 
 ```markdown
 # TDD Methodology for Skills
@@ -498,7 +498,7 @@ skill-name/
    - Reference (move to modules)
 3. **Extract Modules** with focused topics
 4. **Update References** in SKILL.md
-5. **Test** to ensure coherence
+5. **Test** to validate coherence
 
 ### Example Refactoring
 

@@ -47,8 +47,8 @@ If you have existing skills that are not as modular as they could be, you can us
 
 ### Maintaining Compatibility
 
-During the transition, we recommend maintaining the original skill as a hub. This will ensure that existing workflows that depend on the original skill continue to work. You should also provide documentation that explains the new modular structure and how to use it.
+During the transition, we recommend maintaining the original skill as a hub. This will validate that existing workflows that depend on the original skill continue to work. You should also provide documentation that explains the new modular structure and how to use it.
 
-We recommend testing both the old and new patterns to ensure that everything is working as expected. You should also monitor the token usage of the new modular structure to see if it's providing the improvements you were hoping for.
+We recommend testing both the old and new patterns to validate that everything is working as expected. You should also monitor the token usage of the new modular structure to see if it's providing the improvements you were hoping for.
 
 For new skills, you should start with the core workflow guidance. For more detailed implementation guidance, see the implementation patterns documentation.

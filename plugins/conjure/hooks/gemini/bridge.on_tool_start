@@ -205,11 +205,11 @@ def is_intelligence_requiring_task(tool_name: str, args: dict[str, Any]) -> bool
     if tool_name == "Task" and "prompt" in args:
         prompt = args["prompt"].lower()
         complexity_indicators = [
-            "comprehensive",
+            "detailed",
             "detailed",
             "thorough",
             "in-depth",
-            "holistic",
+            "complete",
             "evaluate",
             "assess",
             "recommend",

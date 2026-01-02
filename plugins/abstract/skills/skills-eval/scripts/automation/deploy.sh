@@ -10,7 +10,7 @@ MODULAR_SKILLS_DIR="$(dirname "$SKILLS_EVAL_DIR")/modular-skills"
 
 echo " Setting up Skills Evaluation Framework..."
 
-# Ensure directories exist
+# validate directories exist
 if [[ ! -d "$SKILLS_EVAL_DIR" ]]; then
     echo " Skills evaluation directory not found: $SKILLS_EVAL_DIR"
     exit 1

@@ -173,7 +173,7 @@ Insert content into matching existing sections, preserving style.
 Use when: Destination has relevant section, content is additive.
 
 ### Replace Section
-Replace existing section with more comprehensive new content.
+Replace existing section with more detailed new content.
 
 Use when: New content 2x+ more detailed or has later date.
 

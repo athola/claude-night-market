@@ -419,12 +419,49 @@ pruning:
     - Async patterns documentation
 ```
 
+## Queue Processing
+
+Research sessions and external content are automatically queued for review in `docs/knowledge-corpus/queue/`.
+
+### Processing Queue Entries
+
+```bash
+# List pending queue entries
+ls -1t docs/knowledge-corpus/queue/*.yaml
+
+# Review specific entry
+cat docs/knowledge-corpus/queue/2025-12-31_topic.yaml
+
+# Process approved entry
+# 1. Create memory palace entry in docs/knowledge-corpus/
+# 2. Update queue entry status to 'processed'
+# 3. Archive or delete queue entry
+```
+
+### Queue Integration
+
+The `research-queue-integration` hook automatically queues:
+- Brainstorming sessions with 3+ WebSearch calls
+- Research-focused sessions with substantial findings
+- Manual additions via queue entry creation
+
+**Queue entry format**: See `docs/knowledge-corpus/queue/README.md`
+
+### Queue Status Workflow
+
+```
+pending_review → [Review] → approved/rejected
+approved → [Create Entry] → processed
+processed → [Archive] → queue/archive/
+```
+
 ## Automation
 
 - Run `uv run python skills/knowledge-intake/scripts/intake_cli.py --candidate path/to/intake_candidate.json --auto-accept`
 - The CLI runs marginal value filter, creates palace entries (`docs/knowledge-corpus/*.md`),
   developer drafts (`docs/developer-drafts/`), and appends audit rows to `docs/curation-log.md`.
 - Use `--output-root` in tests or sandboxes to avoid mutating the main corpus.
+- **Queue Processing**: Use `--process-queue` flag to review and process queued entries interactively.
 
 ## Detailed Resources
 
@@ -444,6 +481,7 @@ Memory-palace hooks automatically detect content that may need knowledge intake 
 | `url_detector` | UserPromptSubmit | User message contains URLs |
 | `web_content_processor` | PostToolUse (WebFetch/WebSearch) | After fetching web content |
 | `local_doc_processor` | PostToolUse (Read) | Reading files in knowledge paths |
+| `research_queue_integration` | SessionEnd | Research sessions with 3+ WebSearch calls |
 
 ### Hook Signals
 

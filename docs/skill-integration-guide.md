@@ -1,6 +1,6 @@
 # Skill Integration Guide
 
-This guide demonstrates how different skills work together to create powerful workflows and solve complex problems. Each integration shows the synergies between skills and provides practical implementation guidance.
+This guide demonstrates how different skills work together to create effective workflows and solve complex problems. Each integration shows the synergies between skills and provides practical implementation guidance.
 
 ## Integration Categories
 
@@ -15,7 +15,7 @@ skill-authoring -> api-design -> testing-patterns -> doc-updates -> commit-messa
 **Scenario**: Building a new REST API
 1. **skill-authoring**: Create skill for API design patterns
 2. **api-design**: Design endpoints following best practices
-3. **testing-patterns**: Add comprehensive test coverage
+3. **testing-patterns**: Add test coverage with edge cases
 4. **doc-updates**: Generate API documentation
 5. **commit-messages**: Write conventional commits
 
@@ -100,7 +100,7 @@ endpoint_design = api_design_skill.design_rest_api(
     validation='pydantic'
 )
 
-# 2. Add comprehensive testing
+# 2. Add detailed testing
 testing_skill = load_skill('testing-patterns')
 test_suite = testing_skill.generate_api_tests(
     endpoints=endpoint_design,
@@ -135,7 +135,7 @@ commits = commit_skill.create_feature_commits(
 
 ### Example 2: Security Review Automation
 
-**Use Case**: Comprehensive security audit of web application
+**Use Case**: Full security audit of web application
 
 #### Integrated Security Workflow
 ```python
@@ -181,7 +181,7 @@ security_pr = pr_skill.prepare_security_focused_pr(
 ```
 
 #### Integration Advantages
-- **Comprehensive**: Covers all security aspects
+- **Thorough**: Covers all security aspects
 - **Prioritized**: Ranks issues by severity
 - **Actionable**: Provides specific fixes
 - **Auditable**: Complete security audit trail

@@ -157,7 +157,7 @@ class BackgroundTaskHooks(AgentHooks):
                 break
 
     async def on_stop(self, reason: str, result: Any) -> None:
-        """Ensure background tasks complete."""
+        """validate background tasks complete."""
         if self._background_task and not self._background_task.done():
             await self._background_task
 ```
@@ -505,7 +505,7 @@ from my_hooks import ValidationHooks
 
 @pytest.mark.asyncio
 async def test_validation_performance():
-    """Ensure validation meets performance budget."""
+    """validate validation meets performance budget."""
     hooks = ValidationHooks()
 
     # Test 100 validations
@@ -522,7 +522,7 @@ async def test_validation_performance():
 
 @pytest.mark.asyncio
 async def test_logging_performance():
-    """Ensure logging doesn't block."""
+    """validate logging doesn't block."""
     hooks = LoggingHooks()
 
     start = time.perf_counter()

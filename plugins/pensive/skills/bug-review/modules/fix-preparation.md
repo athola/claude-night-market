@@ -7,7 +7,7 @@ progressive_loading: true
 
 # Fix Preparation
 
-Create minimal, idiomatic patches with comprehensive test coverage.
+Create minimal, idiomatic patches with detailed test coverage.
 
 ## Minimal Patch Patterns
 

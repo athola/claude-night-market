@@ -23,7 +23,7 @@ escalation:
 examples:
   - context: Need a bounded plan for improvements
     user: "Pick an approach and plan the changes."
-    assistant: "I'll use workflow-improvement-planner-agent to define acceptance criteria and a small, high-leverage plan."
+    assistant: "I'll use workflow-improvement-planner-agent to define acceptance criteria and a small, high-use plan."
 ---
 
 # Workflow Improvement Planner Agent

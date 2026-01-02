@@ -303,7 +303,7 @@ class TestSpeckitIntegration:
             )
 
             # Validate checklist
-            assert len(checklist_items) >= 4, "Should generate comprehensive checklist"
+            assert len(checklist_items) >= 4, "Should generate detailed checklist"
             assert any(
                 "tasks completed" in item for item in checklist_items
             ), "Should show task progress"

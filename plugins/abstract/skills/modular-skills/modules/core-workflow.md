@@ -11,7 +11,7 @@ estimated_tokens: 800
 
 # The Core Workflow for Modular Skills
 
-This is our core workflow for designing and building modular skills. We follow this process to ensure that our skills are well-designed, maintainable, and efficient.
+This is our core workflow for designing and building modular skills. We follow this process to validate that our skills are well-designed, maintainable, and efficient.
 
 ## Phase 1: Evaluating the Scope
 

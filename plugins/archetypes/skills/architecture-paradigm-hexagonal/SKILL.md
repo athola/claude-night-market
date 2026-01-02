@@ -40,7 +40,7 @@ estimated_tokens: 1200
 1. **Define Domain Ports**: Identify all interactions with the core domain. Define inbound "driver ports" for actors that initiate actions (e.g., UI, CLI, automated jobs) and outbound "driven ports" for services the application consumes (e.g., database, message bus, external APIs). Express these ports as formal interfaces.
 2. **Implement Adapters at the Edge**: For each external technology, create an "adapter" that implements a port's interface. Keep the core domain entirely ignorant of the specific frameworks or libraries used in the adapters.
 3. **Aggregate Use Cases**: Organize the application's functionality into services that are built around business capabilities. These services orchestrate calls to the domain through the defined ports.
-4. **Implement Contract Testing**: Ensure that each adapter correctly honors the expectations of the port it implements. Use contract tests or consumer-driven contract tests to validate this behavior.
+4. **Implement Contract Testing**: validate that each adapter correctly honors the expectations of the port it implements. Use contract tests or consumer-driven contract tests to validate this behavior.
 5. **Enforce Dependency Rules**: The most critical rule is that only adapters may have dependencies on external frameworks. Enforce this with automated architecture tests or static analysis rules.
 
 ## Key Deliverables

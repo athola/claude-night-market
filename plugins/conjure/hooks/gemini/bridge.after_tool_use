@@ -49,7 +49,7 @@ def generate_contextual_recommendation(benefit_type, tool_name, tool_args):
         recommendations.extend(
             [
                 "This large file analysis could benefit from Gemini's context window",
-                f"Try: `gemini -p '@{file_path} Provide a comprehensive analysis of this file'`",
+                f"Try: `gemini -p '@{file_path} Provide a detailed analysis of this file'`",
                 "Use gemini-delegation skill for systematic analysis",
             ]
         )
@@ -73,7 +73,7 @@ def generate_contextual_recommendation(benefit_type, tool_name, tool_args):
                 f"Extensive results for '{search_pattern}' in {search_path}",
                 "Gemini can provide higher-level analysis of these patterns:",
                 f"`gemini -p '@{search_path} Analyze all instances of {search_pattern} and identify patterns'`",
-                "Consider gemini-delegation for comprehensive analysis",
+                "Consider gemini-delegation for detailed analysis",
             ]
         )
 

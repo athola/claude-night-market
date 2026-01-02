@@ -35,7 +35,7 @@
 
 ### Installation Issues
 - Install: `pip install qwen-cli`
-- PATH issues: Ensure `~/.local/bin` is in PATH
+- PATH issues: validate `~/.local/bin` is in PATH
 - Verify: `which qwen` and `qwen --version`
 
 ### Model Access

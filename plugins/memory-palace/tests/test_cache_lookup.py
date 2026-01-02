@@ -15,7 +15,7 @@ def temp_corpus_dir(tmp_path):
     corpus_dir = tmp_path / "corpus"
     corpus_dir.mkdir()
 
-    # Create comprehensive knowledge entry
+    # Create detailed knowledge entry
     franklin_entry = """---
 title: Franklin Protocol - Learning Algorithms
 tags: [learning, machine-learning, deliberate-practice, feedback-loops]

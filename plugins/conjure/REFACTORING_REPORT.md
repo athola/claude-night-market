@@ -235,7 +235,7 @@ Not in base class:
 1. **Other Services**: Extend for Qwen, Claude delegation
 2. **Rate Limiting**: Add automatic backoff/retry logic
 3. **Metrics**: Export quota metrics for monitoring
-4. **Testing**: Add comprehensive test suite to leyline
+4. **Testing**: Add detailed test suite to leyline
 5. **Documentation**: Add usage examples to leyline docs
 
 ## Files Modified
