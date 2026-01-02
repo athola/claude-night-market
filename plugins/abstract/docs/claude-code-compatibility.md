@@ -16,7 +16,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 ## Feature Timeline
 
-### Claude Code 2.0.74 (December 2024)
+### Claude Code 2.0.74 (December 2025)
 
 **New Features**:
 - ✅ **LSP (Language Server Protocol) Tool**: Native code intelligence integration
@@ -106,7 +106,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 - Improved /context visualization aids MECW compliance and plugin discoverability
 - Terminal compatibility improvements benefit cross-platform development
 
-### Claude Code 2.0.73 (December 2024)
+### Claude Code 2.0.73 (December 2025)
 
 **New Features**:
 - ✅ **Session Forking**: Custom session IDs with `--session-id` + `--fork-session` + (`--resume` | `--continue`)
@@ -154,7 +154,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 - Built on Agent Client Protocol's session fork RFD
 - See "Session Forking Patterns" section below for detailed usage examples
 
-### Claude Code 2.0.72 (December 2024)
+### Claude Code 2.0.72 (December 2025)
 
 **New Features**:
 - ✅ **Claude in Chrome (Beta)**: Native browser control integration
@@ -187,7 +187,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
   - **Native Chrome**: Interactive debugging, live testing, exploratory work
   - **Playwright**: Automated recording, headless execution, CI/CD, cross-browser
 
-### Claude Code 2.0.71 (December 2024)
+### Claude Code 2.0.71 (December 2025)
 
 **New Commands**:
 - `/config toggle` - Enable/disable prompt suggestions
@@ -213,7 +213,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 - New syntax highlighting engine for native build
 - Bedrock: `ANTHROPIC_BEDROCK_BASE_URL` environment variable respected
 
-### Claude Code 2.0.70 (December 2024)
+### Claude Code 2.0.70 (December 2025)
 
 **New Features**:
 - **MCP Wildcard Permissions**: `mcp__server__*` syntax for bulk permissions
@@ -229,7 +229,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 **Bug Fixes**:
 - Thinking mode toggle in `/config` now persists correctly
 
-### Claude Code 2.0.65 (November 2024)
+### Claude Code 2.0.65 (November 2025)
 
 **New Features**:
 - **Native Context Visibility**: Status line displays real-time context utilization

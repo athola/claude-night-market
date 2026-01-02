@@ -75,4 +75,4 @@ Many skills achieve their full potential when used alongside the [superpowers](h
 
 ## Ready to Begin?
 
-Head to the [Getting Started](getting-started/README.md) section to install your first plugin and start exploring the Night Market.
+Head to the [Getting Started](getting-started/index.html) section to install your first plugin and start exploring the Night Market.

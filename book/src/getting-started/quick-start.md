@@ -210,6 +210,6 @@ If superpowers is installed, commands gain enhanced capabilities:
 
 ## Next Steps
 
-- Explore individual plugins in [Plugin Overview](../plugins/README.md)
-- Deep dive into [Tutorials](../tutorials/README.md)
+- Explore individual plugins in [Plugin Overview](../plugins/index.html)
+- Deep dive into [Tutorials](../tutorials/index.html)
 - Reference all capabilities in [Capabilities Reference](../reference/capabilities-reference.md)
