@@ -4,7 +4,7 @@ description: Proactive strategies and best practices for preventing MECW violati
 category: patterns
 parent_skill: leyline:mecw-patterns
 estimated_tokens: 520
-reusable_by: [conservation, conjure, spec-kit, sanctum, imbue]
+reusable_by: [conserve, conjure, spec-kit, sanctum, imbue]
 tags: [prevention, optimization, delegation, best-practices]
 ---
 
@@ -405,13 +405,13 @@ else:
 
 ```python
 from leyline import MECWMonitor
-from conservation import optimize_skill_loading
+from conserve import optimize_skill_loading
 
 monitor = MECWMonitor()
 status = monitor.get_status()
 
 if status.pressure_level in ["HIGH", "CRITICAL"]:
-    # Use conservation patterns to optimize
+    # Use conserve patterns to optimize
     optimize_skill_loading(
         load_only_essential=True,
         compress_examples=True

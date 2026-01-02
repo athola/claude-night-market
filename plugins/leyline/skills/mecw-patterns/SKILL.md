@@ -32,7 +32,7 @@ modules:
   - modules/mecw-theory.md
   - modules/monitoring-patterns.md
   - modules/prevention-strategies.md
-reusable_by: [conservation, abstract, conjure, spec-kit, sanctum, imbue]
+reusable_by: [conserve, abstract, conjure, spec-kit, sanctum, imbue]
 ---
 
 # MECW Patterns
@@ -131,7 +131,7 @@ For detailed implementation patterns:
 ## Integration with Other Skills
 
 This skill provides foundational utilities referenced by:
-- `conservation:context-optimization` - Uses MECW for optimization decisions
+- `conserve:context-optimization` - Uses MECW for optimization decisions
 - `conjure:delegation-core` - Uses MECW for delegation triggers
 - Plugin authors building context-aware systems
 

@@ -307,7 +307,7 @@
 
     // Track plugin page views
     var pluginPages = [
-      'abstract', 'imbue', 'sanctum', 'leyline', 'conservation', 'conjure',
+      'abstract', 'imbue', 'sanctum', 'leyline', 'conserve', 'conjure',
       'archetypes', 'pensive', 'parseltongue', 'memory-palace', 'spec-kit', 'minister'
     ];
 

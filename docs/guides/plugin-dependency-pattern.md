@@ -132,10 +132,10 @@ class ContextOptimizer:
     def _load_optimizers(self):
         """Load available context optimizers from plugins"""
         # Try to load Conservation plugin optimizer
-        if is_plugin_available("conservation"):
+        if is_plugin_available("conserve"):
             try:
                 from conservation import context_optimizer as cons_opt
-                self.optimizers["conservation"] = cons_opt
+                self.optimizers["conserve"] = cons_opt
             except ImportError:
                 pass
 
@@ -146,8 +146,8 @@ class ContextOptimizer:
         """Optimize content using best available strategy"""
         if strategy == "auto":
             # Prefer Conservation if available
-            if "conservation" in self.optimizers:
-                return self.optimizers["conservation"].optimize(content)
+            if "conserve" in self.optimizers:
+                return self.optimizers["conserve"].optimize(content)
             else:
                 return self._basic_optimize(content)
 
@@ -206,7 +206,7 @@ In your `plugin.json`:
       "fallback": "analysis without git data"
     },
     {
-      "plugin": "conservation",
+      "plugin": "conserve",
       "purpose": "context optimization",
       "fallback": "built-in optimization"
     }

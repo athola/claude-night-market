@@ -1,0 +1,63 @@
+{
+  "name": "attune",
+  "version": "1.2.0",
+  "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
+  "commands": [
+    "./commands/brainstorm.md",
+    "./commands/specify.md",
+    "./commands/plan.md",
+    "./commands/init.md",
+    "./commands/execute.md",
+    "./commands/upgrade.md",
+    "./commands/validate.md"
+  ],
+  "skills": [
+    "./skills/project-brainstorming",
+    "./skills/project-specification",
+    "./skills/project-planning",
+    "./skills/project-execution",
+    "./skills/project-init",
+    "./skills/makefile-generation",
+    "./skills/workflow-setup",
+    "./skills/precommit-setup"
+  ],
+  "agents": [
+    "./agents/project-architect.md",
+    "./agents/project-implementer.md"
+  ],
+  "keywords": [
+    "full-cycle",
+    "brainstorm-plan-execute",
+    "spec-driven-development",
+    "project-initialization",
+    "brainstorming",
+    "specification",
+    "planning",
+    "implementation",
+    "execution",
+    "tdd",
+    "architecture",
+    "initialization",
+    "setup",
+    "automation",
+    "git",
+    "github-actions",
+    "pre-commit",
+    "makefile",
+    "python",
+    "rust",
+    "typescript",
+    "templates",
+    "scaffolding",
+    "project-structure",
+    "best-practices",
+    "ci-cd",
+    "superpowers-integration",
+    "spec-kit-integration"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "license": "MIT"
+}

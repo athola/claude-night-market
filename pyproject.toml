@@ -163,14 +163,14 @@ disallow_untyped_defs = false
 members = [
     "plugins/abstract",
     "plugins/leyline",
-    "plugins/conservation",
+    "plugins/conserve",
     "plugins/core"
 ]
 
 [tool.uv.sources]
 # Explicit workspace member configuration
 leyline = { workspace = true }
-conservation = { workspace = true }
+conserve = { workspace = true }
 core = { workspace = true }
 
 [tool.bandit]

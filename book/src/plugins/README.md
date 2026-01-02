@@ -17,7 +17,7 @@ graph TB
     end
 
     subgraph Utility[Utility Layer]
-        conservation[conservation<br/>Resource optimization]
+        conserve[conserve<br/>Resource optimization]
         conjure[conjure<br/>External delegation]
     end
 
@@ -28,6 +28,7 @@ graph TB
         memory_palace[memory-palace<br/>Spatial memory]
         spec_kit[spec-kit<br/>Spec-driven dev]
         minister[minister<br/>Release management]
+        attune[attune<br/>Full-cycle development]
     end
 
     abstract --> leyline
@@ -49,8 +50,8 @@ graph TB
 |-------|---------|---------|
 | **Meta** | Plugin infrastructure and evaluation | abstract |
 | **Foundation** | Core workflow methodologies | imbue, sanctum, leyline |
-| **Utility** | Resource optimization and delegation | conservation, conjure |
-| **Domain** | Specialized task execution | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister |
+| **Utility** | Resource optimization and delegation | conserve, conjure |
+| **Domain** | Specialized task execution | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister, attune |
 
 ## Dependency Rules
 
@@ -78,7 +79,7 @@ graph TB
 /plugin install imbue@claude-night-market
 /plugin install sanctum@claude-night-market
 /plugin install leyline@claude-night-market
-/plugin install conservation@claude-night-market
+/plugin install conserve@claude-night-market
 /plugin install conjure@claude-night-market
 /plugin install archetypes@claude-night-market
 /plugin install pensive@claude-night-market
@@ -86,6 +87,7 @@ graph TB
 /plugin install memory-palace@claude-night-market
 /plugin install spec-kit@claude-night-market
 /plugin install minister@claude-night-market
+/plugin install attune@claude-night-market
 ```
 
 ## Browse by Layer
@@ -103,7 +105,7 @@ graph TB
 | [imbue](imbue.md) | Analysis and evidence gathering |
 | [sanctum](sanctum.md) | Git and workspace operations |
 | [leyline](leyline.md) | Infrastructure building blocks |
-| [conservation](conservation.md) | Context and resource optimization |
+| [conserve](conserve.md) | Context and resource optimization |
 | [conjure](conjure.md) | External LLM delegation |
 | [archetypes](archetypes.md) | Architecture paradigms |
 | [pensive](pensive.md) | Code review toolkit |
@@ -111,6 +113,7 @@ graph TB
 | [memory-palace](memory-palace.md) | Knowledge organization |
 | [spec-kit](spec-kit.md) | Specification-driven development |
 | [minister](minister.md) | Release management |
+| [attune](attune.md) | Full-cycle project development |
 
 <div class="achievement-hint" data-achievement="plugin-explorer">
 Read all plugin pages to unlock: Plugin Explorer

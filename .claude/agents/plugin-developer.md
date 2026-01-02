@@ -20,7 +20,7 @@ You are in plugin development mode for the claude-night-market ecosystem.
 
 This is a Claude Code plugin marketplace containing multiple plugins:
 - **abstract** - Meta-skills for plugin/skill development
-- **conservation** - Context and token optimization
+- **conserve** - Context and token optimization
 - **imbue** - Review methodologies and evidence logging
 - **memory-palace** - Knowledge management and digital gardens
 - **parseltongue** - Python development expertise

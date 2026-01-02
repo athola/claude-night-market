@@ -64,7 +64,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
   - **Affected**:
     - **conservation**: Update context optimization guidance
     - **abstract**: Plugin metadata more visible
-  - **Documentation**: `conservation/skills/context-optimization/modules/mecw-principles.md`
+  - **Documentation**: `conserve/skills/context-optimization/modules/mecw-principles.md`
 
 - Added `ctrl+t` shortcut in `/theme` to toggle syntax highlighting on/off
 - Added syntax highlighting info to theme picker
@@ -223,8 +223,8 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 **Enhancements**:
 - **Improved Context Accuracy**: `current_usage` field enables precise percentage calculations
-  - Affected: `conservation:context-optimization`
-  - Documentation: `conservation/skills/context-optimization/modules/mecw-principles.md`
+  - Affected: `conserve:context-optimization`
+  - Documentation: `conserve/skills/context-optimization/modules/mecw-principles.md`
 
 **Bug Fixes**:
 - Thinking mode toggle in `/config` now persists correctly
@@ -233,8 +233,8 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 **New Features**:
 - **Native Context Visibility**: Status line displays real-time context utilization
-  - Affected: `conservation:context-optimization`
-  - Documentation: `conservation/skills/context-optimization/modules/mecw-principles.md`
+  - Affected: `conserve:context-optimization`
+  - Documentation: `conserve/skills/context-optimization/modules/mecw-principles.md`
 
 - **CLAUDE_CODE_SHELL Override**: Environment variable for shell detection
   - Affected: Hook execution in non-standard shell environments
@@ -1314,8 +1314,8 @@ claude --skill test-restricted.md "Try to write a file"
 
 - **Hook Authoring**: `plugins/abstract/skills/hook-authoring/`
 - **Security Patterns**: `plugins/abstract/skills/hook-authoring/modules/security-patterns.md`
-- **Context Optimization**: `plugins/conservation/skills/context-optimization/`
-- **MECW Principles**: `plugins/conservation/skills/context-optimization/modules/mecw-principles.md`
+- **Context Optimization**: `plugins/conserve/skills/context-optimization/`
+- **MECW Principles**: `plugins/conserve/skills/context-optimization/modules/mecw-principles.md`
 
 ### External Resources
 

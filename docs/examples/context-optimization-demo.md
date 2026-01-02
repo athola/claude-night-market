@@ -266,5 +266,5 @@ This demo integrates with:
 
 ## See Also
 
-- [Conservation Plugin](../../plugins/conservation/) - Context optimization plugin
+- [Conserve Plugin](../../plugins/conserve/) - Context optimization plugin
 - [Cross-Plugin Collaboration](../cross-plugin-collaboration.md) - Plugin workflows

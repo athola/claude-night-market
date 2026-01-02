@@ -20,6 +20,7 @@ Domain plugins offer:
 | [memory-palace](memory-palace.md) | Knowledge | Spatial memory organization |
 | [spec-kit](spec-kit.md) | Specifications | Spec-driven development |
 | [minister](minister.md) | Releases | Initiative tracking |
+| [attune](attune.md) | Projects | Full-cycle project development |
 | [scry](scry.md) | Media | Documentation recordings |
 
 ## When to Use
@@ -63,6 +64,14 @@ Use when you need to:
 - Monitor release readiness
 - Generate stakeholder reports
 
+### attune
+Use when you need to:
+- Brainstorm project ideas
+- Create specifications from concepts
+- Plan architecture and tasks
+- Initialize projects with tooling
+- Execute systematic implementation
+
 ### scry
 Use when you need to:
 - Record terminal demos with VHS
@@ -81,6 +90,7 @@ parseltongue (standalone)
 memory-palace (standalone)
 spec-kit --> imbue
 minister (standalone)
+attune --> spec-kit, imbue
 scry (standalone)
 ```
 
@@ -117,6 +127,24 @@ Skill(parseltongue:python-testing)
 /speckit-implement
 ```
 
+### Full Project Lifecycle
+```bash
+/attune:brainstorm
+# Socratic questioning to explore project idea
+
+/attune:specify
+# Create specification from brainstorm
+
+/attune:plan
+# Design architecture and break down tasks
+
+/attune:init
+# Initialize project with tooling
+
+/attune:execute
+# Execute implementation with TDD
+```
+
 ### Media Recording
 ```bash
 /record-terminal
@@ -148,6 +176,9 @@ Install based on your needs:
 
 # Release management
 /plugin install minister@claude-night-market
+
+# Full-cycle project development
+/plugin install attune@claude-night-market
 
 # Media recording
 /plugin install scry@claude-night-market

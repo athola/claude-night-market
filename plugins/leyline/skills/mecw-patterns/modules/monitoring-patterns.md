@@ -4,7 +4,7 @@ description: Advanced patterns for continuous MECW monitoring, integration patte
 category: patterns
 parent_skill: leyline:mecw-patterns
 estimated_tokens: 850
-reusable_by: [conservation, conjure, spec-kit, abstract]
+reusable_by: [conserve, conjure, spec-kit, abstract]
 tags: [monitoring, integration, automation, alerting]
 ---
 

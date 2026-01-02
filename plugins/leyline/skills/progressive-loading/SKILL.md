@@ -133,7 +133,7 @@ See `modules/loading-patterns.md` for implementation patterns:
 
 This skill provides foundational patterns referenced by:
 - `abstract:modular-skills` - Uses progressive loading for skill design
-- `conservation:context-optimization` - Uses for MECW-compliant loading
+- `conserve:context-optimization` - Uses for MECW-compliant loading
 - `imbue:catchup` - Uses for context-based module selection
 - Plugin authors building multi-workflow skills
 

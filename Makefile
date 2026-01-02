@@ -5,7 +5,7 @@
         docs docs-fast demo \
         technical-debt-scan technical-debt-dashboard technical-debt-plan technical-debt-kpis \
         technical-debt-setup technical-debt-integration \
-        abstract abstract-% conjure conjure-% conservation conservation-% \
+        abstract abstract-% conjure conjure-% conserve conserve-% \
         imbue imbue-% memory-palace memory-palace-% parseltongue parseltongue-% \
         pensive pensive-% sanctum sanctum-% spec-kit spec-kit-%
 
@@ -21,7 +21,7 @@ PATH := $(UV_TOOL_DIR)/ruff/bin:$(PATH)
 PLUGINS_DIR := plugins
 ABSTRACT_DIR := $(PLUGINS_DIR)/abstract
 CONJURE_DIR := $(PLUGINS_DIR)/conjure
-CONSERVATION_DIR := $(PLUGINS_DIR)/conservation
+CONSERVE_DIR := $(PLUGINS_DIR)/conserve
 IMBUE_DIR := $(PLUGINS_DIR)/imbue
 MEMORY_PALACE_DIR := $(PLUGINS_DIR)/memory-palace
 PARSELTONGUE_DIR := $(PLUGINS_DIR)/parseltongue
@@ -70,7 +70,7 @@ help: ## Show this help message
 	@echo "Plugin delegation (run with 'make <plugin>-<target>'):"
 	@echo "  abstract-*        Abstract plugin targets (e.g., abstract-test)"
 	@echo "  conjure-*         Conjure plugin targets"
-	@echo "  conservation-*    Conservation plugin targets"
+	@echo "  conserve-*        Conserve plugin targets"
 	@echo "  imbue-*           Imbue plugin targets"
 	@echo "  memory-palace-*   Memory Palace plugin targets"
 	@echo "  parseltongue-*    Parseltongue plugin targets"
@@ -204,12 +204,12 @@ conjure-%:
 conjure:
 	@$(MAKE) -C $(CONJURE_DIR)
 
-# Plugin delegation - Conservation
-conservation-%:
-	@$(MAKE) -C $(CONSERVATION_DIR) $*
+# Plugin delegation - Conserve
+conserve-%:
+	@$(MAKE) -C $(CONSERVE_DIR) $*
 
-conservation:
-	@$(MAKE) -C $(CONSERVATION_DIR)
+conserve:
+	@$(MAKE) -C $(CONSERVE_DIR)
 
 # Plugin delegation - Imbue
 imbue-%:
@@ -338,7 +338,7 @@ demo: ## Demonstrate Claude Night Market capabilities
 	@echo "  make <plugin>-test  - Run plugin tests"
 	@echo ""
 	@echo "New in v1.1.2 - Bloat Detection:"
-	@echo "  make conservation-demo-bloat  - Demo bloat detection on conservation plugin"
+	@echo "  make conserve-demo-bloat      - Demo bloat detection on conserve plugin"
 	@echo "  /bloat-scan --level 2         - Run bloat scan in Claude Code"
 	@echo "  /unbloat --from-scan report   - Safe bloat remediation"
 	@echo ""

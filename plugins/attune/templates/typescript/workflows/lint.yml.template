@@ -1,0 +1,29 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: '{{PACKAGE_MANAGER}}'
+
+    - name: Install dependencies
+      run: {{PACKAGE_MANAGER}} install
+
+    - name: Run ESLint
+      run: {{PACKAGE_MANAGER}} run lint
+
+    - name: Check formatting
+      run: {{PACKAGE_MANAGER}} run format:check

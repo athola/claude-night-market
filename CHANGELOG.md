@@ -5,11 +5,84 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Conserve: Static Analysis Integration** - Complete bloat-detector skill with 5 modules
+  - **New Module**: `static-analysis-integration.md` - Bridges Tier 1 heuristics to Tier 2 tool-based detection
+    - **Python Tools**: Vulture (programmatic API), deadcode (auto-fix), autoflake (import cleanup)
+    - **JavaScript/TypeScript**: Knip CLI integration with JSON parsing, tree-shaking detection
+    - **Multi-Language**: SonarQube Web API for cyclomatic complexity and duplication metrics
+    - **Features**: Auto-detection of available tools, graceful fallback to heuristics, confidence boosting
+  - **Total Bloat Detection Coverage**: 2,423 lines across 5 modules
+    - `quick-scan.md` (237 lines) - Heuristic detection
+    - `git-history-analysis.md` (276 lines) - Staleness and churn metrics
+    - `code-bloat-patterns.md` (638 lines) - 5 duplication types, language-specific patterns
+    - `documentation-bloat.md` (634 lines) - Readability metrics, 4 similarity algorithms
+    - `static-analysis-integration.md` (638 lines) - Tool integration **← NEW**
+  - **Validation**: All tests pass, hub-spoke pattern maintained, proper frontmatter
+
+- **Memory Palace: Knowledge Corpus Integration** - Research queue processing and storage
+  - **Queue System**: Staging area for research sessions with evaluation rubric
+  - **Knowledge Entry**: `codebase-bloat-detection.md` - Comprehensive bloat detection research
+    - 43 sources across static analysis, git history, documentation metrics
+    - Memory palace format with spatial encoding and cross-references
+    - Score: 87/100 (Evergreen threshold: 80+)
+  - **Queue Processing**: Automated vetting, approval, and archival workflow
+  - **Integration**: Research findings directly applied to conserve plugin implementation
+
+- **Attune Plugin (v1.2.0)** - Full-cycle project development from ideation to implementation
+  - **New Commands**:
+    - `/attune:brainstorm` - Brainstorm project ideas using Socratic questioning (integrates superpowers)
+    - `/attune:specify` - Create detailed specifications from brainstorm session (integrates spec-kit)
+    - `/attune:plan` - Plan architecture and break down into tasks (integrates superpowers)
+    - `/attune:init` - Initialize new project with complete development infrastructure
+    - `/attune:execute` - Execute implementation tasks systematically (integrates superpowers)
+    - `/attune:upgrade` - Add or update configurations in existing projects
+    - `/attune:validate` - Validate project structure against best practices
+  - **New Agents**:
+    - `project-architect` - Guides full-cycle workflow from brainstorming through planning
+    - `project-implementer` - Executes implementation with TDD discipline and progress tracking
+  - **New Skills**:
+    - `project-brainstorming` - Socratic ideation and problem space exploration
+    - `project-specification` - Specification creation workflow
+    - `project-planning` - Architecture design and task breakdown
+    - `project-execution` - Systematic implementation with tracking
+    - `project-init` - Interactive project initialization workflow with language detection
+    - `makefile-generation` - Generate language-specific Makefiles with standard targets
+    - `workflow-setup` - Configure GitHub Actions workflows for CI/CD
+    - `precommit-setup` - Set up pre-commit hooks for code quality enforcement
+  - **Supported Languages**:
+    - **Python**: uv-based dependency management, pytest, ruff, mypy, pre-commit hooks
+    - **Rust**: cargo builds, clippy, rustfmt, CI workflows
+    - **TypeScript/React**: npm/pnpm/yarn, vite, jest, eslint, prettier
+  - **Features**:
+    - Hybrid template + dynamic generation approach
+    - Non-destructive initialization (prompts before overwriting)
+    - Git initialization with comprehensive .gitignore
+    - GitHub Actions workflows (test, lint, typecheck/build)
+    - Pre-commit hooks configuration
+    - Makefile with development targets (help, test, lint, format, build, clean)
+    - Project structure creation (src/, tests/, README.md)
+    - Version fetching for GitHub Actions and dependencies
+    - Project validation with detailed scoring
+  - **Phase 1 (Complete)**: Python-only MVP
+  - **Phase 2 (Complete)**: Multi-language support (Rust, TypeScript)
+  - **Phase 3 (Complete)**: Advanced features (version fetching, validation)
+  - **Phase 4 (Complete)**: Integration features
+    - `/attune:upgrade` - Add missing configs to existing projects with status reporting
+    - Custom template locations (~/.claude/attune/templates/, .attune/templates/, $ATTUNE_TEMPLATES_PATH)
+    - Plugin project initialization (attune + abstract integration)
+    - Reference project template synchronization (auto-update from simple-resume, skrills)
+    - Template composition and override system
+  - **Templates Based On**: Reference projects (simple-resume, skrills, importobot)
+
 ## [1.1.2] - 2026-01-01
 
 ### Added
 
-- **Conservation: Bloat Detection & Remediation** - Full codebase cleanup workflow
+- **Conserve: Bloat Detection & Remediation** - Full codebase cleanup workflow
 - **Codebase-wide AI Slop Cleanup** - Systematic removal of AI-generated language patterns
   - Removed ~628 instances of vague AI slop words across 356 files
   - Replaced "comprehensive" with context-specific terms (detailed/deep/thorough/full)
@@ -52,7 +125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added "Recommended Setup: LSP Integration" section prominently in README
   - Step-by-step setup instructions (enable environment variable, install language servers, verify)
   - Comparison table showing LSP advantages (900x performance, 90% token reduction)
-  - List of plugins benefiting from LSP (pensive, sanctum, conservation)
+  - List of plugins benefiting from LSP (pensive, sanctum, conserve)
   - Graceful degradation explanation (grep fallback when LSP unavailable)
   - Reference to detailed compatibility documentation
 
@@ -72,13 +145,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Updated `plugins/pensive/agents/rust-auditor.md` with rust-analyzer integration
     - Updated `plugins/sanctum/commands/update-docs.md` with LSP documentation verification
     - Updated `plugins/sanctum/skills/doc-updates/SKILL.md` with LSP accuracy checking
-    - Updated `plugins/conservation/skills/context-optimization/modules/mecw-principles.md` with LSP token optimization
+    - Updated `plugins/conserve/skills/context-optimization/modules/mecw-principles.md` with LSP token optimization
     - Documented 900x performance improvement for reference finding (50ms vs 45s)
     - Language support: TypeScript, Rust, Python, Go, Java, Kotlin, C/C++, PHP, Ruby, C#, PowerShell, HTML/CSS
     - **Strategic Positioning**: LSP is now the **default/preferred** approach across all plugins
       - Pensive agents default to LSP for code review, architecture analysis, Rust audits
       - Sanctum commands default to LSP for documentation verification
-      - Conservation skills recommend LSP for token optimization
+      - Conserve skills recommend LSP for token optimization
       - Grep positioned as fallback when LSP unavailable
       - Recommendation: Enable `ENABLE_LSP_TOOLS=1` permanently in environment
   - **Security Fix - allowed-tools enforcement**: Documented critical security bug fix
@@ -89,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Audit results: No current plugins use `allowed-tools` (verified via ecosystem scan)
     - Added best practices for tool restriction design
   - **Improved /context visualization**: Documented enhanced context monitoring
-    - Updated `plugins/conservation/skills/context-optimization/modules/mecw-principles.md`
+    - Updated `plugins/conserve/skills/context-optimization/modules/mecw-principles.md`
     - Skills/agents now grouped by source plugin
     - Better visibility into plugin-level context consumption
     - Sorted token counts for optimization
@@ -219,13 +292,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Documentation overhaul**: Expanded `book/src/reference/capabilities-reference.md` with complete skill, command, agent, and hook listings for all plugins
-- **Conservation README**: Added session start integration docs, bypass modes table, and threshold guidelines
+- **Conserve README**: Added session start integration docs, bypass modes table, and threshold guidelines
 - **Plugin versions**: All plugins bumped to 1.0.2 for consistency
-- **Skill modules**: Refined content across abstract, conservation, imbue, leyline, pensive, sanctum, and spec-kit
+- **Skill modules**: Refined content across abstract, conserve, imbue, leyline, pensive, sanctum, and spec-kit
 
 ### Improved
 
-- **Context optimization**: Updates to MECW patterns and monitoring across conservation and leyline
+- **Context optimization**: Updates to MECW patterns and monitoring across conserve and leyline
 - **Skill authoring docs**: Enhanced persuasion principles, TDD methodology, and anti-rationalization modules
 - **Hook authoring**: Updated security patterns and performance guidelines
 
@@ -251,7 +324,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Initial release** of the Claude Night Market plugin ecosystem
-- **11 plugins**: abstract, archetypes, conjure, conservation, imbue, leyline, memory-palace, parseltongue, pensive, sanctum, spec-kit
+- **11 plugins**: abstract, archetypes, conjure, conserve, imbue, leyline, memory-palace, parseltongue, pensive, sanctum, spec-kit
 - **Core infrastructure**: Skills, commands, agents, and hooks framework
 - **Documentation**: README, capabilities reference, and per-plugin documentation
 
@@ -262,7 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | abstract | Meta-skills infrastructure for plugin development |
 | archetypes | Architecture paradigm selection (14 paradigms) |
 | conjure | Intelligent delegation to external LLMs |
-| conservation | Resource optimization and context management |
+| conserve | Resource optimization and context management |
 | imbue | Workflow methodologies and review scaffolding |
 | leyline | Storage patterns and data persistence |
 | memory-palace | Spatial memory techniques (method of loci) |

@@ -63,7 +63,7 @@ python -m leyline.service_registry --verify myservice
 
 - **abstract**: Meta-skills for Claude (evaluation, modular design).
 - **conjure**: LLM delegation (uses leyline for quota/logging).
-- **conservation**: Context optimization (can use leyline metrics).
+- **conserve**: Context optimization (can use leyline metrics).
 
 ## Plugin Metadata Best Practices (Claude Code 2.0.73+)
 

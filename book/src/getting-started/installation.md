@@ -30,8 +30,8 @@ You'll see plugins organized by layer:
 |-------|---------|---------|
 | Meta | abstract | Plugin infrastructure |
 | Foundation | imbue, sanctum, leyline | Core workflows |
-| Utility | conservation, conjure | Resource optimization |
-| Domain | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister | Specialized tasks |
+| Utility | conserve, conjure | Resource optimization |
+| Domain | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister, attune | Specialized tasks |
 
 ## Step 3: Install Individual Plugins
 
@@ -98,7 +98,7 @@ For detailed workflow coverage:
 /plugin install imbue@claude-night-market
 /plugin install sanctum@claude-night-market
 /plugin install leyline@claude-night-market
-/plugin install conservation@claude-night-market
+/plugin install conserve@claude-night-market
 /plugin install pensive@claude-night-market
 /plugin install spec-kit@claude-night-market
 ```

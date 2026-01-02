@@ -2097,464 +2097,464 @@
       "last_modified": 1764892965.2773263,
       "file_hash": "22be1cc6d35c4b04ca0807e1270f5f84"
     },
-    "plugins/conservation/.claude-plugin/metadata.json": {
-      "path": "plugins/conservation/.claude-plugin/metadata.json",
+    "plugins/conserve/.claude-plugin/metadata.json": {
+      "path": "plugins/conserve/.claude-plugin/metadata.json",
       "file_size": 866,
       "estimated_tokens": 216,
       "complexity_score": 0.866,
       "last_modified": 1764926119.6430073,
       "file_hash": "818b7b8c1146003a7d909172235f33bd"
     },
-    "plugins/conservation/.claude-plugin/plugin.json": {
-      "path": "plugins/conservation/.claude-plugin/plugin.json",
+    "plugins/conserve/.claude-plugin/plugin.json": {
+      "path": "plugins/conserve/.claude-plugin/plugin.json",
       "file_size": 819,
       "estimated_tokens": 204,
       "complexity_score": 0.819,
       "last_modified": 1764925965.7396295,
       "file_hash": "7a8fc302366b74d4c2cb05f8890bd314"
     },
-    "plugins/conservation/.pre-commit-config.yaml": {
-      "path": "plugins/conservation/.pre-commit-config.yaml",
+    "plugins/conserve/.pre-commit-config.yaml": {
+      "path": "plugins/conserve/.pre-commit-config.yaml",
       "file_size": 1672,
       "estimated_tokens": 418,
       "complexity_score": 2.6719999999999997,
       "last_modified": 1764892505.9005344,
       "file_hash": "7c864dda4c9b4875df3766a19d74d238"
     },
-    "plugins/conservation/MIGRATION_REPORT.md": {
-      "path": "plugins/conservation/MIGRATION_REPORT.md",
+    "plugins/conserve/MIGRATION_REPORT.md": {
+      "path": "plugins/conserve/MIGRATION_REPORT.md",
       "file_size": 7505,
       "estimated_tokens": 1871,
       "complexity_score": 81.185,
       "last_modified": 1765096593.871194,
       "file_hash": "dddf3e635f8d7129236e957fe55d00d0"
     },
-    "plugins/conservation/README.md": {
-      "path": "plugins/conservation/README.md",
+    "plugins/conserve/README.md": {
+      "path": "plugins/conserve/README.md",
       "file_size": 1608,
       "estimated_tokens": 402,
       "complexity_score": 16.008,
       "last_modified": 1765005367.9655983,
       "file_hash": "5703bc4908871d2b377a1066e5099ac1"
     },
-    "plugins/conservation/agents/context-optimizer.md": {
-      "path": "plugins/conservation/agents/context-optimizer.md",
+    "plugins/conserve/agents/context-optimizer.md": {
+      "path": "plugins/conserve/agents/context-optimizer.md",
       "file_size": 1937,
       "estimated_tokens": 484,
       "complexity_score": 16.637,
       "last_modified": 1765035834.7042425,
       "file_hash": "45901d03d8835e3298cb57fcb0bcaaa4"
     },
-    "plugins/conservation/commands/analyze-growth.md": {
-      "path": "plugins/conservation/commands/analyze-growth.md",
+    "plugins/conserve/commands/analyze-growth.md": {
+      "path": "plugins/conserve/commands/analyze-growth.md",
       "file_size": 1961,
       "estimated_tokens": 490,
       "complexity_score": 27.761,
       "last_modified": 1764841255.0362763,
       "file_hash": "d496fae54782f97962d11a682242cecd"
     },
-    "plugins/conservation/commands/optimize-context.md": {
-      "path": "plugins/conservation/commands/optimize-context.md",
+    "plugins/conserve/commands/optimize-context.md": {
+      "path": "plugins/conserve/commands/optimize-context.md",
       "file_size": 1760,
       "estimated_tokens": 440,
       "complexity_score": 22.759999999999998,
       "last_modified": 1764841242.107627,
       "file_hash": "7c6418ef53fab310377c189cce551091"
     },
-    "plugins/conservation/config.yaml": {
-      "path": "plugins/conservation/config.yaml",
+    "plugins/conserve/config.yaml": {
+      "path": "plugins/conserve/config.yaml",
       "file_size": 3622,
       "estimated_tokens": 905,
       "complexity_score": 14.122,
       "last_modified": 1765096228.3512611,
       "file_hash": "82186ccafa97dbf77040be37953b9cb8"
     },
-    "plugins/conservation/docs/modularization-plan.md": {
-      "path": "plugins/conservation/docs/modularization-plan.md",
+    "plugins/conserve/docs/modularization-plan.md": {
+      "path": "plugins/conserve/docs/modularization-plan.md",
       "file_size": 7626,
       "estimated_tokens": 1898,
       "complexity_score": 83.292,
       "last_modified": 1764967923.175377,
       "file_hash": "f825a1f599feb1ab6b83b0cada7643d1"
     },
-    "plugins/conservation/scripts/aggressive_skill_optimizer.py": {
-      "path": "plugins/conservation/scripts/aggressive_skill_optimizer.py",
+    "plugins/conserve/scripts/aggressive_skill_optimizer.py": {
+      "path": "plugins/conserve/scripts/aggressive_skill_optimizer.py",
       "file_size": 3676,
       "estimated_tokens": 918,
       "complexity_score": 34.674,
       "last_modified": 1765093570.140954,
       "file_hash": "aa3e26c6a727eb3bb6a55482f0c7e6d5"
     },
-    "plugins/conservation/scripts/config.yaml": {
-      "path": "plugins/conservation/scripts/config.yaml",
+    "plugins/conserve/scripts/config.yaml": {
+      "path": "plugins/conserve/scripts/config.yaml",
       "file_size": 5327,
       "estimated_tokens": 1331,
       "complexity_score": 18.326999999999998,
       "last_modified": 1764261999.6926982,
       "file_hash": "7c9f2f38c445345a906b49fd1274f282"
     },
-    "plugins/conservation/scripts/dependency_manager.py": {
-      "path": "plugins/conservation/scripts/dependency_manager.py",
+    "plugins/conserve/scripts/dependency_manager.py": {
+      "path": "plugins/conserve/scripts/dependency_manager.py",
       "file_size": 7783,
       "estimated_tokens": 1945,
       "complexity_score": 29.783,
       "last_modified": 1764099091.0217602,
       "file_hash": "db8999baba4915d077308306d45c40f7"
     },
-    "plugins/conservation/scripts/fix_long_lines.py": {
-      "path": "plugins/conservation/scripts/fix_long_lines.py",
+    "plugins/conserve/scripts/fix_long_lines.py": {
+      "path": "plugins/conserve/scripts/fix_long_lines.py",
       "file_size": 4959,
       "estimated_tokens": 1237,
       "complexity_score": 23.948999999999998,
       "last_modified": 1765093570.140954,
       "file_hash": "9ec1bde50f28ecd69801b0055fc40117"
     },
-    "plugins/conservation/scripts/growth-analyzer.py": {
-      "path": "plugins/conservation/scripts/growth-analyzer.py",
+    "plugins/conserve/scripts/growth-analyzer.py": {
+      "path": "plugins/conserve/scripts/growth-analyzer.py",
       "file_size": 11652,
       "estimated_tokens": 2907,
       "complexity_score": 49.631,
       "last_modified": 1765096317.6195085,
       "file_hash": "3364493becd647ab0b4ce5b9ee05566e"
     },
-    "plugins/conservation/scripts/growth-controller.py": {
-      "path": "plugins/conservation/scripts/growth-controller.py",
+    "plugins/conserve/scripts/growth-controller.py": {
+      "path": "plugins/conserve/scripts/growth-controller.py",
       "file_size": 12418,
       "estimated_tokens": 3104,
       "complexity_score": 39.918,
       "last_modified": 1765096459.3817859,
       "file_hash": "c58d2c7956829ffa71f17fecb56e88ce"
     },
-    "plugins/conservation/scripts/main.py": {
-      "path": "plugins/conservation/scripts/main.py",
+    "plugins/conserve/scripts/main.py": {
+      "path": "plugins/conserve/scripts/main.py",
       "file_size": 10452,
       "estimated_tokens": 2606,
       "complexity_score": 34.924,
       "last_modified": 1765096255.424461,
       "file_hash": "7cac40fe478543257b198c45aebda4ad"
     },
-    "plugins/conservation/scripts/quick_skill_optimizer.py": {
-      "path": "plugins/conservation/scripts/quick_skill_optimizer.py",
+    "plugins/conserve/scripts/quick_skill_optimizer.py": {
+      "path": "plugins/conserve/scripts/quick_skill_optimizer.py",
       "file_size": 3278,
       "estimated_tokens": 819,
       "complexity_score": 23.276,
       "last_modified": 1765093570.140954,
       "file_hash": "b67526e1c49f21996baa5b398ff30fd4"
     },
-    "plugins/conservation/scripts/safe_replacer.py": {
-      "path": "plugins/conservation/scripts/safe_replacer.py",
+    "plugins/conserve/scripts/safe_replacer.py": {
+      "path": "plugins/conserve/scripts/safe_replacer.py",
       "file_size": 4561,
       "estimated_tokens": 1140,
       "complexity_score": 24.061,
       "last_modified": 1764099073.7841184,
       "file_hash": "3f63276c5147caa4dc913c918f949b73"
     },
-    "plugins/conservation/scripts/token-estimator.md": {
-      "path": "plugins/conservation/scripts/token-estimator.md",
+    "plugins/conserve/scripts/token-estimator.md": {
+      "path": "plugins/conserve/scripts/token-estimator.md",
       "file_size": 1968,
       "estimated_tokens": 492,
       "complexity_score": 20.368,
       "last_modified": 1764967995.6677437,
       "file_hash": "6bffc667bef006304df65f31d70f17a3"
     },
-    "plugins/conservation/skills/context-optimization/SKILL.md": {
-      "path": "plugins/conservation/skills/context-optimization/SKILL.md",
+    "plugins/conserve/skills/context-optimization/SKILL.md": {
+      "path": "plugins/conserve/skills/context-optimization/SKILL.md",
       "file_size": 13994,
       "estimated_tokens": 3492,
       "complexity_score": 164.9616,
       "last_modified": 1765134836.9052646,
       "file_hash": "0f01559eb33d668b022600bb40f79deb"
     },
-    "plugins/conservation/skills/context-optimization/examples/README.md": {
-      "path": "plugins/conservation/skills/context-optimization/examples/README.md",
+    "plugins/conserve/skills/context-optimization/examples/README.md": {
+      "path": "plugins/conserve/skills/context-optimization/examples/README.md",
       "file_size": 5603,
       "estimated_tokens": 1361,
       "complexity_score": 67.745,
       "last_modified": 1765096167.21551,
       "file_hash": "e76771a29f52bd687a9b966745ddb516"
     },
-    "plugins/conservation/skills/context-optimization/examples/real-world-scenarios/large-codebase-analysis.md": {
-      "path": "plugins/conservation/skills/context-optimization/examples/real-world-scenarios/large-codebase-analysis.md",
+    "plugins/conserve/skills/context-optimization/examples/real-world-scenarios/large-codebase-analysis.md": {
+      "path": "plugins/conserve/skills/context-optimization/examples/real-world-scenarios/large-codebase-analysis.md",
       "file_size": 8913,
       "estimated_tokens": 2207,
       "complexity_score": 106.72900000000001,
       "last_modified": 1765096195.6281765,
       "file_hash": "f92bef048d2b8083856d4f51bc326e32"
     },
-    "plugins/conservation/skills/context-optimization/examples/scripts/context_analyzer.py": {
-      "path": "plugins/conservation/skills/context-optimization/examples/scripts/context_analyzer.py",
+    "plugins/conserve/skills/context-optimization/examples/scripts/context_analyzer.py": {
+      "path": "plugins/conserve/skills/context-optimization/examples/scripts/context_analyzer.py",
       "file_size": 10398,
       "estimated_tokens": 2590,
       "complexity_score": 40.863,
       "last_modified": 1765096218.552176,
       "file_hash": "97d752c0cf03a688a3d68e98e90f6a37"
     },
-    "plugins/conservation/skills/context-optimization/modules/mecw-assessment.md": {
-      "path": "plugins/conservation/skills/context-optimization/modules/mecw-assessment.md",
+    "plugins/conserve/skills/context-optimization/modules/mecw-assessment.md": {
+      "path": "plugins/conserve/skills/context-optimization/modules/mecw-assessment.md",
       "file_size": 4911,
       "estimated_tokens": 1227,
       "complexity_score": 39.111000000000004,
       "last_modified": 1764841484.8671637,
       "file_hash": "f027f771e90a74c3498bbe5f6006ae12"
     },
-    "plugins/conservation/skills/context-optimization/modules/mecw-principles.md": {
-      "path": "plugins/conservation/skills/context-optimization/modules/mecw-principles.md",
+    "plugins/conserve/skills/context-optimization/modules/mecw-principles.md": {
+      "path": "plugins/conserve/skills/context-optimization/modules/mecw-principles.md",
       "file_size": 3302,
       "estimated_tokens": 825,
       "complexity_score": 28.201999999999998,
       "last_modified": 1764841458.865917,
       "file_hash": "dee1231d6bbb61fe0c791427a5caa209"
     },
-    "plugins/conservation/skills/context-optimization/modules/subagent-coordination.md": {
-      "path": "plugins/conservation/skills/context-optimization/modules/subagent-coordination.md",
+    "plugins/conserve/skills/context-optimization/modules/subagent-coordination.md": {
+      "path": "plugins/conserve/skills/context-optimization/modules/subagent-coordination.md",
       "file_size": 5796,
       "estimated_tokens": 1449,
       "complexity_score": 51.596000000000004,
       "last_modified": 1764841516.5879667,
       "file_hash": "ad27c08a2caf4a32fec43f4f528a1ec0"
     },
-    "plugins/conservation/skills/mcp-code-execution/SKILL.md": {
-      "path": "plugins/conservation/skills/mcp-code-execution/SKILL.md",
+    "plugins/conserve/skills/mcp-code-execution/SKILL.md": {
+      "path": "plugins/conserve/skills/mcp-code-execution/SKILL.md",
       "file_size": 5048,
       "estimated_tokens": 1260,
       "complexity_score": 56.448,
       "last_modified": 1764212955.2462714,
       "file_hash": "62e0519d4bd4a50bd0e3e768015a6ac1"
     },
-    "plugins/conservation/skills/mcp-code-execution/modules/mcp-patterns.md": {
-      "path": "plugins/conservation/skills/mcp-code-execution/modules/mcp-patterns.md",
+    "plugins/conserve/skills/mcp-code-execution/modules/mcp-patterns.md": {
+      "path": "plugins/conserve/skills/mcp-code-execution/modules/mcp-patterns.md",
       "file_size": 4233,
       "estimated_tokens": 1056,
       "complexity_score": 64.325,
       "last_modified": 1764967993.756744,
       "file_hash": "b0c20d0fe704a528f3e376d54a92f084"
     },
-    "plugins/conservation/skills/mcp-code-execution/modules/mcp-subagents.md": {
-      "path": "plugins/conservation/skills/mcp-code-execution/modules/mcp-subagents.md",
+    "plugins/conserve/skills/mcp-code-execution/modules/mcp-subagents.md": {
+      "path": "plugins/conserve/skills/mcp-code-execution/modules/mcp-subagents.md",
       "file_size": 8192,
       "estimated_tokens": 2046,
       "complexity_score": 68.984,
       "last_modified": 1764212955.2419834,
       "file_hash": "1d4ea9627761a30b26cd189289230a34"
     },
-    "plugins/conservation/skills/mcp-code-execution/modules/mcp-validation.md": {
-      "path": "plugins/conservation/skills/mcp-code-execution/modules/mcp-validation.md",
+    "plugins/conserve/skills/mcp-code-execution/modules/mcp-validation.md": {
+      "path": "plugins/conserve/skills/mcp-code-execution/modules/mcp-validation.md",
       "file_size": 3549,
       "estimated_tokens": 885,
       "complexity_score": 45.940999999999995,
       "last_modified": 1764212955.2591352,
       "file_hash": "296cc09da7ad9a474156c3346b4e61bc"
     },
-    "plugins/conservation/skills/optimizing-large-skills/SKILL.md": {
-      "path": "plugins/conservation/skills/optimizing-large-skills/SKILL.md",
+    "plugins/conserve/skills/optimizing-large-skills/SKILL.md": {
+      "path": "plugins/conserve/skills/optimizing-large-skills/SKILL.md",
       "file_size": 7628,
       "estimated_tokens": 1902,
       "complexity_score": 81.732,
       "last_modified": 1764314084.0819428,
       "file_hash": "3b745ca42fd22a403b33b1154c67b16e"
     },
-    "plugins/conservation/skills/optimizing-large-skills/scripts/optimization-patterns.py": {
-      "path": "plugins/conservation/skills/optimizing-large-skills/scripts/optimization-patterns.py",
+    "plugins/conserve/skills/optimizing-large-skills/scripts/optimization-patterns.py": {
+      "path": "plugins/conserve/skills/optimizing-large-skills/scripts/optimization-patterns.py",
       "file_size": 7213,
       "estimated_tokens": 1803,
       "complexity_score": 26.213,
       "last_modified": 1765095697.8175366,
       "file_hash": "7d8bc1fce6df62f2c5459d9af843ff92"
     },
-    "plugins/conservation/skills/performance-monitoring/cpu-gpu-performance/SKILL.md": {
-      "path": "plugins/conservation/skills/performance-monitoring/cpu-gpu-performance/SKILL.md",
+    "plugins/conserve/skills/performance-monitoring/cpu-gpu-performance/SKILL.md": {
+      "path": "plugins/conserve/skills/performance-monitoring/cpu-gpu-performance/SKILL.md",
       "file_size": 3482,
       "estimated_tokens": 868,
       "complexity_score": 23.246399999999998,
       "last_modified": 1764312266.147867,
       "file_hash": "796f1a53726ae13dbc2bc67e5fbc9be6"
     },
-    "plugins/conservation/skills/resource-management/token-conservation/SKILL.md": {
-      "path": "plugins/conservation/skills/resource-management/token-conservation/SKILL.md",
+    "plugins/conserve/skills/resource-management/token-conservation/SKILL.md": {
+      "path": "plugins/conserve/skills/resource-management/token-conservation/SKILL.md",
       "file_size": 2939,
       "estimated_tokens": 732,
       "complexity_score": 21.514799999999997,
       "last_modified": 1764313979.019655,
       "file_hash": "dd354ba377ec8d81937b285b6fed84c4"
     },
-    "plugins/conservation/src/conservation/__init__.py": {
-      "path": "plugins/conservation/src/conservation/__init__.py",
+    "plugins/conserve/src/conservation/__init__.py": {
+      "path": "plugins/conserve/src/conservation/__init__.py",
       "file_size": 432,
       "estimated_tokens": 108,
       "complexity_score": 1.432,
       "last_modified": 1765096165.78991,
       "file_hash": "6f5b847102a0ff715b703fb60d2d8208"
     },
-    "plugins/conservation/src/conservation/config.py": {
-      "path": "plugins/conservation/src/conservation/config.py",
+    "plugins/conserve/src/conservation/config.py": {
+      "path": "plugins/conserve/src/conservation/config.py",
       "file_size": 21090,
       "estimated_tokens": 5272,
       "complexity_score": 57.59,
       "last_modified": 1765096500.3537114,
       "file_hash": "3e66e0b01b3f8f3d8f90e29139154ad5"
     },
-    "plugins/conservation/src/conservation/errors.py": {
-      "path": "plugins/conservation/src/conservation/errors.py",
+    "plugins/conserve/src/conservation/errors.py": {
+      "path": "plugins/conserve/src/conservation/errors.py",
       "file_size": 4688,
       "estimated_tokens": 1172,
       "complexity_score": 36.688,
       "last_modified": 1765096506.8745112,
       "file_hash": "826737dfd97ed311336402673fe1e74e"
     },
-    "plugins/conservation/test_migration.py": {
-      "path": "plugins/conservation/test_migration.py",
+    "plugins/conserve/test_migration.py": {
+      "path": "plugins/conserve/test_migration.py",
       "file_size": 6960,
       "estimated_tokens": 1716,
       "complexity_score": 26.366,
       "last_modified": 1765096540.160859,
       "file_hash": "d3908bc79ac88ea05c6e41bdbecfe082"
     },
-    "plugins/conservation/tests/README.md": {
-      "path": "plugins/conservation/tests/README.md",
+    "plugins/conserve/tests/README.md": {
+      "path": "plugins/conserve/tests/README.md",
       "file_size": 7697,
       "estimated_tokens": 1869,
       "complexity_score": 108.87700000000001,
       "last_modified": 1764892059.3566153,
       "file_hash": "f22ab4c5f339c09785089c07a2539ae1"
     },
-    "plugins/conservation/tests/__init__.py": {
-      "path": "plugins/conservation/tests/__init__.py",
+    "plugins/conserve/tests/__init__.py": {
+      "path": "plugins/conserve/tests/__init__.py",
       "file_size": 44,
       "estimated_tokens": 11,
       "complexity_score": 0.044,
       "last_modified": 1765079598.0037332,
       "file_hash": "8f5f2102a2a5ee81471feeb6f5fdc6da"
     },
-    "plugins/conservation/tests/conftest.py": {
-      "path": "plugins/conservation/tests/conftest.py",
+    "plugins/conserve/tests/conftest.py": {
+      "path": "plugins/conserve/tests/conftest.py",
       "file_size": 15829,
       "estimated_tokens": 3957,
       "complexity_score": 108.729,
       "last_modified": 1765093570.140954,
       "file_hash": "14ea4dffc9cd801fa3ccfdf9caf94022"
     },
-    "plugins/conservation/tests/integration/__init__.py": {
-      "path": "plugins/conservation/tests/integration/__init__.py",
+    "plugins/conserve/tests/integration/__init__.py": {
+      "path": "plugins/conserve/tests/integration/__init__.py",
       "file_size": 59,
       "estimated_tokens": 14,
       "complexity_score": 0.059,
       "last_modified": 1765079598.0037332,
       "file_hash": "0bf64148e409934460dde964a3d2ebd3"
     },
-    "plugins/conservation/tests/integration/test_conservation_workflow_integration.py": {
-      "path": "plugins/conservation/tests/integration/test_conservation_workflow_integration.py",
+    "plugins/conserve/tests/integration/test_conservation_workflow_integration.py": {
+      "path": "plugins/conserve/tests/integration/test_conservation_workflow_integration.py",
       "file_size": 10993,
       "estimated_tokens": 2748,
       "complexity_score": 33.993,
       "last_modified": 1765093570.140954,
       "file_hash": "285e3fa7420862cce2c60a007eb9c2dc"
     },
-    "plugins/conservation/tests/unit/__init__.py": {
-      "path": "plugins/conservation/tests/unit/__init__.py",
+    "plugins/conserve/tests/unit/__init__.py": {
+      "path": "plugins/conserve/tests/unit/__init__.py",
       "file_size": 53,
       "estimated_tokens": 13,
       "complexity_score": 0.053,
       "last_modified": 1765079598.0037332,
       "file_hash": "929644fe7957d919d1dd6beb52b08edb"
     },
-    "plugins/conservation/tests/unit/agents/__init__.py": {
-      "path": "plugins/conservation/tests/unit/agents/__init__.py",
+    "plugins/conserve/tests/unit/agents/__init__.py": {
+      "path": "plugins/conserve/tests/unit/agents/__init__.py",
       "file_size": 49,
       "estimated_tokens": 12,
       "complexity_score": 0.049,
       "last_modified": 1765079598.0037332,
       "file_hash": "efef198c16c1437187cad7ac1e655a79"
     },
-    "plugins/conservation/tests/unit/agents/test_context_optimizer.py": {
-      "path": "plugins/conservation/tests/unit/agents/test_context_optimizer.py",
+    "plugins/conserve/tests/unit/agents/test_context_optimizer.py": {
+      "path": "plugins/conserve/tests/unit/agents/test_context_optimizer.py",
       "file_size": 11128,
       "estimated_tokens": 2782,
       "complexity_score": 34.128,
       "last_modified": 1765093570.140954,
       "file_hash": "233e3d66d497b6aadae781663f59ad8d"
     },
-    "plugins/conservation/tests/unit/commands/__init__.py": {
-      "path": "plugins/conservation/tests/unit/commands/__init__.py",
+    "plugins/conserve/tests/unit/commands/__init__.py": {
+      "path": "plugins/conserve/tests/unit/commands/__init__.py",
       "file_size": 51,
       "estimated_tokens": 12,
       "complexity_score": 0.051,
       "last_modified": 1765079598.0037332,
       "file_hash": "e88e3f5507c3b6dfc96a38b4b2df239c"
     },
-    "plugins/conservation/tests/unit/commands/test_analyze_growth.py": {
-      "path": "plugins/conservation/tests/unit/commands/test_analyze_growth.py",
+    "plugins/conserve/tests/unit/commands/test_analyze_growth.py": {
+      "path": "plugins/conserve/tests/unit/commands/test_analyze_growth.py",
       "file_size": 11171,
       "estimated_tokens": 2792,
       "complexity_score": 32.171,
       "last_modified": 1765093570.140954,
       "file_hash": "aa0fc8bd4e56dbdcd576f10d3bee950c"
     },
-    "plugins/conservation/tests/unit/commands/test_optimize_context.py": {
-      "path": "plugins/conservation/tests/unit/commands/test_optimize_context.py",
+    "plugins/conserve/tests/unit/commands/test_optimize_context.py": {
+      "path": "plugins/conserve/tests/unit/commands/test_optimize_context.py",
       "file_size": 31153,
       "estimated_tokens": 7788,
       "complexity_score": 81.15299999999999,
       "last_modified": 1765093570.145354,
       "file_hash": "5c5f64c6e788f69275159e32b4ed44a4"
     },
-    "plugins/conservation/tests/unit/scripts/__init__.py": {
-      "path": "plugins/conservation/tests/unit/scripts/__init__.py",
+    "plugins/conserve/tests/unit/scripts/__init__.py": {
+      "path": "plugins/conserve/tests/unit/scripts/__init__.py",
       "file_size": 50,
       "estimated_tokens": 12,
       "complexity_score": 0.05,
       "last_modified": 1765079598.0037332,
       "file_hash": "e523bd81640e1840cefea91accc3eebc"
     },
-    "plugins/conservation/tests/unit/scripts/test_conservation_validator.py": {
-      "path": "plugins/conservation/tests/unit/scripts/test_conservation_validator.py",
+    "plugins/conserve/tests/unit/scripts/test_conservation_validator.py": {
+      "path": "plugins/conserve/tests/unit/scripts/test_conservation_validator.py",
       "file_size": 18637,
       "estimated_tokens": 4659,
       "complexity_score": 78.137,
       "last_modified": 1765093570.140954,
       "file_hash": "17037620cace6b7935035c10b7e180c3"
     },
-    "plugins/conservation/tests/unit/skills/__init__.py": {
-      "path": "plugins/conservation/tests/unit/skills/__init__.py",
+    "plugins/conserve/tests/unit/skills/__init__.py": {
+      "path": "plugins/conserve/tests/unit/skills/__init__.py",
       "file_size": 49,
       "estimated_tokens": 12,
       "complexity_score": 0.049,
       "last_modified": 1765079598.0037332,
       "file_hash": "fdbba8570ceee4f3226ab1d28600881d"
     },
-    "plugins/conservation/tests/unit/skills/test_context_optimization.py": {
-      "path": "plugins/conservation/tests/unit/skills/test_context_optimization.py",
+    "plugins/conserve/tests/unit/skills/test_context_optimization.py": {
+      "path": "plugins/conserve/tests/unit/skills/test_context_optimization.py",
       "file_size": 17104,
       "estimated_tokens": 4276,
       "complexity_score": 75.804,
       "last_modified": 1765093570.140954,
       "file_hash": "d712adcd5f43fa5e91fcef55e203d4aa"
     },
-    "plugins/conservation/tests/unit/skills/test_mcp_code_execution.py": {
-      "path": "plugins/conservation/tests/unit/skills/test_mcp_code_execution.py",
+    "plugins/conserve/tests/unit/skills/test_mcp_code_execution.py": {
+      "path": "plugins/conserve/tests/unit/skills/test_mcp_code_execution.py",
       "file_size": 30527,
       "estimated_tokens": 7631,
       "complexity_score": 100.627,
       "last_modified": 1765093570.145354,
       "file_hash": "ad570971aa5209a51ebf3764886213b3"
     },
-    "plugins/conservation/tests/unit/skills/test_optimizing_large_skills.py": {
-      "path": "plugins/conservation/tests/unit/skills/test_optimizing_large_skills.py",
+    "plugins/conserve/tests/unit/skills/test_optimizing_large_skills.py": {
+      "path": "plugins/conserve/tests/unit/skills/test_optimizing_large_skills.py",
       "file_size": 31731,
       "estimated_tokens": 7932,
       "complexity_score": 97.231,
       "last_modified": 1765093570.145354,
       "file_hash": "0002c93cfb029067db63259fc63836af"
     },
-    "plugins/conservation/tests/unit/skills/test_performance_monitoring.py": {
-      "path": "plugins/conservation/tests/unit/skills/test_performance_monitoring.py",
+    "plugins/conserve/tests/unit/skills/test_performance_monitoring.py": {
+      "path": "plugins/conserve/tests/unit/skills/test_performance_monitoring.py",
       "file_size": 21918,
       "estimated_tokens": 5479,
       "complexity_score": 93.81800000000001,
       "last_modified": 1765093570.145354,
       "file_hash": "4109b7174922bfa278bff7b7a7f5cc51"
     },
-    "plugins/conservation/tests/unit/skills/test_token_conservation.py": {
-      "path": "plugins/conservation/tests/unit/skills/test_token_conservation.py",
+    "plugins/conserve/tests/unit/skills/test_token_conservation.py": {
+      "path": "plugins/conserve/tests/unit/skills/test_token_conservation.py",
       "file_size": 24246,
       "estimated_tokens": 6061,
       "complexity_score": 89.646,

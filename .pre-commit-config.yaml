@@ -46,11 +46,11 @@ repos:
         files: ^plugins/conjure/
         pass_filenames: false
 
-      - id: validate-conservation-plugin
-        name: Validate Conservation Plugin Structure
-        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conservation
+      - id: validate-conserve-plugin
+        name: Validate Conserve Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conserve
         language: system
-        files: ^plugins/conservation/
+        files: ^plugins/conserve/
         pass_filenames: false
 
       - id: validate-memory-palace-plugin

@@ -164,7 +164,7 @@ claude  # Start new session with LSP enabled
 
 - **pensive**: Code review with semantic analysis, impact detection, unused code identification
 - **sanctum**: Documentation verification with API completeness checking
-- **conservation**: Token-efficient code navigation (~90% token reduction)
+- **conserve**: Token-efficient code navigation (~90% token reduction)
 - **All code-focused plugins**: Default to LSP, fallback to grep when unavailable
 
 ### Without LSP
@@ -252,7 +252,7 @@ Infrastructure and pipeline building blocks for plugins.
 
 ### Utility Layer
 
-#### conservation
+#### conserve
 Resource optimization and performance monitoring.
 
 | Command/Skill | Purpose |
@@ -361,7 +361,7 @@ graph TB
     end
 
     subgraph Utility[Utility Layer]
-        conservation[conservation<br/>Resource optimization]
+        conserve[conserve<br/>Resource optimization]
         conjure[conjure<br/>External delegation]
     end
 

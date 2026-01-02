@@ -1,0 +1,30 @@
+[package]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+edition = "{{RUST_EDITION}}"
+authors = ["{{AUTHOR}} <{{EMAIL}}>"]
+description = "{{PROJECT_DESCRIPTION}}"
+readme = "README.md"
+license = "{{LICENSE}}"
+repository = "{{REPOSITORY}}"
+keywords = []
+categories = []
+
+[dependencies]
+# Add your dependencies here
+
+[dev-dependencies]
+# Test dependencies
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0
+
+[[bin]]
+name = "{{PROJECT_NAME}}"
+path = "src/main.rs"
