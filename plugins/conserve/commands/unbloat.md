@@ -1,17 +1,10 @@
 ---
 name: unbloat
 description: |
-  Execute safe bloat remediation workflows - delete dead code, refactor god classes,
-  consolidate duplicate docs, and reduce codebase size. Works with bloat-scan findings
-  or performs integrated scan + cleanup.
+  Safe bloat remediation: delete dead code, consolidate duplicates, refactor large files with user approval.
 
-  Triggers: unbloat, remove bloat, cleanup codebase, reduce bloat, debloat
-
-  Use when: after bloat-scan, preparing for release, reducing technical debt,
-  optimizing context usage
-
-  DO NOT use when: actively developing features, before backing up work,
-  without reviewing proposed changes
+  Triggers: unbloat, remove bloat, cleanup codebase, reduce bloat
+  Use when: after bloat-scan or preparing for release
 usage: /unbloat [--from-scan REPORT] [--auto-approve low] [--dry-run] [--focus code|docs|deps]
 ---
 

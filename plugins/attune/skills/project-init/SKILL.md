@@ -1,6 +1,10 @@
 ---
 name: project-init
-description: Interactive project initialization workflow - guides users through setting up a new project with proper git, workflows, hooks, and build configuration
+description: |
+  Interactive project initialization with git setup, workflows, hooks, and build configuration.
+
+  Triggers: project setup, initialization, scaffold, bootstrap, new project
+  Use when: starting new projects or initializing repositories
 model: claude-sonnet-4
 tools: [Read, Write, Bash, Glob]
 modules:

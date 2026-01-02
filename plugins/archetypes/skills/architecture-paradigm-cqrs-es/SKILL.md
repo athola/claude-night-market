@@ -1,20 +1,11 @@
 ---
 name: architecture-paradigm-cqrs-es
 description: |
-  Apply CQRS (Command Query Responsibility Segregation) and Event Sourcing for
-  domains requiring strong auditability and independent scaling of reads and writes.
+  CQRS and Event Sourcing for auditability, read/write separation, and temporal queries.
 
-  Triggers: CQRS, event sourcing, audit trail, event replay, read/write separation,
-  temporal queries, event store, projections, command handlers, aggregate roots
-
-  Use when: read/write workloads have different scaling needs, complete audit trail
-  required, need to rebuild historical state, temporal queries ("state at time X")
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
-  DO NOT use when: simple CRUD without audit requirements.
-  DO NOT use when: team lacks experience with eventual consistency patterns.
-
-  Consult this skill when implementing event sourcing or CQRS patterns.
+  Triggers: CQRS, event sourcing, audit trail, temporal queries
+  Use when: read/write scaling differs or audit trail required
+  DO NOT use when: simple CRUD - use architecture-paradigms first.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, CQRS, Event-Sourcing, distributed-systems, audit-trail, scalability]

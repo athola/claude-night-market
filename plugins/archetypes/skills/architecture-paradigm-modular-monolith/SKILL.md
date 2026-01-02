@@ -1,20 +1,11 @@
 ---
 name: architecture-paradigm-modular-monolith
 description: |
-  Maintain a single deployable artifact while enforcing strong internal boundaries
-  between modules for team autonomy without distributed complexity.
+  Single deployable with enforced module boundaries for team autonomy without distributed complexity.
 
-  Triggers: modular monolith, internal boundaries, module boundaries, single deployment,
-  monolith modernization, bounded modules, team autonomy, deployment simplicity
-
-  Use when: teams need autonomy like microservices but without distributed overhead,
-  system evolves toward potential future decomposition, single deployment is preferred
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
-  DO NOT use when: already committed to microservices decomposition.
-  DO NOT use when: system is small enough that boundaries aren't needed.
-
-  Consult this skill when designing modular monoliths or modernizing existing monoliths.
+  Triggers: modular monolith, module boundaries, single deployment, team autonomy
+  Use when: teams need autonomy without distributed overhead
+  DO NOT use when: already using microservices or system is small.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, modular-monolith, monolith, internal-boundaries, team-autonomy]

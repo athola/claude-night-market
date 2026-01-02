@@ -1,19 +1,11 @@
 ---
 name: delegation-core
 description: |
-  Framework for delegating tasks to external LLM services (Gemini, Qwen).
-  Uses leyline infrastructure for quota, logging, and error handling.
+  Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging, and error handling.
 
-  Triggers: delegate task, external LLM, gemini, qwen, large context, offload,
-  task delegation, model selection, LLM routing, multi-model
-
-  Use when: tasks exceed Claude's context window, need cheaper processing for
-  bulk work, specific model capabilities required (e.g., Gemini's 1M context)
-
-  DO NOT use when: task requires Claude's reasoning - delegate execution, not reasoning.
-  DO NOT use when: already decided on specific model - use gemini-delegation or qwen-delegation.
-
-  Use this skill BEFORE delegating to external LLMs to assess task suitability.
+  Triggers: delegate task, external LLM, gemini, qwen, large context, offload
+  Use when: tasks exceed context window or need cheaper processing
+  DO NOT use when: task requires Claude's reasoning.
 category: delegation-framework
 tags: [delegation, external-llm, gemini, qwen, task-management, quality-control]
 dependencies:

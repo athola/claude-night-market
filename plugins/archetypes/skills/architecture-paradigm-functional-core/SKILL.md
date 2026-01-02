@@ -1,20 +1,11 @@
 ---
 name: architecture-paradigm-functional-core
 description: |
-  Employ the "Functional Core, Imperative Shell" pattern to isolate deterministic
-  business logic from side-effecting code for superior testability.
+  Functional Core, Imperative Shell: isolate deterministic logic from side effects for testability.
 
-  Triggers: functional core, imperative shell, pure functions, immutable data,
-  side effect isolation, testability improvement, business logic isolation,
-  deterministic code, FP architecture, onion architecture
-
-  Use when: business logic is entangled with I/O, tests are brittle or slow,
-  significant time spent on adapter rewrites, need fast deterministic unit tests
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
-  DO NOT use when: simple scripting or automation without complex logic.
-
-  Consult this skill when implementing functional core patterns or refactoring for testability.
+  Triggers: functional core, imperative shell, pure functions, testability
+  Use when: business logic is entangled with I/O or tests are brittle
+  DO NOT use when: simple scripting without complex logic.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, functional-core, imperative-shell, testability, business-logic, side-effects]

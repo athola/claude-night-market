@@ -1,19 +1,11 @@
 ---
 name: feature-review
 description: |
-  Review implemented features and suggest new features using configurable
-  prioritization heuristics. Supports GitHub issue creation for accepted suggestions.
+  Feature review and prioritization with RICE/WSJF/Kano scoring. Creates GitHub issues for suggestions.
 
-  Triggers: feature review, feature prioritization, RICE, WSJF, Kano, roadmap,
-  backlog, new feature suggestions, feature inventory, feature scoring
-
-  Use when: reviewing feature completeness, suggesting new features, prioritizing
-  backlog items, creating GitHub issues for feature requests
-
-  DO NOT use when: evaluating scope of single feature - use scope-guard instead.
-  DO NOT use when: quick catchup on changes - use catchup instead.
-
-  Use this skill for systematic feature analysis with prioritization scoring.
+  Triggers: feature review, prioritization, RICE, WSJF, roadmap, backlog
+  Use when: reviewing features or suggesting new features
+  DO NOT use when: evaluating single feature scope - use scope-guard.
 category: workflow-methodology
 tags: [feature-review, prioritization, RICE, WSJF, Kano, roadmap, backlog]
 dependencies:

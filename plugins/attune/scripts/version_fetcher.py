@@ -4,6 +4,21 @@
 import json
 import urllib.request
 from functools import lru_cache
+from urllib.parse import urlparse
+
+
+def _validate_https_url(url: str) -> None:
+    """Validate that URL uses HTTPS scheme only.
+
+    Args:
+        url: URL to validate
+
+    Raises:
+        ValueError: If URL doesn't use HTTPS scheme
+    """
+    parsed = urlparse(url)
+    if parsed.scheme != "https":
+        raise ValueError(f"Only HTTPS URLs allowed, got: {parsed.scheme}")
 
 
 @lru_cache(maxsize=128)
@@ -18,11 +33,12 @@ def fetch_github_action_version(action: str) -> str | None:
     """
     try:
         url = f"https://api.github.com/repos/{action}/releases/latest"
+        _validate_https_url(url)
         req = urllib.request.Request(
             url, headers={"Accept": "application/vnd.github.v3+json"}
         )
 
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:  # nosec B310
             data = json.loads(response.read().decode())
             tag_name = data.get("tag_name", "")
 
@@ -89,7 +105,8 @@ def fetch_pypi_latest_version(package: str) -> str | None:
     """
     try:
         url = f"https://pypi.org/pypi/{package}/json"
-        with urllib.request.urlopen(url, timeout=5) as response:
+        _validate_https_url(url)
+        with urllib.request.urlopen(url, timeout=5) as response:  # nosec B310
             data = json.loads(response.read().decode())
             return data["info"]["version"]
     except Exception as e:
@@ -109,7 +126,8 @@ def fetch_npm_latest_version(package: str) -> str | None:
     """
     try:
         url = f"https://registry.npmjs.org/{package}/latest"
-        with urllib.request.urlopen(url, timeout=5) as response:
+        _validate_https_url(url)
+        with urllib.request.urlopen(url, timeout=5) as response:  # nosec B310
             data = json.loads(response.read().decode())
             return data["version"]
     except Exception as e:

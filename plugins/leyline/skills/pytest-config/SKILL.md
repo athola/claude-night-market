@@ -1,18 +1,10 @@
 ---
 name: pytest-config
 description: |
-  Standardized pytest configuration patterns for plugin development. Reduces
-  duplication across parseltongue, pensive, sanctum, and other plugins.
+  Standardized pytest configuration for plugin development with shared test patterns.
 
-  Triggers: pytest configuration, conftest, fixtures, test setup, CI integration,
-  git testing fixtures, mock fixtures, pytest patterns
-
-  Use when: setting up pytest for plugin development, creating test fixtures,
-  configuring CI/CD for pytest, standardizing test configuration
-
-  DO NOT use when: not using pytest for testing.
-
-  Consult this skill when configuring pytest for plugin development.
+  Triggers: pytest configuration, conftest, fixtures, test setup
+  Use when: setting up pytest for plugin development or creating fixtures
 category: infrastructure
 tags: [pytest, testing, configuration, fixtures]
 dependencies: [leyline:testing-quality-standards]

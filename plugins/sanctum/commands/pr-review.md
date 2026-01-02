@@ -1,6 +1,10 @@
 ---
 name: pr-review
-description: detailed PR review with scope validation, code analysis, and GitHub integration. Enforces version validation. Use for feature PRs and pre-merge quality gates.
+description: |
+  Comprehensive PR review with scope validation, code analysis, and version checks via GitHub.
+
+  Triggers: PR review, code review, pull request, pre-merge
+  Use when: reviewing feature PRs or enforcing quality gates
 usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--create-backlog-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
 extends: "superpowers:receiving-code-review"
 ---

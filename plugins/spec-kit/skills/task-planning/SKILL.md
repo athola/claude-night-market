@@ -1,19 +1,11 @@
 ---
 name: task-planning
 description: |
-  Generate dependency-ordered implementation tasks from specifications and plans.
-  Create actionable, phased task breakdowns for systematic implementation.
+  Generate phased, dependency-ordered tasks from specs. Identifies parallelization opportunities.
 
-  Triggers: task planning, task generation, dependency ordering, implementation
-  planning, phased breakdown, parallel tasks, task dependencies
-
-  Use when: converting specifications to tasks, planning implementation order,
-  identifying parallel execution opportunities, breaking down complex features
-
+  Triggers: task planning, dependency ordering, phased breakdown, parallel tasks
+  Use when: converting specifications to implementation tasks
   DO NOT use when: writing specifications - use spec-writing.
-  DO NOT use when: executing tasks - use implementation-executor agent.
-
-  Produces tasks.md with phased, dependency-ordered implementation tasks.
 category: planning
 tags: [speckit, tasks, planning, implementation, dependencies]
 dependencies:

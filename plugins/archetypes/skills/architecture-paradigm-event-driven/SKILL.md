@@ -1,20 +1,11 @@
 ---
 name: architecture-paradigm-event-driven
 description: |
-  Structure systems around asynchronous, event-based communication to decouple
-  producers and consumers for improved scalability and resilience.
+  Asynchronous event-based communication to decouple producers/consumers for scalability and resilience.
 
-  Triggers: event-driven, message queue, pub/sub, asynchronous processing, event bus,
-  real-time processing, loose coupling, event choreography, event orchestration
-
-  Use when: real-time or bursty workloads (IoT, trading, logistics), multiple
-  subsystems react to same events, system extensibility is high priority
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
+  Triggers: event-driven, message queue, pub/sub, asynchronous processing
+  Use when: real-time workloads or multiple subsystems react to same events
   DO NOT use when: simple request-response patterns suffice.
-  DO NOT use when: strong ordering guarantees are critical without careful design.
-
-  Consult this skill when designing event-driven systems or implementing messaging patterns.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, event-driven, asynchronous, decoupling, scalability, resilience]

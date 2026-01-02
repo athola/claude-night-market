@@ -1,14 +1,10 @@
 ---
 name: bloat-scan
 description: |
-  Run progressive bloat detection scan to identify dead code, duplication,
-  and documentation bloat. Reduces context usage and technical debt.
+  Progressive bloat detection: identify dead code, duplication, and documentation bloat.
 
-  Triggers: bloat scan, dead code detection, codebase cleanup, detect bloat
-
-  Use when: preparing for refactoring, high context usage, quarterly maintenance
-
-  DO NOT use when: actively developing features, codebase < 1000 lines
+  Triggers: bloat scan, dead code detection, codebase cleanup
+  Use when: preparing for refactoring or high context usage
 usage: /bloat-scan [--level 1|2|3] [--focus code|docs|deps] [--report FILE] [--dry-run]
 ---
 

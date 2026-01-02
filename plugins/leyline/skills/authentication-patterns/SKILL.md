@@ -1,18 +1,10 @@
 ---
 name: authentication-patterns
 description: |
-  Common authentication patterns for external service integration. Covers API keys,
-  OAuth flows, token management, and verification strategies.
+  Authentication patterns for external services: API keys, OAuth, token management, verification.
 
-  Triggers: authentication, API keys, OAuth, token management, credentials,
-  service authentication, credential verification, token refresh
-
-  Use when: integrating external services, implementing authentication flows,
-  managing API credentials, verifying service authentication
-
-  DO NOT use when: simple services without authentication needs.
-
-  Consult this skill when implementing authentication for external services.
+  Triggers: authentication, API keys, OAuth, token management, credentials
+  Use when: integrating external services or implementing authentication flows
 category: infrastructure
 tags: [authentication, api-keys, oauth, tokens, security]
 dependencies: [error-patterns]

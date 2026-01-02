@@ -1,19 +1,11 @@
 ---
 name: spec-writing
 description: |
-  Create clear, testable specifications from natural language descriptions.
-  Focus on what users need and why, not implementation details.
+  Create clear, testable specifications with user stories and acceptance criteria.
 
-  Triggers: spec writing, feature specification, requirements documentation,
-  user stories, acceptance criteria, success criteria, testable requirements
-
-  Use when: creating new feature specifications, refining existing specifications,
-  writing user stories and acceptance criteria, defining success criteria
-
+  Triggers: spec writing, feature specification, requirements, user stories
+  Use when: creating new specifications or writing acceptance criteria
   DO NOT use when: generating implementation tasks - use task-planning.
-  DO NOT use when: executing implementation - use implementation-executor agent.
-
-  Produces spec.md artifacts with user-focused, testable requirements.
 category: specification
 tags: [speckit, specification, requirements, user-stories, acceptance-criteria]
 dependencies:
