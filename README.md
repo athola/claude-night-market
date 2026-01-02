@@ -40,21 +40,29 @@ Skill(sanctum:git-workspace-review)            # Invoke a skill
 
 **14 plugins** organized in layers, each building on foundations below:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Domain Specialists                                             │
-│  archetypes · pensive · parseltongue · memory-palace            │
-│  spec-kit · minister · attune · scry                            │
-├─────────────────────────────────────────────────────────────────┤
-│  Utility Layer                                                  │
-│  conserve (resource optimization) · conjure (LLM delegation)    │
-├─────────────────────────────────────────────────────────────────┤
-│  Foundation Layer                                               │
-│  imbue (workflows) · sanctum (git ops) · leyline (infra)        │
-├─────────────────────────────────────────────────────────────────┤
-│  Meta Layer                                                     │
-│  abstract (plugin infrastructure)                               │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Domain["🎯 Domain Specialists"]
+        direction LR
+        archetypes & pensive & parseltongue & memory-palace
+        spec-kit & minister & attune & scry
+    end
+    subgraph Utility["🔧 Utility Layer"]
+        direction LR
+        conserve["conserve<br/>(resource optimization)"]
+        conjure["conjure<br/>(LLM delegation)"]
+    end
+    subgraph Foundation["🏗️ Foundation Layer"]
+        direction LR
+        imbue["imbue<br/>(workflows)"]
+        sanctum["sanctum<br/>(git ops)"]
+        leyline["leyline<br/>(infra)"]
+    end
+    subgraph Meta["⚙️ Meta Layer"]
+        abstract["abstract<br/>(plugin infrastructure)"]
+    end
+
+    Domain --> Utility --> Foundation --> Meta
 ```
 
 ### Highlights
