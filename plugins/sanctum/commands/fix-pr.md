@@ -269,11 +269,127 @@ EOF
    - **Separate**: One commit per fix category
    - **Manual**: Stage changes, user commits
 
+### Phase 3.5: Version Validation Verification (MANDATORY IF APPLICABLE)
+
+**CRITICAL: If `/pr-review` flagged any version issues (B-VERSION), you MUST verify they were fixed.**
+
+Before proceeding to test plan execution, re-run version validation to confirm all version files are now consistent.
+
+10. **Check for Version Issues in Review**
+    ```bash
+    # Check if version validation issues were flagged in the review
+    # Look for B-VERSION tags in review comments or test plan
+    gh api repos/OWNER/REPO/issues/PR_NUMBER/comments \
+      --jq '.[] | select(.body | contains("B-VERSION")) | .body'
+    ```
+
+11. **Re-run Version Validation (if version issues existed)**
+    ```bash
+    # Detect project type
+    PROJECT_TYPE=""
+    if [[ -f ".claude-plugin/marketplace.json" ]]; then
+      PROJECT_TYPE="claude-marketplace"
+    elif [[ -f "pyproject.toml" ]]; then
+      PROJECT_TYPE="python"
+    elif [[ -f "package.json" ]]; then
+      PROJECT_TYPE="node"
+    elif [[ -f "Cargo.toml" ]]; then
+      PROJECT_TYPE="rust"
+    fi
+
+    # Re-validate based on project type
+    case $PROJECT_TYPE in
+      claude-marketplace)
+        # Verify marketplace.json matches all plugin.json files
+        ECOSYSTEM_VERSION=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
+        echo "Ecosystem version: $ECOSYSTEM_VERSION"
+
+        MISMATCHES=0
+        jq -r '.plugins[] | "\(.name):\(.version)"' .claude-plugin/marketplace.json | while IFS=: read -r name version; do
+          if [[ -f "plugins/$name/.claude-plugin/plugin.json" ]]; then
+            ACTUAL=$(jq -r '.version' "plugins/$name/.claude-plugin/plugin.json")
+            if [[ "$version" != "$ACTUAL" ]]; then
+              echo "❌ STILL MISMATCHED: $name (marketplace=$version, actual=$ACTUAL)"
+              MISMATCHES=$((MISMATCHES + 1))
+            else
+              echo "✓ $name: $version"
+            fi
+          fi
+        done
+
+        # Check CHANGELOG entry exists
+        if [[ -f "CHANGELOG.md" ]] && ! grep -q "\[$ECOSYSTEM_VERSION\]" CHANGELOG.md; then
+          echo "❌ CHANGELOG.md still missing entry for $ECOSYSTEM_VERSION"
+          MISMATCHES=$((MISMATCHES + 1))
+        fi
+        ;;
+
+      python)
+        # Verify pyproject.toml matches __version__ in code
+        TOML_VERSION=$(grep "^version" pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+        if [[ -d "src" ]]; then
+          VERSION_PY=$(find src -name "__init__.py" -exec grep -l "__version__" {} \; | head -1)
+          if [[ -n "$VERSION_PY" ]]; then
+            CODE_VERSION=$(grep "__version__" "$VERSION_PY" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+            if [[ "$TOML_VERSION" != "$CODE_VERSION" ]]; then
+              echo "❌ STILL MISMATCHED: pyproject.toml=$TOML_VERSION, $VERSION_PY=$CODE_VERSION"
+            else
+              echo "✓ Python versions consistent: $TOML_VERSION"
+            fi
+          fi
+        fi
+        ;;
+
+      node)
+        # Verify package.json matches package-lock.json
+        PKG_VERSION=$(jq -r '.version' package.json)
+        if [[ -f "package-lock.json" ]]; then
+          LOCK_VERSION=$(jq -r '.version' package-lock.json)
+          if [[ "$PKG_VERSION" != "$LOCK_VERSION" ]]; then
+            echo "❌ STILL MISMATCHED: package.json=$PKG_VERSION, package-lock.json=$LOCK_VERSION"
+          else
+            echo "✓ Node versions consistent: $PKG_VERSION"
+          fi
+        fi
+        ;;
+
+      rust)
+        # Verify Cargo.toml version
+        CARGO_VERSION=$(grep "^version" Cargo.toml | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+        echo "✓ Cargo.toml version: $CARGO_VERSION"
+        # Check Cargo.lock is updated (regenerated)
+        if [[ -f "Cargo.lock" ]]; then
+          echo "ℹ️ Verify Cargo.lock was regenerated after version update"
+        fi
+        ;;
+    esac
+    ```
+
+12. **Version Validation Must Pass**
+
+    **If any version mismatches remain, DO NOT proceed to Phase 4. Fix them first.**
+
+    | Version Issue Type | Fix Required |
+    |-------------------|--------------|
+    | marketplace.json vs plugin.json mismatch | Update marketplace.json OR plugin.json to match |
+    | pyproject.toml vs __version__ mismatch | Sync both to same version |
+    | package.json vs package-lock.json mismatch | Run `npm install` to regenerate lock |
+    | Missing CHANGELOG entry | Add entry for new version |
+
+**Version Validation Verification Checklist:**
+- [ ] Checked if B-VERSION issues existed in review
+- [ ] Re-ran version validation for project type
+- [ ] All version files now consistent
+- [ ] CHANGELOG has entry for new version (if applicable)
+- [ ] Ready to proceed to test plan execution
+
+---
+
 ### Phase 3.7: Execute Test Plan (MANDATORY)
 
-After applying fixes and before thread resolution, execute the test plan generated by `/pr-review`.
+After applying fixes and version validation, execute the test plan generated by `/pr-review`.
 
-10. **Locate Test Plan**
+13. **Locate Test Plan**
    ```bash
    # Option 1: Check if test plan was saved to file
    ls .pr-review/test-plan-*.md 2>/dev/null
@@ -294,7 +410,7 @@ After applying fixes and before thread resolution, execute the test plan generat
      - Summary checklist table
    - Parse the test plan and create TodoWrite items for each verification step
 
-11. **Execute Verification Steps**
+14. **Execute Verification Steps**
 
     For each issue in the test plan, run the verification steps:
 
@@ -314,7 +430,7 @@ After applying fixes and before thread resolution, execute the test plan generat
     - [x] Parameterized queries verified [DONE]
     ```
 
-12. **Run Quality Gates**
+15. **Run Quality Gates**
     ```bash
     # Execute the quality gate commands from the test plan
     make test && make lint && make build
@@ -324,7 +440,7 @@ After applying fixes and before thread resolution, execute the test plan generat
     uv run ruff check .
     ```
 
-13. **Document Test Results**
+16. **Document Test Results**
 
     Record test execution results for the summary:
 
@@ -365,14 +481,14 @@ If no test plan exists from `/pr-review`, generate verification steps on-the-fly
 
 > Did you classify ANY items as **Deferred**, **Out-of-Scope**, **Medium Priority**, or **Future Work** during Phase 2 triage?
 
-- **YES** → You MUST execute Phase 3.5 NOW. Do not skip it.
+- **YES** → You MUST execute Phase 3.8 NOW. Do not skip it.
 - **NO** → Skip to Phase 4.
 
-**If you proceed to Phase 4 without executing Phase 3.5 when deferred items exist, the workflow is incomplete.**
+**If you proceed to Phase 4 without executing Phase 3.8 when deferred items exist, the workflow is incomplete.**
 
 ---
 
-### Phase 3.5: Deferred/Out-of-Scope Issue Creation (MANDATORY IF APPLICABLE)
+### Phase 3.8: Deferred/Out-of-Scope Issue Creation (MANDATORY IF APPLICABLE)
 
 **CRITICAL: You MUST create GitHub issues for ALL deferred/out-of-scope items. This is not optional.**
 
@@ -380,7 +496,7 @@ If no test plan exists from `/pr-review`, generate verification steps on-the-fly
 
 For each comment classified as **Deferred** (including "out-of-scope", "medium priority", "future work") during triage, create a GitHub issue:
 
-14. **Create Issues for Out-of-Scope Items**
+17. **Create Issues for Out-of-Scope Items**
    ```bash
    gh issue create \
      --title "<type>(<scope>): <description from review comment>" \
@@ -428,7 +544,7 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
    - Reference the source PR
    - Define clear acceptance criteria
 
-15. **Track Created Issues**
+18. **Track Created Issues**
    After creating issues, document them in the PR comment:
    ```markdown
    ### Out-of-Scope Items → GitHub Issues
@@ -453,7 +569,7 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
 
 > **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
 
-16. **Get All Review Threads**
+19. **Get All Review Threads**
    ```bash
    # Fetch all review threads with their IDs and resolution status
    # Note: Use literal owner/repo/pr values - do NOT use $() substitution inside gh commands
@@ -482,11 +598,11 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
 
    Replace `OWNER`, `REPO`, and `PR_NUMBER` with actual values. The thread `id` field returns the `PRRT_*` ID needed for replies and resolution.
 
-17. **Reply to Each Thread with Fix Description**
+20. **Reply to Each Thread with Fix Description**
    For EACH review comment that was addressed, use the GraphQL mutation (NOT REST API):
    ```bash
    # Reply using addPullRequestReviewThreadReply mutation
-   # The pullRequestReviewThreadId is the PRRT_* ID from step 16
+   # The pullRequestReviewThreadId is the PRRT_* ID from step 19
    gh api graphql -f query='
    mutation {
      addPullRequestReviewThreadReply(input: {
@@ -509,7 +625,7 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
    - Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
    - Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
 
-18. **Resolve the Thread**
+21. **Resolve the Thread**
     After replying, resolve the thread:
     ```bash
     # Resolve the review thread via GraphQL mutation
@@ -534,7 +650,7 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
     done
     ```
 
-19. **Verify All Threads Resolved**
+22. **Verify All Threads Resolved**
     ```bash
     # Count unresolved threads - should return 0
     gh api graphql -f query='
@@ -572,13 +688,13 @@ This phase is often skipped but is critical for closing the feedback loop. PRs t
 
 **You MUST analyze whether this PR addresses any open issues and close/comment on them accordingly.**
 
-20. **Fetch Open Issues**
+23. **Fetch Open Issues**
     ```bash
     # Get all open issues for the repository
     gh issue list --state open --json number,title,body,labels --limit 50
     ```
 
-21. **Analyze Issue Coverage**
+24. **Analyze Issue Coverage**
 
     For each open issue, analyze whether the PR's changes address it:
 
@@ -599,7 +715,7 @@ This phase is often skipped but is critical for closing the feedback loop. PRs t
     | **Partially Addressed** | Some criteria met, some work remaining | Comment with follow-up details |
     | **Not Related** | PR doesn't touch issue scope | Skip |
 
-22. **Comment on Fully Addressed Issues**
+25. **Comment on Fully Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
     ## Addressed in PR #PR_NUMBER
@@ -621,7 +737,7 @@ This phase is often skipped but is critical for closing the feedback loop. PRs t
     gh issue close ISSUE_NUMBER --reason completed
     ```
 
-23. **Comment on Partially Addressed Issues**
+26. **Comment on Partially Addressed Issues**
     ```bash
     gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
     ## Partially Addressed in PR #PR_NUMBER
@@ -646,7 +762,7 @@ This phase is often skipped but is critical for closing the feedback loop. PRs t
     )"
     ```
 
-24. **Generate Issue Linkage Report**
+27. **Generate Issue Linkage Report**
     ```markdown
     ### Issue Linkage Summary
 
@@ -676,7 +792,7 @@ This phase is often skipped but is critical for closing the feedback loop. PRs t
 
 After completing all fixes, thread resolutions, and issue linkage, post a detailed summary comment to the PR.
 
-25. **Post Summary Comment**
+28. **Post Summary Comment**
     ```bash
     gh pr comment PR_NUMBER --body "$(cat <<'EOF'
     ## PR Review Feedback Addressed
@@ -734,7 +850,7 @@ After completing all fixes, thread resolutions, and issue linkage, post a detail
 
 **This phase runs automatically at the end of /fix-pr.**
 
-26. **Invoke /resolve-threads for Final Cleanup**
+29. **Invoke /resolve-threads for Final Cleanup**
     ```bash
     Skill(sanctum:resolve-threads)
     ```
@@ -1120,6 +1236,10 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
 - **Issue linkage** automatically analyzes open issues and closes/comments on addressed ones
 - Use `--skip-issue-linkage` for faster execution when issue analysis is not needed
 - **Threads auto-resolved** - `/resolve-threads` runs automatically as Phase 7 for final cleanup
+- **Version validation verification** (Phase 3.5) re-checks version consistency after fixes are applied
+  - Ensures B-VERSION issues from `/pr-review` were actually fixed
+  - Blocks proceeding to test plan execution if version mismatches remain
+  - Supports: pyproject.toml, package.json, Cargo.toml, marketplace.json, CHANGELOG.md
 
 ## See Also
 
@@ -1137,7 +1257,8 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
    - Expected outcomes
    - Quality gate commands
 
-2. **Executed by `/fix-pr`**: Phase 3.7 runs the test plan:
+2. **Executed by `/fix-pr`**: Phase 3.5 verifies versions, Phase 3.7 runs the test plan:
+   - Phase 3.5: Re-validates version files if B-VERSION issues existed
    - Locates the test plan from `/pr-review`
    - Executes each verification step
    - Runs quality gates
@@ -1145,7 +1266,12 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
 
 3. **Handoff Flow**:
    ```
-   /pr-review → generates test plan → /fix-pr → executes test plan → verified fixes
+   /pr-review (Phase 1.5: Version Validation) → generates test plan
+                    ↓
+   /fix-pr (Phase 3.5: Version Re-validation) → executes test plan → verified fixes
    ```
 
-This validates fixes are verified before thread resolution and summary posting.
+This ensures:
+- Version issues are caught during review (Phase 1.5 of /pr-review)
+- Version fixes are verified before tests run (Phase 3.5 of /fix-pr)
+- All fixes are validated before thread resolution and summary posting

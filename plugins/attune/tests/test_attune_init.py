@@ -484,3 +484,243 @@ class TestAttuneInitBehavior:
         content = makefile.read_text()
         assert "test-project" in content
         assert "A test project for unit testing" in content
+
+
+# Import the main function for testing
+from attune_init import main
+
+
+@pytest.mark.unit
+class TestMain:
+    """Test the main() CLI entry point for attune_init."""
+
+    @patch("attune_init.copy_templates")
+    @patch("attune_init.create_project_structure")
+    @patch("attune_init.initialize_git")
+    @patch("attune_init.ProjectDetector")
+    def test_main_with_python_language(
+        self,
+        mock_detector_cls,
+        mock_init_git,
+        mock_create_structure,
+        mock_copy_templates,
+        mock_project_path,
+    ):
+        """Given --lang python, when running main, then initializes Python project."""
+        # Given
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = "python"
+        mock_detector.check_git_initialized.return_value = False
+        mock_detector_cls.return_value = mock_detector
+        mock_init_git.return_value = True
+        mock_copy_templates.return_value = ["file1", "file2"]
+
+        with patch(
+            "sys.argv",
+            ["attune_init.py", "--lang", "python", "--path", str(mock_project_path)],
+        ):
+            # When
+            main()
+
+            # Then
+            mock_copy_templates.assert_called_once()
+            call_kwargs = mock_copy_templates.call_args[1]
+            assert call_kwargs["language"] == "python"
+
+    @patch("attune_init.copy_templates")
+    @patch("attune_init.create_project_structure")
+    @patch("attune_init.initialize_git")
+    @patch("attune_init.ProjectDetector")
+    def test_main_detects_language_when_not_specified(
+        self,
+        mock_detector_cls,
+        mock_init_git,
+        mock_create_structure,
+        mock_copy_templates,
+        python_project,
+    ):
+        """Given no --lang but Python project, when running main, then detects Python."""
+        # Given
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = "python"
+        mock_detector.check_git_initialized.return_value = True
+        mock_detector_cls.return_value = mock_detector
+        mock_copy_templates.return_value = []
+
+        with patch("sys.argv", ["attune_init.py", "--path", str(python_project)]):
+            # When
+            main()
+
+            # Then
+            mock_detector.detect_language.assert_called_once()
+            mock_copy_templates.assert_called_once()
+
+    @patch("attune_init.ProjectDetector")
+    def test_main_exits_when_language_not_detected(
+        self, mock_detector_cls, mock_project_path, capsys
+    ):
+        """Given no language detected and no --lang, when running main, then exits with error."""
+        # Given
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = None
+        mock_detector_cls.return_value = mock_detector
+
+        with patch("sys.argv", ["attune_init.py", "--path", str(mock_project_path)]):
+            # When/Then
+            with pytest.raises(SystemExit) as excinfo:
+                main()
+
+            assert excinfo.value.code == 1
+            captured = capsys.readouterr()
+            assert "Could not detect project language" in captured.err
+
+    @patch("attune_init.copy_templates")
+    @patch("attune_init.create_project_structure")
+    @patch("attune_init.initialize_git")
+    @patch("attune_init.ProjectDetector")
+    def test_main_skips_git_with_no_git_flag(
+        self,
+        mock_detector_cls,
+        mock_init_git,
+        mock_create_structure,
+        mock_copy_templates,
+        mock_project_path,
+    ):
+        """Given --no-git flag, when running main, then skips git initialization."""
+        # Given
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = "python"
+        mock_detector.check_git_initialized.return_value = False
+        mock_detector_cls.return_value = mock_detector
+        mock_copy_templates.return_value = []
+
+        with patch(
+            "sys.argv",
+            [
+                "attune_init.py",
+                "--lang",
+                "python",
+                "--path",
+                str(mock_project_path),
+                "--no-git",
+            ],
+        ):
+            # When
+            main()
+
+            # Then
+            mock_init_git.assert_not_called()
+
+    @patch("attune_init.copy_templates")
+    @patch("attune_init.create_project_structure")
+    @patch("attune_init.initialize_git")
+    @patch("attune_init.ProjectDetector")
+    def test_main_uses_custom_project_name(
+        self,
+        mock_detector_cls,
+        mock_init_git,
+        mock_create_structure,
+        mock_copy_templates,
+        mock_project_path,
+    ):
+        """Given --name argument, when running main, then uses custom name."""
+        # Given
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = "python"
+        mock_detector.check_git_initialized.return_value = True
+        mock_detector_cls.return_value = mock_detector
+        mock_copy_templates.return_value = []
+
+        with patch(
+            "sys.argv",
+            [
+                "attune_init.py",
+                "--lang",
+                "python",
+                "--path",
+                str(mock_project_path),
+                "--name",
+                "custom-name",
+            ],
+        ):
+            # When
+            main()
+
+            # Then
+            mock_create_structure.assert_called_once()
+            call_args = mock_create_structure.call_args[0]
+            assert call_args[3] == "custom-name"  # project_name is 4th arg
+
+    @patch("attune_init.copy_templates")
+    @patch("attune_init.create_project_structure")
+    @patch("attune_init.initialize_git")
+    @patch("attune_init.ProjectDetector")
+    def test_main_passes_force_flag(
+        self,
+        mock_detector_cls,
+        mock_init_git,
+        mock_create_structure,
+        mock_copy_templates,
+        mock_project_path,
+    ):
+        """Given --force flag, when running main, then passes force=True."""
+        # Given
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = "rust"
+        mock_detector.check_git_initialized.return_value = False
+        mock_detector_cls.return_value = mock_detector
+        mock_init_git.return_value = True
+        mock_copy_templates.return_value = []
+
+        with patch(
+            "sys.argv",
+            [
+                "attune_init.py",
+                "--lang",
+                "rust",
+                "--path",
+                str(mock_project_path),
+                "--force",
+            ],
+        ):
+            # When
+            main()
+
+            # Then
+            mock_init_git.assert_called_once_with(mock_project_path, force=True)
+            call_kwargs = mock_copy_templates.call_args[1]
+            assert call_kwargs["force"] is True
+
+    @patch("attune_init.copy_templates")
+    @patch("attune_init.create_project_structure")
+    @patch("attune_init.initialize_git")
+    @patch("attune_init.ProjectDetector")
+    def test_main_prints_success_message(
+        self,
+        mock_detector_cls,
+        mock_init_git,
+        mock_create_structure,
+        mock_copy_templates,
+        mock_project_path,
+        capsys,
+    ):
+        """When project initialized successfully, then prints success message."""
+        # Given
+        mock_detector = Mock()
+        mock_detector.detect_language.return_value = "python"
+        mock_detector.check_git_initialized.return_value = True
+        mock_detector_cls.return_value = mock_detector
+        mock_copy_templates.return_value = ["file1", "file2"]
+
+        with patch(
+            "sys.argv",
+            ["attune_init.py", "--lang", "python", "--path", str(mock_project_path)],
+        ):
+            # When
+            main()
+
+            # Then
+            captured = capsys.readouterr()
+            assert "Project initialized successfully" in captured.out
+            assert "Created 2 files" in captured.out
+            assert "Next steps" in captured.out

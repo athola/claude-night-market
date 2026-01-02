@@ -82,6 +82,12 @@
       "version": "1.1.2"
     },
     {
+      "name": "scry",
+      "source": "./plugins/scry",
+      "description": "Media generation - terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition",
+      "version": "1.1.2"
+    },
+    {
       "name": "spec-kit",
       "source": "./plugins/spec-kit",
       "description": "Specification-driven development - spec writing, implementation planning, and task orchestration",
