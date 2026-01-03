@@ -35,7 +35,7 @@ class ArchitectureRecommendation:
     rationale: str = ""
     research_findings: dict[str, str] = field(default_factory=dict)
     trade_offs: dict[str, str] = field(default_factory=dict)
-    alternatives: list[dict[str, str]] = field(default_factory=dict)
+    alternatives: list[dict[str, str]] = field(default_factory=list)
     confidence: str = "medium"  # "low", "medium", "high"
 
 
