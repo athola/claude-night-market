@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Architecture research module combining online research with archetype matching."""
 
+import argparse
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -102,6 +103,7 @@ class ArchitectureResearcher:
 
         Args:
             context: Project context information
+
         """
         self.context = context
         self.research_results: dict[str, Any] = {}
@@ -111,6 +113,7 @@ class ArchitectureResearcher:
 
         Returns:
             List of search query strings
+
         """
         queries = []
 
@@ -118,21 +121,19 @@ class ArchitectureResearcher:
         queries.append(f"{self.context.project_type} architecture best practices 2026")
 
         # Secondary: Language-specific patterns
-        queries.append(
-            f"{self.context.language} {self.context.project_type} architecture patterns 2026"
-        )
+        lang = self.context.language
+        proj = self.context.project_type
+        queries.append(f"{lang} {proj} architecture patterns 2026")
 
         # Tertiary: Framework-specific if provided
         if self.context.framework:
-            queries.append(
-                f"{self.context.framework} architecture patterns {self.context.project_type}"
-            )
+            fw = self.context.framework
+            queries.append(f"{fw} architecture patterns {proj}")
 
         # Quaternary: Domain complexity specific
         if self.context.domain_complexity in ["complex", "highly-complex"]:
-            queries.append(
-                f"{self.context.domain_complexity} domain architecture patterns {self.context.language}"
-            )
+            complexity = self.context.domain_complexity
+            queries.append(f"{complexity} domain architecture patterns {lang}")
 
         # Special requirements
         if self.context.security_requirements == "critical":
@@ -155,6 +156,7 @@ class ArchitectureResearcher:
 
         Returns:
             Architecture recommendation with rationale
+
         """
         # Check special cases first
         for keyword, paradigm in self.SPECIAL_CASES.items():
@@ -202,6 +204,7 @@ class ArchitectureResearcher:
 
         Returns:
             Complete architecture recommendation
+
         """
         rationale_parts = [
             f"**Selected Based On**: {method} selection",
@@ -235,82 +238,83 @@ class ArchitectureResearcher:
 
         Returns:
             Dictionary of trade-offs and mitigations
+
         """
         trade_offs = {
             "layered": {
-                "trade-off": "Can lead to anemic domain models and tight layer coupling",
-                "mitigation": "Ensure business logic stays in service layer, use DTOs at boundaries",
-                "best-for": "Teams new to architecture patterns, CRUD-heavy applications",
-                "avoid-when": "Complex domain logic or frequent infrastructure changes expected",
+                "trade-off": "Anemic domain models, tight layer coupling",
+                "mitigation": "Business logic in service layer, DTOs at boundaries",
+                "best-for": "Teams new to architecture, CRUD-heavy apps",
+                "avoid-when": "Complex domain or frequent infrastructure changes",
             },
             "hexagonal": {
-                "trade-off": "More boilerplate and indirection through ports/adapters",
-                "mitigation": "Use code generation for adapters, keep ports minimal and stable",
-                "best-for": "Systems requiring infrastructure flexibility, testability priority",
+                "trade-off": "More boilerplate, indirection through ports/adapters",
+                "mitigation": "Code generation for adapters, minimal stable ports",
+                "best-for": "Infrastructure flexibility, testability priority",
                 "avoid-when": "Simple CRUD applications or very small teams",
             },
             "functional-core": {
-                "trade-off": "Learning curve for functional thinking, discipline required",
-                "mitigation": "Start with small modules, pair program, document patterns",
-                "best-for": "Complex business logic, systems requiring high testability",
-                "avoid-when": "Team unfamiliar with functional programming concepts",
+                "trade-off": "Learning curve for functional thinking, discipline",
+                "mitigation": "Start small, pair program, document patterns",
+                "best-for": "Complex business logic, high testability needs",
+                "avoid-when": "Team unfamiliar with functional programming",
             },
             "modular-monolith": {
-                "trade-off": "Still single deployment unit, module coupling risks",
-                "mitigation": "Enforce module boundaries via build tools, plan for extraction",
-                "best-for": "Growing teams, domains with unclear service boundaries",
-                "avoid-when": "Clear bounded contexts exist, team has microservices experience",
+                "trade-off": "Single deployment unit, module coupling risks",
+                "mitigation": "Enforce boundaries via build tools, plan extraction",
+                "best-for": "Growing teams, unclear service boundaries",
+                "avoid-when": "Clear bounded contexts, microservices experience",
             },
             "microservices": {
-                "trade-off": "Distributed systems complexity, network latency, data consistency",
-                "mitigation": "Invest in observability, automation, and service mesh from day one",
-                "best-for": "Large teams, independent scaling requirements, clear boundaries",
-                "avoid-when": "Small teams, unclear domain boundaries, limited DevOps maturity",
+                "trade-off": "Distributed complexity, latency, data consistency",
+                "mitigation": "Invest in observability, automation, service mesh",
+                "best-for": "Large teams, independent scaling, clear boundaries",
+                "avoid-when": "Small teams, unclear boundaries, limited DevOps",
             },
             "cqrs-es": {
-                "trade-off": "Complexity, eventual consistency, event versioning challenges",
-                "mitigation": "Start with single bounded context, use event upcasting",
-                "best-for": "Audit requirements, complex domain, temporal queries needed",
-                "avoid-when": "Simple CRUD, team unfamiliar with event-driven patterns",
+                "trade-off": "Complexity, eventual consistency, event versioning",
+                "mitigation": "Start with single bounded context, event upcasting",
+                "best-for": "Audit requirements, complex domain, temporal queries",
+                "avoid-when": "Simple CRUD, unfamiliar with event-driven patterns",
             },
             "event-driven": {
-                "trade-off": "Debugging complexity, eventual consistency, message ordering",
-                "mitigation": "Implement correlation IDs, distributed tracing, idempotent handlers",
-                "best-for": "Decoupled systems, real-time processing, integration scenarios",
-                "avoid-when": "Strong consistency required, simple request-response patterns",
+                "trade-off": "Debugging complexity, eventual consistency, ordering",
+                "mitigation": "Correlation IDs, distributed tracing, idempotency",
+                "best-for": "Decoupled systems, real-time, integration scenarios",
+                "avoid-when": "Strong consistency, simple request-response patterns",
             },
             "pipeline": {
-                "trade-off": "Stage coupling, error handling complexity, state management",
-                "mitigation": "Use idempotent stages, implement checkpointing, clear error paths",
-                "best-for": "ETL workflows, data processing, sequential transformations",
-                "avoid-when": "Non-linear processing, complex branching logic needed",
+                "trade-off": "Stage coupling, error handling, state management",
+                "mitigation": "Idempotent stages, checkpointing, clear error paths",
+                "best-for": "ETL workflows, data processing, transformations",
+                "avoid-when": "Non-linear processing, complex branching logic",
             },
             "serverless": {
-                "trade-off": "Cold starts, vendor lock-in, limited execution time, debugging",
-                "mitigation": "Use provisioned concurrency, abstract cloud providers, local testing",
-                "best-for": "Variable workloads, rapid development, cost optimization",
-                "avoid-when": "Long-running processes, low-latency requirements, complex state",
+                "trade-off": "Cold starts, vendor lock-in, execution limits",
+                "mitigation": "Provisioned concurrency, abstract providers, local test",
+                "best-for": "Variable workloads, rapid development, cost savings",
+                "avoid-when": "Long-running processes, low-latency, complex state",
             },
             "space-based": {
-                "trade-off": "Memory costs, data replication complexity, partition tolerance",
-                "mitigation": "Careful capacity planning, implement data aging, eventual consistency",
-                "best-for": "Extreme scalability, in-memory processing, high throughput",
-                "avoid-when": "Limited memory budget, strong consistency required, small scale",
+                "trade-off": "Memory costs, replication complexity, partitioning",
+                "mitigation": "Capacity planning, data aging, eventual consistency",
+                "best-for": "Extreme scalability, in-memory, high throughput",
+                "avoid-when": "Limited memory, strong consistency, small scale",
             },
             "microkernel": {
-                "trade-off": "Plugin interface versioning, core stability requirements",
-                "mitigation": "Semantic versioning for APIs, backwards compatibility testing",
-                "best-for": "Extensible platforms, product customization, plugin ecosystems",
+                "trade-off": "Plugin interface versioning, core stability needs",
+                "mitigation": "Semantic versioning, backwards compatibility testing",
+                "best-for": "Extensible platforms, customization, plugin systems",
                 "avoid-when": "Stable feature set, no extensibility requirements",
             },
             "service-based": {
-                "trade-off": "Service granularity decisions, shared database challenges",
-                "mitigation": "Clear service contracts, consider database-per-service pattern",
-                "best-for": "SOA migration, coarse-grained services, enterprise integration",
-                "avoid-when": "Fine-grained independence needed, startup/greenfield projects",
+                "trade-off": "Service granularity, shared database challenges",
+                "mitigation": "Clear contracts, consider database-per-service",
+                "best-for": "SOA migration, coarse services, enterprise integration",
+                "avoid-when": "Fine-grained independence, startup/greenfield",
             },
             "client-server": {
-                "trade-off": "Single point of failure, scalability limits, tight coupling",
+                "trade-off": "Single point of failure, scalability limits, coupling",
                 "mitigation": "Load balancing, caching strategies, API versioning",
                 "best-for": "Simple applications, internal tools, prototypes",
                 "avoid-when": "High scalability needed, offline-first requirements",
@@ -335,6 +339,7 @@ class ArchitectureResearcher:
 
         Returns:
             List of alternative paradigms with rejection reasons
+
         """
         all_paradigms = [
             "layered",
@@ -386,6 +391,7 @@ class ArchitectureResearcher:
 
         Returns:
             List of related paradigm names
+
         """
         relations = {
             "layered": ["hexagonal", "modular-monolith", "client-server"],
@@ -413,6 +419,7 @@ class ArchitectureResearcher:
 
         Returns:
             Rejection reason string
+
         """
         reasons = {
             # Layered rejections
@@ -517,6 +524,7 @@ class ArchitectureResearcher:
 
         Args:
             output_path: Path to save session data
+
         """
         session_data = {
             "context": {
@@ -540,6 +548,7 @@ def parse_project_context(user_input: dict[str, str]) -> ProjectContext:
 
     Returns:
         ProjectContext object
+
     """
     return ProjectContext(
         project_type=user_input.get("project_type", "web-application"),
@@ -563,8 +572,6 @@ def parse_project_context(user_input: dict[str, str]) -> ProjectContext:
 
 def main():
     """CLI entry point for architecture researcher."""
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Architecture paradigm recommendation based on project context"
     )

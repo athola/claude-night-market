@@ -4,7 +4,19 @@
 import json
 import urllib.request
 from functools import lru_cache
+from json import JSONDecodeError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
+
+# Common network/parsing exceptions for URL fetching
+_FETCH_ERRORS = (
+    HTTPError,
+    URLError,
+    JSONDecodeError,
+    TimeoutError,
+    ValueError,
+    KeyError,
+)
 
 
 def _validate_https_url(url: str) -> None:
@@ -15,6 +27,7 @@ def _validate_https_url(url: str) -> None:
 
     Raises:
         ValueError: If URL doesn't use HTTPS scheme
+
     """
     parsed = urlparse(url)
     if parsed.scheme != "https":
@@ -30,6 +43,7 @@ def fetch_github_action_version(action: str) -> str | None:
 
     Returns:
         Latest version tag (e.g., "v4") or None if fetch fails
+
     """
     try:
         url = f"https://api.github.com/repos/{action}/releases/latest"
@@ -37,7 +51,7 @@ def fetch_github_action_version(action: str) -> str | None:
         req = urllib.request.Request(
             url, headers={"Accept": "application/vnd.github.v3+json"}
         )
-
+        # URL validated above via _validate_https_url()
         with urllib.request.urlopen(req, timeout=5) as response:  # nosec B310
             data = json.loads(response.read().decode())
             tag_name = data.get("tag_name", "")
@@ -49,7 +63,7 @@ def fetch_github_action_version(action: str) -> str | None:
 
             return tag_name
 
-    except Exception as e:
+    except _FETCH_ERRORS as e:
         print(f"Warning: Could not fetch version for {action}: {e}")
         return None
 
@@ -59,6 +73,7 @@ def get_default_action_versions() -> dict[str, str]:
 
     Returns:
         Dictionary mapping action names to versions
+
     """
     return {
         "actions/checkout": "v4",
@@ -79,6 +94,7 @@ def get_latest_action_versions(use_cache: bool = True) -> dict[str, str]:
 
     Returns:
         Dictionary mapping action names to latest versions
+
     """
     if not use_cache:
         fetch_github_action_version.cache_clear()
@@ -102,14 +118,15 @@ def fetch_pypi_latest_version(package: str) -> str | None:
 
     Returns:
         Latest version string or None
+
     """
     try:
         url = f"https://pypi.org/pypi/{package}/json"
         _validate_https_url(url)
-        with urllib.request.urlopen(url, timeout=5) as response:  # nosec B310
-            data = json.loads(response.read().decode())
+        with urllib.request.urlopen(url, timeout=5) as resp:  # nosec B310
+            data = json.loads(resp.read().decode())
             return data["info"]["version"]
-    except Exception as e:
+    except _FETCH_ERRORS as e:
         print(f"Warning: Could not fetch PyPI version for {package}: {e}")
         return None
 
@@ -123,14 +140,15 @@ def fetch_npm_latest_version(package: str) -> str | None:
 
     Returns:
         Latest version string or None
+
     """
     try:
         url = f"https://registry.npmjs.org/{package}/latest"
         _validate_https_url(url)
-        with urllib.request.urlopen(url, timeout=5) as response:  # nosec B310
-            data = json.loads(response.read().decode())
+        with urllib.request.urlopen(url, timeout=5) as resp:  # nosec B310
+            data = json.loads(resp.read().decode())
             return data["version"]
-    except Exception as e:
+    except _FETCH_ERRORS as e:
         print(f"Warning: Could not fetch npm version for {package}: {e}")
         return None
 
@@ -143,6 +161,7 @@ def get_tool_versions(language: str) -> dict[str, str]:
 
     Returns:
         Dictionary of tool versions
+
     """
     versions = {}
 
