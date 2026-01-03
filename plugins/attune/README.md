@@ -29,9 +29,26 @@ Attune provides a workflow for project development:
 - Dependency management configuration.
 - Project structure and tooling setup.
 
+## Documentation
+
+- [Architecture-Aware Initialization](docs/architecture-aware-initialization.md) - Research-based architecture selection
+- [Full-Cycle Workflow Guide](docs/full-cycle-workflow-guide.md) - Complete development workflow
+- [Quick Start Example](docs/quick-start-example.md) - Practical examples
+- [Integration Summary](docs/integration-summary.md) - Plugin integrations
+
 ## Quick Start
 
-### Initialize New Python Project
+### Architecture-Aware Initialization (Recommended)
+
+```bash
+# Interactive mode with architecture selection
+/attune:arch-init --name my-project
+
+# Combines online research with archetype matching to recommend architecture
+# Generates customized project structure based on chosen paradigm
+```
+
+### Standard Initialization
 
 ```bash
 # Interactive mode
@@ -58,6 +75,7 @@ Attune provides a workflow for project development:
 | Command | Description | Phase |
 |---------|-------------|-------|
 | `/attune:brainstorm` | Brainstorm project ideas using Socratic questioning | 1. Ideation |
+| `/attune:arch-init` | **Architecture-aware initialization with research** | 1.5. Architecture |
 | `/attune:specify` | Create detailed specifications from brainstorm | 2. Specification |
 | `/attune:plan` | Plan architecture and break down into tasks | 3. Planning |
 | `/attune:init` | Initialize project structure with tooling | 4. Initialization |
@@ -85,6 +103,7 @@ Attune provides a workflow for project development:
 
 | Skill | Description | Use When |
 |-------|-------------|----------|
+| `architecture-aware-init` | **Research-based architecture selection and template customization** | Need architecture guidance |
 | `project-init` | Interactive project initialization | Setting up new project |
 | `makefile-generation` | Generate language-specific Makefile | Need build automation |
 | `workflow-setup` | Configure GitHub Actions workflows | Setting up CI/CD |

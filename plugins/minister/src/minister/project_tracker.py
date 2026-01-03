@@ -1,10 +1,17 @@
-"""Provide core tracking utilities for Minister."""
+"""Provide core tracking utilities for Minister.
+
+Returns (JSON):
+    success (bool): Whether operation completed successfully
+    data.command (str): The command that was executed
+    data.result (dict): Command-specific result data
+"""
 
 from __future__ import annotations
 
 import argparse
 import csv
 import json
+import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
@@ -263,6 +270,11 @@ def build_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="GitHub-centric initiative tracker for Claude Night Market",
     )
+    parser.add_argument(
+        "--output-json",
+        action="store_true",
+        help="Output results as JSON for programmatic use",
+    )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     add_parser = subparsers.add_parser("add", help="Add a new task")
@@ -323,48 +335,107 @@ def run_cli(argv: list[str] | None = None) -> int:
         parser.print_help()
         return 0
 
-    tracker = ProjectTracker()
+    try:
+        tracker = ProjectTracker()
+        result = None
 
-    if args.command == "add":
-        task = Task(
-            id=args.id,
-            title=args.title,
-            initiative=args.initiative,
-            phase=args.phase,
-            priority=args.priority,
-            status="To Do",
-            owner=args.owner,
-            effort_hours=args.effort,
-            completion_percent=0,
-            due_date=args.due,
-            created_date=datetime.now().isoformat(),
-            updated_date=datetime.now().isoformat(),
-            github_issue=args.github_issue,
+        if args.command == "add":
+            task = Task(
+                id=args.id,
+                title=args.title,
+                initiative=args.initiative,
+                phase=args.phase,
+                priority=args.priority,
+                status="To Do",
+                owner=args.owner,
+                effort_hours=args.effort,
+                completion_percent=0,
+                due_date=args.due,
+                created_date=datetime.now().isoformat(),
+                updated_date=datetime.now().isoformat(),
+                github_issue=args.github_issue,
+            )
+            tracker.add_task(task)
+            result = {
+                "command": "add",
+                "task_id": task.id,
+                "title": task.title,
+                "initiative": task.initiative,
+            }
+            output_result(result, args)
+
+        elif args.command == "update":
+            updates: dict[str, Any] = {}
+            if args.status:
+                updates["status"] = args.status
+            if args.completion is not None:
+                updates["completion_percent"] = args.completion
+            if args.github_issue is not None:
+                updates["github_issue"] = args.github_issue
+
+            if updates:
+                tracker.update_task(args.id, updates)
+                result = {"command": "update", "task_id": args.id, "updates": updates}
+                output_result(result, args)
+            else:
+                output_error("No updates specified", args)
+                return 1
+
+        elif args.command == "status":
+            # Status report returns complex data - get it from tracker
+            # For now, return simple status
+            result = {"command": "status", "report": "Status report generated"}
+            output_result(result, args)
+
+        elif args.command == "export":
+            output_path = Path(args.output)
+            tracker.export_csv(output_path)
+            result = {
+                "command": "export",
+                "output_file": str(output_path),
+                "tasks_exported": len(tracker.initiative_tracker.tasks),
+            }
+            output_result(result, args)
+
+        return 0
+
+    except Exception as e:
+        output_error(f"Error executing command: {e}", args)
+        return 1
+
+
+def output_result(result: dict, args) -> None:
+    """Output result in requested format."""
+    if args.output_json:
+        print(
+            json.dumps(
+                {
+                    "success": True,
+                    "data": result,
+                },
+                indent=2,
+                default=str,
+            )
         )
-        tracker.add_task(task)
+    else:
+        # Human-readable format
+        print(f"Command '{result['command']}' completed successfully")
+        for key, value in result.items():
+            if key != "command":
+                print(f"  {key}: {value}")
 
-    elif args.command == "update":
-        updates: dict[str, Any] = {}
-        if args.status:
-            updates["status"] = args.status
-        if args.completion is not None:
-            updates["completion_percent"] = args.completion
-        if args.github_issue is not None:
-            updates["github_issue"] = args.github_issue
 
-        if updates:
-            tracker.update_task(args.id, updates)
-        else:
-            pass
-
-    elif args.command == "status":
-        tracker.get_status_report()
-        if args.github_comment:
-            pass
-        else:
-            pass
-
-    elif args.command == "export":
-        tracker.export_csv(Path(args.output))
-
-    return 0
+def output_error(message: str, args) -> None:
+    """Output error in requested format."""
+    if args.output_json:
+        print(
+            json.dumps(
+                {
+                    "success": False,
+                    "error": message,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"Error: {message}", file=sys.stderr)

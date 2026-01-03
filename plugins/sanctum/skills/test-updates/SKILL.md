@@ -78,6 +78,8 @@ Skill(test-updates) --tdd-only --target new_feature.py
 ```
 
 ### Using the Scripts Directly
+
+**Human-Readable Output:**
 ```bash
 # Analyze test coverage gaps
 python plugins/sanctum/skills/test-updates/scripts/test_analyzer.py --scan src/
@@ -89,6 +91,58 @@ python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
 # Check test quality
 python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
     --validate tests/test_my_module.py
+```
+
+**Programmatic Output (for Claude Code):**
+```bash
+# Get JSON output for programmatic parsing - test_analyzer
+python plugins/sanctum/skills/test-updates/scripts/test_analyzer.py \
+    --scan src/ --output-json
+
+# Returns:
+# {
+#   "success": true,
+#   "data": {
+#     "source_files": ["src/module.py", ...],
+#     "test_files": ["tests/test_module.py", ...],
+#     "uncovered_files": ["module_without_tests", ...],
+#     "coverage_gaps": [{"file": "...", "reason": "..."}]
+#   }
+# }
+
+# Get JSON output - test_generator
+python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
+    --source src/my_module.py --output-json
+
+# Returns:
+# {
+#   "success": true,
+#   "data": {
+#     "test_file": "path/to/test_my_module.py",
+#     "source_file": "src/my_module.py",
+#     "style": "pytest_bdd",
+#     "fixtures_included": true,
+#     "edge_cases_included": true,
+#     "error_cases_included": true
+#   }
+# }
+
+# Get JSON output - quality_checker
+python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
+    --validate tests/test_my_module.py --output-json
+
+# Returns:
+# {
+#   "success": true,
+#   "data": {
+#     "static_analysis": {...},
+#     "dynamic_validation": {...},
+#     "metrics": {...},
+#     "quality_score": 85,
+#     "quality_level": "QualityLevel.GOOD",
+#     "recommendations": [...]
+#   }
+# }
 ```
 
 ## When to Use It

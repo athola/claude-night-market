@@ -86,12 +86,28 @@ See [Capabilities Reference](book/src/reference/capabilities-reference.md) for a
 - **Plugin authors** building on established architectural patterns.
 - **Maintainers** automating repetitive tasks like PR preparation and scaffolding.
 
+## Common Workflows
+
+See [**Common Workflows Guide**](docs/common-workflows.md) for when and how to use commands, skills, and agents:
+
+| Workflow | What to Use | Example |
+|----------|-------------|---------|
+| Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
+| Review a PR | `/full-review` | Run multi-discipline code review |
+| Fix PR feedback | `/fix-pr` | Address review comments |
+| Prepare a PR | `/pr` + `/sanctum:update-*` | Quality gates before merge |
+| Catch up on changes | `/catchup` | Context recovery after break |
+| Write specifications | `/speckit-specify` | Spec-driven development |
+| Debug issues | `Skill(superpowers:debugging)` | Systematic root cause analysis |
+
 ## Documentation
 
 | Resource | Description |
 |----------|-------------|
 | [**Getting Started**](book/src/getting-started/README.md) | Installation and first steps |
+| [**Common Workflows**](docs/common-workflows.md) | When to use commands/skills/agents |
 | [**Quick Start Guide**](book/src/getting-started/quick-start.md) | Common workflow recipes |
+| [**Script Integration**](docs/script-integration-pattern.md) | Programmatic tool calling patterns |
 | [**Plugin Catalog**](book/src/plugins/README.md) | Detailed plugin documentation |
 | [**Capabilities Reference**](book/src/reference/capabilities-reference.md) | Complete skill/command listing |
 | [**Tutorials**](book/src/tutorials/README.md) | Step-by-step guides |

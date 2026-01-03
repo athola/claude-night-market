@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
-"""Safe dependency reference updater that prevents duplicates."""
+"""Safe dependency reference updater that prevents duplicates.
 
+Returns (JSON):
+    success (bool): Whether update completed successfully
+    data.files_updated (int): Number of files modified
+    data.total_changes (int): Total number of reference changes made
+    data.issues_found (list): List of any remaining issues found
+"""
+
+import argparse
+import json
 import re
+import sys
 from pathlib import Path
 
 
@@ -108,11 +118,117 @@ class SafeDependencyUpdater:
 
 def main() -> None:
     """Safe update of dependency references."""
-    updater = SafeDependencyUpdater()
+    parser = argparse.ArgumentParser(
+        description="Safely update dependency references in skill files"
+    )
+    parser.add_argument(
+        "--path",
+        type=str,
+        default=".",
+        help="Base path to search for skill files (default: current directory)",
+    )
+    parser.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Only validate references without making changes",
+    )
+    parser.add_argument(
+        "--output-json",
+        action="store_true",
+        help="Output results as JSON for programmatic use",
+    )
 
-    base_path = Path("/home/alext/conservation/skills")
+    args = parser.parse_args()
 
-    _files_updated, _changes = updater.update_directory(base_path)
+    try:
+        base_path = Path(args.path).resolve()
+        if not base_path.exists():
+            output_error(f"Path not found: {base_path}", args)
+            return
+
+        updater = SafeDependencyUpdater()
+
+        if args.validate_only:
+            # Validation mode - just report issues
+            issues = []
+            for skill_file in base_path.rglob("SKILL.md"):
+                file_issues = updater.validate_references(skill_file)
+                if file_issues:
+                    issues.extend(
+                        [
+                            {"file": str(skill_file), "issue": issue}
+                            for issue in file_issues
+                        ]
+                    )
+
+            result = {
+                "files_scanned": len(list(base_path.rglob("SKILL.md"))),
+                "issues_found": issues,
+                "validate_only": True,
+            }
+            output_result(result, args)
+        else:
+            # Update mode
+            files_updated, total_changes = updater.update_directory(base_path)
+
+            # Check for remaining issues
+            issues = []
+            for skill_file in base_path.rglob("SKILL.md"):
+                file_issues = updater.validate_references(skill_file)
+                if file_issues:
+                    issues.extend(
+                        [
+                            {"file": str(skill_file), "issue": issue}
+                            for issue in file_issues
+                        ]
+                    )
+
+            result = {
+                "files_updated": files_updated,
+                "total_changes": total_changes,
+                "issues_found": issues,
+            }
+            output_result(result, args)
+
+    except Exception as e:
+        output_error(f"Error updating references: {e}", args)
+
+
+def output_result(result: dict, args) -> None:
+    """Output result in requested format."""
+    if args.output_json:
+        print(
+            json.dumps(
+                {
+                    "success": True,
+                    "data": result,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"Files updated: {result.get('files_updated', 0)}")
+        print(f"Total changes: {result.get('total_changes', 0)}")
+        if result.get("issues_found"):
+            print("\nIssues found:")
+            for issue in result["issues_found"]:
+                print(f"  - {issue}")
+
+
+def output_error(message: str, args) -> None:
+    """Output error in requested format."""
+    if args.output_json:
+        print(
+            json.dumps(
+                {
+                    "success": False,
+                    "error": message,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"Error: {message}", file=sys.stderr)
 
 
 if __name__ == "__main__":

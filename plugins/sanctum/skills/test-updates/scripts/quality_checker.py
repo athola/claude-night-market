@@ -566,28 +566,74 @@ def main() -> None:
     parser.add_argument("--coverage", type=str, help="Check test coverage for project")
     parser.add_argument("--validate", type=str, help="Validate specific test file")
     parser.add_argument("--output", type=str, help="Output report to file")
-    parser.add_argument("--json", action="store_true", help="Output JSON format")
+    parser.add_argument(
+        "--output-json",
+        action="store_true",
+        help="Output results as JSON for programmatic use",
+    )
 
     args = parser.parse_args()
 
-    if args.check or args.validate:
-        test_path = Path(args.check or args.validate)
-        checker = TestQualityChecker(test_path)
-        results = checker.run_full_validation()
+    try:
+        if args.check or args.validate:
+            test_path = Path(args.check or args.validate)
+            if not test_path.exists():
+                output_error(f"Test path not found: {test_path}", args)
+                return
 
-        if args.json:
-            output = json.dumps(results, indent=2, default=str)
+            checker = TestQualityChecker(test_path)
+            results = checker.run_full_validation()
+
+            if args.output_json:
+                output_result(results, args)
+            else:
+                output = format_report(results)
+                if args.output:
+                    with open(args.output, "w") as f:
+                        f.write(output)
+                else:
+                    print(output)
+
         else:
-            output = format_report(results)
+            parser.print_help()
 
-        if args.output:
-            with open(args.output, "w") as f:
-                f.write(output)
-        else:
-            pass
+    except Exception as e:
+        output_error(f"Error checking quality: {e}", args)
 
+
+def output_result(result: dict, args) -> None:
+    """Output result in requested format."""
+    output = json.dumps(
+        {
+            "success": True,
+            "data": result,
+        },
+        indent=2,
+        default=str,
+    )
+
+    if args.output:
+        with open(args.output, "w") as f:
+            f.write(output)
     else:
-        parser.print_help()
+        print(output)
+
+
+def output_error(message: str, args) -> None:
+    """Output error in requested format."""
+    error_output = json.dumps(
+        {
+            "success": False,
+            "error": message,
+        },
+        indent=2,
+    )
+
+    if args.output:
+        with open(args.output, "w") as f:
+            f.write(error_output)
+    else:
+        print(error_output)
 
 
 def format_report(results: dict) -> str:
