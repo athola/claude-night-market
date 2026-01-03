@@ -1,59 +1,53 @@
 # Attune
 
-Full-cycle project development plugin for Claude Code. From ideation to implementation - brainstorm project ideas, create specifications, plan architecture, initialize projects, and execute implementation systematically.
+Project development plugin for Claude Code. Supports ideation, specification, architectural planning, project initialization, and implementation.
 
 ## Overview
 
-Attune integrates the **brainstorm-plan-execute** workflow from superpowers with **spec-driven development** from spec-kit to provide a complete project development lifecycle:
+Attune provides a workflow for project development:
 
-```
-/attune:brainstorm  → Ideate and explore problem space
-        ↓
-/attune:specify     → Create detailed specifications
-        ↓
-/attune:plan        → Design architecture and break down tasks
-        ↓
-/attune:init        → Initialize project structure
-        ↓
-/attune:execute     → Implement systematically with tracking
-```
+1. **Brainstorm**: Ideate and explore problem space.
+2. **Specify**: Create detailed specifications.
+3. **Plan**: Design architecture and break down tasks.
+4. **Init**: Initialize project structure.
+5. **Execute**: Implement systematically with tracking.
 
 ## Features
 
 ### Supported Languages
 
-- **Python**: uv-based dependency management, pytest, ruff, mypy
-- **Rust**: cargo-based builds, clippy, rustfmt, CI workflows
-- **TypeScript/React**: npm/pnpm/yarn, vite, jest, eslint, prettier
+- **Python**: uv dependency management, pytest, ruff, mypy.
+- **Rust**: cargo builds, clippy, rustfmt, CI workflows.
+- **TypeScript/React**: npm/pnpm/yarn, vite, jest, eslint, prettier.
 
-### What Gets Configured
+### Configuration
 
-- ✅ Git initialization with .gitignore
-- ✅ GitHub Actions workflows (test, lint, typecheck, publish)
-- ✅ Pre-commit hooks (formatting, linting, security)
-- ✅ Makefile with common development targets
-- ✅ Dependency management configuration
-- ✅ Project structure and tooling setup
+- Git initialization with .gitignore.
+- GitHub Actions workflows (test, lint, typecheck, publish).
+- Pre-commit hooks (formatting, linting, security).
+- Makefile with common development targets.
+- Dependency management configuration.
+- Project structure and tooling setup.
 
 ## Quick Start
 
 ### Initialize New Python Project
 
 ```bash
-# Interactive mode (recommended for first time)
+# Interactive mode
 /attune:init
 
-# Non-interactive with language specification
+# Language specification
 /attune:init --lang python --name my-project --author "Your Name"
 ```
 
 ### Upgrade Existing Project
 
 ```bash
-# Add missing configurations to existing project
+# Add missing configurations
 /attune:upgrade
 
-# Validate project against best practices
+# Validate project structure
 /attune:validate
 ```
 
@@ -235,18 +229,18 @@ awesome-cli/
 
 Output:
 ```
-✅ Git repository initialized
-✅ .gitignore present and comprehensive
-✅ Pre-commit hooks configured
-✅ GitHub Actions workflows configured
-✅ Makefile with development targets
-⚠️  Missing: Type checker configuration (mypy)
-❌ Missing: Test coverage configuration
+[OK] Git repository initialized
+[OK] .gitignore present and comprehensive
+[OK] Pre-commit hooks configured
+[OK] GitHub Actions workflows configured
+[OK] Makefile with development targets
+[WARN] Missing: Type checker configuration (mypy)
+[FAIL] Missing: Test coverage configuration
 ```
 
 ## Configuration
 
-Attune can be configured via `.attune.yaml` in your project:
+Attune can be configured via `.attune.yaml`:
 
 ```yaml
 language: python
@@ -285,78 +279,41 @@ Place custom templates in `~/.claude/attune/templates/`:
 
 Available in all templates:
 
-- `{{PROJECT_NAME}}` - Project name (e.g., "awesome-cli")
-- `{{PROJECT_MODULE}}` - Python module name (e.g., "awesome_cli")
-- `{{AUTHOR}}` - Project author
-- `{{PYTHON_VERSION}}` - Python version (e.g., "3.10")
-- `{{YEAR}}` - Current year
-- `{{LICENSE}}` - License type
+- `{{PROJECT_NAME}}` - Project name.
+- `{{PROJECT_MODULE}}` - Python module name.
+- `{{AUTHOR}}` - Project author.
+- `{{PYTHON_VERSION}}` - Python version.
+- `{{YEAR}}` - Current year.
+- `{{LICENSE}}` - License type.
 
 ## Integration with Other Plugins
 
 ### Superpowers Integration
 
-When superpowers plugin is installed, attune enhances workflows:
+When the superpowers plugin is installed, attune integrates foundational methodology skills:
 
-- **brainstorming** → Uses `Skill(superpowers:brainstorming)` for Socratic method
-- **writing-plans** → Uses `Skill(superpowers:writing-plans)` for planning
-- **executing-plans** → Uses `Skill(superpowers:executing-plans)` for execution
-- **test-driven-development** → Uses TDD workflow during implementation
-- **systematic-debugging** → Uses debugging framework for blockers
-
-Install superpowers:
-```bash
-/plugin marketplace add obra/superpowers
-/plugin install superpowers@superpowers-marketplace
-```
+- **Brainstorming**: `Skill(superpowers:brainstorming)`
+- **Planning**: `Skill(superpowers:writing-plans)`
+- **Execution**: `Skill(superpowers:executing-plans)`
+- **TDD**: Test-driven development during implementation.
+- **Debugging**: `Skill(superpowers:systematic-debugging)`
 
 ### Spec-Kit Integration
 
-When spec-kit plugin is installed, attune enhances specification workflow:
+When spec-kit is installed, attune aligns with specification patterns:
 
-- **spec-writing** → Uses `Skill(spec-kit:spec-writing)` for specifications
-- **task-planning** → Uses `Skill(spec-kit:task-planning)` for task breakdown
-- **implementation-executor** → Aligns with spec-kit implementation patterns
-
-Install spec-kit:
-```bash
-/plugin install spec-kit@claude-night-market
-```
-
-### Other Plugin Integration
-
-- **leyline**: Uses shared infrastructure patterns for service integration
-- **abstract**: Follows plugin development best practices
-- **sanctum**: Complements git workflow and documentation updates
-- **parseltongue**: Leverages Python development patterns
-- **imbue**: Uses scope-guard for anti-overengineering
+- **Specifications**: `Skill(spec-kit:spec-writing)`
+- **Task Planning**: `Skill(spec-kit:task-planning)`
 
 ## Philosophy
 
-1. **Full-cycle thinking**: From idea to implementation, not just initialization
-2. **Systematic execution**: Structured workflows prevent ad-hoc development
-3. **Graceful degradation**: Works standalone or enhanced with superpowers/spec-kit
-4. **Non-invasive**: Always ask before overwriting files
-5. **Idempotent**: Safe to run multiple times
-6. **Best practices**: Templates follow proven patterns from production projects
-7. **Customizable**: Easy to override templates or add custom configurations
-8. **Educational**: Explain choices and provide documentation
-
-## Workflow Comparison
-
-### Traditional Ad-Hoc Development
-
-```
-Idea → Code → (Maybe tests) → Debug → More code → Eventually works
-```
-**Problems**: Scope creep, unclear requirements, rework, technical debt
-
-### Attune Full-Cycle Development
-
-```
-Brainstorm → Specify → Plan → Initialize → Execute → Validate
-```
-**Benefits**: Clear requirements, systematic execution, measurable progress, quality built-in
+1. **Cycle support**: From idea to implementation.
+2. **Structured workflows**: Prevent ad-hoc development.
+3. **Progressive enhancement**: Works standalone or with companion plugins.
+4. **Safety**: Confirmation required before overwriting files.
+5. **Idempotency**: Safe for multiple runs.
+6. **Production patterns**: Templates follow established industry practices.
+7. **Customization**: Support for template overrides.
 
 ## Development Status
 
@@ -364,35 +321,33 @@ Brainstorm → Specify → Plan → Initialize → Execute → Validate
 
 ### Implementation Status
 
-#### Core Initialization (Complete)
+#### Core Initialization
 
-- [x] **Phase 1**: Python template system with basic initialization
-- [x] **Phase 2**: Rust and TypeScript support
-- [x] **Phase 3**: Advanced features (version fetching, project validation)
-- [x] **Phase 4**: Integration (template customization, upgrade mode, plugin projects, reference sync)
+- [x] Python template system.
+- [x] Rust and TypeScript support.
+- [x] Version fetching and project validation.
+- [x] Template customization and reference sync.
 
-#### Full-Cycle Workflow (New in 1.0.0)
+#### Development Workflow
 
-- [x] **Brainstorm Phase**: Socratic questioning and ideation
-- [x] **Specification Phase**: Spec-driven requirement definition
-- [x] **Planning Phase**: Architecture design and task breakdown
-- [x] **Execution Phase**: Systematic implementation with tracking
-- [x] **Superpowers Integration**: Enhanced with brainstorm-plan-execute
-- [x] **Spec-Kit Integration**: Aligned with spec-driven development
+- [x] Brainstorming and ideation.
+- [x] Specification definition.
+- [x] Architectural design and planning.
+- [x] Implementation with tracking.
 
 ### Supported Features
 
 | Feature | Python | Rust | TypeScript |
 |---------|--------|------|------------|
-| Git init | ✅ | ✅ | ✅ |
-| .gitignore | ✅ | ✅ | ✅ |
-| Build config | ✅ pyproject.toml | ✅ Cargo.toml | ✅ package.json + tsconfig.json |
-| Makefile | ✅ | ✅ | ✅ |
-| Pre-commit | ✅ | ⏳ | ⏳ |
-| Test workflow | ✅ | ✅ | ✅ |
-| Lint workflow | ✅ | ✅ (clippy) | ✅ |
-| Type check | ✅ | ✅ | ✅ |
-| Validation | ✅ | ✅ | ✅ |
+| Git init | [OK] | [OK] | [OK] |
+| .gitignore | [OK] | [OK] | [OK] |
+| Build config | [OK] | [OK] | [OK] |
+| Makefile | [OK] | [OK] | [OK] |
+| Pre-commit | [OK] | [TODO] | [TODO] |
+| Test workflow | [OK] | [OK] | [OK] |
+| Lint workflow | [OK] | [OK] | [OK] |
+| Type check | [OK] | [OK] | [OK] |
+| Validation | [OK] | [OK] | [OK] |
 
 ## Contributing
 

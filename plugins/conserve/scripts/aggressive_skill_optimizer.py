@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aggressive skill optimizer - actually modifies SKILL.md files."""
+"""Optimize skills by aggressively modifying SKILL.md files."""
 
 import argparse
 import re

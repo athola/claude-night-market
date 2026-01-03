@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Consolidated frontmatter processing for Abstract.
 
-This module provides the single source of truth for all frontmatter operations:
+Provide the single source of truth for all frontmatter operations:
 - Parsing: Extract and parse YAML frontmatter from markdown content
 - Validation: Check for required and recommended fields
 - Access: Provide clean interfaces for frontmatter data
@@ -38,7 +38,7 @@ class FrontmatterResult:
 class FrontmatterProcessor:
     """Single source of truth for frontmatter parsing and validation.
 
-    This class consolidates all frontmatter handling logic that was previously
+    Consolidate all frontmatter handling logic that was previously
     scattered across multiple modules:
     - src/abstract/base.py (check_frontmatter_exists, extract_frontmatter)
     - src/abstract/utils.py (extract_frontmatter, parse_frontmatter_fields,

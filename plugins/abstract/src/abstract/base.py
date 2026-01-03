@@ -89,7 +89,7 @@ def find_markdown_files(directory: Path) -> list[Path]:
 class AbstractScript:
     """Base class for Abstract scripts with common functionality.
 
-    Provides centralized:
+    Provide centralized:
     - Import fallback logic for running scripts from any location
     - Markdown file discovery
     - Frontmatter checking

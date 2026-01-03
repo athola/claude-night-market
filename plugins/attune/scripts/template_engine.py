@@ -1,4 +1,4 @@
-"""Template engine for variable substitution in template files."""
+"""Substitute variables in template files."""
 
 import re
 from pathlib import Path
@@ -6,7 +6,7 @@ from typing import Any
 
 
 class TemplateEngine:
-    """Simple template engine supporting {{VAR}} syntax."""
+    """Provide a simple template engine supporting {{VAR}} syntax."""
 
     def __init__(self, variables: dict[str, Any]):
         """Initialize template engine with variables.

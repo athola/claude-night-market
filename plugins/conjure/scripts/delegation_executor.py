@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Shared Delegation Execution Engine.
 
-Provides unified execution interface for different external LLM services
+Provide a unified execution interface for different external LLM services
 with consistent error handling, logging, and resource management.
 """
 

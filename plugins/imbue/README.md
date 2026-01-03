@@ -4,19 +4,19 @@ Reusable workflow patterns for analysis, evidence gathering, and structured repo
 
 ## Overview
 
-Imbue skills provide methodologies for analysis tasks. They offer a framework for approaching common problems independent of specific tools.
+Imbue provides methodologies for analysis tasks, offering a framework for approaching common problems independent of specific tools.
 
 Principles:
-- **Generalizable**: Patterns apply to various inputs (git diffs, specs, logs).
+- **Generalizable**: Patterns apply to various inputs like git diffs, specs, and logs.
 - **Composable**: Skills chain together for complex workflows.
-- **Evidence-based**: Emphasizes capturing evidence for reproducibility.
+- **Evidence-based**: Focus on capturing evidence for reproducibility.
 
 ## Skills
 
 ### Review Patterns
 
 #### review-core
-Structure for starting detailed reviews.
+Structure for starting reviews.
 
 **When to Use:**
 Use for architecture, security, or code quality reviews to establish scope and structure before analysis.
@@ -31,10 +31,10 @@ Use for architecture, security, or code quality reviews to establish scope and s
 ### Analysis Methods
 
 #### diff-analysis
-Analyzes "before and after" states to categorize changes and assess risks.
+Analyze "before and after" states to categorize changes and assess risks.
 
 **When to Use:**
-Use to understand the impact of changes (code reviews, release notes, config changes). Answers "What changed and why does it matter?".
+Use to understand the impact of changes in code reviews, release notes, or config updates.
 
 **Required TodoWrite Items:**
 1. `diff-analysis:baseline-established`: Define "before" and "after".
@@ -43,10 +43,10 @@ Use to understand the impact of changes (code reviews, release notes, config cha
 4. `diff-analysis:summary-prepared`: Summarize changes and implications.
 
 #### catchup
-Summarizes recent project activity.
+Summarize recent project activity.
 
 **When to Use:**
-Use to get up to speed after time away or when joining a team. Helps understand current state and plan future work.
+Use to get up to speed after time away or when joining a team.
 
 **Required TodoWrite Items:**
 1. `catchup:context-confirmed`: Define scope and time period.
@@ -57,14 +57,14 @@ Use to get up to speed after time away or when joining a team. Helps understand 
 ### Workflow Guards
 
 #### scope-guard
-Prevents overengineering via scoring and opportunity cost comparison. Uses a modular structure with four components:
-- `decision-framework`: Worthiness formula and scoring system
-- `anti-overengineering`: Rules to prevent scope creep and premature abstraction
-- `branch-management`: Threshold monitoring (lines, commits, days)
-- `baseline-scenarios`: Validated test scenarios
+Prevent overengineering via scoring and opportunity cost comparison. Components include:
+- `decision-framework`: Worthiness formula and scoring system.
+- `anti-overengineering`: Rules to prevent scope creep.
+- `branch-management`: Threshold monitoring.
+- `baseline-scenarios`: Validated test scenarios.
 
 **When to Use:**
-Use during planning to evaluate if features should be implemented now or deferred. Also triggered by hooks for branch metrics.
+Use during planning to evaluate if features should be implemented now or deferred.
 
 **Required TodoWrite Items:**
 1. `scope-guard:worthiness-scored`: Calculate feature score.
@@ -75,27 +75,27 @@ Use during planning to evaluate if features should be implemented now or deferre
 ### Feature Planning
 
 #### feature-review
-Evidence-based feature prioritization using hybrid RICE+WSJF scoring. Uses a modular structure with four components:
-- `scoring-framework`: Hybrid RICE+WSJF scoring with configurable weights
-- `classification-system`: Proactive/Reactive and Static/Dynamic feature classification
-- `tradeoff-dimensions`: Nine quality dimensions based on ISO 25010
-- `configuration`: YAML configuration with guardrails and project-type templates
+Evidence-based feature prioritization using hybrid RICE+WSJF scoring. Components include:
+- `scoring-framework`: Hybrid RICE+WSJF scoring.
+- `classification-system`: Feature classification.
+- `tradeoff-dimensions`: Quality dimensions based on ISO 25010.
+- `configuration`: YAML configuration with guardrails.
 
 **When to Use:**
-Use to inventory implemented features, score and prioritize them, analyze tradeoffs, and suggest new features. Can create GitHub issues for accepted suggestions.
+Use to inventory features, score and prioritize them, and analyze tradeoffs.
 
 **Required TodoWrite Items:**
-1. `feature-review:inventory-complete`: Discover and catalog features.
-2. `feature-review:classification-applied`: Classify features on both axes.
+1. `feature-review:inventory-complete`: Catalog features.
+2. `feature-review:classification-applied`: Classify features.
 3. `feature-review:scoring-complete`: Calculate priority scores.
 4. `feature-review:tradeoffs-analyzed`: Evaluate quality dimensions.
 5. `feature-review:gaps-identified`: Identify improvement opportunities.
-6. `feature-review:issues-created`: Create GitHub issues (if requested).
+6. `feature-review:issues-created`: Create GitHub issues if requested.
 
 ### Output Patterns
 
 #### evidence-logging
-Captures evidence used in analysis for traceability.
+Capture evidence used in analysis for traceability.
 
 **When to Use:**
 Use during analysis to create a record of work and back recommendations with data.
@@ -107,10 +107,10 @@ Use during analysis to create a record of work and back recommendations with dat
 4. `evidence-logging:artifacts-indexed`: Catalog generated files.
 
 #### structured-output
-Formats final analysis output.
+Format final analysis output.
 
 **When to Use:**
-Use when preparing the final report to maintain consistency and readability.
+Use when preparing the final report for consistency.
 
 **Required TodoWrite Items:**
 1. `structured-output:template-selected`: Choose format.
@@ -145,7 +145,7 @@ imbue/
 
 ## Dependencies
 
-None - this is a foundational methodology plugin.
+None.
 
 ## Usage
 
@@ -236,19 +236,12 @@ claude --fork-session --session-id "top-down-review" --resume
 # Combine insights for full review
 ```
 
-### Benefits
-
-- **Independent evidence logs**: Each fork maintains separate evidence without cross-contamination
-- **Specialized perspectives**: Deep focus on single concern (security, performance, etc.)
-- **Parallel analysis**: Explore multiple approaches simultaneously
-- **Full reviews**: Combine insights from multiple specialized forks
-
 ### Best Practices
 
-- **Clear scope per fork**: Each fork should focus on one analytical perspective
-- **Evidence extraction**: Save evidence logs to files before closing forks
-- **Consolidation workflow**: Create summary that synthesizes findings from all forks
-- **Descriptive session IDs**: Use perspective name in ID (e.g., "security-audit-pr-42")
+- **Clear scope per fork**: Each fork should focus on one analytical perspective.
+- **Evidence extraction**: Save evidence logs to files before closing forks.
+- **Consolidation workflow**: Create a summary that synthesizes findings from all forks.
+- **Descriptive session IDs**: Use the perspective name in the ID (e.g., "security-audit-pr-42").
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 

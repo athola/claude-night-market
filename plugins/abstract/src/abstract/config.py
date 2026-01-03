@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Centralized configuration management for Abstract tools and skills.
 
-Consolidates all configuration values and provides validation.
+Consolidate all configuration values and provide validation.
 """
 
 import json

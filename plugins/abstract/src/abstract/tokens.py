@@ -159,7 +159,7 @@ class TokenAnalyzer:
     ) -> dict:
         """Check token efficiency against thresholds.
 
-        Evaluates token count and provides status and rating.
+        Evaluate token count and provide status and rating.
         The rating system:
         - OPTIMAL: <= optimal threshold (rating 1.0)
         - GOOD: Between optimal and midpoint (rating 0.9-0.7)
@@ -249,7 +249,7 @@ class TokenAnalyzer:
 def analyze_content(content: str) -> dict[str, int]:
     """Analyze content and return detailed token breakdown.
 
-    Convenience function that delegates to TokenAnalyzer.analyze_content().
+    Delegate to TokenAnalyzer.analyze_content().
 
     Args:
         content: The text content to analyze.
@@ -268,7 +268,7 @@ def check_efficiency(
 ) -> dict:
     """Check token efficiency against thresholds.
 
-    Convenience function that delegates to TokenAnalyzer.check_efficiency().
+    Delegate to TokenAnalyzer.check_efficiency().
 
     Args:
         token_count: Number of tokens to evaluate.

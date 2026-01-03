@@ -134,14 +134,14 @@ technical-debt-integration: ## Setup integrations with external tools
 	python scripts/technical_debt_integration.py . teamcity-integration
 	@echo "Integration files generated in current directory"
 
-technical-debt-report: ## Generate detailed technical debt report
+technical-debt-report: ## Generate technical debt report
 	@echo "Generating detailed technical debt report..."
 	mkdir -p reports
 	python scripts/technical_debt_metrics_kpi.py . report 90 > reports/quarterly_debt_report.json
 	python scripts/debt_dashboard_generator.py . --output-dir reports
 	@echo "detailed report generated in reports/ directory"
 
-technical-debt-clean: ## Clean technical debt artifacts and data
+technical-debt-clean: ## Clean technical debt artifacts
 	@echo "Cleaning technical debt artifacts..."
 	rm -f debt_scan_results.json
 	rm -f current_kpis.json

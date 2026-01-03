@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
-"""Universal quota tracking for rate-limited services.
+"""Track quotas for rate-limited services.
 
 This is a generalized quota tracker that can be used by any plugin
 integrating with rate-limited external services.
-
-Usage:
-    from leyline.quota_tracker import QuotaTracker
-
-    tracker = QuotaTracker(service="my-service")
-    status, warnings = tracker.get_quota_status()
 """
 
 from __future__ import annotations
@@ -23,7 +17,7 @@ from pathlib import Path
 
 @dataclass
 class QuotaConfig:
-    """Configuration for service quotas."""
+    """Configure service quotas."""
 
     requests_per_minute: int = 60
     requests_per_day: int = 1000
@@ -33,7 +27,7 @@ class QuotaConfig:
 
 @dataclass
 class UsageStats:
-    """Current usage statistics."""
+    """Represent current usage statistics."""
 
     requests_this_minute: int = 0
     requests_today: int = 0
@@ -44,7 +38,7 @@ class UsageStats:
 
 @dataclass
 class QuotaStatus:
-    """Quota status result."""
+    """Represent a quota status result."""
 
     level: str  # "healthy", "warning", "critical"
     warnings: list[str] = field(default_factory=list)
@@ -75,7 +69,7 @@ WARNING_THRESHOLD = 80
 
 
 class QuotaTracker:
-    """Universal quota tracker for rate-limited services."""
+    """Provide universal quota tracking for rate-limited services."""
 
     def __init__(
         self,

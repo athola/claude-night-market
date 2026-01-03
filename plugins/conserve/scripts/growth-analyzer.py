@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Context Growth Analysis Tool.
+"""Analyze context growth patterns, detect acceleration, and project future growth.
 
-Analyzes context growth patterns, detects acceleration, and projects future growth.
-Supports multiple output formats and customizable projection horizons.
+Support multiple output formats and customizable projection horizons.
 """
 
 import argparse
@@ -18,7 +17,7 @@ PROJECTION_TURNS = [5, 10, 20]
 
 
 class GrowthAnalyzer:
-    """Analyzes context growth patterns and generates projections."""
+    """Analyze context growth patterns and generate projections."""
 
     def __init__(self) -> None:
         """Initialize the GrowthAnalyzer with default thresholds."""

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Common utilities for Abstract scripts.
 
-This module provides utility functions for:
+Provide utility functions for:
 - Project and config discovery
 - Frontmatter extraction and validation
 - Skill file discovery and loading

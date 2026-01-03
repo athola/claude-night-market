@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Attune project initialization script."""
+"""Initialize a new project with Attune."""
 
 import argparse
 import sys

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CLI Framework for Abstract scripts.
 
-Provides standardized CLI creation with common arguments, output formatting,
+Provide standardized CLI creation with common arguments, output formatting,
 and integration with core Abstract functionality.
 """
 
@@ -33,7 +33,7 @@ class CLIResult[T]:
 
 
 class OutputFormatter:
-    """Handles output formatting for CLI results."""
+    """Handle output formatting for CLI results."""
 
     @staticmethod
     def format_json(data: Any) -> str:
@@ -129,7 +129,7 @@ class OutputFormatter:
 class AbstractCLI(ABC):
     """Base class for Abstract CLI tools.
 
-    Provides standardized argument parsing, output formatting,
+    Provide standardized argument parsing, output formatting,
     and integration with core Abstract functionality.
     """
 

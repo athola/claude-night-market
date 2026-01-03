@@ -1,21 +1,20 @@
 # Claude Night Market
 
-**Supercharge your Claude Code with specialized plugins for real software engineering workflows.**
+**Claude Code plugins for software engineering workflows.**
 
-Claude Night Market is a curated ecosystem of plugins that extend Claude Code with production-ready skills, commands, and agents—from git workflows and code review to spec-driven development and architecture planning.
+Claude Night Market extends Claude Code with skills, commands, and agents for git workflows, code review, spec-driven development, and architecture planning.
 
-> **Works standalone. Even better with [superpowers](https://github.com/obra/superpowers).**
-> Superpowers provides foundational methodology skills (TDD, debugging, code review patterns) that enhance these plugins significantly.
+> **Note:** These plugins work standalone but integrate with [superpowers](https://github.com/obra/superpowers) to add foundational skills like TDD and debugging.
 
-## Why Night Market?
+## Comparison
 
-| Without Plugins | With Night Market |
-|-----------------|-------------------|
-| Generic git commands | `/pr` - Smart PR prep with scope checking |
+| Standard Workflow | With Night Market |
+|-------------------|-------------------|
+| Generic git commands | `/pr` - PR preparation with scope checking |
 | Manual code review | `/full-review` - Multi-discipline review orchestration |
 | Ad-hoc specifications | `/speckit-specify` - Spec-driven development workflow |
-| Context lost between sessions | `/catchup` - Quick context recovery |
-| Repetitive boilerplate | `/attune:init` - Project scaffolding with best practices |
+| Context lost between sessions | `/catchup` - Context recovery |
+| Manual setup | `/attune:init` - Project scaffolding with best practices |
 
 ## Quick Start
 
@@ -34,7 +33,7 @@ Claude Night Market is a curated ecosystem of plugins that extend Claude Code wi
 Skill(sanctum:git-workspace-review)            # Invoke a skill
 ```
 
-**That's it.** See [Installation Guide](book/src/getting-started/installation.md) for recommended plugin sets and troubleshooting.
+**Next steps:** See [Installation Guide](book/src/getting-started/installation.md) for recommended plugin sets and troubleshooting.
 
 ## What's Included
 
@@ -80,12 +79,12 @@ flowchart TB
 
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 100+ skills, 75+ commands, and 25+ agents.
 
-## Who Is This For?
+## Target Audience
 
-- **Solo developers** wanting structured workflows without the overhead
-- **Teams** standardizing on Claude Code practices
-- **Plugin authors** building on proven patterns
-- **Anyone** tired of reinventing git workflows, code review checklists, and project scaffolding
+- **Developers** seeking structured, automated workflows.
+- **Teams** standardizing Claude Code practices across projects.
+- **Plugin authors** building on established architectural patterns.
+- **Maintainers** automating repetitive tasks like PR preparation and scaffolding.
 
 ## Documentation
 
@@ -113,7 +112,7 @@ See [LSP Setup Guide](plugins/abstract/docs/claude-code-compatibility.md) for la
 
 ## Extending Night Market
 
-Want to build your own plugins?
+To build your own plugins:
 
 ```bash
 # Scaffold a new plugin
@@ -130,19 +129,19 @@ See [Plugin Development Guide](docs/plugin-development-guide.md) for patterns, q
 
 ## System Prompt Budget
 
-The ecosystem fits within Claude Code's 15K character budget. All 160+ skills and commands load without configuration.
+The ecosystem operates within Claude Code's 15K character budget. All 160+ skills and commands load without configuration.
 
 - **Current usage**: ~14,800 characters (98.7% of budget)
-- **Budget enforcement**: Pre-commit hook prevents regression
+- **Enforcement**: A pre-commit hook prevents regression.
 
 See [Budget Optimization](docs/budget-optimization-dec-2025.md) for details.
 
 ## Philosophy
 
-- **Modular**: Shallow dependency chains, single responsibility
-- **Progressive**: Load only what you need
-- **Composable**: Plugins designed to work together
-- **Spec-driven**: Define what before implementing how
+- **Modular**: Shallow dependency chains and single responsibility.
+- **Progressive**: Load only what is needed.
+- **Composable**: Plugins designed to work together.
+- **Spec-driven**: Prioritize specifications before implementation.
 
 ## Contributing
 

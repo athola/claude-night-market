@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quick skill optimizer - template for batch processing."""
+"""Optimize skills using batch processing templates."""
 
 import argparse
 import os

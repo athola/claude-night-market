@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tool for managing dependencies in Claude Code plugins."""
+"""Manage dependencies in Claude Code plugins."""
 
 import argparse
 import json
@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 class DependencyManager:
-    """Manages dependencies for Claude Code plugins."""
+    """Manage dependencies for Claude Code plugins."""
 
     def __init__(self, plugin_root: Path) -> None:
         """Initialize the dependency manager.

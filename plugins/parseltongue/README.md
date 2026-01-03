@@ -1,6 +1,6 @@
 # Parseltongue
 
-Python development skills for Claude Code. Covers testing, performance profiling, async patterns, and packaging.
+Python development skills for Claude Code. Supports testing, performance profiling, async patterns, and packaging.
 
 ## Installation
 
@@ -22,10 +22,10 @@ Or reference directly from the marketplace:
 
 | Skill | Description |
 |-------|-------------|
-| **python-testing** | Pytest patterns, fixtures, mocking, TDD workflows. |
-| **python-performance** | CPU/memory profiling, optimization patterns, benchmarking. |
-| **python-async** | asyncio, concurrent programming, async/await patterns. |
-| **python-packaging** | Modern pyproject.toml, uv, PyPI publishing. |
+| **python-testing** | Pytest patterns, fixtures, mocking, and TDD workflows. |
+| **python-performance** | CPU and memory profiling, optimization, and benchmarking. |
+| **python-async** | asyncio, concurrent programming, and async/await patterns. |
+| **python-packaging** | Modern pyproject.toml, uv, and PyPI publishing. |
 
 ### Commands
 
@@ -39,7 +39,7 @@ Or reference directly from the marketplace:
 
 | Agent | Description |
 |-------|-------------|
-| **python-pro** | Python development assistant (modern 3.12+ features). |
+| **python-pro** | Python development assistant for modern features. |
 | **python-tester** | Testing assistant for pytest and TDD. |
 | **python-optimizer** | Performance profiling and optimization assistant. |
 
@@ -47,7 +47,6 @@ Or reference directly from the marketplace:
 
 ### Testing
 ```python
-# Use the testing skill for pytest patterns
 # Skill: python-testing
 
 import pytest
@@ -65,7 +64,6 @@ def test_user_creation(db_session):
 
 ### Performance Optimization
 ```python
-# Use the performance skill for profiling
 # Skill: python-performance
 
 from functools import lru_cache
@@ -77,7 +75,6 @@ def expensive_computation(n):
 
 ### Async Programming
 ```python
-# Use the async skill for concurrent patterns
 # Skill: python-async
 
 import asyncio
@@ -89,7 +86,6 @@ async def fetch_all(urls):
 
 ### Modern Packaging
 ```toml
-# Use the packaging skill for pyproject.toml
 # Skill: python-packaging
 
 [build-system]
@@ -102,15 +98,15 @@ version = "0.1.0"
 dependencies = ["requests>=2.0.0"]
 ```
 
-## Ecosystem Integration
+## Integration
 
-Integrates with the modern Python ecosystem:
+Parseltongue integrates with these tools:
 
-- **Package Manager**: uv (preferred), pip, poetry
-- **Linting**: ruff, mypy, pyright
-- **Testing**: pytest, pytest-asyncio, hypothesis, pytest-cov
-- **Frameworks**: FastAPI, Django, Flask
-- **Data**: pandas, SQLAlchemy, pydantic
+- **Package Managers**: uv, pip, poetry.
+- **Linting**: ruff, mypy, pyright.
+- **Testing**: pytest, pytest-asyncio, hypothesis, pytest-cov.
+- **Frameworks**: FastAPI, Django, Flask.
+- **Data**: pandas, SQLAlchemy, pydantic.
 
 ## Structure
 
@@ -140,9 +136,9 @@ parseltongue/
 
 ## Requirements
 
-- Python 3.9+ (3.12+ recommended)
-- Claude Code with plugin support
-- Optional: uv for package management
+- Python 3.9+ (3.12+ recommended).
+- Claude Code with plugin support.
+- Optional: uv for package management.
 
 ## License
 

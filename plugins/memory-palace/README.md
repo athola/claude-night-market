@@ -4,19 +4,19 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 ## Overview
 
-The Memory Palace plugin provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to enhance recall and organize complex information.
+The Memory Palace plugin provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to organize and retrieve complex information.
 
 ## Features
 
-- **Memory Palace Architect**: Design spatial knowledge structures using mnemonic techniques
-- **Knowledge Locator**: Multi-modal search across palaces (semantic, spatial, sensory)
-- **Session Palace Builder**: Temporary palaces for extended conversations
-- **Digital Garden Cultivator**: Evolving knowledge bases with bidirectional linking
-- **PR Review Chamber**: Capture PR review knowledge in project memory palaces
+- **Memory Palace Architect**: Design spatial knowledge structures using mnemonic techniques.
+- **Knowledge Locator**: Multi-modal search across palaces (semantic, spatial, sensory).
+- **Session Palace Builder**: Temporary palaces for extended conversations.
+- **Digital Garden Cultivator**: Evolving knowledge bases with bidirectional linking.
+- **PR Review Chamber**: Capture PR review knowledge in project memory palaces.
 
-## PR Review Room (New in v1.2.0)
+## PR Review Room
 
-Treat entire projects as palaces with a dedicated review chamber for capturing knowledge from PR reviews.
+Treat projects as palaces with a dedicated chamber for capturing knowledge from PR reviews.
 
 ### Project Palace Structure
 
@@ -48,15 +48,12 @@ project-palace/
 
 ### Integration with sanctum:pr-review
 
-Knowledge capture triggers automatically after PR reviews:
+Knowledge capture triggers after PR reviews:
 
-```bash
-/pr-review 42
-# → Review posted to GitHub
-# → Significant findings captured to review-chamber
-```
+1. Review posted to GitHub.
+2. Findings captured to review-chamber.
 
-See `skills/review-chamber/SKILL.md` for full documentation.
+See `skills/review-chamber/SKILL.md` for details.
 
 ## Installation
 
@@ -94,40 +91,40 @@ python scripts/garden_metrics.py path/to/garden.json --format brief
 
 | Skill | Description |
 |-------|-------------|
-| `memory-palace-architect` | Design and construct virtual memory palaces |
-| `knowledge-locator` | Find information using multi-modal search |
-| `session-palace-builder` | Create temporary session-specific palaces |
-| `digital-garden-cultivator` | Manage evolving knowledge bases |
-| `knowledge-intake` | Process and evaluate external knowledge |
-| `review-chamber` | Capture PR review knowledge in project palaces |
+| `memory-palace-architect` | Design and construct virtual memory palaces. |
+| `knowledge-locator` | Find information using multi-modal search. |
+| `session-palace-builder` | Create temporary session-specific palaces. |
+| `digital-garden-cultivator` | Manage evolving knowledge bases. |
+| `knowledge-intake` | Process and evaluate external knowledge. |
+| `review-chamber` | Capture PR review knowledge in project palaces. |
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/palace` | Create and manage memory palaces |
-| `/garden` | Manage digital gardens and metrics |
-| `/navigate` | Search and navigate across palaces |
-| `/review-room` | Manage PR review knowledge in project palaces |
+| `/palace` | Create and manage memory palaces. |
+| `/garden` | Manage digital gardens and metrics. |
+| `/navigate` | Search and navigate across palaces. |
+| `/review-room` | Manage PR review knowledge in project palaces. |
 
 ## Agents
 
 | Agent | Description |
 |-------|-------------|
-| `palace-architect` | Designs palace architectures |
-| `knowledge-navigator` | Searches and retrieves information |
-| `garden-curator` | Maintains digital gardens |
+| `palace-architect` | Design palace architectures. |
+| `knowledge-navigator` | Search and retrieve information. |
+| `garden-curator` | Maintain digital gardens. |
 
 ## Hooks
 
-The plugin registers several hooks to integrate with Claude Code tool events:
+The plugin registers hooks to integrate with Claude Code tool events:
 
 | Hook | Event | Description |
 |------|-------|-------------|
-| `research_interceptor.py` | PreToolUse | Intercepts WebSearch/WebFetch to check local knowledge cache before web requests |
-| `local_doc_processor.py` | PostToolUse | Monitors Read operations on configured knowledge paths for indexing suggestions |
-| `url_detector.py` | PostToolUse | Detects URLs in tool responses for potential knowledge intake |
-| `web_content_processor.py` | PostToolUse | Processes web content for knowledge extraction |
+| `research_interceptor.py` | PreToolUse | Checks local knowledge cache before web requests. |
+| `local_doc_processor.py` | PostToolUse | Monitors Read operations for indexing suggestions. |
+| `url_detector.py` | PostToolUse | Detects URLs for potential knowledge intake. |
+| `web_content_processor.py` | PostToolUse | Processes web content for knowledge extraction. |
 
 Hooks are configured via `hooks/hooks.json` and `hooks/memory-palace-config.yaml`.
 
@@ -234,17 +231,17 @@ claude --fork-session --session-id "pattern-chambers" --resume
 
 ### Benefits
 
-- **Risk-free experimentation**: Try organization strategies without committing
-- **Comparative evaluation**: See which approach works best for your content
-- **Learning optimization**: Find the knowledge structure that matches your mental model
-- **Iterative refinement**: Test refinements without losing proven approaches
+- **Risk-free experimentation**: Test organization strategies before committing.
+- **Comparative evaluation**: Identify the approach that best fits the content.
+- **Mental model alignment**: Find the knowledge structure that matches your thinking.
+- **Iterative refinement**: Test improvements without losing previous work.
 
 ### Best Practices
 
-- **Test with representative content**: Use actual knowledge to evaluate organization
-- **Document decision rationale**: Record why you chose one approach over others
-- **Extract palace designs**: Save successful palace structures to templates
-- **Iterate gradually**: Start with one fork, then add more if needed
+- **Test with representative content**: Use actual knowledge to evaluate organization.
+- **Document decision rationale**: Record why a specific approach was chosen.
+- **Extract palace designs**: Save successful structures as templates.
+- **Iterate gradually**: Start with one fork and expand if needed.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 

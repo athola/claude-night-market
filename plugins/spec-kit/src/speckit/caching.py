@@ -1,4 +1,4 @@
-"""Caching utilities for spec-kit performance optimization."""
+"""Provide caching utilities for spec-kit performance optimization."""
 
 import hashlib
 import json
@@ -12,14 +12,7 @@ import cachetools
 
 
 class SpecKitCache:
-    """detailed caching system for spec-kit operations.
-
-    Features:
-    - TTL-based cache expiration
-    - File-based persistence
-    - Memory caching for hot data
-    - Cache invalidation strategies
-    """
+    """Provide a detailed caching system for spec-kit operations."""
 
     def __init__(self, cache_dir: Path | None = None) -> None:
         """Initialize cache with optional custom directory."""
@@ -235,7 +228,7 @@ def cached(
 
 
 class CacheManager:
-    """High-level cache management for spec-kit operations."""
+    """Manage caches for spec-kit operations at a high level."""
 
     CACHE_CATEGORIES = {
         "spec_parsing": 1800,  # 30 minutes

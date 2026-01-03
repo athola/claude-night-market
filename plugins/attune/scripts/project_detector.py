@@ -1,4 +1,4 @@
-"""Project type detection and validation."""
+"""Detect and validate project types."""
 
 from pathlib import Path
 

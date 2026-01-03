@@ -2,7 +2,7 @@
 
 A collection of Claude Code plugins for software engineering workflows.
 
-Claude Night Market provides a curated ecosystem of plugins that enhance your Claude Code experience with specialized skills, commands, agents, and hooks for common development tasks.
+Claude Night Market provides plugins for Claude Code to support software engineering workflows. It includes skills, commands, agents, and hooks for development tasks.
 
 ## What You'll Find Here
 
@@ -38,12 +38,12 @@ The marketplace is organized into layers, each building on the foundations below
 
 ## Philosophy
 
-The Claude Night Market is built on four principles:
+The project follows four principles:
 
 1. **Modular**: Shallow dependency chains with single responsibility
-2. **Progressive**: Load only what you need, when you need it
-3. **Composable**: Plugins are designed to work together seamlessly
-4. **Spec-driven**: Define what you want before implementing how
+2. **Progressive**: Load only what is needed.
+3. **Composable**: Plugins designed to work together.
+4. **Spec-driven**: Prioritize specifications before implementation.
 
 ## Quick Example
 
@@ -63,7 +63,7 @@ Skill(sanctum:git-workspace-review)
 
 ## Recommended Companion: Superpowers
 
-Many skills achieve their full potential when used alongside the [superpowers](https://github.com/obra/superpowers) skills. While all plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns) that enhance workflows significantly.
+Many skills work effectively with [superpowers](https://github.com/obra/superpowers) skills. While plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns).
 
 ```bash
 # Add superpowers marketplace
@@ -73,6 +73,6 @@ Many skills achieve their full potential when used alongside the [superpowers](h
 /plugin install superpowers@superpowers-marketplace
 ```
 
-## Ready to Begin?
+## Next Steps
 
-Head to the [Getting Started](getting-started/index.html) section to install your first plugin and start exploring the Night Market.
+Head to the [Getting Started](getting-started/index.html) section to install your first plugin.

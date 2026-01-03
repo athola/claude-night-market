@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Command-line interface for managing the Memory Palace.
+"""Manage the Memory Palace using a command-line interface.
 
-Provides commands for enabling, disabling, and managing the plugin,
-its skills, and associated palaces. Serves as the primary entrypoint
+Provide commands for enabling, disabling, and managing the plugin,
+its skills, and associated palaces. Serve as the primary entrypoint
 for administrative tasks.
 """
 
@@ -56,12 +56,7 @@ class TendingContext:
 
 
 class MemoryPalaceCLI:
-    """Main entrypoint for all command-line operations.
-
-    Encapsulates logic for all CLI commands, including enabling, disabling, and
-    managing the Memory Palace. The `main` function creates an instance of this
-    class and calls its methods based on parsed command-line arguments.
-    """
+    """Provide the main entrypoint for all command-line operations."""
 
     def __init__(self) -> None:
         """Initialize the Memory Palace CLI."""

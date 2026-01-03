@@ -1,4 +1,4 @@
-"""Core tracking utilities for Minister."""
+"""Provide core tracking utilities for Minister."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from typing import Any
 
 @dataclass
 class Task:
-    """Represents a task in the initiative."""
+    """Represent a task in the initiative."""
 
     id: str
     title: str
@@ -32,14 +32,14 @@ class Task:
 
 @dataclass
 class InitiativeTracker:
-    """Tracks progress across all initiatives."""
+    """Track progress across all initiatives."""
 
     tasks: list[Task]
     last_updated: str
 
 
 class ProjectTracker:
-    """Main project tracking system."""
+    """Provide the main project tracking system."""
 
     DEFAULT_INITIATIVES = [
         "GitHub Projects Hygiene",

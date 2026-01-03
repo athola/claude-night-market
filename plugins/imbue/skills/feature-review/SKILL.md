@@ -29,30 +29,28 @@ modules:
 
 # Feature Review
 
-Review currently implemented features and suggest new features using evidence-based prioritization. Features can be uploaded to GitHub as issues after user acceptance.
+Review implemented features and suggest new ones using evidence-based prioritization. Create GitHub issues for accepted suggestions.
 
 ## Philosophy
 
-**Core Belief:** Feature decisions should be data-driven, not gut-driven. Every feature has tradeoffs that deserve explicit evaluation.
+**Core Belief:** Feature decisions should be data-driven. Every feature has tradeoffs that deserve evaluation.
 
 **Three Pillars:**
-1. **Evidence-Based Scoring** - Hybrid RICE+WSJF with Kano classification
-2. **Configurable Heuristics** - Opinionated defaults, flexible customization
-3. **Actionable Output** - GitHub issues, not just reports
+1. **Evidence-Based Scoring**: Hybrid RICE+WSJF with Kano classification.
+2. **Configurable Heuristics**: Opinionated defaults with customization.
+3. **Actionable Output**: Issue generation for accepted features.
 
 ## When to Use
 
-- Periodic roadmap reviews (sprint planning, quarterly reviews)
-- When deciding what to build next
-- After shipping a major feature (retrospective evaluation)
-- When stakeholders ask "why aren't we building X?"
-- Before starting a new development cycle
+- Periodic roadmap reviews (sprint planning, quarterly reviews).
+- Retrospective evaluations after shipping features.
+- Planning new development cycles.
 
 ## When NOT to Use
 
-- Emergency bug fixes (just fix it)
-- Simple documentation updates
-- During active implementation (use scope-guard instead)
+- Emergency bug fixes.
+- Simple documentation updates.
+- Active implementation (use `scope-guard`).
 
 ## Quick Start
 
@@ -65,7 +63,7 @@ Discover and categorize existing features:
 
 ### 2. Score and Classify
 
-Evaluate features against prioritization framework:
+Evaluate features against the prioritization framework:
 ```bash
 /feature-review
 ```
@@ -84,27 +82,17 @@ Create issues for accepted suggestions:
 /feature-review --suggest --create-issues
 ```
 
-## Core Workflow
+## Workflow
 
 ### Phase 1: Feature Discovery (`feature-review:inventory-complete`)
 
-Identify implemented features by analyzing:
+Identify features by analyzing:
 
-1. **Code artifacts**
-   - Entry points (commands, skills, agents, hooks)
-   - Public APIs and exports
-   - Configuration surfaces
+1. **Code artifacts**: Entry points, public APIs, and configuration surfaces.
+2. **Documentation**: README lists, CHANGELOG entries, and user docs.
+3. **Git history**: Recent feature commits and branches.
 
-2. **Documentation**
-   - README features lists
-   - CHANGELOG entries
-   - User-facing docs
-
-3. **Git history**
-   - Recent feature commits
-   - Feature branches
-
-**Output:** Feature inventory table with metadata
+**Output:** Feature inventory table.
 
 ### Phase 2: Classification (`feature-review:classified`)
 
@@ -112,17 +100,17 @@ Classify each feature along two axes:
 
 **Axis 1: Proactive vs Reactive**
 
-| Type | Definition | Latency Tolerance | Examples |
-|------|------------|-------------------|----------|
-| **Proactive** | Anticipates user needs | Higher (background OK) | Suggestions, prefetching, auto-saves |
-| **Reactive** | Responds to explicit input | Low (must feel instant) | Form handling, click actions, validation |
+| Type | Definition | Examples |
+|------|------------|----------|
+| **Proactive** | Anticipates user needs. | Suggestions, prefetching. |
+| **Reactive** | Responds to explicit input. | Form handling, click actions. |
 
 **Axis 2: Static vs Dynamic**
 
-| Type | Update Pattern | Storage Model | Lookup Cost |
-|------|---------------|---------------|-------------|
-| **Static** | Incremental, versioned | File-based, cached | O(1), deterministic |
-| **Dynamic** | Continuous, streaming | Database, real-time | O(log n), variable |
+| Type | Update Pattern | Storage Model |
+|------|---------------|---------------|
+| **Static** | Incremental, versioned. | File-based, cached. |
+| **Dynamic** | Continuous, streaming. | Database, real-time. |
 
 See [classification-system.md](modules/classification-system.md) for details.
 
@@ -139,14 +127,14 @@ Cost Score = (Effort + Risk + Complexity) / 3
 Adjusted Score = Feature Score * Confidence
 ```
 
-**Scoring Scale:** Fibonacci (1, 2, 3, 5, 8, 13)
+**Scoring Scale:** Fibonacci (1, 2, 3, 5, 8, 13).
 
 **Thresholds:**
-- **> 2.5** - High priority (implement soon)
-- **1.5 - 2.5** - Medium priority (roadmap candidate)
-- **< 1.5** - Low priority (backlog or defer)
+- **> 2.5**: High priority.
+- **1.5 - 2.5**: Medium priority.
+- **< 1.5**: Low priority.
 
-See [scoring-framework.md](modules/scoring-framework.md) for full framework.
+See [scoring-framework.md](modules/scoring-framework.md) for the framework.
 
 ### Phase 4: Tradeoff Analysis (`feature-review:tradeoffs-analyzed`)
 
@@ -164,39 +152,35 @@ Evaluate each feature across quality dimensions:
 | **Integration** | Does it play well with others? | 1-5 |
 | **API Surface** | Is it backward compatible? | 1-5 |
 
-See [tradeoff-dimensions.md](modules/tradeoff-dimensions.md) for evaluation criteria.
+See [tradeoff-dimensions.md](modules/tradeoff-dimensions.md) for criteria.
 
 ### Phase 5: Gap Analysis & Suggestions (`feature-review:suggestions-generated`)
 
-Based on inventory and scores:
-
-1. **Identify gaps** - Missing Kano basics, underserved user needs
-2. **Surface opportunities** - High-value, low-effort features
-3. **Flag technical debt** - Features with declining scores
-4. **Recommend actions** - Build, improve, deprecate, or maintain
+1. **Identify gaps**: Missing Kano basics.
+2. **Surface opportunities**: High-value, low-effort features.
+3. **Flag technical debt**: Features with declining scores.
+4. **Recommend actions**: Build, improve, deprecate, or maintain.
 
 ### Phase 6: GitHub Integration (`feature-review:issues-created`)
 
-For accepted suggestions:
-
-1. Generate issue title and body from suggestion
-2. Apply appropriate labels (feature, enhancement, priority/*)
-3. Link to related existing issues
-4. Prompt user for confirmation before creation
+1. Generate issue title and body from suggestions.
+2. Apply labels (feature, enhancement, priority/*).
+3. Link to related issues.
+4. Confirm with user before creation.
 
 ## Configuration
 
-Feature-review uses opinionated defaults but allows project customization.
+Feature-review uses opinionated defaults but allows customization.
 
 ### Configuration File
 
-Create `.feature-review.yaml` in project root to customize:
+Create `.feature-review.yaml` in project root:
 
 ```yaml
 # .feature-review.yaml
 version: 1
 
-# Scoring weights (must sum to 1.0 within category)
+# Scoring weights (must sum to 1.0)
 weights:
   value:
     reach: 0.25
@@ -210,16 +194,10 @@ weights:
 
 # Score thresholds
 thresholds:
-  high_priority: 2.5      # > this = implement soon
-  medium_priority: 1.5    # > this = roadmap
-  # below medium = backlog
+  high_priority: 2.5
+  medium_priority: 1.5
 
-# Classification defaults
-classification:
-  default_type: reactive  # proactive | reactive
-  default_data: static    # static | dynamic
-
-# Tradeoff dimension weights (0.0 to disable, 1.0 = normal)
+# Tradeoff dimension weights (0.0 to disable)
 tradeoffs:
   quality: 1.0
   latency: 1.0
@@ -230,72 +208,33 @@ tradeoffs:
   scalability: 0.8
   integration: 1.0
   api_surface: 1.0
-
-# GitHub integration
-github:
-  auto_label: true
-  label_prefix: "priority/"
-  default_labels:
-    - enhancement
-  issue_template: |
-    ## Feature Request
-
-    **Classification:** {{ classification }}
-    **Priority Score:** {{ score }}
-
-    ### Description
-    {{ description }}
-
-    ### Value Proposition
-    {{ value_proposition }}
-
-    ### Tradeoff Considerations
-    {{ tradeoffs }}
 ```
 
-See [configuration.md](modules/configuration.md) for all options.
+See [configuration.md](modules/configuration.md) for options.
 
-### Guardrails (Always Enforced)
+### Guardrails
 
-These rules apply regardless of configuration:
+These rules apply to all configurations:
 
-1. **Minimum dimensions** - At least 5 tradeoff dimensions must be evaluated
-2. **Confidence requirement** - Scores below 50% confidence flagged for review
-3. **Breaking change warning** - API surface changes require explicit acknowledgment
-4. **Backlog limit** - Max 25 items in suggestion queue (forces prioritization)
+1. **Minimum dimensions**: Evaluate at least 5 tradeoff dimensions.
+2. **Confidence requirement**: Review scores below 50% confidence.
+3. **Breaking change warning**: Require acknowledgment for API surface changes.
+4. **Backlog limit**: Limit suggestion queue to 25 items.
 
 ## Required TodoWrite Items
-
-When running feature-review, create these todos:
 
 1. `feature-review:inventory-complete`
 2. `feature-review:classified`
 3. `feature-review:scored`
 4. `feature-review:tradeoffs-analyzed`
 5. `feature-review:suggestions-generated`
-6. `feature-review:issues-created` (if --create-issues)
+6. `feature-review:issues-created` (if requested)
 
 ## Integration Points
 
-### With imbue:scope-guard
-
-Feature-review feeds scope-guard decisions:
-- New feature suggestions get Worthiness Scores
-- High-priority features inform branch budgets
-- Backlog items ranked by Feature Score
-
-### With sanctum:fix-issue
-
-When fixing issues, check feature-review scores:
-- High-score features get priority attention
-- Low-score features may warrant scope discussion
-
-### With superpowers:brainstorming
-
-During brainstorming, invoke feature-review to:
-- Compare new ideas against existing features
-- Identify gaps that new ideas could fill
-- Score proposals before planning
+- **`imbue:scope-guard`**: Provides Worthiness Scores for suggestions.
+- **`sanctum:fix-issue`**: Prioritizes issues with high scores.
+- **`superpowers:brainstorming`**: Evaluates new ideas against existing features.
 
 ## Output Format
 
@@ -306,7 +245,6 @@ During brainstorming, invoke feature-review to:
 |---------|------|------|-------|----------|--------|
 | Auth middleware | Reactive | Dynamic | 2.8 | High | Stable |
 | Skill loader | Reactive | Static | 2.3 | Medium | Needs improvement |
-| Auto-suggestions | Proactive | Dynamic | 1.8 | Medium | New opportunity |
 ```
 
 ### Suggestion Report
@@ -318,28 +256,20 @@ During brainstorming, invoke feature-review to:
 
 1. **[Feature Name]** (Score: 2.7)
    - Classification: Proactive/Dynamic
-   - Value: High reach, addresses user pain point
-   - Cost: Moderate effort, low risk
+   - Value: High reach
+   - Cost: Moderate effort
    - Recommendation: Build in next sprint
-
-### Medium Priority (Score 1.5-2.5)
-
-...
-
-### Backlog (Score < 1.5)
-
-...
 ```
 
 ## Related Skills
 
-- `imbue:scope-guard` - Prevents overengineering during implementation
-- `imbue:review-core` - Structured review methodology
-- `sanctum:pr-review` - Code-level feature review
+- `imbue:scope-guard`: Prevent overengineering.
+- `imbue:review-core`: Structured review methodology.
+- `sanctum:pr-review`: Code-level feature review.
 
-## Module Reference
+## Reference
 
-- **[scoring-framework.md](modules/scoring-framework.md)** - RICE+WSJF hybrid, Kano classification
-- **[classification-system.md](modules/classification-system.md)** - Proactive/reactive, static/dynamic axes
-- **[tradeoff-dimensions.md](modules/tradeoff-dimensions.md)** - Quality attribute evaluation
-- **[configuration.md](modules/configuration.md)** - Customization options and guardrails
+- **[scoring-framework.md](modules/scoring-framework.md)**: RICE+WSJF hybrid.
+- **[classification-system.md](modules/classification-system.md)**: Axes definition.
+- **[tradeoff-dimensions.md](modules/tradeoff-dimensions.md)**: Quality attributes.
+- **[configuration.md](modules/configuration.md)**: Customization options.

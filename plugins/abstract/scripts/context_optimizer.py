@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Context window optimization for abstract skills.
 
-Uses centralized utilities from abstract.base and abstract.utils.
+Use centralized utilities from abstract.base and abstract.utils.
 """
 
 import argparse
@@ -29,7 +29,7 @@ from abstract.utils import (  # noqa: E402
 
 
 class ContextOptimizer:
-    """Optimizes skill content loading for better context window management."""
+    """Optimize skill content loading for better context window management."""
 
     def __init__(self, config: AbstractConfig) -> None:
         """Initialize context optimizer with configuration."""

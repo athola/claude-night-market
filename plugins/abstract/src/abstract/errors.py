@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Centralized error handling utilities for Abstract tools.
 
-Provides consistent error reporting, logging, and user-friendly messages.
+Provide consistent error reporting, logging, and user-friendly messages.
 """
 
 import logging

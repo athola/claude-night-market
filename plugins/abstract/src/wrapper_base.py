@@ -1,6 +1,6 @@
 """Base wrapper infrastructure for abstract plugin.
 
-This module provides the base class for wrapping plugin commands
+Provide the base class for wrapping plugin commands
 to superpower calls, enabling migration from plugin-based
 functionality to superpowers.
 """
@@ -11,7 +11,7 @@ from typing import Any
 class SuperpowerWrapper:
     """Base class for wrapping plugin commands to superpower calls.
 
-    Provides parameter translation and common functionality for plugin
+    Provide parameter translation and common functionality for plugin
     command wrappers that delegate to superpower implementations.
     """
 
