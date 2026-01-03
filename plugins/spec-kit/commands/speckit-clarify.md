@@ -1,5 +1,11 @@
 ---
-description: Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec.
+name: speckit-clarify
+description: |
+  Ask targeted questions (max 5) to resolve spec ambiguities and encode answers.
+
+  Triggers: clarify spec, spec questions, ambiguity, underspecified
+  Use when: feature spec has ambiguous or missing details
+  DO NOT use when: generating tasks - use task-planning.
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:brainstorming` for enhanced clarification capabilities.

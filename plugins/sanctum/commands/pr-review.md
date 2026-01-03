@@ -1,6 +1,10 @@
 ---
 name: pr-review
-description: detailed PR review with scope validation, code analysis, and GitHub integration. Enforces version validation. Use for feature PRs and pre-merge quality gates.
+description: |
+  Comprehensive PR review with scope validation, code analysis, and version checks via GitHub.
+
+  Triggers: PR review, code review, pull request, pre-merge
+  Use when: reviewing feature PRs or enforcing quality gates
 usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--create-backlog-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
 extends: "superpowers:receiving-code-review"
 ---
@@ -356,19 +360,33 @@ After generating findings, you MUST post them to GitHub as PR review comments.
    **Fix:** Implement JWT signature verification'
    ```
 
-   **For multiple inline comments in one review:**
+   **For multiple inline comments in one review (use JSON input):**
    ```bash
    gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews \
      --method POST \
-     -f event="COMMENT" \
-     -f body="Review with inline comments" \
-     -f 'comments[0][path]=middleware/auth.py' \
-     -F 'comments[0][line]=45' \
-     -f 'comments[0][body]=**[B1] Issue description**' \
-     -f 'comments[1][path]=models/user.py' \
-     -F 'comments[1][line]=123' \
-     -f 'comments[1][body]=**[B2] Another issue**'
+     --input - <<'EOF'
+   {
+     "event": "COMMENT",
+     "body": "Review with inline comments",
+     "comments": [
+       {
+         "path": "middleware/auth.py",
+         "line": 45,
+         "side": "RIGHT",
+         "body": "**[B1] Issue description**"
+       },
+       {
+         "path": "models/user.py",
+         "line": 123,
+         "side": "RIGHT",
+         "body": "**[B2] Another issue**"
+       }
+     ]
+   }
+   EOF
    ```
+
+   **Note:** The indexed array syntax (`comments[0][path]`) does NOT work - always use JSON input for multiple comments.
 
    **For findings on lines NOT in the diff** (suggestions on unchanged code):
    ```bash

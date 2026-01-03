@@ -47,6 +47,13 @@ The `modules/output-templates.md` module provides standardized output formats:
 - Documentation update format
 - Version update summary format
 
+### GitHub Comments
+The `modules/github-comments.md` module provides patterns for posting PR comments:
+- Reviews API vs Comments API differences
+- Inline comment patterns with correct `-F` flag for integers
+- Fallback strategies when inline comments fail
+- Summary comment templates
+
 ## When to Reference
 - **New skill development**: Use these patterns to maintain consistency
 - **Workflow refactoring**: Reference when updating existing skills

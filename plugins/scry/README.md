@@ -1,6 +1,6 @@
-# Scry - Media Generation Plugin
+# Scry
 
-Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition.
+Media generation for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition.
 
 ## Installation
 
@@ -22,17 +22,17 @@ Or reference directly from the marketplace:
 
 | Skill | Description |
 |-------|-------------|
-| **vhs-recording** | Terminal recordings using VHS (Charmbracelet) with tape scripts |
-| **browser-recording** | Browser automation recordings using Playwright |
-| **gif-generation** | GIF processing and optimization workflows |
-| **media-composition** | Combine multiple media assets into tutorials and demos |
+| **vhs-recording** | Terminal recordings using VHS (Charmbracelet) with tape scripts. |
+| **browser-recording** | Browser automation recordings using Playwright. |
+| **gif-generation** | GIF processing and optimization. |
+| **media-composition** | Combine media assets into tutorials and demos. |
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/record-terminal` | Create terminal recordings with VHS tape scripts |
-| `/record-browser` | Record browser sessions using Playwright |
+| `/record-terminal` | Create terminal recordings with VHS tape scripts. |
+| `/record-browser` | Record browser sessions using Playwright. |
 
 ## Dependencies
 
@@ -89,7 +89,7 @@ sudo apt install ffmpeg
 # Create a VHS tape script and record
 /record-terminal
 
-# Or use the skill directly
+# Or use the skill
 Skill(scry:vhs-recording)
 ```
 
@@ -98,21 +98,21 @@ Skill(scry:vhs-recording)
 # Record a browser session
 /record-browser
 
-# Or use the skill directly
+# Or use the skill
 Skill(scry:browser-recording)
 ```
 
-> **💡 Claude Code 2.0.72+**: Native Chrome integration is now available for interactive browser control. Use Playwright (this plugin) for automated recording, CI/CD, and cross-browser support. See [Compatibility](#claude-code-compatibility) for details.
+**Note on Browser Recording**: Claude Code 2.0.72+ includes native Chrome integration for interactive browser control. Use Playwright for automated recording, CI/CD, and cross-browser support.
 
 ### GIF Generation
 ```bash
-# Process recordings into optimized GIFs
+# Process recordings into GIFs
 Skill(scry:gif-generation)
 ```
 
 ### Media Composition
 ```bash
-# Combine multiple assets into a tutorial
+# Combine assets into a tutorial
 Skill(scry:media-composition)
 ```
 
@@ -137,7 +137,7 @@ Run with:
 vhs example.tape
 ```
 
-## Plugin Structure
+## Structure
 
 ```
 scry/
@@ -157,46 +157,32 @@ scry/
 
 ## Workflow Patterns
 
-**Tutorial Creation**: Use `vhs-recording` to capture terminal demos, `browser-recording` for web UI walkthroughs, then `media-composition` to combine into a cohesive tutorial.
-
-**Demo Recording**: Quick terminal demo with `/record-terminal`, optimize output with `gif-generation`.
-
-**Documentation Assets**: Generate GIFs for README files and documentation using the full skill chain.
+- **Tutorial Creation**: Use `vhs-recording` for terminal demos, `browser-recording` for web UI walkthroughs, and `media-composition` to combine them.
+- **Demo Recording**: Record terminal demos with `/record-terminal` and optimize with `gif-generation`.
+- **Documentation Assets**: Generate GIFs for documentation using the skill chain.
 
 ## Claude Code Compatibility
 
 ### Browser Recording Options
 
-**Playwright (this plugin)** - Best for:
-- Automated recording workflows
-- Headless execution
-- CI/CD integration
-- Cross-browser testing (Chrome, Firefox, Safari)
-- Programmatic control via TypeScript/JavaScript specs
-
-**Native Chrome (Claude Code 2.0.72+)** - Best for:
-- Interactive debugging
-- Live testing and exploration
-- Reading console logs and network requests
-- Quick browser interactions
-- No setup required (just Chrome extension)
+- **Playwright (this plugin)**: Best for automated recording, headless execution, CI/CD, cross-browser testing, and programmatic control.
+- **Native Chrome (Claude Code 2.0.72+)**: Best for interactive debugging, live testing, exploring network requests, and quick interactions.
 
 ### Recommended Approach
 
-Combine both tools for maximum effectiveness:
-1. **Development**: Use native Chrome integration for interactive testing
-2. **Automation**: Convert workflows to Playwright specs for reliable recording
-3. **Documentation**: Use Playwright recording for consistent, reproducible demos
+1. **Development**: Use native Chrome integration for interactive testing.
+2. **Automation**: Use Playwright specs for reliable recording.
+3. **Documentation**: Use Playwright for consistent, reproducible demos.
 
 ### Image Viewing (Claude Code 2.0.73+)
 
-Claude Code 2.0.73+ adds clickable `[Image #N]` links that open images in your default viewer.
+Claude Code 2.0.73+ supports clickable `[Image #N]` links that open images in the default viewer.
 
 **Benefits for Scry Workflows**:
-- **Quick preview**: View generated GIFs and screenshots without leaving terminal
-- **Verification**: Instantly check recording output quality
-- **Comparison**: Open multiple generated images side-by-side for comparison
-- **Iteration**: Fast preview → adjust → regenerate workflow
+- **Quick preview**: View generated GIFs and screenshots without leaving the terminal.
+- **Verification**: Check recording output quality immediately.
+- **Comparison**: Open multiple images side-by-side.
+- **Iteration**: Fast preview and adjustment cycle.
 
 **Example**:
 ```bash
@@ -204,13 +190,10 @@ Claude Code 2.0.73+ adds clickable `[Image #N]` links that open images in your d
 /record-terminal demo.tape
 
 # Claude shows: "Generated demo.gif [Image #1]"
-# Click [Image #1] to preview in default image viewer
-# Review quality, then iterate if needed
+# Click [Image #1] to preview.
 ```
 
-This complements scry's media generation by making quality verification faster and more ergonomic.
-
-See `plugins/abstract/docs/claude-code-compatibility.md` for detailed version information.
+See `plugins/abstract/docs/claude-code-compatibility.md` for version details.
 
 ## License
 

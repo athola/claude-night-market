@@ -518,7 +518,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        plugin: [abstract, conjure, conservation, imbue, sanctum]
+        plugin: [abstract, conjure, conserve, imbue, sanctum]
 
     steps:
     - uses: actions/checkout@v3

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Token Usage Estimator for Skills - Estimates token usage for skill files.
+"""Token Usage Estimator for Skills - Estimate token usage for skill files.
 
 Uses centralized utilities from abstract.base and abstract.utils.
 """
@@ -36,7 +36,7 @@ CONSIDER_MAX = 3000
 
 
 class TokenEstimator:
-    """Estimates token usage for skill files."""
+    """Estimate token usage for skill files."""
 
     def analyze_file(self, file_path: Path, include_dependencies: bool = False) -> dict:
         """Analyze a single skill file for token usage.

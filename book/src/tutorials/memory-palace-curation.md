@@ -241,7 +241,7 @@ ls docs/knowledge-corpus/ | grep new-entry
 
 ## Next Steps
 
-- Return to [Plugin Overview](../plugins/README.md)
+- Return to [Plugin Overview](../plugins/index.html)
 - Explore [Capabilities Reference](../reference/capabilities-reference.md)
 
 <div class="achievement-unlock" data-achievement="curation-complete">

@@ -1,20 +1,11 @@
 ---
 name: architecture-paradigm-serverless
 description: |
-  Build serverless, Function-as-a-Service (FaaS) systems for event-driven or
-  operations-light workloads with minimal infrastructure management.
+  Serverless FaaS for event-driven workloads with minimal infrastructure management.
 
-  Triggers: serverless, FaaS, Lambda, Azure Functions, Cloud Functions, event-driven,
-  pay-per-use, cold start, stateless functions, managed infrastructure
-
-  Use when: workloads are event-driven with bursty traffic, minimal operations
-  overhead desired, pay-per-use cost model is advantageous
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
+  Triggers: serverless, FaaS, Lambda, event-driven, pay-per-use
+  Use when: workloads are event-driven with bursty traffic
   DO NOT use when: long-running processes or stateful operations required.
-  DO NOT use when: cold start latency is unacceptable.
-
-  Consult this skill when designing serverless architectures or migrating to FaaS.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, serverless, faas, event-driven, cost-optimization]

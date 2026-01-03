@@ -348,27 +348,88 @@ def main() -> None:
         action="store_true",
         help="Skip error case generation",
     )
+    parser.add_argument(
+        "--output-json",
+        action="store_true",
+        help="Output results as JSON for programmatic use",
+    )
 
     args = parser.parse_args()
 
-    config = TestConfig(
-        style=TestStyle(args.style),
-        output_path=Path(args.output) if args.output else None,
-        include_fixtures=not args.no_fixtures,
-        include_edge_cases=not args.no_edge_cases,
-        include_error_cases=not args.no_error_cases,
-    )
+    try:
+        config = TestConfig(
+            style=TestStyle(args.style),
+            output_path=Path(args.output) if args.output else None,
+            include_fixtures=not args.no_fixtures,
+            include_edge_cases=not args.no_edge_cases,
+            include_error_cases=not args.no_error_cases,
+        )
 
-    generator = TestGenerator(config)
+        generator = TestGenerator(config)
 
-    if args.source:
-        source_path = Path(args.source)
-        test_content = generator.generate_from_source(source_path)
-        generator.save_test_file(test_content, source_path)
-    elif args.module:
-        pass
+        if args.source:
+            source_path = Path(args.source)
+            if not source_path.exists():
+                output_error(f"Source file not found: {source_path}", args)
+                return
+
+            test_content = generator.generate_from_source(source_path)
+            output_path = generator.save_test_file(test_content, source_path)
+
+            result = {
+                "test_file": str(output_path),
+                "source_file": str(source_path),
+                "style": args.style,
+                "fixtures_included": config.include_fixtures,
+                "edge_cases_included": config.include_edge_cases,
+                "error_cases_included": config.include_error_cases,
+            }
+            output_result(result, args)
+
+        elif args.module:
+            output_error("Module generation not yet implemented", args)
+        else:
+            parser.print_help()
+
+    except Exception as e:
+        output_error(f"Error generating tests: {e}", args)
+
+
+def output_result(result: dict, args) -> None:
+    """Output result in requested format."""
+    if args.output_json:
+        import json
+
+        print(
+            json.dumps(
+                {
+                    "success": True,
+                    "data": result,
+                },
+                indent=2,
+            )
+        )
     else:
-        parser.print_help()
+        print(f"Generated test file: {result.get('test_file')}")
+        print(f"Style: {result.get('style')}")
+
+
+def output_error(message: str, args) -> None:
+    """Output error in requested format."""
+    if args.output_json:
+        import json
+
+        print(
+            json.dumps(
+                {
+                    "success": False,
+                    "error": message,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"Error: {message}")
 
 
 if __name__ == "__main__":

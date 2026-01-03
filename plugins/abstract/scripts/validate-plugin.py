@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate Claude Code plugin structure.
 
-Validates plugin structure against official Claude Code documentation.
+Validate plugin structure against official Claude Code documentation.
 """
 
 import json
@@ -27,7 +27,7 @@ class Colors:
 
 
 class PluginValidator:
-    """Validates Claude Code plugin structure."""
+    """Validate Claude Code plugin structure."""
 
     def __init__(self, plugin_path: Path) -> None:
         """Initialize validator with plugin path."""

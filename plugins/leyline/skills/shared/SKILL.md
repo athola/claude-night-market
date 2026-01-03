@@ -16,7 +16,7 @@ category: infrastructure
 tags: [shared, patterns, infrastructure, foundation]
 provides:
   infrastructure: [python-imports, error-handling, config-patterns]
-reusable_by: [all leyline skills, conservation, conjure, abstract]
+reusable_by: [all leyline skills, conserve, conjure, abstract]
 estimated_tokens: 150
 ---
 

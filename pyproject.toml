@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.1.0"
+version = "1.2.0"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -163,14 +163,14 @@ disallow_untyped_defs = false
 members = [
     "plugins/abstract",
     "plugins/leyline",
-    "plugins/conservation",
+    "plugins/conserve",
     "plugins/core"
 ]
 
 [tool.uv.sources]
 # Explicit workspace member configuration
 leyline = { workspace = true }
-conservation = { workspace = true }
+conserve = { workspace = true }
 core = { workspace = true }
 
 [tool.bandit]

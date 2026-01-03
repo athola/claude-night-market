@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Core utilities for managing memory palace data structures.
+"""Provide core utilities for managing memory palace data structures.
 
-Implements the `MemoryPalaceManager` class, handling creation, storage, indexing,
-and retrieval of memory palaces. Supports operations including palace creation,
+Implement the `MemoryPalaceManager` class, handling creation, storage, indexing,
+and retrieval of memory palaces. Support operations including palace creation,
 loading, saving, master index management for quick lookups, and data export/import.
 """
 
@@ -17,13 +17,7 @@ from typing import Any
 
 
 class MemoryPalaceManager:
-    """Manages the lifecycle and operations for Memory Palace data.
-
-    Includes creating, loading, saving, and deleting individual palaces,
-    alongside maintaining a master index for efficient searching and overview.
-    Abstracts underlying storage mechanisms and provides a consistent interface
-    for interacting with memory palace data.
-    """
+    """Manage the lifecycle and operations for Memory Palace data."""
 
     def __init__(
         self,

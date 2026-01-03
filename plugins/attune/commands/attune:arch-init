@@ -1,0 +1,362 @@
+# Architecture-Aware Project Initialization
+
+## Overview
+
+The `/attune:arch-init` command enhances project initialization by:
+
+1. **Gathering project context** (team size, domain complexity, project type)
+2. **Performing online research** into current best practices (2026)
+3. **Matching to architecture paradigms** from the archetypes plugin
+4. **Customizing templates** based on selected architecture
+5. **Documenting decisions** in ADR format
+
+## Quick Start
+
+### Interactive Mode (Recommended)
+
+```bash
+# Interactive architecture-aware initialization
+/attune:arch-init
+
+# You'll be prompted for:
+# - Project type (web-api, cli-tool, data-pipeline, etc.)
+# - Domain complexity (simple, moderate, complex, highly-complex)
+# - Team size (<5, 5-15, 15-50, 50+)
+# - Language (Python, Rust, TypeScript)
+# - Scalability needs
+# - Security requirements
+```
+
+### Direct Architecture Specification
+
+```bash
+# Skip recommendation, specify architecture directly
+/attune:arch-init --name my-fintech-api --arch cqrs-es --lang python
+```
+
+### Non-Interactive Mode
+
+```bash
+# Auto-accept recommendation without prompts
+/attune:arch-init --name my-service --accept-recommendation
+```
+
+## How It Works
+
+### 1. Context Gathering
+
+The system gathers essential context:
+
+```
+┌─────────────────────┬────────────────────────────────┐
+│ Project Type        │ web-api, cli-tool, pipeline   │
+│ Domain Complexity   │ simple, moderate, complex     │
+│ Team Size           │ <5, 5-15, 15-50, 50+          │
+│ Language            │ python, rust, typescript      │
+│ Scalability         │ low, moderate, high, extreme  │
+│ Security            │ standard, high, critical      │
+└─────────────────────┴────────────────────────────────┘
+```
+
+### 2. Online Research Phase
+
+For comprehensive research, the system generates search queries:
+
+```bash
+# Example for a Python fintech API:
+WebSearch("web-api architecture best practices 2026")
+WebSearch("python web-api architecture patterns 2026")
+WebSearch("secure architecture patterns web-api")
+WebSearch("scalable architecture patterns web-api")
+```
+
+**Note**: In current implementation, research phase shows queries but doesn't auto-execute. This is by design to allow you to:
+- Run queries manually if desired
+- Skip research with `--no-research` flag
+- Proceed with algorithmic recommendations
+
+### 3. Paradigm Matching
+
+Uses a decision matrix to recommend paradigms:
+
+```
+Team Size vs Domain Complexity → Recommended Paradigm
+
+< 5 + Simple → Layered
+5-15 + Complex → Modular Monolith
+15-50 + Complex → Microservices + Event-Driven
+50+ + Highly-Complex → Microkernel or CQRS/ES
+```
+
+**Special Cases**:
+- Real-time/Streaming → Event-Driven + Pipeline
+- Bursty/Cloud-Native → Serverless
+- Extensible Platform → Microkernel
+- Data Processing → Pipeline + Event-Driven
+- High-Throughput Stateful → Space-Based
+
+### 4. Template Customization
+
+Creates architecture-specific directory structures:
+
+**Functional Core, Imperative Shell**:
+```
+src/
+├── core/              # Pure business logic
+│   ├── domain.py
+│   ├── operations.py
+│   └── commands.py
+└── adapters/          # Side effects
+    ├── database.py
+    ├── api.py
+    └── filesystem.py
+```
+
+**Hexagonal Architecture**:
+```
+src/
+├── domain/            # Business logic
+│   ├── models.py
+│   ├── services.py
+│   └── ports/         # Interfaces
+│       ├── input.py
+│       └── output.py
+└── infrastructure/    # Framework-specific
+    ├── persistence/
+    ├── web/
+    └── messaging/
+```
+
+**CQRS + Event Sourcing**:
+```
+src/
+├── commands/          # Write operations
+├── queries/           # Read operations
+├── events/            # Event store
+└── aggregates/        # Domain aggregates
+```
+
+### 5. Documentation Generation
+
+Creates comprehensive documentation:
+
+```
+project/
+├── ARCHITECTURE.md           # Architecture overview
+├── docs/adr/
+│   └── 001-architecture-paradigm.md  # Decision record
+└── .attune/
+    └── arch-init-session.json  # Research session data
+```
+
+## Examples
+
+### Example 1: Fintech API
+
+**Scenario**: Web API for financial services, team of 8, complex business rules, high security.
+
+```bash
+/attune:arch-init --name fintech-api
+```
+
+**Interactive Prompts**:
+```
+Project Type: web-api
+Domain Complexity: complex
+Team Size: 5-15
+Language: python
+Scalability: high
+Security: critical
+```
+
+**Recommendation**: **CQRS + Event Sourcing**
+- Rationale: Audit trail requirements, complex business logic, regulatory compliance
+- Secondary: Event-Driven for real-time processing
+
+**Result**:
+```
+fintech-api/
+├── src/
+│   ├── commands/           # Transaction commands
+│   ├── queries/            # Account queries
+│   ├── events/             # Event store setup
+│   └── aggregates/         # Account aggregates
+├── ARCHITECTURE.md         # CQRS/ES guidance
+└── docs/adr/001-architecture-paradigm.md
+```
+
+### Example 2: Data Processing Pipeline
+
+**Scenario**: ETL pipeline for analytics, team of 4, moderate complexity.
+
+```bash
+/attune:arch-init --name etl-pipeline
+```
+
+**Recommendation**: **Pipeline Architecture** + **Event-Driven**
+- Rationale: Data processing workflows, streaming requirements
+
+**Result**:
+```
+etl-pipeline/
+├── src/
+│   ├── stages/             # Extract, Transform, Load
+│   ├── pipeline/           # Orchestration
+│   └── events/             # Streaming events
+└── ARCHITECTURE.md
+```
+
+### Example 3: Microservice Platform
+
+**Scenario**: Platform with extensible plugins, team of 25, moderate domain.
+
+```bash
+/attune:arch-init --name plugin-platform --arch microkernel
+```
+
+**Recommendation**: **Microkernel Architecture** (user-specified)
+- Rationale: Extensibility requirements, plugin architecture
+
+**Result**:
+```
+plugin-platform/
+├── services/
+│   ├── core-service/
+│   ├── plugin-a/
+│   └── plugin-b/
+├── shared/
+│   └── plugin-api/
+└── docker-compose.yml
+```
+
+## Integration with attune Workflow
+
+### Full Architecture-First Workflow
+
+```bash
+# 1. Brainstorm project needs
+/attune:brainstorm --domain "fintech web api"
+
+# 2. Architecture-aware initialization
+/attune:arch-init --name transaction-api
+
+# Output:
+# - Research findings
+# - Paradigm recommendation (CQRS/ES)
+# - Customized templates
+# - ADR documentation
+
+# 3. Load paradigm skill for implementation guidance
+Skill(architecture-paradigm-cqrs-es)
+
+# 4. Create detailed specification
+/attune:specify
+
+# 5. Plan implementation
+/attune:plan
+
+# 6. Execute implementation
+/attune:execute
+```
+
+### Quick Start (Skip Brainstorming)
+
+```bash
+# Direct to architecture-aware init
+/attune:arch-init --name my-project
+
+# Then proceed with specification and planning
+/attune:specify
+/attune:plan
+/attune:execute
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--name <name>` | Project name (defaults to directory name) |
+| `--arch <paradigm>` | Force specific architecture paradigm |
+| `--no-research` | Skip online research phase |
+| `--accept-recommendation` | Auto-accept recommendation (non-interactive) |
+| `--path <path>` | Project path (defaults to current directory) |
+
+## Available Paradigms
+
+All 13 architectural paradigms are fully supported with templates for Python, Rust, and TypeScript:
+
+### Monolithic Patterns
+- **layered** - Traditional N-tier separation (presentation/business/data)
+- **hexagonal** - Ports & Adapters for infrastructure independence
+- **functional-core** - Functional Core, Imperative Shell for testability
+- **modular-monolith** - Single deployable with strong module boundaries
+
+### Distributed Patterns
+- **microservices** - Fine-grained independent services
+- **service-based** - Coarse-grained distributed services (SOA-lite)
+- **client-server** - Traditional centralized server with clients
+
+### Event & Stream Patterns
+- **event-driven** - Asynchronous, decoupled communication
+- **cqrs-es** - Command/query separation with event sourcing
+- **pipeline** - ETL processing stages for data workflows
+
+### Scalability Patterns
+- **serverless** - Function-as-a-Service with managed infrastructure
+- **space-based** - In-memory data grids for extreme scalability
+
+### Extensibility Patterns
+- **microkernel** - Plugin-based extensible core system
+
+## Output Artifacts
+
+After running `/attune:arch-init`, you get:
+
+1. **Customized Project Structure**: Architecture-appropriate directories
+2. **Base Templates**: Language-specific configs (Makefile, CI/CD, etc.)
+3. **ARCHITECTURE.md**: Overview of chosen paradigm
+4. **ADR**: Formal architecture decision record
+5. **Research Session**: JSON with context and queries (`.attune/arch-init-session.json`)
+6. **Next Steps**: Links to paradigm skill for implementation
+
+## Compared to /attune:init
+
+| Feature | `/attune:init` | `/attune:arch-init` |
+|---------|---------------|---------------------|
+| Language Selection | ✅ | ✅ |
+| Base Templates | ✅ | ✅ |
+| Git Init | ✅ | ✅ |
+| Architecture Decision | ❌ | ✅ |
+| Online Research | ❌ | ✅ |
+| Paradigm Matching | ❌ | ✅ |
+| Custom Structures | ❌ | ✅ |
+| ADR Generation | ❌ | ✅ |
+
+**When to use which**:
+- Use `/attune:init` when architecture is already decided
+- Use `/attune:arch-init` when you need architecture guidance
+
+## Project Type Examples
+
+| Example | Project Type | Recommended Architecture |
+|---------|-------------|-------------------------|
+| [Fintech API](../examples/architecture-aware-example.md) | Web API | CQRS + Event Sourcing |
+| [File Organizer](../examples/cli-tool-example.md) | CLI Tool | Layered |
+| [Analytics ETL](../examples/data-pipeline-example.md) | Data Pipeline | Pipeline + Event-Driven |
+| [Schema Validator](../examples/library-example.md) | Library | Hexagonal |
+| [E-Commerce Platform](../examples/microservices-example.md) | Microservices | Microservices + Event-Driven |
+
+## Related Commands
+
+- `/attune:brainstorm` - Project ideation before architecture selection
+- `/attune:init` - Standard initialization (no architecture decision)
+- `/attune:plan` - Detailed planning after architecture chosen
+- `Skill(architecture-paradigms)` - Manual paradigm selection
+- `Skill(architecture-paradigm-*)` - Implementation guidance for specific paradigm
+
+## See Also
+
+- [Architecture Paradigms Plugin](../../archetypes/README.md)
+- [Project Brainstorming Skill](../skills/project-brainstorming/SKILL.md)
+- [Architecture-Aware Init Skill](../skills/architecture-aware-init/SKILL.md)
+- [Architecture-Aware Documentation](../docs/architecture-aware-initialization.md)

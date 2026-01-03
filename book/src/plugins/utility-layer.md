@@ -14,12 +14,12 @@ Utility plugins handle:
 
 | Plugin | Description | Key Use Case |
 |--------|-------------|--------------|
-| [conservation](conservation.md) | Resource optimization | Context management |
+| [conserve](conserve.md) | Resource optimization | Context management |
 | [conjure](conjure.md) | External delegation | Long-context tasks |
 
 ## When to Use
 
-### conservation
+### conserve
 Use when you need to:
 - Monitor context window usage
 - Optimize token consumption
@@ -53,15 +53,15 @@ make delegate-auto PROMPT="Summarize" FILES="src/"
 ```
 Auto-selects the best external service for a task.
 
-## Conservation Modes
+## Conserve Modes
 
-The conservation plugin supports different modes via environment variables:
+The conserve plugin supports different modes via environment variables:
 
 | Mode | Command | Behavior |
 |------|---------|----------|
 | Normal | `claude` | Full conservation guidance |
-| Quick | `CONSERVATION_MODE=quick claude` | Skip guidance for fast tasks |
-| Deep | `CONSERVATION_MODE=deep claude` | Extended resource allowance |
+| Quick | `CONSERVE_MODE=quick claude` | Skip guidance for fast tasks |
+| Deep | `CONSERVE_MODE=deep claude` | Extended resource allowance |
 
 ## Key Thresholds
 
@@ -79,7 +79,7 @@ The conservation plugin supports different modes via environment variables:
 
 ```bash
 # Resource optimization
-/plugin install conservation@claude-night-market
+/plugin install conserve@claude-night-market
 
 # External delegation
 /plugin install conjure@claude-night-market

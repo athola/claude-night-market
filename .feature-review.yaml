@@ -264,7 +264,7 @@ plugins:
   categories:
     core:
       - abstract            # Plugin development tools
-      - conservation        # Context optimization
+      - conserve            # Context optimization
       - imbue              # Workflow methodologies
     workflow:
       - sanctum            # Git/GitHub workflows

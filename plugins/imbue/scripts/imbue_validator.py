@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Imbue plugin validation tool for review workflow and evidence management skills."""
+"""Validate Imbue plugin review workflow and evidence management skills."""
 
 import argparse
 import json
@@ -19,7 +19,7 @@ class ImbueValidationResult(TypedDict):
 
 
 class ImbueValidator:
-    """Validator for imbue plugin review workflow and evidence management skills."""
+    """Validate imbue plugin review workflow and evidence management skills."""
 
     def __init__(self, plugin_root: Path) -> None:
         """Initialize the imbue validator.

@@ -1,30 +1,29 @@
 # Leyline
 
-Infrastructure and pipeline building blocks plugin for Claude Code.
+Infrastructure and pipeline building blocks for Claude Code plugins.
 
 ## Overview
 
-Leyline provides shared utilities, patterns, and services that other plugins can use to build consistent functionality.
+Leyline provides shared utilities, patterns, and services to support consistent plugin functionality.
 
 ## Philosophy
 
-**Abstract** handles meta-concerns about Claude itself (skill evaluation, modular design patterns, plugin validation).
-
-**Leyline** handles infrastructure concerns that plugins share:
-- Resource tracking (quotas, usage, metrics)
-- Service integration (authentication, execution, logging)
-- Pipeline patterns (error handling, retry logic, circuit breakers)
-- Cross-plugin utilities (shared base classes, common interfaces)
+- **Abstract** handles meta-concerns like skill evaluation, modular design, and plugin validation.
+- **Leyline** handles shared infrastructure:
+  - Resource tracking (quotas, usage, metrics).
+  - Service integration (authentication, execution, logging).
+  - Pipeline patterns (error handling, retry logic, circuit breakers).
+  - Cross-plugin utilities (base classes, common interfaces).
 
 ## Skills
 
 | Skill | Purpose | Use When |
 |-------|---------|----------|
-| `quota-management` | Track and enforce resource limits | Building services with rate limits |
-| `usage-logging` | Session-aware usage tracking | Need audit trails or cost tracking |
-| `service-registry` | Manage external service connections | Integrating multiple services |
-| `error-patterns` | Standardized error handling | Building error recovery |
-| `authentication-patterns` | Common auth flows | Connecting to external APIs |
+| `quota-management` | Track and enforce resource limits. | Building services with rate limits. |
+| `usage-logging` | Session-aware usage tracking. | Need audit trails or cost tracking. |
+| `service-registry` | Manage external service connections. | Integrating multiple services. |
+| `error-patterns` | Standardized error handling. | Building error recovery. |
+| `authentication-patterns` | Common auth flows. | Connecting to external APIs. |
 
 ## Integration
 
@@ -39,7 +38,7 @@ references:
 
 ## Scripts
 
-Reusable Python utilities for common infrastructure tasks:
+Python utilities for infrastructure tasks:
 
 ```bash
 # Quota tracking
@@ -54,60 +53,38 @@ python -m leyline.service_registry --verify myservice
 
 ## Design Principles
 
-1. **Zero coupling**: Patterns are reference-only, no hard dependencies.
-2. **Progressive adoption**: Use what you need.
-3. **Consistent interfaces**: Same patterns across all utilities.
+1. **Zero coupling**: Patterns are reference-only.
+2. **Progressive adoption**: Load only what is needed.
+3. **Consistent interfaces**: Unified patterns across utilities.
 4. **Plugin-agnostic**: Works with any plugin architecture.
 
 ## Related Plugins
 
-- **abstract**: Meta-skills for Claude (evaluation, modular design).
+- **abstract**: Meta-skills for evaluation and design.
 - **conjure**: LLM delegation (uses leyline for quota/logging).
-- **conservation**: Context optimization (can use leyline metrics).
+- **conserve**: Context optimization.
 
 ## Plugin Metadata Best Practices (Claude Code 2.0.73+)
 
-Claude Code 2.0.73+ adds search filtering to the plugin discover screen. Users can filter by name, description, and marketplace tags.
+Claude Code 2.0.73+ supports search filtering in the plugin discovery screen.
 
-### Optimizing for Discoverability
+### Optimizing Discoverability
 
 **Plugin Description Guidelines**:
 
-1. **Lead with purpose**: Start description with what the plugin does
-   ```json
-   // Good
-   "description": "Infrastructure and pipeline building blocks for shared utilities and services"
+1. **Focus on purpose**: Start with a direct statement of functionality.
+   - Example: "Infrastructure and pipeline building blocks for shared utilities."
+2. **Include keywords**: Add terms users likely search for, such as "quota management" or "error handling".
+3. **Be specific**: Mention concrete capabilities like "circuit breakers" or "auth flows".
+4. **Use domain terminology**: Include technical terms relevant to the audience.
 
-   // Avoid
-   "description": "A plugin for stuff"
-   ```
-
-2. **Include searchable keywords**: Add relevant terms users might search for
-   ```json
-   "description": "Infrastructure patterns: quota management, service registry, error handling, authentication flows, circuit breakers"
-   ```
-
-3. **Be specific**: Mention concrete capabilities
-   ```json
-   // Good
-   "description": "Resource tracking (quotas, usage, metrics), service integration, pipeline patterns (retry, circuit breakers)"
-
-   // Avoid
-   "description": "Helps with infrastructure"
-   ```
-
-4. **Use domain terminology**: Include technical terms your audience knows
-   ```json
-   "description": "Cross-plugin utilities: base classes, common interfaces, standardized error patterns, auth flows"
-   ```
-
-### Example: Well-Optimized Plugin Metadata
+### Example: Optimized Plugin Metadata
 
 ```json
 {
   "name": "leyline",
   "version": "1.1.0",
-  "description": "Infrastructure and pipeline patterns for Claude Code plugins: quota management, service registry, error handling, authentication flows, circuit breakers, shared utilities",
+  "description": "Infrastructure patterns for Claude Code plugins: quota management, service registry, error handling, authentication flows, circuit breakers, shared utilities",
   "keywords": [
     "infrastructure",
     "utilities",
@@ -122,24 +99,14 @@ Claude Code 2.0.73+ adds search filtering to the plugin discover screen. Users c
 }
 ```
 
-### Testing Discoverability
-
-Ask yourself: **"Would users find this plugin when searching for..."**
-- Common use cases? ✓ "quota management"
-- Problem domains? ✓ "error handling"
-- Technical terms? ✓ "circuit breaker"
-- Related concepts? ✓ "service integration"
-
 ### Validation Checklist
 
-When publishing or updating plugins:
-
-- [ ] Description starts with purpose/benefit
-- [ ] Contains 3-5 searchable keywords
-- [ ] Mentions specific capabilities
-- [ ] Uses domain-appropriate terminology
-- [ ] Length: 50-150 characters (readable at a glance)
-- [ ] Keywords array includes search terms
-- [ ] Category accurately represents plugin function
+- [ ] Description starts with purpose.
+- [ ] Contains 3-5 searchable keywords.
+- [ ] Mentions specific capabilities.
+- [ ] Uses domain-appropriate terminology.
+- [ ] Length: 50-150 characters.
+- [ ] Keywords array includes search terms.
+- [ ] Category accurately represents plugin function.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for compatibility details.

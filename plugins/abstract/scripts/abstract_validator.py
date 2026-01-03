@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the abstract plugin for meta-skills infrastructure.
 
-Uses centralized utilities from abstract.base, abstract.frontmatter and abstract.utils.
+Use centralized utilities from abstract.base, abstract.frontmatter and abstract.utils.
 """
 
 import argparse

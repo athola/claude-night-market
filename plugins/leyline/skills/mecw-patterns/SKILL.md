@@ -1,18 +1,10 @@
 ---
 name: mecw-patterns
 description: |
-  Maximum Effective Context Window (MECW) theory and practical patterns for
-  preventing hallucinations through context management. Implements the 50% rule.
+  MECW theory and patterns for hallucination prevention via context management. Implements 50% rule.
 
-  Triggers: MECW, context window, hallucination prevention, 50% rule, context pressure,
-  token optimization, context management, safe budgeting
-
-  Use when: implementing context-aware systems, preventing hallucinations,
-  monitoring context pressure, planning token budgets
-
-  DO NOT use when: simple operations without context pressure concerns.
-
-  Consult this skill when implementing MECW-compliant context management.
+  Triggers: MECW, context window, hallucination, 50% rule, context pressure
+  Use when: implementing context-aware systems or monitoring context pressure
 category: infrastructure
 tags: [context-management, mecw, hallucination-prevention, token-optimization, thresholds]
 dependencies: []
@@ -32,7 +24,7 @@ modules:
   - modules/mecw-theory.md
   - modules/monitoring-patterns.md
   - modules/prevention-strategies.md
-reusable_by: [conservation, abstract, conjure, spec-kit, sanctum, imbue]
+reusable_by: [conserve, abstract, conjure, spec-kit, sanctum, imbue]
 ---
 
 # MECW Patterns
@@ -131,7 +123,7 @@ For detailed implementation patterns:
 ## Integration with Other Skills
 
 This skill provides foundational utilities referenced by:
-- `conservation:context-optimization` - Uses MECW for optimization decisions
+- `conserve:context-optimization` - Uses MECW for optimization decisions
 - `conjure:delegation-core` - Uses MECW for delegation triggers
 - Plugin authors building context-aware systems
 

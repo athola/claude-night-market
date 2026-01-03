@@ -1,6 +1,6 @@
 # Minister
 
-Project management plugin that aligns initiatives with GitHub data. Turns repositories, issues, and projects into status dashboards.
+Project management plugin that aligns initiatives with GitHub data. Converts repositories, issues, and projects into status dashboards.
 
 ## Overview
 
@@ -8,8 +8,8 @@ Minister syncs GitHub Projects, issues, and checks to provide a single source of
 
 ## Focus Areas
 
-1. **Initiative Pulse**: Generates GitHub comment-ready snapshots from Projects data.
-2. **Release Health Gates**: checks CI, docs, and risk labels against release checklists.
+1. **Initiative Pulse**: Generate GitHub comment-ready snapshots from Projects data.
+2. **Release Health Gates**: Check CI, docs, and risk labels against release checklists.
 3. **Reporting Kits**: Scripts and templates for publishing markdown status to GitHub threads.
 
 ## Capabilities
@@ -43,8 +43,8 @@ plugins/minister/
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| `github-initiative-pulse` | Generates snapshots of initiative progress. | Weekly program reviews, status updates. |
-| `release-health-gates` | Defines quality gates for releases. | Release candidate approvals. |
+| `github-initiative-pulse` | Generate snapshots of initiative progress. | Weekly program reviews, status updates. |
+| `release-health-gates` | Define quality gates for releases. | Release candidate approvals. |
 
 Each skill includes a `SKILL.md` frontmatter block, scenario modules, and references back to shared scripts.
 
@@ -76,7 +76,7 @@ Key commands:
 1. Reference Minister skills from other plugins’ frontmatter.
 2. Automate data ingest by pointing cron jobs at `src/minister/project_tracker.ProjectTracker`.
 3. Store generated artifacts inside `.claude/minister/`.
-4. Pair with Leyline for quota-aware GitHub API calls.
+4. Use Leyline for quota-aware GitHub API calls.
 
 ## Roadmap
 

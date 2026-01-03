@@ -528,7 +528,7 @@ class TestEdgeCases:
         call_args = mock_subprocess_success.call_args[0][0]
         script = call_args[2]
         # Should contain escaped quotes, not raw injection
-        assert 'do shell script' not in script or '\\"' in script
+        assert "do shell script" not in script or '\\"' in script
 
     def test_notification_with_xml_injection_windows(
         self, mock_subprocess_success: MagicMock

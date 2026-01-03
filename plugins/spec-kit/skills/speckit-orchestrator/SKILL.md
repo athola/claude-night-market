@@ -1,19 +1,10 @@
 ---
 name: speckit-orchestrator
 description: |
-  Workflow orchestrator for Spec Driven Development. Coordinates skill loading,
-  tracks progress, and validates consistency across the speckit workflow.
+  Workflow orchestrator for Spec Driven Development. Coordinates skills and tracks progress.
 
-  Triggers: speckit workflow, spec driven development, speckit commands,
-  workflow coordination, progress tracking, skill loading, speckit session
-
-  Use when: starting any /speckit-* command, coordinating multi-phase development,
-  tracking progress across specification/planning/implementation
-
-  DO NOT use when: writing specifications - use spec-writing skill directly.
-  DO NOT use when: generating tasks - use task-planning skill directly.
-
-  Entry point for all spec-driven development workflows.
+  Triggers: speckit workflow, spec driven development, speckit commands
+  Use when: starting any /speckit-* command or coordinating multi-phase development
 category: workflow-orchestration
 tags: [speckit, workflow, orchestration, planning, specification]
 dependencies:

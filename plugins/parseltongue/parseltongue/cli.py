@@ -1,4 +1,4 @@
-"""Command-line interface for parseltongue."""
+"""Provide a command-line interface for parseltongue."""
 
 import sys
 

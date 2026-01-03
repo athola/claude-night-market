@@ -1,4 +1,4 @@
-"""Async code analysis skill for parseltongue."""
+"""Provide an async code analysis skill for parseltongue."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any
 
 
 class AsyncAnalysisSkill:
-    """Skill for analyzing async Python code patterns."""
+    """Analyze async Python code patterns."""
 
     def __init__(self) -> None:
         """Initialize the async analysis skill."""

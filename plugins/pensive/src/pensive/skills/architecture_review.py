@@ -1,4 +1,4 @@
-"""Architecture review skill for analyzing system design and patterns.
+"""Analyze system design and patterns using an architecture review skill.
 
 This skill evaluates architectural patterns, SOLID principles, coupling/cohesion,
 ADR compliance, and generates architecture quality reports.
@@ -20,7 +20,7 @@ MIN_ADR_SECTIONS = 3  # Minimum ADR sections for completeness
 
 
 class ArchitectureReviewSkill(BaseReviewSkill):
-    """Skill for reviewing software architecture and design patterns."""
+    """Review software architecture and design patterns."""
 
     skill_name = "architecture_review"
     supported_languages: ClassVar[list[str]] = [

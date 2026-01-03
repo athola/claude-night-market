@@ -32,7 +32,7 @@ Each tutorial includes:
 
 ### For New Users
 
-1. Complete [Getting Started](../getting-started/README.md) first
+1. Complete [Getting Started](../getting-started/index.html) first
 2. Read plugin documentation for plugins you've installed
 3. Return here for deeper dives
 

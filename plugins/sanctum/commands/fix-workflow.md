@@ -1,6 +1,10 @@
 ---
 name: fix-workflow
-description: Evaluate the most recent command/session slice in the current context window and improve the skills, agents, commands, and hooks involved in that workflow.
+description: |
+  Retrospective analysis and improvement of recent workflow components.
+
+  Triggers: fix workflow, workflow improvement, retrospective, session analysis
+  Use when: workflow execution felt inefficient or needs optimization
 usage: /fix-workflow [--scope sanctum|repo] [--dry-run] [--focus skills|agents|commands|hooks|all]
 ---
 

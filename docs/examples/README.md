@@ -13,7 +13,7 @@ A full demonstration of MECW principles and context optimization techniques incl
 - Context pressure monitoring
 - Performance benchmarking
 
-**Related Plugin**: [Conservation](../../plugins/conservation/)
+**Related Plugin**: [Conservation](../../plugins/conserve/)
 
 ### Async Web Scraper Demo
 [async-web-scraper-demo.md](./async-web-scraper-demo.md)

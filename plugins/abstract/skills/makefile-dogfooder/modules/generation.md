@@ -224,9 +224,9 @@ check-all: ## Check all plugins
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `PLUGIN_NAME` | Plugin identifier | `conservation` |
+| `PLUGIN_NAME` | Plugin identifier | `conserve` |
 | `PLUGIN_DESCRIPTION` | Brief plugin purpose | `Context optimization and resource management` |
-| `PLUGIN_CLI` | Main CLI script name | `conservation-cli` |
+| `PLUGIN_CLI` | Main CLI script name | `conserve-cli` |
 
 ### Optional Variables
 

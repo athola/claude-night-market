@@ -1,20 +1,11 @@
 ---
 name: architecture-paradigm-service-based
 description: |
-  Employ a coarse-grained, service-based architecture (lighter SOA) when
-  microservices aren't necessary but modular deployment is required.
+  Coarse-grained service architecture for deployment independence without microservices complexity.
 
-  Triggers: service-based, SOA, coarse-grained services, shared database,
-  deployment independence, service decomposition, domain services
-
-  Use when: teams need deployment independence without microservices complexity,
-  shared database is acceptable, services can be relatively coarse-grained
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
-  DO NOT use when: fine-grained scaling requirements exist - use microservices.
-  DO NOT use when: shared database creates coupling problems.
-
-  Consult this skill when designing service-based architectures or refactoring monoliths.
+  Triggers: service-based, SOA, coarse-grained services, domain services
+  Use when: teams need deployment independence without microservices complexity
+  DO NOT use when: fine-grained scaling needed - use microservices.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, service-based, soa, modular, shared-database]

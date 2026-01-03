@@ -25,12 +25,13 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
+| `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
-| `context-optimization` | [conservation](../plugins/conservation.md) | MECW principles and 50% context rule |
-| `cpu-gpu-performance` | [conservation](../plugins/conservation.md) | Resource monitoring and selective testing |
+| `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
+| `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
@@ -51,17 +52,24 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `knowledge-intake` | [memory-palace](../plugins/memory-palace.md) | Intake and curation |
 | `knowledge-locator` | [memory-palace](../plugins/memory-palace.md) | Spatial search |
 | `makefile-dogfooder` | [abstract](../plugins/abstract.md) | Makefile analysis and enhancement |
+| `makefile-generation` | [attune](../plugins/attune.md) | Generate language-specific Makefiles |
 | `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
-| `mcp-code-execution` | [conservation](../plugins/conservation.md) | MCP patterns for data pipelines |
+| `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `mecw-patterns` | [leyline](../plugins/leyline.md) | MECW implementation |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
-| `optimizing-large-skills` | [conservation](../plugins/conservation.md) | Large skill optimization |
+| `optimizing-large-skills` | [conserve](../plugins/conserve.md) | Large skill optimization |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
+| `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
 | `progressive-loading` | [leyline](../plugins/leyline.md) | Dynamic content loading |
+| `project-brainstorming` | [attune](../plugins/attune.md) | Socratic ideation workflow |
+| `project-execution` | [attune](../plugins/attune.md) | Systematic implementation |
+| `project-init` | [attune](../plugins/attune.md) | Interactive project initialization |
+| `project-planning` | [attune](../plugins/attune.md) | Architecture and task breakdown |
+| `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
 | `python-async` | [parseltongue](../plugins/parseltongue.md) | Async patterns |
 | `python-packaging` | [parseltongue](../plugins/parseltongue.md) | Packaging with uv |
 | `python-performance` | [parseltongue](../plugins/parseltongue.md) | Profiling and optimization |
@@ -86,23 +94,32 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |
 | `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines |
-| `token-conservation` | [conservation](../plugins/conservation.md) | Token usage strategies |
+| `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README modernization |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
+| `workflow-setup` | [attune](../plugins/attune.md) | Configure CI/CD pipelines |
 
 ### All Commands (Alphabetical)
 
 | Command | Plugin | Description |
 |---------|--------|-------------|
-| `/analyze-growth` | conservation | Analyzes skill growth patterns |
+| `/analyze-growth` | conserve | Analyzes skill growth patterns |
+| `/bloat-scan` | conserve | Progressive bloat detection (3-tier scan) |
 | `/analyze-hook` | abstract | Analyzes hook for security/performance |
 | `/analyze-skill` | abstract | Skill complexity analysis |
 | `/analyze-tests` | parseltongue | Test suite health report |
 | `/api-review` | pensive | API surface review |
+| `/attune:brainstorm` | attune | Brainstorm project ideas using Socratic questioning |
+| `/attune:execute` | attune | Execute implementation tasks systematically |
+| `/attune:init` | attune | Initialize new project with development infrastructure |
+| `/attune:plan` | attune | Plan architecture and break down tasks |
+| `/attune:specify` | attune | Create detailed specifications from brainstorm |
+| `/attune:upgrade` | attune | Add or update configurations in existing project |
+| `/attune:validate` | attune | Validate project structure against best practices |
 | `/architecture-review` | pensive | Architecture assessment |
 | `/bug-review` | pensive | Bug hunting review |
 | `/bulletproof-skill` | abstract | Anti-rationalization workflow |
@@ -127,7 +144,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/math-review` | pensive | Mathematical review |
 | `/merge-docs` | sanctum | Consolidate ephemeral docs |
 | `/navigate` | memory-palace | Search palaces |
-| `/optimize-context` | conservation | Context optimization |
+| `/optimize-context` | conserve | Context optimization |
 | `/palace` | memory-palace | Manage palaces |
 | `/pr` | sanctum | Prepare pull request |
 | `/pr-review` | sanctum | Enhanced PR review |
@@ -150,6 +167,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/structured-review` | imbue | Structured review workflow |
 | `/test-review` | pensive | Test quality review |
 | `/test-skill` | abstract | Skill testing workflow |
+| `/unbloat` | conserve | Safe bloat remediation with interactive approval |
 | `/update-all-plugins` | leyline | Update all plugins |
 | `/update-docs` | sanctum | Update documentation |
 | `/update-readme` | sanctum | Modernize README |
@@ -163,9 +181,10 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | Agent | Plugin | Description |
 |-------|--------|-------------|
 | `architecture-reviewer` | pensive | Principal-level architecture review |
+| `bloat-auditor` | conserve | Orchestrates bloat detection scans |
 | `code-reviewer` | pensive | Expert code review |
 | `commit-agent` | sanctum | Commit message generator |
-| `context-optimizer` | conservation | Context optimization |
+| `context-optimizer` | conserve | Context optimization |
 | `garden-curator` | memory-palace | Digital garden maintenance |
 | `git-workspace-agent` | sanctum | Repository state analyzer |
 | `implementation-executor` | spec-kit | Task executor |
@@ -175,6 +194,8 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `palace-architect` | memory-palace | Palace design |
 | `plugin-validator` | abstract | Plugin validation |
 | `pr-agent` | sanctum | PR preparation |
+| `project-architect` | attune | Guides full-cycle workflow (brainstorm → plan) |
+| `project-implementer` | attune | Executes implementation with TDD |
 | `python-optimizer` | parseltongue | Performance optimization |
 | `python-pro` | parseltongue | Python 3.12+ expertise |
 | `python-tester` | parseltongue | Testing expertise |
@@ -183,6 +204,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `skill-auditor` | abstract | Skill quality audit |
 | `spec-analyzer` | spec-kit | Spec consistency |
 | `task-generator` | spec-kit | Task creation |
+| `unbloat-remediator` | conserve | Executes safe bloat remediation |
 | `workflow-improvement-*` | sanctum | Workflow improvement pipeline |
 | `workflow-recreate-agent` | sanctum | Workflow reconstruction |
 
@@ -198,7 +220,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `pre-pr-scope-check.sh` | imbue | Manual | Scope check before PR |
 | `pre-skill-load.json` | abstract | Config | Pre-load validation |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
-| `session-start.sh` | conservation/imbue | SessionStart | Session initialization |
+| `session-start.sh` | conserve/imbue | SessionStart | Session initialization |
 | `session_complete_notify.py` | sanctum | Stop | Completion notification |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |

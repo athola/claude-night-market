@@ -1,20 +1,11 @@
 ---
 name: architecture-paradigm-space-based
 description: |
-  Employ space-based or data-grid architectures to scale high-traffic, stateful
-  workloads across multiple nodes with linear scalability.
+  Data-grid architecture for high-traffic stateful workloads with linear scalability.
 
-  Triggers: space-based, data grid, in-memory, linear scaling, high traffic,
-  stateful workloads, tuple space, distributed cache, replication
-
-  Use when: traffic overwhelms single database nodes, linear scalability needed,
-  in-memory processing provides significant performance gains
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
-  DO NOT use when: data doesn't fit in memory or isn't performance-critical.
-  DO NOT use when: simpler caching strategies would suffice.
-
-  Consult this skill when designing high-scale data grid architectures.
+  Triggers: space-based, data grid, in-memory, linear scaling, high traffic
+  Use when: traffic overwhelms database nodes or linear scalability needed
+  DO NOT use when: data doesn't fit in memory or simpler caching would work.
 version: 1.0.0
 category: architectural-pattern
 tags: [architecture, space-based, data-grid, scalability, in-memory, stateful]

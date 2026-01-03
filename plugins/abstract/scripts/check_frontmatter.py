@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Script to check which markdown files in skills directory lack YAML frontmatter.
+"""Check which markdown files in skills directory lack YAML frontmatter.
 
-This script uses the centralized frontmatter processing from abstract.base.
+Use centralized frontmatter processing from abstract.base.
 """
 
 import os

@@ -1,8 +1,7 @@
-"""Maximum Effective Context Window (MECW) utilities.
+"""Provide Maximum Effective Context Window (MECW) utilities.
 
-This module provides utilities for managing context window usage according to
-MECW principles, which prevent hallucinations by maintaining context usage
-below critical thresholds.
+Manage context window usage according to MECW principles to prevent
+hallucinations by maintaining context usage below critical thresholds.
 
 The core principle: Never use more than 50% of total context window for input.
 """
@@ -138,7 +137,7 @@ def check_mecw_compliance(
 
 @dataclass
 class MECWStatus:
-    """Status result from MECW monitoring."""
+    """Represent a status result from MECW monitoring."""
 
     compliant: bool
     pressure_level: str
@@ -149,26 +148,7 @@ class MECWStatus:
 
 
 class MECWMonitor:
-    """Monitor context window usage according to MECW principles.
-
-    This class provides continuous monitoring of context usage with
-    configurable thresholds and automatic recommendation generation.
-
-    Attributes:
-        max_context: Maximum context window size in tokens
-        mecw_threshold: The 50% MECW threshold in tokens
-        current_tokens: Current token count (updated via track_usage)
-
-    Examples:
-        >>> monitor = MECWMonitor(max_context=200000)
-        >>> monitor.track_usage(80000)
-        >>> status = monitor.get_status()
-        >>> status.compliant
-        True
-        >>> status.pressure_level
-        'MODERATE'
-
-    """
+    """Provide continuous monitoring of context window usage according to MECW principles."""
 
     def __init__(self, max_context: int = 200000) -> None:
         """Initialize MECW monitor.

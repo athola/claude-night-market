@@ -1,6 +1,6 @@
 # Sanctum
 
-Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management.
+Git and workspace operations for commit messages, PR prep, documentation updates, and version management.
 
 ## Installation
 

@@ -4,7 +4,7 @@ description: Theoretical foundations of Maximum Effective Context Window princip
 category: theory
 parent_skill: leyline:mecw-patterns
 estimated_tokens: 450
-reusable_by: [conservation, abstract, conjure, spec-kit]
+reusable_by: [conserve, abstract, conjure, spec-kit]
 tags: [theory, hallucination-prevention, context-physics]
 ---
 
@@ -195,5 +195,5 @@ def generate_warnings(usage_ratio: float) -> list[str]:
 
 This theory underlies:
 - `leyline.mecw` Python module implementation
-- `conservation:context-optimization` practical applications
+- `conserve:context-optimization` practical applications
 - `conjure:delegation-core` subagent triggering logic

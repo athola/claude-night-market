@@ -1,4 +1,4 @@
-"""Bug review skill for detecting common software bugs and vulnerabilities.
+"""Detect common software bugs and vulnerabilities using a bug review skill.
 
 This skill provides systematic bug detection across multiple categories:
 - Null pointer dereference
@@ -22,7 +22,7 @@ from .base import AnalysisResult, BaseReviewSkill
 
 
 class BugReviewSkill(BaseReviewSkill):
-    """Skill for detecting and analyzing software bugs."""
+    """Detect and analyze software bugs."""
 
     skill_name: ClassVar[str] = "bug_review"
     supported_languages: ClassVar[list[str]] = [

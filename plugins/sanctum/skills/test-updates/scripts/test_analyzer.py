@@ -242,26 +242,99 @@ class TestAnalyzer:
 
 
 def main() -> None:
-    """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Analyze codebase for test coverage")
+    """CLI entry point.
+
+    Returns (JSON when --output-json):
+        success (bool): Whether analysis completed
+        data.source_files (list): Source files found
+        data.test_files (list): Test files found
+        data.uncovered_files (list): Files without tests
+        data.coverage_gaps (list): Detailed coverage gap info
+    """
+    parser = argparse.ArgumentParser(
+        description="Analyze codebase for test coverage gaps and changes"
+    )
     parser.add_argument("--scan", type=str, help="Scan directory for test gaps")
     parser.add_argument("--coverage", type=str, help="Analyze test coverage")
-    parser.add_argument("--changes", type=str, help="Analyze git changes")
+    parser.add_argument("--changes", type=str, help="Analyze git changes needing tests")
     parser.add_argument(
         "--report",
         choices=["coverage", "changes"],
         default="coverage",
         help="Report type to generate",
     )
+    parser.add_argument(
+        "--output-json",
+        action="store_true",
+        help="Output results as JSON for programmatic use",
+    )
 
     args = parser.parse_args()
 
-    if args.scan:
-        TestAnalyzer(args.scan)
-    elif args.changes:
-        TestAnalyzer(args.changes)
-    else:
+    target_path = args.scan or args.coverage or args.changes
+    if not target_path:
         parser.print_help()
+        return
+
+    try:
+        analyzer = TestAnalyzer(target_path)
+
+        if args.changes:
+            results = analyzer.analyze_git_changes()
+        else:
+            results = analyzer.scan_for_test_gaps()
+
+        # Convert Path objects to strings for JSON serialization
+        serializable_results = _make_serializable(results)
+
+        if args.output_json:
+            output = {
+                "success": True,
+                "data": serializable_results,
+            }
+            print(json.dumps(output, indent=2))
+        else:
+            # Human-readable output
+            print("=" * 60)
+            print("Test Analysis Report")
+            print("=" * 60)
+            print(f"\nTarget: {target_path}")
+            print(f"Report type: {args.report}")
+
+            if "uncovered_files" in results:
+                print(f"\nUncovered files ({len(results['uncovered_files'])}):")
+                for f in results["uncovered_files"][:10]:
+                    print(f"  - {f}")
+                if len(results["uncovered_files"]) > 10:
+                    print(f"  ... and {len(results['uncovered_files']) - 10} more")
+
+            if "coverage_gaps" in results:
+                print(f"\nCoverage gaps ({len(results['coverage_gaps'])}):")
+                for gap in results["coverage_gaps"][:5]:
+                    print(
+                        f"  - {gap.get('file', 'unknown')}: {gap.get('reason', 'no details')}"
+                    )
+
+            print("\nFor full JSON output, use --output-json")
+
+    except Exception as e:
+        if args.output_json:
+            print(json.dumps({"success": False, "error": str(e)}, indent=2))
+        else:
+            print(f"Error: {e}")
+        raise SystemExit(1) from e
+
+
+def _make_serializable(obj):
+    """Convert objects to JSON-serializable format."""
+    if isinstance(obj, dict):
+        return {k: _make_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_make_serializable(item) for item in obj]
+    elif isinstance(obj, Path):
+        return str(obj)
+    else:
+        return obj
 
 
 if __name__ == "__main__":

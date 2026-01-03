@@ -1,19 +1,11 @@
 ---
 name: workflow-improvement
 description: |
-  Retrospective workflow to evaluate the most recent command/session slice
-  and drive improvements to workflow assets (skills, agents, commands, hooks).
+  Retrospective workflow evaluation and improvement of skills, agents, commands, and hooks.
 
-  Triggers: fix workflow, workflow improvement, retrospective, session analysis,
-  workflow efficiency, command optimization, skill improvement, hook refinement
-
-  Use when: execution felt slow, confusing, repetitive, or fragile, workflow
-  assets need improvement, analyzing recent session for optimization opportunities
-
+  Triggers: workflow improvement, retrospective, workflow efficiency
+  Use when: workflow felt slow, confusing, or needs optimization
   DO NOT use when: implementing features - focus on feature work first.
-  DO NOT use when: the issue is user error rather than workflow design.
-
-  Improves the workflow assets themselves, not the feature work.
 category: workflow-ops
 tags: [workflow, retrospective, efficiency, commands, agents, skills, hooks]
 tools: [Read, Edit, Bash, TodoWrite]

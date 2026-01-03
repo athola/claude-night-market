@@ -189,4 +189,4 @@ Each plugin should document:
 - `docs/guides/plugin-dependency-pattern.md` - Detailed implementation guide
 - `plugins/abstract/examples/sanctum_integration_example.py`
 - `plugins/sanctum/examples/abstract_integration_example.py`
-- `plugins/conservation/examples/context_optimization_service.py`
+- `plugins/conserve/examples/context_optimization_service.py`

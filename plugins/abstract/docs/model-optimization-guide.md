@@ -294,7 +294,7 @@ Track these metrics after optimization:
 | Plugin | Agent | Escalation Hints |
 |--------|-------|------------------|
 | abstract | plugin-validator | security_sensitive, novel_pattern |
-| conservation | context-optimizer | ambiguous_input, high_stakes |
+| conserve | context-optimizer | ambiguous_input, high_stakes |
 | memory-palace | knowledge-navigator | ambiguous_input, novel_pattern |
 | sanctum | commit-agent | ambiguous_input, high_stakes |
 | sanctum | git-workspace-agent | security_sensitive, high_stakes |

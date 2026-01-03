@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Skill Complexity Analyzer.
 
-Analyzes skill files and suggests modularization strategies.
+Analyze skill files and suggest modularization strategies.
 Uses centralized utilities from abstract.base and abstract.utils.
 """
 
@@ -34,7 +34,7 @@ MODERATE_TOKEN_LIMIT = 1500
 
 
 class SkillAnalyzer:
-    """Analyzes skill files for complexity and modularization opportunities."""
+    """Analyze skill files for complexity and modularization opportunities."""
 
     def __init__(self, threshold: int = 150) -> None:
         """Initialize the analyzer.

@@ -1,12 +1,12 @@
 # Conjure
 
-Delegation to external models for Claude Code. Route long-context analysis, bulk work, and summarization to external LLM services (Gemini, Qwen) while keeping design and review in Claude.
+Delegate tasks to external models from Claude Code. Delegate analysis, bulk work, and summarization to services like Gemini or Qwen.
 
-The plugin tracks quotas, logs usage, and suggests delegation when tasks grow large.
+The plugin tracks quotas, logs usage, and suggests delegation for large tasks.
 
 ## Installation
 
-### As a Claude Code plugin (recommended)
+### As a Claude Code plugin
 
 ```bash
 /plugin install athola@claude-night-market
@@ -16,7 +16,7 @@ The plugin tracks quotas, logs usage, and suggests delegation when tasks grow la
 ### Development setup
 
 ```bash
-uv sync             # install deps (or: make deps)
+uv sync             # install deps
 make install-hooks  # pre-commit hooks
 make test           # lint + type + security checks
 ```
@@ -28,10 +28,10 @@ Requirements: Python 3.10+, [uv](https://docs.astral.sh/uv/), and `tiktoken`.
 ### Quick Start
 
 ```bash
-# Check delegation readiness (auth + CLI availability)
+# Check delegation readiness
 make delegate-verify
 
-# Auto-pick best service for a task
+# Select best service for a task
 make delegate-auto PROMPT="Summarize src" FILES="src/"
 
 # Monitor limits and usage
@@ -107,13 +107,13 @@ Skill(conjure:gemini-delegation)
 Skill(conjure:qwen-delegation)
 ```
 
-Hooks surface delegation suggestions when tasks grow large.
+Hooks surface delegation suggestions for large tasks.
 
 ## Commands
 
 ### `delegate-auto`
 
-Auto-selects the best external service based on requirements.
+Select the best external service based on requirements.
 
 ### `delegate-gemini` / `delegate-qwen`
 
@@ -121,15 +121,15 @@ Force a specific service with optional file globs and model hints.
 
 ### `quota-status`
 
-Shows current Gemini quota usage with warnings.
+Display current Gemini quota usage.
 
 ### `usage-report`
 
-Summarizes recent requests, token counts, and success rate.
+Summarize recent requests, token counts, and success rate.
 
 ### `validate-delegation`
 
-Checks configuration integrity.
+Check configuration integrity.
 
 ## Architecture
 
@@ -141,10 +141,10 @@ Checks configuration integrity.
 - **Hooks**: Recommend delegation based on output size.
 - **Makefile**: Entry point for dev and validation.
 
-## How It Works
+## Workflow
 
-1. **Assess**: Evaluate if a task should delegate (`delegation-core`).
-2. **Select**: Pick Gemini or Qwen (`delegate-auto`).
+1. **Assess**: Evaluate if a task should be delegated (`delegation-core`).
+2. **Select**: Identify appropriate service (`delegate-auto`).
 3. **Execute**: Run commands and capture output (`delegation_executor`).
 4. **Monitor**: Track limits and log outcomes.
 5. **Integrate**: Return results to Claude.

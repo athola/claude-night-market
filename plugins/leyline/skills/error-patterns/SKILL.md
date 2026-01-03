@@ -1,18 +1,10 @@
 ---
 name: error-patterns
 description: |
-  Standardized error handling patterns for production-grade plugin development. Provides
-  error classification, recovery strategies, and logging patterns.
+  Standardized error handling patterns with classification, recovery, and logging strategies.
 
-  Triggers: error handling, error recovery, graceful degradation, resilience,
-  exception handling, error classification, debugging patterns
-
-  Use when: implementing error handling in plugins, designing recovery strategies,
-  classifying and logging errors consistently
-
-  DO NOT use when: simple scripts without error handling needs.
-
-  Consult this skill when designing production-grade error handling for plugins.
+  Triggers: error handling, error recovery, graceful degradation, resilience
+  Use when: implementing error handling in production plugins
 category: infrastructure
 tags: [errors, error-handling, recovery, resilience, debugging]
 dependencies: [usage-logging]

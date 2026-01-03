@@ -1,4 +1,4 @@
-"""API review skill for analyzing API surface and quality.
+"""Analyze API surface and quality using an API review skill.
 
 This skill analyzes public APIs across multiple languages, checking for
 documentation, naming consistency, error handling, breaking changes,
@@ -14,7 +14,7 @@ from .base import BaseReviewSkill
 
 
 class ApiReviewSkill(BaseReviewSkill):
-    """Skill for reviewing API surface and quality."""
+    """Review API surface and quality."""
 
     skill_name: ClassVar[str] = "api_review"
     supported_languages: ClassVar[list[str]] = [

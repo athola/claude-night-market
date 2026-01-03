@@ -74,7 +74,7 @@ dependencies:
 Conservation can use leyline for context metrics:
 
 ```yaml
-# conservation/skills/context-optimization/SKILL.md
+# conserve/skills/context-optimization/SKILL.md
 dependencies:
   - leyline:quota-management  # For context budget tracking
   - leyline:usage-logging     # For optimization metrics

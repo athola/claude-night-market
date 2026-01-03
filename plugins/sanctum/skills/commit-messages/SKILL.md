@@ -1,19 +1,11 @@
 ---
 name: commit-messages
 description: |
-  Generate conventional commit messages from staged changes by inspecting diffs,
-  picking the correct type/scope, and writing the final text.
+  Generate conventional commit messages from staged changes with correct type/scope.
 
-  Triggers: commit message, conventional commit, git commit, staged changes,
-  commit text, type/scope, changelog
-
-  Use when: generating commit messages, following conventional commits format,
-  creating changelog-friendly commits
-
+  Triggers: commit message, conventional commit, git commit
+  Use when: generating commit messages in conventional commits format
   DO NOT use when: full PR preparation - use pr-prep instead.
-  DO NOT use when: reviewing commits - use git-workspace-review.
-
-  Use this skill for commit message generation.
 category: artifact-generation
 tags: [git, commit, conventional-commits, changelog]
 tools: [Bash, Write, TodoWrite]

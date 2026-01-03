@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gemini Usage Logger.
 
-Logs Gemini CLI usage for pattern analysis and quota monitoring.
+Log Gemini CLI usage for pattern analysis and quota monitoring.
 Integrates with the gemini-delegation skill to track actual usage.
 """
 
@@ -34,7 +34,7 @@ class UsageEntry:
 
 
 class GeminiUsageLogger:
-    """Logger for tracking Gemini CLI usage patterns."""
+    """Log Gemini CLI usage patterns."""
 
     def __init__(self) -> None:
         """Initialize the usage logger with default paths."""

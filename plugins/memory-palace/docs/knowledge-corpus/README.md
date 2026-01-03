@@ -41,4 +41,8 @@ The cache interceptor requires a large curated base so governance hooks can answ
 
 ## Index
 
+### Learning & Meta-Skills
 - [Franklin Protocol - Learning Algorithms](./franklin-protocol-learning.md)
+
+### Code Quality & Maintenance
+- [Codebase Bloat Detection - Tools and Techniques](./codebase-bloat-detection.md)

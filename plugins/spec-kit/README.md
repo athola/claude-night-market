@@ -1,10 +1,10 @@
 # spec-kit
 
-Spec Driven Development toolkit for Claude Code.
+Specification-driven development toolkit for Claude Code.
 
 ## Overview
 
-Spec-kit implements the Speckit workflow: write a specification, generate a plan, break it into tasks, and implement them with tracking.
+Spec-kit provides a workflow for specification-driven development: writing a specification, generating an implementation plan, breaking it into tasks, and executing them with tracking.
 
 ## Installation
 
@@ -15,64 +15,62 @@ This plugin is part of the [claude-night-market](https://github.com/athola/claud
 claude plugins add spec-kit
 ```
 
-**Requires**: `abstract` plugin for meta-skills infrastructure.
+**Requires**: `abstract` plugin for infrastructure.
 
 ## Workflow Commands
 
-### Core Speckit Commands
+### Core Commands
 
 | Command | Description |
 |---------|-------------|
-| `/speckit-startup` | Bootstrap speckit workflow at session start |
-| `/speckit-specify` | Create feature specifications from natural language |
-| `/speckit-clarify` | Refine specifications with targeted questions |
-| `/speckit-plan` | Execute implementation planning workflow |
-| `/speckit-tasks` | Generate dependency-ordered tasks |
-| `/speckit-implement` | Execute implementation tasks |
-| `/speckit-analyze` | Cross-artifact consistency analysis |
-| `/speckit-checklist` | Generate requirement quality checklists |
-| `/speckit-constitution` | Manage project principles |
+| `/speckit-startup` | Initialize the speckit workflow for the session. |
+| `/speckit-specify` | Create feature specifications from natural language. |
+| `/speckit-clarify` | Refine specifications with targeted questions. |
+| `/speckit-plan` | Execute the implementation planning workflow. |
+| `/speckit-tasks` | Generate dependency-ordered tasks. |
+| `/speckit-implement` | Execute implementation tasks. |
+| `/speckit-analyze` | Analyze consistency across artifacts. |
+| `/speckit-checklist` | Generate quality checklists for requirements. |
+| `/speckit-constitution` | Manage project principles. |
 
 ## Skills
 
 ### speckit-orchestrator
 
-Workflow coordinator that validates skill loading, progress tracking, and consistency throughout the speckit command lifecycle.
+Workflow coordinator that validates skill loading and maintains consistency throughout the command lifecycle.
 
 ### spec-writing
 
-Guides creation of clear, complete, and testable specifications from natural language descriptions.
+Guides the creation of testable specifications from natural language descriptions.
 
 ### task-planning
 
-Transforms specifications and implementation plans into actionable, dependency-ordered tasks.
+Transforms specifications and implementation plans into dependency-ordered tasks.
 
 ## Agents
 
 ### spec-analyzer
 
-Analyzes specification artifacts for consistency, coverage, and quality issues.
+Analyzes artifacts for consistency, coverage, and quality.
 
 ### task-generator
 
-Generates dependency-ordered implementation tasks from specifications and plans.
+Generates dependency-ordered implementation tasks.
 
 ### implementation-executor
 
-Executes implementation tasks systematically following the task plan.
+Executes implementation tasks according to the task plan.
 
-## Typical Workflow
+## Workflow Example
 
-```
-/speckit-startup           # Initialize session
-/speckit-specify <feature> # Create specification
-/speckit-clarify           # Refine requirements
-/speckit-plan              # Generate implementation plan
-/speckit-tasks             # Create task breakdown
-/speckit-analyze           # Verify consistency
-/speckit-implement         # Execute tasks
-/speckit-checklist         # Final quality check
-```
+1. `/speckit-startup`: Initialize the session.
+2. `/speckit-specify <feature>`: Create a specification.
+3. `/speckit-clarify`: Refine requirements.
+4. `/speckit-plan`: Generate an implementation plan.
+5. `/speckit-tasks`: Create a task breakdown.
+6. `/speckit-analyze`: Verify consistency.
+7. `/speckit-implement`: Execute tasks.
+8. `/speckit-checklist`: Run a final quality check.
 
 ## Dependencies
 
