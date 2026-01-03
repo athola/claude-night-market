@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Customize project templates based on selected architecture paradigm."""
 
+import argparse
+import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -463,24 +466,34 @@ class TemplateCustomizer:
         },
     }
 
-    def __init__(self, paradigm: str, language: str, project_name: str):
+    def __init__(
+        self,
+        paradigm: str,
+        language: str,
+        project_name: str,
+        service_name: str = "service-a",
+    ):
         """Initialize template customizer.
 
         Args:
             paradigm: Architecture paradigm name
             language: Programming language
             project_name: Name of the project
+            service_name: Name for service templates (microservices, etc.)
+
         """
         self.paradigm = paradigm
         self.language = language
         self.project_name = project_name
         self.module_name = project_name.replace("-", "_")
+        self.service_name = service_name
 
     def get_structure(self) -> list[str]:
         """Get directory structure for the paradigm and language.
 
         Returns:
             List of directory/file paths to create
+
         """
         if self.paradigm not in self.STRUCTURE_TEMPLATES:
             print(f"Warning: No specific structure for {self.paradigm}, using layered")
@@ -497,7 +510,7 @@ class TemplateCustomizer:
         # Replace placeholders
         return [
             path.replace("{module}", self.module_name).replace(
-                "{service_name}", "service-a"
+                "{service_name}", self.service_name
             )
             for path in raw_structure
         ]
@@ -507,6 +520,7 @@ class TemplateCustomizer:
 
         Returns:
             Paradigm description string
+
         """
         if self.paradigm in self.STRUCTURE_TEMPLATES:
             return self.STRUCTURE_TEMPLATES[self.paradigm]["description"]
@@ -517,6 +531,7 @@ class TemplateCustomizer:
 
         Returns:
             Markdown string with architecture documentation
+
         """
         description = self.get_paradigm_description()
 
@@ -569,6 +584,7 @@ As the project grows, consider:
 
         Returns:
             List of created directories
+
         """
         structure = self.get_structure()
         created_dirs = []
@@ -589,6 +605,7 @@ As the project grows, consider:
 
         Returns:
             ADR content as string
+
         """
         return f"""# Architecture Decision Record: {self.paradigm.replace('-', ' ').title()}
 
@@ -644,16 +661,13 @@ Adopted **{self.paradigm.replace('-', ' ').title()} Architecture**.
 
         Returns:
             Date string
-        """
-        from datetime import datetime
 
+        """
         return datetime.now().strftime("%Y-%m-%d")
 
 
 def main():
     """CLI entry point for template customizer."""
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Generate architecture-specific project structure"
     )
@@ -719,8 +733,6 @@ def main():
     customizer = TemplateCustomizer(args.paradigm, args.language, args.project_name)
 
     if args.output_json:
-        import json
-
         output = {
             "paradigm": args.paradigm,
             "description": customizer.get_paradigm_description(),

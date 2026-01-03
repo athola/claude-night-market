@@ -24,6 +24,7 @@ def interactive_context_gathering() -> dict[str, str]:
 
     Returns:
         Dictionary of project context
+
     """
     print("\n" + "=" * 60)
     print("Architecture-Aware Project Initialization")
@@ -59,6 +60,8 @@ def interactive_context_gathering() -> dict[str, str]:
         elif choice:
             context["project_type"] = choice
             break
+        else:
+            print("  ⚠ Please enter a number (1-10) or custom project type")
 
     # Domain complexity
     complexities = ["simple", "moderate", "complex", "highly-complex"]
@@ -71,6 +74,8 @@ def interactive_context_gathering() -> dict[str, str]:
         if choice.isdigit() and 1 <= int(choice) <= 4:
             context["domain_complexity"] = complexities[int(choice) - 1]
             break
+        else:
+            print("  ⚠ Please enter a number between 1-4")
 
     # Team size
     team_sizes = ["<5", "5-15", "15-50", "50+"]
@@ -83,6 +88,8 @@ def interactive_context_gathering() -> dict[str, str]:
         if choice.isdigit() and 1 <= int(choice) <= 4:
             context["team_size"] = team_sizes[int(choice) - 1]
             break
+        else:
+            print("  ⚠ Please enter a number between 1-4")
 
     # Language
     languages = ["python", "rust", "typescript"]
@@ -95,6 +102,8 @@ def interactive_context_gathering() -> dict[str, str]:
         if choice.isdigit() and 1 <= int(choice) <= 3:
             context["language"] = languages[int(choice) - 1]
             break
+        else:
+            print("  ⚠ Please enter a number between 1-3")
 
     # Optional: Framework
     framework = input("\nFramework (optional, press Enter to skip): ").strip()
@@ -145,6 +154,7 @@ def present_recommendation(recommendation) -> bool:
 
     Returns:
         True if user accepts recommendation
+
     """
     print("\n" + "=" * 60)
     print("🎯 Architecture Recommendation")
@@ -196,6 +206,7 @@ def perform_online_research(
 
     Returns:
         Dictionary of research findings
+
     """
     print("\n" + "=" * 60)
     print("Online Research Phase")
@@ -233,6 +244,7 @@ def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
 
     Returns:
         Dictionary of focus areas with descriptions
+
     """
     focus_areas = {
         "Industry Standards": f"Current architecture patterns for {context.get('project_type', 'applications')} in 2026",
@@ -282,6 +294,7 @@ def generate_research_summary(context: dict[str, str], recommendation) -> str:
 
     Returns:
         Research summary markdown string
+
     """
     summary = f"""## Research Summary
 
