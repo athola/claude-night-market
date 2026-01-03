@@ -4,8 +4,30 @@
 import argparse
 import json
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
+
+import yaml
+
+# Module-level path for data files
+_DATA_DIR = Path(__file__).parent.parent / "data"
+
+
+@lru_cache(maxsize=1)
+def _load_trade_offs() -> dict[str, dict[str, str]]:
+    """Load paradigm trade-offs from YAML file.
+
+    Returns:
+        Dictionary mapping paradigm names to their trade-off info.
+
+    """
+    yaml_path = _DATA_DIR / "paradigm_trade_offs.yaml"
+    if yaml_path.exists():
+        with yaml_path.open() as f:
+            return yaml.safe_load(f)
+    # Fallback if file doesn't exist
+    return {}
 
 
 @dataclass
@@ -233,6 +255,8 @@ class ArchitectureResearcher:
     def _identify_trade_offs(self, paradigm: str) -> dict[str, str]:
         """Identify trade-offs for the selected paradigm.
 
+        Loads trade-off data from external YAML file for maintainability.
+
         Args:
             paradigm: Selected paradigm name
 
@@ -240,89 +264,9 @@ class ArchitectureResearcher:
             Dictionary of trade-offs and mitigations
 
         """
-        trade_offs = {
-            "layered": {
-                "trade-off": "Anemic domain models, tight layer coupling",
-                "mitigation": "Business logic in service layer, DTOs at boundaries",
-                "best-for": "Teams new to architecture, CRUD-heavy apps",
-                "avoid-when": "Complex domain or frequent infrastructure changes",
-            },
-            "hexagonal": {
-                "trade-off": "More boilerplate, indirection through ports/adapters",
-                "mitigation": "Code generation for adapters, minimal stable ports",
-                "best-for": "Infrastructure flexibility, testability priority",
-                "avoid-when": "Simple CRUD applications or very small teams",
-            },
-            "functional-core": {
-                "trade-off": "Learning curve for functional thinking, discipline",
-                "mitigation": "Start small, pair program, document patterns",
-                "best-for": "Complex business logic, high testability needs",
-                "avoid-when": "Team unfamiliar with functional programming",
-            },
-            "modular-monolith": {
-                "trade-off": "Single deployment unit, module coupling risks",
-                "mitigation": "Enforce boundaries via build tools, plan extraction",
-                "best-for": "Growing teams, unclear service boundaries",
-                "avoid-when": "Clear bounded contexts, microservices experience",
-            },
-            "microservices": {
-                "trade-off": "Distributed complexity, latency, data consistency",
-                "mitigation": "Invest in observability, automation, service mesh",
-                "best-for": "Large teams, independent scaling, clear boundaries",
-                "avoid-when": "Small teams, unclear boundaries, limited DevOps",
-            },
-            "cqrs-es": {
-                "trade-off": "Complexity, eventual consistency, event versioning",
-                "mitigation": "Start with single bounded context, event upcasting",
-                "best-for": "Audit requirements, complex domain, temporal queries",
-                "avoid-when": "Simple CRUD, unfamiliar with event-driven patterns",
-            },
-            "event-driven": {
-                "trade-off": "Debugging complexity, eventual consistency, ordering",
-                "mitigation": "Correlation IDs, distributed tracing, idempotency",
-                "best-for": "Decoupled systems, real-time, integration scenarios",
-                "avoid-when": "Strong consistency, simple request-response patterns",
-            },
-            "pipeline": {
-                "trade-off": "Stage coupling, error handling, state management",
-                "mitigation": "Idempotent stages, checkpointing, clear error paths",
-                "best-for": "ETL workflows, data processing, transformations",
-                "avoid-when": "Non-linear processing, complex branching logic",
-            },
-            "serverless": {
-                "trade-off": "Cold starts, vendor lock-in, execution limits",
-                "mitigation": "Provisioned concurrency, abstract providers, local test",
-                "best-for": "Variable workloads, rapid development, cost savings",
-                "avoid-when": "Long-running processes, low-latency, complex state",
-            },
-            "space-based": {
-                "trade-off": "Memory costs, replication complexity, partitioning",
-                "mitigation": "Capacity planning, data aging, eventual consistency",
-                "best-for": "Extreme scalability, in-memory, high throughput",
-                "avoid-when": "Limited memory, strong consistency, small scale",
-            },
-            "microkernel": {
-                "trade-off": "Plugin interface versioning, core stability needs",
-                "mitigation": "Semantic versioning, backwards compatibility testing",
-                "best-for": "Extensible platforms, customization, plugin systems",
-                "avoid-when": "Stable feature set, no extensibility requirements",
-            },
-            "service-based": {
-                "trade-off": "Service granularity, shared database challenges",
-                "mitigation": "Clear contracts, consider database-per-service",
-                "best-for": "SOA migration, coarse services, enterprise integration",
-                "avoid-when": "Fine-grained independence, startup/greenfield",
-            },
-            "client-server": {
-                "trade-off": "Single point of failure, scalability limits, coupling",
-                "mitigation": "Load balancing, caching strategies, API versioning",
-                "best-for": "Simple applications, internal tools, prototypes",
-                "avoid-when": "High scalability needed, offline-first requirements",
-            },
-        }
-
-        return trade_offs.get(
-            paradigm,
+        trade_offs = _load_trade_offs()
+        default = trade_offs.get(
+            "_default",
             {
                 "trade-off": "Unknown paradigm-specific trade-offs",
                 "mitigation": "Research paradigm-specific challenges",
@@ -330,6 +274,7 @@ class ArchitectureResearcher:
                 "avoid-when": "Use case doesn't match paradigm strengths",
             },
         )
+        return trade_offs.get(paradigm, default)
 
     def _generate_alternatives(self, selected: str) -> list[dict[str, str]]:
         """Generate alternative paradigms that were considered.

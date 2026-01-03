@@ -19,6 +19,68 @@ from project_detector import ProjectDetector
 from template_customizer import TemplateCustomizer
 
 
+def _select_from_menu(
+    title: str,
+    options: list[str],
+    prompt: str,
+    allow_custom: bool = False,
+    format_option: callable = str,
+) -> str:
+    """Display menu and get user selection.
+
+    Args:
+        title: Menu title to display
+        options: List of options to choose from
+        prompt: Input prompt text
+        allow_custom: Whether to allow custom input
+        format_option: Function to format each option for display
+
+    Returns:
+        Selected option value
+
+    """
+    print(f"\n{title}:")
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {format_option(opt)}")
+
+    max_choice = len(options)
+    while True:
+        choice = input(f"\n{prompt}").strip()
+        if choice.isdigit() and 1 <= int(choice) <= max_choice:
+            return options[int(choice) - 1]
+        if allow_custom and choice:
+            return choice
+        custom_hint = " or custom value" if allow_custom else ""
+        print(f"  ⚠ Please enter a number (1-{max_choice}){custom_hint}")
+
+
+def _select_with_default(
+    title: str,
+    options: list[str],
+    prompt: str,
+    mapping: dict[str, str],
+    default: str,
+) -> str:
+    """Display options and get selection with default fallback.
+
+    Args:
+        title: Section title
+        options: Display lines for options
+        prompt: Input prompt
+        mapping: Dict mapping input to value
+        default: Default value if empty input
+
+    Returns:
+        Selected value or default
+
+    """
+    print(f"\n{title}:")
+    for opt in options:
+        print(f"  {opt}")
+    choice = input(f"\n{prompt}").strip()
+    return mapping.get(choice, default)
+
+
 def interactive_context_gathering() -> dict[str, str]:
     """Gather project context interactively from user.
 
@@ -29,13 +91,12 @@ def interactive_context_gathering() -> dict[str, str]:
     print("\n" + "=" * 60)
     print("Architecture-Aware Project Initialization")
     print("=" * 60)
-
-    context = {}
-
     print("\n📋 Project Context")
     print("-" * 60)
 
-    # Project type
+    context = {}
+
+    # Project type (allows custom input)
     project_types = [
         "web-api",
         "web-application",
@@ -48,100 +109,72 @@ def interactive_context_gathering() -> dict[str, str]:
         "real-time-system",
         "streaming-app",
     ]
-    print("\nProject Type:")
-    for i, pt in enumerate(project_types, 1):
-        print(f"  {i}. {pt}")
-
-    while True:
-        choice = input("\nSelect project type (1-10) or enter custom: ").strip()
-        if choice.isdigit() and 1 <= int(choice) <= len(project_types):
-            context["project_type"] = project_types[int(choice) - 1]
-            break
-        elif choice:
-            context["project_type"] = choice
-            break
-        else:
-            print("  ⚠ Please enter a number (1-10) or custom project type")
+    context["project_type"] = _select_from_menu(
+        "Project Type",
+        project_types,
+        "Select project type (1-10) or enter custom: ",
+        allow_custom=True,
+    )
 
     # Domain complexity
     complexities = ["simple", "moderate", "complex", "highly-complex"]
-    print("\nDomain Complexity:")
-    for i, comp in enumerate(complexities, 1):
-        print(f"  {i}. {comp.title()}")
-
-    while True:
-        choice = input("\nSelect complexity (1-4): ").strip()
-        if choice.isdigit() and 1 <= int(choice) <= 4:
-            context["domain_complexity"] = complexities[int(choice) - 1]
-            break
-        else:
-            print("  ⚠ Please enter a number between 1-4")
+    context["domain_complexity"] = _select_from_menu(
+        "Domain Complexity",
+        complexities,
+        "Select complexity (1-4): ",
+        format_option=str.title,
+    )
 
     # Team size
     team_sizes = ["<5", "5-15", "15-50", "50+"]
-    print("\nTeam Size:")
-    for i, ts in enumerate(team_sizes, 1):
-        print(f"  {i}. {ts}")
-
-    while True:
-        choice = input("\nSelect team size (1-4): ").strip()
-        if choice.isdigit() and 1 <= int(choice) <= 4:
-            context["team_size"] = team_sizes[int(choice) - 1]
-            break
-        else:
-            print("  ⚠ Please enter a number between 1-4")
+    context["team_size"] = _select_from_menu(
+        "Team Size", team_sizes, "Select team size (1-4): "
+    )
 
     # Language
     languages = ["python", "rust", "typescript"]
-    print("\nProgramming Language:")
-    for i, lang in enumerate(languages, 1):
-        print(f"  {i}. {lang.title()}")
-
-    while True:
-        choice = input("\nSelect language (1-3): ").strip()
-        if choice.isdigit() and 1 <= int(choice) <= 3:
-            context["language"] = languages[int(choice) - 1]
-            break
-        else:
-            print("  ⚠ Please enter a number between 1-3")
+    context["language"] = _select_from_menu(
+        "Programming Language",
+        languages,
+        "Select language (1-3): ",
+        format_option=str.title,
+    )
 
     # Optional: Framework
     framework = input("\nFramework (optional, press Enter to skip): ").strip()
-    if framework:
-        context["framework"] = framework
-    else:
-        context["framework"] = ""
+    context["framework"] = framework
 
     # Scalability needs
-    print("\nScalability Needs:")
-    print("  1. Low (< 1000 users)")
-    print("  2. Moderate (< 100K users)")
-    print("  3. High (< 1M users)")
-    print("  4. Extreme (> 1M users)")
-
-    choice = input("\nSelect scalability (1-4, default 2): ").strip()
-    scalability_map = {"1": "low", "2": "moderate", "3": "high", "4": "extreme"}
-    context["scalability_needs"] = scalability_map.get(choice, "moderate")
+    context["scalability_needs"] = _select_with_default(
+        "Scalability Needs",
+        [
+            "1. Low (< 1000 users)",
+            "2. Moderate (< 100K users)",
+            "3. High (< 1M users)",
+            "4. Extreme (> 1M users)",
+        ],
+        "Select scalability (1-4, default 2): ",
+        {"1": "low", "2": "moderate", "3": "high", "4": "extreme"},
+        "moderate",
+    )
 
     # Security requirements
-    print("\nSecurity Requirements:")
-    print("  1. Standard")
-    print("  2. High")
-    print("  3. Critical (finance, health, etc.)")
-
-    choice = input("\nSelect security level (1-3, default 1): ").strip()
-    security_map = {"1": "standard", "2": "high", "3": "critical"}
-    context["security_requirements"] = security_map.get(choice, "standard")
+    context["security_requirements"] = _select_with_default(
+        "Security Requirements",
+        ["1. Standard", "2. High", "3. Critical (finance, health, etc.)"],
+        "Select security level (1-3, default 1): ",
+        {"1": "standard", "2": "high", "3": "critical"},
+        "standard",
+    )
 
     # Time to market
-    print("\nTime to Market:")
-    print("  1. Rapid (ASAP)")
-    print("  2. Normal")
-    print("  3. Not Urgent")
-
-    choice = input("\nSelect timeline (1-3, default 2): ").strip()
-    time_map = {"1": "rapid", "2": "normal", "3": "not-urgent"}
-    context["time_to_market"] = time_map.get(choice, "normal")
+    context["time_to_market"] = _select_with_default(
+        "Time to Market",
+        ["1. Rapid (ASAP)", "2. Normal", "3. Not Urgent"],
+        "Select timeline (1-3, default 2): ",
+        {"1": "rapid", "2": "normal", "3": "not-urgent"},
+        "normal",
+    )
 
     return context
 

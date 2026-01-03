@@ -16,7 +16,9 @@ license = {text = "MIT"}
 readme = "README.md"
 repository = "https://github.com/athola/claude-night-market"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0",
+]
 
 [dependency-groups]
 dev = [
