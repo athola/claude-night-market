@@ -149,7 +149,6 @@ repos:
         name: Ruff - Fast Python Linter
         args: [--config, pyproject.toml]  # No --fix to avoid conflicts with ruff-format
         types: [python]
-      # Note: ruff-format runs again automatically after ruff via pre-commit's file modification detection
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.0
