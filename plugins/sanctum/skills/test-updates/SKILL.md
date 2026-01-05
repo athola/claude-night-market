@@ -47,7 +47,7 @@ A modular test management system that:
 - Discovers what needs testing or updating
 - Generates tests following TDD principles
 - Enhances existing tests with BDD patterns
-- Validates test quality through multiple lenses
+- Validate test quality through multiple lenses
 
 ## Quick Start
 

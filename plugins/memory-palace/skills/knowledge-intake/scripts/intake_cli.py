@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
 from memory_palace.corpus.marginal_value import (
     IntegrationDecision,
     IntegrationPlan,

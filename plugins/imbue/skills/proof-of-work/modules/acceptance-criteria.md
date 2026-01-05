@@ -48,14 +48,14 @@ Based on [Agile acceptance criteria best practices](https://www.atlassian.com/ag
 ### Acceptance Criteria
 - [ ] Language servers installed and in $PATH
 - [ ] MCP configuration file contains cclsp entry
-- [ ] ENABLE_LSP_TOOLS environment variable set to 1
+- [ ] ENABLE_LSP_TOOL environment variable set to 1
 - [ ] cclsp starts without errors when Claude Code launches
 - [ ] LSP tools (find_definition, find_references) are callable from Claude
 
 ### Test Evidence
 - Language servers: [E1] `which pylsp` returns valid path → PASS
 - MCP config: [E2] `.mcp.json` contains cclsp entry → PASS
-- Env var: [E3] `echo $ENABLE_LSP_TOOLS` returns "1" → PASS
+- Env var: [E3] `echo $ENABLE_LSP_TOOL` returns "1" → PASS
 - cclsp starts: [E4] `ps aux | grep cclsp` shows running process → FAIL
 - LSP tools available: [E5] Cannot test (blocked by E4) → BLOCKED
 
@@ -238,7 +238,7 @@ COMPLETE - Research concluded with recommendation
 
 **Good:**
 - [ ] `ps aux | grep cclsp` shows running process
-- [ ] `echo $ENABLE_LSP_TOOLS` returns "1"
+- [ ] `echo $ENABLE_LSP_TOOL` returns "1"
 
 ### Non-Testable Criteria
 

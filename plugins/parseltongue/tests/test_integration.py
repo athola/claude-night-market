@@ -12,6 +12,7 @@ import time
 from pathlib import Path
 
 import pytest
+
 from parseltongue.agents.python_optimizer import PythonOptimizerAgent
 from parseltongue.agents.python_pro import PythonProAgent
 from parseltongue.agents.python_tester import PythonTesterAgent
@@ -19,14 +20,13 @@ from parseltongue.commands.analyze_tests import AnalyzeTestsCommand
 from parseltongue.commands.check_async import CheckAsyncCommand
 from parseltongue.commands.run_profiler import RunProfilerCommand
 from parseltongue.plugin import ParseltonguePlugin
+from parseltongue.skills.code_transformation import CodeTransformationSkill
+from parseltongue.skills.language_detection import LanguageDetectionSkill
+from parseltongue.skills.pattern_matching import PatternMatchingSkill
 from parseltongue.workflow.configurable_workflow import ConfigurableWorkflow
 from parseltongue.workflows.batch_analyzer import BatchAnalyzer
 from parseltongue.workflows.code_review import CodeReviewWorkflow
 from parseltongue.workflows.fastapi_analyzer import FastAPIAnalyzer
-
-from parseltongue.skills.code_transformation import CodeTransformationSkill
-from parseltongue.skills.language_detection import LanguageDetectionSkill
-from parseltongue.skills.pattern_matching import PatternMatchingSkill
 
 
 class TestParseltongueIntegration:
@@ -423,7 +423,7 @@ class AnotherClass:
             assert result["language"] == "unknown" or "error" in result
         except Exception as e:
             # Should handle gracefully
-            assert isinstance(e, (SyntaxError, ValueError))
+            assert isinstance(e, SyntaxError | ValueError)
 
     @pytest.mark.integration
     async def test_configuration_driven_workflow(self, temp_project_directory) -> None:

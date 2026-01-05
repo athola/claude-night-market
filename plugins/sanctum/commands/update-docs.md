@@ -23,7 +23,7 @@ This command now addresses:
    - Find all references to documented functions (semantic, not text-based)
    - Verify API completeness (all public APIs documented)
    - Check signature accuracy (docs match actual code)
-   - **Recommended**: Enable `ENABLE_LSP_TOOLS=1` permanently
+   - **Recommended**: Enable `ENABLE_LSP_TOOL=1` permanently
    - **Best Practice**: Always use LSP for documentation updates
 
 ## Workflow
@@ -70,7 +70,7 @@ Phase 5 validates documentation claims:
 - Referenced file paths exist
 
 **LSP-Enhanced Verification (2.0.74+)**:
-When `ENABLE_LSP_TOOLS=1` is set:
+When `ENABLE_LSP_TOOL=1` is set:
 - Find all public APIs and check documentation coverage
 - Verify function signatures match documented examples
 - Locate all references to show usage patterns

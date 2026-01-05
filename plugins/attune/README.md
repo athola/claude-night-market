@@ -249,7 +249,7 @@ awesome-cli/
 Output:
 ```
 [OK] Git repository initialized
-[OK] .gitignore present and comprehensive
+[OK] .gitignore present and complete
 [OK] Pre-commit hooks configured
 [OK] GitHub Actions workflows configured
 [OK] Makefile with development targets

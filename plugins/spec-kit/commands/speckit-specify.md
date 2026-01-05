@@ -221,7 +221,7 @@ When creating this spec from a user prompt:
 
 - Data retention: Industry-standard practices for the domain
 - Performance targets: Standard web/mobile app expectations unless specified
-- Error handling: User-friendly messages with appropriate fallbacks
+- Error handling: User-friendly messages with appropriate default behaviors
 - Authentication method: Standard session-based or OAuth2 for web apps
 - Integration patterns: RESTful APIs unless specified otherwise
 

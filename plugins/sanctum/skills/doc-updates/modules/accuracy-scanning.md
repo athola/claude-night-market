@@ -1,6 +1,6 @@
 # Accuracy Scanning Module
 
-Validates documentation claims against actual codebase state. Runs as Phase 5.5 before preview to catch stale version numbers, outdated counts, and broken references.
+Validate documentation claims against actual codebase state. Runs as Phase 5.5 before preview to catch stale version numbers, outdated counts, and broken references.
 
 ## Scan Types
 

@@ -33,7 +33,7 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
   - Trait implementation checking: Verify trait bounds
   - Macro expansion inspection: Understand generated code
   - Unused code detection: Find dead code and exports
-  - **Enable**: Set `ENABLE_LSP_TOOLS=1` for rust-analyzer integration
+  - **Enable**: Set `ENABLE_LSP_TOOL=1` for rust-analyzer integration
 
 ## Expertise Areas
 
@@ -83,7 +83,7 @@ Expert Rust auditor focusing on safety, soundness, and idiomatic patterns.
 
 ### LSP-Enhanced Rust Audit (2.0.74+)
 
-When `ENABLE_LSP_TOOLS=1` is set, use rust-analyzer for deeper analysis:
+When `ENABLE_LSP_TOOL=1` is set, use rust-analyzer for deeper analysis:
 
 1. **Type Safety Verification**:
    - Use LSP to verify type inference correctness
@@ -111,7 +111,7 @@ When `ENABLE_LSP_TOOLS=1` is set, use rust-analyzer for deeper analysis:
 
 **Rust-Specific**: rust-analyzer provides Rust-specific semantic understanding beyond generic LSP.
 
-**Default for Rust**: All Rust audits should use `ENABLE_LSP_TOOLS=1` with rust-analyzer. The semantic analysis is essential for:
+**Default for Rust**: All Rust audits should use `ENABLE_LSP_TOOL=1` with rust-analyzer. The semantic analysis is essential for:
 - Lifetime and ownership verification
 - Unsafe code boundary analysis
 - Trait bound checking

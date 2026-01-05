@@ -96,7 +96,7 @@ When applying this skill, create these todos:
 # Example: User says LSP doesn't work
 # FIRST: Verify current state
 ps aux | grep cclsp                    # Is it running?
-echo $ENABLE_LSP_TOOLS                 # Is env var set?
+echo $ENABLE_LSP_TOOL                 # Is env var set?
 cat ~/.claude/.mcp.json | grep cclsp   # Is it configured?
 ```
 

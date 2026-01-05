@@ -38,7 +38,7 @@ This skill coordinates the complete tutorial generation pipeline:
 
 1. Discover tape files and manifests in the project
 2. Validate tape commands and check binary freshness
-3. Rebuild binaries if stale to ensure demos reflect latest code
+3. Rebuild binaries if stale so demos reflect latest code
 4. Record terminal sessions using VHS (scry:vhs-recording)
 5. Record browser sessions using Playwright (scry:browser-recording)
 6. Generate optimized GIFs (scry:gif-generation)

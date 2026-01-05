@@ -1282,7 +1282,7 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
    /fix-pr (Phase 3.5: Version Re-validation) → executes test plan → verified fixes
    ```
 
-This ensures:
+This verifies:
 - Version issues are caught during review (Phase 1.5 of /pr-review)
 - Version fixes are verified before tests run (Phase 3.5 of /fix-pr)
 - All fixes are validated before thread resolution and summary posting

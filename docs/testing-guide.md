@@ -1,12 +1,11 @@
 # Testing Guide
 
-Comprehensive guide to testing in the Claude Night Market ecosystem, covering pre-commit testing, test development, and troubleshooting.
+Guide to testing in the Claude Night Market ecosystem, covering pre-commit testing, test development, and troubleshooting.
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Pre-Commit Testing](#pre-commit-testing)
-- [How Testing Works](#how-testing-works)
 - [Test Coverage](#test-coverage)
 - [Writing Tests](#writing-tests)
 - [Running Tests](#running-tests)
@@ -18,28 +17,21 @@ Comprehensive guide to testing in the Claude Night Market ecosystem, covering pr
 
 The project uses automated testing at multiple levels:
 
-1. **Pre-commit hooks** - Run tests for changed plugins before allowing commits
-2. **Manual execution** - Run tests on-demand for development
-3. **CI/CD pipelines** - Comprehensive testing in continuous integration
+1. **Pre-commit hooks**: Run tests for changed plugins before allowing commits.
+2. **Manual execution**: Run tests on-demand for development.
+3. **CI/CD pipelines**: Test in continuous integration.
 
-**Key Principle**: Tests are **automatically enforced** by pre-commit hooks, ensuring broken code never makes it into the repository.
+Tests are enforced by pre-commit hooks, preventing broken code from entering the repository.
 
 ## Pre-Commit Testing
 
-### What It Does
+Pre-commit hooks automatically run all tests for changed plugins before allowing commits. This prevents broken code from entering the repository and provides fast feedback by only testing changed plugins.
 
-Pre-commit hooks automatically run ALL tests for changed plugins before allowing commits. This ensures:
+### Workflow
 
-- ✅ No broken code enters the repository
-- ✅ Tests are run consistently for all changes
-- ✅ Fast feedback (only changed plugins tested)
-- ✅ Clear error messages when tests fail
+When all tests pass:
 
-### How It Works
-
-#### Normal Workflow (All Tests Pass)
-
-\`\`\`bash
+```bash
 $ git add plugins/minister/src/minister/tracker.py
 $ git commit -m "feat: improve tracker logic"
 
@@ -47,11 +39,11 @@ $ git commit -m "feat: improve tracker logic"
 Run Tests for Changed Plugins...........................................Passed
 [code-cleanup-1.2.1 abc1234] feat: improve tracker logic
  1 file changed, 10 insertions(+), 5 deletions(-)
-\`\`\`
+```
 
-#### Blocked Workflow (Tests Fail)
+When tests fail:
 
-\`\`\`bash
+```bash
 $ git add plugins/minister/src/minister/tracker.py
 $ git commit -m "feat: improve tracker logic"
 
@@ -61,43 +53,39 @@ Run Tests for Changed Plugins...........................................Failed
 - exit code: 1
 
 Testing minister...
-  ✗ Tests failed
+  x Tests failed
 
 === Test Summary ===
-✗ Failed (1): minister
+x Failed (1): minister
 ERROR: Some tests failed!
 
 # Commit is BLOCKED - fix tests first!
-\`\`\`
+```
 
-### What Gets Tested
+### Trigger Rules
 
 | Trigger | Tests Run | Speed |
 |---------|-----------|-------|
-| Modify \`plugins/minister/*.py\` | Only minister tests | ~3-5s |
-| Modify \`plugins/minister/*.py\` + \`plugins/imbue/*.py\` | Minister + imbue tests | ~8-12s |
-| Modify \`plugins/*/commands/*.md\` | Tests for affected plugins | ~5-10s |
-| Manual: \`make test\` | ALL plugin tests | ~2-3min |
+| Modify `plugins/minister/*.py` | Only minister tests | ~3-5s |
+| Modify `plugins/minister/*.py` + `plugins/imbue/*.py` | Minister + imbue tests | ~8-12s |
+| Modify `plugins/*/commands/*.md` | Tests for affected plugins | ~5-10s |
+| Manual: `make test` | ALL plugin tests | ~2-3min |
 
 ### Configuration
 
-**File**: \`.pre-commit-config.yaml\`
+Defined in `.pre-commit-config.yaml`:
 
-\`\`\`yaml
+```yaml
 - id: run-plugin-tests
   name: Run Tests for Changed Plugins
   entry: ./scripts/run-plugin-tests.sh --changed
   language: system
   pass_filenames: false
   stages: [pre-commit]
-  files: ^plugins/.*\\.(py|md)$
-\`\`\`
+  files: ^plugins/.*\.(py|md)$
+```
 
-The hook:
-- ✅ Triggers on \`.py\` and \`.md\` file changes in plugins
-- ✅ Runs automatically before every commit
-- ✅ Blocks commits if any tests fail
-- ✅ Provides clear output showing which tests failed
+The hook triggers on `.py` and `.md` file changes in plugins, runs automatically before every commit, blocks commits if any tests fail, and provides output showing which tests failed.
 
 ## Test Coverage
 
@@ -315,18 +303,18 @@ make test-coverage     # Run with coverage report
 
 #### Optimization
 
-The hooks are optimized for developer workflow:
+Hooks are optimized for developer workflow:
 
-- ✅ **Only tests changed plugins** (not entire codebase)
-- ✅ **Runs in parallel** when multiple plugins changed
-- ✅ **Uses quiet mode** for less verbose output
-- ✅ **Caches test dependencies** via uv
+- **Only tests changed plugins** (not entire codebase)
+- **Runs in parallel** when multiple plugins changed
+- **Uses quiet mode** for less verbose output
+- **Caches test dependencies** via uv
 
 ## Troubleshooting
 
 ### Common Test Failures
 
-See [Quality Gates - Troubleshooting](./quality-gates.md#troubleshooting) for comprehensive troubleshooting guide.
+See [Quality Gates - Troubleshooting](./quality-gates.md#troubleshooting) for troubleshooting guide.
 
 ### When Tests Fail
 

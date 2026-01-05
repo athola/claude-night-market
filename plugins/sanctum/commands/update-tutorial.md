@@ -80,7 +80,7 @@ The skill orchestrates scry media generation capabilities:
 
 1. **Discovery**: Parse tutorial manifests to identify tape files and browser specs.
 2. **Validation**: Test tape commands locally BEFORE recording to catch errors early.
-3. **Rebuild**: Check binary freshness and rebuild if stale to ensure demos reflect latest code.
+3. **Rebuild**: Check binary freshness and rebuild if stale so demos reflect latest code.
 4. **Recording**: Invoke `Skill(scry:vhs-recording)` for terminal demos and `Skill(scry:browser-recording)` for web UI demos.
 5. **Processing**: Use `Skill(scry:gif-generation)` for format conversion and optimization.
 6. **Composition**: Apply `Skill(scry:media-composition)` for multi-source tutorials.

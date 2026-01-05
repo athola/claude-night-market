@@ -45,12 +45,12 @@ help: ## Show this help message
 	@echo "Claude Night Market - Make Targets"
 	@echo "==================================="
 	@echo ""
-	@echo "Root targets:"
+	@echo "Root targets (run on ALL code, not just changed files):"
 	@echo "  help              Show this help message"
 	@echo "  all               Run lint and test across all plugins"
-	@echo "  test              Run tests in all plugins"
-	@echo "  lint              Run linting in all plugins"
-	@echo "  typecheck         Run type checking in all plugins"
+	@echo "  test              Run tests in all plugins (ALL code)"
+	@echo "  lint              Run linting in all plugins (ALL code)"
+	@echo "  typecheck         Run type checking in all plugins (ALL code)"
 	@echo "  docs              Build marketplace docs via Quill wrapper"
 	@echo "  docs-fast         Quick plugin-only docs build (set PLUGIN=name)"
 	@echo "  status            Show status of all plugins"
@@ -153,27 +153,33 @@ technical-debt-clean: ## Clean technical debt artifacts
 	@echo "Technical debt artifacts cleaned"
 
 # Aggregate targets
-test: ## Run tests in all plugins (mirrors pre-commit test hook)
+# NOTE: These targets run on ALL code (not just changed files)
+# For changed-files-only checks, use pre-commit hooks or run scripts with --changed
+test: ## Run tests in all plugins (ALL code, not just changed)
 	@./scripts/run-plugin-tests.sh --all
 
-lint: ## Run linting (mirrors pre-commit configuration)
-	@echo "=== Running Lint (Pre-commit Mirror) ==="
+lint: ## Run linting on all plugins (ALL code, not just changed)
+	@echo "=== Running Lint on ALL Code ==="
 	@echo ""
-	@echo ">>> Running ruff check with auto-fix..."
-	@uv run ruff check --fix --config pyproject.toml plugins/ || (echo "❌ Ruff check failed" && exit 1)
-	@echo "✓ Ruff check passed"
-	@echo ""
-	@echo ">>> Running ruff format..."
+	@echo ">>> Running ruff format on plugins/..."
 	@uv run ruff format --config pyproject.toml plugins/ || (echo "❌ Ruff format failed" && exit 1)
 	@echo "✓ Ruff format passed"
 	@echo ""
-	@echo ">>> Running bandit security checks..."
+	@echo ">>> Running ruff check with auto-fix on plugins/..."
+	@uv run ruff check --fix --config pyproject.toml plugins/ || (echo "❌ Ruff check failed" && exit 1)
+	@echo "✓ Ruff check passed"
+	@echo ""
+	@echo ">>> Running ruff format again (to fix any formatting from check)..."
+	@uv run ruff format --config pyproject.toml plugins/ || (echo "❌ Ruff format failed" && exit 1)
+	@echo "✓ Ruff format passed"
+	@echo ""
+	@echo ">>> Running bandit security checks on plugins/..."
 	@uv run bandit --quiet -c pyproject.toml -r plugins/ || (echo "❌ Bandit failed" && exit 1)
 	@echo "✓ Bandit passed"
 	@echo ""
-	@echo "=== Lint Complete ==="
+	@echo "=== Lint Complete (All Code Checked) ==="
 
-typecheck: ## Run type checking (mirrors pre-commit configuration)
+typecheck: ## Run type checking on all plugins (ALL code, not just changed)
 	@./scripts/run-plugin-typecheck.sh --all
 
 # Plugin delegation - Abstract

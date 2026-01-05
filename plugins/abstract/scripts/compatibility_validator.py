@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Compatibility Validator.
 
-Validates feature parity between original plugin commands and wrapper implementations.
+Validate feature parity between original plugin commands and wrapper implementations.
 
-This script validates that wrapper implementations maintain feature parity
+Validate that wrapper implementations maintain feature parity
 with original plugin commands when migrating to superpowers-based wrappers.
 """
 
@@ -45,9 +45,9 @@ class ValidationResult(TypedDict):
 
 
 class CompatibilityValidator:
-    """Validates wrapper implementations maintain feature parity with original commands.
+    """Validate wrapper implementations maintain feature parity with original commands.
 
-    This class analyzes both markdown command files and Python wrapper implementations
+    Analyze both markdown command files and Python wrapper implementations
     to validate that wrapper scripts maintain the same functionality as the original
     plugin commands they replace.
     """
@@ -71,7 +71,7 @@ class CompatibilityValidator:
         }
 
     def validate_wrapper(self, original: str, wrapper: str) -> ValidationResult:
-        """Validate that wrapper maintains feature parity with original command.
+        """Validate wrapper maintains feature parity with original command.
 
         Args:
             original: Path to original command file (.md)
@@ -319,7 +319,7 @@ class CompatibilityValidator:
 
         # Look for error handling patterns
         for child in ast.walk(node):
-            if isinstance(child, (ast.Try, ast.ExceptHandler)):
+            if isinstance(child, ast.Try | ast.ExceptHandler):
                 if "exception" not in features["error_handling"]:
                     features["error_handling"].append("exception")
             elif isinstance(child, ast.Call):

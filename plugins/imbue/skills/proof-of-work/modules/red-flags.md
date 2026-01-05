@@ -161,7 +161,7 @@ Conclusion: Dependencies installed but version conflicts exist.
 **Problem:** Set in shell ≠ set in process
 
 **Example:**
-> "ENABLE_LSP_TOOLS is set to 1 in your .bashrc."
+> "ENABLE_LSP_TOOL is set to 1 in your .bashrc."
 
 **Reality Check:**
 - Is it set in CURRENT shell?
@@ -173,15 +173,15 @@ Conclusion: Dependencies installed but version conflicts exist.
 Environment variable validation:
 
 [E1] In .bashrc:
-$ grep ENABLE_LSP_TOOLS ~/.bashrc
-Result: PASS - export ENABLE_LSP_TOOLS=1
+$ grep ENABLE_LSP_TOOL ~/.bashrc
+Result: PASS - export ENABLE_LSP_TOOL=1
 
 [E2] In current shell:
-$ echo $ENABLE_LSP_TOOLS
+$ echo $ENABLE_LSP_TOOL
 Result: PASS - 1
 
 [E3] In child process:
-$ bash -c 'echo $ENABLE_LSP_TOOLS'
+$ bash -c 'echo $ENABLE_LSP_TOOL'
 Result: PASS - 1 (properly exported)
 
 [E4] In Claude Code process:

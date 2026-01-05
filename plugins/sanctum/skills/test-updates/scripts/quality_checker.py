@@ -22,6 +22,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+from typing import Any
 
 # Constants for quality thresholds
 MIN_TEST_NAME_LENGTH = 10
@@ -55,7 +56,7 @@ class QualityIssue:
 
 
 class TestQualityChecker:
-    """Validates and scores test quality."""
+    """Validate and score test quality."""
 
     def __init__(self, test_path: Path, source_path: Path | None = None) -> None:
         """Initialize the test quality checker.
@@ -69,7 +70,7 @@ class TestQualityChecker:
         self.source_path = Path(source_path) if source_path else None
         self.issues: list[QualityIssue] = []
 
-    def run_full_validation(self) -> dict[str, any]:
+    def run_full_validation(self) -> dict[str, Any]:
         """Run complete quality validation."""
         results = {
             "static_analysis": self.run_static_analysis(),
@@ -81,15 +82,14 @@ class TestQualityChecker:
         }
 
         # Calculate overall score
-        results["quality_score"] = self._calculate_overall_score(results)
-        results["quality_level"] = self._determine_quality_level(
-            results["quality_score"],
-        )
+        quality_score = self._calculate_overall_score(results)
+        results["quality_score"] = quality_score
+        results["quality_level"] = self._determine_quality_level(quality_score)
         results["recommendations"] = self._generate_recommendations(results)
 
         return results
 
-    def run_static_analysis(self) -> dict[str, any]:
+    def run_static_analysis(self) -> dict[str, Any]:
         """Perform static code analysis."""
         analysis = {
             "structure_issues": [],
@@ -308,9 +308,9 @@ class TestQualityChecker:
                 ),
             )
 
-    def run_dynamic_validation(self) -> dict[str, any]:
+    def run_dynamic_validation(self) -> dict[str, Any]:
         """Run tests and validate dynamic behavior."""
-        validation = {
+        validation: dict[str, Any] = {
             "execution_result": None,
             "test_duration": 0,
             "failures": [],
@@ -388,7 +388,7 @@ class TestQualityChecker:
 
         return validation
 
-    def calculate_metrics(self) -> dict[str, any]:
+    def calculate_metrics(self) -> dict[str, Any]:
         """Calculate quality metrics."""
         metrics = {
             "test_count": 0,

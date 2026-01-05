@@ -2,7 +2,7 @@
 """Skill Complexity Analyzer.
 
 Analyze skill files and suggest modularization strategies.
-Uses centralized utilities from abstract.base and abstract.utils.
+Use centralized utilities from abstract.base and abstract.utils.
 """
 
 import argparse

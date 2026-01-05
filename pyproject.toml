@@ -101,6 +101,23 @@ line-length = 88
 target-version = "py312"
 src = ["plugins", "tests"]
 
+[tool.ruff.lint.isort]
+known-first-party = [
+    "abstract",
+    "attune",
+    "conjure",
+    "conserve",
+    "imbue",
+    "leyline",
+    "memory_palace",
+    "minister",
+    "parseltongue",
+    "pensive",
+    "sanctum",
+    "scry",
+    "spec_kit"
+]
+
 [tool.ruff.lint]
 # Start with a reasonable subset instead of ALL
 select = [

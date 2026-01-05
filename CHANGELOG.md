@@ -207,7 +207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - Sanctum commands default to LSP for documentation verification
       - Conserve skills recommend LSP for token optimization
       - Grep positioned as fallback when LSP unavailable
-      - Recommendation: Enable `ENABLE_LSP_TOOLS=1` permanently in environment
+      - Recommendation: Enable `ENABLE_LSP_TOOL=1` permanently in environment
   - **Security Fix - allowed-tools enforcement**: Documented critical security bug fix
     - Created "Tool Restriction Patterns" section in compatibility documentation
     - Documented previous bug: `allowed-tools` restrictions were NOT being enforced (< 2.0.74)

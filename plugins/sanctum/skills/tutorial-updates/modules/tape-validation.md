@@ -1,6 +1,6 @@
 # Tape Validation Module
 
-Pre-flight validation for VHS tape files before GIF generation. Validates commands work correctly and demo data exists BEFORE running the time-consuming VHS recording.
+Pre-flight validation for VHS tape files before GIF generation. Validate commands work correctly and demo data exists BEFORE running the time-consuming VHS recording.
 
 ## Overview
 

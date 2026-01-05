@@ -8,6 +8,7 @@ knowledge enters the corpus.
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from memory_palace.corpus.marginal_value import (
     OVERLAP_PARTIAL,
     OVERLAP_STRONG,

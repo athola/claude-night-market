@@ -47,9 +47,9 @@ This guides you through:
 
 **Output**: Language-specific project with Makefile, CI/CD, pre-commit hooks.
 
-### Step 3: Establish Persistent "Presence" (Recommended)
+### Step 3: Establish Persistent State (Recommended)
 
-Treat the project's artifacts + constraints as a persistent state you resume each session.
+Manage project artifacts and constraints as a persistent state you resume each session.
 
 ```bash
 # (Once) Define non-negotiable principles for the project
@@ -68,7 +68,7 @@ Optional enhancements:
 /plugin install superpowers@superpowers-marketplace
 ```
 
-### Alternative: Full Brainstorming Workflow
+### Alternative: Brainstorming Workflow
 
 For complex projects requiring exploration:
 
@@ -109,7 +109,7 @@ For complex projects requiring exploration:
 ### Full Multi-Discipline Review
 
 ```bash
-# Comprehensive review with skill selection
+# Full review with skill selection
 /full-review
 ```
 
@@ -230,7 +230,7 @@ make lint && make test
 ### Create the PR
 
 ```bash
-# Comprehensive PR preparation
+# Full PR preparation
 /pr
 
 # This handles:
@@ -357,7 +357,7 @@ Skill(spec-kit:task-planning)
 
 ---
 
-## Meta-Development (Improving the System)
+## Meta-Development
 
 **When**: Improving claude-night-market itself (skills, commands, templates, orchestration).
 
@@ -378,7 +378,7 @@ Useful tools:
 /speckit-constitution
 /speckit-analyze
 
-# Use superpowers to enforce evidence and avoid hand-waving
+# Use superpowers to enforce evidence
 Skill(superpowers:systematic-debugging)
 Skill(superpowers:verification-before-completion)
 ```

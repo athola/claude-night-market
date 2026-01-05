@@ -1,6 +1,6 @@
 # Quality Gates & Code Quality System
 
-A comprehensive three-layer quality system that ensures high code standards for both new and existing code in the Claude Night Market ecosystem.
+A three-layer quality system that maintains high code standards for both new and existing code in the Claude Night Market ecosystem.
 
 ## Table of Contents
 
@@ -50,7 +50,7 @@ The quality system operates on three layers:
 
 **Lint Changed Plugins** (\`run-plugin-lint.sh --changed\`)
 - Uses plugin's Makefile lint target or ruff
-- Runs comprehensive plugin-specific linting
+- Runs plugin-specific linting
 - Speed: ~2-5s per plugin
 
 **Type Check Changed Plugins** (\`run-plugin-typecheck.sh --changed\`)
@@ -59,7 +59,7 @@ The quality system operates on three layers:
 - Speed: ~3-8s per plugin
 
 **Test Changed Plugins** (\`run-plugin-tests.sh --changed\`)
-- Runs full test suite for changed plugins
+- Runs test suite for changed plugins
 - Blocks commit if any tests fail
 - Speed: ~5-15s per plugin
 
@@ -117,7 +117,7 @@ Scripts live in \`plugins/abstract/scripts/\`:
 
 ### Individual Scripts
 
-Run comprehensive checks on-demand:
+Run full checks on-demand:
 
 \`\`\`bash
 # Lint all plugins (or specific ones)
@@ -132,7 +132,7 @@ Run comprehensive checks on-demand:
 ./scripts/run-plugin-tests.sh --all
 ./scripts/run-plugin-tests.sh minister imbue
 
-# Comprehensive check (all three)
+# Full check (all three)
 ./scripts/check-all-quality.sh
 ./scripts/check-all-quality.sh --report
 \`\`\`
@@ -224,7 +224,7 @@ git commit -m "feat: add feature"
 
 ### Common Issues & Fixes
 
-See [Testing Guide - Troubleshooting](./testing-guide.md#troubleshooting) for comprehensive troubleshooting of test failures.
+See [Testing Guide - Troubleshooting](./testing-guide.md#troubleshooting) for troubleshooting of test failures.
 
 #### Linting Errors
 

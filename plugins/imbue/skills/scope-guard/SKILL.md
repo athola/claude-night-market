@@ -132,7 +132,7 @@ Record outcome:
   3. Optionally add to `docs/backlog/queue.md` with issue link
 - **Rejecting:** Document why (low value, out of scope)
 
-**IMPORTANT:** Deferral is NOT complete until a GitHub issue exists. This ensures no context is lost when branches are merged or abandoned.
+**IMPORTANT:** Deferral is NOT complete until a GitHub issue exists. This prevents context loss when branches are merged or abandoned.
 
 ## Anti-Overengineering Rules
 

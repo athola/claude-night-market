@@ -33,7 +33,7 @@ Expert agent for detailed code review with systematic analysis and evidence-base
   - Type verification: Validate type usage across codebase
   - API consistency: Check usage patterns semantically
   - Definition lookup: Navigate code structure efficiently
-  - **Enable**: Set `ENABLE_LSP_TOOLS=1` for LSP-powered reviews
+  - **Enable**: Set `ENABLE_LSP_TOOL=1` for LSP-powered reviews
 
 ## Expertise Areas
 
@@ -79,7 +79,7 @@ Expert agent for detailed code review with systematic analysis and evidence-base
 
 ### LSP-Enhanced Review (2.0.74+)
 
-When `ENABLE_LSP_TOOLS=1` is set, the review process is enhanced with semantic analysis:
+When `ENABLE_LSP_TOOL=1` is set, the review process is enhanced with semantic analysis:
 
 1. **Impact Assessment**:
    - Use LSP to find all references to modified functions
@@ -112,22 +112,22 @@ When dispatched, provide:
 2. Review focus (bugs, API, tests, security)
 3. Project conventions to follow
 4. Severity thresholds
-5. (Optional) Set `ENABLE_LSP_TOOLS=1` for semantic analysis
+5. (Optional) Set `ENABLE_LSP_TOOL=1` for semantic analysis
 
 **Example**:
 ```bash
 # RECOMMENDED: LSP-enhanced review (semantic analysis)
-ENABLE_LSP_TOOLS=1 claude "/pensive:code-review src/ --check-impact --find-unused"
+ENABLE_LSP_TOOL=1 claude "/pensive:code-review src/ --check-impact --find-unused"
 
 # Or enable globally (best practice):
-export ENABLE_LSP_TOOLS=1
+export ENABLE_LSP_TOOL=1
 claude "/pensive:code-review src/"
 
 # Fallback: Standard review without LSP (when language server unavailable)
 claude "/pensive:code-review src/"
 ```
 
-**Recommendation**: Enable `ENABLE_LSP_TOOLS=1` by default for all code reviews.
+**Recommendation**: Enable `ENABLE_LSP_TOOL=1` by default for all code reviews.
 
 ## Output
 

@@ -19,33 +19,36 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 ### Claude Code 2.0.74 (December 2025)
 
 **New Features**:
-- ✅ **LSP (Language Server Protocol) Tool**: Native code intelligence integration
+- ⚠️ **LSP (Language Server Protocol) Tool**: Native code intelligence integration (**EXPERIMENTAL - See [Issue #72](https://github.com/athola/claude-night-market/issues/72)**)
+
+  > **⚠️ CURRENT STATUS (v2.0.74-2.0.76):** LSP support is experimental with known bugs (race conditions, plugin loading failures, "No LSP server available" errors). **Recommend using Grep (ripgrep) as primary method** until LSP stabilizes. See "LSP Integration Patterns" section below for details.
+
   - **Capabilities**: Go-to-definition, find references, hover documentation
-  - **Performance**: 50ms semantic searches vs. 45s grep searches
-  - **Impact**: Fundamentally changes code navigation from syntactic to semantic
+  - **Performance**: 50ms semantic searches (when working) vs. 100-500ms grep searches (reliable)
+  - **Impact**: Semantic code navigation when functional, but unstable in current versions
   - **Affected Plugins**:
     - **pensive**: Enhanced code review with semantic analysis, impact detection, unused code identification
     - **sanctum**: Documentation updates with reference finding, API completeness verification
     - **conservation**: LSP queries more token-efficient than broad grep searches
     - **abstract**: Plugin developers should document LSP usage patterns
   - **Language Support**: TypeScript, Rust, Python, Go, Java, Kotlin, C/C++, PHP, Ruby, C#, PowerShell, HTML/CSS, LaTeX, BSL
-  - **Activation**: Set `ENABLE_LSP_TOOLS=1` environment variable
+  - **Activation**: Set `ENABLE_LSP_TOOL=1` environment variable
   - **Documentation**: See "LSP Integration Patterns" section below
   - **Resources**:
     - [cclsp MCP server](https://github.com/ktnyt/cclsp) - MCP integration for LSP
-    - [Claude Code LSPs](https://github.com/Piebald-AI/claude-code-lsps) - Plugin marketplace with LSP servers
+    - [Official LSP Plugins](https://github.com/anthropics/claude-plugins-official) - Anthropic's official LSP plugins (pyright-lsp, typescript-lsp, rust-analyzer-lsp, etc.)
   - **Examples**:
     ```bash
     # Enable LSP for session (from within a code project)
     cd /path/to/your/project
-    ENABLE_LSP_TOOLS=1 claude
+    ENABLE_LSP_TOOL=1 claude
     # Then: "Find all references to processData function"
 
     # Code review with semantic understanding
-    ENABLE_LSP_TOOLS=1 claude "/pensive:code-review --use-lsp src/"
+    ENABLE_LSP_TOOL=1 claude "/pensive:code-review --use-lsp src/"
 
     # Documentation update with API verification
-    ENABLE_LSP_TOOLS=1 claude "/sanctum:update-docs --verify-references"
+    ENABLE_LSP_TOOL=1 claude "/sanctum:update-docs --verify-references"
     ```
 
 - ✅ **Terminal Setup Support**: Extended `/terminal-setup` compatibility
@@ -342,7 +345,7 @@ This document tracks compatibility between the claude-night-market plugin ecosys
   - Type safety: Validate type usage across codebase
 
 **Recommendations**:
-- Use 2.0.74+ with `ENABLE_LSP_TOOLS=1` for semantic code review
+- Use 2.0.74+ with `ENABLE_LSP_TOOL=1` for semantic code review
 - Fork sessions for specialized reviews (security, performance, maintainability)
 - Combine LSP-powered analysis with traditional pattern matching
 - use LSP for accurate impact assessments during refactoring reviews
@@ -797,6 +800,18 @@ claude --fork-session --session-id "contract-test-strategy" --resume
 
 ## LSP Integration Patterns (2.0.74+)
 
+> **⚠️ CRITICAL: LSP IS EXPERIMENTAL (v2.0.74-2.0.76)**
+>
+> LSP support in Claude Code has significant stability issues. See [Issue #72](https://github.com/athola/claude-night-market/issues/72) for details.
+>
+> **Known Issues:**
+> - [#15255](https://github.com/anthropics/claude-code/issues/15255) - Plugin loading broken
+> - [#13952](https://github.com/anthropics/claude-code/issues/13952) - Race condition (LSP Manager initializes 52ms before plugins load)
+> - [#15641](https://github.com/anthropics/claude-code/issues/15641) - "No LSP server available" despite correct setup
+> - [#16214](https://github.com/anthropics/claude-code/issues/16214) - LSP returns errors with proper configuration
+>
+> **Current Recommendation:** Use **Grep (ripgrep) as primary method**. Test LSP experimentally if desired, but have Grep fallback ready.
+
 ### Overview
 
 The LSP (Language Server Protocol) tool provides **semantic** code intelligence, fundamentally different from syntactic pattern matching with grep/rg.
@@ -814,35 +829,77 @@ Find all call sites of a function:
 
 ### When to Use LSP vs. Grep
 
-**Default Strategy**: **Prefer LSP, fallback to grep when needed.**
+**Default Strategy (v2.0.74-2.0.76)**: **Try LSP first (if enabled), automatically fall back to Grep on failure.**
 
-| Task | Tool | Reason |
-|------|------|--------|
-| Find function/class definition | **LSP (preferred)** | Semantic accuracy (handles overloads, shadowing) |
-| Find all references to symbol | **LSP (preferred)** | True references, not string matches |
-| Get type information | **LSP (preferred)** | Type system awareness |
-| Unused code detection | **LSP (preferred)** | Semantic analysis of references |
-| API usage patterns | **LSP (preferred)** | Understands call hierarchies |
-| Code navigation | **LSP (preferred)** | 900x faster than grep |
-| Search for text pattern | Grep (fallback) | Simple text search when LSP unavailable |
-| Cross-language search | Grep (fallback) | LSP is language-specific |
-| Search in docs/comments | Grep (fallback) | LSP focuses on code semantics |
-| LSP unavailable | Grep (fallback) | When language server not configured |
+This provides the best of both worlds:
+- ✅ Get LSP's semantic understanding and speed when it works (~50ms)
+- ✅ Automatically fall back to reliable Grep when LSP fails (~100-500ms)
+- ✅ Transparent to user - always get results
 
-**Best Practice**: Enable `ENABLE_LSP_TOOLS=1` by default in your environment.
+| Task | Strategy | Implementation |
+|------|----------|----------------|
+| Find function/class definition | LSP → Grep fallback | Try LSP first; if "No LSP server available", use Grep |
+| Find all references to symbol | LSP → Grep fallback | LSP for semantic accuracy; Grep if LSP times out |
+| Get type information | LSP → Grep fallback | LSP for type system; read files with Grep if unavailable |
+| Unused code detection | LSP → Grep fallback | LSP semantic analysis; Grep pattern search on failure |
+| API usage patterns | LSP → Grep fallback | LSP call hierarchies; Grep pattern matching as backup |
+| Code navigation | LSP → Grep fallback | LSP 50ms when working; Grep 100-500ms fallback |
+| Search for text pattern | **Grep only** | Grep is better for plain text search |
+| Cross-language search | **Grep only** | LSP is language-specific |
 
-### Enabling LSP
+**Graceful Degradation Pattern**:
+```python
+# Pseudocode for implementation
+try:
+    result = lsp_query(symbol)
+    if result.is_valid():
+        return result
+except (LSPUnavailable, LSPTimeout, LSPError):
+    return grep_search(symbol)  # Automatic fallback
+```
 
-LSP integration requires three components: environment flag, MCP server bridge, and language servers.
+**Best Practice**: Enable `ENABLE_LSP_TOOL=1` permanently. The automatic fallback ensures you always get results, whether LSP is working or not.
 
-#### Step 1: Enable LSP Feature Flag
+### Enabling LSP (Experimental)
+
+> **⚠️ WARNING:** These setup instructions may not result in working LSP due to known bugs in Claude Code v2.0.74-2.0.76. Even with correct setup, you may encounter "No LSP server available" errors due to race conditions and plugin loading issues. See [Issue #72](https://github.com/athola/claude-night-market/issues/72).
+
+**Two Methods Available:**
+1. **Plugin-based** (Recommended for testing) - Uses Claude Code plugin marketplace
+2. **MCP-based** - Uses cclsp MCP server (documented below)
+
+#### Method 1: Plugin-Based LSP (Recommended)
 
 ```bash
-# Enable for single session
-ENABLE_LSP_TOOLS=1 claude "review this code"
+# Step 1: Enable LSP feature flag
+export ENABLE_LSP_TOOL=1  # Note: Singular "TOOL" not "TOOLS"
 
-# Enable permanently (recommended - add to ~/.bashrc or ~/.zshrc)
-export ENABLE_LSP_TOOLS=1
+# Step 2: Install language servers (the actual LSP binaries)
+npm install -g pyright typescript-language-server typescript
+rustup component add rust-analyzer  # For Rust
+go install golang.org/x/tools/gopls@latest  # For Go
+
+# Step 3: Install official Claude Code LSP plugins
+/plugin install pyright-lsp@claude-plugins-official       # Python
+/plugin install typescript-lsp@claude-plugins-official    # TypeScript/JavaScript
+/plugin install rust-analyzer-lsp@claude-plugins-official # Rust
+/plugin install gopls-lsp@claude-plugins-official         # Go
+
+# Other languages: clangd-lsp, csharp-lsp, jdtls-lsp, lua-lsp, php-lsp, swift-lsp
+# List all: claude plugin list available | grep lsp
+```
+
+**Note:** Use official `claude-plugins-official` marketplace instead of third-party alternatives for better compatibility and support.
+
+**Known Issue:** Even with correct setup, LSP may fail due to race condition where LSP Manager initializes 52ms before plugins load.
+
+#### Method 2: MCP-Based LSP (Alternative)
+
+```bash
+# Step 1: Enable LSP Feature Flag
+export ENABLE_LSP_TOOL=1  # Add to ~/.bashrc or ~/.zshrc
+
+# Step 2: Install cclsp MCP Server (see below)
 ```
 
 #### Step 2: Install cclsp MCP Server
@@ -943,7 +1000,8 @@ rustup component add rust-analyzer
 # Go
 go install golang.org/x/tools/gopls@latest
 
-# More languages: https://github.com/Piebald-AI/claude-code-lsps
+# More languages available in official marketplace
+# List all: claude plugin list available | grep lsp
 ```
 
 #### Verification
@@ -952,7 +1010,7 @@ After setup, verify LSP is working:
 
 ```bash
 cd /path/to/your/project
-ENABLE_LSP_TOOLS=1 claude
+ENABLE_LSP_TOOL=1 claude
 
 # Ask Claude to test LSP:
 # "Find all references to the main function"
@@ -974,13 +1032,13 @@ Claude should respond with precise, semantic results instead of text-based grep 
 - validate project has proper language config files (tsconfig.json, pyproject.toml, etc.)
 
 **LSP queries failing**:
-- Confirm `ENABLE_LSP_TOOLS=1` is set in environment
+- Confirm `ENABLE_LSP_TOOL=1` is set in environment
 - Restart Claude Code after configuration changes
 - Check that file extensions in `.cclsp.json` match your project files
 
 **Resources**:
 - [cclsp](https://github.com/ktnyt/cclsp) - MCP server for LSP integration
-- [Claude Code LSPs](https://github.com/Piebald-AI/claude-code-lsps) - Language server marketplace
+- [Official LSP Plugins](https://github.com/anthropics/claude-plugins-official) - Anthropic's official LSP plugins
 
 ### Plugin-Specific Patterns
 
@@ -995,7 +1053,7 @@ Claude should respond with precise, semantic results instead of text-based grep 
 **Example Workflow**:
 ```bash
 # Start code review with LSP enabled
-ENABLE_LSP_TOOLS=1 claude
+ENABLE_LSP_TOOL=1 claude
 
 # Request review with semantic analysis
 > "/pensive:code-review src/ --check-impact --find-unused"
@@ -1024,7 +1082,7 @@ When LSP is available, agents should:
 
 **Example Workflow**:
 ```bash
-ENABLE_LSP_TOOLS=1 claude "/sanctum:update-docs --verify-completeness"
+ENABLE_LSP_TOOL=1 claude "/sanctum:update-docs --verify-completeness"
 
 # Agent uses LSP to:
 # 1. Find all public APIs
@@ -1053,7 +1111,7 @@ Savings: ~90% token reduction for reference finding
 **Best Practices**:
 - **Default to LSP**: Use LSP for all code navigation and analysis
 - **Fallback to grep**: Only when LSP unavailable or for text-in-comments searches
-- **Enable globally**: Add `export ENABLE_LSP_TOOLS=1` to your shell rc
+- **Enable globally**: Add `export ENABLE_LSP_TOOL=1` to your shell rc
 - **Combine when needed**: LSP for precision + grep for broad text searches
 
 ### LSP Tool Usage Examples
@@ -1089,7 +1147,7 @@ Result: List of exported items with zero references
 ### Integration Best Practices
 
 1. **LSP First**: Always try LSP before falling back to grep
-2. **Enable by Default**: Set `ENABLE_LSP_TOOLS=1` in environment permanently
+2. **Enable by Default**: Set `ENABLE_LSP_TOOL=1` in environment permanently
 3. **Graceful Degradation**: If LSP unavailable, automatically fall back to grep
 4. **Language Awareness**: Verify LSP supports project language, fallback otherwise
 5. **Context Efficiency**: Prefer LSP for 90% token reduction vs. grep
@@ -1324,7 +1382,7 @@ claude --skill test-restricted.md "Try to write a file"
 - [MCP Protocol Specification](https://modelcontextprotocol.io/)
 - [Agent Skills Documentation](https://platform.claude.com/docs/en/agent-sdk/skills)
 - [cclsp LSP MCP Server](https://github.com/ktnyt/cclsp)
-- [Claude Code LSP Marketplace](https://github.com/Piebald-AI/claude-code-lsps)
+- [Official LSP Plugins](https://github.com/anthropics/claude-plugins-official) - Anthropic's official LSP plugins
 
 ---
 

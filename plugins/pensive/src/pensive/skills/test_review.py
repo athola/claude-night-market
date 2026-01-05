@@ -26,6 +26,7 @@ MAX_UNSAFE_BLOCKS = 20
 class TestReviewSkill(BaseReviewSkill):
     """Skill for reviewing test quality, coverage, and patterns."""
 
+    __test__ = False  # Not a pytest test class
     skill_name: ClassVar[str] = "test-review"
     supported_languages: ClassVar[list[str]] = [
         "python",

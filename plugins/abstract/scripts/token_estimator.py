@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Token Usage Estimator for Skills - Estimate token usage for skill files.
 
-Uses centralized utilities from abstract.base and abstract.utils.
+Use centralized utilities from abstract.base and abstract.utils.
 """
 
 import argparse

@@ -32,7 +32,7 @@ Principal-level architecture assessment with focus on design patterns, coupling,
   - Impact analysis: Identify affected modules when changing interfaces
   - Unused abstractions: Detect unreferenced interfaces/types
   - Call hierarchy: Understand function call chains
-  - **Enable**: Set `ENABLE_LSP_TOOLS=1` for LSP-powered reviews
+  - **Enable**: Set `ENABLE_LSP_TOOL=1` for LSP-powered reviews
 
 ## Expertise Areas
 
@@ -74,7 +74,7 @@ Principal-level architecture assessment with focus on design patterns, coupling,
 
 ### LSP-Enhanced Architecture Review (2.0.74+)
 
-When `ENABLE_LSP_TOOLS=1` is set, use semantic analysis for deeper insights:
+When `ENABLE_LSP_TOOL=1` is set, use semantic analysis for deeper insights:
 
 1. **Dependency Analysis**:
    - Use LSP to map complete dependency graph

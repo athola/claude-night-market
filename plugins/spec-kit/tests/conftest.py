@@ -320,7 +320,7 @@ def valid_task_list() -> list[dict[str, Any]]:
                 },
                 {
                     "id": "polish-003",
-                    "title": "Add comprehensive test coverage",
+                    "title": "Add test coverage",
                     "description": "Write tests for edge cases and security scenarios",
                     "dependencies": ["integ-002"],
                     "estimated_time": "2h",

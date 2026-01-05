@@ -26,7 +26,7 @@ HIGH_USAGE_SIMULATION = 0.95
 WARNING_THRESHOLD = 0.40
 CRITICAL_THRESHOLD = 0.50
 
-# Import the base optimizer
+# Import the base optimizer - type: ignore for fallback classes
 try:
     from context_optimization_service import (
         ConservationContextOptimizer,
@@ -35,17 +35,17 @@ try:
     )
 except ImportError:
     # Fallback for standalone use
-    class ConservationContextOptimizer:
+    class ConservationContextOptimizer:  # type: ignore[no-redef]
         """Fallback optimizer when imports are not available."""
 
         pass
 
-    class ContentBlock:
+    class ContentBlock:  # type: ignore[no-redef]
         """Fallback content block when imports are not available."""
 
         pass
 
-    class ConservationServiceRegistry:
+    class ConservationServiceRegistry:  # type: ignore[no-redef]
         """Fallback service registry when imports are not available."""
 
         pass
@@ -226,7 +226,18 @@ class ConditionBasedOptimizer:
 
             # Step 5: Notify callback if provided
             if request.callback:
-                request.callback(result)
+                # Convert result to dict for callback
+                result_dict: dict[Any, Any] = {
+                    "optimization_id": result.optimization_id,
+                    "plugin_name": result.plugin_name,
+                    "status": result.status,
+                    "optimized_content": result.optimized_content,
+                    "metrics": result.metrics,
+                    "start_time": result.start_time,
+                    "end_time": result.end_time,
+                    "error_message": result.error_message,
+                }
+                request.callback(result_dict)
 
             self.logger.info(
                 f"Optimization {optimization_id} completed successfully "
@@ -299,9 +310,12 @@ class ConditionBasedOptimizer:
         completed_count = 0
         total_count = len(tasks)
 
-        def completion_condition():
+        def completion_condition() -> bool:
             nonlocal completed_count
-            completed_tasks = sum(1 for task in tasks if task.done())
+            # Check completion status for asyncio tasks
+            completed_tasks = sum(
+                1 for task in tasks if isinstance(task, asyncio.Task) and task.done()
+            )
             completed_count = completed_tasks
             return completed_tasks >= total_count
 
@@ -319,7 +333,7 @@ class ConditionBasedOptimizer:
 
         # Collect results
         for i, task_result in enumerate(await task_results):
-            if isinstance(task_result, Exception):
+            if isinstance(task_result, Exception | BaseException):
                 # Create failed result
                 failed_result = OptimizationResult(
                     optimization_id=f"batch_{i}_{int(time.time())}",
@@ -328,8 +342,11 @@ class ConditionBasedOptimizer:
                     error_message=str(task_result),
                 )
                 results.append(failed_result)
-            else:
+            elif isinstance(task_result, OptimizationResult):
                 results.append(task_result)
+            else:
+                # Unexpected result type - log and skip
+                self.logger.warning(f"Unexpected result type: {type(task_result)}")
 
         self.logger.info(
             f"Batch optimization completed: "
