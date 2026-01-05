@@ -274,7 +274,7 @@ class TestGeminiDelegationSkill:
             service="gemini",
         )
 
-        # Verify the real command passed to subprocess.run contains expected flags/prompt.
+        # Verify command contains expected flags/prompt
         executed_args = mock_run.call_args_list[-1].args[0]
         assert executed_args[:3] == ["gemini", "--model", "gemini-2.5-pro-exp"]
         assert "-p" in executed_args

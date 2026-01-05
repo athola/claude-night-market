@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.2.0"
+version = "1.2.1"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -76,6 +76,7 @@ extend-ignore = ["E203", "D203", "D213", "S101"]  # Added S101 for assert usage
 
 [tool.ruff.lint.per-file-ignores]
 "**/__init__.py" = ["F401"]
+"tests/**/*.py" = ["S101", "PLR2004", "D103"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -84,7 +85,7 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

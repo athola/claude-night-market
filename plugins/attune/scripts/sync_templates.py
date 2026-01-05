@@ -3,6 +3,7 @@
 
 import argparse
 from pathlib import Path
+from typing import Any
 
 
 class TemplateSynchronizer:
@@ -13,7 +14,7 @@ class TemplateSynchronizer:
         self.templates_dir = plugin_root / "templates"
 
         # Reference projects and their file mappings
-        self.references = {
+        self.references: dict[str, dict[str, Any]] = {
             "python": {
                 "project": Path.home() / "simple-resume",
                 "files": {
@@ -42,6 +43,7 @@ class TemplateSynchronizer:
 
         Returns:
             Dictionary mapping language to availability
+
         """
         available = {}
         for lang, config in self.references.items():
@@ -59,6 +61,7 @@ class TemplateSynchronizer:
 
         Returns:
             Content with template variables
+
         """
         if language == "python":
             # Replace specific project name with template variable
@@ -114,6 +117,7 @@ class TemplateSynchronizer:
 
         Returns:
             List of synced file paths
+
         """
         if language not in self.references:
             print(f"Error: No reference project configured for {language}")
@@ -181,6 +185,7 @@ class TemplateSynchronizer:
 
         Returns:
             Dictionary mapping languages to synced file lists
+
         """
         available = self.check_reference_projects()
         synced = {}
@@ -234,7 +239,7 @@ class TemplateSynchronizer:
         print("=" * 60 + "\n")
 
 
-def main():
+def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(
         description="Synchronize templates from reference projects"

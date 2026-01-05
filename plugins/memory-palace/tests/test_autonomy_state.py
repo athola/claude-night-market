@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from memory_palace import cli as memory_palace_cli
 from memory_palace.lifecycle.autonomy_state import (
     AutonomyProfile,

@@ -13,6 +13,7 @@ class TemplateLoader:
 
         Args:
             language: Target language (python, rust, typescript)
+
         """
         self.language = language
         self.search_paths = self._get_search_paths()
@@ -22,6 +23,7 @@ class TemplateLoader:
 
         Returns:
             List of paths to search for templates
+
         """
         paths = []
 
@@ -59,6 +61,7 @@ class TemplateLoader:
 
         Returns:
             Path to template file, or None if not found
+
         """
         for search_path in self.search_paths:
             template_path = search_path / template_name
@@ -74,6 +77,7 @@ class TemplateLoader:
 
         Returns:
             List of template file paths
+
         """
         seen_names = set()
         templates = []
@@ -131,6 +135,7 @@ def create_custom_template_dir(
 
     Returns:
         Path to created template directory
+
     """
     if location == "user":
         base_path = Path.home() / ".claude" / "attune" / "templates"

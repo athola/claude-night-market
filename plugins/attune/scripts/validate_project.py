@@ -5,7 +5,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from project_detector import ProjectDetector
+from project_detector import ProjectDetector  # type: ignore[import]
 
 
 class ValidationResult:
@@ -124,9 +124,9 @@ class ProjectValidator:
             content = makefile.read_text()
             targets = len(
                 [
-                    l
-                    for l in content.splitlines()
-                    if l.strip() and ":" in l and not l.startswith("#")
+                    line
+                    for line in content.splitlines()
+                    if line.strip() and ":" in line and not line.startswith("#")
                 ]
             )
             self.results.append(
@@ -197,10 +197,6 @@ class ProjectValidator:
                 )
             )
             return
-
-        workflow_files = list(workflows_dir.glob("*.yml")) + list(
-            workflows_dir.glob("*.yaml")
-        )
 
         if language == "python":
             required_workflows = ["test.yml", "lint.yml", "typecheck.yml"]
@@ -284,6 +280,7 @@ class ProjectValidator:
 
         Returns:
             List of validation results
+
         """
         if not language:
             language = self.detector.detect_language()
@@ -305,6 +302,7 @@ class ProjectValidator:
 
         Args:
             verbose: Show detailed information
+
         """
         categories = {
             "git": "Git Configuration",
@@ -355,6 +353,7 @@ class ProjectValidator:
 
         Returns:
             0 if all passed, 1 if any warnings, 2 if critical failures
+
         """
         failed = [r for r in self.results if not r.passed]
 
@@ -369,7 +368,7 @@ class ProjectValidator:
         return 1
 
 
-def main():
+def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Validate project structure")
     parser.add_argument(

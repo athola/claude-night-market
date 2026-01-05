@@ -490,8 +490,7 @@ class TestTemplateSynchronizerBehavior:
     """BDD-style tests for TemplateSynchronizer behavior."""
 
     def test_scenario_sync_python_templates_from_reference(self, tmp_path):
-        """
-        Given a Python reference project with config files
+        """Given a Python reference project with config files
         When syncing Python templates
         Then creates templates with variable placeholders
         """
@@ -530,8 +529,7 @@ class TestTemplateSynchronizerBehavior:
         assert "{{PROJECT_DESCRIPTION}}" in content
 
     def test_scenario_dry_run_reports_without_changes(self, tmp_path, capsys):
-        """
-        Given a reference project with files
+        """Given a reference project with files
         When running dry-run sync
         Then reports what would be done without creating files
         """

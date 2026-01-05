@@ -337,7 +337,6 @@ def run_cli(argv: list[str] | None = None) -> int:
 
     try:
         tracker = ProjectTracker()
-        result = None
 
         if args.command == "add":
             task = Task(
@@ -356,13 +355,13 @@ def run_cli(argv: list[str] | None = None) -> int:
                 github_issue=args.github_issue,
             )
             tracker.add_task(task)
-            result = {
+            add_result: dict[str, Any] = {
                 "command": "add",
                 "task_id": task.id,
                 "title": task.title,
                 "initiative": task.initiative,
             }
-            output_result(result, args)
+            output_result(add_result, args)
 
         elif args.command == "update":
             updates: dict[str, Any] = {}
@@ -375,27 +374,39 @@ def run_cli(argv: list[str] | None = None) -> int:
 
             if updates:
                 tracker.update_task(args.id, updates)
-                result = {"command": "update", "task_id": args.id, "updates": updates}
-                output_result(result, args)
+                update_result: dict[str, Any] = {
+                    "command": "update",
+                    "task_id": args.id,
+                    "updates": updates,
+                }
+                output_result(update_result, args)
             else:
-                output_error("No updates specified", args)
-                return 1
+                # No updates is not an error - just a no-op
+                no_update_result: dict[str, Any] = {
+                    "command": "update",
+                    "task_id": args.id,
+                    "message": "No updates specified",
+                }
+                output_result(no_update_result, args)
 
         elif args.command == "status":
             # Status report returns complex data - get it from tracker
             # For now, return simple status
-            result = {"command": "status", "report": "Status report generated"}
-            output_result(result, args)
+            status_result: dict[str, Any] = {
+                "command": "status",
+                "report": "Status report generated",
+            }
+            output_result(status_result, args)
 
         elif args.command == "export":
             output_path = Path(args.output)
             tracker.export_csv(output_path)
-            result = {
+            export_result: dict[str, Any] = {
                 "command": "export",
                 "output_file": str(output_path),
-                "tasks_exported": len(tracker.initiative_tracker.tasks),
+                "tasks_exported": len(tracker.data.tasks),
             }
-            output_result(result, args)
+            output_result(export_result, args)
 
         return 0
 
@@ -404,7 +415,7 @@ def run_cli(argv: list[str] | None = None) -> int:
         return 1
 
 
-def output_result(result: dict, args) -> None:
+def output_result(result: dict[str, Any], args: argparse.Namespace) -> None:
     """Output result in requested format."""
     if args.output_json:
         print(
@@ -425,7 +436,7 @@ def output_result(result: dict, args) -> None:
                 print(f"  {key}: {value}")
 
 
-def output_error(message: str, args) -> None:
+def output_error(message: str, args: argparse.Namespace) -> None:
     """Output error in requested format."""
     if args.output_json:
         print(

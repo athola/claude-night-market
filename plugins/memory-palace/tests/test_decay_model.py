@@ -7,6 +7,7 @@ with different decay curves based on entry maturity.
 from datetime import UTC, datetime, timedelta
 
 import pytest
+
 from memory_palace.corpus.decay_model import (
     DECAY_CONFIG,
     DecayCurve,

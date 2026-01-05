@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "attune-dev"
-version = "1.2.0"
+version = "1.2.1"
 description = "Development tools for the attune Claude Code plugin - project initialization and workflow automation"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -68,8 +68,32 @@ extend-ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"**/__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "PLR2004"]  # Allow asserts and magic values in tests
+"**/__init__.py" = ["F401", "D107"]
+"tests/**/*.py" = [
+    "S101",     # Allow asserts in tests
+    "S108",     # Allow hardcoded temp paths in tests
+    "PLC0415",  # Allow imports not at top (conditional test imports)
+    "PLR2004",  # Allow magic values in tests
+    "PLR0913",  # Allow too many arguments in test functions
+    "PLR0915",  # Allow many statements in test functions
+    "E501",     # Allow long lines in test docstrings
+    "D401",     # Allow non-imperative mood in test docstrings
+    "D400",     # Allow first line not ending in period
+    "D415",     # Allow first line not ending in period/question/exclamation
+    "D205",     # Allow blank line after summary
+]
+"scripts/**/*.py" = [
+    "S310",     # Allow URL open (validated with _validate_https_url)
+    "E501",     # Allow long lines in template strings
+    "D107",     # Allow missing __init__ docstrings
+    "D401",     # Allow non-imperative mood
+    "PLC0415",  # Allow conditional imports (avoid circular deps)
+    "PLR0911",  # Allow many returns (decision trees)
+    "PLR0912",  # Allow many branches (decision trees)
+    "PLR0913",  # Allow many arguments (initialization functions)
+    "PLR0915",  # Allow many statements (initialization functions)
+    "PLR2004",  # Allow magic values
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -114,4 +138,25 @@ markers = [
     "performance: Performance and scalability tests",
     "slow: Tests that take longer to execute",
     "bdd: Behavior-driven development style tests"
+]
+
+[tool.coverage.run]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+    "scripts/architecture_researcher.py",
+    "scripts/attune_arch_init.py",
+    "scripts/template_customizer.py",
+]
+
+[tool.coverage.report]
+fail_under = 85
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "raise AssertionError",
 ]

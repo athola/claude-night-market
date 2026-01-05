@@ -153,42 +153,28 @@ technical-debt-clean: ## Clean technical debt artifacts
 	@echo "Technical debt artifacts cleaned"
 
 # Aggregate targets
-test: ## Run tests in all plugins
-	@echo "=== Running Tests Across All Plugins ==="
-	@for plugin in $(ALL_PLUGINS); do \
-		if [ -f "$$plugin/Makefile" ]; then \
-			echo ""; \
-			echo ">>> Testing $$plugin"; \
-			$(MAKE) -C $$plugin test 2>/dev/null || echo "  (test failed or unavailable)"; \
-		fi; \
-	done
-	@echo ""
-	@echo "=== Test Run Complete ==="
+test: ## Run tests in all plugins (mirrors pre-commit test hook)
+	@./scripts/run-plugin-tests.sh --all
 
-lint: ## Run linting in all plugins
-	@echo "=== Running Lint Across All Plugins ==="
-	@for plugin in $(ALL_PLUGINS); do \
-		if [ -f "$$plugin/Makefile" ]; then \
-			echo ""; \
-			echo ">>> Linting $$plugin"; \
-			$(MAKE) -C $$plugin lint 2>/dev/null || echo "  (lint failed or unavailable)"; \
-		fi; \
-	done
+lint: ## Run linting (mirrors pre-commit configuration)
+	@echo "=== Running Lint (Pre-commit Mirror) ==="
+	@echo ""
+	@echo ">>> Running ruff check with auto-fix..."
+	@uv run ruff check --fix --config pyproject.toml plugins/ || (echo "❌ Ruff check failed" && exit 1)
+	@echo "✓ Ruff check passed"
+	@echo ""
+	@echo ">>> Running ruff format..."
+	@uv run ruff format --config pyproject.toml plugins/ || (echo "❌ Ruff format failed" && exit 1)
+	@echo "✓ Ruff format passed"
+	@echo ""
+	@echo ">>> Running bandit security checks..."
+	@uv run bandit --quiet -c pyproject.toml -r plugins/ || (echo "❌ Bandit failed" && exit 1)
+	@echo "✓ Bandit passed"
 	@echo ""
 	@echo "=== Lint Complete ==="
 
-typecheck: ## Run type checking in all plugins
-	@echo "=== Running Type Checks Across All Plugins ==="
-	@for plugin in $(ALL_PLUGINS); do \
-		if [ -f "$$plugin/Makefile" ]; then \
-			echo ""; \
-			echo ">>> Type checking $$plugin"; \
-			export PYTHONPATH="$(abspath .):${PYTHONPATH}:"; \
-			$(MAKE) -C $$plugin typecheck 2>/dev/null || echo "  (typecheck failed or unavailable)"; \
-		fi; \
-	done
-	@echo ""
-	@echo "=== Type Check Complete ==="
+typecheck: ## Run type checking (mirrors pre-commit configuration)
+	@./scripts/run-plugin-typecheck.sh --all
 
 # Plugin delegation - Abstract
 abstract-%:

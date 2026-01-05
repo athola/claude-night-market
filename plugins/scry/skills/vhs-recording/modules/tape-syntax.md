@@ -119,6 +119,48 @@ Enter
 Show
 ```
 
+## Best Practices
+
+### Echo vs Commands
+
+**NEVER use `echo` to simulate or replace real command output.** Echo should only be used for:
+
+- Printing explanatory messages or headers
+- Simple text output demonstrations
+- Comments that need to appear in the terminal
+
+**ALWAYS prefer actual commands** that demonstrate functionality:
+
+```tape
+# BAD: Simulating output with echo
+Type "echo 'tool-a, tool-b, tool-c'"
+Enter
+
+# GOOD: Using the actual command
+Type "my-cli --list-tools"
+Enter
+```
+
+If a command doesn't exist to show what you need, consider:
+1. Adding a flag or subcommand to the CLI being demonstrated
+2. Using the actual data source (file, API, etc.)
+3. Rethinking what the demo should show
+
+**Rationale**: Tutorials should demonstrate real functionality. Echoing data teaches users nothing about the actual tool and may become stale as the tool evolves.
+
+### MCP Tool Demonstrations
+
+When demonstrating MCP (Model Context Protocol) functionality, show how tools are used within the host environment (e.g., Claude Code) rather than calling CLI equivalents:
+
+```tape
+# POOR: Using CLI instead of MCP
+Type "skrills metrics"
+
+# BETTER: Explain MCP tool usage
+Type "# In Claude Code, ask: 'Show me skill statistics'"
+Type "# Claude calls the skill-metrics MCP tool automatically"
+```
+
 ## Advanced Features
 
 ### Split Panes

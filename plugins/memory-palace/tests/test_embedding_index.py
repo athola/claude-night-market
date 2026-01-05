@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
+
 from memory_palace.corpus.embedding_index import EmbeddingIndex
 
 

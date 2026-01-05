@@ -6,10 +6,10 @@ for testing and demonstration purposes.
 
 from typing import Any
 
-from .wrapper_base import SuperpowerWrapper
+from .wrapper_base import SuperpowerWrapper  # type: ignore[import-not-found]
 
 
-class TestSkillWrapper(SuperpowerWrapper):
+class TddSkillWrapper(SuperpowerWrapper):
     """Wrapper for test-skill that delegates to test-driven-development superpower.
 
     This wrapper translates plugin-specific parameters to superpower parameters

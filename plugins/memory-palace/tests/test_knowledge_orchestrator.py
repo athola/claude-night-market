@@ -7,6 +7,7 @@ decay model, and source lineage for overall knowledge quality assessment.
 from datetime import UTC, datetime, timedelta
 
 import pytest
+
 from memory_palace.corpus.knowledge_orchestrator import (
     KnowledgeOrchestrator,
     QualityAssessment,

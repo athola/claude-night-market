@@ -11,12 +11,12 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.test_skill_wrapper import TestSkillWrapper
+from src.test_skill_wrapper import TddSkillWrapper
 
 
 def benchmark_wrapper(iterations: int = 1000) -> dict:
     """Benchmark wrapper performance."""
-    wrapper = TestSkillWrapper()
+    wrapper = TddSkillWrapper()
 
     times: list[float] = []
 

@@ -125,7 +125,7 @@ class TestBridgeAfterToolUse:
 
     @patch("sys.stdin", new_callable=mock_open)
     def test_hook_main_flow_no_recommendation(self, mock_stdin, tmp_path) -> None:
-        """validate hook exits cleanly when no recommendation is produced."""
+        """Validate hook exits cleanly when no recommendation is produced."""
         mock_stdin.return_value.read.return_value = "{}"
         bridge_after = __import__("hooks.bridge.after_run", fromlist=["main"]).main
         with patch("sys.argv", ["after_run", "--event", "after_run"]):

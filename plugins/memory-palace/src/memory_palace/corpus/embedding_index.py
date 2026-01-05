@@ -11,8 +11,8 @@ from typing import Any
 import yaml
 
 try:
-    from sentence_transformers import (
-        SentenceTransformer,  # type: ignore[import-not-found]
+    from sentence_transformers import (  # type: ignore[import-not-found]
+        SentenceTransformer,
     )
 
     _HAS_ST = True

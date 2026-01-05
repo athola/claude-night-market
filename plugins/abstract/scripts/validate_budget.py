@@ -10,10 +10,13 @@ from pathlib import Path
 BUDGET_LIMIT = 15000  # Default Claude Code budget
 WARN_THRESHOLD = 14500  # Warn at 96.7% usage
 DESCRIPTION_MAX = 150  # Max chars per description (recommendation)
+VERBOSE_DISPLAY_LIMIT = 5  # Number of verbose items to display
 
 
 @dataclass
 class Component:
+    """Represents a plugin component with its description metadata."""
+
     name: str
     type: str
     plugin: str
@@ -64,7 +67,8 @@ def analyze_file(file_path: Path, component_type: str) -> Component:
     )
 
 
-def main():
+def main() -> None:  # noqa: PLR0912, PLR0915
+    """Validate description budget across all plugins."""
     base = Path(".")
     components: list[Component] = []
 
@@ -98,9 +102,8 @@ def main():
 
     # Output results
     print(f"📊 Total description characters: {total_chars:,}")
-    print(
-        f"   Budget limit: {BUDGET_LIMIT:,} ({total_chars / BUDGET_LIMIT * 100:.1f}% used)"
-    )
+    usage_pct = total_chars / BUDGET_LIMIT * 100
+    print(f"   Budget limit: {BUDGET_LIMIT:,} ({usage_pct:.1f}% used)")
 
     if failed:
         print(f"\n❌ BUDGET EXCEEDED by {total_chars - BUDGET_LIMIT:,} characters!")
@@ -113,7 +116,8 @@ def main():
                 f"  - {comp.plugin}/{comp.name} ({comp.type}): {comp.desc_length} chars"
             )
         print(
-            f"\n⚠️  Please optimize descriptions to get under {BUDGET_LIMIT:,} characters."
+            f"\n⚠️  Please optimize descriptions to get under "
+            f"{BUDGET_LIMIT:,} characters."
         )
         print("   See: docs/action-plan-budget-crisis.md for optimization guidelines")
         print("\n💡 Optimization tips:")
@@ -125,19 +129,21 @@ def main():
 
     if warn_only:
         print("\n⚠️  WARNING: Approaching budget limit")
-        print(
-            f"   Usage: {total_chars:,} / {BUDGET_LIMIT:,} ({total_chars / BUDGET_LIMIT * 100:.1f}%)"
-        )
+        warn_pct = total_chars / BUDGET_LIMIT * 100
+        print(f"   Usage: {total_chars:,} / {BUDGET_LIMIT:,} ({warn_pct:.1f}%)")
         print(f"   Recommended headroom: < {WARN_THRESHOLD:,} chars (96.7%)")
 
     if verbose:
         print(
-            f"\n⚠️  {len(verbose)} descriptions exceed {DESCRIPTION_MAX} chars (recommended max):"
+            f"\n⚠️  {len(verbose)} descriptions exceed "
+            f"{DESCRIPTION_MAX} chars (recommended max):"
         )
-        for comp in sorted(verbose, key=lambda c: c.desc_length, reverse=True)[:5]:
+        top_verbose = sorted(verbose, key=lambda c: c.desc_length, reverse=True)
+        for comp in top_verbose[:VERBOSE_DISPLAY_LIMIT]:
             print(f"  - {comp.plugin}/{comp.name}: {comp.desc_length} chars")
-        if len(verbose) > 5:
-            print(f"  ... and {len(verbose) - 5} more")
+        if len(verbose) > VERBOSE_DISPLAY_LIMIT:
+            remaining = len(verbose) - VERBOSE_DISPLAY_LIMIT
+            print(f"  ... and {remaining} more")
 
     if not warn_only and not verbose:
         print(

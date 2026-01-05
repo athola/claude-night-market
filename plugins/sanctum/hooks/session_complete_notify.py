@@ -58,9 +58,9 @@ def notify_linux(title: str, message: str) -> bool:
     try:
         subprocess.run(  # noqa: S603
             [
-                "notify-send",
+                "/usr/bin/notify-send",
                 "--app-name=Claude Code",
-                "--urgency=normal",  # noqa: S607,E501
+                "--urgency=normal",
                 title,
                 message,
             ],

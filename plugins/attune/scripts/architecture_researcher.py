@@ -8,7 +8,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import]
 
 # Module-level path for data files
 _DATA_DIR = Path(__file__).parent.parent / "data"
@@ -25,7 +25,8 @@ def _load_trade_offs() -> dict[str, dict[str, str]]:
     yaml_path = _DATA_DIR / "paradigm_trade_offs.yaml"
     if yaml_path.exists():
         with yaml_path.open() as f:
-            return yaml.safe_load(f)
+            data: dict[str, dict[str, str]] = yaml.safe_load(f)
+            return data
     # Fallback if file doesn't exist
     return {}
 
@@ -515,7 +516,7 @@ def parse_project_context(user_input: dict[str, str]) -> ProjectContext:
     )
 
 
-def main():
+def main() -> None:
     """CLI entry point for architecture researcher."""
     parser = argparse.ArgumentParser(
         description="Architecture paradigm recommendation based on project context"

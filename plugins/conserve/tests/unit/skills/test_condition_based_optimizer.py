@@ -31,6 +31,7 @@ class MockServiceRegistry:
     """Mock service registry for testing."""
 
     def __init__(self):
+        """Initialize mock service registry."""
         self.services = {}
 
     def register_service(self, name, service):

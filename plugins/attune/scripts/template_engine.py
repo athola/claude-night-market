@@ -13,6 +13,7 @@ class TemplateEngine:
 
         Args:
             variables: Dictionary of template variables
+
         """
         self.variables = variables
 
@@ -24,6 +25,7 @@ class TemplateEngine:
 
         Returns:
             Rendered string with variables substituted
+
         """
         # Pattern to match {{VARIABLE_NAME}}
         pattern = r"\{\{([A-Z_][A-Z0-9_]*)\}\}"
@@ -41,6 +43,7 @@ class TemplateEngine:
         Args:
             template_path: Path to template file
             output_path: Path where rendered file should be written
+
         """
         content = template_path.read_text()
         rendered = self.render(content)
@@ -79,6 +82,7 @@ def get_default_variables(
 
     Returns:
         Dictionary of template variables
+
     """
     # Convert project-name to project_name for module name
     module_name = project_name.replace("-", "_").replace(" ", "_").lower()

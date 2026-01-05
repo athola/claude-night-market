@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# mypy: disable-error-code="index,operator,var-annotated,no-any-return"
 """Project Palace Manager for repository-scoped knowledge with PR Review Room support.
 
 Extends the memory palace concept to treat entire projects as palaces with

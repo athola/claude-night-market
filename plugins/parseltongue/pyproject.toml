@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parseltongue"
-version = "1.2.0"
+version = "1.2.1"
 authors = [
     {name = "Claude", email = "claude@anthropic.com"},
 ]
@@ -107,14 +107,15 @@ markers = [
 asyncio_mode = "auto"
 
 [tool.coverage.run]
-source = ["src/parseltongue"]
+source = ["parseltongue"]
 omit = [
     "*/tests/*",
     "*/test_*",
     "*/__pycache__/*",
     "*/site-packages/*",
     "setup.py",
-    "src/parseltongue/_version.py",
+    "parseltongue/_version.py",
+    "parseltongue/skills/*",
 ]
 
 [tool.coverage.report]

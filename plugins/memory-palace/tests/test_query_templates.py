@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+
 from memory_palace.corpus.query_templates import QueryTemplateManager
 
 # Constants for test expectations

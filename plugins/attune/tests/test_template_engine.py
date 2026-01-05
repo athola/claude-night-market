@@ -389,8 +389,7 @@ class TestTemplateEngineBehavior:
     """BDD-style tests for TemplateEngine workflows."""
 
     def test_scenario_render_python_makefile(self, tmp_path):
-        """
-        Scenario: Rendering a Python Makefile template.
+        """Scenario: Rendering a Python Makefile template.
 
         Given a Makefile template with project variables
         When I render it with Python project variables
@@ -428,8 +427,7 @@ test:
         assert '"By Jane Doe"' in content
 
     def test_scenario_render_pyproject_toml(self, tmp_path):
-        """
-        Scenario: Rendering a pyproject.toml template.
+        """Scenario: Rendering a pyproject.toml template.
 
         Given a pyproject.toml template
         When I render it with project metadata
@@ -470,8 +468,7 @@ requires-python = ">=3.{{PYTHON_VERSION}}"
         assert 'license = {text = "MIT"}' in content
 
     def test_scenario_multiple_template_rendering(self, tmp_path):
-        """
-        Scenario: Rendering multiple templates with same variables.
+        """Scenario: Rendering multiple templates with same variables.
 
         Given multiple template files
         When I render them all with the same variables

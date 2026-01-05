@@ -71,6 +71,7 @@ flowchart TB
 | **sanctum** | Git workflows, PR prep, commit messages | `/pr`, `/commit-msg`, `/fix-issue` |
 | **pensive** | Code review toolkit (API, architecture, bugs) | `/full-review`, `/architecture-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
+| **minister** | Project management and GitHub integration | `/create-issue`, `/close-issue`, `/status` |
 | **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` |
 | **attune** | Project scaffolding and initialization | `/attune:init`, `/attune:brainstorm` |
 | **parseltongue** | Python development suite | `/analyze-tests`, `/run-profiler` |
@@ -96,9 +97,19 @@ See [**Common Workflows Guide**](docs/common-workflows.md) for when and how to u
 | Review a PR | `/full-review` | Run multi-discipline code review |
 | Fix PR feedback | `/fix-pr` | Address review comments |
 | Prepare a PR | `/pr` + `/sanctum:update-*` | Quality gates before merge |
+| Create GitHub issue | `/create-issue` | Interactive issue creation with templates |
 | Catch up on changes | `/catchup` | Context recovery after break |
 | Write specifications | `/speckit-specify` | Spec-driven development |
 | Debug issues | `Skill(superpowers:debugging)` | Systematic root cause analysis |
+
+## Demos
+
+### Skills Showcase
+![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
+
+*Discover 105+ skills, understand their structure, and see how they compose into powerful development workflows. [Full tutorial](docs/tutorials/skills-showcase.md)*
+
+---
 
 ## Documentation
 
@@ -111,6 +122,8 @@ See [**Common Workflows Guide**](docs/common-workflows.md) for when and how to u
 | [**Plugin Catalog**](book/src/plugins/README.md) | Detailed plugin documentation |
 | [**Capabilities Reference**](book/src/reference/capabilities-reference.md) | Complete skill/command listing |
 | [**Tutorials**](book/src/tutorials/README.md) | Step-by-step guides |
+| [**Quality Gates**](docs/quality-gates.md) | Code quality system and pre-commit hooks |
+| [**Testing Guide**](docs/testing-guide.md) | Testing patterns and troubleshooting |
 
 ## Optional: LSP Integration
 
@@ -139,9 +152,14 @@ make validate
 
 # Run quality checks
 make lint && make test
+
+# Or use quality scripts directly
+./scripts/run-plugin-lint.sh my-plugin
+./scripts/run-plugin-tests.sh my-plugin
+./scripts/check-all-quality.sh --report
 ```
 
-See [Plugin Development Guide](docs/plugin-development-guide.md) for patterns, quality standards, and contribution guidelines.
+See [Plugin Development Guide](docs/plugin-development-guide.md) for patterns and contribution guidelines, or [Quality Gates](docs/quality-gates.md) for the three-layer quality system.
 
 ## System Prompt Budget
 

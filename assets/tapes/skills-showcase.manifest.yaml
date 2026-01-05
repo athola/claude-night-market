@@ -1,0 +1,21 @@
+name: skills-showcase
+title: "Skills Showcase - Claude Code Development Workflows"
+description: |
+  Demonstrate skill discovery, validation, and usage patterns in the claude-night-market.
+  Shows how skills enable structured development workflows.
+
+components:
+  - type: tape
+    source: skills-showcase.tape
+    output: assets/gifs/skills-showcase.gif
+
+metadata:
+  author: claude-night-market
+  difficulty: beginner
+  duration: "~90 seconds"
+  tags:
+    - skills
+    - workflows
+    - claude-code
+    - development
+    - getting-started

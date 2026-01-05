@@ -73,6 +73,15 @@ lint: ## Lint scry shell scripts (bash -n)
 	fi
 	@echo "=== Lint Complete ==="
 
+typecheck: ## Run type checking on test files
+	@echo "=== Scry Type Checking ==="
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run mypy tests/ --strict; \
+	else \
+		echo "  [SKIP] uv not installed"; \
+	fi
+	@echo "=== Type Checking Complete ==="
+
 test: test-unit ## Run all scry tests
 
 test-unit: ## Run unit tests (no external dependencies)

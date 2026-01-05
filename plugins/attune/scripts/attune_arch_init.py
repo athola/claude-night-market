@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
-"""Architecture-aware project initialization combining research and archetype selection."""
+"""Architecture-aware project initialization with research."""
+
+from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from architecture_researcher import (
+if TYPE_CHECKING:
+    from architecture_researcher import (  # type: ignore[import]
+        ArchitectureRecommendation,
+    )
+
+from architecture_researcher import (  # type: ignore[import]
     ArchitectureResearcher,
     parse_project_context,
 )
-from attune_init import (
+from attune_init import (  # type: ignore[import]
     copy_templates,
     create_project_structure,
     get_default_variables,
     initialize_git,
 )
-from project_detector import ProjectDetector
-from template_customizer import TemplateCustomizer
+from project_detector import ProjectDetector  # type: ignore[import]
+from template_customizer import TemplateCustomizer  # type: ignore[import]
 
 
 def _select_from_menu(
@@ -24,7 +33,7 @@ def _select_from_menu(
     options: list[str],
     prompt: str,
     allow_custom: bool = False,
-    format_option: callable = str,
+    format_option: Callable[[str], str] = str,
 ) -> str:
     """Display menu and get user selection.
 
@@ -179,7 +188,7 @@ def interactive_context_gathering() -> dict[str, str]:
     return context
 
 
-def present_recommendation(recommendation) -> bool:
+def present_recommendation(recommendation: ArchitectureRecommendation) -> bool:
     """Present architecture recommendation to user for confirmation.
 
     Args:
@@ -279,9 +288,13 @@ def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
         Dictionary of focus areas with descriptions
 
     """
+    project_type = context.get("project_type", "applications")
+    language = context.get("language", "Python").title()
     focus_areas = {
-        "Industry Standards": f"Current architecture patterns for {context.get('project_type', 'applications')} in 2026",
-        "Language Patterns": f"{context.get('language', 'Python').title()}-specific best practices and idioms",
+        "Industry Standards": (
+            f"Current architecture patterns for {project_type} in 2026"
+        ),
+        "Language Patterns": f"{language}-specific best practices and idioms",
     }
 
     # Add context-specific focus areas
@@ -300,9 +313,10 @@ def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
             "Horizontal scaling strategies and load distribution"
         )
 
-    if context.get("framework"):
+    framework = context.get("framework")
+    if framework:
         focus_areas["Framework Integration"] = (
-            f"{context.get('framework').title()} architecture patterns and conventions"
+            f"{framework.title()} architecture patterns and conventions"
         )
 
     team_size = context.get("team_size", "5-15")
@@ -318,7 +332,9 @@ def _generate_research_focus(context: dict[str, str]) -> dict[str, str]:
     return focus_areas
 
 
-def generate_research_summary(context: dict[str, str], recommendation) -> str:
+def generate_research_summary(
+    context: dict[str, str], recommendation: ArchitectureRecommendation
+) -> str:
     """Generate a research summary for documentation.
 
     Args:
@@ -335,20 +351,24 @@ def generate_research_summary(context: dict[str, str], recommendation) -> str:
 
 | Attribute | Value |
 |-----------|-------|
-| Project Type | {context.get('project_type', 'N/A')} |
-| Domain Complexity | {context.get('domain_complexity', 'N/A')} |
-| Team Size | {context.get('team_size', 'N/A')} |
-| Language | {context.get('language', 'N/A')} |
-| Scalability | {context.get('scalability_needs', 'N/A')} |
-| Security | {context.get('security_requirements', 'N/A')} |
+| Project Type | {context.get("project_type", "N/A")} |
+| Domain Complexity | {context.get("domain_complexity", "N/A")} |
+| Team Size | {context.get("team_size", "N/A")} |
+| Language | {context.get("language", "N/A")} |
+| Scalability | {context.get("scalability_needs", "N/A")} |
+| Security | {context.get("security_requirements", "N/A")} |
 
 ### Recommendation Basis
 
-The **{recommendation.primary.replace('-', ' ').title()}** architecture was selected based on:
+The **{recommendation.primary.replace("-", " ").title()}** architecture was \
+selected based on:
 
-1. **Team-Domain Fit**: {context.get('team_size', 'N/A')} engineers working on {context.get('domain_complexity', 'N/A')} domain
-2. **Project Requirements**: {context.get('project_type', 'N/A')} with {context.get('scalability_needs', 'N/A')} scalability needs
-3. **Decision Matrix**: Algorithmic matching of context to proven architectural patterns
+1. **Team-Domain Fit**: {context.get("team_size", "N/A")} engineers working \
+on {context.get("domain_complexity", "N/A")} domain
+2. **Project Requirements**: {context.get("project_type", "N/A")} with \
+{context.get("scalability_needs", "N/A")} scalability needs
+3. **Decision Matrix**: Algorithmic matching of context to proven \
+architectural patterns
 
 ### Key Considerations
 
@@ -362,8 +382,8 @@ The **{recommendation.primary.replace('-', ' ').title()}** architecture was sele
     return summary
 
 
-def main():
-    """Main entry point for architecture-aware initialization."""
+def main() -> None:  # noqa: PLR0915
+    """Initialize project with architecture awareness."""
     parser = argparse.ArgumentParser(
         description="Initialize a project with architecture awareness"
     )
@@ -519,9 +539,8 @@ def main():
     print(f"  1. cd {project_path}")
     print("  2. make dev-setup")
     print("  3. Review ARCHITECTURE.md for implementation guidance")
-    print(
-        f"  4. Load paradigm skill: Skill(architecture-paradigm-{recommendation.primary})"
-    )
+    paradigm_skill = f"architecture-paradigm-{recommendation.primary}"
+    print(f"  4. Load paradigm skill: Skill({paradigm_skill})")
 
     print("\n" + "=" * 60 + "\n")
 

@@ -184,7 +184,7 @@ class TestNotifyLinux:
         assert result is True
         mock_subprocess_success.assert_called_once()
         call_args = mock_subprocess_success.call_args[0][0]
-        assert "notify-send" in call_args
+        assert any("notify-send" in str(arg) for arg in call_args)
         assert "Test Title" in call_args
         assert "Test message" in call_args
 

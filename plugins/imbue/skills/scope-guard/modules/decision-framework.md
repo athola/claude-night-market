@@ -46,11 +46,25 @@ Decision: > 2.0 → Implement now
 
 ## Decision Thresholds
 
-| Score | Decision | Action |
-|-------|----------|--------|
-| > 2.0 | **Implement now** | Proceed with work |
-| 1.0 - 2.0 | **Discuss** | Justify before proceeding, consider alternatives |
-| < 1.0 | **Defer to backlog** | Add to queue.md with full context |
+| Score | Decision | Required Actions |
+|-------|----------|------------------|
+| > 2.0 | **Implement now** | 1. Proceed with work<br>2. Add to branch budget |
+| 1.0 - 2.0 | **Discuss** | 1. Justify before proceeding<br>2. Document justification |
+| < 1.0 | **Defer to backlog** | 1. **Create GitHub issue (MANDATORY)**<br>2. Add to queue.md with issue link<br>3. Mark `scope-guard:github-issue-created` complete |
+
+## MANDATORY: GitHub Issue Creation for Deferrals
+
+**When Worthiness < 1.0, you MUST create a GitHub issue. This is NON-NEGOTIABLE.**
+
+See [github-integration.md](github-integration.md) for the required process.
+
+**Why this matters:**
+- `queue.md` is ephemeral - issues are permanent
+- Context is lost when branches are merged/deleted
+- Issues enable tracking, assignment, and prioritization
+- Future developers can discover deferred work
+
+**Failure to create an issue = incomplete deferral = workflow violation.**
 
 ## Comparison Against Backlog
 

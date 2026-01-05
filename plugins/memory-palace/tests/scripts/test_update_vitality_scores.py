@@ -21,7 +21,7 @@ def _load_script():
 
 
 def test_decay_skips_evergreen_and_emits_queue(tmp_path: Path) -> None:
-    """validate evergreen entries are preserved while other entries decay."""
+    """Validate evergreen entries are preserved while other entries decay."""
     module = _load_script()
     vitality = {
         "metadata": {"decay_per_day": 2, "stale_threshold": 5},

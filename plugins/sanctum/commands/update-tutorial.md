@@ -16,18 +16,76 @@ To generate or update tutorials with accompanying GIFs, invoke the tutorial-upda
 /update-tutorial --all               # All tutorials in manifest
 /update-tutorial --list              # Show available tutorials
 /update-tutorial --scaffold          # Create directory structure without recording
+/update-tutorial --validate-only     # Validate tape without generating GIF
+/update-tutorial --skip-validation   # Skip validation for rapid regeneration
 ```
+
+## Validation Flags
+
+### `--validate-only`
+
+Run tape validation without generating GIF. Useful for CI checks or pre-commit hooks.
+
+**Example**:
+```bash
+/update-tutorial quickstart --validate-only
+```
+
+**Exit codes**:
+- 0: Validation passed
+- 1: Validation failed (errors found)
+
+**Use when**: You want to verify tape commands are correct before committing or before running expensive GIF generation.
+
+### `--skip-validation`
+
+Bypass pre-flight tape validation. Use when commands are known-good and you need rapid GIF regeneration.
+
+**Example**:
+```bash
+/update-tutorial quickstart --skip-validation
+```
+
+**Warning**: Skipping validation may result in VHS failures that could have been caught earlier.
+
+**Use when**: You've already validated the tape and are iterating on timing/styling only.
+
+## Rebuild Flags
+
+### `--skip-rebuild`
+
+Skip binary freshness check and rebuild step. Use when binary is known to be current.
+
+**Example**:
+```bash
+/update-tutorial quickstart --skip-rebuild
+```
+
+**Use when**: You've just rebuilt the binary manually and want to avoid redundant rebuilds.
+
+### `--force-rebuild`
+
+Force binary rebuild even if freshness check passes. Ensures absolute latest code.
+
+**Example**:
+```bash
+/update-tutorial quickstart --force-rebuild
+```
+
+**Use when**: You want to guarantee the binary matches source, regardless of timestamps (useful after git operations that don't change timestamps).
 
 ## Workflow
 
 The skill orchestrates scry media generation capabilities:
 
 1. **Discovery**: Parse tutorial manifests to identify tape files and browser specs.
-2. **Recording**: Invoke `Skill(scry:vhs-recording)` for terminal demos and `Skill(scry:browser-recording)` for web UI demos.
-3. **Processing**: Use `Skill(scry:gif-generation)` for format conversion and optimization.
-4. **Composition**: Apply `Skill(scry:media-composition)` for multi-source tutorials.
-5. **Documentation**: Generate dual-tone markdown (project docs and technical book).
-6. **Integration**: Update README demo sections and book chapters.
+2. **Validation**: Test tape commands locally BEFORE recording to catch errors early.
+3. **Rebuild**: Check binary freshness and rebuild if stale to ensure demos reflect latest code.
+4. **Recording**: Invoke `Skill(scry:vhs-recording)` for terminal demos and `Skill(scry:browser-recording)` for web UI demos.
+5. **Processing**: Use `Skill(scry:gif-generation)` for format conversion and optimization.
+6. **Composition**: Apply `Skill(scry:media-composition)` for multi-source tutorials.
+7. **Documentation**: Generate dual-tone markdown (project docs and technical book).
+8. **Integration**: Update README demo sections and book chapters.
 
 ## Examples
 

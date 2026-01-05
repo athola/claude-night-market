@@ -5,8 +5,11 @@ import argparse
 import sys
 from pathlib import Path
 
-from project_detector import ProjectDetector
-from template_engine import TemplateEngine, get_default_variables
+from project_detector import ProjectDetector  # type: ignore[import]
+from template_engine import (  # type: ignore[import]
+    TemplateEngine,
+    get_default_variables,
+)
 
 
 def initialize_git(project_path: Path, force: bool = False) -> bool:
@@ -18,8 +21,9 @@ def initialize_git(project_path: Path, force: bool = False) -> bool:
 
     Returns:
         True if successful
+
     """
-    import subprocess
+    import subprocess  # noqa: PLC0415
 
     git_dir = project_path / ".git"
 
@@ -29,7 +33,7 @@ def initialize_git(project_path: Path, force: bool = False) -> bool:
 
     try:
         subprocess.run(
-            ["git", "init"],
+            ["git", "init"],  # noqa: S607
             cwd=project_path,
             check=True,
             capture_output=True,
@@ -59,6 +63,7 @@ def copy_templates(
 
     Returns:
         List of created file paths
+
     """
     engine = TemplateEngine(variables)
     template_dir = templates_root / language
@@ -101,9 +106,9 @@ def copy_templates(
     return created_files
 
 
-def create_project_structure(
+def create_project_structure(  # noqa: PLR0915
     project_path: Path, language: str, module_name: str, project_name: str
-):
+) -> None:
     """Create basic project directory structure.
 
     Args:
@@ -111,6 +116,7 @@ def create_project_structure(
         language: Target language
         module_name: Python module name (for Python projects)
         project_name: Project name
+
     """
     if language == "python":
         # Create src/module_name structure
@@ -137,9 +143,23 @@ def create_project_structure(
         # Create README.md if it doesn't exist
         readme = project_path / "README.md"
         if not readme.exists():
-            readme.write_text(
-                f"# {project_name}\n\nA new Python project.\n\n## Installation\n\n```bash\nuv sync\n```\n\n## Usage\n\n```bash\nmake help\n```\n"
-            )
+            readme_content = f"""# {project_name}
+
+A new Python project.
+
+## Installation
+
+```bash
+uv sync
+```
+
+## Usage
+
+```bash
+make help
+```
+"""
+            readme.write_text(readme_content)
             print(f"✓ Created: {readme}")
 
     elif language == "rust":
@@ -155,17 +175,45 @@ def create_project_structure(
         # Create lib.rs for library
         lib_rs = src_dir / "lib.rs"
         if not lib_rs.exists():
-            lib_rs.write_text(
-                f'//! {project_name} library\n\npub fn hello() -> String {{\n    "Hello from {project_name}!".to_string()\n}}\n\n#[cfg(test)]\nmod tests {{\n    use super::*;\n\n    #[test]\n    fn test_hello() {{\n        assert_eq!(hello(), "Hello from {project_name}!");\n    }}\n}}\n'
-            )
+            lib_content = f"""//! {project_name} library
+
+pub fn hello() -> String {{
+    "Hello from {project_name}!".to_string()
+}}
+
+#[cfg(test)]
+mod tests {{
+    use super::*;
+
+    #[test]
+    fn test_hello() {{
+        assert_eq!(hello(), "Hello from {project_name}!");
+    }}
+}}
+"""
+            lib_rs.write_text(lib_content)
             print(f"✓ Created: {lib_rs}")
 
         # Create README.md
         readme = project_path / "README.md"
         if not readme.exists():
-            readme.write_text(
-                f"# {project_name}\n\nA new Rust project.\n\n## Build\n\n```bash\ncargo build\n```\n\n## Usage\n\n```bash\nmake help\n```\n"
-            )
+            readme_content = f"""# {project_name}
+
+A new Rust project.
+
+## Build
+
+```bash
+cargo build
+```
+
+## Usage
+
+```bash
+make help
+```
+"""
+            readme.write_text(readme_content)
             print(f"✓ Created: {readme}")
 
     elif language == "typescript":
@@ -175,32 +223,58 @@ def create_project_structure(
 
         index_ts = src_dir / "index.ts"
         if not index_ts.exists():
-            index_ts.write_text(
-                'export function hello(): string {\n  return "Hello from TypeScript!";\n}\n'
+            index_content = (
+                "export function hello(): string {\n"
+                '  return "Hello from TypeScript!";\n'
+                "}\n"
             )
+            index_ts.write_text(index_content)
             print(f"✓ Created: {index_ts}")
 
         # Create src/App.tsx for React
         app_tsx = src_dir / "App.tsx"
         if not app_tsx.exists():
-            app_tsx.write_text(
-                'import React from "react";\n\nfunction App() {\n  return (\n    <div className="App">\n      <h1>Welcome to {project_name}</h1>\n    </div>\n  );\n}\n\nexport default App;\n'.replace(
-                    "{project_name}", project_name
-                )
-            )
+            app_content = f"""import React from "react";
+
+function App() {{
+  return (
+    <div className="App">
+      <h1>Welcome to {project_name}</h1>
+    </div>
+  );
+}}
+
+export default App;
+"""
+            app_tsx.write_text(app_content)
             print(f"✓ Created: {app_tsx}")
 
         # Create README.md
         readme = project_path / "README.md"
         if not readme.exists():
-            readme.write_text(
-                f"# {project_name}\n\nA new TypeScript/React project.\n\n## Development\n\n```bash\nnpm install\nnpm run dev\n```\n\n## Usage\n\n```bash\nmake help\n```\n"
-            )
+            readme_content = f"""# {project_name}
+
+A new TypeScript/React project.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Usage
+
+```bash
+make help
+```
+"""
+            readme.write_text(readme_content)
             print(f"✓ Created: {readme}")
 
 
-def main():
-    """Main entry point for attune init."""
+def main() -> None:
+    """Run attune init CLI."""
     parser = argparse.ArgumentParser(description="Initialize a new project with attune")
     parser.add_argument(
         "--lang",
@@ -283,13 +357,13 @@ def main():
     # Get project name
     project_name = args.name or project_path.name
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Attune Project Initialization")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Project: {project_name}")
     print(f"Language: {language}")
     print(f"Path: {project_path}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Get template variables
     variables = get_default_variables(
@@ -326,16 +400,16 @@ def main():
         project_path, language, variables["PROJECT_MODULE"], project_name
     )
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("✓ Project initialized successfully!")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print(f"Created {len(created_files)} files")
     print("\nNext steps:")
     print(f"  1. cd {project_path}")
     print("  2. make dev-setup     # Install dependencies and hooks")
     print("  3. make test          # Run tests")
     print("  4. make help          # See available commands")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
 
 if __name__ == "__main__":

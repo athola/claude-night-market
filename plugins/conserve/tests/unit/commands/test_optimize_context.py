@@ -291,7 +291,8 @@ class TestOptimizeContextCommand:
 
         for level_config in aggressiveness_levels:
             # Select strategies based on aggressiveness
-            # Savings calibrated to achieve expected improvement percentages (baseline 5000)
+            # Savings calibrated to achieve expected improvement
+            # percentages (baseline 5000)
             if level_config["level"] == "light":
                 applied_strategies = [
                     {"name": "basic_compression", "savings": 350, "risk": "low"},

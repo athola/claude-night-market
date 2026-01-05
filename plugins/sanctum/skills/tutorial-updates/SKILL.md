@@ -18,6 +18,7 @@ progressive_loading: true
 modules:
   - manifest-parsing
   - markdown-generation
+  - tape-validation
 dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
@@ -36,11 +37,13 @@ Orchestrate tutorial generation with GIF recordings from VHS tape files and Play
 This skill coordinates the complete tutorial generation pipeline:
 
 1. Discover tape files and manifests in the project
-2. Record terminal sessions using VHS (scry:vhs-recording)
-3. Record browser sessions using Playwright (scry:browser-recording)
-4. Generate optimized GIFs (scry:gif-generation)
-5. Compose multi-component tutorials (scry:media-composition)
-6. Generate dual-tone markdown for docs/ and book/
+2. Validate tape commands and check binary freshness
+3. Rebuild binaries if stale to ensure demos reflect latest code
+4. Record terminal sessions using VHS (scry:vhs-recording)
+5. Record browser sessions using Playwright (scry:browser-recording)
+6. Generate optimized GIFs (scry:gif-generation)
+7. Compose multi-component tutorials (scry:media-composition)
+8. Generate dual-tone markdown for docs/ and book/
 
 ## Command Options
 
@@ -58,6 +61,8 @@ Create todos with these prefixes for progress tracking:
 
 ```
 - tutorial-updates:discovery
+- tutorial-updates:validation
+- tutorial-updates:rebuild
 - tutorial-updates:recording
 - tutorial-updates:generation
 - tutorial-updates:integration
@@ -107,6 +112,258 @@ Available tutorials:
   mcp            assets/tapes/mcp.manifest.yaml (terminal + browser)
   skill-debug    assets/tapes/skill-debug.tape
 ```
+
+## Phase 1.5: Validation (`tutorial-updates:validation`)
+
+**CRITICAL**: Validate tape commands BEFORE running VHS to avoid expensive regeneration cycles.
+
+See `modules/tape-validation.md` for detailed validation logic.
+
+### Step 1.5.1: VHS Syntax Validation
+
+Check each tape file for valid VHS syntax:
+
+```bash
+# Required: Output directive exists
+grep -q '^Output ' "$tape_file" || echo "ERROR: Missing Output directive"
+
+# Check for balanced quotes in Type directives
+grep '^Type ' "$tape_file" | while read -r line; do
+  quote_count=$(echo "$line" | tr -cd '"' | wc -c)
+  if [ $((quote_count % 2)) -ne 0 ]; then
+    echo "ERROR: Unbalanced quotes: $line"
+  fi
+done
+```
+
+### Step 1.5.2: Extract and Validate CLI Commands
+
+For each `Type` directive, extract the command and validate flags:
+
+```bash
+# Extract commands from Type directives
+grep '^Type ' "$tape_file" | sed 's/^Type "//' | sed 's/"$//' | while read -r cmd; do
+  # Skip comments, clear, and echo commands
+  [[ "$cmd" =~ ^# ]] && continue
+  [[ "$cmd" == "clear" ]] && continue
+
+  # For skrills commands, validate flags exist
+  if [[ "$cmd" =~ ^skrills ]]; then
+    base_cmd=$(echo "$cmd" | awk '{print $1, $2}')
+    flags=$(echo "$cmd" | grep -oE '\-\-[a-zA-Z0-9-]+' || true)
+
+    for flag in $flags; do
+      if ! $base_cmd --help 2>&1 | grep -q -- "$flag"; then
+        echo "ERROR: Invalid flag '$flag' in command: $cmd"
+      fi
+    done
+  fi
+done
+```
+
+### Step 1.5.3: Verify Demo Data Exists
+
+If the tape uses demo data, verify it exists and is populated:
+
+```bash
+# Check SKRILLS_SKILL_DIR if set
+skill_dir=$(grep '^Env SKRILLS_SKILL_DIR' "$tape_file" | sed 's/.*"\(.*\)"/\1/')
+if [ -n "$skill_dir" ]; then
+  if [ ! -d "$skill_dir" ]; then
+    echo "ERROR: Demo skill directory missing: $skill_dir"
+  else
+    skill_count=$(find "$skill_dir" -name "SKILL.md" 2>/dev/null | wc -l)
+    if [ "$skill_count" -eq 0 ]; then
+      echo "ERROR: No skills in demo directory: $skill_dir"
+    else
+      echo "OK: Found $skill_count demo skills in $skill_dir"
+    fi
+  fi
+fi
+```
+
+### Step 1.5.4: Test Commands Locally
+
+**CRITICAL**: Run each extracted command locally to verify it produces expected output:
+
+```bash
+# For each command in the tape, do a quick sanity check
+# This catches issues like:
+# - Commands that exit with non-zero status
+# - Commands that produce no output (won't show anything in GIF)
+# - Commands that require user input (will hang VHS)
+
+for cmd in $(extract_commands "$tape_file"); do
+  # Run with timeout to catch hanging commands
+  if ! timeout 5s bash -c "$cmd" &>/dev/null; then
+    echo "WARNING: Command may fail or hang: $cmd"
+  fi
+done
+```
+
+### Validation Flags
+
+| Flag | Behavior |
+|------|----------|
+| `--validate-only` | Run validation without generating GIF |
+| `--skip-validation` | Bypass validation for rapid regeneration |
+
+### Validation Exit Criteria
+
+- [ ] VHS tape syntax is valid (Output directive, balanced quotes)
+- [ ] All CLI flags in commands are valid (verified against --help)
+- [ ] Demo data directories exist and are populated
+- [ ] Commands execute successfully with expected output
+
+**If validation fails**: Stop immediately, report errors, and do NOT proceed to VHS recording.
+
+## Phase 1.6: Binary Rebuild (`tutorial-updates:rebuild`)
+
+**CRITICAL**: Ensure the binary being tested in tapes matches the latest source code. Stale binaries produce misleading demos.
+
+### Step 1.6.1: Detect Build System
+
+Identify the project's build system:
+
+```bash
+# Check for Cargo (Rust)
+if [ -f "Cargo.toml" ]; then
+  BUILD_SYSTEM="cargo"
+  BINARY_NAME=$(grep '^name = ' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+  echo "Detected Cargo project: $BINARY_NAME"
+# Check for Makefile
+elif [ -f "Makefile" ]; then
+  BUILD_SYSTEM="make"
+  echo "Detected Make project"
+# Unknown
+else
+  echo "WARNING: Unknown build system, skipping binary check"
+  BUILD_SYSTEM="unknown"
+fi
+```
+
+### Step 1.6.2: Check Binary Freshness
+
+Compare binary modification time against Git HEAD:
+
+```bash
+check_binary_freshness() {
+  local binary_name="$1"
+
+  # Locate binary (check cargo install location first, then PATH)
+  local binary_path=$(which "$binary_name" 2>/dev/null)
+
+  if [ -z "$binary_path" ]; then
+    echo "WARNING: Binary '$binary_name' not found in PATH"
+    return 1
+  fi
+
+  # Get binary modification time (Linux/macOS compatible)
+  local binary_mtime
+  if command -v stat >/dev/null 2>&1; then
+    # Linux
+    binary_mtime=$(stat -c %Y "$binary_path" 2>/dev/null || \
+    # macOS
+    stat -f %m "$binary_path" 2>/dev/null)
+  else
+    echo "WARNING: stat command not available, skipping freshness check"
+    return 2
+  fi
+
+  # Get Git HEAD commit time
+  local git_head_time=$(git log -1 --format=%ct 2>/dev/null)
+
+  if [ -z "$git_head_time" ]; then
+    echo "WARNING: Not a git repository, skipping freshness check"
+    return 2
+  fi
+
+  # Compare timestamps
+  if [ "$binary_mtime" -lt "$git_head_time" ]; then
+    echo "STALE: Binary is older than Git HEAD"
+    echo "  Binary: $(date -d @$binary_mtime 2>/dev/null || date -r $binary_mtime)"
+    echo "  HEAD:   $(date -d @$git_head_time 2>/dev/null || date -r $git_head_time)"
+    return 1
+  else
+    echo "OK: Binary is up-to-date"
+    return 0
+  fi
+}
+```
+
+### Step 1.6.3: Rebuild Binary
+
+Rebuild using the detected build system:
+
+```bash
+rebuild_binary() {
+  local build_system="$1"
+  local binary_name="$2"
+
+  case "$build_system" in
+    cargo)
+      echo "Rebuilding with Cargo..."
+      # Use cargo install for CLI binaries
+      if [ -d "crates/cli" ]; then
+        cargo install --path crates/cli --locked --quiet
+      else
+        cargo install --path . --locked --quiet
+      fi
+      ;;
+    make)
+      echo "Rebuilding with Make..."
+      make build --quiet
+      ;;
+    *)
+      echo "ERROR: Cannot rebuild, unknown build system"
+      return 1
+      ;;
+  esac
+
+  echo "Build complete: $binary_name"
+}
+```
+
+### Step 1.6.4: Verify Binary Accessibility
+
+Ensure the rebuilt binary is accessible:
+
+```bash
+verify_binary() {
+  local binary_name="$1"
+
+  if ! command -v "$binary_name" >/dev/null 2>&1; then
+    echo "ERROR: Binary '$binary_name' not found after rebuild"
+    echo "  Check PATH includes: $HOME/.cargo/bin"
+    return 1
+  fi
+
+  # Test binary can execute
+  if ! "$binary_name" --version >/dev/null 2>&1; then
+    echo "WARNING: Binary exists but --version failed"
+  else
+    echo "OK: Binary is accessible and functional"
+    "$binary_name" --version
+  fi
+}
+```
+
+### Rebuild Flags
+
+| Flag | Behavior |
+|------|----------|
+| `--skip-rebuild` | Skip binary freshness check and rebuild |
+| `--force-rebuild` | Force rebuild even if binary is fresh |
+
+### Rebuild Exit Criteria
+
+- [ ] Build system detected (Cargo, Make, or explicitly skipped)
+- [ ] Binary freshness checked against Git HEAD
+- [ ] Binary rebuilt if stale (or forced)
+- [ ] Rebuilt binary is accessible in PATH
+- [ ] Binary executes successfully (--version test)
+
+**If rebuild fails**: Stop immediately, report build errors, and do NOT proceed to tape validation or VHS recording.
 
 ## Phase 2: Recording (`tutorial-updates:recording`)
 

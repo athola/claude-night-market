@@ -234,7 +234,8 @@ class TestReviewAnalystAgent:
         # Mock tool usage for evidence gathering
         mock_claude_tools["Bash"].side_effect = [
             # Grep for SQL patterns
-            # nosec: S608 - Mock test data demonstrating SQL injection pattern
+            # Mock test data only
+            # nosec
             "src/auth/login.py:45: query = \"SELECT * FROM users WHERE email = '"
             + "test@example.com"
             + "'",

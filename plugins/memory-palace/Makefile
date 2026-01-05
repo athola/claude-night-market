@@ -19,7 +19,7 @@ ABSTRACT_DIR := ../abstract
 
 # ---------- Plugin-specific Variables ----------
 PY              ?= $(UV_PYTHON)
-CLI             ?= $(PY) tools/memory_palace_cli.py
+CLI             ?= $(UV) run python scripts/memory_palace_cli.py
 PALACES_DIR     ?= $(PWD)/.demo-palaces
 GARDEN_FILE     ?= examples/garden-sample.json
 IMPORT_SRC      ?= examples/palaces-sample.json
@@ -131,10 +131,10 @@ create:
 	PALACES_DIR=$(PALACES_DIR) $(CLI) create "$(NAME)" "$(DOMAIN)" --metaphor "$(METAPHOR)"
 
 list:
-	PALACES_DIR=$(PALACES_DIR) $(CLI) list
+	PALACES_DIR=$(PALACES_DIR) $(CLI) list || true
 
 search:
-	PALACES_DIR=$(PALACES_DIR) $(CLI) search "$(QUERY)"
+	PALACES_DIR=$(PALACES_DIR) $(CLI) search "$(QUERY)" || true
 
 delete:
 	@if [ -z "$(ID)" ]; then echo "Set ID=<palace_id>" && exit 1; fi
@@ -152,7 +152,7 @@ import:
 
 # ---------- Garden utilities ----------
 garden-metrics:
-	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden metrics --path "$(GARDEN_FILE)" --format brief
+	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden metrics --path "$(GARDEN_FILE)" --format brief || true
 
 garden-tend:
 	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden tend --path "$(GARDEN_FILE)" --prometheus
@@ -163,11 +163,11 @@ demo-reset:
 	mkdir -p $(PALACES_DIR)
 
 demo-import: demo-reset
-	PALACES_DIR=$(PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite
+	PALACES_DIR=$(PALACES_DIR) $(CLI) import --source "$(IMPORT_SRC)" --overwrite || true
 
 demo-export:
 	@mkdir -p $(dir $(EXPORT_DEST))
-	PALACES_DIR=$(PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)"
+	PALACES_DIR=$(PALACES_DIR) $(CLI) export --destination "$(EXPORT_DEST)" || true
 
 demo-status:
 	PALACES_DIR=$(PALACES_DIR) $(CLI) status

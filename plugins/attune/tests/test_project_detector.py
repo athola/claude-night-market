@@ -442,8 +442,7 @@ class TestProjectDetectorBehavior:
     """BDD-style tests for ProjectDetector workflows."""
 
     def test_scenario_new_python_project(self, tmp_path):
-        """
-        Scenario: Detecting a new Python project.
+        """Scenario: Detecting a new Python project.
 
         Given a directory with a pyproject.toml file
         When I create a ProjectDetector
@@ -468,8 +467,7 @@ class TestProjectDetectorBehavior:
         assert ".gitignore" in missing
 
     def test_scenario_fully_configured_project(self, tmp_path):
-        """
-        Scenario: Detecting a fully configured project.
+        """Scenario: Detecting a fully configured project.
 
         Given a project with all configuration files
         When I check for missing configurations

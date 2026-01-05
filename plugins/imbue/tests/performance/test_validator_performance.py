@@ -39,7 +39,7 @@ MAX_EXECUTION_TIME_SECONDS = FIVE_POINT_ZERO
 
 
 def _require_validator() -> type:
-    """validate ImbueValidator is available for performance tests."""
+    """Validate ImbueValidator is available for performance tests."""
     if ImbueValidator is None:
         pytest.skip("ImbueValidator not available for performance testing")
     return ImbueValidator

@@ -52,22 +52,20 @@ class TestEdgeCasesAndErrorScenarios:
             empty_repo = Path(temp_dir)
             # Initialize empty git repository
             git_executable = shutil.which("git") or "git"
-            # nosec: S607 - git_executable is from shutil.which, commands are safe
-            subprocess.run(
+            # git binary validated
+            subprocess.run(  # nosec
                 [git_executable, "init"],
                 check=False,
                 cwd=empty_repo,
                 capture_output=True,
             )
-            # nosec: S607 - git_executable is from shutil.which, commands are safe
-            subprocess.run(
+            subprocess.run(  # nosec
                 [git_executable, "config", "user.email", "test@example.com"],
                 check=False,
                 cwd=empty_repo,
                 capture_output=True,
             )
-            # nosec: S607 - git_executable is from shutil.which, commands are safe
-            subprocess.run(
+            subprocess.run(  # nosec
                 [git_executable, "config", "user.name", "Test"],
                 check=False,
                 cwd=empty_repo,

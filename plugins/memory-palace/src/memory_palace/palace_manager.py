@@ -78,7 +78,7 @@ class MemoryPalaceManager:
             sys.exit(1)
 
     def ensure_directories(self) -> None:
-        """validate necessary palace directories exist."""
+        """Validate necessary palace directories exist."""
         os.makedirs(self.palaces_dir, exist_ok=True)
         os.makedirs(os.path.join(self.palaces_dir, "backups"), exist_ok=True)
 

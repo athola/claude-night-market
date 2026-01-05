@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
 from memory_palace.palace_manager import MemoryPalaceManager
 
 

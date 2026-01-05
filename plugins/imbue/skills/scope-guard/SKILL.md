@@ -28,6 +28,7 @@ complexity: intermediate
 estimated_tokens: 2500
 modules:
   - modules/decision-framework.md
+  - modules/github-integration.md
   - modules/anti-overengineering.md
   - modules/branch-management.md
   - modules/baseline-scenarios.md
@@ -125,8 +126,13 @@ Count current features in branch. If at budget (default: 3), new feature require
 
 Record outcome:
 - **Implementing:** Note Worthiness Score and budget slot
-- **Deferring:** Add to `docs/backlog/queue.md` with score and context
+- **Deferring (MANDATORY STEPS):**
+  1. **Create GitHub issue immediately** - See [github-integration.md](modules/github-integration.md)
+  2. Mark `scope-guard:github-issue-created` complete
+  3. Optionally add to `docs/backlog/queue.md` with issue link
 - **Rejecting:** Document why (low value, out of scope)
+
+**IMPORTANT:** Deferral is NOT complete until a GitHub issue exists. This ensures no context is lost when branches are merged or abandoned.
 
 ## Anti-Overengineering Rules
 
@@ -208,7 +214,10 @@ When evaluating a feature, create these todos:
 1. `scope-guard:worthiness-scored`
 2. `scope-guard:backlog-compared`
 3. `scope-guard:budget-checked`
-4. `scope-guard:decision-documented`
+4. `scope-guard:github-issue-created` (MANDATORY if deferring - blocks step 5)
+5. `scope-guard:decision-documented`
+
+**Note:** Step 4 (`github-issue-created`) is REQUIRED when deferring items. You cannot mark `decision-documented` complete without first completing `github-issue-created` for deferrals.
 
 ## Related Skills
 
@@ -219,6 +228,7 @@ When evaluating a feature, create these todos:
 ## Module Reference
 
 - **[decision-framework.md](modules/decision-framework.md)** - Worthiness formula, scoring, thresholds
+- **[github-integration.md](modules/github-integration.md)** - MANDATORY issue creation for deferrals
 - **[anti-overengineering.md](modules/anti-overengineering.md)** - Rules, patterns, red flags
 - **[branch-management.md](modules/branch-management.md)** - Thresholds, monitoring, zones
 - **[baseline-scenarios.md](modules/baseline-scenarios.md)** - Testing scenarios and validation

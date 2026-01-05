@@ -148,7 +148,7 @@ class MECWStatus:
 
 
 class MECWMonitor:
-    """Provide continuous monitoring of context window usage according to MECW principles."""
+    """Monitor context window usage according to MECW principles."""
 
     def __init__(self, max_context: int = 200000) -> None:
         """Initialize MECW monitor.

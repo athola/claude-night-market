@@ -196,10 +196,8 @@ class TestMarginalValueFilter:
 
         with (
             patch("memory_palace.corpus.marginal_value.CacheLookup") as mock_cache,
-            patch("memory_palace.corpus.marginal_value.KeywordIndexer") as mock_indexer,
-            patch(
-                "memory_palace.corpus.marginal_value.QueryTemplateManager"
-            ) as mock_query,
+            patch("memory_palace.corpus.marginal_value.KeywordIndexer"),
+            patch("memory_palace.corpus.marginal_value.QueryTemplateManager"),
         ):
             mock_cache_instance = MagicMock()
             mock_cache.return_value = mock_cache_instance

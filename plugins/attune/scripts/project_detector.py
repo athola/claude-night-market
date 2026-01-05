@@ -1,6 +1,7 @@
 """Detect and validate project types."""
 
 from pathlib import Path
+from typing import Any
 
 
 class ProjectDetector:
@@ -11,6 +12,7 @@ class ProjectDetector:
 
         Args:
             project_path: Path to project directory
+
         """
         self.project_path = Path(project_path)
 
@@ -19,6 +21,7 @@ class ProjectDetector:
 
         Returns:
             Language name ("python", "rust", "typescript") or None
+
         """
         # Python indicators
         python_files = [
@@ -50,15 +53,17 @@ class ProjectDetector:
         # Check for source files
         src_path = self.project_path / "src"
         if src_path.exists():
-            py_files = list(src_path.rglob("*.py"))
-            rs_files = list(src_path.rglob("*.rs"))
-            ts_files = list(src_path.rglob("*.ts")) + list(src_path.rglob("*.tsx"))
+            py_source_files = list(src_path.rglob("*.py"))
+            rs_source_files = list(src_path.rglob("*.rs"))
+            ts_source_files = list(src_path.rglob("*.ts")) + list(
+                src_path.rglob("*.tsx")
+            )
 
-            if py_files:
+            if py_source_files:
                 return "python"
-            if rs_files:
+            if rs_source_files:
                 return "rust"
-            if ts_files:
+            if ts_source_files:
                 return "typescript"
 
         return None
@@ -68,6 +73,7 @@ class ProjectDetector:
 
         Returns:
             True if .git directory exists
+
         """
         return (self.project_path / ".git").exists()
 
@@ -76,6 +82,7 @@ class ProjectDetector:
 
         Returns:
             Dictionary mapping file names to existence status
+
         """
         files_to_check = [
             ".gitignore",
@@ -94,11 +101,12 @@ class ProjectDetector:
             for filename in files_to_check
         }
 
-    def get_project_info(self) -> dict[str, any]:
+    def get_project_info(self) -> dict[str, Any]:
         """Get comprehensive project information.
 
         Returns:
             Dictionary with project detection results
+
         """
         return {
             "path": str(self.project_path),
@@ -115,6 +123,7 @@ class ProjectDetector:
 
         Returns:
             List of missing configuration file names
+
         """
         language_configs = {
             "python": [

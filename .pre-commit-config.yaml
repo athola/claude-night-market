@@ -1,7 +1,41 @@
 repos:
   - repo: local
     hooks:
+      # =================================================================
+      # Code Quality Hooks - Run for changed plugins
+      # =================================================================
+
+      - id: run-plugin-lint
+        name: Lint Changed Plugins
+        entry: ./scripts/run-plugin-lint.sh --changed
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        files: ^plugins/.*\.py$
+        verbose: true
+
+      - id: run-plugin-typecheck
+        name: Type Check Changed Plugins
+        entry: ./scripts/run-plugin-typecheck.sh --changed
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        files: ^plugins/.*\.py$
+        verbose: true
+
+      - id: run-plugin-tests
+        name: Test Changed Plugins
+        entry: ./scripts/run-plugin-tests.sh --changed
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        files: ^plugins/.*\.(py|md)$
+        verbose: true
+
+      # =================================================================
       # Plugin Validation Hooks
+      # =================================================================
+
       - id: validate-abstract-skills
         name: Validate Abstract Skills
         entry: python3 plugins/abstract/scripts/abstract_validator.py
@@ -85,6 +119,7 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
       - id: check-added-large-files
+        args: ['--maxkb=1000']
       - id: check-case-conflict
       - id: check-ast
       - id: check-docstring-first
@@ -98,18 +133,27 @@ repos:
         args: ["-c", "pyproject.toml", "-r", "plugins/"]
         exclude: \.venv/|\.uv-cache/|__pycache__/|node_modules/|\.egg-info/
 
+  # =================================================================
+  # Global Code Quality (Fast - Runs on All Files)
+  # =================================================================
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.7.0
     hooks:
       - id: ruff
+        name: Ruff - Fast Python Linter
         args: [--fix, --config, pyproject.toml]
+        types: [python]
       - id: ruff-format
+        name: Ruff - Code Formatter
         args: [--config, pyproject.toml]
+        types: [python]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.0
     hooks:
       - id: mypy
+        name: Mypy - Global Type Checking
         args: [
           --ignore-missing-imports,
           --explicit-package-bases,
@@ -128,7 +172,13 @@ repos:
         additional_dependencies:
           - types-PyYAML
         exclude: \.venv/|\.uv-cache/|__pycache__/|^fix_.*\.py$|tests/
-        files: ^plugins/abstract/src/abstract/
+        files: ^(plugins|scripts)/.*\.py$
+
+# =================================================================
+# CI Configuration
+# =================================================================
+ci:
+  skip: [run-plugin-lint, run-plugin-typecheck, run-plugin-tests]
 
 default_stages: [pre-commit]
 default_language_version:

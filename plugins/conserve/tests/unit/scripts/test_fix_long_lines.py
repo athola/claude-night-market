@@ -64,7 +64,10 @@ class TestFixLongLinesImplementation:
         Then it should break at logical points
         """
         # Arrange
-        long_line = "description: This is a very long description that exceeds the maximum line length, and needs to be broken"
+        long_line = (
+            "description: This is a very long description that exceeds "
+            "the maximum line length, and needs to be broken"
+        )
 
         # Act
         result = fix_long_descriptions(long_line, max_length=80)
@@ -206,7 +209,10 @@ class TestFixLongLinesImplementation:
         """
         # Arrange
         skill_file = tmp_path / "SKILL.md"
-        content = "description: This is a very long description line that exceeds the normal maximum line length and needs breaking\n"
+        content = (
+            "description: This is a very long description line that "
+            "exceeds the normal maximum line length and needs breaking\n"
+        )
         skill_file.write_text(content)
 
         # Act
@@ -244,9 +250,12 @@ class TestFixLongLinesImplementation:
         """
         # Arrange
         content = """# Short title
-description: Very long description that needs to be broken at an appropriate point, such as a comma
-- **List Item**: This is a long list item description that also needs breaking
-Regular text that is also quite long and should be broken at a reasonable point"""
+description: Very long description that needs to be broken at an
+    appropriate point, such as a comma
+- **List Item**: This is a long list item description that also
+    needs breaking
+Regular text that is also quite long and should be broken at a
+    reasonable point"""
 
         # Act
         result = fix_long_descriptions(content, max_length=80)
@@ -269,7 +278,10 @@ Regular text that is also quite long and should be broken at a reasonable point"
         Then lines should respect the specified limit
         """
         # Arrange
-        long_line = "This is a very long line that definitely needs to be broken into multiple pieces"
+        long_line = (
+            "This is a very long line that definitely needs to be "
+            "broken into multiple pieces"
+        )
 
         # Act
         result = break_generic_line(long_line, max_length=max_length)
@@ -366,7 +378,7 @@ class TestFixLongLinesEdgeCases:
         )
 
         # Act
-        result = break_generic_line(content, max_length=40)
+        break_generic_line(content, max_length=40)
 
         # Assert
         # Should maintain some level of indentation in continuation
@@ -381,7 +393,10 @@ class TestFixLongLinesEdgeCases:
         Then it should handle them correctly
         """
         # Arrange
-        content = "description: This line contains émojis 🎉 and Üñíçödé characters, making it longer"
+        content = (
+            "description: This line contains émojis 🎉 and Üñíçödé "
+            "characters, making it longer"
+        )
 
         # Act
         result = fix_long_descriptions(content, max_length=60)
@@ -400,9 +415,11 @@ class TestFixLongLinesEdgeCases:
         Then both types should be handled correctly
         """
         # Arrange
-        content = """description: Very long description with multiple parts, including various elements that exceed limits
+        content = """description: Very long description with multiple parts,
+    including various elements that exceed limits
 
-- **Item**: Another very long list item with description that also needs breaking"""
+- **Item**: Another very long list item with description that also
+    needs breaking"""
 
         # Act
         result = fix_long_descriptions(content, max_length=60)
@@ -422,7 +439,10 @@ class TestFixLongLinesEdgeCases:
         Then it should use generic line breaking
         """
         # Arrange
-        content = "This is just a regular long paragraph that doesn't start with description or list markers but still needs to be broken"
+        content = (
+            "This is just a regular long paragraph that doesn't start "
+            "with description or list markers but still needs to be broken"
+        )
 
         # Act
         result = fix_long_descriptions(content, max_length=60)
