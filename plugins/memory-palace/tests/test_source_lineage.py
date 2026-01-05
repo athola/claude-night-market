@@ -7,7 +7,6 @@ lineage tracking based on source importance.
 from datetime import UTC, datetime
 
 import pytest
-
 from memory_palace.corpus.source_lineage import (
     FullLineage,
     SimpleLineage,

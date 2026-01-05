@@ -1,11 +1,11 @@
 current_level: 0
 domain_controls: {}
 metrics:
-  auto_approvals: 76
-  flagged_requests: 38
+  auto_approvals: 82
+  flagged_requests: 41
   blocked_requests: 0
   promotions: 0
   demotions: 0
   last_decision: auto_approved
   last_domains: []
-last_updated: '2026-01-05T06:44:26.603207+00:00'
+last_updated: '2026-01-05T06:49:17.203807+00:00'

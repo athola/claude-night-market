@@ -3,7 +3,6 @@
 import json
 
 import pytest
-
 from memory_palace.project_palace import (
     PROJECT_PALACE_ROOMS,
     REVIEW_CHAMBER_ROOMS,

@@ -12,7 +12,6 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-
 from memory_palace.palace_manager import MemoryPalaceManager
 
 PALACE_COUNT = 3

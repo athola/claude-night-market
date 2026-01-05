@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 import yaml
-
 from memory_palace.corpus.keyword_index import KeywordIndexer
 
 

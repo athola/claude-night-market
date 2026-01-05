@@ -7,7 +7,6 @@ reinforcement learning signals for knowledge entries.
 from datetime import UTC, datetime, timedelta
 
 import pytest
-
 from memory_palace.corpus.usage_tracker import (
     SIGNAL_WEIGHTS,
     UsageEvent,

@@ -10,7 +10,6 @@ import json
 from datetime import UTC
 
 import pytest
-
 from memory_palace.garden_metrics import (
     compute_garden_metrics,
     compute_metrics,
