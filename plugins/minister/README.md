@@ -16,6 +16,7 @@ Minister syncs GitHub Projects, issues, and checks to provide a single source of
 
 | Area | Description | Assets |
 |------|-------------|--------|
+| Issue Lifecycle | Create and close GitHub issues with analysis and automation. | `commands/create-issue.md`, `commands/close-issue.md` |
 | Initiative Tracking | Data model and CLI for initiative metrics and GitHub comments. | `scripts/tracker.py`, `src/minister/project_tracker.py`, `skills/github-initiative-pulse` |
 | Tracker → GitHub | Workflow to emit markdown and comment on issues. | `scripts/tracker.py`, `.github/workflows/minister-comment.yml` |
 | Release Governance | Health-check gates merging CI signals and documentation state. | `skills/release-health-gates` |
@@ -38,6 +39,13 @@ plugins/minister/
 ├── skills/                  # Loadable Claude Code skills
 └── src/minister/            # Python package powering the skills/scripts
 ```
+
+## Commands
+
+| Command | Purpose | Usage |
+|---------|---------|-------|
+| `/create-issue` | Create GitHub issues with formatting and references. | Quick issue creation, bug reports, feature requests. |
+| `/close-issue` | Analyze if issues can be closed based on commits/code. | Issue triage, completion verification. |
 
 ## Skills
 

@@ -101,7 +101,7 @@ Just some text without a heading.
         assert any("heading" in warning.lower() for warning in result.warnings)
 
     def test_validates_skill_references(self, sample_command_content) -> None:
-        """Validates that skill references are properly formatted."""
+        """Validate that skill references are properly formatted."""
         result = CommandValidator.validate_content(sample_command_content)
         assert result.is_valid
 
@@ -110,7 +110,7 @@ class TestCommandFileValidation:
     """Tests for validating command files from disk."""
 
     def test_validates_existing_command_file(self, temp_command_file) -> None:
-        """Validates an existing valid command file."""
+        """Validate an existing valid command file."""
         result = CommandValidator.validate_file(temp_command_file)
         assert result.is_valid
 
@@ -168,7 +168,7 @@ Just run `git status`.
         temp_full_plugin,
         sample_command_content,
     ) -> None:
-        """Validates that referenced skills exist in the plugin."""
+        """Validate that referenced skills exist in the plugin."""
         result = CommandValidator.validate_skill_references(
             sample_command_content,
             temp_full_plugin,

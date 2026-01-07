@@ -422,8 +422,7 @@ class TestPluginProjectInitBehavior:
     def test_scenario_initialize_new_plugin_project(
         self, mock_init_git, mock_copy_templates, tmp_path
     ):
-        """
-        Given a new plugin name
+        """Given a new plugin name
         When initializing plugin project
         Then creates complete plugin structure with all required files
         """
@@ -460,8 +459,7 @@ class TestPluginProjectInitBehavior:
     def test_scenario_plugin_json_is_valid_json(
         self, mock_init_git, mock_copy_templates, tmp_path
     ):
-        """
-        Given a new plugin project
+        """Given a new plugin project
         When plugin.json is created
         Then it contains valid JSON with required fields
         """
@@ -492,8 +490,7 @@ class TestPluginProjectInitBehavior:
     def test_scenario_generated_test_is_executable(
         self, mock_init_git, mock_copy_templates, tmp_path
     ):
-        """
-        Given a new plugin project
+        """Given a new plugin project
         When test file is created
         Then it is syntactically valid Python
         """

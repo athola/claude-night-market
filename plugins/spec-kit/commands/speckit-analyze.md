@@ -1,5 +1,5 @@
 ---
-description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
+description: Cross-artifact consistency analysis across spec.md, plan.md, and tasks.md after task generation
 ---
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:systematic-debugging` and `superpowers:verification-before-completion` for enhanced analysis capabilities.

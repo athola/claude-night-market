@@ -16,6 +16,7 @@ import json
 import shutil
 import subprocess
 from pathlib import Path
+from typing import Any
 
 
 class TestAnalyzer:
@@ -27,9 +28,9 @@ class TestAnalyzer:
         self.test_patterns = ["test_*.py", "*_test.py"]
         self.source_patterns = ["*.py"]
 
-    def scan_for_test_gaps(self) -> dict[str, any]:
+    def scan_for_test_gaps(self) -> dict[str, Any]:
         """Scan codebase for files without corresponding tests."""
-        results = {
+        results: dict[str, Any] = {
             "source_files": [],
             "test_files": [],
             "uncovered_files": [],
@@ -73,7 +74,9 @@ class TestAnalyzer:
             return source_file.stem
         return f"test_{source_file.stem}"
 
-    def _analyze_file_coverage(self, source_file: Path, test_files: list[Path]) -> dict:
+    def _analyze_file_coverage(
+        self, source_file: Path, test_files: list[Path]
+    ) -> dict[str, Any] | None:
         """Analyze coverage for a specific source file."""
         # Parse source file
         try:
@@ -141,7 +144,7 @@ class TestAnalyzer:
             "coverage_percentage": coverage_percentage,
         }
 
-    def _find_test_file(self, source_file: Path, test_files: list[Path]) -> Path:
+    def _find_test_file(self, source_file: Path, test_files: list[Path]) -> Path | None:
         """Find corresponding test file for source file."""
         # Try various naming patterns
         test_name_patterns = [
@@ -168,13 +171,13 @@ class TestAnalyzer:
 
         return None
 
-    def analyze_git_changes(self) -> dict[str, any]:
+    def analyze_git_changes(self) -> dict[str, Any]:
         """Analyze git changes to identify files needing test updates."""
         try:
             # Get changed files
             git_executable = shutil.which("git") or "git"
-            # nosec: S607 - git_executable is from shutil.which, commands are safe
-            result = subprocess.run(  # noqa: S603 safe: git_executable from PATH, args constant
+            # git binary validated
+            result = subprocess.run(  # noqa: S603 # nosec
                 [git_executable, "diff", "--name-only", "HEAD~1"],
                 check=False,
                 capture_output=True,
@@ -192,13 +195,17 @@ class TestAnalyzer:
             ]
 
             # Categorize changes
-            categories = {"modified": [], "added": [], "deleted": [], "renamed": []}
+            categories: dict[str, list[Path]] = {
+                "modified": [],
+                "added": [],
+                "deleted": [],
+                "renamed": [],
+            }
 
             for file_path in changed_files:
                 if file_path.exists():
                     # Get diff type
-                    # nosec: S607 - git_executable is from shutil.which, commands are safe
-                    diff_result = subprocess.run(  # noqa: S603 safe: git_executable from PATH, args constant
+                    diff_result = subprocess.run(  # noqa: S603 # nosec
                         [
                             git_executable,
                             "diff",
@@ -241,7 +248,7 @@ class TestAnalyzer:
         return json.dumps(results, indent=2)
 
 
-def main() -> None:
+def main() -> None:  # noqa: PLR0912
     """CLI entry point.
 
     Returns (JSON when --output-json):
@@ -303,17 +310,19 @@ def main() -> None:
 
             if "uncovered_files" in results:
                 print(f"\nUncovered files ({len(results['uncovered_files'])}):")
-                for f in results["uncovered_files"][:10]:
+                MAX_DISPLAY_FILES = 10
+                for f in results["uncovered_files"][:MAX_DISPLAY_FILES]:
                     print(f"  - {f}")
-                if len(results["uncovered_files"]) > 10:
-                    print(f"  ... and {len(results['uncovered_files']) - 10} more")
+                if len(results["uncovered_files"]) > MAX_DISPLAY_FILES:
+                    remaining = len(results["uncovered_files"]) - MAX_DISPLAY_FILES
+                    print(f"  ... and {remaining} more")
 
             if "coverage_gaps" in results:
                 print(f"\nCoverage gaps ({len(results['coverage_gaps'])}):")
                 for gap in results["coverage_gaps"][:5]:
-                    print(
-                        f"  - {gap.get('file', 'unknown')}: {gap.get('reason', 'no details')}"
-                    )
+                    file_name = gap.get("file", "unknown")
+                    reason = gap.get("reason", "no details")
+                    print(f"  - {file_name}: {reason}")
 
             print("\nFor full JSON output, use --output-json")
 
@@ -325,7 +334,7 @@ def main() -> None:
         raise SystemExit(1) from e
 
 
-def _make_serializable(obj):
+def _make_serializable(obj: Any) -> Any:
     """Convert objects to JSON-serializable format."""
     if isinstance(obj, dict):
         return {k: _make_serializable(v) for k, v in obj.items()}

@@ -662,7 +662,7 @@ tags:
         assert report["efficiency_score"] > 0  # Mock returns 0.88
 
         # Verify report provides insights
-        assert isinstance(report["average_cpu"], (int, float))
-        assert isinstance(report["peak_memory"], (int, float))
-        assert isinstance(report["total_tokens"], (int, float))
-        assert isinstance(report["efficiency_score"], (int, float))
+        assert isinstance(report["average_cpu"], int | float)
+        assert isinstance(report["peak_memory"], int | float)
+        assert isinstance(report["total_tokens"], int | float)
+        assert isinstance(report["efficiency_score"], int | float)

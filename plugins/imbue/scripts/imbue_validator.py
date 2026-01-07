@@ -8,6 +8,9 @@ import sys
 from pathlib import Path
 from typing import TypedDict
 
+# Constants
+FRONTMATTER_PARTS_COUNT = 3  # Expected parts when splitting by '---'
+
 
 class ImbueValidationResult(TypedDict):
     """Result of imbue plugin validation."""
@@ -71,7 +74,7 @@ class ImbueValidator:
             frontmatter = None
             if content.startswith("---"):
                 parts = content.split("---", 2)
-                if len(parts) >= 3:
+                if len(parts) >= FRONTMATTER_PARTS_COUNT:
                     frontmatter = parts[1]
 
             if frontmatter:

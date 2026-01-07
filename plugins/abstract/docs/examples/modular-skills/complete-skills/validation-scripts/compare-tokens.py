@@ -8,6 +8,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import tiktoken
 
@@ -36,7 +37,7 @@ class TokenComparison:
         # Rough estimation: ~4 characters per token
         return len(text) // 4
 
-    def analyze_skill_file(self, file_path: Path) -> dict:
+    def analyze_skill_file(self, file_path: Path) -> dict[str, Any]:
         """Analyze a single skill file."""
         if not file_path.exists():
             return {"error": f"File not found: {file_path}"}
@@ -69,13 +70,13 @@ class TokenComparison:
             "lines": len(content.splitlines()),
         }
 
-    def analyze_monolithic(self, monolithic_path: Path) -> dict:
+    def analyze_monolithic(self, monolithic_path: Path) -> dict[str, Any]:
         """Analyze the monolithic skill file."""
         return self.analyze_skill_file(monolithic_path)
 
-    def analyze_modular(self, modular_dir: Path) -> dict:
+    def analyze_modular(self, modular_dir: Path) -> dict[str, Any]:
         """Analyze the modular skill directory."""
-        results = {
+        results: dict[str, Any] = {
             "hub": None,
             "modules": {},
             "tools": {},
@@ -86,8 +87,9 @@ class TokenComparison:
         # Analyze hub skill (SKILL.md)
         hub_path = modular_dir / "SKILL.md"
         if hub_path.exists():
-            results["hub"] = self.analyze_skill_file(hub_path)
-            results["total_tokens"] += results["hub"]["total_tokens"]
+            hub_data = self.analyze_skill_file(hub_path)
+            results["hub"] = hub_data
+            results["total_tokens"] += hub_data["total_tokens"]
             results["total_files"] += 1
 
         # Analyze modules
@@ -114,7 +116,9 @@ class TokenComparison:
 
         return results
 
-    def calculate_efficiency_metrics(self, monolithic: dict, modular: dict) -> dict:
+    def calculate_efficiency_metrics(
+        self, monolithic: dict[str, Any], modular: dict[str, Any]
+    ) -> dict[str, Any]:
         """Calculate efficiency metrics comparing both approaches."""
         if "error" in monolithic or not modular.get("total_files"):
             return {"error": "Invalid comparison data"}

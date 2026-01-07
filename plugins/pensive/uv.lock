@@ -861,7 +861,7 @@ wheels = [
 
 [[package]]
 name = "pensive"
-version = "1.1.0"
+version = "1.2.1"
 source = { editable = "." }
 dependencies = [
     { name = "click" },

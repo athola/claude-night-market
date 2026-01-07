@@ -1,0 +1,230 @@
+---
+name: writing-rules
+description: |
+  Create hookify rules - markdown-based behavioral rules preventing unwanted actions.
+
+  Triggers: create hookify rule, behavioral rule, prevent behavior, block command
+
+  Use when: preventing dangerous commands, blocking debug commits, enforcing conventions
+  DO NOT use when: hook scope (abstract:hook-scope-guide), SDK hooks (abstract:hook-authoring), evaluating hooks (abstract:hooks-eval)
+version: 1.0.0
+category: hook-development
+tags: [hookify, rules, patterns, validation, safety]
+dependencies: []
+estimated_tokens: 2500
+complexity: beginner
+provides:
+  patterns: [rule-writing, pattern-matching, condition-building]
+  infrastructure: [rule-validation]
+usage_patterns:
+  - creating-rules
+  - pattern-matching
+  - behavioral-enforcement
+---
+
+# Hookify Rule Writing Guide
+
+## Overview
+
+Hookify rules are markdown files with YAML frontmatter that define patterns to watch for and messages to show when those patterns match. Rules are stored in `.claude/hookify.{rule-name}.local.md` files.
+
+## Quick Start
+
+Create `.claude/hookify.dangerous-rm.local.md`:
+
+```yaml
+---
+name: dangerous-rm
+enabled: true
+event: bash
+pattern: rm\s+-rf
+action: block
+---
+
+🛑 **Dangerous rm command detected!**
+
+This command could delete important files.
+```
+
+The rule activates immediately - no restart needed!
+
+## Rule File Format
+
+### Frontmatter Fields
+
+**name** (required): Unique identifier (kebab-case)
+**enabled** (required): `true` or `false`
+**event** (required): `bash`, `file`, `stop`, `prompt`, or `all`
+**action** (optional): `warn` (default) or `block`
+**pattern** (simple): Regex pattern to match
+
+### Event Types
+
+- **bash**: Bash tool commands
+- **file**: Edit, Write, MultiEdit tools
+- **stop**: When agent wants to stop
+- **prompt**: User prompt submission
+- **all**: All events
+
+### Advanced Conditions
+
+For multiple field checks:
+
+```yaml
+---
+name: warn-env-edits
+enabled: true
+event: file
+action: warn
+conditions:
+  - field: file_path
+    operator: regex_match
+    pattern: \.env$
+  - field: new_text
+    operator: contains
+    pattern: API_KEY
+---
+
+🔐 **API key in .env file!**
+Ensure file is in .gitignore.
+```
+
+### Operators
+
+- `regex_match`: Pattern matching
+- `contains`: Substring check
+- `equals`: Exact match
+- `not_contains`: Must NOT contain
+- `starts_with`: Prefix check
+- `ends_with`: Suffix check
+
+### Field Reference
+
+**bash events:** `command`
+**file events:** `file_path`, `new_text`, `old_text`, `content`
+**prompt events:** `user_prompt`
+**stop events:** `transcript`
+
+## Pattern Writing
+
+### Regex Basics
+
+- `\s` - whitespace
+- `\d` - digit
+- `\w` - word character
+- `.` - any character (use `\.` for literal dot)
+- `+` - one or more
+- `*` - zero or more
+- `|` - OR
+
+### Examples
+
+```
+rm\s+-rf          → rm -rf
+console\.log\(    → console.log(
+chmod\s+777       → chmod 777
+```
+
+### Test Patterns
+
+```bash
+python3 -c "import re; print(re.search(r'pattern', 'text'))"
+```
+
+## Example Rules
+
+### Block Destructive Commands
+
+```yaml
+---
+name: block-destructive
+enabled: true
+event: bash
+pattern: rm\s+-rf|dd\s+if=|mkfs
+action: block
+---
+
+🛑 **Destructive operation blocked!**
+Can cause data loss.
+```
+
+### Warn About Debug Code
+
+```yaml
+---
+name: warn-debug
+enabled: true
+event: file
+pattern: console\.log\(|debugger;
+action: warn
+---
+
+🐛 **Debug code detected!**
+Remove before committing.
+```
+
+### Require Tests
+
+```yaml
+---
+name: require-tests
+enabled: true
+event: stop
+action: warn
+conditions:
+  - field: transcript
+    operator: not_contains
+    pattern: pytest|npm test
+---
+
+⚠️ **Tests not run!**
+Please verify changes.
+```
+
+### Protect Production Files
+
+```yaml
+---
+name: protect-prod
+enabled: true
+event: file
+action: block
+conditions:
+  - field: file_path
+    operator: regex_match
+    pattern: /production/|\.prod\.
+---
+
+🚨 **Production file!**
+Requires review.
+```
+
+## Management
+
+**Enable/Disable:**
+Edit `.local.md` file: `enabled: false`
+
+**Delete:**
+```bash
+rm .claude/hookify.my-rule.local.md
+```
+
+**List:**
+```bash
+/hookify:list
+```
+
+## Related Skills
+
+- **abstract:hook-scope-guide** - Hook placement decisions
+- **abstract:hook-authoring** - SDK hook development
+- **abstract:hooks-eval** - Hook evaluation
+
+## Best Practices
+
+1. Start with simple patterns
+2. Test regex thoroughly
+3. Use clear, helpful messages
+4. Prefer warnings over blocks initially
+5. Name rules descriptively
+6. Document intent in messages

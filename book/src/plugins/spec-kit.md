@@ -88,6 +88,7 @@ Spec-Kit enforces "define before implement" - you write specifications first, ge
 # - Current plan.md
 # - Outstanding tasks
 # - Progress status
+# - Constitution (principles/constraints)
 ```
 
 ## Artifact Structure

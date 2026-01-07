@@ -46,6 +46,40 @@ Expert agent for multi-ecosystem dependency management.
 - **Code Migration**: Update code for deprecated/changed APIs
 - **Verification**: Run builds/tests to validate updates
 
+## Before Adding New Dependencies
+
+**CRITICAL**: Before adding ANY new dependency, verify:
+
+1. **Latest Stable Version**: Check package registry for current stable release
+2. **Security Advisories**: Search for known vulnerabilities or CVEs
+3. **Breaking Changes**: Review recent release notes and migration guides
+4. **Documentation**: Use context7 MCP or official docs for usage examples
+5. **Compatibility**: Verify version constraints with existing dependencies
+
+**Verification Checklist**:
+```bash
+# Python (PyPI)
+uv pip show <package> --version  # Latest version
+gh api /advisories?ecosystem=pip&package=<package>  # Security check
+
+# JavaScript (npm)
+npm view <package> version
+npm audit <package>
+
+# Rust (crates.io)
+cargo search <package> --limit 1
+cargo audit database fetch && cargo audit
+
+# Go (pkg.go.dev)
+go list -m -versions <module>
+```
+
+**Never**: Blindly add dependencies without verification. Unverified dependencies introduce:
+- Security vulnerabilities from outdated or compromised packages
+- Version conflicts requiring extensive debugging
+- Breaking API changes discovered post-integration
+- Unnecessary bloat from abandoned or redundant libraries
+
 ## Supported Ecosystems
 
 | Ecosystem | File | Check Command |

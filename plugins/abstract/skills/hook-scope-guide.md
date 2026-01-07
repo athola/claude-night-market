@@ -1,6 +1,6 @@
 ---
 name: hook-scope-guide
-description: Decision framework for choosing where to place Claude Code hooks - plugin, project, or global scope. Use when creating new hooks and need to determine the appropriate location based on audience (plugin users, team members, or personal), persistence requirements, and governance needs. For hook syntax and rule writing, use hookify:writing-rules instead.
+description: Decision framework for choosing where to place Claude Code hooks - plugin, project, or global scope. Use when creating new hooks and need to determine the appropriate location based on audience (plugin users, team members, or personal), persistence requirements, and governance needs. For hook syntax and rule writing, use abstract:hook-authoring instead.
 triggers:
   - where to put hooks
   - hook scope decision
@@ -230,8 +230,8 @@ Should this hook apply to all my Claude sessions?
 
 ## Related Skills
 
-- **hookify:writing-rules** - For hook rule syntax and patterns
-- **validate-plugin** - For validating plugin structure including hooks
+- **abstract:hook-authoring** - For hook rule syntax and patterns
+- **abstract:validate-plugin** - For validating plugin structure including hooks
 
 ## References
 

@@ -423,7 +423,7 @@ class AnotherClass:
             assert result["language"] == "unknown" or "error" in result
         except Exception as e:
             # Should handle gracefully
-            assert isinstance(e, (SyntaxError, ValueError))
+            assert isinstance(e, SyntaxError | ValueError)
 
     @pytest.mark.integration
     async def test_configuration_driven_workflow(self, temp_project_directory) -> None:

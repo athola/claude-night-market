@@ -6,7 +6,7 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post_implementation_policy.py",
-            "timeout": 5
+            "timeout": 1
           }
         ]
       }
@@ -17,12 +17,12 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/verify_workflow_complete.py",
-            "timeout": 5
+            "timeout": 2
           },
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py",
-            "timeout": 5
+            "timeout": 1
           }
         ]
       }

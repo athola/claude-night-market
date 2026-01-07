@@ -64,6 +64,7 @@ def assess_context_usage(usage: float) -> ContextAlert:
 
     Raises:
         ValueError: If usage is not in the valid 0-1 range.
+
     """
     if not 0.0 <= usage <= 1.0:
         raise ValueError(f"context_usage must be between 0 and 1, got {usage}")
@@ -72,7 +73,10 @@ def assess_context_usage(usage: float) -> ContextAlert:
         return ContextAlert(
             severity=ContextSeverity.CRITICAL,
             usage_percent=usage,
-            message=f"CRITICAL: Context at {usage*100:.1f}% - Immediate optimization required!",
+            message=(
+                f"CRITICAL: Context at {usage * 100:.1f}% - "
+                "Immediate optimization required!"
+            ),
             recommendations=[
                 "Summarize completed work immediately",
                 "Delegate remaining tasks to subagents",
@@ -83,7 +87,7 @@ def assess_context_usage(usage: float) -> ContextAlert:
         return ContextAlert(
             severity=ContextSeverity.WARNING,
             usage_percent=usage,
-            message=f"WARNING: Context at {usage*100:.1f}% - Plan optimization soon",
+            message=f"WARNING: Context at {usage * 100:.1f}% - Plan optimization soon",
             recommendations=[
                 "Monitor context growth rate",
                 "Prepare optimization strategy",
@@ -93,7 +97,7 @@ def assess_context_usage(usage: float) -> ContextAlert:
     return ContextAlert(
         severity=ContextSeverity.OK,
         usage_percent=usage,
-        message=f"OK: Context at {usage*100:.1f}%",
+        message=f"OK: Context at {usage * 100:.1f}%",
         recommendations=[],
     )
 
@@ -103,6 +107,7 @@ def get_context_usage_from_env() -> float | None:
 
     Returns:
         Context usage as float 0-1, or None if unavailable.
+
     """
     # Try to get from environment variable (set by Claude Code)
     usage_str = os.environ.get("CLAUDE_CONTEXT_USAGE")
@@ -126,6 +131,7 @@ def format_hook_output(alert: ContextAlert) -> dict[str, Any]:
 
     Returns:
         Dictionary suitable for hook JSON output.
+
     """
     output = {
         "hookSpecificOutput": {
@@ -145,10 +151,11 @@ def format_hook_output(alert: ContextAlert) -> dict[str, Any]:
 
 
 def main() -> int:
-    """Main entry point for hook execution.
+    """Execute hook entry point.
 
     Returns:
         Exit code (0 for success).
+
     """
     # Read hook input from stdin
     try:

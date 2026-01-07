@@ -38,7 +38,7 @@ Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 **New capabilities:**
 - Detects consolidation opportunities (like /merge-docs)
 - Enforces directory-specific style rules (docs/ strict, book/ lenient)
-- Validates accuracy of version numbers and counts
+- Validate accuracy of version numbers and counts
 - LSP integration (2.0.74+) for semantic documentation verification
 
 ## Required TodoWrite Items
@@ -146,7 +146,7 @@ echo "Skills: $(find plugins/*/skills -name 'SKILL.md' | wc -l)"
 
 **LSP-Enhanced Verification (2.0.74+)**:
 
-When `ENABLE_LSP_TOOLS=1` is set, enhance accuracy verification with semantic analysis:
+When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic analysis:
 
 1. **API Documentation Coverage**:
    - Query LSP for all public functions/classes
@@ -170,7 +170,7 @@ When `ENABLE_LSP_TOOLS=1` is set, enhance accuracy verification with semantic an
 
 **Efficiency**: LSP queries (50ms) vs. manual file tracing (minutes) - dramatically faster verification.
 
-**Default Strategy**: Documentation updates should **prefer LSP** for all verification tasks. Enable `ENABLE_LSP_TOOLS=1` permanently for best results.
+**Default Strategy**: Documentation updates should **prefer LSP** for all verification tasks. Enable `ENABLE_LSP_TOOL=1` permanently for best results.
 
 **Non-blocking**: Warnings are informational; user decides whether to fix.
 

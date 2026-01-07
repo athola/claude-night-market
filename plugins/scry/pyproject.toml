@@ -1,6 +1,6 @@
 [project]
 name = "scry"
-version = "1.2.0"
+version = "1.2.1"
 description = "Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -11,6 +11,7 @@ requires-python = ">=3.12"
 dev = [
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
+    "mypy>=1.11.0",
 ]
 
 [tool.pytest.ini_options]
@@ -32,3 +33,22 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+# Relax strictness for test files
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+ignore_missing_imports = true

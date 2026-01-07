@@ -25,13 +25,21 @@ def dispatch_agent(skill_name: str, _context: Any) -> str:
     )
 
     # Run the async dispatch synchronously
+    # Use asyncio.new_event_loop() to avoid deprecation warning
     try:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
     except RuntimeError:
+        # No running loop, create a new one
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-
-    return loop.run_until_complete(coordinator_dispatch(skill_name, _context))
+        try:
+            return loop.run_until_complete(coordinator_dispatch(skill_name, _context))
+        finally:
+            loop.close()
+            asyncio.set_event_loop(None)
+    else:
+        # Already in an async context
+        return loop.run_until_complete(coordinator_dispatch(skill_name, _context))
 
 
 class UnifiedReviewSkill(BaseReviewSkill):

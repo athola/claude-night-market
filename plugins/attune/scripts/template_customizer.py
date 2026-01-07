@@ -523,7 +523,7 @@ class TemplateCustomizer:
 
         """
         if self.paradigm in self.STRUCTURE_TEMPLATES:
-            return self.STRUCTURE_TEMPLATES[self.paradigm]["description"]
+            return str(self.STRUCTURE_TEMPLATES[self.paradigm]["description"])
         return "Standard project structure"
 
     def generate_architecture_readme(self) -> str:
@@ -537,7 +537,7 @@ class TemplateCustomizer:
 
         readme_content = f"""# Architecture
 
-This project uses **{self.paradigm.replace('-', ' ').title()} Architecture**.
+This project uses **{self.paradigm.replace("-", " ").title()} Architecture**.
 
 ## Overview
 
@@ -607,7 +607,7 @@ As the project grows, consider:
             ADR content as string
 
         """
-        return f"""# Architecture Decision Record: {self.paradigm.replace('-', ' ').title()}
+        return f"""# Architecture Decision Record: {self.paradigm.replace("-", " ").title()}
 
 ## Date
 {self._get_current_date()}
@@ -623,7 +623,7 @@ This project required an architecture that supports:
 - Scalability and performance requirements
 
 ## Decision
-Adopted **{self.paradigm.replace('-', ' ').title()} Architecture**.
+Adopted **{self.paradigm.replace("-", " ").title()} Architecture**.
 
 ## Rationale
 {self.get_paradigm_description()}
@@ -666,7 +666,7 @@ Adopted **{self.paradigm.replace('-', ' ').title()} Architecture**.
         return datetime.now().strftime("%Y-%m-%d")
 
 
-def main():
+def main() -> None:
     """CLI entry point for template customizer."""
     parser = argparse.ArgumentParser(
         description="Generate architecture-specific project structure"

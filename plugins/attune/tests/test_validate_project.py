@@ -620,8 +620,7 @@ class TestProjectValidatorBehavior:
     """BDD-style tests for ProjectValidator workflows."""
 
     def test_scenario_validate_complete_python_project(self, tmp_path):
-        """
-        Scenario: Validating a complete Python project.
+        """Scenario: Validating a complete Python project.
 
         Given a fully configured Python project
         When I run validation
@@ -662,8 +661,7 @@ python_version = "3.10"
         assert validator.get_exit_code() == 0
 
     def test_scenario_validate_minimal_project(self, tmp_path):
-        """
-        Scenario: Validating a minimal project.
+        """Scenario: Validating a minimal project.
 
         Given a minimal project with only basic files
         When I run validation

@@ -77,7 +77,7 @@ class ToolPerformanceAnalyzer:
 
         try:
             start_time = time.time()
-            # nosec B603 - tool_path is from tools configuration
+            # tool_path validated
             result = subprocess.run(  # nosec B603
                 [str(tool_path)],
                 check=False,

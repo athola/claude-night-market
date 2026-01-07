@@ -8,7 +8,7 @@ from functools import wraps
 from pathlib import Path
 from typing import Any
 
-import cachetools
+import cachetools  # type: ignore[import-untyped]
 
 
 class SpecKitCache:

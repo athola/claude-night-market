@@ -67,7 +67,7 @@ Or reference directly from the marketplace:
 | **workflow-improvement-analysis-agent** | Generates improvement approaches with trade-offs and metrics |
 | **workflow-improvement-planner-agent** | Converges on a bounded plan with acceptance criteria |
 | **workflow-improvement-implementer-agent** | Implements the agreed workflow improvements |
-| **workflow-improvement-validator-agent** | Validates improvements via tests and minimal reproduction replay |
+| **workflow-improvement-validator-agent** | Validate improvements via tests and minimal reproduction replay |
 | **dependency-updater** | Dependency scanning and updates across ecosystems |
 
 ## Quick Start

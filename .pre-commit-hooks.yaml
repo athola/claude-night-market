@@ -1,0 +1,27 @@
+# Pre-commit hooks available for this repository
+# These can be used by other projects that depend on claude-night-market
+
+- id: run-plugin-tests
+  name: Run Tests for Changed Plugins
+  description: Automatically run tests for plugins with staged changes
+  entry: ./scripts/run-plugin-tests.sh --changed
+  language: system
+  pass_filenames: false
+  files: ^plugins/.*\.(py|md)$
+  stages: [pre-commit]
+
+- id: run-all-plugin-tests
+  name: Run All Plugin Tests
+  description: Run tests for all plugins (use for pre-push or manual validation)
+  entry: ./scripts/run-plugin-tests.sh --all
+  language: system
+  pass_filenames: false
+  stages: [pre-push, manual]
+
+- id: validate-plugin-structure
+  name: Validate Plugin Structure
+  description: Validate that plugins follow required structure
+  entry: python3 plugins/abstract/scripts/validate-plugin.py
+  language: system
+  pass_filenames: true
+  files: ^plugins/[^/]+/\.claude-plugin/plugin\.json$

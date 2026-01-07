@@ -1,3 +1,5 @@
+"""Tests for hook entrypoint executability and shebang lines."""
+
 from __future__ import annotations
 
 import json

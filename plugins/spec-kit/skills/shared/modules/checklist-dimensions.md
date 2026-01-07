@@ -84,10 +84,10 @@ Examples:
 ### 6. Edge Cases
 **Question**: Are boundary conditions and error scenarios defined?
 
-Pattern: "Is fallback behavior specified when [edge condition]?"
+Pattern: "Is default behavior specified when [edge condition]?"
 
 Examples:
-- "Is fallback behavior defined when images fail to load? [Edge Case, Gap]"
+- "Is default behavior defined when images fail to load? [Edge Case, Gap]"
 - "Are rollback requirements defined for migration failures? [Gap]"
 - "Are requirements specified for partial data loading? [Coverage, Exception Flow]"
 

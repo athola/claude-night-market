@@ -17,7 +17,7 @@ def test_plugin_json_exists():
         data = json.load(f)
 
     assert data["name"] == "attune"
-    assert data["version"] == "1.2.0"
+    assert data["version"] == "1.2.1"
     assert "commands" in data
     assert "skills" in data
     assert len(data["keywords"]) > 0
@@ -32,7 +32,7 @@ def test_metadata_json_exists():
         data = json.load(f)
 
     assert data["name"] == "attune"
-    assert data["version"] == "1.2.0"
+    assert data["version"] == "1.2.1"
 
 
 def test_commands_exist():

@@ -148,18 +148,16 @@ def mock_git_repository(tmp_path):
 
     # Initialize git repo
     git_executable = shutil.which("git") or "git"
-    # nosec: S603 - git_executable is from shutil.which or validated, commands are safe
-    subprocess.run(  # noqa: S603
+    # git binary validated
+    subprocess.run(  # noqa: S603 # nosec
         [git_executable, "init"], cwd=repo_path, capture_output=True, check=True
     )
-    # nosec: S603 - git_executable is from shutil.which or validated, commands are safe
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # noqa: S603 # nosec
         [git_executable, "config", "user.email", "test@example.com"],
         cwd=repo_path,
         check=True,
     )
-    # nosec: S603 - git_executable is from shutil.which or validated, commands are safe
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # noqa: S603 # nosec
         [git_executable, "config", "user.name", "Test User"],
         cwd=repo_path,
         check=True,
@@ -170,12 +168,10 @@ def mock_git_repository(tmp_path):
     (repo_path / "src").mkdir()
     (repo_path / "src" / "main.py").write_text('print("Hello, World!")')
 
-    # nosec: S603 - git_executable is from shutil.which or validated, commands are safe
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # noqa: S603 # nosec
         [git_executable, "add", "."], cwd=repo_path, capture_output=True, check=True
     )
-    # nosec: S603 - git_executable is from shutil.which or validated, commands are safe
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # noqa: S603 # nosec
         [git_executable, "commit", "-m", "Initial commit"],
         cwd=repo_path,
         capture_output=True,
@@ -188,12 +184,10 @@ def mock_git_repository(tmp_path):
         "from utils import helper\nprint(helper())",
     )
 
-    # nosec: S603 - git_executable is from shutil.which or validated, commands are safe
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # noqa: S603 # nosec
         [git_executable, "add", "."], cwd=repo_path, capture_output=True, check=True
     )
-    # nosec: S603 - git_executable is from shutil.which or validated, commands are safe
-    subprocess.run(  # noqa: S603
+    subprocess.run(  # noqa: S603 # nosec
         [git_executable, "commit", "-m", "Add helper function"],
         cwd=repo_path,
         capture_output=True,

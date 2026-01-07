@@ -39,7 +39,7 @@ Enhanced project initialization that combines:
 
 Use this skill when:
 - Starting a new project and unsure which architecture fits best
-- Want to ensure modern, industry-standard architecture choices
+- Want modern, industry-standard architecture choices
 - Need justification for architectural decisions
 - Want templates customized to your chosen paradigm
 

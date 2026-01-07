@@ -194,7 +194,7 @@ def main() -> None:
         output_error(f"Error updating references: {e}", args)
 
 
-def output_result(result: dict, args) -> None:
+def output_result(result: dict, args: argparse.Namespace) -> None:
     """Output result in requested format."""
     if args.output_json:
         print(
@@ -215,7 +215,7 @@ def output_result(result: dict, args) -> None:
                 print(f"  - {issue}")
 
 
-def output_error(message: str, args) -> None:
+def output_error(message: str, args: argparse.Namespace) -> None:
     """Output error in requested format."""
     if args.output_json:
         print(

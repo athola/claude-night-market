@@ -9,6 +9,7 @@ This script orchestrates the makefile-dogfooder skill workflow:
 """
 
 import argparse
+import json
 import re
 import subprocess  # nosec B404
 import sys
@@ -20,6 +21,9 @@ from typing import Any
 # Constants for magic numbers
 TARGET_PARTS_COUNT = 2
 MIN_HELP_COMMANDS = 3
+SCORE_THRESHOLD_OK = 60
+SCORE_THRESHOLD_WARN = 40
+PREVIEW_MAX_LENGTH = 200
 
 
 class Scope(Enum):
@@ -187,7 +191,7 @@ class MakefileDogfooder:
 
         return sorted(makefiles)
 
-    def parse_makefile(self, makefile_path: Path) -> MakefileInventory:  # noqa: PLR0912
+    def parse_makefile(self, makefile_path: Path) -> MakefileInventory:  # noqa: PLR0912, PLR0915
         """Parse a Makefile and extract targets, variables, and includes."""
         targets: dict[str, Target] = {}
         variables: dict[str, str] = {}
@@ -299,7 +303,7 @@ class MakefileDogfooder:
             plugin_type=plugin_type,
         )
 
-    def analyze_makefile(self, inventory: MakefileInventory) -> AnalysisResult:  # noqa: PLR0912
+    def analyze_makefile(self, inventory: MakefileInventory) -> AnalysisResult:  # noqa: PLR0912, PLR0915
         """Analyze a Makefile inventory and identify gaps."""
         score = 0
         score_breakdown: list[str] = []  # For --explain mode
@@ -463,7 +467,7 @@ class MakefileDogfooder:
         for target_name in ["help", "status"]:
             if target_name in inventory.targets:
                 try:
-                    # nosec: S603 - Using absolute path to /usr/bin/make, target is validated against inventory.targets
+                    # make binary with validated target
                     subprocess.run(  # nosec B603
                         ["/usr/bin/make", "-n", target_name],
                         cwd=makefile_dir,
@@ -730,8 +734,6 @@ def main() -> int:
     )
 
     if args.output == "json":
-        import json
-
         print(json.dumps(results, indent=2))
     else:
         # Text output
@@ -746,7 +748,13 @@ def main() -> int:
             print("\n--- Makefile Details ---")
             for detail in results["details"]:
                 score = detail.get("score", 0)
-                status = "[OK]" if score >= 60 else "[WARN]" if score >= 40 else "[FIX]"
+                status = (
+                    "[OK]"
+                    if score >= SCORE_THRESHOLD_OK
+                    else "[WARN]"
+                    if score >= SCORE_THRESHOLD_WARN
+                    else "[FIX]"
+                )
                 print(f"\n{status} {detail['file']}")
                 print(f"    Score: {score}/100")
                 print(f"    Issues: {detail.get('issues', 0)}")
@@ -765,7 +773,11 @@ def main() -> int:
             for gen in results["generated_targets"]:
                 print(f"\n{gen['file']}:")
                 content = gen["content"]
-                preview = content[:200] + "..." if len(content) > 200 else content
+                preview = (
+                    content[:PREVIEW_MAX_LENGTH] + "..."
+                    if len(content) > PREVIEW_MAX_LENGTH
+                    else content
+                )
                 print(preview)
 
     # Apply changes if requested

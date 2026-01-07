@@ -6,6 +6,8 @@ exhaustion. Extends leyline's universal QuotaTracker with Gemini-specific
 token estimation and CLI command parsing.
 """
 
+# mypy: disable-error-code="no-redef"
+
 from __future__ import annotations
 
 import argparse
@@ -18,28 +20,35 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 try:
-    from leyline import QuotaConfig, QuotaTracker
+    from leyline import (  # type: ignore[import-not-found,no-redef]
+        QuotaConfig,
+        QuotaTracker,
+    )
 except ImportError:  # pragma: no cover
-
+    # Define fallback classes when leyline is not available
     @dataclass(frozen=True)
-    class QuotaConfig:
+    class QuotaConfig:  # type: ignore[no-redef,misc]
+        """Quota configuration (stub when leyline not available)."""
+
         requests_per_minute: int
         requests_per_day: int
         tokens_per_minute: int
         tokens_per_day: int
 
-    class QuotaTracker:  # noqa: D101
+    class QuotaTracker:  # noqa: D101  # type: ignore[no-redef]
         def __init__(
             self,
             service: str,
             config: QuotaConfig,
             storage_dir: Path | None = None,
         ) -> None:
+            """Initialize quota tracker (stub when leyline not available)."""
             self.service = service
             self.config = config
             self.storage_dir = storage_dir
 
         def estimate_file_tokens(self, path: Path) -> int:
+            """Estimate token count for a file."""
             try:
                 text = path.read_text(encoding="utf-8", errors="replace")
             except OSError:
@@ -47,6 +56,7 @@ except ImportError:  # pragma: no cover
             return (len(text) // 4) + 6
 
         def get_quota_status(self) -> tuple[str, list[str]]:
+            """Get quota status (stub when leyline not available)."""
             return "[OK] Healthy", ["(leyline not installed; quota tracking disabled)"]
 
 
@@ -73,7 +83,7 @@ GEMINI_QUOTA_CONFIG = QuotaConfig(
 FILE_OVERHEAD_TOKENS = 6
 
 
-class GeminiQuotaTracker(QuotaTracker):
+class GeminiQuotaTracker(QuotaTracker):  # type: ignore[misc]
     """Track and manage Gemini CLI quota usage.
 
     Extends leyline's QuotaTracker with Gemini-specific features:

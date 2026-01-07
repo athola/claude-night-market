@@ -1,6 +1,7 @@
 """Tests for gif-demo.sh script functionality."""
 
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -42,21 +43,30 @@ class TestGifDemoHelp:
 class TestGifDemoDependencies:
     """Tests for gif-demo.sh dependency checking."""
 
+    @pytest.mark.skipif(
+        shutil.which("ffmpeg") is not None,
+        reason=(
+            "ffmpeg is installed; cannot test missing dependency behavior "
+            "without complex mocking"
+        ),
+    )
     def test_requires_ffmpeg(
         self, gif_demo_script: Path, has_ffmpeg: bool, tmp_path: Path
     ) -> None:
         """Script should fail gracefully without ffmpeg."""
-        if has_ffmpeg:
-            pytest.skip("ffmpeg is installed, cannot test missing dependency")
-
+        # This test only runs when ffmpeg is NOT installed
         result = subprocess.run(
             [str(gif_demo_script)],
             capture_output=True,
             text=True,
-            env={"TMP_DIR": str(tmp_path), "PATH": ""},
+            env={"TMP_DIR": str(tmp_path), "PATH": os.environ.get("PATH", "")},
         )
         assert result.returncode != 0
-        assert "ffmpeg" in result.stderr.lower() or "ffmpeg" in result.stdout.lower()
+        # Check for the specific error message from the script
+        output = result.stderr + result.stdout
+        assert (
+            "ffmpeg" in output.lower()
+        ), f"Expected ffmpeg error message, got: {output}"
 
 
 @pytest.mark.integration

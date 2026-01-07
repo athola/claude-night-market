@@ -32,7 +32,7 @@ def get_terminal_info() -> str:
                 ["tmux", "display-message", "-p", "#S:#W"],  # noqa: S603,S607
                 capture_output=True,
                 text=True,
-                timeout=2,
+                timeout=0.5,  # Reduced from 2s
                 check=False,
             )
             if result.returncode == 0 and result.stdout.strip():
@@ -58,14 +58,14 @@ def notify_linux(title: str, message: str) -> bool:
     try:
         subprocess.run(  # noqa: S603
             [
-                "notify-send",
+                "/usr/bin/notify-send",
                 "--app-name=Claude Code",
-                "--urgency=normal",  # noqa: S607,E501
+                "--urgency=normal",
                 title,
                 message,
             ],
             check=True,
-            timeout=3,
+            timeout=1,  # Reduced from 3s
         )
         return True
     except (
@@ -90,7 +90,7 @@ def notify_macos(title: str, message: str) -> bool:
         subprocess.run(  # noqa: S603
             ["osascript", "-e", script],  # noqa: S607
             check=True,
-            timeout=3,
+            timeout=1,  # Reduced from 3s
         )
         return True
     except (
@@ -137,7 +137,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         subprocess.run(  # noqa: S603
             ["powershell", "-NoProfile", "-Command", ps_script],  # noqa: S607
             check=True,
-            timeout=5,
+            timeout=2,  # Reduced from 5s
             capture_output=True,
         )
         return True
@@ -156,7 +156,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
             subprocess.run(  # noqa: S603
                 ["powershell", "-NoProfile", "-Command", burnt_cmd],  # noqa: S607
                 check=True,
-                timeout=5,
+                timeout=2,  # Reduced from 5s
                 capture_output=True,
             )
             return True
@@ -185,15 +185,43 @@ def send_notification(title: str, message: str) -> bool:
 
 def main() -> None:
     """Send notification that Claude session is awaiting input."""
-    terminal_info = get_terminal_info()
-    title = "Claude Code Ready"
-    message = f"Awaiting input in: {terminal_info}"
+    # Skip if notifications disabled via environment variable
+    if os.environ.get("CLAUDE_NO_NOTIFICATIONS") == "1":
+        sys.exit(0)
 
-    send_notification(title, message)
+    # Run notification in subprocess - don't block the hook
+    # Use Popen (not run) to avoid waiting for completion
+    script_path = __file__
+    try:
+        subprocess.Popen(  # noqa: S603
+            [sys.executable, script_path, "--background"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,  # Detach from parent
+        )
+    except Exception:  # noqa: S110 (intentional silent fail for non-critical notifications)
+        # Fail silently - notifications are non-critical
+        pass
 
-    # Exit silently regardless - don't interrupt Claude's flow
+    # Exit immediately - notification runs in background
     sys.exit(0)
 
 
+def run_notification() -> None:
+    """Actually send the notification (called in background)."""
+    try:
+        terminal_info = get_terminal_info()
+        title = "Claude Code Ready"
+        message = f"Awaiting input in: {terminal_info}"
+        send_notification(title, message)
+    except Exception:  # noqa: S110 (intentional silent fail for non-critical notifications)
+        # Silently fail - notifications are non-critical
+        pass
+
+
 if __name__ == "__main__":
-    main()
+    # Check if running in background mode
+    if len(sys.argv) > 1 and sys.argv[1] == "--background":
+        run_notification()
+    else:
+        main()

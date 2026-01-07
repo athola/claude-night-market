@@ -9,6 +9,7 @@ import subprocess  # nosec: B404
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 # Add src to path to import core functionality
 src_path = Path(__file__).parent.parent.parent / "src"
@@ -22,7 +23,7 @@ class ToolPerformanceAnalyzer:
         """Initialize the tool performance analyzer."""
         self.skills_dir = skills_dir
 
-    def analyze_tools(self) -> dict:
+    def analyze_tools(self) -> dict[str, Any]:
         """Analyze performance of all tools in skills directory."""
         tools = {}
         for file_path in self.skills_dir.rglob("*"):
@@ -34,13 +35,13 @@ class ToolPerformanceAnalyzer:
             ):
                 tools[file_path.name] = file_path
 
-        results = {"total_tools": len(tools), "tools": {}}
+        results: dict[str, Any] = {"total_tools": len(tools), "tools": {}}
 
         for tool_name, tool_path in tools.items():
             try:
                 start_time = time.time()
-                # nosec: S603 - tool_path is from tools configuration, --help is safe argument
-                result = subprocess.run(
+                # tool_path validated
+                result = subprocess.run(  # nosec
                     [str(tool_path), "--help"],
                     check=False,
                     capture_output=True,

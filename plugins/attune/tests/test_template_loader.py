@@ -330,8 +330,7 @@ class TestTemplateLoaderBehavior:
     """BDD-style tests for TemplateLoader workflows."""
 
     def test_scenario_custom_template_overrides_default(self, tmp_path, monkeypatch):
-        """
-        Scenario: Custom template overriding default template.
+        """Scenario: Custom template overriding default template.
 
         Given a default template exists
         And a custom template with the same name exists
@@ -360,8 +359,7 @@ class TestTemplateLoaderBehavior:
         assert result.read_text() == "# Custom Makefile"
 
     def test_scenario_fallback_to_default_template(self, tmp_path):
-        """
-        Scenario: Falling back to default template.
+        """Scenario: Falling back to default template.
 
         Given only a default template exists
         When I find the template
@@ -386,8 +384,7 @@ class TestTemplateLoaderBehavior:
         assert result.read_text() == "# Default Makefile"
 
     def test_scenario_template_not_found_anywhere(self, tmp_path):
-        """
-        Scenario: Template not found in any location.
+        """Scenario: Template not found in any location.
 
         Given no template directories have the requested template
         When I find the template
@@ -408,8 +405,7 @@ class TestTemplateLoaderBehavior:
         assert result is None
 
     def test_scenario_collect_all_unique_templates(self, tmp_path):
-        """
-        Scenario: Collecting all unique templates from multiple sources.
+        """Scenario: Collecting all unique templates from multiple sources.
 
         Given templates exist in multiple directories
         And some templates have the same name

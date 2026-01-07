@@ -26,27 +26,27 @@ dev-setup:
 .PHONY: test
 test:
 	@echo "Running test suite..."
-	cd ../.. && uv run --directory plugins/attune pytest plugins/attune/tests/ -v
+	cd ../.. && uv run --directory plugins/attune pytest tests/ -v
 
 .PHONY: test-unit
 test-unit:
 	@echo "Running unit tests..."
-	cd ../.. && uv run --directory plugins/attune pytest plugins/attune/tests/ -v -m unit
+	cd ../.. && uv run --directory plugins/attune pytest tests/ -v -m unit
 
 .PHONY: test-integration
 test-integration:
 	@echo "Running integration tests..."
-	cd ../.. && uv run --directory plugins/attune pytest plugins/attune/tests/ -v -m integration
+	cd ../.. && uv run --directory plugins/attune pytest tests/ -v -m integration
 
 .PHONY: test-verbose
 test-verbose:
 	@echo "Running tests with verbose output..."
-	cd ../.. && uv run --directory plugins/attune pytest plugins/attune/tests/ -vv --tb=short
+	cd ../.. && uv run --directory plugins/attune pytest tests/ -vv --tb=short
 
 .PHONY: test-coverage
 test-coverage:
 	@echo "Running tests with coverage..."
-	cd ../.. && uv run --directory plugins/attune pytest plugins/attune/tests/ --cov=scripts --cov-report=term-missing --cov-report=html
+	cd ../.. && uv run --directory plugins/attune pytest tests/ --cov=scripts --cov-report=term-missing --cov-report=html
 
 .PHONY: lint
 lint:

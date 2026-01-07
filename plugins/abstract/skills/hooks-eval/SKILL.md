@@ -11,7 +11,7 @@ description: |
   callback signatures, validating hooks against compliance standards
 
   DO NOT use when: deciding hook placement - use hook-scope-guide instead.
-  DO NOT use when: writing hook rules from scratch - use hookify instead.
+  DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
   DO NOT use when: validating plugin structure - use validate-plugin instead.
 
   Use this skill BEFORE deploying hooks to production.
@@ -133,6 +133,6 @@ return {
 
 ## Related Skills
 
-- `hook-scope-guide` - Decide where to place hooks (plugin/project/global)
-- `hookify:writing-rules` - Write hook rules and patterns
-- `validate-plugin` - Validate complete plugin structure
+- `abstract:hook-scope-guide` - Decide where to place hooks (plugin/project/global)
+- `abstract:hook-authoring` - Write hook rules and patterns
+- `abstract:validate-plugin` - Validate complete plugin structure

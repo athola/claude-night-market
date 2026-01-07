@@ -4,8 +4,8 @@
 import argparse
 from pathlib import Path
 
-from attune_init import copy_templates, initialize_git
-from template_engine import get_default_variables
+from attune_init import copy_templates, initialize_git  # type: ignore[import]
+from template_engine import get_default_variables  # type: ignore[import]
 
 
 def create_plugin_structure(project_path: Path, plugin_name: str) -> None:
@@ -14,6 +14,7 @@ def create_plugin_structure(project_path: Path, plugin_name: str) -> None:
     Args:
         project_path: Path to plugin root
         plugin_name: Name of the plugin
+
     """
     # Create plugin directories
     dirs = [
@@ -125,6 +126,7 @@ def initialize_plugin_project(
         author: Author name
         email: Author email
         force: Force overwrite without prompting
+
     """
     print(f"\n{'=' * 60}")
     print("Claude Code Plugin Project Initialization")
@@ -306,7 +308,7 @@ if __name__ == "__main__":
     print(f"{'=' * 60}\n")
 
 
-def main():
+def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(
         description="Initialize Claude Code plugin project"

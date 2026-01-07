@@ -58,10 +58,10 @@ def fetch_github_action_version(action: str) -> str | None:
 
             # Return major version (v4.1.2 -> v4)
             if tag_name.startswith("v"):
-                major_version = tag_name.split(".")[0]
+                major_version: str = tag_name.split(".")[0]
                 return major_version
 
-            return tag_name
+            return str(tag_name)
 
     except _FETCH_ERRORS as e:
         print(f"Warning: Could not fetch version for {action}: {e}")
@@ -125,7 +125,7 @@ def fetch_pypi_latest_version(package: str) -> str | None:
         _validate_https_url(url)
         with urllib.request.urlopen(url, timeout=5) as resp:  # nosec B310
             data = json.loads(resp.read().decode())
-            return data["info"]["version"]
+            return str(data["info"]["version"])
     except _FETCH_ERRORS as e:
         print(f"Warning: Could not fetch PyPI version for {package}: {e}")
         return None
@@ -147,7 +147,7 @@ def fetch_npm_latest_version(package: str) -> str | None:
         _validate_https_url(url)
         with urllib.request.urlopen(url, timeout=5) as resp:  # nosec B310
             data = json.loads(resp.read().decode())
-            return data["version"]
+            return str(data["version"])
     except _FETCH_ERRORS as e:
         print(f"Warning: Could not fetch npm version for {package}: {e}")
         return None

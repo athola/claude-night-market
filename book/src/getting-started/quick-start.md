@@ -9,6 +9,9 @@ Common workflows and patterns for Claude Night Market plugins.
 Start features with a specification:
 
 ```bash
+# (Optional) Resume persistent speckit context for this repo/session
+/speckit-startup
+
 # Create specification from idea
 /speckit-specify Add user authentication with OAuth2
 
@@ -20,6 +23,9 @@ Start features with a specification:
 
 # Execute tasks
 /speckit-implement
+
+# Verify artifacts stay consistent
+/speckit-analyze
 ```
 
 ### Code Review with Pensive

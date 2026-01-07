@@ -33,6 +33,15 @@ estimated_tokens: 1500
 
 Coordinates the Spec Driven Development workflow, skill loading, and progress tracking throughout the command lifecycle.
 
+## Persistent Presence Lens
+
+Treat SDD as a minimal, testable “self-modeling” loop:
+
+- **World model**: repo + speckit artifacts (`spec.md`, `plan.md`, `tasks.md`)
+- **Agent model**: loaded skills/plugins + constraints (especially `.specify/memory/constitution.md`) + progress state
+
+This mirrors patterns from open-ended embodied agents (e.g., Voyager/MineDojo) that compound capability via a curriculum (`tasks.md`) and a skill library (reusable plugin skills + superpowers methodology skills).
+
 ## When to Use
 
 - Starting any `/speckit-*` command.
@@ -49,11 +58,15 @@ Coordinates the Spec Driven Development workflow, skill loading, and progress tr
    - Check for `.specify/` directory structure.
    - Validate required scripts exist.
 
-2. **Load Command Dependencies**
+2. **Load Persistent State ("presence")**
+   - Read `.specify/memory/constitution.md` for constraints/principles.
+   - Load current `spec.md` / `plan.md` / `tasks.md` context if present.
+
+3. **Load Command Dependencies**
    - Match current command to required skills.
    - Load complementary superpowers skills.
 
-3. **Initialize Progress Tracking**
+4. **Initialize Progress Tracking**
    - Create TodoWrite items for workflow phases.
    - Track completion status.
 

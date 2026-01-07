@@ -255,6 +255,87 @@ def valid_task_list() -> list[dict[str, Any]]:
                 },
             ],
         },
+        {
+            "phase": "2 - Core Implementation",
+            "tasks": [
+                {
+                    "id": "core-001",
+                    "title": "Build authentication service",
+                    "description": (
+                        "Implement user registration and login functionality"
+                    ),
+                    "dependencies": ["found-001", "found-002"],
+                    "estimated_time": "2h",
+                    "priority": "critical",
+                },
+                {
+                    "id": "core-002",
+                    "title": "Develop session management",
+                    "description": "Create session handling with JWT tokens",
+                    "dependencies": ["core-001"],
+                    "estimated_time": "90m",
+                    "priority": "high",
+                },
+            ],
+        },
+        {
+            "phase": "3 - Integration",
+            "tasks": [
+                {
+                    "id": "integ-001",
+                    "title": "Connect authentication to API",
+                    "description": "Integrate auth service with API endpoints",
+                    "dependencies": ["core-002"],
+                    "estimated_time": "1h",
+                    "priority": "high",
+                },
+                {
+                    "id": "integ-002",
+                    "title": "Add authentication middleware",
+                    "description": "Integrate middleware for protected routes",
+                    "dependencies": ["core-002"],
+                    "estimated_time": "45m",
+                    "priority": "medium",
+                },
+            ],
+        },
+        {
+            "phase": "4 - Polish",
+            "tasks": [
+                {
+                    "id": "polish-001",
+                    "title": "Optimize authentication performance",
+                    "description": "Optimize query performance and caching",
+                    "dependencies": ["integ-001", "integ-002"],
+                    "estimated_time": "1h",
+                    "priority": "medium",
+                },
+                {
+                    "id": "polish-002",
+                    "title": "Document authentication API",
+                    "description": "Write API endpoint documentation with usage examples",
+                    "dependencies": ["integ-001"],
+                    "estimated_time": "45m",
+                    "priority": "low",
+                },
+                {
+                    "id": "polish-003",
+                    "title": "Add test coverage",
+                    "description": "Write tests for edge cases and security scenarios",
+                    "dependencies": ["integ-002"],
+                    "estimated_time": "2h",
+                    "priority": "high",
+                },
+                {
+                    "id": "polish-004",
+                    "title": "Cleanup and refactor code",
+                    "description": "Refactor codebase for better maintainability",
+                    "dependencies": ["polish-003"],
+                    "estimated_time": "1h",
+                    "priority": "low",
+                },
+            ],
+        },
     ]
 
 

@@ -12,6 +12,7 @@ This guide shows when and how to use commands, skills, and subagents for typical
 | [Prepare a PR](#preparing-a-pull-request) | `/pr` | sanctum |
 | [Catch up on changes](#catching-up-on-changes) | `/catchup` | imbue |
 | [Write specifications](#writing-specifications) | `/speckit-specify` | spec-kit |
+| [Improve the system](#meta-development-improving-the-system) | `/speckit-analyze` | spec-kit |
 | [Debug an issue](#debugging-issues) | `Skill(superpowers:debugging)` | superpowers |
 | [Manage knowledge](#managing-knowledge) | `/palace` | memory-palace |
 
@@ -46,7 +47,28 @@ This guides you through:
 
 **Output**: Language-specific project with Makefile, CI/CD, pre-commit hooks.
 
-### Alternative: Full Brainstorming Workflow
+### Step 3: Establish Persistent State (Recommended)
+
+Manage project artifacts and constraints as a persistent state you resume each session.
+
+```bash
+# (Once) Define non-negotiable principles for the project
+/speckit-constitution
+
+# (Each Claude session) Load speckit context + progress tracking
+/speckit-startup
+```
+
+Optional enhancements:
+- Install spec-kit for spec-driven artifacts: `/plugin install spec-kit@claude-night-market`
+- Install superpowers for rigorous methodology loops:
+
+```bash
+/plugin marketplace add obra/superpowers
+/plugin install superpowers@superpowers-marketplace
+```
+
+### Alternative: Brainstorming Workflow
 
 For complex projects requiring exploration:
 
@@ -87,7 +109,7 @@ For complex projects requiring exploration:
 ### Full Multi-Discipline Review
 
 ```bash
-# Comprehensive review with skill selection
+# Full review with skill selection
 /full-review
 ```
 
@@ -208,7 +230,7 @@ make lint && make test
 ### Create the PR
 
 ```bash
-# Comprehensive PR preparation
+# Full PR preparation
 /pr
 
 # This handles:
@@ -292,6 +314,27 @@ claude --continue
 /speckit-implement
 ```
 
+### Persistent Presence Loop (World Model + Agent Model)
+
+Use the SDD artifacts as a lightweight, testable self-modeling architecture:
+
+- **World model**: repo state + `.specify/specs/<feature>/{spec.md,plan.md,tasks.md}`
+- **Agent model**: loaded skills/plugins + constraints (especially `.specify/memory/constitution.md`) + current phase/progress
+- **Experiments**: small code changes + tight verification loops (tests, linters, repro scripts)
+- **Evaluation**: `/speckit-analyze`, `/speckit-checklist`, and `superpowers:verification-before-completion`
+- **Model updates**: revise both (a) artifacts/code and (b) orchestration/docs so the next loop is cheaper
+
+Mapping to the loop explicitly:
+- **Curriculum generation** → `/speckit-tasks` (keeps the next actions grounded and dependency-ordered)
+- **Skill library** → reusable plugin skills + superpowers methodology skills
+- **Iterative refinement** → `/speckit-clarify` (tighten specs when reality disagrees)
+- **Plan → act → reflect** → `/speckit-plan` → `/speckit-implement` → `/speckit-analyze`
+
+Background reading:
+- MineDojo: https://minedojo.org/ (internet-scale knowledge + benchmarks)
+- Voyager: https://voyager.minedojo.org/ (arXiv: https://arxiv.org/abs/2305.16291) (automatic curriculum + skill library)
+- GTNH_Agent: https://github.com/sefiratech/GTNH_Agent (persistent, modular Minecraft automation)
+
 ### Clarification and Analysis
 
 ```bash
@@ -310,6 +353,34 @@ Skill(spec-kit:spec-writing)
 
 # Task planning skill
 Skill(spec-kit:task-planning)
+```
+
+---
+
+## Meta-Development
+
+**When**: Improving claude-night-market itself (skills, commands, templates, orchestration).
+
+Model the ecosystem the same way you’d model an agent in a persistent sandbox:
+
+1. **World model**: repo state (plugins, docs, tests, CI) + constraints (`constitution.md` for speckit-enabled repos).
+2. **Agent model**: available skills/commands/subagents + tool affordances + context/budget constraints.
+3. **Run experiments**: minimal diffs behind verification (new skill module, wrapper tweak, doc + test).
+4. **Evaluate**: evidence-first (`/speckit-analyze`, `Skill(superpowers:verification-before-completion)`, targeted tests).
+5. **Update both models**: change the code/artifacts *and* the orchestration/methodology so the next loop is cheaper.
+
+Optional pattern: split roles (planner/critic/executor) for long-horizon work, similar to multi-role agent stacks used in open-ended Minecraft agents.
+
+Useful tools:
+
+```bash
+# Use speckit to keep artifacts + principles explicit
+/speckit-constitution
+/speckit-analyze
+
+# Use superpowers to enforce evidence
+Skill(superpowers:systematic-debugging)
+Skill(superpowers:verification-before-completion)
 ```
 
 ---

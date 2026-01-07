@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
 from memory_palace.corpus.marginal_value import (
     IntegrationDecision,
     IntegrationPlan,
@@ -92,7 +93,7 @@ def load_candidate(path: Path) -> Candidate:
 
 
 def ensure_dirs(path: Path) -> None:
-    """validate parent directory exists."""
+    """Validate parent directory exists."""
     path.parent.mkdir(parents=True, exist_ok=True)
 
 

@@ -36,6 +36,7 @@ class ContentBlock:
     source: str  # Where this content came from
     token_estimate: int
     metadata: dict[str, Any]
+    score: float = 0.0  # Calculated score for optimization
 
 
 class ConservationContextOptimizer:
@@ -391,8 +392,16 @@ class ConservationServiceRegistry:
         """Create a singleton instance of the registry."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.services = {}
+            # Initialize private attribute
+            object.__setattr__(cls._instance, "_services", {})
         return cls._instance
+
+    @property
+    def services(self) -> dict[str, Callable]:
+        """Get the services dictionary."""
+        if not hasattr(self, "_services"):
+            self._services = {}
+        return self._services
 
     def register_service(self, name: str, service: Callable) -> None:
         """Register a service that other plugins can use."""
@@ -409,7 +418,10 @@ class ConservationServiceRegistry:
 
 # Register the optimizer as a service
 registry = ConservationServiceRegistry()
-registry.register_service("context_optimizer", ConservationContextOptimizer())
+optimizer_instance = ConservationContextOptimizer()
+registry.register_service(
+    "context_optimizer", lambda *args, **kwargs: optimizer_instance
+)
 registry.register_service(
     "optimize_content",
     lambda *args, **kwargs: ConservationContextOptimizer().optimize_content(

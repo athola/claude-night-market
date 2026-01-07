@@ -119,9 +119,13 @@ class SanctumIntegration:
 
     def get_git_context_for_file(self, file_path: Path) -> dict[str, Any]:
         """Get git context for a file using Sanctum if available."""
-        context = {"git_available": False, "sanctum_enhanced": False, "error": None}
+        context: dict[str, Any] = {
+            "git_available": False,
+            "sanctum_enhanced": False,
+            "error": None,
+        }
 
-        if not self._load_sanctum():
+        if not self._load_sanctum() or self._sanctum_module is None:
             context["error"] = "Sanctum plugin not available"
             return context
 
@@ -146,9 +150,13 @@ class SanctumIntegration:
 
     def get_workspace_context(self) -> dict[str, Any]:
         """Get overall workspace git context."""
-        context = {"git_available": False, "sanctum_enhanced": False, "error": None}
+        context: dict[str, Any] = {
+            "git_available": False,
+            "sanctum_enhanced": False,
+            "error": None,
+        }
 
-        if not self._load_sanctum():
+        if not self._load_sanctum() or self._sanctum_module is None:
             context["error"] = "Sanctum plugin not available"
             return context
 
@@ -179,29 +187,26 @@ class AbstractSkillAnalyzer:
 
     def analyze_skill_with_git_context(self, skill_path: Path) -> dict[str, Any]:
         """Analyze a skill with enhanced git context from Sanctum."""
-        analysis = {
-            "skill_path": str(skill_path),
-            "abstract_analysis": None,
-            "git_context": None,
-            "enhanced_recommendations": [],
-        }
-
         # Basic Abstract analysis (always available)
-        analysis["abstract_analysis"] = self._basic_skill_analysis(skill_path)
+        abstract_analysis = self._basic_skill_analysis(skill_path)
 
         # Get git context from Sanctum if available
-        analysis["git_context"] = self.sanctum.get_git_context_for_file(skill_path)
+        git_context = self.sanctum.get_git_context_for_file(skill_path)
 
         # Generate enhanced recommendations based on git context
-        if analysis["git_context"].get("sanctum_enhanced"):
-            analysis["enhanced_recommendations"] = (
-                self._generate_git_aware_recommendations(
-                    analysis["abstract_analysis"],
-                    analysis["git_context"],
-                )
+        enhanced_recommendations: list[str] = []
+        if git_context.get("sanctum_enhanced"):
+            enhanced_recommendations = self._generate_git_aware_recommendations(
+                abstract_analysis,
+                git_context,
             )
 
-        return analysis
+        return {
+            "skill_path": str(skill_path),
+            "abstract_analysis": abstract_analysis,
+            "git_context": git_context,
+            "enhanced_recommendations": enhanced_recommendations,
+        }
 
     def _basic_skill_analysis(self, skill_path: Path) -> dict[str, Any]:
         """Perform basic Abstract skill analysis."""
@@ -221,9 +226,9 @@ class AbstractSkillAnalyzer:
         self,
         abstract_analysis: dict[str, Any],
         git_context: dict[str, Any],
-    ) -> list:
+    ) -> list[str]:
         """Generate recommendations enhanced with git context."""
-        recommendations = []
+        recommendations: list[str] = []
 
         # Add git-aware recommendations
         if git_context.get("file_changes", 0) > FILE_CHANGES_THRESHOLD:
@@ -248,22 +253,25 @@ class AbstractSkillAnalyzer:
 
     def analyze_plugin_suite(self, plugin_path: Path) -> dict[str, Any]:
         """Analyze an entire plugin suite with git context."""
-        suite_analysis = {
-            "plugin_name": plugin_path.name,
-            "skills_analyzed": [],
-            "workspace_context": None,
-            "summary": {},
-        }
+        skills_analyzed: list[dict[str, Any]] = []
 
         # Get workspace context
-        suite_analysis["workspace_context"] = self.sanctum.get_workspace_context()
+        workspace_context = self.sanctum.get_workspace_context()
 
         # Analyze each skill in the plugin
         skills_dir = plugin_path / "skills"
         if skills_dir.exists():
             for skill_file in skills_dir.glob("*.py"):
                 skill_analysis = self.analyze_skill_with_git_context(skill_file)
-                suite_analysis["skills_analyzed"].append(skill_analysis)
+                skills_analyzed.append(skill_analysis)
+
+        # Build suite analysis
+        suite_analysis: dict[str, Any] = {
+            "plugin_name": plugin_path.name,
+            "skills_analyzed": skills_analyzed,
+            "workspace_context": workspace_context,
+            "summary": {},
+        }
 
         # Generate summary
         suite_analysis["summary"] = self._generate_suite_summary(suite_analysis)
@@ -272,11 +280,11 @@ class AbstractSkillAnalyzer:
 
     def _generate_suite_summary(self, suite_analysis: dict[str, Any]) -> dict[str, Any]:
         """Generate a summary of the plugin suite analysis."""
-        skills = suite_analysis["skills_analyzed"]
+        skills: list[dict[str, Any]] = suite_analysis["skills_analyzed"]
         if not skills:
             return {"message": "No skills found to analyze"}
 
-        summary = {
+        summary: dict[str, Any] = {
             "total_skills": len(skills),
             "skills_with_git_context": sum(
                 1 for s in skills if s["git_context"].get("sanctum_enhanced")

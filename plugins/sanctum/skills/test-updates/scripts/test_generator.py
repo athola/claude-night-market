@@ -12,6 +12,7 @@ Usage:
 
 import argparse
 import ast
+import json
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -398,8 +399,6 @@ def main() -> None:
 def output_result(result: dict, args) -> None:
     """Output result in requested format."""
     if args.output_json:
-        import json
-
         print(
             json.dumps(
                 {
@@ -417,8 +416,6 @@ def output_result(result: dict, args) -> None:
 def output_error(message: str, args) -> None:
     """Output error in requested format."""
     if args.output_json:
-        import json
-
         print(
             json.dumps(
                 {

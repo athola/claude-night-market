@@ -16,6 +16,7 @@ from attune_init import (
     copy_templates,
     create_project_structure,
     initialize_git,
+    main,
 )
 
 
@@ -402,8 +403,7 @@ class TestAttuneInitBehavior:
 
     @patch("subprocess.run")
     def test_scenario_initialize_new_project_with_git(self, mock_run, tmp_path):
-        """
-        Scenario: Initializing a new project with git.
+        """Scenario: Initializing a new project with git.
 
         Given a new project directory
         When I initialize the project
@@ -427,8 +427,7 @@ class TestAttuneInitBehavior:
         )
 
     def test_scenario_create_complete_python_project(self, tmp_path):
-        """
-        Scenario: Creating a complete Python project structure.
+        """Scenario: Creating a complete Python project structure.
 
         Given a project directory
         When I create the project structure
@@ -449,8 +448,7 @@ class TestAttuneInitBehavior:
     def test_scenario_copy_and_render_templates(
         self, tmp_path, sample_template_variables
     ):
-        """
-        Scenario: Copying and rendering project templates.
+        """Scenario: Copying and rendering project templates.
 
         Given template files with variables
         When I copy templates to the project
@@ -470,7 +468,7 @@ class TestAttuneInitBehavior:
         project_dir.mkdir()
 
         # When
-        created = copy_templates(
+        created = copy_templates(  # noqa: F841
             language="python",
             project_path=project_dir,
             variables=sample_template_variables,
@@ -484,10 +482,6 @@ class TestAttuneInitBehavior:
         content = makefile.read_text()
         assert "test-project" in content
         assert "A test project for unit testing" in content
-
-
-# Import the main function for testing
-from attune_init import main
 
 
 @pytest.mark.unit

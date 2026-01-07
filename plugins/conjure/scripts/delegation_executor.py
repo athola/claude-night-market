@@ -9,7 +9,7 @@ import argparse
 import json
 import logging
 import os
-import subprocess  # nosec B404 - CLI tool intentionally uses subprocess
+import subprocess  # nosec B404
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -20,7 +20,7 @@ try:
     from leyline.tokens import estimate_tokens
 except ImportError:  # pragma: no cover
 
-    def estimate_tokens(file_paths: list[str], prompt: str) -> int:
+    def estimate_tokens(files: list[str], prompt: str = "") -> int:
         """Fallback estimator when leyline isn't installed."""
         total = len(prompt) // 4
 
@@ -33,7 +33,7 @@ except ImportError:  # pragma: no cover
             "dist",
             "build",
         }
-        for p in file_paths:
+        for p in files:
             path = Path(p)
             if path.is_file():
                 try:
@@ -175,7 +175,8 @@ class Delegator:
 
         # Check command availability
         try:
-            subprocess.run(  # noqa: S603 # nosec B603 - CLI tool intentionally runs external commands
+            # CLI tool runs commands
+            subprocess.run(  # noqa: S603 # nosec B603
                 [service.command, "--version"],
                 capture_output=True,
                 timeout=10,
@@ -194,7 +195,8 @@ class Delegator:
                 issues.append(f"Environment variable {service.auth_env_var} not set")
         elif service.auth_method == "cli":
             try:
-                result = subprocess.run(  # noqa: S603 # nosec B603 - CLI tool intentionally runs external commands
+                # CLI auth check
+                result = subprocess.run(  # noqa: S603 # nosec B603
                     [service.command, "auth", "status"],
                     check=False,
                     capture_output=True,
@@ -266,7 +268,8 @@ class Delegator:
 
         # Execute
         try:
-            result = subprocess.run(  # noqa: S603 # nosec B603 - CLI tool intentionally runs external commands
+            # CLI execution
+            result = subprocess.run(  # noqa: S603 # nosec B603
                 command,
                 check=False,
                 capture_output=True,

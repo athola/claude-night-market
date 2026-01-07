@@ -128,7 +128,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - "Is 'prominent display' quantified with specific sizing/positioning?" [Clarity]
    - "Are hover state requirements consistent across all interactive elements?" [Consistency]
    - "Are keyboard navigation requirements defined for all interactive UI?" [Coverage]
-   - "Is the fallback behavior specified when logo image fails to load?" [Edge Cases]
+   - "Is the default behavior specified when logo image fails to load?" [Edge Cases]
    - "Are loading states defined for asynchronous episode data?" [Completeness]
    - "Does the spec define visual hierarchy for competing UI elements?" [Clarity]
 
@@ -231,7 +231,7 @@ Sample items (testing the requirements, NOT the implementation):
 - "Is the number and positioning of UI elements explicitly specified? [Completeness, Spec §FR-1]"
 - "Are interaction state requirements (hover, focus, active) consistently defined? [Consistency]"
 - "Are accessibility requirements specified for all interactive elements? [Coverage, Gap]"
-- "Is fallback behavior defined when images fail to load? [Edge Case, Gap]"
+- "Is default behavior defined when images fail to load? [Edge Case, Gap]"
 - "Can 'prominent display' be objectively measured? [Measurability, Spec §FR-4]"
 
 **API Requirements Quality:** `api.md`

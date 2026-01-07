@@ -2,7 +2,7 @@
 
 ## Overview
 
-Validates test code without execution using pattern matching and AST analysis.
+Validate test code without execution using pattern matching and AST analysis.
 
 ## Code Quality Checks
 

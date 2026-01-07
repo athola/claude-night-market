@@ -8,6 +8,8 @@ usage: /update-dependencies [--dry-run] [--ecosystem python|rust|javascript|go]
 
 Scan the repository for outdated dependencies across Python, Rust, JavaScript, and Go ecosystems. Detect conflicts, find compatible versions, and apply updates with code migration support.
 
+> **Note**: This command handles UPDATING existing dependencies. Before ADDING new dependencies, use the dependency-updater agent's verification checklist to validate version, security, and compatibility.
+
 ## Usage
 
 ```bash

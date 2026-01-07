@@ -11,6 +11,7 @@ The superpowers marketplace provides specialized skills for methodologies like R
 1.  **Enhancement**: Superpowers skills add capability to existing workflows.
 2.  **Evidence-Based**: Prioritize verification and evidence.
 3.  **Methodology**: Focus on structured approaches to tasks.
+4.  **Skill Library**: Treat superpowers as a persistent, reusable methodology library (cf. Voyager’s “skill library”), so plugins can stay domain-focused.
 
 ## Integration Patterns
 

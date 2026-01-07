@@ -122,7 +122,7 @@ class MECWMonitor:
    - **LSP approach (PREFERRED)**: Query semantic index, read only target (500 tokens)
    - **Savings**: ~90% token reduction for reference finding
    - **Default strategy**: Always use LSP when available
-   - **Enable permanently**: Add `export ENABLE_LSP_TOOLS=1` to shell rc
+   - **Enable permanently**: Add `export ENABLE_LSP_TOOL=1` to shell rc
    - **Fallback**: Only use grep when LSP unavailable for language
 
 ## Best Practices

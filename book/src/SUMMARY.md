@@ -34,6 +34,7 @@
 # Tutorials
 
 - [Tutorial Overview](tutorials/README.md)
+- [Skills Showcase](tutorials/skills-showcase.md)
 - [Error Handling](tutorials/error-handling-tutorial.md)
 - [Cross-Plugin Collaboration](tutorials/cross-plugin-collaboration.md)
 - [Memory Palace Cache Modes](tutorials/cache-modes.md)

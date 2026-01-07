@@ -231,17 +231,17 @@ class SanctumGitOperations:
             for skill_file in skill_files:
                 # Get git info for the file
                 file_info = self._get_file_commit_info(skill_file, commit_hash)
-                commit_info["files_changed"].append(file_info)
+                commit_info["files_changed"].append(file_info)  # type: ignore[attr-defined]
 
                 # Use Abstract to analyze skill complexity
                 skill_path = Path(skill_file)
                 if skill_path.exists():
                     analysis = self.abstract.analyze_skill_complexity(skill_path)
-                    commit_info["skill_analysis"][skill_file] = analysis
+                    commit_info["skill_analysis"][skill_file] = analysis  # type: ignore[index]
 
             # Generate complexity summary
             commit_info["complexity_summary"] = self._generate_complexity_summary(
-                commit_info["skill_analysis"],
+                commit_info["skill_analysis"],  # type: ignore[arg-type]
             )
 
         except Exception as e:
@@ -381,12 +381,12 @@ class SanctumGitOperations:
 
             for commit in commits:
                 commit_analysis = self.analyze_commit_with_skill_analysis(commit)
-                pr_info["commits"].append(commit_analysis)
+                pr_info["commits"].append(commit_analysis)  # type: ignore[attr-defined]
 
             # Aggregate skill analysis
-            all_skill_analysis = {}
-            for commit in pr_info["commits"]:
-                for skill_file, analysis in commit["skill_analysis"].items():
+            all_skill_analysis: dict[str, Any] = {}
+            for commit in pr_info["commits"]:  # type: ignore[attr-defined]
+                for skill_file, analysis in commit["skill_analysis"].items():  # type: ignore[attr-defined, union-attr, index]
                     if skill_file not in all_skill_analysis:
                         all_skill_analysis[skill_file] = analysis
                     else:
@@ -399,7 +399,7 @@ class SanctumGitOperations:
 
             # Generate PR recommendations
             pr_info["recommendations"] = self._generate_pr_recommendations(
-                pr_info["commits"],
+                pr_info["commits"],  # type: ignore[arg-type]
                 all_skill_analysis,
             )
 
@@ -450,8 +450,7 @@ class SanctumGitOperations:
                 )
                 if avg_complexity > MANY_FILES_THRESHOLD:
                     recommendations.append(
-                        "High complexity skills modified - consider additional "
-                        "testing",
+                        "High complexity skills modified - consider additional testing",
                     )
             else:
                 # Fallback recommendations

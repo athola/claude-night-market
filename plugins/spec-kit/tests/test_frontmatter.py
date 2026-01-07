@@ -142,7 +142,7 @@ class TestFrontmatterValidation:
                     assert isinstance(value, str), f"{field} should be a string"
                 elif field == "estimated_tokens":
                     assert isinstance(
-                        value, (int, str)
+                        value, int | str
                     ), f"{field} should be a number or string"
 
     def test_should_match_content_when_validating_frontmatter_consistency(

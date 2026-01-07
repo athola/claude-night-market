@@ -5,6 +5,60 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.2.1] - 2026-01-05
+
+### Added
+
+- **Tutorials: Skills Showcase** - Interactive demo of skill discovery and usage
+  - **New Tutorial**: Visual GIF demonstration of claude-night-market skill capabilities
+    - **Skill Discovery**: Browse and count 105+ skills across all plugins
+    - **Skill Anatomy**: Examine frontmatter, metadata, and structure
+    - **Skill Validation**: Use `abstract:plugin-validator` to check quality
+    - **Workflow Composition**: See how skills chain into complex workflows
+    - **Dual Documentation**: Concise docs and detailed book chapter
+  - **Assets**: VHS tape (`assets/tapes/skills-showcase.tape`) and generated GIF
+  - **Integration**: Added to README demos section, book SUMMARY, and tutorials overview
+  - **Target Audience**: Beginners learning the skill system, plugin developers understanding architecture
+
+- **Minister: Issue Creation Command** - Complete GitHub issue lifecycle management
+  - **New Command**: `/create-issue` - Create GitHub issues with formatting and reference links
+    - **Interactive Template Mode**: Guided prompts for bug reports, feature requests, documentation
+    - **Smart References**: Auto-fetch and format related issue/PR/doc links
+    - **Cross-Repository**: Create issues in any accessible repository
+    - **Label Management**: Apply multiple labels with validation
+    - **Project Integration**: Auto-add to GitHub Projects v2
+    - **Minister Tracker**: Optional auto-capture to project tracker
+  - **Complements**: `/close-issue` command for full issue lifecycle coverage
+  - **Integration**: Works with minister's initiative tracking and status dashboards
+
+- **Quality Infrastructure** - Three-layer quality system for code standards
+  - **New Scripts**:
+    - `scripts/run-plugin-lint.sh` - Plugin-specific linting (all or changed plugins)
+    - `scripts/run-plugin-typecheck.sh` - Plugin-specific type checking
+    - `scripts/run-plugin-tests.sh` - Plugin-specific test execution
+    - `scripts/check-all-quality.sh` - Comprehensive quality check with optional report
+  - **Documentation**:
+    - `docs/quality-gates.md` - Three-layer quality system documentation
+    - `docs/testing-guide.md` - Testing patterns and troubleshooting
+  - **Pre-Commit Integration**: Hooks run plugin-specific checks on changed files only
+  - **Coverage**: ~400+ tests across 10 plugins with automated enforcement
+
+### Changed
+
+- **Pre-commit hooks enhanced** - Plugin-specific lint/typecheck/test hooks for changed plugins
+- **README updated** - Added Quality Gates and Testing Guide to documentation table
+
+### Fixed
+
+- **Spec-Kit: Test Fixture Completion** - Fixed 3 skipped parametrized tests in task planning
+  - **Fixture Update**: Completed `valid_task_list` fixture with phases 2-4 (Core Implementation, Integration, Polish)
+  - **Test Coverage**: All 184 spec-kit tests now passing (previously 181 passed, 3 skipped)
+  - **Phase Structure**: Added 8 new tasks across 3 phases with proper dependencies and time estimates
+  - **Format Compliance**: Ensured time estimates match regex pattern and action verb requirements
+  - **Documentation**: Updated testing guide to reflect spec-kit's 184 tests (up from ~60)
+
 ## [1.2.0] - 2026-01-02
 
 ### Added
@@ -153,7 +207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       - Sanctum commands default to LSP for documentation verification
       - Conserve skills recommend LSP for token optimization
       - Grep positioned as fallback when LSP unavailable
-      - Recommendation: Enable `ENABLE_LSP_TOOLS=1` permanently in environment
+      - Recommendation: Enable `ENABLE_LSP_TOOL=1` permanently in environment
   - **Security Fix - allowed-tools enforcement**: Documented critical security bug fix
     - Created "Tool Restriction Patterns" section in compatibility documentation
     - Documented previous bug: `allowed-tools` restrictions were NOT being enforced (< 2.0.74)
@@ -349,6 +403,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.2.1]: https://github.com/athola/claude-night-market/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/athola/claude-night-market/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/athola/claude-night-market/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/athola/claude-night-market/compare/v1.1.0...v1.1.1

@@ -77,7 +77,7 @@ def analyze_skill_file(file_path: str) -> dict[str, Any]:
 def calculate_size_reduction(
     original_lines: int,
     optimizations: list[str],
-) -> dict[str, float]:
+) -> dict[str, int | float | list[str]]:
     """Calculate expected size reduction from optimizations."""
     reductions = {
         "externalize_heavy_implementations": 0.65,  # 60-70% reduction
@@ -87,7 +87,7 @@ def calculate_size_reduction(
     }
 
     total_reduction = 0.0
-    applied_optimizations = []
+    applied_optimizations: list[str] = []
 
     for opt in optimizations:
         if opt in reductions:
@@ -107,25 +107,27 @@ def calculate_size_reduction(
 
 def generate_optimization_plan(analysis: dict[str, Any]) -> dict[str, Any]:
     """Generate systematic optimization plan based on analysis."""
-    plan = {
+    plan: dict[str, Any] = {
         "analysis": analysis,
         "optimizations_needed": [],
         "file_structure": {},
         "expected_outcome": {},
     }
 
+    optimizations_needed: list[str] = plan["optimizations_needed"]
+
     # Determine optimizations needed
     if analysis["total_lines"] > MAX_TOTAL_LINES_FOR_OPTIMIZATION:
-        plan["optimizations_needed"].append("externalize_heavy_implementations")
+        optimizations_needed.append("externalize_heavy_implementations")
 
     if analysis["python_functions"] > MAX_FUNCTIONS_FOR_CONSOLIDATION:
-        plan["optimizations_needed"].append("consolidate_similar_functions")
+        optimizations_needed.append("consolidate_similar_functions")
 
     if analysis["code_blocks"] > MAX_CODE_BLOCKS_FOR_REPLACEMENT:
-        plan["optimizations_needed"].append("replace_code_with_structured_data")
+        optimizations_needed.append("replace_code_with_structured_data")
 
     if analysis["total_lines"] > MAX_LINES_FOR_PROGRESSIVE_LOADING:
-        plan["optimizations_needed"].append("progressive_loading")
+        optimizations_needed.append("progressive_loading")
 
     # Generate file structure
     if plan["optimizations_needed"]:
@@ -140,10 +142,10 @@ def generate_optimization_plan(analysis: dict[str, Any]) -> dict[str, Any]:
         }
 
     # Calculate expected outcome
-    if plan["optimizations_needed"]:
+    if optimizations_needed:
         outcome = calculate_size_reduction(
             analysis["total_lines"],
-            plan["optimizations_needed"],
+            optimizations_needed,
         )
         plan["expected_outcome"] = outcome
 

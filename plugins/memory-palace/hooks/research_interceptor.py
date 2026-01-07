@@ -10,6 +10,7 @@ import sys
 import time
 import uuid
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -25,8 +26,6 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 # Import from memory_palace after path setup
-from datetime import UTC, datetime
-
 from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
 from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
 from memory_palace.curation import DomainAlignment, IntakeFlagPayload  # noqa: E402
@@ -470,7 +469,8 @@ def emit_telemetry_event(
         )
         logger.log_event(event)
     except Exception as e:
-        logger.debug("Failed to emit telemetry: %s", e)
+        # Use module-level logger for error logging
+        logging.getLogger(__name__).debug("Failed to emit telemetry: %s", e)
         return
 
 
@@ -505,7 +505,8 @@ def main() -> None:
             )
         except Exception as e:
             logger.warning(
-                "research_interceptor: Failed to load autonomy profile; autonomy governance disabled: %s",
+                "research_interceptor: Failed to load autonomy profile; "
+                "autonomy governance disabled: %s",
                 e,
             )
             autonomy_profile = None

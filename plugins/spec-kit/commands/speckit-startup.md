@@ -13,14 +13,19 @@ Initialize the Spec Driven Development workflow for this session:
    - Load `speckit-orchestrator` for workflow coordination
    - This skill maps commands to complementary superpowers skills
 
-3. **Initialize Progress Tracking**
+3. **Load Persistent State ("presence")**
+   - Read `.specify/memory/constitution.md` (constraints and principles)
+   - Detect the latest `spec.md` / `plan.md` / `tasks.md` and current workflow status
+   - Capture a quick agent-state snapshot for the session (available skills/plugins, intended command, constraints)
+
+4. **Initialize Progress Tracking**
    - Create TodoWrite items for workflow phases:
      - [ ] Repository context verified
      - [ ] Prerequisites validated
      - [ ] Command-specific skills loaded
    - Mark items complete as verified
 
-4. **Proceed with Speckit Workflow**
+5. **Proceed with Speckit Workflow**
    - Run your intended `/speckit-*` command:
      - `/speckit-specify` - Create feature specifications
      - `/speckit-clarify` - Refine specifications with targeted questions
@@ -31,6 +36,6 @@ Initialize the Spec Driven Development workflow for this session:
      - `/speckit-checklist` - Generate requirement quality checklists
      - `/speckit-constitution` - Manage project principles
 
-5. **Session Persistence**
+6. **Session Persistence**
    - Re-run `/speckit-startup` at the beginning of each new Claude session
    - The orchestrator maintains context across speckit commands

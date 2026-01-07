@@ -488,8 +488,7 @@ class TestProjectUpgraderBehavior:
     def test_scenario_detect_missing_and_outdated_in_python_project(
         self, python_project
     ):
-        """
-        Given a Python project with some missing and outdated configs
+        """Given a Python project with some missing and outdated configs
         When checking upgrade status
         Then identifies both missing and outdated files
         """
@@ -509,8 +508,7 @@ class TestProjectUpgraderBehavior:
         assert "Makefile" in outdated
 
     def test_scenario_complete_python_project_no_upgrades_needed(self, python_project):
-        """
-        Given a Python project with all modern configs
+        """Given a Python project with all modern configs
         When checking upgrade status
         Then reports no upgrades needed
         """

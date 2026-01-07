@@ -88,7 +88,7 @@ Message contains command recommendations but no evidence they were tested.
 
 Commands found:
 - `npm install -g cclsp`
-- `export ENABLE_LSP_TOOLS=1`
+- `export ENABLE_LSP_TOOL=1`
 
 REQUIRED:
 1. Run each command in test environment

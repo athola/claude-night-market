@@ -251,11 +251,13 @@ EOF
    |------|-------------|--------|
    | **Critical** | Bugs, security issues | Fix immediately |
    | **In-Scope** | Requirements-related | Address in this PR |
-   | **Suggestion** | Improvements | Author's discretion |
+   | **Suggestion** | Improvements | **Create GitHub issue (Phase 3.6)** |
    | **Deferred** | Medium priority, future work, out-of-scope | **Create GitHub issue (Phase 3.5)** |
    | **Informational** | Questions, praise | Reply only |
 
    > **Trigger terms for Phase 3.5:** If you classify ANY item as "deferred", "out-of-scope", "medium priority", "future work", or "follow-up", you MUST execute Phase 3.5.
+   >
+   > **Trigger terms for Phase 3.6:** If you classify ANY item as "suggestion", you MUST execute Phase 3.6.
 
 7. **Generate Fix Strategies**
    - For each actionable comment, superpowers analyzes:
@@ -483,6 +485,109 @@ If no test plan exists from `/pr-review`, generate verification steps on-the-fly
 2. Run targeted tests for the modified code
 3. Run overall quality gates
 4. Document results
+
+---
+
+### CHECKPOINT: Before Proceeding to Phase 3.6
+
+**STOP. Answer this question before continuing:**
+
+> Did you classify ANY items as **Suggestions** during Phase 2 triage?
+
+- **YES** → You MUST execute Phase 3.6 NOW. Do not skip it.
+- **NO** → Skip to Phase 3.8 (if deferred items exist) or Phase 4.
+
+**Suggestions are valuable feedback that should not be lost.**
+
+---
+
+### Phase 3.6: Suggestion Issue Creation (MANDATORY IF APPLICABLE)
+
+**CRITICAL: You MUST create GitHub issues for ALL suggestion items. This is not optional.**
+
+**Suggestions represent valuable improvements that should be tracked for future implementation.**
+
+For each comment classified as **Suggestion** during triage, create a GitHub issue with the "suggestion" label:
+
+16. **Create Issues for Suggestions**
+   ```bash
+   gh issue create \
+     --title "[Suggestion] <description from review comment>" \
+     --body "$(cat <<'EOF'
+   ## Background
+
+   Identified during PR #PR_NUMBER review as a suggestion for improvement.
+
+   **Original Review Comment:**
+   > [Quote the review comment here]
+
+   **Location:** `file/path.py:line` (if applicable)
+
+   ## Suggested Improvement
+
+   [Describe the suggested improvement based on the review feedback]
+
+   ## Value
+
+   [Explain why this improvement would be valuable - performance, UX, maintainability, etc.]
+
+   ## Acceptance Criteria
+
+   - [ ] [Specific criteria based on the suggestion]
+   - [ ] Tests added/updated (if applicable)
+   - [ ] Documentation updated (if applicable)
+
+   ## References
+
+   - PR #PR_NUMBER: [PR URL]
+   - Original review comment: [Link if available]
+
+   ---
+   *Created from PR #PR_NUMBER review triage*
+   EOF
+   )" \
+     --label "suggestion" \
+     --label "enhancement"
+   ```
+
+   **Suggestion Issue Rules:**
+   - Prefix title with "[Suggestion]" for easy identification
+   - Always use the "suggestion" label (required for tracking)
+   - Add additional labels as appropriate (enhancement, documentation, testing, etc.)
+   - Include the original review comment verbatim
+   - Explain the value/improvement rationale
+   - Reference the source PR
+   - Define clear acceptance criteria
+
+17. **Track Created Suggestion Issues**
+   After creating issues, document them in the PR comment:
+   ```markdown
+   ### Suggestions → GitHub Issues
+
+   | Review Item | Issue Created | Description |
+   |-------------|---------------|-------------|
+   | S1 | #43 | Clarify ruff-format comment |
+   | S2 | #44 | Improve test output verbosity |
+   ```
+
+   **Or if none:**
+   ```markdown
+   ### Suggestions Created
+
+   **None** - All suggestions were addressed directly in this PR.
+   ```
+
+**Suggestion Issue Checklist:**
+- [ ] Created GitHub issue for EACH suggestion item
+- [ ] Used "[Suggestion]" prefix in issue titles
+- [ ] Applied "suggestion" label to all issues
+- [ ] Included original review comment context
+- [ ] Explained the value/improvement rationale
+- [ ] Added appropriate secondary labels
+- [ ] Documented created issues in PR comment
+- [ ] Verified: Issue count matches suggestion count from Phase 2 triage
+
+**Note:** Unlike deferred items (which may be large features), suggestions are typically small improvements that can be implemented in follow-up work. The "suggestion" label helps distinguish these from larger backlog items.
 
 ---
 
@@ -822,19 +927,22 @@ After completing all fixes, thread resolutions, and issue linkage, post a detail
     |----|-------|------------|
     | **S1** | [Description] | [How it was fixed] |
 
-    ### Suggestions (N) [FIXED]
+    ### Suggestions Created (N)
 
-    | ID | Issue | Resolution |
-    |----|-------|------------|
-    | **G1** | [Description] | [How it was fixed] |
+    | Review Item | Issue Created | Description |
+    |-------------|---------------|-------------|
+    | S2 | #43 | [Description] |
+    | S3 | #44 | [Description] |
 
-    ### Backlog Issues Created
+    Or: **None** - All suggestions were addressed directly in this PR.
+
+    ### Deferred Items Created (N)
 
     | Review Item | Issue Created | Description |
     |-------------|---------------|-------------|
     | C2 | #41 | [Description] |
 
-    Or: **None** - [reason, e.g., "only advisory suggestions were identified"]
+    Or: **None** - No deferred/out-of-scope items identified.
 
     ---
 
@@ -845,16 +953,18 @@ After completing all fixes, thread resolutions, and issue linkage, post a detail
 
     **Summary Comment Requirements:**
     - Include commit SHA for reference
-    - Group fixes by category (Blocking, In-Scope, Suggestions)
+    - Group fixes by category (Blocking, In-Scope)
+    - List suggestions that were fixed directly vs. suggestions that created issues
+    - List deferred items that created issues
     - Use tables for clarity
-    - List any GitHub issues created for out-of-scope items
     - End with clear status ("Ready for re-review")
 
 **Summary Comment Checklist:**
 - [ ] Posted comment to PR with detailed summary
 - [ ] Included commit SHA reference
 - [ ] Listed all fixed issues by category
-- [ ] Documented any backlog issues created
+- [ ] Documented suggestions (fixed or issues created)
+- [ ] Documented deferred items (issues created)
 - [ ] Indicated PR is ready for re-review
 
 ### Phase 7: Final Thread Verification (AUTOMATIC)
@@ -1282,7 +1392,7 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
    /fix-pr (Phase 3.5: Version Re-validation) → executes test plan → verified fixes
    ```
 
-This ensures:
+This verifies:
 - Version issues are caught during review (Phase 1.5 of /pr-review)
 - Version fixes are verified before tests run (Phase 3.5 of /fix-pr)
 - All fixes are validated before thread resolution and summary posting

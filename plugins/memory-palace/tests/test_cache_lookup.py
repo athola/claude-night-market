@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pytest
+
 from memory_palace.corpus.cache_lookup import CacheLookup
 
 # Constants for match score thresholds

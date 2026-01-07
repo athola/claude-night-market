@@ -1,9 +1,10 @@
 {
   "name": "minister",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Project management plugin that aligns initiatives with GitHub data - turns repositories, issues, and projects into status dashboards",
   "commands": [
-    "./commands/close-issue.md"
+    "./commands/close-issue.md",
+    "./commands/create-issue.md"
   ],
   "skills": [
     "./skills/github-initiative-pulse",

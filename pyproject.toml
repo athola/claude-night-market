@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.2.0"
+version = "1.2.1"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -35,7 +35,8 @@ dev = [
   "black>=24.10.0",
   "ruff>=0.7.0",
   "mypy>=1.13.0",
-  "pre-commit>=4.0.0"
+  "pre-commit>=4.0.0",
+  "bandit>=1.7.9"
 ]
 
 [tool.pytest.ini_options]
@@ -100,6 +101,23 @@ line-length = 88
 target-version = "py312"
 src = ["plugins", "tests"]
 
+[tool.ruff.lint.isort]
+known-first-party = [
+    "abstract",
+    "attune",
+    "conjure",
+    "conserve",
+    "imbue",
+    "leyline",
+    "memory_palace",
+    "minister",
+    "parseltongue",
+    "pensive",
+    "sanctum",
+    "scry",
+    "spec_kit"
+]
+
 [tool.ruff.lint]
 # Start with a reasonable subset instead of ALL
 select = [
@@ -117,7 +135,6 @@ extend-ignore = [
     "B008",  # Do not perform function calls in argument defaults
     "B905",  # zip-without-explicit-strict (Python 3.10+ strict default ok)
     "E402",  # Module imports not at top of file (acceptable in some cases)
-    "UP038",  # isinstance(X, (A, B)) vs isinstance(X, A | B) - both valid
 ]
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = [

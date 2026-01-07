@@ -343,7 +343,7 @@ class TestConservationValidator:
             "skills/no-frontmatter/SKILL.md",  # No frontmatter at all
         ]
 
-        validation_errors = [
+        _validation_errors = [
             {
                 "file": "skills/invalid-syntax/SKILL.md",
                 "error": "Invalid YAML syntax in frontmatter",

@@ -108,7 +108,7 @@ Detailed testing protocols for common completion scenarios.
 3. **Test full stack integration**
    ```bash
    # Start Claude Code with all components
-   ENABLE_LSP_TOOLS=1 claude
+   ENABLE_LSP_TOOL=1 claude
    # Inside Claude: test LSP tool availability
    ```
 
@@ -301,6 +301,6 @@ Example: "Set up LSP in Claude Code"
 2. **Configuration Validation** - Test .mcp.json, .cclsp.json valid
 3. **Integration Validation** - Verify Claude → cclsp → pylsp chain
 4. **Bug/Issue Research** - Check for known issues in current versions
-5. **Environment Validation** - Confirm ENABLE_LSP_TOOLS set
+5. **Environment Validation** - Confirm ENABLE_LSP_TOOL set
 
 **Only after ALL protocols pass can you claim "LSP is set up".**

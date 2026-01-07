@@ -20,8 +20,7 @@ class TestProjectInitializationWorkflow:
     """Test complete project initialization workflows."""
 
     def test_python_project_initialization_workflow(self, tmp_path):
-        """
-        Integration: Complete Python project initialization.
+        """Integration: Complete Python project initialization.
 
         Given a new directory
         When I detect the language and initialize the project
@@ -67,8 +66,7 @@ version = "0.1.0"
         assert "Author: Test Author" in rendered
 
     def test_rust_project_initialization_workflow(self, tmp_path):
-        """
-        Integration: Complete Rust project initialization.
+        """Integration: Complete Rust project initialization.
 
         Given a Rust project
         When I detect and validate it
@@ -100,8 +98,7 @@ edition = "2021"
         assert variables["RUST_EDITION"] == "2021"
 
     def test_project_detection_and_validation_workflow(self, tmp_path):
-        """
-        Integration: Project detection followed by validation.
+        """Integration: Project detection followed by validation.
 
         Given a project with some configuration
         When I detect and validate it
@@ -140,8 +137,7 @@ class TestTemplateRenderingWorkflow:
     """Test template rendering workflows."""
 
     def test_multi_file_template_rendering(self, tmp_path):
-        """
-        Integration: Rendering multiple related templates.
+        """Integration: Rendering multiple related templates.
 
         Given multiple template files
         When I render them with the same variables
@@ -185,8 +181,7 @@ class TestEndToEndProjectSetup:
     """Test end-to-end project setup scenarios."""
 
     def test_complete_python_project_setup(self, tmp_path):
-        """
-        Integration: Complete Python project setup from scratch.
+        """Integration: Complete Python project setup from scratch.
 
         Given an empty directory
         When I set up a complete Python project

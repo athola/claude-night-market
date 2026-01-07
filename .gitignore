@@ -76,3 +76,4 @@ docs/archive/
 
 # Intake queue for memory palace artifacts
 plugins/memory-palace/data/intake_queue.jsonl
+plugins/memory-palace/data/state/

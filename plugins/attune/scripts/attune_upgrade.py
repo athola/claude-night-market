@@ -5,14 +5,21 @@ import argparse
 import sys
 from pathlib import Path
 
-from project_detector import ProjectDetector
-from template_engine import get_default_variables
+from project_detector import ProjectDetector  # type: ignore[import]
+from template_engine import get_default_variables  # type: ignore[import]
 
 
 class ProjectUpgrader:
     """Upgrade existing projects with missing configurations."""
 
     def __init__(self, project_path: Path, language: str):
+        """Initialize the project upgrader.
+
+        Args:
+            project_path: Path to the project
+            language: Programming language of the project
+
+        """
         self.project_path = project_path
         self.language = language
         self.detector = ProjectDetector(project_path)
@@ -25,6 +32,7 @@ class ProjectUpgrader:
 
         Returns:
             List of missing file paths
+
         """
         missing = []
 
@@ -53,7 +61,7 @@ class ProjectUpgrader:
 
         # Filter by component
         if component == "all":
-            check_components = components.values()
+            check_components = list(components.values())
         elif component in components:
             check_components = [components[component]]
         else:
@@ -74,6 +82,7 @@ class ProjectUpgrader:
 
         Returns:
             Dictionary mapping file paths to reasons they're outdated
+
         """
         outdated = {}
 
@@ -103,6 +112,7 @@ class ProjectUpgrader:
 
         Args:
             verbose: Show detailed information
+
         """
         print(f"\n{'=' * 60}")
         print("Attune Upgrade Status")
@@ -192,8 +202,9 @@ class ProjectUpgrader:
 
         Returns:
             List of files that were/would be created or updated
+
         """
-        from attune_init import copy_templates
+        from attune_init import copy_templates  # type: ignore[import]
 
         affected_files = []
 
@@ -260,6 +271,7 @@ class ProjectUpgrader:
 
         Returns:
             Dictionary of template variables
+
         """
         # Try to read from existing pyproject.toml, Cargo.toml, or package.json
         if self.language == "python":
@@ -287,7 +299,7 @@ class ProjectUpgrader:
                 )
                 author = author_match.group(1) if author_match else "Your Name"
 
-                return get_default_variables(
+                return get_default_variables(  # type: ignore[no-any-return]
                     project_name=project_name,
                     language=self.language,
                     python_version=python_version,
@@ -295,14 +307,14 @@ class ProjectUpgrader:
                 )
 
         # Default fallback
-        return get_default_variables(
+        return get_default_variables(  # type: ignore[no-any-return]
             project_name=self.project_path.name,
             language=self.language,
         )
 
 
-def main():
-    """Main entry point for attune upgrade."""
+def main() -> None:
+    """Run attune upgrade CLI."""
     parser = argparse.ArgumentParser(
         description="Upgrade existing project with missing configurations"
     )

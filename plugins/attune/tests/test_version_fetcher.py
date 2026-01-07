@@ -55,7 +55,9 @@ class TestFetchGitHubActionVersion:
     def test_fetch_github_action_version_returns_none_on_error(self, mock_urlopen):
         """Given a network error, when fetching version, then returns None."""
         # Given
-        mock_urlopen.side_effect = Exception("Network error")
+        from urllib.error import URLError
+
+        mock_urlopen.side_effect = URLError("Network error")
 
         # When
         version = fetch_github_action_version("actions/nonexistent")
@@ -140,7 +142,7 @@ class TestGetDefaultActionVersions:
         versions = get_default_action_versions()
 
         # Then
-        for action, version in versions.items():
+        for _action, version in versions.items():
             assert isinstance(version, str)
             assert len(version) > 0
 
@@ -230,7 +232,9 @@ class TestFetchPyPILatestVersion:
     def test_fetch_pypi_latest_version_returns_none_on_error(self, mock_urlopen):
         """Given a network error, when fetching PyPI version, then returns None."""
         # Given
-        mock_urlopen.side_effect = Exception("Network error")
+        from urllib.error import URLError
+
+        mock_urlopen.side_effect = URLError("Network error")
 
         # When
         version = fetch_pypi_latest_version("nonexistent-package")
@@ -304,7 +308,9 @@ class TestFetchNPMLatestVersion:
     def test_fetch_npm_latest_version_returns_none_on_error(self, mock_urlopen):
         """Given a network error, when fetching npm version, then returns None."""
         # Given
-        mock_urlopen.side_effect = Exception("Network error")
+        from urllib.error import URLError
+
+        mock_urlopen.side_effect = URLError("Network error")
 
         # When
         version = fetch_npm_latest_version("nonexistent-package")
@@ -421,8 +427,7 @@ class TestVersionFetcherBehavior:
 
     @patch("urllib.request.urlopen")
     def test_scenario_fetch_latest_github_action_version(self, mock_urlopen):
-        """
-        Scenario: Fetching latest GitHub Action version.
+        """Scenario: Fetching latest GitHub Action version.
 
         Given a GitHub Action exists
         When I fetch its latest version
@@ -443,8 +448,7 @@ class TestVersionFetcherBehavior:
 
     @patch("version_fetcher.fetch_github_action_version")
     def test_scenario_get_all_latest_action_versions_with_fallback(self, mock_fetch):
-        """
-        Scenario: Getting all latest action versions with fallback.
+        """Scenario: Getting all latest action versions with fallback.
 
         Given some GitHub Actions are available
         And some fail to fetch
@@ -476,8 +480,7 @@ class TestVersionFetcherBehavior:
     @patch("urllib.request.urlopen")
     @patch("version_fetcher.fetch_pypi_latest_version")
     def test_scenario_get_python_tool_versions(self, mock_pypi, mock_urlopen):
-        """
-        Scenario: Getting latest Python tool versions.
+        """Scenario: Getting latest Python tool versions.
 
         Given Python development tools exist in PyPI
         When I get tool versions for Python

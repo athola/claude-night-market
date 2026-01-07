@@ -119,7 +119,7 @@ class ContentLoader:
         # Limit section size
         return remaining_lines[:80]
 
-    def analyze_token_usage(self) -> dict[str, int]:
+    def analyze_token_usage(self) -> dict[str, int | float]:
         """Analyze token usage for different loading levels."""
         quick_tokens = self._estimate_tokens(self.load_quick_start())
         examples_tokens = self._estimate_tokens(self.load_with_examples())

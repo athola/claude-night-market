@@ -23,30 +23,13 @@ Plugin Structure
 ```
 
 ### Design Principles
-1. **User Experience First**: Clear, predictable behavior.
-2. **Developer Experience**: Consistent patterns, standard tooling.
-3. **Ecosystem Health**: Interoperability, security, performance.
+Plugins should prioritize predictable behavior over "smart" guessing. Consistent patterns and standard tooling (ruff, mypy) reduce maintenance overhead. We aim for interoperability by strictly defining public APIs and avoiding hidden state.
 
 ## Success Metrics
 
-### Quality Standards
-- Test coverage > 80%.
-- Linting passes (ruff).
-- Security scan clean (bandit).
-- Documentation includes API and examples.
-- Performance meets 15K token budget.
+A production-ready plugin meets specific quality gates. Code coverage must exceed 80%, confirmed by `pytest-cov`. All Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must return zero high-severity issues. Functionally, the documentation must include valid API references and copy-pasteable examples. Performance is capped at a 15K token budget for typical operations.
 
-### User Experience
-- Clear purpose and value.
-- Easy discovery and use.
-- Helpful error messages.
-- Examples provided.
-
-### Ecosystem Fit
-- Follows established patterns.
-- Integrates with other plugins.
-- Backward compatible.
-- Proper versioning.
+User experience relies on discoverability and clear error messages. Plugins should fail gracefully with specific error details rather than generic "something went wrong" messages. Integration requires that plugins follow the versioning scheme (currently 1.1.0 alignment) and do not break existing workflows.
 
 ## Development Path
 
@@ -156,7 +139,7 @@ try:
     result = risky_operation()
 except SpecificError as e:
     logger.warning(f"Expected error: {e}")
-    result = fallback_value
+    result = default_value
 except Exception as e:
     logger.error(f"Unexpected error: {e}")
     raise PluginError("Operation failed") from e
@@ -246,9 +229,3 @@ uv run python scripts/complexity_calculator.py
 - [Cross-Plugin Collaboration](./cross-plugin-collaboration.md)
 - [Skill Integration Guide](./skill-integration-guide.md)
 - [Superpowers Integration](./superpowers-integration.md)
-
-Good plugins:
-- **Solve problems**: Address specific user needs.
-- **Are usable**: Have clear triggers and predictable outputs.
-- **Work consistently**: Handle edge cases and failures gracefully.
-- **Are maintainable**: Follow the modular structure and are tested.

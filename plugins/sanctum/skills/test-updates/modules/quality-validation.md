@@ -7,7 +7,7 @@ detailed test quality assurance through static analysis, dynamic validation, met
 ## Validation Categories
 
 ### 1. Static Analysis
-Validates test code without execution.
+Validate test code without execution.
 See [validation/static-analysis](validation/static-analysis.md) for patterns and checks.
 
 ### 2. Dynamic Validation
