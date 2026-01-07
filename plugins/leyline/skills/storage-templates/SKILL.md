@@ -85,6 +85,7 @@ seedling → growing → evergreen → archive
     ↓         ↓          ↓           ↓
  1-2 weeks  1-3 months  permanent  deprecated
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -106,6 +107,7 @@ tags: [relevant, tags]
 ## Metadata
 [Context and attribution]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### File Naming Conventions
 
@@ -159,6 +161,7 @@ See `modules/template-patterns.md` for detailed examples.
 # In your skill's frontmatter
 dependencies: [leyline:storage-templates]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 

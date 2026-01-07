@@ -35,6 +35,7 @@ VHS (Video Hosting Service) by Charmbracelet converts declarative tape files int
 - Execute VHS recording
 - Verify output GIF creation
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Workflow
 
@@ -51,6 +52,7 @@ VHS (Video Hosting Service) by Charmbracelet converts declarative tape files int
 ```bash
 which vhs && vhs --version
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 If not installed:
 ```bash
@@ -62,12 +64,14 @@ brew install charmbracelet/tap/vhs
 
 # Also requires ttyd and ffmpeg
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Phase 3: Execute Recording
 
 ```bash
 vhs <tape-file.tape>
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 VHS will:
 1. Parse tape file directives

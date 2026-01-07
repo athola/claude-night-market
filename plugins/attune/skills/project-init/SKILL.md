@@ -72,6 +72,7 @@ Check for existing configurations:
 ```bash
 ls -la
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 If files exist (Makefile, .gitignore, etc.):
 - Show what would be overwritten
@@ -93,6 +94,7 @@ python3 plugins/attune/scripts/attune_init.py \
   --description {{DESCRIPTION}} \
   --path .
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 5. Initialize Git (if needed)
 
@@ -103,6 +105,7 @@ if [ ! -d .git ]; then
   echo "✓ Git repository initialized"
 fi
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 ### 6. Verify Setup
 
@@ -114,6 +117,7 @@ make help
 # List created files
 git status
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 ### 7. Next Steps
 
@@ -128,6 +132,7 @@ make test
 # See all available commands
 make help
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Error Handling
 
@@ -149,6 +154,7 @@ make help
 ### Example 1: New Python Project
 
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 User: /attune:init
 ## Troubleshooting
 

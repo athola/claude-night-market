@@ -142,6 +142,7 @@ Skill descriptions are critical for Claude's discovery process. They must be opt
 ```
 [What it does] + [When to use it] + [Key triggers]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Requirements
 
@@ -163,11 +164,13 @@ Skill descriptions are critical for Claude's discovery process. They must be opt
 ```yaml
 description: Guides API design using RESTful principles and best practices. Use when designing new APIs, reviewing API proposals, or standardizing endpoint patterns. Covers resource modeling, HTTP method selection, and versioning strategies.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Bad:**
 ```yaml
 description: This skill helps you design better APIs.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## The TDD Cycle for Skills
 
@@ -199,6 +202,7 @@ description: This skill helps you design better APIs.
    - Missing rate limiting
    - Didn't consider security
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 4. Identify patterns across failures
 
@@ -219,6 +223,7 @@ description: This skill helps you design better APIs.
    estimated_tokens: [realistic estimate]
    ---
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 2. Add content that directly counters baseline failures
 
@@ -248,6 +253,7 @@ description: This skill helps you design better APIs.
    Security requirements apply regardless of API scope.
    Internal APIs need proper authentication.
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 3. Add explicit counters:
    - Exception tables with "No Exceptions" rows
@@ -286,6 +292,7 @@ Stop immediately if you think:
 - "We can skip this step just this once"
 - "The principle doesn't apply here because..."
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Explicit Exception Handling
 
@@ -304,6 +311,7 @@ When exceptions truly exist, document them explicitly:
 - "Simple" fixes to production code
 - Internal tools and scripts
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Module References
 
@@ -340,6 +348,7 @@ Before deploying a new skill:
 ```bash
 python scripts/skill_validator.py
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 Exit codes:
 - `0` = Success, ready to deploy

@@ -82,6 +82,7 @@ HookEvent = Literal[
     "PreCompact"        # Before message compaction
 ]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Note**: Python SDK does not support `SessionStart`, `SessionEnd`, or `Notification` hooks due to setup limitations.
 
@@ -95,6 +96,7 @@ async def my_hook(
 ) -> dict[str, Any]:               # Return decision/messages
     ...
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Return Values
 
@@ -105,6 +107,7 @@ return {
     "hookSpecificOutput": {...}    # Optional: hook-specific data
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Quality Scoring (100 points)
 
@@ -138,6 +141,7 @@ return {
 # 4. Check compliance
 /hooks-eval --compliance-report
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration with Other Tools
 
@@ -147,6 +151,7 @@ return {
 /analyze-hook hooks/specific.py      # Deep-dive on one hook
 /validate-plugin .                   # Validate overall structure
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 

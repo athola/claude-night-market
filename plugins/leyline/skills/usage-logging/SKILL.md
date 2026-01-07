@@ -84,6 +84,7 @@ Sessions group related operations:
   "metadata": {}
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -93,6 +94,7 @@ from leyline.usage_logger import UsageLogger
 
 logger = UsageLogger(service="my-service")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Log Operations
 ```python
@@ -104,6 +106,7 @@ logger.log_usage(
     metadata={"files": 10}
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Query Usage
 ```python
@@ -118,6 +121,7 @@ print(f"Total cost: ${summary['estimated_cost']:.2f}")
 # Recent errors
 errors = logger.get_recent_errors(count=10)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Pattern
 
@@ -125,6 +129,7 @@ errors = logger.get_recent_errors(count=10)
 # In your skill's frontmatter
 dependencies: [leyline:usage-logging]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Standard integration flow:
 1. Initialize logger for your service
@@ -142,6 +147,7 @@ tail -20 ~/.claude/leyline/usage/my-service.jsonl | jq .
 # Query by date
 grep "2025-12-05" ~/.claude/leyline/usage/my-service.jsonl
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 

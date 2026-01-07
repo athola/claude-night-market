@@ -65,6 +65,7 @@ Evaluate API surfaces against guidelines and high-quality exemplars.
 ```bash
 /api-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -96,6 +97,7 @@ pwd && git status -sb
 rg -n "^pub" src  # Rust
 rg -n "^def [^_]" package  # Python
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 ### Step 2: Exemplar Research
 
@@ -181,6 +183,7 @@ Load modules as needed:
 - Decision: Approve / Approve with actions / Block
 - Action items with owners and dates
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Notes
 

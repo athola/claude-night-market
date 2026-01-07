@@ -80,6 +80,7 @@ Mark each item complete as you finish the corresponding step.
        Output: 15 files changed, 234 insertions(+), 89 deletions(-)
        Timestamp: 2024-01-15T10:30:00Z
   ```
+  **Verification:** Run `git status` to confirm working tree state.
 - Include full command with arguments (no aliases).
 - Capture relevant output snippets, not entire dumps.
 - Note working directory and environment if relevant.
@@ -87,10 +88,12 @@ Mark each item complete as you finish the corresponding step.
 ## Step 3: Record Citations (`evidence-logging:citations-recorded`)
 - Log external sources consulted:
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
   [C1] Source: https://doc.rust-lang.org/nomicon/
        Section: "Working with Unsafe"
        Relevance: Validates unsafe block justification
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
 - Include web searches performed and key results.
 - Reference documentation versions (API docs, RFCs, specs).
 - Note any AI-assisted analysis with model/prompt context.
@@ -106,10 +109,12 @@ Mark each item complete as you finish the corresponding step.
 ## Evidence Reference Format
 Use consistent format in findings:
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Finding: Memory leak in connection pool [E3, C2]
 - Evidence [E3]: valgrind output showing 4KB unreleased
 - Citation [C2]: PostgreSQL docs on connection lifecycle
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 - Todos completed with structured evidence log.

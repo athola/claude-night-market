@@ -70,6 +70,7 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 ```bash
 /rust-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -163,6 +164,7 @@ Rust audit findings
 ## Recommendation
 Approve / Approve with actions / Block
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 

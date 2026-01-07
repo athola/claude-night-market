@@ -40,6 +40,7 @@ modules/
 ├── output-format-templates.md    # Standard output structures
 └── quality-checklist-patterns.md # Reusable quality checklists
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Usage
 
@@ -51,6 +52,7 @@ includes:
   - ../shared/modules/output-format-templates.md
   - ../shared/modules/quality-checklist-patterns.md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Consumers
 

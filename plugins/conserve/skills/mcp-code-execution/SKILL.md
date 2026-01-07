@@ -101,6 +101,7 @@ def classify_workflow_for_mecw(workflow):
             'token_budget': 200
         }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### MECW Risk Assessment
 Delegate to mcp-validation module for detailed risk analysis:
@@ -111,6 +112,7 @@ def delegate_mecw_assessment(workflow):
         hub_allocated_tokens=self.token_budget * 0.5
     )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Step 2 – Route to Modules (`mcp-code-execution:route-to-modules`)
 
@@ -139,6 +141,7 @@ class MCPExecutionHub:
 
         return self.synthesize_results(results)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Step 3 – Coordinate MECW (`mcp-code-execution:coordinate-mecw`)
 
@@ -163,6 +166,7 @@ def synthesize_module_results(module_results):
         'results': consolidate_results(module_results)
     }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Module Integration
 

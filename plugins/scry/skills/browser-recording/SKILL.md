@@ -63,6 +63,7 @@ When invoking this skill, create todos for:
 - [ ] Locate and verify video output
 - [ ] Convert video to GIF using gif-generation skill
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Process
 
@@ -73,12 +74,14 @@ Check that Playwright is available:
 ```bash
 npx playwright --version
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 If not installed, the user should run:
 ```bash
 npm install -D @playwright/test
 npx playwright install chromium
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Step 2: Check Spec File
 
@@ -94,6 +97,7 @@ Run the spec with video enabled:
 ```bash
 npx playwright test <spec-file> --config=playwright.config.ts
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 The config must enable video recording. See the spec-execution module for configuration details.
 
@@ -102,12 +106,14 @@ The config must enable video recording. See the spec-execution module for config
 After recording completes, use the gif-generation skill to convert the WebM video to an optimized GIF:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Invoke scry:gif-generation with:
 - input: <path-to-webm>
 - output: <desired-gif-path>
 - fps: 10 (recommended for tutorials)
 - width: 800 (adjust based on content)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Example Playwright Spec
 
@@ -135,6 +141,7 @@ test('demo workflow', async ({ page }) => {
   await page.waitForTimeout(1000);
 });
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Playwright Configuration
 
@@ -157,6 +164,7 @@ export default defineConfig({
   outputDir: './test-results',
 });
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Exit Criteria
 

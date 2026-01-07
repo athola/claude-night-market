@@ -151,28 +151,33 @@ Before looking at ANY code, understand what this PR is supposed to accomplish.
    # Root plan.md (may be Claude Plan Mode artifact from v2.0.51+)
    cat plan.md 2>/dev/null | head -100
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 2. **Spec file**: Requirements definition (check spec-kit locations first)
    ```bash
    find specs -name "spec.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -100
    cat spec.md 2>/dev/null | head -100
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 3. **Tasks file**: Implementation checklist (check spec-kit locations first)
    ```bash
    find specs -name "tasks.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null
    cat tasks.md 2>/dev/null
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 4. **PR description**: Author's intent
    ```bash
    gh pr view <number> --json body --jq '.body'
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 5. **Commit messages**: Incremental decisions
    ```bash
    gh pr view <number> --json commits --jq '.commits[].messageHeadline'
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 **Output:** A clear statement of scope:
 > "This PR implements [feature X] as specified in plan.md. The requirements are:
@@ -194,6 +199,7 @@ gh pr diff <number>
 # Statistics
 gh pr view <number> --json additions,deletions,changedFiles,commits
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 3: Requirements Validation
 
@@ -230,12 +236,14 @@ Use `pensive:unified-review` on the changed files.
 **Critical:** Evaluate each finding against the scope baseline:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Finding: "Function X lacks input validation"
 Scope check: Is input validation mentioned in requirements?
   - YES → IN-SCOPE
   - NO, but it's a security issue → BLOCKING
   - NO, and it's a nice-to-have → BACKLOG
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 5: Backlog Triage
 
@@ -260,6 +268,7 @@ Low - Improvement opportunity, not blocking
 *Auto-created by pr-review*" \
   --label "tech-debt"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Ask user before creating:** "I found N backlog items. Create GitHub issues? [y/n/select]"
 
@@ -297,6 +306,7 @@ None - no critical issues found.
 **APPROVE WITH CHANGES**
 Address S1 (in-scope issue) before merge.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 7: Knowledge Capture
 
@@ -308,6 +318,7 @@ After generating the report, evaluate findings for knowledge capture into the pr
 # Capture significant findings to review-chamber
 # Uses memory-palace:review-chamber evaluation framework
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Candidates for capture:**
 - BLOCKING findings with architectural context → `decisions/`
@@ -326,6 +337,7 @@ After generating the report, evaluate findings for knowledge capture into the pr
 
 View: `/review-room list --palace <project>`
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See `modules/knowledge-capture.md` for full workflow.
 

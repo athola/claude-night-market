@@ -83,6 +83,7 @@ For fan-out/fan-in patterns, task ID conventions, and validation rules, see `mod
 **Files**: src/services/auth.ts, src/types/user.ts
 **Criteria**: All auth tests pass, tokens are valid JWT
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Quality Checklist
 

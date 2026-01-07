@@ -64,6 +64,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 ```bash
 /math-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -88,6 +89,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 ```bash
 pwd && git status -sb && git diff --stat origin/main..HEAD
 ```
+**Verification:** Run `git status` to confirm working tree state.
 Enumerate math-heavy files (source, tests, docs, notebooks). Classify risk: safety-critical, financial, ML fairness.
 
 ### 2. Requirements Mapping
@@ -104,6 +106,7 @@ Evaluate conditioning, precision, scaling, randomness. Compare complexity. Quant
 pytest tests/math/ --benchmark
 jupyter nbconvert --execute derivation.ipynb
 ```
+**Verification:** Run `pytest -v tests/math/` to verify.
 Log deviations, recommend: Approve / Approve with actions / Block. **Load**: `modules/testing-strategies.md`
 
 ## Progressive Loading
@@ -147,6 +150,7 @@ Condition number | Precision | Risks
 ## Recommendation
 Approve / Approve with actions / Block
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 

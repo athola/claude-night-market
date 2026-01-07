@@ -94,6 +94,7 @@ When a user shares a link:
 6. APPLY    → Route to codebase or infrastructure updates
 7. PRUNE    → Identify displaced/outdated knowledge
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Evaluation Framework
 
@@ -137,6 +138,7 @@ Apply when knowledge improves our plugin ecosystem:
 ### Routing Decision Tree
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Is the knowledge...
 ├── About HOW we build things? → Meta-infrastructure
 │   ├── Skill patterns → Update abstract/memory-palace skills
@@ -148,6 +150,7 @@ Is the knowledge...
     ├── Implementation patterns → Update code/architecture
     └── Bug/issue solutions → Apply fix, document
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Storage Locations
 
@@ -247,10 +250,12 @@ elif integration.decision == IntegrationDecision.REPLACE:
     # Replace outdated entry
     replace_entry(integration.target_entries[0], content)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Filter Output Example
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 === Marginal Value Assessment ===
 
 Redundancy: partial
@@ -269,6 +274,7 @@ Decision: STANDALONE
 Confidence: 80%
 Rationale: Novel insights justify standalone: Introduces 8 new concepts
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Progressive Autonomy Integration
 
@@ -375,6 +381,7 @@ entry_id, decision = orchestrator.ingest_with_lineage(
     source=source
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### RL Integration with Marginal Value Filter
 
@@ -400,6 +407,7 @@ redundancy, delta, integration, rl_signal = filter.evaluate_with_rl(
 # - confidence: Decision confidence
 print(f"RL Signal: {rl_signal['action']} (weight: {rl_signal['weight']})")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Workflow Example
 
@@ -455,6 +463,7 @@ pruning:
     - Existing error handling module
     - Async patterns documentation
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Queue Processing
 
@@ -474,6 +483,7 @@ cat docs/knowledge-corpus/queue/2025-12-31_topic.yaml
 # 2. Update queue entry status to 'processed'
 # 3. Archive or delete queue entry
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Queue Integration
 
@@ -487,10 +497,12 @@ The `research-queue-integration` hook automatically queues:
 ### Queue Status Workflow
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 pending_review → [Review] → approved/rejected
 approved → [Create Entry] → processed
 processed → [Archive] → queue/archive/
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Automation
 
@@ -525,15 +537,19 @@ Memory-palace hooks automatically detect content that may need knowledge intake 
 When hooks detect potential knowledge content, they add context messages:
 
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 Memory Palace: New web content fetched from {url}.
 Consider running knowledge-intake to evaluate and store if valuable.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Memory Palace: Reading local knowledge doc '{path}'.
 This path is configured for knowledge tracking.
 Consider running knowledge-intake if this contains valuable reference material.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Deduplication
 
@@ -564,6 +580,7 @@ entries:
     routing_type: "both"           # local, meta, both
     last_updated: "2025-12-06T..."
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration
 

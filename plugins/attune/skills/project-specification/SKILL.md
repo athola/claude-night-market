@@ -92,6 +92,7 @@ Transform project briefs into structured, testable specifications with acceptanc
 **Dependencies**: FR-002, FR-005
 **Estimated Effort**: S | M | L | XL
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Validation Rules**:
 - Description has no ambiguous words (might, could, maybe, probably)
@@ -122,6 +123,7 @@ Transform project briefs into structured, testable specifications with acceptanc
 
 **Priority**: Critical | High | Medium | Low
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 4. Technical Constraints
 
@@ -143,6 +145,7 @@ Transform project briefs into structured, testable specifications with acceptanc
 
 **Rationale**: [Why these are excluded]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Clarification Workflow
 
@@ -171,6 +174,7 @@ For each ambiguity:
 
 **Recommendation**: [Preferred option with rationale]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Clarification Session
 
@@ -260,6 +264,7 @@ Save to `docs/specification.md`:
 
 [Related documents, research, prior art]
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Acceptance Criteria Patterns
 
@@ -270,6 +275,7 @@ Given [initial context/state]
 When [action occurs]
 Then [expected outcome]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Examples**:
 - Given unauthenticated user, when accessing dashboard, then redirect to login

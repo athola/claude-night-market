@@ -83,6 +83,7 @@ Mark each item complete as you finish the corresponding step.
   **Evidence**: [E1, E2] - Reference to evidence log.
   **Recommendation**: Specific remediation steps.
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
 - Severity levels: CRITICAL, HIGH, MEDIUM, LOW, INFO.
 - Order findings by severity, then by file location.
 
@@ -94,6 +95,7 @@ Mark each item complete as you finish the corresponding step.
   - [ ] [MEDIUM] Add input validation to API endpoint (@backend, P2)
   - [ ] [LOW] Update deprecated dependency (@devops, P3)
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
 - Include owner assignment where known.
 - Add priority indicators (P1/P2/P3) for triage.
 - Note dependencies between actions.
@@ -111,6 +113,7 @@ Mark each item complete as you finish the corresponding step.
   ### C. Raw Data
   [Large outputs, full diffs, or data exports]
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
 - Keep main report concise; details in appendix.
 - validate appendix is navigable with clear section headers.
 

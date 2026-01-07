@@ -77,6 +77,7 @@ class ErrorCategory(Enum):
     CONFIGURATION = "config"      # User action needed
     RESOURCE = "resource"         # Quota/limit issue
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -96,6 +97,7 @@ except AuthError as e:
         "action": "Run 'gemini auth login'"
     })
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Error Result
 ```python
@@ -107,6 +109,7 @@ class ErrorResult:
     suggested_action: str
     metadata: dict
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Common Patterns
 
@@ -140,6 +143,7 @@ class ErrorResult:
 # In your skill's frontmatter
 dependencies: [leyline:error-patterns]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 

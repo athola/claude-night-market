@@ -103,6 +103,7 @@ Create a simple logging hook in `.claude/settings.json`:
   }
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 This logs every Bash command execution with a timestamp.
 
@@ -124,6 +125,7 @@ class ValidationHooks(AgentHooks):
         # Return None to proceed unchanged, or modified dict to transform
         return None
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Hook Event Types
 
@@ -159,6 +161,7 @@ Quick reference for all supported hook events:
   }
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Pros:** Simple, no code required, easy to version control
 **Cons:** Limited logic capabilities, shell command only
@@ -177,6 +180,7 @@ class MyHooks(AgentHooks):
             raise ValueError("Operation blocked")
         return None  # or return modified input
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Pros:** Full Python capabilities, complex logic, state management
 **Cons:** Requires Python, more complex setup
@@ -228,6 +232,7 @@ class SecureLoggingHooks(AgentHooks):
         # Log safe_output...
         return None  # Don't modify output
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See `modules/security-patterns.md` for detailed security guidance.
 
@@ -273,6 +278,7 @@ class EfficientHooks(AgentHooks):
         # Simple checks only, < 10ms
         return len(str(tool_input)) < 1_000_000
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See `modules/performance-guidelines.md` for detailed optimization techniques.
 
@@ -283,6 +289,7 @@ Choose the right location for your hooks based on audience and purpose:
 ### Decision Framework
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Is this hook part of a plugin's core functionality?
 ├─ YES → Plugin hooks (hooks/hooks.json in plugin)
 └─ NO ↓
@@ -295,6 +302,7 @@ Should this hook apply to all my Claude sessions?
 ├─ YES → Global hooks (~/.claude/settings.json)
 └─ NO → Reconsider if you need a hook at all
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Scope Comparison
 
@@ -327,6 +335,7 @@ async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None
 
     return None
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Logging Hook
 
@@ -345,6 +354,7 @@ async def on_post_tool_use(
     })
     return None
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Context Injection Hook
 
@@ -357,6 +367,7 @@ async def on_user_prompt_submit(self, message: str) -> str | None:
     enhanced_message = f"{context}\n\n{message}"
     return enhanced_message
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Testing Hooks
 
@@ -379,6 +390,7 @@ async def test_safe_command_allowed():
     result = await hooks.on_pre_tool_use("Bash", {"command": "ls -la"})
     assert result is None  # Allows execution
 ```
+**Verification:** Run `pytest -v from` to verify.
 
 See `modules/testing-hooks.md` for detailed testing strategies.
 

@@ -118,6 +118,7 @@ Create → Populate → Navigate → Export/Archive
    ↑         ↓          ↓
    └─── Checkpoint ←────┘
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 

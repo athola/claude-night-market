@@ -67,6 +67,7 @@ through separation of concerns and strategic code organization.
 python skills/optimizing-large-skills/tools/optimization-patterns.py \
   skills/path/SKILL.md --verbose --generate-plan
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Core Pattern: Externalize-Consolidate-Progress
 
@@ -95,6 +96,7 @@ Use analysis tool: `python tools/optimization-patterns.py SKILL.md --generate-pl
 
 ### File Organization
 ```
+**Verification:** Run `python --version` to verify Python environment.
 skill-name/
   SKILL.md              # Core documentation (~150-200 lines)
   tools/
@@ -104,6 +106,7 @@ skill-name/
   examples/
     basic-usage.py      # Minimal working example
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Implementation
 
@@ -116,6 +119,7 @@ python skills/optimizing-large-skills/tools/optimization-patterns.py \
 # JSON output for automation
 python skills/optimizing-large-skills/tools/optimization-patterns.py your-skill.md --output-json
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Externalization Pattern
 **Move heavy implementations to tools with CLI interfaces:**

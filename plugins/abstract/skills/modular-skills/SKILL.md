@@ -102,6 +102,7 @@ python scripts/analyze.py --threshold 100
 from abstract.skill_tools import analyze_skill
 analysis = analyze_skill(".", threshold=100)
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Token Usage Planning
 ```bash
@@ -112,6 +113,7 @@ python scripts/tokens.py
 from abstract.skill_tools import estimate_tokens
 tokens = estimate_tokens("SKILL.md")
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Module Validation
 ```bash
@@ -124,6 +126,7 @@ python scripts/abstract_validator.py --report
 # Auto-fix issues (dry run first)
 python scripts/abstract_validator.py --fix --dry-run
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Implementation Workflow
 1. **Assess**: Use `skill_analyzer.py` to identify complexity and modularization needs
@@ -160,6 +163,7 @@ for file in modules/*.md; do
   fi
 done
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Essential Quality Standards
 
@@ -181,6 +185,7 @@ Based on evaluation feedback (issue #74):
 - [Examples](#examples)
 - [Troubleshooting](#troubleshooting)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 `★ Insight ─────────────────────────────────────`
 These quality standards emerged from real-world feedback on skill evaluation. Navigation aids (TOCs) are critical for agentic search efficiency - coding agents use grep to locate content without loading entire files. Quick Start concreteness ensures developers can immediately apply skills without translation overhead.

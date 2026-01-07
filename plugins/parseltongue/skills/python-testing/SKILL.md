@@ -59,6 +59,7 @@ Testing patterns for pytest, fixtures, mocking, and TDD.
    ```bash
    pip install pytest pytest-cov pytest-asyncio pytest-mock
    ```
+   **Verification:** Run `pytest -v pytest-cov` to verify.
 
 2. **Configure project** - Add to `pyproject.toml`:
    ```toml
@@ -67,17 +68,20 @@ Testing patterns for pytest, fixtures, mocking, and TDD.
    python_files = ["test_*.py"]
    addopts = "--cov=src --cov-report=html"
    ```
+   **Verification:** Run `pytest -v` to verify tests pass.
 
 3. **Create first test** - In `tests/test_example.py`:
    ```python
    def test_basic():
        assert 1 + 1 == 2
    ```
+   **Verification:** Run `pytest -v` to verify tests pass.
 
 4. **Run tests with coverage**:
    ```bash
    pytest --cov=src --cov-report=html
    ```
+   **Verification:** Run `pytest -v --cov=src` to verify.
 
 ## When to Use
 

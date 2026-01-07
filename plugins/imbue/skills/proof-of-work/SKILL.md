@@ -131,6 +131,7 @@ ps aux | grep cclsp                    # Is it running?
 echo $ENABLE_LSP_TOOL                 # Is env var set?
 cat ~/.claude/.mcp.json | grep cclsp   # Is it configured?
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Evidence Required:**
 - Command output showing current state
@@ -150,6 +151,7 @@ ps aux | grep cclsp | grep -v grep
 # Did it actually start? Capture the output
 tail /tmp/cclsp-test-output.log
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **Evidence Required:**
 - Successful execution of proposed solution
@@ -166,6 +168,7 @@ tail /tmp/cclsp-test-output.log
 <check GitHub issues for current version>
 <verify language server compatibility>
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Evidence Required:**
 - Search results for known issues
@@ -191,6 +194,7 @@ Use `imbue:evidence-logging` to document:
      Output: "configPath is required when CCLSP_CONFIG_PATH not set"
      Conclusion: Environment variable not being passed correctly
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Step 5: Prove Completion (`proof:completion-proven`)
 
@@ -215,6 +219,7 @@ User can successfully use LSP tools after following these steps:
 ### Conclusion
 Cannot claim completion due to fundamental blocker identified. Can provide: diagnosis with evidence, workaround options, and next steps.
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Integration with Other Skills
 
@@ -268,6 +273,7 @@ Required:
 **Options:** 1) Downgrade to 2.0.67, 2) Wait for bug fix
 **Cannot claim:** 'LSP will work after restart' (proven false)"
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Red Flag Self-Check
 

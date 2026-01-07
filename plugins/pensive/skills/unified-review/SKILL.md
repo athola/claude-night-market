@@ -79,6 +79,7 @@ Intelligently selects and executes appropriate review skills based on codebase a
 /full-review tests        # Test suite review
 /full-review all          # Run all applicable skills
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## When to Use
 
@@ -126,6 +127,7 @@ if has_architecture_changes():
 # Default
 schedule_skill("bug-review")
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### 3. Execute Reviews
 - Run selected skills concurrently

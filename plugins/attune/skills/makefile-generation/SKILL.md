@@ -87,6 +87,7 @@ elif [ -f "package.json" ]; then
     LANGUAGE="typescript"
 fi
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 2. Load Template
 
@@ -95,6 +96,7 @@ from pathlib import Path
 
 template_path = Path("plugins/attune/templates") / language / "Makefile.template"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 3. Collect Project Info
 
@@ -105,6 +107,7 @@ metadata = {
     "PYTHON_VERSION": "3.10",
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 4. Render Template
 
@@ -114,12 +117,14 @@ from template_engine import TemplateEngine
 engine = TemplateEngine(metadata)
 engine.render_file(template_path, Path("Makefile"))
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 5. Verify
 
 ```bash
 make help
 ```
+**Verification:** Run `make --dry-run` to verify build configuration.
 
 ## Customization
 
@@ -133,6 +138,7 @@ Users can add custom targets after the generated ones:
 deploy: build ## Deploy to production
 	./scripts/deploy.sh
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 

@@ -61,6 +61,7 @@ This skill orchestrates the combination of separately generated media assets int
 - Verify combined output file created
 - Report composition metrics (file size, dimensions)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Manifest Format
 
@@ -86,6 +87,7 @@ combine:
     padding: 10
     background: "#1a1a2e"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Manifest Schema
 
@@ -113,6 +115,7 @@ yq eval '.' manifest.yaml
 # Extract component outputs
 yq eval '.components[].output' manifest.yaml
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 2. Validate Component Outputs
 
@@ -125,6 +128,7 @@ for output in $(yq eval '.components[].output' manifest.yaml); do
   fi
 done
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 3. Execute FFmpeg Composition
 
@@ -142,6 +146,7 @@ else
   exit 1
 fi
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## FFmpeg Composition Commands
 
@@ -154,6 +159,7 @@ ffmpeg -i top.gif -i bottom.gif \
   -filter_complex "[0:v][1:v]vstack=inputs=2" \
   -y output.gif
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 With padding between:
 
@@ -162,6 +168,7 @@ ffmpeg -i top.gif -i bottom.gif \
   -filter_complex "[0:v]pad=iw:ih+10:0:0:color=black[top];[top][1:v]vstack=inputs=2" \
   -y output.gif
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Horizontal Stacking
 
@@ -172,6 +179,7 @@ ffmpeg -i left.gif -i right.gif \
   -filter_complex "[0:v][1:v]hstack=inputs=2" \
   -y output.gif
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Sequential Concatenation
 
@@ -189,6 +197,7 @@ EOF
 ffmpeg -f concat -safe 0 -i concat_list.txt \
   -y output.gif
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Grid Layout (2x2)
 
@@ -197,6 +206,7 @@ ffmpeg -i tl.gif -i tr.gif -i bl.gif -i br.gif \
   -filter_complex "[0:v][1:v]hstack=inputs=2[top];[2:v][3:v]hstack=inputs=2[bottom];[top][bottom]vstack=inputs=2" \
   -y output.gif
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### With Background Color
 
@@ -205,6 +215,7 @@ ffmpeg -i top.gif -i bottom.gif \
   -filter_complex "color=c=#1a1a2e:s=800x600[bg];[bg][0:v]overlay=0:0[tmp];[tmp][1:v]overlay=0:300" \
   -y output.gif
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Layout Options
 
@@ -248,6 +259,7 @@ combine:
     padding: 5
     background: "#0d1117"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Side-by-Side Comparison
 
@@ -266,6 +278,7 @@ combine:
   options:
     padding: 10
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Picture-in-Picture
 
@@ -286,6 +299,7 @@ combine:
     scale: 0.3
     margin: 20
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 

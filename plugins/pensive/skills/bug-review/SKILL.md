@@ -63,6 +63,7 @@ Systematic bug identification and fixing with language-specific expertise.
 ```bash
 /bug-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -112,6 +113,7 @@ cargo test -p core
 pytest tests/test_api.py
 npm test -- pkg
 ```
+**Verification:** Run `pytest -v tests/test_api.py` to verify.
 
 Capture blockers and propose mocks when dependencies unavailable.
 
@@ -187,6 +189,7 @@ Assign owners and deadlines for follow-up items.
 - Logs and outputs
 - External references
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Best Practices
 

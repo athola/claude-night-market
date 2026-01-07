@@ -75,6 +75,7 @@ Use progressive loading when building skills that:
 
 **Always Available**: Core utilities, exit criteria, integration points
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Context-Based Selection
 
@@ -87,6 +88,7 @@ modules = selector.select_modules(
     max_tokens=MECWMonitor().get_safe_budget()
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Hub-and-Spoke Architecture
 
@@ -155,6 +157,7 @@ Reference in your skill's frontmatter:
 dependencies: [leyline:progressive-loading, leyline:mecw-patterns]
 progressive_loading: true
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 

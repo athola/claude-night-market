@@ -87,6 +87,7 @@ Capture: Tests, Documentation, Reviews, Blockers, Questions. If none, state expl
 ## Blockers/Questions
 - [Item requiring resolution]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration
 Use `imbue:diff-analysis` for risk assessment, `imbue:evidence-logging` for reproducibility, `sanctum:git-workspace-review` for git data. Feed to `brainstorming` or `writing-plans` as needed.

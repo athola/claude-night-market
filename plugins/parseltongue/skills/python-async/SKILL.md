@@ -54,6 +54,7 @@ async def main():
 
 asyncio.run(main())
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 

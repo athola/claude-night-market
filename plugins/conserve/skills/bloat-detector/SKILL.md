@@ -73,6 +73,7 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 # Heuristic-based detection
 /bloat-scan
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Detects:**
 - Files > 500 lines (God class candidates)
@@ -91,6 +92,7 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 /bloat-scan --level 2 --focus docs
 /bloat-scan --level 2 --focus deps
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Detects:**
 - Static analysis (Vulture, deadcode, Knip if available)
@@ -106,6 +108,7 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 # Deep analysis across all dimensions
 /bloat-scan --level 3 --report audit-report.md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Detects:**
 - Full static analysis suite
@@ -150,6 +153,7 @@ Priority Score = (
     (Fix_Ease × 0.1)
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Output ranked by descending priority score.
 
@@ -226,6 +230,7 @@ NEXT STEPS:
   3. Create cleanup branch: git checkout -b cleanup/bloat-reduction
   4. Track progress with issue: /create-issue "Bloat reduction Q1 2025"
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 ## Safety & Guardrails
 
@@ -259,6 +264,7 @@ All scan operations automatically exclude files and directories using a three-ti
    # IDE
    .vscode/, .idea/
    ```
+   **Verification:** Run `pytest -v` to verify tests pass.
 
 2. **`.gitignore` Integration** (if present):
    - Automatically inherits patterns from your `.gitignore`

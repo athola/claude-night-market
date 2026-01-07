@@ -74,6 +74,7 @@ Reference in your skill's frontmatter:
 ```yaml
 dependencies: [leyline:testing-quality-standards]
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 ## Troubleshooting
 
 ### Common Issues

@@ -100,6 +100,7 @@ Use the Worthiness formula:
 ```
 (Business Value + Time Criticality + Risk Reduction) / (Complexity + Token Cost + Scope Drift)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See [decision-framework.md](modules/decision-framework.md) for details.
 
@@ -179,6 +180,7 @@ See [anti-overengineering.md](modules/anti-overengineering.md) for full rules an
 ### Directory Structure
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 docs/backlog/
 ├── queue.md              # Active ranked queue
 └── archive/
@@ -187,6 +189,7 @@ docs/backlog/
     ├── refactors.md      # Deferred cleanup
     └── abstractions.md   # Deferred patterns
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Queue Rules
 
@@ -203,6 +206,7 @@ When deferring, add to `docs/backlog/queue.md`:
 |------|------|------------|-------|-------------|----------|
 | 1 | [New item description] | 1.8 | 2025-12-08 | current-branch | idea |
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Re-rank by Worthiness Score after adding.
 

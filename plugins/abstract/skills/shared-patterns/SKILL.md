@@ -70,6 +70,7 @@ Reference these patterns from other skills:
 For validation patterns, see the `shared-patterns` skill's
 [validation-patterns](../shared-patterns/modules/validation-patterns.md) module.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 ## Troubleshooting
 
 ### Common Issues

@@ -64,6 +64,7 @@ Set up GitHub Actions workflows for continuous integration and deployment.
 ```bash
 ls -la .github/workflows/
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 2. Identify Missing Workflows
 
@@ -81,6 +82,7 @@ required_workflows = {
 
 missing = detector.get_missing_configurations(language)
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### 3. Render Workflow Templates
 
@@ -95,6 +97,7 @@ for workflow in required_workflows[language]:
     engine.render_file(template, output)
     print(f"✓ Created: {output}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 4. Validate Workflows
 
@@ -105,6 +108,7 @@ gh workflow list
 # Or manually check YAML syntax
 python3 -c "import yaml; yaml.safe_load(open('.github/workflows/test.yml'))"
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Workflow Best Practices
 
@@ -119,6 +123,7 @@ python3 -c "import yaml; yaml.safe_load(open('.github/workflows/test.yml'))"
 - uses: actions/checkout@v2
 - uses: actions/setup-python@latest
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Matrix Testing (Python)
 
@@ -128,6 +133,7 @@ strategy:
     python-version: ["3.10", "3.11", "3.12"]
     os: [ubuntu-latest, macos-latest, windows-latest]
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Caching Dependencies
 
@@ -137,6 +143,7 @@ strategy:
     python-version: '3.10'
     cache: 'pip'  # Cache pip dependencies
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Updating Workflows
 
@@ -145,6 +152,7 @@ To update workflows to latest versions:
 ```bash
 /attune:upgrade --component workflows
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 

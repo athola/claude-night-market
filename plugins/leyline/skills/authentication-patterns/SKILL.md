@@ -80,6 +80,7 @@ if not status.authenticated:
     print(f"Auth failed: {status.message}")
     print(f"Action: {status.suggested_action}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Smoke Test
 ```python
@@ -88,6 +89,7 @@ def verify_with_smoke_test(service: str) -> bool:
     result = execute_simple_request(service, "ping")
     return result.success
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Standard Flow
 
@@ -100,6 +102,7 @@ def check_credentials(service: str, env_var: str) -> bool:
         return False
     return True
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 2: Verify with Service
 ```python
@@ -113,6 +116,7 @@ def verify_with_service(service: str) -> AuthStatus:
         message=result.stdout.decode()
     )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 3: Handle Failures
 ```python
@@ -124,6 +128,7 @@ def handle_auth_failure(service: str, method: AuthMethod) -> str:
     }
     return actions[method]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Pattern
 
@@ -131,6 +136,7 @@ def handle_auth_failure(service: str, method: AuthMethod) -> str:
 # In your skill's frontmatter
 dependencies: [leyline:authentication-patterns]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 

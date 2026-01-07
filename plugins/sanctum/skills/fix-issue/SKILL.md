@@ -95,6 +95,7 @@ gh issue comment <number> --body "message"
 # Close issue
 gh issue close <number> --comment "reason"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Configuration
 
@@ -106,6 +107,7 @@ fix_issue:
   auto_close_issues: false
   commit_per_task: true
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 

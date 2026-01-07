@@ -189,6 +189,7 @@ paradigm-selector --compare functional-core hexagonal --context current-project
 # Get recommendations based on concerns
 paradigm-selector --concerns testability,team-autonomy --scale medium
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Implementation Planner Tool
 ```bash
@@ -201,6 +202,7 @@ implementation-planner --paradigm microservices --complexity high --effort-estim
 # Risk assessment
 implementation-planner --paradigm event-driven --context financial --risk-analysis
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Compatibility Checker Tool
 ```bash
@@ -213,6 +215,7 @@ compatibility-checker --from layered --to hexagonal --migration-path
 # Team readiness assessment
 compatibility-checker --paradigm microservices --team-profile current-team
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration with Other Skills
 

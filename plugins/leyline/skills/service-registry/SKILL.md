@@ -80,6 +80,7 @@ class ServiceConfig:
     quota_limits: dict
     models: list[str] = field(default_factory=list)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Execution Result
 
@@ -93,6 +94,7 @@ class ExecutionResult:
     duration: float
     tokens_used: int
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -110,6 +112,7 @@ registry.register("gemini", ServiceConfig(
     quota_limits={"rpm": 60, "daily": 1000}
 ))
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Execute via Service
 ```python
@@ -123,6 +126,7 @@ result = registry.execute(
 if result.success:
     print(result.stdout)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Health Checks
 ```python
@@ -134,6 +138,7 @@ all_status = registry.health_check_all()
 for service, healthy in all_status.items():
     print(f"{service}: {'OK' if healthy else 'FAILED'}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Service Selection
 
@@ -147,6 +152,7 @@ service = registry.select_service(
     }
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Failover Pattern
 ```python
@@ -157,6 +163,7 @@ def execute_with_failover(prompt: str, files: list) -> ExecutionResult:
             return result
     raise AllServicesFailedError()
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Pattern
 
@@ -164,6 +171,7 @@ def execute_with_failover(prompt: str, files: list) -> ExecutionResult:
 # In your skill's frontmatter
 dependencies: [leyline:service-registry]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 

@@ -93,6 +93,7 @@ A modular test management system that:
 # Run full test update workflow
 Skill(test-updates)
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Targeted Test Updates
 ```bash
@@ -100,12 +101,14 @@ Skill(test-updates)
 Skill(test-updates) --target src/sanctum/agents
 Skill(test-updates) --target tests/test_commit_messages.py
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### TDD for New Features
 ```bash
 # Apply TDD to new code
 Skill(test-updates) --tdd-only --target new_feature.py
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Using the Scripts Directly
 
@@ -122,6 +125,7 @@ python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
 python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
     --validate tests/test_my_module.py
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **Programmatic Output (for Claude Code):**
 ```bash
@@ -174,6 +178,7 @@ python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
 #   }
 # }
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## When to Use It
 
@@ -236,6 +241,7 @@ class TestGitWorkflow:
         # Test implementation following TDD principles
         pass
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Test Enhancement
 - Add edge cases and error scenarios

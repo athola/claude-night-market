@@ -78,6 +78,7 @@ qwen auth login
 # Or set API key
 export QWEN_API_KEY="your-key"
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Delegation Flow
 
@@ -101,6 +102,7 @@ python ~/conjure/tools/delegation_executor.py qwen "Summarize" --files src/**/*.
 # With output format
 python ~/conjure/tools/delegation_executor.py qwen "Extract functions" --files src/main.py --format json
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Direct CLI Usage
 ```bash
@@ -113,11 +115,13 @@ qwen -p "@src/**/*.py Summarize these files"
 # Specific model
 qwen --model qwen-max -p "..."
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Save Output
 ```bash
 qwen -p "..." > delegations/qwen/$(date +%Y%m%d_%H%M%S).md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Smart Delegation
 
@@ -127,6 +131,7 @@ The shared delegation executor can auto-select the best service:
 python ~/conjure/tools/delegation_executor.py auto "Analyze large codebase" \
   --files src/**/* --requirement large_context
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Shared Patterns
 

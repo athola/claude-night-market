@@ -79,16 +79,21 @@ To use this development workflow:
    ```
    Use git-workflow module for repository initialization and branching setup
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 2. **Follow the development cycle:**
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
    git-workflow → code-review → testing-strategies → documentation-guidelines
    ```
+   **Verification:** Run `pytest -v` to verify tests pass.
 
 3. **Deploy and monitor:**
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
    deployment-procedures module handles CI/CD and production monitoring
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Usage Patterns
 
@@ -125,6 +130,7 @@ Use the quality-metrics tool to assess your workflow implementation:
 ```bash
 quality-metrics --workflow development-workflow --modules all
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Customization
 

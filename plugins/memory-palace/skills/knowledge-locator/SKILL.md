@@ -61,11 +61,13 @@ The Knowledge Locator provides efficient information retrieval across your memor
 ```bash
 python scripts/palace_manager.py search "authentication" --type semantic
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### List All Palaces
 ```bash
 python scripts/palace_manager.py list
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## When to Use
 
@@ -127,6 +129,7 @@ python scripts/palace_manager.py search-reviews \
   --tags security,api \
   --since 2025-01-01
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Review Chamber Rooms
 
@@ -150,6 +153,7 @@ python scripts/palace_manager.py context-search auth/
 # - Known patterns in this area
 # - Relevant standards to follow
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Integration
 

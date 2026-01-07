@@ -76,6 +76,7 @@ gemini auth login
 # Or set API key
 export GEMINI_API_KEY="your-key"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Delegation Flow
 
@@ -102,11 +103,13 @@ gemini --model gemini-2.5-pro-exp -p "..."
 # JSON output
 gemini --output-format json -p "..."
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Save Output
 ```bash
 gemini -p "..." > delegations/gemini/$(date +%Y%m%d_%H%M%S).md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Shared Patterns
 

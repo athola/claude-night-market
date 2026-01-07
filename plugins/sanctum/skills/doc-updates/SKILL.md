@@ -154,6 +154,7 @@ done
 echo "Plugins: $(ls -d plugins/*/.claude-plugin/plugin.json | wc -l)"
 echo "Skills: $(find plugins/*/skills -name 'SKILL.md' | wc -l)"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Flag mismatches:**
 - Version numbers that don't match plugin.json

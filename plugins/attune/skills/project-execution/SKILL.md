@@ -116,6 +116,7 @@ Execute implementation plan systematically with checkpoints, validation, and pro
    - Report progress
    - Identify blockers
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Post-Execution Phase
 
@@ -138,6 +139,7 @@ def test_user_authentication():
     assert user.is_authenticated
 # Run test → FAILS (feature not implemented)
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **GREEN Phase**:
 ```python
@@ -151,6 +153,7 @@ def authenticate(email, password):
     return None
 # Run test → PASSES
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **REFACTOR Phase**:
 ```python
@@ -168,6 +171,7 @@ def authenticate(email: str, password: str) -> Optional[User]:
     return user
 # Run test → STILL PASSES
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Checkpoint Validation
 
@@ -180,6 +184,7 @@ def authenticate(email: str, password: str) -> Optional[User]:
 - [ ] Documentation updated
 - [ ] No regression in other components
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **Automated Checks**:
 ```bash
@@ -189,6 +194,7 @@ make typecheck     # Type checking passes
 make test          # All tests pass
 make coverage      # Coverage threshold met
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Progress Tracking
 
@@ -229,6 +235,7 @@ Save to `.attune/execution-state.json`:
   "blockers": []
 }
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Progress Reports
 
@@ -251,6 +258,7 @@ Save to `.attune/execution-state.json`:
 - Sprint progress: [X/Y] tasks ([%]%)
 - [Status message]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Sprint Report**:
 ```markdown
@@ -276,6 +284,7 @@ Save to `.attune/execution-state.json`:
 ## Risks
 - [Risk] or None identified
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Blocker Management
 
@@ -322,6 +331,7 @@ When blocked, apply debugging framework:
 
 **Decision Needed**: [What needs to be decided]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quality Assurance
 
@@ -341,6 +351,7 @@ When blocked, apply debugging framework:
 
 **Test Pyramid**:
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
      /\
     /E2E\      Few, slow, expensive
    /------\
@@ -348,6 +359,7 @@ When blocked, apply debugging framework:
  /----------\
 /   UNIT    \  Many, fast, cheap
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Per Task**:
 - Unit tests: Test individual functions/classes
@@ -366,10 +378,12 @@ When blocked, apply debugging framework:
 
 **Formulas**:
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 Velocity = Tasks completed / Days elapsed
 Estimated completion = Tasks remaining / Velocity
 On track? = Estimated completion <= Sprint end date
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Velocity Adjustments
 

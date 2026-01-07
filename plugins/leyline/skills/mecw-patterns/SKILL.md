@@ -84,6 +84,7 @@ pressure = calculate_context_pressure(
 )
 print(pressure)  # "MODERATE"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Full Compliance Check
 
@@ -99,6 +100,7 @@ if not result['compliant']:
     print(f"Overage: {result['overage']:,} tokens")
     print(f"Action: {result['action']}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Continuous Monitoring
 
@@ -120,6 +122,7 @@ if status.recommendations:
     for rec in status.recommendations:
         print(f"  • {rec}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Topics
 
@@ -148,6 +151,7 @@ Reference in your skill's frontmatter:
 ```yaml
 dependencies: [leyline:mecw-patterns]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 

@@ -70,6 +70,7 @@ action: block
 
 This command could delete important files.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 The rule activates immediately - no restart needed!
 
@@ -113,6 +114,7 @@ conditions:
 🔐 **API key in .env file!**
 Ensure file is in .gitignore.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Operators
 
@@ -145,16 +147,19 @@ Ensure file is in .gitignore.
 ### Examples
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 rm\s+-rf          → rm -rf
 console\.log\(    → console.log(
 chmod\s+777       → chmod 777
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Test Patterns
 
 ```bash
 python3 -c "import re; print(re.search(r'pattern', 'text'))"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Example Rules
 
@@ -172,6 +177,7 @@ action: block
 🛑 **Destructive operation blocked!**
 Can cause data loss.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Warn About Debug Code
 
@@ -187,6 +193,7 @@ action: warn
 🐛 **Debug code detected!**
 Remove before committing.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Require Tests
 
@@ -205,6 +212,7 @@ conditions:
 ⚠️ **Tests not run!**
 Please verify changes.
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Protect Production Files
 
@@ -223,6 +231,7 @@ conditions:
 🚨 **Production file!**
 Requires review.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Management
 
@@ -233,11 +242,13 @@ Edit `.local.md` file: `enabled: false`
 ```bash
 rm .claude/hookify.my-rule.local.md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **List:**
 ```bash
 /hookify:list
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 

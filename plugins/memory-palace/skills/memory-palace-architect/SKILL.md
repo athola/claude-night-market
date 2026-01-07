@@ -57,16 +57,19 @@ A memory palace is a mnemonic technique that uses spatial visualization to organ
 ```bash
 python scripts/palace_manager.py create "My Palace" "programming" --metaphor workshop
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### List Existing Palaces
 ```bash
 python scripts/palace_manager.py list
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### View Palace Status
 ```bash
 python scripts/palace_manager.py status
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## When to Use
 

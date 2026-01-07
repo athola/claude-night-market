@@ -66,6 +66,7 @@ Audit Makefiles for best practices, deduplication, and portability.
 ```bash
 /makefile-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -91,12 +92,14 @@ Confirm baseline:
 ```bash
 pwd && git status -sb && git diff --stat
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 Find Make-related files:
 ```bash
 rg -n "^include" -g'Makefile*'
 rg --files -g '*.mk'
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Document changed targets, project goals, and tooling requirements.
 
@@ -157,6 +160,7 @@ Makefile review findings
 ## Recommendation
 Approve / Approve with actions / Block
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 

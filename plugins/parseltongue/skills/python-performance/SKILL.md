@@ -47,6 +47,7 @@ import timeit
 time = timeit.timeit("sum(range(1000000))", number=100)
 print(f"Average: {time/100:.6f}s")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 

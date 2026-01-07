@@ -61,6 +61,7 @@ python3 plugins/hookify/scripts/install_rule.py git:block-force-push
 python3 plugins/hookify/scripts/install_rule.py --category git
 python3 plugins/hookify/scripts/install_rule.py --all
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Available Rules
 
@@ -99,8 +100,10 @@ python3 plugins/hookify/scripts/install_rule.py --all
 When you invoke this skill, tell Claude which rule(s) to install:
 
 ```
+**Verification:** Run `git status` to confirm working tree state.
 Install git:block-force-push
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Claude will:
 1. Read the rule from `skills/rule-catalog/rules/git/block-force-push.md`
@@ -127,6 +130,7 @@ python3 plugins/hookify/scripts/install_rule.py --list
 # Install to custom directory
 python3 plugins/hookify/scripts/install_rule.py git:block-force-push --target /path/to/.claude
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Method 3: Manual Copy
 
@@ -139,6 +143,7 @@ python3 plugins/hookify/scripts/install_rule.py git:block-force-push --target /p
 Rules are stored relative to this skill:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 skills/rule-catalog/
 ├── SKILL.md (this file)
 └── rules/
@@ -156,6 +161,7 @@ skills/rule-catalog/
     └── performance/
         └── warn-large-file-ops.md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Customizing Rules
 
@@ -171,6 +177,7 @@ enabled: false
 # Modify pattern
 pattern: your-custom-pattern
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Creating Pull Requests for New Rules
 

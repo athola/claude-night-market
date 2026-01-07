@@ -67,6 +67,7 @@ Evaluate and improve test suites with TDD/BDD rigor.
 ```bash
 /test-review
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## When to Use
 
@@ -105,6 +106,7 @@ Quick check:
 ```bash
 find . -maxdepth 2 -name "Cargo.toml" -o -name "pyproject.toml" -o -name "package.json" -o -name "go.mod"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 2: Inventory Coverage (`test-review:coverage-inventoried`)
 
@@ -115,6 +117,7 @@ Quick check:
 ```bash
 git diff --name-only | rg 'tests|spec|feature'
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Step 3: Assess Scenario Quality (`test-review:scenario-quality`)
 
@@ -165,6 +168,7 @@ Record executed commands, outputs, and recommendations.
 ## Recommendation
 Approve / Approve with actions / Block
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Notes
 

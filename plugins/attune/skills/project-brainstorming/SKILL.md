@@ -91,6 +91,7 @@ Guide project ideation through Socratic questioning, constraint analysis, and st
 **Why**: [Impact of the problem]
 **Current State**: [Existing solutions and limitations]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 2: Constraint Discovery
 
@@ -128,6 +129,7 @@ Guide project ideation through Socratic questioning, constraint analysis, and st
 - [ ] [Measurable criterion 1]
 - [ ] [Measurable criterion 2]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 3: Approach Generation
 
@@ -170,6 +172,7 @@ Guide project ideation through Socratic questioning, constraint analysis, and st
 - [Trade-off 1 with mitigation]
 - [Trade-off 2 with mitigation]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 4: Approach Comparison
 
@@ -214,6 +217,7 @@ Key decision factors:
 - **Approach X**: Rejected because [reason]
 - **Approach Y**: Rejected because [reason]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Output: Project Brief
 
@@ -248,6 +252,7 @@ Final output saved to `docs/project-brief.md`:
 2. `/attune:plan` - Plan architecture and tasks
 3. `/attune:init` - Initialize project structure
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Questioning Patterns
 
@@ -335,6 +340,7 @@ Save session to `.attune/brainstorm-session.json`:
   "decisions": {}
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 

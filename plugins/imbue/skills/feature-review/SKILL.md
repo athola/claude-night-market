@@ -92,6 +92,7 @@ Discover and categorize existing features:
 ```bash
 /feature-review --inventory
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 2. Score and Classify
 
@@ -99,6 +100,7 @@ Evaluate features against the prioritization framework:
 ```bash
 /feature-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 3. Generate Suggestions
 
@@ -106,6 +108,7 @@ Review gaps and suggest new features:
 ```bash
 /feature-review --suggest
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 4. Upload to GitHub
 
@@ -113,6 +116,7 @@ Create issues for accepted suggestions:
 ```bash
 /feature-review --suggest --create-issues
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Workflow
 
@@ -151,6 +155,7 @@ See [classification-system.md](modules/classification-system.md) for details.
 Apply hybrid RICE+WSJF scoring:
 
 ```
+**Verification:** Run `git status` to confirm working tree state.
 Feature Score = Value Score / Cost Score
 
 Value Score = (Reach + Impact + Business Value + Time Criticality) / 4
@@ -158,6 +163,7 @@ Cost Score = (Effort + Risk + Complexity) / 3
 
 Adjusted Score = Feature Score * Confidence
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Scoring Scale:** Fibonacci (1, 2, 3, 5, 8, 13).
 
@@ -241,6 +247,7 @@ tradeoffs:
   integration: 1.0
   api_surface: 1.0
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See [configuration.md](modules/configuration.md) for options.
 
@@ -278,6 +285,7 @@ These rules apply to all configurations:
 | Auth middleware | Reactive | Dynamic | 2.8 | High | Stable |
 | Skill loader | Reactive | Static | 2.3 | Medium | Needs improvement |
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Suggestion Report
 
@@ -292,6 +300,7 @@ These rules apply to all configurations:
    - Cost: Moderate effort
    - Recommendation: Build in next sprint
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 

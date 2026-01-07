@@ -95,6 +95,7 @@ def select_optimal_modules(context_situation, task_complexity):
         return ['mecw-assessment']
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 
 

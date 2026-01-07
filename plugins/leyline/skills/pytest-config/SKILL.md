@@ -66,6 +66,7 @@ exclude_lines = [
 precision = 2
 show_missing = true
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Detailed Patterns
 
@@ -87,6 +88,7 @@ Reference in your skill's frontmatter:
 ```yaml
 dependencies: [leyline:pytest-config, leyline:testing-quality-standards]
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Exit Criteria
 

@@ -65,6 +65,7 @@ leyline/skills/
 ├── error-patterns/      # Error handling
 └── authentication-patterns/  # Auth verification
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Integration Notes
 

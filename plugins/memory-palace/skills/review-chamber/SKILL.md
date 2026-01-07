@@ -70,6 +70,7 @@ review-chamber/
 ├── standards/      # Quality bar examples and coding conventions
 └── lessons/        # Post-mortems and learnings
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Workflow Phases
 
@@ -87,6 +88,7 @@ For each finding from sanctum:pr-review, evaluate:
 - [ ] **Durability**: Is this architectural (capture) or tactical (skip)?
 - [ ] **Connectivity**: Does it link to existing palace rooms?
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 2: Classification
 
@@ -132,6 +134,7 @@ Chose JWT tokens over server-side sessions.
 - [[auth-patterns]] - Updated with JWT best practices
 - [[security-adr-003]] - Referenced this decision
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 4: Integration
 
@@ -155,6 +158,7 @@ After capture, update related palace rooms:
 # Manual: Explicitly capture from PR
 /review-room capture 42 --room decisions
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Search Past Decisions
 
@@ -168,6 +172,7 @@ After capture, update related palace rooms:
 # List recent entries
 /review-room list --limit 10 --room standards
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Surface Relevant Knowledge
 
@@ -188,6 +193,7 @@ Starting work in `auth/` directory...
 **Known Patterns:**
 - [#38] Token refresh edge case → patterns/token-refresh-race
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Points
 
@@ -196,6 +202,7 @@ Starting work in `auth/` directory...
 The review-chamber integrates after Phase 6 (Generate Report):
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Phase 6: Generate Report
     ↓
 [HOOK] Evaluate findings for knowledge capture
@@ -208,6 +215,7 @@ Phase 6: Generate Report
     ↓
 Phase 7: Post to GitHub
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### With knowledge-intake
 
@@ -231,6 +239,7 @@ python scripts/palace_manager.py search "authentication" \
   --room review-chamber \
   --type semantic
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Evaluation Rubric
 
@@ -271,6 +280,7 @@ python scripts/palace_manager.py search "authentication" \
 # Statistics
 /review-room stats [--palace <palace_id>]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Best Practices
 
