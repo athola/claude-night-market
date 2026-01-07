@@ -1,6 +1,18 @@
 # Scoring Framework
 
-Hybrid prioritization combining RICE (Intercom), WSJF (SAFe), and Kano classification.
+Hybrid prioritization combining RICE (Intercom), WSJF (SAFe), and Kano classification, grounded in Multi-Criteria Decision Analysis (MCDA) principles.
+
+## Mathematical Foundation
+
+This framework extends standard prioritization models with MCDA best practices:
+
+- **Normalization**: Logarithmic normalization for score scales (handles non-linear value perception)
+- **Weighting**: Customizable weights with validation requirements
+- **Trade-offs**: Explicit handling through Value/Cost ratio
+- **Uncertainty**: Confidence factor adjusts for estimation risk
+- **Sensitivity**: Weight variations tested for robustness
+
+**Documentation**: See [Multi-Metric Evaluation Methodology](https://claude-night-market/plugins/abstract/skills/skills-eval/modules/multi-metric-evaluation-methodology.md) for theoretical foundations.
 
 ## The Formula
 
@@ -11,6 +23,29 @@ Where:
   Value Score = weighted_avg(Reach, Impact, Business Value, Time Criticality)
   Cost Score = weighted_avg(Effort, Risk, Complexity)
   Confidence = 0.0 to 1.0 (how certain are we about estimates?)
+```
+
+### Validation Requirements
+
+Before using this framework:
+
+```yaml
+validation:
+  weights:
+    - Document weight derivation method (AHP, expert judgment, empirical)
+    - Verify weights sum to 1.0 within each category (value, cost)
+    - Test sensitivity to ±20% weight variations
+    - Flag critical weights that significantly change rankings
+
+  normalization:
+    - Method: "logarithmic" (handles non-linear perception)
+    - Rationale: "Diminishing returns on raw scores"
+    - Scale_invariance: "Not required (absolute scale used)"
+
+  uncertainty:
+    - Confidence < 0.5: Require research before commitment
+    - Document basis for confidence assessment
+    - Consider worst-case scenario for low-confidence items
 ```
 
 ## Value Factors
@@ -209,9 +244,20 @@ weights:
     effort: 0.40          # Effort matters most
     risk: 0.30            # Risk is significant
     complexity: 0.30      # Complexity matters
+
+# REQUIRED: Document weight derivation
+derivation:
+  method: "expert_judgment"  # or "AHP" or "empirical"
+  experts: 3
+  date: "2025-01-07"
+  rationale: "Impact weighted slightly higher based on user feedback"
 ```
 
-**Guardrail:** Weights within each category must sum to 1.0.
+**Guardrails**:
+- Weights within each category must sum to 1.0
+- Document how weights were derived (not arbitrary)
+- Run sensitivity analysis before finalizing
+- Flag weights that cause ranking instability
 
 ## Comparison with Pure RICE
 
@@ -223,5 +269,51 @@ weights:
 | Business alignment | Not explicit | Business Value factor |
 | Uncertainty | Confidence | Confidence |
 | Classification | None | Kano model |
+| **MCDA Compliance** | Basic | **Full** (normalization, weighting, sensitivity) |
 
-Feature Review extends RICE with WSJF's time criticality and business value, plus Kano classification for strategic context.
+Feature Review extends RICE with WSJF's time criticality and business value, plus Kano classification for strategic context, all grounded in MCDA best practices.
+
+## Sensitivity Analysis
+
+Before committing to prioritization, test robustness:
+
+```python
+def priority_sensitivity_analysis(features, weights, variation=0.20):
+    """
+    Tests if rankings are stable to weight variations.
+
+    Args:
+        features: List of features with scores
+        weights: Current weight configuration
+        variation: Test ±20% changes
+
+    Returns:
+        Dict with sensitivity metrics
+    """
+    base_ranking = rank_features(features, weights)
+    sensitivity = {}
+
+    for category in ["value", "cost"]:
+        for factor in weights[category].keys():
+            # Test weight increase
+            weights_plus = adjust_weight(weights, factor, +variation)
+            ranking_plus = rank_features(features, weights_plus)
+            correlation_plus = spearman_correlation(base_ranking, ranking_plus)
+
+            # Test weight decrease
+            weights_minus = adjust_weight(weights, factor, -variation)
+            ranking_minus = rank_features(features, weights_minus)
+            correlation_minus = spearman_correlation(base_ranking, ranking_minus)
+
+            sensitivity[factor] = {
+                "avg_correlation": (correlation_plus + correlation_minus) / 2,
+                "sensitive": correlation_plus < 0.8 or correlation_minus < 0.8
+            }
+
+    return sensitivity
+```
+
+**Interpretation**:
+- Correlation > 0.9: Ranking stable to this weight variation
+- Correlation 0.8-0.9: Moderately sensitive
+- Correlation < 0.8: Highly sensitive, weight is critical

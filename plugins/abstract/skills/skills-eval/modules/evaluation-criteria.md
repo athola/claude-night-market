@@ -2,6 +2,17 @@
 
 Detailed scoring rubric and quality gates for skill evaluation.
 
+## Mathematical Foundation
+
+This evaluation framework follows Multi-Criteria Decision Analysis (MCDA) best practices:
+
+- **Normalization**: Vector normalization for scale invariance ([full methodology](multi-metric-evaluation-methodology.md))
+- **Weighting**: AHP-derived weights with expert validation
+- **Aggregation**: Weighted sum with Pareto analysis for trade-offs
+- **Validation**: Sensitivity analysis on all weights
+
+**Documentation**: See [Multi-Metric Evaluation Methodology](multi-metric-evaluation-methodology.md) for complete mathematical foundation.
+
 ## Scoring System (100 points total)
 
 ### Structure Compliance (20 points)
@@ -169,6 +180,23 @@ quality_gates:
   max_critical_issues: 0
   max_high_issues: 3
 ```
+
+### Sensitivity Analysis Requirements
+
+Before finalizing quality gates, run sensitivity analysis:
+
+```yaml
+sensitivity_analysis:
+  variation: 0.20  # ±20% weight variation
+
+  requirements:
+    stable_rankings: true  # Rankings shouldn't change
+    critical_weights_identified: true  # Document sensitive weights
+
+  critical_threshold: 0.8  # Spearman correlation < 0.8 = sensitive
+```
+
+See [Sensitivity Analysis](multi-metric-evaluation-methodology.md#sensitivity-analysis) for implementation details.
 
 ### Gate Behaviors
 

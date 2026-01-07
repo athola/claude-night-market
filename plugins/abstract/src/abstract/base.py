@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Base class for Abstract scripts with common functionality.
 
-Provides centralized import handling, file discovery, and frontmatter operations.
+Provide centralized import handling, file discovery, and frontmatter operations.
 
 This module offers two usage patterns:
 

@@ -136,9 +136,78 @@ Quick reference for all supported hook events:
 | **PreToolUse** | Before tool execution | `tool_name`, `tool_input` | Validation, filtering, input transformation |
 | **PostToolUse** | After tool execution | `tool_name`, `tool_input`, `tool_output` | Logging, metrics, output transformation |
 | **UserPromptSubmit** | User sends message | `message` | Context injection, content filtering |
+| **PermissionRequest** | Permission dialog shown | `tool_name`, `tool_input` | Auto-approve/deny with custom logic |
+| **Notification** | Claude Code sends notification | `message` | Custom notification handling |
 | **Stop** | Agent completes | `reason`, `result` | Final cleanup, summary reports |
 | **SubagentStop** | Subagent completes | `subagent_id`, `result` | Result processing, aggregation |
 | **PreCompact** | Before context compact | `context_size` | State preservation, checkpointing |
+| **SessionStart** | Session starts/resumes | `session_id` | Initialization, context loading |
+| **SessionEnd** | Session terminates | `session_id` | Cleanup, final logging |
+
+## Hooks in Frontmatter (Claude Code 2.1.0+)
+
+**New in 2.1.0:** Define hooks directly in skill, command, or agent frontmatter. These hooks are scoped to the component's lifecycle.
+
+### Skill/Command/Agent Frontmatter Hooks
+
+```yaml
+---
+name: validated-skill
+description: Skill with lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: "./validate-command.sh"
+      once: true  # NEW: Run only once per session
+    - matcher: "Write|Edit"
+      command: "./pre-edit-check.sh"
+  PostToolUse:
+    - matcher: "Write|Edit"
+      command: "./format-on-save.sh"
+  Stop:
+    - command: "./cleanup-and-report.sh"
+---
+```
+
+### The `once: true` Configuration
+
+**New in 2.1.0:** Use `once: true` to execute a hook only once per session, ideal for:
+- One-time setup/initialization
+- Resource allocation that shouldn't repeat
+- Session-level configuration
+
+```yaml
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: "./setup-environment.sh"
+      once: true  # Runs only on first Bash call
+  SessionStart:
+    - command: "./initialize-session.sh"
+      once: true  # Runs only once at session start
+```
+
+### Frontmatter vs Settings Hooks
+
+| Aspect | Frontmatter Hooks | Settings Hooks |
+|--------|-------------------|----------------|
+| Scope | Component lifecycle | Global/project |
+| Location | In skill/agent/command | settings.json |
+| Persistence | Active only when component runs | Always active |
+| Use case | Component-specific validation | Cross-cutting concerns |
+
+### PreToolUse updatedInput (2.1.0 Fix)
+
+PreToolUse hooks can now return `updatedInput` when returning `ask` permission decision, enabling hooks to act as middleware while still requesting user consent:
+
+```json
+{
+  "decision": "ask",
+  "updatedInput": {
+    "command": "modified-command --safe-flag"
+  }
+}
+```
 
 ## Claude Code vs SDK
 

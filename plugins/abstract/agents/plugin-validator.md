@@ -1,6 +1,18 @@
 ---
 name: plugin-validator
-description: Validates Claude Code plugin structure against official requirements - checks plugin.json schema, verifies referenced paths exist, validates kebab-case naming, and validates skill frontmatter is complete. Use when the user asks to "validate my plugin", "check plugin structure", "verify plugin is correct", "validate plugin.json", "check plugin files", or mentions plugin validation. Trigger proactively after user creates or modifies plugin components.
+description: |
+  Validates Claude Code plugin structure against official requirements - checks
+  plugin.json schema, verifies referenced paths exist, validates kebab-case naming,
+  and validates skill frontmatter is complete.
+
+  Use when: validating plugin structure, checking plugin.json, verifying paths exist
+
+  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
+  - Quick pass/fail check? → Parent runs `python3 .../validate-plugin.py <path>`
+  - JSON syntax check? → Parent runs `jq . plugin.json`
+  - Single field check? → Parent reads file directly
+  ONLY invoke this agent for: multi-plugin validation, detailed error interpretation,
+  fix-and-revalidate cycles, or integration with other workflows.
 tools: [Read, Grep, Glob, Bash]
 model: haiku
 escalation:
@@ -33,7 +45,55 @@ Validates Claude Code plugin structure against official requirements and best pr
 - Checks path format (relative with `./`)
 - Validates skill frontmatter completeness
 
+### Claude Code 2.1.0+ Validation
+
+The validator recognizes and validates new 2.1.0 frontmatter fields:
+
+| Field | Valid Values | Description |
+|-------|--------------|-------------|
+| `context` | `fork` | Run in forked sub-agent context |
+| `agent` | string | Agent type for skill execution |
+| `user-invocable` | boolean | Visibility in slash command menu |
+| `hooks` | object | PreToolUse/PostToolUse/Stop hooks |
+| `allowed-tools` | list | YAML-style tool list with wildcards |
+
+**Wildcard Patterns Validated:**
+- `Bash(npm *)` - All npm commands
+- `Bash(* install)` - Any install command
+- `Bash(git * main)` - Git with main branch
+
+**Hook Structure Validated:**
+```yaml
+hooks:
+  PreToolUse:
+    - matcher: "Bash|Edit"
+      command: "./script.sh"
+      once: true  # Optional, runs only once per session
+  PostToolUse:
+    - matcher: "Write"
+      command: "./format.sh"
+  Stop:
+    - command: "./cleanup.sh"
+```
+
 ## Validation Process
+
+### Step 0: Complexity Check (MANDATORY)
+
+Before any work, assess if this task justifies subagent overhead:
+
+**Return early if**:
+- User just wants pass/fail → "SIMPLE: `python3 .../validate-plugin.py <path>`"
+- Single plugin, no interpretation needed → "SIMPLE: Parent runs script directly"
+- Quick syntax check → "SIMPLE: Parent runs `jq . plugin.json`"
+
+**Continue if**:
+- Multiple plugins to validate and compare
+- Detailed error interpretation needed
+- Follow-up fixes and re-validation cycle
+- Integration with other workflows
+
+### Steps 1-6 (Only if Complexity Check passes)
 
 1. **Structure Check**: Verify `.claude-plugin/plugin.json` location
 2. **JSON Validation**: Parse and validate JSON syntax

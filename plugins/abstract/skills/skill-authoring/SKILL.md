@@ -221,6 +221,27 @@ description: This skill helps you design better APIs.
    tags: [discovery, keywords, here]
    dependencies: []
    estimated_tokens: [realistic estimate]
+
+   # Claude Code 2.1.0+ Optional Fields:
+   context: fork              # Run in isolated sub-agent context
+   agent: agent-name          # Specify agent type for execution
+   user-invocable: false      # Hide from slash command menu (default: true)
+   model: sonnet              # Model override for this skill
+
+   # YAML-style allowed-tools (cleaner syntax)
+   allowed-tools:
+     - Read
+     - Grep
+     - Bash(npm *)            # Wildcard patterns supported
+
+   # Lifecycle hooks scoped to skill
+   hooks:
+     PreToolUse:
+       - matcher: "Bash"
+         command: "./validate.sh"
+         once: true           # Run only once per session
+     Stop:
+       - command: "./cleanup.sh"
    ---
    ```
    **Verification:** Run the command with `--help` flag to verify availability.

@@ -6,13 +6,7 @@ Claude Night Market provides plugins for Claude Code to support software enginee
 
 ## What You'll Find Here
 
-This documentation covers:
-
-- **Getting Started**: Installation, configuration, and your first plugin
-- **Plugin Catalog**: Detailed documentation for each plugin in the marketplace
-- **Tutorials**: Step-by-step guides for common workflows
-- **Reference**: Complete API documentation and capability listings
-- **Achievement System**: Track your learning progress with gamified milestones
+This documentation covers getting started with installation and configuration, a detailed plugin catalog, step-by-step tutorials for common workflows, complete API references, and an achievement system to track your learning progress.
 
 ## Plugin Architecture
 
@@ -38,12 +32,21 @@ The marketplace is organized into layers, each building on the foundations below
 
 ## Philosophy
 
-The project follows four principles:
+We prioritize modular design with shallow dependency chains and single responsibility. Plugins load progressively, ensuring users only pay for what they use. Development is spec-driven, prioritizing specifications before implementation.
 
-1. **Modular**: Shallow dependency chains with single responsibility
-2. **Progressive**: Load only what is needed.
-3. **Composable**: Plugins designed to work together.
-4. **Spec-driven**: Prioritize specifications before implementation.
+## Claude Code 2.1.0+ Compatibility
+
+This marketplace leverages new Claude Code 2.1.0 features:
+
+| Feature | Benefit |
+|---------|---------|
+| **Skill Hot-Reload** | Edit skills without restarting sessions |
+| **Context Forking** | Run skills in isolated context with `context: fork` |
+| **Frontmatter Hooks** | Lifecycle hooks scoped to skills/agents |
+| **Wildcard Permissions** | Flexible patterns like `Bash(npm *)` |
+| **YAML allowed-tools** | Cleaner list syntax for tool permissions |
+
+See the [Plugin Development Guide](../docs/plugin-development-guide.md#claude-code-210-features) for detailed documentation.
 
 ## Quick Example
 

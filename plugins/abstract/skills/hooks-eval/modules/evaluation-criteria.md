@@ -2,6 +2,17 @@
 
 Detailed scoring rubric and quality gates for hook evaluation.
 
+## Mathematical Foundation
+
+This evaluation framework follows Multi-Criteria Decision Analysis (MCDA) best practices:
+
+- **Normalization**: Vector normalization for scale invariance ([full methodology](../../skills-eval/modules/multi-metric-evaluation-methodology.md))
+- **Weighting**: Security-first weights with stakeholder validation
+- **Aggregation**: Weighted sum with penalty-based security scoring
+- **Validation**: Sensitivity analysis on non-security weights
+
+**Documentation**: See [Multi-Metric Evaluation Methodology](../../skills-eval/modules/multi-metric-evaluation-methodology.md) for complete mathematical foundation.
+
 ## Scoring System (100 points total)
 
 ### Security Analysis (30 points)
@@ -121,6 +132,26 @@ quality_gates:
   max_critical_issues: 0
   max_high_issues: 2
 ```
+
+### Sensitivity Analysis Requirements
+
+Security weights are non-negotiable, but other weights should be validated:
+
+```yaml
+sensitivity_analysis:
+  # Security weights are fixed (non-negotiable)
+  fixed_weights: ["security_analysis"]
+
+  # Other weights tested for sensitivity
+  test_weights: ["performance", "compliance", "reliability", "maintainability"]
+  variation: 0.20  # ±20% weight variation
+
+  requirements:
+    stable_rankings: true  # Rankings shouldn't change (except security)
+    critical_weights_identified: true  # Document sensitive weights
+```
+
+See [Sensitivity Analysis](../../skills-eval/modules/multi-metric-evaluation-methodology.md#sensitivity-analysis) for implementation details.
 
 ### Gate Behaviors
 

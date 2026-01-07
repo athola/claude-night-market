@@ -34,11 +34,9 @@ def main() -> None:
         pass
 
     # Output reminder as hook context (Stop hooks are informational-only)
+    # Stop hooks use 'reason' field, not hookSpecificOutput
     output = {
-        "hookSpecificOutput": {
-            "hookEventName": "Stop",
-            "additionalContext": REMINDER,
-        }
+        "reason": REMINDER,
     }
     print(json.dumps(output))
     sys.exit(0)

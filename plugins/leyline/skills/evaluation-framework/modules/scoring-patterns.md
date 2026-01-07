@@ -1,14 +1,25 @@
 ---
 name: scoring-patterns
-description: Detailed methodology for scoring artifacts against evaluation criteria
+description: Detailed methodology for scoring artifacts against evaluation criteria with MCDA best practices
 category: evaluation
-tags: [scoring, methodology, consistency, calibration]
-estimated_tokens: 800
+tags: [scoring, methodology, consistency, calibration, normalization, weighting]
+estimated_tokens: 900
 ---
 
 # Scoring Patterns
 
-Detailed patterns and best practices for consistent, calibrated scoring across evaluations.
+Detailed patterns and best practices for consistent, calibrated scoring across evaluations using Multi-Criteria Decision Analysis (MCDA) principles.
+
+## Mathematical Foundation
+
+This scoring methodology follows research-validated MCDA practices:
+
+- **Normalization**: Vector normalization (scale-invariant)
+- **Weighting**: Validated through AHP or expert elicitation
+- **Sensitivity**: All weights tested for robustness
+- **Reproducibility**: Same inputs → same outputs
+
+**Related**: [Multi-Metric Evaluation Methodology](https://claude-night-market/plugins/abstract/skills/skills-eval/modules/multi-metric-evaluation-methodology.md)
 
 ## Scoring Methodology
 
@@ -33,6 +44,10 @@ Use a consistent 0-100 scale for all criteria scoring:
 **Anchor to examples**: Document reference examples at each score level for consistency.
 
 **Inter-rater reliability**: Multiple evaluators should score similarly when using the same rubric.
+
+**Validate normalization**: Use scale-invariant normalization (vector normalization) to ensure rankings don't change with unit conversions.
+
+**Test sensitivity**: Verify rankings are stable to reasonable weight variations (±20%).
 
 ## Criterion Design Patterns
 
@@ -78,6 +93,25 @@ code_quality:
 
 ## Weight Assignment Patterns
 
+### Critical: Validate Your Weights
+
+Don't use arbitrary weights. Derive them systematically:
+
+**Option 1: Analytic Hierarchy Process (AHP)**
+- Pairwise comparison of criteria
+- Calculates weights with consistency checks
+- Requires consistency ratio < 0.1
+
+**Option 2: Expert Judgment Elicitation**
+- Structured process with 5-15 experts
+- Calibration questions to assess accuracy
+- Performance-based weighting of contributions
+
+**Option 3: Empirical Validation**
+- Test weights against historical outcomes
+- Adjust based on predictive validity
+- Document validation results
+
 ### Priority-Based Weighting
 
 Assign weights based on importance to outcome:
@@ -87,6 +121,13 @@ Assign weights based on importance to outcome:
 critical_criteria = 0.50-0.70  # Must-have qualities
 important_criteria = 0.20-0.30  # Nice-to-have qualities
 supplemental_criteria = 0.05-0.15  # Additional considerations
+
+# Requirement: Document how weights were derived
+weights_derivation:
+  method: "AHP"  # or "expert_judgment" or "empirical"
+  experts: 5
+  consistency_ratio: 0.04
+  date: "2025-01-07"
 ```
 
 ### Equal Weighting
@@ -287,6 +328,39 @@ Before finalizing scores:
 - [ ] Scores match rubric descriptions
 - [ ] Evidence documented for each score
 - [ ] Weights sum to 1.0
+- [ ] **Weights validated through AHP or expert elicitation**
+- [ ] **Normalization method documented (vector/minmax/log)**
+- [ ] **Scale invariance tested** (unit changes don't affect rankings)
+- [ ] **Sensitivity analysis completed** (±20% weight variation)
 - [ ] Calculations verified
 - [ ] Threshold determination clear
 - [ ] Feedback actionable and specific
+
+## Required Documentation
+
+Every evaluation must document:
+
+```yaml
+evaluation_metadata:
+  normalization:
+    method: "vector"  # or "minmax" or "log"
+    scale_invariant: true
+    rationale: "Vector normalization preserves rankings under unit changes"
+
+  weighting:
+    method: "AHP"  # or "expert_judgment" or "empirical"
+    derivation_date: "2025-01-07"
+    experts: 5
+    consistency_ratio: 0.04  # < 0.1 required
+
+  sensitivity:
+    variation_tested: 0.20  # ±20%
+    critical_weights: ["content_quality"]  # Rankings sensitive to these
+    stable_weights: ["documentation"]  # Rankings robust
+    spearman_correlation: 0.92  # Overall stability
+
+  aggregation:
+    method: "weighted_sum"  # or "TOPSIS" or "Pareto"
+    independence_assumption: "Preferential independence assumed"
+    trade_offs: "Documented in multi-dimensional report"
+```

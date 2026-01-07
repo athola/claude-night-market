@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Claude Code 2.1.0 Compatibility** - Full support for new frontmatter features and behaviors
+  - **Skill Hot-Reload**: Skills now auto-reload without session restart
+  - **Context Forking**: `context: fork` runs skills in isolated sub-agent context
+  - **Agent Field**: `agent: agent-name` specifies agent type for skill execution
+  - **Frontmatter Hooks**: Define PreToolUse/PostToolUse/Stop hooks in skill/agent/command frontmatter
+  - **Once Hooks**: `once: true` executes hook only once per session
+  - **YAML-Style allowed-tools**: Cleaner list syntax instead of comma-separated strings
+  - **Wildcard Permissions**: `Bash(npm *)`, `Bash(* install)`, `Bash(git * main)`
+  - **Skill Visibility**: `user-invocable: false` hides skills from slash command menu
+  - **Agent Disabling**: `Task(AgentName)` syntax for disabling specific agents
+
+- **Documentation Updates** - Comprehensive 2.1.0 feature documentation
+  - **Plugin Development Guide**: New section covering all 2.1.0 frontmatter fields
+  - **Common Workflows Guide**: Added 2.1.0 features section with examples
+  - **Skill Authoring Skill**: Updated frontmatter examples with 2.1.0 fields
+  - **Hook Authoring Skill**: Added frontmatter hooks, `once: true`, and event types
+
+### Changed
+
+- **Agents Updated** - Added lifecycle hooks to key agents
+  - `pensive:code-reviewer`: PreToolUse and Stop hooks for audit logging
+  - Escalation configuration added to agents
+
+- **Skill Patterns** - Updated skill patterns in documentation
+  - YAML-style allowed-tools shown as preferred syntax
+  - Wildcard permission patterns documented
+  - Lifecycle hooks demonstrated in skill frontmatter
+
+- **Agents Updated with Hooks** - Added lifecycle hooks to more agents
+  - `sanctum:pr-agent`: PreToolUse, PostToolUse, Stop hooks for quality gate audit
+  - `sanctum:git-workspace-agent`: PreToolUse hook for read-only validation
+  - `conserve:context-optimizer`: PreToolUse, PostToolUse, Stop hooks for audit logging
+
+### Added
+
+- **Frontmatter Validation Tests** - 33 new tests for Claude Code 2.1.0 validation
+  - `TestValidate210Fields`: 19 tests for context, hooks, permissions, allowed-tools
+  - `TestHas210Features`: 9 tests for feature detection
+  - `TestAllHookEventTypes`: 2 tests for hook event validation
+  - `TestConstantDefinitions`: 3 tests for constant verification
+  - All 62 frontmatter tests pass (was 29, now 62)
+
+- **Base Module Tests** - 25 new tests for abstract.base module
+  - `TestSetupImports`: Backwards compatibility verification
+  - `TestHasFrontmatterFile`: File reading with error handling
+  - `TestFindMarkdownFiles`: Directory traversal and recursion
+  - `TestAbstractScript`: Class initialization and lazy loading
+
 ## [1.2.1] - 2026-01-05
 
 ### Added
