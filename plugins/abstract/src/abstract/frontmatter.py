@@ -52,6 +52,48 @@ class FrontmatterProcessor:
     # Default recommended fields for skill files
     DEFAULT_RECOMMENDED_FIELDS = ["category", "tags", "dependencies", "tools"]
 
+    # Claude Code 2.1.0+ optional fields for skills
+    CLAUDE_CODE_210_SKILL_FIELDS = [
+        "context",  # "fork" for forked sub-agent context
+        "agent",  # Agent type for skill execution
+        "user-invocable",  # Boolean: visibility in slash command menu
+        "hooks",  # PreToolUse/PostToolUse/Stop lifecycle hooks
+        "allowed-tools",  # YAML-style list or comma-separated string
+        "model",  # Model override for this skill
+    ]
+
+    # Claude Code 2.1.0+ optional fields for agents
+    CLAUDE_CODE_210_AGENT_FIELDS = [
+        "hooks",  # PreToolUse/PostToolUse/Stop lifecycle hooks
+        "skills",  # Skills to auto-load (NOT inherited from parent)
+        "escalation",  # Model escalation configuration
+        "permissionMode",  # Permission handling mode
+    ]
+
+    # Valid hook event types
+    VALID_HOOK_EVENTS = [
+        "PreToolUse",
+        "PostToolUse",
+        "UserPromptSubmit",
+        "PermissionRequest",
+        "Notification",
+        "Stop",
+        "SubagentStop",
+        "PreCompact",
+        "SessionStart",
+        "SessionEnd",
+    ]
+
+    # Valid permission modes
+    VALID_PERMISSION_MODES = [
+        "default",
+        "acceptEdits",
+        "dontAsk",
+        "bypassPermissions",
+        "plan",
+        "ignore",
+    ]
+
     @staticmethod
     def has_frontmatter(content: str) -> bool:
         """Check if content has valid frontmatter delimiters.
@@ -258,3 +300,149 @@ class FrontmatterProcessor:
             recommended_fields = FrontmatterProcessor.DEFAULT_RECOMMENDED_FIELDS
 
         return [f for f in recommended_fields if f not in frontmatter]
+
+    @staticmethod
+    def validate_210_fields(frontmatter: dict) -> list[str]:
+        """Validate Claude Code 2.1.0+ specific frontmatter fields.
+
+        Validates:
+        - context: Must be "fork" if present
+        - user-invocable: Must be boolean if present
+        - hooks: Must have valid structure if present
+        - permissionMode: Must be valid value if present
+
+        Args:
+            frontmatter: Parsed frontmatter dictionary.
+
+        Returns:
+            List of validation error messages. Empty if all valid.
+
+        """
+        errors: list[str] = []
+
+        # Validate individual fields using helper methods
+        errors.extend(FrontmatterProcessor._validate_context(frontmatter))
+        errors.extend(FrontmatterProcessor._validate_user_invocable(frontmatter))
+        errors.extend(FrontmatterProcessor._validate_hooks(frontmatter))
+        errors.extend(FrontmatterProcessor._validate_permission_mode(frontmatter))
+        errors.extend(FrontmatterProcessor._validate_allowed_tools(frontmatter))
+
+        return errors
+
+    @staticmethod
+    def _validate_context(frontmatter: dict) -> list[str]:
+        """Validate context field."""
+        errors: list[str] = []
+        if "context" in frontmatter:
+            if frontmatter["context"] != "fork":
+                errors.append(
+                    f"Invalid 'context' value: {frontmatter['context']}. "
+                    "Only 'fork' is supported."
+                )
+        return errors
+
+    @staticmethod
+    def _validate_user_invocable(frontmatter: dict) -> list[str]:
+        """Validate user-invocable field."""
+        errors: list[str] = []
+        if "user-invocable" in frontmatter:
+            if not isinstance(frontmatter["user-invocable"], bool):
+                type_name = type(frontmatter["user-invocable"]).__name__
+                errors.append(f"'user-invocable' must be boolean, got: {type_name}")
+        return errors
+
+    @staticmethod
+    def _validate_hooks(frontmatter: dict) -> list[str]:
+        """Validate hooks structure."""
+        errors: list[str] = []
+        if "hooks" not in frontmatter:
+            return errors
+
+        hooks = frontmatter["hooks"]
+        if not isinstance(hooks, dict):
+            type_name = type(hooks).__name__
+            errors.append(f"'hooks' must be a dictionary, got: {type_name}")
+            return errors
+
+        for event_type in hooks:
+            if event_type not in FrontmatterProcessor.VALID_HOOK_EVENTS:
+                valid_types = ", ".join(FrontmatterProcessor.VALID_HOOK_EVENTS)
+                errors.append(
+                    f"Invalid hook event type: {event_type}. Valid types: {valid_types}"
+                )
+            else:
+                errors.extend(
+                    FrontmatterProcessor._validate_hook_entries(
+                        event_type, hooks[event_type]
+                    )
+                )
+
+        return errors
+
+    @staticmethod
+    def _validate_hook_entries(event_type: str, hook_entries: list) -> list[str]:
+        """Validate hook entries for a specific event type."""
+        errors: list[str] = []
+
+        if not isinstance(hook_entries, list):
+            errors.append(f"Hook entries for '{event_type}' must be a list")
+            return errors
+
+        for i, entry in enumerate(hook_entries):
+            if not isinstance(entry, dict):
+                errors.append(f"Hook entry {i} for '{event_type}' must be a dict")
+            elif "command" not in entry:
+                errors.append(f"Hook entry {i} for '{event_type}' missing 'command'")
+
+            # Validate 'once' field if present
+            if isinstance(entry, dict) and "once" in entry:
+                if not isinstance(entry["once"], bool):
+                    errors.append(
+                        f"Hook entry {i} for '{event_type}': 'once' must be boolean"
+                    )
+
+        return errors
+
+    @staticmethod
+    def _validate_permission_mode(frontmatter: dict) -> list[str]:
+        """Validate permissionMode field."""
+        errors: list[str] = []
+        if "permissionMode" in frontmatter:
+            mode = frontmatter["permissionMode"]
+            valid_modes = FrontmatterProcessor.VALID_PERMISSION_MODES
+            if mode not in valid_modes:
+                modes_str = ", ".join(valid_modes)
+                errors.append(
+                    f"Invalid 'permissionMode': {mode}. Valid modes: {modes_str}"
+                )
+        return errors
+
+    @staticmethod
+    def _validate_allowed_tools(frontmatter: dict) -> list[str]:
+        """Validate allowed-tools field."""
+        errors: list[str] = []
+        if "allowed-tools" in frontmatter:
+            tools = frontmatter["allowed-tools"]
+            if not isinstance(tools, list | str):
+                type_name = type(tools).__name__
+                errors.append(
+                    f"'allowed-tools' must be a list or string, got: {type_name}"
+                )
+        return errors
+
+    @staticmethod
+    def has_210_features(frontmatter: dict) -> bool:
+        """Check if frontmatter uses any Claude Code 2.1.0+ features.
+
+        Args:
+            frontmatter: Parsed frontmatter dictionary.
+
+        Returns:
+            True if any 2.1.0+ fields are present.
+
+        """
+        all_210_fields = (
+            FrontmatterProcessor.CLAUDE_CODE_210_SKILL_FIELDS
+            + FrontmatterProcessor.CLAUDE_CODE_210_AGENT_FIELDS
+        )
+        return any(f in frontmatter for f in all_210_fields)
