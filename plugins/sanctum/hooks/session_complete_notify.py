@@ -199,7 +199,7 @@ def main() -> None:
             stderr=subprocess.DEVNULL,
             start_new_session=True,  # Detach from parent
         )
-    except Exception:
+    except Exception:  # noqa: S110 (intentional silent fail for non-critical notifications)
         # Fail silently - notifications are non-critical
         pass
 
@@ -214,7 +214,7 @@ def run_notification() -> None:
         title = "Claude Code Ready"
         message = f"Awaiting input in: {terminal_info}"
         send_notification(title, message)
-    except Exception:
+    except Exception:  # noqa: S110 (intentional silent fail for non-critical notifications)
         # Silently fail - notifications are non-critical
         pass
 

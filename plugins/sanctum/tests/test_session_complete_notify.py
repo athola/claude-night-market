@@ -24,6 +24,7 @@ from session_complete_notify import (  # noqa: E402
     notify_linux,
     notify_macos,
     notify_windows,
+    run_notification,
     send_notification,
 )
 
@@ -378,17 +379,33 @@ class TestMainFunction:
 
         assert exc_info.value.code == 0
 
+    def test_main_spawns_background_subprocess(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Should spawn subprocess with --background flag."""
+        monkeypatch.chdir(tmp_path)
+
+        with patch("session_complete_notify.subprocess.Popen") as mock_popen:
+            with pytest.raises(SystemExit):
+                main()
+
+        # Verify Popen was called with correct arguments
+        mock_popen.assert_called_once()
+        call_args = mock_popen.call_args[0][0]  # Get the command list
+        assert sys.executable in call_args
+        assert "--background" in call_args
+
     def test_main_uses_correct_title(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Should use 'Claude Code Ready' as title."""
         monkeypatch.chdir(tmp_path)
 
+        # main() now spawns a subprocess, so we test run_notification() directly
         with patch(
             "session_complete_notify.send_notification", return_value=True
         ) as mock:
-            with pytest.raises(SystemExit):
-                main()
+            run_notification()
 
         mock.assert_called_once()
         title = mock.call_args[0][0]
@@ -402,11 +419,11 @@ class TestMainFunction:
         project_dir.mkdir()
         monkeypatch.chdir(project_dir)
 
+        # main() now spawns a subprocess, so we test run_notification() directly
         with patch(
             "session_complete_notify.send_notification", return_value=True
         ) as mock:
-            with pytest.raises(SystemExit):
-                main()
+            run_notification()
 
         message = mock.call_args[0][1]
         assert "Awaiting input in:" in message
