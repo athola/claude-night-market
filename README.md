@@ -132,6 +132,7 @@ See [**Common Workflows Guide**](docs/common-workflows.md) for when and how to u
 | [**Tutorials**](book/src/tutorials/README.md) | Step-by-step guides |
 | [**Quality Gates**](docs/quality-gates.md) | Code quality system and pre-commit hooks |
 | [**Testing Guide**](docs/testing-guide.md) | Testing patterns and troubleshooting |
+| [**Performance Guide**](docs/performance/README.md) | Hook optimization and benchmarking |
 | [**LSP Integration**](docs/guides/lsp-native-support.md) | Language Server Protocol setup and verification |
 
 ## LSP Integration

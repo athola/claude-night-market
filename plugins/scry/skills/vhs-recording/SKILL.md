@@ -1,12 +1,11 @@
 ---
 name: vhs-recording
 description: |
-  Generate terminal recordings using VHS (Charmbracelet) tape files.
-  Executes tape files to produce GIF outputs of terminal sessions.
+  Generate terminal recordings using VHS tape files, produces GIF outputs
 
-  Triggers: terminal recording, vhs tape, terminal demo, cli demo
+  Triggers: terminal recording, vhs tape, terminal demo
 
-  Use when: creating terminal recordings for tutorials and documentation
+  Use when: creating terminal recordings for tutorials
 category: media-generation
 tags: [vhs, terminal, recording, gif, demo, tutorial]
 tools: [Read, Write, Bash]

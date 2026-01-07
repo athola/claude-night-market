@@ -4,9 +4,9 @@ VHS tape files for generating tutorial GIFs.
 
 ## Available Tapes
 
-| Tape | Output | Description | Duration |
-|------|--------|-------------|----------|
-| [skills-showcase.tape](skills-showcase.tape) | [skills-showcase.gif](../gifs/skills-showcase.gif) | Skill discovery and workflow demonstration | ~90s |
+| Tape | Output | Description | Duration | Strategy |
+|------|--------|-------------|----------|----------|
+| [skills-showcase.tape](skills-showcase.tape) | [skills-showcase.gif](../gifs/skills-showcase.gif) | Skill discovery and workflow demonstration | ~23s | Demo script |
 
 ## Recording Instructions
 
@@ -70,11 +70,42 @@ These annotations are parsed by the `tutorial-updates` skill to generate dual-to
 
 ## Best Practices
 
-1. **Keep it focused**: 60-90 seconds max
+1. **Keep it focused**: 20-60 seconds max (shorter = less memory)
 2. **Use sleeps liberally**: Allow viewers to read output
 3. **Clear between sections**: Use `clear` to reset the screen
 4. **Show real value**: Demonstrate actual project workflows
 5. **Annotate thoroughly**: `@docs-brief` and `@book-detail` enable automation
+
+## Memory Optimization (WSL/Zellij)
+
+To prevent terminal crashes when generating GIFs:
+
+1. **Use smaller dimensions**: 900x700 or smaller (not 1400x800)
+2. **Prefer demo scripts**: Instead of slow API calls
+   - Demo scripts are deterministic
+   - Complete in seconds vs. minutes
+   - Generate fewer frames for ffmpeg
+   - Show real content from codebase
+3. **Monitor memory**: Check `free -h` before generating
+4. **Use timeout**: `timeout 120s vhs tape.tape` to prevent hangs
+
+### Demo Script Strategy
+
+For tutorials that would require slow API calls:
+
+```bash
+#!/bin/bash
+# .claude-demo.sh - Fast, deterministic demonstration
+# Instead of: echo "prompt" | claude -p --print (takes 20s)
+# Use: Custom script that shows same concept in 2s
+```
+
+Benefits:
+- **Fast**: Completes in seconds
+- **Deterministic**: Same output every recording
+- **Offline**: No API dependencies
+- **Memory-safe**: Fewer frames to process
+- **Authentic**: Shows real files and content from codebase
 
 ## See Also
 

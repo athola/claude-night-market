@@ -1,12 +1,11 @@
 ---
 name: media-composition
 description: |
-  Combine multiple media assets (GIFs, videos) into composite tutorials.
-  Supports vertical/horizontal layouts and sequential stitching.
+  Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal layouts
 
   Triggers: combine media, stitch gifs, composite, merge recordings
 
-  Use when: combining terminal and browser recordings into a single tutorial
+  Use when: combining terminal and browser recordings
 category: media-generation
 tags: [composition, ffmpeg, media, combine, stitch, tutorial]
 tools: [Bash]

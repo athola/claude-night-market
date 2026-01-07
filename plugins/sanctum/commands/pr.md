@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Enhanced PR preparation that combines Sanctum's workspace review with superpowers:receiving-code-review for detailed PR validation
+description: PR preparation combining workspace review with superpowers:receiving-code-review for validation
 usage: /pr [--no-code-review] [--reviewer-scope strict|standard|lenient] [destination-file]
 extends: "superpowers:receiving-code-review"
 ---

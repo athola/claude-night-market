@@ -40,6 +40,12 @@
       "version": "1.2.1"
     },
     {
+      "name": "hookify",
+      "source": "./plugins/hookify",
+      "description": "Create custom behavioral rules through markdown configuration - prevent unwanted behaviors with pattern matching and zero-code rule authoring",
+      "version": "1.2.1"
+    },
+    {
       "name": "imbue",
       "source": "./plugins/imbue",
       "description": "Intelligent workflow methodologies - review-core scaffolding, diff analysis, evidence logging, and catchup patterns",

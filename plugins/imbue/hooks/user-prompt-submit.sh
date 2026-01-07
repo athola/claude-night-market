@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+# Performance optimization: skip if disabled
+if [ "${SCOPE_GUARD_DISABLE:-0}" = "1" ]; then
+    echo '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ""}}'
+    exit 0
+fi
+
 # Portable number extraction (works without grep -P)
 extract_stat_number() {
     local stats="$1"
@@ -22,6 +28,19 @@ if ! git rev-parse --git-dir > /dev/null 2>&1; then
     exit 0
 fi
 
+# Performance optimization: cache results for 60 seconds
+CACHE_FILE="${TMPDIR:-/tmp}/scope-guard-cache-$(git rev-parse --show-toplevel | md5sum | cut -d' ' -f1).txt"
+CACHE_TTL="${SCOPE_GUARD_CACHE_TTL:-60}"  # seconds
+
+if [ -f "$CACHE_FILE" ]; then
+    cache_age=$(($(date +%s) - $(stat -c %Y "$CACHE_FILE" 2>/dev/null || stat -f %m "$CACHE_FILE" 2>/dev/null || echo 0)))
+    if [ "$cache_age" -lt "$CACHE_TTL" ]; then
+        # Cache is fresh, use it
+        cat "$CACHE_FILE"
+        exit 0
+    fi
+fi
+
 # Get base branch (configurable via environment)
 base_branch="${SCOPE_GUARD_BASE_BRANCH:-main}"
 
@@ -36,20 +55,30 @@ if ! git rev-parse --verify "$base_branch" > /dev/null 2>&1; then
     fi
 fi
 
-# Get metrics
+# Get metrics (optimized for performance)
+# Use --shortstat instead of --stat | tail (faster)
 lines_changed=0
-stat_line=$(git diff "$base_branch" --stat 2>/dev/null | tail -1)
-insertions=$(extract_stat_number "$stat_line" "insertion")
-deletions=$(extract_stat_number "$stat_line" "deletion")
-lines_changed=$((insertions + deletions))
+stat_line=$(git diff "$base_branch" --shortstat 2>/dev/null)
+if [ -n "$stat_line" ]; then
+    insertions=$(echo "$stat_line" | grep -oE "[0-9]+ insertion" | grep -oE "[0-9]+" || echo "0")
+    deletions=$(echo "$stat_line" | grep -oE "[0-9]+ deletion" | grep -oE "[0-9]+" || echo "0")
+    lines_changed=$((insertions + deletions))
+fi
 
 commits=$(git rev-list --count "$base_branch"..HEAD 2>/dev/null || echo "0")
 
-merge_base_date=$(git log -1 --format=%ct "$(git merge-base "$base_branch" HEAD 2>/dev/null)" 2>/dev/null || echo "$(date +%s)")
+# Optimize: combine merge-base and log into single operation
+merge_base=$(git merge-base "$base_branch" HEAD 2>/dev/null)
+if [ -n "$merge_base" ]; then
+    merge_base_date=$(git log -1 --format=%ct "$merge_base" 2>/dev/null || echo "$(date +%s)")
+else
+    merge_base_date=$(date +%s)
+fi
 current_date=$(date +%s)
 days_on_branch=$(( (current_date - merge_base_date) / 86400 ))
 
-new_files=$(git diff "$base_branch" --name-only --diff-filter=A 2>/dev/null | wc -l || echo "0")
+# Optimize: use wc -l directly without intermediate pipe
+new_files=$(git diff "$base_branch" --name-only --diff-filter=A 2>/dev/null | wc -l)
 
 # Thresholds (configurable via environment)
 RED_LINES="${SCOPE_GUARD_RED_LINES:-2000}"
@@ -117,8 +146,8 @@ escape_for_json() {
 
 context_escaped=$(escape_for_json "$context")
 
-# Output JSON
-cat <<EOF
+# Build JSON output
+output=$(cat <<EOF
 {
   "hookSpecificOutput": {
     "hookEventName": "UserPromptSubmit",
@@ -126,5 +155,12 @@ cat <<EOF
   }
 }
 EOF
+)
+
+# Cache the output for future invocations (reduces git overhead)
+echo "$output" > "$CACHE_FILE" 2>/dev/null || true
+
+# Output JSON
+echo "$output"
 
 exit 0

@@ -265,13 +265,15 @@ class TestHookScopeGuideSkill:
         assert result.is_valid, f"Validation failed: {result.parse_error}"
         assert result.parsed["name"] == "hook-scope-guide"
 
-    def test_skill_description_differentiates_from_hookify(self, skill_path) -> None:
-        """Scenario: Description clearly differentiates from hookify.
+    def test_skill_description_differentiates_from_hook_authoring(
+        self, skill_path
+    ) -> None:
+        """Scenario: Description clearly differentiates from hook-authoring.
 
         Given the hook-scope-guide skill
         When I read its description
         Then it should mention WHERE to put hooks (not HOW to write them)
-        And it should cross-reference hookify for syntax questions
+        And it should cross-reference hook-authoring for syntax questions
         """
         content = skill_path.read_text()
         required = ["name", "description"]
@@ -291,36 +293,38 @@ class TestHookScopeGuideSkill:
         has_location_focus = any(term in description for term in location_terms)
         assert has_location_focus, "Description should focus on WHERE"
 
-        # Should cross-reference hookify for HOW
-        has_hookify = "hookify" in description
-        has_rules = "writing-rules" in description
-        assert has_hookify or has_rules, "Should cross-reference hookify"
+        # Should cross-reference hook-authoring for HOW
+        has_hook_authoring = "hook-authoring" in description
+        has_authoring_ref = "authoring" in description
+        assert has_hook_authoring or has_authoring_ref, (
+            "Should cross-reference hook-authoring"
+        )
 
     def test_skill_has_distinct_triggers(self, skill_path) -> None:
         """Scenario: Skill has triggers distinct from other hook skills.
 
         Given the hook-scope-guide skill
         When I read its triggers
-        Then they should not overlap with hookify or hook-development triggers
+        Then they should not overlap with hook-authoring or hook-development triggers
         """
         content = skill_path.read_text()
         result = FrontmatterProcessor.parse(content, required_fields=["name"])
 
         triggers = result.parsed.get("triggers", [])
 
-        # These are hookify triggers that should NOT appear
-        hookify_triggers = [
+        # These are hook-authoring triggers that should NOT appear
+        authoring_triggers = [
             "create a hook",
             "write a hook",
             "hook rule",
-            "hookify rule",
+            "authoring rule",
         ]
 
         for trigger in triggers:
             trigger_lower = trigger.lower()
-            for hookify_trigger in hookify_triggers:
-                assert hookify_trigger not in trigger_lower, (
-                    f"Trigger '{trigger}' overlaps with hookify. "
+            for authoring_trigger in authoring_triggers:
+                assert authoring_trigger not in trigger_lower, (
+                    f"Trigger '{trigger}' overlaps with hook-authoring. "
                     f"Use distinct terms like 'hook scope', 'hook location', etc."
                 )
 
@@ -336,9 +340,9 @@ class TestHookScopeGuideSkill:
         scopes = ["plugin hook", "project hook", "global hook"]
 
         for scope in scopes:
-            assert (
-                scope.lower() in content.lower()
-            ), f"Skill should cover '{scope}' scope"
+            assert scope.lower() in content.lower(), (
+                f"Skill should cover '{scope}' scope"
+            )
 
     def test_skill_includes_decision_framework(self, skill_path) -> None:
         """Scenario: Skill includes a decision framework.

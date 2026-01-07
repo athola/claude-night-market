@@ -1,5 +1,5 @@
 ---
-description: Create or update the project constitution from interactive or provided principle inputs, ensuring all dependent templates stay in sync
+description: Create/update project constitution from principle inputs, syncing dependent templates
 ---
 
 ## User Input
