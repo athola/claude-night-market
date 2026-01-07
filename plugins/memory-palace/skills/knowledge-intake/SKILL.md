@@ -1,6 +1,8 @@
 ---
 name: knowledge-intake
 description: |
+
+Triggers: knowledge-management, curation, evaluation, external-resources, knowledge
   Process external resources into actionable knowledge with evaluation, storage, and application decisions.
 
   Triggers: knowledge intake, article evaluation, paper review, external resource
@@ -14,6 +16,49 @@ usage_patterns: [resource-intake, knowledge-evaluation, application-routing]
 complexity: intermediate
 estimated_tokens: 950
 ---
+## Table of Contents
+
+- [What It Is](#what-it-is)
+- [The Intake Signal](#the-intake-signal)
+- [Quick Start](#quick-start)
+- [Evaluation Framework](#evaluation-framework)
+- [Importance Criteria](#importance-criteria)
+- [Scoring Guide](#scoring-guide)
+- [Application Routing](#application-routing)
+- [Local Codebase Application](#local-codebase-application)
+- [Meta-Infrastructure Application](#meta-infrastructure-application)
+- [Routing Decision Tree](#routing-decision-tree)
+- [Storage Locations](#storage-locations)
+- [The Tidying Imperative (KonMari-Inspired)](#the-tidying-imperative-(konmari-inspired))
+- [The Master Curator](#the-master-curator)
+- [The Two Questions](#the-two-questions)
+- [Tidying Actions](#tidying-actions)
+- [Marginal Value Filtering (Anti-Pollution)](#marginal-value-filtering-(anti-pollution))
+- [The Three-Step Filter](#the-three-step-filter)
+- [Using the Filter](#using-the-filter)
+- [Filter Output Example](#filter-output-example)
+- [Progressive Autonomy Integration](#progressive-autonomy-integration)
+- [RL-Based Quality Scoring](#rl-based-quality-scoring)
+- [Usage Signals](#usage-signals)
+- [Quality Decay Model](#quality-decay-model)
+- [Source Lineage Tracking](#source-lineage-tracking)
+- [Knowledge Orchestrator](#knowledge-orchestrator)
+- [RL Integration with Marginal Value Filter](#rl-integration-with-marginal-value-filter)
+- [Workflow Example](#workflow-example)
+- [Queue Processing](#queue-processing)
+- [Processing Queue Entries](#processing-queue-entries)
+- [Queue Integration](#queue-integration)
+- [Queue Status Workflow](#queue-status-workflow)
+- [Automation](#automation)
+- [Detailed Resources](#detailed-resources)
+- [Hook Integration](#hook-integration)
+- [Automatic Triggers](#automatic-triggers)
+- [Hook Signals](#hook-signals)
+- [Deduplication](#deduplication)
+- [Safety Checks](#safety-checks)
+- [Index Schema Alignment](#index-schema-alignment)
+- [Integration](#integration)
+
 
 # Knowledge Intake
 
@@ -526,3 +571,15 @@ entries:
 - `digital-garden-cultivator` - Manages knowledge lifecycle
 - `knowledge-locator` - Finds and retrieves stored knowledge
 - `skills-eval` (abstract) - Evaluates meta-infrastructure updates
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: testing-quality-standards
 description: |
+
+Triggers: quality, metrics, test coverage, unit test, standards
   Cross-plugin testing quality metrics and standards. Referenced by pensive:test-review and parseltongue:python-testing.
 
   Triggers: testing standards, quality metrics, coverage thresholds, anti-patterns
@@ -72,3 +74,15 @@ Reference in your skill's frontmatter:
 ```yaml
 dependencies: [leyline:testing-quality-standards]
 ```
+## Troubleshooting
+
+### Common Issues
+
+**Tests not discovered**
+Ensure test files match pattern `test_*.py` or `*_test.py`. Run `pytest --collect-only` to verify.
+
+**Import errors**
+Check that the module being tested is in `PYTHONPATH` or install with `pip install -e .`
+
+**Async tests failing**
+Install pytest-asyncio and decorate test functions with `@pytest.mark.asyncio`

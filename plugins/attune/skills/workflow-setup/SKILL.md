@@ -1,9 +1,30 @@
 ---
 name: workflow-setup
 description: Configure GitHub Actions workflows for CI/CD (test, lint, typecheck, publish)
+
+Triggers: github, actions, publish, configure, workflows
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
 ---
+## Table of Contents
+
+- [Use When](#use-when)
+- [Standard Workflows](#standard-workflows)
+- [Python Workflows](#python-workflows)
+- [Rust Workflows](#rust-workflows)
+- [TypeScript Workflows](#typescript-workflows)
+- [Workflow](#workflow)
+- [1. Check Existing Workflows](#1-check-existing-workflows)
+- [2. Identify Missing Workflows](#2-identify-missing-workflows)
+- [3. Render Workflow Templates](#3-render-workflow-templates)
+- [4. Validate Workflows](#4-validate-workflows)
+- [Workflow Best Practices](#workflow-best-practices)
+- [Use Latest Action Versions](#use-latest-action-versions)
+- [Matrix Testing (Python)](#matrix-testing-(python))
+- [Caching Dependencies](#caching-dependencies)
+- [Updating Workflows](#updating-workflows)
+- [Related Skills](#related-skills)
+
 
 # Workflow Setup Skill
 
@@ -129,3 +150,15 @@ To update workflows to latest versions:
 
 - `Skill(attune:project-init)` - Full project initialization
 - `Skill(sanctum:pr-prep)` - PR preparation with CI checks
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

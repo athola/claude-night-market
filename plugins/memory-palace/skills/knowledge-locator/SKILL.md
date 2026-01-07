@@ -1,6 +1,8 @@
 ---
 name: knowledge-locator
 description: |
+
+Triggers: spatial-memory, indexing, search, locator, retrieval
   Spatial indexing and retrieval system for finding information within memory
   palaces using multi-modal search.
 
@@ -23,6 +25,23 @@ usage_patterns: [search, cross-reference, discovery, review-search]
 complexity: intermediate
 estimated_tokens: 500
 ---
+## Table of Contents
+
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Search Palaces](#search-palaces)
+- [List All Palaces](#list-all-palaces)
+- [When to Use](#when-to-use)
+- [Search Modalities](#search-modalities)
+- [Core Workflow](#core-workflow)
+- [Target Metrics](#target-metrics)
+- [Detailed Resources](#detailed-resources)
+- [PR Review Search](#pr-review-search)
+- [Quick Commands](#quick-commands)
+- [Review Chamber Rooms](#review-chamber-rooms)
+- [Context-Aware Surfacing](#context-aware-surfacing)
+- [Integration](#integration)
+
 
 # Knowledge Locator
 
@@ -139,3 +158,15 @@ Works with:
 - `session-palace-builder` - Searches session-specific palaces
 - `digital-garden-cultivator` - Finds garden content and links
 - `review-chamber` - Searches PR review knowledge in project palaces
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

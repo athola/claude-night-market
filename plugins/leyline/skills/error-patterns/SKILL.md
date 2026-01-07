@@ -1,6 +1,8 @@
 ---
 name: error-patterns
 description: |
+
+Triggers: recovery, errors, error, patterns, error-handling
   Standardized error handling patterns with classification, recovery, and logging strategies.
 
   Triggers: error handling, error recovery, graceful degradation, resilience
@@ -22,6 +24,25 @@ modules:
   - modules/classification.md
   - modules/recovery-strategies.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Error Classification](#error-classification)
+- [By Severity](#by-severity)
+- [By Recoverability](#by-recoverability)
+- [Quick Start](#quick-start)
+- [Standard Error Handler](#standard-error-handler)
+- [Error Result](#error-result)
+- [Common Patterns](#common-patterns)
+- [Authentication Errors (401/403)](#authentication-errors-(401-403))
+- [Rate Limit Errors (429)](#rate-limit-errors-(429))
+- [Timeout Errors](#timeout-errors)
+- [Context Too Large (400)](#context-too-large-(400))
+- [Integration Pattern](#integration-pattern)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Error Patterns
 
@@ -131,3 +152,15 @@ dependencies: [leyline:error-patterns]
 - Appropriate recovery attempted
 - User-actionable message provided
 - Error logged for debugging
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

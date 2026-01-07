@@ -1,6 +1,8 @@
 ---
 name: test-review
 description: |
+
+Triggers: fixtures, quality, test, bdd, testing
   Evaluate and upgrade test suites with TDD/BDD rigor, coverage tracking,
   and quality assessment.
 
@@ -32,6 +34,29 @@ modules:
   - scenario-quality
   - remediation-planning
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Progressive Loading](#progressive-loading)
+- [Workflow](#workflow)
+- [Step 1: Detect Languages (`test-review:languages-detected`)](#step-1:-detect-languages-(test-review:languages-detected))
+- [Step 2: Inventory Coverage (`test-review:coverage-inventoried`)](#step-2:-inventory-coverage-(test-review:coverage-inventoried))
+- [Step 3: Assess Scenario Quality (`test-review:scenario-quality`)](#step-3:-assess-scenario-quality-(test-review:scenario-quality))
+- [Step 4: Plan Remediation (`test-review:gap-remediation`)](#step-4:-plan-remediation-(test-review:gap-remediation))
+- [Step 5: Log Evidence (`test-review:evidence-logged`)](#step-5:-log-evidence-(test-review:evidence-logged))
+- [Test Quality Checklist (Condensed)](#test-quality-checklist-(condensed))
+- [Output Format](#output-format)
+- [Summary](#summary)
+- [Framework Detection](#framework-detection)
+- [Coverage Analysis](#coverage-analysis)
+- [Quality Issues](#quality-issues)
+- [Remediation Plan](#remediation-plan)
+- [Recommendation](#recommendation)
+- [Integration Notes](#integration-notes)
+- [Exit Criteria](#exit-criteria)
+
 
 # Test Review Workflow
 
@@ -154,3 +179,15 @@ Approve / Approve with actions / Block
 - Scenario quality assessed
 - Remediation plan created with owners and dates
 - Evidence logged with citations
+## Troubleshooting
+
+### Common Issues
+
+**Tests not discovered**
+Ensure test files match pattern `test_*.py` or `*_test.py`. Run `pytest --collect-only` to verify.
+
+**Import errors**
+Check that the module being tested is in `PYTHONPATH` or install with `pip install -e .`
+
+**Async tests failing**
+Install pytest-asyncio and decorate test functions with `@pytest.mark.asyncio`

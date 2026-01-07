@@ -1,6 +1,8 @@
 ---
 name: media-composition
 description: |
+
+Triggers: tutorial, composition, stitch, ffmpeg, media
   Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal layouts
 
   Triggers: combine media, stitch gifs, composite, merge recordings
@@ -15,6 +17,31 @@ progressive_loading: false
 dependencies:
   - scry:gif-generation
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Manifest Format](#manifest-format)
+- [Manifest Schema](#manifest-schema)
+- [Step-by-Step Process](#step-by-step-process)
+- [1. Parse Manifest File](#1-parse-manifest-file)
+- [2. Validate Component Outputs](#2-validate-component-outputs)
+- [3. Execute FFmpeg Composition](#3-execute-ffmpeg-composition)
+- [4. Verify Combined Output](#4-verify-combined-output)
+- [FFmpeg Composition Commands](#ffmpeg-composition-commands)
+- [Vertical Stacking](#vertical-stacking)
+- [Horizontal Stacking](#horizontal-stacking)
+- [Sequential Concatenation](#sequential-concatenation)
+- [Grid Layout (2x2)](#grid-layout-(2x2))
+- [With Background Color](#with-background-color)
+- [Layout Options](#layout-options)
+- [Layout Option Details](#layout-option-details)
+- [Example Compositions](#example-compositions)
+- [Terminal + Browser Tutorial](#terminal-+-browser-tutorial)
+- [Side-by-Side Comparison](#side-by-side-comparison)
+- [Picture-in-Picture](#picture-in-picture)
+- [Exit Criteria](#exit-criteria)
+
 
 # Media Composition Skill
 
@@ -268,3 +295,15 @@ combine:
 - [ ] Combined output file exists and has non-zero size
 - [ ] Output dimensions and duration logged
 - [ ] Temporary files cleaned up
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: usage-logging
 description: |
+
+Triggers: usage, metrics, logging, analytics, sessions
   Session-aware usage logging for audit trails, cost tracking, and analytics with JSONL format.
 
   Triggers: usage logging, audit trails, cost tracking, session logging, analytics, structured logging, JSONL
@@ -29,6 +31,22 @@ modules:
   - modules/session-patterns.md
   - modules/log-formats.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Concepts](#core-concepts)
+- [Session Management](#session-management)
+- [Log Entry Structure](#log-entry-structure)
+- [Quick Start](#quick-start)
+- [Initialize Logger](#initialize-logger)
+- [Log Operations](#log-operations)
+- [Query Usage](#query-usage)
+- [Integration Pattern](#integration-pattern)
+- [Log Storage](#log-storage)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Usage Logging
 
@@ -135,3 +153,15 @@ grep "2025-12-05" ~/.claude/leyline/usage/my-service.jsonl
 - Operation logged with all required fields
 - Session tracked for grouping
 - Logs queryable for analytics
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

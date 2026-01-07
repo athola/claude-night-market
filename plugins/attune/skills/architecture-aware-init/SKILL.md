@@ -1,6 +1,8 @@
 ---
 name: architecture-aware-init
 description: |
+
+Triggers: decision-making, research, aware, architecture, initialization
   Architecture-aware project initialization combining online research with archetype selection.
 
   Triggers: project initialization, new project, architecture decision, project setup,
@@ -24,6 +26,41 @@ usage_patterns:
 complexity: advanced
 estimated_tokens: 1800
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use This Skill](#when-to-use-this-skill)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [5-Step Workflow](#5-step-workflow)
+- [Step 1: Gather Project Context](#step-1:-gather-project-context)
+- [Step 2: Research Best Practices (`arch-init:research-completed`)](#step-2:-research-best-practices-(arch-init:research-completed))
+- [Step 3: Select Architecture Paradigm (`arch-init:paradigm-selected`)](#step-3:-select-architecture-paradigm-(arch-init:paradigm-selected))
+- [Step 4: Customize Templates (`arch-init:templates-customized`)](#step-4:-customize-templates-(arch-init:templates-customized))
+- [Step 5: Create Architecture Decision Record (`arch-init:decision-recorded`)](#step-5:-create-architecture-decision-record-(arch-init:decision-recorded))
+- [Date](#date)
+- [Status](#status)
+- [Context](#context)
+- [Decision](#decision)
+- [Rationale](#rationale)
+- [Research Findings](#research-findings)
+- [Key Considerations](#key-considerations)
+- [Alternatives Considered](#alternatives-considered)
+- [Consequences](#consequences)
+- [Positive](#positive)
+- [Negative](#negative)
+- [Implementation](#implementation)
+- [References](#references)
+- [Output: Complete Initialization Package](#output:-complete-initialization-package)
+- [Script Integration](#script-integration)
+- [Architecture Research](#architecture-research)
+- [Template Customization](#template-customization)
+- [Full Interactive Flow](#full-interactive-flow)
+- [Using as Library (within Claude Code)](#using-as-library-(within-claude-code))
+- [Integration with Existing Commands](#integration-with-existing-commands)
+- [Example Session](#example-session)
+- [Related Skills](#related-skills)
+- [See Also](#see-also)
+
 
 # Architecture-Aware Project Initialization
 
@@ -425,3 +462,15 @@ WebSearch("CQRS Event Sourcing Python examples")
 - `/attune:init` - Basic project initialization
 - `/attune:plan` - Architecture planning after paradigm selection
 - Architecture paradigms README for paradigm details
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

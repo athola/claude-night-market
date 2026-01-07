@@ -1,6 +1,8 @@
 ---
 name: unified-review
 description: |
+
+Triggers: multi-domain, unified, code-quality, analysis, orchestration
   Orchestrate and run appropriate pensive review skills based on codebase
   analysis and context.
 
@@ -37,6 +39,28 @@ orchestrates:
   - pensive:makefile-review
   - pensive:math-review
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Review Skill Selection Matrix](#review-skill-selection-matrix)
+- [Workflow](#workflow)
+- [1. Analyze Repository Context](#1-analyze-repository-context)
+- [2. Select Review Skills](#2-select-review-skills)
+- [3. Execute Reviews](#3-execute-reviews)
+- [4. Integrate Findings](#4-integrate-findings)
+- [Review Modes](#review-modes)
+- [Auto-Detect (default)](#auto-detect-(default))
+- [Focused Mode](#focused-mode)
+- [Full Review Mode](#full-review-mode)
+- [Quality Gates](#quality-gates)
+- [Deliverables](#deliverables)
+- [Executive Summary](#executive-summary)
+- [Domain-Specific Reports](#domain-specific-reports)
+- [Integrated Action Plan](#integrated-action-plan)
+- [Modular Architecture](#modular-architecture)
+- [Exit Criteria](#exit-criteria)
+
 
 # Unified Review Orchestration
 
@@ -176,3 +200,15 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 - Findings consolidated and prioritized
 - Action plan created with ownership
 - Evidence logged per `pensive:shared/modules/output-format-templates`
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

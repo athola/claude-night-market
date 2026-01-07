@@ -1,6 +1,8 @@
 ---
 name: hook-authoring
 description: |
+
+Triggers: validation, sdk, automation, hook, authoring
   Complete guide for writing Claude Code and SDK hooks with security-first design.
 
   Triggers: hook creation, hook writing, PreToolUse, PostToolUse, UserPromptSubmit,
@@ -31,6 +33,38 @@ usage_patterns:
   - performance-optimization
   - sdk-integration
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Capabilities](#key-capabilities)
+- [Quick Start](#quick-start)
+- [Your First Hook (JSON - Claude Code)](#your-first-hook-(json---claude-code))
+- [Your First Hook (Python - Claude Agent SDK)](#your-first-hook-(python---claude-agent-sdk))
+- [Hook Event Types](#hook-event-types)
+- [Claude Code vs SDK](#claude-code-vs-sdk)
+- [JSON Hooks (Claude Code)](#json-hooks-(claude-code))
+- [Python SDK Hooks](#python-sdk-hooks)
+- [Security Essentials](#security-essentials)
+- [Critical Security Rules](#critical-security-rules)
+- [Example: Secure Logging Hook](#example:-secure-logging-hook)
+- [Performance Guidelines](#performance-guidelines)
+- [Performance Best Practices](#performance-best-practices)
+- [Example: Efficient Hook](#example:-efficient-hook)
+- [Scope Selection](#scope-selection)
+- [Decision Framework](#decision-framework)
+- [Scope Comparison](#scope-comparison)
+- [Common Patterns](#common-patterns)
+- [Validation Hook](#validation-hook)
+- [Logging Hook](#logging-hook)
+- [Context Injection Hook](#context-injection-hook)
+- [Testing Hooks](#testing-hooks)
+- [Unit Testing](#unit-testing)
+- [Module References](#module-references)
+- [Tools](#tools)
+- [Related Skills](#related-skills)
+- [Next Steps](#next-steps)
+- [References](#references)
+
 
 # Hook Authoring Guide
 
@@ -382,3 +416,15 @@ For detailed guidance on specific topics:
 - [Claude Code Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
 - [Claude Agent SDK Documentation](https://docs.anthropic.com/en/docs/claude-agent-sdk)
 - [Settings Configuration](https://docs.anthropic.com/en/docs/claude-code/settings)
+## Troubleshooting
+
+### Common Issues
+
+**Hook not firing**
+Verify hook pattern matches the event. Check hook logs for errors
+
+**Syntax errors**
+Validate JSON/Python syntax before deployment
+
+**Permission denied**
+Check hook file permissions and ownership

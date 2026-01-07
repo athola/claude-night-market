@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-pipeline
 description: |
+
+Triggers: pipeline, streaming, data-processing, architecture, pipes-filters
   Compose processing stages using a pipes-and-filters model for ETL, media
   processing, or compiler-like workloads.
 
@@ -54,3 +56,15 @@ estimated_tokens: 700
   - **Mitigation**: Centralize schema definitions in a shared repository and enforce compatibility tests as part of the CI/CD process to prevent breaking changes.
 - **Back-Pressure Failures**:
   - **Mitigation**: Conduct rigorous load testing to simulate high-volume scenarios. Validate that buffering, retry logic, and back-pressure mechanisms behave as expected under stress.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

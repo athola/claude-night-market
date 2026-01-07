@@ -1,6 +1,8 @@
 ---
 name: bloat-detector
 description: |
+
+Triggers: optimization, technical-debt, bloat, detector, static-analysis
   Detect codebase bloat through progressive analysis: dead code, duplication, complexity, and documentation bloat.
 
   Triggers: bloat detection, dead code, code cleanup, duplication, redundancy, codebase health, technical debt, unused code
@@ -29,6 +31,27 @@ usage_patterns:
 complexity: intermediate
 estimated_tokens: 800
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Tier 1: Quick Scan (5 minutes, no tools required)](#tier-1:-quick-scan-(5-minutes,-no-tools-required))
+- [Tier 2: Targeted Analysis (15 minutes, optional tools)](#tier-2:-targeted-analysis-(15-minutes,-optional-tools))
+- [Tier 3: Deep Audit (1 hour, full tooling)](#tier-3:-deep-audit-(1-hour,-full-tooling))
+- [When to Use](#when-to-use)
+- [Detection Confidence Levels](#detection-confidence-levels)
+- [Prioritization Formula](#prioritization-formula)
+- [Module Architecture](#module-architecture)
+- [Tier 1: Quick Scan (Always Available)](#tier-1:-quick-scan-(always-available))
+- [Tier 2: Targeted Analysis (Optional Tools)](#tier-2:-targeted-analysis-(optional-tools))
+- [Tier 3: Deep Audit (Full Tooling)](#tier-3:-deep-audit-(full-tooling))
+- [Integration Points](#integration-points)
+- [Example Output](#example-output)
+- [Safety & Guardrails](#safety-&-guardrails)
+- [Detailed Resources](#detailed-resources)
+- [Related Skills](#related-skills)
+- [Related Agents](#related-agents)
+
 
 # Bloat Detector
 
@@ -274,3 +297,15 @@ All scan operations automatically exclude files and directories using a three-ti
 ## Related Agents
 
 - `bloat-auditor`: Executes scans, generates reports, recommends actions
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

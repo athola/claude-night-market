@@ -1,6 +1,8 @@
 ---
 name: pensive:shared
 description: |
+
+Triggers: infrastructure, review, patterns, shared
   Shared infrastructure and reusable modules for all pensive review skills.
 
   Triggers: pensive patterns, review workflow, output templates, quality checklists,
@@ -61,3 +63,15 @@ All pensive review skills:
 - `pensive:makefile-review`
 - `pensive:math-review`
 - `pensive:unified-review`
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

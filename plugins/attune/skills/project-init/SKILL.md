@@ -1,6 +1,8 @@
 ---
 name: project-init
 description: |
+
+Triggers: project, init
   Interactive project initialization with git setup, workflows, hooks, and build configuration.
 
   Triggers: project setup, initialization, scaffold, bootstrap, new project
@@ -12,6 +14,22 @@ modules:
   - ./modules/metadata-collection.md
   - ./modules/template-rendering.md
 ---
+## Table of Contents
+
+- [Use When](#use-when)
+- [Workflow](#workflow)
+- [1. Detect or Select Language](#1-detect-or-select-language)
+- [2. Collect Project Metadata](#2-collect-project-metadata)
+- [3. Review Existing Files](#3-review-existing-files)
+- [4. Render and Apply Templates](#4-render-and-apply-templates)
+- [5. Initialize Git (if needed)](#5-initialize-git-(if-needed))
+- [6. Verify Setup](#6-verify-setup)
+- [7. Next Steps](#7-next-steps)
+- [Error Handling](#error-handling)
+- [Success Criteria](#success-criteria)
+- [Examples](#examples)
+- [Example 1: New Python Project](#example-1:-new-python-project)
+
 
 # Project Initialization Skill
 
@@ -132,3 +150,15 @@ make help
 
 ```
 User: /attune:init
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

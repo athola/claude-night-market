@@ -1,8 +1,54 @@
 ---
 name: project-planning
 description: Transform specifications into structured implementation plans with architecture design and task breakdown
+
+Triggers: architecture, project, planning, into, specifications
 model_preference: claude-sonnet-4
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Integration](#integration)
+- [Planning Phases](#planning-phases)
+- [Phase 1: Architecture Design](#phase-1:-architecture-design)
+- [Phase 2: Task Breakdown](#phase-2:-task-breakdown)
+- [Phase 3: Dependency Analysis](#phase-3:-dependency-analysis)
+- [Phase 4: Sprint Planning](#phase-4:-sprint-planning)
+- [Architecture Design Patterns](#architecture-design-patterns)
+- [Component Identification](#component-identification)
+- [Component Template](#component-template)
+- [Component: [Name]](#component:-[name])
+- [Task Breakdown Template](#task-breakdown-template)
+- [TASK-[XXX]: [Task Name]](#task-[xxx]:-[task-name])
+- [Task Estimation Guidelines](#task-estimation-guidelines)
+- [Dependency Graph](#dependency-graph)
+- [Sprint Structure](#sprint-structure)
+- [Sprint [N]: [Focus Area]](#sprint-[n]:-[focus-area])
+- [Planned Tasks ([X] story points)](#planned-tasks-([x]-story-points))
+- [Deliverable](#deliverable)
+- [Risks](#risks)
+- [Dependencies](#dependencies)
+- [Risk Assessment](#risk-assessment)
+- [Output Format](#output-format)
+- [Architecture](#architecture)
+- [System Overview](#system-overview)
+- [Component Diagram](#component-diagram)
+- [Components](#components)
+- [Data Flow](#data-flow)
+- [Task Breakdown](#task-breakdown)
+- [Phase 1: [Name] (Sprint [N]) - TASK-001 through TASK-010](#phase-1:-[name]-(sprint-[n])---task-001-through-task-010)
+- [Phase 2: [Name] (Sprint [M]) - TASK-011 through TASK-020](#phase-2:-[name]-(sprint-[m])---task-011-through-task-020)
+- [Dependency Graph](#dependency-graph)
+- [Sprint Schedule](#sprint-schedule)
+- [Risk Assessment](#risk-assessment)
+- [Success Metrics](#success-metrics)
+- [Timeline](#timeline)
+- [Next Steps](#next-steps)
+- [Quality Checks](#quality-checks)
+- [Related Skills](#related-skills)
+- [Related Commands](#related-commands)
+- [Examples](#examples)
+
 
 # Project Planning Skill
 
@@ -331,3 +377,15 @@ Before completing plan:
 ## Examples
 
 See `/attune:plan` command documentation for complete examples.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: commit-messages
 description: |
+
+Triggers: messages, conventional-commits, git, changelog, commit
   Generate conventional commit messages from staged changes with correct type/scope.
 
   Triggers: commit message, conventional commit, git commit
@@ -46,3 +48,15 @@ As a prerequisite, run `Skill(sanctum:git-workspace-review)` so the repository p
 ## Integration Notes
 - Combine with `Skill(imbue:catchup)` or `/git-catchup` when you need additional context before drafting.
 - If unsure about the type or scope, rerun the diff commands or consult the specification or plan before finalizing.
+## Troubleshooting
+
+### Common Issues
+
+**Pre-commit hooks failing**
+Run `SKIP=... git commit` to bypass temporarily, then fix issues
+
+**Merge conflicts**
+Use `git merge --abort` to reset, then resolve conflicts carefully
+
+**Commit rejected**
+Check hook output and fix reported issues before committing again

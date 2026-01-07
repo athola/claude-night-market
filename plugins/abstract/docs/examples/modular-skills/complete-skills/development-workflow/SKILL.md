@@ -1,6 +1,8 @@
 ---
 name: development-workflow
 description: detailed development workflow with modular patterns for git, code review, testing, documentation, and deployment
+
+Triggers: deployment, development, hub-and-spoke, modular, code
 version: 2.0.0
 created_by: abstract-examples
 tags: [development, workflow, modular, hub-and-spoke]
@@ -20,6 +22,20 @@ tools:
   - workflow-checker
   - quality-metrics
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Available Modules](#available-modules)
+- [Quick Start](#quick-start)
+- [Usage Patterns](#usage-patterns)
+- [For New Projects](#for-new-projects)
+- [For Existing Projects](#for-existing-projects)
+- [For Team Onboarding](#for-team-onboarding)
+- [Integration Benefits](#integration-benefits)
+- [Quality Assurance](#quality-assurance)
+- [Customization](#customization)
+- [Support and Resources](#support-and-resources)
+
 
 # Development Workflow Hub
 
@@ -126,3 +142,15 @@ See the modules directory for detailed documentation on:
 - Documentation guidelines
 - Git workflow patterns
 - Testing strategies
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

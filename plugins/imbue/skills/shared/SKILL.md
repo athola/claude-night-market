@@ -1,6 +1,8 @@
 ---
 name: shared
 description: |
+
+Triggers: analysis, patterns, templates, shared
   Shared infrastructure and patterns for imbue analysis skills.
 
   Triggers: imbue patterns, todowrite patterns, evidence formats, analysis workflows,
@@ -59,3 +61,15 @@ This skill provides infrastructure used by:
 - `pensive:*-review` skills via `dependencies: [imbue:evidence-logging]`
 - `sanctum:git-workspace-review` for analysis patterns
 - Any skill needing reproducible evidence trails
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

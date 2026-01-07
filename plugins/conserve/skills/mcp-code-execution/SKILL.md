@@ -1,6 +1,8 @@
 ---
 name: mcp-code-execution
 description: |
+
+Triggers: execution, code
   Transform tool-heavy workflows into MCP code execution patterns for token savings and optimized processing.
 
   Triggers: MCP, code execution, tool chain, data pipeline, tool transformation, batch processing, workflow optimization
@@ -18,15 +20,43 @@ dependencies:
   hub: [context-optimization, token-conservation]
   modules: [mcp-subagents, mcp-patterns, mcp-validation]
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Core Hub Responsibilities](#core-hub-responsibilities)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Step 1 – Assess Workflow (`mcp-code-execution:assess-workflow`)](#step-1-–-assess-workflow-(mcp-code-execution:assess-workflow))
+- [Workflow Classification](#workflow-classification)
+- [MECW Risk Assessment](#mecw-risk-assessment)
+- [Step 2 – Route to Modules (`mcp-code-execution:route-to-modules`)](#step-2-–-route-to-modules-(mcp-code-execution:route-to-modules))
+- [Module Orchestration](#module-orchestration)
+- [Step 3 – Coordinate MECW (`mcp-code-execution:coordinate-mecw`)](#step-3-–-coordinate-mecw-(mcp-code-execution:coordinate-mecw))
+- [Cross-Module MECW Management](#cross-module-mecw-management)
+- [Step 4 – Synthesize Results (`mcp-code-execution:synthesize-results`)](#step-4-–-synthesize-results-(mcp-code-execution:synthesize-results))
+- [Result Integration](#result-integration)
+- [Module Integration](#module-integration)
+- [With Context Optimization Hub](#with-context-optimization-hub)
+- [Performance Skills Integration](#performance-skills-integration)
+- [Emergency Protocols](#emergency-protocols)
+- [Hub-Level Emergency Response](#hub-level-emergency-response)
+- [Success Metrics](#success-metrics)
+
 
 # MCP Code Execution Hub
 
 ## Quick Start
-Use specialized MCP modules for specific tasks:
-- mcp-subagents for workflow decomposition
-- mcp-patterns for transformation templates
-- mcp-validation for hallucination prevention
 
+### Basic Usage
+\`\`\`bash
+# Run the main command
+python -m module_name
+
+# Show help
+python -m module_name --help
+\`\`\`
+
+**Verification**: Run with `--help` flag to confirm installation.
 ## When to Use
 - **Automatic**: Keywords: `code execution`, `MCP`, `tool chain`, `data pipeline`, `MECW`
 - **Tool Chains**: >3 tools chained sequentially
@@ -160,3 +190,15 @@ When MECW limits exceeded:
 - **MECW Compliance**: 100% adherence to 50% context rule
 - **Token Efficiency**: Maintain >80% savings vs traditional methods
 - **Module Coordination**: <5% overhead for hub orchestration
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

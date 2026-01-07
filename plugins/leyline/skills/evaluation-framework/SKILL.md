@@ -1,6 +1,8 @@
 ---
 name: evaluation-framework
 description: |
+
+Triggers: decision-making, quality, scoring, metrics, evaluation
   Generic weighted scoring and threshold-based decision framework for evaluating
   artifacts against configurable criteria.
 
@@ -31,6 +33,24 @@ modules:
   - modules/scoring-patterns.md
   - modules/decision-thresholds.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Pattern](#core-pattern)
+- [1. Define Criteria](#1-define-criteria)
+- [2. Score Each Criterion](#2-score-each-criterion)
+- [3. Calculate Weighted Total](#3-calculate-weighted-total)
+- [4. Apply Decision Thresholds](#4-apply-decision-thresholds)
+- [Quick Start](#quick-start)
+- [Define Your Evaluation](#define-your-evaluation)
+- [Example: Code Review Evaluation](#example:-code-review-evaluation)
+- [Evaluation Workflow](#evaluation-workflow)
+- [Common Use Cases](#common-use-cases)
+- [Integration Pattern](#integration-pattern)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Evaluation Framework
 
@@ -159,3 +179,15 @@ Then customize the framework for your domain:
 - [ ] Scoring guides documented for each criterion
 - [ ] Thresholds mapped to specific actions
 - [ ] Evaluation process documented and reproducible
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

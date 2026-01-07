@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-functional-core
 description: |
+
+Triggers: functional-core, imperative-shell, side-effects, functional, architecture
   Functional Core, Imperative Shell: isolate deterministic logic from side effects for testability.
 
   Triggers: functional core, imperative shell, pure functions, testability
@@ -47,3 +49,15 @@ estimated_tokens: 1200
   - **Mitigation**: The imperative shell may still need to interact with framework-specific lifecycle hooks. Before committing to a large rewrite, build small proof-of-concept adapters to validate the integration strategy.
 - **Team Unfamiliarity with the Pattern**:
   - **Mitigation**: Introduce the pattern using pair programming and internal "brown-bag" learning sessions. Document common anti-patterns that are discovered during the pilot phase to guide future development.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

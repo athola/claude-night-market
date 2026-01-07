@@ -1,6 +1,8 @@
 ---
 name: proof-of-work
 description: |
+
+Triggers: validation, definition-of-done, proof, acceptance-criteria, testing
   Enforces "prove before claim" discipline - validation, testing, and evidence
   requirements before declaring work complete.
 
@@ -31,6 +33,36 @@ modules:
   - modules/acceptance-criteria.md
   - modules/red-flags.md
 ---
+## Table of Contents
+
+- [The Problem This Solves](#the-problem-this-solves)
+- [Core Principle](#core-principle)
+- [When to Use](#when-to-use)
+- [MANDATORY Usage (Non-Negotiable)](#mandatory-usage-(non-negotiable))
+- [Red Flags (You're About to Violate This)](#red-flags-(you're-about-to-violate-this))
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Validation Protocol](#validation-protocol)
+- [Step 1: Reproduce the Problem (`proof:problem-reproduced`)](#step-1:-reproduce-the-problem-(proof:problem-reproduced))
+- [Step 2: Test the Solution (`proof:solution-tested`)](#step-2:-test-the-solution-(proof:solution-tested))
+- [Step 3: Check for Known Issues (`proof:edge-cases-checked`)](#step-3:-check-for-known-issues-(proof:edge-cases-checked))
+- [Step 4: Capture Evidence (`proof:evidence-captured`)](#step-4:-capture-evidence-(proof:evidence-captured))
+- [Step 5: Prove Completion (`proof:completion-proven`)](#step-5:-prove-completion-(proof:completion-proven))
+- [Definition of Done](#definition-of-done)
+- [Acceptance Criteria](#acceptance-criteria)
+- [Test Evidence](#test-evidence)
+- [Conclusion](#conclusion)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [With `scope-guard`](#with-scope-guard)
+- [With `evidence-logging`](#with-evidence-logging)
+- [With `superpowers:execute-plan`](#with-superpowers:execute-plan)
+- [Validation Checklist (Before Claiming "Done")](#validation-checklist-(before-claiming-"done"))
+- [Pre-Completion Validation](#pre-completion-validation)
+- [Completion Statement Format](#completion-statement-format)
+- [Red Flag Self-Check](#red-flag-self-check)
+- [Module Reference](#module-reference)
+- [Related Skills](#related-skills)
+- [Exit Criteria](#exit-criteria)
+
 
 # Proof of Work
 
@@ -280,3 +312,15 @@ Required:
 - Acceptance criteria defined and validated
 - User can independently verify all claims
 - Known blockers identified and documented
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

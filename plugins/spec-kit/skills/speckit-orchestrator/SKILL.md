@@ -1,6 +1,8 @@
 ---
 name: speckit-orchestrator
 description: |
+
+Triggers: specification, speckit, planning, orchestrator, orchestration
   Workflow orchestrator for Spec Driven Development. Coordinates skills and tracks progress.
 
   Triggers: speckit workflow, spec driven development, speckit commands
@@ -26,6 +28,18 @@ usage_patterns:
 complexity: intermediate
 estimated_tokens: 1500
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Persistent Presence Lens](#persistent-presence-lens)
+- [When to Use](#when-to-use)
+- [Core Workflow](#core-workflow)
+- [Session Initialization](#session-initialization)
+- [Command-Skill Matrix](#command-skill-matrix)
+- [Progress Tracking Items](#progress-tracking-items)
+- [Exit Criteria](#exit-criteria)
+- [Related Skills](#related-skills)
+
 
 # Speckit Orchestrator
 
@@ -111,3 +125,15 @@ For each workflow session, track:
 - `superpowers:brainstorming`: Idea refinement.
 - `superpowers:writing-plans`: Implementation planning.
 - `superpowers:executing-plans`: Task execution.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

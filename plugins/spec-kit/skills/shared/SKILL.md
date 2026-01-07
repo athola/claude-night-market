@@ -1,6 +1,8 @@
 ---
 name: shared
 description: |
+
+Triggers: patterns, templates, specification, shared
   Shared infrastructure and patterns for spec-kit specification-driven development.
 
   Triggers: spec-kit patterns, tech-stack patterns, checklist dimensions,
@@ -65,3 +67,15 @@ This skill is automatically loaded by `speckit-orchestrator` and referenced by o
 - `speckit-orchestrator`: Workflow coordination
 - `spec-writing`: Specification creation
 - `task-planning`: Task generation
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

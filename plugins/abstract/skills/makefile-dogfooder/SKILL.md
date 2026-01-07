@@ -1,6 +1,8 @@
 ---
 name: makefile-dogfooder
 description: |
+
+Triggers: dogfooder, makefile
   Analyze and enhance Makefiles for complete user functionality coverage.
 
   Triggers: Makefile analysis, Makefile gaps, missing targets, plugin release,
@@ -19,6 +21,42 @@ version: 1.0.0
 author: Claude Skills
 modules: true
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Workflow](#workflow)
+- [1. Discovery Phase](#1-discovery-phase)
+- [2. Analysis Phase](#2-analysis-phase)
+- [3. Testing Phase](#3-testing-phase)
+- [4. Generation Phase](#4-generation-phase)
+- [Modules](#modules)
+- [Discovery Module](#discovery-module)
+- [Analysis Module](#analysis-module)
+- [Testing Module](#testing-module)
+- [Generation Module](#generation-module)
+- [Examples](#examples)
+- [Analyze a Single Plugin](#analyze-a-single-plugin)
+- [Test All Plugins](#test-all-plugins)
+- [Full Analysis with Auto-Apply](#full-analysis-with-auto-apply)
+- [Quick Check](#quick-check)
+- [Output Formats](#output-formats)
+- [Text Output](#text-output)
+- [JSON Output](#json-output)
+- [Best Practices](#best-practices)
+- [For Leaf Plugins](#for-leaf-plugins)
+- [For Aggregator Makefiles](#for-aggregator-makefiles)
+- [Target Naming](#target-naming)
+- [Integration](#integration)
+- [With Slash Commands](#with-slash-commands)
+- [With CI/CD](#with-ci-cd)
+- [With Development Workflow](#with-development-workflow)
+- [Performance Considerations](#performance-considerations)
+- [Troubleshooting](#troubleshooting)
+- [Common Issues](#common-issues)
+- [Debug Mode](#debug-mode)
+- [Contributing](#contributing)
+- [License](#license)
+
 
 # Makefile Dogfooder Skill
 

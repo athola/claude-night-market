@@ -1,6 +1,8 @@
 ---
 name: gemini-delegation
 description: |
+
+Triggers: large-context, cli, delegation, gemini, google
   Gemini CLI delegation workflow implementing delegation-core for Google's Gemini models.
 
   Triggers: gemini cli, gemini delegation, google gemini, 1M context, large file analysis,
@@ -32,6 +34,19 @@ references:
   - delegation-core/modules/usage-logging.md
   - delegation-core/modules/error-handling.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Prerequisites](#prerequisites)
+- [Delegation Flow](#delegation-flow)
+- [Quick Start](#quick-start)
+- [Basic Command](#basic-command)
+- [Save Output](#save-output)
+- [Shared Patterns](#shared-patterns)
+- [Gemini-Specific Details](#gemini-specific-details)
+- [Exit Criteria](#exit-criteria)
+
 
 # Gemini CLI Delegation
 

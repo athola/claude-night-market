@@ -1,6 +1,8 @@
 ---
 name: rule-catalog
 description: |
+
+Triggers: templates, rules, install, catalog, hookify
   Browse and install pre-built hookify rules from the official catalog.
 
   Triggers: install hookify rule, hookify catalog, browse rules, pre-built rules,
@@ -25,6 +27,24 @@ usage_patterns:
   - browsing-rules
   - installing-rules
 ---
+## Table of Contents
+
+- [Quick Install](#quick-install)
+- [Available Rules](#available-rules)
+- [git/ - Git Safety](#git----git-safety)
+- [python/ - Python Quality](#python----python-quality)
+- [security/ - Security Gates](#security----security-gates)
+- [workflow/ - Workflow Enforcement](#workflow----workflow-enforcement)
+- [performance/ - Resource Management](#performance----resource-management)
+- [Installation Instructions](#installation-instructions)
+- [Method 1: Claude-Assisted (Recommended)](#method-1:-claude-assisted-(recommended))
+- [Method 2: Python Script](#method-2:-python-script)
+- [Method 3: Manual Copy](#method-3:-manual-copy)
+- [Rule File Locations](#rule-file-locations)
+- [Customizing Rules](#customizing-rules)
+- [Creating Pull Requests for New Rules](#creating-pull-requests-for-new-rules)
+- [Related](#related)
+
 
 # Hookify Rule Catalog
 
@@ -167,3 +187,15 @@ To add rules to the catalog:
 - `Skill(hookify:writing-rules)` - Create custom rules
 - `/hookify:list` - Show installed rules
 - `/hookify:configure` - Manage installed rules
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

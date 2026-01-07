@@ -1,6 +1,8 @@
 ---
 name: tutorial-updates
 description: |
+
+Triggers: tutorial, vhs, gif, updates, playwright
   Orchestrate tutorial generation from VHS tapes and Playwright specs to dual-tone markdown with GIF recording.
 
   Triggers: tutorial update, gif generation, tape recording, update tutorial, regenerate gifs, tutorial manifest
@@ -27,6 +29,47 @@ dependencies:
   - scry:gif-generation
   - scry:media-composition
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Command Options](#command-options)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Phase 1: Discovery (`tutorial-updates:discovery`)](#phase-1:-discovery-(tutorial-updates:discovery))
+- [Step 1.1: Locate Tutorial Assets](#step-11:-locate-tutorial-assets)
+- [Step 1.2: Parse Manifests](#step-12:-parse-manifests)
+- [Step 1.3: Handle Options](#step-13:-handle-options)
+- [Phase 1.5: Validation (`tutorial-updates:validation`)](#phase-15:-validation-(tutorial-updates:validation))
+- [Step 1.5.1: VHS Syntax Validation](#step-151:-vhs-syntax-validation)
+- [Step 1.5.2: Extract and Validate CLI Commands](#step-152:-extract-and-validate-cli-commands)
+- [Step 1.5.3: Verify Demo Data Exists](#step-153:-verify-demo-data-exists)
+- [Step 1.5.4: Test Commands Locally](#step-154:-test-commands-locally)
+- [Validation Flags](#validation-flags)
+- [Validation Exit Criteria](#validation-exit-criteria)
+- [Phase 1.6: Binary Rebuild (`tutorial-updates:rebuild`)](#phase-16:-binary-rebuild-(tutorial-updates:rebuild))
+- [Step 1.6.1: Detect Build System](#step-161:-detect-build-system)
+- [Step 1.6.2: Check Binary Freshness](#step-162:-check-binary-freshness)
+- [Step 1.6.3: Rebuild Binary](#step-163:-rebuild-binary)
+- [Step 1.6.4: Verify Binary Accessibility](#step-164:-verify-binary-accessibility)
+- [Rebuild Flags](#rebuild-flags)
+- [Rebuild Exit Criteria](#rebuild-exit-criteria)
+- [Phase 2: Recording (`tutorial-updates:recording`)](#phase-2:-recording-(tutorial-updates:recording))
+- [Step 2.1: Process Tape Components](#step-21:-process-tape-components)
+- [Step 2.2: Process Browser Components](#step-22:-process-browser-components)
+- [Step 2.3: Handle Multi-Component Tutorials](#step-23:-handle-multi-component-tutorials)
+- [Phase 3: Generation (`tutorial-updates:generation`)](#phase-3:-generation-(tutorial-updates:generation))
+- [Step 3.1: Parse Tape Annotations](#step-31:-parse-tape-annotations)
+- [Step 3.2: Generate Dual-Tone Markdown](#step-32:-generate-dual-tone-markdown)
+- [Step 3.3: Generate README Demo Section](#step-33:-generate-readme-demo-section)
+- [Demos](#demos)
+- [Quickstart](#quickstart)
+- [Phase 4: Integration (`tutorial-updates:integration`)](#phase-4:-integration-(tutorial-updates:integration))
+- [Step 4.1: Verify All Outputs](#step-41:-verify-all-outputs)
+- [Step 4.2: Update SUMMARY.md (Book)](#step-42:-update-summarymd-(book))
+- [Step 4.3: Report Results](#step-43:-report-results)
+- [Exit Criteria](#exit-criteria)
+- [Error Handling](#error-handling)
+- [Scaffold Mode](#scaffold-mode)
+
 
 # Tutorial Updates Skill
 
@@ -543,3 +586,15 @@ Type "command here"
 Enter
 Sleep 2s
 ```
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

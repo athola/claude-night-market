@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-event-driven
 description: |
+
+Triggers: driven, architecture, decoupling, asynchronous, scalability
   Asynchronous event-based communication to decouple producers/consumers for scalability and resilience.
 
   Triggers: event-driven, message queue, pub/sub, asynchronous processing
@@ -45,3 +47,15 @@ estimated_tokens: 800
   - **Mitigation**: Without strong observability, diagnosing failed or "stuck" consumers is extremely difficult. Enforce the use of distributed tracing and standardized alerting across all event-driven components.
 - **"Event Storming" Analysis Paralysis**:
   - **Mitigation**: While event storming workshops are valuable, they can become unproductive if not properly managed. Keep modeling sessions time-boxed and focused on high-value business contexts first.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

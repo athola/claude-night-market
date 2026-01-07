@@ -1,6 +1,8 @@
 ---
 name: rust-review
 description: |
+
+Triggers: concurrency, traits, rust, ownership, cargo
   Expert-level Rust audits covering ownership, concurrency, unsafe blocks,
   traits, and Cargo dependencies.
 
@@ -35,6 +37,29 @@ modules:
   - unsafe-audit.md
   - cargo-dependencies.md
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Progressive Loading](#progressive-loading)
+- [Core Workflow](#core-workflow)
+- [Rust Quality Checklist](#rust-quality-checklist)
+- [Safety](#safety)
+- [Correctness](#correctness)
+- [Performance](#performance)
+- [Idioms](#idioms)
+- [Output Format](#output-format)
+- [Summary](#summary)
+- [Ownership Analysis](#ownership-analysis)
+- [Error Handling](#error-handling)
+- [Concurrency](#concurrency)
+- [Unsafe Audit](#unsafe-audit)
+- [[U1] file:line](#[u1]-file:line)
+- [Dependencies](#dependencies)
+- [Recommendation](#recommendation)
+- [Exit Criteria](#exit-criteria)
+
 
 # Rust Review Workflow
 
@@ -146,3 +171,15 @@ Approve / Approve with actions / Block
 - Dependencies scanned
 - Evidence logged
 - Action items assigned
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

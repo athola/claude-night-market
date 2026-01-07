@@ -1,6 +1,8 @@
 ---
 name: mecw-patterns
 description: |
+
+Triggers: context-management, patterns, token-optimization, thresholds, mecw
   MECW theory and patterns for hallucination prevention via context management. Implements 50% rule.
 
   Triggers: MECW, context window, hallucination, 50% rule, context pressure
@@ -26,6 +28,21 @@ modules:
   - modules/prevention-strategies.md
 reusable_by: [conserve, abstract, conjure, spec-kit, sanctum, imbue]
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Principle: The 50% Rule](#core-principle:-the-50%-rule)
+- [Pressure Levels](#pressure-levels)
+- [Quick Start](#quick-start)
+- [Basic Pressure Check](#basic-pressure-check)
+- [Full Compliance Check](#full-compliance-check)
+- [Continuous Monitoring](#continuous-monitoring)
+- [Detailed Topics](#detailed-topics)
+- [Best Practices](#best-practices)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [Exit Criteria](#exit-criteria)
+
 
 # MECW Patterns
 
@@ -139,3 +156,15 @@ dependencies: [leyline:mecw-patterns]
 - Safe budget calculated before batch operations
 - Recommendations followed when warnings issued
 - Context reset triggered before CRITICAL threshold
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

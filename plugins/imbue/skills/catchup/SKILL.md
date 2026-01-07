@@ -1,6 +1,8 @@
 ---
 name: catchup
 description: |
+
+Triggers: follow-ups, catchup, insights, context-acquisition, summarization
   Methodology for summarizing changes, extracting insights, and identifying follow-up actions.
 
   Triggers: catchup, what changed, summarize changes, context acquisition, handoff,
@@ -96,3 +98,15 @@ Reference paths + lines (don't reproduce). Summarize outputs. Defer deep analysi
 - Four TodoWrite items completed
 - Context/delta/insights/follow-ups captured
 - Stakeholders understand state without re-reading sources
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

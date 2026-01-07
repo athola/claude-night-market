@@ -1,6 +1,8 @@
 ---
 name: git-workspace-review
 description: |
+
+Triggers: staged, preflight, git, review, status
   Lightweight preflight checklist for verifying repo path, staged changes, and
   diffs before other workflows.
 
@@ -60,3 +62,15 @@ Mark each item as complete as you finish the corresponding step.
 - `TodoWrite` items are completed.
 - You understand which files and areas have changed and have staged the correct work.
 - Downstream workflows (commit, PR, etc.) can now rely on this context without re-running Git commands.
+## Troubleshooting
+
+### Common Issues
+
+**Pre-commit hooks failing**
+Run `SKIP=... git commit` to bypass temporarily, then fix issues
+
+**Merge conflicts**
+Use `git merge --abort` to reset, then resolve conflicts carefully
+
+**Commit rejected**
+Check hook output and fix reported issues before committing again

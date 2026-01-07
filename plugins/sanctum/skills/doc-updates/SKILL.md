@@ -1,6 +1,8 @@
 ---
 name: doc-updates
 description: |
+
+Triggers: consolidation, docstrings, writing, adr, readme
   Update documentation with writing guideline enforcement, consolidation detection, and accuracy verification.
 
   Triggers: documentation update, docs update, ADR, docstrings, writing guidelines, readme update, debloat docs
@@ -27,6 +29,20 @@ dependencies:
   - sanctum:git-workspace-review
   - imbue:evidence-logging
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Step 1: Collect Context (`context-collected`)](#step-1:-collect-context-(context-collected))
+- [Step 2: Identify Targets (`targets-identified`)](#step-2:-identify-targets-(targets-identified))
+- [Step 2.5: Check for Consolidation (`consolidation-checked`)](#step-25:-check-for-consolidation-(consolidation-checked))
+- [Step 3: Apply Edits (`edits-applied`)](#step-3:-apply-edits-(edits-applied))
+- [Step 4: Enforce Guidelines (`guidelines-verified`)](#step-4:-enforce-guidelines-(guidelines-verified))
+- [Step 5: Verify Accuracy (`accuracy-verified`)](#step-5:-verify-accuracy-(accuracy-verified))
+- [Step 6: Preview Changes (`preview`)](#step-6:-preview-changes-(preview))
+- [Exit Criteria](#exit-criteria)
+- [Flags](#flags)
+
 
 # Documentation Update Workflow
 
@@ -200,3 +216,15 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 | `--skip-consolidation` | Skip Phase 2.5 consolidation check |
 | `--strict` | Treat all warnings as errors |
 | `--book-style` | Apply book/ rules to all files |
+## Troubleshooting
+
+### Common Issues
+
+**Documentation out of sync**
+Run `make docs-update` to regenerate from code
+
+**Build failures**
+Check that all required dependencies are installed
+
+**Links broken**
+Verify relative paths in documentation files

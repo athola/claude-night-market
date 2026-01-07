@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-space-based
 description: |
+
+Triggers: data-grid, space, architecture, based, in-memory
   Data-grid architecture for high-traffic stateful workloads with linear scalability.
 
   Triggers: space-based, data grid, in-memory, linear scaling, high traffic
@@ -45,3 +47,15 @@ estimated_tokens: 800
   - **Mitigation**: The orchestration of a data grid requires mature automation. Invest in production-grade tooling and automation early in the process.
 - **Cost**:
   - **Mitigation**: In-memory grids can be resource-intensive. Implement aggressive monitoring of utilization and auto-scaling policies to manage costs effectively.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

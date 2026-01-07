@@ -1,6 +1,8 @@
 ---
 name: spec-writing
 description: |
+
+Triggers: specification, user-stories, requirements, speckit, acceptance-criteria
   Create clear, testable specifications with user stories and acceptance criteria.
 
   Triggers: spec writing, feature specification, requirements, user stories
@@ -97,3 +99,15 @@ Guide the creation of clear, complete, and testable specifications from natural 
 
 - `speckit-orchestrator`: Workflow coordination
 - `task-planning`: Converting specs to tasks
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: skills-eval
 description: |
+
+Triggers: quality-assurance, skills, optimization, tool-use, performance-metrics
   Evaluate and improve Claude skill quality through auditing.
 
   Triggers: skill audit, quality review, compliance check, improvement suggestions,
@@ -52,6 +54,30 @@ evaluation_criteria:
   tool_integration: 20         # Tool effectiveness, error handling, performance
   claude_sdk_compliance: 10    # API compatibility, best practices adherence
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Tools](#tools)
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Basic Skill Audit](#basic-skill-audit)
+- [Skill Analysis](#skill-analysis)
+- [Generate Improvements](#generate-improvements)
+- [Typical Workflow](#typical-workflow)
+- [Common Tasks](#common-tasks)
+- [Quality Assessment](#quality-assessment)
+- [Performance Analysis](#performance-analysis)
+- [Standards Compliance](#standards-compliance)
+- [Improvements and Optimization](#improvements-and-optimization)
+- [Evaluation Framework](#evaluation-framework)
+- [Quality Metrics Overview](#quality-metrics-overview)
+- [Scoring System](#scoring-system)
+- [Priority Levels](#priority-levels)
+- [Detailed Resources](#detailed-resources)
+- [Shared Modules (Cross-Skill Patterns)](#shared-modules-(cross-skill-patterns))
+- [Skill-Specific Modules](#skill-specific-modules)
+- [Tools and Automation](#tools-and-automation)
+
 
 # Skills Evaluation and Improvement
 

@@ -1,6 +1,8 @@
 ---
 name: skill-authoring
 description: |
+
+Triggers: skills, validation, skill, authoring, tdd
   Guide to effective Claude Code skill authoring using TDD methodology and
   persuasion principles.
 
@@ -22,6 +24,49 @@ tags: [authoring, tdd, skills, writing, best-practices, validation]
 dependencies: [modular-skills]
 estimated_tokens: 1500
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Core Concept](#core-concept)
+- [Key Benefits](#key-benefits)
+- [The Iron Law](#the-iron-law)
+- [Skill Types](#skill-types)
+- [1. Technique Skills](#1-technique-skills)
+- [2. Pattern Skills](#2-pattern-skills)
+- [3. Reference Skills](#3-reference-skills)
+- [Quick Start](#quick-start)
+- [Minimal Viable Skill Creation](#minimal-viable-skill-creation)
+- [File Structure Requirements](#file-structure-requirements)
+- [Description Optimization](#description-optimization)
+- [Formula](#formula)
+- [Requirements](#requirements)
+- [Example Patterns](#example-patterns)
+- [The TDD Cycle for Skills](#the-tdd-cycle-for-skills)
+- [RED Phase: Document Baseline Failures](#red-phase:-document-baseline-failures)
+- [GREEN Phase: Minimal Skill Implementation](#green-phase:-minimal-skill-implementation)
+- [REFACTOR Phase: Bulletproof Against Rationalization](#refactor-phase:-bulletproof-against-rationalization)
+- [Anti-Rationalization Techniques](#anti-rationalization-techniques)
+- [Common Rationalization Patterns](#common-rationalization-patterns)
+- [Red Flags for Self-Checking](#red-flags-for-self-checking)
+- [Red Flags That You're Rationalizing](#red-flags-that-you're-rationalizing)
+- [Explicit Exception Handling](#explicit-exception-handling)
+- [When NOT to Use This Skill](#when-not-to-use-this-skill)
+- [Module References](#module-references)
+- [Deployment Checklist](#deployment-checklist)
+- [Quality Gates](#quality-gates)
+- [Validation Command](#validation-command)
+- [Common Pitfalls](#common-pitfalls)
+- [1. Writing Without Testing](#1-writing-without-testing)
+- [2. Vague Descriptions](#2-vague-descriptions)
+- [3. Monolithic Skills](#3-monolithic-skills)
+- [4. Missing Anti-Rationalization](#4-missing-anti-rationalization)
+- [5. Theoretical Examples](#5-theoretical-examples)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [With modular-skills](#with-modular-skills)
+- [With skills-eval](#with-skills-eval)
+- [Workflow](#workflow)
+- [Summary](#summary)
+
 
 # Skill Authoring Guide
 
@@ -72,38 +117,22 @@ Every skill must begin with documented evidence of Claude failing without it. Th
 
 ## Quick Start
 
-### Minimal Viable Skill Creation
+### Skill Analysis
+\`\`\`bash
+# Analyze skill complexity
+python scripts/analyze.py
 
-1. **Document Baseline Failure** (RED)
-   - Run 3+ pressure scenarios WITHOUT skill
-   - Copy-paste Claude's actual responses verbatim
-   - Note specific failure patterns
+# Estimate tokens
+python scripts/tokens.py
+\`\`\`
 
-2. **Write Minimal Skill** (GREEN)
-   - Create SKILL.md with required frontmatter
-   - Add just enough content to address documented failures
-   - Test with skill present, verify improvement
+### Validation
+\`\`\`bash
+# Validate skill structure
+python scripts/abstract_validator.py --check
+\`\`\`
 
-3. **Bulletproof Against Rationalization** (REFACTOR)
-   - Identify new excuses Claude makes
-   - Add explicit counters and tables
-   - Iterate until compliance is consistent
-
-### File Structure Requirements
-
-**Required:**
-- `SKILL.md` - Main skill file with YAML frontmatter
-
-**Optional (use only when needed):**
-- `modules/` - Supporting content for progressive disclosure
-- `scripts/` - Executable tools and validators
-- `README.md` - Plugin-level overview (not skill-level)
-
-**Naming Convention:**
-- Flat namespace (no nested skill directories)
-- Lowercase with hyphens: `skill-name`
-- Module files: descriptive kebab-case
-
+**Verification**: Run analysis and review token estimates before proceeding.
 ## Description Optimization
 
 Skill descriptions are critical for Claude's discovery process. They must be optimized for both semantic search and explicit triggering.
@@ -372,3 +401,15 @@ Effective skill authoring requires:
 7. **Validation**: Test before deploying
 
 Remember: Skills are behavioral interventions, not documentation. If you haven't tested it against real failure modes, you haven't validated that it works.
+## Troubleshooting
+
+### Common Issues
+
+**Skill not loading**
+Check YAML frontmatter syntax and required fields
+
+**Token limits exceeded**
+Use progressive disclosure - move details to modules
+
+**Modules not found**
+Verify module paths in SKILL.md are correct

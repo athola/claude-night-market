@@ -1,6 +1,8 @@
 ---
 name: progressive-loading
 description: |
+
+Triggers: context-management, modularity, progressive-disclosure, loading, token-optimization
   Context-aware progressive module loading with hub-and-spoke pattern for token optimization.
 
   Triggers: progressive loading, lazy loading, hub-spoke, module selection
@@ -24,6 +26,25 @@ modules:
   - modules/selection-strategies.md
   - modules/loading-patterns.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Quick Start](#quick-start)
+- [Basic Hub Pattern](#basic-hub-pattern)
+- [Progressive Loading](#progressive-loading)
+- [Context-Based Selection](#context-based-selection)
+- [Hub-and-Spoke Architecture](#hub-and-spoke-architecture)
+- [Hub Responsibilities](#hub-responsibilities)
+- [Spoke Characteristics](#spoke-characteristics)
+- [Selection Strategies](#selection-strategies)
+- [Loading Patterns](#loading-patterns)
+- [Common Use Cases](#common-use-cases)
+- [Best Practices](#best-practices)
+- [Module References](#module-references)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [Exit Criteria](#exit-criteria)
+
 
 # Progressive Loading Patterns
 
@@ -143,3 +164,15 @@ progressive_loading: true
 - Token costs measured for all modules
 - Context detection logic documented
 - Loading paths validated for completeness
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

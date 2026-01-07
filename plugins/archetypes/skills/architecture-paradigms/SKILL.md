@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigms
 description: |
+
+Triggers: adr, architecture, patterns, paradigms, implementation
   Interactive selector and implementation planner for architecture paradigms.
 
   Triggers: architecture selection, pattern comparison, system design, ADR creation,
@@ -29,15 +31,48 @@ usage_patterns:
 complexity: intermediate
 estimated_tokens: 560
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Common Scenarios](#common-scenarios)
+- [Enterprise Application with Multiple Teams](#enterprise-application-with-multiple-teams)
+- [Complex Business Rules & Testing](#complex-business-rules-&-testing)
+- [Real-time/Event Processing](#real-time-event-processing)
+- [Legacy System Modernization](#legacy-system-modernization)
+- [Cloud-Native/Bursty Workloads](#cloud-native-bursty-workloads)
+- [ETL/Data Processing Pipeline](#etl-data-processing-pipeline)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [3-Step Selection Workflow](#3-step-selection-workflow)
+- [Step 1: Define Your Needs (`paradigms:needs-defined`)](#step-1:-define-your-needs-(paradigms:needs-defined))
+- [Step 2: Evaluate Paradigms (`paradigms:paradigms-evaluated`)](#step-2:-evaluate-paradigms-(paradigms:paradigms-evaluated))
+- [Step 3: Generate Implementation Roadmap (`paradigms:roadmap-created`)](#step-3:-generate-implementation-roadmap-(paradigms:roadmap-created))
+- [Paradigm Comparison Matrix](#paradigm-comparison-matrix)
+- [Future Tooling](#future-tooling)
+- [Paradigm Selector Tool](#paradigm-selector-tool)
+- [Implementation Planner Tool](#implementation-planner-tool)
+- [Compatibility Checker Tool](#compatibility-checker-tool)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [During Architecture Review](#during-architecture-review)
+- [During Implementation Planning](#during-implementation-planning)
+- [During Refactoring](#during-refactoring)
+- [Exit Criteria](#exit-criteria)
+- [Next Steps](#next-steps)
+
 
 # Architecture Paradigm Selector & Implementation Planner
 
 ## Quick Start
 
-**For decisions**: Jump to Common Scenarios (below) or use the selection matrix.
+### Basic Usage
+\`\`\`bash
+# Run the main command
+python -m module_name
 
-**For planning**: Complete the 3-step workflow to generate implementation roadmaps.
+# Show help
+python -m module_name --help
+\`\`\`
 
+**Verification**: Run with `--help` flag to confirm installation.
 ## Common Scenarios
 
 ### Enterprise Application with Multiple Teams
@@ -208,3 +243,15 @@ compatibility-checker --paradigm microservices --team-profile current-team
 2. **Generate an ADR** using the paradigm templates.
 3. **Create an implementation plan** with detailed tasks and timelines.
 4. **Set up monitoring** for the success metrics of the paradigm adoption.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

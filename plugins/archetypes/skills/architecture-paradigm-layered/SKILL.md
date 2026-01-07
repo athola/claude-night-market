@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-layered
 description: |
+
+Triggers: monolith, separation-of-concerns, n-tier, architecture, layered
   Use a Layered (N-Tier) architecture to separate presentation, domain logic, and
   data access responsibilities within a system.
 
@@ -89,3 +91,15 @@ estimated_tokens: 700
   - **Mitigation**: For features that span multiple layers, strict adherence can lead to excessive "pass-through" code and increased latency. In such cases, consider using a Façade pattern to provide a more direct interface where appropriate.
 - **"Leaky" Layers**:
   - **Mitigation**: Developers may be tempted to bypass architectural rules for expediency, which degrades the architecture. Treat all architectural violations as build-breaking failures or critical issues in code review.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

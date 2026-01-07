@@ -1,6 +1,8 @@
 ---
 name: cpu-gpu-performance
 description: |
+
+Triggers: performance
   Monitor and optimize CPU/GPU usage with load measurement and cost-effective
   validation strategies.
 
@@ -21,6 +23,17 @@ dependencies:
   hub: [token-conservation]
   modules: []
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Step 1 – Establish Current Baseline (`baseline`)](#step-1-–-establish-current-baseline-(baseline))
+- [Step 2 – Narrow the Scope (`scope`)](#step-2-–-narrow-the-scope-(scope))
+- [Step 3 – Instrument Before You Optimize (`instrument`)](#step-3-–-instrument-before-you-optimize-(instrument))
+- [Step 4 – Throttle and Sequence Work (`throttle`)](#step-4-–-throttle-and-sequence-work-(throttle))
+- [Step 5 – Log Decisions + Next Steps (`log`)](#step-5-–-log-decisions-+-next-steps-(log))
+- [Output Expectations](#output-expectations)
+
 
 # CPU/GPU Performance Discipline
 
@@ -101,3 +114,15 @@ adding a new test marker or profiling documentation, to streamline future sessio
 - Concrete example(s) of what ran (e.g.):
   - "reran `pytest tests/test_orders.py -k test_refund` instead of `pytest -m slow`"
   - "profiled `nvidia-smi dmon` output to prove GPU idle time before scaling"
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

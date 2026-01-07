@@ -1,6 +1,8 @@
 ---
 name: structured-output
 description: |
+
+Triggers: consistency, reporting, structured, structure, formatting
   Guide to formatting review deliverables for consistency, ensuring findings
   are comparable across different types of analysis.
 
@@ -25,6 +27,18 @@ usage_patterns:
 complexity: beginner
 estimated_tokens: 1000
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Activation Patterns](#activation-patterns)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Step 1: Select Template (`structured-output:template-selected`)](#step-1:-select-template-(structured-output:template-selected))
+- [Step 2: Format Findings (`structured-output:findings-formatted`)](#step-2:-format-findings-(structured-output:findings-formatted))
+- [Step 3: Assign Actions (`structured-output:actions-assigned`)](#step-3:-assign-actions-(structured-output:actions-assigned))
+- [Step 4: Attach Appendix (`structured-output:appendix-attached`)](#step-4:-attach-appendix-(structured-output:appendix-attached))
+- [Output Quality Checklist](#output-quality-checklist)
+- [Exit Criteria](#exit-criteria)
+
 
 # Structured Output
 
@@ -112,3 +126,15 @@ Before finalizing:
 - Todos completed with formatted deliverable.
 - Output follows selected template structure.
 - Stakeholders can act on findings without clarification.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: python-testing
 description: |
+
+Triggers: quality-assurance, test-automation, pytest, testing, python
   Python testing with pytest, fixtures, mocking, and TDD workflows.
 
   Triggers: pytest, unit tests, test fixtures, mocking, TDD, test suite, coverage,
@@ -35,6 +37,17 @@ modules:
   - test-quality
   - async-testing
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Modules](#modules)
+- [Core Testing](#core-testing)
+- [Infrastructure & Workflow](#infrastructure-&-workflow)
+- [Quality](#quality)
+- [Progressive Loading](#progressive-loading)
+- [Exit Criteria](#exit-criteria)
+
 
 # Python Testing Hub
 
@@ -111,3 +124,15 @@ Load modules based on project requirements:
 - [ ] No anti-patterns present
 - [ ] Fixtures used appropriately
 - [ ] Mocking only at boundaries
+## Troubleshooting
+
+### Common Issues
+
+**Tests not discovered**
+Ensure test files match pattern `test_*.py` or `*_test.py`. Run `pytest --collect-only` to verify.
+
+**Import errors**
+Check that the module being tested is in `PYTHONPATH` or install with `pip install -e .`
+
+**Async tests failing**
+Install pytest-asyncio and decorate test functions with `@pytest.mark.asyncio`

@@ -1,6 +1,8 @@
 ---
 name: fix-issue
 description: |
+
+Triggers: github, automation, parallel, subagents, issue
   Fix GitHub issues using subagent-driven-development with parallel execution
   where appropriate.
 
@@ -41,6 +43,15 @@ modules:
   - modules/completion.md
   - modules/troubleshooting.md
 ---
+## Table of Contents
+
+- [Key Features](#key-features)
+- [Workflow Overview](#workflow-overview)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [GitHub CLI Commands](#github-cli-commands)
+- [Configuration](#configuration)
+- [Detailed Resources](#detailed-resources)
+
 
 # Fix GitHub Issue(s)
 

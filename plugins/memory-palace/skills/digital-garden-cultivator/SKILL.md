@@ -1,6 +1,8 @@
 ---
 name: digital-garden-cultivator
 description: |
+
+Triggers: garden, linking, curation, knowledge-base, digital
   Design, manage, and evolve digital gardens as living knowledge bases within
   memory palaces.
 
@@ -22,6 +24,21 @@ usage_patterns: [garden-management, knowledge-curation, content-lifecycle]
 complexity: intermediate
 estimated_tokens: 500
 ---
+## Table of Contents
+
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Calculate Garden Metrics](#calculate-garden-metrics)
+- [Output Formats](#output-formats)
+- [When to Use](#when-to-use)
+- [Content Maturity Levels](#content-maturity-levels)
+- [Core Workflow](#core-workflow)
+- [Garden Layout Template](#garden-layout-template)
+- [Maintenance Cadence](#maintenance-cadence)
+- [Success Metrics](#success-metrics)
+- [Detailed Resources](#detailed-resources)
+- [Integration](#integration)
+
 
 # Digital Garden Cultivator
 
@@ -112,3 +129,15 @@ garden:
 - `memory-palace-architect` - Host garden within palace structure
 - `knowledge-locator` - Search garden content
 - `session-palace-builder` - Seed garden from session insights
+## Troubleshooting
+
+### Common Issues
+
+**Pre-commit hooks failing**
+Run `SKIP=... git commit` to bypass temporarily, then fix issues
+
+**Merge conflicts**
+Use `git merge --abort` to reset, then resolve conflicts carefully
+
+**Commit rejected**
+Check hook output and fix reported issues before committing again

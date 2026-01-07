@@ -1,6 +1,8 @@
 ---
 name: diff-analysis
 description: |
+
+Triggers: semantic-analysis, changes, analysis, categorization, risk-assessment
   Methodology for categorizing changes, assessing risks, and creating summaries
   from any changeset.
 
@@ -89,3 +91,15 @@ Synthesize findings: theme, scope with counts, risk level, review focus, depende
 - All TodoWrite items completed with categorized changes and risk assessment
 - Downstream workflows have semantic understanding of the changeset
 - Summary ready for appropriate consumption (review, release notes, planning)
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

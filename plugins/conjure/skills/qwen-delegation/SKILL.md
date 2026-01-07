@@ -1,6 +1,8 @@
 ---
 name: qwen-delegation
 description: |
+
+Triggers: large-context, cli, delegation, alibaba, qwen
   Qwen CLI delegation workflow implementing delegation-core for Alibaba's Qwen models.
 
   Triggers: qwen cli, qwen delegation, alibaba qwen, qwen batch, multi-file analysis,
@@ -29,6 +31,21 @@ modules:
 references:
   - delegation-core/shared-shell-execution.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Prerequisites](#prerequisites)
+- [Delegation Flow](#delegation-flow)
+- [Quick Start](#quick-start)
+- [Using Shared Delegation Executor](#using-shared-delegation-executor)
+- [Direct CLI Usage](#direct-cli-usage)
+- [Save Output](#save-output)
+- [Smart Delegation](#smart-delegation)
+- [Shared Patterns](#shared-patterns)
+- [Qwen-Specific Details](#qwen-specific-details)
+- [Exit Criteria](#exit-criteria)
+
 
 # Qwen CLI Delegation
 

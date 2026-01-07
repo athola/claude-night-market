@@ -1,6 +1,8 @@
 ---
 name: gif-generation
 description: |
+
+Triggers: optimization, ffmpeg, generation, gif, video
   Post-process video files and generate optimized GIFs.
   Converts webm/mp4 to GIF with configurable quality settings.
 
@@ -14,6 +16,26 @@ complexity: low
 estimated_tokens: 400
 progressive_loading: false
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Process](#process)
+- [Step 1: Validate Input File](#step-1:-validate-input-file)
+- [Step 2: Check ffmpeg Installation](#step-2:-check-ffmpeg-installation)
+- [Step 3: Execute Conversion](#step-3:-execute-conversion)
+- [Basic Conversion (Fast, Larger File)](#basic-conversion-(fast,-larger-file))
+- [High Quality with Palette Generation (Recommended)](#high-quality-with-palette-generation-(recommended))
+- [Maximum Quality with Dithering](#maximum-quality-with-dithering)
+- [Optimization Options](#optimization-options)
+- [Common Presets](#common-presets)
+- [Step 4: Verify Output](#step-4:-verify-output)
+- [Exit Criteria](#exit-criteria)
+- [Troubleshooting](#troubleshooting)
+- [Large Output File](#large-output-file)
+- [Color Banding](#color-banding)
+- [Slow Conversion](#slow-conversion)
+
 
 # GIF Generation Skill
 

@@ -1,6 +1,8 @@
 ---
 name: makefile-review
 description: |
+
+Triggers: makefile, make, automation, portability, review
   Audit Makefiles for duplication, portability, and idiomatic GNU Make usage.
 
   Triggers: Makefile review, build system, GNU Make, portability, deduplication,
@@ -31,6 +33,29 @@ modules:
   - portability-checks
   - best-practices
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Workflow](#workflow)
+- [Step 1: Map Context (`makefile-review:context-mapped`)](#step-1:-map-context-(makefile-review:context-mapped))
+- [Step 2: Dependency Graph (`makefile-review:dependency-graph`)](#step-2:-dependency-graph-(makefile-review:dependency-graph))
+- [Step 3: Deduplication Audit (`makefile-review:dedup-candidates`)](#step-3:-deduplication-audit-(makefile-review:dedup-candidates))
+- [Step 4: Portability Check (`makefile-review:tooling-alignment`)](#step-4:-portability-check-(makefile-review:tooling-alignment))
+- [Step 5: Evidence Log (`makefile-review:evidence-logged`)](#step-5:-evidence-log-(makefile-review:evidence-logged))
+- [Progressive Loading](#progressive-loading)
+- [Output Format](#output-format)
+- [Summary](#summary)
+- [Context](#context)
+- [Dependency Analysis](#dependency-analysis)
+- [Duplication Candidates](#duplication-candidates)
+- [[D1] Repeated command](#[d1]-repeated-command)
+- [Portability Issues](#portability-issues)
+- [Missing Targets](#missing-targets)
+- [Recommendation](#recommendation)
+- [Exit Criteria](#exit-criteria)
+
 
 # Makefile Review Workflow
 
@@ -140,3 +165,15 @@ Approve / Approve with actions / Block
 - Deduplication reviewed
 - Portability checked
 - Evidence logged
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

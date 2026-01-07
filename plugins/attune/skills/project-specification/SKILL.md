@@ -1,8 +1,49 @@
 ---
 name: project-specification
 description: Transform project brief into detailed, testable specifications using spec-driven development methodology
+
+Triggers: specification, testable, development, spec-driven, project
 model_preference: claude-sonnet-4
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Integration](#integration)
+- [Specification Structure](#specification-structure)
+- [1. Overview Section](#1-overview-section)
+- [2. Functional Requirements (FR-XXX)](#2-functional-requirements-(fr-xxx))
+- [FR-001: [Requirement Name]](#fr-001:-[requirement-name])
+- [3. Non-Functional Requirements (NFR-XXX)](#3-non-functional-requirements-(nfr-xxx))
+- [NFR-001: [Category] - [Requirement]](#nfr-001:-[category]---[requirement])
+- [4. Technical Constraints](#4-technical-constraints)
+- [5. Out of Scope](#5-out-of-scope)
+- [Out of Scope (v1.0)](#out-of-scope-(v10))
+- [Clarification Workflow](#clarification-workflow)
+- [Ambiguity Detection](#ambiguity-detection)
+- [Question Generation](#question-generation)
+- [Clarification Session](#clarification-session)
+- [Quality Checks](#quality-checks)
+- [Output Format](#output-format)
+- [Change History](#change-history)
+- [Overview](#overview)
+- [Functional Requirements](#functional-requirements)
+- [Non-Functional Requirements](#non-functional-requirements)
+- [Technical Constraints](#technical-constraints)
+- [Out of Scope](#out-of-scope)
+- [Dependencies](#dependencies)
+- [Acceptance Testing Strategy](#acceptance-testing-strategy)
+- [Success Criteria](#success-criteria)
+- [Glossary](#glossary)
+- [References](#references)
+- [Acceptance Criteria Patterns](#acceptance-criteria-patterns)
+- [Given-When-Then](#given-when-then)
+- [Error Cases](#error-cases)
+- [Performance Criteria](#performance-criteria)
+- [Security Criteria](#security-criteria)
+- [Related Skills](#related-skills)
+- [Related Commands](#related-commands)
+- [Examples](#examples)
+
 
 # Project Specification Skill
 
@@ -271,3 +312,15 @@ Make security requirements verifiable:
 ## Examples
 
 See `/attune:specify` command documentation for complete examples.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

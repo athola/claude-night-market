@@ -1,6 +1,8 @@
 ---
 name: version-updates
 description: |
+
+Triggers: changelog, bump, release, version, semver
   Bump project versions across configs, docs, and changelog using
   git-workspace-review context.
 
@@ -62,3 +64,15 @@ Run `Skill(sanctum:git-workspace-review)` first to capture current changes.
 ## Output Instructions
 - Summarize the files changed and the new version number.
 - Mention follow-up steps, such as publishing or tagging, if applicable.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

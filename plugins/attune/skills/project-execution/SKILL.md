@@ -1,9 +1,50 @@
 ---
 name: project-execution
 description: Systematic task execution with checkpoint validation, progress tracking, and quality gates
+
+Triggers: progress, validation, quality, project, systematic
 model_preference: claude-sonnet-4
 tools_allowed: all
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Integration](#integration)
+- [Execution Framework](#execution-framework)
+- [Pre-Execution Phase](#pre-execution-phase)
+- [Task Execution Loop](#task-execution-loop)
+- [Post-Execution Phase](#post-execution-phase)
+- [Task Execution Pattern](#task-execution-pattern)
+- [TDD Workflow](#tdd-workflow)
+- [Checkpoint Validation](#checkpoint-validation)
+- [Progress Tracking](#progress-tracking)
+- [Execution State](#execution-state)
+- [Progress Reports](#progress-reports)
+- [Yesterday](#yesterday)
+- [Today](#today)
+- [Blockers](#blockers)
+- [Metrics](#metrics)
+- [Completed ([X] tasks)](#completed-([x]-tasks))
+- [In Progress ([Y] tasks)](#in-progress-([y]-tasks))
+- [Blocked ([Z] tasks)](#blocked-([z]-tasks))
+- [Burndown](#burndown)
+- [Risks](#risks)
+- [Blocker Management](#blocker-management)
+- [Blocker Detection](#blocker-detection)
+- [Systematic Debugging](#systematic-debugging)
+- [Escalation](#escalation)
+- [Blocker: [TASK-XXX] - [Issue]](#blocker:-[task-xxx]---[issue])
+- [Quality Assurance](#quality-assurance)
+- [Definition of Done](#definition-of-done)
+- [Testing Strategy](#testing-strategy)
+- [Velocity Tracking](#velocity-tracking)
+- [Burndown Metrics](#burndown-metrics)
+- [Velocity Adjustments](#velocity-adjustments)
+- [Related Skills](#related-skills)
+- [Related Agents](#related-agents)
+- [Related Commands](#related-commands)
+- [Examples](#examples)
+
 
 # Project Execution Skill
 
@@ -364,3 +405,15 @@ On track? = Estimated completion <= Sprint end date
 ## Examples
 
 See `/attune:execute` command documentation for complete examples.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

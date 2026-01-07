@@ -1,9 +1,27 @@
 ---
 name: makefile-generation
 description: Generate language-specific Makefile with common development targets
+
+Triggers: language-specific, makefile, development, targets, generation
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
 ---
+## Table of Contents
+
+- [Use When](#use-when)
+- [Standard Targets](#standard-targets)
+- [Python Makefile](#python-makefile)
+- [Rust Makefile](#rust-makefile)
+- [TypeScript Makefile](#typescript-makefile)
+- [Workflow](#workflow)
+- [1. Detect Language](#1-detect-language)
+- [2. Load Template](#2-load-template)
+- [3. Collect Project Info](#3-collect-project-info)
+- [4. Render Template](#4-render-template)
+- [5. Verify](#5-verify)
+- [Customization](#customization)
+- [Related Skills](#related-skills)
+
 
 # Makefile Generation Skill
 
@@ -120,3 +138,15 @@ deploy: build ## Deploy to production
 
 - `Skill(attune:project-init)` - Full project initialization
 - `Skill(abstract:makefile-dogfooder)` - Makefile testing and validation
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

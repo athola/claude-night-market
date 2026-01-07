@@ -1,6 +1,8 @@
 ---
 name: quota-management
 description: |
+
+Triggers: quota, management, rate-limiting, thresholds, cost-tracking
   Quota tracking, threshold monitoring, and graceful degradation for rate-limited API services.
 
   Triggers: quota, rate limiting, usage limits, thresholds
@@ -24,6 +26,21 @@ modules:
   - modules/threshold-strategies.md
   - modules/estimation-patterns.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Concepts](#core-concepts)
+- [Quota Thresholds](#quota-thresholds)
+- [Quota Types](#quota-types)
+- [Quick Start](#quick-start)
+- [Check Quota Status](#check-quota-status)
+- [Record Usage](#record-usage)
+- [Estimate Before Execution](#estimate-before-execution)
+- [Integration Pattern](#integration-pattern)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Quota Management
 
@@ -116,3 +133,15 @@ Then use the shared patterns:
 - Quota status checked before operation
 - Usage recorded after operation
 - Threshold warnings handled appropriately
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: service-registry
 description: |
+
+Triggers: services, health-checks, service, registry, execution
   Registry pattern for managing external service connections, configurations,
   and health checks.
 
@@ -32,6 +34,24 @@ modules:
   - modules/service-config.md
   - modules/execution-patterns.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Concepts](#core-concepts)
+- [Service Configuration](#service-configuration)
+- [Execution Result](#execution-result)
+- [Quick Start](#quick-start)
+- [Register Services](#register-services)
+- [Execute via Service](#execute-via-service)
+- [Health Checks](#health-checks)
+- [Service Selection](#service-selection)
+- [Auto-Selection](#auto-selection)
+- [Failover Pattern](#failover-pattern)
+- [Integration Pattern](#integration-pattern)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Service Registry
 
@@ -155,3 +175,15 @@ dependencies: [leyline:service-registry]
 - Services registered with configuration.
 - Health checks passing.
 - Execution results properly handled.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: api-review
 description: |
+
+Triggers: consistency, versioning, design, review, documentation
   Evaluate public API surfaces against internal guidelines and external exemplars.
 
   Triggers: API review, API design, consistency audit, API documentation,
@@ -25,6 +27,34 @@ estimated_tokens: 400
 progressive_loading: true
 dependencies: [pensive:shared, imbue:evidence-logging]
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Workflow](#workflow)
+- [Step 1: Surface Inventory](#step-1:-surface-inventory)
+- [Step 2: Exemplar Research](#step-2:-exemplar-research)
+- [Step 3: Consistency Audit](#step-3:-consistency-audit)
+- [Step 4: Documentation Governance](#step-4:-documentation-governance)
+- [Step 5: Evidence Log](#step-5:-evidence-log)
+- [Progressive Loading](#progressive-loading)
+- [API Quality Checklist](#api-quality-checklist)
+- [Naming](#naming)
+- [Parameters](#parameters)
+- [Return Values](#return-values)
+- [Documentation](#documentation)
+- [Output Format](#output-format)
+- [API Review Report](#api-review-report)
+- [Summary](#summary)
+- [Surface Inventory](#surface-inventory)
+- [Exemplar Comparison](#exemplar-comparison)
+- [Consistency Issues](#consistency-issues)
+- [Documentation Gaps](#documentation-gaps)
+- [Recommendations](#recommendations)
+- [Integration Notes](#integration-notes)
+- [Exit Criteria](#exit-criteria)
+
 
 # API Review Workflow
 
@@ -165,3 +195,15 @@ Load modules as needed:
 - Consistency issues documented with locations
 - Documentation gaps identified
 - Action plan with ownership and timeline
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

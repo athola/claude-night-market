@@ -1,6 +1,8 @@
 ---
 name: python-async
 description: |
+
+Triggers: concurrency, coroutines, await, async, asyncio
   Master Python asyncio, concurrent programming, and async/await patterns
   for high-performance applications.
 
@@ -83,3 +85,15 @@ Load specific modules based on your needs, or reference all for detailed guidanc
 - Proper error handling implemented
 - Rate limiting configured where needed
 - Tests pass with pytest-asyncio
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

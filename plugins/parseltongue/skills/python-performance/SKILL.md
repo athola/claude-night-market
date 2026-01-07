@@ -1,6 +1,8 @@
 ---
 name: python-performance
 description: |
+
+Triggers: memory, profiling, optimization, performance, python
   Profile and optimize Python code using cProfile, memory profilers, and
   performance best practices.
 
@@ -81,3 +83,15 @@ Best practices, common pitfalls, and exit criteria for performance optimization 
 - Verified improvements with benchmarks
 - Memory usage acceptable
 - No performance regressions
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

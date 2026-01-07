@@ -1,6 +1,8 @@
 ---
 name: context-optimization
 description: |
+
+Triggers: context, optimization
   Reduce context usage with MECW principles (keep under 50% of total window).
 
   Triggers: context pressure, token usage, MECW, context window, optimization,
@@ -17,6 +19,16 @@ category: conservation
 token_budget: 150
 progressive_loading: true
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Core Hub Responsibilities](#core-hub-responsibilities)
+- [Module Selection Strategy](#module-selection-strategy)
+- [Context Classification](#context-classification)
+- [Integration Points](#integration-points)
+- [Resources](#resources)
+
 
 # Context Optimization Hub
 
@@ -24,18 +36,16 @@ progressive_loading: true
 
 ## Quick Start
 
+### Basic Usage
+\`\`\`bash
+# Run the main command
+python -m module_name
 
+# Show help
+python -m module_name --help
+\`\`\`
 
-Orchestrate specialized modules for context optimization:
-
-- **mecw-principles**: MECW theory and the 50% context rule.
-
-- **mecw-assessment**: Context analysis and risk identification.
-
-- **subagent-coordination**: Workflow decomposition and delegation.
-
-
-
+**Verification**: Run with `--help` flag to confirm installation.
 ## When to Use
 
 
@@ -129,3 +139,15 @@ For implementation details:
 - **Context Analysis**: See `modules/mecw-assessment.md` for risk identification.
 
 - **Workflow Delegation**: See `modules/subagent-coordination.md` for decomposition patterns.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

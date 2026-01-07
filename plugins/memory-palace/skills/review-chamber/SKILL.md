@@ -1,6 +1,8 @@
 ---
 name: review-chamber
 description: Capture and retrieve PR review knowledge in project memory palaces
+
+Triggers: memory, project, capture, retrieve, review
 version: 1.0.0
 triggers:
   - pr review completed
@@ -20,6 +22,36 @@ modules:
   - evaluation-criteria.md
   - search-patterns.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Room Structure](#room-structure)
+- [Workflow Phases](#workflow-phases)
+- [Phase 1: Knowledge Detection](#phase-1:-knowledge-detection)
+- [Knowledge Detection Checklist](#knowledge-detection-checklist)
+- [Phase 2: Classification](#phase-2:-classification)
+- [Phase 3: Capture](#phase-3:-capture)
+- [Decision Title](#decision-title)
+- [Decision](#decision)
+- [Context (from PR discussion)](#context-(from-pr-discussion))
+- [Captured Knowledge](#captured-knowledge)
+- [Connected Concepts](#connected-concepts)
+- [Phase 4: Integration](#phase-4:-integration)
+- [Usage Examples](#usage-examples)
+- [Capture After PR Review](#capture-after-pr-review)
+- [Search Past Decisions](#search-past-decisions)
+- [Surface Relevant Knowledge](#surface-relevant-knowledge)
+- [Relevant Review Knowledge](#relevant-review-knowledge)
+- [Integration Points](#integration-points)
+- [With sanctum:pr-review](#with-sanctum:pr-review)
+- [With knowledge-intake](#with-knowledge-intake)
+- [With knowledge-locator](#with-knowledge-locator)
+- [Evaluation Rubric](#evaluation-rubric)
+- [Worth Capturing (Score ≥ 60)](#worth-capturing-(score-≥-60))
+- [Skip (Score < 60)](#skip-(score-<-60))
+- [CLI Reference](#cli-reference)
+- [Best Practices](#best-practices)
+
 
 # PR Review Chamber Skill
 
@@ -247,3 +279,15 @@ python scripts/palace_manager.py search "authentication" \
 3. **Use consistent tags** - Enable cross-project discovery
 4. **Review periodically** - Prune outdated entries
 5. **Surface proactively** - Show relevant knowledge when starting related work
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

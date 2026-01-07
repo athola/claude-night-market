@@ -1,6 +1,8 @@
 ---
 name: workflow-improvement
 description: |
+
+Triggers: skills, retrospective, efficiency, workflow, improvement
   Retrospective workflow evaluation and improvement of skills, agents, commands, and hooks.
 
   Triggers: workflow improvement, retrospective, workflow efficiency
@@ -95,3 +97,15 @@ Record the before/after comparison as *metrics*, not prose:
 - Step count reduction
 - Tool call reduction
 - Errors avoided (what would have failed before)
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

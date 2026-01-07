@@ -1,6 +1,8 @@
 ---
 name: vhs-recording
 description: |
+
+Triggers: tutorial, vhs, gif, terminal, recording
   Generate terminal recordings using VHS tape files, produces GIF outputs
 
   Triggers: terminal recording, vhs tape, terminal demo
@@ -85,3 +87,15 @@ VHS will:
 - GIF file created at specified Output path
 - File size indicates successful recording (typically >50KB)
 - No error messages from VHS execution
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag
