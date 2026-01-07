@@ -11,6 +11,20 @@ estimated_tokens: 325
 
 Running tests effectively and integrating with CI/CD pipelines.
 
+## Table of Contents
+
+- [Running Tests](#running-tests)
+- [CI/CD Integration](#ci-cd-integration)
+  - [GitHub Actions](#github-actions)
+  - [GitLab CI](#gitlab-ci)
+- [Pre-commit Hooks](#pre-commit-hooks)
+- [Makefile Integration](#makefile-integration)
+- [Coverage Reporting](#coverage-reporting)
+  - [HTML Report](#html-report)
+  - [Terminal Report](#terminal-report)
+  - [XML Report (for CI)](#xml-report-for-ci)
+- [Debugging Tests](#debugging-tests)
+
 ## Running Tests
 
 Common pytest commands:

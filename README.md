@@ -41,27 +41,42 @@ Skill(sanctum:git-workspace-review)            # Invoke a skill
 
 ```mermaid
 flowchart TB
-    subgraph Domain["🎯 Domain Specialists"]
+    classDef domainClass fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50
+    classDef utilityClass fill:#f8f4e8,stroke:#f39c12,stroke-width:2px,color:#2c3e50
+    classDef foundationClass fill:#f4e8f8,stroke:#8e44ad,stroke-width:2px,color:#2c3e50
+    classDef metaClass fill:#e8f4e8,stroke:#27ae60,stroke-width:2px,color:#2c3e50
+
+    subgraph Domain["Domain Specialists"]
         direction LR
-        archetypes & pensive & parseltongue & memory-palace
-        spec-kit & minister & attune & scry
-    end
-    subgraph Utility["🔧 Utility Layer"]
-        direction LR
-        conserve["conserve<br/>(resource optimization)"]
-        conjure["conjure<br/>(LLM delegation)"]
-    end
-    subgraph Foundation["🏗️ Foundation Layer"]
-        direction LR
-        imbue["imbue<br/>(workflows)"]
-        sanctum["sanctum<br/>(git ops)"]
-        leyline["leyline<br/>(infra)"]
-    end
-    subgraph Meta["⚙️ Meta Layer"]
-        abstract["abstract<br/>(plugin infrastructure)"]
+        D1[archetypes]:::domainClass
+        D2[pensive]:::domainClass
+        D3[parseltongue]:::domainClass
+        D4[memory-palace]:::domainClass
+        D5[spec-kit]:::domainClass
+        D6[minister]:::domainClass
+        D7[attune]:::domainClass
+        D8[scry]:::domainClass
     end
 
-    Domain --> Utility --> Foundation --> Meta
+    subgraph Utility["Utility Layer"]
+        direction LR
+        U1[conserve]:::utilityClass
+        U2[conjure]:::utilityClass
+    end
+
+    subgraph Foundation["Foundation Layer"]
+        direction LR
+        F1[imbue]:::foundationClass
+        F2[sanctum]:::foundationClass
+        F3[leyline]:::foundationClass
+    end
+
+    subgraph Meta["Meta Layer"]
+        direction LR
+        M1[abstract]:::metaClass
+    end
+
+    Domain ==> Utility ==> Foundation ==> Meta
 ```
 
 ### Highlights

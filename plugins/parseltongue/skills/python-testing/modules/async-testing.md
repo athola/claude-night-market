@@ -11,6 +11,20 @@ estimated_tokens: 275
 
 Patterns for testing asynchronous Python code with pytest-asyncio.
 
+## Table of Contents
+
+- [Basic Async Tests](#basic-async-tests)
+- [Async Fixtures](#async-fixtures)
+- [Testing Concurrent Operations](#testing-concurrent-operations)
+- [Mocking Async Functions](#mocking-async-functions)
+- [Testing Timeouts](#testing-timeouts)
+- [Testing Exception Handling](#testing-exception-handling)
+- [Async Context Managers](#async-context-managers)
+- [Async Generators](#async-generators)
+- [Configuration](#configuration)
+- [Best Practices](#best-practices)
+- [Common Pitfalls](#common-pitfalls)
+
 ## Basic Async Tests
 
 Test async functions using `pytest.mark.asyncio`:
@@ -23,6 +37,8 @@ async def test_async_function():
     result = await async_operation()
     assert result == "success"
 ```
+
+Verify: Run `pytest tests/test_async.py -v` to execute async tests.
 
 ## Async Fixtures
 
@@ -45,6 +61,8 @@ async def test_with_async_client(async_client):
     response = await async_client.get("/users")
     assert response.status == 200
 ```
+
+Verify: Run `pytest tests/test_async_fixtures.py -v` to test async fixtures with proper setup/teardown.
 
 ## Testing Concurrent Operations
 

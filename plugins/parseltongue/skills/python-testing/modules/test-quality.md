@@ -11,6 +11,17 @@ estimated_tokens: 250
 
 Guidelines for writing high-quality, maintainable tests.
 
+## Table of Contents
+
+- [Best Practices](#best-practices)
+- [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+  - [Testing Private Methods Directly](#testing-private-methods-directly)
+  - [Over-mocking Simple Calculations](#over-mocking-simple-calculations)
+  - [Shared Mutable State](#shared-mutable-state)
+  - [Order-Dependent Tests](#order-dependent-tests)
+  - [Assertions Without Clear Messages](#assertions-without-clear-messages)
+- [Exit Criteria](#exit-criteria)
+
 ## Best Practices
 
 1. **Test behavior, not implementation** - Focus on public interfaces

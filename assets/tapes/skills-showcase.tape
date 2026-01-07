@@ -35,15 +35,15 @@ Sleep 10s
 # Demonstrate skill discovery with Claude
 # Type a prompt that will trigger skill auto-discovery
 Type "Show me the fix-issue skill documentation" Enter
-Sleep 15s
+Sleep 30s
 
 # Ask about another skill
 Type "What skills are available in the sanctum plugin?" Enter
-Sleep 15s
+Sleep 30s
 
 # Demonstrate context-aware skill loading
 Type "I need to prepare a pull request" Enter
-Sleep 15s
+Sleep 60s
 
 # Exit Claude
 Type "exit" Enter
