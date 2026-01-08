@@ -296,9 +296,9 @@ class TestHookScopeGuideSkill:
         # Should cross-reference hook-authoring for HOW
         has_hook_authoring = "hook-authoring" in description
         has_authoring_ref = "authoring" in description
-        assert has_hook_authoring or has_authoring_ref, (
-            "Should cross-reference hook-authoring"
-        )
+        assert (
+            has_hook_authoring or has_authoring_ref
+        ), "Should cross-reference hook-authoring"
 
     def test_skill_has_distinct_triggers(self, skill_path) -> None:
         """Scenario: Skill has triggers distinct from other hook skills.
@@ -340,9 +340,9 @@ class TestHookScopeGuideSkill:
         scopes = ["plugin hook", "project hook", "global hook"]
 
         for scope in scopes:
-            assert scope.lower() in content.lower(), (
-                f"Skill should cover '{scope}' scope"
-            )
+            assert (
+                scope.lower() in content.lower()
+            ), f"Skill should cover '{scope}' scope"
 
     def test_skill_includes_decision_framework(self, skill_path) -> None:
         """Scenario: Skill includes a decision framework.
