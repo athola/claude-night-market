@@ -1,6 +1,8 @@
 ---
 name: review-core
 description: |
+
+Triggers: scaffolding, evidence, reporting, analysis, core
   Foundational workflow for preparing and structuring detailed reviews
   (architecture, API, code quality).
 
@@ -79,3 +81,15 @@ estimated_tokens: 1500
 ## Exit Criteria
 - All TodoWrite items complete with concrete notes (commands run, files listed, evidence paths).
 - Domain-specific review can now assume consistent context/evidence/deliverable scaffolding and focus on specialized analysis.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

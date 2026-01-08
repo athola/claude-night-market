@@ -1,6 +1,8 @@
 ---
 name: gemini-delegation
 description: |
+
+Triggers: large-context, cli, delegation, gemini, google
   Gemini CLI delegation workflow implementing delegation-core for Google's Gemini models.
 
   Triggers: gemini cli, gemini delegation, google gemini, 1M context, large file analysis,
@@ -32,6 +34,19 @@ references:
   - delegation-core/modules/usage-logging.md
   - delegation-core/modules/error-handling.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Prerequisites](#prerequisites)
+- [Delegation Flow](#delegation-flow)
+- [Quick Start](#quick-start)
+- [Basic Command](#basic-command)
+- [Save Output](#save-output)
+- [Shared Patterns](#shared-patterns)
+- [Gemini-Specific Details](#gemini-specific-details)
+- [Exit Criteria](#exit-criteria)
+
 
 # Gemini CLI Delegation
 
@@ -61,6 +76,7 @@ gemini auth login
 # Or set API key
 export GEMINI_API_KEY="your-key"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Delegation Flow
 
@@ -87,11 +103,13 @@ gemini --model gemini-2.5-pro-exp -p "..."
 # JSON output
 gemini --output-format json -p "..."
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Save Output
 ```bash
 gemini -p "..." > delegations/gemini/$(date +%Y%m%d_%H%M%S).md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Shared Patterns
 

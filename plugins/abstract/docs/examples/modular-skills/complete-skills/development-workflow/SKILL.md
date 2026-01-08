@@ -1,6 +1,8 @@
 ---
 name: development-workflow
 description: detailed development workflow with modular patterns for git, code review, testing, documentation, and deployment
+
+Triggers: deployment, development, hub-and-spoke, modular, code
 version: 2.0.0
 created_by: abstract-examples
 tags: [development, workflow, modular, hub-and-spoke]
@@ -20,6 +22,20 @@ tools:
   - workflow-checker
   - quality-metrics
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Available Modules](#available-modules)
+- [Quick Start](#quick-start)
+- [Usage Patterns](#usage-patterns)
+- [For New Projects](#for-new-projects)
+- [For Existing Projects](#for-existing-projects)
+- [For Team Onboarding](#for-team-onboarding)
+- [Integration Benefits](#integration-benefits)
+- [Quality Assurance](#quality-assurance)
+- [Customization](#customization)
+- [Support and Resources](#support-and-resources)
+
 
 # Development Workflow Hub
 
@@ -63,16 +79,21 @@ To use this development workflow:
    ```
    Use git-workflow module for repository initialization and branching setup
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 2. **Follow the development cycle:**
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
    git-workflow → code-review → testing-strategies → documentation-guidelines
    ```
+   **Verification:** Run `pytest -v` to verify tests pass.
 
 3. **Deploy and monitor:**
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
    deployment-procedures module handles CI/CD and production monitoring
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Usage Patterns
 
@@ -109,6 +130,7 @@ Use the quality-metrics tool to assess your workflow implementation:
 ```bash
 quality-metrics --workflow development-workflow --modules all
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Customization
 
@@ -126,3 +148,15 @@ See the modules directory for detailed documentation on:
 - Documentation guidelines
 - Git workflow patterns
 - Testing strategies
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -6,6 +6,8 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 
 > **Note:** These plugins function independently but use [superpowers](https://github.com/obra/superpowers) for TDD and debugging.
 
+> **Claude Code 2.1.0+:** This marketplace leverages new features including skill hot-reload, frontmatter hooks, `context: fork`, wildcard permissions, and YAML-style `allowed-tools`. See [Plugin Development Guide](docs/plugin-development-guide.md#claude-code-210-features) for details.
+
 ## Comparison
 
 | Standard Workflow | With Night Market |
@@ -37,31 +39,47 @@ Skill(sanctum:git-workspace-review)            # Invoke a skill
 
 ## What's Included
 
-**14 plugins** organized in layers, each building on foundations below:
+**15 plugins** organized in layers, each building on foundations below:
 
 ```mermaid
 flowchart TB
-    subgraph Domain["🎯 Domain Specialists"]
+    classDef domainClass fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50
+    classDef utilityClass fill:#f8f4e8,stroke:#f39c12,stroke-width:2px,color:#2c3e50
+    classDef foundationClass fill:#f4e8f8,stroke:#8e44ad,stroke-width:2px,color:#2c3e50
+    classDef metaClass fill:#e8f4e8,stroke:#27ae60,stroke-width:2px,color:#2c3e50
+
+    subgraph Domain["Domain Specialists"]
         direction LR
-        archetypes & pensive & parseltongue & memory-palace
-        spec-kit & minister & attune & scry
-    end
-    subgraph Utility["🔧 Utility Layer"]
-        direction LR
-        conserve["conserve<br/>(resource optimization)"]
-        conjure["conjure<br/>(LLM delegation)"]
-    end
-    subgraph Foundation["🏗️ Foundation Layer"]
-        direction LR
-        imbue["imbue<br/>(workflows)"]
-        sanctum["sanctum<br/>(git ops)"]
-        leyline["leyline<br/>(infra)"]
-    end
-    subgraph Meta["⚙️ Meta Layer"]
-        abstract["abstract<br/>(plugin infrastructure)"]
+        D1[archetypes]:::domainClass
+        D2[pensive]:::domainClass
+        D3[parseltongue]:::domainClass
+        D4[memory-palace]:::domainClass
+        D5[spec-kit]:::domainClass
+        D6[minister]:::domainClass
+        D7[attune]:::domainClass
+        D8[scry]:::domainClass
     end
 
-    Domain --> Utility --> Foundation --> Meta
+    subgraph Utility["Utility Layer"]
+        direction LR
+        U1[conserve]:::utilityClass
+        U2[conjure]:::utilityClass
+        U3[hookify]:::utilityClass
+    end
+
+    subgraph Foundation["Foundation Layer"]
+        direction LR
+        F1[imbue]:::foundationClass
+        F2[sanctum]:::foundationClass
+        F3[leyline]:::foundationClass
+    end
+
+    subgraph Meta["Meta Layer"]
+        direction LR
+        M1[abstract]:::metaClass
+    end
+
+    Domain ==> Utility ==> Foundation ==> Meta
 ```
 
 ### Highlights
@@ -77,15 +95,13 @@ flowchart TB
 | **parseltongue** | Python development suite | `/analyze-tests`, `/run-profiler` |
 | **archetypes** | Architecture paradigm selection | 13 architecture guides |
 | **memory-palace** | Knowledge management | `/palace`, `/garden` |
+| **hookify** | Zero-config behavioral rules | `/hookify`, `/hookify:list` |
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 105 skills, 77 commands, and 34 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 107 skills, 81 commands, and 34 agents.
 
 ## Audience
 
-- **Developers** seeking automated workflows.
-- **Teams** standardizing Claude Code practices.
-- **Plugin authors** building on standard patterns.
-- **Maintainers** automating PR preparation and scaffolding.
+The Night Market serves developers seeking automated workflows and teams standardizing Claude Code practices. Plugin authors can build on standard patterns, while maintainers benefit from automated PR preparation and scaffolding.
 
 ## Common Workflows
 
@@ -108,10 +124,10 @@ See [**Common Workflows Guide**](docs/common-workflows.md) for when and how to u
 
 ![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
 
-**Discover 105+ skills** across all plugins, understand their structure, and see how they compose into powerful development workflows.
+**Discover 107 skills** across all plugins, understand their structure, and see how they compose into powerful development workflows.
 
 **What you'll learn:**
-- Browse and discover skills across 14 plugins
+- Browse and discover skills across 15 plugins
 - Examine skill frontmatter, metadata, and structure
 - Use `abstract:plugin-validator` to check quality
 - See how skills chain into complex workflows
@@ -178,9 +194,7 @@ claude
 ```
 
 **Benefits:**
-- **Performance**: 900x faster for semantic queries (50ms vs 45s)
-- **Context**: 90% reduction in usage for reference finding
-- **Accuracy**: Symbol awareness vs text matching
+LSP support improves performance by 900x for semantic queries compared to text search (50ms vs 45s). It reduces token usage by 90% for reference finding and improves accuracy through symbol awareness.
 
 See [LSP Native Support Guide](docs/guides/lsp-native-support.md) for troubleshooting and advanced usage.
 
@@ -208,19 +222,13 @@ See [Plugin Development Guide](docs/plugin-development-guide.md) for patterns an
 
 ## System Prompt Budget
 
-The ecosystem operates within Claude Code's 15K character budget. All 182 skills, commands, and agents load without configuration.
-
-- **Current usage**: ~14,800 characters (98.7% of budget)
-- **Enforcement**: A pre-commit hook prevents regression.
+The ecosystem operates within Claude Code's 15K character budget. All 222 capabilities (107 skills, 81 commands, 34 agents) load without configuration. Current usage is approximately 14,800 characters (98.7% of budget), enforced by a pre-commit hook to prevent regression.
 
 See [Budget Optimization](docs/budget-optimization-dec-2025.md) for details.
 
 ## Philosophy
 
-- **Modular**: Shallow dependency chains and single responsibility.
-- **Progressive**: Load only what is needed.
-- **Composable**: Plugins work together.
-- **Spec-driven**: Prioritize specifications before implementation.
+We prioritize modular design with shallow dependency chains and single responsibility. Plugins load progressively, ensuring users only pay for what they use. Development is spec-driven, prioritizing specifications before implementation.
 
 ## Contributing
 

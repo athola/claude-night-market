@@ -1,6 +1,8 @@
 ---
 name: bloat-detector
 description: |
+
+Triggers: optimization, technical-debt, bloat, detector, static-analysis
   Detect codebase bloat through progressive analysis: dead code, duplication, complexity, and documentation bloat.
 
   Triggers: bloat detection, dead code, code cleanup, duplication, redundancy, codebase health, technical debt, unused code
@@ -29,6 +31,27 @@ usage_patterns:
 complexity: intermediate
 estimated_tokens: 800
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Tier 1: Quick Scan (5 minutes, no tools required)](#tier-1:-quick-scan-(5-minutes,-no-tools-required))
+- [Tier 2: Targeted Analysis (15 minutes, optional tools)](#tier-2:-targeted-analysis-(15-minutes,-optional-tools))
+- [Tier 3: Deep Audit (1 hour, full tooling)](#tier-3:-deep-audit-(1-hour,-full-tooling))
+- [When to Use](#when-to-use)
+- [Detection Confidence Levels](#detection-confidence-levels)
+- [Prioritization Formula](#prioritization-formula)
+- [Module Architecture](#module-architecture)
+- [Tier 1: Quick Scan (Always Available)](#tier-1:-quick-scan-(always-available))
+- [Tier 2: Targeted Analysis (Optional Tools)](#tier-2:-targeted-analysis-(optional-tools))
+- [Tier 3: Deep Audit (Full Tooling)](#tier-3:-deep-audit-(full-tooling))
+- [Integration Points](#integration-points)
+- [Example Output](#example-output)
+- [Safety & Guardrails](#safety-&-guardrails)
+- [Detailed Resources](#detailed-resources)
+- [Related Skills](#related-skills)
+- [Related Agents](#related-agents)
+
 
 # Bloat Detector
 
@@ -50,6 +73,7 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 # Heuristic-based detection
 /bloat-scan
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Detects:**
 - Files > 500 lines (God class candidates)
@@ -68,6 +92,7 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 /bloat-scan --level 2 --focus docs
 /bloat-scan --level 2 --focus deps
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Detects:**
 - Static analysis (Vulture, deadcode, Knip if available)
@@ -83,6 +108,7 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 # Deep analysis across all dimensions
 /bloat-scan --level 3 --report audit-report.md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Detects:**
 - Full static analysis suite
@@ -127,6 +153,7 @@ Priority Score = (
     (Fix_Ease × 0.1)
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Output ranked by descending priority score.
 
@@ -203,6 +230,7 @@ NEXT STEPS:
   3. Create cleanup branch: git checkout -b cleanup/bloat-reduction
   4. Track progress with issue: /create-issue "Bloat reduction Q1 2025"
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 ## Safety & Guardrails
 
@@ -236,6 +264,7 @@ All scan operations automatically exclude files and directories using a three-ti
    # IDE
    .vscode/, .idea/
    ```
+   **Verification:** Run `pytest -v` to verify tests pass.
 
 2. **`.gitignore` Integration** (if present):
    - Automatically inherits patterns from your `.gitignore`
@@ -274,3 +303,15 @@ All scan operations automatically exclude files and directories using a three-ti
 ## Related Agents
 
 - `bloat-auditor`: Executes scans, generates reports, recommends actions
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

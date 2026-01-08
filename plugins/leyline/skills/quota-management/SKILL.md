@@ -1,6 +1,8 @@
 ---
 name: quota-management
 description: |
+
+Triggers: quota, management, rate-limiting, thresholds, cost-tracking
   Quota tracking, threshold monitoring, and graceful degradation for rate-limited API services.
 
   Triggers: quota, rate limiting, usage limits, thresholds
@@ -24,6 +26,21 @@ modules:
   - modules/threshold-strategies.md
   - modules/estimation-patterns.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Concepts](#core-concepts)
+- [Quota Thresholds](#quota-thresholds)
+- [Quota Types](#quota-types)
+- [Quick Start](#quick-start)
+- [Check Quota Status](#check-quota-status)
+- [Record Usage](#record-usage)
+- [Estimate Before Execution](#estimate-before-execution)
+- [Integration Pattern](#integration-pattern)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Quota Management
 
@@ -60,6 +77,7 @@ class QuotaConfig:
     tokens_per_minute: int = 100000
     tokens_per_day: int = 1000000
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -74,6 +92,7 @@ if status == "CRITICAL":
     # Defer or use fallback
     pass
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Record Usage
 ```python
@@ -83,6 +102,7 @@ tracker.record_request(
     duration=elapsed_seconds
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Estimate Before Execution
 ```python
@@ -90,6 +110,7 @@ can_proceed, issues = tracker.can_handle_task(estimated_tokens)
 if not can_proceed:
     print(f"Quota issues: {issues}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Pattern
 
@@ -99,6 +120,7 @@ Other plugins reference this skill:
 # In your skill's frontmatter
 dependencies: [leyline:quota-management]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Then use the shared patterns:
 1. Initialize tracker for your service
@@ -116,3 +138,15 @@ Then use the shared patterns:
 - Quota status checked before operation
 - Usage recorded after operation
 - Threshold warnings handled appropriately
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

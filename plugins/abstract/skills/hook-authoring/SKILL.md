@@ -1,6 +1,8 @@
 ---
 name: hook-authoring
 description: |
+
+Triggers: validation, sdk, automation, hook, authoring
   Complete guide for writing Claude Code and SDK hooks with security-first design.
 
   Triggers: hook creation, hook writing, PreToolUse, PostToolUse, UserPromptSubmit,
@@ -31,6 +33,38 @@ usage_patterns:
   - performance-optimization
   - sdk-integration
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Capabilities](#key-capabilities)
+- [Quick Start](#quick-start)
+- [Your First Hook (JSON - Claude Code)](#your-first-hook-(json---claude-code))
+- [Your First Hook (Python - Claude Agent SDK)](#your-first-hook-(python---claude-agent-sdk))
+- [Hook Event Types](#hook-event-types)
+- [Claude Code vs SDK](#claude-code-vs-sdk)
+- [JSON Hooks (Claude Code)](#json-hooks-(claude-code))
+- [Python SDK Hooks](#python-sdk-hooks)
+- [Security Essentials](#security-essentials)
+- [Critical Security Rules](#critical-security-rules)
+- [Example: Secure Logging Hook](#example:-secure-logging-hook)
+- [Performance Guidelines](#performance-guidelines)
+- [Performance Best Practices](#performance-best-practices)
+- [Example: Efficient Hook](#example:-efficient-hook)
+- [Scope Selection](#scope-selection)
+- [Decision Framework](#decision-framework)
+- [Scope Comparison](#scope-comparison)
+- [Common Patterns](#common-patterns)
+- [Validation Hook](#validation-hook)
+- [Logging Hook](#logging-hook)
+- [Context Injection Hook](#context-injection-hook)
+- [Testing Hooks](#testing-hooks)
+- [Unit Testing](#unit-testing)
+- [Module References](#module-references)
+- [Tools](#tools)
+- [Related Skills](#related-skills)
+- [Next Steps](#next-steps)
+- [References](#references)
+
 
 # Hook Authoring Guide
 
@@ -69,6 +103,7 @@ Create a simple logging hook in `.claude/settings.json`:
   }
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 This logs every Bash command execution with a timestamp.
 
@@ -90,6 +125,7 @@ class ValidationHooks(AgentHooks):
         # Return None to proceed unchanged, or modified dict to transform
         return None
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Hook Event Types
 
@@ -100,9 +136,78 @@ Quick reference for all supported hook events:
 | **PreToolUse** | Before tool execution | `tool_name`, `tool_input` | Validation, filtering, input transformation |
 | **PostToolUse** | After tool execution | `tool_name`, `tool_input`, `tool_output` | Logging, metrics, output transformation |
 | **UserPromptSubmit** | User sends message | `message` | Context injection, content filtering |
+| **PermissionRequest** | Permission dialog shown | `tool_name`, `tool_input` | Auto-approve/deny with custom logic |
+| **Notification** | Claude Code sends notification | `message` | Custom notification handling |
 | **Stop** | Agent completes | `reason`, `result` | Final cleanup, summary reports |
 | **SubagentStop** | Subagent completes | `subagent_id`, `result` | Result processing, aggregation |
 | **PreCompact** | Before context compact | `context_size` | State preservation, checkpointing |
+| **SessionStart** | Session starts/resumes | `session_id` | Initialization, context loading |
+| **SessionEnd** | Session terminates | `session_id` | Cleanup, final logging |
+
+## Hooks in Frontmatter (Claude Code 2.1.0+)
+
+**New in 2.1.0:** Define hooks directly in skill, command, or agent frontmatter. These hooks are scoped to the component's lifecycle.
+
+### Skill/Command/Agent Frontmatter Hooks
+
+```yaml
+---
+name: validated-skill
+description: Skill with lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: "./validate-command.sh"
+      once: true  # NEW: Run only once per session
+    - matcher: "Write|Edit"
+      command: "./pre-edit-check.sh"
+  PostToolUse:
+    - matcher: "Write|Edit"
+      command: "./format-on-save.sh"
+  Stop:
+    - command: "./cleanup-and-report.sh"
+---
+```
+
+### The `once: true` Configuration
+
+**New in 2.1.0:** Use `once: true` to execute a hook only once per session, ideal for:
+- One-time setup/initialization
+- Resource allocation that shouldn't repeat
+- Session-level configuration
+
+```yaml
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: "./setup-environment.sh"
+      once: true  # Runs only on first Bash call
+  SessionStart:
+    - command: "./initialize-session.sh"
+      once: true  # Runs only once at session start
+```
+
+### Frontmatter vs Settings Hooks
+
+| Aspect | Frontmatter Hooks | Settings Hooks |
+|--------|-------------------|----------------|
+| Scope | Component lifecycle | Global/project |
+| Location | In skill/agent/command | settings.json |
+| Persistence | Active only when component runs | Always active |
+| Use case | Component-specific validation | Cross-cutting concerns |
+
+### PreToolUse updatedInput (2.1.0 Fix)
+
+PreToolUse hooks can now return `updatedInput` when returning `ask` permission decision, enabling hooks to act as middleware while still requesting user consent:
+
+```json
+{
+  "decision": "ask",
+  "updatedInput": {
+    "command": "modified-command --safe-flag"
+  }
+}
+```
 
 ## Claude Code vs SDK
 
@@ -125,6 +230,7 @@ Quick reference for all supported hook events:
   }
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Pros:** Simple, no code required, easy to version control
 **Cons:** Limited logic capabilities, shell command only
@@ -143,6 +249,7 @@ class MyHooks(AgentHooks):
             raise ValueError("Operation blocked")
         return None  # or return modified input
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Pros:** Full Python capabilities, complex logic, state management
 **Cons:** Requires Python, more complex setup
@@ -194,6 +301,7 @@ class SecureLoggingHooks(AgentHooks):
         # Log safe_output...
         return None  # Don't modify output
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See `modules/security-patterns.md` for detailed security guidance.
 
@@ -239,6 +347,7 @@ class EfficientHooks(AgentHooks):
         # Simple checks only, < 10ms
         return len(str(tool_input)) < 1_000_000
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See `modules/performance-guidelines.md` for detailed optimization techniques.
 
@@ -249,6 +358,7 @@ Choose the right location for your hooks based on audience and purpose:
 ### Decision Framework
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Is this hook part of a plugin's core functionality?
 ├─ YES → Plugin hooks (hooks/hooks.json in plugin)
 └─ NO ↓
@@ -261,6 +371,7 @@ Should this hook apply to all my Claude sessions?
 ├─ YES → Global hooks (~/.claude/settings.json)
 └─ NO → Reconsider if you need a hook at all
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Scope Comparison
 
@@ -293,6 +404,7 @@ async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None
 
     return None
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Logging Hook
 
@@ -311,6 +423,7 @@ async def on_post_tool_use(
     })
     return None
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Context Injection Hook
 
@@ -323,6 +436,7 @@ async def on_user_prompt_submit(self, message: str) -> str | None:
     enhanced_message = f"{context}\n\n{message}"
     return enhanced_message
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Testing Hooks
 
@@ -345,6 +459,7 @@ async def test_safe_command_allowed():
     result = await hooks.on_pre_tool_use("Bash", {"command": "ls -la"})
     assert result is None  # Allows execution
 ```
+**Verification:** Run `pytest -v from` to verify.
 
 See `modules/testing-hooks.md` for detailed testing strategies.
 
@@ -382,3 +497,15 @@ For detailed guidance on specific topics:
 - [Claude Code Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
 - [Claude Agent SDK Documentation](https://docs.anthropic.com/en/docs/claude-agent-sdk)
 - [Settings Configuration](https://docs.anthropic.com/en/docs/claude-code/settings)
+## Troubleshooting
+
+### Common Issues
+
+**Hook not firing**
+Verify hook pattern matches the event. Check hook logs for errors
+
+**Syntax errors**
+Validate JSON/Python syntax before deployment
+
+**Permission denied**
+Check hook file permissions and ownership

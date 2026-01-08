@@ -24,32 +24,27 @@ This guide shows when and how to use commands, skills, and subagents for typical
 
 ### Step 1: Architecture-Aware Initialization (Recommended)
 
+Start with an architecture-aware initialization to select the right project structure based on team size and domain complexity. This process guides you through project type selection, online research into best practices, and template customization.
+
 ```bash
 # Interactive architecture selection with research
 /attune:arch-init --name my-project
 ```
 
-This guides you through:
-- Project type selection (web-api, cli-tool, library, etc.)
-- Team size and domain complexity assessment
-- Online research into best practices
-- Architecture paradigm recommendation
-- Template customization
-
 **Output**: Complete project structure with ARCHITECTURE.md, ADR, and paradigm-specific directories.
 
 ### Step 2: Standard Initialization (Architecture Decided)
+
+If the architecture is already decided, use standard initialization to generate language-specific boilerplate including Makefiles, CI/CD pipelines, and pre-commit hooks.
 
 ```bash
 # Quick initialization when you know the architecture
 /attune:init --lang python --name my-project
 ```
 
-**Output**: Language-specific project with Makefile, CI/CD, pre-commit hooks.
-
 ### Step 3: Establish Persistent State (Recommended)
 
-Manage project artifacts and constraints as a persistent state you resume each session.
+Establish a persistent state to manage artifacts and constraints across sessions. This ensures that non-negotiable principles are respected and progress is tracked consistently.
 
 ```bash
 # (Once) Define non-negotiable principles for the project
@@ -70,7 +65,7 @@ Optional enhancements:
 
 ### Alternative: Brainstorming Workflow
 
-For complex projects requiring exploration:
+For complex projects requiring exploration, begin by brainstorming the problem space and creating a detailed specification before planning the architecture and tasks.
 
 ```bash
 # 1. Brainstorm the problem space
@@ -316,19 +311,9 @@ claude --continue
 
 ### Persistent Presence Loop (World Model + Agent Model)
 
-Use the SDD artifacts as a lightweight, testable self-modeling architecture:
+Treat SDD artifacts as a self-modeling architecture where the repo state serves as the world model and the loaded skills as the agent model. Experiments are run with small diffs and verified through rigorous loops (tests, linters, repro scripts), while model updates refine both the code artifacts and the orchestration methodology to optimize future loops.
 
-- **World model**: repo state + `.specify/specs/<feature>/{spec.md,plan.md,tasks.md}`
-- **Agent model**: loaded skills/plugins + constraints (especially `.specify/memory/constitution.md`) + current phase/progress
-- **Experiments**: small code changes + tight verification loops (tests, linters, repro scripts)
-- **Evaluation**: `/speckit-analyze`, `/speckit-checklist`, and `superpowers:verification-before-completion`
-- **Model updates**: revise both (a) artifacts/code and (b) orchestration/docs so the next loop is cheaper
-
-Mapping to the loop explicitly:
-- **Curriculum generation** → `/speckit-tasks` (keeps the next actions grounded and dependency-ordered)
-- **Skill library** → reusable plugin skills + superpowers methodology skills
-- **Iterative refinement** → `/speckit-clarify` (tighten specs when reality disagrees)
-- **Plan → act → reflect** → `/speckit-plan` → `/speckit-implement` → `/speckit-analyze`
+Curriculum generation via `/speckit-tasks` keeps actions grounded and dependency-ordered, while the skill library and iterative refinement ensure the plan adapts to reality. The cycle moves from planning to action to reflection via `/speckit-plan`, `/speckit-implement`, and `/speckit-analyze`.
 
 Background reading:
 - MineDojo: https://minedojo.org/ (internet-scale knowledge + benchmarks)
@@ -361,13 +346,7 @@ Skill(spec-kit:task-planning)
 
 **When**: Improving claude-night-market itself (skills, commands, templates, orchestration).
 
-Model the ecosystem the same way you’d model an agent in a persistent sandbox:
-
-1. **World model**: repo state (plugins, docs, tests, CI) + constraints (`constitution.md` for speckit-enabled repos).
-2. **Agent model**: available skills/commands/subagents + tool affordances + context/budget constraints.
-3. **Run experiments**: minimal diffs behind verification (new skill module, wrapper tweak, doc + test).
-4. **Evaluate**: evidence-first (`/speckit-analyze`, `Skill(superpowers:verification-before-completion)`, targeted tests).
-5. **Update both models**: change the code/artifacts *and* the orchestration/methodology so the next loop is cheaper.
+When improving the system itself, treat the repo as the world model and available tools as the agent model. Run experiments with minimal diffs behind verification, evaluate them with evidence-first methods like `/speckit-analyze` and `Skill(superpowers:verification-before-completion)`, and update both the artifacts and the methodology so the next loop is cheaper.
 
 Optional pattern: split roles (planner/critic/executor) for long-horizon work, similar to multi-role agent stacks used in open-ended Minecraft agents.
 
@@ -633,6 +612,106 @@ Skill(sanctum:pr-preparation)
 # Agent: Delegated specialized work
 Agent(pensive:code-reviewer) Review authentication module
 ```
+
+---
+
+## Claude Code 2.1.0 Features
+
+### New Capabilities
+
+| Feature | Description | Usage |
+|---------|-------------|-------|
+| **Skill Hot-Reload** | Skills auto-reload without restart | Edit SKILL.md, immediately available |
+| **Plan Mode Shortcut** | Enter plan mode directly | `/plan` |
+| **Forked Context** | Run skills in isolated context | `context: fork` in frontmatter |
+| **Agent Field** | Specify agent for skill execution | `agent: agent-name` in frontmatter |
+| **Frontmatter Hooks** | Lifecycle hooks in skills/agents | `hooks:` section in frontmatter |
+| **Wildcard Permissions** | Flexible Bash patterns | `Bash(npm *)`, `Bash(* install)` |
+| **Skill Visibility** | Control slash menu visibility | `user-invocable: false` |
+
+### Skill Development Workflow (Hot-Reload)
+
+With Claude Code 2.1.0, skill development is faster:
+
+```bash
+# 1. Create/edit skill
+vim ~/.claude/skills/my-skill/SKILL.md
+
+# 2. Save changes (no restart needed!)
+
+# 3. Skill is immediately available
+Skill(my-skill)
+
+# 4. Iterate rapidly
+```
+
+### Using Forked Context
+
+For isolated operations that shouldn't pollute main context:
+
+```yaml
+# In skill frontmatter
+---
+name: isolated-analysis
+context: fork  # Runs in separate context
+---
+```
+
+**Use cases:**
+- Heavy file analysis that would bloat context
+- Experimental operations that might fail
+- Parallel workflows
+
+### Frontmatter Hooks
+
+Define hooks scoped to skill/agent/command lifecycle:
+
+```yaml
+---
+name: validated-workflow
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: "./validate.sh"
+      once: true  # Run only once per session
+  PostToolUse:
+    - matcher: "Write|Edit"
+      command: "./format.sh"
+  Stop:
+    - command: "./cleanup.sh"
+---
+```
+
+### Permission Wildcards
+
+New wildcard patterns for flexible permissions:
+
+```yaml
+allowed-tools:
+  - Bash(npm *)      # All npm commands
+  - Bash(* install)  # Any install command
+  - Bash(git * main) # Git with main branch
+```
+
+### Disabling Specific Agents
+
+Control which agents can be invoked:
+
+```bash
+# Via CLI
+claude --disallowedTools "Task(expensive-agent)"
+
+# Via settings.json
+{
+  "permissions": {
+    "deny": ["Task(expensive-agent)"]
+  }
+}
+```
+
+### Subagent Resilience
+
+Subagents now **continue after permission denial**, trying alternative approaches instead of failing. This makes agent workflows more robust.
 
 ---
 

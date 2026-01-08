@@ -1,6 +1,8 @@
 ---
 name: delegation-core
 description: |
+
+Triggers: external-llm, delegation, core, qwen, gemini
   Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging, and error handling.
 
   Triggers: delegate task, external LLM, gemini, qwen, large context, offload
@@ -35,6 +37,23 @@ references:
   - leyline/skills/authentication-patterns/SKILL.md
   - leyline/skills/service-registry/SKILL.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Philosophy](#philosophy)
+- [Delegation Flow](#delegation-flow)
+- [Quick Decision Matrix](#quick-decision-matrix)
+- [Detailed Workflow Steps](#detailed-workflow-steps)
+- [1. Task Assessment (`delegation-core:task-assessed`)](#1-task-assessment-(delegation-core:task-assessed))
+- [2. Suitability Evaluation (`delegation-core:delegation-suitability`)](#2-suitability-evaluation-(delegation-core:delegation-suitability))
+- [3. Handoff Planning (`delegation-core:handoff-planned`)](#3-handoff-planning-(delegation-core:handoff-planned))
+- [4. Execution & Integration (`delegation-core:results-integrated`)](#4-execution-&-integration-(delegation-core:results-integrated))
+- [Leyline Infrastructure](#leyline-infrastructure)
+- [Service-Specific Skills](#service-specific-skills)
+- [Module Reference](#module-reference)
+- [Exit Criteria](#exit-criteria)
+
 
 # Delegation Core Framework
 

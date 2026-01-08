@@ -1,6 +1,8 @@
 ---
 name: escalation-governance
 description: |
+
+Triggers: governance, escalation, orchestration, model-selection, agents
   Guide to deciding whether to escalate from a lower model (haiku/sonnet) to
   a higher model (sonnet/opus).
 
@@ -22,6 +24,25 @@ tags: [escalation, model-selection, governance, agents, orchestration]
 dependencies: []
 estimated_tokens: 800
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [The Iron Law](#the-iron-law)
+- [When to Escalate](#when-to-escalate)
+- [When NOT to Escalate](#when-not-to-escalate)
+- [Decision Framework](#decision-framework)
+- [1. Have I understood the problem?](#1-have-i-understood-the-problem?)
+- [2. Have I investigated systematically?](#2-have-i-investigated-systematically?)
+- [3. Is escalation the right solution?](#3-is-escalation-the-right-solution?)
+- [4. Can I justify the trade-off?](#4-can-i-justify-the-trade-off?)
+- [Escalation Protocol](#escalation-protocol)
+- [Common Rationalizations](#common-rationalizations)
+- [Agent Schema](#agent-schema)
+- [Orchestrator Authority](#orchestrator-authority)
+- [Red Flags - STOP and Investigate](#red-flags---stop-and-investigate)
+- [Integration with Agent Workflow](#integration-with-agent-workflow)
+- [Quick Reference](#quick-reference)
+
 
 # Escalation Governance
 
@@ -36,6 +57,7 @@ Model escalation (haiku→sonnet→opus) trades speed/cost for reasoning capabil
 ```
 NO ESCALATION WITHOUT INVESTIGATION FIRST
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Escalation is never a shortcut. If you haven't understood why the current model is insufficient, escalation is premature.
 
@@ -133,6 +155,7 @@ escalation:
     - novel_pattern          # No existing patterns apply
     - high_stakes            # Error would be costly
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Key points:**
 - Hints are advisory, not mandatory
@@ -165,6 +188,7 @@ If you catch yourself thinking:
 ## Integration with Agent Workflow
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Agent starts task at assigned model
 ├── Task succeeds → Complete
 └── Task struggles →
@@ -174,6 +198,7 @@ Agent starts task at assigned model
     └── Don't investigate → WRONG PATH
         └── "Maybe escalate?" → NO. Investigate first.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Reference
 
@@ -186,3 +211,15 @@ Agent starts task at assigned model
 | "Maybe smarter model knows" | Never escalate on this basis |
 | Hint fires, task is actually simple | Override, stay at current model |
 | No hint fires, task is actually complex | Override, escalate |
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

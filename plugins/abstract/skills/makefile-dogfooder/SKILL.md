@@ -1,6 +1,8 @@
 ---
 name: makefile-dogfooder
 description: |
+
+Triggers: dogfooder, makefile
   Analyze and enhance Makefiles for complete user functionality coverage.
 
   Triggers: Makefile analysis, Makefile gaps, missing targets, plugin release,
@@ -19,6 +21,42 @@ version: 1.0.0
 author: Claude Skills
 modules: true
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Workflow](#workflow)
+- [1. Discovery Phase](#1-discovery-phase)
+- [2. Analysis Phase](#2-analysis-phase)
+- [3. Testing Phase](#3-testing-phase)
+- [4. Generation Phase](#4-generation-phase)
+- [Modules](#modules)
+- [Discovery Module](#discovery-module)
+- [Analysis Module](#analysis-module)
+- [Testing Module](#testing-module)
+- [Generation Module](#generation-module)
+- [Examples](#examples)
+- [Analyze a Single Plugin](#analyze-a-single-plugin)
+- [Test All Plugins](#test-all-plugins)
+- [Full Analysis with Auto-Apply](#full-analysis-with-auto-apply)
+- [Quick Check](#quick-check)
+- [Output Formats](#output-formats)
+- [Text Output](#text-output)
+- [JSON Output](#json-output)
+- [Best Practices](#best-practices)
+- [For Leaf Plugins](#for-leaf-plugins)
+- [For Aggregator Makefiles](#for-aggregator-makefiles)
+- [Target Naming](#target-naming)
+- [Integration](#integration)
+- [With Slash Commands](#with-slash-commands)
+- [With CI/CD](#with-ci-cd)
+- [With Development Workflow](#with-development-workflow)
+- [Performance Considerations](#performance-considerations)
+- [Troubleshooting](#troubleshooting)
+- [Common Issues](#common-issues)
+- [Debug Mode](#debug-mode)
+- [Contributing](#contributing)
+- [License](#license)
+
 
 # Makefile Dogfooder Skill
 
@@ -35,6 +73,7 @@ This skill provides detailed Makefile analysis and enhancement for the claude-ni
 # Find all Makefiles and extract targets
 makefile_dogfooder.py --scope all --mode analyze
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 The discovery phase:
 - Recursively searches for Makefile, makefile, GNUmakefile, and *.mk files
@@ -47,6 +86,7 @@ The discovery phase:
 # Analyze against best practices
 makefile_dogfooder.py --mode analyze --output json
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 The analysis phase evaluates:
 - **Essential targets** (help, clean, .PHONY) - 20 points each
@@ -60,6 +100,7 @@ The analysis phase evaluates:
 # Safely test existing targets
 makefile_dogfooder.py --mode test
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 The testing phase performs:
 - Syntax validation with `make -n`
@@ -72,6 +113,7 @@ The testing phase performs:
 # Generate missing targets
 makefile_dogfooder.py --mode full --apply
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 The generation phase creates:
 - **Demo targets** to showcase plugin functionality
@@ -115,27 +157,32 @@ The generation phase creates:
 ```bash
 makefile_dogfooder.py --plugin abstract --mode analyze
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Test All Plugins
 ```bash
 makefile_dogfooder.py --scope plugins --mode test
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Full Analysis with Auto-Apply
 ```bash
 makefile_dogfooder.py --mode full --apply --output json
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Quick Check
 ```bash
 makefile_dogfooder.py --scope root --mode analyze
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Output Formats
 
 ### Text Output
 Human-readable summary with scores and recommendations:
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 === Makefile Dogfooding Results ===
 Scope: all
 Mode: full
@@ -143,6 +190,7 @@ Makefiles analyzed: 10
 Issues found: 23
 Recommendations made: 15
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### JSON Output
 Machine-readable results for automation:
@@ -161,6 +209,7 @@ Machine-readable results for automation:
   ]
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Best Practices
 
@@ -189,6 +238,7 @@ The skill integrates with the `/make-dogfood` slash command for easy access:
 ```bash
 /make-dogfood --scope plugins --mode full
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### With CI/CD
 Include in GitHub Actions for automated Makefile validation:
@@ -196,6 +246,7 @@ Include in GitHub Actions for automated Makefile validation:
 - name: Validate Makefiles
   run: makefile_dogfooder.py --mode test --output json
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### With Development Workflow
 Run as part of pre-commit hooks:
@@ -207,6 +258,7 @@ Run as part of pre-commit hooks:
       language: system
       args: [--mode, analyze]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Performance Considerations
 
@@ -228,6 +280,7 @@ Enable verbose output for troubleshooting:
 ```bash
 makefile_dogfooder.py --mode analyze --output json | jq '.details[] | select(.issues > 0)'
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Contributing
 

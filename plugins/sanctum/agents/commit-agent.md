@@ -13,8 +13,15 @@ description: |
   DO NOT use when: analyzing repository state - use git-workspace-agent first.
   DO NOT use when: preparing full PR - use pr-agent.
 
+  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
+  - Single file with <20 lines? → Parent commits directly
+  - Obvious type (typo, version bump, deps)? → Parent uses `fix(scope): message`
+  - Can write message in <30 seconds? → Parent commits directly
+  ONLY invoke this agent for: multi-file changes, ambiguous classification,
+  breaking changes, or complex scope decisions.
+
   Generates complete conventional commit messages ready for use.
-tools: [Read, Write, Bash, TodoWrite]
+tools: [Read, Write, Bash]
 model: haiku
 permissionMode: acceptEdits
 escalation:
@@ -78,6 +85,28 @@ Expert agent for generating well-structured conventional commit messages.
 
 ## Process
 
+### Step 0: Complexity Check (MANDATORY)
+
+Before any work, assess if this task justifies subagent overhead:
+
+```bash
+# Get diff stats
+git diff --cached --stat
+```
+
+**Return early if**:
+- Single file changed with <20 lines → "SIMPLE TASK: Parent should run commit directly"
+- Obvious type (typo fix, version bump, dependency update) → "SIMPLE TASK: Recommend `fix(deps):` or similar"
+- No ambiguity in classification → "SIMPLE TASK: Suggest message and exit"
+
+**Continue if**:
+- Multiple files across different modules
+- Type classification genuinely unclear
+- Breaking changes need documentation
+- Complex scope decisions required
+
+### Steps 1-5 (Only if Complexity Check passes)
+
 1. **Change Review**: Analyze staged diff for scope and impact
 2. **Type Selection**: Choose the most appropriate commit type
 3. **Scope Decision**: Identify module or component affected
@@ -99,3 +128,27 @@ Returns:
 - Type/scope justification
 - Preview of the formatted message
 - Suggestions for splitting if changes are too broad
+
+## Subagent Economics Warning
+
+**Every subagent inherits ~8k+ tokens of system context overhead.**
+
+### When Parent Should Do It Directly
+
+| Scenario | Reasoning Needed | Use Agent? |
+|----------|------------------|------------|
+| Single file CSS fix | ~20 tokens | ❌ Parent does it |
+| Obvious bug fix | ~50 tokens | ❌ Parent does it |
+| Simple feature add | ~100 tokens | ❌ Parent does it |
+| Multi-file refactor | ~500+ tokens | ⚠️ Consider agent |
+| Breaking API change | ~1000+ tokens | ✅ Use agent |
+| Ambiguous change type | ~800+ tokens | ✅ Use agent |
+
+**Rule**: If you can write the commit message in <30 seconds of thought, parent does it directly.
+
+### Cost Reality
+
+- Parent (Opus) doing simple commit: ~200 tokens = ~$0.009
+- This agent for simple commit: ~8,700 tokens = ~$0.0065
+
+**Marginal savings don't justify the overhead for simple tasks.**

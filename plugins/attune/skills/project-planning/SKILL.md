@@ -1,8 +1,54 @@
 ---
 name: project-planning
 description: Transform specifications into structured implementation plans with architecture design and task breakdown
+
+Triggers: architecture, project, planning, into, specifications
 model_preference: claude-sonnet-4
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Integration](#integration)
+- [Planning Phases](#planning-phases)
+- [Phase 1: Architecture Design](#phase-1:-architecture-design)
+- [Phase 2: Task Breakdown](#phase-2:-task-breakdown)
+- [Phase 3: Dependency Analysis](#phase-3:-dependency-analysis)
+- [Phase 4: Sprint Planning](#phase-4:-sprint-planning)
+- [Architecture Design Patterns](#architecture-design-patterns)
+- [Component Identification](#component-identification)
+- [Component Template](#component-template)
+- [Component: [Name]](#component:-[name])
+- [Task Breakdown Template](#task-breakdown-template)
+- [TASK-[XXX]: [Task Name]](#task-[xxx]:-[task-name])
+- [Task Estimation Guidelines](#task-estimation-guidelines)
+- [Dependency Graph](#dependency-graph)
+- [Sprint Structure](#sprint-structure)
+- [Sprint [N]: [Focus Area]](#sprint-[n]:-[focus-area])
+- [Planned Tasks ([X] story points)](#planned-tasks-([x]-story-points))
+- [Deliverable](#deliverable)
+- [Risks](#risks)
+- [Dependencies](#dependencies)
+- [Risk Assessment](#risk-assessment)
+- [Output Format](#output-format)
+- [Architecture](#architecture)
+- [System Overview](#system-overview)
+- [Component Diagram](#component-diagram)
+- [Components](#components)
+- [Data Flow](#data-flow)
+- [Task Breakdown](#task-breakdown)
+- [Phase 1: [Name] (Sprint [N]) - TASK-001 through TASK-010](#phase-1:-[name]-(sprint-[n])---task-001-through-task-010)
+- [Phase 2: [Name] (Sprint [M]) - TASK-011 through TASK-020](#phase-2:-[name]-(sprint-[m])---task-011-through-task-020)
+- [Dependency Graph](#dependency-graph)
+- [Sprint Schedule](#sprint-schedule)
+- [Risk Assessment](#risk-assessment)
+- [Success Metrics](#success-metrics)
+- [Timeline](#timeline)
+- [Next Steps](#next-steps)
+- [Quality Checks](#quality-checks)
+- [Related Skills](#related-skills)
+- [Related Commands](#related-commands)
+- [Examples](#examples)
+
 
 # Project Planning Skill
 
@@ -114,6 +160,7 @@ Transform specification into implementation plan with architecture design and de
 - [Config param 1]
 - [Config param 2]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Task Breakdown Template
 
@@ -153,6 +200,7 @@ Transform specification into implementation plan with architecture design and de
 - [ ] Documentation updated
 - [ ] Deployed to staging
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Task Estimation Guidelines
 
@@ -176,6 +224,7 @@ Transform specification into implementation plan with architecture design and de
 
 **Notation**:
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 TASK-001 (Foundation)
     ├─▶ TASK-002 (Database schema)
     │       ├─▶ TASK-003 (Models)
@@ -184,6 +233,7 @@ TASK-001 (Foundation)
             └─▶ TASK-005 (Auth middleware)
                     └─▶ TASK-010 (Protected endpoints)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Validation**:
 - No circular dependencies (A depends on B, B depends on A)
@@ -217,6 +267,7 @@ TASK-001 (Foundation)
 - [External dependency 1]
 - [External dependency 2]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Risk Assessment
 
@@ -226,6 +277,7 @@ TASK-001 (Foundation)
 |------|--------|-------------|------------|
 | [Risk description] | High/Med/Low | High/Med/Low | [How to address] |
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Common Risks**:
 - Technology unknowns
@@ -302,6 +354,7 @@ Save to `docs/implementation-plan.md`:
 2. Initialize project with `/attune:init`
 3. Start execution with `/attune:execute`
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quality Checks
 
@@ -331,3 +384,15 @@ Before completing plan:
 ## Examples
 
 See `/attune:plan` command documentation for complete examples.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -11,13 +11,41 @@ description: |
 
   DO NOT use when: single skill optimization - use optimizing-large-skills skill.
   DO NOT use when: quick token counts - use skills-eval instead.
+
+  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
+  - Single skill token count? → Parent runs `wc -w skill.md` or estimates
+  - Quick size check? → Parent reads file header
+  - One-off query? → Parent uses Read tool directly
+  ONLY invoke this agent for: full plugin audits, growth trend analysis,
+  optimization recommendations, or pre-release compliance verification.
 tools: [Read, Glob, Grep, Bash, Write]
 model: haiku
+skills: conserve:context-optimization, conserve:optimizing-large-skills
+
+# Claude Code 2.1.0+ lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Read"
+      command: |
+        # Track files being analyzed for context optimization
+        echo "[context-optimizer] Analyzing: $CLAUDE_TOOL_INPUT" >> /tmp/context-audit.log
+      once: false
+  PostToolUse:
+    - matcher: "Write"
+      command: |
+        # Log optimization outputs
+        echo "[context-optimizer] Optimization written" >> /tmp/context-audit.log
+  Stop:
+    - command: |
+        # Summary logging at completion
+        echo "[context-optimizer] Audit completed at $(date)" >> /tmp/context-audit.log
+
 escalation:
   to: sonnet
   hints:
     - ambiguous_input
     - high_stakes
+    - complex_modularization
 ---
 
 # Context Optimizer Agent
@@ -40,6 +68,23 @@ Dispatch this agent for:
 - Periodic health checks of plugin context efficiency
 
 ## Agent Workflow
+
+### Step 0: Complexity Check (MANDATORY)
+
+Before any work, assess if this task justifies subagent overhead:
+
+**Return early if**:
+- Single skill token count → "SIMPLE: `wc -w skill.md` or parent estimates"
+- Quick MECW check → "SIMPLE: Parent reads file and checks against threshold"
+- One-off file size query → "SIMPLE: Parent uses Read tool"
+
+**Continue if**:
+- Full plugin audit (multiple skills)
+- Growth trend analysis across time
+- Optimization recommendations needed
+- Pre-release compliance verification
+
+### Steps 1-5 (Only if Complexity Check passes)
 
 1. **Discovery**: Find all SKILL.md files in target directory
 2. **Analysis**: Calculate token usage and growth patterns for each

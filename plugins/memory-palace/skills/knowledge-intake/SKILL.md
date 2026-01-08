@@ -1,6 +1,8 @@
 ---
 name: knowledge-intake
 description: |
+
+Triggers: knowledge-management, curation, evaluation, external-resources, knowledge
   Process external resources into actionable knowledge with evaluation, storage, and application decisions.
 
   Triggers: knowledge intake, article evaluation, paper review, external resource
@@ -14,6 +16,49 @@ usage_patterns: [resource-intake, knowledge-evaluation, application-routing]
 complexity: intermediate
 estimated_tokens: 950
 ---
+## Table of Contents
+
+- [What It Is](#what-it-is)
+- [The Intake Signal](#the-intake-signal)
+- [Quick Start](#quick-start)
+- [Evaluation Framework](#evaluation-framework)
+- [Importance Criteria](#importance-criteria)
+- [Scoring Guide](#scoring-guide)
+- [Application Routing](#application-routing)
+- [Local Codebase Application](#local-codebase-application)
+- [Meta-Infrastructure Application](#meta-infrastructure-application)
+- [Routing Decision Tree](#routing-decision-tree)
+- [Storage Locations](#storage-locations)
+- [The Tidying Imperative (KonMari-Inspired)](#the-tidying-imperative-(konmari-inspired))
+- [The Master Curator](#the-master-curator)
+- [The Two Questions](#the-two-questions)
+- [Tidying Actions](#tidying-actions)
+- [Marginal Value Filtering (Anti-Pollution)](#marginal-value-filtering-(anti-pollution))
+- [The Three-Step Filter](#the-three-step-filter)
+- [Using the Filter](#using-the-filter)
+- [Filter Output Example](#filter-output-example)
+- [Progressive Autonomy Integration](#progressive-autonomy-integration)
+- [RL-Based Quality Scoring](#rl-based-quality-scoring)
+- [Usage Signals](#usage-signals)
+- [Quality Decay Model](#quality-decay-model)
+- [Source Lineage Tracking](#source-lineage-tracking)
+- [Knowledge Orchestrator](#knowledge-orchestrator)
+- [RL Integration with Marginal Value Filter](#rl-integration-with-marginal-value-filter)
+- [Workflow Example](#workflow-example)
+- [Queue Processing](#queue-processing)
+- [Processing Queue Entries](#processing-queue-entries)
+- [Queue Integration](#queue-integration)
+- [Queue Status Workflow](#queue-status-workflow)
+- [Automation](#automation)
+- [Detailed Resources](#detailed-resources)
+- [Hook Integration](#hook-integration)
+- [Automatic Triggers](#automatic-triggers)
+- [Hook Signals](#hook-signals)
+- [Deduplication](#deduplication)
+- [Safety Checks](#safety-checks)
+- [Index Schema Alignment](#index-schema-alignment)
+- [Integration](#integration)
+
 
 # Knowledge Intake
 
@@ -49,6 +94,7 @@ When a user shares a link:
 6. APPLY    → Route to codebase or infrastructure updates
 7. PRUNE    → Identify displaced/outdated knowledge
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Evaluation Framework
 
@@ -92,6 +138,7 @@ Apply when knowledge improves our plugin ecosystem:
 ### Routing Decision Tree
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Is the knowledge...
 ├── About HOW we build things? → Meta-infrastructure
 │   ├── Skill patterns → Update abstract/memory-palace skills
@@ -103,6 +150,7 @@ Is the knowledge...
     ├── Implementation patterns → Update code/architecture
     └── Bug/issue solutions → Apply fix, document
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Storage Locations
 
@@ -202,10 +250,12 @@ elif integration.decision == IntegrationDecision.REPLACE:
     # Replace outdated entry
     replace_entry(integration.target_entries[0], content)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Filter Output Example
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 === Marginal Value Assessment ===
 
 Redundancy: partial
@@ -224,6 +274,7 @@ Decision: STANDALONE
 Confidence: 80%
 Rationale: Novel insights justify standalone: Introduces 8 new concepts
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Progressive Autonomy Integration
 
@@ -330,6 +381,7 @@ entry_id, decision = orchestrator.ingest_with_lineage(
     source=source
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### RL Integration with Marginal Value Filter
 
@@ -355,6 +407,7 @@ redundancy, delta, integration, rl_signal = filter.evaluate_with_rl(
 # - confidence: Decision confidence
 print(f"RL Signal: {rl_signal['action']} (weight: {rl_signal['weight']})")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Workflow Example
 
@@ -410,6 +463,7 @@ pruning:
     - Existing error handling module
     - Async patterns documentation
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Queue Processing
 
@@ -429,6 +483,7 @@ cat docs/knowledge-corpus/queue/2025-12-31_topic.yaml
 # 2. Update queue entry status to 'processed'
 # 3. Archive or delete queue entry
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Queue Integration
 
@@ -442,10 +497,12 @@ The `research-queue-integration` hook automatically queues:
 ### Queue Status Workflow
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 pending_review → [Review] → approved/rejected
 approved → [Create Entry] → processed
 processed → [Archive] → queue/archive/
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Automation
 
@@ -480,15 +537,19 @@ Memory-palace hooks automatically detect content that may need knowledge intake 
 When hooks detect potential knowledge content, they add context messages:
 
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 Memory Palace: New web content fetched from {url}.
 Consider running knowledge-intake to evaluate and store if valuable.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Memory Palace: Reading local knowledge doc '{path}'.
 This path is configured for knowledge tracking.
 Consider running knowledge-intake if this contains valuable reference material.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Deduplication
 
@@ -519,6 +580,7 @@ entries:
     routing_type: "both"           # local, meta, both
     last_updated: "2025-12-06T..."
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration
 
@@ -526,3 +588,15 @@ entries:
 - `digital-garden-cultivator` - Manages knowledge lifecycle
 - `knowledge-locator` - Finds and retrieves stored knowledge
 - `skills-eval` (abstract) - Evaluates meta-infrastructure updates
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

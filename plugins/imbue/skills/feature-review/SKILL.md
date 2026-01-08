@@ -1,6 +1,8 @@
 ---
 name: feature-review
 description: |
+
+Triggers: feature, backlog, prioritization, roadmap, wsjf
   Feature review and prioritization with RICE/WSJF/Kano scoring. Creates GitHub issues for suggestions.
 
   Triggers: feature review, prioritization, RICE, WSJF, roadmap, backlog
@@ -26,6 +28,36 @@ modules:
   - modules/tradeoff-dimensions.md
   - modules/configuration.md
 ---
+## Table of Contents
+
+- [Philosophy](#philosophy)
+- [When to Use](#when-to-use)
+- [When NOT to Use](#when-not-to-use)
+- [Quick Start](#quick-start)
+- [1. Inventory Current Features](#1-inventory-current-features)
+- [2. Score and Classify](#2-score-and-classify)
+- [3. Generate Suggestions](#3-generate-suggestions)
+- [4. Upload to GitHub](#4-upload-to-github)
+- [Workflow](#workflow)
+- [Phase 1: Feature Discovery (`feature-review:inventory-complete`)](#phase-1:-feature-discovery-(feature-review:inventory-complete))
+- [Phase 2: Classification (`feature-review:classified`)](#phase-2:-classification-(feature-review:classified))
+- [Phase 3: Scoring (`feature-review:scored`)](#phase-3:-scoring-(feature-review:scored))
+- [Phase 4: Tradeoff Analysis (`feature-review:tradeoffs-analyzed`)](#phase-4:-tradeoff-analysis-(feature-review:tradeoffs-analyzed))
+- [Phase 5: Gap Analysis & Suggestions (`feature-review:suggestions-generated`)](#phase-5:-gap-analysis-&-suggestions-(feature-review:suggestions-generated))
+- [Phase 6: GitHub Integration (`feature-review:issues-created`)](#phase-6:-github-integration-(feature-review:issues-created))
+- [Configuration](#configuration)
+- [Configuration File](#configuration-file)
+- [Guardrails](#guardrails)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Integration Points](#integration-points)
+- [Output Format](#output-format)
+- [Feature Inventory Table](#feature-inventory-table)
+- [Suggestion Report](#suggestion-report)
+- [Feature Suggestions](#feature-suggestions)
+- [High Priority (Score > 2.5)](#high-priority-(score->-25))
+- [Related Skills](#related-skills)
+- [Reference](#reference)
+
 
 # Feature Review
 
@@ -60,6 +92,7 @@ Discover and categorize existing features:
 ```bash
 /feature-review --inventory
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 2. Score and Classify
 
@@ -67,6 +100,7 @@ Evaluate features against the prioritization framework:
 ```bash
 /feature-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 3. Generate Suggestions
 
@@ -74,6 +108,7 @@ Review gaps and suggest new features:
 ```bash
 /feature-review --suggest
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 4. Upload to GitHub
 
@@ -81,6 +116,7 @@ Create issues for accepted suggestions:
 ```bash
 /feature-review --suggest --create-issues
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Workflow
 
@@ -119,6 +155,7 @@ See [classification-system.md](modules/classification-system.md) for details.
 Apply hybrid RICE+WSJF scoring:
 
 ```
+**Verification:** Run `git status` to confirm working tree state.
 Feature Score = Value Score / Cost Score
 
 Value Score = (Reach + Impact + Business Value + Time Criticality) / 4
@@ -126,6 +163,7 @@ Cost Score = (Effort + Risk + Complexity) / 3
 
 Adjusted Score = Feature Score * Confidence
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Scoring Scale:** Fibonacci (1, 2, 3, 5, 8, 13).
 
@@ -209,6 +247,7 @@ tradeoffs:
   integration: 1.0
   api_surface: 1.0
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See [configuration.md](modules/configuration.md) for options.
 
@@ -246,6 +285,7 @@ These rules apply to all configurations:
 | Auth middleware | Reactive | Dynamic | 2.8 | High | Stable |
 | Skill loader | Reactive | Static | 2.3 | Medium | Needs improvement |
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Suggestion Report
 
@@ -260,6 +300,7 @@ These rules apply to all configurations:
    - Cost: Moderate effort
    - Recommendation: Build in next sprint
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 
@@ -273,3 +314,15 @@ These rules apply to all configurations:
 - **[classification-system.md](modules/classification-system.md)**: Axes definition.
 - **[tradeoff-dimensions.md](modules/tradeoff-dimensions.md)**: Quality attributes.
 - **[configuration.md](modules/configuration.md)**: Customization options.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

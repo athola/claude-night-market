@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-modular-monolith
 description: |
+
+Triggers: monolith, architecture, modular, team-autonomy, modular-monolith
   Single deployable with enforced module boundaries for team autonomy without distributed complexity.
 
   Triggers: modular monolith, module boundaries, single deployment, team autonomy
@@ -43,3 +45,15 @@ estimated_tokens: 700
   - **Mitigation**: Without strict enforcement, module boundaries will inevitably erode. Treat any boundary violation as a build-breaking error and maintain a disciplined approach to code reviews.
 - **Shared Database Hotspots**:
   - **Mitigation**: High contention on a shared database can become a bottleneck. Introduce clear schema ownership, use view-based access to restrict data visibility, or implement data replication strategies to reduce coupling.
+## Troubleshooting
+
+### Common Issues
+
+**Skill not loading**
+Check YAML frontmatter syntax and required fields
+
+**Token limits exceeded**
+Use progressive disclosure - move details to modules
+
+**Modules not found**
+Verify module paths in SKILL.md are correct

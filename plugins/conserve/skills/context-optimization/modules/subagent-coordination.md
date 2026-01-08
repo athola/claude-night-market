@@ -12,12 +12,74 @@ category: conservation
 
 This module provides patterns for decomposing complex workflows and delegating to subagents to maintain MECW compliance.
 
+## Critical: Subagent Overhead Reality
+
+**Every subagent inherits ~16k+ tokens of system context** (tool definitions, permissions, system prompts) regardless of instruction length. This is the "base overhead" that makes subagents expensive for simple tasks.
+
+### The Economics
+
+| Task Type | Task Tokens | + Base Overhead | Total | Efficiency |
+|-----------|-------------|-----------------|-------|------------|
+| Simple commit | ~50 | +8,000 | 8,050 | **0.6%** ❌ |
+| PR description | ~200 | +8,000 | 8,200 | **2.4%** ❌ |
+| Code review | ~3,000 | +8,000 | 11,000 | **27%** ⚠️ |
+| Architecture analysis | ~15,000 | +8,000 | 23,000 | **65%** ✅ |
+| Multi-file refactor | ~25,000 | +8,000 | 33,000 | **76%** ✅ |
+
+**Rule of Thumb**: If task reasoning < 2,000 tokens, parent agent should do it directly.
+
+### Cost Comparison (Haiku vs Opus)
+
+Even though Haiku is ~60x cheaper per token:
+- Parent (Opus) doing simple commit: ~200 tokens = ~$0.009
+- Subagent (Haiku) doing simple commit: ~8,700 tokens = ~$0.0065
+
+**Marginal savings ($0.003) don't justify**:
+- Latency overhead (subagent spin-up)
+- Complexity cost (more failure modes)
+- Opportunity cost (8k tokens could fund real reasoning)
+
 ## When to Delegate
 
-### Delegation Triggers
+### CRITICAL: Pre-Invocation Check
+
+**The complexity check MUST happen BEFORE calling the Task tool.**
+
+Once you invoke a subagent, it has already loaded ~8k+ tokens of system context.
+A subagent that "bails early" still costs nearly the full overhead.
+
+```
+❌ WRONG: Invoke agent → Agent checks complexity → Agent bails → 8k tokens wasted
+
+✅ RIGHT: Parent checks complexity → Skip invocation → 0 tokens spent
+```
+
+### Simple Task Threshold
+
+**Before delegating, ask**: "Does this task require analysis, or just execution?"
+
+| Task Type | Reasoning Required | Delegate? |
+|-----------|-------------------|-----------|
+| `git add && git commit && git push` | None | **NO** - parent does directly |
+| "Classify changes and write commit" | Minimal | **NO** - parent does directly |
+| "Review PR for security issues" | Substantial | **MAYBE** - if context pressure |
+| "Analyze architecture and suggest refactors" | High | **YES** - benefits from fresh context |
+
+### Pre-Invocation Checklist (Parent MUST verify)
+
+Before calling ANY subagent via Task tool:
+
+1. **Can I do this in one command?** → Do it directly
+2. **Is the reasoning < 500 tokens?** → Do it directly
+3. **Is this a "run X" request?** → Run X directly
+4. **Check agent description for ⚠️ PRE-INVOCATION CHECK** → Follow it
+
+### Delegation Triggers (Updated)
 
 | Trigger | Threshold | Action |
 |---------|-----------|--------|
+| **Task reasoning** | < 2,000 tokens | ❌ Parent does directly |
+| Task reasoning | > 2,000 tokens | Consider delegation |
 | Context pressure | > 40% usage | Consider delegation |
 | Task complexity | > 5 distinct steps | Recommend delegation |
 | File operations | > 3 large files | Require delegation |
@@ -26,22 +88,68 @@ This module provides patterns for decomposing complex workflows and delegating t
 ### Decision Framework
 
 ```python
+# Constants
+BASE_OVERHEAD = 8000  # System context inherited by every subagent
+MIN_EFFICIENCY = 0.20  # 20% minimum efficiency threshold
+
 def should_delegate(task, context_usage):
     """
     Determine if task should be delegated to subagent.
+
+    Key insight: Every subagent inherits ~8k tokens of system context.
+    Simple tasks (git commit, file move) waste 99%+ on overhead.
+    Only delegate when task reasoning justifies the base cost.
     """
-    # Mandatory delegation
+    # FIRST CHECK: Is this a simple execution task?
+    if task.estimated_reasoning_tokens < 500:
+        return False, "Simple task - parent executes directly"
+
+    # Calculate efficiency
+    efficiency = task.estimated_reasoning_tokens / (
+        task.estimated_reasoning_tokens + BASE_OVERHEAD
+    )
+
+    if efficiency < MIN_EFFICIENCY:
+        return False, f"Efficiency {efficiency:.1%} below threshold - parent does it"
+
+    # Context pressure override (delegate even if borderline efficient)
     if context_usage > 0.45:
         return True, "Context pressure requires delegation"
 
-    # Recommended delegation
-    if task.estimated_tokens > 10000:
-        return True, "Large task benefits from fresh context"
+    # Recommended delegation for complex tasks
+    if task.estimated_reasoning_tokens > 2000:
+        return True, f"Substantial reasoning ({task.estimated_reasoning_tokens} tokens) justifies subagent"
 
     if task.is_parallelizable and len(task.subtasks) >= 3:
         return True, "Parallel subtasks can run concurrently"
 
     return False, "Task can be handled in current context"
+
+
+def estimate_reasoning_tokens(task_description: str) -> int:
+    """
+    Estimate how many tokens of actual reasoning a task requires.
+
+    Examples:
+    - "git add && commit && push" → ~20 tokens (just commands)
+    - "Write conventional commit for staged changes" → ~100 tokens
+    - "Review PR for security issues" → ~3000 tokens
+    - "Analyze architecture and propose refactors" → ~10000 tokens
+    """
+    # Simple heuristic based on task type
+    simple_patterns = ["git add", "git commit", "git push", "mv ", "cp ", "rm "]
+    if any(p in task_description.lower() for p in simple_patterns):
+        return 50  # Pure execution, minimal reasoning
+
+    analysis_patterns = ["review", "analyze", "evaluate", "assess", "audit"]
+    if any(p in task_description.lower() for p in analysis_patterns):
+        return 3000  # Substantial reasoning required
+
+    creation_patterns = ["refactor", "implement", "design", "architect"]
+    if any(p in task_description.lower() for p in creation_patterns):
+        return 5000  # Heavy reasoning required
+
+    return 500  # Default moderate reasoning
 ```
 
 ## Workflow Decomposition

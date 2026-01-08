@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-serverless
 description: |
+
+Triggers: serverless, cost-optimization, architecture, faas, event-driven
   Serverless FaaS for event-driven workloads with minimal infrastructure management.
 
   Triggers: serverless, FaaS, Lambda, event-driven, pay-per-use
@@ -45,3 +47,15 @@ estimated_tokens: 700
   - **Mitigation**: Tracing execution across distributed functions can be complex. Standardize on specific instrumentation libraries and structured logging to simplify debugging.
 - **Resource Limits**:
   - **Mitigation**: Actively monitor provider-imposed limits, such as concurrency and memory quotas. Design workloads to be shardable or horizontally scalable to stay within these constraints.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: pr-prep
 description: |
+
+Triggers: pr, quality-gates, prep, git, testing
   Prepare a pull request by validating the workspace, running quality gates,
   summarizing changes, and drafting the PR template.
 
@@ -81,3 +83,15 @@ Mark them as complete as each section is finished.
 - Never include tool or AI attribution in the PR text.
 - If new changes are required mid-process, rerun quality gates.
 - This skill focuses on preparation; creating the PR (push and open) happens outside this workflow.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

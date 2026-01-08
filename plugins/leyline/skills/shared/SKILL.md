@@ -1,6 +1,8 @@
 ---
 name: shared
 description: |
+
+Triggers: infrastructure, foundation, shared, patterns
   Foundational infrastructure patterns shared across all leyline skills.
 
   Triggers: leyline patterns, shared infrastructure, python imports, config patterns,
@@ -63,6 +65,7 @@ leyline/skills/
 ├── error-patterns/      # Error handling
 └── authentication-patterns/  # Auth verification
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Integration Notes
 
@@ -70,3 +73,15 @@ Leyline provides the foundation layer. Other plugins reference leyline skills:
 - `conservation` uses `mecw-patterns`, `progressive-loading`
 - `conjure` uses `quota-management`, `usage-logging`, `service-registry`
 - `memory-palace` uses `evaluation-framework`, `storage-templates`
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

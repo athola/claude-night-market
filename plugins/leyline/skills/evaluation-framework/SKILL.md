@@ -1,6 +1,8 @@
 ---
 name: evaluation-framework
 description: |
+
+Triggers: decision-making, quality, scoring, metrics, evaluation
   Generic weighted scoring and threshold-based decision framework for evaluating
   artifacts against configurable criteria.
 
@@ -31,6 +33,24 @@ modules:
   - modules/scoring-patterns.md
   - modules/decision-thresholds.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Pattern](#core-pattern)
+- [1. Define Criteria](#1-define-criteria)
+- [2. Score Each Criterion](#2-score-each-criterion)
+- [3. Calculate Weighted Total](#3-calculate-weighted-total)
+- [4. Apply Decision Thresholds](#4-apply-decision-thresholds)
+- [Quick Start](#quick-start)
+- [Define Your Evaluation](#define-your-evaluation)
+- [Example: Code Review Evaluation](#example:-code-review-evaluation)
+- [Evaluation Workflow](#evaluation-workflow)
+- [Common Use Cases](#common-use-cases)
+- [Integration Pattern](#integration-pattern)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Evaluation Framework
 
@@ -64,6 +84,7 @@ criteria:
       30-49: Weak
       0-29: Poor
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 2. Score Each Criterion
 
@@ -74,6 +95,7 @@ scores = {
     "criterion_3": 78,
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 3. Calculate Weighted Total
 
@@ -81,6 +103,7 @@ scores = {
 total = sum(score * weights[criterion] for criterion, score in scores.items())
 # Example: (85 × 0.30) + (92 × 0.40) + (78 × 0.30) = 85.5
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### 4. Apply Decision Thresholds
 
@@ -92,6 +115,7 @@ thresholds:
   20-39: Reject with feedback
   0-19: Reject
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -117,16 +141,19 @@ thresholds:
   50-69: Request changes
   0-49: Reject, major issues
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Evaluation Workflow
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 1. Review artifact against each criterion
 2. Assign 0-100 score for each criterion
 3. Calculate: total = Σ(score × weight)
 4. Compare total to thresholds
 5. Take action based on threshold range
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Common Use Cases
 
@@ -140,6 +167,7 @@ thresholds:
 # In your skill's frontmatter
 dependencies: [leyline:evaluation-framework]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Then customize the framework for your domain:
 - Define domain-specific criteria
@@ -159,3 +187,15 @@ Then customize the framework for your domain:
 - [ ] Scoring guides documented for each criterion
 - [ ] Thresholds mapped to specific actions
 - [ ] Evaluation process documented and reproducible
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

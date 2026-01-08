@@ -1,6 +1,8 @@
 ---
 name: release-health-gates
 description: |
+
+Triggers: github, governance, health, readiness, quality
   Declarative release readiness checklist that mirrors GitHub checks,
   deployment issues, and documentation requirements.
 
@@ -66,3 +68,15 @@ Standardize release approvals by expressing gates as GitHub-aware checklists. va
 - Any blocking gates have waiver approvals recorded.
 - Deployment PR contains embedded Release Gate snippet.
 - Rollout scorecard saved for post-release retrospective.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

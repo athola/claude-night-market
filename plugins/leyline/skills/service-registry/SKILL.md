@@ -1,6 +1,8 @@
 ---
 name: service-registry
 description: |
+
+Triggers: services, health-checks, service, registry, execution
   Registry pattern for managing external service connections, configurations,
   and health checks.
 
@@ -32,6 +34,24 @@ modules:
   - modules/service-config.md
   - modules/execution-patterns.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Concepts](#core-concepts)
+- [Service Configuration](#service-configuration)
+- [Execution Result](#execution-result)
+- [Quick Start](#quick-start)
+- [Register Services](#register-services)
+- [Execute via Service](#execute-via-service)
+- [Health Checks](#health-checks)
+- [Service Selection](#service-selection)
+- [Auto-Selection](#auto-selection)
+- [Failover Pattern](#failover-pattern)
+- [Integration Pattern](#integration-pattern)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Service Registry
 
@@ -60,6 +80,7 @@ class ServiceConfig:
     quota_limits: dict
     models: list[str] = field(default_factory=list)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Execution Result
 
@@ -73,6 +94,7 @@ class ExecutionResult:
     duration: float
     tokens_used: int
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -90,6 +112,7 @@ registry.register("gemini", ServiceConfig(
     quota_limits={"rpm": 60, "daily": 1000}
 ))
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Execute via Service
 ```python
@@ -103,6 +126,7 @@ result = registry.execute(
 if result.success:
     print(result.stdout)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Health Checks
 ```python
@@ -114,6 +138,7 @@ all_status = registry.health_check_all()
 for service, healthy in all_status.items():
     print(f"{service}: {'OK' if healthy else 'FAILED'}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Service Selection
 
@@ -127,6 +152,7 @@ service = registry.select_service(
     }
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Failover Pattern
 ```python
@@ -137,6 +163,7 @@ def execute_with_failover(prompt: str, files: list) -> ExecutionResult:
             return result
     raise AllServicesFailedError()
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Pattern
 
@@ -144,6 +171,7 @@ def execute_with_failover(prompt: str, files: list) -> ExecutionResult:
 # In your skill's frontmatter
 dependencies: [leyline:service-registry]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 
@@ -155,3 +183,15 @@ dependencies: [leyline:service-registry]
 - Services registered with configuration.
 - Health checks passing.
 - Execution results properly handled.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

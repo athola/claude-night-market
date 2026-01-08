@@ -1,6 +1,8 @@
 ---
 name: memory-palace-architect
 description: |
+
+Triggers: memory, spatial, architecture, organization, mnemonic
   Design and construct virtual memory palaces for spatial knowledge organization
   using mnemonic techniques.
 
@@ -22,6 +24,20 @@ usage_patterns: [palace-design, domain-analysis, layout-creation]
 complexity: intermediate
 estimated_tokens: 600
 ---
+## Table of Contents
+
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Create a New Palace](#create-a-new-palace)
+- [List Existing Palaces](#list-existing-palaces)
+- [View Palace Status](#view-palace-status)
+- [When to Use](#when-to-use)
+- [Architectural Templates](#architectural-templates)
+- [Core Workflow](#core-workflow)
+- [Detailed Resources](#detailed-resources)
+- [Integration](#integration)
+- [Expected Outputs](#expected-outputs)
+
 
 # Memory Palace Architect
 
@@ -41,16 +57,19 @@ A memory palace is a mnemonic technique that uses spatial visualization to organ
 ```bash
 python scripts/palace_manager.py create "My Palace" "programming" --metaphor workshop
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### List Existing Palaces
 ```bash
 python scripts/palace_manager.py list
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### View Palace Status
 ```bash
 python scripts/palace_manager.py status
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## When to Use
 
@@ -99,3 +118,15 @@ Works with:
 - Sensory encoding profile for each location
 - Navigation guide and connection map
 - Recall testing results and optimization recommendations
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

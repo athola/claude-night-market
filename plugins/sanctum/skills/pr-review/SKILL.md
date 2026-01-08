@@ -1,6 +1,8 @@
 ---
 name: pr-review
 description: |
+
+Triggers: github, pr, knowledge-capture, code-quality, scope
   Scope-focused PR code review that validates against original requirements and
   routes out-of-scope findings to GitHub issues.
 
@@ -36,6 +38,41 @@ dependencies:
   - imbue:evidence-logging
   - memory-palace:review-chamber
 ---
+## Table of Contents
+
+- [Core Principle](#core-principle)
+- [When to Use](#when-to-use)
+- [Scope Classification Framework](#scope-classification-framework)
+- [Classification Examples](#classification-examples)
+- [Workflow](#workflow)
+- [Phase 1: Establish Scope Baseline](#phase-1:-establish-scope-baseline)
+- [Phase 2: Gather Changes](#phase-2:-gather-changes)
+- [Phase 3: Requirements Validation](#phase-3:-requirements-validation)
+- [Phase 1.5: Version Validation (MANDATORY)](#phase-15:-version-validation-(mandatory))
+- [Phase 4: Code Review with Scope Context](#phase-4:-code-review-with-scope-context)
+- [Phase 5: Backlog Triage](#phase-5:-backlog-triage)
+- [Details](#details)
+- [Suggested Approach](#suggested-approach)
+- [Priority](#priority)
+- [Phase 6: Generate Report](#phase-6:-generate-report)
+- [PR #X: Title](#pr-#x:-title)
+- [Scope Compliance](#scope-compliance)
+- [Blocking (0)](#blocking-(0))
+- [In-Scope (2)](#in-scope-(2))
+- [Suggestions (1)](#suggestions-(1))
+- [Backlog → GitHub Issues (3)](#backlog-→-github-issues-(3))
+- [Recommendation](#recommendation)
+- [Phase 7: Knowledge Capture](#phase-7:-knowledge-capture)
+- [Knowledge Captured 📚](#knowledge-captured-📚)
+- [Quality Gates](#quality-gates)
+- [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+- [Don't: Scope Creep Review](#don't:-scope-creep-review)
+- [Don't: Perfect is Enemy of Good](#don't:-perfect-is-enemy-of-good)
+- [Don't: Blocking on Style](#don't:-blocking-on-style)
+- [Don't: Reviewing Unchanged Code](#don't:-reviewing-unchanged-code)
+- [Integration with Other Tools](#integration-with-other-tools)
+- [Exit Criteria](#exit-criteria)
+
 
 # Scope-Focused PR Review
 
@@ -114,28 +151,33 @@ Before looking at ANY code, understand what this PR is supposed to accomplish.
    # Root plan.md (may be Claude Plan Mode artifact from v2.0.51+)
    cat plan.md 2>/dev/null | head -100
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 2. **Spec file**: Requirements definition (check spec-kit locations first)
    ```bash
    find specs -name "spec.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null | head -100
    cat spec.md 2>/dev/null | head -100
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 3. **Tasks file**: Implementation checklist (check spec-kit locations first)
    ```bash
    find specs -name "tasks.md" -type f 2>/dev/null | head -1 | xargs cat 2>/dev/null
    cat tasks.md 2>/dev/null
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 4. **PR description**: Author's intent
    ```bash
    gh pr view <number> --json body --jq '.body'
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 5. **Commit messages**: Incremental decisions
    ```bash
    gh pr view <number> --json commits --jq '.commits[].messageHeadline'
    ```
+   **Verification:** Run the command with `--help` flag to verify availability.
 
 **Output:** A clear statement of scope:
 > "This PR implements [feature X] as specified in plan.md. The requirements are:
@@ -157,6 +199,7 @@ gh pr diff <number>
 # Statistics
 gh pr view <number> --json additions,deletions,changedFiles,commits
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 3: Requirements Validation
 
@@ -193,12 +236,14 @@ Use `pensive:unified-review` on the changed files.
 **Critical:** Evaluate each finding against the scope baseline:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Finding: "Function X lacks input validation"
 Scope check: Is input validation mentioned in requirements?
   - YES → IN-SCOPE
   - NO, but it's a security issue → BLOCKING
   - NO, and it's a nice-to-have → BACKLOG
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 5: Backlog Triage
 
@@ -223,6 +268,7 @@ Low - Improvement opportunity, not blocking
 *Auto-created by pr-review*" \
   --label "tech-debt"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Ask user before creating:** "I found N backlog items. Create GitHub issues? [y/n/select]"
 
@@ -260,6 +306,7 @@ None - no critical issues found.
 **APPROVE WITH CHANGES**
 Address S1 (in-scope issue) before merge.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Phase 7: Knowledge Capture
 
@@ -271,6 +318,7 @@ After generating the report, evaluate findings for knowledge capture into the pr
 # Capture significant findings to review-chamber
 # Uses memory-palace:review-chamber evaluation framework
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Candidates for capture:**
 - BLOCKING findings with architectural context → `decisions/`
@@ -289,6 +337,7 @@ After generating the report, evaluate findings for knowledge capture into the pr
 
 View: `/review-room list --palace <project>`
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 See `modules/knowledge-capture.md` for full workflow.
 
@@ -337,3 +386,15 @@ A PR should be approved when:
 - Findings classified correctly
 - Backlog items tracked as issues
 - Clear recommendation provided
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

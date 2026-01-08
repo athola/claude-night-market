@@ -1,6 +1,8 @@
 ---
 name: architecture-review
 description: |
+
+Triggers: adr, architecture, patterns, design, review
   Evaluate codebase architecture against ADRs, coupling rules, and team guardrails.
 
   Triggers: architecture review, ADR audit, coupling analysis, design review,
@@ -33,6 +35,24 @@ modules:
   - modules/coupling-analysis.md
   - modules/principle-checks.md
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Progressive Loading](#progressive-loading)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Workflow](#workflow)
+- [Step 1: Establish Context (`arch-review:context-established`)](#step-1:-establish-context-(arch-review:context-established))
+- [Step 2: ADR Audit (`arch-review:adr-audit`)](#step-2:-adr-audit-(arch-review:adr-audit))
+- [Step 3: Interaction Mapping (`arch-review:interaction-mapping`)](#step-3:-interaction-mapping-(arch-review:interaction-mapping))
+- [Step 4: Principle Checks (`arch-review:principle-checks`)](#step-4:-principle-checks-(arch-review:principle-checks))
+- [Step 5: Risks and Actions (`arch-review:risks-actions`)](#step-5:-risks-and-actions-(arch-review:risks-actions))
+- [Architecture Principles Checklist](#architecture-principles-checklist)
+- [Coupling](#coupling)
+- [Cohesion](#cohesion)
+- [Layering](#layering)
+- [Evolution](#evolution)
+
 
 # Architecture Review Workflow
 
@@ -43,6 +63,7 @@ Architecture assessment against ADRs and design principles.
 ```bash
 /architecture-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -79,6 +100,7 @@ Confirm repository and branch:
 pwd
 git status -sb
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 Document:
 - Feature/bug/epic motivating review.
@@ -151,3 +173,15 @@ Provide recommendation:
 - [ ] Changes are reversible.
 - [ ] Migration paths are clear.
 - [ ] ADRs document decisions.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

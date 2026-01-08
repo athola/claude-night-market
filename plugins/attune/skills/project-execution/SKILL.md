@@ -1,9 +1,50 @@
 ---
 name: project-execution
 description: Systematic task execution with checkpoint validation, progress tracking, and quality gates
+
+Triggers: progress, validation, quality, project, systematic
 model_preference: claude-sonnet-4
 tools_allowed: all
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Integration](#integration)
+- [Execution Framework](#execution-framework)
+- [Pre-Execution Phase](#pre-execution-phase)
+- [Task Execution Loop](#task-execution-loop)
+- [Post-Execution Phase](#post-execution-phase)
+- [Task Execution Pattern](#task-execution-pattern)
+- [TDD Workflow](#tdd-workflow)
+- [Checkpoint Validation](#checkpoint-validation)
+- [Progress Tracking](#progress-tracking)
+- [Execution State](#execution-state)
+- [Progress Reports](#progress-reports)
+- [Yesterday](#yesterday)
+- [Today](#today)
+- [Blockers](#blockers)
+- [Metrics](#metrics)
+- [Completed ([X] tasks)](#completed-([x]-tasks))
+- [In Progress ([Y] tasks)](#in-progress-([y]-tasks))
+- [Blocked ([Z] tasks)](#blocked-([z]-tasks))
+- [Burndown](#burndown)
+- [Risks](#risks)
+- [Blocker Management](#blocker-management)
+- [Blocker Detection](#blocker-detection)
+- [Systematic Debugging](#systematic-debugging)
+- [Escalation](#escalation)
+- [Blocker: [TASK-XXX] - [Issue]](#blocker:-[task-xxx]---[issue])
+- [Quality Assurance](#quality-assurance)
+- [Definition of Done](#definition-of-done)
+- [Testing Strategy](#testing-strategy)
+- [Velocity Tracking](#velocity-tracking)
+- [Burndown Metrics](#burndown-metrics)
+- [Velocity Adjustments](#velocity-adjustments)
+- [Related Skills](#related-skills)
+- [Related Agents](#related-agents)
+- [Related Commands](#related-commands)
+- [Examples](#examples)
+
 
 # Project Execution Skill
 
@@ -75,6 +116,7 @@ Execute implementation plan systematically with checkpoints, validation, and pro
    - Report progress
    - Identify blockers
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Post-Execution Phase
 
@@ -97,6 +139,7 @@ def test_user_authentication():
     assert user.is_authenticated
 # Run test → FAILS (feature not implemented)
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **GREEN Phase**:
 ```python
@@ -110,6 +153,7 @@ def authenticate(email, password):
     return None
 # Run test → PASSES
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **REFACTOR Phase**:
 ```python
@@ -127,6 +171,7 @@ def authenticate(email: str, password: str) -> Optional[User]:
     return user
 # Run test → STILL PASSES
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Checkpoint Validation
 
@@ -139,6 +184,7 @@ def authenticate(email: str, password: str) -> Optional[User]:
 - [ ] Documentation updated
 - [ ] No regression in other components
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **Automated Checks**:
 ```bash
@@ -148,6 +194,7 @@ make typecheck     # Type checking passes
 make test          # All tests pass
 make coverage      # Coverage threshold met
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Progress Tracking
 
@@ -188,6 +235,7 @@ Save to `.attune/execution-state.json`:
   "blockers": []
 }
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Progress Reports
 
@@ -210,6 +258,7 @@ Save to `.attune/execution-state.json`:
 - Sprint progress: [X/Y] tasks ([%]%)
 - [Status message]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Sprint Report**:
 ```markdown
@@ -235,6 +284,7 @@ Save to `.attune/execution-state.json`:
 ## Risks
 - [Risk] or None identified
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Blocker Management
 
@@ -281,6 +331,7 @@ When blocked, apply debugging framework:
 
 **Decision Needed**: [What needs to be decided]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quality Assurance
 
@@ -300,6 +351,7 @@ When blocked, apply debugging framework:
 
 **Test Pyramid**:
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
      /\
     /E2E\      Few, slow, expensive
    /------\
@@ -307,6 +359,7 @@ When blocked, apply debugging framework:
  /----------\
 /   UNIT    \  Many, fast, cheap
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Per Task**:
 - Unit tests: Test individual functions/classes
@@ -325,10 +378,12 @@ When blocked, apply debugging framework:
 
 **Formulas**:
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 Velocity = Tasks completed / Days elapsed
 Estimated completion = Tasks remaining / Velocity
 On track? = Estimated completion <= Sprint end date
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Velocity Adjustments
 
@@ -364,3 +419,15 @@ On track? = Estimated completion <= Sprint end date
 ## Examples
 
 See `/attune:execute` command documentation for complete examples.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

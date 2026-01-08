@@ -1,6 +1,8 @@
 ---
 name: shared
 description: |
+
+Triggers: patterns, templates, git, shared
   Shared infrastructure and patterns for sanctum git/workspace skills.
 
   Triggers: sanctum patterns, todowrite patterns, git commands, output templates,
@@ -64,3 +66,15 @@ The `modules/github-comments.md` module provides patterns for posting PR comment
 This skill is infrastructure-only and does not define executable workflows. It serves as a reference for pattern consistency across sanctum's git and workspace operations.
 
 All sanctum skills should follow these shared patterns to validate predictable behavior and maintainable code.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

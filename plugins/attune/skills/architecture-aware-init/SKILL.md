@@ -1,6 +1,8 @@
 ---
 name: architecture-aware-init
 description: |
+
+Triggers: decision-making, research, aware, architecture, initialization
   Architecture-aware project initialization combining online research with archetype selection.
 
   Triggers: project initialization, new project, architecture decision, project setup,
@@ -24,6 +26,41 @@ usage_patterns:
 complexity: advanced
 estimated_tokens: 1800
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use This Skill](#when-to-use-this-skill)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [5-Step Workflow](#5-step-workflow)
+- [Step 1: Gather Project Context](#step-1:-gather-project-context)
+- [Step 2: Research Best Practices (`arch-init:research-completed`)](#step-2:-research-best-practices-(arch-init:research-completed))
+- [Step 3: Select Architecture Paradigm (`arch-init:paradigm-selected`)](#step-3:-select-architecture-paradigm-(arch-init:paradigm-selected))
+- [Step 4: Customize Templates (`arch-init:templates-customized`)](#step-4:-customize-templates-(arch-init:templates-customized))
+- [Step 5: Create Architecture Decision Record (`arch-init:decision-recorded`)](#step-5:-create-architecture-decision-record-(arch-init:decision-recorded))
+- [Date](#date)
+- [Status](#status)
+- [Context](#context)
+- [Decision](#decision)
+- [Rationale](#rationale)
+- [Research Findings](#research-findings)
+- [Key Considerations](#key-considerations)
+- [Alternatives Considered](#alternatives-considered)
+- [Consequences](#consequences)
+- [Positive](#positive)
+- [Negative](#negative)
+- [Implementation](#implementation)
+- [References](#references)
+- [Output: Complete Initialization Package](#output:-complete-initialization-package)
+- [Script Integration](#script-integration)
+- [Architecture Research](#architecture-research)
+- [Template Customization](#template-customization)
+- [Full Interactive Flow](#full-interactive-flow)
+- [Using as Library (within Claude Code)](#using-as-library-(within-claude-code))
+- [Integration with Existing Commands](#integration-with-existing-commands)
+- [Example Session](#example-session)
+- [Related Skills](#related-skills)
+- [See Also](#see-also)
+
 
 # Architecture-Aware Project Initialization
 
@@ -83,6 +120,7 @@ Use this skill when:
    - Budget constraints
    - Technology constraints (must-use or must-avoid technologies)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 2: Research Best Practices (`arch-init:research-completed`)
 
@@ -100,6 +138,7 @@ WebSearch("[language] [project type] architecture patterns 2026")
 # Tertiary: Framework-specific guidance
 WebSearch("[framework] architecture patterns [project type]")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Research Focus Areas**:
 
@@ -122,8 +161,10 @@ WebSearch("[framework] architecture patterns [project type]")
 Invoke the architecture paradigms skill:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Skill(architecture-paradigms)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 This will guide you through selecting from the 14 available paradigms:
 - Layered Architecture
@@ -145,6 +186,7 @@ This will guide you through selecting from the 14 available paradigms:
 Use the decision matrix below to recommend a paradigm based on project context:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 ┌─────────────────────┬─────────┬─────────┬──────────┬─────────────┐
 │ Project Context     │ Simple  │ Moderate│ Complex  │ Highly      │
 │                     │ Domain  │ Domain  │ Domain   │ Complex     │
@@ -163,6 +205,7 @@ Use the decision matrix below to recommend a paradigm based on project context:
 │                     │         │ + Event │          │ Based       │
 └─────────────────────┴─────────┴─────────┴──────────┴─────────────┘
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Special Cases**:
 
@@ -186,6 +229,7 @@ Use the decision matrix below to recommend a paradigm based on project context:
 
 **For Functional Core, Imperative Shell**:
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 src/
 ├── core/                    # Pure business logic
 │   ├── domain.py           # Domain models
@@ -196,9 +240,11 @@ src/
     ├── api.py              # HTTP operations
     └── filesystem.py       # File operations
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **For Hexagonal Architecture**:
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 src/
 ├── domain/                 # Business logic (no framework deps)
 │   ├── models.py
@@ -211,9 +257,11 @@ src/
     ├── web/               # Controllers
     └── messaging/         # Event handlers
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **For Microservices**:
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 project/
 ├── services/
 │   ├── service-a/         # Independent service
@@ -231,6 +279,7 @@ project/
 │   └── events/
 └── docker-compose.yml
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Step 5: Create Architecture Decision Record (`arch-init:decision-recorded`)
 
@@ -285,6 +334,7 @@ Accepted | Proposed | Deprecated | Superseded by [link]
 - [Research sources]
 - [Example projects]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Output: Complete Initialization Package
 
@@ -311,6 +361,7 @@ uv run python plugins/attune/scripts/architecture_researcher.py \
   --language python \
   --output-json
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 The researcher returns a recommendation with:
 - Primary paradigm and rationale
@@ -328,6 +379,7 @@ uv run python plugins/attune/scripts/template_customizer.py \
   --project-name my-project \
   --output-dir ./my-project
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 This creates the paradigm-appropriate structure (e.g., commands/, queries/, events/ for CQRS).
 
@@ -346,6 +398,7 @@ uv run python plugins/attune/scripts/attune_arch_init.py \
   --arch hexagonal \
   --accept-recommendation
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Using as Library (within Claude Code)
 
@@ -372,6 +425,7 @@ customizer = TemplateCustomizer(
 )
 customizer.apply_structure(Path("./my-project"))
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration with Existing Commands
 
@@ -386,6 +440,7 @@ This skill enhances `/attune:init` by adding an architecture selection phase:
 Skill(architecture-aware-init) # Select architecture based on research
 /attune:init --arch <paradigm> # Initialize with chosen architecture
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Example Session
 
@@ -399,6 +454,7 @@ WebSearch("Python fintech API architecture patterns 2026")
 WebSearch("financial services API audit trail architecture")
 WebSearch("CQRS Event Sourcing Python examples")
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 **Step 3 - Selection**: Research + Decision Matrix → **CQRS + Event Sourcing**
 
@@ -425,3 +481,15 @@ WebSearch("CQRS Event Sourcing Python examples")
 - `/attune:init` - Basic project initialization
 - `/attune:plan` - Architecture planning after paradigm selection
 - Architecture paradigms README for paradigm details
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

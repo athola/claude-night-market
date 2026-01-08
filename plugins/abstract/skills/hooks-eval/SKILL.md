@@ -1,6 +1,8 @@
 ---
 name: hooks-eval
 description: |
+
+Triggers: agent-sdk, eval, claude-sdk, performance, security
   detailed hook evaluation framework for Claude Code and Agent SDK hooks.
 
   Triggers: hook audit, hook security, hook performance, hook compliance,
@@ -28,6 +30,21 @@ provides:
     - "hook-matchers"
 estimated_tokens: 1200
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Capabilities](#key-capabilities)
+- [Core Components](#core-components)
+- [Quick Reference](#quick-reference)
+- [Hook Event Types](#hook-event-types)
+- [Hook Callback Signature](#hook-callback-signature)
+- [Return Values](#return-values)
+- [Quality Scoring (100 points)](#quality-scoring-(100-points))
+- [Detailed Resources](#detailed-resources)
+- [Basic Evaluation Workflow](#basic-evaluation-workflow)
+- [Integration with Other Tools](#integration-with-other-tools)
+- [Related Skills](#related-skills)
+
 
 # Hooks Evaluation Framework
 
@@ -65,6 +82,7 @@ HookEvent = Literal[
     "PreCompact"        # Before message compaction
 ]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Note**: Python SDK does not support `SessionStart`, `SessionEnd`, or `Notification` hooks due to setup limitations.
 
@@ -78,6 +96,7 @@ async def my_hook(
 ) -> dict[str, Any]:               # Return decision/messages
     ...
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Return Values
 
@@ -88,6 +107,7 @@ return {
     "hookSpecificOutput": {...}    # Optional: hook-specific data
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Quality Scoring (100 points)
 
@@ -121,6 +141,7 @@ return {
 # 4. Check compliance
 /hooks-eval --compliance-report
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration with Other Tools
 
@@ -130,9 +151,22 @@ return {
 /analyze-hook hooks/specific.py      # Deep-dive on one hook
 /validate-plugin .                   # Validate overall structure
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 
 - `abstract:hook-scope-guide` - Decide where to place hooks (plugin/project/global)
 - `abstract:hook-authoring` - Write hook rules and patterns
 - `abstract:validate-plugin` - Validate complete plugin structure
+## Troubleshooting
+
+### Common Issues
+
+**Hook not firing**
+Verify hook pattern matches the event. Check hook logs for errors
+
+**Syntax errors**
+Validate JSON/Python syntax before deployment
+
+**Permission denied**
+Check hook file permissions and ownership

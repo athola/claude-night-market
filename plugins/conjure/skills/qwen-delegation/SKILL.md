@@ -1,6 +1,8 @@
 ---
 name: qwen-delegation
 description: |
+
+Triggers: large-context, cli, delegation, alibaba, qwen
   Qwen CLI delegation workflow implementing delegation-core for Alibaba's Qwen models.
 
   Triggers: qwen cli, qwen delegation, alibaba qwen, qwen batch, multi-file analysis,
@@ -29,6 +31,21 @@ modules:
 references:
   - delegation-core/shared-shell-execution.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Prerequisites](#prerequisites)
+- [Delegation Flow](#delegation-flow)
+- [Quick Start](#quick-start)
+- [Using Shared Delegation Executor](#using-shared-delegation-executor)
+- [Direct CLI Usage](#direct-cli-usage)
+- [Save Output](#save-output)
+- [Smart Delegation](#smart-delegation)
+- [Shared Patterns](#shared-patterns)
+- [Qwen-Specific Details](#qwen-specific-details)
+- [Exit Criteria](#exit-criteria)
+
 
 # Qwen CLI Delegation
 
@@ -61,6 +78,7 @@ qwen auth login
 # Or set API key
 export QWEN_API_KEY="your-key"
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Delegation Flow
 
@@ -84,6 +102,7 @@ python ~/conjure/tools/delegation_executor.py qwen "Summarize" --files src/**/*.
 # With output format
 python ~/conjure/tools/delegation_executor.py qwen "Extract functions" --files src/main.py --format json
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Direct CLI Usage
 ```bash
@@ -96,11 +115,13 @@ qwen -p "@src/**/*.py Summarize these files"
 # Specific model
 qwen --model qwen-max -p "..."
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Save Output
 ```bash
 qwen -p "..." > delegations/qwen/$(date +%Y%m%d_%H%M%S).md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Smart Delegation
 
@@ -110,6 +131,7 @@ The shared delegation executor can auto-select the best service:
 python ~/conjure/tools/delegation_executor.py auto "Analyze large codebase" \
   --files src/**/* --requirement large_context
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Shared Patterns
 

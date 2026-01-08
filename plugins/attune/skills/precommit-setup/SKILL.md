@@ -1,9 +1,58 @@
 ---
 name: precommit-setup
 description: Configure comprehensive three-layer pre-commit quality system with linting, type checking, and testing enforcement
+
+Triggers: pre-commit, quality, configure, enforcement, checking
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
 ---
+## Table of Contents
+
+- [Use When](#use-when)
+- [Philosophy: Three-Layer Defense](#philosophy:-three-layer-defense)
+- [Standard Hooks (Layer 1)](#standard-hooks-(layer-1))
+- [Python Projects](#python-projects)
+- [Basic Quality Checks](#basic-quality-checks)
+- [Configuration](#configuration)
+- [Rust Projects](#rust-projects)
+- [TypeScript Projects](#typescript-projects)
+- [Component-Specific Checks (Layer 2)](#component-specific-checks-(layer-2))
+- [Python Monorepo/Plugin Architecture](#python-monorepo-plugin-architecture)
+- [1. Lint Changed Components (`scripts/run-component-lint.sh`)](#1-lint-changed-components-(scripts-run-component-lintsh))
+- [2. Type Check Changed Components (`scripts/run-component-typecheck.sh`)](#2-type-check-changed-components-(scripts-run-component-typechecksh))
+- [3. Test Changed Components (`scripts/run-component-tests.sh`)](#3-test-changed-components-(scripts-run-component-testssh))
+- [Add to Pre-commit Configuration](#add-to-pre-commit-configuration)
+- [Validation Hooks (Layer 3)](#validation-hooks-(layer-3))
+- [Example: Plugin Structure Validation](#example:-plugin-structure-validation)
+- [Workflow](#workflow)
+- [1. Create Configuration Files](#1-create-configuration-files)
+- [2. Configure Python Type Checking](#2-configure-python-type-checking)
+- [3. Configure Testing](#3-configure-testing)
+- [4. Install and Test Hooks](#4-install-and-test-hooks)
+- [5. Create Manual Quality Scripts](#5-create-manual-quality-scripts)
+- [`scripts/check-all-quality.sh`](#scripts-check-all-qualitysh)
+- [Hook Execution Order](#hook-execution-order)
+- [Performance Optimization](#performance-optimization)
+- [Typical Timings](#typical-timings)
+- [Optimization Strategies](#optimization-strategies)
+- [Hook Configuration](#hook-configuration)
+- [Skip Specific Hooks](#skip-specific-hooks)
+- [Custom Hooks](#custom-hooks)
+- [CI Integration](#ci-integration)
+- [Troubleshooting](#troubleshooting)
+- [Hooks Too Slow](#hooks-too-slow)
+- [Cache Issues](#cache-issues)
+- [Hook Failures](#hook-failures)
+- [Import Errors in Tests](#import-errors-in-tests)
+- [Type Checking Errors](#type-checking-errors)
+- [Best Practices](#best-practices)
+- [For New Projects](#for-new-projects)
+- [For Existing Projects](#for-existing-projects)
+- [For Monorepos/Plugin Architectures](#for-monorepos-plugin-architectures)
+- [Complete Example: Python Monorepo](#complete-example:-python-monorepo)
+- [Related Skills](#related-skills)
+- [See Also](#see-also)
+
 
 # Pre-commit Setup Skill
 

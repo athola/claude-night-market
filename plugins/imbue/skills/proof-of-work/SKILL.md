@@ -1,6 +1,8 @@
 ---
 name: proof-of-work
 description: |
+
+Triggers: validation, definition-of-done, proof, acceptance-criteria, testing
   Enforces "prove before claim" discipline - validation, testing, and evidence
   requirements before declaring work complete.
 
@@ -31,6 +33,36 @@ modules:
   - modules/acceptance-criteria.md
   - modules/red-flags.md
 ---
+## Table of Contents
+
+- [The Problem This Solves](#the-problem-this-solves)
+- [Core Principle](#core-principle)
+- [When to Use](#when-to-use)
+- [MANDATORY Usage (Non-Negotiable)](#mandatory-usage-(non-negotiable))
+- [Red Flags (You're About to Violate This)](#red-flags-(you're-about-to-violate-this))
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Validation Protocol](#validation-protocol)
+- [Step 1: Reproduce the Problem (`proof:problem-reproduced`)](#step-1:-reproduce-the-problem-(proof:problem-reproduced))
+- [Step 2: Test the Solution (`proof:solution-tested`)](#step-2:-test-the-solution-(proof:solution-tested))
+- [Step 3: Check for Known Issues (`proof:edge-cases-checked`)](#step-3:-check-for-known-issues-(proof:edge-cases-checked))
+- [Step 4: Capture Evidence (`proof:evidence-captured`)](#step-4:-capture-evidence-(proof:evidence-captured))
+- [Step 5: Prove Completion (`proof:completion-proven`)](#step-5:-prove-completion-(proof:completion-proven))
+- [Definition of Done](#definition-of-done)
+- [Acceptance Criteria](#acceptance-criteria)
+- [Test Evidence](#test-evidence)
+- [Conclusion](#conclusion)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [With `scope-guard`](#with-scope-guard)
+- [With `evidence-logging`](#with-evidence-logging)
+- [With `superpowers:execute-plan`](#with-superpowers:execute-plan)
+- [Validation Checklist (Before Claiming "Done")](#validation-checklist-(before-claiming-"done"))
+- [Pre-Completion Validation](#pre-completion-validation)
+- [Completion Statement Format](#completion-statement-format)
+- [Red Flag Self-Check](#red-flag-self-check)
+- [Module Reference](#module-reference)
+- [Related Skills](#related-skills)
+- [Exit Criteria](#exit-criteria)
+
 
 # Proof of Work
 
@@ -99,6 +131,7 @@ ps aux | grep cclsp                    # Is it running?
 echo $ENABLE_LSP_TOOL                 # Is env var set?
 cat ~/.claude/.mcp.json | grep cclsp   # Is it configured?
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Evidence Required:**
 - Command output showing current state
@@ -118,6 +151,7 @@ ps aux | grep cclsp | grep -v grep
 # Did it actually start? Capture the output
 tail /tmp/cclsp-test-output.log
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **Evidence Required:**
 - Successful execution of proposed solution
@@ -134,6 +168,7 @@ tail /tmp/cclsp-test-output.log
 <check GitHub issues for current version>
 <verify language server compatibility>
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Evidence Required:**
 - Search results for known issues
@@ -159,6 +194,7 @@ Use `imbue:evidence-logging` to document:
      Output: "configPath is required when CCLSP_CONFIG_PATH not set"
      Conclusion: Environment variable not being passed correctly
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Step 5: Prove Completion (`proof:completion-proven`)
 
@@ -183,6 +219,7 @@ User can successfully use LSP tools after following these steps:
 ### Conclusion
 Cannot claim completion due to fundamental blocker identified. Can provide: diagnosis with evidence, workaround options, and next steps.
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Integration with Other Skills
 
@@ -236,6 +273,7 @@ Required:
 **Options:** 1) Downgrade to 2.0.67, 2) Wait for bug fix
 **Cannot claim:** 'LSP will work after restart' (proven false)"
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Red Flag Self-Check
 
@@ -280,3 +318,15 @@ Required:
 - Acceptance criteria defined and validated
 - User can independently verify all claims
 - Known blockers identified and documented
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

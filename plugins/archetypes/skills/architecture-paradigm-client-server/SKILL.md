@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-client-server
 description: |
+
+Triggers: server, client-server, architecture, peer-to-peer, distributed-systems
   Model system responsibilities across clients, servers, and optional peer-to-peer
   nodes for traditional distributed applications.
 
@@ -53,3 +55,15 @@ estimated_tokens: 600
   - **Mitigation**: When clients contain too much business logic, it often becomes duplicated and out-of-sync with the server. Share validation logic by packaging it in a common library or move the rules definitively to the server.
 - **Peer-to-Peer Data Conflicts**:
   - **Mitigation**: In a peer-to-peer model, data conflicts are inevitable. Design formal conflict resolution strategies (e.g., CRDTs, last-write-wins) and consensus mechanisms from the beginning.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

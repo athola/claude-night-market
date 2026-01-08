@@ -1,6 +1,8 @@
 ---
 name: mecw-patterns
 description: |
+
+Triggers: context-management, patterns, token-optimization, thresholds, mecw
   MECW theory and patterns for hallucination prevention via context management. Implements 50% rule.
 
   Triggers: MECW, context window, hallucination, 50% rule, context pressure
@@ -26,6 +28,21 @@ modules:
   - modules/prevention-strategies.md
 reusable_by: [conserve, abstract, conjure, spec-kit, sanctum, imbue]
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Principle: The 50% Rule](#core-principle:-the-50%-rule)
+- [Pressure Levels](#pressure-levels)
+- [Quick Start](#quick-start)
+- [Basic Pressure Check](#basic-pressure-check)
+- [Full Compliance Check](#full-compliance-check)
+- [Continuous Monitoring](#continuous-monitoring)
+- [Detailed Topics](#detailed-topics)
+- [Best Practices](#best-practices)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [Exit Criteria](#exit-criteria)
+
 
 # MECW Patterns
 
@@ -67,6 +84,7 @@ pressure = calculate_context_pressure(
 )
 print(pressure)  # "MODERATE"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Full Compliance Check
 
@@ -82,6 +100,7 @@ if not result['compliant']:
     print(f"Overage: {result['overage']:,} tokens")
     print(f"Action: {result['action']}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Continuous Monitoring
 
@@ -103,6 +122,7 @@ if status.recommendations:
     for rec in status.recommendations:
         print(f"  • {rec}")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Topics
 
@@ -131,6 +151,7 @@ Reference in your skill's frontmatter:
 ```yaml
 dependencies: [leyline:mecw-patterns]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 
@@ -139,3 +160,15 @@ dependencies: [leyline:mecw-patterns]
 - Safe budget calculated before batch operations
 - Recommendations followed when warnings issued
 - Context reset triggered before CRITICAL threshold
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

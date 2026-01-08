@@ -1,6 +1,8 @@
 ---
 name: skills-eval
 description: |
+
+Triggers: quality-assurance, skills, optimization, tool-use, performance-metrics
   Evaluate and improve Claude skill quality through auditing.
 
   Triggers: skill audit, quality review, compliance check, improvement suggestions,
@@ -52,6 +54,30 @@ evaluation_criteria:
   tool_integration: 20         # Tool effectiveness, error handling, performance
   claude_sdk_compliance: 10    # API compatibility, best practices adherence
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Tools](#tools)
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Basic Skill Audit](#basic-skill-audit)
+- [Skill Analysis](#skill-analysis)
+- [Generate Improvements](#generate-improvements)
+- [Typical Workflow](#typical-workflow)
+- [Common Tasks](#common-tasks)
+- [Quality Assessment](#quality-assessment)
+- [Performance Analysis](#performance-analysis)
+- [Standards Compliance](#standards-compliance)
+- [Improvements and Optimization](#improvements-and-optimization)
+- [Evaluation Framework](#evaluation-framework)
+- [Quality Metrics Overview](#quality-metrics-overview)
+- [Scoring System](#scoring-system)
+- [Priority Levels](#priority-levels)
+- [Detailed Resources](#detailed-resources)
+- [Shared Modules (Cross-Skill Patterns)](#shared-modules-(cross-skill-patterns))
+- [Skill-Specific Modules](#skill-specific-modules)
+- [Tools and Automation](#tools-and-automation)
+
 
 # Skills Evaluation and Improvement
 
@@ -85,6 +111,7 @@ python scripts/skills_eval/skills_auditor.py --skill-path path/to/skill/SKILL.md
 make audit-skill PATH=path/to/skill/SKILL.md
 make audit-all
 ```
+**Verification:** Run `make --dry-run` to verify build configuration.
 
 ### Skill Analysis
 ```bash
@@ -98,6 +125,7 @@ python scripts/token_estimator.py --file path/to/skill/SKILL.md
 make analyze-skill PATH=path/to/skill/SKILL.md
 make estimate-tokens PATH=path/to/skill/SKILL.md
 ```
+**Verification:** Run `make --dry-run` to verify build configuration.
 
 ### Generate Improvements
 ```bash
@@ -111,6 +139,7 @@ python scripts/skills_eval/compliance_checker.py --skill-path path/to/skill/SKIL
 make improve-skill PATH=path/to/skill/SKILL.md
 make check-compliance PATH=path/to/skill/SKILL.md
 ```
+**Verification:** Run `make --dry-run` to verify build configuration.
 
 ### Typical Workflow
 1. **Discovery**: Run `make audit-all` to find and audit all skills
@@ -130,6 +159,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Detailed analysis of specific skill
 ./scripts/improvement-suggester --skill-path path/to/skill/SKILL.md --priority all --format markdown
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Performance Analysis
 ```bash
@@ -139,6 +169,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Advanced tool performance metrics
 ./scripts/tool-performance-analyzer --skill-path path/to/skill/SKILL.md --metrics all
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Standards Compliance
 ```bash
@@ -148,6 +179,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Auto-fix common issues
 ./scripts/compliance-checker --skill-path path/to/skill/SKILL.md --auto-fix --severity high
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Improvements and Optimization
 ```bash
@@ -157,6 +189,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Benchmark performance
 ./scripts/token-usage-tracker --skill-path path/to/skill/SKILL.md --benchmark optimization-targets
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Evaluation Framework
 

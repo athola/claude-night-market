@@ -1,6 +1,8 @@
 ---
 name: catchup
 description: |
+
+Triggers: follow-ups, catchup, insights, context-acquisition, summarization
   Methodology for summarizing changes, extracting insights, and identifying follow-up actions.
 
   Triggers: catchup, what changed, summarize changes, context acquisition, handoff,
@@ -85,6 +87,7 @@ Capture: Tests, Documentation, Reviews, Blockers, Questions. If none, state expl
 ## Blockers/Questions
 - [Item requiring resolution]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration
 Use `imbue:diff-analysis` for risk assessment, `imbue:evidence-logging` for reproducibility, `sanctum:git-workspace-review` for git data. Feed to `brainstorming` or `writing-plans` as needed.
@@ -96,3 +99,15 @@ Reference paths + lines (don't reproduce). Summarize outputs. Defer deep analysi
 - Four TodoWrite items completed
 - Context/delta/insights/follow-ups captured
 - Stakeholders understand state without re-reading sources
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

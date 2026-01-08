@@ -1,6 +1,8 @@
 ---
 name: structured-output
 description: |
+
+Triggers: consistency, reporting, structured, structure, formatting
   Guide to formatting review deliverables for consistency, ensuring findings
   are comparable across different types of analysis.
 
@@ -25,6 +27,18 @@ usage_patterns:
 complexity: beginner
 estimated_tokens: 1000
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Activation Patterns](#activation-patterns)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Step 1: Select Template (`structured-output:template-selected`)](#step-1:-select-template-(structured-output:template-selected))
+- [Step 2: Format Findings (`structured-output:findings-formatted`)](#step-2:-format-findings-(structured-output:findings-formatted))
+- [Step 3: Assign Actions (`structured-output:actions-assigned`)](#step-3:-assign-actions-(structured-output:actions-assigned))
+- [Step 4: Attach Appendix (`structured-output:appendix-attached`)](#step-4:-attach-appendix-(structured-output:appendix-attached))
+- [Output Quality Checklist](#output-quality-checklist)
+- [Exit Criteria](#exit-criteria)
+
 
 # Structured Output
 
@@ -69,6 +83,7 @@ Mark each item complete as you finish the corresponding step.
   **Evidence**: [E1, E2] - Reference to evidence log.
   **Recommendation**: Specific remediation steps.
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
 - Severity levels: CRITICAL, HIGH, MEDIUM, LOW, INFO.
 - Order findings by severity, then by file location.
 
@@ -80,6 +95,7 @@ Mark each item complete as you finish the corresponding step.
   - [ ] [MEDIUM] Add input validation to API endpoint (@backend, P2)
   - [ ] [LOW] Update deprecated dependency (@devops, P3)
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
 - Include owner assignment where known.
 - Add priority indicators (P1/P2/P3) for triage.
 - Note dependencies between actions.
@@ -97,6 +113,7 @@ Mark each item complete as you finish the corresponding step.
   ### C. Raw Data
   [Large outputs, full diffs, or data exports]
   ```
+  **Verification:** Run the command with `--help` flag to verify availability.
 - Keep main report concise; details in appendix.
 - validate appendix is navigable with clear section headers.
 
@@ -112,3 +129,15 @@ Before finalizing:
 - Todos completed with formatted deliverable.
 - Output follows selected template structure.
 - Stakeholders can act on findings without clarification.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

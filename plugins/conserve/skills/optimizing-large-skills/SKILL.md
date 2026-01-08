@@ -1,6 +1,8 @@
 ---
 name: optimizing-large-skills
 description: |
+
+Triggers: skills, skill design, skill architecture, optimizing, modular skills
   Systematic methodology to reduce skill file size through externalization,
   consolidation, and progressive loading patterns.
 
@@ -17,6 +19,32 @@ description: |
 token_budget: 25
 progressive_loading: true
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Pattern: Externalize-Consolidate-Progress](#core-pattern:-externalize-consolidate-progress)
+- [Transformation Pattern](#transformation-pattern)
+- [Quick Reference](#quick-reference)
+- [Size Reduction Strategies](#size-reduction-strategies)
+- [File Organization](#file-organization)
+- [Implementation](#implementation)
+- [Analysis & Planning](#analysis-&-planning)
+- [Externalization Pattern](#externalization-pattern)
+- [Consolidation Pattern](#consolidation-pattern)
+- [Progressive Loading Pattern](#progressive-loading-pattern)
+- [Common Mistakes](#common-mistakes)
+- [Rationalization Prevention](#rationalization-prevention)
+- [Red Flags - STOP and Start Over](#red-flags---stop-and-start-over)
+- [Optimization Checklist](#optimization-checklist)
+- [Real-World Impact](#real-world-impact)
+- [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+- [Narrative Documentation](#narrative-documentation)
+- [Template Code](#template-code)
+- [Multiple Languages](#multiple-languages)
+- [Tool References](#tool-references)
+- [Focused Scope](#focused-scope)
+
 
 # Optimizing Large Skills
 
@@ -39,6 +67,7 @@ through separation of concerns and strategic code organization.
 python skills/optimizing-large-skills/tools/optimization-patterns.py \
   skills/path/SKILL.md --verbose --generate-plan
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Core Pattern: Externalize-Consolidate-Progress
 
@@ -67,6 +96,7 @@ Use analysis tool: `python tools/optimization-patterns.py SKILL.md --generate-pl
 
 ### File Organization
 ```
+**Verification:** Run `python --version` to verify Python environment.
 skill-name/
   SKILL.md              # Core documentation (~150-200 lines)
   tools/
@@ -76,6 +106,7 @@ skill-name/
   examples/
     basic-usage.py      # Minimal working example
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Implementation
 
@@ -88,6 +119,7 @@ python skills/optimizing-large-skills/tools/optimization-patterns.py \
 # JSON output for automation
 python skills/optimizing-large-skills/tools/optimization-patterns.py your-skill.md --output-json
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Externalization Pattern
 **Move heavy implementations to tools with CLI interfaces:**
@@ -210,3 +242,15 @@ One excellent Python example beats mediocre JavaScript and Go examples.
 
 ###  Focused Scope
 Each tool should do one thing well with clear parameters and outputs.
+## Troubleshooting
+
+### Common Issues
+
+**Skill not loading**
+Check YAML frontmatter syntax and required fields
+
+**Token limits exceeded**
+Use progressive disclosure - move details to modules
+
+**Modules not found**
+Verify module paths in SKILL.md are correct

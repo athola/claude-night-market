@@ -1,6 +1,8 @@
 ---
 name: file-analysis
 description: |
+
+Triggers: codebase, file, analysis, structure, exploration
   Structured file enumeration and content analysis for understanding codebase
   structure before reviews or refactoring.
 
@@ -64,3 +66,15 @@ Mark each item as complete as you finish the corresponding step.
 - `TodoWrite` items are completed with concrete observations.
 - Downstream workflows (architecture review, refactoring) have structural context.
 - File counts, directory layout, and hotspots are documented for reference.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

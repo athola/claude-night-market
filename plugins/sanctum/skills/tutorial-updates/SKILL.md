@@ -1,6 +1,8 @@
 ---
 name: tutorial-updates
 description: |
+
+Triggers: tutorial, vhs, gif, updates, playwright
   Orchestrate tutorial generation from VHS tapes and Playwright specs to dual-tone markdown with GIF recording.
 
   Triggers: tutorial update, gif generation, tape recording, update tutorial, regenerate gifs, tutorial manifest
@@ -27,6 +29,47 @@ dependencies:
   - scry:gif-generation
   - scry:media-composition
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Command Options](#command-options)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Phase 1: Discovery (`tutorial-updates:discovery`)](#phase-1:-discovery-(tutorial-updates:discovery))
+- [Step 1.1: Locate Tutorial Assets](#step-11:-locate-tutorial-assets)
+- [Step 1.2: Parse Manifests](#step-12:-parse-manifests)
+- [Step 1.3: Handle Options](#step-13:-handle-options)
+- [Phase 1.5: Validation (`tutorial-updates:validation`)](#phase-15:-validation-(tutorial-updates:validation))
+- [Step 1.5.1: VHS Syntax Validation](#step-151:-vhs-syntax-validation)
+- [Step 1.5.2: Extract and Validate CLI Commands](#step-152:-extract-and-validate-cli-commands)
+- [Step 1.5.3: Verify Demo Data Exists](#step-153:-verify-demo-data-exists)
+- [Step 1.5.4: Test Commands Locally](#step-154:-test-commands-locally)
+- [Validation Flags](#validation-flags)
+- [Validation Exit Criteria](#validation-exit-criteria)
+- [Phase 1.6: Binary Rebuild (`tutorial-updates:rebuild`)](#phase-16:-binary-rebuild-(tutorial-updates:rebuild))
+- [Step 1.6.1: Detect Build System](#step-161:-detect-build-system)
+- [Step 1.6.2: Check Binary Freshness](#step-162:-check-binary-freshness)
+- [Step 1.6.3: Rebuild Binary](#step-163:-rebuild-binary)
+- [Step 1.6.4: Verify Binary Accessibility](#step-164:-verify-binary-accessibility)
+- [Rebuild Flags](#rebuild-flags)
+- [Rebuild Exit Criteria](#rebuild-exit-criteria)
+- [Phase 2: Recording (`tutorial-updates:recording`)](#phase-2:-recording-(tutorial-updates:recording))
+- [Step 2.1: Process Tape Components](#step-21:-process-tape-components)
+- [Step 2.2: Process Browser Components](#step-22:-process-browser-components)
+- [Step 2.3: Handle Multi-Component Tutorials](#step-23:-handle-multi-component-tutorials)
+- [Phase 3: Generation (`tutorial-updates:generation`)](#phase-3:-generation-(tutorial-updates:generation))
+- [Step 3.1: Parse Tape Annotations](#step-31:-parse-tape-annotations)
+- [Step 3.2: Generate Dual-Tone Markdown](#step-32:-generate-dual-tone-markdown)
+- [Step 3.3: Generate README Demo Section](#step-33:-generate-readme-demo-section)
+- [Demos](#demos)
+- [Quickstart](#quickstart)
+- [Phase 4: Integration (`tutorial-updates:integration`)](#phase-4:-integration-(tutorial-updates:integration))
+- [Step 4.1: Verify All Outputs](#step-41:-verify-all-outputs)
+- [Step 4.2: Update SUMMARY.md (Book)](#step-42:-update-summarymd-(book))
+- [Step 4.3: Report Results](#step-43:-report-results)
+- [Exit Criteria](#exit-criteria)
+- [Error Handling](#error-handling)
+- [Scaffold Mode](#scaffold-mode)
+
 
 # Tutorial Updates Skill
 
@@ -54,12 +97,14 @@ This skill coordinates the complete tutorial generation pipeline:
 /update-tutorial --list            # Show available tutorials
 /update-tutorial --scaffold        # Create structure without recording
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Required TodoWrite Items
 
 Create todos with these prefixes for progress tracking:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 - tutorial-updates:discovery
 - tutorial-updates:validation
 - tutorial-updates:rebuild
@@ -67,6 +112,7 @@ Create todos with these prefixes for progress tracking:
 - tutorial-updates:generation
 - tutorial-updates:integration
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Phase 1: Discovery (`tutorial-updates:discovery`)
 
@@ -84,6 +130,7 @@ find . -name "*.tape" -type f 2>/dev/null | head -20
 # Find browser specs
 find . -name "*.spec.ts" -path "*/browser/*" -type f 2>/dev/null | head -20
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 1.2: Parse Manifests
 
@@ -106,12 +153,14 @@ See `modules/manifest-parsing.md` for manifest schema details.
 
 When `--list` is specified:
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Available tutorials:
   quickstart     assets/tapes/quickstart.tape
   sync           assets/tapes/sync.tape (manifest)
   mcp            assets/tapes/mcp.manifest.yaml (terminal + browser)
   skill-debug    assets/tapes/skill-debug.tape
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Phase 1.5: Validation (`tutorial-updates:validation`)
 
@@ -135,6 +184,7 @@ grep '^Type ' "$tape_file" | while read -r line; do
   fi
 done
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 1.5.2: Extract and Validate CLI Commands
 
@@ -160,6 +210,7 @@ grep '^Type ' "$tape_file" | sed 's/^Type "//' | sed 's/"$//' | while read -r cm
   fi
 done
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 1.5.3: Verify Demo Data Exists
 
@@ -181,6 +232,7 @@ if [ -n "$skill_dir" ]; then
   fi
 fi
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 1.5.4: Test Commands Locally
 
@@ -200,6 +252,7 @@ for cmd in $(extract_commands "$tape_file"); do
   fi
 done
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Validation Flags
 
@@ -241,6 +294,7 @@ else
   BUILD_SYSTEM="unknown"
 fi
 ```
+**Verification:** Run `make --dry-run` to verify build configuration.
 
 ### Step 1.6.2: Check Binary Freshness
 
@@ -290,6 +344,7 @@ check_binary_freshness() {
   fi
 }
 ```
+**Verification:** Run `git status` to confirm working tree state.
 
 ### Step 1.6.3: Rebuild Binary
 
@@ -323,6 +378,7 @@ rebuild_binary() {
   echo "Build complete: $binary_name"
 }
 ```
+**Verification:** Run `make --dry-run` to verify build configuration.
 
 ### Step 1.6.4: Verify Binary Accessibility
 
@@ -347,6 +403,7 @@ verify_binary() {
   fi
 }
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Rebuild Flags
 
@@ -406,6 +463,7 @@ Extract documentation content from tape files:
 # @book-detail The recommended installation method uses cargo...
 Type "cargo install skrills"
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Annotations:
 - `@step` - Step title/heading
@@ -439,6 +497,7 @@ Create or update demo section in README.md:
 ![Quickstart demo](assets/gifs/quickstart.gif)
 *Install, validate, analyze, and serve in under a minute. [Full tutorial](docs/tutorials/quickstart.md)*
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Phase 4: Integration (`tutorial-updates:integration`)
 
@@ -460,6 +519,7 @@ done
 ls -la docs/tutorials/*.md 2>/dev/null
 ls -la book/src/tutorials/*.md 2>/dev/null
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 4.2: Update SUMMARY.md (Book)
 
@@ -472,12 +532,14 @@ If the project has an mdBook structure, update `book/src/SUMMARY.md`:
   - [MCP Integration](./tutorials/mcp.md)
   - [Skill Debugging](./tutorials/skill-debug.md)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 4.3: Report Results
 
 Summarize the update:
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 Tutorial Update Complete
 ========================
 Tutorials processed: 4
@@ -494,6 +556,7 @@ Markdown generated:
 
 README demo section updated
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 
@@ -543,3 +606,16 @@ Type "command here"
 Enter
 Sleep 2s
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

@@ -1,6 +1,8 @@
 ---
 name: token-conservation
 description: |
+
+Triggers: token, conservation
   Minimize token usage through conservative prompting, work delegation,
   and quota tracking.
 
@@ -76,3 +78,15 @@ or justify why neither was necessary, to inform future context-handling decision
   - "next turn: provide only failing test output lines 40-60"
 - Explicit reminder about `/new` or `/compact` whenever you determine it would save
   tokens (otherwise state that no reset/compaction is needed yet).
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

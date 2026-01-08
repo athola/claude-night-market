@@ -1,6 +1,8 @@
 ---
 name: doc-consolidation
 description: |
+
+Triggers: consolidation, knowledge-management, git-hygiene, cleanup, docs
   Consolidates ephemeral LLM-generated markdown files into permanent documentation.
 
   Triggers: consolidate docs, untracked reports, ephemeral files, git cleanup,
@@ -27,6 +29,36 @@ modules:
   - modules/destination-routing.md
   - modules/merge-execution.md
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Quick Start](#quick-start)
+- [Two-Phase Workflow](#two-phase-workflow)
+- [Phase 1: Triage (Fast Model)](#phase-1:-triage-(fast-model))
+- [Phase 2: Execute (Main Model)](#phase-2:-execute-(main-model))
+- [Workflow Details](#workflow-details)
+- [Step 1: Candidate Detection](#step-1:-candidate-detection)
+- [Step 2: Content Analysis](#step-2:-content-analysis)
+- [Step 3: Destination Routing](#step-3:-destination-routing)
+- [Step 4: Generate Plan](#step-4:-generate-plan)
+- [Source: API_REVIEW_REPORT.md](#source:-api_review_reportmd)
+- [Post-Consolidation](#post-consolidation)
+- [Step 5: Execute Merges](#step-5:-execute-merges)
+- [Fast Model Delegation](#fast-model-delegation)
+- [Content Categories](#content-categories)
+- [Merge Strategies](#merge-strategies)
+- [Intelligent Weave](#intelligent-weave)
+- [Replace Section](#replace-section)
+- [Append with Context](#append-with-context)
+- [Create New File](#create-new-file)
+- [Integration](#integration)
+- [Example Session](#example-session)
+- [Troubleshooting](#troubleshooting)
+- [No candidates found](#no-candidates-found)
+- [Low-quality extractions](#low-quality-extractions)
+- [Merge conflicts](#merge-conflicts)
+- [Related Skills](#related-skills)
+
 
 # Doc Consolidation
 
@@ -51,11 +83,14 @@ Do NOT use when:
 ```
 /consolidate-docs
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Or invoke directly:
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 I have some report files that need consolidating into permanent docs.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Two-Phase Workflow
 
@@ -127,6 +162,7 @@ Present consolidation plan to user:
 
 Proceed with consolidation? [Y/n]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Step 5: Execute Merges
 
@@ -151,6 +187,7 @@ Phase 1 tasks are delegated to haiku-class models for efficiency:
 - score_value()
 - find_semantic_matches()
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Phase 2 stays on the main model for careful merge execution.
 
@@ -198,6 +235,7 @@ Works with other sanctum skills:
 ## Example Session
 
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 User: I have API_REVIEW_REPORT.md from our review session. Can you consolidate it?
 
 Claude: I'll consolidate the report into permanent documentation.
@@ -235,6 +273,7 @@ Deleted: API_REVIEW_REPORT.md
 
 Consolidation complete. Review the created files and commit when ready.
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Troubleshooting
 

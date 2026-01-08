@@ -1,13 +1,18 @@
 ---
 name: python-testing
 description: |
+
+Triggers: quality-assurance, test-automation, pytest, testing, python
   Python testing with pytest, fixtures, mocking, and TDD workflows.
 
   Triggers: pytest, unit tests, test fixtures, mocking, TDD, test suite, coverage,
-  test-driven development, testing patterns, parameterized tests
+  test-driven development, testing patterns, parameterized tests, unittest replacement,
+  test coverage, pytest fixtures, async testing, test automation, pytest marks,
+  test mocking, pytest plugins, integration tests, test discovery
 
   Use when: writing unit tests, setting up test suites, implementing TDD,
-  configuring pytest, creating fixtures, async testing
+  configuring pytest, creating fixtures, async testing, writing integration tests,
+  mocking dependencies, parameterizing tests, setting up CI/CD testing
 
   DO NOT use when: evaluating test quality - use pensive:test-review instead.
   DO NOT use when: infrastructure test config - use leyline:pytest-config.
@@ -32,6 +37,17 @@ modules:
   - test-quality
   - async-testing
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Modules](#modules)
+- [Core Testing](#core-testing)
+- [Infrastructure & Workflow](#infrastructure-&-workflow)
+- [Quality](#quality)
+- [Progressive Loading](#progressive-loading)
+- [Exit Criteria](#exit-criteria)
+
 
 # Python Testing Hub
 
@@ -39,10 +55,33 @@ Testing patterns for pytest, fixtures, mocking, and TDD.
 
 ## Quick Start
 
-1. **Assess Testing Needs**: Identify required testing patterns
-2. **Configure pytest**: Set up test infrastructure
-3. **Implement Tests**: Apply patterns from modules
-4. **Run Coverage**: Verify test quality
+1. **Install pytest and dependencies**:
+   ```bash
+   pip install pytest pytest-cov pytest-asyncio pytest-mock
+   ```
+   **Verification:** Run `pytest -v pytest-cov` to verify.
+
+2. **Configure project** - Add to `pyproject.toml`:
+   ```toml
+   [tool.pytest.ini_options]
+   testpaths = ["tests"]
+   python_files = ["test_*.py"]
+   addopts = "--cov=src --cov-report=html"
+   ```
+   **Verification:** Run `pytest -v` to verify tests pass.
+
+3. **Create first test** - In `tests/test_example.py`:
+   ```python
+   def test_basic():
+       assert 1 + 1 == 2
+   ```
+   **Verification:** Run `pytest -v` to verify tests pass.
+
+4. **Run tests with coverage**:
+   ```bash
+   pytest --cov=src --cov-report=html
+   ```
+   **Verification:** Run `pytest -v --cov=src` to verify.
 
 ## When to Use
 
@@ -71,7 +110,7 @@ This skill provides focused modules for different testing aspects:
 
 ## Progressive Loading
 
-Load modules based on your needs:
+Load modules based on project requirements:
 - Start with `unit-testing` for fundamental patterns
 - Add `fixtures-and-mocking` for advanced test setup
 - Include `test-infrastructure` when setting up new projects
@@ -89,3 +128,15 @@ Load modules based on your needs:
 - [ ] No anti-patterns present
 - [ ] Fixtures used appropriately
 - [ ] Mocking only at boundaries
+## Troubleshooting
+
+### Common Issues
+
+**Tests not discovered**
+Ensure test files match pattern `test_*.py` or `*_test.py`. Run `pytest --collect-only` to verify.
+
+**Import errors**
+Check that the module being tested is in `PYTHONPATH` or install with `pip install -e .`
+
+**Async tests failing**
+Install pytest-asyncio and decorate test functions with `@pytest.mark.asyncio`

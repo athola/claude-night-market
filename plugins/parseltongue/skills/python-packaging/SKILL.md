@@ -1,6 +1,8 @@
 ---
 name: python-packaging
 description: |
+
+Triggers: pyproject.toml, pypi, packaging, distribution, python
   Create distributable Python packages with proper structure and publishing.
 
   Triggers: Python packaging, pyproject.toml, uv, pip, PyPI, distribution, CLI tools,
@@ -30,6 +32,17 @@ modules:
   - entry-points.md
   - ci-cd-integration.md
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Core Decisions](#core-decisions)
+- [1. Layout Choice](#1-layout-choice)
+- [2. Project Structure](#2-project-structure)
+- [Detailed Topics](#detailed-topics)
+- [Best Practices](#best-practices)
+- [Exit Criteria](#exit-criteria)
+
 
 # Python Packaging
 
@@ -51,6 +64,7 @@ uv build
 # Publish to PyPI
 uv publish
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -75,6 +89,7 @@ my_package/
     __init__.py
     module.py
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 **Source layout benefits:**
 - Clear separation of source and tests
@@ -85,6 +100,7 @@ my_package/
 
 **Minimal Project:**
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 my-project/
 ├── pyproject.toml
 ├── README.md
@@ -94,9 +110,11 @@ my-project/
 └── tests/
     └── test_init.py
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **Complete Project:**
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 my-project/
 ├── pyproject.toml
 ├── README.md
@@ -114,6 +132,7 @@ my-project/
 └── docs/
     └── index.md
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Detailed Topics
 

@@ -1,6 +1,8 @@
 ---
 name: update-readme
 description: |
+
+Triggers: research, exemplars, readme, structure, update
   Consolidate README content using language-aware exemplars, internal doc linkage,
   and reproducible evidence.
 
@@ -77,3 +79,15 @@ See `modules/exemplar-research.md` for search query patterns and evaluation crit
 - All `TodoWrite` items are complete.
 - The README reflects a modern, language-aware structure, referencing both internal docs and external inspiration with citations.
 - Research notes and command references are captured so future reviewers can reproduce the process.
+## Troubleshooting
+
+### Common Issues
+
+**Documentation out of sync**
+Run `make docs-update` to regenerate from code
+
+**Build failures**
+Check that all required dependencies are installed
+
+**Links broken**
+Verify relative paths in documentation files

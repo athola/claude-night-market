@@ -14,21 +14,24 @@ Based on official Claude Developer Platform skill authoring best practices.
 - **File naming**: Gerund form preferred (`processing-pdfs`), descriptive names
 
 ### Content Quality (0-100)
+- **Quick Start concreteness**: Actual commands, not abstract descriptions (Run `pytest --cov` vs "Configure pytest")
 - **Conciseness**: Only adds context Claude doesn't already have
 - **Description effectiveness**: Third person, includes WHAT it does AND WHEN to use it
 - **Clarity**: Explanations are clear and easy to understand
 - **Practical examples**: Input/output pairs for pattern demonstration
+- **Verification steps**: Post-example validation commands (Run `pytest -v` to verify)
+- **Voice consistency**: No second-person ("your needs" → "project requirements")
 - **Consistent terminology**: Same terms used throughout (not "field/box/element")
 
 ### Token Efficiency (0-100)
 - **Content density**: Information presented without unnecessary explanation
 - **Default assumption**: Treats Claude as already smart (no basic explanations)
 - **Progressive loading**: Essential content loads first, details on-demand
-- **Table of contents**: Long reference files (>100 lines) have TOC at top
+- **Navigation aids (CRITICAL)**: Long modules (>100 lines) MUST have TOC after frontmatter for agentic search efficiency
 - **Context optimization**: Efficient use of shared context window
 
 ### Activation Reliability (0-100)
-- **Description specificity**: Key terms included for discovery from 100+ skills
+- **Description specificity (CRITICAL)**: Minimum 5 specific trigger phrases for marketplace discoverability
 - **Trigger clarity**: Clear when skill should activate vs alternatives
 - **Context indicators**: Strong contextual cues for when to use
 - **Discovery patterns**: Easy to find and categorize
@@ -45,6 +48,7 @@ Based on official Claude Developer Platform skill authoring best practices.
 - **Script quality**: Solve errors explicitly, don't punt to Claude
 - **Configuration constants**: Documented (no magic numbers)
 - **Execute vs read clarity**: Clear whether scripts should be run or read
+- **Verification steps**: Post-code-example validation commands for all patterns
 - **MCP tool references**: Fully qualified names (`Server:tool_name`)
 - **Verifiable outputs**: Plan-validate-execute pattern for complex operations
 
@@ -67,8 +71,8 @@ Based on official Claude Developer Platform skill authoring best practices.
 - **Foundational principles**: "Spirit vs letter" addressed early
 
 ### Discovery Optimization (0-100)
-- **Description specificity**: Key terms for discovery
-- **Third person voice**: Consistent point of view
+- **Description specificity**: Key terms for discovery (5+ trigger phrases minimum)
+- **Third person voice (CRITICAL)**: Consistent point of view - NO "your"/"you", use "project"/"developers"
 - **Trigger clarity**: Clear activation conditions
 - **Distinctiveness**: Differentiates from similar skills
 

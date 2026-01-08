@@ -1,6 +1,8 @@
 ---
 name: usage-logging
 description: |
+
+Triggers: usage, metrics, logging, analytics, sessions
   Session-aware usage logging for audit trails, cost tracking, and analytics with JSONL format.
 
   Triggers: usage logging, audit trails, cost tracking, session logging, analytics, structured logging, JSONL
@@ -29,6 +31,22 @@ modules:
   - modules/session-patterns.md
   - modules/log-formats.md
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Core Concepts](#core-concepts)
+- [Session Management](#session-management)
+- [Log Entry Structure](#log-entry-structure)
+- [Quick Start](#quick-start)
+- [Initialize Logger](#initialize-logger)
+- [Log Operations](#log-operations)
+- [Query Usage](#query-usage)
+- [Integration Pattern](#integration-pattern)
+- [Log Storage](#log-storage)
+- [Detailed Resources](#detailed-resources)
+- [Exit Criteria](#exit-criteria)
+
 
 # Usage Logging
 
@@ -66,6 +84,7 @@ Sessions group related operations:
   "metadata": {}
 }
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -75,6 +94,7 @@ from leyline.usage_logger import UsageLogger
 
 logger = UsageLogger(service="my-service")
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Log Operations
 ```python
@@ -86,6 +106,7 @@ logger.log_usage(
     metadata={"files": 10}
 )
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Query Usage
 ```python
@@ -100,6 +121,7 @@ print(f"Total cost: ${summary['estimated_cost']:.2f}")
 # Recent errors
 errors = logger.get_recent_errors(count=10)
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Pattern
 
@@ -107,6 +129,7 @@ errors = logger.get_recent_errors(count=10)
 # In your skill's frontmatter
 dependencies: [leyline:usage-logging]
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 Standard integration flow:
 1. Initialize logger for your service
@@ -124,6 +147,7 @@ tail -20 ~/.claude/leyline/usage/my-service.jsonl | jq .
 # Query by date
 grep "2025-12-05" ~/.claude/leyline/usage/my-service.jsonl
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 
@@ -135,3 +159,15 @@ grep "2025-12-05" ~/.claude/leyline/usage/my-service.jsonl
 - Operation logged with all required fields
 - Session tracked for grouping
 - Logs queryable for analytics
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

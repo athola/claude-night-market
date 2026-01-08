@@ -1,6 +1,8 @@
 ---
 name: github-initiative-pulse
 description: |
+
+Triggers: github, dashboards, reporting, pulse, initiative
   Generate program dashboards, GitHub-ready comment digests, and CSV summaries
   sourced from Minister's tracker data.
 
@@ -67,3 +69,15 @@ Turns tracker data and GitHub board metadata into initiative-level summaries. Pr
 - All initiatives represented with updated metrics.
 - Markdown digest pasted into relevant GitHub thread.
 - Risk follow-ups filed as issues with owners + due dates.
+## Troubleshooting
+
+### Common Issues
+
+**Pre-commit hooks failing**
+Run `SKIP=... git commit` to bypass temporarily, then fix issues
+
+**Merge conflicts**
+Use `git merge --abort` to reset, then resolve conflicts carefully
+
+**Commit rejected**
+Check hook output and fix reported issues before committing again

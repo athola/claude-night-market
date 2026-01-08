@@ -1,6 +1,8 @@
 ---
 name: architecture-paradigm-service-based
 description: |
+
+Triggers: service-based, architecture, based, modular, service
   Coarse-grained service architecture for deployment independence without microservices complexity.
 
   Triggers: service-based, SOA, coarse-grained services, domain services
@@ -43,3 +45,15 @@ estimated_tokens: 700
   - **Mitigation**: Changes to a shared database can have cascading effects across services. Mitigate this by using database views, replication, or a formal schema deprecation schedule to manage change.
 - **Architectural Degradation**:
   - **Mitigation**: Without strong governance, this architecture can degrade into a "distributed monolith"—a monolith with the added complexity of network hops. Track coupling metrics closely and enforce strict ownership of services and data to prevent this.
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

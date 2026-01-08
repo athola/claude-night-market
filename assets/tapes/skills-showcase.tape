@@ -1,8 +1,13 @@
 # Skills Showcase - REAL Interactive Claude CLI
 # Demonstrates actual skill discovery with the claude command
 
-# IMPORTANT: Must run from assets/tapes/ directory for relative paths
-Output ../gifs/skills-showcase.gif
+# USAGE: Run from project root with:
+#   vhs assets/tapes/skills-showcase.tape
+#
+# Output will be: assets/gifs/skills-showcase.gif
+# Note: VHS displays "../gifs/..." in output but creates the file correctly
+# Wait ~10s after "Creating..." message before opening (large file write)
+Output assets/gifs/skills-showcase.gif
 
 # CRITICAL: Memory-optimized settings to prevent terminal crashes
 Set FontSize 14
@@ -28,22 +33,17 @@ Sleep 1s
 Type "echo 'Starting interactive Claude session...'" Enter
 Sleep 1s
 
-# Launch Claude
-Type "claude" Enter
+# Launch Claude (skip permission prompts for cleaner demo)
+Type "claude --dangerously-skip-permissions" Enter
 Sleep 10s
 
-# Demonstrate skill discovery with Claude
-# Type a prompt that will trigger skill auto-discovery
-Type "Show me the fix-issue skill documentation" Enter
-Sleep 15s
+# Ask about a skill
+Type "What skills are available in the parseltongue plugin? Provide a summary in 20 lines or less." Enter
+Sleep 35s
 
-# Ask about another skill
-Type "What skills are available in the sanctum plugin?" Enter
-Sleep 15s
-
-# Demonstrate context-aware skill loading
-Type "I need to prepare a pull request" Enter
-Sleep 15s
+# Ask about a skill
+Type "Provide some examples in 20 lines or less of how I can incorporate parseltongue plugin into my workflow." Enter
+Sleep 35s
 
 # Exit Claude
 Type "exit" Enter

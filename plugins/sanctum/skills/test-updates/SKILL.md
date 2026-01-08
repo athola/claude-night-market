@@ -1,6 +1,8 @@
 ---
 name: test-updates
 description: |
+
+Triggers: quality-assurance, test-generation, test, bdd, pytest
   Update and maintain tests following TDD/BDD principles with detailed
   quality assurance.
 
@@ -27,6 +29,34 @@ usage_patterns:
 complexity: intermediate
 estimated_tokens: 1500
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Core Philosophy](#core-philosophy)
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Quick Checklist for First Time Use](#quick-checklist-for-first-time-use)
+- [detailed Test Update](#detailed-test-update)
+- [Targeted Test Updates](#targeted-test-updates)
+- [TDD for New Features](#tdd-for-new-features)
+- [Using the Scripts Directly](#using-the-scripts-directly)
+- [When to Use It](#when-to-use-it)
+- [Workflow Integration](#workflow-integration)
+- [Phase 1: Discovery](#phase-1:-discovery)
+- [Phase 2: Strategy](#phase-2:-strategy)
+- [Phase 3: Implementation](#phase-3:-implementation)
+- [Phase 4: Validation](#phase-4:-validation)
+- [Quality Assurance](#quality-assurance)
+- [Examples](#examples)
+- [BDD-Style Test Generation](#bdd-style-test-generation)
+- [Test Enhancement](#test-enhancement)
+- [Integration with Existing Skills](#integration-with-existing-skills)
+- [Success Metrics](#success-metrics)
+- [Troubleshooting FAQ](#troubleshooting-faq)
+- [Common Issues](#common-issues)
+- [Performance Tips](#performance-tips)
+- [Getting Help](#getting-help)
+
 
 # Test Updates and Maintenance
 
@@ -63,6 +93,7 @@ A modular test management system that:
 # Run full test update workflow
 Skill(test-updates)
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Targeted Test Updates
 ```bash
@@ -70,12 +101,14 @@ Skill(test-updates)
 Skill(test-updates) --target src/sanctum/agents
 Skill(test-updates) --target tests/test_commit_messages.py
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### TDD for New Features
 ```bash
 # Apply TDD to new code
 Skill(test-updates) --tdd-only --target new_feature.py
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Using the Scripts Directly
 
@@ -92,6 +125,7 @@ python plugins/sanctum/skills/test-updates/scripts/test_generator.py \
 python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
     --validate tests/test_my_module.py
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 **Programmatic Output (for Claude Code):**
 ```bash
@@ -144,6 +178,7 @@ python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
 #   }
 # }
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ## When to Use It
 
@@ -206,6 +241,7 @@ class TestGitWorkflow:
         # Test implementation following TDD principles
         pass
 ```
+**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Test Enhancement
 - Add edge cases and error scenarios

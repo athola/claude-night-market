@@ -1,6 +1,8 @@
 ---
 name: math-review
 description: |
+
+Triggers: verification, algorithms, scientific, stability, math
   Intensive mathematical analysis for numerical stability, algorithm correctness,
   and alignment with authoritative standards.
 
@@ -29,6 +31,29 @@ dependencies:
   - pensive:shared
   - imbue:evidence-logging
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Core Workflow](#core-workflow)
+- [1. Context Sync](#1-context-sync)
+- [2. Requirements Mapping](#2-requirements-mapping)
+- [3. Derivation Verification](#3-derivation-verification)
+- [4. Stability Assessment](#4-stability-assessment)
+- [5. Evidence Logging](#5-evidence-logging)
+- [Progressive Loading](#progressive-loading)
+- [Essential Checklist](#essential-checklist)
+- [Output Format](#output-format)
+- [Summary](#summary)
+- [Context](#context)
+- [Requirements Analysis](#requirements-analysis)
+- [Derivation Review](#derivation-review)
+- [Stability Analysis](#stability-analysis)
+- [Issues](#issues)
+- [Recommendation](#recommendation)
+- [Exit Criteria](#exit-criteria)
+
 
 # Mathematical Algorithm Review
 
@@ -39,6 +64,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 ```bash
 /math-review
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
@@ -63,6 +89,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 ```bash
 pwd && git status -sb && git diff --stat origin/main..HEAD
 ```
+**Verification:** Run `git status` to confirm working tree state.
 Enumerate math-heavy files (source, tests, docs, notebooks). Classify risk: safety-critical, financial, ML fairness.
 
 ### 2. Requirements Mapping
@@ -79,6 +106,7 @@ Evaluate conditioning, precision, scaling, randomness. Compare complexity. Quant
 pytest tests/math/ --benchmark
 jupyter nbconvert --execute derivation.ipynb
 ```
+**Verification:** Run `pytest -v tests/math/` to verify.
 Log deviations, recommend: Approve / Approve with actions / Block. **Load**: `modules/testing-strategies.md`
 
 ## Progressive Loading
@@ -122,7 +150,20 @@ Condition number | Precision | Risks
 ## Recommendation
 Approve / Approve with actions / Block
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Exit Criteria
 
 - Context synced, requirements mapped, derivations verified, stability assessed, evidence logged with citations
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

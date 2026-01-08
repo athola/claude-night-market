@@ -1,6 +1,8 @@
 ---
 name: pensive:shared
 description: |
+
+Triggers: infrastructure, review, patterns, shared
   Shared infrastructure and reusable modules for all pensive review skills.
 
   Triggers: pensive patterns, review workflow, output templates, quality checklists,
@@ -38,6 +40,7 @@ modules/
 ├── output-format-templates.md    # Standard output structures
 └── quality-checklist-patterns.md # Reusable quality checklists
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Usage
 
@@ -49,6 +52,7 @@ includes:
   - ../shared/modules/output-format-templates.md
   - ../shared/modules/quality-checklist-patterns.md
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Consumers
 
@@ -61,3 +65,15 @@ All pensive review skills:
 - `pensive:makefile-review`
 - `pensive:math-review`
 - `pensive:unified-review`
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

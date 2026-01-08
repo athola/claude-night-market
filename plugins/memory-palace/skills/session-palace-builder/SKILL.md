@@ -1,6 +1,8 @@
 ---
 name: session-palace-builder
 description: |
+
+Triggers: conversation-state, session, temporary-storage, project-memory, palace
   Construct temporary, session-specific memory palaces for complex projects
   and conversations.
 
@@ -22,6 +24,19 @@ usage_patterns: [session-context, project-tracking, state-management]
 complexity: intermediate
 estimated_tokens: 500
 ---
+## Table of Contents
+
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Mental Model](#mental-model)
+- [When to Use](#when-to-use)
+- [Session Palace Templates](#session-palace-templates)
+- [Information Categories](#information-categories)
+- [Core Workflow](#core-workflow)
+- [Session Lifecycle](#session-lifecycle)
+- [Detailed Resources](#detailed-resources)
+- [Integration](#integration)
+
 
 # Session Palace Builder
 
@@ -38,9 +53,25 @@ Session palaces are lightweight, temporary memory structures that:
 
 ## Quick Start
 
-### Mental Model
-Think of a session palace as a "working memory space" - it exists for the duration of your project and helps you keep track of everything without losing context.
+### Build Commands
+\`\`\`bash
+# Run build
+make build
 
+# Clean and rebuild
+make clean && make build
+\`\`\`
+
+### Testing
+\`\`\`bash
+# Run tests
+make test
+
+# Run with verbose output
+make test VERBOSE=1
+\`\`\`
+
+**Verification**: Run `make build && make test` to confirm build works.
 ## When to Use
 
 - Extended conversations requiring context preservation
@@ -87,6 +118,7 @@ Create → Populate → Navigate → Export/Archive
    ↑         ↓          ↓
    └─── Checkpoint ←────┘
 ```
+**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Detailed Resources
 
@@ -99,3 +131,15 @@ Create → Populate → Navigate → Export/Archive
 - `memory-palace-architect` - Export important concepts to permanent palaces
 - `knowledge-locator` - Search session content
 - `digital-garden-cultivator` - Seed garden with session insights
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag

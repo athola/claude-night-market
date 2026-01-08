@@ -1,6 +1,8 @@
 ---
 name: knowledge-locator
 description: |
+
+Triggers: spatial-memory, indexing, search, locator, retrieval
   Spatial indexing and retrieval system for finding information within memory
   palaces using multi-modal search.
 
@@ -23,6 +25,23 @@ usage_patterns: [search, cross-reference, discovery, review-search]
 complexity: intermediate
 estimated_tokens: 500
 ---
+## Table of Contents
+
+- [What It Is](#what-it-is)
+- [Quick Start](#quick-start)
+- [Search Palaces](#search-palaces)
+- [List All Palaces](#list-all-palaces)
+- [When to Use](#when-to-use)
+- [Search Modalities](#search-modalities)
+- [Core Workflow](#core-workflow)
+- [Target Metrics](#target-metrics)
+- [Detailed Resources](#detailed-resources)
+- [PR Review Search](#pr-review-search)
+- [Quick Commands](#quick-commands)
+- [Review Chamber Rooms](#review-chamber-rooms)
+- [Context-Aware Surfacing](#context-aware-surfacing)
+- [Integration](#integration)
+
 
 # Knowledge Locator
 
@@ -42,11 +61,13 @@ The Knowledge Locator provides efficient information retrieval across your memor
 ```bash
 python scripts/palace_manager.py search "authentication" --type semantic
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### List All Palaces
 ```bash
 python scripts/palace_manager.py list
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## When to Use
 
@@ -108,6 +129,7 @@ python scripts/palace_manager.py search-reviews \
   --tags security,api \
   --since 2025-01-01
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ### Review Chamber Rooms
 
@@ -131,6 +153,7 @@ python scripts/palace_manager.py context-search auth/
 # - Known patterns in this area
 # - Relevant standards to follow
 ```
+**Verification:** Run `python --version` to verify Python environment.
 
 ## Integration
 
@@ -139,3 +162,15 @@ Works with:
 - `session-palace-builder` - Searches session-specific palaces
 - `digital-garden-cultivator` - Finds garden content and links
 - `review-chamber` - Searches PR review knowledge in project palaces
+## Troubleshooting
+
+### Common Issues
+
+**Command not found**
+Ensure all dependencies are installed and in PATH
+
+**Permission errors**
+Check file permissions and run with appropriate privileges
+
+**Unexpected behavior**
+Enable verbose logging with `--verbose` flag
