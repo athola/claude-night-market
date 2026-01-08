@@ -3,6 +3,37 @@ name: rust-auditor
 description: Expert Rust security and safety auditor specializing in ownership analysis, unsafe code review, concurrency verification, and dependency scanning. Use for Rust-specific code audits and security reviews.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 skills: pensive:rust-review
+
+# Claude Code 2.1.0+ lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: |
+        # Track cargo and clippy commands
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(cargo|clippy|rustc|rustfmt)"; then
+          cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
+          echo "[rust-auditor] 🦀 Rust tooling: $cmd" >> /tmp/rust-audit.log
+        fi
+      once: false
+    - matcher: "Grep"
+      command: |
+        # Track unsafe code searches
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qi "unsafe"; then
+          echo "[rust-auditor] ⚠️  Unsafe code search initiated: $(date)" >> /tmp/rust-audit.log
+        fi
+      once: false
+  PostToolUse:
+    - matcher: "Bash"
+      command: |
+        # Log clippy/audit results
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(cargo (clippy|audit)|rustc --explain)"; then
+          echo "[rust-auditor] ✓ Analysis completed: $(date)" >> /tmp/rust-audit.log
+        fi
+  Stop:
+    - command: |
+        echo "[rust-auditor] === Audit completed at $(date) ===" >> /tmp/rust-audit.log
+        # Optional: Could export security findings summary
+
 examples:
   - context: User has Rust code to audit
     user: "Can you audit this Rust code for safety issues?"

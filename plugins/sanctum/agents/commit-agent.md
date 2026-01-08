@@ -29,6 +29,35 @@ escalation:
   hints:
     - ambiguous_input
     - high_stakes
+
+# Claude Code 2.1.0+ lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: |
+        # Validate git commands before execution
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "git (status|diff|log|show)"; then
+          echo "[commit-agent] Git query at $(date): $(echo '$CLAUDE_TOOL_INPUT' | jq -r '.command // empty' 2>/dev/null || echo 'N/A')" >> /tmp/commit-audit.log
+        fi
+      once: false
+    - matcher: "Read"
+      command: |
+        # Track file reads for commit context
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(diff|patch|staged)"; then
+          echo "[commit-agent] Reading staged changes: $(date)" >> /tmp/commit-audit.log
+        fi
+      once: true  # Only log once per session
+  PostToolUse:
+    - matcher: "Bash"
+      command: |
+        # Track commit creation
+        if echo "$CLAUDE_TOOL_INPUT" | grep -q "git commit"; then
+          echo "[commit-agent] ✓ Commit created at $(date)" >> /tmp/commit-audit.log
+        fi
+  Stop:
+    - command: |
+        echo "[commit-agent] === Session completed at $(date) ===" >> /tmp/commit-audit.log
+
 examples:
   - context: User has staged changes ready to commit
     user: "Help me write a commit message for these changes"
