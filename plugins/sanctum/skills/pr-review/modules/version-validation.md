@@ -37,7 +37,21 @@ fi
 [[ -f "CHANGELOG" ]] && VERSION_FILES+=("CHANGELOG")
 ```
 
-### 2. Check if Version Changed in PR
+### 2. Check Branch Name for Version Indicator
+
+```bash
+# Extract version from branch name if present
+BRANCH_NAME=$(gh pr view $PR_NUMBER --json headRefName -q .headRefName)
+BRANCH_VERSION=""
+
+# Match patterns: release/1.2.3, version-1.2.3, feature-name-1.2.3, v1.2.3-branch
+if echo "$BRANCH_NAME" | grep -qE '[0-9]+\.[0-9]+\.[0-9]+'; then
+  BRANCH_VERSION=$(echo "$BRANCH_NAME" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  echo "Branch name indicates version: $BRANCH_VERSION"
+fi
+```
+
+### 3. Check if Version Changed in PR
 
 ```bash
 # Get PR diff for version files
@@ -52,7 +66,7 @@ for file in "${VERSION_FILES[@]}"; do
 done
 ```
 
-### 3. If Version Changed, Run Full Validation
+### 4. If Version Changed, Run Full Validation
 
 If `VERSION_CHANGED=true`, perform detailed checks:
 
@@ -107,7 +121,35 @@ if [[ -f "CHANGELOG.md" ]]; then
 fi
 ```
 
-#### D. Check README Version References
+#### D. Validate Branch Name Version Matches Marketplace Version
+
+```bash
+# If branch name contains a version, it MUST match the marketplace/project version
+if [[ -n "$BRANCH_VERSION" ]]; then
+  # Get current project version based on project type
+  CURRENT_VERSION=""
+
+  if [[ "$PROJECT_TYPE" == "claude-marketplace" ]]; then
+    CURRENT_VERSION=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
+  elif [[ "$PROJECT_TYPE" == "python" ]]; then
+    CURRENT_VERSION=$(grep "^version" pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+  elif [[ "$PROJECT_TYPE" == "node" ]]; then
+    CURRENT_VERSION=$(jq -r '.version' package.json)
+  elif [[ "$PROJECT_TYPE" == "rust" ]]; then
+    CURRENT_VERSION=$(grep "^version" Cargo.toml | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+  fi
+
+  if [[ -n "$CURRENT_VERSION" ]] && [[ "$BRANCH_VERSION" != "$CURRENT_VERSION" ]]; then
+    # BLOCKING ISSUE FOUND
+    echo "[B-VERSION] Branch name suggests version $BRANCH_VERSION, but marketplace/project version is $CURRENT_VERSION"
+    echo "  Branch: $BRANCH_NAME"
+    echo "  Expected: Version files should match branch name version"
+    echo "  Fix: Update version files to $BRANCH_VERSION OR rename branch to match $CURRENT_VERSION"
+  fi
+fi
+```
+
+#### E. Check README Version References
 
 ```bash
 # Check if README mentions version
@@ -124,7 +166,7 @@ if [[ -f "README.md" ]]; then
 fi
 ```
 
-### 4. Project-Specific Validations
+### 5. Project-Specific Validations
 
 #### Claude Plugin Marketplace
 
@@ -181,6 +223,7 @@ All version mismatches are **BLOCKING** unless explicitly waived:
 
 | Issue Type | Severity | Rationale |
 |------------|----------|-----------|
+| Branch name version ≠ marketplace/project version | BLOCKING | Branch naming indicates intended version - mismatch suggests incomplete version bump |
 | Version mismatch between files | BLOCKING | Breaks installation/packaging |
 | Missing CHANGELOG entry | BLOCKING | Required for release audit trail |
 | Marketplace vs plugin version mismatch | BLOCKING | Plugin installation will fail |
@@ -227,24 +270,30 @@ OR with issues:
 
 **Status:** ❌ FAILED
 
-**Version Detected:** 1.1.0 → 1.1.1
+**Branch Name:** skills-improvements-1.2.2
+**Version Detected:** 1.1.0 → 1.2.1
 
 **Files Checked:**
-- [x] .claude-plugin/marketplace.json: 1.1.1 ✓
-- [x] plugins/abstract/plugin.json: 1.1.1 ✓
-- [ ] plugins/memory-palace/plugin.json: Marketplace lists 1.1.1 but actual is 1.2.0 ❌
-- [x] CHANGELOG.md: Entry for 1.1.1 ✓
+- [ ] Branch name version: 1.2.2 ≠ Marketplace version: 1.2.1 ❌
+- [x] .claude-plugin/marketplace.json: 1.2.1 ✓
+- [x] plugins/abstract/plugin.json: 1.2.1 ✓
+- [ ] plugins/memory-palace/plugin.json: Marketplace lists 1.2.1 but actual is 1.2.0 ❌
+- [x] CHANGELOG.md: Entry for 1.2.1 ✓
 - [ ] README.md: Still references 1.1.0 ⚠️
 
-**Blocking Issues (1):**
-- [B-VERSION-1] Version mismatch: memory-palace
-  - Marketplace: 1.1.1
+**Blocking Issues (2):**
+- [B-VERSION-1] Branch name suggests version 1.2.2, but marketplace/project version is 1.2.1
+  - Branch: skills-improvements-1.2.2
+  - Expected: Version files should match branch name version
+  - Fix: Update version files to 1.2.2 OR rename branch to match 1.2.1
+- [B-VERSION-2] Version mismatch: memory-palace
+  - Marketplace: 1.2.1
   - Actual: 1.2.0
   - Fix: Update marketplace.json line 52 to "1.2.0"
 
 **In-Scope Issues (1):**
 - [S-VERSION-1] README references old version 1.1.0
-  - Fix: Update README.md to reference 1.1.1
+  - Fix: Update README.md to reference 1.2.1
 ```
 
 ## Integration with PR Review Workflow

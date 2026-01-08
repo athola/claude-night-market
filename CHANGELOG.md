@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Branch Name Version Validation** - `/pr-review` now enforces branch name version consistency
+  - **BLOCKING check**: If branch contains version (e.g., `skills-improvements-1.2.2`), it MUST match marketplace/project version
+  - **Prevents incomplete version bumps**: Catches cases where branch naming indicates 1.2.2 but files still show 1.2.1
+  - **Clear error messages**: Suggests either updating version files OR renaming branch to match
+  - Supports all project types: Claude marketplace, Python, Node, Rust
+
 - **Claude Code 2.1.0 Compatibility** - Full support for new frontmatter features and behaviors
   - **Skill Hot-Reload**: Skills now auto-reload without session restart
   - **Context Forking**: `context: fork` runs skills in isolated sub-agent context

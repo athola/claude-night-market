@@ -229,6 +229,7 @@ Before proceeding to code analysis, validate version consistency across all vers
 
    | Issue Type | Severity | Example |
    |------------|----------|---------|
+   | Branch name version ≠ project version | **BLOCKING** | Branch `skills-improvements-1.2.2` but marketplace.json shows 1.2.1 |
    | Version mismatch between files | **BLOCKING** | marketplace.json says 1.1.1, plugin.json says 1.2.0 |
    | Missing CHANGELOG entry | **BLOCKING** | Version bumped but no CHANGELOG entry |
    | CHANGELOG marked Unreleased | **SUGGESTION** | Release date not set |
@@ -257,17 +258,21 @@ A version validation section that will be included in the final PR review:
 
 **Status:** ✅ PASSED | ⚠️ WAIVED | ❌ FAILED
 
-**Ecosystem Version:** 1.1.0 → 1.1.1
+**Branch Name:** skills-improvements-1.2.2
+**Ecosystem Version:** 1.1.0 → 1.2.1
 
 **Validation Results:**
-- [x] Marketplace version: 1.1.1 ✓
-- [x] Plugin versions: 11 plugins at 1.1.1 ✓
-- [ ] memory-palace: Marketplace=1.1.1, Actual=1.2.0 ❌ MISMATCH
-- [x] CHANGELOG.md: Entry for 1.1.1 ✓
+- [ ] Branch name version: 1.2.2 ≠ Marketplace version: 1.2.1 ❌ MISMATCH
+- [x] Marketplace version: 1.2.1 ✓
+- [x] Plugin versions: 11 plugins at 1.2.1 ✓
+- [ ] memory-palace: Marketplace=1.2.1, Actual=1.2.0 ❌ MISMATCH
+- [x] CHANGELOG.md: Entry for 1.2.1 ✓
 - [x] README.md: Version references current ✓
 
 **Blocking Issues:**
-- [B-VERSION-1] Version mismatch for memory-palace (see details above)
+- [B-VERSION-1] Branch name suggests version 1.2.2, but marketplace version is 1.2.1
+  - Fix: Update marketplace.json to 1.2.2 OR rename branch to match 1.2.1
+- [B-VERSION-2] Version mismatch for memory-palace (see details above)
 
 **Suggestions:**
 - [G-VERSION-1] CHANGELOG release date shows "Unreleased" - update before merge
