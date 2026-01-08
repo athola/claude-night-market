@@ -8,8 +8,8 @@ Leyline provides shared utilities, patterns, and services to support consistent 
 
 ## Philosophy
 
-- **Abstract** handles meta-concerns like skill evaluation, modular design, and plugin validation.
-- **Leyline** handles shared infrastructure:
+- **Abstract** manages meta-concerns like skill evaluation, modular design, and plugin validation.
+- **Leyline** manages shared infrastructure:
   - Resource tracking (quotas, usage, metrics).
   - Service integration (authentication, execution, logging).
   - Pipeline patterns (error handling, retry logic, circuit breakers).
@@ -53,7 +53,7 @@ python -m leyline.service_registry --verify myservice
 
 ## Design Principles
 
-1. **Zero coupling**: Patterns are reference-only.
+1. **Loose coupling**: Patterns are reference-only.
 2. **Progressive adoption**: Load only what is needed.
 3. **Consistent interfaces**: Unified patterns across utilities.
 4. **Plugin-agnostic**: Works with any plugin architecture.

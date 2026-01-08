@@ -137,13 +137,11 @@ python scripts/abstract_validator.py --fix --dry-run
 
 ## Common Tasks
 
-Here are a few common ways we use the tools:
-
-- **To assess the complexity of a skill**, use the `skill-analyzer`. This helps us decide if a skill needs to be modularized.
-- **To design the modules**, we follow the detailed workflow in the `guide.md`.
-- **To see examples of how to implement the patterns**, we reference the `../../docs/examples/modular-skills/` directory.
-- **To validate the structure of our modules**, we run the `module-validator` before deploying.
-- **To estimate token usage**, we use the `token-estimator`. This helps us make design decisions based on their impact on the context window.
+- **Assess skill complexity** with the `skill-analyzer` to determine modularization needs.
+- **Design modules** following the workflow in `guide.md`.
+- **Implement patterns** using examples in `../../docs/examples/modular-skills/`.
+- **Validate module structure** with `module-validator` before deployment.
+- **Estimate token usage** with `token-estimator` to optimize context window impact.
 
 ## Quality Checks
 

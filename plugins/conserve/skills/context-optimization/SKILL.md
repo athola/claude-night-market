@@ -18,6 +18,25 @@ Triggers: context, optimization
 category: conservation
 token_budget: 150
 progressive_loading: true
+
+# Claude Code 2.1.0+ lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Read"
+      command: |
+        echo "[skill:context-optimization] 📊 Context analysis started: $(date)" >> /tmp/skill-audit.log
+      once: true
+  PostToolUse:
+    - matcher: "Bash"
+      command: |
+        # Track context analysis tools
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(wc|tokei|cloc|context)"; then
+          echo "[skill:context-optimization] Context measurement executed: $(date)" >> /tmp/skill-audit.log
+        fi
+  Stop:
+    - command: |
+        echo "[skill:context-optimization] === Optimization completed at $(date) ===" >> /tmp/skill-audit.log
+        # Could export: context pressure events over time
 ---
 ## Table of Contents
 
@@ -31,8 +50,6 @@ progressive_loading: true
 
 
 # Context Optimization Hub
-
-
 
 ## Quick Start
 
@@ -48,97 +65,50 @@ python -m module_name --help
 **Verification**: Run with `--help` flag to confirm installation.
 ## When to Use
 
-
-
 - **Automatic**: Keywords: `context`, `tokens`, `optimization`, `MECW`.
-
 - **MECW Threshold**: When context usage approaches 50% of total window size.
-
 - **Complex Tasks**: For tasks requiring multiple steps or analysis.
-
-
 
 ## Core Hub Responsibilities
 
-
-
 1. Assess context pressure and MECW compliance.
-
 2. Route to appropriate specialized modules.
-
 3. Coordinate subagent-based workflows.
-
 4. Manage token budget allocation across modules.
-
 5. Synthesize results from modular execution.
-
-
 
 ## Module Selection Strategy
 
-
-
 ```python
-
 def select_optimal_modules(context_situation, task_complexity):
-
     if context_situation == "CRITICAL":
-
         return ['mecw-assessment', 'subagent-coordination']
-
     elif task_complexity == 'high':
-
         return ['mecw-principles', 'subagent-coordination']
-
     else:
-
         return ['mecw-assessment']
-
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-
 
 ## Context Classification
 
-
-
 | Utilization | Status | Action |
-
 |-------------|--------|--------|
-
 | < 30% | LOW | Continue normally |
-
 | 30-50% | MODERATE | Monitor, apply principles |
-
 | > 50% | CRITICAL | Immediate optimization required |
-
-
 
 ## Integration Points
 
-
-
 - **Token Conservation**: Receives usage strategies, returns MECW-compliant optimizations.
-
 - **CPU/GPU Performance**: Aligns context optimization with resource constraints.
-
 - **MCP Code Execution**: Delegates complex patterns to specialized MCP modules.
-
-
 
 ## Resources
 
-
-
 For implementation details:
 
-
-
 - **MECW Theory**: See `modules/mecw-principles.md` for core concepts and 50% rule.
-
 - **Context Analysis**: See `modules/mecw-assessment.md` for risk identification.
-
 - **Workflow Delegation**: See `modules/subagent-coordination.md` for decomposition patterns.
 ## Troubleshooting
 

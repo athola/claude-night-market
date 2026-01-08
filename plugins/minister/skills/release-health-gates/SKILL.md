@@ -40,7 +40,7 @@ modules:
 
 ## Purpose
 
-Standardize release approvals by expressing gates as GitHub-aware checklists. validates code, docs, comms, and observability items are all green before flipping deploy toggles.
+Standardize release approvals by expressing gates as GitHub-aware checklists. Ensure code, docs, comms, and observability items are green before deployment.
 
 ## Gate Categories
 

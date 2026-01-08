@@ -150,7 +150,7 @@ pensive/
 
 ## Review Workflow
 
-Reviews start by analyzing the repository and recent changes, then apply domain-specific checks. Findings get documented with file/line references, ranked by severity, and paired with concrete fixes.
+Reviews analyze the repository and recent changes, then apply domain-specific checks. Findings get documented with file/line references, ranked by severity, and paired with concrete fixes.
 
 ## TodoWrite Integration
 
@@ -166,7 +166,7 @@ api-review:evidence-log
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking enables multi-dimensional code reviews with specialized focus areas analyzed independently.
+Session forking allows specialized parallel reviews.
 
 ### Use Cases
 

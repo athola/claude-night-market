@@ -16,7 +16,7 @@ make deps
 
 ## Session Start Integration
 
-Conservation skills load at session start via hooks. This optimizes performance, token usage, and context management for each session.
+Conservation skills load automatically via hooks. This optimizes performance, token usage, and context management for each session.
 
 ### Modes
 
@@ -151,11 +151,11 @@ The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
 
 **Example - Finding Function Usage:**
 ```
-✅ Good:  "Find all references to processData" → LSP (50ms) or Grep (200ms)
-❌ Bad:   Read entire codebase → search manually (high token cost)
+Good:  "Find all references to processData" → LSP (50ms) or Grep (200ms)
+Bad:   Read entire codebase → search manually (high token cost)
 ```
 
-**Why This Matters**: LSP/Grep + targeted reads uses ~90% fewer tokens than exploratory file reading.
+**Why This Matters**: LSP/Grep + targeted reads reduces token usage by ~90% compared to exploratory file reading.
 
 ### STDOUT Verbosity Control
 
@@ -163,7 +163,7 @@ The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
 
 **Solutions**:
 
-| Command Type | ❌ Avoid | ✅ Use Instead |
+| Command Type | Avoid | Use Instead |
 |-------------|---------|---------------|
 | Package install | `npm install` | `npm install --silent` or `npm install --quiet` |
 | Python install | `pip install package` | `pip install --quiet package` |
@@ -184,10 +184,10 @@ The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
 **Agent Consumption**: Agents read **Markdown** directly, NOT HTML.
 
 **Why Markdown**:
-- ✅ Minimal syntax overhead (lower token count)
-- ✅ Directly parseable by Claude
-- ✅ Version control friendly
-- ✅ Human-readable in raw form
+- Minimal syntax overhead (lower token count)
+- Directly parseable by Claude
+- Version control friendly
+- Human-readable in raw form
 
 **HTML** is only generated for:
 - External documentation sites (via `.github/workflows/docs.yml`)

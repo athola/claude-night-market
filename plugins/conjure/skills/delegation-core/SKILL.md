@@ -59,19 +59,17 @@ references:
 
 ## Overview
 
-A method for deciding when and how to delegate tasks to external LLM services. The core principle: **delegate execution, retain high-level reasoning**.
+A method for deciding when and how to delegate tasks to external LLM services. Core principle: **delegate execution, retain high-level reasoning**.
 
 ## When to Use
-- Before invoking any external LLM for task assistance.
+- Before invoking external LLMs for task assistance.
 - When operations are token-heavy and exceed local context limits.
 - When batch processing benefits from different model characteristics.
 - When tasks require routing between models.
 
 ## Philosophy
 
-**Delegate execution, retain reasoning:**
-- **Claude handles**: Architecture, strategy, design, and review.
-- **External LLMs perform**: Data processing, pattern extraction, bulk operations, summarization.
+**Delegate execution, retain reasoning.** Claude handles architecture, strategy, design, and review. External LLMs perform data processing, pattern extraction, bulk operations, and summarization.
 
 ## Delegation Flow
 
@@ -96,7 +94,7 @@ A method for deciding when and how to delegate tasks to external LLM services. T
 
 ### 1. Task Assessment (`delegation-core:task-assessed`)
 
-Classify your task:
+Classify the task:
 - See `modules/task-assessment.md` for classification criteria.
 - Use token estimates to determine thresholds.
 - Apply the decision matrix.
@@ -133,7 +131,7 @@ Execute and validate results:
 
 ## Leyline Infrastructure
 
-Conjure uses **leyline** for shared infrastructure:
+Conjure uses leyline infrastructure:
 
 | Leyline Skill | Used For |
 |---------------|----------|

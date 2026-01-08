@@ -4,7 +4,7 @@ Reusable workflow patterns for analysis, evidence gathering, and structured repo
 
 ## Overview
 
-Imbue provides methodologies for analysis tasks, offering a framework for approaching common problems independent of specific tools.
+Imbue provides analysis methodologies, offering a framework for approaching common problems independent of specific tools.
 
 Principles:
 - **Generalizable**: Patterns apply to various inputs like git diffs, specs, and logs.

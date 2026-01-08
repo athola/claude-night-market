@@ -21,9 +21,6 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-# Threshold for triggering stability gap warnings
-STABILITY_GAP_THRESHOLD = 0.3
-
 
 def get_observability_dir() -> Path:
     """Get observability state directory."""
@@ -56,7 +53,7 @@ class ContinualEvaluator:
         """Save historical execution data."""
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
         with open(self.history_file, "w") as f:
-            json.dump(dict(self.skill_history), f, indent=2)
+            json.dump(dict(self.skill_history), f, indent=None, separators=(",", ":"))
 
     def evaluate_iteration(
         self, skill_ref: str, success: bool, duration_ms: int
@@ -191,15 +188,14 @@ def create_log_entry(
         duration_ms = 0
 
     # Determine outcome based on output
-    # Check warning first since warnings mentioning "failed" are still partial
     outcome = "success"
     error = None
 
-    if "warning" in tool_output.lower():
-        outcome = "partial"
-    elif "error" in tool_output.lower() or "failed" in tool_output.lower():
+    if "error" in tool_output.lower() or "failed" in tool_output.lower():
         outcome = "failure"
         error = tool_output[:500]  # Store first 500 chars of error
+    elif "warning" in tool_output.lower():
+        outcome = "partial"
 
     # Calculate continual evaluation metrics
     continual_metrics = None
@@ -208,6 +204,20 @@ def create_log_entry(
         continual_metrics = evaluator.evaluate_iteration(
             skill_ref, success, duration_ms
         )
+
+    # Create context based on outcome to save tokens
+    if outcome in ["failure", "partial"]:
+        context = {
+            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
+            "tool_input": tool_input,
+            "output_preview": sanitize_output(tool_output, max_length=200),
+        }
+    else:
+        # Successful executions: minimal context
+        context = {
+            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
+            "tool_input": {"skill": skill_ref},
+        }
 
     return {
         "timestamp": end_time.isoformat(),
@@ -218,13 +228,8 @@ def create_log_entry(
         "duration_ms": duration_ms,
         "outcome": outcome,
         "continual_metrics": continual_metrics,
-        "context": {
-            "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
-            "tool_input": tool_input,
-            "output_preview": sanitize_output(tool_output, max_length=1000),
-        },
+        "context": context,
         "error": error,
-        "qualitative_evaluation": None,  # Populated later by human-in-loop
     }
 
 
@@ -303,7 +308,7 @@ def main() -> None:
         # Check for stability gap (automatic improvement trigger)
         if log_entry.get("continual_metrics"):
             stability_gap = log_entry["continual_metrics"].get("stability_gap", 0)
-            if stability_gap > STABILITY_GAP_THRESHOLD:
+            if stability_gap > 0.3:
                 sys.stderr.write(
                     f"⚠️  Stability gap detected for {skill_ref}: {stability_gap:.2f}\n"
                 )

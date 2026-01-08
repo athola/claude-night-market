@@ -153,7 +153,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 
 ### Quality Assessment
 ```bash
-# detailed evaluation with scoring
+# Detailed evaluation with scoring
 ./scripts/skills-auditor --scan-all --format table --priority high
 
 # Detailed analysis of specific skill

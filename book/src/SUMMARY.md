@@ -8,6 +8,8 @@
 - [Installation](getting-started/installation.md)
 - [Your First Plugin](getting-started/first-plugin.md)
 - [Quick Start Guide](getting-started/quick-start.md)
+- [Common Workflows](getting-started/common-workflows.md)
+- [Migration Guide](getting-started/migration-guide.md)
 
 # Plugins
 
@@ -45,6 +47,7 @@
 
 - [Capabilities Reference](reference/capabilities-reference.md)
 - [Superpowers Integration](reference/superpowers-integration.md)
+- [Function Extraction Guidelines](reference/function-extraction-guidelines.md)
 
 # Achievement System
 

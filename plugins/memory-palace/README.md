@@ -4,7 +4,7 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 ## Overview
 
-The Memory Palace plugin provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to organize and retrieve complex information.
+Memory Palace provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to organize and retrieve complex information.
 
 ## Features
 
@@ -16,7 +16,7 @@ The Memory Palace plugin provides tools for building, navigating, and maintainin
 
 ## PR Review Room
 
-Treat projects as palaces with a dedicated chamber for capturing knowledge from PR reviews.
+Projects function as palaces with a dedicated chamber for capturing knowledge from PR reviews.
 
 ### Project Palace Structure
 

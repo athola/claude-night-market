@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/pre_skill_execution.py",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/test_skill_observability_proof.py",
             "timeout": 1
           }
         ]
@@ -28,5 +28,10 @@
         ]
       }
     ]
+  },
+  "notes": {
+    "PreToolUse": "Captures start time, initializes invocation tracking before skill execution",
+    "PostToolUse": "Calculates duration, logs execution result after skill completes",
+    "continual_learning": "Enables per-iteration evaluation (not just batch aggregation)"
   }
 }

@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/pre_skill_execution.py",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/pre_skill_tracker.py",
             "timeout": 1
           }
         ]
@@ -22,11 +22,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_execution_logger.py",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post_skill_tracker.py",
             "timeout": 3
           }
         ]
       }
     ]
+  },
+  "metadata": {
+    "name": "pensieve",
+    "version": "1.0.0",
+    "description": "Universal skill tracking hooks for all plugins - stores skill execution memories"
   }
 }

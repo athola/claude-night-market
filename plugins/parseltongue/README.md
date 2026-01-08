@@ -42,6 +42,7 @@ Or reference directly from the marketplace:
 | **python-pro** | Python development assistant for modern features. |
 | **python-tester** | Testing assistant for pytest and TDD. |
 | **python-optimizer** | Performance profiling and optimization assistant. |
+| **python-linter** | Strict linting enforcement - fixes code, never adds ignores. |
 
 ## Quick Start
 
@@ -117,7 +118,8 @@ parseltongue/
 ├── agents/
 │   ├── python-pro.md        # General Python assistant
 │   ├── python-tester.md     # Testing assistant
-│   └── python-optimizer.md  # Performance assistant
+│   ├── python-optimizer.md  # Performance assistant
+│   └── python-linter.md     # Linting enforcement agent
 ├── commands/
 │   ├── analyze-tests.md     # Test analysis command
 │   ├── run-profiler.md      # Profiler command

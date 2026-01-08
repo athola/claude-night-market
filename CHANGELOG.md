@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Error Handling Documentation** - Comprehensive guide for error handling across the ecosystem
+  - **New Guide**: `docs/guides/error-handling-guide.md` with implementation patterns
+  - **Error Classification**: Standardized system (E001-E099: Critical, E010-E099: Recoverable, E020-E099: Warnings)
+  - **Plugin-Specific Patterns**: Detailed scenarios for abstract, conserve, memory-palace, parseltongue, sanctum
+  - **Integration**: Connected to leyline:error-patterns for shared infrastructure
+  - **Best Practices**: Recovery strategies, testing patterns, monitoring and alerting
+
+- **Conjure Quota Tracking Documentation** - Technical implementation details
+  - **New Guide**: `plugins/conjure/docs/quota-tracking.md` for Gemini API quota management
+  - **Architecture Details**: Inheritance structure from leyline.QuotaTracker
+  - **Token Estimation**: Multi-tier strategy (tiktoken + heuristic fallback)
+  - **Usage Patterns**: CLI interface, hook integration, backward compatibility
+  - **Performance**: Computational complexity, memory usage, testing patterns
+
+- **Documentation Consolidation** - Merged ephemeral reports into permanent docs
+  - **Error Handling Enhancement Report**: Consolidated into `docs/guides/error-handling-guide.md`
+  - **GeminiQuotaTracker Refactoring Report**: Consolidated into `plugins/conjure/docs/quota-tracking.md`
+  - **ADR-0002**: Already exists for quota tracker refactoring architecture decision
+  - **Removed**: Temporary report files from worktrees
+
 - **Branch Name Version Validation** - `/pr-review` now enforces branch name version consistency
   - **BLOCKING check**: If branch contains version (e.g., `skills-improvements-1.2.2`), it MUST match marketplace/project version
   - **Prevents incomplete version bumps**: Catches cases where branch naming indicates 1.2.2 but files still show 1.2.1
@@ -28,9 +48,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Documentation Updates** - Comprehensive 2.1.0 feature documentation
   - **Plugin Development Guide**: New section covering all 2.1.0 frontmatter fields
-  - **Common Workflows Guide**: Added 2.1.0 features section with examples
+  - **Common Workflows Guide**: Added 2.1.0 features section with examples (moved to `book/src/getting-started/common-workflows.md`)
   - **Skill Authoring Skill**: Updated frontmatter examples with 2.1.0 fields
   - **Hook Authoring Skill**: Added frontmatter hooks, `once: true`, and event types
+  - **Documentation Consolidation**: Moved large guides to book/ for better organization
+    - Common Workflows (722 lines), Function Extraction Guidelines (571 lines), Migration Guide (507 lines)
+    - Archived temporary research and implementation reports to `docs/archive/2026-01-*/`
+    - All documentation now complies with size guidelines (docs/ ≤ 500 lines, book/ ≤ 1000 lines)
+
+- **Skill Observability System** (Issue #69) - Phases 4-5: Continual learning metrics and PreToolUse integration
+  - **PreToolUse Hook**: `pre_skill_execution.py` captures skill start time and invocation context
+  - **PostToolUse Enhancement**: `skill_execution_logger.py` now calculates accurate duration and continual metrics
+  - **Continual Learning Metrics**: Avalanche-style evaluation per skill execution
+    - **Stability Gap Detection**: Automatic identification of performance inconsistency (avg - worst accuracy)
+    - **Per-iteration metrics**: worst_case_accuracy, average_accuracy, avg_duration_ms
+    - **Execution History**: Persistent tracking in `~/.claude/skills/logs/.history.json`
+    - **Real-time Alerts**: stderr warnings when stability_gap > 0.3
+  - **Pensieve Plugin**: Universal continual learning for ALL skills (including third-party plugins)
+    - Zero-configuration installation: `claude plugin install ./plugins/pensieve`
+    - Automatic tracking of every skill invocation across all plugins
+    - JSONL log storage per plugin/skill/day with searchable history
+    - Commands: `/pensieve-metrics` - analyze skill performance and stability
+    - Integration reference: `plugins/abstract/README-HOOKS.md`
+
+- **Parseltongue: Python Linter Agent** - Strict linting enforcement without bypassing checks
+  - **New Agent**: `python-linter` - Expert agent for fixing lint errors properly
+    - **Core Principle**: FIX, DON'T IGNORE - never add per-file-ignores to bypass lint checks
+    - **Supported Rules**: E (pycodestyle), W (warnings), F (pyflakes), I (isort), B (bugbear), C4 (comprehensions), UP (pyupgrade), S (bandit), PL (pylint), D (pydocstyle)
+    - **Common Fixes**: D205 (docstring format), E501 (line length), PLR2004 (magic values), PLC0415 (import location), PLR0915 (function length)
+    - **Workflow**: Understand rule → fix actual code → refactor if needed → verify passes
+  - **Only Acceptable Ignores**: `__init__.py` F401 (re-exports), `tests/**` S101/PLR2004/D103
 
 ### Changed
 
@@ -47,6 +94,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `sanctum:pr-agent`: PreToolUse, PostToolUse, Stop hooks for quality gate audit
   - `sanctum:git-workspace-agent`: PreToolUse hook for read-only validation
   - `conserve:context-optimizer`: PreToolUse, PostToolUse, Stop hooks for audit logging
+  - `sanctum:commit-agent`: PreToolUse (Bash, Read), PostToolUse (Bash), Stop hooks for commit audit logging
+  - `sanctum:dependency-updater`: PreToolUse (Bash, Write|Edit), PostToolUse (Bash), Stop hooks with security warnings
+  - `pensive:architecture-reviewer`: PreToolUse (Read|Grep|Glob), PostToolUse (Bash), Stop hooks for review tracking
+  - `pensive:rust-auditor`: PreToolUse (Bash, Grep), PostToolUse (Bash), Stop hooks for unsafe code audit trail
+
+- **Commands Updated with Hooks** - Added lifecycle hooks to high-frequency user-facing commands
+  - `/update-dependencies` (sanctum): PreToolUse (Task), Stop hooks with security-critical operation tracking and dry-run mode detection
+  - `/pr` (sanctum): PreToolUse (Skill|Task), PostToolUse (Bash), Stop hooks tracking code review options and quality gates
+  - `/bloat-scan` (conserve): PreToolUse (Task), Stop hooks tracking scan level and focus area for technical debt metrics
+
+- **Skills Updated with Hooks** - Added lifecycle hooks to critical workflow skills
+  - `pr-prep` (sanctum): PreToolUse (Bash), PostToolUse (Write), Stop hooks tracking quality gates and PR template generation
+  - `git-workspace-review` (sanctum): PreToolUse (Bash), Stop hooks for git analysis tracking
+  - `context-optimization` (conserve): PreToolUse (Read), PostToolUse (Bash), Stop hooks for context pressure monitoring
 
 ### Added
 

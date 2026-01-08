@@ -30,6 +30,29 @@ dependencies:
   - sanctum:git-workspace-review
   - imbue:evidence-logging
   - imbue:structured-output
+
+# Claude Code 2.1.0+ lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: |
+        # Log quality gate execution
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(make|npm|cargo|pytest|ruff|eslint|clippy) (test|lint|fmt|build|check)"; then
+          cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
+          echo "[skill:pr-prep] ✓ Quality gate: $cmd at $(date)" >> /tmp/skill-audit.log
+        fi
+      once: false
+  PostToolUse:
+    - matcher: "Write"
+      command: |
+        # Track PR template generation
+        file=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.file_path // empty' 2>/dev/null)
+        if echo "$file" | grep -qE "(pr[-_]description|PR[-_]TEMPLATE|pull[-_]request)"; then
+          echo "[skill:pr-prep] 📝 PR template written: $file at $(date)" >> /tmp/skill-audit.log
+        fi
+  Stop:
+    - command: |
+        echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> /tmp/skill-audit.log
 ---
 
 # Pull Request Preparation Workflow

@@ -11,13 +11,13 @@ estimated_tokens: 600
 
 # A Guide to Implementing Modular Skills
 
-This guide explains how we implement modular skills. We've found that by breaking down our skills into smaller, more manageable modules, we can create a more maintainable and predictable architecture. This guide explains how we do it.
+This guide details the implementation of modular skills. Breaking skills into smaller, manageable modules creates a maintainable and predictable architecture.
 
 ## The Hub-and-Spoke Structure
 
-We use a "hub-and-spoke" pattern for our modular skills. This means we have a primary "hub" skill that contains the core metadata and an overview, and then optional "spoke" submodules that contain more detailed information.
+The framework uses a "hub-and-spoke" pattern for modular skills. A primary "hub" skill contains core metadata and an overview, while optional "spoke" submodules contain detailed information.
 
-Here's an example of what the structure looks like:
+Structure example:
 
 ```
 modular-skills/
@@ -35,18 +35,16 @@ modular-skills/
     └── advanced-patterns/
 ```
 
-Note: The scripts directory now contains Python wrappers that use the shared
-`abstract.skill_tools` module, eliminating code duplication while providing
-convenient CLI access from within skill directories.
+Note: The scripts directory contains Python wrappers that use the shared `abstract.skill_tools` module, eliminating code duplication while providing convenient CLI access from within skill directories.
 
-This modular structure helps us keep our token usage down. The core workflow is only about 300 tokens, and the other modules are loaded on-demand.
+This modular structure reduces token usage. The core workflow consumes approximately 300 tokens, loading other modules on-demand.
 
 ## How to Use the Modules
 
-- **If you're creating a new skill**, you should start with the `core-workflow.md` document, which will walk you through the process of evaluating the scope of your skill and designing the module architecture. Then, you can move on to the `implementation-patterns.md` document for more detailed guidance on how to implement your skill.
+- **For new skills**, start with `core-workflow.md` to evaluate scope and design the module architecture. Then, refer to `implementation-patterns.md` for implementation guidance.
 
-- **If you're migrating an existing skill**, you should start with the `antipatterns-and-migration.md` document, which will help you identify common anti-patterns and give you a plan for migrating your skill to our modular framework.
+- **For migrating existing skills**, start with `antipatterns-and-migration.md` to identify common anti-patterns and plan the migration.
 
-- **If you're troubleshooting a skill**, the `antipatterns-and-migration.md` document is a good place to look for common issues and their solutions.
+- **For troubleshooting**, refer to `antipatterns-and-migration.md` for common issues and solutions.
 
-You can find concrete examples of our modular design patterns in the `examples/` directory.
+Concrete examples of modular design patterns are available in the `examples/` directory.

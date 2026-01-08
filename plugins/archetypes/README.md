@@ -10,8 +10,6 @@ Claude Skills for software architecture decision-making and implementation guida
 
 ## Collection Overview
 
-This collection provides:
-
 - **1 Orchestrator Skill**: `architecture-paradigms` - Paradigm selection and implementation planning.
 - **13 Paradigm Skills**: Implementation guidance for architectural patterns.
 - **Examples**: Industry case studies and technology recommendations.
@@ -43,7 +41,7 @@ This collection provides:
 
 ### 1. Architecture Fundamentals (Beginner)
 **Duration**: 2-3 weeks
-**Goal**: Understand basic architectural concepts and patterns.
+**Goal**: Learn basic architectural concepts and patterns.
 
 1. **Start**: `architecture-paradigms` (overview and selection).
 2. **Core**: Study `architecture-paradigm-layered` (fundamental pattern).
@@ -238,7 +236,7 @@ This collection integrates with:
 
 ## Community and Contributions
 
-This collection represents industry best practices. Each paradigm skill includes:
+These patterns reflect industry standards. Each paradigm skill includes:
 
 - Implementation patterns.
 - Case studies and examples.

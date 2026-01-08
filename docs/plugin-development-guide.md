@@ -1,7 +1,5 @@
 # Plugin Development Guide
 
-Guide for developing Claude Night Market plugins.
-
 ## Quick Start
 
 Start by reviewing existing plugins in `plugins/` and the abstract patterns for reference. Follow the standard structure outlined below and ensure you run quality checks before submitting your work.
@@ -24,9 +22,9 @@ Plugins should prioritize predictable behavior over "smart" guessing. Consistent
 
 ## Success Metrics
 
-A production-ready plugin meets specific quality gates. Code coverage must exceed 80%, confirmed by `pytest-cov`. All Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must return zero high-severity issues. Functionally, the documentation must include valid API references and copy-pasteable examples. Performance is capped at a 15K token budget for typical operations.
+Production-ready plugins meet these quality gates. Code coverage must exceed 80%, confirmed by `pytest-cov`. All Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must return zero high-severity issues. Functionally, the documentation must include valid API references and copy-pasteable examples. Performance is capped at a 15K token budget for typical operations.
 
-User experience relies on discoverability and clear error messages. Plugins should fail gracefully with specific error details rather than generic "something went wrong" messages. Integration requires that plugins follow the versioning scheme (currently 1.1.0 alignment) and do not break existing workflows.
+Good user experience requires discoverability and clear error messages. Plugins should fail gracefully with specific error details rather than generic "something went wrong" messages. Integration requires that plugins follow the versioning scheme (currently 1.1.0 alignment) and do not break existing workflows.
 
 ## Development Path
 
@@ -37,7 +35,7 @@ Begin by installing `uv` and `pre-commit` to set up your environment. Review the
 Implement your core logic by adding skills in `skills/` and commands in `commands/`. Enhance functionality with automation hooks and ensure reliability by adding comprehensive tests in the `tests/` directory.
 
 ### Phase 3: Production
-Prepare for release by profiling token usage and running security scans. distinct features should be documented in `README.md` before submitting a Pull Request to the marketplace.
+Prepare for release by profiling token usage and running security scans. Document distinct features in `README.md` before submitting a Pull Request to the marketplace.
 
 ### Phase 4: Maintenance
 Maintain the plugin by monitoring usage logs for errors and fixing reported issues. Add new features as needed and keep dependencies up to date using `uv`.
@@ -302,7 +300,7 @@ uv run python scripts/complexity_calculator.py
 
 ## Contributing
 
-We welcome contributions through issue reporting, pull requests, documentation improvements, and examples. When contributing, fork the repository, create a feature branch, and ensure all quality checks pass before submitting a PR.
+Night Market welcomes contributions through issue reporting, pull requests, documentation improvements, and examples. When contributing, fork the repository, create a feature branch, and ensure all quality checks pass before submitting a PR.
 
 ### Development Workflow
 1. Fork the repository.
@@ -317,7 +315,7 @@ If you encounter issues, check the issue tracker and documentation first. Discus
 
 ## Claude Code 2.1.0 Features
 
-This section covers key features introduced in Claude Code 2.1.0 relevant to plugin development.
+Key features in Claude Code 2.1.0 relevant to plugin development:
 
 ### Skill Hot-Reload
 

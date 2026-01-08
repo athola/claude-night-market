@@ -3,6 +3,36 @@ name: pr
 description: PR preparation combining workspace review with superpowers:receiving-code-review for validation
 usage: /pr [--no-code-review] [--reviewer-scope strict|standard|lenient] [destination-file]
 extends: "superpowers:receiving-code-review"
+
+# Claude Code 2.1.0+ lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Skill|Task"
+      command: |
+        # Log PR preparation start with options
+        echo "[cmd:pr] PR preparation started at $(date) | User: ${USER:-unknown}" >> /tmp/command-audit.log
+        # Track code review option (important for quality metrics)
+        if echo "$CLAUDE_TOOL_INPUT" | grep -q "no-code-review"; then
+          echo "[cmd:pr] ⚠️  Option: --no-code-review (automated review SKIPPED)" >> /tmp/command-audit.log
+        fi
+        # Track reviewer scope
+        if echo "$CLAUDE_TOOL_INPUT" | grep -q "reviewer-scope"; then
+          scope=$(echo "$CLAUDE_TOOL_INPUT" | grep -oP 'reviewer-scope["\s:=]+\K\w+')
+          echo "[cmd:pr] Reviewer scope: ${scope:-standard}" >> /tmp/command-audit.log
+        fi
+      once: true
+  PostToolUse:
+    - matcher: "Bash"
+      command: |
+        # Log quality gate execution
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(make|npm|cargo) (test|lint|fmt|build)"; then
+          cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
+          echo "[cmd:pr] ✓ Quality gate executed: $cmd" >> /tmp/command-audit.log
+        fi
+  Stop:
+    - command: |
+        echo "[cmd:pr] === PR preparation completed at $(date) ===" >> /tmp/command-audit.log
+        # Could push to PR metrics dashboard
 ---
 
 # Enhanced PR Preparation

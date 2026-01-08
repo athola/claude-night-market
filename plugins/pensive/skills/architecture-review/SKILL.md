@@ -63,11 +63,10 @@ Architecture assessment against ADRs and design principles.
 ```bash
 /architecture-review
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## When to Use
 
-- Before approving reimplementations.
+- Approving reimplementations.
 - Large-scale refactoring reviews.
 - System design changes.
 - New module/service introduction.
@@ -100,7 +99,6 @@ Confirm repository and branch:
 pwd
 git status -sb
 ```
-**Verification:** Run `git status` to confirm working tree state.
 
 Document:
 - Feature/bug/epic motivating review.
