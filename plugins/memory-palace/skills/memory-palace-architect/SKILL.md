@@ -45,7 +45,7 @@ Design and construct virtual memory palaces for spatial knowledge organization. 
 
 ## What It Is
 
-A memory palace is a mnemonic technique that uses spatial visualization to organize and recall information. This skill provides a systematic approach to:
+A memory palace is a mnemonic technique that uses spatial visualization to organize and recall information. This skill provides a systematic approach for:
 - Analyzing knowledge domains for optimal spatial mapping
 - Designing architectural layouts that reflect conceptual relationships
 - Creating multi-sensory associations for enhanced recall

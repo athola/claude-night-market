@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/full-review.md",
@@ -10,7 +10,9 @@
     "./commands/rust-review.md",
     "./commands/test-review.md",
     "./commands/math-review.md",
-    "./commands/makefile-review.md"
+    "./commands/makefile-review.md",
+    "./commands/skill-review.md",
+    "./commands/skill-history.md"
   ],
   "skills": [
     "./skills/shared",
@@ -37,7 +39,11 @@
     "rust",
     "api",
     "bugs",
-    "audit"
+    "audit",
+    "skill-review",
+    "metrics",
+    "stability-gap",
+    "continual-learning"
   ],
   "author": {
     "name": "Alex Thola",

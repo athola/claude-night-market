@@ -4,7 +4,7 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 ## Overview
 
-The Memory Palace plugin provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to organize and retrieve complex information.
+Memory Palace provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to organize and retrieve complex information.
 
 ## Features
 
@@ -13,10 +13,11 @@ The Memory Palace plugin provides tools for building, navigating, and maintainin
 - **Session Palace Builder**: Temporary palaces for extended conversations.
 - **Digital Garden Cultivator**: Evolving knowledge bases with bidirectional linking.
 - **PR Review Chamber**: Capture PR review knowledge in project memory palaces.
+- **Skill Execution Memory**: Automatic storage of skill invocation history for continual learning.
 
 ## PR Review Room
 
-Treat projects as palaces with a dedicated chamber for capturing knowledge from PR reviews.
+Projects function as palaces with a dedicated chamber for capturing knowledge from PR reviews.
 
 ### Project Palace Structure
 
@@ -54,6 +55,61 @@ Knowledge capture triggers after PR reviews:
 2. Findings captured to review-chamber.
 
 See `skills/review-chamber/SKILL.md` for details.
+
+## Skill Execution Memory
+
+Memory-palace automatically stores skill execution history via hooks, enabling continual learning and performance analysis.
+
+### Automatic Storage
+
+Every skill invocation is automatically stored with:
+- **Timestamp**: When the skill was invoked
+- **Duration**: Execution time
+- **Outcome**: Success, failure, or partial
+- **Continual metrics**: Stability gap, accuracy trends
+
+### Storage Structure
+
+```
+~/.claude/skills/logs/
+├── .history.json              # Aggregated continual metrics
+├── abstract/
+│   ├── skill-auditor/
+│   │   └── 2025-01-08.jsonl   # Daily JSONL files
+│   └── plugin-validator/
+├── sanctum/
+│   └── pr-review/
+└── <your-plugin>/
+    └── <your-skill>/
+```
+
+### Quick Start
+
+```bash
+# View recent skill executions
+/skill-logs --last 1h
+
+# View failures only
+/skill-logs --failures-only
+
+# Filter by plugin
+/skill-logs --plugin abstract
+
+# Cleanup old logs
+/skill-logs cleanup --older-than 90d
+```
+
+### Integration with pensive
+
+Use `/pensive:skill-review` to analyze metrics and identify unstable skills:
+
+```bash
+# Check skill health
+/pensive:skill-review --unstable-only
+
+# Deep-dive specific skill
+/pensive:skill-review --skill abstract:skill-auditor
+```
 
 ## Installation
 
@@ -106,6 +162,7 @@ python scripts/garden_metrics.py path/to/garden.json --format brief
 | `/garden` | Manage digital gardens and metrics. |
 | `/navigate` | Search and navigate across palaces. |
 | `/review-room` | Manage PR review knowledge in project palaces. |
+| `/skill-logs` | View and manage skill execution memories. |
 
 ## Agents
 
@@ -123,8 +180,10 @@ The plugin registers hooks to integrate with Claude Code tool events:
 |------|-------|-------------|
 | `research_interceptor.py` | PreToolUse | Checks local knowledge cache before web requests. |
 | `local_doc_processor.py` | PostToolUse | Monitors Read operations for indexing suggestions. |
-| `url_detector.py` | PostToolUse | Detects URLs for potential knowledge intake. |
+| `url_detector.py` | UserPromptSubmit | Detects URLs for potential knowledge intake. |
 | `web_content_processor.py` | PostToolUse | Processes web content for knowledge extraction. |
+| `skill_tracker_pre.py` | PreToolUse | Records start time when Skill tool is invoked. |
+| `skill_tracker_post.py` | PostToolUse | Logs completion, calculates metrics, stores memory. |
 
 Hooks are configured via `hooks/hooks.json` and `hooks/memory-palace-config.yaml`.
 

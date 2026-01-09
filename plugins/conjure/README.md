@@ -2,7 +2,7 @@
 
 Delegate tasks to external models from Claude Code. Delegate analysis, bulk work, and summarization to services like Gemini or Qwen.
 
-The plugin tracks quotas, logs usage, and suggests delegation for large tasks.
+Tracks quotas, logs usage, and suggests delegation for large tasks.
 
 ## Installation
 
@@ -143,7 +143,7 @@ Check configuration integrity.
 
 ## Workflow
 
-1. **Assess**: Evaluate if a task should be delegated (`delegation-core`).
+1. **Assess**: Evaluate task delegation (`delegation-core`).
 2. **Select**: Identify appropriate service (`delegate-auto`).
 3. **Execute**: Run commands and capture output (`delegation_executor`).
 4. **Monitor**: Track limits and log outcomes.

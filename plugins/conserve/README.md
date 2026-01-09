@@ -16,7 +16,7 @@ make deps
 
 ## Session Start Integration
 
-Conservation skills load at session start via hooks. This optimizes performance, token usage, and context management for each session.
+Conservation skills load automatically via hooks. This optimizes performance, token usage, and context management for each session.
 
 ### Modes
 
@@ -129,6 +129,72 @@ The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
 - Identifies technical debt.
 - Improves codebase navigability.
 
+## Token-Conscious Workflows
+
+### Discovery Strategy: LSP → Targeted Reads → Grep Fallback
+
+**Recommended Order** (when ENABLE_LSP_TOOL=1 is set):
+
+1. **LSP First** (if available): Semantic queries for definitions, references, type info
+   - ~50ms response time (when working)
+   - Understands code structure, not just text patterns
+   - **Caveat**: Experimental in Claude Code v2.0.74-2.0.76 ([see issue #72](https://github.com/athola/claude-night-market/issues/72))
+
+2. **Targeted File Reads**: Use LSP/grep results to read specific files
+   - More efficient than broad exploration
+   - Maintains focused context window
+
+3. **Grep Fallback**: Reliable text-based search when LSP unavailable
+   - ~100-500ms response time
+   - Works across all languages
+   - Use ripgrep (`Grep` tool) with file type filters
+
+**Example - Finding Function Usage:**
+```
+Good:  "Find all references to processData" → LSP (50ms) or Grep (200ms)
+Bad:   Read entire codebase → search manually (high token cost)
+```
+
+**Why This Matters**: LSP/Grep + targeted reads reduces token usage by ~90% compared to exploratory file reading.
+
+### STDOUT Verbosity Control
+
+**Problem**: Verbose command output consumes context unnecessarily.
+
+**Solutions**:
+
+| Command Type | Avoid | Use Instead |
+|-------------|---------|---------------|
+| Package install | `npm install` | `npm install --silent` or `npm install --quiet` |
+| Python install | `pip install package` | `pip install --quiet package` |
+| Git logs | `git log` | `git log --oneline -10` |
+| Git diffs | `git diff` | `git diff --stat` (or `-U1` for minimal context) |
+| File listing | `ls -la` | `ls -1 \| head -20` |
+| Search results | `find .` | `find . -name "*.py" \| head -10` |
+| Docker builds | `docker build .` | `docker build --quiet .` |
+| Test runs | `pytest` | `pytest --quiet` or `pytest -q` |
+
+**Retries & Self-Reflection**: If a command fails repeatedly (3+ attempts), pause to:
+1. Check if there's a simpler approach
+2. Verify assumptions about the codebase
+3. Consider token cost of continued retries vs. asking for clarification
+
+### Documentation Format (Markdown vs. HTML)
+
+**Agent Consumption**: Agents read **Markdown** directly, NOT HTML.
+
+**Why Markdown**:
+- Minimal syntax overhead (lower token count)
+- Directly parseable by Claude
+- Version control friendly
+- Human-readable in raw form
+
+**HTML** is only generated for:
+- External documentation sites (via `.github/workflows/docs.yml`)
+- Web-based viewing (e.g., GitHub Pages)
+
+**Trade-off**: Markdown is slightly more verbose than structured data (JSON/YAML), but offers better navigability for humans while remaining agent-friendly.
+
 ## Thresholds
 
 - **Context**: < 30% LOW | 30-50% MODERATE | > 50% CRITICAL.
@@ -147,6 +213,12 @@ make format         # Format code
 make lint           # Run linting
 make test           # Run validation
 ```
+
+## Related Documentation
+
+- **[Agent Boundaries Guide](../../docs/guides/agent-boundaries.md)** - Understand which agents to use and how they relate
+- **[LSP Native Support](../../docs/guides/lsp-native-support.md)** - LSP setup and troubleshooting
+- **[MECW Principles](skills/context-optimization/modules/mecw-principles.md)** - Deep dive into Maximum Effective Context Window
 
 See `docs/` for MCP optimization patterns and architecture decisions.
 

@@ -46,7 +46,7 @@ modules:
 
 ## Overview
 
-Universal patterns for tracking and enforcing resource quotas across any rate-limited service. This skill provides the foundational infrastructure that other plugins can use for consistent quota handling.
+Patterns for tracking and enforcing resource quotas across rate-limited services. This skill provides the infrastructure that other plugins use for consistent quota handling.
 
 ## When to Use
 
@@ -77,7 +77,6 @@ class QuotaConfig:
     tokens_per_minute: int = 100000
     tokens_per_day: int = 1000000
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quick Start
 
@@ -92,7 +91,6 @@ if status == "CRITICAL":
     # Defer or use fallback
     pass
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Record Usage
 ```python
@@ -102,7 +100,6 @@ tracker.record_request(
     duration=elapsed_seconds
 )
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Estimate Before Execution
 ```python
@@ -110,7 +107,6 @@ can_proceed, issues = tracker.can_handle_task(estimated_tokens)
 if not can_proceed:
     print(f"Quota issues: {issues}")
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Integration Pattern
 
@@ -120,7 +116,6 @@ Other plugins reference this skill:
 # In your skill's frontmatter
 dependencies: [leyline:quota-management]
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 Then use the shared patterns:
 1. Initialize tracker for your service

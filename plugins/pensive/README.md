@@ -43,6 +43,8 @@ Or reference directly from the marketplace:
 | `/test-review` | Test suite quality evaluation |
 | `/math-review` | Mathematical correctness review |
 | `/makefile-review` | Makefile best practices audit |
+| `/skill-review` | Skill performance metrics and stability analysis |
+| `/skill-history` | Recent skill executions with context |
 
 ### Agents
 
@@ -80,6 +82,24 @@ Or reference directly from the marketplace:
 
 # Mathematical code
 /math-review
+```
+
+### Skill Performance Review
+```bash
+# View all skill metrics
+/skill-review
+
+# Find unstable skills (stability gap > 0.3)
+/skill-review --unstable-only
+
+# Deep-dive specific skill
+/skill-review --skill abstract:skill-auditor
+
+# Recent execution history
+/skill-history --last 1h
+
+# View failures only
+/skill-history --failures-only
 ```
 
 ## Review Skill Selection
@@ -150,7 +170,7 @@ pensive/
 
 ## Review Workflow
 
-Reviews start by analyzing the repository and recent changes, then apply domain-specific checks. Findings get documented with file/line references, ranked by severity, and paired with concrete fixes.
+Reviews analyze the repository and recent changes, then apply domain-specific checks. Findings get documented with file/line references, ranked by severity, and paired with concrete fixes.
 
 ## TodoWrite Integration
 
@@ -166,7 +186,7 @@ api-review:evidence-log
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking enables multi-dimensional code reviews with specialized focus areas analyzed independently.
+Session forking allows specialized parallel reviews.
 
 ### Use Cases
 
@@ -245,6 +265,48 @@ claude --fork-session --session-id "property-test-strategy" --resume
 - **Synthesize results**: Combine findings into actionable feedback
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
+
+## Skill Performance Review
+
+Pensive includes skill review capabilities for analyzing skill execution metrics and identifying unstable skills.
+
+### Stability Gap Detection
+
+The key metric is **stability gap** - the difference between average accuracy and worst-case accuracy:
+
+```
+stability_gap = average_accuracy - worst_case_accuracy
+```
+
+| Gap | Status | Meaning |
+|-----|--------|---------|
+| < 0.2 | ✓ Stable | Consistent performance |
+| 0.2 - 0.3 | ⚠ Warning | Occasional issues |
+| > 0.3 | ✗ Unstable | Needs attention |
+
+### Integration with memory-palace
+
+Skill execution data is stored by memory-palace hooks:
+- **Storage**: `~/.claude/skills/logs/` (JSONL format)
+- **Metrics**: `~/.claude/skills/logs/.history.json`
+
+Use `/memory-palace:skill-logs` to access raw execution logs.
+
+### Example Workflow
+
+```bash
+# 1. Check overall skill health
+/skill-review --unstable-only
+
+# 2. Investigate a specific skill
+/skill-history --skill imbue:proof-of-work --failures-only
+
+# 3. Review metrics over time
+/skill-review --skill imbue:proof-of-work
+
+# 4. Access raw logs if needed
+/memory-palace:skill-logs --skill imbue:proof-of-work
+```
 
 ## License
 

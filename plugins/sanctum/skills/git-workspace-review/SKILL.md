@@ -23,6 +23,20 @@ complexity: low
 estimated_tokens: 500
 dependencies:
   - sanctum:shared
+
+# Claude Code 2.1.0+ lifecycle hooks
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      command: |
+        # Log git analysis commands
+        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "git (status|diff|log|show|branch)"; then
+          echo "[skill:git-workspace-review] 🔍 Git analysis initiated: $(date)" >> /tmp/skill-audit.log
+        fi
+      once: true  # Log once per skill invocation
+  Stop:
+    - command: |
+        echo "[skill:git-workspace-review] === Analysis completed at $(date) ===" >> /tmp/skill-audit.log
 ---
 
 # Git Workspace Review

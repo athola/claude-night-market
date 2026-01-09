@@ -4,7 +4,7 @@ Specification-driven development toolkit for Claude Code.
 
 ## Overview
 
-Spec-kit provides a workflow for specification-driven development: writing a specification, generating an implementation plan, breaking it into tasks, and executing them with tracking.
+Spec-kit provides a specification-driven workflow: writing a specification, generating an implementation plan, breaking it into tasks, and executing them with tracking.
 
 ## Installation
 

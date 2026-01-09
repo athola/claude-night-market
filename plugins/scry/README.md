@@ -4,7 +4,6 @@ Media generation for terminal recordings (VHS), browser recordings (Playwright),
 
 ## Installation
 
-Add to your Claude Code plugins:
 ```bash
 claude plugins install scry
 ```
@@ -102,7 +101,7 @@ Skill(scry:vhs-recording)
 Skill(scry:browser-recording)
 ```
 
-**Note on Browser Recording**: Claude Code 2.0.72+ includes native Chrome integration for interactive browser control. Use Playwright for automated recording, CI/CD, and cross-browser support.
+**Note**: Claude Code 2.0.72+ includes native Chrome integration. Use Playwright for automated recording, CI/CD, and cross-browser support.
 
 ### GIF Generation
 ```bash

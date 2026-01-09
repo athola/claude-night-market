@@ -30,7 +30,7 @@ modules:
 
 ## Overview
 
-Guide the creation of clear, complete, and testable specifications from natural language feature descriptions. Specifications focus on user value and business needs, avoiding implementation details.
+Create clear, complete, and testable specifications from natural language feature descriptions. Specifications focus on user value and business needs, avoiding implementation details.
 
 ## When to Use
 

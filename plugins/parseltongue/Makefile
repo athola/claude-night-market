@@ -25,6 +25,12 @@ ABSTRACT_DIR := ../abstract
 -include $(ABSTRACT_DIR)/config/make/common.mk
 -include $(ABSTRACT_DIR)/config/make/python.mk
 
+# ---------- Help ----------
+help: ## Show this help message
+	@echo "Parseltongue Plugin - Make Targets"
+	@echo "==================================="
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
 # Default target
 all: test lint ## Run tests and linting
 
@@ -222,6 +228,7 @@ demo-skills: ## Validate parseltongue skill structure
 
 plugin-check: demo-async demo-testing demo-perf demo-skills ## Run all demo workflows
 	@echo ""
+	@echo "=== Parseltongue Plugin Check Complete ==="
 
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
@@ -232,10 +239,3 @@ Makefile.local:;
 	@echo "Error: Unknown target '$@'"
 	@echo "Run 'make help' to see available commands"
 	@exit 1
-	@echo "=== Parseltongue Plugin Check Complete ==="
-
-# ---------- Help ----------
-help: ## Show this help message
-	@echo "Parseltongue Plugin - Make Targets"
-	@echo "==================================="
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' Makefile

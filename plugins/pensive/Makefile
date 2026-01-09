@@ -26,6 +26,12 @@ ABSTRACT_DIR := ../abstract
 # Prevent parallel execution for targets that share resources
 .NOTPARALLEL: docs docs-serve
 
+# ---------- Help ----------
+help: ## Show this help message
+	@echo "Pensive Plugin - Make Targets"
+	@echo "=============================="
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
 # Default target
 all: test lint ## Run tests and linting
 
@@ -212,9 +218,3 @@ Makefile.local:;
 	@echo "Error: Unknown target '$@'"
 	@echo "Run 'make help' to see available commands"
 	@exit 1
-
-# ---------- Help ----------
-help: ## Show this help message
-	@echo "Pensive Plugin - Make Targets"
-	@echo "=============================="
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' Makefile

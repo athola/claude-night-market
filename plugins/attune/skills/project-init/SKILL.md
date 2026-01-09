@@ -46,7 +46,7 @@ Interactive workflow for initializing new software projects with complete develo
 
 ### 1. Detect or Select Language
 
-Load module: `Skill(attune:project-init#language-detection)`
+Load `Skill(attune:project-init#language-detection)`
 
 - Auto-detect from existing files (pyproject.toml, Cargo.toml, package.json)
 - If ambiguous or empty directory, ask user to select
@@ -54,7 +54,7 @@ Load module: `Skill(attune:project-init#language-detection)`
 
 ### 2. Collect Project Metadata
 
-Load module: `Skill(attune:project-init#metadata-collection)`
+Load `Skill(attune:project-init#metadata-collection)`
 
 Gather:
 - Project name (default: directory name)
@@ -81,7 +81,7 @@ If files exist (Makefile, .gitignore, etc.):
 
 ### 4. Render and Apply Templates
 
-Load module: `Skill(attune:project-init#template-rendering)`
+Load `Skill(attune:project-init#template-rendering)`
 
 Run initialization script:
 ```bash
@@ -102,14 +102,14 @@ python3 plugins/attune/scripts/attune_init.py \
 # Check if git is initialized
 if [ ! -d .git ]; then
   git init
-  echo "✓ Git repository initialized"
+  echo "Git repository initialized"
 fi
 ```
 **Verification:** Run `git status` to confirm working tree state.
 
 ### 6. Verify Setup
 
-Run validation:
+Validate setup:
 ```bash
 # Check Makefile targets
 make help
@@ -121,7 +121,7 @@ git status
 
 ### 7. Next Steps
 
-Guide user on:
+Advise user to:
 ```bash
 # Install dependencies and hooks
 make dev-setup
@@ -143,11 +143,11 @@ make help
 
 ## Success Criteria
 
-- ✅ All template files created successfully
-- ✅ No overwrites without user confirmation
-- ✅ Git repository initialized
-- ✅ `make help` shows available targets
-- ✅ `make test` runs without errors (even if no tests yet)
+- All template files created successfully
+- No overwrites without user confirmation
+- Git repository initialized
+- `make help` shows available targets
+- `make test` runs without errors (even if no tests yet)
 
 ## Examples
 

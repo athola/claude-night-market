@@ -4,7 +4,7 @@ Project development plugin for Claude Code. Supports ideation, specification, ar
 
 ## Overview
 
-Attune provides a workflow for project development:
+Attune standardizes the workflow for project development:
 
 1. **Brainstorm**: Ideate and explore problem space.
 2. **Specify**: Create detailed specifications.
@@ -326,9 +326,9 @@ When spec-kit is installed, attune aligns with specification patterns:
 
 ## Philosophy
 
-1. **Cycle support**: From idea to implementation.
+1. **Cycle support**: Ideas to implementation.
 2. **Structured workflows**: Prevent ad-hoc development.
-3. **Progressive enhancement**: Works standalone or with companion plugins.
+3. **Progressive enhancement**: Integrates with companion plugins.
 4. **Safety**: Confirmation required before overwriting files.
 5. **Idempotency**: Safe for multiple runs.
 6. **Production patterns**: Templates follow established industry practices.

@@ -4,7 +4,7 @@
 
 ## Overview
 
-Hookify ships with **bundled rules that work out of the box**. No configuration, no manual installation, no copying files. Just install the plugin and you're protected.
+Hookify includes **bundled rules that work out of the box**. Just install the plugin and you're protected.
 
 ## Zero-Touch Experience
 
@@ -12,7 +12,7 @@ Hookify ships with **bundled rules that work out of the box**. No configuration,
 # Install the plugin
 claude install hookify@claude-night-market
 
-# That's it! 8 rules are now active:
+# 8 rules are now active:
 # - Block force push to main/master
 # - Warn about large binary files in git
 # - Block dangerous dynamic code execution
