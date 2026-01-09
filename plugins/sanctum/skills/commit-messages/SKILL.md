@@ -40,7 +40,10 @@ As a prerequisite, run `Skill(sanctum:git-workspace-review)` so the repository p
    - Display the file path and contents (`cat <file>` or `sed -n '1,120p' <file>`) for confirmation.
 
 ## Guardrails
-- Never mention AI tools or assistants in the commit message.
+- **No AI attribution**: Never add Co-Authored-By lines mentioning Claude, Opus, Sonnet, Haiku, or any AI assistant.
+- **No AI slop**: Avoid filler words and phrases common in AI-generated text (e.g., "leverage", "streamline", "robust", "seamless").
+- **No emojis**: Keep commit messages professional and plain text only.
+- **Human voice**: Write as if a human developer authored the message directly.
 - Use the present-tense, imperative style for the subject line.
 - Include a multi-line body for any non-trivial change (more than one file or complex logic).
 - If multiple types apply, pick the highest-impact type (e.g., `feat` over `chore`).
