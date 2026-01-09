@@ -122,7 +122,7 @@ Executions Evaluated: 3
 Average Rating: 4.0/5.0
 
 Next Steps:
-- Run `/abstract:aggregate-logs` to update LEARNINGS.md
+- Run `/pensive:skill-review` to analyze skill performance metrics
 - High-rated skills: Consider for examples
 - Low-rated skills: Prioritize for improvement
 

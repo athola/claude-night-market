@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -154,10 +155,46 @@ def sanitize_output(output: str, max_length: int = 5000) -> str:
     if len(output) > max_length:
         output = output[:max_length] + f"\n... (truncated from {len(output)} chars)"
 
-    # Basic sanitization - remove potential secrets
-    # (In production, use more sophisticated secret detection)
-    # TODO: Implement pattern matching for sensitive data
-    # sensitive_patterns = ["password", "api_key", "secret", "token"]
+    # Redact potential secrets using pattern matching
+    sensitive_patterns = [
+        # API keys
+        (
+            r"(?i)(api[_-]?key|apikey)\s*[:=]\s*['\"]?([A-Za-z0-9_\-]{20,})['\"]?",
+            r"\1=<REDACTED>",
+        ),
+        # Bearer tokens
+        (r"(?i)(bearer\s+)([A-Za-z0-9_\-\.]+)", r"\1<REDACTED>"),
+        # Password fields
+        (
+            r"(?i)(password|passwd|pwd)\s*[:=]\s*['\"]?([^\s'\"]+)['\"]?",
+            r"\1=<REDACTED>",
+        ),
+        # Secret fields
+        (
+            r"(?i)(secret|token)\s*[:=]\s*['\"]?([A-Za-z0-9_\-]{16,})['\"]?",
+            r"\1=<REDACTED>",
+        ),
+        # AWS credentials
+        (
+            r"(?i)(aws[_-]?(access[_-]?key|secret)[_-]?[a-z]*)\s*[:=]\s*"
+            r"['\"]?([A-Za-z0-9/+=]+)['\"]?",
+            r"\1=<REDACTED>",
+        ),
+        # GitHub tokens
+        (
+            r"(ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{22,})",
+            r"<REDACTED_GITHUB_TOKEN>",
+        ),
+        # Generic base64-encoded secrets
+        (
+            r"(?i)(key|credential|auth)\s*[:=]\s*"
+            r"['\"]?([A-Za-z0-9+/]{32,}={0,2})['\"]?",
+            r"\1=<REDACTED>",
+        ),
+    ]
+
+    for pattern, replacement in sensitive_patterns:
+        output = re.sub(pattern, replacement, output)
 
     return output
 
