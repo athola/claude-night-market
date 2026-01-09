@@ -56,7 +56,7 @@ Use this plugin to manage token usage (keep skills lean), find modularization op
 
 ## Documentation
 
-- **Skill Observability & Continual Learning**: `README-HOOKS.md` - zero-dependency skill tracking with PreToolUse/PostToolUse hooks and stability gap detection
+- **Skill Observability & Continual Learning**: `../../docs/guides/skill-observability-guide.md` - zero-dependency skill tracking with PreToolUse/PostToolUse hooks and stability gap detection
 - **Skill Assurance Framework**: `docs/skill-assurance-framework.md` - patterns for reliable skill discovery (frontmatter-only triggers, enforcement language, migration guide)
 - **Migration Guide**: `docs/migration-guide.md` - updating skills to new patterns
 - **Python Structure**: `docs/python-structure.md` - package organization

@@ -1,24 +1,26 @@
 ---
 name: bulletproof-skill
-description: |
-  Anti-rationalization workflow for skills against bypass behaviors.
-
-  Triggers: bulletproof, harden skill, rationalization, loopholes, bypass,
-  red flags, skill hardening, anti-bypass, skill compliance
-
-  Use when: hardening skills against rationalization and bypass behaviors,
-  identifying loopholes in skill language, generating rationalization tables,
-  creating red flags lists, preparing skills for production
-
-  DO NOT use when: testing skill functionality - use /test-skill instead.
-  DO NOT use when: evaluating skill quality - use /skills-eval instead.
-  DO NOT use when: creating new skills - use /create-skill instead.
-
-  Use this command before deploying any critical skill.
+description: Harden skills against rationalization and bypass behaviors
 usage: /bulletproof-skill [skill-path]
 ---
 
 # Bulletproof Skill Command
+
+<identification>
+triggers: bulletproof, harden skill, rationalization, loopholes, bypass, red flags, skill hardening, anti-bypass, skill compliance
+
+use_when:
+- Hardening skills against rationalization and bypass behaviors
+- Identifying loopholes in skill language
+- Generating rationalization tables
+- Creating red flags lists
+- Preparing skills for production
+
+do_not_use_when:
+- Testing skill functionality - use /test-skill instead
+- Evaluating skill quality - use /skills-eval instead
+- Creating new skills - use /create-skill instead
+</identification>
 
 Systematically hardens skills against rationalization and bypass behaviors. Identifies loopholes in skill language, generates detailed rationalization tables, and suggests explicit counters.
 

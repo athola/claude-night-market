@@ -21,14 +21,15 @@ try:
     import yaml  # type: ignore[import-untyped]
 except ImportError:
     yaml = None  # type: ignore[assignment]
-    warnings.warn(
-        (
-            "PyYAML is not installed; YAML parsing features are disabled. "
-            "Install with: pip install pyyaml"
-        ),
-        category=RuntimeWarning,
-        stacklevel=2,
+    warning_message = (
+        "PyYAML is not installed; YAML parsing features are disabled. "
+        "Install with: pip install pyyaml"
     )
+    # Use warnings.warn() for interactive environments
+    warnings.warn(warning_message, category=RuntimeWarning, stacklevel=2)
+    # Also log for persistence in non-interactive environments (CI/CD, scripts)
+    logger = logging.getLogger(__name__)
+    logger.warning(warning_message)
 
 
 class ErrorSeverity(Enum):

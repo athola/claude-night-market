@@ -1,24 +1,25 @@
 ---
 name: analyze-hook
-description: |
-  Analyze individual hook files for security, performance, and compliance.
-
-  Triggers: analyze hook, hook analysis, hook security scan, hook performance,
-  single hook, individual hook, hook review, hook audit
-
-  Use when: analyzing a specific hook file for security vulnerabilities,
-  checking performance of individual hooks, validating single hook compliance,
-  reviewing hook before integration
-
-  DO NOT use when: evaluating all hooks in plugin - use /hooks-eval instead.
-  DO NOT use when: creating new hooks - use /create-hook instead.
-  DO NOT use when: validating hook structure - use /validate-hook instead.
-
-  Use this command for focused single-hook analysis.
+description: Analyze individual hook for security, performance, and compliance
 usage: /analyze-hook [hook-path] [options]
 ---
 
 # Analyze Hook
+
+<identification>
+triggers: analyze hook, hook analysis, hook security scan, hook performance, single hook, individual hook, hook review, hook audit
+
+use_when:
+- Analyzing a specific hook file for security vulnerabilities
+- Checking performance of individual hooks
+- Validating single hook compliance
+- Reviewing hook before integration
+
+do_not_use_when:
+- Evaluating all hooks in plugin - use /hooks-eval instead
+- Creating new hooks - use /create-hook instead
+- Validating hook structure - use /validate-hook instead
+</identification>
 
 Analyzes individual hook files (both JSON configuration hooks and executable script hooks) for security vulnerabilities, performance issues, and compliance with Claude Code hook development best practices.
 

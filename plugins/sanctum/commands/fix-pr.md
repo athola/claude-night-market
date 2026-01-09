@@ -1,15 +1,19 @@
 ---
 name: fix-pr
-description: |
-  Address PR review feedback using an attune-style progressive workflow with intelligent step-skipping.
-
-  Triggers: fix PR, address review, PR feedback, review comments
-  Use when: responding to PR review comments systematically
+description: Address PR review feedback using progressive workflow
 usage: /fix-pr [<pr-number> | <pr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
 extends: "superpowers:receiving-code-review"
 ---
 
 # Enhanced PR Fix
+
+<identification>
+triggers: fix PR, address review, PR feedback, review comments
+
+use_when:
+- Responding to PR review comments systematically
+- Iterating on PR after reviewer feedback
+</identification>
 
 A progressive workflow for addressing PR review feedback, following the attune pattern:
 **analyze** → **triage** → **plan** → **fix** → **validate** → **complete**

@@ -1,9 +1,18 @@
 ---
 name: init
-description: Initialize a new project with proper git configuration, GitHub workflows, pre-commit hooks, and Makefiles
+description: Initialize project with git, workflows, hooks, and Makefiles
+usage: /attune:init [--lang python|rust|typescript] [--name NAME]
 ---
 
 # Attune Init Command
+
+<identification>
+triggers: init project, initialize project, new project, project setup
+
+use_when:
+- Starting a new project from scratch
+- Setting up development infrastructure
+</identification>
 
 Initialize a new project with complete development infrastructure.
 

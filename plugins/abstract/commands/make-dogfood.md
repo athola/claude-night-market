@@ -1,24 +1,26 @@
 ---
 name: make-dogfood
-description: |
-  Analyze and enhance Makefiles for complete user functionality coverage.
-
-  Triggers: make dogfood, Makefile analysis, Makefile enhancement, missing targets,
-  Makefile gaps, build targets, plugin Makefile, Makefile quality
-
-  Use when: analyzing Makefile completeness, testing existing make targets,
-  generating missing targets, preparing plugins for release, auditing
-  Makefile coverage across plugins
-
-  DO NOT use when: writing initial Makefiles from scratch.
-  DO NOT use when: debugging specific build failures.
-  DO NOT use when: creating custom build systems.
-
-  Use this command before releasing any plugin.
+description: Analyze and enhance Makefiles for complete functionality coverage
 usage: /make-dogfood [--scope root|plugins|all] [--mode analyze|test|full] [--plugin <name>] [--interactive]
 ---
 
 # Makefile Dogfooding Command
+
+<identification>
+triggers: make dogfood, Makefile analysis, Makefile enhancement, missing targets, Makefile gaps, build targets, plugin Makefile, Makefile quality
+
+use_when:
+- Analyzing Makefile completeness
+- Testing existing make targets
+- Generating missing targets
+- Preparing plugins for release
+- Auditing Makefile coverage across plugins
+
+do_not_use_when:
+- Writing initial Makefiles from scratch
+- Debugging specific build failures
+- Creating custom build systems
+</identification>
 
 Use the makefile-dogfooder skill to analyze, test, and enhance Makefiles across the claude-night-market project.
 

@@ -1,8 +1,18 @@
 ---
-description: Generate or update tutorial documentation with accompanying GIFs using VHS terminal recording and Playwright browser recording.
+name: update-tutorial
+description: Generate or update tutorials with VHS and Playwright recordings
+usage: /update-tutorial <name> [--all] [--list] [--scaffold]
 ---
 
 # Update Tutorial
+
+<identification>
+triggers: update tutorial, generate tutorial, tutorial gif, VHS recording
+
+use_when:
+- Creating or updating documentation tutorials
+- Generating terminal/browser recording GIFs
+</identification>
 
 To generate or update tutorials with accompanying GIFs, invoke the tutorial-updates skill:
 

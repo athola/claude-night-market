@@ -1,8 +1,6 @@
 ---
 name: optimizing-large-skills
 description: |
-
-Triggers: skills, skill design, skill architecture, optimizing, modular skills
   Systematic methodology to reduce skill file size through externalization,
   consolidation, and progressive loading patterns.
 
@@ -19,36 +17,9 @@ Triggers: skills, skill design, skill architecture, optimizing, modular skills
 token_budget: 25
 progressive_loading: true
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [When to Use](#when-to-use)
-- [Core Pattern: Externalize-Consolidate-Progress](#core-pattern:-externalize-consolidate-progress)
-- [Transformation Pattern](#transformation-pattern)
-- [Quick Reference](#quick-reference)
-- [Size Reduction Strategies](#size-reduction-strategies)
-- [File Organization](#file-organization)
-- [Implementation](#implementation)
-- [Analysis & Planning](#analysis-&-planning)
-- [Externalization Pattern](#externalization-pattern)
-- [Consolidation Pattern](#consolidation-pattern)
-- [Progressive Loading Pattern](#progressive-loading-pattern)
-- [Common Mistakes](#common-mistakes)
-- [Rationalization Prevention](#rationalization-prevention)
-- [Red Flags - STOP and Start Over](#red-flags---stop-and-start-over)
-- [Optimization Checklist](#optimization-checklist)
-- [Real-World Impact](#real-world-impact)
-- [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
-- [Narrative Documentation](#narrative-documentation)
-- [Template Code](#template-code)
-- [Multiple Languages](#multiple-languages)
-- [Tool References](#tool-references)
-- [Focused Scope](#focused-scope)
-
 
 # Optimizing Large Skills
 
-## Overview
 Systematic methodology for reducing skill file size while preserving functionality
 through separation of concerns and strategic code organization.
 
@@ -67,7 +38,6 @@ through separation of concerns and strategic code organization.
 python skills/optimizing-large-skills/tools/optimization-patterns.py \
   skills/path/SKILL.md --verbose --generate-plan
 ```
-**Verification:** Run `python --version` to verify Python environment.
 
 ## Core Pattern: Externalize-Consolidate-Progress
 
@@ -85,7 +55,6 @@ python skills/optimizing-large-skills/tools/optimization-patterns.py \
 ## Quick Reference
 
 ### Size Reduction Strategies
-Use analysis tool: `python tools/optimization-patterns.py SKILL.md --generate-plan`
 
 | Strategy | Impact | When to Use |
 |----------|--------|-------------|
@@ -96,161 +65,94 @@ Use analysis tool: `python tools/optimization-patterns.py SKILL.md --generate-pl
 
 ### File Organization
 ```
-**Verification:** Run `python --version` to verify Python environment.
 skill-name/
   SKILL.md              # Core documentation (~150-200 lines)
+  modules/
+    examples.md         # Usage examples and anti-patterns
+    patterns.md         # Detailed implementation patterns
   tools/
-    analyzer.py         # Heavy implementations
-    controller.py       # Control logic
+    analyzer.py         # Heavy implementations with CLI
     config.yaml         # Structured data
   examples/
     basic-usage.py      # Minimal working example
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
-## Implementation
+## Optimization Workflow
 
-### Analysis & Planning
-```bash
-# Generate detailed optimization plan
-python skills/optimizing-large-skills/tools/optimization-patterns.py \
-  your-skill.md --verbose --generate-plan
-
-# JSON output for automation
-python skills/optimizing-large-skills/tools/optimization-patterns.py your-skill.md --output-json
-```
-**Verification:** Run `python --version` to verify Python environment.
-
-### Externalization Pattern
-**Move heavy implementations to tools with CLI interfaces:**
-- Functions >20 lines → dedicated tool files
-- Always include `argparse` CLI interface
-- Add `if __name__ == "__main__"` execution block
-- Provide help documentation and JSON output options
-
-### Consolidation Pattern
-**Merge similar functions with parameterization:**
-- Identify repeated logic patterns
-- Create unified functions with method parameters
-- Replace multiple code blocks with single configurable function
-
-### Progressive Loading Pattern
-**Use frontmatter for focused context loading:**
-- Set `token_budget: 25` for optimized skills
-- Enable `progressive_loading: true` for conditional content
-- Use `<!-- progressive: feature -->` blocks for optional sections
-
-## Common Mistakes
-
-| Mistake | Why Bad | Fix |
-|---------|---------|-----|
-| **Externalizing without CLI** | Hard to use and test | Always include command-line interface |
-| **Too many small files** | Increases complexity | Consolidate related functionality |
-| **Removing essential docs** | Reduces discoverability | Keep core concepts inline |
-| **Complex dependencies** | Hard to maintain | Simple, explicit imports only |
-| **No usage examples** | Unclear how to use tools | Always include working examples |
-
-## Rationalization Prevention
-
-**Violating the letter of the rules is violating the spirit of the rules.**
-
-| Excuse | Reality |
-|--------|---------|
-| "I'm already halfway through manual editing" | Incomplete work wastes time.
-  Use hybrid approach combining your progress with systematic patterns. |
-| "Deadline is too tight for systematic approach" | Fast, messy work creates more problems.
-  Systematic approach is faster overall when done right. |
-| "Just extract code, keep same structure" | Externalizing without optimization
-  = same problems in different files. Apply full methodology. |
-| "I'll do it properly later" | "Later" never comes. Technical debt accumulates. Do it right now. |
-| "This skill is different, needs special handling" | All skills follow same
-  context optimization principles. No exceptions. |
-| "The team lead wants a quick fix" | Quick fixes create long-term problems.
-  Educate with concrete examples of systematic benefits. |
-| "I don't have time to create CLI tools" | CLI tools take 15 minutes,
-  save hours of manual work. Always invest in automation. |
-| "The existing code is already optimized" | If skills-eval flags it as large,
-  it needs optimization regardless of perceived quality. |
-
-## Red Flags - STOP and Start Over
-
-- "I'll optimize this one file manually"
-- "Let me just extract the big functions"
-- "The methodology doesn't apply here"
-- "I'll come back and fix it properly"
-- "The existing structure is fine"
-- "No time for proper tools"
-
-**All of these mean: Stop. Re-read the skill. Apply the full methodology.**
-
-## Optimization Checklist
-
-**Phase 1: Analysis**
+### Phase 1: Analysis
 - [ ] Identify files >300 lines
 - [ ] Count code blocks and functions
 - [ ] Measure inline code vs documentation ratio
 - [ ] Find repeated patterns and similar functions
 
-**Phase 2: Externalization**
+### Phase 2: Externalization
 - [ ] Move heavy implementations (>20 lines) to separate files
 - [ ] Add CLI interfaces to externalized tools
 - [ ] Create tool directory structure
 - [ ] Add usage examples for each tool
 
-**Phase 3: Consolidation**
+### Phase 3: Consolidation
 - [ ] Merge similar functions with parameterization
 - [ ] Replace code blocks with structured data where appropriate
 - [ ] Implement progressive loading for non-essential content
 - [ ] Update skill documentation to reference external tools
 
-**Phase 4: Validation**
+### Phase 4: Validation
 - [ ] Verify line count <300 (target: 150-200)
 - [ ] Test all externalized tools work correctly
 - [ ] Confirm progressive loading functions
 - [ ] Run skills-eval validation to verify size reduction
 
-## Real-World Impact
+## Quick Decision Tree
 
-**Before optimization:**
-- growth-management skill: 654 lines (6 code blocks, 12 Python functions)
-- Skills-eval: [WARN] Large skill file warning
-- Loading time: High (full context usage)
-- Maintainability: Poor (everything mixed together)
+```
+Is skill >300 lines?
+├─ No → Continue as-is (well-organized skills don't need optimization)
+└─ Yes → Analyze composition
+    ├─ Has heavy code blocks (>20 lines)?
+    │  └─ Yes → Externalize to tools/ with CLI (60-70% reduction)
+    ├─ Has repeated patterns?
+    │  └─ Yes → Consolidate with parameterization (15-20% reduction)
+    ├─ Has structured config data embedded?
+    │  └─ Yes → Extract to config.yaml (10-15% reduction)
+    └─ Has non-essential details?
+       └─ Yes → Use progressive loading (5-10% reduction)
+```
 
-**After optimization:**
-- growth-management skill: 178 lines (3 tool references, 0 inline functions)
-- Skills-eval: OK No warnings
-- Loading time: Low (focused context)
-- Maintainability: Excellent (separation of concerns)
+## Key Success Factors
 
-**Result:** 73% size reduction while preserving all functionality
-through external tools and progressive loading patterns.
+**DO:**
+- ✅ Always add CLI interfaces to external tools
+- ✅ Keep core concepts inline in SKILL.md
+- ✅ Consolidate related functionality
+- ✅ Include working examples
+- ✅ Test all tools have correct references
 
-## Anti-Patterns to Avoid
+**DON'T:**
+- ❌ Externalize without CLI (hard to use/test)
+- ❌ Create too many small files (increases complexity)
+- ❌ Remove essential documentation (reduces discoverability)
+- ❌ Add complex dependencies (hard to maintain)
+- ❌ Skip usage examples (unclear tool usage)
 
-###  Narrative Documentation
-"During the session on 2025-11-27, we discovered that context growth was problematic..."
+## Next Steps
 
-###  Template Code
-Don't create fill-in-the-blank templates in the skill itself - put them in examples/
+1. **Run automated analysis**: Use `optimization-patterns.py` to generate optimization plan
+2. **Review modules**: Check `modules/patterns.md` for detailed implementation patterns
+3. **Learn from examples**: Review `modules/examples.md` for anti-patterns to avoid
+4. **Apply systematically**: Follow the 4-phase workflow above
+5. **Validate results**: Run skills-eval to confirm optimization success
 
-###  Multiple Languages
-One excellent Python example beats mediocre JavaScript and Go examples.
+## Modules
 
-###  Tool References
-"For advanced pattern analysis, use `tools/analyzer.py` with appropriate context data."
+- **[Detailed Patterns](modules/patterns.md)** - Externalization, consolidation, and progressive loading implementation details
+- **[Examples & Anti-Patterns](modules/examples.md)** - Real-world impact, common mistakes, and rationalization prevention
 
-###  Focused Scope
-Each tool should do one thing well with clear parameters and outputs.
-## Troubleshooting
+## Result
 
-### Common Issues
-
-**Skill not loading**
-Check YAML frontmatter syntax and required fields
-
-**Token limits exceeded**
-Use progressive disclosure - move details to modules
-
-**Modules not found**
-Verify module paths in SKILL.md are correct
+**Expected Outcome:**
+- 50-70% line count reduction
+- 40-60% token usage reduction
+- No skills-eval warnings
+- Clear separation of concerns
+- Maintainable external tools with CLI interfaces

@@ -1,23 +1,24 @@
 ---
 name: create-skill
-description: |
-  Guided skill creation with brainstorming and TDD methodology.
-
-  Triggers: new skill, create skill, skill creation, start skill, build skill,
-  add skill, write skill
-
-  Use when: starting a new skill from scratch, need guided brainstorming for
-  skill design, want structured workflow for skill development
-
-  DO NOT use when: evaluating existing skills - use /skills-eval instead.
-  DO NOT use when: testing existing skills - use /test-skill instead.
-  DO NOT use when: improving skill architecture - use modular-skills skill.
-
-  Use this command to create any new skill. Brainstorming is recommended.
+description: Create skills with brainstorming and TDD methodology
 usage: /create-skill [skill-description] [--skip-brainstorm] [--plugin <name>]
 ---
 
 # Create Skill Command
+
+<identification>
+triggers: new skill, create skill, skill creation, start skill, build skill, add skill, write skill
+
+use_when:
+- Starting a new skill from scratch
+- Need guided brainstorming for skill design
+- Want structured workflow for skill development
+
+do_not_use_when:
+- Evaluating existing skills - use /skills-eval instead
+- Testing existing skills - use /test-skill instead
+- Improving skill architecture - use modular-skills skill
+</identification>
 
 Creates new skills through a structured workflow: **brainstorm → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed skills before generating any files.
 

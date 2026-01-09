@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Conjure: GeminiQuotaTracker Inheritance Refactoring** - Reduced code duplication through leyline.QuotaTracker base class
+  - **Code Reduction**: 287 → 255 lines (-32 lines, -11.1% reduction)
+  - **Inherited Methods**: 11 methods now inherited from `leyline.QuotaTracker` base class
+    - `record_request()`, `get_quota_status()`, `can_handle_task()`, `get_current_usage()`
+    - `_load_usage()`, `_save_usage()`, `_cleanup_old_data()`, `estimate_file_tokens()`
+  - **Preserved Features**: Gemini-specific token estimation (tiktoken + heuristic fallback)
+  - **Backward Compatibility**: 100% compatible with existing dict-based configuration
+  - **Documentation**: Complete technical guide at `plugins/conjure/docs/quota-tracking.md`
+  - **Testing**: All functionality verified (instantiation, quota checking, token estimation, file handling)
+  - **Dependencies**: Added `leyline>=1.0.0` for base class inheritance
+  - **See Also**: ADR-0002 for architecture decision rationale
+
 - **Methodology Curator Skill** - Surface expert frameworks before creating OR evaluating skills/hooks/agents
   - **New Skill**: `methodology-curator` - Curates proven methodologies from domain masters
     - **Concept**: Based on skill-from-masters approach - ground work in battle-tested frameworks
@@ -98,7 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Skill Review**: pensive now handles skill performance analysis
     - Commands: `/skill-review` - analyze skill metrics and stability gaps
     - Commands: `/skill-history` - view recent skill executions with context
-    - Integration reference: `plugins/abstract/README-HOOKS.md`
+    - Integration reference: `docs/guides/skill-observability-guide.md`
 
 - **Parseltongue: Python Linter Agent** - Strict linting enforcement without bypassing checks
   - **New Agent**: `python-linter` - Expert agent for fixing lint errors properly

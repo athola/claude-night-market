@@ -1,14 +1,18 @@
 ---
 name: fix-issue
-description: |
-  Fix GitHub issues using an attune-style progressive workflow with intelligent step-skipping.
-
-  Triggers: fix issue, address issue, implement issue
-  Use when: implementing fixes for one or more GitHub issues
+description: Fix GitHub issues using attune-style progressive workflow
 usage: /fix-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--from <step>] [--to <step>] [--scope auto|minor|medium|major]
 ---
 
 # Fix GitHub Issue(s)
+
+<identification>
+triggers: fix issue, address issue, implement issue
+
+use_when:
+- Implementing fixes for one or more GitHub issues
+- Progressive issue resolution with validation
+</identification>
 
 A progressive workflow for fixing GitHub issues, following the attune pattern:
 **analyze** → **specify** → **plan** → **implement** → **validate** → **complete**

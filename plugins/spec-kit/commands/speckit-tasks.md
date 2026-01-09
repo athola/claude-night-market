@@ -1,6 +1,18 @@
 ---
-description: Generate an actionable, dependency-ordered tasks.md for the feature based on available design artifacts.
+name: speckit-tasks
+description: Generate dependency-ordered tasks.md from design artifacts
+usage: /speckit-tasks [feature-dir]
 ---
+
+# Speckit Tasks
+
+<identification>
+triggers: generate tasks, task planning, tasks.md, implementation tasks
+
+use_when:
+- Converting spec/plan into actionable task list
+- Creating dependency-ordered implementation roadmap
+</identification>
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:executing-plans` and `superpowers:systematic-debugging` for enhanced task generation.
 

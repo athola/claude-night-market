@@ -1,24 +1,25 @@
 ---
 name: test-skill
-description: |
-  Skill testing workflow powered by superpowers:test-driven-development.
-
-  Triggers: test skill, skill test, validate skill, skill validation,
-  RED GREEN REFACTOR, TDD skill, skill quality
-
-  Use when: testing a skill through RED/GREEN/REFACTOR phases, validating skill
-  behavior before deployment, running TDD checkpoints on skill development
-
-  DO NOT use when: evaluating skill quality metrics - use /skills-eval instead.
-  DO NOT use when: creating new skills - use /create-skill instead.
-  DO NOT use when: hardening against rationalization - use /bulletproof-skill.
-
-  Use this command to test skills with TDD enforcement.
+description: Test skills through RED/GREEN/REFACTOR TDD phases
 usage: /test-skill [skill-path] [--phase red|green|refactor]
 extends: "superpowers:test-driven-development"
 ---
 
 # Test Skill
+
+<identification>
+triggers: test skill, skill test, validate skill, skill validation, RED GREEN REFACTOR, TDD skill, skill quality
+
+use_when:
+- Testing a skill through RED/GREEN/REFACTOR phases
+- Validating skill behavior before deployment
+- Running TDD checkpoints on skill development
+
+do_not_use_when:
+- Evaluating skill quality metrics - use /skills-eval instead
+- Creating new skills - use /create-skill instead
+- Hardening against rationalization - use /bulletproof-skill
+</identification>
 
 Runs skill validation via superpowers:test-driven-development while keeping the familiar `/test-skill` interface.
 

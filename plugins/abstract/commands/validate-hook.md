@@ -1,26 +1,28 @@
 ---
 name: validate-hook
-description: |
-  Hook validation with security scan, performance check, and compliance verification.
-
-  Triggers: validate hook, hook security, hook performance, hook compliance,
-  hook audit, check hook, verify hook, hook safety
-
-  Use when: developing hooks and need validation before deployment, auditing
-  existing hooks for security vulnerabilities, checking hook performance,
-  verifying compliance with best practices, before committing hook changes
-
-  DO NOT use when: creating new hooks - use /create-hook instead.
-  DO NOT use when: evaluating all hooks in plugin - use /hooks-eval instead.
-  DO NOT use when: deciding hook placement - use hook-scope-guide skill.
-
-  Use this command before deploying any hook to production.
+description: Validate hooks for security, performance, and SDK compliance
 usage: /validate-hook [hook-path] [--security] [--performance] [--compliance] [--all]
 ---
 
 # Validate Hook Command
 
-detailed validation for Claude Code and SDK hooks. Performs security scanning, performance analysis, and compliance verification to validate hooks are safe, efficient, and correctly implemented.
+<identification>
+triggers: validate hook, hook security, hook performance, hook compliance, hook audit, check hook, verify hook, hook safety
+
+use_when:
+- Developing hooks and need validation before deployment
+- Auditing existing hooks for security vulnerabilities
+- Checking hook performance
+- Verifying compliance with best practices
+- Before committing hook changes
+
+do_not_use_when:
+- Creating new hooks - use /create-hook instead
+- Evaluating all hooks in plugin - use /hooks-eval instead
+- Deciding hook placement - use hook-scope-guide skill
+</identification>
+
+Detailed validation for Claude Code and SDK hooks. Performs security scanning, performance analysis, and compliance verification to validate hooks are safe, efficient, and correctly implemented.
 
 ## Usage
 

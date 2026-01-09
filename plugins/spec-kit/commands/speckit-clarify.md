@@ -1,12 +1,21 @@
 ---
 name: speckit-clarify
-description: |
-  Ask targeted questions (max 5) to resolve spec ambiguities and encode answers.
-
-  Triggers: clarify spec, spec questions, ambiguity, underspecified
-  Use when: feature spec has ambiguous or missing details
-  DO NOT use when: generating tasks - use task-planning.
+description: Ask targeted questions to resolve spec ambiguities
+usage: /speckit-clarify [spec-path]
 ---
+
+# Speckit Clarify
+
+<identification>
+triggers: clarify spec, spec questions, ambiguity, underspecified
+
+use_when:
+- Feature spec has ambiguous or missing details
+- Pre-planning validation needed
+
+do_not_use_when:
+- Generating tasks - use /speckit-tasks instead
+</identification>
 
 Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:brainstorming` for enhanced clarification capabilities.
 

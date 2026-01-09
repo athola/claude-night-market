@@ -1,8 +1,18 @@
 ---
-description: Update and maintain tests using the test-updates skill with TDD/BDD principles and detailed quality validation.
+name: update-tests
+description: Update tests using TDD/BDD principles with quality validation
+usage: /update-tests [paths...]
 ---
 
 # Update Tests
+
+<identification>
+triggers: update tests, test update, add tests, test coverage
+
+use_when:
+- Tests need updates after code changes
+- Improving test coverage with TDD/BDD patterns
+</identification>
 
 To update tests following TDD/BDD principles with meta dogfooding, load skills in order:
 

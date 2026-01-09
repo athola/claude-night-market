@@ -8,7 +8,7 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 
 > **Claude Code 2.1.0+:** This marketplace leverages new features including skill hot-reload, frontmatter hooks, `context: fork`, wildcard permissions, and YAML-style `allowed-tools`. See [Plugin Development Guide](docs/plugin-development-guide.md#claude-code-210-features) for details.
 
-> **Skill Observability:** Track skill execution with continual learning metrics. memory-palace stores execution memories automatically, while pensive provides `/skill-review` for analyzing metrics and stability gaps. See [README-HOOKS](plugins/abstract/README-HOOKS.md) for details.
+> **Skill Observability:** Track skill execution with continual learning metrics. memory-palace stores execution memories automatically, while pensive provides `/skill-review` for analyzing metrics and stability gaps. See [Skill Observability Guide](docs/guides/skill-observability-guide.md) for details.
 
 ## Comparison
 
