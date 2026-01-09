@@ -101,7 +101,7 @@ flowchart TB
 | **pensieve** | Skill execution memory and metrics | `/pensieve:metrics`, `/pensieve:history` |
 | **hookify** | Zero-config behavioral rules | `/hookify`, `/hookify:list` |
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 107 skills, 81 commands, and 34 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 106 skills, 85 commands, and 35 agents.
 
 ## Audience
 
@@ -128,7 +128,7 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 
 ![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
 
-**Discover 107 skills** across all plugins, understand their structure, and see how they compose into powerful development workflows.
+**Discover 106 skills** across all plugins, understand their structure, and see how they compose into powerful development workflows.
 
 **What you'll learn:**
 - Browse and discover skills across 16 plugins
@@ -227,7 +227,7 @@ See [Plugin Development Guide](docs/plugin-development-guide.md) for patterns an
 
 ## System Prompt Budget
 
-The ecosystem operates within Claude Code's 15K character budget. All 222 capabilities (107 skills, 81 commands, 34 agents) load without configuration. Current usage is approximately 14,800 characters, enforced by a pre-commit hook.
+The ecosystem operates within Claude Code's 15K character budget. All 226 capabilities (106 skills, 85 commands, 35 agents) load without configuration. Current usage is approximately 14,800 characters, enforced by a pre-commit hook.
 
 See [Budget Optimization](docs/budget-optimization-dec-2025.md) for details.
 

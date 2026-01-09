@@ -1,6 +1,6 @@
 {
   "name": "pensieve",
-  "version": "1.0.0",
+  "version": "1.2.3",
   "description": "Universal continual learning and memory storage for all Claude Code skills - stores and analyzes skill execution memories",
   "author": "claude-night-market",
   "license": "MIT",

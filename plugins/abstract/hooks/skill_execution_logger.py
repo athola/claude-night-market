@@ -22,6 +22,8 @@ from typing import Any
 from uuid import uuid4
 
 # Threshold for triggering stability gap warnings
+# Based on Avalanche paper: gap > 0.3 indicates significant instability
+# See: https://avalanche.continualai.org/
 STABILITY_GAP_THRESHOLD = 0.3
 
 
@@ -260,7 +262,7 @@ def main() -> None:
         tool_input_str = os.environ.get("CLAUDE_TOOL_INPUT", "{}")
         tool_output = os.environ.get("CLAUDE_TOOL_OUTPUT", "")
 
-        # Only log if this is a Skill tool invocation
+        # Filter non-Skill tools - hooks fire for all tool invocations
         if tool_name != "Skill":
             sys.exit(0)
 
