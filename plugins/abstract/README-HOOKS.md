@@ -44,13 +44,13 @@ JSONL log entry with:
 
 ### Hook Scripts
 
-1. **pre_skill_execution.py** (95 lines)
+1. **pre_skill_execution.py** (~110 lines)
    - PreToolUse hook
    - Records start time and invocation ID
    - Zero dependencies
    - Timeout: 1s
 
-2. **skill_execution_logger.py** (328 lines)
+2. **skill_execution_logger.py** (~370 lines)
    - PostToolUse hook
    - Calculates duration and metrics
    - Implements ContinualEvaluator class
