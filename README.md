@@ -34,8 +34,10 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 # 3. Start using
 /pr                                            # Prepare a pull request
 /full-review                                   # Run code review
-Skill(sanctum:git-workspace-review)            # Invoke a skill
+Skill(sanctum:git-workspace-review)            # Invoke a skill (if Skill tool available)
 ```
+
+> **Note:** If the `Skill` tool is unavailable, read skill files directly: `Read plugins/{plugin}/skills/{skill-name}/SKILL.md` and follow the instructions.
 
 **Next steps:** See [Installation Guide](book/src/getting-started/installation.md) for recommended plugin sets and troubleshooting.
 

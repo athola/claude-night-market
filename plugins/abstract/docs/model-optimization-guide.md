@@ -277,6 +277,42 @@ Track these metrics after optimization:
 3. User satisfaction with outputs
 4. Cost per task category
 
+## Context Management for Subagents
+
+### Auto-Compaction (Claude Code 2.1.1+)
+
+Subagent conversations automatically compact when context reaches ~160k tokens. This is a system-level feature requiring no configuration.
+
+**Log signature**:
+```json
+{
+  "isSidechain": true,
+  "type": "system",
+  "subtype": "compact_boundary",
+  "compactMetadata": { "trigger": "auto", "preTokens": 167189 }
+}
+```
+
+### Design Implications
+
+| Consideration | Guidance |
+|--------------|----------|
+| **Long-running subagents** | Safe - won't crash at context limits |
+| **State preservation** | Write critical state to files, not just conversation |
+| **Progress tracking** | Use TodoWrite or explicit checkpoints |
+| **Context reliance** | Avoid depending on early conversation context for late decisions |
+
+### Context Thresholds
+
+| Usage | Behavior |
+|-------|----------|
+| < 80% (~128k) | Normal operation |
+| 80-90% | Warning zone |
+| > 90% | Compaction imminent |
+| ~160k | Auto-compaction triggers |
+
+See `conserve:context-optimization/modules/subagent-coordination` for detailed patterns.
+
 ## Migration Checklist
 
 - [x] Identify agents that spawn for Tier 1 tasks

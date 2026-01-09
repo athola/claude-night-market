@@ -36,9 +36,24 @@ Creates new skills through a structured workflow: **brainstorm → scaffold → 
 
 ## Workflow
 
-### Phase 0: Brainstorming (Default)
+### Phase 0: Methodology Curation (Optional but Recommended)
 
-Before creating any files, we refine the skill idea through collaborative dialogue.
+Before brainstorming, consider surfacing expert frameworks for your domain.
+
+**Invoke the methodology-curator skill:**
+```
+Use abstract:methodology-curator to surface proven methodologies before brainstorming.
+```
+
+This is especially valuable when:
+- Creating skills that teach techniques (debugging, testing, reviewing)
+- Building knowledge management features
+- Designing decision frameworks
+- The domain has recognized experts (most do!)
+
+### Phase 0.5: Brainstorming (Default)
+
+After methodology curation (or if skipping it), refine the skill idea through collaborative dialogue.
 
 **Invoke the brainstorming skill:**
 ```

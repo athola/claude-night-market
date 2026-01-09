@@ -613,6 +613,32 @@ Skill(sanctum:pr-preparation)
 Agent(pensive:code-reviewer) Review authentication module
 ```
 
+### Skill Invocation - Graceful Fallback
+
+The `Skill` tool is a Claude Code feature that may not be available in all environments. When the `Skill` tool is unavailable:
+
+**Fallback Pattern:**
+```bash
+# 1. If Skill tool fails or is unavailable, read the skill file directly:
+Read plugins/{plugin}/skills/{skill-name}/SKILL.md
+
+# 2. Follow the skill content as instructions
+# The skill file contains the complete methodology to execute
+```
+
+**Example:**
+```bash
+# Instead of: Skill(sanctum:commit-messages)
+# Fallback:   Read plugins/sanctum/skills/commit-messages/SKILL.md
+#             Then follow the instructions in that file
+```
+
+**Skill file locations:**
+- Plugin skills: `plugins/{plugin}/skills/{skill-name}/SKILL.md`
+- User skills: `~/.claude/skills/{skill-name}/SKILL.md`
+
+This fallback ensures workflows remain functional across different Claude environments.
+
 ---
 
 ## Claude Code 2.1.0 Features

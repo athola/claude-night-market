@@ -25,7 +25,7 @@ Run a lightweight retrospective on the **most recent command or session slice** 
 ## Workflow
 
 1. Capture the target slice and key evidence:
-   - `Skill(sanctum:workflow-improvement)`
+   - Load workflow-improvement skill: `Skill(sanctum:workflow-improvement)` or read `plugins/sanctum/skills/workflow-improvement/SKILL.md`
 
 2. Recreate the workflow and surface inefficiencies:
    - Use `workflow-recreate-agent` to restate the steps, identify friction, and list involved components.

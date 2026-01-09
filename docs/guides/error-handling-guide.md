@@ -84,6 +84,18 @@ Low-severity issues that don't block execution:
    - **Resolution**: Always invoke skill if >1% chance it applies
    - **Prevention**: Follow red flags checklist in skill documentation
 
+4. **Skill Tool Unavailable**
+   - **Symptom**: `Error: No such tool available: Skill` when invoking `Skill(plugin:skill-name)`
+   - **Root Cause**: The `Skill` tool is a Claude Code feature not available in all environments
+   - **Resolution**: Read skill file directly with `Read plugins/{plugin}/skills/{skill-name}/SKILL.md` and follow the instructions
+   - **Prevention**: Always have fallback pattern ready; workflows should not assume `Skill` tool exists
+   - **Example Fallback**:
+     ```
+     # Instead of: Skill(sanctum:commit-messages)
+     # Use:        Read plugins/sanctum/skills/commit-messages/SKILL.md
+     #             Then follow the methodology in the file
+     ```
+
 **Error Code Examples**:
 
 ```python

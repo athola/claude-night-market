@@ -5,6 +5,33 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Methodology Curator Skill** - Surface expert frameworks before creating OR evaluating skills/hooks/agents
+  - **New Skill**: `methodology-curator` - Curates proven methodologies from domain masters
+    - **Concept**: Based on skill-from-masters approach - ground work in battle-tested frameworks
+    - **Creation Workflow**: Surfaces experts → select/blend methodologies → create methodology brief → handoff to create-skill
+    - **Evaluation Workflow**: Identify domain → gap analysis vs masters → targeted improvements
+    - **Pure Markdown**: No external dependencies, installs with plugin
+  - **Domain Modules** (6 domains, 1500+ lines of curated expertise):
+    - `instruction-design.md` - Mager (behavioral objectives), Bloom (taxonomy), Gagné (9 events), Sweller (cognitive load), Clark (evidence-based)
+    - `code-review.md` - Google Engineering, Fowler (refactoring), Feathers (legacy code), Wiegers (peer reviews), Gee (practical review)
+    - `debugging.md` - Zeller (scientific debugging), Agans (9 rules), Spinellis (effective debugging), Miller (debugging questions), Regehr (systems debugging)
+    - `testing.md` - Kent Beck (TDD), Freeman/Pryce (GOOS), Meszaros (xUnit patterns), Feathers (legacy testing), Bach/Bolton (exploratory)
+    - `knowledge-management.md` - Luhmann (Zettelkasten), Ahrens (smart notes), Bush (memex), Allen (GTD), Forte (PARA/Second Brain)
+    - `decision-making.md` - Munger (mental models), Kahneman (System 1/2), Klein (RPD), Duke (thinking in bets), Dalio (principles)
+  - **Integration**: Works with `/create-skill`, `/create-hook`, brainstorming workflows
+  - **Extensible**: Template provided for adding new domain modules
+
+- **Subagent Auto-Compaction Documentation** - Claude Code 2.1.1+ discovery
+  - **New Section**: `conserve:context-optimization/modules/subagent-coordination` - Auto-compaction at ~160k tokens
+  - **Model Optimization Guide**: Added context management section for long-running subagents
+  - **Log Signature**: Documented `compact_boundary` system message format for debugging
+  - **Design Patterns**: State preservation strategies for compaction-aware agent design
+  - **Context Thresholds**: Documented warning zones (80%, 90%) and trigger point (~160k)
+
 ## [1.2.3] - 2026-01-08
 
 ### Added

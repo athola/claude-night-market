@@ -32,6 +32,7 @@ Claude loads the plugin on startup.
 ## What's Included
 
 *   **Skills**:
+    *   `methodology-curator`: Surfaces expert frameworks before creating skills/hooks/agents. Includes 6 domain modules (instruction design, code review, debugging, testing, knowledge management, decision making).
     *   `modular-skills`: Guides skill architecture and module splitting.
     *   `skills-eval`: Scores skill quality and suggests fixes.
     *   `hook-scope-guide`: Helps decide where hooks belong.
