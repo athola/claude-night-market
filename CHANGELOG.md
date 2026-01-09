@@ -57,18 +57,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - All documentation now complies with size guidelines (docs/ ≤ 500 lines, book/ ≤ 1000 lines)
 
 - **Skill Observability System** (Issue #69) - Phases 4-5: Continual learning metrics and PreToolUse integration
-  - **PreToolUse Hook**: `pre_skill_execution.py` captures skill start time and invocation context
-  - **PostToolUse Enhancement**: `skill_execution_logger.py` now calculates accurate duration and continual metrics
+  - **PreToolUse Hook**: `skill_tracker_pre.py` captures skill start time and invocation context
+  - **PostToolUse Enhancement**: `skill_tracker_post.py` now calculates accurate duration and continual metrics
   - **Continual Learning Metrics**: Avalanche-style evaluation per skill execution
     - **Stability Gap Detection**: Automatic identification of performance inconsistency (avg - worst accuracy)
     - **Per-iteration metrics**: worst_case_accuracy, average_accuracy, avg_duration_ms
     - **Execution History**: Persistent tracking in `~/.claude/skills/logs/.history.json`
     - **Real-time Alerts**: stderr warnings when stability_gap > 0.3
-  - **Pensieve Plugin**: Universal continual learning for ALL skills (including third-party plugins)
-    - Zero-configuration installation: `claude plugin install ./plugins/pensieve`
+  - **Skill Memory Storage**: memory-palace now handles all skill execution memory
     - Automatic tracking of every skill invocation across all plugins
     - JSONL log storage per plugin/skill/day with searchable history
-    - Commands: `/pensieve-metrics` - analyze skill performance and stability
+    - Command: `/skill-logs` - view and manage skill execution memories
+  - **Skill Review**: pensive now handles skill performance analysis
+    - Commands: `/skill-review` - analyze skill metrics and stability gaps
+    - Commands: `/skill-history` - view recent skill executions with context
     - Integration reference: `plugins/abstract/README-HOOKS.md`
 
 - **Parseltongue: Python Linter Agent** - Strict linting enforcement without bypassing checks
@@ -123,6 +125,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `TestHasFrontmatterFile`: File reading with error handling
   - `TestFindMarkdownFiles`: Directory traversal and recursion
   - `TestAbstractScript`: Class initialization and lazy loading
+
+### Removed
+
+- **pensieve plugin** - Consolidated into memory-palace and pensive for better integration
+  - **Memory storage** (hooks, logging) moved to memory-palace - uses existing observability infrastructure
+  - **Review capabilities** (metrics, history) moved to pensive - extends code review toolkit
+  - **No functionality lost** - all features preserved with better integration
+  - **Migration path**: `/pensieve:metrics` → `/pensive:skill-review`, `/pensieve:history` → `/pensive:skill-history`
 
 ## [1.2.1] - 2026-01-05
 

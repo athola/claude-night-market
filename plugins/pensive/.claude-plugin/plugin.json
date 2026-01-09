@@ -10,7 +10,9 @@
     "./commands/rust-review.md",
     "./commands/test-review.md",
     "./commands/math-review.md",
-    "./commands/makefile-review.md"
+    "./commands/makefile-review.md",
+    "./commands/skill-review.md",
+    "./commands/skill-history.md"
   ],
   "skills": [
     "./skills/shared",
@@ -37,7 +39,11 @@
     "rust",
     "api",
     "bugs",
-    "audit"
+    "audit",
+    "skill-review",
+    "metrics",
+    "stability-gap",
+    "continual-learning"
   ],
   "author": {
     "name": "Alex Thola",

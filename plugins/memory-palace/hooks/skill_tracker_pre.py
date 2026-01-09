@@ -2,8 +2,9 @@
 """PreToolUse hook for skill execution tracking.
 
 Records start time and initializes invocation tracking before skill execution.
-Works with post_skill_execution.py to calculate duration and enable per-iteration learning.
+Works with skill_tracker_post.py to calculate duration and enable per-iteration learning.
 
+Migrated from pensieve plugin to consolidate skill memory storage in memory-palace.
 Zero external dependencies - uses only Python standard library.
 """
 
@@ -17,8 +18,8 @@ from pathlib import Path
 from typing import Any
 
 
-def get_observability_dir() -> Path:
-    """Get or create observability state directory."""
+def get_skill_observability_dir() -> Path:
+    """Get or create skill observability state directory."""
     claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
     state_dir = claude_home / "skills" / "observability"
     state_dir.mkdir(parents=True, exist_ok=True)
@@ -79,7 +80,7 @@ def main() -> None:
         }
 
         # Store state file for PostToolUse
-        state_dir = get_observability_dir()
+        state_dir = get_skill_observability_dir()
         state_file = state_dir / f"{invocation_id}.json"
 
         with open(state_file, "w") as f:
@@ -100,7 +101,7 @@ def main() -> None:
 
     except Exception as e:
         # Never block Claude Code on hook errors
-        sys.stderr.write(f"pre_skill_execution error: {e}\n")
+        sys.stderr.write(f"skill_tracker_pre error: {e}\n")
         sys.exit(0)
 
 

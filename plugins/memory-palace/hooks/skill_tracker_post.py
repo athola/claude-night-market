@@ -4,10 +4,10 @@
 Captures skill invocation telemetry when Claude uses the Skill tool.
 Logs execution metadata for continual learning and self-improvement.
 
-Integrates with pre_skill_execution.py to calculate accurate duration
+Integrates with skill_tracker_pre.py to calculate accurate duration
 and enable per-iteration evaluation metrics (stability gap detection).
 
-Issue: https://github.com/athola/claude-night-market/issues/69
+Migrated from pensieve plugin to consolidate skill memory storage in memory-palace.
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ from typing import Any
 from uuid import uuid4
 
 
-def get_observability_dir() -> Path:
-    """Get observability state directory."""
+def get_skill_observability_dir() -> Path:
+    """Get skill observability state directory."""
     claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
     state_dir = claude_home / "skills" / "observability"
     state_dir.mkdir(parents=True, exist_ok=True)
@@ -31,7 +31,12 @@ def get_observability_dir() -> Path:
 
 
 class ContinualEvaluator:
-    """Implements continual evaluation metrics (Avalanche-style)."""
+    """Implements continual evaluation metrics (Avalanche-style).
+
+    Tracks skill execution history and calculates stability gap -
+    the difference between average accuracy and worst-case accuracy.
+    This metric detects skills that work sometimes but fail unpredictably.
+    """
 
     def __init__(self, history_file: Path):
         self.history_file = history_file
@@ -104,13 +109,9 @@ def get_log_directory() -> Path:
         Path to .claude/skills/logs/<plugin>/<skill-name>/
 
     """
-    # Try to get Claude home directory
     claude_home = Path(os.environ.get("CLAUDE_HOME", Path.home() / ".claude"))
     log_base = claude_home / "skills" / "logs"
-
-    # Create base directory if it doesn't exist
     log_base.mkdir(parents=True, exist_ok=True)
-
     return log_base
 
 
@@ -124,7 +125,6 @@ def parse_skill_name(tool_input: dict[str, Any]) -> tuple[str, str]:
         Tuple of (plugin_name, skill_name)
 
     """
-    # Skill tool uses "skill" parameter with format "plugin:skill-name"
     skill_ref = tool_input.get("skill", "unknown:unknown")
 
     if ":" in skill_ref:
@@ -145,15 +145,8 @@ def sanitize_output(output: str, max_length: int = 5000) -> str:
         Sanitized and truncated output
 
     """
-    # Truncate if too long
     if len(output) > max_length:
         output = output[:max_length] + f"\n... (truncated from {len(output)} chars)"
-
-    # Basic sanitization - remove potential secrets
-    # (In production, use more sophisticated secret detection)
-    # TODO: Implement pattern matching for sensitive data
-    # sensitive_patterns = ["password", "api_key", "secret", "token"]
-
     return output
 
 
@@ -168,7 +161,7 @@ def create_log_entry(
     Args:
         tool_input: Tool input parameters
         tool_output: Tool execution output
-        pre_state: Pre-execution state from pre_skill_execution.py
+        pre_state: Pre-execution state from skill_tracker_pre.py
         evaluator: Continual evaluator for metrics
 
     Returns:
@@ -184,7 +177,6 @@ def create_log_entry(
         start_time = datetime.fromisoformat(pre_state["timestamp"])
         duration_ms = int((end_time - start_time).total_seconds() * 1000)
     else:
-        # Fallback: approximate with current time
         duration_ms = 0
 
     # Determine outcome based on output
@@ -193,7 +185,7 @@ def create_log_entry(
 
     if "error" in tool_output.lower() or "failed" in tool_output.lower():
         outcome = "failure"
-        error = tool_output[:500]  # Store first 500 chars of error
+        error = tool_output[:500]
     elif "warning" in tool_output.lower():
         outcome = "partial"
 
@@ -213,7 +205,6 @@ def create_log_entry(
             "output_preview": sanitize_output(tool_output, max_length=200),
         }
     else:
-        # Successful executions: minimal context
         context = {
             "session_id": os.environ.get("CLAUDE_SESSION_ID", "unknown"),
             "tool_input": {"skill": skill_ref},
@@ -281,7 +272,7 @@ def main() -> None:
 
         # Try to read pre-execution state
         pre_state = None
-        state_dir = get_observability_dir()
+        state_dir = get_skill_observability_dir()
         state_files = list(state_dir.glob(f"{skill_ref}:*.json"))
 
         if state_files:
@@ -328,7 +319,7 @@ def main() -> None:
         sys.exit(0)
 
     except Exception as e:
-        sys.stderr.write(f"skill_execution_logger error: {e}\n")
+        sys.stderr.write(f"skill_tracker_post error: {e}\n")
         sys.exit(0)
 
 

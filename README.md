@@ -8,7 +8,7 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 
 > **Claude Code 2.1.0+:** This marketplace leverages new features including skill hot-reload, frontmatter hooks, `context: fork`, wildcard permissions, and YAML-style `allowed-tools`. See [Plugin Development Guide](docs/plugin-development-guide.md#claude-code-210-features) for details.
 
-> **Skill Observability:** Track skill execution with continual learning metrics. Install pensieve for universal coverage or use abstract's hooks for ecosystem-level tracking. See [README-HOOKS](plugins/abstract/README-HOOKS.md) for details.
+> **Skill Observability:** Track skill execution with continual learning metrics. memory-palace stores execution memories automatically, while pensive provides `/skill-review` for analyzing metrics and stability gaps. See [README-HOOKS](plugins/abstract/README-HOOKS.md) for details.
 
 ## Comparison
 
@@ -41,7 +41,7 @@ Skill(sanctum:git-workspace-review)            # Invoke a skill
 
 ## What's Included
 
-**16 plugins** organized in layers, each building on foundations below:
+**15 plugins** organized in layers, each building on foundations below:
 
 ```mermaid
 flowchart TB
@@ -60,7 +60,6 @@ flowchart TB
         D6[minister]:::domainClass
         D7[attune]:::domainClass
         D8[scry]:::domainClass
-        D9[pensieve]:::domainClass
     end
 
     subgraph Utility["Utility Layer"]
@@ -90,15 +89,14 @@ flowchart TB
 | Plugin | What It Does | Key Commands |
 |--------|--------------|--------------|
 | **sanctum** | Git workflows, PR prep, commit messages | `/pr`, `/commit-msg`, `/fix-issue` |
-| **pensive** | Code review toolkit (API, architecture, bugs) | `/full-review`, `/architecture-review` |
+| **pensive** | Code review + skill performance analysis | `/full-review`, `/skill-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
 | **minister** | Project management and GitHub integration | `/create-issue`, `/close-issue`, `/status` |
 | **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` |
 | **attune** | Project scaffolding and initialization | `/attune:init`, `/attune:brainstorm` |
 | **parseltongue** | Python development suite | `/analyze-tests`, `/run-profiler` |
 | **archetypes** | Architecture paradigm selection | 13 architecture guides |
-| **memory-palace** | Knowledge management | `/palace`, `/garden` |
-| **pensieve** | Skill execution memory and metrics | `/pensieve:metrics`, `/pensieve:history` |
+| **memory-palace** | Knowledge management + skill memory | `/palace`, `/garden`, `/skill-logs` |
 | **hookify** | Zero-config behavioral rules | `/hookify`, `/hookify:list` |
 
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 106 skills, 85 commands, and 35 agents.

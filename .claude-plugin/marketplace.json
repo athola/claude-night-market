@@ -60,7 +60,7 @@
     {
       "name": "memory-palace",
       "source": "./plugins/memory-palace",
-      "description": "Spatial memory techniques based on Matteo Ricci's method of loci for enhanced knowledge organization",
+      "description": "Spatial knowledge organization with memory palace techniques - includes skill execution memory storage for continual learning",
       "version": "1.2.3"
     },
     {
@@ -76,15 +76,9 @@
       "version": "1.2.3"
     },
     {
-      "name": "pensieve",
-      "source": "./plugins/pensieve",
-      "description": "Universal continual learning and memory storage for all Claude Code skills - stores and analyzes skill execution memories",
-      "version": "1.2.3"
-    },
-    {
       "name": "pensive",
       "source": "./plugins/pensive",
-      "description": "Comprehensive code review toolkit - 7 specialized review skills for architecture, bugs, APIs, math, Rust, tests, and Makefiles",
+      "description": "Reflective code review toolkit - domain reviews (architecture, bugs, APIs, math, Rust, tests, Makefiles) plus skill performance analysis with stability gap detection",
       "version": "1.2.3"
     },
     {
