@@ -61,7 +61,7 @@
       "name": "memory-palace",
       "source": "./plugins/memory-palace",
       "description": "Spatial knowledge organization with memory palace techniques - includes skill execution memory storage for continual learning",
-      "version": "1.2.3"
+      "version": "1.2.4"
     },
     {
       "name": "minister",
