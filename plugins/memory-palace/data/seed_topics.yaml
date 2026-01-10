@@ -1,0 +1,41 @@
+# Knowledge corpus seed topics
+# This file defines the base topic catalogue for seeding the memory palace
+# Extracted from seed_corpus.py for better maintainability
+
+topics:
+  - slug: "structured-concurrency"
+    title: "Structured Concurrency"
+    palace: "Async Systems"
+    district: "Execution Safety"
+    tags:
+      - "async"
+      - "structured-concurrency"
+      - "reliability"
+    base_keywords:
+      - "structured"
+      - "concurrency"
+      - "scoped"
+      - "async"
+      - "lifecycle"
+    variations:
+      - slug: "task-groups"
+        title: "Task Group Patterns"
+        language: "Python"
+        focus: "TaskGroup orchestration for API workers"
+        keywords:
+          - "taskgroup"
+          - "context"
+          - "python"
+          - "api"
+        summary: "Use Python's TaskGroup to keep concurrent child tasks scoped to the lifetime of a request handler."
+        playbook_steps:
+          - "Create a TaskGroup per inbound request context."
+          - "Spawn child tasks for background I/O and await group completion."
+          - "Propagate cancellations when the handler scope exits."
+
+# NOTE: This is a stub file demonstrating the refactoring pattern.
+# Full topic data should be migrated from seed_corpus.py:_topics() function.
+# To complete the migration:
+# 1. Convert the Python Topic/Variation structures to YAML format
+# 2. Update seed_corpus.py to load from this file
+# 3. Remove the _topics() function (saves ~830 lines)

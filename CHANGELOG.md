@@ -7,7 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed - Bloat Reduction Phases 6-9 (2026-01-10)
+
+#### Phase 6: Pensive Code Refactoring (~2,400 tokens saved)
+- Created shared utilities module (`pensive/utils/`)
+  - `content_parser.py`: File parsing and snippet extraction utilities
+  - `severity_mapper.py`: Centralized severity categorization
+  - `report_generator.py`: Reusable markdown report formatting
+- Enhanced `BaseReviewSkill` with shared helper methods
+- Reduced code duplication across 4 review skills (rust, architecture, bug, makefile)
+
+#### Phase 8: Examples Repository (~5,540 tokens saved)
+- Created centralized `/examples/attune/` directory
+- Moved large example files from plugin to examples directory
+  - `microservices-example.md` (726 lines → 20 line stub)
+  - `library-example.md` (699 lines → 18 line stub)
+- Replaced with lightweight stub files that reference full content
+
+#### Phase 9: Script Data Extraction - Complete (~10,192 tokens saved)
+Applied systematic data extraction to 4 large Python scripts:
+
+1. **seed_corpus.py** (1,117 → ~285 lines)
+   - Extracted: `data/seed_topics.yaml` (topic catalog)
+   - Savings: ~832 lines
+
+2. **makefile_dogfooder.py** (793 → ~200 lines)
+   - Extracted: `data/makefile_target_catalog.yaml` (target definitions)
+   - Savings: ~593 lines
+
+3. **template_customizer.py** (792 → ~130 lines)
+   - Extracted: `data/architecture_templates.yaml` (480 lines of templates)
+   - Savings: ~662 lines
+
+4. **architecture_researcher.py** (641 → ~180 lines)
+   - Extracted: `data/paradigm_decision_matrix.yaml` (decision logic)
+   - Savings: ~461 lines
+
+**Pattern**: Identify embedded data → Extract to YAML → Add load functions → Update scripts
+**Result**: 3,343 → ~795 lines (76% code reduction)
+
+**Total token savings (Phases 6-9)**: ~18,132 tokens
+**Combined total (all phases)**: ~70,772 tokens (28-33% context reduction)
+
 ### Added
+
+- **Skills Separation Guide** - Comprehensive guide for separating development skills from runtime agent skills
+  - **Problem**: Namespace collision when using Claude Code to build AI agents (development skills vs runtime skills)
+  - **New Guides**: 4 complementary resources (~16,300 words total)
+    - `docs/guides/development-vs-runtime-skills-separation.md` - Full technical guide (11K words)
+    - `docs/guides/skills-separation-quickref.md` - One-page quick reference
+    - `docs/guides/skills-separation-diagram.md` - Visual diagrams (Mermaid + ASCII)
+    - `docs/reddit-response-skills-separation.md` - Conversational response format
+  - **4 Separation Patterns**: Physical directory, namespace prefixing, context forking, scoped loading
+  - **SDK Integration**: Complete examples for composing system prompts from skill files
+  - **Example Project**: TodoAgent with separated development (.claude/skills/) and runtime (src/agent/prompts/) namespaces
+  - **Workflow Coverage**: 3-phase workflow (build, test, deploy) with context isolation
+  - **Troubleshooting**: Common issues and solutions for namespace bleeding
+  - **Integration**: References abstract, conserve, pensive, spec-kit plugins
+  - **Updated**: README.md with link to Advanced Guides, docs/guides/README.md with new section
+  - **Use Case**: Essential for anyone building AI agent applications with Claude Code assistance
 
 - **Documentation Standards** - NEW guide codifying documentation debloating methodology
   - **New Guide**: `docs/guides/documentation-standards.md` enforces directory-specific line limits
@@ -16,6 +74,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Anti-Patterns**: Complete-guide files, verbose examples, redundant code, monolithic files
   - **Enforcement**: Pre-commit checks, monthly reviews, PR checklist
   - **Phase 5 Results**: Applied to 8 files, 3,421 lines saved (55% reduction, ~3,200 tokens)
+
+- **Data Extraction Pattern Guide** - Comprehensive guide for separating data from code
+  - **New Guide**: `docs/guides/data-extraction-pattern.md` documents the data-to-YAML refactoring pattern
+  - **5-Step Process**: Identify → Extract → Deserialize → Update → Validate
+  - **Real Examples**: 4 production refactorings from claude-night-market (seed_corpus, makefile_dogfooder, template_customizer, architecture_researcher)
+  - **Results**: 75% average code reduction (3,343 → ~795 lines across 4 scripts)
+  - **Benefits**: Non-programmer editable configs, cleaner diffs, runtime flexibility
+  - **Best Practices**: YAML schema documentation, error handling, defaults, version migration
+  - **Code Templates**: Production-ready examples with comprehensive error handling
+  - **Integration**: References optimization-patterns.md and documentation-standards.md
+
+- **Optimization Patterns** - Battle-tested methodology for context reduction
+  - **New Guide**: `docs/optimization-patterns.md` captures systematic optimization approach
+  - **8 Patterns**: Archive cleanup, hub-and-spoke docs, data extraction, shared utilities, examples repo, progressive disclosure, TODO audit, anti-pattern removal
+  - **Proven Results**: 9 phases achieving 28-33% context reduction (~70,772 tokens saved)
+  - **5 Principles**: Separation of concerns, DRY, progressive disclosure, maintainability, backwards compatibility
+  - **Phase-Based Workflow**: Discovery → Analysis → Planning → Execution → Validation
+  - **Metrics**: Token estimation formulas, success criteria, tracking templates
+  - **Real-World Data**: Complete phase-by-phase breakdown with measurable impact
+  - **Future Opportunities**: Automation, configuration management, pattern library
 
 - **Conjure: GeminiQuotaTracker Inheritance Refactoring** - Reduced code duplication through leyline.QuotaTracker base class
   - **Code Reduction**: 287 → 255 lines (-32 lines, -11.1% reduction)

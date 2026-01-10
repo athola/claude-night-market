@@ -94,7 +94,7 @@ flowchart TB
 | **pensive** | Code review + skill performance analysis | `/full-review`, `/skill-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
 | **minister** | Project management and GitHub integration | `/create-issue`, `/close-issue`, `/status` |
-| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` |
+| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (💡 reduced 64k tokens) |
 | **attune** | Project scaffolding and initialization | `/attune:init`, `/attune:brainstorm` |
 | **parseltongue** | Python development suite | `/analyze-tests`, `/run-profiler` |
 | **archetypes** | Architecture paradigm selection | 13 architecture guides |
@@ -150,6 +150,8 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | [**Plugin Catalog**](book/src/plugins/README.md) | Detailed plugin documentation |
 | [**Capabilities Reference**](book/src/reference/capabilities-reference.md) | Complete skill/command listing |
 | [**Tutorials**](book/src/tutorials/README.md) | Step-by-step guides |
+| [**Advanced Guides**](docs/guides/README.md) | In-depth guides for complex topics |
+| [**Skills Separation Guide**](docs/guides/development-vs-runtime-skills-separation.md) | Separating dev skills from runtime agent skills ([Quick Ref](docs/guides/skills-separation-quickref.md)) |
 | [**Quality Gates**](docs/quality-gates.md) | Code quality system and pre-commit hooks |
 | [**Error Handling**](docs/guides/error-handling-guide.md) | Error classification and recovery patterns |
 | [**Testing Guide**](docs/testing-guide.md) | Testing patterns and troubleshooting |

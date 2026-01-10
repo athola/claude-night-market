@@ -1,0 +1,108 @@
+# Architecture paradigm decision matrix
+# Extracted from architecture_researcher.py for better maintainability
+# Maps team_size -> domain_complexity -> {primary, secondary} paradigms
+
+matrix:
+  "<5":  # Small teams
+    simple:
+      primary: "layered"
+      secondary: ""
+    moderate:
+      primary: "layered"
+      secondary: "hexagonal"
+    complex:
+      primary: "hexagonal"
+      secondary: "functional-core"
+    highly-complex:
+      primary: "functional-core"
+      secondary: "hexagonal"
+
+  "5-15":  # Medium teams
+    simple:
+      primary: "layered"
+      secondary: ""
+    moderate:
+      primary: "modular-monolith"
+      secondary: "hexagonal"
+    complex:
+      primary: "modular-monolith"
+      secondary: "functional-core"
+    highly-complex:
+      primary: "hexagonal"
+      secondary: "functional-core"
+
+  "15-50":  # Large teams
+    simple:
+      primary: "modular-monolith"
+      secondary: ""
+    moderate:
+      primary: "microservices"
+      secondary: "modular-monolith"
+    complex:
+      primary: "microservices"
+      secondary: "event-driven"
+    highly-complex:
+      primary: "cqrs-es"
+      secondary: "event-driven"
+
+  "50+":  # Very large teams
+    simple:
+      primary: "microservices"
+      secondary: ""
+    moderate:
+      primary: "microservices"
+      secondary: "event-driven"
+    complex:
+      primary: "event-driven"
+      secondary: "cqrs-es"
+    highly-complex:
+      primary: "cqrs-es"
+      secondary: "event-driven"
+
+# Project type modifiers (adjustments based on project characteristics)
+project_type_modifiers:
+  web-api:
+    preferred: ["layered", "hexagonal", "microservices"]
+    avoid: []
+  cli-tool:
+    preferred: ["functional-core", "layered"]
+    avoid: ["microservices", "event-driven"]
+  data-pipeline:
+    preferred: ["functional-core", "pipes-filters"]
+    avoid: []
+  library:
+    preferred: ["functional-core", "layered"]
+    avoid: ["microservices", "cqrs-es"]
+  microservice:
+    preferred: ["hexagonal", "functional-core"]
+    avoid: ["layered"]
+  mobile-app:
+    preferred: ["layered", "clean-architecture"]
+    avoid: ["microservices", "event-driven"]
+
+# Scalability modifiers
+scalability_modifiers:
+  low:
+    prefer_simple: true
+    avoid: ["microservices", "event-driven", "cqrs-es"]
+  moderate:
+    prefer_simple: false
+    avoid: []
+  high:
+    prefer_distributed: true
+    recommended: ["microservices", "event-driven"]
+  extreme:
+    prefer_distributed: true
+    recommended: ["microservices", "event-driven", "cqrs-es"]
+
+# Security requirement modifiers
+security_modifiers:
+  standard:
+    additional_patterns: []
+  high:
+    additional_patterns: ["hexagonal", "clean-architecture"]
+    avoid: ["layered"]  # Less isolation
+  critical:
+    additional_patterns: ["hexagonal", "functional-core"]
+    avoid: ["layered"]
+    require_isolation: true

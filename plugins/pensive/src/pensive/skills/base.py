@@ -5,6 +5,17 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, ClassVar
 
+# Import shared utilities
+try:
+    from ..utils.content_parser import ContentParser
+    from ..utils.report_generator import MarkdownReportGenerator
+    from ..utils.severity_mapper import SeverityMapper
+except ImportError:
+    # Fallback if utils not available
+    ContentParser = None  # type: ignore
+    MarkdownReportGenerator = None  # type: ignore
+    SeverityMapper = None  # type: ignore
+
 
 @dataclass
 class ReviewFinding:
@@ -40,7 +51,7 @@ class AnalysisResult:
 
 
 class BaseReviewSkill:
-    """Base class for all review skills."""
+    """Base class for all review skills with shared utilities."""
 
     skill_name: ClassVar[str] = "base"
     supported_languages: ClassVar[list[str]] = []
@@ -48,9 +59,19 @@ class BaseReviewSkill:
     def __init__(self) -> None:
         """Initialize the skill."""
         self.findings: list[ReviewFinding] = []
+        self._parser = ContentParser() if ContentParser else None
+        self._report_gen = (
+            MarkdownReportGenerator()
+            if MarkdownReportGenerator
+            else None
+        )
+        self._severity = SeverityMapper() if SeverityMapper else None
 
     def analyze(self, _context: Any, _file_path: str) -> AnalysisResult:
-        """Analyze a file and return findings."""
+        """Analyze a file and return findings.
+
+        Subclasses should override this method to implement specific analysis.
+        """
         return AnalysisResult()
 
     def generate_report(self, findings: list[ReviewFinding]) -> str:
@@ -66,4 +87,106 @@ class BaseReviewSkill:
                 lines.append(f"  Suggestion: {finding.suggestion}")
             lines.append("")
 
+        return "\n".join(lines)
+
+    # ========================================================================
+    # Shared utility methods
+    # ========================================================================
+
+    def _get_content(self, context: Any, filename: str = "") -> str:
+        """Get file content from context.
+
+        Args:
+            context: Skill context with file access
+            filename: Optional filename
+
+        Returns:
+            File content as string
+        """
+        if self._parser:
+            return self._parser.get_file_content(context, filename)
+        # Fallback implementation
+        if hasattr(context, "get_file_content"):
+            if filename:
+                content = context.get_file_content(filename)
+            else:
+                content = context.get_file_content()
+            return content if isinstance(content, str) else ""
+        return ""
+
+    def _find_line(self, content: str, position: int) -> int:
+        """Find line number for a character position.
+
+        Args:
+            content: Full content
+            position: Character position
+
+        Returns:
+            Line number (1-indexed)
+        """
+        if self._parser:
+            return self._parser.find_line_number(content, position)
+        # Fallback
+        return content[:position].count("\n") + 1
+
+    def _extract_snippet(self, content: str, line: int, context: int = 0) -> str:
+        """Extract code snippet around a line.
+
+        Args:
+            content: Full content
+            line: Line number
+            context: Context lines before/after
+
+        Returns:
+            Code snippet
+        """
+        if self._parser:
+            return self._parser.extract_code_snippet(content, line, context)
+        # Fallback
+        lines = content.split("\n")
+        if 0 < line <= len(lines):
+            return lines[line - 1].strip()
+        return ""
+
+    def _categorize_severity(
+        self,
+        issues: list[dict[str, Any]],
+        custom_map: dict[str, str] | None = None,
+    ) -> list[dict[str, Any]]:
+        """Categorize issues by severity.
+
+        Args:
+            issues: List of issue dicts
+            custom_map: Optional custom severity mapping
+
+        Returns:
+            Categorized issues
+        """
+        if self._severity:
+            return self._severity.categorize(issues, custom_map)
+        # Fallback - return as-is
+        return issues
+
+    def _create_markdown_report(
+        self,
+        title: str,
+        sections: list[dict[str, Any]],
+    ) -> str:
+        """Create a markdown report.
+
+        Args:
+            title: Report title
+            sections: List of section dicts
+
+        Returns:
+            Markdown formatted report
+        """
+        if self._report_gen:
+            return self._report_gen.create_report(title, sections)
+        # Fallback - simple text
+        lines = [f"# {title}\n"]
+        for section in sections:
+            lines.append(f"## {section.get('title', 'Section')}\n")
+            lines.append(str(section.get("content", "")))
+            lines.append("")
         return "\n".join(lines)

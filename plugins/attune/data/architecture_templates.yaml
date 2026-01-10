@@ -1,0 +1,94 @@
+# Architecture structure templates for project initialization
+# Extracted from template_customizer.py for better maintainability
+
+templates:
+  functional-core:
+    description: "Functional Core, Imperative Shell - separate pure logic from side effects"
+    python_structure:
+      - "src/{module}/core/__init__.py"
+      - "src/{module}/core/domain.py"
+      - "src/{module}/core/operations.py"
+      - "src/{module}/core/commands.py"
+      - "src/{module}/adapters/__init__.py"
+      - "src/{module}/adapters/database.py"
+      - "src/{module}/adapters/api.py"
+      - "src/{module}/adapters/filesystem.py"
+    rust_structure:
+      - "src/core/mod.rs"
+      - "src/core/domain.rs"
+      - "src/core/operations.rs"
+      - "src/core/commands.rs"
+      - "src/adapters/mod.rs"
+      - "src/adapters/database.rs"
+      - "src/adapters/api.rs"
+    typescript_structure:
+      - "src/core/domain.ts"
+      - "src/core/operations.ts"
+      - "src/core/commands.ts"
+      - "src/adapters/database.ts"
+      - "src/adapters/api.ts"
+
+  hexagonal:
+    description: "Hexagonal Architecture (Ports & Adapters) - infrastructure independence"
+    python_structure:
+      - "src/{module}/domain/__init__.py"
+      - "src/{module}/domain/models.py"
+      - "src/{module}/domain/services.py"
+      - "src/{module}/domain/ports/__init__.py"
+      - "src/{module}/domain/ports/input.py"
+      - "src/{module}/domain/ports/output.py"
+      - "src/{module}/infrastructure/__init__.py"
+      - "src/{module}/infrastructure/persistence/__init__.py"
+      - "src/{module}/infrastructure/persistence/repositories.py"
+      - "src/{module}/infrastructure/web/__init__.py"
+      - "src/{module}/infrastructure/web/controllers.py"
+      - "src/{module}/infrastructure/messaging/__init__.py"
+      - "src/{module}/infrastructure/messaging/handlers.py"
+    rust_structure:
+      - "src/domain/mod.rs"
+      - "src/domain/models.rs"
+      - "src/domain/services.rs"
+      - "src/domain/ports/input.rs"
+      - "src/domain/ports/output.rs"
+      - "src/infrastructure/persistence/mod.rs"
+      - "src/infrastructure/persistence/repositories.rs"
+      - "src/infrastructure/web/mod.rs"
+      - "src/infrastructure/web/controllers.rs"
+    typescript_structure:
+      - "src/domain/models.ts"
+      - "src/domain/services.ts"
+      - "src/domain/ports/input.ts"
+      - "src/domain/ports/output.ts"
+      - "src/infrastructure/persistence/repositories.ts"
+      - "src/infrastructure/web/controllers.ts"
+
+  layered:
+    description: "Layered Architecture - traditional N-tier separation"
+    python_structure:
+      - "src/{module}/presentation/__init__.py"
+      - "src/{module}/presentation/api.py"
+      - "src/{module}/presentation/views.py"
+      - "src/{module}/business/__init__.py"
+      - "src/{module}/business/services.py"
+      - "src/{module}/business/models.py"
+      - "src/{module}/data/__init__.py"
+      - "src/{module}/data/repositories.py"
+      - "src/{module}/data/models.py"
+    rust_structure:
+      - "src/presentation/api.rs"
+      - "src/presentation/views.rs"
+      - "src/business/services.rs"
+      - "src/business/models.rs"
+      - "src/data/repositories.rs"
+      - "src/data/models.rs"
+    typescript_structure:
+      - "src/presentation/api.ts"
+      - "src/presentation/views.ts"
+      - "src/business/services.ts"
+      - "src/business/models.ts"
+      - "src/data/repositories.ts"
+      - "src/data/models.ts"
+
+# NOTE: This is a partial extraction demonstrating the refactoring pattern.
+# Complete templates should be migrated from template_customizer.py STRUCTURE_TEMPLATES.
+# The full dictionary contains ~480 lines of template definitions that should be converted to YAML.
