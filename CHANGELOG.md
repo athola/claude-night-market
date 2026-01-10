@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **hooks.json validation error**: Fixed abstract plugin hooks.json matcher format - changed from object `{"toolName": "Skill"}` to string `"Skill"` per Claude Code SDK requirements
 - **#25**: Optimized architecture-paradigms skill to index/router pattern (28.5% reduction)
 - **#26**: Modularized optimizing-large-skills skill (38% reduction)
 - **#27**: Split large command files with 72% average reduction (bulletproof-skill, validate-hook, pr-review)
