@@ -478,8 +478,7 @@ if __name__ == "__main__":
         # Less important helper
         return "helper"
 
-    # TODO: Add more documentation
-    # FIXME: Fix this later
+    # Additional documentation goes here
     """
 
     result = optimize_content(

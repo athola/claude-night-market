@@ -98,8 +98,8 @@ When no arguments provided, the skill guides you through:
 
 - **Non-destructive**: Prompts before overwriting existing files
 - **Validation**: Checks for conflicts before copying templates
-- **Dry-run option**: Preview changes without applying (TODO: implement)
-- **Backup option**: Create backups of overwritten files (TODO: implement)
+- **Dry-run option**: Preview changes without applying ([#97](https://github.com/athola/claude-night-market/issues/97))
+- **Backup option**: Create backups of overwritten files ([#98](https://github.com/athola/claude-night-market/issues/98))
 
 ## Examples
 
