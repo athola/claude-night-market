@@ -1,320 +1,56 @@
 # Error Handling Guide
 
 **Last Updated**: 2025-01-08
-**Applies to**: All plugins and skills in the Claude Night Market ecosystem
 
 ## Overview
 
-This guide provides comprehensive error handling patterns, troubleshooting strategies, and recovery mechanisms for skills and plugins across the Claude Night Market ecosystem. It builds upon the [error handling template](../error-handling-template.md) and provides real-world implementation examples.
-
-## Why Error Handling Matters
-
-### Critical Benefits
-
-1. **Developer Experience**: Clear error messages with actionable guidance reduce debugging time
-2. **Reliability**: Graceful degradation prevents cascading failures across the system
-3. **Observability**: Structured error logging enables monitoring and alerting
-4. **Maintainability**: Consistent error patterns make code easier to understand and modify
-
-### Real-World Impact
-
-- **Faster Resolution**: Step-by-step troubleshooting guides reduce mean-time-to-resolution
-- **Better UX**: Users receive helpful error messages instead of cryptic failures
-- **Proactive Prevention**: Health checks detect issues before they become critical
+Comprehensive error handling patterns and troubleshooting strategies for Claude Night Market plugins. For detailed tutorial with code examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
 
 ## Error Classification System
 
-The ecosystem uses a standardized error classification system:
+Based on leyline:error-patterns standard:
 
-### Critical Errors (E001-E099)
+- **Critical (E001-E099)**: Halt execution immediately
+- **Recoverable (E010-E099)**: Retry with exponential backoff
+- **Warnings (E020-E099)**: Log and continue
 
-System failures requiring immediate halt:
+See tutorial for detailed classification and code examples.
 
-- **E001-E099**: Authentication and authorization failures
-- **E020-E099**: Resource exhaustion (memory, disk, API quotas)
-- **E040-E099**: Critical service dependencies unavailable
-- **E060-E099**: Data corruption or integrity violations
-
-**Response**: Immediately halt execution, log full context, alert operators
-
-### Recoverable Errors (E010-E099)
-
-Temporary issues with retry potential:
-
-- **E010-E099**: Network timeouts and connection issues
-- **E030-E099**: Temporary service unavailability
-- **E050-E099**: Configuration issues (can be corrected)
-- **E070-E099**: Rate limiting (backoff and retry)
-
-**Response**: Log warning, attempt recovery with exponential backoff, escalate if retries exhausted
-
-### Warnings (E020-E099)
-
-Low-severity issues that don't block execution:
-
-- **E020-E099**: Performance degradations
-- **E080-E099**: Best practice violations
-- **E090-E099**: Deprecated API usage
-
-**Response**: Log informational message, continue execution, track metrics
-
-## Implementation Patterns by Plugin
+## Plugin-Specific Patterns
 
 ### abstract: Core Infrastructure
 
-#### Skill Authoring (`plugins/abstract/skills/skill-authoring/SKILL.md`)
+**Common failures**: TDD test mismatches, skill discovery issues, anti-rationalization traps
 
-**Common Failure Scenarios**:
-
-1. **TDD Test Failures**
-   - **Symptom**: Test fails after implementation
-   - **Root Cause**: Test mismatch with requirements or implementation bug
-   - **Resolution**: Review test assertions, verify business logic, check edge cases
-   - **Prevention**: Write tests first, keep tests simple and focused
-
-2. **Skill Discovery Issues**
-   - **Symptom**: Skill not found in skill registry
-   - **Root Cause**: Missing or incorrect frontmatter, file location mismatch
-   - **Resolution**: Verify SKILL.md frontmatter, check file path, restart Claude Code
-   - **Prevention**: Use `abstract:plugin-validator` before committing
-
-3. **Anti-Rationalization Traps**
-   - **Symptom**: "This is simple enough to skip the skill"
-   - **Root Cause**: Cognitive bias toward rationalization
-   - **Resolution**: Always invoke skill if >1% chance it applies
-   - **Prevention**: Follow red flags checklist in skill documentation
-
-4. **Skill Tool Unavailable**
-   - **Symptom**: `Error: No such tool available: Skill` when invoking `Skill(plugin:skill-name)`
-   - **Root Cause**: The `Skill` tool is a Claude Code feature not available in all environments
-   - **Resolution**: Read skill file directly with `Read plugins/{plugin}/skills/{skill-name}/SKILL.md` and follow the instructions
-   - **Prevention**: Always have fallback pattern ready; workflows should not assume `Skill` tool exists
-   - **Example Fallback**:
-     ```
-     # Instead of: Skill(sanctum:commit-messages)
-     # Use:        Read plugins/sanctum/skills/commit-messages/SKILL.md
-     #             Then follow the methodology in the file
-     ```
-
-**Error Code Examples**:
-
-```python
-# E011: Skill discovery failure
-class SkillNotFoundError(Exception):
-    """Raised when a skill cannot be found in the registry"""
-    def __init__(self, skill_name: str, searched_paths: list[Path]):
-        self.skill_name = skill_name
-        self.searched_paths = searched_paths
-        super().__init__(
-            f"Skill '{skill_name}' not found. "
-            f"Searched {len(searched_paths)} locations. "
-            f"Verify SKILL.md frontmatter and file location."
-        )
+**Skill Tool Unavailable Fallback**:
+```
+# Instead of: Skill(sanctum:commit-messages)
+# Use:        Read plugins/sanctum/skills/commit-messages/SKILL.md
 ```
 
 ### conserve: Context Optimization
 
-#### Context Optimization (`plugins/conserv/skills/context-optimization/SKILL.md`)
+**Common failures**: Context pressure, module deadlocks, memory fragmentation
 
-**Common Failure Scenarios**:
-
-1. **Context Pressure**
-   - **Symptom**: Token limit approaching rapidly
-   - **Root Cause**: Too much context loaded, inefficient summarization
-   - **Resolution**: Trigger aggressive context compaction, prioritize recent context
-   - **Prevention**: Monitor token usage proactively, set thresholds at 70%
-
-2. **Module Coordination Deadlock**
-   - **Symptom**: Multiple modules waiting for each other
-   - **Root Cause**: Circular dependencies in context optimization
-   - **Resolution**: Break circular dependency, prioritize one module
-   - **Prevention**: Design modules with clear priority levels
-
-3. **Memory Fragmentation**
-   - **Symptom**: High memory usage with low actual context
-   - **Root Cause**: Inefficient context storage, duplicate data
-   - **Resolution**: Compact context, remove duplicates, restart session
-   - **Prevention**: Use structured context format, avoid redundancy
-
-**Recovery Strategy**:
-
-```python
-def handle_context_pressure(current_tokens: int, limit: int) -> Action:
-    usage_ratio = current_tokens / limit
-
-    if usage_ratio >= 0.95:
-        # Critical: Emergency compaction
-        return Action.COMPACT_AGGRESSIVE
-    elif usage_ratio >= 0.85:
-        # Warning: Selective compaction
-        return Action.COMPACT_SELECTIVE
-    elif usage_ratio >= 0.70:
-        # Advisory: Log and monitor
-        return Action.LOG_AND_MONITOR
-    else:
-        # Normal: No action
-        return Action.CONTINUE
-```
+**Recovery thresholds**: 95% aggressive compaction, 85% selective, 70% monitor
 
 ### memory-palace: Knowledge Management
 
-#### Knowledge Intake (`plugins/memory-palace/skills/knowledge-intake/SKILL.md`)
+**Common failures**: Content fetching, storage conflicts, index corruption
 
-**Common Failure Scenarios**:
-
-1. **Content Fetching Failures**
-   - **Symptom**: Unable to retrieve content from URL
-   - **Root Cause**: Network issues, invalid URL, server errors
-   - **Resolution**: Retry with exponential backoff, try alternative sources
-   - **Prevention**: Validate URL format, check server availability first
-
-2. **Storage Conflicts**
-   - **Symptom**: Duplicate entry or version conflict
-   - **Root Cause**: Concurrent updates, identifier collision
-   - **Resolution**: Merge or version the entries, use conflict resolution
-   - **Prevention**: Use unique identifiers, implement optimistic locking
-
-3. **Index Corruption**
-   - **Symptom**: Search returns incorrect or no results
-   - **Root Cause**: Damaged index file, incomplete indexing
-   - **Resolution**: Rebuild index from source data
-   - **Prevention**: Regular index validation, atomic updates
-
-**Health Check Implementation**:
-
-```python
-def check_knowledge_base_health() -> HealthStatus:
-    checks = [
-        check_storage_availability,
-        check_index_integrity,
-        check_search_functionality,
-        check_concurrency_safety,
-    ]
-
-    results = [check() for check in checks]
-    failed = [r for r in results if not r.passed]
-
-    if failed:
-        return HealthStatus(
-            healthy=False,
-            issues=[f.error for f in failed],
-            recovery_steps=[f.recovery for f in failed]
-        )
-
-    return HealthStatus(healthy=True)
-```
+**Health checks**: Storage availability, index integrity, search functionality, concurrency safety
 
 ### parseltongue: Python Development
 
-#### Python Async (`plugins/parseltongue/skills/python-async/SKILL.md`)
+**Common failures**: Event loop blocking, task leaks, deadlocks
 
-**Common Failure Scenarios**:
-
-1. **Event Loop Blocking**
-   - **Symptom**: Async operations stall or timeout
-   - **Root Cause**: Synchronous code blocking event loop, long-running computations
-   - **Resolution**: Move blocking operations to executor, use async equivalents
-   - **Prevention**: Profile async code, avoid `time.sleep()`, use `asyncio.sleep()`
-
-2. **Task Leaks**
-   - **Symptom**: Memory usage grows, tasks never complete
-   - **Root Cause**: Fire-and-forget tasks without proper cleanup, unawaited coroutines
-   - **Resolution**: Track all tasks, implement task cleanup, use `asyncio.gather()`
-   - **Prevention**: Always await or track tasks, use task groups
-
-3. **Deadlocks**
-   - **Symptom**: Application hangs, multiple tasks waiting
-   - **Root Cause**: Circular wait conditions, incorrect lock ordering
-   - **Resolution**: Break circular waits, reorder lock acquisition, add timeouts
-   - **Prevention**: Use lock hierarchy, avoid nested locks, set timeouts
-
-**Detection and Resolution**:
-
-```python
-async def detect_event_loop_block(timeout: float = 1.0) -> bool:
-    """Check if event loop is blocked"""
-    try:
-        await asyncio.wait_for(
-            asyncio.sleep(0),
-            timeout=timeout
-        )
-        return False  # Not blocked
-    except asyncio.TimeoutError:
-        return True  # Blocked
-
-async def prevent_task_leaks():
-    """Ensure all tasks are properly tracked"""
-    tasks = asyncio.all_tasks()
-    main_task = asyncio.current_task()
-
-    # Filter out the main task
-    background_tasks = [t for t in tasks if t != main_task]
-
-    # Wait for all background tasks with timeout
-    await asyncio.wait_for(
-        asyncio.gather(*background_tasks, return_exceptions=True),
-        timeout=30.0
-    )
-```
+**Prevention**: Use async equivalents, track all tasks, set timeouts
 
 ### sanctum: Git Workflows
 
-#### Test Updates (`plugins/sanctum/skills/test-updates/SKILL.md`)
+**Common failures**: Test generation errors, import resolution, mock configuration
 
-**Common Failure Scenarios**:
-
-1. **Test Generation Failures**
-   - **Symptom**: Generated tests don't compile or fail unexpectedly
-   - **Root Cause**: Missing imports, incorrect assertions, incompatible mocks
-   - **Resolution**: Review generated code, add missing imports, fix assertions
-   - **Prevention**: Validate generated tests before committing, use test templates
-
-2. **Import Resolution Issues**
-   - **Symptom**: Module not found errors in tests
-   - **Root Cause**: Incorrect PYTHONPATH, missing test dependencies
-   - **Resolution**: Update test configuration, install dependencies, check imports
-   - **Prevention**: Use consistent import structure, document test dependencies
-
-3. **Mock Configuration Errors**
-   - **Symptom**: Mocks don't behave as expected
-   - **Root Cause**: Incorrect mock setup, missing return values, wrong patch targets
-   - **Resolution**: Verify mock configuration, check patch targets, add assertions
-   - **Prevention**: Use explicit mock setup, document mock behavior
-
-**CI/CD Integration**:
-
-```python
-def handle_test_failure(test_name: str, error: Exception) -> TestRecoveryAction:
-    """Determine recovery action based on error type"""
-
-    if isinstance(error, ImportError):
-        return TestRecoveryAction(
-            action="INSTALL_DEPENDENCIES",
-            message=f"Missing import in {test_name}: {error}",
-            command="pip install -e .[test]"
-        )
-
-    elif isinstance(error, AssertionError):
-        return TestRecoveryAction(
-            action="REVIEW_ASSERTION",
-            message=f"Assertion failed in {test_name}: {error}",
-            command=f"pytest {test_name} -vv"
-        )
-
-    elif isinstance(error, MockError):
-        return TestRecoveryAction(
-            action="FIX_MOCK",
-            message=f"Mock configuration error in {test_name}: {error}",
-            command=f"pytest {test_name} --tb=short"
-        )
-
-    else:
-        return TestRecoveryAction(
-            action="ESCALATE",
-            message=f"Unexpected error in {test_name}: {error}",
-            command=None
-        )
-```
+**CI/CD recovery**: Automated detection and recovery actions based on error type
 
 ## Troubleshooting Workflow
 

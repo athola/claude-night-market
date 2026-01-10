@@ -7,44 +7,19 @@ Based on Claude Developer Platform documentation.
 
 ### Conciseness is Key
 
-The context window is a public good. Your Skill shares it with:
-- System prompt
-- Conversation history
-- Other Skills' metadata
-- User's actual request
+Context window is shared with system prompt, conversation history, and other Skills. Only metadata loads at startup; SKILL.md loads when triggered.
 
-**Not every token has immediate cost**: At startup, only metadata (name/description) is pre-loaded. Claude reads SKILL.md only when triggered, and additional files only as needed. However, being concise in SKILL.md still matters: once loaded, every token competes with conversation history.
-
-**Default assumption: Claude is already very smart.**
-
-Only add context Claude doesn't already have. Challenge each piece:
-- "Does Claude really need this explanation?"
-- "Can I assume Claude knows this?"
-- "Does this paragraph justify its token cost?"
+**Default assumption: Claude is already smart.** Only add context Claude doesn't have.
 
 **Good (≈50 tokens):**
-```markdown
-## Extract PDF text
-
-Use pdfplumber for text extraction:
-
 ```python
+# Extract PDF text
 import pdfplumber
 with pdfplumber.open("file.pdf") as pdf:
     text = pdf.pages[0].extract_text()
 ```
-```
 
-**Bad (≈150 tokens):**
-```markdown
-## Extract PDF text
-
-PDF (Portable Document Format) files are a common file format that contains
-text, images, and other content. To extract text from a PDF, you'll need to
-use a library...
-```
-
-The concise version assumes Claude knows what PDFs are and how libraries work.
+**Bad (≈150 tokens):** Explaining what PDFs are, how libraries work, etc.
 
 ### Set Appropriate Degrees of Freedom
 
@@ -56,9 +31,6 @@ Match specificity to task fragility and variability.
 | **Medium** (pseudocode/params) | Preferred pattern exists, some variation ok | Report templates |
 | **Low** (specific scripts) | Operations fragile, consistency critical | Database migrations |
 
-**Analogy - Claude as robot exploring a path:**
-- **Narrow bridge with cliffs**: One safe way forward → specific guardrails (low freedom)
-- **Open field, no hazards**: Many paths succeed → general direction (high freedom)
 
 ### Test with All Target Models
 
@@ -86,16 +58,9 @@ What works for Opus might need more detail for Haiku. If using across multiple m
 
 ### Naming Conventions
 
-Use gerund form (verb + -ing) for clarity:
-- OK `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`
-- OK Alternative: `pdf-processing`, `process-pdfs`
-- FAIL Avoid: `helper`, `utils`, `tools`, `documents`
+Use gerund form (verb + -ing): `processing-pdfs`, `analyzing-spreadsheets`, `testing-code`
 
-Consistent naming makes it easier to:
-- Reference Skills in documentation and conversations
-- Understand what a Skill does at a glance
-- Organize and search through multiple Skills
-- Maintain a professional, cohesive skill library
+Avoid generic names: `helper`, `utils`, `tools`, `documents`
 
 ### Writing Effective Descriptions
 
@@ -115,7 +80,6 @@ description: Extract text and tables from PDF files, fill forms, merge documents
 description: Helps with documents
 ```
 
-Each Skill has exactly one description field. The description is critical for skill selection: Claude uses it to choose the right Skill from potentially 100+ available Skills.
 
 ## Progressive Disclosure Patterns
 
@@ -138,30 +102,6 @@ SKILL.md serves as overview pointing to detailed materials (like table of conten
 
 Claude loads FORMS.md only when needed.
 
-### Pattern 2: Domain-Specific Organization
-
-```
-bigquery-skill/
-├── SKILL.md (overview and navigation)
-└── reference/
-    ├── finance.md (revenue, billing)
-    ├── sales.md (pipeline, accounts)
-    └── product.md (API usage, features)
-```
-
-When user asks about sales, Claude reads only `reference/sales.md`. This keeps token usage low and context focused.
-
-### Pattern 3: Conditional Details
-
-```markdown
-## Creating documents
-Use docx-js for new documents. See [DOCX-JS.md](DOCX-JS.md).
-
-## Editing documents
-For simple edits, modify XML directly.
-
-**For tracked changes**: See [REDLINING.md](REDLINING.md)
-```
 
 ### Avoid Deeply Nested References
 
@@ -196,8 +136,6 @@ For files >100 lines, include table of contents at top:
 ## Authentication and setup
 ...
 ```
-
-Claude can then read the complete file or jump to specific sections as needed.
 
 ## Workflows and Feedback Loops
 
@@ -246,25 +184,6 @@ Run: `python scripts/analyze_form.py input.pdf`
 
 Clear steps prevent Claude from skipping critical validation.
 
-### Implement Feedback Loops
-
-**Pattern: Run validator → fix errors → repeat**
-
-This pattern greatly improves output quality.
-
-```markdown
-## Document editing process
-
-1. Make edits to `word/document.xml`
-2. **Validate immediately**: `python scripts/validate.py dir/`
-3. If validation fails:
-   - Review error message
-   - Fix issues in XML
-   - Run validation again
-4. **Only proceed when validation passes**
-5. Rebuild document
-```
-
 ## Content Guidelines
 
 ### Avoid Time-Sensitive Information
@@ -302,110 +221,23 @@ Consistency helps Claude understand and follow instructions.
 
 ### Template Pattern
 
-For strict requirements:
-```markdown
-## Report structure
-
-ALWAYS use this exact template:
-
-```markdown
-# [Analysis Title]
-
-## Executive summary
-[One-paragraph overview]
-
-## Key findings
-- Finding 1 with data
-- Finding 2 with data
-```
-```
-
-For flexible guidance:
-```markdown
-## Report structure
-
-Sensible default format (adapt as needed):
-...
-```
+Provide exact templates for strict requirements. For flexible cases, offer "sensible defaults (adapt as needed)".
 
 ### Examples Pattern
 
-Provide input/output pairs:
-
-```markdown
-## Commit message format
-
-**Example 1:**
-Input: Added user auth with JWT
-Output:
-```
-feat(auth): implement JWT-based authentication
-
-Add login endpoint and token validation middleware
-```
-
-**Example 2:**
-Input: Fixed date bug in reports
-Output:
-```
-fix(reports): correct date formatting in timezone conversion
-```
-```
-
-Examples help Claude understand desired style and detail more clearly than descriptions alone.
+Use input/output pairs to show desired style and detail.
 
 ### Conditional Workflow Pattern
 
-```markdown
-## Document modification workflow
-
-1. Determine modification type:
-   **Creating new content?** → Follow "Creation workflow"
-   **Editing existing?** → Follow "Editing workflow"
-
-2. Creation workflow:
-   - Use docx-js library
-   - Build from scratch
-   ...
-
-3. Editing workflow:
-   - Unpack existing document
-   - Modify XML directly
-   ...
-```
-
-If workflows become large, push them into separate files.
+Break workflows into conditional paths based on context. Use separate files for large workflows.
 
 ## Evaluation and Iteration
 
 ### Build Evaluations First
 
-Create evaluations BEFORE extensive documentation. This validates your Skill solves real problems rather than documenting imagined ones.
+Create evaluations BEFORE extensive documentation to validate real problem-solving.
 
-**Evaluation-driven development:**
-1. **Identify gaps**: Run Claude on tasks without a Skill. Document specific failures
-2. **Create evaluations**: Build 3 scenarios testing those gaps
-3. **Establish baseline**: Measure performance without Skill
-4. **Write minimal instructions**: Just enough to address gaps and pass evaluations
-5. **Iterate**: Execute, compare against baseline, refine
-
-This approach validates you're solving actual problems rather than anticipating requirements that may never materialize.
-
-**Evaluation structure:**
-```json
-{
-  "skills": ["pdf-processing"],
-  "query": "Extract all text from this PDF and save to output.txt",
-  "files": ["test-files/document.pdf"],
-  "expected_behavior": [
-    "Successfully reads PDF using appropriate library",
-    "Extracts text from all pages without missing any",
-    "Saves to output.txt in readable format"
-  ]
-}
-```
-
-Evaluations are your source of truth for measuring Skill effectiveness.
+**Evaluation-driven approach**: Identify gaps → Create eval scenarios → Establish baseline → Write minimal instructions → Iterate.
 
 ### Develop Skills Iteratively with Claude
 
@@ -413,24 +245,13 @@ Work with one Claude instance ("Claude A") to create a Skill for other instances
 
 **Creating a new Skill:**
 
-1. **Complete a task without a Skill**: Work through a problem with Claude A using normal prompting. Note what context you provide, what explanations you give, what preferences you share.
-
-2. **Identify the reusable pattern**: What context would help similar future tasks?
-   - Example: BigQuery analysis → table names, field definitions, filtering rules like "always exclude test accounts"
-
-3. **Ask Claude A to create a Skill**: "Create a Skill that captures this BigQuery analysis pattern we just used."
-   - Claude understands the Skill format natively—no special prompts needed
-
-4. **Review for conciseness**: Check that Claude A hasn't added unnecessary explanations
-   - "Remove the explanation about what win rate means - Claude already knows that"
-
-5. **Improve information architecture**: Ask Claude A to organize content effectively
-   - "Organize this so the table schema is in a separate reference file"
-
-6. **Test on similar tasks**: Use the Skill with Claude B (fresh instance) on related use cases
-
-7. **Iterate based on observation**: If Claude B struggles, return to Claude A with specifics
-   - "When Claude used this Skill, it forgot to filter by date for Q4. Should we add a section about date filtering patterns?"
+1. Complete task without Skill (note context provided)
+2. Identify reusable pattern
+3. Ask Claude to create Skill
+4. Review for conciseness
+5. Improve information architecture
+6. Test with fresh instance
+7. Iterate based on observation
 
 ### Iterating on Existing Skills
 
@@ -439,15 +260,7 @@ The hierarchical pattern continues for improvements. Alternate between:
 - Testing with Claude B (the agent using the Skill for real work)
 - Observing Claude B's behavior and bringing insights back to Claude A
 
-**Process:**
-1. Use the Skill in real workflows with Claude B
-2. Observe behavior: struggles, successes, unexpected choices
-3. Return to Claude A: Share SKILL.md and describe observations
-4. Review Claude A's suggestions
-5. Apply changes and test again with Claude B
-6. Repeat based on usage
-
-**Why this works**: Claude A understands agent needs, you provide domain expertise, Claude B reveals gaps through real usage, and iterative refinement improves Skills based on observed behavior rather than assumptions.
+**Iterative process**: Use Skill → Observe → Refine → Test → Repeat
 
 ### Gathering Team Feedback
 
@@ -458,15 +271,6 @@ Share Skills with teammates and observe their usage:
 
 Incorporate feedback to address blind spots in your own usage patterns.
 
-### Observe Navigation Patterns
-
-Watch for:
-- **Unexpected exploration paths**: Structure may not be intuitive
-- **Missed connections**: Links may need to be more explicit
-- **Overreliance on sections**: Content might belong in SKILL.md
-- **Ignored content**: File might be unnecessary or poorly signaled
-
-The 'name' and 'description' in your Skill's metadata are particularly critical. Claude uses these when deciding whether to trigger the Skill.
 
 ## Anti-Patterns to Avoid
 
@@ -499,40 +303,11 @@ Don't present multiple approaches unless necessary. Provide a default with escap
 
 ### Solve, Don't Punt
 
-Handle errors rather than failing:
-
-```python
-# Good - handle explicitly
-def process_file(path):
-    try:
-        with open(path) as f:
-            return f.read()
-    except FileNotFoundError:
-        print(f"File {path} not found, creating default")
-        with open(path, 'w') as f:
-            f.write('')
-        return ''
-    except PermissionError:
-        print(f"Cannot access {path}, using default")
-        return ''
-
-# Bad - punt to Claude
-def process_file(path):
-    return open(path).read()  # Just fails
-```
+Handle errors explicitly rather than failing silently.
 
 ### Document Configuration Constants
 
-```python
-# Good - self-documenting
-REQUEST_TIMEOUT = 30  # HTTP requests typically complete within 30s
-MAX_RETRIES = 3       # Most intermittent failures resolve by second retry
-
-# Bad - magic numbers
-TIMEOUT = 47  # Why 47?
-```
-
-Configuration parameters should be justified and documented to avoid "voodoo constants" (Ousterhout's law).
+Justify magic numbers with comments explaining the reasoning.
 
 ### Provide Utility Scripts
 
