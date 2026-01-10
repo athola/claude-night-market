@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Documentation Standards** - NEW guide codifying documentation debloating methodology
+  - **New Guide**: `docs/guides/documentation-standards.md` enforces directory-specific line limits
+  - **Directory Limits**: docs/=500 lines (strict reference), book/=1000 lines (lenient tutorial)
+  - **Debloating Techniques**: Progressive disclosure, consolidation, cross-referencing, deletion
+  - **Anti-Patterns**: Complete-guide files, verbose examples, redundant code, monolithic files
+  - **Enforcement**: Pre-commit checks, monthly reviews, PR checklist
+  - **Phase 5 Results**: Applied to 8 files, 3,421 lines saved (55% reduction, ~3,200 tokens)
+
 - **Conjure: GeminiQuotaTracker Inheritance Refactoring** - Reduced code duplication through leyline.QuotaTracker base class
   - **Code Reduction**: 287 → 255 lines (-32 lines, -11.1% reduction)
   - **Inherited Methods**: 11 methods now inherited from `leyline.QuotaTracker` base class
@@ -59,8 +67,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **#93**: Merged README-HOOKS.md into docs/guides/skill-observability-guide.md
 - **#94**: Consolidated conjure CHANGELOG to reference main CHANGELOG
 - **#95**: Renamed /pr to /prepare-pr with expanded Mandatory Post-Implementation Protocol workflow
+- **Bloat Report Updated**: bloat-scan-report-20260109.md now includes Phase 5 (~52,640 tokens total saved)
 
 ### Changed
+
+- **Documentation Debloating (Phase 5)** - Enforced strict line limits across documentation files
+  - **hook-types-comprehensive.md**: 748 → 147 lines (table-of-contents pattern)
+  - **security-patterns.md**: 904 → 534 lines (consolidated redundant examples)
+  - **authoring-best-practices.md**: 652 → 427 lines (removed verbosity)
+  - **evaluation-methodology.md**: 653 → 377 lines (extracted implementations)
+  - **error-handling-guide.md**: 580 → 316 lines (cross-referenced tutorial)
+  - **Deleted outdated plans**: 2 historical files (1,685 lines)
+  - **Total impact**: 6,222 → 1,801 lines (3,421 saved, ~3,200 tokens)
+  - **Quality preserved**: All detail maintained via progressive disclosure
 
 - **MECW Optimization**: Commands now use modular architecture with progressive loading pattern
   - Large skill modules moved to docs/examples/ for comprehensive guides
