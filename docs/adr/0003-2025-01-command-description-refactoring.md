@@ -1,24 +1,16 @@
-# Command Description Refactoring Plan
+# ADR 0003: Command Description Refactoring
 
-## Status: COMPLETE ✅
-
-Refactored all 29 commands (20 red + 9 yellow) to green zone (<100 chars).
-
-| Metric | Before | After |
-|--------|--------|-------|
-| 🔴 Red (>200 chars) | 20 | 0 |
-| 🟡 Yellow (100-200) | 9 | 0 |
-| ✅ Green (<100) | ~36 | 65 |
-| With `<identification>` | 0 | 28 |
-| **Total commands** | 65 | 65 |
+**Date**: 2025-01-09
+**Status**: Accepted
+**Context**: Command UX and Skill Discovery
 
 ## Problem
 
-Long frontmatter descriptions (600+ chars) create poor UX when typing `/` in Claude Code. The description field serves two conflicting purposes:
+Long frontmatter descriptions (600+ chars) created poor UX when typing `/` in Claude Code. The description field served two conflicting purposes:
 1. **Display** - What users see in the `/` menu (should be short)
 2. **Identification** - What Claude uses to match skills (needs triggers/use-when logic)
 
-## Audit Results
+### Audit Results
 
 | Priority | Plugin | Commands | Avg Chars |
 |----------|--------|----------|-----------|
@@ -28,11 +20,15 @@ Long frontmatter descriptions (600+ chars) create poor UX when typing `/` in Cla
 | P2 | spec-kit | 1 | 262 |
 | Borderline | various | 9 | 110 |
 
-**Total**: 20 commands need refactoring, 9 borderline
+**Total**: 20 commands needed refactoring, 9 borderline
 
-## Standard Template
+## Decision
 
-### Before (Long Description)
+Implement a two-part structure separating display from identification:
+
+### Standard Template
+
+**Before (Long Description)**
 ```yaml
 ---
 name: bulletproof-skill
@@ -52,7 +48,7 @@ usage: /bulletproof-skill [skill-path]
 ---
 ```
 
-### After (Short Description + Body Section)
+**After (Short Description + Body Section)**
 ```yaml
 ---
 name: bulletproof-skill
@@ -82,7 +78,7 @@ do_not_use_when:
 ...
 ```
 
-## Refactoring Rules
+### Refactoring Rules
 
 1. **Description limit**: Max 80 characters, single line
 2. **Format**: Active voice, starts with verb (Harden, Analyze, Create, Generate)
@@ -90,39 +86,41 @@ do_not_use_when:
 4. **Preserve all content**: Move triggers, use_when, do_not_use_when to body
 5. **Test after refactor**: Ensure skill matching still works
 
-## Implementation Batches
+## Implementation Results
 
-### Batch 1: abstract (13 commands) - HIGHEST PRIORITY
-```
-abstract:validate-hook
-abstract:context-report
-abstract:analyze-skill
-abstract:bulletproof-skill
-abstract:skills-eval
-abstract:estimate-tokens
-abstract:analyze-hook
-abstract:create-hook
-abstract:hooks-eval
-abstract:test-skill
-abstract:make-dogfood
-abstract:create-skill
-abstract:create-command
-```
+| Metric | Before | After |
+|--------|--------|-------|
+| 🔴 Red (>200 chars) | 20 | 0 |
+| 🟡 Yellow (100-200) | 9 | 0 |
+| ✅ Green (<100) | ~36 | 65 |
+| With `<identification>` | 0 | 28 |
+| **Total commands** | 65 | 65 |
 
-### Batch 2: sanctum (4 commands)
-```
-sanctum:fix-pr
-sanctum:fix-workflow
-sanctum:pr-review
-sanctum:fix-issue
-```
+### Batches Completed
 
-### Batch 3: conserve + spec-kit (3 commands)
-```
-conserve:unbloat
-conserve:bloat-scan
-spec-kit:speckit-clarify
-```
+**Batch 1: abstract (13 commands)**
+- validate-hook, context-report, analyze-skill, bulletproof-skill
+- skills-eval, estimate-tokens, analyze-hook, create-hook
+- hooks-eval, test-skill, make-dogfood, create-skill, create-command
+
+**Batch 2: sanctum (4 commands)**
+- fix-pr, fix-workflow, pr-review, fix-issue
+
+**Batch 3: conserve + spec-kit (3 commands)**
+- unbloat, bloat-scan, speckit-clarify
+
+## Consequences
+
+### Positive
+- ✅ All descriptions < 100 chars
+- ✅ Improved `/` menu UX - cleaner, more scannable
+- ✅ No loss of skill identification accuracy
+- ✅ Separation of concerns (display vs matching logic)
+- ✅ Consistent formatting across all commands
+
+### Neutral
+- Skill matching logic moved to body (still effective)
+- Requires understanding `<identification>` pattern for new commands
 
 ## Validation
 
@@ -133,6 +131,12 @@ After each batch:
 
 ## Success Metrics
 
-- All descriptions < 100 chars
-- No loss of skill identification accuracy
-- Improved `/` menu UX
+- ✅ All descriptions < 100 chars
+- ✅ No loss of skill identification accuracy
+- ✅ Improved `/` menu UX
+- ✅ Consistent pattern across ecosystem
+
+## Related
+
+- See ADR-0004 for skill description budget optimization
+- See [Command Best Practices](../examples/command-development/authoring-best-practices.md)

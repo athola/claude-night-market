@@ -44,6 +44,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Design Patterns**: State preservation strategies for compaction-aware agent design
   - **Context Thresholds**: Documented warning zones (80%, 90%) and trigger point (~160k)
 
+### Fixed
+
+- **#25**: Optimized architecture-paradigms skill to index/router pattern (28.5% reduction)
+- **#26**: Modularized optimizing-large-skills skill (38% reduction)
+- **#27**: Split large command files with 72% average reduction (bulletproof-skill, validate-hook, pr-review)
+- **#28**: Consolidated abstract module bloat to docs/examples/ directory
+- **#29**: Optimized agent files with 62% reduction in mcp-subagents
+- **#30**: Enhanced JSON escaping with complete control character handling in imbue hooks
+- **#31**: Added logging to PyYAML warnings for better CI/CD visibility
+- **#32**: Added comprehensive delegation error path tests (12 new test methods)
+- **#33**: Added wrapper base validation tests and implemented detect_breaking_changes()
+- **#93**: Merged README-HOOKS.md into docs/guides/skill-observability-guide.md
+- **#94**: Consolidated conjure CHANGELOG to reference main CHANGELOG
+- **#95**: Renamed /pr to /prepare-pr with expanded Mandatory Post-Implementation Protocol workflow
+
+### Changed
+
+- **MECW Optimization**: Commands now use modular architecture with progressive loading pattern
+  - Large skill modules moved to docs/examples/ for comprehensive guides
+  - Stub files provide quick reference with links to detailed documentation
+  - Total reduction: 70-79% in command files, 28-62% in skill files
+- **Documentation Structure**: Comprehensive guides now centralized in docs/examples/ with categorization:
+  - `docs/examples/hook-development/` - Hook types, security patterns
+  - `docs/examples/skill-development/` - Authoring best practices, evaluation methodology
+- **Testing Coverage**: Added 12+ new test methods for error paths and validation edge cases
+
 ## [1.2.3] - 2026-01-08
 
 ### Added
