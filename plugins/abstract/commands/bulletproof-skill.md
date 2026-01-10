@@ -119,10 +119,7 @@ Recommendation: Address all CRITICAL and HIGH before production
 
 ## Detailed Guides
 
-For comprehensive patterns, examples, and implementation:
-- **[Complete Guide](bulletproof-skill/modules/complete-guide.md)** - Full methodology with examples
-- **[Loophole Patterns](bulletproof-skill/modules/loophole-patterns.md)** - Vague language detection
-- **[Rationalization Guide](bulletproof-skill/modules/rationalization-guide.md)** - Bypass prevention
+For comprehensive patterns and examples, see the bulletproof-skill source code and the abstract methodology framework.
 
 ## Best Practices
 

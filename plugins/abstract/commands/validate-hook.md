@@ -121,11 +121,7 @@ Automatically applies fixes for common issues:
 
 ## Detailed Validation Guides
 
-For comprehensive validation patterns and implementation:
-- **[Complete Guide](validate-hook/modules/complete-guide.md)** - Full validation methodology
-- **[Security Checks](validate-hook/modules/security-checks.md)** - Security patterns and anti-patterns
-- **[Performance Checks](validate-hook/modules/performance-checks.md)** - Optimization strategies
-- **[Compliance Checks](validate-hook/modules/compliance-checks.md)** - SDK compliance rules
+For comprehensive validation patterns, see the validate-hook source code and examples in the abstract validation framework.
 
 ## Best Practices
 
