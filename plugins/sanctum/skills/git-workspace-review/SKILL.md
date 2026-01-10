@@ -48,8 +48,9 @@ Run once per session or whenever staged changes are updated.
 ## Required TodoWrite Items
 1. `git-review:repo-confirmed`
 2. `git-review:status-overview`
-3. `git-review:diff-stat`
-4. `git-review:diff-details`
+3. `git-review:code-quality-check`
+4. `git-review:diff-stat`
+5. `git-review:diff-details`
 
 Mark each item as complete as you finish the corresponding step.
 
@@ -62,11 +63,17 @@ Mark each item as complete as you finish the corresponding step.
 - Review the `git status -sb` output for staged vs. unstaged changes.
 - Stage or unstage files as needed so downstream workflows operate on the intended diff.
 
-## Step 3: Review Diff Statistics (`diff-stat`)
+## Step 3: Check Code Quality (`code-quality-check`)
+- Run `make format && make lint` to validate code quality BEFORE committing
+- If errors are found, fix them immediately
+- **NEVER proceed to commit with `--no-verify`** - pre-commit hooks exist to enforce quality
+- This proactive check prevents pre-commit hook failures later
+
+## Step 4: Review Diff Statistics (`diff-stat`)
 - Run `git diff --cached --stat` for staged changes (or `git diff --stat` if nothing is staged yet).
 - Note the number of files touched and any hotspots (large insert/delete counts).
 
-## Step 4: Review Detailed Diff (`diff-details`)
+## Step 5: Review Detailed Diff (`diff-details`)
 - Run `git diff --cached` to skim the actual changes.
 - If working with unstaged work, use `git diff`.
 - Capture key themes (e.g., "Makefile target adjustments," "New skill added").
@@ -81,10 +88,13 @@ Mark each item as complete as you finish the corresponding step.
 ### Common Issues
 
 **Pre-commit hooks failing**
-Run `SKIP=... git commit` to bypass temporarily, then fix issues
+Fix the reported issues - DO NOT bypass with `--no-verify`, `SKIP=...`, or `-n`. The hooks exist to catch quality issues before they enter the repository.
+
+**Linting errors**
+Run `make format` to auto-fix formatting, then `make lint` to check for remaining issues. Fix all issues before proceeding to commit.
 
 **Merge conflicts**
 Use `git merge --abort` to reset, then resolve conflicts carefully
 
-**Commit rejected**
-Check hook output and fix reported issues before committing again
+**Code quality check failing**
+This means the code is not ready to commit. Fix all linting/formatting issues before attempting to commit.
