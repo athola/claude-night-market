@@ -47,9 +47,9 @@ Applied description optimization across 7 top offenders:
 
 ## References
 
-- **Detailed Evaluation**: `docs/archive/2025-12-plans/ecosystem-evaluation-2025-12-31.md`
 - **Action Plan**: `docs/archive/2025-12-plans/action-plan-budget-crisis.md`
 - **Background**: [Claude Code Skills Not Triggering](https://blog.fsck.com/2025/12/17/claude-code-skills-not-triggering/)
+- **Pre-commit Hook**: `.pre-commit-config.yaml` (description budget validation)
 
 ---
 
