@@ -116,6 +116,48 @@ gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.n
 # Returns: PRRT_kwDOQcL40c5l9_nO
 ```
 
+### Empty Review Threads When Threads Exist
+
+**Problem:** GraphQL query returns `reviewThreads.nodes: []` even though review threads are visible in the GitHub UI.
+
+**Common Causes:**
+1. **Wrong repository owner/name** - Using assumed repo name instead of verified one
+2. **Fork vs upstream confusion** - PR may be on a fork with different owner
+3. **Caching/timing** - Threads just created may not appear immediately
+
+**Solution:** Always verify repository info BEFORE running GraphQL queries:
+
+```bash
+# MANDATORY: Get correct repo info first
+gh repo view --json nameWithOwner -q .nameWithOwner
+# Returns actual owner/repo (e.g., "athola/repo" not "assumed-owner/repo")
+
+# Get PR number
+gh pr view --json number -q .number
+
+# THEN use the verified values in GraphQL
+```
+
+**Cross-validation:** If threads are empty but reviews exist, re-check:
+```bash
+# Check if reviews exist
+gh pr view --json reviews --jq '.reviews | length'
+# If > 0 but threads empty, verify repo owner is correct
+
+# Also check review comments via REST as fallback
+gh api repos/OWNER/REPO/pulls/PR_NUMBER/comments
+```
+
+**Real example of this failure:**
+```bash
+# Wrong (assumed owner)
+gh api graphql ... repository(owner: "alexyoung", ...)  # Returns empty
+
+# Correct (verified owner)
+gh repo view --json nameWithOwner  # Returns "athola/..."
+gh api graphql ... repository(owner: "athola", ...)  # Returns 7 threads
+```
+
 ## Migration Notes
 
 - `/fix-pr` now includes the enhanced superpowers-driven workflow (formerly `/fix-pr-wrapper`).

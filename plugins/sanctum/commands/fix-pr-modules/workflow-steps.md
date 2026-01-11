@@ -192,11 +192,60 @@ EOF
 
 ### 1.3 Fetch Review Context
 
+**CRITICAL: First get the correct repository info before any GraphQL queries.**
+
 ```bash
-# Get unresolved review threads (GraphQL)
-gh api graphql -f query='...'
-# Get general issue comments
-gh api repos/{owner}/{repo}/issues/{pr_number}/comments
+# Step 1: Get repository owner and name (MANDATORY FIRST STEP)
+gh repo view --json nameWithOwner -q .nameWithOwner
+# Returns: owner/repo (e.g., "athola/claude-night-market")
+
+# Step 2: Get PR number
+gh pr view --json number -q .number
+```
+
+**Use the returned owner/repo values in ALL subsequent queries.** Do NOT assume the repository name - verify it.
+
+**Fetch Review Threads (GraphQL):**
+```bash
+# Replace OWNER, REPO, PR_NUMBER with actual values from steps above
+gh api graphql -f query='
+query {
+  repository(owner: "OWNER", name: "REPO") {
+    pullRequest(number: PR_NUMBER) {
+      reviewThreads(first: 100) {
+        nodes {
+          id
+          isResolved
+          path
+          line
+          comments(first: 1) {
+            nodes {
+              body
+              author { login }
+            }
+          }
+        }
+      }
+    }
+  }
+}'
+```
+
+**Also check for general reviews (may contain actionable feedback without threads):**
+```bash
+# Get review comments and state
+gh pr view PR_NUMBER --json reviews --jq '.reviews[] | {author: .author.login, state: .state, body: .body}'
+```
+
+**Validation - If threads query returns empty:**
+1. Verify repository owner/name is correct (re-run `gh repo view`)
+2. Check if reviews exist via `gh pr view --json reviews`
+3. Reviews can contain line-specific comments shown as threads in the UI
+4. If reviews exist but threads are empty, the review may be a general comment (not line-specific)
+
+**Get general issue comments (non-review comments):**
+```bash
+gh api repos/OWNER/REPO/issues/PR_NUMBER/comments --jq '.[] | {id: .id, author: .user.login, body: .body}'
 ```
 
 ### 1.4 Analyze with Superpowers
