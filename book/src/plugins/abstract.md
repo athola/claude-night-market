@@ -23,7 +23,9 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 | `hooks-eval` | Hook security scanning | Verifying hook safety |
 | `escalation-governance` | Model escalation decisions | Deciding when to escalate models |
 | `makefile-dogfooder` | Makefile analysis | Ensuring Makefile completeness |
+| `methodology-curator` | Expert framework curation | Grounding skills in proven methodologies |
 | `shared-patterns` | Plugin development patterns | Reusable templates |
+| `subagent-testing` | Subagent test patterns | Testing subagent interactions |
 
 ## Commands
 

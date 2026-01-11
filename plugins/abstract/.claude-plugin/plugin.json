@@ -28,7 +28,10 @@
     "./skills/shared-patterns",
     "./skills/validate-plugin-structure.md",
     "./skills/hook-scope-guide.md",
-    "./skills/makefile-dogfooder"
+    "./skills/makefile-dogfooder",
+    "./skills/methodology-curator",
+    "./skills/escalation-governance",
+    "./skills/subagent-testing"
   ],
   "agents": [
     "./agents/meta-architect.md",

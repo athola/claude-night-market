@@ -56,6 +56,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `makefile-review` | [pensive](../plugins/pensive.md) | Makefile best practices |
 | `math-review` | [pensive](../plugins/pensive.md) | Mathematical correctness |
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
+| `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
 | `mecw-patterns` | [leyline](../plugins/leyline.md) | MECW implementation |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
@@ -84,6 +85,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
+| `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
@@ -92,9 +94,11 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
+| `subagent-testing` | [abstract](../plugins/abstract.md) | Testing patterns for subagent interactions |
 | `test-updates` | [sanctum](../plugins/sanctum.md) | Test maintenance |
 | `testing-quality-standards` | [leyline](../plugins/leyline.md) | Test quality guidelines |
 | `token-conservation` | [conserve](../plugins/conserve.md) | Token usage strategies |
+| `tutorial-updates` | [sanctum](../plugins/sanctum.md) | Tutorial maintenance and updates |
 | `unified-review` | [pensive](../plugins/pensive.md) | Review orchestration |
 | `update-readme` | [sanctum](../plugins/sanctum.md) | README modernization |
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
@@ -127,6 +131,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/check-async` | parseltongue | Async pattern validation |
 | `/commit-msg` | sanctum | Generate commit message |
 | `/context-report` | abstract | Context optimization report |
+| `/create-tag` | sanctum | Create git tags for releases |
 | `/create-command` | abstract | Scaffold new command |
 | `/create-hook` | abstract | Scaffold new hook |
 | `/create-skill` | abstract | Scaffold new skill |
@@ -151,9 +156,13 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/record-browser` | scry | Record browser session |
 | `/record-terminal` | scry | Create terminal recording |
 | `/reinstall-all-plugins` | leyline | Refresh all plugins |
+| `/resolve-threads` | sanctum | Resolve PR review threads |
 | `/review` | imbue | Structured review |
 | `/run-profiler` | parseltongue | Profile code execution |
 | `/rust-review` | pensive | Rust-specific review |
+| `/shell-review` | pensive | Shell script safety and portability review |
+| `/skill-history` | pensive | View recent skill executions with context |
+| `/skill-review` | pensive | Analyze skill metrics and stability gaps |
 | `/skills-eval` | abstract | Skill quality assessment |
 | `/speckit-analyze` | spec-kit | Check artifact consistency |
 | `/speckit-checklist` | spec-kit | Generate checklist |
@@ -169,9 +178,11 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/test-skill` | abstract | Skill testing workflow |
 | `/unbloat` | conserve | Safe bloat remediation with interactive approval |
 | `/update-all-plugins` | leyline | Update all plugins |
+| `/update-dependencies` | sanctum | Update project dependencies |
 | `/update-docs` | sanctum | Update documentation |
 | `/update-readme` | sanctum | Modernize README |
 | `/update-tests` | sanctum | Maintain tests |
+| `/update-tutorial` | sanctum | Update tutorial content |
 | `/update-version` | sanctum | Bump versions |
 | `/validate-hook` | abstract | Validate hook compliance |
 | `/validate-plugin` | abstract | Check plugin structure |
@@ -185,6 +196,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `code-reviewer` | pensive | Expert code review |
 | `commit-agent` | sanctum | Commit message generator |
 | `context-optimizer` | conserve | Context optimization |
+| `dependency-updater` | sanctum | Dependency version management |
 | `garden-curator` | memory-palace | Digital garden maintenance |
 | `git-workspace-agent` | sanctum | Repository state analyzer |
 | `implementation-executor` | spec-kit | Task executor |

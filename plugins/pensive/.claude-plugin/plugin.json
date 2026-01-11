@@ -23,7 +23,8 @@
     "./skills/rust-review",
     "./skills/test-review",
     "./skills/math-review",
-    "./skills/makefile-review"
+    "./skills/makefile-review",
+    "./skills/shell-review"
   ],
   "agents": [
     "./agents/code-reviewer.md",
