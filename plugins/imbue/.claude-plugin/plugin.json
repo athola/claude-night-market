@@ -10,12 +10,14 @@
     "./skills/diff-analysis",
     "./skills/catchup",
     "./skills/scope-guard",
-    "./skills/feature-review"
+    "./skills/feature-review",
+    "./skills/proof-of-work"
   ],
   "commands": [
     "./commands/structured-review.md",
     "./commands/catchup.md",
-    "./commands/feature-review.md"
+    "./commands/feature-review.md",
+    "./commands/review.md"
   ],
   "agents": [
     "./agents/review-analyst.md"

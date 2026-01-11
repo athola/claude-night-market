@@ -43,6 +43,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `evidence-logging` | [imbue](../plugins/imbue.md) | Capture methodology |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization and gap analysis |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
+| `fix-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
@@ -71,6 +72,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `project-init` | [attune](../plugins/attune.md) | Interactive project initialization |
 | `project-planning` | [attune](../plugins/attune.md) | Architecture and task breakdown |
 | `project-specification` | [attune](../plugins/attune.md) | Spec creation from brainstorm |
+| `proof-of-work` | [imbue](../plugins/imbue.md) | Evidence-based work validation |
 | `python-async` | [parseltongue](../plugins/parseltongue.md) | Async patterns |
 | `python-packaging` | [parseltongue](../plugins/parseltongue.md) | Packaging with uv |
 | `python-performance` | [parseltongue](../plugins/parseltongue.md) | Profiling and optimization |

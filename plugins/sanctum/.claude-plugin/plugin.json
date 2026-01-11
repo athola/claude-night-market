@@ -9,7 +9,7 @@
     "./commands/fix-workflow.md",
     "./commands/fix-pr.md",
     "./commands/merge-docs.md",
-    "./commands/pr.md",
+    "./commands/prepare-pr.md",
     "./commands/pr-review.md",
     "./commands/resolve-threads.md",
     "./commands/update-docs.md",
@@ -33,7 +33,8 @@
     "./skills/update-readme",
     "./skills/workflow-improvement",
     "./skills/version-updates",
-    "./skills/tutorial-updates"
+    "./skills/tutorial-updates",
+    "./skills/fix-issue"
   ],
   "agents": [
     "./agents/git-workspace-agent.md",

@@ -11,6 +11,7 @@
     "./commands/test-review.md",
     "./commands/math-review.md",
     "./commands/makefile-review.md",
+    "./commands/shell-review.md",
     "./commands/skill-review.md",
     "./commands/skill-history.md"
   ],
