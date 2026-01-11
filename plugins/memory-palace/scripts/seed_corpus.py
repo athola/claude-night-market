@@ -105,7 +105,7 @@ def load_topics() -> list[Topic]:
 def generate_entries() -> list[dict[str, Any]]:
     """Generate knowledge entry metadata from topic catalogue."""
     _ = load_topics()  # Changed from _topics()
-    entries = []
+    entries: list[dict[str, Any]] = []
     # ... rest of function implementation
     return entries
 

@@ -3,16 +3,8 @@ repos:
     hooks:
       # =================================================================
       # Code Quality Hooks - Run for changed plugins
+      # Note: Linting handled by global ruff-format + ruff hooks below
       # =================================================================
-
-      - id: run-plugin-lint
-        name: Lint Changed Plugins
-        entry: ./scripts/run-plugin-lint.sh --changed
-        language: system
-        pass_filenames: false
-        stages: [pre-commit]
-        files: ^plugins/.*\.py$
-        verbose: true
 
       - id: run-plugin-typecheck
         name: Type Check Changed Plugins
@@ -138,16 +130,22 @@ repos:
   # =================================================================
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.0
+    rev: v0.14.11
     hooks:
-      # Format first, then check - this prevents conflicts between check --fix and format
+      # 1. Format
       - id: ruff-format
-        name: Ruff - Code Formatter
+        name: Ruff - Format
         args: [--config, pyproject.toml]
         types: [python]
+      # 2. Fix auto-fixable lint issues
       - id: ruff
-        name: Ruff - Fast Python Linter
-        args: [--config, pyproject.toml]  # No --fix to avoid conflicts with ruff-format
+        name: Ruff - Fix
+        args: [--fix, --config, pyproject.toml]
+        types: [python]
+      # 3. Verify no remaining lint issues
+      - id: ruff
+        name: Ruff - Check
+        args: [--config, pyproject.toml]
         types: [python]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -179,7 +177,7 @@ repos:
 # CI Configuration
 # =================================================================
 ci:
-  skip: [run-plugin-lint, run-plugin-typecheck, run-plugin-tests]
+  skip: [run-plugin-typecheck, run-plugin-tests]
 
 default_stages: [pre-commit]
 default_language_version:

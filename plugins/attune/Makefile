@@ -147,8 +147,5 @@ plugin-check: demo-init demo-brainstorm demo-skills ## Run all demo workflows
 Makefile.local:;
 -include Makefile.local
 
-# Guard against accidental file creation (catch-all for unknown targets)
-%::
-	@echo "Error: Unknown target '$@'"
-	@echo "Run 'make help' to see available commands"
-	@exit 1
+# Note: catch-all rule removed to allow included targets from python.mk to work
+# The %:: double-colon rule was interfering with typecheck, lint, etc.

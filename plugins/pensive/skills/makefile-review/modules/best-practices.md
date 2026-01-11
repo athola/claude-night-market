@@ -194,6 +194,24 @@ build/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 ```
 
+### Pipeline Exit Code Propagation
+```makefile
+# Bad - pipeline exit code is from grep, not make
+check:
+	@$(MAKE) typecheck 2>&1 | grep -v "^make\["
+
+# Good - capture exit code explicitly in wrapper scripts
+# See shell-review skill for bash pipeline patterns
+check:
+	@$(MAKE) typecheck || { echo "Type check failed"; exit 1; }
+
+# Good - use .SHELLFLAGS for pipefail in recipes
+SHELL := /bin/bash
+.SHELLFLAGS := -eu -o pipefail -c
+```
+
+When recipes use pipelines, ensure exit codes propagate correctly. In bash, the default behavior is that pipeline exit code equals the last command's exit code. Use `set -o pipefail` or capture output and exit codes separately.
+
 ## Parallel Execution
 
 ```makefile

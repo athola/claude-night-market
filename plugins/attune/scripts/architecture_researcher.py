@@ -27,7 +27,8 @@ def load_decision_matrix() -> dict[str, Any]:
         )
 
     with open(MATRIX_FILE) as f:
-        return yaml.safe_load(f)
+        result: dict[str, Any] = yaml.safe_load(f)
+        return result
 
 
 @dataclass
@@ -57,7 +58,7 @@ class ArchitectureRecommendation:
 class ArchitectureResearcher:
     """Research and recommend architectures based on project context."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize architecture researcher."""
         # Load decision matrix from YAML instead of embedding in code
         matrix_data = load_decision_matrix()

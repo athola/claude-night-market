@@ -64,9 +64,9 @@ class TestGifDemoDependencies:
         assert result.returncode != 0
         # Check for the specific error message from the script
         output = result.stderr + result.stdout
-        assert (
-            "ffmpeg" in output.lower()
-        ), f"Expected ffmpeg error message, got: {output}"
+        assert "ffmpeg" in output.lower(), (
+            f"Expected ffmpeg error message, got: {output}"
+        )
 
 
 @pytest.mark.integration

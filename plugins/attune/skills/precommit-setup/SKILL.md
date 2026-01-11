@@ -147,10 +147,10 @@ Create quality check scripts:
 #!/bin/bash
 # Lint only changed components based on staged files
 
-set -e
+set -euo pipefail
 
 # Detect changed components from staged files
-CHANGED_COMPONENTS=\$(git diff --cached --name-only | grep -E '^(plugins|components)/' | cut -d/ -f2 | sort -u)
+CHANGED_COMPONENTS=\$(git diff --cached --name-only | grep -E '^(plugins|components)/' | cut -d/ -f2 | sort -u) || true
 
 if [ -z "\$CHANGED_COMPONENTS" ]; then
     echo "No components changed"
@@ -159,18 +159,28 @@ fi
 
 echo "Linting changed components: \$CHANGED_COMPONENTS"
 
+FAILED=()
+
 for component in \$CHANGED_COMPONENTS; do
     if [ -d "plugins/\$component" ]; then
         echo "Linting \$component..."
-        cd "plugins/\$component"
-        if [ -f "Makefile" ] && grep -q "^lint:" Makefile; then
-            make lint
+        # Capture exit code to properly propagate failures
+        local exit_code=0
+        if [ -f "plugins/\$component/Makefile" ] && grep -q "^lint:" "plugins/\$component/Makefile"; then
+            (cd "plugins/\$component" && make lint) || exit_code=\$?
         else
-            uv run ruff check .
+            (cd "plugins/\$component" && uv run ruff check .) || exit_code=\$?
         fi
-        cd ../..
+        if [ "\$exit_code" -ne 0 ]; then
+            FAILED+=("\$component")
+        fi
     fi
 done
+
+if [ \${#FAILED[@]} -gt 0 ]; then
+    echo "Lint failed for: \${FAILED[*]}"
+    exit 1
+fi
 \`\`\`
 
 #### 2. Type Check Changed Components (`scripts/run-component-typecheck.sh`)
@@ -179,9 +189,9 @@ done
 #!/bin/bash
 # Type check only changed components
 
-set -e
+set -euo pipefail
 
-CHANGED_COMPONENTS=\$(git diff --cached --name-only | grep -E '^(plugins|components)/' | cut -d/ -f2 | sort -u)
+CHANGED_COMPONENTS=\$(git diff --cached --name-only | grep -E '^(plugins|components)/' | cut -d/ -f2 | sort -u) || true
 
 if [ -z "\$CHANGED_COMPONENTS" ]; then
     exit 0
@@ -189,18 +199,31 @@ fi
 
 echo "Type checking changed components: \$CHANGED_COMPONENTS"
 
+FAILED=()
+
 for component in \$CHANGED_COMPONENTS; do
     if [ -d "plugins/\$component" ]; then
         echo "Type checking \$component..."
-        cd "plugins/\$component"
-        if [ -f "Makefile" ] && grep -q "^typecheck:" Makefile; then
-            make typecheck
+        # Capture output and exit code separately to properly propagate failures
+        local output
+        local exit_code=0
+        if [ -f "plugins/\$component/Makefile" ] && grep -q "^typecheck:" "plugins/\$component/Makefile"; then
+            output=\$(cd "plugins/\$component" && make typecheck 2>&1) || exit_code=\$?
         else
-            uv run mypy src/
+            output=\$(cd "plugins/\$component" && uv run mypy src/ 2>&1) || exit_code=\$?
         fi
-        cd ../..
+        # Display output (filter make noise)
+        echo "\$output" | grep -v "^make\[" || true
+        if [ "\$exit_code" -ne 0 ]; then
+            FAILED+=("\$component")
+        fi
     fi
 done
+
+if [ \${#FAILED[@]} -gt 0 ]; then
+    echo "Type check failed for: \${FAILED[*]}"
+    exit 1
+fi
 \`\`\`
 
 #### 3. Test Changed Components (`scripts/run-component-tests.sh`)
@@ -209,9 +232,9 @@ done
 #!/bin/bash
 # Test only changed components
 
-set -e
+set -euo pipefail
 
-CHANGED_COMPONENTS=\$(git diff --cached --name-only | grep -E '^(plugins|components)/' | cut -d/ -f2 | sort -u)
+CHANGED_COMPONENTS=\$(git diff --cached --name-only | grep -E '^(plugins|components)/' | cut -d/ -f2 | sort -u) || true
 
 if [ -z "\$CHANGED_COMPONENTS" ]; then
     exit 0
@@ -219,18 +242,28 @@ fi
 
 echo "Testing changed components: \$CHANGED_COMPONENTS"
 
+FAILED=()
+
 for component in \$CHANGED_COMPONENTS; do
     if [ -d "plugins/\$component" ]; then
         echo "Testing \$component..."
-        cd "plugins/\$component"
-        if [ -f "Makefile" ] && grep -q "^test:" Makefile; then
-            make test
+        # Capture exit code to properly propagate failures
+        local exit_code=0
+        if [ -f "plugins/\$component/Makefile" ] && grep -q "^test:" "plugins/\$component/Makefile"; then
+            (cd "plugins/\$component" && make test) || exit_code=\$?
         else
-            uv run pytest tests/
+            (cd "plugins/\$component" && uv run pytest tests/) || exit_code=\$?
         fi
-        cd ../..
+        if [ "\$exit_code" -ne 0 ]; then
+            FAILED+=("\$component")
+        fi
     fi
 done
+
+if [ \${#FAILED[@]} -gt 0 ]; then
+    echo "Tests failed for: \${FAILED[*]}"
+    exit 1
+fi
 \`\`\`
 
 ### Add to Pre-commit Configuration
@@ -641,6 +674,7 @@ repos:
 - `Skill(attune:project-init)` - Full project initialization
 - `Skill(attune:workflow-setup)` - GitHub Actions setup
 - `Skill(attune:makefile-generation)` - Generate component Makefiles
+- `Skill(pensive:shell-review)` - Audit shell scripts for exit code and safety issues
 
 ## See Also
 

@@ -34,17 +34,17 @@ def test_wrapper_translates_parameters() -> None:
     result = wrapper.translate_parameters(input_params)
 
     # Validate expected mappings exist
-    assert (
-        "target_under_test" in result
-    ), f"Expected 'target_under_test' in result, got: {result.keys()}"
-    assert (
-        "tdd_phase" in result
-    ), f"Expected 'tdd_phase' in result, got: {result.keys()}"
+    assert "target_under_test" in result, (
+        f"Expected 'target_under_test' in result, got: {result.keys()}"
+    )
+    assert "tdd_phase" in result, (
+        f"Expected 'tdd_phase' in result, got: {result.keys()}"
+    )
 
     # Validate correct values
-    assert (
-        result["target_under_test"] == "skills/my-skill"
-    ), f"Expected 'skills/my-skill', got '{result['target_under_test']}'"
+    assert result["target_under_test"] == "skills/my-skill", (
+        f"Expected 'skills/my-skill', got '{result['target_under_test']}'"
+    )
     assert result["tdd_phase"] == "red", f"Expected 'red', got '{result['tdd_phase']}'"
 
 
@@ -179,15 +179,15 @@ class TestValidateTranslation:
         translated = {}
 
         result = wrapper.validate_translation(original, translated)
-        assert (
-            result is False
-        ), "Empty translation from non-empty input should be rejected"
+        assert result is False, (
+            "Empty translation from non-empty input should be rejected"
+        )
 
         # Should have logged an error
         errors = wrapper.error_handler.errors
-        assert any(
-            err.error_code == "TRANSLATION_FAILED" for err in errors
-        ), "Should log TRANSLATION_FAILED error"
+        assert any(err.error_code == "TRANSLATION_FAILED" for err in errors), (
+            "Should log TRANSLATION_FAILED error"
+        )
 
     def test_validate_translation_empty_to_empty_returns_false(self) -> None:
         """validate_translation returns False for empty translation.

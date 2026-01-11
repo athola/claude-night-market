@@ -26,8 +26,9 @@ def load_templates() -> dict[str, dict[str, Any]]:
         )
 
     with open(TEMPLATES_FILE) as f:
-        data = yaml.safe_load(f)
-        return data["templates"]
+        data: dict[str, Any] = yaml.safe_load(f)
+        templates: dict[str, dict[str, Any]] = data["templates"]
+        return templates
 
 
 class TemplateCustomizer:

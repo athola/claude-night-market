@@ -39,7 +39,7 @@ As a prerequisite, run `Skill(sanctum:git-workspace-review)` so the repository p
    - Body: Wrap at 72 characters per line, explain the "what" and "why", and list key bullets if useful.
    - Footer: Add `BREAKING CHANGE: …` or issue references if needed.
 4. **Write the output**
-   - The prompt passes a destination path (e.g., `{0|commit_msg.txt}`).
+   - The prompt passes a destination path (e.g., `{0|./commit_msg.txt}`) - always use a relative path in cwd, never an absolute path.
    - Overwrite the file with only the final commit message—no commentary.
 5. **Preview**
    - Display the file path and contents (`cat <file>` or `sed -n '1,120p' <file>`) for confirmation.

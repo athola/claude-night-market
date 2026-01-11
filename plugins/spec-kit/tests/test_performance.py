@@ -203,9 +203,9 @@ class TestPerformanceBenchmarks:
                 execution_time = time.time() - start_time
 
                 # Should complete within time limit
-                assert (
-                    execution_time < time_limit
-                ), f"{command} took {execution_time:.2f}s, limit is {time_limit}s"
+                assert execution_time < time_limit, (
+                    f"{command} took {execution_time:.2f}s, limit is {time_limit}s"
+                )
 
     class TestResourceOptimization:
         """Test resource optimization features."""
@@ -299,9 +299,9 @@ class TestPerformanceBenchmarks:
             # Most memory should be released (but GC behavior varies)
             # Just verify cleanup was attempted and some memory tracked
             assert peak_memory_increase >= 0, "Memory increase should be tracked"
-            assert (
-                memory_increase_after_cleanup >= 0
-            ), "Cleanup memory should be tracked"
+            assert memory_increase_after_cleanup >= 0, (
+                "Cleanup memory should be tracked"
+            )
 
     @pytest.fixture
     def mock_skill_loading(self):

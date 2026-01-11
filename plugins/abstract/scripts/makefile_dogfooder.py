@@ -36,7 +36,8 @@ def load_target_catalog() -> dict[str, Any]:
         )
 
     with open(TARGET_CATALOG_FILE) as f:
-        return yaml.safe_load(f)
+        result: dict[str, Any] = yaml.safe_load(f)
+        return result
 
 
 class MakefileDogfooder:

@@ -13,7 +13,7 @@ To draft a commit message, load the required skills in order:
 - **FIRST: Validate code quality** with `make format && make lint` - fix all issues before proceeding
 - Use the skill checklist to gather evidence: `git status -sb`, `git diff --cached --stat`, and `git diff --cached`.
 - Determine the appropriate Conventional Commit type/scope and note any breaking changes.
-- Write the message to `{0|commit_msg.txt}` using the required format:
+- Write the message to `{0|./commit_msg.txt}` (relative to cwd) using the required format:
   ```
   <type>(<scope>): <subject>
 
@@ -32,6 +32,6 @@ If a skill cannot be loaded, follow these steps:
 - **Run code quality checks FIRST**: `make format && make lint`
 - Fix any linting/formatting errors before proceeding
 - Manually run the Git preflight commands (`pwd`, `git status -sb`, `git diff --cached --stat`, `git diff --cached`) to gather context.
-- Follow the Conventional Commit format to choose a type/scope, draft the subject/body/footer, and write only the commit message to `{0|commit_msg.txt}`.
+- Follow the Conventional Commit format to choose a type/scope, draft the subject/body/footer, and write only the commit message to `{0|./commit_msg.txt}` (relative to cwd, NOT an absolute path).
 - Preview the file contents when finished.
 - **NEVER commit with `--no-verify`** - always let pre-commit hooks run to validate quality.

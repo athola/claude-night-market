@@ -59,13 +59,11 @@ class BaseReviewSkill:
     def __init__(self) -> None:
         """Initialize the skill."""
         self.findings: list[ReviewFinding] = []
-        self._parser = ContentParser() if ContentParser else None
+        self._parser = ContentParser() if ContentParser is not None else None
         self._report_gen = (
-            MarkdownReportGenerator()
-            if MarkdownReportGenerator
-            else None
+            MarkdownReportGenerator() if MarkdownReportGenerator is not None else None
         )
-        self._severity = SeverityMapper() if SeverityMapper else None
+        self._severity = SeverityMapper() if SeverityMapper is not None else None
 
     def analyze(self, _context: Any, _file_path: str) -> AnalysisResult:
         """Analyze a file and return findings.

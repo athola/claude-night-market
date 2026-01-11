@@ -3,6 +3,7 @@
   "version": "1.2.4",
   "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design patterns, and evaluation frameworks",
   "commands": [
+    "./commands/plugin-review.md",
     "./commands/skills-eval.md",
     "./commands/validate-plugin.md",
     "./commands/analyze-skill.md",

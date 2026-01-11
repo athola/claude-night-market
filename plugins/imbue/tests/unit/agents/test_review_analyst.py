@@ -290,9 +290,9 @@ class TestReviewAnalystAgent:
             # Verify evidence references correspond to logged evidence
             for ref in finding["evidence_refs"]:
                 evidence_exists = any(e["id"] == ref for e in evidence_log["evidence"])
-                assert (
-                    evidence_exists
-                ), f"Evidence reference {ref} not found in evidence log"
+                assert evidence_exists, (
+                    f"Evidence reference {ref} not found in evidence log"
+                )
 
         # Verify evidence completeness
         for evidence in evidence_log["evidence"]:

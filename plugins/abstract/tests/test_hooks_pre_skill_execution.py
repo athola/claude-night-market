@@ -96,9 +96,9 @@ class TestPreSkillExecutionBasics:
         output = json.loads(result["stdout"])
 
         # Then
-        assert (
-            output["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
-        ), "Should indicate PreToolUse event"
+        assert output["hookSpecificOutput"]["hookEventName"] == "PreToolUse", (
+            "Should indicate PreToolUse event"
+        )
 
 
 class TestSkillNameParsing:

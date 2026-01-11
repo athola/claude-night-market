@@ -178,23 +178,31 @@ class RuleEngine:
         """
         # Bash events: match against command
         if "command" in context:
-            return context["command"]
+            return str(context["command"]) if context["command"] is not None else None
 
         # File events: match against new_text by default
         if "new_text" in context:
-            return context["new_text"]
+            return str(context["new_text"]) if context["new_text"] is not None else None
 
         # File events: fallback to content
         if "content" in context:
-            return context["content"]
+            return str(context["content"]) if context["content"] is not None else None
 
         # Prompt events: match against user_prompt
         if "user_prompt" in context:
-            return context["user_prompt"]
+            return (
+                str(context["user_prompt"])
+                if context["user_prompt"] is not None
+                else None
+            )
 
         # Stop events: match against transcript or anything
         if "transcript" in context:
-            return context["transcript"]
+            return (
+                str(context["transcript"])
+                if context["transcript"] is not None
+                else None
+            )
 
         return None
 

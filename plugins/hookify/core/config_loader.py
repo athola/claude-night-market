@@ -61,8 +61,7 @@ class RuleConfig:
         valid_events = {"bash", "file", "stop", "prompt", "all"}
         if self.event not in valid_events:
             raise ValueError(
-                f"Invalid event '{self.event}'. "
-                f"Must be one of: {', '.join(sorted(valid_events))}"
+                f"Invalid event '{self.event}'. Must be one of: {', '.join(sorted(valid_events))}"
             )
 
         valid_actions = {"warn", "block"}
@@ -147,7 +146,7 @@ class ConfigLoader:
         Returns:
             List of bundled rule configurations.
         """
-        rules = []
+        rules: list[RuleConfig] = []
 
         if not self.bundled_rules_dir.exists():
             return rules
@@ -174,7 +173,7 @@ class ConfigLoader:
         Returns:
             List of user rule configurations.
         """
-        rules = []
+        rules: list[RuleConfig] = []
 
         if not self.user_rules_dir.exists():
             return rules
@@ -285,7 +284,7 @@ class ConfigLoader:
         Returns:
             List of bundled rule names.
         """
-        names = []
+        names: list[str] = []
         if not self.bundled_rules_dir.exists():
             return names
 

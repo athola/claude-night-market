@@ -94,7 +94,7 @@ flowchart TB
 | **pensive** | Code review + skill performance analysis | `/full-review`, `/skill-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
 | **minister** | Project management and GitHub integration | `/create-issue`, `/close-issue`, `/status` |
-| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (💡 reduced 64k tokens) |
+| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (💡 reduced 70k+ tokens) |
 | **attune** | Project scaffolding and initialization | `/attune:init`, `/attune:brainstorm` |
 | **parseltongue** | Python development suite | `/analyze-tests`, `/run-profiler` |
 | **archetypes** | Architecture paradigm selection | 13 architecture guides |
@@ -154,6 +154,8 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | [**Skills Separation Guide**](docs/guides/development-vs-runtime-skills-separation.md) | Separating dev skills from runtime agent skills ([Quick Ref](docs/guides/skills-separation-quickref.md)) |
 | [**Quality Gates**](docs/quality-gates.md) | Code quality system and pre-commit hooks |
 | [**Error Handling**](docs/guides/error-handling-guide.md) | Error classification and recovery patterns |
+| [**Optimization Patterns**](docs/optimization-patterns.md) | Bloat reduction methodology (70k+ tokens saved) |
+| [**Data Extraction Pattern**](docs/guides/data-extraction-pattern.md) | Separating embedded data into YAML |
 | [**Testing Guide**](docs/testing-guide.md) | Testing patterns and troubleshooting |
 | [**Performance Guide**](docs/performance/README.md) | Hook optimization and benchmarking |
 | [**LSP Integration**](docs/guides/lsp-native-support.md) | Language Server Protocol setup and verification |
