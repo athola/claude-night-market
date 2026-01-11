@@ -111,31 +111,80 @@ def generate_entries() -> list[dict[str, Any]]:
 
 
 def seed_cache_catalog(
-    entries: list[dict[str, Any]],
+    _entries: list[dict[str, Any]],
     *,
-    catalog_path: Path | None = None,
+    _catalog_path: Path | None = None,
 ) -> None:
-    """Update cache catalog with seed entry references."""
-    # ... implementation
-    pass
+    """Update cache catalog with seed entry references.
+
+    Writes entry metadata to the cache catalog YAML for cache interceptor lookup.
+
+    Args:
+        entries: List of knowledge entry metadata dicts
+        catalog_path: Optional override for catalog location
+
+    Raises:
+        NotImplementedError: Stub - implementation deferred to phase 2 development
+
+    """
+    raise NotImplementedError(
+        "seed_cache_catalog: Implementation deferred. "
+        "See memory-palace roadmap for cache catalog integration timeline."
+    )
 
 
-def write_markdown(entry: dict[str, Any]) -> None:
-    """Write knowledge entry to markdown file."""
-    # ... implementation
-    pass
+def write_markdown(_entry: dict[str, Any]) -> None:
+    """Write knowledge entry to markdown file.
+
+    Creates a formatted markdown file in the knowledge-corpus directory.
+
+    Args:
+        entry: Knowledge entry metadata dict with slug, title, content, etc.
+
+    Raises:
+        NotImplementedError: Stub - implementation deferred to phase 2 development
+
+    """
+    raise NotImplementedError(
+        "write_markdown: Implementation deferred. "
+        "See memory-palace roadmap for corpus file generation."
+    )
 
 
-def update_keyword_index(entries: list[dict[str, Any]]) -> None:
-    """Update keyword-based search index."""
-    # ... implementation
-    pass
+def update_keyword_index(_entries: list[dict[str, Any]]) -> None:
+    """Update keyword-based search index.
+
+    Rebuilds the keyword index from all entries for fast lookup.
+
+    Args:
+        entries: List of all knowledge entry metadata dicts
+
+    Raises:
+        NotImplementedError: Stub - implementation deferred to phase 2 development
+
+    """
+    raise NotImplementedError(
+        "update_keyword_index: Implementation deferred. "
+        "See memory-palace roadmap for search index implementation."
+    )
 
 
-def update_query_templates(entries: list[dict[str, Any]]) -> None:
-    """Update query template index."""
-    # ... implementation
-    pass
+def update_query_templates(_entries: list[dict[str, Any]]) -> None:
+    """Update query template index.
+
+    Creates query patterns that map user questions to knowledge entries.
+
+    Args:
+        entries: List of all knowledge entry metadata dicts
+
+    Raises:
+        NotImplementedError: Stub - implementation deferred to phase 2 development
+
+    """
+    raise NotImplementedError(
+        "update_query_templates: Implementation deferred. "
+        "See memory-palace roadmap for query template system."
+    )
 
 
 def main() -> None:

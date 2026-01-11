@@ -83,15 +83,31 @@ class ArchitectureResearcher:
         primary = base_rec["primary"]
         secondary = base_rec["secondary"]
 
-        # Apply project type modifiers
+        # Apply project type modifiers (if defined in YAML)
+        # NOTE: Modifier application is intentionally simple - the YAML matrix
+        # already encodes most project-type-specific recommendations. These
+        # modifiers provide optional overrides for edge cases not captured
+        # in the primary matrix lookup.
         if context.project_type in self.project_type_modifiers:
-            _ = self.project_type_modifiers[context.project_type]
-            # ... apply modification logic ...
+            modifiers = self.project_type_modifiers[context.project_type]
+            if "preferred_paradigm" in modifiers:
+                primary = modifiers["preferred_paradigm"]
+            if "fallback_paradigm" in modifiers:
+                secondary = modifiers["fallback_paradigm"]
 
-        # Apply scalability modifiers
+        # Apply scalability modifiers for high-scale requirements
+        # NOTE: Scalability modifiers only apply when needs exceed "moderate".
+        # The base matrix assumes moderate scalability; these modifiers
+        # promote patterns better suited for high-throughput scenarios.
         if context.scalability_needs in self.scalability_modifiers:
-            # ... apply modification logic ...
-            pass
+            modifiers = self.scalability_modifiers[context.scalability_needs]
+            if (
+                "promote_patterns" in modifiers
+                and primary not in modifiers["promote_patterns"]
+            ):
+                # Suggest promoted pattern as alternative if not already primary
+                if modifiers["promote_patterns"]:
+                    secondary = modifiers["promote_patterns"][0]
 
         return ArchitectureRecommendation(
             paradigm=primary,
