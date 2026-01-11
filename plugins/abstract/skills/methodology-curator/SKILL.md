@@ -95,27 +95,32 @@ Before proceeding to skill creation, document your choices:
 
 ### For New Work (Creation)
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│ methodology-    │ ──→ │ brainstorming   │ ──→ │ create-skill    │
-│ curator         │     │ (informed)      │     │ create-hook     │
-│                 │     │                 │     │ create-agent    │
-│ "Who solved     │     │ "How should     │     │ "Build it"      │
-│  this best?"    │     │  we adapt?"     │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+```mermaid
+flowchart LR
+    mc["<b>methodology-curator</b><br/><i>Who solved this best?</i>"]
+    brain["<b>brainstorming</b><br/>(informed)<br/><i>How should we adapt?</i>"]
+    create["<b>create-skill</b><br/><b>create-hook</b><br/><b>create-agent</b><br/><i>Build it</i>"]
+
+    mc --> brain --> create
+
+    style mc fill:#e8eaf6,stroke:#3f51b5
+    style brain fill:#fff3e0,stroke:#ff9800
+    style create fill:#e8f5e9,stroke:#4caf50
 ```
 
 ### For Existing Work (Evaluation)
 
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│ methodology-    │ ──→ │ Gap Analysis    │ ──→ │ Targeted        │
-│ curator         │     │                 │     │ Improvements    │
-│                 │     │ "What's missing │     │                 │
-│ "What framework │     │  vs. masters?"  │     │ "Add X from     │
-│  should this    │     │                 │     │  framework Y"   │
-│  embody?"       │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+```mermaid
+flowchart LR
+    mc2["<b>methodology-curator</b><br/><i>What framework should<br/>this embody?</i>"]
+    gap["<b>Gap Analysis</b><br/><i>What's missing<br/>vs. masters?</i>"]
+    improve["<b>Targeted Improvements</b><br/><i>Add X from<br/>framework Y</i>"]
+
+    mc2 --> gap --> improve
+
+    style mc2 fill:#e8eaf6,stroke:#3f51b5
+    style gap fill:#fce4ec,stroke:#e91e63
+    style improve fill:#e8f5e9,stroke:#4caf50
 ```
 
 **This skill runs BEFORE brainstorming or evaluation**, as a brief initial check.

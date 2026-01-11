@@ -215,9 +215,9 @@ Blended approach for important decisions:
 ### 3. Evaluate (Duke + Klein)
 | Option | Probability of Success | Upside | Downside | Expected Value |
 |--------|----------------------|--------|----------|----------------|
-| A | | | | |
-| B | | | | |
-| C | | | | |
+| A | [0-100%] | [Best case outcome] | [Worst case outcome] | [Prob x Upside - (1-Prob) x Downside] |
+| B | [0-100%] | [Best case outcome] | [Worst case outcome] | [Prob x Upside - (1-Prob) x Downside] |
+| C | [0-100%] | [Best case outcome] | [Worst case outcome] | [Prob x Upside - (1-Prob) x Downside] |
 
 ### 4. Pre-Mortem (Kahneman)
 If this fails, it will be because:

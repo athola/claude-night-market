@@ -52,16 +52,27 @@ REPEAT
 **Core Idea**: Start from acceptance tests, work inward, discover design.
 
 **The Double Loop**:
-```
-Outer Loop (Acceptance)    Inner Loop (Unit)
-┌─────────────────────┐   ┌──────────────────┐
-│ 1. Write failing    │   │ 1. Write failing │
-│    acceptance test  │──→│    unit test     │
-│                     │   │ 2. Make it pass  │
-│ 2. When acceptance  │←──│ 3. Refactor      │
-│    passes, next     │   │ 4. Next unit...  │
-│    feature          │   └──────────────────┘
-└─────────────────────┘
+```mermaid
+flowchart LR
+    subgraph outer["Outer Loop (Acceptance)"]
+        a1["1. Write failing<br/>acceptance test"]
+        a2["2. When acceptance<br/>passes, next feature"]
+    end
+    subgraph inner["Inner Loop (Unit)"]
+        u1["1. Write failing unit test"]
+        u2["2. Make it pass"]
+        u3["3. Refactor"]
+        u4["4. Next unit..."]
+    end
+
+    a1 --> u1
+    u1 --> u2 --> u3 --> u4
+    u4 -.-> u1
+    u4 --> a2
+    a2 -.-> a1
+
+    style outer fill:#e3f2fd,stroke:#1976d2
+    style inner fill:#fff8e1,stroke:#ffa000
 ```
 
 **Key Principles**:

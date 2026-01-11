@@ -355,33 +355,28 @@ flowchart TD
 
 ## Summary Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     SKILLS SEPARATION RULES                         │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  Development Skills              Runtime Skills                     │
-│  ┌─────────────────┐            ┌──────────────────┐               │
-│  │ .claude/skills/ │            │ src/agent/       │               │
-│  │                 │            │ prompts/         │               │
-│  │ dev-*.md        │            │                  │               │
-│  │ test-*.md       │            │ create-todo.md   │               │
-│  │                 │            │ validate-todo.md │               │
-│  └─────────────────┘            └──────────────────┘               │
-│         ▲                                ▲                          │
-│         │                                │                          │
-│         │ loads                          │ loads                   │
-│         │                                │                          │
-│  ┌──────┴────────┐            ┌─────────┴────────┐                │
-│  │ Claude Code   │            │ Your Agent (SDK) │                │
-│  │               │            │                  │                │
-│  │ Helps YOU     │            │ Runtime behavior │                │
-│  │ build agent   │            │ (independent)    │                │
-│  └───────────────┘            └──────────────────┘                │
-│                                                                      │
-│  CRITICAL: These namespaces NEVER overlap                          │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph sep["SKILLS SEPARATION RULES"]
+        subgraph dev["Development Skills"]
+            devFiles[".claude/skills/<br/>dev-*.md<br/>test-*.md"]
+        end
+        subgraph runtime["Runtime Skills"]
+            runtimeFiles["src/agent/prompts/<br/>create-todo.md<br/>validate-todo.md"]
+        end
+
+        claude["Claude Code<br/><i>Helps YOU build agent</i>"]
+        agent["Your Agent (SDK)<br/><i>Runtime behavior</i>"]
+
+        claude -->|loads| devFiles
+        agent -->|loads| runtimeFiles
+    end
+
+    note["CRITICAL: These namespaces NEVER overlap"]
+
+    style dev fill:#e1f5fe,stroke:#01579b
+    style runtime fill:#fff3e0,stroke:#e65100
+    style note fill:#ffebee,stroke:#c62828
 ```
 
 ---

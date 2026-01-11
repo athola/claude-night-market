@@ -90,24 +90,17 @@ class MyAgent:
 
 ## Workflow
 
-```
-┌─────────────────────────────────────────────────┐
-│ 1. Development (Claude Code)                    │
-│    You: "Build create-todo logic"               │
-│    Claude: [uses dev-debug.md to help YOU]      │
-└─────────────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────────────┐
-│ 2. Testing (Context Fork)                       │
-│    You: "Test create-todo skill"                │
-│    Claude: [loads runtime skill in fork]        │
-└─────────────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────────────┐
-│ 3. Runtime (Your Agent)                         │
-│    User: "Create a todo"                        │
-│    Agent: [uses src/agent/prompts/create-todo]  │
-└─────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    dev["<b>1. Development (Claude Code)</b><br/>You: Build create-todo logic<br/>Claude: uses dev-debug.md to help YOU"]
+    test["<b>2. Testing (Context Fork)</b><br/>You: Test create-todo skill<br/>Claude: loads runtime skill in fork"]
+    runtime["<b>3. Runtime (Your Agent)</b><br/>User: Create a todo<br/>Agent: uses src/agent/prompts/create-todo"]
+
+    dev --> test --> runtime
+
+    style dev fill:#e3f2fd,stroke:#1976d2
+    style test fill:#fff8e1,stroke:#ffa000
+    style runtime fill:#e8f5e9,stroke:#388e3c
 ```
 
 ---
