@@ -1,6 +1,6 @@
 {
   "name": "hookify",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Create custom behavioral rules through markdown configuration files - prevent unwanted behaviors with pattern matching",
   "commands": [
     "./commands/configure.md",

@@ -5,7 +5,27 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.4] - 2026-01-10
+
+### Added - Shell Review Skill and Security Guardrails (2026-01-10)
+
+- **pensive:shell-review** - New skill for auditing shell scripts
+  - Exit code analysis and error handling validation
+  - POSIX portability checks (bash-specific vs portable constructs)
+  - Safety pattern verification (quoting, word splitting, globbing)
+  - Modular design with `exit-codes.md`, `portability.md`, `safety-patterns.md` modules
+  - Integration with `imbue:evidence-logging` for structured findings
+
+- **sanctum:security-pattern-check hook** - Context-aware security checking
+  - Distinguishes code files from documentation (reduces false positives)
+  - Detects patterns in context (ignores examples showing what NOT to do)
+  - Checks for dynamic code execution, shell injection, SQL injection, hardcoded secrets
+  - Configurable via `hooks.json` with environment variable overrides
+
+- **Commit workflow guardrails** - Prevention of quality gate bypass
+  - Added guardrails against `--no-verify` in commit-messages skill
+  - Updated git-workspace-review to run `make format && make lint` proactively
+  - Skills now block if code quality checks fail (no bypass allowed)
 
 ### Changed - Bloat Reduction Phases 6-9 (2026-01-10)
 
@@ -693,6 +713,8 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.2.4]: https://github.com/athola/claude-night-market/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/athola/claude-night-market/compare/v1.2.1...v1.2.3
 [1.2.1]: https://github.com/athola/claude-night-market/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/athola/claude-night-market/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/athola/claude-night-market/compare/v1.1.1...v1.1.2

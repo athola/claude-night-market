@@ -91,7 +91,7 @@ flowchart TB
 | Plugin | What It Does | Key Commands |
 |--------|--------------|--------------|
 | **sanctum** | Git workflows, PR prep, commit messages | `/pr`, `/commit-msg`, `/fix-issue` |
-| **pensive** | Code review + skill performance analysis | `/full-review`, `/skill-review` |
+| **pensive** | Code review + shell script auditing + skill performance analysis | `/full-review`, `/shell-review`, `/skill-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
 | **minister** | Project management and GitHub integration | `/create-issue`, `/close-issue`, `/status` |
 | **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (💡 reduced 70k+ tokens) |
@@ -156,6 +156,7 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | [**Error Handling**](docs/guides/error-handling-guide.md) | Error classification and recovery patterns |
 | [**Optimization Patterns**](docs/optimization-patterns.md) | Bloat reduction methodology (70k+ tokens saved) |
 | [**Data Extraction Pattern**](docs/guides/data-extraction-pattern.md) | Separating embedded data into YAML |
+| [**Documentation Standards**](docs/guides/documentation-standards.md) | Line limits and debloating methodology |
 | [**Testing Guide**](docs/testing-guide.md) | Testing patterns and troubleshooting |
 | [**Performance Guide**](docs/performance/README.md) | Hook optimization and benchmarking |
 | [**LSP Integration**](docs/guides/lsp-native-support.md) | Language Server Protocol setup and verification |

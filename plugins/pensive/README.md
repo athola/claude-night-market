@@ -30,6 +30,7 @@ Or reference directly from the marketplace:
 | **test-review** | TDD/BDD test suite evaluation |
 | **math-review** | Mathematical algorithm and numerical stability review |
 | **makefile-review** | Build system audit and optimization |
+| **shell-review** | Shell script correctness, portability, and safety audit |
 
 ### Commands
 
@@ -43,6 +44,7 @@ Or reference directly from the marketplace:
 | `/test-review` | Test suite quality evaluation |
 | `/math-review` | Mathematical correctness review |
 | `/makefile-review` | Makefile best practices audit |
+| `/shell-review` | Shell script audit (exit codes, portability, safety) |
 | `/skill-review` | Skill performance metrics and stability analysis |
 | `/skill-history` | Recent skill executions with context |
 
@@ -112,6 +114,7 @@ The unified review automatically selects skills based on:
 | `openapi.yaml`, `routes/` | api-review, architecture-review |
 | `test_*.py`, `*_test.go` | test-review, bug-review |
 | `Makefile`, `*.mk` | makefile-review |
+| `*.sh`, pre-commit hooks | shell-review |
 | Math algorithms | math-review, bug-review |
 | ADRs, architecture docs | architecture-review |
 
@@ -155,7 +158,8 @@ pensive/
 │   ├── rust-review.md
 │   ├── test-review.md
 │   ├── math-review.md
-│   └── makefile-review.md
+│   ├── makefile-review.md
+│   └── shell-review.md
 ├── skills/
 │   ├── unified-review/      # Orchestration skill
 │   ├── api-review/          # API surface review
@@ -164,7 +168,8 @@ pensive/
 │   ├── rust-review/         # Rust auditing
 │   ├── test-review/         # Test quality
 │   ├── math-review/         # Mathematical review
-│   └── makefile-review/     # Build system review
+│   ├── makefile-review/     # Build system review
+│   └── shell-review/        # Shell script review
 └── README.md
 ```
 
