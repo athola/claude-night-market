@@ -91,21 +91,21 @@ flowchart TB
 | Plugin | What It Does | Key Commands |
 |--------|--------------|--------------|
 | **sanctum** | Git workflows, PR prep, commit messages | `/pr`, `/commit-msg`, `/fix-issue` |
-| **pensive** | Code review + shell script auditing + skill performance analysis | `/full-review`, `/shell-review`, `/skill-review` |
+| **pensive** | Code review, shell auditing, skill metrics | `/full-review`, `/shell-review`, `/skill-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
-| **minister** | Project management and GitHub integration | `/create-issue`, `/close-issue`, `/status` |
-| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (💡 reduced 70k+ tokens) |
-| **attune** | Project scaffolding and initialization | `/attune:init`, `/attune:brainstorm` |
-| **parseltongue** | Python development suite | `/analyze-tests`, `/run-profiler` |
+| **minister** | GitHub issue management | `/create-issue`, `/close-issue`, `/status` |
+| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (saved 70k+ tokens) |
+| **attune** | Project scaffolding | `/attune:init`, `/attune:brainstorm` |
+| **parseltongue** | Python development tools | `/analyze-tests`, `/run-profiler` |
 | **archetypes** | Architecture paradigm selection | 13 architecture guides |
-| **memory-palace** | Knowledge management + skill memory | `/palace`, `/garden`, `/skill-logs` |
-| **hookify** | Zero-config behavioral rules | `/hookify`, `/hookify:list` |
+| **memory-palace** | Knowledge management | `/palace`, `/garden`, `/skill-logs` |
+| **hookify** | Behavioral rules without config | `/hookify`, `/hookify:list` |
 
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 106 skills, 85 commands, and 35 agents.
 
 ## Audience
 
-The Night Market serves developers seeking automated workflows and teams standardizing Claude Code practices. Plugin authors can build on standard patterns, while maintainers benefit from automated PR preparation and scaffolding.
+The Night Market helps developers who want automated workflows and teams standardizing Claude Code practices. Plugin authors can build on standard patterns, while maintainers benefit from automated PR preparation and scaffolding.
 
 ## Common Workflows
 
@@ -128,13 +128,13 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 
 ![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
 
-**Discover 106 skills** across all plugins, understand their structure, and see how they compose into powerful development workflows.
+**Browse 106 skills** across all plugins, examine their structure, and combine them into workflows.
 
 **What you'll learn:**
 - Browse and discover skills across 16 plugins
 - Examine skill frontmatter, metadata, and structure
 - Use `abstract:plugin-validator` to check quality
-- See how skills chain into complex workflows
+- Chain skills into complex workflows
 
 [→ Full Tutorial](docs/tutorials/skills-showcase.md) (90 seconds, beginner-friendly)
 
@@ -165,7 +165,7 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 
 ### LSP Support (Recommended)
 
-LSP (Language Server Protocol) provides **symbol-aware search** with significant performance improvements over text search. Available in Claude Code v2.0.74+.
+LSP (Language Server Protocol) enables **symbol-aware search**, which is faster than text search. Available in Claude Code v2.0.74+.
 
 **Setup (Settings-Level Configuration):**
 
@@ -204,7 +204,7 @@ claude
 ```
 
 **Benefits:**
-LSP support improves performance for semantic queries compared to text search (50ms vs 45s for reference finding). It reduces token usage and improves accuracy through symbol awareness.
+LSP finds references in ~50ms (vs ~45s for text search), uses fewer tokens, and is more accurate.
 
 See [LSP Native Support Guide](docs/guides/lsp-native-support.md) for troubleshooting and advanced usage.
 
@@ -238,7 +238,7 @@ See [Budget Optimization](docs/budget-optimization-dec-2025.md) for details.
 
 ## Philosophy
 
-Night Market uses a modular design with shallow dependency chains and single responsibility. Plugins load progressively, so users only pay for what they use. Development is spec-driven, prioritizing specifications before implementation.
+Night Market plugins are modular with shallow dependencies. They load progressively, so you only pay for what you use. Development prioritizes specifications before implementation.
 
 ## Contributing
 

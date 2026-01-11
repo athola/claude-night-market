@@ -109,7 +109,7 @@ README.md (150 lines)          ← Hub
 
 **Savings Potential**: Very High (10,192 tokens from 4 scripts)
 
-See [Data Extraction Pattern Guide](./guides/data-extraction-pattern.md) for comprehensive details.
+See [Data Extraction Pattern Guide](./guides/data-extraction-pattern.md) for details.
 
 ### Quick Summary
 
@@ -261,7 +261,7 @@ See: [Migration Guide](./migration.md)
 ### Process
 
 ```bash
-# Comprehensive scan
+# Full scan
 rg "TODO|FIXME|HACK|XXX" --type py --type md
 
 # Categorize findings

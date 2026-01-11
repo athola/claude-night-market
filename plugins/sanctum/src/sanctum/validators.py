@@ -1,7 +1,7 @@
-"""Validators for sanctum plugin components.
+"""Validate sanctum plugin components.
 
-This module provides validators for agents, skills, commands, and plugins
-following a consistent validation pattern with dataclass results.
+Verify agents, skills, commands, and plugins following a consistent
+validation pattern with dataclass results.
 """
 
 from __future__ import annotations

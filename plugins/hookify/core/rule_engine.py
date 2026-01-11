@@ -26,7 +26,7 @@ class RuleResult:
 
 
 class RuleEngine:
-    """Evaluates rules against tool inputs."""
+    """Evaluate rules against tool inputs."""
 
     def __init__(self, rules: list[RuleConfig]) -> None:
         """Initialize rule engine.

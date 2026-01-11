@@ -4,17 +4,15 @@ Claude Skills for software architecture decision-making and implementation guida
 
 ## Quick Start
 
-- [Learning Paths](#learning-paths) for guided study.
-- [architecture-paradigms](skills/architecture-paradigms/SKILL.md) orchestrator skill for paradigm selection.
-- [Quick Reference Matrix](#quick-reference-matrix) for paradigm comparison.
+- **Orchestrator**: Use `Skill(architecture-paradigms)` to select a paradigm.
+- **Comparison**: See [Quick Reference Matrix](#quick-reference-matrix).
+- **Learning**: Follow [Learning Paths](#learning-paths).
 
 ## Collection Overview
 
-- **1 Orchestrator Skill**: `architecture-paradigms` - Paradigm selection and implementation planning.
-- **13 Paradigm Skills**: Implementation guidance for architectural patterns.
-- **Examples**: Industry case studies and technology recommendations.
-- **Decision Frameworks**: Approaches for architecture selection.
-- **Integration Patterns**: How paradigms combine.
+- **1 Orchestrator**: `architecture-paradigms` - Selects and plans architecture.
+- **13 Paradigms**: Implementation guides for specific patterns.
+- **Resources**: Case studies, decision frameworks, and integration patterns.
 
 ## Featured Paradigms
 

@@ -30,71 +30,41 @@ Set the `CONSERVATION_MODE` environment variable:
 
 ## Core Principles
 
-- **MECW (Maximum Effective Context Window)**: Maintain context pressure under 50% of the total window to prevent response quality degradation.
-- **MCP Patterns**: Process data at the source using MCP tools instead of passing large datasets through conversation context.
-- **Progressive Loading**: Load modules on demand to reduce initial context footprint.
+- **MECW (Maximum Effective Context Window)**: Keep context pressure under 50% to maintain response quality.
+- **MCP Patterns**: Process data at the source to avoid passing large datasets.
+- **Progressive Loading**: Load modules on demand to reduce footprint.
 
 ## Commands
 
-### `/bloat-scan` - Detect Codebase Bloat
+### `/bloat-scan`
 
 Identify dead code, duplication, and documentation bloat.
 
 ```bash
-/bloat-scan                              # Quick scan (Tier 1)
+/bloat-scan                              # Quick scan
 /bloat-scan --level 2                    # Targeted analysis
-/bloat-scan --level 2 --focus code       # Focus on code bloat
+/bloat-scan --level 2 --focus code       # Focus on code
 /bloat-scan --level 3 --report audit.md  # Detailed audit
 ```
 
-**Detection Targets:**
-- Large files.
-- Stale code (unchanged for 6+ months).
-- Dead code (zero references).
-- Duplicate documentation.
-- Unused dependencies.
+**Targets**: Large files, stale code (6+ months), dead code, duplicates, unused deps.
 
-**Output:** Prioritized report with token savings and remediation steps.
+### `/unbloat`
 
-### `/unbloat` - Safe Bloat Remediation
-
-Execute deletions, refactorings, and consolidations with user approval and automatic backups.
+Safely delete, refactor, and consolidate code with user approval.
 
 ```bash
 /unbloat                                 # Scan and remediate
-/unbloat --from-scan bloat-report.md     # Use existing scan results
-/unbloat --auto-approve low              # Auto-approve low risk changes
+/unbloat --from-scan report.md           # Use existing scan
+/unbloat --auto-approve low              # Auto-approve low risk
 /unbloat --dry-run                       # Preview changes
-/unbloat --focus code                    # Focus on code cleanup
 ```
 
-**Operational Safeguards:**
-- **Backup branches**: Automatic timestamped backups before changes.
-- **Interactive approval**: Review each change before execution.
-- **Test verification**: Run tests after changes; rollback on failure.
-- **Reversible operations**: Use `git rm` or `git mv` for easy recovery.
-
-**Remediation Types:**
-- **DELETE**: Remove dead code with high confidence.
-- **REFACTOR**: Split large classes into focused modules.
-- **CONSOLIDATE**: Merge duplicate documentation.
-- **ARCHIVE**: Move stale files to an archive directory.
-
-**Workflow Example:**
-```bash
-# 1. Scan for bloat
-/bloat-scan --level 2 --report findings.md
-
-# 2. Review findings.md to plan the approach.
-
-# 3. Execute remediation
-/unbloat --from-scan findings.md
-
-# 4. Verify and commit
-make test
-git add -A
-git commit -m "Unbloat: reduce codebase size"
-```
+**Safeguards**:
+- **Backups**: Automatic branches before changes.
+- **Approval**: Interactive review.
+- **Verification**: Tests run after changes; auto-rollback on failure.
+- **Reversible**: Uses `git rm` / `git mv`.
 
 ## Agents
 

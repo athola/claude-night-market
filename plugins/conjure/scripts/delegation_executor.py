@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Shared Delegation Execution Engine.
 
-Provide a unified execution interface for different external LLM services
-with consistent error handling, logging, and resource management.
+Unify execution interface for external LLM services with consistent error
+handling, logging, and resource management.
 """
 
 import argparse

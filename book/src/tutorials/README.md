@@ -50,7 +50,7 @@ Each tutorial includes:
 
 1. [Skills Showcase](skills-showcase.md) - Understand skill architecture
 2. [Cross-Plugin Collaboration](cross-plugin-collaboration.md) - Learn skill dependencies
-3. [Error Handling](error-handling-tutorial.md) - Implement robust error handling
+3. [Error Handling](error-handling-tutorial.md) - Implement error handling
 
 ## Achievement Progress
 

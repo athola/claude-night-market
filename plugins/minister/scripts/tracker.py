@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Provide the entry point for the Minister project tracker CLI."""
+"""Run the Minister project tracker CLI."""
 
 from __future__ import annotations
 

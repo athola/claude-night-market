@@ -1,11 +1,11 @@
 # Quality Gates & Code Quality System
 
-A three-layer quality system that maintains high code standards for both new and existing code in the Claude Night Market ecosystem.
+A three-layer system to maintain code standards for new and existing code in the Claude Night Market ecosystem.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [The Three-Layer Defense](#the-three-layer-defense)
+- [The Three Layers](#the-three-layers)
 - [Pre-Commit Hooks](#pre-commit-hooks)
 - [Manual Quality Scripts](#manual-quality-scripts)
 - [Configuration Files](#configuration-files)
@@ -23,42 +23,42 @@ The quality system operates on three layers:
 
 ### Current Status
 
-**New Code (Changed Files): 100% Protected**
+**New Code: Fully Checked**
 - Every commit is checked for linting, type safety, tests, and security
-- No new technical debt can enter the repository
+- Prevents new technical debt
 
-**Existing Code (Unchanged Files): Technical Debt Documented**
+**Existing Code: Technical Debt Documented**
 - Baseline audits track existing issues
 - Action plans guide remediation
 - See [Code Quality Baseline Archive](./archive/2026-01/)
 
-## The Three-Layer Defense
+## The Three Layers
 
 ### Layer 1: Fast Global Checks (Runs on All Files)
 
 **Ruff** - Fast Python linter and formatter
 - Checks: PEP 8, common bugs, code smells
-- Speed: ~50ms for typical changes
+- Speed: ~50ms
 - Auto-fixes: Yes (--fix flag enabled)
 
 **Mypy** - Static type checker
 - Checks: Type annotations and type safety
-- Speed: ~200ms for typical changes
+- Speed: ~200ms
 - Scope: All Python files in plugins/ and scripts/
 
 ### Layer 2: Plugin-Specific Checks (Runs on Changed Plugins Only)
 
-**Lint Changed Plugins** (\`run-plugin-lint.sh --changed\`)
+**Lint Changed Plugins** (`run-plugin-lint.sh --changed`)
 - Uses plugin's Makefile lint target or ruff
 - Runs plugin-specific linting
 - Speed: ~2-5s per plugin
 
-**Type Check Changed Plugins** (\`run-plugin-typecheck.sh --changed\`)
+**Type Check Changed Plugins** (`run-plugin-typecheck.sh --changed`)
 - Uses plugin's Makefile typecheck target or mypy
 - Enforces strict type checking per plugin configuration
 - Speed: ~3-8s per plugin
 
-**Test Changed Plugins** (\`run-plugin-tests.sh --changed\`)
+**Test Changed Plugins** (`run-plugin-tests.sh --changed`)
 - Runs test suite for changed plugins
 - Blocks commit if any tests fail
 - Speed: ~5-15s per plugin
@@ -76,7 +76,7 @@ The quality system operates on three layers:
 
 When you commit, hooks run in this order:
 
-\`\`\`
+```
 1. ✓ File Validation (whitespace, YAML, TOML, JSON syntax)
 2. ✓ Security Scanning (bandit - checks for security issues)
 3. ✓ Global Linting (ruff - fast, all Python files)
@@ -89,29 +89,29 @@ When you commit, hooks run in this order:
 10. ✓ Context Optimization
 
 All must pass for commit to succeed.
-\`\`\`
+```
 
 ### Plugin Validation Hooks
 
-\`\`\`yaml
+```yaml
 validate-abstract-skills     # Validates skill frontmatter and structure
 validate-imbue-skills         # Validates Imbue skill patterns
 validate-*-plugin             # Structure validation per plugin
 check-context-optimization    # Context window optimization checks
-\`\`\`
+```
 
-Scripts live in \`plugins/abstract/scripts/\`:
-- \`abstract_validator.py\` - Skill validation
-- \`validate-plugin.py\` - Plugin structure validation
-- \`context_optimizer.py\` - Context optimization analysis
+Scripts live in `plugins/abstract/scripts/`:
+- `abstract_validator.py` - Skill validation
+- `validate-plugin.py` - Plugin structure validation
+- `context_optimizer.py` - Context optimization analysis
 
 ### Standard Quality Checks
 
-- \`trailing-whitespace\`, \`end-of-file-fixer\` - Formatting
-- \`check-yaml\`, \`check-toml\`, \`check-json\` - Config validation
-- \`bandit\` - Security scanning
-- \`ruff\`, \`ruff-format\` - Linting and formatting
-- \`mypy\` - Type checking
+- `trailing-whitespace`, `end-of-file-fixer` - Formatting
+- `check-yaml`, `check-toml`, `check-json` - Config validation
+- `bandit` - Security scanning
+- `ruff`, `ruff-format` - Linting and formatting
+- `mypy` - Type checking
 
 ## Manual Quality Scripts
 

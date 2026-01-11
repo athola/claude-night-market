@@ -684,6 +684,149 @@ Before proceeding, verify ALL items are complete:
 
 **If any item above is unchecked, GO BACK and complete Phase 5.**
 
+### Phase 6: PR Description Update (MANDATORY)
+
+**⚠️ ENFORCEMENT CHECK: This phase MUST complete with a `gh api` call to update PR body.**
+**If you skip this phase, the workflow is INCOMPLETE.**
+
+After posting the test plan, update the PR description with a summary of the review findings.
+
+16. **Extract Review Summary**
+
+    From the review findings, extract key metrics:
+    - Critical issues count
+    - Important issues count
+    - Suggestions count
+    - Verdict (Ready to Merge / Needs Changes)
+
+17. **Generate PR Description Update**
+
+    ```markdown
+    ## Summary
+
+    [Extract from PR title/commits or scope artifacts]
+
+    ### Changes
+
+    - [Extracted from commit messages]
+
+    ### Code Review Summary
+
+    | Category | Count |
+    |----------|-------|
+    | Critical | X |
+    | Important | X |
+    | Suggestions | X |
+
+    **Verdict**: [Ready to merge | Needs changes] after addressing X issues.
+
+    [View full review](link_to_review_comment)
+
+    ---
+
+    ### Closes
+    - Closes #XX (from commit messages or scope artifacts)
+    ```
+
+18. **Update PR Description via API**
+
+    ```bash
+    # Get current body (preserve if exists)
+    CURRENT_BODY=$(gh pr view $PR_NUMBER --json body --jq '.body')
+
+    # Generate new body with review summary prepended
+    NEW_BODY="## Summary
+
+    [Summary from scope artifacts]
+
+    ### Changes
+
+    [Changes from commits]
+
+    ### Code Review Summary
+
+    | Category | Count |
+    |----------|-------|
+    | Critical | $CRITICAL_COUNT |
+    | Important | $IMPORTANT_COUNT |
+    | Suggestions | $SUGGESTION_COUNT |
+
+    **Verdict**: [Ready to merge | Needs changes]
+
+    [View full review]($REVIEW_COMMENT_URL)
+
+    ---
+    $CURRENT_BODY"
+
+    # Update via API (gh pr edit may fail on own PRs due to scope issues)
+    gh api repos/{owner}/{repo}/pulls/$PR_NUMBER \
+      -X PATCH \
+      -f body="$NEW_BODY"
+
+    echo "✅ PR description updated for PR #$PR_NUMBER"
+    ```
+
+19. **Confirm PR Description Updated**
+
+    ```bash
+    # Verify description was updated
+    gh pr view $PR_NUMBER --json body --jq '.body | length > 0'
+
+    # Check for review summary marker
+    gh pr view $PR_NUMBER --json body --jq '.body | contains("Code Review Summary")'
+    ```
+
+### Phase 6 Completion Checklist
+
+Before completing the review, verify ALL items are complete:
+
+- [ ] Review summary extracted with issue counts
+- [ ] PR description updated with summary table
+- [ ] `gh api repos/.../pulls/$PR_NUMBER -X PATCH` executed
+- [ ] Confirmation output: "✅ PR description updated for PR #$PR_NUMBER"
+
+**If any item above is unchecked, GO BACK and complete Phase 6.**
+
+---
+
+## Mandatory Outputs Enforcement
+
+**CRITICAL: The /pr-review command is NOT complete unless ALL of these outputs exist:**
+
+| Output | Phase | Verification |
+|--------|-------|--------------|
+| Review comment | Phase 4 | `gh pr view --json comments` contains "PR Review" |
+| Test plan comment | Phase 5 | `gh pr view --json comments` contains "Test Plan" |
+| PR description | Phase 6 | `gh pr view --json body` is non-empty and contains "Review Summary" |
+
+**Enforcement Check (run at end of review):**
+
+```bash
+# Validate all mandatory outputs
+PR_NUMBER=${1:-$(gh pr view --json number -q '.number')}
+
+REVIEW_EXISTS=$(gh pr view $PR_NUMBER --json comments --jq '[.comments[].body | contains("PR Review")] | any')
+TEST_PLAN_EXISTS=$(gh pr view $PR_NUMBER --json comments --jq '[.comments[].body | ascii_downcase | contains("test plan")] | any')
+DESCRIPTION_EXISTS=$(gh pr view $PR_NUMBER --json body --jq '.body | length > 0')
+
+echo "=== Mandatory Output Verification ==="
+echo "Review comment:  $( [[ $REVIEW_EXISTS == "true" ]] && echo "✅" || echo "❌ MISSING" )"
+echo "Test plan:       $( [[ $TEST_PLAN_EXISTS == "true" ]] && echo "✅" || echo "❌ MISSING" )"
+echo "PR description:  $( [[ $DESCRIPTION_EXISTS == "true" ]] && echo "✅" || echo "❌ MISSING" )"
+
+if [[ $REVIEW_EXISTS != "true" ]] || [[ $TEST_PLAN_EXISTS != "true" ]] || [[ $DESCRIPTION_EXISTS != "true" ]]; then
+  echo ""
+  echo "⚠️  PR review INCOMPLETE - mandatory outputs missing"
+  echo "Run /pr-review-enforcer $PR_NUMBER to fix"
+  exit 1
+fi
+
+echo ""
+echo "✅ All mandatory outputs verified for PR #$PR_NUMBER"
+```
+
+**If verification fails, the review is INCOMPLETE. Go back and complete missing phases.**
+
 ## Options
 
 - `--scope-mode`: Set strictness level (default: standard)

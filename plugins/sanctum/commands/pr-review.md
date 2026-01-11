@@ -98,9 +98,12 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 1. **Scope Establishment** - Discover requirements from plan/spec/tasks
 2. **Version Validation** - Ensure version consistency (mandatory unless bypassed)
 3. **Code Analysis** - Deep technical review
-4. **Classification** - Categorize findings (blocking/non-blocking/out-of-scope)
-5. **Reporting** - Generate structured feedback
-6. **Backlog Creation** - Route improvements to GitHub issues
+4. **GitHub Review** - Post review comments to PR (MANDATORY)
+5. **Test Plan** - Post verification checklist to PR (MANDATORY)
+6. **PR Description** - Update PR body with review summary (MANDATORY)
+
+**MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
+If any are missing, the review is INCOMPLETE.
 
 **Full workflow details**: See [Workflow Details](pr-review/modules/review-workflow.md)
 

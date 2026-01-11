@@ -1,6 +1,6 @@
 # Common Workflows Guide
 
-This guide shows when and how to use commands, skills, and subagents for typical development tasks.
+When and how to use commands, skills, and subagents for typical development tasks.
 
 ## Quick Reference
 
@@ -12,7 +12,7 @@ This guide shows when and how to use commands, skills, and subagents for typical
 | [Prepare a PR](#preparing-a-pull-request) | `/pr` | sanctum |
 | [Catch up on changes](#catching-up-on-changes) | `/catchup` | imbue |
 | [Write specifications](#writing-specifications) | `/speckit-specify` | spec-kit |
-| [Improve the system](#meta-development-improving-the-system) | `/speckit-analyze` | spec-kit |
+| [Improve system](#meta-development-improving-the-system) | `/speckit-analyze` | spec-kit |
 | [Debug an issue](#debugging-issues) | `Skill(superpowers:debugging)` | superpowers |
 | [Manage knowledge](#managing-knowledge) | `/palace` | memory-palace |
 
@@ -22,7 +22,7 @@ This guide shows when and how to use commands, skills, and subagents for typical
 
 **When**: Starting a new project from scratch or setting up a new codebase.
 
-### Step 1: Architecture-Aware Initialization (Recommended)
+### Step 1: Architecture-Aware Initialization
 
 Start with an architecture-aware initialization to select the right project structure based on team size and domain complexity. This process guides you through project type selection, online research into best practices, and template customization.
 
@@ -33,16 +33,16 @@ Start with an architecture-aware initialization to select the right project stru
 
 **Output**: Complete project structure with ARCHITECTURE.md, ADR, and paradigm-specific directories.
 
-### Step 2: Standard Initialization (Architecture Decided)
+### Step 2: Standard Initialization
 
-If the architecture is already decided, use standard initialization to generate language-specific boilerplate including Makefiles, CI/CD pipelines, and pre-commit hooks.
+If the architecture is decided, use standard initialization to generate language-specific boilerplate including Makefiles, CI/CD pipelines, and pre-commit hooks.
 
 ```bash
 # Quick initialization when you know the architecture
 /attune:init --lang python --name my-project
 ```
 
-### Step 3: Establish Persistent State (Recommended)
+### Step 3: Establish Persistent State
 
 Establish a persistent state to manage artifacts and constraints across sessions. This ensures that non-negotiable principles are respected and progress is tracked consistently.
 
@@ -613,7 +613,7 @@ Skill(sanctum:pr-preparation)
 Agent(pensive:code-reviewer) Review authentication module
 ```
 
-### Skill Invocation - Graceful Fallback
+### Skill Invocation Fallback
 
 The `Skill` tool is a Claude Code feature that may not be available in all environments. When the `Skill` tool is unavailable:
 
@@ -637,7 +637,7 @@ Read plugins/{plugin}/skills/{skill-name}/SKILL.md
 - Plugin skills: `plugins/{plugin}/skills/{skill-name}/SKILL.md`
 - User skills: `~/.claude/skills/{skill-name}/SKILL.md`
 
-This fallback ensures workflows remain functional across different Claude environments.
+This ensures workflows work across environments.
 
 ---
 

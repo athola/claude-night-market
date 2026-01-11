@@ -1,7 +1,6 @@
-"""PR preparation utilities.
+"""Provide PR preparation utilities.
 
-This module provides utilities for analyzing changes, validating quality gates,
-and preparing pull request descriptions.
+Analyze changes, validate quality gates, and prepare pull request descriptions.
 """
 
 from __future__ import annotations

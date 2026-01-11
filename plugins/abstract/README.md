@@ -12,16 +12,13 @@ make install-hooks  # Set up git hooks
 
 ## Installation
 
-Add to your `marketplace.json`:
+Add to `marketplace.json`:
 
 ```json
 {
   "name": "abstract",
-  "source": {
-    "source": "url",
-    "url": "https://github.com/athola/abstract.git"
-  },
-  "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - modular design patterns and evaluation frameworks",
+  "source": { "source": "url", "url": "https://github.com/athola/abstract.git" },
+  "description": "Meta-skills infrastructure - modular design and evaluation",
   "version": "1.0.1",
   "strict": true
 }
@@ -77,11 +74,11 @@ make security   # Run security scans locally
 
 ```bash
 make format        # Format code
-make test          # Run all checks (includes security)
-make security      # Security scans only
+make test          # Run all checks
+make security      # Security scans
 make clean         # Clean cache
 make unit-tests    # Run tests
-make test-coverage # Tests with coverage report
+make test-coverage # Coverage report
 ```
 
-Tests in `test_skill_structure.py` check that skill descriptions contain action verbs, include "Use when..." triggers, and are detailed enough to be useful. This validates skills are discoverable and understandable.
+Tests validate skill discoverability and structure.

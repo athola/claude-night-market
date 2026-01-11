@@ -1,6 +1,6 @@
 """Analyze API surface and quality using an API review skill.
 
-This skill analyzes public APIs across multiple languages, checking for
+Analyze public APIs across multiple languages, checking for
 documentation, naming consistency, error handling, breaking changes,
 REST patterns, input validation, security practices, and performance.
 """

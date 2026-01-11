@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Shared skill tools that can be imported by any skill.
-
-Shared functionality for skills.
+"""Provide shared skill tools importable by any skill.
 
 Usage from within a skill:
     from abstract.skill_tools import analyze_skill, estimate_tokens

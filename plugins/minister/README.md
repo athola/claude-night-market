@@ -4,24 +4,24 @@ Project management plugin that aligns initiatives with GitHub data. Converts rep
 
 ## Overview
 
-Minister syncs GitHub Projects, issues, and checks to provide a single source of status. It includes scripts, playbooks, and Claude skills for status reporting and roadmap tracking.
+Minister syncs GitHub Projects, issues, and checks for status reporting and roadmap tracking.
 
 ## Focus Areas
 
-1. **Initiative Pulse**: Generate GitHub comment-ready snapshots from Projects data.
-2. **Release Health Gates**: Check CI, docs, and risk labels against release checklists.
-3. **Reporting Kits**: Scripts and templates for publishing markdown status to GitHub threads.
+1. **Initiative Pulse**: GitHub snapshots from Projects data.
+2. **Release Health**: CI, docs, and risk label checks.
+3. **Reporting**: Scripts and templates for status updates.
 
 ## Capabilities
 
 | Area | Description | Assets |
 |------|-------------|--------|
-| Issue Lifecycle | Create and close GitHub issues with analysis and automation. | `commands/create-issue.md`, `commands/close-issue.md` |
-| Initiative Tracking | Data model and CLI for initiative metrics and GitHub comments. | `scripts/tracker.py`, `src/minister/project_tracker.py`, `skills/github-initiative-pulse` |
-| Tracker → GitHub | Workflow to emit markdown and comment on issues. | `scripts/tracker.py`, `.github/workflows/minister-comment.yml` |
-| Release Governance | Health-check gates merging CI signals and documentation state. | `skills/release-health-gates` |
-| Reporting | Templates and playbooks for status reporting. | `docs/templates/status-report-template.md`, `docs/playbooks/*` |
-| Data Backbone | JSON data store for syncing with GitHub Projects. | `data/project-data.json` |
+| Issue Lifecycle | Manage GitHub issues with analysis and automation. | `commands/create-issue.md`, `commands/close-issue.md` |
+| Initiative Tracking | Data model and CLI for initiative metrics. | `scripts/tracker.py`, `src/minister/project_tracker.py` |
+| GitHub Integration | Emit markdown comments on issues. | `scripts/tracker.py`, `.github/workflows/minister-comment.yml` |
+| Release Governance | Health-check gates for CI and documentation. | `skills/release-health-gates` |
+| Reporting | Status report templates and playbooks. | `docs/templates/status-report-template.md`, `docs/playbooks/*` |
+| Data store | JSON storage for GitHub Projects sync. | `data/project-data.json` |
 
 ## Tracker-to-GitHub Workflow
 

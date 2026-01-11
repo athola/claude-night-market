@@ -1,6 +1,6 @@
 """Configuration loader for hookify rules.
 
-Loads rules from two sources:
+Load rules from two sources:
 1. Bundled rules (from plugin's skills/rule-catalog/rules/)
 2. User rules (from project's .claude/)
 

@@ -4,7 +4,7 @@ Common workflows and patterns for Claude Night Market plugins.
 
 ## Workflow Recipes
 
-### Feature Development with Spec-Kit
+### Feature Development
 
 Start features with a specification:
 
@@ -28,9 +28,9 @@ Start features with a specification:
 /speckit-analyze
 ```
 
-### Code Review with Pensive
+### Code Review
 
-detailed code review:
+Run a detailed code review:
 
 ```bash
 # Full review with intelligent skill selection
@@ -44,7 +44,7 @@ detailed code review:
 /rust-review           # Rust-specific (if applicable)
 ```
 
-### Context Catchup with Imbue
+### Context Recovery
 
 Get up to speed on changes:
 
@@ -56,7 +56,7 @@ Get up to speed on changes:
 /git-catchup
 ```
 
-### Resource Optimization with Conservation
+### Context Optimization
 
 Monitor and optimize context usage:
 
@@ -173,7 +173,7 @@ CONSERVATION_MODE=deep claude
 MEMORY_PALACE_EMBEDDINGS_PROVIDER=hash  # or local
 ```
 
-## Tips and Best Practices
+## Tips
 
 ### 1. Start with Foundation
 
@@ -207,7 +207,7 @@ Skill(sanctum:git-workspace-review)
 Skill(sanctum:commit-messages)
 ```
 
-### 4. use Superpowers
+### 4. Use Superpowers
 
 If superpowers is installed, commands gain enhanced capabilities:
 - `/create-skill` uses brainstorming
