@@ -13,6 +13,7 @@
     "./commands/pr-review.md",
     "./commands/resolve-threads.md",
     "./commands/update-docs.md",
+    "./commands/update-plugins.md",
     "./commands/update-readme.md",
     "./commands/update-tests.md",
     "./commands/update-version.md",

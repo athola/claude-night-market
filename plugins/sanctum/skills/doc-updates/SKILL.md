@@ -59,19 +59,37 @@ Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 
 ## Required TodoWrite Items
 
-1. `doc-updates:context-collected`
+1. `doc-updates:context-collected` - Git context + CHANGELOG review
 2. `doc-updates:targets-identified`
-3. `doc-updates:consolidation-checked` (NEW - skippable)
+3. `doc-updates:consolidation-checked` (skippable)
 4. `doc-updates:edits-applied`
 5. `doc-updates:guidelines-verified`
-6. `doc-updates:accuracy-verified` (NEW)
-7. `doc-updates:preview`
+6. `doc-updates:plugins-synced` - plugin.json ↔ disk audit
+7. `doc-updates:accuracy-verified`
+8. `doc-updates:preview`
 
 ## Step 1: Collect Context (`context-collected`)
 
-- validate `Skill(sanctum:git-workspace-review)` has been run.
+- Validate `Skill(sanctum:git-workspace-review)` has been run.
 - Use its notes to understand the delta.
 - Identify the features or bug fixes that need documentation updates.
+
+**CHANGELOG Reference** (critical for version sync):
+```bash
+# Check recent CHANGELOG entries for undocumented features
+head -100 CHANGELOG.md
+
+# Compare documented version vs plugin versions
+grep -E "^\[.*\]" CHANGELOG.md | head -3
+for p in plugins/*/.claude-plugin/plugin.json; do
+    jq -r '"\(.name): \(.version)"' "$p"
+done | head -5
+```
+
+Cross-reference CHANGELOG entries against:
+- `book/src/reference/capabilities-reference.md` - All skills/commands/agents
+- Plugin documentation in `book/src/plugins/` - Per-plugin docs
+- Plugin READMEs - Quick reference docs
 
 ## Step 2: Identify Targets (`targets-identified`)
 
@@ -137,6 +155,36 @@ Load: `@modules/directory-style-rules.md`
 - Wall-of-text paragraphs exceeding limits
 - Files exceeding line count thresholds
 - Marketing language ("capable", "smooth")
+
+## Step 4.5: Sync Plugin Registrations (`plugins-synced`)
+
+**Audit plugin.json files against disk** (prevents registration drift):
+
+```bash
+# Quick discrepancy check for all plugins
+for plugin in plugins/*/; do
+  name=$(basename "$plugin")
+  pjson="$plugin/.claude-plugin/plugin.json"
+  [ -f "$pjson" ] || continue
+
+  # Count commands
+  json_cmds=$(jq -r '.commands | length' "$pjson" 2>/dev/null || echo 0)
+  disk_cmds=$(ls "$plugin/commands/"*.md 2>/dev/null | wc -l)
+
+  # Count skills (directories only)
+  json_skills=$(jq -r '.skills | length' "$pjson" 2>/dev/null || echo 0)
+  disk_skills=$(ls -d "$plugin/skills"/*/ 2>/dev/null | wc -l)
+
+  # Report mismatches
+  if [ "$json_cmds" != "$disk_cmds" ] || [ "$json_skills" != "$disk_skills" ]; then
+    echo "$name: commands=$json_cmds/$disk_cmds skills=$json_skills/$disk_skills"
+  fi
+done
+```
+
+**If mismatches found**: Run `/update-plugins --fix` or manually update plugin.json files.
+
+**Why this matters**: Unregistered commands/skills won't appear in Claude Code's slash command menu or be discoverable.
 
 ## Step 5: Verify Accuracy (`accuracy-verified`)
 

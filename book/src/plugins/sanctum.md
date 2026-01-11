@@ -42,6 +42,7 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `/fix-workflow` | Improve recent workflow |
 | `/merge-docs` | Consolidate ephemeral docs |
 | `/update-docs` | Update documentation |
+| `/update-plugins` | Audit and sync plugin.json registrations |
 | `/update-readme` | Modernize README |
 | `/update-tests` | Maintain tests |
 | `/update-tutorial` | Update tutorial content |

@@ -182,6 +182,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/update-all-plugins` | leyline | Update all plugins |
 | `/update-dependencies` | sanctum | Update project dependencies |
 | `/update-docs` | sanctum | Update documentation |
+| `/update-plugins` | sanctum | Audit and sync plugin.json registrations |
 | `/update-readme` | sanctum | Modernize README |
 | `/update-tests` | sanctum | Maintain tests |
 | `/update-tutorial` | sanctum | Update tutorial content |
