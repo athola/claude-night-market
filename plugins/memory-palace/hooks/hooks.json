@@ -23,9 +23,7 @@
         ]
       },
       {
-        "matcher": {
-          "toolName": "Skill"
-        },
+        "matcher": "Skill",
         "hooks": [
           {
             "type": "command",
@@ -57,9 +55,7 @@
         ]
       },
       {
-        "matcher": {
-          "toolName": "Skill"
-        },
+        "matcher": "Skill",
         "hooks": [
           {
             "type": "command",

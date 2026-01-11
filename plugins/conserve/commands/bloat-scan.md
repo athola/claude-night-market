@@ -1,12 +1,7 @@
 ---
 name: bloat-scan
-description: |
-  Progressive bloat detection: identify dead code, duplication, and documentation bloat.
-
-  Triggers: bloat scan, dead code detection, codebase cleanup
-  Use when: preparing for refactoring or high context usage
+description: Progressive bloat detection for dead code and duplication
 usage: /bloat-scan [--level 1|2|3] [--focus code|docs|deps] [--report FILE] [--dry-run]
-
 # Claude Code 2.1.0+ lifecycle hooks
 hooks:
   PreToolUse:

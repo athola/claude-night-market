@@ -85,9 +85,9 @@ class TestSpeckitOrchestrator:
         # When/Then: each command should map to expected skill
         for command, expected_skill in expected_mappings.items():
             actual_skill = orchestrator.command_skill_map.get(command)
-            assert (
-                actual_skill == expected_skill
-            ), f"Command {command} should map to {expected_skill}"
+            assert actual_skill == expected_skill, (
+                f"Command {command} should map to {expected_skill}"
+            )
 
     def test_should_load_primary_and_complementary_skills_when_executing_specify_command(
         self, orchestrator

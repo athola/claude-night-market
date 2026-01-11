@@ -303,9 +303,8 @@ find ~/.claude/skills/observability -name "*.json" -mtime +0.04 -delete
 
 ## References
 
-- Research proof: `docs/hooks-continual-learning-proof.md`
-- Updated research: `docs/self-referential-improvement-research.md`
 - Test script: `plugins/abstract/hooks/test_skill_observability_proof.py`
+- Implementation hooks: `plugins/abstract/hooks/hooks.json`
 
 ---
 

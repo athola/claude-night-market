@@ -1,1398 +1,161 @@
 ---
 name: fix-pr
-description: |
-  Address PR review feedback with fixes, test execution, thread resolution, and summary posting.
-
-  Triggers: fix PR, address review, PR feedback, review comments
-  Use when: responding to PR review comments systematically
-usage: /fix-pr [<pr-number> | <pr-url>] [--dry-run] [--commit-strategy single|separate|manual]
+description: Address PR review feedback using progressive workflow
+usage: /fix-pr [<pr-number> | <pr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
 extends: "superpowers:receiving-code-review"
 ---
 
 # Enhanced PR Fix
 
-Integrates superpowers:receiving-code-review analysis capabilities with Sanctum's production-grade GitHub integration to systematically address PR review comments and automate resolution workflows.
+<identification>
+triggers: fix PR, address review, PR feedback, review comments
 
-## Key Enhancements Over Base Commands
+use_when:
+- Responding to PR review comments systematically
+- Iterating on PR after reviewer feedback
+</identification>
 
-- **Intelligent Comment Triage**: Uses code review analysis to classify feedback
-- **Automated Fix Suggestions**: uses superpowers for generating fixes
-- **GitHub Thread Resolution**: Automatically resolves threads when fixes are applied
-- **Commit Strategy Options**: Flexible commit approaches for different workflows
-- **Backlog Item Creation**: Routes out-of-scope feedback to GitHub issues
+A progressive workflow for addressing PR review feedback, following the attune pattern:
+**analyze** → **triage** → **plan** → **fix** → **validate** → **complete**
 
-## When to Use
+## Quick Reference
 
-- Addressing PR review comments systematically
-- Automating repetitive review feedback resolution
-- Managing large PRs with many review comments
-- Ensuring all feedback is properly categorized and addressed
+```bash
+/fix-pr                    # Full workflow
+/fix-pr --from triage      # Skip analysis, start at triage
+/fix-pr --to plan          # Stop after planning (dry run)
+/fix-pr --scope minor      # Auto-skip steps for minor fixes
+```
 
-## Workflow
+## Workflow Steps Overview
 
-### Phase 1: Discovery & Analysis
+| Step | Purpose | Skip When |
+|------|---------|-----------|
+| **1. Analyze** | Fetch PR, comments, context | Already familiar with PR |
+| **2. Triage** | Classify comments by type/priority | Single simple fix |
+| **3. Plan** | Generate fix strategies | Fixes are obvious |
+| **4. Fix** | Apply code changes | Just need validation |
+| **5. Validate** | Run tests, version checks | Already validated |
+| **6. Complete** | Threads, issues, summary | Just needed fixes |
 
-1. **Identify Target PR**
+**Detailed Steps**: See [Workflow Steps](fix-pr-modules/workflow-steps.md)
+
+## Intelligent Step-Skipping
+
+The workflow auto-detects scope and suggests step-skipping:
+
+**Minor scope** (1-2 simple comments):
+- Skip: Analyze, Triage, Plan
+- Run: Fix → Validate → Complete
+
+**Medium scope** (3-5 comments, clear fixes):
+- Skip: Analyze (if familiar)
+- Run: Triage → Plan → Fix → Validate → Complete
+
+**Major scope** (6+ comments, complex changes):
+- Run all steps
+
+```bash
+# Detect scope automatically
+/fix-pr --scope auto
+
+# Override with explicit scope
+/fix-pr --scope minor
+/fix-pr --scope medium
+/fix-pr --scope major
+```
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| **[Workflow Steps](fix-pr-modules/workflow-steps.md)** | Detailed guide for each step (Analyze → Complete) |
+| **[Configuration & Options](fix-pr-modules/configuration-options.md)** | Command options, configuration, best practices |
+| **[Troubleshooting](fix-pr-modules/troubleshooting-fixes.md)** | Error handling, known issues, migration notes |
+
+## Common Usage Examples
+
+### Basic Usage
+```bash
+# Full workflow for PR
+/fix-pr 123
+
+# With PR URL
+/fix-pr https://github.com/org/repo/pull/123
+```
+
+### Step Control
+```bash
+# Skip to specific step
+/fix-pr --from plan
+
+# Stop at specific step (dry run)
+/fix-pr --to plan
+
+# Run specific range
+/fix-pr --from triage --to validate
+```
+
+### Commit Strategies
+```bash
+# Single commit for all fixes (default)
+/fix-pr --commit-strategy single
+
+# Separate commit per fix
+/fix-pr --commit-strategy separate
+
+# Manual commits (for complex cases)
+/fix-pr --commit-strategy manual
+```
+
+### Scope Control
+```bash
+# Auto-detect scope
+/fix-pr --scope auto
+
+# Force minor workflow (skip to fix)
+/fix-pr --scope minor
+```
+
+## Quick Start
+
+1. **Simple PR fixes** (1-2 comments):
    ```bash
-   # Current branch or specified PR
-   gh pr view --json number,url,headRefName,body,title
+   /fix-pr <pr-number> --scope minor
    ```
 
-2. **Check and Add PR Description (if missing)**
-
-   Verify the PR has a description and add one if it's missing:
-
+2. **Medium complexity** (3-5 comments):
    ```bash
-   # Check if PR has a description
-   PR_BODY=$(gh pr view --json body -q .body)
-
-   # If empty or whitespace-only, generate and add description
-   if [[ -z "$(echo "$PR_BODY" | tr -d '[:space:]')" ]]; then
-     echo "PR is missing a description. Generating one..."
-
-     # Gather information for description generation
-     PR_TITLE=$(gh pr view --json title -q .title)
-     COMMIT_MSGS=$(git log --oneline origin/main..HEAD --format="%s" | head -10)
-     FILE_STATS=$(git diff --stat origin/main..HEAD | tail -1)
-     CHANGED_FILES=$(git diff --name-only origin/main..HEAD | head -20)
-
-     # Create a temporary file for the description
-     TEMP_DESC=$(mktemp)
-
-     # Generate the description with actual content
-     # This should be done by analyzing the actual PR data, not using placeholders
-     cat > "$TEMP_DESC" << 'TEMPLATE_EOF'
-## Summary
-
-[Analyze commits and changes to write 1-3 sentences explaining what this PR does]
-
-## Changes
-
-[Generate bullet list from commit messages and changed files - replace with actual changes]
-
-## Test Plan
-
-[Generate verification steps based on what was changed]
-
-- [ ] Quality gates pass: `make test && make lint`
-
----
-*PR description auto-generated by /fix-pr*
-TEMPLATE_EOF
-
-     # Add the description to the PR using REST API (more reliable than gh pr edit)
-     # Get repo info for API call
-     REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
-     PR_NUM=$(gh pr view --json number -q .number)
-
-     gh api "repos/${REPO}/pulls/${PR_NUM}" -X PATCH -F body=@"$TEMP_DESC" --silent
-
-     # Clean up
-     rm -f "$TEMP_DESC"
-
-     echo "✓ PR description added"
-   fi
+   /fix-pr <pr-number>
    ```
 
-   **CRITICAL: Generate Real Content, Not Placeholders**
-
-   When implementing this step, you MUST:
-   1. **Analyze the actual PR data** - Don't just copy the template
-   2. **Write the description to a temp file** - This preserves formatting
-   3. **Use REST API instead of `gh pr edit`** - More reliable, avoids GraphQL permission issues
-
-   **Step-by-step implementation:**
-
+3. **Complex refactoring** (6+ comments):
    ```bash
-   # 1. Gather PR metadata
-   PR_TITLE=$(gh pr view --json title -q .title)
-   COMMITS=$(git log origin/main..HEAD --format="%s")
-   FILES=$(git diff --name-only origin/main..HEAD)
-   STATS=$(git diff --stat origin/main..HEAD)
-
-   # 2. Create temp file
-   TEMP_DESC=$(mktemp)
-
-   # 3. Write actual description (NOT placeholders!)
-   cat > "$TEMP_DESC" << EOF
-## Summary
-
-${ACTUAL_SUMMARY_HERE}
-
-## Changes
-
-${ACTUAL_CHANGES_HERE}
-
-## Test Plan
-
-${ACTUAL_TEST_PLAN_HERE}
-
----
-*PR description auto-generated by /fix-pr*
-EOF
-
-   # 4. Get repo/PR info for API call
-   REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
-   PR_NUM=$(gh pr view --json number -q .number)
-
-   # 5. Apply using REST API (more reliable than gh pr edit)
-   gh api "repos/${REPO}/pulls/${PR_NUM}" -X PATCH -F body=@"$TEMP_DESC" --silent
-
-   # 6. Cleanup
-   rm -f "$TEMP_DESC"
+   /fix-pr <pr-number> --scope major
    ```
 
-   **Description Generation Guidelines:**
-   - **Summary**: 1-2 sentences explaining the purpose from commit messages
-   - **Changes**: Bullet list derived from:
-     - Commit message headlines
-     - Changed file paths (group by feature/module)
-     - Significant additions from git diff stats
-   - **Test Plan**: Basic verification steps:
-     - Unit tests for modified modules
-     - Integration tests if multiple modules changed
-     - Quality gates (lint, test, build)
-   - Use conventional commit type from branch name or commits (feat, fix, refactor, etc.)
-
-   **Common Formatting Issues and Solutions:**
-
-   ❌ **WRONG - Escaped newlines in description:**
-   ```json
-   "## Summary\n\nThis adds a feature\n\n## Changes\n\n- Item 1"
-   ```
-   This happens when using `--body` with a string that gets JSON-escaped.
-
-   ✅ **CORRECT - Using REST API with temp file:**
+4. **Just planning** (dry run):
    ```bash
-   # Write to file with real newlines
-   cat > /tmp/pr-desc.md << EOF
-## Summary
-
-This adds a feature
-
-## Changes
-
-- Item 1
-EOF
-
-   # Use REST API (more reliable than gh pr edit which can silently fail)
-   REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
-   PR_NUM=$(gh pr view --json number -q .number)
-   gh api "repos/${REPO}/pulls/${PR_NUM}" -X PATCH -F body=@/tmp/pr-desc.md
+   /fix-pr <pr-number> --to plan
    ```
 
-   **Key Points:**
-   - Use REST API (`gh api ... -X PATCH`) instead of `gh pr edit --body-file`
-   - `gh pr edit` uses GraphQL which can silently fail due to token scope issues
-   - Write content to a temp file first to preserve formatting
-   - Use heredoc (<<EOF) or Write tool to create the file
-   - Verify the description renders correctly in the PR after applying
-
-   **Example Generated Description:**
-   ```markdown
-   ## Summary
-
-   Adds URL scheme validation to version_fetcher.py to prevent path traversal attacks.
-
-   ## Changes
-
-   - Add `_validate_https_url()` helper function for URL scheme validation
-   - Apply validation before all `urllib.request.urlopen()` calls
-   - Add security annotations (`# nosec B310`) after validation
-
-   ## Test Plan
-
-   - [x] Bandit security scan passes
-   - [x] Validation rejects file:// and http:// schemes
-   - [x] HTTPS URLs are accepted
-   - [x] All pre-commit hooks pass
-
-   ---
-   *PR description auto-generated by /fix-pr*
-   ```
-
-3. **Fetch Review Context**
-   ```bash
-   # Get unresolved review threads (GraphQL)
-   gh api graphql -f query='...'
-   # Get general issue comments
-   gh api repos/{owner}/{repo}/issues/{pr_number}/comments
-   ```
-
-4. **Analyze with Superpowers**
-   ```bash
-   Skill(superpowers:receiving-code-review)
-   ```
-   - Analyzes code context for each comment
-   - Suggests specific fixes
-   - Classifies feedback by impact and scope
-
-### Phase 2: Intelligent Triage
-
-5. **Check Existing Backlog Context** (Optional but Recommended)
-
-   Before classifying comments, check if relevant backlog documentation exists:
-   ```bash
-   # Check for existing backlog files that may provide context
-   ls docs/backlog/*.md 2>/dev/null
-   # Key files to check:
-   # - docs/backlog/queue.md - Active backlog items with worthiness scores
-   # - docs/backlog/technical-debt.md - Known technical debt items
-   ```
-
-   If these files exist:
-   - Cross-reference out-of-scope items against existing backlog entries
-   - Avoid creating duplicate GitHub issues for items already tracked
-   - Link new issues to related existing items when appropriate
-
-6. **Classify Comments**
-
-   | Type | Description | Action |
-   |------|-------------|--------|
-   | **Critical** | Bugs, security issues | Fix immediately |
-   | **In-Scope** | Requirements-related | Address in this PR |
-   | **Suggestion** | Improvements | **Create GitHub issue (Phase 3.6)** |
-   | **Deferred** | Medium priority, future work, out-of-scope | **Create GitHub issue (Phase 3.5)** |
-   | **Informational** | Questions, praise | Reply only |
-
-   > **Trigger terms for Phase 3.5:** If you classify ANY item as "deferred", "out-of-scope", "medium priority", "future work", or "follow-up", you MUST execute Phase 3.5.
-   >
-   > **Trigger terms for Phase 3.6:** If you classify ANY item as "suggestion", you MUST execute Phase 3.6.
-
-7. **Generate Fix Strategies**
-   - For each actionable comment, superpowers analyzes:
-     - Code context around comment location
-     - Best practices for the suggested change
-     - Impact on related code
-     - Test implications
-
-### Phase 3: Execution
-
-8. **Apply Fixes Systematically**
-   ```bash
-   # For each approved fix:
-   1. Read code context (±20 lines)
-   2. Apply fix with Edit tool
-   3. Verify no new issues introduced
-   4. Mark as completed
-   ```
-
-9. **Commit with Strategy**
-   - **Single**: "Address PR review feedback"
-   - **Separate**: One commit per fix category
-   - **Manual**: Stage changes, user commits
-
-### Phase 3.5: Version Validation Verification (MANDATORY IF APPLICABLE)
-
-**CRITICAL: If `/pr-review` flagged any version issues (B-VERSION), you MUST verify they were fixed.**
-
-Before proceeding to test plan execution, re-run version validation to confirm all version files are now consistent.
-
-10. **Check for Version Issues in Review**
-    ```bash
-    # Check if version validation issues were flagged in the review
-    # Look for B-VERSION tags in review comments or test plan
-    gh api repos/OWNER/REPO/issues/PR_NUMBER/comments \
-      --jq '.[] | select(.body | contains("B-VERSION")) | .body'
-    ```
-
-11. **Re-run Version Validation (if version issues existed)**
-    ```bash
-    # Detect project type
-    PROJECT_TYPE=""
-    if [[ -f ".claude-plugin/marketplace.json" ]]; then
-      PROJECT_TYPE="claude-marketplace"
-    elif [[ -f "pyproject.toml" ]]; then
-      PROJECT_TYPE="python"
-    elif [[ -f "package.json" ]]; then
-      PROJECT_TYPE="node"
-    elif [[ -f "Cargo.toml" ]]; then
-      PROJECT_TYPE="rust"
-    fi
-
-    # Re-validate based on project type
-    case $PROJECT_TYPE in
-      claude-marketplace)
-        # Verify marketplace.json matches all plugin.json files
-        ECOSYSTEM_VERSION=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
-        echo "Ecosystem version: $ECOSYSTEM_VERSION"
-
-        MISMATCHES=0
-        jq -r '.plugins[] | "\(.name):\(.version)"' .claude-plugin/marketplace.json | while IFS=: read -r name version; do
-          if [[ -f "plugins/$name/.claude-plugin/plugin.json" ]]; then
-            ACTUAL=$(jq -r '.version' "plugins/$name/.claude-plugin/plugin.json")
-            if [[ "$version" != "$ACTUAL" ]]; then
-              echo "❌ STILL MISMATCHED: $name (marketplace=$version, actual=$ACTUAL)"
-              MISMATCHES=$((MISMATCHES + 1))
-            else
-              echo "✓ $name: $version"
-            fi
-          fi
-        done
-
-        # Check CHANGELOG entry exists
-        if [[ -f "CHANGELOG.md" ]] && ! grep -q "\[$ECOSYSTEM_VERSION\]" CHANGELOG.md; then
-          echo "❌ CHANGELOG.md still missing entry for $ECOSYSTEM_VERSION"
-          MISMATCHES=$((MISMATCHES + 1))
-        fi
-        ;;
-
-      python)
-        # Verify pyproject.toml matches __version__ in code
-        TOML_VERSION=$(grep "^version" pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-        if [[ -d "src" ]]; then
-          VERSION_PY=$(find src -name "__init__.py" -exec grep -l "__version__" {} \; | head -1)
-          if [[ -n "$VERSION_PY" ]]; then
-            CODE_VERSION=$(grep "__version__" "$VERSION_PY" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-            if [[ "$TOML_VERSION" != "$CODE_VERSION" ]]; then
-              echo "❌ STILL MISMATCHED: pyproject.toml=$TOML_VERSION, $VERSION_PY=$CODE_VERSION"
-            else
-              echo "✓ Python versions consistent: $TOML_VERSION"
-            fi
-          fi
-        fi
-        ;;
-
-      node)
-        # Verify package.json matches package-lock.json
-        PKG_VERSION=$(jq -r '.version' package.json)
-        if [[ -f "package-lock.json" ]]; then
-          LOCK_VERSION=$(jq -r '.version' package-lock.json)
-          if [[ "$PKG_VERSION" != "$LOCK_VERSION" ]]; then
-            echo "❌ STILL MISMATCHED: package.json=$PKG_VERSION, package-lock.json=$LOCK_VERSION"
-          else
-            echo "✓ Node versions consistent: $PKG_VERSION"
-          fi
-        fi
-        ;;
-
-      rust)
-        # Verify Cargo.toml version
-        CARGO_VERSION=$(grep "^version" Cargo.toml | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-        echo "✓ Cargo.toml version: $CARGO_VERSION"
-        # Check Cargo.lock is updated (regenerated)
-        if [[ -f "Cargo.lock" ]]; then
-          echo "ℹ️ Verify Cargo.lock was regenerated after version update"
-        fi
-        ;;
-    esac
-    ```
-
-12. **Version Validation Must Pass**
-
-    **If any version mismatches remain, DO NOT proceed to Phase 4. Fix them first.**
-
-    | Version Issue Type | Fix Required |
-    |-------------------|--------------|
-    | marketplace.json vs plugin.json mismatch | Update marketplace.json OR plugin.json to match |
-    | pyproject.toml vs __version__ mismatch | Sync both to same version |
-    | package.json vs package-lock.json mismatch | Run `npm install` to regenerate lock |
-    | Missing CHANGELOG entry | Add entry for new version |
-
-**Version Validation Verification Checklist:**
-- [ ] Checked if B-VERSION issues existed in review
-- [ ] Re-ran version validation for project type
-- [ ] All version files now consistent
-- [ ] CHANGELOG has entry for new version (if applicable)
-- [ ] Ready to proceed to test plan execution
-
----
-
-### Phase 3.7: Execute Test Plan (MANDATORY)
-
-After applying fixes and version validation, execute the test plan generated by `/pr-review`.
-
-13. **Locate Test Plan**
-   ```bash
-   # Option 1: Check if test plan was saved to file
-   ls .pr-review/test-plan-*.md 2>/dev/null
-
-   # Option 2: Search PR comments for test plan (generated by /pr-review)
-   # Look for comments with "## Test Plan for PR #"
-   gh api repos/OWNER/REPO/issues/PR_NUMBER/comments \
-     --jq '.[] | select(.body | contains("## Test Plan for PR")) | {id: .id, created_at: .created_at, body: .body}'
-   ```
-
-   **Test Plan Discovery Rules:**
-   - Check for local file first (`.pr-review/test-plan-*.md`)
-   - If not found, search PR comments for "## Test Plan for PR #N"
-   - The test plan comment contains:
-     - Prerequisites checklist
-     - Verification steps for each issue (numbered: B1, B2, S1, S2, etc.)
-     - Quality gate commands
-     - Summary checklist table
-   - Parse the test plan and create TodoWrite items for each verification step
-
-14. **Execute Verification Steps**
-
-    For each issue in the test plan, run the verification steps:
-
-    ```markdown
-    ### Test Plan Execution
-
-    #### B1: Missing token validation
-    - [x] Review the fix at `middleware/auth.py:45`
-    - [x] Run: `pytest tests/test_auth.py -k "token_validation" -v` → PASSED
-    - [x] Manual check: Invalid token returns 401 [DONE]
-    - [x] Error response verified [DONE]
-
-    #### B2: SQL injection vulnerability
-    - [x] Review the fix at `models/user.py:123`
-    - [x] Run: `bandit -r models/ -ll` → No high-severity issues
-    - [x] Run: `pytest tests/test_models.py -k "sql" -v` → PASSED
-    - [x] Parameterized queries verified [DONE]
-    ```
-
-15. **Run Quality Gates**
-    ```bash
-    # Execute the quality gate commands from the test plan
-    make test && make lint && make build
-
-    # Or project-specific commands
-    uv run pytest tests/ -v
-    uv run ruff check .
-    ```
-
-16. **Document Test Results**
-
-    Record test execution results for the summary:
-
-    ```markdown
-    ### Test Plan Results
-
-    | Issue ID | Verification | Status | Notes |
-    |----------|--------------|--------|-------|
-    | B1 | All steps passed | PASS | Token validation working |
-    | B2 | All steps passed | PASS | Parameterized queries |
-    | S1 | All steps passed | PASS | Password reset implemented |
-
-    **Quality Gates:**
-    - Tests: 142 passed, 0 failed [PASS]
-    - Lint: No issues [PASS]
-    - Build: Success [PASS]
-    ```
-
-**Test Plan Execution Rules:**
-- Execute ALL verification steps for blocking issues
-- Execute ALL verification steps for in-scope issues
-- Run quality gate commands AFTER individual issue verification
-- Document any failures and fix before proceeding
-- All tests must pass before moving to Phase 4
-
-**If Test Plan Not Found:**
-If no test plan exists from `/pr-review`, generate verification steps on-the-fly:
-1. For each fix applied, identify relevant test file
-2. Run targeted tests for the modified code
-3. Run overall quality gates
-4. Document results
-
----
-
-### CHECKPOINT: Before Proceeding to Phase 3.6
-
-**STOP. Answer this question before continuing:**
-
-> Did you classify ANY items as **Suggestions** during Phase 2 triage?
-
-- **YES** → You MUST execute Phase 3.6 NOW. Do not skip it.
-- **NO** → Skip to Phase 3.8 (if deferred items exist) or Phase 4.
-
-**Suggestions are valuable feedback that should not be lost.**
-
----
-
-### Phase 3.6: Suggestion Issue Creation (MANDATORY IF APPLICABLE)
-
-**CRITICAL: You MUST create GitHub issues for ALL suggestion items. This is not optional.**
-
-**Suggestions represent valuable improvements that should be tracked for future implementation.**
-
-For each comment classified as **Suggestion** during triage, create a GitHub issue with the "suggestion" label:
-
-16. **Create Issues for Suggestions**
-   ```bash
-   gh issue create \
-     --title "[Suggestion] <description from review comment>" \
-     --body "$(cat <<'EOF'
-   ## Background
-
-   Identified during PR #PR_NUMBER review as a suggestion for improvement.
-
-   **Original Review Comment:**
-   > [Quote the review comment here]
-
-   **Location:** `file/path.py:line` (if applicable)
-
-   ## Suggested Improvement
-
-   [Describe the suggested improvement based on the review feedback]
-
-   ## Value
-
-   [Explain why this improvement would be valuable - performance, UX, maintainability, etc.]
-
-   ## Acceptance Criteria
-
-   - [ ] [Specific criteria based on the suggestion]
-   - [ ] Tests added/updated (if applicable)
-   - [ ] Documentation updated (if applicable)
-
-   ## References
-
-   - PR #PR_NUMBER: [PR URL]
-   - Original review comment: [Link if available]
-
-   ---
-   *Created from PR #PR_NUMBER review triage*
-   EOF
-   )" \
-     --label "suggestion" \
-     --label "enhancement"
-   ```
-
-   **Suggestion Issue Rules:**
-   - Prefix title with "[Suggestion]" for easy identification
-   - Always use the "suggestion" label (required for tracking)
-   - Add additional labels as appropriate (enhancement, documentation, testing, etc.)
-   - Include the original review comment verbatim
-   - Explain the value/improvement rationale
-   - Reference the source PR
-   - Define clear acceptance criteria
-
-17. **Track Created Suggestion Issues**
-   After creating issues, document them in the PR comment:
-   ```markdown
-   ### Suggestions → GitHub Issues
-
-   | Review Item | Issue Created | Description |
-   |-------------|---------------|-------------|
-   | S1 | #43 | Clarify ruff-format comment |
-   | S2 | #44 | Improve test output verbosity |
-   ```
-
-   **Or if none:**
-   ```markdown
-   ### Suggestions Created
-
-   **None** - All suggestions were addressed directly in this PR.
-   ```
-
-**Suggestion Issue Checklist:**
-- [ ] Created GitHub issue for EACH suggestion item
-- [ ] Used "[Suggestion]" prefix in issue titles
-- [ ] Applied "suggestion" label to all issues
-- [ ] Included original review comment context
-- [ ] Explained the value/improvement rationale
-- [ ] Added appropriate secondary labels
-- [ ] Documented created issues in PR comment
-- [ ] Verified: Issue count matches suggestion count from Phase 2 triage
-
-**Note:** Unlike deferred items (which may be large features), suggestions are typically small improvements that can be implemented in follow-up work. The "suggestion" label helps distinguish these from larger backlog items.
-
----
-
-### CHECKPOINT: Before Proceeding to Phase 4
-
-**STOP. Answer this question before continuing:**
-
-> Did you classify ANY items as **Deferred**, **Out-of-Scope**, **Medium Priority**, or **Future Work** during Phase 2 triage?
-
-- **YES** → You MUST execute Phase 3.8 NOW. Do not skip it.
-- **NO** → Skip to Phase 4.
-
-**If you proceed to Phase 4 without executing Phase 3.8 when deferred items exist, the workflow is incomplete.**
-
----
-
-### Phase 3.8: Deferred/Out-of-Scope Issue Creation (MANDATORY IF APPLICABLE)
-
-**CRITICAL: You MUST create GitHub issues for ALL deferred/out-of-scope items. This is not optional.**
-
-**GitHub issues are the primary storage for backlog items.**
-
-For each comment classified as **Deferred** (including "out-of-scope", "medium priority", "future work") during triage, create a GitHub issue:
-
-17. **Create Issues for Out-of-Scope Items**
-   ```bash
-   gh issue create \
-     --title "<type>(<scope>): <description from review comment>" \
-     --body "$(cat <<'EOF'
-   ## Background
-
-   Identified during PR #PR_NUMBER review as out-of-scope.
-
-   **Original Review Comment:**
-   > [Quote the review comment here]
-
-   **Location:** `file/path.py:line` (if applicable)
-
-   ## Scope
-
-   [Describe what needs to be done based on the review feedback]
-
-   ## Suggested Implementation
-
-   [Any suggestions from the review or analysis]
-
-   ## Acceptance Criteria
-
-   - [ ] [Specific criteria based on the feedback]
-   - [ ] Tests added/updated
-   - [ ] Documentation updated (if applicable)
-
-   ## References
-
-   - PR #PR_NUMBER: [PR URL]
-   - Original review comment: [Link if available]
-
-   ---
-   *Created from PR #PR_NUMBER review triage*
-   EOF
-   )" \
-     --label "enhancement"
-   ```
-
-   **Issue Creation Rules:**
-   - Use conventional commit format for title: `type(scope): description`
-   - Common types: `feat`, `fix`, `test`, `docs`, `perf`, `refactor`
-   - Include the original review comment in the body
-   - Add relevant labels (enhancement, bug, documentation, etc.)
-   - Reference the source PR
-   - Define clear acceptance criteria
-
-18. **Track Created Issues**
-   After creating issues, document them in the PR comment:
-   ```markdown
-   ### Out-of-Scope Items → GitHub Issues
-
-   | Review Item | Issue Created | Description |
-   |-------------|---------------|-------------|
-   | C2 | #41 | Add tests for feature-review skill |
-   | S3 | #42 | Implement caching layer |
-   ```
-
-**Deferred Item Issue Checklist:**
-- [ ] Created GitHub issue for EACH deferred/out-of-scope item
-- [ ] Used conventional commit format for issue titles
-- [ ] Included original review comment context
-- [ ] Added appropriate labels
-- [ ] Documented created issues in PR comment
-- [ ] Verified: Issue count matches deferred item count from Phase 2 triage
-
-### Phase 4: Thread Resolution (MANDATORY)
-
-**CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
-
-> **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
-
-19. **Get All Review Threads**
-   ```bash
-   # Fetch all review threads with their IDs and resolution status
-   # Note: Use literal owner/repo/pr values - do NOT use $() substitution inside gh commands
-   gh api graphql -f query='
-   query {
-     repository(owner: "OWNER", name: "REPO") {
-       pullRequest(number: PR_NUMBER) {
-         reviewThreads(first: 100) {
-           nodes {
-             id
-             isResolved
-             path
-             line
-             comments(first: 1) {
-               nodes {
-                 body
-                 author { login }
-               }
-             }
-           }
-         }
-       }
-     }
-   }'
-   ```
-
-   Replace `OWNER`, `REPO`, and `PR_NUMBER` with actual values. The thread `id` field returns the `PRRT_*` ID needed for replies and resolution.
-
-20. **Reply to Each Thread with Fix Description**
-   For EACH review comment that was addressed, use the GraphQL mutation (NOT REST API):
-   ```bash
-   # Reply using addPullRequestReviewThreadReply mutation
-   # The pullRequestReviewThreadId is the PRRT_* ID from step 19
-   gh api graphql -f query='
-   mutation {
-     addPullRequestReviewThreadReply(input: {
-       pullRequestReviewThreadId: "PRRT_kwDOxxxxxx"
-       body: "Fixed - added input validation for slug parameter. Rejects injection characters."
-     }) {
-       comment { id }
-     }
-   }'
-   ```
-
-   **Reply format requirements:**
-   - Use "Fixed" prefix for fixed items
-   - Briefly describe what was changed
-   - Reference the file/line if helpful
-   - Keep it concise (1-2 sentences)
-
-   **Common mistakes to avoid:**
-   - Do NOT use `addPullRequestReviewComment` - it lacks thread support
-   - Do NOT use REST API `/comments/{id}/replies` - it doesn't work for review threads
-   - Use `addPullRequestReviewThreadReply` with the `PRRT_*` thread ID
-
-21. **Resolve the Thread**
-    After replying, resolve the thread:
-    ```bash
-    # Resolve the review thread via GraphQL mutation
-    gh api graphql -f query='
-    mutation {
-      resolveReviewThread(input: {threadId: "PRRT_kwDOxxxxxx"}) {
-        thread { isResolved }
-      }
-    }'
-    ```
-
-    **Batch resolution pattern:**
-    ```bash
-    # Resolve multiple threads in a loop
-    for thread_id in PRRT_abc123 PRRT_def456 PRRT_ghi789; do
-      gh api graphql -f query="
-    mutation {
-      resolveReviewThread(input: {threadId: \"$thread_id\"}) {
-        thread { isResolved }
-      }
-    }"
-    done
-    ```
-
-22. **Verify All Threads Resolved**
-    ```bash
-    # Count unresolved threads - should return 0
-    gh api graphql -f query='
-    query {
-      repository(owner: "OWNER", name: "REPO") {
-        pullRequest(number: PR_NUMBER) {
-          reviewThreads(first: 100) {
-            nodes {
-              isResolved
-              path
-            }
-          }
-        }
-      }
-    }' --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length'
-    ```
-
-**Thread Resolution Checklist:**
-- [ ] Retrieved all review thread IDs (format: `PRRT_*`)
-- [ ] Replied to each addressed thread using `addPullRequestReviewThreadReply`
-- [ ] Resolved each thread via `resolveReviewThread` mutation
-- [ ] Verified no unresolved threads remain (or documented why)
-
----
-
-### CHECKPOINT: Before Proceeding to Phase 6
-
-**STOP. You MUST execute Phase 5 to check if this PR addresses any open issues.**
-
-This phase is often skipped but is critical for closing the feedback loop. PRs that address issues should close them.
-
----
-
-### Phase 5: Issue Linkage & Closure (MANDATORY)
-
-**You MUST analyze whether this PR addresses any open issues and close/comment on them accordingly.**
-
-23. **Fetch Open Issues**
-    ```bash
-    # Get all open issues for the repository
-    gh issue list --state open --json number,title,body,labels --limit 50
-    ```
-
-24. **Analyze Issue Coverage**
-
-    For each open issue, analyze whether the PR's changes address it:
-
-    ```bash
-    # Get PR changed files and commit messages
-    gh pr view --json files,commits -q '{files: .files[].path, commits: .commits[].messageHeadline}'
-
-    # Compare against issue requirements:
-    # - Extract acceptance criteria from issue body
-    # - Check if changed files relate to issue scope
-    # - Review commit messages for issue references
-    ```
-
-    **Classification:**
-    | Status | Criteria | Action |
-    |--------|----------|--------|
-    | **Fully Addressed** | All acceptance criteria met, all required changes made | Comment + Close |
-    | **Partially Addressed** | Some criteria met, some work remaining | Comment with follow-up details |
-    | **Not Related** | PR doesn't touch issue scope | Skip |
-
-25. **Comment on Fully Addressed Issues**
-    ```bash
-    gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
-    ## Addressed in PR #PR_NUMBER
-
-    This issue has been fully addressed by the linked pull request.
-
-    **Changes made:**
-    - [List specific changes that address the issue]
-
-    **Files modified:**
-    - `path/to/file.py`
-    - `path/to/another.py`
-
-    Closing this issue. The fix will be available after PR merge.
-    EOF
-    )"
-
-    # Close the issue
-    gh issue close ISSUE_NUMBER --reason completed
-    ```
-
-26. **Comment on Partially Addressed Issues**
-    ```bash
-    gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
-    ## Partially Addressed in PR #PR_NUMBER
-
-    This PR addresses some aspects of this issue but additional work is needed.
-
-    **What was addressed:**
-    - [List completed items]
-
-    **What still needs to be done (follow-up PR):**
-    - [ ] [Remaining task 1]
-    - [ ] [Remaining task 2]
-    - [ ] [Remaining task 3]
-
-    **Suggested next steps:**
-    1. Create follow-up branch from main after this PR merges
-    2. Address remaining items listed above
-    3. Reference this issue in the follow-up PR
-
-    Keeping this issue open until fully resolved.
-    EOF
-    )"
-    ```
-
-27. **Generate Issue Linkage Report**
-    ```markdown
-    ### Issue Linkage Summary
-
-    | Issue | Title | Status | Action Taken |
-    |-------|-------|--------|--------------|
-    | #42 | Add user authentication | Fully Addressed | Commented + Closed |
-    | #43 | Fix validation bugs | Partially Addressed | Commented (3 items remaining) |
-    | #44 | Improve performance | Not Related | Skipped |
-
-    **Closed Issues:** 1
-    **Partially Addressed:** 1 (follow-up items documented)
-    **Not Related:** 1
-    ```
-
-**Issue Linkage Checklist:**
-- [ ] Fetched all open issues for the repository
-- [ ] Analyzed PR changes against each issue's requirements
-- [ ] **Closed ALL fully addressed issues** (with comment explaining changes)
-- [ ] Documented remaining work for partially addressed issues
-- [ ] Generated linkage summary report showing closed issue count
-
-> **Common failure mode:** Skipping this phase entirely. Even if you think there are no related issues, you MUST run `gh issue list` to verify.
-
-### Phase 6: Post Summary Comment (MANDATORY)
-
-**CRITICAL: You MUST post a summary comment to the PR after all fixes are applied. This is not optional.**
-
-After completing all fixes, thread resolutions, and issue linkage, post a detailed summary comment to the PR.
-
-28. **Post Summary Comment**
-    ```bash
-    gh pr comment PR_NUMBER --body "$(cat <<'EOF'
-    ## PR Review Feedback Addressed
-
-    All issues from the code review have been fixed in commit `COMMIT_SHA`.
-
-    ### Blocking Issues (N) [FIXED]
-
-    | ID | Issue | Resolution |
-    |----|-------|------------|
-    | **B1** | [Description] | [How it was fixed] |
-
-    ### In-Scope Issues (N) [FIXED]
-
-    | ID | Issue | Resolution |
-    |----|-------|------------|
-    | **S1** | [Description] | [How it was fixed] |
-
-    ### Suggestions Created (N)
-
-    | Review Item | Issue Created | Description |
-    |-------------|---------------|-------------|
-    | S2 | #43 | [Description] |
-    | S3 | #44 | [Description] |
-
-    Or: **None** - All suggestions were addressed directly in this PR.
-
-    ### Deferred Items Created (N)
-
-    | Review Item | Issue Created | Description |
-    |-------------|---------------|-------------|
-    | C2 | #41 | [Description] |
-
-    Or: **None** - No deferred/out-of-scope items identified.
-
-    ---
-
-    Ready for re-review. All pre-commit hooks pass.
-    EOF
-    )"
-    ```
-
-    **Summary Comment Requirements:**
-    - Include commit SHA for reference
-    - Group fixes by category (Blocking, In-Scope)
-    - List suggestions that were fixed directly vs. suggestions that created issues
-    - List deferred items that created issues
-    - Use tables for clarity
-    - End with clear status ("Ready for re-review")
-
-**Summary Comment Checklist:**
-- [ ] Posted comment to PR with detailed summary
-- [ ] Included commit SHA reference
-- [ ] Listed all fixed issues by category
-- [ ] Documented suggestions (fixed or issues created)
-- [ ] Documented deferred items (issues created)
-- [ ] Indicated PR is ready for re-review
-
-### Phase 7: Final Thread Verification (AUTOMATIC)
-
-**This phase runs automatically at the end of /fix-pr.**
-
-29. **Invoke /resolve-threads for Final Cleanup**
-    ```bash
-    Skill(sanctum:resolve-threads)
-    ```
-
-    This validates any threads missed during Phase 4 are resolved via batch operation. The `/resolve-threads` command:
-    - Fetches all unresolved threads
-    - Resolves each one via GraphQL mutation
-    - Reports final resolution status
-    - Is idempotent (safe to run even if all threads already resolved)
-
-**Final Verification Checklist:**
-- [ ] Ran `/resolve-threads` as final step
-- [ ] Confirmed 0 unresolved threads remain
-- [ ] All PR review feedback fully addressed
-
-## Options
-
-- `--dry-run`: Analyze and show planned fixes without applying
-- `--commit-strategy`: Choose commit approach (default: single)
-- `--skip-issue-linkage`: Skip Phase 5 issue analysis (faster execution)
-- `--close-issues`: Automatically close fully addressed issues (default: prompt)
-- `pr-number`/`pr-url`: Target specific PR (default: current branch)
-
-## Enhanced Features
-
-### 1. Smart Fix Generation
-
-uses superpowers to understand context:
-
-```javascript
-// Comment: "Add error handling for null values"
-// Superpowers analyzes:
-// - Current function signature
-// - Error handling patterns in codebase
-// - Testing requirements
-// - Performance implications
-
-// Generated fix:
-function processData(data) {
-  if (!data) {
-    throw new Error('Data cannot be null or undefined');
-  }
-  // ... rest of function
-}
-```
-
-### 2. Batch Fix Operations
-
-Groups related fixes for efficiency:
-
-```bash
-# Detects patterns:
-- 5 comments about missing tests
-- 3 comments about error handling
-- 2 comments about documentation
-
-# Applies fixes by batch:
-1. Add all missing tests
-2. Implement error handling
-3. Update documentation
-```
-
-### 3. Backlog Triage
-
-Creates GitHub issues for out-of-scope items:
-
-```bash
-gh issue create \
-  --title "[Enhancement] Add caching layer" \
-  --body="Identified during PR #123 review
-  Consider implementing Redis caching for API responses
-  Priority: Medium
-  Estimated effort: 2-3 days" \
-  --label="enhancement,backlog"
-```
-
-## Example Execution
-
-```bash
-# Run with default settings
-/fix-pr
-
-# Dry run to see planned changes
-/fix-pr --dry-run
-
-# Specific PR with separate commits
-/fix-pr 42 --commit-strategy separate
-```
-
-### Sample Output
-
-```markdown
-PR #42: Found 12 review comments
-
-### Triage Results
-| Critical | In-Scope | Suggestions | Out-of-Scope | Informational |
-|----------|----------|-------------|--------------|---------------|
-| 2        | 5        | 3           | 1            | 1             |
-
-### Fix Plan
-**Critical Issues (2)**
-1. [C1] api.py:45 - Add null check for user input
-2. [C2] utils.py:87 - Fix SQL injection vulnerability
-
-**In-Scope Issues (5)**
-1. [S1] models.py:23 - Add validation for email format
-2. [S2] views.py:156 - Handle edge case for empty lists
-...
-
-**Out-of-Scope → Creating GitHub Issues (2)**
-Creating issue for: "Add detailed logging system"...
-[OK] Created issue #234: feat(logging): Add detailed logging system
-
-Creating issue for: "Add tests for feature-review skill"...
-[OK] Created issue #235: test(imbue): Add detailed tests for feature-review skill
-
-Proceed with 7 fixes? [y/n/select]
-```
-
-### Issue Linkage Output
-
-After thread resolution, issue analysis runs:
-
-```markdown
-PR #42: Analyzing 8 open issues...
-
-### Issue Analysis Results
-
-**#15 - Add input validation for API endpoints**
-Status: FULLY ADDRESSED
-Evidence:
-  - Added validation in api/validators.py (lines 45-89)
-  - Tests added in tests/test_validators.py
-  - All acceptance criteria met
-Action: Commented and closed issue #15
-
-**#18 - Improve error messages**
-Status: PARTIALLY ADDRESSED
-Evidence:
-  - Updated error messages in auth module
-  - Database errors still use generic messages
-Remaining work:
-  - [ ] Update database error messages in db/errors.py
-  - [ ] Add user-friendly messages for validation failures
-Action: Commented with follow-up tasks
-
-**#22 - Refactor payment module**
-Status: NOT RELATED
-Evidence: No changes to payment/* files
-Action: Skipped
-```
-
-### Thread Resolution Output
-
-After fixes are applied and committed:
-
-```markdown
-### Thread Resolution Status
-
-| Thread ID | File | Status | Action |
-|-----------|------|--------|--------|
-| PRRT_abc123 | api.py:45 | Replied + Resolved | "Fixed in a1b2c3d" |
-| PRRT_def456 | utils.py:87 | Replied + Resolved | "Fixed in a1b2c3d" |
-| PRRT_ghi789 | models.py:23 | Replied + Resolved | "Fixed in a1b2c3d" |
-| PRRT_jkl012 | views.py:156 | Skipped (suggestion) | Author discretion |
-| PRRT_mno345 | config.py:10 | Issue #234 created | Out of scope |
-| PRRT_pqr678 | tests/ | Issue #235 created | Out of scope |
-
-**Summary:**
-- 3 threads replied to and resolved
-- 1 thread skipped (optional suggestion)
-- 2 out-of-scope items → GitHub issues created (#234, #235)
-- 0 unresolved threads remaining
-```
-
-## Integration Benefits
-
-### Superpowers Contributions
-- **Contextual Understanding**: Analyzes code implications of each comment
-- **Best Practice Application**: Suggests industry-standard solutions
-- **Impact Analysis**: Identifies side effects of proposed changes
-- **Test Generation**: Creates tests for new/modified code
-
-### Sanctum Enhancements
-- **GitHub Integration**: Direct thread resolution
-- **Workflow Automation**: Batch operations and commit strategies
-- **Backlog Management**: Systematic triage and issue creation
-- **Progress Tracking**: Clear reporting of actions taken
-
-## Error Handling
-
-### Permission Issues
-```bash
-Warning: Cannot resolve threads (permission denied)
-Fixes applied locally. Please resolve threads manually.
-```
-
-### Thread Resolution Failures
-```bash
-# If thread reply fails
-Error: Failed to reply to thread {thread_id}
-Fallback: Post a general PR comment referencing the fix
-
-# If thread resolution fails
-Error: Failed to resolve thread {thread_id}
-Action: Document the thread ID for manual resolution
-```
-
-### Missing Thread IDs
-```bash
-# If GraphQL returns empty thread list
-Warning: No review threads found via GraphQL
-Fallback: Use REST API to fetch review comments
-gh api repos/{owner}/{repo}/pulls/{pr_number}/comments
-```
-
-### Complex Fixes
-```bash
-Error: Fix for comment #5 requires architectural decision
-Manual intervention needed:
-"Consider whether we should use factory pattern here"
-```
-
-### Conflicts
-```bash
-Warning: Fixes for comments 3 and 4 conflict
-Comment 3: "Make function async"
-Comment 4: "Remove async from function"
-Manual resolution required.
-```
-
-## Configuration
-
-```yaml
-fix_pr:
-  default_commit_strategy: "single"
-  auto_resolve_threads: true
-  create_backlog_issues: true
-  batch_operations: true
-  dry_run_default: false
-
-  # Issue linkage settings
-  issue_linkage:
-    enabled: true                    # Enable Phase 5 issue analysis
-    auto_close_issues: false         # Prompt before closing (true = auto-close)
-    max_issues_to_analyze: 50        # Limit for performance
-    skip_labels: ["wontfix", "duplicate"]  # Ignore issues with these labels
-    require_explicit_reference: false  # If true, only match issues referenced in commits
-
-  # Superpowers integration
-  code_review_context:
-    include_test_suggestions: true
-    analyze_performance_impact: true
-    check_security_implications: true
-```
-
-## Best Practices
-
-### Before Running
-1. validate clean working directory
-2. Pull latest changes from remote
-3. Confirm PR is still open
-4. Check for merge conflicts
-
-### During Execution
-1. Review proposed fixes before applying
-2. Monitor for unexpected side effects
-3. Keep detailed logs of changes made
-4. Verify tests still pass after each batch
-
-### After Completion
-1. Push changes to remote
-2. **VERIFY all threads have replies** - each addressed comment must have a response
-3. **Threads auto-resolved via Phase 7** - `/resolve-threads` runs automatically
-4. **POST SUMMARY COMMENT (MANDATORY)** - See Phase 6. This step is NOT optional.
-5. Check CI pipeline status
-6. Notify reviewers of updates
-7. If any threads couldn't be resolved, document them in a PR comment
-
-## Troubleshooting
-
-### GitHub API Limits
-```bash
-Error: GitHub API rate limit exceeded
-Solution: Wait and retry, or use --dry-run mode
-```
-
-### Complex Review Comments
-```bash
-Warning: Unable to auto-generate fix for comment
-Manual review required: "Consider broader architectural implications"
-```
-
-### Merge Conflicts
-```bash
-Error: Fix conflicts with recent changes
-Solution: Pull latest, resolve conflicts, re-run the command
-```
-
-## Known Issues and Workarounds
-
-### Bash Command Substitution in gh Commands
-
-**Problem:** Using `$()` substitution inside `gh api` commands causes shell syntax errors.
-
-```bash
-# WRONG - This FAILS with syntax errors
-REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
-gh api repos/$REPO/pulls/40/comments  # Breaks due to escaping issues
-```
-
-**Solution:** Get repo info separately, then use literal values:
-
-```bash
-# CORRECT - get info first, then use literals
-gh repo view --json nameWithOwner -q .nameWithOwner
-# Returns: owner/repo
-
-# Then use the actual values directly in the query
-gh api repos/owner/repo/pulls/40/comments
-```
-
-### Wrong Mutation for Thread Replies
-
-**Problem:** `addPullRequestReviewComment` mutation doesn't accept `pullRequestReviewThreadId`.
-
-```bash
-# WRONG - This FAILS
-gh api graphql -f query='
-mutation {
-  addPullRequestReviewComment(input: {
-    pullRequestReviewThreadId: "PRRT_xxx"  # Not a valid field!
-    body: "Fixed"
-  }) { comment { id } }
-}'
-```
-
-**Solution:** Use `addPullRequestReviewThreadReply` instead:
-
-```bash
-# CORRECT - This works
-gh api graphql -f query='
-mutation {
-  addPullRequestReviewThreadReply(input: {
-    pullRequestReviewThreadId: "PRRT_xxx"
-    body: "Fixed"
-  }) { comment { id } }
-}'
-```
-
-### REST API for Review Thread Replies
-
-**Problem:** REST API endpoint for comment replies doesn't work for review threads.
-
-**Solution:** Always use GraphQL `addPullRequestReviewThreadReply` for review threads.
-
-### Thread ID vs Comment ID Confusion
-
-**Problem:** Review comments have both comment IDs (numeric) and thread IDs (`PRRT_*`). Resolution requires thread IDs.
-
-**Solution:** When fetching review threads, extract the `id` field which contains the `PRRT_*` thread ID:
-
-```bash
-# The 'id' field in reviewThreads.nodes is the PRRT_* thread ID
-gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.nodes[].id'
-# Returns: PRRT_kwDOQcL40c5l9_nO
-```
-
-## Migration Notes
-
-- `/fix-pr` now includes the enhanced superpowers-driven workflow (formerly `/fix-pr-wrapper`).
-- Use `--dry-run` to preview the planned fixes before applying changes.
-
-## Notes
-
-- Requires GitHub CLI authentication
-- Works best with superpowers code review analysis
-- Maintains full backward compatibility
-- Preserves all original Sanctum GitHub integrations
-- Adds intelligent fix generation and contextual understanding
-- **Thread resolution is MANDATORY** - every addressed comment MUST receive a reply and be resolved
-- If thread resolution fails, document the failure and attempt manual resolution
-- **Issue linkage** automatically analyzes open issues and closes/comments on addressed ones
-- Use `--skip-issue-linkage` for faster execution when issue analysis is not needed
-- **Threads auto-resolved** - `/resolve-threads` runs automatically as Phase 7 for final cleanup
-- **Version validation verification** (Phase 3.5) re-checks version consistency after fixes are applied
-  - Ensures B-VERSION issues from `/pr-review` were actually fixed
-  - Blocks proceeding to test plan execution if version mismatches remain
-  - Supports: pyproject.toml, package.json, Cargo.toml, marketplace.json, CHANGELOG.md
+## Integration
+
+This command integrates with:
+- **attune workflow**: Follows analyze → triage → plan → fix → validate pattern
+- **gh CLI**: Fetches PR data, resolves threads, updates issues
+- **git**: Commits changes, pushes updates
+- **test suite**: Runs verification after fixes
+
+## Getting Help
+
+- **Workflow Details**: See [Workflow Steps](fix-pr-modules/workflow-steps.md)
+- **Options Reference**: See [Configuration & Options](fix-pr-modules/configuration-options.md)
+- **Troubleshooting**: See [Troubleshooting](fix-pr-modules/troubleshooting-fixes.md)
 
 ## See Also
 
-- `/resolve-threads` - Batch-resolve review threads (runs automatically as Phase 7)
-- `/pr-review` - Review a PR and post findings as GitHub comments (generates test plan)
-- `/pr` - Prepare a PR for submission
-
-## Test Plan Integration
-
-`/fix-pr` integrates with the test plan generated by `/pr-review`:
-
-1. **Generated by `/pr-review`**: Phase 5 creates a detailed test plan with:
-   - Verification steps for each blocking/in-scope issue
-   - Specific commands to run
-   - Expected outcomes
-   - Quality gate commands
-
-2. **Executed by `/fix-pr`**: Phase 3.5 verifies versions, Phase 3.7 runs the test plan:
-   - Phase 3.5: Re-validates version files if B-VERSION issues existed
-   - Locates the test plan from `/pr-review`
-   - Executes each verification step
-   - Runs quality gates
-   - Documents results
-
-3. **Handoff Flow**:
-   ```
-   /pr-review (Phase 1.5: Version Validation) → generates test plan
-                    ↓
-   /fix-pr (Phase 3.5: Version Re-validation) → executes test plan → verified fixes
-   ```
-
-This verifies:
-- Version issues are caught during review (Phase 1.5 of /pr-review)
-- Version fixes are verified before tests run (Phase 3.5 of /fix-pr)
-- All fixes are validated before thread resolution and summary posting
+- `/pr` - Create pull request
+- `/pr-review` - Review pull request
+- `/update-tests` - Update test suite
+- **Attune Workflow**: `plugins/attune/commands/attune.md`

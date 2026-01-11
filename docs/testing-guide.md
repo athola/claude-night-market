@@ -15,13 +15,13 @@ Guide to testing in the Claude Night Market ecosystem, covering pre-commit testi
 
 ## Overview
 
-The project uses automated testing at multiple levels:
+Testing levels:
 
 1. **Pre-commit hooks**: Run tests for changed plugins before allowing commits.
 2. **Manual execution**: Run tests on-demand for development.
 3. **CI/CD pipelines**: Test in continuous integration.
 
-Tests are enforced by pre-commit hooks, preventing broken code from entering the repository.
+Pre-commit hooks enforce tests to prevent broken code.
 
 ## Pre-Commit Testing
 

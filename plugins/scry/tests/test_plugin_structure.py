@@ -74,9 +74,9 @@ class TestSkillStructure:
         """Each SKILL.md should have YAML frontmatter."""
         skill_md = skills_dir / skill_name / "SKILL.md"
         content = skill_md.read_text()
-        assert content.startswith(
-            "---"
-        ), f"SKILL.md for '{skill_name}' missing frontmatter"
+        assert content.startswith("---"), (
+            f"SKILL.md for '{skill_name}' missing frontmatter"
+        )
         # Find closing frontmatter
         lines = content.split("\n")
         assert lines[0] == "---"

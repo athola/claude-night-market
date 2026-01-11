@@ -181,9 +181,9 @@ class TestSpeckitAgents:
                     found_components.append(pattern)
 
             # Then: Should find meaningful components
-            assert (
-                len(found_components) >= 3
-            ), f"Should extract key components, found: {found_components}"
+            assert len(found_components) >= 3, (
+                f"Should extract key components, found: {found_components}"
+            )
 
         def test_should_return_empty_components_when_spec_has_no_technical_terms(
             self, minimal_spec_content
@@ -211,9 +211,9 @@ class TestSpeckitAgents:
                     found_components.append(pattern)
 
             # Then: Should find few or no components
-            assert (
-                len(found_components) < 3
-            ), "Minimal spec should have few technical components"
+            assert len(found_components) < 3, (
+                "Minimal spec should have few technical components"
+            )
 
         def test_should_identify_dependencies_when_spec_mentions_external_services(
             self, valid_authentication_spec_content
@@ -268,9 +268,9 @@ class TestSpeckitAgents:
 
             # Then: Should identify security risks
             assert total_risk >= 0, "Risk assessment should be non-negative"
-            assert (
-                risk_scores["security"] > 0
-            ), "Authentication specs should identify security risks"
+            assert risk_scores["security"] > 0, (
+                "Authentication specs should identify security risks"
+            )
 
         def test_should_return_zero_risk_when_spec_has_no_risk_indicators(
             self, minimal_spec_content
@@ -328,12 +328,12 @@ class TestSpeckitAgents:
             )
 
             # Then: Should estimate reasonable task count
-            assert (
-                estimated_tasks >= 5
-            ), f"Should estimate reasonable task count: {estimated_tasks}"
-            assert (
-                estimated_tasks <= 50
-            ), f"Task count should be reasonable: {estimated_tasks}"
+            assert estimated_tasks >= 5, (
+                f"Should estimate reasonable task count: {estimated_tasks}"
+            )
+            assert estimated_tasks <= 50, (
+                f"Task count should be reasonable: {estimated_tasks}"
+            )
 
         @pytest.mark.parametrize(
             "requirement_count,scenario_count,expected_min_tasks",
@@ -480,9 +480,9 @@ class TestSpeckitAgents:
                         all_independent_tasks.append(task)
 
             # Then: Should identify at least one independent task
-            assert (
-                len(all_independent_tasks) > 0
-            ), "Should identify independent tasks that can start immediately"
+            assert len(all_independent_tasks) > 0, (
+                "Should identify independent tasks that can start immediately"
+            )
 
     class TestImplementationExecutor:
         """Test implementation-executor agent."""
@@ -527,9 +527,9 @@ class TestSpeckitAgents:
             }
 
             # Then: Specification prerequisite should fail
-            assert not prerequisites[
-                "specification_exists"
-            ], "Should detect empty specification"
+            assert not prerequisites["specification_exists"], (
+                "Should detect empty specification"
+            )
 
         def test_should_calculate_high_readiness_score_when_all_artifacts_complete(
             self, valid_authentication_spec_content, valid_task_list
@@ -582,12 +582,12 @@ class TestSpeckitAgents:
             )
 
             # Then: Readiness score should be high
-            assert (
-                0 <= readiness_score <= 1
-            ), f"Readiness score should be between 0 and 1: {readiness_score}"
-            assert (
-                readiness_score >= 0.7
-            ), f"Should be ready for implementation: {readiness_score}"
+            assert 0 <= readiness_score <= 1, (
+                f"Readiness score should be between 0 and 1: {readiness_score}"
+            )
+            assert readiness_score >= 0.7, (
+                f"Should be ready for implementation: {readiness_score}"
+            )
 
         def test_should_calculate_low_readiness_score_when_spec_incomplete(
             self, spec_without_requirements, valid_task_list
@@ -672,9 +672,9 @@ class TestSpeckitAgents:
                         )
 
             # Then: Should have minimal or no blocking issues
-            assert (
-                len(blocking_issues) <= 1
-            ), f"Too many blocking issues: {blocking_issues}"
+            assert len(blocking_issues) <= 1, (
+                f"Too many blocking issues: {blocking_issues}"
+            )
 
         def test_should_detect_blocking_issues_when_spec_incomplete(
             self, spec_without_requirements, valid_task_list

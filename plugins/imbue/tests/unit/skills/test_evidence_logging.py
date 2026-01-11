@@ -492,9 +492,9 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         evidence_ids = {e["id"] for e in sample_evidence_session["evidence"]}
         for finding in findings:
             for ref in finding["evidence_refs"]:
-                assert (
-                    ref in evidence_ids
-                ), f"Evidence reference {ref} not found in evidence log"
+                assert ref in evidence_ids, (
+                    f"Evidence reference {ref} not found in evidence log"
+                )
 
         # Verify specific references
         assert "E1" in findings[0]["evidence_refs"]

@@ -1,8 +1,18 @@
 ---
-description: Update README content using the git-workspace-review and update-readme skills with language-aware exemplar mining.
+name: update-readme
+description: Update README with git context and exemplar research
+usage: /update-readme
 ---
 
 # Update README Content
+
+<identification>
+triggers: update readme, readme update, documentation update
+
+use_when:
+- README needs updates after code changes
+- Consolidating documentation with recent work
+</identification>
 
 To edit the README, load the required skills in order:
 

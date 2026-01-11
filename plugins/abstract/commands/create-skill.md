@@ -1,23 +1,24 @@
 ---
 name: create-skill
-description: |
-  Guided skill creation with brainstorming and TDD methodology.
-
-  Triggers: new skill, create skill, skill creation, start skill, build skill,
-  add skill, write skill
-
-  Use when: starting a new skill from scratch, need guided brainstorming for
-  skill design, want structured workflow for skill development
-
-  DO NOT use when: evaluating existing skills - use /skills-eval instead.
-  DO NOT use when: testing existing skills - use /test-skill instead.
-  DO NOT use when: improving skill architecture - use modular-skills skill.
-
-  Use this command to create any new skill. Brainstorming is recommended.
+description: Create skills with brainstorming and TDD methodology
 usage: /create-skill [skill-description] [--skip-brainstorm] [--plugin <name>]
 ---
 
 # Create Skill Command
+
+<identification>
+triggers: new skill, create skill, skill creation, start skill, build skill, add skill, write skill
+
+use_when:
+- Starting a new skill from scratch
+- Need guided brainstorming for skill design
+- Want structured workflow for skill development
+
+do_not_use_when:
+- Evaluating existing skills - use /skills-eval instead
+- Testing existing skills - use /test-skill instead
+- Improving skill architecture - use modular-skills skill
+</identification>
 
 Creates new skills through a structured workflow: **brainstorm → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed skills before generating any files.
 
@@ -36,9 +37,24 @@ Creates new skills through a structured workflow: **brainstorm → scaffold → 
 
 ## Workflow
 
-### Phase 0: Brainstorming (Default)
+### Phase 0: Methodology Curation (Optional but Recommended)
 
-Before creating any files, we refine the skill idea through collaborative dialogue.
+Before brainstorming, consider surfacing expert frameworks for your domain.
+
+**Invoke the methodology-curator skill:**
+```
+Use abstract:methodology-curator to surface proven methodologies before brainstorming.
+```
+
+This is especially valuable when:
+- Creating skills that teach techniques (debugging, testing, reviewing)
+- Building knowledge management features
+- Designing decision frameworks
+- The domain has recognized experts (most do!)
+
+### Phase 0.5: Brainstorming (Default)
+
+After methodology curation (or if skipping it), refine the skill idea through collaborative dialogue.
 
 **Invoke the brainstorming skill:**
 ```

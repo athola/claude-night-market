@@ -1,10 +1,18 @@
 ---
 name: close-issue
-description: Analyze commits and codebase to determine if GitHub issues can be closed, or report remaining work with actionable tasks
+description: Analyze if GitHub issues can be closed based on commits
 usage: /close-issue <issue-ref>... [--dry-run]
 ---
 
 # Close Issue Analysis
+
+<identification>
+triggers: close issue, issue analysis, check issue completion
+
+use_when:
+- Determining if issues are complete based on commits
+- Finding remaining work for incomplete issues
+</identification>
 
 Researches commits and codebase to determine if linked GitHub issues can be closed based on existing changes. For incomplete issues, reports gaps with specific tasks and offers to work on them immediately.
 

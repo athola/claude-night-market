@@ -4,7 +4,7 @@ Project development plugin for Claude Code. Supports ideation, specification, ar
 
 ## Overview
 
-Attune standardizes the workflow for project development:
+Attune standardizes project development:
 
 1. **Brainstorm**: Ideate and explore problem space.
 2. **Specify**: Create detailed specifications.
@@ -16,36 +16,24 @@ Attune standardizes the workflow for project development:
 
 ### Supported Languages
 
-- **Python**: uv dependency management, pytest, ruff, mypy.
-- **Rust**: cargo builds, clippy, rustfmt, CI workflows.
-- **TypeScript/React**: npm/pnpm/yarn, vite, jest, eslint, prettier.
+- **Python**: uv, pytest, ruff, mypy.
+- **Rust**: cargo, clippy, rustfmt.
+- **TypeScript/React**: npm/pnpm/yarn, vite, jest, eslint.
 
 ### Configuration
 
 - Git initialization with .gitignore.
-- GitHub Actions workflows (test, lint, typecheck, publish).
-- Pre-commit hooks (formatting, linting, security).
-- Makefile with common development targets.
-- Dependency management configuration.
-- Project structure and tooling setup.
-
-## Documentation
-
-- [Architecture-Aware Initialization](docs/architecture-aware-initialization.md) - Research-based architecture selection
-- [Full-Cycle Workflow Guide](docs/full-cycle-workflow-guide.md) - Complete development workflow
-- [Quick Start Example](docs/quick-start-example.md) - Practical examples
-- [Integration Summary](docs/integration-summary.md) - Plugin integrations
+- GitHub Actions workflows (test, lint, typecheck).
+- Pre-commit hooks and Makefiles.
+- Dependency management and project structure.
 
 ## Quick Start
 
-### Architecture-Aware Initialization (Recommended)
+### Architecture-Aware Initialization
 
 ```bash
 # Interactive mode with architecture selection
 /attune:arch-init --name my-project
-
-# Combines online research with archetype matching to recommend architecture
-# Generates customized project structure based on chosen paradigm
 ```
 
 ### Standard Initialization

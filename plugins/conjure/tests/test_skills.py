@@ -113,9 +113,9 @@ class TestSkillDependencyResolution:
                 if line.strip().startswith("-"):
                     dependencies.append(line.strip().lstrip("- ").strip())
 
-        assert (
-            "delegation-core" in dependencies
-        ), "gemini-delegation should depend on delegation-core"
+        assert "delegation-core" in dependencies, (
+            "gemini-delegation should depend on delegation-core"
+        )
 
     def test_skill_tool_requirements(self) -> None:
         """Given skill files when checking tool requirements.

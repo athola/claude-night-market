@@ -5,6 +5,33 @@ All notable changes to the hookify plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-01-09
+
+### Added
+- **block-destructive-git rule**: Blocks dangerous git commands that cause irreversible data loss
+  - `git reset --hard` - Destroys all uncommitted changes
+  - `git checkout -- .` - Discards all unstaged changes
+  - `git clean -fd` - Permanently deletes untracked files
+  - `git stash drop` - Permanently deletes stashed changes
+  - `git branch -D` - Force-deletes branches (even unmerged)
+  - `git reflog expire` / `git gc --prune` - Destroys recovery points
+- **warn-risky-git rule**: Warns about git operations that modify history
+  - `git reset` (soft/mixed) - Moves HEAD, may unstage files
+  - `git checkout <branch> -- <file>` - Replaces file from another branch
+  - `git rebase -i` / `git rebase --onto` - Rewrites commit history
+  - `git cherry-pick/merge/am --abort` - Discards in-progress operations
+- **Recovery-first guidance**: Each blocked command shows diagnostic commands to review changes before discarding
+- **Safer alternatives**: Comprehensive alternative workflows (stash, backup branches, selective operations)
+- Example local rule: `block-destructive-git.local.md` for user customization
+
+### Changed
+- Updated README to reflect 10 bundled rules (previously 8)
+- Enhanced bundled rules table with new git safety rules
+
+### Security
+- Protects against accidental data loss when `dangerouslyDisableSandbox` is enabled
+- Requires explicit user confirmation for destructive operations
+
 ## [1.0.0] - 2026-01-06
 
 ### Added

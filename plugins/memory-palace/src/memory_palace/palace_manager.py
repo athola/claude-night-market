@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Provide core utilities for managing memory palace data structures.
 
-Implement the `MemoryPalaceManager` class, handling creation, storage, indexing,
-and retrieval of memory palaces. Support operations including palace creation,
-loading, saving, master index management for quick lookups, and data export/import.
+Handle creation, storage, indexing, and retrieval of memory palaces.
+Support operations including palace creation, loading, saving, master index
+management, and data export/import.
 """
 
 import argparse
@@ -17,7 +17,7 @@ from typing import Any
 
 
 class MemoryPalaceManager:
-    """Manage the lifecycle and operations for Memory Palace data."""
+    """Manage lifecycle and operations for Memory Palace data."""
 
     def __init__(
         self,
@@ -181,15 +181,11 @@ class MemoryPalaceManager:
                 dst.write(src.read())
 
     def update_master_index(self) -> None:
-        """Scan the palaces directory; rebuild the master index.
+        """Scan the palaces directory and rebuild the master index.
 
-        Iterate through JSON files in the configured palaces directory (excluding
-        the master index), extract key metadata from each palace file, and
-        aggregate it into a central `master_index.json` file. The index includes
-        palace summaries and global statistics: total palaces, total concepts,
-        and concepts per domain. This index facilitates quick lookups and system
-        status reporting without loading individual palace files. Report errors
-        encountered during indexing of individual palace files as warnings.
+        Iterate through JSON files in the configured palaces directory, extract
+        metadata, and aggregate it into `master_index.json`. Include palace
+        summaries and global statistics.
         """
         domains: dict[str, int] = {}
         global_stats: dict[str, Any] = {

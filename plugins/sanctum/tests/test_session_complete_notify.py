@@ -450,9 +450,9 @@ class TestHookRegistration:
             for hook in hook_group.get("hooks", []):
                 hook_commands.append(hook.get("command", ""))
 
-        assert any(
-            "session_complete_notify.py" in cmd for cmd in hook_commands
-        ), "session_complete_notify.py should be registered in Stop hooks"
+        assert any("session_complete_notify.py" in cmd for cmd in hook_commands), (
+            "session_complete_notify.py should be registered in Stop hooks"
+        )
 
     def test_hook_script_is_executable(self) -> None:
         """Should have executable permissions."""
@@ -469,9 +469,9 @@ class TestHookRegistration:
         with open(script_path) as f:
             first_line = f.readline()
 
-        assert first_line.startswith(
-            "#!/usr/bin/env python3"
-        ), "Should have python3 shebang"
+        assert first_line.startswith("#!/usr/bin/env python3"), (
+            "Should have python3 shebang"
+        )
 
 
 # =============================================================================

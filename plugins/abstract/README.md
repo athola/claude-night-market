@@ -12,16 +12,13 @@ make install-hooks  # Set up git hooks
 
 ## Installation
 
-Add to your `marketplace.json`:
+Add to `marketplace.json`:
 
 ```json
 {
   "name": "abstract",
-  "source": {
-    "source": "url",
-    "url": "https://github.com/athola/abstract.git"
-  },
-  "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - modular design patterns and evaluation frameworks",
+  "source": { "source": "url", "url": "https://github.com/athola/abstract.git" },
+  "description": "Meta-skills infrastructure - modular design and evaluation",
   "version": "1.0.1",
   "strict": true
 }
@@ -32,6 +29,7 @@ Claude loads the plugin on startup.
 ## What's Included
 
 *   **Skills**:
+    *   `methodology-curator`: Surfaces expert frameworks before creating skills/hooks/agents. Includes 6 domain modules (instruction design, code review, debugging, testing, knowledge management, decision making).
     *   `modular-skills`: Guides skill architecture and module splitting.
     *   `skills-eval`: Scores skill quality and suggests fixes.
     *   `hook-scope-guide`: Helps decide where hooks belong.
@@ -55,7 +53,7 @@ Use this plugin to manage token usage (keep skills lean), find modularization op
 
 ## Documentation
 
-- **Skill Observability & Continual Learning**: `README-HOOKS.md` - zero-dependency skill tracking with PreToolUse/PostToolUse hooks and stability gap detection
+- **Skill Observability & Continual Learning**: `../../docs/guides/skill-observability-guide.md` - zero-dependency skill tracking with PreToolUse/PostToolUse hooks and stability gap detection
 - **Skill Assurance Framework**: `docs/skill-assurance-framework.md` - patterns for reliable skill discovery (frontmatter-only triggers, enforcement language, migration guide)
 - **Migration Guide**: `docs/migration-guide.md` - updating skills to new patterns
 - **Python Structure**: `docs/python-structure.md` - package organization
@@ -76,11 +74,11 @@ make security   # Run security scans locally
 
 ```bash
 make format        # Format code
-make test          # Run all checks (includes security)
-make security      # Security scans only
+make test          # Run all checks
+make security      # Security scans
 make clean         # Clean cache
 make unit-tests    # Run tests
-make test-coverage # Tests with coverage report
+make test-coverage # Coverage report
 ```
 
-Tests in `test_skill_structure.py` check that skill descriptions contain action verbs, include "Use when..." triggers, and are detailed enough to be useful. This validates skills are discoverable and understandable.
+Tests validate skill discoverability and structure.

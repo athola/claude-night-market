@@ -48,9 +48,9 @@ class TestSpeckitCommands:
             found_keywords = [kw for kw in keywords if kw in feature_desc.lower()]
 
             # Then
-            assert (
-                len(found_keywords) >= 2
-            ), "Should identify at least 2 keywords for branch name"
+            assert len(found_keywords) >= 2, (
+                "Should identify at least 2 keywords for branch name"
+            )
 
         def test_should_match_expected_patterns_when_generating_short_name(
             self,
@@ -117,9 +117,9 @@ class TestSpeckitCommands:
             )
 
             # Then
-            assert (
-                is_too_short or lacks_detail
-            ), "Vague description should be too short or lack actionable detail"
+            assert is_too_short or lacks_detail, (
+                "Vague description should be too short or lack actionable detail"
+            )
 
         @pytest.mark.parametrize(
             "description,expected_validity",
@@ -148,9 +148,9 @@ class TestSpeckitCommands:
             is_valid = len(description.strip()) >= 10
 
             # Then
-            assert (
-                is_valid == expected_validity
-            ), f"Description '{description}' validity should be {expected_validity}"
+            assert is_valid == expected_validity, (
+                f"Description '{description}' validity should be {expected_validity}"
+            )
 
         @patch("subprocess.run")
         def test_should_increment_branch_number_when_existing_branches_found(
@@ -237,9 +237,9 @@ class TestSpeckitCommands:
 
             # Then - Should have correct argument structure (7 args: script + 6 args)
             assert len(script_args) == 7, "Should have 7 arguments"
-            assert script_args[0].endswith(
-                "create-new-feature.sh"
-            ), "Should call correct script"
+            assert script_args[0].endswith("create-new-feature.sh"), (
+                "Should call correct script"
+            )
             assert "--number" in script_args, "Should include --number flag"
             assert "--short-name" in script_args, "Should include --short-name flag"
             assert "--json" in script_args, "Should include --json flag"
@@ -264,9 +264,9 @@ class TestSpeckitCommands:
             )
 
             # When/Then - Should detect failure
-            assert (
-                mock_run.return_value.returncode != 0
-            ), "Should detect script execution failure"
+            assert mock_run.return_value.returncode != 0, (
+                "Should detect script execution failure"
+            )
 
     class TestPlanCommand:
         """Test /speckit-plan command."""
@@ -341,9 +341,9 @@ class TestSpeckitCommands:
 
             # Then - Should find key sections
             assert "Overview" in sections, "Should parse Overview section"
-            assert (
-                "Functional Requirements" in sections
-            ), "Should parse Functional Requirements"
+            assert "Functional Requirements" in sections, (
+                "Should parse Functional Requirements"
+            )
             assert "Success Criteria" in sections, "Should parse Success Criteria"
 
         def test_should_fail_when_spec_missing_required_sections(
@@ -363,9 +363,9 @@ class TestSpeckitCommands:
             has_requirements = "## Functional Requirements" in spec_content
 
             # Then
-            assert (
-                not has_requirements
-            ), "Should detect missing Functional Requirements section"
+            assert not has_requirements, (
+                "Should detect missing Functional Requirements section"
+            )
 
         def test_should_extract_planning_points_when_generating_plan(
             self,
@@ -404,9 +404,9 @@ class TestSpeckitCommands:
                 planning_points.append("session management")
 
             # Then
-            assert (
-                len(planning_points) >= 2
-            ), f"Should generate multiple planning points, got: {planning_points}"
+            assert len(planning_points) >= 2, (
+                f"Should generate multiple planning points, got: {planning_points}"
+            )
 
         def test_should_handle_minimal_spec_when_generating_plan(
             self,
@@ -609,9 +609,9 @@ class TestSpeckitCommands:
                     ready_tasks.append(task["id"])
 
             # Then - No tasks should be ready due to circular dependency
-            assert (
-                len(ready_tasks) == 0
-            ), "Circular dependencies should prevent any task from being ready"
+            assert len(ready_tasks) == 0, (
+                "Circular dependencies should prevent any task from being ready"
+            )
 
         def test_should_fail_when_dependency_missing(
             self,
@@ -636,9 +636,9 @@ class TestSpeckitCommands:
 
             # Then
             assert len(missing_deps) > 0, "Should detect missing dependencies"
-            assert (
-                missing_deps[0][1] == "nonexistent-task"
-            ), "Should identify the missing dependency"
+            assert missing_deps[0][1] == "nonexistent-task", (
+                "Should identify the missing dependency"
+            )
 
     class TestAnalyzeCommand:
         """Test /speckit-analyze command."""
@@ -731,9 +731,9 @@ class TestSpeckitCommands:
             percentage = coverage["coverage_percentage"]
 
             # Then
-            assert (
-                0 <= percentage <= 100
-            ), f"Coverage percentage should be 0-100, got {percentage}"
+            assert 0 <= percentage <= 100, (
+                f"Coverage percentage should be 0-100, got {percentage}"
+            )
 
     class TestChecklistCommand:
         """Test /speckit-checklist command."""
@@ -770,9 +770,9 @@ class TestSpeckitCommands:
                 checklist_items.append(f"{total_tasks} implementation tasks planned")
 
             # Then
-            assert (
-                len(checklist_items) >= 3
-            ), f"Should generate meaningful checklist, got: {checklist_items}"
+            assert len(checklist_items) >= 3, (
+                f"Should generate meaningful checklist, got: {checklist_items}"
+            )
 
         def test_should_handle_empty_inputs_when_generating_checklist(
             self,
@@ -800,9 +800,9 @@ class TestSpeckitCommands:
                 checklist_items.append(f"{total_tasks} implementation tasks planned")
 
             # Then
-            assert (
-                len(checklist_items) == 0
-            ), "Should generate no items from empty inputs"
+            assert len(checklist_items) == 0, (
+                "Should generate no items from empty inputs"
+            )
 
         def test_should_extract_verifiable_criteria_when_processing_spec(
             self,
@@ -832,9 +832,9 @@ class TestSpeckitCommands:
                     success_section += line + "\n"
 
             # Then - Should have success criteria
-            assert (
-                len(success_section.strip()) > 0
-            ), "Should extract success criteria section"
+            assert len(success_section.strip()) > 0, (
+                "Should extract success criteria section"
+            )
 
             # Check for verifiable patterns
             verifiable_patterns = ["can", "will", "should", "must"]

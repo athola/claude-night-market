@@ -1,4 +1,4 @@
-"""Provide an async code analysis skill for parseltongue."""
+"""Analyze async code patterns for parseltongue."""
 
 from __future__ import annotations
 

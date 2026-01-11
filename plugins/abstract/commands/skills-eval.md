@@ -1,24 +1,26 @@
 ---
 name: skills-eval
-description: |
-  Evaluate all Claude Skills for quality, compliance, and improvements.
-
-  Triggers: skills eval, evaluate skills, skill evaluation, skill quality,
-  skill audit, skill compliance, skill improvements, skill assessment
-
-  Use when: auditing skill ecosystem quality, discovering implementation
-  patterns, planning skill improvements, checking compliance with standards,
-  generating improvement recommendations
-
-  DO NOT use when: evaluating hooks - use /hooks-eval instead.
-  DO NOT use when: validating plugin structure - use /validate-plugin instead.
-  DO NOT use when: creating new skills - use /create-skill instead.
-
-  Use this command to audit skill quality across your ecosystem.
+description: Evaluate skills for quality, compliance, and improvements
 usage: /skills-eval [skill-name]
 ---
 
 # Skills Evaluation Command
+
+<identification>
+triggers: skills eval, evaluate skills, skill evaluation, skill quality, skill audit, skill compliance, skill improvements, skill assessment
+
+use_when:
+- Auditing skill ecosystem quality
+- Discovering implementation patterns
+- Planning skill improvements
+- Checking compliance with standards
+- Generating improvement recommendations
+
+do_not_use_when:
+- Evaluating hooks - use /hooks-eval instead
+- Validating plugin structure - use /validate-plugin instead
+- Creating new skills - use /create-skill instead
+</identification>
 
 ## Usage
 

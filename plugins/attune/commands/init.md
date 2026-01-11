@@ -1,9 +1,18 @@
 ---
 name: init
-description: Initialize a new project with proper git configuration, GitHub workflows, pre-commit hooks, and Makefiles
+description: Initialize project with git, workflows, hooks, and Makefiles
+usage: /attune:init [--lang python|rust|typescript] [--name NAME]
 ---
 
 # Attune Init Command
+
+<identification>
+triggers: init project, initialize project, new project, project setup
+
+use_when:
+- Starting a new project from scratch
+- Setting up development infrastructure
+</identification>
 
 Initialize a new project with complete development infrastructure.
 
@@ -89,8 +98,8 @@ When no arguments provided, the skill guides you through:
 
 - **Non-destructive**: Prompts before overwriting existing files
 - **Validation**: Checks for conflicts before copying templates
-- **Dry-run option**: Preview changes without applying (TODO: implement)
-- **Backup option**: Create backups of overwritten files (TODO: implement)
+- **Dry-run option**: Preview changes without applying ([#97](https://github.com/athola/claude-night-market/issues/97))
+- **Backup option**: Create backups of overwritten files ([#98](https://github.com/athola/claude-night-market/issues/98))
 
 ## Examples
 

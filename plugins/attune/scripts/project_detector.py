@@ -102,7 +102,7 @@ class ProjectDetector:
         }
 
     def get_project_info(self) -> dict[str, Any]:
-        """Get comprehensive project information.
+        """Get project information.
 
         Returns:
             Dictionary with project detection results

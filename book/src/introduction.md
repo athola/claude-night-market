@@ -6,7 +6,7 @@ Claude Night Market provides plugins for Claude Code to support software enginee
 
 ## What You'll Find Here
 
-This documentation covers getting started with installation and configuration, a detailed plugin catalog, step-by-step tutorials for common workflows, complete API references, and an achievement system to track your learning progress.
+This documentation covers installation, a plugin catalog, tutorials, API references, and achievements to track your progress.
 
 ## Plugin Architecture
 
@@ -32,7 +32,7 @@ The marketplace is organized into layers, each building on the foundations below
 
 ## Philosophy
 
-We prioritize modular design with shallow dependency chains and single responsibility. Plugins load progressively, ensuring users only pay for what they use. Development is spec-driven, prioritizing specifications before implementation.
+We prioritize modular design with shallow dependencies and single responsibility. Plugins load progressively, so users only pay for what they use. Development is spec-driven, prioritizing specifications before implementation.
 
 ## Claude Code 2.1.0+ Compatibility
 

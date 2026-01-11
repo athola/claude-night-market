@@ -1,24 +1,25 @@
 ---
 name: analyze-skill
-description: |
-  Analyze skill complexity and get modularization recommendations.
-
-  Triggers: analyze skill, skill complexity, skill metrics, modularization,
-  skill size, skill structure, skill analysis, complexity analysis
-
-  Use when: assessing skill file complexity before adding content, planning
-  modularization strategies, checking if a skill needs to be split,
-  validating progressive disclosure design
-
-  DO NOT use when: evaluating skill quality - use /skills-eval instead.
-  DO NOT use when: estimating token usage only - use /estimate-tokens instead.
-  DO NOT use when: creating new skills - use /create-skill instead.
-
-  Use this command to understand skill complexity before modularizing.
+description: Analyze skill complexity and get modularization recommendations
 usage: /analyze-skill [skill-path]
 ---
 
 # Analyze Skill Complexity
+
+<identification>
+triggers: analyze skill, skill complexity, skill metrics, modularization, skill size, skill structure, skill analysis, complexity analysis
+
+use_when:
+- Assessing skill file complexity before adding content
+- Planning modularization strategies
+- Checking if a skill needs to be split
+- Validating progressive disclosure design
+
+do_not_use_when:
+- Evaluating skill quality - use /skills-eval instead
+- Estimating token usage only - use /estimate-tokens instead
+- Creating new skills - use /create-skill instead
+</identification>
 
 Analyzes a skill file for complexity metrics and provides modularization recommendations based on the modular-skills framework.
 

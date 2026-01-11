@@ -1,19 +1,21 @@
 ---
 name: hookify
-description: Create a hookify rule from explicit instructions or analyze recent conversation to find unwanted behaviors
-usage: |
-  /hookify [instruction]
-
-  With instruction: Creates a rule from explicit description
-  Without instruction: Analyzes conversation to suggest rules
+description: Create behavioral rules to prevent unwanted actions
+usage: /hookify [instruction]
 examples:
   - /hookify Don't use console.log in TypeScript files
   - /hookify Block rm -rf commands
-  - /hookify Require tests before stopping
-  - /hookify
 ---
 
 # Hookify Command
+
+<identification>
+triggers: hookify, create rule, behavioral rule, block action, prevent behavior
+
+use_when:
+- Creating rules from explicit instructions
+- Analyzing conversation for unwanted behaviors to block
+</identification>
 
 Creates custom behavioral rules to prevent unwanted actions.
 

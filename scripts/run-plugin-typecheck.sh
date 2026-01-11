@@ -39,7 +39,13 @@ run_plugin_typecheck() {
             if [ -z "$target" ]; then
                 target="typecheck"
             fi
-            if (cd "$plugin_dir" && make "$target" 2>&1 | grep -v "^make\["); then
+            # Capture output and exit code separately to avoid pipeline exit code issues
+            local output
+            local exit_code
+            output=$(cd "$plugin_dir" && make "$target" 2>&1) || exit_code=$?
+            # Filter and display output (excluding make's nested job messages)
+            echo "$output" | grep -v "^make\[" || true
+            if [ "${exit_code:-0}" -eq 0 ]; then
                 echo -e "  ${GREEN}✓ Type checking passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
                 return 0

@@ -145,6 +145,30 @@ strategy:
 ```
 **Verification:** Run `python --version` to verify Python environment.
 
+### Shell Script Safety in Workflows
+
+When writing inline shell scripts in workflows, ensure proper exit code handling:
+
+```yaml
+# BAD - pipeline masks exit code
+- run: |
+    make typecheck 2>&1 | grep -v "^make\["
+    echo "Typecheck passed"  # Runs even if make failed!
+
+# GOOD - use pipefail
+- run: |
+    set -eo pipefail
+    make typecheck 2>&1 | grep -v "^make\["
+
+# GOOD - capture exit code explicitly
+- run: |
+    output=$(make typecheck 2>&1) || exit_code=$?
+    echo "$output" | grep -v "^make\[" || true
+    exit ${exit_code:-0}
+```
+
+For complex wrapper scripts, run `/pensive:shell-review` before integrating.
+
 ## Updating Workflows
 
 To update workflows to latest versions:

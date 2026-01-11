@@ -39,14 +39,14 @@ class Task:
 
 @dataclass
 class InitiativeTracker:
-    """Track progress across all initiatives."""
+    """Track progress across initiatives."""
 
     tasks: list[Task]
     last_updated: str
 
 
 class ProjectTracker:
-    """Provide the main project tracking system."""
+    """Implement the main project tracking system."""
 
     DEFAULT_INITIATIVES = [
         "GitHub Projects Hygiene",

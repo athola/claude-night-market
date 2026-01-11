@@ -8,7 +8,7 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 
 > **Claude Code 2.1.0+:** This marketplace leverages new features including skill hot-reload, frontmatter hooks, `context: fork`, wildcard permissions, and YAML-style `allowed-tools`. See [Plugin Development Guide](docs/plugin-development-guide.md#claude-code-210-features) for details.
 
-> **Skill Observability:** Track skill execution with continual learning metrics. memory-palace stores execution memories automatically, while pensive provides `/skill-review` for analyzing metrics and stability gaps. See [README-HOOKS](plugins/abstract/README-HOOKS.md) for details.
+> **Skill Observability:** Track skill execution with continual learning metrics. memory-palace stores execution memories automatically, while pensive provides `/skill-review` for analyzing metrics and stability gaps. See [Skill Observability Guide](docs/guides/skill-observability-guide.md) for details.
 
 ## Comparison
 
@@ -34,8 +34,10 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 # 3. Start using
 /pr                                            # Prepare a pull request
 /full-review                                   # Run code review
-Skill(sanctum:git-workspace-review)            # Invoke a skill
+Skill(sanctum:git-workspace-review)            # Invoke a skill (if Skill tool available)
 ```
+
+> **Note:** If the `Skill` tool is unavailable, read skill files directly: `Read plugins/{plugin}/skills/{skill-name}/SKILL.md` and follow the instructions.
 
 **Next steps:** See [Installation Guide](book/src/getting-started/installation.md) for recommended plugin sets and troubleshooting.
 
@@ -89,21 +91,21 @@ flowchart TB
 | Plugin | What It Does | Key Commands |
 |--------|--------------|--------------|
 | **sanctum** | Git workflows, PR prep, commit messages | `/pr`, `/commit-msg`, `/fix-issue` |
-| **pensive** | Code review + skill performance analysis | `/full-review`, `/skill-review` |
+| **pensive** | Code review, shell auditing, skill metrics | `/full-review`, `/shell-review`, `/skill-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
-| **minister** | Project management and GitHub integration | `/create-issue`, `/close-issue`, `/status` |
-| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` |
-| **attune** | Project scaffolding and initialization | `/attune:init`, `/attune:brainstorm` |
-| **parseltongue** | Python development suite | `/analyze-tests`, `/run-profiler` |
+| **minister** | GitHub issue management | `/create-issue`, `/close-issue`, `/status` |
+| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (saved 70k+ tokens) |
+| **attune** | Project scaffolding | `/attune:init`, `/attune:brainstorm` |
+| **parseltongue** | Python development tools | `/analyze-tests`, `/run-profiler` |
 | **archetypes** | Architecture paradigm selection | 13 architecture guides |
-| **memory-palace** | Knowledge management + skill memory | `/palace`, `/garden`, `/skill-logs` |
-| **hookify** | Zero-config behavioral rules | `/hookify`, `/hookify:list` |
+| **memory-palace** | Knowledge management | `/palace`, `/garden`, `/skill-logs` |
+| **hookify** | Behavioral rules without config | `/hookify`, `/hookify:list` |
 
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 106 skills, 85 commands, and 35 agents.
 
 ## Audience
 
-The Night Market serves developers seeking automated workflows and teams standardizing Claude Code practices. Plugin authors can build on standard patterns, while maintainers benefit from automated PR preparation and scaffolding.
+The Night Market helps developers who want automated workflows and teams standardizing Claude Code practices. Plugin authors can build on standard patterns, while maintainers benefit from automated PR preparation and scaffolding.
 
 ## Common Workflows
 
@@ -126,13 +128,13 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 
 ![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
 
-**Discover 106 skills** across all plugins, understand their structure, and see how they compose into powerful development workflows.
+**Browse 106 skills** across all plugins, examine their structure, and combine them into workflows.
 
 **What you'll learn:**
 - Browse and discover skills across 16 plugins
 - Examine skill frontmatter, metadata, and structure
 - Use `abstract:plugin-validator` to check quality
-- See how skills chain into complex workflows
+- Chain skills into complex workflows
 
 [→ Full Tutorial](docs/tutorials/skills-showcase.md) (90 seconds, beginner-friendly)
 
@@ -148,8 +150,13 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | [**Plugin Catalog**](book/src/plugins/README.md) | Detailed plugin documentation |
 | [**Capabilities Reference**](book/src/reference/capabilities-reference.md) | Complete skill/command listing |
 | [**Tutorials**](book/src/tutorials/README.md) | Step-by-step guides |
+| [**Advanced Guides**](docs/guides/README.md) | In-depth guides for complex topics |
+| [**Skills Separation Guide**](docs/guides/development-vs-runtime-skills-separation.md) | Separating dev skills from runtime agent skills ([Quick Ref](docs/guides/skills-separation-quickref.md)) |
 | [**Quality Gates**](docs/quality-gates.md) | Code quality system and pre-commit hooks |
 | [**Error Handling**](docs/guides/error-handling-guide.md) | Error classification and recovery patterns |
+| [**Optimization Patterns**](docs/optimization-patterns.md) | Bloat reduction methodology (70k+ tokens saved) |
+| [**Data Extraction Pattern**](docs/guides/data-extraction-pattern.md) | Separating embedded data into YAML |
+| [**Documentation Standards**](docs/guides/documentation-standards.md) | Line limits and debloating methodology |
 | [**Testing Guide**](docs/testing-guide.md) | Testing patterns and troubleshooting |
 | [**Performance Guide**](docs/performance/README.md) | Hook optimization and benchmarking |
 | [**LSP Integration**](docs/guides/lsp-native-support.md) | Language Server Protocol setup and verification |
@@ -158,7 +165,7 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 
 ### LSP Support (Recommended)
 
-LSP (Language Server Protocol) provides **symbol-aware search** with significant performance improvements over text search. Available in Claude Code v2.0.74+.
+LSP (Language Server Protocol) enables **symbol-aware search**, which is faster than text search. Available in Claude Code v2.0.74+.
 
 **Setup (Settings-Level Configuration):**
 
@@ -197,7 +204,7 @@ claude
 ```
 
 **Benefits:**
-LSP support improves performance for semantic queries compared to text search (50ms vs 45s for reference finding). It reduces token usage and improves accuracy through symbol awareness.
+LSP finds references in ~50ms (vs ~45s for text search), uses fewer tokens, and is more accurate.
 
 See [LSP Native Support Guide](docs/guides/lsp-native-support.md) for troubleshooting and advanced usage.
 
@@ -231,7 +238,7 @@ See [Budget Optimization](docs/budget-optimization-dec-2025.md) for details.
 
 ## Philosophy
 
-Night Market uses a modular design with shallow dependency chains and single responsibility. Plugins load progressively, so users only pay for what they use. Development is spec-driven, prioritizing specifications before implementation.
+Night Market plugins are modular with shallow dependencies. They load progressively, so you only pay for what you use. Development prioritizes specifications before implementation.
 
 ## Contributing
 

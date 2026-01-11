@@ -1,0 +1,70 @@
+# Makefile target catalog for dogfooder analysis
+# Extracted from makefile_dogfooder.py for better maintainability
+
+essential_targets:
+  help: "Show available targets"
+  clean: "Clean build artifacts"
+  ".PHONY": "Declare phony targets"
+
+recommended_targets:
+  test: "Run tests"
+  lint: "Run linting"
+  format: "Format code"
+  install: "Install dependencies"
+  status: "Show project status"
+
+convenience_targets:
+  demo: "Demonstrate functionality"
+  dogfood: "Test the plugin on itself"
+  check: "Run all validation checks"
+  dev-setup: "Set up development environment"
+  quick-test: "Run tests without coverage"
+  all: "Run default operations (test + lint)"
+
+# Target safety levels for automatic testing
+target_safety:
+  safe:  # Always safe to run
+    - help
+    - status
+    - version
+    - list
+    - show
+  conditional:  # Requires inspection before running
+    - test
+    - lint
+    - format
+    - check
+    - validate
+  risky:  # Never run automatically
+    - clean
+    - install
+    - deploy
+    - publish
+    - build
+
+# Directory patterns to skip during discovery
+skip_dirs:
+  - ".venv"
+  - "venv"
+  - ".uv-cache"
+  - ".uv-tools"
+  - "__pycache__"
+  - ".worktrees"
+  - "node_modules"
+  - ".git"
+  - "build"
+  - "dist"
+  - ".tox"
+  - ".nox"
+
+# Target equivalents (alternative names)
+target_equivalents:
+  dogfood:
+    - "plugin-check"
+    - "self-test"
+  demo:
+    - "example"
+    - "showcase"
+  test:
+    - "tests"
+    - "test-all"

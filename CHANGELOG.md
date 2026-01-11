@@ -5,6 +5,189 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - 2026-01-10
+
+### Added - Shell Review Skill and Security Guardrails (2026-01-10)
+
+- **pensive:shell-review** - New skill for auditing shell scripts
+  - Exit code analysis and error handling validation
+  - POSIX portability checks (bash-specific vs portable constructs)
+  - Safety pattern verification (quoting, word splitting, globbing)
+  - Modular design with `exit-codes.md`, `portability.md`, `safety-patterns.md` modules
+  - Integration with `imbue:evidence-logging` for structured findings
+
+- **sanctum:security-pattern-check hook** - Context-aware security checking
+  - Distinguishes code files from documentation (reduces false positives)
+  - Detects patterns in context (ignores examples showing what NOT to do)
+  - Checks for dynamic code execution, shell injection, SQL injection, hardcoded secrets
+  - Configurable via `hooks.json` with environment variable overrides
+
+- **Commit workflow guardrails** - Prevention of quality gate bypass
+  - Added guardrails against `--no-verify` in commit-messages skill
+  - Updated git-workspace-review to run `make format && make lint` proactively
+  - Skills now block if code quality checks fail (no bypass allowed)
+
+### Changed - Bloat Reduction Phases 6-9 (2026-01-10)
+
+#### Phase 6: Pensive Code Refactoring (~2,400 tokens saved)
+- Created shared utilities module (`pensive/utils/`)
+  - `content_parser.py`: File parsing and snippet extraction utilities
+  - `severity_mapper.py`: Centralized severity categorization
+  - `report_generator.py`: Reusable markdown report formatting
+- Enhanced `BaseReviewSkill` with shared helper methods
+- Reduced code duplication across 4 review skills (rust, architecture, bug, makefile)
+
+#### Phase 8: Examples Repository (~5,540 tokens saved)
+- Created centralized `/examples/attune/` directory
+- Moved large example files from plugin to examples directory
+  - `microservices-example.md` (726 lines → 20 line stub)
+  - `library-example.md` (699 lines → 18 line stub)
+- Replaced with lightweight stub files that reference full content
+
+#### Phase 9: Script Data Extraction - Complete (~10,192 tokens saved)
+Applied systematic data extraction to 4 large Python scripts:
+
+1. **seed_corpus.py** (1,117 → ~285 lines)
+   - Extracted: `data/seed_topics.yaml` (topic catalog)
+   - Savings: ~832 lines
+
+2. **makefile_dogfooder.py** (793 → ~200 lines)
+   - Extracted: `data/makefile_target_catalog.yaml` (target definitions)
+   - Savings: ~593 lines
+
+3. **template_customizer.py** (792 → ~130 lines)
+   - Extracted: `data/architecture_templates.yaml` (480 lines of templates)
+   - Savings: ~662 lines
+
+4. **architecture_researcher.py** (641 → ~180 lines)
+   - Extracted: `data/paradigm_decision_matrix.yaml` (decision logic)
+   - Savings: ~461 lines
+
+**Pattern**: Identify embedded data → Extract to YAML → Add load functions → Update scripts
+**Result**: 3,343 → ~795 lines (76% code reduction)
+
+**Total token savings (Phases 6-9)**: ~18,132 tokens
+**Combined total (all phases)**: ~70,772 tokens (28-33% context reduction)
+
+### Added
+
+- **Skills Separation Guide** - Comprehensive guide for separating development skills from runtime agent skills
+  - **Problem**: Namespace collision when using Claude Code to build AI agents (development skills vs runtime skills)
+  - **New Guides**: 4 complementary resources (~16,300 words total)
+    - `docs/guides/development-vs-runtime-skills-separation.md` - Full technical guide (11K words)
+    - `docs/guides/skills-separation-quickref.md` - One-page quick reference
+    - `docs/guides/skills-separation-diagram.md` - Visual diagrams (Mermaid + ASCII)
+    - `docs/reddit-response-skills-separation.md` - Conversational response format
+  - **4 Separation Patterns**: Physical directory, namespace prefixing, context forking, scoped loading
+  - **SDK Integration**: Complete examples for composing system prompts from skill files
+  - **Example Project**: TodoAgent with separated development (.claude/skills/) and runtime (src/agent/prompts/) namespaces
+  - **Workflow Coverage**: 3-phase workflow (build, test, deploy) with context isolation
+  - **Troubleshooting**: Common issues and solutions for namespace bleeding
+  - **Integration**: References abstract, conserve, pensive, spec-kit plugins
+  - **Updated**: README.md with link to Advanced Guides, docs/guides/README.md with new section
+  - **Use Case**: Essential for anyone building AI agent applications with Claude Code assistance
+
+- **Documentation Standards** - NEW guide codifying documentation debloating methodology
+  - **New Guide**: `docs/guides/documentation-standards.md` enforces directory-specific line limits
+  - **Directory Limits**: docs/=500 lines (strict reference), book/=1000 lines (lenient tutorial)
+  - **Debloating Techniques**: Progressive disclosure, consolidation, cross-referencing, deletion
+  - **Anti-Patterns**: Complete-guide files, verbose examples, redundant code, monolithic files
+  - **Enforcement**: Pre-commit checks, monthly reviews, PR checklist
+  - **Phase 5 Results**: Applied to 8 files, 3,421 lines saved (55% reduction, ~3,200 tokens)
+
+- **Data Extraction Pattern Guide** - Comprehensive guide for separating data from code
+  - **New Guide**: `docs/guides/data-extraction-pattern.md` documents the data-to-YAML refactoring pattern
+  - **5-Step Process**: Identify → Extract → Deserialize → Update → Validate
+  - **Real Examples**: 4 production refactorings from claude-night-market (seed_corpus, makefile_dogfooder, template_customizer, architecture_researcher)
+  - **Results**: 75% average code reduction (3,343 → ~795 lines across 4 scripts)
+  - **Benefits**: Non-programmer editable configs, cleaner diffs, runtime flexibility
+  - **Best Practices**: YAML schema documentation, error handling, defaults, version migration
+  - **Code Templates**: Production-ready examples with comprehensive error handling
+  - **Integration**: References optimization-patterns.md and documentation-standards.md
+
+- **Optimization Patterns** - Battle-tested methodology for context reduction
+  - **New Guide**: `docs/optimization-patterns.md` captures systematic optimization approach
+  - **8 Patterns**: Archive cleanup, hub-and-spoke docs, data extraction, shared utilities, examples repo, progressive disclosure, TODO audit, anti-pattern removal
+  - **Proven Results**: 9 phases achieving 28-33% context reduction (~70,772 tokens saved)
+  - **5 Principles**: Separation of concerns, DRY, progressive disclosure, maintainability, backwards compatibility
+  - **Phase-Based Workflow**: Discovery → Analysis → Planning → Execution → Validation
+  - **Metrics**: Token estimation formulas, success criteria, tracking templates
+  - **Real-World Data**: Complete phase-by-phase breakdown with measurable impact
+  - **Future Opportunities**: Automation, configuration management, pattern library
+
+- **Conjure: GeminiQuotaTracker Inheritance Refactoring** - Reduced code duplication through leyline.QuotaTracker base class
+  - **Code Reduction**: 287 → 255 lines (-32 lines, -11.1% reduction)
+  - **Inherited Methods**: 11 methods now inherited from `leyline.QuotaTracker` base class
+    - `record_request()`, `get_quota_status()`, `can_handle_task()`, `get_current_usage()`
+    - `_load_usage()`, `_save_usage()`, `_cleanup_old_data()`, `estimate_file_tokens()`
+  - **Preserved Features**: Gemini-specific token estimation (tiktoken + heuristic fallback)
+  - **Backward Compatibility**: 100% compatible with existing dict-based configuration
+  - **Documentation**: Complete technical guide at `plugins/conjure/docs/quota-tracking.md`
+  - **Testing**: All functionality verified (instantiation, quota checking, token estimation, file handling)
+  - **Dependencies**: Added `leyline>=1.0.0` for base class inheritance
+  - **See Also**: ADR-0002 for architecture decision rationale
+
+- **Methodology Curator Skill** - Surface expert frameworks before creating OR evaluating skills/hooks/agents
+  - **New Skill**: `methodology-curator` - Curates proven methodologies from domain masters
+    - **Concept**: Based on skill-from-masters approach - ground work in battle-tested frameworks
+    - **Creation Workflow**: Surfaces experts → select/blend methodologies → create methodology brief → handoff to create-skill
+    - **Evaluation Workflow**: Identify domain → gap analysis vs masters → targeted improvements
+    - **Pure Markdown**: No external dependencies, installs with plugin
+  - **Domain Modules** (6 domains, 1500+ lines of curated expertise):
+    - `instruction-design.md` - Mager (behavioral objectives), Bloom (taxonomy), Gagné (9 events), Sweller (cognitive load), Clark (evidence-based)
+    - `code-review.md` - Google Engineering, Fowler (refactoring), Feathers (legacy code), Wiegers (peer reviews), Gee (practical review)
+    - `debugging.md` - Zeller (scientific debugging), Agans (9 rules), Spinellis (effective debugging), Miller (debugging questions), Regehr (systems debugging)
+    - `testing.md` - Kent Beck (TDD), Freeman/Pryce (GOOS), Meszaros (xUnit patterns), Feathers (legacy testing), Bach/Bolton (exploratory)
+    - `knowledge-management.md` - Luhmann (Zettelkasten), Ahrens (smart notes), Bush (memex), Allen (GTD), Forte (PARA/Second Brain)
+    - `decision-making.md` - Munger (mental models), Kahneman (System 1/2), Klein (RPD), Duke (thinking in bets), Dalio (principles)
+  - **Integration**: Works with `/create-skill`, `/create-hook`, brainstorming workflows
+  - **Extensible**: Template provided for adding new domain modules
+
+- **Subagent Auto-Compaction Documentation** - Claude Code 2.1.1+ discovery
+  - **New Section**: `conserve:context-optimization/modules/subagent-coordination` - Auto-compaction at ~160k tokens
+  - **Model Optimization Guide**: Added context management section for long-running subagents
+  - **Log Signature**: Documented `compact_boundary` system message format for debugging
+  - **Design Patterns**: State preservation strategies for compaction-aware agent design
+  - **Context Thresholds**: Documented warning zones (80%, 90%) and trigger point (~160k)
+
+### Fixed
+
+- **hooks.json validation errors**: Fixed hooks.json matcher format in abstract and memory-palace plugins - changed from object `{"toolName": "Skill"}` to string `"Skill"` per Claude Code SDK requirements
+- **#25**: Optimized architecture-paradigms skill to index/router pattern (28.5% reduction)
+- **#26**: Modularized optimizing-large-skills skill (38% reduction)
+- **#27**: Split large command files with 72% average reduction (bulletproof-skill, validate-hook, pr-review)
+- **#28**: Consolidated abstract module bloat to docs/examples/ directory
+- **#29**: Optimized agent files with 62% reduction in mcp-subagents
+- **#30**: Enhanced JSON escaping with complete control character handling in imbue hooks
+- **#31**: Added logging to PyYAML warnings for better CI/CD visibility
+- **#32**: Added comprehensive delegation error path tests (12 new test methods)
+- **#33**: Added wrapper base validation tests and implemented detect_breaking_changes()
+- **#93**: Merged README-HOOKS.md into docs/guides/skill-observability-guide.md
+- **#94**: Consolidated conjure CHANGELOG to reference main CHANGELOG
+- **#95**: Renamed /pr to /prepare-pr with expanded Mandatory Post-Implementation Protocol workflow
+- **Bloat Report Updated**: bloat-scan-report-20260109.md now includes Phase 5 (~52,640 tokens total saved)
+
+### Changed
+
+- **Documentation Debloating (Phase 5)** - Enforced strict line limits across documentation files
+  - **hook-types-comprehensive.md**: 748 → 147 lines (table-of-contents pattern)
+  - **security-patterns.md**: 904 → 534 lines (consolidated redundant examples)
+  - **authoring-best-practices.md**: 652 → 427 lines (removed verbosity)
+  - **evaluation-methodology.md**: 653 → 377 lines (extracted implementations)
+  - **error-handling-guide.md**: 580 → 316 lines (cross-referenced tutorial)
+  - **Deleted outdated plans**: 2 historical files (1,685 lines)
+  - **Total impact**: 6,222 → 1,801 lines (3,421 saved, ~3,200 tokens)
+  - **Quality preserved**: All detail maintained via progressive disclosure
+
+- **MECW Optimization**: Commands now use modular architecture with progressive loading pattern
+  - Large skill modules moved to docs/examples/ for comprehensive guides
+  - Stub files provide quick reference with links to detailed documentation
+  - Total reduction: 70-79% in command files, 28-62% in skill files
+- **Documentation Structure**: Comprehensive guides now centralized in docs/examples/ with categorization:
+  - `docs/examples/hook-development/` - Hook types, security patterns
+  - `docs/examples/skill-development/` - Authoring best practices, evaluation methodology
+- **Testing Coverage**: Added 12+ new test methods for error paths and validation edge cases
+
 ## [1.2.3] - 2026-01-08
 
 ### Added
@@ -71,7 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Skill Review**: pensive now handles skill performance analysis
     - Commands: `/skill-review` - analyze skill metrics and stability gaps
     - Commands: `/skill-history` - view recent skill executions with context
-    - Integration reference: `plugins/abstract/README-HOOKS.md`
+    - Integration reference: `docs/guides/skill-observability-guide.md`
 
 - **Parseltongue: Python Linter Agent** - Strict linting enforcement without bypassing checks
   - **New Agent**: `python-linter` - Expert agent for fixing lint errors properly
@@ -530,6 +713,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.2.4]: https://github.com/athola/claude-night-market/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/athola/claude-night-market/compare/v1.2.1...v1.2.3
 [1.2.1]: https://github.com/athola/claude-night-market/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/athola/claude-night-market/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/athola/claude-night-market/compare/v1.1.1...v1.1.2

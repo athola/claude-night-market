@@ -1,9 +1,18 @@
 ---
 name: specify
-description: Create detailed project specifications from brainstorm output using spec-driven development methodology
+description: Create specifications from brainstorm using spec-driven development
+usage: /attune:specify [--input FILE] [--feature NAME]
 ---
 
 # Attune Specify Command
+
+<identification>
+triggers: specify, create spec, specification, project spec
+
+use_when:
+- Transforming brainstorm into detailed specification
+- Creating testable requirements from project brief
+</identification>
 
 Transform project brief into detailed, testable specification using spec-driven development methodology.
 

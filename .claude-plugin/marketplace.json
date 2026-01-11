@@ -13,7 +13,7 @@
       "name": "abstract",
       "source": "./plugins/abstract",
       "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design patterns, and evaluation frameworks",
-      "version": "1.2.3"
+      "version": "1.2.4"
     },
     {
       "name": "attune",
@@ -61,7 +61,7 @@
       "name": "memory-palace",
       "source": "./plugins/memory-palace",
       "description": "Spatial knowledge organization with memory palace techniques - includes skill execution memory storage for continual learning",
-      "version": "1.2.3"
+      "version": "1.2.4"
     },
     {
       "name": "minister",

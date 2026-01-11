@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gemini CLI Quota Tracker.
 
-Track Gemini CLI usage to provide quota warnings and prevent rate limit
+Track Gemini CLI usage to provide warnings and prevent rate limit
 exhaustion. Extends leyline's universal QuotaTracker with Gemini-specific
 token estimation and CLI command parsing.
 """

@@ -12,6 +12,85 @@ category: conservation
 
 This module provides patterns for decomposing complex workflows and delegating to subagents to maintain MECW compliance.
 
+## Auto-Compaction (Claude Code 2.1.1+)
+
+**Critical Discovery**: Subagent conversations automatically compact when context reaches ~160k tokens.
+
+### How It Works
+
+Claude Code v2.1.1+ introduced automatic context compaction for "sidechain" (subagent) conversations:
+
+```json
+{
+  "isSidechain": true,
+  "agentId": "a2223d9",
+  "type": "system",
+  "subtype": "compact_boundary",
+  "compactMetadata": {
+    "trigger": "auto",
+    "preTokens": 167189
+  }
+}
+```
+
+**Key observations**:
+- **Threshold**: ~160k tokens triggers compaction
+- **Automatic**: No configuration needed - system handles it
+- **Transparent**: Subagent continues working after compaction
+- **Logged**: Check agent logs for `compact_boundary` events
+
+### Implications for Agent Design
+
+1. **Long-running subagents are safe**: They won't crash at context limits
+2. **No manual checkpointing needed**: System handles context overflow
+3. **Design for continuity**: Ensure subagent state survives compaction
+   - Store critical state in files, not just conversation
+   - Use explicit progress markers (TodoWrite, checkpoints)
+   - Avoid relying on early conversation context for late decisions
+
+### When Auto-Compaction Triggers
+
+| Context Usage | Behavior |
+|--------------|----------|
+| < 80% (~128k) | Normal operation |
+| 80-90% (~128-144k) | Warning zone, plan wrap-up |
+| > 90% (~144k+) | Compaction imminent |
+| ~160k | **Auto-compaction triggers** |
+
+### Best Practice: State Preservation
+
+For subagents handling complex, multi-step workflows:
+
+```python
+# Pattern: Externalize critical state before compaction risk
+def preserve_subagent_state(progress):
+    """
+    Write state to files so it survives compaction.
+    """
+    # Write to TodoWrite for task state
+    todo_state = {
+        'completed': progress.completed_tasks,
+        'pending': progress.pending_tasks,
+        'context': progress.critical_context
+    }
+
+    # Write to temporary file for complex state
+    with open('/tmp/subagent_checkpoint.json', 'w') as f:
+        json.dump(todo_state, f)
+
+    # Key findings should be in output, not just memory
+    return f"Checkpoint saved: {len(progress.completed_tasks)} complete"
+```
+
+### Monitoring Auto-Compaction
+
+Check for compaction events in agent logs:
+
+```bash
+# Look for compaction boundaries in recent logs
+grep -r "compact_boundary" ~/.claude/projects/*/agent_*.log | tail -5
+```
+
 ## Critical: Subagent Overhead Reality
 
 **Every subagent inherits ~16k+ tokens of system context** (tool definitions, permissions, system prompts) regardless of instruction length. This is the "base overhead" that makes subagents expensive for simple tasks.

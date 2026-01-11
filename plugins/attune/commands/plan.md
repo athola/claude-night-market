@@ -1,9 +1,18 @@
 ---
 name: plan
-description: Create structured implementation plan from specification using architecture design and task breakdown
+description: Create implementation plan with architecture and task breakdown
+usage: /attune:plan [--input FILE] [--component NAME]
 ---
 
 # Attune Plan Command
+
+<identification>
+triggers: plan, implementation plan, architecture plan, task breakdown
+
+use_when:
+- Converting specification into implementation plan
+- Designing architecture and breaking down tasks
+</identification>
 
 Transform specification into structured implementation plan with architecture design and task breakdown.
 

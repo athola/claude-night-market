@@ -1,9 +1,7 @@
 ---
 name: architecture-paradigms
 description: |
-
-Triggers: adr, architecture, patterns, paradigms, implementation
-  Interactive selector and implementation planner for architecture paradigms.
+  Interactive selector and router for architecture paradigms.
 
   Triggers: architecture selection, pattern comparison, system design, ADR creation,
   architecture decision, paradigm evaluation, new system architecture, architecture
@@ -18,7 +16,7 @@ Triggers: adr, architecture, patterns, paradigms, implementation
   DO NOT use when: reviewing existing architecture - use architecture-review instead.
 
   Use this skill BEFORE making architecture decisions. Check even if unsure about needs.
-version: 1.0.0
+version: 1.1.0
 category: architecture-decision
 tags: [architecture, patterns, selection, implementation, adr]
 dependencies: [architecture-paradigm-functional-core, architecture-paradigm-hexagonal, architecture-paradigm-cqrs-es, architecture-paradigm-event-driven, architecture-paradigm-layered, architecture-paradigm-modular-monolith, architecture-paradigm-microkernel, architecture-paradigm-microservices, architecture-paradigm-service-based, architecture-paradigm-space-based, architecture-paradigm-pipeline, architecture-paradigm-serverless, architecture-paradigm-client-server]
@@ -29,232 +27,120 @@ usage_patterns:
   - implementation-planning
   - adr-creation
 complexity: intermediate
-estimated_tokens: 560
----
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [Common Scenarios](#common-scenarios)
-- [Enterprise Application with Multiple Teams](#enterprise-application-with-multiple-teams)
-- [Complex Business Rules & Testing](#complex-business-rules-&-testing)
-- [Real-time/Event Processing](#real-time-event-processing)
-- [Legacy System Modernization](#legacy-system-modernization)
-- [Cloud-Native/Bursty Workloads](#cloud-native-bursty-workloads)
-- [ETL/Data Processing Pipeline](#etl-data-processing-pipeline)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [3-Step Selection Workflow](#3-step-selection-workflow)
-- [Step 1: Define Your Needs (`paradigms:needs-defined`)](#step-1:-define-your-needs-(paradigms:needs-defined))
-- [Step 2: Evaluate Paradigms (`paradigms:paradigms-evaluated`)](#step-2:-evaluate-paradigms-(paradigms:paradigms-evaluated))
-- [Step 3: Generate Implementation Roadmap (`paradigms:roadmap-created`)](#step-3:-generate-implementation-roadmap-(paradigms:roadmap-created))
-- [Paradigm Comparison Matrix](#paradigm-comparison-matrix)
-- [Future Tooling](#future-tooling)
-- [Paradigm Selector Tool](#paradigm-selector-tool)
-- [Implementation Planner Tool](#implementation-planner-tool)
-- [Compatibility Checker Tool](#compatibility-checker-tool)
-- [Integration with Other Skills](#integration-with-other-skills)
-- [During Architecture Review](#during-architecture-review)
-- [During Implementation Planning](#during-implementation-planning)
-- [During Refactoring](#during-refactoring)
-- [Exit Criteria](#exit-criteria)
-- [Next Steps](#next-steps)
-
-
-# Architecture Paradigm Selector & Implementation Planner
-
-## Quick Start
-
-### Basic Usage
-\`\`\`bash
-# Run the main command
-python -m module_name
-
-# Show help
-python -m module_name --help
-\`\`\`
-
-**Verification**: Run with `--help` flag to confirm installation.
-## Common Scenarios
-
-### Enterprise Application with Multiple Teams
-**Primary**: Microservices or Modular Monolith
-**Secondary**: Hexagonal for infrastructure independence
-
-### Complex Business Rules & Testing
-**Primary**: Functional Core, Imperative Shell
-**Secondary**: Hexagonal for external integrations
-
-### Real-time/Event Processing
-**Primary**: Event-Driven Architecture
-**Secondary**: CQRS + Event Sourcing for audit trails
-
-### Legacy System Modernization
-**Primary**: Hexagonal (Ports & Adapters)
-**Secondary**: Modular Monolith as interim step
-
-### Cloud-Native/Bursty Workloads
-**Primary**: Serverless
-**Secondary**: Microservices for sustained workloads
-
-### ETL/Data Processing Pipeline
-**Primary**: Pipeline Architecture
-**Secondary**: Event-Driven for streaming
-
+estimated_tokens: 280
 ---
 
-## Required TodoWrite Items
-1. `paradigms:needs-defined`
-2. `paradigms:paradigms-evaluated`
-3. `paradigms:roadmap-created`
+# Architecture Paradigm Router
+
+This skill helps you **select** the right architecture paradigm(s) for your system, then **routes** you to the specific paradigm skill for implementation details.
+
+## Quick Scenario Router
+
+Match your needs to the recommended paradigm:
+
+| Your Scenario | Primary Paradigm | Load Skill |
+|---------------|------------------|------------|
+| **Enterprise app with multiple teams** | Microservices or Modular Monolith | `architecture-paradigm-microservices` or `architecture-paradigm-modular-monolith` |
+| **Complex business rules & testing** | Functional Core, Imperative Shell | `architecture-paradigm-functional-core` |
+| **Real-time/event processing** | Event-Driven Architecture | `architecture-paradigm-event-driven` |
+| **Legacy system modernization** | Hexagonal (Ports & Adapters) | `architecture-paradigm-hexagonal` |
+| **Cloud-native/bursty workloads** | Serverless | `architecture-paradigm-serverless` |
+| **ETL/data processing pipeline** | Pipeline Architecture | `architecture-paradigm-pipeline` |
+| **Simple CRUD app** | Layered Architecture | `architecture-paradigm-layered` |
+| **Command/query separation** | CQRS + Event Sourcing | `architecture-paradigm-cqrs-es` |
 
 ## 3-Step Selection Workflow
 
-### Step 1: Define Your Needs (`paradigms:needs-defined`)
+### Step 1: Define Your Needs
 
-**Primary Concerns** (select all):
-- [ ] **Testability**: Isolate business logic from infrastructure
-- [ ] **Team Autonomy**: Independent deployment capabilities
-- [ ] **Infrastructure Flexibility**: Swap databases/frameworks easily
-- [ ] **Real-time Scaling**: Variable loads with event processing
-- [ ] **Simplicity**: Maintainable without distributed complexity
-- [ ] **Legacy Integration**: Work with existing systems
+**Primary Concerns** (select all that apply):
+- **Testability**: Isolate business logic → `functional-core` or `hexagonal`
+- **Team Autonomy**: Independent deployment → `microservices` or `modular-monolith`
+- **Infrastructure Flexibility**: Swap databases/frameworks → `hexagonal`
+- **Real-time Scaling**: Variable loads with events → `event-driven` or `space-based`
+- **Simplicity**: Maintainable without complexity → `layered` or `modular-monolith`
+- **Legacy Integration**: Work with existing systems → `hexagonal` or `microkernel`
 
 **System Context**:
-- **Team Size**: `< 5` | `5-15` | `15-50` | `50+`
-- **Domain Complexity**: `Simple` | `Moderate` | `Complex` | `Highly Complex`
+- **Team Size**: `< 5` → Layered/Functional Core | `5-15` → Modular Monolith | `15-50` → Microservices | `50+` → Microservices/Space-Based
+- **Domain Complexity**: `Simple` → Layered | `Moderate` → Hexagonal/Modular Monolith | `Complex` → Functional Core/CQRS | `Highly Complex` → Microservices/Event-Driven
 
-### Step 2: Evaluate Paradigms (`paradigms:paradigms-evaluated`)
+### Step 2: Evaluate Paradigms
 
-**Testability & Business Logic**
-- **Primary**: Functional Core, Imperative Shell - Isolates business logic from infrastructure
-- **Alternative**: Hexagonal/Ports & Adapters - Clear domain/infrastructure boundaries
+Based on your needs from Step 1, review these options:
 
-**Team Autonomy**
-- **Primary**: Microservices - Independent deployment and scaling
-- **Alternative**: Modular Monolith - Team autonomy without distributed complexity
+**For Testability & Business Logic**
+- Load `architecture-paradigm-functional-core` - Isolates business logic from infrastructure
+- Load `architecture-paradigm-hexagonal` - Clear domain/infrastructure boundaries
 
-**Infrastructure Flexibility**
-- **Primary**: Hexagonal/Ports & Adapters - Swap infrastructure without domain changes
+**For Team Autonomy**
+- Load `architecture-paradigm-microservices` - Independent deployment and scaling
+- Load `architecture-paradigm-modular-monolith` - Team autonomy without distributed complexity
 
-**Simplicity & Maintainability**
-- **Primary**: Layered Architecture - Simple, well-understood separation
+**For Infrastructure Flexibility**
+- Load `architecture-paradigm-hexagonal` - Swap infrastructure without domain changes
 
-**Real-time Event Processing**
-- **Primary**: Event-Driven Architecture - Scalable, decoupled processing
+**For Simplicity & Maintainability**
+- Load `architecture-paradigm-layered` - Simple, well-understood separation
 
-### Step 3: Generate Implementation Roadmap (`paradigms:roadmap-created`)
+**For Real-time Event Processing**
+- Load `architecture-paradigm-event-driven` - Scalable, decoupled processing
+- Load `architecture-paradigm-space-based` - In-memory data grids for linear scalability
 
-**Implementation Steps**:
-1. Load the specific paradigm skill for detailed guidance
-2. Generate ADR template using the paradigm's templates
-3. Create migration checklist for existing systems
-4. Estimate effort and timeline based on team size and complexity
-5. Identify risks and mitigations specific to your context
+**For Legacy Integration**
+- Load `architecture-paradigm-microkernel` - Plugin architecture for extensible platforms
+- Load `architecture-paradigm-hexagonal` - Adapters for external systems
 
-**Load paradigm skills for implementation**:
-- `architecture-paradigm-functional-core` - Business logic isolation
-- `architecture-paradigm-hexagonal` - Infrastructure independence
-- `architecture-paradigm-microservices` - Independent services
-- `architecture-paradigm-event-driven` - Event processing
-- `architecture-paradigm-layered` - N-tier separation
-- `architecture-paradigm-cqrs-es` - Command query separation with audit trails
-- `architecture-paradigm-modular-monolith` - Single deployable with strong boundaries
-- `architecture-paradigm-service-based` - Coarse-grained services with shared database
-- `architecture-paradigm-serverless` - Stateless functions with minimal infrastructure
-- `architecture-paradigm-microkernel` - Plugin architecture for extensible platforms
-- `architecture-paradigm-space-based` - In-memory data grids for linear scalability
-- `architecture-paradigm-pipeline` - Processing stages for ETL workflows
-- `architecture-paradigm-client-server` - Traditional client-server architectures
+### Step 3: Load Paradigm Skill for Implementation
 
-## Paradigm Comparison Matrix
+Once you've selected your paradigm(s), load the specific skill for detailed guidance:
 
-| Paradigm | Complexity | Team Size | Best For | Main Benefits |
-|----------|------------|------------|----------|---------------|
-| **Functional Core** | Medium | Small-Large | Complex business logic | Testability, clarity |
-| **Hexagonal** | Medium | Small-Large | Infrastructure changes | Flexibility, isolation |
-| **Layered** | Low | Small-Medium | Simple domains | Simplicity, familiarity |
-| **Modular Monolith** | Medium | Medium-Large | Evolving systems | Boundaries, single deploy |
-| **Microservices** | High | Large | Complex domains | Autonomy, scaling |
-| **Event-Driven** | High | Medium-Large | Real-time processing | Scalability, decoupling |
-
-## Future Tooling
-
-### Paradigm Selector Tool
 ```bash
-# Interactive paradigm selection
-paradigm-selector --interactive --team-size 5-15 --complexity moderate
-
-# Compare specific paradigms
-paradigm-selector --compare functional-core hexagonal --context current-project
-
-# Get recommendations based on concerns
-paradigm-selector --concerns testability,team-autonomy --scale medium
+# Example: You selected Hexagonal Architecture
+Skill(archetypes:architecture-paradigm-hexagonal)
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
 
-### Implementation Planner Tool
-```bash
-# Generate a detailed roadmap
-implementation-planner --paradigm hexagonal --project-size large --team-count 3
+The individual paradigm skill provides:
+- ✅ Complete implementation guide
+- ✅ ADR templates
+- ✅ Migration checklist
+- ✅ Code examples
+- ✅ Testing strategies
+- ✅ Risk assessments
 
-# Estimate effort and timeline
-implementation-planner --paradigm microservices --complexity high --effort-estimate
+## Available Paradigm Skills
 
-# Risk assessment
-implementation-planner --paradigm event-driven --context financial --risk-analysis
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-### Compatibility Checker Tool
-```bash
-# Check paradigm combinations
-compatibility-checker --paradigms functional-core,hexagonal --validate
-
-# Migration path analysis
-compatibility-checker --from layered --to hexagonal --migration-path
-
-# Team readiness assessment
-compatibility-checker --paradigm microservices --team-profile current-team
-```
-**Verification:** Run the command with `--help` flag to verify availability.
+| Paradigm | Complexity | Team Size | Best For | Skill Name |
+|----------|------------|-----------|----------|------------|
+| **Functional Core** | Medium | Small-Large | Complex business logic | `architecture-paradigm-functional-core` |
+| **Hexagonal** | Medium | Small-Large | Infrastructure changes | `architecture-paradigm-hexagonal` |
+| **Layered** | Low | Small-Medium | Simple domains | `architecture-paradigm-layered` |
+| **Modular Monolith** | Medium | Medium-Large | Evolving systems | `architecture-paradigm-modular-monolith` |
+| **Microservices** | High | Large | Complex domains | `architecture-paradigm-microservices` |
+| **Event-Driven** | High | Medium-Large | Real-time processing | `architecture-paradigm-event-driven` |
+| **CQRS + ES** | High | Medium-Large | Audit trails | `architecture-paradigm-cqrs-es` |
+| **Service-Based** | Medium | Medium | Coarse-grained services | `architecture-paradigm-service-based` |
+| **Serverless** | Medium | Small-Medium | Cloud-native/bursty | `architecture-paradigm-serverless` |
+| **Microkernel** | Medium | Small-Medium | Plugin systems | `architecture-paradigm-microkernel` |
+| **Space-Based** | High | Large | Linear scalability | `architecture-paradigm-space-based` |
+| **Pipeline** | Low | Small-Medium | ETL workflows | `architecture-paradigm-pipeline` |
+| **Client-Server** | Low | Small | Traditional apps | `architecture-paradigm-client-server` |
 
 ## Integration with Other Skills
 
-### During Architecture Review
-- Load this skill first to select paradigms.
-- Then load `/architecture-review` for evaluation.
-- Use specific paradigm skills for implementation guidance.
-
-### During Implementation Planning
-- Load this skill for paradigm selection and roadmap creation.
-- Load `/writing-plans` for detailed task breakdown.
-- Use paradigm-specific skills for implementation checklists.
-
-### During Refactoring
-- Load this skill to identify target paradigms.
-- Load `systematic-debugging` for a refactoring approach.
-- Use paradigm-specific skills for migration strategies.
+- **Architecture Review**: Use this skill first to select paradigms, then `/architecture-review` for evaluation
+- **Implementation Planning**: Select paradigms here, then `/writing-plans` for detailed task breakdown
+- **Refactoring**: Identify target paradigms here, then use paradigm-specific skills for migration strategies
 
 ## Exit Criteria
-- TodoWrite items are completed.
-- At least one paradigm is selected with a clear rationale.
-- An implementation roadmap has been generated.
-- The specific paradigm skill has been loaded for detailed guidance.
-- Follow-up ADR and documentation tasks have been identified.
+
+- [ ] At least one paradigm is selected with clear rationale
+- [ ] Specific paradigm skill has been loaded for detailed guidance
+- [ ] Ready to create ADR or implementation plan
 
 ## Next Steps
-1. **Load the specific paradigm skill** for implementation guidance.
-2. **Generate an ADR** using the paradigm templates.
-3. **Create an implementation plan** with detailed tasks and timelines.
-4. **Set up monitoring** for the success metrics of the paradigm adoption.
-## Troubleshooting
 
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+1. **Load the specific paradigm skill** - Use `Skill(archetypes:architecture-paradigm-NAME)`
+2. **Generate an ADR** - Use the paradigm's ADR templates
+3. **Create implementation plan** - Use paradigm's migration checklist
+4. **Set up monitoring** - Track success metrics from paradigm guidance

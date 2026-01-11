@@ -73,7 +73,7 @@ For enhanced methodology integration:
 /plugin install superpowers@superpowers-marketplace
 ```
 
-Superpowers provides TDD cycles, systematic debugging, and code review patterns that enhance Night Market plugins.
+Superpowers provides TDD, debugging, and review patterns that enhance Night Market plugins.
 
 ## Recommended Plugin Sets
 
@@ -113,9 +113,9 @@ For detailed workflow coverage:
 
 ### Conflicts between plugins?
 
-Plugins are designed to be composable. If you experience issues:
+Plugins are composable. If you experience issues:
 1. Check the plugin's README for dependency requirements
-2. validate foundation plugins (imbue, leyline) are installed if using domain plugins
+2. Validate foundation plugins (imbue, leyline) are installed if using domain plugins
 
 ## Next Steps
 

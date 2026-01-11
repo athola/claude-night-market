@@ -12,7 +12,7 @@ import cachetools  # type: ignore[import-untyped]
 
 
 class SpecKitCache:
-    """Provide a detailed caching system for spec-kit operations."""
+    """Implement a caching system for spec-kit operations."""
 
     def __init__(self, cache_dir: Path | None = None) -> None:
         """Initialize cache with optional custom directory."""

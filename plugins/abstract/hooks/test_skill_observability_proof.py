@@ -187,7 +187,7 @@ def post_tool_use_hook() -> None:
 
         # Clean up state file
         if pre_state:
-            state_file = state_dir / f'{pre_state["invocation_id"]}.json'
+            state_file = state_dir / f"{pre_state['invocation_id']}.json"
             if state_file.exists():
                 state_file.unlink()
 

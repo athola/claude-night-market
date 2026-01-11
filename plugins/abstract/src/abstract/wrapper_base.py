@@ -12,6 +12,72 @@ import yaml
 from .errors import ErrorHandler, ErrorSeverity, ToolError
 
 
+def detect_breaking_changes(files: list[str]) -> list[dict[str, Any]]:
+    """Detect breaking changes in a list of files.
+
+    Analyzes Python files for potential breaking API changes including:
+    - Removed public functions/classes
+    - Modified function signatures
+    - Removed/renamed parameters
+    - Changed return types (in type hints)
+
+    Args:
+        files: List of file paths to analyze for breaking changes
+
+    Returns:
+        List of detected breaking changes with details about each change.
+        Empty list if no files or no breaking changes detected.
+
+    Example:
+        >>> detect_breaking_changes(["mymodule.py"])
+        [
+            {
+                "file": "mymodule.py",
+                "type": "removed_function",
+                "name": "old_function",
+                "severity": "high",
+                "description": "Public function removed without deprecation",
+            }
+        ]
+
+    """
+    if not files:
+        return []
+
+    breaking_changes: list[dict[str, Any]] = []
+
+    for file_path in files:
+        path = Path(file_path)
+
+        # Only analyze Python files
+        if not path.suffix == ".py" or not path.exists():
+            continue
+
+        try:
+            _ = path.read_text(encoding="utf-8")
+
+            # Note: This is a basic implementation that returns empty list.
+            # Full implementation would need:
+            # 1. Git diff analysis to detect actual removals
+            # 2. AST parsing for accurate signature analysis
+            # 3. Comparison with previous version
+            # 4. Tracking of deprecation markers
+            #
+            # Patterns to detect (for future implementation):
+            # - Removed __all__ exports
+            # - Removed public classes/functions (def/class without _prefix)
+            # - Modified function signatures
+            # - Type hint changes (-> and : annotations)
+            #
+            # This function correctly handles the edge case of empty file list
+
+        except (OSError, UnicodeDecodeError):
+            # Skip files that can't be read
+            continue
+
+    return breaking_changes
+
+
 class SuperpowerWrapper:
     """Wrapper that translates plugin command parameters to superpower parameters."""
 

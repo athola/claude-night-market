@@ -39,6 +39,14 @@ debug-variables: ## Show Makefile variable values (for debugging)
 clean: ## Clean any generated files
 	@echo "Nothing to clean (markdown-only plugin)"
 
+# ---------- Quality (no-ops for markdown-only) ----------
+.PHONY: typecheck type-check lint format test
+typecheck type-check: ## No-op: no Python code to check
+	@echo "No type checking needed (markdown-only plugin)"
+
+lint format test: ## No-op: no code to lint/format/test
+	@echo "No $@ needed (markdown-only plugin)"
+
 # ---------- Demo/Dogfood Targets ----------
 demo-paradigms: ## List available architecture paradigms
 	@echo "=== Archetypes Paradigms Demo ==="

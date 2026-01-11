@@ -1,14 +1,19 @@
 ---
 name: unbloat
-description: |
-  Safe bloat remediation: delete dead code, consolidate duplicates, refactor large files with user approval.
-
-  Triggers: unbloat, remove bloat, cleanup codebase, reduce bloat
-  Use when: after bloat-scan or preparing for release
+description: Safe bloat remediation with user approval at each step
 usage: /unbloat [--from-scan REPORT] [--auto-approve low] [--dry-run] [--focus code|docs|deps]
 ---
 
 # Unbloat Command
+
+<identification>
+triggers: unbloat, remove bloat, cleanup codebase, reduce bloat
+
+use_when:
+- After bloat-scan identifies remediation targets
+- Preparing for release
+- Reducing codebase complexity
+</identification>
 
 Execute safe bloat remediation workflows with user approval at each step.
 

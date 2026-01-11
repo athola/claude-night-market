@@ -6,7 +6,7 @@ from typing import Any
 
 
 class TestingGuideSkill:
-    """Skill for providing testing guidance and best practices."""
+    """Provide testing guidance and best practices."""
 
     def __init__(self) -> None:
         """Initialize the testing guide skill."""

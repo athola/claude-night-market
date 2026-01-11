@@ -107,7 +107,7 @@ def test_full_dual_hook_with_metrics() -> bool:
 
     # Run 5 iterations to build up history
     for i in range(5):
-        print(f"\n--- Iteration {i+1}/5 ---")
+        print(f"\n--- Iteration {i + 1}/5 ---")
 
         pre_output = run_pre_hook(skill_ref)
         if not pre_output:

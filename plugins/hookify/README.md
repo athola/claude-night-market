@@ -1,6 +1,6 @@
 # Hookify Plugin
 
-**Zero-config behavioral rules - 8 safety rules active immediately upon installation.**
+**Zero-config behavioral rules - 10 safety rules active immediately upon installation.**
 
 ## Overview
 
@@ -12,8 +12,10 @@ Hookify includes **bundled rules that work out of the box**. Just install the pl
 # Install the plugin
 claude install hookify@claude-night-market
 
-# 8 rules are now active:
+# 10 rules are now active:
 # - Block force push to main/master
+# - Block destructive git operations (reset --hard, clean -fd, etc.)
+# - Warn about risky git operations (rebase -i, soft reset, etc.)
 # - Warn about large binary files in git
 # - Block dangerous dynamic code execution
 # - Warn about print statements in Python
@@ -28,6 +30,8 @@ claude install hookify@claude-night-market
 | Category | Rule | Action | Status |
 |----------|------|--------|--------|
 | **git** | `block-force-push` | block | enabled |
+| **git** | `block-destructive-git` | block | enabled |
+| **git** | `warn-risky-git` | warn | enabled |
 | **git** | `warn-large-commits` | warn | enabled |
 | **python** | `block-dynamic-code` | block | enabled |
 | **python** | `warn-print-statements` | warn | enabled |

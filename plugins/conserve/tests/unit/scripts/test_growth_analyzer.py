@@ -175,9 +175,9 @@ class TestGrowthAnalyzerImplementation:
 
             # With positive growth rate, projections should increase
             if result["growth_rate"] > 0:
-                assert (
-                    projection["projected_usage"] >= result["current_usage"]
-                ), "Projections should be >= current usage with positive growth"
+                assert projection["projected_usage"] >= result["current_usage"], (
+                    "Projections should be >= current usage with positive growth"
+                )
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -242,9 +242,9 @@ class TestGrowthAnalyzerImplementation:
         result = analyzer.analyze_growth_patterns(test_data)
 
         # Assert
-        assert (
-            result["severity"] == expected_severity
-        ), f"Growth rate {growth_rate} should be {expected_severity}"
+        assert result["severity"] == expected_severity, (
+            f"Growth rate {growth_rate} should be {expected_severity}"
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
