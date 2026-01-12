@@ -1,8 +1,12 @@
 ---
 name: proof-enforcement
-description: Enforces proof-of-work discipline before completion claims
+description: |
+  Enforces proof-of-work discipline before completion claims.
+  IMPLEMENTATION STATUS: Enforced via SessionStart governance injection
+  and Stop hook checklist (see actual implementation below).
 triggers:
-  - PreMessageSend
+  - SessionStart (governance injection)
+  - Stop (completion checklist)
 priority: critical
 ---
 
@@ -10,13 +14,27 @@ priority: critical
 
 **Purpose:** Prevent completion claims without evidence.
 
-## Trigger: PreMessageSend
+## Implementation Status
 
-**Before Claude sends ANY message, scan for completion signals:**
+> **NOTE**: Claude Code does not support `PreMessageSend` hook type.
+> Proof-of-work enforcement is implemented via:
+>
+> 1. **SessionStart** - `sanctum/hooks/post_implementation_policy.py`
+>    - Injects proof-of-work as STEP 1 of governance protocol
+>    - Includes red flags table for rationalization detection
+>
+> 2. **Stop** - `sanctum/hooks/verify_workflow_complete.py`
+>    - End-of-session checklist includes proof-of-work items
+>    - Warns if proof-of-work was skipped
+>
+> 3. **SessionStart** - `imbue/hooks/session-start.sh`
+>    - Injects proof-of-work quick reference alongside scope-guard
+>
+> The patterns below remain useful as **guidance for self-enforcement**.
 
-## Completion Signal Detection
+## Completion Signal Detection (Self-Enforcement Guide)
 
-### Patterns That Trigger Validation
+### Patterns That Should Trigger Self-Validation
 
 **Direct Completion Claims:**
 - "done", "finished", "complete", "completed"
@@ -179,14 +197,20 @@ Use Skill(imbue:proof-of-work) acceptance-criteria template.
 
 ---
 
-## Auto-Invoke Logic
+## Actual Enforcement Mechanism
 
-**When violation detected:**
+> **NOTE**: Claude Code cannot intercept outgoing messages. Enforcement works via:
+>
+> 1. **SessionStart Injection** - Governance policy reminds about proof-of-work
+> 2. **Stop Hook Checklist** - End-of-session reminder if proof-of-work was skipped
+> 3. **Self-Enforcement** - Claude recognizes completion patterns and self-validates
 
-1. **Block message from sending**
-2. **Display violation type and requirements**
-3. **Auto-invoke:** `Skill(imbue:proof-of-work)`
-4. **Require:** User acknowledgment or evidence addition before proceeding
+**Self-enforcement triggers when Claude detects:**
+
+1. **Completion claim patterns** in the response being composed
+2. **Lack of evidence markers** (`[E1]`, `[E2]`, test results)
+3. **Self-invoke:** `Skill(imbue:proof-of-work)` before claiming completion
+4. **Capture evidence** and report status before proceeding
 
 ## Exemptions
 
@@ -280,29 +304,29 @@ def requires_proof_of_work(message: str) -> bool:
 - `superpowers:using-superpowers` - Works within skill system
 
 **Execution order:**
-1. `scope-guard` (before implementation)
+1. `scope-guard` (before implementation) - SessionStart injection
 2. Implementation work
-3. `proof-enforcement` (before completion claim)
-4. Message sent (if validation passed)
+3. `proof-of-work` (self-invoke before completion claim)
+4. Completion with evidence
 
 ## Configuration
 
-**Strictness levels:**
+**Enforcement is automatic** when imbue and sanctum plugins are installed:
 
-- `strict` (default): Block messages without evidence
-- `warning`: Warn but allow sending (with user confirmation)
-- `disabled`: Bypass enforcement (not recommended)
+1. **Governance injection**: `sanctum/hooks/post_implementation_policy.py`
+   - Proof-of-work is Step 1 of the mandatory protocol
+   - Includes red flags table for rationalization detection
 
-**Set via:**
+2. **Stop checklist**: `sanctum/hooks/verify_workflow_complete.py`
+   - End-of-session reminder includes proof-of-work items
+
+3. **Session reminder**: `imbue/hooks/session-start.sh`
+   - Proof-of-work quick reference alongside scope-guard
+
+**Disable via environment variable:**
 ```bash
-# In .claude-plugin/plugin.json
-{
-  "hooks": {
-    "proof-enforcement": {
-      "strictness": "strict"
-    }
-  }
-}
+# Skip proof-of-work enforcement (not recommended)
+export PROOF_OF_WORK_DISABLE=1
 ```
 
 ## Metrics

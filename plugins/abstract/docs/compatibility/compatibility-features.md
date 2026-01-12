@@ -6,6 +6,91 @@ Feature timeline and version-specific capabilities.
 
 ## Feature Timeline
 
+### Claude Code 2.1.4 (January 2026)
+
+**New Environment Variables**:
+- ✅ **`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`**: Disable all background task functionality
+  - **Scope**: Disables auto-backgrounding and `Ctrl+B` shortcut
+  - **Use Cases**: CI/CD pipelines, debugging, environments where detached processes are problematic
+  - **Does NOT affect**: Python subprocess spawning, asyncio tasks in hooks, general async processing
+  - **Example**: `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1 claude "run tests"`
+
+**Bug Fixes**:
+- ✅ **OAuth Token Refresh**: Fixed "Help improve Claude" setting fetch
+  - Automatically refreshes OAuth token and retries when stale
+  - **Impact**: Better reliability for user preference settings
+
+**Notes**:
+- Minor release focused on CI/CD compatibility and OAuth reliability
+- Background task disable is useful for deterministic test environments
+
+### Claude Code 2.1.3 (January 2026)
+
+**Architectural Changes**:
+- ✅ **Merged Slash Commands and Skills**: Unified mental model with no behavior change
+  - Skills now appear in `/` menu alongside commands
+  - Explicit invocation via `/skill-name` now available
+  - Auto-discovery still works as before
+  - **Impact**: Simplified extensibility model - skills and commands are conceptually unified
+  - **Action Required**: None - existing plugin.json structure remains valid
+
+**Bug Fixes**:
+- ✅ **Fixed Subagent Model Selection During Compaction**: Critical fix for long conversations
+  - **Previous Bug**: Subagents could use wrong model when parent context was compacted
+  - **Now Fixed**: Model specified in agent frontmatter (`model: sonnet/haiku/opus`) respected
+  - **Impact**: All 29 ecosystem agents with `model:` specification now work correctly during compaction
+  - **Action Required**: None - agents already specify models
+
+- ✅ **Fixed Web Search in Subagents**: Web search now uses correct model
+  - **Previous Bug**: Web search in subagents used incorrect model
+  - **Now Fixed**: Web search respects agent's model specification
+  - **Impact**: Agents using web search get consistent results
+
+- ✅ **Fixed Plan File Persistence**: Fresh plan after `/clear`
+  - **Previous Bug**: Plan files persisted across `/clear` commands
+  - **Now Fixed**: Fresh plan file created after clearing conversations
+  - **Impact**: Cleaner session restarts
+
+- ✅ **Fixed Skill Duplicate Detection on ExFAT**: Large inode handling
+  - **Previous Bug**: False duplicate detection on filesystems with large inodes
+  - **Now Fixed**: 64-bit precision for inode values
+  - **Impact**: Better compatibility with ExFAT filesystems
+
+- ✅ **Fixed Trust Dialog from Home Directory**: Hooks now work correctly
+  - **Previous Bug**: Trust dialog acceptance from home directory didn't enable hooks
+  - **Now Fixed**: Trust-requiring features like hooks work during session
+  - **Impact**: More reliable hook execution
+
+**Performance Improvements**:
+- ✅ **Hook Timeout Extended**: 60 seconds → 10 minutes
+  - **Impact**: Long-running hooks now viable (CI/CD, complex validation, external APIs)
+  - **Affected**: `abstract:hook-authoring` guidance updated
+  - **Best Practice**: Aim for < 30s for typical hooks; use extended time only when needed
+
+- ✅ **Terminal Rendering Stability**: Prevents cursor corruption
+  - **Impact**: Better terminal experience with uncontrolled writes
+
+**New Features**:
+- ✅ **Unreachable Permission Rule Detection**: New diagnostic in `/doctor`
+  - **Feature**: Warns about permission rules that can never match
+  - **Impact**: Easier debugging of permission configurations
+  - **Usage**: Run `/doctor` to check for unreachable rules
+  - **Output**: Shows source of each rule and actionable fix guidance
+
+- ✅ **Release Channel Toggle**: Choose `stable` or `latest` in `/config`
+  - **Feature**: Switch between release channels
+  - **Impact**: More control over update timing
+
+**User Experience**:
+- ✅ **Improved Slash Command Suggestions**: Long descriptions truncated to 2 lines
+  - **Impact**: Better readability in `/` menu
+
+**Notes**:
+- This release consolidates skills and commands conceptually while maintaining backward compatibility
+- The subagent model fixes are critical for long-running sessions with model escalation
+- Hook timeout increase enables more sophisticated automation workflows
+- Run `/doctor` periodically to check permission rule health
+
 ### Claude Code 2.0.74 (December 2025)
 
 **New Features**:

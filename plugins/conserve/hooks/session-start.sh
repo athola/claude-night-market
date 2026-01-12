@@ -3,12 +3,47 @@
 # Injects context-optimization, token-conservation, and CPU/GPU performance guidance
 # at session start for proactive resource management.
 #
+# Updated for Claude Code 2.1.2: Reads agent_type from hook input via stdin
+# to customize context injection based on the invoking agent.
+#
 # Bypass modes:
 #   CONSERVATION_MODE=quick   - Skip loading for fast processing tasks
 #   CONSERVATION_MODE=deep    - Allow more resources for thorough analysis
 #   CONSERVATION_MODE=normal  - Default, load all conservation guidance (default)
+#
+# Agent-aware modes (via --agent flag in Claude Code 2.1.2+):
+#   Lightweight agents (code-reviewer, etc.) get abbreviated guidance
 
 set -euo pipefail
+
+# Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
+HOOK_INPUT=""
+AGENT_TYPE=""
+if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
+    # Extract agent_type using jq if available, otherwise grep
+    if command -v jq >/dev/null 2>&1; then
+        AGENT_TYPE=$(echo "$HOOK_INPUT" | jq -r '.agent_type // empty' 2>/dev/null || echo "")
+    else
+        # Fallback: simple pattern extraction
+        AGENT_TYPE=$(echo "$HOOK_INPUT" | grep -oP '"agent_type"\s*:\s*"\K[^"]+' 2>/dev/null || echo "")
+    fi
+fi
+
+# Lightweight agents that get abbreviated guidance
+case "$AGENT_TYPE" in
+    code-reviewer|architecture-reviewer|rust-auditor|bloat-auditor)
+        # Review agents: minimal conservation context
+        cat <<EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "[conserve] Agent '${AGENT_TYPE}' - abbreviated guidance: Monitor context, use targeted reads."
+  }
+}
+EOF
+        exit 0
+        ;;
+esac
 
 # Determine plugin root directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"

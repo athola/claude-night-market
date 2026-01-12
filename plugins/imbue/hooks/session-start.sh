@@ -1,8 +1,44 @@
 #!/usr/bin/env bash
 # SessionStart hook for imbue plugin - scope-guard awareness
 # Injects scope-guard methodology into Claude's session context
+#
+# Updated for Claude Code 2.1.2: Reads agent_type from hook input via stdin
+# to customize scope-guard injection based on the invoking agent.
+#
+# Agent-aware behavior:
+#   Review/optimization agents get abbreviated scope-guard reminders
+#   Implementation agents get full scope-guard methodology
 
 set -euo pipefail
+
+# Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
+HOOK_INPUT=""
+AGENT_TYPE=""
+if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
+    # Extract agent_type using jq if available, otherwise grep
+    if command -v jq >/dev/null 2>&1; then
+        AGENT_TYPE=$(echo "$HOOK_INPUT" | jq -r '.agent_type // empty' 2>/dev/null || echo "")
+    else
+        # Fallback: simple pattern extraction
+        AGENT_TYPE=$(echo "$HOOK_INPUT" | grep -oP '"agent_type"\s*:\s*"\K[^"]+' 2>/dev/null || echo "")
+    fi
+fi
+
+# Lightweight agents that skip full scope-guard methodology
+case "$AGENT_TYPE" in
+    code-reviewer|architecture-reviewer|rust-auditor|bloat-auditor|context-optimizer)
+        # Review/optimization agents: minimal scope-guard context
+        cat <<EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": "[imbue] Agent '${AGENT_TYPE}' - scope-guard abbreviated: Focus on review quality, not implementation scope."
+  }
+}
+EOF
+        exit 0
+        ;;
+esac
 
 # Determine plugin root directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
@@ -88,7 +124,27 @@ scope_guard_summary="## scope-guard Quick Reference
 - Defer 'nice to have' features to backlog
 - Stay within branch budget (default: 3 major features)
 
-**Branch Thresholds**: 1000/1500/2000 lines | 15/25/30 commits | 3/7/7+ days"
+**Branch Thresholds**: 1000/1500/2000 lines | 15/25/30 commits | 3/7/7+ days
+
+## proof-of-work Quick Reference
+
+**When to invoke** \`Skill(imbue:proof-of-work)\`:
+- Before claiming ANY implementation is complete
+- Before saying 'should work' or 'will work'
+- Before recommending untested solutions
+- After making code changes that need verification
+
+**Required Evidence**:
+- \`[E1]\`, \`[E2]\` references with command outputs
+- Functional tests (not just syntax checks)
+- Status: PASS / FAIL / BLOCKED
+
+**Red Flags (STOP immediately)**:
+| Thought | Action |
+|---------|--------|
+| 'This looks correct' | RUN IT |
+| 'Should work' | TEST IT |
+| 'Syntax valid' | FUNCTIONAL TEST |"
 
 # Escape outputs for JSON - uses jq when available, falls back to pure bash
 escape_for_json() {

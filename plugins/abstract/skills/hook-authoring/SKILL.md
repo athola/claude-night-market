@@ -141,8 +141,50 @@ Quick reference for all supported hook events:
 | **Stop** | Agent completes | `reason`, `result` | Final cleanup, summary reports |
 | **SubagentStop** | Subagent completes | `subagent_id`, `result` | Result processing, aggregation |
 | **PreCompact** | Before context compact | `context_size` | State preservation, checkpointing |
-| **SessionStart** | Session starts/resumes | `session_id` | Initialization, context loading |
+| **SessionStart** | Session starts/resumes | `session_id`, `source`, `agent_type` | Initialization, context loading |
 | **SessionEnd** | Session terminates | `session_id` | Cleanup, final logging |
+
+### SessionStart Input Schema (Claude Code 2.1.2+)
+
+The SessionStart hook receives JSON input via stdin with these fields:
+
+```json
+{
+  "session_id": "abc123",
+  "source": "startup",  // "startup" | "resume" | "clear" | "compact"
+  "agent_type": "my-agent"  // Populated if --agent flag used
+}
+```
+
+**`agent_type` field**: When Claude Code is launched with `--agent my-agent`, this field contains the agent name, enabling agent-specific initialization:
+
+```python
+# Python example: Agent-aware SessionStart hook
+input_data = json.loads(sys.stdin.read())
+agent_type = input_data.get("agent_type", "")
+
+if agent_type in ["code-reviewer", "quick-query"]:
+    # Skip heavy context injection for lightweight agents
+    print(json.dumps({"hookSpecificOutput": {"additionalContext": "Minimal context"}}))
+else:
+    # Full initialization for implementation agents
+    print(json.dumps({"hookSpecificOutput": {"additionalContext": full_context}}))
+```
+
+```bash
+# Bash example: Agent-aware SessionStart hook
+HOOK_INPUT=$(cat)
+AGENT_TYPE=$(echo "$HOOK_INPUT" | jq -r '.agent_type // empty')
+
+case "$AGENT_TYPE" in
+    code-reviewer|quick-query)
+        echo '{"hookSpecificOutput": {"additionalContext": "Minimal context"}}'
+        ;;
+    *)
+        echo '{"hookSpecificOutput": {"additionalContext": "Full context"}}'
+        ;;
+esac
+```
 
 ## Hooks in Frontmatter (Claude Code 2.1.0+)
 
@@ -310,7 +352,7 @@ See `modules/security-patterns.md` for detailed security guidance.
 ### Performance Best Practices
 
 1. **Non-Blocking**: Use `async`/`await` properly, don't block the event loop
-2. **Timeout Handling**: Set reasonable timeouts (< 30s for hooks)
+2. **Timeout Handling**: Hook timeout is 10 minutes (increased from 60s in 2.1.3). For most hooks, aim for < 30s; use extended time only for CI/CD integration, complex validation, or external API calls
 3. **Efficient Logging**: Batch writes, use async I/O
 4. **Memory Management**: Don't accumulate unbounded state
 5. **Fail Fast**: Quick validation, early returns, avoid expensive operations
@@ -491,6 +533,28 @@ For detailed guidance on specific topics:
 3. Implement following security and performance best practices
 4. Test thoroughly with unit and integration tests
 5. Validate using `hook_validator.py` before deployment
+
+## Environment Variables (Claude Code 2.1.2+)
+
+### `FORCE_AUTOUPDATE_PLUGINS`
+
+Forces plugin auto-update even when the main Claude Code auto-updater is disabled.
+
+**Use cases**:
+- CI/CD pipelines that need latest plugin versions
+- Development environments testing plugin updates
+- Controlled update rollouts in enterprise settings
+
+```bash
+# Enable forced plugin updates
+export FORCE_AUTOUPDATE_PLUGINS=1
+claude
+
+# Or inline
+FORCE_AUTOUPDATE_PLUGINS=1 claude --agent my-agent
+```
+
+**Note**: This only affects plugin updates, not Claude Code core updates.
 
 ## References
 
