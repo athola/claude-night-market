@@ -173,32 +173,12 @@ This command complements:
 
 This command creates a continuous improvement feedback loop:
 
-```
-┌─────────────────────────────────────────────────┐
-│ /update-plugins (Phase 1: Registration)        │
-│ - Sync disk ↔ plugin.json                       │
-└────────────────┬────────────────────────────────┘
-                 ↓
-┌─────────────────────────────────────────────────┐
-│ /update-plugins (Phase 2: Analysis)            │
-│ - Check /skill-review metrics                   │
-│ - Query /skill-logs for failures                │
-│ - Surface improvement vectors                    │
-└────────────────┬────────────────────────────────┘
-                 ↓
-┌─────────────────────────────────────────────────┐
-│ Create TodoWrite Items & Recommendations        │
-│ - Critical: Immediate action required           │
-│ - Moderate: Schedule for next sprint            │
-│ - Low: Add to backlog                           │
-└────────────────┬────────────────────────────────┘
-                 ↓
-┌─────────────────────────────────────────────────┐
-│ /fix-workflow (Implement Improvements)          │
-│ - Fix unstable skills                           │
-│ - Improve command validation                    │
-│ - Optimize agent performance                    │
-└─────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A["/update-plugins Phase 1: Registration<br/>Sync disk ↔ plugin.json"] --> B
+    B["/update-plugins Phase 2: Analysis<br/>• Check /skill-review metrics<br/>• Query /skill-logs for failures<br/>• Surface improvement vectors"] --> C
+    C["Create TodoWrite Items & Recommendations<br/>• Critical: Immediate action required<br/>• Moderate: Schedule for next sprint<br/>• Low: Add to backlog"] --> D
+    D["/fix-workflow Implement Improvements<br/>• Fix unstable skills<br/>• Improve command validation<br/>• Optimize agent performance"]
 ```
 
 ## See Also
