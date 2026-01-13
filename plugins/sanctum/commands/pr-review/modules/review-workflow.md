@@ -731,19 +731,20 @@ After posting the test plan, update the PR description with a summary of the rev
 18. **Update PR Description via API**
 
     ```bash
-    # Get current body (preserve if exists)
-    CURRENT_BODY=$(gh pr view $PR_NUMBER --json body --jq '.body')
+    # Get current body
+    CURRENT_BODY=$(gh pr view $PR_NUMBER --json body --jq '.body // empty')
 
-    # Generate new body with review summary prepended
-    NEW_BODY="## Summary
+    # Check if body is empty or just whitespace
+    if [[ -z "${CURRENT_BODY// /}" ]]; then
+      echo "PR description is empty - generating from scratch"
+      IS_EMPTY=true
+    else
+      echo "PR description exists - prepending review summary"
+      IS_EMPTY=false
+    fi
 
-    [Summary from scope artifacts]
-
-    ### Changes
-
-    [Changes from commits]
-
-    ### Code Review Summary
+    # Build review summary section
+    REVIEW_SUMMARY="### Code Review Summary
 
     | Category | Count |
     |----------|-------|
@@ -751,12 +752,45 @@ After posting the test plan, update the PR description with a summary of the rev
     | Important | $IMPORTANT_COUNT |
     | Suggestions | $SUGGESTION_COUNT |
 
-    **Verdict**: [Ready to merge | Needs changes]
+    **Verdict**: [Ready to merge | Needs changes] after addressing $BLOCKING_COUNT issues.
 
-    [View full review]($REVIEW_COMMENT_URL)
+    [View full review]($REVIEW_COMMENT_URL)"
 
-    ---
-    $CURRENT_BODY"
+    # Generate PR body based on whether it's empty
+    if [[ "$IS_EMPTY" == "true" ]]; then
+      # Generate full description from scope artifacts
+
+      # Extract summary from commits or scope artifacts
+      COMMIT_SUMMARY=$(git log --oneline $(git merge-base HEAD origin/main)..HEAD | head -5 | sed 's/^[a-f0-9]* /- /')
+
+      # Try to extract from plan/spec files
+      PLAN_SUMMARY=""
+      if [[ -f "docs/plans/plan-$(git branch --show-current).md" ]]; then
+        PLAN_SUMMARY=$(head -20 "docs/plans/plan-$(git branch --show-current).md" | grep -E "^## |^- " | head -10)
+      elif [[ -f "plan.md" ]]; then
+        PLAN_SUMMARY=$(head -20 "plan.md" | grep -E "^## |^- " | head -10)
+      fi
+
+      # Build full description
+      NEW_BODY="## Summary
+
+$(if [[ -n "$PLAN_SUMMARY" ]]; then echo "$PLAN_SUMMARY"; else echo "This PR includes the following changes:"; fi)
+
+### Changes
+
+$COMMIT_SUMMARY
+
+---
+
+$REVIEW_SUMMARY"
+    else
+      # Prepend review summary to existing body
+      NEW_BODY="$REVIEW_SUMMARY
+
+---
+
+$CURRENT_BODY"
+    fi
 
     # Update via API (gh pr edit may fail on own PRs due to scope issues)
     gh api repos/{owner}/{repo}/pulls/$PR_NUMBER \
@@ -764,6 +798,59 @@ After posting the test plan, update the PR description with a summary of the rev
       -f body="$NEW_BODY"
 
     echo "✅ PR description updated for PR #$PR_NUMBER"
+    ```
+
+    **Empty Description Handling:**
+
+    When PR description is empty, the command:
+    1. **Detects** empty body (null, empty string, or whitespace-only)
+    2. **Extracts** summary from:
+       - Scope artifacts (`docs/plans/`, `plan.md`, `spec.md`)
+       - Recent commit messages (last 5 commits)
+    3. **Generates** full description with:
+       - Summary section (from scope or commits)
+       - Changes section (commit list)
+       - Review summary (issue counts, verdict)
+    4. **Creates** complete PR description from scratch
+
+    **Existing Description Handling:**
+
+    When PR description exists:
+    1. **Preserves** existing content unchanged
+    2. **Prepends** review summary at top
+    3. **Separates** with horizontal rule (`---`)
+
+    **Example Generated Description (empty case):**
+
+    ```markdown
+    ## Summary
+
+    This PR implements continuous improvement features:
+    - Phase 2 improvement analysis in /update-plugins
+    - Iron Law TDD enforcement
+    - Agent-aware hooks for context optimization
+
+    ### Changes
+
+    - feat: release version 1.2.5 with continuous improvement and Iron Law TDD
+    - feat: add agent-aware hooks and integrate proof-of-work enforcement
+    - feat(sanctum): add /update-plugins command and enhance doc-updates workflow
+    - fix(plugins): register missing commands and skills in plugin.json files
+    - docs: sync capabilities-reference with 1.2.4 features
+
+    ---
+
+    ### Code Review Summary
+
+    | Category | Count |
+    |----------|-------|
+    | Critical | 0 |
+    | Important | 0 |
+    | Suggestions | 9 |
+
+    **Verdict**: Ready to merge after addressing 0 issues.
+
+    [View full review](https://github.com/owner/repo/pull/100#issuecomment-123456)
     ```
 
 19. **Confirm PR Description Updated**
