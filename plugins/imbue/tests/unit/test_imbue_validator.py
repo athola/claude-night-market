@@ -5,6 +5,7 @@ following TDD/BDD principles and testing all business logic scenarios.
 """
 
 import json
+import logging
 import sys
 import time
 from pathlib import Path
@@ -149,6 +150,116 @@ This skill doesn't do reviews.
         # Assert
         assert validator.plugin_root == Path("/nonexistent/directory")
         assert len(validator.skill_files) == 0
+
+    @pytest.mark.unit
+    def test_validator_notifies_when_plugin_root_not_exists(self, caplog) -> None:
+        """Scenario: Validator notifies when plugin root doesn't exist.
+
+        Given a non-existent plugin directory
+        When initializing ImbueValidator
+        Then it should log a warning about the missing directory.
+
+        Addresses issue #34.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Arrange & Act
+        with caplog.at_level(logging.WARNING):
+            validator = ImbueValidator(Path("/nonexistent/plugin/directory"))
+
+        # Assert - should have logged a warning
+        assert any(
+            "not found" in record.message.lower()
+            or "does not exist" in record.message.lower()
+            for record in caplog.records
+        ), (
+            f"Expected warning about missing directory, got: {[r.message for r in caplog.records]}"
+        )
+        assert validator.root_exists is False
+
+    @pytest.mark.unit
+    def test_validator_notifies_when_plugin_root_empty(self, tmp_path, caplog) -> None:
+        """Scenario: Validator notifies when plugin root exists but is empty.
+
+        Given an empty plugin directory
+        When initializing ImbueValidator
+        Then it should log a warning about the empty directory.
+
+        Addresses issue #34.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Arrange - create empty directory
+        empty_dir = tmp_path / "empty-plugin"
+        empty_dir.mkdir()
+
+        # Act
+        with caplog.at_level(logging.WARNING):
+            validator = ImbueValidator(empty_dir)
+
+        # Assert - should have logged a warning about empty directory
+        assert any("empty" in record.message.lower() for record in caplog.records), (
+            f"Expected warning about empty directory, got: {[r.message for r in caplog.records]}"
+        )
+        assert validator.root_empty is True
+
+    @pytest.mark.unit
+    def test_validator_notifies_when_plugin_lacks_structure(
+        self, tmp_path, caplog
+    ) -> None:
+        """Scenario: Validator notifies when plugin root lacks expected structure.
+
+        Given a plugin directory without skills/ or plugin.json
+        When initializing ImbueValidator
+        Then it should log a warning about missing structure.
+
+        Addresses issue #34.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Arrange - create directory with some files but no plugin structure
+        malformed_dir = tmp_path / "malformed-plugin"
+        malformed_dir.mkdir()
+        (malformed_dir / "random.txt").write_text("not a plugin")
+
+        # Act
+        with caplog.at_level(logging.WARNING):
+            validator = ImbueValidator(malformed_dir)
+
+        # Assert - should have logged a warning about missing structure
+        assert any(
+            "structure" in record.message.lower()
+            or "skills" in record.message.lower()
+            or "plugin.json" in record.message.lower()
+            for record in caplog.records
+        ), (
+            f"Expected warning about missing structure, got: {[r.message for r in caplog.records]}"
+        )
+        assert validator.has_valid_structure is False
+
+    @pytest.mark.unit
+    def test_validator_root_status_properties(self, mock_plugin_structure) -> None:
+        """Scenario: Validator exposes root status properties.
+
+        Given a valid plugin structure
+        When initializing ImbueValidator
+        Then it should have correct status properties.
+
+        Addresses issue #34.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Arrange & Act
+        validator = ImbueValidator(mock_plugin_structure)
+
+        # Assert - valid structure should have all good status
+        assert validator.root_exists is True
+        assert validator.root_empty is False
+        assert validator.has_valid_structure is True
 
     @pytest.mark.unit
     def test_scan_review_workflows_finds_review_skills(

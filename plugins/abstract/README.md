@@ -48,6 +48,11 @@ Use this plugin to manage token usage (keep skills lean), find modularization op
 *   `skills/`: Skill implementations.
 *   `scripts/`: Validation and analysis tools.
 *   `src/abstract/`: Shared Python package.
+*   `shared-modules/`: Reusable enforcement patterns for cross-skill reference.
+    *   `iron-law-interlock.md`: Hard gate for TDD compliance in creation workflows.
+    *   `enforcement-language.md`: Language intensity calibration.
+    *   `anti-rationalization.md`: Bypass prevention patterns.
+    *   `trigger-patterns.md`: Skill trigger design patterns.
 *   `docs/`: Technical documentation, ADRs, and examples.
     *   `docs/examples/modular-skills/`: Implementation examples for modular skill patterns.
 

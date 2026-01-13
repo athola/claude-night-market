@@ -1,6 +1,12 @@
 """Corpus management for Memory Palace knowledge base."""
 
 from memory_palace.corpus.cache_lookup import CacheLookup
+from memory_palace.corpus.counter_reinforcement import (
+    SIMILARITY_THRESHOLD,
+    CounterReinforcementTracker,
+    FeedbackType,
+    ReinforcementCounter,
+)
 from memory_palace.corpus.decay_model import (
     DECAY_CONFIG,
     DecayCurve,
@@ -42,6 +48,11 @@ __all__ = [
     "CacheLookup",
     "KeywordIndexer",
     "QueryTemplateManager",
+    # Counter-based reinforcement (ACE Playbook pattern)
+    "CounterReinforcementTracker",
+    "FeedbackType",
+    "ReinforcementCounter",
+    "SIMILARITY_THRESHOLD",
     # Marginal value filter
     "DeltaAnalysis",
     "DeltaType",

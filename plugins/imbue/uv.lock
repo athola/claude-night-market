@@ -494,7 +494,7 @@ wheels = [
 
 [[package]]
 name = "imbue-dev"
-version = "1.2.3"
+version = "1.2.6"
 source = { editable = "." }
 dependencies = [
     { name = "pre-commit" },

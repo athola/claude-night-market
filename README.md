@@ -9,7 +9,8 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 *   **Agent-Aware Context:** Hooks in version 2.1.2+ adapt the context based on the active agent.
 *   **Skill Metrics:** The `pensive` plugin tracks skill usage and stability, allowing for performance analysis via `/skill-review`.
 *   **Proof-of-Work TDD:** The `imbue` plugin requires a failing test before allowing implementation code, enforcing test-driven development.
-*   **Self-Correction:** The `/update-plugins` command analyzes skill stability to suggest improvements, while `/fix-workflow` uses execution history to propose fixes.
+*   **Iron Law Interlock:** Creation commands (`/create-skill`, `/create-command`) block implementation until a failing test exists.
+*   **Self-Correction:** The `/update-plugins` command analyzes skill stability to suggest improvements, while `/fix-workflow` uses Reflexion patterns for self-critique before implementation.
 
 ## Workflow Improvements
 
@@ -94,15 +95,15 @@ The ecosystem covers several domains:
 *   **sanctum** handles git operations (`/prepare-pr`, `/commit-msg`) and documentation updates.
 *   **pensive** manages code reviews (`/full-review`) and audits shell usage.
 *   **spec-kit** defines requirements (`/speckit-specify`) before implementation.
-*   **minister** interfaces with GitHub issues (`/create-issue`, `/close-issue`).
-*   **conserve** detects and reduces codebase bloat (`/bloat-scan`).
+*   **minister** interfaces with GitHub issues (`/create-issue`, `/close-issue`, `/update-labels`).
+*   **conserve** detects and reduces codebase bloat (`/bloat-scan`, `/unbloat`).
 *   **attune** scaffolds new projects (`/attune:init`).
 *   **parseltongue** provides Python-specific tools like test analysis (`/analyze-tests`).
 *   **archetypes** offers architecture guides.
 *   **memory-palace** indexes project knowledge (`/palace`, `/garden`).
 *   **hookify** applies behavioral rules without configuration.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 109 skills, 95 commands, and 35 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 107 skills, 90 commands, and 35 agents.
 
 ## Audience
 
@@ -117,8 +118,10 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
 | Review a PR | `/full-review` | Run multi-discipline code review |
 | Fix PR feedback | `/fix-pr` | Address review comments |
+| Fix workflow issues | `/fix-workflow` | Self-correcting with Reflexion |
 | Prepare a PR | `/prepare-pr` | Quality gates before merge |
 | Create GitHub issue | `/create-issue` | Interactive issue creation |
+| Manage labels | `/update-labels` | GitHub label taxonomy |
 | Catch up on changes | `/catchup` | Context recovery |
 | Write specifications | `/speckit-specify` | Spec-driven development |
 | Debug issues | `Skill(superpowers:debugging)` | Root cause analysis |

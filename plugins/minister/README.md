@@ -16,7 +16,7 @@ Minister syncs GitHub Projects, issues, and checks for status reporting and road
 
 | Area | Description | Assets |
 |------|-------------|--------|
-| Issue Lifecycle | Manage GitHub issues with analysis and automation. | `commands/create-issue.md`, `commands/close-issue.md` |
+| Issue Lifecycle | Manage GitHub issues with analysis and automation. | `commands/create-issue.md`, `commands/close-issue.md`, `commands/update-labels.md` |
 | Initiative Tracking | Data model and CLI for initiative metrics. | `scripts/tracker.py`, `src/minister/project_tracker.py` |
 | GitHub Integration | Emit markdown comments on issues. | `scripts/tracker.py`, `.github/workflows/minister-comment.yml` |
 | Release Governance | Health-check gates for CI and documentation. | `skills/release-health-gates` |
@@ -46,6 +46,7 @@ plugins/minister/
 |---------|---------|-------|
 | `/create-issue` | Create GitHub issues with formatting and references. | Quick issue creation, bug reports, feature requests. |
 | `/close-issue` | Analyze if issues can be closed based on commits/code. | Issue triage, completion verification. |
+| `/update-labels` | Reorganize labels into professional taxonomy. | Label standardization, backlog cleanup. |
 
 ## Skills
 

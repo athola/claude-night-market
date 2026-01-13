@@ -438,6 +438,10 @@ Required:
 - **[red-flags.md](modules/red-flags.md)** - Common anti-patterns and violations
 - **[iron-law-enforcement.md](modules/iron-law-enforcement.md)** - TDD enforcement patterns, adversarial verification, git history analysis, and coverage gates
 
+### Cross-Skill Modules
+
+- **[iron-law-interlock.md](../../../abstract/shared-modules/iron-law-interlock.md)** - Hard gate for creation workflows (commands, skills, hooks)
+
 ## Related Skills
 
 - `imbue:evidence-logging` - How to capture and format evidence
