@@ -6,15 +6,19 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 
 > **Note:** These plugins function independently but use [superpowers](https://github.com/obra/superpowers) for TDD and debugging.
 
-> **Claude Code 2.1.0+:** This marketplace leverages new features including skill hot-reload, frontmatter hooks, `context: fork`, wildcard permissions, and YAML-style `allowed-tools`. See [Plugin Development Guide](docs/plugin-development-guide.md#claude-code-210-features) for details.
+> **Claude Code 2.1.2+:** This marketplace leverages agent-aware hooks that customize context based on agent type (SessionStart hooks receive `agent_type` field). Earlier features include skill hot-reload, frontmatter hooks, `context: fork`, and wildcard permissions. See [Plugin Development Guide](docs/plugin-development-guide.md#claude-code-210-features) for details.
 
 > **Skill Observability:** Track skill execution with continual learning metrics. memory-palace stores execution memories automatically, while pensive provides `/skill-review` for analyzing metrics and stability gaps. See [Skill Observability Guide](docs/guides/skill-observability-guide.md) for details.
+
+> **Iron Law TDD:** The imbue plugin enforces "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" through proof-of-work validation. See [proof-of-work skill](plugins/imbue/skills/proof-of-work/SKILL.md) for details.
+
+> **Continuous Improvement:** The ecosystem learns from its own performance. `/update-plugins` automatically analyzes skill stability and recommends improvements. `/fix-workflow` gathers context from execution history before retrospectives. Improvements are stored and referenced in future runs, creating a self-improving feedback loop.
 
 ## Comparison
 
 | Standard Workflow | With Night Market |
 |-------------------|-------------------|
-| Generic git commands | `/pr` - PR preparation with scope checking |
+| Generic git commands | `/prepare-pr` - PR preparation with scope checking |
 | Manual code review | `/full-review` - Multi-discipline review orchestration |
 | Ad-hoc specifications | `/speckit-specify` - Spec-driven development workflow |
 | Context lost between sessions | `/catchup` - Context recovery |
@@ -32,7 +36,7 @@ Claude Night Market extends Claude Code with skills, commands, and agents for gi
 /plugin install spec-kit@claude-night-market   # Spec-driven dev
 
 # 3. Start using
-/pr                                            # Prepare a pull request
+/prepare-pr                                    # Prepare a pull request
 /full-review                                   # Run code review
 Skill(sanctum:git-workspace-review)            # Invoke a skill (if Skill tool available)
 ```
@@ -90,7 +94,7 @@ flowchart TB
 
 | Plugin | What It Does | Key Commands |
 |--------|--------------|--------------|
-| **sanctum** | Git workflows, PR prep, commit messages | `/pr`, `/commit-msg`, `/fix-issue` |
+| **sanctum** | Git workflows, PR prep, doc updates | `/prepare-pr`, `/commit-msg`, `/update-docs`, `/update-plugins` |
 | **pensive** | Code review, shell auditing, skill metrics | `/full-review`, `/shell-review`, `/skill-review` |
 | **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
 | **minister** | GitHub issue management | `/create-issue`, `/close-issue`, `/status` |
@@ -101,7 +105,7 @@ flowchart TB
 | **memory-palace** | Knowledge management | `/palace`, `/garden`, `/skill-logs` |
 | **hookify** | Behavioral rules without config | `/hookify`, `/hookify:list` |
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 106 skills, 85 commands, and 35 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 109 skills, 95 commands, and 35 agents.
 
 ## Audience
 
@@ -116,11 +120,12 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
 | Review a PR | `/full-review` | Run multi-discipline code review |
 | Fix PR feedback | `/fix-pr` | Address review comments |
-| Prepare a PR | `/pr` + `/sanctum:update-*` | Quality gates before merge |
+| Prepare a PR | `/prepare-pr` + `/sanctum:update-*` | Quality gates before merge |
 | Create GitHub issue | `/create-issue` | Interactive issue creation with templates |
 | Catch up on changes | `/catchup` | Context recovery after break |
 | Write specifications | `/speckit-specify` | Spec-driven development |
 | Debug issues | `Skill(superpowers:debugging)` | Systematic root cause analysis |
+| Improve plugins | `/update-plugins`, `/fix-workflow` | Automatic improvement recommendations |
 
 ## Demos
 
@@ -128,10 +133,10 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 
 ![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
 
-**Browse 106 skills** across all plugins, examine their structure, and combine them into workflows.
+**Browse 109 skills** across all plugins, examine their structure, and combine them into workflows.
 
 **What you'll learn:**
-- Browse and discover skills across 16 plugins
+- Browse and discover skills across 15 plugins
 - Examine skill frontmatter, metadata, and structure
 - Use `abstract:plugin-validator` to check quality
 - Chain skills into complex workflows
@@ -232,7 +237,7 @@ See [Plugin Development Guide](docs/plugin-development-guide.md) for patterns an
 
 ## System Prompt Budget
 
-The ecosystem operates within Claude Code's 15K character budget. All 226 capabilities (106 skills, 85 commands, 35 agents) load without configuration. Current usage is approximately 14,800 characters, enforced by a pre-commit hook.
+The ecosystem operates within Claude Code's 15K character budget. All 239 capabilities (109 skills, 95 commands, 35 agents) load without configuration. Current usage is approximately 14,800 characters, enforced by a pre-commit hook.
 
 See [Budget Optimization](docs/budget-optimization-dec-2025.md) for details.
 

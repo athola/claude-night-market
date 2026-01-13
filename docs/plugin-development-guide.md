@@ -442,12 +442,35 @@ claude --disallowedTools "Task(expensive-agent)"
 
 **Skills show progress while executing** - tool uses display as they happen, giving visibility into skill execution.
 
+### Agent-Aware Hooks (Claude Code 2.1.2+)
+
+SessionStart hooks receive JSON input with `agent_type` field when launched with `--agent`:
+
+```python
+# Python: Customize context based on agent type
+import json, sys
+input_data = json.loads(sys.stdin.read())
+agent_type = input_data.get("agent_type", "")
+
+if agent_type in ["code-reviewer", "quick-query"]:
+    # Skip heavy context for lightweight agents
+    context = "Minimal context"
+else:
+    context = full_context
+
+print(json.dumps({"hookSpecificOutput": {"additionalContext": context}}))
+```
+
+This pattern reduces context overhead by 200-800 tokens for non-implementation agents.
+
 ### New Environment Variables
 
 | Variable | Purpose |
 |----------|---------|
 | `CLAUDE_CODE_HIDE_ACCOUNT_INFO` | Hide email/org from UI (for streaming/recording) |
 | `CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS` | Override default file read token limit |
+| `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` | Disable auto-backgrounding for CI/CD |
+| `FORCE_AUTOUPDATE_PLUGINS` | Force plugin auto-update in controlled environments |
 
 ### New Commands
 

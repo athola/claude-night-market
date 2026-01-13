@@ -46,9 +46,11 @@ Load the required skills in order:
 |----------|-------|----------|---------------|
 | `docs/` | Strict reference | 500 lines | 4 sentences |
 | `book/` | Technical book | 1000 lines | 8 sentences |
+| `wiki/` | Wiki reference | 500 lines | 4 sentences |
+| `plugins/*/README.md` | Plugin summary | 300 lines | 4 sentences |
 | Other | Default strict | 500 lines | 4 sentences |
 
-The `book/` directory has more leeway because it follows technical book format with longer explanations and tutorials.
+The `book/` directory has more leeway because it follows technical book format with longer explanations and tutorials. Plugin READMEs should be concise summaries.
 
 ## Consolidation Detection
 
@@ -97,11 +99,39 @@ Warnings are non-blocking; user decides whether to fix.
 ## Manual Execution
 
 If a skill cannot be loaded, follow these steps:
-- Manually gather the Git context (`pwd`, `git status -sb`, `git diff --stat`, `git diff`)
-- Check for bloated docs/ files: `find docs/ -name '*.md' -exec wc -l {} \; | awk '$1 > 500'`
-- Check for bloated book/ files: `find book/ -name '*.md' -exec wc -l {} \; | awk '$1 > 1000'`
-- Validate versions: `for p in plugins/*/.claude-plugin/plugin.json; do jq -r '"\(.name): \(.version)"' "$p"; done`
-- Update each document using the guidelines and preview the resulting diffs
+
+### 1. Gather Git Context
+```bash
+pwd && git status -sb && git diff --stat
+```
+
+### 2. Check All Doc Locations for Bloat
+```bash
+# docs/ - strict (500 lines)
+find docs/ -name '*.md' -exec wc -l {} \; 2>/dev/null | awk '$1 > 500'
+
+# book/ - lenient (1000 lines)
+find book/ -name '*.md' -exec wc -l {} \; 2>/dev/null | awk '$1 > 1000'
+
+# wiki/ - strict (500 lines)
+find wiki/ -name '*.md' -exec wc -l {} \; 2>/dev/null | awk '$1 > 500'
+
+# Plugin READMEs - summary (300 lines)
+for f in plugins/*/README.md; do
+  [ -f "$f" ] && lines=$(wc -l < "$f") && [ "$lines" -gt 300 ] && echo "$lines $f"
+done
+```
+
+### 3. Validate Versions
+```bash
+for p in plugins/*/.claude-plugin/plugin.json; do
+  jq -r '"\(.name): \(.version)"' "$p" 2>/dev/null
+done
+```
+
+### 4. Update Documents and Preview
+- Update each document using the directory-specific guidelines
+- Preview the resulting diffs with `git diff`
 
 ## See Also
 

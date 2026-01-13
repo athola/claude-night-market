@@ -567,7 +567,10 @@ Here's a complete workflow for adding a new feature:
 # Create branch
 git checkout -b feature/add-caching
 
-# Implement with TDD (if superpowers installed)
+# Implement with Iron Law TDD
+Skill(imbue:proof-of-work)  # Enforces: NO IMPLEMENTATION WITHOUT FAILING TEST FIRST
+
+# Or with superpowers TDD
 Skill(superpowers:tdd)
 
 # Execute planned tasks
@@ -738,6 +741,25 @@ claude --disallowedTools "Task(expensive-agent)"
 ### Subagent Resilience
 
 Subagents now **continue after permission denial**, trying alternative approaches instead of failing. This makes agent workflows more robust.
+
+### Agent-Aware Hooks (2.1.2+)
+
+SessionStart hooks receive `agent_type` field when launched with `--agent`:
+
+```python
+import json, sys
+input_data = json.loads(sys.stdin.read())
+agent_type = input_data.get("agent_type", "")
+
+if agent_type in ["code-reviewer", "quick-query"]:
+    context = "Minimal context"  # Skip heavy context
+else:
+    context = full_context
+
+print(json.dumps({"hookSpecificOutput": {"additionalContext": context}}))
+```
+
+This reduces context overhead by 200-800 tokens for lightweight agents.
 
 ---
 

@@ -7,10 +7,12 @@ Triggers: validation, definition-of-done, proof, acceptance-criteria, testing
   requirements before declaring work complete.
 
   Triggers: completion, finished, done, working, should work, configured,
-  ready to use, implemented, fixed
+  ready to use, implemented, fixed, improvement validated, workflow optimized,
+  performance improved, issue resolved
 
   Use when: claiming ANY work is complete, recommending solutions, stating
-  something will work, finishing implementations
+  something will work, finishing implementations, validating improvements,
+  completing improvement analysis
 
   DO NOT use when: explicitly asking questions or requesting clarification
   DO NOT use when: work is clearly in-progress and not claiming completion
@@ -32,11 +34,13 @@ modules:
   - modules/validation-protocols.md
   - modules/acceptance-criteria.md
   - modules/red-flags.md
+  - modules/iron-law-enforcement.md
 ---
 ## Table of Contents
 
 - [The Problem This Solves](#the-problem-this-solves)
 - [Core Principle](#core-principle)
+- [The Iron Law](#the-iron-law)
 - [When to Use](#when-to-use)
 - [MANDATORY Usage (Non-Negotiable)](#mandatory-usage-(non-negotiable))
 - [Red Flags (You're About to Violate This)](#red-flags-(you're-about-to-violate-this))
@@ -90,6 +94,32 @@ modules:
 ## Core Principle
 
 Before claiming completion, you must provide evidence that the solution actually works (tested), edge cases are handled (validated), claims are accurate (proven), and future verification is possible (reproducible).
+
+## The Iron Law
+
+```
+NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
+NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST
+```
+
+The Iron Law prevents **Cargo Cult TDD** - going through the motions of testing without achieving the design benefits. When implementation is pre-planned before tests, the RED phase becomes theater.
+
+**Iron Law Self-Check (Before Writing Code):**
+
+| Question | If "No" or "Yes" | Action |
+|----------|------------------|--------|
+| Do I have documented evidence of a failure/need? | No | STOP - document failure first |
+| Am I about to write a test that validates a pre-conceived implementation? | Yes | STOP - let test DRIVE design |
+| Am I feeling uncertainty about the design? | No | STOP - uncertainty is GOOD, explore it |
+| Have I let the test drive the implementation? | No | STOP - you're doing it backwards |
+
+**Extended TodoWrite Items for TDD:**
+- `proof:iron-law-red` - Failing test written BEFORE implementation
+- `proof:iron-law-green` - Minimal implementation passes test
+- `proof:iron-law-refactor` - Code improved without behavior change
+- `proof:iron-law-coverage` - Coverage gates passed (line/branch/mutation)
+
+See [iron-law-enforcement.md](modules/iron-law-enforcement.md) for adversarial verification, git history analysis, and pre-commit hook enforcement patterns.
 
 ## When to Use
 
@@ -245,6 +275,108 @@ Cannot claim completion due to fundamental blocker identified. Can provide: diag
 - evidence-logging: Document proof
 - Move to next step
 
+### With Improvement Workflows (`/update-plugins`, `/fix-workflow`)
+
+**Critical Integration:** proof-of-work is MANDATORY for validating continuous improvement changes.
+
+#### /update-plugins Phase 2 Validation
+
+When `/update-plugins` identifies improvement opportunities, use proof-of-work to validate:
+
+```markdown
+## Proof-of-Work: Improvement Analysis Validation
+
+### Problem Reproduced (`proof:problem-reproduced`)
+[E1] Command: `/skill-review --plugin sanctum --recommendations`
+Output:
+```
+sanctum:workflow-improvement
+  Stability gap: 0.35 ⚠️ (unstable)
+  5 failures in 7 days
+  Common error: "Missing validation in Step 2"
+```
+Conclusion: Unstable skill identified with concrete metrics
+
+### Solution Tested (`proof:solution-tested`)
+[E2] Command: `git log --oneline --grep="fix\|improve" --since="30 days ago" -- plugins/sanctum/skills/workflow-improvement/`
+Output: 8 commits found
+Conclusion: High churn rate confirms instability signal
+
+### Edge Cases Checked (`proof:edge-cases-checked`)
+[E3] Web Search: "workflow-improvement skill best practices"
+Finding: Early validation reduces iteration by 30% (from PR #42 lesson)
+Conclusion: Known pattern that should be applied
+
+### Completion Proven (`proof:completion-proven`)
+✓ Unstable skill identified with quantitative metrics
+✓ Root cause traced through git history
+✓ Improvement recommendation generated with evidence
+✓ TodoWrite item created: `improvement:sanctum:workflow-improvement-validation`
+```
+
+#### /fix-workflow Phase 0 Validation
+
+When `/fix-workflow` gathers improvement context, use proof-of-work to validate data sources:
+
+```markdown
+## Proof-of-Work: Context Gathering Validation
+
+### Data Sources Verified (`proof:problem-reproduced`)
+[E1] Skill logs accessible:
+Command: `ls ~/.claude/skills/logs/`
+Output: abstract/ .history.json
+Conclusion: Logging infrastructure functional
+
+[E2] Git history available:
+Command: `git log --oneline --since="30 days ago" | wc -l`
+Output: 47 commits
+Conclusion: Sufficient history for pattern analysis
+
+[E3] Memory-palace integration:
+Command: `[ -d ~/.claude/skills/logs ] && echo "exists" || echo "missing"`
+Output: exists
+Conclusion: Can query skill execution history
+
+### Analysis Validated (`proof:solution-tested`)
+[E4] Recent failures identified:
+Command: `/skill-logs --failures-only --last 7d`
+Output: 3 failure patterns found
+Conclusion: Concrete issues to address
+
+### Implementation Proven (`proof:completion-proven`)
+✓ All data sources accessible and functional
+✓ Context gathering steps verified
+✓ Improvement vectors identified with evidence
+✓ Ready to proceed with retrospective analysis
+```
+
+#### /fix-workflow Step 7 Validation
+
+When closing the loop after improvements, use proof-of-work to validate impact:
+
+```markdown
+## Proof-of-Work: Improvement Impact Validation
+
+### Before Metrics Captured (`proof:problem-reproduced`)
+[E1] Baseline metrics:
+- Step count: 15
+- Failure rate: 20% (3/15)
+- Duration: 8.5 minutes
+
+### After Metrics Captured (`proof:solution-tested`)
+[E2] Post-improvement metrics:
+Command: Re-run workflow with changes
+- Step count: 11 (-27%)
+- Failure rate: 0% (-100%)
+- Duration: 5.2 minutes (-39%)
+
+### Impact Validated (`proof:completion-proven`)
+✓ Quantitative improvement demonstrated
+✓ Failure modes eliminated with evidence
+✓ Performance gain verified
+✓ Lesson stored for future reference
+```
+
 ## Validation Checklist (Before Claiming "Done")
 
 ```markdown
@@ -304,6 +436,7 @@ Required:
 - **[validation-protocols.md](modules/validation-protocols.md)** - Detailed test protocols
 - **[acceptance-criteria.md](modules/acceptance-criteria.md)** - Definition of Done templates
 - **[red-flags.md](modules/red-flags.md)** - Common anti-patterns and violations
+- **[iron-law-enforcement.md](modules/iron-law-enforcement.md)** - TDD enforcement patterns, adversarial verification, git history analysis, and coverage gates
 
 ## Related Skills
 

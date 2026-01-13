@@ -97,3 +97,61 @@ class TestPRCommand:
     ) -> None:
         version_result = self._execute_update_version_workflow("patch")
         assert version_result["status"] == "updated"
+
+
+class TestUpdateDocsDirectoryRules:
+    """Test that /update-docs covers all documentation directories."""
+
+    # Directory style rules as defined in doc-updates skill
+    DIRECTORY_RULES = {
+        "docs/": {"max_lines": 500, "style": "strict"},
+        "book/": {"max_lines": 1000, "style": "book"},
+        "wiki/": {"max_lines": 500, "style": "wiki"},
+        "plugins/*/README.md": {"max_lines": 300, "style": "plugin_summary"},
+    }
+
+    def _get_ruleset(self, file_path: str) -> dict:
+        """Determine which ruleset applies to a file path."""
+        import re
+
+        if file_path.startswith("book/"):
+            return self.DIRECTORY_RULES["book/"]
+        elif file_path.startswith("docs/"):
+            return self.DIRECTORY_RULES["docs/"]
+        elif file_path.startswith("wiki/"):
+            return self.DIRECTORY_RULES["wiki/"]
+        elif re.match(r"plugins/[^/]+/README\.md$", file_path):
+            return self.DIRECTORY_RULES["plugins/*/README.md"]
+        else:
+            return self.DIRECTORY_RULES["docs/"]  # Default to strict
+
+    def test_docs_directory_uses_strict_rules(self) -> None:
+        ruleset = self._get_ruleset("docs/api-overview.md")
+        assert ruleset["max_lines"] == 500
+        assert ruleset["style"] == "strict"
+
+    def test_book_directory_uses_lenient_rules(self) -> None:
+        ruleset = self._get_ruleset("book/src/tutorials/getting-started.md")
+        assert ruleset["max_lines"] == 1000
+        assert ruleset["style"] == "book"
+
+    def test_wiki_directory_uses_wiki_rules(self) -> None:
+        ruleset = self._get_ruleset("wiki/architecture/adr-001.md")
+        assert ruleset["max_lines"] == 500
+        assert ruleset["style"] == "wiki"
+
+    def test_plugin_readme_uses_summary_rules(self) -> None:
+        ruleset = self._get_ruleset("plugins/sanctum/README.md")
+        assert ruleset["max_lines"] == 300
+        assert ruleset["style"] == "plugin_summary"
+
+    def test_plugin_nested_file_uses_default_rules(self) -> None:
+        # Non-README files in plugins should use default (strict) rules
+        ruleset = self._get_ruleset("plugins/sanctum/docs/internal.md")
+        assert ruleset["max_lines"] == 500
+        assert ruleset["style"] == "strict"
+
+    def test_unknown_directory_defaults_to_strict(self) -> None:
+        ruleset = self._get_ruleset("random/unknown/file.md")
+        assert ruleset["max_lines"] == 500
+        assert ruleset["style"] == "strict"

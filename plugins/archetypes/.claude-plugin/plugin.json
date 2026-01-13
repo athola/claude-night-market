@@ -1,6 +1,6 @@
 {
   "name": "archetypes",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Architecture paradigm selection and implementation planning for software systems",
   "keywords": [
     "architecture",
@@ -14,5 +14,21 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "skills": [
+    "./skills/architecture-paradigm-client-server",
+    "./skills/architecture-paradigm-cqrs-es",
+    "./skills/architecture-paradigm-event-driven",
+    "./skills/architecture-paradigm-functional-core",
+    "./skills/architecture-paradigm-hexagonal",
+    "./skills/architecture-paradigm-layered",
+    "./skills/architecture-paradigm-microkernel",
+    "./skills/architecture-paradigm-microservices",
+    "./skills/architecture-paradigm-modular-monolith",
+    "./skills/architecture-paradigm-pipeline",
+    "./skills/architecture-paradigm-serverless",
+    "./skills/architecture-paradigm-service-based",
+    "./skills/architecture-paradigm-space-based",
+    "./skills/architecture-paradigms"
+  ]
 }

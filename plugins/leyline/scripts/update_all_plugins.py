@@ -14,7 +14,7 @@ from typing import Any
 
 def read_installed_plugins() -> dict[str, list[dict[str, Any]]]:
     """Read the installed plugins configuration file."""
-    plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins_v2.json"
+    plugins_file = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
 
     if not plugins_file.exists():
         print(f"[ERROR] Plugins configuration file not found: {plugins_file}")

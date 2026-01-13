@@ -7,6 +7,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.5] - 2026-01-11
 
+### Added - Continuous Improvement Integration (2026-01-12)
+
+- **/update-plugins Phase 2: Automatic improvement analysis** - Plugin maintenance now includes performance review
+  - Invokes `/skill-review` to identify unstable skills (stability_gap > 0.3)
+  - Queries `/skill-logs` for recent failures and patterns
+  - Checks git history for recurring fixes (instability signals)
+  - Generates prioritized improvement recommendations (Critical/Moderate/Low)
+  - Creates TodoWrite items for actionable improvements
+  - **No flags required** - improvement analysis runs by default after registration audit
+
+- **/fix-workflow Phase 0: Improvement context gathering** - Retrospectives now leverage historical data
+  - Queries skill execution metrics before starting analysis
+  - Searches memory-palace review-chamber for related lessons
+  - Analyzes git history for recurring patterns
+  - Cross-references current friction with known failure modes
+  - Prioritizes fixes for high stability_gap components
+  - **Automatic by default** - no flags required
+
+- **sanctum:workflow-improvement skill enhancements** - Step 0 context gathering
+  - New TodoWrite item: `fix-workflow:context-gathered`
+  - New TodoWrite item: `fix-workflow:lesson-stored`
+  - Checks `/skill-logs` for recent failures in workflow components
+  - Queries memory-palace for workflow-related lessons
+  - Analyzes git commit patterns for recurring issues
+  - Step 7: Close the loop by storing lessons for future reference
+  - Metrics comparison template for before/after validation
+
+- **Continuous improvement feedback loop** - Self-improving plugin ecosystem
+  - `/update-plugins` identifies improvement opportunities
+  - `/fix-workflow` implements improvements with historical context
+  - Lessons stored in git history and memory-palace
+  - Future runs reference past improvements
+  - Reduces recurring issues through pattern learning
+
+- **imbue:proof-of-work integration with improvement workflows** - Validation for continuous improvement
+  - New section: "With Improvement Workflows (`/update-plugins`, `/fix-workflow`)"
+  - `/update-plugins` Phase 2 validation examples with evidence format
+  - `/fix-workflow` Phase 0 validation examples for data source verification
+  - `/fix-workflow` Step 7 validation for measuring improvement impact
+  - Updated triggers: "improvement validated", "workflow optimized", "performance improved"
+  - Ensures improvement claims are backed by quantitative metrics
+
+- **Test coverage for continuous improvement integration** - Comprehensive test suite
+  - New test file: `plugins/sanctum/tests/test_continuous_improvement.py`
+  - 8 test cases covering all integration points
+  - Tests Phase 2 and Phase 0 documentation
+  - Tests workflow-improvement skill enhancements
+  - Tests proof-of-work integration
+  - Tests CHANGELOG and documentation completeness
+  - Tests infrastructure accessibility
+  - All tests passing with 100% success rate
+
 ### Added - Claude Code 2.1.4 Compatibility (2026-01-11)
 
 - **`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` environment variable** - Documented for CI/CD use cases
@@ -59,6 +111,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Hook input reading uses non-blocking patterns (`read -t 0.1` in bash)
 - Backward compatible: gracefully handles missing stdin from older Claude Code versions
+
+### Added - Iron Law TDD Enforcement (2026-01-11)
+
+- **New `iron-law-enforcement.md` module** - Comprehensive TDD enforcement patterns
+  - Defines the Iron Law: "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST"
+  - Prevents "Cargo Cult TDD" where tests validate pre-conceived implementations
+  - Five enforcement levels: self-enforcement, adversarial verification, git history analysis, pre-commit hooks, coverage gates
+  - Self-check protocol with red flags table for TDD violations
+  - RED/GREEN/REFACTOR subagent pattern for adversarial verification
+  - Git history audit commands to detect TDD compliance
+  - Pre-commit hook template to block implementation-only commits
+  - Three-pillar coverage requirements: line, branch, and mutation testing
+  - Recovery protocols for Iron Law violations
+  - Self-improvement loop: learn from violations, strengthen rules
+
+- **Updated proof-of-work skill** - Integrated Iron Law enforcement
+  - Added Iron Law section with self-check table
+  - New TodoWrite items: `proof:iron-law-red`, `proof:iron-law-green`, `proof:iron-law-refactor`, `proof:iron-law-coverage`
+  - Cross-referenced iron-law-enforcement.md module
+
+- **Updated skill-authoring skill** - Extended Iron Law to all implementation work
+  - Skills: No skill without documented Claude failure
+  - Code: No implementation without failing test
+  - Claims: No completion claim without evidence
+  - Cross-referenced proof-of-work Iron Law module
+
+- **Updated proof-enforcement.md** - Added Rule 4: Iron Law TDD Compliance
+  - Blocks completion claims lacking TDD evidence
+  - Checks for failing test evidence, design emergence, commit patterns
+  - Includes recovery protocol for violations
+
+- **Updated post_implementation_policy.py** - Strengthened governance injection
+  - Added Iron Law self-check table to session start
+  - Extended red flags with TDD-specific patterns
+  - Added iron-law TodoWrite items to required protocol
+
+- **Updated imbue session-start.sh** - Added Iron Law quick reference
+  - Iron Law statement and self-check table
+  - TDD TodoWrite items reminder
 
 ### Fixed - Proof-of-Work Enforcement Gap (2026-01-11)
 
@@ -793,6 +884,7 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.2.5]: https://github.com/athola/claude-night-market/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/athola/claude-night-market/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/athola/claude-night-market/compare/v1.2.1...v1.2.3
 [1.2.1]: https://github.com/athola/claude-night-market/compare/v1.2.0...v1.2.1

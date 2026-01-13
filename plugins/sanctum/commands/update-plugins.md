@@ -10,56 +10,137 @@ Audit plugin.json files against actual disk contents and fix registration gaps.
 ## Arguments
 
 - `plugin-name` - Optional: specific plugin to audit (default: all plugins)
-- `--dry-run` - Show discrepancies without making changes
-- `--fix` - Automatically add missing registrations
+- `--dry-run` - Show discrepancies without making changes (default behavior)
+- `--fix` - Automatically update plugin.json files to add/remove registrations
 
 ## What It Does
 
+### Phase 1: Registration Audit
 1. **Scans each plugin directory** for commands, skills, agents, hooks on disk
 2. **Compares with plugin.json** registrations
-3. **Reports discrepancies**: missing registrations, stale entries, ordering issues
-4. **Optionally fixes** by updating plugin.json files
+3. **Reports discrepancies**: missing registrations, stale entries
+4. **Optionally fixes** by updating plugin.json files with proper sorting
+
+### Phase 2: Performance & Improvement Analysis (Automatic)
+5. **Analyzes skill execution metrics** using memory-palace logs
+6. **Identifies unstable skills** with stability_gap > 0.3
+7. **Surfaces recent failures** and performance degradation
+8. **Recommends improvements** based on execution history
 
 ## Workflow
 
-```bash
-# Audit all plugins (dry run)
-/update-plugins --dry-run
+### Phase 1: Registration Audit
 
-# Fix a specific plugin
-/update-plugins pensive --fix
-
-# Full audit and fix
-/update-plugins --fix
-```
-
-## Manual Execution
-
-If the command is unavailable, run this audit script:
+Execute the Python script with the provided arguments:
 
 ```bash
-for plugin in plugins/*/; do
-  name=$(basename "$plugin")
-  pjson="$plugin/.claude-plugin/plugin.json"
-  [ -f "$pjson" ] || continue
+# Audit all plugins (dry run - show discrepancies only)
+python3 plugins/sanctum/scripts/update_plugin_registrations.py --dry-run
 
-  echo "=== $name ==="
+# Audit specific plugin
+python3 plugins/sanctum/scripts/update_plugin_registrations.py parseltongue --dry-run
 
-  # Commands
-  echo "Commands in plugin.json:"
-  jq -r '.commands[]? // empty' "$pjson" | sed 's|.*/||' | sort
-  echo "Commands on disk:"
-  ls "$plugin/commands/"*.md 2>/dev/null | xargs -I{} basename {} | sort
+# Fix all plugins (update plugin.json files)
+python3 plugins/sanctum/scripts/update_plugin_registrations.py --fix
 
-  # Skills
-  echo "Skills in plugin.json:"
-  jq -r '.skills[]? // empty' "$pjson" | sed 's|.*/||' | sort
-  echo "Skills on disk:"
-  ls -d "$plugin/skills"/*/ 2>/dev/null | xargs -I{} basename {} | sort
-
-  echo ""
-done
+# Fix specific plugin
+python3 plugins/sanctum/scripts/update_plugin_registrations.py abstract --fix
 ```
+
+### Phase 2: Performance & Improvement Analysis
+
+After registration audit completes, automatically analyze improvement opportunities:
+
+#### Step 1: Check Skill Performance Metrics
+
+For each plugin being updated, invoke `/skill-review` to analyze execution history:
+
+```bash
+# If updating specific plugin
+/skill-review --plugin <plugin-name> --recommendations
+
+# If updating all plugins
+/skill-review --all-plugins --recommendations
+```
+
+**Look for:**
+- Unstable skills (stability_gap > 0.3)
+- Recent failure patterns
+- Performance degradation trends
+- Low success rates (< 80%)
+
+#### Step 2: Surface Recent Failures
+
+Query skill execution logs for actionable failures:
+
+```bash
+# Last 7 days of failures for this plugin
+/skill-logs --plugin <plugin-name> --failures-only --last 7d
+```
+
+**Extract:**
+- Common error messages
+- Recurring failure patterns
+- Environmental dependencies causing issues
+
+#### Step 3: Check for Workflow Improvements
+
+Look for documented workflow inefficiencies:
+
+1. Check if `sanctum:workflow-improvement` skill has been invoked recently
+2. Review git history for recent fixes to commands/skills/agents in this plugin
+3. Check issue tracker for open improvement issues
+
+**Command to check recent workflow fixes:**
+```bash
+git log --oneline --grep="improve\|fix\|optimize" --since="30 days ago" -- plugins/<plugin-name>/
+```
+
+#### Step 4: Generate Improvement Recommendations
+
+Based on phases 1-3, create actionable recommendations:
+
+**Format:**
+```markdown
+## Improvement Recommendations for <plugin-name>
+
+### Critical (Immediate Action)
+- [ ] Skill: <skill-name> - Stability gap: 0.45 - Review error handling
+- [ ] Command: <command-name> - 5 failures in last week - Missing validation
+
+### Moderate (Schedule for Next Sprint)
+- [ ] Agent: <agent-name> - Performance degradation detected - Review token usage
+- [ ] Skill: <skill-name> - Low success rate (72%) - Improve documentation
+
+### Low Priority (Backlog)
+- [ ] Hook: <hook-name> - Occasional timeouts - Add async handling
+```
+
+#### Step 5: Create Action Items
+
+For Critical and Moderate issues, create TodoWrite items:
+
+```
+improvement:<plugin-name>:skill-<name>-stability
+improvement:<plugin-name>:command-<name>-validation
+improvement:<plugin-name>:agent-<name>-performance
+```
+
+## Implementation
+
+This command runs the Python script:
+
+```bash
+python3 plugins/sanctum/scripts/update_plugin_registrations.py [plugin-name] [--dry-run] [--fix]
+```
+
+### Script Features
+
+- **Smart filtering**: Excludes module directories, __pycache__, test files, __init__.py
+- **Nested path handling**: Detects and reports stale nested registrations
+- **Alphabetical sorting**: Maintains consistent ordering in plugin.json
+- **Safe by default**: Dry-run mode unless --fix is specified
+- **Detailed reporting**: Shows missing and stale entries by category
 
 ## Discrepancy Types
 
@@ -75,6 +156,9 @@ This command complements:
 - `/update-docs` - Updates documentation after plugin changes
 - `/update-version` - Bumps versions after significant changes
 - `/validate-plugin` - Validates overall plugin structure
+- `/skill-review` - Analyzes skill performance metrics (invoked automatically in Phase 2)
+- `/skill-logs` - Surfaces recent failures (invoked automatically in Phase 2)
+- `/fix-workflow` - Implements improvements for identified issues
 
 ## When to Use
 
@@ -82,9 +166,46 @@ This command complements:
 - During version bumps to ensure completeness
 - As part of PR preparation (`/pr` workflow)
 - When capabilities-reference.md seems out of sync
+- **Periodically (weekly/monthly)** to catch performance degradation early
+- **After major refactors** to ensure no regressions in skill stability
+
+## Improvement Integration Loop
+
+This command creates a continuous improvement feedback loop:
+
+```
+┌─────────────────────────────────────────────────┐
+│ /update-plugins (Phase 1: Registration)        │
+│ - Sync disk ↔ plugin.json                       │
+└────────────────┬────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────────────┐
+│ /update-plugins (Phase 2: Analysis)            │
+│ - Check /skill-review metrics                   │
+│ - Query /skill-logs for failures                │
+│ - Surface improvement vectors                    │
+└────────────────┬────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────────────┐
+│ Create TodoWrite Items & Recommendations        │
+│ - Critical: Immediate action required           │
+│ - Moderate: Schedule for next sprint            │
+│ - Low: Add to backlog                           │
+└────────────────┬────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────────────┐
+│ /fix-workflow (Implement Improvements)          │
+│ - Fix unstable skills                           │
+│ - Improve command validation                    │
+│ - Optimize agent performance                    │
+└─────────────────────────────────────────────────┘
+```
 
 ## See Also
 
 - `abstract:validate-plugin-structure` - Full plugin validation
 - `/update-docs` - Documentation updates
 - `capabilities-reference.md` - Central capability listing
+- `/skill-review` - Performance analysis and recommendations
+- `/skill-logs` - Execution history and failure patterns
+- `/fix-workflow` - Workflow improvement retrospectives

@@ -1,9 +1,13 @@
 ---
 name: proof-enforcement
 description: |
-  Enforces proof-of-work discipline before completion claims.
+  Enforces proof-of-work discipline and the Iron Law before completion claims.
   IMPLEMENTATION STATUS: Enforced via SessionStart governance injection
   and Stop hook checklist (see actual implementation below).
+
+  The Iron Law: NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
+  This prevents "Cargo Cult TDD" where tests validate pre-conceived implementations
+  rather than driving design through uncertainty exploration.
 triggers:
   - SessionStart (governance injection)
   - Stop (completion checklist)
@@ -12,7 +16,7 @@ priority: critical
 
 # Proof Enforcement Hook
 
-**Purpose:** Prevent completion claims without evidence.
+**Purpose:** Prevent completion claims without evidence and enforce the Iron Law for TDD compliance.
 
 ## Implementation Status
 
@@ -158,7 +162,50 @@ Impact: Blocks recommended approach
 
 ---
 
-### Rule 4: Acceptance Criteria Defined
+### Rule 4: Iron Law TDD Compliance
+
+**If message claims implementation complete AND lacks TDD evidence:**
+
+❌ **BLOCK MESSAGE**
+
+**Check for Iron Law compliance:**
+- Is there evidence of a failing test BEFORE implementation?
+- Did the test drive the design, or was design pre-planned?
+- Are there RED/GREEN/REFACTOR commits in git history?
+
+**Evidence markers to look for:**
+- `proof:iron-law-red` - Failing test evidence
+- `proof:iron-law-green` - Minimal implementation evidence
+- `[E-TDD1]`, `[E-TDD2]`, `[E-TDD3]` - TDD phase evidence
+- Git commit references showing test-before-implementation
+
+**Enforcement:**
+```
+IRON LAW VIOLATION DETECTED
+
+Message claims implementation complete but lacks TDD evidence.
+
+Missing:
+- No evidence of failing test BEFORE implementation
+- No RED/GREEN/REFACTOR commit pattern
+- No coverage gate evidence
+
+REQUIRED:
+1. Show evidence of failing test written FIRST
+2. Show minimal implementation to pass test
+3. Show refactoring with tests still green
+4. Include coverage evidence (line/branch/mutation)
+
+If TDD was NOT followed:
+- Acknowledge the violation
+- Explain what rationalization led to it
+- Add comprehensive tests retroactively
+- Update configuration to prevent future violations
+```
+
+---
+
+### Rule 5: Acceptance Criteria Defined
 
 **If message claims "done" AND lacks acceptance criteria:**
 

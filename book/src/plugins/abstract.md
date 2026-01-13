@@ -16,7 +16,7 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
-| `skill-authoring` | TDD methodology for skill creation | Creating new skills with quality standards |
+| `skill-authoring` | TDD methodology with Iron Law enforcement | Creating new skills with quality standards |
 | `hook-authoring` | Security-first hook development | Building safe, effective hooks |
 | `modular-skills` | Modular design patterns | Breaking large skills into modules |
 | `skills-eval` | Skill quality assessment | Auditing skills for token efficiency |
@@ -114,6 +114,7 @@ Skill(abstract:skills-eval)
 2. **Fail Safe**: Default to allowing operations
 3. **Minimal Scope**: Request only needed permissions
 4. **Audit Trail**: Log decisions for review
+5. **Agent-Aware (2.1.2+)**: SessionStart hooks receive `agent_type` to customize context
 
 ## Superpowers Integration
 

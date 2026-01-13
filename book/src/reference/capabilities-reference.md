@@ -141,7 +141,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/feature-review` | imbue | Feature prioritization |
 | `/fix-issue` | sanctum | Fix GitHub issues |
 | `/fix-pr` | sanctum | Address PR review comments |
-| `/fix-workflow` | sanctum | Workflow retrospective |
+| `/fix-workflow` | sanctum | Workflow retrospective with automatic improvement context gathering |
 | `/full-review` | pensive | Unified code review |
 | `/garden` | memory-palace | Manage digital gardens |
 | `/git-catchup` | sanctum | Git repository catchup |
@@ -182,7 +182,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/update-all-plugins` | leyline | Update all plugins |
 | `/update-dependencies` | sanctum | Update project dependencies |
 | `/update-docs` | sanctum | Update documentation |
-| `/update-plugins` | sanctum | Audit and sync plugin.json registrations |
+| `/update-plugins` | sanctum | Audit plugin registrations + automatic performance analysis and improvement recommendations |
 | `/update-readme` | sanctum | Modernize README |
 | `/update-tests` | sanctum | Maintain tests |
 | `/update-tutorial` | sanctum | Update tutorial content |
@@ -234,6 +234,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
 | `pre-pr-scope-check.sh` | imbue | Manual | Scope check before PR |
 | `pre-skill-load.json` | abstract | Config | Pre-load validation |
+| `proof-enforcement.md` | imbue | Design | Iron Law TDD compliance enforcement |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
 | `session-start.sh` | conserve/imbue | SessionStart | Session initialization |
 | `session_complete_notify.py` | sanctum | Stop | Completion notification |

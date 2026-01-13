@@ -144,7 +144,26 @@ scope_guard_summary="## scope-guard Quick Reference
 |---------|--------|
 | 'This looks correct' | RUN IT |
 | 'Should work' | TEST IT |
-| 'Syntax valid' | FUNCTIONAL TEST |"
+| 'Syntax valid' | FUNCTIONAL TEST |
+
+## The Iron Law (TDD Compliance)
+
+\`\`\`
+NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
+\`\`\`
+
+**Self-Check Before Writing Code**:
+| Question | Wrong Answer | Action |
+|----------|--------------|--------|
+| Evidence of failure/need? | No | STOP - document failure first |
+| Testing pre-conceived impl? | Yes | STOP - let test DRIVE design |
+| Feeling design uncertainty? | No | STOP - uncertainty is GOOD |
+| Did test drive impl? | No | STOP - doing it backwards |
+
+**TDD TodoWrite Items**:
+- \`proof:iron-law-red\` - Failing test written FIRST
+- \`proof:iron-law-green\` - Minimal implementation passes
+- \`proof:iron-law-refactor\` - Improved without behavior change"
 
 # Escape outputs for JSON - uses jq when available, falls back to pure bash
 escape_for_json() {

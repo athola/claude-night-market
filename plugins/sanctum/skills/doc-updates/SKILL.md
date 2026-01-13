@@ -140,8 +140,10 @@ Load: `@modules/directory-style-rules.md`
 
 | Location | Style | Max Lines | Max Paragraph |
 |----------|-------|-----------|---------------|
-| docs/ | Strict reference | 500 | 4 sentences |
-| book/ | Technical book | 1000 | 8 sentences |
+| `docs/` | Strict reference | 500 | 4 sentences |
+| `book/` | Technical book | 1000 | 8 sentences |
+| `wiki/` | Wiki reference | 500 | 4 sentences |
+| `plugins/*/README.md` | Plugin summary | 300 | 4 sentences |
 | Other | Default to strict | 500 | 4 sentences |
 
 **Common checks:**

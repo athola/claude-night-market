@@ -1,6 +1,6 @@
 {
   "name": "parseltongue",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Modern Python development suite - testing, performance optimization, async patterns, and packaging",
   "commands": [
     "./commands/analyze-tests.md",
@@ -14,9 +14,10 @@
     "./skills/python-packaging"
   ],
   "agents": [
+    "./agents/python-linter.md",
+    "./agents/python-optimizer.md",
     "./agents/python-pro.md",
-    "./agents/python-tester.md",
-    "./agents/python-optimizer.md"
+    "./agents/python-tester.md"
   ],
   "keywords": [
     "python",

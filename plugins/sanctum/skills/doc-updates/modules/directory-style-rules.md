@@ -52,6 +52,40 @@ Target audience: Learners working through chapters.
 - Redundant explanations
 - Overly long code blocks without commentary
 
+### wiki/ - Wiki Reference Style
+
+Target audience: Internal team and contributors seeking context.
+
+| Rule | Limit | Rationale |
+|------|-------|-----------|
+| Max file length | 500 lines | Quick reference |
+| Max section length | 100 lines | Topic focus |
+| Max paragraph sentences | 4 | Scannable |
+| Max list items | 10 | Subgroup beyond this |
+| Max table rows | 15 | Paginate or summarize |
+
+**Required patterns:**
+- Same as docs/ strict style
+- Cross-links to related wiki pages
+- Architecture Decision Records (ADRs) in wiki/architecture/
+
+### plugins/*/README.md - Plugin Summary Style
+
+Target audience: Users evaluating or installing plugins.
+
+| Rule | Limit | Rationale |
+|------|-------|-----------|
+| Max file length | 300 lines | Concise overview |
+| Max section length | 50 lines | Quick scan |
+| Max paragraph sentences | 4 | Brief descriptions |
+| Max list items | 10 | Key features only |
+| Max table rows | 15 | Command/skill listing |
+
+**Required patterns:**
+- Installation instructions
+- Quick start example
+- Link to detailed docs in book/
+
 ### Shared Rules (All Locations)
 
 Apply everywhere regardless of directory:
@@ -120,6 +154,10 @@ def get_ruleset(file_path: str) -> RuleSet:
         return BOOK_RULES
     elif file_path.startswith('docs/'):
         return DOCS_RULES
+    elif file_path.startswith('wiki/'):
+        return WIKI_RULES
+    elif re.match(r'plugins/[^/]+/README\.md$', file_path):
+        return PLUGIN_README_RULES
     else:
         return DOCS_RULES  # Default to strict
 ```
