@@ -1,4 +1,4 @@
-"""Rule evaluation engine for hookify."""
+"""Evaluate hookify rules."""
 
 import re
 from dataclasses import dataclass

@@ -276,7 +276,7 @@ def estimate_tokens_from_gemini_command(command: str) -> int:
 
 
 def main() -> None:
-    """CLI entry point for quota tracker."""
+    """Run CLI entry point for quota tracker."""
     parser = argparse.ArgumentParser(description="Track Gemini CLI quota and usage")
     parser.add_argument(
         "--status",

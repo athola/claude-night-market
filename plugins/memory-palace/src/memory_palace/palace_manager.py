@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Provide core utilities for managing memory palace data structures.
+"""Manage memory palace data structures.
 
 Handle creation, storage, indexing, and retrieval of memory palaces.
 Support operations including palace creation, loading, saving, master index

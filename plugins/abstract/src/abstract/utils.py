@@ -33,7 +33,7 @@ __all__ = [
     # Analysis utilities
     "format_score",
     "get_skill_name",
-    "load_config_with_fallback",
+    "load_config_with_defaults",
     "load_skill_file",
     "parse_frontmatter_fields",
     "parse_yaml_frontmatter",
@@ -59,8 +59,8 @@ def find_project_root(start_path: Path) -> Path:
     return Path.cwd()
 
 
-def load_config_with_fallback(project_root: Path | None = None) -> AbstractConfig:
-    """Load configuration from YAML with fallback to defaults.
+def load_config_with_defaults(project_root: Path | None = None) -> AbstractConfig:
+    """Load configuration from YAML with defaults.
 
     Args:
         project_root: The root directory of the project. If None, auto-detects.

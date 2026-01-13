@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING
 # Import implementations
 from .errors import ErrorHandler
 from .frontmatter import FrontmatterProcessor
-from .utils import find_project_root, load_config_with_fallback
+from .utils import find_project_root, load_config_with_defaults
 
 if TYPE_CHECKING:
     from .config import AbstractConfig
@@ -173,7 +173,7 @@ class AbstractScript:
 
         """
         if self._config is None:
-            self._config = load_config_with_fallback()
+            self._config = load_config_with_defaults()
         return self._config
 
     @config.setter

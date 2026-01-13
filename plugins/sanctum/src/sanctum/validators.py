@@ -92,7 +92,7 @@ class PluginValidationResult:
 
 @dataclass
 class SanctumValidationReport:
-    """detailed validation report for sanctum plugin."""
+    """Detailed validation report for sanctum plugin."""
 
     is_valid: bool
     plugin_result: PluginValidationResult | None = None
@@ -700,12 +700,12 @@ class PluginValidator:
 
     @staticmethod
     def validate_directory(path: Path) -> PluginValidationResult:
-        """Alias for validate_plugin_dir."""
+        """Validate plugin directory (alias)."""
         return PluginValidator.validate_plugin_dir(path)
 
 
 class SanctumValidator:
-    """detailed validator for the sanctum plugin."""
+    """Detailed validator for the sanctum plugin."""
 
     @staticmethod
     def validate_plugin(path: Path) -> SanctumValidationReport:

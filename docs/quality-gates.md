@@ -15,103 +15,37 @@ A three-layer system to maintain code standards for new and existing code in the
 
 ## Overview
 
-The quality system operates on three layers:
-
-1. **Pre-Commit Hooks** (Layer 1) - Automatic enforcement on every commit
-2. **Manual/CI Scripts** (Layer 2) - Full checks on-demand
-3. **Documentation & Tracking** (Layer 3) - Audit baselines and progress tracking
+The quality system uses three layers to enforce standards: **Pre-Commit Hooks** (Layer 1) for automatic enforcement, **Manual/CI Scripts** (Layer 2) for full checks, and **Documentation & Tracking** (Layer 3) for auditing.
 
 ### Current Status
 
-**New Code: Fully Checked**
-- Every commit is checked for linting, type safety, tests, and security
-- Prevents new technical debt
-
-**Existing Code: Technical Debt Documented**
-- Baseline audits track existing issues
-- Action plans guide remediation
-- See [Code Quality Baseline Archive](./archive/2026-01/)
+*   **New Code**: Every commit undergoes linting, type checks, tests, and security scans.
+*   **Existing Code**: Baseline audits track legacy issues. See [Code Quality Baseline Archive](./archive/2026-01/).
 
 ## The Three Layers
 
-### Layer 1: Fast Global Checks (Runs on All Files)
+### Layer 1: Fast Global Checks
+Runs on all files. **Ruff** handles linting and formatting (~50ms, auto-fixes enabled). **Mypy** checks type annotations across all Python files (~200ms).
 
-**Ruff** - Fast Python linter and formatter
-- Checks: PEP 8, common bugs, code smells
-- Speed: ~50ms
-- Auto-fixes: Yes (--fix flag enabled)
-
-**Mypy** - Static type checker
-- Checks: Type annotations and type safety
-- Speed: ~200ms
-- Scope: All Python files in plugins/ and scripts/
-
-### Layer 2: Plugin-Specific Checks (Runs on Changed Plugins Only)
-
-**Lint Changed Plugins** (`run-plugin-lint.sh --changed`)
-- Uses plugin's Makefile lint target or ruff
-- Runs plugin-specific linting
-- Speed: ~2-5s per plugin
-
-**Type Check Changed Plugins** (`run-plugin-typecheck.sh --changed`)
-- Uses plugin's Makefile typecheck target or mypy
-- Enforces strict type checking per plugin configuration
-- Speed: ~3-8s per plugin
-
-**Test Changed Plugins** (`run-plugin-tests.sh --changed`)
-- Runs test suite for changed plugins
-- Blocks commit if any tests fail
-- Speed: ~5-15s per plugin
+### Layer 2: Plugin-Specific Checks
+Runs only on changed plugins. Scripts like `run-plugin-lint.sh`, `run-plugin-typecheck.sh`, and `run-plugin-tests.sh` execute plugin-specific targets. Tests block commits on failure.
 
 ### Layer 3: Validation Hooks
-
-- Plugin structure validation
-- Skill validation (abstract, imbue)
-- Context optimization checks
-- Security scanning (bandit)
+Validates plugin structure, skill frontmatter (abstract, imbue), context optimization, and security (bandit).
 
 ## Pre-Commit Hooks
 
 ### Hook Execution Order
 
-When you commit, hooks run in this order:
-
-```
-1. ✓ File Validation (whitespace, YAML, TOML, JSON syntax)
-2. ✓ Security Scanning (bandit - checks for security issues)
-3. ✓ Global Linting (ruff - fast, all Python files)
-4. ✓ Global Type Checking (mypy - all Python files)
-5. ✓ Plugin-Specific Linting (changed plugins only)
-6. ✓ Plugin-Specific Type Checking (changed plugins only)
-7. ✓ Plugin Tests (changed plugins only)
-8. ✓ Plugin Structure Validation
-9. ✓ Skill Validation
-10. ✓ Context Optimization
-
-All must pass for commit to succeed.
-```
+Commits trigger the following sequence: File validation (syntax), Security scanning (bandit), Global Linting (ruff), Global Type Checking (mypy), Plugin-Specific checks (lint, typecheck, tests), and finally Structure/Skill/Context validation. All checks must pass.
 
 ### Plugin Validation Hooks
 
-```yaml
-validate-abstract-skills     # Validates skill frontmatter and structure
-validate-imbue-skills         # Validates Imbue skill patterns
-validate-*-plugin             # Structure validation per plugin
-check-context-optimization    # Context window optimization checks
-```
-
-Scripts live in `plugins/abstract/scripts/`:
-- `abstract_validator.py` - Skill validation
-- `validate-plugin.py` - Plugin structure validation
-- `context_optimizer.py` - Context optimization analysis
+The `plugins/abstract/scripts/` directory contains validators: `abstract_validator.py` (skills), `validate-plugin.py` (structure), and `context_optimizer.py`.
 
 ### Standard Quality Checks
 
-- `trailing-whitespace`, `end-of-file-fixer` - Formatting
-- `check-yaml`, `check-toml`, `check-json` - Config validation
-- `bandit` - Security scanning
-- `ruff`, `ruff-format` - Linting and formatting
-- `mypy` - Type checking
+Standard hooks handle formatting (`trailing-whitespace`, `end-of-file-fixer`), configuration validation (`check-yaml`, `check-toml`, `check-json`), security (`bandit`), linting (`ruff`), and type checking (`mypy`).
 
 ## Manual Quality Scripts
 

@@ -1,10 +1,10 @@
 # Attune
 
-Project development plugin for Claude Code. Supports ideation, specification, architectural planning, project initialization, and implementation.
+Project development plugin for Claude Code. Support ideation, specification, architectural planning, project initialization, and implementation.
 
 ## Overview
 
-Attune standardizes project development:
+Standardize project development:
 
 1. **Brainstorm**: Ideate and explore problem space.
 2. **Specify**: Create detailed specifications.

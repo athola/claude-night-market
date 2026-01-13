@@ -1,4 +1,4 @@
-"""Pensive - Reflective code review plugin with specialized analysis skills."""
+"""Expose Pensive code review skills."""
 
 from pensive.skills import (
     ApiReviewSkill,

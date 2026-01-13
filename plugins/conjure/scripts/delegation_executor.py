@@ -21,7 +21,7 @@ try:
 except ImportError:  # pragma: no cover
 
     def estimate_tokens(files: list[str], prompt: str = "") -> int:
-        """Fallback estimator when leyline isn't installed."""
+        """Estimate tokens as fallback when leyline isn't installed."""
         total = len(prompt) // 4
 
         skip_dirs = {

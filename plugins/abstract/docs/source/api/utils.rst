@@ -15,7 +15,7 @@ File Operations
 
 .. autofunction:: abstract.utils.find_project_root
 
-.. autofunction:: abstract.utils.load_config_with_fallback
+.. autofunction:: abstract.utils.load_config_with_defaults
 
 Frontmatter Operations
 ~~~~~~~~~~~~~~~~~~~~~

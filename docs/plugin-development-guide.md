@@ -18,45 +18,35 @@ Plugin Structure
 ```
 
 ### Design Principles
-Plugins should prioritize predictable behavior over "smart" guessing. Consistent patterns and standard tooling (ruff, mypy) reduce maintenance overhead. We aim for interoperability by strictly defining public APIs and avoiding hidden state.
+Prioritize predictable behavior over guessing. Use consistent patterns and standard tooling (ruff, mypy) to reduce maintenance. Define public APIs strictly to ensure interoperability and avoid hidden state.
 
 ## Success Metrics
 
-Production-ready plugins meet these quality gates. Code coverage must exceed 80%, confirmed by `pytest-cov`. All Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must return zero high-severity issues. Functionally, the documentation must include valid API references and copy-pasteable examples. Performance is capped at a 15K token budget for typical operations.
+Plugins must meet these quality gates for production release. Code coverage must exceed 80%, verified by `pytest-cov`. Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must find zero high-severity issues. Documentation must include valid API references and copy-pasteable examples. Typical operations must stay within a 15K token budget.
 
-Good user experience requires discoverability and clear error messages. Plugins should fail gracefully with specific error details rather than generic "something went wrong" messages. Integration requires that plugins follow the versioning scheme (currently 1.1.0 alignment) and do not break existing workflows.
+Users rely on discoverability and clear error messages. Plugins should fail gracefully with specific error details, avoiding generic "something went wrong" messages. Plugins must follow the versioning scheme (currently 1.1.0 alignment) and preserve existing workflows.
 
 ## Development Path
 
 ### Phase 1: Foundation
-Begin by installing `uv` and `pre-commit` to set up your environment. Review the `plugins/abstract` structure to understand the core patterns, then initialize your plugin using `make create-plugin` and examine the generated files.
+Install `uv` and `pre-commit`. Review the `plugins/abstract` structure for core patterns. Initialize your plugin with `make create-plugin` and examine the generated files.
 
 ### Phase 2: Expansion
-Implement your core logic by adding skills in `skills/` and commands in `commands/`. Enhance functionality with automation hooks and ensure reliability by adding comprehensive tests in the `tests/` directory.
+Implement core logic in `skills/` and commands in `commands/`. Add automation hooks. Ensure reliability with comprehensive tests in `tests/`.
 
 ### Phase 3: Production
-Prepare for release by profiling token usage and running security scans. Document distinct features in `README.md` before submitting a Pull Request to the marketplace.
+Profile token usage and run security scans. Document distinct features in `README.md`. Submit a Pull Request.
 
 ### Phase 4: Maintenance
-Maintain the plugin by monitoring usage logs for errors and fixing reported issues. Add new features as needed and keep dependencies up to date using `uv`.
+Monitor usage logs for errors. Fix reported issues. Update dependencies using `uv`.
 
 ## Essential Tools
 
-### Development
-- **Python 3.10+**: Primary language.
-- **uv**: Package manager.
-- **Git**: Version control.
-- **VS Code/PyCharm**: IDE (recommended).
+**Development**: Use **Python 3.10+** managed by **uv**. Version control with **Git**. **VS Code** or **PyCharm** are recommended IDEs.
 
-### Quality Assurance
-- **pytest**: Testing framework.
-- **ruff**: Linting and formatting.
-- **mypy**: Type checking.
-- **bandit**: Security scanning.
+**Quality Assurance**: Tests run on **pytest**. Linting and formatting use **ruff**. **mypy** handles type checking, and **bandit** scans for security issues.
 
-### Automation
-- **pre-commit**: Git hooks.
-- **GitHub Actions**: CI/CD.
+**Automation**: **pre-commit** manages git hooks, while **GitHub Actions** handles CI/CD.
 
 ## Checklists
 

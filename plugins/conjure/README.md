@@ -2,7 +2,7 @@
 
 Delegate tasks to external models from Claude Code. Delegate analysis, bulk work, and summarization to services like Gemini or Qwen.
 
-Tracks quotas, logs usage, and suggests delegation for large tasks.
+Track quotas, log usage, and suggest delegation for large tasks.
 
 ## Installation
 

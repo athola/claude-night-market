@@ -327,7 +327,7 @@ def build_cli_parser() -> argparse.ArgumentParser:
 
 
 def run_cli(argv: list[str] | None = None) -> int:
-    """Entry point used by scripts and tests."""
+    """Execute the CLI entry point."""
     parser = build_cli_parser()
     args = parser.parse_args(argv)
 

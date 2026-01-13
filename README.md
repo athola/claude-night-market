@@ -2,27 +2,24 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-Claude Night Market extends Claude Code with skills, commands, and agents for git workflows, code review, spec-driven development, and architecture planning.
+This repository adds 15 plugins to Claude Code for git operations, code review, spec-driven development, and issue management. These plugins work independently but share a common set of patterns for testing and debugging.
 
-> **Note:** These plugins function independently but use [superpowers](https://github.com/obra/superpowers) for TDD and debugging.
+## Key Features
 
-> **Claude Code 2.1.2+:** This marketplace leverages agent-aware hooks that customize context based on agent type (SessionStart hooks receive `agent_type` field). Earlier features include skill hot-reload, frontmatter hooks, `context: fork`, and wildcard permissions. See [Plugin Development Guide](docs/plugin-development-guide.md#claude-code-210-features) for details.
+*   **Agent-Aware Context:** Hooks in version 2.1.2+ adapt the context based on the active agent.
+*   **Skill Metrics:** The `pensive` plugin tracks skill usage and stability, allowing for performance analysis via `/skill-review`.
+*   **Proof-of-Work TDD:** The `imbue` plugin requires a failing test before allowing implementation code, enforcing test-driven development.
+*   **Self-Correction:** The `/update-plugins` command analyzes skill stability to suggest improvements, while `/fix-workflow` uses execution history to propose fixes.
 
-> **Skill Observability:** Track skill execution with continual learning metrics. memory-palace stores execution memories automatically, while pensive provides `/skill-review` for analyzing metrics and stability gaps. See [Skill Observability Guide](docs/guides/skill-observability-guide.md) for details.
+## Workflow Improvements
 
-> **Iron Law TDD:** The imbue plugin enforces "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" through proof-of-work validation. See [proof-of-work skill](plugins/imbue/skills/proof-of-work/SKILL.md) for details.
+The Night Market replaces manual or generic steps with specialized commands:
 
-> **Continuous Improvement:** The ecosystem learns from its own performance. `/update-plugins` automatically analyzes skill stability and recommends improvements. `/fix-workflow` gathers context from execution history before retrospectives. Improvements are stored and referenced in future runs, creating a self-improving feedback loop.
-
-## Comparison
-
-| Standard Workflow | With Night Market |
-|-------------------|-------------------|
-| Generic git commands | `/prepare-pr` - PR preparation with scope checking |
-| Manual code review | `/full-review` - Multi-discipline review orchestration |
-| Ad-hoc specifications | `/speckit-specify` - Spec-driven development workflow |
-| Context lost between sessions | `/catchup` - Context recovery |
-| Manual setup | `/attune:init` - Project scaffolding with best practices |
+*   **Git:** Instead of running raw git commands, `/prepare-pr` handles branch checks and scope validation.
+*   **Reviews:** `/full-review` runs a multi-step audit (syntax, logic, security) rather than relying on manual inspection.
+*   **Specs:** `/speckit-specify` guides you through creating a detailed specification before coding starts.
+*   **Context:** `/catchup` summarizes recent changes to restore context after a break.
+*   **Setup:** `/attune:init` generates project scaffolding based on detected project types.
 
 ## Quick Start
 
@@ -92,158 +89,98 @@ flowchart TB
 
 ### Highlights
 
-| Plugin | What It Does | Key Commands |
-|--------|--------------|--------------|
-| **sanctum** | Git workflows, PR prep, doc updates | `/prepare-pr`, `/commit-msg`, `/update-docs`, `/update-plugins` |
-| **pensive** | Code review, shell auditing, skill metrics | `/full-review`, `/shell-review`, `/skill-review` |
-| **spec-kit** | Specification-driven development | `/speckit-specify`, `/speckit-plan` |
-| **minister** | GitHub issue management | `/create-issue`, `/close-issue`, `/status` |
-| **conserve** | Codebase health and bloat detection | `/bloat-scan`, `/unbloat` (saved 70k+ tokens) |
-| **attune** | Project scaffolding | `/attune:init`, `/attune:brainstorm` |
-| **parseltongue** | Python development tools | `/analyze-tests`, `/run-profiler` |
-| **archetypes** | Architecture paradigm selection | 13 architecture guides |
-| **memory-palace** | Knowledge management | `/palace`, `/garden`, `/skill-logs` |
-| **hookify** | Behavioral rules without config | `/hookify`, `/hookify:list` |
+The ecosystem covers several domains:
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for all 109 skills, 95 commands, and 35 agents.
+*   **sanctum** handles git operations (`/prepare-pr`, `/commit-msg`) and documentation updates.
+*   **pensive** manages code reviews (`/full-review`) and audits shell usage.
+*   **spec-kit** defines requirements (`/speckit-specify`) before implementation.
+*   **minister** interfaces with GitHub issues (`/create-issue`, `/close-issue`).
+*   **conserve** detects and reduces codebase bloat (`/bloat-scan`).
+*   **attune** scaffolds new projects (`/attune:init`).
+*   **parseltongue** provides Python-specific tools like test analysis (`/analyze-tests`).
+*   **archetypes** offers architecture guides.
+*   **memory-palace** indexes project knowledge (`/palace`, `/garden`).
+*   **hookify** applies behavioral rules without configuration.
+
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 109 skills, 95 commands, and 35 agents.
 
 ## Audience
 
-The Night Market helps developers who want automated workflows and teams standardizing Claude Code practices. Plugin authors can build on standard patterns, while maintainers benefit from automated PR preparation and scaffolding.
+This marketplace is for developers who want to automate repetitive CLI tasks and enforce consistency in their Claude Code sessions. It is also useful for teams creating a shared standard for LLM interactions.
 
 ## Common Workflows
 
-See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) for when and how to use commands, skills, and agents:
+See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) for execution details.
 
-| Workflow | What to Use | Example |
+| Workflow | Command | Example |
 |----------|-------------|---------|
 | Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
 | Review a PR | `/full-review` | Run multi-discipline code review |
 | Fix PR feedback | `/fix-pr` | Address review comments |
-| Prepare a PR | `/prepare-pr` + `/sanctum:update-*` | Quality gates before merge |
-| Create GitHub issue | `/create-issue` | Interactive issue creation with templates |
-| Catch up on changes | `/catchup` | Context recovery after break |
+| Prepare a PR | `/prepare-pr` | Quality gates before merge |
+| Create GitHub issue | `/create-issue` | Interactive issue creation |
+| Catch up on changes | `/catchup` | Context recovery |
 | Write specifications | `/speckit-specify` | Spec-driven development |
-| Debug issues | `Skill(superpowers:debugging)` | Systematic root cause analysis |
-| Improve plugins | `/update-plugins`, `/fix-workflow` | Automatic improvement recommendations |
+| Debug issues | `Skill(superpowers:debugging)` | Root cause analysis |
+| Improve plugins | `/update-plugins` | Update based on stability metrics |
 
 ## Demos
 
-### Skills Showcase Tutorial
+### Skills Showcase
 
 ![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
 
-**Browse 109 skills** across all plugins, examine their structure, and combine them into workflows.
+This 90-second tutorial demonstrates how to browse skills, examine their frontmatter, and chain them into workflows.
 
-**What you'll learn:**
-- Browse and discover skills across 15 plugins
-- Examine skill frontmatter, metadata, and structure
-- Use `abstract:plugin-validator` to check quality
-- Chain skills into complex workflows
-
-[→ Full Tutorial](docs/tutorials/skills-showcase.md) (90 seconds, beginner-friendly)
+[→ Full Tutorial](docs/tutorials/skills-showcase.md)
 
 ---
 
 ## Documentation
 
-| Resource | Description |
-|----------|-------------|
-| [**Getting Started**](book/src/getting-started/README.md) | Installation and first steps |
-| [**Common Workflows**](book/src/getting-started/common-workflows.md) | When to use commands/skills/agents |
-| [**Quick Start Guide**](book/src/getting-started/quick-start.md) | Common workflow recipes |
-| [**Plugin Catalog**](book/src/plugins/README.md) | Detailed plugin documentation |
-| [**Capabilities Reference**](book/src/reference/capabilities-reference.md) | Complete skill/command listing |
-| [**Tutorials**](book/src/tutorials/README.md) | Step-by-step guides |
-| [**Advanced Guides**](docs/guides/README.md) | In-depth guides for complex topics |
-| [**Skills Separation Guide**](docs/guides/development-vs-runtime-skills-separation.md) | Separating dev skills from runtime agent skills ([Quick Ref](docs/guides/skills-separation-quickref.md)) |
-| [**Quality Gates**](docs/quality-gates.md) | Code quality system and pre-commit hooks |
-| [**Error Handling**](docs/guides/error-handling-guide.md) | Error classification and recovery patterns |
-| [**Optimization Patterns**](docs/optimization-patterns.md) | Bloat reduction methodology (70k+ tokens saved) |
-| [**Data Extraction Pattern**](docs/guides/data-extraction-pattern.md) | Separating embedded data into YAML |
-| [**Documentation Standards**](docs/guides/documentation-standards.md) | Line limits and debloating methodology |
-| [**Testing Guide**](docs/testing-guide.md) | Testing patterns and troubleshooting |
-| [**Performance Guide**](docs/performance/README.md) | Hook optimization and benchmarking |
-| [**LSP Integration**](docs/guides/lsp-native-support.md) | Language Server Protocol setup and verification |
+*   [**Getting Started**](book/src/getting-started/README.md): Installation and setup.
+*   [**Plugin Catalog**](book/src/plugins/README.md): Documentation for each plugin.
+*   [**Capabilities Reference**](book/src/reference/capabilities-reference.md): List of all skills and commands.
+*   [**Tutorials**](book/src/tutorials/README.md): Guides for specific tasks.
+*   [**Advanced Guides**](docs/guides/README.md): Deep dives into architecture and patterns.
 
 ## LSP Integration
 
-### LSP Support (Recommended)
+LSP (Language Server Protocol) support is available in Claude Code v2.0.74+. It enables faster symbol search (~50ms) compared to text search (~45s).
 
-LSP (Language Server Protocol) enables **symbol-aware search**, which is faster than text search. Available in Claude Code v2.0.74+.
+**Setup:**
 
-**Setup (Settings-Level Configuration):**
+1.  Enable LSP in `~/.claude/settings.json`:
+    ```json
+    { "env": { "ENABLE_LSP_TOOL": "1" } }
+    ```
+2.  Install language servers (e.g., `npm install -g pyright`).
+3.  Install LSP plugins:
+    ```bash
+    /plugin install pyright-lsp@claude-plugins-official
+    ```
 
-Add to `~/.claude/settings.json`:
-
-```json
-{
-  "env": {
-    "ENABLE_LSP_TOOL": "1"
-  }
-}
-```
-
-Then install language servers:
-
-```bash
-# Install language servers
-npm install -g pyright typescript-language-server typescript
-rustup component add rust-analyzer  # For Rust projects
-
-# Install Claude Code LSP plugins (official)
-/plugin install pyright-lsp@claude-plugins-official       # Python
-/plugin install typescript-lsp@claude-plugins-official    # TypeScript/JavaScript
-/plugin install rust-analyzer-lsp@claude-plugins-official # Rust
-```
-
-**Verification:**
-
-```bash
-# Run diagnostic script
-./scripts/lsp-diagnostic.sh
-
-# Or manually verify
-claude
-> "Find all references to AsyncAnalysisSkill"  # Triggers LSP
-```
-
-**Benefits:**
-LSP finds references in ~50ms (vs ~45s for text search), uses fewer tokens, and is more accurate.
-
-See [LSP Native Support Guide](docs/guides/lsp-native-support.md) for troubleshooting and advanced usage.
+See [LSP Native Support Guide](docs/guides/lsp-native-support.md) for details.
 
 ## Extending Night Market
 
-To build your own plugins:
+To create a new plugin:
 
 ```bash
-# Scaffold a new plugin
 make create-plugin NAME=my-plugin
-
-# Validate structure
 make validate
-
-# Run quality checks
 make lint && make test
-
-# Or use quality scripts directly
-./scripts/run-plugin-lint.sh my-plugin
-./scripts/run-plugin-tests.sh my-plugin
-./scripts/check-all-quality.sh --report
 ```
 
-See [Plugin Development Guide](docs/plugin-development-guide.md) for patterns and contribution guidelines, or [Quality Gates](docs/quality-gates.md) for the three-layer quality system.
+Refer to the [Plugin Development Guide](docs/plugin-development-guide.md) for architectural patterns.
 
 ## System Prompt Budget
 
-The ecosystem operates within Claude Code's 15K character budget. All 239 capabilities (109 skills, 95 commands, 35 agents) load without configuration. Current usage is approximately 14,800 characters, enforced by a pre-commit hook.
+The ecosystem adds approximately 14,800 characters to the system prompt, staying within the 15K character budget. A pre-commit hook enforces this limit.
 
-See [Budget Optimization](docs/budget-optimization-dec-2025.md) for details.
+## Design
 
-## Philosophy
-
-Night Market plugins are modular with shallow dependencies. They load progressively, so you only pay for what you use. Development prioritizes specifications before implementation.
+Plugins are modular and have minimal dependencies. They load progressively to minimize token usage. The workflow emphasizes writing specifications before writing code.
 
 ## Contributing
 

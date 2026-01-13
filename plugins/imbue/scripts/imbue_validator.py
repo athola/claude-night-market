@@ -198,7 +198,7 @@ class ImbueValidator:
 
 
 def main() -> None:
-    """CLI entry point."""
+    """Run CLI entry point."""
     parser = argparse.ArgumentParser(
         description="Validate imbue plugin review workflow skills",
     )
