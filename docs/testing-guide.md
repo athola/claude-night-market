@@ -327,6 +327,45 @@ See [Quality Gates - Troubleshooting](./quality-gates.md#troubleshooting) for tr
    \`\`\`
 4. **Stage your fixes** and commit again
 
+## Iron Law TDD Enforcement
+
+The ecosystem enforces a strict TDD discipline called the **Iron Law**:
+
+```
+NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
+```
+
+This prevents "Cargo Cult TDD" where tests validate pre-conceived implementations rather than driving design discovery.
+
+### Self-Check Protocol
+
+Before writing ANY implementation code:
+
+| Thought Pattern | Violation | Required Action |
+|-----------------|-----------|-----------------|
+| "Let me plan the implementation first" | Skipping RED phase | Write failing test FIRST |
+| "I know what tests we need" | Pre-conceived implementation | Document failure, THEN design |
+| "This will work because..." | Assumption without evidence | TEST IT, capture evidence |
+| "The design is straightforward" | Skipping uncertainty | Let design EMERGE from tests |
+
+### TodoWrite Items for TDD Compliance
+
+```
+proof:iron-law-red     - Failing test written and documented
+proof:iron-law-green   - Minimal code to pass test
+proof:iron-law-refactor - Code improved with tests green
+proof:iron-law-coverage - Coverage gates verified
+```
+
+### Enforcement Mechanisms
+
+1. **SessionStart hooks** inject Iron Law reminders at session start
+2. **proof-enforcement.md** blocks completion claims lacking TDD evidence
+3. **Git history analysis** detects violations in commit patterns
+4. **Pre-commit hooks** can block implementation-only commits
+
+See `imbue:proof-of-work` skill and `iron-law-enforcement.md` module for full details.
+
 ## Best Practices
 
 ### For Test Development
@@ -356,6 +395,11 @@ See [Quality Gates - Troubleshooting](./quality-gates.md#troubleshooting) for tr
 2. **Keep tests isolated** (no shared state)
 3. **Document test requirements**
 4. **Review test failures promptly**
+5. **Test scripts and utilities**
+   - All scripts in `scripts/` directories should have corresponding tests
+   - Use `importlib.util` to load scripts as modules for testing
+   - Example: `sanctum/tests/test_update_versions.py` tests `sanctum/scripts/update_versions.py`
+   - Include edge cases: nested directories, excluded paths, different file formats
 
 ### For Daily Development
 

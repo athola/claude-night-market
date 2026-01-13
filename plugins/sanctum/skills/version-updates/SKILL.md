@@ -45,13 +45,23 @@ Run `Skill(sanctum:git-workspace-review)` first to capture current changes.
 - validate `Skill(sanctum:git-workspace-review)` has already captured the repository status.
 
 ## Step 2: Identify Targets (`target-files`)
-- List configuration files that store the version (e.g., `Cargo.toml`, `package.json`, `pyproject.toml`).
+- Find ALL configuration files that store versions using recursive search:
+  - Root level: `Cargo.toml`, `package.json`, `pyproject.toml`
+  - **Nested directories**: Use glob to find `*/pyproject.toml`, `*/Cargo.toml`, `*/package.json`
+  - **Example**: `plugins/memory-palace/hooks/pyproject.toml` must be included
+  - Exclude virtual environments (`.venv`, `node_modules`, `target/`) using grep -v
 - Include changelog and README references that mention the version.
+- Use: `find plugins -name "pyproject.toml" -o -name "Cargo.toml" | grep -v ".venv"`
 
 ## Step 3: Update Versions (`version-set`)
-- Update each target file with the new version.
-- For semantic versions, follow `MAJOR.MINOR.PATCH` or the specified format.
-- If the project supports multiple packages, document each update.
+- **Automated approach**: Use `plugins/sanctum/scripts/update_versions.py <version>` to update all version files
+  - Supports pyproject.toml, Cargo.toml, package.json
+  - Automatically excludes virtual environments
+  - Finds nested version files (e.g., `plugins/memory-palace/hooks/pyproject.toml`)
+  - Use `--dry-run` flag first to preview changes
+- **Manual approach**: Update each target file with the new version
+  - For semantic versions, follow `MAJOR.MINOR.PATCH` or the specified format
+  - If the project supports multiple packages, document each update
 
 ## Step 4: Update Documentation (`docs-updated`)
 - Add or update changelog entries with today's date.

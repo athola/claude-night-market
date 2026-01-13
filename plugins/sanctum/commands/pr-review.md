@@ -100,10 +100,33 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 3. **Code Analysis** - Deep technical review
 4. **GitHub Review** - Post review comments to PR (MANDATORY)
 5. **Test Plan** - Post verification checklist to PR (MANDATORY)
-6. **PR Description** - Update PR body with review summary (MANDATORY)
+6. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.
+
+### Verification Checklist
+
+After completing `/pr-review`, verify all mandatory outputs:
+
+```bash
+# Set PR number
+PR_NUM=123  # Replace with actual PR number
+
+# 1. Verify review comment exists
+gh pr view $PR_NUM --json comments --jq '[.comments[].body | contains("PR Review")] | any'
+# Expected: true
+
+# 2. Verify test plan exists
+gh pr view $PR_NUM --json comments --jq '[.comments[].body | ascii_downcase | contains("test plan")] | any'
+# Expected: true
+
+# 3. Verify PR description is not empty
+gh pr view $PR_NUM --json body --jq '.body | length > 0'
+# Expected: true
+```
+
+**If any check returns `false`, the review is INCOMPLETE.**
 
 **Full workflow details**: See [Workflow Details](pr-review/modules/review-workflow.md)
 

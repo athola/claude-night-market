@@ -92,6 +92,13 @@ Skills are not essays or documentation—they are **behavioral interventions** d
 
 Every skill must begin with documented evidence of Claude failing without it. This validates you're solving real problems, not building imaginary solutions.
 
+This principle extends to ALL implementation work:
+- **Skills**: No skill without documented Claude failure
+- **Code**: No implementation without failing test
+- **Claims**: No completion claim without evidence
+
+For comprehensive enforcement patterns (adversarial verification, git history analysis, pre-commit hooks, coverage gates), see `imbue:proof-of-work` and its [iron-law-enforcement.md](../../../imbue/skills/proof-of-work/modules/iron-law-enforcement.md) module.
+
 ## Skill Types
 
 ### 1. Technique Skills

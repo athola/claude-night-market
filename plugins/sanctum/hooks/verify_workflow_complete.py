@@ -14,13 +14,22 @@ REMINDER = """
 ## Post-Implementation Checklist Reminder
 
 If you just completed a feature implementation or plan execution,
-verify you ran these commands:
+verify these were done:
 
+### PROOF-OF-WORK (Verify First!)
+- [ ] Invoked `Skill(imbue:proof-of-work)`
+- [ ] Created TodoWrite items: `proof:solution-tested`, `proof:evidence-captured`
+- [ ] Captured evidence with `[E1]`, `[E2]` references
+- [ ] Ran functional tests (not just syntax validation)
+- [ ] Reported status: ✅ PASS / ❌ FAIL
+
+### Documentation Updates
 - [ ] `/sanctum:update-docs`
 - [ ] `/abstract:make-dogfood`
 - [ ] `/sanctum:update-readme`
 - [ ] `/sanctum:update-tests`
 
+⚠️ If proof-of-work was skipped, implementation may have untested assumptions!
 If not applicable (simple fix, research, etc.), disregard this reminder.
 """.strip()
 

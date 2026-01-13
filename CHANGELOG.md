@@ -5,6 +5,177 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.5] - 2026-01-11
+
+### Added - Continuous Improvement Integration (2026-01-12)
+
+- **/update-plugins Phase 2: Automatic improvement analysis** - Plugin maintenance now includes performance review
+  - Invokes `/skill-review` to identify unstable skills (stability_gap > 0.3)
+  - Queries `/skill-logs` for recent failures and patterns
+  - Checks git history for recurring fixes (instability signals)
+  - Generates prioritized improvement recommendations (Critical/Moderate/Low)
+  - Creates TodoWrite items for actionable improvements
+  - **No flags required** - improvement analysis runs by default after registration audit
+
+- **/fix-workflow Phase 0: Improvement context gathering** - Retrospectives now leverage historical data
+  - Queries skill execution metrics before starting analysis
+  - Searches memory-palace review-chamber for related lessons
+  - Analyzes git history for recurring patterns
+  - Cross-references current friction with known failure modes
+  - Prioritizes fixes for high stability_gap components
+  - **Automatic by default** - no flags required
+
+- **sanctum:workflow-improvement skill enhancements** - Step 0 context gathering
+  - New TodoWrite item: `fix-workflow:context-gathered`
+  - New TodoWrite item: `fix-workflow:lesson-stored`
+  - Checks `/skill-logs` for recent failures in workflow components
+  - Queries memory-palace for workflow-related lessons
+  - Analyzes git commit patterns for recurring issues
+  - Step 7: Close the loop by storing lessons for future reference
+  - Metrics comparison template for before/after validation
+
+- **Continuous improvement feedback loop** - Self-improving plugin ecosystem
+  - `/update-plugins` identifies improvement opportunities
+  - `/fix-workflow` implements improvements with historical context
+  - Lessons stored in git history and memory-palace
+  - Future runs reference past improvements
+  - Reduces recurring issues through pattern learning
+
+- **imbue:proof-of-work integration with improvement workflows** - Validation for continuous improvement
+  - New section: "With Improvement Workflows (`/update-plugins`, `/fix-workflow`)"
+  - `/update-plugins` Phase 2 validation examples with evidence format
+  - `/fix-workflow` Phase 0 validation examples for data source verification
+  - `/fix-workflow` Step 7 validation for measuring improvement impact
+  - Updated triggers: "improvement validated", "workflow optimized", "performance improved"
+  - Ensures improvement claims are backed by quantitative metrics
+
+- **Test coverage for continuous improvement integration** - Comprehensive test suite
+  - New test file: `plugins/sanctum/tests/test_continuous_improvement.py`
+  - 8 test cases covering all integration points
+  - Tests Phase 2 and Phase 0 documentation
+  - Tests workflow-improvement skill enhancements
+  - Tests proof-of-work integration
+  - Tests CHANGELOG and documentation completeness
+  - Tests infrastructure accessibility
+  - All tests passing with 100% success rate
+
+### Added - Claude Code 2.1.4 Compatibility (2026-01-11)
+
+- **`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` environment variable** - Documented for CI/CD use cases
+  - Disables auto-backgrounding and `Ctrl+B` shortcut
+  - Useful for CI/CD pipelines, debugging, deterministic test environments
+  - Does not affect Python subprocess spawning or asyncio tasks in hooks
+
+### Added - Claude Code 2.1.3 Compatibility (2026-01-11)
+
+- **Compatibility documentation for Claude Code 2.1.3** - Full documentation of new features and fixes
+  - **Skills/Commands Merge**: Skills now appear in `/` menu alongside commands (no behavior change)
+  - **Subagent Model Fix**: Model specified in agent frontmatter now respected during context compaction
+  - **Web Search Fix**: Subagent web search now uses correct model
+  - **Hook Timeout**: Extended from 60 seconds to 10 minutes (enables CI/CD and complex validation)
+  - **Permission Diagnostics**: `/doctor` now detects unreachable permission rules
+  - **Plan File Fix**: Fresh plan files after `/clear` commands
+  - **ExFAT Compatibility**: Fixed skill duplicate detection on large inode filesystems
+
+- **Updated hook-authoring skill** - Timeout guidance updated for 10-minute limit
+  - Best practice: Aim for < 30s for typical hooks
+  - Extended time available for CI/CD integration, complex validation, external APIs
+
+- **Updated compatibility reference** - Version matrix includes 2.1.3+ as recommended
+  - All 29 ecosystem agents verified to have `model:` specification (benefits from subagent fix)
+  - No breaking changes - existing plugin.json structure remains valid
+
+### Added - Claude Code 2.1.2 Compatibility (2026-01-11)
+
+- **Agent-aware SessionStart hooks** - Hooks now leverage `agent_type` input field
+  - `sanctum/hooks/post_implementation_policy.py` - Skips governance for review agents
+  - `conserve/hooks/session-start.sh` - Abbreviated context for lightweight agents
+  - `imbue/hooks/session-start.sh` - Minimal scope-guard for review/optimization agents
+  - Pattern: Read JSON from stdin, check `agent_type`, customize context injection
+  - Reduces context overhead by ~200-800 tokens for non-implementation agents
+
+- **SessionStart input schema documentation** - Updated skill documentation
+  - `abstract:hook-authoring` - Documents `agent_type`, `source`, `session_id` fields
+  - `abstract:hook-scope-guide` - Explains agent-aware hook patterns
+  - Includes Python and Bash examples for reading hook input
+
+- **Large output persistence documentation** - Notes on behavior change
+  - `conserve:context-optimization` - Documents disk-based output storage
+  - Best practices for leveraging full output access without context bloat
+
+- **`FORCE_AUTOUPDATE_PLUGINS` environment variable** - Documented for developers
+  - Forces plugin auto-update even when main auto-updater disabled
+  - Useful for CI/CD pipelines and controlled update rollouts
+
+### Changed
+
+- Hook input reading uses non-blocking patterns (`read -t 0.1` in bash)
+- Backward compatible: gracefully handles missing stdin from older Claude Code versions
+
+### Added - Iron Law TDD Enforcement (2026-01-11)
+
+- **New `iron-law-enforcement.md` module** - Comprehensive TDD enforcement patterns
+  - Defines the Iron Law: "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST"
+  - Prevents "Cargo Cult TDD" where tests validate pre-conceived implementations
+  - Five enforcement levels: self-enforcement, adversarial verification, git history analysis, pre-commit hooks, coverage gates
+  - Self-check protocol with red flags table for TDD violations
+  - RED/GREEN/REFACTOR subagent pattern for adversarial verification
+  - Git history audit commands to detect TDD compliance
+  - Pre-commit hook template to block implementation-only commits
+  - Three-pillar coverage requirements: line, branch, and mutation testing
+  - Recovery protocols for Iron Law violations
+  - Self-improvement loop: learn from violations, strengthen rules
+
+- **Updated proof-of-work skill** - Integrated Iron Law enforcement
+  - Added Iron Law section with self-check table
+  - New TodoWrite items: `proof:iron-law-red`, `proof:iron-law-green`, `proof:iron-law-refactor`, `proof:iron-law-coverage`
+  - Cross-referenced iron-law-enforcement.md module
+
+- **Updated skill-authoring skill** - Extended Iron Law to all implementation work
+  - Skills: No skill without documented Claude failure
+  - Code: No implementation without failing test
+  - Claims: No completion claim without evidence
+  - Cross-referenced proof-of-work Iron Law module
+
+- **Updated proof-enforcement.md** - Added Rule 4: Iron Law TDD Compliance
+  - Blocks completion claims lacking TDD evidence
+  - Checks for failing test evidence, design emergence, commit patterns
+  - Includes recovery protocol for violations
+
+- **Updated post_implementation_policy.py** - Strengthened governance injection
+  - Added Iron Law self-check table to session start
+  - Extended red flags with TDD-specific patterns
+  - Added iron-law TodoWrite items to required protocol
+
+- **Updated imbue session-start.sh** - Added Iron Law quick reference
+  - Iron Law statement and self-check table
+  - TDD TodoWrite items reminder
+
+### Fixed - Proof-of-Work Enforcement Gap (2026-01-11)
+
+- **Integrated proof-of-work into governance protocol** - `post_implementation_policy.py`
+  - Proof-of-work is now STEP 1 (before doc updates)
+  - Added red flag table to catch rationalization patterns
+  - Requires TodoWrite items: `proof:solution-tested`, `proof:evidence-captured`
+
+- **Added proof-of-work reminder to Stop hook** - `verify_workflow_complete.py`
+  - End-of-session checklist now includes proof-of-work items
+  - Warning if proof-of-work was skipped
+
+- **Added proof-of-work to imbue session start** - `session-start.sh`
+  - Quick reference table alongside scope-guard
+  - Red flags table for common rationalization patterns
+
+**Root Cause**: `proof-enforcement.md` was a design document referencing non-existent
+`PreMessageSend` hook type. Implementation now uses available hooks (SessionStart, Stop)
+to enforce proof-of-work discipline through governance injection and checklists
+
+- **Cleaned up unsupported hook type reference** - `imbue/hooks/proof-enforcement.md`
+  - Updated frontmatter to reference actual triggers (SessionStart, Stop)
+  - Added Implementation Status section explaining actual enforcement mechanism
+  - Updated Configuration section to reflect automatic enforcement
+  - Preserved detection patterns as self-enforcement guidance
+
 ## [1.2.4] - 2026-01-10
 
 ### Added - Shell Review Skill and Security Guardrails (2026-01-10)
@@ -713,6 +884,7 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.2.5]: https://github.com/athola/claude-night-market/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/athola/claude-night-market/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/athola/claude-night-market/compare/v1.2.1...v1.2.3
 [1.2.1]: https://github.com/athola/claude-night-market/compare/v1.2.0...v1.2.1

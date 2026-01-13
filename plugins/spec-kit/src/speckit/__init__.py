@@ -1,4 +1,4 @@
-"""Spec-Kit: Spec Driven Development toolkit with enhanced superpowers integration."""
+"""Provide Spec Driven Development toolkit with enhanced superpowers integration."""
 
 __version__ = "3.1.0"
 __author__ = "Claude Skills"

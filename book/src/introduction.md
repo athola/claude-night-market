@@ -1,16 +1,10 @@
-# Welcome to Claude Night Market
+# Claude Night Market
 
-A collection of Claude Code plugins for software engineering workflows.
+Claude Night Market provides a suite of 15 plugins for Claude Code, focusing on git operations, code review, and specification-driven development. These plugins operate as a modular system where you can install only what you need.
 
-Claude Night Market provides plugins for Claude Code to support software engineering workflows. It includes skills, commands, agents, and hooks for development tasks.
+## Architecture
 
-## What You'll Find Here
-
-This documentation covers installation, a plugin catalog, tutorials, API references, and achievements to track your progress.
-
-## Plugin Architecture
-
-The marketplace is organized into layers, each building on the foundations below:
+The plugins are organized in layers. **Domain Experts** like `pensive` (code review) and `minister` (issue tracking) provide high-level skills. These rely on the **Utility Layer** for tasks like token conservation (`conserve`), which in turn build upon the **Foundation Layer** for core mechanics like permissions (`sanctum`). The **Meta Layer** (`abstract`) handles cross-plugin validation.
 
 ```
 +------------------+
@@ -30,23 +24,17 @@ The marketplace is organized into layers, each building on the foundations below
 +------------------+
 ```
 
-## Philosophy
+## Design Philosophy
 
-We prioritize modular design with shallow dependencies and single responsibility. Plugins load progressively, so users only pay for what they use. Development is spec-driven, prioritizing specifications before implementation.
+The system uses shallow dependencies to keep token usage low. Plugins load progressively, meaning the system prompt only grows when you actively use a feature. We prioritize specifications over implementation, requiring a clear plan before generating code.
 
-## Claude Code 2.1.0+ Compatibility
+## Claude Code Capabilities
 
-This marketplace leverages new Claude Code 2.1.0 features:
+This marketplace uses Claude Code 2.1.0+ features to improve the developer experience. Skills automatically hot-reload when edited, allowing for rapid iteration. Context forking runs risky operations in isolation. Frontmatter hooks allow skills to execute logic at specific lifecycle points, and wildcard permissions reduce the frequency of approval prompts for trusted tools.
 
-| Feature | Benefit |
-|---------|---------|
-| **Skill Hot-Reload** | Edit skills without restarting sessions |
-| **Context Forking** | Run skills in isolated context with `context: fork` |
-| **Frontmatter Hooks** | Lifecycle hooks scoped to skills/agents |
-| **Wildcard Permissions** | Flexible patterns like `Bash(npm *)` |
-| **YAML allowed-tools** | Cleaner list syntax for tool permissions |
+## Integration
 
-See the [Plugin Development Guide](../docs/plugin-development-guide.md#claude-code-210-features) for detailed documentation.
+These plugins are designed to work alongside [superpowers](https://github.com/obra/superpowers), which provides the foundational TDD and debugging skills. While Night Market plugins handle the workflow and process, superpowers handles the low-level execution and analysis.
 
 ## Quick Example
 
@@ -63,19 +51,3 @@ See the [Plugin Development Guide](../docs/plugin-development-guide.md#claude-co
 # Invoke a skill
 Skill(sanctum:git-workspace-review)
 ```
-
-## Recommended Companion: Superpowers
-
-Many skills work effectively with [superpowers](https://github.com/obra/superpowers) skills. While plugins work standalone, superpowers provides foundational methodology skills (TDD, debugging, code review patterns).
-
-```bash
-# Add superpowers marketplace
-/plugin marketplace add obra/superpowers
-
-# Install superpowers
-/plugin install superpowers@superpowers-marketplace
-```
-
-## Next Steps
-
-Head to the [Getting Started](getting-started/index.html) section to install your first plugin.

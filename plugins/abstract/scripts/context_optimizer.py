@@ -24,7 +24,7 @@ from abstract.utils import (  # noqa: E402
     extract_frontmatter,
     find_project_root,
     find_skill_files,
-    load_config_with_fallback,
+    load_config_with_defaults,
 )
 
 
@@ -152,7 +152,7 @@ class ContextOptimizerCLI(AbstractCLI):
             config = AbstractConfig.from_yaml(args.config)
         else:
             project_root = find_project_root(args.path)
-            config = load_config_with_fallback(project_root)
+            config = load_config_with_defaults(project_root)
 
         optimizer = ContextOptimizer(config)
 

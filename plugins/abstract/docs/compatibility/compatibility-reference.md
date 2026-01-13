@@ -12,7 +12,10 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Notes |
 |---------------------|-------------------|--------|-------|
-| 2.0.74+ | 1.1.1+ | ✅ Recommended | LSP tool, allowed-tools fix, improved /context |
+| 2.1.4+ | 1.2.5+ | ✅ Recommended | Background task disable env var, OAuth fix |
+| 2.1.3+ | 1.2.5+ | ✅ Supported | Skills/commands merge, subagent model fix, 10-min hook timeout |
+| 2.1.0+ | 1.2.3+ | ✅ Supported | Frontmatter hooks, context forking, `once: true` |
+| 2.0.74+ | 1.1.1+ | ✅ Supported | LSP tool, allowed-tools fix, improved /context |
 | 2.0.73+ | 1.1.0+ | ✅ Supported | Session forking, plugin discovery, image viewing |
 | 2.0.72+ | 1.1.0+ | ✅ Supported | Chrome integration, performance improvements |
 | 2.0.71+ | 1.1.0+ | ✅ Supported | Glob patterns, MCP loading fixes |

@@ -97,6 +97,25 @@ def select_optimal_modules(context_situation, task_complexity):
 | 30-50% | MODERATE | Monitor, apply principles |
 | > 50% | CRITICAL | Immediate optimization required |
 
+## Large Output Handling (Claude Code 2.1.2+)
+
+**Behavior Change**: Large bash command and tool outputs are now saved to disk instead of truncated, with file references provided for access.
+
+### Impact on Context Optimization
+
+| Scenario | Before 2.1.2 | After 2.1.2 |
+|----------|--------------|-------------|
+| Large test output | Truncated, partial data | Full output via file reference |
+| Verbose build logs | Lost after 30K chars | Complete, accessible on-demand |
+| Context pressure | Less from truncation | Same - only loaded when read |
+
+### Best Practices
+
+- **Don't pre-emptively read**: Large outputs are referenced, not loaded into context
+- **Read selectively**: Use `head`, `tail`, or `grep` on file references
+- **Leverage full data**: Quality gates can now access complete test results
+- **Monitor growth**: File references are cheap, but reading them adds to context
+
 ## Integration Points
 
 - **Token Conservation**: Receives usage strategies, returns MECW-compliant optimizations.

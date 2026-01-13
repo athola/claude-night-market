@@ -125,7 +125,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 ```python
 from abstract.config import AbstractConfig
 
-# Load from YAML with automatic fallback to defaults
+# Load from YAML with automatic defaults
 config = AbstractConfig.from_yaml("config/abstract_config.yaml")
 
 # Access validation rules
@@ -165,7 +165,7 @@ This module consolidates all shared functionality used across scripts, eliminati
 
 **Project Navigation**:
 - `find_project_root(start_path)`: Find project root by locating config/ or pyproject.toml
-- `load_config_with_fallback(project_root)`: Load configuration with automatic fallback
+- `load_config_with_defaults(project_root)`: Load configuration with automatic defaults
 
 **Frontmatter Processing**:
 - `extract_frontmatter(content)`: Extract frontmatter and body from skill content

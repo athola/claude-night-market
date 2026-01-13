@@ -6,6 +6,8 @@ Workflow methodologies for analysis, evidence gathering, and structured output.
 
 Imbue provides reusable patterns for approaching analysis tasks. It's a methodology plugin - the patterns apply to various inputs (git diffs, specs, logs) and chain together for complex workflows.
 
+**Core Philosophy**: "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" - The Iron Law enforced through proof-of-work validation.
+
 ## Installation
 
 ```bash
@@ -17,6 +19,7 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 - **Generalizable**: Patterns work across different input types
 - **Composable**: Skills chain together naturally
 - **Evidence-based**: Emphasizes capturing proof for reproducibility
+- **TDD-First**: Iron Law enforcement prevents cargo cult testing
 
 ## Skills
 
@@ -40,6 +43,7 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 | Skill | Description | When to Use |
 |-------|-------------|-------------|
 | `scope-guard` | Anti-overengineering | Evaluating if features should be built now |
+| `proof-of-work` | Evidence-based validation | Enforcing Iron Law TDD discipline |
 
 ### Feature Planning
 
@@ -66,9 +70,10 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 
 | Hook | Type | Description |
 |------|------|-------------|
-| `session-start.sh` | SessionStart | Initializes scope-guard and learning mode |
+| `session-start.sh` | SessionStart | Initializes scope-guard, Iron Law, and learning mode |
 | `user-prompt-submit.sh` | UserPromptSubmit | Validates prompts against scope thresholds |
 | `pre-pr-scope-check.sh` | Manual | Checks scope before PR creation |
+| `proof-enforcement.md` | Design | Iron Law TDD compliance enforcement |
 
 ## Usage Examples
 
@@ -129,6 +134,35 @@ The scope-guard skill prevents overengineering via four components:
 | `anti-overengineering` | Rules to prevent scope creep |
 | `branch-management` | Threshold monitoring (lines, commits, days) |
 | `baseline-scenarios` | Validated test scenarios |
+
+## Iron Law TDD Enforcement
+
+The proof-of-work skill enforces the **Iron Law**:
+
+```
+NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
+```
+
+This prevents "Cargo Cult TDD" where tests validate pre-conceived implementations.
+
+### Self-Check Protocol
+
+| Thought Pattern | Violation | Action |
+|-----------------|-----------|--------|
+| "Let me plan the implementation first" | Skipping RED | Write failing test FIRST |
+| "I know what tests we need" | Pre-conceived impl | Document failure, THEN design |
+| "The design is straightforward" | Skipping uncertainty | Let design EMERGE from tests |
+
+### TodoWrite Items
+
+```
+proof:iron-law-red     - Failing test documented
+proof:iron-law-green   - Minimal code to pass
+proof:iron-law-refactor - Code improved, tests green
+proof:iron-law-coverage - Coverage gates verified
+```
+
+See `iron-law-enforcement.md` module for full enforcement patterns.
 
 ## TodoWrite Integration
 

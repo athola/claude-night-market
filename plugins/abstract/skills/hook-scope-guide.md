@@ -228,6 +228,32 @@ Should this hook apply to all my Claude sessions?
 - **Safety**: Universal dangerous command detection
 - **Integration**: Personal tool notifications
 
+## SessionStart Hook Enhancements (Claude Code 2.1.2+)
+
+SessionStart hooks now receive additional input fields via stdin:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `session_id` | string | Unique session identifier |
+| `source` | enum | `"startup"` \| `"resume"` \| `"clear"` \| `"compact"` |
+| `agent_type` | string | Agent name if `--agent` flag used, empty otherwise |
+
+### Agent-Aware Hooks
+
+The `agent_type` field enables scope-appropriate context injection:
+
+```python
+# Skip heavy context for review agents
+input_data = json.loads(sys.stdin.read())
+if input_data.get("agent_type") in ["code-reviewer", "quick-query"]:
+    print(json.dumps({"hookSpecificOutput": {"additionalContext": "Minimal"}}))
+```
+
+This is particularly useful for:
+- **Plugin hooks**: Reduce overhead for lightweight agents
+- **Project hooks**: Skip governance for review-only agents
+- **Global hooks**: Customize logging verbosity per agent
+
 ## Related Skills
 
 - **abstract:hook-authoring** - For hook rule syntax and patterns

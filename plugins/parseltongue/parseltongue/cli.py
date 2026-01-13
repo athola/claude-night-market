@@ -1,10 +1,10 @@
-"""Provide a command-line interface for parseltongue."""
+"""Provide command-line interface for parseltongue."""
 
 import sys
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Main entry point for the CLI.
+    """Run the main CLI entry point.
 
     Args:
         argv: Command line arguments (optional)

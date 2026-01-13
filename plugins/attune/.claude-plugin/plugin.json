@@ -1,6 +1,6 @@
 {
   "name": "attune",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
   "commands": [
     "./commands/brainstorm.md",
@@ -12,14 +12,15 @@
     "./commands/validate.md"
   ],
   "skills": [
+    "./skills/architecture-aware-init",
+    "./skills/makefile-generation",
+    "./skills/precommit-setup",
     "./skills/project-brainstorming",
-    "./skills/project-specification",
-    "./skills/project-planning",
     "./skills/project-execution",
     "./skills/project-init",
-    "./skills/makefile-generation",
-    "./skills/workflow-setup",
-    "./skills/precommit-setup"
+    "./skills/project-planning",
+    "./skills/project-specification",
+    "./skills/workflow-setup"
   ],
   "agents": [
     "./agents/project-architect.md",

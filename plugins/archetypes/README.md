@@ -1,20 +1,12 @@
 # Architecture Paradigms Collection
 
-Claude Skills for software architecture decision-making and implementation guidance across 14 architectural paradigms.
-
-## Quick Start
+Software architecture decision-making and implementation guidance across 14 architectural paradigms.
 
 - **Orchestrator**: Use `Skill(architecture-paradigms)` to select a paradigm.
 - **Comparison**: See [Quick Reference Matrix](#quick-reference-matrix).
 - **Learning**: Follow [Learning Paths](#learning-paths).
 
-## Collection Overview
-
-- **1 Orchestrator**: `architecture-paradigms` - Selects and plans architecture.
-- **13 Paradigms**: Implementation guides for specific patterns.
-- **Resources**: Case studies, decision frameworks, and integration patterns.
-
-## Featured Paradigms
+## Paradigms
 
 ### Core Architectural Patterns
 - **Layered Architecture**: Traditional N-tier separation of concerns.

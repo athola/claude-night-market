@@ -75,7 +75,7 @@ Common utilities for skill file processing. All scripts use these functions to e
 
 **Project Navigation**:
 - `find_project_root(start_path)`: Find project root by locating config/ or pyproject.toml
-- `load_config_with_fallback(project_root)`: Load configuration with automatic fallback to defaults
+- `load_config_with_defaults(project_root)`: Load configuration with automatic defaults
 
 **Frontmatter Processing**:
 - `extract_frontmatter(content)`: Extract frontmatter and body from skill content

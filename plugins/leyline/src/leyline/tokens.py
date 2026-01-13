@@ -1,4 +1,4 @@
-"""Token estimation utilities for LLM context management.
+"""Estimate tokens for LLM context management.
 
 This module provides utilities for estimating token counts for files and prompts,
 with optional tiktoken integration for accurate tokenization and fallback to

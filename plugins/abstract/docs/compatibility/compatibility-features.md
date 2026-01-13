@@ -6,7 +6,175 @@ Feature timeline and version-specific capabilities.
 
 ## Feature Timeline
 
-### Claude Code 2.0.74 (December 2025)
+### [Claude Code 2.1.4](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#214) (January 2026)
+
+**New Environment Variables**:
+- ✅ **`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`**: Disable all background task functionality
+  - **Scope**: Disables auto-backgrounding and `Ctrl+B` shortcut
+  - **Use Cases**: CI/CD pipelines, debugging, environments where detached processes are problematic
+  - **Does NOT affect**: Python subprocess spawning, asyncio tasks in hooks, general async processing
+  - **Example**: `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1 claude "run tests"`
+
+**Bug Fixes**:
+- ✅ **OAuth Token Refresh**: Fixed "Help improve Claude" setting fetch
+  - Automatically refreshes OAuth token and retries when stale
+  - **Impact**: Better reliability for user preference settings
+
+**Notes**:
+- Minor release focused on CI/CD compatibility and OAuth reliability
+- Background task disable is useful for deterministic test environments
+
+### [Claude Code 2.1.3](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#213) (January 2026)
+
+**Architectural Changes**:
+- ✅ **Merged Slash Commands and Skills**: Unified mental model with no behavior change
+  - Skills now appear in `/` menu alongside commands
+  - Explicit invocation via `/skill-name` now available
+  - Auto-discovery still works as before
+  - **Impact**: Simplified extensibility model - skills and commands are conceptually unified
+  - **Action Required**: None - existing plugin.json structure remains valid
+
+**Bug Fixes**:
+- ✅ **Fixed Subagent Model Selection During Compaction**: Critical fix for long conversations
+  - **Previous Bug**: Subagents could use wrong model when parent context was compacted
+  - **Now Fixed**: Model specified in agent frontmatter (`model: sonnet/haiku/opus`) respected
+  - **Impact**: All 29 ecosystem agents with `model:` specification now work correctly during compaction
+  - **Action Required**: None - agents already specify models
+
+- ✅ **Fixed Web Search in Subagents**: Web search now uses correct model
+  - **Previous Bug**: Web search in subagents used incorrect model
+  - **Now Fixed**: Web search respects agent's model specification
+  - **Impact**: Agents using web search get consistent results
+
+- ✅ **Fixed Plan File Persistence**: Fresh plan after `/clear`
+  - **Previous Bug**: Plan files persisted across `/clear` commands
+  - **Now Fixed**: Fresh plan file created after clearing conversations
+  - **Impact**: Cleaner session restarts
+
+- ✅ **Fixed Skill Duplicate Detection on ExFAT**: Large inode handling
+  - **Previous Bug**: False duplicate detection on filesystems with large inodes
+  - **Now Fixed**: 64-bit precision for inode values
+  - **Impact**: Better compatibility with ExFAT filesystems
+
+- ✅ **Fixed Trust Dialog from Home Directory**: Hooks now work correctly
+  - **Previous Bug**: Trust dialog acceptance from home directory didn't enable hooks
+  - **Now Fixed**: Trust-requiring features like hooks work during session
+  - **Impact**: More reliable hook execution
+
+**Performance Improvements**:
+- ✅ **Hook Timeout Extended**: 60 seconds → 10 minutes
+  - **Impact**: Long-running hooks now viable (CI/CD, complex validation, external APIs)
+  - **Affected**: `abstract:hook-authoring` guidance updated
+  - **Best Practice**: Aim for < 30s for typical hooks; use extended time only when needed
+
+- ✅ **Terminal Rendering Stability**: Prevents cursor corruption
+  - **Impact**: Better terminal experience with uncontrolled writes
+
+**New Features**:
+- ✅ **Unreachable Permission Rule Detection**: New diagnostic in `/doctor`
+  - **Feature**: Warns about permission rules that can never match
+  - **Impact**: Easier debugging of permission configurations
+  - **Usage**: Run `/doctor` to check for unreachable rules
+  - **Output**: Shows source of each rule and actionable fix guidance
+
+- ✅ **Release Channel Toggle**: Choose `stable` or `latest` in `/config`
+  - **Feature**: Switch between release channels
+  - **Impact**: More control over update timing
+
+**User Experience**:
+- ✅ **Improved Slash Command Suggestions**: Long descriptions truncated to 2 lines
+  - **Impact**: Better readability in `/` menu
+
+**Notes**:
+- This release consolidates skills and commands conceptually while maintaining backward compatibility
+- The subagent model fixes are critical for long-running sessions with model escalation
+- Hook timeout increase enables more sophisticated automation workflows
+- Run `/doctor` periodically to check permission rule health
+
+### [Claude Code 2.1.0](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#210) (January 2026)
+
+**Architectural Changes**:
+- ✅ **Automatic Skill Hot-Reload**: Skills created or modified in `~/.claude/skills` or `.claude/skills` now immediately available
+  - **Impact**: No session restart needed when developing or updating skills
+  - **Affected**: `abstract:skill-authoring` - Development workflow significantly faster
+  - **Action Required**: None - automatic behavior
+
+- ✅ **Forked Sub-Agent Context**: Support for `context: fork` in skill frontmatter
+  - **Feature**: Skills/commands can run in isolated forked context
+  - **Impact**: Prevents context pollution from exploratory operations
+  - **Affected**: All agents with multi-perspective analysis patterns
+  - **Documentation**: See session forking patterns
+
+- ✅ **Enhanced Hooks Support**: Hooks now available in agent, skill, and slash command frontmatter
+  - **Impact**: Fine-grained lifecycle control for plugin components
+  - **Affected**: `abstract:hook-authoring` - New hook attachment points
+  - **Action Required**: Review hook placement options for existing plugins
+
+**New Features**:
+- ✅ **Language Configuration**: New `language` setting to customize Claude's response language
+  - **Impact**: Better internationalization support
+  - **Usage**: Set in `/config` or `settings.json`
+
+- ✅ **Wildcard Bash Permissions**: Support for `Bash(npm *)` pattern in permissions
+  - **Impact**: Simpler permission rules for command families
+  - **Affected**: `abstract:hook-authoring` security patterns
+
+- ✅ **Agent Disabling Syntax**: Disable specific agents using `Task(AgentName)` in permissions
+  - **Impact**: More granular control over agent invocation
+  - **Documentation**: Permission configuration reference
+
+- ✅ **Plugin Hook Support**: Prompt and agent hook types now available from plugins
+  - **Impact**: Plugins can define hooks that run during prompt/agent lifecycle
+  - **Affected**: All plugins with custom workflows
+
+- ✅ **Context Window Fields**: New `context_window.used_percentage` and `remaining_percentage`
+  - **Impact**: Precise context monitoring for MECW compliance
+  - **Affected**: `conserve:context-optimization` - Better metrics available
+
+**Performance Improvements**:
+- ✅ **Subagent Model Inheritance**: Subagents now properly inherit parent's model by default
+  - **Previous Bug**: Model selection could be inconsistent
+  - **Now Fixed**: Predictable model behavior across agent hierarchies
+  - **Affected**: All 29 ecosystem agents with model specifications
+
+- ✅ **Skills Progress Display**: Skills now show progress while executing
+  - **Impact**: Better UX during long-running skill operations
+
+- ✅ **Improved Skill Suggestions**: Prioritizes recent and frequent usage
+  - **Impact**: Faster access to commonly-used skills
+
+**Security Fixes**:
+- 🔒 **Shell Line Continuation Fix**: Resolved vulnerability where continuation could bypass blocked commands
+  - **Security Impact**: Prevents command injection via multi-line tricks
+  - **Action Required**: None - automatic protection
+
+- 🔒 **Command Injection Fix**: Fixed vulnerability in bash command processing
+  - **Security Impact**: Closes potential injection vector
+  - **Action Required**: None - automatic protection
+
+**Bug Fixes**:
+- Fixed "File has been unexpectedly modified" false errors with file watchers
+- Fixed rate limit warning appearing at low usage after weekly reset
+- Fixed `mcp list` and `mcp get` commands leaving orphaned MCP server processes
+- Fixed memory leak where tree-sitter parse trees weren't being freed
+- Fixed binary files being included in memory with `@include` directives
+
+**User Experience**:
+- ✅ **Shift+Enter Default Support**: Works out of box in iTerm2, WezTerm, Ghostty, Kitty
+  - **Impact**: No terminal configuration needed for multiline input
+- ✅ **Vim Motion Improvements**: Added `;`, `,` for motion repetition; `y` for yank; text objects
+  - **Impact**: Better vim-mode editing experience
+- ✅ **Skills in Slash Menu**: Skills from `/skills/` directories visible in `/` menu by default
+  - **Impact**: Improved skill discoverability
+
+**Notes**:
+- This is a major release with significant skill/agent infrastructure improvements
+- Hot-reload dramatically improves plugin development workflow
+- Forked context enables safer exploratory operations
+- Security fixes close potential command injection vectors
+- Run `/context` to see new percentage fields for MECW monitoring
+
+### [Claude Code 2.0.74](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#2074) (December 2025)
 
 **New Features**:
 - ⚠️ **LSP (Language Server Protocol) Tool**: Native code intelligence integration (**EXPERIMENTAL - See [Issue #72](https://github.com/athola/claude-night-market/issues/72)**)
@@ -99,7 +267,7 @@ Feature timeline and version-specific capabilities.
 - Improved /context visualization aids MECW compliance and plugin discoverability
 - Terminal compatibility improvements benefit cross-platform development
 
-### Claude Code 2.0.73 (December 2025)
+### [Claude Code 2.0.73](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#2073) (December 2025)
 
 **New Features**:
 - ✅ **Session Forking**: Custom session IDs with `--session-id` + `--fork-session` + (`--resume` | `--continue`)
@@ -147,7 +315,7 @@ Feature timeline and version-specific capabilities.
 - Built on Agent Client Protocol's session fork RFD
 - See "Session Forking Patterns" section below for detailed usage examples
 
-### Claude Code 2.0.72 (December 2025)
+### [Claude Code 2.0.72](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#2072) (December 2025)
 
 **New Features**:
 - ✅ **Claude in Chrome (Beta)**: Native browser control integration
@@ -180,7 +348,7 @@ Feature timeline and version-specific capabilities.
   - **Native Chrome**: Interactive debugging, live testing, exploratory work
   - **Playwright**: Automated recording, headless execution, CI/CD, cross-browser
 
-### Claude Code 2.0.71 (December 2025)
+### [Claude Code 2.0.71](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#2071) (December 2025)
 
 **New Commands**:
 - `/config toggle` - Enable/disable prompt suggestions
@@ -206,7 +374,7 @@ Feature timeline and version-specific capabilities.
 - New syntax highlighting engine for native build
 - Bedrock: `ANTHROPIC_BEDROCK_BASE_URL` environment variable respected
 
-### Claude Code 2.0.70 (December 2025)
+### [Claude Code 2.0.70](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#2070) (December 2025)
 
 **New Features**:
 - **MCP Wildcard Permissions**: `mcp__server__*` syntax for bulk permissions
@@ -222,7 +390,7 @@ Feature timeline and version-specific capabilities.
 **Bug Fixes**:
 - Thinking mode toggle in `/config` now persists correctly
 
-### Claude Code 2.0.65 (November 2025)
+### [Claude Code 2.0.65](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#2065) (November 2025)
 
 **New Features**:
 - **Native Context Visibility**: Status line displays real-time context utilization

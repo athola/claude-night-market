@@ -1,14 +1,14 @@
 {
   "name": "conserve",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
+    "./skills/bloat-detector",
     "./skills/context-optimization",
     "./skills/mcp-code-execution",
     "./skills/optimizing-large-skills",
-    "./skills/performance-monitoring/cpu-gpu-performance",
-    "./skills/resource-management/token-conservation",
-    "./skills/bloat-detector"
+    "./skills/performance-monitoring",
+    "./skills/resource-management"
   ],
   "commands": [
     "./commands/optimize-context.md",
@@ -39,5 +39,9 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "hooks": [
+    "./hooks/context_warning.py",
+    "./hooks/session-start.sh"
+  ]
 }

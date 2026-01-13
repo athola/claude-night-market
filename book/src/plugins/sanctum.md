@@ -27,6 +27,7 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `update-readme` | README modernization | Refreshing project entry points |
 | `version-updates` | Version bumping | Managing semantic versions |
 | `workflow-improvement` | Workflow retrospectives | Improving development processes |
+| `tutorial-updates` | Tutorial maintenance | Keeping tutorials current |
 
 ## Commands
 
@@ -41,9 +42,14 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `/fix-workflow` | Improve recent workflow |
 | `/merge-docs` | Consolidate ephemeral docs |
 | `/update-docs` | Update documentation |
+| `/update-plugins` | Audit and sync plugin.json registrations |
 | `/update-readme` | Modernize README |
 | `/update-tests` | Maintain tests |
+| `/update-tutorial` | Update tutorial content |
 | `/update-version` | Bump versions |
+| `/update-dependencies` | Update project dependencies |
+| `/create-tag` | Create git tags for releases |
+| `/resolve-threads` | Resolve PR review threads |
 
 ## Agents
 
@@ -54,6 +60,7 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `pr-agent` | PR preparation specialist |
 | `workflow-recreate-agent` | Workflow slice reconstruction |
 | `workflow-improvement-*` | Workflow improvement pipeline |
+| `dependency-updater` | Dependency version management |
 
 ## Hooks
 

@@ -13,11 +13,10 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 ## Current Recommendations
 
-**Recommended Version**: Claude Code 2.0.74+
-- ✅ LSP tool (experimental)
-- ✅ Improved /context visualization
-- ✅ Security fixes (allowed-tools enforcement)
-- ✅ Terminal setup support
+**Recommended Version**: Claude Code 2.1.4+
+- ✅ `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` env var for CI/CD
+- ✅ All 2.1.3 features (skills/commands merge, subagent model fix, 10-min hook timeout)
+- ✅ All 2.0.74+ features (LSP, allowed-tools, /context)
 
 **Minimum Version**: Claude Code 2.0.65+
 - All core features available
@@ -28,7 +27,10 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Key Features |
 |---------------------|-------------------|--------|--------------|
-| 2.0.74+ | 1.1.1+ | ✅ Recommended | LSP, allowed-tools fix, improved /context |
+| 2.1.4+ | 1.2.5+ | ✅ Recommended | Background task disable env var, OAuth fix |
+| 2.1.3+ | 1.2.5+ | ✅ Supported | Skills/commands merge, subagent model fix, 10-min hook timeout |
+| 2.1.0+ | 1.2.3+ | ✅ Supported | Frontmatter hooks, context forking, `once: true` |
+| 2.0.74+ | 1.1.1+ | ✅ Supported | LSP, allowed-tools fix, improved /context |
 | 2.0.73+ | 1.1.0+ | ✅ Supported | Session forking, plugin discovery, image viewing |
 | 2.0.72+ | 1.1.0+ | ✅ Supported | Chrome integration, performance improvements |
 | 2.0.71+ | 1.1.0+ | ✅ Supported | Glob patterns, MCP loading fixes |
@@ -94,6 +96,6 @@ Create isolated conversation branches for exploration:
 
 ---
 
-**Last Updated**: 2025-12-30
-**Ecosystem Version**: 1.1.1+
-**Tested With**: Claude Code 2.0.74
+**Last Updated**: 2026-01-11
+**Ecosystem Version**: 1.2.5+
+**Tested With**: Claude Code 2.1.4
