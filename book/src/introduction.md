@@ -1,6 +1,6 @@
 # Claude Night Market
 
-Claude Night Market provides a suite of 15 plugins for Claude Code, focusing on git operations, code review, and specification-driven development. These plugins operate as a modular system where you can install only what you need.
+Claude Night Market contains 15 plugins for Claude Code, focusing on git operations, code review, and specification-driven development. Plugins operate independently, allowing partial installation.
 
 ## Architecture
 
@@ -26,15 +26,15 @@ The plugins are organized in layers. **Domain Experts** like `pensive` (code rev
 
 ## Design Philosophy
 
-The system uses shallow dependencies to keep token usage low. Plugins load progressively, meaning the system prompt only grows when you actively use a feature. We prioritize specifications over implementation, requiring a clear plan before generating code.
+Shallow dependencies reduce token usage. Progressive loading limits system prompt growth to active feature use. The workflow enforces specifications before implementation.
 
 ## Claude Code Capabilities
 
-This marketplace uses Claude Code 2.1.0+ features to improve the developer experience. Skills automatically hot-reload when edited, allowing for rapid iteration. Context forking runs risky operations in isolation. Frontmatter hooks allow skills to execute logic at specific lifecycle points, and wildcard permissions reduce the frequency of approval prompts for trusted tools.
+Marketplace plugins use Claude Code 2.1.0+ features. Skills hot-reload on edit for rapid iteration. Context forking isolates risky operations. Frontmatter hooks execute logic at specific lifecycle points; wildcard permissions reduce approval prompts for trusted tools.
 
 ## Integration
 
-These plugins are designed to work alongside [superpowers](https://github.com/obra/superpowers), which provides the foundational TDD and debugging skills. While Night Market plugins handle the workflow and process, superpowers handles the low-level execution and analysis.
+These plugins work alongside [superpowers](https://github.com/obra/superpowers), which provides foundational TDD and debugging skills. Night Market plugins handle workflow and process; superpowers handles low-level execution and analysis.
 
 ## Quick Example
 

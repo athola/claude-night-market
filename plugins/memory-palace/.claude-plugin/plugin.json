@@ -1,6 +1,6 @@
 {
   "name": "memory-palace",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Spatial knowledge organization using memory palace techniques - build, navigate, and maintain virtual memory structures for enhanced recall and information management. Includes PR Review Room for capturing review knowledge and skill execution memory storage for continual learning.",
   "commands": [
     "./commands/palace.md",
@@ -43,14 +43,5 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT",
-  "hooks": [
-    "./hooks/local_doc_processor.py",
-    "./hooks/research-queue-integration.md",
-    "./hooks/research_interceptor.py",
-    "./hooks/skill_tracker_post.py",
-    "./hooks/skill_tracker_pre.py",
-    "./hooks/url_detector.py",
-    "./hooks/web_content_processor.py"
-  ]
+  "license": "MIT"
 }

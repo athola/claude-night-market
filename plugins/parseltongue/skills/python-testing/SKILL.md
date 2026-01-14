@@ -132,11 +132,4 @@ Load modules based on project requirements:
 
 ### Common Issues
 
-**Tests not discovered**
-Ensure test files match pattern `test_*.py` or `*_test.py`. Run `pytest --collect-only` to verify.
-
-**Import errors**
-Check that the module being tested is in `PYTHONPATH` or install with `pip install -e .`
-
-**Async tests failing**
-Install pytest-asyncio and decorate test functions with `@pytest.mark.asyncio`
+If tests are not discovered, verify that the test files follow the naming pattern `test_*.py` or `*_test.py`. You can run `pytest --collect-only` to confirm which tests are being identified by the runner. For import errors, confirm that the module under test is in your `PYTHONPATH` or install it in editable mode using `pip install -e .`. When async tests fail, verify that `pytest-asyncio` is installed and that the test functions are correctly decorated with `@pytest.mark.asyncio`.

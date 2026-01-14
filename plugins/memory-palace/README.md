@@ -288,19 +288,13 @@ claude --fork-session --session-id "pattern-chambers" --resume
 # Evaluate and select most useful structure
 ```
 
-### Benefits
+### Benefits of Session Forking
 
-- **Risk-free experimentation**: Test organization strategies before committing.
-- **Comparative evaluation**: Identify the approach that best fits the content.
-- **Mental model alignment**: Find the knowledge structure that matches your thinking.
-- **Iterative refinement**: Test improvements without losing previous work.
+Using session forking allows for parallel strategy testing, enabling you to evaluate different knowledge organization methods before finalizing a structure in the main session. This comparative methodology identifies the most effective approach for a specific set of content and ensures that the knowledge structure aligns with the user's mental model. By testing improvements in isolation, the system supports iterative refinement without compromising the current project state.
 
 ### Best Practices
 
-- **Test with representative content**: Use actual knowledge to evaluate organization.
-- **Document decision rationale**: Record why a specific approach was chosen.
-- **Extract palace designs**: Save successful structures as templates.
-- **Iterate gradually**: Start with one fork and expand if needed.
+When utilizing session forks for knowledge design, test each approach with representative content to accurately evaluate its effectiveness. It is helpful to document the rationale behind each organizational decision and to extract successful designs as templates for future use. For complex tasks, start with a single fork and expand gradually to avoid excessive context fragmentation.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 

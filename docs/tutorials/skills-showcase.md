@@ -10,10 +10,10 @@
 
 ## What You'll Learn
 
-- **Discover** available skills across all plugins
-- **Examine** skill structure and metadata
-- **Understand** how skills compose into workflows
-- **See** real-world usage patterns
+- Discover skills across all plugins
+- Examine skill structure and metadata
+- Compose skills into workflows
+- Analyze real-world usage patterns
 
 ---
 
@@ -86,11 +86,11 @@ Complex workflows chain multiple skills:
 
 ## Key Takeaways
 
-✓ **105 skills** across 14 plugins
-✓ **Structured workflows** for git, review, specs, testing
-✓ **Composable and reusable** across projects
-✓ **Self-documenting** with clear dependencies
-✓ **Validated structure** ensures quality
+- 105 skills across 14 plugins
+- Structured workflows for git, review, specs, and testing
+- Composable and reusable project components
+- Self-documenting with clear dependencies
+- Validated structure for quality
 
 ---
 

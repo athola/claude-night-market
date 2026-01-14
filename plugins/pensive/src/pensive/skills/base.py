@@ -11,7 +11,7 @@ try:
     from ..utils.report_generator import MarkdownReportGenerator
     from ..utils.severity_mapper import SeverityMapper
 except ImportError:
-    # Fallback if utils not available
+    # Use default values if utils not available
     ContentParser = None  # type: ignore
     MarkdownReportGenerator = None  # type: ignore
     SeverityMapper = None  # type: ignore
@@ -103,7 +103,7 @@ class BaseReviewSkill:
         """
         if self._parser:
             return self._parser.get_file_content(context, filename)
-        # Fallback implementation
+        # Secondary implementation
         if hasattr(context, "get_file_content"):
             if filename:
                 content = context.get_file_content(filename)
@@ -124,7 +124,7 @@ class BaseReviewSkill:
         """
         if self._parser:
             return self._parser.find_line_number(content, position)
-        # Fallback
+        # Default logic
         return content[:position].count("\n") + 1
 
     def _extract_snippet(self, content: str, line: int, context: int = 0) -> str:
@@ -140,7 +140,7 @@ class BaseReviewSkill:
         """
         if self._parser:
             return self._parser.extract_code_snippet(content, line, context)
-        # Fallback
+        # Default logic
         lines = content.split("\n")
         if 0 < line <= len(lines):
             return lines[line - 1].strip()
@@ -162,7 +162,7 @@ class BaseReviewSkill:
         """
         if self._severity:
             return self._severity.categorize(issues, custom_map)
-        # Fallback - return as-is
+        # Default behavior: return as-is
         return issues
 
     def _create_markdown_report(
@@ -181,7 +181,7 @@ class BaseReviewSkill:
         """
         if self._report_gen:
             return self._report_gen.create_report(title, sections)
-        # Fallback - simple text
+        # Default behavior: simple text
         lines = [f"# {title}\n"]
         for section in sections:
             lines.append(f"## {section.get('title', 'Section')}\n")

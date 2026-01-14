@@ -10,13 +10,13 @@ All Claude Code hooks have been profiled and optimized for minimal performance i
 
 | Hook | Event Type | Avg Time | Target | Status | Timeout |
 |------|-----------|----------|--------|--------|---------|
-| conserve/context_warning.py | PreToolUse | 52ms | <100ms | ✓ PASS | 1s |
-| conserve/session-start.sh | SessionStart | 11ms | <2000ms | ✓ PASS | 2s |
-| imbue/session-start.sh | SessionStart | 19ms | <2000ms | ✓ PASS | 2s |
-| imbue/user-prompt-submit.sh | UserPromptSubmit | 117ms | <200ms | ✓ PASS | 1s |
-| sanctum/post_implementation_policy.py | SessionStart | 26ms | <2000ms | ✓ PASS | 1s |
-| sanctum/verify_workflow_complete.py | Stop | 26ms | <2000ms | ✓ PASS | 2s |
-| sanctum/session_complete_notify.py | Stop | 39ms | <100ms | ✓ PASS | 1s |
+| conserve/context_warning.py | PreToolUse | 52ms | <100ms | PASS | 1s |
+| conserve/session-start.sh | SessionStart | 11ms | <2000ms | PASS | 2s |
+| imbue/session-start.sh | SessionStart | 19ms | <2000ms | PASS | 2s |
+| imbue/user-prompt-submit.sh | UserPromptSubmit | 117ms | <200ms | PASS | 1s |
+| sanctum/post_implementation_policy.py | SessionStart | 26ms | <2000ms | PASS | 1s |
+| sanctum/verify_workflow_complete.py | Stop | 26ms | <2000ms | PASS | 2s |
+| sanctum/session_complete_notify.py | Stop | 39ms | <100ms | PASS | 1s |
 
 **Result:** All hooks pass their performance targets (7/7 passing).
 
@@ -24,10 +24,7 @@ All Claude Code hooks have been profiled and optimized for minimal performance i
 
 Hook timeouts follow the formula: **`timeout = max(actual_time * 20, performance_target)`**
 
-This provides:
-- **20x safety margin** for system load variations
-- **Alignment with performance guidelines** from `abstract/skills/hook-authoring/modules/performance-guidelines.md`
-- **Fast failure detection** when hooks hang or error
+This configuration methodology provides a 20x safety margin for system load variations while ensuring alignment with the performance guidelines from `abstract/skills/hook-authoring/modules/performance-guidelines.md`. It also enables fast failure detection when hooks hang or encounter errors.
 
 ### Before Optimization
 
@@ -196,20 +193,20 @@ for hook_path, event_type in HOOKS:
 
     avg_ms = sum(times) / len(times)
     target = TARGETS.get(event_type, 1000)
-    status = "✓" if avg_ms < target else "✗"
+    status = "PASS" if avg_ms < target else "FAIL"
 
     results.append({"hook": hook_path, "event": event_type, "avg_ms": avg_ms, "target_ms": target, "status": status})
     print(f"{status} {hook_path:50s} {avg_ms:6.1f}ms (target: {target}ms)")
 
 print("=" * 70)
-passed = sum(1 for r in results if r["status"] == "✓")
-failed = sum(1 for r in results if r["status"] == "✗")
+passed = sum(1 for r in results if r["status"] == "PASS")
+failed = sum(1 for r in results if r["status"] == "FAIL")
 print(f"\nSummary: Passed: {passed}/{len(results)}, Failed: {failed}/{len(results)}")
 
 if failed > 0:
     print("\nHooks exceeding performance targets:")
     for r in results:
-        if r["status"] == "✗":
+        if r["status"] == "FAIL":
             print(f"  - {r['hook']}: {r['avg_ms']:.1f}ms (over by {r['avg_ms'] - r['target_ms']:.1f}ms)")
 EOF
 ```
@@ -218,13 +215,13 @@ Expected output:
 ```
 Benchmarking Claude Code hooks...
 ======================================================================
-✓ plugins/conserve/hooks/context_warning.py            51.9ms (target: 100ms)
-✓ plugins/conserve/hooks/session-start.sh              10.9ms (target: 2000ms)
-✓ plugins/imbue/hooks/session-start.sh                 19.0ms (target: 2000ms)
-✓ plugins/imbue/hooks/user-prompt-submit.sh           117.0ms (target: 200ms)
-✓ plugins/sanctum/hooks/post_implementation_policy.py   25.5ms (target: 2000ms)
-✓ plugins/sanctum/hooks/verify_workflow_complete.py    26.2ms (target: 2000ms)
-✓ plugins/sanctum/hooks/session_complete_notify.py     39.0ms (target: 2000ms)
+PASS plugins/conserve/hooks/context_warning.py            51.9ms (target: 100ms)
+PASS plugins/conserve/hooks/session-start.sh              10.9ms (target: 2000ms)
+PASS plugins/imbue/hooks/session-start.sh                 19.0ms (target: 2000ms)
+PASS plugins/imbue/hooks/user-prompt-submit.sh           117.0ms (target: 200ms)
+PASS plugins/sanctum/hooks/post_implementation_policy.py   25.5ms (target: 2000ms)
+PASS plugins/sanctum/hooks/verify_workflow_complete.py    26.2ms (target: 2000ms)
+PASS plugins/sanctum/hooks/session_complete_notify.py     39.0ms (target: 2000ms)
 ======================================================================
 
 Summary: Passed: 7/7, Failed: 0/7
@@ -237,7 +234,7 @@ When creating new hooks, follow these guidelines to maintain performance:
 ### 1. **Start with Performance in Mind**
 
 ```python
-# ✓ GOOD: Fast validation with early return
+# GOOD: Fast validation with early return
 async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
     if tool_name not in ["Bash", "Edit"]:
         return None  # Early return, no processing needed
@@ -247,24 +244,24 @@ async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None
 ```
 
 ```python
-# ✗ BAD: Process every tool invocation
+# BAD: Process every tool invocation
 async def on_pre_tool_use(self, tool_name: str, tool_input: dict) -> dict | None:
     # Expensive validation on EVERY tool, even Read/Glob
-    validate_comprehensive(tool_name, tool_input)
+    validate_detailed(tool_name, tool_input)
     ...
 ```
 
 ### 2. **Use Async I/O for File Operations**
 
 ```python
-# ✓ GOOD: Async file I/O
+# GOOD: Async file I/O
 import aiofiles
 async with aiofiles.open('log.txt', 'a') as f:
     await f.write(f"{tool_name}\n")
 ```
 
 ```python
-# ✗ BAD: Blocking file I/O
+# BAD: Blocking file I/O
 with open('log.txt', 'a') as f:
     f.write(f"{tool_name}\n")
 ```
@@ -272,7 +269,7 @@ with open('log.txt', 'a') as f:
 ### 3. **Background Tasks for Non-Critical Work**
 
 ```python
-# ✓ GOOD: Notification runs in background
+# GOOD: Notification runs in background
 subprocess.Popen([sys.executable, __file__, "--background"],
                  stdout=subprocess.DEVNULL,
                  stderr=subprocess.DEVNULL,
@@ -281,14 +278,14 @@ sys.exit(0)  # Return immediately
 ```
 
 ```python
-# ✗ BAD: Wait for notification to complete
+# BAD: Wait for notification to complete
 subprocess.run(["/usr/bin/notify-send", "Title", "Message"], timeout=3)
 ```
 
 ### 4. **Compile Regex Patterns Once**
 
 ```python
-# ✓ GOOD: Compile once at module level
+# GOOD: Compile once at module level
 DANGEROUS_PATTERN = re.compile(r'rm\s+-rf\s+/', re.IGNORECASE)
 
 def validate(command):
@@ -297,7 +294,7 @@ def validate(command):
 ```
 
 ```python
-# ✗ BAD: Recompile on every validation
+# BAD: Recompile on every validation
 def validate(command):
     if re.search(r'rm\s+-rf\s+/', command, re.IGNORECASE):
         raise ValueError("Dangerous command")

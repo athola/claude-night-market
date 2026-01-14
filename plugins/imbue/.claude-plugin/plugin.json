@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/shared",
@@ -42,13 +42,5 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT",
-  "hooks": [
-    "./hooks/PERFORMANCE.md",
-    "./hooks/pre-pr-scope-check.sh",
-    "./hooks/proof-enforcement.md",
-    "./hooks/scope-guard-integration.md",
-    "./hooks/session-start.sh",
-    "./hooks/user-prompt-submit.sh"
-  ]
+  "license": "MIT"
 }

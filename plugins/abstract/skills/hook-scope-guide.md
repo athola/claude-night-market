@@ -13,6 +13,12 @@ triggers:
 
 This skill helps you choose the right location for Claude Code hooks based on their purpose, audience, and persistence needs.
 
+## Important: Auto-Loading Behavior
+
+> **`hooks/hooks.json` is automatically loaded** by Claude Code when the plugin is enabled.
+> Do NOT add `"hooks": "./hooks/hooks.json"` to your `plugin.json` - this causes duplicate load errors.
+> The `hooks` field in `plugin.json` is only needed for additional hook files beyond the standard `hooks/hooks.json`.
+
 ## The Three Scopes
 
 | Scope | Location | Audience | Committed? | Persistence |
@@ -68,7 +74,7 @@ This skill helps you choose the right location for Claude Code hooks based on th
 {
   "PreToolUse": [
     {
-      "matcher": { "toolName": "Read" },
+      "matcher": "Read",
       "hooks": [{
         "type": "command",
         "command": "echo 'Plugin reading: $CLAUDE_TOOL_INPUT' >> ${CLAUDE_PLUGIN_ROOT}/log.txt"
@@ -77,6 +83,8 @@ This skill helps you choose the right location for Claude Code hooks based on th
   ]
 }
 ```
+
+> **Note**: Use string matchers (`"Read"`) not object matchers (`{"toolName": "Read"}`).
 
 **Key features**:
 - Use `${CLAUDE_PLUGIN_ROOT}` for plugin-relative paths
@@ -104,7 +112,7 @@ This skill helps you choose the right location for Claude Code hooks based on th
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": { "toolName": "Bash" },
+        "matcher": "Bash",
         "hooks": [{
           "type": "command",
           "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == *\"production\"* ]]; then echo 'BLOCKED: Production access requires approval'; exit 1; fi"
@@ -114,6 +122,8 @@ This skill helps you choose the right location for Claude Code hooks based on th
   }
 }
 ```
+
+> **Note**: Use string matchers (`"Bash"`) not object matchers.
 
 **Key features**:
 - Committed to version control

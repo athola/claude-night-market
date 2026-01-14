@@ -62,11 +62,11 @@ class AuthenticationError(CriticalError):
         super().__init__(f"[{self.code}] {service}: {message}")
 ```
 
-### Recoverable Errors (Retry or Fallback)
+### Recoverable Errors (Retry or Secondary Strategy)
 ```python
 # E010-E099: Recoverable errors
 class RecoverableError(Exception):
-    """Error that might be resolved with retry or fallback"""
+    """Error that might be resolved with retry or secondary strategy"""
     pass
 
 class NetworkTimeoutError(RecoverableError):
@@ -252,15 +252,15 @@ class GracefulDegradation:
     """Implement graceful degradation when services fail"""
 
     def __init__(self):
-        self.fallbacks = {}
+        self.secondary_actions = {}
 
-    def register_fallback(self, operation: str, fallback_func: Callable):
-        """Register a fallback function for an operation"""
-        self.fallbacks[operation] = fallback_func
+    def register_secondary(self, operation: str, secondary_func: Callable):
+        """Register a secondary function for an operation"""
+        self.secondary_actions[operation] = secondary_func
 
     async def execute(self, operation: str, primary_func: Callable, *args, **kwargs) -> Any:
         """
-        Execute primary function with fallback to secondary
+        Execute primary function with secondary logic if primary fails
         """
         try:
             return await primary_func(*args, **kwargs)
@@ -268,26 +268,26 @@ class GracefulDegradation:
         except Exception as e:
             logger.error(f"Primary operation failed: {e}")
 
-            if operation in self.fallbacks:
-                logger.info(f"Using fallback for {operation}")
+            if operation in self.secondary_actions:
+                logger.info(f"Using secondary logic for {operation}")
                 try:
-                    return await self.fallbacks[operation](*args, **kwargs)
-                except Exception as fallback_error:
-                    logger.error(f"Fallback also failed: {fallback_error}")
-                    raise Exception(f"E016 Both primary and fallback failed for {operation}")
+                    return await self.secondary_actions[operation](*args, **kwargs)
+                except Exception as secondary_error:
+                    logger.error(f"Secondary logic also failed: {secondary_error}")
+                    raise Exception(f"E016 Both primary and secondary failed for {operation}")
             else:
                 raise
 
 # Usage example
 degradation = GracefulDegradation()
 
-# Register fallbacks
-degradation.register_fallback(
+# Register secondary logic
+degradation.register_secondary(
     "fetch_data",
-    lambda: fetch_from_cache()  # Fallback to cache
+    lambda: fetch_from_cache()  # Secondary: fetch from cache
 )
 
-# Execute with fallback
+# Execute with secondary logic
 data = await degradation.execute(
     "fetch_data",
     fetch_from_api  # Primary function
@@ -1019,13 +1019,4 @@ def operation_with_consistent_errors():
 
 ## Summary
 
-Effective error handling is crucial for building production-grade systems. Key takeaways:
-
-1. **Classify errors** - Use consistent error codes and categories
-2. **Handle gracefully** - Provide meaningful error messages and recovery options
-3. **Log appropriately** - Capture context for debugging without exposing sensitive data
-4. **Test thoroughly** - Include error scenarios in your test suite
-5. **Monitor continuously** - Track error rates and patterns
-6. **Document clearly** - Maintain error handling documentation
-
-Remember: Good error handling isn't about preventing errors - it's about handling them gracefully when they occur.
+Effective error handling relies on classifying errors into consistent categories and managing them gracefully through meaningful messages and recovery options. Capturing detailed context during logging supports easier debugging, provided that sensitive data is not exposed. To ensure system reliability, include error scenarios in your test suite and monitor error rates and patterns continuously in production. Maintaining thorough error handling documentation assists with future maintenance and helps new developers understand the system's failure modes.

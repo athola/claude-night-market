@@ -8,27 +8,7 @@
 
 ## The Problem
 
-Large Python scripts often embed data directly in code:
-
-```python
-# 830 lines of embedded data!
-def _topics() -> list[Topic]:
-    return [
-        Topic(
-            id="python-best-practices",
-            category="programming",
-            title="Python Best Practices",
-            subtopics=[...],  # Hundreds of lines
-        ),
-        # ... 100+ more topics
-    ]
-```
-
-**Issues**:
-- Data changes require code changes
-- Large data structures bloat script files
-- Non-programmers can't update catalogs/templates
-- Diffs are messy when data changes
+Large Python scripts often embed data directly in code, leading to several maintenance challenges. When data changes require code modifications, it increases the risk of introducing bugs in the logic. Large data structures also bloat script files, making them harder to read and navigate. Furthermore, this pattern prevents non-programmers from updating catalogs or templates and results in messy diffs when data changes.
 
 ---
 
@@ -280,7 +260,7 @@ Provide clear error messages:
 
 ```python
 def load_config() -> dict:
-    """Load with comprehensive error handling."""
+    """Load with detailed error handling."""
     if not CONFIG_FILE.exists():
         raise FileNotFoundError(
             f"Configuration missing: {CONFIG_FILE}\n"
@@ -300,7 +280,7 @@ def load_config() -> dict:
     return data
 ```
 
-### Defaults and Fallbacks
+### Defaults and Secondary Values
 
 Handle missing optional fields:
 
@@ -351,19 +331,19 @@ def migrate_v1_to_v2(data: dict) -> dict:
 ## When to Apply This Pattern
 
 ### Good Candidates
-- ✅ Configuration catalogs (>100 lines)
-- ✅ Template definitions
-- ✅ Lookup tables and mappings
-- ✅ Large constant definitions
-- ✅ Data that changes independently of code
-- ✅ Domain-specific knowledge bases
+- Configuration catalogs (>100 lines)
+- Template definitions
+- Lookup tables and mappings
+- Large constant definitions
+- Data that changes independently of code
+- Domain-specific knowledge bases
 
 ### Poor Candidates
-- ❌ Small constants (<20 lines)
-- ❌ Data tightly coupled to code logic
-- ❌ Computed values (use code, not data)
-- ❌ Performance-critical hot paths
-- ❌ Data with complex interdependencies
+- Small constants (<20 lines)
+- Data tightly coupled to code logic
+- Computed values (use code, not data)
+- Performance-critical hot paths
+- Data with complex interdependencies
 
 ---
 
@@ -491,6 +471,6 @@ def resolve_references(items: list[Item]) -> list[Item]:
 
 ---
 
-**Pattern Status**: ✅ Production-ready
+**Pattern Status**: Production-ready
 **Applied to**: 4 scripts in claude-night-market (Memory Palace, Abstract, Attune)
 **Maintained by**: claude-night-market core team

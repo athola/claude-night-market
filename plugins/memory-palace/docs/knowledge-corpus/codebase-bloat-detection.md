@@ -81,7 +81,7 @@ Bloat Detection Tower (Palace)
 - **Current Limitation**: ⚠️ No programmatic API (CLI only)
 - **Roadmap**: API support planned
 - **Configuration**: `.knip.json` or package.json
-- **Strength**: Comprehensive dead code detection
+- **Strength**: Detailed dead code detection
 - **Workaround**: Shell out to CLI, parse JSON output
 - **Source**: https://github.com/webpro-nl/knip
 
@@ -247,7 +247,7 @@ def detect_python_bloat(paths):
     v.scavenge(paths)
     unused = [item for item in v.get_unused_code() if item.confidence >= 80]
 
-    # deadcode for comprehensive scan
+    # deadcode for thorough scan
     dc = DeadCode(paths)
     dead = dc.find_dead_code()
 
@@ -312,7 +312,9 @@ From the original research session, these are the recommended next steps:
 
 ## Source Attribution
 
-This knowledge entry synthesizes 43 sources from a comprehensive research session on 2025-12-31. Key sources by category:
+This knowledge entry synthesizes 43 sources from a thorough research session on 2025-12-31.
+
+ Key sources by category:
 
 **Static Analysis**:
 - Vulture: https://github.com/jendrikseipp/vulture

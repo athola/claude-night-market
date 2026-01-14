@@ -20,7 +20,9 @@ do_not_use_when:
 - Modifying existing commands - edit directly
 </identification>
 
-Creates new slash commands through a structured workflow: **brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed commands before generating any files.
+Creates new slash commands through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed commands before generating any files.
+
+**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create command files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## Usage
 
@@ -60,7 +62,104 @@ Review pull request #$ARGUMENTS using the code review skill. Focus on ${focus:-a
 
 ## Workflow
 
-### Phase 0: Brainstorming (Default)
+### Phase 0: Iron Law Interlock (BLOCKING)
+
+**This phase is MANDATORY and cannot be skipped.**
+
+Before ANY file creation, you MUST satisfy the Iron Law interlock:
+
+#### Step 1: Create Test File FIRST
+
+```bash
+# Determine test location based on target plugin
+tests/unit/test_${command_name}_command.py
+```
+
+#### Step 2: Write Structural Validation Tests
+
+```python
+"""Tests for ${command_name} command structure and validation.
+
+Written BEFORE implementation per Iron Law.
+"""
+import json
+from pathlib import Path
+import pytest
+
+class Test${CommandName}Command:
+    """Test /${command_name} command structure."""
+
+    @pytest.fixture
+    def command_file_path(self) -> Path:
+        return Path(__file__).parents[2] / "commands" / "${command_name}.md"
+
+    @pytest.fixture
+    def plugin_json_path(self) -> Path:
+        return Path(__file__).parents[2] / ".claude-plugin" / "plugin.json"
+
+    def test_should_exist_when_command_file_path_resolved(
+        self, command_file_path: Path
+    ) -> None:
+        """Command file must exist."""
+        assert command_file_path.exists()
+
+    def test_should_have_frontmatter_when_parsing_content(
+        self, command_file_path: Path
+    ) -> None:
+        """Command must have valid frontmatter."""
+        content = command_file_path.read_text()
+        assert content.startswith("---")
+        assert "description:" in content
+
+    def test_should_be_registered_in_plugin_json(
+        self, plugin_json_path: Path
+    ) -> None:
+        """Command must be registered in plugin.json."""
+        plugin = json.loads(plugin_json_path.read_text())
+        commands = plugin.get("commands", [])
+        assert any("${command_name}.md" in cmd for cmd in commands)
+```
+
+#### Step 3: Run Tests - Capture RED State
+
+```bash
+pytest tests/unit/test_${command_name}_command.py -v
+```
+
+**Expected output (RED):**
+```
+FAILED test_should_exist_when_command_file_path_resolved - FileNotFoundError
+FAILED test_should_have_frontmatter_when_parsing_content - FileNotFoundError
+FAILED test_should_be_registered_in_plugin_json - AssertionError
+```
+
+#### Step 4: Capture Evidence
+
+```markdown
+**Iron Law Checkpoint**: Creating command `${command_name}`.
+
+[E1] Command: pytest tests/unit/test_${command_name}_command.py -v
+Output: 3 FAILED (file does not exist)
+Status: RED - Interlock satisfied
+
+**Self-Check**:
+- [x] Test file created BEFORE implementation
+- [x] Failure evidence captured
+- [x] Tests drive the implementation
+```
+
+#### Step 5: Create TodoWrite Items
+
+```
+proof:iron-law-red - Test failure captured for ${command_name}
+proof:iron-law-interlock-satisfied - Proceeding to design phase
+```
+
+**ONLY AFTER completing Phase 0 may you proceed to Phase 1.**
+
+---
+
+### Phase 1: Brainstorming (Default)
 
 Before creating any files, refine the command concept through collaborative dialogue.
 
@@ -104,7 +203,7 @@ The brainstorming phase will:
 - The command is a trivial shortcut
 - You're copying an existing command pattern
 
-### Phase 1: Gather Requirements
+### Phase 2: Gather Requirements
 
 After brainstorming (or with `--skip-brainstorm`), the command prompts for:
 
@@ -129,7 +228,7 @@ After brainstorming (or with `--skip-brainstorm`), the command prompts for:
    - `agent`: Spawns a specialized agent
    - `workflow`: Multi-step process with checkpoints
 
-### Phase 2: Create Command File
+### Phase 3: Create Command File
 
 **Standard command structure:**
 ```bash
@@ -161,7 +260,7 @@ ${step_by_step_behavior}
 ${usage_examples}
 ```
 
-### Phase 3: Command Type Templates
+### Phase 4: Command Type Templates
 
 **Type: Prompt (simple expansion)**
 ```markdown
@@ -235,7 +334,7 @@ Execute the release preparation workflow:
    - Message: "chore: release v${version}"
 ```
 
-### Phase 4: Validation
+### Phase 5: Validation
 
 Validates the command structure:
 
@@ -259,7 +358,34 @@ Validation Results:
 Status: READY FOR USE
 ```
 
-### Phase 5: Next Steps
+### Phase 6: Run Tests - GREEN State
+
+After creating all files, run the tests again to verify GREEN state:
+
+```bash
+pytest tests/unit/test_${command_name}_command.py -v
+```
+
+**Expected output (GREEN):**
+```
+PASSED test_should_exist_when_command_file_path_resolved
+PASSED test_should_have_frontmatter_when_parsing_content
+PASSED test_should_be_registered_in_plugin_json
+```
+
+**Capture Evidence:**
+```markdown
+[E2] Command: pytest tests/unit/test_${command_name}_command.py -v
+Output: 3 PASSED
+Status: GREEN - Implementation complete
+```
+
+**TodoWrite:**
+```
+proof:iron-law-green - All tests passing for ${command_name}
+```
+
+### Phase 7: Next Steps
 
 ```
 OK Command created: commands/${command_name}.md

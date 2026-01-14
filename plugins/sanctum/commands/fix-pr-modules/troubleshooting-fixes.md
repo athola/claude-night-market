@@ -47,6 +47,71 @@ Error: Fix conflicts with recent changes
 Solution: Pull latest, resolve conflicts, re-run the command
 ```
 
+## Thread Resolution Failures
+
+### Threads Not Being Commented On or Resolved
+
+**Problem:** After running `/fix-pr`, review threads are not commented on and remain unresolved.
+
+**Root Cause:** Step 6.3 (Thread Resolution) is documented but not being executed during workflow.
+
+**Diagnosis:**
+1. Check if TodoWrite items were created for thread resolution:
+   ```bash
+   # Look for these todos in the session:
+   # - fix-pr:thread-preflight
+   # - fix-pr:thread-reply
+   # - fix-pr:thread-resolve
+   # - fix-pr:thread-validate
+   ```
+
+2. Verify threads actually exist:
+   ```bash
+   gh api graphql -f query='...' | jq '.data.repository.pullRequest.reviewThreads.nodes | length'
+   ```
+
+**Solution:**
+1. **Manual execution** - Run Step 6.3 manually from `workflow-steps.md`
+2. **Use standalone command** - Run `/resolve-threads <pr-number>` as fallback
+3. **Verify enforcement** - Step 6.3 now includes validation checkpoint that blocks proceeding if threads aren't resolved
+
+**Prevention:**
+- Step 6.3 now includes TodoWrite items to track execution
+- Validation checkpoint prevents skipping thread resolution
+- Pre-flight check confirms threads exist before attempting resolution
+
+### Validation Checkpoint Failing
+
+**Problem:** Step 6.3 validation reports threads still unresolved after attempting to resolve them.
+
+**Diagnosis:**
+```bash
+# Check which threads are still unresolved
+gh api graphql -f query='...' | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "\(.path):\(.line)"'
+```
+
+**Common Causes:**
+1. **GraphQL mutation failed silently** - Check for API errors
+2. **Wrong thread ID used** - Verify using `PRRT_*` format, not numeric comment ID
+3. **Permissions issue** - Token may lack `repo` scope for thread resolution
+
+**Solution:**
+1. Re-run thread resolution with verbose output:
+   ```bash
+   gh api graphql -f query='mutation { resolveReviewThread(...) }' --include
+   ```
+
+2. Check token permissions:
+   ```bash
+   gh auth status
+   # Ensure "repo" scope is granted
+   ```
+
+3. Use `/resolve-threads` command which handles errors better:
+   ```bash
+   /resolve-threads <pr-number>
+   ```
+
 ## Known Issues and Workarounds
 
 ### Bash Command Substitution in gh Commands

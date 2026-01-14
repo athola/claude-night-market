@@ -1,6 +1,6 @@
-# Quality Gates & Code Quality System
+# Quality Gates and Code Quality System
 
-A three-layer system to maintain code standards for new and existing code in the Claude Night Market ecosystem.
+A three-layer system maintains code standards within the Claude Night Market ecosystem.
 
 ## Table of Contents
 
@@ -15,23 +15,16 @@ A three-layer system to maintain code standards for new and existing code in the
 
 ## Overview
 
-The quality system uses three layers to enforce standards: **Pre-Commit Hooks** (Layer 1) for automatic enforcement, **Manual/CI Scripts** (Layer 2) for full checks, and **Documentation & Tracking** (Layer 3) for auditing.
+The quality system uses three layers: **Pre-Commit Hooks** (Layer 1) for automatic enforcement, **Manual/CI Scripts** (Layer 2) for full checks, and **Documentation & Tracking** (Layer 3) for auditing.
 
-### Current Status
+### Status
 
-*   **New Code**: Every commit undergoes linting, type checks, tests, and security scans.
-*   **Existing Code**: Baseline audits track legacy issues. See [Code Quality Baseline Archive](./archive/2026-01/).
+New Code: Every commit undergoes linting, type checks, tests, and security scans.
+Existing Code: Baseline audits track legacy issues. See [Code Quality Baseline Archive](./archive/2026-01/).
 
 ## The Three Layers
 
-### Layer 1: Fast Global Checks
-Runs on all files. **Ruff** handles linting and formatting (~50ms, auto-fixes enabled). **Mypy** checks type annotations across all Python files (~200ms).
-
-### Layer 2: Plugin-Specific Checks
-Runs only on changed plugins. Scripts like `run-plugin-lint.sh`, `run-plugin-typecheck.sh`, and `run-plugin-tests.sh` execute plugin-specific targets. Tests block commits on failure.
-
-### Layer 3: Validation Hooks
-Validates plugin structure, skill frontmatter (abstract, imbue), context optimization, and security (bandit).
+The quality system is organized into three distinct layers. Layer 1 consists of fast global checks, where Ruff handles linting and formatting and Mypy verifies type annotations across all Python files. Layer 2 focuses on plugin-specific checks, running only on changed plugins to execute targets like `run-plugin-lint.sh` and `run-plugin-tests.sh`. Layer 3 involves validation hooks that verify plugin structure, skill frontmatter, context optimization, and security through tools like Bandit.
 
 ## Pre-Commit Hooks
 
@@ -186,15 +179,15 @@ error: "ProjectTracker" has no attribute "initiative_tracker"
 pre-commit install --install-hooks
 \`\`\`
 
-### Skipping Hooks (Emergency Only)
+### Skipping Hooks (Emergency)
 
-\`\`\`bash
-# Skip all hooks (DANGEROUS)
+```bash
+# Skip all hooks (not recommended)
 git commit --no-verify -m "emergency: critical hotfix"
 
 # Skip specific hook
 SKIP=run-plugin-tests git commit -m "WIP: tests in progress"
-\`\`\`
+```
 
 ## Best Practices
 

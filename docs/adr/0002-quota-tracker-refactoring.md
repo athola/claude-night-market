@@ -6,16 +6,9 @@
 
 ## Context
 
-The `conjure` plugin initially implemented its own quota tracking system (`GeminiQuotaTracker`) to manage API rate limits for Gemini delegation. This implementation duplicated quota tracking logic that could benefit other plugins (Qwen, Claude, etc.).
+The `conjure` plugin initially implemented its own quota tracking system (`GeminiQuotaTracker`) to manage API rate limits for Gemini delegation. This implementation duplicated quota tracking logic that could benefit other plugins like Qwen and Claude.
 
-**Problems with the original approach:**
-
-- **Code duplication**: Each service-specific plugin would need to implement identical quota tracking
-- **Maintenance burden**: Bug fixes and improvements needed to be copied across implementations
-- **Inconsistent behavior**: Different plugins might implement quota tracking differently
-- **Testing overhead**: Each plugin needed to test common quota tracking functionality
-
-The original `GeminiQuotaTracker` was 287 lines with 11 methods that were generic to any quota tracking system.
+The original approach presented several problems. Code duplication meant that each service-specific plugin would need to implement identical quota tracking, increasing the maintenance burden as bug fixes and improvements had to be manually copied across implementations. This also led to inconsistent behavior between plugins and increased testing overhead by requiring each plugin to test common functionality. The original `GeminiQuotaTracker` was 287 lines with 11 methods that were generic to any quota tracking system.
 
 ## Decision
 
@@ -187,20 +180,7 @@ dependencies = [
 
 ### Benefits
 
-**Code Maintenance**
-- Single source of truth for quota tracking logic
-- Bug fixes in base class benefit all plugins
-- Consistent behavior across services
-
-**Testing**
-- Focused tests on service-specific features only
-- Base class tests cover common functionality
-- Smaller test surface to maintain
-
-**Extensibility**
-- Other plugins can extend `QuotaTracker` (Qwen, Claude, etc.)
-- Clear extension points via override methods
-- Composable architecture
+This refactoring provides significant improvements in code maintenance by establishing a single source of truth for quota tracking logic. Bug fixes in the base class now benefit all plugins, and behavior remains consistent across different services. From a testing perspective, we can now focus on service-specific features while the base class tests cover common functionality, resulting in a smaller test surface. The pattern is also highly extensible, allowing other plugins to extend the `QuotaTracker` with clear extension points through override methods.
 
 ### Backward Compatibility
 
@@ -223,28 +203,11 @@ limits_dict = tracker.limits  # Backward-compatible property
 
 ## Consequences
 
-### Positive
-- **Reduced duplication**: 11 methods eliminated from plugin
-- **Easier maintenance**: Core logic in one place
-- **Extensibility**: Pattern applies to other services
-- **Consistency**: All plugins use same quota patterns
-- **Testability**: Smaller, focused test suites
-
-### Negative
-- **Additional dependency**: Plugins must depend on leyline
-- **Version coupling**: Changes to base class affect all plugins
-- **Learning curve**: Developers must understand inheritance pattern
+Moving core logic to a shared base class has reduced duplication by eliminating 11 redundant methods from the plugin. This centralization makes the ecosystem easier to maintain and ensures that all plugins follow the same quota patterns. While this introduces a dependency on `leyline` and creates some version coupling between the base class and its consumers, the overall consistency and improved testability provide a more stable foundation for multi-model delegation.
 
 ## Migration Guide
 
-For plugins implementing service-specific quota tracking:
-
-1. **Add leyline dependency** to `pyproject.toml`
-2. **Extend** `QuotaTracker` base class
-3. **Configure** service-specific `QuotaConfig`
-4. **Override** only service-specific methods (e.g., `estimate_task_tokens`)
-5. **Test** that all functionality works
-6. **Delete** duplicated quota tracking code
+To migrate a plugin to the new quota tracking system, add the `leyline` dependency to your `pyproject.toml` and extend the `QuotaTracker` base class. You should then configure the service-specific `QuotaConfig` and override only the methods that require unique logic, such as `estimate_task_tokens`. Once the functionality is verified with tests, any duplicated quota tracking code can be safely removed from the plugin.
 
 ## Related
 

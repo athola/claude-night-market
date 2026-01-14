@@ -16,7 +16,7 @@ Minister syncs GitHub Projects, issues, and checks for status reporting and road
 
 | Area | Description | Assets |
 |------|-------------|--------|
-| Issue Lifecycle | Manage GitHub issues with analysis and automation. | `commands/create-issue.md`, `commands/close-issue.md` |
+| Issue Lifecycle | Manage GitHub issues with analysis and automation. | `commands/create-issue.md`, `commands/close-issue.md`, `commands/update-labels.md` |
 | Initiative Tracking | Data model and CLI for initiative metrics. | `scripts/tracker.py`, `src/minister/project_tracker.py` |
 | GitHub Integration | Emit markdown comments on issues. | `scripts/tracker.py`, `.github/workflows/minister-comment.yml` |
 | Release Governance | Health-check gates for CI and documentation. | `skills/release-health-gates` |
@@ -46,6 +46,7 @@ plugins/minister/
 |---------|---------|-------|
 | `/create-issue` | Create GitHub issues with formatting and references. | Quick issue creation, bug reports, feature requests. |
 | `/close-issue` | Analyze if issues can be closed based on commits/code. | Issue triage, completion verification. |
+| `/update-labels` | Reorganize labels into professional taxonomy. | Label standardization, backlog cleanup. |
 
 ## Skills
 
@@ -58,19 +59,9 @@ Each skill includes a `SKILL.md` frontmatter block, scenario modules, and refere
 
 ## Scripts
 
-### `tracker.py`
+### Tracker Capabilities
 
-```
-uv run python plugins/minister/scripts/tracker.py status --github-comment
-```
-
-*Adds or updates tasks, exports CSV rollups, and prints GitHub-ready markdown.*
-
-Key commands:
-- `add`: Capture a task tied to a GitHub issue/PR URL.
-- `update`: Refresh status, percent complete, or linked artifacts.
-- `status --github-comment`: Emit comment-ready markdown.
-- `export --output report.csv`: Share data with PM tools.
+The `tracker.py` script provides several management functions for initiative tracking. You can use the `add` command to capture a task tied directly to a GitHub issue or PR URL, while the `update` command allows you to refresh completion percentages and linked artifacts. The `status --github-comment` command emits markdown formatted for GitHub comments, and the `export` command supports data sharing with PM tools by generating CSV rollups.
 
 ## Docs & Playbooks
 
@@ -79,12 +70,9 @@ Key commands:
 - `docs/playbooks/release-train-health.md`: Release manager checklist.
 - `docs/templates/status-report-template.md`: Status template referencing GitHub signals.
 
-## Integration Tips
+## Integration Patterns
 
-1. Reference Minister skills from other plugins’ frontmatter.
-2. Automate data ingest by pointing cron jobs at `src/minister/project_tracker.ProjectTracker`.
-3. Store generated artifacts inside `.claude/minister/`.
-4. Use Leyline for quota-aware GitHub API calls.
+To integrate Minister with other tools, reference its skills directly in the frontmatter of other plugins. You can automate data ingestion by pointing cron jobs at the `ProjectTracker` class in the `minister` package. We recommend storing all generated artifacts within the `.claude/minister/` directory to maintain organization. Additionally, using Leyline for GitHub API calls ensures that requests remain within established quota limits.
 
 ## Roadmap
 

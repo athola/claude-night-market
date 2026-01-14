@@ -44,7 +44,7 @@ If the architecture is decided, use standard initialization to generate language
 
 ### Step 3: Establish Persistent State
 
-Establish a persistent state to manage artifacts and constraints across sessions. This ensures that non-negotiable principles are respected and progress is tracked consistently.
+Establish a persistent state to manage artifacts and constraints across sessions. This maintains non-negotiable principles and supports consistent progress tracking.
 
 ```bash
 # (Once) Define non-negotiable principles for the project
@@ -616,11 +616,11 @@ Skill(sanctum:pr-preparation)
 Agent(pensive:code-reviewer) Review authentication module
 ```
 
-### Skill Invocation Fallback
+### Skill Invocation: Secondary Strategy
 
 The `Skill` tool is a Claude Code feature that may not be available in all environments. When the `Skill` tool is unavailable:
 
-**Fallback Pattern:**
+**Secondary Pattern:**
 ```bash
 # 1. If Skill tool fails or is unavailable, read the skill file directly:
 Read plugins/{plugin}/skills/{skill-name}/SKILL.md
@@ -632,7 +632,7 @@ Read plugins/{plugin}/skills/{skill-name}/SKILL.md
 **Example:**
 ```bash
 # Instead of: Skill(sanctum:commit-messages)
-# Fallback:   Read plugins/sanctum/skills/commit-messages/SKILL.md
+# Secondary:  Read plugins/sanctum/skills/commit-messages/SKILL.md
 #             Then follow the instructions in that file
 ```
 
@@ -640,7 +640,7 @@ Read plugins/{plugin}/skills/{skill-name}/SKILL.md
 - Plugin skills: `plugins/{plugin}/skills/{skill-name}/SKILL.md`
 - User skills: `~/.claude/skills/{skill-name}/SKILL.md`
 
-This ensures workflows work across environments.
+This allows workflows to function across different environments.
 
 ---
 
@@ -740,7 +740,7 @@ claude --disallowedTools "Task(expensive-agent)"
 
 ### Subagent Resilience
 
-Subagents now **continue after permission denial**, trying alternative approaches instead of failing. This makes agent workflows more robust.
+Subagents are designed to continue operations after a permission denial by attempting alternative approaches instead of failing immediately. this behavior results in more reliable agent workflows when interacting with restrictive environments.
 
 ### Agent-Aware Hooks (2.1.2+)
 

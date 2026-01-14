@@ -3,10 +3,14 @@
 
 import argparse
 import json
+import logging
 import re
 import sys
 from pathlib import Path
 from typing import TypedDict
+
+# Configure logging for the validator
+logger = logging.getLogger(__name__)
 
 # Constants
 FRONTMATTER_PARTS_COUNT = 3  # Expected parts when splitting by '---'
@@ -30,10 +34,62 @@ class ImbueValidator:
         Args:
             plugin_root: Root directory of the imbue plugin.
 
+        Logs warnings when:
+            - Plugin root directory does not exist
+            - Plugin root directory exists but is empty
+            - Plugin root directory lacks expected structure (skills/ or plugin.json)
+
         """
         self.plugin_root = plugin_root
+
+        # Check root status and log appropriate warnings (addresses issue #34)
+        self.root_exists = plugin_root.exists()
+        self.root_empty = False
+        self.has_valid_structure = False
+
+        if not self.root_exists:
+            logger.warning(
+                "Plugin root directory does not exist: %s",
+                plugin_root,
+            )
+            self.skill_files: list[Path] = []
+            self.plugin_config = plugin_root / "plugin.json"
+            return
+
+        # Check if directory is empty
+        try:
+            contents = list(plugin_root.iterdir())
+            self.root_empty = len(contents) == 0
+        except OSError as e:
+            logger.warning("Unable to read directory %s: %s", plugin_root, e)
+            self.root_empty = True
+
+        if self.root_empty:
+            logger.warning(
+                "Plugin root directory is empty: %s",
+                plugin_root,
+            )
+            self.skill_files = []
+            self.plugin_config = plugin_root / "plugin.json"
+            return
+
+        # Check for expected plugin structure
+        skills_dir = plugin_root / "skills"
+        plugin_json = plugin_root / "plugin.json"
+        has_skills = skills_dir.exists() and skills_dir.is_dir()
+        has_plugin_json = plugin_json.exists() and plugin_json.is_file()
+
+        self.has_valid_structure = has_skills or has_plugin_json
+
+        if not self.has_valid_structure:
+            logger.warning(
+                "Plugin root lacks expected structure "
+                "(no skills/ directory or plugin.json): %s",
+                plugin_root,
+            )
+
         self.skill_files = list(plugin_root.rglob("SKILL.md"))
-        self.plugin_config = plugin_root / "plugin.json"
+        self.plugin_config = plugin_json
 
     def scan_review_workflows(self) -> ImbueValidationResult:
         """Scan for review workflow skills and evidence patterns."""

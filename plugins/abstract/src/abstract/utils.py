@@ -261,7 +261,7 @@ def load_skill_file(skill_path: Path) -> tuple[str, dict]:
 
 
 def get_skill_name(frontmatter: dict, skill_path: Path) -> str:
-    """Get skill name from frontmatter or fallback to filename.
+    """Get skill name from frontmatter or filename.
 
     Args:
         frontmatter: Parsed frontmatter dictionary.

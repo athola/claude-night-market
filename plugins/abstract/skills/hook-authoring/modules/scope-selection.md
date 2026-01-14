@@ -1,6 +1,31 @@
 # Hook Scope Selection Guide
 
-detailed decision framework for choosing where to place hooks: plugin, project, or global scope.
+Detailed decision framework for choosing where to place hooks: plugin, project, or global scope.
+
+## Important: Auto-Loading Behavior
+
+> **`hooks/hooks.json` is automatically loaded** by Claude Code when the plugin is enabled.
+> Do NOT add `"hooks": "./hooks/hooks.json"` to your `plugin.json` - this causes duplicate load errors.
+> The `hooks` field in `plugin.json` is only needed for **additional** hook files beyond the standard `hooks/hooks.json`.
+
+**Correct** (hooks/hooks.json auto-loads):
+```json
+{
+  "name": "my-plugin",
+  "version": "1.0.0",
+  "license": "MIT"
+}
+```
+
+**Incorrect** (causes duplicate hook error):
+```json
+{
+  "name": "my-plugin",
+  "version": "1.0.0",
+  "license": "MIT",
+  "hooks": "./hooks/hooks.json"
+}
+```
 
 ## The Three Scopes
 
@@ -80,7 +105,7 @@ my-plugin/
 {
   "PreToolUse": [
     {
-      "matcher": { "toolName": "Read" },
+      "matcher": "Read",
       "hooks": [{
         "type": "command",
         "command": "echo 'Plugin reading: $CLAUDE_TOOL_INPUT' >> ${CLAUDE_PLUGIN_ROOT}/log.txt"
@@ -103,10 +128,7 @@ my-plugin/
 {
   "PreToolUse": [
     {
-      "matcher": {
-        "toolName": "Edit",
-        "inputPattern": ".*\\.ya?ml$"
-      },
+      "matcher": "Edit",
       "hooks": [{
         "type": "command",
         "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-yaml.sh $CLAUDE_TOOL_INPUT"
@@ -116,12 +138,14 @@ my-plugin/
 }
 ```
 
+> **Note**: Use string matchers (`"Edit"`) per Claude Code SDK. Filter by file pattern in hook script.
+
 **Code Formatter Plugin**:
 ```json
 {
   "PostToolUse": [
     {
-      "matcher": { "toolName": "Edit" },
+      "matcher": "Edit",
       "hooks": [{
         "type": "command",
         "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format-code.py"
@@ -164,7 +188,7 @@ my-project/
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": { "toolName": "Bash" },
+        "matcher": "Bash",
         "hooks": [{
           "type": "command",
           "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == *\"production\"* ]]; then echo 'BLOCKED: Production access requires approval'; exit 1; fi"
@@ -189,7 +213,7 @@ my-project/
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": { "toolName": "Edit" },
+        "matcher": "Edit",
         "hooks": [{
           "type": "command",
           "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == */production/* ]]; then echo 'ERROR: Cannot edit production configs without approval'; exit 1; fi"
@@ -222,7 +246,7 @@ my-project/
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": { "toolName": "Write" },
+        "matcher": "Write",
         "hooks": [{
           "type": "command",
           "command": ".claude/hooks/validate-naming-convention.py"
@@ -304,7 +328,7 @@ The hook should apply to **all your Claude sessions** across all projects.
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": { "toolName": "Bash" },
+        "matcher": "Bash",
         "hooks": [{
           "type": "command",
           "command": "~/.claude/hooks/global-safety-check.sh"
@@ -378,17 +402,19 @@ All three execute in parallel
 ```json
 {
   "PreToolUse": [{
-    "matcher": { "toolName": "Edit", "inputPattern": ".*\\.yaml$" },
+    "matcher": "Edit",
     "hooks": [{"type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/validate.sh"}]
   }]
 }
 ```
 
+> **Note**: Use string matchers. Filter by file pattern inside the hook script.
+
 **Auto-completion**: Suggest plugin-specific completions
 ```json
 {
   "PostToolUse": [{
-    "matcher": { "toolName": "Read" },
+    "matcher": "Read",
     "hooks": [{"type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/suggest-completions.py"}]
   }]
 }
@@ -400,7 +426,7 @@ All three execute in parallel
 ```json
 {
   "PreToolUse": [{
-    "matcher": { "toolName": "Edit" },
+    "matcher": "Edit",
     "hooks": [{
       "type": "command",
       "command": "if [[ \"$CLAUDE_TOOL_INPUT\" == */production/* ]]; then exit 1; fi"
@@ -439,7 +465,7 @@ All three execute in parallel
 ```json
 {
   "PreToolUse": [{
-    "matcher": { "toolName": "Bash" },
+    "matcher": "Bash",
     "hooks": [{
       "type": "command",
       "command": "~/.claude/hooks/safety-check.sh"

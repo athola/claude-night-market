@@ -108,7 +108,7 @@ def validate_token(token: str) -> bool:
     return False
 ```
 
-## Multi-Method Fallback
+## Multi-Method Secondary
 
 ```python
 def authenticate(service: str, methods: list[AuthMethod]) -> AuthStatus:

@@ -50,14 +50,15 @@ class ContentParser:
 
     @staticmethod
     def get_file_content(context: Any, filename: str = "") -> str:
-        """Get file content from context with fallback.
+        """Get file content from context if available.
 
         Args:
             context: Skill context with file access methods
             filename: Optional filename to retrieve
 
         Returns:
-            File content as string
+            File content as string, or empty string if context lacks
+            get_file_content method or returns non-string value
         """
         if hasattr(context, "get_file_content"):
             if filename:

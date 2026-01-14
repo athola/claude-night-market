@@ -1,64 +1,36 @@
-# Separating Development Skills from Application Skills
+# Separating Development and Application Skills
 
-**Problem Statement**: How do you use Claude Code to build an AI agent application without the development assistant confusing its own skills with the skills you're programming into your agent?
-
-This guide shows proven patterns from the claude-night-market ecosystem for maintaining clean separation between:
-1. **Development Skills**: Skills that help YOU build your application (Claude Code assisting development)
-2. **Runtime Skills**: Skills that your APPLICATION uses when deployed (your agent's capabilities)
-
-## Table of Contents
-
-- [The Problem](#the-problem)
-- [Architectural Solutions](#architectural-solutions)
-- [Pattern 1: Physical Directory Separation](#pattern-1-physical-directory-separation)
-- [Pattern 2: Scoped Loading with Hooks](#pattern-2-scoped-loading-with-hooks)
-- [Pattern 3: Context Forking](#pattern-3-context-forking)
-- [Pattern 4: Namespace Prefixing](#pattern-4-namespace-prefixing)
-- [SDK Integration](#sdk-integration)
-- [Complete Example](#complete-example)
-- [Best Practices](#best-practices)
-
----
+Using Claude Code to build an AI agent can cause confusion if the assistant mistakes development tools for application features. This guide shows how to separate development skills from runtime application capabilities.
 
 ## The Problem
 
-Consider building a to-do list agent using Claude Code:
+Development and runtime skills collide when they share the same directory:
 
-```
-❌ Problematic Structure:
+```bash
+# Problematic Structure
 .claude/skills/
-├── create-todo.md          # Runtime: Agent creates todos
-├── validate-todo.md        # Runtime: Agent validates todos
-├── debug-python.md         # Development: Claude Code helps you debug
-└── review-architecture.md  # Development: Claude Code reviews your design
+├── create-todo.md          # Runtime: Agent capability
+├── debug-python.md         # Development: Assistance
 ```
 
-**What goes wrong:**
-1. You ask Claude Code: "Build the to-do list page"
-2. Claude Code sees `create-todo.md` skill
-3. Claude Code tries to CREATE a todo instead of BUILDING THE PAGE
-4. You wanted the second skill, got the first by mistake
-
-This is **namespace collision** - two different contexts (development vs runtime) sharing the same skill discovery mechanism.
+If you ask Claude Code to "Build the to-do list page," it may incorrectly invoke the `create-todo.md` runtime skill instead of assisting with development. This happens because two different contexts share a single discovery mechanism.
 
 ---
 
 ## Architectural Solutions
 
-The claude-night-market ecosystem uses 4 complementary patterns:
-
-| Pattern | Separation Mechanism | Use When |
+| Pattern | Separation Mechanism | Use Case |
 |---------|---------------------|----------|
-| **Physical Directory** | Different folders for dev vs runtime | Always (foundation) |
-| **Scoped Loading** | Hooks control which skills load when | Complex projects |
-| **Context Forking** | Isolated context windows per skill | Testing runtime skills |
+| **Physical Directory** | Different folders for dev vs runtime | Foundation for all projects |
+| **Scoped Loading** | Hooks control skill availability | Complex or multi-mode projects |
+| **Context Forking** | Isolated context windows | Testing runtime skills without pollution |
 | **Namespace Prefixing** | Explicit naming: `dev:*` vs `app:*` | Multi-agent systems |
 
 ---
 
-## Pattern 1: Physical Directory Separation
+## Physical Directory Separation
 
-**Core Principle**: Keep development skills in `.claude/` and runtime skills in `src/agent/prompts/` (or similar application directory).
+Keep development skills in `.claude/` and runtime skills in `src/agent/prompts/` (or your application's prompt directory).
 
 ### Directory Structure
 
@@ -67,8 +39,6 @@ my-todo-app/
 ├── .claude/                          # Development-time (Claude Code)
 │   ├── skills/
 │   │   ├── dev-debug-python.md       # Helps YOU debug
-│   │   ├── dev-review-code.md        # Helps YOU review
-│   │   └── dev-test-agent.md         # Helps YOU test the agent
 │   └── hooks/
 │       └── hooks.json                # Claude Code automation
 │
@@ -76,18 +46,12 @@ my-todo-app/
 │   └── agent/
 │       ├── prompts/                  # Runtime (your agent)
 │       │   ├── create-todo.md        # Agent capability
-│       │   ├── validate-todo.md      # Agent capability
-│       │   └── confirm-action.md     # Agent capability
 │       └── main.py                   # SDK integration code
-│
-└── pyproject.toml
 ```
 
-### Why This Works
+### Advantages of Physical Separation
 
-1. **Claude Code only scans `.claude/skills/`** - it won't auto-load runtime skills
-2. **Your agent only loads `src/agent/prompts/`** - it doesn't see development skills
-3. **Clear semantic boundary** - directory name indicates purpose
+Physical directory separation provides clear isolation between development and runtime contexts. Because Claude Code only scans the `.claude/skills/` directory, it will not auto-load runtime skills during a development session. Conversely, your application agent can be configured to only load from `src/agent/prompts/`, ignoring development-specific tools. This organization also improves clarity by making the purpose of each skill explicit through its location in the project.
 
 ### Implementation
 
@@ -529,120 +493,20 @@ python src/agent/main.py
 
 ## Best Practices
 
-### 1. Clear Directory Boundaries
+### 1. Separate Directories
+Always store development skills in `.claude/skills/` and runtime skills in a project-specific folder like `src/agent/prompts/`. Never mix them in the same directory.
 
-```
-✅ DO:
-.claude/skills/          # Development only
-src/agent/prompts/       # Runtime only
-
-❌ DON'T:
-.claude/skills/          # Mixed development + runtime
-```
-
-### 2. Namespace Everything
-
-```
-✅ DO:
-dev-debug-python.md      # Clear prefix
-runtime-create-todo.md   # Clear prefix
-
-❌ DON'T:
-debug.md                 # Ambiguous
-create-todo.md          # Which context?
-```
+### 2. Explicit Namespacing
+Use prefixes to indicate the intended context:
+*   `dev-*` for development tools
+*   `test-*` for testing utilities
+*   `runtime-*` for agent prompts
 
 ### 3. Use Context Forking for Testing
+When testing runtime skills from within Claude Code, use `context: fork` to prevent test data or agent prompts from polluting your active development session.
 
-```markdown
-✅ DO:
----
-name: test-runtime-skill
-context: fork            # Isolated testing
----
-
-❌ DON'T:
-Load runtime skills directly into development context
-```
-
-### 4. Compose System Prompts Programmatically
-
-```python
-✅ DO:
-def _build_system_prompt(self) -> str:
-    skills = []
-    for skill_file in self.prompts_dir.glob("*.md"):
-        skills.append(skill_file.read_text())
-    return compose_skills(skills)
-
-❌ DON'T:
-system_prompt = """
-Hardcoded instructions...
-"""
-```
-
-### 5. Document Separation in README
-
-```markdown
-# Todo Agent
-
-## Architecture
-
-This project separates development-time and runtime-time AI skills:
-
-- `.claude/skills/`: Claude Code development assistance
-- `src/agent/prompts/`: Agent runtime capabilities (loaded into system_prompt)
-
-See `docs/skills-separation.md` for details.
-```
-
----
-
-## Related Night Market Plugins
-
-| Plugin | Helps With | Key Skills/Commands |
-|--------|-----------|---------------------|
-| **abstract** | Skill architecture patterns | `modular-skills`, `validate-plugin-structure` |
-| **conserve** | Context optimization | `bloat-scan` (keep skills lean) |
-| **pensive** | Code review | `full-review` (review agent + dev code separately) |
-| **sanctum** | Git workflows | `/pr` (prepare agent releases) |
-| **spec-kit** | Spec-driven development | `/speckit-specify` (spec before building skills) |
-
----
-
-## Troubleshooting
-
-### Problem: Claude Code uses runtime skills during development
-
-**Symptom**: You ask "Build the todo page" and Claude tries to create a todo.
-
-**Solution**:
-1. Move runtime skills OUT of `.claude/skills/`
-2. Put them in `src/agent/prompts/` or similar app directory
-3. Use `test-runtime-skill.md` with `context: fork` if you need to test them
-
-### Problem: Agent can't find runtime skills
-
-**Symptom**: Agent starts but has empty system prompt.
-
-**Solution**:
-```python
-# Check prompts directory exists
-assert self.prompts_dir.exists(), f"Prompts dir not found: {self.prompts_dir}"
-
-# Log loaded skills
-skills = list(self.prompts_dir.glob("*.md"))
-print(f"Loaded {len(skills)} runtime skills: {[s.stem for s in skills]}")
-```
-
-### Problem: Skills bleeding between contexts
-
-**Symptom**: Development skills appear in agent responses.
-
-**Solution**:
-1. **Verify directory separation**: `ls .claude/skills/` vs `ls src/agent/prompts/`
-2. **Check imports**: Make sure `main.py` doesn't import from `.claude/`
-3. **Use namespacing**: Prefix all skills with `dev-` or `runtime-`
+### 4. Compose Prompts Programmatically
+Read prompt files from your directory at runtime and join them into a system prompt. Avoid hardcoding logic in your SDK calls that should be managed in Markdown files.
 
 ---
 
@@ -651,17 +515,15 @@ print(f"Loaded {len(skills)} runtime skills: {[s.stem for s in skills]}")
 | Aspect | Development Skills | Runtime Skills |
 |--------|-------------------|----------------|
 | **Location** | `.claude/skills/` | `src/agent/prompts/` |
-| **Loaded By** | Claude Code | Your application SDK code |
-| **Purpose** | Help YOU build | Your AGENT's capabilities |
-| **Format** | Skill frontmatter + markdown | Plain markdown/prompts |
-| **Naming** | `dev-*`, `test-*` | `runtime-*` or domain-specific |
-| **Testing** | Regular Claude Code usage | `context: fork` or unit tests |
+| **Loaded By** | Claude Code | Application SDK code |
+| **Purpose** | Development assistance | Agent capabilities |
+| **Format** | YAML frontmatter + Markdown | Plain Markdown/Prompts |
+| **Naming** | `dev-*`, `test-*` | `runtime-*` |
+| **Testing** | Standard CLI usage | `context: fork` |
 
-**Mental Model**:
-- Development skills = Tools in YOUR toolbox (Claude Code assists)
-- Runtime skills = Instructions in YOUR AGENT's brain (system prompts)
-
-They should NEVER mix.
+**Categorization**:
+- **Development Skills**: Tools for the developer (Claude Code assistance)
+- **Runtime Skills**: Instructions for the agent (system prompts)
 
 ---
 

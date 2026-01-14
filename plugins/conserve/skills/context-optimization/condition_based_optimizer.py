@@ -26,7 +26,7 @@ HIGH_USAGE_SIMULATION = 0.95
 WARNING_THRESHOLD = 0.40
 CRITICAL_THRESHOLD = 0.50
 
-# Import the base optimizer - type: ignore for fallback classes
+# Import the base optimizer - type: ignore for default classes
 try:
     from context_optimization_service import (
         ConservationContextOptimizer,
@@ -34,19 +34,19 @@ try:
         ContentBlock,
     )
 except ImportError:
-    # Fallback for standalone use
+    # Default for standalone use
     class ConservationContextOptimizer:  # type: ignore[no-redef]
-        """Fallback optimizer when imports are not available."""
+        """Default optimizer when imports are not available."""
 
         pass
 
     class ContentBlock:  # type: ignore[no-redef]
-        """Fallback content block when imports are not available."""
+        """Default content block when imports are not available."""
 
         pass
 
     class ConservationServiceRegistry:  # type: ignore[no-redef]
-        """Fallback service registry when imports are not available."""
+        """Default service registry when imports are not available."""
 
         pass
 

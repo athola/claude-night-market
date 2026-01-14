@@ -88,14 +88,8 @@ Additional metadata useful for the marketplace but not part of the official Clau
 
 ## Why Two Files?
 
-1. **plugin.json** validates compatibility with Claude Code's validator and installation system
-2. **metadata.json** preserves rich marketplace metadata without causing validation errors
-3. Marketplace tooling can read both files to provide enhanced features while maintaining compatibility
+The dual-manifest system exists because `plugin.json` must strictly adhere to Claude Code's official schema to pass validation and installation checks. In contrast, `metadata.json` allows us to preserve rich, marketplace-specific metadata—such as skill dependencies and structured capabilities—without triggering validation errors. Marketplace tooling is designed to read both files, providing enhanced features while ensuring full compatibility with the official plugin system.
 
 ## Migration Notes
 
-When updating plugins:
-1. Keep plugin.json minimal and standards-compliant
-2. Move extended metadata to metadata.json
-3. Validate with `claude plugin validate ./path/to/plugin`
-4. Both files should maintain version consistency
+When updating plugins, keep `plugin.json` minimal and compliant with the official standards. Move any extended metadata fields into `metadata.json` and verify the results by running the official `claude plugin validate` command. Both manifest files must maintain consistent version numbers to ensure the marketplace tooling can correctly resolve dependencies and capabilities.

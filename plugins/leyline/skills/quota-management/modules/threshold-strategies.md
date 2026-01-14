@@ -19,7 +19,7 @@ def get_degradation_strategy(usage_percent: float) -> str:
     elif usage_percent < 95:
         return "essential_only"
     else:
-        return "defer_or_fallback"
+        return "defer_or_secondary"
 ```
 
 ### Batch Size Adjustment
@@ -45,7 +45,7 @@ def wait_for_reset(quota_type: str) -> int:
     return reset_times.get(quota_type, 3600)
 ```
 
-### Fallback Services
+### Secondary Services
 When primary service is at capacity:
 1. Check alternative service quota
 2. Use cached results if available

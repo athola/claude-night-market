@@ -1,13 +1,13 @@
 # Agent Boundaries & Entry Points
 
 > **Created**: 2026-01-08
-> **Issue**: #70 - Clarify agent boundaries and reduce overwhelming complexity
+> **Issue**: #70 - Clarify agent boundaries and reduce complexity
 
-Quick reference for understanding which agents to use and how they relate.
+Reference for agent selection and relationships.
 
 ## Start Here
 
-**New to the ecosystem?** Start with these agents:
+Primary entry point agents:
 
 1. **`abstract:plugin-validator`** - Validate plugin structure before making changes
 2. **`pensive:code-reviewer`** - Review code changes
@@ -22,18 +22,13 @@ Quick reference for understanding which agents to use and how they relate.
 The ecosystem organizes agents in layers, each building on the layer below:
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  Domain Specialists (pensive, parseltongue, etc.)  │
-│  ↓ Use utility agents for support                   │
-├─────────────────────────────────────────────────────┤
-│  Utility Layer (conserve, conjure, hookify)        │
-│  ↓ Use foundation agents for workflows             │
-├─────────────────────────────────────────────────────┤
-│  Foundation (imbue, sanctum, leyline)              │
-│  ↓ Use meta agents for validation                  │
-├─────────────────────────────────────────────────────┤
-│  Meta (abstract) - Plugin dev & validation         │
-└─────────────────────────────────────────────────────┘
+[ Domain Specialists (pensive, parseltongue, etc.) ]
+  (Use utility agents for support)
+[ Utility Layer (conserve, conjure, hookify) ]
+  (Use foundation agents for workflows)
+[ Foundation (imbue, sanctum, leyline) ]
+  (Use meta agents for validation)
+[ Meta (abstract) - Plugin dev & validation ]
 ```
 
 **Key Principle**: Higher-layer agents delegate to lower-layer agents. Lower layers don't know about higher layers.
@@ -46,10 +41,10 @@ The ecosystem organizes agents in layers, each building on the layer below:
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `abstract:plugin-validator` | Validating plugin structure before commits | ✅ Structure validation<br>❌ Business logic |
-| `abstract:skill-auditor` | Auditing skill quality & token efficiency | ✅ Quality metrics<br>❌ Functional testing |
+| `abstract:plugin-validator` | Validate plugin structure before commits | Structure validation (no business logic) |
+| `abstract:skill-auditor` | Audit skill quality and token efficiency | Quality metrics (no functional testing) |
 
-**Decision Point**: Use meta agents when working ON the plugin ecosystem itself, not when using plugins.
+**Context**: Use meta agents for development within the plugin ecosystem.
 
 ---
 
@@ -57,11 +52,11 @@ The ecosystem organizes agents in layers, each building on the layer below:
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `sanctum:pr-agent` | Preparing pull requests, commit messages | ✅ Git workflows<br>❌ Code review quality |
-| `imbue:proof-evaluator` | Validating proof-of-work requirements met | ✅ Verification<br>❌ Implementation |
-| `leyline:dependency-mapper` | Understanding plugin dependencies | ✅ Dependency analysis<br>❌ Refactoring |
+| `sanctum:pr-agent` | Prepare pull requests and commit messages | Git workflows (no code review quality) |
+| `imbue:proof-evaluator` | Validate proof-of-work requirements | Verification (no implementation) |
+| `leyline:dependency-mapper` | Map plugin dependencies | Dependency analysis (no refactoring) |
 
-**Decision Point**: Use foundation agents for version control, validation gates, and cross-plugin coordination.
+**Context**: Use foundation agents for version control, validation gates, and cross-plugin coordination.
 
 ---
 
@@ -69,13 +64,13 @@ The ecosystem organizes agents in layers, each building on the layer below:
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `conserve:context-optimizer` | Assessing MECW & token usage | ✅ Token analysis<br>❌ Code optimization |
-| `conserve:bloat-auditor` | Detecting codebase bloat | ✅ Detection<br>❌ Remediation decisions |
-| `conserve:unbloat-remediator` | Executing bloat removal | ✅ Safe deletion<br>❌ Architecture changes |
-| `conjure:generator` | Generating boilerplate code | ✅ Templates<br>❌ Business logic |
-| `hookify:rule-compiler` | Compiling hook rules | ✅ Hook generation<br>❌ Hook logic |
+| `conserve:context-optimizer` | Assess MECW and token usage | Token analysis (no code optimization) |
+| `conserve:bloat-auditor` | Detect codebase bloat | Detection (no remediation decisions) |
+| `conserve:unbloat-remediator` | Execute bloat removal | Safe deletion (no architecture changes) |
+| `conjure:generator` | Generate boilerplate code | Templates (no business logic) |
+| `hookify:rule-compiler` | Compile hook rules | Hook generation (no hook logic) |
 
-**Decision Point**: Use utility agents for cross-cutting concerns like performance, boilerplate, and infrastructure.
+**Context**: Use utility agents for cross-cutting concerns like performance, boilerplate, and infrastructure.
 
 ---
 
@@ -83,15 +78,15 @@ The ecosystem organizes agents in layers, each building on the layer below:
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `pensive:code-reviewer` | Multi-discipline code review | ✅ API, architecture, security review<br>❌ Fixing issues |
-| `pensive:architecture-reviewer` | Architecture design review | ✅ Design patterns<br>❌ Implementation |
-| `pensive:rust-auditor` | Rust-specific code review | ✅ Rust idioms, safety<br>❌ Other languages |
-| `parseltongue:python-tester` | Python test generation & execution | ✅ Python testing<br>❌ Other languages |
-| `parseltongue:pytest-analyst` | Pytest output analysis | ✅ Test diagnostics<br>❌ Code fixes |
-| `memory-palace:curator` | Knowledge management | ✅ Documentation organization<br>❌ Code changes |
-| `spec-kit:spec-writer` | Writing specifications | ✅ Requirements<br>❌ Implementation |
+| `pensive:code-reviewer` | Multi-discipline code review | API, architecture, and security review (no fixes) |
+| `pensive:architecture-reviewer` | Architecture design review | Design patterns (no implementation) |
+| `pensive:rust-auditor` | Rust-specific code review | Rust idioms and safety (no other languages) |
+| `parseltongue:python-tester` | Python test generation | Python testing (no other languages) |
+| `parseltongue:pytest-analyst` | Pytest output analysis | Test diagnostics (no code fixes) |
+| `memory-palace:curator` | Knowledge management | Documentation organization (no code changes) |
+| `spec-kit:spec-writer` | Write specifications | Requirements (no implementation) |
 
-**Decision Point**: Use domain agents when you need specialized expertise in a specific language, paradigm, or discipline.
+**Context**: Use domain agents for specialized expertise in a language, paradigm, or discipline.
 
 ---
 
@@ -101,15 +96,15 @@ The ecosystem organizes agents in layers, each building on the layer below:
 
 ```
 User Request: "Review this PR"
-       ↓
+       |
 pensive:code-reviewer (Domain)
-       ↓ delegates to →
-       ├→ pensive:api-reviewer (API design)
-       ├→ pensive:security-reviewer (Security)
-       └→ pensive:performance-reviewer (Performance)
-       ↓ uses →
+       | delegates to ->
+       |- pensive:api-reviewer (API design)
+       |- pensive:security-reviewer (Security)
+       |_ pensive:performance-reviewer (Performance)
+       | uses ->
 sanctum:pr-agent (Foundation) for git integration
-       ↓ validates with →
+       | validates with ->
 abstract:plugin-validator (Meta) if plugin code
 ```
 
@@ -117,13 +112,13 @@ abstract:plugin-validator (Meta) if plugin code
 
 ```
 User Request: "Create new skill"
-       ↓
+       |
 abstract:skill-generator (Meta)
-       ↓ validates with →
+       | validates with ->
 abstract:skill-auditor (Meta) for quality
-       ↓ uses →
+       | uses ->
 conserve:context-optimizer (Utility) for token efficiency
-       ↓ commits with →
+       | commits with ->
 sanctum:pr-agent (Foundation)
 ```
 
@@ -131,13 +126,13 @@ sanctum:pr-agent (Foundation)
 
 ```
 User Request: "Clean up codebase"
-       ↓
+       |
 conserve:bloat-auditor (Utility) - scan
-       ↓ reports to user →
+       | reports to user ->
 User approves changes
-       ↓
+       |
 conserve:unbloat-remediator (Utility) - execute
-       ↓ uses →
+       | uses ->
 sanctum:pr-agent (Foundation) for commit
 ```
 
@@ -153,42 +148,36 @@ Agents respect their boundaries. Here's what happens when you ask outside their 
 | "pensive:code-reviewer, commit this" | "I review code, not manage git. Use `sanctum:pr-agent` to commit." | Redirect to foundation agent |
 | "conserve:bloat-auditor, delete these files" | "I detect bloat, not remediate. Use `conserve:unbloat-remediator` to delete." | Redirect to sibling agent |
 
-**This is intentional design**. Agents with clear boundaries:
-- ✅ Are easier to understand
-- ✅ Have predictable behavior
-- ✅ Can be combined reliably
-- ✅ Reduce token usage (no scope creep)
-
----
+This design is intentional. Agents with clear boundaries are easier to understand and maintain predictable behavior. They combine more reliably and help reduce token usage by preventing scope creep into unrelated tasks.
 
 ## Agent Selection Decision Tree
 
 ```
-┌─ Working on plugins themselves?
-│  └─ Yes → abstract:* (Meta)
-│
-├─ Need git/version control?
-│  └─ Yes → sanctum:* (Foundation)
-│
-├─ Need validation/gates?
-│  └─ Yes → imbue:* (Foundation)
-│
-├─ Need token optimization?
-│  └─ Yes → conserve:* (Utility)
-│
-├─ Need code generation?
-│  └─ Yes → conjure:* (Utility)
-│
-├─ Need language-specific help?
-│  ├─ Python → parseltongue:*
-│  ├─ Rust → pensive:rust-auditor
-│  └─ General → pensive:*
-│
-├─ Need architecture/design?
-│  └─ Yes → pensive:architecture-reviewer, spec-kit:*
-│
-└─ Need documentation?
-   └─ Yes → memory-palace:*, sanctum:update-docs
++-- Working on plugins themselves?
+|   +-- Yes -> abstract:* (Meta)
+|
++-- Need git/version control?
+|   +-- Yes -> sanctum:* (Foundation)
+|
++-- Need validation/gates?
+|   +-- Yes -> imbue:* (Foundation)
+|
++-- Need token optimization?
+|   +-- Yes -> conserve:* (Utility)
+|
++-- Need code generation?
+|   +-- Yes -> conjure:* (Utility)
+|
++-- Need language-specific help?
+|   +-- Python -> parseltongue:*
+|   +-- Rust -> pensive:rust-auditor
+|   +-- General -> pensive:*
+|
++-- Need architecture/design?
+|   +-- Yes -> pensive:architecture-reviewer, spec-kit:*
+|
++-- Need documentation?
+    +-- Yes -> memory-palace:*, sanctum:update-docs
 ```
 
 ---

@@ -295,10 +295,10 @@ class TestExistingFilesCheck:
 
 @pytest.mark.unit
 class TestProjectInfo:
-    """Test comprehensive project information gathering."""
+    """Verify project information gathering."""
 
-    def test_get_project_info_returns_complete_info(self, python_project):
-        """Given a Python project, when getting info, then returns complete project information."""
+    def test_get_project_info_returns_all_fields(self, python_project):
+        """Given a Python project, when getting info, then returns all project fields."""
         # Given
         detector = ProjectDetector(python_project)
 

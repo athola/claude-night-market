@@ -57,63 +57,52 @@ estimated_tokens: 1200
 
 ## Overview
 
-A framework for designing modular skills to maintain predictable token usage. It breaks complex skills into focused modules that are easier to test and optimize.
+The modular skills framework provides a methodology for breaking complex skills into focused modules. This approach supports predictable token usage by preventing monolithic files that consume excessive context. By implementing progressive disclosure, skills start with essential information and provide deeper technical details via `@include` or `Load:` statements only when required.
 
-The framework implements progressive disclosure: skills start with essential information and provide deeper details only when needed. This approach keeps context windows efficient while ensuring functionality is available.
+### Outcome Analysis
 
-### Key Benefits
-
-- **Predictable Resource Usage**: Modular design keeps token consumption controlled.
-- **Maintainable Architecture**: Shallow dependencies and clear boundaries.
-- **Scalable Development**: Hub-and-spoke model allows growth.
-- **Better Testing**: Focused modules are easier to test in isolation.
-- **Tool Integration**: Executable components automate patterns.
+Modular design results in controlled resource usage by keeping individual files within recommended line limits. This architecture relies on shallow dependencies and clear boundaries between components, which simplifies testing and maintenance. A hub-and-spoke model supports project growth without bloating the primary skill files, and focused modules are easier to verify in isolation.
 
 ### Core Components
 
-- **skill-analyzer**: Complexity analysis and modularization recommendations
-- **token-estimator**: Usage forecasting and cost optimization guidance
-- **module-validator**: Structural quality checks and compliance validation
+The framework includes three primary tools for skill development. The `skill-analyzer` provides complexity analysis and suggests optimal points for modularization. For resource management, the `token-estimator` forecasts usage and offers cost optimization guidance based on current skill structures. Finally, the `module-validator` performs structural quality checks to ensure compliance with project standards.
 
 ### Design Principles
 
-- **Single Responsibility**: Each module serves one clear purpose
-- **Loose Coupling**: Minimal dependencies between modules
-- **High Cohesion**: Related functionality grouped together
-- **Clear Boundaries**: Well-defined interfaces and responsibilities
+Effective skill design is based on four key principles. Single responsibility ensures each module serves one clear purpose, while loose coupling minimizes dependencies between different skill components. High cohesion is maintained by grouping related functionality together, and clear boundaries provide well-defined interfaces for interaction.
 
 ## What It Is
 
-This skill provides a framework for designing modular skills. Breaking down large skills into smaller modules creates a more maintainable architecture and controls token usage.
+The framework facilitates designing modular skills. Breaking down large skills into focused modules creates maintainable architecture and controls token usage.
 
-This skill is based on Anthropic's Agent Skills best practices, using progressive disclosure: start with a high-level overview, then provide detail as needed.
+It adheres to Anthropic's Agent Skills best practices, using progressive disclosure: start with a high-level overview, then provide detail as needed.
 
 ## Quick Start
 
 ### Skill Analysis
 ```bash
-# Check if your skill needs modularization (works from skill directory)
+# Analyze skill modularity
 python scripts/analyze.py
 
 # Analyze with custom threshold (default: 150 lines)
 python scripts/analyze.py --threshold 100
 
-# Or import directly in Python:
+# Python API usage:
 from abstract.skill_tools import analyze_skill
 analysis = analyze_skill(".", threshold=100)
 ```
-**Verification:** Run `python --version` to verify Python environment.
+**Verification:** Verify Python environment with `python --version`.
 
 ### Token Usage Planning
 ```bash
 # Estimate token consumption for your skill (works from skill directory)
 python scripts/tokens.py
 
-# Or import directly in Python:
+# Python API usage:
 from abstract.skill_tools import estimate_tokens
 tokens = estimate_tokens("SKILL.md")
 ```
-**Verification:** Run `python --version` to verify Python environment.
+**Verification:** Verify Python environment with `python --version`.
 
 ### Module Validation
 ```bash
@@ -126,7 +115,7 @@ python scripts/abstract_validator.py --report
 # Auto-fix issues (dry run first)
 python scripts/abstract_validator.py --fix --dry-run
 ```
-**Verification:** Run `python --version` to verify Python environment.
+**Verification:** Verify Python environment with `python --version`.
 
 ### Implementation Workflow
 1. **Assess**: Use `skill_analyzer.py` to identify complexity and modularization needs
@@ -161,7 +150,7 @@ for file in modules/*.md; do
   fi
 done
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** Verify availability with `--help`.
 
 ### Essential Quality Standards
 
@@ -183,17 +172,15 @@ Based on evaluation feedback (issue #74):
 - [Examples](#examples)
 - [Troubleshooting](#troubleshooting)
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** Verify availability with `--help`.
 
-`★ Insight ─────────────────────────────────────`
-These quality standards emerged from real-world feedback on skill evaluation. Navigation aids (TOCs) are critical for agentic search efficiency - coding agents use grep to locate content without loading entire files. Quick Start concreteness ensures developers can immediately apply skills without translation overhead.
-`─────────────────────────────────────────────────`
+These quality standards emerged from real-world feedback on skill evaluation. Navigation aids such as Tables of Contents are critical for agentic search efficiency, as coding agents use grep to locate content without loading entire files. Providing concrete Quick Start commands ensures developers can immediately apply skills without the overhead of translating abstract descriptions.
 
 ## Detailed Resources
 
 For detailed implementation details and advanced techniques:
 
-### Shared Modules (Cross-Skill Patterns)
+### Shared Modules: Cross-Skill Patterns
 - **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field templates
 - **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md) for intensity calibration
 - **Anti-Rationalization**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md) for bypass prevention

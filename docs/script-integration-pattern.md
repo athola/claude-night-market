@@ -4,11 +4,7 @@ This document defines the standard pattern for Python scripts that can be invoke
 
 ## Why This Matters
 
-Claude Code needs to:
-1. **Parse tool output** - JSON enables structured data processing
-2. **Chain operations** - Process intermediate data outside context window
-3. **Retry safely** - Idempotent operations prevent side effects
-4. **Run in parallel** - Independent operations can use `asyncio.gather()`
+Standardizing script integration is necessary for several reasons. It allows Claude Code to parse tool output through structured JSON data and enables the chaining of operations by processing intermediate data outside the context window. Furthermore, idempotent operations permit safe retries by preventing unintended side effects, and an asynchronous design supports parallel execution of independent tasks.
 
 Reference: [Anthropic Advanced Tool Use](https://www.anthropic.com/engineering/advanced-tool-use)
 
@@ -229,10 +225,10 @@ Based on audit, these scripts need CLI/JSON integration:
 
 | Script | Plugin | Priority | Status | Notes |
 |--------|--------|----------|--------|-------|
-| `test_generator.py` | sanctum | High | ✅ Complete | Added --output-json with structured output |
-| `quality_checker.py` | sanctum | High | ✅ Complete | Fixed JSON output printing |
-| `tracker.py` | minister | Medium | ✅ Complete | Added --output-json to project_tracker.py |
-| `safe_replacer.py` | conserve | Medium | ✅ Complete | Added full argparse with --output-json |
+| `test_generator.py` | sanctum | High | Complete | Added --output-json with structured output |
+| `quality_checker.py` | sanctum | High | Complete | Fixed JSON output printing |
+| `tracker.py` | minister | Medium | Complete | Added --output-json to project_tracker.py |
+| `safe_replacer.py` | conserve | Medium | Complete | Added argparse with --output-json |
 | `template_engine.py` | attune | Low | Deferred | Internal utility |
 | `template_loader.py` | attune | Low | Deferred | Internal utility |
 | `seed_corpus.py` | memory-palace | Low | Deferred | One-time setup |

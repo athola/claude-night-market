@@ -93,7 +93,7 @@ logger = UsageLogger(service="gemini")
 # Check quota before operation
 level, warnings = tracker.get_quota_status()
 if level == "critical":
-    # Defer or use fallback
+    # Defer or use secondary logic
     pass
 
 # Log after operation

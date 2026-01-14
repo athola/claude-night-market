@@ -17,7 +17,7 @@ Copy and adapt this template for your skill's specific needs:
 | **Configuration Error** | Skill fails to load or crashes immediately | Missing required dependencies, invalid configuration files | Validate configuration on startup, provide clear error messages |
 | **Input Validation Error** | Unexpected output or crashes during execution | Invalid input format, missing required fields | Implement input validation, provide examples of correct format |
 | **Resource Exhaustion** | Slow performance, timeouts, out-of-memory errors | Processing too much data, inefficient algorithms | Implement chunking, add resource limits, provide progress feedback |
-| **External Service Failure** | API calls fail, timeouts, rate limiting | Service unavailable, network issues, authentication problems | Implement retries, fallback mechanisms, status checks |
+| **External Service Failure** | API calls fail, timeouts, rate limiting | Service unavailable, network issues, authentication problems | Implement retries, secondary mechanisms, status checks |
 | **Permission/Access Error** | Permission denied, file not found errors | Insufficient permissions, incorrect paths | Check permissions before operations, use relative paths |
 | **Concurrency Issues** | Race conditions, deadlocks, data corruption | Multiple processes accessing shared resources | Use proper locking, implement atomic operations |
 | **Version Compatibility** | API changes break functionality, deprecated features | Using outdated libraries or APIs | Version pinning, compatibility checks, migration guides |
@@ -30,7 +30,7 @@ Copy and adapt this template for your skill's specific needs:
 - **Resource Exhaustion**: Out of memory, disk space full
 - **Permission Denied**: Insufficient rights to perform operations
 
-#### Recoverable Errors (Retry or Fallback)
+#### Recoverable Errors (Retry or Secondary)
 - **Network Timeouts**: Temporary connectivity issues
 - **Rate Limiting**: API limits exceeded, retry after delay
 - **Partial Failures**: Some operations succeeded, others failed
@@ -63,13 +63,13 @@ def retry_with_backoff(operation, max_retries=3, base_delay=1):
 
 #### Graceful Degradation
 ```python
-# Example: Fallback to alternative method
-def process_with_fallback(primary_method, fallback_method, data):
+# Example: Secondary method as a default
+def process_with_secondary(primary_method, secondary_method, data):
     try:
         return primary_method(data)
     except PrimaryMethodError:
-        logger.warning("Primary method failed, using fallback")
-        return fallback_method(data)
+        logger.warning("Primary method failed, using secondary")
+        return secondary_method(data)
 ```
 
 #### Partial Processing
@@ -158,7 +158,7 @@ flowchart TD
 | `E002` | "Invalid authentication credentials" | Auth failed | Check/update API keys or tokens |
 | `E003` | "Rate limit exceeded" | API limit reached | Wait and retry, or upgrade quota |
 | `E004` | "Input validation failed" | Bad input format | Check input requirements and examples |
-| `E005` | "Resource temporarily unavailable" | Service busy | Retry with backoff, use fallback |
+| `E005` | "Resource temporarily unavailable" | Service busy | Retry with backoff, use secondary |
 | `E006` | "Permission denied" | Access rights insufficient | Check file permissions or user roles |
 | `E007` | "Network timeout" | Connection timed out | Check network, increase timeout |
 | `E008` | "Memory allocation failed" | Out of memory | Reduce data size, use streaming |
@@ -222,7 +222,7 @@ def debug_log(message, data=None):
 1. **Meaningful Messages**: Provide clear, actionable error messages
 2. **Consistent Format**: Use standard error codes and formats
 3. **Recovery Options**: Suggest specific recovery actions
-4. **Fallback Plans**: Have alternative approaches ready
+4. **Secondary Plans**: Have alternative approaches ready
 5. **User Guidance**: Help users understand what went wrong and how to fix it
 
 #### Documentation
@@ -272,9 +272,9 @@ def test_handles_invalid_input():
     assert exc_info.value.error_code == "E004"
 
 def test_graceful_degradation():
-    result = process_with_fallback(failing_input)
+    result = process_with_secondary(failing_input)
     assert result is not None
-    assert result.method == "fallback"
+    assert result.method == "secondary"
 ```
 
 ---

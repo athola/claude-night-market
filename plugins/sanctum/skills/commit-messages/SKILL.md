@@ -45,30 +45,15 @@ As a prerequisite, run `Skill(sanctum:git-workspace-review)` so the repository p
    - Display the file path and contents (`cat <file>` or `sed -n '1,120p' <file>`) for confirmation.
 
 ## Guardrails
-- **NEVER bypass quality gates**: Using `git commit --no-verify` or `-n` is FORBIDDEN. Pre-commit hooks enforce code quality - fix issues instead of bypassing them.
-- **No AI attribution**: Never add Co-Authored-By lines mentioning Claude, Opus, Sonnet, Haiku, or any AI assistant.
-- **No AI slop**: Avoid filler words and phrases common in AI-generated text (e.g., "leverage", "streamline", "robust", "seamless").
-- **No emojis**: Keep commit messages professional and plain text only.
-- **Human voice**: Write as if a human developer authored the message directly.
-- Use the present-tense, imperative style for the subject line.
-- Include a multi-line body for any non-trivial change (more than one file or complex logic).
-- If multiple types apply, pick the highest-impact type (e.g., `feat` over `chore`).
+
+We maintain strict quality gates by forbidding the use of `git commit --no-verify` or the `-n` flag. Pre-commit hooks are enforced to maintain code quality, and any reported issues must be fixed rather than bypassed. Commit messages should not include AI attribution lines or filler phrases such as "leverage" or "seamless," which are common markers of AI-generated text. Messages must remain plain text without emojis and be written in a human voice, using present-tense imperative style for the subject line. For non-trivial changes involving multiple files or complex logic, a multi-line body is required to explain the technical rationale.
 
 ## Integration Notes
 - Combine with `Skill(imbue:catchup)` or `/git-catchup` when you need additional context before drafting.
 - If unsure about the type or scope, rerun the diff commands or consult the specification or plan before finalizing.
+
 ## Troubleshooting
 
 ### Common Issues
 
-**Pre-commit hooks failing**
-Fix the reported issues - DO NOT bypass with `--no-verify` or `SKIP=...`. The hooks exist to catch quality issues before they enter the repository.
-
-**Linting errors**
-Run `make format` to auto-fix formatting, then `make lint` to check for remaining issues. Fix all issues before committing.
-
-**Merge conflicts**
-Use `git merge --abort` to reset, then resolve conflicts carefully
-
-**Commit rejected**
-Check hook output and fix reported issues before committing again. Never use `--no-verify`.
+If pre-commit hooks fail, you must address the specific errors identified by the hooks instead of using bypass flags. For linting errors, use `make format` to resolve formatting issues and `make lint` to identify logic or style violations. All detected issues should be fixed before you attempt to commit again. In the event of a merge conflict, use `git merge --abort` to return to a clean state and then resolve the conflicts manually. A rejected commit typically provides output from a failed quality gate; analyze this output and apply the necessary fixes before retrying.

@@ -64,7 +64,7 @@ Standardized error handling patterns for consistent, production-grade behavior a
 | Level | Action | Example |
 |-------|--------|---------|
 | **Critical** | Halt, alert | Auth failure, service down |
-| **Error** | Retry or fallback | Rate limit, timeout |
+| **Error** | Retry or secondary strategy | Rate limit, timeout |
 | **Warning** | Log, continue | Partial results, deprecation |
 | **Info** | Log only | Non-blocking issues |
 

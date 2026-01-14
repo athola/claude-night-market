@@ -63,7 +63,7 @@ dependencies:
 **Problem: Output doesn't match expected format**
 - **Solution**: Validate schema before integration
 - **Fix**: Update prompt with explicit format examples
-- **Fallback**: Manual transformation or re-delegation
+- **Secondary Strategy**: Manual transformation or re-delegation
 
 **Problem: Partial results returned**
 - **Check**: Context window limits, timeout settings

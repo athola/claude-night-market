@@ -2,14 +2,14 @@
 
 **Version**: 1.0
 **Last Updated**: 2026-01-10
-**Purpose**: Enforce conciseness and organization in project documentation
+**Purpose**: Enforces conciseness and organization in project documentation
 
 ## Quick Reference
 
 | Location | Max Lines | Style | Purpose |
 |----------|-----------|-------|---------|
-| `docs/` | 500 | Strict reference | Quick-reference, scannable content |
-| `book/` | 1000 | Lenient tutorial | Step-by-step tutorials, explanations |
+| `docs/` | 500 | Scannable reference | Quick-reference and scannable content |
+| `book/` | 1000 | Step-by-step tutorial | Tutorials and explanations |
 | Command files | 300 | Hub overview | High-level usage, links to modules |
 | Modules | 600 | Focused detail | Specific aspect deep-dives |
 
@@ -58,7 +58,7 @@ For details see:
 
 ### Technique 1: Table-of-Contents Pattern
 
-Convert comprehensive guides to navigation hubs:
+Convert extensive guides to navigation hubs:
 
 **Before** (748 lines):
 ```markdown
@@ -154,29 +154,25 @@ Review archive and plans directories:
 
 ### Anti-Pattern 1: "Complete Guide" in Modules
 
-❌ **Bad**: `commands/foo/modules/complete-guide.md` (1,000 lines)
+**Avoid**: `commands/foo/modules/complete-guide.md` (1,000 lines)
+**Prefer**: `commands/foo.md` (200 lines) with focused modules
 
-✅ **Good**: `commands/foo.md` (200 lines) + focused modules
-
-**Why**: "Complete" defeats modularity purpose
+**Reason**: "Complete" guides defeat the purpose of modularity.
 
 ### Anti-Pattern 2: Verbose Examples
 
-❌ **Bad**: Explaining what PDFs are, how libraries work
-
-✅ **Good**: Assume Claude knows basics, focus on patterns
+**Avoid**: Explaining library basics or general concepts
+**Prefer**: Focused patterns, assuming basic knowledge
 
 ### Anti-Pattern 3: Redundant Code Examples
 
-❌ **Bad**: 5 examples all showing same pattern with minor variations
-
-✅ **Good**: 1 canonical example + notes on variations
+**Avoid**: Multiple examples showing the same pattern with minor variations
+**Prefer**: One canonical example with notes on variations
 
 ### Anti-Pattern 4: Monolithic Files
 
-❌ **Bad**: Single 1,500-line file covering all aspects
-
-✅ **Good**: Hub file (150 lines) + focused modules (400 lines each)
+**Avoid**: Single large files covering all aspects
+**Prefer**: Hub files (150 lines) with focused modules (400 lines each)
 
 ## Enforcement
 
@@ -241,7 +237,7 @@ Applied these standards to 8 oversized files:
 
 | File | Before | After | Saved | Method |
 |------|--------|-------|-------|--------|
-| hook-types-comprehensive.md | 748 | 147 | 601 | Table-of-contents |
+| hook-types-extensive.md | 748 | 147 | 601 | Table-of-contents |
 | security-patterns.md | 904 | 534 | 370 | Consolidate duplicates |
 | authoring-best-practices.md | 652 | 427 | 225 | Trim verbosity |
 | evaluation-methodology.md | 653 | 377 | 276 | Extract implementations |
@@ -249,14 +245,11 @@ Applied these standards to 8 oversized files:
 | documentation-drive-plan.md | 887 | 0 | 887 | Delete outdated |
 | plugin-superpowers-linking-implementation.md | 798 | 0 | 798 | Delete outdated |
 
-**Total**: 6,222 lines → 1,801 lines (3,421 saved, 55% reduction)
+**Total**: 5,222 lines -> 1,801 lines (3,421 saved, 65% reduction)
 
 ## Benefits
 
-**Token Savings**: ~3,200 tokens from Phase 5 alone
-**Improved Navigation**: Quick-reference pattern makes finding info faster
-**Maintained Quality**: All detail preserved via progressive disclosure
-**Better Organization**: Clear separation of quick-ref vs. deep-dive
+This documentation strategy reduces token usage, saving approximately 3,200 tokens from Phase 5 alone. The quick-reference pattern improves navigation speed for developers, while progressive disclosure ensures all technical details are preserved without bloating the primary files. By clearly separating quick-reference content from deep-dive tutorials, we maintain a better organized and more accessible corpus.
 
 ## Related Patterns
 

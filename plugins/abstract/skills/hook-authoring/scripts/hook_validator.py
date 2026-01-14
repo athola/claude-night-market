@@ -119,23 +119,52 @@ def _validate_hooks_array(
 def _validate_matcher(
     event_type: str,
     idx: int,
-    matcher: dict,
+    matcher: str | dict,
     result: ValidationResult,
 ) -> None:
-    """Validate the matcher configuration in a hook entry."""
-    if not isinstance(matcher, dict):
-        result["warnings"].append(
-            f"{event_type}[{idx}]: 'matcher' should be an object",
-        )
+    """Validate the matcher configuration in a hook entry.
+
+    Matchers can be:
+    - String: Tool name regex pattern (e.g., "Skill", "Read|Write", ".*")
+    - Dict: Object with toolName/inputPattern (deprecated, warn if used)
+    """
+    # String matchers are the preferred format (Claude Code SDK)
+    if isinstance(matcher, str):
+        # Validate it's a valid regex pattern
+        import re
+
+        try:
+            re.compile(matcher)
+            result["info"].append(
+                f"{event_type}[{idx}]: matcher pattern '{matcher}' is valid"
+            )
+        except re.error as e:
+            result["errors"].append(
+                f"{event_type}[{idx}]: invalid matcher regex pattern '{matcher}': {e}",
+            )
+            result["valid"] = False
         return
 
-    # Check for known matcher fields
-    known_matcher_fields = {"toolName", "inputPattern"}
-    for field in matcher:
-        if field not in known_matcher_fields:
-            result["warnings"].append(
-                f"{event_type}[{idx}]: unknown matcher field: {field}",
-            )
+    # Dict matchers are deprecated but still supported for backward compatibility
+    if isinstance(matcher, dict):
+        result["warnings"].append(
+            f"{event_type}[{idx}]: object matcher format is deprecated, "
+            'use string format instead (e.g., "Skill" not {{"toolName": "Skill"}})',
+        )
+        # Check for known matcher fields
+        known_matcher_fields = {"toolName", "inputPattern"}
+        for field in matcher:
+            if field not in known_matcher_fields:
+                result["warnings"].append(
+                    f"{event_type}[{idx}]: unknown matcher field: {field}",
+                )
+        return
+
+    # Invalid type
+    result["errors"].append(
+        f"{event_type}[{idx}]: 'matcher' must be a string (regex pattern) or object, got {type(matcher).__name__}",
+    )
+    result["valid"] = False
 
 
 def _validate_hook_entry(

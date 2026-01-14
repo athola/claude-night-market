@@ -1,19 +1,19 @@
 # Claude Code LSP - Native Support Guide
 
-> **⚠️ EXPERIMENTAL FEATURE (Claude Code v2.0.74-2.0.76)**
+> **EXPERIMENTAL FEATURE (Claude Code v2.0.74-2.0.76)**
 >
-> LSP support in Claude Code has significant stability issues. While the environment variable and configuration below are correct, you may encounter errors even with proper setup.
+> LSP support in Claude Code has stability issues. While the environment variable and configuration below are correct, you may encounter errors even with proper setup.
 >
 > **Known Issues:**
 > - Race conditions during plugin loading (52ms gap between LSP Manager and plugins)
 > - "No LSP server available" errors despite correct configuration
 > - Intermittent plugin loading failures
 >
-> **Current Recommendation:** Use **Grep (ripgrep) as primary method**, test LSP experimentally with fallback ready.
+> **Current Recommendation:** Use **Grep (ripgrep) as primary method**, test LSP experimentally with a secondary method ready.
 >
-> See [Issue #72](https://github.com/athola/claude-night-market/issues/72) and [plugins/abstract/docs/claude-code-compatibility.md](../plugins/abstract/docs/claude-code-compatibility.md#lsp-integration-patterns-2074) for comprehensive details.
+> See [Issue #72](https://github.com/athola/claude-night-market/issues/72) and [plugins/abstract/docs/claude-code-compatibility.md](../plugins/abstract/docs/claude-code-compatibility.md#lsp-integration-patterns-2074) for full details.
 
-**Status:** ✅ Configured via `~/.claude/settings.json` | ⚠️ Experimental with known bugs
+**Status:** Configured via `~/.claude/settings.json` | Experimental with known bugs
 
 ## Configuration (Settings-Level)
 

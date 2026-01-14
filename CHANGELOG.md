@@ -5,9 +5,97 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.6] - 2026-01-13
+
+### Added - Self-Improvement Patterns and Research (Issues #7, #37)
+
+- **`/fix-workflow` enhanced with self-improvement patterns**
+  - Added Phase 1.5: Reflexion (self-critique loop before implementation)
+  - Added Plan-Do-Check-Act (PDCA) cycle to implementation phase
+  - Added difficulty-aware orchestration (simple/medium/complex)
+  - Added Phase 2: Outcome feedback loop for self-evolution
+  - New `--difficulty auto|simple|complex` flag
+  - Complexity scoring based on files affected, cross-plugin changes, prior failures
+
+- **ACE Playbook research for memory-palace** (Issue #7)
+  - Documented semantic deduplication patterns via FAISS (0.8 cosine threshold)
+  - Captured Generator-Reflector-Curator triad architecture
+  - Identified counter-based reinforcement pattern (helpful/harmful/neutral)
+  - Recommended per-room semantic indices for domain isolation
+  - Research document: `memory-palace/docs/knowledge-corpus/queue/ace-playbook-research.md`
+
+### Added - Plugin Root Validation (Issue #34)
+
+- **imbue_validator now warns about missing/invalid plugin roots**
+  - Logs warning when plugin root directory doesn't exist
+  - Logs warning when plugin root is empty
+  - Logs warning when plugin lacks expected structure (no skills/ or plugin.json)
+  - New properties: `root_exists`, `root_empty`, `has_valid_structure`
+  - 4 new tests covering all notification scenarios
+
+### Added - MECW Optimization Implemented (Issues #28, #29)
+
+- **Module bloat consolidation executed**
+  - `testing-hooks.md` reduced from 627 to 118 lines (81% reduction)
+  - Examples archived to `docs/examples/hook-testing/comprehensive-examples.md`
+  - Module now references archived examples via links
+  - Token savings: ~500 lines per skill load
+
+### Added - Counter-Based Reinforcement (ACE Enhancement)
+
+- **`counter_reinforcement.py` module** - ACE Playbook semantic memory pattern
+  - `ReinforcementCounter` class with helpful/harmful/neutral counters
+  - `CounterReinforcementTracker` for entry-level tracking
+  - `helpfulness_ratio` and `confidence_score` computed properties
+  - `needs_review` detection for problematic entries
+  - `should_deduplicate()` using 0.8 cosine similarity threshold
+  - Export/import for persistence
+  - 22 new tests with full coverage
+
+### Added - Minister Label Management
+
+- **`/update-labels` command** - Professional GitHub label taxonomy management
+  - Creates type labels: `feature`, `bugfix`, `test`, `docs`, `refactor`, `performance`, `ci-cd`, `research`
+  - Creates priority labels: `high-priority`, `medium-priority`, `low-priority`
+  - Creates effort labels: `small-effort`, `medium-effort`, `large-effort`
+  - Replaces catch-all `enhancement` label with specific types
+  - Auto-classifies issues based on title patterns
+  - Supports `--dry-run`, `--preserve`, `--repo` flags
+  - Integrates with minister's issue lifecycle commands
+
+### Added - Iron Law Interlock Enforcement
+
+- **`iron-law-interlock.md` shared module** - Hard gate enforcement for creation workflows
+  - Transforms Iron Law from advisory to structural enforcement
+  - Provides mandatory checklist before Write tool invocation
+  - Requires test file creation BEFORE implementation
+  - Captures RED state evidence as precondition
+  - Defines exemption categories (documentation, configuration, user-directed)
+  - Located at `abstract/shared-modules/iron-law-interlock.md`
+
+- **Updated `/create-command`** - Phase 0 now enforces Iron Law
+  - Must create test file before command file
+  - Must capture failing test evidence
+  - Phase 6 added: GREEN state verification
+  - TodoWrite items: `proof:iron-law-red`, `proof:iron-law-interlock-satisfied`, `proof:iron-law-green`
+
+- **Updated `/create-skill`** - Phase -1 Iron Law interlock added
+  - Blocking gate before methodology curation and brainstorming
+  - Quick reference for test-first workflow
+  - Links to full interlock documentation
+
+- **Updated `/create-hook`** - Phase -1 Iron Law interlock added
+  - Blocking gate before brainstorming
+  - Quick reference for test-first workflow
+  - Links to full interlock documentation
+
+- **Updated `imbue:proof-of-work`** - Cross-skill module reference
+  - Added link to iron-law-interlock shared module
+  - Connects TDD enforcement with creation workflows
+
 ## [1.2.5] - 2026-01-11
 
-### Added - Continuous Improvement Integration (2026-01-12)
+### Added - Continuous Improvement Integration
 
 - **/update-plugins Phase 2: Automatic improvement analysis** - Plugin maintenance now includes performance review
   - Invokes `/skill-review` to identify unstable skills (stability_gap > 0.3)

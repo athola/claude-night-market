@@ -8,7 +8,7 @@ Plugins should be **self-contained** and **independent**. Instead of sharing cod
 
 1. **Detect** the presence of other plugins
 2. **Use** functionality when available
-3. **Fallback** gracefully when dependencies are missing
+3. **Handle** missing dependencies gracefully
 4. **Document** these relationships clearly
 
 ## Core Pattern: Plugin Detection
@@ -60,7 +60,7 @@ def enhance_with_sanctum_feature(data: dict) -> dict:
     """Enhance data using Sanctum plugin if available"""
     # Check if Sanctum is available
     if not is_plugin_available("sanctum"):
-        # Fallback behavior
+        # Default behavior
         data["sanctum_enhanced"] = False
         return data
 
@@ -154,7 +154,7 @@ class ContextOptimizer:
         elif strategy in self.optimizers:
             return self.optimizers[strategy].optimize(content)
 
-        # Fallback to built-in
+        # Default to built-in
         return self._basic_optimize(content)
 
     def _basic_optimize(self, content: str) -> str:
@@ -178,11 +178,11 @@ In your plugin's `README.md`:
 
 - **Sanctum Plugin** (optional): Enhances analysis with git context
   - Provides: commit details, branch information, workspace analysis
-  - Fallback: Analysis continues without git context
+  - Secondary: Analysis continues without git context
 
 - **Conservation Plugin** (optional): Optimizes context usage
   - Provides: intelligent content truncation, token optimization
-  - Fallback: Uses built-in simple truncation
+  - Default: Uses built-in simple truncation
 ```
 
 ### 2. Document Capabilities
@@ -203,12 +203,12 @@ In your `plugin.json`:
     {
       "plugin": "sanctum",
       "purpose": "git context enhancement",
-      "fallback": "analysis without git data"
+      "default": "analysis without git data"
     },
     {
       "plugin": "conserve",
       "purpose": "context optimization",
-      "fallback": "built-in optimization"
+      "default": "built-in optimization"
     }
   ]
 }
@@ -244,8 +244,8 @@ Without Conservation:
 
 ## Best Practices
 
-### 1. Always Provide Fallbacks
-Never make a plugin dependency required. Always have a fallback behavior.
+### 1. Always Provide Default Behaviors
+Never make a plugin dependency required. Always have a default behavior.
 
 ```python
 # Good

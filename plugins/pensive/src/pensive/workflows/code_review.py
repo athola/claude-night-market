@@ -28,11 +28,10 @@ class CodeReviewWorkflow:
         """Execute a full code review on a repository.
 
         Args:
-            repo_path: Path to the repository to review
+            repo_path: Path to the repository.
 
         Returns:
-            Dictionary with review results including findings, summary,
-            recommendations, and metrics
+            Dictionary containing findings, summary, recommendations, and metrics.
         """
         repo_path = Path(repo_path)
         self._errors = []
@@ -165,13 +164,13 @@ class CodeReviewWorkflow:
         return recommendations
 
     def _get_skill(self, skill_name: str) -> Any:
-        """Get a skill by name.
+        """Retrieve a skill instance by name.
 
         Args:
-            skill_name: Name of the skill
+            skill_name: Name of the skill.
 
         Returns:
-            Skill instance or None
+            Skill instance or None.
         """
         # Check registry first
         if skill_name in self._skill_registry:

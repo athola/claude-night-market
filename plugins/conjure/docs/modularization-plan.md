@@ -147,12 +147,9 @@ Savings: ~150 tokens
 
 **Task 5.1**: Remove duplicate imports in hooks
 ```python
-# Current: Local quota_tracker import with fallback
-# New: Import from leyline with fallback
-try:
-    from leyline.quota_tracker import QuotaTracker
-except ImportError:
-    # Fallback to bundled version
+# Current: Local quota_tracker import with secondary logic
+# New: Import from leyline with secondary logic
+L155: # Use bundled version as secondary
 ```
 
 **Task 5.2**: Share path validation utilities

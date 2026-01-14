@@ -78,13 +78,9 @@ This skill teaches how to write effective Claude Code skills using Test-Driven D
 
 Skills are not essays or documentation—they are **behavioral interventions** designed to change Claude's behavior in specific, measurable ways. Like software, they must be tested against real failure modes before deployment.
 
-### Key Benefits
+### Key Technical Benefits
 
-- **Empirical Validation**: TDD validates skills address real failure modes, not imagined ones
-- **Research-Backed Persuasion**: Compliance techniques proven to double adherence rates
-- **Discoverability**: Optimized descriptions for Claude's skill selection process
-- **Progressive Disclosure**: Efficient token usage through modular file structures
-- **Anti-Rationalization**: Bulletproofing against Claude's tendency to explain away requirements
+The Skill Authoring framework provides several technical advantages for plugin development. By using TDD, we validate that skills address actual failure modes identified through empirical testing. The use of optimized descriptions improves discoverability within the marketplace, while a modular file structure supports progressive disclosure for efficient token usage. Additionally, the framework includes anti-rationalization patterns that prevent the assistant from bypassing core requirements.
 
 ## The Iron Law
 
@@ -101,26 +97,7 @@ For comprehensive enforcement patterns (adversarial verification, git history an
 
 ## Skill Types
 
-### 1. Technique Skills
-**Purpose**: Teach specific methods or approaches
-
-**Examples**: TDD workflow, commit message style, API design patterns
-
-**Structure**: Step-by-step procedures with decision points
-
-### 2. Pattern Skills
-**Purpose**: Document recurring solutions to common problems
-
-**Examples**: Error handling patterns, module organization, testing strategies
-
-**Structure**: Problem-solution pairs with variations
-
-### 3. Reference Skills
-**Purpose**: Provide quick lookup information
-
-**Examples**: Command reference, configuration options, best practice checklists
-
-**Structure**: Tables, lists, and indexed information
+We categorize skills into three primary types based on their function. Technique skills teach specific methods or approaches, such as TDD workflows or API design patterns, using step-by-step procedures. Pattern skills document recurring solutions to common problems, like error handling or module organization, through problem-solution pairs. Reference skills provide quick lookup information, such as command references and best practice checklists, typically organized in tables and indexed lists.
 
 ## Quick Start
 
@@ -385,30 +362,7 @@ Exit codes:
 
 ## Common Pitfalls
 
-### 1. Writing Without Testing
-**Problem**: Creating skills based on what "should" work
-
-**Solution**: Always start with documented failures (RED phase)
-
-### 2. Vague Descriptions
-**Problem**: "Helps with testing" - not discoverable or actionable
-
-**Solution**: "Guides TDD workflow with RED-GREEN-REFACTOR cycle. Use when writing new tests, refactoring existing code, or ensuring test coverage."
-
-### 3. Monolithic Skills
-**Problem**: Everything in SKILL.md, 1000+ lines
-
-**Solution**: Keep main file under 500 lines, use progressive disclosure with modules
-
-### 4. Missing Anti-Rationalization
-**Problem**: Claude finds creative ways to bypass requirements
-
-**Solution**: Add explicit exception tables, red flags, and commitment statements
-
-### 5. Theoretical Examples
-**Problem**: Examples show ideal scenarios, not real challenges
-
-**Solution**: Use actual failure cases from RED phase as examples
+Several common pitfalls can reduce the effectiveness of a skill. Writing skills based on theoretical behavior instead of documented failures often results in interventions that do not solve real problems. Vague descriptions, such as "helps with testing," make skills hard to discover and trigger. We also avoid monolithic files by keeping the primary skill under 500 lines and using progressive disclosure for deeper details. Finally, failing to include anti-rationalization patterns or using only ideal examples can allow the assistant to bypass requirements in complex real-world scenarios.
 
 ## Integration with Other Skills
 
@@ -428,16 +382,7 @@ Exit codes:
 
 ## Summary
 
-Effective skill authoring requires:
-1. **Empirical Testing**: Start with real failures (RED)
-2. **Minimal Intervention**: Solve actual problems (GREEN)
-3. **Bulletproofing**: Counter rationalizations (REFACTOR)
-4. **Optimized Discovery**: Write descriptions for activation
-5. **Progressive Disclosure**: Structure for token efficiency
-6. **Persuasive Design**: Apply compliance research
-7. **Validation**: Test before deploying
-
-Remember: Skills are behavioral interventions, not documentation. If you haven't tested it against real failure modes, you haven't validated that it works.
+Effective skill authoring relies on empirical testing through the RED-GREEN-REFACTOR cycle to ensure that each intervention solves a real problem. By optimizing descriptions for discovery and using progressive disclosure for token efficiency, we can maintain a high activation rate and consistent performance. Bulletproofing against rationalizations and applying persuasive design principles further strengthens the skill's effectiveness. Final validation through structured quality gates confirms that the skill is ready for production deployment.
 ## Troubleshooting
 
 ### Common Issues

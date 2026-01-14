@@ -15,18 +15,11 @@ The plugin ecosystem initially used a shared extension registry (`/plugins/abstr
 
 ## Decision
 
-Remove the shared extension registry and adopt a **plugin isolation pattern** where each plugin:
-
-1. **Detects** other plugins at runtime via filesystem checks
-2. **Enhances** functionality when dependencies are available
-3. **Degrades gracefully** when dependencies are missing
-4. **Documents** optional integrations clearly
+We have decided to remove the shared extension registry and adopt a plugin isolation pattern. Under this pattern, each plugin detects other plugins at runtime via filesystem checks and enhances its functionality only when those dependencies are available. If dependencies are missing, the plugin must degrade gracefully and continue to operate using its internal logic. All optional integrations must be documented clearly so users and other plugins understand the available enhancements.
 
 ### Exception: leyline (intentional)
 
-`leyline` is the one intentional exception: it is a shared *infrastructure* plugin that provides reusable building blocks (e.g., token estimation, quota tracking) intended to be imported by other plugins.
-
-**Rule**: Any import of `leyline` must be optional (guarded with `try/except ImportError`) and must provide a safe fallback so the consumer plugin still loads and runs without leyline installed.
+`leyline` is the one intentional exception: it is a shared infrastructure plugin that provides reusable building blocks (e.g., token estimation, quota tracking) intended to be imported by other plugins. Any import of `leyline` must be optional, typically guarded with a try/except ImportError block, and must provide a safe secondary behavior so the consumer plugin still loads and runs without leyline installed.
 
 ## Architecture
 
@@ -72,7 +65,7 @@ flowchart TB
     style C fill:#9f9,stroke:#333
 ```
 
-**Solution**: Plugins detect each other at runtime with graceful fallbacks when dependencies are missing.
+**Solution**: Plugins detect each other at runtime with graceful default behaviors when dependencies are missing.
 
 ## Implementation Pattern
 
@@ -89,7 +82,7 @@ sequenceDiagram
         D-->>P: Enhanced result
     else Plugin B missing
         FS-->>P: Not found
-        P->>P: Use fallback logic
+        P->>P: Use default logic
     end
 ```
 
@@ -112,7 +105,7 @@ def enhance_with_plugin(data: dict) -> dict:
         except ImportError:
             pass  # Plugin exists but functionality unavailable
 
-    # Fallback behavior
+    # Default behavior
     return basic_process(data)
 ```
 
@@ -152,37 +145,15 @@ if optimize:
 
 ## Consequences
 
-### Positive
-- **Self-contained**: No shared Python dependencies
-- **Independent**: Plugins can be installed/removed independently
-- **Graceful**: Fallbacks when dependencies are missing
-- **Documented**: Clear patterns and examples
-- **Discoverable**: Plugins can detect each other's capabilities
-- **Version-safe**: No version conflicts between plugins
-
-### Negative
-- Slightly more boilerplate for plugin detection
-- Each plugin must implement its own fallback logic
-- Integration testing requires more explicit setup
+This architectural shift makes plugins self-contained and independent, as they no longer share Python dependencies and can be installed or removed without affecting others. Graceful degradation ensures that plugins remain functional even when optional dependencies are missing. While this approach requires slightly more boilerplate for detection and each plugin must implement its own default logic, it results in a version-safe ecosystem that is better documented and easier to maintain.
 
 ## Migration Guide
 
-For plugins using the old shared registry:
-
-1. **Remove** any imports from `extension-registry`
-2. **Add** plugin detection code
-3. **Implement** fallbacks for missing dependencies
-4. **Document** optional integrations
-5. **Test** with and without each dependency
+To migrate plugins from the old shared registry, first remove any imports from `extension-registry` and implement the runtime detection pattern. You must then add internal default behaviors for missing dependencies and document these optional integration points. Finally, verify the plugin's operation both with and without its optional dependencies to ensure stability.
 
 ## Documentation Requirements
 
-Each plugin should document:
-
-1. **Optional Dependencies**: What other plugins it can use
-2. **Enhanced Features**: What additional functionality is available
-3. **Fallback Behavior**: What happens without dependencies
-4. **Integration Points**: How other plugins can detect and use it
+Each plugin must document its optional dependencies and the enhanced features they provide. It is also necessary to describe the default behavior of the plugin when these dependencies are unavailable and define the integration points that allow other plugins to detect its capabilities.
 
 ## Related
 

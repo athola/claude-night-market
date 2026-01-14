@@ -22,7 +22,7 @@ except Exception:  # pragma: no cover - optional dependency
 
 
 def _hash_vector(text: str, dim: int = 16) -> list[float]:
-    """Fallback vectorization using hashing (no external deps)."""
+    """Provide a secondary vectorization using hashing (no external deps)."""
     text = text.lower().strip()
     vec = [0.0] * dim
     for idx, chunk in enumerate(text.split()):
@@ -74,8 +74,10 @@ class EmbeddingIndex:
                     "embeddings", {}
                 )
 
-            fallback_provider = next(iter(providers))
-            return fallback_provider, providers[fallback_provider].get("embeddings", {})
+            secondary_provider = next(iter(providers))
+            return secondary_provider, providers[secondary_provider].get(
+                "embeddings", {}
+            )
 
         # Legacy single-provider structure
         if "embeddings" in self.raw_store:

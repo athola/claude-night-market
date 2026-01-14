@@ -31,7 +31,7 @@ hooks:
       command: |
         # Log git analysis commands
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "git (status|diff|log|show|branch)"; then
-          echo "[skill:git-workspace-review] 🔍 Git analysis initiated: $(date)" >> /tmp/skill-audit.log
+          echo "[skill:git-workspace-review] Git analysis initiated: $(date)" >> /tmp/skill-audit.log
         fi
       once: true  # Log once per skill invocation
   Stop:
@@ -87,14 +87,4 @@ Mark each item as complete as you finish the corresponding step.
 
 ### Common Issues
 
-**Pre-commit hooks failing**
-Fix the reported issues - DO NOT bypass with `--no-verify`, `SKIP=...`, or `-n`. The hooks exist to catch quality issues before they enter the repository.
-
-**Linting errors**
-Run `make format` to auto-fix formatting, then `make lint` to check for remaining issues. Fix all issues before proceeding to commit.
-
-**Merge conflicts**
-Use `git merge --abort` to reset, then resolve conflicts carefully
-
-**Code quality check failing**
-This means the code is not ready to commit. Fix all linting/formatting issues before attempting to commit.
+If pre-commit hooks fail, you must fix the reported issues instead of bypassing them with `--no-verify`. These hooks are designed to prevent code that doesn't meet quality standards from entering the repository. For linting errors, run `make format` to automatically fix formatting and `make lint` to identify any remaining issues. If you encounter merge conflicts, use `git merge --abort` to reset the state and resolve the conflicts manually. A failure in the code quality check indicates that the code is not yet ready for a commit, and all linting or formatting problems should be addressed before continuing.

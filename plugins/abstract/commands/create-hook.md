@@ -20,7 +20,9 @@ do_not_use_when:
 - Validating hook security - use /validate-hook instead
 </identification>
 
-Creates new hooks through a structured workflow: **brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed, secure hooks before generating any files.
+Creates new hooks through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed, secure hooks before generating any files.
+
+**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create hook files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## Usage
 
@@ -49,6 +51,33 @@ Creates new hooks through a structured workflow: **brainstorm → design → sca
 | `SessionStart` | Session begins | Context loading, initialization |
 
 ## Workflow
+
+### Phase -1: Iron Law Interlock (BLOCKING)
+
+**This phase is MANDATORY and cannot be skipped.**
+
+Before ANY file creation, you MUST satisfy the Iron Law interlock. See [iron-law-interlock.md](../shared-modules/iron-law-interlock.md) for full details.
+
+#### Quick Reference
+
+1. **Create test file FIRST**: `tests/hooks/test_${hook_name}.py`
+2. **Write structural tests**: Hook file exists, valid JSON/Python, registered correctly
+3. **Run tests - capture RED state**:
+   ```bash
+   pytest tests/hooks/test_${hook_name}.py -v
+   # Expected: FAILED (hook does not exist)
+   ```
+4. **Capture evidence**:
+   ```markdown
+   [E1] Command: pytest tests/hooks/test_${hook_name}.py -v
+   Output: FAILED - FileNotFoundError
+   Status: RED - Interlock satisfied
+   ```
+5. **TodoWrite**: `proof:iron-law-red`, `proof:iron-law-interlock-satisfied`
+
+**ONLY AFTER completing Phase -1 may you proceed.**
+
+---
 
 ### Phase 0: Brainstorming (Default)
 
@@ -157,6 +186,11 @@ hooks/
 ### Phase 4: Generate Hook Files
 
 **hooks.json entry:**
+
+> **Important**: Use string matchers (regex patterns), not object matchers.
+> - Correct: `"matcher": "Skill"` or `"matcher": "Read|Write"`
+> - Deprecated: `"matcher": {"toolName": "Skill"}`
+
 ```json
 {
   "${EventType}": [
@@ -173,6 +207,12 @@ hooks/
   ]
 }
 ```
+
+**Matcher pattern examples:**
+- `"Skill"` - Match Skill tool only
+- `"Read|Write|Edit"` - Match file operations
+- `"WebFetch|WebSearch"` - Match web tools
+- `".*"` - Match all tools (use sparingly)
 
 **Python hook template:**
 ```python

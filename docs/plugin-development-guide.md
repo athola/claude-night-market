@@ -2,108 +2,83 @@
 
 ## Quick Start
 
-Start by reviewing existing plugins in `plugins/` and the abstract patterns for reference. Follow the standard structure outlined below and ensure you run quality checks before submitting your work.
+1. Initialize a new plugin: `make create-plugin NAME=my-plugin`.
+2. Review existing patterns in `plugins/abstract`.
+3. Run `make validate` to check structure.
+4. Verify code with `make lint` (ruff/mypy) and `make test`.
 
 ## Plugin Architecture
 
-### Core Components
+Plugins follow a standard directory structure to ensure Claude Code can discover capabilities:
+
 ```
-Plugin Structure
-├── Skills          - Interactive capabilities
-├── Commands        - Slash commands
-├── Agents          - Specialized AI assistants
-├── Hooks           - Event-driven automation
-├── Scripts         - Python utilities
-└── Configuration   - Plugin metadata
+plugins/my-plugin/
+├── skills/         # YAML/Markdown skill definitions
+├── commands/       # Slash command definitions
+├── agents/         # Specialized sub-agent configurations
+├── hooks/          # Event-driven automation scripts
+├── scripts/        # Python utility logic
+└── plugin.json     # Metadata and entry points
 ```
 
-### Design Principles
-Prioritize predictable behavior over guessing. Use consistent patterns and standard tooling (ruff, mypy) to reduce maintenance. Define public APIs strictly to ensure interoperability and avoid hidden state.
+### Design Standards
+
+Define strict public APIs to prevent hidden state and support interoperability between plugins. Use `ruff` for linting and `mypy` for type checking to identify errors early. Do not guess user intent; fail with specific error messages when inputs are invalid.
 
 ## Success Metrics
 
-Plugins must meet these quality gates for production release. Code coverage must exceed 80%, verified by `pytest-cov`. Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must find zero high-severity issues. Documentation must include valid API references and copy-pasteable examples. Typical operations must stay within a 15K token budget.
+Plugins require at least 80% code coverage, verified by `pytest-cov`. Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` should report no high-severity issues.
 
-Users rely on discoverability and clear error messages. Plugins should fail gracefully with specific error details, avoiding generic "something went wrong" messages. Plugins must follow the versioning scheme (currently 1.1.0 alignment) and preserve existing workflows.
+Keep operations within a 15K token budget to stay within system prompt limits. Plugins should provide specific error details instead of generic messages. Align versions with the current 1.1.0 scheme to maintain compatibility with existing workflows.
 
 ## Development Path
 
-### Phase 1: Foundation
-Install `uv` and `pre-commit`. Review the `plugins/abstract` structure for core patterns. Initialize your plugin with `make create-plugin` and examine the generated files.
+### 1. Foundation
+Install dependencies with `uv` and set up `pre-commit` hooks. Use `make create-plugin` to generate the scaffold, then examine `plugins/abstract` to understand core patterns for state management and tool calls.
 
-### Phase 2: Expansion
-Implement core logic in `skills/` and commands in `commands/`. Add automation hooks. Ensure reliability with comprehensive tests in `tests/`.
+### 2. Implementation
+Add logic to `skills/` and commands to `commands/`. Write tests in `tests/` covering both success paths and edge cases. If your plugin requires automation, implement hooks to intercept tool usage or lifecycle events.
 
-### Phase 3: Production
-Profile token usage and run security scans. Document distinct features in `README.md`. Submit a Pull Request.
+### 3. Production & Maintenance
+Profile token usage with `python -m cProfile` if performance lags. Document features in `README.md` with copy-pasteable examples. Once released, monitor logs for runtime errors and update dependencies using `uv`.
 
-### Phase 4: Maintenance
-Monitor usage logs for errors. Fix reported issues. Update dependencies using `uv`.
+## Tooling
 
-## Essential Tools
+The development environment relies on Python 3.10 or higher, managed by `uv` for dependency and environment isolation. We use `pytest` for unit and integration testing, while `ruff` handles both linting and formatting. Type checking is enforced by `mypy`, and security analysis is performed by `bandit`. Automation is provided by `pre-commit` for local checks and GitHub Actions for continuous integration.
 
-**Development**: Use **Python 3.10+** managed by **uv**. Version control with **Git**. **VS Code** or **PyCharm** are recommended IDEs.
+## Release Checklist
 
-**Quality Assurance**: Tests run on **pytest**. Linting and formatting use **ruff**. **mypy** handles type checking, and **bandit** scans for security issues.
-
-**Automation**: **pre-commit** manages git hooks, while **GitHub Actions** handles CI/CD.
-
-## Checklists
-
-### Before Release
-- [ ] All tests passing (>80% coverage).
-- [ ] Code formatted and linted.
-- [ ] Security scan passed.
-- [ ] Documentation complete.
-- [ ] Examples provided.
-- [ ] Performance evaluated.
-- [ ] Version tagged.
-- [ ] Changelog updated.
-
-### Code Review
-- [ ] Follows style guidelines.
-- [ ] Clear commit messages.
-- [ ] Adequate tests.
-- [ ] Handles edge cases.
-- [ ] Error handling active.
-- [ ] No hardcoded secrets.
-
-### Documentation
-- [ ] README with examples.
-- [ ] Skill descriptions clear.
-- [ ] API documented.
-- [ ] Installation instructions.
-- [ ] Contributing guidelines.
+- Tests passing with >80% coverage.
+- `ruff` and `mypy` checks pass.
+- `bandit` security scan reports zero high-severity issues.
+- README includes clear usage examples.
+- Token usage stays within the 15K limit.
+- Version tags and changelog updated.
 
 ## Common Patterns
 
-### Skill Pattern (Claude Code 2.1.0+)
+### Skill Pattern
 ```markdown
 ---
 name: skill-name
 description: Clear description with "Use when..." clause
 category: workflow|analysis|generation|utility
-
-# New in 2.1.0 - Optional fields:
-context: fork              # Run skill in forked sub-agent context
+context: fork              # Run in isolated sub-agent context
 agent: agent-name          # Specify agent type for execution
-user-invocable: false      # Opt-out from slash command menu (default: true)
-model: sonnet              # Model override for this skill
+user-invocable: false      # Hide from slash command menu (default: true)
+model: sonnet              # Model override
 
-# YAML-style allowed-tools (cleaner than comma-separated)
 allowed-tools:
   - Read
   - Grep
   - Glob
   - Bash(npm *)            # Wildcard patterns supported
-  - Bash(git * main)       # Wildcards at any position
 
-# Hooks scoped to skill lifecycle (new in 2.1.0)
 hooks:
   PreToolUse:
     - matcher: "Bash"
       command: "echo 'Pre-validation' >&2"
-      once: true           # Run only once per session
+      once: true           # Run once per session
   PostToolUse:
     - matcher: "Write|Edit"
       command: "./scripts/format-on-save.sh"
@@ -112,46 +87,25 @@ hooks:
 ---
 # Skill Title
 ## Overview
-## What It Does
-## When to Use
 ## How to Use
 ## Examples
 ```
 
-#### New Frontmatter Fields (2.1.0)
+### Skill Configuration
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `context` | `fork` | Run in forked sub-agent context (isolated context window) |
-| `agent` | string | Specify agent type for skill execution |
-| `user-invocable` | boolean | Show in slash command menu (default: true, set false to hide) |
-| `hooks` | object | PreToolUse/PostToolUse/Stop hooks scoped to skill lifecycle |
-| `allowed-tools` | list | YAML-style list (cleaner than comma-separated strings) |
-
-#### Wildcard Permission Patterns
-
-Claude Code 2.1.0 supports wildcards at any position in Bash tool permissions:
-
-```yaml
-# Pattern examples
-allowed-tools:
-  - Bash(npm *)       # All npm commands
-  - Bash(* install)   # Any install command
-  - Bash(git * main)  # Git commands with main branch
-  - Bash(python:*)    # Python with any argument
-```
+*   **Context Forking**: Set `context: fork` to run skills in an isolated sub-agent context, preventing output from polluting the main conversation thread.
+*   **Agent Targeting**: Use the `agent` field to route skills to specific sub-agents (e.g., `python-tester`).
+*   **Tool Permissions**: Use YAML lists for `allowed-tools`. Wildcards are supported (e.g., `Bash(npm *)`, `Bash(* install)`).
+*   **Lifecycle Hooks**: Define `PreToolUse`, `PostToolUse`, or `Stop` hooks in frontmatter to automate validations or cleanup.
 
 ### Command Pattern
 ```yaml
 ---
 name: command-name
 description: Action-oriented description
+context: fork              # Optional: Run in forked sub-agent context
+agent: agent-name          # Optional: Specify agent type
 
-# New in 2.1.0 - Optional fields:
-context: fork              # Run in forked sub-agent context
-agent: agent-name          # Specify agent type
-
-# Hooks scoped to command lifecycle
 hooks:
   PreToolUse:
     - matcher: "Edit"
@@ -168,309 +122,90 @@ examples:
 ---
 ```
 
-### Agent Pattern (Claude Code 2.1.0+)
+### Agent Pattern
 ```yaml
 ---
 name: agent-name
 description: |
   Agent purpose and specialization.
-
   Triggers: keyword1, keyword2, keyword3
-
   Use when: specific use cases for this agent
-
   DO NOT use when: when other tools are better suited
+
 tools: [Read, Write, Bash, Glob, Grep]
 model: haiku                    # Model for this agent
 permissionMode: acceptEdits     # Permission handling
+skills: [skill-name-1, skill-name-2] # Skills to auto-load
 
-# Hooks scoped to agent lifecycle (new in 2.1.0)
 hooks:
   PreToolUse:
     - matcher: "Bash"
       command: "./validate-command.sh"
-      once: true                # Run only once per agent session
+      once: true                # Run once per session
   PostToolUse:
     - matcher: "Write|Edit"
       command: "./post-edit-hook.sh"
   Stop:
-    - command: "./cleanup.sh"   # Runs when agent completes
+    - command: "./cleanup.sh"
 
-# Skills to auto-load (must be explicit, not inherited)
-skills: [skill-name-1, skill-name-2]
-
-# Escalation configuration
 escalation:
   to: sonnet                    # Escalate to stronger model
   hints:
     - ambiguous_input
-    - high_stakes
 ---
-
 # Agent Name
-
 Agent body content...
 ```
 
-#### Agent Frontmatter Fields
+### Agent Configuration
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | string | Agent identifier (lowercase, hyphens) |
-| `description` | string | Purpose, triggers, use cases |
-| `tools` | list | Allowed tools (if omitted, inherits all) |
-| `model` | string | Model alias (`haiku`, `sonnet`, `opus`) or `inherit` |
-| `permissionMode` | string | `default`, `acceptEdits`, `dontAsk`, `bypassPermissions`, `plan`, `ignore` |
-| `skills` | list | Skills to auto-load (NOT inherited from parent) |
-| `hooks` | object | PreToolUse/PostToolUse/Stop hooks scoped to agent lifecycle |
-| `escalation` | object | Model escalation configuration |
+*   **Model Control**: Set the `model` to `haiku`, `sonnet`, or `opus`.
+*   **Permissions**: `permissionMode` defines how the agent handles tool approvals (e.g., `acceptEdits`, `dontAsk`).
+*   **Auto-loading Skills**: List skills in the `skills` field. Note that agents do not inherit skills from their parents.
+*   **Escalation**: Configure `escalation` to move tasks to a more capable model when specific `hints` (like `ambiguous_input`) are detected.
 
-### Error Handling Pattern
+## Error Handling
+
+Catch specific exceptions to provide actionable feedback. Log expected errors as warnings and use `PluginError` for failures that require user intervention.
+
 ```python
 try:
     result = risky_operation()
 except SpecificError as e:
-    logger.warning(f"Expected error: {e}")
+    logger.warning(f"Operation skipped: {e}")
     result = default_value
 except Exception as e:
-    logger.error(f"Unexpected error: {e}")
-    raise PluginError("Operation failed") from e
+    logger.error(f"Critical failure: {e}")
+    raise PluginError("Failed to complete operation. Check network or permissions.") from e
 ```
 
-## Debugging Guide
+## Debugging
 
 ### Common Issues
 
-#### Plugin Not Loading
-1. Check `.claude-plugin/plugin.json` syntax.
-2. Verify paths are correct.
-3. Check marketplace.json configuration.
-4. Review Claude Code logs.
+If a plugin is not loading, verify the syntax and file paths in `.claude-plugin/plugin.json`, and check `marketplace.json` for any entry point mismatches. When tests fail, confirm that all dependencies are installed using `make install` and use `pytest tests/test_specific.py -v` to isolate the failing cases. For performance bottlenecks, profile the code with `python -m cProfile` and consider implementing caching or lazy loading for heavy modules.
 
-#### Tests Failing
-1. Install dependencies: `make install`.
-2. Check Python version: `python3 --version`.
-3. Clear cache: `make clean`.
-4. Run specific test: `pytest tests/test_specific.py -v`.
+### Utility Commands
 
-#### Performance Issues
-1. Profile with: `python -m cProfile script.py`.
-2. Check token usage estimates.
-3. Implement caching.
-4. Use lazy loading.
-
-### Debug Tools
 ```bash
-# Validate plugin structure
-make validate
-
-# Run with debug output
-uv run python -m debugpy --listen 5678 script.py
-
-# Check dependencies
-uv pip list
-
-# Analyze complexity
+make validate              # Check plugin structure
+uv pip list                # Verify installed dependencies
 uv run python scripts/complexity_calculator.py
 ```
 
-## Resources
-
-### Official Documentation
-- [Claude Code Documentation](https://docs.anthropic.com/claude/docs/claude-code)
-
-### Repository
-- [GitHub Repository](https://github.com/athola/claude-night-market)
-- [Issue Tracker](https://github.com/athola/claude-night-market/issues)
-- [Discussions](https://github.com/athola/claude-night-market/discussions)
-
-### Learning Resources
-- [Abstract Plugin](../plugins/abstract/) - Meta-infrastructure and patterns.
-- [Existing Plugins](../plugins/) - Real-world implementations.
-
-## Contributing
-
-Night Market welcomes contributions through issue reporting, pull requests, documentation improvements, and examples. When contributing, fork the repository, create a feature branch, and ensure all quality checks pass before submitting a PR.
-
-### Development Workflow
-1. Fork the repository.
-2. Create feature branch.
-3. Make changes with tests.
-4. Run quality checks.
-5. Submit pull request.
-
-## Getting Help
-
-If you encounter issues, check the issue tracker and documentation first. Discussion forums are open for questions. When reporting bugs, please use the provided template and include a minimal reproduction with environment details.
-
-## Claude Code 2.1.0 Features
-
-Key features in Claude Code 2.1.0 relevant to plugin development:
+## Advanced Features
 
 ### Skill Hot-Reload
+Skills located in `~/.claude/skills` or `.claude/skills` reload immediately upon saving, removing the need to restart the session to test changes.
 
-Skills created or modified in `~/.claude/skills` or `.claude/skills` are now **immediately available** without restarting the session. This enables rapid skill iteration during development.
+### Agent-Aware Hooks
+SessionStart hooks receive an `agent_type` field in their input, allowing you to skip heavy context loading for lightweight agents. For example, skipping context for a `quick-query` agent can save between 200 and 800 tokens per session.
 
-**Development workflow:**
-1. Edit SKILL.md
-2. Save changes
-3. Skill is immediately available (no restart needed)
+### Environment Overrides
+Specific environment variables can be used to control behavior, such as `CLAUDE_CODE_HIDE_ACCOUNT_INFO` for sanitizing recordings or `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` to force synchronous execution in CI environments.
 
-### Context Forking
+## Resources
 
-Use `context: fork` to run skills or commands in an isolated sub-agent context:
-
-```yaml
----
-name: isolated-analysis
-description: Run analysis in isolated context
-context: fork  # Creates fresh context window
----
-```
-
-**Benefits:**
-- Isolated context prevents pollution of main conversation
-- Failed operations don't affect main thread
-- Parallel execution without context conflicts
-
-### Agent Field in Skills
-
-Specify which agent type should execute a skill:
-
-```yaml
----
-name: python-analysis
-description: Python code analysis
-agent: python-tester  # Use specific agent for execution
----
-```
-
-### Hooks in Frontmatter
-
-Define lifecycle hooks directly in skill, command, or agent frontmatter:
-
-```yaml
----
-name: validated-skill
-hooks:
-  PreToolUse:
-    - matcher: "Bash"
-      command: "./validate.sh"
-      once: true  # Run only once per session
-  PostToolUse:
-    - matcher: "Write|Edit"
-      command: "./format.sh"
-  Stop:
-    - command: "./cleanup.sh"
----
-```
-
-**Hook Configuration:**
-- `once: true` - Execute hook only once per session (useful for setup)
-- `matcher` - Tool pattern to match (supports `|` for OR, `*` for wildcards)
-- `command` - Shell command to execute
-
-### YAML-Style Allowed-Tools
-
-Use clean YAML lists instead of comma-separated strings:
-
-```yaml
-# Old style (still supported)
-allowed-tools: Read, Grep, Bash(npm:*)
-
-# New YAML-style (2.1.0+)
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash(npm *)
-  - Bash(* install)
-```
-
-### Wildcard Permission Patterns
-
-Claude Code 2.1.0 supports wildcards at any position:
-
-| Pattern | Matches |
-|---------|---------|
-| `Bash(npm *)` | All npm commands |
-| `Bash(* install)` | Any install command |
-| `Bash(git * main)` | Git commands with main branch |
-| `Bash(python:*)` | Python with any argument |
-
-### Skill Visibility Control
-
-Skills are now visible in the slash command menu by default. Opt out with:
-
-```yaml
----
-name: internal-skill
-user-invocable: false  # Hide from slash command menu
----
-```
-
-### Disabling Specific Agents
-
-Use `Task(AgentName)` syntax in settings.json or `--disallowedTools` to disable specific agents:
-
-```json
-{
-  "permissions": {
-    "deny": ["Task(expensive-agent)", "Task(dangerous-agent)"]
-  }
-}
-```
-
-Or via CLI:
-```bash
-claude --disallowedTools "Task(expensive-agent)"
-```
-
-### Subagent Improvements
-
-**Subagents now continue after permission denial**, allowing them to try alternative approaches instead of failing completely. This enables more resilient agent workflows.
-
-**Skills show progress while executing** - tool uses display as they happen, giving visibility into skill execution.
-
-### Agent-Aware Hooks (Claude Code 2.1.2+)
-
-SessionStart hooks receive JSON input with `agent_type` field when launched with `--agent`:
-
-```python
-# Python: Customize context based on agent type
-import json, sys
-input_data = json.loads(sys.stdin.read())
-agent_type = input_data.get("agent_type", "")
-
-if agent_type in ["code-reviewer", "quick-query"]:
-    # Skip heavy context for lightweight agents
-    context = "Minimal context"
-else:
-    context = full_context
-
-print(json.dumps({"hookSpecificOutput": {"additionalContext": context}}))
-```
-
-This pattern reduces context overhead by 200-800 tokens for non-implementation agents.
-
-### New Environment Variables
-
-| Variable | Purpose |
-|----------|---------|
-| `CLAUDE_CODE_HIDE_ACCOUNT_INFO` | Hide email/org from UI (for streaming/recording) |
-| `CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS` | Override default file read token limit |
-| `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` | Disable auto-backgrounding for CI/CD |
-| `FORCE_AUTOUPDATE_PLUGINS` | Force plugin auto-update in controlled environments |
-
-### New Commands
-
-- `/plan` - Shortcut to enable plan mode directly from prompt
-- `/teleport` - Resume remote sessions (claude.ai subscribers)
-- `/remote-env` - Configure remote sessions
-
-## See Also
-
-- [Cross-Plugin Collaboration](./cross-plugin-collaboration.md)
-- [Skill Integration Guide](./skill-integration-guide.md)
-- [Superpowers Integration](./superpowers-integration.md)
-- [Claude Code Documentation](https://code.claude.com/docs)
+*   [Official Claude Code Docs](https://code.claude.com/docs)
+*   [Abstract Plugin Patterns](../plugins/abstract/)
+*   [Existing Implementations](../plugins/)

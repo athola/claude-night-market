@@ -118,16 +118,7 @@ If the slice is ambiguous, pick the most recent *complete* attempt and state the
 
 ## Step 2: Recreate the Workflow (`workflow-recreated`)
 
-Reconstruct the workflow as a numbered list of steps (5–20 steps):
-- Inputs (what was assumed / required)
-- Decisions (branch points)
-- Outputs (files produced, state changes)
-
-Also record friction points:
-- Repeated steps / redundant tool calls
-- Missing guardrails (validation too late, unclear prerequisites)
-- Missing automation (manual steps that should be scripted)
-- Confusing naming or discoverability gaps
+Reconstruct the workflow as a numbered list of 5 to 20 steps, identifying inputs, branch points for decisions, and outputs such as file changes or state modifications. During this reconstruction, identify specific friction points that reduce efficiency. These often include repeated steps or redundant tool calls, as well as missing guardrails where validation occurs too late or prerequisites are unclear. Other common issues are a lack of automation for tasks that should be scripted, and discoverability gaps caused by confusing naming conventions.
 
 **Cross-reference with Step 0 context:**
 - Are friction points matching known failure patterns?
@@ -136,24 +127,7 @@ Also record friction points:
 
 ## Step 3: Generate Improvements (`improvements-generated`)
 
-Generate **3–5 distinct improvement approaches** and score each on:
-- Impact (time saved, fewer errors, fewer steps)
-- Complexity (how invasive is the change)
-- Reversibility (easy to rollback)
-- Consistency (matches existing sanctum patterns)
-- **Recurrence Prevention** (addresses Step 0 patterns)
-
-Prefer small, high-use changes:
-- Tighten a skill's steps and exit criteria
-- Add a missing command option or usage clarity
-- Improve a hook guardrail or make it observable
-- Split an overloaded command into clearer phases
-
-**Prioritize improvements that:**
-1. Fix components with high stability_gap (> 0.3)
-2. Address recurring git history patterns
-3. Implement lessons from review-chamber
-4. Reduce failure modes identified in skill-logs
+Generate 3 to 5 distinct improvement approaches and score each on impact, complexity, reversibility, and consistency with existing sanctum patterns. The scoring should specifically address whether the change prevents the recurrence of patterns identified in Step 0. Prioritize improvements that address components with a high stability gap (greater than 0.3) or recurring issues found in the git history. You should also incorporate lessons from the review-chamber and aim to reduce failure modes identified in the skill logs. Prefer small, high-use changes such as tightening a skill's exit criteria, adding missing command options, improving hook guardrails for better observability, or splitting overloaded commands into clearer phases.
 
 ## Step 4: Agree on a Plan (`plan-agreed`)
 
@@ -255,11 +229,4 @@ This creates a feedback loop where future `/fix-workflow` and `/update-plugins` 
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If a command is not found, confirm that all dependencies are installed and accessible in your PATH. For permission errors, check file system permissions and run the command with appropriate privileges. If you encounter unexpected behavior, enable verbose logging using the `--verbose` flag to capture more detailed execution data.

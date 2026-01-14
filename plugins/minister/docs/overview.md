@@ -7,7 +7,7 @@ Minister turns GitHub Projects, issues, and pull requests into actionable status
 | Source | GitHub Action | Tracker Hook |
 |--------|---------------|--------------|
 | GitHub Projects V2 | Maintain initiative lanes, owner swimlanes, and status notes in a shared view. Export or sync that view nightly. | Cron job updates `plugins/minister/data/project-data.json`, then `tracker.py status` ingests the refreshed fields. |
-| Issues & PR Labels | Apply readiness, risk, and severity labels during triage so blockers stand out in search (`label:risk:red is:open`). | Labels map directly into `Task.priority` and `Task.status` when `tracker.py status` builds the Initiative Pulse. |
+| Issues & PR Labels | Apply readiness, risk, and severity labels during triage so blockers stand out in search (`label:risk:red is:open`). Use `/update-labels` to establish a professional taxonomy. | Labels map directly into `Task.priority` and `Task.status` when `tracker.py status` builds the Initiative Pulse. |
 | Checks & Deployments | Promote release PRs through required checks and deployments so approvals live on GitHub. | Health gate workflows emit JSON that tracker loads for release readiness scoring. |
 | Discussions & Decision Logs | Capture decisions in GitHub Discussions or issue threads and copy the permalink into your Project note. | Store the permalink in Projects custom field `status_comment_url` so tracker echoes the latest decision context. |
 

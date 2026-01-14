@@ -42,7 +42,7 @@ graph LR
 
 ## What Gets Configured
 
-- ✅ Git initialization with comprehensive .gitignore
+- Git initialization with detailed .gitignore
 - ✅ GitHub Actions workflows (test, lint, typecheck, publish)
 - ✅ Pre-commit hooks (formatting, linting, security)
 - ✅ Makefile with standard development targets

@@ -6,20 +6,21 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 
 ## Key Features
 
-*   **Agent-Aware Context:** Hooks in version 2.1.2+ adapt the context based on the active agent.
-*   **Skill Metrics:** The `pensive` plugin tracks skill usage and stability, allowing for performance analysis via `/skill-review`.
-*   **Proof-of-Work TDD:** The `imbue` plugin requires a failing test before allowing implementation code, enforcing test-driven development.
-*   **Self-Correction:** The `/update-plugins` command analyzes skill stability to suggest improvements, while `/fix-workflow` uses execution history to propose fixes.
+*   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context to the active agent.
+*   **Skill Metrics:** The `pensive` plugin tracks usage and stability for `/skill-review` analysis.
+*   **Proof-of-Work TDD:** The `imbue` plugin mandates a failing test before accepting implementation code.
+*   **Iron Law Interlock:** `/create-skill` and `/create-command` block implementation pending a failing test.
+*   **Self-Correction:** `/update-plugins` suggests improvements based on skill stability; `/fix-workflow` applies Reflexion patterns for self-critique.
 
 ## Workflow Improvements
 
-The Night Market replaces manual or generic steps with specialized commands:
+Specialized commands replace manual steps:
 
-*   **Git:** Instead of running raw git commands, `/prepare-pr` handles branch checks and scope validation.
-*   **Reviews:** `/full-review` runs a multi-step audit (syntax, logic, security) rather than relying on manual inspection.
-*   **Specs:** `/speckit-specify` guides you through creating a detailed specification before coding starts.
-*   **Context:** `/catchup` summarizes recent changes to restore context after a break.
-*   **Setup:** `/attune:init` generates project scaffolding based on detected project types.
+*   **Git:** `/prepare-pr` validates branch scope and checks before creation.
+*   **Reviews:** `/full-review` performs a multi-step audit (syntax, logic, security).
+*   **Specs:** `/speckit-specify` creates detailed specifications before coding.
+*   **Context:** `/catchup` summarizes recent changes to restore context.
+*   **Setup:** `/attune:init` scaffolds projects based on detected types.
 
 ## Quick Start
 
@@ -94,19 +95,19 @@ The ecosystem covers several domains:
 *   **sanctum** handles git operations (`/prepare-pr`, `/commit-msg`) and documentation updates.
 *   **pensive** manages code reviews (`/full-review`) and audits shell usage.
 *   **spec-kit** defines requirements (`/speckit-specify`) before implementation.
-*   **minister** interfaces with GitHub issues (`/create-issue`, `/close-issue`).
-*   **conserve** detects and reduces codebase bloat (`/bloat-scan`).
+*   **minister** interfaces with GitHub issues (`/create-issue`, `/close-issue`, `/update-labels`).
+*   **conserve** detects and reduces codebase bloat (`/bloat-scan`, `/unbloat`).
 *   **attune** scaffolds new projects (`/attune:init`).
 *   **parseltongue** provides Python-specific tools like test analysis (`/analyze-tests`).
 *   **archetypes** offers architecture guides.
 *   **memory-palace** indexes project knowledge (`/palace`, `/garden`).
 *   **hookify** applies behavioral rules without configuration.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 109 skills, 95 commands, and 35 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 107 skills, 90 commands, and 35 agents.
 
 ## Audience
 
-This marketplace is for developers who want to automate repetitive CLI tasks and enforce consistency in their Claude Code sessions. It is also useful for teams creating a shared standard for LLM interactions.
+Developers use this marketplace to automate repetitive CLI tasks and enforce consistency in Claude Code sessions. Teams use it to create a shared standard for LLM interactions.
 
 ## Common Workflows
 
@@ -117,8 +118,10 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
 | Review a PR | `/full-review` | Run multi-discipline code review |
 | Fix PR feedback | `/fix-pr` | Address review comments |
+| Fix workflow issues | `/fix-workflow` | Self-correcting with Reflexion |
 | Prepare a PR | `/prepare-pr` | Quality gates before merge |
 | Create GitHub issue | `/create-issue` | Interactive issue creation |
+| Manage labels | `/update-labels` | GitHub label taxonomy |
 | Catch up on changes | `/catchup` | Context recovery |
 | Write specifications | `/speckit-specify` | Spec-driven development |
 | Debug issues | `Skill(superpowers:debugging)` | Root cause analysis |
@@ -132,7 +135,7 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 
 This 90-second tutorial demonstrates how to browse skills, examine their frontmatter, and chain them into workflows.
 
-[→ Full Tutorial](docs/tutorials/skills-showcase.md)
+[Full Tutorial](docs/tutorials/skills-showcase.md)
 
 ---
 
@@ -176,7 +179,7 @@ Refer to the [Plugin Development Guide](docs/plugin-development-guide.md) for ar
 
 ## System Prompt Budget
 
-The ecosystem adds approximately 14,800 characters to the system prompt, staying within the 15K character budget. A pre-commit hook enforces this limit.
+The ecosystem adds ~14.8k characters to the system prompt (limit: 15k). A pre-commit hook enforces this limit.
 
 ## Design
 

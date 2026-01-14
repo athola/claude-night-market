@@ -73,7 +73,8 @@ Checks for:
 - Known event types (`PreToolUse`, `PostToolUse`, etc.)
 - Required fields (`hooks` array)
 - Hook action structure (`type`, `command`)
-- Matcher validity (`toolName`, `inputPattern`)
+- **Matcher format**: String regex patterns (e.g., `"Bash"`, `"Read|Write"`)
+  - Object format `{"toolName": "Bash"}` is deprecated and will generate warnings
 
 ### Python SDK Hook Validation
 
@@ -160,10 +161,10 @@ jobs:
 Test the validator itself:
 
 ```bash
-# Test with valid JSON hook
+# Test with valid JSON hook (string matcher format)
 echo '{
   "PreToolUse": [{
-    "matcher": {"toolName": "Bash"},
+    "matcher": "Bash",
     "hooks": [{"type": "command", "command": "echo test"}]
   }]
 }' > test_hooks.json

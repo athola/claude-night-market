@@ -140,7 +140,7 @@ Load: `@modules/destination-routing.md`
 
 For each valuable chunk:
 - Semantic match against existing documentation
-- Apply fallback mappings if no good match
+- Apply default mappings if no good match
 - Determine merge strategy (weave, replace, append, create)
 
 ### Step 4: Generate Plan

@@ -89,11 +89,8 @@ def find_markdown_files(directory: Path) -> list[Path]:
 class AbstractScript:
     """Base class for Abstract scripts with common functionality.
 
-    Centralize:
-    - Import fallback logic for running scripts from any location
-    - Markdown file discovery
-    - Frontmatter checking
-    - Configuration and error handling setup
+    Centralizes import handling, markdown file discovery, frontmatter checking,
+    and configuration setup for scripts that can run from any location.
     """
 
     def __init__(self, script_name: str) -> None:
@@ -111,7 +108,7 @@ class AbstractScript:
         self._error_handler: ErrorHandler | None = None
 
     def _setup_imports(self) -> None:
-        """Set up import paths with fallback for running from any location.
+        """Set up import paths for running from any location.
 
         This allows scripts to be run directly or as part of a package.
         The method validates the abstract package is importable regardless

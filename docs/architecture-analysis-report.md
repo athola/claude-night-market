@@ -8,9 +8,9 @@
 
 ## Purpose
 
-This document serves as a **historical record** of architecture analyses conducted at each major or minor version milestone. Patch versions (x.x.PATCH) are excluded unless they introduce significant architectural changes.
+This document is a historical record of architecture analyses for major and minor version milestones. Patch versions (x.x.PATCH) are excluded unless they introduce significant architectural changes.
 
-### When to Add an Entry
+### Entry Criteria
 
 Add a new analysis section when:
 - **Major version** (X.0.0): Breaking changes, new architecture patterns

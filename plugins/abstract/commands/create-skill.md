@@ -20,7 +20,9 @@ do_not_use_when:
 - Improving skill architecture - use modular-skills skill
 </identification>
 
-Creates new skills through a structured workflow: **brainstorm → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed skills before generating any files.
+Creates new skills through a structured workflow: **iron-law → brainstorm → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed skills before generating any files.
+
+**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create skill files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## Usage
 
@@ -36,6 +38,33 @@ Creates new skills through a structured workflow: **brainstorm → scaffold → 
 ```
 
 ## Workflow
+
+### Phase -1: Iron Law Interlock (BLOCKING)
+
+**This phase is MANDATORY and cannot be skipped.**
+
+Before ANY file creation, you MUST satisfy the Iron Law interlock. See [iron-law-interlock.md](../shared-modules/iron-law-interlock.md) for full details.
+
+#### Quick Reference
+
+1. **Create test file FIRST**: `tests/test_${skill_name}_skill.py`
+2. **Write structural tests**: File exists, frontmatter valid, registered in plugin.json
+3. **Run tests - capture RED state**:
+   ```bash
+   pytest tests/test_${skill_name}_skill.py -v
+   # Expected: FAILED (skill does not exist)
+   ```
+4. **Capture evidence**:
+   ```markdown
+   [E1] Command: pytest tests/test_${skill_name}_skill.py -v
+   Output: FAILED - FileNotFoundError
+   Status: RED - Interlock satisfied
+   ```
+5. **TodoWrite**: `proof:iron-law-red`, `proof:iron-law-interlock-satisfied`
+
+**ONLY AFTER completing Phase -1 may you proceed.**
+
+---
 
 ### Phase 0: Methodology Curation (Optional but Recommended)
 

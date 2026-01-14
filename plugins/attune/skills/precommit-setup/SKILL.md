@@ -56,25 +56,19 @@ tools: [Read, Write, Bash]
 
 # Pre-commit Setup Skill
 
-Configure a comprehensive three-layer pre-commit quality system that enforces linting, type checking, and testing before commits.
+Configure a detailed three-layer pre-commit quality system that enforces linting, type checking, and testing before commits.
 
 ## Use When
 
 - Setting up new project with code quality enforcement
 - Adding pre-commit hooks to existing project
-- Upgrading from basic linting to comprehensive quality system
+- Upgrading from basic linting to a full quality system
 - Setting up monorepo/plugin architecture with per-component quality checks
 - Updating pre-commit hook versions
 
 ## Philosophy: Three-Layer Defense
 
-This skill implements a comprehensive quality system based on three layers:
-
-1. **Layer 1: Fast Global Checks** - Quick linting and type checking on all files (~50-200ms)
-2. **Layer 2: Component-Specific Checks** - Detailed linting, type checking, and testing for changed components only (~10-30s)
-3. **Layer 3: Validation Hooks** - Structure validation, security scanning, and custom checks
-
-**Key Principle**: New code is automatically checked before commit, preventing technical debt from entering the repository.
+This skill implements a technical quality system based on three distinct layers. Layer 1 consists of fast global checks that perform quick linting and type checking on all files in approximately 50 to 200 milliseconds. Layer 2 focuses on component-specific checks, running detailed linting, type checking, and testing for changed components only, which typically takes between 10 and 30 seconds. Finally, Layer 3 uses validation hooks for structure verification, security scanning, and custom project checks. This multi-layered approach verifies that new code is automatically checked before commit, which prevents technical debt from entering the repository.
 
 ## Standard Hooks (Layer 1)
 
@@ -387,17 +381,17 @@ git commit -m "feat: add feature"
 
 ### 5. Create Manual Quality Scripts
 
-For comprehensive quality checks (CI/CD, monthly audits):
+For full quality checks (CI/CD, monthly audits):
 
 #### `scripts/check-all-quality.sh`
 
 \`\`\`bash
 #!/bin/bash
-# Comprehensive quality check for all components
+# Full quality check for all components
 
 set -e
 
-echo "=== Running Comprehensive Quality Checks ==="
+echo "=== Running Full Quality Checks ==="
 
 # Lint all components
 ./scripts/run-component-lint.sh --all
@@ -408,7 +402,7 @@ echo "=== Running Comprehensive Quality Checks ==="
 # Test all components
 ./scripts/run-component-tests.sh --all
 
-echo "=== ✓ All Quality Checks Passed ==="
+echo "=== All Quality Checks Passed ==="
 \`\`\`
 
 ## Hook Execution Order
@@ -416,14 +410,14 @@ echo "=== ✓ All Quality Checks Passed ==="
 Pre-commit hooks run in this order:
 
 \`\`\`
-1. ✓ File Validation (whitespace, EOF, YAML/TOML/JSON syntax)
-2. ✓ Security Scanning (bandit)
-3. ✓ Global Linting (ruff - all files)
-4. ✓ Global Type Checking (mypy - all files)
-5. ✓ Component Linting (changed components only)
-6. ✓ Component Type Checking (changed components only)
-7. ✓ Component Tests (changed components only)
-8. ✓ Custom Validation (structure, patterns, etc.)
+1. File Validation (whitespace, EOF, YAML/TOML/JSON syntax)
+2. Security Scanning (bandit)
+3. Global Linting (ruff - all files)
+4. Global Type Checking (mypy - all files)
+5. Component Linting (changed components only)
+6. Component Type Checking (changed components only)
+7. Component Tests (changed components only)
+8. Custom Validation (structure, patterns, etc.)
 \`\`\`
 
 All must pass for commit to succeed.
@@ -478,7 +472,7 @@ Add project-specific hooks:
         files: ^(plugins|src)/.*\\.py\$
 
       - id: check-coverage
-        name: Ensure Test Coverage
+        name: Verify Test Coverage
         entry: python3 scripts/check_coverage.py
         language: system
         pass_filenames: false
@@ -487,7 +481,7 @@ Add project-specific hooks:
 
 ## CI Integration
 
-Ensure CI runs the same comprehensive checks:
+Verify CI runs the same detailed checks:
 
 \`\`\`yaml
 # .github/workflows/quality.yml
@@ -580,25 +574,13 @@ disallow_untyped_defs = false
 ## Best Practices
 
 ### For New Projects
-
-1. **Start with strict settings** - Easier to maintain from the beginning
-2. **Configure type checking** - Use `strict = true` in `tool.mypy`
-3. **Set up testing early** - Include pytest in pre-commit hooks
-4. **Document exceptions** - If you skip hooks, document why
+Start with strict settings from the beginning, as they are easier to maintain over time. We recommend configuring type checking with `strict = true` in your `pyproject.toml` and setting up testing early by including pytest in your pre-commit hooks. If you must skip any hooks, always document the reason for the exception.
 
 ### For Existing Projects
+When adding hooks to an existing codebase, use a gradual adoption strategy. Start with global checks and add component-specific checks later as you resolve legacy issues. Fix identified quality problems progressively and create a baseline to document the current state for tracking improvements. Use the `--no-verify` flag sparingly and only for true emergencies.
 
-1. **Gradual adoption** - Start with global checks, add component checks later
-2. **Fix existing issues** - Run quality checks on all files, fix progressively
-3. **Create baseline** - Document current state for tracking improvement
-4. **Use `--no-verify` sparingly** - Only for true emergencies
-
-### For Monorepos/Plugin Architectures
-
-1. **Per-component Makefiles** - Standardize lint/typecheck/test targets
-2. **Shared configurations** - Use root `pyproject.toml` for common settings
-3. **Component detection** - Automatically detect changed components
-4. **Progressive disclosure** - Show summary first, details on failure
+### For Monorepos and Plugin Architectures
+Standardize your development targets by using per-component Makefiles for linting, type checking, and testing. Centralize common settings in a root `pyproject.toml` while allowing for per-component overrides. Automate the detection of changed components to keep commit times fast, and use a progressive disclosure approach to show summaries first and detailed errors only on failure.
 
 ## Complete Example: Python Monorepo
 
@@ -678,5 +660,5 @@ repos:
 
 ## See Also
 
-- [Quality Gates Documentation](../../../docs/quality-gates.md) - Comprehensive quality system guide
+- [Quality Gates Documentation](../../../docs/quality-gates.md) - Detailed quality system guide
 - [Testing Guide](../../../docs/testing-guide.md) - Testing best practices

@@ -4,7 +4,7 @@
 
 ## Overview
 
-Comprehensive error handling patterns and troubleshooting strategies for Claude Night Market plugins. For detailed tutorial with code examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
+Detailed error handling patterns and troubleshooting strategies for Claude Night Market plugins. For detailed tutorial with code examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
 
 ## Error Classification System
 
@@ -22,7 +22,7 @@ See tutorial for detailed classification and code examples.
 
 **Common failures**: TDD test mismatches, skill discovery issues, anti-rationalization traps
 
-**Skill Tool Unavailable Fallback**:
+**Skill Tool Unavailable: Secondary Strategy**:
 ```
 # Instead of: Skill(sanctum:commit-messages)
 # Use:        Read plugins/sanctum/skills/commit-messages/SKILL.md
@@ -73,9 +73,9 @@ python conjure/scripts/quota_tracker.py --status
 
 Match error code to category:
 
-- **E001-E099**: Critical → Stop and investigate
-- **E010-E099**: Recoverable → Retry with backoff
-- **E020-E099**: Warning → Log and continue
+- **E001-E099**: Critical -> Stop and investigate
+- **E010-E099**: Recoverable -> Retry with backoff
+- **E020-E099**: Warning -> Log and continue
 
 ### Step 3: Apply Recovery Strategy
 
@@ -309,8 +309,6 @@ alerts:
 - Health check scripts in each plugin
 - Error logging and monitoring systems
 
-## Conclusion
+## Final Implementation Notes
 
-Effective error handling is critical for a reliable developer experience. By following these patterns, integrating with shared infrastructure, and implementing comprehensive troubleshooting, you can build skills that are both powerful and dependable.
-
-Remember: **Good error handling is invisible until something goes wrong – then it's invaluable.**
+These error patterns provide a consistent way to handle failures across all plugins. Using the shared `leyline` infrastructure allows for unified monitoring and predictable recovery behavior.

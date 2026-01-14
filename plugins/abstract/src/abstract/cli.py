@@ -194,7 +194,7 @@ class SuggestCLI(AbstractCLI):
         lines = ["Improvement Suggestions", "=" * 50]
 
         if not data:
-            lines.append("\nNo suggestions - skill looks good!")
+            lines.append("\nNo suggestions found.")
             return "\n".join(lines)
 
         for idx, suggestion in enumerate(data, 1):
