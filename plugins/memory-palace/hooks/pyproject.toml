@@ -1,3 +1,8 @@
+# Separate package for hooks enables:
+# - Independent testing without loading full memory-palace plugin
+# - Isolated dependencies (only pyyaml needed for hooks)
+# - Faster CI/CD for hook-only changes
+# - Clear separation between hook logic and skill content
 [project]
 name = "memory-palace-hooks"
 version = "1.2.6"

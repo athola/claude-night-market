@@ -1,37 +1,32 @@
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": {
-          "toolName": "Skill"
-        },
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/test_skill_observability_proof.py",
-            "timeout": 1
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": {
-          "toolName": "Skill"
-        },
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_execution_logger.py",
-            "timeout": 3
-          }
-        ]
-      }
-    ]
-  },
-  "notes": {
+  "PreToolUse": [
+    {
+      "matcher": "Skill",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/test_skill_observability_proof.py",
+          "timeout": 1
+        }
+      ]
+    }
+  ],
+  "PostToolUse": [
+    {
+      "matcher": "Skill",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_execution_logger.py",
+          "timeout": 3
+        }
+      ]
+    }
+  ],
+  "_notes": {
     "PreToolUse": "Captures start time, initializes invocation tracking before skill execution",
     "PostToolUse": "Calculates duration, logs execution result after skill completes",
-    "continual_learning": "Enables per-iteration evaluation (not just batch aggregation)"
+    "continual_learning": "Enables per-iteration evaluation (not just batch aggregation)",
+    "matcher_format": "Uses string matchers per Claude Code SDK requirements (not object format)"
   }
 }

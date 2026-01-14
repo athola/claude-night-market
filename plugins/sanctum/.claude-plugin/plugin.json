@@ -63,12 +63,5 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT",
-  "hooks": [
-    "./hooks/PERFORMANCE.md",
-    "./hooks/post_implementation_policy.py",
-    "./hooks/security_pattern_check.py",
-    "./hooks/session_complete_notify.py",
-    "./hooks/verify_workflow_complete.py"
-  ]
+  "license": "MIT"
 }

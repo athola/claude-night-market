@@ -90,19 +90,20 @@ Create a simple logging hook in `.claude/settings.json`:
 
 ```json
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": { "toolName": "Bash" },
-        "hooks": [{
-          "type": "command",
-          "command": "echo \"$(date): Executed $CLAUDE_TOOL_NAME\" >> ~/.claude/audit.log"
-        }]
-      }
-    ]
-  }
+  "PostToolUse": [
+    {
+      "matcher": "Bash",
+      "hooks": [{
+        "type": "command",
+        "command": "echo \"$(date): Executed $CLAUDE_TOOL_NAME\" >> ~/.claude/audit.log"
+      }]
+    }
+  ]
 }
 ```
+
+**Note**: Use string matchers (`"Bash"`) not object matchers (`{"toolName": "Bash"}`).
+
 **Verification:** Run the command with `--help` flag to verify availability.
 
 This logs every Bash command execution with a timestamp.
@@ -259,19 +260,25 @@ PreToolUse hooks can now return `updatedInput` when returning `ask` permission d
 
 ```json
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": { "toolName": "Edit", "inputPattern": "production" },
-        "hooks": [{
-          "type": "command",
-          "command": "echo 'WARNING: Editing production file' >&2"
-        }]
-      }
-    ]
-  }
+  "PreToolUse": [
+    {
+      "matcher": "Edit",
+      "hooks": [{
+        "type": "command",
+        "command": "echo 'WARNING: Editing production file' >&2"
+      }]
+    }
+  ]
 }
 ```
+
+**Important**: Use string matchers (regex patterns), not object matchers. The object format `{"toolName": "Edit"}` is deprecated.
+
+**Matcher patterns**:
+- `"Edit"` - Match single tool
+- `"Read|Write|Edit"` - Match multiple tools (regex OR)
+- `".*"` - Match all tools
+
 **Verification:** Run the command with `--help` flag to verify availability.
 
 **Pros:** Simple, no code required, easy to version control
@@ -395,7 +402,13 @@ See `modules/performance-guidelines.md` for detailed optimization techniques.
 
 ## Scope Selection
 
-Choose the right location for your hooks based on audience and purpose:
+Choose the right location for your hooks based on audience and purpose.
+
+### Important: Auto-Loading Behavior
+
+> **`hooks/hooks.json` is automatically loaded** when a plugin is enabled.
+> Do NOT add `"hooks": "./hooks/hooks.json"` to `plugin.json` - this causes duplicate load errors.
+> Only use the `hooks` field for additional hook files beyond the standard location.
 
 ### Decision Framework
 

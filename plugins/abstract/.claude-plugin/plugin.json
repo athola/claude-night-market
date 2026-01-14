@@ -65,9 +65,5 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT",
-  "hooks": [
-    "./hooks/pre_skill_execution.py",
-    "./hooks/skill_execution_logger.py"
-  ]
+  "license": "MIT"
 }

@@ -17,21 +17,14 @@ But this is currently **advisory** - Claude can rationalize bypassing it. This m
 
 An **interlock** is a mechanism that prevents an action until preconditions are verified. Unlike advice (which can be ignored), an interlock blocks the action path entirely.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    IRON LAW INTERLOCK                       │
-│                                                             │
-│  User Request ──► Interlock Check ──► Evidence? ──► Action  │
-│                         │                  │                │
-│                         │                  NO               │
-│                         │                  │                │
-│                         │                  ▼                │
-│                         │            BLOCKED                │
-│                         │            Must create test       │
-│                         │            and capture failure    │
-│                         │                  │                │
-│                         └──────────────────┘                │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    A[User Request] --> B{Interlock Check}
+    B --> C{Evidence?}
+    C -->|Yes| D[Action]
+    C -->|No| E[BLOCKED]
+    E --> F[Must create test<br>and capture failure]
+    F --> B
 ```
 
 ## Pre-Flight Checklist (MANDATORY)

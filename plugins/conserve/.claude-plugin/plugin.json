@@ -39,9 +39,5 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT",
-  "hooks": [
-    "./hooks/context_warning.py",
-    "./hooks/session-start.sh"
-  ]
+  "license": "MIT"
 }

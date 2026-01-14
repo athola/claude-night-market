@@ -186,6 +186,11 @@ hooks/
 ### Phase 4: Generate Hook Files
 
 **hooks.json entry:**
+
+> **Important**: Use string matchers (regex patterns), not object matchers.
+> - Correct: `"matcher": "Skill"` or `"matcher": "Read|Write"`
+> - Deprecated: `"matcher": {"toolName": "Skill"}`
+
 ```json
 {
   "${EventType}": [
@@ -202,6 +207,12 @@ hooks/
   ]
 }
 ```
+
+**Matcher pattern examples:**
+- `"Skill"` - Match Skill tool only
+- `"Read|Write|Edit"` - Match file operations
+- `"WebFetch|WebSearch"` - Match web tools
+- `".*"` - Match all tools (use sparingly)
 
 **Python hook template:**
 ```python

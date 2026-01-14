@@ -60,7 +60,8 @@ class ImbueValidator:
         try:
             contents = list(plugin_root.iterdir())
             self.root_empty = len(contents) == 0
-        except OSError:
+        except OSError as e:
+            logger.warning("Unable to read directory %s: %s", plugin_root, e)
             self.root_empty = True
 
         if self.root_empty:
