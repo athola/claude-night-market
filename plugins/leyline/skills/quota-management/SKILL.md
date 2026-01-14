@@ -65,7 +65,7 @@ Three-tier threshold system for proactive management:
 |-------|-------|--------|
 | **Healthy** | <80% | Proceed normally |
 | **Warning** | 80-95% | Alert, consider batching |
-| **Critical** | >95% | Defer non-urgent, use fallbacks |
+| **Critical** | >95% | Defer non-urgent, use secondary services |
 
 ### Quota Types
 
@@ -88,7 +88,7 @@ tracker = QuotaTracker(service="my-service")
 status, warnings = tracker.get_quota_status()
 
 if status == "CRITICAL":
-    # Defer or use fallback
+    # Defer or use secondary service
     pass
 ```
 

@@ -38,7 +38,7 @@ class MergeStrategy:
 
 
 class PRPrepAnalyzer:
-    """Analyzes repository changes for PR preparation."""
+    """Analyze repository changes for pull request preparation."""
 
     QUALITY_GATES = [
         "has_tests",
@@ -84,10 +84,10 @@ class PRPrepAnalyzer:
         """Detect breaking changes in commits and files.
 
         Args:
-            context: Dictionary with 'commits' and 'changed_files' keys
+            context: Dictionary containing 'commits' and 'changed_files'.
 
         Returns:
-            BreakingChanges analysis
+            BreakingChanges analysis results.
 
         """
         # Look for conventional commit breaking change marker (!)
@@ -195,10 +195,10 @@ class PRPrepAnalyzer:
         """Generate PR description from context.
 
         Args:
-            context: PR context with changed_files and other metadata
+            context: PR context containing changed_files and metadata.
 
         Returns:
-            Generated PR description text
+            Generated PR description text.
 
         """
         if not context.get("changed_files"):

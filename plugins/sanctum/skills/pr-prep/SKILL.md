@@ -39,7 +39,7 @@ hooks:
         # Log quality gate execution
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(make|npm|cargo|pytest|ruff|eslint|clippy) (test|lint|fmt|build|check)"; then
           cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
-          echo "[skill:pr-prep] ✓ Quality gate: $cmd at $(date)" >> /tmp/skill-audit.log
+          echo "[skill:pr-prep] Quality gate: $cmd at $(date)" >> /tmp/skill-audit.log
         fi
       once: false
   PostToolUse:
@@ -48,7 +48,7 @@ hooks:
         # Track PR template generation
         file=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.file_path // empty' 2>/dev/null)
         if echo "$file" | grep -qE "(pr[-_]description|PR[-_]TEMPLATE|pull[-_]request)"; then
-          echo "[skill:pr-prep] 📝 PR template written: $file at $(date)" >> /tmp/skill-audit.log
+          echo "[skill:pr-prep] PR template written: $file at $(date)" >> /tmp/skill-audit.log
         fi
   Stop:
     - command: |
@@ -110,11 +110,4 @@ Mark them as complete as each section is finished.
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If a command is not found, confirm that all dependencies are installed and accessible in your PATH. For permission errors, check file system permissions and run the command with appropriate privileges. If you encounter unexpected behavior, enable verbose logging using the `--verbose` flag to capture more detailed execution data.

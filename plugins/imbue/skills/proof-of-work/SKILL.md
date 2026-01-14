@@ -70,30 +70,17 @@ modules:
 
 # Proof of Work
 
-**Philosophy:** "Trust, but verify" is wrong. "Verify, THEN trust" is correct.
+**Philosophy:** Validation must precede any claim of completion.
 
 ## The Problem This Solves
 
-**Anti-Pattern:**
-> "I've configured LSP for you. Just restart your session and it will work!"
->
-> *Reality: Didn't test if cclsp starts, didn't verify tools are exposed, didn't check for known bugs.*
+The primary issue this skill addresses is the tendency to claim success without verification. For example, an assistant might state that LSP is configured and will work after a session restart, without actually testing if the server starts or verifying that tools are properly exposed. This pattern leads to inaccurate completion claims and requires the user to perform the final validation themselves.
 
-**Correct Pattern:**
-> "Let me verify LSP configuration works..."
-> ```bash
-> # Test cclsp starts
-> CCLSP_CONFIG_PATH=... npx cclsp@latest &
-> # Verify language servers respond
-> pylsp --help
-> # Check for known issues
-> <web search for bugs in current version>
-> ```
-> "Found critical issue: Claude Code 2.0.76 has broken LSP (Issue #14803). Here's proof..."
+The correct approach involves verifying the configuration before making any claims. This includes testing if the `cclsp` server starts, verifying that language servers respond to help commands, and checking for known bugs in the current version of Claude Code. By providing technical proof of success, we maintain a reliable development environment and avoid providing misleading status updates.
 
 ## Core Principle
 
-Before claiming completion, you must provide evidence that the solution actually works (tested), edge cases are handled (validated), claims are accurate (proven), and future verification is possible (reproducible).
+Before claiming completion, you must provide technical evidence that the solution works through testing and that edge cases have been validated. All claims must be proven with actual command output, and the validation steps should be reproducible by the user in their own environment.
 
 ## The Iron Law
 

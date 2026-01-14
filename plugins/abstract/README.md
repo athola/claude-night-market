@@ -28,20 +28,7 @@ Claude loads the plugin on startup.
 
 ## What's Included
 
-*   **Skills**:
-    *   `methodology-curator`: Surfaces expert frameworks before creating skills/hooks/agents. Includes 6 domain modules (instruction design, code review, debugging, testing, knowledge management, decision making).
-    *   `modular-skills`: Guides skill architecture and module splitting.
-    *   `skills-eval`: Scores skill quality and suggests fixes.
-    *   `hook-scope-guide`: Helps decide where hooks belong.
-    *   `validate-plugin-structure`: Step-by-step plugin validation.
-*   **Commands**:
-    *   `/validate-plugin [path]`: Checks plugin structure against requirements.
-*   **Agents**:
-    *   `plugin-validator`: Validates plugins during development.
-    *   `meta-architect`: Advises on plugin design.
-    *   `skill-auditor`: Reviews skill quality.
-
-Use this plugin to manage token usage (keep skills lean), find modularization opportunities, and catch `plugin.json` errors.
+The Abstract plugin provides several skills, commands, and agents focused on plugin development and quality. Skills include `methodology-curator` for surfacing expert frameworks, `modular-skills` for architecture guidance, and `skills-eval` for scoring and fixing skill quality. The `/validate-plugin` command checks plugin structures against project requirements, while specialized agents like `plugin-validator`, `meta-architect`, and `skill-auditor` assist during the development and review process. Use these tools to manage token usage by keeping skills lean and to identify modularization opportunities early in the development cycle.
 
 ## Structure
 

@@ -50,7 +50,7 @@ class ContentParser:
 
     @staticmethod
     def get_file_content(context: Any, filename: str = "") -> str:
-        """Get file content from context with fallback.
+        """Get file content from context using secondary logic if primary fails.
 
         Args:
             context: Skill context with file access methods

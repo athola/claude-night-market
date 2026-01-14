@@ -26,8 +26,8 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
     # Patterns to match
     patterns = ["**/pyproject.toml", "**/Cargo.toml", "**/package.json"]
 
-    # Directories to exclude - comprehensive cache/temp/build exclusion list
-    # These are NEVER scanned unless explicitly requested via --include-cache flag
+    # Directories to exclude from scan by default
+    # Cache, temp, and build directories are skipped unless --include-cache is set.
     excludes = {
         # Python
         ".venv",

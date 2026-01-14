@@ -53,10 +53,10 @@ Run Tests for Changed Plugins...........................................Failed
 - exit code: 1
 
 Testing minister...
-  x Tests failed
+  Failed: Tests failed
 
 === Test Summary ===
-x Failed (1): minister
+Failed (1): minister
 ERROR: Some tests failed!
 
 # Commit is BLOCKED - fix tests first!
@@ -296,10 +296,7 @@ make test-coverage     # Run with coverage report
 ### Performance
 
 #### Typical Timings
-
-- **Single plugin (minister)**: ~5-10 seconds
-- **Two plugins**: ~10-20 seconds
-- **All plugins**: ~2-3 minutes
+Test execution times vary depending on the scope of changes. Testing a single plugin like `minister` typically takes between 5 and 10 seconds. When multiple plugins are involved, such as testing two simultaneously, the time increases to between 10 and 20 seconds. A full test run of all plugins across the repository generally completes within 2 to 3 minutes.
 
 #### Optimization
 

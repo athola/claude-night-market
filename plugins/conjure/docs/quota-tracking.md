@@ -103,7 +103,7 @@ The tracker uses a multi-tier estimation strategy:
    - Requires `tiktoken` package
    - Accuracy: ~95-98%
 
-2. **Heuristic estimation** (fallback)
+2. **Heuristic estimation** (secondary strategy)
    - Character-based approximation
    - No external dependencies
    - Accuracy: ~70-80%
@@ -130,7 +130,7 @@ def estimate_task_tokens(
     except ImportError:
         pass  # Fall back to heuristic
 
-    # Use heuristic as fallback
+    # Use heuristic as secondary strategy
     return self._estimate_with_heuristic(
         file_paths,
         prompt_length

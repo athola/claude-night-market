@@ -1,6 +1,6 @@
 # Module Loading Guide
 
-This guide explains how module dependencies, loading patterns, and shared utilities work across the plugin ecosystem.
+This guide covers module dependencies, loading patterns, and shared utilities within the plugin ecosystem.
 
 ## Overview
 
@@ -136,26 +136,14 @@ Use `load_priority` to control loading order:
 
 ## Best Practices
 
-### 1. Module Design
+### Module Design
+Effective module design relies on the single responsibility principle, ensuring each module focuses on a single concern. This approach promotes reusability across multiple skills and simplifies documentation. When creating modules, provide clear usage examples and include test cases to verify functionality within the larger ecosystem.
 
-- **Single responsibility**: Each module focuses on one concern
-- **Reusable**: Design modules to be used across skills
-- **Documented**: Include clear usage examples
-- **Tested**: Include test cases where applicable
+### Dependencies
+Maintain explicit and minimal dependencies by using the full `plugin:skill` format in the frontmatter. Avoid circular dependency chains, as they can cause loading failures and increase complexity. It is also helpful to document the rationale for each dependency to assist future maintenance and refactoring efforts.
 
-### 2. Dependencies
-
-- **Minimal**: Only declare necessary dependencies
-- **Explicit**: Use full `plugin:skill` format
-- **Circular free**: Avoid circular dependencies
-- **Documented**: Explain why each dependency is needed
-
-### 3. Loading Strategy
-
-- **Progressive**: Load modules as needed
-- **Prioritized**: Set appropriate load priorities
-- **Efficient**: Consider token costs
-- **User-controlled**: Let users choose loading options
+### Loading Strategy
+Utilize progressive loading to pull in modules only when they are required for the current task. By setting appropriate load priorities, you can control the execution order and optimize for token costs. Providing user options for loading specialized modules ensures that the system remains efficient while still offering deep analysis capabilities when needed.
 
 ## Common Patterns
 
@@ -214,34 +202,4 @@ python -m pytest tests/integration/test_module_dependencies.py -v
 
 ## Migration Guide
 
-### Adding Dependencies to Existing Modules
-
-1. Add `parent_skill` to module frontmatter
-2. Add `dependencies` section if needed
-3. Add `load_priority` and `estimated_tokens`
-4. Update skill to use `@include` or `Load:` statements
-
-Example migration:
-
-```yaml
-# Before
----
-name: my-module
-description: A module
----
-
-# After
----
-parent_skill: my-plugin:my-skill
-name: my-module
-description: A module
-category: analysis
-tags: [analysis, patterns]
-dependencies:
-  - shared:utilities
-load_priority: 2
-estimated_tokens: 300
----
-```
-
-This validates proper integration with the shared utilities ecosystem.
+To add dependencies to existing modules, first update the module frontmatter by adding the `parent_skill`, `dependencies`, `load_priority`, and `estimated_tokens` fields. Once the frontmatter is correctly configured, update the parent skill file to use `@include` or `Load:` statements for progressive loading. This ensures the module is properly integrated with the shared utilities ecosystem and follows established performance patterns.

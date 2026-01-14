@@ -14,8 +14,8 @@ Effective search combines multiple strategies based on query type and context.
 
 ## Strategy Selection
 
-| Query Type | Primary Strategy | Fallback |
-|------------|------------------|----------|
+| Query Type | Primary Strategy | Secondary |
+|-----|-----|-----|
 | Exact path | Spatial lookup | - |
 | Keyword | Semantic search | Fuzzy match |
 | Partial info | Multi-modal fusion | Associative walk |

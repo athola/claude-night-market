@@ -48,14 +48,11 @@ dependencies:
 
 ## When to Use
 
-Use this skill when code changes require updates to the README, plans, wikis, or docstrings.
-Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
+Use this skill when code changes require updates to the README, plans, wikis, or docstrings. Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 
-**New capabilities:**
-- Detects consolidation opportunities (like /merge-docs)
-- Enforces directory-specific style rules (docs/ strict, book/ lenient)
-- Validate accuracy of version numbers and counts
-- LSP integration (2.0.74+) for semantic documentation verification
+### System Capabilities
+
+The documentation update workflow includes several specialized functions. It identifies redundancy through consolidation detection and enforces directory-specific style rules, with strict limits for `docs/` and more lenient ones for the `book/` directory. The system also verifies the accuracy of version numbers and component counts and integrates with the LSP for semantic documentation verification in supported versions of Claude Code.
 
 ## Required TodoWrite Items
 
@@ -136,27 +133,11 @@ Load: `@modules/consolidation-integration.md`
 
 Load: `@modules/directory-style-rules.md`
 
-**Apply directory-specific rules:**
+### Style Enforcement
 
-| Location | Style | Max Lines | Max Paragraph |
-|----------|-------|-----------|---------------|
-| `docs/` | Strict reference | 500 | 4 sentences |
-| `book/` | Technical book | 1000 | 8 sentences |
-| `wiki/` | Wiki reference | 500 | 4 sentences |
-| `plugins/*/README.md` | Plugin summary | 300 | 4 sentences |
-| Other | Default to strict | 500 | 4 sentences |
+Maintain consistent documentation by applying directory-specific rules. The system checks for and removes filler phrases such as "in order to" or "it should be noted" and ensures that no emojis are present in the body text of technical documents. Use grounded language with specific references rather than vague claims, and maintain an imperative mood for instructions. For lists of three or more items, prefer bullets over prose to improve scannability.
 
-**Common checks:**
-- No filler phrases ("in order to", "it should be noted")
-- No emojis in body text (callouts allowed in book/)
-- Grounded language (specific references, not vague claims)
-- Imperative mood for instructions
-- Bullets over prose for lists of 3+ items
-
-**Warn on:**
-- Wall-of-text paragraphs exceeding limits
-- Files exceeding line count thresholds
-- Marketing language ("capable", "smooth")
+The audit will issue warnings for paragraphs that exceed length limits or files that surpass the established line count thresholds. We also flag marketing language and abstract adjectives like "capable" or "smooth" to maintain a technical and direct tone across all project documentation.
 
 ## Step 4.5: Sync Plugin Registrations (`plugins-synced`)
 

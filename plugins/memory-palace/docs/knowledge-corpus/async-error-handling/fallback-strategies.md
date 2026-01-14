@@ -18,18 +18,9 @@ queries:
 - Fallback Strategies guidance for graceful degradation for async pipelines
 ---
 
-# Async Error Handling — Fallback Strategies
+# Async Error Handling — Secondary Strategies
 
-## Why it matters
+Provide typed secondary implementations so UI flows return helpful responses during outages.
 
-Provide typed fallback implementations so UI flows return helpful responses during outages.
-
-## Focus Area
-
-- **Language / Runtime**: Node.js
-- **Primary Focus**: graceful degradation for async pipelines
-
-## Implementation Playbook
-1. Define fallback resolvers per feature flag.
-2. Route to cached responses when primary providers fail.
-3. Emit Canary alerts when fallback usage spikes.
+1. Define secondary resolvers per feature flag.
+3. Emit Canary alerts when secondary usage spikes.

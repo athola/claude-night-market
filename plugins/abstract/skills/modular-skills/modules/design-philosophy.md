@@ -16,7 +16,7 @@ estimated_tokens: 500
 We follow a few core principles when designing modular skills:
 
 ### Progressive Disclosure
-We start with a high-level overview and only provide more detail as needed. This means starting with metadata, then an overview, then details, and finally tools.
+Progressive disclosure starts with a high-level overview and provides details as needed: metadata, overview, details, then tools.
 
 **Implementation**:
 - **Level 1**: Metadata (YAML frontmatter) - Quick overview and categorization
@@ -31,7 +31,7 @@ We start with a high-level overview and only provide more detail as needed. This
 - Maintains detailed functionality
 
 ### Shallow Dependencies
-We prefer a "hub and spoke" model, where a central skill connects to modules, but modules don't depend on each other. This keeps the architecture simple and easy to understand.
+The "hub and spoke" model connects a central skill to independent modules. This simplifies architecture.
 
 **Architecture Pattern**:
 ```
@@ -54,7 +54,7 @@ Module A ↔ Module B ↔ Module C (complex web)
 - Clearer architecture understanding
 
 ### Consistent Naming
-We use consistent naming patterns for our skills and modules to make them more discoverable and predictable.
+Consistent naming patterns for skills and modules enhance discoverability and predictability.
 
 **Naming Conventions**:
 - **Skills**: `kebab-case`, descriptive purpose
@@ -72,7 +72,7 @@ We use consistent naming patterns for our skills and modules to make them more d
  `random_module_file.md`
 
 ### Tool Integration
-We believe that the most capable skills are those that integrate with tools to automate tasks.
+Tools integration maximizes skill capability by automating tasks.
 
 **Tool Categories**:
 - **Analysis Tools**: Evaluate skill quality and structure
@@ -87,7 +87,7 @@ We believe that the most capable skills are those that integrate with tools to a
 - Improves user experience
 
 ### Token Efficiency
-We're always mindful of token usage and look for ways to be more efficient in our design patterns.
+Token usage optimization is central to design patterns.
 
 **Efficiency Strategies**:
 - **Content Density**: Maximize information per token

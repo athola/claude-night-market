@@ -255,19 +255,13 @@ claude --fork-session --session-id "property-test-strategy" --resume
 # Design detailed test strategy from all approaches
 ```
 
-### Benefits
+### Benefits of Session Forking
 
-- **Expert-level focus**: Each fork provides deep analysis on single dimension
-- **Avoid dilution**: Prevent mixing concerns that require different mental models
-- **detailed coverage**: validate all review dimensions get proper attention
-- **Parallel workflows**: Run specialized reviews without waiting for sequential completion
+Utilizing session forking provides a specialized focus for each review dimension, allowing for deep analysis without diluting the mental model required for different tasks. This approach ensures all review aspects receive proper attention and supports parallel workflows that reduce overall iteration time. By consolidating results from multiple forks, the system produces a more detailed and thorough review report.
 
 ### Best Practices
 
-- **One concern per fork**: Security, performance, maintainability - don't mix
-- **Use appropriate agents**: Delegate to specialized agents in forks (e.g., `rust-auditor`)
-- **Extract findings**: Save review reports before closing forks
-- **Synthesize results**: Combine findings into actionable feedback
+To maximize the effectiveness of session forking, maintain one primary concern per fork, such as security or performance, and avoid mixing unrelated tasks. Delegate specialized work to appropriate agents within these forks and ensure that findings are extracted and saved before the session is closed. The final step should involve synthesizing these results into a single, actionable feedback report.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 
@@ -285,9 +279,9 @@ stability_gap = average_accuracy - worst_case_accuracy
 
 | Gap | Status | Meaning |
 |-----|--------|---------|
-| < 0.2 | ✓ Stable | Consistent performance |
-| 0.2 - 0.3 | ⚠ Warning | Occasional issues |
-| > 0.3 | ✗ Unstable | Needs attention |
+| < 0.2 | Stable | Consistent performance |
+| 0.2 - 0.3 | Warning | Occasional issues |
+| > 0.3 | Unstable | Needs attention |
 
 ### Integration with memory-palace
 

@@ -69,7 +69,7 @@ def fetch_github_action_version(action: str) -> str | None:
 
 
 def get_default_action_versions() -> dict[str, str]:
-    """Get default GitHub Action versions (fallback if fetch fails).
+    """Get default GitHub Action versions.
 
     Returns:
         Dictionary mapping action names to versions
@@ -87,7 +87,7 @@ def get_default_action_versions() -> dict[str, str]:
 
 
 def get_latest_action_versions(use_cache: bool = True) -> dict[str, str]:
-    """Get latest GitHub Action versions with fallback.
+    """Get latest GitHub Action versions with defaults for missing values.
 
     Args:
         use_cache: Whether to use cached results

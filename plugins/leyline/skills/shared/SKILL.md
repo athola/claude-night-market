@@ -33,7 +33,7 @@ Foundational patterns for the leyline infrastructure layer. These patterns are u
 ### Python Import Patterns
 The `modules/python-imports.md` module documents how to import leyline utilities:
 - Standard import paths
-- Fallback patterns for different contexts
+- Secondary patterns for different contexts
 - Type hints and protocols
 
 ### Error Handling Patterns

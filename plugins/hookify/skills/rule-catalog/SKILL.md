@@ -189,7 +189,7 @@ To add rules to the catalog:
 
 1. Create rule file in appropriate category
 2. Follow naming convention: `kebab-case.md`
-3. Include comprehensive message with alternatives
+3. Include detailed message with alternatives
 4. Test thoroughly before submitting
 5. Update this SKILL.md catalog table
 

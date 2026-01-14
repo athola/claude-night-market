@@ -1,6 +1,6 @@
 # Claude Night Market Guides
 
-Comprehensive guides for advanced topics in the plugin ecosystem.
+Detailed guides for advanced topics in the plugin ecosystem.
 
 ---
 
@@ -26,15 +26,9 @@ Comprehensive guides for advanced topics in the plugin ecosystem.
 
 ### [Skill Observability Guide](skill-observability-guide.md)
 
-Zero-dependency continual learning system using PreToolUse + PostToolUse hooks.
+Minimal-dependency continual learning system using PreToolUse and PostToolUse hooks.
 
-**Features**:
-- Per-iteration skill execution logging
-- Stability gap detection (Avalanche-style metrics)
-- JSONL storage for easy querying
-- Real-time performance monitoring
-
-**Use When**: Building production plugins that need reliability metrics.
+The observability system provides per-iteration skill execution logging and stability gap detection based on Avalanche-style metrics. It uses JSONL storage for easy querying and enables real-time performance monitoring. This is particularly useful when building production plugins that require reliable performance metrics.
 
 ---
 
@@ -80,13 +74,7 @@ Defining clean boundaries between agents and sub-agents in multi-agent systems.
 
 ### [Plugin Dependency Patterns](plugin-dependency-pattern.md)
 
-Managing dependencies between plugins without tight coupling.
-
-**Patterns**:
-- Optional dependencies
-- Capability detection
-- Fallback strategies
-- Version compatibility
+Managing dependencies between plugins without tight coupling involves several patterns. These include detecting optional dependencies, using capability detection to verify available features, implementing secondary strategies for missing components, and ensuring version compatibility across the ecosystem.
 
 ---
 

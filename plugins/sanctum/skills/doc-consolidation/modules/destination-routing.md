@@ -7,7 +7,8 @@ Maps extracted content chunks to appropriate destinations in the documentation.
 ### Priority Order
 
 1. **Semantic match** - Find existing doc that covers the topic
-2. **Fallback mapping** - Use category-based default destinations
+2. **Default mapping**
+ - Use category-based default destinations
 3. **Create new** - Only when no suitable destination exists
 
 ### Preference: Existing Over New
@@ -91,7 +92,7 @@ PLUGIN_DOC_LOCATIONS = [
 ]
 ```
 
-## Fallback Mappings
+## Default Mappings
 
 When semantic matching finds no suitable destination:
 

@@ -1,44 +1,20 @@
-# Skill Continual Learning - Zero Dependency Implementation
+# Skill Continual Learning - Minimal Dependency Implementation
 
-**Status**: ✅ Deployed and Working
+**Status**: Deployed and Working
 **Date**: 2025-01-08
 **Dependencies**: None (Python standard library only)
 
 ## Overview
 
-Self-rolled continual learning system using PreToolUse + PostToolUse hooks. No external dependencies like SAFLA or Avalanche required.
+This implementation provides a self-rolled continual learning system using PreToolUse and PostToolUse hooks. It operates without external dependencies such as SAFLA or Avalanche, relying instead on standard Python libraries.
 
-## What This Enables
+## System Capabilities
 
-**Per-iteration continual learning**:
-- Every skill execution is logged with duration and outcome
-- Automatic calculation of continual metrics (stability gap, worst-case accuracy)
-- Real-time detection of performance instability
-- Foundation for automatic improvement triggering
+The system enables per-iteration continual learning by logging every skill execution along with its duration and outcome. This data allows for the automatic calculation of metrics such as the stability gap and worst-case accuracy. By monitoring these values, the system can detect performance instability in real-time and provide a foundation for triggering automatic improvements.
 
 ## Architecture
 
-```
-Skill invocation
-    ↓
-PreToolUse hook (pre_skill_execution.py)
-    - Record start time
-    - Store state: ~/.claude/skills/observability/{invocation_id}.json
-    ↓
-Skill executes (100-5000ms)
-    ↓
-PostToolUse hook (skill_execution_logger.py)
-    - Read pre-execution state
-    - Calculate accurate duration
-    - Evaluate outcome (success/failure/partial)
-    - Calculate continual metrics (stability gap)
-    - Append to: ~/.claude/skills/logs/{plugin}/{skill}/{date}.jsonl
-    - If stability_gap > 0.3: Warn to stderr
-    ↓
-JSONL log entry with:
-    - timestamp, duration_ms, outcome
-    - continual_metrics: {worst_case_accuracy, average_accuracy, stability_gap}
-```
+The workflow begins with a skill invocation which triggers the `pre_skill_execution.py` PreToolUse hook. This script records the start time and stores the initial state in the observability directory. Once the skill completes its execution, typically within 100 to 5000ms, the `skill_execution_logger.py` PostToolUse hook takes over. It reads the pre-execution state, calculates the duration, and evaluates the outcome as success, failure, or partial. The hook then computes continual metrics, appends the result to a daily JSONL log file, and issues a warning to stderr if the stability gap exceeds 0.3.
 
 ## Files
 
@@ -81,16 +57,12 @@ stability_gap = average_accuracy - worst_case_accuracy
 **Why it matters**:
 - Traditional evaluation: Only measures average performance
 - Stability gap: Detects inconsistencies in performance
-- High gap = unstable skill (sometimes works, sometimes fails)
+- High gap: Indicates an unstable skill that works inconsistently
 
 **Example**:
-```
-Execution 1: Success ✓ (accuracy: 1.0, avg: 1.0, worst: 1.0, gap: 0.0)
-Execution 2: Success ✓ (accuracy: 1.0, avg: 1.0, worst: 1.0, gap: 0.0)
-Execution 3: Failure ✗ (accuracy: 0.0, avg: 0.67, worst: 0.0, gap: 0.67) ⚠️
-                                                          ↑ STABILITY GAP
-                                            Triggers improvement workflow
-```
+- Execution 1: Success (accuracy: 1.0, avg: 1.0, worst: 1.0, gap: 0.0)
+- Execution 2: Success (accuracy: 1.0, avg: 1.0, worst: 1.0, gap: 0.0)
+- Execution 3: Failure (accuracy: 0.0, avg: 0.67, worst: 0.0, gap: 0.67) - Triggers improvement workflow
 
 ### Other Metrics
 
@@ -178,23 +150,11 @@ cat ~/.claude/skills/logs/.history.json | \
 
 ### Overhead
 
-- PreToolUse: ~2-5ms (write state file)
-- PostToolUse: ~10-20ms (read state, calculate metrics, append log)
-- **Total overhead**: ~12-25ms per skill invocation
-- **Timeout budget**: 1s + 3s = 4s total (very conservative)
+The PreToolUse hook adds approximately 2-5ms by writing a state file, while the PostToolUse hook adds 10-20ms to read the state, calculate metrics, and append to the log. The total overhead per skill invocation remains between 12-25ms, well within the conservative 4s timeout budget.
 
 ### Scalability
 
-- **Storage**: JSONL logs grow linearly with executions
-- **Query**: Sequential file scan (fast for daily logs)
-- **History**: `.history.json` contains aggregated metrics per skill
-
-**When to upgrade** (future consideration):
-- More than 10,000 executions per skill per day
-- Need complex queries across multiple skills
-- Semantic search capabilities
-
-Then consider: Vector DB (SAFLA-style) or Obsidian knowledge graph
+JSONL logs grow linearly with the number of executions, and sequential file scans remain fast for daily logs. The aggregated metrics per skill are maintained in the `.history.json` file. If executions exceed 10,000 per skill per day or complex cross-skill queries are needed, future iterations may consider a vector database or knowledge graph.
 
 ## Testing
 
@@ -206,7 +166,7 @@ python3 plugins/abstract/hooks/test_skill_observability_proof.py --test-full-loo
 
 Expected output:
 ```
-Testing full PreToolUse → PostToolUse loop...
+Testing full PreToolUse -> PostToolUse loop...
 === Phase 1: PreToolUse ===
 {"hookSpecificOutput": {..., "invocation_id": "abstract:skill-auditor:...", ...}}
 
@@ -214,58 +174,51 @@ Testing full PreToolUse → PostToolUse loop...
 {"hookSpecificOutput": {..., "duration_ms": 137, "continual_metrics": {...}}}
 
 === Verification ===
-✓ Log file created: ~/.claude/skills/logs/abstract/skill-auditor/2026-01-08.jsonl
+- Log file created: ~/.claude/skills/logs/abstract/skill-auditor/2026-01-08.jsonl
 ```
 
 ## Next Steps
 
-### Immediate (✅ Done)
+### Immediate (Done)
 
-1. ✅ Deploy pre_skill_execution.py
-2. ✅ Update skill_execution_logger.py with ContinualEvaluator
-3. ✅ Update hooks.json with PreToolUse configuration
-4. ✅ Test dual-hook system
+1. Deploy pre_skill_execution.py
+2. Update skill_execution_logger.py with ContinualEvaluator
+3. Update hooks.json with PreToolUse configuration
+4. Test dual-hook system
 
-### Short-Term (Next Week)
+### Short-Term
 
 5. Add automatic improvement triggering when stability_gap > 0.3
 6. Create `/abstract:continual-metrics` command to view metrics
 7. Create `/abstract:improve-skills` integration
 
-### Medium-Term (Next Month)
+### Medium-Term
 
 8. Build Obsidian-style knowledge graph for insights
-9. Add semantic search (only if JSONL queries become slow)
-10. Implement advanced analytics (trends, anomalies)
+9. Add semantic search if JSONL queries become slow
+10. Implement advanced analytics for trends and anomalies
 
 ## Dependencies: NONE
 
-**Python standard library only**:
-- `json` - JSON parsing and serialization
-- `os` - Environment variables
-- `sys` - Exit codes
-- `datetime` - Timestamps and duration calculation
-- `pathlib` - File paths
-- `collections.defaultdict` - History tracking
-- `uuid` - Invocation IDs
-
-**No pip install required** - works out of the box with Python 3.8+
+The implementation relies exclusively on the Python standard library, including `json`, `os`, `sys`, `datetime`, `pathlib`, `collections`, and `uuid`. No external packages are required for installation or operation.
 
 ## Comparison to External Dependencies
 
 | Feature | This Implementation | SAFLA | Avalanche |
 |---------|-------------------|-------|-----------|
-| **Per-iteration logging** | ✅ | ✅ | ✅ |
-| **Duration tracking** | ✅ | ✅ | ✅ |
-| **Continual metrics** | ✅ | ❌ | ✅ |
-| **Stability gap** | ✅ | ❌ | ✅ |
+| **Per-iteration logging** | Yes | Yes | Yes |
+| **Duration tracking** | Yes | Yes | Yes |
+| **Continual metrics** | Yes | No | Yes |
+| **Stability gap** | Yes | No | Yes |
 | **Dependencies** | None | External SDK | External lib |
 | **Setup required** | None | Pip install | Pip install |
 | **Complexity** | Low (400 lines) | High (thousands) | Medium |
 | **Performance** | 12-25ms overhead | Unknown | Unknown |
 | **Storage** | JSONL files | Vector DB | Custom format |
 
-**Conclusion**: This implementation provides all needed functionality with zero complexity.
+## Summary
+
+This implementation provides the necessary observability and metrics for skill performance without the complexity or overhead of external dependencies. It relies on standard hooks and file-based logging for reliable operation.
 
 ## Troubleshooting
 
@@ -281,8 +234,6 @@ Verify script is executable:
 chmod +x plugins/abstract/hooks/pre_skill_execution.py
 ```
 
-Check for errors in Claude Code output.
-
 ### Continual metrics missing?
 
 Check history file:
@@ -290,14 +241,13 @@ Check history file:
 cat ~/.claude/skills/logs/.history.json
 ```
 
-If file doesn't exist or is empty, hooks may not be running.
+If the file is missing or empty, verify that the hooks are executing correctly.
 
 ### State files accumulating?
 
-State files should be cleaned up by PostToolUse hook. If accumulating:
+State files are typically removed by the PostToolUse hook. If they accumulate, you can remove files older than one hour:
 
 ```bash
-# Clean up old state files (>1 hour old)
 find ~/.claude/skills/observability -name "*.json" -mtime +0.04 -delete
 ```
 

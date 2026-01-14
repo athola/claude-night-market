@@ -44,7 +44,7 @@ gh api repos/{owner}/{repo}/pulls/{pr_number}/reviews \
   -f 'comments[][path]=src/auth/jwt.rs' \
   -F 'comments[][line]=63' \
   -f 'comments[][side]=RIGHT' \
-  -f 'comments[][body]=**[IN-SCOPE]** JWT fallback secret
+  -f 'comments[][body]=**[IN-SCOPE]** JWT secondary secret
 
 This fallback secret poses a security risk.
 
@@ -123,7 +123,7 @@ EOF
 )"
 ```
 
-## Fallback Strategy
+## Secondary Strategy
 
 When inline comments fail (line not in diff, API issues):
 
@@ -132,7 +132,7 @@ When inline comments fail (line not in diff, API issues):
 3. **Always post a summary comment** with all findings aggregated
 
 ```bash
-# Fallback: Post as regular comment with location reference
+# Secondary: Post as regular comment with location reference
 gh pr comment $PR_NUMBER --body "**[B1] Issue at src/auth.rs:45**
 
 This line was not in the PR diff, but the issue was identified during review.

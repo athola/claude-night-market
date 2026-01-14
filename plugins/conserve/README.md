@@ -30,9 +30,7 @@ Set the `CONSERVATION_MODE` environment variable:
 
 ## Core Principles
 
-- **MECW (Maximum Effective Context Window)**: Keep context pressure under 50% to maintain response quality.
-- **MCP Patterns**: Process data at the source to avoid passing large datasets.
-- **Progressive Loading**: Load modules on demand to reduce footprint.
+The Conservation plugin is built on three primary principles designed to optimize resource usage. The Maximum Effective Context Window (MECW) principle aims to keep context pressure under 50% to maintain high response quality. We also utilize MCP patterns, which focus on processing data at the source to prevent the transmission of large datasets through the context window. Finally, progressive loading ensures that modules are only loaded on demand, further reducing the overall footprint of each session.
 
 ## Commands
 
@@ -60,11 +58,9 @@ Safely delete, refactor, and consolidate code with user approval.
 /unbloat --dry-run                       # Preview changes
 ```
 
-**Safeguards**:
-- **Backups**: Automatic branches before changes.
-- **Approval**: Interactive review.
-- **Verification**: Tests run after changes; auto-rollback on failure.
-- **Reversible**: Uses `git rm` / `git mv`.
+### Safeguards
+
+To prevent accidental data loss, the `/unbloat` command includes several safeguards. It automatically creates backup branches before making any changes and requires interactive user approval for each modification. After changes are applied, the system runs verification tests and can perform an automatic rollback if any failures are detected. All deletions and moves are handled through `git rm` and `git mv` to maintain a clear history.
 
 ## Agents
 
@@ -94,38 +90,15 @@ The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
 - **Tier 2**: Static analysis integration (Vulture/Knip).
 - **Tier 3**: Deep audit with full tooling.
 
-**Benefits:**
-- Reduces context usage by 10-20% on average.
-- Identifies technical debt.
-- Improves codebase navigability.
+### Bloat Detection Outcomes
+
+The `bloat-detector` skill identifies technical debt and improves codebase navigability by detecting redundant or stale code. On average, this process reduces context usage by 10% to 20%, resulting in more efficient Claude sessions and lower token costs.
 
 ## Token-Conscious Workflows
 
-### Discovery Strategy: LSP → Targeted Reads → Grep Fallback
+### Discovery Strategy: LSP, Targeted Reads, and Secondary Search
 
-**Recommended Order** (when ENABLE_LSP_TOOL=1 is set):
-
-1. **LSP First** (if available): Semantic queries for definitions, references, type info
-   - ~50ms response time (when working)
-   - Understands code structure, not just text patterns
-   - **Caveat**: Experimental in Claude Code v2.0.74-2.0.76 ([see issue #72](https://github.com/athola/claude-night-market/issues/72))
-
-2. **Targeted File Reads**: Use LSP/grep results to read specific files
-   - More efficient than broad exploration
-   - Maintains focused context window
-
-3. **Grep Fallback**: Reliable text-based search when LSP unavailable
-   - ~100-500ms response time
-   - Works across all languages
-   - Use ripgrep (`Grep` tool) with file type filters
-
-**Example - Finding Function Usage:**
-```
-Good:  "Find all references to processData" → LSP (50ms) or Grep (200ms)
-Bad:   Read entire codebase → search manually (high token cost)
-```
-
-**Why This Matters**: LSP/Grep + targeted reads reduces token usage by ~90% compared to exploratory file reading.
+For efficient discovery, we recommend a three-tier approach. First, utilize the Language Server Protocol (LSP) for semantic queries if enabled, as it provides symbol-aware results in approximately 50ms. If the LSP is unavailable or experimental, use targeted file reads based on initial findings to maintain a focused context window. As a secondary strategy, employ `ripgrep` via the `Grep` tool for reliable, text-based searches across all file types. This methodology typically reduces token usage by approximately 90% compared to broad, exploratory file reading.
 
 ### STDOUT Verbosity Control
 

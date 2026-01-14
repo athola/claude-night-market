@@ -35,98 +35,24 @@ description: |
 ## Edge Cases & Exceptions
 
 ### Infrastructure Skills
-
-Skills marked "DO NOT use directly" (like `shared` skills) are infrastructure:
-- They provide modules consumed by other skills
-- They should never be invoked directly by users
-- Use `DO NOT use directly:` instead of `DO NOT use when:`
+Skills that are marked as infrastructure, such as `shared` skills, provide modules consumed by other skills rather than being invoked directly by users. These should include a `DO NOT use directly:` clause in their description instead of the standard `DO NOT use when:` trigger.
 
 ### Overlapping Triggers
-
-When multiple skills could apply:
-1. More specific skill wins (e.g., `rust-review` over `unified-review`)
-2. Include explicit routing in negative triggers
-3. Use `- use [specific-skill] instead` pattern
+When multiple skills could apply to a given context, the system prioritizes the more specific skill, such as selecting `rust-review` over a generic `unified-review`. To manage these overlaps, include explicit routing in the negative triggers using the `- use [specific-skill] instead` pattern.
 
 ### Agent vs Skill Selection
-
-Agents are for autonomous multi-step work; skills are for guided workflows:
-- Agent descriptions include `examples:` for Claude's matching
-- Skills use `Triggers:` keywords for discovery
-- Both use `DO NOT use when:` for routing
+The distinction between agents and skills is based on the level of autonomy required. Agents are designed for autonomous, multi-step tasks and include `examples:` in their descriptions for matching. Skills are used for guided workflows and rely on `Triggers:` keywords for discovery. Both utilize `DO NOT use when:` clauses to ensure proper routing.
 
 ### Progressive Loading Skills
-
-Skills with `progressive_loading: true`:
-- Core content loads by default
-- Modules load via `@include` when needed
-- Description should mention module availability
+For skills with `progressive_loading: true`, core content loads by default while additional modules are loaded via `@include` only when necessary. The skill description should explicitly mention the availability of these optional modules to guide the assistant's loading decisions.
 
 ## Migration Guide for External Authors
 
-### Step 1: Audit Current Description
-
-Check if your skill has conditional logic in the body:
-```markdown
-## When to Use
-Use this skill when...
-```
-
-This needs to move to frontmatter.
-
-### Step 2: Rewrite Description
-
-Transform:
-```yaml
-description: Evaluate skill quality.
-```
-
-To:
-```yaml
-description: |
-  Evaluate and improve Claude skill quality through thorough auditing.
-
-  Triggers: skill audit, quality review, compliance check
-
-  Use when: reviewing skill quality, preparing skills for production
-
-  DO NOT use when: creating new skills - use modular-skills.
-
-  Use this skill before shipping any skill to production.
-```
-
-### Step 3: Remove Body Duplication
-
-Delete "When to Use" sections from skill body - they now live in frontmatter.
-
-### Step 4: Calibrate Enforcement
-
-Match language intensity to skill category:
-- TDD/security skills: Maximum ("YOU MUST")
-- Workflow skills: High ("Use BEFORE")
-- Pattern skills: Medium ("Use when")
-- Reference skills: Low ("Available for")
-
-### Step 5: Add Negative Triggers
-
-Every skill needs explicit exclusions:
-```yaml
-DO NOT use when: [scenario] - use [alternative] instead.
-```
-
-### Step 6: Validate
-
-Run `Skill(abstract:skills-eval)` to check compliance.
+To migrate existing skills to the framework, first audit the current description for any conditional logic in the body and move it to the YAML frontmatter. Rewrite the description using the standard template, focusing on active verbs and concrete triggers. Delete any "When to Use" sections from the skill body to avoid duplication. Then, calibrate the enforcement language intensity based on the skill category, ranging from "YOU MUST" for discipline-related skills to "Available for" for reference materials. Every skill must also include negative triggers with explicit exclusions and alternatives. Finally, run the `skills-eval` tool to verify compliance.
 
 ## Compliance Criteria
 
-| Criterion | Weight | Description |
-|-----------|--------|-------------|
-| Trigger Isolation | 15% | All conditional logic in description |
-| Enforcement Language | 10% | Appropriate intensity for category |
-| Negative Triggers | 10% | Explicit "don't use when" scenarios |
-| Keyword Optimization | 10% | Concrete triggers in description |
-| Anti-Rationalization | 5% | References enforcement patterns |
+The framework evaluates compliance based on five weighted criteria. Trigger isolation, which accounts for 15% of the score, requires all conditional logic to be in the description. Enforcement language and negative triggers are each weighted at 10%, ensuring appropriate intensity and explicit routing. Keyword optimization also contributes 10% through the use of concrete triggers, while anti-rationalization patterns contribute 5% by referencing established enforcement modules.
 
 ## Shared Modules
 

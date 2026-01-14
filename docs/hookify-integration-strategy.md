@@ -7,141 +7,37 @@ We have three complementary hook systems:
 2. **abstract:hook-scope-guide** - Architectural guidance on hook placement
 3. **hookify** - Markdown-based rules for end users
 
-## Integration Vision
+## Integration Strategy
 
 ### 1. Plugin-Declared Hookify Rules
+Plugins can ship with recommended hookify rules in `examples/hookify/`. For example, `plugins/parseltongue/` might include `prevent-mixed-quotes.local.md` and `warn-missing-tests.local.md`, which users can then enable via the `/hookify:install` command.
 
-Plugins can ship with recommended hookify rules in `examples/hookify/`:
+### 2. Hook Authoring -> Hookify Generation
+SDK hooks can auto-generate hookify rule suggestions. A plugin's SDK hook could identify simple pattern matches during validation and suggest a corresponding hookify rule, such as warning against print statements in favor of logging.
 
-```
-plugins/parseltongue/
-├── examples/
-│   └── hookify/
-│       ├── prevent-mixed-quotes.local.md
-│       └── warn-missing-tests.local.md
-```
-
-Users can enable with:
-```bash
-/hookify:install parseltongue:prevent-mixed-quotes
-```
-
-### 2. Hook Authoring → Hookify Generation
-
-SDK hooks can auto-generate hookify rule suggestions:
-
-```python
-# In plugin's SDK hook
-@hook("PreToolUse")
-async def validate_python(input_data, tool_id, context):
-    # ... complex validation ...
-
-    # Suggest simple hookify rule for common case
-    if is_simple_pattern_match:
-        suggest_hookify_rule(
-            name="warn-print-statements",
-            pattern=r"print\(",
-            message="Consider using logging instead"
-        )
-```
-
-###  3. Hookify → Hook Integration
-
-Hookify rules can trigger plugin-specific hooks:
-
-```yaml
----
-name: require-parseltongue-validation
-event: file
-action: warn
-on_match:
-  invoke_hook: parseltongue:validate-syntax
-conditions:
-  - field: file_path
-    operator: regex_match
-    pattern: \.py$
----
-```
+### 3. Hookify -> Hook Integration
+Hookify rules can trigger plugin-specific hooks through their configuration. By defining an `invoke_hook` action in the rule's YAML frontmatter, a match on a specific file pattern can trigger a plugin validation step like `parseltongue:validate-syntax`.
 
 ### 4. Plugin-Specific Rule Templates
-
-Each plugin provides templates in `skills/hookify-templates.md`:
-
-```markdown
-# Parseltongue Hookify Templates
-
-## Prevent TODO comments in production
-## Warn about missing type hints
-## Block commits without tests
-```
+Each plugin can provide templates in `skills/hookify-templates.md`. These templates offer pre-configured rules for common scenarios like preventing TODO comments in production, warning about missing type hints, or blocking commits that lack associated tests.
 
 ### 5. Context-Aware Rule Suggestions
-
-When user runs `/hookify` without args in a Python project:
-- Parseltongue suggests Python-specific rules
-- Pensive suggests code review rules
-- Sanctum suggests git workflow rules
+When a user runs `/hookify` without arguments in a specific project context, the system can suggest relevant rules. In a Python project, Parseltongue might suggest code quality rules, Pensive could offer review guidelines, and Sanctum might provide git workflow safety checks.
 
 ## Implementation Plan
 
 ### Phase 1: Foundation (Current)
-- ✅ Hookify plugin implemented
-- ✅ References fixed in abstract plugin
-- ✅ Marketplace integration
+The initial phase is complete, with the Hookify plugin implemented, references updated in the abstract plugin, and integration with the marketplace established.
 
 ### Phase 2: Plugin Updates (Next)
-For each plugin with hooks:
-
-1. **abstract/**
-   - Add hookify-template skill
-   - Example: "Prevent skill modifications without validation"
-
-2. **conserve/**
-   - Add hookify examples for resource limits
-   - Example: "Warn when file operations exceed 1MB"
-
-3. **imbue/**
-   - Add hookify examples for review workflows
-   - Example: "Require evidence before completing review"
-
-4. **memory-palace/**
-   - Add hookify examples for knowledge intake
-   - Example: "Remind to tag knowledge entries"
-
-5. **sanctum/**
-   - Add hookify examples for git safety
-   - Example: "Block force push to main"
-
-6. **parseltongue/**
-   - Add hookify examples for code quality
-   - Example: "Warn about print statements in Python"
-
-7. **pensive/**
-   - Add hookify examples for review gates
-   - Example: "Require security review for auth code"
+The next phase involves updating each plugin that utilizes hooks. This includes adding hookify-template skills to `abstract/`, resource limit examples to `conserve/`, and review workflow requirements to `imbue/`. Knowledge intake reminders will be added to `memory-palace/`, git safety rules to `sanctum/`, and Python-specific code quality warnings to `parseltongue/`. Finally, `pensive/` will be updated with review gates for security-sensitive code.
 
 ### Phase 3: Advanced Integration
-- Hook-to-hookify conversion tool
-- Hookify rule discovery UI
-- Cross-plugin rule coordination
-- Rule effectiveness analytics
+Future development will focus on a hook-to-hookify conversion tool, a rule discovery interface, and cross-plugin coordination. We also plan to implement analytics to track the effectiveness of different rules.
 
-## Benefits
+## Analysis of Outcomes
 
-### For Plugin Authors
-- Easier to ship simple validations
-- Lower barrier than SDK hooks
-- Can provide both SDK + hookify options
-
-### For End Users
-- Can customize plugin behavior without code
-- Gradual complexity curve: rules → hooks → SDK
-- Clear separation of concerns
-
-### For Ecosystem
-- Consistent validation patterns
-- Shareable rule libraries
-- Better discoverability
+Integrating Hookify with the plugin ecosystem simplifies the process for authors to ship validations without the higher entry barrier of SDK hooks. For end users, this approach provides a way to customize plugin behavior without writing code and offers a gradual complexity curve from simple rules to full SDK implementations. The result is a more consistent set of validation patterns and shareable rule libraries that improve discoverability across the ecosystem.
 
 ## Example: Parseltongue + Hookify
 
@@ -161,7 +57,7 @@ conditions:
     pattern: ^\s*print\(
 ---
 
-🐛 **Print statement detected in Python!**
+Print statement detected in Python!
 
 Parseltongue detected a print() call. Consider using logging:
 

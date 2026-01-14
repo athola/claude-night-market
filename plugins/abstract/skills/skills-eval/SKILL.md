@@ -83,19 +83,15 @@ evaluation_criteria:
 
 ## Overview
 
-Analyze and improve Claude skills. The tools audit skills against quality standards, measure token usage, and generate improvement recommendations.
+Analyze and improve Claude skills. Tools audit skills against quality standards, measure token usage, and generate improvement recommendations.
 
 ### Tools
 
-- **skills-auditor**: Scan and analyze skills
-- **improvement-suggester**: Generate prioritized fixes
-- **compliance-checker**: Validate standards and security
-- **tool-performance-analyzer**: Measure tool use patterns
-- **token-usage-tracker**: Track context efficiency
+The evaluation process utilizes five primary tools. The `skills-auditor` scans and analyzes skills for structural integrity, while the `improvement-suggester` generates prioritized fixes based on audit results. Standards and security are validated by the `compliance-checker`, and tool use patterns are measured by the `tool-performance-analyzer`. Finally, the `token-usage-tracker` monitors context efficiency to keep token consumption within recommended limits.
 
 ## What It Is
 
-Evaluates and improves existing skills. It runs quality assessments, performance analysis, and generates improvement plans.
+Evaluates and improves existing skills by running quality assessments, performance analysis, and generating improvement plans.
 
 ## Quick Start
 
@@ -111,7 +107,7 @@ python scripts/skills_eval/skills_auditor.py --skill-path path/to/skill/SKILL.md
 make audit-skill PATH=path/to/skill/SKILL.md
 make audit-all
 ```
-**Verification:** Run `make --dry-run` to verify build configuration.
+**Verification:** Verify build configuration with `make --dry-run`.
 
 ### Skill Analysis
 ```bash
@@ -125,7 +121,7 @@ python scripts/token_estimator.py --file path/to/skill/SKILL.md
 make analyze-skill PATH=path/to/skill/SKILL.md
 make estimate-tokens PATH=path/to/skill/SKILL.md
 ```
-**Verification:** Run `make --dry-run` to verify build configuration.
+**Verification:** Verify build configuration with `make --dry-run`.
 
 ### Generate Improvements
 ```bash
@@ -139,7 +135,7 @@ python scripts/skills_eval/compliance_checker.py --skill-path path/to/skill/SKIL
 make improve-skill PATH=path/to/skill/SKILL.md
 make check-compliance PATH=path/to/skill/SKILL.md
 ```
-**Verification:** Run `make --dry-run` to verify build configuration.
+**Verification:** Verify build configuration with `make --dry-run`.
 
 ### Typical Workflow
 1. **Discovery**: Run `make audit-all` to find and audit all skills
@@ -159,7 +155,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Detailed analysis of specific skill
 ./scripts/improvement-suggester --skill-path path/to/skill/SKILL.md --priority all --format markdown
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** Verify availability with `--help`.
 
 ### Performance Analysis
 ```bash
@@ -169,7 +165,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Advanced tool performance metrics
 ./scripts/tool-performance-analyzer --skill-path path/to/skill/SKILL.md --metrics all
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** Verify availability with `--help`.
 
 ### Standards Compliance
 ```bash
@@ -179,7 +175,7 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Auto-fix common issues
 ./scripts/compliance-checker --skill-path path/to/skill/SKILL.md --auto-fix --severity high
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** Verify availability with `--help`.
 
 ### Improvements and Optimization
 ```bash
@@ -189,41 +185,24 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Benchmark performance
 ./scripts/token-usage-tracker --skill-path path/to/skill/SKILL.md --benchmark optimization-targets
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+**Verification:** Verify availability with `--help`.
 
 ## Evaluation Framework
 
 ### Quality Metrics Overview
-The framework evaluates skills across multiple dimensions with weighted scoring:
-
-**Primary Categories (100 points total):**
-- **Structure Compliance** (20 points): YAML frontmatter, progressive disclosure, organization
-- **Content Quality** (20 points): Clarity, completeness, examples, user experience
-- **Token Efficiency** (15 points): Content density, progressive loading, context optimization
-- **Activation Reliability** (15 points): Trigger effectiveness, context indicators, discovery patterns
-- **Tool Integration** (10 points): Executable components, API integration, workflow support
-- **Trigger Isolation** (10 points): ALL conditional logic in description field, no body duplicates
-- **Enforcement Language** (5 points): Appropriate intensity for skill category
-- **Negative Triggers** (5 points): Explicit "DO NOT use when" with alternatives named
+The framework evaluates skills across multiple weighted dimensions. Structure compliance and content quality each account for 20 points, focusing on YAML frontmatter, progressive disclosure, and overall documentation completeness. Token efficiency and activation reliability contribute 15 points each, monitoring content density and trigger effectiveness. The remaining 30 points are distributed among tool integration, trigger isolation, enforcement language intensity, and the presence of explicit negative triggers.
 
 ### Scoring System
-- **91-100**: Excellent quality, best practices implemented
-- **76-90**: Good quality with minor improvement opportunities
-- **51-75**: Meets basic requirements with room for enhancement
-- **26-50**: Below acceptable standards, needs significant improvement
-- **0-25**: Major issues requiring detailed overhaul
+Scores are categorized into five quality levels. A score between 91 and 100 represents excellent quality with all best practices implemented. Scores from 76 to 90 indicate good quality with only minor improvement opportunities, while 51 to 75 meets basic requirements but requires further enhancement. Any score between 26 and 50 is considered below acceptable standards, and scores from 0 to 25 indicate major issues that necessitate a detailed overhaul.
 
 ### Priority Levels
-- **Critical**: Security issues, broken functionality, missing required fields
-- **High**: Poor structure, incomplete documentation, performance issues
-- **Medium**: Missing best practices, optimization opportunities
-- **Low**: Minor improvements, formatting issues, enhanced examples
+Improvements are prioritized to address the most critical issues first. Critical priority is assigned to security vulnerabilities, broken functionality, or missing required metadata. High priority concerns poor structure or incomplete documentation, while medium priority identifies missing best practices and optimization opportunities. Minor enhancements, such as formatting issues or improved examples, are categorized as low priority.
 
 ## Detailed Resources
 
 For detailed implementation details and advanced techniques:
 
-### Shared Modules (Cross-Skill Patterns)
+### Shared Modules: Cross-Skill Patterns
 - **Anti-Rationalization Patterns**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md) for red flags table and bypass patterns
 - **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md) for tiered intensity templates
 - **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field structure and CSO

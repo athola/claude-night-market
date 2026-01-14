@@ -41,20 +41,7 @@ Create clear, complete, and testable specifications from natural language featur
 
 ## Core Principles
 
-### Focus on What, Not How
-- Describe user needs and business value
-- Avoid technology choices and implementation details
-- Write for business stakeholders, not developers
-
-### Make It Testable
-- Every requirement should be verifiable
-- Use measurable criteria where possible
-- Define clear acceptance scenarios
-
-### Limit Clarifications
-- Maximum 3 clarification markers per spec
-- Make informed guesses using industry standards
-- Document assumptions explicitly
+The spec writing process is guided by several core principles to ensure high-quality documentation. We focus on describing what the system must do for the user rather than how it should be implemented, which involves avoiding specific technology choices in the requirement definition. Every requirement must be testable and verifiable, using measurable criteria and clear acceptance scenarios wherever possible. To maintain momentum, we limit the number of clarification markers per specification and instead make informed assumptions based on industry standards, ensuring that all such assumptions are explicitly documented.
 
 ## Specification Structure
 
@@ -89,9 +76,9 @@ Create clear, complete, and testable specifications from natural language featur
 - "95% of searches return results in under 1 second"
 
 ### Bad (Implementation-focused, Internal metrics)
-- "API response time under 200ms" → Use: "Pages load in under 2 seconds"
-- "Redis cache hit rate above 80%" → Use: "Frequently accessed data loads instantly"
-- "React components render efficiently" → Use: "UI updates appear smooth with no visible lag"
+- "API response time under 200ms" -> Use: "Pages load in under 2 seconds"
+- "Redis cache hit rate above 80%" -> Use: "Frequently accessed data loads with no noticeable delay"
+- "React components render efficiently" -> Use: "UI updates appear with no visible frame drops"
 
 **See**: `success-criteria-patterns` module for detailed examples and conversion process
 

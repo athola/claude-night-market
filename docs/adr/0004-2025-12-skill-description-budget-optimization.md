@@ -14,25 +14,11 @@ This required users to manually configure their environment, creating a poor out
 
 ## Decision
 
-Optimize skill and command descriptions through systematic reduction while preserving discoverability:
+Optimize skill and command descriptions through systematic reduction while preserving discoverability.
 
 ### Optimization Principles
 
-1. **Remove Implementation Details** from descriptions → Move to skill body
-   - Before: "...combines X with Y for detailed analysis..."
-   - After: "detailed analysis. Use for..."
-
-2. **Condense Trigger Lists** → Keep only essential keywords
-   - Before: "Triggers: X, Y, Z. Use when: A, B, C, D, E, F..."
-   - After: "Triggers: X, Y, Z. Use when: A, B, C..."
-
-3. **Eliminate Redundancy** → Don't repeat what's in tags/category
-   - Before: "Infrastructure for logging and audit trails with structured logging..."
-   - After: "Logging for audit trails and analytics with JSONL format."
-
-4. **Focus on Discoverability** → Preserve trigger keywords, condense explanations
-   - Kept all important trigger keywords
-   - Removed verbose explanations that belong in body
+The optimization effort focuses on several core principles. We remove implementation details from descriptions and move them to the skill body to keep primary text concise. Trigger lists are condensed to include only essential keywords, and redundancy is eliminated by ensuring descriptions do not repeat information already present in tags or categories. Throughout this process, we maintain a focus on discoverability by preserving critical trigger keywords while removing verbose explanations that belong in the documentation body.
 
 ## Implementation
 
@@ -69,35 +55,26 @@ Optimize skill and command descriptions through systematic reduction while prese
 
 | Plugin | Components | Total Chars | Avg/Component | Status |
 |--------|-----------|-------------|---------------|--------|
-| sanctum | 30 | 3,159 (-248) | 105 | ✅ Optimized |
-| archetypes | 14 | 1,823 | 130 | 🟡 Consolidation candidate |
-| abstract | 23 | 1,759 (-165) | 76 | ✅ Excellent |
-| leyline | 14 | 1,704 (-67) | 122 | ✅ Improved |
-| imbue | 12 | 1,137 | 95 | ✅ Good |
-| pensive | 17 | 820 | 48 | ⭐ Most efficient |
-| conservation | 8 | 729 (-176) | 91 | ✅ Debloated! |
-| memory-palace | 10 | 610 | 61 | ✅ Efficient |
-| scry | 6 | 596 | 99 | ✅ Good |
-| minister | 3 | 352 | 117 | ✅ Good |
-| parseltongue | 7 | 343 | 49 | ⭐ Most efficient |
-| conjure | 3 | 310 | 103 | ✅ Good |
+| sanctum | 30 | 3,159 (-248) | 105 | Optimized |
+| archetypes | 14 | 1,823 | 130 | Consolidation candidate |
+| abstract | 23 | 1,759 (-165) | 76 | Excellent |
+| leyline | 14 | 1,704 (-67) | 122 | Improved |
+| imbue | 12 | 1,137 | 95 | Good |
+| pensive | 17 | 820 | 48 | Most efficient |
+| conservation | 8 | 729 (-176) | 91 | Debloated |
+| memory-palace | 10 | 610 | 61 | Efficient |
+| scry | 6 | 596 | 99 | Good |
+| minister | 3 | 352 | 117 | Good |
+| parseltongue | 7 | 343 | 49 | Most efficient |
+| conjure | 3 | 310 | 103 | Good |
 
 ## Consequences
 
-### Positive
+This optimization initiative successfully reduced the ecosystem description budget to 14,798 characters, which is 98.7% of the 15,000-character limit. By maintaining a 202-character buffer, we have ensured that all skills remain visible to Claude without requiring manual configuration from the user.
 
-✅ **Goal**: Under 15,000 char budget
-✅ **Achievement**: 14,798 chars (98.7%)
-✅ **Buffer**: 202 chars (1.3%)
-✅ **User Impact**: Zero manual configuration needed
-✅ **Skill Reliability**: 100% (all skills visible to Claude)
+## User Experience Impact
 
-### User Experience Impact
-
-- ✅ **No manual configuration required** - default 15K budget works
-- ✅ **All skills now trigger reliably** - no more invisible skills
-- ✅ **1.3% buffer for growth** - room for ~195 more characters
-- ✅ **Skills load faster** - reduced system prompt size
+The primary impact of these changes is a better out-of-the-box experience, as the default 15K budget now works without environment adjustments. All skills now trigger reliably, and the 1.3% buffer provides room for approximately 195 additional characters of growth. Additionally, the reduced system prompt size may contribute to faster skill loading.
 
 ### Neutral
 
@@ -140,9 +117,9 @@ if [ "$total" -gt 15000 ]; then
 fi
 ```
 
-## Conclusion
+## Summary
 
-The ecosystem now works out-of-the-box with Claude Code's default settings. Users no longer need to manually configure `SLASH_COMMAND_TOOL_CHAR_BUDGET`. Mission accomplished! 🎉
+The ecosystem now works with Claude Code's default settings, eliminating the need for manual configuration of the character budget. This establishes a more reliable discoverability mechanism for all skills and commands in the marketplace.
 
 ## Related
 

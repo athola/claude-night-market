@@ -8,14 +8,9 @@
 
 ## Overview
 
-This document captures proven optimization patterns from the claude-night-market bloat reduction initiative, which achieved ~70,772 tokens saved across 9 phases.
+This document captures proven optimization patterns from the claude-night-market bloat reduction initiative, which saved approximately 70,772 tokens across nine phases.
 
-**Key Principles**:
-1. **Separation of Concerns**: Data vs. logic, general vs. specific
-2. **DRY (Don't Repeat Yourself)**: Shared utilities, single source of truth
-3. **Progressive Disclosure**: Information at appropriate depth
-4. **Maintainability**: Easy to update, clear to understand
-5. **Backwards Compatibility**: Preserve all functionality
+Optimization within the ecosystem follows several core principles. Separation of concerns is maintained by distinguishing data from logic and general patterns from specific implementations. We adhere to DRY (Don't Repeat Yourself) by using shared utilities as a single source of truth. Progressive disclosure is used to provide information at the appropriate depth for the user's current task. Maintainability and backwards compatibility are prioritized to ensure the system remains easy to update without breaking existing functionality.
 
 ---
 
@@ -35,9 +30,9 @@ This document captures proven optimization patterns from the claude-night-market
    ```
 
 2. **Categorize Content**
-   - ✅ Delete: Duplicate information, outdated decisions
-   - ⚠️ Review: Historical context that might be referenced
-   - 🔄 Migrate: Valuable content buried in archives
+   - Delete: Duplicate information, outdated decisions
+   - Review: Historical context that might be referenced
+   - Migrate: Valuable content buried in archives
 
 3. **Execute Cleanup**
    ```bash
@@ -206,7 +201,7 @@ def load_topics():
 
 3. **Keep Essential Examples**
    - Quick-start examples stay in plugin
-   - Comprehensive worked examples move to `/examples/`
+   - Detailed worked examples move to `/examples/`
    - Decision: <400 lines stays, >600 lines moves
 
 ### Results
@@ -401,11 +396,7 @@ Complex: 1 line = 5 tokens
 ```
 
 ### Success Criteria
-- ✅ 0 functionality loss
-- ✅ All tests pass
-- ✅ Documentation updated
-- ✅ Clear git history
-- ✅ Measurable token savings
+A successful optimization maintains all original functionality while passing all tests. All related documentation must be updated to reflect the changes, and the git history should remain clear. The primary metric for success is measurable token savings without compromising the system's reliability.
 
 ### Tracking Template
 
@@ -491,22 +482,22 @@ Complex: 1 line = 5 tokens
 ## When to Apply Optimizations
 
 ### High Priority
-- ✅ Project exceeding context limits
-- ✅ Slow Claude Code performance
-- ✅ High token costs
-- ✅ Onboarding friction
+- Project exceeding context limits
+- Slow Claude Code performance
+- High token costs
+- Onboarding friction
 
 ### Medium Priority
-- ⚠️ Files approaching size limits
-- ⚠️ Accumulated technical debt
-- ⚠️ Duplicate code patterns
-- ⚠️ Quarterly maintenance
+- Files approaching size limits
+- Accumulated technical debt
+- Duplicate code patterns
+- Quarterly maintenance
 
 ### Low Priority
-- ℹ️ Minor inefficiencies
-- ℹ️ Aesthetic improvements
-- ℹ️ Nice-to-have refactoring
-- ℹ️ Premature optimization
+- Minor inefficiencies
+- Aesthetic improvements
+- Nice-to-have refactoring
+- Premature optimization
 
 ---
 
@@ -541,6 +532,6 @@ Complex: 1 line = 5 tokens
 
 ---
 
-**Methodology Status**: ✅ Battle-tested across 9 phases
+**Methodology Status**: Battle-tested across 9 phases
 **Maintained by**: claude-night-market core team
 **Last Updated**: 2026-01-10

@@ -6,7 +6,7 @@ Performance optimization guides and benchmarks for the claude-night-market proje
 
 ### Hook Performance
 
-**[Hook Performance Guide](hooks.md)** - Comprehensive guide to hook optimization across all plugins
+**[Hook Performance Guide](hooks.md)** - Detailed guide to hook optimization across all plugins
 
 - Performance benchmarks (7/7 hooks passing)
 - Timeout configuration philosophy
@@ -32,10 +32,7 @@ Based on `plugins/abstract/skills/hook-authoring/modules/performance-guidelines.
 
 ### Key Optimizations
 
-1. **Background Execution** - Notifications run asynchronously (sanctum)
-2. **Caching** - 60-second git metrics cache (imbue)
-3. **Timeout Reduction** - 5.2x reduction in total timeout budget
-4. **Disable Flags** - Environment variables to skip non-critical hooks
+Performance improvements across the ecosystem include implementing background execution for notifications in the sanctum plugin and using 60-second git metrics caching in the imbue plugin. We have also achieved a 5.2x reduction in the total timeout budget and introduced environment variables to skip non-critical hooks when necessary.
 
 ### Environment Variables
 
@@ -100,7 +97,7 @@ for hook_path, event_type, target in HOOKS:
         times.append((time.perf_counter() - start) * 1000)
 
     avg = sum(times) / len(times)
-    status = "✓" if avg < target else "✗"
+    status = "PASS" if avg < target else "FAIL"
     print(f"{status} {hook_path:50s} {avg:6.1f}ms / {target:4.0f}ms")
 
 passed = sum(1 for h, e, t in HOOKS if Path.cwd() / h in results)

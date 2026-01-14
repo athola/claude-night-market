@@ -12,7 +12,7 @@ estimated_tokens: 400
 def select_recovery_strategy(error: LeylineError) -> RecoveryStrategy:
     strategies = {
         ErrorCategory.TRANSIENT: RetryWithBackoff(),
-        ErrorCategory.RESOURCE: WaitOrFallback(),
+        ErrorCategory.RESOURCE: WaitOrSecondary(),
         ErrorCategory.CONFIGURATION: UserActionRequired(),
         ErrorCategory.PERMANENT: ReportAndAbort(),
     }
@@ -40,19 +40,18 @@ class RetryWithBackoff:
         raise MaxRetriesExceededError()
 ```
 
-## Wait or Fallback
+## Wait or Secondary
 
-```python
-class WaitOrFallback:
-    def execute(self, error: RateLimitError, fallback_service=None):
+class WaitOrSecondary:
+    def execute(self, error: RateLimitError, secondary_service=None):
         retry_after = error.metadata.get("retry_after", 60)
 
         if retry_after < 30:  # Short wait
             time.sleep(retry_after)
             return "retry"
 
-        if fallback_service:
-            return ("fallback", fallback_service)
+        if secondary_service:
+            return ("secondary", secondary_service)
 
         return ("defer", retry_after)
 ```
@@ -83,15 +82,16 @@ class UserActionRequired:
 ```python
 def execute_with_degradation(
     primary_fn,
-    fallback_fn=None,
+            secondary_fn=None,
+
     degraded_fn=None
 ):
     """Execute with graceful degradation."""
     try:
         return primary_fn()
     except LeylineError as e:
-        if e.category == ErrorCategory.TRANSIENT and fallback_fn:
-            return fallback_fn()
+        if e.category == ErrorCategory.TRANSIENT and secondary_fn:
+            return secondary_fn()
         if degraded_fn:
             return degraded_fn(partial=True)
         raise

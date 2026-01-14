@@ -1,7 +1,7 @@
 """Estimate tokens for LLM context management.
 
 This module provides utilities for estimating token counts for files and prompts,
-with optional tiktoken integration for accurate tokenization and fallback to
+with optional tiktoken integration for accurate tokenization and a secondary
 heuristic-based estimation.
 """
 
@@ -19,7 +19,7 @@ try:
     import tiktoken
 except ImportError:  # pragma: no cover - optional dependency
     tiktoken = None
-    logger.debug("tiktoken not available, falling back to heuristic estimation")
+    logger.debug("tiktoken not available, using heuristic estimation")
 except Exception as e:  # pragma: no cover - edge case
     tiktoken = None
     logger.debug("Failed to import tiktoken: %s", e)
@@ -71,7 +71,7 @@ def _get_encoder() -> Any | None:
 
     """
     if tiktoken is None:
-        logger.debug("tiktoken not available, falling back to heuristic estimation")
+        logger.debug("tiktoken not available, using heuristic estimation")
         return None
 
     try:
@@ -214,7 +214,7 @@ def estimate_tokens(files: list[str], prompt: str = "") -> int:
 
     This function provides token estimation with two strategies:
     1. If tiktoken is available, uses accurate tokenization (cl100k_base encoding)
-    2. Otherwise, falls back to heuristic estimation based on file size and type
+    2. Otherwise, uses a default heuristic estimation based on file size and type
 
     Args:
         files: List of file or directory paths to estimate

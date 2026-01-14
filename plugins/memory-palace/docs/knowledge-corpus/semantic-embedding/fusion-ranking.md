@@ -32,4 +32,4 @@ Fuse keyword and embedding scores using weighted sums to improve precision.
 ## Implementation Playbook
 1. Normalize scores before blending.
 2. Expose config for weighting knobs.
-3. Add regression tests for fallback behavior.
+3. Add regression tests for default behavior.

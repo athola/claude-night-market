@@ -150,7 +150,8 @@ When `ENABLE_LSP_TOOL=1` is set, the review process is enhanced with semantic an
 
 **Performance**: LSP queries (50ms) vs. grep searches (45s) - ~900x faster for reference finding.
 
-**Default Approach**: Code reviews should **prefer LSP** for all analysis tasks. Only fallback to grep when LSP unavailable.
+**Default Approach**: Code reviews should **prefer LSP** for all analysis tasks. Only use secondary methods like grep when LSP unavailable.
+L173: # Secondary Strategy: Standard review without LSP (when language server unavailable)
 
 ## Usage
 

@@ -46,7 +46,7 @@ class InitiativeTracker:
 
 
 class ProjectTracker:
-    """Implement the main project tracking system."""
+    """Manage the project tracking system."""
 
     DEFAULT_INITIATIVES = [
         "GitHub Projects Hygiene",
@@ -196,7 +196,7 @@ class ProjectTracker:
         }
 
     def format_github_comment(self, report: dict[str, Any] | None = None) -> str:
-        """Render a markdown snippet suitable for GitHub issues/PRs."""
+        """Render a markdown summary for GitHub issues and pull requests."""
         report = report or self.get_status_report()
         lines = [
             "### Initiative Pulse",
@@ -416,7 +416,7 @@ def run_cli(argv: list[str] | None = None) -> int:
 
 
 def output_result(result: dict[str, Any], args: argparse.Namespace) -> None:
-    """Output result in requested format."""
+    """Print the result in the specified format."""
     if args.output_json:
         print(
             json.dumps(

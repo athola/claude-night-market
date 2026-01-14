@@ -4,12 +4,7 @@ Reusable workflow patterns for analysis, evidence gathering, and structured repo
 
 ## Overview
 
-Imbue provides analysis methodologies, offering a framework for approaching common problems independent of specific tools.
-
-Principles:
-- **Generalizable**: Patterns apply to various inputs like git diffs, specs, and logs.
-- **Composable**: Skills chain together for complex workflows.
-- **Evidence-based**: Focus on capturing evidence for reproducibility.
+Imbue provides analysis methodologies, offering a framework for approaching common problems independent of specific tools. The plugin is built on several core principles. Its patterns are generalizable and apply to various inputs such as git diffs, specifications, and logs. By being composable, skills can be chained together to handle complex, multi-step workflows. We also prioritize an evidence-based approach, focusing on capturing technical evidence to support reproducibility and audit trails.
 
 ## Skills
 

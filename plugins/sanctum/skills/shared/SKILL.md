@@ -53,7 +53,7 @@ The `modules/output-templates.md` module provides standardized output formats:
 The `modules/github-comments.md` module provides patterns for posting PR comments:
 - Reviews API vs Comments API differences
 - Inline comment patterns with correct `-F` flag for integers
-- Fallback strategies when inline comments fail
+- Secondary strategies when inline comments fail
 - Summary comment templates
 
 ## When to Reference
