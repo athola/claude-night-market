@@ -682,16 +682,33 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
 
 **CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
 
+**Before starting this step, create TodoWrite items:**
+```markdown
+- [ ] fix-pr:thread-preflight - Verify threads exist and get count
+- [ ] fix-pr:thread-reply - Reply to each unresolved thread with fix description
+- [ ] fix-pr:thread-resolve - Resolve each thread via GraphQL mutation
+- [ ] fix-pr:thread-validate - Verify all threads are resolved (checkpoint)
+```
+
 > **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
 
-**Get All Review Threads:**
+**Pre-Flight Check - Verify Threads Exist:**
+   Before attempting resolution, confirm there are review threads to process:
    ```bash
+   # Get repository info first (MANDATORY)
+   REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+   OWNER=$(echo "$REPO_FULL" | cut -d'/' -f1)
+   REPO=$(echo "$REPO_FULL" | cut -d'/' -f2)
+   PR_NUM=$(gh pr view --json number -q .number)
+
+   echo "Repository: $OWNER/$REPO"
+   echo "PR: #$PR_NUM"
+
    # Fetch all review threads with their IDs and resolution status
-   # Note: Use literal owner/repo/pr values - do NOT use $() substitution inside gh commands
-   gh api graphql -f query='
+   THREADS_JSON=$(gh api graphql -f query="
    query {
-     repository(owner: "OWNER", name: "REPO") {
-       pullRequest(number: PR_NUMBER) {
+     repository(owner: \"$OWNER\", name: \"$REPO\") {
+       pullRequest(number: $PR_NUM) {
          reviewThreads(first: 100) {
            nodes {
              id
@@ -708,10 +725,20 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
          }
        }
      }
-   }'
+   }")
+
+   # Count unresolved threads
+   UNRESOLVED_COUNT=$(echo "$THREADS_JSON" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+
+   echo "Unresolved threads: $UNRESOLVED_COUNT"
+
+   if [[ "$UNRESOLVED_COUNT" -eq 0 ]]; then
+     echo "✓ No unresolved threads to process - skipping thread resolution"
+     # Skip to Step 6.4
+   fi
    ```
 
-Replace `OWNER`, `REPO`, and `PR_NUMBER` with actual values. The thread `id` field returns the `PRRT_*` ID needed for replies and resolution.
+   **If threads exist, proceed with resolution. If none exist, skip to Step 6.4.**
 
 **Reply to Each Thread with Fix Description:**
    For EACH review comment that was addressed, use the GraphQL mutation (NOT REST API):
@@ -765,23 +792,48 @@ After replying, resolve the thread:
     done
     ```
 
-**Verify All Threads Resolved:**
+**VALIDATION CHECKPOINT - Verify All Threads Resolved:**
+    After replying to and resolving all threads, you MUST verify the resolution was successful:
     ```bash
-    # Count unresolved threads - should return 0
-    gh api graphql -f query='
+    # Re-use variables from pre-flight check
+    VERIFICATION=$(gh api graphql -f query="
     query {
-      repository(owner: "OWNER", name: "REPO") {
-        pullRequest(number: PR_NUMBER) {
+      repository(owner: \"$OWNER\", name: \"$REPO\") {
+        pullRequest(number: $PR_NUM) {
           reviewThreads(first: 100) {
             nodes {
               isResolved
               path
+              line
             }
           }
         }
       }
-    }' --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length'
+    }")
+
+    # Count remaining unresolved threads
+    REMAINING=$(echo "$VERIFICATION" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+
+    echo "Verification: $REMAINING unresolved threads remaining"
+
+    if [[ "$REMAINING" -eq 0 ]]; then
+      echo "✓ SUCCESS: All review threads are now resolved"
+    else
+      echo "❌ FAILED: $REMAINING threads still unresolved"
+      # Show which threads are still unresolved
+      echo "$VERIFICATION" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  - \(.path):\(.line)"'
+      echo ""
+      echo "RESOLUTION REQUIRED:"
+      echo "1. Review the above threads and determine why they weren't resolved"
+      echo "2. Manually resolve them using the GraphQL mutations above"
+      echo "3. Or run: /resolve-threads $PR_NUM"
+      echo ""
+      echo "DO NOT PROCEED TO STEP 6.4 UNTIL ALL THREADS ARE RESOLVED"
+      exit 1
+    fi
     ```
+
+    **This checkpoint prevents proceeding until ALL threads are resolved. No exceptions.**
 
 ### 6.4 Issue Linkage & Closure
 

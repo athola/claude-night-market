@@ -36,7 +36,7 @@ A progressive workflow for addressing PR review feedback, following the attune p
 | **3. Plan** | Generate fix strategies | Fixes are obvious |
 | **4. Fix** | Apply code changes | Just need validation |
 | **5. Validate** | Run tests, version checks | Already validated |
-| **6. Complete** | Threads, issues, summary | Just needed fixes |
+| **6. Complete** | **Reply to & resolve threads** (MANDATORY), create issues, post summary | Never - thread resolution enforced |
 
 **Detailed Steps**: See [Workflow Steps](fix-pr-modules/workflow-steps.md)
 
