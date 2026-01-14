@@ -8,6 +8,32 @@ usage: /update-labels [--repo <owner/repo>] [--dry-run] [--preserve <label>...]
 
 Reorganizes GitHub issue labels into a professional taxonomy. Creates distinct labels for issue types (feature, bugfix, test, docs, etc.), priorities, and effort estimates, then re-labels all issues accordingly.
 
+**Custom Labels**: The taxonomy below serves as a foundation. **You should create custom labels** for project-specific needs:
+
+**When to Add Custom Labels:**
+- **Component areas** (e.g., `frontend`, `backend`, `api`, `database`)
+- **Plugin/module names** (e.g., `sanctum`, `minister`, `pensive`)
+- **Workflow states** (e.g., `blocked`, `ready-for-review`, `needs-investigation`)
+- **Team ownership** (e.g., `team-platform`, `team-product`)
+- **Technology-specific** (e.g., `python`, `typescript`, `rust`)
+
+**Good Custom Label Examples:**
+```bash
+# Component-based
+gh label create "frontend" --color "#C5DEF5" --description "Frontend/UI changes"
+gh label create "api" --color "#006B75" --description "API and backend services"
+
+# Project-specific
+gh label create "sanctum" --color "#9B59B6" --description "Sanctum plugin work"
+gh label create "hooks" --color "#E67E22" --description "Hook development"
+
+# Workflow-specific
+gh label create "blocked" --color "#B60205" --description "Blocked by external dependency"
+gh label create "ready-for-review" --color "#0E8A16" --description "Ready for code review"
+```
+
+Custom labels should complement (not replace) the standard taxonomy. Keep them focused on project-specific classification that adds value beyond type/priority/effort.
+
 ## Arguments
 
 - `--repo <owner/repo>` - Target repository (default: current)
