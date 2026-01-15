@@ -1,30 +1,31 @@
 ---
-name: fix-issue
-description: Fix GitHub issues using attune-style progressive workflow
-usage: /fix-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--from <step>] [--to <step>] [--scope auto|minor|medium|major]
+name: do-issue
+description: Implement GitHub issues using attune-style progressive workflow
+usage: /do-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--from <step>] [--to <step>] [--scope auto|minor|medium|major]
 ---
 
-# Fix GitHub Issue(s)
+# Do GitHub Issue(s)
 
 <identification>
-triggers: fix issue, address issue, implement issue
+triggers: fix issue, address issue, implement issue, do issue
 
 use_when:
 - Implementing fixes for one or more GitHub issues
 - Progressive issue resolution with validation
+- Addressing a particular issue or ticket that is referenced
 </identification>
 
-A progressive workflow for fixing GitHub issues, following the attune pattern:
+A progressive workflow for implementing GitHub issues, following the attune pattern:
 **analyze** → **specify** → **plan** → **implement** → **validate** → **complete**
 
 ## Quick Reference
 
 ```
-/fix-issue 42                  # Full workflow for issue #42
-/fix-issue 42 --from plan      # Skip analysis/specify, start at planning
-/fix-issue 42 --to plan        # Stop after planning (dry run)
-/fix-issue 42 --scope minor    # Auto-skip steps for minor fixes
-/fix-issue 42 43 44            # Multiple issues with dependency analysis
+/do-issue 42                  # Full workflow for issue #42
+/do-issue 42 --from plan      # Skip analysis/specify, start at planning
+/do-issue 42 --to plan        # Stop after planning (dry run)
+/do-issue 42 --scope minor    # Auto-skip steps for minor fixes
+/do-issue 42 43 44            # Multiple issues with dependency analysis
 ```
 
 ## Workflow Steps Overview
@@ -55,12 +56,12 @@ The workflow auto-detects scope and suggests step-skipping:
 
 ```bash
 # Detect scope automatically
-/fix-issue 42 --scope auto
+/do-issue 42 --scope auto
 
 # Override with explicit scope
-/fix-issue 42 --scope minor
-/fix-issue 42 --scope medium
-/fix-issue 42 --scope major
+/do-issue 42 --scope minor
+/do-issue 42 --scope medium
+/do-issue 42 --scope major
 ```
 
 ---
@@ -196,7 +197,7 @@ For medium/major scope issues, create a task list:
 
 When fixing multiple issues, analyze dependencies:
 ```bash
-# For /fix-issue 42 43 44
+# For /do-issue 42 43 44
 # Analyze which can run in parallel vs. sequential
 ```
 
@@ -388,14 +389,14 @@ Ensure PR body contains "Fixes #ISSUE_NUMBER" for auto-close on merge.
 | `--scope <level>` | Set scope level (auto, minor, medium, major) |
 | `--parallel` | Force parallel execution for multiple issues |
 | `--no-review` | Skip code review between tasks (not recommended) |
-| `--close` | Automatically close issues when fixed |
+| `--close` | Automatically close issues when implemented |
 
 ## Multiple Issues
 
-When fixing multiple issues:
+When implementing multiple issues:
 
 ```bash
-/fix-issue 42 43 44
+/do-issue 42 43 44
 ```
 
 The workflow:
@@ -410,7 +411,7 @@ The workflow:
 ### Example Multi-Issue Execution
 
 ```
-/fix-issue 42 43 44
+/do-issue 42 43 44
 
 Analyzing issues...
 - #42: Add validation to user input
@@ -429,7 +430,7 @@ Proceed? [Y/n]
 This command follows the attune-style progressive workflow pattern:
 
 ```
-Attune Workflow        | /fix-issue Equivalent
+Attune Workflow        | /do-issue Equivalent
 -----------------------|----------------------
 /attune:brainstorm     | (issue created/assigned)
 /attune:arch-init      | --
@@ -458,7 +459,7 @@ This command uses skills from multiple plugins:
 ### Example 1: Single Issue (Minor)
 
 ```bash
-/fix-issue 42 --scope minor
+/do-issue 42 --scope minor
 
 # Skips: Analyze, Specify, Plan
 # Runs: Implement → Validate → Complete
@@ -467,7 +468,7 @@ This command uses skills from multiple plugins:
 ### Example 2: Single Issue (Full Workflow)
 
 ```bash
-/fix-issue 42
+/do-issue 42
 
 # Runs all steps
 ```
@@ -475,7 +476,7 @@ This command uses skills from multiple plugins:
 ### Example 3: Multiple Issues
 
 ```bash
-/fix-issue 42 43 44
+/do-issue 42 43 44
 
 # Analyzes dependencies
 # Runs independent issues in parallel
@@ -485,7 +486,7 @@ This command uses skills from multiple plugins:
 ### Example 4: Dry Run Preview
 
 ```bash
-/fix-issue 42 --dry-run
+/do-issue 42 --dry-run
 
 # Shows planned tasks without executing
 # Useful for reviewing scope
@@ -494,7 +495,7 @@ This command uses skills from multiple plugins:
 ### Example 5: Start from Planning
 
 ```bash
-/fix-issue 42 --from plan
+/do-issue 42 --from plan
 
 # Skips Analyze and Specify
 # Useful when you already understand the issue

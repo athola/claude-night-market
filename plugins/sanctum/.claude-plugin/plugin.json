@@ -1,11 +1,11 @@
 {
   "name": "sanctum",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
     "./commands/git-catchup.md",
     "./commands/commit-msg.md",
-    "./commands/fix-issue.md",
+    "./commands/do-issue.md",
     "./commands/fix-workflow.md",
     "./commands/fix-pr.md",
     "./commands/merge-docs.md",
@@ -35,7 +35,7 @@
     "./skills/workflow-improvement",
     "./skills/version-updates",
     "./skills/tutorial-updates",
-    "./skills/fix-issue"
+    "./skills/do-issue"
   ],
   "agents": [
     "./agents/git-workspace-agent.md",
@@ -63,5 +63,12 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "hooks": [
+    "./hooks/PERFORMANCE.md",
+    "./hooks/post_implementation_policy.py",
+    "./hooks/security_pattern_check.py",
+    "./hooks/session_complete_notify.py",
+    "./hooks/verify_workflow_complete.py"
+  ]
 }

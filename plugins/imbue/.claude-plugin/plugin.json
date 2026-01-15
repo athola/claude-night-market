@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/shared",
@@ -11,7 +11,8 @@
     "./skills/catchup",
     "./skills/scope-guard",
     "./skills/feature-review",
-    "./skills/proof-of-work"
+    "./skills/proof-of-work",
+    "./skills/workflow-monitor"
   ],
   "commands": [
     "./commands/structured-review.md",
@@ -36,11 +37,21 @@
     "prioritization",
     "RICE",
     "WSJF",
-    "roadmap"
+    "roadmap",
+    "workflow-monitor",
+    "error-detection"
   ],
   "author": {
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "hooks": [
+    "./hooks/PERFORMANCE.md",
+    "./hooks/pre-pr-scope-check.sh",
+    "./hooks/proof-enforcement.md",
+    "./hooks/scope-guard-integration.md",
+    "./hooks/session-start.sh",
+    "./hooks/user-prompt-submit.sh"
+  ]
 }

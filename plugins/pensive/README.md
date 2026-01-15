@@ -31,6 +31,7 @@ Or reference directly from the marketplace:
 | **math-review** | Mathematical algorithm and numerical stability review |
 | **makefile-review** | Build system audit and optimization |
 | **shell-review** | Shell script correctness, portability, and safety audit |
+| **fpf-review** | FPF (Functional/Practical/Foundation) architecture review |
 
 ### Commands
 
@@ -45,6 +46,7 @@ Or reference directly from the marketplace:
 | `/math-review` | Mathematical correctness review |
 | `/makefile-review` | Makefile best practices audit |
 | `/shell-review` | Shell script audit (exit codes, portability, safety) |
+| `/fpf-review` | FPF architecture review (Functional/Practical/Foundation) |
 | `/skill-review` | Skill performance metrics and stability analysis |
 | `/skill-history` | Recent skill executions with context |
 
@@ -84,6 +86,9 @@ Or reference directly from the marketplace:
 
 # Mathematical code
 /math-review
+
+# Architecture analysis (FPF methodology)
+/fpf-review
 ```
 
 ### Skill Performance Review
@@ -169,7 +174,8 @@ pensive/
 │   ├── test-review/         # Test quality
 │   ├── math-review/         # Mathematical review
 │   ├── makefile-review/     # Build system review
-│   └── shell-review/        # Shell script review
+│   ├── shell-review/        # Shell script review
+│   └── fpf-review/          # FPF architecture review
 └── README.md
 ```
 
@@ -191,79 +197,21 @@ api-review:evidence-log
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking allows specialized parallel reviews.
+Session forking enables parallel specialized reviews:
 
-### Use Cases
-
-**Multi-Dimensional Code Review**
 ```bash
-# Main session: Code review request
-claude "/full-review src/"
-
 # Fork for security audit
 claude --fork-session --session-id "security-audit" --resume
 > "/rust-review --focus security"
 
 # Fork for performance analysis
 claude --fork-session --session-id "performance-audit" --resume
-> "Review the same code focusing exclusively on performance and optimization"
-
-# Fork for maintainability review
-claude --fork-session --session-id "maintainability-audit" --resume
-> "/architecture-review --focus maintainability"
-
-# Combine insights for detailed feedback
+> "Review focusing on performance"
 ```
 
-**Specialized Domain Reviews**
-```bash
-# Main session: API changes
-claude "We need to review API changes in this PR"
+**Best Practices**: One concern per fork, extract findings before closing, synthesize into actionable report.
 
-# Fork A: Public API surface review
-claude --fork-session --session-id "api-surface-review" --resume
-> "/api-review --focus public-interface"
-
-# Fork B: Breaking changes review
-claude --fork-session --session-id "breaking-changes-review" --resume
-> "/api-review --focus breaking-changes"
-
-# Fork C: Backward compatibility review
-claude --fork-session --session-id "compatibility-review" --resume
-> "/api-review --focus backward-compat"
-
-# Consolidate into detailed API review report
-```
-
-**Parallel Test Strategy Exploration**
-```bash
-# Main session: Need test improvements
-claude "/test-review"
-
-# Fork for unit test strategy
-claude --fork-session --session-id "unit-test-strategy" --resume
-> "Focus on unit test coverage and quality"
-
-# Fork for integration test strategy
-claude --fork-session --session-id "integration-test-strategy" --resume
-> "Focus on integration test design"
-
-# Fork for property-based testing
-claude --fork-session --session-id "property-test-strategy" --resume
-> "Explore property-based testing opportunities"
-
-# Design detailed test strategy from all approaches
-```
-
-### Benefits of Session Forking
-
-Utilizing session forking provides a specialized focus for each review dimension, allowing for deep analysis without diluting the mental model required for different tasks. This approach ensures all review aspects receive proper attention and supports parallel workflows that reduce overall iteration time. By consolidating results from multiple forks, the system produces a more detailed and thorough review report.
-
-### Best Practices
-
-To maximize the effectiveness of session forking, maintain one primary concern per fork, such as security or performance, and avoid mixing unrelated tasks. Delegate specialized work to appropriate agents within these forks and ensure that findings are extracted and saved before the session is closed. The final step should involve synthesizing these results into a single, actionable feedback report.
-
-See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
+See `plugins/abstract/docs/claude-code-compatibility.md` for detailed patterns.
 
 ## Skill Performance Review
 

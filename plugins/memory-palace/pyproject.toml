@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "memory-palace"
-version = "1.2.6"
+version = "1.2.7"
 description = "Spatial knowledge organization plugin for Claude Code using memory palace techniques"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -49,6 +49,13 @@ dev = [
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-v --tb=short"
+markers = [
+    "unit: Unit tests for individual components",
+    "integration: Integration tests for workflow orchestration",
+    "performance: Performance and scalability tests",
+    "slow: Slow running tests (use with -m slow)",
+    "bdd: Behavior-driven development style tests",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/memory_palace"]

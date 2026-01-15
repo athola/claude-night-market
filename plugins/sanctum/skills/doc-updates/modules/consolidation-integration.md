@@ -32,6 +32,14 @@ Extend detection to analyze committed documentation:
 - Similar file names: `api-overview.md` vs `api-reference.md`
 - Similar headings across files
 - Overlapping content sections (manual inspection)
+- Design docs whose content exists in command/skill documentation
+- Planning artifacts for completed work (already implemented)
+
+**Redundancy check command:**
+```bash
+# For a candidate file, check if content exists elsewhere
+grep -r "key phrase from candidate" docs/ book/ plugins/*/commands/*.md plugins/*/README.md
+```
 
 **Staleness signals:**
 - References to deprecated features
@@ -64,6 +72,13 @@ Show consolidation candidates with recommended actions:
 ```markdown
 ## Phase 2.5: Consolidation Opportunities
 
+### Redundant Files (delete - content exists elsewhere)
+
+| File | Action | Reason |
+|------|--------|--------|
+| plugins/memory-palace/docs/PALACE_UNIFICATION.md | Delete | Content already in commands/palace.md |
+| docs/old-api-design.md | Delete | Superseded by docs/api-overview.md |
+
 ### Untracked Reports (merge or delete)
 
 | File | Score | Markers | Recommendation |
@@ -75,7 +90,7 @@ Show consolidation candidates with recommended actions:
 
 | File | Lines | Threshold | Recommendation |
 |------|-------|-----------|----------------|
-| book/src/tutorials/error-handling-tutorial.md | 1031 | 1000 | Moved to book (tutorial content) |
+| book/src/tutorials/error-handling-tutorial.md | 1031 | 1000 | Trim verbose sections |
 | docs/function-extraction-guidelines.md | 571 | 500 | Consider splitting principles/patterns |
 
 ### Staleness Candidates (review or delete)
@@ -98,13 +113,19 @@ Show consolidation candidates with recommended actions:
 
 For each approved action:
 
+**Delete (redundant) actions:**
+1. Verify content exists in target document(s) by searching for key phrases
+2. Confirm no unique valuable content would be lost
+3. Remove file: `rm <file>`
+4. Add deletion to git staging: `git add -u`
+
 **Merge actions:**
 1. Extract valuable content from source
 2. Integrate into destination (using doc-consolidation merge strategies)
 3. Delete source file
 4. Add to git staging
 
-**Delete actions:**
+**Delete (stale) actions:**
 1. Confirm file has no unique valuable content
 2. Remove file
 3. Add deletion to git staging
@@ -114,6 +135,12 @@ For each approved action:
 2. Move content to new locations
 3. Update cross-references
 4. Preserve original as index if needed
+
+**Action priority:**
+1. Delete redundant first (unbloats without adding content)
+2. Delete stale second (removes outdated info)
+3. Merge third (consolidates remaining value)
+4. Split last (increases file count, use sparingly)
 
 ## User Controls
 

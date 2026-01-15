@@ -6,13 +6,14 @@ usage: /update-all-plugins
 
 # Update All Plugins
 
-One-shot command that upgrades every installed plugin from all configured marketplaces. This command reads the installed plugins configuration and updates each plugin individually using the correct marketplace format.
+One-shot command that upgrades every installed plugin from all configured marketplaces and syncs memory palace knowledge. This command reads the installed plugins configuration, updates each plugin individually, and processes any queued research into palaces.
 
 ## When to Use
 - After receiving marketplace-wide security fixes or compatibility updates
 - Before running regression suites that depend on latest plugins
 - To avoid manually updating each plugin individually
 - When you want to validate all plugins are at their latest versions
+- To process accumulated research from sessions into memory palaces
 
 ## Workflow
 The command executes the Python script at `scripts/update_all_plugins.py` which:
@@ -27,10 +28,25 @@ The command executes the Python script at `scripts/update_all_plugins.py` which:
    - Handles update responses and tracks success/failure
    - Continues updating even if some plugins fail
 
-3. **Report results**
+3. **Sync memory palace knowledge** (if memory-palace is installed)
+   - Processes `data/intake_queue.jsonl` into palaces
+   - Matches queued research to existing palaces by domain/tags
+   - Creates new entries in appropriate palace districts
+   - Reports items processed and palaces updated
+
+4. **Garden tending with palace check** (if memory-palace is installed)
+   - Runs `garden tend --palaces` to check both garden plots and palace entries
+   - Identifies stale/overgrown garden plots needing attention
+   - Checks palace entries for staleness, low quality, duplicates
+   - **Prompts for user approval before any cleanup operations**
+   - Use `--apply` only after reviewing recommendations
+
+5. **Report results**
    - Counts total plugins checked, updated, and already latest
    - Lists specific plugins that were updated with version changes
    - Reports any failures with error messages
+   - Shows palace sync results (items processed, palaces updated)
+   - Shows prune recommendations (if any)
    - Notes if restart is required for changes to take effect
 
 ## Implementation Notes

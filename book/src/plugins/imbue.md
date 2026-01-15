@@ -51,6 +51,12 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 |-------|-------------|-------------|
 | `feature-review` | Feature prioritization | Sprint planning, roadmap reviews |
 
+### Workflow Automation
+
+| Skill | Description | When to Use |
+|-------|-------------|-------------|
+| `workflow-monitor` | Execution monitoring and issue creation | After workflow failures or inefficiencies |
+
 ## Commands
 
 | Command | Description |

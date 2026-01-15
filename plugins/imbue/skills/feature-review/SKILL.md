@@ -260,7 +260,7 @@ These rules apply to all configurations:
 ## Integration Points
 
 - **`imbue:scope-guard`**: Provides Worthiness Scores for suggestions.
-- **`sanctum:fix-issue`**: Prioritizes issues with high scores.
+- **`sanctum:do-issue`**: Prioritizes issues with high scores.
 - **`superpowers:brainstorming`**: Evaluates new ideas against existing features.
 
 ## Output Format

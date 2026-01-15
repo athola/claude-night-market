@@ -15,6 +15,7 @@ Command options, configuration, and best practices.
 | `--commit-strategy` | Choose commit approach (single, separate, manual) |
 | `--skip-issue-linkage` | Skip issue analysis in Step 6 |
 | `--close-issues` | Automatically close fully addressed issues |
+| `--continue` | Resume from last incomplete phase (see Session Resumption) |
 | `pr-number`/`pr-url` | Target specific PR (default: current branch)
 
 ## Enhanced Features
@@ -248,4 +249,86 @@ fix_pr:
     include_test_suggestions: true
     analyze_performance_impact: true
     check_security_implications: true
+
+  # Context budget settings (new)
+  context_budget:
+    warn_threshold: 0.50        # Warn at 50% context usage
+    checkpoint_threshold: 0.70  # Suggest checkpoint at 70%
+    mandatory_phases: ["3.5", "4", "6"]  # Never skip these
+```
+
+## Context Management
+
+### Budget Awareness
+
+The `/fix-pr` workflow can exhaust context when:
+- Many files need to be read for fixes
+- Test output is verbose
+- Review has many findings to address
+
+**Context Usage Thresholds:**
+
+| Threshold | Action |
+|-----------|--------|
+| 50% | Warning: "Context usage at 50%. Consider completing current phase before continuing." |
+| 70% | Checkpoint: "Context usage at 70%. Recommend committing changes and using `--continue`." |
+| 90% | Critical: "Context nearly exhausted. Complete current phase and resume with `/fix-pr --continue`." |
+
+### Checkpoint/Resume Pattern
+
+If context usage approaches 50%:
+1. Complete current phase fully
+2. Commit and push changes
+3. Document remaining phases in a PR comment
+4. Use `/clear` + `/fix-pr --continue` to resume
+
+**Mandatory phases that MUST NOT be skipped:**
+- **Phase 3.5**: Create backlog issues (deferred items must be tracked)
+- **Phase 4**: Thread resolution (reviewer expects responses)
+- **Phase 6**: Summary comment (documents what was done)
+
+### Session Resumption (`--continue`)
+
+The `--continue` flag detects previous `/fix-pr` execution and resumes from the first incomplete phase.
+
+**Resume Detection Logic:**
+
+```bash
+# Check for completion markers in PR comments
+PHASE_6_DONE=$(gh pr view $PR --json comments --jq '.comments[].body | contains("PR Review Feedback Addressed")')
+PHASE_3_5_DONE=$(gh pr view $PR --json comments --jq '.comments[].body | contains("Backlog → Issues") or contains("Deferred Items Created")')
+
+# Resume from first incomplete phase
+if [ "$PHASE_6_DONE" = "false" ]; then
+  if [ "$PHASE_3_5_DONE" = "false" ]; then
+    echo "Resuming from Phase 3.5 (backlog issue creation)"
+  else
+    echo "Resuming from Phase 6 (summary comment)"
+  fi
+fi
+```
+
+**Phase Completion Markers:**
+
+| Phase | Marker in PR Comments |
+|-------|----------------------|
+| Phase 3.5 | "Backlog → Issues" or "Deferred Items Created" |
+| Phase 4 | "Thread Resolution Status" or all threads resolved |
+| Phase 6 | "PR Review Feedback Addressed" |
+
+**Example Resume Scenarios:**
+
+```bash
+# Context exhausted after Phase 3
+/clear
+/fix-pr 123 --continue
+# Detects: Phase 3.5 not done, resumes there
+
+# Session timeout after Phase 4
+/fix-pr 123 --continue
+# Detects: Phase 6 not done, resumes there
+
+# Interrupted during fixes
+/fix-pr 123 --continue
+# Detects: No phases marked complete, re-runs from analyze
 ```

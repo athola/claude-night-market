@@ -260,8 +260,19 @@ class MemoryPalaceCLI:
         except Exception as e:
             self.print_error(f"Metrics failed: {e}")
 
-    def garden_tend(self, opts: TendingOptions) -> None:
-        """Report and optionally apply tending actions to a digital garden."""
+    def garden_tend(self, opts: TendingOptions, include_palaces: bool = False) -> None:
+        """Report and optionally apply tending actions to a digital garden.
+
+        If include_palaces is True, also check palace health and report
+        entries needing cleanup.
+        """
+        # Check palace health first if requested
+        if include_palaces:
+            print("Palace Health Check")
+            print("=" * 50)
+            self.prune_check(stale_days=opts.stale_days)
+            print()
+
         target_env = os.environ.get("GARDEN_FILE", self.plugin_dir / "garden.json")
         target_path = Path(opts.path or target_env)
         if not target_path.exists():
@@ -477,18 +488,124 @@ class MemoryPalaceCLI:
 
     def list_palaces(self) -> bool:
         """List all available memory palaces."""
-        self.print_status("Available Memory Palaces:")
-
         try:
             palaces = self._manager().list_palaces()
             if palaces:
-                for _palace in palaces:
-                    pass
+                print("Available Memory Palaces:")
+                print("-" * 60)
+                for palace in palaces:
+                    print(f"  {palace['id']}: {palace['name']}")
+                    print(
+                        f"    Domain: {palace['domain']}, Entries: {palace.get('concept_count', 0)}"
+                    )
+                print("-" * 60)
+                print(f"Total: {len(palaces)} palaces")
             else:
-                pass
+                print(
+                    "No palaces found. Create one with: /palace create <name> <domain>"
+                )
             return True
         except Exception as e:
             self.print_error(f"Failed to list palaces: {e}")
+            return False
+
+    def sync_queue(self, auto_create: bool = False, dry_run: bool = False) -> bool:
+        """Sync intake queue into palaces."""
+        try:
+            queue_path = self.plugin_dir / "data" / "intake_queue.jsonl"
+            results = self._manager().sync_from_queue(
+                str(queue_path),
+                auto_create=auto_create,
+                dry_run=dry_run,
+            )
+
+            if dry_run:
+                print("DRY RUN - No changes made")
+                print("-" * 40)
+
+            print(f"Processed: {results['processed']} items")
+            print(f"Skipped: {results['skipped']} items")
+
+            if results["palaces_updated"]:
+                print(f"Palaces updated: {', '.join(results['palaces_updated'])}")
+            if results["palaces_created"]:
+                print(f"Palaces created: {', '.join(results['palaces_created'])}")
+            if results["unmatched"]:
+                print(f"Unmatched queries: {len(results['unmatched'])}")
+                for q in results["unmatched"][:5]:
+                    print(f"  - {q}")
+
+            return True
+        except Exception as e:
+            self.print_error(f"Failed to sync queue: {e}")
+            return False
+
+    def prune_check(self, stale_days: int = 90) -> bool:
+        """Check palaces for entries needing cleanup."""
+        try:
+            results = self._manager().prune_check(stale_days=stale_days)
+
+            print("Palace Prune Check")
+            print("=" * 50)
+            print(f"Palaces checked: {results['palaces_checked']}")
+            print()
+
+            if (
+                results["total_stale"] == 0
+                and results["total_low_quality"] == 0
+                and results["total_duplicates"] == 0
+            ):
+                print("No cleanup needed - all palaces are healthy!")
+                return True
+
+            print("Recommendations:")
+            print("-" * 50)
+
+            if results["total_stale"] > 0:
+                print(f"  Stale entries (>{stale_days} days): {results['total_stale']}")
+            if results["total_low_quality"] > 0:
+                print(
+                    f"  Low quality entries (score<0.3): {results['total_low_quality']}"
+                )
+            if results["total_duplicates"] > 0:
+                print(f"  Duplicate entries: {results['total_duplicates']}")
+
+            print()
+            for rec in results.get("recommendations", []):
+                print(f"  {rec['palace_name']} ({rec['palace_id']}):")
+                if rec["stale"]:
+                    print(f"    - {len(rec['stale'])} stale entries")
+                if rec["low_quality"]:
+                    print(f"    - {len(rec['low_quality'])} low quality entries")
+
+            if results.get("duplicates"):
+                print()
+                print("  Duplicates found:")
+                for dup in results["duplicates"][:5]:
+                    print(f"    - '{dup['query']}' in {len(dup['locations'])} places")
+
+            print()
+            print("Run '/palace prune --apply' to clean up (requires approval)")
+            return True
+        except Exception as e:
+            self.print_error(f"Failed to check palaces: {e}")
+            return False
+
+    def prune_apply(self, actions: list[str]) -> bool:
+        """Apply prune actions after user approval."""
+        try:
+            results = self._manager().prune_check()
+            if not results["recommendations"]:
+                print("No cleanup needed.")
+                return True
+
+            removed = self._manager().apply_prune(results, actions)
+            print("Prune Applied:")
+            print(f"  Stale removed: {removed['stale']}")
+            print(f"  Low quality removed: {removed['low_quality']}")
+            return True
+        except Exception as e:
+            self.print_error(f"Failed to apply prune: {e}")
             return False
 
     def search_palaces(self, query: str, search_type: str = "semantic") -> bool:
@@ -689,6 +806,11 @@ Examples:
         "--label",
         help="Prometheus garden label (defaults to file stem)",
     )
+    garden_tend_parser.add_argument(
+        "--palaces",
+        action="store_true",
+        help="Also check palace health and report entries needing cleanup",
+    )
 
     export_parser = subparsers.add_parser(
         "export", help="Export all palaces to a bundle"
@@ -715,6 +837,31 @@ Examples:
     )
 
     subparsers.add_parser("list", help="List all memory palaces")
+
+    sync_parser = subparsers.add_parser("sync", help="Sync intake queue into palaces")
+    sync_parser.add_argument(
+        "--auto-create",
+        action="store_true",
+        help="Create new palaces for unmatched domains",
+    )
+    sync_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview changes without applying",
+    )
+
+    prune_parser = subparsers.add_parser("prune", help="Check/apply palace cleanup")
+    prune_parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Apply prune actions (requires prior check)",
+    )
+    prune_parser.add_argument(
+        "--stale-days",
+        type=int,
+        default=90,
+        help="Days before entry is considered stale (default: 90)",
+    )
 
     search_parser = subparsers.add_parser("search", help="Search across all palaces")
     search_parser.add_argument("query", help="Search query")
@@ -763,6 +910,7 @@ def main() -> None:
                     prometheus=args.prometheus,
                     label=args.label,
                 ),
+                include_palaces=getattr(args, "palaces", False),
             )
         else:
             parser.print_help()
@@ -775,6 +923,15 @@ def main() -> None:
         "install": lambda: cli.install_skills(),
         "create": lambda: cli.create_palace(args.name, args.domain, args.metaphor),
         "list": lambda: cli.list_palaces(),
+        "sync": lambda: cli.sync_queue(
+            auto_create=getattr(args, "auto_create", False),
+            dry_run=getattr(args, "dry_run", False),
+        ),
+        "prune": lambda: (
+            cli.prune_apply(["stale", "low_quality"])
+            if getattr(args, "apply", False)
+            else cli.prune_check(stale_days=getattr(args, "stale_days", 90))
+        ),
         "search": lambda: cli.search_palaces(args.query, args.type),
         "garden": handle_garden,
         "export": lambda: cli.export_palaces(args.destination, args.palaces_dir),

@@ -6,16 +6,16 @@ This module provides a **hard gate** that MUST be satisfied before any file crea
 
 ## The Problem
 
-The Iron Law states:
+The core rule states:
 ```
 NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 ```
 
-But this is currently **advisory** - Claude can rationalize bypassing it. This module creates an **interlock** - a gate that cannot be bypassed without explicit evidence.
+Currently, this is advisory. This module creates a gate that requires evidence to proceed.
 
 ## Interlock Definition
 
-An **interlock** is a mechanism that prevents an action until preconditions are verified. Unlike advice (which can be ignored), an interlock blocks the action path entirely.
+This mechanism prevents an action until preconditions are met. Unlike advice, it blocks the action path entirely.
 
 ```mermaid
 flowchart LR
@@ -141,7 +141,7 @@ Some file types do not require test-first:
 **User Confirmation**: [required for non-documentation]
 ```
 
-## Consequences of Violation
+## Impact of Violation
 
 When the Iron Law is violated:
 
@@ -151,7 +151,7 @@ When the Iron Law is violated:
 
 The interlock exists because **rationalization is the failure mode**, not ignorance.
 
-## Red Flags (Interlock Will Block You)
+## Red Flags
 
 | Thought | Interlock Response |
 |---------|-------------------|

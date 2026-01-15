@@ -112,7 +112,7 @@ sanctum depends on imbue (for some skills)
 | `/commit-msg` | Generate commit message |
 | `/pr` | Prepare pull request |
 | `/fix-pr` | Address PR review comments |
-| `/fix-issue` | Fix GitHub issues |
+| `/do-issue` | Fix GitHub issues |
 | `/update-docs` | Update documentation |
 | `/update-readme` | Modernize README |
 | `/update-tests` | Maintain tests |

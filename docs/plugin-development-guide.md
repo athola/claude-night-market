@@ -27,9 +27,9 @@ Define strict public APIs to prevent hidden state and support interoperability b
 
 ## Success Metrics
 
-Plugins require at least 80% code coverage, verified by `pytest-cov`. Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` should report no high-severity issues.
+Plugins require 80% code coverage via `pytest-cov`. Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must report zero high-severity issues.
 
-Keep operations within a 15K token budget to stay within system prompt limits. Plugins should provide specific error details instead of generic messages. Align versions with the current 1.1.0 scheme to maintain compatibility with existing workflows.
+Keep operations within a 15K token budget. Plugins must provide specific error details rather than generic messages. Versioning must align with the 1.1.0 scheme for compatibility.
 
 ## Development Path
 
@@ -44,7 +44,7 @@ Profile token usage with `python -m cProfile` if performance lags. Document feat
 
 ## Tooling
 
-The development environment relies on Python 3.10 or higher, managed by `uv` for dependency and environment isolation. We use `pytest` for unit and integration testing, while `ruff` handles both linting and formatting. Type checking is enforced by `mypy`, and security analysis is performed by `bandit`. Automation is provided by `pre-commit` for local checks and GitHub Actions for continuous integration.
+Development requires Python 3.10+ managed by `uv`. `pytest` handles testing, while `ruff` manages linting and formatting. `mypy` enforces type checking, and `bandit` performs security analysis. `pre-commit` and GitHub Actions handle automation.
 
 ## Release Checklist
 
@@ -183,7 +183,9 @@ except Exception as e:
 
 ### Common Issues
 
-If a plugin is not loading, verify the syntax and file paths in `.claude-plugin/plugin.json`, and check `marketplace.json` for any entry point mismatches. When tests fail, confirm that all dependencies are installed using `make install` and use `pytest tests/test_specific.py -v` to isolate the failing cases. For performance bottlenecks, profile the code with `python -m cProfile` and consider implementing caching or lazy loading for heavy modules.
+*   **Plugin not loading:** Verify syntax and paths in `.claude-plugin/plugin.json` and entry points in `marketplace.json`.
+*   **Tests failing:** Run `make install` to check dependencies, then `pytest tests/test_specific.py -v` to isolate.
+*   **Performance:** Profile with `python -m cProfile`. Consider caching or lazy loading for heavy modules.
 
 ### Utility Commands
 

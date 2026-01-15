@@ -106,7 +106,7 @@ flowchart LR
 ### Sanctum Evolution (v1.0.5 → v1.0.6)
 
 ```diff
-+ fix-issue command (GitHub issue resolution)
++ do-issue command (GitHub issue resolution)
 + fix-workflow command (workflow improvement)
 + resolve-threads command (PR thread resolution)
 + update-dependencies command

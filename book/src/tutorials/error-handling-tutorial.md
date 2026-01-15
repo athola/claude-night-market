@@ -927,96 +927,14 @@ class HealthMonitor:
 
 ## Common Pitfalls and Solutions
 
-### Pitfall 1: Swallowing Exceptions
-```python
-# BAD: Swallowing exceptions without logging
-try:
-    result = risky_operation()
-except:
-    pass  # Silent failure!
-
-# GOOD: Proper exception handling
-try:
-    result = risky_operation()
-except SpecificException as e:
-    logger.error(f"Operation failed: {e}")
-    raise  # Re-raise or handle appropriately
-```
-
-### Pitfall 2: Overly Broad Exception Handling
-```python
-# BAD: Catching too broadly
-try:
-    result = operation()
-except Exception as e:
-    handle_error(e)  # Catches everything!
-
-# GOOD: Catch specific exceptions
-try:
-    result = operation()
-except (ValueError, TypeError) as e:
-    handle_expected_error(e)
-except Exception as e:
-    handle_unexpected_error(e)
-    raise
-```
-
-### Pitfall 3: Missing Context in Errors
-```python
-# BAD: Error without context
-raise ValueError("Invalid data")
-
-# GOOD: Error with context
-raise ValueError(f"E022 Invalid data for field '{field_name}': {value}")
-```
-
-### Pitfall 4: Not Cleaning Up Resources
-```python
-# BAD: Resource leak
-def process_file(filepath):
-    f = open(filepath)
-    data = f.read()  # If this fails, file remains open
-    return data
-
-# GOOD: Proper resource management
-def process_file(filepath):
-    try:
-        with open(filepath) as f:
-            return f.read()
-    except Exception as e:
-        logger.error(f"Failed to process {filepath}: {e}")
-        raise
-```
-
-### Pitfall 5: Inconsistent Error Handling
-```python
-# BAD: Inconsistent error handling
-def operation1():
-    try:
-        return do_something()
-    except Exception:
-        return None
-
-def operation2():
-    try:
-        return do_something()
-    except Exception as e:
-        raise CustomError(f"Failed: {e}")
-
-# GOOD: Consistent error handling pattern
-class OperationError(Exception):
-    """Base class for operation errors"""
-    pass
-
-def operation_with_consistent_errors():
-    try:
-        return do_something()
-    except ValueError as e:
-        raise OperationError(f"E030 Invalid input: {e}") from e
-    except ConnectionError as e:
-        raise OperationError(f"E031 Connection failed: {e}") from e
-```
+| Pitfall | Problem | Solution |
+|---------|---------|----------|
+| Swallowing Exceptions | `except: pass` hides failures | Log and re-raise: `logger.error(e); raise` |
+| Overly Broad Catching | `except Exception` catches everything | Catch specific types, re-raise unexpected |
+| Missing Context | `raise ValueError("Invalid")` | Include field/value: `f"E022 Invalid {field}: {value}"` |
+| Resource Leaks | Files/connections left open on error | Use `with` statements or `try/finally` |
+| Inconsistent Handling | Mix of `return None` and `raise` | Define base exception, use consistent pattern |
 
 ## Summary
 
-Effective error handling relies on classifying errors into consistent categories and managing them gracefully through meaningful messages and recovery options. Capturing detailed context during logging supports easier debugging, provided that sensitive data is not exposed. To ensure system reliability, include error scenarios in your test suite and monitor error rates and patterns continuously in production. Maintaining thorough error handling documentation assists with future maintenance and helps new developers understand the system's failure modes.
+Effective error handling classifies errors consistently and manages them through meaningful messages and recovery options. Include error scenarios in tests and monitor error patterns in production.

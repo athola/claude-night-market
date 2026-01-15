@@ -67,6 +67,35 @@ Run `Skill(sanctum:git-workspace-review)` first to capture current changes.
 - Add or update changelog entries with today's date.
 - Refresh README and docs references to mention the new version and any release notes.
 
+### Critical Documentation Files with Version References
+
+These files contain version numbers and MUST be checked during version bumps:
+
+| File | Content |
+|------|---------|
+| `docs/api-overview.md` | Plugin inventory table with all plugin versions |
+| `CHANGELOG.md` | Version history and release notes |
+| `book/src/reference/capabilities-reference.md` | May reference version-specific features |
+| Plugin READMEs | May mention plugin versions |
+
+### Scan for Additional Version References
+
+```bash
+# Find all docs mentioning the OLD version
+grep -r "1\.2\.6" docs/ book/ --include="*.md" | grep -v node_modules
+
+# Common patterns to search:
+# - "v1.2.6", "1.2.6", "(v1.2.6)"
+# - Version tables in markdown
+# - "Added in X.Y.Z" annotations
+```
+
+### Update Sequence
+1. Update config files (pyproject.toml, plugin.json, etc.) - automated
+2. Update `CHANGELOG.md` - add new version section
+3. Update `docs/api-overview.md` - update version table and plugin details
+4. Scan for other version references and update as needed
+
 ## Step 5: Verification (`verification`)
 - Run relevant builds or tests if version bumps require them (e.g., `cargo test`, `npm test`).
 - Show `git status -sb` and `git diff` excerpts to confirm the version bumps.

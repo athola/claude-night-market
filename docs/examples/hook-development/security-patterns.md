@@ -472,62 +472,26 @@ if __name__ == "__main__":
 
 ## Shell Environment Troubleshooting
 
-### CLAUDE_CODE_SHELL Override
-
-If hooks fail due to shell detection issues, use the `CLAUDE_CODE_SHELL` environment variable (added in Claude Code 2.0.65):
+Use `CLAUDE_CODE_SHELL` environment variable if hooks fail due to shell detection (added in 2.0.65):
 
 ```bash
-# Set to your actual working shell
-export CLAUDE_CODE_SHELL=/bin/bash
-
-# Or for zsh users
-export CLAUDE_CODE_SHELL=/bin/zsh
+export CLAUDE_CODE_SHELL=/bin/bash  # or /bin/zsh
 ```
 
-### Common Shell Issues
+| Symptom | Solution |
+|---------|----------|
+| "No suitable shell found" | Set `CLAUDE_CODE_SHELL` |
+| Hooks fail on Windows/WSL | Use Unix-style paths |
+| Shebang not found | Explicitly set shell path |
 
-| Symptom | Cause | Solution |
-|---------|-------|----------|
-| "No suitable shell found" | Login shell differs from working shell | Set `CLAUDE_CODE_SHELL` |
-| Hooks fail on Windows/WSL | Path format mismatch | Use Unix-style paths |
-| `#!/usr/bin/env bash` not found | Shell environment not configured | Explicitly set shell path |
-
-### Cross-Platform Hook Compatibility
-
-For maximum compatibility:
-
-1. **Use `#!/usr/bin/env bash`** - Portable shebang
-2. **Avoid shell-specific features** - Stick to POSIX-compatible syntax
-3. **Handle missing commands gracefully**
-
-```bash
-#!/usr/bin/env bash
-# Cross-platform compatible hook
-
-if ! command -v jq >/dev/null 2>&1; then
-    echo "Warning: jq not found, using fallback" >&2
-    # Fallback implementation
-fi
-```
+For cross-platform compatibility: use `#!/usr/bin/env bash`, stick to POSIX syntax, handle missing commands gracefully.
 
 ## Security Checklist
 
-Before deploying hooks:
-
-- [ ] **Input Validation**: All inputs validated and sanitized
-- [ ] **Secret Protection**: No secrets in logs or outputs
-- [ ] **Path Validation**: Paths restricted to allowed directories
-- [ ] **Rate Limiting**: Resource usage limits enforced
-- [ ] **Timeout Protection**: All operations have timeouts
-- [ ] **Error Handling**: Errors fail safe (allow operation)
-- [ ] **Injection Prevention**: All outputs sanitized
-- [ ] **Sandbox Respect**: No escape attempts
-- [ ] **Least Privilege**: Minimal permissions required
-- [ ] **Audit Logging**: Security events logged
+Before deploying: validate inputs, protect secrets, restrict paths, enforce rate limits/timeouts, fail safe on errors, sanitize outputs, respect sandbox, use least privilege, log security events.
 
 ## Related Modules
 
 - **hook-types.md**: Event types and signatures
 - **sdk-callbacks.md**: SDK implementation patterns
-- **performance-guidelines.md**: Performance optimization
 - **testing-hooks.md**: Security testing strategies

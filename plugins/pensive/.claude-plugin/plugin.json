@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/full-review.md",
@@ -25,7 +25,8 @@
     "./skills/test-review",
     "./skills/math-review",
     "./skills/makefile-review",
-    "./skills/shell-review"
+    "./skills/shell-review",
+    "./skills/fpf-review"
   ],
   "agents": [
     "./agents/code-reviewer.md",
@@ -45,7 +46,9 @@
     "skill-review",
     "metrics",
     "stability-gap",
-    "continual-learning"
+    "continual-learning",
+    "fpf",
+    "functional-perspective"
   ],
   "author": {
     "name": "Alex Thola",

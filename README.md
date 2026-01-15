@@ -9,8 +9,8 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 *   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context to the active agent.
 *   **Skill Metrics:** The `pensive` plugin tracks usage and stability for `/skill-review` analysis.
 *   **Proof-of-Work TDD:** The `imbue` plugin mandates a failing test before accepting implementation code.
-*   **Iron Law Interlock:** `/create-skill` and `/create-command` block implementation pending a failing test.
-*   **Self-Correction:** `/update-plugins` suggests improvements based on skill stability; `/fix-workflow` applies Reflexion patterns for self-critique.
+*   **Test Enforcement:** `/create-skill` and `/create-command` block implementation until a failing test exists.
+*   **Self-Correction:** `/update-plugins` suggests improvements based on skill stability; `/fix-workflow` attempts to repair failed workflows; `workflow-monitor` creates issues for detected inefficiencies.
 
 ## Workflow Improvements
 
@@ -92,8 +92,8 @@ flowchart TB
 
 The ecosystem covers several domains:
 
-*   **sanctum** handles git operations (`/prepare-pr`, `/commit-msg`) and documentation updates.
-*   **pensive** manages code reviews (`/full-review`) and audits shell usage.
+*   **sanctum** handles git operations (`/prepare-pr`, `/commit-msg`, `/do-issue`) and documentation updates.
+*   **pensive** manages code reviews (`/full-review`, `/fpf-review`) and audits shell usage.
 *   **spec-kit** defines requirements (`/speckit-specify`) before implementation.
 *   **minister** interfaces with GitHub issues (`/create-issue`, `/close-issue`, `/update-labels`).
 *   **conserve** detects and reduces codebase bloat (`/bloat-scan`, `/unbloat`).
@@ -107,7 +107,7 @@ See [Capabilities Reference](book/src/reference/capabilities-reference.md) for t
 
 ## Audience
 
-Developers use this marketplace to automate repetitive CLI tasks and enforce consistency in Claude Code sessions. Teams use it to create a shared standard for LLM interactions.
+Developers use these plugins to automate CLI tasks and enforce consistency in Claude Code sessions. Teams use them to standardize LLM interactions.
 
 ## Common Workflows
 
@@ -117,7 +117,9 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 |----------|-------------|---------|
 | Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
 | Review a PR | `/full-review` | Run multi-discipline code review |
+| Architecture review | `/fpf-review` | FPF (Functional/Practical/Foundation) analysis |
 | Fix PR feedback | `/fix-pr` | Address review comments |
+| Implement issues | `/do-issue` | Progressive issue resolution with TDD |
 | Fix workflow issues | `/fix-workflow` | Self-correcting with Reflexion |
 | Prepare a PR | `/prepare-pr` | Quality gates before merge |
 | Create GitHub issue | `/create-issue` | Interactive issue creation |
@@ -177,11 +179,11 @@ make lint && make test
 
 Refer to the [Plugin Development Guide](docs/plugin-development-guide.md) for architectural patterns.
 
-## System Prompt Budget
+## Prompt Context Usage
 
 The ecosystem adds ~14.8k characters to the system prompt (limit: 15k). A pre-commit hook enforces this limit.
 
-## Design
+## Architecture
 
 Plugins are modular and have minimal dependencies. They load progressively to minimize token usage. The workflow emphasizes writing specifications before writing code.
 

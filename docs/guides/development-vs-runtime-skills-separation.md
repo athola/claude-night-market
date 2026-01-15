@@ -49,9 +49,9 @@ my-todo-app/
 │       └── main.py                   # SDK integration code
 ```
 
-### Advantages of Physical Separation
+### Advantages
 
-Physical directory separation provides clear isolation between development and runtime contexts. Because Claude Code only scans the `.claude/skills/` directory, it will not auto-load runtime skills during a development session. Conversely, your application agent can be configured to only load from `src/agent/prompts/`, ignoring development-specific tools. This organization also improves clarity by making the purpose of each skill explicit through its location in the project.
+Physical separation provides isolation: Claude Code only scans `.claude/skills/`, while your agent loads from `src/agent/prompts/`. Skill purpose is explicit from location.
 
 ### Implementation
 
@@ -392,10 +392,7 @@ if __name__ == "__main__":
 
 ### Key Insights
 
-1. **Runtime skills are system prompts** - They're markdown files you read and compose
-2. **Load skills dynamically** - Read from `src/agent/prompts/` at initialization
-3. **No Claude Code involvement at runtime** - Your agent runs independently
-4. **Claude Code helps BUILD the agent** - Using development skills in `.claude/`
+Runtime skills are system prompts (markdown files you compose). Load them dynamically from `src/agent/prompts/` at init. Claude Code helps BUILD the agent; it's not involved at runtime.
 
 ---
 
@@ -437,78 +434,18 @@ todo-agent/
 
 ### Development Workflow
 
-#### Step 1: Build Agent Logic (Claude Code Development Mode)
-
-```bash
-# Normal Claude Code session
-claude
-
-# You have access to:
-# - dev-debug-agent.md
-# - dev-test-skills.md
-# - test-runtime-skill.md
-```
-
-Example interaction:
-```
-You: "Help me implement the create-todo agent skill"
-
-Claude Code:
-[Uses dev-debug-agent.md to help YOU write src/agent/prompts/create-todo.md]
-[Suggests validation rules, confirmation patterns, error handling]
-```
-
-#### Step 2: Test Runtime Skills (Forked Context)
-
-```bash
-# Still in Claude Code, but testing runtime behavior
-claude
-```
-
-```
-You: "Test the create-todo runtime skill with sample input"
-
-Claude Code:
-[Uses test-runtime-skill.md with context: fork]
-[Loads src/agent/prompts/create-todo.md in isolated context]
-[Simulates user input, verifies agent response]
-[Reports results back to development context]
-```
-
-#### Step 3: Run Agent (Production Runtime)
-
-```bash
-# Your application runs independently
-python src/agent/main.py
-
-# Agent loads:
-# - src/agent/prompts/create-todo.md (into system_prompt)
-# - src/agent/prompts/validate-todo.md (into system_prompt)
-# - ... all runtime skills
-```
-
-**No Claude Code involvement** - your agent runs with its own system prompt composed from runtime skill files.
+1. **Build Agent Logic**: Normal Claude Code session uses `dev-*` skills to help write runtime prompts
+2. **Test Runtime Skills**: Use `test-runtime-skill.md` with `context: fork` to test in isolation
+3. **Run Agent**: `python src/agent/main.py` - agent runs independently with composed system prompt
 
 ---
 
 ## Best Practices
 
-### 1. Separate Directories
-Always store development skills in `.claude/skills/` and runtime skills in a project-specific folder like `src/agent/prompts/`. Never mix them in the same directory.
-
-### 2. Explicit Namespacing
-Use prefixes to indicate the intended context:
-*   `dev-*` for development tools
-*   `test-*` for testing utilities
-*   `runtime-*` for agent prompts
-
-### 3. Use Context Forking for Testing
-When testing runtime skills from within Claude Code, use `context: fork` to prevent test data or agent prompts from polluting your active development session.
-
-### 4. Compose Prompts Programmatically
-Read prompt files from your directory at runtime and join them into a system prompt. Avoid hardcoding logic in your SDK calls that should be managed in Markdown files.
-
----
+1. **Separate Directories**: Dev skills in `.claude/skills/`, runtime in `src/agent/prompts/`
+2. **Explicit Namespacing**: Use `dev-*`, `test-*`, `runtime-*` prefixes
+3. **Context Forking**: Use `context: fork` when testing runtime skills from Claude Code
+4. **Programmatic Composition**: Read prompts from directory, compose into system prompt
 
 ## Summary
 
@@ -517,25 +454,10 @@ Read prompt files from your directory at runtime and join them into a system pro
 | **Location** | `.claude/skills/` | `src/agent/prompts/` |
 | **Loaded By** | Claude Code | Application SDK code |
 | **Purpose** | Development assistance | Agent capabilities |
-| **Format** | YAML frontmatter + Markdown | Plain Markdown/Prompts |
 | **Naming** | `dev-*`, `test-*` | `runtime-*` |
-| **Testing** | Standard CLI usage | `context: fork` |
-
-**Categorization**:
-- **Development Skills**: Tools for the developer (Claude Code assistance)
-- **Runtime Skills**: Instructions for the agent (system prompts)
-
----
 
 ## References
 
 - [Claude Code Skills Documentation](https://docs.claude.com/claude-code/skills)
 - [Anthropic SDK - System Prompts](https://docs.anthropic.com/claude/docs/system-prompts)
-- [claude-night-market Plugin Development Guide](../plugin-development-guide.md)
-- [Skill Observability Guide](skill-observability-guide.md) - Track skill execution metrics
-- [Context Forking (2.1.0)](../plugin-development-guide.md#new-frontmatter-fields-210)
-
----
-
-**Last Updated**: 2026-01-10
-**Applies To**: Claude Code 2.1.0+, Anthropic SDK 0.40.0+
+- [Plugin Development Guide](../plugin-development-guide.md)

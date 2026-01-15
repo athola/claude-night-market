@@ -82,6 +82,14 @@ GEMINI_QUOTA_CONFIG = QuotaConfig(
 # File overhead for token estimation
 FILE_OVERHEAD_TOKENS = 6
 
+# Default limits dict for backward compatibility with tests
+DEFAULT_LIMITS = {
+    "requests_per_minute": 60,
+    "requests_per_day": 1000,
+    "tokens_per_minute": 32000,
+    "tokens_per_day": 1000000,
+}
+
 
 class GeminiQuotaTracker(QuotaTracker):  # type: ignore[misc]
     """Track and manage Gemini CLI quota usage.

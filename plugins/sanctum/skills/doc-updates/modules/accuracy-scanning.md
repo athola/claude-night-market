@@ -177,6 +177,10 @@ Time: 0.3 seconds
 - Fast: Bash commands complete in <1 second per file
 - Progressive: Loads only when Phase 5 edits are complete
 
+## Cross-Reference: /update-version
+
+When version bumps are performed via `/update-version`, the automated script updates config files but NOT documentation. The `/update-version` command includes Phase 2 to update documentation files. If you're running `/update-docs` after a version bump, pay special attention to `docs/api-overview.md` which contains the plugin version inventory.
+
 ## Edge Cases
 
 ### Approximate counts

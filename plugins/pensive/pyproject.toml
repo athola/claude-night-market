@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pensive"
-version = "1.2.6"
+version = "1.2.7"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 description = "Reflective code review plugin with specialized analysis skills"
 readme = "README.md"
@@ -90,6 +90,7 @@ markers = [
     "architecture: Architecture and design pattern tests",
     "performance: Performance and scalability tests",
     "edge_case: Edge case and boundary condition tests",
+    "bdd: BDD-style behavior-driven tests with Given/When/Then structure",
 ]
 asyncio_mode = "auto"
 

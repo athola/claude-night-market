@@ -67,6 +67,19 @@ Use during planning to evaluate if features should be implemented now or deferre
 3. `scope-guard:budget-checked`: Verify branch budget.
 4. `scope-guard:decision-documented`: Record decision.
 
+### Workflow Automation
+
+#### workflow-monitor
+Monitor workflow executions for errors and inefficiencies, automatically creating GitHub issues.
+
+**When to Use:**
+Use after workflow failures, timeouts, or when detecting inefficient patterns.
+
+**Required TodoWrite Items:**
+1. `workflow-monitor:detection-triggered`: Issue detected in execution.
+2. `workflow-monitor:evidence-captured`: Logs and context captured.
+3. `workflow-monitor:issue-created`: GitHub issue created for /fix-workflow.
+
 ### Feature Planning
 
 #### feature-review
@@ -86,6 +99,22 @@ Use to inventory features, score and prioritize them, and analyze tradeoffs.
 4. `feature-review:tradeoffs-analyzed`: Evaluate quality dimensions.
 5. `feature-review:gaps-identified`: Identify improvement opportunities.
 6. `feature-review:issues-created`: Create GitHub issues if requested.
+
+### Verification Patterns
+
+#### proof-of-work
+Require functional verification before claiming completion. Enforces actual testing rather than theoretical correctness claims.
+
+**When to Use:**
+Use before ANY claim that implementation is complete to ensure tests actually ran.
+
+**Required TodoWrite Items:**
+1. `proof:problem-reproduced`: Original issue confirmed reproducible.
+2. `proof:solution-tested`: Fix verified with actual test run.
+3. `proof:evidence-captured`: Command outputs recorded with [E1], [E2] references.
+4. `proof:iron-law-red`: Failing test written FIRST (TDD).
+5. `proof:iron-law-green`: Minimal implementation passes.
+6. `proof:iron-law-refactor`: Improved without behavior change.
 
 ### Output Patterns
 
@@ -135,7 +164,9 @@ imbue/
     ├── diff-analysis/      # Change analysis methodology
     ├── catchup/            # Summarization methodology
     ├── scope-guard/        # Anti-overengineering guardrails
-    └── feature-review/     # Feature prioritization framework
+    ├── feature-review/     # Feature prioritization framework
+    ├── proof-of-work/      # Verification enforcement
+    └── workflow-monitor/   # Execution monitoring and issue creation
 ```
 
 ## Dependencies
@@ -157,6 +188,12 @@ Skill(imbue:scope-guard)
 
 # Feature planning
 Skill(imbue:feature-review)
+
+# Verification
+Skill(imbue:proof-of-work)
+
+# Workflow monitoring
+Skill(imbue:workflow-monitor)
 
 # Output patterns
 Skill(imbue:evidence-logging)

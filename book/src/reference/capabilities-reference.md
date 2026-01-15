@@ -43,7 +43,8 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `evidence-logging` | [imbue](../plugins/imbue.md) | Capture methodology |
 | `feature-review` | [imbue](../plugins/imbue.md) | Feature prioritization and gap analysis |
 | `file-analysis` | [sanctum](../plugins/sanctum.md) | File structure analysis |
-| `fix-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
+| `do-issue` | [sanctum](../plugins/sanctum.md) | GitHub issue resolution workflow |
+| `fpf-review` | [pensive](../plugins/pensive.md) | FPF architecture review (Functional/Practical/Foundation) |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
@@ -107,6 +108,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
+| `workflow-monitor` | [imbue](../plugins/imbue.md) | Workflow execution monitoring and issue creation |
 | `workflow-setup` | [attune](../plugins/attune.md) | Configure CI/CD pipelines |
 
 ### All Commands (Alphabetical)
@@ -139,9 +141,10 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/create-skill` | abstract | Scaffold new skill |
 | `/estimate-tokens` | abstract | Token usage estimation |
 | `/feature-review` | imbue | Feature prioritization |
-| `/fix-issue` | sanctum | Fix GitHub issues |
+| `/do-issue` | sanctum | Fix GitHub issues |
 | `/fix-pr` | sanctum | Address PR review comments |
 | `/fix-workflow` | sanctum | Workflow retrospective with automatic improvement context gathering |
+| `/fpf-review` | pensive | FPF architecture review (Functional/Practical/Foundation) |
 | `/full-review` | pensive | Unified code review |
 | `/garden` | memory-palace | Manage digital gardens |
 | `/git-catchup` | sanctum | Git repository catchup |
