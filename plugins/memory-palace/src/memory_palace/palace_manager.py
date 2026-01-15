@@ -770,31 +770,44 @@ def main() -> None:  # noqa: PLR0912,PLR0915
     elif args.command == "list":
         palaces = manager.list_palaces()
         if palaces:
-            for _palace in palaces:
-                pass
+            for palace in palaces:
+                domain = palace.get("domain", "N/A")
+                metaphor = palace.get("metaphor", "N/A")
+                print(f"  - {palace['id']}: {domain} ({metaphor})")
         else:
-            pass
+            print("No palaces found. Create one with 'create' command.")
 
     elif args.command == "search":
         results = manager.search_palaces(args.query, args.type)
         if results:
             for result in results:
+                palace_id = result.get("palace_id", "unknown")
+                print(f"\nPalace: {palace_id}")
                 for match in result["matches"]:
-                    match.get("concept_id", match.get("location_id", "unknown"))
+                    # Try concept_id first, fallback to location_id
+                    item_id = match.get("concept_id") or match.get(
+                        "location_id", "unknown"
+                    )
+                    print(f"  - Found: {item_id}")
         else:
-            pass
+            print(f"No matches found for query: {args.query}")
 
     elif args.command == "delete":
         if manager.delete_palace(args.palace_id):
-            pass
+            print(f"Successfully deleted palace: {args.palace_id}")
         else:
-            pass
+            print(f"Failed to delete palace: {args.palace_id} (may not exist)")
 
     elif args.command == "status":
         index = manager.get_master_index()
         stats = index["global_stats"]
-        for _domain, _count in stats["domains"].items():
-            pass
+        print("\nMemory Palace Status:")
+        print(f"  Total palaces: {stats['total_palaces']}")
+        print(f"  Total concepts: {stats['total_concepts']}")
+        print(f"  Total locations: {stats['total_locations']}")
+        print("\n  Domains:")
+        for domain, count in stats["domains"].items():
+            print(f"    - {domain}: {count} items")
 
     elif args.command == "export":
         manager.export_state(args.destination)
