@@ -77,15 +77,19 @@ class MemoryPalaceCLI:
 
     def print_status(self, message: str) -> None:
         """Print a status message to the console."""
+        print(f"[STATUS] {message}")
 
     def print_success(self, message: str) -> None:
         """Print a success message to the console."""
+        print(f"[OK] {message}")
 
     def print_warning(self, message: str) -> None:
         """Print a warning message to the console."""
+        print(f"[WARN] {message}")
 
     def print_error(self, message: str) -> None:
         """Print an error message to the console."""
+        print(f"[ERROR] {message}")
 
     def is_enabled(self) -> bool:
         """Check if the plugin is enabled in the Claude configuration."""

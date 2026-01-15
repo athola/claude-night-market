@@ -235,8 +235,9 @@ class MemoryPalaceManager:
                     domain = palace["domain"]
                     domains[domain] = domains.get(domain, 0) + 1
 
-                except (json.JSONDecodeError, KeyError):
-                    pass
+                except (json.JSONDecodeError, KeyError) as e:
+                    # Log skipped files so operators know some files were not indexed
+                    print(f"[WARN] Skipped malformed palace file {file_path}: {e}")
 
         with open(self.index_file, "w") as f:
             json.dump(index, f, indent=2)
