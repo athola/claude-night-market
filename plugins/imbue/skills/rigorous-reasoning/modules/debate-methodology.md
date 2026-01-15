@@ -153,49 +153,32 @@ When the user employs bad-faith tactics:
 
 ## Methodology Flowchart
 
-```
-Start: Analytical discussion with truth claims
-          │
-          ▼
-    Using standard definitions?
-          │
-    ┌─────┴─────┐
-    Yes         No (confusion present)
-    │           │
-    │           ▼
-    │     Clarify definitions
-    │           │
-    │     ┌─────┴─────┐
-    │     Agreed     Can't agree
-    │     │          │
-    │     │          ▼
-    │     │     Note: term is subjective
-    │     │     Look for objective sub-components
-    │     │          │
-    ▼     ▼          ▼
-    Objective territory?
-          │
-    ┌─────┴─────┐
-    Yes         No
-    │           │
-    │           ▼
-    │     Disengage: "Cannot establish truth claims"
-    │
-    ▼
-    Check resolved analogues
-          │
-    ┌─────┴─────┐
-    Found       None
-    │           │
-    │           ▼
-    │     Treat as open question
-    │
-    ▼
-    Presumption from resolved case
-    Burden on party claiming difference
-          │
-          ▼
-    Commit to conclusion
+```mermaid
+flowchart TD
+    A[Start: Analytical discussion with truth claims]
+    A --> B{Using standard definitions?}
+
+    B -->|Yes| G[Objective territory?]
+    B -->|No, confusion present| C[Clarify definitions]
+
+    C --> D{Definitions agreed?}
+    D -->|Agreed| G
+    D -->|Can't agree| E[Note: term is subjective<br/>Look for objective sub-components]
+    E --> G
+
+    G -->|Yes| H[Check resolved analogues]
+    G -->|No| I[Disengage:<br/>Cannot establish truth claims]
+
+    H --> J{Resolved analogues found?}
+    J -->|Found| K[Presumption from resolved case<br/>Burden on party claiming difference]
+    J -->|None| L[Treat as open question]
+
+    K --> M[Commit to conclusion]
+    L --> M
+
+    style A fill:#e1f5fe
+    style M fill:#c8e6c9
+    style I fill:#ffccbc
 ```
 
 ---

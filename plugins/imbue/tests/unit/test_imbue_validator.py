@@ -114,6 +114,7 @@ This skill doesn't do reviews.
 
         return plugin_root
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_initialization(self, mock_plugin_structure) -> None:
         """Scenario: Validator initializes with plugin structure.
@@ -133,6 +134,7 @@ This skill doesn't do reviews.
         assert len(validator.skill_files) == 3
         assert validator.plugin_config == mock_plugin_structure / "plugin.json"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_initialization_with_nonexistent_directory(self) -> None:
         """Scenario: Validator handles non-existent directory gracefully.
@@ -151,6 +153,7 @@ This skill doesn't do reviews.
         assert validator.plugin_root == Path("/nonexistent/directory")
         assert len(validator.skill_files) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_notifies_when_plugin_root_not_exists(self, caplog) -> None:
         """Scenario: Validator notifies when plugin root doesn't exist.
@@ -178,6 +181,7 @@ This skill doesn't do reviews.
         )
         assert validator.root_exists is False
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_notifies_when_plugin_root_empty(self, tmp_path, caplog) -> None:
         """Scenario: Validator notifies when plugin root exists but is empty.
@@ -205,6 +209,7 @@ This skill doesn't do reviews.
         )
         assert validator.root_empty is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_notifies_when_plugin_lacks_structure(
         self, tmp_path, caplog
@@ -240,6 +245,7 @@ This skill doesn't do reviews.
         )
         assert validator.has_valid_structure is False
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_root_status_properties(self, mock_plugin_structure) -> None:
         """Scenario: Validator exposes root status properties.
@@ -261,6 +267,7 @@ This skill doesn't do reviews.
         assert validator.root_empty is False
         assert validator.has_valid_structure is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_finds_review_skills(
         self, mock_plugin_structure
@@ -291,6 +298,7 @@ This skill doesn't do reviews.
         assert "evidence-logging" in result["review_workflow_skills"]
         assert "other-skill" not in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_detects_patterns(
         self, mock_plugin_structure
@@ -328,6 +336,7 @@ This provides workflow orchestration.
         assert "workflow-skill" in result["review_workflow_skills"]
         assert len(result["review_workflow_skills"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_loads_plugin_config(
         self, mock_plugin_structure
@@ -355,6 +364,7 @@ This provides workflow orchestration.
         assert "workflow-orchestration" in result["evidence_logging_patterns"]
         assert len(result["issues"]) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_handles_invalid_json(
         self, mock_plugin_structure
@@ -380,6 +390,7 @@ This provides workflow orchestration.
         assert result["issues"][0].startswith("Invalid plugin.json at line 1:")
         assert len(result["issues"]) == 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_handles_plugin_config_read_error(
         self, mock_plugin_structure
@@ -409,6 +420,7 @@ This provides workflow orchestration.
             "other-skill",
         }
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_handles_skill_file_read_error(
         self, mock_plugin_structure
@@ -437,6 +449,7 @@ This provides workflow orchestration.
         assert "review-core" in result["skills_found"]
         assert "evidence-logging" in result["skills_found"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validate_review_workflows_review_core_components(
         self,
@@ -481,6 +494,7 @@ This skill has checklist but no deliverable section.
         assert len(review_core_issues) > 0
         assert any("Missing review components" in issue for issue in review_core_issues)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validate_review_workflows_evidence_patterns(
         self, mock_plugin_structure
@@ -520,6 +534,7 @@ This skill has checklist but no deliverable section.
         ]
         assert any("no-audit" in issue for issue in evidence_issues)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validate_review_workflows_excludes_review_core_from_evidence_check(
         self,
@@ -561,6 +576,7 @@ This skill provides review scaffolding with checklist and deliverables.
         ]
         assert len(evidence_issues) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_includes_all_sections(self, mock_plugin_structure) -> None:
         """Scenario: Report generation includes all required sections.
@@ -587,6 +603,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "review-workflows" in report
         assert "evidence-logging" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_shows_issues(self, mock_plugin_structure) -> None:
         """Scenario: Report displays validation issues.
@@ -615,6 +632,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "Invalid plugin.json at line 1:" in report
         assert "no-evidence: Should have evidence logging patterns" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_success_message(self, mock_plugin_structure) -> None:
         """Scenario: Report shows success when no issues found.
@@ -642,6 +660,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "All review workflow skills validated successfully!" in report
         assert "Issues Found" not in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_pattern_matching_case_insensitive(self, mock_plugin_structure) -> None:
         """Scenario: Pattern matching is case insensitive.
@@ -676,6 +695,7 @@ Also includes EVIDENCE logging.
         # Assert
         assert "mixed-case" in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_empty_plugin_directory(self, tmp_path) -> None:
         """Scenario: Validation handles empty plugin directory.
@@ -700,6 +720,7 @@ Also includes EVIDENCE logging.
         assert len(result["review_workflow_skills"]) == 0
         assert len(result["issues"]) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_missing_plugin_json(self, mock_plugin_structure) -> None:
         """Scenario: Validation handles missing plugin.json.
@@ -724,6 +745,7 @@ Also includes EVIDENCE logging.
         # No evidence patterns added without plugin.json
         assert len(result["evidence_logging_patterns"]) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_cli_scan_exits_nonzero_when_issues(
         self, mock_plugin_structure, capsys
@@ -745,6 +767,7 @@ Also includes EVIDENCE logging.
         assert "skills_found:" in out
         assert "Issues:" in out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_cli_scan_success_outputs_no_issues(
         self, mock_plugin_structure, capsys
@@ -772,6 +795,7 @@ Also includes EVIDENCE logging.
         assert "evidence_logging_patterns:" in out
         assert "Issues:" not in out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_cli_report_outputs_report(self, mock_plugin_structure, capsys) -> None:
         """Scenario: CLI report prints a full report."""
@@ -942,6 +966,7 @@ class TestImbueValidatorEdgeCases:
     So that the validator never crashes unexpectedly
     """
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_cli_default_prints_help(self, capsys) -> None:
         """Scenario: CLI prints help when no arguments provided.
@@ -959,6 +984,7 @@ class TestImbueValidatorEdgeCases:
         out = capsys.readouterr().out
         assert "usage:" in out.lower() or "--root" in out or "--report" in out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_directory_read_oserror_handling(self, tmp_path, caplog) -> None:
         """Scenario: Validator handles OSError when reading directory.
@@ -985,6 +1011,7 @@ class TestImbueValidatorEdgeCases:
         assert validator.root_empty is True
         assert any("Unable to read" in record.message for record in caplog.records)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_frontmatter_without_review_patterns(self, tmp_path) -> None:
         """Scenario: Skills with frontmatter but no review patterns are excluded.
@@ -1027,6 +1054,7 @@ Just plain utility operations.
         assert "non-review" in result["skills_found"]
         assert "non-review" not in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_frontmatter_with_review_category_in_frontmatter(self, tmp_path) -> None:
         """Scenario: Skills with review-patterns category are classified correctly.
@@ -1060,6 +1088,7 @@ No keywords needed in the body.
 
         assert "categorized-review" in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_frontmatter_with_review_workflow_usage(self, tmp_path) -> None:
         """Scenario: Skills with review-workflow usage pattern are classified.
@@ -1094,6 +1123,7 @@ No keywords needed in the body.
 
         assert "usage-review" in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_incomplete_frontmatter_falls_through_to_content_scan(
         self, tmp_path
@@ -1129,6 +1159,7 @@ It contains workflow patterns in the content.
         # Should match via content pattern ("workflow" keyword), not frontmatter
         assert "incomplete-fm" in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_incomplete_frontmatter_no_patterns(self, tmp_path) -> None:
         """Scenario: Incomplete frontmatter with no patterns is excluded.
