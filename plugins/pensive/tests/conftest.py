@@ -406,3 +406,4 @@ def pytest_configure(config) -> None:
         "architecture: Mark test as architecture-focused",
     )
     config.addinivalue_line("markers", "performance: Mark test as performance-focused")
+    config.addinivalue_line("markers", "bdd: BDD-style behavior-driven tests")

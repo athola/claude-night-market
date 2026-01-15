@@ -385,10 +385,10 @@ Skill(superpowers:debugging)
 
 ```bash
 # Fix a GitHub issue
-/fix-issue 42
+/do-issue 42
 
 # Or with URL
-/fix-issue https://github.com/org/repo/issues/42
+/do-issue https://github.com/org/repo/issues/42
 ```
 
 ### Analysis Tools

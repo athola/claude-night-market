@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Comprehensive PR review with scope validation and code analysis
-usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--create-backlog-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
+usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -30,7 +30,7 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 ### Sanctum Contributions
 - **Scope Baseline Establishment**: Analyzes plan/spec artifacts
 - **Requirements Compliance Checking**: Validates against original specs
-- **Backlog Triage**: Creates GitHub issues for out-of-scope items
+- **Automatic Issue Creation**: Out-of-scope items are automatically logged to GitHub issues
 - **Structured Reporting**: Clear classification of findings
 
 ### Superpowers Contributions
@@ -86,8 +86,8 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 # Auto-approve safe PRs
 /pr-review --auto-approve-safe-prs
 
-# Create GitHub issues for out-of-scope items
-/pr-review --create-backlog-issues
+# Skip automatic issue creation for out-of-scope items (issues are created by default)
+/pr-review --no-auto-issues
 
 # Skip version consistency check
 /pr-review --skip-version-check

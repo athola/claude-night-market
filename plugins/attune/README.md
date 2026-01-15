@@ -155,73 +155,7 @@ Templates are based on proven patterns from reference projects:
 
 ## Usage Examples
 
-### Example 1: Full-Cycle Web Application
-
-```bash
-# Start with brainstorming
-/attune:brainstorm --domain "web application"
-
-# Interactive session guides you through:
-# - Problem definition
-# - Constraint identification
-# - Approach comparison
-# - Decision documentation
-
-# Output: docs/project-brief.md
-
-# Create specification
-/attune:specify
-
-# Transform brief into testable requirements
-# Output: docs/specification.md
-
-# Plan architecture
-/attune:plan
-
-# Design system components and tasks
-# Output: docs/implementation-plan.md
-
-# Initialize project
-/attune:init --lang python --name tech-debt-tracker
-
-# Set up full project structure
-# Output: Complete Python project with CI/CD
-
-# Execute implementation
-/attune:execute
-
-# Systematic task-by-task implementation
-# Output: Working implementation with tests
-```
-
-### Example 2: New Python CLI Project (Traditional)
-
-```bash
-/attune:init --lang python --name awesome-cli --type cli
-```
-
-Generates:
-```
-awesome-cli/
-├── .git/
-├── .gitignore
-├── .pre-commit-config.yaml
-├── pyproject.toml
-├── Makefile
-├── README.md
-├── src/
-│   └── awesome_cli/
-│       └── __init__.py
-├── tests/
-│   └── __init__.py
-└── .github/
-    └── workflows/
-        ├── test.yml
-        ├── lint.yml
-        └── typecheck.yml
-```
-
-### Example 2: Add GitHub Workflows to Existing Project
+### Add GitHub Workflows to Existing Project
 
 ```bash
 # From project root
@@ -314,25 +248,7 @@ When spec-kit is installed, attune aligns with specification patterns:
 
 ## Philosophy
 
-The Attune plugin is designed to support the complete project development cycle, from initial ideas through to final implementation. By enforcing structured workflows, the system prevents the risks associated with ad-hoc development and promotes a more systematic approach to building software. Attune also leverages progressive enhancement by integrating with companion plugins and maintaining safety through mandatory user confirmations before any file operations. Our templates follow established industry practices to provide a production-ready foundation, and we support deep customization through template overrides and environment-specific configurations.
-
-## Development Status
-
-The current version of Attune is 1.0.0. The implementation includes a robust Python template system and support for Rust and TypeScript projects. Core features such as version fetching, project validation, and template customization are fully functional. The development workflow is supported by specialized modules for brainstorming, specification definition, architectural design, and task tracking, all of which have been verified in production environments.
-
-### Supported Features
-
-| Feature | Python | Rust | TypeScript |
-|---------|--------|------|------------|
-| Git init | [OK] | [OK] | [OK] |
-| .gitignore | [OK] | [OK] | [OK] |
-| Build config | [OK] | [OK] | [OK] |
-| Makefile | [OK] | [OK] | [OK] |
-| Pre-commit | [OK] | [TODO] | [TODO] |
-| Test workflow | [OK] | [OK] | [OK] |
-| Lint workflow | [OK] | [OK] | [OK] |
-| Type check | [OK] | [OK] | [OK] |
-| Validation | [OK] | [OK] | [OK] |
+Attune enforces structured workflows from ideation through implementation, integrating with companion plugins while requiring user confirmation for file operations. Templates follow industry practices with full customization support.
 
 ## Contributing
 

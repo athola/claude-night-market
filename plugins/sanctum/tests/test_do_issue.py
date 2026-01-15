@@ -1,5 +1,5 @@
 # ruff: noqa: D101,D102,D103,D205,D212,D400,D415,PLR2004,E501
-"""BDD-style tests for the fix-issue command."""
+"""BDD-style tests for the do-issue command."""
 
 from __future__ import annotations
 
@@ -18,12 +18,12 @@ from sanctum.validators import CommandValidator
 
 
 @pytest.fixture
-def fix_issue_command_content() -> str:
-    """Content of the fix-issue.md command file."""
+def do_issue_command_content() -> str:
+    """Content of the do-issue.md command file."""
     return """---
-name: fix-issue
+name: do-issue
 description: Fix GitHub issues using subagent-driven-development with parallel execution where appropriate
-usage: /fix-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--parallel] [--no-review]
+usage: /do-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--parallel] [--no-review]
 extends: "superpowers:subagent-driven-development"
 ---
 
@@ -85,11 +85,11 @@ Blocked by #42 (requires authentication to be implemented first)
 
 
 @pytest.fixture
-def temp_fix_issue_command(tmp_path: Path, fix_issue_command_content: str) -> Path:
-    """Create a temporary fix-issue.md command file."""
-    cmd_file = tmp_path / "commands" / "fix-issue.md"
+def temp_do_issue_command(tmp_path: Path, do_issue_command_content: str) -> Path:
+    """Create a temporary do-issue.md command file."""
+    cmd_file = tmp_path / "commands" / "do-issue.md"
     cmd_file.parent.mkdir(parents=True)
-    cmd_file.write_text(fix_issue_command_content)
+    cmd_file.write_text(do_issue_command_content)
     return cmd_file
 
 
@@ -376,7 +376,7 @@ class TestIssueDependencyAnalysis:
 
 @dataclass
 class WorkflowResult:
-    """Result of fix-issue workflow execution."""
+    """Result of do-issue workflow execution."""
 
     status: str
     issues_processed: list[int]
@@ -386,14 +386,14 @@ class WorkflowResult:
     errors: list[str] = field(default_factory=list)
 
 
-def execute_fix_issue_workflow(
+def execute_do_issue_workflow(
     issues: list[Issue],
     dry_run: bool = False,
     parallel: bool = True,
     no_review: bool = False,
 ) -> WorkflowResult:
     """
-    Simulate fix-issue workflow execution.
+    Simulate do-issue workflow execution.
 
     GIVEN a list of issues and options
     WHEN executing the workflow
@@ -426,7 +426,7 @@ def execute_fix_issue_workflow(
 
 
 class TestFixIssueWorkflow:
-    """Tests for fix-issue workflow execution."""
+    """Tests for do-issue workflow execution."""
 
     def test_dry_run_returns_plan_without_execution(self) -> None:
         """
@@ -435,7 +435,7 @@ class TestFixIssueWorkflow:
         THEN returns plan without making changes
         """
         issues = [Issue(number=42, title="Test", body="Test body")]
-        result = execute_fix_issue_workflow(issues, dry_run=True)
+        result = execute_do_issue_workflow(issues, dry_run=True)
 
         assert result.status == "dry_run"
         assert result.issues_processed == [42]
@@ -452,7 +452,7 @@ class TestFixIssueWorkflow:
             Issue(number=43, title="Issue B", body="No deps"),
             Issue(number=44, title="Issue C", body="No deps"),
         ]
-        result = execute_fix_issue_workflow(issues, parallel=True)
+        result = execute_do_issue_workflow(issues, parallel=True)
 
         assert result.status == "completed"
         assert result.parallel_batches == 3
@@ -472,7 +472,7 @@ class TestFixIssueWorkflow:
                 dependencies=[42],
             ),
         ]
-        result = execute_fix_issue_workflow(issues, parallel=True)
+        result = execute_do_issue_workflow(issues, parallel=True)
 
         assert result.status == "completed"
         # Only 1 parallel batch (issue 42), then sequential (issue 43)
@@ -485,7 +485,7 @@ class TestFixIssueWorkflow:
         THEN skips code review steps
         """
         issues = [Issue(number=42, title="Test", body="Test body")]
-        result = execute_fix_issue_workflow(issues, no_review=True)
+        result = execute_do_issue_workflow(issues, no_review=True)
 
         assert result.reviews_completed == 0
 
@@ -499,7 +499,7 @@ class TestFixIssueWorkflow:
             Issue(number=42, title="Issue A", body="No deps"),
             Issue(number=43, title="Issue B", body="No deps"),
         ]
-        result = execute_fix_issue_workflow(issues)
+        result = execute_do_issue_workflow(issues)
 
         assert result.reviews_completed >= 1
 
@@ -510,46 +510,44 @@ class TestFixIssueWorkflow:
 
 
 class TestFixIssueCommandValidation:
-    """Tests for fix-issue.md command file validation."""
+    """Tests for do-issue.md command file validation."""
 
-    def test_command_has_valid_frontmatter(
-        self, fix_issue_command_content: str
-    ) -> None:
+    def test_command_has_valid_frontmatter(self, do_issue_command_content: str) -> None:
         """
-        GIVEN fix-issue command content
+        GIVEN do-issue command content
         WHEN validating frontmatter
         THEN validation passes
         """
-        result = CommandValidator.parse_frontmatter(fix_issue_command_content)
+        result = CommandValidator.parse_frontmatter(do_issue_command_content)
         assert result.is_valid
         assert "subagent-driven-development" in result.description
 
-    def test_command_has_description(self, fix_issue_command_content: str) -> None:
+    def test_command_has_description(self, do_issue_command_content: str) -> None:
         """
-        GIVEN fix-issue command content
+        GIVEN do-issue command content
         WHEN extracting description
         THEN description is present and meaningful
         """
-        result = CommandValidator.parse_frontmatter(fix_issue_command_content)
+        result = CommandValidator.parse_frontmatter(do_issue_command_content)
         assert result.description is not None
         assert len(result.description) > 20
 
-    def test_command_file_validates(self, temp_fix_issue_command: Path) -> None:
+    def test_command_file_validates(self, temp_do_issue_command: Path) -> None:
         """
-        GIVEN fix-issue.md command file
+        GIVEN do-issue.md command file
         WHEN validating file
         THEN validation passes
         """
-        result = CommandValidator.validate_file(temp_fix_issue_command)
+        result = CommandValidator.validate_file(temp_do_issue_command)
         assert result.is_valid
 
-    def test_command_has_main_heading(self, fix_issue_command_content: str) -> None:
+    def test_command_has_main_heading(self, do_issue_command_content: str) -> None:
         """
-        GIVEN fix-issue command content
+        GIVEN do-issue command content
         WHEN validating content
         THEN has proper main heading
         """
-        result = CommandValidator.validate_content(fix_issue_command_content)
+        result = CommandValidator.validate_content(do_issue_command_content)
         assert result.is_valid
 
 
@@ -559,7 +557,7 @@ class TestFixIssueCommandValidation:
 
 
 class TestFixIssueErrorHandling:
-    """Tests for error handling in fix-issue workflow."""
+    """Tests for error handling in do-issue workflow."""
 
     def test_handles_empty_issue_list(self) -> None:
         """
@@ -567,7 +565,7 @@ class TestFixIssueErrorHandling:
         WHEN executing workflow
         THEN returns appropriate status
         """
-        result = execute_fix_issue_workflow([])
+        result = execute_do_issue_workflow([])
         assert result.issues_processed == []
         assert result.tasks_created == 0
 
@@ -598,12 +596,12 @@ class TestFixIssueErrorHandling:
 
 
 class TestFixIssueIntegration:
-    """Integration tests for fix-issue command."""
+    """Integration tests for do-issue command."""
 
     def test_full_workflow_single_issue(self, sample_github_issue: dict) -> None:
         """
         GIVEN a single GitHub issue
-        WHEN running full fix-issue workflow
+        WHEN running full do-issue workflow
         THEN completes successfully with expected results
         """
         issue = Issue(
@@ -612,7 +610,7 @@ class TestFixIssueIntegration:
             body=sample_github_issue["body"],
         )
 
-        result = execute_fix_issue_workflow([issue])
+        result = execute_do_issue_workflow([issue])
 
         assert result.status == "completed"
         assert 42 in result.issues_processed
@@ -626,7 +624,7 @@ class TestFixIssueIntegration:
     ) -> None:
         """
         GIVEN multiple issues with dependencies
-        WHEN running full fix-issue workflow
+        WHEN running full do-issue workflow
         THEN handles dependencies correctly
         """
         issue_42 = Issue(
@@ -641,7 +639,7 @@ class TestFixIssueIntegration:
             dependencies=[42],
         )
 
-        result = execute_fix_issue_workflow([issue_42, issue_43])
+        result = execute_do_issue_workflow([issue_42, issue_43])
 
         assert result.status == "completed"
         assert set(result.issues_processed) == {42, 43}

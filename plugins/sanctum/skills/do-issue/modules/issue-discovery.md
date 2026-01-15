@@ -8,16 +8,16 @@ The command accepts flexible input:
 
 ```bash
 # Single issue number
-/fix-issue 42
+/do-issue 42
 
 # GitHub issue URL
-/fix-issue https://github.com/owner/repo/issues/42
+/do-issue https://github.com/owner/repo/issues/42
 
 # Multiple issues (space-delimited)
-/fix-issue 42 43 44
+/do-issue 42 43 44
 
 # Mixed formats
-/fix-issue 42 https://github.com/owner/repo/issues/43
+/do-issue 42 https://github.com/owner/repo/issues/43
 ```
 
 ## Retrieve Issue Content

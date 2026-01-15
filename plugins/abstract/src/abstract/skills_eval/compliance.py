@@ -240,17 +240,20 @@ class ComplianceChecker:
 
                 # Check content length first (always check regardless of frontmatter)
                 estimated_tokens = estimate_tokens(content)
-                if estimated_tokens > self.rules["max_tokens"]:
-                    max_tokens = self.rules["max_tokens"]
+                max_tokens = self.rules.get("max_tokens", 4000)
+                if estimated_tokens > max_tokens:
                     warnings.append(
                         f"{skill_file.parent.name}: Exceeds token limit "
                         f"({estimated_tokens} > {max_tokens})",
                     )
 
                 # Parse frontmatter using centralized processor
+                required_fields = self.rules.get(
+                    "required_fields", ["name", "description"]
+                )
                 result = FrontmatterProcessor.parse(
                     content,
-                    required_fields=self.rules["required_fields"],
+                    required_fields=required_fields,
                 )
 
                 # Check for parse errors (invalid YAML or missing frontmatter)

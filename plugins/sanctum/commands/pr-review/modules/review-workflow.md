@@ -268,12 +268,61 @@ A version validation section that will be included in the final PR review:
    | Bug introduced by change | Always | Block |
    | Missing requirement | Yes | Block |
    | Security issue | Always | Block |
-   | Refactoring suggestion | No | Backlog |
+   | Refactoring suggestion | No | Backlog → Auto-create issue |
    | Style improvement | No | Ignore |
-   | Performance optimization | No | Backlog |
+   | Performance optimization | No | Backlog → Auto-create issue |
 
 7. **Generate Structured Report**
    Combines scope validation with code analysis
+
+8. **Auto-Create Issues for Backlog Items (AUTOMATIC)**
+
+   > **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md`
+
+   Items classified as "Backlog" or "Out-of-Scope" are automatically logged to GitHub:
+
+   ```bash
+   # For each backlog item
+   for item in "${BACKLOG_ITEMS[@]}"; do
+     # Check for duplicates first
+     EXISTING=$(gh issue list --search "$ITEM_TITLE in:title is:open" --json number --jq '.[0].number // empty')
+
+     if [[ -z "$EXISTING" ]]; then
+       # Create issue with appropriate labels
+       ISSUE_URL=$(gh issue create \
+         --title "[Suggestion] $ITEM_TITLE" \
+         --body "## Context
+   Identified during PR #$PR_NUMBER review as out-of-scope improvement.
+
+   **Location:** \`$FILE_PATH\`
+
+   ## Description
+   $ITEM_DESCRIPTION
+
+   ---
+   *Auto-created by /pr-review*" \
+         --label "enhancement,low-priority")
+
+       CREATED_ISSUES+=("$ISSUE_URL")
+     else
+       SKIPPED_ISSUES+=("$ITEM_TITLE (duplicate of #$EXISTING)")
+     fi
+   done
+   ```
+
+   **Report created issues in review summary:**
+   ```markdown
+   ### Issues Created (Automatic)
+
+   | Title | Issue | Labels |
+   |-------|-------|--------|
+   | Improve error messages | #115 | enhancement, low-priority |
+   | Add rate limiting | #116 | enhancement, low-priority |
+
+   **Skipped (duplicates):** 1
+   ```
+
+   **To skip**: Use `--no-auto-issues` flag
 
 ### Phase 4: GitHub Review Submission (MANDATORY)
 
@@ -921,7 +970,7 @@ echo "✅ All mandatory outputs verified for PR #$PR_NUMBER"
   - `standard`: Core requirements required
   - `flexible`: MVP implementation acceptable
 - `--auto-approve-safe-prs`: Auto-approve PRs with no issues
-- `--create-backlog-issues`: Create GitHub issues for improvements
+- `--no-auto-issues`: **Skip automatic issue creation** for out-of-scope items (issues are created by default)
 - `--dry-run`: Generate report locally without posting to GitHub
 - `--no-line-comments`: Skip individual line comments, only submit summary review
 - `--skip-version-check`: **BYPASS version validation** (maintainer override)

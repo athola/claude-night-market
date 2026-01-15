@@ -38,7 +38,7 @@ Sanctum handles the practical side of development: commits, PRs, documentation u
 | `/pr` | Prepare PR with quality gates |
 | `/pr-review` | Enhanced PR review |
 | `/fix-pr` | Address PR review comments |
-| `/fix-issue` | Fix GitHub issues systematically |
+| `/do-issue` | Fix GitHub issues systematically |
 | `/fix-workflow` | Improve recent workflow |
 | `/merge-docs` | Consolidate ephemeral docs |
 | `/update-docs` | Update documentation |
@@ -119,7 +119,7 @@ make fmt && make lint && make test
 ### Fix GitHub Issue
 
 ```bash
-/fix-issue 42
+/do-issue 42
 
 # Uses subagent-driven-development:
 # 1. Analyze issue
@@ -197,7 +197,7 @@ git commit && git tag
 | `/pr` | Uses `receiving-code-review` for validation |
 | `/pr-review` | Uses `receiving-code-review` for analysis |
 | `/fix-pr` | Uses `receiving-code-review` for resolution |
-| `/fix-issue` | Uses multiple superpowers for full workflow |
+| `/do-issue` | Uses multiple superpowers for full workflow |
 
 ## Related Plugins
 

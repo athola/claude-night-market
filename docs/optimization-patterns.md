@@ -446,92 +446,31 @@ A successful optimization maintains all original functionality while passing all
 
 ## Best Practices
 
-### 1. Incremental Changes
-- Apply one pattern at a time
-- Validate after each change
-- Git commit frequently
-- Easy to rollback if needed
+1. **Incremental Changes**: Apply one pattern at a time, validate, commit frequently
+2. **Systematic**: Scan → Analyze → Execute → Validate → Document
+3. **Preserve Functionality**: All tests pass, no breaking changes, backwards compatible
+4. **Document**: Capture methodology and enable replication
+5. **Avoid Scope Creep**: Stick to goals, balance perfect vs. good enough
 
-### 2. Systematic Approach
-- **Scan**: Identify all candidates
-- **Analyze**: Measure and prioritize
-- **Execute**: Apply pattern methodically
-- **Validate**: Verify no regressions
-- **Document**: Capture decisions
+## When to Apply
 
-### 3. Preserve Functionality
-- All tests must pass
-- No breaking changes
-- Backwards compatibility maintained
-- Clear migration path if needed
-
-### 4. Documentation
-- Document each optimization
-- Capture methodology
-- Provide examples
-- Enable future replication
-
-### 5. Avoid Scope Creep
-- Stick to optimization goals
-- Resist "while I'm here" changes
-- Balance perfect vs. good enough
-- Know when to defer
-
----
-
-## When to Apply Optimizations
-
-### High Priority
-- Project exceeding context limits
-- Slow Claude Code performance
-- High token costs
-- Onboarding friction
-
-### Medium Priority
-- Files approaching size limits
-- Accumulated technical debt
-- Duplicate code patterns
-- Quarterly maintenance
-
-### Low Priority
-- Minor inefficiencies
-- Aesthetic improvements
-- Nice-to-have refactoring
-- Premature optimization
+| Priority | Triggers |
+|----------|----------|
+| High | Context limits exceeded, slow performance, high token costs |
+| Medium | Files approaching limits, technical debt, quarterly maintenance |
+| Low | Minor inefficiencies, aesthetic improvements, premature optimization |
 
 ---
 
 ## Future Opportunities
 
-### Automation
-- Build tooling to detect refactoring opportunities
-- Pre-commit hooks for size limits
-- Automated bloat scanning in CI
-- Monthly optimization reports
+**Automation**: Build refactoring detection tools, pre-commit size limits, CI bloat scanning, monthly reports.
 
-### Configuration Management
-- Centralized configuration system
-- Dynamic plugin loading
-- Lazy loading for large data structures
-- Environment-specific configs
+**Configuration**: Centralized config, dynamic/lazy loading, environment-specific configs.
 
-### Pattern Library
-- Reusable optimization templates
-- Pattern detection tools
-- Automated application where safe
-- Community-contributed patterns
-
----
+**Pattern Library**: Reusable templates, pattern detection, community contributions.
 
 ## See Also
 
 - [Data Extraction Pattern](./guides/data-extraction-pattern.md)
-- [Documentation Standards](./guides/documentation-standards.md)
 - [Conserve Plugin](../plugins/conserve/README.md)
-- [Bloat Scan Report](../bloat-scan-report-20260109.md)
-
----
-
-**Methodology Status**: Battle-tested across 9 phases
-**Maintained by**: claude-night-market core team
-**Last Updated**: 2026-01-10

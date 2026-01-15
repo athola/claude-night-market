@@ -224,79 +224,21 @@ memory-palace/
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking enables exploratory knowledge organization - test different categorization strategies without commitment.
+Session forking enables exploratory knowledge organization - test categorization strategies without commitment:
 
-### Use Cases
-
-**Test Knowledge Organization Strategies**
 ```bash
-# Main session: New content to organize
-claude "/knowledge-intake article.md"
-
-# Fork for hierarchical categorization
+# Fork for hierarchical organization
 claude --fork-session --session-id "hierarchical-tags" --resume
-> "Organize using hierarchical tags (category/subcategory/topic)"
-
-# Fork for flat categorization
-claude --fork-session --session-id "flat-tags" --resume
-> "Organize using flat, single-level tags"
+> "Organize using hierarchical tags"
 
 # Fork for concept-map approach
 claude --fork-session --session-id "concept-map" --resume
-> "Organize using concept map with semantic relationships"
-
-# Compare effectiveness and choose best approach
+> "Organize using semantic relationships"
 ```
 
-**Parallel Palace Design Exploration**
-```bash
-# Main session: Need to create memory palace
-claude "Design memory palace for learning Rust"
+**Best Practices**: Test with representative content, extract successful designs as templates.
 
-# Fork A: Workshop metaphor
-claude --fork-session --session-id "rust-workshop" --resume
-> "Design as workshop with tools, benches, and materials"
-
-# Fork B: Library metaphor
-claude --fork-session --session-id "rust-library" --resume
-> "Design as library with sections, shelves, and reading rooms"
-
-# Fork C: City metaphor
-claude --fork-session --session-id "rust-city" --resume
-> "Design as city with districts, streets, and landmarks"
-
-# Choose metaphor that best matches your learning style
-```
-
-**Alternative Review Chamber Structures**
-```bash
-# Main session: Setting up project palace
-claude "Initialize project palace for this repository"
-
-# Fork to try topic-based chambers
-claude --fork-session --session-id "topic-chambers" --resume
-> "Organize review chamber by topic (auth, database, API)"
-
-# Fork to try chronological chambers
-claude --fork-session --session-id "chronological-chambers" --resume
-> "Organize review chamber chronologically by sprint/milestone"
-
-# Fork to try pattern-based chambers
-claude --fork-session --session-id "pattern-chambers" --resume
-> "Organize review chamber by recurring patterns/anti-patterns"
-
-# Evaluate and select most useful structure
-```
-
-### Benefits of Session Forking
-
-Using session forking allows for parallel strategy testing, enabling you to evaluate different knowledge organization methods before finalizing a structure in the main session. This comparative methodology identifies the most effective approach for a specific set of content and ensures that the knowledge structure aligns with the user's mental model. By testing improvements in isolation, the system supports iterative refinement without compromising the current project state.
-
-### Best Practices
-
-When utilizing session forks for knowledge design, test each approach with representative content to accurately evaluate its effectiveness. It is helpful to document the rationale behind each organizational decision and to extract successful designs as templates for future use. For complex tasks, start with a single fork and expand gradually to avoid excessive context fragmentation.
-
-See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
+See `plugins/abstract/docs/claude-code-compatibility.md` for detailed patterns.
 
 ## License
 

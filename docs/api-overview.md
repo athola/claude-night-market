@@ -1,6 +1,6 @@
 # API Overview
 
-*Updated: 2025-12-26*
+*Updated: 2026-01-14*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
@@ -11,20 +11,20 @@ Claude Night Market contains 14 plugins providing CLI commands, Python packages,
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.2.1 | 14 | 9 | 3 | Yes | abstract-skills |
-| archetypes | 1.2.1 | 0 | 14 | 0 | No | - |
-| conjure | 1.2.1 | 0 | 3 | 0 | Yes | - |
-| conserve | 1.2.1 | 2 | 5 | 1 | Yes | - |
-| imbue | 1.2.1 | 4 | 8 | 1 | Yes | - |
-| leyline | 1.2.1 | 2 | 12 | 0 | Yes | - |
-| memory-palace | 1.2.1 | 3 | 5 | 4 | Yes | - |
-| minister | 1.2.1 | 0 | 2 | 0 | Yes | - |
-| parseltongue | 1.2.1 | 3 | 4 | 3 | Yes | - |
-| pensive | 1.2.1 | 8 | 9 | 3 | Yes | - |
-| sanctum | 1.2.1 | 15 | 14 | 9 | Yes | - |
-| scry | 1.2.1 | 2 | 4 | 0 | No | - |
-| spec-kit | 1.2.1 | 9 | 4 | 3 | Yes | - |
-| attune | 1.2.1 | 2 | 4 | 0 | Yes | - |
+| abstract | 1.2.7 | 14 | 9 | 3 | Yes | abstract-skills |
+| archetypes | 1.2.6 | 0 | 14 | 0 | No | - |
+| conjure | 1.2.6 | 0 | 3 | 0 | Yes | - |
+| conserve | 1.2.6 | 2 | 5 | 1 | Yes | - |
+| imbue | 1.2.7 | 4 | 10 | 1 | Yes | - |
+| leyline | 1.2.6 | 2 | 12 | 0 | Yes | - |
+| memory-palace | 1.2.6 | 3 | 5 | 4 | Yes | - |
+| minister | 1.2.6 | 0 | 2 | 0 | Yes | - |
+| parseltongue | 1.2.6 | 3 | 4 | 3 | Yes | - |
+| pensive | 1.2.7 | 9 | 11 | 3 | Yes | - |
+| sanctum | 1.2.7 | 17 | 14 | 9 | Yes | - |
+| scry | 1.2.6 | 2 | 4 | 0 | No | - |
+| spec-kit | 1.2.6 | 9 | 4 | 3 | Yes | - |
+| attune | 1.2.6 | 2 | 4 | 0 | Yes | - |
 
 ## API Types
 
@@ -38,92 +38,92 @@ Claude Night Market contains 14 plugins providing CLI commands, Python packages,
 
 ## Plugin Details
 
-### Abstract (v1.2.1)
+### Abstract (v1.2.7)
 Validation and analysis framework.
 
 **Commands**: `analyze-hook`, `analyze-skill`, `bulletproof-skill`, `context-report`, `create-command`, `create-hook`, `create-skill`, `estimate-tokens`, `hooks-eval`, `make-dogfood`, `skills-eval`, `test-skill`, `validate-hook`, `validate-plugin`
 
 **Skills**: `escalation-governance`, `hook-authoring`, `hooks-eval`, `makefile-dogfooder`, `modular-skills`, `performance-optimization`, `shared-patterns`, `skill-authoring`, `skills-eval`
 
-### Archetypes (v1.2.1)
+### Archetypes (v1.2.6)
 Architecture paradigm reference library.
 
 **Skills**: 14 architecture paradigm skills (hexagonal, microservices, event-driven, etc.)
 
-### Conjure (v1.2.1)
+### Conjure (v1.2.6)
 Cross-model delegation framework.
 
 **Skills**: `delegation-core`, `gemini-delegation`, `qwen-delegation`
 
-### Conserve (v1.2.1)
+### Conserve (v1.2.6)
 Context window and resource management.
 
 **Commands**: `analyze-growth`, `optimize-context`
 
 **Skills**: `context-optimization`, `mcp-code-execution`, `optimizing-large-skills`, `performance-monitoring`, `resource-management`
 
-### Imbue (v1.2.1)
+### Imbue (v1.2.7)
 Structured review workflows.
 
 **Commands**: `catchup`, `feature-review`, `review`, `structured-review`
 
-**Skills**: `catchup`, `diff-analysis`, `evidence-logging`, `feature-review`, `review-core`, `scope-guard`, `shared`, `structured-output`
+**Skills**: `catchup`, `diff-analysis`, `evidence-logging`, `feature-review`, `proof-of-work`, `review-core`, `scope-guard`, `shared`, `structured-output`, `workflow-monitor`
 
-### Leyline (v1.2.1)
+### Leyline (v1.2.6)
 Shared patterns and utilities library.
 
 **Commands**: `reinstall-all-plugins`, `update-all-plugins`
 
 **Skills**: `authentication-patterns`, `error-patterns`, `evaluation-framework`, `mecw-patterns`, `progressive-loading`, `pytest-config`, `quota-management`, `service-registry`, `shared`, `storage-templates`, `testing-quality-standards`, `usage-logging`
 
-### Memory-Palace (v1.2.1)
+### Memory-Palace (v1.2.6)
 Knowledge management and organization.
 
 **Commands**: `garden`, `navigate`, `palace`
 
 **Skills**: `digital-garden-cultivator`, `knowledge-intake`, `knowledge-locator`, `memory-palace-architect`, `session-palace-builder`
 
-### Minister (v1.2.1)
+### Minister (v1.2.6)
 Governance and tracking plugin.
 
 **Skills**: `governance-tracking`, `tracker-comment`
 
-### Parseltongue (v1.2.1)
+### Parseltongue (v1.2.6)
 Python development utilities.
 
 **Commands**: `analyze-tests`, `check-async`, `run-profiler`
 
 **Skills**: `python-async`, `python-packaging`, `python-performance`, `python-testing`
 
-### Pensive (v1.2.1)
+### Pensive (v1.2.7)
 Code review and analysis framework.
 
-**Commands**: `api-review`, `architecture-review`, `bug-review`, `full-review`, `makefile-review`, `math-review`, `rust-review`, `test-review`
+**Commands**: `api-review`, `architecture-review`, `bug-review`, `fpf-review`, `full-review`, `makefile-review`, `math-review`, `rust-review`, `shell-review`, `skill-history`, `skill-review`, `test-review`
 
-**Skills**: `api-review`, `architecture-review`, `bug-review`, `makefile-review`, `math-review`, `rust-review`, `shared`, `test-review`, `unified-review`
+**Skills**: `api-review`, `architecture-review`, `bug-review`, `fpf-review`, `makefile-review`, `math-review`, `rust-review`, `shared`, `shell-review`, `test-review`, `unified-review`
 
-### Sanctum (v1.2.1)
+### Sanctum (v1.2.7)
 Git workflow automation.
 
-**Commands**: `commit-msg`, `fix-issue`, `fix-pr`, `fix-workflow`, `git-catchup`, `merge-docs`, `pr`, `pr-review`, `resolve-threads`, `update-dependencies`, `update-docs`, `update-readme`, `update-tests`, `update-tutorial`, `update-version`
+**Commands**: `commit-msg`, `create-tag`, `do-issue`, `fix-pr`, `fix-workflow`, `git-catchup`, `merge-docs`, `pr`, `pr-review`, `resolve-threads`, `update-dependencies`, `update-docs`, `update-plugins`, `update-readme`, `update-tests`, `update-tutorial`, `update-version`
 
-**Skills**: `commit-messages`, `doc-consolidation`, `doc-updates`, `file-analysis`, `fix-issue`, `git-workspace-review`, `pr-prep`, `pr-review`, `shared`, `test-updates`, `tutorial-updates`, `update-readme`, `version-updates`, `workflow-improvement`
+**Skills**: `commit-messages`, `doc-consolidation`, `doc-updates`, `file-analysis`, `do-issue`, `git-workspace-review`, `pr-prep`, `pr-review`, `shared`, `test-updates`, `tutorial-updates`, `update-readme`, `version-updates`, `workflow-improvement`
 
-### Scry (v1.2.1)
+### Scry (v1.2.6)
 Terminal and browser recording utilities.
 
 **Commands**: `record-browser`, `record-terminal`
 
 **Skills**: `browser-recording`, `gif-generation`, `media-composition`, `vhs-recording`
 
-### Spec-Kit (v1.2.1)
+### Spec-Kit (v1.2.6)
 Specification-driven development.
 
 **Commands**: `speckit-analyze`, `speckit-checklist`, `speckit-clarify`, `speckit-constitution`, `speckit-implement`, `speckit-plan`, `speckit-specify`, `speckit-startup`, `speckit-tasks`
 
 **Skills**: `shared`, `spec-writing`, `speckit-orchestrator`, `task-planning`
 
-### Attune (v1.2.1)
+### Attune (v1.2.6)
 Project initialization and architecture templates.
 
 **Commands**: `arch-init`, `init`

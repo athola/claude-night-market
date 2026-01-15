@@ -5,6 +5,70 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.7] - 2026-01-14
+
+### Added - New Skills (Issues #39, #40)
+
+- **`imbue:workflow-monitor` skill (skeleton)** - Monitor workflow executions for errors and inefficiencies
+  - Detection patterns for command failures, timeouts, retry loops, context exhaustion
+  - Efficiency detection for verbose output, redundant reads, sequential vs parallel
+  - Issue templates for automatic GitHub issue creation
+  - Configuration: severity thresholds, auto-create toggle, efficiency metrics
+
+- **`pensive:fpf-review` skill (skeleton)** - FPF (Functional Programming Framework) architecture review
+  - Three-perspective analysis: Functional, Practical, Foundation
+  - Feature inventory and capability gap identification
+  - Performance assessment and usability evaluation
+  - Pattern recognition and technical debt assessment
+  - Structured report generation
+
+### Added - Feature Review Tests (Issue #41)
+
+- **`test_feature_review.py`** - 25 comprehensive tests for feature-review skill
+  - Scoring framework tests: value/cost calculation, weighted scores, priority thresholds
+  - Classification system tests: proactive/reactive, static/dynamic, 2x2 matrix
+  - Kano classification tests: basic, performance, delighter categories
+  - Tradeoff dimension tests: minimum dimensions, scale validation
+  - Integration tests: issue title format, suggestion labels, backlog limits
+
+### Fixed - Defensive .get() Usage (Issue #44)
+
+- **`compliance.py`** - Consistent defensive dict access
+  - Changed `self.rules["max_tokens"]` to `self.rules.get("max_tokens", 4000)`
+  - Changed `self.rules["required_fields"]` to `self.rules.get("required_fields", [...])`
+  - Added 3 tests: partial rules, malformed rules, empty rules file handling
+  - Prevents KeyError when rules file is incomplete or malformed
+
+### Enhanced - `/fix-pr` Workflow (Issues #46, #47, #48, #49)
+
+- **Context budget tracking** (Issue #46)
+  - Added context_budget configuration with warn/checkpoint/mandatory thresholds
+  - Context usage warnings at 50%, 70%, 90%
+  - Mandatory phases (3.5, 4, 6) that must not be skipped
+  - Checkpoint/resume pattern documentation
+
+- **Thread vs comment distinction** (Issue #47)
+  - Added section 1.5: Review Feedback Type Detection
+  - Decision tree for PRRT_* threads vs general comments vs aggregated reviews
+  - Guidance for handling reviews without line-specific thread IDs
+
+- **Triage output grouping** (Issue #48)
+  - Added section 2.0: Triage Output Format
+  - Four categories: Fix Now, This PR, Backlog, Skip
+  - Actionable table format with IDs, issues, files, rationale
+
+- **`--continue` flag** (Issue #49)
+  - Resume from last incomplete phase
+  - Phase completion markers for detection
+  - Example resume scenarios
+
+### Enhanced - `/update-docs` Output Examples (Issue #51)
+
+- **Added Output Examples section** to update-docs.md
+  - Consolidation Detection Output: untracked reports, bloated files tables
+  - Accuracy Verification Output: version/count mismatch warnings
+  - Style Violation Output: directory-specific rules, filler phrase detection
+
 ## [1.2.6] - 2026-01-13
 
 ### Added - Self-Improvement Patterns and Research (Issues #7, #37)
@@ -878,7 +942,7 @@ Applied systematic data extraction to 4 large Python scripts:
 ### Changed
 
 - **Sanctum fix-pr**: Out-of-scope issue creation now mandatory for PR workflows
-- **Commands restructured**: Eliminated duplicate command names across plugins (fix-issue, reinstall-all-plugins)
+- **Commands restructured**: Eliminated duplicate command names across plugins (do-issue, reinstall-all-plugins)
 - **Capabilities documentation**: Added feature-review and standardized hook types
 
 ### Fixed
@@ -894,7 +958,7 @@ Applied systematic data extraction to 4 large Python scripts:
 
 ### Changed
 
-- **Sanctum fix-issue command**: Modularized for better token efficiency
+- **Sanctum do-issue command**: Modularized for better token efficiency
 - **Imbue tests**: Test updates across review analyst, catchup, and skill modules
 
 ### Fixed
@@ -908,7 +972,7 @@ Applied systematic data extraction to 4 large Python scripts:
 
 - **Conservation hooks**: Session-start integration that automatically loads optimization guidance
 - **Conservation bypass modes**: `CONSERVATION_MODE` environment variable (quick/normal/deep)
-- **Sanctum fix-issue command**: New workflow for addressing GitHub issues
+- **Sanctum do-issue command**: New workflow for addressing GitHub issues
 - **Sanctum session notifications**: `session_complete_notify.py` hook for session completion alerts
 - **Minister plugin**: Officially added to marketplace (project management with GitHub integration)
 

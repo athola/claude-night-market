@@ -1,5 +1,5 @@
 ---
-name: fix-issue
+name: do-issue
 description: |
 
 Triggers: github, automation, parallel, subagents, issue
@@ -76,12 +76,12 @@ Retrieves GitHub issue content and uses subagent-driven-development to systemati
 
 ## Required TodoWrite Items
 
-1. `fix-issue:discovery-complete`
-2. `fix-issue:tasks-planned`
-3. `fix-issue:parallel-batch-complete`
-4. `fix-issue:review-passed`
-5. `fix-issue:sequential-complete`
-6. `fix-issue:issues-updated`
+1. `do-issue:discovery-complete`
+2. `do-issue:tasks-planned`
+3. `do-issue:parallel-batch-complete`
+4. `do-issue:review-passed`
+5. `do-issue:sequential-complete`
+6. `do-issue:issues-updated`
 
 ## GitHub CLI Commands
 

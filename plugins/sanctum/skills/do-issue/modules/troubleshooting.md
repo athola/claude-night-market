@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Common issues and solutions when using fix-issue.
+Common issues and solutions when using do-issue.
 
 ## Error: Issue Not Found
 

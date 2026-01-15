@@ -116,9 +116,25 @@ Based on phases 1-3, create actionable recommendations:
 - [ ] Hook: <hook-name> - Occasional timeouts - Add async handling
 ```
 
-#### Step 5: Create Action Items
+#### Step 5: Create Action Items (AUTOMATIC)
 
-For Critical and Moderate issues, create TodoWrite items:
+**Critical and Moderate issues are automatically logged to GitHub issues.**
+
+> **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for the full pattern.
+
+For each Critical or Moderate recommendation:
+
+1. **Check for duplicates** - Search existing issues to avoid creating duplicates
+2. **Create GitHub issue** with appropriate labels:
+   - Critical: `high-priority`, `plugin:<name>`, component label
+   - Moderate: `medium-priority`, `plugin:<name>`, component label
+3. **Report created issues** to user at end of command
+
+**Low Priority items** are reported but NOT auto-created (remain in backlog documentation).
+
+**To skip automatic creation**: Use `--no-auto-issues` flag.
+
+**Also create TodoWrite items** for immediate tracking:
 
 ```
 improvement:<plugin-name>:skill-<name>-stability

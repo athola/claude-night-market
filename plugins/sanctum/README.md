@@ -29,12 +29,12 @@ Or reference directly from the marketplace:
 | **doc-consolidation** | Merge ephemeral LLM-generated docs into permanent documentation |
 | **doc-updates** | Documentation updates with ADR support |
 | **test-updates** | Test generation and enhancement with TDD/BDD patterns |
-| **update-readme** | README modernization with exemplar research |
+| **update-readme** | Update README with current best practices |
 | **version-updates** | Version bumping across configs and changelogs |
-| **workflow-improvement** | Retrospective workflow to improve skills, agents, commands, and hooks from the most recent session slice |
+| **workflow-improvement** | Workflow to improve skills, agents, commands, and hooks from the most recent session slice |
 | **pr-review** | Scope-focused PR review with knowledge capture integration |
-| **fix-issue** | Fix GitHub issues using subagent-driven-development |
-| **tutorial-updates** | Orchestrate tutorial generation with GIF recordings |
+| **do-issue** | Fix GitHub issues using subagent-driven-development |
+| **tutorial-updates** | Generate tutorials with GIF recordings |
 
 ### Commands
 
@@ -42,12 +42,12 @@ Or reference directly from the marketplace:
 |---------|-------------|
 | `/git-catchup` | Git repository catchup with imbue methodology |
 | `/commit-msg` | Draft conventional commit message |
-| `/fix-issue` | Fix GitHub issues using subagent-driven-development with parallel execution |
+| `/do-issue` | Fix GitHub issues using subagent-driven-development with parallel execution |
 | `/fix-workflow` | Retrospective to improve the most recent workflow slice |
 | `/fix-pr` | Address PR review comments, implement fixes, resolve threads |
 | `/pr` | Prepare PR description with quality gates |
 | `/update-docs` | Update project documentation |
-| `/update-readme` | Modernize README with exemplar research |
+| `/update-readme` | Update README with current best practices |
 | `/update-tests` | Update and maintain tests with TDD/BDD principles |
 | `/update-version` | Bump project versions |
 | `/update-dependencies` | Scan and update dependencies across all ecosystems |
@@ -55,6 +55,9 @@ Or reference directly from the marketplace:
 | `/pr-review` | Scope-focused PR review with knowledge capture |
 | `/resolve-threads` | Batch-resolve unresolved PR review threads via GitHub GraphQL |
 | `/create-tag` | Create git tags from merged PRs or version arguments |
+| `/merge-docs` | Consolidate ephemeral LLM-generated docs into permanent files |
+| `/prepare-pr` | Complete PR preparation with updates and code review |
+| `/update-plugins` | Audit and sync plugin.json with disk contents |
 
 ### Agents
 
@@ -161,7 +164,7 @@ sanctum/
 ├── commands/
 │   ├── commit-msg.md
 │   ├── create-tag.md
-│   ├── fix-issue.md
+│   ├── do-issue.md
 │   ├── fix-pr.md
 │   ├── fix-workflow.md
 │   ├── git-catchup.md
@@ -188,7 +191,7 @@ sanctum/
 │   ├── workflow-improvement/
 │   ├── version-updates/
 │   ├── pr-review/
-│   ├── fix-issue/
+│   ├── do-issue/
 │   └── tutorial-updates/
 └── README.md
 ```

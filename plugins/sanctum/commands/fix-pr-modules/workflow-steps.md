@@ -248,6 +248,52 @@ gh pr view PR_NUMBER --json reviews --jq '.reviews[] | {author: .author.login, s
 gh api repos/OWNER/REPO/issues/PR_NUMBER/comments --jq '.[] | {id: .id, author: .user.login, body: .body}'
 ```
 
+### 1.5 Review Feedback Type Detection
+
+**CRITICAL: Understand what type of feedback you're dealing with before proceeding.**
+
+Not all review feedback comes as line-specific threads. Use this decision tree:
+
+#### Review Feedback Types
+
+| Type | Identifier | Resolution Method |
+|------|------------|-------------------|
+| Line-specific thread | `PRRT_*` ID | GraphQL `resolveReviewThread` |
+| General PR comment | Numeric ID | Reply with `gh pr comment` |
+| Aggregated review | Single comment with multiple findings | Reply with summary |
+| Bot comment | Varies (Codecov, linters) | Usually skip |
+
+#### Detection Decision Tree
+
+```
+1. Run GraphQL query for review threads
+   └── Threads found (PRRT_* IDs)?
+       ├── Yes → Use Phase 6.3 thread resolution
+       └── No → Continue to step 2
+
+2. Check for general review comments
+   └── gh pr view --json reviews
+       ├── Reviews with body text?
+       │   └── Yes → Reply via gh pr comment
+       └── No → Continue to step 3
+
+3. Check for issue comments
+   └── gh api repos/OWNER/REPO/issues/PR_NUMBER/comments
+       ├── Comments needing response?
+       │   └── Yes → Reply via gh issue comment
+       └── No → Skip to Phase 6.5 (summary only)
+
+4. If only bot comments exist
+   └── Skip thread resolution, proceed to summary
+```
+
+**Common Scenario: Aggregated Review**
+
+When a reviewer posts a single comment containing multiple findings (like a structured review), there are no `PRRT_*` IDs to resolve. Instead:
+1. Address all findings in your fixes
+2. Reply with a summary comment listing what was fixed
+3. Skip the GraphQL thread resolution step
+
 ### 1.4 Analyze with Superpowers
 
 ```bash
@@ -266,6 +312,45 @@ Skill(superpowers:receiving-code-review)
 **Purpose**: Classify comments by type and priority to determine what to fix now vs. later.
 
 **Skip when**: Single simple fix with obvious resolution.
+
+### 2.0 Triage Output Format
+
+Present triage results in this actionable format:
+
+```markdown
+### Triage Results
+
+#### 🔴 Fix Now (2 items)
+| ID | Issue | File | Why Critical |
+|----|-------|------|--------------|
+| C1 | Path traversal vulnerability | intelligence.rs:490 | Security |
+| C2 | SQL injection risk | github_search.rs:143 | Security |
+
+#### 🟡 This PR (4 items)
+| ID | Issue | File |
+|----|-------|------|
+| S1 | Missing error logging | intelligence.rs:82 |
+| S2 | Incomplete validation | parser.py:45 |
+| S3 | Missing docstring | utils.py:120 |
+| S4 | Inconsistent naming | models.py:67 |
+
+#### 📋 Backlog → Issues (7 items)
+| ID | Issue | Suggested Title |
+|----|-------|-----------------|
+| B1 | Low test coverage | test(intelligence): add integration tests |
+| B2 | Performance optimization | perf(parser): optimize regex compilation |
+| B3 | API documentation | docs(api): add endpoint documentation |
+
+#### ⏭️ Skip (2 items)
+- Informational comment about architecture
+- Praise for clean code structure
+```
+
+**Category definitions:**
+- **Fix Now**: Security issues, correctness bugs, blocking problems
+- **This PR**: In-scope improvements that should be addressed
+- **Backlog**: Out-of-scope items → will become GitHub issues in Step 6
+- **Skip**: Informational, praise, or items not requiring action
 
 ### 2.1 Check Existing Backlog Context (Optional but Recommended)
 
@@ -563,9 +648,17 @@ If no test plan exists from `/pr-review`, generate verification steps on-the-fly
 
 **Skip when**: Just needed fixes without GitHub workflow completion.
 
-### 6.1 Create Issues for Suggestions/Deferred Items
+### 6.1 Create Issues for Suggestions/Deferred Items (AUTOMATIC)
 
-**CRITICAL: Create GitHub issues for ALL suggestion and deferred items.**
+**CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items.**
+
+> **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for the full pattern.
+
+**This step is automatic** - no flag required. When items are classified as "Suggestion" or "Deferred" during triage (Step 2), issues are created at the end of this step.
+
+**To skip automatic creation**: Use `--no-auto-issues` flag.
+
+**Duplicate Detection**: Before creating, search for existing issues with similar titles to avoid duplicates.
 
 For each comment classified as **Suggestion** during triage, create a GitHub issue:
    ```bash
@@ -611,7 +704,7 @@ For each comment classified as **Suggestion** during triage, create a GitHub iss
    **Suggestion Issue Rules:**
    - Prefix title with "[Suggestion]" for easy identification
    - Always use the "suggestion" label (required for tracking)
-   - Add additional labels as appropriate (enhancement, documentation, testing, etc.)
+   - Add additional labels as appropriate (enhancement, docs, testing, etc.)
    - Include the original review comment verbatim
    - Explain the value/improvement rationale
    - Reference the source PR
@@ -674,7 +767,7 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
 - Use conventional commit format for title: `type(scope): description`
 - Common types: `feat`, `fix`, `test`, `docs`, `perf`, `refactor`
 - Include the original review comment in the body
-- Add relevant labels (enhancement, bug, documentation, etc.)
+- Add relevant labels (enhancement, bug, docs, etc.)
 - Reference the source PR
 - Define clear acceptance criteria
 

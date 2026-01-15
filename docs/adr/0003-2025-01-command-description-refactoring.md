@@ -104,7 +104,7 @@ do_not_use_when:
 - hooks-eval, test-skill, make-dogfood, create-skill, create-command
 
 **Batch 2: sanctum (4 commands)**
-- fix-pr, fix-workflow, pr-review, fix-issue
+- fix-pr, fix-workflow, pr-review, do-issue
 
 **Batch 3: conserve + spec-kit (3 commands)**
 - unbloat, bloat-scan, speckit-clarify

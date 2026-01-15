@@ -10,10 +10,14 @@ import argparse
 import hashlib
 import json
 import os
-import sys
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+# Constants for quality thresholds
+MIN_KEYWORD_LENGTH = 2
+LOW_QUALITY_THRESHOLD = 0.3
 
 
 class MemoryPalaceManager:
@@ -31,14 +35,22 @@ class MemoryPalaceManager:
             palaces_dir_override: Optional path to override the palaces directory.
 
         """
+        # Determine plugin directory (where this file lives)
+        self._plugin_dir = Path(__file__).resolve().parents[2]
+
         if config_path is None:
-            config_path = os.path.expanduser("~/memory-palace/config/settings.json")
+            # Default to plugin's config directory
+            config_path = str(self._plugin_dir / "config" / "settings.json")
 
         self.config_path = config_path
         self.config = self.load_config()
 
-        # Use default palace directory if config doesn't exist or doesn't have storage section
-        default_palaces_dir = "~/memory-palaces"
+        # Priority for palaces directory:
+        # 1. Explicit override
+        # 2. Environment variable
+        # 3. Config file setting
+        # 4. Plugin's data/palaces directory (NEW default)
+        default_palaces_dir = str(self._plugin_dir / "data" / "palaces")
         override_env = os.environ.get("PALACES_DIR")
         chosen_dir = palaces_dir_override or override_env
         if chosen_dir:
@@ -51,7 +63,7 @@ class MemoryPalaceManager:
                     ),
                 )
             except (AttributeError, KeyError):
-                self.palaces_dir = os.path.expanduser(default_palaces_dir)
+                self.palaces_dir = default_palaces_dir
 
         self.index_file = os.path.join(self.palaces_dir, "master_index.json")
 
@@ -61,13 +73,10 @@ class MemoryPalaceManager:
         """Load configuration from the specified file.
 
         Attempt to open and parse the JSON configuration file at `self.config_path`.
-        If the file is not found, print an error message to stderr and exit the program.
+        If the file is not found, return an empty config to allow defaults to work.
 
         Returns:
-            Dictionary containing the loaded configuration.
-
-        Raises:
-            SystemExit: If the configuration file is not found.
+            Dictionary containing the loaded configuration, or empty dict if not found.
 
         """
         try:
@@ -75,7 +84,8 @@ class MemoryPalaceManager:
                 data: dict[str, Any] = json.load(f)
                 return data
         except FileNotFoundError:
-            sys.exit(1)
+            # Return empty config; defaults will be used
+            return {}
 
     def ensure_directories(self) -> None:
         """Validate necessary palace directories exist."""
@@ -225,8 +235,9 @@ class MemoryPalaceManager:
                     domain = palace["domain"]
                     domains[domain] = domains.get(domain, 0) + 1
 
-                except (json.JSONDecodeError, KeyError):
-                    pass
+                except (json.JSONDecodeError, KeyError) as e:
+                    # Log skipped files so operators know some files were not indexed
+                    print(f"[WARN] Skipped malformed palace file {file_path}: {e}")
 
         with open(self.index_file, "w") as f:
             json.dump(index, f, indent=2)
@@ -419,6 +430,257 @@ class MemoryPalaceManager:
         """Return a list of all palaces."""
         palaces = self.get_master_index().get("palaces", [])
         return list(palaces)
+
+    def sync_from_queue(  # noqa: PLR0912
+        self,
+        queue_path: str,
+        auto_create: bool = False,
+        dry_run: bool = False,
+    ) -> dict[str, Any]:
+        """Process intake queue entries into palaces.
+
+        Read queued research items and add them to appropriate palaces based on
+        domain matching. Optionally create new palaces for unmatched domains.
+
+        Args:
+            queue_path: Path to the intake_queue.jsonl file.
+            auto_create: If True, create new palaces for unmatched domains.
+            dry_run: If True, return what would happen without making changes.
+
+        Returns:
+            Dictionary with sync results including items processed, palaces
+            updated, and any items that couldn't be matched.
+
+        """
+        results: dict[str, Any] = {
+            "processed": 0,
+            "skipped": 0,
+            "palaces_updated": [],
+            "palaces_created": [],
+            "unmatched": [],
+            "dry_run": dry_run,
+        }
+
+        if not os.path.exists(queue_path):
+            return results
+
+        # Load existing palaces for domain matching
+        palace_by_domain: dict[str, dict[str, Any]] = {}
+        for palace_summary in self.list_palaces():
+            palace = self.load_palace(palace_summary["id"])
+            if palace:
+                domain = palace.get("domain", "").lower()
+                palace_by_domain[domain] = palace
+
+        # Process queue entries
+        entries_to_keep = []
+        with open(queue_path) as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line:
+                    continue
+
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    entries_to_keep.append(line)
+                    continue
+
+                # Extract domain from entry (from query or tags)
+                query = entry.get("query", "")
+                domain = self._extract_domain(query)
+
+                if domain in palace_by_domain:
+                    # Add to existing palace
+                    palace = palace_by_domain[domain]
+                    if not dry_run:
+                        self._add_entry_to_palace(palace, entry)
+                        self.save_palace(palace)
+                    if palace["id"] not in results["palaces_updated"]:
+                        results["palaces_updated"].append(palace["id"])
+                    results["processed"] += 1
+                elif auto_create and domain:
+                    # Create new palace for this domain
+                    if not dry_run:
+                        new_palace = self.create_palace(
+                            name=domain.title(),
+                            domain=domain,
+                            metaphor="library",
+                        )
+                        self._add_entry_to_palace(new_palace, entry)
+                        self.save_palace(new_palace)
+                        palace_by_domain[domain] = new_palace
+                    results["palaces_created"].append(domain)
+                    results["processed"] += 1
+                else:
+                    # No matching palace and auto_create is False
+                    results["unmatched"].append(query[:50])
+                    results["skipped"] += 1
+                    entries_to_keep.append(line)
+
+        # Write back unprocessed entries (unless dry run)
+        if not dry_run and entries_to_keep:
+            with open(queue_path, "w") as f:
+                f.write("\n".join(entries_to_keep))
+                if entries_to_keep:
+                    f.write("\n")
+        elif not dry_run and not entries_to_keep:
+            # Clear the queue file
+            with open(queue_path, "w") as f:
+                pass
+
+        return results
+
+    def _extract_domain(self, query: str) -> str:
+        """Extract a domain keyword from a query string.
+
+        Simple heuristic: use the most significant noun/keyword.
+        """
+        # Remove common words and extract domain
+        stopwords = {"test", "query", "the", "a", "an", "how", "what", "why"}
+        words = query.lower().split()
+        for word in words:
+            if word not in stopwords and len(word) > MIN_KEYWORD_LENGTH:
+                return word
+        return ""
+
+    def _add_entry_to_palace(
+        self, palace: dict[str, Any], entry: dict[str, Any]
+    ) -> None:
+        """Add a queue entry as a knowledge item in a palace."""
+        entry_id = hashlib.sha256(
+            f"{entry.get('query', '')}{entry.get('timestamp', '')}".encode()
+        ).hexdigest()[:8]
+
+        knowledge_entry = {
+            "id": entry_id,
+            "query": entry.get("query", ""),
+            "source": "intake_queue",
+            "timestamp": entry.get("timestamp", datetime.now().isoformat()),
+            "novelty_score": entry.get("intake_payload", {}).get("novelty_score", 0),
+        }
+
+        # Add to associations (simple storage for now)
+        if "associations" not in palace:
+            palace["associations"] = {}
+        palace["associations"][entry_id] = knowledge_entry
+
+        # Update metadata
+        palace["metadata"]["concept_count"] = len(palace["associations"])
+
+    def prune_check(self, stale_days: int = 90) -> dict[str, Any]:
+        """Check palaces for entries needing cleanup or consolidation.
+
+        Identifies:
+        - Stale entries (no access in stale_days)
+        - Duplicate entries (same query across palaces)
+        - Low-quality entries (novelty_score < LOW_QUALITY_THRESHOLD)
+
+        Returns:
+            Dictionary with prune recommendations per palace.
+
+        """
+        results: dict[str, Any] = {
+            "palaces_checked": 0,
+            "recommendations": [],
+            "total_stale": 0,
+            "total_duplicates": 0,
+            "total_low_quality": 0,
+        }
+
+        # Track queries across palaces for duplicate detection
+        query_locations: dict[str, list[tuple[str, str]]] = defaultdict(list)
+        cutoff = datetime.now() - __import__("datetime").timedelta(days=stale_days)
+
+        for palace_summary in self.list_palaces():
+            palace = self.load_palace(palace_summary["id"])
+            if not palace:
+                continue
+
+            results["palaces_checked"] += 1
+            palace_recs: dict[str, Any] = {
+                "palace_id": palace["id"],
+                "palace_name": palace["name"],
+                "stale": [],
+                "low_quality": [],
+            }
+
+            for entry_id, entry in palace.get("associations", {}).items():
+                query = entry.get("query", "")
+                timestamp_str = entry.get("timestamp", "")
+                novelty = entry.get("novelty_score", 1.0)
+
+                # Track for duplicates
+                if query:
+                    query_locations[query].append((palace["id"], entry_id))
+
+                # Check staleness
+                try:
+                    entry_time = datetime.fromisoformat(
+                        timestamp_str.replace("Z", "+00:00")
+                    )
+                    if entry_time < cutoff:
+                        palace_recs["stale"].append(entry_id)
+                        results["total_stale"] += 1
+                except (ValueError, AttributeError):
+                    pass
+
+                # Check quality
+                if novelty < LOW_QUALITY_THRESHOLD:
+                    palace_recs["low_quality"].append(entry_id)
+                    results["total_low_quality"] += 1
+
+            if palace_recs["stale"] or palace_recs["low_quality"]:
+                results["recommendations"].append(palace_recs)
+
+        # Find duplicates (same query in multiple places)
+        duplicates = []
+        for query, locations in query_locations.items():
+            if len(locations) > 1:
+                duplicates.append({"query": query[:50], "locations": locations})
+                results["total_duplicates"] += len(locations) - 1
+
+        if duplicates:
+            results["duplicates"] = duplicates[:10]  # Limit output
+
+        return results
+
+    def apply_prune(
+        self, recommendations: dict[str, Any], actions: list[str]
+    ) -> dict[str, int]:
+        """Apply prune actions based on recommendations.
+
+        Args:
+            recommendations: Output from prune_check()
+            actions: List of actions to apply: "stale", "low_quality", "duplicates"
+
+        Returns:
+            Dictionary with counts of items removed.
+
+        """
+        removed = {"stale": 0, "low_quality": 0, "duplicates": 0}
+
+        for rec in recommendations.get("recommendations", []):
+            palace = self.load_palace(rec["palace_id"])
+            if not palace:
+                continue
+
+            if "stale" in actions:
+                for entry_id in rec.get("stale", []):
+                    if entry_id in palace.get("associations", {}):
+                        del palace["associations"][entry_id]
+                        removed["stale"] += 1
+
+            if "low_quality" in actions:
+                for entry_id in rec.get("low_quality", []):
+                    if entry_id in palace.get("associations", {}):
+                        del palace["associations"][entry_id]
+                        removed["low_quality"] += 1
+
+            palace["metadata"]["concept_count"] = len(palace.get("associations", {}))
+            self.save_palace(palace)
+
+        return removed
 
     def delete_palace(self, palace_id: str) -> bool:
         """Delete a palace by its ID after creating a final backup.

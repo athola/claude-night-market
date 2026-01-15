@@ -133,6 +133,96 @@ done
 - Update each document using the directory-specific guidelines
 - Preview the resulting diffs with `git diff`
 
+## Output Examples
+
+### Consolidation Detection Output
+
+When Phase 2.5 runs, you'll see a table of detected candidates:
+
+```markdown
+## Phase 2.5: Consolidation Opportunities
+
+### Untracked Reports (merge or delete)
+
+| File | Score | Markers | Recommendation |
+|------|-------|---------|----------------|
+| API_REVIEW_REPORT.md | 6 | Executive Summary, Findings | Merge to docs/api-overview.md |
+| MIGRATION_NOTES.md | 4 | Action Items, Tables | Merge to docs/migration-guide.md |
+
+### Bloated Files (split or trim)
+
+| File | Lines | Threshold | Recommendation |
+|------|-------|-----------|----------------|
+| docs/architecture-analysis-report.md | 571 | 500 | Consider splitting by section |
+| book/src/tutorials/advanced-workflows.md | 1031 | 1000 | Split into multiple tutorials |
+
+---
+
+**Options:**
+- `Y` - Proceed with all recommended actions
+- `n` - Skip consolidation, continue to edits
+- `select` - Choose specific items to address
+```
+
+Use `--skip-consolidation` to bypass this phase entirely.
+
+### Accuracy Verification Output
+
+Phase 5 validates documentation claims against the codebase:
+
+```markdown
+## Accuracy Scan Results
+
+Scanned: docs/api-overview.md, README.md (2 files)
+Time: 0.3 seconds
+
+### Warnings Found
+
+| Type | File | Line | Issue | Fix |
+|------|------|------|-------|-----|
+| version | docs/api-overview.md | 15 | abstract v2.1.0 → 1.2.7 | Update |
+| version | book/src/plugins/sanctum.md | 18 | sanctum v3.0.0 → 1.2.7 | Update |
+| count | README.md | 42 | "11 plugins" → 8 | Update |
+
+### No Issues
+- All file paths valid
+- Command references exist
+
+**Action**: Review warnings before proceeding to preview.
+```
+
+Warnings are **non-blocking** - you decide whether to fix them.
+
+### Style Violation Output
+
+Directory-specific style rules are enforced:
+
+```markdown
+## Style Check Results
+
+### docs/ (strict mode)
+
+| File | Issue | Severity |
+|------|-------|----------|
+| docs/api-overview.md:45 | Paragraph exceeds 4 sentences | Warning |
+| docs/architecture-analysis-report.md | File exceeds 500 lines (571) | Warning |
+
+### book/ (lenient mode)
+
+| File | Issue | Severity |
+|------|-------|----------|
+| book/src/tutorials/error-handling.md:120 | Paragraph exceeds 8 sentences | Warning |
+
+### Filler Phrases Detected
+
+| File | Line | Phrase |
+|------|------|--------|
+| docs/api-overview.md | 23 | "I'd be happy to" |
+| docs/getting-started.md | 15 | "leverage" (overused) |
+```
+
+Style warnings help maintain documentation quality but don't block the workflow.
+
 ## See Also
 
 - `/merge-docs` - Full consolidation workflow for complex multi-file merges

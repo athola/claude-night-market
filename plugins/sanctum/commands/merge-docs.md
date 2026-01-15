@@ -77,6 +77,33 @@ Content is routed based on category:
 | Metrics/Baselines | `docs/benchmarks/` |
 | Migration Guides | `docs/migration-guide.md` |
 | API Changes | `CHANGELOG.md` or API docs |
+| **Redundant (delete)** | None - content already exists elsewhere |
+
+### Redundancy Detection
+
+Before merging, check if content is already covered in existing documentation:
+
+```bash
+# Search for similar content in existing docs
+grep -r "key topic phrase" docs/ book/ plugins/*/README.md
+
+# Check if a command/skill doc already covers the content
+ls plugins/*/commands/*.md plugins/*/skills/*/SKILL.md | xargs grep -l "topic"
+```
+
+**When to delete instead of merge:**
+- Design doc content is already in command/skill documentation
+- Implementation notes are redundant with code comments or READMEs
+- Planning artifacts are obsolete (work is complete, tracked elsewhere)
+- Temporary analysis files whose insights are captured in permanent docs
+
+**Recommendation format:**
+```
+| File | Action | Reason |
+|------|--------|--------|
+| PALACE_UNIFICATION.md | Delete | Content already in commands/palace.md |
+| API_NOTES.md | Merge | New insights not in api-overview.md |
+```
 
 ## Integration
 

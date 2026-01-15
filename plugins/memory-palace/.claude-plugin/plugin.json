@@ -43,5 +43,14 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "hooks": [
+    "./hooks/local_doc_processor.py",
+    "./hooks/research-queue-integration.md",
+    "./hooks/research_interceptor.py",
+    "./hooks/skill_tracker_post.py",
+    "./hooks/skill_tracker_pre.py",
+    "./hooks/url_detector.py",
+    "./hooks/web_content_processor.py"
+  ]
 }

@@ -97,7 +97,7 @@ Use the AskUserQuestion tool for each section:
 3. **Labels** (suggest based on type):
    - bug → "bug", "needs-triage"
    - feature → "enhancement", "feature"
-   - documentation → "documentation"
+   - documentation → "docs"
 
 4. **Priority** (optional):
    Options: "critical", "high", "medium", "low"
@@ -244,7 +244,7 @@ Created issue #234: https://github.com/athola/skrills/issues/234
 /create-issue "Document API changes" \
   --repo "athola/skrills-docs" \
   --body "Update docs to reflect v2.0 API changes" \
-  --labels "documentation" \
+  --labels "docs" \
   --refs "https://github.com/athola/skrills/pull/456"
 ```
 
@@ -265,7 +265,7 @@ Current repository: athola/skrills
 Warning: Label 'unknown-label' does not exist in athola/skrills
 
 Available labels:
-- bug, enhancement, documentation, question
+- bug, enhancement, docs, question
 - priority:high, priority:medium, priority:low
 - needs-triage, in-progress, blocked
 

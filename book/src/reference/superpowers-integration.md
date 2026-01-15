@@ -27,7 +27,7 @@ Many Night Market capabilities achieve their full potential when used alongside 
 | **sanctum** | `/pr` | Command | `receiving-code-review` | PR validation |
 | **sanctum** | `/pr-review` | Command | `receiving-code-review` | PR analysis |
 | **sanctum** | `/fix-pr` | Command | `receiving-code-review` | Comment resolution |
-| **sanctum** | `/fix-issue` | Command | Multiple | Full workflow |
+| **sanctum** | `/do-issue` | Command | Multiple | Full workflow |
 | **spec-kit** | `/speckit-clarify` | Command | `brainstorming` | Clarification |
 | **spec-kit** | `/speckit-plan` | Command | `writing-plans` | Planning |
 | **spec-kit** | `/speckit-tasks` | Command | `executing-plans`, `systematic-debugging` | Task breakdown |
@@ -74,7 +74,7 @@ All Night Market plugins work without superpowers:
 - **Skills**: Integrated methodology patterns
 - **Agents**: Full automation depth
 
-## Example: /fix-issue Workflow
+## Example: /do-issue Workflow
 
 ### Without Superpowers
 

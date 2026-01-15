@@ -180,7 +180,7 @@ Warning: GitHub CLI not authenticated. Running in dry-run mode.
 pr_review:
   default_scope_mode: "standard"
   auto_approve_threshold: 0  # No blocking issues
-  create_backlog_issues: true
+  auto_create_issues: true   # Automatic issue creation for out-of-scope items (default: true)
   require_test_coverage: true
   min_coverage_percent: 80
 
@@ -189,11 +189,18 @@ pr_review:
     max_duplication: 5
     require_documentation: true
 
-  backlog_settings:
-    auto_create: true
+  issue_creation:
+    enabled: true              # Set to false to disable auto-creation
+    check_duplicates: true     # Search for existing issues before creating
     default_priority: "medium"
     assign_to_author: false
+    labels:
+      suggestion: ["enhancement", "low-priority", "small-effort"]
+      backlog: ["enhancement", "low-priority"]
+      deferred: ["enhancement", "medium-priority"]
 ```
+
+> **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for implementation details.
 
 ## Best Practices
 
