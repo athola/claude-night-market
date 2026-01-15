@@ -821,6 +821,7 @@ class TestImbueValidatorIntegration:
     So that validation accurately reflects plugin structure
     """
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_real_plugin_validation(self, imbue_plugin_root) -> None:
         """Scenario: Validate real imbue plugin structure.
@@ -848,6 +849,7 @@ class TestImbueValidatorIntegration:
         assert isinstance(report, str)
         assert len(report) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_file_permissions_handling(self, tmp_path) -> None:
         """Scenario: Validation handles file permission issues.
@@ -885,6 +887,7 @@ class TestImbueValidatorPerformance:
     So that validation completes in reasonable time
     """
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_large_plugin_validation_performance(self, tmp_path) -> None:
         """Scenario: Validation performance with many skills.
@@ -927,6 +930,7 @@ This is test skill number {i} with review workflow patterns.
         assert execution_time < 5.0  # Should complete within 5 seconds
         assert len(result["skills_found"]) == 100
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_memory_usage_large_plugin(self, tmp_path) -> None:
         """Scenario: Memory usage with large plugin structures.

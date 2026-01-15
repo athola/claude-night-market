@@ -40,6 +40,7 @@ from parseltongue.utils.resource_monitor import ResourceMonitor
 class TestEdgeCasesAndErrorScenarios:
     """Test suite for edge cases and error handling."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_empty_code_handling(self) -> None:
         """Given empty input, when analyzing, then handles gracefully."""
@@ -59,6 +60,7 @@ class TestEdgeCasesAndErrorScenarios:
                 assert result["language"] == "unknown"
                 assert result["confidence"] == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extremely_long_code_handling(self) -> None:
         """Given extremely long code, when analyzing, then handles efficiently."""
@@ -74,6 +76,7 @@ class TestEdgeCasesAndErrorScenarios:
         assert result["confidence"] > 0.9
         # Should complete without memory issues
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_malformed_unicode_handling(self) -> None:
         """Given malformed Unicode input, when analyzing, then handles gracefully."""
@@ -85,6 +88,7 @@ class TestEdgeCasesAndErrorScenarios:
         with pytest.raises(UnicodeDecodeError):
             skill.detect_language(malformed_unicode)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_mixed_language_input(self) -> None:
         """Given mixed language content, when analyzing, then identifies dominant language."""
@@ -119,6 +123,7 @@ interface TypeScriptInterface {
         ]  # Should detect actual code over comments
         assert result["confidence"] > 0.5
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_syntax_error_handling(self) -> None:
         """Given code with syntax errors, when analyzing, then handles gracefully."""
@@ -160,6 +165,7 @@ async def slow_function():
             with pytest.raises(AnalysisError):
                 await skill.analyze_async_functions(large_async_code)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_permission_denied_scenarios(self) -> None:
         """Given permission denied errors, when accessing files, then handles gracefully."""
@@ -182,6 +188,7 @@ async def slow_function():
                 # Restore permissions for cleanup
                 test_file.chmod(0o644)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_network_timeout_simulation(self) -> None:
         """Given network operations, when timeout occurs, then handles gracefully."""
@@ -196,6 +203,7 @@ async def slow_function():
             # Assert
             assert result is None or "timeout" in str(result).lower()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_memory_pressure_scenarios(self) -> None:
         """Given memory pressure, when analyzing, then uses fallback strategies."""
@@ -214,6 +222,7 @@ async def slow_function():
             )  # Should disable concurrent processing
             assert strategy["batch_size"] < 1000  # Should reduce batch size
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_corrupted_file_handling(self) -> None:
         """Given corrupted files, when analyzing, then handles gracefully."""
@@ -238,6 +247,7 @@ async def slow_function():
         finally:
             Path(temp_file).unlink()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_circular_dependency_detection(self) -> None:
         """Given circular dependency scenarios, when analyzing, then detects correctly."""
@@ -264,6 +274,7 @@ class ClassB:
         assert "circular_dependencies" in analysis
         assert len(analysis["circular_dependencies"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_unicode_edge_cases(self) -> None:
         """Given unusual Unicode content, when analyzing, then handles correctly."""
@@ -288,6 +299,7 @@ class ClassB:
             assert result is not None
             assert "language" in result
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extreme_nesting_scenarios(self) -> None:
         """Given deeply nested code, when analyzing, then handles efficiently."""
@@ -317,6 +329,7 @@ def deeply_nested_function():
         assert result["complexity_level"] in ["high", "very_high"]
         assert "recommendations" in result
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_concurrent_access_scenarios(self) -> None:
         """Given concurrent access, when analyzing, then handles race conditions."""
@@ -349,6 +362,7 @@ def deeply_nested_function():
         assert len(results) == 10
         assert all(result["language"] == "python" for result in results)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_invalid_configuration_handling(self) -> None:
         """Given invalid configuration, when loading, then provides helpful errors."""
@@ -380,6 +394,7 @@ def deeply_nested_function():
             finally:
                 Path(temp_file).unlink()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_plugin_discovery_failures(self) -> None:
         """Given plugin discovery issues, when loading, then handles gracefully."""
@@ -427,6 +442,7 @@ def deeply_nested_function():
             # Restore original handler
             signal.signal(signal.SIGINT, original_handler)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_resource_exhaustion_recovery(self) -> None:
         """Given resource exhaustion, when analyzing, then recovers gracefully."""
@@ -445,6 +461,7 @@ def deeply_nested_function():
             assert status["memory_pressure"] is True
             assert "recommendations" in status
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_database_connection_failures(self) -> None:
         """Given database connection issues, when analyzing, then handles gracefully."""
@@ -459,6 +476,7 @@ def deeply_nested_function():
             with pytest.raises(Exception, match="Database connection failed"):
                 storage.save_results({"test": "data"})
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_malformed_skill_metadata(self) -> None:
         """Given malformed skill metadata, when loading, then handles gracefully."""
@@ -478,6 +496,7 @@ def deeply_nested_function():
         assert result["valid"] is False
         assert len(result["errors"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_file_system_edge_cases(self) -> None:
         """Given edge cases in file system operations, when analyzing, then handles correctly."""
@@ -514,6 +533,7 @@ def deeply_nested_function():
                 if Path(temp_file).exists():
                     Path(temp_file).unlink()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_asyncio_event_loop_errors(self) -> None:
         """Given asyncio event loop issues, when analyzing, then handles correctly."""
@@ -548,6 +568,7 @@ async def test_function():
                 or "event loop" in str(e).lower()
             )
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_version_compatibility_issues(self) -> None:
         """Given version compatibility issues, when analyzing, then handles gracefully."""
@@ -582,6 +603,7 @@ def process_data(data: list[str]) -> None:
         assert analysis["minimum_version"] >= "3.10"  # Should detect newer features
         assert "features_by_version" in analysis
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_logging_and_debugging_scenarios(self) -> None:
         """Given logging/debugging scenarios, when analyzing, then handles correctly."""

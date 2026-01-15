@@ -44,6 +44,7 @@ class TestEdgeCasesAndErrorScenarios:
             parts.append(summary)
         return " ".join(parts)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_empty_repository_handling(self) -> None:
         """Given an empty repository, when analyzing, then handles gracefully."""
@@ -85,6 +86,7 @@ class TestEdgeCasesAndErrorScenarios:
             result_text = self._result_text(result).lower()
             assert "no code files" in result_text or "empty" in result_text
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_malformed_file_handling(self) -> None:
         """Given malformed files, when analyzing, then doesn't crash."""
@@ -105,6 +107,7 @@ class TestEdgeCasesAndErrorScenarios:
         except UnicodeDecodeError:
             pytest.fail("Should handle non-UTF-8 content gracefully")
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extremely_large_file_handling(self) -> None:
         """Given huge files, analyzer handles memory efficiently."""
@@ -137,6 +140,7 @@ class TestEdgeCasesAndErrorScenarios:
         finally:
             Path(large_file_path).unlink()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_missing_dependencies_handling(self) -> None:
         """Given missing Cargo.toml, analyzer returns empty results gracefully."""
@@ -158,6 +162,7 @@ class TestEdgeCasesAndErrorScenarios:
         assert "dependencies" in result
         assert result["dependencies"] == []
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_circular_dependency_detection(self) -> None:
         """Given layering violations, when analyzing, then detects and reports."""
@@ -188,6 +193,7 @@ class TestEdgeCasesAndErrorScenarios:
         ]
         assert len(layering_violations) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_permission_denied_scenarios(self) -> None:
         """Given permission errors, analyzer handles gracefully."""
@@ -222,6 +228,7 @@ class TestEdgeCasesAndErrorScenarios:
                 # Restore permissions for cleanup
                 test_file.chmod(0o644)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_network_timeout_scenarios(self) -> None:
         """Given network operations, when timeout occurs, then handles gracefully."""
@@ -240,6 +247,7 @@ class TestEdgeCasesAndErrorScenarios:
             assert result is not None
             # Should handle timeout without crashing
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_memory_pressure_scenarios(self) -> None:
         """Given low memory, analyzer uses fallback strategies."""
@@ -257,6 +265,7 @@ class TestEdgeCasesAndErrorScenarios:
             assert not strategy["concurrent"]  # Should disable concurrent processing
             assert strategy["batch_size"] < 1000  # Should reduce batch size
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_configuration_errors(self) -> None:
         """Given invalid config, loader provides helpful errors."""
@@ -288,6 +297,7 @@ pensive:
         finally:
             Path(config_path).unlink()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_unicode_and_special_characters(self) -> None:
         """Given unicode/special chars, analyzer handles correctly."""
@@ -319,6 +329,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
         assert isinstance(result, AnalysisResult)
         # Should handle unicode without crashing
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_symlink_handling(self) -> None:
         """Given symlinks in repo, analyzer handles correctly."""
@@ -347,6 +358,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
                 assert isinstance(result, AnalysisResult)
                 # Should handle symlinks without infinite loops
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_deep_directory_structures(self) -> None:
         """Given deep directories, analyzer handles efficiently."""
@@ -376,6 +388,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
             assert isinstance(result, AnalysisResult)
             # Should handle deep paths without path length issues
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_invalid_file_formats(self) -> None:
         """Given invalid formats, analyzer handles gracefully."""
@@ -401,6 +414,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
             except Exception as e:
                 pytest.fail(f"Analysis failed for {filename}: {e}")
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_partial_failure_scenarios(self) -> None:
         """Given partial failures, analyzer continues gracefully."""
@@ -433,6 +447,7 @@ const EMOJI: &str = "🦀 Rust 🚀";
             )  # Failed skill
             assert result[1] is not None  # Successful skill
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_plugin_discovery_failures(self) -> None:
         """Given plugin discovery issues, loader handles gracefully."""

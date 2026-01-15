@@ -54,6 +54,7 @@ class TestSkillDescriptionBestPractices:
 
         return skill_files
 
+    @pytest.mark.bdd
     def test_skill_description_includes_what_it_does(self, skill_files) -> None:
         """Scenario: Skill description explains what the skill does.
 
@@ -86,6 +87,7 @@ class TestSkillDescriptionBestPractices:
                 f"action verbs. Current: {desc_preview}..."
             )
 
+    @pytest.mark.bdd
     def test_skill_description_includes_when_to_use(self, skill_files) -> None:
         """Scenario: Skill description explains when to use the skill.
 
@@ -123,6 +125,7 @@ class TestSkillDescriptionBestPractices:
                 f"trigger phrases. Current: {desc_preview}..."
             )
 
+    @pytest.mark.bdd
     def test_skill_description_not_too_vague(self, skill_files) -> None:
         """Scenario: Skill description is not overly vague.
 
@@ -175,6 +178,7 @@ class TestSkillConflictAvoidance:
                 descriptions[name] = result.parsed["description"]
         return descriptions
 
+    @pytest.mark.bdd
     def test_skills_have_distinct_trigger_terms(self, all_skill_descriptions) -> None:
         """Scenario: Skills don't share identical trigger phrases.
 
@@ -242,6 +246,7 @@ class TestHookScopeGuideSkill:
         """Return path to the hook-scope-guide skill."""
         return Path(__file__).parent.parent / "skills" / "hook-scope-guide.md"
 
+    @pytest.mark.bdd
     def test_skill_exists(self, skill_path) -> None:
         """Scenario: Hook scope guide skill file exists.
 
@@ -251,6 +256,7 @@ class TestHookScopeGuideSkill:
         """
         assert skill_path.exists(), f"hook-scope-guide.md not found at {skill_path}"
 
+    @pytest.mark.bdd
     def test_skill_has_valid_frontmatter(self, skill_path) -> None:
         """Scenario: Skill has valid YAML frontmatter.
 
@@ -300,6 +306,7 @@ class TestHookScopeGuideSkill:
             "Should cross-reference hook-authoring"
         )
 
+    @pytest.mark.bdd
     def test_skill_has_distinct_triggers(self, skill_path) -> None:
         """Scenario: Skill has triggers distinct from other hook skills.
 
@@ -328,6 +335,7 @@ class TestHookScopeGuideSkill:
                     f"Use distinct terms like 'hook scope', 'hook location', etc."
                 )
 
+    @pytest.mark.bdd
     def test_skill_content_covers_three_scopes(self, skill_path) -> None:
         """Scenario: Skill content covers all three hook scopes.
 
@@ -344,6 +352,7 @@ class TestHookScopeGuideSkill:
                 f"Skill should cover '{scope}' scope"
             )
 
+    @pytest.mark.bdd
     def test_skill_includes_decision_framework(self, skill_path) -> None:
         """Scenario: Skill includes a decision framework.
 

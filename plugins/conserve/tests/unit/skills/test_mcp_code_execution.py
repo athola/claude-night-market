@@ -650,6 +650,7 @@ tags:
             compilation["quality_impact"]["success_rate_change"] < 0
         )  # Slightly lower success rate
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_mcp_execution_handles_failures_gracefully(self, mock_claude_tools) -> None:
         """Scenario: MCP execution handles external tool failures gracefully.
@@ -749,6 +750,7 @@ tags:
             resource_result["additional_tokens_used"] == FIVE_THOUSAND
         )  # Most expensive fallback
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_mcp_execution_optimizes_task_batching(self) -> None:
         """Scenario: MCP execution optimizes task batching for efficiency.

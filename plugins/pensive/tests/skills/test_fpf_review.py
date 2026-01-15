@@ -587,6 +587,7 @@ class TestFPFSynthesis:
         bottom_ids = {sorted_recs[-1]["id"], sorted_recs[-2]["id"]}
         assert bottom_ids == {"R2", "R4"}  # Both score 3 (high*high=3, low*low=3)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_report_section_generation(self) -> None:
         """Scenario: Report sections are generated from findings.
@@ -621,6 +622,7 @@ class TestFPFConfiguration:
     So that I can focus the review appropriately
     """
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scope_filtering(self) -> None:
         """Scenario: Review scope can be filtered to specific paths.
@@ -654,6 +656,7 @@ class TestFPFConfiguration:
         assert filtered == ["src/main.py", "src/utils.py"]
         assert len(filtered) == 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_depth_configuration(self) -> None:
         """Scenario: Review depth affects analysis detail.
@@ -672,6 +675,7 @@ class TestFPFConfiguration:
         assert depth_configs["full"]["include_code_snippets"] is True
         assert depth_configs["summary"]["max_findings"] == 10
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_severity_threshold_filtering(self) -> None:
         """Scenario: Findings can be filtered by severity threshold.

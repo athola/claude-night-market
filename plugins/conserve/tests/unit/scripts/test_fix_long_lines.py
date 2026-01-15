@@ -270,6 +270,7 @@ Regular text that is also quite long and should be broken at a
         "max_length",
         [40, 60, 80, 100],
     )
+    @pytest.mark.bdd
     def test_respects_different_max_lengths(self, max_length: int) -> None:
         """Scenario: Fixer respects different max length limits.
 

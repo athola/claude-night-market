@@ -34,6 +34,7 @@ USAGE_DAYS = 30
 class TestServiceConfig:
     """Test ServiceConfig dataclass."""
 
+    @pytest.mark.bdd
     def test_service_config_creation(self, delegation_service_config) -> None:
         """Given valid service config data when creating ServiceConfig.
 
@@ -51,6 +52,7 @@ class TestServiceConfig:
 class TestExecutionResult:
     """Test ExecutionResult dataclass."""
 
+    @pytest.mark.bdd
     def test_execution_result_creation(self) -> None:
         """Given execution data when creating ExecutionResult.
 
@@ -76,6 +78,7 @@ class TestExecutionResult:
 class TestDelegator:
     """Test Delegator class functionality."""
 
+    @pytest.mark.bdd
     def test_delegator_initialization_default_config_dir(self) -> None:
         """Given no config dir when initializing Delegator.
 
@@ -88,6 +91,7 @@ class TestDelegator:
         assert delegator.config_file == expected_path / "config.json"
         assert delegator.usage_log == expected_path / "usage.jsonl"
 
+    @pytest.mark.bdd
     def test_delegator_initialization_custom_config_dir(self, temp_config_dir) -> None:
         """Given custom config dir when initializing Delegator.
 
@@ -116,6 +120,7 @@ class TestDelegator:
         assert custom_service.command == "custom"
         assert custom_service.auth_env_var == "CUSTOM_API_KEY"
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_verify_service_success(self, mock_run, temp_config_dir) -> None:
         """Given available service when verifying then should return success."""
@@ -130,6 +135,7 @@ class TestDelegator:
         assert is_available is True
         assert len(issues) == 0
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_verify_service_command_not_found(self, mock_run, temp_config_dir) -> None:
         """Given missing command when verifying then should return error."""
@@ -141,6 +147,7 @@ class TestDelegator:
         assert is_available is False
         assert any("not found" in issue for issue in issues)
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_verify_service_missing_auth(self, mock_run, temp_config_dir) -> None:
         """Given missing auth env var when verifying then should return error."""
@@ -197,6 +204,7 @@ class TestDelegator:
         assert isinstance(tokens, int)
         assert tokens > 0
 
+    @pytest.mark.bdd
     def test_build_command_basic(self, temp_config_dir) -> None:
         """Given basic parameters when building command.
 
@@ -208,6 +216,7 @@ class TestDelegator:
 
         assert command == ["gemini", "-p", "test prompt"]
 
+    @pytest.mark.bdd
     def test_build_command_with_options(self, temp_config_dir) -> None:
         """Given options when building command.
 
@@ -227,6 +236,7 @@ class TestDelegator:
         assert "--temperature" in command
         assert "0.7" in command
 
+    @pytest.mark.bdd
     def test_build_command_with_files(self, sample_files, temp_config_dir) -> None:
         """Given files when building command then should include file references."""
         delegator = Delegator(config_dir=temp_config_dir)
@@ -239,6 +249,7 @@ class TestDelegator:
         for file_path in file_paths:
             assert f"@{file_path}" in command_str
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
     def test_execute_success(self, mock_estimate, mock_run, temp_config_dir) -> None:
@@ -261,6 +272,7 @@ class TestDelegator:
         assert result.service == "gemini"
         assert result.tokens_used == DEFAULT_TOKENS_USED
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     @patch("delegation_executor.Delegator.estimate_tokens")
     def test_execute_failure(self, mock_estimate, mock_run, temp_config_dir) -> None:
@@ -279,6 +291,7 @@ class TestDelegator:
         assert result.exit_code == 1
         assert result.service == "gemini"
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_execute_timeout(self, mock_run, temp_config_dir) -> None:
         """Given command timeout when executing then should return timeout result."""
@@ -320,6 +333,7 @@ class TestDelegator:
         assert "timestamp" in log_entry
         assert "duration" in log_entry
 
+    @pytest.mark.bdd
     def test_get_usage_summary_no_log(self, temp_config_dir) -> None:
         """Given no usage log when getting summary then should return empty stats."""
         delegator = Delegator(config_dir=temp_config_dir)
@@ -373,6 +387,7 @@ class TestDelegator:
         assert service == "gemini"
         mock_execute.assert_called_once()
 
+    @pytest.mark.bdd
     @patch("delegation_executor.Delegator.verify_service")
     def test_smart_delegate_no_services(self, mock_verify, temp_config_dir) -> None:
         """Given no services available when smart delegating then should raise error."""
@@ -433,6 +448,7 @@ class TestDelegatorCli:
 
         mock_delegator.verify_service.assert_called_once_with("gemini")
 
+    @pytest.mark.bdd
     @patch("delegation_executor.Delegator")
     @patch("sys.argv", ["delegation_executor.py", "gemini", "test prompt"])
     def test_cli_execute_delegation(self, mock_delegator_class) -> None:

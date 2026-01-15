@@ -200,6 +200,7 @@ class TestIsSafeContent:
         result = is_safe_content(content, default_config)
         assert result.is_safe is True
 
+    @pytest.mark.bdd
     def test_binary_rejected(self, default_config: dict) -> None:
         """Binary (non-UTF8) content should be rejected."""
         content = b"\x80\x81\x82\x83"  # Invalid UTF-8
@@ -207,6 +208,7 @@ class TestIsSafeContent:
         assert result.is_safe is False
         assert "binary" in result.reason.lower() or "utf" in result.reason.lower()
 
+    @pytest.mark.bdd
     def test_multiple_issues_first_wins(self, default_config: dict) -> None:
         """When multiple issues exist, first check wins (fast fail)."""
         # Size check runs first

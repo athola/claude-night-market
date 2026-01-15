@@ -21,6 +21,7 @@ from pensive.skills.base import (
 class TestReviewFinding:
     """Test the ReviewFinding dataclass."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_finding_with_required_fields(self) -> None:
         """Given required fields, creates finding correctly."""
@@ -38,6 +39,7 @@ class TestReviewFinding:
         assert finding.category == "security"
         assert finding.message == "Potential SQL injection"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_finding_with_optional_fields(self) -> None:
         """Given optional fields, includes them correctly."""
@@ -54,6 +56,7 @@ class TestReviewFinding:
         assert finding.suggestion == "Break into multiple lines"
         assert finding.code_snippet == "x = 1 + 2 + 3 + 4 + 5"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_default_optional_fields_are_empty(self) -> None:
         """Given no optional fields, defaults to empty strings."""
@@ -72,6 +75,7 @@ class TestReviewFinding:
 class TestApiExport:
     """Test the ApiExport dataclass."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_export_with_required_fields(self) -> None:
         """Given required fields, creates export correctly."""
@@ -80,6 +84,7 @@ class TestApiExport:
         assert export.name == "calculate"
         assert export.export_type == "function"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_export_with_optional_fields(self) -> None:
         """Given optional fields, includes them correctly."""
@@ -95,6 +100,7 @@ class TestApiExport:
         assert export.documentation == "A sample class"
         assert export.line == 100
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_default_visibility_is_public(self) -> None:
         """Given no visibility, defaults to public."""
@@ -102,6 +108,7 @@ class TestApiExport:
 
         assert export.visibility == "public"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_default_line_is_zero(self) -> None:
         """Given no line number, defaults to zero."""
@@ -113,6 +120,7 @@ class TestApiExport:
 class TestAnalysisResult:
     """Test the AnalysisResult dataclass."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_empty_result(self) -> None:
         """Given no arguments, creates empty result."""
@@ -122,6 +130,7 @@ class TestAnalysisResult:
         assert result.warnings == []
         assert result.info == {}
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_result_with_issues(self) -> None:
         """Given issues, stores them correctly."""
@@ -137,6 +146,7 @@ class TestAnalysisResult:
         assert len(result.issues) == 1
         assert result.issues[0].message == "Test issue"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_result_with_warnings(self) -> None:
         """Given warnings, stores them correctly."""
@@ -145,6 +155,7 @@ class TestAnalysisResult:
         assert len(result.warnings) == 2
         assert "Warning 1" in result.warnings
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_result_with_info(self) -> None:
         """Given info dict, stores it correctly."""
@@ -157,6 +168,7 @@ class TestAnalysisResult:
 class TestBaseReviewSkill:
     """Test the BaseReviewSkill class."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_initializes_with_empty_findings(self) -> None:
         """Given new instance, has empty findings list."""
@@ -164,6 +176,7 @@ class TestBaseReviewSkill:
 
         assert skill.findings == []
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_has_default_skill_name(self) -> None:
         """Given base class, has 'base' skill name."""
@@ -171,6 +184,7 @@ class TestBaseReviewSkill:
 
         assert skill.skill_name == "base"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_has_empty_supported_languages(self) -> None:
         """Given base class, has empty supported languages."""
@@ -178,6 +192,7 @@ class TestBaseReviewSkill:
 
         assert skill.supported_languages == []
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyze_returns_empty_result(self) -> None:
         """Given base implementation, analyze returns empty result."""
@@ -189,6 +204,7 @@ class TestBaseReviewSkill:
         assert isinstance(result, AnalysisResult)
         assert result.issues == []
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_with_no_findings(self) -> None:
         """Given no findings, returns no issues message."""
@@ -198,6 +214,7 @@ class TestBaseReviewSkill:
 
         assert report == "No issues found."
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_with_findings(self) -> None:
         """Given findings, generates formatted report."""
@@ -228,6 +245,7 @@ class TestBaseReviewSkill:
         assert "Suggestion: Fix the issue" in report
         assert "[low] utils.py:25" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_content_with_context_method(self) -> None:
         """Given context with method, extracts content."""
@@ -239,6 +257,7 @@ class TestBaseReviewSkill:
 
         assert content == "file content"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_content_with_filename(self) -> None:
         """Given filename, calls context with filename."""
@@ -251,6 +270,7 @@ class TestBaseReviewSkill:
         assert content == "specific content"
         mock_context.get_file_content.assert_called_once_with("specific.py")
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_content_without_method(self) -> None:
         """Given context without method, returns empty string."""
@@ -261,6 +281,7 @@ class TestBaseReviewSkill:
 
         assert content == ""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_content_non_string_return(self) -> None:
         """Given context returning non-string, returns empty string."""
@@ -272,6 +293,7 @@ class TestBaseReviewSkill:
 
         assert content == ""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_find_line_basic(self) -> None:
         """Given position, finds correct line number."""
@@ -284,6 +306,7 @@ class TestBaseReviewSkill:
         line = skill._find_line(content, 6)  # Start of line 2
         assert line == 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_basic(self) -> None:
         """Given line number, extracts snippet."""
@@ -294,6 +317,7 @@ class TestBaseReviewSkill:
 
         assert "def foo():" in snippet
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_invalid_line(self) -> None:
         """Given invalid line number, returns empty string."""
@@ -306,6 +330,7 @@ class TestBaseReviewSkill:
         snippet = skill._extract_snippet(content, 100)
         assert snippet == ""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_severity_basic(self) -> None:
         """Given issues, categorizes by severity."""
@@ -320,6 +345,7 @@ class TestBaseReviewSkill:
 
         assert len(categorized) == 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_markdown_report_basic(self) -> None:
         """Given title and sections, creates markdown report."""
@@ -340,6 +366,7 @@ class TestBaseReviewSkill:
 class TestBaseReviewSkillSubclassing:
     """Test that BaseReviewSkill can be properly subclassed."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_subclass_can_override_skill_name(self) -> None:
         """Given subclass, can override skill_name."""
@@ -350,6 +377,7 @@ class TestBaseReviewSkillSubclassing:
         skill = CustomSkill()
         assert skill.skill_name == "custom"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_subclass_can_override_supported_languages(self) -> None:
         """Given subclass, can override supported_languages."""
@@ -360,6 +388,7 @@ class TestBaseReviewSkillSubclassing:
         skill = PythonSkill()
         assert skill.supported_languages == ["python", "cython"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_subclass_can_override_analyze(self) -> None:
         """Given subclass, can override analyze method."""

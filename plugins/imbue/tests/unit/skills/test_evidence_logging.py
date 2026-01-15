@@ -500,6 +500,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         assert "E1" in findings[0]["evidence_refs"]
         assert "E2" in findings[1]["evidence_refs"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_error_handling(self, sample_evidence_session) -> None:
         """Scenario: Evidence logging handles errors gracefully.
@@ -580,6 +581,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         assert len(loaded_evidence["evidence"]) == 1
         assert loaded_evidence["evidence"][0]["id"] == "E1"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_evidence_session_uniqueness(self) -> None:
         """Scenario: Evidence logging generates unique session IDs.
@@ -607,6 +609,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             assert "evidence-session-" in session_id
             assert "T" in session_id  # Contains timestamp
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_evidence_logging_performance(self, sample_evidence_session) -> None:
         """Scenario: Evidence logging performs efficiently with large datasets.

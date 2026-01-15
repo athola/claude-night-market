@@ -491,6 +491,7 @@ class TestAllModulesExist:
             "pattern-completion.md",
         ],
     )
+    @pytest.mark.bdd
     def test_module_exists(self, modules_dir: Path, module_name: str) -> None:
         """Scenario: Each documented module exists.
 
@@ -515,6 +516,7 @@ class TestAllModulesExist:
             "pattern-completion.md",
         ],
     )
+    @pytest.mark.bdd
     def test_module_is_not_empty(self, modules_dir: Path, module_name: str) -> None:
         """Scenario: Each module has substantial content.
 

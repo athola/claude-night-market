@@ -41,6 +41,7 @@ class TestSafeDependencyUpdater:
         skill_path.mkdir(parents=True)
         return skill_path
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_updater_initialization(self, updater: SafeDependencyUpdater) -> None:
         """Scenario: Updater initializes with correct patterns.
@@ -260,6 +261,7 @@ class TestSafeDependencyUpdater:
 class TestOutputFunctions:
     """Feature: Output formatting for CLI results."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_output_result_text_format(self, capsys) -> None:
         """Scenario: Output result in text format.
@@ -277,6 +279,7 @@ class TestOutputFunctions:
         assert "Files updated: 5" in captured.out
         assert "Total changes: 10" in captured.out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_output_result_json_format(self, capsys) -> None:
         """Scenario: Output result in JSON format.
@@ -295,6 +298,7 @@ class TestOutputFunctions:
         assert data["success"] is True
         assert data["data"]["files_updated"] == 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_output_result_with_issues(self, capsys) -> None:
         """Scenario: Output result with issues in text format.
@@ -315,6 +319,7 @@ class TestOutputFunctions:
         captured = capsys.readouterr()
         assert "Issues found:" in captured.out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_output_error_text_format(self, capsys) -> None:
         """Scenario: Output error in text format.
@@ -330,6 +335,7 @@ class TestOutputFunctions:
         captured = capsys.readouterr()
         assert "Error: Something went wrong" in captured.err
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_output_error_json_format(self, capsys) -> None:
         """Scenario: Output error in JSON format.
@@ -359,6 +365,7 @@ class TestMainCLI:
         skill.write_text("Uses git-workspace-review here.")
         return tmp_path
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_main_update_mode(self, skill_tree: Path, capsys) -> None:
         """Scenario: Run main in update mode.
@@ -373,6 +380,7 @@ class TestMainCLI:
         captured = capsys.readouterr()
         assert "Files updated:" in captured.out
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_main_validate_only(self, skill_tree: Path, capsys) -> None:
         """Scenario: Run main in validate-only mode.
@@ -397,6 +405,7 @@ class TestMainCLI:
             "Files updated:" in captured.out or "files_scanned" in captured.out.lower()
         )
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_main_json_output(self, skill_tree: Path, capsys) -> None:
         """Scenario: Run main with JSON output.
@@ -415,6 +424,7 @@ class TestMainCLI:
         assert "success" in data
         assert data["success"] is True
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_main_nonexistent_path(self, tmp_path: Path, capsys) -> None:
         """Scenario: Run main with non-existent path.
@@ -430,6 +440,7 @@ class TestMainCLI:
         captured = capsys.readouterr()
         assert "Error" in captured.err or "Path not found" in captured.err
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_main_nonexistent_path_json(self, tmp_path: Path, capsys) -> None:
         """Scenario: Run main with non-existent path in JSON mode.
@@ -451,6 +462,7 @@ class TestMainCLI:
         assert data["success"] is False
         assert "error" in data
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_main_validate_only_json(self, skill_tree: Path, capsys) -> None:
         """Scenario: Validate-only mode with JSON output.

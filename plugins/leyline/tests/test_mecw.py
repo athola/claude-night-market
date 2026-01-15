@@ -9,6 +9,7 @@ from leyline import mecw
 class TestCalculateContextPressure:
     """Feature: Context pressure classification."""
 
+    @pytest.mark.bdd
     def test_classifies_pressure_levels(self) -> None:
         """Scenario: Mapping usage ratios to pressure levels."""
         assert mecw.calculate_context_pressure(0, 100) == "LOW"
@@ -16,6 +17,7 @@ class TestCalculateContextPressure:
         assert mecw.calculate_context_pressure(60, 100) == "HIGH"
         assert mecw.calculate_context_pressure(80, 100) == "CRITICAL"
 
+    @pytest.mark.bdd
     def test_invalid_max_tokens_is_critical(self) -> None:
         """Scenario: Handling invalid max token values."""
         assert mecw.calculate_context_pressure(10, 0) == "CRITICAL"
@@ -25,6 +27,7 @@ class TestCalculateContextPressure:
 class TestMECWMonitor:
     """Feature: MECW monitoring warnings and recommendations."""
 
+    @pytest.mark.bdd
     def test_emits_critical_warnings(self) -> None:
         """Scenario: CRITICAL pressure triggers warnings and actions."""
         monitor = mecw.MECWMonitor(max_context=100)
@@ -36,6 +39,7 @@ class TestMECWMonitor:
         assert any("CRITICAL" in warning for warning in status.warnings)
         assert "Execute context reset immediately" in status.recommendations
 
+    @pytest.mark.bdd
     def test_detects_rapid_growth(self) -> None:
         """Scenario: Rapid growth in usage triggers warning."""
         monitor = mecw.MECWMonitor(max_context=100)
@@ -49,6 +53,7 @@ class TestMECWMonitor:
             "Rapid context growth detected" in warning for warning in status.warnings
         )
 
+    @pytest.mark.bdd
     def test_rejects_additional_tokens_when_over_limit(self) -> None:
         """Scenario: Additional tokens push usage over MECW threshold."""
         monitor = mecw.MECWMonitor(max_context=100)

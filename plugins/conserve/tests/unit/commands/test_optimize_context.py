@@ -516,6 +516,7 @@ class TestOptimizeContextCommand:
                 result["expected_effectiveness"] >= ZERO_POINT_FIVE
             )  # Should be reasonably effective
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_provides_comprehensive_feedback(self, mock_claude_tools) -> None:
         """Scenario: Command provides detailed feedback on optimization results.

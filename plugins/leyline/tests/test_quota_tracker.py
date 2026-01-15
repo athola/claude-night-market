@@ -11,6 +11,7 @@ from leyline.quota_tracker import QuotaConfig, QuotaTracker
 class TestQuotaTracker:
     """Feature: Quota tracking for rate-limited services."""
 
+    @pytest.mark.bdd
     def test_quota_status_warns_on_high_token_usage(self, tmp_path: Path) -> None:
         """Scenario: High token usage triggers warning level."""
         config = QuotaConfig(tokens_per_minute=100, requests_per_minute=60)
@@ -27,6 +28,7 @@ class TestQuotaTracker:
         assert level == "warning"
         assert any("TPM" in warning for warning in warnings)
 
+    @pytest.mark.bdd
     def test_can_handle_task_flags_token_overage(self, tmp_path: Path) -> None:
         """Scenario: Task exceeds minute token budget."""
         config = QuotaConfig(tokens_per_minute=100, requests_per_minute=60)
@@ -43,6 +45,7 @@ class TestQuotaTracker:
         assert can_proceed is False
         assert any("TPM limit" in issue for issue in issues)
 
+    @pytest.mark.bdd
     def test_estimate_task_tokens_accounts_for_prompt(self, tmp_path: Path) -> None:
         """Scenario: Estimating tokens from prompt and file sizes."""
         file_path = tmp_path / "notes.txt"

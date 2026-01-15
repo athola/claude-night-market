@@ -636,6 +636,7 @@ Immediate remediation of critical findings is essential before production deploy
             "reproducible_commands": True,
         }
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_agent_handles_tool_failures_gracefully(self, mock_claude_tools) -> None:
         """Scenario: Agent handles tool failures gracefully.
@@ -700,6 +701,7 @@ Immediate remediation of critical findings is essential before production deploy
         assert analysis_report["confidence_level"] == "medium"
         assert all("error" in error for error in errors_encountered)
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_agent_performance_with_large_codebases(self) -> None:
         """Scenario: Agent performs efficiently with large codebases.

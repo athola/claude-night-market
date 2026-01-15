@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 from delegation_executor import Delegator, ExecutionResult
@@ -22,6 +24,7 @@ MIN_MODEL_CHOICES = 2
 class TestSkillStructure:
     """Test skill file structure and metadata."""
 
+    @pytest.mark.bdd
     def test_gemini_delegation_skill_structure(self) -> None:
         """Given gemini-delegation skill file when reading structure.
 
@@ -45,6 +48,7 @@ class TestSkillStructure:
         # Check for required sections (trigger logic now in frontmatter description)
         assert "# Exit Criteria" in content
 
+    @pytest.mark.bdd
     def test_delegation_core_skill_structure(self) -> None:
         """Given delegation-core skill file when reading structure.
 
@@ -64,6 +68,7 @@ class TestSkillStructure:
         assert "delegation" in content.lower()  # Description references delegation
         assert "category: delegation" in content
 
+    @pytest.mark.bdd
     def test_qwen_delegation_skill_structure(self) -> None:
         """Given qwen-delegation skill file when reading structure.
 
@@ -87,6 +92,7 @@ class TestSkillStructure:
 class TestSkillDependencyResolution:
     """Test skill dependency management."""
 
+    @pytest.mark.bdd
     def test_gemini_delegation_dependencies(self) -> None:
         """Given gemini-delegation skill when checking dependencies.
 
@@ -103,6 +109,7 @@ class TestSkillDependencyResolution:
             "gemini-delegation should depend on delegation-core"
         )
 
+    @pytest.mark.bdd
     def test_skill_tool_requirements(self) -> None:
         """Given skill files when checking tool requirements.
 
@@ -117,6 +124,7 @@ class TestSkillDependencyResolution:
         assert "tools:" in content
         assert "gemini-cli" in content
 
+    @pytest.mark.bdd
     def test_skill_usage_patterns(self) -> None:
         """Given skill files when checking usage patterns.
 
@@ -136,6 +144,7 @@ class TestSkillDependencyResolution:
 class TestGeminiDelegationSkill:
     """Test gemini-delegation skill execution scenarios."""
 
+    @pytest.mark.bdd
     def test_authentication_verification_flow(self) -> None:
         """Given authentication step when executing gemini-delegation.
 
@@ -147,6 +156,7 @@ class TestGeminiDelegationSkill:
         assert len(auth_commands) == 2
         assert "gemini auth status" in auth_commands
 
+    @pytest.mark.bdd
     def test_quota_checking_flow(self) -> None:
         """Given quota checking step when executing gemini-delegation.
 
@@ -161,6 +171,7 @@ class TestGeminiDelegationSkill:
         assert len(quota_commands) == 2
         assert "quota_tracker.py" in quota_commands[1]
 
+    @pytest.mark.bdd
     def test_command_construction_patterns(self, tmp_path, monkeypatch) -> None:
         """Given command construction step when executing gemini-delegation.
 
@@ -195,6 +206,7 @@ class TestGeminiDelegationSkill:
         assert "--model" in cmd
         assert "gemini-2.5-pro-exp" in cmd
 
+    @pytest.mark.bdd
     def test_usage_logging_flow(self) -> None:
         """Given usage logging step when executing gemini-delegation.
 
@@ -211,6 +223,7 @@ class TestGeminiDelegationSkill:
         assert "success" in log_pattern
         assert "duration_seconds" in log_pattern
 
+    @pytest.mark.bdd
     def test_delegation_workflow_integration(self, tmp_path, monkeypatch) -> None:
         """Given complete workflow when executing gemini-delegation.
 
@@ -282,6 +295,7 @@ class TestGeminiDelegationSkill:
 class TestQwenDelegationSkill:
     """Test qwen-delegation skill execution scenarios."""
 
+    @pytest.mark.bdd
     def test_qwen_skill_structure(self) -> None:
         """Given qwen-delegation skill when checking structure.
 
@@ -297,6 +311,7 @@ class TestQwenDelegationSkill:
         assert "Prerequisites" in content
         assert "Delegation Flow" in content
 
+    @pytest.mark.bdd
     def test_qwen_authentication_differences(self) -> None:
         """Given qwen-delegation skill when checking authentication.
 
@@ -315,6 +330,7 @@ class TestQwenDelegationSkill:
 class TestSkillErrorHandling:
     """Test skill error handling scenarios."""
 
+    @pytest.mark.bdd
     def test_authentication_failure_handling(self) -> None:
         """Given authentication failure when executing skill.
 
@@ -330,6 +346,7 @@ class TestSkillErrorHandling:
 
         assert len(recovery_steps) >= MIN_RECOVERY_STRATEGIES
 
+    @pytest.mark.bdd
     def test_quota_exhaustion_handling(self) -> None:
         """Given quota exhaustion when executing skill.
 
@@ -345,6 +362,7 @@ class TestSkillErrorHandling:
 
         assert len(recovery_strategies) >= MIN_RECOVERY_STRATEGIES
 
+    @pytest.mark.bdd
     def test_context_too_large_handling(self) -> None:
         """Given context too large error when executing skill.
 
@@ -363,6 +381,7 @@ class TestSkillErrorHandling:
 class TestSkillPerformanceConsiderations:
     """Test skill performance and optimization."""
 
+    @pytest.mark.bdd
     def test_token_usage_estimates(self) -> None:
         """Given skill when checking token estimates.
 
@@ -382,6 +401,7 @@ class TestSkillPerformanceConsiderations:
             assert isinstance(max_tokens, int)
             assert max_tokens >= min_tokens
 
+    @pytest.mark.bdd
     def test_model_selection_guidance(self) -> None:
         """Given skill when checking model selection.
 
@@ -396,6 +416,7 @@ class TestSkillPerformanceConsiderations:
 
         assert len(models) >= MIN_MODEL_CHOICES
 
+    @pytest.mark.bdd
     def test_cost_estimates(self) -> None:
         """Given skill when checking costs.
 
@@ -417,6 +438,7 @@ class TestSkillPerformanceConsiderations:
 class TestSkillIntegrationWithHooks:
     """Test skill integration with hook system."""
 
+    @pytest.mark.bdd
     def test_hook_files_exist(self) -> None:
         """Given skill when checking for hooks.
 
@@ -427,6 +449,7 @@ class TestSkillIntegrationWithHooks:
 
         assert hook_dir.exists(), "Gemini hooks directory should exist"
 
+    @pytest.mark.bdd
     def test_bridge_hook_compatibility(self) -> None:
         """Given skills when checking bridge hooks then should be compatible."""
         # The skills should work with the bridge hooks tested in test_hooks.py
@@ -440,6 +463,7 @@ class TestSkillIntegrationWithHooks:
 class TestSkillConfigurationManagement:
     """Test skill configuration and customization."""
 
+    @pytest.mark.bdd
     def test_environment_variable_support(self) -> None:
         """Given skill when checking configuration.
 
@@ -454,6 +478,7 @@ class TestSkillConfigurationManagement:
         assert "GEMINI_API_KEY" in content
         assert "export " in content  # For setting environment variables
 
+    @pytest.mark.bdd
     def test_model_configuration(self) -> None:
         """Given skill when checking configuration.
 
@@ -468,6 +493,7 @@ class TestSkillConfigurationManagement:
         assert "model" in content.lower()
         assert "--model" in content
 
+    @pytest.mark.bdd
     def test_timeout_configuration(self) -> None:
         """Given skill when checking configuration.
 

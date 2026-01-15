@@ -11,6 +11,7 @@ from leyline import tokens
 class TestTokenEstimation:
     """Feature: Token estimation heuristics."""
 
+    @pytest.mark.bdd
     def test_estimate_file_tokens_respects_ratios(self, tmp_path: Path) -> None:
         """Scenario: Estimating tokens from file size and extension."""
         file_path = tmp_path / "sample.py"
@@ -22,6 +23,7 @@ class TestTokenEstimation:
 
         assert tokens.estimate_file_tokens(file_path) == expected
 
+    @pytest.mark.bdd
     def test_iter_source_files_skips_excluded_dirs(self, tmp_path: Path) -> None:
         """Scenario: Skipping cache directories and filtering extensions."""
         repo_root = tmp_path / "project"

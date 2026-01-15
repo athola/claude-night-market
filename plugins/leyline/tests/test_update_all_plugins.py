@@ -65,6 +65,7 @@ class TestReadInstalledPlugins:
 
         assert result == {}
 
+    @pytest.mark.bdd
     @patch("pathlib.Path.exists", return_value=False)
     def test_missing_config_file(self, mock_exists: MagicMock) -> None:
         """Scenario: Handling a missing configuration file.
@@ -80,6 +81,7 @@ class TestReadInstalledPlugins:
 
         assert excinfo.value.code == 1
 
+    @pytest.mark.bdd
     @patch("pathlib.Path.open", new_callable=mock_open)
     @patch("pathlib.Path.exists", return_value=True)
     def test_invalid_json(self, mock_exists: MagicMock, mock_file: MagicMock) -> None:
@@ -157,6 +159,7 @@ class TestUpdatePlugin:
     So that plugins stay current.
     """
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_plugin_already_latest(self, mock_run: MagicMock) -> None:
         """Scenario: Updating a plugin already at the latest version.
@@ -185,6 +188,7 @@ class TestUpdatePlugin:
             timeout=30,
         )
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_plugin_successfully_updated(self, mock_run: MagicMock) -> None:
         """Scenario: Successfully updating a plugin to a new version.
@@ -208,6 +212,7 @@ class TestUpdatePlugin:
         assert old_version == "1.0.0"
         assert new_version == "2"
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_plugin_update_without_version_info(self, mock_run: MagicMock) -> None:
         """Scenario: Updating a plugin with unparseable version information.
@@ -229,6 +234,7 @@ class TestUpdatePlugin:
         assert old_version == "unknown"
         assert new_version == "unknown"
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_plugin_update_failed(self, mock_run: MagicMock) -> None:
         """Scenario: Handling a failed plugin update.
@@ -250,6 +256,7 @@ class TestUpdatePlugin:
         assert old_version == "error"
         assert new_version == "error"
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_plugin_update_timeout(self, mock_run: MagicMock) -> None:
         """Scenario: Handling a plugin update timeout.
@@ -270,6 +277,7 @@ class TestUpdatePlugin:
         assert new_version == "timeout"
         mock_print.assert_called_with("[TIMEOUT] Timeout updating test@marketplace")
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_plugin_update_exception(self, mock_run: MagicMock) -> None:
         """Scenario: Handling an unexpected exception during update.
@@ -292,6 +300,7 @@ class TestUpdatePlugin:
             "[ERROR] Error updating test@marketplace: Exception: Unexpected error"
         )
 
+    @pytest.mark.bdd
     @patch("subprocess.run")
     def test_plugin_update_with_dotted_version(self, mock_run: MagicMock) -> None:
         """Scenario: Updating a plugin with a dotted version number.

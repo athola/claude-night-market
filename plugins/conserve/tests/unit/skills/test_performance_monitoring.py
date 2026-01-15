@@ -541,6 +541,7 @@ tags:
         # Note: error_count can be 0 because the mock returns valid strings
         # that don't trigger exceptions - this is expected graceful handling
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_performance_monitoring_adapts_to_system_resources(self) -> None:
         """Scenario: Performance monitoring adapts to different system configurations.

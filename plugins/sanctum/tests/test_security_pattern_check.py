@@ -45,6 +45,7 @@ def run_hook(tool_name: str, tool_input: dict) -> tuple[int, str, str]:
 class TestSecurityPatternCheck:
     """Test suite for security pattern detection."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_eval_in_python_code(self) -> None:
         """Given dynamic code evaluation in Python file, returns security warning."""
@@ -55,6 +56,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "dynamic_code_evaluation" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_exec_in_python_code(self) -> None:
         """Given dynamic code execution in Python file, returns security warning."""
@@ -65,6 +67,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "dynamic_code_execution" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_os_system_in_python(self) -> None:
         """Given system call in Python file, returns security warning."""
@@ -75,6 +78,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "os_system_call" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_shell_true_in_subprocess(self) -> None:
         """Given subprocess with unsafe mode, returns warning."""
@@ -85,6 +89,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "subprocess_shell_mode" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_deserialization_pattern(self) -> None:
         """Given unsafe deserialization, returns security warning."""
@@ -95,6 +100,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "deserialization" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_allows_pattern_in_docs_with_warning_context(self) -> None:
         """Given pattern in docs with warning context, allows it."""
@@ -105,6 +111,7 @@ class TestSecurityPatternCheck:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_allows_pattern_with_avoid_context(self) -> None:
         """Given pattern near 'avoid' keyword, allows it in docs."""
@@ -115,6 +122,7 @@ class TestSecurityPatternCheck:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_allows_pattern_with_bad_example_context(self) -> None:
         """Given pattern in 'bad' example context, allows it in docs."""
@@ -125,6 +133,7 @@ class TestSecurityPatternCheck:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_allows_pattern_with_dont_context(self) -> None:
         """Given pattern with "don't" nearby, allows it in docs."""
@@ -135,6 +144,7 @@ class TestSecurityPatternCheck:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_ignores_pattern_in_wrong_file_type(self) -> None:
         """Given Python pattern in non-Python file, ignores it."""
@@ -144,6 +154,7 @@ class TestSecurityPatternCheck:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_eval_in_javascript(self) -> None:
         """Given dynamic code in JS file, returns security warning."""
@@ -154,6 +165,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "dynamic_code_evaluation" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_edit_new_string(self) -> None:
         """Given Edit tool with unsafe pattern, returns warning."""
@@ -167,6 +179,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "dynamic_code_execution" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_allows_safe_edit(self) -> None:
         """Given Edit tool with safe pattern, allows it."""
@@ -178,6 +191,7 @@ class TestSecurityPatternCheck:
         returncode, _, _ = run_hook("Edit", tool_input)
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_multi_edit_combined(self) -> None:
         """Given MultiEdit with unsafe pattern, returns warning."""
@@ -193,6 +207,7 @@ class TestSecurityPatternCheck:
         assert returncode == 2
         assert "dynamic_code_evaluation" in stderr
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_allows_safe_multi_edit(self) -> None:
         """Given MultiEdit with safe patterns, allows it."""
@@ -206,18 +221,21 @@ class TestSecurityPatternCheck:
         returncode, _, _ = run_hook("MultiEdit", tool_input)
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_ignores_non_write_tools(self) -> None:
         """Given Read tool, exits cleanly without checking."""
         returncode, _, _ = run_hook("Read", {"file_path": "app.py"})
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_empty_content(self) -> None:
         """Given empty content, exits cleanly."""
         returncode, _, _ = run_hook("Write", {"file_path": "empty.py", "content": ""})
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_missing_file_path(self) -> None:
         """Given missing file_path, exits cleanly."""
@@ -225,6 +243,7 @@ class TestSecurityPatternCheck:
         returncode, _, _ = run_hook("Write", {"content": pattern})
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_invalid_json_input(self) -> None:
         """Given invalid JSON input, exits cleanly."""
@@ -237,6 +256,7 @@ class TestSecurityPatternCheck:
         )
         assert result.returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_case_insensitive_pattern_matching(self) -> None:
         """Given mixed case pattern, still detects it."""
@@ -271,6 +291,7 @@ class TestDocumentationFileDetection:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recognizes_docs_directory(self) -> None:
         """Given file in docs directory with negative context, allows it."""
@@ -281,6 +302,7 @@ class TestDocumentationFileDetection:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recognizes_examples_directory(self) -> None:
         """Given file in examples directory with negative context, allows it."""
@@ -295,6 +317,7 @@ class TestDocumentationFileDetection:
 class TestCodeBlockHandling:
     """Test code block detection in markdown."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_pattern_in_code_block_with_context_allowed(self) -> None:
         """Given pattern in code block with negative context, allows it."""
@@ -305,6 +328,7 @@ class TestCodeBlockHandling:
         )
         assert returncode == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_pattern_in_code_block_without_context_flags(self) -> None:
         """Given pattern in code block without negative context, may flag."""

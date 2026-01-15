@@ -26,6 +26,7 @@ class TestRustReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_unsafe_code_blocks(self, mock_skill_context) -> None:
         """Given unsafe code, skill identifies and validates unsafe blocks."""
@@ -80,6 +81,7 @@ class TestRustReviewSkill:
             for block in unsafe_analysis["unsafe_blocks"]
         )
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_ownership_patterns(self, mock_skill_context) -> None:
         """Given ownership code, skill detects ownership violations."""
@@ -144,6 +146,7 @@ class TestRustReviewSkill:
         assert len(ownership_analysis["violations"]) >= 1
         assert len(ownership_analysis["reference_cycles"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_data_races(self, mock_skill_context) -> None:
         """Given concurrent code, when skill analyzes, then flags data race risks."""
@@ -219,6 +222,7 @@ class TestRustReviewSkill:
             len(race_analysis["thread_safety_issues"]) >= 1
         )  # Should detect RefCell usage
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_memory_safety(self, mock_skill_context) -> None:
         """Given memory management code, skill detects safety issues."""
@@ -284,6 +288,7 @@ class TestRustReviewSkill:
         assert "lifetime_issues" in memory_analysis
         assert len(memory_analysis["unsafe_operations"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_panic_propagation(self, mock_skill_context) -> None:
         """Given error handling code, skill flags improper panic usage."""
@@ -344,6 +349,7 @@ class TestRustReviewSkill:
         assert "index_panics" in panic_analysis
         assert len(panic_analysis["panic_points"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_async_await_patterns(self, mock_skill_context) -> None:
         """Given async code, when skill analyzes, then detects async pattern issues."""
@@ -416,6 +422,7 @@ class TestRustReviewSkill:
         assert "send_sync_issues" in async_analysis
         assert len(async_analysis["blocking_operations"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_cargo_toml_dependencies(self, mock_skill_context) -> None:
         """Given Cargo.toml, skill validates dependencies and features."""
@@ -455,6 +462,7 @@ class TestRustReviewSkill:
         assert "feature_analysis" in dependency_analysis
         assert len(dependency_analysis["version_issues"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_macro_usage_patterns(self, mock_skill_context) -> None:
         """Given macros, skill identifies problematic patterns."""
@@ -519,6 +527,7 @@ class TestRustReviewSkill:
         assert "problematic_patterns" in macro_analysis
         assert len(macro_analysis["problematic_patterns"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_trait_implementations(self, mock_skill_context) -> None:
         """Given trait implementations, skill detects related issues."""
@@ -591,6 +600,7 @@ class TestRustReviewSkill:
         assert "object_safety_issues" in trait_analysis
         assert "missing_methods" in trait_analysis
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_const_generic_usage(self, mock_skill_context) -> None:
         """Given const generics, skill validates those patterns."""
@@ -661,6 +671,7 @@ class TestRustReviewSkill:
         assert "unconstrained_usage" in const_generic_analysis
         assert len(const_generic_analysis["unconstrained_usage"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_build_optimization_issues(self, mock_skill_context) -> None:
         """Given build config, skill finds optimization opportunities."""
@@ -704,6 +715,7 @@ class TestRustReviewSkill:
         assert "dependency_optimization" in build_analysis
         assert "recommendations" in build_analysis
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_rust_security_report(self, sample_findings) -> None:
         """Given full Rust analysis, skill creates security-focused summary."""
@@ -733,6 +745,7 @@ class TestRustReviewSkill:
         assert "7.2" in report  # security score
         assert "unsafe" in report.lower()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorizes_rust_issue_severity(self) -> None:
         """Given Rust issues, skill assigns severities."""
@@ -756,6 +769,7 @@ class TestRustReviewSkill:
         assert severity_map["missing_docs"] in ["medium", "low"]
         assert severity_map["deprecated_dependency"] in ["medium", "high"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_rust_best_practices(self, mock_skill_context) -> None:
         """Given Rust analysis, skill recommends best practices."""

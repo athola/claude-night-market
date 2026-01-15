@@ -36,6 +36,7 @@ class MyClass:
     # find_line_number tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_find_line_number_at_start(self) -> None:
         """Given position at file start, returns line 1."""
@@ -45,6 +46,7 @@ class MyClass:
         # Assert
         assert line == 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_find_line_number_after_newlines(self) -> None:
         """Given position after newlines, returns correct line number."""
@@ -59,6 +61,7 @@ class MyClass:
         # Assert
         assert line == 5
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_find_line_number_middle_of_file(self) -> None:
         """Given position in middle, returns accurate line number."""
@@ -71,6 +74,7 @@ class MyClass:
         # Assert
         assert line == 9
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_find_line_number_at_end(self) -> None:
         """Given position at end of file, returns correct line number."""
@@ -88,6 +92,7 @@ class MyClass:
     # extract_code_snippet tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_single_line_no_context(self) -> None:
         """Given line number with no context, returns just that line."""
@@ -99,6 +104,7 @@ class MyClass:
         # Assert
         assert snippet == 'print("Hello, World!")'
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_with_context_lines(self) -> None:
         """Given line with context, returns surrounding lines."""
@@ -112,6 +118,7 @@ class MyClass:
         assert 'print("Hello, World!")' in snippet
         assert "return True" in snippet
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_at_file_start(self) -> None:
         """Given first line with context, handles boundary correctly."""
@@ -124,6 +131,7 @@ class MyClass:
         assert "def hello():" in snippet
         # Should not crash or include negative indices
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_at_file_end(self) -> None:
         """Given last line with context, handles boundary correctly."""
@@ -139,6 +147,7 @@ class MyClass:
         # Assert - should contain last few lines without error
         assert "self.value = 42" in snippet
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_snippet_invalid_line_number(self) -> None:
         """Given invalid line number, returns empty string."""
@@ -158,6 +167,7 @@ class MyClass:
     # get_file_content tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_file_content_from_context(self) -> None:
         """Given context with get_file_content method, extracts content."""
@@ -172,6 +182,7 @@ class MyClass:
         assert content == "file content here"
         mock_context.get_file_content.assert_called_once()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_file_content_with_filename(self) -> None:
         """Given filename, calls context with specific file."""
@@ -186,6 +197,7 @@ class MyClass:
         assert content == "specific file content"
         mock_context.get_file_content.assert_called_once_with("myfile.py")
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_file_content_missing_method(self) -> None:
         """Given context without method, returns empty string."""
@@ -198,6 +210,7 @@ class MyClass:
         # Assert
         assert content == ""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_file_content_non_string_return(self) -> None:
         """Given context returning non-string, returns empty string."""
@@ -215,6 +228,7 @@ class MyClass:
     # extract_lines_range tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_lines_range_middle(self) -> None:
         """Given valid range, extracts lines inclusively."""
@@ -227,6 +241,7 @@ class MyClass:
         assert 'print("Goodbye!")' in extracted
         assert "return False" in extracted
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_lines_range_single_line(self) -> None:
         """Given same start and end, extracts single line."""
@@ -236,6 +251,7 @@ class MyClass:
         # Assert
         assert extracted == "def hello():"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_extract_lines_range_handles_boundaries(self) -> None:
         """Given out-of-bounds range, clips to valid lines."""
@@ -250,6 +266,7 @@ class MyClass:
     # count_lines tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_lines_normal_content(self) -> None:
         """Given multi-line content, counts correctly."""
@@ -259,6 +276,7 @@ class MyClass:
         # Assert
         assert count == 12
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_lines_single_line(self) -> None:
         """Given single line content, returns 1."""
@@ -268,6 +286,7 @@ class MyClass:
         # Assert
         assert count == 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_lines_empty_string(self) -> None:
         """Given empty string, returns 1 (empty line)."""
@@ -281,6 +300,7 @@ class MyClass:
     # strip_comments tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_strip_comments_python_style(self) -> None:
         """Given Python comments, strips them correctly."""
@@ -299,6 +319,7 @@ y = 2
         assert "x = 1" in stripped
         assert "y = 2" in stripped
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_strip_comments_custom_char(self) -> None:
         """Given custom comment char, uses it for stripping."""
@@ -316,6 +337,7 @@ result = 20
         assert "value = 10" in stripped
         assert "result = 20" in stripped
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_strip_comments_preserves_non_comment_lines(self) -> None:
         """Given code without comments, preserves all code lines."""

@@ -179,6 +179,7 @@ class TestContextWarningHook:
             assert alert.usage_percent == usage
             assert "CRITICAL" in alert.message
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_alert_serialization_to_dict(self, context_warning_module) -> None:
         """Scenario: ContextAlert serializes correctly to dictionary.
@@ -205,6 +206,7 @@ class TestContextWarningHook:
         assert result["message"] == "Test message"
         assert result["recommendations"] == ["Rec 1", "Rec 2"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_alert_serialization_to_json(self, context_warning_module) -> None:
         """Scenario: ContextAlert can be serialized to JSON.
@@ -230,6 +232,7 @@ class TestContextWarningHook:
         assert parsed["severity"] == "critical"
         assert parsed["usage_percent"] == FIFTY_PERCENT_DISPLAY
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_threshold_constants_are_correct(self, context_warning_module) -> None:
         """Scenario: Threshold constants have correct values.
@@ -242,6 +245,7 @@ class TestContextWarningHook:
         assert context_warning_module["WARNING_THRESHOLD"] == FORTY_PERCENT
         assert context_warning_module["CRITICAL_THRESHOLD"] == FIFTY_PERCENT
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_usage_percent_rounded_correctly(self, context_warning_module) -> None:
         """Scenario: Usage percentage is rounded to one decimal place.
@@ -296,6 +300,7 @@ class TestContextWarningHook:
             for rec in critical_alert.recommendations
         )
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_severity_enum_values(self, context_warning_module) -> None:
         """Scenario: ContextSeverity enum has correct values.

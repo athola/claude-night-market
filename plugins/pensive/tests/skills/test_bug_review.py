@@ -26,6 +26,7 @@ class TestBugReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_null_pointer_dereference(self, mock_skill_context) -> None:
         """Given potential null pointer use, skill flags NPD risks."""
@@ -63,6 +64,7 @@ class TestBugReviewSkill:
         ]
         assert len(npd_bugs) >= 2  # Should detect both NPD instances
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_race_conditions(self, mock_skill_context) -> None:
         """Given concurrent code, skill flags race condition risks."""
@@ -109,6 +111,7 @@ class TestBugReviewSkill:
         assert any("race condition" in bug["issue"].lower() for bug in race_bugs)
         assert any("thread safety" in bug["issue"].lower() for bug in race_bugs)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_memory_leaks(self, mock_skill_context) -> None:
         """Given memory management code, skill flags leak risks."""
@@ -161,6 +164,7 @@ class TestBugReviewSkill:
         assert any("memory leak" in leak_type for leak_type in leak_types)
         assert any("event listener" in leak_type for leak_type in leak_types)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_sql_injection_vulnerabilities(self, mock_skill_context) -> None:
         """Given database queries, skill flags SQL injection risks."""
@@ -204,6 +208,7 @@ class TestBugReviewSkill:
         vuln_bugs = [bug for bug in sql_bugs if "sql injection" in bug["issue"].lower()]
         assert len(vuln_bugs) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_off_by_one_errors(self, mock_skill_context) -> None:
         """Given loops/array access, skill flags off-by-one risks."""
@@ -252,6 +257,7 @@ class TestBugReviewSkill:
         assert len(off_by_one_bugs) > 0
         assert any("off-by-one" in bug["issue"].lower() for bug in off_by_one_bugs)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_integer_overflow(self, mock_skill_context) -> None:
         """Given numeric operations, when skill analyzes, then flags overflow risks."""
@@ -294,6 +300,7 @@ class TestBugReviewSkill:
         assert len(overflow_bugs) > 0
         assert any("overflow" in bug["issue"].lower() for bug in overflow_bugs)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_resource_leaks(self, mock_skill_context) -> None:
         """Given resource management code, skill flags resource leaks."""
@@ -350,6 +357,7 @@ class TestBugReviewSkill:
             "socket" in leak_type and "leak" in leak_type for leak_type in leak_types
         )
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_logical_errors(self, mock_skill_context) -> None:
         """Given conditional logic, skill flags logical fallacies."""
@@ -402,6 +410,7 @@ class TestBugReviewSkill:
         assert len(logic_bugs) > 0
         assert any("logic error" in bug["issue"].lower() for bug in logic_bugs)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_type_confusion_bugs(self, mock_skill_context) -> None:
         """Given dynamic typing code, skill flags type confusion risks."""
@@ -454,6 +463,7 @@ class TestBugReviewSkill:
         assert len(type_bugs) > 0
         assert any("type" in bug["issue"].lower() for bug in type_bugs)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_timing_attacks(self, mock_skill_context) -> None:
         """Given auth code, skill flags timing attack risks."""
@@ -502,6 +512,7 @@ class TestBugReviewSkill:
         assert len(timing_bugs) >= 3  # Should detect 3 vulnerable functions
         assert any("timing attack" in bug["issue"].lower() for bug in timing_bugs)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorizes_bug_severity(self) -> None:
         """Given bugs, skill categorizes severities."""
@@ -533,6 +544,7 @@ class TestBugReviewSkill:
             "low",
         ]  # Off-by-one should be medium/low
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_fix_recommendations(self, mock_skill_context) -> None:
         """Given detected bugs, skill suggests fixes."""
@@ -564,6 +576,7 @@ class TestBugReviewSkill:
             assert len(rec["fix"]) > 0
             assert len(rec["example"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_bug_patterns(self, mock_skill_context) -> None:
         """Given bug history, skill identifies common types."""
@@ -590,6 +603,7 @@ class TestBugReviewSkill:
         assert common_bugs[0]["type"] == "sql_injection"
         assert common_bugs[0]["count"] == 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validates_bug_fixes(self, mock_skill_context) -> None:
         """Given proposed bug fixes, skill checks correctness."""
@@ -617,6 +631,7 @@ class TestBugReviewSkill:
             assert "reasoning" in result
             assert "remaining_risks" in result
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_false_positives(self, mock_skill_context) -> None:
         """Given benign code, skill avoids false positives."""
@@ -661,6 +676,7 @@ class TestBugReviewSkill:
             assert "false_positive" in fp
             assert "reason" in fp
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_bug_summary_report(self, sample_findings) -> None:
         """Given full bug analysis, skill creates structured summary."""

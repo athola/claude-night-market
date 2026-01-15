@@ -451,6 +451,7 @@ Foundational workflow scaffolding for any detailed review.
         assert all(phase in completed_phases for phase in workflow_phases)
         assert len(set(completed_phases)) == 5  # All unique
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_review_core_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Review core handles errors gracefully.
@@ -490,6 +491,7 @@ Foundational workflow scaffolding for any detailed review.
         assert "git_status_error" in context
         assert context["baseline"] == "HEAD~1"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_review_core_token_conservation(self) -> None:
         """Scenario: Review core conserves tokens in large projects.

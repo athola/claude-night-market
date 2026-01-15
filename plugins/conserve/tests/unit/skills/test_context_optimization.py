@@ -400,6 +400,7 @@ tags:
         assert strategy == "aggressive_compression"
         assert target_tokens == HUNDRED_EIGHT_THOUSAND  # 60% of window size
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_context_optimization_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Context optimization handles errors gracefully.

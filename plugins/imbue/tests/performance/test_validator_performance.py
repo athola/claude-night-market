@@ -141,6 +141,7 @@ Test command for performance testing.
 
         return plugin_root
 
+    @pytest.mark.bdd
     @pytest.mark.slow
     def test_validator_performance_large_plugin(self, large_plugin_structure) -> None:
         """Scenario: Validator performance with large plugin.
@@ -184,6 +185,7 @@ Test command for performance testing.
             validator_size < MAX_VALIDATOR_SIZE_BYTES
         )  # Should be under 100KB for in-memory representation
 
+    @pytest.mark.bdd
     @pytest.mark.slow
     def test_validator_scan_performance_patterns(self, large_plugin_structure) -> None:
         """Scenario: Pattern matching performance optimization.
@@ -235,6 +237,7 @@ Test command for performance testing.
                 == scan_results[0]["review_workflow_skills"]
             )
 
+    @pytest.mark.bdd
     @pytest.mark.slow
     def test_validator_memory_efficiency(self, tmp_path) -> None:
         """Scenario: Memory usage remains reasonable.
@@ -320,6 +323,7 @@ Test command for performance testing.
             # Second half shouldn't use more than 3x memory per file of first half
             assert avg_second < avg_first * 3
 
+    @pytest.mark.bdd
     @pytest.mark.slow
     def test_validator_concurrent_performance(self, tmp_path) -> None:
         """Scenario: Validator handles concurrent processing.
@@ -454,6 +458,7 @@ Test command for performance testing.
         for i in range(1, len(reports)):
             assert reports[i] == reports[0]
 
+    @pytest.mark.bdd
     @pytest.mark.slow
     def test_validator_regex_pattern_optimization(self, large_plugin_structure) -> None:
         """Scenario: Regex pattern matching is optimized.
@@ -539,6 +544,7 @@ Test command for performance testing.
         improvement_factor = time1 / time3
         assert improvement_factor > TWO  # At least 2x improvement
 
+    @pytest.mark.bdd
     @pytest.mark.slow
     def test_validator_io_performance(self, tmp_path) -> None:
         """Scenario: File I/O operations are optimized.

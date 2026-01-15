@@ -331,6 +331,7 @@ class TestEfficiencyAnalysis:
         assert penalties["verbose_output"] == 0.05  # 1 verbose command
         assert abs(efficiency_score - 0.85) < 0.01
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_over_fetching_detection(self) -> None:
         """Scenario: Over-fetching (reading entire files) is flagged.
@@ -500,6 +501,7 @@ class TestIssueCreation:
         assert is_duplicate(new_issue_title, existing_issues) is True
         assert is_duplicate("fix(workflow): new error", existing_issues) is False
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_rate_limiting(self) -> None:
         """Scenario: Issue creation is rate limited per session.
@@ -549,6 +551,7 @@ class TestWorkflowConfiguration:
             },
         }
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_severity_threshold_filtering(self, default_config) -> None:
         """Scenario: Only issues at/above threshold are reported.
@@ -577,6 +580,7 @@ class TestWorkflowConfiguration:
         assert len(filtered) == 2
         assert all(i["severity"] != "low" for i in filtered)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_efficiency_threshold_flagging(self, default_config) -> None:
         """Scenario: Workflows below efficiency threshold are flagged.
@@ -600,6 +604,7 @@ class TestWorkflowConfiguration:
         assert len(flagged) == 1
         assert flagged[0]["session"] == "s2"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detection_toggles(self, default_config) -> None:
         """Scenario: Detection types can be individually toggled.
@@ -620,6 +625,7 @@ class TestWorkflowConfiguration:
         assert "command_failures" in enabled_detections
         assert len(enabled_detections) == 4
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_auto_create_requires_approval(self, default_config) -> None:
         """Scenario: Auto-create issues requires explicit opt-in.
@@ -710,6 +716,7 @@ class TestEfficiencyReport:
         assert classified[0]["impact"] == "medium"
         assert classified[1]["impact"] == "low"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommendation_generation(self) -> None:
         """Scenario: Recommendations are generated from issues.

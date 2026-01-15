@@ -697,6 +697,7 @@ tags:
             assert rec["priority_score"] > TWENTY  # Should be high priority
             assert rec["estimated_improvement"] > FIFTEEN
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validation_testing_measures_optimization_effectiveness(self) -> None:
         """Scenario: Validation testing measures optimization effectiveness.

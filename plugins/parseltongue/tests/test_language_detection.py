@@ -26,6 +26,7 @@ class TestLanguageDetectionSkill:
         """Set up test fixtures before each test."""
         self.skill = LanguageDetectionSkill()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_python_language(self, sample_python_code) -> None:
         """Given Python code, when skill analyzes, then identifies Python correctly."""
@@ -43,6 +44,7 @@ class TestLanguageDetectionSkill:
         assert "classes" in result["features"]
         assert "async_functions" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_javascript_language(self, sample_javascript_code) -> None:
         """Given JavaScript code, when skill analyzes, then identifies JavaScript correctly."""
@@ -59,6 +61,7 @@ class TestLanguageDetectionSkill:
         assert "async_methods" in result["features"]
         assert "prototype" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_typescript_language(self, sample_typescript_code) -> None:
         """Given TypeScript code, when skill analyzes, then identifies TypeScript correctly."""
@@ -75,6 +78,7 @@ class TestLanguageDetectionSkill:
         assert "type_annotations" in result["features"]
         assert "generics" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_rust_language(self, sample_rust_code) -> None:
         """Given Rust code, when skill analyzes, then identifies Rust correctly."""
@@ -92,6 +96,7 @@ class TestLanguageDetectionSkill:
         assert "lifetime_annotations" in result["features"]
         assert "error_handling" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_python_features(self, sample_python_code) -> None:
         """Given Python code, when skill analyzes, then identifies Python-specific features."""
@@ -117,6 +122,7 @@ class TestLanguageDetectionSkill:
         assert features["classes"] >= 1
         assert "UserService" in features["class_names"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_javascript_features(self, sample_javascript_code) -> None:
         """Given JavaScript code, when skill analyzes, then identifies JavaScript-specific features."""
@@ -139,6 +145,7 @@ class TestLanguageDetectionSkill:
         # Should detect Map usage
         assert features["data_structures"]["Map"] >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_typescript_features(self, sample_typescript_code) -> None:
         """Given TypeScript code, when skill analyzes, then identifies TypeScript-specific features."""
@@ -161,6 +168,7 @@ class TestLanguageDetectionSkill:
         # Should detect optional properties
         assert features["optional_properties"] >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_rust_features(self, sample_rust_code) -> None:
         """Given Rust code, when skill analyzes, then identifies Rust-specific features."""
@@ -187,6 +195,7 @@ class TestLanguageDetectionSkill:
         assert features["concurrency"]["Arc"] >= 1
         assert features["concurrency"]["Mutex"] >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_python_version_features(self, language_samples) -> None:
         """Given Python code, when skill analyzes, then detects Python version features."""
@@ -215,6 +224,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert "match_statement" in result["features"]
         assert "future_import" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_javascript_es_version(self, sample_javascript_code) -> None:
         """Given JavaScript code, when skill analyzes, then detects ES version features."""
@@ -230,6 +240,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert "async_await" in result["features"]
         assert "arrow_functions" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_typescript_version(self, sample_typescript_code) -> None:
         """Given TypeScript code, when skill analyzes, then detects TypeScript version features."""
@@ -247,6 +258,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         )
         assert "generic_classes" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_rust_edition(self, sample_rust_code) -> None:
         """Given Rust code, when skill analyzes, then detects Rust edition features."""
@@ -262,6 +274,7 @@ def process_user(user_id: UserId, status: Status) -> None:
         assert "result_type" in result["features"]
         assert "serde_derive" in result["features"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_frameworks_and_libraries(self, language_samples) -> None:
         """Given code, when skill analyzes, then detects frameworks and libraries."""
@@ -287,6 +300,7 @@ class UserView(ListView):
         assert result["frameworks"]["django"]["components"]["models"]
         assert result["frameworks"]["django"]["components"]["views"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_design_patterns(self, sample_python_code) -> None:
         """Given code, when skill analyzes, then identifies design patterns."""
@@ -305,6 +319,7 @@ class UserView(ListView):
         # Should detect Repository-like pattern
         assert any("repository" in pattern.lower() for pattern in patterns)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_mixed_language_files(self, language_samples) -> None:
         """Given mixed language content, when skill analyzes, then handles appropriately."""
@@ -330,6 +345,7 @@ def python_function():
         assert result["confidence"] > 0.8
         assert len(result["detected_languages"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_code_complexity(self, language_samples) -> None:
         """Given code, when skill analyzes, then calculates complexity metrics."""
@@ -364,6 +380,7 @@ def complex_function(items):
         assert result["complexity_level"] in ["medium", "high"]
         assert "suggestions" in result
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_empty_or_invalid_code(self) -> None:
         """Given empty or invalid code, when skill analyzes, then handles gracefully."""
@@ -384,6 +401,7 @@ def complex_function(items):
             assert result["confidence"] < 0.5
             assert "error" in result or "features" in result
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_language_specific_keywords(self, language_samples) -> None:
         """Given code, when skill analyzes, then identifies language-specific keywords."""
@@ -404,6 +422,7 @@ def complex_function(items):
         assert "pub" in rust_keywords
         assert "async" in rust_keywords
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_imports_and_dependencies(self, language_samples) -> None:
         """Given code, when skill analyzes, then identifies imports and dependencies."""
@@ -431,6 +450,7 @@ from .internal_module import helper
         # Should detect local imports
         assert len(dependencies["local"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_calculates_language_confidence_scores(self, language_samples) -> None:
         """Given code samples, when skill analyzes, then provides accurate confidence scores."""
@@ -449,6 +469,7 @@ from .internal_module import helper
             assert "reasoning" in result
             assert len(result["reasoning"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_minimal_code_samples(self) -> None:
         """Given minimal code samples, when skill analyzes, then still identifies language."""
@@ -468,6 +489,7 @@ from .internal_module import helper
             assert result["language"] == language
             assert result["confidence"] > 0.5
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_provides_detailed_feature_analysis(self, language_samples) -> None:
         """Given code, when skill analyzes, then provides detailed feature breakdown."""
@@ -491,6 +513,7 @@ from .internal_module import helper
         assert features["functions"] >= 1
         assert features["classes"] >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_async_patterns(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies async patterns."""

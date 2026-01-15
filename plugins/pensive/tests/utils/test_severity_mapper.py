@@ -22,6 +22,7 @@ class TestSeverityMapper:
     # categorize tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_known_issue_types(self) -> None:
         """Given issues with known types, assigns correct severity."""
@@ -40,6 +41,7 @@ class TestSeverityMapper:
         assert categorized[1]["severity"] == "high"
         assert categorized[2]["severity"] == "low"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_unknown_type_defaults_to_low(self) -> None:
         """Given unknown issue type, defaults to low severity."""
@@ -52,6 +54,7 @@ class TestSeverityMapper:
         # Assert
         assert categorized[0]["severity"] == "low"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_with_custom_map(self) -> None:
         """Given custom severity map, uses custom mappings."""
@@ -65,6 +68,7 @@ class TestSeverityMapper:
         # Assert
         assert categorized[0]["severity"] == "critical"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_custom_map_overrides_default(self) -> None:
         """Given custom map, overrides default mapping."""
@@ -78,6 +82,7 @@ class TestSeverityMapper:
         # Assert
         assert categorized[0]["severity"] == "high"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_preserves_original_fields(self) -> None:
         """Given issue with extra fields, preserves them."""
@@ -100,6 +105,7 @@ class TestSeverityMapper:
         assert categorized[0]["line"] == 42
         assert categorized[0]["custom_field"] == "custom_value"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_does_not_modify_original(self) -> None:
         """Given issues, does not modify original list."""
@@ -114,6 +120,7 @@ class TestSeverityMapper:
         assert original_issues == original_copy
         assert "severity" not in original_issues[0]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_keyword_override_critical(self) -> None:
         """Given critical keywords in description, overrides to critical."""
@@ -126,6 +133,7 @@ class TestSeverityMapper:
         # Assert
         assert categorized[0]["severity"] == "critical"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_keyword_override_high(self) -> None:
         """Given high-severity keywords in description, overrides to high."""
@@ -138,6 +146,7 @@ class TestSeverityMapper:
         # Assert
         assert categorized[0]["severity"] == "high"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_empty_list(self) -> None:
         """Given empty issues list, returns empty list."""
@@ -147,6 +156,7 @@ class TestSeverityMapper:
         # Assert
         assert categorized == []
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_categorize_case_insensitive(self) -> None:
         """Given mixed case type, matches regardless of case."""
@@ -163,6 +173,7 @@ class TestSeverityMapper:
     # get_severity_weight tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_severity_weight_critical(self) -> None:
         """Given critical severity, returns highest weight."""
@@ -172,6 +183,7 @@ class TestSeverityMapper:
         # Assert
         assert weight == 10.0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_severity_weight_high(self) -> None:
         """Given high severity, returns appropriate weight."""
@@ -181,6 +193,7 @@ class TestSeverityMapper:
         # Assert
         assert weight == 5.0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_severity_weight_medium(self) -> None:
         """Given medium severity, returns appropriate weight."""
@@ -190,6 +203,7 @@ class TestSeverityMapper:
         # Assert
         assert weight == 2.5
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_severity_weight_low(self) -> None:
         """Given low severity, returns lowest weight."""
@@ -199,6 +213,7 @@ class TestSeverityMapper:
         # Assert
         assert weight == 1.0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_severity_weight_unknown_defaults_to_low(self) -> None:
         """Given unknown severity, defaults to low weight."""
@@ -208,6 +223,7 @@ class TestSeverityMapper:
         # Assert
         assert weight == 1.0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_get_severity_weight_case_insensitive(self) -> None:
         """Given mixed case severity, matches correctly."""
@@ -221,6 +237,7 @@ class TestSeverityMapper:
     # count_by_severity tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_by_severity_mixed(self) -> None:
         """Given mixed severity issues, counts correctly."""
@@ -241,6 +258,7 @@ class TestSeverityMapper:
         # Assert
         assert counts == {"critical": 1, "high": 2, "medium": 1, "low": 3}
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_by_severity_empty_list(self) -> None:
         """Given empty issues list, returns all zeros."""
@@ -250,6 +268,7 @@ class TestSeverityMapper:
         # Assert
         assert counts == {"critical": 0, "high": 0, "medium": 0, "low": 0}
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_by_severity_only_critical(self) -> None:
         """Given only critical issues, counts correctly."""
@@ -262,6 +281,7 @@ class TestSeverityMapper:
         # Assert
         assert counts == {"critical": 2, "high": 0, "medium": 0, "low": 0}
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_by_severity_missing_field(self) -> None:
         """Given issues without severity field, defaults to low."""
@@ -274,6 +294,7 @@ class TestSeverityMapper:
         # Assert
         assert counts == {"critical": 0, "high": 0, "medium": 0, "low": 1}
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_by_severity_unknown_level(self) -> None:
         """Given unknown severity level, does not count it."""
@@ -287,6 +308,7 @@ class TestSeverityMapper:
         # Unknown levels are not counted
         assert counts == {"critical": 0, "high": 0, "medium": 0, "low": 0}
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_count_by_severity_case_insensitive(self) -> None:
         """Given mixed case severities, counts correctly."""

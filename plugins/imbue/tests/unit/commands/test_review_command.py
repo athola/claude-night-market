@@ -185,6 +185,7 @@ class TestReviewCommand:
         assert all(f.startswith("src/auth/") for f in scoped_review["scoped_files"])
         assert len(scoped_review["workflow_adjustments"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_handles_focus_parameters(self) -> None:
         """Scenario: /review accepts focus parameters.
@@ -252,6 +253,7 @@ class TestReviewCommand:
             assert focus == test_case["expected_focus"]
             assert all_skills == test_case["expected_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_orchestrates_multiple_skills(self, mock_claude_tools) -> None:
         """Scenario: /review orchestrates multiple imbue skills.
@@ -395,6 +397,7 @@ class TestReviewCommand:
         assert "Evidence session: review-session-123" in output
         assert "Next steps:" in output
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_error_handling(self, mock_claude_tools) -> None:
         """Scenario: /review handles errors gracefully.
@@ -437,6 +440,7 @@ class TestReviewCommand:
                 assert skill in recovery_actions
                 assert len(recovery_actions[skill]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_parameter_validation(self) -> None:
         """Scenario: /review validates command parameters.
@@ -522,6 +526,7 @@ class TestReviewCommand:
                 if "error" in test_case:
                     assert test_case["error"] in parsed_params["errors"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_command_integration_with_git_workspace(self, mock_claude_tools) -> None:
         """Scenario: /review integrates with git workspace commands.
@@ -575,6 +580,7 @@ class TestReviewCommand:
         assert review_scope["has_changes"] is True
         assert len(review_scope["priority_files"]) == TWO
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_command_performance_large_repositories(self) -> None:
         """Scenario: /review performs efficiently with large repositories.

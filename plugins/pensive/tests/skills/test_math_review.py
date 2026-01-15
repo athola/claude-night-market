@@ -26,6 +26,7 @@ class TestMathReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_numerical_precision_issues(self, mock_skill_context) -> None:
         """Given floating-point ops, skill flags precision issues."""
@@ -82,6 +83,7 @@ class TestMathReviewSkill:
         assert "comparison_risks" in precision_analysis
         assert len(precision_analysis["precision_issues"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_integer_overflow_risks(self, mock_skill_context) -> None:
         """Given integer operations, when skill analyzes, then flags overflow risks."""
@@ -138,6 +140,7 @@ class TestMathReviewSkill:
         assert "growth_patterns" in overflow_analysis
         assert len(overflow_analysis["overflow_risks"]) >= 4
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_matrix_operation_stability(self, mock_skill_context) -> None:
         """Given matrix ops, skill assesses numerical stability."""
@@ -194,6 +197,7 @@ class TestMathReviewSkill:
         assert "unstable_operations" in matrix_analysis
         assert len(matrix_analysis["unstable_operations"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_statistical_fallacies(self, mock_skill_context) -> None:
         """Given statistical code, skill flags fallacies."""
@@ -329,6 +333,7 @@ class TestMathReviewSkill:
         assert "algorithm_correctness" in optimization_analysis
         assert len(optimization_analysis["convergence_issues"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_calculus_implementation_errors(self, mock_skill_context) -> None:
         """Given calculus code, skill flags mathematical errors."""
@@ -397,6 +402,7 @@ class TestMathReviewSkill:
         assert "accuracy_problems" in calculus_analysis
         assert len(calculus_analysis["numerical_errors"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_probability_distributions(self, mock_skill_context) -> None:
         """Given probability code, skill checks distribution correctness."""
@@ -461,6 +467,7 @@ class TestMathReviewSkill:
         assert "statistical_formulas" in probability_analysis
         assert len(probability_analysis["statistical_formulas"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_geometry_trigonometry_errors(self, mock_skill_context) -> None:
         """Given geometry/trig code, skill flags math errors."""
@@ -527,6 +534,7 @@ class TestMathReviewSkill:
         assert "numerical_stability" in geometry_analysis
         assert len(geometry_analysis["formula_errors"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_computational_complexity(self, mock_skill_context) -> None:
         """Given algorithms, skill assesses computational complexity."""
@@ -591,6 +599,7 @@ class TestMathReviewSkill:
         assert "optimization_opportunities" in complexity_analysis
         assert len(complexity_analysis["inefficient_algorithms"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validates_mathematical_proofs(self, mock_skill_context) -> None:
         """Given proofs, skill checks logical correctness."""
@@ -658,6 +667,7 @@ class TestMathReviewSkill:
         assert "mathematical_rigor" in proof_analysis
         assert "safety_measures" in proof_analysis
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_math_correctness_report(self, sample_findings) -> None:
         """Given full math analysis, skill creates structured summary."""
@@ -686,6 +696,7 @@ class TestMathReviewSkill:
         assert "7.5" in report  # Correctness score
         assert "15" in report  # Total algorithms
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_mathematical_improvements(self, mock_skill_context) -> None:
         """Given math analysis, skill recommends improvements."""

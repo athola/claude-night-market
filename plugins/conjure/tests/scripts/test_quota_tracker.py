@@ -21,6 +21,7 @@ from quota_tracker import (
 class TestGeminiQuotaTracker:
     """Test GeminiQuotaTracker class functionality."""
 
+    @pytest.mark.bdd
     def test_initialization_default_limits(self) -> None:
         """Given no custom limits when initializing tracker then should use defaults."""
         tracker = GeminiQuotaTracker()
@@ -31,6 +32,7 @@ class TestGeminiQuotaTracker:
             == Path.home() / ".claude" / "hooks" / "gemini" / "usage.json"
         )
 
+    @pytest.mark.bdd
     def test_initialization_custom_limits(self) -> None:
         """Given custom limits when initializing tracker.
 
@@ -47,6 +49,7 @@ class TestGeminiQuotaTracker:
 
         assert tracker.limits == custom_limits
 
+    @pytest.mark.bdd
     def test_load_usage_data_no_file(self, tmp_path) -> None:
         """Given no usage file when loading data then should create new structure."""
         usage_file = tmp_path / "usage.json"
@@ -59,6 +62,7 @@ class TestGeminiQuotaTracker:
         assert "last_reset" in tracker.usage_data
         assert tracker.usage_data["daily_tokens"] == 0
 
+    @pytest.mark.bdd
     def test_load_usage_data_existing_file(self, tmp_path) -> None:
         """Given existing usage file when loading data.
 
@@ -97,6 +101,7 @@ class TestGeminiQuotaTracker:
         assert tracker.usage_data["requests"][0]["tokens"] == 200
         assert tracker.usage_data["daily_tokens"] == 0  # Reset due to day change
 
+    @pytest.mark.bdd
     def test_load_usage_data_invalid_json(self, tmp_path) -> None:
         """Given invalid JSON file when loading data.
 
@@ -111,6 +116,7 @@ class TestGeminiQuotaTracker:
         assert tracker.usage_data["daily_tokens"] == 0
         assert len(tracker.usage_data["requests"]) == 0
 
+    @pytest.mark.bdd
     @patch("builtins.open", new_callable=mock_open)
     @patch("pathlib.Path.mkdir")
     def test_record_request_success(self, mock_mkdir, mock_file, tmp_path) -> None:
@@ -138,6 +144,7 @@ class TestGeminiQuotaTracker:
         # Verify file was saved
         mock_file.assert_called_with(usage_file, "w")
 
+    @pytest.mark.bdd
     def test_record_request_failure(self, tmp_path) -> None:
         """Given failed request when recording then should not add to daily tokens."""
         usage_file = tmp_path / "usage.json"
@@ -155,6 +162,7 @@ class TestGeminiQuotaTracker:
             len(tracker.usage_data["requests"]) == 1
         )  # Still recorded in requests list
 
+    @pytest.mark.bdd
     def test_get_current_usage_empty(self, tmp_path) -> None:
         """Given no usage data when getting current usage then should return zeros."""
         usage_file = tmp_path / "usage.json"
@@ -169,6 +177,7 @@ class TestGeminiQuotaTracker:
         assert usage["daily_tokens"] == 0
         assert usage["requests_today"] == 0
 
+    @pytest.mark.bdd
     def test_get_current_usage_with_data(self, tmp_path) -> None:
         """Given usage data when getting current usage.
 
@@ -207,6 +216,7 @@ class TestGeminiQuotaTracker:
         assert usage["daily_tokens"] == 500
         assert usage["requests_today"] == 2
 
+    @pytest.mark.bdd
     def test_get_quota_status_healthy(self, tmp_path) -> None:
         """Given low usage when getting quota status.
 
@@ -230,6 +240,7 @@ class TestGeminiQuotaTracker:
         assert status == "[OK] Healthy"
         assert len(warnings) == 0
 
+    @pytest.mark.bdd
     def test_get_quota_status_warning_threshold(self, tmp_path) -> None:
         """Given high usage when getting quota status then should return warning."""
         usage_file = tmp_path / "usage.json"
@@ -262,6 +273,7 @@ class TestGeminiQuotaTracker:
         assert len(warnings) > 0
         assert any("Token rate" in warning for warning in warnings)
 
+    @pytest.mark.bdd
     def test_get_quota_status_critical_threshold(self, tmp_path) -> None:
         """Given critical usage when getting quota status.
 
@@ -338,6 +350,7 @@ class TestGeminiQuotaTracker:
         assert isinstance(estimated, int)
         assert estimated > 0
 
+    @pytest.mark.bdd
     def test_iter_source_paths_files_only(self, sample_files, tmp_path) -> None:
         """Given file paths when iterating source paths then should yield files."""
         usage_file = tmp_path / "usage.json"
@@ -351,6 +364,7 @@ class TestGeminiQuotaTracker:
         for path in paths:
             assert Path(path).suffix.lower() in {".py", ".md", ".json"}
 
+    @pytest.mark.bdd
     def test_iter_source_paths_directory(self, tmp_path) -> None:
         """Given directory when iterating source paths.
 
@@ -379,6 +393,7 @@ class TestGeminiQuotaTracker:
         assert any(path.endswith("README.md") for path in paths)
         assert not any("__pycache__" in path for path in paths)
 
+    @pytest.mark.bdd
     def test_estimate_file_tokens_different_types(self, tmp_path) -> None:
         """Given different file types when estimating tokens.
 
@@ -410,6 +425,7 @@ class TestGeminiQuotaTracker:
         assert json_tokens > 0
         assert md_tokens > 0
 
+    @pytest.mark.bdd
     def test_can_handle_task_success(self, tmp_path) -> None:
         """Given available capacity when checking task then should return.
 
@@ -425,6 +441,7 @@ class TestGeminiQuotaTracker:
         assert can_handle is True
         assert len(issues) == 0
 
+    @pytest.mark.bdd
     def test_can_handle_task_rate_limit(self, tmp_path) -> None:
         """Given rate limit reached when checking task then should return.
 
@@ -459,6 +476,7 @@ class TestGeminiQuotaTracker:
         assert len(issues) > 0
         assert any("limit" in issue.lower() for issue in issues)
 
+    @pytest.mark.bdd
     def test_can_handle_task_daily_quota(self, tmp_path) -> None:
         """Given daily quota exhausted when checking task then should return.
 
@@ -529,6 +547,7 @@ class TestTokenEstimation:
         assert estimated == 50
         mock_tracker.estimate_task_tokens.assert_called_once_with([], len(command))
 
+    @pytest.mark.bdd
     def test_estimate_tokens_from_gemini_command_invalid_command(self) -> None:
         """Given invalid command when estimating then should return default."""
         command = 'gemini -p "unclosed quote'
@@ -593,6 +612,7 @@ class TestQuotaTrackerCli:
         mock_print.assert_any_call("  test: 123")
         mock_print.assert_any_call("  Configuration is valid")
 
+    @pytest.mark.bdd
     @patch("quota_tracker.GeminiQuotaTracker")
     @patch("sys.argv", ["quota_tracker.py"])
     def test_cli_default_status(self, mock_tracker_class) -> None:

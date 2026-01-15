@@ -27,6 +27,7 @@ class TestUnifiedReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_rust_project_by_cargo_toml(self, mock_skill_context) -> None:
         """Given Cargo.toml, skill detects Rust."""
@@ -46,6 +47,7 @@ class TestUnifiedReviewSkill:
         assert languages["rust"]["files"] == 3
         assert "cargo_toml" in languages["rust"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_python_project_by_requirements(self, mock_skill_context) -> None:
         """Given requirements.txt, skill detects Python."""
@@ -87,6 +89,7 @@ class TestUnifiedReviewSkill:
         # Note: TypeScript only detected if .ts files or tsconfig.json present
         assert languages["javascript"]["files"] >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_makefile_build_system(self, mock_skill_context) -> None:
         """Given Makefile, skill detects make build system."""
@@ -104,6 +107,7 @@ class TestUnifiedReviewSkill:
         assert "make" in build_systems
         assert "makefile" in build_systems
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_selects_rust_review_for_rust_project(self, mock_skill_context) -> None:
         """Given a Rust project, skill selects rust-review."""
@@ -193,6 +197,7 @@ class TestUnifiedReviewSkill:
         assert "makefile-review" not in selected_skills
         assert "code-reviewer" in selected_skills  # Always included
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_prioritizes_findings_by_severity(self, sample_findings) -> None:
         """Given multiple findings, when skill prioritizes, then orders by severity."""
@@ -208,6 +213,7 @@ class TestUnifiedReviewSkill:
         assert prioritized[1]["severity"] == "medium"
         assert prioritized[2]["severity"] == "low"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_consolidates_duplicate_findings(self, sample_findings) -> None:
         """Given duplicate findings, skill removes duplicates."""
@@ -234,6 +240,7 @@ class TestUnifiedReviewSkill:
         sec_findings = [f for f in consolidated if f["id"] == "SEC001"]
         assert len(sec_findings) == 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_comprehensive_summary(self, sample_findings) -> None:
         """Given findings, skill generates summary with key sections."""
@@ -251,6 +258,7 @@ class TestUnifiedReviewSkill:
         assert "SEC001" in summary  # Finding IDs should be present
         assert "high" in summary.lower()  # Severity levels should be present
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_approval_for_no_critical_issues(self) -> None:
         """Given no critical findings, when skill recommends, then suggests approval."""
@@ -264,6 +272,7 @@ class TestUnifiedReviewSkill:
         assert "Approve" in recommendation
         assert "Block" not in recommendation
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_block_for_critical_security_issues(self) -> None:
         """Given critical security issues, skill recommends block."""
@@ -283,6 +292,7 @@ class TestUnifiedReviewSkill:
         assert "Block" in recommendation
         assert "critical" in recommendation.lower()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_actionable_items(self, sample_findings) -> None:
         """Given findings, skill creates action items with owners and deadlines."""
@@ -305,6 +315,7 @@ class TestUnifiedReviewSkill:
                     or "asap" in item["deadline"].lower()
                 )
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_empty_repository_gracefully(self, mock_skill_context) -> None:
         """Given empty repository, skill returns appropriate response."""
@@ -319,6 +330,7 @@ class TestUnifiedReviewSkill:
         warnings_text = " ".join(result.warnings).lower()
         assert "no code files found" in warnings_text or "empty" in warnings_text
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_api_exports(self, mock_skill_context) -> None:
         """Given code with exports, when skill analyzes, then identifies API surface."""
@@ -351,6 +363,7 @@ class TestUnifiedReviewSkill:
         assert "classes" in api_surface
         assert api_surface["classes"] >= 1  # AuthService
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_executes_selected_skills_concurrently(self, mock_skill_context) -> None:
         """Given multiple skills, when skill executes, then runs them concurrently."""
@@ -376,6 +389,7 @@ class TestUnifiedReviewSkill:
             # Verify all skills were dispatched
             assert mock_dispatch.call_count == len(selected_skills)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_calculate_review_confidence_score(self, sample_findings) -> None:
         """Given findings, skill calculates confidence score."""
@@ -397,6 +411,7 @@ class TestUnifiedReviewSkill:
         # More findings and detailed analysis should increase confidence
         assert confidence > 50  # Should have reasonable confidence with sample data
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_formats_findings_consistently(self, sample_findings) -> None:
         """Given findings, when skill formats, then maintains consistent structure."""
