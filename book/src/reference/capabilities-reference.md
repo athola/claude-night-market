@@ -83,6 +83,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
+| `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |

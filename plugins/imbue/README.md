@@ -4,7 +4,7 @@ Reusable workflow patterns for analysis, evidence gathering, and structured repo
 
 ## Overview
 
-Imbue provides analysis methodologies, offering a framework for approaching common problems independent of specific tools. The plugin is built on several core principles. Its patterns are generalizable and apply to various inputs such as git diffs, specifications, and logs. By being composable, skills can be chained together to handle complex, multi-step workflows. We also prioritize an evidence-based approach, focusing on capturing technical evidence to support reproducibility and audit trails.
+Imbue provides analysis methodologies independent of specific tools. Its patterns apply to git diffs, specifications, and logs. Skills are composable and can be chained for multi-step workflows. We focus on capturing technical evidence to support reproducibility and audit trails.
 
 ## Skills
 
@@ -66,6 +66,25 @@ Use during planning to evaluate if features should be implemented now or deferre
 2. `scope-guard:backlog-compared`: Compare against queued items.
 3. `scope-guard:budget-checked`: Verify branch budget.
 4. `scope-guard:decision-documented`: Record decision.
+
+#### rigorous-reasoning
+Prevent sycophantic reasoning through checklist-based analysis and evidence-following. Components include:
+- `priority-signals`: Override principles (no courtesy agreement, checklist over intuition).
+- `conflict-analysis`: Harm/rights checklist for interpersonal conflicts.
+- `engagement-principles`: Truth-seeking over social comfort.
+- `debate-methodology`: Handling truth claims and contested territory.
+- `correction-protocol`: Verify before correcting.
+- `incremental-reasoning`: Multi-turn problem solving.
+- `pattern-completion`: Falsification and unification for derived rules.
+
+**When to Use:**
+Use when analyzing conflicts/disagreements, evaluating ethical claims, or when self-monitoring detects sycophantic patterns (agreeing without validation, hedging without evidence).
+
+**Required TodoWrite Items:**
+1. `rigorous:activation-triggered`: Identified conflict or red-flag pattern.
+2. `rigorous:checklist-applied`: Completed relevant checklist.
+3. `rigorous:conclusion-committed`: Stated conclusion without inappropriate hedging.
+4. `rigorous:retraction-guarded`: Verified updates are for substantive reasons.
 
 ### Workflow Automation
 
@@ -164,6 +183,7 @@ imbue/
     ├── diff-analysis/      # Change analysis methodology
     ├── catchup/            # Summarization methodology
     ├── scope-guard/        # Anti-overengineering guardrails
+    ├── rigorous-reasoning/ # Anti-sycophancy guardrails
     ├── feature-review/     # Feature prioritization framework
     ├── proof-of-work/      # Verification enforcement
     └── workflow-monitor/   # Execution monitoring and issue creation
@@ -185,6 +205,7 @@ Skill(imbue:catchup)
 
 # Workflow guards
 Skill(imbue:scope-guard)
+Skill(imbue:rigorous-reasoning)
 
 # Feature planning
 Skill(imbue:feature-review)
@@ -212,7 +233,7 @@ Use these skills for architecture reviews, code audits, and security assessments
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking enables parallel evidence analysis from multiple perspectives without context contamination.
+Session forking allows parallel evidence analysis from multiple perspectives without context overlap.
 
 ### Use Cases
 

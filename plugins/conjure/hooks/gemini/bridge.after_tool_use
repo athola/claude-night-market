@@ -89,48 +89,50 @@ def generate_contextual_recommendation(benefit_type, tool_name, tool_args):
     return recommendations
 
 
-# Main hook logic
-try:
-    payload = json.load(sys.stdin)
-    tool_use = payload.get("tool_use", {})
-    tool_result = payload.get("tool_result", {})
+# Main hook logic - only runs when executed as script, not when imported
+if __name__ == "__main__":
+    try:
+        payload = json.load(sys.stdin)
+        tool_use = payload.get("tool_use", {})
+        tool_result = payload.get("tool_result", {})
 
-    if tool_use:
-        tool_name = tool_use.get("name", "")
-        tool_args = tool_use.get("input", {})
+        if tool_use:
+            tool_name = tool_use.get("name", "")
+            tool_args = tool_use.get("input", {})
 
-        should_recommend, benefit_type = analyze_execution_for_gemini_benefit(
-            tool_name, tool_args, tool_result
-        )
-
-        if should_recommend:
-            recommendations = generate_contextual_recommendation(
-                benefit_type, tool_name, tool_args
+            should_recommend, benefit_type = analyze_execution_for_gemini_benefit(
+                tool_name, tool_args, tool_result
             )
 
-            print("\nPost-Analysis Recommendation:", file=sys.stderr)
-            print(
-                "This operation produced results that could benefit from Gemini's analysis capabilities:",
-                file=sys.stderr,
-            )
-            print(file=sys.stderr)
+            if should_recommend:
+                recommendations = generate_contextual_recommendation(
+                    benefit_type, tool_name, tool_args
+                )
 
-            for rec in recommendations:
-                print(f"  - {rec}", file=sys.stderr)
+                print("\nPost-Analysis Recommendation:", file=sys.stderr)
+                print(
+                    "This operation produced results that could benefit from "
+                    "Gemini's analysis capabilities:",
+                    file=sys.stderr,
+                )
+                print(file=sys.stderr)
 
-            print(file=sys.stderr)
-            print("**Next Steps:**", file=sys.stderr)
-            print("1. Use skill: `/skill gemini-delegation`", file=sys.stderr)
-            print("2. Or run Gemini CLI directly if configured", file=sys.stderr)
-            print(
-                "3. Follow the TodoWrite checklist in the gemini-delegation skill",
-                file=sys.stderr,
-            )
-            print(file=sys.stderr)
+                for rec in recommendations:
+                    print(f"  - {rec}", file=sys.stderr)
 
-except (json.JSONDecodeError, KeyError, AttributeError) as e:
-    # Log the error before failing silently
-    logger.debug(f"Hook error (non-fatal): {type(e).__name__}: {e}")
-    print(f"Hook error (non-fatal): {type(e).__name__}: {e}", file=sys.stderr)
+                print(file=sys.stderr)
+                print("**Next Steps:**", file=sys.stderr)
+                print("1. Use skill: `/skill gemini-delegation`", file=sys.stderr)
+                print("2. Or run Gemini CLI directly if configured", file=sys.stderr)
+                print(
+                    "3. Follow the TodoWrite checklist in the gemini-delegation skill",
+                    file=sys.stderr,
+                )
+                print(file=sys.stderr)
 
-sys.exit(0)
+    except (json.JSONDecodeError, KeyError, AttributeError) as e:
+        # Log the error before failing silently
+        logger.debug(f"Hook error (non-fatal): {type(e).__name__}: {e}")
+        print(f"Hook error (non-fatal): {type(e).__name__}: {e}", file=sys.stderr)
+
+    sys.exit(0)

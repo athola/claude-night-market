@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Pattern recognition and technical debt assessment
   - Structured report generation
 
+- **`imbue:rigorous-reasoning` skill** - Prevent sycophantic reasoning through checklist-based analysis
+  - Priority signals: no courtesy agreement, checklist over intuition, categorical integrity
+  - Conflict analysis protocol with harm/rights checklist
+  - Red flag self-monitoring for sycophantic patterns
+  - Debate methodology for truth claims in contested territory
+  - Modules: priority-signals, conflict-analysis, engagement-principles, debate-methodology, correction-protocol, incremental-reasoning, pattern-completion
+
 ### Added - Feature Review Tests (Issue #41)
 
 - **`test_feature_review.py`** - 25 comprehensive tests for feature-review skill

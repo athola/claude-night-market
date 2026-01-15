@@ -30,7 +30,10 @@ Set the `CONSERVATION_MODE` environment variable:
 
 ## Core Principles
 
-The Conservation plugin is built on three primary principles designed to optimize resource usage. The Maximum Effective Context Window (MECW) principle aims to keep context pressure under 50% to maintain high response quality. We also utilize MCP patterns, which focus on processing data at the source to prevent the transmission of large datasets through the context window. Finally, progressive loading ensures that modules are only loaded on demand, further reducing the overall footprint of each session.
+Conservation optimizes resources through three principles:
+1.  **Maximum Effective Context Window (MECW):** Keep context pressure under 50% for quality responses.
+2.  **MCP Patterns:** Process data at the source to prevent transmitting large datasets.
+3.  **Progressive Loading:** Load modules on demand to reduce session footprint.
 
 ## Commands
 
@@ -60,7 +63,7 @@ Safely delete, refactor, and consolidate code with user approval.
 
 ### Safeguards
 
-To prevent accidental data loss, the `/unbloat` command includes several safeguards. It automatically creates backup branches before making any changes and requires interactive user approval for each modification. After changes are applied, the system runs verification tests and can perform an automatic rollback if any failures are detected. All deletions and moves are handled through `git rm` and `git mv` to maintain a clear history.
+`/unbloat` prevents data loss by creating backup branches and requiring interactive approval for modifications. The system runs verification tests after changes and rolls back automatically if failures occur. All file operations use `git rm` and `git mv` to preserve history.
 
 ## Agents
 
@@ -92,7 +95,7 @@ The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
 
 ### Bloat Detection Outcomes
 
-The `bloat-detector` skill identifies technical debt and improves codebase navigability by detecting redundant or stale code. On average, this process reduces context usage by 10% to 20%, resulting in more efficient Claude sessions and lower token costs.
+`bloat-detector` identifies technical debt and redundant code. This typically reduces context usage by 10-20%, lowering token costs and improving session efficiency.
 
 ## Token-Conscious Workflows
 

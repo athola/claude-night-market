@@ -932,3 +932,230 @@ This is test skill number {i} with review workflow patterns.
         # The test passes if it doesn't crash with memory issues
         result = validator.scan_review_workflows()
         assert len(result["skills_found"]) == 10
+
+
+class TestImbueValidatorEdgeCases:
+    """Feature: Imbue validator handles edge cases robustly.
+
+    As a validation tool
+    I want to handle all edge cases gracefully
+    So that the validator never crashes unexpectedly
+    """
+
+    @pytest.mark.unit
+    def test_cli_default_prints_help(self, capsys) -> None:
+        """Scenario: CLI prints help when no arguments provided.
+
+        Given no command line arguments
+        When running main()
+        Then it should print help information.
+        """
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
+
+        with patch.object(sys, "argv", ["prog"]):
+            imbue_main()
+
+        out = capsys.readouterr().out
+        assert "usage:" in out.lower() or "--root" in out or "--report" in out
+
+    @pytest.mark.unit
+    def test_directory_read_oserror_handling(self, tmp_path, caplog) -> None:
+        """Scenario: Validator handles OSError when reading directory.
+
+        Given a directory that raises OSError when iterating
+        When initializing ImbueValidator
+        Then it should handle the error gracefully and log a warning.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Create a directory
+        test_dir = tmp_path / "test-plugin"
+        test_dir.mkdir()
+        # Put a file in it so it's not empty
+        (test_dir / "dummy.txt").write_text("dummy")
+
+        # Mock iterdir to raise OSError
+        with patch.object(Path, "iterdir", side_effect=OSError("Permission denied")):
+            with caplog.at_level(logging.WARNING):
+                validator = ImbueValidator(test_dir)
+
+        # Should have handled the error
+        assert validator.root_empty is True
+        assert any("Unable to read" in record.message for record in caplog.records)
+
+    @pytest.mark.unit
+    def test_frontmatter_without_review_patterns(self, tmp_path) -> None:
+        """Scenario: Skills with frontmatter but no review patterns are excluded.
+
+        Given a skill with valid frontmatter but no review-related content
+        When scanning for review workflows
+        Then it should not be classified as a review workflow skill.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Create plugin structure
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "non-review"
+        skills_dir.mkdir(parents=True)
+
+        # Create skill with frontmatter but no review patterns
+        # IMPORTANT: Content must NOT contain any of these words:
+        # workflow, evidence, structured, output, orchestrat, checklist, deliverable
+        (skills_dir / "SKILL.md").write_text("""---
+name: non-review-skill
+description: A skill that does something else
+category: utilities
+tags:
+  - helper
+  - utility
+---
+
+# Non-Review Skill
+
+This skill helps with general utilities.
+It provides helper functions for common tasks.
+Just plain utility operations.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        # Skill should be found but NOT classified as review workflow
+        assert "non-review" in result["skills_found"]
+        assert "non-review" not in result["review_workflow_skills"]
+
+    @pytest.mark.unit
+    def test_frontmatter_with_review_category_in_frontmatter(self, tmp_path) -> None:
+        """Scenario: Skills with review-patterns category are classified correctly.
+
+        Given a skill with category: review-patterns in frontmatter
+        When scanning for review workflows
+        Then it should be classified as a review workflow skill via frontmatter.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "categorized-review"
+        skills_dir.mkdir(parents=True)
+
+        # Create skill with review-patterns category
+        (skills_dir / "SKILL.md").write_text("""---
+name: categorized-review
+description: A skill with review category
+category: review-patterns
+---
+
+# Categorized Review Skill
+
+This skill is categorized as review-patterns.
+No keywords needed in the body.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        assert "categorized-review" in result["review_workflow_skills"]
+
+    @pytest.mark.unit
+    def test_frontmatter_with_review_workflow_usage(self, tmp_path) -> None:
+        """Scenario: Skills with review-workflow usage pattern are classified.
+
+        Given a skill with - review-workflow in usage patterns
+        When scanning for review workflows
+        Then it should be classified as a review workflow skill.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "usage-review"
+        skills_dir.mkdir(parents=True)
+
+        (skills_dir / "SKILL.md").write_text("""---
+name: usage-review
+description: A skill with review-workflow usage
+usage_patterns:
+  - review-workflow
+  - evidence-capture
+---
+
+# Usage Review Skill
+
+This skill uses review-workflow pattern.
+No keywords needed in the body.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        assert "usage-review" in result["review_workflow_skills"]
+
+    @pytest.mark.unit
+    def test_incomplete_frontmatter_falls_through_to_content_scan(
+        self, tmp_path
+    ) -> None:
+        """Scenario: Skills with incomplete frontmatter fall through to content scan.
+
+        Given a skill that starts with '---' but has no closing '---'
+        When scanning for review workflows
+        Then it should skip frontmatter parsing and check content patterns.
+
+        This covers branch 133->136 where frontmatter remains None.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "incomplete-fm"
+        skills_dir.mkdir(parents=True)
+
+        # Create skill with incomplete frontmatter (starts with --- but no closing ---)
+        # This causes split("---", 2) to produce fewer than 3 parts
+        (skills_dir / "SKILL.md").write_text("""---
+name: incomplete-frontmatter
+This file starts with --- but never closes the frontmatter.
+It contains workflow patterns in the content.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        # Skill should be found
+        assert "incomplete-fm" in result["skills_found"]
+        # Should match via content pattern ("workflow" keyword), not frontmatter
+        assert "incomplete-fm" in result["review_workflow_skills"]
+
+    @pytest.mark.unit
+    def test_incomplete_frontmatter_no_patterns(self, tmp_path) -> None:
+        """Scenario: Incomplete frontmatter with no patterns is excluded.
+
+        Given a skill with incomplete frontmatter and no review patterns
+        When scanning for review workflows
+        Then it should not be classified as a review workflow skill.
+
+        This also covers branch 133->136.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "broken-fm"
+        skills_dir.mkdir(parents=True)
+
+        # Incomplete frontmatter with no review-related keywords
+        (skills_dir / "SKILL.md").write_text("""---
+name: broken-frontmatter
+This file has incomplete frontmatter.
+It does not contain any review-related keywords.
+Just some generic text here.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        assert "broken-fm" in result["skills_found"]
+        assert "broken-fm" not in result["review_workflow_skills"]

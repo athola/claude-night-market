@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate skill and command description budget for Claude Code system prompt."""
 
+import argparse
 import re
 import sys
 from dataclasses import dataclass
@@ -67,9 +68,30 @@ def analyze_file(file_path: Path, component_type: str) -> Component:
     )
 
 
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Validate skill and command description budget for Claude Code.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s                    # Validate from current directory
+  %(prog)s --path /path/to/repo  # Validate from specified path
+        """,
+    )
+    parser.add_argument(
+        "--path",
+        type=str,
+        default=".",
+        help="Base path for plugin skill/command files (default: current directory)",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:  # noqa: PLR0912, PLR0915
     """Validate description budget across all plugins."""
-    base = Path(".")
+    args = parse_args()
+    base = Path(args.path)
     components: list[Component] = []
 
     # Find all skills

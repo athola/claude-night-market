@@ -181,7 +181,7 @@ pensive/
 
 ## Review Workflow
 
-Reviews analyze the repository and recent changes, then apply domain-specific checks. Findings get documented with file/line references, ranked by severity, and paired with concrete fixes.
+Reviews identify repository changes and apply domain-specific checks. Findings include file and line references, severity rankings, and recommendations.
 
 ## TodoWrite Integration
 
@@ -197,7 +197,7 @@ api-review:evidence-log
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking enables parallel specialized reviews:
+Session forking allows parallel specialized reviews:
 
 ```bash
 # Fork for security audit
@@ -215,7 +215,7 @@ See `plugins/abstract/docs/claude-code-compatibility.md` for detailed patterns.
 
 ## Skill Performance Review
 
-Pensive includes skill review capabilities for analyzing skill execution metrics and identifying unstable skills.
+Pensive analyzes skill execution metrics to identify performance instability.
 
 ### Stability Gap Detection
 

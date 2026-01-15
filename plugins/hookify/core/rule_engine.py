@@ -184,7 +184,7 @@ class RuleEngine:
         if "new_text" in context:
             return str(context["new_text"]) if context["new_text"] is not None else None
 
-        # File events: fallback to content
+        # File events: default to content
         if "content" in context:
             return str(context["content"]) if context["content"] is not None else None
 

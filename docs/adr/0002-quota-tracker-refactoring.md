@@ -180,7 +180,7 @@ dependencies = [
 
 ### Benefits
 
-This refactoring provides significant improvements in code maintenance by establishing a single source of truth for quota tracking logic. Bug fixes in the base class now benefit all plugins, and behavior remains consistent across different services. From a testing perspective, we can now focus on service-specific features while the base class tests cover common functionality, resulting in a smaller test surface. The pattern is also highly extensible, allowing other plugins to extend the `QuotaTracker` with clear extension points through override methods.
+This refactoring establishes a single source of truth for quota tracking. Bug fixes in the base class now benefit all inheriting plugins, ensuring consistent behavior. Testing now focuses on service-specific features rather than common functionality. The pattern allows other plugins to extend `QuotaTracker` through override methods.
 
 ### Backward Compatibility
 
@@ -203,11 +203,11 @@ limits_dict = tracker.limits  # Backward-compatible property
 
 ## Consequences
 
-Moving core logic to a shared base class has reduced duplication by eliminating 11 redundant methods from the plugin. This centralization makes the ecosystem easier to maintain and ensures that all plugins follow the same quota patterns. While this introduces a dependency on `leyline` and creates some version coupling between the base class and its consumers, the overall consistency and improved testability provide a more stable foundation for multi-model delegation.
+Centralizing quota logic in a shared base class eliminates redundant methods and ensures consistent patterns across plugins. While this introduces a dependency on `leyline` and version coupling, the improved testability provides a more stable foundation for multi-model delegation.
 
 ## Migration Guide
 
-To migrate a plugin to the new quota tracking system, add the `leyline` dependency to your `pyproject.toml` and extend the `QuotaTracker` base class. You should then configure the service-specific `QuotaConfig` and override only the methods that require unique logic, such as `estimate_task_tokens`. Once the functionality is verified with tests, any duplicated quota tracking code can be safely removed from the plugin.
+To migrate, add `leyline` to `pyproject.toml` and extend the `QuotaTracker` base class. Configure a service-specific `QuotaConfig` and override unique logic like `estimate_task_tokens`. Verify functionality with tests before removing duplicated code.
 
 ## Related
 

@@ -198,17 +198,17 @@ sanctum/
 
 ## Workflow Patterns
 
-**Pre-Commit**: Stage changes with `git add -p`, run `Skill(sanctum:git-workspace-review)` for preflight, then `Skill(sanctum:commit-messages)` to generate the commit message.
+**Pre-Commit**: Stage changes (`git add -p`), run `git-workspace-review` for preflight, then `commit-messages` to generate the message.
 
-**Pre-PR**: Run preflight, execute quality gates (`make fmt && make lint && make test`), then `Skill(sanctum:pr-prep)` to generate the PR description.
+**Pre-PR**: Run preflight, execute quality gates (`make fmt && make lint && make test`), then `pr-prep` to generate the description.
 
-**Post-Review**: After receiving PR feedback, run `/fix-pr` to triage comments, implement fixes, and resolve threads on GitHub.
+**Post-Review**: After receiving feedback, run `/fix-pr` to triage comments, implement fixes, and resolve threads.
 
-**Release**: Run preflight, bump version with `Skill(sanctum:version-updates)`, update docs with `Skill(sanctum:doc-updates)`, then commit and tag.
+**Release**: Run preflight, bump version with `version-updates`, update docs with `doc-updates`, then commit and tag.
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking enables "git branching for conversations" - explore alternative approaches without affecting your main workflow session.
+Session forking acts like git branching for conversations, allowing exploration of alternative approaches without affecting the main session.
 
 ### Use Cases
 

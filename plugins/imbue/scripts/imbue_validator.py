@@ -34,7 +34,7 @@ class ImbueValidator:
         Args:
             plugin_root: Root directory of the imbue plugin.
 
-        Logs warnings when:
+        Log warnings when:
             - Plugin root directory does not exist
             - Plugin root directory exists but is empty
             - Plugin root directory lacks expected structure (skills/ or plugin.json)

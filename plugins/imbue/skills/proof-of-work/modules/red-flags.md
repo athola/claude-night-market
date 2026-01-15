@@ -433,6 +433,97 @@ Next steps: Downgrade to 2.0.67 OR wait for fix
 
 ---
 
+## The "Documentation Exception" Family
+
+### "Skills are just documentation"
+**Problem:** Markdown files can still have testable structure and behavior
+
+**Example:**
+> "I created the rigorous-reasoning skill. It's just markdown files, no code to test."
+
+**Reality Check:**
+- Does the skill file EXIST at the expected path?
+- Does it contain the REQUIRED sections (frontmatter, TodoWrite items)?
+- Does it reference MODULES that must also exist?
+- Does the session hook INTEGRATE with it correctly?
+
+**Fix:**
+```markdown
+Skills ARE testable. Write tests that verify:
+
+[E1] Skill existence:
+$ pytest test_rigorous_reasoning.py::test_skill_exists
+Result: PASS - SKILL.md found at expected path
+
+[E2] Required sections:
+$ pytest test_rigorous_reasoning.py::test_skill_has_priority_signals_section
+Result: PASS - "## Priority Signals" found in content
+
+[E3] Module integration:
+$ pytest test_rigorous_reasoning.py::TestAllModulesExist
+Result: PASS - All 7 modules exist and have >50 lines
+
+[E4] Hook integration:
+$ bash session-start.sh | grep "rigorous-reasoning"
+Result: PASS - Quick reference included
+```
+
+---
+
+### "It's just configuration"
+**Problem:** Config files have structure that can break
+
+**Example:**
+> "I updated the hook script. It's just shell, the changes are obvious."
+
+**Reality Check:**
+- Does the hook produce VALID JSON?
+- Does it include the NEW content?
+- Does it handle EDGE CASES (no jq, special characters)?
+
+**Fix:**
+```markdown
+Config changes need validation:
+
+[E1] JSON validity:
+$ bash session-start.sh | jq '.' >/dev/null && echo VALID
+Result: PASS - Valid JSON
+
+[E2] Content included:
+$ bash session-start.sh | jq -r '.hookSpecificOutput.additionalContext' | grep -c "new-section"
+Result: PASS - 1 match found
+
+[E3] Edge case:
+$ PATH=/bin:/usr/bin bash session-start.sh 2>&1 | grep -v WARN | jq '.'
+Result: PASS - Works without jq in PATH
+```
+
+---
+
+### "The user wanted it fast"
+**Problem:** Speed doesn't override quality gates
+
+**Example:**
+> "I shipped the feature quickly since the user seemed to want it done."
+
+**Reality Check:**
+- Did the user ASK you to skip tests?
+- Is "fast" actually faster when you have to FIX bugs later?
+- Would a coworker accept this excuse?
+
+**Recovery:**
+```markdown
+Speed is not an excuse:
+
+1. Writing tests first often REVEALS design issues early
+2. Retrofitting tests takes LONGER than TDD
+3. Bugs found later cost MORE than bugs prevented
+
+The Iron Law is non-negotiable regardless of perceived urgency.
+```
+
+---
+
 ## The Ultimate Red Flag
 
 **Thought:** "I don't need to test this, it's obvious it will work."

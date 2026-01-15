@@ -163,7 +163,34 @@ NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 **TDD TodoWrite Items**:
 - \`proof:iron-law-red\` - Failing test written FIRST
 - \`proof:iron-law-green\` - Minimal implementation passes
-- \`proof:iron-law-refactor\` - Improved without behavior change"
+- \`proof:iron-law-refactor\` - Improved without behavior change
+
+## rigorous-reasoning Quick Reference
+
+**When to invoke** \`Skill(imbue:rigorous-reasoning)\`:
+- Analyzing conflicts, disagreements, or ethical questions
+- Evaluating contested claims or competing positions
+- When self-monitoring detects sycophantic patterns
+
+**Priority Signals (override defaults)**:
+- No courtesy agreement: Agreement requires validity, not politeness
+- Checklist over intuition: Follow analysis, not initial reactions
+- Uncomfortable conclusions stay uncomfortable: Don't sand down edges
+
+**Red Flags (STOP - you're being sycophantic)**:
+| Thought | Action |
+|---------|--------|
+| 'I agree that...' | VALIDATE first |
+| 'You're right...' | CHECK for evidence |
+| 'Great point!' | Does this ADD value? |
+| 'To be fair...' | Are you HEDGING without evidence? |
+
+**Conflict Analysis Checklist**:
+1. Set aside initial reactions (name the bias)
+2. Complete harm/rights checklist (concrete harm? which right?)
+3. Assess proportionality (was response proportionate?)
+4. Commit to conclusion (follow checklist, not gut)
+5. Guard against retraction (only update for substantive reasons)"
 
 # Escape outputs for JSON - uses jq when available, falls back to pure bash
 escape_for_json() {

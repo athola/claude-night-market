@@ -6,15 +6,15 @@
 
 ## Overview
 
-This implementation provides a self-rolled continual learning system using PreToolUse and PostToolUse hooks. It operates without external dependencies such as SAFLA or Avalanche, relying instead on standard Python libraries.
+This guide details a zero-dependency continual learning system using PreToolUse and PostToolUse hooks. It relies on standard Python libraries instead of external frameworks like SAFLA or Avalanche.
 
 ## System Capabilities
 
-The system enables per-iteration continual learning by logging every skill execution along with its duration and outcome. This data allows for the automatic calculation of metrics such as the stability gap and worst-case accuracy. By monitoring these values, the system can detect performance instability in real-time and provide a foundation for triggering automatic improvements.
+The system logs skill executions to calculate metrics like stability gap and worst-case accuracy. Monitoring these values helps detect performance instability and triggers automatic improvements.
 
 ## Architecture
 
-The workflow begins with a skill invocation which triggers the `pre_skill_execution.py` PreToolUse hook. This script records the start time and stores the initial state in the observability directory. Once the skill completes its execution, typically within 100 to 5000ms, the `skill_execution_logger.py` PostToolUse hook takes over. It reads the pre-execution state, calculates the duration, and evaluates the outcome as success, failure, or partial. The hook then computes continual metrics, appends the result to a daily JSONL log file, and issues a warning to stderr if the stability gap exceeds 0.3.
+Skill invocation triggers the `pre_skill_execution.py` hook, which records start time and initial state. Upon completion, `skill_execution_logger.py` calculates duration and evaluates the outcome. It then updates continual metrics, logs results to a JSONL file, and warns if the stability gap exceeds 0.3.
 
 ## Files
 
@@ -150,7 +150,7 @@ cat ~/.claude/skills/logs/.history.json | \
 
 ### Overhead
 
-The PreToolUse hook adds approximately 2-5ms by writing a state file, while the PostToolUse hook adds 10-20ms to read the state, calculate metrics, and append to the log. The total overhead per skill invocation remains between 12-25ms, well within the conservative 4s timeout budget.
+PreToolUse adds ~2-5ms (writing state), and PostToolUse adds 10-20ms (metrics/logging). Total overhead is 12-25ms, well within the 4s timeout.
 
 ### Scalability
 
@@ -218,7 +218,7 @@ The implementation relies exclusively on the Python standard library, including 
 
 ## Summary
 
-This implementation provides the necessary observability and metrics for skill performance without the complexity or overhead of external dependencies. It relies on standard hooks and file-based logging for reliable operation.
+This implementation provides observability and metrics for skill performance without external dependencies, using standard hooks and file-based logging.
 
 ## Troubleshooting
 

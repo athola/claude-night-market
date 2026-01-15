@@ -35,6 +35,9 @@ Claude recognizes Iron Law violations in its own thought process.
 | "The test should check for X" | Implementation-driven test | Describe BEHAVIOR, not implementation |
 | "This will work because..." | Assumption without evidence | TEST IT, capture evidence |
 | "The design is straightforward" | Skipping uncertainty exploration | Write test, let design EMERGE |
+| "It's just documentation/config" | Documentation Exception fallacy | Markdown/YAML/shell have testable structure |
+| "The user wants this quickly" | Speed rationalization | Quality gates are non-negotiable |
+| "Files exist, so it works" | Existence ≠ functionality | Test BEHAVIOR, not just existence |
 
 **Self-Check Protocol:**
 
@@ -318,6 +321,40 @@ I violated the Iron Law by writing implementation before tests.
 ### Prevention
 [What configuration change prevents this in future?]
 ```
+
+---
+
+### Case Study: The "Documentation Exception" Violation (2025-01-15)
+
+**Context:** Creating a new skill (`rigorous-reasoning`) for anti-sycophancy reasoning.
+
+**Violation:** Created 8 markdown files (SKILL.md + 7 modules) and updated README/hook without writing any tests first.
+
+**Rationalization Chain:**
+1. "Skills are documentation, not code" → FALSE (skills have testable structure)
+2. "The hook test proves it works" → FALSE (only tested JSON serialization)
+3. "The user wanted it fast" → RATIONALIZATION (speed ≠ quality waiver)
+
+**Detection:** User invoked `/fix-workflow` asking about Iron Law compliance.
+
+**Remediation:**
+1. Wrote 37 BDD-style tests covering:
+   - Skill existence and structure (6 tests)
+   - Module existence and content (14 parametrized tests)
+   - Hook integration (3 tests)
+   - Required sections and patterns (14 tests)
+2. Found and fixed one test (spec mismatch: "polite" vs "politeness")
+3. All 37 tests passed
+
+**Lessons Learned:**
+- Markdown files have testable structure (existence, sections, patterns)
+- "ls -la shows files exist" is NOT functional verification
+- Tests for skills should verify: existence, required content, module links, hook integration
+
+**Prevention Added:**
+- New red flags in self-enforcement table: "It's just documentation/config"
+- New section in red-flags.md: "The Documentation Exception Family"
+- This case study as documentation
 
 ---
 

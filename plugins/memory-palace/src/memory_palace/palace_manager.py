@@ -72,8 +72,8 @@ class MemoryPalaceManager:
     def load_config(self) -> dict[str, Any]:
         """Load configuration from the specified file.
 
-        Attempt to open and parse the JSON configuration file at `self.config_path`.
-        If the file is not found, return an empty config to allow defaults to work.
+        Open and parse the JSON configuration file at `self.config_path`.
+        Return an empty config if the file is not found to allow defaults to work.
 
         Returns:
             Dictionary containing the loaded configuration, or empty dict if not found.
@@ -405,11 +405,11 @@ class MemoryPalaceManager:
         return False
 
     def get_master_index(self) -> dict[str, Any]:
-        """Retrieve the master index; create a default empty one if it does not exist.
+        """Retrieve the master index or create a default empty one.
 
-        Attempt to load the `master_index.json` file. If found, return its content.
-        If the file does not exist, return a new default index structure. This
-        validates operations relying on the master index always have a valid structure.
+        Load the `master_index.json` file and return its content if found.
+        Return a new default index structure if the file does not exist to
+        ensure a valid structure for dependent operations.
 
         Returns:
             Dictionary representing the master index of all palaces, or a
@@ -686,8 +686,8 @@ class MemoryPalaceManager:
         """Delete a palace by its ID after creating a final backup.
 
         Remove the specified palace file from the storage directory. Create a
-        backup of the palace before deletion to prevent accidental data loss.
-        After successful deletion, update the master index to reflect the change.
+        backup of the palace before deletion and update the master index after
+        successful deletion.
 
         Args:
             palace_id: The ID of the palace to delete.

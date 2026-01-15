@@ -87,7 +87,7 @@ Analyze and improve Claude skills. Tools audit skills against quality standards,
 
 ### Tools
 
-The evaluation process utilizes five primary tools. The `skills-auditor` scans and analyzes skills for structural integrity, while the `improvement-suggester` generates prioritized fixes based on audit results. Standards and security are validated by the `compliance-checker`, and tool use patterns are measured by the `tool-performance-analyzer`. Finally, the `token-usage-tracker` monitors context efficiency to keep token consumption within recommended limits.
+The evaluation process uses `skills-auditor` for structural analysis and `improvement-suggester` for prioritized fixes. `compliance-checker` validates standards, `tool-performance-analyzer` measures tool patterns, and `token-usage-tracker` monitors context efficiency.
 
 ## What It Is
 
@@ -190,10 +190,10 @@ make check-compliance PATH=path/to/skill/SKILL.md
 ## Evaluation Framework
 
 ### Quality Metrics Overview
-The framework evaluates skills across multiple weighted dimensions. Structure compliance and content quality each account for 20 points, focusing on YAML frontmatter, progressive disclosure, and overall documentation completeness. Token efficiency and activation reliability contribute 15 points each, monitoring content density and trigger effectiveness. The remaining 30 points are distributed among tool integration, trigger isolation, enforcement language intensity, and the presence of explicit negative triggers.
+The framework evaluates skills on weighted dimensions: structure compliance and content quality (20 points each), token efficiency and activation reliability (15 points each), and remaining points for tool integration, trigger isolation, and enforcement language.
 
 ### Scoring System
-Scores are categorized into five quality levels. A score between 91 and 100 represents excellent quality with all best practices implemented. Scores from 76 to 90 indicate good quality with only minor improvement opportunities, while 51 to 75 meets basic requirements but requires further enhancement. Any score between 26 and 50 is considered below acceptable standards, and scores from 0 to 25 indicate major issues that necessitate a detailed overhaul.
+Scores categorize quality: 91-100 (Excellent), 76-90 (Good), 51-75 (Basic), 26-50 (Below Standards), and 0-25 (Critical Issues).
 
 ### Priority Levels
 Improvements are prioritized to address the most critical issues first. Critical priority is assigned to security vulnerabilities, broken functionality, or missing required metadata. High priority concerns poor structure or incomplete documentation, while medium priority identifies missing best practices and optimization opportunities. Minor enhancements, such as formatting issues or improved examples, are categorized as low priority.
