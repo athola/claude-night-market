@@ -98,6 +98,27 @@ See [priority-signals.md](modules/priority-signals.md) for detailed guidance.
 | "On the other hand..." | Do the hands lead to DIFFERENT conclusions? | If not, drop the hedge |
 | "That said..." | Are you RETRACTING under social pressure? | Check what changed |
 
+### Cargo Cult Reasoning Patterns
+
+**These patterns indicate you're accepting without understanding:**
+
+| Thought Pattern | Cargo Cult Indicator | Action |
+|-----------------|---------------------|--------|
+| "That's the standard approach" | Appeal to convention | Ask WHY it's standard |
+| "This is best practice" | Appeal to authority | Best for WHOM? WHEN? |
+| "That's how [expert] does it" | Hero worship | Do you have their context? |
+| "The documentation says..." | Deference to docs | Does this apply HERE? |
+| "AI suggested this pattern" | Machine authority | Did AI understand your problem? |
+| "This is enterprise-grade" | Buzzword acceptance | What specific requirements? |
+
+**Recovery Protocol for Cargo Cult Reasoning:**
+1. STOP accepting the framing
+2. Apply First Principles: What is the ACTUAL requirement?
+3. Ask: What simpler solution would also work?
+4. Verify: Can I explain WHY this approach, not just WHAT?
+
+See [../shared/modules/anti-cargo-cult.md](../shared/modules/anti-cargo-cult.md) for understanding verification.
+
 **Recovery Protocol:**
 1. STOP the sycophantic response
 2. Apply the relevant checklist (harm/rights, validity, evidence)

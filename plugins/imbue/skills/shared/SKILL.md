@@ -19,16 +19,27 @@ tags: [shared, patterns, templates, analysis]
 provides:
   infrastructure: [todowrite-patterns, evidence-formats, analysis-workflows]
 reusable_by: [all imbue skills, pensive skills, sanctum skills]
-estimated_tokens: 150
+estimated_tokens: 200
+modules:
+  - modules/todowrite-patterns.md
+  - modules/evidence-formats.md
+  - modules/anti-cargo-cult.md
 ---
 
 # Shared Infrastructure for Imbue
 
 ## Purpose
 
-Reusable patterns for analysis workflows, evidence logging, and structured outputs used across imbue skills and by dependent plugins (pensive, sanctum).
+Reusable patterns for analysis workflows, evidence logging, understanding verification, and structured outputs used across imbue skills and by dependent plugins (pensive, sanctum).
 
 ## Modules
+
+### Anti-Cargo-Cult Reasoning
+The `modules/anti-cargo-cult.md` module prevents superficial technical artifacts:
+- Understanding verification protocol (Five Whys)
+- Cargo cult red flags (code-level, thought-level, AI-specific)
+- Integration with proof-of-work, scope-guard, rigorous-reasoning
+- Recovery protocol for detected cargo cult code
 
 ### TodoWrite Patterns
 The `modules/todowrite-patterns.md` module documents naming conventions:

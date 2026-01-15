@@ -9,7 +9,9 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 *   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context.
 *   **Skill Metrics:** `pensive` tracks usage and stability.
 *   **Proof-of-Work TDD:** `imbue` mandates failing tests before implementation.
+*   **Anti-Cargo-Cult:** `imbue` verifies understanding before accepting AI-generated code.
 *   **Rigorous Reasoning:** `imbue:rigorous-reasoning` prevents sycophancy via checklist analysis.
+*   **Interactive Auth:** `leyline` handles OAuth prompts for GitHub, GitLab, AWS during workflows.
 *   **Test Enforcement:** `/create-skill` and `/create-command` require failing tests.
 *   **Self-Correction:** `/update-plugins` suggests improvements; `/fix-workflow` repairs failures.
 
@@ -101,6 +103,8 @@ flowchart TB
 *   **archetypes**: Architecture guides.
 *   **memory-palace**: Knowledge indexing (`/palace`).
 *   **hookify**: Behavioral rules without configuration.
+*   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
+*   **imbue**: Review methodologies, proof-of-work TDD, anti-cargo-cult verification.
 
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 113 skills, 96 commands, and 35 agents.
 

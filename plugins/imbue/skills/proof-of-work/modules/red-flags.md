@@ -524,6 +524,178 @@ The Iron Law is non-negotiable regardless of perceived urgency.
 
 ---
 
+## The "Cargo Cult" Family
+
+### "The AI suggested this approach"
+**Problem:** AI confidence =/= correctness
+
+**Example:**
+> "Claude suggested using a factory pattern here, so I implemented it."
+
+**Reality Check:**
+- Did you understand WHY the pattern was suggested?
+- Did you consider SIMPLER alternatives?
+- Can you explain when this pattern would be WRONG?
+
+**Fix:**
+```markdown
+AI suggestion validation:
+
+[E1] Understanding check:
+Q: Why factory pattern here?
+A: [Must be able to explain, not just "AI said so"]
+
+[E2] Alternatives considered:
+- Simple function: Would this work? [Yes/No + why]
+- Direct construction: Would this work? [Yes/No + why]
+
+[E3] Trade-off awareness:
+- Factory adds indirection - is that beneficial here?
+- Factory adds abstraction - do we have 3+ implementations?
+
+Conclusion: [Use pattern / Use simpler approach] because [reason I understand]
+```
+
+---
+
+### "This is how [big company] does it"
+**Problem:** Different constraints =/= transferable solution
+
+**Example:**
+> "Netflix uses microservices, so we should too."
+
+**Reality Check:**
+- Does your scale match theirs?
+- Do you have their team size/expertise?
+- Are you solving the same problems?
+
+**Fix:**
+```markdown
+Context validation:
+
+[E1] Scale comparison:
+- Netflix: 200M+ users, 1000s engineers
+- Our project: [actual scale]
+
+[E2] Problem match:
+- Netflix problem: Independent team deployment at scale
+- Our problem: [actual problem]
+
+[E3] Constraint comparison:
+- Netflix: Can afford complexity overhead
+- Us: [actual constraints]
+
+Conclusion: [Appropriate / Not appropriate] because [specific reason]
+```
+
+---
+
+### "It's a best practice"
+**Problem:** "Best" without context is meaningless
+
+**Example:**
+> "Added error boundaries because they're a React best practice."
+
+**Reality Check:**
+- Best for WHAT goal?
+- Recommended by WHOM?
+- In WHAT context?
+
+**Fix:**
+```markdown
+Best practice validation:
+
+[E1] Goal clarification:
+- What problem does this solve? [specific answer]
+- Do we HAVE that problem? [yes/no with evidence]
+
+[E2] Source verification:
+- Who recommends this? [specific source]
+- What context? [their assumptions]
+
+[E3] Context match:
+- Their context: [describe]
+- Our context: [describe]
+- Match: [yes/no]
+
+Conclusion: [Apply / Don't apply] because [understood reason]
+```
+
+---
+
+### "Just copy this snippet"
+**Problem:** Copy-paste without understanding = technical debt
+
+**Example:**
+> "Found this regex on Stack Overflow, it handles the edge cases."
+
+**Reality Check:**
+- Do you know what EACH part does?
+- Can you MODIFY it if requirements change?
+- Do you know when it will FAIL?
+
+**Fix:**
+```markdown
+Snippet validation:
+
+[E1] Understanding test:
+$ # Explain what each part of this regex does:
+/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+- ^[a-zA-Z0-9._%+-]+ : [my explanation]
+- @ : [my explanation]
+- [a-zA-Z0-9.-]+ : [my explanation]
+- \.[a-zA-Z]{2,}$ : [my explanation]
+
+[E2] Modification test:
+Q: How would you add support for + addressing?
+A: [must be able to answer without searching]
+
+[E3] Failure mode test:
+Q: When would this regex incorrectly reject valid emails?
+A: [must know limitations]
+
+Conclusion: [Use / Don't use] - I [do / don't] understand it
+```
+
+---
+
+### "Make it production-ready"
+**Problem:** "Production-ready" is not a specification
+
+**Example:**
+> "I made it production-ready by adding logging and error handling."
+
+**Reality Check:**
+- What SPECIFIC requirements did you add?
+- Who DEFINED "production-ready"?
+- How did you VERIFY readiness?
+
+**Fix:**
+```markdown
+Production readiness validation:
+
+[E1] Requirements definition:
+- [ ] Error handling: [specific requirement]
+- [ ] Logging: [specific requirement]
+- [ ] Monitoring: [specific requirement]
+- [ ] Performance: [specific requirement]
+- [ ] Security: [specific requirement]
+
+[E2] Verification evidence:
+- Error handling: [E-test1] unit tests PASS
+- Logging: [E-test2] log output verified
+- etc.
+
+[E3] Missing requirements:
+- Load testing: NOT DONE (deferred to [issue])
+- Security audit: NOT DONE (deferred to [issue])
+
+Conclusion: "Production-ready" for [defined scope], NOT for [missing items]
+```
+
+---
+
 ## The Ultimate Red Flag
 
 **Thought:** "I don't need to test this, it's obvious it will work."
@@ -531,3 +703,15 @@ The Iron Law is non-negotiable regardless of perceived urgency.
 **Reality:** Nothing is obvious. Everything must be proven.
 
 **Recovery:** Test it anyway. Evidence beats intuition every time.
+
+---
+
+## Cargo Cult Summary
+
+**The fundamental cargo cult error:** Using code/patterns you can't explain.
+
+**Test:** If you can't teach it to someone else, you don't understand it.
+
+**Rule:** If you don't understand it, don't ship it.
+
+See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for the complete understanding verification protocol.
