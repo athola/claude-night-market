@@ -10,6 +10,19 @@ import pytest
 PLUGIN_ROOT = Path(__file__).parent.parent
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    """Register custom markers for optional dependencies."""
+    config.addinivalue_line(
+        "markers", "requires_vhs: mark test as requiring vhs to be installed"
+    )
+    config.addinivalue_line(
+        "markers", "requires_ffmpeg: mark test as requiring ffmpeg to be installed"
+    )
+    config.addinivalue_line(
+        "markers", "requires_playwright: mark test as requiring playwright"
+    )
+
+
 @pytest.fixture
 def plugin_root() -> Path:
     """Return the plugin root directory."""

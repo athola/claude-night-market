@@ -12,6 +12,7 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 *   **Anti-Cargo-Cult:** `imbue` verifies understanding before accepting AI-generated code.
 *   **Rigorous Reasoning:** `imbue:rigorous-reasoning` prevents sycophancy via checklist analysis.
 *   **Interactive Auth:** `leyline` handles OAuth prompts for GitHub, GitLab, AWS during workflows.
+*   **Permission Automation:** `conserve` auto-approves safe commands and blocks dangerous ones (v2.0.54+).
 *   **Test Enforcement:** `/create-skill` and `/create-command` require failing tests.
 *   **Self-Correction:** `/update-plugins` suggests improvements; `/fix-workflow` repairs failures.
 

@@ -42,6 +42,7 @@
   "license": "MIT",
   "hooks": [
     "./hooks/context_warning.py",
+    "./hooks/permission_request.py",
     "./hooks/session-start.sh"
   ]
 }

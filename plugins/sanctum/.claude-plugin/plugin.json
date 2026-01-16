@@ -22,20 +22,21 @@
     "./commands/create-tag.md"
   ],
   "skills": [
-    "./skills/shared",
-    "./skills/git-workspace-review",
-    "./skills/file-analysis",
     "./skills/commit-messages",
-    "./skills/pr-prep",
-    "./skills/pr-review",
+    "./skills/do-issue",
     "./skills/doc-consolidation",
     "./skills/doc-updates",
+    "./skills/file-analysis",
+    "./skills/git-workspace-review",
+    "./skills/pr-prep",
+    "./skills/pr-review",
+    "./skills/session-management",
+    "./skills/shared",
     "./skills/test-updates",
-    "./skills/update-readme",
-    "./skills/workflow-improvement",
-    "./skills/version-updates",
     "./skills/tutorial-updates",
-    "./skills/do-issue"
+    "./skills/update-readme",
+    "./skills/version-updates",
+    "./skills/workflow-improvement"
   ],
   "agents": [
     "./agents/git-workspace-agent.md",

@@ -35,6 +35,7 @@ Or reference directly from the marketplace:
 | **pr-review** | Scope-focused PR review with knowledge capture integration |
 | **do-issue** | Fix GitHub issues using subagent-driven-development |
 | **tutorial-updates** | Generate tutorials with GIF recordings |
+| **session-management** | Manage named sessions with `/rename`, `/resume`, and checkpoints |
 
 ### Commands
 
@@ -192,7 +193,8 @@ sanctum/
 │   ├── version-updates/
 │   ├── pr-review/
 │   ├── do-issue/
-│   └── tutorial-updates/
+│   ├── tutorial-updates/
+│   └── session-management/
 └── README.md
 ```
 
