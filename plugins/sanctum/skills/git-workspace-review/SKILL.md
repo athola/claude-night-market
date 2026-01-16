@@ -87,4 +87,4 @@ Mark each item as complete as you finish the corresponding step.
 
 ### Common Issues
 
-If pre-commit hooks fail, you must fix the reported issues instead of bypassing them with `--no-verify`. These hooks are designed to prevent code that doesn't meet quality standards from entering the repository. For linting errors, run `make format` to automatically fix formatting and `make lint` to identify any remaining issues. If you encounter merge conflicts, use `git merge --abort` to reset the state and resolve the conflicts manually. A failure in the code quality check indicates that the code is not yet ready for a commit, and all linting or formatting problems should be addressed before continuing.
+If pre-commit hooks block you, fix the issues; do not use `--no-verify`. Run `make format` to resolve styling errors automatically. For lint failures, use `make lint` to pinpoint the cause. If merge conflicts arise, `git merge --abort` lets you retry safely.

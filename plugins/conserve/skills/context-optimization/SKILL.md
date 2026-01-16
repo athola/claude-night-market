@@ -54,20 +54,15 @@ hooks:
 ## Quick Start
 
 ### Basic Usage
-\`\`\`bash
-# Run the main command
-python -m module_name
+```bash
+# Analyze current context usage
+python -m conserve.context_analyzer
+```
 
-# Show help
-python -m module_name --help
-\`\`\`
-
-**Verification**: Run with `--help` flag to confirm installation.
 ## When to Use
 
-- **Automatic**: Keywords: `context`, `tokens`, `optimization`, `MECW`.
-- **MECW Threshold**: When context usage approaches 50% of total window size.
-- **Complex Tasks**: For tasks requiring multiple steps or analysis.
+- **Threshold Alert**: When context usage approaches 50% of the window.
+- **Complex Tasks**: For operations requiring multi-file analysis or long tool chains.
 
 ## Core Hub Responsibilities
 
@@ -99,7 +94,7 @@ def select_optimal_modules(context_situation, task_complexity):
 
 ## Large Output Handling (Claude Code 2.1.2+)
 
-**Behavior Change**: Large bash command and tool outputs are now saved to disk instead of truncated, with file references provided for access.
+**Behavior Change**: Large bash command and tool outputs are saved to disk instead of being truncated; file references are provided for access.
 
 ### Impact on Context Optimization
 
@@ -111,10 +106,10 @@ def select_optimal_modules(context_situation, task_complexity):
 
 ### Best Practices
 
-- **Don't pre-emptively read**: Large outputs are referenced, not loaded into context
-- **Read selectively**: Use `head`, `tail`, or `grep` on file references
-- **Leverage full data**: Quality gates can now access complete test results
-- **Monitor growth**: File references are cheap, but reading them adds to context
+- **Avoid pre-emptive reads**: Large outputs are referenced, not automatically loaded into context.
+- **Read selectively**: Use `head`, `tail`, or `grep` on file references.
+- **Leverage full data**: Quality gates can access complete test results via files.
+- **Monitor growth**: File references are small, but reading the full files adds to context.
 
 ## Integration Points
 
@@ -124,20 +119,11 @@ def select_optimal_modules(context_situation, task_complexity):
 
 ## Resources
 
-For implementation details:
-
-- **MECW Theory**: See `modules/mecw-principles.md` for core concepts and 50% rule.
+- **MECW Theory**: See `modules/mecw-principles.md` for core concepts and the 50% rule.
 - **Context Analysis**: See `modules/mecw-assessment.md` for risk identification.
 - **Workflow Delegation**: See `modules/subagent-coordination.md` for decomposition patterns.
 ## Troubleshooting
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If context usage remains high after optimization, check for large files that were read entirely rather than selectively. If MECW assessments fail, ensure that your environment provides accurate token count metadata. For permission errors when writing output logs to `/tmp`, verify that the project's temporary directory is writable.

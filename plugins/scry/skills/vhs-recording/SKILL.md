@@ -91,11 +91,4 @@ VHS will:
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If `vhs` is not found, verify that your Go bin directory is in your `PATH` (typically `~/go/bin`). If the recording fails to start, ensure `ttyd` and `ffmpeg` are installed, as VHS depends on them for terminal emulation and video encoding. For "permission denied" errors when writing the GIF, check that the output directory exists and is writable.

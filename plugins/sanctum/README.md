@@ -33,7 +33,7 @@ Or reference directly from the marketplace:
 | **version-updates** | Version bumping across configs and changelogs |
 | **workflow-improvement** | Workflow to improve skills, agents, commands, and hooks from the most recent session slice |
 | **pr-review** | Scope-focused PR review with knowledge capture integration |
-| **do-issue** | Fix GitHub issues using subagent-driven-development |
+| **do-issue** | Fix GitHub issues using parallel execution via sub-agents |
 | **tutorial-updates** | Generate tutorials with GIF recordings |
 | **session-management** | Manage named sessions with `/rename`, `/resume`, and checkpoints |
 
@@ -43,12 +43,12 @@ Or reference directly from the marketplace:
 |---------|-------------|
 | `/git-catchup` | Git repository catchup with imbue methodology |
 | `/commit-msg` | Draft conventional commit message |
-| `/do-issue` | Fix GitHub issues using subagent-driven-development with parallel execution |
+| `/do-issue` | Fix GitHub issues using parallel execution via sub-agents |
 | `/fix-workflow` | Retrospective to improve the most recent workflow slice |
 | `/fix-pr` | Address PR review comments, implement fixes, resolve threads |
 | `/pr` | Prepare PR description with quality gates |
 | `/update-docs` | Update project documentation |
-| `/update-readme` | Update README with current best practices |
+| `/update-readme` | Update README with recent changes |
 | `/update-tests` | Update and maintain tests with TDD/BDD principles |
 | `/update-version` | Bump project versions |
 | `/update-dependencies` | Scan and update dependencies across all ecosystems |

@@ -160,7 +160,6 @@ Transform specification into implementation plan with architecture design and de
 - [Config param 1]
 - [Config param 2]
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Task Breakdown Template
 
@@ -200,7 +199,6 @@ Transform specification into implementation plan with architecture design and de
 - [ ] Documentation updated
 - [ ] Deployed to staging
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
 
 ## Task Estimation Guidelines
 
@@ -224,7 +222,6 @@ Transform specification into implementation plan with architecture design and de
 
 **Notation**:
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
 TASK-001 (Foundation)
     ├─▶ TASK-002 (Database schema)
     │       ├─▶ TASK-003 (Models)
@@ -233,7 +230,6 @@ TASK-001 (Foundation)
             └─▶ TASK-005 (Auth middleware)
                     └─▶ TASK-010 (Protected endpoints)
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 **Validation**:
 - No circular dependencies (A depends on B, B depends on A)
@@ -267,7 +263,6 @@ TASK-001 (Foundation)
 - [External dependency 1]
 - [External dependency 2]
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Risk Assessment
 
@@ -277,7 +272,6 @@ TASK-001 (Foundation)
 |------|--------|-------------|------------|
 | [Risk description] | High/Med/Low | High/Med/Low | [How to address] |
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 **Common Risks**:
 - Technology unknowns
@@ -354,7 +348,6 @@ Save to `docs/implementation-plan.md`:
 2. Initialize project with `/attune:init`
 3. Start execution with `/attune:execute`
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Quality Checks
 
@@ -388,11 +381,4 @@ See `/attune:plan` command documentation for complete examples.
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If you find circular dependencies in your task graph, break one of the tasks into smaller sub-tasks. If sprint capacity is consistently exceeded, re-estimate tasks using the Fibonacci scale or reduce sprint scope.

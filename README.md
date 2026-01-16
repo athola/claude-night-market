@@ -6,25 +6,25 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 
 ## Key Features
 
-*   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context.
-*   **Skill Metrics:** `pensive` tracks usage and stability.
-*   **Proof-of-Work TDD:** `imbue` mandates failing tests before implementation.
-*   **Anti-Cargo-Cult:** `imbue` verifies understanding before accepting AI-generated code.
-*   **Rigorous Reasoning:** `imbue:rigorous-reasoning` prevents sycophancy via checklist analysis.
-*   **Interactive Auth:** `leyline` handles OAuth prompts for GitHub, GitLab, AWS during workflows.
-*   **Permission Automation:** `conserve` auto-approves safe commands and blocks dangerous ones (v2.0.54+).
-*   **Test Enforcement:** `/create-skill` and `/create-command` require failing tests.
-*   **Self-Correction:** `/update-plugins` suggests improvements; `/fix-workflow` repairs failures.
+*   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context based on the active agent.
+*   **Skill Metrics:** `pensive` tracks usage frequency and failure rates.
+*   **Proof-of-Work TDD:** `imbue` requires failing tests before implementation begins.
+*   **Verification:** `imbue` checks that generated code solves the problem without copying patterns blindly.
+*   **Checklist Analysis:** `imbue:rigorous-reasoning` forces a step-by-step logic check before complex tasks.
+*   **Interactive Auth:** `leyline` manages OAuth flows for GitHub, GitLab, and AWS.
+*   **Permission Automation:** `conserve` (v2.0.54+) allows specific safe commands while blocking risky ones.
+*   **Test Enforcement:** `/create-skill` and `/create-command` abort if no failing tests exist.
+*   **Self-Correction:** `/update-plugins` recommends updates based on stability; `/fix-workflow` attempts to repair failed runs.
 
 ## Workflow Improvements
 
-Specialized commands replace manual steps:
+Commands automate multi-step processes:
 
-*   **Git:** `/prepare-pr` validates branch scope and checks before creation.
-*   **Reviews:** `/full-review` performs a multi-step audit (syntax, logic, security).
-*   **Specs:** `/speckit-specify` creates detailed specifications before coding.
-*   **Context:** `/catchup` summarizes recent changes to restore context.
-*   **Setup:** `/attune:init` scaffolds projects based on detected types.
+*   **Git:** `/prepare-pr` checks branch scope, runs linting, and verifies clean state before PR creation.
+*   **Reviews:** `/full-review` audits syntax, logic, and security in one pass.
+*   **Specs:** `/speckit-specify` forces a written specification phase before code generation.
+*   **Context:** `/catchup` reads recent git history to update the context window.
+*   **Setup:** `/attune:init` detects project types (Python, Node, etc.) and creates necessary config files.
 
 ## Quick Start
 

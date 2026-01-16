@@ -434,7 +434,7 @@ class TestHookRegistration:
     """Tests for hook registration in hooks.json."""
 
     def test_hook_registered_in_hooks_json(self) -> None:
-        """Should be registered in hooks.json under Stop event."""
+        """Should be registered in hooks.json under Stop event (via stop_combined.py)."""
         hooks_json_path = HOOKS_DIR / "hooks.json"
         assert hooks_json_path.exists(), "hooks.json should exist"
 
@@ -450,8 +450,9 @@ class TestHookRegistration:
             for hook in hook_group.get("hooks", []):
                 hook_commands.append(hook.get("command", ""))
 
-        assert any("session_complete_notify.py" in cmd for cmd in hook_commands), (
-            "session_complete_notify.py should be registered in Stop hooks"
+        # stop_combined.py consolidates session_complete_notify.py functionality
+        assert any("stop_combined.py" in cmd for cmd in hook_commands), (
+            "stop_combined.py should be registered in Stop hooks"
         )
 
     def test_hook_script_is_executable(self) -> None:

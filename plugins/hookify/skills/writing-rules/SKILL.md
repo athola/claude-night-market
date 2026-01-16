@@ -114,7 +114,6 @@ conditions:
 🔐 **API key in .env file!**
 Ensure file is in .gitignore.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Operators
 
@@ -147,19 +146,16 @@ Ensure file is in .gitignore.
 ### Examples
 
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 rm\s+-rf          → rm -rf
 console\.log\(    → console.log(
 chmod\s+777       → chmod 777
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Test Patterns
 
 ```bash
 python3 -c "import re; print(re.search(r'pattern', 'text'))"
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Example Rules
 
@@ -177,7 +173,6 @@ action: block
 🛑 **Destructive operation blocked!**
 Can cause data loss.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Warn About Debug Code
 
@@ -193,7 +188,6 @@ action: warn
 🐛 **Debug code detected!**
 Remove before committing.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ### Require Tests
 
@@ -212,7 +206,6 @@ conditions:
 ⚠️ **Tests not run!**
 Please verify changes.
 ```
-**Verification:** Run `pytest -v` to verify tests pass.
 
 ### Protect Production Files
 
@@ -231,7 +224,6 @@ conditions:
 🚨 **Production file!**
 Requires review.
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Management
 
@@ -242,13 +234,11 @@ Edit `.local.md` file: `enabled: false`
 ```bash
 rm .claude/hookify.my-rule.local.md
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 **List:**
 ```bash
 /hookify:list
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
 
 ## Related Skills
 
@@ -268,11 +258,4 @@ rm .claude/hookify.my-rule.local.md
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If a rule doesn't trigger, verify that the `event` type matches the tool being used (e.g., use `bash` for command line tools). Check that the regex `pattern` is valid and matches the target text by testing it with a short Python script. If you encounter permission errors when creating rule files in `.claude/`, ensure that the directory is writable by your user.

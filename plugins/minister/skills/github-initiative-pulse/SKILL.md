@@ -73,11 +73,4 @@ Turns tracker data and GitHub board metadata into initiative-level summaries. Pr
 
 ### Common Issues
 
-**Pre-commit hooks failing**
-Run `SKIP=... git commit` to bypass temporarily, then fix issues
-
-**Merge conflicts**
-Use `git merge --abort` to reset, then resolve conflicts carefully
-
-**Commit rejected**
-Check hook output and fix reported issues before committing again
+If metrics appear outdated, ensure `tracker.py` has successfully synced with GitHub. If the Markdown digest renders incorrectly in GitHub, check for unescaped characters in task titles or missing newlines between table rows.

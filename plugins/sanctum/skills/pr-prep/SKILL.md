@@ -110,4 +110,4 @@ Mark them as complete as each section is finished.
 
 ### Common Issues
 
-If a command is not found, confirm that all dependencies are installed and accessible in your PATH. For permission errors, check file system permissions and run the command with appropriate privileges. If you encounter unexpected behavior, enable verbose logging using the `--verbose` flag to capture more detailed execution data.
+If commands like `make` or `npm` are missing, verify your environment setup against the project's `README`. For permission errors, check write access to build directories. If a step fails silently, retry the command with verbose flags (e.g., `-vv`) to inspect the error log.
