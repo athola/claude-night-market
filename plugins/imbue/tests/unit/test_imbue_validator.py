@@ -114,6 +114,7 @@ This skill doesn't do reviews.
 
         return plugin_root
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_initialization(self, mock_plugin_structure) -> None:
         """Scenario: Validator initializes with plugin structure.
@@ -133,6 +134,7 @@ This skill doesn't do reviews.
         assert len(validator.skill_files) == 3
         assert validator.plugin_config == mock_plugin_structure / "plugin.json"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_initialization_with_nonexistent_directory(self) -> None:
         """Scenario: Validator handles non-existent directory gracefully.
@@ -151,6 +153,7 @@ This skill doesn't do reviews.
         assert validator.plugin_root == Path("/nonexistent/directory")
         assert len(validator.skill_files) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_notifies_when_plugin_root_not_exists(self, caplog) -> None:
         """Scenario: Validator notifies when plugin root doesn't exist.
@@ -178,6 +181,7 @@ This skill doesn't do reviews.
         )
         assert validator.root_exists is False
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_notifies_when_plugin_root_empty(self, tmp_path, caplog) -> None:
         """Scenario: Validator notifies when plugin root exists but is empty.
@@ -205,6 +209,7 @@ This skill doesn't do reviews.
         )
         assert validator.root_empty is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_notifies_when_plugin_lacks_structure(
         self, tmp_path, caplog
@@ -240,6 +245,7 @@ This skill doesn't do reviews.
         )
         assert validator.has_valid_structure is False
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validator_root_status_properties(self, mock_plugin_structure) -> None:
         """Scenario: Validator exposes root status properties.
@@ -261,6 +267,7 @@ This skill doesn't do reviews.
         assert validator.root_empty is False
         assert validator.has_valid_structure is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_finds_review_skills(
         self, mock_plugin_structure
@@ -291,6 +298,7 @@ This skill doesn't do reviews.
         assert "evidence-logging" in result["review_workflow_skills"]
         assert "other-skill" not in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_detects_patterns(
         self, mock_plugin_structure
@@ -328,6 +336,7 @@ This provides workflow orchestration.
         assert "workflow-skill" in result["review_workflow_skills"]
         assert len(result["review_workflow_skills"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_loads_plugin_config(
         self, mock_plugin_structure
@@ -355,6 +364,7 @@ This provides workflow orchestration.
         assert "workflow-orchestration" in result["evidence_logging_patterns"]
         assert len(result["issues"]) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_handles_invalid_json(
         self, mock_plugin_structure
@@ -380,6 +390,7 @@ This provides workflow orchestration.
         assert result["issues"][0].startswith("Invalid plugin.json at line 1:")
         assert len(result["issues"]) == 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_handles_plugin_config_read_error(
         self, mock_plugin_structure
@@ -409,6 +420,7 @@ This provides workflow orchestration.
             "other-skill",
         }
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_scan_review_workflows_handles_skill_file_read_error(
         self, mock_plugin_structure
@@ -437,6 +449,7 @@ This provides workflow orchestration.
         assert "review-core" in result["skills_found"]
         assert "evidence-logging" in result["skills_found"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validate_review_workflows_review_core_components(
         self,
@@ -481,6 +494,7 @@ This skill has checklist but no deliverable section.
         assert len(review_core_issues) > 0
         assert any("Missing review components" in issue for issue in review_core_issues)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validate_review_workflows_evidence_patterns(
         self, mock_plugin_structure
@@ -520,6 +534,7 @@ This skill has checklist but no deliverable section.
         ]
         assert any("no-audit" in issue for issue in evidence_issues)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validate_review_workflows_excludes_review_core_from_evidence_check(
         self,
@@ -561,6 +576,7 @@ This skill provides review scaffolding with checklist and deliverables.
         ]
         assert len(evidence_issues) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_includes_all_sections(self, mock_plugin_structure) -> None:
         """Scenario: Report generation includes all required sections.
@@ -587,6 +603,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "review-workflows" in report
         assert "evidence-logging" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_shows_issues(self, mock_plugin_structure) -> None:
         """Scenario: Report displays validation issues.
@@ -615,6 +632,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "Invalid plugin.json at line 1:" in report
         assert "no-evidence: Should have evidence logging patterns" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generate_report_success_message(self, mock_plugin_structure) -> None:
         """Scenario: Report shows success when no issues found.
@@ -642,6 +660,7 @@ This skill provides review scaffolding with checklist and deliverables.
         assert "All review workflow skills validated successfully!" in report
         assert "Issues Found" not in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_pattern_matching_case_insensitive(self, mock_plugin_structure) -> None:
         """Scenario: Pattern matching is case insensitive.
@@ -676,6 +695,7 @@ Also includes EVIDENCE logging.
         # Assert
         assert "mixed-case" in result["review_workflow_skills"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_empty_plugin_directory(self, tmp_path) -> None:
         """Scenario: Validation handles empty plugin directory.
@@ -700,6 +720,7 @@ Also includes EVIDENCE logging.
         assert len(result["review_workflow_skills"]) == 0
         assert len(result["issues"]) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_missing_plugin_json(self, mock_plugin_structure) -> None:
         """Scenario: Validation handles missing plugin.json.
@@ -724,6 +745,7 @@ Also includes EVIDENCE logging.
         # No evidence patterns added without plugin.json
         assert len(result["evidence_logging_patterns"]) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_cli_scan_exits_nonzero_when_issues(
         self, mock_plugin_structure, capsys
@@ -745,6 +767,7 @@ Also includes EVIDENCE logging.
         assert "skills_found:" in out
         assert "Issues:" in out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_cli_scan_success_outputs_no_issues(
         self, mock_plugin_structure, capsys
@@ -772,6 +795,7 @@ Also includes EVIDENCE logging.
         assert "evidence_logging_patterns:" in out
         assert "Issues:" not in out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_cli_report_outputs_report(self, mock_plugin_structure, capsys) -> None:
         """Scenario: CLI report prints a full report."""
@@ -797,6 +821,7 @@ class TestImbueValidatorIntegration:
     So that validation accurately reflects plugin structure
     """
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_real_plugin_validation(self, imbue_plugin_root) -> None:
         """Scenario: Validate real imbue plugin structure.
@@ -824,6 +849,7 @@ class TestImbueValidatorIntegration:
         assert isinstance(report, str)
         assert len(report) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_file_permissions_handling(self, tmp_path) -> None:
         """Scenario: Validation handles file permission issues.
@@ -861,6 +887,7 @@ class TestImbueValidatorPerformance:
     So that validation completes in reasonable time
     """
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_large_plugin_validation_performance(self, tmp_path) -> None:
         """Scenario: Validation performance with many skills.
@@ -903,6 +930,7 @@ This is test skill number {i} with review workflow patterns.
         assert execution_time < 5.0  # Should complete within 5 seconds
         assert len(result["skills_found"]) == 100
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_memory_usage_large_plugin(self, tmp_path) -> None:
         """Scenario: Memory usage with large plugin structures.
@@ -932,3 +960,237 @@ This is test skill number {i} with review workflow patterns.
         # The test passes if it doesn't crash with memory issues
         result = validator.scan_review_workflows()
         assert len(result["skills_found"]) == 10
+
+
+class TestImbueValidatorEdgeCases:
+    """Feature: Imbue validator handles edge cases robustly.
+
+    As a validation tool
+    I want to handle all edge cases gracefully
+    So that the validator never crashes unexpectedly
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_cli_default_prints_help(self, capsys) -> None:
+        """Scenario: CLI prints help when no arguments provided.
+
+        Given no command line arguments
+        When running main()
+        Then it should print help information.
+        """
+        if imbue_main is None:
+            pytest.skip("imbue_main not available")
+
+        with patch.object(sys, "argv", ["prog"]):
+            imbue_main()
+
+        out = capsys.readouterr().out
+        assert "usage:" in out.lower() or "--root" in out or "--report" in out
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_directory_read_oserror_handling(self, tmp_path, caplog) -> None:
+        """Scenario: Validator handles OSError when reading directory.
+
+        Given a directory that raises OSError when iterating
+        When initializing ImbueValidator
+        Then it should handle the error gracefully and log a warning.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Create a directory
+        test_dir = tmp_path / "test-plugin"
+        test_dir.mkdir()
+        # Put a file in it so it's not empty
+        (test_dir / "dummy.txt").write_text("dummy")
+
+        # Mock iterdir to raise OSError
+        with patch.object(Path, "iterdir", side_effect=OSError("Permission denied")):
+            with caplog.at_level(logging.WARNING):
+                validator = ImbueValidator(test_dir)
+
+        # Should have handled the error
+        assert validator.root_empty is True
+        assert any("Unable to read" in record.message for record in caplog.records)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_frontmatter_without_review_patterns(self, tmp_path) -> None:
+        """Scenario: Skills with frontmatter but no review patterns are excluded.
+
+        Given a skill with valid frontmatter but no review-related content
+        When scanning for review workflows
+        Then it should not be classified as a review workflow skill.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        # Create plugin structure
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "non-review"
+        skills_dir.mkdir(parents=True)
+
+        # Create skill with frontmatter but no review patterns
+        # IMPORTANT: Content must NOT contain any of these words:
+        # workflow, evidence, structured, output, orchestrat, checklist, deliverable
+        (skills_dir / "SKILL.md").write_text("""---
+name: non-review-skill
+description: A skill that does something else
+category: utilities
+tags:
+  - helper
+  - utility
+---
+
+# Non-Review Skill
+
+This skill helps with general utilities.
+It provides helper functions for common tasks.
+Just plain utility operations.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        # Skill should be found but NOT classified as review workflow
+        assert "non-review" in result["skills_found"]
+        assert "non-review" not in result["review_workflow_skills"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_frontmatter_with_review_category_in_frontmatter(self, tmp_path) -> None:
+        """Scenario: Skills with review-patterns category are classified correctly.
+
+        Given a skill with category: review-patterns in frontmatter
+        When scanning for review workflows
+        Then it should be classified as a review workflow skill via frontmatter.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "categorized-review"
+        skills_dir.mkdir(parents=True)
+
+        # Create skill with review-patterns category
+        (skills_dir / "SKILL.md").write_text("""---
+name: categorized-review
+description: A skill with review category
+category: review-patterns
+---
+
+# Categorized Review Skill
+
+This skill is categorized as review-patterns.
+No keywords needed in the body.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        assert "categorized-review" in result["review_workflow_skills"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_frontmatter_with_review_workflow_usage(self, tmp_path) -> None:
+        """Scenario: Skills with review-workflow usage pattern are classified.
+
+        Given a skill with - review-workflow in usage patterns
+        When scanning for review workflows
+        Then it should be classified as a review workflow skill.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "usage-review"
+        skills_dir.mkdir(parents=True)
+
+        (skills_dir / "SKILL.md").write_text("""---
+name: usage-review
+description: A skill with review-workflow usage
+usage_patterns:
+  - review-workflow
+  - evidence-capture
+---
+
+# Usage Review Skill
+
+This skill uses review-workflow pattern.
+No keywords needed in the body.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        assert "usage-review" in result["review_workflow_skills"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_incomplete_frontmatter_falls_through_to_content_scan(
+        self, tmp_path
+    ) -> None:
+        """Scenario: Skills with incomplete frontmatter fall through to content scan.
+
+        Given a skill that starts with '---' but has no closing '---'
+        When scanning for review workflows
+        Then it should skip frontmatter parsing and check content patterns.
+
+        This covers branch 133->136 where frontmatter remains None.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "incomplete-fm"
+        skills_dir.mkdir(parents=True)
+
+        # Create skill with incomplete frontmatter (starts with --- but no closing ---)
+        # This causes split("---", 2) to produce fewer than 3 parts
+        (skills_dir / "SKILL.md").write_text("""---
+name: incomplete-frontmatter
+This file starts with --- but never closes the frontmatter.
+It contains workflow patterns in the content.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        # Skill should be found
+        assert "incomplete-fm" in result["skills_found"]
+        # Should match via content pattern ("workflow" keyword), not frontmatter
+        assert "incomplete-fm" in result["review_workflow_skills"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_incomplete_frontmatter_no_patterns(self, tmp_path) -> None:
+        """Scenario: Incomplete frontmatter with no patterns is excluded.
+
+        Given a skill with incomplete frontmatter and no review patterns
+        When scanning for review workflows
+        Then it should not be classified as a review workflow skill.
+
+        This also covers branch 133->136.
+        """
+        if ImbueValidator is None:
+            pytest.skip("ImbueValidator not available")
+
+        plugin_root = tmp_path / "test-plugin"
+        skills_dir = plugin_root / "skills" / "broken-fm"
+        skills_dir.mkdir(parents=True)
+
+        # Incomplete frontmatter with no review-related keywords
+        (skills_dir / "SKILL.md").write_text("""---
+name: broken-frontmatter
+This file has incomplete frontmatter.
+It does not contain any review-related keywords.
+Just some generic text here.
+""")
+
+        validator = ImbueValidator(plugin_root)
+        result = validator.scan_review_workflows()
+
+        assert "broken-fm" in result["skills_found"]
+        assert "broken-fm" not in result["review_workflow_skills"]

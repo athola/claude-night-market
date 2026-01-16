@@ -32,6 +32,7 @@ class TestApiReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_typescript_exports(self, mock_skill_context) -> None:
         """Given TypeScript code with exports, when skill analyzes, then identifies.
@@ -84,6 +85,7 @@ class TestApiReviewSkill:
         assert "interfaces" in api_surface
         assert api_surface["interfaces"] >= 1  # User
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_rust_public_api(self, mock_skill_context) -> None:
         """
@@ -140,6 +142,7 @@ class TestApiReviewSkill:
         assert "public_methods" in api_surface
         assert api_surface["public_methods"] >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_python_exports(self, mock_skill_context) -> None:
         """
@@ -191,6 +194,7 @@ class TestApiReviewSkill:
         assert "functions" in api_surface
         assert api_surface["functions"] >= 1  # calculate_total
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_javascript_es6_exports(self, mock_skill_context) -> None:
         """
@@ -241,6 +245,7 @@ class TestApiReviewSkill:
         assert "functions" in api_surface
         assert api_surface["functions"] >= 1  # factorial
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_missing_documentation(self, mock_skill_context) -> None:
         """
@@ -274,6 +279,7 @@ class TestApiReviewSkill:
         ]
         assert len(doc_issues) >= 2  # Should flag missing docs for class and function
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_inconsistent_naming(self, mock_skill_context) -> None:
         """
@@ -309,6 +315,7 @@ class TestApiReviewSkill:
         ]
         assert len(naming_issues) >= 1  # Should detect inconsistent naming patterns
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_missing_error_handling(self, mock_skill_context) -> None:
         """
@@ -347,6 +354,7 @@ class TestApiReviewSkill:
             len(error_issues) >= 2
         )  # Should flag both methods for missing error handling
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_breaking_changes(self, mock_skill_context) -> None:
         """
@@ -390,6 +398,7 @@ class TestApiReviewSkill:
         ]
         assert len(breaking_issues) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validates_rest_api_patterns(self, mock_skill_context) -> None:
         """
@@ -438,6 +447,7 @@ class TestApiReviewSkill:
         ]
         assert len(rest_issues) >= 1  # Should detect improper HTTP method usage
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_input_validation(self, mock_skill_context) -> None:
         """
@@ -482,6 +492,7 @@ class TestApiReviewSkill:
         ]
         assert len(validation_issues) >= 2  # Should flag multiple methods
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_api_versioning(self, mock_skill_context) -> None:
         """
@@ -526,6 +537,7 @@ class TestApiReviewSkill:
         # Should detect inconsistent versioning
         assert len(versioning_analysis["inconsistencies"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_api_security_practices(self, mock_skill_context) -> None:
         """
@@ -574,6 +586,7 @@ class TestApiReviewSkill:
         ]
         assert len(critical_issues) >= 1  # Should detect API key exposure
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_api_performance_implications(self, mock_skill_context) -> None:
         """
@@ -628,6 +641,7 @@ class TestApiReviewSkill:
         ]
         assert len(perf_issues) >= 1  # Should detect pagination or N+1 issues
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_empty_api_surface(self, mock_skill_context) -> None:
         """
@@ -661,6 +675,7 @@ class TestApiReviewSkill:
         assert "exports" in api_surface
         assert api_surface["exports"] == 0  # Should detect no public exports
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_api_summary_report(self, sample_findings) -> None:
         """

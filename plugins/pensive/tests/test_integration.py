@@ -39,6 +39,7 @@ from pensive.workflows.skill_coordinator import SkillCoordinator
 class TestPensiveIntegration:
     """Integration tests for pensive plugin workflows."""
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_end_to_end_code_review_workflow(self, temp_repository) -> None:
         """Given repo code, full review generates detailed report."""
@@ -61,6 +62,7 @@ class TestPensiveIntegration:
         assert review_result["metrics"]["files_analyzed"] > 0
         assert review_result["metrics"]["total_findings"] >= 0
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_skill_coordination_and_result_consolidation(self, temp_repository) -> None:
         """Given multiple skills, parallel execution consolidates results."""
@@ -91,6 +93,7 @@ class TestPensiveIntegration:
         assert all(result is not None for result in results)
         assert mock_dispatch.call_count == 2
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_real_repository_analysis(self, temp_repository) -> None:
         """Given real repository structure, analysis detects patterns."""
@@ -208,6 +211,7 @@ clean:
         assert "test_frameworks" in analysis
         assert "cargo" in analysis["test_frameworks"]
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_todo_write_integration(self, temp_repository) -> None:
         """Given review workflow, issues integrate with task tracking."""
@@ -224,6 +228,7 @@ clean:
         # Findings should be structured for task tracking
         assert isinstance(result["findings"], list)
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_error_handling_and_recovery(self, temp_repository) -> None:
         """Given errors during review, workflow handles gracefully and continues."""
@@ -247,6 +252,7 @@ clean:
                 len(result.get("findings", [])) >= 0
             )  # Other skills should still work
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_performance_with_large_repository(self, temp_repository) -> None:
         """Given large repo, review completes within reasonable time."""
@@ -300,6 +306,7 @@ mod tests {{
         assert result is not None
         assert result["metrics"]["files_analyzed"] >= 20
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_cross_language_repository_analysis(self, temp_repository) -> None:
         """Given multi-language repo, analysis handles all languages."""
@@ -358,6 +365,7 @@ def export_to_json(data: List[Dict], filename: str) -> None:
         assert "python" in analysis["languages"]
         assert "rust" in analysis["languages"]
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_ci_cd_integration(self, temp_repository) -> None:
         """Given CI/CD config, workflow works with build systems."""
@@ -397,6 +405,7 @@ jobs:
         # Tool info is inside runs[0], per SARIF spec
         assert "tool" in sarif_output["runs"][0]
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_configuration_and_customization(self, temp_repository) -> None:
         """Given custom configuration, when executing review, then respects settings."""
@@ -442,6 +451,7 @@ custom_rules:
         assert "rust-review" in config.enabled_skills
         assert len(config.exclude_patterns) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_memory_usage_and_resource_management(self, temp_repository) -> None:
         """Given large analysis, when executing, then manages memory efficiently."""
@@ -472,6 +482,7 @@ custom_rules:
             assert memory_increase < 100 * 1024 * 1024
         assert result is not None
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_concurrent_skill_execution(self, temp_repository) -> None:
         """Given multiple skills, executor runs concurrently when possible."""
@@ -499,6 +510,7 @@ custom_rules:
         # Verify all skills were dispatched
         assert mock_dispatch.call_count == 3
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_output_formatting_and_reporting(self, temp_repository) -> None:
         """Given review results, when generating reports, then formats correctly."""
@@ -539,6 +551,7 @@ custom_rules:
         assert len(sarif_data["runs"]) > 0
         assert "results" in sarif_data["runs"][0]
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_plugin_lifecycle_and_cleanup(self, temp_repository) -> None:
         """Given plugin execution, system cleans up resources properly."""

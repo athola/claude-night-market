@@ -3,15 +3,16 @@
   "version": "1.2.7",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
-    "./skills/shared",
-    "./skills/review-core",
-    "./skills/evidence-logging",
-    "./skills/structured-output",
-    "./skills/diff-analysis",
     "./skills/catchup",
-    "./skills/scope-guard",
+    "./skills/diff-analysis",
+    "./skills/evidence-logging",
     "./skills/feature-review",
     "./skills/proof-of-work",
+    "./skills/review-core",
+    "./skills/rigorous-reasoning",
+    "./skills/scope-guard",
+    "./skills/shared",
+    "./skills/structured-output",
     "./skills/workflow-monitor"
   ],
   "commands": [

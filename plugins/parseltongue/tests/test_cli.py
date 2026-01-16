@@ -13,6 +13,7 @@ from parseltongue.cli import main
 class TestCLI:
     """Tests for CLI entry point."""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_no_args(self, capsys) -> None:
         """Given no arguments, CLI should print welcome message and return 0."""
@@ -26,6 +27,7 @@ class TestCLI:
         captured = capsys.readouterr()
         assert "Parseltongue" in captured.out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_args(self, capsys) -> None:
         """Given arguments, CLI should print them and return 0."""
@@ -40,6 +42,7 @@ class TestCLI:
         assert "Args received" in captured.out
         assert "--help" in captured.out
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_none_uses_sys_argv(self, monkeypatch, capsys) -> None:
         """Given None for argv, CLI should use sys.argv[1:]."""

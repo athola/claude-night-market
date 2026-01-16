@@ -3,6 +3,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from sanctum.validators import SkillValidationResult, SkillValidator
 
 
@@ -43,6 +45,7 @@ description: A test skill
     assert any("category" in warning.lower() for warning in result.warnings)
 
 
+@pytest.mark.bdd
 def test_validates_has_heading() -> None:
     content = """---
 name: test-skill
@@ -59,6 +62,7 @@ Use when testing validators.
     assert result.has_workflow is True
 
 
+@pytest.mark.bdd
 def test_validate_directory_missing_skill_file(tmp_path: Path) -> None:
     skill_dir = tmp_path / "missing-skill"
     skill_dir.mkdir()
@@ -69,6 +73,7 @@ def test_validate_directory_missing_skill_file(tmp_path: Path) -> None:
     assert any("SKILL.md" in err for err in result.errors)
 
 
+@pytest.mark.bdd
 def test_validate_directory_success(tmp_path: Path) -> None:
     skill_dir = tmp_path / "demo-skill"
     skill_dir.mkdir()

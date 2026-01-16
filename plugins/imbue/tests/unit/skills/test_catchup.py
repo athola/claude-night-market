@@ -173,6 +173,7 @@ Untracked files:
             ],
         }
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_confirms_repository_context(self, mock_claude_tools) -> None:
         """Scenario: Catchup confirms repository context and state.
@@ -287,6 +288,7 @@ Untracked files:
         assert "src/auth.py" in high_priority_files
         assert "src/middleware.py" in high_priority_files
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_captures_delta_efficiently(self, sample_git_log_output) -> None:
         """Scenario: Catchup captures change delta without full reproduction.
@@ -364,6 +366,7 @@ Untracked files:
                 return commit_type
         return "other"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_extracts_insights(self, sample_catchup_result) -> None:
         """Scenario: Catchup extracts actionable insights from changes.
@@ -431,6 +434,7 @@ Untracked files:
         assert feature_insight["impact"] == "High"
         assert len(feature_insight["files"]) == 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_records_followups(self, sample_catchup_result) -> None:
         """Scenario: Catchup records actionable follow-up items.
@@ -487,6 +491,7 @@ Untracked files:
         action_categories = [f["category"] for f in followups]
         assert "code_review" in action_categories
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_token_conservation(self) -> None:
         """Scenario: Catchup conserves tokens in large repositories.
@@ -537,6 +542,7 @@ Untracked files:
         assert summary["sample_files"][0] == "src/component_0.py"
         assert "src/component_99.py" not in summary["sample_files"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
         """Scenario: Catchup handles various baseline specifications.
@@ -565,6 +571,7 @@ Untracked files:
             assert baseline == "baseline-hash"
             mock_claude_tools["Bash"].assert_called_with(expected_command)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_detects_blockers_and_conflicts(self) -> None:
         """Scenario: Catchup identifies potential blockers and conflicts.
@@ -641,6 +648,7 @@ Untracked files:
         for blocker in blockers:
             assert blocker["severity"] == "High"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_error_handling(self, mock_claude_tools) -> None:
         """Scenario: Catchup handles repository errors gracefully.
@@ -668,6 +676,7 @@ Untracked files:
             # In a real implementation, this would return error info rather than raising
             assert "fatal:" in error_output or "error:" in error_output
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_catchup_performance_large_history(self) -> None:
         """Scenario: Catchup performs efficiently with large commit history.
@@ -717,6 +726,7 @@ Untracked files:
         assert summary["total_commits"] == 500
         assert len(summary["commits_by_month"]) <= 12  # Max 12 months
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_generates_structured_output(self, sample_catchup_result) -> None:
         """Scenario: Catchup generates structured output for consumption.

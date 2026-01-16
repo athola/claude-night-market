@@ -4,7 +4,7 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 ## Overview
 
-Memory Palace provides tools for building, navigating, and maintaining virtual memory structures. These techniques use spatial memory to organize and retrieve complex information.
+Memory Palace organizes complex information using spatial memory techniques for easier retrieval.
 
 ## Features
 
@@ -174,7 +174,7 @@ python scripts/garden_metrics.py path/to/garden.json --format brief
 
 ## Hooks
 
-The plugin registers hooks to integrate with Claude Code tool events:
+Hooks integrate Memory Palace with Claude Code events:
 
 | Hook | Event | Description |
 |------|-------|-------------|
@@ -224,7 +224,7 @@ memory-palace/
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking enables exploratory knowledge organization - test categorization strategies without commitment:
+Session forking allows testing knowledge organization strategies without committing to a single structure:
 
 ```bash
 # Fork for hierarchical organization

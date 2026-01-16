@@ -551,6 +551,7 @@ tags:
             assert "expected_savings" in measure
             assert "description" in measure
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_token_conservation_adapts_to_task_complexity(self) -> None:
         """Scenario: Token conservation adapts strategies based on task complexity.

@@ -6,11 +6,14 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 
 ## Key Features
 
-*   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context to the active agent.
-*   **Skill Metrics:** The `pensive` plugin tracks usage and stability for `/skill-review` analysis.
-*   **Proof-of-Work TDD:** The `imbue` plugin mandates a failing test before accepting implementation code.
-*   **Test Enforcement:** `/create-skill` and `/create-command` block implementation until a failing test exists.
-*   **Self-Correction:** `/update-plugins` suggests improvements based on skill stability; `/fix-workflow` attempts to repair failed workflows; `workflow-monitor` creates issues for detected inefficiencies.
+*   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context.
+*   **Skill Metrics:** `pensive` tracks usage and stability.
+*   **Proof-of-Work TDD:** `imbue` mandates failing tests before implementation.
+*   **Anti-Cargo-Cult:** `imbue` verifies understanding before accepting AI-generated code.
+*   **Rigorous Reasoning:** `imbue:rigorous-reasoning` prevents sycophancy via checklist analysis.
+*   **Interactive Auth:** `leyline` handles OAuth prompts for GitHub, GitLab, AWS during workflows.
+*   **Test Enforcement:** `/create-skill` and `/create-command` require failing tests.
+*   **Self-Correction:** `/update-plugins` suggests improvements; `/fix-workflow` repairs failures.
 
 ## Workflow Improvements
 
@@ -90,20 +93,20 @@ flowchart TB
 
 ### Highlights
 
-The ecosystem covers several domains:
+*   **sanctum**: Git operations (`/prepare-pr`, `/do-issue`) and documentation.
+*   **pensive**: Code reviews (`/full-review`) and audits.
+*   **spec-kit**: Requirements definition (`/speckit-specify`).
+*   **minister**: GitHub issues (`/create-issue`, `/close-issue`).
+*   **conserve**: Codebase bloat reduction (`/bloat-scan`).
+*   **attune**: Project scaffolding (`/attune:init`).
+*   **parseltongue**: Python tools (`/analyze-tests`).
+*   **archetypes**: Architecture guides.
+*   **memory-palace**: Knowledge indexing (`/palace`).
+*   **hookify**: Behavioral rules without configuration.
+*   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
+*   **imbue**: Review methodologies, proof-of-work TDD, anti-cargo-cult verification.
 
-*   **sanctum** handles git operations (`/prepare-pr`, `/commit-msg`, `/do-issue`) and documentation updates.
-*   **pensive** manages code reviews (`/full-review`, `/fpf-review`) and audits shell usage.
-*   **spec-kit** defines requirements (`/speckit-specify`) before implementation.
-*   **minister** interfaces with GitHub issues (`/create-issue`, `/close-issue`, `/update-labels`).
-*   **conserve** detects and reduces codebase bloat (`/bloat-scan`, `/unbloat`).
-*   **attune** scaffolds new projects (`/attune:init`).
-*   **parseltongue** provides Python-specific tools like test analysis (`/analyze-tests`).
-*   **archetypes** offers architecture guides.
-*   **memory-palace** indexes project knowledge (`/palace`, `/garden`).
-*   **hookify** applies behavioral rules without configuration.
-
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 107 skills, 90 commands, and 35 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 113 skills, 96 commands, and 35 agents.
 
 ## Audience
 
@@ -181,11 +184,11 @@ Refer to the [Plugin Development Guide](docs/plugin-development-guide.md) for ar
 
 ## Prompt Context Usage
 
-The ecosystem adds ~14.8k characters to the system prompt (limit: 15k). A pre-commit hook enforces this limit.
+The ecosystem adds ~14.8k characters to the system prompt (limit: 15k), enforced by a pre-commit hook.
 
 ## Architecture
 
-Plugins are modular and have minimal dependencies. They load progressively to minimize token usage. The workflow emphasizes writing specifications before writing code.
+Plugins are modular, load progressively to save tokens, and emphasize specifications before coding.
 
 ## Contributing
 

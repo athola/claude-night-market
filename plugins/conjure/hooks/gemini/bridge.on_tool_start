@@ -358,103 +358,106 @@ def format_collaborative_suggestion(tool_name: str, args: dict[str, Any]) -> lis
     return collaborative_suggestions
 
 
-# Main hook logic
-payload: dict[str, Any] = json.load(sys.stdin)
-tool_use: dict[str, Any] = payload.get("tool_use", {})
+# Main hook logic - only runs when executed as script, not when imported
+if __name__ == "__main__":
+    payload: dict[str, Any] = json.load(sys.stdin)
+    tool_use: dict[str, Any] = payload.get("tool_use", {})
 
-# Initialize quota tracker
-quota_tracker = GeminiQuotaTracker()
-quota_status, quota_warnings = quota_tracker.get_quota_status()
+    # Initialize quota tracker
+    quota_tracker = GeminiQuotaTracker()
+    quota_status, quota_warnings = quota_tracker.get_quota_status()
 
-if tool_use:
-    tool_name = tool_use.get("name", "")
-    tool_args = tool_use.get("input", {})
+    if tool_use:
+        tool_name = tool_use.get("name", "")
+        tool_args = tool_use.get("input", {})
 
-    # Check if this is an intelligence-requiring task
-    if is_intelligence_requiring_task(tool_name, tool_args):
-        # Suggest collaborative workflow for complex tasks
-        collaborative_suggestions = format_collaborative_suggestion(
-            tool_name, tool_args
-        )
+        # Check if this is an intelligence-requiring task
+        if is_intelligence_requiring_task(tool_name, tool_args):
+            # Suggest collaborative workflow for complex tasks
+            collaborative_suggestions = format_collaborative_suggestion(
+                tool_name, tool_args
+            )
 
-        print(file=sys.stderr)
-        for suggestion in collaborative_suggestions:
-            print(suggestion, file=sys.stderr)
-        print(file=sys.stderr)
-
-    elif should_suggest_gemini(tool_name, tool_args):
-        # Estimate tokens needed for this task
-        file_paths = []
-        if tool_name == "Read" and "file_path" in tool_args:
-            file_paths.append(tool_args["file_path"])
-        elif tool_name == "Glob" and "pattern" in tool_args:
-            # Estimate based on pattern
-            estimated_tokens = 50000  # Conservative estimate for globs
-        else:
-            # Extract paths from task description/prompt
-            description = tool_args.get("description", "") + tool_args.get("prompt", "")
-            for word in description.split():
-                path_like = word.startswith(("@", "./", "/"))
-                if path_like and len(word) >= MIN_PATH_TOKEN_LENGTH:
-                    file_paths.append(word.lstrip("@").strip("./"))
-
-        estimated_tokens = quota_tracker.estimate_task_tokens(file_paths)
-        can_handle, issues = quota_tracker.can_handle_task(estimated_tokens)
-
-        print("Gemini CLI Data Processing Suggestion", file=sys.stderr)
-        print(
-            "This data processing operation might benefit from Gemini's large context "
-            "window.",
-            file=sys.stderr,
-        )
-        print(f"Estimated tokens needed: ~{estimated_tokens:,}", file=sys.stderr)
-        print(file=sys.stderr)
-
-        # Show quota status and warnings
-        print(f"Gemini Quota Status: {quota_status}", file=sys.stderr)
-        if quota_warnings:
-            for warning in quota_warnings:
-                print(f"  - {warning}", file=sys.stderr)
-        print(file=sys.stderr)
-
-        # Show task-specific warnings
-        if not can_handle:
-            print("Quota Issues Detected:", file=sys.stderr)
-            for issue in issues:
-                print(f"  - {issue}", file=sys.stderr)
             print(file=sys.stderr)
+            for suggestion in collaborative_suggestions:
+                print(suggestion, file=sys.stderr)
+            print(file=sys.stderr)
+
+        elif should_suggest_gemini(tool_name, tool_args):
+            # Estimate tokens needed for this task
+            file_paths = []
+            if tool_name == "Read" and "file_path" in tool_args:
+                file_paths.append(tool_args["file_path"])
+            elif tool_name == "Glob" and "pattern" in tool_args:
+                # Estimate based on pattern
+                estimated_tokens = 50000  # Conservative estimate for globs
+            else:
+                # Extract paths from task description/prompt
+                description = tool_args.get("description", "") + tool_args.get(
+                    "prompt", ""
+                )
+                for word in description.split():
+                    path_like = word.startswith(("@", "./", "/"))
+                    if path_like and len(word) >= MIN_PATH_TOKEN_LENGTH:
+                        file_paths.append(word.lstrip("@").strip("./"))
+
+            estimated_tokens = quota_tracker.estimate_task_tokens(file_paths)
+            can_handle, issues = quota_tracker.can_handle_task(estimated_tokens)
+
+            print("Gemini CLI Data Processing Suggestion", file=sys.stderr)
             print(
-                "Recommendation: Wait for quota reset or break into smaller tasks",
+                "This data processing operation might benefit from Gemini's large "
+                "context window.",
                 file=sys.stderr,
             )
-        else:
-            print("Quota Available - Task can proceed", file=sys.stderr)
-
-        print(file=sys.stderr)
-
-        # Suggestions
-        suggestions = format_gemini_suggestion(tool_name, tool_args)
-        for suggestion in suggestions:
-            print(f"  -> {suggestion}", file=sys.stderr)
-
-        print(file=sys.stderr)
-        print(
-            "Use the gemini-delegation skill: `/skill gemini-delegation`",
-            file=sys.stderr,
-        )
-        print(
-            "Or run directly with the `gemini` CLI if you have it configured.",
-            file=sys.stderr,
-        )
-
-        if quota_status not in ["[OK] Healthy"]:
+            print(f"Estimated tokens needed: ~{estimated_tokens:,}", file=sys.stderr)
             print(file=sys.stderr)
-        print(
-            "Pro Tip: Monitor quota with: `python3 ~/.claude/hooks/gemini/"
-            "quota_tracker.py`",
-            file=sys.stderr,
-        )
 
-        print(file=sys.stderr)
+            # Show quota status and warnings
+            print(f"Gemini Quota Status: {quota_status}", file=sys.stderr)
+            if quota_warnings:
+                for warning in quota_warnings:
+                    print(f"  - {warning}", file=sys.stderr)
+            print(file=sys.stderr)
 
-sys.exit(0)
+            # Show task-specific warnings
+            if not can_handle:
+                print("Quota Issues Detected:", file=sys.stderr)
+                for issue in issues:
+                    print(f"  - {issue}", file=sys.stderr)
+                print(file=sys.stderr)
+                print(
+                    "Recommendation: Wait for quota reset or break into smaller tasks",
+                    file=sys.stderr,
+                )
+            else:
+                print("Quota Available - Task can proceed", file=sys.stderr)
+
+            print(file=sys.stderr)
+
+            # Suggestions
+            suggestions = format_gemini_suggestion(tool_name, tool_args)
+            for suggestion in suggestions:
+                print(f"  -> {suggestion}", file=sys.stderr)
+
+            print(file=sys.stderr)
+            print(
+                "Use the gemini-delegation skill: `/skill gemini-delegation`",
+                file=sys.stderr,
+            )
+            print(
+                "Or run directly with the `gemini` CLI if you have it configured.",
+                file=sys.stderr,
+            )
+
+            if quota_status not in ["[OK] Healthy"]:
+                print(file=sys.stderr)
+            print(
+                "Pro Tip: Monitor quota with: `python3 ~/.claude/hooks/gemini/"
+                "quota_tracker.py`",
+                file=sys.stderr,
+            )
+
+            print(file=sys.stderr)
+
+    sys.exit(0)

@@ -646,7 +646,84 @@ If no test plan exists from `/pr-review`, generate verification steps on-the-fly
 
 **Purpose**: Resolve threads, create issues for deferred items, and post summary.
 
-**Skip when**: Just needed fixes without GitHub workflow completion.
+**⚠️ CRITICAL WORKFLOW GUARDRAIL ⚠️**
+
+**NEVER skip this step unless you are NOT the PR author. If you are the PR author and received review comments, you MUST complete this step. There are NO exceptions.**
+
+**MANDATORY PRE-CHECK (Run BEFORE anything else in this step):**
+```bash
+# This command will EXIT WITH ERROR CODE 1 if any threads are unresolved
+# Run this FIRST, before doing anything else in Step 6
+
+REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+OWNER=$(echo "$REPO_FULL" | cut -d'/' -f1)
+REPO=$(echo "$REPO_FULL" | cut -d'/' -f2)
+PR_NUM=$(gh pr view --json number -q .number)
+
+echo "=== MANDATORY THREAD RESOLUTION CHECK ==="
+echo "PR: $OWNER/$REPO #$PR_NUM"
+
+CHECK_OUTPUT=$(gh api graphql -f query="
+query {
+  repository(owner: \"$OWNER\", name: \"$REPO\") {
+    pullRequest(number: $PR_NUM) {
+      reviewThreads(first: 100) {
+        totalCount
+        nodes {
+          id
+          isResolved
+          path
+          line
+          comments(first: 1) {
+            nodes {
+              body
+              author { login }
+            }
+          }
+        }
+      }
+    }
+  }
+}")
+
+UNRESOLVED_COUNT=$(echo "$CHECK_OUTPUT" | jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+
+echo ""
+echo "Unresolved review threads: $UNRESOLVED_COUNT"
+
+if [[ "$UNRESOLVED_COUNT" -gt 0 ]]; then
+  echo ""
+  echo "❌ WORKFLOW HALT: You have $UNRESOLVED_COUNT unresolved review threads"
+  echo ""
+  echo "You CANNOT proceed until these threads are resolved:"
+  echo "$CHECK_OUTPUT" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | "  Thread \(.id): \(.path):\(.line)\n    Comment: \(.comments.nodes[0].body[0:80])..."'
+  echo ""
+  echo "REQUIRED ACTIONS (in order):"
+  echo "  1. Extract thread IDs (format: PRRT_*) from the list above"
+  echo "  2. Reply to each thread using: addPullRequestReviewThreadReply"
+  echo "  3. Resolve each thread using: resolveReviewThread"
+  echo "  4. Re-run this pre-check to verify"
+  echo ""
+  echo "⛔ DO NOT POST REGULAR PR COMMENTS - They don't resolve threads!"
+  echo "⛔ DO NOT SKIP THIS STEP - It is MANDATORY for PR authors"
+  echo ""
+  exit 1
+else
+  echo "✓ All threads resolved - you may proceed to Step 6.1"
+fi
+```
+
+**COMMON FAILURE MODES (READ BEFORE PROCEEDING):**
+
+| What You Did | Why It's Wrong | Correct Approach |
+|--------------|----------------|------------------|
+| Posted regular PR comment with `gh pr comment` | Comment not in thread context, thread remains unresolved | Use `addPullRequestReviewThreadReply` GraphQL mutation |
+| Tried to use REST API `/comments/{id}/replies` | REST API doesn't support thread replies | Use GraphQL `addPullRequestReviewThreadReply` |
+| Used comment ID instead of thread ID | Comment IDs can't resolve threads | Use thread ID (format: `PRRT_*`) |
+| Skipped because "fixes are obvious" | Reviewer not notified, thread remains open | ALWAYS reply + resolve, even for "obvious" fixes |
+| Assumed someone else will handle it | YOU are the PR author, it's YOUR responsibility | Complete the workflow yourself |
+
+**If you are NOT the PR author**, you may skip to Step 6.4. Otherwise, continue below.
 
 ### 6.1 Create Issues for Suggestions/Deferred Items (AUTOMATIC)
 
@@ -775,13 +852,26 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
 
 **CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
 
-**Before starting this step, create TodoWrite items:**
+**MANDATORY WORKFLOW CHECKPOINTS - Create TodoWrite items BEFORE starting:**
 ```markdown
-- [ ] fix-pr:thread-preflight - Verify threads exist and get count
-- [ ] fix-pr:thread-reply - Reply to each unresolved thread with fix description
-- [ ] fix-pr:thread-resolve - Resolve each thread via GraphQL mutation
-- [ ] fix-pr:thread-validate - Verify all threads are resolved (checkpoint)
+## Thread Resolution (MANDATORY for PR Authors)
+- [ ] fix-pr:thread-preflight - Run pre-check script (must pass to continue)
+- [ ] fix-pr:thread-extract - Extract thread IDs (PRRT_*) from GraphQL API
+- [ ] fix-pr:thread-reply-count - Reply to EACH unresolved thread (count: N)
+- [ ] fix-pr:thread-resolve-count - Resolve EACH thread (count: N)
+- [ ] fix-pr:thread-validate - Run validation checkpoint (must pass to proceed)
+- [ ] fix-pr:thread-verify-all - Confirm ZERO unresolved threads remain
+
+⚠️ IF ANY CHECKPOINT FAILS, STOP AND FIX BEFORE PROCEEDING
 ```
+
+**Checkpoint Enforcement Rules:**
+1. **Pre-check must pass** (exit code 0) before any thread operations
+2. **Extract ALL thread IDs** before replying to any
+3. **Reply to ALL threads** before resolving any
+4. **Resolve ALL threads** before running validation
+5. **Validation must pass** (0 unresolved) before marking TodoWrite items complete
+6. **NEVER mark TodoWrite complete** if validation fails
 
 > **Important:** Thread IDs (format: `PRRT_*`) are different from comment IDs. You need thread IDs for both replies and resolution.
 
@@ -925,6 +1015,30 @@ After replying, resolve the thread:
       exit 1
     fi
     ```
+
+**⛔ FINAL ENFORCEMENT CHECKPOINT ⛔**
+
+**You MAY NOT mark the TodoWrite items as complete until:**
+- ✅ All unresolved threads count is 0
+- ✅ Verification query shows `isResolved: true` for all threads
+- ✅ No threads appear in "unresolved" list
+- ✅ Exit code 0 from validation script
+
+**If validation fails, you MUST:**
+1. Identify which threads weren't resolved
+2. Run the reply mutation again for those threads
+3. Run the resolve mutation again for those threads
+4. Re-run the validation checkpoint
+5. Repeat until validation passes
+
+**There is NO scenario where it is acceptable to:**
+- Post a regular PR comment instead of thread replies
+- Mark threads as "resolved" without actually resolving them
+- Skip thread resolution because "it's too hard"
+- Assume someone else will handle it
+- Defer thread resolution to "later"
+
+**⛔ WORKFLOW CANNOT BE MARKED COMPLETE UNTIL ALL THREADS ARE RESOLVED ⛔**
 
     **This checkpoint prevents proceeding until ALL threads are resolved. No exceptions.**
 

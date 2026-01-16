@@ -44,6 +44,7 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 |-------|-------------|-------------|
 | `scope-guard` | Anti-overengineering | Evaluating if features should be built now |
 | `proof-of-work` | Evidence-based validation | Enforcing Iron Law TDD discipline |
+| `rigorous-reasoning` | Anti-sycophancy guardrails | Analyzing conflicts, evaluating contested claims |
 
 ### Feature Planning
 
@@ -169,6 +170,25 @@ proof:iron-law-coverage - Coverage gates verified
 ```
 
 See `iron-law-enforcement.md` module for full enforcement patterns.
+
+## Rigorous Reasoning
+
+The rigorous-reasoning skill prevents sycophantic patterns through structured analysis:
+
+| Component | Purpose |
+|-----------|---------|
+| `priority-signals` | Override principles (no courtesy agreement, checklist over intuition) |
+| `conflict-analysis` | Harm/rights checklist for interpersonal conflicts |
+| `debate-methodology` | Truth claims and contested territory handling |
+| `red-flag monitoring` | Detect sycophantic thought patterns |
+
+### Red Flag Self-Check
+
+| Thought Pattern | Reality Check | Action |
+|-----------------|---------------|--------|
+| "I agree that..." | Did you validate? | Apply harm/rights checklist |
+| "You're right that..." | Is this proven? | Check for evidence |
+| "That's a fair point" | Fair by what standard? | Specify the standard |
 
 ## TodoWrite Integration
 

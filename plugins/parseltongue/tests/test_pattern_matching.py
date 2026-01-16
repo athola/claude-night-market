@@ -19,6 +19,7 @@ class TestPatternMatchingSkill:
         """Set up test fixtures before each test."""
         self.skill = PatternMatchingSkill()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recognizes_test_patterns(self, sample_test_patterns) -> None:
         """Given test patterns, when skill analyzes, then recognizes testing structures."""
@@ -42,6 +43,7 @@ class TestPatternMatchingSkill:
         # Should detect setup method
         assert "setup_method" in result["lifecycle_methods"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_ddd_patterns(self) -> None:
         """Given Domain-Driven Design code, when skill analyzes, then identifies DDD patterns."""
@@ -132,6 +134,7 @@ class Customer:
         assert "domain_service" in ddd_patterns
         assert "OrderService" in ddd_patterns["domain_services"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_gof_patterns(self) -> None:
         """Given Gang of Four patterns, when skill analyzes, then identifies GoF patterns."""
@@ -219,6 +222,7 @@ class PayPalPayment(PaymentStrategy):
         assert "strategy" in gof_patterns
         assert len(gof_patterns["strategies"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_async_patterns(self, sample_async_code) -> None:
         """Given async code, when skill analyzes, then identifies async patterns."""
@@ -244,6 +248,7 @@ class PayPalPayment(PaymentStrategy):
         assert "concurrent_processing" in async_patterns
         assert "asyncio.gather" in code
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_performance_patterns(self, sample_test_patterns) -> None:
         """Given performance code, when skill analyzes, then identifies optimization patterns."""
@@ -267,6 +272,7 @@ class PayPalPayment(PaymentStrategy):
         assert "memory_efficient" in perf_patterns
         assert "process_large_file" in result["pattern_instances"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_architectural_patterns(self) -> None:
         """Given architectural code, when skill analyzes, then identifies architectural patterns."""
@@ -340,6 +346,7 @@ class UnitOfWork:
         # Should detect Unit of Work pattern
         assert "unit_of_work" in arch_patterns
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_anti_patterns(self, performance_issues) -> None:
         """Given problematic code, when skill analyzes, then identifies anti-patterns."""
@@ -363,6 +370,7 @@ class UnitOfWork:
                 assert "blocking_async" in result["anti_patterns"]
                 assert "event_loop_blocking" in result["description"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_matches_dsl_patterns(self) -> None:
         """Given DSL code, when skill analyzes, then matches DSL patterns."""
@@ -418,6 +426,7 @@ validate User {
         assert "validation_dsl" in dsl_patterns
         assert result["structures"]["validation_rules"] >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_suggests_pattern_improvements(self, performance_issues) -> None:
         """Given code with anti-patterns, when skill analyzes, then suggests improvements."""
@@ -447,6 +456,7 @@ validate User {
         )
         assert optimization_suggestion is not None
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validates_pattern_consistency(self) -> None:
         """Given multiple patterns, when skill analyzes, then validates consistency."""
@@ -487,6 +497,7 @@ class InconsistentPattern:
         assert "recommendations" in consistency
         assert len(consistency["recommendations"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_pattern_variations(self) -> None:
         """Given pattern variations, when skill analyzes, then recognizes different implementations."""
@@ -546,6 +557,7 @@ class Logger(metaclass=SingletonMeta):
             assert "advantages" in variation
             assert "disadvantages" in variation
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_incomplete_patterns(self) -> None:
         """Given incomplete patterns, when skill analyzes, then handles gracefully."""
@@ -565,6 +577,7 @@ class Logger(metaclass=SingletonMeta):
             if "error" not in result:
                 assert result["confidence"] < 0.8  # Lower confidence for incomplete
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_pattern_documentation(self) -> None:
         """Given recognized patterns, when skill analyzes, then generates documentation."""
@@ -605,6 +618,7 @@ class UserService:
             assert "usage" in pattern_doc
             assert "benefits" in pattern_doc
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_compares_pattern_alternatives(self) -> None:
         """Given multiple approaches, when skill analyzes, then compares alternatives."""

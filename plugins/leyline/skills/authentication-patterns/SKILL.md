@@ -23,6 +23,7 @@ progressive_loading: true
 modules:
   - modules/auth-methods.md
   - modules/verification-patterns.md
+  - modules/interactive-auth.md
 ---
 ## Table of Contents
 
@@ -138,10 +139,39 @@ dependencies: [leyline:authentication-patterns]
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
+## Interactive Authentication (Shell)
+
+For workflows requiring interactive authentication with token caching and session management:
+
+```bash
+# Source the interactive auth script
+source plugins/leyline/scripts/interactive-auth.sh
+
+# Ensure authentication before proceeding
+ensure_auth github || exit 1
+ensure_auth gitlab || exit 1
+ensure_auth aws || exit 1
+
+# Continue with authenticated operations
+gh pr view 123
+glab issue list
+aws s3 ls
+```
+
+**Features:**
+- ✅ Interactive OAuth flows for GitHub, GitLab, AWS, and more
+- ✅ Token caching (5-minute TTL)
+- ✅ Session persistence (24-hour TTL)
+- ✅ CI/CD compatible (auto-detects non-interactive environments)
+- ✅ Multi-service support
+
+See `modules/interactive-auth.md` for complete documentation.
+
 ## Detailed Resources
 
 - **Auth Methods**: See `modules/auth-methods.md` for method details
 - **Verification**: See `modules/verification-patterns.md` for testing patterns
+- **Interactive**: See `modules/interactive-auth.md` for shell-based auth flows
 
 ## Exit Criteria
 

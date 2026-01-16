@@ -90,6 +90,7 @@ class TestReadInstalledPlugins:
 
         assert result == {"test@marketplace": [{"version": "1.0.0", "scope": "user"}]}
 
+    @pytest.mark.bdd
     @patch("pathlib.Path.exists", return_value=False)
     def test_missing_config_file_exits(self, mock_exists: MagicMock) -> None:
         """Scenario: Handling a missing configuration file.
@@ -129,6 +130,7 @@ class TestCategorizePlugins:
     So that I don't break essential plugins during reinstall.
     """
 
+    @pytest.mark.bdd
     def test_categorize_normal_plugin(self) -> None:
         """Scenario: Categorizing a normal plugin.
 
@@ -145,6 +147,7 @@ class TestCategorizePlugins:
         assert reinstallable[0]["name"] == "test-plugin"
         assert reinstallable[0]["marketplace"] == "marketplace"
 
+    @pytest.mark.bdd
     def test_categorize_excluded_plugin(self) -> None:
         """Scenario: Categorizing an excluded plugin.
 
@@ -160,6 +163,7 @@ class TestCategorizePlugins:
         assert len(excluded) == 1
         assert excluded[0]["name"] == "hookify"
 
+    @pytest.mark.bdd
     def test_categorize_mixed_plugins(self) -> None:
         """Scenario: Categorizing a mix of plugins.
 
@@ -181,6 +185,7 @@ class TestCategorizePlugins:
         assert "normal-plugin" in reinstallable_names
         assert "another-plugin" in reinstallable_names
 
+    @pytest.mark.bdd
     def test_categorize_extracts_marketplace(self) -> None:
         """Scenario: Extracting marketplace from plugin name.
 
@@ -194,6 +199,7 @@ class TestCategorizePlugins:
 
         assert reinstallable[0]["marketplace"] == "claude-night-market"
 
+    @pytest.mark.bdd
     def test_categorize_handles_no_marketplace(self) -> None:
         """Scenario: Handling plugin name without marketplace.
 
@@ -207,6 +213,7 @@ class TestCategorizePlugins:
 
         assert reinstallable[0]["marketplace"] == "unknown"
 
+    @pytest.mark.bdd
     def test_categorize_preserves_local_flag(self) -> None:
         """Scenario: Preserving the isLocal flag.
 
@@ -220,6 +227,7 @@ class TestCategorizePlugins:
 
         assert reinstallable[0]["is_local"] is True
 
+    @pytest.mark.bdd
     def test_categorize_case_insensitive_exclusion(self) -> None:
         """Scenario: Case-insensitive exclusion check.
 

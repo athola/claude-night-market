@@ -672,6 +672,7 @@ def test_auth():
         assert final_context["workflow_scaffold"]["items_created"] == FIVE
         assert final_context["evidence_infrastructure"]["tracking_enabled"] is True
 
+    @pytest.mark.bdd
     @pytest.mark.integration
     def test_error_propagation_through_workflow(self, mock_claude_tools) -> None:
         """Scenario: Errors are handled gracefully across workflow.
@@ -765,6 +766,7 @@ def test_auth():
         assert error_log[0]["skill"] == "diff-analysis"
         assert error_log[0]["error_type"] == "GitCommandError"
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     @pytest.mark.integration
     def test_workflow_performance_under_load(self, mock_claude_tools) -> None:

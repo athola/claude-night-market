@@ -77,6 +77,7 @@ def5678 2024-12-04 test: Add payment flow tests
 4567890 2024-12-02 feat: Add refund processing
 5678901 2024-12-01 chore: Update Stripe SDK version"""
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_command_workflow_orchestration(self, mock_claude_tools) -> None:
         """Scenario: /catchup orchestrates complete workflow.
@@ -147,6 +148,7 @@ def5678 2024-12-04 test: Add payment flow tests
         assert skill_contexts["catchup"]["insights_extracted"] is True
         assert skill_contexts["catchup"]["followups_recorded"] is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_handles_different_baselines(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles various baseline specifications.
@@ -210,6 +212,7 @@ def5678 2024-12-04 test: Add payment flow tests
             assert baseline == test_case["expected_baseline"]
             assert validation_result is not None
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_token_conservation(self, sample_git_log_output) -> None:
         """Scenario: /catchup conserves tokens with large change sets.
@@ -375,6 +378,7 @@ def5678 2024-12-04 test: Add payment flow tests
         assert "## Blockers/Questions" in output
         assert "Stripe webhook endpoint testing" in output
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_integration_with_diff_analysis(self, mock_claude_tools) -> None:
         """Scenario: /catchup integrates with diff-analysis for semantic categorization.
@@ -459,6 +463,7 @@ def5678 2024-12-04 test: Add payment flow tests
             "High-impact changes" in insight for insight in catchup_analysis["insights"]
         )
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_records_actionable_followups(self) -> None:
         """Scenario: /catchup records actionable follow-up items.
@@ -538,6 +543,7 @@ def5678 2024-12-04 test: Add payment flow tests
         }
         return owner_map.get(change_type, "dev-team")
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_error_handling(self, mock_claude_tools) -> None:
         """Scenario: /catchup handles repository errors gracefully.
@@ -587,6 +593,7 @@ def5678 2024-12-04 test: Add payment flow tests
         assert expected_baseline_error["type"] == "invalid_baseline"
         assert "suggestion" in expected_baseline_error
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_catchup_parameter_parsing(self) -> None:
         """Scenario: /catchup parses command parameters correctly.
@@ -655,6 +662,7 @@ def5678 2024-12-04 test: Add payment flow tests
             assert parsed_params["date_filter"] == test_case["expected_date_filter"]
             assert len(parsed_params["errors"]) == 0
 
+    @pytest.mark.bdd
     @pytest.mark.performance
     def test_catchup_performance_large_history(self) -> None:
         """Scenario: /catchup performs efficiently with extensive commit history.

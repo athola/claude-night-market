@@ -22,6 +22,7 @@ class TestMarkdownReportGenerator:
     # create_section tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_section_default_level(self) -> None:
         """Given title with default level, creates h2 header."""
@@ -31,6 +32,7 @@ class TestMarkdownReportGenerator:
         # Assert
         assert section == "## Summary\n"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_section_level_1(self) -> None:
         """Given level 1, creates h1 header."""
@@ -40,6 +42,7 @@ class TestMarkdownReportGenerator:
         # Assert
         assert section == "# Main Title\n"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_section_level_6(self) -> None:
         """Given level 6, creates h6 header."""
@@ -53,6 +56,7 @@ class TestMarkdownReportGenerator:
     # create_list_item tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_list_item_no_indent(self) -> None:
         """Given content with no indent, creates top-level list item."""
@@ -62,6 +66,7 @@ class TestMarkdownReportGenerator:
         # Assert
         assert item == "- First item\n"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_list_item_with_indent(self) -> None:
         """Given indent level, creates indented list item."""
@@ -71,6 +76,7 @@ class TestMarkdownReportGenerator:
         # Assert
         assert item == "  - Nested item\n"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_list_item_double_indent(self) -> None:
         """Given indent level 2, creates doubly nested item."""
@@ -84,6 +90,7 @@ class TestMarkdownReportGenerator:
     # create_code_block tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_code_block_no_language(self) -> None:
         """Given code without language, creates plain code block."""
@@ -96,6 +103,7 @@ class TestMarkdownReportGenerator:
         # Assert
         assert block == "```\nprint('hello')\n```\n"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_code_block_with_language(self) -> None:
         """Given code with language, creates syntax-highlighted block."""
@@ -108,6 +116,7 @@ class TestMarkdownReportGenerator:
         # Assert
         assert block == '```rust\nfn main() { println!("Hello"); }\n```\n'
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_code_block_multiline(self) -> None:
         """Given multiline code, preserves formatting."""
@@ -131,6 +140,7 @@ def baz():
     # create_score_line tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_score_line_default_max(self) -> None:
         """Given score with default max, formats correctly."""
@@ -140,6 +150,7 @@ def baz():
         # Assert
         assert line == "**Quality**: 8.5/10.0\n"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_score_line_custom_max(self) -> None:
         """Given custom max score, uses that value."""
@@ -155,6 +166,7 @@ def baz():
     # create_table_header tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_table_header_simple(self) -> None:
         """Given column names, creates valid markdown table header."""
@@ -168,6 +180,7 @@ def baz():
         assert "| File | Issues | Severity |" in header
         assert "| --- | --- | --- |" in header
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_table_header_single_column(self) -> None:
         """Given single column, creates minimal table."""
@@ -182,6 +195,7 @@ def baz():
     # create_table_row tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_table_row_values(self) -> None:
         """Given row values, creates valid markdown row."""
@@ -194,6 +208,7 @@ def baz():
         # Assert
         assert row == "| main.py | 3 | high |\n"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_table_row_single_value(self) -> None:
         """Given single value, creates single-cell row."""
@@ -207,6 +222,7 @@ def baz():
     # create_report tests
     # ========================================================================
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_report_text_sections(self) -> None:
         """Given text sections, creates formatted report."""
@@ -226,6 +242,7 @@ def baz():
         assert "## Details" in report
         assert "More details here." in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_report_list_sections(self) -> None:
         """Given list sections, creates bullet lists."""
@@ -248,6 +265,7 @@ def baz():
         assert "- Issue 2" in report
         assert "- Issue 3" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_report_table_section(self) -> None:
         """Given table section, creates markdown table."""
@@ -274,6 +292,7 @@ def baz():
         assert "| app.py | 10 | high |" in report
         assert "| utils.py | 25 | medium |" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_report_score_section(self) -> None:
         """Given score section, creates formatted score line."""
@@ -294,6 +313,7 @@ def baz():
         assert "# Quality Report" in report
         assert "**Quality Score**: 8.5/10.0" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_report_mixed_sections(self) -> None:
         """Given mixed section types, creates complete report."""
@@ -313,6 +333,7 @@ def baz():
         assert "- Check 1" in report
         assert "**Score**: 9.0/10.0" in report
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_create_report_section_without_title(self) -> None:
         """Given section without title, omits header."""

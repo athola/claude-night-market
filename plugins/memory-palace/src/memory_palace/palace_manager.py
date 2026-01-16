@@ -72,8 +72,8 @@ class MemoryPalaceManager:
     def load_config(self) -> dict[str, Any]:
         """Load configuration from the specified file.
 
-        Attempt to open and parse the JSON configuration file at `self.config_path`.
-        If the file is not found, return an empty config to allow defaults to work.
+        Open and parse the JSON configuration file at `self.config_path`.
+        Return an empty config if the file is not found to allow defaults to work.
 
         Returns:
             Dictionary containing the loaded configuration, or empty dict if not found.
@@ -405,11 +405,11 @@ class MemoryPalaceManager:
         return False
 
     def get_master_index(self) -> dict[str, Any]:
-        """Retrieve the master index; create a default empty one if it does not exist.
+        """Retrieve the master index or create a default empty one.
 
-        Attempt to load the `master_index.json` file. If found, return its content.
-        If the file does not exist, return a new default index structure. This
-        validates operations relying on the master index always have a valid structure.
+        Load the `master_index.json` file and return its content if found.
+        Return a new default index structure if the file does not exist to
+        ensure a valid structure for dependent operations.
 
         Returns:
             Dictionary representing the master index of all palaces, or a
@@ -686,8 +686,8 @@ class MemoryPalaceManager:
         """Delete a palace by its ID after creating a final backup.
 
         Remove the specified palace file from the storage directory. Create a
-        backup of the palace before deletion to prevent accidental data loss.
-        After successful deletion, update the master index to reflect the change.
+        backup of the palace before deletion and update the master index after
+        successful deletion.
 
         Args:
             palace_id: The ID of the palace to delete.
@@ -770,31 +770,44 @@ def main() -> None:  # noqa: PLR0912,PLR0915
     elif args.command == "list":
         palaces = manager.list_palaces()
         if palaces:
-            for _palace in palaces:
-                pass
+            for palace in palaces:
+                domain = palace.get("domain", "N/A")
+                metaphor = palace.get("metaphor", "N/A")
+                print(f"  - {palace['id']}: {domain} ({metaphor})")
         else:
-            pass
+            print("No palaces found. Create one with 'create' command.")
 
     elif args.command == "search":
         results = manager.search_palaces(args.query, args.type)
         if results:
             for result in results:
+                palace_id = result.get("palace_id", "unknown")
+                print(f"\nPalace: {palace_id}")
                 for match in result["matches"]:
-                    match.get("concept_id", match.get("location_id", "unknown"))
+                    # Try concept_id first, fallback to location_id
+                    item_id = match.get("concept_id") or match.get(
+                        "location_id", "unknown"
+                    )
+                    print(f"  - Found: {item_id}")
         else:
-            pass
+            print(f"No matches found for query: {args.query}")
 
     elif args.command == "delete":
         if manager.delete_palace(args.palace_id):
-            pass
+            print(f"Successfully deleted palace: {args.palace_id}")
         else:
-            pass
+            print(f"Failed to delete palace: {args.palace_id} (may not exist)")
 
     elif args.command == "status":
         index = manager.get_master_index()
         stats = index["global_stats"]
-        for _domain, _count in stats["domains"].items():
-            pass
+        print("\nMemory Palace Status:")
+        print(f"  Total palaces: {stats['total_palaces']}")
+        print(f"  Total concepts: {stats['total_concepts']}")
+        print(f"  Total locations: {stats['total_locations']}")
+        print("\n  Domains:")
+        for domain, count in stats["domains"].items():
+            print(f"    - {domain}: {count} items")
 
     elif args.command == "export":
         manager.export_state(args.destination)

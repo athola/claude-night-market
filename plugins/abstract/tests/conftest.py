@@ -159,3 +159,156 @@ def non_skill_env() -> dict[str, str]:
         "CLAUDE_TOOL_INPUT": '{"file_path": "/tmp/test.txt"}',
         "CLAUDE_SESSION_ID": "test-session-123",
     }
+
+
+# ============================================================================
+# Budget Validation Testing Fixtures
+# ============================================================================
+
+
+@pytest.fixture
+def temp_plugin_structure(tmp_path):
+    """Create a temporary plugin structure for testing validate_budget.py.
+
+    Given a temporary directory with:
+    - test-plugin-a with 2 skills and 1 command
+    - test-plugin-b with 1 skill (verbose description > 150 chars)
+    """
+    plugins_dir = tmp_path / "plugins"
+
+    # Create test-plugin-a with skills
+    plugin_a = plugins_dir / "test-plugin-a"
+    skill_a1 = plugin_a / "skills" / "skill-one"
+    skill_a1.mkdir(parents=True)
+    (skill_a1 / "SKILL.md").write_text("""---
+name: skill-one
+description: A short description for skill one
+category: testing
+---
+
+# Skill One
+
+Content here.
+""")
+
+    skill_a2 = plugin_a / "skills" / "skill-two"
+    skill_a2.mkdir(parents=True)
+    (skill_a2 / "SKILL.md").write_text("""---
+name: skill-two
+description: |
+  A multi-line description
+  that spans multiple lines
+  for testing purposes
+category: testing
+---
+
+# Skill Two
+
+Content here.
+""")
+
+    # Create test-plugin-a with commands
+    commands_a = plugin_a / "commands"
+    commands_a.mkdir(parents=True)
+    (commands_a / "test-command.md").write_text("""---
+name: test-command
+description: A command description
+---
+
+# Test Command
+
+Usage info.
+""")
+
+    # Create test-plugin-b with verbose description
+    plugin_b = plugins_dir / "test-plugin-b"
+    skill_b1 = plugin_b / "skills" / "verbose-skill"
+    skill_b1.mkdir(parents=True)
+    # Create a description that exceeds 150 chars
+    long_desc = "A" * 200
+    (skill_b1 / "SKILL.md").write_text(f"""---
+name: verbose-skill
+description: {long_desc}
+category: testing
+---
+
+# Verbose Skill
+
+Content here.
+""")
+
+    return tmp_path
+
+
+@pytest.fixture
+def empty_plugin_structure(tmp_path):
+    """Create an empty plugin structure (no skills/commands).
+
+    Given a temporary directory with a plugins/ folder but no content.
+    """
+    plugins_dir = tmp_path / "plugins"
+    plugins_dir.mkdir(parents=True)
+    return tmp_path
+
+
+@pytest.fixture
+def skill_content_single_line():
+    """Sample skill with single-line description."""
+    return """---
+name: test-skill
+description: A simple single-line description
+category: testing
+tags:
+  - unit-test
+---
+
+# Test Skill
+
+Content here.
+"""
+
+
+@pytest.fixture
+def skill_content_multi_line():
+    """Sample skill with multi-line description."""
+    return """---
+name: test-skill
+description: |
+  A multi-line description
+  that spans several lines
+  for comprehensive testing
+category: testing
+---
+
+# Test Skill
+
+Content here.
+"""
+
+
+@pytest.fixture
+def skill_content_no_description():
+    """Sample skill without description field."""
+    return """---
+name: test-skill
+category: testing
+---
+
+# Test Skill
+
+Content here.
+"""
+
+
+@pytest.fixture
+def skill_content_no_name():
+    """Sample skill without name field."""
+    return """---
+description: A description without name
+category: testing
+---
+
+# Test Skill
+
+Content here.
+"""

@@ -26,6 +26,7 @@ class TestMakefileReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_makefile_structure_issues(self, mock_skill_context) -> None:
         """Given makefile content, skill identifies structural problems."""
@@ -75,6 +76,7 @@ help:
             len(structure_analysis["missing_phony"]) >= 4
         )  # build, test, clean, install
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_dependency_management(self, mock_skill_context) -> None:
         """Given makefile deps, skill checks dependency correctness."""
@@ -131,6 +133,7 @@ format_code:
         assert "header_dependencies" in dependency_analysis
         assert len(dependency_analysis["missing_dependencies"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_performance_issues(self, mock_skill_context) -> None:
         """Given makefile, skill identifies performance bottlenecks."""
@@ -198,6 +201,7 @@ all: $(PROGRAMS)
         assert "file_operations" in performance_analysis
         assert len(performance_analysis["parallelization_issues"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_portability_issues(self, mock_skill_context) -> None:
         """Given makefile, skill checks portability across platforms."""
@@ -263,6 +267,7 @@ endif
         assert "cross_platform_issues" in portability_analysis
         assert len(portability_analysis["platform_specific"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_security_issues(self, mock_skill_context) -> None:
         """Given makefile, skill flags security vulnerabilities."""
@@ -328,6 +333,7 @@ secure_install: build
         assert "insecure_downloads" in security_analysis
         assert len(security_analysis["command_injection"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_variable_usage(self, mock_skill_context) -> None:
         """Given makefile, when skill analyzes, then evaluates variable management."""
@@ -396,6 +402,7 @@ DEPS = $(OBJECTS:.o=.d)
         assert "function_usage" in variable_analysis
         assert len(variable_analysis["undefined_variables"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_target_organization(self, mock_skill_context) -> None:
         """Given makefile, skill evaluates target structure and org."""
@@ -468,6 +475,7 @@ release: $(TARGET)
         assert "separation_of_concerns" in target_analysis
         assert len(target_analysis["phony_declarations"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_modern_makefile_best_practices(self, mock_skill_context) -> None:
         """Given makefile, skill checks modern best practices."""
@@ -576,6 +584,7 @@ old_style:
             assert "example" in rec
             assert "benefit" in rec
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_makefile_quality_report(self, sample_findings) -> None:
         """Given full makefile analysis, skill creates structured summary."""
@@ -608,6 +617,7 @@ old_style:
         assert "12" in report  # Total targets
         assert "2" in report  # Security issues
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_multiple_makefiles(self, mock_skill_context) -> None:
         """Given multiple makefiles, skill evaluates consistency."""
@@ -652,6 +662,7 @@ clean:
         assert "cross_file_dependencies" in multi_file_analysis
         assert len(multi_file_analysis["consistency_issues"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_makefile_integration(self, mock_skill_context) -> None:
         """Given project makefile, skill evaluates build integration."""

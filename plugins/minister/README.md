@@ -61,7 +61,7 @@ Each skill includes a `SKILL.md` frontmatter block, scenario modules, and refere
 
 ### Tracker Capabilities
 
-The `tracker.py` script provides several management functions for initiative tracking. You can use the `add` command to capture a task tied directly to a GitHub issue or PR URL, while the `update` command allows you to refresh completion percentages and linked artifacts. The `status --github-comment` command emits markdown formatted for GitHub comments, and the `export` command supports data sharing with PM tools by generating CSV rollups.
+`tracker.py` manages initiative tracking. Use `add` to link tasks to GitHub issues or PRs, and `update` to refresh progress. The `status --github-comment` command generates markdown for GitHub, while `export` creates CSV rollups for external tools.
 
 ## Docs & Playbooks
 
@@ -72,7 +72,7 @@ The `tracker.py` script provides several management functions for initiative tra
 
 ## Integration Patterns
 
-To integrate Minister with other tools, reference its skills directly in the frontmatter of other plugins. You can automate data ingestion by pointing cron jobs at the `ProjectTracker` class in the `minister` package. We recommend storing all generated artifacts within the `.claude/minister/` directory to maintain organization. Additionally, using Leyline for GitHub API calls ensures that requests remain within established quota limits.
+Integrate Minister by referencing its skills in other plugins. Automate data ingestion via cron jobs targeting the `ProjectTracker` class. Store artifacts in `.claude/minister/` for organization. Use Leyline for GitHub API calls to respect quota limits.
 
 ## Roadmap
 

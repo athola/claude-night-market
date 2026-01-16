@@ -26,6 +26,7 @@ class TestTestReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_test_coverage(self, mock_skill_context) -> None:
         """Given source and tests, skill calculates coverage metrics."""
@@ -104,6 +105,7 @@ def test_add_negative():
             len(coverage_analysis["uncovered_functions"]) >= 2
         )  # divide and complex_calculation
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_test_structure_quality(self, mock_skill_context) -> None:
         """Given test files, skill evaluates structure and organization."""
@@ -170,6 +172,7 @@ class TestCalculator:
             structure_analysis["structure_score"] > 0.8
         )  # Well-structured test should score high
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_evaluates_tdd_compliance(self, mock_skill_context) -> None:
         """Given dev workflow, skill checks TDD compliance."""
@@ -209,6 +212,7 @@ class TestCalculator:
         assert "compliance_issues" in tdd_analysis
         assert tdd_analysis["test_first_pattern"] is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_bdd_patterns(self, mock_skill_context) -> None:
         """Given test specs, skill identifies BDD patterns."""
@@ -270,6 +274,7 @@ def test_calculator_addition():
         assert bdd_analysis["bdd_detected"] is True
         assert len(bdd_analysis["given_when_then"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_test_anti_patterns(self, mock_skill_context) -> None:
         """Given test code, when skill analyzes, then detects testing anti-patterns."""
@@ -341,6 +346,7 @@ counter = 0
         assert "hardcoded_values" in pattern_types
         assert "slow_test" in pattern_types
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_test_data_management(self, mock_skill_context) -> None:
         """Given fixtures and data, skill evaluates data management."""
@@ -411,6 +417,7 @@ def test_hardcoded_data():
         assert "data_isolation" in data_analysis
         assert len(data_analysis["hardcoded_data"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_evaluates_mock_usage_quality(self, mock_skill_context) -> None:
         """Given test mocks, when skill analyzes, then evaluates mock usage patterns."""
@@ -475,6 +482,7 @@ def test_spy_usage():
         assert "spy_usage" in mock_analysis
         assert len(mock_analysis["over_mocking"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_test_performance(self, mock_skill_context) -> None:
         """Given test suite, when skill analyzes, then evaluates test performance."""
@@ -505,6 +513,7 @@ def test_spy_usage():
         assert "parallelization_potential" in performance_analysis
         assert len(performance_analysis["slow_tests"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_evaluates_integration_test_coverage(self, mock_skill_context) -> None:
         """Given test suite, skill assesses integration vs unit balance."""
@@ -565,6 +574,7 @@ def test_api_endpoint():
             integration_analysis["unit_test_ratio"] < 1.0
         )  # More integration than unit tests
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_test_flakiness_patterns(self, mock_skill_context) -> None:
         """Given test history, skill spots flaky patterns."""
@@ -601,6 +611,7 @@ def test_api_endpoint():
         assert "recommendations" in flakiness_analysis
         assert len(flakiness_analysis["flaky_tests"]) >= 3
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_test_quality_report(self, sample_findings) -> None:
         """Given analysis, skill generates structured summary."""
@@ -632,6 +643,7 @@ def test_api_endpoint():
         assert "75%" in report  # Coverage percentage
         assert "150" in report  # Test count
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_testing_improvements(self, mock_skill_context) -> None:
         """Given analysis, skill recommends testing improvements."""

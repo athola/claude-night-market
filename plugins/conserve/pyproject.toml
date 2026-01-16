@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.2.7"
+version = "1.2.8"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -132,3 +132,29 @@ markers = [
     "slow: Tests that take longer to execute",
     "bdd: Behavior-driven development style tests"
 ]
+
+[tool.coverage.run]
+source = ["scripts"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "scripts/main.py",  # Empty stub, not yet implemented
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+precision = 2
+fail_under = 85

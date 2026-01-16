@@ -213,6 +213,7 @@ class TestContextOptimizerAgent:
         for decision in agent_decisions:
             assert decision["decision_score"] > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_agent_learns_from_optimization_outcomes(self) -> None:
         """Scenario: Agent learns from optimization outcomes.

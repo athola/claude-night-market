@@ -111,7 +111,7 @@ do_not_use_when:
 
 ## Consequences
 
-This refactoring has resulted in all command descriptions being under 100 characters, which significantly improves the scannability and UX of the `/` menu in Claude Code. By separating display text from matching logic, we have maintained skill identification accuracy while establishing a consistent format across all commands. The move of identification logic to the command body remains effective for the LLM while keeping the user interface clean.
+All command descriptions are now under 100 characters, improving `/` menu scannability. Separating display text from matching logic maintains identification accuracy while establishing a consistent format. Moving identification logic to the body keeps the UI clean without impacting LLM performance.
 
 ## Validation
 
@@ -122,7 +122,7 @@ After each batch:
 
 ## Success Metrics
 
-The initiative successfully reduced all command descriptions to under 100 characters without any loss in skill identification accuracy. The improved `/` menu UX and the adoption of a consistent pattern across the ecosystem demonstrate the effectiveness of this two-part structure.
+Command descriptions are under 100 characters with no loss in identification accuracy. The `/` menu UX is improved, and the two-part structure is now the standard pattern across the ecosystem.
 
 ## Related
 

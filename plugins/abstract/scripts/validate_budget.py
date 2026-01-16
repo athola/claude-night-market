@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate skill and command description budget for Claude Code system prompt."""
 
+import argparse
 import re
 import sys
 from dataclasses import dataclass
@@ -67,9 +68,28 @@ def analyze_file(file_path: Path, component_type: str) -> Component:
     )
 
 
-def main() -> None:  # noqa: PLR0912, PLR0915
-    """Validate description budget across all plugins."""
-    base = Path(".")
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Validate skill and command description budget for Claude Code.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s                    # Validate from current directory
+  %(prog)s --path /path/to/repo  # Validate from specified path
+        """,
+    )
+    parser.add_argument(
+        "--path",
+        type=str,
+        default=".",
+        help="Base path for plugin skill/command files (default: current directory)",
+    )
+    return parser.parse_args()
+
+
+def collect_components(base: Path) -> list[Component]:
+    """Collect all skill and command components from plugins."""
     components: list[Component] = []
 
     # Find all skills
@@ -90,31 +110,53 @@ def main() -> None:  # noqa: PLR0912, PLR0915
             except Exception as e:
                 print(f"Warning: Error processing {cmd_file}: {e}", file=sys.stderr)
 
-    # Calculate totals
+    return components
+
+
+def calculate_budget_status(
+    components: list[Component],
+) -> tuple[int, int, bool, bool, list[Component]]:
+    """Calculate budget totals and status.
+
+    Returns:
+        Tuple of (total_chars, verbose_count, failed, warn_only, verbose_list)
+
+    """
     total_chars = sum(c.desc_length for c in components)
-
-    # Check verbose descriptions
     verbose = [c for c in components if c.desc_length > DESCRIPTION_MAX]
-
-    # Determine exit status
     failed = total_chars > BUDGET_LIMIT
     warn_only = not failed and total_chars > WARN_THRESHOLD
 
-    # Output results
-    print(f"📊 Total description characters: {total_chars:,}")
+    return total_chars, len(verbose), failed, warn_only, verbose
+
+
+def format_offenders_list(components: list[Component], limit: int = 10) -> str:
+    """Format sorted list of budget offenders."""
+    sorted_comps = sorted(components, key=lambda c: c.desc_length, reverse=True)[:limit]
+    lines = []
+    for comp in sorted_comps:
+        lines.append(
+            f"  - {comp.plugin}/{comp.name} ({comp.type}): {comp.desc_length} chars"
+        )
+    return "\n".join(lines)
+
+
+def print_budget_report(
+    total_chars: int,
+    verbose_count: int,
+    failed: bool,
+    warn_only: bool,
+    verbose: list[Component],
+) -> None:
+    """Print comprehensive budget validation report."""
     usage_pct = total_chars / BUDGET_LIMIT * 100
+    print(f"📊 Total description characters: {total_chars:,}")
     print(f"   Budget limit: {BUDGET_LIMIT:,} ({usage_pct:.1f}% used)")
 
     if failed:
         print(f"\n❌ BUDGET EXCEEDED by {total_chars - BUDGET_LIMIT:,} characters!")
         print("\nTop offenders:")
-        sorted_comps = sorted(components, key=lambda c: c.desc_length, reverse=True)[
-            :10
-        ]
-        for comp in sorted_comps:
-            print(
-                f"  - {comp.plugin}/{comp.name} ({comp.type}): {comp.desc_length} chars"
-            )
+        print(format_offenders_list(verbose))
         print(
             f"\n⚠️  Please optimize descriptions to get under "
             f"{BUDGET_LIMIT:,} characters."
@@ -125,7 +167,6 @@ def main() -> None:  # noqa: PLR0912, PLR0915
         print("   - Condense trigger lists to essential keywords")
         print("   - Eliminate redundancy with tags/category")
         print("   - Focus on discoverability, not explanations")
-        sys.exit(1)
 
     if warn_only:
         print("\n⚠️  WARNING: Approaching budget limit")
@@ -135,7 +176,7 @@ def main() -> None:  # noqa: PLR0912, PLR0915
 
     if verbose:
         print(
-            f"\n⚠️  {len(verbose)} descriptions exceed "
+            f"\n⚠️  {verbose_count} descriptions exceed "
             f"{DESCRIPTION_MAX} chars (recommended max):"
         )
         top_verbose = sorted(verbose, key=lambda c: c.desc_length, reverse=True)
@@ -152,7 +193,24 @@ def main() -> None:  # noqa: PLR0912, PLR0915
     elif not failed:
         print("\n✅ Budget check passed (with warnings)")
 
-    sys.exit(0)
+
+def main() -> None:
+    """Validate description budget across all plugins."""
+    args = parse_args()
+    base = Path(args.path)
+
+    # Collect all components
+    components = collect_components(base)
+
+    # Calculate budget status
+    total_chars, verbose_count, failed, warn_only, verbose = calculate_budget_status(
+        components
+    )
+
+    # Print report and exit appropriately
+    print_budget_report(total_chars, verbose_count, failed, warn_only, verbose)
+
+    sys.exit(1 if failed else 0)
 
 
 if __name__ == "__main__":

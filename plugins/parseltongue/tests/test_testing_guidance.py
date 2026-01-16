@@ -19,6 +19,7 @@ class TestTestingGuideSkill:
         """Set up test fixtures before each test."""
         self.skill = TestingGuideSkill()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_test_structure(self, sample_test_patterns) -> None:
         """Given test code, when skill analyzes, then evaluates test structure."""
@@ -46,6 +47,7 @@ class TestTestingGuideSkill:
         assert "fixtures" in structure
         assert "sample_data" in structure["fixtures"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_identifies_anti_patterns(self, testing_issues) -> None:
         """Given problematic test code, when skill analyzes, then identifies testing anti-patterns."""
@@ -65,6 +67,7 @@ class TestTestingGuideSkill:
         # Should provide recommendations
         assert len(anti_patterns["recommendations"]) >= 1
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_coverage_gaps(self) -> None:
         """Given test code and source code, when skill analyzes, then identifies coverage gaps."""
@@ -120,6 +123,7 @@ def test_get_user():
         assert coverage["estimated_coverage"] < 100
         assert coverage["estimated_coverage"] > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_evaluates_test_quality(self, sample_test_patterns) -> None:
         """Given test code, when skill analyzes, then evaluates overall test quality."""
@@ -148,6 +152,7 @@ def test_get_user():
         assert "weaknesses" in quality
         assert "improvements" in quality
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_tdd_workflow(self) -> None:
         """Given feature requirements, when skill analyzes, then recommends TDD workflow."""
@@ -182,6 +187,7 @@ User Authentication System:
             assert "test_name" in step
             assert "implementation_hint" in step
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_suggests_improvements(self, testing_issues) -> None:
         """Given problematic test code, when skill analyzes, then suggests improvements."""
@@ -204,6 +210,7 @@ User Authentication System:
             assert "example" in suggestion
             assert "rationale" in suggestion
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_test_fixtures(self) -> None:
         """Given source code, when skill analyzes, then generates appropriate test fixtures."""
@@ -243,6 +250,7 @@ class Order:
         assert "imports" in result
         assert "pytest" in str(result["imports"])
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_mock_usage(self) -> None:
         """Given test code, when skill analyzes, then evaluates mock usage patterns."""
@@ -287,6 +295,7 @@ def test_database_interaction():
         assert "assertions" in mock_analysis
         assert mock_analysis["assertions"]["uses_assert_called"] is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_test_types(self) -> None:
         """Given code structure, when skill analyzes, then recommends types of tests needed."""
@@ -325,6 +334,7 @@ src/
         assert "test_structure" in recommendations
         assert recommendations["test_structure"]["conftest_py"] is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validates_async_testing(self) -> None:
         """Given async test code, when skill analyzes, then validates async testing patterns."""
@@ -370,6 +380,7 @@ async def test_with_async_mock():
         assert "uses_asyncmock" in validation
         assert validation["uses_asyncmock"] is True
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_test_performance(self) -> None:
         """Given test suite, when skill analyzes, then evaluates test performance."""
@@ -413,6 +424,7 @@ def test_parameterized_heavy(item):
         assert "optimizations" in performance
         assert len(performance["optimizations"]) >= 2
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_recommends_testing_tools(self) -> None:
         """Given project context, when skill analyzes, then recommends appropriate testing tools."""
@@ -450,6 +462,7 @@ def test_parameterized_heavy(item):
         assert "database_testing" in recommendations
         assert "factory_boy" in recommendations["database_testing"]["tools"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_test_documentation(self) -> None:
         """Given test code, when skill analyzes, then generates test documentation."""
@@ -502,6 +515,7 @@ class TestUserService:
         assert "setup" in first_test
         assert "assertions" in first_test
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_evaluates_test_maintainability(self) -> None:
         """Given test code, when skill analyzes, then evaluates test maintainability."""

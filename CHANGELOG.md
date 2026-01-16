@@ -5,6 +5,66 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.8] - 2026-01-15
+
+### Added - Interactive Authentication System (leyline)
+
+- **`interactive-auth.sh` module** - Centralized OAuth authentication for external services
+  - Multi-service support: GitHub, GitLab, AWS, GCP, Azure
+  - Token caching with 5-minute TTL, session persistence with 24-hour TTL
+  - Interactive OAuth prompts with CI/CD detection and automatic fallback
+  - Retry logic with exponential backoff (max 3 attempts)
+  - Wrapper functions: `gh_with_auth`, `glab_with_auth`, `aws_with_auth`
+
+- **`authentication-patterns` skill enhancements**
+  - New `interactive-auth.md` module (634 lines) - comprehensive implementation guide
+  - New `workflow-integration.md` examples - real-world integration patterns
+  - New `README.md` quick-start guide (457 lines)
+  - Shell test suite: 14 tests covering syntax, functions, caching, sessions
+
+- **`docs/guides/authentication-integration.md`** - Implementation summary and usage guide
+
+### Added - Anti-Cargo-Cult Framework (imbue)
+
+- **`anti-cargo-cult.md` shared module** - Understanding verification protocols
+  - The Five Whys of Understanding framework
+  - Understanding Checklist for code review
+  - Recovery Protocol for cargo cult code
+  - Integration with proof-of-work and rigorous-reasoning skills
+
+- **Fourth Iron Law: NO CODE WITHOUT UNDERSTANDING**
+  - Added to `iron-law-enforcement.md` module
+  - Integration with proof-of-work TodoWrite items
+  - Expanded red flags for cargo cult patterns
+
+- **Enhanced `red-flags.md`** (+184 lines)
+  - New "Cargo Cult" Family section
+  - AI suggestion patterns, best practice patterns
+  - Copy-paste without understanding patterns
+
+- **`rigorous-reasoning` cargo cult patterns** (+21 lines)
+  - Cargo cult reasoning detection in conflict analysis
+  - Pattern recognition for "best practice" and "everyone does it" justifications
+
+- **Knowledge corpus**: `cargo-cult-programming-prevention.md` (memory-palace)
+
+### Added - Test Coverage Improvements (leyline)
+
+- **`test_tokens.py`** (+10 tests)
+  - JSON/default ratio handling, OSError handling, directory walking
+  - tiktoken encoder paths, file encoding success/error cases
+  - Coverage: 60% → 94%
+
+- **`test_quota_tracker.py`** (+15 tests)
+  - Status levels (healthy/warning/critical), RPM/daily/token warnings
+  - All `can_handle_task` edge cases, storage persistence, CLI modes
+  - Coverage: 74% → 97%
+
+- **`test_anti_cargo_cult.py`** (imbue) - 16 BDD tests
+  - Module structure and content validation
+  - Cross-skill integration verification
+  - Red flags content validation
+
 ## [1.2.7] - 2026-01-14
 
 ### Added - New Skills (Issues #39, #40)
@@ -21,6 +81,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Performance assessment and usability evaluation
   - Pattern recognition and technical debt assessment
   - Structured report generation
+
+- **`imbue:rigorous-reasoning` skill** - Prevent sycophantic reasoning through checklist-based analysis
+  - Priority signals: no courtesy agreement, checklist over intuition, categorical integrity
+  - Conflict analysis protocol with harm/rights checklist
+  - Red flag self-monitoring for sycophantic patterns
+  - Debate methodology for truth claims in contested territory
+  - Modules: priority-signals, conflict-analysis, engagement-principles, debate-methodology, correction-protocol, incremental-reasoning, pattern-completion
 
 ### Added - Feature Review Tests (Issue #41)
 

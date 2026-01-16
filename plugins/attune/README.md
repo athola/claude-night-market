@@ -231,7 +231,7 @@ Available in all templates:
 
 ### Superpowers Integration
 
-When the superpowers plugin is installed, attune integrates foundational methodology skills:
+With the superpowers plugin, Attune integrates foundational methodology skills:
 
 - **Brainstorming**: `Skill(superpowers:brainstorming)`
 - **Planning**: `Skill(superpowers:writing-plans)`
@@ -241,14 +241,14 @@ When the superpowers plugin is installed, attune integrates foundational methodo
 
 ### Spec-Kit Integration
 
-When spec-kit is installed, attune aligns with specification patterns:
+With spec-kit, Attune aligns with specification patterns:
 
 - **Specifications**: `Skill(spec-kit:spec-writing)`
 - **Task Planning**: `Skill(spec-kit:task-planning)`
 
 ## Philosophy
 
-Attune enforces structured workflows from ideation through implementation, integrating with companion plugins while requiring user confirmation for file operations. Templates follow industry practices with full customization support.
+Attune enforces structured workflows from ideation to implementation, integrating with plugins and requiring confirmation for file operations. Templates follow industry practices and support full customization.
 
 ## Contributing
 

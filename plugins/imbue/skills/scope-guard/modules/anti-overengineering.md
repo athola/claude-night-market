@@ -86,6 +86,48 @@ Decision: [Fits/Requires split/Requires drop]
 - Discussing patterns before discussing requirements
 - Branch metrics climbing without proportional value delivery
 
+## Cargo Cult Overengineering
+
+**Additional red flags from cargo cult programming:**
+
+| Pattern | Symptom | Reality Check |
+|---------|---------|---------------|
+| **Enterprise Cosplay** | Microservices for a CRUD app | "Does my scale require this?" |
+| **Technology Tourism** | Using Kubernetes "like Netflix" | "Do I have Netflix's problems?" |
+| **Resume-Driven Development** | Adding tech to look impressive | "Does this solve user problems?" |
+| **Complexity Signaling** | "Production-ready" without defining it | "What specific requirements?" |
+| **Pattern Worship** | Using patterns because they exist | "What problem does this solve?" |
+
+### The AI Amplification Problem
+
+AI makes cargo cult overengineering worse because:
+
+1. **Confident Explanations** - AI sounds authoritative even when wrong
+2. **Complete Solutions** - AI provides full implementations for vague requirements
+3. **Enterprise Defaults** - AI often suggests "scalable" solutions for simple problems
+4. **No Pushback** - AI won't ask "Do you really need this?"
+
+**Mitigation:** When AI suggests an approach, ask:
+- "What simpler alternatives exist?"
+- "What are the trade-offs?"
+- "What's the minimum version that works?"
+
+### Cargo Cult YAGNI
+
+**YAGNI (You Aren't Gonna Need It)** applies especially to:
+
+| "We might need..." | Reality |
+|-------------------|---------|
+| "...a plugin system" | Build it when you have 3 plugins |
+| "...to scale globally" | Build for current users first |
+| "...flexibility here" | Flexibility you don't use is debt |
+| "...this configuration option" | Default is right 90% of time |
+| "...enterprise features" | Define enterprise requirements first |
+
+**Rule:** If justification uses "might", "could", or "eventually" - defer to backlog.
+
+See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for understanding verification protocols.
+
 ## "While We're Here" Pattern
 
 **Anti-pattern:** Scope expansion because you're "already working in this area"

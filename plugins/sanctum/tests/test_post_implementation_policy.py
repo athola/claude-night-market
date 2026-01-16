@@ -32,6 +32,7 @@ class TestPostImplementationPolicy:
         """Load the hook content."""
         return hook_path.read_text()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_exists(self, hook_path: Path) -> None:
         """Scenario: Hook file exists.
@@ -42,6 +43,7 @@ class TestPostImplementationPolicy:
         """
         assert hook_path.exists(), f"Hook not found at {hook_path}"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_is_valid_python(self, hook_path: Path) -> None:
         """Scenario: Hook is valid Python.
@@ -57,6 +59,7 @@ class TestPostImplementationPolicy:
         )
         assert result.returncode == 0, f"Python compilation failed: {result.stderr}"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_contains_iron_law_statement(self, hook_content: str) -> None:
         """Scenario: Hook contains Iron Law statement.
@@ -68,6 +71,7 @@ class TestPostImplementationPolicy:
         assert "Iron Law" in hook_content
         assert "NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST" in hook_content
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_contains_proof_of_work_step(self, hook_content: str) -> None:
         """Scenario: Hook includes proof-of-work as first step.
@@ -79,6 +83,7 @@ class TestPostImplementationPolicy:
         assert "PROOF-OF-WORK" in hook_content
         assert "MANDATORY FIRST" in hook_content
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_contains_iron_law_todowrite_items(self, hook_content: str) -> None:
         """Scenario: Hook mentions Iron Law TodoWrite items.
@@ -91,6 +96,7 @@ class TestPostImplementationPolicy:
         assert "iron-law-green" in hook_content
         assert "iron-law-refactor" in hook_content
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_contains_self_check_table(self, hook_content: str) -> None:
         """Scenario: Hook contains Iron Law self-check table.
@@ -104,6 +110,7 @@ class TestPostImplementationPolicy:
         assert "pre-conceived" in hook_content.lower()
         assert "uncertainty" in hook_content.lower()
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_contains_red_flags_table(self, hook_content: str) -> None:
         """Scenario: Hook contains red flags table.
@@ -116,6 +123,7 @@ class TestPostImplementationPolicy:
         assert "This looks correct" in hook_content
         assert "RUN IT" in hook_content
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_defines_lightweight_agents(self, hook_content: str) -> None:
         """Scenario: Hook defines lightweight agents that skip full governance.
@@ -128,6 +136,7 @@ class TestPostImplementationPolicy:
         assert "code-reviewer" in hook_content
         assert "context-optimizer" in hook_content
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_outputs_valid_json(self, hook_path: Path) -> None:
         """Scenario: Hook outputs valid JSON.
@@ -149,6 +158,7 @@ class TestPostImplementationPolicy:
         assert "hookSpecificOutput" in output
         assert "additionalContext" in output["hookSpecificOutput"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_skips_governance_for_review_agents(self, hook_path: Path) -> None:
         """Scenario: Hook skips full governance for review agents.
@@ -196,6 +206,7 @@ class TestPostImplementationPolicy:
         assert "Iron Law" in context
         assert "PROOF-OF-WORK" in context
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_handles_missing_agent_type(self, hook_path: Path) -> None:
         """Scenario: Hook handles missing agent_type gracefully.
@@ -218,6 +229,7 @@ class TestPostImplementationPolicy:
         # Should have full governance by default
         assert "Iron Law" in context
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_hook_handles_malformed_json_gracefully(self, hook_path: Path) -> None:
         """Scenario: Hook handles malformed JSON input gracefully.

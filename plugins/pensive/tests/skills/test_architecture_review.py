@@ -26,6 +26,7 @@ class TestArchitectureReviewSkill:
         self.mock_context.repo_path = Path(tempfile.gettempdir()) / "test_repo"
         self.mock_context.working_dir = Path(tempfile.gettempdir()) / "test_repo"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_layered_architecture(self, mock_skill_context) -> None:
         """Given layered architecture, skill identifies layer structure."""
@@ -47,6 +48,7 @@ class TestArchitectureReviewSkill:
         assert "repositories" in architecture["layers"]
         assert "models" in architecture["layers"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_hexagonal_architecture(self, mock_skill_context) -> None:
         """Given hexagonal architecture, skill finds ports and adapters."""
@@ -68,6 +70,7 @@ class TestArchitectureReviewSkill:
         assert "adapters" in architecture["components"]
         assert "domain" in architecture["components"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_microservices_architecture(self, mock_skill_context) -> None:
         """Given microservices architecture, skill finds service boundaries."""
@@ -90,6 +93,7 @@ class TestArchitectureReviewSkill:
             service["name"] for service in architecture["services"]
         ]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_event_driven_architecture(self, mock_skill_context) -> None:
         """Given event-driven architecture, skill identifies event components."""
@@ -111,6 +115,7 @@ class TestArchitectureReviewSkill:
         assert "handlers" in architecture["components"]
         assert "publishers" in architecture["components"]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_coupling_between_modules(self, mock_skill_context) -> None:
         """Given module deps, skill assesses coupling levels."""
@@ -139,6 +144,7 @@ class TestArchitectureReviewSkill:
         )  # Should detect controller directly accessing database
         assert coupling_analysis["coupling_score"] > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_cohesion_within_modules(self, mock_skill_context) -> None:
         """Given module content, when skill analyzes, then assesses cohesion levels."""
@@ -169,6 +175,7 @@ class TestArchitectureReviewSkill:
             len(cohesion_analysis["responsibilities"]) >= 3
         )  # Should detect multiple responsibilities
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_separation_of_concerns(self, mock_skill_context) -> None:
         """Given mixed responsibilities, skill flags SoC violations."""
@@ -208,6 +215,7 @@ class TestArchitectureReviewSkill:
         assert "business_logic" in concern_types
         assert "presentation" in concern_types
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_validates_dependency_inversion_principle(self, mock_skill_context) -> None:
         """Given DIP violations, skill flags the issues."""
@@ -238,6 +246,7 @@ class TestArchitectureReviewSkill:
             len(concrete_deps) >= 2
         )  # Should detect MySQLDatabase and SMTPEmailSender
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_sOLID_principles_compliance(self, mock_skill_context) -> None:
         """Given code implementation, skill checks SOLID principles."""
@@ -286,6 +295,7 @@ class TestArchitectureReviewSkill:
         assert solid_analysis["open_closed"]["violations"] > 0
         assert solid_analysis["liskov_substitution"]["violations"] > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_architectural_decision_records(self, mock_skill_context) -> None:
         """Given ADR files, skill validates structure and compliance."""
@@ -328,6 +338,7 @@ class TestArchitectureReviewSkill:
             adr_analysis["completeness_score"] > 0.8
         )  # Should find proper ADR structure
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_data_flow_architecture(self, mock_skill_context) -> None:
         """Given data flow implementation, skill maps patterns."""
@@ -353,6 +364,7 @@ class TestArchitectureReviewSkill:
         ]
         assert "flow_components" in data_flow_analysis
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_checks_scalability_patterns(self, mock_skill_context) -> None:
         """Given architecture implementation, skill evaluates scalability patterns."""
@@ -397,6 +409,7 @@ class TestArchitectureReviewSkill:
             len(scalability_analysis["bottlenecks"]) >= 2
         )  # Should detect stateful and sequential issues
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_security_architecture(self, mock_skill_context) -> None:
         """Given security implementation, skill evaluates security patterns."""
@@ -434,6 +447,7 @@ class TestArchitectureReviewSkill:
         assert "authorization" in vuln_types
         assert "data_exposure" in vuln_types
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_detects_architectural_drift(self, mock_skill_context) -> None:
         """Given codebase evolution, skill detects architectural drift."""
@@ -454,6 +468,7 @@ class TestArchitectureReviewSkill:
         assert "deviations" in drift_analysis
         assert "spaghetti" in [d["pattern"] for d in drift_analysis["deviations"]]
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_generates_architecture_recommendations(self, sample_findings) -> None:
         """Given findings, skill generates actionable architecture advice."""
@@ -491,6 +506,7 @@ class TestArchitectureReviewSkill:
             assert rec["action"] is not None
             assert len(rec["action"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_missing_architecture_docs(self, mock_skill_context) -> None:
         """Given missing architecture docs, skill flags gaps."""
@@ -510,6 +526,7 @@ class TestArchitectureReviewSkill:
         assert "missing_docs" in doc_analysis
         assert len(doc_analysis["missing_docs"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_analyzes_technical_debt_impact(self, mock_skill_context) -> None:
         """Given debt indicators, skill quantifies impact."""
@@ -530,6 +547,7 @@ class TestArchitectureReviewSkill:
         assert debt_analysis["overall_score"] > 0
         assert len(debt_analysis["priority_areas"]) > 0
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_creates_architecture_quality_report(self, sample_findings) -> None:
         """Given analysis, skill creates structured summary."""

@@ -6,9 +6,22 @@
 NO SKILL WITHOUT A FAILING TEST FIRST
 NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST
+NO CODE WITHOUT UNDERSTANDING FIRST
 ```
 
 This is the fundamental principle that unites TDD, proof-of-work, and skill authoring. It prevents the **Cargo Cult TDD** anti-pattern where tests are written to validate pre-conceived implementations rather than to discover the right implementation.
+
+### The Fourth Law: Understanding Before Code
+
+The fourth principle addresses **cargo cult programming** - the ritual inclusion of code that "looks right" but nobody can explain. Studies show up to 48% of AI-generated code contains vulnerabilities from unexamined adoption.
+
+**Understanding Verification Questions:**
+- Can I explain WHY this code exists, not just WHAT it does?
+- What would break if I removed this line?
+- Why this approach over simpler alternatives?
+- When would this fail?
+
+See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for the full protocol.
 
 ## Why This Matters (The Reddit Insight)
 
@@ -35,6 +48,9 @@ Claude recognizes Iron Law violations in its own thought process.
 | "The test should check for X" | Implementation-driven test | Describe BEHAVIOR, not implementation |
 | "This will work because..." | Assumption without evidence | TEST IT, capture evidence |
 | "The design is straightforward" | Skipping uncertainty exploration | Write test, let design EMERGE |
+| "It's just documentation/config" | Documentation Exception fallacy | Markdown/YAML/shell have testable structure |
+| "The user wants this quickly" | Speed rationalization | Quality gates are non-negotiable |
+| "Files exist, so it works" | Existence ≠ functionality | Test BEHAVIOR, not just existence |
 
 **Self-Check Protocol:**
 
@@ -46,9 +62,32 @@ Before writing ANY code:
 2. [ ] Am I about to write a test that validates a pre-conceived implementation?
 3. [ ] Am I feeling uncertainty about the design? (Good - that's what tests are for)
 4. [ ] Have I let the test drive the implementation, or vice versa?
+5. [ ] Can I explain WHY this approach, not just WHAT it does?
 
-If I answered "no" to #1 or #3, or "yes" to #2 or #4: STOP AND RESET.
+If I answered "no" to #1, #3, or #5, or "yes" to #2 or #4: STOP AND RESET.
 ```
+
+## Cargo Cult TDD Anti-Patterns
+
+**Testing theater** - tests that look right but don't actually verify behavior:
+
+| Anti-Pattern | Description | Detection |
+|--------------|-------------|-----------|
+| **Assert True** | Tests that always pass | `assert True`, `expect(true).toBe(true)` |
+| **Implementation Testing** | Tests HOW not WHAT | Mocking every internal |
+| **Copy-Paste Tests** | Tests copied from examples | No understanding of what's being tested |
+| **Coverage Gaming** | 100% coverage with trivial tests | High coverage, low mutation score |
+| **Behavior Blindness** | Tests that don't catch real bugs | Mutation testing fails |
+
+**The "AI Wrote My Tests" Problem:**
+
+AI-generated tests are particularly prone to cargo cult patterns:
+- Tests validate the AI's implementation, not desired behavior
+- Tests pass but don't catch intentional mutations
+- Tests look comprehensive but miss edge cases
+- Tests mock so much they test mocks, not code
+
+**Prevention:** Apply mutation testing. If tests don't fail when code is intentionally broken, they're cargo cult tests.
 
 ---
 
@@ -318,6 +357,40 @@ I violated the Iron Law by writing implementation before tests.
 ### Prevention
 [What configuration change prevents this in future?]
 ```
+
+---
+
+### Case Study: The "Documentation Exception" Violation (2025-01-15)
+
+**Context:** Creating a new skill (`rigorous-reasoning`) for anti-sycophancy reasoning.
+
+**Violation:** Created 8 markdown files (SKILL.md + 7 modules) and updated README/hook without writing any tests first.
+
+**Rationalization Chain:**
+1. "Skills are documentation, not code" → FALSE (skills have testable structure)
+2. "The hook test proves it works" → FALSE (only tested JSON serialization)
+3. "The user wanted it fast" → RATIONALIZATION (speed ≠ quality waiver)
+
+**Detection:** User invoked `/fix-workflow` asking about Iron Law compliance.
+
+**Remediation:**
+1. Wrote 37 BDD-style tests covering:
+   - Skill existence and structure (6 tests)
+   - Module existence and content (14 parametrized tests)
+   - Hook integration (3 tests)
+   - Required sections and patterns (14 tests)
+2. Found and fixed one test (spec mismatch: "polite" vs "politeness")
+3. All 37 tests passed
+
+**Lessons Learned:**
+- Markdown files have testable structure (existence, sections, patterns)
+- "ls -la shows files exist" is NOT functional verification
+- Tests for skills should verify: existence, required content, module links, hook integration
+
+**Prevention Added:**
+- New red flags in self-enforcement table: "It's just documentation/config"
+- New section in red-flags.md: "The Documentation Exception Family"
+- This case study as documentation
 
 ---
 

@@ -87,9 +87,25 @@ Before claiming completion, you must provide technical evidence that the solutio
 ```
 NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST
+NO CODE WITHOUT UNDERSTANDING FIRST
 ```
 
 The Iron Law prevents **Cargo Cult TDD** - going through the motions of testing without achieving the design benefits. When implementation is pre-planned before tests, the RED phase becomes theater.
+
+### Understanding Verification (Anti-Cargo-Cult)
+
+Before claiming completion, verify you UNDERSTAND the implementation, not just that it works:
+
+| Question | Red Flag Answer | Action |
+|----------|-----------------|--------|
+| WHY does this approach work? | "AI said so" / "Best practice" | Research fundamentals |
+| WHY this over alternatives? | "It's what [big co] uses" | Evaluate YOUR context |
+| WHAT breaks if we change X? | "I don't know" | Spike test to learn |
+| WHEN would this fail? | "It should work always" | Document edge cases |
+
+**Anti-Cargo-Cult TodoWrite:** `proof:understanding-verified`
+
+See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for the full Understanding Verification Protocol.
 
 **Iron Law Self-Check (Before Writing Code):**
 
@@ -124,6 +140,17 @@ This skill is required before any statement like "this will work", "should work"
 | "Just enable X and Y" | Did you CHECK for known issues? |
 | "This will fix your problem" | Did you REPRODUCE the problem first? |
 | "The language servers are installed" | Did you CONFIRM they respond correctly? |
+
+### Cargo Cult Red Flags (Additional)
+
+| Thought Pattern | Reality Check |
+|----------------|---------------|
+| "The AI suggested this approach" | Did you UNDERSTAND why? |
+| "This is the standard way" | Standard for YOUR use case? |
+| "I found this on Stack Overflow" | Do you know WHY it works? |
+| "This is what [company] uses" | Do you have their constraints? |
+| "It's a best practice" | Best for WHAT? WHO says? |
+| "Just copy this configuration" | Can you EXPLAIN each line? |
 
 ## Required TodoWrite Items
 

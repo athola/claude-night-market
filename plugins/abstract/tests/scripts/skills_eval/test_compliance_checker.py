@@ -298,6 +298,7 @@ description: A test skill
         assert results["total_skills"] == 0
         assert "No SKILL.md files found" in results["issues"]
 
+    @pytest.mark.bdd
     def test_body_with_when_to_use_creates_issue(self, tmp_path) -> None:
         """Test that body containing 'When to Use' section creates compliance issue.
 
@@ -487,6 +488,7 @@ class TestCheckTriggerIsolation:
         assert "Missing 'Use when:'" in str(result.issues)
         assert "Missing 'DO NOT use when:'" in str(result.issues)
 
+    @pytest.mark.bdd
     def test_body_when_to_use_violation_flagged(self) -> None:
         """Test that body containing 'When to Use' section is flagged."""
         description = "Triggers: always. Use when: needed. DO NOT use when: never."

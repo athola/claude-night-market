@@ -238,6 +238,7 @@ class TestScoringFramework:
         assert abs(value_sum - 1.0) < 0.001
         assert abs(cost_sum - 1.0) < 0.001
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_zero_weight_handling(self) -> None:
         """Scenario: Zero weights effectively disable factors.
@@ -259,6 +260,7 @@ class TestScoringFramework:
         assert weighted_sum == 10.0  # Only reach and impact contribute
         assert normalized == 10.0  # Normalized by non-zero weights
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_missing_dimension_handling(self) -> None:
         """Scenario: Missing dimensions use default values.
@@ -455,6 +457,7 @@ class TestClassificationSystem:
         assert classify(feature_examples["config_loader"]) == "Reference Lookup"
         assert classify(feature_examples["search"]) == "Interactive Query"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_archetype_characteristics(self) -> None:
         """Scenario: Each archetype has expected characteristics.
@@ -560,6 +563,7 @@ class TestKanoClassification:
         assert delighter_feature["absence_impact"] == "Neutral"
         assert delighter_feature["presence_impact"] == "Delight"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_kano_priority_order(self) -> None:
         """Scenario: Kano types have a recommended implementation order.
@@ -633,6 +637,7 @@ class TestTradeoffDimensions:
         for dimension, score in sample_tradeoffs.items():
             assert 1 <= score <= 5, f"{dimension} score {score} out of range"
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_weighted_tradeoff_score(self, sample_tradeoffs) -> None:
         """Scenario: Tradeoff scores can be weighted.
@@ -726,6 +731,7 @@ class TestIntegration:
         assert "priority:low" in get_labels(1.0)
         assert "enhancement" in get_labels(2.0)
 
+    @pytest.mark.bdd
     @pytest.mark.unit
     def test_backlog_limit_guardrail(self) -> None:
         """Scenario: Backlog is limited to prevent suggestion overload.
