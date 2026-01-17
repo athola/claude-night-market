@@ -20,10 +20,12 @@ sys.path.insert(0, str(HOOKS_DIR))
 
 from session_complete_notify import (  # noqa: E402
     get_terminal_info,
+    is_wsl,
     main,
     notify_linux,
     notify_macos,
     notify_windows,
+    notify_wsl,
     run_notification,
     send_notification,
 )
@@ -276,6 +278,117 @@ class TestNotifyWindows:
 
 
 # =============================================================================
+# Unit Tests: WSL Detection and Notification
+# =============================================================================
+
+
+class TestIsWsl:
+    """Tests for WSL environment detection."""
+
+    def test_detects_wsl2_microsoft(self) -> None:
+        """Should detect WSL2 via 'microsoft' in release string."""
+        with patch(
+            "session_complete_notify.platform.release",
+            return_value="5.15.0-microsoft-wsl2",
+        ):
+            assert is_wsl() is True
+
+    def test_detects_wsl1_microsoft(self) -> None:
+        """Should detect WSL1 via 'microsoft' in release string."""
+        with patch(
+            "session_complete_notify.platform.release",
+            return_value="4.4.0-microsoft-standard",
+        ):
+            assert is_wsl() is True
+
+    def test_detects_wsl_keyword(self) -> None:
+        """Should detect WSL via 'wsl' in release string."""
+        with patch(
+            "session_complete_notify.platform.release",
+            return_value="5.15.0-wsl2",
+        ):
+            assert is_wsl() is True
+
+    def test_not_wsl_on_native_linux(self) -> None:
+        """Should return False for native Linux."""
+        with patch(
+            "session_complete_notify.platform.release",
+            return_value="5.15.0-generic",
+        ):
+            assert is_wsl() is False
+
+    def test_not_wsl_on_ubuntu_kernel(self) -> None:
+        """Should return False for standard Ubuntu kernel."""
+        with patch(
+            "session_complete_notify.platform.release",
+            return_value="5.4.0-150-generic",
+        ):
+            assert is_wsl() is False
+
+
+class TestNotifyWsl:
+    """Tests for WSL notification via PowerShell."""
+
+    def test_success_with_powershell_exe(self) -> None:
+        """Should succeed when powershell.exe works."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            result = notify_wsl("Test Title", "Test message")
+
+        assert result is True
+        mock_run.assert_called_once()
+        call_args = mock_run.call_args[0][0]
+        assert "powershell.exe" in call_args[0]
+
+    def test_tries_multiple_paths(self) -> None:
+        """Should try multiple PowerShell paths when first fails."""
+        call_count = 0
+
+        def side_effect(cmd, **_kwargs):  # noqa: ARG001
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise FileNotFoundError("powershell.exe not found")
+            return MagicMock(returncode=0)
+
+        with patch("session_complete_notify.subprocess.run", side_effect=side_effect):
+            result = notify_wsl("Title", "Message")
+
+        assert result is True
+        assert call_count == 2  # First path failed, second succeeded
+
+    def test_all_paths_fail(self) -> None:
+        """Should return False when all PowerShell paths fail."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.side_effect = FileNotFoundError("not found")
+            result = notify_wsl("Title", "Message")
+
+        # 3 main paths + 3 BurntToast fallback paths = 6 attempts
+        assert result is False
+        assert mock_run.call_count == 6
+
+    def test_escapes_xml_characters(self) -> None:
+        """Should escape XML special characters."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            notify_wsl("<script>alert('xss')</script>", "Test & <malicious>")
+
+        call_args = mock_run.call_args[0][0]
+        ps_script = call_args[3]  # -Command argument
+        # html.escape should convert < to &lt;, > to &gt;, & to &amp;
+        assert "&lt;script&gt;" in ps_script
+        assert "&amp;" in ps_script
+
+    def test_timeout_handling(self) -> None:
+        """Should handle timeouts gracefully."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.side_effect = subprocess.TimeoutExpired("powershell.exe", 3)
+            result = notify_wsl("Title", "Message")
+
+        assert result is False
+
+
+# =============================================================================
 # Unit Tests: send_notification (platform detection)
 # =============================================================================
 
@@ -297,20 +410,20 @@ class TestSendNotification:
         assert result is True
         mock.assert_called_once_with("Title", "Message")
 
-    def test_wsl_uses_linux(self) -> None:
-        """Should use Linux notification on WSL."""
+    def test_wsl_uses_windows_notifications(self) -> None:
+        """Should use Windows notification on WSL (not Linux notify-send)."""
         with patch("session_complete_notify.platform.system", return_value="Linux"):
             with patch(
                 "session_complete_notify.platform.release",
                 return_value="5.15.0-microsoft-wsl2",
             ):
                 with patch(
-                    "session_complete_notify.notify_linux", return_value=True
+                    "session_complete_notify.notify_wsl", return_value=True
                 ) as mock:
                     result = send_notification("Title", "Message")
 
         assert result is True
-        mock.assert_called_once()
+        mock.assert_called_once_with("Title", "Message")
 
     def test_macos_platform(self) -> None:
         """Should call notify_macos on Darwin."""
@@ -434,7 +547,7 @@ class TestHookRegistration:
     """Tests for hook registration in hooks.json."""
 
     def test_hook_registered_in_hooks_json(self) -> None:
-        """Should be registered in hooks.json under Stop event (via stop_combined.py)."""
+        """Should be registered in hooks.json under Stop event."""
         hooks_json_path = HOOKS_DIR / "hooks.json"
         assert hooks_json_path.exists(), "hooks.json should exist"
 
