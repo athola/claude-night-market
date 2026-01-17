@@ -2,7 +2,7 @@
 
 Detailed workflow phases, examples, and advanced features.
 
-> **See Also**: [Main Command](../pr-review.md) | [Framework](review-framework.md) | [Configuration](review-configuration.md)
+> **See Also**: [Main Command](../../pr-review.md) | [Framework](review-framework.md) | [Configuration](review-configuration.md)
 
 ## Workflow
 
@@ -134,27 +134,9 @@ Before proceeding to code analysis, validate version consistency across all vers
    if [[ "$PROJECT_TYPE" == "claude-marketplace" ]]; then
      echo "### Version Validation: Claude Marketplace"
 
-     # Get ecosystem version
-     ECOSYSTEM_VERSION=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
-     echo "Ecosystem version: $ECOSYSTEM_VERSION"
-
-     # Check each plugin in marketplace matches actual plugin.json
-     MISMATCHES=()
-     jq -r '.plugins[] | "\(.name):\(.version)"' .claude-plugin/marketplace.json | while IFS=: read -r name version; do
-       if [[ -f "plugins/$name/.claude-plugin/plugin.json" ]]; then
-         ACTUAL_VERSION=$(jq -r '.version' "plugins/$name/.claude-plugin/plugin.json")
-
-         if [[ "$version" != "$ACTUAL_VERSION" ]]; then
-           MISMATCHES+=("$name: marketplace=$version, actual=$ACTUAL_VERSION")
-           echo "[B-VERSION] Version mismatch for $name"
-           echo "  Marketplace (.claude-plugin/marketplace.json): $version"
-           echo "  Actual (plugins/$name/.claude-plugin/plugin.json): $ACTUAL_VERSION"
-           echo "  Fix: Update marketplace.json to match actual version"
-         else
-           echo "  ✓ $name: $version"
-         fi
-       fi
-     done
+     # Get ecosystem version from pyproject.toml (source of truth)
+     ECOSYSTEM_VERSION=$(grep -E '^version\s*=' pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+     echo "Ecosystem version (pyproject.toml): $ECOSYSTEM_VERSION"
 
      # Check CHANGELOG has entry for new version
      if [[ -f "CHANGELOG.md" ]]; then
@@ -163,19 +145,63 @@ Before proceeding to code analysis, validate version consistency across all vers
          echo "  Fix: Add release entry to CHANGELOG.md"
        else
          echo "  ✓ CHANGELOG.md has entry for $ECOSYSTEM_VERSION"
-
-         # Check if marked as Unreleased
-         if grep -q "\[$ECOSYSTEM_VERSION\] - Unreleased" CHANGELOG.md; then
-           echo "[G-VERSION] CHANGELOG shows $ECOSYSTEM_VERSION as Unreleased"
-           echo "  Suggestion: Update release date before merge"
-         fi
        fi
      fi
 
-     # Add to blocking issues if any mismatches found
-     if [[ ${#MISMATCHES[@]} -gt 0 ]]; then
+     # Check pyproject.toml versions across all plugins
+     PYPROJECT_MISMATCHES=()
+     for pyproject in plugins/*/pyproject.toml; do
+       PLUGIN_NAME=$(dirname "$pyproject" | xargs basename)
+       PLUGIN_VERSION=$(grep -E '^version\s*=' "$pyproject" | head -1 | sed 's/.*"\(.*\)".*/\1/')
+
+       if [[ "$PLUGIN_VERSION" != "$ECOSYSTEM_VERSION" ]]; then
+         PYPROJECT_MISMATCHES+=("$PLUGIN_NAME: pyproject=$PLUGIN_VERSION, expected=$ECOSYSTEM_VERSION")
+         echo "[B-VERSION] pyproject.toml version mismatch for $PLUGIN_NAME"
+         echo "  Expected: $ECOSYSTEM_VERSION"
+         echo "  Actual (plugins/$PLUGIN_NAME/pyproject.toml): $PLUGIN_VERSION"
+         echo "  Fix: Update plugin pyproject.toml to match ecosystem version"
+       fi
+     done
+
+     # Check plugin.json versions match pyproject.toml (BLOCKING)
+     PLUGIN_JSON_MISMATCHES=()
+     for plugin_json in plugins/*/.claude-plugin/plugin.json; do
+       PLUGIN_NAME=$(dirname "$(dirname "$plugin_json")" | xargs basename)
+       JSON_VERSION=$(jq -r '.version' "$plugin_json")
+       PYPROJECT_VERSION=$(grep -E '^version\s*=' "plugins/$PLUGIN_NAME/pyproject.toml" | head -1 | sed 's/.*"\(.*\)".*/\1/')
+
+       if [[ "$JSON_VERSION" != "$PYPROJECT_VERSION" ]]; then
+         PLUGIN_JSON_MISMATCHES+=("$PLUGIN_NAME: plugin.json=$JSON_VERSION, pyproject.toml=$PYPROJECT_VERSION")
+         echo "[B-VERSION] plugin.json version mismatch for $PLUGIN_NAME"
+         echo "  plugin.json: $JSON_VERSION"
+         echo "  pyproject.toml: $PYPROJECT_VERSION (source of truth)"
+         echo "  Fix: Update plugin.json to match pyproject.toml version"
+       else
+         echo "  ✓ $PLUGIN_NAME: $JSON_VERSION"
+       fi
+     done
+
+     # Legacy: Check marketplace.json if it exists
+     if [[ -f ".claude-plugin/marketplace.json" ]]; then
+       jq -r '.plugins[] | "\(.name):\(.version)"' .claude-plugin/marketplace.json | while IFS=: read -r name version; do
+         if [[ -f "plugins/$name/.claude-plugin/plugin.json" ]]; then
+           ACTUAL_VERSION=$(jq -r '.version' "plugins/$name/.claude-plugin/plugin.json")
+
+           if [[ "$version" != "$ACTUAL_VERSION" ]]; then
+             echo "[B-VERSION] Marketplace version mismatch for $name"
+             echo "  Marketplace (.claude-plugin/marketplace.json): $version"
+             echo "  Actual (plugins/$name/.claude-plugin/plugin.json): $ACTUAL_VERSION"
+             echo "  Fix: Update marketplace.json to match actual version"
+           fi
+         fi
+       done
+     fi
+
+     # Summary: Report all mismatches found
+     TOTAL_MISMATCHES=$((${#PYPROJECT_MISMATCHES[@]} + ${#PLUGIN_JSON_MISMATCHES[@]}))
+     if [[ $TOTAL_MISMATCHES -gt 0 ]]; then
        echo ""
-       echo "❌ Version validation FAILED - ${#MISMATCHES[@]} issues found"
+       echo "❌ Version validation FAILED - $TOTAL_MISMATCHES issues found"
        # These will be added to blocking issues in Phase 3
      else
        echo ""
@@ -190,8 +216,10 @@ Before proceeding to code analysis, validate version consistency across all vers
 
    | Issue Type | Severity | Example |
    |------------|----------|---------|
-   | Branch name version ≠ project version | **BLOCKING** | Branch `skills-improvements-1.2.2` but marketplace.json shows 1.2.1 |
-   | Version mismatch between files | **BLOCKING** | marketplace.json says 1.1.1, plugin.json says 1.2.0 |
+   | Branch name version ≠ project version | **BLOCKING** | Branch `skills-improvements-1.2.2` but pyproject.toml shows 1.2.1 |
+   | pyproject.toml version mismatch | **BLOCKING** | Root pyproject.toml says 1.2.9, plugin says 1.2.6 |
+   | plugin.json ≠ pyproject.toml | **BLOCKING** | plugin.json says 1.2.6, pyproject.toml says 1.2.9 |
+   | marketplace.json ≠ plugin.json | **BLOCKING** | marketplace.json says 1.1.1, plugin.json says 1.2.0 |
    | Missing CHANGELOG entry | **BLOCKING** | Version bumped but no CHANGELOG entry |
    | CHANGELOG marked Unreleased | **SUGGESTION** | Release date not set |
    | README references old version | **IN-SCOPE** | Documentation accuracy issue |
@@ -841,13 +869,42 @@ $REVIEW_SUMMARY"
 $CURRENT_BODY"
     fi
 
-    # Update via API (gh pr edit may fail on own PRs due to scope issues)
-    gh api repos/{owner}/{repo}/pulls/$PR_NUMBER \
-      -X PATCH \
-      -f body="$NEW_BODY"
+    # Update via API with fallback for token scope issues
+    # gh pr edit requires read:org scope which may not be granted
+    # gh api PATCH to pulls endpoint only requires repo scope
 
-    echo "✅ PR description updated for PR #$PR_NUMBER"
+    # Try direct API first (most reliable, only needs repo scope)
+    if gh api "repos/{owner}/{repo}/pulls/$PR_NUMBER" -X PATCH -f body="$NEW_BODY" 2>/dev/null; then
+      echo "✅ PR description updated for PR #$PR_NUMBER"
+    else
+      # Fallback: post description as comment if API fails
+      echo "⚠️ Could not update PR description (token may lack required scope)"
+      echo "Posting summary as comment instead..."
+
+      gh pr comment $PR_NUMBER --body "## PR Summary (Auto-generated)
+
+$NEW_BODY
+
+---
+*Note: Could not update PR description due to token permissions. This summary is posted as a comment instead.*"
+
+      echo "✅ PR summary posted as comment to PR #$PR_NUMBER"
+    fi
     ```
+
+    **Token Scope Handling:**
+
+    The `gh pr edit` command may fail with GraphQL errors like:
+    ```
+    Your token has not been granted the required scopes to execute this query.
+    The 'login' field requires one of the following scopes: ['read:org']
+    ```
+
+    This happens because `gh pr edit` uses GraphQL which queries organization data.
+    The workflow handles this by:
+    1. Using `gh api` PATCH endpoint first (only needs `repo` scope)
+    2. Falling back to posting as a comment if API fails
+    3. Never failing the review due to permission issues
 
     **Empty Description Handling:**
 

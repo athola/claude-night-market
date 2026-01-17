@@ -79,3 +79,8 @@ plugins/memory-palace/data/intake_queue.jsonl
 plugins/memory-palace/data/state/
 plugins/memory-palace/.demo-palaces/
 plugins/memory-palace/reports/
+
+# Auto-captured research queue (local evaluation before promotion)
+# Keep README.md and manually curated entries, ignore auto-generated
+plugins/memory-palace/docs/knowledge-corpus/queue/webfetch-*.md
+plugins/memory-palace/docs/knowledge-corpus/queue/websearch-*.md

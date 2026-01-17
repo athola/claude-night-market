@@ -2,6 +2,14 @@
 
 Staging area for research and external content awaiting knowledge-intake evaluation.
 
+> **CRITICAL: NEVER delete queue items without evaluation!**
+>
+> Queue entries may contain valuable research. Before removing ANY file:
+> 1. Review its content and evaluate against knowledge-intake criteria
+> 2. If valuable: promote to `knowledge-corpus/` (outside queue)
+> 3. If not valuable: move to `queue/archive/` with rejection rationale
+> 4. Only delete after explicit evaluation decision
+
 ## Purpose
 
 The queue serves as an intermediate holding area for valuable content that needs review before being added to the main knowledge corpus. This prevents loss of research while maintaining quality standards through curator review.

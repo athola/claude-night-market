@@ -31,12 +31,12 @@ hooks:
       command: |
         # Log git analysis commands
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "git (status|diff|log|show|branch)"; then
-          echo "[skill:git-workspace-review] Git analysis initiated: $(date)" >> /tmp/skill-audit.log
+          echo "[skill:git-workspace-review] Git analysis initiated: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
         fi
       once: true  # Log once per skill invocation
   Stop:
     - command: |
-        echo "[skill:git-workspace-review] === Analysis completed at $(date) ===" >> /tmp/skill-audit.log
+        echo "[skill:git-workspace-review] === Analysis completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
 ---
 
 # Git Workspace Review

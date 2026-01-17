@@ -21,10 +21,10 @@ skills: imbue:evidence-logging, pensive:bug-review
 hooks:
   PreToolUse:
     - matcher: "Bash"
-      command: "echo '[code-reviewer] Executing: $CLAUDE_TOOL_INPUT' >> /tmp/review-audit.log"
+      command: "echo '[code-reviewer] Executing: $CLAUDE_TOOL_INPUT' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/review-audit.log"
       once: false
   Stop:
-    - command: "echo '[code-reviewer] Review completed at $(date)' >> /tmp/review-audit.log"
+    - command: "echo '[code-reviewer] Review completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/review-audit.log"
 
 escalation:
   to: opus

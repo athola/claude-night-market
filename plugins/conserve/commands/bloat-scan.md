@@ -8,21 +8,21 @@ hooks:
     - matcher: "Task"
       command: |
         # Log scan initiation with parameters
-        echo "[cmd:bloat-scan] 🔍 Bloat scan started at $(date) | User: ${USER:-unknown}" >> /tmp/command-audit.log
+        echo "[cmd:bloat-scan] 🔍 Bloat scan started at $(date) | User: ${USER:-unknown}" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         # Track scan level (indicates concern depth)
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "level"; then
           level=$(echo "$CLAUDE_TOOL_INPUT" | grep -oP 'level["\s:=]+\K[123]' || echo '1')
-          echo "[cmd:bloat-scan] Scan level: $level (1=quick, 2=targeted, 3=deep audit)" >> /tmp/command-audit.log
+          echo "[cmd:bloat-scan] Scan level: $level (1=quick, 2=targeted, 3=deep audit)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         fi
         # Track focus area
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "focus"; then
           focus=$(echo "$CLAUDE_TOOL_INPUT" | grep -oP 'focus["\s:=]+\K\w+' || echo 'all')
-          echo "[cmd:bloat-scan] Focus: $focus" >> /tmp/command-audit.log
+          echo "[cmd:bloat-scan] Focus: $focus" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         fi
       once: true
   Stop:
     - command: |
-        echo "[cmd:bloat-scan] === Scan completed at $(date) ===" >> /tmp/command-audit.log
+        echo "[cmd:bloat-scan] === Scan completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         # Track: bloat scan frequency = technical debt awareness metric
 ---
 

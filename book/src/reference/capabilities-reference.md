@@ -1,6 +1,8 @@
 # Capabilities Reference
 
-Complete listing of all skills, commands, agents, and hooks in the Claude Night Market.
+Quick lookup table of all skills, commands, agents, and hooks in the Claude Night Market.
+
+**For full flag documentation and workflow examples**: See [Capabilities Reference Details](capabilities-reference-details.md).
 
 ## Quick Reference Index
 
@@ -23,6 +25,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `architecture-paradigm-service-based` | [archetypes](../plugins/archetypes.md) | Coarse-grained SOA |
 | `architecture-paradigm-space-based` | [archetypes](../plugins/archetypes.md) | Data-grid architecture |
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
+| `architecture-aware-init` | [attune](../plugins/attune.md) | Architecture-aware project initialization with research |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
 | `bloat-detector` | [conserve](../plugins/conserve.md) | Detection algorithms for dead code, God classes, documentation duplication |
@@ -82,11 +85,13 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `qwen-delegation` | [conjure](../plugins/conjure.md) | Qwen MCP integration |
 | `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
+| `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
+| `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
@@ -116,9 +121,10 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 
 | Command | Plugin | Description |
 |---------|--------|-------------|
+| `/aggregate-logs` | abstract | Generate LEARNINGS.md from skill execution logs |
 | `/analyze-growth` | conserve | Analyzes skill growth patterns |
-| `/bloat-scan` | conserve | Progressive bloat detection (3-tier scan) |
 | `/analyze-hook` | abstract | Analyzes hook for security/performance |
+| `/bloat-scan` | conserve | Progressive bloat detection (3-tier scan) |
 | `/analyze-skill` | abstract | Skill complexity analysis |
 | `/analyze-tests` | parseltongue | Test suite health report |
 | `/api-review` | pensive | API surface review |
@@ -134,11 +140,13 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/bulletproof-skill` | abstract | Anti-rationalization workflow |
 | `/catchup` | imbue | Quick context recovery |
 | `/check-async` | parseltongue | Async pattern validation |
+| `/close-issue` | minister | Analyze if GitHub issues can be closed based on commits |
 | `/commit-msg` | sanctum | Generate commit message |
 | `/context-report` | abstract | Context optimization report |
 | `/create-tag` | sanctum | Create git tags for releases |
 | `/create-command` | abstract | Scaffold new command |
 | `/create-hook` | abstract | Scaffold new hook |
+| `/create-issue` | minister | Create GitHub issue with labels and references |
 | `/create-skill` | abstract | Scaffold new skill |
 | `/estimate-tokens` | abstract | Token usage estimation |
 | `/feature-review` | imbue | Feature prioritization |
@@ -149,7 +157,13 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/full-review` | pensive | Unified code review |
 | `/garden` | memory-palace | Manage digital gardens |
 | `/git-catchup` | sanctum | Git repository catchup |
+| `/hookify` | hookify | Create behavioral rules to prevent unwanted actions |
+| `/hookify:configure` | hookify | Interactive rule enable/disable interface |
+| `/hookify:help` | hookify | Display hookify help and documentation |
+| `/hookify:install` | hookify | Install hookify rule from catalog |
+| `/hookify:list` | hookify | List all hookify rules with status |
 | `/hooks-eval` | abstract | Hook evaluation |
+| `/improve-skills` | abstract | Auto-improve skills from observability data |
 | `/make-dogfood` | abstract | Makefile enhancement |
 | `/makefile-review` | pensive | Makefile review |
 | `/math-review` | pensive | Mathematical review |
@@ -157,17 +171,20 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/navigate` | memory-palace | Search palaces |
 | `/optimize-context` | conserve | Context optimization |
 | `/palace` | memory-palace | Manage palaces |
+| `/plugin-review` | abstract | Comprehensive plugin architecture review |
 | `/pr` | sanctum | Prepare pull request |
+| `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
 | `/pr-review` | sanctum | Enhanced PR review |
 | `/record-browser` | scry | Record browser session |
 | `/record-terminal` | scry | Create terminal recording |
 | `/reinstall-all-plugins` | leyline | Refresh all plugins |
 | `/resolve-threads` | sanctum | Resolve PR review threads |
-| `/review` | imbue | Structured review |
+| `/review-room` | memory-palace | Manage PR review knowledge in palaces |
 | `/run-profiler` | parseltongue | Profile code execution |
 | `/rust-review` | pensive | Rust-specific review |
 | `/shell-review` | pensive | Shell script safety and portability review |
 | `/skill-history` | pensive | View recent skill executions with context |
+| `/skill-logs` | memory-palace | View and manage skill execution memories |
 | `/skill-review` | pensive | Analyze skill metrics and stability gaps |
 | `/skills-eval` | abstract | Skill quality assessment |
 | `/speckit-analyze` | spec-kit | Check artifact consistency |
@@ -186,6 +203,7 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `/update-all-plugins` | leyline | Update all plugins |
 | `/update-dependencies` | sanctum | Update project dependencies |
 | `/update-docs` | sanctum | Update documentation |
+| `/update-labels` | minister | Reorganize GitHub issue labels with professional taxonomy |
 | `/update-plugins` | sanctum | Audit plugin registrations + automatic performance analysis and improvement recommendations |
 | `/update-readme` | sanctum | Modernize README |
 | `/update-tests` | sanctum | Maintain tests |
@@ -209,18 +227,22 @@ Complete listing of all skills, commands, agents, and hooks in the Claude Night 
 | `implementation-executor` | spec-kit | Task executor |
 | `knowledge-librarian` | memory-palace | Knowledge routing |
 | `knowledge-navigator` | memory-palace | Palace search |
+| `media-recorder` | scry | Autonomous media generation for demos and GIFs |
 | `meta-architect` | abstract | Plugin ecosystem design |
 | `palace-architect` | memory-palace | Palace design |
 | `plugin-validator` | abstract | Plugin validation |
 | `pr-agent` | sanctum | PR preparation |
 | `project-architect` | attune | Guides full-cycle workflow (brainstorm → plan) |
 | `project-implementer` | attune | Executes implementation with TDD |
+| `python-linter` | parseltongue | Strict ruff linting without bypasses |
 | `python-optimizer` | parseltongue | Performance optimization |
 | `python-pro` | parseltongue | Python 3.12+ expertise |
 | `python-tester` | parseltongue | Testing expertise |
 | `review-analyst` | imbue | Structured reviews |
 | `rust-auditor` | pensive | Rust security audit |
 | `skill-auditor` | abstract | Skill quality audit |
+| `skill-evaluator` | abstract | Skill execution evaluator |
+| `skill-improver` | abstract | Implements skill improvements from observability |
 | `spec-analyzer` | spec-kit | Spec consistency |
 | `task-generator` | spec-kit | Task creation |
 | `unbloat-remediator` | conserve | Executes safe bloat remediation |

@@ -18,8 +18,7 @@
   "commands": [
     "./commands/structured-review.md",
     "./commands/catchup.md",
-    "./commands/feature-review.md",
-    "./commands/review.md"
+    "./commands/feature-review.md"
   ],
   "agents": [
     "./agents/review-analyst.md"

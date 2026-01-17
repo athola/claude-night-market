@@ -35,7 +35,7 @@ hooks:
           echo "[python-tester] Test file written" >&2
         fi
   Stop:
-    - command: "echo '[python-tester] Testing session completed' >> /tmp/test-audit.log"
+    - command: "echo '[python-tester] Testing session completed' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/test-audit.log"
 
 escalation:
   to: opus

@@ -17,7 +17,7 @@ tests/
 │   │   ├── test_catchup.py              # Git repository catchup
 │   │   └── test_structured_output.py    # Deliverable formatting
 │   ├── commands/                        # Command-specific tests
-│   │   ├── test_review_command.py       # /review command
+│   │   ├── test_structured_review_command.py  # /structured-review command
 │   │   └── test_catchup_command.py      # /catchup command
 │   └── agents/                          # Agent-specific tests
 │       └── test_review_analyst.py       # Autonomous review agent

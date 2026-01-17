@@ -6,6 +6,181 @@ Feature timeline and version-specific capabilities.
 
 ## Feature Timeline
 
+### [Claude Code 2.1.9](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#219) (January 2026)
+
+**New Features**:
+- ✅ **MCP Tool Search Threshold Configuration**: `auto:N` syntax for configuring threshold
+  - **Usage**: `ENABLE_TOOL_SEARCH=auto:5` sets 5% threshold (default is 10%)
+  - **Impact**: Fine-grained control over when tools are deferred to MCPSearch
+  - **Use Case**: Lower thresholds for context-sensitive workflows, higher for tool-heavy setups
+
+- ✅ **plansDirectory Setting**: Customize where plan files are stored
+  - **Configuration**: Set in `/config` or `settings.json`
+  - **Default**: Plans stored in project directory
+  - **Affected**: `spec-kit` workflows can specify custom plan locations
+  - **Use Case**: Centralized planning, monorepo support
+
+- ✅ **PreToolUse additionalContext**: Hooks can now inject context before tool execution
+  - **Previous**: Only PostToolUse could return `additionalContext`
+  - **Now**: PreToolUse hooks can return `hookSpecificOutput.additionalContext`
+  - **Impact**: Inject relevant context/guidance before a tool runs
+  - **Affected**: `abstract:hook-authoring` patterns, memory-palace research interceptor
+  - **Use Case**: Provide cached results, inject warnings, add relevant context
+  - **Ecosystem Updates**:
+    - `sanctum:security_pattern_check.py` - Now injects security warnings as visible context
+    - `abstract:pre_skill_execution.py` - Now injects skill execution context
+    - `memory-palace:research_interceptor.py` - Already used additionalContext (no changes needed)
+
+- ✅ **${CLAUDE_SESSION_ID} Substitution**: Skills can access current session ID
+  - **Usage**: `${CLAUDE_SESSION_ID}` in skill content is replaced with actual session ID
+  - **Impact**: Session-aware logging, tracking, and state management
+  - **Affected**: `leyline:usage-logging`, session-scoped hooks
+  - **Use Case**: Correlate logs across session, track skill usage per session
+
+- ✅ **External Editor in AskUserQuestion**: Ctrl+G support in "Other" input field
+  - **Impact**: Compose complex responses in external editor
+
+- ✅ **Session URL Attribution**: Commits/PRs from web sessions include attribution
+  - **Impact**: Traceability for web-created changes
+
+**Bug Fixes**:
+- ✅ **Long Session Parallel Tool Fix**: Fixed API error about orphan tool_result blocks
+  - **Previous Bug**: Long sessions with parallel tool calls could fail
+  - **Impact**: More reliable long-running sessions with heavy tool use
+
+- Fixed MCP server reconnection hanging when cached connection promise never resolves
+- Fixed Ctrl+Z suspend not working in Kitty keyboard protocol terminals
+
+**Notes**:
+- PreToolUse additionalContext enables powerful pre-execution context injection patterns
+- Session ID substitution enables better observability and session-scoped behavior
+- The plansDirectory setting enables enterprise planning workflows
+
+### [Claude Code 2.1.7](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#217) (January 2026)
+
+**New Features**:
+- ✅ **showTurnDuration Setting**: Hide turn duration messages (e.g., "Cooked for 1m 6s")
+  - **Impact**: Cleaner output for users who don't want timing info
+  - **Configuration**: Set in `/config` or `settings.json`
+
+- ✅ **Permission Prompt Feedback**: Provide feedback when accepting permission prompts
+  - **Impact**: Better telemetry and UX improvements
+
+- ✅ **Task Notification Agent Response**: Inline display of agent's final response in task notifications
+  - **Impact**: See results without reading full transcript
+
+- ✅ **MCP Tool Search Auto Mode (Default)**: Automatically defers MCP tools when descriptions exceed 10% of context
+  - **Feature**: Tools discovered via MCPSearch instead of loaded upfront
+  - **Token Savings**: ~85% reduction in MCP tool overhead
+  - **Threshold**: 10% of context window (configurable via `ENABLE_TOOL_SEARCH=auto:N`)
+  - **Model Requirements**: Sonnet 4+ or Opus 4+ (Haiku not supported)
+  - **Disable**: Add `MCPSearch` to `disallowedTools` in settings
+  - **Ecosystem Impact**: MCP-related skills should account for deferred tool loading
+  - **Affected**: `conserve:mcp-code-execution` skill may need on-demand tool discovery patterns
+
+**Security Fixes**:
+- 🔒 **Wildcard Permission Compound Command Fix**: Critical security fix
+  - **Previous Bug**: Wildcards like `Bash(npm *)` could match compound commands with shell operators (`;`, `&&`, `||`, `|`)
+  - **Example Exploit**: `Bash(npm *)` would match `npm install && rm -rf /`
+  - **Now Fixed**: Wildcards only match single commands, not compound chains
+  - **Related Issues**: [#4956](https://github.com/anthropics/claude-code/issues/4956), [#13371](https://github.com/anthropics/claude-code/issues/13371)
+  - **Action Required**: None - fix is automatic, existing wildcard patterns are now secure
+  - **Ecosystem Impact**: No changes needed to documented wildcard patterns
+
+**Bug Fixes**:
+- ✅ **Context Window Blocking Limit Fix**: Critical for MECW calculations
+  - **Previous Bug**: Blocking limit used full context window size
+  - **Now Fixed**: Uses *effective* context window (reserves space for max output tokens)
+  - **MECW Impact**: The effective context is smaller than total; 50% rule now applies to effective context
+  - **Affected**: `conserve:context-optimization` MECW principles documentation
+  - **Action Required**: Note distinction between total and effective context in monitoring
+
+- Fixed false "file modified" errors on Windows with cloud sync/antivirus/Git
+- Fixed orphaned tool_result errors when sibling tools fail during streaming
+- Fixed spinner flash when running local slash commands
+- Fixed terminal title animation jitter
+- Fixed plugins with git submodules not fully initialized
+- Fixed Bash commands failing on Windows with escape sequences in temp paths
+
+**Performance Improvements**:
+- ✅ **Improved Typing Responsiveness**: Reduced memory allocation overhead in terminal rendering
+
+**URL Changes**:
+- OAuth and API Console URLs changed from `console.anthropic.com` to `platform.claude.com`
+
+**Notes**:
+- The wildcard permission fix closes a significant security vector without breaking valid patterns
+- MCP tool search auto mode fundamentally changes how many-tool workflows behave
+- The context window blocking fix means effective context is smaller than total context
+- Consider these changes when designing workflows that approach context limits
+
+### [Claude Code 2.1.6](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#216) (January 2026)
+
+**New Features**:
+- ✅ **Nested Skills Discovery**: Skills from nested `.claude/skills` directories auto-discovered
+  - **Use Case**: Monorepos with package-specific skills
+  - **Example**: `packages/frontend/.claude/skills/` discovered when editing frontend files
+  - **Impact**: Plugin structure can now support subdirectory-specific skills
+  - **Action Required**: None - automatic behavior for monorepo setups
+
+- ✅ **Status Line Context Percentage**: `context_window.used_percentage` and `remaining_percentage` in status line input
+  - **Extends**: 2.1.0 context window fields now accessible via status line
+  - **Impact**: Easier MECW monitoring without running `/context`
+  - **Affected**: `conserve:context-optimization` can reference these fields for real-time monitoring
+
+- ✅ **Config Search**: Search functionality in `/config` command
+  - **Impact**: Quickly filter settings by name
+  - **Usage**: Type to search while in `/config`
+
+- ✅ **Doctor Updates Section**: `/doctor` shows auto-update channel and available npm versions
+  - **Impact**: Better visibility into update status (stable/latest channels)
+
+- ✅ **Stats Date Filtering**: Date range filtering in `/stats` command
+  - **Usage**: Press `r` to cycle between Last 7 days, Last 30 days, and All time
+  - **Impact**: More granular usage analytics
+
+**Breaking Changes**:
+- ⚠️ **MCP @-mention Removal**: Use `/mcp enable <name>` instead of @-mentioning servers
+  - **Previous**: @-mention MCP servers to enable/disable them
+  - **Now**: Must use `/mcp enable <name>` or `/mcp disable <name>` commands
+  - **Ecosystem Impact**: None - no references found in codebase
+
+**Bug Fixes**:
+- Fixed error display when editor fails during Ctrl+G
+- Fixed text styling (bold, colors) getting progressively misaligned in multi-line responses
+- Fixed feedback panel closing unexpectedly when typing 'n' in the description field
+- Fixed rate limit options menu incorrectly auto-opening when resuming a previous session
+- Fixed numpad keys outputting escape sequences in Kitty keyboard protocol terminals
+- Fixed Option+Return not inserting newlines in Kitty keyboard protocol terminals
+- Fixed corrupted config backup files accumulating in the home directory
+
+**UX Improvements**:
+- Improved external CLAUDE.md imports approval dialog to show which files are being imported
+- Improved `/tasks` dialog to go directly to task details when only one background task running
+- Improved `@` autocomplete with icons for different suggestion types
+- Changed task notification display to cap at 3 lines with overflow summary
+- Changed terminal title to "Claude Code" on startup
+
+**Notes**:
+- Nested skills discovery enables better monorepo support without plugin structure changes
+- Status line context fields provide real-time MECW monitoring
+- MCP @-mention removal is a minor breaking change with no ecosystem impact
+
+### [Claude Code 2.1.5](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#215) (January 2026)
+
+**New Environment Variables**:
+- ✅ **`CLAUDE_CODE_TMPDIR`**: Override the temp directory for internal temp files
+  - **Scope**: Controls where Claude Code stores internal temporary files
+  - **Use Cases**: Termux (Android), restricted `/tmp` environments, custom temp directory requirements
+  - **Default**: Falls back to system temp directory (`/tmp` on Linux/macOS)
+  - **Example**: `CLAUDE_CODE_TMPDIR=/data/data/com.termux/files/usr/tmp claude "task"`
+  - **Plugin Impact**: Plugins should use `${CLAUDE_CODE_TMPDIR:-/tmp}` pattern for temp files
+
+**Notes**:
+- Addresses [Issue #15637](https://github.com/anthropics/claude-code/issues/15637) - Termux compatibility
+- Addresses [Issue #15700](https://github.com/anthropics/claude-code/issues/15700) - Background task temp directory
+- Minor release focused on platform compatibility
+
 ### [Claude Code 2.1.4](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md#214) (January 2026)
 
 **New Environment Variables**:

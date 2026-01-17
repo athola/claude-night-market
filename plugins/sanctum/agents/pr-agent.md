@@ -32,7 +32,7 @@ hooks:
       command: |
         # Log quality gate executions
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(make|pytest|ruff|npm)"; then
-          echo "[pr-agent] Quality gate: $(date)" >> /tmp/pr-audit.log
+          echo "[pr-agent] Quality gate: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log
         fi
       once: false
   PostToolUse:
@@ -40,10 +40,10 @@ hooks:
       command: |
         # Track PR description generation
         if echo "$CLAUDE_TOOL_INPUT" | grep -q "PR\|pull"; then
-          echo "[pr-agent] PR description written" >> /tmp/pr-audit.log
+          echo "[pr-agent] PR description written" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log
         fi
   Stop:
-    - command: "echo '[pr-agent] PR preparation completed at $(date)' >> /tmp/pr-audit.log"
+    - command: "echo '[pr-agent] PR preparation completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log"
 
 escalation:
   to: opus

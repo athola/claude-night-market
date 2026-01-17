@@ -70,6 +70,7 @@
     "./hooks/post_implementation_policy.py",
     "./hooks/security_pattern_check.py",
     "./hooks/session_complete_notify.py",
+    "./hooks/stop_combined.py",
     "./hooks/verify_workflow_complete.py"
   ]
 }

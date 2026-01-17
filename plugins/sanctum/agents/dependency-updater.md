@@ -33,7 +33,7 @@ hooks:
         # Log and validate package manager operations
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(npm|pip|uv|cargo|go) (install|add|update|upgrade|remove)"; then
           cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
-          echo "[dependency-updater] ⚠️  Package operation: $cmd" >> /tmp/dependency-audit.log
+          echo "[dependency-updater] ⚠️  Package operation: $cmd" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
 
           # Security: Warn on install operations
           if echo "$cmd" | grep -qE "install|add"; then
@@ -46,7 +46,7 @@ hooks:
         # Track dependency file modifications
         file=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.file_path // empty' 2>/dev/null)
         if echo "$file" | grep -qE "(package\.json|package-lock\.json|Cargo\.toml|Cargo\.lock|pyproject\.toml|uv\.lock|go\.mod|go\.sum)"; then
-          echo "[dependency-updater] 📝 Modifying dependency file: $file at $(date)" >> /tmp/dependency-audit.log
+          echo "[dependency-updater] 📝 Modifying dependency file: $file at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
         fi
       once: false
   PostToolUse:
@@ -54,14 +54,14 @@ hooks:
       command: |
         # Capture version check results
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(outdated|list --outdated|npm outdated|cargo outdated)"; then
-          echo "[dependency-updater] ✓ Version check completed: $(date)" >> /tmp/dependency-audit.log
+          echo "[dependency-updater] ✓ Version check completed: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
         fi
   Stop:
     - command: |
-        echo "[dependency-updater] === Update session completed at $(date) ===" >> /tmp/dependency-audit.log
+        echo "[dependency-updater] === Update session completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
         # Optional: Export summary to security dashboard
-        if [ -f /tmp/dependency-audit.log ]; then
-          echo "[dependency-updater] Audit log: $(wc -l < /tmp/dependency-audit.log) entries" >&2
+        if [ -f ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log ]; then
+          echo "[dependency-updater] Audit log: $(wc -l < ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log) entries" >&2
         fi
 
 examples:

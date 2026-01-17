@@ -31,15 +31,15 @@ estimated_tokens: 800
 - [When to Escalate](#when-to-escalate)
 - [When NOT to Escalate](#when-not-to-escalate)
 - [Decision Framework](#decision-framework)
-- [1. Have I understood the problem?](#1-have-i-understood-the-problem?)
-- [2. Have I investigated systematically?](#2-have-i-investigated-systematically?)
-- [3. Is escalation the right solution?](#3-is-escalation-the-right-solution?)
-- [4. Can I justify the trade-off?](#4-can-i-justify-the-trade-off?)
+- [1. Have I understood the problem?](#1-have-i-understood-the-problem)
+- [2. Have I investigated systematically?](#2-have-i-investigated-systematically)
+- [3. Is escalation the right solution?](#3-is-escalation-the-right-solution)
+- [4. Can I justify the trade-off?](#4-can-i-justify-the-trade-off)
 - [Escalation Protocol](#escalation-protocol)
 - [Common Rationalizations](#common-rationalizations)
 - [Agent Schema](#agent-schema)
 - [Orchestrator Authority](#orchestrator-authority)
-- [Red Flags - STOP and Investigate](#red-flags---stop-and-investigate)
+- [Red Flags - STOP and Investigate](#red-flags-stop-and-investigate)
 - [Integration with Agent Workflow](#integration-with-agent-workflow)
 - [Quick Reference](#quick-reference)
 
@@ -211,6 +211,11 @@ Agent starts task at assigned model
 | "Maybe smarter model knows" | Never escalate on this basis |
 | Hint fires, task is actually simple | Override, stay at current model |
 | No hint fires, task is actually complex | Override, escalate |
+
+## Model Capability Notes
+
+**MCP Tool Search (Claude Code 2.1.7+)**: Haiku models do not support MCP tool search. If a workflow uses many MCP tools (descriptions exceeding 10% of context), those tools load upfront on haiku instead of being deferred. This can consume significant context. Consider escalating to sonnet for MCP-heavy workflows or ensure haiku agents use only native tools (Read, Write, Bash, etc.).
+
 ## Troubleshooting
 
 ### Common Issues

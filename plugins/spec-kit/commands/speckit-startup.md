@@ -39,3 +39,14 @@ Initialize the Spec Driven Development workflow for this session:
 6. **Session Persistence**
    - Re-run `/speckit-startup` at the beginning of each new Claude session
    - The orchestrator maintains context across speckit commands
+
+## Configuration (Claude Code 2.1.9+)
+
+**Custom Plans Directory**: Use the `plansDirectory` setting to customize where plan files are stored. This is useful for monorepos or centralized planning workflows.
+
+```bash
+# In /config or settings.json
+plansDirectory: ".specify/plans"
+```
+
+By default, plans are stored in the project directory. The `${CLAUDE_SESSION_ID}` variable can be used in skill content for session-aware planning.

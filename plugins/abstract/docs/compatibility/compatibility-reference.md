@@ -12,7 +12,9 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Notes |
 |---------------------|-------------------|--------|-------|
-| 2.1.4+ | 1.2.5+ | ✅ Recommended | Background task disable env var, OAuth fix |
+| 2.1.6+ | 1.2.9+ | ✅ Recommended | Nested skills discovery, status line context %, MCP enable command |
+| 2.1.5+ | 1.2.9+ | ✅ Supported | CLAUDE_CODE_TMPDIR for custom temp directories |
+| 2.1.4+ | 1.2.5+ | ✅ Supported | Background task disable env var, OAuth fix |
 | 2.1.3+ | 1.2.5+ | ✅ Supported | Skills/commands merge, subagent model fix, 10-min hook timeout |
 | 2.1.0+ | 1.2.3+ | ✅ Supported | Frontmatter hooks, context forking, `once: true` |
 | 2.0.74+ | 1.1.1+ | ✅ Supported | LSP tool, allowed-tools fix, improved /context |

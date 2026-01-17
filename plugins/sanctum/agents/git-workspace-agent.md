@@ -38,7 +38,7 @@ hooks:
         fi
       once: false
   Stop:
-    - command: "echo '[git-workspace-agent] Analysis completed' >> /tmp/git-audit.log"
+    - command: "echo '[git-workspace-agent] Analysis completed' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/git-audit.log"
 
 escalation:
   to: sonnet

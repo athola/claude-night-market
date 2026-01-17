@@ -86,13 +86,16 @@ def main() -> None:
         with open(state_file, "w") as f:
             json.dump(state, f, indent=2)
 
-        # Output hook data (becomes available to Claude Code)
+        # Output hook data with additionalContext (Claude Code 2.1.9+)
+        # Inject skill execution context visible to Claude
+        additional_context = f"[Skill Invocation] Executing {skill_ref}"
+
         output = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
                 "invocation_id": invocation_id,
                 "skill": skill_ref,
-                "message": f"Tracking skill execution: {skill_ref}",
+                "additionalContext": additional_context,
             }
         }
 

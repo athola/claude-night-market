@@ -24,18 +24,18 @@ hooks:
   PreToolUse:
     - matcher: "Read"
       command: |
-        echo "[skill:context-optimization] 📊 Context analysis started: $(date)" >> /tmp/skill-audit.log
+        echo "[skill:context-optimization] 📊 Context analysis started: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
       once: true
   PostToolUse:
     - matcher: "Bash"
       command: |
         # Track context analysis tools
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(wc|tokei|cloc|context)"; then
-          echo "[skill:context-optimization] Context measurement executed: $(date)" >> /tmp/skill-audit.log
+          echo "[skill:context-optimization] Context measurement executed: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
         fi
   Stop:
     - command: |
-        echo "[skill:context-optimization] === Optimization completed at $(date) ===" >> /tmp/skill-audit.log
+        echo "[skill:context-optimization] === Optimization completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
         # Could export: context pressure events over time
 ---
 ## Table of Contents
