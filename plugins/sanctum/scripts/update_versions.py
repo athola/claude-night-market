@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Update version strings across all version files in the repository.
 
-Finds and updates pyproject.toml, Cargo.toml, and package.json files,
-excluding virtual environments and build directories.
+Finds and updates pyproject.toml, Cargo.toml, package.json, plugin.json,
+and marketplace.json files, excluding virtual environments and build directories.
 """
 
 import argparse
@@ -24,7 +24,13 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
     version_files = []
 
     # Patterns to match
-    patterns = ["**/pyproject.toml", "**/Cargo.toml", "**/package.json"]
+    patterns = [
+        "**/pyproject.toml",
+        "**/Cargo.toml",
+        "**/package.json",
+        "**/.claude-plugin/plugin.json",
+        "**/.claude-plugin/marketplace.json",
+    ]
 
     # Directories to exclude from scan by default
     # Cache, temp, and build directories are skipped unless --include-cache is set.
@@ -106,6 +112,14 @@ def update_package_json_version(content: str, new_version: str) -> str:
     return re.sub(pattern, replacement, content)
 
 
+def update_plugin_json_version(content: str, new_version: str) -> str:
+    """Update version in plugin.json or marketplace.json content."""
+    # Match: "version": "1.2.3"
+    pattern = r'"version"\s*:\s*"[0-9]+\.[0-9]+\.[0-9]+"'
+    replacement = f'"version": "{new_version}"'
+    return re.sub(pattern, replacement, content)
+
+
 def update_version_file(
     file_path: Path, new_version: str, dry_run: bool = True
 ) -> bool:
@@ -120,6 +134,8 @@ def update_version_file(
             content = update_cargo_version(content, new_version)
         elif file_path.name == "package.json":
             content = update_package_json_version(content, new_version)
+        elif file_path.name in ("plugin.json", "marketplace.json"):
+            content = update_plugin_json_version(content, new_version)
 
         if content != original:
             if not dry_run:
