@@ -9,18 +9,18 @@ hooks:
   PreToolUse:
     - matcher: "Read|Grep|Glob"
       command: |
-        echo "[architecture-reviewer] 🔍 Analyzing codebase structure at $(date)" >> /tmp/architecture-audit.log
+        echo "[architecture-reviewer] 🔍 Analyzing codebase structure at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/architecture-audit.log
       once: true  # Log once per session to reduce noise
   PostToolUse:
     - matcher: "Bash"
       command: |
         # Track architecture analysis commands (LSP, grep patterns)
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(cloc|scc|tokei|dependency-graph)"; then
-          echo "[architecture-reviewer] 📊 Metrics gathered: $(date)" >> /tmp/architecture-audit.log
+          echo "[architecture-reviewer] 📊 Metrics gathered: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/architecture-audit.log
         fi
   Stop:
     - command: |
-        echo "[architecture-reviewer] === Review completed at $(date) ===" >> /tmp/architecture-audit.log
+        echo "[architecture-reviewer] === Review completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/architecture-audit.log
         # Optional: Could export findings to ADR (Architecture Decision Record)
 
 examples:

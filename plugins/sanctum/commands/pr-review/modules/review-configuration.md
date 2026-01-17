@@ -2,7 +2,7 @@
 
 Command options, configuration, best practices, and integration details.
 
-> **See Also**: [Main Command](../pr-review.md) | [Workflow](review-workflow.md) | [Framework](review-framework.md)
+> **See Also**: [Main Command](../../pr-review.md) | [Workflow](review-workflow.md) | [Framework](review-framework.md)
 
 ## Advanced Features
 
@@ -174,6 +174,25 @@ gh auth status
 Warning: GitHub CLI not authenticated. Running in dry-run mode.
 ```
 
+**GraphQL Token Scope Errors:**
+```bash
+# Error: "Your token has not been granted the required scopes to execute this query.
+#         The 'login' field requires one of the following scopes: ['read:org']"
+
+# This happens when using `gh pr edit` which uses GraphQL and queries org data
+# even for personal repos. The workflow handles this automatically:
+
+# 1. First attempts direct API (only needs repo scope):
+gh api repos/{owner}/{repo}/pulls/$PR_NUMBER -X PATCH -f body="..."
+
+# 2. Falls back to posting as comment if API fails:
+gh pr comment $PR_NUMBER --body "## PR Summary (Auto-generated)..."
+
+# To avoid this error, ensure your GitHub token has these scopes:
+# - repo (required)
+# - read:org (optional, enables gh pr edit)
+```
+
 ## Configuration
 
 ```yaml
@@ -248,7 +267,10 @@ pr_review:
 **MANDATORY on every PR** unless explicitly bypassed:
 - Runs in Phase 1.5 (after scope, before code analysis)
 - Checks version consistency across:
-  - Claude marketplace: marketplace.json ↔ plugin.json files
+  - **Claude marketplace plugins** (source of truth: pyproject.toml):
+    - Root pyproject.toml ↔ all plugin pyproject.toml files
+    - pyproject.toml ↔ plugin.json (BLOCKING if mismatch)
+    - marketplace.json ↔ plugin.json (legacy, if exists)
   - Python: pyproject.toml ↔ __version__ in code
   - Node: package.json ↔ package-lock.json
   - Rust: Cargo.toml ↔ Cargo.lock

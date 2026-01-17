@@ -1,6 +1,6 @@
-"""Tests for /review command functionality.
+"""Tests for /structured-review command functionality.
 
-This module tests the review command orchestration and workflow integration,
+This module tests the structured review command orchestration and workflow integration,
 following TDD/BDD principles and testing all command scenarios.
 """
 
@@ -19,8 +19,8 @@ TEN = 10
 FIVE_HUNDRED = 500
 
 
-class TestReviewCommand:
-    """Feature: /review command initiates structured review workflow.
+class TestStructuredReviewCommand:
+    """Feature: /structured-review command initiates structured review workflow.
 
     As a user starting a review
     I want the command to set up the entire workflow

@@ -1,6 +1,6 @@
 [project]
 name = "scry"
-version = "1.2.8"
+version = "1.2.9"
 description = "Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition"
 authors = [{name = "Alex Thola", email = "alexthola@gmail.com"}]
 license = {text = "MIT"}
@@ -12,6 +12,8 @@ dev = [
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "mypy>=1.11.0",
+    "pyyaml>=6.0.0",
+    "types-pyyaml>=6.0.0",
 ]
 
 [tool.pytest.ini_options]
@@ -25,6 +27,10 @@ markers = [
     "unit: Unit tests",
     "integration: Integration tests (require ffmpeg/vhs)",
     "slow: Slow running tests",
+    "bdd: BDD-style tests with Given/When/Then",
+    "requires_vhs: mark test as requiring vhs to be installed",
+    "requires_ffmpeg: mark test as requiring ffmpeg to be installed",
+    "requires_playwright: mark test as requiring playwright to be installed",
 ]
 
 [tool.ruff]
@@ -52,3 +58,4 @@ module = "tests.*"
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
 ignore_missing_imports = true
+warn_return_any = false

@@ -1,0 +1,22 @@
+entries:
+  https://example.com/test-auto-capture-verify:
+    content_hash: sha256:4fe51c5f18771889
+    stored_at: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
+    importance_score: 50
+    last_updated: '2026-01-16T21:02:35.336845+00:00'
+    title: Auto-Capture Test Article
+    maturity: seedling
+    routing_type: pending
+    url: https://example.com/test-auto-capture-verify
+  https://example.com/test:
+    content_hash: sha256:ec7bd4e4867e686a
+    stored_at: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md
+    importance_score: 50
+    last_updated: '2026-01-17T06:30:33.686571+00:00'
+    title: Test Article
+    maturity: seedling
+    routing_type: pending
+    url: https://example.com/test
+hashes:
+  sha256:4fe51c5f18771889: docs/knowledge-corpus/queue/webfetch-auto-capture-test-article-2026-01-16_21-02-35.md
+  sha256:ec7bd4e4867e686a: docs/knowledge-corpus/queue/webfetch-test-article-2026-01-17_06-30-33.md

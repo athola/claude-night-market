@@ -11,19 +11,19 @@ hooks:
     - matcher: "Skill|Task"
       command: |
         # Log PR preparation start with options
-        echo "[cmd:prepare-pr] PR preparation started at $(date) | User: ${USER:-unknown}" >> /tmp/command-audit.log
+        echo "[cmd:prepare-pr] PR preparation started at $(date) | User: ${USER:-unknown}" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         # Track code review option (important for quality metrics)
         if echo "$CLAUDE_TOOL_INPUT" | grep -q "no-code-review"; then
-          echo "[cmd:prepare-pr] ⚠️  Option: --no-code-review (automated review SKIPPED)" >> /tmp/command-audit.log
+          echo "[cmd:prepare-pr] ⚠️  Option: --no-code-review (automated review SKIPPED)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         fi
         # Track reviewer scope
         if echo "$CLAUDE_TOOL_INPUT" | grep -q "reviewer-scope"; then
           scope=$(echo "$CLAUDE_TOOL_INPUT" | grep -oP 'reviewer-scope["\s:=]+\K\w+')
-          echo "[cmd:prepare-pr] Reviewer scope: ${scope:-standard}" >> /tmp/command-audit.log
+          echo "[cmd:prepare-pr] Reviewer scope: ${scope:-standard}" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         fi
         # Track update skip option
         if echo "$CLAUDE_TOOL_INPUT" | grep -q "skip-updates"; then
-          echo "[cmd:prepare-pr] ⚠️  Option: --skip-updates (documentation updates SKIPPED)" >> /tmp/command-audit.log
+          echo "[cmd:prepare-pr] ⚠️  Option: --skip-updates (documentation updates SKIPPED)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         fi
       once: true
   PostToolUse:
@@ -32,11 +32,11 @@ hooks:
         # Log quality gate execution
         if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(make|npm|cargo) (test|lint|fmt|build)"; then
           cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
-          echo "[cmd:prepare-pr] ✓ Quality gate executed: $cmd" >> /tmp/command-audit.log
+          echo "[cmd:prepare-pr] ✓ Quality gate executed: $cmd" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         fi
   Stop:
     - command: |
-        echo "[cmd:prepare-pr] === PR preparation completed at $(date) ===" >> /tmp/command-audit.log
+        echo "[cmd:prepare-pr] === PR preparation completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/command-audit.log
         # Could push to PR metrics dashboard
 ---
 

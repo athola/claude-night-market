@@ -5,6 +5,35 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.9] - 2026-01-16
+
+### Added - PermissionRequest Hook (conserve)
+
+- **`permission_request.py` hook** - Workflow automation via auto-approve/deny (Claude Code 2.0.54+)
+  - Auto-approve safe patterns: `ls`, `cat`, `head`, `tail`, `grep`, `rg`, `find`, `git status/log/diff`
+  - Auto-deny dangerous patterns: `rm -rf /`, `sudo`, `curl | bash`, `git push --force main`
+  - Security model: denylist checked first, then allowlist, unknown shows dialog
+  - Issue #55: PermissionRequest hooks for workflow automation
+
+- **`test_permission_request.py`** - Test coverage for hook patterns
+  - Dangerous pattern detection tests
+  - Safe pattern approval tests
+  - Unknown command dialog tests
+
+### Added - Session Management Skill (sanctum)
+
+- **`session-management` skill** - Named session workflows (Issue #57)
+  - `/rename` - Name current session for later resumption
+  - `/resume` - Resume previous sessions from REPL or terminal
+  - Patterns: debugging sessions, feature checkpoints, PR reviews, investigations
+  - Best practices: naming conventions, session cleanup
+
+### Documentation
+
+- Updated conserve README with Hooks section documenting PermissionRequest
+- Updated sanctum README with session-management skill
+- Added "Permission Automation" to main README Key Features
+
 ## [1.2.8] - 2026-01-15
 
 ### Added - Interactive Authentication System (leyline)

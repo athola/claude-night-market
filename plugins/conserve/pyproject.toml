@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.2.8"
+version = "1.2.9"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -120,7 +120,7 @@ python_functions = ["test_*"]
 addopts = [
     "-v",
     "--strict-markers",
-    "--cov=scripts",
+    "--cov=hooks",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-fail-under=85"
@@ -134,12 +134,12 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["scripts"]
+source = ["hooks"]
 branch = true
 omit = [
     "*/tests/*",
     "*/__pycache__/*",
-    "scripts/main.py",  # Empty stub, not yet implemented
+    "hooks/session-start.sh",  # Shell script, not Python
 ]
 
 [tool.coverage.report]

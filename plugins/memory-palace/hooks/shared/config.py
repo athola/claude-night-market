@@ -101,6 +101,7 @@ CONFIG_DEFAULTS: dict[str, Any] = {
         "cache_intercept": True,
         "autonomy": True,
         "lifecycle": True,
+        "auto_capture": True,  # Auto-store WebFetch/WebSearch content to queue
     },
 }
 

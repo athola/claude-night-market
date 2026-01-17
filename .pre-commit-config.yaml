@@ -100,6 +100,14 @@ repos:
         files: ^plugins/.*(SKILL\.md|commands/.*\.md)$
         pass_filenames: false
 
+      - id: check-markdown-links
+        name: Check Markdown Links
+        entry: python3 scripts/check-markdown-links.py
+        language: system
+        files: \.md$
+        pass_filenames: true
+        stages: [pre-commit]
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:

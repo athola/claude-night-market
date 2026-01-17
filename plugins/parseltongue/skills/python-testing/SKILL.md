@@ -59,7 +59,6 @@ Testing patterns for pytest, fixtures, mocking, and TDD.
    ```bash
    pip install pytest pytest-cov pytest-asyncio pytest-mock
    ```
-   **Verification:** Run `pytest -v pytest-cov` to verify.
 
 2. **Configure project** - Add to `pyproject.toml`:
    ```toml
@@ -68,20 +67,17 @@ Testing patterns for pytest, fixtures, mocking, and TDD.
    python_files = ["test_*.py"]
    addopts = "--cov=src --cov-report=html"
    ```
-   **Verification:** Run `pytest -v` to verify tests pass.
 
 3. **Create first test** - In `tests/test_example.py`:
    ```python
    def test_basic():
        assert 1 + 1 == 2
    ```
-   **Verification:** Run `pytest -v` to verify tests pass.
 
 4. **Run tests with coverage**:
    ```bash
    pytest --cov=src --cov-report=html
    ```
-   **Verification:** Run `pytest -v --cov=src` to verify.
 
 ## When to Use
 
@@ -132,4 +128,4 @@ Load modules based on project requirements:
 
 ### Common Issues
 
-If tests are not discovered, verify that the test files follow the naming pattern `test_*.py` or `*_test.py`. You can run `pytest --collect-only` to confirm which tests are being identified by the runner. For import errors, confirm that the module under test is in your `PYTHONPATH` or install it in editable mode using `pip install -e .`. When async tests fail, verify that `pytest-asyncio` is installed and that the test functions are correctly decorated with `@pytest.mark.asyncio`.
+If tests aren't found, check that filenames match `test_*.py` or `*_test.py`. Use `pytest --collect-only` to verify discovery. For import errors, ensure the package is installed in editable mode (`pip install -e .`). If async tests fail, confirm `pytest-asyncio` is installed and tests use the `@pytest.mark.asyncio` decorator.

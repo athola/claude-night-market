@@ -38,18 +38,18 @@ usage_patterns:
 - [Overview](#overview)
 - [Key Capabilities](#key-capabilities)
 - [Quick Start](#quick-start)
-- [Your First Hook (JSON - Claude Code)](#your-first-hook-(json---claude-code))
-- [Your First Hook (Python - Claude Agent SDK)](#your-first-hook-(python---claude-agent-sdk))
+- [Your First Hook (JSON - Claude Code)](#your-first-hook-json-claude-code)
+- [Your First Hook (Python - Claude Agent SDK)](#your-first-hook-python-claude-agent-sdk)
 - [Hook Event Types](#hook-event-types)
 - [Claude Code vs SDK](#claude-code-vs-sdk)
-- [JSON Hooks (Claude Code)](#json-hooks-(claude-code))
+- [JSON Hooks (Claude Code)](#json-hooks-claude-code)
 - [Python SDK Hooks](#python-sdk-hooks)
 - [Security Essentials](#security-essentials)
 - [Critical Security Rules](#critical-security-rules)
-- [Example: Secure Logging Hook](#example:-secure-logging-hook)
+- [Example: Secure Logging Hook](#example-secure-logging-hook)
 - [Performance Guidelines](#performance-guidelines)
 - [Performance Best Practices](#performance-best-practices)
-- [Example: Efficient Hook](#example:-efficient-hook)
+- [Example: Efficient Hook](#example-efficient-hook)
 - [Scope Selection](#scope-selection)
 - [Decision Framework](#decision-framework)
 - [Scope Comparison](#scope-comparison)
@@ -76,11 +76,13 @@ This skill teaches you how to write effective, secure, and performant hooks for 
 
 ### Key Capabilities
 
-- **PreToolUse**: Validate, filter, or transform tool inputs before execution
+- **PreToolUse**: Validate, filter, or transform tool inputs before execution; inject context (2.1.9+)
 - **PostToolUse**: Log, analyze, or modify tool outputs after execution
 - **UserPromptSubmit**: Inject context or filter user messages before processing
 - **Stop/SubagentStop**: Cleanup, final reporting, or result aggregation
 - **PreCompact**: State preservation before context window compaction
+
+> **New in 2.1.9**: PreToolUse hooks can now return `additionalContext` to inject information before a tool executes. This enables patterns like cache hints, security warnings, or relevant context injection.
 
 ## Quick Start
 
@@ -491,7 +493,39 @@ async def on_user_prompt_submit(self, message: str) -> str | None:
     enhanced_message = f"{context}\n\n{message}"
     return enhanced_message
 ```
-**Verification:** Run the command with `--help` flag to verify availability.
+
+### PreToolUse Context Injection (Claude Code 2.1.9+)
+
+Inject context before a tool executes using `additionalContext`:
+
+```python
+#!/usr/bin/env python3
+"""PreToolUse hook that injects context before WebFetch."""
+import json
+import sys
+
+def main():
+    payload = json.load(sys.stdin)
+    tool_name = payload.get("tool_name", "")
+
+    if tool_name == "WebFetch":
+        url = payload.get("tool_input", {}).get("url", "")
+        # Check cache or knowledge base
+        cached = lookup_knowledge_base(url)
+        if cached:
+            print(json.dumps({
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "additionalContext": f"Relevant cached info: {cached}"
+                }
+            }))
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+```
+
+This pattern is useful for: cache hints before web requests, security warnings before risky operations, and injecting relevant project context before file operations.
 
 ## Testing Hooks
 

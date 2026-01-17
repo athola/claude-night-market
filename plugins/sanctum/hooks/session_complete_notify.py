@@ -169,11 +169,104 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
             return False
 
 
+def is_wsl() -> bool:
+    """Detect if running in Windows Subsystem for Linux."""
+    release = platform.release().lower()
+    return "microsoft" in release or "wsl" in release
+
+
+def notify_wsl(title: str, message: str) -> bool:
+    """Send notification on WSL using Windows PowerShell.
+
+    WSL can call Windows executables directly via the /mnt/c path or just
+    'powershell.exe' if interop is enabled.
+    """
+    # Escape for XML content (prevents injection via <, >, &, ", ')
+    safe_title = html.escape(title)
+    safe_message = html.escape(message)
+
+    # PowerShell script for Windows toast notification
+    toast_mgr = "Windows.UI.Notifications.ToastNotificationManager"
+    xml_doc = "Windows.Data.Xml.Dom.XmlDocument"
+    ps_script = f"""
+[{toast_mgr}, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+[{xml_doc}, {xml_doc}, ContentType = WindowsRuntime] | Out-Null
+
+$template = @"
+<toast>
+    <visual>
+        <binding template="ToastText02">
+            <text id="1">{safe_title}</text>
+            <text id="2">{safe_message}</text>
+        </binding>
+    </visual>
+    <audio src="ms-winsoundevent:Notification.Default"/>
+</toast>
+"@
+
+$xml = New-Object {xml_doc}
+$xml.LoadXml($template)
+$toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
+[{toast_mgr}]::CreateToastNotifier("Claude Code").Show($toast)
+"""
+    # Try multiple PowerShell paths for WSL compatibility
+    powershell_paths = [
+        "powershell.exe",  # WSL interop (if enabled)
+        "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+        "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe",
+    ]
+
+    for ps_path in powershell_paths:
+        try:
+            subprocess.run(  # noqa: S603
+                [ps_path, "-NoProfile", "-Command", ps_script],
+                check=True,
+                timeout=3,
+                capture_output=True,
+            )
+            return True
+        except FileNotFoundError:
+            continue  # Try next path
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+            msg = f"[sanctum:notify] WSL PowerShell failed ({ps_path}): {e}"
+            print(msg, file=sys.stderr)
+            continue
+
+    # Fallback: try BurntToast if available
+    ps_title = title.replace('"', '`"')
+    ps_message = message.replace('"', '`"')
+    for ps_path in powershell_paths:
+        try:
+            burnt_cmd = f'New-BurntToastNotification -Text "{ps_title}", "{ps_message}"'
+            subprocess.run(  # noqa: S603
+                [ps_path, "-NoProfile", "-Command", burnt_cmd],
+                check=True,
+                timeout=3,
+                capture_output=True,
+            )
+            return True
+        except (
+            FileNotFoundError,
+            subprocess.CalledProcessError,
+            subprocess.TimeoutExpired,
+        ):
+            continue
+
+    print(
+        "[sanctum:notify] WSL notification failed: no working PowerShell path",
+        file=sys.stderr,
+    )
+    return False
+
+
 def send_notification(title: str, message: str) -> bool:
     """Send notification based on current platform."""
     system = platform.system().lower()
 
-    if system == "linux" or "wsl" in platform.release().lower():
+    # Check WSL first - it reports as Linux but should use Windows notifications
+    if system == "linux" and is_wsl():
+        return notify_wsl(title, message)
+    elif system == "linux":
         return notify_linux(title, message)
     elif system == "darwin":
         return notify_macos(title, message)

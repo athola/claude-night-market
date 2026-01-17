@@ -144,7 +144,7 @@ sanctum depends on imbue (for some skills)
 | Command | Purpose |
 |---------|---------|
 | `/catchup` | Quick context recovery |
-| `/review` | Structured review |
+| `/structured-review` | Structured review with evidence |
 | `/feature-review` | Feature prioritization |
 
 ### Plugin Management (leyline)
@@ -216,6 +216,5 @@ If superpowers is installed, commands gain enhanced capabilities:
 
 ## Next Steps
 
-- Explore individual plugins in [Plugin Overview](../plugins/index.html)
-- Deep dive into [Tutorials](../tutorials/index.html)
+- Explore individual plugins in the Plugins section
 - Reference all capabilities in [Capabilities Reference](../reference/capabilities-reference.md)

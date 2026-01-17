@@ -63,8 +63,7 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 | Command | Description |
 |---------|-------------|
 | `/catchup` | Quick context recovery from recent changes |
-| `/review` | Start structured review workflow |
-| `/structured-review` | Review with evidence logging |
+| `/structured-review` | Start structured review workflow with evidence logging |
 | `/feature-review` | Feature prioritization with RICE+WSJF scoring |
 
 ## Agents

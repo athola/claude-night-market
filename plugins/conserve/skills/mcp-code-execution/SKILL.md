@@ -26,14 +26,14 @@ dependencies:
 - [When to Use](#when-to-use)
 - [Core Hub Responsibilities](#core-hub-responsibilities)
 - [Required TodoWrite Items](#required-todowrite-items)
-- [Step 1 – Assess Workflow (`mcp-code-execution:assess-workflow`)](#step-1-–-assess-workflow-(mcp-code-execution:assess-workflow))
+- [Step 1 – Assess Workflow](#step-1-assess-workflow-mcp-code-executionassess-workflow)
 - [Workflow Classification](#workflow-classification)
 - [MECW Risk Assessment](#mecw-risk-assessment)
-- [Step 2 – Route to Modules (`mcp-code-execution:route-to-modules`)](#step-2-–-route-to-modules-(mcp-code-execution:route-to-modules))
+- [Step 2 – Route to Modules](#step-2-route-to-modules-mcp-code-executionroute-to-modules)
 - [Module Orchestration](#module-orchestration)
-- [Step 3 – Coordinate MECW (`mcp-code-execution:coordinate-mecw`)](#step-3-–-coordinate-mecw-(mcp-code-execution:coordinate-mecw))
+- [Step 3 – Coordinate MECW](#step-3-coordinate-mecw-mcp-code-executioncoordinate-mecw)
 - [Cross-Module MECW Management](#cross-module-mecw-management)
-- [Step 4 – Synthesize Results (`mcp-code-execution:synthesize-results`)](#step-4-–-synthesize-results-(mcp-code-execution:synthesize-results))
+- [Step 4 – Synthesize Results](#step-4-synthesize-results-mcp-code-executionsynthesize-results)
 - [Result Integration](#result-integration)
 - [Module Integration](#module-integration)
 - [With Context Optimization Hub](#with-context-optimization-hub)
@@ -62,6 +62,8 @@ python -m module_name --help
 - **Tool Chains**: >3 tools chained sequentially
 - **Data Processing**: Large datasets (>10k rows) or files (>50KB)
 - **Context Pressure**: Current usage >25% of total window (proactive context management)
+
+> **MCP Tool Search (Claude Code 2.1.7+)**: When MCP tool descriptions exceed 10% of context, tools are automatically deferred and discovered via MCPSearch instead of being loaded upfront. This reduces token overhead by ~85% but means tools must be discovered on-demand. Haiku models do not support tool search. Configure threshold with `ENABLE_TOOL_SEARCH=auto:N` where N is the percentage.
 
 ## Core Hub Responsibilities
 - Orchestrates MCP code execution workflow

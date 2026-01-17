@@ -125,3 +125,4 @@ feature_flags:
   cache_intercept: true     # Gate PreToolUse interception hook
   autonomy: true            # Enable autonomy state tracking + overrides
   lifecycle: true           # Enable vitality scoring + tending prompts
+  auto_capture: true        # Auto-store WebFetch/WebSearch content to queue

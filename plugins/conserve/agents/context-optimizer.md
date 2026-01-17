@@ -28,17 +28,17 @@ hooks:
     - matcher: "Read"
       command: |
         # Track files being analyzed for context optimization
-        echo "[context-optimizer] Analyzing: $CLAUDE_TOOL_INPUT" >> /tmp/context-audit.log
+        echo "[context-optimizer] Analyzing: $CLAUDE_TOOL_INPUT" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/context-audit.log
       once: false
   PostToolUse:
     - matcher: "Write"
       command: |
         # Log optimization outputs
-        echo "[context-optimizer] Optimization written" >> /tmp/context-audit.log
+        echo "[context-optimizer] Optimization written" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/context-audit.log
   Stop:
     - command: |
         # Summary logging at completion
-        echo "[context-optimizer] Audit completed at $(date)" >> /tmp/context-audit.log
+        echo "[context-optimizer] Audit completed at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/context-audit.log
 
 escalation:
   to: sonnet

@@ -49,14 +49,32 @@ Reduced hook timeouts in `hooks.json`:
 
 ## Performance Results
 
-**Before optimization:**
+**Before optimization (v1):**
 - Average: 5-7 seconds
 - Blocked Claude Code until complete
 
-**After optimization:**
-- Average: **38ms** (132x faster!)
+**After background execution (v2):**
+- Average: **60ms** (2 separate hooks)
 - Non-blocking - notification sends in background
-- Meets performance target (<100ms for Stop hooks)
+
+**After hook consolidation (v3 - current):**
+- Average: **33ms** (single combined hook)
+- Eliminates one Python interpreter startup (~27ms savings)
+- 45% faster than v2, 180x faster than v1
+
+### Hook Consolidation (2025-01)
+
+Merged `verify_workflow_complete.py` and `session_complete_notify.py` into
+`stop_combined.py` to eliminate redundant Python interpreter startup overhead.
+
+| Configuration | Avg Time | Improvement |
+|---------------|----------|-------------|
+| 2 separate hooks | ~61ms | baseline |
+| 1 combined hook | ~33ms | 46% faster |
+
+The combined hook:
+1. Performs workflow verification (inline, ~5ms)
+2. Spawns notification in background (non-blocking, ~28ms total)
 
 ## Disabling Notifications
 
@@ -136,18 +154,18 @@ def main() -> None:
 ## Testing Hook Performance
 
 ```bash
-# Test notification hook speed
+# Test combined Stop hook speed
 python3 -c "
 import time
 import subprocess
 import sys
 
-hook = 'plugins/sanctum/hooks/session_complete_notify.py'
+hook = 'plugins/sanctum/hooks/stop_combined.py'
 
 times = []
 for i in range(5):
     start = time.perf_counter()
-    result = subprocess.run([sys.executable, hook], capture_output=True, timeout=2)
+    result = subprocess.run([sys.executable, hook], capture_output=True, timeout=2, stdin=subprocess.DEVNULL)
     duration = time.perf_counter() - start
     times.append(duration * 1000)
 
@@ -159,7 +177,7 @@ print(f'Target: <100ms', '✓' if avg < 100 else '✗')
 
 Expected output:
 ```
-Average: 37.98ms
+Average: 33.16ms
 Target: <100ms ✓
 ```
 

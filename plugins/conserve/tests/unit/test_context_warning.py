@@ -314,3 +314,515 @@ class TestContextWarningHook:
         assert ContextSeverity.OK.value == "ok"
         assert ContextSeverity.WARNING.value == "warning"
         assert ContextSeverity.CRITICAL.value == "critical"
+
+
+class TestContextWarningEdgeCases:
+    """Feature: Edge case handling for context warnings.
+
+    As a robust hook
+    I want to handle edge cases gracefully
+    So that the hook never crashes unexpectedly
+    """
+
+    @pytest.fixture
+    def context_warning_module(self):
+        """Import the context_warning module."""
+        import importlib.util
+        import sys
+        from pathlib import Path
+
+        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
+        module_path = hooks_path / "context_warning.py"
+
+        spec = importlib.util.spec_from_file_location("context_warning", module_path)
+        context_warning = importlib.util.module_from_spec(spec)
+        sys.modules["context_warning"] = context_warning
+        spec.loader.exec_module(context_warning)
+
+        return context_warning
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_invalid_negative_usage_raises(self, context_warning_module) -> None:
+        """Scenario: Negative usage value raises ValueError.
+
+        Given a negative context usage value
+        When assessing context usage
+        Then it should raise ValueError.
+        """
+        with pytest.raises(ValueError, match="must be between 0 and 1"):
+            context_warning_module.assess_context_usage(-0.1)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_invalid_over_100_percent_raises(self, context_warning_module) -> None:
+        """Scenario: Usage over 100% raises ValueError.
+
+        Given context usage over 1.0 (100%)
+        When assessing context usage
+        Then it should raise ValueError.
+        """
+        with pytest.raises(ValueError, match="must be between 0 and 1"):
+            context_warning_module.assess_context_usage(1.1)
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_boundary_at_exactly_zero(self, context_warning_module) -> None:
+        """Scenario: Context at exactly 0% is OK.
+
+        Given context usage at exactly 0%
+        When assessing context usage
+        Then severity should be OK.
+        """
+        alert = context_warning_module.assess_context_usage(0.0)
+        assert alert.severity == context_warning_module.ContextSeverity.OK
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_boundary_at_exactly_100_percent(self, context_warning_module) -> None:
+        """Scenario: Context at exactly 100% is CRITICAL.
+
+        Given context usage at exactly 100%
+        When assessing context usage
+        Then severity should be CRITICAL.
+        """
+        alert = context_warning_module.assess_context_usage(1.0)
+        assert alert.severity == context_warning_module.ContextSeverity.CRITICAL
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_boundary_just_below_warning(self, context_warning_module) -> None:
+        """Scenario: Context at 39.99% is OK.
+
+        Given context usage just below 40%
+        When assessing context usage
+        Then severity should be OK.
+        """
+        alert = context_warning_module.assess_context_usage(0.3999)
+        assert alert.severity == context_warning_module.ContextSeverity.OK
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_boundary_just_below_critical(self, context_warning_module) -> None:
+        """Scenario: Context at 49.99% is WARNING.
+
+        Given context usage just below 50%
+        When assessing context usage
+        Then severity should be WARNING.
+        """
+        alert = context_warning_module.assess_context_usage(0.4999)
+        assert alert.severity == context_warning_module.ContextSeverity.WARNING
+
+
+class TestFormatHookOutput:
+    """Feature: Hook output formatting.
+
+    As a hook
+    I want correct JSON output format
+    So that Claude Code can process warnings
+    """
+
+    @pytest.fixture
+    def context_warning_module(self):
+        """Import the context_warning module."""
+        import importlib.util
+        import sys
+        from pathlib import Path
+
+        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
+        module_path = hooks_path / "context_warning.py"
+
+        spec = importlib.util.spec_from_file_location("context_warning", module_path)
+        context_warning = importlib.util.module_from_spec(spec)
+        sys.modules["context_warning"] = context_warning
+        spec.loader.exec_module(context_warning)
+
+        return context_warning
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_warning_output_has_additional_context(
+        self, context_warning_module
+    ) -> None:
+        """Scenario: WARNING alert includes additionalContext.
+
+        Given a WARNING severity alert
+        When formatting hook output
+        Then additionalContext should be present.
+        """
+        alert = context_warning_module.assess_context_usage(0.45)
+        output = context_warning_module.format_hook_output(alert)
+
+        assert "hookSpecificOutput" in output
+        assert output["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
+        assert "additionalContext" in output["hookSpecificOutput"]
+        assert "WARNING" in output["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_critical_output_has_additional_context(
+        self, context_warning_module
+    ) -> None:
+        """Scenario: CRITICAL alert includes additionalContext.
+
+        Given a CRITICAL severity alert
+        When formatting hook output
+        Then additionalContext should be present with recommendations.
+        """
+        alert = context_warning_module.assess_context_usage(0.60)
+        output = context_warning_module.format_hook_output(alert)
+
+        assert "additionalContext" in output["hookSpecificOutput"]
+        assert "CRITICAL" in output["hookSpecificOutput"]["additionalContext"]
+        assert "Recommendations:" in output["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_ok_output_no_additional_context(self, context_warning_module) -> None:
+        """Scenario: OK alert has no additionalContext.
+
+        Given an OK severity alert
+        When formatting hook output
+        Then additionalContext should NOT be present.
+        """
+        alert = context_warning_module.assess_context_usage(0.20)
+        output = context_warning_module.format_hook_output(alert)
+
+        assert "additionalContext" not in output["hookSpecificOutput"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_output_is_json_serializable(self, context_warning_module) -> None:
+        """Scenario: Hook output can be serialized to JSON.
+
+        Given any alert
+        When formatting and serializing to JSON
+        Then it should produce valid JSON.
+        """
+        alert = context_warning_module.assess_context_usage(0.55)
+        output = context_warning_module.format_hook_output(alert)
+
+        # Should not raise
+        json_str = json.dumps(output)
+        parsed = json.loads(json_str)
+
+        assert "hookSpecificOutput" in parsed
+
+
+class TestGetContextUsageFromEnv:
+    """Feature: Environment variable reading.
+
+    As a hook
+    I want to read context usage from environment
+    So that I can integrate with Claude Code
+    """
+
+    @pytest.fixture
+    def context_warning_module(self):
+        """Import the context_warning module."""
+        import importlib.util
+        import sys
+        from pathlib import Path
+
+        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
+        module_path = hooks_path / "context_warning.py"
+
+        spec = importlib.util.spec_from_file_location("context_warning", module_path)
+        context_warning = importlib.util.module_from_spec(spec)
+        sys.modules["context_warning"] = context_warning
+        spec.loader.exec_module(context_warning)
+
+        return context_warning
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_reads_from_env_variable(self, context_warning_module, monkeypatch) -> None:
+        """Scenario: Read usage from CLAUDE_CONTEXT_USAGE.
+
+        Given CLAUDE_CONTEXT_USAGE environment variable is set
+        When getting context usage
+        Then it should return the float value.
+        """
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
+        usage = context_warning_module.get_context_usage_from_env()
+        assert usage == 0.45
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_returns_none_without_env(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: Returns None without environment variable.
+
+        Given CLAUDE_CONTEXT_USAGE is not set
+        When getting context usage
+        Then it should return None.
+        """
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        usage = context_warning_module.get_context_usage_from_env()
+        assert usage is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_handles_invalid_env_value(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: Handle invalid environment value gracefully.
+
+        Given invalid CLAUDE_CONTEXT_USAGE value
+        When getting context usage
+        Then it should return None (not crash).
+        """
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "not-a-number")
+        usage = context_warning_module.get_context_usage_from_env()
+        assert usage is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_handles_empty_env_value(self, context_warning_module, monkeypatch) -> None:
+        """Scenario: Handle empty environment value.
+
+        Given empty CLAUDE_CONTEXT_USAGE value
+        When getting context usage
+        Then it should return None.
+        """
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "")
+        usage = context_warning_module.get_context_usage_from_env()
+        assert usage is None
+
+
+class TestMainEntryPoint:
+    """Feature: Hook main entry point.
+
+    As a hook
+    I want main() to handle various inputs correctly
+    So that the hook is robust in production
+    """
+
+    @pytest.fixture
+    def context_warning_module(self):
+        """Import the context_warning module."""
+        import importlib.util
+        import sys
+        from pathlib import Path
+
+        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
+        module_path = hooks_path / "context_warning.py"
+
+        spec = importlib.util.spec_from_file_location("context_warning", module_path)
+        context_warning = importlib.util.module_from_spec(spec)
+        sys.modules["context_warning"] = context_warning
+        spec.loader.exec_module(context_warning)
+
+        return context_warning
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_with_no_context_usage(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: main() with no context usage outputs minimal JSON.
+
+        Given no context usage available from env or stdin
+        When running main
+        Then it should output minimal valid JSON.
+        """
+        from io import StringIO
+
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setattr("sys.stdin", StringIO("{}"))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        assert data["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_with_warning_level(self, context_warning_module, monkeypatch) -> None:
+        """Scenario: main() with 45% usage outputs WARNING.
+
+        Given 45% context usage in environment
+        When running main
+        Then it should output WARNING alert with additionalContext.
+        """
+        from io import StringIO
+
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
+        monkeypatch.setattr("sys.stdin", StringIO("{}"))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        assert "additionalContext" in data["hookSpecificOutput"]
+        assert "WARNING" in data["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_with_ok_level(self, context_warning_module, monkeypatch) -> None:
+        """Scenario: main() with 20% usage outputs minimal JSON.
+
+        Given 20% context usage in environment
+        When running main
+        Then it should output JSON without additionalContext.
+        """
+        from io import StringIO
+
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")
+        monkeypatch.setattr("sys.stdin", StringIO("{}"))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        assert "additionalContext" not in data["hookSpecificOutput"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_with_invalid_json_input(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: main() handles malformed JSON on stdin.
+
+        Given malformed JSON on stdin
+        When running main
+        Then it should handle gracefully and return 0.
+        """
+        from io import StringIO
+
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setattr("sys.stdin", StringIO("not valid json {"))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        # Should still output valid JSON
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        assert "hookSpecificOutput" in data
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_with_hook_input_usage(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: main() reads usage from hook input JSON.
+
+        Given context_usage in hook input JSON
+        When running main with no env var
+        Then it should use the hook input value.
+        """
+        from io import StringIO
+
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        hook_input = json.dumps({"context_usage": 0.55})
+        monkeypatch.setattr("sys.stdin", StringIO(hook_input))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        assert "CRITICAL" in data["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_env_takes_priority_over_input(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: Environment variable takes priority over hook input.
+
+        Given both env var (20%) and hook input (55%) have usage
+        When running main
+        Then env var should be used (OK, not CRITICAL).
+        """
+        from io import StringIO
+
+        hook_input = json.dumps({"context_usage": 0.55})  # Would be CRITICAL
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.20")  # OK
+        monkeypatch.setattr("sys.stdin", StringIO(hook_input))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        # Should be OK (env) not CRITICAL (input)
+        assert "additionalContext" not in data["hookSpecificOutput"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_with_critical_level(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: main() with 60% usage outputs CRITICAL.
+
+        Given 60% context usage in environment
+        When running main
+        Then it should output CRITICAL alert.
+        """
+        from io import StringIO
+
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.60")
+        monkeypatch.setattr("sys.stdin", StringIO("{}"))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        assert "additionalContext" in data["hookSpecificOutput"]
+        assert "CRITICAL" in data["hookSpecificOutput"]["additionalContext"]
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_with_invalid_usage_value(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: main() handles invalid usage value from hook input.
+
+        Given invalid context_usage value (negative) in hook input
+        When running main
+        Then it should handle gracefully and return minimal output.
+        """
+        from io import StringIO
+
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        hook_input = json.dumps({"context_usage": -0.5})
+        monkeypatch.setattr("sys.stdin", StringIO(hook_input))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
+
+        result = context_warning_module.main()
+
+        assert result == 0
+        output = output_capture.getvalue()
+        data = json.loads(output)
+        assert "hookSpecificOutput" in data

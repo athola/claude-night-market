@@ -27,6 +27,12 @@ Audit plugin.json files against actual disk contents and fix registration gaps.
 7. **Surfaces recent failures** and performance degradation
 8. **Recommends improvements** based on execution history
 
+### Phase 3: Knowledge Queue Promotion Check (Automatic)
+9. **Scans memory-palace queue** for pending research items
+10. **Reports items awaiting evaluation** with age and priority
+11. **Prompts for promotion decisions** on high-value items
+12. **Prevents knowledge loss** from stale queue entries
+
 ## Workflow
 
 ### Phase 1: Registration Audit
@@ -142,6 +148,92 @@ improvement:<plugin-name>:command-<name>-validation
 improvement:<plugin-name>:agent-<name>-performance
 ```
 
+### Phase 3: Knowledge Queue Promotion Check
+
+After improvement analysis, check the memory-palace research queue for items needing evaluation.
+
+#### Step 1: Scan Queue for Pending Items
+
+```bash
+# List all pending queue entries with age
+ls -lt plugins/memory-palace/docs/knowledge-corpus/queue/*.md 2>/dev/null | head -20
+```
+
+**Check for:**
+- `webfetch-*.md` - Auto-captured web content
+- `websearch-*.md` - Auto-captured search results
+- Any file with `status: pending_review` in frontmatter
+
+#### Step 2: Report Queue Status
+
+**Format:**
+```markdown
+## Knowledge Queue Status
+
+### Pending Review (X items)
+| File | Age | Topic | Priority |
+|------|-----|-------|----------|
+| webfetch-article-name-2026-01-15.md | 2 days | "Article Title" | medium |
+| websearch-query-2026-01-10.md | 7 days | "Search Query" | medium |
+
+### Action Required
+- [ ] 3 items older than 7 days - review or archive
+- [ ] 1 high-priority item awaiting decision
+```
+
+#### Step 3: Prompt for Evaluation
+
+For each pending item older than 3 days:
+
+1. **Display summary** - Show topic, source, content preview
+2. **Request decision**:
+   - **Promote**: Move to `knowledge-corpus/` (outside queue), update index
+   - **Archive**: Move to `queue/archive/` with rejection rationale
+   - **Defer**: Keep in queue, optionally adjust priority
+3. **Execute decision** - Move file, update status in frontmatter
+
+**Example evaluation prompt:**
+```
+Queue Item: webfetch-claude-plugins-guide-2026-01-10.md (7 days old)
+Topic: "Claude Code Plugin Development Guide"
+Source: https://docs.anthropic.com/plugins/guide
+Content: 2,340 chars
+
+Decision options:
+  [P]romote to knowledge-corpus/
+  [A]rchive (not valuable)
+  [D]efer (review later)
+  [S]kip (next item)
+```
+
+#### Step 4: Execute Promotions
+
+For items marked for promotion:
+
+```bash
+# 1. Move from queue to corpus
+mv plugins/memory-palace/docs/knowledge-corpus/queue/webfetch-*.md \
+   plugins/memory-palace/docs/knowledge-corpus/
+
+# 2. Update frontmatter status
+# Change: status: pending_review → status: processed
+
+# 3. Rename to permanent filename (remove webfetch- prefix, timestamp)
+# webfetch-article-name-2026-01-15.md → article-name.md
+```
+
+#### Step 5: Create TodoWrite Items
+
+Track promotion decisions:
+
+```
+queue-review:promoted:<filename>
+queue-review:archived:<filename>
+queue-review:deferred:<filename>
+```
+
+**To skip queue check**: Use `--skip-queue` flag.
+
 ## Implementation
 
 This command runs the Python script:
@@ -175,6 +267,7 @@ This command complements:
 - `/skill-review` - Analyzes skill performance metrics (invoked automatically in Phase 2)
 - `/skill-logs` - Surfaces recent failures (invoked automatically in Phase 2)
 - `/fix-workflow` - Implements improvements for identified issues
+- `memory-palace:knowledge-intake` - Evaluates queue items for promotion (Phase 3)
 
 ## When to Use
 
@@ -194,7 +287,8 @@ flowchart TD
     A["/update-plugins Phase 1: Registration<br/>Sync disk ↔ plugin.json"] --> B
     B["/update-plugins Phase 2: Analysis<br/>• Check /skill-review metrics<br/>• Query /skill-logs for failures<br/>• Surface improvement vectors"] --> C
     C["Create TodoWrite Items & Recommendations<br/>• Critical: Immediate action required<br/>• Moderate: Schedule for next sprint<br/>• Low: Add to backlog"] --> D
-    D["/fix-workflow Implement Improvements<br/>• Fix unstable skills<br/>• Improve command validation<br/>• Optimize agent performance"]
+    D["/update-plugins Phase 3: Queue Check<br/>• Scan memory-palace queue<br/>• Report pending items<br/>• Prompt for promotion decisions"] --> E
+    E["/fix-workflow Implement Improvements<br/>• Fix unstable skills<br/>• Improve command validation<br/>• Optimize agent performance"]
 ```
 
 ## See Also
@@ -205,3 +299,5 @@ flowchart TD
 - `/skill-review` - Performance analysis and recommendations
 - `/skill-logs` - Execution history and failure patterns
 - `/fix-workflow` - Workflow improvement retrospectives
+- `memory-palace:knowledge-intake` - Queue evaluation criteria
+- `plugins/memory-palace/docs/knowledge-corpus/queue/README.md` - Queue workflow docs

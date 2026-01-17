@@ -473,11 +473,4 @@ Required:
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If you cannot reproduce the problem (Step 1), verify your environment matches the user's (e.g., check `node --version`, `python --version`). If validation fails (Step 2), capture the full error output rather than summarizing. If known issues are not found (Step 3) but the error persists, check recent GitHub issues or forum discussions for similar reports.

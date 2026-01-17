@@ -204,7 +204,15 @@ Skills located in `~/.claude/skills` or `.claude/skills` reload immediately upon
 SessionStart hooks receive an `agent_type` field in their input, allowing you to skip heavy context loading for lightweight agents. For example, skipping context for a `quick-query` agent can save between 200 and 800 tokens per session.
 
 ### Environment Overrides
-Specific environment variables can be used to control behavior, such as `CLAUDE_CODE_HIDE_ACCOUNT_INFO` for sanitizing recordings or `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` to force synchronous execution in CI environments.
+Specific environment variables can be used to control behavior:
+- `CLAUDE_CODE_HIDE_ACCOUNT_INFO` - Sanitize recordings by hiding account info
+- `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` - Force synchronous execution in CI environments
+- `CLAUDE_CODE_TMPDIR` - Override temp directory for restricted environments (e.g., Termux)
+
+**Temp Directory Best Practice**: When writing to temp files in hooks, use `${CLAUDE_CODE_TMPDIR:-/tmp}` to respect user configuration:
+```bash
+echo "log entry" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/my-audit.log
+```
 
 ## Resources
 

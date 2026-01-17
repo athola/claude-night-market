@@ -141,6 +141,35 @@ For efficient discovery, we recommend a three-tier approach. First, utilize the 
 
 **Trade-off**: Markdown is slightly more verbose than structured data (JSON/YAML), but offers better navigability for humans while remaining agent-friendly.
 
+## Hooks
+
+### PermissionRequest Hook
+
+Auto-approve or auto-deny Bash commands based on pattern matching (Claude Code 2.0.54+).
+
+**Safe patterns (auto-approved):**
+- Read-only file operations (`ls`, `cat`, `head`, `tail`)
+- Search operations (`grep`, `rg`, `find`)
+- Git read operations (`git status`, `git log`, `git diff`)
+- Help commands (`--help`, `-h`, `man`)
+
+**Dangerous patterns (auto-denied):**
+- Recursive deletes on root/home (`rm -rf /`, `rm -rf ~`)
+- Privilege escalation (`sudo`)
+- Pipe-to-shell patterns (`curl ... | bash`)
+- Force push to main (`git push --force origin main`)
+
+**Setup:**
+```json
+{
+  "hooks": {
+    "PermissionRequest": [{
+      "command": "python plugins/conserve/hooks/permission_request.py"
+    }]
+  }
+}
+```
+
 ## Thresholds
 
 - **Context**: < 30% LOW | 30-50% MODERATE | > 50% CRITICAL.

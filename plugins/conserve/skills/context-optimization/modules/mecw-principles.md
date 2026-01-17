@@ -14,7 +14,9 @@ This module covers the theoretical foundations of Maximum Effective Context Wind
 
 ## The 50% Context Rule
 
-**Core Principle**: Never use more than 50% of the total context window for input content.
+**Core Principle**: Never use more than 50% of the *effective* context window for input content.
+
+> **Important (Claude Code 2.1.7+)**: The effective context window is smaller than the total context window because it reserves space for max output tokens. When monitoring context usage, the 50% rule applies to the effective context, not the total. The status line's `used_percentage` field reports usage against the effective context.
 
 ### Why 50%?
 

@@ -41,7 +41,7 @@ Create clear, complete, and testable specifications from natural language featur
 
 ## Core Principles
 
-The spec writing process is guided by several core principles to ensure high-quality documentation. We focus on describing what the system must do for the user rather than how it should be implemented, which involves avoiding specific technology choices in the requirement definition. Every requirement must be testable and verifiable, using measurable criteria and clear acceptance scenarios wherever possible. To maintain momentum, we limit the number of clarification markers per specification and instead make informed assumptions based on industry standards, ensuring that all such assumptions are explicitly documented.
+Focus on user value and business needs rather than implementation details. Avoid specifying technology choices in requirement definitions unless strictly necessary. Ensure every requirement is testable and verifiable with measurable criteria. Limit clarification markers; make informed assumptions based on industry standards and document them explicitly.
 
 ## Specification Structure
 
@@ -90,11 +90,4 @@ The spec writing process is guided by several core principles to ensure high-qua
 
 ### Common Issues
 
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If specifications are too vague, use the `success-criteria-patterns` module to enforce measurable outcomes. If implementation details leak into specs, review against the "Core Principles" and refactor to focus on user behavior.

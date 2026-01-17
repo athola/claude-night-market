@@ -6,24 +6,26 @@ This repository adds 15 plugins to Claude Code for git operations, code review, 
 
 ## Key Features
 
-*   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context.
-*   **Skill Metrics:** `pensive` tracks usage and stability.
-*   **Proof-of-Work TDD:** `imbue` mandates failing tests before implementation.
-*   **Anti-Cargo-Cult:** `imbue` verifies understanding before accepting AI-generated code.
-*   **Rigorous Reasoning:** `imbue:rigorous-reasoning` prevents sycophancy via checklist analysis.
-*   **Interactive Auth:** `leyline` handles OAuth prompts for GitHub, GitLab, AWS during workflows.
-*   **Test Enforcement:** `/create-skill` and `/create-command` require failing tests.
-*   **Self-Correction:** `/update-plugins` suggests improvements; `/fix-workflow` repairs failures.
+*   **Agent-Aware Context:** Hooks (v2.1.2+) adapt context based on the active agent.
+*   **Skill Metrics:** `pensive` tracks usage frequency and failure rates.
+*   **Proof-of-Work TDD:** `imbue` requires failing tests before implementation begins.
+*   **Anti-Cargo-Cult:** `imbue` verifies understanding with the Five Whys framework before accepting solutions.
+*   **Checklist Analysis:** `imbue:rigorous-reasoning` forces a step-by-step logic check before complex tasks.
+*   **Interactive Auth:** `leyline` manages OAuth flows for GitHub, GitLab, and AWS with token caching.
+*   **Permission Automation:** `conserve` auto-approves safe commands (`ls`, `grep`) and blocks risky ones (`rm -rf /`, `sudo`).
+*   **Session Management:** `sanctum` enables named sessions for debugging, feature work, and PR reviews.
+*   **Test Enforcement:** `/create-skill` and `/create-command` abort if no failing tests exist.
+*   **Self-Correction:** `/update-plugins` recommends updates based on stability; `/fix-workflow` attempts to repair failed runs.
 
 ## Workflow Improvements
 
-Specialized commands replace manual steps:
+Commands automate multi-step processes:
 
-*   **Git:** `/prepare-pr` validates branch scope and checks before creation.
-*   **Reviews:** `/full-review` performs a multi-step audit (syntax, logic, security).
-*   **Specs:** `/speckit-specify` creates detailed specifications before coding.
-*   **Context:** `/catchup` summarizes recent changes to restore context.
-*   **Setup:** `/attune:init` scaffolds projects based on detected types.
+*   **Git:** `/prepare-pr` checks branch scope, runs linting, and verifies clean state before PR creation.
+*   **Reviews:** `/full-review` audits syntax, logic, and security in one pass.
+*   **Specs:** `/speckit-specify` forces a written specification phase before code generation.
+*   **Context:** `/catchup` reads recent git history to update the context window.
+*   **Setup:** `/attune:init` detects project types (Python, Node, etc.) and creates necessary config files.
 
 ## Quick Start
 
@@ -93,7 +95,7 @@ flowchart TB
 
 ### Highlights
 
-*   **sanctum**: Git operations (`/prepare-pr`, `/do-issue`) and documentation.
+*   **sanctum**: Git operations (`/prepare-pr`, `/do-issue`), documentation, and session management.
 *   **pensive**: Code reviews (`/full-review`) and audits.
 *   **spec-kit**: Requirements definition (`/speckit-specify`).
 *   **minister**: GitHub issues (`/create-issue`, `/close-issue`).
@@ -106,7 +108,7 @@ flowchart TB
 *   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
 *   **imbue**: Review methodologies, proof-of-work TDD, anti-cargo-cult verification.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 113 skills, 96 commands, and 35 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 113 skills, 95 commands, and 37 agents.
 
 ## Audience
 
@@ -192,7 +194,7 @@ Plugins are modular, load progressively to save tokens, and emphasize specificat
 
 ## Contributing
 
-See [CONTRIBUTING](docs/plugin-development-guide.md#contributing) for guidelines. Each plugin maintains its own tests and documentation.
+See the [Plugin Development Guide](docs/plugin-development-guide.md) for guidelines. Each plugin maintains its own tests and documentation.
 
 ## License
 

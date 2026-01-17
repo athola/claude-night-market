@@ -200,6 +200,16 @@ def main():
     rule_name, reminder = check_content(file_path, content)
 
     if rule_name and reminder:
+        # Inject security warning as additionalContext (Claude Code 2.1.9+)
+        # This ensures Claude sees the security guidance in-context
+        output = {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "additionalContext": f"⚠️ SECURITY WARNING [{rule_name}]: {reminder}",
+            }
+        }
+        print(json.dumps(output))
+        # Also log to stderr for observability
         print(f"[{rule_name}] {reminder}", file=sys.stderr)
         sys.exit(2)
 

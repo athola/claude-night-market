@@ -107,7 +107,6 @@ python scripts/skills_eval/skills_auditor.py --skill-path path/to/skill/SKILL.md
 make audit-skill PATH=path/to/skill/SKILL.md
 make audit-all
 ```
-**Verification:** Verify build configuration with `make --dry-run`.
 
 ### Skill Analysis
 ```bash
@@ -121,7 +120,6 @@ python scripts/token_estimator.py --file path/to/skill/SKILL.md
 make analyze-skill PATH=path/to/skill/SKILL.md
 make estimate-tokens PATH=path/to/skill/SKILL.md
 ```
-**Verification:** Verify build configuration with `make --dry-run`.
 
 ### Generate Improvements
 ```bash
@@ -135,7 +133,6 @@ python scripts/skills_eval/compliance_checker.py --skill-path path/to/skill/SKIL
 make improve-skill PATH=path/to/skill/SKILL.md
 make check-compliance PATH=path/to/skill/SKILL.md
 ```
-**Verification:** Verify build configuration with `make --dry-run`.
 
 ### Typical Workflow
 1. **Discovery**: Run `make audit-all` to find and audit all skills
@@ -155,7 +152,6 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Detailed analysis of specific skill
 ./scripts/improvement-suggester --skill-path path/to/skill/SKILL.md --priority all --format markdown
 ```
-**Verification:** Verify availability with `--help`.
 
 ### Performance Analysis
 ```bash
@@ -165,7 +161,6 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Advanced tool performance metrics
 ./scripts/tool-performance-analyzer --skill-path path/to/skill/SKILL.md --metrics all
 ```
-**Verification:** Verify availability with `--help`.
 
 ### Standards Compliance
 ```bash
@@ -175,7 +170,6 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Auto-fix common issues
 ./scripts/compliance-checker --skill-path path/to/skill/SKILL.md --auto-fix --severity high
 ```
-**Verification:** Verify availability with `--help`.
 
 ### Improvements and Optimization
 ```bash
@@ -185,7 +179,6 @@ make check-compliance PATH=path/to/skill/SKILL.md
 # Benchmark performance
 ./scripts/token-usage-tracker --skill-path path/to/skill/SKILL.md --benchmark optimization-targets
 ```
-**Verification:** Verify availability with `--help`.
 
 ## Evaluation Framework
 
