@@ -82,17 +82,22 @@ def spawn_notification_background() -> None:
 
 def main() -> None:
     """Execute combined Stop hook logic."""
-    # Read input (may be empty or contain stop reason)
+    # Read stop reason from stdin
+    stop_reason = None
     try:
-        json.load(sys.stdin)
+        payload = json.load(sys.stdin)
+        stop_reason = payload.get("reason")
     except json.JSONDecodeError:
         pass  # No payload or invalid JSON - continue anyway
 
     # Execute Hook 1: Workflow verification
     output = workflow_verification()
 
-    # Execute Hook 2: Spawn notification background (non-blocking)
-    spawn_notification_background()
+    # Execute Hook 2: Spawn notification ONLY when user input is needed
+    # Only notify on "end_turn" - when Claude finished and awaits user input
+    # Skip for: tool_use (intermediate), max_tokens, stop_sequence, etc.
+    if stop_reason == "end_turn":
+        spawn_notification_background()
 
     # Output combined result
     print(json.dumps(output))

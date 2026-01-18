@@ -1,45 +1,45 @@
-# GitHub Program Rituals Playbook
+# GitHub Program Rituals
 
-Use this playbook with `skills/github-initiative-pulse` to keep every ritual tied to a tracker-generated GitHub comment. Each checklist item starts with an owner so anyone can run the loop without re-reading process docs.
+Weekly cadences that tie tracker output to GitHub comments. Each ritual has an owner and a saved search.
 
-> Prep once per day: `uv run python plugins/minister/scripts/tracker.py status --github-comment > .claude/minister/latest.md`
+**Daily prep**: `uv run python plugins/minister/scripts/tracker.py status --github-comment > .claude/minister/latest.md`
 
-## Monday – Pulse Review (Owner: Program Lead)
+## Monday – Pulse Review
 
-Saved search: [`Blockers needing escalation`](https://github.com/<org>/<repo>/issues?q=is%3Aopen+label%3Ablocker+sort%3Aupdated-desc)
+**Owner**: Program Lead | **Search**: `is:open label:blocker sort:updated-desc`
 
-- [ ] 09:00 PT – Program Lead runs `uv run python plugins/minister/scripts/tracker.py status --github-comment > .claude/minister/latest.md` using the Initiative Pulse skill preset.
-- [ ] 09:02 PT – Push the comment into the Program Review issue: `gh issue comment <pulse-issue-id> --body-file .claude/minister/latest.md`.
-- [ ] 09:05 PT – Copy the GitHub comment permalink into the Projects “Initiative Pulse” note field (`https://github.com/orgs/<org>/projects/<project-id>/views/1`) so the board stays traceable.
-- [ ] 09:10 PT – Open the saved search above in a new tab and file follow-up issues for any blocker >3 days old via `gh issue create --title "... blocker" --label blocker`.
-- [ ] 09:15 PT – Update swimlanes so every card shows an owner and due date; tag missing data with `@` mentions directly from the Program Review issue thread.
+1. Generate Initiative Pulse → `.claude/minister/latest.md`
+2. Post to Program Review issue: `gh issue comment ISSUE_ID --body-file .claude/minister/latest.md`
+3. Copy comment permalink into Projects "Initiative Pulse" note field
+4. File follow-up issues for blockers >3 days: `gh issue create --title "..." --label blocker`
+5. Update swimlanes: ensure every card has owner + due date
 
-## Wednesday – Risk Radar (Owner: Risk Captain)
+## Wednesday – Risk Radar
 
-Saved search: [`High-risk slippage`](https://github.com/<org>/<repo>/issues?q=is%3Aopen+label%3Arisk%3Ared+sort%3Aupdated-desc)
+**Owner**: Risk Captain | **Search**: `is:open label:risk:red sort:updated-desc`
 
-- [ ] 11:00 PT – Run the tracker hotlist: `uv run python plugins/minister/scripts/tracker.py status --module metrics-hotlist --github-comment > .claude/minister/risk.md`.
-- [ ] 11:03 PT – Publish a triage discussion with the hotlist attached: `gh discussion create 123 --title "Weekly Risk Radar" --body-file .claude/minister/risk.md`.
-- [ ] 11:06 PT – Link the discussion URL back into `.claude/minister/risk.md` and paste the snippet into the standing Risk issue using `gh issue comment <risk-issue-id> --body-file .claude/minister/risk.md`.
-- [ ] 11:10 PT – Mass-update labels from the saved search by running `gh issue edit <id> --add-label risk:yellow` (or `risk:red`) for every item that needs escalation.
-- [ ] 11:15 PT – Add the discussion permalink to the Projects “Risk Radar” lane notes so downstream squads can subscribe.
+1. Generate hotlist: `tracker.py status --module metrics-hotlist --github-comment > .claude/minister/risk.md`
+2. Create discussion: `gh discussion create --title "Weekly Risk Radar" --body-file .claude/minister/risk.md`
+3. Post to standing Risk issue: `gh issue comment RISK_ISSUE_ID --body-file .claude/minister/risk.md`
+4. Update labels: `gh issue edit ID --add-label risk:yellow` for escalations
+5. Add discussion permalink to Projects "Risk Radar" lane notes
 
-## Friday – Demo + Planning (Owner: Delivery Lead)
+## Friday – Demo + Planning
 
-Saved search: [`Demo-ready pull requests`](https://github.com/<org>/<repo>/pulls?q=is%3Aopen+label%3Ademo+sort%3Aupdated-desc)
+**Owner**: Delivery Lead | **Search**: `is:open is:pr label:demo sort:updated-desc`
 
-- [ ] 14:00 PT – Delivery Lead refreshes tracker output: `uv run python plugins/minister/scripts/tracker.py status --github-comment > .claude/minister/demo.md`.
-- [ ] 14:05 PT – Drop the Initiative Pulse snippet into the Demo Log issue: `gh issue comment <demo-issue-id> --body-file .claude/minister/demo.md`.
-- [ ] 14:07 PT – Export supporting metrics for slides: `uv run python plugins/minister/scripts/tracker.py export --output docs/artifacts/demo.csv` and upload to the Demo Log issue as an attachment.
-- [ ] 14:10 PT – Open the saved search to confirm every demo-tagged PR has reviewers assigned; @mention missing reviewers directly in each PR thread.
-- [ ] 14:15 PT – Clone prioritized backlog cards into the Projects “Next Week” section and link the Demo Log issue comment URL in the project note for historical context.
+1. Refresh tracker → `.claude/minister/demo.md`
+2. Post to Demo Log issue: `gh issue comment DEMO_ISSUE_ID --body-file .claude/minister/demo.md`
+3. Export metrics: `tracker.py export --output docs/artifacts/demo.csv`
+4. Verify demo PRs have reviewers; @mention missing ones
+5. Clone backlog cards to "Next Week" section; link Demo Log permalink
 
-## Monthly – Executive Packet (Owner: Program Lead + Exec Partner)
+## Monthly – Executive Packet
 
-Saved search: [`Executive packet follow-ups`](https://github.com/<org>/<repo>/issues?q=is%3Aopen+label%3Aexec-packet+sort%3Aupdated-desc)
+**Owner**: Program Lead + Exec Partner | **Search**: `is:open label:exec-packet`
 
-- [ ] First business day – Consolidate four weekly Initiative Pulse snippets by concatenating the previous `.claude/minister/latest.md` files into `.claude/minister/executive.md`.
-- [ ] Same day – Paste the consolidated snippet into the Executive Packet discussion: `gh discussion comment <exec-discussion-id> --body-file .claude/minister/executive.md`.
-- [ ] Within 30 minutes – Attach burndown CSV (`uv run python plugins/minister/scripts/tracker.py export --output docs/artifacts/burndown.csv`) and link the artifact from the discussion.
-- [ ] Before publishing – Reference release-train gate history by linking to `plugins/minister/docs/playbooks/release-train-health.md#gate-status` and capturing any blockers as `exec-packet` labeled issues.
-- [ ] After publishing – Store the discussion permalink inside the Projects custom field `status_comment_url` so the Initiative Pulse skill can quote it next month.
+1. Concatenate weekly `.claude/minister/latest.md` files → `.claude/minister/executive.md`
+2. Post to Executive Packet discussion: `gh discussion comment EXEC_ID --body-file .claude/minister/executive.md`
+3. Attach burndown CSV: `tracker.py export --output docs/artifacts/burndown.csv`
+4. Link to [release-train-health.md](release-train-health.md) gate history
+5. Store discussion permalink in Projects `status_comment_url` field

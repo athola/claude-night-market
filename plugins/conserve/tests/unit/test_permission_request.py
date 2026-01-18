@@ -3,8 +3,6 @@
 This module tests the PermissionRequest hook that auto-approves
 safe operations and auto-denies dangerous patterns.
 
-Issue #55: PermissionRequest hooks for workflow automation
-
 Following TDD/BDD principles with Given/When/Then docstrings.
 """
 

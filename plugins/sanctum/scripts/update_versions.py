@@ -29,6 +29,7 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
         "**/Cargo.toml",
         "**/package.json",
         "**/.claude-plugin/plugin.json",
+        "**/.claude-plugin/metadata.json",
         "**/.claude-plugin/marketplace.json",
     ]
 
@@ -134,7 +135,7 @@ def update_version_file(
             content = update_cargo_version(content, new_version)
         elif file_path.name == "package.json":
             content = update_package_json_version(content, new_version)
-        elif file_path.name in ("plugin.json", "marketplace.json"):
+        elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
             content = update_plugin_json_version(content, new_version)
 
         if content != original:

@@ -57,7 +57,7 @@ class ProjectValidator:
                 ValidationResult(
                     "gitignore",
                     False,
-                    ".gitignore missing (run: /attune:init or /attune:upgrade)",
+                    ".gitignore missing (run: /attune:init or /attune:upgrade-project)",
                     "git",
                 )
             )
@@ -139,7 +139,7 @@ class ProjectValidator:
                 ValidationResult(
                     "makefile",
                     False,
-                    "Makefile missing (run: /attune:upgrade --component makefile)",
+                    "Makefile missing (run: /attune:upgrade-project --component makefile)",
                     "build",
                 )
             )
@@ -223,7 +223,7 @@ class ProjectValidator:
                     ValidationResult(
                         f"workflow-{workflow}",
                         False,
-                        f"Missing workflow: {workflow} (run: /attune:upgrade --component workflows)",
+                        f"Missing workflow: {workflow} (run: /attune:upgrade-project --component workflows)",
                         "ci-cd",
                     )
                 )

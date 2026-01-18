@@ -27,11 +27,11 @@ dependencies:
 
 - [When to Use](#when-to-use)
 - [Required TodoWrite Items](#required-todowrite-items)
-- [Step 1 – Establish Current Baseline (`baseline`)](#step-1-–-establish-current-baseline-(baseline))
-- [Step 2 – Narrow the Scope (`scope`)](#step-2-–-narrow-the-scope-(scope))
-- [Step 3 – Instrument Before You Optimize (`instrument`)](#step-3-–-instrument-before-you-optimize-(instrument))
-- [Step 4 – Throttle and Sequence Work (`throttle`)](#step-4-–-throttle-and-sequence-work-(throttle))
-- [Step 5 – Log Decisions + Next Steps (`log`)](#step-5-–-log-decisions-+-next-steps-(log))
+- [Step 1: Establish Current Baseline](#step-1-establish-current-baseline)
+- [Step 2: Narrow the Scope](#step-2-narrow-the-scope)
+- [Step 3: Instrument Before You Optimize](#step-3-instrument-before-you-optimize)
+- [Step 4: Throttle and Sequence Work](#step-4-throttle-and-sequence-work)
+- [Step 5: Log Decisions and Next Steps](#step-5-log-decisions-and-next-steps)
 - [Output Expectations](#output-expectations)
 
 
@@ -50,7 +50,7 @@ dependencies:
 4. `cpu-gpu-performance:throttle`
 5. `cpu-gpu-performance:log`
 
-## Step 1 – Establish Current Baseline (`baseline`)
+## Step 1: Establish Current Baseline
 - Capture current utilization:
   - `uptime`
   - `ps -eo pcpu,cmd | head`
@@ -60,7 +60,7 @@ dependencies:
 - Record any CI/cluster budgets (time quotas, GPU hours) before launching work.
 - Set a per-task CPU minute / GPU minute budget that respects those limits.
 
-## Step 2 – Narrow the Scope (`scope`)
+## Step 2: Narrow the Scope
 - Avoid running "whole world" jobs after a small fix. Prefer diff-based
   or tag-based selective testing:
   - `pytest -k`
@@ -70,7 +70,7 @@ dependencies:
 - For GPU jobs, favor unit-scale smoke inputs or lower epoch counts before
   scheduling the full training/eval sweep.
 
-## Step 3 – Instrument Before You Optimize (`instrument`)
+## Step 3: Instrument Before You Optimize
 - Pick the right profiler/monitor:
   - CPU work:
     - `perf`
@@ -87,7 +87,7 @@ dependencies:
   so you have evidence when throttling or parallelizing.
 - Record hot paths + I/O bottlenecks in notes so future reruns can jump straight to the culprit.
 
-## Step 4 – Throttle and Sequence Work (`throttle`)
+## Step 4: Throttle and Sequence Work
 - Use `nice`, `ionice`, or Kubernetes/Slurm quotas to prevent starvation of shared nodes.
 - Chain heavy tasks with guardrails:
   - Rerun only the failed test/module
@@ -96,7 +96,7 @@ dependencies:
 - Stagger GPU kernels (smaller batch sizes or gradient accumulation) when memory
   pressure risks eviction; prefer checkpoint/restore over restarts.
 
-## Step 5 – Log Decisions + Next Steps (`log`)
+## Step 5: Log Decisions and Next Steps
 
 Conclude by documenting the commands that were run and their resource cost
 (duration, CPU%, GPU%), confirming whether they remained within the per-task

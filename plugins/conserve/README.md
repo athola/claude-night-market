@@ -77,12 +77,15 @@ Safely delete, refactor, and consolidate code with user approval.
 
 | Skill | Purpose |
 |-------|---------|
+| `bloat-detector` | Progressive bloat detection with modular tiers. |
+| `code-quality-principles` | KISS, YAGNI, SOLID guidance with multi-language examples. |
 | `context-optimization` | MECW assessment and subagent coordination. |
-| `token-conservation` | Token budget enforcement and quota tracking. |
 | `cpu-gpu-performance` | Hardware resource tracking and selective testing. |
-| `bloat-detector` | Progressive bloat detection. |
+| `decisive-action` | Question threshold for autonomous workflow. |
 | `mcp-code-execution` | MCP patterns for data pipelines. |
 | `optimizing-large-skills` | Modularization of oversized skills. |
+| `response-compression` | Eliminate response bloat (emojis, filler, hedging). |
+| `token-conservation` | Token budget enforcement and quota tracking. |
 
 ### Bloat Detection
 
@@ -96,6 +99,39 @@ The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
 ### Bloat Detection Outcomes
 
 `bloat-detector` identifies technical debt and redundant code. This typically reduces context usage by 10-20%, lowering token costs and improving session efficiency.
+
+### Response Compression
+
+Eliminates response bloat including:
+- Decorative emojis (status indicators preserved)
+- Filler words ("just", "simply", "basically")
+- Hedging language ("might", "could", "perhaps")
+- Hype words ("powerful", "amazing", "robust")
+- Conversational framing and unnecessary closings
+
+Typical savings: 150-350 tokens per response.
+
+### Code Quality Principles
+
+Provides language-aware guidance on:
+- **KISS**: Prefer obvious solutions over clever ones
+- **YAGNI**: Don't implement features until needed
+- **SOLID**: SRP, OCP, LSP, ISP, DIP with Python/TypeScript/Rust examples
+
+Includes conflict resolution (e.g., KISS vs SOLID tradeoffs).
+
+### Decisive Action
+
+Decision matrix for when to ask clarifying questions vs proceed autonomously:
+
+| Reversibility | Ambiguity | Action |
+|---------------|-----------|--------|
+| Reversible | Low | Proceed |
+| Reversible | High | Proceed with preview |
+| Irreversible | Low | Proceed with confirmation |
+| Irreversible | High | Ask |
+
+Reduces interaction rounds while preventing wrong assumptions.
 
 ## Token-Conscious Workflows
 
@@ -189,11 +225,27 @@ make lint           # Run linting
 make test           # Run validation
 ```
 
+## Rules Templates
+
+The plugin provides `.claude/rules/` templates for project-level context injection. Rules are injected automatically every session (`alwaysApply: true`).
+
+```bash
+# Symlink conserve rules into your project
+ln -s ~/.claude-plugins/conserve/rules/conserve.md .claude/rules/
+```
+
+**`rules/conserve.md` includes:**
+- MECW thresholds and actions
+- Command verbosity control table
+- Discovery strategy (LSP → targeted reads → Grep)
+- Retry/self-reflection guidance
+
 ## Related Documentation
 
 - **[Agent Boundaries Guide](../../docs/guides/agent-boundaries.md)** - Understand which agents to use and how they relate
 - **[LSP Native Support](../../docs/guides/lsp-native-support.md)** - LSP setup and troubleshooting
 - **[MECW Principles](skills/context-optimization/modules/mecw-principles.md)** - Deep dive into Maximum Effective Context Window
+- **[Rules Templates Guide](../../docs/guides/rules-templates.md)** - Plugin rules for project context
 
 See `docs/` for MCP optimization patterns and architecture decisions.
 

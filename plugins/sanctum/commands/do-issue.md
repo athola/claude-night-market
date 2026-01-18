@@ -439,7 +439,7 @@ Attune Workflow        | /do-issue Equivalent
 /attune:init           | Step 4.1: Create branch
 /attune:execute        | Step 4-5: Implement + Validate
 /attune:validate       | (included in Step 5)
-/attune:upgrade        | (optional: /attune:upgrade if project needs updates)
+/attune:upgrade-project        | (optional: /attune:upgrade-project if project needs updates)
 ```
 
 ## Required Skills

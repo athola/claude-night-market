@@ -13,8 +13,6 @@ estimated_tokens: 400
 
 # Session Management
 
-Issue #57: Document named session support (/rename, /resume) in Sanctum workflows
-
 ## Overview
 
 Claude Code supports named sessions for better workflow organization. Use this skill to manage complex, long-running work across multiple sessions.

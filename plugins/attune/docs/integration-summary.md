@@ -48,7 +48,7 @@ plugins/attune/commands/
 ├── plan.md            ← NEW: Planning command
 ├── execute.md         ← NEW: Execution command
 ├── init.md            (existing, unchanged)
-├── upgrade.md         (existing, unchanged)
+├── upgrade-project.md (existing, renamed from upgrade.md)
 └── validate.md        (existing, unchanged)
 ```
 
@@ -265,7 +265,7 @@ Execute   → .attune/execution-state.json + code
 **No breaking changes**:
 - All existing commands work unchanged
 - `/attune:init` functionality identical
-- `/attune:upgrade` functionality identical
+- `/attune:upgrade-project` functionality identical
 - `/attune:validate` functionality identical
 
 **New capabilities**:

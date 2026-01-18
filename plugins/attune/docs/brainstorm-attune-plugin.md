@@ -199,7 +199,7 @@ plugins/attune/
 │   └── precommit-setup/        # Pre-commit hooks setup
 ├── commands/
 │   ├── init.md                 # /attune:init
-│   ├── upgrade.md              # /attune:upgrade
+│   ├── upgrade-project.md      # /attune:upgrade-project
 │   └── validate.md             # /attune:validate
 └── README.md
 ```
@@ -225,7 +225,7 @@ plugins/attune/
 - Rust templates (Cargo.toml, Makefile)
 - TypeScript templates (package.json, tsconfig.json)
 - Language detection logic
-- `/attune:upgrade` command
+- `/attune:upgrade-project` command
 
 **Phase 3: Advanced Features**
 - Version fetching for GitHub Actions

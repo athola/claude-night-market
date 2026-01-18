@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Commands
 - `/attune:init` - Initialize new project with full setup
-- `/attune:upgrade` - Add or update configurations in existing project
+- `/attune:upgrade-project` - Add or update configurations in existing project
 - `/attune:validate` - Validate project structure against best practices
 
 #### Skills
@@ -94,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 2. **For existing projects** - Continue using as before:
    ```bash
    /attune:init
-   /attune:upgrade
+   /attune:upgrade-project
    /attune:validate
    ```
 

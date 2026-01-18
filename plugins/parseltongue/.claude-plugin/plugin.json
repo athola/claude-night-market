@@ -1,6 +1,6 @@
 {
   "name": "parseltongue",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Modern Python development suite - testing, performance optimization, async patterns, and packaging",
   "commands": [
     "./commands/analyze-tests.md",

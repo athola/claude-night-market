@@ -1,14 +1,17 @@
 {
   "name": "conserve",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/bloat-detector",
+    "./skills/code-quality-principles",
     "./skills/context-optimization",
+    "./skills/cpu-gpu-performance",
+    "./skills/decisive-action",
     "./skills/mcp-code-execution",
     "./skills/optimizing-large-skills",
-    "./skills/performance-monitoring",
-    "./skills/resource-management"
+    "./skills/response-compression",
+    "./skills/token-conservation"
   ],
   "commands": [
     "./commands/optimize-context.md",
@@ -40,9 +43,5 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "hooks": [
-    "./hooks/context_warning.py",
-    "./hooks/permission_request.py",
-    "./hooks/session-start.sh"
-  ]
+  "hooks": "./hooks/hooks.json"
 }

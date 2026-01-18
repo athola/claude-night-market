@@ -133,7 +133,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/attune:init` | attune | Initialize new project with development infrastructure |
 | `/attune:plan` | attune | Plan architecture and break down tasks |
 | `/attune:specify` | attune | Create detailed specifications from brainstorm |
-| `/attune:upgrade` | attune | Add or update configurations in existing project |
+| `/attune:upgrade-project` | attune | Add or update configurations in existing project |
 | `/attune:validate` | attune | Validate project structure against best practices |
 | `/architecture-review` | pensive | Architecture assessment |
 | `/bug-review` | pensive | Bug hunting review |

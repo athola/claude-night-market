@@ -190,7 +190,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ## Related Commands
 
-- `/attune:upgrade` - Add missing configurations to existing project
+- `/attune:upgrade-project` - Add missing configurations to existing project
 - `/attune:validate` - Check project against best practices
 
 ## Related Skills

@@ -1,9 +1,9 @@
 ---
-name: upgrade
+name: upgrade-project
 description: Add or update configurations in an existing project to match current best practices
 ---
 
-# Attune Upgrade Command
+# Attune Upgrade-Project Command
 
 Add missing configurations or update existing ones in a project.
 
@@ -11,12 +11,12 @@ Add missing configurations or update existing ones in a project.
 
 ```bash
 # Interactive upgrade - shows what's missing
-/attune:upgrade
+/attune:upgrade-project
 
 # Upgrade specific component
-/attune:upgrade --component workflows
-/attune:upgrade --component makefile
-/attune:upgrade --component pre-commit
+/attune:upgrade-project --component workflows
+/attune:upgrade-project --component makefile
+/attune:upgrade-project --component pre-commit
 ```
 
 ## What This Command Does
@@ -72,7 +72,7 @@ Available components to upgrade:
 ### Example 1: Add Missing GitHub Workflows
 
 ```bash
-/attune:upgrade --component workflows
+/attune:upgrade-project --component workflows
 ```
 
 Output:
@@ -91,7 +91,7 @@ Add missing workflows? [Y/n]: y
 ### Example 2: Update Outdated Makefile
 
 ```bash
-/attune:upgrade --component makefile
+/attune:upgrade-project --component makefile
 ```
 
 Shows diff and asks for confirmation before updating.

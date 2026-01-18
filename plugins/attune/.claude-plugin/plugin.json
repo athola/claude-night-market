@@ -1,6 +1,6 @@
 {
   "name": "attune",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
   "commands": [
     "./commands/brainstorm.md",
@@ -8,7 +8,7 @@
     "./commands/plan.md",
     "./commands/init.md",
     "./commands/execute.md",
-    "./commands/upgrade.md",
+    "./commands/upgrade-project.md",
     "./commands/validate.md"
   ],
   "skills": [
