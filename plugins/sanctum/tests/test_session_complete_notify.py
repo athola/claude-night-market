@@ -19,7 +19,9 @@ HOOKS_DIR = Path(__file__).parent.parent / "hooks"
 sys.path.insert(0, str(HOOKS_DIR))
 
 from session_complete_notify import (  # noqa: E402
+    _get_tmux_session,
     get_terminal_info,
+    get_zellij_tab_name,
     is_wsl,
     main,
     notify_linux,
@@ -49,6 +51,9 @@ def clean_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "SSH_TTY",
         "TTY",
         "GPG_TTY",
+        "ZELLIJ",
+        "ZELLIJ_SESSION_NAME",
+        "ZELLIJ_PANE_ID",
     ]
     for var in env_vars:
         monkeypatch.delenv(var, raising=False)
@@ -170,6 +175,131 @@ class TestGetTerminalInfo:
         result = get_terminal_info()
 
         assert result == "simple-project"
+
+    def test_with_zellij_session(
+        self, clean_env: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """Should detect Zellij session."""
+        monkeypatch.setenv("ZELLIJ_SESSION_NAME", "my-session")
+        project_dir = tmp_path / "zellij-project"
+        project_dir.mkdir()
+        monkeypatch.chdir(project_dir)
+
+        with patch("session_complete_notify.get_zellij_tab_name") as mock_tab:
+            mock_tab.return_value = None  # No custom tab name
+            result = get_terminal_info()
+
+        assert "zellij:my-session" in result
+        assert "zellij-project" in result
+
+    def test_with_zellij_session_and_tab(
+        self, clean_env: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """Should include Zellij tab name when available."""
+        monkeypatch.setenv("ZELLIJ_SESSION_NAME", "dev-session")
+        project_dir = tmp_path / "work-project"
+        project_dir.mkdir()
+        monkeypatch.chdir(project_dir)
+
+        with patch("session_complete_notify.get_zellij_tab_name") as mock_tab:
+            mock_tab.return_value = "Markdown Link Validation"
+            result = get_terminal_info()
+
+        assert "zellij:dev-session|Markdown Link Validation" in result
+        assert "work-project" in result
+
+    def test_zellij_skips_default_tab_name(
+        self, clean_env: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """Should skip default 'Tab #1' name in Zellij."""
+        monkeypatch.setenv("ZELLIJ_SESSION_NAME", "test-session")
+        monkeypatch.chdir(tmp_path)
+
+        with patch("session_complete_notify.get_zellij_tab_name") as mock_tab:
+            mock_tab.return_value = "Tab #1"  # Default name
+            result = get_terminal_info()
+
+        assert "Tab #1" not in result
+        assert "zellij:test-session" in result
+
+    def test_zellij_takes_priority_over_tmux(
+        self, clean_env: None, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    ) -> None:
+        """Zellij should take priority when both are set (nested sessions)."""
+        monkeypatch.setenv("ZELLIJ_SESSION_NAME", "zellij-first")
+        monkeypatch.setenv("TMUX", "/tmp/tmux-1000/default,12345,0")  # noqa: S108
+        monkeypatch.chdir(tmp_path)
+
+        with patch("session_complete_notify.get_zellij_tab_name") as mock_tab:
+            mock_tab.return_value = None
+            result = get_terminal_info()
+
+        assert "zellij:zellij-first" in result
+        assert "tmux" not in result
+
+
+class TestGetZellijTabName:
+    """Tests for Zellij tab name extraction."""
+
+    def test_extracts_focused_tab_name(self) -> None:
+        """Should extract tab name from layout dump."""
+        layout_output = """layout {
+    tab name="Dev Work" focus=true {
+        pane
+    }
+    tab name="Other Tab" {
+        pane
+    }
+}"""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0, stdout=layout_output)
+            result = get_zellij_tab_name()
+
+        assert result == "Dev Work"
+
+    def test_returns_none_on_failure(self) -> None:
+        """Should return None when zellij command fails."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=1, stdout="")
+            result = get_zellij_tab_name()
+
+        assert result is None
+
+    def test_returns_none_on_timeout(self) -> None:
+        """Should return None on timeout."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.side_effect = subprocess.TimeoutExpired("zellij", 0.5)
+            result = get_zellij_tab_name()
+
+        assert result is None
+
+    def test_returns_none_when_zellij_not_installed(self) -> None:
+        """Should return None when zellij is not installed."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.side_effect = FileNotFoundError("zellij not found")
+            result = get_zellij_tab_name()
+
+        assert result is None
+
+
+class TestGetTmuxSession:
+    """Tests for tmux session extraction."""
+
+    def test_extracts_session_window(self) -> None:
+        """Should extract session:window name."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0, stdout="main:editor\n")
+            result = _get_tmux_session()
+
+        assert result == "main:editor"
+
+    def test_returns_none_on_failure(self) -> None:
+        """Should return None when tmux command fails."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=1, stdout="")
+            result = _get_tmux_session()
+
+        assert result is None
 
 
 # =============================================================================
