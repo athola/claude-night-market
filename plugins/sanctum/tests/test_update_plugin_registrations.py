@@ -68,22 +68,23 @@ class TestPluginAuditor:
         assert "./agents/test-agent.md" in result["agents"]
 
     def test_scan_disk_files_finds_hooks(self, tmp_path: Path) -> None:
-        """Test scanning for hook files."""
+        """Test scanning for hook files (.sh, .py only - .md are docs)."""
         hooks_dir = tmp_path / "hooks"
         hooks_dir.mkdir()
         (hooks_dir / "pre-commit.sh").write_text("#!/bin/bash")
         (hooks_dir / "post-commit.py").write_text("# Python hook")
-        (hooks_dir / "guide.md").write_text("# Hook guide")
+        (hooks_dir / "guide.md").write_text("# Hook guide")  # Docs, not scanned
         (hooks_dir / "__init__.py").write_text("# Init")  # Should be excluded
         (hooks_dir / "test_hooks.py").write_text("# Test")  # Should be excluded
 
         auditor = PluginAuditor(tmp_path.parent, dry_run=True)
         result = auditor.scan_disk_files(tmp_path)
 
-        assert len(result["hooks"]) == 3
-        assert "./hooks/guide.md" in result["hooks"]
+        # Only .sh and .py are hooks; .md files are documentation
+        assert len(result["hooks"]) == 2
         assert "./hooks/post-commit.py" in result["hooks"]
         assert "./hooks/pre-commit.sh" in result["hooks"]
+        assert "./hooks/guide.md" not in result["hooks"]  # Docs excluded
         assert "./hooks/__init__.py" not in result["hooks"]
         assert "./hooks/test_hooks.py" not in result["hooks"]
 
