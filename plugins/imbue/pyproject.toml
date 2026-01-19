@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.2.9"
+version = "1.2.10"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

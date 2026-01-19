@@ -95,7 +95,7 @@ Project Structure
 Score: 17/20 (85%)
 
 Recommendations:
-  1. Add .github/workflows/typecheck.yml (run: /attune:upgrade --component workflows)
+  1. Add .github/workflows/typecheck.yml (run: /attune:upgrade-project --component workflows)
   2. Add LICENSE file (run: Skill(sanctum:license-generation))
   3. Update uv.lock (run: make install)
 ```
@@ -146,4 +146,4 @@ jobs:
 ## Related Commands
 
 - `/attune:init` - Initialize new project
-- `/attune:upgrade` - Fix validation issues automatically
+- `/attune:upgrade-project` - Fix validation issues automatically

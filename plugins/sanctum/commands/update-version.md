@@ -15,7 +15,7 @@ Before changing any version numbers, load the required skills in order:
 - Determine the desired version (the default bump is a patch). If the user passed an explicit version, record it before editing files.
 - **Option 1 (Automated)**: Use `plugins/sanctum/scripts/update_versions.py <version> --dry-run` to preview, then run without `--dry-run` to apply
   - Automatically finds and updates all version files including nested ones (e.g., `plugins/memory-palace/hooks/pyproject.toml`)
-  - Supports pyproject.toml, Cargo.toml, package.json, plugin.json
+  - Supports pyproject.toml, Cargo.toml, package.json, plugin.json, metadata.json
   - Excludes virtual environments and build directories
 - **Option 2 (Manual)**: Update all relevant configuration files manually
 

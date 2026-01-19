@@ -299,12 +299,12 @@ Validate project structure against best practices.
 /attune:validate --fix
 ```
 
-### `/attune:upgrade`
+### `/attune:upgrade-project`
 Add or update configurations in existing project.
 
 ```bash
 # Usage
-/attune:upgrade [--component COMPONENT] [--force]
+/attune:upgrade-project [--component COMPONENT] [--force]
 
 # Options
 --component    Specific component: makefile|precommit|workflows|gitignore
@@ -312,8 +312,8 @@ Add or update configurations in existing project.
 --diff         Show diff before applying
 
 # Examples
-/attune:upgrade --component makefile
-/attune:upgrade --component workflows --force
+/attune:upgrade-project --component makefile
+/attune:upgrade-project --component workflows --force
 ```
 
 ---

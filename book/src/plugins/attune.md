@@ -31,7 +31,7 @@ graph LR
 | `/attune:plan` | 3. Planning | Design architecture and break down tasks |
 | `/attune:init` | 4. Initialization | Generate project structure and tooling |
 | `/attune:execute` | 5. Implementation | Execute tasks with TDD discipline |
-| `/attune:upgrade` | Maintenance | Add configs to existing projects |
+| `/attune:upgrade-project` | Maintenance | Add configs to existing projects |
 | `/attune:validate` | Quality | Validate project structure |
 
 ## Supported Languages
@@ -126,7 +126,7 @@ Creates:
 
 ```bash
 # Add missing configs
-/attune:upgrade
+/attune:upgrade-project
 
 # Validate structure
 /attune:validate

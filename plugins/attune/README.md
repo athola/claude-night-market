@@ -50,7 +50,7 @@ Standardize project development:
 
 ```bash
 # Add missing configurations
-/attune:upgrade
+/attune:upgrade-project
 
 # Validate project structure
 /attune:validate
@@ -73,7 +73,7 @@ Standardize project development:
 
 | Command | Description |
 |---------|-------------|
-| `/attune:upgrade` | Add or update configurations in existing project |
+| `/attune:upgrade-project` | Add or update configurations in existing project |
 | `/attune:validate` | Validate project structure against best practices |
 
 ## Skills
@@ -159,7 +159,7 @@ Templates are based on proven patterns from reference projects:
 
 ```bash
 # From project root
-/attune:upgrade --component workflows
+/attune:upgrade-project --component workflows
 ```
 
 ### Example 3: Validate Project Structure

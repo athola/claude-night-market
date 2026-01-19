@@ -106,12 +106,7 @@ class SafeDependencyUpdater:
                 files_updated += 1
                 total_changes += changes
 
-            # Validate results
-            issues = self.validate_references(skill_file)
-            if issues:
-                pass
-            else:
-                pass
+            # Validation happens in the caller (main) after all updates complete
 
         return files_updated, total_changes
 

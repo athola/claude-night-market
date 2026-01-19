@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/catchup",
@@ -46,12 +46,5 @@
     "url": "https://github.com/athola"
   },
   "license": "MIT",
-  "hooks": [
-    "./hooks/PERFORMANCE.md",
-    "./hooks/pre-pr-scope-check.sh",
-    "./hooks/proof-enforcement.md",
-    "./hooks/scope-guard-integration.md",
-    "./hooks/session-start.sh",
-    "./hooks/user-prompt-submit.sh"
-  ]
+  "hooks": "./hooks/hooks.json"
 }

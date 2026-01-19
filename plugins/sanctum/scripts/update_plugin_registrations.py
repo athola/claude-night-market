@@ -61,10 +61,19 @@ class PluginAuditor:
         commands_dir = plugin_path / "commands"
         if commands_dir.exists():
             for cmd_file in commands_dir.rglob("*.md"):
-                # Skip cache directories and module subdirectories
+                # Skip cache directories
                 if self._should_exclude(cmd_file):
                     continue
-                if "module" not in cmd_file.parent.name.lower():
+                # Skip files in module subdirectories (check all ancestors, not just parent)
+                # This handles paths like commands/fix-pr-modules/steps/1-analyze.md
+                rel_to_commands = cmd_file.relative_to(commands_dir)
+                if any(
+                    "module" in part.lower() or part == "steps"
+                    for part in rel_to_commands.parts[:-1]
+                ):
+                    continue
+                # Only register top-level commands (direct children of commands/)
+                if len(rel_to_commands.parts) == 1:
                     rel_path = f"./commands/{cmd_file.name}"
                     results["commands"].append(rel_path)
 
@@ -119,7 +128,7 @@ class PluginAuditor:
             return None
 
     def compare_registrations(
-        self, plugin_name: str, on_disk: dict[str, list[str]], in_json: dict[str, Any]
+        self, _plugin_name: str, on_disk: dict[str, list[str]], in_json: dict[str, Any]
     ) -> dict[str, Any]:
         """Compare disk files with plugin.json registrations."""
         discrepancies: dict[str, Any] = {

@@ -4,8 +4,6 @@
 This hook implements permission auto-approval for safe operations
 and auto-denial for dangerous patterns.
 
-Issue #55: PermissionRequest hooks for workflow automation
-
 Claude Code 2.0.54+ supports PermissionRequest hooks that can:
 - Auto-approve safe operations (bypasses permission dialog)
 - Auto-deny dangerous commands with explanations

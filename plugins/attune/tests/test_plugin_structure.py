@@ -1,11 +1,15 @@
 """Test attune plugin structure and basic functionality."""
 
 import json
+import re
 from pathlib import Path
 
 import pytest
 
 PLUGIN_ROOT = Path(__file__).parent.parent
+
+# Semantic version pattern: MAJOR.MINOR.PATCH
+SEMVER_PATTERN = re.compile(r"^\d+\.\d+\.\d+$")
 
 
 def test_plugin_json_exists():
@@ -17,7 +21,7 @@ def test_plugin_json_exists():
         data = json.load(f)
 
     assert data["name"] == "attune"
-    assert data["version"] == "1.2.6"
+    assert SEMVER_PATTERN.match(data["version"]), f"Invalid semver: {data['version']}"
     assert "commands" in data
     assert "skills" in data
     assert len(data["keywords"]) > 0
@@ -32,7 +36,23 @@ def test_metadata_json_exists():
         data = json.load(f)
 
     assert data["name"] == "attune"
-    assert data["version"] == "1.2.6"
+    assert SEMVER_PATTERN.match(data["version"]), f"Invalid semver: {data['version']}"
+
+
+def test_versions_match():
+    """Verify plugin.json and metadata.json have the same version."""
+    plugin_json = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
+    metadata_json = PLUGIN_ROOT / ".claude-plugin" / "metadata.json"
+
+    with open(plugin_json) as f:
+        plugin_data = json.load(f)
+    with open(metadata_json) as f:
+        metadata_data = json.load(f)
+
+    assert plugin_data["version"] == metadata_data["version"], (
+        f"Version mismatch: plugin.json={plugin_data['version']}, "
+        f"metadata.json={metadata_data['version']}"
+    )
 
 
 def test_commands_exist():

@@ -7,49 +7,85 @@ Supports: Linux (notify-send), macOS (osascript), Windows (PowerShell toast).
 import html
 import os
 import platform
+import re
 import subprocess
 import sys
 
 
+def get_zellij_tab_name() -> str | None:
+    """Get current Zellij tab name from layout dump."""
+    try:
+        result = subprocess.run(
+            ["zellij", "action", "dump-layout"],  # noqa: S603,S607
+            capture_output=True,
+            text=True,
+            timeout=0.5,
+            check=False,
+        )
+        if result.returncode == 0:
+            # Parse layout to find focused tab: tab name="TabName" focus=true
+            match = re.search(r'tab name="([^"]+)"[^}]*focus=true', result.stdout)
+            if match:
+                return match.group(1)
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return None
+
+
+def _get_tmux_session() -> str | None:
+    """Get tmux session:window name."""
+    try:
+        result = subprocess.run(
+            ["tmux", "display-message", "-p", "#S:#W"],  # noqa: S603,S607
+            capture_output=True,
+            text=True,
+            timeout=0.5,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return None
+
+
 def get_terminal_info() -> str:
     """Get terminal/session identifier for the notification."""
-    # Try common terminal identification methods
-    term_program = os.environ.get("TERM_PROGRAM", "")
-
     # Get working directory as context
     cwd = os.getcwd()
     project_name = os.path.basename(cwd)
+    session_prefix = ""
 
-    # Try to get terminal title or session info
-    if term_program:
-        return f"{term_program} - {project_name}"
+    # Priority 1: Check for Zellij session (popular terminal multiplexer)
+    zellij_session = os.environ.get("ZELLIJ_SESSION_NAME", "")
+    if zellij_session:
+        tab_name = get_zellij_tab_name()
+        if tab_name and tab_name != "Tab #1":  # Skip default tab name
+            session_prefix = f"zellij:{zellij_session}|{tab_name}"
+        else:
+            session_prefix = f"zellij:{zellij_session}"
 
-    # Check for tmux/screen session
-    tmux = os.environ.get("TMUX", "")
-    if tmux:
-        try:
-            result = subprocess.run(
-                ["tmux", "display-message", "-p", "#S:#W"],  # noqa: S603,S607
-                capture_output=True,
-                text=True,
-                timeout=0.5,  # Reduced from 2s
-                check=False,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                return f"tmux:{result.stdout.strip()} - {project_name}"
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            pass
+    # Priority 2: Check for tmux/screen session
+    elif os.environ.get("TMUX", ""):
+        tmux_info = _get_tmux_session()
+        if tmux_info:
+            session_prefix = f"tmux:{tmux_info}"
 
-    # Check for SSH session
-    ssh_tty = os.environ.get("SSH_TTY", "")
-    if ssh_tty:
-        return f"SSH - {project_name}"
+    # Priority 3: Use TERM_PROGRAM (e.g., iTerm, Terminal.app)
+    elif term_program := os.environ.get("TERM_PROGRAM", ""):
+        session_prefix = term_program
 
-    # Fallback: use TTY name or generic
-    tty = os.environ.get("TTY", os.environ.get("GPG_TTY", ""))
-    if tty:
-        return f"{os.path.basename(tty)} - {project_name}"
+    # Priority 4: SSH session indicator
+    elif os.environ.get("SSH_TTY", ""):
+        session_prefix = "SSH"
 
+    # Priority 5: TTY name
+    elif tty := os.environ.get("TTY", os.environ.get("GPG_TTY", "")):
+        session_prefix = os.path.basename(tty)
+
+    # Format final output
+    if session_prefix:
+        return f"{session_prefix} - {project_name}"
     return project_name
 
 

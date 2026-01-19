@@ -822,7 +822,7 @@ Applied systematic data extraction to 4 large Python scripts:
     - `/attune:plan` - Plan architecture and break down into tasks (integrates superpowers)
     - `/attune:init` - Initialize new project with complete development infrastructure
     - `/attune:execute` - Execute implementation tasks systematically (integrates superpowers)
-    - `/attune:upgrade` - Add or update configurations in existing projects
+    - `/attune:upgrade-project` - Add or update configurations in existing projects
     - `/attune:validate` - Validate project structure against best practices
   - **New Agents**:
     - `project-architect` - Guides full-cycle workflow from brainstorming through planning
@@ -854,7 +854,7 @@ Applied systematic data extraction to 4 large Python scripts:
   - **Phase 2 (Complete)**: Multi-language support (Rust, TypeScript)
   - **Phase 3 (Complete)**: Advanced features (version fetching, validation)
   - **Phase 4 (Complete)**: Integration features
-    - `/attune:upgrade` - Add missing configs to existing projects with status reporting
+    - `/attune:upgrade-project` - Add missing configs to existing projects with status reporting
     - Custom template locations (~/.claude/attune/templates/, .attune/templates/, $ATTUNE_TEMPLATES_PATH)
     - Plugin project initialization (attune + abstract integration)
     - Reference project template synchronization (auto-update from simple-resume, skrills)

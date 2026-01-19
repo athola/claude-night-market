@@ -65,10 +65,12 @@ Each skill includes a `SKILL.md` frontmatter block, scenario modules, and refere
 
 ## Docs & Playbooks
 
-- `docs/overview.md`: Guide on wiring GitHub inputs to Minister.
-- `docs/playbooks/github-program-rituals.md`: Workflows for Program Review issues.
-- `docs/playbooks/release-train-health.md`: Release manager checklist.
-- `docs/templates/status-report-template.md`: Status template referencing GitHub signals.
+| Document | Purpose |
+|----------|---------|
+| [Integration Guide](docs/overview.md) | Wire GitHub inputs to Minister tracking. |
+| [Program Rituals](docs/playbooks/github-program-rituals.md) | Weekly cadences for Program Review issues. |
+| [Release Health](docs/playbooks/release-train-health.md) | Gate checklist for release managers. |
+| [Status Template](docs/templates/status-report-template.md) | Status report with GitHub signal references. |
 
 ## Integration Patterns
 

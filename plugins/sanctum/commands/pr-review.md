@@ -105,6 +105,35 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.
 
+### PR Description Update (CRITICAL)
+
+**DO NOT use `gh pr edit`** - it requires `read:org` scope which many tokens don't have.
+
+**Use `gh api` PATCH instead** (only requires `repo` scope):
+
+```bash
+# Get owner/repo from current directory
+OWNER_REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+
+# Update PR description via REST API
+gh api "repos/$OWNER_REPO/pulls/$PR_NUM" \
+  -X PATCH \
+  -f title="$NEW_TITLE" \
+  -f body="$NEW_BODY"
+```
+
+**Fallback if API fails**: Post description as a comment instead of failing the review.
+
+```bash
+# If API fails (e.g., fork PR without write access)
+gh pr comment $PR_NUM --body "## PR Summary (Auto-generated)
+
+$NEW_BODY
+
+---
+*Note: Could not update PR description. Posted as comment instead.*"
+```
+
 ### Verification Checklist
 
 After completing `/pr-review`, verify all mandatory outputs:

@@ -214,20 +214,32 @@ def main() -> None:
     results = analyzer.analyze_growth_patterns(context_data)
 
     if args.output_json:
-        pass
+        print(json.dumps(results, indent=2, default=str))
     else:
+        print(f"Severity: {results['severity']}")
+        print(f"Urgency: {results['urgency']}")
+        print(f"Current Usage: {results['current_usage']}%")
+        print(f"Growth Rate: {results['growth_rate']:.2%}")
+        print(f"Controllable: {results['controllable_percentage']}%")
+        print("\nProjections:")
         for key, projection in results["projections"].items():
             if key == "mecw_violation_turns":
                 if projection == float("inf"):
-                    pass
+                    print("  MECW Violation: Never (growth is sustainable)")
                 else:
-                    pass
+                    print(f"  MECW Violation: ~{projection} turns")
             else:
-                pass
+                proj_data = projection
+                usage = proj_data["projected_usage"]
+                growth = proj_data["growth_percentage"]
+                print(f"  {key}: {usage}% (+{growth}%)")
 
         if args.verbose:
-            for _category, _data in results["content_breakdown"].items():
-                pass
+            print("\nContent Breakdown:")
+            for category, data in results["content_breakdown"].items():
+                rate = data.get("growth_rate", 0)
+                contrib = data.get("growth_contribution", 0)
+                print(f"  {category}: {rate:.2%} rate, {contrib:.1%} contribution")
 
 
 if __name__ == "__main__":

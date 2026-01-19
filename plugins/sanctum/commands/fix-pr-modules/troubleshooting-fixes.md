@@ -259,7 +259,7 @@ Attune Workflow        | /fix-pr Equivalent
 /attune:init           | --
 /attune:execute        | Step 4-5: Fix + Validate
 /attune:validate       | (included in Step 5)
-/attune:upgrade        | (optional: /attune:upgrade --component workflows)
+/attune:upgrade-project        | (optional: /attune:upgrade-project --component workflows)
 ```
 
 ## See Also

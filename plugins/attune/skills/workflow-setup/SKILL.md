@@ -20,7 +20,7 @@ tools: [Read, Write, Bash]
 - [4. Validate Workflows](#4-validate-workflows)
 - [Workflow Best Practices](#workflow-best-practices)
 - [Use Latest Action Versions](#use-latest-action-versions)
-- [Matrix Testing (Python)](#matrix-testing-(python))
+- [Matrix Testing (Python)](#matrix-testing-python)
 - [Caching Dependencies](#caching-dependencies)
 - [Updating Workflows](#updating-workflows)
 - [Related Skills](#related-skills)
@@ -174,7 +174,7 @@ For complex wrapper scripts, run `/pensive:shell-review` before integrating.
 To update workflows to latest versions:
 
 ```bash
-/attune:upgrade --component workflows
+/attune:upgrade-project --component workflows
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
