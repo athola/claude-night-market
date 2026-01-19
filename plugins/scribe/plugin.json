@@ -1,0 +1,38 @@
+{
+  "name": "scribe",
+  "version": "1.3.0",
+  "description": "Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing enforcement",
+  "commands": [
+    "./commands/slop-scan.md",
+    "./commands/style-learn.md",
+    "./commands/doc-polish.md",
+    "./commands/doc-generate.md"
+  ],
+  "skills": [
+    "./skills/shared",
+    "./skills/slop-detector",
+    "./skills/style-learner",
+    "./skills/doc-generator"
+  ],
+  "agents": [
+    "./agents/doc-editor.md",
+    "./agents/slop-hunter.md"
+  ],
+  "keywords": [
+    "documentation",
+    "writing",
+    "ai-slop",
+    "style",
+    "editing",
+    "cleanup",
+    "human-quality",
+    "prose",
+    "technical-writing",
+    "review"
+  ],
+  "author": {
+    "name": "Alex Thola",
+    "url": "https://github.com/athola"
+  },
+  "license": "MIT"
+}
