@@ -86,6 +86,13 @@ repos:
         files: ^plugins/memory-palace/
         pass_filenames: false
 
+      - id: validate-knowledge-corpus
+        name: Validate Knowledge Corpus Frontmatter
+        entry: python3 plugins/memory-palace/scripts/validate_knowledge_corpus.py
+        language: system
+        files: ^plugins/memory-palace/docs/knowledge-corpus/.*\.md$
+        pass_filenames: false
+
       - id: check-context-optimization
         name: Check Context Optimization
         entry: python3 plugins/abstract/scripts/context_optimizer.py stats plugins/
