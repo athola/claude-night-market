@@ -33,6 +33,7 @@ Or reference from the marketplace:
 | `/style-learn` | Create style profile from examples |
 | `/doc-polish` | Clean up AI-generated content |
 | `/doc-generate` | Generate new documentation |
+| `/doc-verify` | Validate documentation claims with proof-of-work |
 
 ### Agents
 
@@ -40,6 +41,7 @@ Or reference from the marketplace:
 |-------|-------------|
 | **doc-editor** | Interactive documentation editing |
 | **slop-hunter** | Comprehensive slop detection |
+| **doc-verifier** | QA validation using proof-of-work methodology |
 
 ## Quick Start
 
@@ -71,6 +73,16 @@ Or reference from the marketplace:
 
 # Generate with learned style
 /doc-generate readme --style house-style
+```
+
+### Verify Documentation
+
+```bash
+# Verify README claims and commands
+/doc-verify README.md
+
+# Verify with strict mode
+/doc-verify docs/ --strict --report qa-report.md
 ```
 
 ## AI Slop Detection
@@ -124,12 +136,14 @@ scribe/
 │   └── plugin.json
 ├── agents/
 │   ├── doc-editor.md
-│   └── slop-hunter.md
+│   ├── slop-hunter.md
+│   └── doc-verifier.md
 ├── commands/
 │   ├── slop-scan.md
 │   ├── style-learn.md
 │   ├── doc-polish.md
-│   └── doc-generate.md
+│   ├── doc-generate.md
+│   └── doc-verify.md
 ├── skills/
 │   ├── shared/
 │   ├── slop-detector/
@@ -145,6 +159,7 @@ scribe/
 
 Scribe integrates with other claude-night-market plugins:
 
+- **imbue:proof-of-work**: Evidence-based verification methodology
 - **sanctum:doc-updates**: Broader documentation maintenance
 - **conserve:bloat-detector**: Token and content optimization
 - **pensive:review skills**: Code review integration

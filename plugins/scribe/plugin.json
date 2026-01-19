@@ -6,7 +6,8 @@
     "./commands/slop-scan.md",
     "./commands/style-learn.md",
     "./commands/doc-polish.md",
-    "./commands/doc-generate.md"
+    "./commands/doc-generate.md",
+    "./commands/doc-verify.md"
   ],
   "skills": [
     "./skills/shared",
@@ -16,7 +17,8 @@
   ],
   "agents": [
     "./agents/doc-editor.md",
-    "./agents/slop-hunter.md"
+    "./agents/slop-hunter.md",
+    "./agents/doc-verifier.md"
   ],
   "keywords": [
     "documentation",
@@ -28,7 +30,10 @@
     "human-quality",
     "prose",
     "technical-writing",
-    "review"
+    "review",
+    "verification",
+    "qa",
+    "proof-of-work"
   ],
   "author": {
     "name": "Alex Thola",
