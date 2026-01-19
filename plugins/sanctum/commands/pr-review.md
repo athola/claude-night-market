@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Comprehensive PR review with scope validation and code analysis
-usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--no-line-comments] [--skip-version-check]
+usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--no-line-comments] [--skip-version-check] [--skip-doc-review]
 extends: "superpowers:receiving-code-review"
 ---
 
@@ -98,9 +98,10 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 1. **Scope Establishment** - Discover requirements from plan/spec/tasks
 2. **Version Validation** - Ensure version consistency (mandatory unless bypassed)
 3. **Code Analysis** - Deep technical review
-4. **GitHub Review** - Post review comments to PR (MANDATORY)
-5. **Test Plan** - Post verification checklist to PR (MANDATORY)
-6. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY)
+4. **Documentation Review** - AI slop detection on changed docs (via scribe)
+5. **GitHub Review** - Post review comments to PR (MANDATORY)
+6. **Test Plan** - Post verification checklist to PR (MANDATORY)
+7. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.
@@ -168,6 +169,40 @@ Reviews classify findings into:
 
 **Classification details**: See [Classification Framework](pr-review/modules/review-framework.md)
 
+## Documentation Review
+
+When the PR includes documentation changes (`.md` files), the review automatically:
+
+1. **Scans for AI slop** via `Skill(scribe:slop-detector)`
+2. **Reports findings** in the review comment
+3. **Suggests remediation** for high-severity markers
+
+```bash
+# Skip documentation review
+/pr-review --skip-doc-review
+
+# Include doc findings in dry run
+/pr-review --dry-run  # Shows what would be reported
+```
+
+### Documentation Findings Format
+
+```markdown
+### Documentation Quality
+
+**Files scanned**: 3
+**Slop score**: 2.1/10 (Light)
+
+| File | Score | Top Issues |
+|------|-------|------------|
+| docs/guide.md | 3.2 | "comprehensive", em dash density |
+| README.md | 1.5 | Clean |
+
+**Recommendation**: Consider running `/doc-polish docs/guide.md`
+```
+
+Documentation findings are **non-blocking** by default. Use `--strict` to treat them as blocking.
+
 ## Scope Modes
 
 | Mode | Behavior | When to Use |
@@ -182,6 +217,8 @@ Reviews classify findings into:
 
 This command integrates with:
 - **superpowers:receiving-code-review**: Core review logic
+- **scribe:slop-detector**: Documentation quality analysis
+- **scribe:doc-editor**: Interactive doc cleanup (if needed)
 - **gh CLI**: Fetch PR data, post comments, create issues
 - **imbue:scope-guard**: Scope worthiness evaluation
 - **backlog system**: Issue creation and tracking
@@ -197,4 +234,6 @@ This command integrates with:
 - `/fix-pr` - Address PR review feedback
 - `/pr` - Create pull request
 - `/update-tests` - Update test suite
+- `/slop-scan` - Direct AI slop detection (scribe plugin)
+- `/doc-polish` - Interactive documentation cleanup (scribe plugin)
 - **Superpowers**: `superpowers:receiving-code-review`
