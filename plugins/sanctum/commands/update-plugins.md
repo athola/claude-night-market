@@ -59,14 +59,14 @@ After registration audit completes, automatically analyze improvement opportunit
 
 #### Step 1: Check Skill Performance Metrics
 
-For each plugin being updated, invoke `/skill-review` to analyze execution history:
+For each plugin being updated, invoke `pensive:skill-review` to analyze execution history:
 
 ```bash
 # If updating specific plugin
-/skill-review --plugin <plugin-name> --recommendations
+pensive:skill-review --plugin <plugin-name> --recommendations
 
 # If updating all plugins
-/skill-review --all-plugins --recommendations
+pensive:skill-review --all-plugins --recommendations
 ```
 
 **Look for:**
@@ -264,7 +264,7 @@ This command complements:
 - `/update-docs` - Updates documentation after plugin changes
 - `/update-version` - Bumps versions after significant changes
 - `/validate-plugin` - Validates overall plugin structure
-- `/skill-review` - Analyzes skill performance metrics (invoked automatically in Phase 2)
+- `pensive:skill-review` - Analyzes skill performance metrics (invoked automatically in Phase 2)
 - `/skill-logs` - Surfaces recent failures (invoked automatically in Phase 2)
 - `/fix-workflow` - Implements improvements for identified issues
 - `memory-palace:knowledge-intake` - Evaluates queue items for promotion (Phase 3)
@@ -285,7 +285,7 @@ This command creates a continuous improvement feedback loop:
 ```mermaid
 flowchart TD
     A["/update-plugins Phase 1: Registration<br/>Sync disk ↔ plugin.json"] --> B
-    B["/update-plugins Phase 2: Analysis<br/>• Check /skill-review metrics<br/>• Query /skill-logs for failures<br/>• Surface improvement vectors"] --> C
+    B["/update-plugins Phase 2: Analysis<br/>• Check pensive:skill-review metrics<br/>• Query /skill-logs for failures<br/>• Surface improvement vectors"] --> C
     C["Create TodoWrite Items & Recommendations<br/>• Critical: Immediate action required<br/>• Moderate: Schedule for next sprint<br/>• Low: Add to backlog"] --> D
     D["/update-plugins Phase 3: Queue Check<br/>• Scan memory-palace queue<br/>• Report pending items<br/>• Prompt for promotion decisions"] --> E
     E["/fix-workflow Implement Improvements<br/>• Fix unstable skills<br/>• Improve command validation<br/>• Optimize agent performance"]
@@ -296,7 +296,7 @@ flowchart TD
 - `abstract:validate-plugin-structure` - Full plugin validation
 - `/update-docs` - Documentation updates
 - `capabilities-reference.md` - Central capability listing
-- `/skill-review` - Performance analysis and recommendations
+- `pensive:skill-review` - Performance analysis and recommendations
 - `/skill-logs` - Execution history and failure patterns
 - `/fix-workflow` - Workflow improvement retrospectives
 - `memory-palace:knowledge-intake` - Queue evaluation criteria

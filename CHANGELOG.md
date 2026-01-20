@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed - Command Deduplication (sanctum)
+
+- **Removed `sanctum:skill-review`** - Duplicate of `pensive:skill-review` and `abstract:skill-auditor`
+  - `pensive:skill-review` handles runtime metrics (execution counts, stability gaps)
+  - `abstract:skill-auditor` handles static quality analysis
+  - Updated cross-references in `update-plugins.md` and `skill-logs.md`
+
 ### Added - War Room Multi-LLM Deliberation (attune/conjure)
 
 - **War Room framework** - Multi-LLM expert council for strategic decisions

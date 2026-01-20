@@ -205,9 +205,10 @@ Reads from metrics stored by memory-palace:
 
 | Command | Plugin | Description |
 |---------|--------|-------------|
-| `/skill-logs` | memory-palace | View raw execution history |
-| `/skill-review` | pensive | Analyze metrics and stability |
-| `/skill-history` | pensive | Recent executions with context |
+| `skill-logs` | sanctum | View raw execution history and failures |
+| `skill-review` | pensive | Analyze metrics and stability (this command) |
+| `skill-history` | pensive | Recent executions with context |
+| `skill-auditor` | abstract | Deep skill quality analysis (static) |
 
 ## Output Formats
 

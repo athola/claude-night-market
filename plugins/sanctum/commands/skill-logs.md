@@ -125,7 +125,8 @@ Machine-readable output for integration with other tools.
 This command is invoked automatically by `/update-plugins` Phase 2.
 
 Related commands:
-- `/skill-review` - Analyze skill quality and structure
+- `pensive:skill-review` - Analyze runtime metrics and stability
+- `abstract:skill-auditor` - Deep skill quality analysis
 - `/update-plugins` - Full plugin registration audit
 - `memory-palace:knowledge-capture` - Log skill executions
 
