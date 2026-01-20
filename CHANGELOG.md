@@ -5,6 +5,28 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added - War Room Multi-LLM Deliberation (attune/conjure)
+
+- **War Room framework** - Multi-LLM expert council for strategic decisions
+  - 7 deliberation phases: Intel, Assessment, COA Development, Red Team, Voting, Premortem, Synthesis
+  - Expert panel: Supreme Commander (Opus), Chief Strategist (Sonnet), Intelligence Officer (Gemini Pro), Field Tactician (GLM-4.7), Scout (Qwen Turbo), Red Team Commander (Gemini Flash), Logistics Officer (Qwen Max)
+  - Lightweight mode (3 experts) with auto-escalation to full council (7 experts)
+  - Merkle-DAG anonymization: contributions anonymized during deliberation, unsealed after decision
+  - Borda count voting for fair expert aggregation
+
+- **`war_room_orchestrator.py`** (conjure) - Async orchestration engine
+  - Parallel expert dispatch with timeout handling
+  - Session persistence to Strategeion (Memory Palace war chamber)
+  - Graceful degradation on expert failures
+  - Full test coverage (17 tests)
+
+- **War Room skill and command** (attune)
+  - `Skill(attune:war-room)` - Full deliberation skill
+  - `/attune:war-room` - Command interface with options: `--full-council`, `--delphi`, `--resume`
+  - Modular design: expert-roles, deliberation-protocol, merkle-dag modules
+
 ## [1.3.0] - 2026-01-19
 
 ### Added - Scribe Plugin

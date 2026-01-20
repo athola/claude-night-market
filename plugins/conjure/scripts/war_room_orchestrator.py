@@ -505,66 +505,572 @@ class WarRoomOrchestrator:
         return output
 
     # ---------------------------------------------------------------------------
-    # Phase Implementations (Stubs for Phase 1)
+    # Prompt Templates
+    # ---------------------------------------------------------------------------
+
+    INTEL_PROMPT_SCOUT = """You are the Scout in a strategic War Room deliberation.
+
+MISSION: Rapid reconnaissance of the problem terrain.
+
+PROBLEM STATEMENT:
+{problem}
+
+CONTEXT FILES PROVIDED: {context_files}
+
+Provide a concise reconnaissance report covering:
+1. **Terrain Overview**: What kind of problem is this?
+   (architecture, design, trade-off, etc.)
+2. **Key Landmarks**: Major components, systems, or concepts involved
+3. **Potential Hazards**: Obvious risks or constraints
+4. **Quick Wins**: Any low-hanging fruit or clear opportunities
+
+Keep response under 500 words. Speed over depth."""
+
+    INTEL_PROMPT_OFFICER = """You are the Intelligence Officer in War Room deliberation.
+
+MISSION: Deep analysis of problem context using your extended context window.
+
+PROBLEM STATEMENT:
+{problem}
+
+CONTEXT FILES PROVIDED: {context_files}
+
+Provide a comprehensive intelligence report covering:
+1. **Context Analysis**: Deep dive into provided files and their relationships
+2. **Historical Patterns**: Similar decisions or approaches in the codebase
+3. **Dependencies**: What systems/components would be affected
+4. **Constraints**: Technical, organizational, or resource limitations
+5. **Unknowns**: What information is missing that would aid decision-making
+
+Be thorough. Use your large context window to full advantage."""
+
+    ASSESSMENT_PROMPT = """You are the Chief Strategist in War Room deliberation.
+
+MISSION: Synthesize intelligence into actionable strategic assessment.
+
+PROBLEM STATEMENT:
+{problem}
+
+SCOUT REPORT:
+{scout_report}
+
+INTELLIGENCE REPORT:
+{intel_report}
+
+Provide a situation assessment covering:
+1. **Refined Problem Statement**: Clarify the core decision to be made
+2. **Prioritized Constraints**: Rank the most important limitations (1-5)
+3. **Strategic Opportunities**: What advantages can we leverage?
+4. **COA Guidance**: What types of approaches should experts consider?
+5. **Success Criteria**: How will we know we made the right choice?
+
+Be decisive. This assessment guides all subsequent analysis."""
+
+    COA_PROMPT = """You are {role} in a strategic War Room deliberation.
+
+MISSION: Develop a distinct course of action (COA) for this decision.
+
+PROBLEM STATEMENT:
+{problem}
+
+SITUATION ASSESSMENT:
+{assessment}
+
+YOUR EXPERTISE: {expertise}
+
+Propose ONE well-developed course of action:
+
+## COA: [Name]
+
+### Summary
+[2-3 sentence description]
+
+### Approach
+[Detailed approach - what would we actually do?]
+
+### Pros
+- [Advantage 1]
+- [Advantage 2]
+- [...]
+
+### Cons
+- [Disadvantage 1]
+- [Disadvantage 2]
+- [...]
+
+### Risks
+- [Risk 1 with mitigation]
+- [Risk 2 with mitigation]
+
+### Effort Estimate
+[Low/Medium/High with justification]
+
+Think differently from other experts. Your COA should reflect your perspective."""
+
+    RED_TEAM_PROMPT = """You are the Red Team Commander in War Room deliberation.
+
+MISSION: Challenge all proposed courses of action. Find weaknesses.
+
+PROBLEM STATEMENT:
+{problem}
+
+PROPOSED COAs (ANONYMIZED):
+{anonymized_coas}
+
+For EACH COA, provide:
+
+## Challenge: [COA Label]
+
+### Hidden Assumptions
+- [Assumption that might not hold]
+
+### Failure Scenarios
+- [How this could fail catastrophically]
+
+### Blind Spots
+- [What the proposer might have missed]
+
+### Cross-cutting Concerns
+- [Issues that affect multiple COAs]
+
+### Severity Rating
+[Critical / High / Medium / Low]
+
+Be adversarial but constructive. Your job is to make the final decision stronger."""
+
+    VOTING_PROMPT = """You are {role} participating in War Room COA voting.
+
+PROBLEM STATEMENT:
+{problem}
+
+COAs WITH RED TEAM CHALLENGES:
+{coas_with_challenges}
+
+Rank all COAs from best to worst. For each:
+
+1. [COA Label] - [1-2 sentence justification]
+2. [COA Label] - [1-2 sentence justification]
+...
+
+End with your TOP PICK and one sentence why."""
+
+    PREMORTEM_PROMPT = """You are {role} participating in a premortem analysis.
+
+MISSION: Imagine we chose this approach and it FAILED. Why did it fail?
+
+SELECTED APPROACH:
+{selected_coa}
+
+PROBLEM CONTEXT:
+{problem}
+
+Imagine it's 6 months from now. This approach was implemented and it failed badly.
+
+1. **What Went Wrong**: Describe the failure vividly
+2. **Early Warning Signs**: What signals should we have watched for?
+3. **Root Cause**: Why did we miss this?
+4. **Prevention**: What could we do NOW to prevent this failure?
+5. **Contingency**: If we see early warnings, what's the fallback?
+
+Be pessimistic. Your imagination of failure helps us succeed."""
+
+    SYNTHESIS_PROMPT = """You are the Supreme Commander making the final decision.
+
+PROBLEM STATEMENT:
+{problem}
+
+FULL DELIBERATION RECORD:
+---
+Intelligence Reports:
+{intel}
+
+Situation Assessment:
+{assessment}
+
+All COAs (with attribution):
+{coas_unsealed}
+
+Red Team Challenges:
+{red_team}
+
+Expert Votes:
+{voting}
+
+Premortem Analysis:
+{premortem}
+---
+
+Make your final decision. Output format:
+
+## SUPREME COMMANDER DECISION
+
+### Decision
+**Selected Approach**: [Name]
+
+### Rationale
+[2-3 paragraphs explaining why this approach was selected over alternatives]
+
+### Implementation Orders
+1. [ ] [Immediate action]
+2. [ ] [Short-term action]
+3. [ ] [Medium-term action]
+
+### Watch Points
+[From premortem - what to monitor for early warning signs]
+
+### Dissenting Views
+[Acknowledge valuable opposing perspectives for the record]
+
+### Confidence Level
+[High / Medium / Low with explanation]
+
+Make a decisive call. The council has deliberated; now you must decide."""
+
+    # ---------------------------------------------------------------------------
+    # Phase Implementations
     # ---------------------------------------------------------------------------
 
     async def _phase_intel(
         self, session: WarRoomSession, context_files: list[str] | None
     ) -> None:
-        """Phase 1: Intelligence Gathering."""
+        """Phase 1: Intelligence Gathering (Scout + Intel Officer in parallel)."""
+        context_str = ", ".join(context_files) if context_files else "None provided"
+        experts_to_invoke = []
+        prompts: dict[str, str] = {}
+
+        # Scout always runs (fast, cheap)
+        prompts["scout"] = self.INTEL_PROMPT_SCOUT.format(
+            problem=session.problem_statement,
+            context_files=context_str,
+        )
+        experts_to_invoke.append("scout")
+
+        # Intel Officer only in full council mode
+        if session.mode == "full_council":
+            prompts["intelligence_officer"] = self.INTEL_PROMPT_OFFICER.format(
+                problem=session.problem_statement,
+                context_files=context_str,
+            )
+            experts_to_invoke.append("intelligence_officer")
+
+        results = await self._invoke_parallel(
+            experts_to_invoke, prompts, session, "intel"
+        )
+
+        session.artifacts["intel"] = {
+            "scout_report": results.get("scout", "[Scout unavailable]"),
+            "intel_report": results.get(
+                "intelligence_officer", "[Intel Officer not invoked - lightweight mode]"
+            ),
+            "context_files": context_files,
+        }
         session.phases_completed.append("intel")
-        # TODO: Implement full phase in Phase 2
-        session.artifacts["intel"] = {"status": "stub", "context_files": context_files}
 
     async def _phase_assessment(self, session: WarRoomSession) -> None:
-        """Phase 2: Situation Assessment."""
+        """Phase 2: Situation Assessment (Chief Strategist)."""
+        intel = session.artifacts.get("intel", {})
+
+        prompt = self.ASSESSMENT_PROMPT.format(
+            problem=session.problem_statement,
+            scout_report=intel.get("scout_report", "N/A"),
+            intel_report=intel.get("intel_report", "N/A"),
+        )
+
+        # Chief Strategist is native (Sonnet) - invoke directly
+        result = await self._invoke_expert(
+            "chief_strategist", prompt, session, "assessment"
+        )
+
+        session.artifacts["assessment"] = {
+            "content": result,
+        }
         session.phases_completed.append("assessment")
-        # TODO: Implement full phase in Phase 2
-        session.artifacts["assessment"] = {"status": "stub"}
 
     async def _phase_coa_development(self, session: WarRoomSession) -> None:
-        """Phase 3: COA Development."""
-        session.phases_completed.append("coa")
-        # TODO: Implement full phase in Phase 2
-        session.artifacts["coa"] = {"status": "stub"}
+        """Phase 3: COA Development (parallel, anonymized)."""
+        assessment = session.artifacts.get("assessment", {}).get("content", "N/A")
 
-    async def _should_escalate(self, _session: WarRoomSession) -> bool:
-        """Check if Supreme Commander should escalate to full council."""
-        # TODO: Implement escalation logic in Phase 4
-        _ = _session  # Will be used in implementation
+        experts_to_invoke = ["chief_strategist"]  # Always includes strategist
+        if session.mode == "full_council":
+            experts_to_invoke.extend(["field_tactician", "logistics_officer"])
+
+        expertise_map = {
+            "chief_strategist": "Strategic architecture and long-term viability",
+            "field_tactician": "Implementation feasibility and technical complexity",
+            "logistics_officer": "Resource requirements and dependency management",
+        }
+
+        prompts: dict[str, str] = {}
+        for expert_key in experts_to_invoke:
+            expert = EXPERT_CONFIGS.get(expert_key)
+            if expert:
+                prompts[expert_key] = self.COA_PROMPT.format(
+                    role=expert.role,
+                    problem=session.problem_statement,
+                    assessment=assessment,
+                    expertise=expertise_map.get(expert_key, "General analysis"),
+                )
+
+        results = await self._invoke_parallel(
+            experts_to_invoke, prompts, session, "coa"
+        )
+
+        # Store raw COAs (with attribution sealed in Merkle-DAG)
+        session.artifacts["coa"] = {
+            "raw_coas": results,
+            "count": len(results),
+        }
+        session.phases_completed.append("coa")
+
+    async def _should_escalate(self, session: WarRoomSession) -> bool:
+        """Check if Supreme Commander should escalate to full council.
+
+        Escalation triggers:
+        1. COA count < 2 (need more perspectives)
+        2. Keywords indicating complexity in assessment
+        3. High disagreement detected (placeholder for future)
+        """
+        coa_count = session.artifacts.get("coa", {}).get("count", 0)
+        if coa_count < 2:
+            session.escalation_reason = "Insufficient COA diversity"
+            return True
+
+        assessment = session.artifacts.get("assessment", {}).get("content", "")
+        complexity_keywords = [
+            "complex",
+            "trade-off",
+            "significant risk",
+            "irreversible",
+            "architectural",
+            "migration",
+            "breaking change",
+            "high stakes",
+        ]
+        assessment_lower = assessment.lower()
+        complexity_hits = sum(1 for kw in complexity_keywords if kw in assessment_lower)
+        if complexity_hits >= 3:
+            session.escalation_reason = (
+                f"High complexity detected ({complexity_hits} indicators)"
+            )
+            return True
+
         return False
 
     async def _escalate(
-        self, session: WarRoomSession, _context_files: list[str] | None
+        self, session: WarRoomSession, context_files: list[str] | None
     ) -> None:
-        """Escalate to full council."""
-        _ = _context_files  # Will be used in implementation
-        session.escalation_reason = "Manual escalation or complexity threshold"
-        # TODO: Invoke additional experts
+        """Escalate to full council by invoking additional experts."""
+        session.mode = "full_council"
+
+        # Invoke additional intel if not already done
+        if "intel_report" not in session.artifacts.get("intel", {}):
+            context_str = ", ".join(context_files) if context_files else "None"
+            prompt = self.INTEL_PROMPT_OFFICER.format(
+                problem=session.problem_statement,
+                context_files=context_str,
+            )
+            result = await self._invoke_expert(
+                "intelligence_officer", prompt, session, "intel"
+            )
+            session.artifacts["intel"]["intel_report"] = result
+
+        # Get additional COAs from new experts
+        assessment = session.artifacts.get("assessment", {}).get("content", "N/A")
+        additional_experts = ["field_tactician", "logistics_officer"]
+
+        expertise_map = {
+            "field_tactician": "Implementation feasibility and technical complexity",
+            "logistics_officer": "Resource requirements and dependency management",
+        }
+
+        prompts: dict[str, str] = {}
+        for expert_key in additional_experts:
+            expert = EXPERT_CONFIGS.get(expert_key)
+            if expert:
+                prompts[expert_key] = self.COA_PROMPT.format(
+                    role=expert.role,
+                    problem=session.problem_statement,
+                    assessment=assessment,
+                    expertise=expertise_map.get(expert_key, "General analysis"),
+                )
+
+        results = await self._invoke_parallel(
+            additional_experts, prompts, session, "coa"
+        )
+
+        # Merge with existing COAs
+        existing_coas = session.artifacts.get("coa", {}).get("raw_coas", {})
+        existing_coas.update(results)
+        session.artifacts["coa"]["raw_coas"] = existing_coas
+        session.artifacts["coa"]["count"] = len(existing_coas)
+        session.artifacts["coa"]["escalated"] = True
 
     async def _phase_red_team(self, session: WarRoomSession) -> None:
         """Phase 4: Red Team Challenge."""
+        # Get anonymized view of COAs
+        anonymized_coas = session.merkle_dag.get_anonymized_view(phase="coa")
+        coas_text = "\n\n---\n\n".join(
+            f"### {coa['label']}\n{coa['content']}" for coa in anonymized_coas
+        )
+
+        prompt = self.RED_TEAM_PROMPT.format(
+            problem=session.problem_statement,
+            anonymized_coas=coas_text,
+        )
+
+        result = await self._invoke_expert("red_team", prompt, session, "red_team")
+
+        session.artifacts["red_team"] = {
+            "challenges": result,
+            "coas_reviewed": len(anonymized_coas),
+        }
         session.phases_completed.append("red_team")
-        # TODO: Implement full phase in Phase 2
-        session.artifacts["red_team"] = {"status": "stub"}
 
     async def _phase_voting(self, session: WarRoomSession) -> None:
-        """Phase 5: Voting and Narrowing."""
+        """Phase 5: Voting and Narrowing using Borda count."""
+        # Prepare COAs with Red Team challenges
+        anonymized_coas = session.merkle_dag.get_anonymized_view(phase="coa")
+        challenges = session.artifacts.get("red_team", {}).get("challenges", "N/A")
+
+        coas_with_challenges = "\n\n".join(
+            f"### {coa['label']}\n{coa['content']}" for coa in anonymized_coas
+        )
+        coas_with_challenges += f"\n\n## RED TEAM CHALLENGES\n{challenges}"
+
+        # Get active panel for voting
+        panel = FULL_COUNCIL if session.mode == "full_council" else LIGHTWEIGHT_PANEL
+        voting_experts = [e for e in panel if e != "supreme_commander"]
+
+        prompts: dict[str, str] = {}
+        for expert_key in voting_experts:
+            expert = EXPERT_CONFIGS.get(expert_key)
+            if expert:
+                prompts[expert_key] = self.VOTING_PROMPT.format(
+                    role=expert.role,
+                    problem=session.problem_statement,
+                    coas_with_challenges=coas_with_challenges,
+                )
+
+        results = await self._invoke_parallel(
+            voting_experts, prompts, session, "voting"
+        )
+
+        # Parse votes and compute Borda count
+        coa_labels = [coa["label"] for coa in anonymized_coas]
+        borda_scores = self._compute_borda_scores(results, coa_labels)
+
+        # Select top 2-3 finalists
+        sorted_coas = sorted(borda_scores.items(), key=lambda x: x[1], reverse=True)
+        finalists = [label for label, _ in sorted_coas[: min(3, len(sorted_coas))]]
+
+        session.artifacts["voting"] = {
+            "raw_votes": results,
+            "borda_scores": borda_scores,
+            "finalists": finalists,
+        }
         session.phases_completed.append("voting")
-        # TODO: Implement full phase in Phase 2
-        session.artifacts["voting"] = {"status": "stub"}
+
+    def _compute_borda_scores(
+        self, votes: dict[str, str], coa_labels: list[str]
+    ) -> dict[str, int]:
+        """Compute Borda count scores from expert votes.
+
+        Borda count: N points for 1st, N-1 for 2nd, etc.
+        """
+        scores: dict[str, int] = dict.fromkeys(coa_labels, 0)
+        n = len(coa_labels)
+
+        for vote_text in votes.values():
+            # Simple parsing: look for numbered list with COA labels
+            for label in coa_labels:
+                # Check if this label appears with a rank number
+                for rank in range(1, n + 1):
+                    if f"{rank}." in vote_text and label in vote_text:
+                        # Approximate: give points based on where label appears
+                        pos = vote_text.find(label)
+                        rank_pos = vote_text.find(f"{rank}.")
+                        if 0 <= rank_pos < pos < rank_pos + 200:
+                            scores[label] += n - rank + 1
+                            break
+
+        return scores
 
     async def _phase_premortem(self, session: WarRoomSession) -> None:
-        """Phase 6: Premortem Analysis."""
+        """Phase 6: Premortem Analysis on top finalist."""
+        finalists = session.artifacts.get("voting", {}).get("finalists", [])
+        if not finalists:
+            session.artifacts["premortem"] = {"error": "No finalists to analyze"}
+            session.phases_completed.append("premortem")
+            return
+
+        # Get the top COA content
+        top_label = finalists[0]
+        anonymized_coas = session.merkle_dag.get_anonymized_view(phase="coa")
+        selected_coa = next(
+            (c["content"] for c in anonymized_coas if c["label"] == top_label),
+            "N/A",
+        )
+
+        # All active experts do premortem
+        panel = FULL_COUNCIL if session.mode == "full_council" else LIGHTWEIGHT_PANEL
+        premortem_experts = [e for e in panel if e != "supreme_commander"]
+
+        prompts: dict[str, str] = {}
+        for expert_key in premortem_experts:
+            expert = EXPERT_CONFIGS.get(expert_key)
+            if expert:
+                prompts[expert_key] = self.PREMORTEM_PROMPT.format(
+                    role=expert.role,
+                    problem=session.problem_statement,
+                    selected_coa=selected_coa,
+                )
+
+        results = await self._invoke_parallel(
+            premortem_experts, prompts, session, "premortem"
+        )
+
+        session.artifacts["premortem"] = {
+            "selected_coa": top_label,
+            "analyses": results,
+        }
         session.phases_completed.append("premortem")
-        # TODO: Implement full phase in Phase 2
-        session.artifacts["premortem"] = {"status": "stub"}
 
     async def _phase_synthesis(self, session: WarRoomSession) -> None:
         """Phase 7: Supreme Commander Synthesis."""
+        # Unseal the Merkle-DAG to reveal full attribution
+        unsealed = session.merkle_dag.unseal()
+        coa_entries = [n for n in unsealed if n["phase"] == "coa"]
+        coas_unsealed = "\n\n".join(
+            f"### {n['label']} (by {n['expert_role']} / {n['expert_model']})\n"
+            f"{n['content']}"
+            for n in coa_entries
+        )
+
+        intel = session.artifacts.get("intel", {})
+        scout = intel.get("scout_report", "N/A")
+        intel_rpt = intel.get("intel_report", "N/A")
+        intel_text = f"Scout: {scout}\n\nIntel Officer: {intel_rpt}"
+
+        prompt = self.SYNTHESIS_PROMPT.format(
+            problem=session.problem_statement,
+            intel=intel_text,
+            assessment=session.artifacts.get("assessment", {}).get("content", "N/A"),
+            coas_unsealed=coas_unsealed,
+            red_team=session.artifacts.get("red_team", {}).get("challenges", "N/A"),
+            voting=json.dumps(session.artifacts.get("voting", {}), indent=2),
+            premortem=json.dumps(session.artifacts.get("premortem", {}), indent=2),
+        )
+
+        # Supreme Commander synthesis (native Opus)
+        result = await self._invoke_expert(
+            "supreme_commander", prompt, session, "synthesis"
+        )
+
+        session.artifacts["synthesis"] = {
+            "decision": result,
+            "attribution_revealed": True,
+        }
         session.phases_completed.append("synthesis")
-        # TODO: Implement full phase in Phase 2
-        session.artifacts["synthesis"] = {"status": "stub"}
 
     # ---------------------------------------------------------------------------
     # Persistence

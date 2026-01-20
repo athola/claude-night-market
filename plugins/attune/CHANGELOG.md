@@ -5,6 +5,28 @@ All notable changes to the Attune plugin will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+#### War Room - Multi-LLM Deliberation Framework
+- **`/attune:war-room` command**: Convene expert panel for strategic decisions
+- **`Skill(attune:war-room)`**: Full deliberation skill with 7 phases
+- **Expert panel**: 7 specialized AI roles (Supreme Commander, Chief Strategist, etc.)
+- **Deliberation phases**: Intel, Assessment, COA Development, Red Team, Voting, Premortem, Synthesis
+- **Merkle-DAG anonymization**: Contributions anonymized during deliberation, unsealed after decision
+- **Borda count voting**: Rank-based aggregation for fair expert voting
+- **Escalation logic**: Automatic escalation from lightweight to full council on complexity
+
+#### War Room Modules
+- `modules/expert-roles.md` - Expert panel configuration and invocation patterns
+- `modules/deliberation-protocol.md` - Phase definitions and flow control
+- `modules/merkle-dag.md` - Anonymization and integrity verification
+
+#### War Room Integration
+- **Strategeion**: Dedicated Memory Palace chamber for war council sessions
+- **Conjure delegation**: Expert dispatch via conjure delegation framework
+
 ## [1.0.0] - 2026-01-02
 
 ### Added
