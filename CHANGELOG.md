@@ -5,6 +5,46 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-01-19
+
+### Added - Scribe Plugin
+
+- **New scribe plugin** - Documentation quality and AI-generated content detection
+  - `doc-verifier` agent - Multi-pass documentation QA with AI slop detection
+  - AI slop pattern detection: marketing speak, buzzwords, excessive enthusiasm
+  - Quality checks: completeness, accuracy, consistency, examples, clarity
+  - Multi-tier review: quick scan → detailed analysis → slop detection
+  - Integration with `/sanctum:pr-review` and `/sanctum:update-docs` workflows
+
+### Enhanced - Sanctum Workflows
+
+- **Scribe integration** - Documentation review in PR and doc update workflows
+  - `/pr-review` now includes scribe's doc-verifier for documentation changes
+  - `/update-docs` invokes scribe for AI-generated content detection
+  - Hooks.json indirect reference resolution in plugin auditor
+  - Zellij session detection for smarter notifications
+  - GitHub API PATCH method for PR description updates
+
+### Enhanced - Plugin Quality Tools
+
+- **Conserve plugin** - AI hygiene auditing and duplication detection
+  - AI-generated bloat patterns module
+  - Duplicate detection script for codebase hygiene
+  - AI hygiene auditor agent for proactive quality checks
+  - Agent psychosis and codebase hygiene documentation
+
+- **Memory Palace** - Knowledge corpus validation and semantic memory
+  - ACE Playbook semantic memory integration
+  - Knowledge corpus validation script with automated testing
+  - Cargo cult programming prevention documentation
+
+### Documentation
+
+- Added scribe plugin documentation to book
+- Updated capability references with scribe agents, commands, and skills
+- Enhanced plugin domain specialists section
+- Updated sanctum PR workflow and README update documentation
+
 ## [1.2.9] - 2026-01-16
 
 ### Added - PermissionRequest Hook (conserve)
@@ -1132,6 +1172,7 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.3.0]: https://github.com/athola/claude-night-market/compare/v1.2.9...v1.3.0
 [1.2.5]: https://github.com/athola/claude-night-market/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/athola/claude-night-market/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/athola/claude-night-market/compare/v1.2.1...v1.2.3

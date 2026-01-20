@@ -778,6 +778,12 @@ After posting the test plan, update the PR description with a summary of the rev
 
 17. **Generate PR Description Update**
 
+    Apply `scribe:doc-generator` principles when drafting PR descriptions:
+    - Ground claims with specifics (commit hashes, file counts, test results)
+    - Use direct language, avoid marketing terms
+    - No tier-1 slop words: delve, comprehensive, leverage, seamless
+    - Active voice preferred
+
     ```markdown
     ## Summary
 

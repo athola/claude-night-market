@@ -47,3 +47,6 @@ The cache interceptor requires a large curated base so governance hooks can answ
 ### Code Quality & Maintenance
 - [Codebase Bloat Detection - Tools and Techniques](./codebase-bloat-detection.md)
 - [Cargo Cult Programming Prevention](./cargo-cult-programming-prevention.md) - AI amplification, first principles, TDD anti-patterns
+
+### AI Architecture & Patterns
+- [ACE Playbook - Semantic Memory Patterns](./ace-playbook-semantic-memory.md) - FAISS deduplication, counter-based reinforcement, guardrails-as-sensors

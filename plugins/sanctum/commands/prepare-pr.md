@@ -135,6 +135,8 @@ Unless `--skip-updates` is specified:
    - Combines workspace analysis with code review findings
    - Generates detailed PR description
    - Includes quality gates results and review recommendations
+   - Verifies content quality via `scribe:slop-detector` principles
+   - Applies `scribe:doc-generator` guidelines to avoid AI-sounding text
 
 ## Options
 
@@ -398,9 +400,16 @@ Solution: Check file permissions, provide alternative path
 
 ## Notes
 
-- Requires sanctum, abstract, and superpowers plugins
+- Requires sanctum, abstract, superpowers, and scribe plugins
 - GitHub CLI (gh) recommended for full functionality
 - Supports custom quality gate commands
 - `/pr` alias maintains backward compatibility (with new defaults)
 - Phase 0 updates can be skipped with `--skip-updates` flag
 - Implements Mandatory Post-Implementation Protocol automatically
+- PR descriptions are verified with scribe to avoid AI-sounding content
+
+## See Also
+
+- `/slop-scan` - Direct AI slop detection (scribe plugin)
+- `/doc-polish` - Interactive documentation cleanup (scribe plugin)
+- `/pr-review` - Review existing PRs with documentation quality checks

@@ -1,31 +1,26 @@
-# Scribe
+# scribe
 
 Documentation review, cleanup, and generation with AI slop detection.
+
+## Overview
+
+Scribe helps maintain high-quality documentation by detecting AI-generated content patterns ("slop"), learning writing styles from exemplars, and generating or remediating documentation. It integrates with sanctum's documentation workflows.
 
 ## Installation
 
 ```bash
-claude plugins install scribe
+/plugin install scribe@claude-night-market
 ```
 
-Or reference from the marketplace:
-```json
-{
-  "plugins": ["scribe@claude-night-market"]
-}
-```
+## Skills
 
-## Features
+| Skill | Description | When to Use |
+|-------|-------------|-------------|
+| `slop-detector` | Detect AI-generated content markers | Scanning docs for AI tells |
+| `style-learner` | Extract writing style from exemplar text | Creating style profiles |
+| `doc-generator` | Generate/remediate documentation | Writing or fixing docs |
 
-### Skills
-
-| Skill | Description |
-|-------|-------------|
-| **slop-detector** | Detect AI-generated content markers |
-| **style-learner** | Extract writing style from exemplar text |
-| **doc-generator** | Generate/remediate documentation |
-
-### Commands
+## Commands
 
 | Command | Description |
 |---------|-------------|
@@ -35,15 +30,15 @@ Or reference from the marketplace:
 | `/doc-generate` | Generate new documentation |
 | `/doc-verify` | Validate documentation claims with proof-of-work |
 
-### Agents
+## Agents
 
 | Agent | Description |
 |-------|-------------|
-| **doc-editor** | Interactive documentation editing |
-| **slop-hunter** | Comprehensive slop detection |
-| **doc-verifier** | QA validation using proof-of-work methodology |
+| `doc-editor` | Interactive documentation editing |
+| `slop-hunter` | Comprehensive slop detection |
+| `doc-verifier` | QA validation using proof-of-work methodology |
 
-## Quick Start
+## Usage Examples
 
 ### Detect AI Slop
 
@@ -87,7 +82,7 @@ Or reference from the marketplace:
 
 ## AI Slop Detection
 
-Scribe detects patterns that reveal AI-generated content.
+Scribe detects patterns that reveal AI-generated content:
 
 ### Tier 1 Words (Highest Confidence)
 
@@ -100,10 +95,6 @@ Formulaic constructions like "In today's fast-paced world," "cannot be overstate
 ### Structural Markers
 
 Overuse of em dashes, excessive bullet points, uniform sentence length, perfect grammar without contractions.
-
-### Fiction-Specific Tells
-
-Physical cliches ("breath he didn't know he was holding"), emotion washing ("relief washed over"), vague depth markers ("something in his eyes").
 
 ## Writing Principles
 
@@ -128,52 +119,24 @@ Scribe enforces these principles:
 | delve | explore |
 | embark | start |
 
-## Plugin Structure
-
-```
-scribe/
-├── .claude-plugin/
-│   └── plugin.json
-├── agents/
-│   ├── doc-editor.md
-│   ├── slop-hunter.md
-│   └── doc-verifier.md
-├── commands/
-│   ├── slop-scan.md
-│   ├── style-learn.md
-│   ├── doc-polish.md
-│   ├── doc-generate.md
-│   └── doc-verify.md
-├── skills/
-│   ├── shared/
-│   ├── slop-detector/
-│   │   └── modules/
-│   ├── style-learner/
-│   │   └── modules/
-│   └── doc-generator/
-│       └── modules/
-└── README.md
-```
-
 ## Integration
 
-Scribe integrates with other claude-night-market plugins:
-
-### Sanctum Documentation Workflows
+Scribe integrates with sanctum documentation workflows:
 
 | Sanctum Command | Scribe Integration |
 |-----------------|-------------------|
-| `/pr-review` | Runs `slop-detector` on changed `.md` files, uses `doc-generator` principles for PR descriptions |
-| `/update-docs` | Runs `slop-detector` on edited docs, uses `doc-editor` for remediation |
-| `/update-readme` | Runs `slop-detector` on README, applies `doc-generator` principles |
-| `/prepare-pr` (`/pr`) | Verifies PR descriptions with `slop-detector` principles |
+| `/pr-review` | Runs `slop-detector` on changed `.md` files |
+| `/update-docs` | Runs `slop-detector` on edited docs |
+| `/update-readme` | Runs `slop-detector` on README |
+| `/prepare-pr` | Verifies PR descriptions with `slop-detector` |
 
-### Other Integrations
+## Dependencies
 
-- **imbue:proof-of-work**: Evidence-based verification methodology (used by `doc-verifier`)
-- **conserve:bloat-detector**: Token and content optimization
-- **pensive:review skills**: Code review integration
+Scribe uses skills from other plugins:
 
-## License
+- **imbue:proof-of-work**: Evidence-based verification (used by `doc-verifier`)
+- **conserve:bloat-detector**: Token optimization
 
-MIT
+<div class="achievement-hint" data-achievement="doc-cleanup">
+Clean up AI slop in 10 files to unlock: Documentation Purist
+</div>

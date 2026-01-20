@@ -1,6 +1,6 @@
 {
   "name": "sanctum",
-  "version": "1.2.10",
+  "version": "1.3.0",
   "description": "Git and workspace operations for active development workflows - commit messages, PR prep, documentation updates, and version management",
   "commands": [
     "./commands/commit-msg.md",
@@ -66,6 +66,5 @@
     "name": "Alex Thola",
     "url": "https://github.com/athola"
   },
-  "license": "MIT",
-  "hooks": "./hooks/hooks.json"
+  "license": "MIT"
 }

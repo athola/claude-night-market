@@ -29,6 +29,8 @@ dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
   - imbue:evidence-logging
+  - scribe:slop-detector
+  - scribe:doc-generator
 ---
 
 # README Update Workflow
@@ -42,7 +44,8 @@ Run `Skill(sanctum:git-workspace-review)` first to capture repo context and diff
 2. `update-readme:exemplar-research`
 3. `update-readme:outline-aligned`
 4. `update-readme:edits-applied`
-5. `update-readme:verification-reporting`
+5. `update-readme:slop-scanned` - AI marker detection via scribe
+6. `update-readme:verification-reporting`
 
 ## Step 1 - Language Audit (`update-readme:language-audit`)
 - Confirm `pwd`, `git status -sb`, and the baseline branch for reference.
@@ -69,6 +72,40 @@ See `modules/exemplar-research.md` for search query patterns and evaluation crit
 - Maintain concise, evidence-based prose; avoid marketing fluff.
 - Add comparison tables, feature lists, or diagrams only if they originate from current repository assets (no speculative content).
 - When referencing algorithms or performance claims, point to benchmarks or tests within the repository or documented math reviews.
+
+## Step 4.5 - AI Slop Detection (`update-readme:slop-scanned`)
+
+Run `Skill(scribe:slop-detector)` on the updated README to detect AI-generated content markers.
+
+### Scribe Integration
+
+The scribe plugin provides AI slop detection:
+
+```
+Skill(scribe:slop-detector) --target README.md
+```
+
+This detects:
+- **Tier 1 words**: delve, tapestry, comprehensive, leveraging, etc.
+- **Phrase patterns**: "In today's fast-paced world", "cannot be overstated"
+- **Structural markers**: Excessive em dashes, bullet overuse, sentence uniformity
+- **Marketing language**: "enterprise-ready", "cutting-edge", "seamless"
+
+### Remediation
+
+If slop score exceeds 2.0 (moderate), apply `Skill(scribe:doc-generator)` principles:
+
+1. Ground every claim with specifics
+2. Remove formulaic openers/closers
+3. Use numbers, commands, filenames over adjectives
+4. Balance bullets with narrative prose
+5. Show authorial perspective (trade-offs, reasoning)
+
+For significant cleanup needs, use:
+
+```
+Agent(scribe:doc-editor) --target README.md
+```
 
 ## Step 5 - Verification & Reporting (`update-readme:verification-reporting`)
 - Re-read the updated README for clarity, accessibility (section lengths, bullet balance), and accurate links.

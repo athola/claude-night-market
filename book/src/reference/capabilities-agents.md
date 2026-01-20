@@ -355,6 +355,43 @@ skills: imbue:review-core, imbue:evidence-logging
 
 ---
 
+## Scribe Plugin
+
+### `scribe:doc-editor`
+Interactive documentation editing.
+
+```yaml
+tools: [Read, Write, Edit, Glob, Grep]
+model: sonnet
+skills: scribe:slop-detector, scribe:doc-generator
+```
+
+**Use When**: Cleaning up AI-generated content, polishing documentation, applying learned styles.
+
+### `scribe:doc-verifier`
+QA validation using proof-of-work methodology.
+
+```yaml
+tools: [Read, Bash, Glob, Grep]
+model: sonnet
+skills: imbue:proof-of-work, scribe:slop-detector
+```
+
+**Use When**: Validating documentation claims, verifying command examples work, checking version accuracy.
+
+### `scribe:slop-hunter`
+Comprehensive AI slop detection.
+
+```yaml
+tools: [Read, Glob, Grep]
+model: haiku
+skills: scribe:slop-detector
+```
+
+**Use When**: Scanning large document sets for AI-generated content markers.
+
+---
+
 ## Scry Plugin
 
 ### `scry:media-recorder`

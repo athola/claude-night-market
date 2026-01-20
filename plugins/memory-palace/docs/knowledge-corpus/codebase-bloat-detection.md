@@ -4,7 +4,7 @@ source: Research Session 2025-12-31 (43 sources)
 date_captured: 2025-12-31
 palace: Code Quality
 district: Static Analysis & Maintenance
-maturity: growing
+maturity: budding
 tags: [bloat-detection, static-analysis, git-history, documentation-quality, code-quality, dead-code, technical-debt]
 queries:
   - How to detect unused code programmatically?

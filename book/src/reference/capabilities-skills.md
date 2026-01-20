@@ -346,6 +346,43 @@ Tools covered: cProfile, line_profiler, memory_profiler.
 
 ---
 
+## Scribe Plugin
+
+### `scribe:slop-detector`
+Detect AI-generated content markers.
+
+**Invocation**: `Skill(scribe:slop-detector)`
+
+**Detection Tiers**:
+- Tier 1 (Highest Confidence): Words like "delve", "tapestry", "realm", "embark"
+- Tier 2: Phrase patterns ("In today's fast-paced world", "cannot be overstated")
+- Tier 3: Structural markers (em dash density, bullet ratio, sentence uniformity)
+
+### `scribe:style-learner`
+Extract writing style from exemplar text.
+
+**Invocation**: `Skill(scribe:style-learner)`
+
+Creates style profiles that capture:
+- Sentence length distribution
+- Vocabulary preferences
+- Structural patterns
+- Voice and tone markers
+
+### `scribe:doc-generator`
+Generate and remediate documentation.
+
+**Invocation**: `Skill(scribe:doc-generator)`
+
+**Writing Principles**:
+1. Ground every claim with specifics
+2. Trim formulaic crutches
+3. Show perspective with reasoning
+4. Vary structure (mix prose and bullets)
+5. Use active voice
+
+---
+
 ## Spec-Kit Plugin
 
 ### `spec-kit:speckit-orchestrator`

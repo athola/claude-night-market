@@ -2,7 +2,7 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-This repository adds 15 plugins to Claude Code for git operations, code review, spec-driven development, and issue management. These plugins work independently but share a common set of patterns for testing and debugging.
+This repository adds 16 plugins to Claude Code for git operations, code review, spec-driven development, and issue management. These plugins work independently but share a common set of patterns for testing and debugging.
 
 ## Key Features
 
@@ -50,7 +50,7 @@ Skill(sanctum:git-workspace-review)            # Invoke a skill (if Skill tool a
 
 ## What's Included
 
-**15 plugins** organized in layers, each building on foundations below:
+**16 plugins** organized in layers, each building on foundations below:
 
 ```mermaid
 flowchart TB
@@ -69,6 +69,7 @@ flowchart TB
         D6[minister]:::domainClass
         D7[attune]:::domainClass
         D8[scry]:::domainClass
+        D9[scribe]:::domainClass
     end
 
     subgraph Utility["Utility Layer"]
@@ -104,11 +105,12 @@ flowchart TB
 *   **parseltongue**: Python tools (`/analyze-tests`).
 *   **archetypes**: Architecture guides.
 *   **memory-palace**: Knowledge indexing (`/palace`).
+*   **scribe**: Documentation review and AI slop detection (`/slop-scan`, `/doc-verify`).
 *   **hookify**: Behavioral rules without configuration.
 *   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
 *   **imbue**: Review methodologies, proof-of-work TDD, anti-cargo-cult verification.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 113 skills, 95 commands, and 37 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 109 skills, 96 commands, and 36 agents.
 
 ## Audience
 

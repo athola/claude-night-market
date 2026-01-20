@@ -172,6 +172,41 @@ For security-related changes:
 - Include work-in-progress notes
 - Reference internal tool commands unless relevant
 
+## Writing Quality (scribe Integration)
+
+Apply `scribe:doc-generator` principles to avoid AI-sounding text:
+
+### Vocabulary to Avoid
+
+| Instead of | Use |
+|------------|-----|
+| leverage | use |
+| utilize | use |
+| comprehensive | thorough |
+| robust | solid |
+| facilitate | help |
+| streamline | simplify |
+| seamless | smooth |
+| delve | explore |
+
+### Phrase Patterns to Remove
+
+- "In order to..." → "To..."
+- "It should be noted that..." → (just state it)
+- "I'd be happy to..." → (not relevant in PR text)
+- "This ensures that..." → (ground with specifics instead)
+- Marketing language: "enterprise-ready", "cutting-edge", "best-in-class"
+
+### Quality Checklist
+
+Before finalizing a PR description:
+
+- [ ] No tier-1 slop words present
+- [ ] All claims grounded with specifics (numbers, files, commands)
+- [ ] Active voice used throughout
+- [ ] No formulaic openers or closers
+- [ ] Balanced structure (not all bullets)
+
 ## Template Variations
 
 ### Small Bug Fix

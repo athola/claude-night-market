@@ -1161,6 +1161,100 @@ Check artifact consistency.
 
 ---
 
+## Scribe Plugin
+
+### `/slop-scan`
+Scan files for AI-generated content markers.
+
+```bash
+# Usage
+/slop-scan [PATH] [--fix] [--report FILE]
+
+# Options
+PATH          File or directory to scan (default: current directory)
+--fix         Show fix suggestions
+--report FILE Output to report file
+
+# Examples
+/slop-scan
+/slop-scan docs/
+/slop-scan README.md --fix
+/slop-scan **/*.md --report slop-report.md
+```
+
+### `/style-learn`
+Create style profile from examples.
+
+```bash
+# Usage
+/style-learn [FILES] --name NAME
+
+# Options
+FILES         Example files to learn from
+--name NAME   Profile name
+--merge       Merge with existing profile
+
+# Examples
+/style-learn good-examples/*.md --name house-style
+/style-learn docs/api.md --name api-docs --merge
+```
+
+### `/doc-polish`
+Clean up AI-generated content.
+
+```bash
+# Usage
+/doc-polish [FILES] [--style NAME] [--dry-run]
+
+# Options
+FILES         Files to polish
+--style NAME  Apply learned style
+--dry-run     Preview changes without writing
+
+# Examples
+/doc-polish README.md
+/doc-polish docs/*.md --style house-style
+/doc-polish **/*.md --dry-run
+```
+
+### `/doc-generate`
+Generate new documentation.
+
+```bash
+# Usage
+/doc-generate TYPE [--style NAME] [--output FILE]
+
+# Options
+TYPE          Document type: readme|api|changelog|usage
+--style NAME  Apply learned style
+--output FILE Output file path
+
+# Examples
+/doc-generate readme
+/doc-generate api --style api-docs
+/doc-generate changelog --output CHANGELOG.md
+```
+
+### `/doc-verify`
+Validate documentation claims with proof-of-work.
+
+```bash
+# Usage
+/doc-verify [FILES] [--strict] [--report FILE]
+
+# Options
+FILES         Files to verify
+--strict      Treat warnings as errors
+--report FILE Output QA report
+
+# Examples
+/doc-verify README.md
+/doc-verify docs/ --strict
+/doc-verify **/*.md --report qa-report.md
+```
+
+---
+
 ## Scry Plugin
 
 ### `/scry:record-terminal`
