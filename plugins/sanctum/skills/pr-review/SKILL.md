@@ -37,6 +37,8 @@ dependencies:
   - pensive:unified-review
   - imbue:evidence-logging
   - memory-palace:review-chamber
+  - scribe:slop-detector
+  - scribe:doc-generator
 ---
 ## Table of Contents
 
@@ -45,31 +47,20 @@ dependencies:
 - [Scope Classification Framework](#scope-classification-framework)
 - [Classification Examples](#classification-examples)
 - [Workflow](#workflow)
-- [Phase 1: Establish Scope Baseline](#phase-1:-establish-scope-baseline)
-- [Phase 2: Gather Changes](#phase-2:-gather-changes)
-- [Phase 3: Requirements Validation](#phase-3:-requirements-validation)
-- [Phase 1.5: Version Validation (MANDATORY)](#phase-15:-version-validation-(mandatory))
-- [Phase 4: Code Review with Scope Context](#phase-4:-code-review-with-scope-context)
-- [Phase 5: Backlog Triage](#phase-5:-backlog-triage)
-- [Details](#details)
-- [Suggested Approach](#suggested-approach)
-- [Priority](#priority)
-- [Phase 6: Generate Report](#phase-6:-generate-report)
-- [PR #X: Title](#pr-#x:-title)
-- [Scope Compliance](#scope-compliance)
-- [Blocking (0)](#blocking-(0))
-- [In-Scope (2)](#in-scope-(2))
-- [Suggestions (1)](#suggestions-(1))
-- [Backlog → GitHub Issues (3)](#backlog-→-github-issues-(3))
-- [Recommendation](#recommendation)
-- [Phase 7: Knowledge Capture](#phase-7:-knowledge-capture)
-- [Knowledge Captured 📚](#knowledge-captured-📚)
+- [Phase 1: Establish Scope Baseline](#phase-1-establish-scope-baseline)
+- [Phase 2: Gather Changes](#phase-2-gather-changes)
+- [Phase 3: Requirements Validation](#phase-3-requirements-validation)
+- [Phase 1.5: Version Validation (MANDATORY)](#phase-15-version-validation-mandatory)
+- [Phase 4: Code Review with Scope Context](#phase-4-code-review-with-scope-context)
+- [Phase 5: Backlog Triage](#phase-5-backlog-triage)
+- [Phase 6: Generate Report](#phase-6-generate-report)
+- [Phase 7: Knowledge Capture](#phase-7-knowledge-capture)
 - [Quality Gates](#quality-gates)
 - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
-- [Don't: Scope Creep Review](#don't:-scope-creep-review)
-- [Don't: Perfect is Enemy of Good](#don't:-perfect-is-enemy-of-good)
-- [Don't: Blocking on Style](#don't:-blocking-on-style)
-- [Don't: Reviewing Unchanged Code](#don't:-reviewing-unchanged-code)
+- [Don't: Scope Creep Review](#dont-scope-creep-review)
+- [Don't: Perfect is Enemy of Good](#dont-perfect-is-enemy-of-good)
+- [Don't: Blocking on Style](#dont-blocking-on-style)
+- [Don't: Reviewing Unchanged Code](#dont-reviewing-unchanged-code)
 - [Integration with Other Tools](#integration-with-other-tools)
 - [Exit Criteria](#exit-criteria)
 
@@ -378,6 +369,8 @@ A PR should be approved when:
 - **`/pr`**: To prepare a PR before review
 - **`pensive:unified-review`**: For the actual code analysis
 - **`pensive:bug-review`**: For deeper bug hunting if needed
+- **`scribe:slop-detector`**: For documentation quality in changed `.md` files
+- **`scribe:doc-generator`**: For PR description writing guidelines
 
 ## Exit Criteria
 

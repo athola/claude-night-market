@@ -14,6 +14,7 @@ modules:
   - quick-scan
   - git-history-analysis
   - code-bloat-patterns
+  - ai-generated-bloat
   - documentation-bloat
   - static-analysis-integration
   - remediation-types
@@ -30,9 +31,10 @@ Systematically detect and eliminate codebase bloat through progressive analysis 
 | Category | Examples |
 |----------|----------|
 | **Code** | Dead code, God classes, Lava flow, duplication |
-| **Documentation** | Redundancy, verbosity, stale content |
-| **Dependencies** | Unused imports, dependency bloat |
-| **Git History** | Stale files, low-churn code |
+| **AI-Generated** | Tab-completion bloat, vibe coding, hallucinated deps |
+| **Documentation** | Redundancy, verbosity, stale content, slop |
+| **Dependencies** | Unused imports, dependency bloat, phantom packages |
+| **Git History** | Stale files, low-churn code, massive single commits |
 
 ## Quick Start
 
@@ -81,11 +83,12 @@ Priority = (Token_Savings × 0.4) + (Maintenance × 0.3) + (Confidence × 0.2) +
 
 **Tier 1** (always available):
 - `@module:quick-scan` - Heuristics, no tools
-- `@module:git-history-analysis` - Staleness, churn
+- `@module:git-history-analysis` - Staleness, churn, vibe coding signatures
 
 **Tier 2** (optional tools):
-- `@module:code-bloat-patterns` - Anti-patterns
-- `@module:documentation-bloat` - Redundancy, readability
+- `@module:code-bloat-patterns` - Anti-patterns (God class, Lava flow)
+- `@module:ai-generated-bloat` - AI-specific patterns (Tab bloat, hallucinations)
+- `@module:documentation-bloat` - Redundancy, readability, slop detection
 - `@module:static-analysis-integration` - Vulture, Knip
 
 **Shared**:

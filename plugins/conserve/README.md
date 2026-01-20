@@ -65,12 +65,28 @@ Safely delete, refactor, and consolidate code with user approval.
 
 `/unbloat` prevents data loss by creating backup branches and requiring interactive approval for modifications. The system runs verification tests after changes and rolls back automatically if failures occur. All file operations use `git rm` and `git mv` to preserve history.
 
+### `/ai-hygiene-audit`
+
+Detect AI-specific code quality issues that traditional bloat detection misses.
+
+```bash
+/ai-hygiene-audit                        # Full AI hygiene audit
+/ai-hygiene-audit --focus duplication    # Tab-completion bloat
+/ai-hygiene-audit --focus tests          # Happy-path-only detection
+/ai-hygiene-audit --threshold 70         # CI integration with pass/fail
+```
+
+**Detects**: Vibe coding patterns, Tab-completion bloat, happy-path tests, hallucinated dependencies, documentation slop.
+
+**Why It Exists**: AI coding has created qualitatively different bloat. 2024 was the first year copy/pasted lines exceeded refactored lines (GitClear). Traditional bloat detection finds dead code; AI hygiene detection finds *live but problematic* code.
+
 ## Agents
 
 | Agent | Purpose | Tools | Model |
 |-------|---------|-------|-------|
 | `bloat-auditor` | Orchestrate bloat detection scans. | Bash, Grep, Glob, Read, Write | Sonnet |
 | `unbloat-remediator` | Execute bloat remediation workflows. | Bash, Grep, Glob, Read, Write, Edit | Sonnet/Opus |
+| `ai-hygiene-auditor` | Detect AI-generated code quality issues. | Bash, Grep, Glob, Read | Sonnet |
 | `context-optimizer` | Assess and optimize MECW. | Read, Grep | Sonnet |
 
 ## Skills
@@ -89,12 +105,19 @@ Safely delete, refactor, and consolidate code with user approval.
 
 ### Bloat Detection
 
-The `bloat-detector` skill supports `/bloat-scan` and `/unbloat`.
+The `bloat-detector` skill supports `/bloat-scan`, `/unbloat`, and `/ai-hygiene-audit`.
 
 **Detection Tiers:**
 - **Tier 1**: Heuristic-based analysis.
-- **Tier 2**: Static analysis integration (Vulture/Knip).
+- **Tier 2**: Static analysis integration (Vulture/Knip) + AI-generated bloat patterns.
 - **Tier 3**: Deep audit with full tooling.
+
+**AI-Specific Detection (New):**
+- Tab-completion bloat (repeated similar blocks)
+- Vibe coding signatures (massive single commits)
+- Happy-path-only tests
+- Hallucinated dependencies
+- Documentation slop patterns
 
 ### Bloat Detection Outcomes
 

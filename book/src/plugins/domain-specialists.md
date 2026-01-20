@@ -22,6 +22,7 @@ Domain plugins offer:
 | [minister](minister.md) | Releases | Initiative tracking |
 | [attune](attune.md) | Projects | Full-cycle project development |
 | [scry](scry.md) | Media | Documentation recordings |
+| [scribe](scribe.md) | Documentation | AI slop detection and cleanup |
 
 ## When to Use
 
@@ -79,6 +80,13 @@ Use when you need to:
 - Generate GIFs for documentation
 - Compose multi-source tutorials
 
+### scribe
+Use when you need to:
+- Detect AI-generated content markers
+- Clean up documentation slop
+- Learn and apply writing styles
+- Verify documentation accuracy
+
 ## Dependencies
 
 Most domain plugins depend on foundation layers:
@@ -92,6 +100,7 @@ spec-kit --> imbue
 minister (standalone)
 attune --> spec-kit, imbue
 scry (standalone)
+scribe --> imbue, conserve
 ```
 
 ## Example Workflows
@@ -154,6 +163,18 @@ Skill(parseltongue:python-testing)
 # Records browser session with Playwright
 ```
 
+### Documentation Cleanup
+```bash
+/slop-scan docs/
+# Scans for AI-generated content markers
+
+/doc-polish README.md
+# Interactive cleanup of AI slop
+
+/doc-verify README.md
+# Validates documentation claims
+```
+
 ## Installation
 
 Install based on your needs:
@@ -182,6 +203,9 @@ Install based on your needs:
 
 # Media recording
 /plugin install scry@claude-night-market
+
+# Documentation review
+/plugin install scribe@claude-night-market
 ```
 
 <div class="achievement-hint" data-achievement="domain-master">

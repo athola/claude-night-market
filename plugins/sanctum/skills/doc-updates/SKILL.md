@@ -28,18 +28,23 @@ dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
   - imbue:evidence-logging
+  - scribe:slop-detector
+  - scribe:doc-generator
+optional_dependencies:
+  - elements-of-style:writing-clearly-and-concisely
 ---
 ## Table of Contents
 
 - [When to Use](#when-to-use)
 - [Required TodoWrite Items](#required-todowrite-items)
-- [Step 1: Collect Context (`context-collected`)](#step-1:-collect-context-(context-collected))
-- [Step 2: Identify Targets (`targets-identified`)](#step-2:-identify-targets-(targets-identified))
-- [Step 2.5: Check for Consolidation (`consolidation-checked`)](#step-25:-check-for-consolidation-(consolidation-checked))
-- [Step 3: Apply Edits (`edits-applied`)](#step-3:-apply-edits-(edits-applied))
-- [Step 4: Enforce Guidelines (`guidelines-verified`)](#step-4:-enforce-guidelines-(guidelines-verified))
-- [Step 5: Verify Accuracy (`accuracy-verified`)](#step-5:-verify-accuracy-(accuracy-verified))
-- [Step 6: Preview Changes (`preview`)](#step-6:-preview-changes-(preview))
+- [Step 1: Collect Context](#step-1-collect-context-context-collected)
+- [Step 2: Identify Targets](#step-2-identify-targets-targets-identified)
+- [Step 2.5: Check for Consolidation](#step-25-check-for-consolidation-consolidation-checked)
+- [Step 3: Apply Edits](#step-3-apply-edits-edits-applied)
+- [Step 4: Enforce Guidelines](#step-4-enforce-guidelines-guidelines-verified)
+- [Step 4.25: AI Slop Detection](#step-425-ai-slop-detection-slop-scanned)
+- [Step 5: Verify Accuracy](#step-5-verify-accuracy-accuracy-verified)
+- [Step 6: Preview Changes](#step-6-preview-changes-preview)
 - [Exit Criteria](#exit-criteria)
 - [Flags](#flags)
 
@@ -61,9 +66,10 @@ The documentation update workflow includes several specialized functions. It ide
 3. `doc-updates:consolidation-checked` (skippable)
 4. `doc-updates:edits-applied`
 5. `doc-updates:guidelines-verified`
-6. `doc-updates:plugins-synced` - plugin.json ↔ disk audit
-7. `doc-updates:accuracy-verified`
-8. `doc-updates:preview`
+6. `doc-updates:slop-scanned` - AI marker detection via scribe
+7. `doc-updates:plugins-synced` - plugin.json ↔ disk audit
+8. `doc-updates:accuracy-verified`
+9. `doc-updates:preview`
 
 ## Step 1: Collect Context (`context-collected`)
 
@@ -138,6 +144,58 @@ Load: `@modules/directory-style-rules.md`
 Maintain consistent documentation by applying directory-specific rules. The system checks for and removes filler phrases such as "in order to" or "it should be noted" and ensures that no emojis are present in the body text of technical documents. Use grounded language with specific references rather than vague claims, and maintain an imperative mood for instructions. For lists of three or more items, prefer bullets over prose to improve scannability.
 
 The audit will issue warnings for paragraphs that exceed length limits or files that surpass the established line count thresholds. We also flag marketing language and abstract adjectives like "capable" or "smooth" to maintain a technical and direct tone across all project documentation.
+
+## Step 4.25: AI Slop Detection (`slop-scanned`)
+
+Run `Skill(scribe:slop-detector)` on edited documentation to detect AI-generated content markers.
+
+### Scribe Integration
+
+The scribe plugin provides comprehensive AI slop detection:
+
+```
+Skill(scribe:slop-detector) --target [edited-files]
+```
+
+This detects:
+- **Tier 1 words**: delve, tapestry, comprehensive, leveraging, etc.
+- **Phrase patterns**: "In today's fast-paced world", "cannot be overstated"
+- **Structural markers**: Excessive em dashes, bullet overuse, sentence uniformity
+- **Sycophantic phrases**: "I'd be happy to", "Great question!"
+
+### Writing Style Guidelines
+
+For enhanced writing quality, check for `elements-of-style:writing-clearly-and-concisely`:
+
+```
+# If superpowers/elements-of-style is installed:
+Skill(elements-of-style:writing-clearly-and-concisely)
+
+# Fallback if not installed - use scribe:doc-generator principles:
+Skill(scribe:doc-generator) --remediate
+```
+
+The fallback provides equivalent guidance:
+1. Ground every claim with specifics
+2. Trim rhetorical crutches (no formulaic openers/closers)
+3. Use numbers, commands, filenames over adjectives
+4. Balance bullets with narrative prose
+5. Show authorial perspective (trade-offs, reasoning)
+
+### Remediation
+
+If slop score exceeds 2.5 (moderate), run:
+
+```
+Agent(scribe:doc-editor) --target [file]
+```
+
+This provides interactive section-by-section cleanup with user approval.
+
+### Skip Options
+
+- Use `--skip-slop` flag to bypass slop detection
+- Slop warnings are non-blocking by default
 
 ## Step 4.5: Sync Plugin Registrations (`plugins-synced`)
 
@@ -246,6 +304,7 @@ When `ENABLE_LSP_TOOL=1` is set, enhance accuracy verification with semantic ana
 | Flag | Effect |
 |------|--------|
 | `--skip-consolidation` | Skip Phase 2.5 consolidation check |
+| `--skip-slop` | Skip Phase 4.25 AI slop detection |
 | `--strict` | Treat all warnings as errors |
 | `--book-style` | Apply book/ rules to all files |
 ## Troubleshooting

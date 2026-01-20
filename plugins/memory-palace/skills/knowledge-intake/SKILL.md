@@ -10,7 +10,7 @@ Triggers: knowledge-management, curation, evaluation, external-resources, knowle
   DO NOT use when: searching existing knowledge - use knowledge-locator.
 category: governance
 tags: [knowledge-management, intake, evaluation, curation, external-resources]
-dependencies: [memory-palace-architect, digital-garden-cultivator, leyline:evaluation-framework, leyline:storage-templates]
+dependencies: [memory-palace-architect, digital-garden-cultivator, leyline:evaluation-framework, leyline:storage-templates, scribe:slop-detector, scribe:doc-verify]
 scripts: []
 usage_patterns: [resource-intake, knowledge-evaluation, application-routing]
 complexity: intermediate
@@ -29,11 +29,11 @@ estimated_tokens: 950
 - [Meta-Infrastructure Application](#meta-infrastructure-application)
 - [Routing Decision Tree](#routing-decision-tree)
 - [Storage Locations](#storage-locations)
-- [The Tidying Imperative (KonMari-Inspired)](#the-tidying-imperative-(konmari-inspired))
+- [The Tidying Imperative (KonMari-Inspired)](#the-tidying-imperative-konmari-inspired)
 - [The Master Curator](#the-master-curator)
 - [The Two Questions](#the-two-questions)
 - [Tidying Actions](#tidying-actions)
-- [Marginal Value Filtering (Anti-Pollution)](#marginal-value-filtering-(anti-pollution))
+- [Marginal Value Filtering (Anti-Pollution)](#marginal-value-filtering-anti-pollution)
 - [The Three-Step Filter](#the-three-step-filter)
 - [Using the Filter](#using-the-filter)
 - [Filter Output Example](#filter-output-example)
@@ -90,10 +90,33 @@ When a user shares a link:
 2. EVALUATE → Apply importance criteria
 3. DECIDE   → Storage location and application type
 4. STORE    → Create structured knowledge entry
-5. CONNECT  → Link to existing palace structures
-6. APPLY    → Route to codebase or infrastructure updates
-7. PRUNE    → Identify displaced/outdated knowledge
+5. VALIDATE → Scribe verification (slop scan + doc verify)
+6. CONNECT  → Link to existing palace structures
+7. APPLY    → Route to codebase or infrastructure updates
+8. PRUNE    → Identify displaced/outdated knowledge
 ```
+
+### Step 5: Scribe Validation (Required)
+
+**All knowledge corpus entries MUST pass scribe validation before finalizing.**
+
+Run `Skill(scribe:slop-detector)` on the new entry:
+- Score must be < 2.5 (Clean to Light)
+- No Tier 1 markers (delve, tapestry, comprehensive, leveraging, etc.)
+- Hedge word density < 15 per 1000 words
+
+Run `Skill(scribe:doc-verify)` to validate:
+- All file paths and URLs exist
+- All cross-references valid
+- Source attributions accurate
+
+```bash
+# Quick validation for knowledge corpus entry
+/slop-scan docs/knowledge-corpus/[entry-name].md
+/doc-verify docs/knowledge-corpus/[entry-name].md
+```
+
+**DO NOT finalize entries with slop score > 2.5** - rewrite with concrete specifics.
 **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Evaluation Framework

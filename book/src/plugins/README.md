@@ -29,6 +29,7 @@ graph TB
         spec_kit[spec-kit<br/>Spec-driven dev]
         minister[minister<br/>Release management]
         attune[attune<br/>Full-cycle development]
+        scribe[scribe<br/>Documentation review]
     end
 
     abstract --> leyline
@@ -37,6 +38,8 @@ graph TB
     sanctum --> imbue
     conjure --> leyline
     spec_kit --> imbue
+    scribe --> imbue
+    scribe --> conserve
 
     style Meta fill:#fff3e0,stroke:#e65100
     style Foundation fill:#e1f5fe,stroke:#01579b
@@ -51,7 +54,7 @@ graph TB
 | **Meta** | Plugin infrastructure and evaluation | abstract |
 | **Foundation** | Core workflow methodologies | imbue, sanctum, leyline |
 | **Utility** | Resource optimization and delegation | conserve, conjure |
-| **Domain** | Specialized task execution | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister, attune |
+| **Domain** | Specialized task execution | archetypes, pensive, parseltongue, memory-palace, spec-kit, minister, attune, scribe |
 
 ## Dependency Rules
 
@@ -88,6 +91,7 @@ graph TB
 /plugin install spec-kit@claude-night-market
 /plugin install minister@claude-night-market
 /plugin install attune@claude-night-market
+/plugin install scribe@claude-night-market
 ```
 
 ## Browse by Layer
@@ -114,6 +118,7 @@ graph TB
 | [spec-kit](spec-kit.md) | Specification-driven development |
 | [minister](minister.md) | Release management |
 | [attune](attune.md) | Full-cycle project development |
+| [scribe](scribe.md) | Documentation review and AI slop detection |
 
 <div class="achievement-hint" data-achievement="plugin-explorer">
 Read all plugin pages to unlock: Plugin Explorer

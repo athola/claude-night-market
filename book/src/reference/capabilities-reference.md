@@ -39,6 +39,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
 | `doc-consolidation` | [sanctum](../plugins/sanctum.md) | Document merging |
+| `doc-generator` | [scribe](../plugins/scribe.md) | Generate and remediate documentation |
 | `doc-updates` | [sanctum](../plugins/sanctum.md) | Documentation maintenance |
 | `error-patterns` | [leyline](../plugins/leyline.md) | Standardized error handling |
 | `escalation-governance` | [abstract](../plugins/abstract.md) | Model escalation decisions |
@@ -95,11 +96,13 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `session-palace-builder` | [memory-palace](../plugins/memory-palace.md) | Session-specific palaces |
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
+| `slop-detector` | [scribe](../plugins/scribe.md) | Detect AI-generated content markers |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
 | `speckit-orchestrator` | [spec-kit](../plugins/spec-kit.md) | Workflow coordination |
 | `storage-templates` | [leyline](../plugins/leyline.md) | Storage abstraction patterns |
+| `style-learner` | [scribe](../plugins/scribe.md) | Extract writing style from exemplar text |
 | `structured-output` | [imbue](../plugins/imbue.md) | Formatting patterns |
 | `task-planning` | [spec-kit](../plugins/spec-kit.md) | Task generation |
 | `test-review` | [pensive](../plugins/pensive.md) | Test quality review |
@@ -121,6 +124,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 
 | Command | Plugin | Description |
 |---------|--------|-------------|
+| `/ai-hygiene-audit` | conserve | Audit codebase for AI-generated code quality issues (vibe coding, Tab bloat, slop) |
 | `/aggregate-logs` | abstract | Generate LEARNINGS.md from skill execution logs |
 | `/analyze-growth` | conserve | Analyzes skill growth patterns |
 | `/analyze-hook` | abstract | Analyzes hook for security/performance |
@@ -148,6 +152,9 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/create-hook` | abstract | Scaffold new hook |
 | `/create-issue` | minister | Create GitHub issue with labels and references |
 | `/create-skill` | abstract | Scaffold new skill |
+| `/doc-generate` | scribe | Generate new documentation |
+| `/doc-polish` | scribe | Clean up AI-generated content |
+| `/doc-verify` | scribe | Validate documentation claims with proof-of-work |
 | `/estimate-tokens` | abstract | Token usage estimation |
 | `/feature-review` | imbue | Feature prioritization |
 | `/do-issue` | sanctum | Fix GitHub issues |
@@ -186,6 +193,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/skill-history` | pensive | View recent skill executions with context |
 | `/skill-logs` | memory-palace | View and manage skill execution memories |
 | `/skill-review` | pensive | Analyze skill metrics and stability gaps |
+| `/slop-scan` | scribe | Scan files for AI slop markers |
 | `/skills-eval` | abstract | Skill quality assessment |
 | `/speckit-analyze` | spec-kit | Check artifact consistency |
 | `/speckit-checklist` | spec-kit | Generate checklist |
@@ -197,6 +205,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/speckit-startup` | spec-kit | Bootstrap workflow |
 | `/speckit-tasks` | spec-kit | Generate tasks |
 | `/structured-review` | imbue | Structured review workflow |
+| `/style-learn` | scribe | Create style profile from examples |
 | `/test-review` | pensive | Test quality review |
 | `/test-skill` | abstract | Skill testing workflow |
 | `/unbloat` | conserve | Safe bloat remediation with interactive approval |
@@ -216,11 +225,14 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 
 | Agent | Plugin | Description |
 |-------|--------|-------------|
+| `ai-hygiene-auditor` | conserve | Audit codebases for AI-generation warning signs |
 | `architecture-reviewer` | pensive | Principal-level architecture review |
 | `bloat-auditor` | conserve | Orchestrates bloat detection scans |
 | `code-reviewer` | pensive | Expert code review |
 | `commit-agent` | sanctum | Commit message generator |
 | `context-optimizer` | conserve | Context optimization |
+| `doc-editor` | scribe | Interactive documentation editing |
+| `doc-verifier` | scribe | QA validation using proof-of-work methodology |
 | `dependency-updater` | sanctum | Dependency version management |
 | `garden-curator` | memory-palace | Digital garden maintenance |
 | `git-workspace-agent` | sanctum | Repository state analyzer |
@@ -243,6 +255,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `skill-auditor` | abstract | Skill quality audit |
 | `skill-evaluator` | abstract | Skill execution evaluator |
 | `skill-improver` | abstract | Implements skill improvements from observability |
+| `slop-hunter` | scribe | Comprehensive AI slop detection |
 | `spec-analyzer` | spec-kit | Spec consistency |
 | `task-generator` | spec-kit | Task creation |
 | `unbloat-remediator` | conserve | Executes safe bloat remediation |

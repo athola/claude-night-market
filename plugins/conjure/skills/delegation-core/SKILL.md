@@ -1,13 +1,9 @@
 ---
 name: delegation-core
-description: |
-
-Triggers: external-llm, delegation, core, qwen, gemini
-  Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging, and error handling.
-
-  Triggers: delegate task, external LLM, gemini, qwen, large context, offload
-  Use when: tasks exceed context window or need cheaper processing
-  DO NOT use when: task requires Claude's reasoning.
+description: Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging, and error handling.
+triggers: delegate task, external LLM, gemini, qwen, large context, offload
+use_when: tasks exceed context window or need cheaper processing
+do_not_use_when: task requires Claude's reasoning
 category: delegation-framework
 tags: [delegation, external-llm, gemini, qwen, task-management, quality-control]
 dependencies:
@@ -45,10 +41,10 @@ references:
 - [Delegation Flow](#delegation-flow)
 - [Quick Decision Matrix](#quick-decision-matrix)
 - [Detailed Workflow Steps](#detailed-workflow-steps)
-- [1. Task Assessment (`delegation-core:task-assessed`)](#1-task-assessment-(delegation-core:task-assessed))
-- [2. Suitability Evaluation (`delegation-core:delegation-suitability`)](#2-suitability-evaluation-(delegation-core:delegation-suitability))
-- [3. Handoff Planning (`delegation-core:handoff-planned`)](#3-handoff-planning-(delegation-core:handoff-planned))
-- [4. Execution & Integration (`delegation-core:results-integrated`)](#4-execution-&-integration-(delegation-core:results-integrated))
+- [1. Task Assessment (`delegation-core:task-assessed`)](#1-task-assessment-delegation-coretask-assessed)
+- [2. Suitability Evaluation (`delegation-core:delegation-suitability`)](#2-suitability-evaluation-delegation-coredelegation-suitability)
+- [3. Handoff Planning (`delegation-core:handoff-planned`)](#3-handoff-planning-delegation-corehandoff-planned)
+- [4. Execution & Integration (`delegation-core:results-integrated`)](#4-execution-integration-delegation-coreresults-integrated)
 - [Leyline Infrastructure](#leyline-infrastructure)
 - [Service-Specific Skills](#service-specific-skills)
 - [Module Reference](#module-reference)

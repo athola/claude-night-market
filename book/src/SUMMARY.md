@@ -31,6 +31,7 @@
   - [spec-kit](plugins/spec-kit.md)
   - [minister](plugins/minister.md)
   - [attune](plugins/attune.md)
+  - [scribe](plugins/scribe.md)
   - [scry](plugins/scry.md)
 
 # Tutorials

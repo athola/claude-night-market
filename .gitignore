@@ -84,3 +84,4 @@ plugins/memory-palace/reports/
 # Keep README.md and manually curated entries, ignore auto-generated
 plugins/memory-palace/docs/knowledge-corpus/queue/webfetch-*.md
 plugins/memory-palace/docs/knowledge-corpus/queue/websearch-*.md
+plugins/memory-palace/docs/knowledge-corpus/queue/archive/

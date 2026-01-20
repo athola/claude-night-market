@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "attune-dev"
-version = "1.2.10"
+version = "1.3.0"
 description = "Development tools for the attune Claude Code plugin - project initialization and workflow automation"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -28,7 +28,7 @@ dev = [
     "pre-commit>=4.0.1,<5.0",
     "safety>=3.7.0,<4.0",
     "typos>=1.0.0",
-    "ruff>=0.14.6",
+    "ruff>=0.14.13",
     "mypy>=1.18.2",
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",

@@ -28,39 +28,30 @@ estimated_tokens: 1500
 
 - [Overview](#overview)
 - [Core Concept](#core-concept)
-- [Key Benefits](#key-benefits)
+- [Key Technical Benefits](#key-technical-benefits)
 - [The Iron Law](#the-iron-law)
 - [Skill Types](#skill-types)
-- [1. Technique Skills](#1-technique-skills)
-- [2. Pattern Skills](#2-pattern-skills)
-- [3. Reference Skills](#3-reference-skills)
 - [Quick Start](#quick-start)
-- [Minimal Viable Skill Creation](#minimal-viable-skill-creation)
-- [File Structure Requirements](#file-structure-requirements)
 - [Description Optimization](#description-optimization)
 - [Formula](#formula)
 - [Requirements](#requirements)
 - [Example Patterns](#example-patterns)
 - [The TDD Cycle for Skills](#the-tdd-cycle-for-skills)
-- [RED Phase: Document Baseline Failures](#red-phase:-document-baseline-failures)
-- [GREEN Phase: Minimal Skill Implementation](#green-phase:-minimal-skill-implementation)
-- [REFACTOR Phase: Bulletproof Against Rationalization](#refactor-phase:-bulletproof-against-rationalization)
+- [RED Phase: Document Baseline Failures](#red-phase-document-baseline-failures)
+- [GREEN Phase: Minimal Skill Implementation](#green-phase-minimal-skill-implementation)
+- [REFACTOR Phase: Bulletproof Against Rationalization](#refactor-phase-bulletproof-against-rationalization)
 - [Anti-Rationalization Techniques](#anti-rationalization-techniques)
 - [Common Rationalization Patterns](#common-rationalization-patterns)
 - [Red Flags for Self-Checking](#red-flags-for-self-checking)
-- [Red Flags That You're Rationalizing](#red-flags-that-you're-rationalizing)
+- [Red Flags That You're Rationalizing](#red-flags-that-youre-rationalizing)
 - [Explicit Exception Handling](#explicit-exception-handling)
 - [When NOT to Use This Skill](#when-not-to-use-this-skill)
 - [Module References](#module-references)
 - [Deployment Checklist](#deployment-checklist)
 - [Quality Gates](#quality-gates)
+- [Scribe Validation](#scribe-validation-required-for-all-markdown)
 - [Validation Command](#validation-command)
 - [Common Pitfalls](#common-pitfalls)
-- [1. Writing Without Testing](#1-writing-without-testing)
-- [2. Vague Descriptions](#2-vague-descriptions)
-- [3. Monolithic Skills](#3-monolithic-skills)
-- [4. Missing Anti-Rationalization](#4-missing-anti-rationalization)
-- [5. Theoretical Examples](#5-theoretical-examples)
 - [Integration with Other Skills](#integration-with-other-skills)
 - [With modular-skills](#with-modular-skills)
 - [With skills-eval](#with-skills-eval)
@@ -93,7 +84,7 @@ This principle extends to ALL implementation work:
 - **Code**: No implementation without failing test
 - **Claims**: No completion claim without evidence
 
-For comprehensive enforcement patterns (adversarial verification, git history analysis, pre-commit hooks, coverage gates), see `imbue:proof-of-work` and its [iron-law-enforcement.md](../../../imbue/skills/proof-of-work/modules/iron-law-enforcement.md) module.
+For detailed enforcement patterns (adversarial verification, git history analysis, pre-commit hooks, coverage gates), see `imbue:proof-of-work` and its [iron-law-enforcement.md](../../../imbue/skills/proof-of-work/modules/iron-law-enforcement.md) module.
 
 ## Skill Types
 
@@ -347,6 +338,28 @@ Before deploying a new skill:
 - [ ] **Examples Present**: At least one concrete example included
 - [ ] **Scripts Executable**: Any tools tested and working
 - [ ] **No Orphans**: No dead links or missing dependencies
+
+### Scribe Validation (Required for All Markdown)
+
+All markdown files MUST pass scribe validation before deployment:
+
+- [ ] **Slop Scan**: Run `Skill(scribe:slop-detector)` on all .md files
+  - Score must be < 2.5 (Clean to Light)
+  - No Tier 1 markers (delve, tapestry, comprehensive, etc.)
+- [ ] **Doc Verify**: Run `Skill(scribe:doc-verify)` to validate claims
+  - All file paths exist
+  - All command examples work
+  - All cross-references valid
+- [ ] **Structural Check**: Verify bullet-to-prose ratio < 60%
+
+```bash
+# Quick validation commands
+/slop-scan plugins/[plugin]/skills/[skill]/
+/doc-verify plugins/[plugin]/skills/[skill]/SKILL.md
+```
+
+**DO NOT skip scribe validation** - even "quick" documentation drafts must pass.
+This applies to: skills, agents, commands, knowledge corpus entries, READMEs.
 
 ### Validation Command
 

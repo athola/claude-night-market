@@ -40,7 +40,7 @@ def test_maturity_metadata_is_valid_yaml() -> None:
             continue
         _, fm, _ = content.split("---", 2)
         data = yaml.safe_load(fm)
-        assert data.get("maturity") in {"probation", "growing", "evergreen"}
+        assert data.get("maturity") in {"probation", "budding", "growing", "evergreen"}
 
 
 def test_vitality_scores_preserve_evergreen_entries() -> None:

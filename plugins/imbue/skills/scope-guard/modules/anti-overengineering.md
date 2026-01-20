@@ -138,3 +138,57 @@ See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cu
 - "Since we're touching this file, we could..."
 
 **Response:** Evaluate the additional work with Worthiness formula. If < 1.0, defer to backlog.
+
+## Agent Psychosis Warning Signs
+
+**Source**: [Ronacher: Agent Psychosis](https://lucumr.pocoo.org/2026/1/18/agent-psychosis/)
+
+AI agents create unique overengineering risks through psychological dependency patterns:
+
+### Warning Signs to Monitor
+
+| Sign | Indicator | Immediate Action |
+|------|-----------|------------------|
+| **Dopamine-driven coding** | "Just one more feature" at 2am, ignoring fatigue | STOP. Sleep. Review tomorrow with fresh eyes. |
+| **Sunk cost with AI** | "We spent 4 hours on this approach" | Re-evaluate from current state, not invested time. |
+| **Echo chamber validation** | Only showed work to AI users/communities | Get review from someone NOT using AI. |
+| **Defending slop** | "It works, why change it?" for messy code | Apply understanding verification protocol. |
+| **Parasocial attachment** | "Claude and I built this together" | It's one-directional. AI reinforces your direction. |
+
+### The One-Directional Relationship
+
+> "The relationship is fundamentally one-directional. The agent reinforces whatever direction the user pushes it toward, lacking genuine critical thinking."
+
+**Reality Check Questions:**
+- "Would a skeptical senior engineer approve this?"
+- "Can I explain WHY, not just WHAT?"
+- "Have I received feedback from someone not using AI?"
+
+### Vibe Coding Red Flags
+
+| Pattern | What It Looks Like | Why It's Dangerous |
+|---------|-------------------|-------------------|
+| **Massive single commits** | 500+ line additions | No incremental review opportunity |
+| **Tab-completion acceptance** | Accepting suggestions without reading | Code you don't understand is liability |
+| **Happy path only** | No error handling, no edge cases | AI optimizes for "works" not "robust" |
+| **Abstraction-first** | Interfaces before implementations | YAGNI violation with AI confidence |
+
+### The 6-Month Wall
+
+Without rigorous oversight, AI-assisted projects hit the "6-month wall" - the point where accumulated debt becomes unmaintainable. Watch for:
+
+- Technical debt accumulating silently ("shadow debt")
+- "Mystery code" that works by coincidence
+- Unable to explain why certain code exists
+- Tests that pass but don't verify behavior
+
+### Prevention Protocol
+
+Before claiming any AI-assisted work is complete:
+
+1. **Understanding Gate**: Can you explain every significant line without referencing AI?
+2. **External Review**: Has someone NOT using AI reviewed this?
+3. **Refactoring Balance**: Did you refactor existing code, not just add new?
+4. **Test Depth**: Do tests cover failures, not just success?
+
+See [../../shared/modules/anti-cargo-cult.md] for full understanding verification protocol.

@@ -1,9 +1,26 @@
-# ACE Playbook Research: Semantic Memory Patterns for Memory Palace
+---
+title: ACE Playbook - Semantic Memory Patterns
+source: https://github.com/jmanhype/ace-playbook
+author: jmanhype
+date_captured: 2026-01-13
+date_promoted: 2026-01-19
+palace: AI Architecture
+district: Memory Systems
+maturity: budding
+tags: [semantic-memory, faiss, deduplication, reinforcement, guardrails, knowledge-management]
+queries:
+  - How to deduplicate semantically similar knowledge?
+  - What is the generator-reflector-curator pattern?
+  - How to implement counter-based reinforcement for memories?
+  - Best practices for semantic similarity thresholds?
+  - How to organize knowledge domains with separate indices?
+  - What are guardrails-as-sensors patterns?
+  - How to prevent knowledge redundancy in memory systems?
+related_issues:
+  - "#7 - Investigate ace-playbook for memory-palace improvements"
+---
 
-**Research Date**: 2026-01-13
-**Source**: https://github.com/jmanhype/ace-playbook
-**Issue**: #7 - Investigate ace-playbook for memory-palace improvements
-**Status**: COMPLETED
+# ACE Playbook: Semantic Memory Patterns
 
 ## Executive Summary
 

@@ -1,12 +1,25 @@
+---
+title: Cargo Cult Programming Prevention
+source: Research compilation (Medium, Addy Osmani, TDD practices)
+date_captured: 2026-01-10
+palace: Code Quality
+district: Anti-Patterns Prevention
+maturity: budding
+tags: [cargo-cult, anti-patterns, ai-assisted, first-principles, tdd, code-quality]
+queries:
+  - What is cargo cult programming?
+  - How does AI amplify cargo cult programming?
+  - How to prevent cargo cult coding patterns?
+  - What are first principles for software engineering?
+  - How to avoid blindly copying code?
+  - What is the junior engineer paradox with AI?
+  - How to validate AI-generated code?
+sensory_encoding: A cargo plane made of wooden sticks and coconuts - impressive looking but can't actually fly
+---
+
 # Cargo Cult Programming Prevention
 
 Research compilation on cargo cult programming anti-patterns and prevention strategies, with special focus on AI-assisted development contexts.
-
-## Memory Palace Location
-
-**Palace**: Code Quality & Maintenance
-**Room**: Anti-Patterns Prevention
-**Mnemonic**: A cargo plane made of wooden sticks and coconuts - impressive looking but can't actually fly
 
 ## Core Concept
 

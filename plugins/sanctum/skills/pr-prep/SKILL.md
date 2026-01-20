@@ -30,6 +30,8 @@ dependencies:
   - sanctum:git-workspace-review
   - imbue:evidence-logging
   - imbue:structured-output
+  - scribe:slop-detector
+  - scribe:doc-generator
 
 # Claude Code 2.1.0+ lifecycle hooks
 hooks:
@@ -68,6 +70,7 @@ Create `TodoWrite` items for each of these steps before you start:
 3. `pr-prep:changes-summarized`
 4. `pr-prep:testing-documented`
 5. `pr-prep:pr-drafted`
+6. `pr-prep:content-verified` - AI slop detection via scribe
 
 Mark them as complete as each section is finished.
 
@@ -97,6 +100,40 @@ Mark them as complete as each section is finished.
 - Fill out the standard template with Summary, Changes, Testing, and Checklist sections.
 - Add issue references, screenshots, or follow-up TODOs.
 - **See `modules/pr-template.md`** for template structure and examples.
+
+## Step 6: Verify Content Quality (`content-verified`)
+
+Apply `Skill(scribe:slop-detector)` principles to the drafted PR description.
+
+### Writing Quality Checklist
+
+Before finalizing, verify the PR description:
+
+- [ ] No tier-1 slop words: delve, comprehensive, leverage, utilize, robust, seamless
+- [ ] No formulaic phrases: "I'd be happy to", "In order to", "It should be noted"
+- [ ] No AI attribution in text
+- [ ] Specific claims grounded with evidence (commands, numbers, filenames)
+- [ ] Balanced structure (not all bullets, some prose for context)
+- [ ] Active voice preferred over passive
+
+### Vocabulary Substitutions
+
+| Instead of | Use |
+|------------|-----|
+| leverage | use |
+| utilize | use |
+| comprehensive | thorough, complete |
+| robust | solid, reliable |
+| facilitate | help, enable |
+| streamline | simplify |
+
+### Remediation
+
+If PR description contains slop markers, apply `Skill(scribe:doc-generator)` principles:
+1. Ground claims with specifics
+2. Remove marketing language
+3. Use direct statements
+4. Cut unnecessary qualifiers
 
 ## Output Instructions
 - Write the final PR description to the provided path.

@@ -1,15 +1,16 @@
 ---
-description: Update project documentation with consolidation, debloating, and accuracy verification.
-usage: /update-docs [--skip-consolidation] [--strict] [--book-style]
+description: Update project documentation with consolidation, debloating, AI slop detection, and accuracy verification.
+usage: /update-docs [--skip-consolidation] [--skip-slop] [--strict] [--book-style]
 ---
 
 # Update Project Documentation
 
-Update documentation files based on recent changes while enforcing project writing guidelines. Now includes consolidation detection, directory-specific style rules, and accuracy verification.
+Update documentation files based on recent changes while enforcing project writing guidelines. Includes consolidation detection, AI slop detection, directory-specific style rules, and accuracy verification.
 
 ## Arguments
 
 - `--skip-consolidation` - Skip redundancy detection phase (Phase 2.5)
+- `--skip-slop` - Skip AI slop detection phase (Phase 4.25)
 - `--strict` - Treat style warnings as errors
 - `--book-style` - Apply lenient book/ rules to all files
 
@@ -18,8 +19,9 @@ Update documentation files based on recent changes while enforcing project writi
 This command now addresses:
 1. **Consolidation**: Detects redundant/bloated docs (like /merge-docs)
 2. **Debloating**: Enforces directory-specific line limits and style rules
-3. **Accuracy**: Validates version numbers and counts against codebase
-4. **LSP Integration (2.0.74+)**: **Default approach** for documentation verification
+3. **AI Slop Detection**: Uses `scribe:slop-detector` to find AI-generated content markers
+4. **Accuracy**: Validates version numbers and counts against codebase
+5. **LSP Integration (2.0.74+)**: **Default approach** for documentation verification
    - Find all references to documented functions (semantic, not text-based)
    - Verify API completeness (all public APIs documented)
    - Check signature accuracy (docs match actual code)
@@ -37,8 +39,27 @@ Load the required skills in order:
    - **Consolidation check** (detects redundancy, bloat, staleness)
    - Edits applied
    - **Guidelines verified** (directory-specific: docs/ strict, book/ lenient)
+   - **AI slop scanned** via `Skill(scribe:slop-detector)`
    - **Accuracy verified** (version/count validation)
    - Preview changes
+
+### Writing Style Integration
+
+For enhanced writing quality, the workflow checks for external style guides:
+
+```
+# Primary: Use elements-of-style if installed (superpowers marketplace)
+Skill(elements-of-style:writing-clearly-and-concisely)
+
+# Fallback: Use scribe:doc-generator principles
+Skill(scribe:doc-generator) --remediate
+```
+
+If slop score exceeds threshold, use the interactive editor:
+
+```
+Agent(scribe:doc-editor) --target [file]
+```
 
 ## Directory-Specific Style Rules
 
@@ -89,11 +110,17 @@ Warnings are non-blocking; user decides whether to fix.
 # Quick update without consolidation check
 /update-docs --skip-consolidation
 
+# Skip AI slop detection (faster, less thorough)
+/update-docs --skip-slop
+
 # Strict mode: treat all warnings as errors
 /update-docs --strict
 
 # Apply lenient rules everywhere (for book-like docs)
 /update-docs --book-style
+
+# Full cleanup with slop remediation
+/update-docs && /slop-scan docs/ --fix
 ```
 
 ## Manual Execution
@@ -223,8 +250,43 @@ Directory-specific style rules are enforced:
 
 Style warnings help maintain documentation quality but don't block the workflow.
 
+### AI Slop Detection Output
+
+Phase 4.25 scans for AI-generated content markers:
+
+```markdown
+## AI Slop Scan: docs/guide.md
+
+**Score**: 3.2/10 (Moderate)
+**Words**: 1,245
+
+### Tier 1 Markers (High Confidence)
+| Line | Word | Suggestion |
+|------|------|------------|
+| 23 | delve into | explore, examine |
+| 45 | comprehensive | thorough, complete |
+| 67 | leveraging | using |
+
+### Phrase Patterns
+| Line | Pattern | Issue |
+|------|---------|-------|
+| 12 | "In today's fast-paced world" | Vapid opener - delete |
+| 89 | "cannot be overstated" | Empty emphasis |
+
+### Structural Issues
+- Em dash density: 6/1000 words (elevated)
+- Bullet ratio: 48% (consider prose)
+
+**Recommendation**: Run `Agent(scribe:doc-editor)` for interactive cleanup
+```
+
+Use `--skip-slop` to bypass this phase. Slop warnings are non-blocking by default.
+
 ## See Also
 
 - `/merge-docs` - Full consolidation workflow for complex multi-file merges
 - `/update-readme` - README-specific updates with exemplar research
 - `/git-catchup` - Understand recent git changes
+- `/slop-scan` - Direct AI slop detection (scribe plugin)
+- `/doc-polish` - Interactive documentation cleanup (scribe plugin)
+- `/doc-verify` - QA validation with proof-of-work (scribe plugin)

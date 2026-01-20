@@ -8,7 +8,7 @@ The superpowers marketplace provides specialized skills for methodologies like R
 
 ## Integration Principles
 
-Integration follows core principles: enhancing workflows with specialized capabilities and prioritizing verification. Treating superpowers as a reusable methodology library allows plugins to focus on domains while leveraging structured approaches.
+Integration follows core principles: enhancing workflows with specialized capabilities and prioritizing verification. Treating superpowers as a reusable methodology library allows plugins to focus on domains while using structured approaches.
 
 ## Integration Patterns
 

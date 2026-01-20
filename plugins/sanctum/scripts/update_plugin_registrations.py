@@ -7,6 +7,7 @@ compares them with plugin.json registrations, and optionally fixes discrepancies
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -93,13 +94,14 @@ class PluginAuditor:
                     rel_path = f"./agents/{agent_file.name}"
                     results["agents"].append(rel_path)
 
-        # Hooks: *.md, *.sh, *.py files in hooks/ (excluding test files, __init__.py, and cache dirs)
+        # Hooks: *.sh, *.py files in hooks/ (excluding test files, __init__.py, and cache dirs)
+        # Note: *.md files in hooks/ are documentation, not executable hooks
         hooks_dir = plugin_path / "hooks"
         if hooks_dir.exists():
             for hook_file in hooks_dir.iterdir():
                 if self._should_exclude(hook_file):
                     continue
-                if hook_file.is_file() and hook_file.suffix in [".md", ".sh", ".py"]:
+                if hook_file.is_file() and hook_file.suffix in [".sh", ".py"]:
                     # Skip test files and __init__.py
                     if (
                         not hook_file.name.startswith("test_")
@@ -127,10 +129,92 @@ class PluginAuditor:
             print(f"[ERROR] Failed to read {plugin_json}: {e}")
             return None
 
+    def resolve_hooks_json(
+        self, plugin_path: Path, hooks_json_ref: str
+    ) -> list[str] | None:
+        """Parse a hooks.json file and extract registered hook script paths.
+
+        Args:
+            plugin_path: Path to the plugin directory
+            hooks_json_ref: Relative path like "./hooks/hooks.json"
+
+        Returns:
+            List of hook script paths in ./hooks/filename format, or None if file not found
+        """
+        # Resolve the hooks.json path
+        hooks_json_path = plugin_path / hooks_json_ref.lstrip("./")
+        if not hooks_json_path.exists():
+            print(f"[WARN] hooks.json reference not found: {hooks_json_path}")
+            return None
+
+        try:
+            with hooks_json_path.open(encoding="utf-8") as f:
+                hooks_data = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"[ERROR] Failed to read {hooks_json_path}: {e}")
+            return None
+
+        # Extract all command paths from the nested structure
+        # Structure: { "hooks": { "EventType": [{ "hooks": [{ "command": "..." }] }] } }
+        hook_scripts: set[str] = set()
+        hooks_obj = hooks_data.get("hooks", {})
+
+        for _event_type, matcher_configs in hooks_obj.items():
+            if not isinstance(matcher_configs, list):
+                continue
+            for matcher_config in matcher_configs:
+                if not isinstance(matcher_config, dict):
+                    continue
+                hook_defs = matcher_config.get("hooks", [])
+                if not isinstance(hook_defs, list):
+                    continue
+                for hook_def in hook_defs:
+                    if not isinstance(hook_def, dict):
+                        continue
+                    command = hook_def.get("command", "")
+                    if command:
+                        # Extract script path from command
+                        # Handles: "${CLAUDE_PLUGIN_ROOT}/hooks/file.py"
+                        # Handles: "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/file.py"
+                        script_path = self._extract_script_path(command)
+                        if script_path:
+                            hook_scripts.add(script_path)
+
+        return sorted(hook_scripts)
+
+    def _extract_script_path(self, command: str) -> str | None:
+        """Extract the script path from a hook command string.
+
+        Converts "${CLAUDE_PLUGIN_ROOT}/hooks/file.py" to "./hooks/file.py"
+        Also handles "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/file.py" format.
+        """
+        # Pattern to match ${CLAUDE_PLUGIN_ROOT}/path or similar
+        match = re.search(r"\$\{CLAUDE_PLUGIN_ROOT\}/(.+?)(?:\s|$)", command)
+        if match:
+            rel_path = match.group(1).strip()
+            return f"./{rel_path}"
+
+        # Fallback: try to find ./hooks/ pattern directly
+        match = re.search(r"(\./hooks/[^\s]+)", command)
+        if match:
+            return match.group(1)
+
+        return None
+
     def compare_registrations(
-        self, _plugin_name: str, on_disk: dict[str, list[str]], in_json: dict[str, Any]
+        self,
+        plugin_path: Path,
+        on_disk: dict[str, list[str]],
+        in_json: dict[str, Any],
     ) -> dict[str, Any]:
-        """Compare disk files with plugin.json registrations."""
+        """Compare disk files with plugin.json registrations.
+
+        Note: Claude Code auto-loads hooks/hooks.json if it exists, so plugins
+        should NOT add "hooks": "./hooks/hooks.json" to plugin.json (causes duplicate).
+        """
+        # Ensure plugin_path is a Path object
+        plugin_path = Path(plugin_path)
+
         discrepancies: dict[str, Any] = {
             "missing": {},  # On disk but not in plugin.json
             "stale": {},  # In plugin.json but not on disk
@@ -138,8 +222,41 @@ class PluginAuditor:
 
         for category in ["commands", "skills", "agents", "hooks"]:
             disk_set = set(on_disk[category])
-            json_list = in_json.get(category, [])
-            json_set = set(json_list) if json_list else set()
+            json_value = in_json.get(category, [])
+
+            # Special handling for hooks - Claude Code auto-loads hooks/hooks.json
+            if category == "hooks":
+                # Check if standard hooks.json exists (auto-loaded by Claude Code)
+                standard_hooks_json = plugin_path / "hooks" / "hooks.json"
+
+                if isinstance(json_value, str):
+                    # plugin.json has explicit hooks reference
+                    if json_value.endswith(".json"):
+                        resolved_hooks = self.resolve_hooks_json(
+                            plugin_path, json_value
+                        )
+                        if resolved_hooks is not None:
+                            json_set = set(resolved_hooks)
+                        else:
+                            continue
+                    else:
+                        print(f"[WARN] Unexpected hooks format: {json_value}")
+                        continue
+                elif standard_hooks_json.exists():
+                    # No hooks key in plugin.json but hooks.json exists
+                    # Claude Code auto-loads this, so compare against it
+                    resolved_hooks = self.resolve_hooks_json(
+                        plugin_path, "./hooks/hooks.json"
+                    )
+                    if resolved_hooks is not None:
+                        json_set = set(resolved_hooks)
+                    else:
+                        json_set = set()
+                else:
+                    # No hooks.json, use array from plugin.json (if any)
+                    json_set = set(json_value) if json_value else set()
+            else:
+                json_set = set(json_value) if json_value else set()
 
             missing = disk_set - json_set
             stale = json_set - disk_set
@@ -170,7 +287,7 @@ class PluginAuditor:
 
         # Compare
         discrepancies = self.compare_registrations(
-            plugin_name, on_disk, plugin_json_data
+            plugin_path, on_disk, plugin_json_data
         )
 
         # Report
@@ -205,12 +322,18 @@ class PluginAuditor:
                     print(f"    - {item}")
 
     def fix_plugin(self, plugin_name: str) -> bool:
-        """Fix discrepancies by updating plugin.json."""
+        """Fix discrepancies by updating plugin.json or hooks.json.
+
+        Note: For hooks, if hooks/hooks.json exists (auto-loaded by Claude Code),
+        discrepancies are reported but require manual fixes to hooks.json.
+        We do NOT add "hooks" key to plugin.json as that causes duplicates.
+        """
         if plugin_name not in self.discrepancies:
             return True  # Nothing to fix
 
         plugin_path = self.plugins_root / plugin_name
         plugin_json_path = plugin_path / ".claude-plugin" / "plugin.json"
+        standard_hooks_json = plugin_path / "hooks" / "hooks.json"
 
         # Read current plugin.json
         with plugin_json_path.open(encoding="utf-8") as f:
@@ -219,8 +342,34 @@ class PluginAuditor:
         # Get discrepancies
         disc = self.discrepancies[plugin_name]
 
+        # Track if we have hooks that need manual fixing
+        hooks_need_manual_fix = False
+
         # Fix missing entries (add them)
         for category, items in disc["missing"].items():
+            # Hooks require manual update to hooks.json (NOT plugin.json)
+            # Claude Code auto-loads hooks/hooks.json, adding to plugin.json causes duplicates
+            if category == "hooks":
+                if standard_hooks_json.exists() or isinstance(
+                    plugin_data.get("hooks"), str
+                ):
+                    hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
+                    print(
+                        f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
+                    )
+                    print(f"         Update {hooks_ref} to add missing hooks:")
+                    for item in items:
+                        print(f"           - {item}")
+                    hooks_need_manual_fix = True
+                    continue
+                # No hooks.json exists, would need to create one or use array
+                # For now, skip and report
+                print(f"[MANUAL] {plugin_name}: no hooks.json found, create one with:")
+                for item in items:
+                    print(f"           - {item}")
+                hooks_need_manual_fix = True
+                continue
+
             if category not in plugin_data:
                 plugin_data[category] = []
             plugin_data[category].extend(items)
@@ -228,19 +377,37 @@ class PluginAuditor:
 
         # Fix stale entries (remove them)
         for category, items in disc["stale"].items():
+            # Hooks require manual update
+            if category == "hooks":
+                if not hooks_need_manual_fix:
+                    hooks_ref = plugin_data.get("hooks", "./hooks/hooks.json")
+                    print(
+                        f"[MANUAL] {plugin_name}: hooks are auto-loaded from hooks.json"
+                    )
+                    print(f"         Update {hooks_ref} to remove stale hooks:")
+                for item in items:
+                    print(f"           - {item}")
+                continue
+
             if category in plugin_data:
                 plugin_data[category] = [
                     item for item in plugin_data[category] if item not in items
                 ]
 
-        # Write updated plugin.json
-        if not self.dry_run:
-            with plugin_json_path.open("w", encoding="utf-8") as f:
-                json.dump(plugin_data, f, indent=2, ensure_ascii=False)
-                f.write("\n")  # Trailing newline
-            print(f"[FIXED] {plugin_name}: plugin.json updated")
-        else:
-            print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
+        # Write updated plugin.json (only if there are non-hooks changes)
+        non_hooks_changes = any(
+            cat != "hooks"
+            for cat in list(disc["missing"].keys()) + list(disc["stale"].keys())
+        )
+
+        if non_hooks_changes:
+            if not self.dry_run:
+                with plugin_json_path.open("w", encoding="utf-8") as f:
+                    json.dump(plugin_data, f, indent=2, ensure_ascii=False)
+                    f.write("\n")  # Trailing newline
+                print(f"[FIXED] {plugin_name}: plugin.json updated")
+            else:
+                print(f"[DRY-RUN] {plugin_name}: would update plugin.json")
 
         return True
 
