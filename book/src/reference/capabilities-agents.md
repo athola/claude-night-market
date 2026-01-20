@@ -380,7 +380,7 @@ skills: imbue:proof-of-work, scribe:slop-detector
 **Use When**: Validating documentation claims, verifying command examples work, checking version accuracy.
 
 ### `scribe:slop-hunter`
-Comprehensive AI slop detection.
+Full-coverage AI slop detection.
 
 ```yaml
 tools: [Read, Glob, Grep]

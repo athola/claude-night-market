@@ -177,7 +177,8 @@ find . -name "*.py" -exec sh -c 'lines=$(wc -l < "$1"); [ $lines -gt 200 ] && ec
 done
 
 # Duplicate code blocks (Tab-completion bloat)
-# Use tools like jscpd or custom AST comparison
+# Use conserve's detect_duplicates.py script (no external deps)
+python plugins/conserve/scripts/detect_duplicates.py . --min-lines 5
 ```
 
 ### Tier 2: AI-Specific Pattern Detection
@@ -187,7 +188,7 @@ done
 | **Massive single commits** | `git log --shortstat \| grep "500 insertion"` | HIGH |
 | **No refactoring activity** | `git log --all --oneline \| grep -i refactor \| wc -l` | MEDIUM |
 | **Test-to-code ratio** | Compare test file count to source file count | HIGH |
-| **Duplication ratio** | `jscpd --reporters json` | HIGH |
+| **Duplication ratio** | `python detect_duplicates.py . --format json` | HIGH |
 | **Abstraction deficit** | Count base classes with single inheritor | MEDIUM |
 
 ### Tier 3: Deep AI Hygiene Audit
