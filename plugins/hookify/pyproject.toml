@@ -12,7 +12,7 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "mypy>=1.0",
-    "ruff>=0.1.0",
+    "ruff>=0.14.13",
     "types-PyYAML>=6.0",
 ]
 
