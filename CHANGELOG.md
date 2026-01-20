@@ -27,6 +27,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `/attune:war-room` - Command interface with options: `--full-council`, `--delphi`, `--resume`
   - Modular design: expert-roles, deliberation-protocol, merkle-dag modules
 
+- **Phase 3: Strategeion persistence**
+  - Enhanced session persistence with organized subdirectories
+  - `intelligence/` - Scout and Intel Officer reports
+  - `battle-plans/` - COA documents from all experts
+  - `wargames/` - Red Team challenges and premortem analyses
+  - `orders/` - Final Supreme Commander decision
+  - Session archiving to `campaign-archive/{project}/{date}/`
+  - MerkleDAG reconstruction on session load
+
+- **Phase 4: Delphi mode and hook triggers**
+  - `convene_delphi()` - Iterative convergence until expert agreement
+  - Convergence scoring based on Borda count spread
+  - Hook auto-trigger detection with keyword analysis
+  - Configurable complexity threshold (default 0.7)
+
 ## [1.3.0] - 2026-01-19
 
 ### Added - Scribe Plugin

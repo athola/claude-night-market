@@ -1073,15 +1073,72 @@ Make a decisive call. The council has deliberated; now you must decide."""
         session.phases_completed.append("synthesis")
 
     # ---------------------------------------------------------------------------
-    # Persistence
+    # Persistence (Phase 3: Enhanced Strategeion)
     # ---------------------------------------------------------------------------
 
     def _persist_session(self, session: WarRoomSession) -> None:
-        """Save session to Strategeion."""
+        """Save session to Strategeion with organized subdirectories."""
         session_dir = self.strategeion / "war-table" / session.session_id
         session_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save main session file
+        # Create subdirectories per Strategeion architecture
+        intel_dir = session_dir / "intelligence"
+        plans_dir = session_dir / "battle-plans"
+        wargames_dir = session_dir / "wargames"
+        orders_dir = session_dir / "orders"
+
+        for d in [intel_dir, plans_dir, wargames_dir, orders_dir]:
+            d.mkdir(exist_ok=True)
+
+        # Save intelligence reports
+        intel = session.artifacts.get("intel", {})
+        if intel.get("scout_report"):
+            (intel_dir / "scout-report.md").write_text(
+                f"# Scout Report\n\n{intel['scout_report']}"
+            )
+        if intel.get("intel_report") and "[Intel Officer not invoked" not in str(
+            intel.get("intel_report", "")
+        ):
+            (intel_dir / "intel-officer-report.md").write_text(
+                f"# Intelligence Officer Report\n\n{intel['intel_report']}"
+            )
+
+        # Save assessment
+        assessment = session.artifacts.get("assessment", {}).get("content")
+        if assessment:
+            (intel_dir / "situation-assessment.md").write_text(
+                f"# Situation Assessment\n\n{assessment}"
+            )
+
+        # Save COAs (battle plans)
+        coas = session.artifacts.get("coa", {}).get("raw_coas", {})
+        for expert, coa_content in coas.items():
+            (plans_dir / f"coa-{expert}.md").write_text(
+                f"# Course of Action: {expert}\n\n{coa_content}"
+            )
+
+        # Save Red Team challenges and Premortem (wargames)
+        red_team = session.artifacts.get("red_team", {}).get("challenges")
+        if red_team:
+            (wargames_dir / "red-team-challenges.md").write_text(
+                f"# Red Team Challenges\n\n{red_team}"
+            )
+
+        premortem = session.artifacts.get("premortem", {}).get("analyses", {})
+        if premortem:
+            premortem_content = "\n\n---\n\n".join(
+                f"## {expert}\n\n{analysis}" for expert, analysis in premortem.items()
+            )
+            (wargames_dir / "premortem-analyses.md").write_text(
+                f"# Premortem Analyses\n\n{premortem_content}"
+            )
+
+        # Save final decision (orders)
+        synthesis = session.artifacts.get("synthesis", {}).get("decision")
+        if synthesis:
+            (orders_dir / "supreme-commander-decision.md").write_text(synthesis)
+
+        # Save main session file (includes all data for reconstruction)
         session_data = {
             "session_id": session.session_id,
             "problem_statement": session.problem_statement,
@@ -1119,8 +1176,378 @@ Make a decisive call. The council has deliberated; now you must decide."""
             artifacts=data["artifacts"],
             metrics=data["metrics"],
         )
-        # TODO: Reconstruct MerkleDAG from data["merkle_dag"]
+
+        # Reconstruct MerkleDAG
+        dag_data = data.get("merkle_dag", {})
+        session.merkle_dag = MerkleDAG(session_id=dag_data.get("session_id", ""))
+        session.merkle_dag.sealed = dag_data.get("sealed", True)
+        session.merkle_dag.root_hash = dag_data.get("root_hash")
+        session.merkle_dag.label_counter = dag_data.get("label_counter", {})
+
+        # Reconstruct nodes
+        for node_data in dag_data.get("nodes", {}).values():
+            node = DeliberationNode(
+                node_id=node_data["node_id"],
+                parent_id=node_data.get("parent_id"),
+                round_number=node_data["round_number"],
+                phase=node_data["phase"],
+                anonymous_label=node_data["anonymous_label"],
+                content=node_data["content"],
+                expert_role=node_data.get("expert_role", "[SEALED]"),
+                expert_model=node_data.get("expert_model", "[SEALED]"),
+                content_hash=node_data["content_hash"],
+                metadata_hash=node_data["metadata_hash"],
+                combined_hash=node_data["combined_hash"],
+                timestamp=node_data["timestamp"],
+            )
+            session.merkle_dag.nodes[node.node_id] = node
+
         return session
+
+    def archive_session(
+        self, session_id: str, project: str | None = None
+    ) -> Path | None:
+        """Archive completed session to campaign-archive."""
+        session = self.load_session(session_id)
+        if not session or session.status != "completed":
+            return None
+
+        # Determine archive location
+        project_name = project or "default"
+        decision_date = datetime.now().strftime("%Y-%m-%d")
+        archive_dir = (
+            self.strategeion / "campaign-archive" / project_name / decision_date
+        )
+        archive_dir.mkdir(parents=True, exist_ok=True)
+
+        # Move session directory
+        source = self.strategeion / "war-table" / session_id
+        dest = archive_dir / session_id
+
+        if source.exists():
+            shutil.move(str(source), str(dest))
+            return dest
+
+        return None
+
+    def list_sessions(self, include_archived: bool = False) -> list[dict[str, Any]]:
+        """List all War Room sessions."""
+        sessions = []
+
+        # Active sessions
+        war_table = self.strategeion / "war-table"
+        if war_table.exists():
+            for session_dir in war_table.iterdir():
+                if session_dir.is_dir():
+                    session_file = session_dir / "session.json"
+                    if session_file.exists():
+                        with open(session_file) as f:
+                            data = json.load(f)
+                        sessions.append(
+                            {
+                                "session_id": data["session_id"],
+                                "problem": data["problem_statement"][:100],
+                                "status": data["status"],
+                                "mode": data["mode"],
+                                "archived": False,
+                            }
+                        )
+
+        # Archived sessions
+        if include_archived:
+            archive = self.strategeion / "campaign-archive"
+            if archive.exists():
+                for project_dir in archive.iterdir():
+                    if project_dir.is_dir():
+                        for date_dir in project_dir.iterdir():
+                            if date_dir.is_dir():
+                                for session_dir in date_dir.iterdir():
+                                    session_file = session_dir / "session.json"
+                                    if session_file.exists():
+                                        with open(session_file) as f:
+                                            data = json.load(f)
+                                        sessions.append(
+                                            {
+                                                "session_id": data["session_id"],
+                                                "problem": data["problem_statement"][
+                                                    :100
+                                                ],
+                                                "status": data["status"],
+                                                "mode": data["mode"],
+                                                "archived": True,
+                                                "project": project_dir.name,
+                                            }
+                                        )
+
+        return sessions
+
+    # ---------------------------------------------------------------------------
+    # Delphi Mode (Phase 4: Iterative Convergence)
+    # ---------------------------------------------------------------------------
+
+    DELPHI_REVISION_PROMPT = """You are {role} in Delphi round {round_number}.
+
+PROBLEM STATEMENT:
+{problem}
+
+PREVIOUS ROUND FEEDBACK:
+{feedback}
+
+YOUR PREVIOUS POSITION:
+{previous_position}
+
+OTHER EXPERT POSITIONS (anonymized):
+{other_positions}
+
+Based on the Red Team feedback and other expert positions, REVISE your position:
+
+1. **What you maintain**: [aspects you still believe are correct]
+2. **What you've reconsidered**: [aspects you've changed based on feedback]
+3. **Your updated recommendation**: [revised COA or position]
+
+Be open to changing your mind based on valid arguments, but don't abandon
+positions without substantive reason."""
+
+    async def convene_delphi(
+        self,
+        problem: str,
+        context_files: list[str] | None = None,
+        max_rounds: int = 5,
+        convergence_threshold: float = 0.85,
+    ) -> WarRoomSession:
+        """Convene Delphi-style War Room with iterative convergence.
+
+        Args:
+            problem: The problem/decision to deliberate
+            context_files: Optional file globs for context
+            max_rounds: Maximum Delphi rounds (default 5)
+            convergence_threshold: Agreement threshold to stop (default 0.85)
+
+        Returns:
+            Completed WarRoomSession with Delphi convergence data
+
+        """
+        # Initialize with full council for Delphi
+        session = self._initialize_session(problem, "full_council")
+        session.metrics["start_time"] = datetime.now().isoformat()
+        session.metrics["delphi_mode"] = True
+        session.metrics["max_rounds"] = max_rounds
+        session.metrics["convergence_threshold"] = convergence_threshold
+
+        try:
+            # Round 1: Standard generation
+            await self._phase_intel(session, context_files)
+            await self._phase_assessment(session)
+            await self._phase_coa_development(session)
+            await self._phase_red_team(session)
+            await self._phase_voting(session)
+
+            convergence = self._compute_convergence(session)
+            session.metrics["round_1_convergence"] = convergence
+
+            delphi_round = 2
+            while convergence < convergence_threshold and delphi_round <= max_rounds:
+                # Delphi revision round
+                await self._delphi_revision_round(session, delphi_round)
+                await self._phase_red_team(session)
+                await self._phase_voting(session)
+
+                convergence = self._compute_convergence(session)
+                session.metrics[f"round_{delphi_round}_convergence"] = convergence
+                delphi_round += 1
+
+            session.metrics["final_convergence"] = convergence
+            session.metrics["total_rounds"] = delphi_round - 1
+
+            # Final phases
+            await self._phase_premortem(session)
+            await self._phase_synthesis(session)
+
+            session.status = "completed"
+
+        except Exception as e:
+            session.status = f"failed: {e}"
+            raise
+
+        finally:
+            session.metrics["end_time"] = datetime.now().isoformat()
+            self._persist_session(session)
+
+        return session
+
+    async def _delphi_revision_round(
+        self, session: WarRoomSession, round_number: int
+    ) -> None:
+        """Execute a Delphi revision round where experts revise positions."""
+        # Get previous COAs and Red Team feedback
+        red_team_feedback = session.artifacts.get("red_team", {}).get(
+            "challenges", "N/A"
+        )
+        previous_coas = session.artifacts.get("coa", {}).get("raw_coas", {})
+
+        # Get anonymized view for other positions
+        anonymized = session.merkle_dag.get_anonymized_view(phase="coa")
+        other_positions = "\n\n".join(
+            f"### {c['label']}\n{c['content']}" for c in anonymized
+        )
+
+        # Revision prompts for each expert who contributed COAs
+        panel = FULL_COUNCIL
+        revision_experts = [
+            e
+            for e in panel
+            if e in previous_coas and e not in ["supreme_commander", "red_team"]
+        ]
+
+        prompts: dict[str, str] = {}
+        for expert_key in revision_experts:
+            expert = EXPERT_CONFIGS.get(expert_key)
+            if expert:
+                prompts[expert_key] = self.DELPHI_REVISION_PROMPT.format(
+                    role=expert.role,
+                    round_number=round_number,
+                    problem=session.problem_statement,
+                    feedback=red_team_feedback,
+                    previous_position=previous_coas.get(expert_key, "N/A"),
+                    other_positions=other_positions,
+                )
+
+        results = await self._invoke_parallel(revision_experts, prompts, session, "coa")
+
+        # Update COAs with revised positions
+        session.artifacts["coa"]["raw_coas"].update(results)
+        session.artifacts["coa"]["delphi_round"] = round_number
+
+    def _compute_convergence(self, session: WarRoomSession) -> float:
+        """Compute expert convergence score based on voting agreement.
+
+        Returns a score between 0 and 1, where:
+        - 1.0 = perfect agreement (all experts rank COAs identically)
+        - 0.0 = complete disagreement
+
+        """
+        voting = session.artifacts.get("voting", {})
+        borda_scores = voting.get("borda_scores", {})
+
+        if not borda_scores or len(borda_scores) < 2:
+            return 0.0
+
+        # Compute normalized standard deviation of scores
+        scores = list(borda_scores.values())
+        if not scores:
+            return 0.0
+
+        mean_score = sum(scores) / len(scores)
+        if mean_score == 0:
+            return 0.0
+
+        variance = sum((s - mean_score) ** 2 for s in scores) / len(scores)
+        std_dev = variance**0.5
+
+        # Normalize: higher score spread = higher convergence
+        # (clear winner indicates agreement)
+        max_possible_spread = mean_score  # Theoretical max
+        if max_possible_spread == 0:
+            return 0.0
+
+        convergence: float = min(1.0, std_dev / max_possible_spread)
+        return convergence
+
+    # ---------------------------------------------------------------------------
+    # Hook Auto-Trigger (Phase 4)
+    # ---------------------------------------------------------------------------
+
+    @staticmethod
+    def should_suggest_war_room(
+        user_message: str,
+        complexity_threshold: float = 0.7,
+    ) -> dict[str, Any]:
+        """Determine if War Room should be suggested based on message analysis.
+
+        Returns a dict with:
+        - suggest: bool - whether to suggest War Room
+        - confidence: float - confidence in suggestion (0-1)
+        - reason: str - explanation for suggestion
+        - keywords_matched: list[str] - which keywords triggered
+
+        """
+        message_lower = user_message.lower()
+
+        # Strategic decision keywords
+        strategic_keywords = [
+            "architecture",
+            "architectural",
+            "trade-off",
+            "tradeoff",
+            "vs",
+            "versus",
+            "should we",
+            "which approach",
+            "best approach",
+            "migration",
+            "refactor",
+            "rewrite",
+            "platform",
+            "strategic",
+            "long-term",
+            "irreversible",
+            "breaking change",
+        ]
+
+        # High-stakes indicators
+        stakes_keywords = [
+            "critical",
+            "important decision",
+            "major",
+            "significant",
+            "risky",
+            "uncertain",
+            "complex",
+            "complicated",
+        ]
+
+        # Multi-option indicators
+        multi_option_keywords = [
+            "options",
+            "alternatives",
+            "approaches",
+            "microservices or monolith",
+            "sql or nosql",
+            "build or buy",
+            "choice between",
+        ]
+
+        matched_strategic = [kw for kw in strategic_keywords if kw in message_lower]
+        matched_stakes = [kw for kw in stakes_keywords if kw in message_lower]
+        matched_multi = [kw for kw in multi_option_keywords if kw in message_lower]
+
+        all_matched = matched_strategic + matched_stakes + matched_multi
+
+        # Compute complexity score
+        strategic_weight = len(matched_strategic) * 0.3
+        stakes_weight = len(matched_stakes) * 0.25
+        multi_weight = len(matched_multi) * 0.35
+
+        complexity_score = min(1.0, strategic_weight + stakes_weight + multi_weight)
+
+        suggest = complexity_score >= complexity_threshold
+
+        if suggest:
+            if matched_multi:
+                reason = "Multiple approaches detected - War Room can help"
+            elif matched_strategic:
+                reason = "Strategic decision detected - expert council recommended"
+            else:
+                reason = "High-stakes decision - thorough analysis recommended"
+        else:
+            reason = "Standard task - War Room not needed"
+
+        return {
+            "suggest": suggest,
+            "confidence": complexity_score,
+            "reason": reason,
+            "keywords_matched": all_matched,
+        }
 
 
 # ---------------------------------------------------------------------------

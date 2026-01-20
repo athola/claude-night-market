@@ -335,3 +335,244 @@ class TestPhaseIntegration:
             assert "intelligence_officer" in experts_invoked
 
         assert session.artifacts["intel"]["intel_report"] == "Deep analysis"
+
+
+class TestStrategeionPersistence:
+    """Test Phase 3: Enhanced Strategeion persistence."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    def test_persist_creates_subdirectories(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Persistence creates intelligence/, battle-plans/, wargames/, orders/."""
+        session = WarRoomSession(
+            session_id="subdir-test",
+            problem_statement="Test subdirectories",
+        )
+        session.artifacts = {
+            "intel": {"scout_report": "Scout data"},
+            "assessment": {"content": "Assessment content"},
+            "coa": {"raw_coas": {"chief_strategist": "COA content"}},
+            "red_team": {"challenges": "Red team challenges"},
+            "premortem": {"analyses": {"expert1": "Premortem analysis"}},
+            "synthesis": {"decision": "Final decision document"},
+        }
+        session.status = "completed"
+
+        orchestrator._persist_session(session)
+
+        session_dir = orchestrator.strategeion / "war-table" / "subdir-test"
+        assert (session_dir / "intelligence").is_dir()
+        assert (session_dir / "battle-plans").is_dir()
+        assert (session_dir / "wargames").is_dir()
+        assert (session_dir / "orders").is_dir()
+
+        # Check files created
+        assert (session_dir / "intelligence" / "scout-report.md").exists()
+        assert (session_dir / "intelligence" / "situation-assessment.md").exists()
+        assert (session_dir / "battle-plans" / "coa-chief_strategist.md").exists()
+        assert (session_dir / "wargames" / "red-team-challenges.md").exists()
+        assert (session_dir / "wargames" / "premortem-analyses.md").exists()
+        assert (session_dir / "orders" / "supreme-commander-decision.md").exists()
+
+    def test_archive_session(self, orchestrator: WarRoomOrchestrator) -> None:
+        """Completed sessions can be archived to campaign-archive."""
+        session = WarRoomSession(
+            session_id="archive-test",
+            problem_statement="Test archiving",
+        )
+        session.status = "completed"
+
+        orchestrator._persist_session(session)
+
+        # Archive it
+        archive_path = orchestrator.archive_session(
+            "archive-test", project="test-project"
+        )
+
+        assert archive_path is not None
+        assert "campaign-archive" in str(archive_path)
+        assert "test-project" in str(archive_path)
+
+        # Original location should be gone
+        original = orchestrator.strategeion / "war-table" / "archive-test"
+        assert not original.exists()
+
+    def test_archive_incomplete_session_fails(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Incomplete sessions cannot be archived."""
+        session = WarRoomSession(
+            session_id="incomplete-test",
+            problem_statement="Incomplete session",
+        )
+        session.status = "in_progress"
+
+        orchestrator._persist_session(session)
+
+        result = orchestrator.archive_session("incomplete-test")
+        assert result is None
+
+    def test_list_sessions(self, orchestrator: WarRoomOrchestrator) -> None:
+        """List sessions shows active and optionally archived."""
+        # Create two sessions
+        for i in range(2):
+            session = WarRoomSession(
+                session_id=f"list-test-{i}",
+                problem_statement=f"Problem {i}",
+            )
+            session.status = "completed" if i == 0 else "in_progress"
+            orchestrator._persist_session(session)
+
+        sessions = orchestrator.list_sessions()
+        assert len(sessions) == 2
+
+        # Archive one
+        orchestrator.archive_session("list-test-0")
+
+        # Without archived
+        active = orchestrator.list_sessions(include_archived=False)
+        assert len(active) == 1
+
+        # With archived
+        all_sessions = orchestrator.list_sessions(include_archived=True)
+        assert len(all_sessions) == 2
+
+    def test_load_session_reconstructs_merkle_dag(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Loading session fully reconstructs MerkleDAG."""
+        session = WarRoomSession(
+            session_id="dag-test",
+            problem_statement="Test DAG reconstruction",
+        )
+        session.merkle_dag.add_contribution(
+            content="Test COA",
+            phase="coa",
+            round_number=1,
+            expert_role="Chief Strategist",
+            expert_model="claude-sonnet-4",
+        )
+
+        orchestrator._persist_session(session)
+
+        # Load and verify
+        loaded = orchestrator.load_session("dag-test")
+        assert loaded is not None
+        assert len(loaded.merkle_dag.nodes) == 1
+
+        node = list(loaded.merkle_dag.nodes.values())[0]
+        assert node.phase == "coa"
+        assert node.anonymous_label == "Response A"
+
+
+class TestDelphiMode:
+    """Test Phase 4: Delphi iterative convergence."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    def test_compute_convergence_no_scores(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Convergence is 0 when no scores available."""
+        session = WarRoomSession(
+            session_id="conv-test",
+            problem_statement="Test convergence",
+        )
+        session.artifacts["voting"] = {"borda_scores": {}}
+
+        conv = orchestrator._compute_convergence(session)
+        assert conv == 0.0
+
+    def test_compute_convergence_with_scores(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Convergence computed from Borda score spread."""
+        session = WarRoomSession(
+            session_id="conv-test-2",
+            problem_statement="Test convergence",
+        )
+        # Clear winner = high convergence
+        session.artifacts["voting"] = {
+            "borda_scores": {"Response A": 10, "Response B": 2, "Response C": 1}
+        }
+
+        conv = orchestrator._compute_convergence(session)
+        assert 0.0 < conv <= 1.0
+
+
+class TestHookAutoTrigger:
+    """Test Phase 4: Hook auto-trigger detection."""
+
+    def test_suggest_war_room_strategic_keywords(self) -> None:
+        """Strategic keywords trigger War Room suggestion with multiple matches."""
+        # Multiple strategic keywords needed to hit threshold
+        result = WarRoomOrchestrator.should_suggest_war_room(
+            "This is a critical architectural decision with significant trade-offs. "
+            "Should we migrate to a new platform?"
+        )
+
+        assert result["suggest"] is True
+        assert "architecture" in result["keywords_matched"] or any(
+            kw in result["keywords_matched"]
+            for kw in ["critical", "trade-off", "migration"]
+        )
+        assert result["confidence"] >= 0.7
+
+    def test_suggest_war_room_multi_option(self) -> None:
+        """Multi-option plus other keywords triggers suggestion."""
+        result = WarRoomOrchestrator.should_suggest_war_room(
+            "We're facing a complex choice between microservices or monolith "
+            "with significant architectural implications"
+        )
+
+        assert result["suggest"] is True
+        assert "microservices or monolith" in result["keywords_matched"]
+
+    def test_suggest_war_room_low_complexity(self) -> None:
+        """Simple tasks don't trigger suggestion."""
+        result = WarRoomOrchestrator.should_suggest_war_room(
+            "Add a button to the homepage"
+        )
+
+        assert result["suggest"] is False
+        assert result["confidence"] < 0.7
+
+    def test_suggest_war_room_trade_off(self) -> None:
+        """Trade-off with complexity triggers suggestion."""
+        result = WarRoomOrchestrator.should_suggest_war_room(
+            "There's a complex trade-off here that could be risky and "
+            "requires considering multiple approaches"
+        )
+
+        assert result["suggest"] is True
+        assert "trade-off" in result["keywords_matched"]
+
+    def test_suggest_war_room_threshold_configurable(self) -> None:
+        """Complexity threshold is configurable."""
+        message = "Should we refactor this module?"
+
+        # Default threshold
+        default_result = WarRoomOrchestrator.should_suggest_war_room(message)
+
+        # Lower threshold
+        low_result = WarRoomOrchestrator.should_suggest_war_room(
+            message, complexity_threshold=0.2
+        )
+
+        # Higher threshold
+        high_result = WarRoomOrchestrator.should_suggest_war_room(
+            message, complexity_threshold=0.95
+        )
+
+        # Same confidence, different suggestions based on threshold
+        assert low_result["confidence"] == default_result["confidence"]
+        assert low_result["suggest"] is True  # Low threshold = easier to trigger
+        assert high_result["suggest"] is False  # High threshold = harder to trigger
