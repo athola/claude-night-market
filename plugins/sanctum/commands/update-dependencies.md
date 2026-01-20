@@ -56,11 +56,13 @@ Scan the repository for outdated dependencies across Python, Rust, JavaScript, a
 
 Spawns a `dependency-updater` agent that:
 
-1. **Discovers** all dependency files in the monorepo
-   - pyproject.toml (Python)
-   - Cargo.toml (Rust)
-   - package.json (JavaScript)
-   - go.mod (Go)
+1. **Discovers** all dependency files **recursively** in the monorepo
+   - pyproject.toml (Python) - including nested workspaces like `plugins/*/pyproject.toml`
+   - Cargo.toml (Rust) - including workspace members
+   - package.json (JavaScript) - including monorepo packages
+   - go.mod (Go) - including submodules
+
+   > **Important**: Always use recursive glob patterns (`**/pyproject.toml`) or `find` to discover ALL dependency files, not just root-level ones. Monorepos commonly have nested workspace members that need updating together.
 
 2. **Checks** each ecosystem for available updates using native tooling
 

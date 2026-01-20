@@ -133,14 +133,31 @@ go list -m -versions <module>
 
 ### Phase 1: Discovery
 
-Scan the repository for dependency files:
+Scan the repository **recursively** for ALL dependency files, including nested workspaces:
 
 ```bash
-# Find all dependency manifests
-find . -name "pyproject.toml" -o -name "Cargo.toml" -o -name "package.json" -o -name "go.mod" | grep -v node_modules | grep -v .venv
+# Find all dependency manifests - MUST be recursive to catch nested workspaces
+find . -name "pyproject.toml" -o -name "Cargo.toml" -o -name "package.json" -o -name "go.mod" \
+  | grep -v node_modules | grep -v .venv | grep -v .uv-cache
+
+# Alternative: Use Glob tool for parallel discovery
+Glob("**/pyproject.toml")  # Python - catches plugins/*/pyproject.toml, plugins/*/hooks/pyproject.toml
+Glob("**/Cargo.toml")      # Rust - catches workspace members
+Glob("**/package.json")    # JS - catches monorepo packages
+Glob("**/go.mod")          # Go - catches submodules
 ```
 
-Group by ecosystem and note file locations.
+**Critical**: Monorepos commonly have:
+- `plugins/*/pyproject.toml` - plugin-level dependencies
+- `plugins/*/hooks/pyproject.toml` - nested hook packages
+- `packages/*/package.json` - JS workspace packages
+- Workspace `Cargo.toml` with member directories
+
+**Filter out** non-source files:
+- `.venv/`, `node_modules/`, `.uv-cache/` - virtual environments
+- `*.egg-info/`, `build/`, `dist/` - build artifacts
+
+Group by ecosystem and note file locations. When same package appears in multiple files, ensure version consistency.
 
 ### Phase 2: Version Checking
 
@@ -248,10 +265,22 @@ After updates, regenerate locks:
 
 ### Monorepo Consistency
 
-When same package appears in multiple files:
-1. Detect version mismatches
-2. Recommend single consistent version
-3. Update all files together
+**CRITICAL**: When same package appears in multiple files:
+1. Detect version mismatches across ALL discovered files
+2. Recommend single consistent version (usually latest compatible)
+3. **Update ALL files together** - never leave some files on old versions
+4. Commit changes atomically to maintain consistency
+
+Example scenario from claude-night-market:
+```
+Root: pyproject.toml (ruff>=0.14.11)
+Plugins: 14 files with ruff versions ranging from 0.1.0 to 0.14.6
+Hooks: plugins/memory-palace/hooks/pyproject.toml (ruff>=0.1)
+
+Action: Update ALL 16 files to ruff>=0.14.13
+```
+
+**Never** update root without checking plugin/workspace member dependencies.
 
 ## Output
 
