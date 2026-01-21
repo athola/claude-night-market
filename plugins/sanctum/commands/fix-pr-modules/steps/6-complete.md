@@ -83,19 +83,32 @@ fi
 
 **If you are NOT the PR author**, you may skip to Step 6.4. Otherwise, continue below.
 
+## 6.0 Reconcile ALL Unworked Items (MANDATORY)
+
+**Before creating issues, reconcile ALL items from the review.** This captures items identified DURING review but not formally triaged (test gaps, doc suggestions, security concerns, performance hints, etc.).
+
+**Quick Checklist:**
+- [ ] Review: Did ALL "Fix Now" / "This PR" items get addressed? Create issues for incomplete ones.
+- [ ] Re-read ALL review comments - find suggestions not captured at triage time.
+- [ ] Ensure EVERY non-worked-on item has a GitHub issue created in 6.1/6.2.
+
+**Output:** Complete list of all items requiring issues (triage items + newly-discovered review suggestions).
+
+---
+
 ## 6.1 Create Issues for Suggestions/Deferred Items (AUTOMATIC)
 
-**CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items.**
+**CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items identified in Step 6.0.**
 
 > **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for the full pattern.
 
-**This step is automatic** - no flag required. When items are classified as "Suggestion" or "Deferred" during triage (Step 2), issues are created at the end of this step.
+**This step is automatic** - no flag required. When items are classified as "Suggestion" or "Deferred" during triage (Step 2) OR identified during reconciliation (Step 6.0), issues are created.
 
 **To skip automatic creation**: Use `--no-auto-issues` flag.
 
 **Duplicate Detection**: Before creating, search for existing issues with similar titles to avoid duplicates.
 
-For each comment classified as **Suggestion** during triage, create a GitHub issue:
+For each comment classified as **Suggestion** during triage or reconciliation, create a GitHub issue:
    ```bash
    gh issue create \
      --title "[Suggestion] <description from review comment>" \
