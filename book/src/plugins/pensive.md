@@ -41,8 +41,10 @@ Pensive provides deep code review capabilities across multiple dimensions: archi
 | `/math-review` | Run mathematical review |
 | `/shell-review` | Run shell script safety review |
 | `/fpf-review` | Run FPF architecture review |
-| `/skill-review` | Analyze skill metrics and stability gaps |
+| `/skill-review` | Analyze skill runtime metrics and stability gaps (canonical) |
 | `/skill-history` | View recent skill executions |
+
+> **Note**: For static skill quality analysis (frontmatter, structure), use `abstract:skill-auditor` instead.
 
 ## Agents
 

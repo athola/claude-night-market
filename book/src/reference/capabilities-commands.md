@@ -728,7 +728,10 @@ Shell script safety and portability review.
 ```
 
 ### `/pensive:skill-review`
-Analyze skill metrics and stability.
+Analyze skill runtime metrics and stability. This is the canonical command for
+skill performance analysis (execution counts, success rates, stability gaps).
+
+For static quality analysis (frontmatter, structure), use `abstract:skill-auditor`.
 
 ```bash
 # Usage
@@ -736,14 +739,22 @@ Analyze skill metrics and stability.
 
 # Options
 --plugin PLUGIN      Limit to specific plugin
+--all-plugins        Aggregate metrics across all plugins
+--unstable-only      Only show skills with stability_gap > 0.3
+--skill NAME         Deep-dive specific skill
 --recommendations    Generate improvement recommendations
---metrics            Show detailed metrics
---gaps               Identify stability gaps
 
 # Examples
 /skill-review --plugin sanctum
-/skill-review --recommendations --gaps
+/skill-review --unstable-only
+/skill-review --skill imbue:proof-of-work
+/skill-review --all-plugins --recommendations
 ```
+
+**Stability Gap**: The key metric - measures consistency between average and worst-case performance:
+- `< 0.2`: Stable (consistent performance)
+- `0.2 - 0.3`: Warning (occasional issues)
+- `> 0.3`: Unstable (needs attention)
 
 ---
 

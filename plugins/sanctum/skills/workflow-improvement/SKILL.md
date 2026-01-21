@@ -47,7 +47,7 @@ Query memory-palace logs for recent performance issues:
 /skill-logs --failures-only --last 7d
 
 # Performance metrics for involved plugins
-/skill-review --plugin sanctum --recommendations
+pensive:skill-review --plugin sanctum --recommendations
 ```
 
 **Capture:**
@@ -221,7 +221,7 @@ Track the improvement's impact:
 
 ```bash
 # Check post-improvement stability
-/skill-review --skill sanctum:<component> --recommendations
+pensive:skill-review --skill sanctum:<component> --recommendations
 ```
 
 This creates a feedback loop where future `/fix-workflow` and `/update-plugins` runs will reference this lesson.
