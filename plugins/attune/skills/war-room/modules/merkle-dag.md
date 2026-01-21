@@ -164,15 +164,24 @@ class MerkleDAG:
 
 When experts revise their positions (Delphi mode):
 
-```
-Round 1                    Round 2                    Round 3
-+----------------+        +----------------+        +----------------+
-| COA-A (v1)     |------->| COA-A (v2)     |------->| COA-A (v3)     |
-| hash: abc123   | revises| hash: def456   | revises| hash: ghi789   |
-| parent: null   |        | parent: abc123 |        | parent: def456 |
-+----------------+        +----------------+        +----------------+
+```mermaid
+flowchart LR
+    subgraph Round1["Round 1"]
+        A["COA-A (v1)<br/>hash: abc123<br/>parent: null"]
+    end
 
-Root Hash (Round 3): SHA256(all_leaf_hashes)
+    subgraph Round2["Round 2"]
+        B["COA-A (v2)<br/>hash: def456<br/>parent: abc123"]
+    end
+
+    subgraph Round3["Round 3"]
+        C["COA-A (v3)<br/>hash: ghi789<br/>parent: def456"]
+    end
+
+    A -->|revises| B
+    B -->|revises| C
+
+    C --> Root["Root Hash (Round 3)<br/>SHA256(all_leaf_hashes)"]
 ```
 
 ## Serialization

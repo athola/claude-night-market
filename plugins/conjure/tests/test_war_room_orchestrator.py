@@ -1413,24 +1413,30 @@ class TestRemainingCoverage:
     async def test_invoke_expert_external_service(
         self, orchestrator: WarRoomOrchestrator
     ) -> None:
-        """_invoke_expert calls _invoke_external for non-native services."""
+        """_invoke_expert calls _invoke_external for non-native services when available."""
         session = WarRoomSession(
             session_id="external-test",
             problem_statement="Test external invocation",
         )
 
-        with patch.object(
-            orchestrator, "_invoke_external", new_callable=AsyncMock
-        ) as mock_external:
-            mock_external.return_value = "External response"
+        # Mock availability to return True (expert is available)
+        with patch(
+            "scripts.war_room_orchestrator.test_expert_availability",
+            new_callable=AsyncMock,
+            return_value=True,
+        ):
+            with patch.object(
+                orchestrator, "_invoke_external", new_callable=AsyncMock
+            ) as mock_external:
+                mock_external.return_value = "External response"
 
-            # Scout is an external service (qwen)
-            result = await orchestrator._invoke_expert(
-                "scout", "test prompt", session, "intel"
-            )
+                # Scout is an external service (qwen)
+                result = await orchestrator._invoke_expert(
+                    "scout", "test prompt", session, "intel"
+                )
 
-            mock_external.assert_called_once()
-            assert result == "External response"
+                mock_external.assert_called_once()
+                assert result == "External response"
 
     @pytest.mark.asyncio
     async def test_convene_full_flow_mocked(
@@ -1745,3 +1751,294 @@ class TestRemainingCoverage:
 
         result = await orchestrator._invoke_external(fake_expert, "")
         assert "hello world" in result
+
+
+class TestHaikuFallback:
+    """Test Haiku fallback for unavailable external LLMs."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    def test_clear_availability_cache(self) -> None:
+        """Availability cache can be cleared."""
+        from scripts.war_room_orchestrator import (
+            _expert_availability,
+            _haiku_fallback_notices,
+            clear_availability_cache,
+        )
+
+        # Populate cache
+        _expert_availability["test:model"] = True
+        _haiku_fallback_notices.append("test notice")
+
+        clear_availability_cache()
+
+        assert len(_expert_availability) == 0
+        assert len(_haiku_fallback_notices) == 0
+
+    def test_get_fallback_notice_empty(self) -> None:
+        """get_fallback_notice returns empty string when no fallbacks."""
+        from scripts.war_room_orchestrator import (
+            clear_availability_cache,
+            get_fallback_notice,
+        )
+
+        clear_availability_cache()
+        assert get_fallback_notice() == ""
+
+    def test_get_fallback_notice_with_notices(self) -> None:
+        """get_fallback_notice formats notices when present."""
+        from scripts.war_room_orchestrator import (
+            _haiku_fallback_notices,
+            clear_availability_cache,
+            get_fallback_notice,
+        )
+
+        clear_availability_cache()
+        _haiku_fallback_notices.append("Scout (qwen-turbo) unavailable, using Haiku")
+        _haiku_fallback_notices.append("Red Team (gemini) unavailable, using Haiku")
+
+        notice = get_fallback_notice()
+
+        assert "External LLM Fallbacks" in notice
+        assert "Scout" in notice
+        assert "Red Team" in notice
+
+    def test_get_haiku_command_with_claude(self) -> None:
+        """get_haiku_command returns claude command when available."""
+        from scripts.war_room_orchestrator import get_haiku_command
+
+        with patch("shutil.which") as mock_which:
+            mock_which.return_value = "/usr/local/bin/claude"
+            cmd = get_haiku_command()
+            assert cmd == ["claude", "--model", "claude-haiku-3", "-p"]
+
+    def test_get_haiku_command_not_found(self) -> None:
+        """get_haiku_command raises when claude not available."""
+        from scripts.war_room_orchestrator import get_haiku_command
+
+        with patch("shutil.which", return_value=None):
+            with pytest.raises(RuntimeError, match="Claude CLI not found"):
+                get_haiku_command()
+
+    @pytest.mark.asyncio
+    async def test_expert_availability_caches_result(self) -> None:
+        """test_expert_availability caches results to avoid repeated probes."""
+        from scripts.war_room_orchestrator import (
+            EXPERT_CONFIGS,
+            _expert_availability,
+            clear_availability_cache,
+            test_expert_availability,
+        )
+
+        clear_availability_cache()
+        expert = EXPERT_CONFIGS["scout"]
+
+        # Mock subprocess to fail
+        with patch(
+            "asyncio.create_subprocess_exec",
+            side_effect=FileNotFoundError("command not found"),
+        ):
+            result1 = await test_expert_availability(expert)
+            result2 = await test_expert_availability(expert)
+
+        assert result1 is False
+        assert result2 is False
+        # Should only have called once (cached)
+        assert f"{expert.service}:{expert.model}" in _expert_availability
+
+    @pytest.mark.asyncio
+    async def test_expert_availability_native_always_available(self) -> None:
+        """Native experts are always reported as available."""
+        from scripts.war_room_orchestrator import (
+            EXPERT_CONFIGS,
+            clear_availability_cache,
+            test_expert_availability,
+        )
+
+        clear_availability_cache()
+        expert = EXPERT_CONFIGS["supreme_commander"]
+
+        result = await test_expert_availability(expert)
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_invoke_expert_uses_fallback_when_unavailable(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """_invoke_expert falls back to Haiku when external expert unavailable."""
+        from scripts.war_room_orchestrator import (
+            _haiku_fallback_notices,
+            clear_availability_cache,
+        )
+
+        clear_availability_cache()
+
+        session = WarRoomSession(
+            session_id="fallback-test",
+            problem_statement="Test fallback",
+        )
+
+        # Mock availability to return False
+        with patch(
+            "scripts.war_room_orchestrator.test_expert_availability",
+            new_callable=AsyncMock,
+            return_value=False,
+        ):
+            # Mock Haiku fallback to return success
+            with patch.object(
+                orchestrator,
+                "_invoke_haiku_fallback",
+                new_callable=AsyncMock,
+                return_value="Haiku fallback response",
+            ):
+                result = await orchestrator._invoke_expert(
+                    "scout", "test prompt", session, "intel"
+                )
+
+        assert result == "Haiku fallback response"
+        assert any("Scout" in n for n in _haiku_fallback_notices)
+
+        # Verify model recorded is Haiku, not original
+        node = list(session.merkle_dag.nodes.values())[0]
+        assert node.expert_model == "claude-haiku-3"
+
+    @pytest.mark.asyncio
+    async def test_invoke_haiku_fallback_prepends_role(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """_invoke_haiku_fallback prepends role context to prompt."""
+        from scripts.war_room_orchestrator import ExpertConfig
+
+        fake_expert = ExpertConfig(
+            role="Test Expert",
+            service="test",
+            model="test-model",
+            description="Expert for testing",
+            phases=["test"],
+            command=["test"],
+        )
+
+        # Capture the command that would be executed
+        captured_cmd = []
+
+        async def mock_subprocess(*args, **_kwargs):
+            captured_cmd.extend(args)
+
+            class MockProcess:
+                returncode = 0
+
+                async def communicate(self):
+                    return (b"test response", b"")
+
+            return MockProcess()
+
+        with patch("shutil.which", return_value="/usr/local/bin/claude"):
+            with patch("asyncio.create_subprocess_exec", side_effect=mock_subprocess):
+                with patch("asyncio.wait_for", side_effect=lambda coro, **_: coro):
+                    await orchestrator._invoke_haiku_fallback(
+                        fake_expert, "original prompt"
+                    )
+
+        # The prompt should contain role prefix
+        prompt_arg = captured_cmd[-1]
+        assert "Test Expert" in prompt_arg
+        assert "Expert for testing" in prompt_arg
+        assert "original prompt" in prompt_arg
+
+    @pytest.mark.asyncio
+    async def test_convene_clears_availability_cache(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """convene clears availability cache at start of session."""
+        from scripts.war_room_orchestrator import _expert_availability
+
+        # Pre-populate cache
+        _expert_availability["test:model"] = True
+
+        # Mock all phases to do nothing
+        with patch.object(orchestrator, "_phase_intel", new_callable=AsyncMock):
+            with patch.object(
+                orchestrator, "_phase_assessment", new_callable=AsyncMock
+            ):
+                with patch.object(
+                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
+                ):
+                    with patch.object(
+                        orchestrator,
+                        "_should_escalate",
+                        new_callable=AsyncMock,
+                        return_value=False,
+                    ):
+                        with patch.object(
+                            orchestrator, "_phase_red_team", new_callable=AsyncMock
+                        ):
+                            with patch.object(
+                                orchestrator, "_phase_voting", new_callable=AsyncMock
+                            ):
+                                with patch.object(
+                                    orchestrator,
+                                    "_phase_premortem",
+                                    new_callable=AsyncMock,
+                                ):
+                                    with patch.object(
+                                        orchestrator,
+                                        "_phase_synthesis",
+                                        new_callable=AsyncMock,
+                                    ):
+                                        await orchestrator.convene("test problem")
+
+        # Cache should have been cleared
+        assert "test:model" not in _expert_availability
+
+    @pytest.mark.asyncio
+    async def test_convene_captures_fallback_notice(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """convene captures fallback notices in session artifacts."""
+        from scripts.war_room_orchestrator import _haiku_fallback_notices
+
+        # Mock _phase_intel to add a fallback notice (simulating fallback during session)
+        async def mock_intel_with_fallback(*_args, **_kwargs):
+            _haiku_fallback_notices.append("Test fallback notice")
+
+        # Mock all phases, with intel adding a fallback notice
+        with patch.object(
+            orchestrator, "_phase_intel", side_effect=mock_intel_with_fallback
+        ):
+            with patch.object(
+                orchestrator, "_phase_assessment", new_callable=AsyncMock
+            ):
+                with patch.object(
+                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
+                ):
+                    with patch.object(
+                        orchestrator,
+                        "_should_escalate",
+                        new_callable=AsyncMock,
+                        return_value=False,
+                    ):
+                        with patch.object(
+                            orchestrator, "_phase_red_team", new_callable=AsyncMock
+                        ):
+                            with patch.object(
+                                orchestrator, "_phase_voting", new_callable=AsyncMock
+                            ):
+                                with patch.object(
+                                    orchestrator,
+                                    "_phase_premortem",
+                                    new_callable=AsyncMock,
+                                ):
+                                    with patch.object(
+                                        orchestrator,
+                                        "_phase_synthesis",
+                                        new_callable=AsyncMock,
+                                    ):
+                                        session = await orchestrator.convene(
+                                            "test problem"
+                                        )
+
+        assert "fallback_notice" in session.artifacts
+        assert "Test fallback notice" in session.artifacts["fallback_notice"]

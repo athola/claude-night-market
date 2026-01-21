@@ -276,10 +276,77 @@ EXPERT_CONFIGS: dict[str, ExpertConfig] = {
 LIGHTWEIGHT_PANEL = ["supreme_commander", "chief_strategist", "red_team"]
 FULL_COUNCIL = list(EXPERT_CONFIGS.keys())
 
+# Track which experts have been tested and their availability
+_expert_availability: dict[str, bool] = {}
+_haiku_fallback_notices: list[str] = []
+
 
 # ---------------------------------------------------------------------------
 # Command Resolution
 # ---------------------------------------------------------------------------
+
+
+def get_haiku_command() -> list[str]:
+    """Get command to invoke Claude Haiku as fallback.
+
+    Used when external LLMs (Gemini, Qwen, GLM) are unavailable.
+    Provides diversity through smaller/faster Claude model.
+    """
+    if shutil.which("claude"):
+        return ["claude", "--model", "claude-haiku-3", "-p"]
+    raise RuntimeError("Claude CLI not found - cannot use Haiku fallback")
+
+
+async def test_expert_availability(expert: ExpertConfig) -> bool:
+    """Test if an external expert is available with a lightweight probe.
+
+    Returns True if expert responds successfully, False otherwise.
+    Results are cached to avoid repeated probes.
+    """
+    cache_key = f"{expert.service}:{expert.model}"
+
+    # Check cache first
+    if cache_key in _expert_availability:
+        return _expert_availability[cache_key]
+
+    # Native experts are always available
+    if expert.service == "native":
+        _expert_availability[cache_key] = True
+        return True
+
+    try:
+        cmd = get_expert_command(expert)
+        # Use minimal probe prompt
+        probe_cmd = cmd + ["respond with 'ok'"]
+
+        proc = await asyncio.create_subprocess_exec(
+            *probe_cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        await asyncio.wait_for(proc.communicate(), timeout=10.0)
+
+        available = proc.returncode == 0
+        _expert_availability[cache_key] = available
+        return available
+
+    except (TimeoutError, FileNotFoundError, RuntimeError):
+        _expert_availability[cache_key] = False
+        return False
+
+
+def get_fallback_notice() -> str:
+    """Get accumulated fallback notices for user display."""
+    if not _haiku_fallback_notices:
+        return ""
+    notices = "\n".join(f"  - {n}" for n in _haiku_fallback_notices)
+    return f"\n⚠️ External LLM Fallbacks:\n{notices}\n"
+
+
+def clear_availability_cache() -> None:
+    """Clear the expert availability cache (useful for testing)."""
+    _expert_availability.clear()
+    _haiku_fallback_notices.clear()
 
 
 def get_glm_command() -> list[str]:
@@ -364,6 +431,9 @@ class WarRoomOrchestrator:
             Completed WarRoomSession with decision
 
         """
+        # Clear availability cache for fresh session
+        clear_availability_cache()
+
         session = self._initialize_session(problem, mode)
         session.metrics["start_time"] = datetime.now().isoformat()
 
@@ -403,6 +473,10 @@ class WarRoomOrchestrator:
 
         finally:
             session.metrics["end_time"] = datetime.now().isoformat()
+            # Capture any fallback notices
+            fallback_notice = get_fallback_notice()
+            if fallback_notice:
+                session.artifacts["fallback_notice"] = fallback_notice
             self._persist_session(session)
 
         return session
@@ -424,14 +498,29 @@ class WarRoomOrchestrator:
         session: WarRoomSession,
         phase: str,
     ) -> str:
-        """Invoke a single expert and record contribution."""
+        """Invoke a single expert and record contribution.
+
+        For external LLMs (Gemini, Qwen, GLM), tests availability first.
+        Falls back to Haiku if external LLM is unavailable.
+        """
         expert = EXPERT_CONFIGS[expert_key]
+        actual_model = expert.model
 
         if expert.service == "native":
             # Native experts (Opus, Sonnet) handled by orchestrating Claude
             result = f"[Native expert {expert.role} response placeholder]"
-        else:
+        elif await test_expert_availability(expert):
+            # External expert is available - invoke directly
             result = await self._invoke_external(expert, prompt)
+        else:
+            # Fallback to Haiku
+            actual_model = "claude-haiku-3"
+            notice = (
+                f"{expert.role} ({expert.model}) unavailable, using Haiku as fallback"
+            )
+            if notice not in _haiku_fallback_notices:
+                _haiku_fallback_notices.append(notice)
+            result = await self._invoke_haiku_fallback(expert, prompt)
 
         # Record in Merkle-DAG
         session.merkle_dag.add_contribution(
@@ -439,10 +528,48 @@ class WarRoomOrchestrator:
             phase=phase,
             round_number=len(session.phases_completed) + 1,
             expert_role=expert.role,
-            expert_model=expert.model,
+            expert_model=actual_model,
         )
 
         return result
+
+    async def _invoke_haiku_fallback(self, expert: ExpertConfig, prompt: str) -> str:
+        """Invoke Haiku as fallback for unavailable external expert.
+
+        Prefixes prompt with role context to maintain expert perspective.
+        """
+        role_prefix = (
+            f"You are acting as the {expert.role} in a strategic War Room.\n"
+            f"Your expertise: {expert.description}\n\n"
+        )
+        full_prompt = role_prefix + prompt
+
+        try:
+            cmd = get_haiku_command()
+            cmd.append(full_prompt)
+
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(),
+                timeout=120.0,
+            )
+
+            if proc.returncode != 0:
+                err = stderr.decode()[:500]
+                return f"[{expert.role} (Haiku fallback) failed: {err}]"
+
+            return stdout.decode()
+
+        except TimeoutError:
+            return f"[{expert.role} (Haiku fallback) timed out after 120s]"
+        except FileNotFoundError:
+            return f"[{expert.role} fallback failed: Claude CLI not found]"
+        except Exception as e:
+            return f"[{expert.role} (Haiku fallback) error: {e}]"
 
     async def _invoke_external(self, expert: ExpertConfig, prompt: str) -> str:
         """Invoke external expert via CLI.
@@ -501,7 +628,7 @@ class WarRoomOrchestrator:
             elif isinstance(result, str):
                 output[key] = result
             else:
-                output[key] = str(result)
+                output[key] = str(result)  # type: ignore[unreachable]
         return output
 
     # ---------------------------------------------------------------------------
@@ -1327,6 +1454,9 @@ positions without substantive reason."""
             Completed WarRoomSession with Delphi convergence data
 
         """
+        # Clear availability cache for fresh session
+        clear_availability_cache()
+
         # Initialize with full council for Delphi
         session = self._initialize_session(problem, "full_council")
         session.metrics["start_time"] = datetime.now().isoformat()
@@ -1371,6 +1501,10 @@ positions without substantive reason."""
 
         finally:
             session.metrics["end_time"] = datetime.now().isoformat()
+            # Capture any fallback notices
+            fallback_notice = get_fallback_notice()
+            if fallback_notice:
+                session.artifacts["fallback_notice"] = fallback_notice
             self._persist_session(session)
 
         return session
