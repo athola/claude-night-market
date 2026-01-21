@@ -133,21 +133,11 @@ Check configuration integrity.
 
 ## Architecture
 
-Conjure components include:
-- **Core Plugin:** Registers skills, commands, and hooks in Claude Code.
-- **Specialized Skills:** Manage execution paths.
-- **Delegation Executor:** Provides a unified interface for task processing and token estimation.
-- **Resource Management:** Quota tracker and usage logger monitor limits and record outcomes.
-- **Makefile:** Coordinates lifecycle automation and development tasks.
+Conjure is built around a Core Plugin that registers skills, commands, and hooks within Claude Code. Specialized Skills manage execution paths, while a Delegation Executor provides a unified interface for task processing and token estimation. Resource Management is handled by a quota tracker and usage logger that monitor limits and record outcomes, with a Makefile coordinating lifecycle automation and development tasks.
 
 ## Workflow
 
-Task delegation follows a five-step process:
-1.  **Assessment:** `delegation-core` determines if delegation is appropriate.
-2.  **Selection:** `delegate-auto` identifies the best external service.
-3.  **Execution:** `delegation_executor` processes the task.
-4.  **Monitoring:** Quota tracking and logging record outcomes.
-5.  **Integration:** Results return to the active Claude session.
+Task delegation begins with an **Assessment** by `delegation-core` to determine if delegation is appropriate, followed by **Selection** where `delegate-auto` identifies the best external service. **Execution** is then handled by the `delegation_executor`, with **Monitoring** provided by quota tracking and logging. Finally, **Integration** returns the results to the active Claude session.
 
 ## Configuration & Paths
 

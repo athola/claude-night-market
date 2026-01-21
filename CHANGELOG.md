@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-01-21
+
 ### Removed - Command Deduplication (sanctum)
 
 - **Removed `sanctum:skill-review`** - Duplicate of `pensive:skill-review` and `abstract:skill-auditor`
@@ -1216,6 +1218,7 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.3.1]: https://github.com/athola/claude-night-market/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/athola/claude-night-market/compare/v1.2.9...v1.3.0
 [1.2.5]: https://github.com/athola/claude-night-market/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/athola/claude-night-market/compare/v1.2.3...v1.2.4

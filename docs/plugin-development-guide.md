@@ -7,9 +7,9 @@
 3. Run `make validate` to check structure.
 4. Verify code with `make lint` (ruff/mypy) and `make test`.
 
-## Plugin Architecture
+## Structure
 
-Plugins follow a standard directory structure to ensure Claude Code can discover capabilities:
+Plugins follow a standard directory structure so Claude Code can discover capabilities:
 
 ```
 plugins/my-plugin/
@@ -27,9 +27,7 @@ Define strict public APIs to prevent hidden state and support interoperability b
 
 ## Success Metrics
 
-Plugins require 80% code coverage via `pytest-cov`. Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must report zero high-severity issues.
-
-Keep operations within a 15K token budget. Plugins must provide specific error details rather than generic messages. Versioning must align with the 1.1.0 scheme for compatibility.
+Code quality is enforced through strict gates. Plugins require 80% code coverage via `pytest-cov`, and Python code must pass `ruff` linting and `mypy` type checking without overrides. Security is non-negotiable; `bandit` scans must report zero high-severity issues. Operational constraints limit token usage to a 15K budget. Plugins must provide specific error details rather than generic messages, and versioning must align with the 1.1.0 scheme for compatibility.
 
 ## Development Path
 
@@ -48,12 +46,7 @@ Development requires Python 3.10+ managed by `uv`. `pytest` handles testing, whi
 
 ## Release Checklist
 
-- Tests passing with >80% coverage.
-- `ruff` and `mypy` checks pass.
-- `bandit` security scan reports zero high-severity issues.
-- README includes clear usage examples.
-- Token usage stays within the 15K limit.
-- Version tags and changelog updated.
+Before release, verify that tests pass with over 80% coverage and that `ruff`, `mypy`, and `bandit` checks are clean (zero high-severity issues). Ensure the README includes clear usage examples, token usage remains within the 15K limit, and that version tags and the changelog are updated.
 
 ## Common Patterns
 
@@ -93,10 +86,7 @@ hooks:
 
 ### Skill Configuration
 
-*   **Context Forking**: Set `context: fork` to run skills in an isolated sub-agent context, preventing output from polluting the main conversation thread.
-*   **Agent Targeting**: Use the `agent` field to route skills to specific sub-agents (e.g., `python-tester`).
-*   **Tool Permissions**: Use YAML lists for `allowed-tools`. Wildcards are supported (e.g., `Bash(npm *)`, `Bash(* install)`).
-*   **Lifecycle Hooks**: Define `PreToolUse`, `PostToolUse`, or `Stop` hooks in frontmatter to automate validations or cleanup.
+Set `context: fork` to run skills in an isolated sub-agent context, preventing output from polluting the main conversation thread. Use the `agent` field to route skills to specific sub-agents (e.g., `python-tester`). For tool permissions, use YAML lists for `allowed-tools`, supporting wildcards like `Bash(npm *)` or `Bash(* install)`. Lifecycle hooks (`PreToolUse`, `PostToolUse`, `Stop`) defined in the frontmatter automate validations or cleanup.
 
 ### Command Pattern
 ```yaml
@@ -159,10 +149,7 @@ Agent body content...
 
 ### Agent Configuration
 
-*   **Model Control**: Set the `model` to `haiku`, `sonnet`, or `opus`.
-*   **Permissions**: `permissionMode` defines how the agent handles tool approvals (e.g., `acceptEdits`, `dontAsk`).
-*   **Auto-loading Skills**: List skills in the `skills` field. Note that agents do not inherit skills from their parents.
-*   **Escalation**: Configure `escalation` to move tasks to a more capable model when specific `hints` (like `ambiguous_input`) are detected.
+Control the model by setting `model` to `haiku`, `sonnet`, or `opus`. Define how the agent handles tool approvals via `permissionMode` (e.g., `acceptEdits`, `dontAsk`). List skills to auto-load in the `skills` field; note that agents do not inherit skills from their parents. Configure `escalation` to move tasks to a more capable model when specific `hints` (like `ambiguous_input`) are detected.
 
 ## Error Handling
 

@@ -23,6 +23,7 @@
 - [Utility Layer](plugins/utility-layer.md)
   - [conserve](plugins/conserve.md)
   - [conjure](plugins/conjure.md)
+  - [hookify](plugins/hookify.md)
 - [Domain Specialists](plugins/domain-specialists.md)
   - [archetypes](plugins/archetypes.md)
   - [pensive](plugins/pensive.md)

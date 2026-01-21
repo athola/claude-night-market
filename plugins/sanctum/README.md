@@ -284,10 +284,7 @@ claude --fork-session --session-id "refactor-composition" --resume
 
 ### Best Practices
 
-- **Use descriptive session IDs**: `"pr-123-security-focused"` not `"fork1"`
-- **Stay focused**: Each fork should explore one specific approach
-- **Extract insights**: Save findings to files before closing forks
-- **Document decisions**: Record why you chose one approach over others
+Use descriptive session IDs like `pr-123-security-focused` instead of generic names. Keep each fork focused on a single approach, extract insights to files before closing, and document the reasoning behind your final choice.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 

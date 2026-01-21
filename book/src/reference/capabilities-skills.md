@@ -75,6 +75,13 @@ Model escalation decision framework.
 | Standard task | sonnet |
 | Complex reasoning | opus |
 
+### `abstract:performance-optimization`
+Agent SDK performance patterns.
+
+**Invocation**: `Skill(abstract:performance-optimization)`
+
+Covers agent performance optimization including tool restrictions, model selection, parallelization patterns, and timeout configuration for subagent workflows.
+
 ---
 
 ## Imbue Plugin
@@ -192,6 +199,27 @@ Patterns for optimizing oversized skills.
 **Invocation**: `Skill(conserve:optimizing-large-skills)`
 
 Covers four strategies: extracting content to modules, removing redundancy, using progressive loading to defer rarely-needed sections, and moving verbose documentation to separate files loaded on demand.
+
+### `conserve:code-quality-principles`
+Core principles for AI-assisted code quality.
+
+**Invocation**: `Skill(conserve:code-quality-principles)`
+
+Establishes foundational principles for maintaining code quality when working with AI assistance, including verification patterns and anti-regression strategies.
+
+### `conserve:decisive-action`
+Decisive action patterns for efficient workflows.
+
+**Invocation**: `Skill(conserve:decisive-action)`
+
+Guides when to act decisively vs. when to pause for confirmation, reducing unnecessary back-and-forth while maintaining safety.
+
+### `conserve:response-compression`
+Response compression patterns.
+
+**Invocation**: `Skill(conserve:response-compression)`
+
+Techniques for reducing response verbosity without losing essential information, optimizing token usage in conversations.
 
 ---
 
@@ -380,6 +408,28 @@ Generate and remediate documentation.
 3. Show perspective with reasoning
 4. Vary structure (mix prose and bullets)
 5. Use active voice
+
+---
+
+## Hookify Plugin
+
+### `hookify:writing-rules`
+Guide for authoring behavioral rules.
+
+**Invocation**: `Skill(hookify:writing-rules)`
+
+Covers rule structure, pattern matching syntax, action types (block/warn/log), and best practices for creating effective behavioral constraints.
+
+### `hookify:rule-catalog`
+Pre-built behavioral rule templates.
+
+**Invocation**: `Skill(hookify:rule-catalog)`
+
+Collection of ready-to-use rules for common scenarios:
+- Git safety (no force push, no main commits)
+- Security patterns (no secrets in code)
+- Code quality (no TODO without issue)
+- Workflow guards (no skip of quality gates)
 
 ---
 

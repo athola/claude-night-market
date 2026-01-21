@@ -172,6 +172,23 @@ Evaluate hook security and performance.
 /abstract:hooks-eval --plugin memory-palace --perf
 ```
 
+### `/abstract:evaluate-skill`
+Evaluate skill execution quality.
+
+```bash
+# Usage
+/abstract:evaluate-skill <plugin>:<skill-name> [--metrics] [--suggestions]
+
+# Options
+--metrics      Show detailed execution metrics
+--suggestions  Generate improvement suggestions
+--compare      Compare against baseline metrics
+
+# Examples
+/abstract:evaluate-skill imbue:proof-of-work --metrics
+/abstract:evaluate-skill sanctum:pr-prep --suggestions
+```
+
 ---
 
 ## Attune Plugin

@@ -8,6 +8,7 @@ Tests core functionality:
 
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
@@ -576,3 +577,1171 @@ class TestHookAutoTrigger:
         assert low_result["confidence"] == default_result["confidence"]
         assert low_result["suggest"] is True  # Low threshold = easier to trigger
         assert high_result["suggest"] is False  # High threshold = harder to trigger
+
+
+class TestCommandResolution:
+    """Test expert command resolution logic."""
+
+    def test_get_expert_command_with_static_command(self) -> None:
+        """Experts with static commands return them directly."""
+        from scripts.war_room_orchestrator import EXPERT_CONFIGS, get_expert_command
+
+        # Scout has a static command
+        scout = EXPERT_CONFIGS["scout"]
+        cmd = get_expert_command(scout)
+
+        assert cmd == ["qwen", "--model", "qwen-turbo", "-p"]
+        # Verify it's a copy (not mutating original)
+        cmd.append("test")
+        assert EXPERT_CONFIGS["scout"].command == [
+            "qwen",
+            "--model",
+            "qwen-turbo",
+            "-p",
+        ]
+
+    def test_get_expert_command_native_raises(self) -> None:
+        """Native experts (no command) raise RuntimeError."""
+        from scripts.war_room_orchestrator import EXPERT_CONFIGS, get_expert_command
+
+        supreme = EXPERT_CONFIGS["supreme_commander"]
+        with pytest.raises(RuntimeError, match="No command configured"):
+            get_expert_command(supreme)
+
+    def test_get_expert_command_resolver(self) -> None:
+        """Experts with command_resolver use dynamic resolution."""
+        from scripts.war_room_orchestrator import EXPERT_CONFIGS, get_expert_command
+
+        tactician = EXPERT_CONFIGS["field_tactician"]
+        assert tactician.command_resolver == "get_glm_command"
+
+        # Mock shutil.which to return None for all commands to force error
+        def mock_which(_cmd: str) -> None:
+            return None
+
+        # Also mock Path.exists to return False for direct path check
+        with patch("shutil.which", side_effect=mock_which):
+            with patch.object(Path, "exists", return_value=False):
+                with pytest.raises(RuntimeError, match="GLM-4.7 not available"):
+                    get_expert_command(tactician)
+
+    def test_get_glm_command_with_ccgd_alias(self) -> None:
+        """GLM command prefers ccgd alias when available."""
+        from scripts.war_room_orchestrator import get_glm_command
+
+        with patch("shutil.which") as mock_which:
+            mock_which.return_value = "/usr/local/bin/ccgd"
+            cmd = get_glm_command()
+            assert cmd == ["ccgd", "-p"]
+
+    def test_get_glm_command_with_claude_glm(self) -> None:
+        """GLM command falls back to claude-glm when ccgd unavailable."""
+        from scripts.war_room_orchestrator import get_glm_command
+
+        def which_side_effect(cmd: str) -> str | None:
+            if cmd == "ccgd":
+                return None
+            if cmd == "claude-glm":
+                return "/usr/local/bin/claude-glm"
+            return None
+
+        with patch("shutil.which", side_effect=which_side_effect):
+            cmd = get_glm_command()
+            assert cmd == ["claude-glm", "--dangerously-skip-permissions", "-p"]
+
+
+class TestMerkleDAGEdgeCases:
+    """Test MerkleDAG edge cases and additional scenarios."""
+
+    def test_empty_dag_root_hash(self) -> None:
+        """Empty DAG has no root hash."""
+        dag = MerkleDAG(session_id="empty-test")
+        assert dag.root_hash is None
+        assert len(dag.nodes) == 0
+
+    def test_multiple_phases_generate_distinct_labels(self) -> None:
+        """Different phases have independent label counters."""
+        dag = MerkleDAG(session_id="multi-phase")
+
+        # Add COA contributions
+        dag.add_contribution(
+            content="COA 1",
+            phase="coa",
+            round_number=1,
+            expert_role="Strategist",
+            expert_model="model-a",
+        )
+        dag.add_contribution(
+            content="COA 2",
+            phase="coa",
+            round_number=1,
+            expert_role="Tactician",
+            expert_model="model-b",
+        )
+
+        # Add voting contributions
+        dag.add_contribution(
+            content="Vote 1",
+            phase="voting",
+            round_number=2,
+            expert_role="Strategist",
+            expert_model="model-a",
+        )
+
+        anon_coa = dag.get_anonymized_view(phase="coa")
+        anon_voting = dag.get_anonymized_view(phase="voting")
+
+        assert len(anon_coa) == 2
+        assert len(anon_voting) == 1
+        assert anon_coa[0]["label"] == "Response A"
+        assert anon_coa[1]["label"] == "Response B"
+        assert anon_voting[0]["label"] == "Expert 1"
+
+    def test_get_anonymized_view_all_phases(self) -> None:
+        """Anonymized view without phase filter returns all contributions."""
+        dag = MerkleDAG(session_id="all-phases")
+
+        dag.add_contribution(
+            content="Intel",
+            phase="intel",
+            round_number=1,
+            expert_role="Scout",
+            expert_model="model-a",
+        )
+        dag.add_contribution(
+            content="COA",
+            phase="coa",
+            round_number=2,
+            expert_role="Strategist",
+            expert_model="model-b",
+        )
+
+        all_anon = dag.get_anonymized_view()
+        assert len(all_anon) == 2
+
+    def test_content_hash_deterministic(self) -> None:
+        """Same content produces same hash."""
+        dag1 = MerkleDAG(session_id="hash-test-1")
+        dag2 = MerkleDAG(session_id="hash-test-2")
+
+        node1 = dag1.add_contribution(
+            content="Same content",
+            phase="coa",
+            round_number=1,
+            expert_role="Role",
+            expert_model="Model",
+        )
+        node2 = dag2.add_contribution(
+            content="Same content",
+            phase="coa",
+            round_number=1,
+            expert_role="Role",
+            expert_model="Model",
+        )
+
+        assert node1.content_hash == node2.content_hash
+
+
+class TestExternalInvocation:
+    """Test external expert invocation and error handling."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_invoke_external_command_not_found(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """External invocation handles command not found gracefully."""
+        from scripts.war_room_orchestrator import ExpertConfig
+
+        fake_expert = ExpertConfig(
+            role="Fake Expert",
+            service="fake",
+            model="fake-model",
+            description="Test expert",
+            phases=["test"],
+            command=["nonexistent_command_12345", "-p"],
+        )
+
+        result = await orchestrator._invoke_external(fake_expert, "test prompt")
+
+        assert "[Fake Expert command not found" in result
+
+    @pytest.mark.asyncio
+    async def test_invoke_external_timeout(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """External invocation handles timeout."""
+        from scripts.war_room_orchestrator import ExpertConfig
+
+        # Use sleep command that will timeout
+        fake_expert = ExpertConfig(
+            role="Slow Expert",
+            service="test",
+            model="test-model",
+            description="Slow test expert",
+            phases=["test"],
+            command=["sleep", "200"],
+        )
+
+        # Patch timeout to be very short
+        with patch.object(asyncio, "wait_for", side_effect=TimeoutError()):
+            result = await orchestrator._invoke_external(fake_expert, "test")
+
+        assert "[Slow Expert timed out" in result
+
+    @pytest.mark.asyncio
+    async def test_invoke_expert_native_placeholder(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Native experts return placeholder (handled by orchestrating Claude)."""
+        session = WarRoomSession(
+            session_id="native-test",
+            problem_statement="Test native invocation",
+        )
+
+        result = await orchestrator._invoke_expert(
+            "supreme_commander", "test prompt", session, "synthesis"
+        )
+
+        assert "[Native expert Supreme Commander response placeholder]" in result
+        assert len(session.merkle_dag.nodes) == 1
+
+
+class TestParallelInvocation:
+    """Test parallel expert invocation."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_invoke_parallel_handles_exceptions(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Parallel invocation handles individual expert failures."""
+        session = WarRoomSession(
+            session_id="parallel-error-test",
+            problem_statement="Test parallel errors",
+        )
+
+        async def mock_invoke_expert(
+            expert_key: str, _prompt: str, _session: WarRoomSession, _phase: str
+        ) -> str:
+            if expert_key == "chief_strategist":
+                raise RuntimeError("Simulated failure")
+            return f"Success from {expert_key}"
+
+        with patch.object(
+            orchestrator, "_invoke_expert", side_effect=mock_invoke_expert
+        ):
+            results = await orchestrator._invoke_parallel(
+                ["chief_strategist", "red_team"],
+                {"default": "test prompt"},
+                session,
+                "test",
+            )
+
+        assert "[Error:" in results["chief_strategist"]
+        assert "Success from red_team" in results["red_team"]
+
+    @pytest.mark.asyncio
+    async def test_invoke_parallel_skips_unknown_experts(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Parallel invocation skips experts not in EXPERT_CONFIGS."""
+        session = WarRoomSession(
+            session_id="skip-unknown-test",
+            problem_statement="Test unknown experts",
+        )
+
+        with patch.object(
+            orchestrator, "_invoke_expert", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = "test result"
+
+            results = await orchestrator._invoke_parallel(
+                ["chief_strategist", "unknown_expert_xyz"],
+                {"default": "test prompt"},
+                session,
+                "test",
+            )
+
+        # Only known expert should be invoked
+        assert mock_invoke.call_count == 1
+        assert "chief_strategist" in results
+        assert "unknown_expert_xyz" not in results
+
+
+class TestAdditionalPhases:
+    """Test additional phase implementations with mocked externals."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_assessment_phase(self, orchestrator: WarRoomOrchestrator) -> None:
+        """Assessment phase invokes Chief Strategist."""
+        session = WarRoomSession(
+            session_id="assessment-test",
+            problem_statement="Test assessment",
+        )
+        session.artifacts["intel"] = {
+            "scout_report": "Scout findings",
+            "intel_report": "Intel findings",
+        }
+
+        with patch.object(
+            orchestrator, "_invoke_expert", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = "Strategic assessment content"
+
+            await orchestrator._phase_assessment(session)
+
+            mock_invoke.assert_called_once()
+            call_args = mock_invoke.call_args
+            assert call_args[0][0] == "chief_strategist"
+            assert call_args[0][3] == "assessment"
+
+        assert "assessment" in session.phases_completed
+        assert (
+            session.artifacts["assessment"]["content"] == "Strategic assessment content"
+        )
+
+    @pytest.mark.asyncio
+    async def test_coa_development_phase_lightweight(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """COA development in lightweight mode only uses chief strategist."""
+        session = WarRoomSession(
+            session_id="coa-light-test",
+            problem_statement="Test COA lightweight",
+            mode="lightweight",
+        )
+        session.artifacts["assessment"] = {"content": "Assessment text"}
+
+        with patch.object(
+            orchestrator, "_invoke_parallel", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = {"chief_strategist": "COA from strategist"}
+
+            await orchestrator._phase_coa_development(session)
+
+            call_args = mock_invoke.call_args
+            experts_invoked = call_args[0][0]
+            assert experts_invoked == ["chief_strategist"]
+
+        assert "coa" in session.phases_completed
+        assert session.artifacts["coa"]["count"] == 1
+
+    @pytest.mark.asyncio
+    async def test_coa_development_phase_full_council(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """COA development in full council mode uses multiple experts."""
+        session = WarRoomSession(
+            session_id="coa-full-test",
+            problem_statement="Test COA full council",
+            mode="full_council",
+        )
+        session.artifacts["assessment"] = {"content": "Assessment text"}
+
+        with patch.object(
+            orchestrator, "_invoke_parallel", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = {
+                "chief_strategist": "COA 1",
+                "field_tactician": "COA 2",
+                "logistics_officer": "COA 3",
+            }
+
+            await orchestrator._phase_coa_development(session)
+
+            call_args = mock_invoke.call_args
+            experts_invoked = call_args[0][0]
+            assert "chief_strategist" in experts_invoked
+            assert "field_tactician" in experts_invoked
+            assert "logistics_officer" in experts_invoked
+
+        assert session.artifacts["coa"]["count"] == 3
+
+    @pytest.mark.asyncio
+    async def test_red_team_phase(self, orchestrator: WarRoomOrchestrator) -> None:
+        """Red team phase challenges COAs."""
+        session = WarRoomSession(
+            session_id="red-team-test",
+            problem_statement="Test red team",
+        )
+        # Add some COAs to the merkle dag
+        session.merkle_dag.add_contribution(
+            content="COA Alpha content",
+            phase="coa",
+            round_number=1,
+            expert_role="Strategist",
+            expert_model="model-a",
+        )
+        session.merkle_dag.add_contribution(
+            content="COA Beta content",
+            phase="coa",
+            round_number=1,
+            expert_role="Tactician",
+            expert_model="model-b",
+        )
+
+        with patch.object(
+            orchestrator, "_invoke_expert", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = "Red team challenges..."
+
+            await orchestrator._phase_red_team(session)
+
+            mock_invoke.assert_called_once()
+            call_args = mock_invoke.call_args
+            assert call_args[0][0] == "red_team"
+            assert call_args[0][3] == "red_team"
+
+        assert "red_team" in session.phases_completed
+        assert session.artifacts["red_team"]["coas_reviewed"] == 2
+
+    @pytest.mark.asyncio
+    async def test_voting_phase(self, orchestrator: WarRoomOrchestrator) -> None:
+        """Voting phase collects votes and computes Borda scores."""
+        session = WarRoomSession(
+            session_id="voting-test",
+            problem_statement="Test voting",
+            mode="lightweight",
+        )
+        session.merkle_dag.add_contribution(
+            content="COA A",
+            phase="coa",
+            round_number=1,
+            expert_role="Strategist",
+            expert_model="model",
+        )
+        session.merkle_dag.add_contribution(
+            content="COA B",
+            phase="coa",
+            round_number=1,
+            expert_role="Tactician",
+            expert_model="model",
+        )
+        session.artifacts["red_team"] = {"challenges": "Challenges text"}
+
+        with patch.object(
+            orchestrator, "_invoke_parallel", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = {
+                "chief_strategist": "1. Response A\n2. Response B",
+                "red_team": "1. Response B\n2. Response A",
+            }
+
+            await orchestrator._phase_voting(session)
+
+        assert "voting" in session.phases_completed
+        assert "borda_scores" in session.artifacts["voting"]
+        assert "finalists" in session.artifacts["voting"]
+
+    @pytest.mark.asyncio
+    async def test_premortem_phase_no_finalists(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Premortem phase handles no finalists gracefully."""
+        session = WarRoomSession(
+            session_id="premortem-empty-test",
+            problem_statement="Test premortem empty",
+        )
+        session.artifacts["voting"] = {"finalists": []}
+
+        await orchestrator._phase_premortem(session)
+
+        assert "premortem" in session.phases_completed
+        assert "error" in session.artifacts["premortem"]
+
+    @pytest.mark.asyncio
+    async def test_premortem_phase_with_finalists(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Premortem phase analyzes top finalist."""
+        session = WarRoomSession(
+            session_id="premortem-test",
+            problem_statement="Test premortem",
+            mode="lightweight",
+        )
+        session.merkle_dag.add_contribution(
+            content="Winning COA content",
+            phase="coa",
+            round_number=1,
+            expert_role="Strategist",
+            expert_model="model",
+        )
+        session.artifacts["voting"] = {"finalists": ["Response A"]}
+
+        with patch.object(
+            orchestrator, "_invoke_parallel", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = {
+                "chief_strategist": "Premortem analysis 1",
+                "red_team": "Premortem analysis 2",
+            }
+
+            await orchestrator._phase_premortem(session)
+
+        assert "premortem" in session.phases_completed
+        assert session.artifacts["premortem"]["selected_coa"] == "Response A"
+
+
+class TestEscalation:
+    """Test escalation logic."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_should_not_escalate_adequate_coas(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """No escalation when COA count and complexity are adequate."""
+        session = WarRoomSession(
+            session_id="no-escalate-test",
+            problem_statement="Simple problem",
+        )
+        session.artifacts["coa"] = {"count": 3}
+        session.artifacts["assessment"] = {"content": "Simple straightforward task."}
+
+        should_escalate = await orchestrator._should_escalate(session)
+
+        assert should_escalate is False
+        assert session.escalation_reason is None
+
+    @pytest.mark.asyncio
+    async def test_escalate_invokes_additional_experts(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Escalation invokes additional intel and COA experts."""
+        session = WarRoomSession(
+            session_id="escalate-full-test",
+            problem_statement="Complex problem",
+            mode="lightweight",
+        )
+        session.artifacts["intel"] = {"scout_report": "Scout data"}
+        session.artifacts["assessment"] = {"content": "Assessment"}
+        session.artifacts["coa"] = {
+            "raw_coas": {"chief_strategist": "COA 1"},
+            "count": 1,
+        }
+
+        with patch.object(
+            orchestrator, "_invoke_expert", new_callable=AsyncMock
+        ) as mock_invoke_expert:
+            with patch.object(
+                orchestrator, "_invoke_parallel", new_callable=AsyncMock
+            ) as mock_invoke_parallel:
+                mock_invoke_expert.return_value = "Intel report"
+                mock_invoke_parallel.return_value = {
+                    "field_tactician": "COA 2",
+                    "logistics_officer": "COA 3",
+                }
+
+                await orchestrator._escalate(session, context_files=["*.py"])
+
+        assert session.mode == "full_council"
+        assert session.artifacts["coa"]["escalated"] is True
+        assert session.artifacts["coa"]["count"] == 3
+
+
+class TestSynthesisPhase:
+    """Test synthesis phase."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_synthesis_unseals_dag(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Synthesis phase unseals Merkle-DAG to reveal attribution."""
+        session = WarRoomSession(
+            session_id="synthesis-test",
+            problem_statement="Test synthesis",
+        )
+        session.merkle_dag.add_contribution(
+            content="COA content",
+            phase="coa",
+            round_number=1,
+            expert_role="Chief Strategist",
+            expert_model="claude-sonnet-4",
+        )
+        session.artifacts = {
+            "intel": {"scout_report": "Scout", "intel_report": "Intel"},
+            "assessment": {"content": "Assessment"},
+            "red_team": {"challenges": "Challenges"},
+            "voting": {"borda_scores": {}, "finalists": []},
+            "premortem": {"analyses": {}},
+        }
+
+        assert session.merkle_dag.sealed is True
+
+        with patch.object(
+            orchestrator, "_invoke_expert", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = "Supreme Commander Decision..."
+
+            await orchestrator._phase_synthesis(session)
+
+        assert session.merkle_dag.sealed is False
+        assert "synthesis" in session.phases_completed
+        assert session.artifacts["synthesis"]["attribution_revealed"] is True
+
+
+class TestDelphiModeIntegration:
+    """Test Delphi iterative convergence mode."""
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_delphi_revision_round(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Delphi revision round updates expert positions."""
+        session = WarRoomSession(
+            session_id="delphi-revision-test",
+            problem_statement="Test Delphi revision",
+            mode="full_council",
+        )
+        session.artifacts["red_team"] = {"challenges": "Red team feedback"}
+        session.artifacts["coa"] = {
+            "raw_coas": {
+                "chief_strategist": "Original COA 1",
+                "field_tactician": "Original COA 2",
+            }
+        }
+        session.merkle_dag.add_contribution(
+            content="Original COA 1",
+            phase="coa",
+            round_number=1,
+            expert_role="Chief Strategist",
+            expert_model="model",
+        )
+
+        with patch.object(
+            orchestrator, "_invoke_parallel", new_callable=AsyncMock
+        ) as mock_invoke:
+            mock_invoke.return_value = {
+                "chief_strategist": "Revised COA 1",
+                "field_tactician": "Revised COA 2",
+            }
+
+            await orchestrator._delphi_revision_round(session, round_number=2)
+
+        assert session.artifacts["coa"]["delphi_round"] == 2
+        assert (
+            session.artifacts["coa"]["raw_coas"]["chief_strategist"] == "Revised COA 1"
+        )
+
+    def test_convergence_with_single_score(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Convergence computation handles single score edge case."""
+        session = WarRoomSession(
+            session_id="conv-single-test",
+            problem_statement="Test convergence",
+        )
+        session.artifacts["voting"] = {"borda_scores": {"Response A": 5}}
+
+        # Single score = no diversity to measure
+        conv = orchestrator._compute_convergence(session)
+        assert conv == 0.0
+
+    def test_convergence_with_zero_mean(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Convergence handles all-zero scores."""
+        session = WarRoomSession(
+            session_id="conv-zero-test",
+            problem_statement="Test convergence",
+        )
+        session.artifacts["voting"] = {
+            "borda_scores": {"Response A": 0, "Response B": 0}
+        }
+
+        conv = orchestrator._compute_convergence(session)
+        assert conv == 0.0
+
+
+class TestWarRoomSessionEdgeCases:
+    """Test WarRoomSession edge cases."""
+
+    def test_session_post_init_sets_dag_session_id(self) -> None:
+        """Session __post_init__ sets merkle_dag session_id."""
+        session = WarRoomSession(
+            session_id="post-init-test",
+            problem_statement="Test post init",
+        )
+        assert session.merkle_dag.session_id == "post-init-test"
+
+    def test_session_with_custom_dag(self) -> None:
+        """Session can be initialized with custom MerkleDAG."""
+        custom_dag = MerkleDAG(session_id="custom-dag-id")
+        session = WarRoomSession(
+            session_id="custom-test",
+            problem_statement="Test custom dag",
+            merkle_dag=custom_dag,
+        )
+        # Custom dag keeps its ID since it was already set
+        assert session.merkle_dag.session_id == "custom-dag-id"
+
+
+class TestRemainingCoverage:
+    """Tests for remaining uncovered code paths."""
+
+    def test_get_glm_command_local_bin_fallback(self) -> None:
+        """GLM command falls back to ~/.local/bin/claude-glm path."""
+        from scripts.war_room_orchestrator import get_glm_command
+
+        def which_returns_none(_cmd: str) -> None:
+            return None
+
+        with patch("shutil.which", side_effect=which_returns_none):
+            with patch.object(Path, "exists", return_value=True):
+                cmd = get_glm_command()
+                assert "--dangerously-skip-permissions" in cmd
+                assert "-p" in cmd
+                assert ".local/bin/claude-glm" in cmd[0]
+
+    def test_get_expert_command_invalid_resolver(self) -> None:
+        """get_expert_command raises for unknown command resolver."""
+        from scripts.war_room_orchestrator import ExpertConfig, get_expert_command
+
+        fake_expert = ExpertConfig(
+            role="Test Expert",
+            service="test",
+            model="test-model",
+            description="Test",
+            phases=["test"],
+            command_resolver="nonexistent_resolver_function",
+        )
+
+        with pytest.raises(RuntimeError, match="Unknown command resolver"):
+            get_expert_command(fake_expert)
+
+    def test_get_expert_command_resolver_returns_non_list(self) -> None:
+        """get_expert_command raises when resolver returns non-list."""
+        from scripts.war_room_orchestrator import ExpertConfig, get_expert_command
+
+        # Create a resolver that returns a string instead of list
+        def bad_resolver() -> str:
+            return "not a list"
+
+        fake_expert = ExpertConfig(
+            role="Test Expert",
+            service="test",
+            model="test-model",
+            description="Test",
+            phases=["test"],
+            command_resolver="bad_resolver",
+        )
+
+        with patch.dict(
+            "scripts.war_room_orchestrator.__dict__", {"bad_resolver": bad_resolver}
+        ):
+            with pytest.raises(RuntimeError, match="did not return list"):
+                get_expert_command(fake_expert)
+
+    @pytest.fixture
+    def orchestrator(self, tmp_path: Path) -> WarRoomOrchestrator:
+        """Create orchestrator with temp Strategeion path."""
+        return WarRoomOrchestrator(strategeion_path=tmp_path)
+
+    @pytest.mark.asyncio
+    async def test_invoke_external_nonzero_return(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """External invocation handles non-zero return code."""
+        from scripts.war_room_orchestrator import ExpertConfig
+
+        # Use 'false' command which returns exit code 1
+        fake_expert = ExpertConfig(
+            role="Failing Expert",
+            service="test",
+            model="test-model",
+            description="Test expert that fails",
+            phases=["test"],
+            command=["false"],
+        )
+
+        result = await orchestrator._invoke_external(fake_expert, "test prompt")
+        assert "[Failing Expert failed:" in result
+
+    @pytest.mark.asyncio
+    async def test_invoke_external_general_exception(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """External invocation handles general exceptions."""
+        from scripts.war_room_orchestrator import ExpertConfig
+
+        fake_expert = ExpertConfig(
+            role="Error Expert",
+            service="test",
+            model="test-model",
+            description="Test expert",
+            phases=["test"],
+            command=["echo", "test"],
+        )
+
+        # Mock create_subprocess_exec to raise a general exception
+        with patch(
+            "asyncio.create_subprocess_exec",
+            side_effect=OSError("Simulated OS error"),
+        ):
+            result = await orchestrator._invoke_external(fake_expert, "test")
+            assert "[Error Expert error:" in result
+
+    @pytest.mark.asyncio
+    async def test_invoke_expert_external_service(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """_invoke_expert calls _invoke_external for non-native services."""
+        session = WarRoomSession(
+            session_id="external-test",
+            problem_statement="Test external invocation",
+        )
+
+        with patch.object(
+            orchestrator, "_invoke_external", new_callable=AsyncMock
+        ) as mock_external:
+            mock_external.return_value = "External response"
+
+            # Scout is an external service (qwen)
+            result = await orchestrator._invoke_expert(
+                "scout", "test prompt", session, "intel"
+            )
+
+            mock_external.assert_called_once()
+            assert result == "External response"
+
+    @pytest.mark.asyncio
+    async def test_convene_full_flow_mocked(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Test full convene() flow with all phases mocked."""
+        # Mock all phase methods
+        with patch.object(
+            orchestrator, "_phase_intel", new_callable=AsyncMock
+        ) as mock_intel:
+            with patch.object(
+                orchestrator, "_phase_assessment", new_callable=AsyncMock
+            ) as mock_assessment:
+                with patch.object(
+                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
+                ) as mock_coa:
+                    with patch.object(
+                        orchestrator, "_should_escalate", new_callable=AsyncMock
+                    ) as mock_escalate:
+                        with patch.object(
+                            orchestrator, "_phase_red_team", new_callable=AsyncMock
+                        ) as mock_red_team:
+                            with patch.object(
+                                orchestrator, "_phase_voting", new_callable=AsyncMock
+                            ) as mock_voting:
+                                with patch.object(
+                                    orchestrator,
+                                    "_phase_premortem",
+                                    new_callable=AsyncMock,
+                                ) as mock_premortem:
+                                    with patch.object(
+                                        orchestrator,
+                                        "_phase_synthesis",
+                                        new_callable=AsyncMock,
+                                    ) as mock_synthesis:
+                                        mock_escalate.return_value = False
+
+                                        session = await orchestrator.convene(
+                                            problem="Test full flow",
+                                            context_files=["*.py"],
+                                            mode="lightweight",
+                                        )
+
+        assert session.status == "completed"
+        assert session.session_id.startswith("war-room-")
+        mock_intel.assert_called_once()
+        mock_assessment.assert_called_once()
+        mock_coa.assert_called_once()
+        mock_red_team.assert_called_once()
+        mock_voting.assert_called_once()
+        mock_premortem.assert_called_once()
+        mock_synthesis.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_convene_with_escalation(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Test convene() flow triggers escalation when needed."""
+        with patch.object(orchestrator, "_phase_intel", new_callable=AsyncMock):
+            with patch.object(
+                orchestrator, "_phase_assessment", new_callable=AsyncMock
+            ):
+                with patch.object(
+                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
+                ):
+                    with patch.object(
+                        orchestrator, "_should_escalate", new_callable=AsyncMock
+                    ) as mock_escalate:
+                        with patch.object(
+                            orchestrator, "_escalate", new_callable=AsyncMock
+                        ) as mock_do_escalate:
+                            with patch.object(
+                                orchestrator, "_phase_red_team", new_callable=AsyncMock
+                            ):
+                                with patch.object(
+                                    orchestrator,
+                                    "_phase_voting",
+                                    new_callable=AsyncMock,
+                                ):
+                                    with patch.object(
+                                        orchestrator,
+                                        "_phase_premortem",
+                                        new_callable=AsyncMock,
+                                    ):
+                                        with patch.object(
+                                            orchestrator,
+                                            "_phase_synthesis",
+                                            new_callable=AsyncMock,
+                                        ):
+                                            mock_escalate.return_value = True
+
+                                            session = await orchestrator.convene(
+                                                problem="Complex problem",
+                                                mode="lightweight",
+                                            )
+
+        assert session.escalated is True
+        assert session.mode == "full_council"
+        mock_do_escalate.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_convene_failure_persists_session(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Test convene() persists session even on failure."""
+        with patch.object(
+            orchestrator, "_phase_intel", new_callable=AsyncMock
+        ) as mock_intel:
+            mock_intel.side_effect = RuntimeError("Simulated failure")
+
+            with pytest.raises(RuntimeError, match="Simulated failure"):
+                await orchestrator.convene(problem="Failing test")
+
+        # Session should still be persisted
+        sessions = orchestrator.list_sessions()
+        assert len(sessions) == 1
+        assert "failed" in sessions[0]["status"]
+
+    @pytest.mark.asyncio
+    async def test_convene_delphi_full_flow(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Test Delphi convene flow with convergence."""
+        with patch.object(orchestrator, "_phase_intel", new_callable=AsyncMock):
+            with patch.object(
+                orchestrator, "_phase_assessment", new_callable=AsyncMock
+            ):
+                with patch.object(
+                    orchestrator, "_phase_coa_development", new_callable=AsyncMock
+                ):
+                    with patch.object(
+                        orchestrator, "_phase_red_team", new_callable=AsyncMock
+                    ):
+                        with patch.object(
+                            orchestrator, "_phase_voting", new_callable=AsyncMock
+                        ):
+                            with patch.object(
+                                orchestrator, "_compute_convergence"
+                            ) as mock_conv:
+                                with patch.object(
+                                    orchestrator,
+                                    "_delphi_revision_round",
+                                    new_callable=AsyncMock,
+                                ):
+                                    with patch.object(
+                                        orchestrator,
+                                        "_phase_premortem",
+                                        new_callable=AsyncMock,
+                                    ):
+                                        with patch.object(
+                                            orchestrator,
+                                            "_phase_synthesis",
+                                            new_callable=AsyncMock,
+                                        ):
+                                            # First call low, then high to exit loop
+                                            mock_conv.side_effect = [0.5, 0.9]
+
+                                            session = await orchestrator.convene_delphi(
+                                                problem="Delphi test",
+                                                max_rounds=3,
+                                                convergence_threshold=0.85,
+                                            )
+
+        assert session.status == "completed"
+        assert session.metrics["delphi_mode"] is True
+        assert session.metrics["final_convergence"] == 0.9
+
+    def test_suggest_war_room_returns_correct_reason(self) -> None:
+        """should_suggest_war_room returns appropriate reason strings."""
+        # Test multi-option reason
+        result = WarRoomOrchestrator.should_suggest_war_room(
+            "Should we use microservices or monolith architecture?"
+        )
+        assert result["suggest"] is True
+        assert "Multiple approaches" in result["reason"]
+
+        # Test strategic reason (without multi-option)
+        result = WarRoomOrchestrator.should_suggest_war_room(
+            "This is a critical architectural migration decision"
+        )
+        assert result["suggest"] is True
+        assert "Strategic decision" in result["reason"]
+
+        # Test high-stakes reason (stakes keywords only)
+        result = WarRoomOrchestrator.should_suggest_war_room(
+            "This is a risky uncertain complicated task that is critical"
+        )
+        assert result["suggest"] is True
+
+    def test_initialize_session_creates_unique_id(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """_initialize_session creates session with timestamp-based ID."""
+        session = orchestrator._initialize_session("Test problem", "lightweight")
+
+        assert session.session_id.startswith("war-room-")
+        assert session.problem_statement == "Test problem"
+        assert session.mode == "lightweight"
+        assert session.status == "initialized"
+
+    def test_persist_session_skips_missing_intel_report(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """_persist_session handles missing intel_report gracefully."""
+        session = WarRoomSession(
+            session_id="missing-intel-test",
+            problem_statement="Test missing intel",
+        )
+        session.artifacts["intel"] = {
+            "scout_report": "Scout data",
+            "intel_report": "[Intel Officer not invoked - lightweight mode]",
+        }
+
+        orchestrator._persist_session(session)
+
+        session_dir = orchestrator.strategeion / "war-table" / "missing-intel-test"
+        intel_dir = session_dir / "intelligence"
+
+        # Scout report should exist
+        assert (intel_dir / "scout-report.md").exists()
+        # Intel officer report should NOT exist (skipped due to placeholder)
+        assert not (intel_dir / "intel-officer-report.md").exists()
+
+    @pytest.mark.asyncio
+    async def test_invoke_parallel_non_string_result(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Parallel invocation converts non-string results to string."""
+        session = WarRoomSession(
+            session_id="non-string-test",
+            problem_statement="Test non-string results",
+        )
+
+        async def mock_invoke_expert(
+            _expert_key: str, _prompt: str, _session: WarRoomSession, _phase: str
+        ) -> int:
+            # Return an integer instead of string
+            return 42
+
+        with patch.object(
+            orchestrator, "_invoke_expert", side_effect=mock_invoke_expert
+        ):
+            results = await orchestrator._invoke_parallel(
+                ["chief_strategist"],
+                {"default": "test prompt"},
+                session,
+                "test",
+            )
+
+        # Non-string result should be converted to string
+        assert results["chief_strategist"] == "42"
+
+    @pytest.mark.asyncio
+    async def test_convene_delphi_failure_persists(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """Delphi convene persists session on failure."""
+        with patch.object(
+            orchestrator, "_phase_intel", new_callable=AsyncMock
+        ) as mock_intel:
+            mock_intel.side_effect = RuntimeError("Delphi failure")
+
+            with pytest.raises(RuntimeError, match="Delphi failure"):
+                await orchestrator.convene_delphi(problem="Failing Delphi test")
+
+        # Session should still be persisted
+        sessions = orchestrator.list_sessions()
+        assert len(sessions) == 1
+        assert "failed" in sessions[0]["status"]
+
+    def test_archive_session_moves_directory(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """archive_session actually moves session directory."""
+        session = WarRoomSession(
+            session_id="move-test",
+            problem_statement="Test archive move",
+        )
+        session.status = "completed"
+        orchestrator._persist_session(session)
+
+        # Verify original exists
+        original = orchestrator.strategeion / "war-table" / "move-test"
+        assert original.exists()
+
+        # Archive it
+        archive_path = orchestrator.archive_session("move-test", project="test-proj")
+
+        # Verify moved
+        assert archive_path is not None
+        assert archive_path.exists()
+        assert not original.exists()
+        assert "campaign-archive" in str(archive_path)
+        assert "test-proj" in str(archive_path)
+
+    @pytest.mark.asyncio
+    async def test_invoke_external_successful_stdout(
+        self, orchestrator: WarRoomOrchestrator
+    ) -> None:
+        """External invocation returns decoded stdout on success."""
+        from scripts.war_room_orchestrator import ExpertConfig
+
+        # Use echo command which succeeds and outputs
+        fake_expert = ExpertConfig(
+            role="Echo Expert",
+            service="test",
+            model="test-model",
+            description="Test expert",
+            phases=["test"],
+            command=["echo", "hello world"],
+        )
+
+        result = await orchestrator._invoke_external(fake_expert, "")
+        assert "hello world" in result

@@ -156,9 +156,7 @@ scry/
 
 ## Workflow Patterns
 
-- **Tutorial Creation**: Use `vhs-recording` for terminal demos, `browser-recording` for web UI walkthroughs, and `media-composition` to combine them.
-- **Demo Recording**: Record terminal demos with `/record-terminal` and optimize with `gif-generation`.
-- **Documentation Assets**: Generate GIFs for documentation using the skill chain.
+Create tutorials by using `vhs-recording` for terminal demos and `browser-recording` for web UI walkthroughs, then combine them with `media-composition`. For standalone demos, record terminal sessions with `/record-terminal` and optimize the output using `gif-generation`. You can also generate documentation assets by creating GIFs through the full skill chain.
 
 ## Claude Code Compatibility
 

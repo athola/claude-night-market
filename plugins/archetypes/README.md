@@ -111,34 +111,10 @@ Software architecture decision-making and implementation guidance across 14 arch
 ## Paradigm Evolution Path
 
 ### Typical Architecture Evolution Journey
-
-```
-Startup Phase (1-10 engineers)
-    ↓ Layered Architecture
-Growth Phase (10-50 engineers)
-    ↓ Modular Monolith
-Scale Phase (50-200 engineers)
-    ↓ Microservices OR Service-Based
-Maturity Phase (200+ engineers)
-    ↓ Event-Driven + Specialized Patterns
-```
+Startups often begin with a Layered Architecture. As the team grows to 10-50 engineers, a Modular Monolith helps manage complexity. Scaling to 50-200 engineers typically necessitates a move to Microservices or a Service-Based architecture. At maturity (200+ engineers), systems often evolve into Event-Driven architectures combined with specialized patterns.
 
 ### Common Migration Paths
-
-**From Monolith to Distributed**
-```
-Layered → Modular Monolith → Microservices → Event-Driven
-```
-
-**From Simple to Complex**
-```
-Layered → Hexagonal → Functional Core → CQRS/ES
-```
-
-**From Traditional to Cloud-Native**
-```
-Layered → Modular Monolith → Serverless → Event-Driven
-```
+Migration from a monolith to a distributed system generally moves from Layered to Modular Monolith, then to Microservices, and finally to Event-Driven. Increasing complexity drives evolution from Layered to Hexagonal, then Functional Core, and potentially CQRS/ES. Cloud-native transitions typically progress from Layered to Modular Monolith, then to Serverless or Event-Driven architectures.
 
 ### Architecture Decision Triggers
 

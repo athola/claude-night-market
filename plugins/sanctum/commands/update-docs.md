@@ -1,6 +1,6 @@
 ---
-description: Update project documentation with consolidation, debloating, AI slop detection, and accuracy verification.
-usage: /update-docs [--skip-consolidation] [--skip-slop] [--strict] [--book-style]
+description: Update project documentation with consolidation, debloating, AI slop detection, capabilities sync, and accuracy verification.
+usage: /update-docs [--skip-consolidation] [--skip-slop] [--skip-capabilities] [--strict] [--book-style]
 ---
 
 # Update Project Documentation
@@ -11,6 +11,7 @@ Update documentation files based on recent changes while enforcing project writi
 
 - `--skip-consolidation` - Skip redundancy detection phase (Phase 2.5)
 - `--skip-slop` - Skip AI slop detection phase (Phase 4.25)
+- `--skip-capabilities` - Skip capabilities documentation sync (Phase 4.75)
 - `--strict` - Treat style warnings as errors
 - `--book-style` - Apply lenient book/ rules to all files
 
@@ -20,8 +21,9 @@ This command now addresses:
 1. **Consolidation**: Detects redundant/bloated docs (like /merge-docs)
 2. **Debloating**: Enforces directory-specific line limits and style rules
 3. **AI Slop Detection**: Uses `scribe:slop-detector` to find AI-generated content markers
-4. **Accuracy**: Validates version numbers and counts against codebase
-5. **LSP Integration (2.0.74+)**: **Default approach** for documentation verification
+4. **Capabilities Sync**: Ensures plugin.json registrations are reflected in reference docs
+5. **Accuracy**: Validates version numbers and counts against codebase
+6. **LSP Integration (2.0.74+)**: **Default approach** for documentation verification
    - Find all references to documented functions (semantic, not text-based)
    - Verify API completeness (all public APIs documented)
    - Check signature accuracy (docs match actual code)
@@ -40,6 +42,7 @@ Load the required skills in order:
    - Edits applied
    - **Guidelines verified** (directory-specific: docs/ strict, book/ lenient)
    - **AI slop scanned** via `Skill(scribe:slop-detector)`
+   - **Capabilities synced** (plugin.json ↔ reference docs)
    - **Accuracy verified** (version/count validation)
    - Preview changes
 
@@ -121,6 +124,9 @@ Warnings are non-blocking; user decides whether to fix.
 
 # Full cleanup with slop remediation
 /update-docs && /slop-scan docs/ --fix
+
+# Skip capabilities sync (faster for non-plugin repos)
+/update-docs --skip-capabilities
 ```
 
 ## Manual Execution

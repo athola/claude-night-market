@@ -30,10 +30,7 @@ Set the `CONSERVATION_MODE` environment variable:
 
 ## Core Principles
 
-Conservation optimizes resources through three principles:
-1.  **Maximum Effective Context Window (MECW):** Keep context pressure under 50% for quality responses.
-2.  **MCP Patterns:** Process data at the source to prevent transmitting large datasets.
-3.  **Progressive Loading:** Load modules on demand to reduce session footprint.
+Conservation optimizes resources by adhering to the **Maximum Effective Context Window (MECW)** principle, which keeps context pressure under 50% to ensure response quality. It also leverages **MCP Patterns** to process data at the source, preventing the transmission of large datasets, and employs **Progressive Loading** to fetch modules on demand, thereby reducing the session footprint.
 
 ## Commands
 

@@ -16,6 +16,7 @@ Utility plugins handle:
 |--------|-------------|--------------|
 | [conserve](conserve.md) | Resource optimization | Context management |
 | [conjure](conjure.md) | External delegation | Long-context tasks |
+| [hookify](hookify.md) | Behavioral rules | Preventing unwanted actions |
 
 ## When to Use
 
@@ -32,6 +33,13 @@ Use when you need to:
 - Delegate bulk processing tasks
 - Use specialized external models
 - Manage API quotas across services
+
+### hookify
+Use when you need to:
+- Prevent accidental destructive actions (force push, etc.)
+- Enforce coding standards via pattern matching
+- Create project-specific behavioral constraints
+- Add safety guardrails for automated workflows
 
 ## Key Capabilities
 

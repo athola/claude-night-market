@@ -297,28 +297,16 @@ class CompositeSkill:
 ## Integration Best Practices
 
 ### 1. Skill Compatibility
-- **Standardized Interfaces**: Skills should accept/return common formats
-- **Context Passing**: Maintain context across skill boundaries
-- **Error Handling**: Graceful failure propagation
-- **Resource Management**: Shared resource coordination
+Standardized interfaces ensure skills accept and return common formats, while context passing maintains state across boundaries. Error handling must propagate failures gracefully, and shared resources require coordination to prevent conflicts.
 
 ### 2. Performance Considerations
-- **Loading Optimization**: Load skills on-demand
-- **Memory Management**: Clear unused skills from memory
-- **Parallel Execution**: Use concurrency when possible
-- **Caching**: Cache skill results where appropriate
+Optimize loading by fetching skills on-demand and clearing unused ones from memory. Use concurrency for parallel execution where possible and cache results to avoid redundant processing.
 
 ### 3. Configuration Management
-- **Skill Parameters**: Configure skills per use case
-- **Environment Settings**: Adapt to different environments
-- **User Preferences**: Respect individual customization
-- **Version Control**: Manage skill versions carefully
+Configure skills per use case, adapting to environment settings and respecting user preferences. Manage skill versions carefully to avoid compatibility issues and ensure reproducible runs.
 
 ### 4. Monitoring and Debugging
-- **Execution Tracing**: Track skill execution flow
-- **Performance Metrics**: Measure skill performance
-- **Error Logging**: Capture and analyze errors
-- **Quality Assurance**: Validate integrated outputs
+Track execution flow with tracing and measure performance metrics to identify bottlenecks. Capture errors for analysis and validate integrated outputs to ensure quality across the pipeline.
 
 ---
 
@@ -403,6 +391,5 @@ class SkillIntegrationTest:
 
 ## See Also
 
-- [Cross-Plugin Collaboration](./cross-plugin-collaboration.md) - Plugin-level workflows
 - [Superpowers Integration](./superpowers-integration.md) - Superpowers skill integration
 - [Plugin Development Guide](./plugin-development-guide.md) - Creating plugins

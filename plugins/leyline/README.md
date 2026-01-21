@@ -8,7 +8,7 @@ Leyline provides shared utilities, patterns, and services to support consistent 
 
 ## Philosophy
 
-Leyline provides foundational building blocks for plugin functionality. It handles resource tracking, service integration, and pipeline patterns like error handling and circuit breakers. While the Abstract plugin manages meta-concerns like skill evaluation, Leyline focuses on practical implementation and interoperability.
+Leyline delivers the foundational building blocks for plugin functionality, handling resource tracking, service integration, and pipeline patterns like error handling and circuit breakers. Unlike the Abstract plugin, which manages meta-concerns such as skill evaluation, Leyline concentrates on practical implementation and ensuring interoperability across the system.
 
 ## Skills
 
@@ -48,10 +48,7 @@ python -m leyline.service_registry --verify myservice
 
 ## Design Principles
 
-Leyline follows these principles:
-- **Loose Coupling**: Patterns are reference-only for progressive adoption.
-- **Consistent Interfaces**: Unified patterns across all utilities.
-- **Plugin-Agnostic**: Compatible with any plugin design.
+The plugin adheres to principles of loose coupling, ensuring patterns remain reference-only to support progressive adoption. It enforces consistent interfaces across all utilities and maintains a plugin-agnostic design, guaranteeing compatibility with any plugin architecture.
 
 ## Related Plugins
 
