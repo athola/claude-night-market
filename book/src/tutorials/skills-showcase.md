@@ -258,10 +258,10 @@ Skill(pensive:api-review) + Skill(pensive:architecture-review)
 
 ## Further Reading
 
-- **[Plugin Architecture](../architecture/plugin-system.md):** Deep dive into plugin design
-- **[Skill Authoring Guide](../guides/creating-skills.md):** How to create new skills
-- **[Workflow Patterns](../guides/workflow-patterns.md):** Common skill composition patterns
-- **[Capabilities Reference](../reference/capabilities-reference.md):** Full catalog of all 105 skills
+- **[Plugin Overview](../plugins/README.md):** Deep dive into plugin design
+- **[Skills Reference](../reference/capabilities-skills.md):** How skills work and skill catalog
+- **[Workflows Reference](../reference/capabilities-workflows.md):** Common skill composition patterns
+- **[Capabilities Reference](../reference/capabilities-reference.md):** Full catalog of all capabilities
 
 ---
 

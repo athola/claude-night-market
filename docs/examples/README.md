@@ -37,6 +37,6 @@ These examples serve as:
 
 ## See Also
 
-- [Cross-Plugin Collaboration](../cross-plugin-collaboration.md) - Plugin workflow patterns
+- [Cross-Plugin Collaboration](../../book/src/tutorials/cross-plugin-collaboration.md) - Plugin workflow patterns
 - [Skill Integration Guide](../skill-integration-guide.md) - Skill combination patterns
 - [Plugin Development Guide](../plugin-development-guide.md) - Creating plugins

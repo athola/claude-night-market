@@ -443,8 +443,8 @@ If you encounter problems:
 ## Getting Help
 
 ### Resources
-- [Function Extraction Guidelines](./function-extraction-guidelines.md)
-- [Technical Debt Backlog](./backlog/technical-debt.md)
+- [Function Extraction Guidelines](../reference/function-extraction-guidelines.md)
+- [Capabilities Reference](../reference/capabilities-reference.md)
 
 ### Support
 - Create an issue for migration problems

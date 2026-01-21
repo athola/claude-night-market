@@ -12,7 +12,7 @@ When and how to use commands, skills, and subagents for typical development task
 | [Prepare a PR](#preparing-a-pull-request) | `/pr` | sanctum |
 | [Catch up on changes](#catching-up-on-changes) | `/catchup` | imbue |
 | [Write specifications](#writing-specifications) | `/speckit-specify` | spec-kit |
-| [Improve system](#meta-development-improving-the-system) | `/speckit-analyze` | spec-kit |
+| [Improve system](#meta-development) | `/speckit-analyze` | spec-kit |
 | [Debug an issue](#debugging-issues) | `Skill(superpowers:debugging)` | superpowers |
 | [Manage knowledge](#managing-knowledge) | `/palace` | memory-palace |
 
@@ -765,6 +765,6 @@ This reduces context overhead by 200-800 tokens for lightweight agents.
 
 ## See Also
 
-- [Quick Start Guide](../book/src/getting-started/quick-start.md) - Condensed recipes
-- [Capabilities Reference](../book/src/reference/capabilities-reference.md) - All commands and skills
-- [Plugin Catalog](../book/src/plugins/README.md) - Detailed plugin documentation
+- [Quick Start Guide](./quick-start.md) - Condensed recipes
+- [Capabilities Reference](../reference/capabilities-reference.md) - All commands and skills
+- [Plugin Catalog](../plugins/README.md) - Detailed plugin documentation

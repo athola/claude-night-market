@@ -201,7 +201,7 @@ gh pr create --title "<title>" --body "<generated body>"
 ## Next Steps
 
 - Read the [Quick Start Guide](quick-start.md) for more workflow patterns
-- Explore other plugins in the [Plugin Overview](../plugins/index.html)
+- Explore other plugins in the [Plugin Overview](../plugins/README.md)
 - Check the [Capabilities Reference](../reference/capabilities-reference.md) for all available skills
 
 ## Achievements Earned

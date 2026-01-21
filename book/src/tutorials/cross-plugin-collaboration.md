@@ -542,6 +542,6 @@ The Claude Night Market ecosystem is designed for collaboration. Combining plugi
 
 ## See Also
 
-- [Superpowers Integration](./superpowers-integration.md) - Technical skill integration details
-- [Plugin Development Guide](./plugin-development-guide.md) - Creating new plugins
-- [Skill Integration Guide](./skill-integration-guide.md) - Skill workflow patterns
+- [Superpowers Integration](../reference/superpowers-integration.md) - Technical skill integration details
+- [Plugin Overview](../plugins/README.md) - Creating new plugins
+- [Skills Reference](../reference/capabilities-skills.md) - Skill workflow patterns

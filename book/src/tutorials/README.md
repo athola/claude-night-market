@@ -35,7 +35,7 @@ Each tutorial includes:
 
 ### For New Users
 
-1. Complete [Getting Started](../getting-started/index.html) first
+1. Complete [Getting Started](../getting-started/quick-start.md) first
 2. Follow [Skills Showcase](skills-showcase.md) to understand the skill system
 3. Read plugin documentation for plugins you've installed
 4. Return here for deeper dives
