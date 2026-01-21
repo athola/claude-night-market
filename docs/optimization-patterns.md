@@ -299,13 +299,13 @@ rg "TODO|FIXME|HACK|XXX" --type py --type md
 **Problem**: Examples with too much explanation
 
 **Solution**: Show, don't tell
-```markdown
-❌ Before (150 lines):
-This example demonstrates how to use the API. First, you need to
-import the module. Then you create an instance. After that, you
-configure it. Finally, you call the method...
 
-✅ After (30 lines):
+❌ **Before (150 lines):**
+> This example demonstrates how to use the API. First, you need to
+> import the module. Then you create an instance. After that, you
+> configure it. Finally, you call the method...
+
+✅ **After (30 lines):**
 ```python
 # Example: Basic usage
 from mylib import Client
@@ -315,14 +315,13 @@ result = client.process(data)
 print(result)
 ```
 
-**Explanation**: [See detailed walkthrough](./examples/basic-usage.md)
-
 #### Redundant Documentation
 **Problem**: Same content in multiple places
 
 **Solution**: Single source of truth with references
 ```markdown
-See: [Authentication Guide](./auth.md) for details
+<!-- Example: Link to single source instead of duplicating -->
+See: [Feature Guide](./guides/feature-guide.md) for details
 ```
 
 ---

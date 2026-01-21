@@ -2,7 +2,7 @@
 
 Review classification system and scope mode details.
 
-> **See Also**: [Main Command](../pr-review.md) | [Workflow](review-workflow.md) | [Configuration](review-configuration.md)
+> **See Also**: [Main Command](../../pr-review.md) | [Workflow](review-workflow.md) | [Configuration](review-configuration.md)
 
 ## Review Classification Framework
 

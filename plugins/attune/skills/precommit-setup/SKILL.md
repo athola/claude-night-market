@@ -660,5 +660,5 @@ repos:
 
 ## See Also
 
-- [Quality Gates Documentation](../../../docs/quality-gates.md) - Detailed quality system guide
-- [Testing Guide](../../../docs/testing-guide.md) - Testing best practices
+- [Quality Gates Documentation](../../../../docs/quality-gates.md) - Detailed quality system guide
+- [Testing Guide](../../../../docs/testing-guide.md) - Testing best practices

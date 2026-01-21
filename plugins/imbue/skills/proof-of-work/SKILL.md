@@ -105,7 +105,7 @@ Before claiming completion, verify you UNDERSTAND the implementation, not just t
 
 **Anti-Cargo-Cult TodoWrite:** `proof:understanding-verified`
 
-See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for the full Understanding Verification Protocol.
+<!-- Understanding Verification Protocol embedded above -->
 
 **Iron Law Self-Check (Before Writing Code):**
 

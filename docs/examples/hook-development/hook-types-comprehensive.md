@@ -13,15 +13,17 @@ Context compaction can occur at any time: `PreCompact`
 
 ## Quick Reference
 
-| Hook Event | Timing | Purpose | Details |
-|------------|--------|---------|---------|
-| **PreToolUse** | Before tool execution | Validate/transform inputs | [Reference](hook-types/pre-tool-use.md) |
-| **PostToolUse** | After tool execution | Log/modify outputs | [Reference](hook-types/post-tool-use.md) |
-| **PermissionRequest** | Permission dialog | Auto-approve/deny/modify | [Reference](hook-types/permission-request.md) |
-| **UserPromptSubmit** | User message submitted | Inject context/filter | [Reference](hook-types/user-prompt-submit.md) |
-| **Stop** | Agent completes | Cleanup/summarize | [Reference](hook-types/stop.md) |
-| **SubagentStop** | Subagent completes | Aggregate results | [Reference](hook-types/subagent-stop.md) |
-| **PreCompact** | Before context compaction | Preserve state | [Reference](hook-types/pre-compact.md) |
+| Hook Event | Timing | Purpose |
+|------------|--------|---------|
+| **PreToolUse** | Before tool execution | Validate/transform inputs |
+| **PostToolUse** | After tool execution | Log/modify outputs |
+| **PermissionRequest** | Permission dialog | Auto-approve/deny/modify |
+| **UserPromptSubmit** | User message submitted | Inject context/filter |
+| **Stop** | Agent completes | Cleanup/summarize |
+| **SubagentStop** | Subagent completes | Aggregate results |
+| **PreCompact** | Before context compaction | Preserve state |
+
+See sections below for detailed specifications of each hook type.
 
 ## Hook Execution Order
 

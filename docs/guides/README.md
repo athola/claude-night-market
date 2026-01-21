@@ -20,7 +20,6 @@ Detailed guides for advanced topics in the plugin ecosystem.
 - **Full Guide**: [development-vs-runtime-skills-separation.md](development-vs-runtime-skills-separation.md)
 - **Quick Reference**: [skills-separation-quickref.md](skills-separation-quickref.md)
 - **Visual Diagrams**: [skills-separation-diagram.md](skills-separation-diagram.md)
-- **Reddit Response**: [reddit-response-skills-separation.md](../reddit-response-skills-separation.md)
 
 ---
 
@@ -167,7 +166,7 @@ Battle-tested methodology for systematic context reduction in Claude Code projec
 
 ## Contributing
 
-Have a guide topic suggestion? See [CONTRIBUTING](../../CONTRIBUTING.md) for guidelines.
+Have a guide topic suggestion? Open an issue on the repository with the `documentation` label.
 
 **Criteria for New Guides**:
 - Solves a common, non-obvious problem

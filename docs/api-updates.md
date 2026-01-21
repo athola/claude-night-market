@@ -17,7 +17,7 @@ This document tracks API changes and documentation progress across the Claude Ni
 
 ## Documentation Progress
 
-Progress toward 90% documentation coverage target (see [Documentation Drive Plan](archive/2025-12-plans/documentation-drive-plan.md) for methodology).
+Progress toward 90% documentation coverage target.
 
 | Plugin | API Docs | Examples | Tutorials | Code Comments | Overall |
 |--------|----------|----------|-----------|---------------|---------|
@@ -50,5 +50,4 @@ Planned API changes for next release cycle:
 ## Related Documents
 
 - [API Overview](api-overview.md) - Current API inventory
-- [Documentation Drive Plan](archive/2025-12-plans/documentation-drive-plan.md) - Implementation methodology
 - [API Consistency Plan](plans/2025-12-06-api-consistency.md) - Standardization roadmap

@@ -128,5 +128,5 @@ The ecosystem now works with default settings, establishing reliable discoverabi
 ## Related
 
 - See ADR-0003 for command description refactoring pattern
-- See [Skill Discovery Documentation](../guides/skill-discovery.md)
+- See [Skills Reference](../../book/src/reference/capabilities-skills.md) for skill documentation
 - Tracking issue: #budget-optimization (closed)

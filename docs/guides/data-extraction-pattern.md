@@ -467,7 +467,7 @@ def resolve_references(items: list[Item]) -> list[Item]:
 
 - [Progressive Disclosure Pattern](./documentation-standards.md#progressive-disclosure)
 - [Optimization Patterns](../optimization-patterns.md)
-- [Plugin Structure Guide](../../book/src/plugin-development/structure.md)
+- [Plugin Overview](../../book/src/plugins/README.md)
 
 ---
 

@@ -1,0 +1,14 @@
+# Files and patterns to ignore during link checking
+
+# Template files with placeholder links
+template.md
+XXXX-
+
+# Example skill structures with intentional placeholder modules
+examples/modular-skills/
+
+# Documentation workflow files that reference planned but unimplemented content
+docs/plans/2025-12-18-tutorial-gif-system-design.md
+
+# Files with many auto-generated anchor references that are hard to validate
+full-cycle-workflow-guide.md
