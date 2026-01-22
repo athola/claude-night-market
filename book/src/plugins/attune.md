@@ -31,6 +31,7 @@ graph LR
 | `/attune:plan` | 3. Planning | Design architecture and break down tasks |
 | `/attune:init` | 4. Initialization | Generate project structure and tooling |
 | `/attune:execute` | 5. Implementation | Execute tasks with TDD discipline |
+| `/attune:war-room` | Decision | Multi-LLM expert deliberation for strategic choices |
 | `/attune:upgrade-project` | Maintenance | Add configs to existing projects |
 | `/attune:validate` | Quality | Validate project structure |
 
@@ -89,6 +90,7 @@ graph LR
 | `project-planning` | Architecture and task breakdown |
 | `project-init` | Interactive project initialization |
 | `project-execution` | Systematic implementation |
+| `war-room` | Multi-LLM expert council deliberation |
 | `makefile-generation` | Generate language-specific Makefiles |
 | `workflow-setup` | Configure CI/CD pipelines |
 | `precommit-setup` | Set up code quality hooks |

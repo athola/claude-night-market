@@ -209,7 +209,7 @@ claude --fork-session --session-id "performance-audit" --resume
 > "Review focusing on performance"
 ```
 
-**Best Practices**: One concern per fork, extract findings before closing, synthesize into actionable report.
+**Best Practices**: Focus on one concern per fork, extract findings before closing the session, and synthesize the results into an actionable report.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed patterns.
 

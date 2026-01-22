@@ -68,6 +68,7 @@ Standardize project development:
 | `/attune:plan` | Plan architecture and break down into tasks | 3. Planning |
 | `/attune:init` | Initialize project structure with tooling | 4. Initialization |
 | `/attune:execute` | Execute implementation tasks systematically | 5. Implementation |
+| `/attune:war-room` | **Multi-LLM expert deliberation for strategic decisions** | Decision |
 
 ### Project Management
 
@@ -86,6 +87,7 @@ Standardize project development:
 | `project-specification` | Spec-driven requirement definition | Need detailed requirements |
 | `project-planning` | Architecture design and task breakdown | Planning implementation |
 | `project-execution` | Systematic task execution with TDD | Implementing planned tasks |
+| `war-room` | **Multi-LLM expert council deliberation** | Complex strategic decisions |
 
 ### Initialization Skills
 
@@ -249,15 +251,6 @@ With spec-kit, Attune aligns with specification patterns:
 ## Philosophy
 
 Attune enforces structured workflows from ideation to implementation, integrating with plugins and requiring confirmation for file operations. Templates follow industry practices and support full customization.
-
-## Contributing
-
-Templates are stored in `plugins/attune/templates/`. To add or improve templates:
-
-1. Modify template files
-2. Test with `/attune:init`
-3. Update documentation
-4. Submit PR with examples
 
 ## License
 

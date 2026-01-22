@@ -107,13 +107,7 @@ Physical cliches ("breath he didn't know he was holding"), emotion washing ("rel
 
 ## Writing Principles
 
-Scribe enforces these principles:
-
-1. **Ground every claim**: Use specifics, not adjectives
-2. **Trim crutches**: No formulaic openers or closers
-3. **Show perspective**: Include reasoning and trade-offs
-4. **Vary structure**: Mix sentence lengths, balance bullets with prose
-5. **Use active voice**: Direct statements over passive constructions
+Scribe enforces a grounded writing style by requiring specific claims over adjectives and removing formulaic openers or closers. It emphasizes authorial perspective by including reasoning and trade-offs, varies sentence structure to avoid monotony, and prioritizes active voice for direct, clear communication.
 
 ## Vocabulary Substitutions
 

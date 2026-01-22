@@ -11,6 +11,7 @@
 **MANDATORY PRE-CHECK (Run BEFORE anything else in this step):**
 ```bash
 # This command will EXIT WITH ERROR CODE 1 if any threads are unresolved
+# OR if reviews are still PENDING (not yet submitted)
 # Run this FIRST, before doing anything else in Step 6
 
 REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner)
@@ -20,6 +21,37 @@ PR_NUM=$(gh pr view --json number -q .number)
 
 echo "=== MANDATORY THREAD RESOLUTION CHECK ==="
 echo "PR: $OWNER/$REPO #$PR_NUM"
+
+# STEP 0: Check for PENDING reviews (reviews not yet submitted)
+echo ""
+echo "Checking review states..."
+PENDING_REVIEWS=$(gh pr view $PR_NUM --json reviews -q '[.reviews[] | select(.state == "PENDING")] | length')
+
+if [[ "$PENDING_REVIEWS" -gt 0 ]]; then
+  echo ""
+  echo "⚠️  PENDING REVIEW DETECTED"
+  echo ""
+  echo "There are $PENDING_REVIEWS review(s) in PENDING state."
+  echo "Pending reviews have NOT been submitted yet - their threads cannot be resolved."
+  echo ""
+  echo "This typically means:"
+  echo "  - The reviewer started a review but hasn't clicked 'Submit review'"
+  echo "  - OR you are the reviewer and have a draft review in progress"
+  echo ""
+  echo "REQUIRED ACTIONS:"
+  echo "  1. If you are the reviewer: Submit or discard your pending review"
+  echo "  2. If waiting on reviewer: Ask them to submit their review"
+  echo "  3. Once review is submitted, re-run: /fix-pr"
+  echo ""
+  echo "Pending review details:"
+  gh pr view $PR_NUM --json reviews -q '.reviews[] | select(.state == "PENDING") | "  Author: \(.author.login) | State: \(.state)"'
+  echo ""
+  echo "⛔ CANNOT RESOLVE THREADS UNTIL REVIEWS ARE SUBMITTED"
+  echo ""
+  exit 1
+fi
+
+echo "✓ No pending reviews - proceeding to thread check"
 
 CHECK_OUTPUT=$(gh api graphql -f query="
 query {
@@ -80,22 +112,36 @@ fi
 | Used comment ID instead of thread ID | Comment IDs can't resolve threads | Use thread ID (format: `PRRT_*`) |
 | Skipped because "fixes are obvious" | Reviewer not notified, thread remains open | ALWAYS reply + resolve, even for "obvious" fixes |
 | Assumed someone else will handle it | YOU are the PR author, it's YOUR responsibility | Complete the workflow yourself |
+| **Review is in PENDING state** | Threads from pending reviews cannot be resolved until review is submitted | Submit the review first (or ask reviewer to submit), then re-run `/fix-pr` |
 
 **If you are NOT the PR author**, you may skip to Step 6.4. Otherwise, continue below.
 
+## 6.0 Reconcile ALL Unworked Items (MANDATORY)
+
+**Before creating issues, reconcile ALL items from the review.** This captures items identified DURING review but not formally triaged (test gaps, doc suggestions, security concerns, performance hints, etc.).
+
+**Quick Checklist:**
+- [ ] Review: Did ALL "Fix Now" / "This PR" items get addressed? Create issues for incomplete ones.
+- [ ] Re-read ALL review comments - find suggestions not captured at triage time.
+- [ ] Ensure EVERY non-worked-on item has a GitHub issue created in 6.1/6.2.
+
+**Output:** Complete list of all items requiring issues (triage items + newly-discovered review suggestions).
+
+---
+
 ## 6.1 Create Issues for Suggestions/Deferred Items (AUTOMATIC)
 
-**CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items.**
+**CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items identified in Step 6.0.**
 
 > **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for the full pattern.
 
-**This step is automatic** - no flag required. When items are classified as "Suggestion" or "Deferred" during triage (Step 2), issues are created at the end of this step.
+**This step is automatic** - no flag required. When items are classified as "Suggestion" or "Deferred" during triage (Step 2) OR identified during reconciliation (Step 6.0), issues are created.
 
 **To skip automatic creation**: Use `--no-auto-issues` flag.
 
 **Duplicate Detection**: Before creating, search for existing issues with similar titles to avoid duplicates.
 
-For each comment classified as **Suggestion** during triage, create a GitHub issue:
+For each comment classified as **Suggestion** during triage or reconciliation, create a GitHub issue:
    ```bash
    gh issue create \
      --title "[Suggestion] <description from review comment>" \

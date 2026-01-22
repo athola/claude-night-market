@@ -11,7 +11,7 @@
 >
 > **Current Recommendation:** Use **Grep (ripgrep) as primary method**, test LSP experimentally with a secondary method ready.
 >
-> See [Issue #72](https://github.com/athola/claude-night-market/issues/72) and [plugins/abstract/docs/claude-code-compatibility.md](../plugins/abstract/docs/claude-code-compatibility.md#lsp-integration-patterns-2074) for full details.
+> See [Issue #72](https://github.com/athola/claude-night-market/issues/72) for full details.
 
 **Status:** Configured via `~/.claude/settings.json` | Experimental with known bugs
 

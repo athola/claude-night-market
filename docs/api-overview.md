@@ -132,7 +132,7 @@ Project initialization and architecture templates.
 
 ## API Quality Assessment
 
-We enforce documentation and type safety via `ruff`, `mypy`, and `bandit`. Every plugin must follow the standard directory structure to ensure discovery. Current initiatives focus on normalizing command naming across plugins and clarifying export patterns for cross-plugin dependencies.
+Documentation and type safety are enforced via `ruff`, `mypy`, and `bandit`. Plugins follow the standard directory structure to ensure discovery. Current initiatives focus on normalizing command naming across plugins and clarifying export patterns for cross-plugin dependencies.
 
 ## Related Documents
 

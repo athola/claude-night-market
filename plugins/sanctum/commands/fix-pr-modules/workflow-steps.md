@@ -113,12 +113,15 @@ Resolve threads, create issues, and post summary.
 **⚠️ MANDATORY for PR authors receiving review comments.**
 
 **Actions:**
-- Create issues for suggestions/deferred items
-- Resolve ALL review threads (GraphQL)
-- Link/close related issues
-- Post summary comment
+- **6.0 Reconcile ALL unworked items** (ensure nothing is missed)
+- 6.1 Create issues for suggestions/deferred items
+- 6.2 Create issues for deferred/out-of-scope items
+- 6.3 Resolve ALL review threads (GraphQL)
+- 6.4 Link/close related issues
+- 6.5 Post summary comment
+- 6.6 Final thread verification
 
-**Output:** All threads resolved, issues created, summary posted
+**Output:** All threads resolved, ALL unworked items tracked as issues, summary posted
 
 ---
 

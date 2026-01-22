@@ -196,22 +196,41 @@ Detects URLs in user prompts for processing.
 
 ### `local_doc_processor.py`
 **Type**: PostToolUse
+**Matcher**: `Read`
 
 Processes local documentation files.
+
+### `skill_tracker_pre.py`
+**Type**: PreToolUse
+**Matcher**: `Skill`
+
+Tracks skill execution start for metrics collection.
+
+### `skill_tracker_post.py`
+**Type**: PostToolUse
+**Matcher**: `Skill`
+
+Records skill execution completion and metrics.
 
 ---
 
 ## Conserve Hooks
 
 ### `context_warning.py`
-**Type**: SessionStart
+**Type**: PreToolUse
+**Matcher**: `.*`
 
 Monitors context utilization and warns at thresholds.
 
 ### `permission_request.py`
-**Type**: PreToolUse
+**Type**: PermissionRequest
 
 Automates permission decisions based on patterns.
+
+### `session-start.sh`
+**Type**: SessionStart
+
+Session initialization with context optimization.
 
 ---
 

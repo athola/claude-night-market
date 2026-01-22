@@ -237,5 +237,5 @@ Based on audit, these scripts need CLI/JSON integration:
 ## See Also
 
 - [Anthropic Advanced Tool Use](https://www.anthropic.com/engineering/advanced-tool-use)
-- [Common Workflows](./common-workflows.md)
-- [abstract CLI Framework](../plugins/abstract/src/abstract/cli_framework.py)
+- [Common Workflows](../book/src/getting-started/common-workflows.md)
+- [Plugin Development Guide](./plugin-development-guide.md)

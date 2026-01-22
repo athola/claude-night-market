@@ -19,7 +19,7 @@ def test_update_plugins_has_phase_2():
     assert "Phase 2: Performance & Improvement Analysis" in content, (
         "/update-plugins missing Phase 2 section"
     )
-    assert "/skill-review" in content, "/update-plugins missing /skill-review reference"
+    assert "skill-review" in content, "/update-plugins missing skill-review reference"
     assert "/skill-logs" in content, "/update-plugins missing /skill-logs reference"
     assert "stability_gap" in content, "/update-plugins missing stability_gap mention"
     assert "TodoWrite" in content or "improvement:" in content, (
@@ -62,8 +62,8 @@ def test_workflow_improvement_skill_enhanced():
     assert "/skill-logs" in content, (
         "workflow-improvement skill missing /skill-logs reference"
     )
-    assert "/skill-review" in content, (
-        "workflow-improvement skill missing /skill-review reference"
+    assert "skill-review" in content, (
+        "workflow-improvement skill missing skill-review reference"
     )
 
 

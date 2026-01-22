@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conjure-dev"
-version = "1.3.0"
+version = "1.3.1"
 description = "Development tools for the conjure Claude Code plugin - intelligent delegation framework for external LLM services"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -50,6 +50,7 @@ dev = [
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
+    "pytest-asyncio>=0.24.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -138,3 +139,7 @@ exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]
 skips = ["B101"]  # Skip assert_used test for test files
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

@@ -260,6 +260,5 @@ This documentation strategy reduces token usage, saving approximately 3,200 toke
 
 ## See Also
 
-- [Bloat Scan Report](../../bloat-scan-report-20260109.md) - Phase 5 details
 - [Plugin Development Guide](../plugin-development-guide.md) - Overall structure
 - [Writing Guidelines](https://docs.anthropic.com/en/docs/build-with-claude/skill-authoring) - Claude Developer Platform

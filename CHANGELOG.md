@@ -5,6 +5,85 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.3.1] - 2026-01-21
+
+### Added - Hookify v1.1.0 (hookify)
+
+- **block-destructive-git rule**: Blocks dangerous git commands that cause irreversible data loss
+  - `git reset --hard` - Destroys all uncommitted changes
+  - `git checkout -- .` - Discards all unstaged changes
+  - `git clean -fd` - Permanently deletes untracked files
+  - `git stash drop` - Permanently deletes stashed changes
+  - `git branch -D` - Force-deletes branches (even unmerged)
+  - `git reflog expire` / `git gc --prune` - Destroys recovery points
+- **warn-risky-git rule**: Warns about git operations that modify history
+  - `git reset` (soft/mixed) - Moves HEAD, may unstage files
+  - `git checkout <branch> -- <file>` - Replaces file from another branch
+  - `git rebase -i` / `git rebase --onto` - Rewrites commit history
+  - `git cherry-pick/merge/am --abort` - Discards in-progress operations
+- **Recovery-first guidance**: Each blocked command shows diagnostic commands to review changes before discarding
+- **Safer alternatives**: Comprehensive alternative workflows (stash, backup branches, selective operations)
+
+### Removed - Command Deduplication (sanctum)
+
+- **Removed `sanctum:skill-review`** - Duplicate of `pensive:skill-review` and `abstract:skill-auditor`
+  - `pensive:skill-review` handles runtime metrics (execution counts, stability gaps)
+  - `abstract:skill-auditor` handles static quality analysis
+  - Updated cross-references in `update-plugins.md` and `skill-logs.md`
+
+### Added - Attune v1.2.0 War Room (attune)
+
+- **`/attune:war-room` command**: Convene expert panel for strategic decisions
+- **`Skill(attune:war-room)`**: Full deliberation skill with 7 phases
+- **Expert panel**: 7 specialized AI roles (Supreme Commander, Chief Strategist, etc.)
+- **Deliberation phases**: Intel, Assessment, COA Development, Red Team, Voting, Premortem, Synthesis
+- **Merkle-DAG anonymization**: Contributions anonymized during deliberation, unsealed after decision
+- **Borda count voting**: Rank-based aggregation for fair expert voting
+- **Escalation logic**: Automatic escalation from lightweight to full council on complexity
+- **War Room Modules**:
+  - `modules/expert-roles.md` - Expert panel configuration and invocation patterns
+  - `modules/deliberation-protocol.md` - Phase definitions and flow control
+  - `modules/merkle-dag.md` - Anonymization and integrity verification
+- **Strategeion**: Dedicated Memory Palace chamber for war council sessions
+- **Conjure delegation**: Expert dispatch via conjure delegation framework
+
+### Added - War Room Multi-LLM Deliberation (attune/conjure)
+
+- **War Room framework** - Multi-LLM expert council for strategic decisions
+  - 7 deliberation phases: Intel, Assessment, COA Development, Red Team, Voting, Premortem, Synthesis
+  - Expert panel: Supreme Commander (Opus), Chief Strategist (Sonnet), Intelligence Officer (Gemini Pro), Field Tactician (GLM-4.7), Scout (Qwen Turbo), Red Team Commander (Gemini Flash), Logistics Officer (Qwen Max)
+  - Lightweight mode (3 experts) with auto-escalation to full council (7 experts)
+  - Merkle-DAG anonymization: contributions anonymized during deliberation, unsealed after decision
+  - Borda count voting for fair expert aggregation
+
+- **`war_room_orchestrator.py`** (conjure) - Async orchestration engine
+  - Parallel expert dispatch with timeout handling
+  - Session persistence to Strategeion (Memory Palace war chamber)
+  - Graceful degradation on expert failures
+  - Full test coverage (17 tests)
+
+- **War Room skill and command** (attune)
+  - `Skill(attune:war-room)` - Full deliberation skill
+  - `/attune:war-room` - Command interface with options: `--full-council`, `--delphi`, `--resume`
+  - Modular design: expert-roles, deliberation-protocol, merkle-dag modules
+
+- **Phase 3: Strategeion persistence**
+  - Enhanced session persistence with organized subdirectories
+  - `intelligence/` - Scout and Intel Officer reports
+  - `battle-plans/` - COA documents from all experts
+  - `wargames/` - Red Team challenges and premortem analyses
+  - `orders/` - Final Supreme Commander decision
+  - Session archiving to `campaign-archive/{project}/{date}/`
+  - MerkleDAG reconstruction on session load
+
+- **Phase 4: Delphi mode and hook triggers**
+  - `convene_delphi()` - Iterative convergence until expert agreement
+  - Convergence scoring based on Borda count spread
+  - Hook auto-trigger detection with keyword analysis
+  - Configurable complexity threshold (default 0.7)
+
 ## [1.3.0] - 2026-01-19
 
 ### Added - Scribe Plugin
@@ -1172,6 +1251,7 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.3.1]: https://github.com/athola/claude-night-market/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/athola/claude-night-market/compare/v1.2.9...v1.3.0
 [1.2.5]: https://github.com/athola/claude-night-market/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/athola/claude-night-market/compare/v1.2.3...v1.2.4

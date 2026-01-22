@@ -8,12 +8,7 @@ Memory Palace organizes complex information using spatial memory techniques for 
 
 ## Features
 
-- **Memory Palace Architect**: Design spatial knowledge structures using mnemonic techniques.
-- **Knowledge Locator**: Multi-modal search across palaces (semantic, spatial, sensory).
-- **Session Palace Builder**: Temporary palaces for extended conversations.
-- **Digital Garden Cultivator**: Evolving knowledge bases with bidirectional linking.
-- **PR Review Chamber**: Capture PR review knowledge in project memory palaces.
-- **Skill Execution Memory**: Automatic storage of skill invocation history for continual learning.
+The Memory Palace Architect allows users to design spatial knowledge structures using mnemonic techniques, while the Knowledge Locator facilitates multi-modal search across these palaces. Temporary structures for extended conversations are handled by the Session Palace Builder, and the Digital Garden Cultivator manages evolving knowledge bases with bidirectional linking. Additionally, a dedicated PR Review Chamber captures knowledge from PR reviews, and Skill Execution Memory automatically logs skill invocation history to support continual learning.
 
 ## PR Review Room
 

@@ -127,4 +127,4 @@ Command descriptions are under 100 characters with no loss in identification acc
 ## Related
 
 - See ADR-0004 for skill description budget optimization
-- See [Command Best Practices](../examples/command-development/authoring-best-practices.md)
+- See [Capabilities Reference](../../book/src/reference/capabilities-commands.md) for command documentation

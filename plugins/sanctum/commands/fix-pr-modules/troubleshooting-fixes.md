@@ -49,6 +49,39 @@ Solution: Pull latest, resolve conflicts, re-run the command
 
 ## Thread Resolution Failures
 
+### Review in PENDING State (Cannot Resolve Threads)
+
+**Problem:** Thread resolution fails or threads can't be queried because the review is still in PENDING state.
+
+**Symptoms:**
+- GraphQL thread queries may return empty or incomplete data
+- Thread resolution mutations fail silently
+- Pre-check script detects PENDING reviews and exits
+
+**Root Cause:** When a reviewer starts a review but hasn't submitted it (clicked "Submit review"), the review remains in PENDING state. Threads associated with pending reviews:
+- May not be visible via the GraphQL API
+- Cannot be resolved until the review is submitted
+- Are in a draft/limbo state
+
+**Diagnosis:**
+```bash
+# Check for pending reviews
+gh pr view --json reviews -q '.reviews[] | {author: .author.login, state: .state}'
+
+# If you see state: "PENDING", the review hasn't been submitted
+```
+
+**Solution:**
+1. **If you are the reviewer:** Submit or discard your pending review in the GitHub UI
+2. **If waiting on someone else:** Ask them to submit their review
+3. **After review is submitted:** Re-run `/fix-pr` to process the now-resolved threads
+
+**Prevention:**
+- The pre-check in Step 6 now detects PENDING reviews and provides clear instructions
+- Always verify review state before attempting thread resolution
+
+---
+
 ### Threads Not Being Commented On or Resolved
 
 **Problem:** After running `/fix-pr`, review threads are not commented on and remain unresolved.

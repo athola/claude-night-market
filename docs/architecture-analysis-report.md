@@ -8,14 +8,11 @@
 
 ## Purpose
 
-This document is a historical record of architecture analyses for major and minor version milestones. Patch versions (x.x.PATCH) are excluded unless they introduce significant architectural changes.
+This document serves as a historical record of architecture analyses for major and minor version milestones, excluding patch versions (x.x.PATCH) unless they introduce significant architectural changes.
 
 ### Entry Criteria
 
-Add a new analysis section when:
-- **Major version** (X.0.0): Breaking changes, new architecture patterns
-- **Minor version** (x.Y.0): New features, significant refactoring
-- **Significant restructuring**: Even within patch versions if architecture changes
+A new analysis section is required when a major version (X.0.0) introduces breaking changes or new architectural patterns. Similarly, minor versions (x.Y.0) involving new features or significant refactoring warrant an entry. Even within patch versions, significant restructuring that alters the architecture should be documented here.
 
 ### Document Structure
 

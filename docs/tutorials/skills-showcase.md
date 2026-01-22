@@ -96,10 +96,10 @@ Complex workflows chain multiple skills:
 
 ## Next Steps
 
-- Explore [Plugin Overview](../plugins/index.html) for detailed plugin documentation
-- Try [Quick Start Guide](../getting-started/quick-start.md) for hands-on usage
-- Review [Common Workflows](../common-workflows.md) for workflow patterns
-- Check [Capabilities Reference](../reference/capabilities-reference.md) for full skill catalog
+- Explore [Plugin Development Guide](../plugin-development-guide.md) for creating your own plugins
+- Review [Skill Integration Guide](../skill-integration-guide.md) for skill authoring patterns
+- Check [Optimization Patterns](../optimization-patterns.md) for workflow best practices
+- See [API Overview](../api-overview.md) for full API reference
 
 ---
 

@@ -32,9 +32,11 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
+| `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
 | `cpu-gpu-performance` | [conserve](../plugins/conserve.md) | Resource monitoring and selective testing |
+| `decisive-action` | [conserve](../plugins/conserve.md) | Decisive action patterns for efficient workflows |
 | `delegation-core` | [conjure](../plugins/conjure.md) | Framework for delegation decisions |
 | `diff-analysis` | [imbue](../plugins/imbue.md) | Semantic changeset analysis |
 | `digital-garden-cultivator` | [memory-palace](../plugins/memory-palace.md) | Digital garden maintenance |
@@ -68,6 +70,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `optimizing-large-skills` | [conserve](../plugins/conserve.md) | Large skill optimization |
+| `performance-optimization` | [abstract](../plugins/abstract.md) | Agent SDK performance patterns |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
@@ -87,8 +90,10 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `quota-management` | [leyline](../plugins/leyline.md) | Rate limiting and quotas |
 | `release-health-gates` | [minister](../plugins/minister.md) | Release readiness checks |
 | `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |
+| `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
+| `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
@@ -116,9 +121,11 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
+| `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council deliberation for strategic decisions |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
 | `workflow-monitor` | [imbue](../plugins/imbue.md) | Workflow execution monitoring and issue creation |
 | `workflow-setup` | [attune](../plugins/attune.md) | Configure CI/CD pipelines |
+| `writing-rules` | [hookify](../plugins/hookify.md) | Guide for authoring behavioral rules |
 
 ### All Commands (Alphabetical)
 
@@ -139,6 +146,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/attune:specify` | attune | Create detailed specifications from brainstorm |
 | `/attune:upgrade-project` | attune | Add or update configurations in existing project |
 | `/attune:validate` | attune | Validate project structure against best practices |
+| `/attune:war-room` | attune | Multi-LLM expert deliberation for strategic decisions |
 | `/architecture-review` | pensive | Architecture assessment |
 | `/bug-review` | pensive | Bug hunting review |
 | `/bulletproof-skill` | abstract | Anti-rationalization workflow |
@@ -156,11 +164,11 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/doc-polish` | scribe | Clean up AI-generated content |
 | `/doc-verify` | scribe | Validate documentation claims with proof-of-work |
 | `/estimate-tokens` | abstract | Token usage estimation |
+| `/evaluate-skill` | abstract | Evaluate skill execution quality |
 | `/feature-review` | imbue | Feature prioritization |
 | `/do-issue` | sanctum | Fix GitHub issues |
 | `/fix-pr` | sanctum | Address PR review comments |
 | `/fix-workflow` | sanctum | Workflow retrospective with automatic improvement context gathering |
-| `/fpf-review` | pensive | FPF architecture review (Functional/Practical/Foundation) |
 | `/full-review` | pensive | Unified code review |
 | `/garden` | memory-palace | Manage digital gardens |
 | `/git-catchup` | sanctum | Git repository catchup |
@@ -268,16 +276,20 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 |------|--------|------|-------------|
 | `bridge.after_tool_use` | conjure | PostToolUse | Suggests delegation for large output |
 | `bridge.on_tool_start` | conjure | PreToolUse | Suggests delegation for large input |
+| `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
 | `local_doc_processor.py` | memory-palace | PostToolUse | Processes local docs |
+| `permission_request.py` | conserve | PermissionRequest | Permission automation |
 | `post-evaluation.json` | abstract | Config | Quality scoring config |
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
-| `pre-pr-scope-check.sh` | imbue | Manual | Scope check before PR |
 | `pre-skill-load.json` | abstract | Config | Pre-load validation |
-| `proof-enforcement.md` | imbue | Design | Iron Law TDD compliance enforcement |
+| `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
+| `security_pattern_check.py` | sanctum | PreToolUse | Security anti-pattern detection |
 | `session-start.sh` | conserve/imbue | SessionStart | Session initialization |
-| `session_complete_notify.py` | sanctum | Stop | Completion notification |
+| `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
+| `skill_tracker_pre.py` | memory-palace | PreToolUse | Skill execution start tracking |
+| `skill_tracker_post.py` | memory-palace | PostToolUse | Skill execution completion |
+| `stop_combined.py` | sanctum | Stop | Combined stop hooks (notify + verify) |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
-| `verify_workflow_complete.py` | sanctum | Stop | Workflow verification |
 | `web_content_processor.py` | memory-palace | PostToolUse | Web content processing |

@@ -105,7 +105,7 @@ Before claiming completion, verify you UNDERSTAND the implementation, not just t
 
 **Anti-Cargo-Cult TodoWrite:** `proof:understanding-verified`
 
-See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for the full Understanding Verification Protocol.
+<!-- Understanding Verification Protocol embedded above -->
 
 **Iron Law Self-Check (Before Writing Code):**
 
@@ -301,7 +301,7 @@ When `/update-plugins` identifies improvement opportunities, use proof-of-work t
 ## Proof-of-Work: Improvement Analysis Validation
 
 ### Problem Reproduced (`proof:problem-reproduced`)
-[E1] Command: `/skill-review --plugin sanctum --recommendations`
+[E1] Command: `pensive:skill-review --plugin sanctum --recommendations`
 Output:
 ```
 sanctum:workflow-improvement
