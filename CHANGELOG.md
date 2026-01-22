@@ -9,12 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.1] - 2026-01-21
 
+### Added - Hookify v1.1.0 (hookify)
+
+- **block-destructive-git rule**: Blocks dangerous git commands that cause irreversible data loss
+  - `git reset --hard` - Destroys all uncommitted changes
+  - `git checkout -- .` - Discards all unstaged changes
+  - `git clean -fd` - Permanently deletes untracked files
+  - `git stash drop` - Permanently deletes stashed changes
+  - `git branch -D` - Force-deletes branches (even unmerged)
+  - `git reflog expire` / `git gc --prune` - Destroys recovery points
+- **warn-risky-git rule**: Warns about git operations that modify history
+  - `git reset` (soft/mixed) - Moves HEAD, may unstage files
+  - `git checkout <branch> -- <file>` - Replaces file from another branch
+  - `git rebase -i` / `git rebase --onto` - Rewrites commit history
+  - `git cherry-pick/merge/am --abort` - Discards in-progress operations
+- **Recovery-first guidance**: Each blocked command shows diagnostic commands to review changes before discarding
+- **Safer alternatives**: Comprehensive alternative workflows (stash, backup branches, selective operations)
+
 ### Removed - Command Deduplication (sanctum)
 
 - **Removed `sanctum:skill-review`** - Duplicate of `pensive:skill-review` and `abstract:skill-auditor`
   - `pensive:skill-review` handles runtime metrics (execution counts, stability gaps)
   - `abstract:skill-auditor` handles static quality analysis
   - Updated cross-references in `update-plugins.md` and `skill-logs.md`
+
+### Added - Attune v1.2.0 War Room (attune)
+
+- **`/attune:war-room` command**: Convene expert panel for strategic decisions
+- **`Skill(attune:war-room)`**: Full deliberation skill with 7 phases
+- **Expert panel**: 7 specialized AI roles (Supreme Commander, Chief Strategist, etc.)
+- **Deliberation phases**: Intel, Assessment, COA Development, Red Team, Voting, Premortem, Synthesis
+- **Merkle-DAG anonymization**: Contributions anonymized during deliberation, unsealed after decision
+- **Borda count voting**: Rank-based aggregation for fair expert voting
+- **Escalation logic**: Automatic escalation from lightweight to full council on complexity
+- **War Room Modules**:
+  - `modules/expert-roles.md` - Expert panel configuration and invocation patterns
+  - `modules/deliberation-protocol.md` - Phase definitions and flow control
+  - `modules/merkle-dag.md` - Anonymization and integrity verification
+- **Strategeion**: Dedicated Memory Palace chamber for war council sessions
+- **Conjure delegation**: Expert dispatch via conjure delegation framework
 
 ### Added - War Room Multi-LLM Deliberation (attune/conjure)
 
