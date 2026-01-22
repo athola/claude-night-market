@@ -32,6 +32,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
+| `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
@@ -239,6 +240,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `code-reviewer` | pensive | Expert code review |
 | `commit-agent` | sanctum | Commit message generator |
 | `context-optimizer` | conserve | Context optimization |
+| `continuation-agent` | conserve | Continue work from session state checkpoint |
 | `doc-editor` | scribe | Interactive documentation editing |
 | `doc-verifier` | scribe | QA validation using proof-of-work methodology |
 | `dependency-updater` | sanctum | Dependency version management |

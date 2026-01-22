@@ -169,6 +169,35 @@ python scripts/garden_metrics.py path/to/garden.json --format brief
 
 ## Hooks
 
+### Setup Hook (Claude Code 2.1.10+)
+
+One-time initialization and periodic maintenance for knowledge gardens. Triggered via CLI flags:
+
+```bash
+# Initialize memory palace (creates garden structure, indexes)
+claude --init
+
+# Run maintenance (cleans stale captures, rotates logs, rebuilds indexes)
+claude --maintenance
+```
+
+**Init tasks:**
+- Creates knowledge garden structure (`~/.claude/knowledge-garden/`)
+- Creates project palace structure (if in a git repo)
+- Initializes skill logs directory
+- Creates web captures directory
+- Generates garden index file
+
+**Maintenance tasks:**
+- Composts stale web captures (>30 days to `compost/`)
+- Rotates skill logs (deletes >90 days)
+- Rebuilds garden index with current counts
+- Detects potential duplicate captures
+
+**Why use Setup vs SessionStart?** Garden maintenance and index rebuilding are expensive operations that shouldn't run on every session. Use `--init` when setting up a new project, and `--maintenance` weekly or monthly.
+
+### Runtime Hooks
+
 Hooks integrate Memory Palace with Claude Code events:
 
 | Hook | Event | Description |

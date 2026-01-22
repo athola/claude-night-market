@@ -1,5 +1,7 @@
 # MCP Subagent Coordination Patterns
 
+> **Version Note (Claude Code 2.1.14+)**: Parallel subagent execution is significantly more stable in Claude Code 2.1.14+, which fixed memory issues that could cause crashes when running parallel subagents. Earlier versions may experience heap out of memory errors with 3+ concurrent agents.
+
 ## Pipeline Coordination
 
 Execute subagents in sequence with MECW monitoring:

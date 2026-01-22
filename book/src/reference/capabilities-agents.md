@@ -111,6 +111,22 @@ escalation:
   hints: [complex_modularization]
 ```
 
+### `conserve:continuation-agent`
+Continue work from session state checkpoint. Spawned when parent agent exceeds context thresholds.
+
+```yaml
+tools: [Read, Write, Edit, Bash, Glob, Grep, Task, TodoRead, TodoWrite]
+model: default
+hooks:
+  SessionStart: Audit log start
+  Stop: Audit log completion
+```
+
+**Dispatch**:
+```
+Use the continuation-agent to resume work from the session state file.
+```
+
 ### `conserve:unbloat-remediator`
 Safe bloat remediation.
 

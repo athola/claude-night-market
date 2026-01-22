@@ -4,6 +4,7 @@
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/bloat-detector",
+    "./skills/clear-context",
     "./skills/code-quality-principles",
     "./skills/context-optimization",
     "./skills/cpu-gpu-performance",
@@ -24,6 +25,7 @@
     "./agents/ai-hygiene-auditor.md",
     "./agents/bloat-auditor.md",
     "./agents/context-optimizer.md",
+    "./agents/continuation-agent.md",
     "./agents/unbloat-remediator.md"
   ],
   "keywords": [

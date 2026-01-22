@@ -86,16 +86,29 @@ conservation_summary='## Conservation Skills - Session Optimization
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
 | `context-optimization` | MECW principles, 50% context rule | Context > 30% utilization |
+| `clear-context` | **Auto-clear workflow** | Context > 80% OR long multi-step tasks |
 | `token-conservation` | Token usage strategies, quota tracking | Start of session, before heavy loads |
 | `cpu-gpu-performance` | Resource monitoring, selective testing | Before builds/tests/training |
 
-### Key Thresholds (Two-Tier MECW Alerts)
+### Key Thresholds (Three-Tier MECW Alerts)
 
-- **Context (40%)**: WARNING - Plan optimization soon, monitor growth rate
-- **Context (50%)**: CRITICAL - Immediate optimization required, summarize/delegate
-- **Context (< 40%)**: OK - Continue normally
-- **Token Quota**: 5-hour rolling cap + weekly cap (check with `/status`)
-- **CPU/GPU**: Establish baseline before heavy tasks
+| Level | Threshold | Action |
+|-------|-----------|--------|
+| OK | < 40% | Continue normally |
+| WARNING | 40-50% | Plan optimization, monitor growth |
+| CRITICAL | 50-80% | Immediate optimization, summarize/delegate |
+| **EMERGENCY** | **80%+** | **Invoke `Skill(conserve:clear-context)` NOW** |
+
+### Proactive Self-Monitoring (IMPORTANT)
+
+During **long-running or multi-step tasks** (brainstorms, execute-plan, large refactors):
+
+1. **Check context periodically**: Run `/context` at natural breakpoints
+2. **At 80%+ usage**: Immediately invoke `Skill(conserve:clear-context)`
+3. **The skill will**: Save session state, spawn continuation agent, resume seamlessly
+
+**Why self-monitor?** The `CLAUDE_CONTEXT_USAGE` env var may not be set.
+Proactive checking prevents auto-compact penalties.
 
 ### Conservation Tactics
 
@@ -103,12 +116,14 @@ conservation_summary='## Conservation Skills - Session Optimization
 2. **Delegate compute**: Use external tooling for intensive tasks
 3. **Compress context**: Summarize prior steps, remove redundant history
 4. **Scope narrow**: Diff-based testing vs full suite
+5. **Checkpoint long tasks**: Save state at natural breakpoints
 
 ### Skill Invocation
 
-- `Skill(conservation:context-optimization)` - MECW assessment and optimization
-- `Skill(conservation:token-conservation)` - Token budget planning
-- `Skill(conservation:cpu-gpu-performance)` - Resource monitoring discipline
+- `Skill(conserve:clear-context)` - **Auto-clear with continuation agent**
+- `Skill(conserve:context-optimization)` - MECW assessment and optimization
+- `Skill(conserve:token-conservation)` - Token budget planning
+- `Skill(conserve:cpu-gpu-performance)` - Resource monitoring discipline
 
 ### Bypass Modes
 

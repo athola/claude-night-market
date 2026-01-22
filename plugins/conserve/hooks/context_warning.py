@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""Context warning hook for two-tier MECW alerts.
+"""Context warning hook for three-tier MECW alerts with auto-clear support.
 
-This hook implements the two-tier context warning system:
+This hook implements the three-tier context warning system:
 - WARNING at 40% context usage
 - CRITICAL at 50% context usage
+- EMERGENCY at 80% context usage (triggers auto-clear workflow)
 
 The hook is triggered on PreToolUse events to monitor context pressure
-and provide proactive optimization guidance.
+and provide proactive optimization guidance. At EMERGENCY level, it
+recommends invoking the clear-context skill for automatic continuation.
+
+Environment variables:
+- CLAUDE_CONTEXT_USAGE: Context usage as float 0-1 (set by Claude Code)
+- CONSERVE_EMERGENCY_THRESHOLD: Override default 80% emergency threshold
+- CONSERVE_SESSION_STATE_PATH: Override default .claude/session-state.md
 """
 
 import json
@@ -21,9 +28,11 @@ from typing import Any
 logging.basicConfig(level=logging.WARNING, format="%(name)s: %(message)s")
 logger = logging.getLogger("context_warning")
 
-# Threshold constants for two-tier MECW warnings
+# Threshold constants for three-tier MECW warnings
 WARNING_THRESHOLD = 0.40
 CRITICAL_THRESHOLD = 0.50
+# Emergency threshold is configurable via environment variable
+EMERGENCY_THRESHOLD = float(os.environ.get("CONSERVE_EMERGENCY_THRESHOLD", "0.80"))
 
 
 class ContextSeverity(Enum):
@@ -32,6 +41,7 @@ class ContextSeverity(Enum):
     OK = "ok"
     WARNING = "warning"
     CRITICAL = "critical"
+    EMERGENCY = "emergency"
 
 
 @dataclass
@@ -69,7 +79,28 @@ def assess_context_usage(usage: float) -> ContextAlert:
     if not 0.0 <= usage <= 1.0:
         raise ValueError(f"context_usage must be between 0 and 1, got {usage}")
 
-    if usage >= CRITICAL_THRESHOLD:
+    # EMERGENCY level - auto-clear workflow required
+    if usage >= EMERGENCY_THRESHOLD:
+        state_path = os.environ.get(
+            "CONSERVE_SESSION_STATE_PATH", ".claude/session-state.md"
+        )
+        return ContextAlert(
+            severity=ContextSeverity.EMERGENCY,
+            usage_percent=usage,
+            message=(
+                f"EMERGENCY: Context at {usage * 100:.1f}% - "
+                "AUTO-CLEAR REQUIRED! Execute clear-context workflow NOW."
+            ),
+            recommendations=[
+                "STOP current work immediately",
+                "Invoke Skill(conserve:clear-context) NOW",
+                f"Save session state to {state_path}",
+                "Spawn continuation agent to continue work",
+                "This is NOT optional - auto-compact will trigger soon",
+            ],
+        )
+    # CRITICAL level - immediate optimization needed
+    elif usage >= CRITICAL_THRESHOLD:
         return ContextAlert(
             severity=ContextSeverity.CRITICAL,
             usage_percent=usage,
@@ -80,9 +111,10 @@ def assess_context_usage(usage: float) -> ContextAlert:
             recommendations=[
                 "Summarize completed work immediately",
                 "Delegate remaining tasks to subagents",
-                "Consider /clear + /catchup workflow",
+                "Prepare for clear-context workflow if usage continues to grow",
             ],
         )
+    # WARNING level - plan optimization
     elif usage >= WARNING_THRESHOLD:
         return ContextAlert(
             severity=ContextSeverity.WARNING,
@@ -91,9 +123,10 @@ def assess_context_usage(usage: float) -> ContextAlert:
             recommendations=[
                 "Monitor context growth rate",
                 "Prepare optimization strategy",
-                "Invoke Skill(conservation:optimize-context)",
+                "Invoke Skill(conserve:context-optimization) if needed",
             ],
         )
+    # OK level - no action needed
     return ContextAlert(
         severity=ContextSeverity.OK,
         usage_percent=usage,
@@ -184,11 +217,26 @@ def main() -> int:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
         return 0
 
-    # Only output for WARNING or CRITICAL
+    # Only output for WARNING, CRITICAL, or EMERGENCY
     if alert.severity == ContextSeverity.OK:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
     else:
-        print(json.dumps(format_hook_output(alert)))
+        output = format_hook_output(alert)
+        # For EMERGENCY level, add explicit skill invocation instruction
+        if alert.severity == ContextSeverity.EMERGENCY:
+            output["hookSpecificOutput"]["additionalContext"] = (
+                "**EMERGENCY CONTEXT ALERT**\n\n"
+                f"{alert.message}\n\n"
+                "**IMMEDIATE ACTION REQUIRED:**\n"
+                "1. STOP current work\n"
+                "2. Invoke `Skill(conserve:clear-context)`\n"
+                "3. Follow the auto-clear workflow\n\n"
+                "This will save your progress and spawn a continuation agent "
+                "with fresh context to continue the work seamlessly.\n\n"
+                "Recommendations:\n"
+                + "\n".join(f"- {rec}" for rec in alert.recommendations)
+            )
+        print(json.dumps(output))
 
     return 0
 

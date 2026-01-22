@@ -21,6 +21,8 @@ Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` 
 
 ## Quick Start
 
+### Option 1: Claude Code Plugin Commands
+
 ```bash
 # 1. Add the marketplace
 /plugin marketplace add athola/claude-night-market
@@ -34,6 +36,30 @@ Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` 
 /prepare-pr                                    # Prepare a pull request
 /full-review                                   # Run code review
 Skill(sanctum:git-workspace-review)            # Invoke a skill (if Skill tool available)
+```
+
+### Option 2: npx skills
+
+```bash
+# Install the entire marketplace
+npx skills add athola/claude-night-market
+
+# Or install specific plugins
+npx skills add athola/claude-night-market/sanctum    # Git workflows
+npx skills add athola/claude-night-market/pensive    # Code review
+npx skills add athola/claude-night-market/conserve   # Resource optimization
+```
+
+### Post-Installation Setup (Claude Code 2.1.10+)
+
+After installation, initialize plugins with Setup hooks:
+
+```bash
+# Run one-time initialization
+claude --init
+
+# Periodic maintenance (weekly recommended)
+claude --maintenance
 ```
 
 > **Note:** If the `Skill` tool is unavailable, read skill files directly: `Read plugins/{plugin}/skills/{skill-name}/SKILL.md` and follow the instructions.
@@ -102,7 +128,7 @@ flowchart TB
 *   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
 *   **imbue**: Review methodologies, proof-of-work TDD, anti-cargo-cult verification.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 122 skills, 109 commands, and 39 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 123 skills, 109 commands, and 40 agents.
 
 ## Audience
 

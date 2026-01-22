@@ -85,12 +85,14 @@ Detect AI-specific code quality issues that traditional bloat detection misses.
 | `unbloat-remediator` | Execute bloat remediation workflows. | Bash, Grep, Glob, Read, Write, Edit | Sonnet/Opus |
 | `ai-hygiene-auditor` | Detect AI-generated code quality issues. | Bash, Grep, Glob, Read | Sonnet |
 | `context-optimizer` | Assess and optimize MECW. | Read, Grep | Sonnet |
+| `continuation-agent` | Continue work from session state checkpoint. | Read, Write, Edit, Bash, Glob, Grep, Task | default |
 
 ## Skills
 
 | Skill | Purpose |
 |-------|---------|
 | `bloat-detector` | Progressive bloat detection with modular tiers. |
+| `clear-context` | **Auto-clear workflow** with session state persistence. |
 | `code-quality-principles` | KISS, YAGNI, SOLID guidance with multi-language examples. |
 | `context-optimization` | MECW assessment and subagent coordination. |
 | `cpu-gpu-performance` | Hardware resource tracking and selective testing. |
@@ -199,6 +201,31 @@ For efficient discovery, we recommend a three-tier approach. First, utilize the 
 
 ## Hooks
 
+### Setup Hook (Claude Code 2.1.10+)
+
+One-time initialization and periodic maintenance tasks. Triggered via CLI flags:
+
+```bash
+# Initialize conserve (creates directories, validates dependencies)
+claude --init
+
+# Run maintenance (cleans old backups, rotates logs)
+claude --maintenance
+```
+
+**Init tasks:**
+- Validates jq dependency (warns if missing)
+- Creates `.claude/` session state directory
+- Generates `session-state.md` template for continuation workflows
+- Persists `CONSERVE_SESSION_STATE_PATH` environment variable
+
+**Maintenance tasks:**
+- Cleans session state backups older than 7 days
+- Rotates continuation audit logs (keeps last 500 lines)
+- Validates hook dependencies
+
+**Why use Setup vs SessionStart?** Setup hooks run only when explicitly invoked, avoiding overhead on every session. Use `--init` after cloning a repo, and `--maintenance` periodically for cleanup.
+
 ### PermissionRequest Hook
 
 Auto-approve or auto-deny Bash commands based on pattern matching (Claude Code 2.0.54+).
@@ -228,7 +255,33 @@ Auto-approve or auto-deny Bash commands based on pattern matching (Claude Code 2
 
 ## Thresholds
 
-- **Context**: < 30% LOW | 30-50% MODERATE | > 50% CRITICAL.
+### Context Usage (Three-Tier MECW Alerts)
+
+| Level | Threshold | Action |
+|-------|-----------|--------|
+| LOW | < 40% | Continue normally |
+| WARNING | 40-50% | Monitor, plan optimization |
+| CRITICAL | 50-80% | Immediate optimization required |
+| EMERGENCY | 80%+ | **Auto-clear workflow triggered** |
+
+**Configuration:**
+- `CONSERVE_EMERGENCY_THRESHOLD`: Override 80% default (e.g., `0.75` for 75%)
+- `CONSERVE_SESSION_STATE_PATH`: Override `.claude/session-state.md` default
+
+### Auto-Clear Workflow
+
+At EMERGENCY level (80%+), the `clear-context` skill enables automatic continuation without manual `/clear`:
+
+1. **Save session state** to `.claude/session-state.md`
+2. **Spawn continuation agent** with fresh context
+3. **Continuation agent reads state** and resumes work seamlessly
+
+This pattern uses subagent delegation to achieve effective "auto-clear" - subagents have their own fresh context windows.
+
+**Invoke manually:** `Skill(conserve:clear-context)`
+
+### Other Thresholds
+
 - **Token Quota**: 5-hour rolling cap and weekly cap.
 - **CPU/GPU**: Establish baseline before executing heavy tasks.
 
