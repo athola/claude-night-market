@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-01-22
+
 ### Enhanced - Claude Code 2.1.14+ Compatibility (conserve)
 
 - **Parallel subagents**: Added version compatibility note to `mcp-coordination.md` documenting improved stability with Claude Code 2.1.14+ memory fixes

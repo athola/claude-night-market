@@ -2,7 +2,7 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-This repository adds 16 plugins to Claude Code to standardize git operations, code review, spec-driven development, and issue management. While each plugin functions independently, they share testing and debugging patterns to ensure consistent behavior across workflows.
+This repository adds 16 plugins to Claude Code to standardize git operations, code review, spec-driven development, and issue management. While each plugin functions independently, they share testing and debugging patterns to maintain consistent behavior across workflows.
 
 ## Key Features
 
@@ -17,7 +17,7 @@ The system includes self-correction mechanisms: `/update-plugins` recommends upd
 
 ## Workflow Improvements
 
-Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` validates branch scope, runs linting, and ensures a clean state before creating a pull request, while `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` enforces a written specification phase before code generation. To keep the agent in sync, `/catchup` reads recent git history to update the context window, and `/attune:init` detects project types (Python, Node) to scaffold necessary configuration files.
+Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` validates branch scope, runs linting, and verifies a clean state before creating a pull request, while `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` enforces a written specification phase before code generation. To keep the agent in sync, `/catchup` reads recent git history to update the context window, and `/attune:init` detects project types (Python, Node) to scaffold necessary configuration files.
 
 ## Quick Start
 

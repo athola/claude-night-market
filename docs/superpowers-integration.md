@@ -4,11 +4,11 @@ Documentation for integrating superpowers marketplace skills with night-market p
 
 ## Overview
 
-The superpowers marketplace provides specialized skills for methodologies like RED-GREEN-REFACTOR, debugging, and evidence-based operations. This guide explains how to integrate these skills into plugins.
+The superpowers marketplace provides specialized skills for methodologies like RED-GREEN-REFACTOR, debugging, and evidence-based operations. This guide explains how to integrate these skills into your plugins.
 
 ## Integration Principles
 
-Integration follows core principles: enhancing workflows with specialized capabilities and prioritizing verification. Treating superpowers as a reusable methodology library allows plugins to focus on domains while using structured approaches.
+We integrate these skills to reuse proven methodologies instead of reinventing them. This allows plugins to focus on their specific domain while relying on standard approaches for tasks like debugging or brainstorming.
 
 ## Integration Patterns
 
@@ -88,4 +88,4 @@ Integration follows core principles: enhancing workflows with specialized capabi
 
 ## Summary
 
-Integrating superpowers skills standardizes methodologies across the ecosystem. This ensures a consistent approach to brainstorming, debugging, and verification.
+These integrations ensure we solve problems consistently, whether debugging or planning. By leveraging the superpowers marketplace, we maintain high standards across the entire ecosystem.

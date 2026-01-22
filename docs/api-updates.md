@@ -17,7 +17,7 @@ This document tracks API changes and documentation progress across the Claude Ni
 
 ## Documentation Progress
 
-Progress toward 90% documentation coverage target.
+We track documentation coverage to ensure plugins are usable and maintainable. Our target is 90% coverage across API docs, examples, tutorials, and code comments.
 
 | Plugin | API Docs | Examples | Tutorials | Code Comments | Overall |
 |--------|----------|----------|-----------|---------------|---------|
@@ -41,11 +41,7 @@ Progress toward 90% documentation coverage target.
 
 ## Upcoming Changes
 
-Planned API changes for next release cycle:
-
-| Plugin | Planned Version | Change Type | Description | ETA |
-|--------|-----------------|-------------|-------------|-----|
-| - | - | - | No planned changes | - |
+We do not have any planned API changes for the next release cycle.
 
 ## Related Documents
 

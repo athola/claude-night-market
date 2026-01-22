@@ -46,7 +46,6 @@ estimated_tokens: 1200
 - [Module Structure Validation](#module-structure-validation)
 - [Essential Quality Standards](#essential-quality-standards)
 - [TOC Template for Long Modules](#toc-template-for-long-modules)
-- [Table of Contents](#table-of-contents)
 - [Detailed Resources](#detailed-resources)
 - [Shared Modules (Cross-Skill Patterns)](#shared-modules-(cross-skill-patterns))
 - [Skill-Specific Modules](#skill-specific-modules)
@@ -57,25 +56,32 @@ estimated_tokens: 1200
 
 ## Overview
 
-The modular skills framework provides a methodology for breaking complex skills into focused modules. This approach supports predictable token usage by preventing monolithic files that consume excessive context. By implementing progressive disclosure, skills start with essential information and provide deeper technical details via `@include` or `Load:` statements only when required.
+This framework provides a way to break complex skills into focused modules. This keeps token usage predictable and prevents monolithic files. We use progressive disclosure: start with the essentials, then load deeper technical details via `@include` or `Load:` statements only when needed.
 
 ### Outcome Analysis
 
-Modular design results in controlled resource usage by keeping individual files within recommended line limits. This architecture relies on shallow dependencies and clear boundaries between components, which simplifies testing and maintenance. A hub-and-spoke model supports project growth without bloating the primary skill files, and focused modules are easier to verify in isolation.
+Modular design keeps file sizes within recommended limits. By using shallow dependencies and clear boundaries, we simplify testing and maintenance. The hub-and-spoke model allows the project to grow without bloating primary skill files, and focused modules are easier to verify in isolation.
 
 ### Core Components
 
-The framework includes three primary tools for skill development. The `skill-analyzer` provides complexity analysis and suggests optimal points for modularization. For resource management, the `token-estimator` forecasts usage and offers cost optimization guidance based on current skill structures. Finally, the `module-validator` performs structural quality checks to ensure compliance with project standards.
+We use three tools for skill development:
+- `skill-analyzer`: Checks complexity and suggests where to split code.
+- `token-estimator`: Forecasts usage and suggests optimizations.
+- `module-validator`: Ensures structure complies with project standards.
 
 ### Design Principles
 
-Effective skill design is based on four key principles. Single responsibility ensures each module serves one clear purpose, while loose coupling minimizes dependencies between different skill components. High cohesion is maintained by grouping related functionality together, and clear boundaries provide well-defined interfaces for interaction.
+We design skills around four principles:
+1. **Single Responsibility**: Each module does one thing.
+2. **Loose Coupling**: Dependencies are minimized.
+3. **High Cohesion**: Related code stays together.
+4. **Clear Boundaries**: Interfaces are well-defined.
 
 ## What It Is
 
-The framework facilitates designing modular skills. Breaking down large skills into focused modules creates maintainable architecture and controls token usage.
+A framework for designing modular skills. It breaks large skills into focused modules to maintain architecture and control token usage.
 
-It adheres to Anthropic's Agent Skills best practices, using progressive disclosure: start with a high-level overview, then provide detail as needed.
+We follow Anthropic's Agent Skills best practices: start with a high-level overview, then provide detail as needed.
 
 ## Quick Start
 
@@ -118,19 +124,19 @@ python scripts/abstract_validator.py --fix --dry-run
 **Verification:** Verify Python environment with `python --version`.
 
 ### Implementation Workflow
-1. **Assess**: Use `skill_analyzer.py` to identify complexity and modularization needs
-2. **Design**: Break large skills into focused modules based on single responsibility
-3. **Estimate**: Use `token_estimator.py` to optimize for context window efficiency
-4. **Validate**: Run `abstract_validator.py` to validate proper structure and patterns
-5. **Iterate**: Refine based on validation feedback and usage patterns
+1. **Assess**: Use `skill_analyzer.py` to identify complexity.
+2. **Design**: Break large skills into focused modules.
+3. **Estimate**: Use `token_estimator.py` to optimize efficiency.
+4. **Validate**: Run `abstract_validator.py` to check structure.
+5. **Iterate**: Refine based on feedback.
 
 ## Common Tasks
 
-- **Assess skill complexity** with the `skill-analyzer` to determine modularization needs.
+- **Assess skill complexity** with the `skill-analyzer`.
 - **Design modules** following the workflow in `guide.md`.
 - **Implement patterns** using examples in `../../docs/examples/modular-skills/`.
 - **Validate module structure** with `module-validator` before deployment.
-- **Estimate token usage** with `token-estimator` to optimize context window impact.
+- **Estimate token usage** with `token-estimator`.
 
 ## Quality Checks
 
@@ -156,11 +162,11 @@ done
 
 Based on evaluation feedback (issue #74):
 
-1. **Navigation in Long Modules**: Any module >100 lines MUST include a Table of Contents after frontmatter
-2. **Quick Start Concreteness**: Provide actual commands, not abstract descriptions
-3. **Voice Consistency**: Use third person - avoid "your"/"you", prefer "project"/"developers"
-4. **Verification Steps**: Add validation commands after all code examples
-5. **Trigger Phrases**: Include 5+ specific phrases in description for discoverability
+1. **Navigation in Long Modules**: Any module >100 lines MUST include a Table of Contents after frontmatter.
+2. **Quick Start Concreteness**: Provide actual commands, not abstract descriptions.
+3. **Voice Consistency**: Use third person - avoid "your"/"you", prefer "project"/"developers".
+4. **Verification Steps**: Add validation commands after all code examples.
+5. **Trigger Phrases**: Include 5+ specific phrases in description for discoverability.
 
 ### TOC Template for Long Modules
 
@@ -174,28 +180,28 @@ Based on evaluation feedback (issue #74):
 ```
 **Verification:** Verify availability with `--help`.
 
-These quality standards emerged from real-world feedback on skill evaluation. Navigation aids such as Tables of Contents are critical for agentic search efficiency, as coding agents use grep to locate content without loading entire files. Providing concrete Quick Start commands ensures developers can immediately apply skills without the overhead of translating abstract descriptions.
+These standards come from real-world feedback. Navigation aids help coding agents locate content quickly. Concrete Quick Start commands let developers apply skills immediately.
 
 ## Detailed Resources
 
 For detailed implementation details and advanced techniques:
 
 ### Shared Modules: Cross-Skill Patterns
-- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field templates
-- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md) for intensity calibration
-- **Anti-Rationalization**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md) for bypass prevention
+- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md)
+- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md)
+- **Anti-Rationalization**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md)
 
 ### Skill-Specific Modules
-- **Enforcement Patterns**: See `modules/enforcement-patterns.md` for frontmatter design patterns
-- **Core Workflow**: See `modules/core-workflow.md` for detailed modularization process
-- **Implementation Patterns**: See `modules/implementation-patterns.md` for coding and structure patterns
-- **Migration Guide**: See `modules/antipatterns-and-migration.md` for converting existing skills
-- **Design Philosophy**: See `modules/design-philosophy.md` for underlying principles and thinking
-- **Troubleshooting**: See `modules/troubleshooting.md` for common issues and solutions
+- **Enforcement Patterns**: See `modules/enforcement-patterns.md`
+- **Core Workflow**: See `modules/core-workflow.md`
+- **Implementation Patterns**: See `modules/implementation-patterns.md`
+- **Migration Guide**: See `modules/antipatterns-and-migration.md`
+- **Design Philosophy**: See `modules/design-philosophy.md`
+- **Troubleshooting**: See `modules/troubleshooting.md`
 
 ### Tools and Examples
 - **Tools**: Python analysis utilities in `../../scripts/` directory:
-  - `skill_analyzer.py` - Complexity analysis and recommendations
-  - `token_estimator.py` - Token usage estimation with dependencies
-  - `abstract_validator.py` - Pattern validation and auto-fixing
-- **Examples**: See `../../docs/examples/modular-skills/` directory for concrete implementations
+  - `skill_analyzer.py`
+  - `token_estimator.py`
+  - `abstract_validator.py`
+- **Examples**: See `../../docs/examples/modular-skills/` directory

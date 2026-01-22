@@ -31,7 +31,7 @@ Hookify comes with a suite of pre-configured rules designed to enhance safety an
 
 ## Architecture
 
-The plugin architecture centers on a `ConfigLoader` that manages rule definitions. It prioritizes user-defined rules located in the `.claude/` directory, allowing them to override the default bundled rules by name. This configuration is then fed into the `RuleEngine`, which evaluates tool usage against the active rule set during execution. Bundled rules leverage `Path(__file__)` for portable location resolution, ensuring no manual installation is required.
+The plugin architecture centers on a `ConfigLoader` that manages rule definitions. It prioritizes user-defined rules located in the `.claude/` directory, allowing them to override the default bundled rules by name. This configuration is then fed into the `RuleEngine`, which evaluates tool usage against the active rule set during execution. Bundled rules use `Path(__file__)` for portable location resolution, requiring no manual installation.
 
 ## Installation
 

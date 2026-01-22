@@ -125,7 +125,7 @@ Use to inventory features, score and prioritize them, and analyze tradeoffs.
 Require functional verification before claiming completion. Enforces actual testing rather than theoretical correctness claims.
 
 **When to Use:**
-Use before ANY claim that implementation is complete to ensure tests actually ran.
+Use before ANY claim that implementation is complete to verify tests actually ran.
 
 **Required TodoWrite Items:**
 1. `proof:problem-reproduced`: Original issue confirmed reproducible.

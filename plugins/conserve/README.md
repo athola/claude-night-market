@@ -30,7 +30,7 @@ Set the `CONSERVATION_MODE` environment variable:
 
 ## Core Principles
 
-Conservation optimizes resources by adhering to the **Maximum Effective Context Window (MECW)** principle, which keeps context pressure under 50% to ensure response quality. It also leverages **MCP Patterns** to process data at the source, preventing the transmission of large datasets, and employs **Progressive Loading** to fetch modules on demand, thereby reducing the session footprint.
+Conservation optimizes resources by adhering to the **Maximum Effective Context Window (MECW)** principle, which keeps context pressure under 50% to maintain response quality. It also uses **MCP Patterns** to process data at the source, preventing the transmission of large datasets, and employs **Progressive Loading** to fetch modules on demand, thereby reducing the session footprint.
 
 ## Commands
 
@@ -274,7 +274,7 @@ At EMERGENCY level (80%+), the `clear-context` skill enables automatic continuat
 
 1. **Save session state** to `.claude/session-state.md`
 2. **Spawn continuation agent** with fresh context
-3. **Continuation agent reads state** and resumes work seamlessly
+3. **Continuation agent reads state** and resumes work
 
 This pattern uses subagent delegation to achieve effective "auto-clear" - subagents have their own fresh context windows.
 
