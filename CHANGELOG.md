@@ -7,6 +7,117 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Analyzed - Claude Code 2.1.16 Compatibility
+
+- **Subagent memory fixes** - Critical out-of-memory crashes when resuming sessions with heavy subagent usage are now fixed
+  - Addresses JavaScript heap OOM errors (Issue #19100)
+  - Fixes subagent process cleanup (Issue #19045)
+  - Resolves memory leaks during initialization (Issue #7020)
+  - **Impact**: All our subagent-heavy workflows (attune, spec-kit, sanctum) are now more stable
+
+- **New Tasks system** - Claude Code 2.1.16 introduces a proper task management system
+  - **Task tools**: `TaskCreate`, `TaskList`, `TaskGet`, `TaskUpdate`, `TaskOutput`
+  - **Shared state**: `CLAUDE_CODE_TASK_LIST_ID` env var shares tasks across sessions
+  - **Dependency tracking**: Tasks can define prerequisites
+  - **Background execution**: Tasks run independently with `TaskOutput` to retrieve results
+  - **Impact**: Potential replacement for custom state files (`.attune/execution-state.json`)
+  - **Exploration document**: `docs/exploration/tasks-integration-exploration-2026-01.md`
+
+- **Context management improvements** - "/compact" warning now hides properly, more predictable cleanup
+
+- **Native plugin management** - VSCode now has native plugin support (we're already compatible)
+
+**Assessment**: No breaking changes required. Our plugins work better with Claude Code 2.1.16.
+
+### Added - Tasks Integration POC (attune)
+
+- **TasksManager** (`plugins/attune/scripts/tasks_manager.py`) - Core implementation for Claude Code Tasks integration
+  - Lazy task creation (tasks created when execution reaches them, not upfront)
+  - Ambiguity detection with user prompts (multiple components, cross-cutting concerns, large scope, circular dependencies)
+  - Dual-mode operation: native Tasks API (2.1.16+) with file-based fallback
+  - Dependency tracking and enforcement
+  - Resume detection for interrupted sessions
+
+- **BDD Test Suite** (`plugins/attune/tests/test_tasks_integration.py`)
+  - 24 behavior-driven tests covering all TasksManager features
+  - Tests for availability detection, lazy creation, ambiguity, dual-mode, resume, and dependencies
+
+- **Integration with `/attune:execute`**
+  - Updated `commands/execute.md` with Tasks integration documentation
+  - Updated `agents/project-implementer.md` with TasksManager workflow
+
+- **Integration Test Results**:
+  - Claude Code 2.1.17 detected, Tasks available
+  - Lazy creation verified (tasks created on-demand)
+  - Dependency enforcement working (blocked until prerequisites complete)
+  - Ambiguity detection functional (cross-cutting concerns flagged)
+
+**Branch**: `attune-tasks-poc`
+
+### Added - Tasks Integration (spec-kit, sanctum)
+
+- **spec-kit integration** (`plugins/spec-kit/scripts/tasks_manager.py`)
+  - Updated `speckit-implement.md` with Tasks integration
+  - Progress tracking for multi-phase implementation workflows
+  - Cross-session state via `CLAUDE_CODE_TASK_LIST_ID="speckit-{project}"`
+
+- **sanctum integration** (`plugins/sanctum/scripts/tasks_manager.py`)
+  - Updated `fix-pr.md` with Tasks integration
+  - Workflow step tracking (analyze → triage → plan → fix → validate → complete)
+  - Resume interrupted PR fix workflows across sessions
+  - Cross-session state via `CLAUDE_CODE_TASK_LIST_ID="sanctum-fix-pr-{pr_number}"`
+
+**Next Steps**:
+- [ ] Real-world testing with actual Claude Code Tasks tools
+- [ ] Create PR for review
+
+**Documentation**:
+- `docs/claude-code-2.1.16-impact-analysis.md` - Comprehensive analysis
+- `docs/claude-code-2.1.16-quick-reference.md` - Quick reference guide
+
+**Testing Recommendations** (see `docs/testing/subagent-stability-testing-2026-01.md`):
+- [ ] Test attune `/attune:execute` with heavy subagent usage
+- [ ] Test spec-kit multi-phase workflows
+- [ ] Test sanctum `/fix-pr` with complex PRs
+- [ ] Verify subagents terminate correctly
+
+**Testing Infrastructure Created**:
+- `docs/testing/subagent-stability-testing-2026-01.md` - Comprehensive test plan with checklists
+
+**Sources**:
+- [Claude Code 2.1.16 Changelog](https://code.claude.com/docs/en/changelog)
+- [Subagent Memory Issues](https://github.com/anthropics/claude-code/issues/19100)
+
+### Updated - Superpowers & Spec-Kit Integration Documentation
+
+- **Documentation alignment** - Updated all references to match superpowers v4.1.0 and spec-kit v0.0.90
+  - Replaced obsolete skill references with consolidated skill names
+  - Added comprehensive update notes to integration guides
+  - Documented new superpowers capabilities (two-stage review, DOT flowcharts, etc.)
+  - No breaking changes for claude-night-market plugins
+
+- **Skill reference updates**
+  - `superpowers:defense-in-depth` → bundled in `superpowers:systematic-debugging`
+  - `superpowers:condition-based-waiting` → bundled in `superpowers:systematic-debugging`
+  - `superpowers:testing-anti-patterns` → bundled in `superpowers:test-driven-development`
+
+- **New documentation**
+  - `docs/superpowers-spec-kit-update-analysis.md` - Comprehensive analysis of changes
+  - `docs/superpowers-spec-kit-update-summary.md` - Summary of implemented updates
+  - Updated integration guides with version information and breaking changes
+
+**Files modified:**
+- `plugins/sanctum/docs/superpowers-integration-guide.md`
+- `plugins/abstract/skills/skills-eval/modules/integration-testing.md`
+- `docs/superpowers-integration.md`
+- `docs/guides/superpowers-integration.md`
+
+**Impact:** Documentation only - no code changes required. All plugins remain fully compatible with latest superpowers and spec-kit versions.
+
+**Sources:**
+- [Superpowers v4.1.0 Release](https://github.com/obra/superpowers/releases/tag/v4.1.0)
+- [Spec-Kit v0.0.90 Release](https://github.com/github/spec-kit/releases/tag/v0.0.90)
+
 ## [1.3.3] - 2026-01-23
 
 ### Added - Session Complete Notifications (sanctum)
