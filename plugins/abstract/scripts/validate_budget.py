@@ -148,7 +148,7 @@ def print_budget_report(
     warn_only: bool,
     verbose: list[Component],
 ) -> None:
-    """Print comprehensive budget validation report."""
+    """Print full budget validation report."""
     usage_pct = total_chars / BUDGET_LIMIT * 100
     print(f"📊 Total description characters: {total_chars:,}")
     print(f"   Budget limit: {BUDGET_LIMIT:,} ({usage_pct:.1f}% used)")
@@ -157,10 +157,7 @@ def print_budget_report(
         print(f"\n❌ BUDGET EXCEEDED by {total_chars - BUDGET_LIMIT:,} characters!")
         print("\nTop offenders:")
         print(format_offenders_list(verbose))
-        print(
-            f"\n⚠️  Please optimize descriptions to get under "
-            f"{BUDGET_LIMIT:,} characters."
-        )
+        print(f"\n⚠️  Descriptions must be under {BUDGET_LIMIT:,} characters.")
         print("   See: docs/action-plan-budget-crisis.md for optimization guidelines")
         print("\n💡 Optimization tips:")
         print("   - Remove implementation details (move to skill body)")

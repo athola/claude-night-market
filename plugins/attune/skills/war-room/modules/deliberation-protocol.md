@@ -15,6 +15,14 @@ estimated_tokens: 800
 Initialize
     |
     v
++------------------------+
+| Phase 0: Reversibility |  <-- Chief Strategist (immediate)
+| Assessment             |
++------------------------+
+    |
+    +---> [RS ≤ 0.40: EXPRESS MODE - skip to Phase 7]
+    |
+    v
 +-------------------+
 | Phase 1: Intel    |  <-- Scout + Intel Officer (parallel)
 +-------------------+
@@ -61,6 +69,70 @@ Persist to Strategeion
 ```
 
 ## Phase Definitions
+
+### Phase 0: Reversibility Assessment
+
+**Purpose**: Determine appropriate deliberation intensity before committing resources.
+
+**Expert**: Chief Strategist (Sonnet)
+
+**Execution**: Immediate, before any other phases
+
+**Inputs**:
+- Problem statement
+- Initial context
+
+**Step 0a: Threshold Configuration** (optional)
+
+Prompt user for custom thresholds:
+```
+Reversibility Thresholds (Enter for defaults):
+  Express ceiling    [0.40]: _
+  Lightweight ceiling [0.60]: _
+  Full Council ceiling [0.80]: _
+```
+
+If user presses Enter, use defaults. Otherwise, apply custom thresholds for session.
+
+**Step 0b: Dimension Scoring**
+
+Score five dimensions (1-5 each):
+1. **Reversal Cost** - Effort to undo the decision
+2. **Time Lock-In** - How quickly decision crystallizes
+3. **Blast Radius** - Scope of systems/people affected
+4. **Information Loss** - Options closed by deciding
+5. **Reputation Impact** - External visibility and trust implications
+
+**Outputs**:
+- Reversibility Score (RS) = Sum / 25
+- Decision Type classification (Type 2, 1B, 1A, 1A+)
+- Recommended deliberation mode (using configured thresholds)
+- Justification for classification
+
+**Duration Target**: 15-30 seconds (including threshold prompt)
+
+**Routing Logic** (using configured or default thresholds):
+```
+# t = user thresholds or defaults {express: 0.40, lightweight: 0.60, full_council: 0.80}
+
+if RS <= t.express:
+    mode = "express"  # Skip to Phase 7 (Synthesis only)
+elif RS <= t.lightweight:
+    mode = "lightweight"  # Standard 2-round protocol
+elif RS <= t.full_council:
+    mode = "full_council"  # Invoke all experts
+else:
+    mode = "full_council_delphi"  # Iterative convergence
+```
+
+**Express Mode Fast Path**:
+For Type 2 decisions (RS ≤ 0.40):
+- Skip Phases 1-6
+- Chief Strategist provides immediate recommendation
+- Supreme Commander ratifies or overrides
+- Total time: < 2 minutes
+
+---
 
 ### Phase 1: Intelligence Gathering
 
@@ -122,19 +194,30 @@ Persist to Strategeion
 
 ### Escalation Check
 
-**Purpose**: Supreme Commander decides if more expertise needed.
+**Purpose**: Supreme Commander validates Phase 0 classification or overrides.
 
-**Triggers for Escalation**:
+**Automatic Escalation** (based on RS from Phase 0):
+- RS > 0.60 → Full Council activated
+- RS > 0.80 → Delphi mode enabled
+
+**Manual Escalation Triggers**:
 1. High complexity (multiple architectural trade-offs)
-2. Significant expert disagreement
-3. Novel problem domain
-4. High stakes (irreversible decisions)
+2. Significant expert disagreement (conflicting COAs)
+3. Novel problem domain (uncertain reversibility)
+4. Precedent-setting decision (future decisions follow pattern)
 5. User explicitly requested full council
+
+**De-escalation Opportunity**:
+If Phase 0 classified as Type 1 but evidence suggests Type 2:
+- Challenge the RS assessment
+- Document false irreversibility claim
+- Recommend express mode
 
 **If Escalated**:
 - Invoke additional experts (Intel Officer, Tactician, Logistics)
 - Gather additional COAs
 - Merge with existing COAs
+- Update RS assessment with new information
 
 ### Phase 4: Red Team + Wargaming
 
@@ -263,9 +346,14 @@ Sessions are persisted after each phase:
 ## Metrics
 
 Track per session:
+- **Reversibility Score** (from Phase 0)
+- **Decision Type** (Type 2, 1B, 1A, 1A+)
+- **Mode match** (did actual mode match RS recommendation?)
 - Total duration
 - Per-phase duration
 - Token usage per expert
 - Expert failure count
 - Escalation occurred (y/n)
+- De-escalation occurred (y/n)
 - Convergence rounds (if Delphi)
+- **Over-deliberation rate** (sessions where RS suggested lighter mode)

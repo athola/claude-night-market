@@ -23,7 +23,7 @@ def load_decision_matrix() -> dict[str, Any]:
     if not MATRIX_FILE.exists():
         raise FileNotFoundError(
             f"Decision matrix not found: {MATRIX_FILE}\n"
-            "Please ensure paradigm_decision_matrix.yaml exists"
+            "Verify paradigm_decision_matrix.yaml exists"
         )
 
     with open(MATRIX_FILE) as f:

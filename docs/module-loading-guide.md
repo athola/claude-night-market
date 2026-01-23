@@ -1,17 +1,14 @@
 # Module Loading Guide
 
-This guide covers module dependencies, loading patterns, and shared utilities within the plugin ecosystem.
+This guide covers how we handle dependencies, progressive loading, and shared utilities across the ecosystem.
 
 ## Overview
 
-The plugin architecture supports:
-- **Skill dependencies** - Skills can depend on other skills
-- **Module loading** - Progressive loading of skill modules
-- **Shared utilities** - Common functionality across plugins
+Our architecture allows skills to depend on other skills, load modules progressively to save tokens, and share common utilities.
 
 ## Module Frontmatter Format
 
-All module files (`modules/*.md`) must include proper frontmatter:
+Every module file (`modules/*.md`) requires specific frontmatter for the system to index it correctly.
 
 ```yaml
 ---
@@ -34,7 +31,7 @@ estimated_tokens: 250           # Approximate token cost
 
 ### 1. Skill Dependencies
 
-Skills declare dependencies in their frontmatter:
+Skills list their dependencies in the frontmatter.
 
 ```yaml
 # SKILL.md
@@ -45,7 +42,7 @@ dependencies:
 
 ### 2. Module Dependencies
 
-Modules can have more granular dependencies:
+Modules can be more specific.
 
 ```yaml
 # modules/specific-module.md
@@ -57,7 +54,7 @@ dependencies:
 
 ### 3. Load Statements
 
-Skills use `@include` or `Load:` for progressive loading:
+We use `@include` or `Load:` to pull content in only when needed.
 
 ```yaml
 # In skill content
@@ -72,7 +69,7 @@ Skills use `@include` or `Load:` for progressive loading:
 
 ### pensive:shared
 
-Provides common review infrastructure for all pensive review skills:
+This provides the core infrastructure for review skills.
 
 ```
 plugins/pensive/skills/shared/
@@ -83,19 +80,11 @@ plugins/pensive/skills/shared/
     └── quality-checklist-patterns.md
 ```
 
-Used by:
-- `pensive:api-review`
-- `pensive:bug-review`
-- `pensive:architecture-review`
-- `pensive:test-review`
-- `pensive:rust-review`
-- `pensive:makefile-review`
-- `pensive:math-review`
-- `pensive:unified-review`
+Used by all pensive review skills, including `api-review`, `bug-review`, and `rust-review`.
 
 ### imbue:shared
 
-Provides analysis patterns and evidence logging:
+This standardizes analysis patterns and evidence logging.
 
 ```
 plugins/imbue/skills/shared/
@@ -106,16 +95,13 @@ plugins/imbue/skills/shared/
     └── analysis-workflows.md    # Common analysis patterns
 ```
 
-Used by:
-- `pensive:*` skills (via dependencies)
-- `sanctum` skills
-- Any skill needing reproducible evidence trails
+Used by `pensive` skills, `sanctum` skills, and anywhere we need a reproducible paper trail.
 
 ## Loading Patterns
 
 ### Progressive Loading
 
-Skills can load modules progressively based on needs:
+We avoid loading everything at once.
 
 ```yaml
 # SKILL.md
@@ -128,22 +114,21 @@ modules:
 
 ### Load Priority
 
-Use `load_priority` to control loading order:
-
-- **1-2**: Core/essential modules
-- **3**: Standard analysis modules
-- **4-5**: Specialized/optional modules
+`load_priority` dictates the order:
+- **1-2**: Core modules everyone needs.
+- **3**: Standard analysis tools.
+- **4-5**: Specialized or optional extras.
 
 ## Best Practices
 
-### Module Design
-Effective module design relies on the single responsibility principle, ensuring each module focuses on a single concern. This approach promotes reusability across multiple skills and simplifies documentation. When creating modules, provide clear usage examples and include test cases to verify functionality within the larger ecosystem.
+**Module Design**
+Design each module to do one thing well. This makes them reusable and easier to document. Always include examples and tests.
 
-### Dependencies
-Maintain explicit and minimal dependencies by using the full `plugin:skill` format in the frontmatter. Avoid circular dependency chains, as they can cause loading failures and increase complexity. It is also helpful to document the rationale for each dependency to assist future maintenance and refactoring efforts.
+**Dependencies**
+Be explicit. Use the full `plugin:skill` format. Avoid circular dependencies—they break the loader. Document *why* a dependency exists.
 
-### Loading Strategy
-Utilize progressive loading to pull in modules only when they are required for the current task. By setting appropriate load priorities, you can control the execution order and optimize for token costs. Providing user options for loading specialized modules ensures that the system remains efficient while still offering deep analysis capabilities when needed.
+**Loading Strategy**
+Load modules only when the user's task requires them. Use priorities to keep the initial context window small.
 
 ## Common Patterns
 
@@ -187,19 +172,17 @@ dependencies:
 
 ## Testing Integration
 
-The test suite verifies:
+Our test suite ensures:
+1. All modules have valid frontmatter.
+2. Dependencies point to real skills.
+3. No circular chains exist.
+4. Progressive loading configuration matches the files on disk.
 
-1. **Module completeness**: All modules have required frontmatter
-2. **Dependency validity**: All dependencies point to existing skills
-3. **Circular dependencies**: No circular dependency chains
-4. **Load consistency**: Progressive loading matches available modules
-5. **Backward compatibility**: Existing skills continue to work
-
-Run tests with:
+Run the tests:
 ```bash
 python -m pytest tests/integration/test_module_dependencies.py -v
 ```
 
 ## Migration Guide
 
-To add dependencies to existing modules, first update the module frontmatter by adding the `parent_skill`, `dependencies`, `load_priority`, and `estimated_tokens` fields. Once the frontmatter is correctly configured, update the parent skill file to use `@include` or `Load:` statements for progressive loading. This ensures the module is properly integrated with the shared utilities ecosystem and follows established performance patterns.
+To add dependencies to an existing module, update its frontmatter with `parent_skill`, `dependencies`, `load_priority`, and `estimated_tokens`. Then, update the parent skill to use `@include` or `Load:` statements. This integrates the module into the shared ecosystem.

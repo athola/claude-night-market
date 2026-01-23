@@ -8,9 +8,9 @@
 
 ## Overview
 
-This document captures proven optimization patterns from the claude-night-market bloat reduction initiative, which saved approximately 70,772 tokens across nine phases.
+This document records the patterns we used to reduce bloat in the claude-night-market project, saving approximately 70,772 tokens.
 
-Optimization within the ecosystem follows several core principles. Separation of concerns is maintained by distinguishing data from logic and general patterns from specific implementations. We adhere to DRY (Don't Repeat Yourself) by using shared utilities as a single source of truth. Progressive disclosure is used to provide information at the appropriate depth for the user's current task. Maintainability and backwards compatibility are prioritized to ensure the system remains easy to update without breaking existing functionality.
+We optimize by adhering to basic engineering principles: separating concerns, not repeating ourselves (DRY), and revealing complexity only when necessary (progressive disclosure). We also prioritize backward compatibility so improvements don't break existing workflows.
 
 ---
 
@@ -395,7 +395,7 @@ Complex: 1 line = 5 tokens
 ```
 
 ### Success Criteria
-A successful optimization maintains all original functionality while passing all tests. All related documentation must be updated to reflect the changes, and the git history should remain clear. The primary metric for success is measurable token savings without compromising the system's reliability.
+Optimization succeeds when we reduce size while passing all tests. We must update related documentation and keep the git history clean. The goal is measurable token savings without breaking the system.
 
 ### Tracking Template
 
@@ -445,29 +445,29 @@ A successful optimization maintains all original functionality while passing all
 
 ## Best Practices
 
-1. **Incremental Changes**: Apply one pattern at a time, validate, commit frequently
-2. **Systematic**: Scan → Analyze → Execute → Validate → Document
-3. **Preserve Functionality**: All tests pass, no breaking changes, backwards compatible
-4. **Document**: Capture methodology and enable replication
-5. **Avoid Scope Creep**: Stick to goals, balance perfect vs. good enough
+1. **Incremental Changes**: One pattern at a time.
+2. **Systematic**: Scan, analyze, execute, validate, document.
+3. **Preserve Functionality**: Tests must pass.
+4. **Document**: Record how you did it.
+5. **Avoid Scope Creep**: Good enough is fine.
 
 ## When to Apply
 
 | Priority | Triggers |
 |----------|----------|
-| High | Context limits exceeded, slow performance, high token costs |
-| Medium | Files approaching limits, technical debt, quarterly maintenance |
-| Low | Minor inefficiencies, aesthetic improvements, premature optimization |
+| High | Context limits exceeded, slow performance, high costs |
+| Medium | Approaching limits, technical debt cleanup |
+| Low | Minor cleanups |
 
 ---
 
 ## Future Opportunities
 
-**Automation**: Build refactoring detection tools, pre-commit size limits, CI bloat scanning, monthly reports.
+**Automation**: Refactoring tools, size limits, CI scanning.
 
-**Configuration**: Centralized config, dynamic/lazy loading, environment-specific configs.
+**Configuration**: Centralized config, lazy loading.
 
-**Pattern Library**: Reusable templates, pattern detection, community contributions.
+**Pattern Library**: Reusable templates.
 
 ## See Also
 

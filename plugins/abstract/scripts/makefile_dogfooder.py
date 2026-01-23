@@ -32,7 +32,7 @@ def load_target_catalog() -> dict[str, Any]:
     if not TARGET_CATALOG_FILE.exists():
         raise FileNotFoundError(
             f"Target catalog not found: {TARGET_CATALOG_FILE}\n"
-            "Please ensure makefile_target_catalog.yaml exists"
+            "Verify makefile_target_catalog.yaml exists"
         )
 
     with open(TARGET_CATALOG_FILE) as f:

@@ -8,7 +8,7 @@ Minister syncs GitHub Projects, issues, and checks for status reporting and road
 
 ## Focus Areas
 
-Minister focuses on delivering immediate insights into initiative health by generating snapshots from GitHub Projects data. It ensures release governance through automated health checks on CI status, documentation completeness, and risk labels. Additionally, it provides robust reporting capabilities with scripts and templates designed to streamline status updates.
+Minister focuses on delivering immediate insights into initiative health by generating snapshots from GitHub Projects data. It governs releases through automated health checks on CI status, documentation completeness, and risk labels. Additionally, it provides reporting capabilities with scripts and templates designed to streamline status updates.
 
 ## Capabilities
 

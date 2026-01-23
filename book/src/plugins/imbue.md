@@ -78,6 +78,7 @@ Imbue provides reusable patterns for approaching analysis tasks. It's a methodol
 |------|------|-------------|
 | `session-start.sh` | SessionStart | Initializes scope-guard, Iron Law, and learning mode |
 | `user-prompt-submit.sh` | UserPromptSubmit | Validates prompts against scope thresholds |
+| `tdd_bdd_gate.py` | PreToolUse | Enforces Iron Law at write-time |
 | `pre-pr-scope-check.sh` | Manual | Checks scope before PR creation |
 | `proof-enforcement.md` | Design | Iron Law TDD compliance enforcement |
 

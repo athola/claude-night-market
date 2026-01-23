@@ -1,138 +1,88 @@
 # API Overview
 
-*Updated: 2026-01-14*
+*Updated: 2026-01-23*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
 
-Claude Night Market contains 14 plugins providing CLI commands, Python packages, and skill-based APIs. They support workflows from code review to knowledge management.
+Claude Night Market consists of 16 plugins that provide CLI commands, Python packages, and skill-based APIs. These tools support a range of workflows, from code review to knowledge management.
 
 ## API Inventory
 
+The ecosystem includes 99 CLI commands, 126 modular skills, 40 specialized agents, and 7 Python packages with public APIs. We also maintain 16 execution hooks.
+
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.2.7 | 14 | 9 | 3 | Yes | abstract-skills |
-| archetypes | 1.2.6 | 0 | 14 | 0 | No | - |
-| conjure | 1.2.6 | 0 | 3 | 0 | Yes | - |
-| conserve | 1.2.6 | 2 | 5 | 1 | Yes | - |
-| imbue | 1.2.7 | 4 | 10 | 1 | Yes | - |
-| leyline | 1.2.6 | 2 | 12 | 0 | Yes | - |
-| memory-palace | 1.2.6 | 3 | 5 | 4 | Yes | - |
-| minister | 1.2.6 | 0 | 2 | 0 | Yes | - |
-| parseltongue | 1.2.6 | 3 | 4 | 3 | Yes | - |
-| pensive | 1.2.7 | 9 | 11 | 3 | Yes | - |
-| sanctum | 1.2.7 | 17 | 14 | 9 | Yes | - |
-| scry | 1.2.6 | 2 | 4 | 0 | No | - |
-| spec-kit | 1.2.6 | 9 | 4 | 3 | Yes | - |
-| attune | 1.2.6 | 2 | 4 | 0 | Yes | - |
-
-## API Types
-
-| Type | Count | Description |
-|------|-------|-------------|
-| CLI Commands | 75 | Slash commands across plugins |
-| Skills | 104 | Skill definitions with modular loading |
-| Agents | 32 | Specialized agents |
-| Python Packages | 13 | Packages with public APIs |
-| Hooks | 15+ | Pre/post execution hooks |
+| abstract | 1.3.2 | 18 | 13 | 5 | Yes | abstract-skills |
+| archetypes | 1.3.2 | 0 | 14 | 0 | No | - |
+| attune | 1.3.2 | 8 | 10 | 2 | No | - |
+| conjure | 1.3.2 | 0 | 3 | 0 | No | - |
+| conserve | 1.3.2 | 5 | 10 | 5 | No | - |
+| hookify | 1.3.2 | 5 | 2 | 0 | No | - |
+| imbue | 1.3.2 | 3 | 11 | 1 | No | - |
+| leyline | 1.3.2 | 2 | 12 | 0 | Yes | - |
+| memory-palace | 1.3.2 | 5 | 7 | 4 | Yes | - |
+| minister | 1.3.2 | 3 | 2 | 0 | Yes | - |
+| parseltongue | 1.3.2 | 3 | 4 | 4 | No | - |
+| pensive | 1.3.2 | 11 | 11 | 3 | Yes | - |
+| sanctum | 1.3.2 | 20 | 15 | 9 | Yes | - |
+| scribe | 1.3.2 | 5 | 4 | 3 | No | - |
+| scry | 1.3.2 | 2 | 4 | 1 | No | - |
+| spec-kit | 1.3.2 | 9 | 4 | 3 | Yes | - |
 
 ## Plugin Details
 
-### Abstract (v1.2.7)
-Validation and analysis framework.
+### Abstract (v1.3.2)
+Provides the validation and analysis framework for the ecosystem. It includes commands for creating and validating skills, hooks, and plugins, such as `validate-plugin` and `create-skill`. Its skills focus on governance, authoring, and evaluation, including `skills-eval` and `performance-optimization`.
 
-**Commands**: `analyze-hook`, `analyze-skill`, `bulletproof-skill`, `context-report`, `create-command`, `create-hook`, `create-skill`, `estimate-tokens`, `hooks-eval`, `make-dogfood`, `skills-eval`, `test-skill`, `validate-hook`, `validate-plugin`
+### Archetypes (v1.3.2)
+Functions as a reference library for architecture paradigms. It contains 14 skills covering patterns like hexagonal architecture, microservices, and event-driven design.
 
-**Skills**: `escalation-governance`, `hook-authoring`, `hooks-eval`, `makefile-dogfooder`, `modular-skills`, `performance-optimization`, `shared-patterns`, `skill-authoring`, `skills-eval`
+### Attune (v1.3.2)
+Templates for project initialization and architecture. It streamlines the setup of new projects with `arch-init` and `init`.
 
-### Archetypes (v1.2.6)
-Architecture paradigm reference library.
+### Conjure (v1.3.2)
+Handles cross-model delegation. Its skills, such as `gemini-delegation` and `qwen-delegation`, enable tasks to be routed to specific models based on capability.
 
-**Skills**: 14 architecture paradigm skills (hexagonal, microservices, event-driven, etc.)
+### Conserve (v1.3.2)
+Manages context window usage and resources. Commands like `analyze-growth` and `optimize-context` help developers understand token consumption. Skills include `context-optimization`, `clear-context`, and `resource-management`.
 
-### Conjure (v1.2.6)
-Cross-model delegation framework.
+### Hookify (v1.3.2)
+Provides hook development utilities and templates. Commands help create, test, and manage execution hooks across the ecosystem.
 
-**Skills**: `delegation-core`, `gemini-delegation`, `qwen-delegation`
+### Imbue (v1.3.2)
+Supports structured review workflows. It offers commands for feature reviews and catchups (`feature-review`, `catchup`). Skills include `evidence-logging`, `proof-of-work`, and `scope-guard`.
 
-### Conserve (v1.2.6)
-Context window and resource management.
+### Leyline (v1.3.2)
+A library of shared patterns and utilities. It allows for bulk plugin updates via `reinstall-all-plugins`. Skills cover authentication, error handling, and testing standards.
 
-**Commands**: `analyze-growth`, `optimize-context`
+### Memory-Palace (v1.3.2)
+Organizes knowledge management. Commands like `garden` and `palace` help users navigate and structure information. Skills focus on knowledge intake and retrieval.
 
-**Skills**: `context-optimization`, `mcp-code-execution`, `optimizing-large-skills`, `performance-monitoring`, `resource-management`
+### Minister (v1.3.2)
+Tracks governance and project initiatives. It uses skills like `governance-tracking` and `tracker-comment` to maintain project oversight.
 
-### Imbue (v1.2.7)
-Structured review workflows.
+### Parseltongue (v1.3.2)
+Utilities for Python development. It includes tools for analyzing tests and profiling performance (`analyze-tests`, `run-profiler`). Skills support async programming and packaging.
 
-**Commands**: `catchup`, `feature-review`, `review`, `structured-review`
+### Pensive (v1.3.2)
+A framework for code review and analysis. It provides specific review commands for various languages and domains, such as `api-review`, `rust-review`, and `bug-review`.
 
-**Skills**: `catchup`, `diff-analysis`, `evidence-logging`, `feature-review`, `proof-of-work`, `review-core`, `scope-guard`, `shared`, `structured-output`, `workflow-monitor`
+### Sanctum (v1.3.2)
+Automates Git workflows. This plugin handles tasks from commit message generation to PR reviews. Commands include `fix-pr`, `merge-docs`, and `update-dependencies`.
 
-### Leyline (v1.2.6)
-Shared patterns and utilities library.
+### Scribe (v1.3.2)
+Documentation generation and content authoring utilities. Commands help create and maintain documentation across plugins.
 
-**Commands**: `reinstall-all-plugins`, `update-all-plugins`
+### Scry (v1.3.2)
+Utilities for recording terminal and browser sessions. It supports creating media assets with commands like `record-browser` and `record-terminal`.
 
-**Skills**: `authentication-patterns`, `error-patterns`, `evaluation-framework`, `mecw-patterns`, `progressive-loading`, `pytest-config`, `quota-management`, `service-registry`, `shared`, `storage-templates`, `testing-quality-standards`, `usage-logging`
-
-### Memory-Palace (v1.2.6)
-Knowledge management and organization.
-
-**Commands**: `garden`, `navigate`, `palace`
-
-**Skills**: `digital-garden-cultivator`, `knowledge-intake`, `knowledge-locator`, `memory-palace-architect`, `session-palace-builder`
-
-### Minister (v1.2.6)
-Governance and tracking plugin.
-
-**Skills**: `governance-tracking`, `tracker-comment`
-
-### Parseltongue (v1.2.6)
-Python development utilities.
-
-**Commands**: `analyze-tests`, `check-async`, `run-profiler`
-
-**Skills**: `python-async`, `python-packaging`, `python-performance`, `python-testing`
-
-### Pensive (v1.2.7)
-Code review and analysis framework.
-
-**Commands**: `api-review`, `architecture-review`, `bug-review`, `fpf-review`, `full-review`, `makefile-review`, `math-review`, `rust-review`, `shell-review`, `skill-history`, `skill-review`, `test-review`
-
-**Skills**: `api-review`, `architecture-review`, `bug-review`, `fpf-review`, `makefile-review`, `math-review`, `rust-review`, `shared`, `shell-review`, `test-review`, `unified-review`
-
-### Sanctum (v1.2.7)
-Git workflow automation.
-
-**Commands**: `commit-msg`, `create-tag`, `do-issue`, `fix-pr`, `fix-workflow`, `git-catchup`, `merge-docs`, `pr`, `pr-review`, `resolve-threads`, `update-dependencies`, `update-docs`, `update-plugins`, `update-readme`, `update-tests`, `update-tutorial`, `update-version`
-
-**Skills**: `commit-messages`, `doc-consolidation`, `doc-updates`, `file-analysis`, `do-issue`, `git-workspace-review`, `pr-prep`, `pr-review`, `shared`, `test-updates`, `tutorial-updates`, `update-readme`, `version-updates`, `workflow-improvement`
-
-### Scry (v1.2.6)
-Terminal and browser recording utilities.
-
-**Commands**: `record-browser`, `record-terminal`
-
-**Skills**: `browser-recording`, `gif-generation`, `media-composition`, `vhs-recording`
-
-### Spec-Kit (v1.2.6)
-Specification-driven development.
-
-**Commands**: `speckit-analyze`, `speckit-checklist`, `speckit-clarify`, `speckit-constitution`, `speckit-implement`, `speckit-plan`, `speckit-specify`, `speckit-startup`, `speckit-tasks`
-
-**Skills**: `shared`, `spec-writing`, `speckit-orchestrator`, `task-planning`
-
-### Attune (v1.2.6)
-Project initialization and architecture templates.
-
-**Commands**: `arch-init`, `init`
-
-**Skills**: `architecture-templates`, `project-initialization`, `research-integration`
+### Spec-Kit (v1.3.2)
+Facilitates specification-driven development. It offers a suite of commands for planning, specifying, and implementing features based on strict requirements.
 
 ## API Quality Assessment
 
-Documentation and type safety are enforced via `ruff`, `mypy`, and `bandit`. Plugins follow the standard directory structure to ensure discovery. Current initiatives focus on normalizing command naming across plugins and clarifying export patterns for cross-plugin dependencies.
+We enforce documentation and type safety using `ruff`, `mypy`, and `bandit`. All plugins adhere to a standard directory structure to ensure discovery. Our current focus is on normalizing command naming across plugins and clarifying export patterns for cross-plugin dependencies.
 
 ## Related Documents
 

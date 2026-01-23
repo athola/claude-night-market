@@ -2,14 +2,14 @@
 
 ## Overview
 
-This marketplace uses a dual-manifest system to support both Claude Code's official plugin schema and extended marketplace-specific metadata.
+This marketplace uses a dual-manifest system. We support the official Claude Code schema while tracking extended metadata needed for our specific tooling.
 
 ## File Structure
 
-Each plugin has two manifest files in its `.claude-plugin/` directory:
+Each plugin maintains two manifest files in its `.claude-plugin/` directory.
 
 ### plugin.json (Official Schema)
-The standard Claude Code plugin manifest with only officially supported fields:
+This file strictly follows the Claude Code plugin schema. It contains only officially supported fields to ensuring validation passes.
 
 ```json
 {
@@ -41,7 +41,7 @@ The standard Claude Code plugin manifest with only officially supported fields:
 - `license`
 
 ### metadata.json (Extended Marketplace Schema)
-Additional metadata useful for the marketplace but not part of the official Claude Code schema:
+This file captures metadata that the marketplace needs but the official schema rejects.
 
 ```json
 {
@@ -88,8 +88,8 @@ Additional metadata useful for the marketplace but not part of the official Clau
 
 ## Why Two Files?
 
-The dual-manifest system exists because `plugin.json` must strictly adhere to Claude Code's official schema to pass validation and installation checks. In contrast, `metadata.json` allows us to preserve rich, marketplace-specific metadata—such as skill dependencies and structured capabilities—without triggering validation errors. Marketplace tooling is designed to read both files, providing enhanced features while ensuring full compatibility with the official plugin system.
+We split metadata because the official `plugin.json` validator is strict. Including extra fields causes installation to fail. By keeping `plugin.json` clean and moving rich metadata like dependencies and capabilities to `metadata.json`, we get the best of both worlds: full compatibility with Claude Code and the enhanced features required by our marketplace.
 
 ## Migration Notes
 
-When updating plugins, keep `plugin.json` minimal and compliant with the official standards. Move any extended metadata fields into `metadata.json` and verify the results by running the official `claude plugin validate` command. Both manifest files must maintain consistent version numbers to ensure the marketplace tooling can correctly resolve dependencies and capabilities.
+Keep `plugin.json` minimal. Move any field not in the official schema to `metadata.json`. Always run `claude plugin validate` to verify compliance. Ensure version numbers match in both files so tooling allows correct dependency resolution.

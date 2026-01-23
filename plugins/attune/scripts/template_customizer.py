@@ -22,7 +22,7 @@ def load_templates() -> dict[str, dict[str, Any]]:
     if not TEMPLATES_FILE.exists():
         raise FileNotFoundError(
             f"Templates file not found: {TEMPLATES_FILE}\n"
-            "Please ensure architecture_templates.yaml exists"
+            "Verify architecture_templates.yaml exists"
         )
 
     with open(TEMPLATES_FILE) as f:

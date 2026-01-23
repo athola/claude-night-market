@@ -62,6 +62,11 @@ dmypy.json
 .DS_Store
 Thumbs.db
 
+# Node.js (local dev tools only)
+node_modules/
+package.json
+package-lock.json
+
 # Build artifacts
 *.log
 

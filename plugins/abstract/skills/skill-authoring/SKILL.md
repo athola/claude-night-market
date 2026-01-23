@@ -395,7 +395,7 @@ Several common pitfalls can reduce the effectiveness of a skill. Writing skills 
 
 ## Summary
 
-Effective skill authoring relies on empirical testing through the RED-GREEN-REFACTOR cycle to ensure that each intervention solves a real problem. By optimizing descriptions for discovery and using progressive disclosure for token efficiency, we can maintain a high activation rate and consistent performance. Bulletproofing against rationalizations and applying persuasive design principles further strengthens the skill's effectiveness. Final validation through structured quality gates confirms that the skill is ready for production deployment.
+Skill authoring relies on empirical testing through the RED-GREEN-REFACTOR cycle to verify that each intervention solves a real problem. By optimizing descriptions for discovery and using progressive disclosure for token efficiency, we can maintain a high activation rate and consistent performance. Guarding against rationalizations and applying persuasive design principles further strengthens the skill's effectiveness. Final validation through structured quality gates confirms that the skill is ready for production deployment.
 ## Troubleshooting
 
 ### Common Issues

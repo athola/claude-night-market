@@ -1,10 +1,10 @@
 # Script Integration Pattern for Claude Code
 
-This document defines the standard pattern for Python scripts that can be invoked by Claude Code for programmatic tool calling.
+This document defines the standard pattern for Python scripts invoked by Claude Code.
 
 ## Why This Matters
 
-Standardizing script integration is necessary for several reasons. It allows Claude Code to parse tool output through structured JSON data and enables the chaining of operations by processing intermediate data outside the context window. Furthermore, idempotent operations permit safe retries by preventing unintended side effects, and an asynchronous design supports parallel execution of independent tasks.
+We standardize script integration to ensure Claude Code can reliably parse tool output and chain operations. By using structured JSON output, we enable processing of intermediate data outside the context window. Idempotent operations allow for safe retries, while asynchronous design supports parallel execution.
 
 Reference: [Anthropic Advanced Tool Use](https://www.anthropic.com/engineering/advanced-tool-use)
 
@@ -96,10 +96,7 @@ if __name__ == "__main__":
 
 ### 2. JSON Output Structure
 
-Always include in JSON output:
-- `success` (bool): Whether the operation succeeded
-- `data` or specific fields: The actual result
-- `error` (str, optional): Error message if failed
+Always include `success` and `data` (or specific fields) in the JSON output. Include `error` if the operation fails.
 
 ```json
 {
@@ -114,7 +111,7 @@ Always include in JSON output:
 
 ### 3. Document Return Structure
 
-In the module docstring, document what the tool returns:
+In the module docstring, explicitly state what the tool returns.
 
 ```python
 """Analyze skill files for quality metrics.
@@ -129,7 +126,7 @@ Returns (JSON):
 
 ### 4. Idempotent Operations
 
-Scripts should be safe to retry:
+Scripts must be safe to retry. Check if work is already done before modifying state, and use atomic writes where possible.
 
 ```python
 def process_file(path: Path) -> dict:
@@ -154,7 +151,7 @@ def process_file(path: Path) -> dict:
 
 ## Using abstract CLI Framework
 
-For scripts in the abstract plugin ecosystem, use the built-in framework:
+For scripts in the abstract plugin ecosystem, use the built-in `AbstractCLI` framework. It automatically handles `--format json`.
 
 ```python
 from abstract.cli_framework import AbstractCLI, CLIResult, cli_main
@@ -178,11 +175,9 @@ if __name__ == "__main__":
     cli_main(MyToolCLI())
 ```
 
-The framework automatically provides `--format json` support.
-
 ## SKILL.md Integration
 
-In your SKILL.md, show both human and programmatic usage:
+In your SKILL.md, demonstrate both human and programmatic usage.
 
 ```markdown
 ## Script Integration
@@ -221,7 +216,7 @@ uv run python scripts/my_tool.py --input ./src --output-json
 
 ## Scripts Needing Updates
 
-Based on audit, these scripts need CLI/JSON integration:
+Based on our audit, these scripts require updates to support CLI/JSON integration.
 
 | Script | Plugin | Priority | Status | Notes |
 |--------|--------|----------|--------|-------|

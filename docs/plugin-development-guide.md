@@ -2,14 +2,11 @@
 
 ## Quick Start
 
-1. Initialize a new plugin: `make create-plugin NAME=my-plugin`.
-2. Review existing patterns in `plugins/abstract`.
-3. Run `make validate` to check structure.
-4. Verify code with `make lint` (ruff/mypy) and `make test`.
+Initialize a new plugin with `make create-plugin NAME=my-plugin`. This command generates the standard directory structure and configuration files. Before writing code, review the patterns in `plugins/abstract` to understand how existing plugins handle state and tool calls. Once you have a basic implementation, run `make validate` to check the structure, followed by `make lint` and `make test` to verify code quality.
 
 ## Structure
 
-Plugins follow a standard directory structure so Claude Code can discover capabilities:
+Plugins use a standard directory structure to ensure Claude Code can reliably discover capabilities without manual configuration.
 
 ```
 plugins/my-plugin/
@@ -23,30 +20,32 @@ plugins/my-plugin/
 
 ### Design Standards
 
-Define strict public APIs to prevent hidden state and support interoperability between plugins. Use `ruff` for linting and `mypy` for type checking to identify errors early. Do not guess user intent; fail with specific error messages when inputs are invalid.
+Public APIs should be strict to prevent hidden state and support interoperability. We use `ruff` and `mypy` to catch errors early. When handling user input, fail with specific error messages rather than guessing intent. This reduces debugging time and prevents unexpected behavior.
 
 ## Success Metrics
 
-Code quality is enforced through strict gates. Plugins require 80% code coverage via `pytest-cov`, and Python code must pass `ruff` linting and `mypy` type checking without overrides. Security is non-negotiable; `bandit` scans must report zero high-severity issues. Operational constraints limit token usage to a 15K budget. Plugins must provide specific error details rather than generic messages, and versioning must align with the 1.1.0 scheme for compatibility.
+We enforce strict quality gates to catch bugs before they reach production. Plugins must achieve 80% code coverage via `pytest-cov`, and Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must report zero high-severity issues.
+
+To ensure responsiveness, we limit token usage to a 15K budget per operation. Error messages must be specific to help users resolve issues quickly. Versioning follows the 1.1.0 scheme to maintain compatibility across the ecosystem.
 
 ## Development Path
 
-### 1. Foundation
-Install dependencies with `uv` and set up `pre-commit` hooks. Use `make create-plugin` to generate the scaffold, then examine `plugins/abstract` to understand core patterns for state management and tool calls.
+### Foundation
+Start by installing dependencies with `uv` and setting up `pre-commit` hooks. The `make create-plugin` command generates the necessary scaffold. We recommend examining `plugins/abstract` to understand core patterns for state management and tool calls before starting your implementation.
 
-### 2. Implementation
-Add logic to `skills/` and commands to `commands/`. Write tests in `tests/` covering both success paths and edge cases. If your plugin requires automation, implement hooks to intercept tool usage or lifecycle events.
+### Implementation
+Add logic to `skills/` and commands to `commands/`. Tests in `tests/` should cover both success paths and edge cases. If your plugin requires automation, implement hooks to intercept tool usage or lifecycle events.
 
-### 3. Production & Maintenance
-Profile token usage with `python -m cProfile` if performance lags. Document features in `README.md` with copy-pasteable examples. Once released, monitor logs for runtime errors and update dependencies using `uv`.
+### Production & Maintenance
+If performance lags, profile token usage with `python -m cProfile`. Documentation in `README.md` should include copy-pasteable examples to help users get started quickly. Once released, monitor logs for runtime errors and update dependencies using `uv`.
 
 ## Tooling
 
-Development requires Python 3.10+ managed by `uv`. `pytest` handles testing, while `ruff` manages linting and formatting. `mypy` enforces type checking, and `bandit` performs security analysis. `pre-commit` and GitHub Actions handle automation.
+We use Python 3.10+ managed by `uv`. `pytest` handles testing, while `ruff` manages linting and formatting. `mypy` enforces type checking, and `bandit` performs security analysis. `pre-commit` and GitHub Actions handle automation tasks.
 
 ## Release Checklist
 
-Before release, verify that tests pass with over 80% coverage and that `ruff`, `mypy`, and `bandit` checks are clean (zero high-severity issues). Ensure the README includes clear usage examples, token usage remains within the 15K limit, and that version tags and the changelog are updated.
+Before release, verify that tests pass with over 80% coverage and that `ruff`, `mypy`, and `bandit` checks are clean. The README must include clear usage examples. Ensure token usage remains within the 15K limit and that version tags and the changelog are updated.
 
 ## Common Patterns
 
@@ -86,7 +85,7 @@ hooks:
 
 ### Skill Configuration
 
-Set `context: fork` to run skills in an isolated sub-agent context, preventing output from polluting the main conversation thread. Use the `agent` field to route skills to specific sub-agents (e.g., `python-tester`). For tool permissions, use YAML lists for `allowed-tools`, supporting wildcards like `Bash(npm *)` or `Bash(* install)`. Lifecycle hooks (`PreToolUse`, `PostToolUse`, `Stop`) defined in the frontmatter automate validations or cleanup.
+Set `context: fork` to run skills in an isolated sub-agent context. This prevents output from polluting the main conversation thread. Use the `agent` field to route skills to specific sub-agents, such as `python-tester`. Tool permissions use YAML lists for `allowed-tools`, supporting wildcards like `Bash(npm *)` or `Bash(* install)`. Lifecycle hooks (`PreToolUse`, `PostToolUse`, `Stop`) defined in the frontmatter automate validations or cleanup.
 
 ### Command Pattern
 ```yaml
@@ -149,7 +148,7 @@ Agent body content...
 
 ### Agent Configuration
 
-Control the model by setting `model` to `haiku`, `sonnet`, or `opus`. Define how the agent handles tool approvals via `permissionMode` (e.g., `acceptEdits`, `dontAsk`). List skills to auto-load in the `skills` field; note that agents do not inherit skills from their parents. Configure `escalation` to move tasks to a more capable model when specific `hints` (like `ambiguous_input`) are detected.
+Control the model by setting `model` to `haiku`, `sonnet`, or `opus`. Define how the agent handles tool approvals via `permissionMode` (e.g., `acceptEdits`, `dontAsk`). List skills to auto-load in the `skills` field. Note that agents do not inherit skills from their parents. Configure `escalation` to move tasks to a more capable model when specific `hints` (like `ambiguous_input`) are detected.
 
 ## Error Handling
 
@@ -185,13 +184,13 @@ uv run python scripts/complexity_calculator.py
 ## Advanced Features
 
 ### Skill Hot-Reload
-Skills located in `~/.claude/skills` or `.claude/skills` reload immediately upon saving, removing the need to restart the session to test changes.
+Skills located in `~/.claude/skills` or `.claude/skills` reload immediately upon saving. This removes the need to restart the session to test changes.
 
 ### Agent-Aware Hooks
-SessionStart hooks receive an `agent_type` field in their input, allowing you to skip heavy context loading for lightweight agents. For example, skipping context for a `quick-query` agent can save between 200 and 800 tokens per session.
+SessionStart hooks receive an `agent_type` field in their input. You can use this to skip heavy context loading for lightweight agents. For example, skipping context for a `quick-query` agent can save between 200 and 800 tokens per session.
 
 ### Environment Overrides
-Specific environment variables can be used to control behavior:
+Specific environment variables control behavior:
 - `CLAUDE_CODE_HIDE_ACCOUNT_INFO` - Sanitize recordings by hiding account info
 - `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` - Force synchronous execution in CI environments
 - `CLAUDE_CODE_TMPDIR` - Override temp directory for restricted environments (e.g., Termux)

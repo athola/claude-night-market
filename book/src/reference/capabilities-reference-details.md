@@ -26,7 +26,7 @@ Full flag and option documentation for commands, skills, agents, and hooks, with
 |--------|----------|--------|--------|
 | [abstract](capabilities-commands.md#abstract-plugin) | validate-plugin, create-skill, create-command | skill-authoring, hook-authoring | plugin-validator, meta-architect |
 | [attune](capabilities-commands.md#attune-plugin) | init, brainstorm, plan, execute | - | project-architect |
-| [conserve](capabilities-commands.md#conserve-plugin) | bloat-scan, unbloat, optimize-context | context-optimization, bloat-detector | bloat-auditor, context-optimizer |
+| [conserve](capabilities-commands.md#conserve-plugin) | bloat-scan, unbloat, optimize-context | context-optimization, bloat-detector, clear-context | bloat-auditor, context-optimizer, continuation-agent |
 | [imbue](capabilities-commands.md#imbue-plugin) | catchup, review, structured-review | scope-guard, proof-of-work | review-analyst |
 | [memory-palace](capabilities-commands.md#memory-palace-plugin) | garden, navigate, palace | knowledge-intake, digital-garden | palace-architect, garden-curator |
 | [parseltongue](capabilities-commands.md#parseltongue-plugin) | analyze-tests, run-profiler | python-async, python-packaging | python-pro, python-tester |

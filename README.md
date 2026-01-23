@@ -2,24 +2,26 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-This repository adds 16 plugins to Claude Code to standardize git operations, code review, spec-driven development, and issue management. While each plugin functions independently, they share testing and debugging patterns to ensure consistent behavior across workflows.
+This repository adds 16 plugins to Claude Code to standardize git operations, code review, spec-driven development, and issue management. While each plugin functions independently, they share testing and debugging patterns to maintain consistent behavior across workflows.
 
 ## Key Features
 
 **Governance & Quality**
-Hooks adapt context based on the active agent, while `pensive` tracks usage frequency and failure rates. `imbue` enforces a proof-of-work TDD cycle, requiring failing tests and verifying understanding via the Five Whys framework before implementation begins. For complex tasks, `imbue:rigorous-reasoning` mandates a step-by-step logic check.
+Hooks adapt context based on the active agent, while `pensive` tracks usage frequency and failure rates. `imbue` enforces the Iron Law TDD cycle via a PreToolUse hook that checks for test files before allowing implementation writes. For complex tasks, `imbue:rigorous-reasoning` mandates a step-by-step logic check.
 
 **Security & Session Management**
 `leyline` manages OAuth flows for GitHub, GitLab, and AWS with token caching. `conserve` automates permission handling by approving safe commands (like `ls`) and blocking risky ones (`rm -rf /`). `sanctum` isolates named sessions for debugging, feature work, and PR reviews. To maintain quality, `/create-skill` and `/create-command` abort if no failing tests exist.
 
 **Resilience & Collaboration**
-The system includes self-correction mechanisms: `/update-plugins` recommends updates based on stability, and `/fix-workflow` attempts to repair failed runs. For strategic decisions, `/attune:war-room` convenes panels of AI experts for adversarial review.
+The system includes self-correction mechanisms: `/update-plugins` recommends updates based on stability, and `/fix-workflow` attempts to repair failed runs. For strategic decisions, `/attune:war-room` uses reversibility scoring (Type 1/2 framework) to route decisions to appropriate expert panels.
 
 ## Workflow Improvements
 
-Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` validates branch scope, runs linting, and ensures a clean state before creating a pull request, while `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` enforces a written specification phase before code generation. To keep the agent in sync, `/catchup` reads recent git history to update the context window, and `/attune:init` detects project types (Python, Node) to scaffold necessary configuration files.
+Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` validates branch scope, runs linting, and verifies a clean state before creating a pull request, while `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` enforces a written specification phase before code generation. To keep the agent in sync, `/catchup` reads recent git history to update the context window, and `/attune:init` detects project types (Python, Node) to scaffold necessary configuration files.
 
 ## Quick Start
+
+### Option 1: Claude Code Plugin Commands
 
 ```bash
 # 1. Add the marketplace
@@ -34,6 +36,30 @@ Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` 
 /prepare-pr                                    # Prepare a pull request
 /full-review                                   # Run code review
 Skill(sanctum:git-workspace-review)            # Invoke a skill (if Skill tool available)
+```
+
+### Option 2: npx skills
+
+```bash
+# Install the entire marketplace
+npx skills add athola/claude-night-market
+
+# Or install specific plugins
+npx skills add athola/claude-night-market/sanctum    # Git workflows
+npx skills add athola/claude-night-market/pensive    # Code review
+npx skills add athola/claude-night-market/conserve   # Resource optimization
+```
+
+### Post-Installation Setup (Claude Code 2.1.10+)
+
+After installation, initialize plugins with Setup hooks:
+
+```bash
+# Run one-time initialization
+claude --init
+
+# Periodic maintenance (weekly recommended)
+claude --maintenance
 ```
 
 > **Note:** If the `Skill` tool is unavailable, read skill files directly: `Read plugins/{plugin}/skills/{skill-name}/SKILL.md` and follow the instructions.
@@ -93,16 +119,16 @@ flowchart TB
 *   **spec-kit**: Requirements definition (`/speckit-specify`).
 *   **minister**: GitHub issues (`/create-issue`, `/close-issue`).
 *   **conserve**: Codebase bloat reduction (`/bloat-scan`).
-*   **attune**: Project scaffolding (`/attune:init`), multi-LLM War Room (`/attune:war-room`).
+*   **attune**: Project scaffolding (`/attune:init`), War Room with reversibility routing (`/attune:war-room`).
 *   **parseltongue**: Python tools (`/analyze-tests`).
 *   **archetypes**: Architecture guides.
 *   **memory-palace**: Knowledge indexing (`/palace`).
 *   **scribe**: Documentation review and AI slop detection (`/slop-scan`, `/doc-verify`).
 *   **hookify**: Behavioral rules without configuration.
 *   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
-*   **imbue**: Review methodologies, proof-of-work TDD, anti-cargo-cult verification.
+*   **imbue**: Review methodologies, Iron Law TDD enforcement via hooks, anti-cargo-cult verification.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 122 skills, 109 commands, and 39 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 123 skills, 109 commands, and 40 agents.
 
 ## Audience
 
@@ -127,7 +153,7 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | Write specifications | `/speckit-specify` | Spec-driven development |
 | Debug issues | `Skill(superpowers:debugging)` | Root cause analysis |
 | Improve plugins | `/update-plugins` | Update based on stability metrics |
-| Strategic decisions | `/attune:war-room` | Multi-LLM expert deliberation |
+| Strategic decisions | `/attune:war-room` | Reversibility-based expert routing |
 
 ## Demos
 

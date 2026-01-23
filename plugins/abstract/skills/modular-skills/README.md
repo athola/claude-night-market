@@ -5,7 +5,7 @@ Design patterns and implementation guidelines for reusable skill components.
 ## Core Principles
 
 - **Single Responsibility**: One focused purpose per skill
-- **Composable Design**: Skills combine seamlessly
+- **Composable Design**: Skills are composable
 - **Clear Interfaces**: Well-defined tool contracts
 - **Token Efficiency**: Minimal context overhead
 

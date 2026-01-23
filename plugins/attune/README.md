@@ -68,7 +68,7 @@ Standardize project development:
 | `/attune:plan` | Plan architecture and break down into tasks | 3. Planning |
 | `/attune:init` | Initialize project structure with tooling | 4. Initialization |
 | `/attune:execute` | Execute implementation tasks systematically | 5. Implementation |
-| `/attune:war-room` | **Multi-LLM expert deliberation for strategic decisions** | Decision |
+| `/attune:war-room` | **Multi-LLM expert deliberation with reversibility-based routing** | Decision |
 
 ### Project Management
 
@@ -87,7 +87,7 @@ Standardize project development:
 | `project-specification` | Spec-driven requirement definition | Need detailed requirements |
 | `project-planning` | Architecture design and task breakdown | Planning implementation |
 | `project-execution` | Systematic task execution with TDD | Implementing planned tasks |
-| `war-room` | **Multi-LLM expert council deliberation** | Complex strategic decisions |
+| `war-room` | **Multi-LLM expert council with Type 1/2 routing** | Complex strategic decisions (RS > 0.40) |
 
 ### Initialization Skills
 

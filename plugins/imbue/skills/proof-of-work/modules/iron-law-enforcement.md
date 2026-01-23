@@ -9,7 +9,16 @@ NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST
 NO CODE WITHOUT UNDERSTANDING FIRST
 ```
 
-This is the fundamental principle that unites TDD, proof-of-work, and skill authoring. It prevents the **Cargo Cult TDD** anti-pattern where tests are written to validate pre-conceived implementations rather than to discover the right implementation.
+This is the fundamental principle that unites **TDD (Test-Driven Development)** and **BDD (Behavior-Driven Development)** with proof-of-work and skill authoring. It prevents the **Cargo Cult TDD** anti-pattern where tests are written to validate pre-conceived implementations rather than to discover the right implementation.
+
+### TDD + BDD: Complementary Practices
+
+| Practice | Focus | Format | Enforcement |
+|----------|-------|--------|-------------|
+| **TDD** | Test drives design | RED-GREEN-REFACTOR | Git history shows test commits before implementation |
+| **BDD** | Behavior describes intent | Given-When-Then scenarios | Tests have Feature/Scenario docstrings |
+
+**Both are required.** TDD ensures tests come first; BDD ensures tests describe behavior, not implementation details.
 
 ### The Fourth Law: Understanding Before Code
 
@@ -66,6 +75,41 @@ Before writing ANY code:
 
 If I answered "no" to #1, #3, or #5, or "yes" to #2 or #4: STOP AND RESET.
 ```
+
+## BDD Test Structure Requirement
+
+All tests MUST follow BDD structure:
+
+```python
+class TestFeatureName:
+    """
+    Feature: [Clear feature description]
+
+    As a [stakeholder]
+    I want [feature capability]
+    So that [benefit/value]
+    """
+
+    @pytest.mark.unit
+    def test_scenario_with_clear_outcome(self):
+        """
+        Scenario: [Clear scenario description]
+        Given [initial context]
+        When [action occurs]
+        Then [expected outcome]
+        """
+        # Arrange (Given)
+        # Act (When)
+        # Assert (Then)
+```
+
+**BDD Enforcement Checklist:**
+- [ ] Test class has Feature docstring (As a/I want/So that)
+- [ ] Test method has Scenario docstring (Given/When/Then)
+- [ ] Test describes BEHAVIOR not implementation
+- [ ] Test name reflects the scenario, not the method being tested
+
+---
 
 ## Cargo Cult TDD Anti-Patterns
 

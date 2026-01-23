@@ -83,7 +83,7 @@ evaluation_criteria:
 
 ## Overview
 
-Analyze and improve Claude skills. Tools audit skills against quality standards, measure token usage, and generate improvement recommendations.
+Analyze and improve Claude skills. We use tools to audit skills against quality standards, measure token usage, and generate improvement recommendations.
 
 ### Tools
 
@@ -183,34 +183,39 @@ make check-compliance PATH=path/to/skill/SKILL.md
 ## Evaluation Framework
 
 ### Quality Metrics Overview
-The framework evaluates skills on weighted dimensions: structure compliance and content quality (20 points each), token efficiency and activation reliability (15 points each), and remaining points for tool integration, trigger isolation, and enforcement language.
+We evaluate skills on weighted dimensions: structure compliance and content quality (20 points each), token efficiency and activation reliability (15 points each), and remaining points for tool integration, trigger isolation, and enforcement language.
 
 ### Scoring System
-Scores categorize quality: 91-100 (Excellent), 76-90 (Good), 51-75 (Basic), 26-50 (Below Standards), and 0-25 (Critical Issues).
+Scores categorize quality:
+- 91-100: Excellent
+- 76-90: Good
+- 51-75: Basic
+- 26-50: Below Standards
+- 0-25: Critical Issues
 
 ### Priority Levels
-Improvements are prioritized to address the most critical issues first. Critical priority is assigned to security vulnerabilities, broken functionality, or missing required metadata. High priority concerns poor structure or incomplete documentation, while medium priority identifies missing best practices and optimization opportunities. Minor enhancements, such as formatting issues or improved examples, are categorized as low priority.
+We prioritize improvements based on impact. Critical priority goes to security vulnerabilities, broken functionality, or missing required metadata. High priority covers poor structure or incomplete documentation. Medium priority identifies missing best practices and optimization opportunities. Minor enhancements are low priority.
 
 ## Detailed Resources
 
 For detailed implementation details and advanced techniques:
 
 ### Shared Modules: Cross-Skill Patterns
-- **Anti-Rationalization Patterns**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md) for red flags table and bypass patterns
-- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md) for tiered intensity templates
-- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md) for description field structure and CSO
+- **Anti-Rationalization Patterns**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md)
+- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md)
+- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md)
 
 ### Skill-Specific Modules
-- **Trigger Isolation Analysis**: See `modules/trigger-isolation-analysis.md` for evaluating frontmatter compliance
-- **Skill Authoring Best Practices**: See `modules/skill-authoring-best-practices.md` for official Claude guidance
-- **Authoring Checklist**: See `modules/authoring-checklist.md` for quick-reference validation checklist
-- **Implementation Guide**: See `modules/evaluation-workflows.md` for detailed workflows
-- **Quality Metrics**: See `modules/quality-metrics.md` for scoring criteria and evaluation levels
-- **Advanced Tool Use Analysis**: See `modules/advanced-tool-use-analysis.md` for specialized evaluation techniques
-- **Evaluation Framework**: See `modules/evaluation-framework.md` for detailed scoring and quality gates
-- **Integration Patterns**: See `modules/integration.md` for workflow integration with other skills
-- **Troubleshooting**: See `modules/troubleshooting.md` for common issues and solutions
-- **Pressure Testing**: See `modules/pressure-testing.md` for adversarial validation methodology
+- **Trigger Isolation Analysis**: See `modules/trigger-isolation-analysis.md`
+- **Skill Authoring Best Practices**: See `modules/skill-authoring-best-practices.md`
+- **Authoring Checklist**: See `modules/authoring-checklist.md`
+- **Implementation Guide**: See `modules/evaluation-workflows.md`
+- **Quality Metrics**: See `modules/quality-metrics.md`
+- **Advanced Tool Use Analysis**: See `modules/advanced-tool-use-analysis.md`
+- **Evaluation Framework**: See `modules/evaluation-framework.md`
+- **Integration Patterns**: See `modules/integration.md`
+- **Troubleshooting**: See `modules/troubleshooting.md`
+- **Pressure Testing**: See `modules/pressure-testing.md`
 
 ### Tools and Automation
 - **Tools**: Executable analysis utilities in `scripts/` directory

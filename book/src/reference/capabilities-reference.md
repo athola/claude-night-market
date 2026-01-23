@@ -32,6 +32,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `browser-recording` | [scry](../plugins/scry.md) | Playwright browser recordings |
 | `bug-review` | [pensive](../plugins/pensive.md) | Bug hunting |
 | `catchup` | [imbue](../plugins/imbue.md) | Context recovery |
+| `clear-context` | [conserve](../plugins/conserve.md) | Auto-clear workflow with session state persistence |
 | `code-quality-principles` | [conserve](../plugins/conserve.md) | Core principles for AI-assisted code quality |
 | `commit-messages` | [sanctum](../plugins/sanctum.md) | Conventional commits |
 | `context-optimization` | [conserve](../plugins/conserve.md) | MECW principles and 50% context rule |
@@ -121,7 +122,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `usage-logging` | [leyline](../plugins/leyline.md) | Telemetry tracking |
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
-| `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council deliberation for strategic decisions |
+| `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
 | `workflow-monitor` | [imbue](../plugins/imbue.md) | Workflow execution monitoring and issue creation |
 | `workflow-setup` | [attune](../plugins/attune.md) | Configure CI/CD pipelines |
@@ -146,7 +147,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/attune:specify` | attune | Create detailed specifications from brainstorm |
 | `/attune:upgrade-project` | attune | Add or update configurations in existing project |
 | `/attune:validate` | attune | Validate project structure against best practices |
-| `/attune:war-room` | attune | Multi-LLM expert deliberation for strategic decisions |
+| `/attune:war-room` | attune | Multi-LLM expert deliberation with reversibility-based routing |
 | `/architecture-review` | pensive | Architecture assessment |
 | `/bug-review` | pensive | Bug hunting review |
 | `/bulletproof-skill` | abstract | Anti-rationalization workflow |
@@ -239,6 +240,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `code-reviewer` | pensive | Expert code review |
 | `commit-agent` | sanctum | Commit message generator |
 | `context-optimizer` | conserve | Context optimization |
+| `continuation-agent` | conserve | Continue work from session state checkpoint |
 | `doc-editor` | scribe | Interactive documentation editing |
 | `doc-verifier` | scribe | QA validation using proof-of-work methodology |
 | `dependency-updater` | sanctum | Dependency version management |
@@ -290,6 +292,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `skill_tracker_pre.py` | memory-palace | PreToolUse | Skill execution start tracking |
 | `skill_tracker_post.py` | memory-palace | PostToolUse | Skill execution completion |
 | `stop_combined.py` | sanctum | Stop | Combined stop hooks (notify + verify) |
+| `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
 | `web_content_processor.py` | memory-palace | PostToolUse | Web content processing |

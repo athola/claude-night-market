@@ -101,7 +101,7 @@ dependencies = ["requests>=2.0.0"]
 
 ## Integration
 
-Parseltongue works seamlessly with standard package managers like uv, pip, and poetry, as well as linting tools such as ruff, mypy, and pyright. It supports testing ecosystems including pytest, pytest-asyncio, hypothesis, and pytest-cov, and integrates with major frameworks like FastAPI, Django, and Flask. Additionally, it handles data-heavy libraries such as pandas, SQLAlchemy, and pydantic.
+Parseltongue works with standard package managers like uv, pip, and poetry, as well as linting tools such as ruff, mypy, and pyright. It supports testing ecosystems including pytest, pytest-asyncio, hypothesis, and pytest-cov, and integrates with major frameworks like FastAPI, Django, and Flask. Additionally, it handles data-heavy libraries such as pandas, SQLAlchemy, and pydantic.
 
 ## Structure
 

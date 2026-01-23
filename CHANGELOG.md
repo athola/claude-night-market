@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-01-22
+
+### Enhanced - Claude Code 2.1.14+ Compatibility (conserve)
+
+- **Parallel subagents**: Added version compatibility note to `mcp-coordination.md` documenting improved stability with Claude Code 2.1.14+ memory fixes
+- **Continuation-agent**: Benefits from upstream memory leak fix for long-running sessions (stream resources now properly cleaned up after shell commands)
+- **MECW guidance unchanged**: Our 50% quality threshold is independent of the 65%→98% blocking fix (quality vs operational limits)
+
 ## [1.3.1] - 2026-01-21
 
 ### Added - Hookify v1.1.0 (hookify)
