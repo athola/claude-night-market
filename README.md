@@ -15,6 +15,9 @@ Hooks adapt context based on the active agent, while `pensive` tracks usage freq
 **Resilience & Collaboration**
 The system includes self-correction mechanisms: `/update-plugins` recommends updates based on stability, and `/fix-workflow` attempts to repair failed runs. For strategic decisions, `/attune:war-room` uses reversibility scoring (Type 1/2 framework) to route decisions to appropriate expert panels.
 
+**Cross-Session State (Claude Code 2.1.16+)**
+Execution workflows in `attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation is lazy (on-demand), state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`, and ambiguity detection prompts for user decisions when task boundaries are unclear. Falls back to file-based state for older versions.
+
 ## Workflow Improvements
 
 Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` validates branch scope, runs linting, and verifies a clean state before creating a pull request, while `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` enforces a written specification phase before code generation. To keep the agent in sync, `/catchup` reads recent git history to update the context window, and `/attune:init` detects project types (Python, Node) to scaffold necessary configuration files.
@@ -50,7 +53,7 @@ npx skills add athola/claude-night-market/pensive    # Code review
 npx skills add athola/claude-night-market/conserve   # Resource optimization
 ```
 
-### Post-Installation Setup (Claude Code 2.1.10+)
+### Post-Installation Setup (Claude Code 2.1.16+)
 
 After installation, initialize plugins with Setup hooks:
 
@@ -114,12 +117,12 @@ flowchart TB
 
 ### Highlights
 
-*   **sanctum**: Git operations (`/prepare-pr`, `/do-issue`), documentation, and session management.
+*   **sanctum**: Git operations (`/prepare-pr`, `/do-issue`), documentation, session management, and PR fix workflows with Tasks integration.
 *   **pensive**: Code reviews (`/full-review`) and audits.
-*   **spec-kit**: Requirements definition (`/speckit-specify`).
+*   **spec-kit**: Requirements definition (`/speckit-specify`) with multi-phase implementation tracking.
 *   **minister**: GitHub issues (`/create-issue`, `/close-issue`).
 *   **conserve**: Codebase bloat reduction (`/bloat-scan`).
-*   **attune**: Project scaffolding (`/attune:init`), War Room with reversibility routing (`/attune:war-room`).
+*   **attune**: Project scaffolding (`/attune:init`), execution with Tasks integration (`/attune:execute`), War Room with reversibility routing (`/attune:war-room`).
 *   **parseltongue**: Python tools (`/analyze-tests`).
 *   **archetypes**: Architecture guides.
 *   **memory-palace**: Knowledge indexing (`/palace`).

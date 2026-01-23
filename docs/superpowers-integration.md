@@ -16,6 +16,29 @@ We integrate these skills to reuse proven methodologies instead of reinventing t
 2.  **Enhancement**: Add quality gates to existing workflows.
 3.  **Workflow Integration**: Insert methodology steps into existing processes.
 
+## Recent Superpowers Updates (v4.0.0 - v4.1.0)
+
+### Skill Consolidations (v4.0.0)
+
+Several standalone skills were bundled into comprehensive skills:
+- `root-cause-tracing`, `defense-in-depth`, `condition-based-waiting` → bundled in `systematic-debugging/`
+- `testing-skills-with-subagents` → bundled in `writing-skills/`
+- `testing-anti-patterns` → bundled in `test-driven-development/`
+
+### New Features (v4.0.x)
+
+1. **Two-Stage Code Review** - Subagent workflows now use separate spec compliance and code quality reviews
+2. **DOT Flowcharts** - Key skills now use executable DOT/GraphViz diagrams as authoritative process definitions
+3. **Strengthened Skill Invocation** - v4.0.3 improved explicit skill request handling with new red flags
+4. **Test Infrastructure** - New skill-triggering tests, Claude Code integration tests, and end-to-end workflow tests
+
+### Breaking Changes (v4.1.0)
+
+1. **OpenCode Native Skills** - Switched to native `skill` tool (migration required for OpenCode users)
+2. **Windows Compatibility** - Fixed hook execution for Claude Code 2.1.x (hooks.json changes, LF line endings)
+
+For full details, see the [Superpowers Release Notes](https://github.com/obra/superpowers/blob/main/RELEASE-NOTES.md).
+
 ## Current Integrations
 
 ### Abstract Plugin
@@ -23,6 +46,7 @@ We integrate these skills to reuse proven methodologies instead of reinventing t
 *   `/create-skill`: Uses `superpowers:brainstorming`.
 *   `/create-command`: Uses `superpowers:brainstorming`.
 *   `/create-hook`: Uses `superpowers:brainstorming`.
+*   Integration tests: Use `superpowers:systematic-debugging` for complex troubleshooting (includes root-cause-tracing, defense-in-depth, condition-based-waiting).
 
 ### Spec-Kit Plugin
 
@@ -37,10 +61,11 @@ We integrate these skills to reuse proven methodologies instead of reinventing t
 
 *   `/fix-pr`: Uses `superpowers:receiving-code-review`.
 *   Commit messages: Uses `elements-of-style:writing-clearly-and-concisely`.
+*   Future enhancements: Will use `superpowers:systematic-debugging` for complex issue resolution and security-focused reviews.
 
 ### Parseltongue Plugin
 
-*   `python-testing`: Integrates `superpowers:test-driven-development` and `superpowers:testing-anti-patterns`.
+*   `python-testing`: Integrates `superpowers:test-driven-development` (includes testing-anti-patterns reference for common pitfalls like testing mock behavior, test-only methods, and incomplete mocks).
 
 ### Minister Plugin
 
@@ -48,7 +73,7 @@ We integrate these skills to reuse proven methodologies instead of reinventing t
 
 ### Conservation Plugin
 
-*   `/optimize-context`: Uses `superpowers:condition-based-waiting`.
+*   `/optimize-context`: Uses `superpowers:systematic-debugging` (includes condition-based-waiting technique for replacing arbitrary timeouts with condition polling).
 
 ## Usage Examples
 
