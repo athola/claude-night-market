@@ -5,7 +5,7 @@
 
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test test-unit precommit \
         status clean install-hooks enable disable skills install create list search delete manager export \
-        import garden-metrics garden-tend demo-reset demo-import demo-export plugin-check demo-status debug-variables
+        import garden-metrics garden-tend mutation-test benchmark memory-profile demo-reset demo-import demo-export plugin-check demo-status debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts src
@@ -156,6 +156,21 @@ garden-metrics:
 
 garden-tend:
 	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden tend --path "$(GARDEN_FILE)" --prometheus
+
+# ---------- Advanced Testing ----------
+mutation-test: ## Run mutation testing
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate src/memory_palace --tests-dir tests/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
+
+benchmark: ## Run performance benchmarks (memory operations)
+	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+
+memory-profile: ## Profile memory usage
+	@echo "Memory profiling not yet configured for memory-palace"
+	@echo "Install memory_profiler: pip install memory_profiler"
 
 # ---------- Demo & validation flows ----------
 demo-reset:

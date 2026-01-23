@@ -92,7 +92,7 @@ python_functions = ["test_*"]
 addopts = [
     "-v",
     "--strict-markers",
-    "--cov=src/abstract",
+    "--cov=abstract",
     "--cov-report=term-missing",
     "--cov-report=html",
 ]
@@ -104,7 +104,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["src/abstract"]
+source = ["abstract"]
 omit = ["tests/*", "*/tests/*", "*/__pycache__/*"]
 
 [tool.coverage.report]
