@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - Testing Infrastructure Improvements
+
+- **Conditional test output verbosity** - Test script now shows full error details on failure
+  - Success: Brief `✓ Tests passed` message with quiet output
+  - Failure: Automatic re-run with verbose output for debugging
+  - No need to manually re-run failed tests to see errors
+  - File: `scripts/run-plugin-tests.sh`
+
+- **Mutation testing targets** - Added to 7 plugins for test quality validation
+  - Plugins: abstract, conserve, imbue, leyline, memory-palace, minister, conjure
+  - Usage: `make mutation-test` (requires `pip install mutmut`)
+  - Graceful fallback when mutmut not installed
+
+- **Performance benchmarking targets** - Added to 4 performance-sensitive plugins
+  - Plugins: conjure (API latency), memory-palace (memory ops), leyline (token estimation), conserve (bloat detection)
+  - Usage: `make benchmark` (requires `pip install pytest-benchmark`)
+  - Includes `memory-profile` target placeholder for memory profiling
+
+### Fixed - Testing Configuration
+
+- **pytest-cov path mapping** (abstract) - Coverage now reports accurately
+  - Changed `--cov=src/abstract` to `--cov=abstract` to match import structure
+  - Coverage report now shows 68% instead of 0%
+  - File: `plugins/abstract/pyproject.toml`
+
+### Verified - Existing Test Coverage
+
+- **sanctum doc-updates workflow** - 25 integration tests confirmed passing
+  - Phase 2.5: Consolidation detection (bloat, untracked reports)
+  - Phase 5: Accuracy verification (versions, counts)
+  - Directory-specific rules (docs/ strict, book/ lenient)
+
+- **scry content validation** - 37 tests confirmed passing
+  - Skill frontmatter schema validation
+  - Agent capabilities validation
+  - Command parameter documentation validation
+
+- **scry VHS→GIF workflow** - 11 integration tests confirmed passing
+  - VHS recording with `@pytest.mark.requires_vhs`
+  - FFmpeg conversion with `@pytest.mark.requires_ffmpeg`
+  - Full pipeline with graceful dependency skipping
+
+### Documentation
+
+- Updated `docs/testing-guide.md` with:
+  - New Advanced Testing section (mutation, benchmarking, memory profiling, integration)
+  - Updated test coverage table (938+ tests across 12 plugins)
+  - Conditional verbosity documentation
+  - Integration testing patterns
+
 ## [1.3.2] - 2026-01-22
 
 ### Enhanced - Claude Code 2.1.14+ Compatibility (conserve)
