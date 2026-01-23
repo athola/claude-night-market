@@ -47,10 +47,26 @@ Output:
 
 **Actions**:
 1. Load implementation plan
-2. Load execution state (or initialize)
-3. Identify next task to execute
-4. Verify dependencies complete
-5. Review task acceptance criteria
+2. Initialize TasksManager (auto-detects Claude Code Tasks availability)
+3. Check for resume state and prompt user if incomplete execution found
+4. Identify next task to execute
+5. Verify dependencies complete (TasksManager enforces this)
+6. Review task acceptance criteria
+
+**Claude Code Tasks Integration** (2.1.16+):
+```python
+from tasks_manager import TasksManager
+
+manager = TasksManager(
+    project_path=Path("."),
+    fallback_state_file=Path(".attune/execution-state.json"),
+)
+
+# Check for resume
+if manager.prompt_for_resume():
+    resume = manager.detect_resume_state()
+    next_task = resume.next_task_id
+```
 
 **Output**: Task context ready for execution
 
@@ -107,11 +123,28 @@ make coverage      # ✓ Coverage threshold met
 ### Phase 4: Checkpoint
 
 **Actions**:
-1. Mark task complete in execution state
+1. Mark task complete via TasksManager
 2. Update progress metrics
 3. Generate progress report
 4. Identify next task or blocker
-5. Save execution state
+5. State auto-saved (Tasks or file)
+
+**Claude Code Tasks Integration**:
+```python
+# Update task status
+manager.update_task_status(
+    task_id,
+    status="complete",
+    completed_at=datetime.now().isoformat(),
+    tests_passing=True,
+)
+
+# Check what's next
+if manager.can_start_task(next_task_id):
+    # Proceed to next task
+else:
+    # Dependencies not met, find another task
+```
 
 **Output**: Updated execution state and progress report
 
