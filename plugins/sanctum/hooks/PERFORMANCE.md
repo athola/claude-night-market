@@ -56,70 +56,20 @@ Reduced hook timeouts in `hooks.json`:
 **After background execution (v2):**
 - Average: **60ms** (2 separate hooks)
 - Non-blocking - notification sends in background
+- Workflow verification: ~26ms (inline)
+- Notification: ~39ms (background process)
 
-**After hook consolidation (v3 - current):**
-- Average: **33ms** (single combined hook)
-- Eliminates one Python interpreter startup (~27ms savings)
-- 45% faster than v2, 180x faster than v1
-
-### Hook Consolidation (2025-01)
-
-Merged `verify_workflow_complete.py` and `session_complete_notify.py` into
-`stop_combined.py` to eliminate redundant Python interpreter startup overhead.
-
-| Configuration | Avg Time | Improvement |
-|---------------|----------|-------------|
-| 2 separate hooks | ~61ms | baseline |
-| 1 combined hook | ~33ms | 46% faster |
-
-The combined hook:
-1. Performs workflow verification (inline, ~5ms)
-2. Spawns notification in background (non-blocking, ~28ms total)
+This optimization maintains separate hooks for better modularity while keeping performance excellent through background execution.
 
 ## Disabling Notifications
 
-If you prefer no notifications at all, you can:
-
-### Option 1: Remove the hook
-
-Edit `plugins/sanctum/hooks/hooks.json`:
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/verify_workflow_complete.py",
-            "timeout": 2
-          }
-          // Removed session_complete_notify.py
-        ]
-      }
-    ]
-  }
-}
-```
-
-### Option 2: Set environment variable
+If you prefer no notifications at all, set the environment variable:
 
 ```bash
 export CLAUDE_NO_NOTIFICATIONS=1
 ```
 
-Then update `session_complete_notify.py` to check this variable:
-
-```python
-def main() -> None:
-    """Send notification that Claude session is awaiting input."""
-    # Skip if notifications disabled
-    if os.environ.get("CLAUDE_NO_NOTIFICATIONS") == "1":
-        sys.exit(0)
-
-    # ... rest of code
-```
+The `session_complete_notify.py` hook checks this variable and exits early if set, maintaining the workflow verification while skipping notifications.
 
 ## Architecture
 
@@ -130,55 +80,61 @@ def main() -> None:
              │
              ▼
 ┌─────────────────────────────────┐
-│ Stop hook invoked               │
-│ session_complete_notify.py      │
+│ Stop hooks invoked              │
 └────────────┬────────────────────┘
              │
-             ├─────────────────────────────┐
-             │                             │
-             ▼                             ▼
-┌────────────────────────┐    ┌───────────────────────┐
-│ Parent process         │    │ Child process         │
-│ - Spawn background     │    │ (background/detached) │
-│ - Exit in ~38ms        │    │ - get_terminal_info() │
-│                        │    │ - send_notification() │
-└────────────────────────┘    │ - Runs async (~2s)    │
-             │                └───────────────────────┘
+             ├──────────────────┬─────────────────────┐
+             │                  │                     │
+             ▼                  ▼                     ▼
+┌────────────────────┐  ┌──────────────────┐  ┌───────────────────┐
+│ verify_workflow_   │  │ session_complete │  │ Child process     │
+│ _complete.py       │  │ _notify.py       │  │ (background)      │
+│ - Inline check     │  │ - Spawn BG       │  │ - get_term_info() │
+│ - ~26ms            │  │ - Exit ~39ms      │  │ - send_notify()   │
+└────────────────────┘  └──────────────────┘  │ - Runs async      │
+                                             └───────────────────┘
+             │
              ▼
 ┌─────────────────────────────────┐
 │ Claude Code continues           │
-│ (no blocking)                   │
+│ (non-blocking)                  │
 └─────────────────────────────────┘
 ```
 
 ## Testing Hook Performance
 
 ```bash
-# Test combined Stop hook speed
+# Test individual Stop hook speeds
 python3 -c "
 import time
 import subprocess
 import sys
 
-hook = 'plugins/sanctum/hooks/stop_combined.py'
+hooks = [
+    'plugins/sanctum/hooks/verify_workflow_complete.py',
+    'plugins/sanctum/hooks/session_complete_notify.py'
+]
 
-times = []
-for i in range(5):
-    start = time.perf_counter()
-    result = subprocess.run([sys.executable, hook], capture_output=True, timeout=2, stdin=subprocess.DEVNULL)
-    duration = time.perf_counter() - start
-    times.append(duration * 1000)
+for hook in hooks:
+    times = []
+    for i in range(5):
+        start = time.perf_counter()
+        result = subprocess.run([sys.executable, hook], capture_output=True, timeout=2, stdin=subprocess.DEVNULL)
+        duration = time.perf_counter() - start
+        times.append(duration * 1000)
 
-avg = sum(times) / len(times)
-print(f'Average: {avg:.2f}ms')
-print(f'Target: <100ms', '✓' if avg < 100 else '✗')
+    avg = sum(times) / len(times)
+    print(f'{hook.split(\"/\")[-1]}: {avg:.2f}ms')
+
+print(f'Target: <100ms per hook')
 "
 ```
 
 Expected output:
 ```
-Average: 33.16ms
-Target: <100ms ✓
+verify_workflow_complete.py: 26.14ms
+session_complete_notify.py: 38.97ms
+Target: <100ms per hook ✓
 ```
 
 ## Related Documentation

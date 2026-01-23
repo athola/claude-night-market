@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-01-23
+
+### Added - Session Complete Notifications (sanctum)
+
+- **`session_complete_notify.py` hook** - Cross-platform toast notification when Claude awaits input
+  - **Linux**: Uses `notify-send` (libnotify)
+  - **macOS**: Uses `osascript` display notification with Glass sound
+  - **Windows**: Uses PowerShell toast API with BurntToast fallback
+  - **WSL**: Detects WSL and routes to Windows PowerShell
+  - **Terminal context**: Shows Zellij/tmux session, terminal program, or project name
+  - **Non-blocking**: Spawns background process to avoid hook timeout
+  - **Disable**: Set `CLAUDE_NO_NOTIFICATIONS=1` to disable
+  - **Test coverage**: 35 BDD tests covering all platforms and edge cases
+
 ### Added - Testing Infrastructure Improvements
 
 - **Conditional test output verbosity** - Test script now shows full error details on failure
@@ -56,6 +70,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated test coverage table (938+ tests across 12 plugins)
   - Conditional verbosity documentation
   - Integration testing patterns
+
+- Updated `plugins/sanctum/README.md` with:
+  - New Hooks section documenting all 4 sanctum hooks
+  - Session Complete Notifications subsection
+  - Added hooks/ directory to Plugin Structure
 
 ## [1.3.2] - 2026-01-22
 
@@ -1309,6 +1328,8 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.3.3]: https://github.com/athola/claude-night-market/compare/v1.3.2...v1.3.3
+[1.3.2]: https://github.com/athola/claude-night-market/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/athola/claude-night-market/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/athola/claude-night-market/compare/v1.2.9...v1.3.0
 [1.2.5]: https://github.com/athola/claude-night-market/compare/v1.2.4...v1.2.5

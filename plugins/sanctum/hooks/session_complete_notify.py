@@ -101,15 +101,14 @@ def notify_linux(title: str, message: str) -> bool:
                 message,
             ],
             check=True,
-            timeout=1,  # Reduced from 3s
+            timeout=1,
         )
         return True
     except (
         subprocess.CalledProcessError,
         FileNotFoundError,
         subprocess.TimeoutExpired,
-    ) as e:
-        print(f"[sanctum:notify] Linux notification failed: {e}", file=sys.stderr)
+    ):
         return False
 
 
@@ -126,15 +125,14 @@ def notify_macos(title: str, message: str) -> bool:
         subprocess.run(  # noqa: S603
             ["osascript", "-e", script],  # noqa: S607
             check=True,
-            timeout=1,  # Reduced from 3s
+            timeout=1,
         )
         return True
     except (
         subprocess.CalledProcessError,
         FileNotFoundError,
         subprocess.TimeoutExpired,
-    ) as e:
-        print(f"[sanctum:notify] macOS notification failed: {e}", file=sys.stderr)
+    ):
         return False
 
 
@@ -145,7 +143,6 @@ def notify_windows(title: str, message: str) -> bool:
     safe_message = html.escape(message)
 
     # PowerShell script for Windows toast notification
-    # Note: Long lines below are PowerShell code that requires specific formatting
     toast_mgr = "Windows.UI.Notifications.ToastNotificationManager"
     xml_doc = "Windows.Data.Xml.Dom.XmlDocument"
     ps_script = f"""
@@ -173,7 +170,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         subprocess.run(  # noqa: S603
             ["powershell", "-NoProfile", "-Command", ps_script],  # noqa: S607
             check=True,
-            timeout=2,  # Reduced from 5s
+            timeout=2,
             capture_output=True,
         )
         return True
@@ -181,10 +178,8 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         subprocess.CalledProcessError,
         FileNotFoundError,
         subprocess.TimeoutExpired,
-    ) as e:
-        print(f"[sanctum:notify] Windows toast failed: {e}", file=sys.stderr)
+    ):
         # Fallback: try simpler BurntToast if available
-        # Escape for PowerShell string (backtick escapes quotes)
         ps_title = title.replace('"', '`"')
         ps_message = message.replace('"', '`"')
         try:
@@ -192,7 +187,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
             subprocess.run(  # noqa: S603
                 ["powershell", "-NoProfile", "-Command", burnt_cmd],  # noqa: S607
                 check=True,
-                timeout=2,  # Reduced from 5s
+                timeout=2,
                 capture_output=True,
             )
             return True
@@ -200,8 +195,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
             subprocess.CalledProcessError,
             FileNotFoundError,
             subprocess.TimeoutExpired,
-        ) as e:
-            print(f"[sanctum:notify] BurntToast fallback failed: {e}", file=sys.stderr)
+        ):
             return False
 
 
@@ -212,11 +206,7 @@ def is_wsl() -> bool:
 
 
 def notify_wsl(title: str, message: str) -> bool:
-    """Send notification on WSL using Windows PowerShell.
-
-    WSL can call Windows executables directly via the /mnt/c path or just
-    'powershell.exe' if interop is enabled.
-    """
+    """Send notification on WSL using Windows PowerShell."""
     # Escape for XML content (prevents injection via <, >, &, ", ')
     safe_title = html.escape(title)
     safe_message = html.escape(message)
@@ -247,7 +237,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
 """
     # Try multiple PowerShell paths for WSL compatibility
     powershell_paths = [
-        "powershell.exe",  # WSL interop (if enabled)
+        "powershell.exe",
         "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
         "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe",
     ]
@@ -262,10 +252,8 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
             )
             return True
         except FileNotFoundError:
-            continue  # Try next path
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
-            msg = f"[sanctum:notify] WSL PowerShell failed ({ps_path}): {e}"
-            print(msg, file=sys.stderr)
+            continue
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             continue
 
     # Fallback: try BurntToast if available
@@ -288,10 +276,6 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
         ):
             continue
 
-    print(
-        "[sanctum:notify] WSL notification failed: no working PowerShell path",
-        file=sys.stderr,
-    )
     return False
 
 

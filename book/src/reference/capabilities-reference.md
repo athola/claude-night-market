@@ -287,12 +287,13 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
 | `security_pattern_check.py` | sanctum | PreToolUse | Security anti-pattern detection |
+| `session_complete_notify.py` | sanctum | Stop | Cross-platform toast notifications |
 | `session-start.sh` | conserve/imbue | SessionStart | Session initialization |
 | `skill_execution_logger.py` | abstract | PostToolUse | Skill metrics logging |
 | `skill_tracker_pre.py` | memory-palace | PreToolUse | Skill execution start tracking |
 | `skill_tracker_post.py` | memory-palace | PostToolUse | Skill execution completion |
-| `stop_combined.py` | sanctum | Stop | Combined stop hooks (notify + verify) |
 | `tdd_bdd_gate.py` | imbue | PreToolUse | Iron Law enforcement at write-time |
 | `url_detector.py` | memory-palace | UserPromptSubmit | URL detection |
 | `user-prompt-submit.sh` | imbue | UserPromptSubmit | Scope validation |
+| `verify_workflow_complete.py` | sanctum | Stop | End-of-session workflow verification |
 | `web_content_processor.py` | memory-palace | PostToolUse | Web content processing |

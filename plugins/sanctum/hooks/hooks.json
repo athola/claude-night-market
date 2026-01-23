@@ -28,8 +28,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/stop_combined.py",
-            "timeout": 2
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/verify_workflow_complete.py",
+            "timeout": 1
           },
           {
             "type": "command",

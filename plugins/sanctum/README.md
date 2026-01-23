@@ -74,6 +74,28 @@ Or reference directly from the marketplace:
 | **workflow-improvement-validator-agent** | Validate improvements via tests and minimal reproduction replay |
 | **dependency-updater** | Dependency scanning and updates across ecosystems |
 
+### Hooks
+
+| Hook | Event | Description |
+|------|-------|-------------|
+| **security_pattern_check.py** | PreToolUse (Write\|Edit\|MultiEdit) | Checks for security anti-patterns in code changes |
+| **post_implementation_policy.py** | SessionStart | Injects governance protocol and proof-of-work reminders |
+| **verify_workflow_complete.py** | Stop | Post-implementation checklist reminder |
+| **session_complete_notify.py** | Stop | Cross-platform toast notification when command completes |
+
+#### Stop Hooks
+
+**verify_workflow_complete.py** - Shows post-implementation checklist when sessions end:
+- Reminds to complete proof-of-work verification
+- Lists documentation update commands
+- Displays quality gate checklist
+
+**session_complete_notify.py** - Desktop toast notification when commands complete:
+- **Platforms**: Linux (notify-send), macOS (osascript), Windows (PowerShell), WSL
+- **Context**: Shows terminal info (Zellij session, tmux window, project name)
+- **Performance**: ~95ms total for both hooks (varies with system load)
+- **Disable**: Set `CLAUDE_NO_NOTIFICATIONS=1` environment variable
+
 ## Quick Start
 
 ### Git Workspace Review
@@ -152,6 +174,13 @@ pr-prep:pr-drafted
 sanctum/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
+├── hooks/
+│   ├── hooks.json                      # Hook registrations
+│   ├── security_pattern_check.py       # PreToolUse security checks
+│   ├── post_implementation_policy.py   # SessionStart governance reminders
+│   ├── verify_workflow_complete.py     # Stop workflow checklist
+│   ├── session_complete_notify.py      # Stop toast notifications
+│   └── PERFORMANCE.md                   # Hook performance optimization notes
 ├── agents/
 │   ├── git-workspace-agent.md
 │   ├── commit-agent.md
