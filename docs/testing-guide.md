@@ -9,6 +9,7 @@ This guide covers testing in the Claude Night Market ecosystem, including pre-co
 - [Test Coverage](#test-coverage)
 - [Writing Tests](#writing-tests)
 - [Running Tests](#running-tests)
+- [Advanced Testing](#advanced-testing)
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
 - [CI/CD Integration](#cicd-integration)
@@ -42,20 +43,27 @@ The hook is defined in `.pre-commit-config.yaml`. It triggers on `.py` and `.md`
 
 We maintain automated tests for the following plugins:
 
-| Plugin | Test Framework | Test Count | Coverage |
-|--------|---------------|------------|----------|
-| **minister** | pytest | 145 tests | 98% |
-| **spec-kit** | pytest | 184 tests | 90%+ |
-| **pensive** | pytest | ~45 tests | 85%+ |
-| **imbue** | pytest | ~40 tests | 80%+ |
-| **sanctum** | pytest | ~35 tests | 85%+ |
-| **abstract** | pytest | ~30 tests | 80%+ |
-| **parseltongue** | pytest | ~25 tests | 75%+ |
-| **conserve** | pytest | ~20 tests | 80%+ |
-| **conjure** | pytest | ~15 tests | 75%+ |
-| **memory-palace** | pytest | ~10 tests | 70%+ |
+| Plugin | Test Framework | Test Count | Coverage | Advanced |
+|--------|---------------|------------|----------|----------|
+| **abstract** | pytest | 331 tests | 68% | mutation |
+| **minister** | pytest | 145 tests | 98% | mutation |
+| **spec-kit** | pytest | 184 tests | 90%+ | - |
+| **sanctum** | pytest | 60+ tests | 85%+ | - |
+| **scry** | pytest | 53+ tests | 80%+ | integration |
+| **pensive** | pytest | ~45 tests | 85%+ | - |
+| **imbue** | pytest | ~40 tests | 80%+ | mutation |
+| **parseltongue** | pytest | ~25 tests | 75%+ | - |
+| **conserve** | pytest | ~20 tests | 80%+ | mutation, bench |
+| **conjure** | pytest | ~15 tests | 75%+ | mutation, bench |
+| **memory-palace** | pytest | ~10 tests | 70%+ | mutation, bench |
+| **leyline** | pytest | ~10 tests | 75%+ | mutation, bench |
 
-**Total**: ~550+ tests across 10 plugins
+**Total**: ~938+ tests across 12 plugins
+
+**Advanced Testing:**
+- **mutation**: Mutation testing with mutmut
+- **bench**: Performance benchmarking
+- **integration**: End-to-end workflow tests
 
 ### Test Discovery
 
@@ -129,6 +137,89 @@ make test
 ### Performance
 
 Test execution time depends on the scope. Testing a single plugin like `minister` takes 5-10 seconds. Full suite runs take 2-3 minutes. The hooks optimize for speed by testing only changed plugins, running in parallel, and using quiet mode.
+
+### Output Verbosity
+
+The test runner uses **conditional verbosity** to balance clean output with debugging needs:
+
+- **On success**: Shows brief `✓ Tests passed` message with quiet output
+- **On failure**: Automatically re-runs with full verbose output for debugging
+
+This means you get error details immediately without manually re-running failed tests:
+
+```bash
+$ ./scripts/run-plugin-tests.sh broken-plugin
+Testing broken-plugin...
+  ✗ Tests failed
+Re-running with verbose output:
+[Full pytest output with error details]
+```
+
+## Advanced Testing
+
+Beyond standard unit/integration tests, several plugins support advanced testing methodologies.
+
+### Mutation Testing
+
+**Purpose**: Verify test quality by mutating code and checking if tests catch the changes.
+
+**Available in**: abstract, conserve, imbue, leyline, memory-palace, minister, conjure
+
+**Usage**:
+```bash
+cd plugins/abstract
+make mutation-test
+```
+
+**Requirements**: Install `mutmut` via `pip install mutmut`. Gracefully skips if not installed.
+
+**How it works**: Mutmut modifies your source code (e.g., changes `>` to `<`, flips boolean values) and re-runs tests. If tests still pass with mutated code, your tests may not be thorough enough.
+
+### Performance Benchmarking
+
+**Purpose**: Track performance regression for critical operations.
+
+**Available in**: conjure (API latency), memory-palace (memory operations), leyline (token estimation), conserve (bloat detection)
+
+**Usage**:
+```bash
+cd plugins/conjure
+make benchmark
+```
+
+**Requirements**: Install `pytest-benchmark` via `pip install pytest-benchmark`. Gracefully skips if not installed.
+
+**Output**: Shows execution time statistics sorted by mean duration.
+
+### Memory Profiling
+
+**Purpose**: Identify memory usage patterns and potential leaks.
+
+**Available in**: conjure, memory-palace, leyline, conserve
+
+**Usage**:
+```bash
+cd plugins/memory-palace
+make memory-profile
+```
+
+**Requirements**: Install `memory_profiler` via `pip install memory_profiler`.
+
+**Note**: Currently shows placeholder message. Configure by creating profiling scripts in `tests/performance/`.
+
+### Integration Testing
+
+**Purpose**: Test complete workflows end-to-end with external dependencies.
+
+**Example**: `scry` plugin tests VHS→ffmpeg→GIF workflow
+
+**Usage**:
+```bash
+cd plugins/scry
+pytest tests/test_workflow_integration.py -v
+```
+
+**Markers**: Tests use `@pytest.mark.requires_vhs` and `@pytest.mark.requires_ffmpeg` to skip gracefully when dependencies unavailable.
 
 ## Troubleshooting
 
