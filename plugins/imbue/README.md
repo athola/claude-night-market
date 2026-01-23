@@ -127,6 +127,13 @@ Require functional verification before claiming completion. Enforces actual test
 **When to Use:**
 Use before ANY claim that implementation is complete to verify tests actually ran.
 
+**Hook Enforcement:**
+The `tdd_bdd_gate.py` PreToolUse hook enforces the Iron Law at write-time:
+- Fires on Write/Edit operations to implementation files
+- Checks for corresponding test files
+- Injects BDD template reminder when tests missing
+- Prevents "Cargo Cult TDD" (tests validating pre-conceived code)
+
 **Required TodoWrite Items:**
 1. `proof:problem-reproduced`: Original issue confirmed reproducible.
 2. `proof:solution-tested`: Fix verified with actual test run.
@@ -171,7 +178,8 @@ imbue/
 │   ├── hooks.json           # Hook configuration
 │   ├── session-start.sh     # Session initialization
 │   ├── user-prompt-submit.sh # Per-prompt threshold checks
-│   └── pre-pr-scope-check.sh # Branch threshold monitoring
+│   ├── pre-pr-scope-check.sh # Branch threshold monitoring
+│   └── tdd_bdd_gate.py      # PreToolUse: Iron Law enforcement
 ├── commands/
 │   ├── full-review.md       # Structured review command
 │   ├── catchup.md           # Quick catchup command

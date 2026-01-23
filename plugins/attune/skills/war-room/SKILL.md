@@ -15,6 +15,7 @@ complexity: advanced
 estimated_tokens: 2500
 progressive_loading: true
 modules:
+  - modules/reversibility-assessment.md
   - modules/expert-roles.md
   - modules/deliberation-protocol.md
   - modules/merkle-dag.md
@@ -33,11 +34,33 @@ The War Room convenes multiple AI experts to analyze problems from diverse persp
 > "The trick is that there is no trick. The power of intelligence stems from our vast diversity, not from any single, perfect principle."
 > - Marvin Minsky, Society of Mind
 
+## Reversibility-Based Routing
+
+Before deliberation, assess the **Reversibility Score (RS)** to determine appropriate resource allocation:
+
+```
+RS = (Reversal Cost + Time Lock-In + Blast Radius + Information Loss + Reputation Impact) / 25
+```
+
+| RS Range | Type | Mode | Resources |
+|----------|------|------|-----------|
+| 0.04 - 0.40 | **Type 2** | Express | 1 expert, < 2 min |
+| 0.41 - 0.60 | **Type 1B** | Lightweight | 3 experts, 5-10 min |
+| 0.61 - 0.80 | **Type 1A** | Full Council | 7 experts, 15-30 min |
+| 0.81 - 1.00 | **Type 1A+** | Delphi | 7 experts, 30-60 min |
+
+**Quick Heuristics:**
+- Can be A/B tested? → Type 2
+- Requires data migration? → Type 1
+- Public commitment required? → Type 1A+
+
+See `modules/reversibility-assessment.md` for full scoring guide.
+
 ## When to Use
 
 - Architectural decisions with major trade-offs
 - Multi-stakeholder problems requiring diverse perspectives
-- High-stakes choices with significant consequences
+- High-stakes choices with significant consequences (RS > 0.60)
 - Novel problems without clear precedent
 - When brainstorming produces multiple strong competing approaches
 
@@ -47,6 +70,7 @@ The War Room convenes multiple AI experts to analyze problems from diverse persp
 - Routine implementation tasks
 - Well-documented patterns with clear solutions
 - Time-critical decisions requiring immediate action
+- **Type 2 decisions** (RS ≤ 0.40) — use Express mode or skip War Room entirely
 
 ## Expert Panel
 
@@ -144,13 +168,53 @@ Experts are invoked via conjure delegation:
 /attune:war-room "Best approach for API versioning" --files src/api/**/*.py
 ```
 
+### Reversibility Assessment Only
+
+Quick assessment without full deliberation:
+
+```bash
+/attune:war-room "Database migration to MongoDB" --assess-only
+```
+
+Output:
+```
+Reversibility Assessment
+========================
+Decision: Database migration to MongoDB
+
+Dimensions:
+  Reversal Cost:      5/5 (months of rework)
+  Time Lock-In:       4/5 (migration path hardens)
+  Blast Radius:       5/5 (all services affected)
+  Information Loss:   4/5 (query patterns, ACID)
+  Reputation Impact:  2/5 (internal unless downtime)
+
+Reversibility Score: 0.80
+Decision Type: Type 1A (One-Way Door)
+Recommended Mode: Full Council
+
+Proceed with full deliberation? [Y/n]
+```
+
+### Force Express Mode (Type 2)
+
+Skip to rapid decision for clearly reversible choices:
+
+```bash
+/attune:war-room "Which logging library to use" --express
+```
+
 ### Force Full Council
+
+Override RS assessment for critical decisions:
 
 ```bash
 /attune:war-room "Migration strategy" --full-council
 ```
 
 ### Delphi Mode
+
+For highest-stakes irreversible decisions:
 
 ```bash
 /attune:war-room "Long-term platform decision" --delphi
@@ -171,6 +235,17 @@ The War Room produces a Supreme Commander Decision document:
 ```markdown
 ## SUPREME COMMANDER DECISION: {session_id}
 
+### Reversibility Assessment
+| Dimension | Score | Rationale |
+|-----------|-------|-----------|
+| Reversal Cost | X/5 | ... |
+| Time Lock-In | X/5 | ... |
+| Blast Radius | X/5 | ... |
+| Information Loss | X/5 | ... |
+| Reputation Impact | X/5 | ... |
+
+**RS: 0.XX | Type: [1A+/1A/1B/2] | Mode: [delphi/full_council/lightweight/express]**
+
 ### Decision
 **Selected Approach**: [Name]
 
@@ -183,6 +258,9 @@ The War Room produces a Supreme Commander Decision document:
 
 ### Watch Points
 [From Premortem - what to monitor]
+
+### Reversal Plan (for Type 1 decisions)
+[If this decision proves wrong, here's the exit strategy]
 
 ### Dissenting Views
 [For the record]
@@ -209,13 +287,34 @@ See `modules/merkle-dag.md` for details.
 
 ## Escalation
 
-The Supreme Commander may escalate from lightweight to full council when:
+### Automatic (Reversibility-Based)
+
+Deliberation mode is automatically selected based on Reversibility Score:
+
+| RS Score | Automatic Mode |
+|----------|----------------|
+| ≤ 0.40 | Express (bypass full War Room) |
+| 0.41 - 0.60 | Lightweight panel |
+| 0.61 - 0.80 | Full Council |
+| > 0.80 | Full Council + Delphi |
+
+### Manual Override
+
+The Supreme Commander may override automatic classification when:
 - High complexity detected (multiple architectural trade-offs)
 - Significant disagreement between initial experts
 - Novel problem domain requiring specialized analysis
-- Stakes are high (irreversible decisions)
+- Precedent-setting decision (future decisions will follow pattern)
+- Political/organizational sensitivity beyond technical scope
 
-Escalation requires written justification.
+**Escalation requires written justification with RS assessment.**
+
+### De-escalation
+
+Equally important: identify decisions being over-deliberated:
+- If RS ≤ 0.40, recommend Express mode or immediate execution
+- Challenge "false irreversibility" ("we can't change this later" without evidence)
+- Track de-escalation rate as team health metric
 
 ## Configuration
 
@@ -254,9 +353,15 @@ War Room can be auto-suggested via hook when:
 
 ## References
 
+### Strategic Foundations
 - Sun Tzu - Art of War (intelligence gathering)
 - Clausewitz - On War (friction and fog)
 - Robert Greene - 33 Strategies of War (unity of command)
 - MDMP - U.S. Army (structured decision process)
 - Gary Klein - Premortem (failure mode analysis)
 - Karpathy - LLM Council (anonymized peer review)
+
+### Reversibility Framework
+- [Jeff Bezos - Type 1 vs Type 2 Decisions](https://ashikuzzaman.com/2025/03/03/amazons-type-1-vs-type-2-decisions-a-framework-for-effective-decision-making/) (Amazon shareholder letters)
+- [Farnam Street - Reversible and Irreversible Decisions](https://fs.blog/reversible-irreversible-decisions/) (STOP-LOP-KNOW framework)
+- [Tapan Desai - One-Way and Two-Way Door Decision-Making](https://tapandesai.com/one-way-two-way-doors-decision-making/) (practical application)

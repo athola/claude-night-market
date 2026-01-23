@@ -20,18 +20,27 @@ priority: critical
 
 ## Implementation Status
 
-> **NOTE**: Claude Code does not support `PreMessageSend` hook type.
-> Proof-of-work enforcement is implemented via:
+Proof-of-work and Iron Law (TDD/BDD) enforcement is implemented via multiple hooks:
+
+> **PreToolUse Enforcement (NEW):**
 >
-> 1. **SessionStart** - `sanctum/hooks/post_implementation_policy.py`
+> 1. **PreToolUse** - `imbue/hooks/tdd_bdd_gate.py`
+>    - Fires BEFORE Write/Edit operations
+>    - Checks if implementation file has corresponding test file
+>    - Injects TDD/BDD reminder if tests don't exist
+>    - Enforces "test first" at the point of implementation
+>
+> **Completion-Time Enforcement:**
+>
+> 2. **SessionStart** - `sanctum/hooks/post_implementation_policy.py`
 >    - Injects proof-of-work as STEP 1 of governance protocol
 >    - Includes red flags table for rationalization detection
 >
-> 2. **Stop** - `sanctum/hooks/verify_workflow_complete.py`
+> 3. **Stop** - `sanctum/hooks/verify_workflow_complete.py`
 >    - End-of-session checklist includes proof-of-work items
 >    - Warns if proof-of-work was skipped
 >
-> 3. **SessionStart** - `imbue/hooks/session-start.sh`
+> 4. **SessionStart** - `imbue/hooks/session-start.sh`
 >    - Injects proof-of-work quick reference alongside scope-guard
 >
 > The patterns below remain useful as **guidance for self-enforcement**.
