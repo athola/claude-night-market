@@ -44,7 +44,7 @@ Skill(conserve:clear-context)
 
 ## The Auto-Clear Pattern
 
-Since `/clear` requires user action, we achieve automatic context clearing through **subagent delegation**:
+Since `/clear` requires user action, we achieve automatic context clearing without interruption through **subagent delegation**:
 
 ```
 Main Agent (high context)

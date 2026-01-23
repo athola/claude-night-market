@@ -280,6 +280,8 @@ For very long tasks, multiple handoffs may occur:
 
 Each continuation agent increments `handoff_count` and adds to `handoff_history`.
 
+**Recommended max**: Set a limit of 5-10 handoffs to prevent infinite chains. If `handoff_count` exceeds the limit, stop and report to the user rather than spawning another continuation agent.
+
 ## Best Practices
 
 1. **Be Specific**: "Add validation to parse_config()" not "Continue working on config"
