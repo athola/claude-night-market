@@ -24,6 +24,7 @@ SKIPPED_PLUGINS=()
 run_plugin_tests() {
     local plugin_dir="$1"
     local plugin_name=$(basename "$plugin_dir")
+    local temp_output="/tmp/test_output_${plugin_name}_$$"
 
     echo -e "${YELLOW}Testing $plugin_name...${NC}"
 
@@ -37,14 +38,19 @@ run_plugin_tests() {
     # Check if plugin has Makefile with test target
     if [ -f "$plugin_dir/Makefile" ]; then
         if grep -q "^test:" "$plugin_dir/Makefile" 2>/dev/null; then
-            # Run using Makefile
-            if (cd "$plugin_dir" && make test --quiet 2>&1); then
+            # Run using Makefile - capture output, show on failure
+            if (cd "$plugin_dir" && make test --quiet 2>&1 > "$temp_output"); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
+                rm -f "$temp_output"
                 return 0
             else
                 echo -e "  ${RED}✗ Tests failed${NC}"
+                echo -e "${YELLOW}Re-running with verbose output:${NC}"
+                echo
+                (cd "$plugin_dir" && make test 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
+                rm -f "$temp_output"
                 return 1
             fi
         fi
@@ -53,14 +59,19 @@ run_plugin_tests() {
     # Check if plugin has pyproject.toml with pytest
     if [ -f "$plugin_dir/pyproject.toml" ]; then
         if grep -q "pytest" "$plugin_dir/pyproject.toml" 2>/dev/null; then
-            # Run using uv/pytest
-            if (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short --quiet 2>&1); then
+            # Run using uv/pytest - capture output, show on failure
+            if (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short --quiet 2>&1 > "$temp_output"); then
                 echo -e "  ${GREEN}✓ Tests passed${NC}"
                 PASSED_PLUGINS+=("$plugin_name")
+                rm -f "$temp_output"
                 return 0
             else
                 echo -e "  ${RED}✗ Tests failed${NC}"
+                echo -e "${YELLOW}Re-running with verbose output:${NC}"
+                echo
+                (cd "$plugin_dir" && uv run python -m pytest tests/ --tb=short 2>&1)
                 FAILED_PLUGINS+=("$plugin_name")
+                rm -f "$temp_output"
                 return 1
             fi
         fi
@@ -69,6 +80,7 @@ run_plugin_tests() {
     # No test configuration found
     echo -e "  ${YELLOW}⊘ No test configuration${NC}"
     SKIPPED_PLUGINS+=("$plugin_name")
+    rm -f "$temp_output"
     return 0
 }
 

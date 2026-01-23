@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help deps test test-unit test-coverage lint format type-check typecheck security clean \
-        install-hooks status ci demo-tokens demo-quota demo-skills plugin-check debug-variables
+        install-hooks status ci mutation-test benchmark memory-profile demo-tokens demo-quota demo-skills plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests scripts
@@ -72,6 +72,21 @@ install-hooks: ## Install pre-commit hooks
 	else \
 		echo "No .pre-commit-config.yaml found"; \
 	fi
+
+# ---------- Advanced Testing ----------
+mutation-test: ## Run mutation testing
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate src/leyline --tests-dir tests/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
+
+benchmark: ## Run performance benchmarks (token estimation)
+	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+
+memory-profile: ## Profile memory usage
+	@echo "Memory profiling not yet configured for leyline"
+	@echo "Install memory_profiler: pip install memory_profiler"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-tokens: ## Demo token estimation on leyline source

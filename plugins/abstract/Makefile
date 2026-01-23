@@ -16,7 +16,7 @@
         test-coverage test-quick analyze-skill estimate-tokens audit-skill improve-skill \
         check-compliance audit-all eval-report dev-setup ci-check verify-install debug-variables \
         validate-skill-descriptions validate-plugin validate-self test-wrappers validate-migration generate-wrappers \
-        demo-skills plugin-check
+        mutation-test demo-skills plugin-check
 
 # Plugin-specific variables (must be before include)
 ABSTRACT_DIR := .
@@ -237,6 +237,14 @@ generate-wrappers: ## Generate wrapper boilerplate for detected functionality
 		echo "[WARNING] wrapper_generator.py not found in $(SCRIPTS_DIR)/"; \
 	fi
 	@echo "[OK] Wrapper generation completed"
+
+# ADVANCED TESTING
+mutation-test: ## Run mutation testing
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate src/abstract --tests-dir tests/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
 
 # ---------- Demo/Dogfood Targets ----------
 demo-skills: ## Validate abstract skill structure

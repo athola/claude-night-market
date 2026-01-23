@@ -6,7 +6,7 @@
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test status clean \
         install-hooks validate-all quota-status usage-report validate-delegation delegate-status \
         delegate-verify delegate-usage delegate-test delegate-gemini delegate-qwen delegate-auto \
-        demo-token-estimate precommit demo-delegation demo-skills plugin-check debug-variables
+        demo-token-estimate precommit mutation-test benchmark memory-profile demo-delegation demo-skills plugin-check debug-variables
 
 # Override source directories for this plugin
 SRC_DIRS := scripts hooks
@@ -151,6 +151,21 @@ delegate-test: ## Test all delegation services
 	uv run python scripts/delegation_executor.py qwen "Respond with 'OK'" || echo "Qwen not available"
 	@echo "Showing usage..."
 	uv run python scripts/delegation_executor.py --usage
+
+# ---------- Advanced Testing ----------
+mutation-test: ## Run mutation testing
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate scripts --tests-dir tests/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
+
+benchmark: ## Run performance benchmarks (API delegation latency)
+	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+
+memory-profile: ## Profile memory usage
+	@echo "Memory profiling not yet configured for conjure"
+	@echo "Install memory_profiler: pip install memory_profiler"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-delegation: ## Demo delegation workflow

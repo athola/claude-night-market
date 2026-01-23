@@ -5,7 +5,7 @@
 
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test clean install-hooks \
         status validate-all deps-report fix-apply cli-status cli-validate token-estimate perf-check \
-        validate-skills test-skills demo-context demo-tokens demo-skills demo-bloat plugin-check debug-variables
+        validate-skills test-skills mutation-test benchmark memory-profile demo-context demo-tokens demo-skills demo-bloat plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts services
@@ -139,6 +139,21 @@ test-skills: ## Test skill functionality
 	@cd ../abstract && uv run python scripts/token_estimator.py --file ../conservation/skills/context-optimization/SKILL.md 2>/dev/null || echo "  Token estimator test skipped"
 	@echo "Dependency check:"
 	@uv pip check 2>/dev/null || echo "  Dependency check skipped"
+
+# ---------- Advanced Testing ----------
+mutation-test: ## Run mutation testing
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate scripts --tests-dir tests/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
+
+benchmark: ## Run performance benchmarks (bloat detection speed)
+	$(PYTEST) --benchmark-only --benchmark-sort=mean || echo "pytest-benchmark not installed"
+
+memory-profile: ## Profile memory usage
+	@echo "Memory profiling not yet configured for conserve"
+	@echo "Install memory_profiler: pip install memory_profiler"
 
 # ---------- Demo/Dogfood Targets ----------
 demo-context: ## Demo context optimization on own skills

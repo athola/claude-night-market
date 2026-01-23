@@ -251,17 +251,17 @@ Sends completion notifications.
 
 Verifies workflow completion before session end.
 
+### `session_complete_notify.py`
+**Type**: Stop
+
+Cross-platform toast notifications when Claude awaits input. Supports Linux (notify-send), macOS (osascript), Windows (PowerShell), and WSL. Shows terminal context (Zellij, tmux, project name). Non-blocking background execution. Disable with `CLAUDE_NO_NOTIFICATIONS=1`.
+
 ### `security_pattern_check.py`
 **Type**: PreToolUse
 **Matcher**: `Edit|Write|MultiEdit`
 **Uses additionalContext**: Yes (2.1.9+)
 
 Checks for security anti-patterns in code changes. Injects security warnings as visible context when risky patterns detected. Context-aware: distinguishes actual code from documentation examples.
-
-### `stop_combined.py`
-**Type**: Stop
-
-Consolidated Stop hooks for performance.
 
 ---
 

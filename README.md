@@ -128,7 +128,7 @@ flowchart TB
 *   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
 *   **imbue**: Review methodologies, Iron Law TDD enforcement via hooks, anti-cargo-cult verification.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 123 skills, 109 commands, and 40 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 122 skills, 109 commands, and 40 agents.
 
 ## Audience
 

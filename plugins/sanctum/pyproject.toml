@@ -1,6 +1,6 @@
 [project]
 name = "sanctum"
-version = "1.3.2"
+version = "1.3.3"
 description = "Sanctum Claude Code plugin - Git and workspace operations for active development workflows"
 authors = [{name = "Claude Skills", url = "https://github.com/superpowers-marketplace"}]
 license = {text = "MIT"}
@@ -76,6 +76,7 @@ markers = [
     "slow: Tests that take more than a few seconds",
     "git: Tests that require Git operations",
     "bdd: Behavior-Driven Development style tests",
+    "requires_notify_send: Tests that require notify-send command to be installed",
 ]
 
 [tool.coverage.run]

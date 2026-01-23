@@ -5,7 +5,7 @@
 
 .PHONY: help install install-dev test test-unit test-integration test-performance test-all test-coverage \
         test-slow test-parallel lint format format-check type-check typecheck security clean docs check-all ci \
-        dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests \
+        dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests mutation-test \
         demo-catchup demo-review demo-skills plugin-check debug-variables
 
 # Override source directories for this plugin
@@ -147,6 +147,14 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "COV_DIRS: $(COV_DIRS)"
 	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
 	@echo "MAKEFLAGS: $(MAKEFLAGS)"
+
+# ---------- Advanced Testing ----------
+mutation-test: ## Run mutation testing
+	@if command -v mutmut >/dev/null 2>&1; then \
+		mutmut run --paths-to-mutate scripts --tests-dir tests/; \
+	else \
+		echo "mutmut not installed (pip install mutmut)"; \
+	fi
 
 # ---------- Demo/Dogfood Targets ----------
 demo-catchup: ## Demo catchup workflow on this repo's recent changes

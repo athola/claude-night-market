@@ -15,21 +15,21 @@ All Claude Code hooks have been profiled and optimized for minimal performance i
 | imbue/session-start.sh | SessionStart | 19ms | <2000ms | PASS | 2s |
 | imbue/user-prompt-submit.sh | UserPromptSubmit | 117ms | <200ms | PASS | 1s |
 | sanctum/post_implementation_policy.py | SessionStart | 26ms | <2000ms | PASS | 1s |
-| **sanctum/stop_combined.py** | **Stop** | **33ms** | <2000ms | **PASS** | 2s |
+| sanctum/verify_workflow_complete.py | Stop | 26ms | <2000ms | PASS | 2s |
+| sanctum/session_complete_notify.py | Stop | 39ms | <2000ms | PASS | 1s |
 
-**Result:** All hooks pass their performance targets (6/6 passing).
+**Result:** All hooks pass their performance targets (7/7 passing).
 
-### Stop Hook Consolidation (2025-01-16)
+### Stop Hook Optimization (2025-01-16)
 
-The Stop hooks were consolidated from 2 separate scripts into 1 combined script:
+The Stop hooks were optimized using background execution to prevent blocking:
 
 | Before | After | Improvement |
 |--------|-------|-------------|
-| verify_workflow_complete.py (26ms) | stop_combined.py (33ms) | 46% faster |
-| session_complete_notify.py (39ms) | | |
-| **Total: ~65ms** | **Total: ~33ms** | **~32ms saved** |
+| Blocking notification (5000ms) | Background notification (39ms) | 128x faster |
+| Sequential execution | Parallel hooks | Non-blocking |
 
-This optimization eliminates one Python interpreter startup overhead (~20ms).
+The notification hook now spawns itself in a background process and returns immediately, while the workflow verification hook runs inline.
 
 ## Timeout Configuration Philosophy
 
