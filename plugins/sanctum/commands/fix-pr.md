@@ -146,6 +146,31 @@ This command integrates with:
 - **gh CLI**: Fetches PR data, resolves threads, updates issues
 - **git**: Commits changes, pushes updates
 - **test suite**: Runs verification after fixes
+- **Claude Code Tasks** (2.1.16+): Progress tracking with native Tasks system
+
+### Claude Code Tasks Integration
+
+When running in Claude Code 2.1.16+, workflow steps are tracked via native Tasks:
+
+```python
+from tasks_manager import TasksManager
+manager = TasksManager(
+    project_path=Path("."),
+    fallback_state_file=Path(".sanctum/fix-pr-state.json"),
+)
+
+# Each workflow step becomes a task
+for step in ["analyze", "triage", "plan", "fix", "validate", "complete"]:
+    task_id = manager.ensure_task_exists(f"PR Fix: {step}")
+    # Execute step...
+    manager.update_task_status(task_id, "complete")
+```
+
+**Benefits**:
+- Resume interrupted PR fix workflows across sessions
+- Tasks visible in VS Code sidebar
+- Dependency tracking (can't validate before fix)
+- Cross-session state with `CLAUDE_CODE_TASK_LIST_ID="sanctum-fix-pr-{pr_number}"`
 
 ## Getting Help
 
