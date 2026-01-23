@@ -95,6 +95,38 @@ Or reference directly from the marketplace:
 - **Context**: Shows terminal info (Zellij session, tmux window, project name)
 - **Performance**: ~95ms total for both hooks (varies with system load)
 - **Disable**: Set `CLAUDE_NO_NOTIFICATIONS=1` environment variable
+- **Sound Control**: Set `CLAUDE_NOTIFICATION_SOUND=0` for silent notifications
+
+#### Troubleshooting Notifications
+
+**Linux notifications not working?**
+```bash
+# Install libnotify (provides notify-send)
+sudo apt install libnotify-bin  # Debian/Ubuntu
+sudo dnf install libnotify      # Fedora
+sudo pacman -S libnotify        # Arch
+```
+
+**macOS notifications not working?**
+- Check System Settings → Notifications → Script Editor (or your terminal)
+- Ensure "Allow Notifications" is enabled
+
+**Windows/WSL notifications not working?**
+- Ensure PowerShell execution policy allows scripts:
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+- WSL: Verify Windows PowerShell is accessible from WSL
+- Check Windows Focus Assist settings (might suppress notifications)
+
+**Still seeing notifications?**
+```bash
+# Permanently disable notifications
+export CLAUDE_NO_NOTIFICATIONS=1
+
+# Add to ~/.bashrc or ~/.zshrc for persistence
+echo 'export CLAUDE_NO_NOTIFICATIONS=1' >> ~/.bashrc
+```
 
 ## Quick Start
 

@@ -76,6 +76,7 @@ markers = [
     "slow: Tests that take more than a few seconds",
     "git: Tests that require Git operations",
     "bdd: Behavior-Driven Development style tests",
+    "requires_notify_send: Tests that require notify-send command to be installed",
 ]
 
 [tool.coverage.run]

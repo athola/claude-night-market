@@ -524,3 +524,135 @@ class TestRunNotification:
         args = mock_send.call_args[0]
         assert "Awaiting input in:" in args[1]
         assert "tmux:dev:main" in args[1]
+
+
+class TestNotificationSoundToggle:
+    """Tests for CLAUDE_NOTIFICATION_SOUND environment variable."""
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_macos_sound_enabled_by_default(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given no sound env var, macOS notification includes sound by default."""
+        monkeypatch.delenv("CLAUDE_NOTIFICATION_SOUND", raising=False)
+
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            notify_macos("Test", "Message")
+
+        call_args = mock_run.call_args[0][0]
+        script = call_args[2]  # The osascript script
+        assert 'sound name "Glass"' in script
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_macos_sound_disabled_when_env_zero(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given CLAUDE_NOTIFICATION_SOUND=0, macOS notification is silent."""
+        monkeypatch.setenv("CLAUDE_NOTIFICATION_SOUND", "0")
+
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            notify_macos("Test", "Message")
+
+        call_args = mock_run.call_args[0][0]
+        script = call_args[2]
+        assert 'sound name "Glass"' not in script
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_windows_sound_enabled_by_default(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given no sound env var, Windows notification includes sound by default."""
+        monkeypatch.delenv("CLAUDE_NOTIFICATION_SOUND", raising=False)
+
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            notify_windows("Test", "Message")
+
+        call_args = mock_run.call_args[0][0]
+        script = call_args[3]  # The PowerShell script
+        assert "ms-winsoundevent:Notification.Default" in script
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_windows_sound_disabled_when_env_zero(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given CLAUDE_NOTIFICATION_SOUND=0, Windows notification is silent."""
+        monkeypatch.setenv("CLAUDE_NOTIFICATION_SOUND", "0")
+
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            notify_windows("Test", "Message")
+
+        call_args = mock_run.call_args[0][0]
+        script = call_args[3]
+        assert 'silent="true"' in script
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_wsl_sound_enabled_by_default(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given no sound env var, WSL notification includes sound by default."""
+        monkeypatch.delenv("CLAUDE_NOTIFICATION_SOUND", raising=False)
+
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            notify_wsl("Test", "Message")
+
+        # Should call powershell.exe first
+        call_args = mock_run.call_args[0][0]
+        script = call_args[3]  # The PowerShell script
+        assert "ms-winsoundevent:Notification.Default" in script
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_wsl_sound_disabled_when_env_zero(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Given CLAUDE_NOTIFICATION_SOUND=0, WSL notification is silent."""
+        monkeypatch.setenv("CLAUDE_NOTIFICATION_SOUND", "0")
+
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            notify_wsl("Test", "Message")
+
+        call_args = mock_run.call_args[0][0]
+        script = call_args[3]
+        assert 'silent="true"' in script
+
+
+@pytest.mark.requires_notify_send
+class TestIntegrationWithNotifySend:
+    """Integration tests requiring notify-send command.
+
+    These tests only run when notify-send is available on the system.
+    Use pytest -m "requires_notify_send" to run these tests.
+    """
+
+    @pytest.mark.bdd
+    @pytest.mark.integration
+    def test_actual_linux_notification(self) -> None:
+        """Given notify-send installed, sends actual notification."""
+        import shutil
+
+        if not shutil.which("notify-send"):
+            pytest.skip("notify-send not found on system")
+
+        result = notify_linux("Integration Test", "This is a test notification")
+        assert result is True
+
+    @pytest.mark.bdd
+    @pytest.mark.integration
+    def test_notify_send_not_installed_returns_false(self) -> None:
+        """Given notify-send missing, notification returns False gracefully."""
+        with patch("session_complete_notify.subprocess.run") as mock_run:
+            mock_run.side_effect = FileNotFoundError()
+            result = notify_linux("Test", "Message")
+
+        assert result is False

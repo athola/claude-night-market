@@ -117,9 +117,13 @@ def notify_macos(title: str, message: str) -> bool:
     # Escape for AppleScript string literals
     safe_title = title.replace("\\", "\\\\").replace('"', '\\"')
     safe_message = message.replace("\\", "\\\\").replace('"', '\\"')
+
+    # Check if sound is disabled via environment variable
+    sound_enabled = os.environ.get("CLAUDE_NOTIFICATION_SOUND", "1") != "0"
+    sound_suffix = ' sound name "Glass"' if sound_enabled else ""
+
     script = (
-        f'display notification "{safe_message}" '
-        f'with title "{safe_title}" sound name "Glass"'
+        f'display notification "{safe_message}" with title "{safe_title}"{sound_suffix}'
     )
     try:
         subprocess.run(  # noqa: S603
@@ -142,6 +146,14 @@ def notify_windows(title: str, message: str) -> bool:
     safe_title = html.escape(title)
     safe_message = html.escape(message)
 
+    # Check if sound is disabled via environment variable
+    sound_enabled = os.environ.get("CLAUDE_NOTIFICATION_SOUND", "1") != "0"
+    audio_element = (
+        '<audio src="ms-winsoundevent:Notification.Default"/>'
+        if sound_enabled
+        else '<audio silent="true"/>'
+    )
+
     # PowerShell script for Windows toast notification
     toast_mgr = "Windows.UI.Notifications.ToastNotificationManager"
     xml_doc = "Windows.Data.Xml.Dom.XmlDocument"
@@ -157,7 +169,7 @@ $template = @"
             <text id="2">{safe_message}</text>
         </binding>
     </visual>
-    <audio src="ms-winsoundevent:Notification.Default"/>
+    {audio_element}
 </toast>
 "@
 
@@ -211,6 +223,14 @@ def notify_wsl(title: str, message: str) -> bool:
     safe_title = html.escape(title)
     safe_message = html.escape(message)
 
+    # Check if sound is disabled via environment variable
+    sound_enabled = os.environ.get("CLAUDE_NOTIFICATION_SOUND", "1") != "0"
+    audio_element = (
+        '<audio src="ms-winsoundevent:Notification.Default"/>'
+        if sound_enabled
+        else '<audio silent="true"/>'
+    )
+
     # PowerShell script for Windows toast notification
     toast_mgr = "Windows.UI.Notifications.ToastNotificationManager"
     xml_doc = "Windows.Data.Xml.Dom.XmlDocument"
@@ -226,7 +246,7 @@ $template = @"
             <text id="2">{safe_message}</text>
         </binding>
     </visual>
-    <audio src="ms-winsoundevent:Notification.Default"/>
+    {audio_element}
 </toast>
 "@
 
