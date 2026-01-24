@@ -126,7 +126,7 @@ If skills cannot be loaded, follow these steps:
 
 ## Integration with CI/CD
 
-The command integrates seamlessly with CI/CD pipelines:
+The command integrates with CI/CD pipelines:
 - Pre-commit validation
 - Pull request checks
 - Coverage reporting

@@ -234,7 +234,7 @@ Executes only Phase 2 tasks (TASK-011 through TASK-030).
 
 ## Claude Code Tasks Integration (2.1.16+)
 
-When running in Claude Code 2.1.16+, execution leverages the native Tasks system:
+When running in Claude Code 2.1.16+, execution uses the native Tasks system:
 
 ### Automatic Features
 
