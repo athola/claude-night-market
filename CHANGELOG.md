@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-01-23
+
 ### Analyzed - Claude Code 2.1.16 Compatibility
 
 - **Subagent memory fixes** - Critical out-of-memory crashes when resuming sessions with heavy subagent usage are now fixed
