@@ -4,7 +4,7 @@ Git and workspace management for commits, pull requests, documentation, and vers
 
 ## Overview
 
-Sanctum manages repository state and development workflows. It provides preflight checks for staged changes, draft conventional commit messages, and prepares pull requests with quality gate verification. It also automates version management and merges ephemeral documentation into permanent files to ensure project history and guides remain current.
+Sanctum manages repository state and development workflows. It provides preflight checks for staged changes, drafts conventional commit messages, and prepares pull requests with quality gate verification. It also automates version management and merges ephemeral documentation into permanent files so project history and guides remain current.
 
 ## Features
 
@@ -99,7 +99,7 @@ sudo pacman -S libnotify        # Arch
 
 **macOS notifications not working?**
 - Check System Settings → Notifications → Script Editor (or your terminal)
-- Ensure "Allow Notifications" is enabled
+- Verify "Allow Notifications" is enabled
 
 **Windows/WSL notifications not working?**
 - Ensure PowerShell execution policy allows scripts:

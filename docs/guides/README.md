@@ -1,6 +1,6 @@
 # Claude Night Market Guides
 
-Detailed guides for advanced topics in the plugin ecosystem.
+Guides for advanced topics in the plugin ecosystem.
 
 ---
 
@@ -8,7 +8,7 @@ Detailed guides for advanced topics in the plugin ecosystem.
 
 ### [Skills Separation: Development vs Runtime](development-vs-runtime-skills-separation.md)
 
-**Problem**: Building AI agents with Claude Code? Avoid namespace collision between development skills (Claude Code assisting YOU) and runtime skills (your AGENT's capabilities).
+**Problem**: Avoid namespace collision between development skills (Claude Code assisting you) and runtime skills (your agent's capabilities).
 
 **You'll Learn**:
 - 4 separation patterns (directory, namespace, forking, scoped loading)

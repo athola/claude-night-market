@@ -2,7 +2,7 @@
 
 **Version**: 1.0
 **Last Updated**: 2026-01-10
-**Purpose**: Enforces conciseness and organization in project documentation
+**Purpose**: Enforce conciseness and organization in project documentation
 
 ## Quick Reference
 
@@ -17,7 +17,7 @@
 
 ### 1. Progressive Disclosure
 
-Start with overview, provide links to details:
+Start with an overview, then provide links to details:
 
 ```markdown
 # Main File (150 lines)
@@ -31,14 +31,14 @@ For details see:
 
 ### 2. Avoid Redundancy
 
-**Don't duplicate**:
-- Reference detailed tutorial instead of duplicating code examples
-- Link to existing docs instead of repeating concepts
-- Extract common patterns to shared references
+**Do not duplicate content**:
+- Reference detailed tutorials instead of duplicating code examples.
+- Link to existing docs instead of repeating concepts.
+- Extract common patterns to shared references.
 
 **Good**: "See [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md) for examples"
 
-**Bad**: Copy-pasting 300 lines of code examples already in tutorial
+**Bad**: Copy-pasting 300 lines of code examples already in tutorial.
 
 ### 3. Respect Directory Style
 
@@ -249,7 +249,7 @@ Applied these standards to 8 oversized files:
 
 ## Benefits
 
-This documentation strategy reduces token usage, saving approximately 3,200 tokens from Phase 5 alone. The quick-reference pattern improves navigation speed for developers, while progressive disclosure ensures all technical details are preserved without bloating the primary files. By clearly separating quick-reference content from deep-dive tutorials, we maintain a better organized and more accessible corpus.
+This documentation strategy reduces token usage, saving approximately 3,200 tokens from Phase 5 alone. The quick-reference pattern improves navigation speed for developers, while progressive disclosure maintains technical details without bloating the primary files. By separating quick-reference content from deep-dive tutorials, we organize the corpus more effectively.
 
 ## Related Patterns
 

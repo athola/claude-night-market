@@ -4,7 +4,7 @@
 
 ## Overview
 
-Detailed error handling patterns and troubleshooting strategies for Claude Night Market plugins. For detailed tutorial with code examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
+Error handling patterns and troubleshooting strategies for Claude Night Market plugins. For a detailed tutorial with code examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
 
 ## Error Classification System
 
@@ -309,6 +309,6 @@ alerts:
 - Health check scripts in each plugin
 - Error logging and monitoring systems
 
-## Final Implementation Notes
+## Implementation Notes
 
-These error patterns provide a consistent way to handle failures across all plugins. Using the shared `leyline` infrastructure allows for unified monitoring and predictable recovery behavior.
+These error patterns provide a consistent way to handle failures across all plugins. Using the shared `leyline` infrastructure enables unified monitoring and predictable recovery behavior.
