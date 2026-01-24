@@ -19,6 +19,7 @@ modules:
   - video-capture
 dependencies:
   - scry:gif-generation
+version: 1.3.4
 ---
 ## Table of Contents
 

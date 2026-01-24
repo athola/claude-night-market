@@ -26,6 +26,7 @@ usage_patterns:
   - consistent-output
 complexity: beginner
 estimated_tokens: 1000
+version: 1.3.4
 ---
 ## Table of Contents
 

@@ -28,6 +28,7 @@ modules:
 dependencies:
   - scribe:shared
   - scribe:slop-detector
+version: 1.3.4
 ---
 
 # Style Learning Skill

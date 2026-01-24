@@ -24,6 +24,7 @@ complexity: intermediate
 estimated_tokens: 700
 progressive_loading: true
 module_strategy: context-based
+version: 1.3.4
 ---
 
 # Catchup Analysis Methodology

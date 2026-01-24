@@ -22,6 +22,7 @@ references:
   - delegation-core/modules/quota-management.md
   - delegation-core/modules/usage-logging.md
   - delegation-core/modules/error-handling.md
+version: 1.3.4
 ---
 ## Table of Contents
 

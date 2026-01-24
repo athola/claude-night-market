@@ -18,6 +18,7 @@ modules:
   - modules/git-testing-fixtures.md
   - modules/mock-fixtures.md
   - modules/ci-integration.md
+version: 1.3.4
 ---
 
 # Pytest Configuration Patterns

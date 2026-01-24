@@ -9,6 +9,7 @@ tags: [design, principles, clean-code, architecture]
 tools: []
 complexity: low
 estimated_tokens: 600
+version: 1.3.4
 ---
 
 # Code Quality Principles

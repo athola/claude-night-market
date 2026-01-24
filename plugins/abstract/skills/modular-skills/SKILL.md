@@ -17,6 +17,7 @@ usage_patterns:
   - refactoring-workflows
 complexity: intermediate
 estimated_tokens: 1200
+version: 1.3.4
 ---
 ## Table of Contents
 

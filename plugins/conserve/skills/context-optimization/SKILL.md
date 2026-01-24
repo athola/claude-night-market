@@ -37,6 +37,7 @@ hooks:
     - command: |
         echo "[skill:context-optimization] === Optimization completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
         # Could export: context pressure events over time
+version: 1.3.4
 ---
 ## Table of Contents
 

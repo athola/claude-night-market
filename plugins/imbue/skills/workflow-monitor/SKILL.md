@@ -26,6 +26,7 @@ modules:
   - modules/detection-patterns.md
   - modules/issue-templates.md
   - modules/efficiency-metrics.md
+version: 1.3.4
 ---
 
 # Workflow Monitor

@@ -20,6 +20,7 @@ modules:
   - remediation-types
 progressive_loading: true
 estimated_tokens: 400
+version: 1.3.4
 ---
 
 # Bloat Detector

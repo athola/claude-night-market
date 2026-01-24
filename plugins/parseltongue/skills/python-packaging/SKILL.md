@@ -31,6 +31,7 @@ modules:
   - pyproject-patterns.md
   - entry-points.md
   - ci-cd-integration.md
+version: 1.3.4
 ---
 ## Table of Contents
 

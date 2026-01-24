@@ -36,6 +36,7 @@ modules:
   - testing-workflows
   - test-quality
   - async-testing
+version: 1.3.4
 ---
 ## Table of Contents
 

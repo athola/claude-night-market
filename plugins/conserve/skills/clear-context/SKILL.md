@@ -21,6 +21,7 @@ hooks:
     - matcher: "Task"
       command: |
         echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
+version: 1.3.4
 ---
 
 # Clear Context Skill

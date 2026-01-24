@@ -9,6 +9,7 @@ tags: [efficiency, workflow, decision-making]
 tools: []
 complexity: low
 estimated_tokens: 450
+version: 1.3.4
 ---
 
 # Decisive Action

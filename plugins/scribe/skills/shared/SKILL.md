@@ -11,6 +11,7 @@ tags: [shared, utilities, constants]
 tools: []
 complexity: low
 estimated_tokens: 400
+version: 1.3.4
 ---
 
 # Scribe Shared Module

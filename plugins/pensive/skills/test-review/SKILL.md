@@ -33,6 +33,7 @@ modules:
   - coverage-analysis
   - scenario-quality
   - remediation-planning
+version: 1.3.4
 ---
 ## Table of Contents
 

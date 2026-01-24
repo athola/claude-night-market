@@ -22,6 +22,7 @@ modules:
   - modules/acceptance-criteria.md
   - modules/red-flags.md
   - modules/iron-law-enforcement.md
+version: 1.3.4
 ---
 ## Table of Contents
 

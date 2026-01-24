@@ -18,6 +18,7 @@ modules:
   - remediation-strategies
 dependencies:
   - scribe:shared
+version: 1.3.4
 ---
 
 # AI Slop Detection

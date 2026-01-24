@@ -16,6 +16,7 @@ estimated_tokens: 600
 dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
+version: 1.3.4
 ---
 
 # Conventional Commit Workflow
