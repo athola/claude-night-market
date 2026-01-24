@@ -14,9 +14,6 @@ import pytest
 # Add the scripts directory to Python path for importing attune scripts
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-# Add root scripts directory for shared modules (e.g., tasks_manager)
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "scripts"))
-
 
 @pytest.fixture
 def attune_plugin_root():
