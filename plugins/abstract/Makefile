@@ -54,7 +54,7 @@ help: ## Show this help message
 			printf "  %-20s %s\n", $$1, $$2; \
 		}' $(MAKEFILE_LIST)
 	@echo ""
-	@echo "Skill tools require PATH=<path> argument (e.g., make analyze-skill PATH=skills/foo)"
+	@echo "Skill tools require TARGET=<path> argument (e.g., make analyze-skill TARGET=skills/foo)"
 
 # DEVELOPMENT
 check: ## Run all validation checks
@@ -88,40 +88,40 @@ status: ## Show project overview
 	@echo "Tests: $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
 
 # SKILL ANALYSIS
-analyze-skill: ## Analyze skill complexity (PATH=<path>)
+analyze-skill: ## Analyze skill complexity (TARGET=<path>)
 	$(call require_path,$@)
-	$(UV_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --path "$(PATH)"
+	$(UV_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --path "$(TARGET)"
 
 validate-skill-descriptions: ## Validate skill descriptions follow best practices
 	@echo "Validating skill descriptions..."
 	@PYTHONPATH=src $(PYTEST) tests/test_skill_structure.py -v --tb=short || { echo "Some skills need description improvements"; exit 1; }
 
-validate-plugin: ## Validate plugin structure (PATH=<path>, defaults to current dir)
+validate-plugin: ## Validate plugin structure (TARGET=<path>, defaults to current dir)
 	@echo "Validating plugin structure..."
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py "$(or $(PATH),.)"
+	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py "$(or $(TARGET),.)"
 
 validate-self: ## Validate this plugin's structure
 	@echo "Validating abstract plugin structure..."
 	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py .
 
-estimate-tokens: ## Estimate token usage (PATH=<path>)
+estimate-tokens: ## Estimate token usage (TARGET=<path>)
 	$(call require_path,$@)
-	$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file "$(PATH)"
+	$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file "$(TARGET)"
 
-audit-skill: ## detailed skill audit (PATH=<path>)
+audit-skill: ## detailed skill audit (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('$(PATH)').parent if '$(PATH)'.endswith('SKILL.md') else Path('$(PATH)')); result = auditor.audit_skills(); print(f'Score: {result.get(\"average_score\", 0):.1f}/100')" || echo "Audit completed with result in audit_results.json"
+	$(UV_PYTHON) -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; auditor = SkillsAuditor(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = auditor.audit_skills(); print(f'Score: {result.get(\"average_score\", 0):.1f}/100')" || echo "Audit completed with result in audit_results.json"
 
-improve-skill: ## Generate improvement plan (PATH=<path>)
+improve-skill: ## Generate improvement plan (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; suggester = ImprovementSuggester(Path('$(PATH)').parent if '$(PATH)'.endswith('SKILL.md') else Path('$(PATH)')); result = suggester.analyze_skill(Path('$(PATH)').stem); print(f'Issues: {len(result.get(\"issues\", []))}'); print(f'Suggestions: {len(result.get(\"suggestions\", []))}')" || echo "Improvement suggestions completed"
+	$(UV_PYTHON) -c "from abstract.skills_eval import ImprovementSuggester; from pathlib import Path; suggester = ImprovementSuggester(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = suggester.analyze_skill(Path('$(TARGET)').stem); print(f'Issues: {len(result.get(\"issues\", []))}'); print(f'Suggestions: {len(result.get(\"suggestions\", []))}')" || echo "Improvement suggestions completed"
 
-check-compliance: ## Check standards compliance (PATH=<path>)
+check-compliance: ## Check standards compliance (TARGET=<path>)
 	$(call require_path,$@)
 	@echo "Note: This command references moved tools. Using skills-eval module instead."
-	$(UV_PYTHON) -c "from abstract.skills_eval import ComplianceChecker; from pathlib import Path; checker = ComplianceChecker(Path('$(PATH)').parent if '$(PATH)'.endswith('SKILL.md') else Path('$(PATH)')); result = checker.check_compliance(); print(f'Compliant: {result.get(\"compliant\", False)}'); print(f'Total Skills: {result.get(\"total_skills\", 0)}')" || echo "Compliance check completed"
+	$(UV_PYTHON) -c "from abstract.skills_eval import ComplianceChecker; from pathlib import Path; checker = ComplianceChecker(Path('$(TARGET)').parent if '$(TARGET)'.endswith('SKILL.md') else Path('$(TARGET)')); result = checker.check_compliance(); print(f'Compliant: {result.get(\"compliant\", False)}'); print(f'Total Skills: {result.get(\"total_skills\", 0)}')" || echo "Compliance check completed"
 
 # EVALUATION
 audit-all: ## Audit all skills in ~/.claude/

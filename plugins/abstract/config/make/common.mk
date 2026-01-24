@@ -54,7 +54,8 @@ define file_exists
 $(shell test -f $(1) && echo yes || echo no)
 endef
 
-# Helper macro to require PATH argument (reduces repetition in skill analysis targets)
+# Helper macro to require TARGET argument (reduces repetition in skill analysis targets)
+# Note: We use TARGET instead of PATH because PATH is a reserved environment variable
 define require_path
-@test -n "$(PATH)" || { echo "Usage: make $(1) PATH=<path>"; exit 1; }
+@test -n "$(TARGET)" || { echo "Usage: make $(1) TARGET=<path>"; exit 1; }
 endef
