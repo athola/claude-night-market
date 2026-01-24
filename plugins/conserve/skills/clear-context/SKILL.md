@@ -123,7 +123,7 @@ Instructions:
 3. Continue from where the previous agent left off
 4. If you also approach 80% context, repeat this handoff process
 
-The session state file contains all necessary context to continue seamlessly.
+The session state file contains all necessary context to continue without interruption.
 ```
 
 ### Step 4: Graceful Exit

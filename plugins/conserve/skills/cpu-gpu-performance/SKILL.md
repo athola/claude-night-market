@@ -102,7 +102,7 @@ Conclude by documenting the commands that were run and their resource cost
 (duration, CPU%, GPU%), confirming whether they remained within the per-task
 budget. If a full suite or long training run was necessary, justify why selective
 or staged approaches were not feasible. Capture any follow-up tasks, such as
-adding a new test marker or profiling documentation, to streamline future sessions.
+adding a new test marker or profiling documentation, to simplify future sessions.
 
 ## Output Expectations
 - Brief summary covering:
