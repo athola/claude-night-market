@@ -1,6 +1,6 @@
 # Separating Development and Application Skills
 
-Using Claude Code to build an AI agent can cause confusion if the assistant mistakes development tools for application features. This guide shows how to separate development skills from runtime application capabilities.
+Building AI agents with Claude Code can cause confusion if the assistant mistakes development tools for application features. This guide shows how to separate development skills from runtime application capabilities.
 
 ## The Problem
 
@@ -317,7 +317,7 @@ Runtime Skills (in src/agent/prompts/):
 
 ### Answer: Compose System Prompts
 
-Your runtime skills are NOT Claude Code skills - they're system prompts for YOUR agent.
+Your runtime skills are NOT Claude Code skills - they\'re system prompts for YOUR agent.
 
 ### SDK Pattern
 
@@ -339,7 +339,7 @@ class TodoAgent:
         """
         Compose system prompt from runtime skill files.
 
-        This is YOUR agent's instruction set, NOT Claude Code's.
+        This is YOUR agent\'s instruction set, NOT Claude Code\'s.
         """
         skills = []
 
@@ -350,22 +350,22 @@ class TodoAgent:
 
         # Compose into single system prompt
         system_prompt = f"""
-You are a todo list management agent.
+        You are a todo list management agent.
 
-Your capabilities are defined below as individual skills.
-When the user makes a request, determine which skill(s) to use.
+        Your capabilities are defined below as individual skills.
+        When the user makes a request, determine which skill(s) to use.
 
-# Available Skills
+        # Available Skills
 
-{chr(10).join(skills)}
+        {chr(10).join(skills)}
 
-# Operating Rules
+        # Operating Rules
 
-1. ALWAYS validate input before taking action
-2. ALWAYS confirm destructive operations (delete, update)
-3. NEVER create todos without explicit user request
-4. Follow the exact format specified in each skill
-"""
+        1. ALWAYS validate input before taking action
+        2. ALWAYS confirm destructive operations (delete, update)
+        3. NEVER create todos without explicit user request
+        4. Follow the exact format specified in each skill
+        """
         return system_prompt
 
     def chat(self, user_message: str) -> str:
@@ -392,7 +392,7 @@ if __name__ == "__main__":
 
 ### Key Insights
 
-Runtime skills are system prompts (markdown files you compose). Load them dynamically from `src/agent/prompts/` at init. Claude Code helps BUILD the agent; it's not involved at runtime.
+Runtime skills are system prompts (markdown files you compose). Load them dynamically from `src/agent/prompts/` at init. Claude Code helps BUILD the agent; it\'s not involved at runtime.
 
 ---
 

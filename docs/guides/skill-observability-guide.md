@@ -48,13 +48,13 @@ Skill invocation triggers the `pre_skill_execution.py` hook, which records start
 
 ### Stability Gap (ICLR 2023)
 
-The key innovation from Avalanche research:
+Key innovation from Avalanche research:
 
 ```python
 stability_gap = average_accuracy - worst_case_accuracy
 ```
 
-**Why it matters**:
+**Significance**:
 - Traditional evaluation: Only measures average performance
 - Stability gap: Detects inconsistencies in performance
 - High gap: Indicates an unstable skill that works inconsistently
@@ -154,7 +154,7 @@ PreToolUse adds ~2-5ms (writing state), and PostToolUse adds 10-20ms (metrics/lo
 
 ### Scalability
 
-JSONL logs grow linearly with the number of executions, and sequential file scans remain fast for daily logs. The aggregated metrics per skill are maintained in the `.history.json` file. If executions exceed 10,000 per skill per day or complex cross-skill queries are needed, future iterations may consider a vector database or knowledge graph.
+JSONL logs grow linearly with the number of executions, and sequential file scans remain fast for daily logs. The aggregated metrics per skill are maintained in the `.history.json` file. If executions exceed 10,000 per skill per day or complex cross-skill queries are needed, consider a vector database or knowledge graph.
 
 ## Testing
 
@@ -200,7 +200,7 @@ Testing full PreToolUse -> PostToolUse loop...
 
 ## Dependencies: NONE
 
-The implementation relies exclusively on the Python standard library, including `json`, `os`, `sys`, `datetime`, `pathlib`, `collections`, and `uuid`. No external packages are required for installation or operation.
+The implementation relies on the Python standard library, including `json`, `os`, `sys`, `datetime`, `pathlib`, `collections`, and `uuid`. No external packages are required for installation or operation.
 
 ## Comparison to External Dependencies
 
