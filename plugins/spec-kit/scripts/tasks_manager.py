@@ -1,8 +1,17 @@
-"""Tasks Manager for Claude Code Tasks integration.
+"""Tasks Manager for Claude Code Tasks integration (spec-kit plugin).
 
 Provides lazy task creation with user prompts on ambiguity,
 supporting both Claude Code Tasks system and file-based fallback.
+
+Plugin-specific configuration for spec-kit's specification-driven workflows.
 """
+
+# Plugin-specific constants
+PLUGIN_NAME = "spec-kit"
+TASK_PREFIX = "SPECKIT"
+DEFAULT_STATE_DIR = ".spec-kit"
+DEFAULT_STATE_FILE = "implementation-state.json"
+ENV_VAR_PREFIX = "CLAUDE_CODE_TASK_LIST_ID"  # e.g., speckit-{project}
 
 import json
 import re
@@ -101,19 +110,24 @@ def is_tasks_available() -> bool:
     return False
 
 
-# Cross-cutting concern keywords (phrases that indicate broad scope)
-# These must be multi-word or clearly indicate cross-cutting
+# Cross-cutting concern keywords for spec-kit (specification-driven focus)
+# These indicate broad scope requiring phase decomposition
 CROSS_CUTTING_KEYWORDS = [
-    "logging throughout",
-    "add logging",
-    "authentication system",
-    "authorization layer",
-    "error handling throughout",
-    "caching layer",
-    "validation throughout",
-    "security audit",
-    "monitoring system",
-    "tracing throughout",
+    # Specification patterns
+    "implement entire spec",
+    "all requirements",
+    "complete specification",
+    "full implementation",
+    # Phase-based patterns
+    "all phases",
+    "entire workflow",
+    "end-to-end implementation",
+    # Multi-component patterns
+    "all modules",
+    "all components",
+    "entire system",
+    "complete feature",
+    # General scope indicators
     "throughout the codebase",
     "across the codebase",
     "across all",
@@ -397,8 +411,8 @@ class TasksManager:
         else:
             state = {"tasks": {}, "metrics": {"tasks_complete": 0, "tasks_total": 0}}
 
-        # Generate task ID
-        task_id = f"TASK-{len(state['tasks']) + 1:03d}"
+        # Generate task ID with plugin-specific prefix
+        task_id = f"{TASK_PREFIX}-{len(state['tasks']) + 1:03d}"
 
         # Add task
         state["tasks"][task_id] = {
