@@ -73,21 +73,21 @@ Run a full audit of all skills or target a specific file to identify structural 
 make audit-all
 
 # Audit specific skill
-python scripts/skills_eval/skills_auditor.py --skill-path path/to/skill/SKILL.md
+make audit-skill TARGET=path/to/skill/SKILL.md
 ```
 
 ### Analysis and Optimization
 Use `skill_analyzer.py` for complexity checks and `token_estimator.py` to verify the context budget.
 ```bash
-make analyze-skill PATH=path/to/skill/SKILL.md
-make estimate-tokens PATH=path/to/skill/SKILL.md
+make analyze-skill TARGET=path/to/skill/SKILL.md
+make estimate-tokens TARGET=path/to/skill/SKILL.md
 ```
 
 ### Improvements
 Generate a prioritized plan and verify standards compliance using `improvement_suggester.py` and `compliance_checker.py`.
 ```bash
-make improve-skill PATH=path/to/skill/SKILL.md
-make check-compliance PATH=path/to/skill/SKILL.md
+make improve-skill TARGET=path/to/skill/SKILL.md
+make check-compliance TARGET=path/to/skill/SKILL.md
 ```
 
 ## Evaluation Workflow
