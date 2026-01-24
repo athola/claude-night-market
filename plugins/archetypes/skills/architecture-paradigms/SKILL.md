@@ -29,6 +29,13 @@ usage_patterns:
 complexity: intermediate
 estimated_tokens: 280
 ---
+## Table of Contents
+
+- [Quick Scenario Router](#quick-scenario-router)
+- [3-Step Selection Workflow](#3-step-selection-workflow)
+- [Available Paradigm Skills](#available-paradigm-skills)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [Exit Criteria](#exit-criteria)
 
 # Architecture Paradigm Router
 

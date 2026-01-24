@@ -57,6 +57,17 @@ hooks:
         echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
 version: 1.3.4
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Step 1: Review Workspace](#step-1-review-workspace-workspace-reviewed)
+- [Step 2: Run Quality Gates](#step-2-run-quality-gates-quality-gates)
+- [Step 3: Summarize Changes](#step-3-summarize-changes-changes-summarized)
+- [Step 4: Document Testing](#step-4-document-testing-testing-documented)
+- [Step 5: Draft the PR](#step-5-draft-the-pr-pr-drafted)
+- [Step 6: Verify Content Quality](#step-6-verify-content-quality-content-verified)
+- [Output Instructions](#output-instructions)
 
 # Pull Request Preparation Workflow
 

@@ -21,6 +21,19 @@ modules:
   - modules/merkle-dag.md
 version: 1.3.4
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Reversibility-Based Routing](#reversibility-based-routing)
+- [When to Use](#when-to-use)
+- [When NOT to Use](#when-not-to-use)
+- [Expert Panel](#expert-panel)
+- [Deliberation Protocol](#deliberation-protocol)
+- [Integration](#integration)
+- [Usage](#usage)
+- [Output](#output)
+- [Configuration](#configuration)
+- [Related Skills](#related-skills)
 
 # War Room Skill
 

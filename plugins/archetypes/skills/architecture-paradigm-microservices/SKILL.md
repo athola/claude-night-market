@@ -31,6 +31,15 @@ usage_patterns:
 complexity: high
 estimated_tokens: 900
 ---
+## Table of Contents
+
+- [When to Employ This Paradigm](#when-to-employ-this-paradigm)
+- [When NOT to Use This Paradigm](#when-not-to-use-this-paradigm)
+- [Adoption Steps](#adoption-steps)
+- [Key Deliverables](#key-deliverables)
+- [Technology Guidance](#technology-guidance)
+- [Risks & Mitigations](#risks-mitigations)
+- [Troubleshooting](#troubleshooting)
 
 # The Microservices Architecture Paradigm
 

@@ -14,6 +14,15 @@ dependencies:
 tools: []
 version: 1.3.4
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Priority Signals](#priority-signals)
+- [Red Flag Self-Monitoring](#red-flag-self-monitoring)
+- [Analysis Workflows](#analysis-workflows)
+- [Required TodoWrite Items](#required-todowrite-items)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [Exit Criteria](#exit-criteria)
 
 # Rigorous Reasoning
 

@@ -11,6 +11,16 @@ complexity: low
 estimated_tokens: 450
 version: 1.3.4
 ---
+## Table of Contents
+
+- [Core Principle](#core-principle)
+- [When to Ask (High Impact Ambiguity)](#when-to-ask-high-impact-ambiguity)
+- [When to Proceed Without Asking](#when-to-proceed-without-asking)
+- [Decision Matrix](#decision-matrix)
+- [Safety Mechanisms](#safety-mechanisms)
+- [Examples](#examples)
+- [Anti-Patterns](#anti-patterns)
+- [Integration](#integration)
 
 # Decisive Action
 

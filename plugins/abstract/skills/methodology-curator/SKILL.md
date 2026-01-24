@@ -11,6 +11,14 @@ tags: [methodology, frameworks, expertise, curation, design, evaluation]
 dependencies: []
 estimated_tokens: 800
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [Workflow Integration](#workflow-integration)
+- [Domain Modules](#domain-modules)
+- [When to Skip](#when-to-skip)
+- [Masters Overview](#masters-overview)
+- [Selection Matrix](#selection-matrix)
 
 # Methodology Curator
 

@@ -29,6 +29,16 @@ modules:
   - modules/foundation-perspective.md
 version: 1.3.4
 ---
+## Table of Contents
+
+- [Philosophy](#philosophy)
+- [Quick Start](#quick-start)
+- [The Three Perspectives](#the-three-perspectives)
+- [Workflow](#workflow)
+- [Output Format](#output-format)
+- [Configuration](#configuration)
+- [Guardrails](#guardrails)
+- [Integration Points](#integration-points)
 
 # FPF Architecture Review
 

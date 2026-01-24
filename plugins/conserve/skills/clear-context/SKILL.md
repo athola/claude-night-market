@@ -23,6 +23,15 @@ hooks:
         echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
 version: 1.3.4
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [The Auto-Clear Pattern](#the-auto-clear-pattern)
+- [Thresholds](#thresholds)
+- [Auto-Clear Workflow](#auto-clear-workflow)
+- [Integration with Existing Hooks](#integration-with-existing-hooks)
+- [Self-Monitoring Pattern](#self-monitoring-pattern)
 
 # Clear Context Skill
 
