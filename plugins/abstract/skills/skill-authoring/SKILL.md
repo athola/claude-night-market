@@ -77,7 +77,7 @@ For detailed implementation guidance:
 - **Progressive Disclosure**: See `modules/progressive-disclosure.md` for file structure patterns
 - **Anti-Rationalization**: See `modules/anti-rationalization.md` for bulletproofing techniques
 - **Graphviz Conventions**: See `modules/graphviz-conventions.md` for process diagram standards
-- **Testing with Subagents**: See `modules/testing-with-subagents.md` for pressure testing methodology
+- **Testing with Subagents**: See `abstract:subagent-testing` skill for pressure testing methodology
 - **Deployment Checklist**: See `modules/deployment-checklist.md` for final validation
 
 ## Deployment and Quality Gates

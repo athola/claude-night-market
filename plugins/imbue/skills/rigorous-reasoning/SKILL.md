@@ -69,7 +69,7 @@ These principles override default conversational tendencies:
 3. Ask: What simpler solution would also work?
 4. Verify: Can I explain WHY this approach, not just WHAT?
 
-See [../shared/modules/anti-cargo-cult.md](../shared/modules/anti-cargo-cult.md) for understanding verification.
+See [../shared/../shared/modules/anti-cargo-cult.md](../shared/../shared/modules/anti-cargo-cult.md) for understanding verification.
 
 **Recovery Protocol:**
 1. STOP the sycophantic response

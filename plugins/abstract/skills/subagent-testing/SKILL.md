@@ -76,8 +76,8 @@ Test skill's anti-rationalization guardrails.
 
 For complete testing patterns, examples, and templates:
 - **[Testing Patterns](modules/testing-patterns.md)** - Full TDD methodology
-- **[Test Examples](modules/test-examples.md)** - Baseline, with-skill, rationalization tests
-- **[Analysis Templates](modules/analysis-templates.md)** - Scoring and comparison frameworks
+- **[Test Examples](modules/testing-patterns.md)** - Baseline, with-skill, rationalization tests
+- **[Analysis Templates](modules/testing-patterns.md)** - Scoring and comparison frameworks
 
 ## Success Criteria
 

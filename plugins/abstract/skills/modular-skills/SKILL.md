@@ -97,9 +97,9 @@ Our standards prioritize concrete examples and consistent voice. Always provide 
 
 ### Shared Modules: Cross-Skill Patterns
 Standard patterns for triggers, enforcement language, and anti-rationalization:
-- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md)
-- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md)
-- **Anti-Rationalization**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md)
+- **Trigger Patterns**: See [trigger-patterns.md](modules/enforcement-patterns.md)
+- **Enforcement Language**: See [enforcement-language.md](../shared-patterns/modules/workflow-patterns.md)
+- **Anti-Rationalization**: See [anti-rationalization.md](../skill-authoring/modules/anti-rationalization.md)
 
 ### Skill-Specific Modules
 Detailed guides for implementation and maintenance:

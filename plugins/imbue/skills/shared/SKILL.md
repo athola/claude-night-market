@@ -56,10 +56,10 @@ The `modules/evidence-formats.md` module standardizes evidence capture:
 - Reference linking in findings
 
 ### Analysis Workflows
-The `modules/analysis-workflows.md` module provides workflow templates:
-- Diff analysis flow
-- Catchup workflow patterns
-- Structured output generation
+Common workflow patterns (see individual skills for detailed modules):
+- **Diff analysis**: See `diff-analysis` skill modules
+- **Catchup**: See `catchup` skill modules
+- **Structured output**: See `structured-output` skill
 
 ## When to Reference
 

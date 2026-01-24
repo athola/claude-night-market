@@ -354,7 +354,7 @@ class SecureLoggingHooks(AgentHooks):
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-See `modules/security-patterns.md` for detailed security guidance.
+See `modules/testing-hooks.md` for detailed security guidance.
 
 ## Performance Guidelines
 
@@ -558,7 +558,7 @@ For detailed guidance on specific topics:
 
 - **Hook Types**: `modules/hook-types.md` - Detailed event signatures and parameters
 - **SDK Callbacks**: `modules/sdk-callbacks.md` - Python SDK implementation patterns
-- **Security Patterns**: `modules/security-patterns.md` - detailed security guidance
+- **Security Patterns**: `modules/testing-hooks.md` - detailed security guidance
 - **Performance Guidelines**: `modules/performance-guidelines.md` - Optimization techniques
 - **Scope Selection**: `modules/scope-selection.md` - Choosing plugin/project/global
 - **Testing Hooks**: `modules/testing-hooks.md` - Testing strategies and fixtures

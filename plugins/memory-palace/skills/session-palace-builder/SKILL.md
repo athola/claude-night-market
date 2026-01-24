@@ -124,8 +124,8 @@ Create → Populate → Navigate → Export/Archive
 ## Detailed Resources
 
 - **Template Details**: See `modules/templates.md`
-- **State Management**: See `modules/state-management.md`
-- **Export Patterns**: See `modules/export-patterns.md`
+- **State Management**: See `modules/templates.md`
+- **Export Patterns**: See `modules/templates.md`
 
 ## Integration
 

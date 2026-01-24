@@ -29,23 +29,22 @@ version: 1.3.4
 
 Foundational patterns for the leyline infrastructure layer. These patterns are used across all leyline skills and by plugins that depend on leyline.
 
-## Modules
+## Core Patterns
 
 ### Python Import Patterns
-The `modules/python-imports.md` module documents how to import leyline utilities:
-- Standard import paths
-- Secondary patterns for different contexts
-- Type hints and protocols
+Standard import paths for leyline utilities:
+- `from leyline.skills import <skill_name>`
+- Secondary patterns with type hints and protocols
 
 ### Error Handling Patterns
-The `modules/error-handling.md` module standardizes error handling:
+Error handling standards:
 - Error classification (retryable, fatal, user-facing)
-- Recovery strategies
-- Logging conventions
+- Recovery strategies and logging conventions
+- See `error-patterns` skill for detailed patterns
 
 ### Config Patterns
-The `modules/config-patterns.md` module provides configuration standards:
-- Environment variable naming
+Configuration standards:
+- Environment variable naming (`LEYLINE_*`)
 - YAML config file structure
 - Default value handling
 

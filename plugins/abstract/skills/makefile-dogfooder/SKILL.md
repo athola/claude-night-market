@@ -124,7 +124,7 @@ The generation phase creates:
 ## Modules
 
 ### Discovery Module
-**File**: `modules/discovery.md`
+**File**: `modules/analysis.md`
 - detailed file discovery algorithms
 - Target parsing with metadata extraction
 - Dependency graph construction

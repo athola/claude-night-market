@@ -125,7 +125,7 @@ garden:
 
 - **Linking Patterns**: See `modules/linking-patterns.md`
 - **Maintenance Guide**: See `modules/maintenance.md`
-- **Metrics Integration**: See `modules/metrics-integration.md`
+- **Metrics Integration**: See `modules/maintenance.md`
 
 ## Integration
 
