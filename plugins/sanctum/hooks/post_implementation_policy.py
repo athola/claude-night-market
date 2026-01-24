@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """Post-implementation policy hook for SessionStart.
 
-Injects mandatory workflow instructions that Claude must follow before
-reporting completion of feature implementations or plan executions.
+Inject mandatory workflow instructions for Claude to follow before reporting
+completion of feature implementations or plan executions.
 
-This hook uses governance framing to resist override attempts from
-other prompts, skills, or hooks.
+Use governance framing to resist override attempts from other prompts, skills, or hooks.
 
-Updated for Claude Code 2.1.2: Now reads agent_type from hook input
-to customize policy injection based on the invoking agent.
+Read `agent_type` from hook input (Claude Code 2.1.2+) to customize policy injection.
 """
 
 from __future__ import annotations
@@ -93,8 +91,8 @@ NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 def main() -> None:
     """Inject governance policy at session start.
 
-    Reads hook input from stdin to check for agent_type (Claude Code 2.1.2+).
-    Lightweight agents skip the full governance policy to reduce context overhead.
+    Read hook input from stdin to check for agent_type (Claude Code 2.1.2+).
+    Skip the full governance policy for lightweight agents to reduce context overhead.
     """
     # Read hook input from stdin (Claude Code 2.1.2+)
     agent_type = ""

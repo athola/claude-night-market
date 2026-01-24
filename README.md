@@ -2,21 +2,21 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-This repository adds 16 plugins to Claude Code to standardize git operations, code review, spec-driven development, and issue management. While each plugin functions independently, they share testing and debugging patterns to maintain consistent behavior across workflows.
+This repository adds 16 plugins to Claude Code for git operations, code review, spec-driven development, and issue management. Plugins function independently but share testing and debugging patterns.
 
 ## Key Features
 
 **Governance & Quality**
-Hooks adapt context based on the active agent, while `pensive` tracks usage frequency and failure rates. `imbue` enforces the Iron Law TDD cycle via a PreToolUse hook that checks for test files before allowing implementation writes. For complex tasks, `imbue:rigorous-reasoning` mandates a step-by-step logic check.
+Hooks adapt context based on the active agent, while `pensive` tracks usage frequency and failure rates. `imbue` enforces the Iron Law TDD cycle via a PreToolUse hook that checks for test files before allowing implementation writes. For complex tasks, `imbue:rigorous-reasoning` requires a step-by-step logic check.
 
 **Security & Session Management**
-`leyline` manages OAuth flows for GitHub, GitLab, and AWS with token caching. `conserve` automates permission handling by approving safe commands (like `ls`) and blocking risky ones (`rm -rf /`). `sanctum` isolates named sessions for debugging, feature work, and PR reviews. To maintain quality, `/create-skill` and `/create-command` abort if no failing tests exist.
+`leyline` manages OAuth flows for GitHub, GitLab, and AWS with token caching. `conserve` handles permission checks, approving safe commands (like `ls`) and blocking risky ones (`rm -rf /`). `sanctum` isolates named sessions for debugging, feature work, and PR reviews. To maintain quality, `/create-skill` and `/create-command` stop if failing tests exist.
 
 **Resilience & Collaboration**
-The system includes self-correction mechanisms: `/update-plugins` recommends updates based on stability, and `/fix-workflow` attempts to repair failed runs. For strategic decisions, `/attune:war-room` uses reversibility scoring (Type 1/2 framework) to route decisions to appropriate expert panels.
+`/update-plugins` recommends updates based on stability, and `/fix-workflow` attempts to repair failed runs. For strategic decisions, `/attune:war-room` uses reversibility scoring (Type 1/2 framework) to route decisions to appropriate expert panels.
 
 **Cross-Session State (Claude Code 2.1.16+)**
-Execution workflows in `attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation is lazy (on-demand), state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`, and ambiguity detection prompts for user decisions when task boundaries are unclear. Falls back to file-based state for older versions.
+Execution workflows in `attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation is lazy (on-demand), state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`, and ambiguity detection prompts for user decisions when task boundaries are unclear. Older versions use file-based state as a default.
 
 ## Workflow Improvements
 
@@ -71,7 +71,7 @@ claude --maintenance
 
 ## What's Included
 
-**16 plugins** organized in layers, each building on foundations below:
+The 16 plugins are organized in layers. The **Foundation Layer** provides core utilities: `sanctum` handles git operations and session management, `leyline` manages authentication and quotas, and `imbue` enforces TDD cycles. The **Utility Layer** adds tools like `conserve` for resource optimization and `hookify` for rules. **Domain Specialists** focus on specific tasks: `pensive` for code review, `spec-kit` for requirements, and `minister` for issue tracking.
 
 ```mermaid
 flowchart TB
@@ -115,27 +115,11 @@ flowchart TB
     Domain ==> Utility ==> Foundation ==> Meta
 ```
 
-### Highlights
-
-*   **sanctum**: Git operations (`/prepare-pr`, `/do-issue`), documentation, session management, and PR fix workflows with Tasks integration.
-*   **pensive**: Code reviews (`/full-review`) and audits.
-*   **spec-kit**: Requirements definition (`/speckit-specify`) with multi-phase implementation tracking.
-*   **minister**: GitHub issues (`/create-issue`, `/close-issue`).
-*   **conserve**: Codebase bloat reduction (`/bloat-scan`).
-*   **attune**: Project scaffolding (`/attune:init`), execution with Tasks integration (`/attune:execute`), War Room with reversibility routing (`/attune:war-room`).
-*   **parseltongue**: Python tools (`/analyze-tests`).
-*   **archetypes**: Architecture guides.
-*   **memory-palace**: Knowledge indexing (`/palace`).
-*   **scribe**: Documentation review and AI slop detection (`/slop-scan`, `/doc-verify`).
-*   **hookify**: Behavioral rules without configuration.
-*   **leyline**: Foundation utilities (quota tracking, token estimation, authentication).
-*   **imbue**: Review methodologies, Iron Law TDD enforcement via hooks, anti-cargo-cult verification.
-
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 122 skills, 109 commands, and 40 agents.
 
 ## Audience
 
-Developers use these plugins to automate CLI tasks and enforce consistency in Claude Code sessions. Teams use them to standardize LLM interactions.
+Developers use these plugins to automate CLI tasks. Teams use them to define consistent patterns for LLM interactions.
 
 ## Common Workflows
 

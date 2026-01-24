@@ -25,7 +25,7 @@ def analyze_skill(
     threshold: int = 150,
     verbose: bool = False,
 ) -> dict[str, Any]:
-    """Analyze a skill for complexity and token usage.
+    """Analyze skill complexity and token usage.
 
     Args:
         path: Path to analyze (default: current directory)

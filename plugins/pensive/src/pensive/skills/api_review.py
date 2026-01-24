@@ -1,9 +1,4 @@
-"""Analyze API surface and quality using an API review skill.
-
-Analyze public APIs across multiple languages, checking for
-documentation, naming consistency, error handling, breaking changes,
-REST patterns, input validation, security practices, and performance.
-"""
+"""Analyze API surface and quality."""
 
 from __future__ import annotations
 
@@ -25,7 +20,7 @@ class ApiReviewSkill(BaseReviewSkill):
     ]
 
     def _get_code_content(self, context: Any, filename: str) -> str:
-        """Get code content from context."""
+        """Get code content."""
         if hasattr(context, "get_file_content"):
             return context.get_file_content(filename) or ""
         return ""
@@ -35,7 +30,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze TypeScript API surface.
+        """Analyze TypeScript API.
 
         Args:
             context: Skill context with file access
@@ -79,7 +74,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze JavaScript API surface.
+        """Analyze JavaScript API.
 
         Args:
             context: Skill context with file access
@@ -119,7 +114,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze Python API surface.
+        """Analyze Python API.
 
         Args:
             context: Skill context with file access
@@ -155,7 +150,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze Rust API surface.
+        """Analyze Rust API.
 
         Args:
             context: Skill context with file access
@@ -205,7 +200,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check for missing or inadequate documentation.
+        """Check documentation.
 
         Args:
             context: Skill context with file access
@@ -257,7 +252,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check for inconsistent naming patterns in API.
+        """Check naming consistency.
 
         Args:
             context: Skill context with file access
@@ -335,7 +330,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check for missing or inadequate error handling.
+        """Check error handling.
 
         Args:
             context: Skill context with file access
@@ -379,7 +374,7 @@ class ApiReviewSkill(BaseReviewSkill):
         filename: str,
         _options: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
-        """Check for potential breaking changes in API.
+        """Check breaking changes.
 
         Args:
             context: Skill context with file access
@@ -430,7 +425,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Validate REST API patterns and conventions.
+        """Validate REST patterns.
 
         Args:
             context: Skill context with file access
@@ -485,7 +480,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check for missing input validation.
+        """Check input validation.
 
         Args:
             context: Skill context with file access
@@ -538,7 +533,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> dict[str, Any]:
-        """Analyze API versioning strategy.
+        """Analyze versioning.
 
         Args:
             context: Skill context with file access
@@ -583,7 +578,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Check API security practices.
+        """Check security practices.
 
         Args:
             context: Skill context with file access
@@ -669,7 +664,7 @@ class ApiReviewSkill(BaseReviewSkill):
         context: Any,
         filename: str,
     ) -> list[dict[str, Any]]:
-        """Analyze API performance implications.
+        """Analyze performance.
 
         Args:
             context: Skill context with file access
@@ -744,7 +739,7 @@ class ApiReviewSkill(BaseReviewSkill):
         self,
         analysis_data: dict[str, Any],
     ) -> str:
-        """Generate API summary report.
+        """Generate API summary.
 
         Args:
             analysis_data: Data from API analysis including exports, languages,

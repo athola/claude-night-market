@@ -47,7 +47,7 @@ class SkillMetrics:
 
 
 class SkillsAuditor:
-    """Core skills auditing functionality."""
+    """Provide core skills auditing functionality."""
 
     def __init__(self, skills_dir: Path) -> None:
         """Initialize the skills auditor."""
@@ -80,7 +80,7 @@ class SkillsAuditor:
         }
 
     def audit_skills(self) -> dict[str, Any]:
-        """Perform detailed audit of skills in directory."""
+        """Audit skills in the specified directory."""
         skill_files = list(self.skills_dir.rglob("SKILL.md"))
         if not skill_files:
             return {

@@ -1,20 +1,10 @@
 # Parseltongue
 
-Python development skills for Claude Code. Supports testing, performance profiling, async patterns, and packaging.
+Python development skills for Claude Code, focusing on testing, performance profiling, async patterns, and packaging.
 
-## Installation
+## Overview
 
-Add to your Claude Code plugins:
-```bash
-claude plugins install parseltongue
-```
-
-Or reference directly from the marketplace:
-```json
-{
-  "plugins": ["parseltongue@claude-night-market"]
-}
-```
+Parseltongue provides specialized patterns for modern Python development. It includes guides for `pytest` and TDD workflows, performance profiling for CPU and memory hotspots, and `asyncio` patterns for concurrent programming. The plugin also supports modern packaging through `pyproject.toml` and `uv`.
 
 ## Features
 
@@ -35,73 +25,11 @@ Or reference directly from the marketplace:
 | `/run-profiler` | Profile Python code for performance bottlenecks. |
 | `/check-async` | Validate async code patterns and detect issues. |
 
-### Agents
+## Quick Start and Integration
 
-| Agent | Description |
-|-------|-------------|
-| **python-pro** | Python development assistant for modern features. |
-| **python-tester** | Testing assistant for pytest and TDD. |
-| **python-optimizer** | Performance profiling and optimization assistant. |
-| **python-linter** | Strict linting enforcement - fixes code, never adds ignores. |
+Parseltongue integrates with the standard Python ecosystem, including package managers like `uv`, `pip`, and `poetry`, and linting tools such as `ruff` and `mypy`. It provides implementation patterns for major frameworks like FastAPI and Django, as well as data-heavy libraries like `pandas` and `SQLAlchemy`.
 
-## Quick Start
-
-### Testing
-```python
-# Skill: python-testing
-
-import pytest
-
-@pytest.fixture
-def db_session():
-    session = create_session()
-    yield session
-    session.close()
-
-def test_user_creation(db_session):
-    user = User.create("test@example.com")
-    assert user.is_valid()
-```
-
-### Performance Optimization
-```python
-# Skill: python-performance
-
-from functools import lru_cache
-
-@lru_cache(maxsize=None)
-def expensive_computation(n):
-    return sum(i**2 for i in range(n))
-```
-
-### Async Programming
-```python
-# Skill: python-async
-
-import asyncio
-
-async def fetch_all(urls):
-    tasks = [fetch_url(url) for url in urls]
-    return await asyncio.gather(*tasks)
-```
-
-### Modern Packaging
-```toml
-# Skill: python-packaging
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
-name = "my-package"
-version = "0.1.0"
-dependencies = ["requests>=2.0.0"]
-```
-
-## Integration
-
-Parseltongue works with standard package managers like uv, pip, and poetry, as well as linting tools such as ruff, mypy, and pyright. It supports testing ecosystems including pytest, pytest-asyncio, hypothesis, and pytest-cov, and integrates with major frameworks like FastAPI, Django, and Flask. Additionally, it handles data-heavy libraries such as pandas, SQLAlchemy, and pydantic.
+Effective testing in Parseltongue uses `pytest` fixtures and TDD cycles to ensure coverage and reliability. Performance optimization relies on profiling hotspots and using techniques like `lru_cache` for expensive computations. For concurrent tasks, `asyncio` patterns help manage parallel I/O operations without the overhead of threads.
 
 ## Structure
 

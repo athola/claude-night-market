@@ -26,7 +26,7 @@ The plugins are organized in layers. **Domain Experts** like `pensive` (code rev
 
 ## Design Philosophy
 
-Shallow dependencies reduce token usage. Progressive loading limits system prompt growth to active feature use. The workflow enforces specifications before implementation.
+Shallow dependencies reduce token usage. Progressive loading limits system prompt growth to active feature use. The workflow requires specifications before implementation.
 
 ## Claude Code Capabilities
 

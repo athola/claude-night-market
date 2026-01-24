@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
 """Check for security anti-patterns in code changes.
 
-An improved security hook that reduces false positives in documentation contexts.
-Unlike simple substring matching, this hook:
-1. Distinguishes between actual code and documentation examples
-2. Ignores patterns in markdown that describe what NOT to do
-3. Still catches actual security issues in code files
+This security hook reduces false positives in documentation contexts.
+Key differences from substring matching:
+1. Distinguish actual code from documentation examples.
+2. Ignore patterns in markdown that describe what NOT to do.
+3. Catch actual security issues in code files.
 
-Key improvements over basic substring matching:
-- Documentation files (.md, .rst, etc.) get context-aware checking
-- Patterns near words like "avoid", "unsafe", "warning" are ignored
-- Code blocks in docs showing anti-patterns are allowed
-- Actual code files still get strict checking
+Improvements:
+- Documentation files (.md, .rst, etc.) get context-aware checking.
+- Patterns near words like "avoid", "unsafe", "warning" are ignored.
+- Code blocks in docs showing anti-patterns are allowed.
+- Actual code files still get strict checking.
 
-Note: If you have claude-code-plugins/security-guidance installed,
-you may get duplicate warnings. To use only this improved version,
-disable the security-guidance plugin or set ENABLE_SECURITY_REMINDER=0.
+Using both this hook and `claude-code-plugins/security-guidance` may produce duplicate warnings.
+To use only this version, disable the security-guidance plugin or set ENABLE_SECURITY_REMINDER=0.
 """
 
 import json
@@ -98,7 +97,7 @@ NEGATIVE_CONTEXT_WORDS = [
 
 
 def is_documentation_file(file_path: str) -> bool:
-    """Check if file is documentation rather than code."""
+    """Check if a file is documentation."""
     path = Path(file_path)
     doc_extensions = {".md", ".rst", ".txt", ".adoc"}
     doc_directories = {"docs", "doc", "documentation", "wiki", "examples", "commands"}
@@ -114,7 +113,7 @@ def is_documentation_file(file_path: str) -> bool:
 
 
 def has_negative_context(content: str, match_pos: int, window: int = 300) -> bool:
-    """Check if the pattern match is in a negative/warning context."""
+    """Verify if the pattern match is in a negative context."""
     start = max(0, match_pos - window)
     end = min(len(content), match_pos + window)
     context = content[start:end].lower()
@@ -127,14 +126,14 @@ def has_negative_context(content: str, match_pos: int, window: int = 300) -> boo
 
 
 def is_in_code_block(content: str, match_pos: int) -> bool:
-    """Check if position is inside a markdown code block."""
+    """Determine if the position is inside a markdown code block."""
     before_content = content[:match_pos]
     fence_count = before_content.count("```")
     return fence_count % 2 == 1
 
 
 def check_content(file_path: str, content: str) -> tuple:
-    """Check content for security patterns with context awareness."""
+    """Scan content for security patterns."""
     path = Path(file_path)
     is_docs = is_documentation_file(file_path)
     patterns = get_security_patterns()

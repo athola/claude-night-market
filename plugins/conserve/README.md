@@ -1,36 +1,14 @@
-# Conservation Plugin
+# Conservation
 
-Resource optimization and performance monitoring for Claude Code. Uses MCP patterns and the Maximum Effective Context Window (MECW) principle to reduce token usage.
+Resource optimization and performance monitoring for Claude Code.
 
-## Quick Start
+## Overview
 
-```bash
-# Install as plugin
-claude plugin install conserve
+Conservation manages token usage and session efficiency through automated resource monitoring and optimization. We prioritize the Maximum Effective Context Window (MECW) principle, which suggests keeping context pressure below 50% to maintain response quality. The plugin identifies technical debt, eliminates response bloat, and provides strategies for efficient codebase discovery to reduce the overall token footprint.
 
-# Development setup
-git clone https://github.com/athola/conservation
-cd conservation
-make deps
-```
+## Workflow Optimization
 
-## Session Start Integration
-
-Conservation skills load automatically via hooks. This optimizes performance, token usage, and context management for each session.
-
-### Modes
-
-Set the `CONSERVATION_MODE` environment variable:
-
-| Mode | Command | Behavior |
-|------|---------|----------|
-| `normal` | `claude` | Standard conservation guidance. |
-| `quick` | `CONSERVATION_MODE=quick claude` | Skip guidance for speed. |
-| `deep` | `CONSERVATION_MODE=deep claude` | Use additional resources for analysis. |
-
-## Core Principles
-
-Conservation optimizes resources by adhering to the **Maximum Effective Context Window (MECW)** principle, which keeps context pressure under 50% to maintain response quality. It also uses **MCP Patterns** to process data at the source, preventing the transmission of large datasets, and employs **Progressive Loading** to fetch modules on demand, thereby reducing the session footprint.
+We use MCP patterns to process data at the source rather than transmitting large datasets into the context window. Progressive loading ensures that modules are fetched only when needed, keeping the session footprint small. When context pressure exceeds 80%, the `clear-context` skill can automatically save the session state and transition to a fresh context window via subagent delegation.
 
 ## Commands
 

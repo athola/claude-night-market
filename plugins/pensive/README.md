@@ -1,6 +1,6 @@
 # Pensive
 
-Code review skills for Claude Code. Includes domain-specific reviewers for Rust, APIs, tests, and architecture.
+Code review skills for Claude Code. Domain-specific reviewers cover Rust, APIs, tests, and architecture.
 
 ## Installation
 
@@ -181,7 +181,7 @@ pensive/
 
 ## Review Workflow
 
-Reviews identify repository changes and apply domain-specific checks. Findings include file and line references, severity rankings, and recommendations.
+Reviews identify repository changes and apply domain-specific checks. Findings include file and line references, severity rankings, and recommended fixes.
 
 ## TodoWrite Integration
 
@@ -209,7 +209,7 @@ claude --fork-session --session-id "performance-audit" --resume
 > "Review focusing on performance"
 ```
 
-**Best Practices**: Focus on one concern per fork, extract findings before closing the session, and synthesize the results into an actionable report.
+**Best Practices**: Focus on one concern per fork. Extract findings before closing the session, and synthesize the results into an actionable report.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed patterns.
 

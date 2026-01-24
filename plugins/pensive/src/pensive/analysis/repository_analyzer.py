@@ -7,7 +7,7 @@ from typing import Any, ClassVar
 
 
 class RepositoryAnalyzer:
-    """Analyzes code repositories."""
+    """Analyze code repositories."""
 
     # Language detection mappings
     LANGUAGE_EXTENSIONS: ClassVar[dict[str, list[str]]] = {

@@ -33,52 +33,52 @@ The ecosystem includes 109 CLI commands, 122 modular skills, 40 specialized agen
 ## Plugin Details
 
 ### Abstract (v1.3.4)
-Provides the validation and analysis framework for the ecosystem. It includes commands for creating and validating skills, hooks, and plugins, such as `validate-plugin` and `create-skill`. Its skills focus on governance, authoring, and evaluation, including `skills-eval` and `performance-optimization`.
+Validation and analysis framework for the ecosystem. Includes commands for creating and validating skills, hooks, and plugins (`validate-plugin`, `create-skill`). Skills focus on governance, authoring, and evaluation, including `skills-eval` and `performance-optimization`.
 
 ### Archetypes (v1.3.4)
-Functions as a reference library for architecture paradigms. It contains 14 skills covering patterns like hexagonal architecture, microservices, and event-driven design.
+Reference library for architecture paradigms. Contains 14 skills covering patterns like hexagonal architecture, microservices, and event-driven design.
 
 ### Attune (v1.3.4)
-Templates for project initialization and architecture. It streamlines the setup of new projects with `arch-init` and `init`.
+Project initialization and architecture templates. Streamlines the setup of new projects with `arch-init` and `init`.
 
 ### Conjure (v1.3.4)
-Handles cross-model delegation. Its skills, such as `gemini-delegation` and `qwen-delegation`, enable tasks to be routed to specific models based on capability.
+Cross-model delegation. Skills like `gemini-delegation` and `qwen-delegation` route tasks to specific models based on capability.
 
 ### Conserve (v1.3.4)
-Manages context window usage and resources. Commands like `analyze-growth` and `optimize-context` help developers understand token consumption. Skills include `context-optimization`, `clear-context`, and `resource-management`.
+Context window usage and resource management. Commands like `analyze-growth` and `optimize-context` help developers understand token consumption. Skills include `context-optimization`, `clear-context`, and `resource-management`.
 
 ### Hookify (v1.3.4)
-Provides hook development utilities and templates. Commands help create, test, and manage execution hooks across the ecosystem.
+Hook development utilities and templates. Commands help create, test, and manage execution hooks across the ecosystem.
 
 ### Imbue (v1.3.4)
-Supports structured review workflows. It offers commands for feature reviews and catchups (`feature-review`, `catchup`). Skills include `evidence-logging`, `proof-of-work`, and `scope-guard`.
+Structured review workflows. Offers commands for feature reviews and catchups (`feature-review`, `catchup`). Skills include `evidence-logging`, `proof-of-work`, and `scope-guard`.
 
 ### Leyline (v1.3.4)
-A library of shared patterns and utilities. It allows for bulk plugin updates via `reinstall-all-plugins`. Skills cover authentication, error handling, and testing standards.
+Shared patterns and utilities library. Allows for bulk plugin updates via `reinstall-all-plugins`. Skills cover authentication, error handling, and testing standards.
 
 ### Memory-Palace (v1.3.4)
-Organizes knowledge management. Commands like `garden` and `palace` help users navigate and structure information. Skills focus on knowledge intake and retrieval.
+Knowledge management organization. Commands like `garden` and `palace` help users navigate and structure information. Skills focus on knowledge intake and retrieval.
 
 ### Minister (v1.3.4)
-Tracks governance and project initiatives. It uses skills like `governance-tracking` and `tracker-comment` to maintain project oversight.
+Governance and project initiative tracking. Uses skills like `governance-tracking` and `tracker-comment` to maintain project oversight.
 
 ### Parseltongue (v1.3.4)
-Utilities for Python development. It includes tools for analyzing tests and profiling performance (`analyze-tests`, `run-profiler`). Skills support async programming and packaging.
+Python development utilities. Includes tools for analyzing tests and profiling performance (`analyze-tests`, `run-profiler`). Skills support async programming and packaging.
 
 ### Pensive (v1.3.4)
-A framework for code review and analysis. It provides specific review commands for various languages and domains, such as `api-review`, `rust-review`, and `bug-review`.
+Code review and analysis framework. Provides specific review commands for various languages and domains, such as `api-review`, `rust-review`, and `bug-review`.
 
 ### Sanctum (v1.3.4)
-Automates Git workflows. This plugin handles tasks from commit message generation to PR reviews. Commands include `fix-pr`, `merge-docs`, and `update-dependencies`.
+Git workflow automation. Handles tasks from commit message generation to PR reviews. Commands include `fix-pr`, `merge-docs`, and `update-dependencies`.
 
 ### Scribe (v1.3.4)
 Documentation generation and content authoring utilities. Commands help create and maintain documentation across plugins.
 
 ### Scry (v1.3.4)
-Utilities for recording terminal and browser sessions. It supports creating media assets with commands like `record-browser` and `record-terminal`.
+Terminal and browser session recording. Supports creating media assets with commands like `record-browser` and `record-terminal`.
 
 ### Spec-Kit (v1.3.4)
-Facilitates specification-driven development. It offers a suite of commands for planning, specifying, and implementing features based on strict requirements.
+Specification-driven development. Offers a suite of commands for planning, specifying, and implementing features based on strict requirements.
 
 ## API Quality Assessment
 

@@ -1,14 +1,10 @@
 # Minister
 
-Project management plugin that aligns initiatives with GitHub data. Converts repositories, issues, and projects into status dashboards.
+Project management and initiative alignment using GitHub repository data.
 
 ## Overview
 
-Minister syncs GitHub Projects, issues, and checks for status reporting and roadmap tracking.
-
-## Focus Areas
-
-Minister focuses on delivering immediate insights into initiative health by generating snapshots from GitHub Projects data. It governs releases through automated health checks on CI status, documentation completeness, and risk labels. Additionally, it provides reporting capabilities with scripts and templates designed to streamline status updates.
+Minister synchronizes GitHub Projects, issues, and status checks to provide dashboards and roadmap tracking. It generates snapshots of initiative health from live GitHub data and governs releases through automated checks on CI status and documentation completeness.
 
 ## Capabilities
 
@@ -21,13 +17,11 @@ Minister focuses on delivering immediate insights into initiative health by gene
 | Reporting | Status report templates and playbooks. | `docs/templates/status-report-template.md`, `docs/playbooks/*` |
 | Data store | JSON storage for GitHub Projects sync. | `data/project-data.json` |
 
-## Tracker-to-GitHub Workflow
+## Workflow Integration
 
-1. `uv run python plugins/minister/scripts/tracker.py status --github-comment > .claude/minister/latest.md`
-2. `gh issue comment 456 --body-file .claude/minister/latest.md`
-3. Link the comment URL back into the Projects v2 view notes field.
+The `ProjectTracker` manages initiative data by linking tasks to GitHub issues or PRs. Use `tracker.py status --github-comment` to generate markdown reports that can be posted directly to GitHub issues using the `gh` CLI. This workflow allows for linking status comments back to Projects v2 view notes for centralized tracking.
 
-## Directory Layout
+Integrate Minister by referencing its skills in other plugins or automating data ingestion through cron jobs. Artifacts are stored in `.claude/minister/` for organization, and Leyline handles GitHub API calls to manage quota limits.
 
 ```
 plugins/minister/

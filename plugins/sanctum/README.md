@@ -1,20 +1,10 @@
 # Sanctum
 
-Git and workspace operations for commit messages, PR prep, documentation updates, and version management.
+Git and workspace management for commits, pull requests, documentation, and versioning.
 
-## Installation
+## Overview
 
-Add to your Claude Code plugins:
-```bash
-claude plugins install sanctum
-```
-
-Or reference directly from the marketplace:
-```json
-{
-  "plugins": ["sanctum@claude-night-market"]
-}
-```
+Sanctum manages repository state and development workflows. It provides preflight checks for staged changes, draft conventional commit messages, and prepares pull requests with quality gate verification. It also automates version management and merges ephemeral documentation into permanent files to ensure project history and guides remain current.
 
 ## Features
 
@@ -31,7 +21,7 @@ Or reference directly from the marketplace:
 | **test-updates** | Test generation and enhancement with TDD/BDD patterns |
 | **update-readme** | Update README with current best practices |
 | **version-updates** | Version bumping across configs and changelogs |
-| **workflow-improvement** | Workflow to improve skills, agents, commands, and hooks from the most recent session slice |
+| **workflow-improvement** | Improve skills, agents, commands, and hooks from the most recent session slice |
 | **pr-review** | Scope-focused PR review with knowledge capture integration |
 | **do-issue** | Fix GitHub issues using parallel execution via sub-agents |
 | **tutorial-updates** | Generate tutorials with GIF recordings |
@@ -41,10 +31,10 @@ Or reference directly from the marketplace:
 
 | Command | Description |
 |---------|-------------|
-| `/git-catchup` | Git repository catchup with imbue methodology |
+| `/git-catchup` | Catch up on git repository changes using the imbue methodology |
 | `/commit-msg` | Draft conventional commit message |
 | `/do-issue` | Fix GitHub issues using parallel execution via sub-agents |
-| `/fix-workflow` | Retrospective to improve the most recent workflow slice |
+| `/fix-workflow` | Improve the most recent workflow slice through a retrospective |
 | `/fix-pr` | Address PR review comments, implement fixes, resolve threads |
 | `/pr` | Prepare PR description with quality gates |
 | `/update-docs` | Update project documentation |
@@ -185,7 +175,7 @@ file-analysis (standalone)
 
 ## TodoWrite Integration
 
-All skills use TodoWrite for progress tracking:
+Skills use TodoWrite for progress tracking:
 
 ```
 git-review:repo-confirmed
@@ -271,7 +261,7 @@ sanctum/
 
 ## Session Forking Workflows (Claude Code 2.0.73+)
 
-Session forking acts like git branching for conversations, allowing exploration of alternative approaches without affecting the main session.
+Session forking mimics git branching for conversations, letting you explore alternative approaches without affecting the main session.
 
 ### Use Cases
 
@@ -345,7 +335,7 @@ claude --fork-session --session-id "refactor-composition" --resume
 
 ### Best Practices
 
-Use descriptive session IDs like `pr-123-security-focused` instead of generic names. Keep each fork focused on a single approach, extract insights to files before closing, and document the reasoning behind your final choice.
+Use descriptive session IDs like `pr-123-security-focused` instead of generic names. Keep each fork focused on one approach. Extract insights to files before closing, and document the reasoning for the final choice.
 
 See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
 

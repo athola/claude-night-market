@@ -1,4 +1,5 @@
-"""Base classes for pensive review skills."""
+"""
+Base classes for pensive review skills."""
 
 from __future__ import annotations
 

@@ -4,11 +4,7 @@ Infrastructure and pipeline building blocks for Claude Code plugins.
 
 ## Overview
 
-Leyline provides shared utilities, patterns, and services to support consistent plugin functionality.
-
-## Philosophy
-
-Leyline delivers the foundational building blocks for plugin functionality, handling resource tracking, service integration, and pipeline patterns like error handling and circuit breakers. Unlike the Abstract plugin, which manages meta-concerns such as skill evaluation, Leyline concentrates on practical implementation and ensuring interoperability across the system.
+Leyline provides shared utilities and services to support consistent plugin functionality across the project. We focus on practical implementation details, handling resource tracking, service integration, and pipeline patterns like error handling and circuit breakers. Unlike Abstract, which manages meta-concerns such as evaluation, Leyline delivers the foundational components necessary for interoperability and system reliability.
 
 ## Skills
 
@@ -20,46 +16,9 @@ Leyline delivers the foundational building blocks for plugin functionality, hand
 | `error-patterns` | Standardized error handling. | Building error recovery. |
 | `authentication-patterns` | Common auth flows. | Connecting to external APIs. |
 
-## Integration
+## Workflow and Integration
 
-Other plugins can reference leyline patterns:
-
-```yaml
-# In your skill's frontmatter
-dependencies: [leyline:quota-management]
-references:
-  - leyline/skills/error-patterns/modules/recovery-strategies.md
-```
-
-## Scripts
-
-Python utilities for infrastructure tasks:
-
-```bash
-# Quota tracking
-python -m leyline.quota_tracker --service myservice --check
-
-# Usage logging
-python -m leyline.usage_logger --log "operation" --tokens 1000
-
-# Service health check
-python -m leyline.service_registry --verify myservice
-```
-
-## Optional Dependencies
-
-| Package | Purpose | Fallback |
-|---------|---------|----------|
-| tiktoken | Accurate token estimation | Heuristic estimation (~4 chars/token) |
-
-Leyline is fully functional without tiktoken. Install with full features:
-```bash
-uv sync --extra tokens
-```
-
-## Design Principles
-
-The plugin adheres to principles of loose coupling, ensuring patterns remain reference-only to support progressive adoption. It enforces consistent interfaces across all utilities and maintains a plugin-agnostic design, guaranteeing compatibility with any plugin architecture.
+Other plugins reference Leyline patterns for quota enforcement and standardized error recovery. The `quota_tracker` and `service_registry` utilities allow for real-time monitoring of external service health and rate limit compliance. We prioritize loose coupling, ensuring that these patterns remain reference-only to support progressive adoption throughout the codebase.
 
 ## Related Plugins
 
