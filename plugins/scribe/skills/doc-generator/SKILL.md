@@ -1,20 +1,10 @@
 ---
 name: doc-generator
 description: |
-
-  Triggers: documentation, generate docs, write docs, technical writing
   Generate or remediate documentation with human-quality writing and style adherence.
-
-  Triggers: generate documentation, write readme, create guide, doc generation,
-  technical writing, remediate docs, polish content, clean up docs
-
-  Use when: creating new documentation, rewriting AI-generated content,
-  applying style profiles to content, polishing drafts
-
-  DO NOT use when: just detecting slop - use slop-detector for analysis only.
-  DO NOT use when: learning styles - use style-learner first.
-
-  Use this skill to produce human-quality documentation.
+  Triggers: documentation, generate docs, write docs, technical writing, generate documentation, write readme, create guide, doc generation, remediate docs, polish content, clean up docs.
+  Use when creating new documentation, rewriting AI-generated content, or applying style profiles.
+  Do not use for slop detection only (use slop-detector) or learning styles (use style-learner).
 category: artifact-generation
 tags: [documentation, writing, generation, remediation, polish]
 tools: [Read, Write, Edit, TodoWrite]
@@ -28,57 +18,19 @@ modules:
 dependencies:
   - scribe:shared
   - scribe:slop-detector
-  - scribe:style-learner
 ---
 
-# Documentation Generator Skill
+# Documentation Generator
 
-Create and remediate documentation that reads as human-written.
+Documentation must be grounded in specific claims rather than abstract adjectives. We avoid filler phrases like "In today's fast-paced world" and focus on delivering useful information directly. Each claim should be supported by evidence, such as specific version numbers or request rates, rather than vague descriptors like "comprehensive."
 
 ## Core Writing Principles
 
-These principles override defaults and must guide all content:
+We prioritize authorial perspective and active voice to maintain a consistent team tone. This involves explaining the reasoning behind technical choices, such as selecting one database over another, rather than providing neutral boilerplate. Bullets should be used sparingly for actionable summaries; multi-line bullet waterfalls should be converted to short paragraphs to preserve nuance.
 
-### 1. Ground Every Claim
+### Vocabulary and Style
 
-Explain WHY with specifics. If you catch yourself writing "ensures," "comprehensive," or "holistic" without evidence, pause.
-
-Before: "This provides comprehensive coverage."
-After: "This covers all 47 API endpoints in v2.3."
-
-### 2. Trim Rhetorical Crutches
-
-Skip formulaic openings and forced wrap-ups. End sections once useful information is delivered.
-
-Remove: "In today's fast-paced world...", "In conclusion..."
-
-### 3. Use Specifics
-
-Numbers, commands, filenames, or short anecdotes beat adjectives. If there's no concrete detail, acknowledge what's unknown.
-
-Before: "enterprise-ready solution"
-After: "tested with 10M requests/day in production"
-
-### 4. Balance Bullets with Narrative
-
-Bullets summarize actionable items. Long bullet waterfalls invite slop. Convert multi-line bullets to short paragraphs when nuance matters.
-
-### 5. Watch for Linguistic Tics
-
-Overuse of em dashes, mirrored structures, or catchphrases is a giveaway. Read sections aloud. If they sound like templated emails, rework them.
-
-### 6. Show Authorial Perspective
-
-Mention decisions, risks, or why a choice was made. A consistent team voice beats neutral boilerplate.
-
-Before: "The system uses Redis."
-After: "We chose Redis over Memcached because sorted sets power our leaderboard."
-
-### 7. Avoid Ambiguous Cliches
-
-Remove phrases like "keeps us honest" or "isn't just X, it's Y." Speak directly about the topic.
-
-### 8. Vocabulary Substitutions
+Avoid business jargon and linguistic tics like mirrored sentence structures or excessive em dashes. We use the imperative mood for docstrings (e.g., "Validate input") and strictly avoid humanizing non-living constructs like code.
 
 | Instead of | Use |
 |------------|-----|

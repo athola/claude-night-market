@@ -1,24 +1,12 @@
 ---
 name: skills-eval
 description: |
-
-Triggers: quality-assurance, skills, optimization, tool-use, performance-metrics
   Evaluate and improve Claude skill quality through auditing.
-
-  Triggers: skill audit, quality review, compliance check, improvement suggestions,
-  token usage analysis, skill evaluation, skill assessment, skill optimization,
-  skill standards, skill metrics, skill performance
-
-  Use when: reviewing skill quality, preparing skills for production, auditing
-  existing skills, generating improvement recommendations, checking compliance
-  with standards, analyzing token efficiency, benchmarking skill performance
-
-  DO NOT use when: creating new skills from scratch - use modular-skills instead.
-  DO NOT use when: writing prose for humans - use writing-clearly-and-concisely.
-  DO NOT use when: need architectural design patterns - use modular-skills.
-
-  Use this skill BEFORE shipping any skill to production. Check even if unsure.
-version: 2.0.0
+  Triggers: quality-assurance, skills, optimization, tool-use, performance-metrics, skill audit, quality review, compliance check, improvement suggestions, token usage analysis, skill evaluation, skill assessment, skill optimization, skill standards, skill metrics, skill performance.
+  Use when reviewing skill quality, preparing skills for production, or auditing existing skills.
+  Do not use when creating new skills (use modular-skills) or writing prose (use writing-clearly-and-concisely).
+  Use this skill before shipping any skill to production.
+version: 1.3.4
 category: skill-management
 tags: [evaluation, improvement, skills, optimization, quality-assurance, tool-use, performance-metrics]
 dependencies: [modular-skills, performance-optimization]
@@ -57,37 +45,20 @@ evaluation_criteria:
 ## Table of Contents
 
 - [Overview](#overview)
-- [Tools](#tools)
 - [What It Is](#what-it-is)
 - [Quick Start](#quick-start)
-- [Basic Skill Audit](#basic-skill-audit)
-- [Skill Analysis](#skill-analysis)
-- [Generate Improvements](#generate-improvements)
-- [Typical Workflow](#typical-workflow)
-- [Common Tasks](#common-tasks)
-- [Quality Assessment](#quality-assessment)
-- [Performance Analysis](#performance-analysis)
-- [Standards Compliance](#standards-compliance)
-- [Improvements and Optimization](#improvements-and-optimization)
-- [Evaluation Framework](#evaluation-framework)
-- [Quality Metrics Overview](#quality-metrics-overview)
-- [Scoring System](#scoring-system)
-- [Priority Levels](#priority-levels)
-- [Detailed Resources](#detailed-resources)
-- [Shared Modules (Cross-Skill Patterns)](#shared-modules-(cross-skill-patterns))
-- [Skill-Specific Modules](#skill-specific-modules)
-- [Tools and Automation](#tools-and-automation)
+- [Evaluation Workflow](#evaluation-workflow)
+- [Evaluation and Optimization](#evaluation-and-optimization)
+- [Resources](#resources)
 
 
 # Skills Evaluation and Improvement
 
 ## Overview
 
-Analyze and improve Claude skills. We use tools to audit skills against quality standards, measure token usage, and generate improvement recommendations.
+This framework audits Claude skills against quality standards to optimize performance and reduce token waste. We use automated tools to analyze skill structure, measure context usage, and identify specific improvements.
 
-### Tools
-
-The evaluation process uses `skills-auditor` for structural analysis and `improvement-suggester` for prioritized fixes. `compliance-checker` validates standards, `tool-performance-analyzer` measures tool patterns, and `token-usage-tracker` monitors context efficiency.
+The `skills-auditor` provides structural analysis, while the `improvement-suggester` ranks fixes by impact. Compliance is verified through the `compliance-checker`, and runtime efficiency is monitored by `tool-performance-analyzer` and `token-usage-tracker`.
 
 ## What It Is
 
@@ -95,110 +66,45 @@ Evaluates and improves existing skills by running quality assessments, performan
 
 ## Quick Start
 
-### Basic Skill Audit
+### Basic Audit
+Run a full audit of all skills or target a specific file to identify structural issues.
 ```bash
-# Run detailed audit of all skills
-python scripts/skills_eval/skills_auditor.py --scan-all --format markdown
+# Audit all skills
+make audit-all
 
 # Audit specific skill
 python scripts/skills_eval/skills_auditor.py --skill-path path/to/skill/SKILL.md
-
-# Or use Makefile:
-make audit-skill PATH=path/to/skill/SKILL.md
-make audit-all
 ```
 
-### Skill Analysis
+### Analysis and Optimization
+Use `skill_analyzer.py` for complexity checks and `token_estimator.py` to verify the context budget.
 ```bash
-# Deep analysis of single skill
-python scripts/skill_analyzer.py --path path/to/skill/SKILL.md --verbose
-
-# Check token usage
-python scripts/token_estimator.py --file path/to/skill/SKILL.md
-
-# Or use Makefile:
 make analyze-skill PATH=path/to/skill/SKILL.md
 make estimate-tokens PATH=path/to/skill/SKILL.md
 ```
 
-### Generate Improvements
+### Improvements
+Generate a prioritized plan and verify standards compliance using `improvement_suggester.py` and `compliance_checker.py`.
 ```bash
-# Get prioritized improvement suggestions
-python scripts/skills_eval/improvement_suggester.py --skill-path path/to/skill/SKILL.md --priority high
-
-# Check standards compliance
-python scripts/skills_eval/compliance_checker.py --skill-path path/to/skill/SKILL.md --standard all
-
-# Or use Makefile:
 make improve-skill PATH=path/to/skill/SKILL.md
 make check-compliance PATH=path/to/skill/SKILL.md
 ```
 
-### Typical Workflow
-1. **Discovery**: Run `make audit-all` to find and audit all skills
-2. **Analysis**: Use `make audit-skill PATH=...` for specific skills
-3. **Deep Dive**: Run `make analyze-skill PATH=...` for complexity analysis
-4. **Improvements**: Generate plan with `make improve-skill PATH=...`
-5. **Compliance**: Verify standards with `make check-compliance PATH=...`
-6. **Optimization**: Check tokens with `make estimate-tokens PATH=...`
+## Evaluation Workflow
 
-## Common Tasks
+Start with `make audit-all` to inventory skills and identify high-priority targets. For each skill requiring attention, run deep analysis with `analyze-skill` to map complexity. Generate an improvement plan, apply fixes, and then run `check-compliance` to ensure the skill meets project standards. Finalize by checking the token budget to ensure long-term efficiency.
 
-### Quality Assessment
-```bash
-# Detailed evaluation with scoring
-./scripts/skills-auditor --scan-all --format table --priority high
+## Evaluation and Optimization
 
-# Detailed analysis of specific skill
-./scripts/improvement-suggester --skill-path path/to/skill/SKILL.md --priority all --format markdown
-```
+Quality assessments use the `skills-auditor` and `improvement-suggester` to generate detailed reports. Performance analysis focuses on token efficiency through the `token-usage-tracker` and tool performance via `tool-performance-analyzer`. For standards compliance, the `compliance-checker` can automate common fixes for structural issues.
 
-### Performance Analysis
-```bash
-# Token usage and efficiency
-./scripts/token-usage-tracker --skill-path path/to/skill/SKILL.md --context-analysis
+### Scoring and Prioritization
 
-# Advanced tool performance metrics
-./scripts/tool-performance-analyzer --skill-path path/to/skill/SKILL.md --metrics all
-```
+We evaluate skills across five dimensions: structure compliance, content quality, token efficiency, activation reliability, and tool integration. Scores above 90 represent production-ready skills, while scores below 50 indicate critical issues that require immediate attention.
 
-### Standards Compliance
-```bash
-# Validate against Claude Skills standards
-./scripts/compliance-checker --skill-path path/to/skill/SKILL.md --standard all --format summary
+Improvements are prioritized by impact. **Critical** issues include security vulnerabilities or broken functionality. **High** priority covers structural flaws that hinder discoverability. **Medium** and **Low** priorities focus on best practices and minor optimizations.
 
-# Auto-fix common issues
-./scripts/compliance-checker --skill-path path/to/skill/SKILL.md --auto-fix --severity high
-```
-
-### Improvements and Optimization
-```bash
-# Generate prioritized improvement plan
-./scripts/improvement-suggester --skill-path path/to/skill/SKILL.md --priority critical,high
-
-# Benchmark performance
-./scripts/token-usage-tracker --skill-path path/to/skill/SKILL.md --benchmark optimization-targets
-```
-
-## Evaluation Framework
-
-### Quality Metrics Overview
-We evaluate skills on weighted dimensions: structure compliance and content quality (20 points each), token efficiency and activation reliability (15 points each), and remaining points for tool integration, trigger isolation, and enforcement language.
-
-### Scoring System
-Scores categorize quality:
-- 91-100: Excellent
-- 76-90: Good
-- 51-75: Basic
-- 26-50: Below Standards
-- 0-25: Critical Issues
-
-### Priority Levels
-We prioritize improvements based on impact. Critical priority goes to security vulnerabilities, broken functionality, or missing required metadata. High priority covers poor structure or incomplete documentation. Medium priority identifies missing best practices and optimization opportunities. Minor enhancements are low priority.
-
-## Detailed Resources
-
-For detailed implementation details and advanced techniques:
+## Resources
 
 ### Shared Modules: Cross-Skill Patterns
 - **Anti-Rationalization Patterns**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md)
@@ -209,7 +115,7 @@ For detailed implementation details and advanced techniques:
 - **Trigger Isolation Analysis**: See `modules/trigger-isolation-analysis.md`
 - **Skill Authoring Best Practices**: See `modules/skill-authoring-best-practices.md`
 - **Authoring Checklist**: See `modules/authoring-checklist.md`
-- **Implementation Guide**: See `modules/evaluation-workflows.md`
+- **Evaluation Workflows**: See `modules/evaluation-workflows.md`
 - **Quality Metrics**: See `modules/quality-metrics.md`
 - **Advanced Tool Use Analysis**: See `modules/advanced-tool-use-analysis.md`
 - **Evaluation Framework**: See `modules/evaluation-framework.md`
@@ -218,5 +124,5 @@ For detailed implementation details and advanced techniques:
 - **Pressure Testing**: See `modules/pressure-testing.md`
 
 ### Tools and Automation
-- **Tools**: Executable analysis utilities in `scripts/` directory
-- **Automation**: Setup and validation scripts in `scripts/automation/`
+- **Tools**: Executable analysis utilities in `scripts/` directory.
+- **Automation**: Setup and validation scripts in `scripts/automation/`.

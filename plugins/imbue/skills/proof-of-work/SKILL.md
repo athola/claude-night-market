@@ -1,24 +1,11 @@
 ---
 name: proof-of-work
 description: |
-
-Triggers: validation, definition-of-done, proof, acceptance-criteria, testing
-  Enforces "prove before claim" discipline - validation, testing, and evidence
-  requirements before declaring work complete.
-
-  Triggers: completion, finished, done, working, should work, configured,
-  ready to use, implemented, fixed, improvement validated, workflow optimized,
-  performance improved, issue resolved
-
-  Use when: claiming ANY work is complete, recommending solutions, stating
-  something will work, finishing implementations, validating improvements,
-  completing improvement analysis
-
-  DO NOT use when: explicitly asking questions or requesting clarification
-  DO NOT use when: work is clearly in-progress and not claiming completion
-
-  CRITICAL: This skill is MANDATORY before any completion claim. Violations
-  result in wasted time and eroded trust.
+  Enforces "prove before claim" discipline - validation, testing, and evidence requirements before declaring work complete.
+  Triggers: validation, definition-of-done, proof, acceptance-criteria, testing, completion, finished, done, working, should work, configured, ready to use, implemented, fixed, improvement validated, workflow optimized, performance improved, issue resolved.
+  Use when claiming work is complete, recommending solutions, or finishing implementations.
+  Do not use when asking questions or for work clearly in-progress.
+  MANDATORY: This skill is required before any completion claim.
 category: workflow-methodology
 tags: [validation, testing, proof, definition-of-done, acceptance-criteria]
 dependencies:
@@ -38,30 +25,13 @@ modules:
 ---
 ## Table of Contents
 
-- [The Problem This Solves](#the-problem-this-solves)
-- [Core Principle](#core-principle)
+- [Overview](#overview)
 - [The Iron Law](#the-iron-law)
-- [When to Use](#when-to-use)
-- [MANDATORY Usage (Non-Negotiable)](#mandatory-usage-(non-negotiable))
-- [Red Flags (You're About to Violate This)](#red-flags-(you're-about-to-violate-this))
-- [Required TodoWrite Items](#required-todowrite-items)
+- [Usage Standards](#usage-standards)
 - [Validation Protocol](#validation-protocol)
-- [Step 1: Reproduce the Problem (`proof:problem-reproduced`)](#step-1:-reproduce-the-problem-(proof:problem-reproduced))
-- [Step 2: Test the Solution (`proof:solution-tested`)](#step-2:-test-the-solution-(proof:solution-tested))
-- [Step 3: Check for Known Issues (`proof:edge-cases-checked`)](#step-3:-check-for-known-issues-(proof:edge-cases-checked))
-- [Step 4: Capture Evidence (`proof:evidence-captured`)](#step-4:-capture-evidence-(proof:evidence-captured))
-- [Step 5: Prove Completion (`proof:completion-proven`)](#step-5:-prove-completion-(proof:completion-proven))
 - [Definition of Done](#definition-of-done)
-- [Acceptance Criteria](#acceptance-criteria)
-- [Test Evidence](#test-evidence)
-- [Conclusion](#conclusion)
 - [Integration with Other Skills](#integration-with-other-skills)
-- [With `scope-guard`](#with-scope-guard)
-- [With `evidence-logging`](#with-evidence-logging)
-- [With `superpowers:execute-plan`](#with-superpowers:execute-plan)
-- [Validation Checklist (Before Claiming "Done")](#validation-checklist-(before-claiming-"done"))
-- [Pre-Completion Validation](#pre-completion-validation)
-- [Completion Statement Format](#completion-statement-format)
+- [Validation Checklist](#validation-checklist-before-claiming-done)
 - [Red Flag Self-Check](#red-flag-self-check)
 - [Module Reference](#module-reference)
 - [Related Skills](#related-skills)
@@ -70,97 +40,51 @@ modules:
 
 # Proof of Work
 
-**Philosophy:** Validation must precede any claim of completion.
+## Overview
 
-## The Problem This Solves
+The "Proof of Work" methodology prevents premature completion claims by requiring technical verification before stating that a task is finished. For example, rather than assuming an LSP configuration will work after a restart, we verify that the server starts and that tools respond correctly. This approach ensures that the user is not left to perform the final validation and avoids inaccurate status updates.
 
-The primary issue this skill addresses is the tendency to claim success without verification. For example, an assistant might state that LSP is configured and will work after a session restart, without actually testing if the server starts or verifying that tools are properly exposed. This pattern leads to inaccurate completion claims and requires the user to perform the final validation themselves.
-
-The correct approach involves verifying the configuration before making any claims. This includes testing if the `cclsp` server starts, verifying that language servers respond to help commands, and checking for known bugs in the current version of Claude Code. By providing technical proof of success, we maintain a reliable development environment and avoid providing misleading status updates.
-
-## Core Principle
-
-Before claiming completion, you must provide technical evidence that the solution works through testing and that edge cases have been validated. All claims must be proven with actual command output, and the validation steps should be reproducible by the user in their own environment.
+Before claiming completion, you must provide reproducible evidence that the solution works and that edge cases have been addressed. All claims must be backed by actual command output captured in the current environment.
 
 ## The Iron Law
 
-```
-NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
-NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST
-NO CODE WITHOUT UNDERSTANDING FIRST
-```
+**NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST**
+**NO COMPLETION CLAIM WITHOUT EVIDENCE FIRST**
+**NO CODE WITHOUT UNDERSTANDING FIRST**
 
-The Iron Law prevents **Cargo Cult TDD** - going through the motions of testing without achieving the design benefits. When implementation is pre-planned before tests, the RED phase becomes theater.
+The Iron Law prevents testing from becoming a perfunctory exercise. If an implementation is planned before tests are written, the RED phase fails to drive the design. You must understand WHY an approach was selected and what its limitations are before declaring it done. Before writing any code, confirm that you have documented evidence of the failure you are trying to solve, and ensure that your tests are driving the implementation rather than merely validating pre-conceived logic.
 
-### Understanding Verification (Anti-Cargo-Cult)
+### Verification and TDD Workflow
 
-Before claiming completion, verify you UNDERSTAND the implementation, not just that it works:
+Before claiming completion, verify you understand the fundamentals of the implementation and why it was chosen over alternatives. Identifying where a solution might fail is more important than stating it should always work. The TDD cycle follows these mandatory steps:
 
-| Question | Red Flag Answer | Action |
-|----------|-----------------|--------|
-| WHY does this approach work? | "AI said so" / "Best practice" | Research fundamentals |
-| WHY this over alternatives? | "It's what [big co] uses" | Evaluate YOUR context |
-| WHAT breaks if we change X? | "I don't know" | Spike test to learn |
-| WHEN would this fail? | "It should work always" | Document edge cases |
+1. **RED**: Write a failing test before implementation.
+2. **GREEN**: Create a minimal implementation that passes the test.
+3. **REFACTOR**: Improve the code without changing its behavior.
 
-**Anti-Cargo-Cult TodoWrite:** `proof:understanding-verified`
+### Iron Law TodoWrite Items
 
-<!-- Understanding Verification Protocol embedded above -->
-
-**Iron Law Self-Check (Before Writing Code):**
-
-| Question | If "No" or "Yes" | Action |
-|----------|------------------|--------|
-| Do I have documented evidence of a failure/need? | No | STOP - document failure first |
-| Am I about to write a test that validates a pre-conceived implementation? | Yes | STOP - let test DRIVE design |
-| Am I feeling uncertainty about the design? | No | STOP - uncertainty is GOOD, explore it |
-| Have I let the test drive the implementation? | No | STOP - you're doing it backwards |
-
-**Extended TodoWrite Items for TDD:**
 - `proof:iron-law-red` - Failing test written BEFORE implementation
 - `proof:iron-law-green` - Minimal implementation passes test
 - `proof:iron-law-refactor` - Code improved without behavior change
 - `proof:iron-law-coverage` - Coverage gates passed (line/branch/mutation)
 
-See [iron-law-enforcement.md](modules/iron-law-enforcement.md) for adversarial verification, git history analysis, and pre-commit hook enforcement patterns.
+### Iron Law Self-Check
 
-## When to Use
+| Self-Check Question | If Answer Is Wrong | Action |
+|---------------------|-------------------|--------|
+| Do I have documented evidence of failure/need? | No | STOP - document failure first |
+| Am I testing pre-conceived implementation? | Yes | STOP - let test DRIVE design |
+| Am I feeling uncertainty about the design? | No | STOP - uncertainty is GOOD, explore it |
+| Did the test drive the implementation? | No | STOP - doing it backwards |
 
-### MANDATORY Usage (Non-Negotiable)
+Verify that your work passes all line, branch, and mutation coverage gates. For detailed enforcement patterns, including git history analysis and pre-commit hooks, see [iron-law-enforcement.md](modules/iron-law-enforcement.md).
 
-This skill is required before any statement like "this will work", "should work", or "is ready". Apply it before claiming configuration or setup is complete, before recommending solutions without testing them, before saying "done" or "finished", and before telling users to "try this" or "restart and test".
+## Usage Standards
 
-### Red Flags (You're About to Violate This)
+This skill is required before any statement that work is "done," "finished," or "ready." You must apply it before recommending solutions without testing them or telling users that a configuration "should work."
 
-| Thought Pattern | Reality Check |
-|----------------|---------------|
-| "This configuration looks correct" | Did you TEST it works? |
-| "After restart it should work" | Did you VERIFY the restart fixes it? |
-| "The setup is complete" | Did you PROVE each component functions? |
-| "Just enable X and Y" | Did you CHECK for known issues? |
-| "This will fix your problem" | Did you REPRODUCE the problem first? |
-| "The language servers are installed" | Did you CONFIRM they respond correctly? |
-
-### Cargo Cult Red Flags (Additional)
-
-| Thought Pattern | Reality Check |
-|----------------|---------------|
-| "The AI suggested this approach" | Did you UNDERSTAND why? |
-| "This is the standard way" | Standard for YOUR use case? |
-| "I found this on Stack Overflow" | Do you know WHY it works? |
-| "This is what [company] uses" | Do you have their constraints? |
-| "It's a best practice" | Best for WHAT? WHO says? |
-| "Just copy this configuration" | Can you EXPLAIN each line? |
-
-## Required TodoWrite Items
-
-When applying this skill, create these todos:
-
-1. `proof:problem-reproduced` - Verified the issue exists
-2. `proof:solution-tested` - Tested proposed solution works
-3. `proof:edge-cases-checked` - Validated common failure modes
-4. `proof:evidence-captured` - Logged evidence per evidence-logging skill
-5. `proof:completion-proven` - Demonstrated acceptance criteria met
+Stop immediately if you find yourself assuming a configuration is correct without testing it, or if you are about to recommend a fix without first reproducing the problem. Red flags include thinking "this looks correct" or "it should work after a restart" without actual verification. If you cannot explain each line of a configuration or why a specific best practice applies to your current context, you are likely skipping the necessary validation steps.
 
 ## Validation Protocol
 
