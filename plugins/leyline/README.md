@@ -46,6 +46,17 @@ python -m leyline.usage_logger --log "operation" --tokens 1000
 python -m leyline.service_registry --verify myservice
 ```
 
+## Optional Dependencies
+
+| Package | Purpose | Fallback |
+|---------|---------|----------|
+| tiktoken | Accurate token estimation | Heuristic estimation (~4 chars/token) |
+
+Leyline is fully functional without tiktoken. Install with full features:
+```bash
+uv sync --extra tokens
+```
+
 ## Design Principles
 
 The plugin adheres to principles of loose coupling, ensuring patterns remain reference-only to support progressive adoption. It enforces consistent interfaces across all utilities and maintains a plugin-agnostic design, guaranteeing compatibility with any plugin architecture.

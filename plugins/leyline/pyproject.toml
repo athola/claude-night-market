@@ -8,17 +8,16 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
 
-[dependency-groups]
+[project.optional-dependencies]
+tokens = [
+    "tiktoken>=0.5.0",  # For accurate token estimation (has heuristic fallback)
+]
 dev = [
     "ruff>=0.14.13",
     "mypy>=1.11.0",
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
-]
-
-optional = [
-    "tiktoken>=0.5.0",  # Optional for accurate token estimation
 ]
 
 [build-system]

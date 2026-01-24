@@ -51,7 +51,15 @@ claude install ./plugins/hookify
 
 - **Rule Catalog**: `Skill(hookify:rule-catalog)`
 - **Rule Writing**: `Skill(hookify:writing-rules)`
-- **Hook Scope**: `Skill(abstract:hook-scope-guide)`
+- **Hook Scope**: `Skill(abstract:hook-scope-guide)` (requires abstract plugin)
+
+## Optional Dependencies
+
+| Dependency | Purpose | Fallback |
+|------------|---------|----------|
+| abstract plugin | `hook-scope-guide` skill for advanced hook patterns | Hookify works fully without it; skill unavailable |
+
+Hookify is fully functional without optional dependencies. The abstract plugin provides additional guidance for advanced hook development patterns.
 
 ## Credits
 

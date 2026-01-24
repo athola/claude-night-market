@@ -18,11 +18,13 @@ repository = "https://github.com/athola/conjure"
 requires-python = ">=3.12,<3.14"
 dependencies = [
     "pre-commit>=3.0.0",
-    "tiktoken>=0.7.0",
-    "leyline>=1.0.0",
 ]
 
 [project.optional-dependencies]
+full = [
+    "tiktoken>=0.7.0",  # For accurate token estimation (has heuristic fallback)
+    "leyline>=1.0.0",   # For quota tracking (has stub fallback)
+]
 dev = [
     "ruff>=0.14.13,<1.0",
     "mypy>=1.11.0,<2.0",

@@ -17,10 +17,12 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "pre-commit>=3.0.0",
-    "tiktoken>=0.7.0",
 ]
 
 [project.optional-dependencies]
+tokens = [
+    "tiktoken>=0.7.0",  # For accurate token estimation (optional, not currently used)
+]
 dev = [
     "ruff>=0.14.13,<1.0",
     "mypy>=1.11.0,<2.0",
