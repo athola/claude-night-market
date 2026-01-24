@@ -27,11 +27,17 @@ Audit plugin.json files against actual disk contents and fix registration gaps.
 7. **Surfaces recent failures** and performance degradation
 8. **Recommends improvements** based on execution history
 
-### Phase 3: Knowledge Queue Promotion Check (Automatic)
-9. **Scans memory-palace queue** for pending research items
-10. **Reports items awaiting evaluation** with age and priority
-11. **Prompts for promotion decisions** on high-value items
-12. **Prevents knowledge loss** from stale queue entries
+### Phase 3: Meta-Evaluation Check (Automatic)
+9. **Runs meta-evaluation** on evaluation-related skills
+10. **Validates recursive quality**: evaluation skills meet their own standards
+11. **Reports quality issues**: missing TOCs, verification steps, tests
+12. **Prevents cargo cult**: ensures evaluation frameworks practice what they preach
+
+### Phase 4: Knowledge Queue Promotion Check (Automatic)
+13. **Scans memory-palace queue** for pending research items
+14. **Reports items awaiting evaluation** with age and priority
+15. **Prompts for promotion decisions** on high-value items
+16. **Prevents knowledge loss** from stale queue entries
 
 ## Workflow
 
@@ -148,7 +154,77 @@ improvement:<plugin-name>:command-<name>-validation
 improvement:<plugin-name>:agent-<name>-performance
 ```
 
-### Phase 3: Knowledge Queue Promotion Check
+### Phase 3: Meta-Evaluation Check
+
+After improvement analysis, run meta-evaluation on evaluation-related skills:
+
+#### Step 1: Run Meta-Evaluation
+
+```bash
+# Run meta-evaluation on all evaluation skills
+python3 plugins/sanctum/scripts/meta_evaluation.py --plugins-root plugins/
+
+# Run on specific plugin
+python3 plugins/sanctum/scripts/meta_evaluation.py --plugins-root plugins/ --plugin abstract
+
+# Verbose mode for detailed output
+python3 plugins/sanctum/scripts/meta_evaluation.py --plugins-root plugins/ --verbose
+```
+
+**What It Checks:**
+- **Recursive Quality**: Evaluation skills meet their own quality standards
+- **TOC Requirements**: Long modules (>100 lines) have Table of Contents
+- **Verification Steps**: Code examples include verification commands
+- **Concrete Quick Starts**: Commands instead of abstract descriptions
+- **Anti-Cargo Cult**: Documentation warns against testing theater
+- **Test Coverage**: Critical evaluation skills have BDD test validation
+
+**Skills Evaluated:**
+- abstract: skills-eval, hooks-eval, modular-skills
+- imbue: proof-of-work, evidence-logging
+- leyline: evaluation-framework, testing-quality-standards
+- pensive: review-core, test-review, api-review, architecture-review
+- sanctum: pr-review, test-updates
+- parseltongue: python-testing
+- conserve: code-quality-principles
+
+#### Step 2: Review Meta-Evaluation Report
+
+The script reports:
+
+**By Severity:**
+```
+Critical: X  - Skills missing or broken
+High: X      - Quality standards not met
+Medium: X    - Navigation/documentation issues
+Low: X       - Anti-cargo-cult documentation missing
+```
+
+**Pass Rate:**
+```
+Skills Evaluated: X
+Skills Passed: X (Y%)
+Skills with Issues: X
+```
+
+#### Step 3: Create Action Items for Critical/High Issues
+
+For critical and high priority issues:
+
+1. **Create TodoWrite items** for tracking:
+   ```
+   meta-eval:<plugin>:<skill>-<issue-type>
+   ```
+
+2. **Recommend fixes** based on issue type:
+   - Missing TOC → Add Table of Contents after frontmatter
+   - Missing verification → Add "Run `command`" after examples
+   - Abstract Quick Start → Replace with concrete commands
+   - Missing tests → Create BDD test file
+
+**To skip meta-evaluation**: Use `--skip-meta-eval` flag.
+
+### Phase 4: Knowledge Queue Promotion Check
 
 After improvement analysis, check the memory-palace research queue for items needing evaluation.
 
@@ -234,6 +310,18 @@ queue-review:deferred:<filename>
 
 **To skip queue check**: Use `--skip-queue` flag.
 
+---
+
+## Command Flags
+
+| Flag | Purpose |
+|------|---------|
+| `--dry-run` | Show discrepancies without fixing (default) |
+| `--fix` | Update plugin.json files |
+| `--skip-meta-eval` | Skip meta-evaluation check |
+| `--skip-queue` | Skip knowledge queue check |
+| `--no-auto-issues` | Don't auto-create GitHub issues |
+
 ## Implementation
 
 This command runs the Python script:
@@ -287,8 +375,9 @@ flowchart TD
     A["/update-plugins Phase 1: Registration<br/>Sync disk ↔ plugin.json"] --> B
     B["/update-plugins Phase 2: Analysis<br/>• Check pensive:skill-review metrics<br/>• Query /skill-logs for failures<br/>• Surface improvement vectors"] --> C
     C["Create TodoWrite Items & Recommendations<br/>• Critical: Immediate action required<br/>• Moderate: Schedule for next sprint<br/>• Low: Add to backlog"] --> D
-    D["/update-plugins Phase 3: Queue Check<br/>• Scan memory-palace queue<br/>• Report pending items<br/>• Prompt for promotion decisions"] --> E
-    E["/fix-workflow Implement Improvements<br/>• Fix unstable skills<br/>• Improve command validation<br/>• Optimize agent performance"]
+    D["/update-plugins Phase 3: Meta-Evaluation<br/>• Validate evaluation skills<br/>• Check recursive quality<br/>• Prevent cargo cult"] --> E
+    E["/update-plugins Phase 4: Queue Check<br/>• Scan memory-palace queue<br/>• Report pending items<br/>• Prompt for promotion decisions"] --> F
+    F["/fix-workflow Implement Improvements<br/>• Fix unstable skills<br/>• Improve command validation<br/>• Optimize agent performance<br/>• Add missing TOCs/verification"]
 ```
 
 ## See Also

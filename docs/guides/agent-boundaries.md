@@ -1,39 +1,25 @@
 # Agent Boundaries & Entry Points
 
-> **Created**: 2026-01-08
-> **Issue**: #70 - Clarify agent boundaries and reduce complexity
+This reference details agent selection, relationships, and the boundaries between different specialized sub-agents in the ecosystem.
 
-Reference for agent selection and relationships.
+## Entry Point Agents
 
-## Start Here
+Primary entry points for common workflows:
 
-Primary entry point agents:
+1. **`abstract:plugin-validator`**: Use this to validate plugin structure before making changes.
+2. **`pensive:code-reviewer`**: Use this for reviewing code changes and analyzing logic.
+3. **`sanctum:pr-agent`**: Use this to prepare pull requests and manage git operations.
 
-1. **`abstract:plugin-validator`** - Validate plugin structure before making changes
-2. **`pensive:code-reviewer`** - Review code changes
-3. **`sanctum:pr-agent`** - Prepare pull requests
-
-**Advanced workflows** involve specialized agents that build on these foundations.
-
----
+Specialized agents build on these foundations for advanced workflows.
 
 ## Agent Layers
 
-The ecosystem organizes agents in layers, each building on the layer below:
+The ecosystem organizes agents into four layers. Higher-layer agents delegate to lower-layer agents, while lower layers operate independently of higher-level context.
 
-```
-[ Domain Specialists (pensive, parseltongue, etc.) ]
-  (Use utility agents for support)
-[ Utility Layer (conserve, conjure, hookify) ]
-  (Use foundation agents for workflows)
-[ Foundation (imbue, sanctum, leyline) ]
-  (Use meta agents for validation)
-[ Meta (abstract) - Plugin dev & validation ]
-```
-
-**Key Principle**: Higher-layer agents delegate to lower-layer agents. Lower layers don't know about higher layers.
-
----
+- **Domain Layer**: Specialized tasks for specific languages or paradigms (e.g., `pensive`, `parseltongue`).
+- **Utility Layer**: Cross-cutting infrastructure like performance optimization and boilerplate generation (e.g., `conserve`, `conjure`).
+- **Foundation Layer**: Core workflows including version control and validation gates (e.g., `imbue`, `sanctum`).
+- **Meta Layer**: Tools for developing and validating the plugin ecosystem itself (e.g., `abstract`).
 
 ## Agent Responsibilities
 
@@ -41,181 +27,88 @@ The ecosystem organizes agents in layers, each building on the layer below:
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `abstract:plugin-validator` | Validate plugin structure before commits | Structure validation (no business logic) |
-| `abstract:skill-auditor` | Audit skill quality and token efficiency | Quality metrics (no functional testing) |
-
-**Context**: Use meta agents for development within the plugin ecosystem.
-
----
+| `abstract:plugin-validator` | Validate plugin structure before commits | Structure validation only; no business logic analysis. |
+| `abstract:skill-auditor` | Audit skill quality and token efficiency | Quality metrics and token usage; no functional testing. |
 
 ### Foundation Layer (Core Workflows)
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `sanctum:pr-agent` | Prepare pull requests and commit messages | Git workflows (no code review quality) |
-| `imbue:proof-evaluator` | Validate proof-of-work requirements | Verification (no implementation) |
-| `leyline:dependency-mapper` | Map plugin dependencies | Dependency analysis (no refactoring) |
-
-**Context**: Use foundation agents for version control, validation gates, and cross-plugin coordination.
-
----
+| `sanctum:pr-agent` | Prepare pull requests and commit messages | Git workflows; no code quality or logic review. |
+| `imbue:proof-evaluator` | Validate proof-of-work requirements | Verification of requirements; no code implementation. |
+| `leyline:dependency-mapper` | Map plugin dependencies | Dependency analysis; no automated refactoring. |
 
 ### Utility Layer (Optimization & Generation)
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `conserve:context-optimizer` | Assess MECW and token usage | Token analysis (no code optimization) |
-| `conserve:bloat-auditor` | Detect codebase bloat | Detection (no remediation decisions) |
-| `conserve:unbloat-remediator` | Execute bloat removal | Safe deletion (no architecture changes) |
-| `conjure:generator` | Generate boilerplate code | Templates (no business logic) |
-| `hookify:rule-compiler` | Compile hook rules | Hook generation (no hook logic) |
-
-**Context**: Use utility agents for cross-cutting concerns like performance, boilerplate, and infrastructure.
-
----
+| `conserve:context-optimizer` | Assess MECW and token usage | Token analysis; no code-level optimization. |
+| `conserve:bloat-auditor` | Detect codebase bloat | Detection of redundant files; no deletion decisions. |
+| `conserve:unbloat-remediator` | Execute bloat removal | Execution of safe deletions; no architectural changes. |
+| `conjure:generator` | Generate boilerplate code | Template-based generation; no business logic. |
+| `hookify:rule-compiler` | Compile hook rules | Hook rule generation; no hook implementation logic. |
 
 ### Domain Layer (Specialized Tasks)
 
 | Agent | When To Use | Boundary |
 |-------|-------------|----------|
-| `pensive:code-reviewer` | Multi-discipline code review | API, architecture, and security review (no fixes) |
-| `pensive:architecture-reviewer` | Architecture design review | Design patterns (no implementation) |
-| `pensive:rust-auditor` | Rust-specific code review | Rust idioms and safety (no other languages) |
-| `parseltongue:python-tester` | Python test generation | Python testing (no other languages) |
-| `parseltongue:pytest-analyst` | Pytest output analysis | Test diagnostics (no code fixes) |
-| `memory-palace:curator` | Knowledge management | Documentation organization (no code changes) |
-| `spec-kit:spec-writer` | Write specifications | Requirements (no implementation) |
+| `pensive:code-reviewer` | Multi-discipline code review | Analysis of API, architecture, and security; no fixes. |
+| `pensive:architecture-reviewer` | Architecture design review | Pattern analysis; no implementation work. |
+| `pensive:rust-auditor` | Rust-specific code review | Rust idioms and safety; restricted to Rust. |
+| `parseltongue:python-tester` | Python test generation | Test case generation; restricted to Python. |
+| `parseltongue:pytest-analyst` | Pytest output analysis | Test diagnostics; no code fixes. |
+| `memory-palace:curator` | Knowledge management | Documentation organization; no code changes. |
+| `spec-kit:spec-writer` | Write specifications | Requirements gathering; no implementation. |
 
-**Context**: Use domain agents for specialized expertise in a language, paradigm, or discipline.
-
----
-
-## Common Delegation Patterns
+## Delegation Patterns
 
 ### Code Review Workflow
 
-```
-User Request: "Review this PR"
-       |
-pensive:code-reviewer (Domain)
-       | delegates to ->
-       |- pensive:api-reviewer (API design)
-       |- pensive:security-reviewer (Security)
-       |_ pensive:performance-reviewer (Performance)
-       | uses ->
-sanctum:pr-agent (Foundation) for git integration
-       | validates with ->
-abstract:plugin-validator (Meta) if plugin code
-```
+A request to review a PR starts with `pensive:code-reviewer`. It delegates specialized tasks to `pensive:api-reviewer`, `pensive:security-reviewer`, and `pensive:performance-reviewer`. It uses `sanctum:pr-agent` for git integration and `abstract:plugin-validator` if the changes involve plugin infrastructure.
 
 ### Plugin Development Workflow
 
-```
-User Request: "Create new skill"
-       |
-abstract:skill-generator (Meta)
-       | validates with ->
-abstract:skill-auditor (Meta) for quality
-       | uses ->
-conserve:context-optimizer (Utility) for token efficiency
-       | commits with ->
-sanctum:pr-agent (Foundation)
-```
+Creating a new skill uses `abstract:skill-generator`. It validates the draft with `abstract:skill-auditor`, checks token efficiency with `conserve:context-optimizer`, and stages the commit via `sanctum:pr-agent`.
 
 ### Bloat Remediation Workflow
 
-```
-User Request: "Clean up codebase"
-       |
-conserve:bloat-auditor (Utility) - scan
-       | reports to user ->
-User approves changes
-       |
-conserve:unbloat-remediator (Utility) - execute
-       | uses ->
-sanctum:pr-agent (Foundation) for commit
-```
+Cleaning the codebase begins with a scan from `conserve:bloat-auditor`. After user approval, `conserve:unbloat-remediator` executes the deletions and uses `sanctum:pr-agent` to commit the changes.
 
----
+## Boundary Enforcement
 
-## When Agents Say "No"
+Agents redirect requests that fall outside their scope to ensure predictable behavior and minimize token waste.
 
-Agents respect their boundaries. Here's what happens when you ask outside their scope:
+- **Logic vs. Structure**: `abstract:plugin-validator` redirects logic fix requests to `pensive:code-reviewer`.
+- **Git vs. Review**: `pensive:code-reviewer` redirects commit requests to `sanctum:pr-agent`.
+- **Remediation vs. Detection**: `conserve:bloat-auditor` redirects deletion requests to `conserve:unbloat-remediator`.
 
-| Request | Agent Response | Next Step |
-|---------|----------------|-----------|
-| "abstract:plugin-validator, fix this bug" | "I validate structure, not fix logic. Use `pensive:code-reviewer` instead." | Redirect to domain agent |
-| "pensive:code-reviewer, commit this" | "I review code, not manage git. Use `sanctum:pr-agent` to commit." | Redirect to foundation agent |
-| "conserve:bloat-auditor, delete these files" | "I detect bloat, not remediate. Use `conserve:unbloat-remediator` to delete." | Redirect to sibling agent |
+This separation allows each agent to operate with a smaller, more relevant context, reducing the risk of conflicting instructions and lowering the token cost per operation.
 
-This design is intentional. Agents with clear boundaries are easier to understand and maintain predictable behavior. They combine more reliably and help reduce token usage by preventing scope creep into unrelated tasks.
+## Agent Selection
 
-## Agent Selection Decision Tree
-
-```
-+-- Working on plugins themselves?
-|   +-- Yes -> abstract:* (Meta)
-|
-+-- Need git/version control?
-|   +-- Yes -> sanctum:* (Foundation)
-|
-+-- Need validation/gates?
-|   +-- Yes -> imbue:* (Foundation)
-|
-+-- Need token optimization?
-|   +-- Yes -> conserve:* (Utility)
-|
-+-- Need code generation?
-|   +-- Yes -> conjure:* (Utility)
-|
-+-- Need language-specific help?
-|   +-- Python -> parseltongue:*
-|   +-- Rust -> pensive:rust-auditor
-|   +-- General -> pensive:*
-|
-+-- Need architecture/design?
-|   +-- Yes -> pensive:architecture-reviewer, spec-kit:*
-|
-+-- Need documentation?
-    +-- Yes -> memory-palace:*, sanctum:update-docs
-```
-
----
+- **Working on plugins**: Use `abstract:*` (Meta).
+- **Git or version control**: Use `sanctum:*` (Foundation).
+- **Validation or quality gates**: Use `imbue:*` (Foundation).
+- **Token optimization or bloat detection**: Use `conserve:*` (Utility).
+- **Code generation**: Use `conjure:*` (Utility).
+- **Python-specific tasks**: Use `parseltongue:*` (Domain).
+- **Rust-specific tasks**: Use `pensive:rust-auditor` (Domain).
+- **Architecture or design review**: Use `pensive:architecture-reviewer` or `spec-kit:*` (Domain).
+- **Documentation or knowledge management**: Use `memory-palace:*` or `sanctum:update-docs`.
 
 ## FAQ
 
-**Q: Why so many agents? Can't one agent do everything?**
+**Why are agents specialized?**
+Specialized agents use smaller context windows, which reduces token consumption and improves reliability. A single agent handling all domains would require a larger, more expensive system prompt and would be more prone to inconsistent behavior when faced with competing goals.
 
-A: Specialized agents are more reliable, use fewer tokens, and compose better. A general-purpose agent would need the context of all domains, leading to:
-- Higher token cost per invocation
-- Conflicting guidance (e.g., "ship fast" vs. "comprehensive tests")
-- Harder to predict behavior
+**How is delegation handled?**
+Higher-layer agents call lower-layer agents to perform sub-tasks. This hierarchical structure prevents circular dependencies and maintains clear separation of concerns.
 
-**Q: How do I know which agent to start with?**
-
-A: Use the decision tree above, or:
-1. **For code**: `pensive:code-reviewer`
-2. **For plugins**: `abstract:plugin-validator`
-3. **For git**: `sanctum:pr-agent`
-4. **For optimization**: `conserve:bloat-auditor`
-
-**Q: Can agents call each other?**
-
-A: Yes, via **delegation**. Higher-layer agents delegate to lower-layer agents. The ecosystem prevents circular dependencies by design.
-
-**Q: What if I pick the wrong agent?**
-
-A: The agent will tell you and recommend the right one (see "When Agents Say 'No'" above).
-
----
+**What happens if I select the wrong agent?**
+The agent will identify that the request is out of scope and recommend the appropriate agent for the task.
 
 ## Related Documentation
 
-- [Plugin Development Guide](../plugin-development-guide.md) - Building new plugins/agents
-- [Capabilities Reference](../../book/src/reference/capabilities-reference.md) - All 107 skills, 81 commands, 34 agents
-- [Conservation Guide](../../plugins/conserve/README.md) - Token optimization strategies
-
----
-
-**Last Updated**: 2026-01-08
-**Related Issue**: [#70 - Clarify token conservation strategy and agent boundaries](https://github.com/athola/claude-night-market/issues/70)
+- [Plugin Development Guide](../plugin-development-guide.md)
+- [Capabilities Reference](../../book/src/reference/capabilities-reference.md)
+- [Conservation Guide](../../plugins/conserve/README.md)

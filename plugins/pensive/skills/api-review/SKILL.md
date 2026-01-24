@@ -28,55 +28,13 @@ progressive_loading: true
 dependencies: [pensive:shared, imbue:evidence-logging]
 version: 1.3.4
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Required TodoWrite Items](#required-todowrite-items)
-- [Workflow](#workflow)
-- [Step 1: Surface Inventory](#step-1:-surface-inventory)
-- [Step 2: Exemplar Research](#step-2:-exemplar-research)
-- [Step 3: Consistency Audit](#step-3:-consistency-audit)
-- [Step 4: Documentation Governance](#step-4:-documentation-governance)
-- [Step 5: Evidence Log](#step-5:-evidence-log)
-- [Progressive Loading](#progressive-loading)
-- [API Quality Checklist](#api-quality-checklist)
-- [Naming](#naming)
-- [Parameters](#parameters)
-- [Return Values](#return-values)
-- [Documentation](#documentation)
-- [Output Format](#output-format)
-- [API Review Report](#api-review-report)
-- [Summary](#summary)
-- [Surface Inventory](#surface-inventory)
-- [Exemplar Comparison](#exemplar-comparison)
-- [Consistency Issues](#consistency-issues)
-- [Documentation Gaps](#documentation-gaps)
-- [Recommendations](#recommendations)
-- [Integration Notes](#integration-notes)
-- [Exit Criteria](#exit-criteria)
-
-
 # API Review Workflow
 
-Evaluate API surfaces against guidelines and high-quality exemplars.
+## Usage
 
-## Quick Start
+Use this skill to review public API changes, design new surfaces, audit consistency, and validate documentation completeness. Run it before any API release to confirm alignment with project guidelines.
 
-```bash
-/api-review
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-## When to Use
-
-- Reviewing public API changes
-- Designing new API surfaces
-- Auditing API consistency
-- Validating documentation completeness
-- Before API releases
-
-## Required TodoWrite Items
+## Required Progress Tracking
 
 1. `api-review:surface-inventory`
 2. `api-review:exemplar-research`
@@ -88,126 +46,46 @@ Evaluate API surfaces against guidelines and high-quality exemplars.
 
 ### Step 1: Surface Inventory
 
-**Module**: `@modules/surface-inventory.md`
-
-Detect and catalog all public APIs by language. Record stability levels, feature flags, and versioning metadata.
-
-Quick commands:
-```bash
-pwd && git status -sb
-rg -n "^pub" src  # Rust
-rg -n "^def [^_]" package  # Python
-```
-**Verification:** Run `git status` to confirm working tree state.
+Catalog all public APIs by language. Record stability levels, feature flags, and versioning metadata. Use tools like `rg` to find public symbols (e.g., `pub` in Rust or non-underscored `def` in Python). Confirm the working tree state with `git status` before starting.
 
 ### Step 2: Exemplar Research
 
-**Module**: `@modules/exemplar-research.md`
-
-Find 2+ high-quality API references per language. Document patterns for namespacing, pagination, error handling, and documentation structure.
-
-Common exemplars: pandas, requests, tokio, net/http, Stripe API
+Identify at least two high-quality API references for the relevant language, such as pandas, requests, or tokio. Document their patterns for namespacing, pagination, error handling, and structure to serve as a baseline for the audit.
 
 ### Step 3: Consistency Audit
 
-**Module**: `@modules/consistency-audit.md`
-
-Compare project API against exemplar patterns. Check naming, parameters, return types, error semantics, and deprecation handling.
-
-Identify duplication, leaky abstractions, missing feature gates, and documentation gaps.
+Compare the project's API against the identified exemplar patterns. Analyze naming conventions, parameter ordering, return types, and error semantics. Identify duplication, leaky abstractions, missing feature gates, and documentation gaps.
 
 ### Step 4: Documentation Governance
 
-validate documentation includes:
-- Entry points and quickstarts
-- Complete API reference
-- Changelogs and migration notes
-- Automated generation (rustdoc, Sphinx, typedoc, OpenAPI)
-
-Verify versioning:
-- SemVer compliance
-- Stability promises
-- Deprecation timelines
+Validate that documentation includes entry points, quickstarts, and a complete API reference. Verify that changelogs and migration notes are maintained. Check for SemVer compliance, stability promises, and clear deprecation timelines. Confirm that documentation is generated automatically using tools like rustdoc, Sphinx, or OpenAPI.
 
 ### Step 5: Evidence Log
 
-**Dependency**: `imbue:evidence-logging`
-
-Record all executed commands and findings. Summarize recommendation (Approve / Approve with actions / Block) with action items, owners, and dates.
-
-## Progressive Loading
-
-Load modules as needed:
-- **Always load**: surface-inventory, consistency-audit
-- **Load for new designs**: exemplar-research
-- **Load for documentation audits**: Include docs-governance checklist
+Record all executed commands and findings. Summarize the final recommendation as Approve, Approve with actions, or Block. Include specific action items with assigned owners and due dates.
 
 ## API Quality Checklist
 
 ### Naming
-- [ ] Consistent convention, clear descriptive names, follows language idioms
+Confirm consistent conventions and descriptive names that follow language-specific idioms.
 
 ### Parameters
-- [ ] Consistent ordering, optional parameters have defaults, complete type annotations
+Verify consistent ordering and ensure optional parameters have explicit defaults. Check that type annotations are complete.
 
 ### Return Values
-- [ ] Consistent patterns, error cases documented, pagination consistent
+Analyze return patterns for consistency. Confirm that error cases are documented and that pagination follows a uniform structure.
 
 ### Documentation
-- [ ] All public APIs documented with examples, changelog maintained
+Verify that all public APIs include usage examples and that the changelog reflects current changes.
 
 ## Output Format
 
-```markdown
-## API Review Report
+The final report must include a summary of the API surface, a numerical inventory of endpoints and public types, and an alignment analysis against researched exemplars. Document consistency issues and documentation gaps with precise file and line references. Conclude with a clear decision and a timed action plan.
 
-### Summary
-[Assessment of API surface]
+## Technical Integration
 
-### Surface Inventory
-- Endpoints/Functions: N
-- Public types: N
-- Stability: [stable/beta/experimental counts]
+Use `imbue:evidence-logging` for reproducible command capture and `imbue:structured-output` for formatting findings. Reference `imbue:diff-analysis/modules/risk-assessment-framework` when assessing breaking changes.
 
-### Exemplar Comparison
-[Key patterns from exemplars and alignment analysis]
-
-### Consistency Issues
-[I1] [Issue title]
-- Location: file:line
-- Recommendation: [fix]
-
-### Documentation Gaps
-[Identified gaps and required additions]
-
-### Recommendations
-- Decision: Approve / Approve with actions / Block
-- Action items with owners and dates
-```
-**Verification:** Run the command with `--help` flag to verify availability.
-
-## Integration Notes
-
-- Use `imbue:evidence-logging` for reproducible command capture
-- Reference `imbue:diff-analysis/modules/risk-assessment-framework` for breaking change assessment
-- Format output using `imbue:structured-output` for consistent findings
-
-## Exit Criteria
-
-- Surface inventory complete with stability metadata
-- Exemplars researched with pattern citations
-- Consistency issues documented with locations
-- Documentation gaps identified
-- Action plan with ownership and timeline
 ## Troubleshooting
 
-### Common Issues
-
-**Command not found**
-Ensure all dependencies are installed and in PATH
-
-**Permission errors**
-Check file permissions and run with appropriate privileges
-
-**Unexpected behavior**
-Enable verbose logging with `--verbose` flag
+If the audit command is missing, verify that dependencies are installed and accessible in the system PATH. Check file permissions if access errors occur. Use the `--verbose` flag to inspect execution logs if the tool behaves unexpectedly.

@@ -1,41 +1,29 @@
 # Superpowers Integration Guide
 
-Documentation for integrating superpowers marketplace skills with night-market plugins.
-
-## Overview
-
-The superpowers marketplace provides specialized skills for methodologies like RED-GREEN-REFACTOR, debugging, and evidence-based operations. This guide explains how to integrate these skills into your plugins.
-
-## Integration Principles
-
-We integrate these skills to reuse proven methodologies instead of reinventing them. This allows plugins to focus on their specific domain while relying on standard approaches for tasks like debugging or brainstorming.
+This guide details the integration of skills from the superpowers marketplace into Night Market plugins. These integrations provide standardized implementations for tasks like debugging, test-driven development, and planning.
 
 ## Integration Patterns
 
-1.  **Direct Call**: Replace duplicate logic with superpowers skill calls.
-2.  **Enhancement**: Add quality gates to existing workflows.
-3.  **Workflow Integration**: Insert methodology steps into existing processes.
+1.  **Direct Call**: Replace redundant logic with calls to existing superpowers skills.
+2.  **Quality Gates**: Add validation steps to workflows using superpowers methodologies.
+3.  **Workflow Chaining**: Sequence superpower steps within plugin-specific processes.
 
-## Recent Superpowers Updates (v4.0.0 - v4.1.0)
+## Superpowers Updates (v4.0.0 - v4.1.0)
 
 ### Skill Consolidations (v4.0.0)
 
-Several standalone skills were bundled into comprehensive skills:
-- `root-cause-tracing`, `defense-in-depth`, `condition-based-waiting` → bundled in `systematic-debugging/`
-- `testing-skills-with-subagents` → bundled in `writing-skills/`
-- `testing-anti-patterns` → bundled in `test-driven-development/`
+Several standalone skills were grouped into larger modules:
+- `root-cause-tracing`, `defense-in-depth`, and `condition-based-waiting` are now part of `systematic-debugging/`.
+- `testing-skills-with-subagents` is now part of `writing-skills/`.
+- `testing-anti-patterns` is now part of `test-driven-development/`.
 
 ### New Features (v4.0.x)
 
-1. **Two-Stage Code Review** - Subagent workflows now use separate spec compliance and code quality reviews
-2. **DOT Flowcharts** - Key skills now use executable DOT/GraphViz diagrams as authoritative process definitions
-3. **Strengthened Skill Invocation** - v4.0.3 improved explicit skill request handling with new red flags
-4. **Test Infrastructure** - New skill-triggering tests, Claude Code integration tests, and end-to-end workflow tests
+Subagent workflows now use separate stages for specification compliance and code quality reviews. Key skills define processes using executable DOT/GraphViz diagrams. v4.0.3 updated skill request handling to identify red flags in ambiguous inputs. Testing infrastructure now includes skill-triggering tests and end-to-end Claude Code integration tests.
 
 ### Breaking Changes (v4.1.0)
 
-1. **OpenCode Native Skills** - Switched to native `skill` tool (migration required for OpenCode users)
-2. **Windows Compatibility** - Fixed hook execution for Claude Code 2.1.x (hooks.json changes, LF line endings)
+Version 4.1.0 switched to the native `skill` tool, which requires migration for OpenCode users. Hook execution for Claude Code 2.1.x was corrected to use LF line endings and updated `hooks.json` structures for Windows compatibility.
 
 For full details, see the [Superpowers Release Notes](https://github.com/obra/superpowers/blob/main/RELEASE-NOTES.md).
 
@@ -43,37 +31,31 @@ For full details, see the [Superpowers Release Notes](https://github.com/obra/su
 
 ### Abstract Plugin
 
-*   `/create-skill`: Uses `superpowers:brainstorming`.
-*   `/create-command`: Uses `superpowers:brainstorming`.
-*   `/create-hook`: Uses `superpowers:brainstorming`.
-*   Integration tests: Use `superpowers:systematic-debugging` for complex troubleshooting (includes root-cause-tracing, defense-in-depth, condition-based-waiting).
+The `/create-skill`, `/create-command`, and `/create-hook` commands use `superpowers:brainstorming` to generate initial drafts. Integration tests use `superpowers:systematic-debugging` for complex troubleshooting, leveraging root-cause tracing and defense-in-depth patterns.
 
 ### Spec-Kit Plugin
 
-*   `task-planning`: Uses `superpowers:writing-plans` and `superpowers:executing-plans`.
-*   `speckit-orchestrator`: Integrates multiple superpowers skills for debugging and verification.
+`task-planning` uses `superpowers:writing-plans` and `superpowers:executing-plans` for lifecycle management. The `speckit-orchestrator` integrates multiple debugging and verification skills to validate implementation against specifications.
 
 ### Pensive Plugin
 
-*   `/full-review`: Includes `superpowers:systematic-debugging` and `superpowers:verification-before-completion`.
+The `/full-review` command includes `superpowers:systematic-debugging` and `superpowers:verification-before-completion` to analyze logic and verify fixes.
 
 ### Sanctum Plugin
 
-*   `/fix-pr`: Uses `superpowers:receiving-code-review`.
-*   Commit messages: Uses `elements-of-style:writing-clearly-and-concisely`.
-*   Future enhancements: Will use `superpowers:systematic-debugging` for complex issue resolution and security-focused reviews.
+`/fix-pr` uses `superpowers:receiving-code-review` to process feedback. Commit message generation uses `elements-of-style:writing-clearly-and-concisely` to enforce clarity standards.
 
 ### Parseltongue Plugin
 
-*   `python-testing`: Integrates `superpowers:test-driven-development` (includes testing-anti-patterns reference for common pitfalls like testing mock behavior, test-only methods, and incomplete mocks).
+`python-testing` integrates `superpowers:test-driven-development`. This includes references to testing anti-patterns to avoid issues like testing mock behavior or maintaining incomplete mocks.
 
 ### Minister Plugin
 
-*   `issue-management`: Uses `superpowers:systematic-debugging` for bug reports.
+`issue-management` uses `superpowers:systematic-debugging` for triaging bug reports.
 
 ### Conservation Plugin
 
-*   `/optimize-context`: Uses `superpowers:systematic-debugging` (includes condition-based-waiting technique for replacing arbitrary timeouts with condition polling).
+`/optimize-context` uses `superpowers:systematic-debugging`. It specifically employs the condition-based-waiting technique to replace static timeouts with event-driven polling.
 
 ## Usage Examples
 
@@ -98,19 +80,6 @@ For full details, see the [Superpowers Release Notes](https://github.com/obra/su
 # Includes superpowers:receiving-code-review
 ```
 
-### Writing Tests
-```bash
-# Parseltongue's python-testing skill:
-# Uses superpowers:test-driven-development
-```
-
 ## Developer Guide
 
-1.  **Identify Patterns**: Find where your plugin uses brainstorming, debugging, or verification.
-2.  **Document**: Add integration details to skill/command documentation.
-3.  **Implement**: Call superpowers skills in your workflows.
-4.  **Test**: Verify the integration works as expected.
-
-## Summary
-
-These integrations ensure we solve problems consistently, whether debugging or planning. By leveraging the superpowers marketplace, we maintain high standards across the entire ecosystem.
+Identify where a plugin requires brainstorming, debugging, or verification. Call the corresponding superpower skill directly in the workflow. Update the skill or command documentation to reflect these dependencies. Verify the integration by running the specific workflow and checking that data passes correctly between the plugin and the superpower skill.

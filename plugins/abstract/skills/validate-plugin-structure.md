@@ -11,350 +11,69 @@ triggers:
 
 # Plugin Structure Validation
 
-This skill validates a Claude Code plugin's structure against the official documentation and best practices.
-
-## When to Use This Skill
-
-Use this skill when:
-- Creating a new plugin to validate proper structure
-- Reviewing an existing plugin for compliance
-- Preparing a plugin for distribution
-- Debugging plugin loading issues
-- Contributing plugins to a marketplace
-
-## Validation Checklist
-
-### 1. Required Structure Validation
-
-**Critical Requirements:**
-- [ ] `.claude-plugin/plugin.json` exists at correct location
-- [ ] `plugin.json` contains required `name` field
-- [ ] Plugin name follows kebab-case convention (lowercase, hyphens only)
-- [ ] Component directories are at plugin root, not nested in `.claude-plugin/`
-
-### 2. Directory Structure Validation
-
-Check for standard directories (create if needed for extensibility):
-- [ ] `skills/` directory (if plugin provides skills)
-- [ ] `commands/` directory (if plugin provides slash commands)
-- [ ] `agents/` directory (if plugin provides custom agents)
-- [ ] `hooks/` directory (if plugin provides hooks)
-
-**Note:** These directories are optional but should exist if referenced in `plugin.json`.
-
-### 3. Plugin.json Schema Validation
-
-**Required Fields:**
-- [ ] `name` - kebab-case identifier (REQUIRED)
-
-**Recommended Fields:**
-- [ ] `version` - semantic versioning (e.g., "1.0.0")
-- [ ] `description` - clear, concise description
-- [ ] `author` - author name or object with name/email
-- [ ] `license` - license identifier (e.g., "MIT")
-- [ ] `keywords` - array of relevant keywords
-
-**Optional Enhanced Fields:**
-- [ ] `main` - entry point (e.g., "skills")
-- [ ] `provides` - capabilities/patterns this plugin provides
-- [ ] `dependencies` - plugin dependencies with versions
-- [ ] `repository` - source code repository URL
-- [ ] `homepage` - documentation or homepage URL
-- [ ] `claude` - Claude-specific configuration object
-
-### 4. Skills Validation
-
-For each skill referenced in `plugin.json`:
-- [ ] Skill file exists at specified path
-- [ ] Skill file follows naming convention (either `skill-name.md` or `skill-name/SKILL.md`)
-- [ ] Skill contains YAML frontmatter with `name` and `description`
-- [ ] Skill uses progressive disclosure (sections that expand information)
-
-### 5. Commands Validation
-
-For each command:
-- [ ] Command file is markdown format (`.md`)
-- [ ] Command file contains YAML frontmatter with appropriate metadata
-- [ ] Command paths use relative references with `./` prefix
-
-### 6. Agents Validation
-
-For each agent:
-- [ ] Agent file is markdown format (`.md`)
-- [ ] Agent file contains proper agent definition
-- [ ] Agent paths use relative references with `./` prefix
-
-### 7. Path Resolution Validation
-
-- [ ] All paths in `plugin.json` are relative (start with `./`)
-- [ ] Paths use `${CLAUDE_PLUGIN_ROOT}` for dynamic references where needed
-- [ ] No absolute paths are used
-
-### 8. Dependencies Validation
-
-If plugin has dependencies:
-- [ ] Dependencies use proper versioning (e.g., `">=2.0.0"`)
-- [ ] Dependency plugins exist or are installable
-- [ ] No circular dependencies
-
-## Validation Implementation
-
-### Step 1: Locate Plugin Root
-
-```bash
-# Get the plugin directory path
-PLUGIN_DIR="$1"
-if [ -z "$PLUGIN_DIR" ]; then
-  echo "Usage: validate-plugin-structure <plugin-directory>"
-  exit 1
-fi
-
-cd "$PLUGIN_DIR" || exit 1
-```
-
-### Step 2: Validate Critical Structure
-
-```bash
-# Check for .claude-plugin/plugin.json
-if [ ! -f ".claude-plugin/plugin.json" ]; then
-  echo "[CRITICAL] .claude-plugin/plugin.json not found"
-  exit 1
-fi
-
-echo "[OK] .claude-plugin/plugin.json exists"
-```
-
-### Step 3: Validate plugin.json Content
-
-```python
-import json
-import re
-from pathlib import Path
-
-def validate_plugin_json(plugin_path: Path) -> dict[str, list[str]]:
-    """Validate plugin.json structure and return issues."""
-    issues = {
-        "critical": [],
-        "warnings": [],
-        "recommendations": []
-    }
-
-    json_path = plugin_path / ".claude-plugin" / "plugin.json"
-
-    if not json_path.exists():
-        issues["critical"].append("plugin.json not found at .claude-plugin/plugin.json")
-        return issues
-
-    with open(json_path) as f:
-        config = json.load(f)
-
-    # Validate required fields
-    if "name" not in config:
-        issues["critical"].append("Missing required field: name")
-    elif not re.match(r'^[a-z0-9]+(-[a-z0-9]+)*$', config["name"]):
-        issues["critical"].append(f"Invalid plugin name: {config['name']} (must be kebab-case)")
-
-    # Check recommended fields
-    recommended = ["version", "description", "author", "license"]
-    for field in recommended:
-        if field not in config:
-            issues["recommendations"].append(f"Missing recommended field: {field}")
-
-    # Validate paths
-    for key in ["skills", "commands", "agents"]:
-        if key in config and isinstance(config[key], list):
-            for path in config[key]:
-                if not path.startswith("./"):
-                    issues["warnings"].append(f"{key} path should start with './': {path}")
-
-                # Check if referenced file exists
-                check_path = plugin_path / path.lstrip("./")
-                if not check_path.exists() and not (plugin_path / f"{path.lstrip('./')}.md").exists():
-                    issues["critical"].append(f"Referenced {key} path not found: {path}")
-
-    # Validate dependencies format
-    if "dependencies" in config:
-        if isinstance(config["dependencies"], list):
-            issues["recommendations"].append("Dependencies should be object with versions, not array")
-        elif isinstance(config["dependencies"], dict):
-            for dep, version in config["dependencies"].items():
-                if not isinstance(version, str) or not re.match(r'^[><=\^~]*\d+\.\d+\.\d+', version):
-                    issues["warnings"].append(f"Dependency {dep} should use semantic versioning")
-
-    return issues
-```
-
-### Step 4: Validate Directory Structure
-
-```python
-def validate_directory_structure(plugin_path: Path) -> dict[str, list[str]]:
-    """Validate plugin directory structure."""
-    issues = {
-        "warnings": [],
-        "recommendations": []
-    }
-
-    # Check for standard directories
-    standard_dirs = ["skills", "commands", "agents", "hooks"]
-
-    with open(plugin_path / ".claude-plugin" / "plugin.json") as f:
-        config = json.load(f)
-
-    # If plugin references components, directories should exist
-    if "skills" in config and config["skills"]:
-        if not (plugin_path / "skills").exists():
-            issues["warnings"].append("Plugin references skills but skills/ directory missing")
-
-    if "commands" in config and config["commands"]:
-        if not (plugin_path / "commands").exists():
-            issues["warnings"].append("Plugin references commands but commands/ directory missing")
-
-    if "agents" in config and config.get("agents"):
-        if not (plugin_path / "agents").exists():
-            issues["warnings"].append("Plugin references agents but agents/ directory missing")
-
-    return issues
-```
-
-### Step 5: Generate Validation Report
-
-```python
-def generate_report(plugin_path: Path) -> None:
-    """Generate detailed validation report."""
-    print(f"Validating plugin: {plugin_path.name}")
-    print("=" * 60)
-
-    # Validate plugin.json
-    json_issues = validate_plugin_json(plugin_path)
-
-    # Validate directory structure
-    dir_issues = validate_directory_structure(plugin_path)
-
-    # Merge issues
-    all_critical = json_issues["critical"]
-    all_warnings = json_issues["warnings"] + dir_issues["warnings"]
-    all_recommendations = json_issues["recommendations"] + dir_issues["recommendations"]
-
-    # Display results
-    if all_critical:
-        print("\n[!] CRITICAL ISSUES:")
-        for issue in all_critical:
-            print(f"  • {issue}")
-
-    if all_warnings:
-        print("\n[*] WARNINGS:")
-        for issue in all_warnings:
-            print(f"  • {issue}")
-
-    if all_recommendations:
-        print("\n[+] RECOMMENDATIONS:")
-        for issue in all_recommendations:
-            print(f"  • {issue}")
-
-    if not (all_critical or all_warnings or all_recommendations):
-        print("\n[SUCCESS] Plugin structure is valid!")
-
-    print("=" * 60)
-
-    # Return exit code
-    return 1 if all_critical else 0
-```
+This skill validates a Claude Code plugin's directory structure and metadata against required schemas and project conventions.
 
 ## Usage
 
-### Command Line Validation
+Use this skill when creating new plugins, preparing for distribution, or debugging loading issues. For automated validation, use the `/validate-plugin` command.
 
-```bash
-# Validate a plugin
-cd /path/to/plugin
-python ${CLAUDE_PLUGIN_ROOT}/scripts/validate-plugin.py .
+## Validation Checklist
 
-# Or use the skill directly
-/validate-plugin /path/to/plugin
-```
+### 1. Required Structure
 
-### Programmatic Validation
+- **plugin.json**: Verify that `.claude-plugin/plugin.json` exists at the plugin root.
+- **Metadata**: Confirm the `name` field exists and uses kebab-case (lowercase, hyphens only).
+- **Component Isolation**: Component directories (skills, commands, agents, hooks) must be located at the plugin root, not nested within `.claude-plugin/`.
 
-```python
-from pathlib import Path
-from validate_plugin import validate_plugin_json, generate_report
+### 2. Directory Structure
 
-plugin_path = Path("~/claude-night-market/plugins/archetypes").expanduser()
-exit_code = generate_report(plugin_path)
-```
+If referenced in `plugin.json`, the corresponding directories must exist at the root: `skills/`, `commands/`, `agents/`, and `hooks/`.
 
-## Common Issues and Fixes
+### 3. Metadata Schema
 
-### Issue: plugin.json at root instead of .claude-plugin/
+- **Required**: `name` (kebab-case).
+- **Recommended**: `version` (semver), `description`, `author`, and `license` (e.g., MIT).
+- **Optional**: `main` entry point, `provides` capabilities list, `dependencies` with version constraints, and `repository` or `homepage` URLs.
 
-**Fix:**
-```bash
-mkdir -p .claude-plugin
-mv plugin.json .claude-plugin/plugin.json
-```
+### 4. Component Validation
 
-### Issue: Invalid plugin name (spaces or uppercase)
+- **Skills**: Each referenced skill must exist as a `.md` file or within a named directory containing a `SKILL.md`. Files must include YAML frontmatter with `name` and `description` fields and use progressive disclosure for technical details.
+- **Commands**: Files must be in Markdown format with YAML frontmatter metadata. All command paths in `plugin.json` must use the `./` prefix.
+- **Agents**: Agent definitions must be valid Markdown and use relative paths.
 
-**Fix:** Update `name` field in plugin.json to use kebab-case:
-```json
-{
-  "name": "my-plugin-name"  // lowercase, hyphens only
-}
-```
+### 5. Path Resolution and Dependencies
 
-### Issue: Absolute paths in plugin.json
+All paths in `plugin.json` must be relative (starting with `./`). Use `${CLAUDE_PLUGIN_ROOT}` for dynamic environment references. Dependencies must specify semantic versions (e.g., `">=2.0.0"`) and must not form circular references.
 
-**Fix:** Convert to relative paths:
-```json
-{
-  "skills": [
-    "./skills/my-skill"  // not "/home/user/skills/my-skill"
-  ]
-}
-```
+## Implementation Steps
 
-### Issue: Missing standard directories
+### Step 1: Directory Verification
 
-**Fix:**
-```bash
-mkdir -p skills commands agents hooks
-```
+Confirm the plugin path and change to that directory. If no path is provided, the script should report usage details and exit.
 
-## Best Practices
+### Step 2: Critical File Check
 
-1. **Always validate before distribution** - Run validation as part of your CI/CD
-2. **Use semantic versioning** - Follow semver for version numbers
-3. **Document dependencies** - Clearly specify version requirements
-4. **Keep structure standard** - Only customize paths when necessary
-5. **Use progressive disclosure** - Break complex skills into sections
-6. **Test with Claude Code** - Actually install and test the plugin
+Verify the existence of `.claude-plugin/plugin.json`. If missing, halt execution and report a critical failure.
 
-## Integration with CI/CD
+### Step 3: Content and Schema Validation
 
-Add to your `.github/workflows/validate.yml`:
+Use a Python script to parse `plugin.json`. Validate that the `name` matches the kebab-case regex. Check for recommended fields and verify that all referenced component paths resolve to existing files. For dependencies, confirm that the format is an object with semantic version strings rather than a flat array.
 
-```yaml
-name: Validate Plugin Structure
+### Step 4: Directory Mapping
 
-on: [push, pull_request]
+Iterate through the `standard_dirs` list (`skills`, `commands`, `agents`, `hooks`). If `plugin.json` references a component type but the corresponding directory is missing from the root, report a warning.
 
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Validate plugin structure
-        run: |
-          python scripts/validate-plugin.py .
-```
+## Common Issues
+
+- **Incorrect Pathing**: Move `plugin.json` from the root to `.claude-plugin/`.
+- **Naming Violations**: Update the `name` field to use only lowercase letters and hyphens.
+- **Absolute Paths**: Convert all path references in `plugin.json` to start with `./`.
+- **Missing Directories**: Create the standard component directories if they are missing but referenced.
+
+## Technical Standards
+
+Integrate structure validation into CI/CD pipelines to catch issues before distribution. Use semantic versioning for all releases and specify version requirements for dependencies. Maintain standard directory structures to minimize custom path configuration. Document each skill using progressive disclosure to manage context window efficiency.
 
 ## Conclusion
 
-Regular validation validates your plugin:
-- Loads correctly in Claude Code
-- Follows official conventions
-- Works across different environments
-- Integrates well with other plugins
-- Provides good developer experience
-
-Run this validation whenever you create or modify a plugin!
+Regular validation confirms that a plugin loads correctly across different environments, adheres to project conventions, and maintains interoperability within the ecosystem.

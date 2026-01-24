@@ -32,20 +32,20 @@ version: 1.3.4
 
 ## Overview
 
-This framework breaks complex skills into focused modules to keep token usage predictable and prevent monolithic files. We use progressive disclosure: starting with essentials and loading deeper technical details via `@include` or `Load:` statements only when needed. This approach avoids hitting context limits during long-running tasks.
+This framework breaks complex skills into focused modules to keep token usage predictable and avoid monolithic files. We use progressive disclosure: starting with essentials and loading deeper technical details via `@include` or `Load:` statements only when needed. This approach prevents hitting context limits during long-running tasks.
 
-Modular design keeps file sizes within recommended limits, typically under 150 lines. By using shallow dependencies and clear boundaries, we simplify testing and maintenance. The hub-and-spoke model allows the project to grow without bloating primary skill files, making focused modules easier to verify in isolation and faster for Claude to parse.
+Modular design keeps file sizes within recommended limits, typically under 150 lines. Shallow dependencies and clear boundaries simplify testing and maintenance. The hub-and-spoke model allows the project to grow without bloating primary skill files, making focused modules easier to verify in isolation and faster to parse.
 
 ### Core Components
 
-We use three tools for skill development:
+Three tools support modular skill development:
 - `skill-analyzer`: Checks complexity and suggests where to split code.
 - `token-estimator`: Forecasts usage and suggests optimizations.
-- `module-validator`: Ensures structure complies with project standards.
+- `module-validator`: Verifies that structure complies with project standards.
 
 ### Design Principles
 
-We design skills around single responsibility and loose coupling. Each module focuses on one task, minimizing dependencies to keep the architecture cohesive. Clear boundaries and well-defined interfaces ensure that changes in one module don't break others. This follows Anthropic's Agent Skills best practices: provide a high-level overview first, then surface details as needed to maintain context efficiency.
+We design skills around single responsibility and loose coupling. Each module focuses on one task, minimizing dependencies to keep the architecture cohesive. Clear boundaries and well-defined interfaces prevent changes in one module from breaking others. This follows Anthropic's Agent Skills best practices: provide a high-level overview first, then surface details as needed to maintain context efficiency.
 
 ## Quick Start
 
@@ -57,7 +57,7 @@ python scripts/analyze.py --threshold 100
 From Python, use `analyze_skill` from `abstract.skill_tools`.
 
 ### Token Usage Planning
-Estimate token consumption to ensure your skill stays within budget. Run this from the skill directory:
+Estimate token consumption to verify your skill stays within budget. Run this from the skill directory:
 ```bash
 python scripts/tokens.py
 ```
@@ -70,7 +70,7 @@ python scripts/abstract_validator.py --scan
 
 ## Workflow and Tasks
 
-Start by assessing complexity with `skill_analyzer.py`. If a skill exceeds 150 lines, break it into focused modules following the patterns in `../../docs/examples/modular-skills/`. Use `token_estimator.py` to check efficiency and `abstract_validator.py` to verify the final structure. This iterative process ensures each module remains maintainable and token-efficient.
+Start by assessing complexity with `skill_analyzer.py`. If a skill exceeds 150 lines, break it into focused modules following the patterns in `../../docs/examples/modular-skills/`. Use `token_estimator.py` to check efficiency and `abstract_validator.py` to verify the final structure. This iterative process maintains module maintainability and token efficiency.
 
 ## Quality Checks
 
@@ -82,7 +82,7 @@ find modules -name "*.md" -exec wc -l {} + | awk '$1 > 100'
 
 ### Standards Compliance
 
-Our standards prioritize concrete examples and consistent voice. Always provide actual commands in Quick Start sections instead of abstract descriptions. Use third-person perspective (e.g., "the project", "developers") rather than "you" or "your". Each code example should be followed by a validation command. For discoverability, ensure descriptions include at least five specific trigger phrases.
+Our standards prioritize concrete examples and a consistent voice. Always provide actual commands in Quick Start sections instead of abstract descriptions. Use third-person perspective (e.g., "the project", "developers") rather than "you" or "your". Each code example should be followed by a validation command. For discoverability, descriptions must include at least five specific trigger phrases.
 
 ### TOC Template
 ```markdown

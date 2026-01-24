@@ -136,16 +136,25 @@ For high-stakes decisions, extend to iterative Delphi convergence:
 
 ### With Brainstorm
 
-War Room can be invoked from `/attune:brainstorm` when:
-- Multiple strong approaches emerge with no clear winner
-- User explicitly requests expert council
-- Problem complexity exceeds threshold
+**War Room is AUTOMATICALLY INVOKED** from `Skill(attune:project-brainstorming)` after Phase 3 (Approach Generation).
+
+The brainstorm skill passes all context to War Room:
+- Problem statement and constraints
+- Generated approaches with pros/cons
+- Comparison matrix
+- Reversibility assessment (automatically calculated)
+
+**Bypass conditions** (only if ALL true):
+- RS ≤ 0.40 (Type 2 decision - clearly reversible)
+- Single obvious approach with no meaningful trade-offs
+- Low complexity with well-documented pattern
+- User explicitly declines after seeing RS assessment
 
 ```bash
-# From brainstorm, escalate to War Room
+# Automatic invocation from brainstorm (do not skip)
 /attune:war-room --from-brainstorm
 
-# Direct invocation
+# Direct invocation (standalone)
 /attune:war-room "Should we use microservices or monolith for this system?"
 ```
 

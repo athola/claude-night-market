@@ -42,11 +42,12 @@ version: 1.3.4
 
 # Git Workspace Review
 
-## When to Use
-Use this skill before any workflow that depends on understanding current changes (commit messages, PR prep, release notes, etc.).
-Run once per session or whenever staged changes are updated.
+## Usage
 
-## Required TodoWrite Items
+Use this skill before workflows that depend on repository state, such as commit message generation, PR preparation, or release notes. Run it once per session or whenever staged changes are modified.
+
+## Required Progress Tracking
+
 1. `git-review:repo-confirmed`
 2. `git-review:status-overview`
 3. `git-review:code-quality-check`
@@ -56,36 +57,29 @@ Run once per session or whenever staged changes are updated.
 Mark each item as complete as you finish the corresponding step.
 
 ## Step 1: Confirm Repository (`repo-confirmed`)
-- Run `pwd` to validate you are inside the correct repository.
-- Run `git status -sb` to see the branch and short status.
-- Capture the branch name and upstream information.
+
+Run `pwd` to confirm you are in the correct repository directory. Execute `git status -sb` to view the current branch and short status, then capture the branch name and upstream information.
 
 ## Step 2: Review Status Overview (`status-overview`)
-- Review the `git status -sb` output for staged vs. unstaged changes.
-- Stage or unstage files as needed so downstream workflows operate on the intended diff.
+
+Analyze the `git status -sb` output for staged and unstaged changes. Stage or unstage files so that subsequent workflows operate on the intended diff.
 
 ## Step 3: Check Code Quality (`code-quality-check`)
-- Run `make format && make lint` to validate code quality BEFORE committing
-- If errors are found, fix them immediately
-- **NEVER proceed to commit with `--no-verify`** - pre-commit hooks exist to enforce quality
-- This proactive check prevents pre-commit hook failures later
+
+Run `make format && make lint` to validate code quality before committing. Fix any errors immediately. Do not bypass pre-commit hooks with `--no-verify`. This check identifies issues early and avoids late-stage pipeline failures.
 
 ## Step 4: Review Diff Statistics (`diff-stat`)
-- Run `git diff --cached --stat` for staged changes (or `git diff --stat` if nothing is staged yet).
-- Note the number of files touched and any hotspots (large insert/delete counts).
+
+Run `git diff --cached --stat` for staged changes (or `git diff --stat` for unstaged work). Note the number of files modified and identify hotspots with large insertion or deletion counts.
 
 ## Step 5: Review Detailed Diff (`diff-details`)
-- Run `git diff --cached` to skim the actual changes.
-- If working with unstaged work, use `git diff`.
-- Capture key themes (e.g., "Makefile target adjustments," "New skill added").
-- These notes feed downstream summaries.
+
+Run `git diff --cached` to examine the actual changes. For unstaged work, use `git diff`. Identify key themes, such as Makefile adjustments or new skill additions, to provide context for downstream summaries.
 
 ## Exit Criteria
-- `TodoWrite` items are completed.
-- You understand which files and areas have changed and have staged the correct work.
-- Downstream workflows (commit, PR, etc.) can now rely on this context without re-running Git commands.
+
+Complete all progress tracking items. You should have a clear understanding of modified files and areas, and the correct work should be staged. Subsequent workflows can then rely on this context without re-executing git commands.
+
 ## Troubleshooting
 
-### Common Issues
-
-If pre-commit hooks block you, fix the issues; do not use `--no-verify`. Run `make format` to resolve styling errors automatically. For lint failures, use `make lint` to pinpoint the cause. If merge conflicts arise, `git merge --abort` lets you retry safely.
+If pre-commit hooks block a commit, resolve the reported issues instead of using `--no-verify`. Run `make format` to fix styling errors automatically and use `make lint` to isolate logical failures. If merge conflicts occur, use `git merge --abort` to return to a clean state before retrying.

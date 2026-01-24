@@ -42,27 +42,13 @@ evaluation_criteria:
   tool_integration: 20         # Tool effectiveness, error handling, performance
   claude_sdk_compliance: 10    # API compatibility, best practices adherence
 ---
-## Table of Contents
-
-- [Overview](#overview)
-- [What It Is](#what-it-is)
-- [Quick Start](#quick-start)
-- [Evaluation Workflow](#evaluation-workflow)
-- [Evaluation and Optimization](#evaluation-and-optimization)
-- [Resources](#resources)
-
-
 # Skills Evaluation and Improvement
 
 ## Overview
 
-This framework audits Claude skills against quality standards to optimize performance and reduce token waste. We use automated tools to analyze skill structure, measure context usage, and identify specific improvements.
+This framework audits Claude skills against quality standards to improve performance and reduce token consumption. Automated tools analyze skill structure, measure context usage, and identify specific technical improvements.
 
-The `skills-auditor` provides structural analysis, while the `improvement-suggester` ranks fixes by impact. Compliance is verified through the `compliance-checker`, and runtime efficiency is monitored by `tool-performance-analyzer` and `token-usage-tracker`.
-
-## What It Is
-
-Evaluates and improves existing skills by running quality assessments, performance analysis, and generating improvement plans.
+The `skills-auditor` provides structural analysis, while the `improvement-suggester` ranks fixes by impact. Compliance is verified through the `compliance-checker`. Runtime efficiency is monitored by `tool-performance-analyzer` and `token-usage-tracker`.
 
 ## Quick Start
 
@@ -92,17 +78,17 @@ make check-compliance TARGET=path/to/skill/SKILL.md
 
 ## Evaluation Workflow
 
-Start with `make audit-all` to inventory skills and identify high-priority targets. For each skill requiring attention, run deep analysis with `analyze-skill` to map complexity. Generate an improvement plan, apply fixes, and then run `check-compliance` to ensure the skill meets project standards. Finalize by checking the token budget to ensure long-term efficiency.
+Start with `make audit-all` to inventory skills and identify high-priority targets. For each skill requiring attention, run analysis with `analyze-skill` to map complexity. Generate an improvement plan, apply fixes, and run `check-compliance` to verify the skill meets project standards. Finalize by checking the token budget for efficiency.
 
 ## Evaluation and Optimization
 
-Quality assessments use the `skills-auditor` and `improvement-suggester` to generate detailed reports. Performance analysis focuses on token efficiency through the `token-usage-tracker` and tool performance via `tool-performance-analyzer`. For standards compliance, the `compliance-checker` can automate common fixes for structural issues.
+Quality assessments use the `skills-auditor` and `improvement-suggester` to generate detailed reports. Performance analysis focuses on token efficiency through the `token-usage-tracker` and tool performance via `tool-performance-analyzer`. For standards compliance, the `compliance-checker` automates common fixes for structural issues.
 
 ### Scoring and Prioritization
 
-We evaluate skills across five dimensions: structure compliance, content quality, token efficiency, activation reliability, and tool integration. Scores above 90 represent production-ready skills, while scores below 50 indicate critical issues that require immediate attention.
+We evaluate skills across five dimensions: structure compliance, content quality, token efficiency, activation reliability, and tool integration. Scores above 90 represent production-ready skills, while scores below 50 indicate critical issues requiring immediate attention.
 
-Improvements are prioritized by impact. **Critical** issues include security vulnerabilities or broken functionality. **High** priority covers structural flaws that hinder discoverability. **Medium** and **Low** priorities focus on best practices and minor optimizations.
+Improvements are prioritized by impact. Critical issues include security vulnerabilities or broken functionality. High-priority items cover structural flaws that hinder discoverability. Medium and low priorities focus on best practices and minor optimizations.
 
 ## Resources
 

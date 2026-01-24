@@ -2,46 +2,46 @@
 
 **Claude Code plugins for software engineering workflows.**
 
-This repository adds 16 plugins to Claude Code for git operations, code review, spec-driven development, and issue management. Plugins function independently but share testing and debugging patterns.
+This repository adds 16 plugins to Claude Code for git operations, code review, spec-driven development, and issue management. Each plugin functions independently to allow selective installation while sharing a common testing framework for consistency.
 
-## Key Features
+## Features
 
 **Governance & Quality**
-Hooks adapt context based on the active agent, while `pensive` tracks usage frequency and failure rates. `imbue` enforces the Iron Law TDD cycle via a PreToolUse hook that checks for test files before allowing implementation writes. For complex tasks, `imbue:rigorous-reasoning` requires a step-by-step logic check.
+Hooks adapt context based on the active agent. `pensive` tracks usage frequency and failure rates to identify unstable workflows. `imbue` enforces test-driven development via a PreToolUse hook that verifies the existence of test files before allowing implementation writes. For complex tasks, `imbue:rigorous-reasoning` requires step-by-step logic checks before tool execution.
 
 **Security & Session Management**
-`leyline` manages OAuth flows for GitHub, GitLab, and AWS with token caching. `conserve` handles permission checks, approving safe commands (like `ls`) and blocking risky ones (`rm -rf /`). `sanctum` isolates named sessions for debugging, feature work, and PR reviews. To maintain quality, `/create-skill` and `/create-command` stop if failing tests exist.
+`leyline` manages OAuth flows for GitHub, GitLab, and AWS with local token caching. `conserve` implements permission checks, automatically approving safe commands like `ls` while blocking high-risk operations like `rm -rf /`. `sanctum` isolates named sessions for debugging, feature work, and PR reviews. Quality gates in `/create-skill` and `/create-command` halt execution if the project has failing tests.
 
 **Resilience & Collaboration**
-`/update-plugins` recommends updates based on stability, and `/fix-workflow` attempts to repair failed runs. For strategic decisions, `/attune:war-room` uses reversibility scoring (Type 1/2 framework) to route decisions to appropriate expert panels.
+`/update-plugins` recommends updates based on plugin stability metrics. `/fix-workflow` attempts to repair failed runs by analyzing previous errors. For strategic decisions, `/attune:war-room` uses a Type 1/2 reversibility framework to route choices to appropriate expert subagents.
 
 **Cross-Session State (Claude Code 2.1.16+)**
-Execution workflows in `attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation is lazy (on-demand), state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`, and ambiguity detection prompts for user decisions when task boundaries are unclear. Older versions use file-based state as a default.
+`attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation occurs on-demand, and state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`. Ambiguity detection prompts for user decisions when task boundaries are unclear. Versions prior to 2.1.16 use file-based state by default.
 
 ## Workflow Improvements
 
-Commands automate multi-step processes to reduce manual overhead. `/prepare-pr` validates branch scope, runs linting, and verifies a clean state before creating a pull request, while `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` enforces a written specification phase before code generation. To keep the agent in sync, `/catchup` reads recent git history to update the context window, and `/attune:init` detects project types (Python, Node) to scaffold necessary configuration files.
+Commands automate multi-step processes to reduce manual intervention. `/prepare-pr` validates branch scope, runs configured linters, and verifies a clean git state before drafting a pull request. `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` requires a written specification phase before generating code. To maintain context, `/catchup` reads recent git history, and `/attune:init` detects project types (Python, Node) to scaffold configuration files.
 
 ## Quick Start
 
-### Option 1: Claude Code Plugin Commands
+### Claude Code Plugin Commands
 
 ```bash
 # 1. Add the marketplace
 /plugin marketplace add athola/claude-night-market
 
-# 2. Install plugins you need
+# 2. Install plugins
 /plugin install sanctum@claude-night-market    # Git workflows
 /plugin install pensive@claude-night-market    # Code review
 /plugin install spec-kit@claude-night-market   # Spec-driven dev
 
-# 3. Start using
+# 3. Use
 /prepare-pr                                    # Prepare a pull request
 /full-review                                   # Run code review
-Skill(sanctum:git-workspace-review)            # Invoke a skill (if Skill tool available)
+Skill(sanctum:git-workspace-review)            # Invoke a skill
 ```
 
-### Option 2: npx skills
+### npx skills
 
 ```bash
 # Install the entire marketplace
@@ -55,83 +55,42 @@ npx skills add athola/claude-night-market/conserve   # Resource optimization
 
 ### Post-Installation Setup (Claude Code 2.1.16+)
 
-After installation, initialize plugins with Setup hooks:
+Initialize plugins with Setup hooks:
 
 ```bash
-# Run one-time initialization
+# One-time initialization
 claude --init
 
-# Periodic maintenance (weekly recommended)
+# Weekly maintenance
 claude --maintenance
 ```
 
-> **Note:** If the `Skill` tool is unavailable, read skill files directly: `Read plugins/{plugin}/skills/{skill-name}/SKILL.md` and follow the instructions.
+> **Note:** If the `Skill` tool is unavailable, read skill files at `plugins/{plugin}/skills/{skill-name}/SKILL.md`.
 
-**Next steps:** See [Installation Guide](book/src/getting-started/installation.md) for recommended plugin sets and troubleshooting.
+**Detailed instructions:** See the [Installation Guide](book/src/getting-started/installation.md).
 
 ## What's Included
 
-The 16 plugins are organized in layers. The **Foundation Layer** provides core utilities: `sanctum` handles git operations and session management, `leyline` manages authentication and quotas, and `imbue` enforces TDD cycles. The **Utility Layer** adds tools like `conserve` for resource optimization and `hookify` for rules. **Domain Specialists** focus on specific tasks: `pensive` for code review, `spec-kit` for requirements, and `minister` for issue tracking.
+The 16 plugins are organized into four layers.
 
-```mermaid
-flowchart TB
-    classDef domainClass fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50
-    classDef utilityClass fill:#f8f4e8,stroke:#f39c12,stroke-width:2px,color:#2c3e50
-    classDef foundationClass fill:#f4e8f8,stroke:#8e44ad,stroke-width:2px,color:#2c3e50
-    classDef metaClass fill:#e8f4e8,stroke:#27ae60,stroke-width:2px,color:#2c3e50
-
-    subgraph Domain["Domain Specialists"]
-        direction LR
-        D1[archetypes]:::domainClass
-        D2[pensive]:::domainClass
-        D3[parseltongue]:::domainClass
-        D4[memory-palace]:::domainClass
-        D5[spec-kit]:::domainClass
-        D6[minister]:::domainClass
-        D7[attune]:::domainClass
-        D8[scry]:::domainClass
-        D9[scribe]:::domainClass
-    end
-
-    subgraph Utility["Utility Layer"]
-        direction LR
-        U1[conserve]:::utilityClass
-        U2[conjure]:::utilityClass
-        U3[hookify]:::utilityClass
-    end
-
-    subgraph Foundation["Foundation Layer"]
-        direction LR
-        F1[imbue]:::foundationClass
-        F2[sanctum]:::foundationClass
-        F3[leyline]:::foundationClass
-    end
-
-    subgraph Meta["Meta Layer"]
-        direction LR
-        M1[abstract]:::metaClass
-    end
-
-    Domain ==> Utility ==> Foundation ==> Meta
-```
+1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth and quotas), and `imbue` (TDD cycles).
+2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine).
+3.  **Domain Specialists**: Task-specific logic. `pensive` (code review), `spec-kit` (requirements), and `minister` (issue tracking).
+4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring.
 
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 122 skills, 109 commands, and 40 agents.
 
-## Audience
-
-Developers use these plugins to automate CLI tasks. Teams use them to define consistent patterns for LLM interactions.
-
 ## Common Workflows
 
-See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) for execution details.
+Details are available in the [Common Workflows Guide](book/src/getting-started/common-workflows.md).
 
 | Workflow | Command | Example |
 |----------|-------------|---------|
 | Initialize project | `/attune:arch-init` | `attune:arch-init --name my-api` |
 | Review a PR | `/full-review` | Run multi-discipline code review |
-| Architecture review | `/fpf-review` | FPF (Functional/Practical/Foundation) analysis |
+| Architecture review | `/fpf-review` | FPF analysis |
 | Fix PR feedback | `/fix-pr` | Address review comments |
-| Implement issues | `/do-issue` | Progressive issue resolution with TDD |
+| Implement issues | `/do-issue` | Progressive issue resolution |
 | Fix workflow issues | `/fix-workflow` | Self-correcting with Reflexion |
 | Prepare a PR | `/prepare-pr` | Quality gates before merge |
 | Create GitHub issue | `/create-issue` | Interactive issue creation |
@@ -140,31 +99,11 @@ See [**Common Workflows Guide**](book/src/getting-started/common-workflows.md) f
 | Write specifications | `/speckit-specify` | Spec-driven development |
 | Debug issues | `Skill(superpowers:debugging)` | Root cause analysis |
 | Improve plugins | `/update-plugins` | Update based on stability metrics |
-| Strategic decisions | `/attune:war-room` | Reversibility-based expert routing |
-
-## Demos
-
-### Skills Showcase
-
-![Skills Showcase Demo](assets/gifs/skills-showcase.gif)
-
-This 90-second tutorial demonstrates how to browse skills, examine their frontmatter, and chain them into workflows.
-
-[Full Tutorial](docs/tutorials/skills-showcase.md)
-
----
-
-## Documentation
-
-*   [**Getting Started**](book/src/getting-started/README.md): Installation and setup.
-*   [**Plugin Catalog**](book/src/plugins/README.md): Documentation for each plugin.
-*   [**Capabilities Reference**](book/src/reference/capabilities-reference.md): List of all skills and commands.
-*   [**Tutorials**](book/src/tutorials/README.md): Guides for specific tasks.
-*   [**Advanced Guides**](docs/guides/README.md): Deep dives into architecture and patterns.
+| Strategic decisions | `/attune:war-room` | Expert routing |
 
 ## LSP Integration
 
-LSP (Language Server Protocol) support is available in Claude Code v2.0.74+. It enables faster symbol search (~50ms) compared to text search (~45s).
+LSP (Language Server Protocol) support requires Claude Code v2.0.74+. It enables symbol search in ~50ms, significantly faster than standard text search.
 
 **Setup:**
 
@@ -178,7 +117,7 @@ LSP (Language Server Protocol) support is available in Claude Code v2.0.74+. It 
     /plugin install pyright-lsp@claude-plugins-official
     ```
 
-See [LSP Native Support Guide](docs/guides/lsp-native-support.md) for details.
+See [LSP Native Support Guide](docs/guides/lsp-native-support.md).
 
 ## Extending Night Market
 
@@ -190,19 +129,15 @@ make validate
 make lint && make test
 ```
 
-Refer to the [Plugin Development Guide](docs/plugin-development-guide.md) for architectural patterns.
+Refer to the [Plugin Development Guide](docs/plugin-development-guide.md).
 
 ## Prompt Context Usage
 
-The ecosystem adds ~14.8k characters to the system prompt (limit: 15k), enforced by a pre-commit hook.
-
-## Architecture
-
-Plugins are modular, load progressively to save tokens, and emphasize specifications before coding.
+The ecosystem adds ~14.8k characters to the system prompt (limit: 15k), enforced by a pre-commit hook. Plugins use modular designs and progressive loading to stay within these limits.
 
 ## Contributing
 
-See the [Plugin Development Guide](docs/plugin-development-guide.md) for guidelines. Each plugin maintains its own tests and documentation.
+Each plugin maintains its own tests and documentation. See the [Plugin Development Guide](docs/plugin-development-guide.md).
 
 ## License
 

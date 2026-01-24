@@ -457,7 +457,7 @@ class ConfigFactory:
             if config_file.exists():
                 cls._instances[name] = AbstractConfig.from_file(config_file)
             else:
-                # Fall back to environment variables and defaults
+                # Use environment variables and defaults as secondary source
                 cls._instances[name] = AbstractConfig.from_env()
 
         return cls._instances[name]

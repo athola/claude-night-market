@@ -1,30 +1,31 @@
 # Plugin Dependency Pattern
 
-This document describes the proper pattern for handling dependencies between Claude Code plugins without using shared code modules.
+This guide defines the standard pattern for managing dependencies between Claude Code plugins without using shared code modules.
 
 ## Philosophy
 
-Plugins should be **self-contained** and **independent**. Instead of sharing code through common modules, plugins should:
+Plugins must remain self-contained and independent. Instead of sharing code through common modules, plugins implement their own logic for detecting and interacting with other plugins. This approach prevents version coupling and ensures that a single plugin's failure does not disable the entire ecosystem.
 
-1. **Detect** the presence of other plugins
-2. **Use** functionality when available
-3. **Handle** missing dependencies gracefully
-4. **Document** these relationships clearly
+1.  **Detection**: Verify the existence of other plugins at runtime.
+2.  **Capability Check**: Query plugin manifests for specific supported features.
+3.  **Graceful Degradation**: Implement default behaviors when dependencies are missing.
+4.  **Documentation**: Explicitly state optional relationships in READMEs and manifests.
 
 ## Core Pattern: Plugin Detection
 
 ### Step 1: Check for Plugin Installation
 
+Plugins check the user's local configuration directory to determine if a dependency is present.
+
 ```python
 def is_plugin_available(plugin_name: str) -> bool:
-    """Check if a plugin is installed and available"""
+    """Check if a plugin is installed and available."""
     try:
-        # Check if plugin directory exists
         plugin_path = Path.home() / ".claude" / "plugins" / plugin_name
         if not plugin_path.exists():
             return False
 
-        # Check if plugin has valid structure
+        # Required markers for a valid plugin
         required_files = ["plugin.json", "SKILL.md"]
         return all((plugin_path / f).exists() for f in required_files)
     except Exception:
@@ -33,13 +34,14 @@ def is_plugin_available(plugin_name: str) -> bool:
 
 ### Step 2: Check for Specific Functionality
 
+Functional checks prevent errors when a plugin exists but is an incompatible version.
+
 ```python
 def has_plugin_capability(plugin_name: str, capability: str) -> bool:
-    """Check if a plugin provides a specific capability"""
+    """Check if a plugin provides a specific capability."""
     try:
         plugin_path = Path.home() / ".claude" / "plugins" / plugin_name
 
-        # Check plugin manifest for capabilities
         if (plugin_path / "plugin.json").exists():
             import json
             with open(plugin_path / "plugin.json") as f:
@@ -55,28 +57,23 @@ def has_plugin_capability(plugin_name: str, capability: str) -> bool:
 
 ### Pattern 1: Optional Feature Enhancement
 
+This pattern adds non-critical data or analysis when a secondary plugin is present. If `sanctum` is missing, the function returns the original data without git-specific enrichment.
+
 ```python
 def enhance_with_sanctum_feature(data: dict) -> dict:
-    """Enhance data using Sanctum plugin if available"""
-    # Check if Sanctum is available
+    """Enhance data using Sanctum plugin if available."""
     if not is_plugin_available("sanctum"):
-        # Default behavior
         data["sanctum_enhanced"] = False
         return data
 
-    # Try to use Sanctum functionality
     try:
-        # Import and use Sanctum's functionality
         from sanctum import git_operations
-
         if "commit_hash" in data:
             data["commit_details"] = git_operations.get_commit_details(data["commit_hash"])
             data["sanctum_enhanced"] = True
         else:
             data["sanctum_enhanced"] = False
-
     except ImportError as e:
-        # Sanctum exists but functionality not available
         data["sanctum_enhanced"] = False
         data["sanctum_error"] = str(e)
 
@@ -85,81 +82,67 @@ def enhance_with_sanctum_feature(data: dict) -> dict:
 
 ### Pattern 2: Bidirectional Plugin Integration
 
+When two plugins can benefit from each other's data, use a merging strategy. Each plugin remains responsible for its own primary analysis while optionally accepting data from the other.
+
 ```python
 def analyze_with_abstract_and_sanctum(content: str) -> dict:
-    """Analyze content using both Abstract and Sanctum if available"""
+    """Analyze content using both Abstract and Sanctum if available."""
     results = {
-        "abstract_analysis": None,
+        "abstract_analysis": analyze_content(content),
         "sanctum_context": None,
         "combined_insights": []
     }
 
-    # Always try Abstract analysis (this plugin)
-    results["abstract_analysis"] = analyze_content(content)
-
-    # Enhance with Sanctum if available
     if is_plugin_available("sanctum"):
         try:
             from sanctum import workspace_analysis
-
-            # Get workspace context from Sanctum
             ws_context = workspace_analysis.get_workspace_context()
             results["sanctum_context"] = ws_context
 
-            # Combine insights
             if results["abstract_analysis"] and ws_context:
                 results["combined_insights"] = merge_analysis_with_context(
                     results["abstract_analysis"],
                     ws_context
                 )
-
         except ImportError:
-            pass  # Sanctum not fully functional
+            pass
 
     return results
 ```
 
 ### Pattern 3: Service Provider Pattern
 
+This pattern allows a central class to delegate tasks to specialized plugins. It defines a default built-in strategy that takes over if no preferred plugin is available.
+
 ```python
 class ContextOptimizer:
-    """Context optimization with plugin support"""
+    """Context optimization with plugin support."""
 
     def __init__(self):
         self.optimizers = {}
         self._load_optimizers()
 
     def _load_optimizers(self):
-        """Load available context optimizers from plugins"""
-        # Try to load Conservation plugin optimizer
+        """Load available context optimizers from plugins."""
         if is_plugin_available("conserve"):
             try:
                 from conservation import context_optimizer as cons_opt
                 self.optimizers["conserve"] = cons_opt
             except ImportError:
                 pass
-
-        # Add built-in optimizer
-        self.optimizers["built-in"] = self._basic_optimize
+        self.optimizers["default"] = self._basic_optimize
 
     def optimize_context(self, content: str, strategy: str = "auto") -> str:
-        """Optimize content using best available strategy"""
+        """Optimize content using best available strategy."""
         if strategy == "auto":
-            # Prefer Conservation if available
             if "conserve" in self.optimizers:
                 return self.optimizers["conserve"].optimize(content)
-            else:
-                return self._basic_optimize(content)
+            return self._basic_optimize(content)
 
-        elif strategy in self.optimizers:
-            return self.optimizers[strategy].optimize(content)
-
-        # Default to built-in
-        return self._basic_optimize(content)
+        return self.optimizers.get(strategy, self._basic_optimize)(content)
 
     def _basic_optimize(self, content: str) -> str:
-        """Basic built-in optimization"""
-        # Simple truncation or summarization
+        """Default built-in optimization using simple truncation."""
         if len(content) > 10000:
             return content[:5000] + "...\n[Content truncated]"
         return content
@@ -169,183 +152,63 @@ class ContextOptimizer:
 
 ### 1. Document Plugin Dependencies
 
-In your plugin's `README.md`:
+In your plugin's `README.md`, distinguish between required and optional plugins.
 
 ```markdown
-## Plugin Dependencies
+## Dependencies
 
-### Optional Dependencies
+### Optional
 
-- **Sanctum Plugin** (optional): Enhances analysis with git context
-  - Provides: commit details, branch information, workspace analysis
-  - Secondary: Analysis continues without git context
+- **Sanctum Plugin**: Enables git repository context.
+  - Features: commit details, branch analysis.
+  - Secondary behavior: Analysis proceeds without git metadata.
 
-- **Conservation Plugin** (optional): Optimizes context usage
-  - Provides: intelligent content truncation, token optimization
-  - Default: Uses built-in simple truncation
+- **Conservation Plugin**: Provides token optimization.
+  - Features: Intelligent content summarization.
+  - Default behavior: Uses standard character-based truncation.
 ```
 
 ### 2. Document Capabilities
 
-In your `plugin.json`:
+In your `plugin.json`, use the `optional` array to declare integration points.
 
 ```json
 {
   "name": "abstract",
   "version": "1.0.0",
-  "provides": [
-    "content-analysis",
-    "skill-complexity-analysis",
-    "modularization-recommendations"
-  ],
-  "requires": [],
+  "provides": ["content-analysis", "skill-audit"],
   "optional": [
     {
       "plugin": "sanctum",
       "purpose": "git context enhancement",
       "default": "analysis without git data"
-    },
-    {
-      "plugin": "conserve",
-      "purpose": "context optimization",
-      "default": "built-in optimization"
     }
   ]
 }
 ```
 
-### 3. Document Integration Points
-
-In your skill documentation:
-
-```markdown
-## Integration with Other Plugins
-
-### Sanctum Integration
-When the Sanctum plugin is available, this skill will:
-1. Automatically detect git repository context
-2. Enrich analysis with commit and branch information
-3. Provide git-aware recommendations
-
-Without Sanctum:
-- Analysis proceeds normally
-- Git-related insights are omitted
-
-### Conservation Integration
-When the Conservation plugin is available:
-- Content is optimized for token efficiency
-- Long contexts are intelligently summarized
-- Priority is given to recent or important content
-
-Without Conservation:
-- Simple truncation is used for long content
-- All content is treated equally
-```
-
 ## Best Practices
 
-### 1. Always Provide Default Behaviors
-Never make a plugin dependency required. Always have a default behavior.
-
-```python
-# Good
-def process_data(data):
-    if has_plugin_capability("superpowers", "enhanced-processing"):
-        return superpower_enhanced_process(data)
-    else:
-        return basic_process(data)
-
-# Bad
-def process_data(data):
-    from superpowers import enhanced_process  # Will fail if not installed
-    return enhanced_process(data)
-```
-
-### 2. Graceful Degradation
-When dependencies are missing, degrade gracefully rather than failing.
-
-```python
-# Good
-try:
-    enhanced = enhanced_feature(data)
-    result = {
-        "success": True,
-        "data": enhanced,
-        "enhanced": True
-    }
-except ImportError:
-    result = {
-        "success": True,
-        "data": basic_feature(data),
-        "enhanced": False,
-        "message": "Enhanced features not available"
-    }
-
-# Bad
-try:
-    return enhanced_feature(data)
-except ImportError:
-    raise Exception("Required plugin not installed")
-```
-
-### 3. Clear Communication
-Always communicate when features are enhanced or degraded.
-
-```python
-def analyze_skill(skill_path: Path) -> dict:
-    result = {"skill": skill_path.name}
-
-    # Basic analysis (always available)
-    result["analysis"] = basic_skill_analysis(skill_path)
-
-    # Abstract-specific enhancements
-    if "abstract" in skill_path.parts:
-        result["abstract_analysis"] = abstract_enhancements(skill_path)
-        result["enhanced_by"] = "abstract"
-
-    # Sanctum integration if available
-    if is_plugin_available("sanctum"):
-        try:
-            git_context = get_git_context_for_file(skill_path)
-            result["git_context"] = git_context
-            result["enhanced_by"] = result.get("enhanced_by", "") + " + sanctum"
-        except Exception:
-            result["sanctum_error"] = "Git context unavailable"
-
-    return result
-```
-
-### 4. Version Compatibility
-Check for specific versions when required:
-
-```python
-def check_plugin_version(plugin_name: str, min_version: str) -> bool:
-    """Check if plugin meets minimum version requirement"""
-    try:
-        plugin_path = Path.home() / ".claude" / "plugins" / plugin_name
-        with open(plugin_path / "plugin.json") as f:
-            manifest = json.load(f)
-            return version.parse(manifest["version"]) >= version.parse(min_version)
-    except Exception:
-        return False
-```
+1.  **Always Provide Default Behaviors**: Never assume a plugin is installed. Every integration point must have a non-plugin default logic path.
+2.  **Graceful Degradation**: Catch `ImportError` or `FileNotFoundError` when attempting to access other plugins. Return partial results with a clear status message instead of raising an unhandled exception.
+3.  **Clear Communication**: Use return dictionaries or logs to indicate whether a result is "basic" or "enhanced." This helps developers debug why a specific feature might be missing.
+4.  **Version Compatibility**: Use semantic version parsing if your plugin requires a specific feature set from a dependency.
 
 ## Testing Plugin Dependencies
 
+Verify your integration logic by mocking the presence and absence of secondary plugins.
+
 ```python
 def test_plugin_integrations():
-    """Test all plugin integrations with mocks"""
-
-    # Test without dependencies
+    """Verify plugin behavior with and without dependencies."""
+    # Test default behavior
     with mock_plugin_unavailable("sanctum"):
         result = enhance_with_sanctum_feature({"data": "test"})
         assert not result["sanctum_enhanced"]
 
-    # Test with dependencies
+    # Test enhanced behavior
     with mock_plugin_available("sanctum"):
         result = enhance_with_sanctum_feature({"data": "test", "commit_hash": "abc123"})
         assert result["sanctum_enhanced"]
         assert "commit_details" in result
 ```
-
-This pattern validates plugins remain independent while still providing enhanced functionality when used together in the same environment.

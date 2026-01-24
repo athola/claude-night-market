@@ -88,6 +88,12 @@
       "version": "1.3.4"
     },
     {
+      "name": "scribe",
+      "source": "./plugins/scribe",
+      "description": "Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing enforcement",
+      "version": "1.3.4"
+    },
+    {
       "name": "scry",
       "source": "./plugins/scry",
       "description": "Media generation - terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition",

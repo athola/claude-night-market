@@ -48,6 +48,16 @@ description:
 | Practical examples | 6 | Input/output pairs, real patterns |
 | Voice consistency | 5 | Third person, no "your"/"you" language |
 
+**Cargo Cult Anti-Pattern Detection:**
+
+Skills must avoid cargo cult patterns - rituals that "look right" but lack verification:
+
+- ❌ **Abstract Quick Start**: "Configure pytest" vs ✅ "Run `pytest --cov=src` to generate coverage"
+- ❌ **Testing Theater**: Tests that always pass (`assert True`) vs ✅ Behavior-driven tests that fail when mutated
+- ❌ **Implementation Testing**: Testing HOW not WHAT vs ✅ Testing behavior via Given-When-Then scenarios
+- ❌ **Missing Verification**: Code examples without validation steps vs ✅ "Run `pytest -v` to confirm"
+- ❌ **Documentation Exception**: "It's just markdown" vs ✅ All files have testable structure
+
 **Quick Start Requirements:**
 
 - ✅ **Good**: "Run `pytest --cov=src` to generate coverage reports"

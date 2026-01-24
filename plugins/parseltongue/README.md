@@ -4,7 +4,7 @@ Python development skills for Claude Code, focusing on testing, performance prof
 
 ## Overview
 
-Parseltongue provides specialized patterns for modern Python development. It includes guides for `pytest` and TDD workflows, performance profiling for CPU and memory hotspots, and `asyncio` patterns for concurrent programming. The plugin also supports modern packaging through `pyproject.toml` and `uv`.
+Parseltongue implements specialized patterns for Python development. It includes structured guides for `pytest` and TDD workflows, profiling methods for identifying CPU and memory hotspots, and `asyncio` patterns for concurrent I/O. The plugin also provides templates for `pyproject.toml` configuration and `uv` dependency management.
 
 ## Features
 
@@ -12,24 +12,27 @@ Parseltongue provides specialized patterns for modern Python development. It inc
 
 | Skill | Description |
 |-------|-------------|
-| **python-testing** | Pytest patterns, fixtures, mocking, and TDD workflows. |
-| **python-performance** | CPU and memory profiling, optimization, and benchmarking. |
-| **python-async** | asyncio, concurrent programming, and async/await patterns. |
-| **python-packaging** | Modern pyproject.toml, uv, and PyPI publishing. |
+| **python-testing** | Pytest patterns, fixtures, mocking, and TDD cycles. |
+| **python-performance** | CPU/memory profiling and local benchmarking. |
+| **python-async** | asyncio concurrency and async/await patterns. |
+| **python-packaging** | pyproject.toml standards and uv integration. |
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/analyze-tests` | Analyze test suites for quality and coverage. |
-| `/run-profiler` | Profile Python code for performance bottlenecks. |
-| `/check-async` | Validate async code patterns and detect issues. |
+| `/analyze-tests` | Reports on test suite coverage and fixture usage. |
+| `/run-profiler` | Runs cProfile/memory_profiler on target scripts. |
+| `/check-async` | Scans for blocking calls in async functions. |
 
-## Quick Start and Integration
+## Integration
 
-Parseltongue integrates with the standard Python ecosystem, including package managers like `uv`, `pip`, and `poetry`, and linting tools such as `ruff` and `mypy`. It provides implementation patterns for major frameworks like FastAPI and Django, as well as data-heavy libraries like `pandas` and `SQLAlchemy`.
+Parseltongue works with standard Python tools:
+- **Package Managers**: Native support for `uv`, `pip`, and `poetry`.
+- **Quality Tools**: Integration with `ruff` for linting and `mypy` for type checking.
+- **Frameworks**: Patterns for FastAPI, Django, and SQLAlchemy applications.
 
-Effective testing in Parseltongue uses `pytest` fixtures and TDD cycles to ensure coverage and reliability. Performance optimization relies on profiling hotspots and using techniques like `lru_cache` for expensive computations. For concurrent tasks, `asyncio` patterns help manage parallel I/O operations without the overhead of threads.
+Testing follows a Red-Green-Refactor cycle using `pytest` fixtures. Performance optimization focuses on identifying bottlenecks via line-profiling before applying caches or algorithmic improvements. Async patterns prioritize non-blocking I/O to manage high-concurrency workloads without thread overhead.
 
 ## Structure
 
@@ -38,31 +41,26 @@ parseltongue/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
 ├── agents/
-│   ├── python-pro.md        # General Python assistant
-│   ├── python-tester.md     # Testing assistant
-│   ├── python-optimizer.md  # Performance assistant
-│   └── python-linter.md     # Linting enforcement agent
+│   ├── python-pro.md        # Python 3.12+ specialist
+│   ├── python-tester.md     # Pytest and TDD specialist
+│   ├── python-optimizer.md  # Performance tuning
+│   └── python-linter.md     # Linting enforcement
 ├── commands/
-│   ├── analyze-tests.md     # Test analysis command
-│   ├── run-profiler.md      # Profiler command
-│   └── check-async.md       # Async checker command
+│   ├── analyze-tests.md
+│   ├── run-profiler.md
+│   └── check-async.md
 ├── skills/
-│   ├── python-testing/      # Testing patterns
-│   │   └── SKILL.md
-│   ├── python-performance/  # Performance optimization
-│   │   └── SKILL.md
-│   ├── python-async/        # Async programming
-│   │   └── SKILL.md
-│   └── python-packaging/    # Modern packaging
-│       └── SKILL.md
+│   ├── python-testing/
+│   ├── python-performance/
+│   ├── python-async/
+│   └── python-packaging/
 └── README.md
 ```
 
 ## Requirements
 
-- Python 3.9+ (3.12+ recommended).
-- Claude Code with plugin support.
-- Optional: uv for package management.
+- Python 3.12 or later (supported back to 3.9).
+- `uv` recommended for dependency isolation.
 
 ## License
 
