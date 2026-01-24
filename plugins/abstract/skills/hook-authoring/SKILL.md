@@ -17,7 +17,7 @@ Triggers: validation, sdk, automation, hook, authoring
   DO NOT use when: behavior better suited for custom tool.
 
   Use this skill BEFORE writing any hook. Check even if unsure.
-version: 1.0.0
+version: 1.3.4
 category: hook-development
 tags: [hooks, sdk, security, performance, automation, validation]
 dependencies: []

@@ -17,7 +17,7 @@ Triggers: agent-sdk, eval, claude-sdk, performance, security
   DO NOT use when: validating plugin structure - use validate-plugin instead.
 
   Use this skill BEFORE deploying hooks to production.
-version: 1.0.0
+version: 1.3.4
 category: hook-management
 tags: [hooks, evaluation, security, performance, claude-sdk, agent-sdk]
 dependencies: [hook-scope-guide]

@@ -16,7 +16,7 @@ description: |
   DO NOT use when: reviewing existing architecture - use architecture-review instead.
 
   Use this skill BEFORE making architecture decisions. Check even if unsure about needs.
-version: 1.1.0
+version: 1.3.4
 category: architecture-decision
 tags: [architecture, patterns, selection, implementation, adr]
 dependencies: [architecture-paradigm-functional-core, architecture-paradigm-hexagonal, architecture-paradigm-cqrs-es, architecture-paradigm-event-driven, architecture-paradigm-layered, architecture-paradigm-modular-monolith, architecture-paradigm-microkernel, architecture-paradigm-microservices, architecture-paradigm-service-based, architecture-paradigm-space-based, architecture-paradigm-pipeline, architecture-paradigm-serverless, architecture-paradigm-client-server]
