@@ -1,172 +1,40 @@
-# Imbue Plugin
+# Imbue
 
-Reusable workflow patterns for analysis, evidence gathering, and structured reporting.
+Analysis methodologies and workflow patterns for evidence gathering and structured reporting.
 
 ## Overview
 
-Imbue provides analysis methodologies independent of specific tools. Its patterns apply to git diffs, specifications, and logs. Skills are composable and can be chained for multi-step workflows. We focus on capturing technical evidence to support reproducibility and audit trails.
+Imbue provides technical evidence capture for reproducible analysis across git diffs, specifications, and logs. It focuses on audit trails and empirical verification rather than theoretical assessments. These methodologies back recommendations with specific data points and command outputs.
 
-## Skills
+## Analysis and Review Patterns
 
-### Review Patterns
+### Review Methodology
+The `review-core` skill establishes scope and baselines for architecture, security, or code quality audits. It requires validating assumptions and documenting artifacts before starting the analysis. Findings are logged with direct command evidence to support final deliverables.
 
-#### review-core
-Structure for starting reviews.
+### Change Analysis
+`diff-analysis` categorizes changes and evaluates risks in code reviews or release notes. This involves establishing a clear baseline between "before" and "after" states to understand functional impact. For project activity summaries, `catchup` gathers raw change information to extract specific insights and action items.
 
-**When to Use:**
-Use for architecture, security, or code quality reviews to establish scope and structure before analysis.
+## Workflow Guards and Enforcement
 
-**Required TodoWrite Items:**
-1. `review-core:context-established`: Verify scope, baseline, and stakeholders.
-2. `review-core:scope-inventoried`: List artifacts and assumptions.
-3. `review-core:evidence-captured`: Log commands and outputs.
-4. `review-core:deliverables-structured`: Prepare report skeleton.
-5. `review-core:contingencies-documented`: Document contingency plans.
+### Scope and Reasoning
+`scope-guard` helps prevent overengineering by using a decision framework to score feature worthiness against opportunity costs. This includes threshold monitoring and baseline scenarios to keep development focused on essential work.
 
-### Analysis Methods
+To counter sycophantic reasoning, `rigorous-reasoning` uses checklist-based analysis that prioritizes truth-seeking over social comfort. It requires committing to conclusions without hedging and following an incremental reasoning protocol for complex problem-solving.
 
-#### diff-analysis
-Analyze "before and after" states to categorize changes and assess risks.
+### Proof of Work
+The `proof-of-work` skill requires functional verification before a claim of completion is accepted. This is enforced by the `tdd_bdd_gate.py` PreToolUse hook, which checks for corresponding test files during write operations to implementation files. Completion claims must be backed by evidence of problem reproduction and verified fixes with actual test runs.
 
-**When to Use:**
-Use to understand the impact of changes in code reviews, release notes, or config updates.
+## Feature Planning and Monitoring
 
-**Required TodoWrite Items:**
-1. `diff-analysis:baseline-established`: Define "before" and "after".
-2. `diff-analysis:changes-categorized`: Group changes by function.
-3. `diff-analysis:risks-assessed`: Evaluate potential impact.
-4. `diff-analysis:summary-prepared`: Summarize changes and implications.
+### Feature Review
+`feature-review` uses a hybrid RICE+WSJF scoring framework to prioritize features based on quality dimensions and tradeoffs. This process involves cataloging features and identifying improvement gaps to guide development decisions.
 
-#### catchup
-Summarize recent project activity.
+### Monitoring
+`workflow-monitor` tracks execution for inefficiencies or errors. When a failure or timeout occurs, it automatically captures relevant logs and context to create GitHub issues for remediation.
 
-**When to Use:**
-Use to get up to speed after time away or when joining a team.
+## Output and Documentation
 
-**Required TodoWrite Items:**
-1. `catchup:context-confirmed`: Define scope and time period.
-2. `catchup:delta-captured`: Gather raw change information.
-3. `catchup:insights-extracted`: Summarize changes and implications.
-4. `catchup:followups-recorded`: List action items.
-
-### Workflow Guards
-
-#### scope-guard
-Prevent overengineering via scoring and opportunity cost comparison. Components include:
-- `decision-framework`: Worthiness formula and scoring system.
-- `anti-overengineering`: Rules to prevent scope creep.
-- `branch-management`: Threshold monitoring.
-- `baseline-scenarios`: Validated test scenarios.
-
-**When to Use:**
-Use during planning to evaluate if features should be implemented now or deferred.
-
-**Required TodoWrite Items:**
-1. `scope-guard:worthiness-scored`: Calculate feature score.
-2. `scope-guard:backlog-compared`: Compare against queued items.
-3. `scope-guard:budget-checked`: Verify branch budget.
-4. `scope-guard:decision-documented`: Record decision.
-
-#### rigorous-reasoning
-Prevent sycophantic reasoning through checklist-based analysis and evidence-following. Components include:
-- `priority-signals`: Override principles (no courtesy agreement, checklist over intuition).
-- `conflict-analysis`: Harm/rights checklist for interpersonal conflicts.
-- `engagement-principles`: Truth-seeking over social comfort.
-- `debate-methodology`: Handling truth claims and contested territory.
-- `correction-protocol`: Verify before correcting.
-- `incremental-reasoning`: Multi-turn problem solving.
-- `pattern-completion`: Falsification and unification for derived rules.
-
-**When to Use:**
-Use when analyzing conflicts/disagreements, evaluating ethical claims, or when self-monitoring detects sycophantic patterns (agreeing without validation, hedging without evidence).
-
-**Required TodoWrite Items:**
-1. `rigorous:activation-triggered`: Identified conflict or red-flag pattern.
-2. `rigorous:checklist-applied`: Completed relevant checklist.
-3. `rigorous:conclusion-committed`: Stated conclusion without inappropriate hedging.
-4. `rigorous:retraction-guarded`: Verified updates are for substantive reasons.
-
-### Workflow Automation
-
-#### workflow-monitor
-Monitor workflow executions for errors and inefficiencies, automatically creating GitHub issues.
-
-**When to Use:**
-Use after workflow failures, timeouts, or when detecting inefficient patterns.
-
-**Required TodoWrite Items:**
-1. `workflow-monitor:detection-triggered`: Issue detected in execution.
-2. `workflow-monitor:evidence-captured`: Logs and context captured.
-3. `workflow-monitor:issue-created`: GitHub issue created for /fix-workflow.
-
-### Feature Planning
-
-#### feature-review
-Evidence-based feature prioritization using hybrid RICE+WSJF scoring. Components include:
-- `scoring-framework`: Hybrid RICE+WSJF scoring.
-- `classification-system`: Feature classification.
-- `tradeoff-dimensions`: Quality dimensions based on ISO 25010.
-- `configuration`: YAML configuration with guardrails.
-
-**When to Use:**
-Use to inventory features, score and prioritize them, and analyze tradeoffs.
-
-**Required TodoWrite Items:**
-1. `feature-review:inventory-complete`: Catalog features.
-2. `feature-review:classification-applied`: Classify features.
-3. `feature-review:scoring-complete`: Calculate priority scores.
-4. `feature-review:tradeoffs-analyzed`: Evaluate quality dimensions.
-5. `feature-review:gaps-identified`: Identify improvement opportunities.
-6. `feature-review:issues-created`: Create GitHub issues if requested.
-
-### Verification Patterns
-
-#### proof-of-work
-Require functional verification before claiming completion. Enforces actual testing rather than theoretical correctness claims.
-
-**When to Use:**
-Use before ANY claim that implementation is complete to verify tests actually ran.
-
-**Hook Enforcement:**
-The `tdd_bdd_gate.py` PreToolUse hook enforces the Iron Law at write-time:
-- Fires on Write/Edit operations to implementation files
-- Checks for corresponding test files
-- Injects BDD template reminder when tests missing
-- Prevents "Cargo Cult TDD" (tests validating pre-conceived code)
-
-**Required TodoWrite Items:**
-1. `proof:problem-reproduced`: Original issue confirmed reproducible.
-2. `proof:solution-tested`: Fix verified with actual test run.
-3. `proof:evidence-captured`: Command outputs recorded with [E1], [E2] references.
-4. `proof:iron-law-red`: Failing test written FIRST (TDD).
-5. `proof:iron-law-green`: Minimal implementation passes.
-6. `proof:iron-law-refactor`: Improved without behavior change.
-
-### Output Patterns
-
-#### evidence-logging
-Capture evidence used in analysis for traceability.
-
-**When to Use:**
-Use during analysis to create a record of work and back recommendations with data.
-
-**Required TodoWrite Items:**
-1. `evidence-logging:log-initialized`: Set up evidence log.
-2. `evidence-logging:commands-captured`: Record commands.
-3. `evidence-logging:citations-recorded`: Note external sources.
-4. `evidence-logging:artifacts-indexed`: Catalog generated files.
-
-#### structured-output
-Format final analysis output.
-
-**When to Use:**
-Use when preparing the final report for consistency.
-
-**Required TodoWrite Items:**
-1. `structured-output:template-selected`: Choose format.
-2. `structured-output:findings-formatted`: Structure findings.
-3. `structured-output:actions-assigned`: Define action items.
-4. `structured-output:appendix-attached`: Attach supporting materials.
+Analysis results are structured through `evidence-logging` and `structured-output`. We record all commands, citations, and artifacts to provide a traceable record of the work. Final reports use established templates to define findings and action items.
 
 ## Plugin Structure
 
@@ -197,115 +65,20 @@ imbue/
     └── workflow-monitor/   # Execution monitoring and issue creation
 ```
 
-## Dependencies
-
-None.
-
 ## Usage
 
-```bash
-# Review scaffolding
-Skill(imbue:review-core)
+Use `Skill(imbue:review-core)` for review scaffolding and `Skill(imbue:diff-analysis)` or `Skill(imbue:catchup)` for analysis methodologies. `Skill(imbue:scope-guard)` and `Skill(imbue:rigorous-reasoning)` provide workflow guardrails. Feature planning uses `Skill(imbue:feature-review)`, while `Skill(imbue:proof-of-work)` handles verification. `Skill(imbue:workflow-monitor)` tracks execution, and output patterns are managed via `Skill(imbue:evidence-logging)` and `Skill(imbue:structured-output)`.
 
-# Analysis methodologies
-Skill(imbue:diff-analysis)
-Skill(imbue:catchup)
+Commands include `/feature-review` for full inventory, scoring, and suggestions. Append `--inventory` to only discover features, or `--suggest` to include new feature suggestions. Use `--create-issues` to automate GitHub issue creation for suggestions.
 
-# Workflow guards
-Skill(imbue:scope-guard)
-Skill(imbue:rigorous-reasoning)
-
-# Feature planning
-Skill(imbue:feature-review)
-
-# Verification
-Skill(imbue:proof-of-work)
-
-# Workflow monitoring
-Skill(imbue:workflow-monitor)
-
-# Output patterns
-Skill(imbue:evidence-logging)
-Skill(imbue:structured-output)
-
-# Commands
-/feature-review              # Full review: inventory, score, suggest
-/feature-review --inventory  # Only discover features
-/feature-review --suggest    # Include new feature suggestions
-/feature-review --suggest --create-issues  # Create GitHub issues
-```
-
-## Integration
-
-Use these skills for architecture reviews, code audits, and security assessments. For git-based work, run `Skill(sanctum:git-workspace-review)` first, then apply imbue's analysis patterns.
-
-## Session Forking Workflows (Claude Code 2.0.73+)
+## Session Forking (Claude Code 2.0.73+)
 
 Session forking allows parallel evidence analysis from multiple perspectives without context overlap.
 
 ### Use Cases
 
-**Multi-Perspective Code Analysis**
-```bash
-# Main session: Initial analysis
-claude "Analyze this codebase for issues"
+For **Multi-Perspective Code Analysis**, fork sessions to isolate security, performance, or maintainability audits. This allows for focused analysis before consolidating findings. **Parallel Feature Evaluation** uses separate forks for RICE and WSJF scoring to inform prioritization decisions. **Alternative Evidence Collection** strategies can compare bottom-up and top-down review approaches in parallel.
 
-# Fork for security perspective
-claude --fork-session --session-id "security-evidence" --resume
-> "Analyze the same codebase exclusively from a security perspective"
+### Standards
 
-# Fork for performance perspective
-claude --fork-session --session-id "performance-evidence" --resume
-> "Analyze the same codebase exclusively from a performance perspective"
-
-# Fork for maintainability perspective
-claude --fork-session --session-id "maintainability-evidence" --resume
-> "Analyze the same codebase exclusively from a maintainability perspective"
-
-# Consolidate findings from all perspectives
-```
-
-**Parallel Feature Evaluation**
-```bash
-# Main session: Feature request received
-claude "Evaluate this feature request"
-
-# Fork for RICE scoring
-claude --fork-session --session-id "rice-scoring" --resume
-> "Skill(imbue:feature-review) using RICE methodology"
-
-# Fork for WSJF scoring
-claude --fork-session --session-id "wsjf-scoring" --resume
-> "Skill(imbue:feature-review) using WSJF methodology"
-
-# Compare scores and make informed decision
-```
-
-**Alternative Evidence Collection Strategies**
-```bash
-# Main session: Review needed
-claude "Review this architecture"
-
-# Fork A: Bottom-up analysis
-claude --fork-session --session-id "bottom-up-review" --resume
-> "Skill(imbue:review-core) starting from implementation details"
-
-# Fork B: Top-down analysis
-claude --fork-session --session-id "top-down-review" --resume
-> "Skill(imbue:review-core) starting from high-level architecture"
-
-# Combine insights for full review
-```
-
-### Best Practices
-
-- **Clear scope per fork**: Each fork should focus on one analytical perspective.
-- **Evidence extraction**: Save evidence logs to files before closing forks.
-- **Consolidation workflow**: Create a summary that synthesizes findings from all forks.
-- **Descriptive session IDs**: Use the perspective name in the ID (e.g., "security-audit-pr-42").
-
-See `plugins/abstract/docs/claude-code-compatibility.md` for detailed session forking patterns.
-
-## License
-
-MIT
+Each fork must maintain a clear analytical scope. Save evidence logs to files before closing a fork. Synthesize findings from all forks into a final summary. Use perspective-based names for session IDs, such as `security-audit-pr-42`.

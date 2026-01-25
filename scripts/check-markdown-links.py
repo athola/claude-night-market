@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check markdown files for broken internal links.
 
-Validate that all relative markdown links point to existing files
+Validate relative markdown links point to existing files
 and that anchor links reference valid headings.
 
 Supports:

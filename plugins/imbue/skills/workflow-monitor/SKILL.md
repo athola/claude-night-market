@@ -26,7 +26,19 @@ modules:
   - modules/detection-patterns.md
   - modules/issue-templates.md
   - modules/efficiency-metrics.md
+version: 1.3.4
 ---
+## Table of Contents
+
+- [Philosophy](#philosophy)
+- [Quick Start](#quick-start)
+- [Detection Patterns](#detection-patterns)
+- [Workflow](#workflow)
+- [Issue Template](#issue-template)
+- [Configuration](#configuration)
+- [Guardrails](#guardrails)
+- [Integration Points](#integration-points)
+- [Output Format](#output-format)
 
 # Workflow Monitor
 

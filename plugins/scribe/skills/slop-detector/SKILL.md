@@ -1,20 +1,10 @@
 ---
 name: slop-detector
 description: |
-
-  Triggers: ai slop, ai-generated, llm markers, chatgpt phrases, claude tells
   Detect and flag AI-generated content markers in documentation and prose.
-
-  Triggers: slop detection, ai cleanup, humanize text, remove ai markers,
-  detect chatgpt, detect llm, writing quality, ai tells
-
-  Use when: reviewing documentation for AI markers, cleaning up LLM-generated
-  content, auditing prose quality, preparing content for publication
-
-  DO NOT use when: generating new content - use doc-generator instead.
-  DO NOT use when: learning writing styles - use style-learner instead.
-
-  Use this skill to identify and remediate AI slop in existing content.
+  Triggers: ai slop, ai-generated, llm markers, chatgpt phrases, claude tells, slop detection, ai cleanup, humanize text, remove ai markers, detect chatgpt, detect llm, writing quality, ai tells.
+  Use when reviewing documentation for AI markers, cleaning up LLM-generated content, or auditing prose quality.
+  Do not use when generating new content (use doc-generator) or learning writing styles (use style-learner).
 category: writing-quality
 tags: [ai-detection, slop, writing, cleanup, documentation, quality]
 tools: [Read, Grep, TodoWrite]
@@ -28,53 +18,22 @@ modules:
   - remediation-strategies
 dependencies:
   - scribe:shared
+version: 1.3.4
 ---
 
-# AI Slop Detection Skill
+# AI Slop Detection
 
-Identify linguistic markers that reveal AI-generated content and provide remediation guidance.
+AI slop is identified by patterns of usage rather than individual words. While a single "delve" might be acceptable, its proximity to markers like "tapestry" or "embark" signals generated text. We analyze the density of these markers per 100 words, their clustering, and whether the overall tone fits the document type.
 
-## Detection Philosophy
+## Execution Workflow
 
-AI slop is not about individual words but patterns of usage. A single "delve" is fine; five instances with "tapestry," "embark," and "vibrant" signals generation. Detection focuses on:
+Start by identifying target files and classifying them as technical docs, narrative prose, or code comments. This allows for context-aware scoring during analysis.
 
-1. **Density**: How many markers appear per 100 words
-2. **Clustering**: Multiple markers in close proximity
-3. **Context**: Whether usage fits the document type
-
-## Required TodoWrite Items
-
-1. `slop-detector:scan-initiated` - Target files identified
-2. `slop-detector:vocabulary-checked` - Word/phrase patterns scanned
-3. `slop-detector:structure-checked` - Structural patterns analyzed
-4. `slop-detector:density-calculated` - Slop density score computed
-5. `slop-detector:report-generated` - Findings documented
-
-## Step 1: Scan Initialization
-
-Identify target files and document types:
-
-```bash
-# Find markdown and text files
-find . -name "*.md" -o -name "*.txt" -o -name "*.rst" | head -50
-
-# Prioritize user-facing documentation
-ls docs/ README.md CHANGELOG.md 2>/dev/null
-```
-
-Classify each file:
-- **Technical docs**: READMEs, API docs, guides
-- **Narrative prose**: Blog posts, tutorials, explanations
-- **Fiction**: Creative writing, stories
-- **Comments/docstrings**: Code documentation
-
-## Step 2: Vocabulary Pattern Detection
+### Vocabulary and Phrase Detection
 
 Load: `@modules/vocabulary-patterns.md`
 
-### Tier 1: High-Confidence Markers (Score: 3 each)
-
-These words appear 10-100x more frequently in AI text than human text:
+We categorize markers into three tiers based on confidence. Tier 1 words appear dramatically more often in AI text and include "delve," "multifaceted," and "leverage." Tier 2 covers context-dependent transitions like "moreover" or "subsequently," while Tier 3 identifies vapid phrases such as "In today's fast-paced world" or "cannot be overstated."
 
 | Word | Context | Human Alternative |
 |------|---------|-------------------|

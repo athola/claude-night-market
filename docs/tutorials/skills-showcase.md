@@ -1,10 +1,10 @@
 # Skills Showcase - Claude Code Development Workflows
 
-**Quick demonstration of skill discovery, validation, and usage patterns in claude-night-market.**
+**Demonstration of skill discovery, validation, and usage patterns.**
 
 ![Skills Showcase Demo](../../assets/gifs/skills-showcase.gif)
 
-*Discover 105+ skills, understand their structure, and see how they compose into powerful development workflows.*
+*Discover 105+ skills, understand their structure, and compose them into workflows.*
 
 ---
 

@@ -36,96 +36,56 @@ modules:
   - testing-workflows
   - test-quality
   - async-testing
+version: 1.3.4
 ---
-## Table of Contents
-
-- [Quick Start](#quick-start)
-- [When to Use](#when-to-use)
-- [Modules](#modules)
-- [Core Testing](#core-testing)
-- [Infrastructure & Workflow](#infrastructure-&-workflow)
-- [Quality](#quality)
-- [Progressive Loading](#progressive-loading)
-- [Exit Criteria](#exit-criteria)
-
-
 # Python Testing Hub
 
-Testing patterns for pytest, fixtures, mocking, and TDD.
+Testing standards for pytest configuration, fixture management, and TDD implementation.
 
 ## Quick Start
 
-1. **Install pytest and dependencies**:
-   ```bash
-   pip install pytest pytest-cov pytest-asyncio pytest-mock
-   ```
-
-2. **Configure project** - Add to `pyproject.toml`:
-   ```toml
-   [tool.pytest.ini_options]
-   testpaths = ["tests"]
-   python_files = ["test_*.py"]
-   addopts = "--cov=src --cov-report=html"
-   ```
-
-3. **Create first test** - In `tests/test_example.py`:
-   ```python
-   def test_basic():
-       assert 1 + 1 == 2
-   ```
-
-4. **Run tests with coverage**:
-   ```bash
-   pytest --cov=src --cov-report=html
-   ```
+1.  **Dependencies**: `pip install pytest pytest-cov pytest-asyncio pytest-mock`
+2.  **Configuration**: Add the following to `pyproject.toml`:
+    ```toml
+    [tool.pytest.ini_options]
+    testpaths = ["tests"]
+    addopts = "--cov=src"
+    ```
+3.  **Verification**: Run `pytest` to confirm discovery of files matching `test_*.py`.
 
 ## When to Use
 
-- Writing unit tests for Python code
-- Setting up test suites and infrastructure
-- Implementing test-driven development (TDD)
-- Creating integration tests for APIs and services
-- Mocking external dependencies and services
-- Testing async code and concurrent operations
+- Constructing unit and integration tests for Python 3.9+ projects.
+- Isolating external dependencies using `pytest-mock` or custom monkeypatching.
+- Validating asynchronous logic with `pytest-asyncio` markers and event loop management.
+- Configuring project-wide coverage thresholds and reporting.
 
 ## Modules
 
-This skill provides focused modules for different testing aspects:
+This skill uses modular loading to manage the system prompt budget.
 
-### Core Testing
-- **unit-testing** - Fundamental unit testing patterns with pytest including AAA pattern, basic test structure, and exception testing
-- **fixtures-and-mocking** - Advanced pytest fixtures, parameterized tests, and mocking patterns for external dependencies
-- **async-testing** - Testing asynchronous Python code with pytest-asyncio including async fixtures and concurrent operation testing
+### Core Implementation
+- **unit-testing**: AAA (Arrange-Act-Assert) pattern, basic test structure, and exception validation.
+- **fixtures-and-mocking**: Request-scoped fixtures, parameterization, and boundary mocking.
+- **async-testing**: Coroutine testing, async fixtures, and concurrency validation.
 
 ### Infrastructure & Workflow
-- **test-infrastructure** - Project configuration for pytest including pyproject.toml setup, test directory structure, and coverage configuration
-- **testing-workflows** - Running tests, CI/CD integration, and automated testing workflows
+- **test-infrastructure**: Directory standards, `conftest.py` management, and coverage tools.
+- **testing-workflows**: Local execution patterns and GitHub Actions integration.
 
-### Quality
-- **test-quality** - Best practices, anti-patterns to avoid, and quality criteria for Python tests
-
-## Progressive Loading
-
-Load modules based on project requirements:
-- Start with `unit-testing` for fundamental patterns
-- Add `fixtures-and-mocking` for advanced test setup
-- Include `test-infrastructure` when setting up new projects
-- Use `testing-workflows` for CI/CD integration
-- Reference `test-quality` for best practices
-- Apply `async-testing` for asynchronous code
+### Standards
+- **test-quality**: Identification of common anti-patterns like broad exception catching or shared state between tests.
 
 ## Exit Criteria
 
-- [ ] Tests follow AAA pattern
-- [ ] Coverage meets project threshold (≥80%)
-- [ ] All tests independent and reproducible
-- [ ] CI/CD integration configured
-- [ ] Clear test naming and organization
-- [ ] No anti-patterns present
-- [ ] Fixtures used appropriately
-- [ ] Mocking only at boundaries
+- Tests implement the AAA pattern.
+- Coverage reaches the 80% project minimum.
+- Individual tests are independent and do not rely on execution order.
+- Fixtures are scoped appropriately (function, class, or session) to prevent side effects.
+- Mocking is restricted to external system boundaries.
+
 ## Troubleshooting
 
-### Common Issues
-
-If tests aren't found, check that filenames match `test_*.py` or `*_test.py`. Use `pytest --collect-only` to verify discovery. For import errors, ensure the package is installed in editable mode (`pip install -e .`). If async tests fail, confirm `pytest-asyncio` is installed and tests use the `@pytest.mark.asyncio` decorator.
+- **Test Discovery**: Verify filenames match the `test_*.py` pattern. Use `pytest --collect-only` to debug discovery paths.
+- **Import Errors**: Ensure the local source directory is in the path, typically by installing in editable mode with `pip install -e .`.
+- **Async Failures**: Confirm that `pytest-asyncio` is installed and that async tests use the `@pytest.mark.asyncio` decorator or corresponding auto-mode configuration.

@@ -9,6 +9,7 @@ tags: [session, resume, checkpoint, debugging]
 tools: [Bash]
 complexity: low
 estimated_tokens: 400
+version: 1.3.4
 ---
 
 # Session Management

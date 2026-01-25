@@ -321,8 +321,8 @@ async def test_expert_availability(expert: ExpertConfig) -> bool:
 
         proc = await asyncio.create_subprocess_exec(
             *probe_cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
         await asyncio.wait_for(proc.communicate(), timeout=10.0)
 
@@ -550,8 +550,8 @@ class WarRoomOrchestrator:
 
             proc = await asyncio.create_subprocess_exec(
                 *cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
             stdout, stderr = await asyncio.wait_for(
                 proc.communicate(),

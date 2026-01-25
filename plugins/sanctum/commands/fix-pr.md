@@ -146,12 +146,79 @@ This command integrates with:
 - **gh CLI**: Fetches PR data, resolves threads, updates issues
 - **git**: Commits changes, pushes updates
 - **test suite**: Runs verification after fixes
+- **Claude Code Tasks** (2.1.16+): Progress tracking with native Tasks system
+
+### Claude Code Tasks Integration
+
+When running in Claude Code 2.1.16+, workflow steps are tracked via native Tasks:
+
+```python
+from tasks_manager import TasksManager
+manager = TasksManager(
+    project_path=Path("."),
+    fallback_state_file=Path(".sanctum/fix-pr-state.json"),
+)
+
+# Each workflow step becomes a task
+for step in ["analyze", "triage", "plan", "fix", "validate", "complete"]:
+    task_id = manager.ensure_task_exists(f"PR Fix: {step}")
+    # Execute step...
+    manager.update_task_status(task_id, "complete")
+```
+
+**Benefits**:
+- Resume interrupted PR fix workflows across sessions
+- Tasks visible in VS Code sidebar
+- Dependency tracking (can't validate before fix)
+- Cross-session state with `CLAUDE_CODE_TASK_LIST_ID="sanctum-fix-pr-{pr_number}"`
 
 ## Getting Help
 
 - **Workflow Details**: See [Workflow Steps](fix-pr-modules/workflow-steps.md)
 - **Options Reference**: See [Configuration & Options](fix-pr-modules/configuration-options.md)
 - **Troubleshooting**: See [Troubleshooting](fix-pr-modules/troubleshooting-fixes.md)
+
+## Mandatory Exit Gate
+
+**⛔ CRITICAL: The workflow is NOT complete until this gate passes.**
+
+Before reporting completion, you MUST run this verification:
+
+```bash
+# Get PR info
+REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+OWNER=$(echo "$REPO_FULL" | cut -d'/' -f1)
+REPO=$(echo "$REPO_FULL" | cut -d'/' -f2)
+PR_NUM=$(gh pr view --json number -q .number)
+
+# Check for unresolved threads
+UNRESOLVED=$(gh api graphql -f query="
+query {
+  repository(owner: \"$OWNER\", name: \"$REPO\") {
+    pullRequest(number: $PR_NUM) {
+      reviewThreads(first: 100) {
+        nodes { isResolved }
+      }
+    }
+  }
+}" --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+
+if [[ "$UNRESOLVED" -gt 0 ]]; then
+  echo "❌ EXIT GATE FAILED: $UNRESOLVED unresolved threads"
+  echo "Run Step 6 (Complete) before reporting workflow complete"
+  exit 1
+else
+  echo "✓ EXIT GATE PASSED: All threads resolved"
+fi
+```
+
+**This gate is NOT optional.** If threads remain unresolved:
+1. Execute [Step 6: Complete](fix-pr-modules/steps/6-complete.md)
+2. Reply to each thread with fix description
+3. Resolve each thread via GraphQL
+4. Re-run this gate until it passes
+
+**The `--to` flag cannot skip Step 6** - use `--to validate` for dry runs, but completing the workflow always requires thread resolution.
 
 ## See Also
 

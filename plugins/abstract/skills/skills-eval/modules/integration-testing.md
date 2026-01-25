@@ -291,7 +291,7 @@ def test_with_specialist_agents(skill_path: str) -> Dict:
     """Deploy specialist subagents for detailed testing"""
     specialists = {
         "performance": "agents-network-engineer",
-        "security": "superpowers:condition-based-waiting",
+        "debugging": "superpowers:systematic-debugging",
         "documentation": "elements-of-style:writing-clearly-and-concisely"
     }
 

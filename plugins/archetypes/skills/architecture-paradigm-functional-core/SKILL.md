@@ -8,7 +8,7 @@ Triggers: functional-core, imperative-shell, side-effects, functional, architect
   Triggers: functional core, imperative shell, pure functions, testability
   Use when: business logic is entangled with I/O or tests are brittle
   DO NOT use when: simple scripting without complex logic.
-version: 1.0.0
+version: 1.3.4
 category: architectural-pattern
 tags: [architecture, functional-core, imperative-shell, testability, business-logic, side-effects]
 dependencies: []

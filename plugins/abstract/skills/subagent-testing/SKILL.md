@@ -12,7 +12,7 @@ description: |
 
   DO NOT use when: implementing skills (use skill-authoring instead),
   creating hooks (use hook-authoring instead)
-version: 1.0.0
+version: 1.3.4
 category: testing
 tags: [testing, validation, TDD, subagents, fresh-instances]
 token_budget: 30
@@ -76,8 +76,8 @@ Test skill's anti-rationalization guardrails.
 
 For complete testing patterns, examples, and templates:
 - **[Testing Patterns](modules/testing-patterns.md)** - Full TDD methodology
-- **[Test Examples](modules/test-examples.md)** - Baseline, with-skill, rationalization tests
-- **[Analysis Templates](modules/analysis-templates.md)** - Scoring and comparison frameworks
+- **[Test Examples](modules/testing-patterns.md)** - Baseline, with-skill, rationalization tests
+- **[Analysis Templates](modules/testing-patterns.md)** - Scoring and comparison frameworks
 
 ## Success Criteria
 

@@ -20,7 +20,17 @@ modules:
   - remediation-types
 progressive_loading: true
 estimated_tokens: 400
+version: 1.3.4
 ---
+## Table of Contents
+
+- [Bloat Categories](#bloat-categories)
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [Confidence Levels](#confidence-levels)
+- [Prioritization](#prioritization)
+- [Module Architecture](#module-architecture)
+- [Safety](#safety)
 
 # Bloat Detector
 

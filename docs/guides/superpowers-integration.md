@@ -2,9 +2,51 @@
 
 This guide documents the integration of superpowers marketplace skills with the night-market plugin ecosystem.
 
+**Last Updated:** 2026-01-23
+**Superpowers Version:** v4.1.0
+**Spec-Kit Version:** v0.0.90
+
 ## Overview
 
-The superpowers marketplace provides 18 specialized skills that implement rigorous methodologies like RED-GREEN-REFACTOR, systematic debugging, and evidence-based operations. This integration enhances existing plugin capabilities without replacing them, creating a cohesive development workflow with better quality gates.
+The superpowers marketplace provides specialized skills that implement rigorous methodologies like RED-GREEN-REFACTOR, systematic debugging, and evidence-based operations. This integration enhances existing plugin capabilities without replacing them, creating a cohesive development workflow with better quality gates.
+
+## Recent Updates (v4.0.0 - v4.1.0)
+
+### Skill Consolidations (v4.0.0)
+
+Several standalone skills were bundled into comprehensive skills. **Update your references:**
+
+- ❌ `superpowers:root-cause-tracing` → ✅ `superpowers:systematic-debugging`
+- ❌ `superpowers:defense-in-depth` → ✅ `superpowers:systematic-debugging`
+- ❌ `superpowers:condition-based-waiting` → ✅ `superpowers:systematic-debugging`
+- ❌ `superpowers:testing-skills-with-subagents` → ✅ `superpowers:writing-skills`
+- ❌ `superpowers:testing-anti-patterns` → ✅ `superpowers:test-driven-development`
+- ❌ `superpowers:sharing-skills` → Removed (obsolete)
+
+### New Features (v4.0.x)
+
+1. **Two-Stage Code Review** - Subagent workflows now use:
+   - Stage 1: Spec compliance review (skeptical verification)
+   - Stage 2: Code quality review (only after spec compliance passes)
+
+2. **DOT Flowcharts** - Key skills now use executable DOT/GraphViz diagrams
+
+3. **Strengthened Skill Invocation** (v4.0.3)
+   - "Invoke relevant or requested skills" instead of "Check for skills"
+   - "BEFORE any response or action"
+   - New red flag: "I know what that means"
+
+4. **Test Infrastructure** - New testing patterns:
+   - Skill-triggering tests
+   - Claude Code integration tests
+   - End-to-end workflow tests
+
+### Breaking Changes (v4.1.0)
+
+1. **OpenCode Native Skills** - Switched to native `skill` tool (migration required)
+2. **Windows Compatibility** - Fixed hook execution for Claude Code 2.1.x
+
+**For full details:** [Superpowers Release Notes](https://github.com/obra/superpowers/blob/main/RELEASE-NOTES.md)
 
 ## Integration Philosophy
 
@@ -213,6 +255,6 @@ Contributions welcome for:
 
 ## Conclusion
 
-The integration of superpowers skills with night-market plugins creates a cohesive, rigorous development ecosystem with improved quality gates. By focusing on methodology over features and evidence over assumptions, we elevate the quality and reliability of the entire plugin system while maintaining the unique value proposition of each plugin.
+Superpowers skills integrate with night-market plugins to add quality gates and consistent methodology. The focus on evidence over assumptions improves reliability across the plugin system.
 
-The phased approach delivers immediate value while building toward a more integrated future, where systematic quality and continuous improvement become the standard rather than the exception.
+The phased approach delivers immediate value while building toward deeper integration.

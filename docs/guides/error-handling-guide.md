@@ -1,314 +1,106 @@
 # Error Handling Guide
 
-**Last Updated**: 2025-01-08
-
-## Overview
-
-Detailed error handling patterns and troubleshooting strategies for Claude Night Market plugins. For detailed tutorial with code examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
+This guide details error handling patterns and troubleshooting strategies for Night Market plugins. For implementation examples, see [error-handling-tutorial.md](../../book/src/tutorials/error-handling-tutorial.md).
 
 ## Error Classification System
 
-Based on leyline:error-patterns standard:
+Night Market uses the `leyline:error-patterns` standard for classification:
 
-- **Critical (E001-E099)**: Halt execution immediately
-- **Recoverable (E010-E099)**: Retry with exponential backoff
-- **Warnings (E020-E099)**: Log and continue
-
-See tutorial for detailed classification and code examples.
+- **Critical (E001-E099)**: Halt execution immediately.
+- **Recoverable (E010-E099)**: Retry using exponential backoff.
+- **Warnings (E020-E099)**: Log the event and continue execution.
 
 ## Plugin-Specific Patterns
 
 ### abstract: Core Infrastructure
 
-**Common failures**: TDD test mismatches, skill discovery issues, anti-rationalization traps
-
-**Skill Tool Unavailable: Secondary Strategy**:
-```
-# Instead of: Skill(sanctum:commit-messages)
-# Use:        Read plugins/sanctum/skills/commit-messages/SKILL.md
-```
+Common failures include TDD test mismatches, skill discovery errors, and anti-rationalization triggers. If the Skill tool is unavailable, read the `SKILL.md` file directly from the plugin directory as a secondary strategy.
 
 ### conserve: Context Optimization
 
-**Common failures**: Context pressure, module deadlocks, memory fragmentation
-
-**Recovery thresholds**: 95% aggressive compaction, 85% selective, 70% monitor
+Failures typically involve context pressure, module deadlocks, or memory fragmentation. Recovery thresholds trigger at specific levels: 95% for aggressive compaction, 85% for selective removal, and 70% for standard monitoring.
 
 ### memory-palace: Knowledge Management
 
-**Common failures**: Content fetching, storage conflicts, index corruption
-
-**Health checks**: Storage availability, index integrity, search functionality, concurrency safety
+Failures occur during content fetching, storage access, or index synchronization. Health checks verify storage availability, index integrity, and concurrency safety.
 
 ### parseltongue: Python Development
 
-**Common failures**: Event loop blocking, task leaks, deadlocks
-
-**Prevention**: Use async equivalents, track all tasks, set timeouts
+Common issues include event loop blocking and task leaks. Prevent these by using async-native libraries, tracking all spawned tasks, and enforcing timeouts on network operations.
 
 ### sanctum: Git Workflows
 
-**Common failures**: Test generation errors, import resolution, mock configuration
-
-**CI/CD recovery**: Automated detection and recovery actions based on error type
+Failures often involve test generation errors or mock misconfigurations. CI/CD pipelines use automated detection to trigger recovery actions based on the specific error code.
 
 ## Troubleshooting Workflow
 
-### Step 1: Quick Diagnosis
+### Step 1: Diagnosis
 
-Use health check scripts to identify the issue:
+Execute health check scripts to identify the failing component:
 
 ```bash
-# Check overall system health
+# System-wide health check
 python -m abstract.tools.health_check
 
-# Check specific plugin
+# Plugin-specific check
 python -m memory_palace.tools.health_check
 
-# Check quota status
+# Quota status check
 python conjure/scripts/quota_tracker.py --status
 ```
 
-### Step 2: Identify Error Category
+### Step 2: Identification
 
-Match error code to category:
+Map the error code to its category: Critical (Stop), Recoverable (Retry), or Warning (Log).
 
-- **E001-E099**: Critical -> Stop and investigate
-- **E010-E099**: Recoverable -> Retry with backoff
-- **E020-E099**: Warning -> Log and continue
+### Step 3: Recovery
 
-### Step 3: Apply Recovery Strategy
+Apply the strategy corresponding to the category. Critical errors require halting execution and preserving state for manual investigation. Recoverable errors use exponential backoff (1s, 2s, 4s, 8s). Warnings are logged as metrics for trend monitoring.
 
-Follow the recovery steps for the specific scenario:
+### Step 4: Prevention
 
-1. **Critical**: Halt execution, preserve state, alert operators
-2. **Recoverable**: Retry with exponential backoff (1s, 2s, 4s, 8s)
-3. **Warning**: Log metric, continue execution, monitor trends
-
-### Step 4: Document and Prevent
-
-After resolution:
-
-1. Document root cause and resolution
-2. Add health check for early detection
-3. Implement prevention measures
-4. Share learnings with team
+After resolution, document the root cause and add a health check test to detect the failure early in future runs. Implement prevention measures and update relevant team documentation.
 
 ## Integration with leyline:error-patterns
 
-The error handling system integrates with `leyline`'s error pattern infrastructure:
+The error handling system uses `leyline`'s shared infrastructure for classification and logging.
 
-### Shared Error Infrastructure
+### Shared Infrastructure
 
-```python
-from leyline.error_patterns import (
-    ErrorClassifier,
-    RecoveryStrategy,
-    ErrorLogger,
-    HealthChecker
-)
+Implement `ErrorClassifier` for plugin-specific logic. For example, a skill classifier might mark `SkillNotFoundError` as critical and `TemporaryServiceError` as recoverable.
 
-class SkillErrorClassifier(ErrorClassifier):
-    """Skill-specific error classification"""
+### Unified Logging
 
-    def classify(self, error: Exception) -> ErrorCategory:
-        if isinstance(error, SkillNotFoundError):
-            return ErrorCategory.CRITICAL
-        elif isinstance(error, TemporaryServiceError):
-            return ErrorCategory.RECOVERABLE
-        else:
-            return ErrorCategory.WARNING
-```
-
-### Unified Logging and Monitoring
-
-```python
-from leyline.error_patterns import ErrorLogger
-
-logger = ErrorLogger(service="abstract")
-
-try:
-    skill.execute()
-except Exception as e:
-    logger.log_error(
-        error=e,
-        context={"skill": skill.name, "input": input_data},
-        recovery_strategy=recovery_strategy
-    )
-```
+Use `ErrorLogger` to capture structured data. Include the error instance, context such as skill name and input data, and the applied recovery strategy.
 
 ## Best Practices
 
-### 1. Fail Fast, Fail Clearly
+### 1. Fail Fast and Explicitly
 
-```python
-# Good: Specific error with context
-def load_skill(skill_name: str) -> Skill:
-    if not skill_exists(skill_name):
-        raise SkillNotFoundError(
-            skill_name,
-            searched_paths=get_skill_search_paths()
-        )
+Raise specific exceptions that include debugging context. For example, `SkillNotFoundError` should report the searched paths rather than a generic "Skill not found" message.
 
-# Bad: Generic error
-def load_skill(skill_name: str) -> Skill:
-    if not skill_exists(skill_name):
-        raise Exception("Skill not found")
-```
+### 2. Provide Recovery Steps
 
-### 2. Provide Recovery Guidance
+Include actionable recovery steps in the exception. A `QuotaExceededError` should detail the current usage, the limit, and the recommended wait time or frequency reduction.
 
-```python
-# Good: Error with recovery steps
-raise QuotaExceededError(
-    service="gemini",
-    quota_type="rpm",
-    current=65,
-    limit=60,
-    recovery_steps=[
-        "Wait 60 seconds for rate limit window to reset",
-        "Reduce request frequency",
-        "Consider upgrading quota limits"
-    ]
-)
+### 3. Use Structured Logging
 
-# Bad: Error without guidance
-raise Exception("Quota exceeded")
-```
-
-### 3. Log Structured Data
-
-```python
-# Good: Structured logging
-logger.error(
-    "skill_execution_failed",
-    extra={
-        "skill_name": skill.name,
-        "error_type": type(error).__name__,
-        "error_message": str(error),
-        "input_size": len(input_data),
-        "execution_time": elapsed_time,
-        "traceback": traceback.format_exc()
-    }
-)
-
-# Bad: Unstructured logging
-logger.error(f"Error executing skill: {error}")
-```
+Log error data as structured fields rather than formatted strings. Include the skill name, error type, input size, execution time, and stack trace to allow for efficient filtering and analysis.
 
 ### 4. Implement Circuit Breakers
 
-```python
-class CircuitBreaker:
-    """Prevent cascading failures"""
+Use circuit breakers to prevent cascading failures. A breaker monitors failure counts and transitions to an 'open' state after a threshold, blocking subsequent calls until the system stabilizes.
 
-    def __init__(self, failure_threshold: int = 5):
-        self.failure_threshold = failure_threshold
-        self.failure_count = 0
-        self.state = "closed"  # closed, open, half-open
+## Testing
 
-    def call(self, func: Callable, *args, **kwargs):
-        if self.state == "open":
-            raise CircuitBreakerOpenError(
-                "Circuit breaker is open. "
-                f"Failures: {self.failure_count}/{self.failure_threshold}"
-            )
+### Unit Testing
 
-        try:
-            result = func(*args, **kwargs)
-            self.failure_count = 0
-            return result
-        except Exception as e:
-            self.failure_count += 1
-            if self.failure_count >= self.failure_threshold:
-                self.state = "open"
-            raise
-```
+Verify that exceptions provide the necessary guidance. Tests should assert that error messages contain specific verification steps or searched paths.
 
-## Testing Error Scenarios
+### Integration Testing
 
-### Unit Testing Error Handling
+Test recovery logic by simulating failures. For example, use a mock to trigger `QuotaExceededError` and verify that the system attempts the correct number of retries with exponential backoff.
 
-```python
-def test_skill_not_found_error():
-    """Test SkillNotFoundError provides helpful guidance"""
-    with pytest.raises(SkillNotFoundError) as exc_info:
-        load_skill("nonexistent:skill")
+## Monitoring
 
-    error = exc_info.value
-    assert error.skill_name == "nonexistent:skill"
-    assert len(error.searched_paths) > 0
-    assert "verify SKILL.md" in str(error).lower()
-```
-
-### Integration Testing Recovery
-
-```python
-@pytest.mark.asyncio
-async def test_quota_exceeded_recovery():
-    """Test exponential backoff on quota exceeded"""
-    tracker = GeminiQuotaTracker()
-
-    # Simulate quota exceeded
-    with patch.object(tracker, 'record_request') as mock_record:
-        mock_record.side_effect = QuotaExceededError()
-
-        with pytest.raises(QuotaExceededError):
-            await tracker.execute_with_retry("test prompt")
-
-        # Verify backoff was attempted
-        assert mock_record.call_count == 3  # 3 retries
-```
-
-## Monitoring and Alerting
-
-### Key Metrics to Track
-
-1. **Error Rate**: Errors per minute by category
-2. **Recovery Success Rate**: Percentage of errors successfully recovered
-3. **Mean Time to Recovery (MTTR)**: Average time to resolve errors
-4. **Circuit Breaker Trips**: Number of times circuit breakers opened
-
-### Alert Thresholds
-
-```yaml
-alerts:
-  - name: high_critical_error_rate
-    condition: error_rate{category="critical"} > 5
-    duration: 5m
-    action: page_on_call
-
-  - name: high_recovery_failure_rate
-    condition: recovery_success_rate < 0.8
-    duration: 10m
-    action: create_ticket
-
-  - name: circuit_breaker_open
-    condition: circuit_breaker_state{state="open"} > 0
-    duration: 1m
-    action: alert_team
-```
-
-## Resources
-
-### Documentation
-
-- [Error Handling Template](../error-handling-template.md)
-- [Plugin Development Guide](./plugin-dependency-pattern.md)
-- [Architecture Decisions](../adr/)
-
-### Related Skills
-
-- `abstract:skill-authoring` - Creating robust skills
-- `sanctum:test-updates` - Test-driven error handling
-- `conserve:context-optimization` - Managing context pressure
-
-### Tools
-
-- `leyline:error-patterns` - Shared error infrastructure
-- Health check scripts in each plugin
-- Error logging and monitoring systems
-
-## Final Implementation Notes
-
-These error patterns provide a consistent way to handle failures across all plugins. Using the shared `leyline` infrastructure allows for unified monitoring and predictable recovery behavior.
+Track error rates by category, recovery success percentages, and mean time to recovery (MTTR). Alert thresholds should trigger based on critical error rates or circuit breaker transitions.

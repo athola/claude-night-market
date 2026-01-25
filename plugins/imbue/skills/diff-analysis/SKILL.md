@@ -28,7 +28,16 @@ complexity: intermediate
 progressive_loading: true
 module_strategy: workflow-based
 estimated_tokens: 800
+version: 1.3.4
 ---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Activation Patterns](#activation-patterns)
+- [4-Step Methodology](#4-step-methodology)
+- [Exit Criteria](#exit-criteria)
+- [Troubleshooting](#troubleshooting)
 
 # Diff Analysis Methodology
 

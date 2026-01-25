@@ -21,7 +21,19 @@ make install-hooks  # pre-commit hooks
 make test           # lint + type + security checks
 ```
 
-Requirements: Python 3.10+, [uv](https://docs.astral.sh/uv/), and `tiktoken`.
+Requirements: Python 3.10+, [uv](https://docs.astral.sh/uv/).
+
+### Optional Dependencies
+
+| Package | Purpose | Fallback |
+|---------|---------|----------|
+| tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
+| leyline | Quota tracking | Stub tracker (disabled) |
+
+For accurate token counts, install tiktoken:
+```bash
+pip install tiktoken
+```
 
 ## Usage
 

@@ -39,9 +39,9 @@ Or reference from the marketplace:
 
 | Agent | Description |
 |-------|-------------|
-| **doc-editor** | Interactive documentation editing |
-| **slop-hunter** | Comprehensive slop detection |
-| **doc-verifier** | QA validation using proof-of-work methodology |
+| **doc-editor** | Interactive documentation editing. |
+| **slop-hunter** | Detection of AI-generated markers and tropes. |
+| **doc-verifier** | QA validation using proof-of-work methodology. |
 
 ## Quick Start
 

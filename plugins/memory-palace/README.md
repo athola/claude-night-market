@@ -51,6 +51,17 @@ Knowledge capture triggers after PR reviews:
 
 See `skills/review-chamber/SKILL.md` for details.
 
+## Optional Dependencies
+
+| Package | Purpose | Fallback |
+|---------|---------|----------|
+| tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
+
+For accurate token counts, install tiktoken:
+```bash
+pip install tiktoken
+```
+
 ## Skill Execution Memory
 
 Memory-palace automatically stores skill execution history via hooks, enabling continual learning and performance analysis.

@@ -19,7 +19,7 @@ Triggers: monolith, separation-of-concerns, n-tier, architecture, layered
   DO NOT use when: teams need independent deployment cycles - use microservices.
 
   Consult this skill when implementing layered patterns or enforcing layer boundaries.
-version: 1.0.0
+version: 1.3.4
 category: architectural-pattern
 tags: [architecture, layered, n-tier, separation-of-concerns, monolith]
 dependencies: []
@@ -32,6 +32,15 @@ usage_patterns:
 complexity: low
 estimated_tokens: 700
 ---
+## Table of Contents
+
+- [When to Employ This Paradigm](#when-to-employ-this-paradigm)
+- [When NOT to Use This Paradigm](#when-not-to-use-this-paradigm)
+- [Adoption Steps](#adoption-steps)
+- [Key Deliverables](#key-deliverables)
+- [Technology Guidance](#technology-guidance)
+- [Risks & Mitigations](#risks-mitigations)
+- [Troubleshooting](#troubleshooting)
 
 # The Layered (N-Tier) Architecture Paradigm
 

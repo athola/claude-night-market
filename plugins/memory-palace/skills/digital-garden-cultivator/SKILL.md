@@ -23,6 +23,7 @@ scripts: [garden_metrics.py]
 usage_patterns: [garden-management, knowledge-curation, content-lifecycle]
 complexity: intermediate
 estimated_tokens: 500
+version: 1.3.4
 ---
 ## Table of Contents
 
@@ -124,7 +125,7 @@ garden:
 
 - **Linking Patterns**: See `modules/linking-patterns.md`
 - **Maintenance Guide**: See `modules/maintenance.md`
-- **Metrics Integration**: See `modules/metrics-integration.md`
+- **Metrics Integration**: See `modules/maintenance.md`
 
 ## Integration
 

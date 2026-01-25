@@ -1122,3 +1122,63 @@ class TestConfigurableSessionStatePath:
         assert "stop" in recs_text
         assert "clear-context" in recs_text
         assert "continuation" in recs_text or "agent" in recs_text
+
+
+class TestFallbackContextEstimation:
+    """Feature: Fallback context estimation from session files.
+
+    As a context monitoring system
+    I want to estimate context usage from session file size
+    So that monitoring works even when CLAUDE_CONTEXT_USAGE is unavailable
+    """
+
+    @pytest.fixture
+    def context_warning_module(self):
+        """Import the context_warning module."""
+        import importlib.util
+        import sys
+        from pathlib import Path
+
+        module_path = (
+            Path(__file__).parent.parent.parent / "hooks" / "context_warning.py"
+        )
+        spec = importlib.util.spec_from_file_location("context_warning", module_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["context_warning"] = module
+        spec.loader.exec_module(module)
+        return module
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_estimation_disabled_by_env(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: Estimation can be disabled via environment variable.
+
+        Given CONSERVE_CONTEXT_ESTIMATION is set to 0
+        When attempting to estimate context
+        Then it should return None without attempting estimation.
+        """
+        monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
+        monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+
+        result = context_warning_module.estimate_context_from_session()
+
+        assert result is None
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_env_variable_takes_precedence(
+        self, context_warning_module, monkeypatch
+    ) -> None:
+        """Scenario: CLAUDE_CONTEXT_USAGE takes precedence over estimation.
+
+        Given CLAUDE_CONTEXT_USAGE environment variable is set
+        When getting context usage
+        Then it should use the environment variable value.
+        """
+        monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.75")
+
+        result = context_warning_module.get_context_usage_from_env()
+
+        assert result == 0.75

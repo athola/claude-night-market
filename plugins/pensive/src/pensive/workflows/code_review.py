@@ -7,7 +7,7 @@ from typing import Any
 
 
 class CodeReviewWorkflow:
-    """Orchestrates code review workflows."""
+    """Manages code review execution."""
 
     def __init__(self, config: Any = None) -> None:
         """Initialize workflow."""
@@ -17,15 +17,15 @@ class CodeReviewWorkflow:
         self._skipped_skills: list[str] = []
 
     async def run(self, _context: Any) -> dict[str, Any]:
-        """Run the code review workflow."""
+        """Run code review."""
         return {"findings": [], "summary": ""}
 
     def configure(self, settings: dict[str, Any]) -> None:
-        """Configure the workflow."""
+        """Configure workflow."""
         self.config.update(settings)
 
     def execute_full_review(self, repo_path: Path | str) -> dict[str, Any]:
-        """Execute a full code review on a repository.
+        """Execute full repository review.
 
         Args:
             repo_path: Path to the repository.
@@ -109,14 +109,14 @@ class CodeReviewWorkflow:
         return results
 
     def _collect_files(self, repo_path: Path) -> list[str]:
-        """Collect files from repository."""
+        """Collect repository files."""
         files: list[str] = []
         for ext in ["*.py", "*.rs", "*.js", "*.ts", "*.java", "*.go"]:
             files.extend(str(f.relative_to(repo_path)) for f in repo_path.rglob(ext))
         return files
 
     def _determine_skills(self, repo_path: Path, files: list[str]) -> list[str]:
-        """Determine which skills to run based on repository contents."""
+        """Determine skills to run based on content."""
         skills = ["unified-review"]  # Always run unified review
 
         # Check for Rust
@@ -134,7 +134,7 @@ class CodeReviewWorkflow:
         return skills
 
     def _generate_summary(self, findings: list[dict[str, Any]]) -> str:
-        """Generate a summary of findings."""
+        """Generate findings summary."""
         if not findings:
             return "No issues found during code review."
 
@@ -149,7 +149,7 @@ class CodeReviewWorkflow:
         )
 
     def _generate_recommendations(self, findings: list[dict[str, Any]]) -> list[str]:
-        """Generate recommendations based on findings."""
+        """Generate recommendations."""
         recommendations = []
 
         if any(f.get("severity") == "critical" for f in findings):

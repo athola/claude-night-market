@@ -16,6 +16,7 @@ Before changing any version numbers, load the required skills in order:
 - **Option 1 (Automated)**: Use `plugins/sanctum/scripts/update_versions.py <version> --dry-run` to preview, then run without `--dry-run` to apply
   - Automatically finds and updates all version files including nested ones (e.g., `plugins/memory-palace/hooks/pyproject.toml`)
   - Supports pyproject.toml, Cargo.toml, package.json, plugin.json, metadata.json
+  - Supports SKILL.md files with YAML frontmatter containing `version:` field
   - Excludes virtual environments and build directories
 - **Option 2 (Manual)**: Update all relevant configuration files manually
 

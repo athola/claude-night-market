@@ -24,6 +24,7 @@ scripts: [palace_manager.py]
 usage_patterns: [search, cross-reference, discovery, review-search]
 complexity: intermediate
 estimated_tokens: 500
+version: 1.3.4
 ---
 ## Table of Contents
 
@@ -105,7 +106,7 @@ python scripts/palace_manager.py list
 
 - **Index Structure**: See `modules/index-structure.md`
 - **Search Strategies**: See `modules/search-strategies.md`
-- **Cross-Reference Mapping**: See `modules/cross-references.md`
+- **Cross-Reference Mapping**: See `modules/index-structure.md`
 
 ## PR Review Search
 

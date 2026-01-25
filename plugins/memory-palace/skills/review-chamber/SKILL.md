@@ -3,7 +3,7 @@ name: review-chamber
 description: Capture and retrieve PR review knowledge in project memory palaces
 
 Triggers: memory, project, capture, retrieve, review
-version: 1.0.0
+version: 1.3.4
 triggers:
   - pr review completed
   - knowledge capture requested

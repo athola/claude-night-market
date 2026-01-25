@@ -23,7 +23,7 @@ We test at three levels:
 
 ## Pre-Commit Testing
 
-Pre-commit hooks automatically run all tests for changed plugins before allowing commits. This prevents broken code from entering the repository and provides fast feedback by limiting the scope to what changed.
+Pre-commit hooks automatically run all tests for changed plugins before allowing commits. This prevents broken code from entering the repository and provides fast feedback by limiting the scope to changes.
 
 ### Workflow
 
@@ -31,7 +31,7 @@ When you commit changes, pre-commit runs automatically. If tests pass, the commi
 
 ### Trigger Rules
 
-The system decides which tests to run based on the files you modify. Modifying a plugin's Python files triggers that plugin's tests. Modifying multiple plugins triggers tests for all of them. Changes to command markdown files also trigger relevant tests. You can manually run all tests with `make test`.
+The system runs tests based on modified files. Modifying a plugin's Python files triggers that plugin's tests. Modifying multiple plugins triggers tests for all of them. Changes to command markdown files also trigger relevant tests. You can manually run all tests with `make test`.
 
 ### Configuration
 
@@ -67,7 +67,7 @@ We maintain automated tests for the following plugins:
 
 ### Test Discovery
 
-For each modified plugin, the hook first looks for a `Makefile` with a `test:` target. If not found, it falls back to running `pytest` directly via `pyproject.toml`. If neither is configured, it skips the plugin.
+For each modified plugin, the hook first looks for a `Makefile` with a `test:` target. If not found, it defaults to running `pytest` directly via `pyproject.toml`. If neither is configured, it skips the plugin.
 
 ## Writing Tests
 
@@ -122,7 +122,7 @@ You can run tests manually using the runner script, `pytest`, or `make`.
 ./scripts/run-plugin-tests.sh minister imbue sanctum
 ```
 
-To run `pytest` directly:
+Run `pytest` directly:
 ```bash
 cd plugins/minister
 uv run python -m pytest tests/ -v
@@ -136,7 +136,7 @@ make test
 
 ### Performance
 
-Test execution time depends on the scope. Testing a single plugin like `minister` takes 5-10 seconds. Full suite runs take 2-3 minutes. The hooks optimize for speed by testing only changed plugins, running in parallel, and using quiet mode.
+Test execution time depends on the scope. Testing a single plugin like `minister` takes 5-10 seconds. Full suite runs take two to three minutes. The hooks optimize for speed by testing only changed plugins, running in parallel, and using quiet mode.
 
 ### Output Verbosity
 
@@ -161,7 +161,7 @@ Beyond standard unit/integration tests, several plugins support advanced testing
 
 ### Mutation Testing
 
-**Purpose**: Verify test quality by mutating code and checking if tests catch the changes.
+**Purpose**: Verify test quality by mutating code and checking if tests catch changes.
 
 **Available in**: abstract, conserve, imbue, leyline, memory-palace, minister, conjure
 
@@ -231,7 +231,7 @@ If tests fail, review the output provided by the pre-commit hook. Fix the code o
 
 We follow a strict rule: **No implementation without a failing test first.**
 
-This prevents writing code based on assumptions. Before implementing a feature, write a test that fails. This proves the need for the code and guides its design.
+This prevents writing code based on assumptions. Before implementing a feature, write a test that fails to prove the need for the code and guide its design.
 
 **Self-Check Protocol**
 If you catch yourself planning implementation before writing a test, stop. Write the failing test first. If you think you know what tests you need, document the failure before designing the solution.

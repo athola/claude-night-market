@@ -5,6 +5,7 @@ description: Configure comprehensive three-layer pre-commit quality system with 
 Triggers: pre-commit, quality, configure, enforcement, checking
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
+version: 1.3.4
 ---
 ## Table of Contents
 

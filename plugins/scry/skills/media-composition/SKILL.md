@@ -16,6 +16,7 @@ estimated_tokens: 450
 progressive_loading: false
 dependencies:
   - scry:gif-generation
+version: 1.3.4
 ---
 ## Table of Contents
 

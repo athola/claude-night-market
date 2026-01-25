@@ -126,6 +126,21 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Suggest next steps if implementation cannot proceed
    - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
 
+   **Claude Code Tasks Integration** (2.1.16+):
+   When running in Claude Code 2.1.16+, task state is also tracked via native Tasks:
+   ```python
+   from tasks_manager import TasksManager
+   manager = TasksManager(
+       project_path=Path("."),
+       fallback_state_file=Path(".specify/execution-state.json"),
+   )
+   # Tasks created lazily as execution reaches each one
+   # User prompted if task boundaries are ambiguous
+   # Resume detection works across sessions
+   ```
+   - Use `CLAUDE_CODE_TASK_LIST_ID="speckit-{project}"` for cross-session state
+   - Tasks visible in VS Code sidebar for progress tracking
+
 9. Completion validation:
    - Verify all required tasks are completed
    - Check that implemented features match the original specification

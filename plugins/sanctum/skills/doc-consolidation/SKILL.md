@@ -17,7 +17,7 @@ Triggers: consolidation, knowledge-management, git-hygiene, cleanup, docs
   DO NOT use when: source files have no extractable value.
 
   Merges valuable content into permanent documentation, then deletes source files.
-version: 1.0.0
+version: 1.3.4
 category: documentation
 tags: [docs, consolidation, cleanup, git-hygiene, knowledge-management]
 status: stable

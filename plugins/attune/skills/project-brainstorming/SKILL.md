@@ -4,6 +4,7 @@ description: Socratic questioning and ideation methodology for project conceptio
 
 Triggers: frameworks, conception, brainstorming, socratic, using
 model_preference: claude-sonnet-4
+version: 1.3.4
 ---
 ## Table of Contents
 
@@ -21,6 +22,7 @@ model_preference: claude-sonnet-4
 - [Success Criteria](#success-criteria)
 - [Phase 3: Approach Generation](#phase-3:-approach-generation)
 - [Approach [N]: [Name]](#approach-[n]:-[name])
+- [Phase 3.5: War Room Deliberation (REQUIRED)](#phase-3.5:-war-room-deliberation-(required))
 - [Phase 4: Approach Comparison](#phase-4:-approach-comparison)
 - [Phase 5: Decision & Rationale](#phase-5:-decision-&-rationale)
 - [Selected Approach: [Approach Name] ⭐](#selected-approach:-[approach-name]-⭐)
@@ -66,6 +68,12 @@ Guide project ideation through Socratic questioning, constraint analysis, and st
 - Standalone questioning framework
 - Project-focused ideation patterns
 - Structured output templates
+
+**War Room Integration (REQUIRED)**:
+- After Phase 3 (Approach Generation), automatically invokes `Skill(attune:war-room)`
+- All brainstorming context passed to War Room for expert deliberation
+- War Room provides multi-LLM pressure testing and synthesis
+- Only bypassed for Type 2 decisions (RS ≤ 0.40) with explicit user confirmation
 
 ## Brainstorming Framework
 
@@ -174,6 +182,38 @@ Guide project ideation through Socratic questioning, constraint analysis, and st
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
+### Phase 3.5: War Room Deliberation (REQUIRED)
+
+**Automatic Trigger**: After generating approaches, MUST invoke `Skill(attune:war-room)` for expert deliberation
+
+**When War Room is invoked**:
+- All brainstorming context (problem, constraints, approaches) automatically passed to War Room
+- Expert panel reviews, challenges, and pressures each approach
+- Reversibility assessment conducted
+- Multi-LLM deliberation identifies blind spots
+- Supreme Commander provides synthesis with rationale
+
+**Command**:
+```bash
+# Automatically invoked from brainstorm - DO NOT SKIP
+/attune:war-room --from-brainstorm
+```
+
+**War Room Output**:
+- Reversibility Score (RS) and decision type
+- Red Team challenges for each approach
+- Premortem analysis on selected approach
+- Supreme Commander Decision document
+- Implementation orders and watch points
+
+**Bypass Conditions** (ONLY skip war room if ALL true):
+- [ ] RS ≤ 0.40 (Type 2 decision - clearly reversible)
+- [ ] Single obvious approach with no meaningful trade-offs
+- [ ] Low complexity with well-documented pattern
+- [ ] User explicitly declines after being shown RS assessment
+
+**Proceed to Phase 4 only after War Room completes**
+
 ### Phase 4: Approach Comparison
 
 **Comparison Matrix**:
@@ -244,8 +284,11 @@ Final output saved to `docs/project-brief.md`:
 ## Approach Comparison
 [From Phase 3 & 4]
 
+## War Room Decision
+[From Phase 3.5 - includes RS assessment, Red Team challenges, premortem]
+
 ## Selected Approach
-[From Phase 5]
+[From Phase 5, informed by War Room synthesis]
 
 ## Next Steps
 1. `/attune:specify` - Create detailed specification
@@ -345,6 +388,7 @@ Save session to `.attune/brainstorm-session.json`:
 ## Related Skills
 
 - `Skill(superpowers:brainstorming)` - Socratic method (if available)
+- `Skill(attune:war-room)` - **REQUIRED AUTOMATIC INTEGRATION** - Invoked after Phase 3 for multi-LLM deliberation
 - `Skill(imbue:scope-guard)` - Scope creep prevention
 - `Skill(attune:project-specification)` - Next phase after brainstorming
 

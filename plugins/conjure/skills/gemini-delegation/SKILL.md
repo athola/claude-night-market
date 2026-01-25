@@ -18,10 +18,11 @@ progressive_loading: true
 modules:
   - modules/gemini-specifics.md
 references:
-  - delegation-core/modules/authentication-patterns.md
-  - delegation-core/modules/quota-management.md
-  - delegation-core/modules/usage-logging.md
-  - delegation-core/modules/error-handling.md
+  - delegation-core/../../leyline/skills/authentication-patterns/SKILL.md
+  - delegation-core/../../leyline/skills/quota-management/SKILL.md
+  - delegation-core/../../leyline/skills/usage-logging/SKILL.md
+  - delegation-core/../../leyline/skills/error-patterns/SKILL.md
+version: 1.3.4
 ---
 ## Table of Contents
 
@@ -103,10 +104,10 @@ gemini -p "..." > delegations/gemini/$(date +%Y%m%d_%H%M%S).md
 ## Shared Patterns
 
 This skill uses shared modules from delegation-core:
-- **Authentication**: See `delegation-core/modules/authentication-patterns.md`
-- **Quota Management**: See `delegation-core/modules/quota-management.md`
-- **Usage Logging**: See `delegation-core/modules/usage-logging.md`
-- **Error Handling**: See `delegation-core/modules/error-handling.md`
+- **Authentication**: See `delegation-core/../../leyline/skills/authentication-patterns/SKILL.md`
+- **Quota Management**: See `delegation-core/../../leyline/skills/quota-management/SKILL.md`
+- **Usage Logging**: See `delegation-core/../../leyline/skills/usage-logging/SKILL.md`
+- **Error Handling**: See `delegation-core/../../leyline/skills/error-patterns/SKILL.md`
 
 ## Gemini-Specific Details
 

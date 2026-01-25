@@ -16,7 +16,16 @@ description: |
   Consult this skill when skills-eval shows "Large skill file" warnings.
 token_budget: 25
 progressive_loading: true
+version: 1.3.4
 ---
+## Table of Contents
+
+- [When to Use](#when-to-use)
+- [Core Pattern: Externalize-Consolidate-Progress](#core-pattern-externalize-consolidate-progress)
+- [Quick Reference](#quick-reference)
+- [Optimization Workflow](#optimization-workflow)
+- [Key Success Factors](#key-success-factors)
+- [Modules](#modules)
 
 # Optimizing Large Skills
 

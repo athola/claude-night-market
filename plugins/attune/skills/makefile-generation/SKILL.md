@@ -5,6 +5,7 @@ description: Generate language-specific Makefile with common development targets
 Triggers: language-specific, makefile, development, targets, generation
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
+version: 1.3.4
 ---
 ## Table of Contents
 

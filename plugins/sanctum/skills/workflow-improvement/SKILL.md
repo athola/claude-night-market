@@ -15,6 +15,7 @@ complexity: medium
 estimated_tokens: 900
 dependencies:
   - sanctum:shared
+version: 1.3.4
 ---
 
 # Workflow Improvement

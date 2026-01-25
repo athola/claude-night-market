@@ -1,53 +1,44 @@
 # Claude Night Market
 
-Claude Night Market contains 15 plugins for Claude Code, focusing on git operations, code review, and specification-driven development. Plugins operate independently, allowing partial installation.
+Claude Night Market contains 16 plugins for Claude Code that automate git operations, code review, and specification-driven development. Each plugin operates independently, allowing you to install only the components required for your specific workflow.
 
 ## Architecture
 
-The plugins are organized in layers. **Domain Experts** like `pensive` (code review) and `minister` (issue tracking) provide high-level skills. These rely on the **Utility Layer** for tasks like token conservation (`conserve`), which in turn build upon the **Foundation Layer** for core mechanics like permissions (`sanctum`). The **Meta Layer** (`abstract`) handles cross-plugin validation.
+The ecosystem uses a layered architecture to manage dependencies and token usage.
 
-```
-+------------------+
-|  Domain Experts  |  archetypes, pensive, parseltongue, memory-palace, spec-kit, minister
-+------------------+
-        |
-+------------------+
-|  Utility Layer   |  conservation, conjure
-+------------------+
-        |
-+------------------+
-| Foundation Layer |  imbue, sanctum, leyline
-+------------------+
-        |
-+------------------+
-|   Meta Layer     |  abstract
-+------------------+
-```
+1.  **Domain Specialists**: Plugins like `pensive` (code review) and `minister` (issue tracking) provide high-level task automation.
+2.  **Utility Layer**: Provides resource management services, such as token conservation in `conserve`.
+3.  **Foundation Layer**: Implements core mechanics used across the ecosystem, including permission handling in `sanctum`.
+4.  **Meta Layer**: `abstract` provides tools for cross-plugin validation and enforcement of project standards.
 
 ## Design Philosophy
 
-Shallow dependencies reduce token usage. Progressive loading limits system prompt growth to active feature use. The workflow enforces specifications before implementation.
+The project prioritizes token efficiency through shallow dependency chains. Progressive loading ensures that plugin logic enters the system prompt only when a specific feature is active. We enforce a "specification-first" workflow, requiring a written design phase before code generation begins.
 
-## Claude Code Capabilities
+## Claude Code Integration
 
-Marketplace plugins use Claude Code 2.1.0+ features. Skills hot-reload on edit for rapid iteration. Context forking isolates risky operations. Frontmatter hooks execute logic at specific lifecycle points; wildcard permissions reduce approval prompts for trusted tools.
+Plugins require Claude Code 2.1.0 or later to use features like:
+- **Hot-reloading**: Skills update immediately upon file modification.
+- **Context Forking**: Risky operations run in isolated context windows.
+- **Lifecycle Hooks**: Frontmatter hooks execute logic at specific execution points.
+- **Wildcard Permissions**: Pre-approved tool access reduces manual confirmation prompts.
 
-## Integration
+## Integration with Superpowers
 
-These plugins work alongside [superpowers](https://github.com/obra/superpowers), which provides foundational TDD and debugging skills. Night Market plugins handle workflow and process; superpowers handles low-level execution and analysis.
+These plugins integrate with the [superpowers](https://github.com/obra/superpowers) marketplace. While Night Market handles high-level process and workflow orchestration, superpowers provides the underlying methodology for TDD, debugging, and execution analysis.
 
-## Quick Example
+## Quick Start
 
 ```bash
-# Add the marketplace
+# 1. Add the marketplace
 /plugin marketplace add athola/claude-night-market
 
-# Install a plugin
+# 2. Install a plugin
 /plugin install sanctum@claude-night-market
 
-# Use a command
+# 3. Use a command
 /pr
 
-# Invoke a skill
+# 4. Invoke a skill
 Skill(sanctum:git-workspace-review)
 ```

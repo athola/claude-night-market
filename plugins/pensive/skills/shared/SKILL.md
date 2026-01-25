@@ -16,7 +16,7 @@ Triggers: infrastructure, review, patterns, shared
   This skill provides shared patterns consumed by other pensive skills.
 category: review-infrastructure
 tags: [shared, infrastructure, review, patterns]
-version: 1.0.0
+version: 1.3.4
 estimated_tokens: 50
 ---
 

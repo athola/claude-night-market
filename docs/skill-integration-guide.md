@@ -1,381 +1,75 @@
 # Skill Integration Guide
 
-This guide demonstrates how skills coordinate to solve complex problems. Each integration example shows the specific interaction between skills and provides implementation guidance.
+Integrating skills allows specialized tools to pass data and state between one another. This guide details patterns for chaining skills into functional workflows.
 
-## Integration Categories
+## Workflow Chaining
 
-### 1. Workflow Integration
-Skills that execute in sequence to complete multi-step tasks.
+Chaining skills in sequence creates a pipeline where the output of one stage feeds the next. For example, an API development workflow typically moves from `skill-authoring` to scaffold the project structure, to `api-design` for endpoint definition, and finally to `testing-patterns` for coverage analysis. The process finishes with `doc-updates` and `commit-messages`.
 
-#### API Development Workflow
-```
-skill-authoring -> api-design -> testing-patterns -> doc-updates -> commit-messages
-```
+Security reviews follow a similar sequence: `security-scanning` identifies potential vulnerabilities, `bug-review` and `architecture-review` analyze those findings for exploitability, and `test-review` verifies remediation before `pr-prep` stages the fixes.
 
-**Scenario**: Building a new REST API
-1. **skill-authoring**: Generates the skill structure.
-2. **api-design**: Defines endpoints and data models.
-3. **testing-patterns**: Adds coverage for success and edge cases.
-4. **doc-updates**: Updates or generates API documentation.
-5. **commit-messages**: Formats the final commit.
+## State and Knowledge Management
 
-#### Security Review Workflow
-```
-security-scanning -> bug-review -> architecture-review -> test-review -> pr-prep
-```
+Knowledge-focused skills capture and structure project information. In a learning or onboarding workflow, `memory-palace-architect` defines a spatial structure for core concepts, while `knowledge-intake` processes raw materials. `digital-garden-cultivator` then stores these concepts for long-term reference, and `session-palace-builder` generates recall exercises.
 
-**Scenario**: Conducting security audit
-1. **security-scanning**: Runs automated vulnerability detection.
-2. **bug-review**: Analyzes specific security findings.
-3. **architecture-review**: Validates the system's security design.
-4. **test-review**: Checks if security tests cover the findings.
-5. **pr-prep**: Packages the fixes into a security-focused PR.
+Research workflows use `knowledge-locator` to identify sources, `evidence-logging` for maintaining citations, and `structured-output` to format data. The `imbue-review` skill then synthesizes these components into a report.
 
-### 2. Knowledge Management Integration
-Skills that capture, organize, and retrieve information.
+## Performance and Resource Optimization
 
-#### Learning New Technology
-```
-memory-palace-architect -> knowledge-intake -> digital-garden-cultivator -> session-palace-builder
-```
+Large-scale operations require active context management and concurrency. `context-optimization` filters files to keep the working set within the context window, while `subagent-dispatching` delegates modules to parallel workers. `systematic-debugging` then isolates root causes before `verification-before-completion` executes regression tests.
 
-**Scenario**: Mastering a new framework
-1. **memory-palace-architect**: Designs a spatial structure for the concepts.
-2. **knowledge-intake**: Filters and processes learning materials.
-3. **digital-garden-cultivator**: Plants the processed notes in the knowledge base.
-4. **session-palace-builder**: Creates temporary structures for active recall.
+For Python-specific performance, `python-async` manages blocking I/O, `python-performance` identifies hotspots, and `condition-based-waiting` uses event triggers instead of static sleeps to reduce idle time.
 
-#### Research Project
-```
-knowledge-locator -> evidence-logging -> structured-output -> imbue-review
-```
+## Implementation Examples
 
-**Scenario**: Academic or market research
-1. **knowledge-locator**: Identifies primary sources.
-2. **evidence-logging**: Records specific findings with citations.
-3. **structured-output**: Formats the raw data.
-4. **imbue-review**: Synthesizes the data into a final report.
+### API Development Pipeline
 
-### 3. Performance Optimization Integration
-Skills that diagnose and fix efficiency issues.
+The following example shows how to coordinate a user management microservice setup using skill calls:
 
-#### Large-Scale Code Analysis
-```
-context-optimization -> subagent-dispatching -> systematic-debugging -> verification-before-completion
-```
-
-**Scenario**: Analyzing enterprise codebase
-1. **context-optimization**: Selects relevant files to fit the context window.
-2. **subagent-dispatching**: Assigns modules to parallel workers.
-3. **systematic-debugging**: Isolates the root cause.
-4. **verification-before-completion**: Runs regression tests.
-
-#### Performance Critical Application
-```
-python-async -> python-performance -> condition-based-waiting -> performance-monitoring
-```
-
-**Scenario**: Optimizing Python application
-1. **python-async**: Converts blocking I/O to async/await.
-2. **python-performance**: Profiles execution to find hotspots.
-3. **condition-based-waiting**: Replaces `time.sleep()` with event triggers.
-4. **performance-monitoring**: Logs metrics during load testing.
-
----
-
-## Detailed Integration Examples
-
-### Example 1: API Development Pipeline
-
-**Use Case**: Building a microservice for user management
-
-#### Skill Chain Execution
 ```python
-# 1. Design API with proper patterns
+# Design API and data models
 api_design_skill = load_skill('api-design')
 endpoint_design = api_design_skill.design_rest_api(
     resource='users',
-    operations=['create', 'read', 'update', 'delete', 'list'],
-    authentication='jwt',
-    validation='pydantic'
+    operations=['create', 'read', 'update', 'delete', 'list']
 )
 
-# 2. Add detailed testing
+# Add unit and integration tests
 testing_skill = load_skill('testing-patterns')
-test_suite = testing_skill.generate_api_tests(
-    endpoints=endpoint_design,
-    coverage_target=95,
-    test_types=['unit', 'integration', 'e2e']
-)
+test_suite = testing_skill.generate_api_tests(endpoints=endpoint_design)
 
-# 3. Generate documentation
+# Generate OpenAPI documentation
 doc_skill = load_skill('doc-updates')
-api_docs = doc_skill.generate_api_documentation(
-    endpoints=endpoint_design,
-    format='openapi',
-    include_examples=True
-)
-
-# 4. Create quality commits
-commit_skill = load_skill('commit-messages')
-commits = commit_skill.create_feature_commits(
-    feature='user-management-api',
-    changes=combined_changes,
-    issue_tracker='jira'
-)
+api_docs = doc_skill.generate_api_documentation(endpoints=endpoint_design)
 ```
 
-#### Why This Works
-This pipeline enforces consistency. By generating tests and documentation directly from the design, we avoid the drift that often happens when these steps are disconnected. The commit message skill ensures the final output links back to the original requirements.
+Generating tests and documentation directly from the design output prevents drift. This pipeline ensures that endpoints, validation logic, and documentation remain synchronized throughout the cycle.
 
----
+### Security Review Automation
 
-### Example 2: Security Review Automation
+Security audits use `security-scanning` for SAST and DAST analysis. `bug-review` evaluates findings for exploitability, and `architecture-review` validates the design against threats like injection. `test-review` then identifies coverage gaps, while `pr-prep` assembles the remediation plan. This produces an auditable trail, packaging fixes and tests into a single unit for review.
 
-**Use Case**: Full security audit of web application
+### Learning Acceleration
 
-#### Integrated Security Workflow
-```python
-# Automated scanning
-security_skill = load_skill('security-scanning')
-vulnerabilities = security_skill.scan_application(
-    target='web-app',
-    scan_types=['sast', 'dast', 'dependency'],
-    severity_threshold='medium'
-)
+To learn a new framework, `memory-palace-architect` scaffolds core concepts, such as Rust's ownership model. `knowledge-intake` filters documentation and examples into a progressive path, which `digital-garden-cultivator` stores. `session-palace-builder` builds temporary recall exercises for immediate application.
 
-# Manual review automation
-bug_review_skill = load_skill('bug-review')
-security_issues = bug_review_skill.analyze_findings(
-    vulnerabilities=vulnerabilities,
-    context='web-security',
-    exploitability=True
-)
+## Integration Patterns
 
-# Architecture validation
-arch_review_skill = load_skill('architecture-review')
-security_architecture = arch_review_skill.security_assessment(
-    system_design=current_architecture,
-    threats=['injection', 'xss', 'csrf'],
-    controls=['authentication', 'authorization', 'encryption']
-)
+Skills combine through sequential chaining, parallel execution, or conditional routing. Sequential chaining passes output from one skill as input to the next. Parallel execution uses `asyncio.gather` for independent tasks. Conditional routing selects a skill based on input characteristics and uses a default if no specific rules match.
 
-# Test coverage verification
-test_review_skill = load_skill('test-review')
-security_tests = test_review_skill.analyze_security_testing(
-    test_suite=existing_tests,
-    security_requirements=vulnerabilities,
-    coverage_gaps=True
-)
+Composite skills wrap specialized tools into a single workflow. This allows for complex coordination while keeping individual skills focused on single tasks.
 
-# PR preparation
-pr_skill = load_skill('pr-prep')
-security_pr = pr_skill.prepare_security_focused_pr(
-    findings=combined_security_issues,
-    remediation_plan=fixes,
-    security_level='high'
-)
-```
+## Technical Standards
 
-#### Outcome
-This workflow produces an auditable trail. Automated scanning identifies the breadth of issues, while manual review automation prioritizes them based on exploitability. The final PR packages everything—fixes, tests, and documentation—into a single unit for review.
+Integration relies on standardized interfaces and error handling to prevent chain failures. Loading skills dynamically helps conserve tokens, and caching results for expensive steps improves performance in frequently used workflows. Configuration should be passed at runtime to support different environments. Logging both inputs and outputs simplifies debugging when a link in the chain fails.
 
----
+## Verification
 
-### Example 3: Learning Acceleration System
-
-**Use Case**: Rapidly mastering new programming language
-
-#### Multi-Skill Learning Pipeline
-```python
-# 1. Design memory palace for language concepts
-palace_skill = load_skill('memory-palace-architect')
-language_palace = palace_skill.create_palace(
-    topic='rust-programming',
-    template='workshop',
-    concepts=['ownership', 'borrowing', 'lifetimes', 'traits'],
-    complexity='intermediate'
-)
-
-# 2. Organize learning materials
-intake_skill = load_skill('knowledge-intake')
-learning_path = intake_skill.organize_materials(
-    topic='rust',
-    sources=['official_docs', 'tutorials', 'examples'],
-    structure='progressive',
-    prerequisites=['programming_basics']
-)
-
-# 3. Create growing knowledge garden
-garden_skill = load_skill('digital-garden-cultivator')
-rust_garden = garden_skill.create_topic_garden(
-    topic='rust',
-    initial_concepts=core_concepts,
-    growth_strategy='spiral',
-    connections=['systems_programming', 'memory_safety']
-)
-
-# 4. Build session-specific recall
-session_skill = load_skill('session-palace-builder')
-current_session = session_skill.build_palace(
-    duration='2_hours',
-    focus='ownership_and_borrowing',
-    exercises=code_exercises,
-    quiz_types=['recall', 'application', 'debugging']
-)
-```
-
-#### Why This Works
-The system structures information for retention. Instead of random reading, the memory palace provides a scaffold for new concepts. The digital garden then acts as long-term storage, while the session builder focuses on immediate application.
-
----
-
-## Implementation Patterns
-
-### Pattern 1: Sequential Skill Chaining
-```python
-def execute_skill_chain(skills, initial_input):
-    """Execute skills in sequence, passing output to next"""
-    current_data = initial_input
-    results = []
-
-    for skill_name in skills:
-        skill = load_skill(skill_name)
-        current_data = skill.process(current_data)
-        results.append(current_data)
-
-    return results
-```
-
-### Pattern 2: Parallel Skill Execution
-```python
-async def execute_parallel_skills(skills, input_data):
-    """Execute multiple skills concurrently"""
-    tasks = []
-    for skill_name in skills:
-        skill = load_skill(skill_name)
-        task = skill.process_async(input_data)
-        tasks.append(task)
-
-    results = await asyncio.gather(*tasks)
-    return results
-```
-
-### Pattern 3: Conditional Skill Routing
-```python
-def route_to_skill(input_data, skill_rules):
-    """Route to appropriate skill based on input characteristics"""
-    for condition, skill_name in skill_rules:
-        if condition(input_data):
-            skill = load_skill(skill_name)
-            return skill.process(input_data)
-
-    # Default skill
-    default_skill = load_skill('general-processing')
-    return default_skill.process(input_data)
-```
-
-### Pattern 4: Skill Composition
-```python
-class CompositeSkill:
-    """Combines multiple skills into cohesive workflow"""
-
-    def __init__(self, skill_configs):
-        self.skills = []
-        for config in skill_configs:
-            skill = load_skill(config['name'])
-            skill.configure(config['options'])
-            self.skills.append(skill)
-
-    def execute(self, input_data):
-        # Execute with skill-specific coordination
-        pass
-```
-
----
-
-## Integration Best Practices
-
-**Skill Compatibility**
-Standardize interfaces so skills can pass data without conversion. Use consistent error handling so one failure doesn't crash the entire chain.
-
-**Performance Considerations**
-Load skills only when needed. If a workflow runs frequently, cache the results of expensive steps. Use concurrency for tasks that don't depend on each other.
-
-**Configuration Management**
-Allow configuration to be passed in at runtime. This lets the same skill chain work in different environments (e.g., local dev vs. CI).
-
-**Monitoring and Debugging**
-Log the input and output of each step. This makes it easy to spot which link in the chain failed.
-
----
-
-## Real-World Use Cases
-
-**Software Development Lifecycle**
-`requirements -> design -> implementation -> testing -> deployment -> maintenance`
-
-**Security Operations Center**
-`threat_detection -> analysis -> response -> recovery -> prevention`
-
-**Research and Development**
-`hypothesis -> experiment -> analysis -> documentation -> publication`
-
-**DevOps Pipeline**
-`code -> build -> test -> deploy -> monitor -> optimize`
-
-**Knowledge Management**
-`discovery -> intake -> organization -> application -> sharing`
-
----
-
-## Integration Testing
-
-### Test Framework
-```python
-class SkillIntegrationTest:
-    def test_integration_workflow(self):
-        # Test complete skill chain
-        pass
-
-    def test_skill_compatibility(self):
-        # Test skill interfaces match
-        pass
-
-    def test_error_propagation(self):
-        # Test error handling across skills
-        pass
-
-    def test_performance_integration(self):
-        # Test combined performance
-        pass
-```
-
-### Validation Checklist
-- [ ] Skills load successfully
-- [ ] Data flows correctly between skills
-- [ ] Error conditions handled properly
-- [ ] Performance meets requirements
-- [ ] Resource usage acceptable
-- [ ] Output quality consistent
-- [ ] Integration documented
-- [ ] Tests cover integration scenarios
-
----
-
-## Future Enhancements
-
-We are exploring integrations for:
-- **AI/ML Pipeline**: Data preparation, model training, deployment
-- **IoT Management**: Device discovery, monitoring, automation
-- **Blockchain Development**: Smart contracts, testing, deployment
-- **Cloud Migration**: Assessment, migration, optimization
-
-We also plan to support dynamic skill selection, where the system chooses the best tool for the job based on context, and adaptive workflows that adjust their path based on intermediate results.
+Testing complete skill chains verifies that data flows correctly between steps and that performance remains within limits. propagation tests confirm the system handles failures across skill boundaries. Documentation should reflect the final integrated state, and tests must cover typical use cases to prevent regression.
 
 ---
 
 ## See Also
 
-- [Superpowers Integration](./superpowers-integration.md) - Superpowers skill integration
-- [Plugin Development Guide](./plugin-development-guide.md) - Creating plugins
+- [Superpowers Integration](./superpowers-integration.md)
+- [Plugin Development Guide](./plugin-development-guide.md)

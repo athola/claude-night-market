@@ -9,7 +9,16 @@ tags: [design, principles, clean-code, architecture]
 tools: []
 complexity: low
 estimated_tokens: 600
+version: 1.3.4
 ---
+## Table of Contents
+
+- [KISS (Keep It Simple, Stupid)](#kiss-keep-it-simple-stupid)
+- [YAGNI (You Aren't Gonna Need It)](#yagni-you-arent-gonna-need-it)
+- [SOLID Principles](#solid-principles)
+- [Quick Reference](#quick-reference)
+- [When Principles Conflict](#when-principles-conflict)
+- [Integration with Code Review](#integration-with-code-review)
 
 # Code Quality Principles
 
@@ -263,3 +272,5 @@ When reviewing code, check:
 - [ ] Each class has single responsibility (SRP)
 - [ ] No god classes (> 500 lines)
 - [ ] Dependencies are injected, not created (DIP)
+
+**Verification:** Run `wc -l <file>` to check line counts and `grep -c "class " <file>` to count classes per file.

@@ -25,6 +25,7 @@ progressive_loading: true
 modules:
   - modules/selection-strategies.md
   - modules/loading-patterns.md
+version: 1.3.4
 ---
 ## Table of Contents
 
@@ -70,8 +71,8 @@ Use progressive loading when building skills that:
 ```markdown
 ## Progressive Loading
 
-**Context A**: Load `modules/context-a-workflow.md` for scenario A
-**Context B**: Load `modules/context-b-workflow.md` for scenario B
+**Context A**: Load `modules/loading-patterns.md` for scenario A
+**Context B**: Load `modules/selection-strategies.md` for scenario B
 
 **Always Available**: Core utilities, exit criteria, integration points
 ```

@@ -1,20 +1,10 @@
 # Parseltongue
 
-Python development skills for Claude Code. Supports testing, performance profiling, async patterns, and packaging.
+Python development skills for Claude Code, focusing on testing, performance profiling, async patterns, and packaging.
 
-## Installation
+## Overview
 
-Add to your Claude Code plugins:
-```bash
-claude plugins install parseltongue
-```
-
-Or reference directly from the marketplace:
-```json
-{
-  "plugins": ["parseltongue@claude-night-market"]
-}
-```
+Parseltongue implements specialized patterns for Python development. It includes structured guides for `pytest` and TDD workflows, profiling methods for identifying CPU and memory hotspots, and `asyncio` patterns for concurrent I/O. The plugin also provides templates for `pyproject.toml` configuration and `uv` dependency management.
 
 ## Features
 
@@ -22,86 +12,27 @@ Or reference directly from the marketplace:
 
 | Skill | Description |
 |-------|-------------|
-| **python-testing** | Pytest patterns, fixtures, mocking, and TDD workflows. |
-| **python-performance** | CPU and memory profiling, optimization, and benchmarking. |
-| **python-async** | asyncio, concurrent programming, and async/await patterns. |
-| **python-packaging** | Modern pyproject.toml, uv, and PyPI publishing. |
+| **python-testing** | Pytest patterns, fixtures, mocking, and TDD cycles. |
+| **python-performance** | CPU/memory profiling and local benchmarking. |
+| **python-async** | asyncio concurrency and async/await patterns. |
+| **python-packaging** | pyproject.toml standards and uv integration. |
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/analyze-tests` | Analyze test suites for quality and coverage. |
-| `/run-profiler` | Profile Python code for performance bottlenecks. |
-| `/check-async` | Validate async code patterns and detect issues. |
-
-### Agents
-
-| Agent | Description |
-|-------|-------------|
-| **python-pro** | Python development assistant for modern features. |
-| **python-tester** | Testing assistant for pytest and TDD. |
-| **python-optimizer** | Performance profiling and optimization assistant. |
-| **python-linter** | Strict linting enforcement - fixes code, never adds ignores. |
-
-## Quick Start
-
-### Testing
-```python
-# Skill: python-testing
-
-import pytest
-
-@pytest.fixture
-def db_session():
-    session = create_session()
-    yield session
-    session.close()
-
-def test_user_creation(db_session):
-    user = User.create("test@example.com")
-    assert user.is_valid()
-```
-
-### Performance Optimization
-```python
-# Skill: python-performance
-
-from functools import lru_cache
-
-@lru_cache(maxsize=None)
-def expensive_computation(n):
-    return sum(i**2 for i in range(n))
-```
-
-### Async Programming
-```python
-# Skill: python-async
-
-import asyncio
-
-async def fetch_all(urls):
-    tasks = [fetch_url(url) for url in urls]
-    return await asyncio.gather(*tasks)
-```
-
-### Modern Packaging
-```toml
-# Skill: python-packaging
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
-name = "my-package"
-version = "0.1.0"
-dependencies = ["requests>=2.0.0"]
-```
+| `/analyze-tests` | Reports on test suite coverage and fixture usage. |
+| `/run-profiler` | Runs cProfile/memory_profiler on target scripts. |
+| `/check-async` | Scans for blocking calls in async functions. |
 
 ## Integration
 
-Parseltongue works with standard package managers like uv, pip, and poetry, as well as linting tools such as ruff, mypy, and pyright. It supports testing ecosystems including pytest, pytest-asyncio, hypothesis, and pytest-cov, and integrates with major frameworks like FastAPI, Django, and Flask. Additionally, it handles data-heavy libraries such as pandas, SQLAlchemy, and pydantic.
+Parseltongue works with standard Python tools:
+- **Package Managers**: Native support for `uv`, `pip`, and `poetry`.
+- **Quality Tools**: Integration with `ruff` for linting and `mypy` for type checking.
+- **Frameworks**: Patterns for FastAPI, Django, and SQLAlchemy applications.
+
+Testing follows a Red-Green-Refactor cycle using `pytest` fixtures. Performance optimization focuses on identifying bottlenecks via line-profiling before applying caches or algorithmic improvements. Async patterns prioritize non-blocking I/O to manage high-concurrency workloads without thread overhead.
 
 ## Structure
 
@@ -110,31 +41,26 @@ parseltongue/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
 ├── agents/
-│   ├── python-pro.md        # General Python assistant
-│   ├── python-tester.md     # Testing assistant
-│   ├── python-optimizer.md  # Performance assistant
-│   └── python-linter.md     # Linting enforcement agent
+│   ├── python-pro.md        # Python 3.12+ specialist
+│   ├── python-tester.md     # Pytest and TDD specialist
+│   ├── python-optimizer.md  # Performance tuning
+│   └── python-linter.md     # Linting enforcement
 ├── commands/
-│   ├── analyze-tests.md     # Test analysis command
-│   ├── run-profiler.md      # Profiler command
-│   └── check-async.md       # Async checker command
+│   ├── analyze-tests.md
+│   ├── run-profiler.md
+│   └── check-async.md
 ├── skills/
-│   ├── python-testing/      # Testing patterns
-│   │   └── SKILL.md
-│   ├── python-performance/  # Performance optimization
-│   │   └── SKILL.md
-│   ├── python-async/        # Async programming
-│   │   └── SKILL.md
-│   └── python-packaging/    # Modern packaging
-│       └── SKILL.md
+│   ├── python-testing/
+│   ├── python-performance/
+│   ├── python-async/
+│   └── python-packaging/
 └── README.md
 ```
 
 ## Requirements
 
-- Python 3.9+ (3.12+ recommended).
-- Claude Code with plugin support.
-- Optional: uv for package management.
+- Python 3.12 or later (supported back to 3.9).
+- `uv` recommended for dependency isolation.
 
 ## License
 

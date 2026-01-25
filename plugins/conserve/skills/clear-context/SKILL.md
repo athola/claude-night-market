@@ -21,7 +21,17 @@ hooks:
     - matcher: "Task"
       command: |
         echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
+version: 1.3.4
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [When to Use](#when-to-use)
+- [The Auto-Clear Pattern](#the-auto-clear-pattern)
+- [Thresholds](#thresholds)
+- [Auto-Clear Workflow](#auto-clear-workflow)
+- [Integration with Existing Hooks](#integration-with-existing-hooks)
+- [Self-Monitoring Pattern](#self-monitoring-pattern)
 
 # Clear Context Skill
 
@@ -123,7 +133,7 @@ Instructions:
 3. Continue from where the previous agent left off
 4. If you also approach 80% context, repeat this handoff process
 
-The session state file contains all necessary context to continue seamlessly.
+The session state file contains all necessary context to continue without interruption.
 ```
 
 ### Step 4: Graceful Exit
@@ -223,5 +233,22 @@ def estimate_context_pressure():
 
 ### Context threshold not detected
 - CLAUDE_CONTEXT_USAGE may not be set
-- Use estimation heuristics as fallback
+- The `context_warning` hook uses fallback estimation from session file size
 - Manual invocation always works
+
+## Hook Integration
+
+This skill is triggered automatically by the **context_warning hook** (`hooks/context_warning.py`):
+
+- **40% usage**: WARNING - plan optimization soon
+- **50% usage**: CRITICAL - immediate optimization required
+- **80% usage**: EMERGENCY - this skill should be invoked immediately
+
+The hook monitors context via:
+1. `CLAUDE_CONTEXT_USAGE` environment variable (when available)
+2. Fallback: estimates from session JSONL file size (~800KB = 100%)
+
+Configure thresholds via environment:
+- `CONSERVE_EMERGENCY_THRESHOLD`: Override 80% default (e.g., "0.75")
+- `CONSERVE_CONTEXT_ESTIMATION`: Set to "0" to disable fallback
+- `CONSERVE_CONTEXT_WINDOW_BYTES`: Override 800000 byte estimate

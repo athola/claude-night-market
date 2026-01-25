@@ -9,7 +9,17 @@ tags: [tokens, efficiency, communication, directness]
 tools: []
 complexity: low
 estimated_tokens: 500
+version: 1.3.4
 ---
+## Table of Contents
+
+- [Elimination Rules](#elimination-rules)
+- [Before/After Transformations](#beforeafter-transformations)
+- [Termination Guidelines](#termination-guidelines)
+- [Directness Guidelines](#directness-guidelines)
+- [Quick Reference Checklist](#quick-reference-checklist)
+- [Token Impact](#token-impact)
+- [Integration](#integration)
 
 # Response Compression
 

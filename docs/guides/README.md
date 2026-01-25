@@ -1,6 +1,6 @@
 # Claude Night Market Guides
 
-Detailed guides for advanced topics in the plugin ecosystem.
+Guides for advanced topics in the plugin ecosystem.
 
 ---
 
@@ -8,7 +8,7 @@ Detailed guides for advanced topics in the plugin ecosystem.
 
 ### [Skills Separation: Development vs Runtime](development-vs-runtime-skills-separation.md)
 
-**Problem**: Building AI agents with Claude Code? Avoid namespace collision between development skills (Claude Code assisting YOU) and runtime skills (your AGENT's capabilities).
+**Problem**: Avoid namespace collision between development skills (Claude Code assisting you) and runtime skills (your agent's capabilities).
 
 **You'll Learn**:
 - 4 separation patterns (directory, namespace, forking, scoped loading)
@@ -27,7 +27,7 @@ Detailed guides for advanced topics in the plugin ecosystem.
 
 Minimal-dependency continual learning system using PreToolUse and PostToolUse hooks.
 
-The observability system provides per-iteration skill execution logging and stability gap detection based on Avalanche-style metrics. It uses JSONL storage for easy querying and enables real-time performance monitoring. This is particularly useful when building production plugins that require reliable performance metrics.
+This system provides per-iteration skill execution logging and stability gap detection. JSONL storage enables easy querying and real-time performance monitoring. This helps build production plugins that require reliable performance metrics.
 
 ---
 
@@ -73,7 +73,7 @@ Defining clean boundaries between agents and sub-agents in multi-agent systems.
 
 ### [Plugin Dependency Patterns](plugin-dependency-pattern.md)
 
-Managing dependencies between plugins without tight coupling involves several patterns. These include detecting optional dependencies, using capability detection to verify available features, implementing secondary strategies for missing components, and ensuring version compatibility across the ecosystem.
+Manage dependencies between plugins without tight coupling by detecting optional dependencies, using capability detection, implementing secondary strategies, and ensuring version compatibility.
 
 ---
 
@@ -111,7 +111,7 @@ Writing high-quality documentation for plugins, skills, and commands.
 
 Systematic approach for separating embedded data from code into YAML configuration files.
 
-**Use When**: Scripts contain >100 lines of embedded data (catalogs, templates, lookup tables)
+**Use when scripts contain over 100 lines of embedded data (catalogs, templates, lookup tables).**
 
 **Benefits**:
 - 75% average code reduction
@@ -119,7 +119,7 @@ Systematic approach for separating embedded data from code into YAML configurati
 - Cleaner version control diffs
 - Runtime configuration flexibility
 
-**5-Step Process**:
+**Five-step process**:
 1. Identify embedded data
 2. Extract to YAML files
 3. Add deserialization functions
@@ -132,9 +132,9 @@ Systematic approach for separating embedded data from code into YAML configurati
 
 ### [Optimization Patterns](../optimization-patterns.md)
 
-Battle-tested methodology for systematic context reduction in Claude Code projects.
+Systematic methodology for context reduction in Claude Code projects.
 
-**Achievement**: 28-33% context reduction through 9 optimization phases (~70,772 tokens saved)
+**Result**: 28-33% context reduction through nine optimization phases (~70,772 tokens saved)
 
 **8 Patterns**:
 - Archive cleanup (high impact)

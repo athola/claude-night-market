@@ -1,22 +1,11 @@
 ---
 name: modular-skills
 description: |
-
-Triggers: skills, architecture, modular, design-patterns, modularity
-  Design skills as modular building blocks for predictable token usage.
-
-  Triggers: skill design, skill architecture, modularization, token optimization,
-  skill structure, refactoring skills, new skill creation, skill complexity
-
-  Use when: creating new skills that will be >150 lines, breaking down complex
-  monolithic skills, planning skill architecture, refactoring overlapping skills,
-  reviewing skill maintainability, designing skill module structure
-
-  DO NOT use when: evaluating existing skill quality - use skills-eval instead.
-  DO NOT use when: writing prose for humans - use writing-clearly-and-concisely.
-  DO NOT use when: need improvement recommendations - use skills-eval.
-
-  Use this skill BEFORE creating any new skill. Check even if unsure.
+  Architect skills as modular blocks to control token usage and complexity.
+  Triggers: skills, architecture, modular, design-patterns, modularity, skill design, skill architecture, modularization, token optimization, skill structure, refactoring skills, new skill creation, skill complexity.
+  Use when creating skills >150 lines, breaking down monolithic skills, or planning new architecture.
+  Do not use for evaluating existing skills (use skills-eval) or writing human-facing prose (use writing-clearly-and-concisely).
+  Check this skill before starting any new skill development.
 category: workflow-optimization
 tags: [architecture, modularity, tokens, skills, design-patterns, skill-design, token-optimization]
 dependencies: []
@@ -28,170 +17,92 @@ usage_patterns:
   - refactoring-workflows
 complexity: intermediate
 estimated_tokens: 1200
+version: 1.3.4
 ---
 ## Table of Contents
 
 - [Overview](#overview)
-- [Key Benefits](#key-benefits)
-- [Core Components](#core-components)
-- [Design Principles](#design-principles)
-- [What It Is](#what-it-is)
 - [Quick Start](#quick-start)
-- [Skill Analysis](#skill-analysis)
-- [Token Usage Planning](#token-usage-planning)
-- [Module Validation](#module-validation)
-- [Implementation Workflow](#implementation-workflow)
-- [Common Tasks](#common-tasks)
+- [Workflow and Tasks](#workflow-and-tasks)
 - [Quality Checks](#quality-checks)
-- [Module Structure Validation](#module-structure-validation)
-- [Essential Quality Standards](#essential-quality-standards)
-- [TOC Template for Long Modules](#toc-template-for-long-modules)
-- [Detailed Resources](#detailed-resources)
-- [Shared Modules (Cross-Skill Patterns)](#shared-modules-(cross-skill-patterns))
-- [Skill-Specific Modules](#skill-specific-modules)
-- [Tools and Examples](#tools-and-examples)
+- [Resources](#resources)
 
 
 # Modular Skills Design
 
 ## Overview
 
-This framework provides a way to break complex skills into focused modules. This keeps token usage predictable and prevents monolithic files. We use progressive disclosure: start with the essentials, then load deeper technical details via `@include` or `Load:` statements only when needed.
+This framework breaks complex skills into focused modules to keep token usage predictable and avoid monolithic files. We use progressive disclosure: starting with essentials and loading deeper technical details via `@include` or `Load:` statements only when needed. This approach prevents hitting context limits during long-running tasks.
 
-### Outcome Analysis
-
-Modular design keeps file sizes within recommended limits. By using shallow dependencies and clear boundaries, we simplify testing and maintenance. The hub-and-spoke model allows the project to grow without bloating primary skill files, and focused modules are easier to verify in isolation.
+Modular design keeps file sizes within recommended limits, typically under 150 lines. Shallow dependencies and clear boundaries simplify testing and maintenance. The hub-and-spoke model allows the project to grow without bloating primary skill files, making focused modules easier to verify in isolation and faster to parse.
 
 ### Core Components
 
-We use three tools for skill development:
+Three tools support modular skill development:
 - `skill-analyzer`: Checks complexity and suggests where to split code.
 - `token-estimator`: Forecasts usage and suggests optimizations.
-- `module-validator`: Ensures structure complies with project standards.
+- `module-validator`: Verifies that structure complies with project standards.
 
 ### Design Principles
 
-We design skills around four principles:
-1. **Single Responsibility**: Each module does one thing.
-2. **Loose Coupling**: Dependencies are minimized.
-3. **High Cohesion**: Related code stays together.
-4. **Clear Boundaries**: Interfaces are well-defined.
-
-## What It Is
-
-A framework for designing modular skills. It breaks large skills into focused modules to maintain architecture and control token usage.
-
-We follow Anthropic's Agent Skills best practices: start with a high-level overview, then provide detail as needed.
+We design skills around single responsibility and loose coupling. Each module focuses on one task, minimizing dependencies to keep the architecture cohesive. Clear boundaries and well-defined interfaces prevent changes in one module from breaking others. This follows Anthropic's Agent Skills best practices: provide a high-level overview first, then surface details as needed to maintain context efficiency.
 
 ## Quick Start
 
 ### Skill Analysis
+Analyze modularity using `scripts/analyze.py`. You can set a custom threshold for line counts to identify files that need splitting.
 ```bash
-# Analyze skill modularity
-python scripts/analyze.py
-
-# Analyze with custom threshold (default: 150 lines)
 python scripts/analyze.py --threshold 100
-
-# Python API usage:
-from abstract.skill_tools import analyze_skill
-analysis = analyze_skill(".", threshold=100)
 ```
-**Verification:** Verify Python environment with `python --version`.
+From Python, use `analyze_skill` from `abstract.skill_tools`.
 
 ### Token Usage Planning
+Estimate token consumption to verify your skill stays within budget. Run this from the skill directory:
 ```bash
-# Estimate token consumption for your skill (works from skill directory)
 python scripts/tokens.py
-
-# Python API usage:
-from abstract.skill_tools import estimate_tokens
-tokens = estimate_tokens("SKILL.md")
 ```
-**Verification:** Verify Python environment with `python --version`.
 
 ### Module Validation
+Check for structure and pattern compliance before deployment.
 ```bash
-# Validate modular structure and patterns
 python scripts/abstract_validator.py --scan
-
-# Generate full validation report
-python scripts/abstract_validator.py --report
-
-# Auto-fix issues (dry run first)
-python scripts/abstract_validator.py --fix --dry-run
 ```
-**Verification:** Verify Python environment with `python --version`.
 
-### Implementation Workflow
-1. **Assess**: Use `skill_analyzer.py` to identify complexity.
-2. **Design**: Break large skills into focused modules.
-3. **Estimate**: Use `token_estimator.py` to optimize efficiency.
-4. **Validate**: Run `abstract_validator.py` to check structure.
-5. **Iterate**: Refine based on feedback.
+## Workflow and Tasks
 
-## Common Tasks
-
-- **Assess skill complexity** with the `skill-analyzer`.
-- **Design modules** following the workflow in `guide.md`.
-- **Implement patterns** using examples in `../../docs/examples/modular-skills/`.
-- **Validate module structure** with `module-validator` before deployment.
-- **Estimate token usage** with `token-estimator`.
+Start by assessing complexity with `skill_analyzer.py`. If a skill exceeds 150 lines, break it into focused modules following the patterns in `../../docs/examples/modular-skills/`. Use `token_estimator.py` to check efficiency and `abstract_validator.py` to verify the final structure. This iterative process maintains module maintainability and token efficiency.
 
 ## Quality Checks
 
-### Module Structure Validation
-
-Before finalizing modules, verify these quality standards:
-
+Identify modules needing attention by checking line counts and missing Table of Contents. Any module over 100 lines requires a TOC after the frontmatter to aid navigation.
 ```bash
-# Check module line counts
-find modules -name "*.md" -exec wc -l {} + | sort -n
-
-# Identify modules needing TOCs (>100 lines)
-for file in modules/*.md; do
-  lines=$(wc -l < "$file")
-  if [ $lines -gt 100 ]; then
-    echo "$file needs TOC ($lines lines)"
-  fi
-done
+# Find modules exceeding 100 lines
+find modules -name "*.md" -exec wc -l {} + | awk '$1 > 100'
 ```
-**Verification:** Verify availability with `--help`.
 
-### Essential Quality Standards
+### Standards Compliance
 
-Based on evaluation feedback (issue #74):
+Our standards prioritize concrete examples and a consistent voice. Always provide actual commands in Quick Start sections instead of abstract descriptions. Use third-person perspective (e.g., "the project", "developers") rather than "you" or "your". Each code example should be followed by a validation command. For discoverability, descriptions must include at least five specific trigger phrases.
 
-1. **Navigation in Long Modules**: Any module >100 lines MUST include a Table of Contents after frontmatter.
-2. **Quick Start Concreteness**: Provide actual commands, not abstract descriptions.
-3. **Voice Consistency**: Use third person - avoid "your"/"you", prefer "project"/"developers".
-4. **Verification Steps**: Add validation commands after all code examples.
-5. **Trigger Phrases**: Include 5+ specific phrases in description for discoverability.
-
-### TOC Template for Long Modules
-
+### TOC Template
 ```markdown
 ## Table of Contents
 
 - [Section Name](#section-name)
-- [Another Section](#another-section)
 - [Examples](#examples)
 - [Troubleshooting](#troubleshooting)
 ```
-**Verification:** Verify availability with `--help`.
 
-These standards come from real-world feedback. Navigation aids help coding agents locate content quickly. Concrete Quick Start commands let developers apply skills immediately.
-
-## Detailed Resources
-
-For detailed implementation details and advanced techniques:
+## Resources
 
 ### Shared Modules: Cross-Skill Patterns
-- **Trigger Patterns**: See [trigger-patterns.md](../../shared-modules/trigger-patterns.md)
-- **Enforcement Language**: See [enforcement-language.md](../../shared-modules/enforcement-language.md)
-- **Anti-Rationalization**: See [anti-rationalization.md](../../shared-modules/anti-rationalization.md)
+Standard patterns for triggers, enforcement language, and anti-rationalization:
+- **Trigger Patterns**: See [trigger-patterns.md](modules/enforcement-patterns.md)
+- **Enforcement Language**: See [enforcement-language.md](../shared-patterns/modules/workflow-patterns.md)
+- **Anti-Rationalization**: See [anti-rationalization.md](../skill-authoring/modules/anti-rationalization.md)
 
 ### Skill-Specific Modules
+Detailed guides for implementation and maintenance:
 - **Enforcement Patterns**: See `modules/enforcement-patterns.md`
 - **Core Workflow**: See `modules/core-workflow.md`
 - **Implementation Patterns**: See `modules/implementation-patterns.md`
@@ -200,8 +111,5 @@ For detailed implementation details and advanced techniques:
 - **Troubleshooting**: See `modules/troubleshooting.md`
 
 ### Tools and Examples
-- **Tools**: Python analysis utilities in `../../scripts/` directory:
-  - `skill_analyzer.py`
-  - `token_estimator.py`
-  - `abstract_validator.py`
-- **Examples**: See `../../docs/examples/modular-skills/` directory
+- **Tools**: `skill_analyzer.py`, `token_estimator.py`, and `abstract_validator.py` in `../../scripts/`.
+- **Examples**: See `../../docs/examples/modular-skills/` for reference implementations.

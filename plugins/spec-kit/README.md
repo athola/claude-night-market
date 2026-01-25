@@ -23,15 +23,15 @@ claude plugins add spec-kit
 
 | Command | Description |
 |---------|-------------|
-| `/speckit-startup` | Initialize the speckit workflow for the session. |
-| `/speckit-specify` | Create feature specifications from natural language. |
-| `/speckit-clarify` | Refine specifications with targeted questions. |
-| `/speckit-plan` | Execute the implementation planning workflow. |
-| `/speckit-tasks` | Generate dependency-ordered tasks. |
-| `/speckit-implement` | Execute implementation tasks. |
-| `/speckit-analyze` | Analyze consistency across artifacts. |
-| `/speckit-checklist` | Generate quality checklists for requirements. |
-| `/speckit-constitution` | Manage project principles. |
+| `/speckit-startup` | Initialize the speckit workflow for the session |
+| `/speckit-specify` | Create feature specifications from natural language |
+| `/speckit-clarify` | Refine specifications with targeted questions |
+| `/speckit-plan` | Execute the implementation planning workflow |
+| `/speckit-tasks` | Generate dependency-ordered tasks |
+| `/speckit-implement` | Execute implementation tasks |
+| `/speckit-analyze` | Analyze consistency across artifacts |
+| `/speckit-checklist` | Generate quality checklists for requirements |
+| `/speckit-constitution` | Manage project principles |
 
 ## Skills
 

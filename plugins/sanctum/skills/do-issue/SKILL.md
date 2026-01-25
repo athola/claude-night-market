@@ -42,6 +42,7 @@ modules:
   - modules/quality-gates.md
   - modules/completion.md
   - modules/troubleshooting.md
+version: 1.3.4
 ---
 ## Table of Contents
 

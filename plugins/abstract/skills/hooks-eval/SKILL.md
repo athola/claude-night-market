@@ -17,7 +17,7 @@ Triggers: agent-sdk, eval, claude-sdk, performance, security
   DO NOT use when: validating plugin structure - use validate-plugin instead.
 
   Use this skill BEFORE deploying hooks to production.
-version: 1.0.0
+version: 1.3.4
 category: hook-management
 tags: [hooks, evaluation, security, performance, claude-sdk, agent-sdk]
 dependencies: [hook-scope-guide]
@@ -123,8 +123,8 @@ return {
 
 - **SDK Hook Types**: See `modules/sdk-hook-types.md` for complete Python SDK type definitions, patterns, and examples
 - **Evaluation Criteria**: See `modules/evaluation-criteria.md` for detailed scoring rubric and quality gates
-- **Security Patterns**: See `modules/security-patterns.md` for vulnerability detection and mitigation
-- **Performance Guide**: See `modules/performance-guide.md` for benchmarking and optimization
+- **Security Patterns**: See `modules/sdk-hook-types.md` for vulnerability detection and mitigation
+- **Performance Guide**: See `modules/evaluation-criteria.md` for benchmarking and optimization
 
 ## Basic Evaluation Workflow
 

@@ -8,7 +8,7 @@ Triggers: service-based, architecture, based, modular, service
   Triggers: service-based, SOA, coarse-grained services, domain services
   Use when: teams need deployment independence without microservices complexity
   DO NOT use when: fine-grained scaling needed - use microservices.
-version: 1.0.0
+version: 1.3.4
 category: architectural-pattern
 tags: [architecture, service-based, soa, modular, shared-database]
 dependencies: []

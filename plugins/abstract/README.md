@@ -28,7 +28,7 @@ Claude loads the plugin on startup.
 
 ## What's Included
 
-Abstract includes skills, commands, and agents for plugin development. `methodology-curator` surfaces expert frameworks, while `modular-skills` provides architectural guidance. Use `skills-eval` to score and improve skill quality. For validation, the `/validate-plugin` command checks structures against requirements. Specialized agents like `plugin-validator` and `meta-architect` assist during review. These tools help reduce token usage and identify modularization opportunities.
+Abstract provides skills, commands, and agents for plugin development. `methodology-curator` surfaces expert frameworks, while `modular-skills` provides architectural guidance. Use `skills-eval` to score and improve skill quality. The `/validate-plugin` command checks structures against requirements. Specialized agents like `plugin-validator` and `meta-architect` assist during review. These tools reduce token usage and identify modularization opportunities.
 
 ## Structure
 

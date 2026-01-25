@@ -17,7 +17,7 @@ Triggers: pipeline, streaming, data-processing, architecture, pipes-filters
   DO NOT use when: complex branching/merging logic dominates.
 
   Consult this skill when designing data pipelines or transformation workflows.
-version: 1.0.0
+version: 1.3.4
 category: architectural-pattern
 tags: [architecture, pipeline, pipes-filters, ETL, streaming, data-processing]
 dependencies: []

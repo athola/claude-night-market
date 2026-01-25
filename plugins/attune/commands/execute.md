@@ -232,6 +232,59 @@ Resuming with TASK-016...
 
 Executes only Phase 2 tasks (TASK-011 through TASK-030).
 
+## Claude Code Tasks Integration (2.1.16+)
+
+When running in Claude Code 2.1.16+, execution uses the native Tasks system:
+
+### Automatic Features
+
+- **Lazy Task Creation**: Tasks created in Claude Code as execution reaches them
+- **Native UI Visibility**: Tasks visible in VS Code sidebar
+- **Cross-Session State**: Resume execution across Claude Code sessions
+- **Dependency Tracking**: Claude Code enforces task dependencies
+
+### Task Creation Flow
+
+```python
+# TasksManager handles state with dual-mode support
+from tasks_manager import TasksManager
+
+manager = TasksManager(
+    project_path=project_path,
+    fallback_state_file=Path(".attune/execution-state.json"),
+)
+
+# Check for resume state
+if manager.prompt_for_resume():
+    resume_state = manager.detect_resume_state()
+    # Continue from resume_state.next_task_id
+
+# For each task in plan:
+task_id = manager.ensure_task_exists(
+    task_description,
+    dependencies=task_dependencies,
+)
+# If task is ambiguous, user is prompted for decision
+```
+
+### User Prompts on Ambiguity
+
+When task boundaries are unclear, you'll be asked:
+- "This task touches multiple components. Create as single task or split?"
+- "Potential circular dependency detected. Which task should run first?"
+
+### Shared Task Lists
+
+To share state across terminals:
+```bash
+export CLAUDE_CODE_TASK_LIST_ID="attune-myproject-execute"
+claude
+```
+
+### File Fallback
+
+For Claude Code <2.1.16 or non-Claude environments, falls back to:
+
 ## Execution State
 
 Progress is saved to `.attune/execution-state.json`:

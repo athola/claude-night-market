@@ -1,6 +1,6 @@
 {
   "name": "spec-kit",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "main": "skills",
   "skills": [
     "skills/speckit-orchestrator",

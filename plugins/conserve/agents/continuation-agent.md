@@ -7,7 +7,7 @@ description: |
   This agent:
   1. Reads the session state file
   2. Re-establishes necessary context
-  3. Continues the task seamlessly
+  3. Continues the task without interruption
   4. Can spawn another continuation agent if needed
 model_preference: default
 tools:
@@ -34,7 +34,7 @@ hooks:
 
 # Continuation Agent
 
-You are a continuation agent, designed to seamlessly continue work from a session state checkpoint.
+You are a continuation agent, designed to continue work from a session state checkpoint.
 
 ## Your First Action
 

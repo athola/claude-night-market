@@ -8,15 +8,15 @@
 
 ## Purpose
 
-This document serves as a historical record of architecture analyses for major and minor version milestones, excluding patch versions (x.x.PATCH) unless they introduce significant architectural changes.
+Historical record of architecture analyses for major and minor version milestones. Patch versions (x.x.PATCH) are excluded unless they introduce significant architectural changes.
 
 ### Entry Criteria
 
-A new analysis section is required when a major version (X.0.0) introduces breaking changes or new architectural patterns. Similarly, minor versions (x.Y.0) involving new features or significant refactoring warrant an entry. Even within patch versions, significant restructuring that alters the architecture should be documented here.
+Add a new analysis section when a major version (X.0.0) introduces breaking changes or new architectural patterns. Minor versions (x.Y.0) involving new features or significant refactoring also warrant an entry. Document significant restructuring in patch versions here.
 
 ### Document Structure
 
-Each version entry follows a consistent template:
+Version entry template:
 1. Executive Summary
 2. Plugin Inventory
 3. Architecture Changes (delta from previous)
@@ -48,7 +48,7 @@ timeline
 
 ## Executive Summary
 
-Version 1.1.0 introduces the **Scry plugin** for terminal and browser recording utilities. This release focuses on media capture capabilities while maintaining the established plugin isolation pattern.
+Version 1.1.0 adds the **Scry plugin** for terminal and browser recording. It focuses on media capture while maintaining the established plugin isolation pattern.
 
 ## Plugin Inventory (13 plugins)
 
@@ -127,7 +127,7 @@ flowchart LR
 | Testing | 70% | 68% | -2% |
 | **Overall** | **80%** | **77%** | **-3%** |
 
-**Improvement**: Leyline patterns adoption reducing duplication.
+**Improvement**: Adopting Leyline patterns reduced duplication.
 
 ## Recommendations
 
@@ -164,7 +164,7 @@ flowchart LR
 
 ## Executive Summary
 
-Version 1.0.5 represents a stability milestone with 5 new plugins added since v1.0.0. Key architectural improvements include the **Leyline patterns library** for shared utilities and the **Minister governance plugin**.
+Version 1.0.5 added five plugins and introduced the **Leyline patterns library** and **Minister governance plugin**.
 
 ## Plugin Inventory (13 plugins)
 
@@ -215,7 +215,7 @@ flowchart TB
 
 ### New: Plugin Isolation Pattern (ADR-0001)
 
-Removed shared extension registry in favor of runtime plugin detection.
+Replaced the shared extension registry with runtime plugin detection.
 
 ```mermaid
 flowchart LR
@@ -272,7 +272,7 @@ flowchart LR
 
 ## Executive Summary
 
-Initial release establishing the Claude Night Market plugin ecosystem with 8 plugins. This analysis serves as the **baseline** for measuring architectural evolution.
+Initial release of the Claude Night Market plugin ecosystem with eight plugins. This analysis establishes the baseline for architectural evolution.
 
 ## Plugin Inventory (8 plugins)
 

@@ -23,6 +23,7 @@ scripts: []
 usage_patterns: [session-context, project-tracking, state-management]
 complexity: intermediate
 estimated_tokens: 500
+version: 1.3.4
 ---
 ## Table of Contents
 
@@ -123,8 +124,8 @@ Create → Populate → Navigate → Export/Archive
 ## Detailed Resources
 
 - **Template Details**: See `modules/templates.md`
-- **State Management**: See `modules/state-management.md`
-- **Export Patterns**: See `modules/export-patterns.md`
+- **State Management**: See `modules/templates.md`
+- **Export Patterns**: See `modules/templates.md`
 
 ## Integration
 

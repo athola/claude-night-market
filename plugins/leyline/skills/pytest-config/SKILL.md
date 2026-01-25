@@ -18,7 +18,15 @@ modules:
   - modules/git-testing-fixtures.md
   - modules/mock-fixtures.md
   - modules/ci-integration.md
+version: 1.3.4
 ---
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Detailed Patterns](#detailed-patterns)
+- [Integration with Other Skills](#integration-with-other-skills)
+- [Exit Criteria](#exit-criteria)
+- [Troubleshooting](#troubleshooting)
 
 # Pytest Configuration Patterns
 

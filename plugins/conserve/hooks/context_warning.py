@@ -14,6 +14,8 @@ Environment variables:
 - CLAUDE_CONTEXT_USAGE: Context usage as float 0-1 (set by Claude Code)
 - CONSERVE_EMERGENCY_THRESHOLD: Override default 80% emergency threshold
 - CONSERVE_SESSION_STATE_PATH: Override default .claude/session-state.md
+- CONSERVE_CONTEXT_ESTIMATION: Enable fallback estimation (default: 1)
+- CONSERVE_CONTEXT_WINDOW_BYTES: Estimated context window in bytes (default: 800000)
 """
 
 import json
@@ -22,6 +24,7 @@ import os
 import sys
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import Any
 
 # Configure logging for hook diagnostics
@@ -135,6 +138,71 @@ def assess_context_usage(usage: float) -> ContextAlert:
     )
 
 
+def estimate_context_from_session() -> float | None:
+    """Estimate context usage from current session's JSONL file size.
+
+    This is a fallback when CLAUDE_CONTEXT_USAGE is not available.
+    Estimates based on conversation history file size.
+
+    Returns:
+        Estimated context usage as float 0-1, or None if cannot estimate.
+    """
+    # Check if estimation is disabled
+    if os.environ.get("CONSERVE_CONTEXT_ESTIMATION", "1") == "0":
+        return None
+
+    # Claude's context window is ~200K tokens, ~4 chars/token = ~800KB
+    # Use conservative estimate to trigger earlier rather than later
+    context_window_bytes = int(
+        os.environ.get("CONSERVE_CONTEXT_WINDOW_BYTES", "800000")
+    )
+
+    try:
+        # Find Claude's project directory for current working directory
+        cwd = Path.cwd()
+        home = Path.home()
+        claude_projects = home / ".claude" / "projects"
+
+        if not claude_projects.exists():
+            return None
+
+        # Convert cwd to Claude's project directory naming convention
+        # e.g., /home/user/my-project -> -home-user-my-project
+        project_dir_name = str(cwd).replace("/", "-")
+        if project_dir_name.startswith("-"):
+            project_dir_name = project_dir_name[1:]
+        project_dir_name = "-" + project_dir_name
+
+        project_dir = claude_projects / project_dir_name
+        if not project_dir.exists():
+            return None
+
+        # Find most recently modified JSONL file (current session)
+        jsonl_files = list(project_dir.glob("*.jsonl"))
+        if not jsonl_files:
+            return None
+
+        # Get the most recent file by modification time
+        current_session = max(jsonl_files, key=lambda f: f.stat().st_mtime)
+        file_size = current_session.stat().st_size
+
+        # Estimate usage as percentage of context window
+        # Cap at 0.95 to leave room for estimation error
+        usage = min(file_size / context_window_bytes, 0.95)
+
+        logger.debug(
+            "Estimated context from %s: %d bytes = %.1f%%",
+            current_session.name,
+            file_size,
+            usage * 100,
+        )
+        return usage
+
+    except (OSError, PermissionError) as e:
+        logger.debug("Could not estimate context from session files: %s", e)
+        return None
+
+
 def get_context_usage_from_env() -> float | None:
     """Attempt to get current context usage from environment.
 
@@ -152,8 +220,8 @@ def get_context_usage_from_env() -> float | None:
                 "Invalid CLAUDE_CONTEXT_USAGE value: %r (expected float)", usage_str
             )
 
-    # Try to parse from stdin hook input
-    return None
+    # Fallback: estimate from session file size
+    return estimate_context_from_session()
 
 
 def format_hook_output(alert: ContextAlert) -> dict[str, Any]:

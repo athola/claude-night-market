@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Update version strings across all version files in the repository.
 
-Finds and updates pyproject.toml, Cargo.toml, package.json, plugin.json,
-and marketplace.json files, excluding virtual environments and build directories.
+Finds and updates:
+- pyproject.toml, Cargo.toml, package.json (standard config files)
+- plugin.json, metadata.json, marketplace.json (Claude Code plugins)
+- SKILL.md files with YAML frontmatter containing version field
+
+Excludes virtual environments and build directories by default.
 """
 
 import argparse
@@ -31,6 +35,7 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
         "**/.claude-plugin/plugin.json",
         "**/.claude-plugin/metadata.json",
         "**/.claude-plugin/marketplace.json",
+        "**/SKILL.md",  # Skills with YAML frontmatter
     ]
 
     # Directories to exclude from scan by default
@@ -121,6 +126,35 @@ def update_plugin_json_version(content: str, new_version: str) -> str:
     return re.sub(pattern, replacement, content)
 
 
+def update_yaml_frontmatter_version(content: str, new_version: str) -> str:
+    """Update version in YAML frontmatter of markdown files.
+
+    Handles files with YAML frontmatter delimited by --- at start and end.
+    Only updates version within the frontmatter section, not the body.
+    """
+    # Check if file has YAML frontmatter
+    if not content.startswith("---"):
+        return content
+
+    # Find the end of frontmatter
+    end_match = re.search(r"\n---\s*\n", content[3:])
+    if not end_match:
+        return content
+
+    # Extract frontmatter
+    frontmatter_end = end_match.end() + 3
+    frontmatter = content[:frontmatter_end]
+    body = content[frontmatter_end:]
+
+    # Update version in frontmatter only
+    # Match: version: 1.2.3 or version: "1.2.3"
+    pattern = r'^(version:\s*)["\']?[0-9]+\.[0-9]+\.[0-9]+["\']?'
+    replacement = rf"\g<1>{new_version}"
+    updated_frontmatter = re.sub(pattern, replacement, frontmatter, flags=re.MULTILINE)
+
+    return updated_frontmatter + body
+
+
 def update_version_file(
     file_path: Path, new_version: str, dry_run: bool = True
 ) -> bool:
@@ -137,6 +171,9 @@ def update_version_file(
             content = update_package_json_version(content, new_version)
         elif file_path.name in ("plugin.json", "metadata.json", "marketplace.json"):
             content = update_plugin_json_version(content, new_version)
+        elif file_path.suffix == ".md" and content.startswith("---"):
+            # Markdown with YAML frontmatter (e.g., SKILL.md)
+            content = update_yaml_frontmatter_version(content, new_version)
 
         if content != original:
             if not dry_run:

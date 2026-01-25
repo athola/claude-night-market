@@ -6,7 +6,7 @@ Initialize a new plugin with `make create-plugin NAME=my-plugin`. This command g
 
 ## Structure
 
-Plugins use a standard directory structure to ensure Claude Code can reliably discover capabilities without manual configuration.
+Plugins use a standard directory structure so Claude Code can reliably discover capabilities without manual configuration.
 
 ```
 plugins/my-plugin/
@@ -26,7 +26,7 @@ Public APIs should be strict to prevent hidden state and support interoperabilit
 
 We enforce strict quality gates to catch bugs before they reach production. Plugins must achieve 80% code coverage via `pytest-cov`, and Python code must pass `ruff` linting and `mypy` type checking without overrides. Security scans via `bandit` must report zero high-severity issues.
 
-To ensure responsiveness, we limit token usage to a 15K budget per operation. Error messages must be specific to help users resolve issues quickly. Versioning follows the 1.1.0 scheme to maintain compatibility across the ecosystem.
+To maintain responsiveness, we limit token usage to a 15K budget per operation. Error messages must be specific to help users resolve issues quickly. Versioning follows the 1.1.0 scheme to maintain compatibility across the ecosystem.
 
 ## Development Path
 
@@ -45,7 +45,7 @@ We use Python 3.10+ managed by `uv`. `pytest` handles testing, while `ruff` mana
 
 ## Release Checklist
 
-Before release, verify that tests pass with over 80% coverage and that `ruff`, `mypy`, and `bandit` checks are clean. The README must include clear usage examples. Ensure token usage remains within the 15K limit and that version tags and the changelog are updated.
+Before release, verify that tests pass with over 80% coverage and that `ruff`, `mypy`, and `bandit` checks are clean. The README must include clear usage examples. Verify that token usage remains within the 15K limit and that version tags and the changelog are updated.
 
 ## Common Patterns
 

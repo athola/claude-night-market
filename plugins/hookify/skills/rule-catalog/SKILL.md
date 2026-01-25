@@ -14,7 +14,7 @@ Triggers: templates, rules, install, catalog, hookify
   DO NOT use when: writing custom rules - use hookify:writing-rules instead.
 
   This skill provides the catalog and guides installation.
-version: 1.0.0
+version: 1.3.4
 category: hook-development
 tags: [hookify, rules, catalog, install, templates]
 dependencies: []

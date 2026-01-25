@@ -16,7 +16,7 @@ Triggers: github, dashboards, reporting, pulse, initiative
   DO NOT use when: project planning - use spec-kit:speckit-orchestrator.
 
   Outputs markdown digests and CSV exports for GitHub issues and PRs.
-version: 1.0.0
+version: 1.3.4
 category: project-management
 tags: [github, projects, reporting, status, dashboards]
 dependencies: []

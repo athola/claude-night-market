@@ -263,8 +263,8 @@ python3 test-wrapper-integration.py
 ### Planned Features
 
 1. **Additional Superpowers Integration**
-   - `superpowers:systematic-debugging` for complex issue resolution
-   - `superpowers:defense-in-depth` for security-focused reviews
+   - `superpowers:systematic-debugging` for complex issue resolution (includes root-cause-tracing, defense-in-depth, condition-based-waiting)
+   - Enhanced security reviews via debugging techniques bundled in systematic-debugging
 
 2. **Advanced Workflow Automation**
    - CI/CD pipeline integration

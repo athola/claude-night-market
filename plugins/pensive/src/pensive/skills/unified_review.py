@@ -206,7 +206,8 @@ class UnifiedReviewSkill(BaseReviewSkill):
         return skills
 
     def prioritize_findings(
-        self, findings: list[dict[str, Any]]
+        self,
+        findings: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Prioritize findings by severity and impact.
 
@@ -224,7 +225,8 @@ class UnifiedReviewSkill(BaseReviewSkill):
         return sorted(findings, key=get_severity_rank)
 
     def consolidate_findings(
-        self, findings: list[dict[str, Any]]
+        self,
+        findings: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Consolidate duplicate or related findings.
 
@@ -325,7 +327,8 @@ class UnifiedReviewSkill(BaseReviewSkill):
             return "Approve with minor changes - Low/medium issues in follow-up"
 
     def create_action_items(
-        self, findings: list[dict[str, Any]]
+        self,
+        findings: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Create actionable items from findings.
 
