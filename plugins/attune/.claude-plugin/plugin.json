@@ -22,6 +22,7 @@
     "./skills/project-planning",
     "./skills/project-specification",
     "./skills/war-room",
+    "./skills/war-room-checkpoint",
     "./skills/workflow-setup"
   ],
   "agents": [

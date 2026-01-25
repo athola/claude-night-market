@@ -207,7 +207,70 @@ When fixing multiple issues, analyze dependencies:
 | #43 | None | Parallel Group A |
 | #44 | #42 | Sequential after #42 |
 
-**Step 3 Output**: Task breakdown with dependencies
+### 3.4 War Room Checkpoint (Automatic)
+
+**Purpose**: Assess whether complex multi-issue work warrants expert deliberation.
+
+**Auto-triggers when** (moderate approach):
+- 3+ issues being implemented, OR
+- Dependency conflicts detected between issues, OR
+- Overlapping file changes identified (same files in multiple issues), OR
+- Single issue touches critical modules (auth, database schema, API contracts)
+
+**Checkpoint invocation** (automatic, no user action needed):
+
+```markdown
+Skill(attune:war-room-checkpoint) with context:
+  source_command: "do-issue"
+  decision_needed: "Execution strategy for issues #42, #43, #44"
+  issues_involved: [42, 43, 44]
+  files_affected: [list of overlapping files]
+  conflict_description: "Issues #42 and #44 both modify auth middleware"
+  profile: [from user settings, default: "default"]
+```
+
+**Response handling**:
+
+| RS Score | Mode | Action |
+|----------|------|--------|
+| RS <= 0.40 | Express | Quick recommendation returned, continue immediately |
+| RS 0.41-0.60 | Lightweight | 3-expert panel deliberates, ~5 min |
+| RS 0.61-0.80 | Full Council | 7-expert panel deliberates, ~15 min |
+| RS > 0.80 | Delphi | Iterative consensus, ~30 min |
+
+**Auto-continue logic**:
+- If War Room confidence > 0.8: Orders applied automatically
+- If confidence <= 0.8: User prompted to confirm approach
+
+**Example checkpoint output**:
+
+```
+War Room Checkpoint: /do-issue
+────────────────────────────────
+Decision: Execution strategy for issues #42, #43, #44
+
+Assessment:
+  RS: 0.52 (Type 1B - Heavy Door)
+  Mode: Lightweight (3 experts)
+  Confidence: 0.87
+
+Recommendation:
+  1. Implement #42 first (establishes auth base)
+  2. Then #43 in parallel (independent parser fix)
+  3. Defer #44 to separate PR (scope creep detected)
+
+Rationale: Issues #42 and #44 both touch auth module.
+Combining risks merge conflicts and unclear rollback.
+
+[Auto-continuing with War Room orders...]
+```
+
+**Skip conditions** (checkpoint not invoked):
+- Single issue with scope=minor
+- `--skip-war-room` flag (escape hatch)
+- All issues are clearly independent (no shared files, no dependency chain)
+
+**Step 3 Output**: Task breakdown with dependencies (War Room-validated if triggered)
 
 ---
 

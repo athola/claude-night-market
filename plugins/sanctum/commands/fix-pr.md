@@ -139,6 +139,53 @@ The workflow auto-detects scope and suggests step-skipping:
    /fix-pr <pr-number> --to plan
    ```
 
+## War Room Checkpoint (Automatic)
+
+**Purpose**: Assess whether complex PR feedback warrants expert deliberation before planning fixes.
+
+**Auto-triggers when** (moderate approach):
+- Scope is major (6+ comments), OR
+- Conflicting reviewer feedback detected, OR
+- Multiple refactoring suggestions (>2), OR
+- Breaking change required by reviewer
+
+**Checkpoint invocation** (automatic, after Step 2 Triage):
+
+```markdown
+Skill(attune:war-room-checkpoint) with context:
+  source_command: "fix-pr"
+  decision_needed: "Fix strategy for PR #123 review feedback"
+  blocking_items: [
+    {type: "refactor", description: "Reviewer A: Extract service class"},
+    {type: "refactor", description: "Reviewer B: Keep inline, add tests only"},
+    {type: "breaking", description: "API signature change required"}
+  ]
+  files_affected: [files from triage analysis]
+  profile: [from user settings, default: "default"]
+```
+
+**War Room Questions** (when escalated):
+- "How do we reconcile conflicting reviewer suggestions?"
+- "Should we push back on any suggestions as out-of-scope?"
+- "Is a multi-commit or multi-PR approach appropriate?"
+
+**Response handling**:
+
+| RS Score | Mode | Action |
+|----------|------|--------|
+| RS <= 0.40 | Express | Quick recommendation, continue |
+| RS 0.41-0.60 | Lightweight | Panel reviews conflicting feedback |
+| RS > 0.60 | Full Council | Full deliberation on approach |
+
+**Auto-continue logic**:
+- If confidence > 0.8: Apply War Room's fix strategy
+- If confidence <= 0.8: Present options to user
+
+**Skip conditions**:
+- Scope is minor or medium with clear fixes
+- No conflicting feedback
+- Single reviewer, straightforward comments
+
 ## Integration
 
 This command integrates with:

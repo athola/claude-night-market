@@ -571,3 +571,165 @@ class TestArchitectureReviewSkill:
         assert "7.5" in report  # Architecture score
         assert "layered" in report
         assert len(report) > 500  # Should be detailed
+
+
+# ==============================================================================
+# War Room Checkpoint Integration Tests
+# ==============================================================================
+
+
+class TestWarRoomCheckpointTriggersArchReview:
+    """Tests for War Room checkpoint trigger conditions in architecture-review."""
+
+    def test_triggers_on_adr_violations_without_remediation(self) -> None:
+        """
+        GIVEN ADR violations without clear remediation
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'adr_violations' reason
+        """
+        analysis = {
+            "adr_violations": [
+                {"adr": "ADR-003", "issue": "No justification provided"}
+            ],
+            "has_clear_remediation": False,
+            "coupling_score": 0.5,
+            "boundary_violations": [],
+        }
+        should_trigger, reason = should_trigger_war_room_checkpoint_arch_review(
+            analysis
+        )
+
+        assert should_trigger is True
+        assert reason == "adr_violations"
+
+    def test_triggers_on_high_coupling_score(self) -> None:
+        """
+        GIVEN coupling score > 0.7
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'high_coupling' reason
+        """
+        analysis = {
+            "adr_violations": [],
+            "has_clear_remediation": True,
+            "coupling_score": 0.75,
+            "boundary_violations": [],
+        }
+        should_trigger, reason = should_trigger_war_room_checkpoint_arch_review(
+            analysis
+        )
+
+        assert should_trigger is True
+        assert reason == "high_coupling"
+
+    def test_triggers_on_many_boundary_violations(self) -> None:
+        """
+        GIVEN >2 module boundary violations
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'boundary_violations' reason
+        """
+        analysis = {
+            "adr_violations": [],
+            "has_clear_remediation": True,
+            "coupling_score": 0.5,
+            "boundary_violations": [
+                {"from": "controller", "to": "database"},
+                {"from": "service", "to": "presentation"},
+                {"from": "model", "to": "controller"},
+            ],
+        }
+        should_trigger, reason = should_trigger_war_room_checkpoint_arch_review(
+            analysis
+        )
+
+        assert should_trigger is True
+        assert reason == "boundary_violations"
+
+    def test_does_not_trigger_when_clean(self) -> None:
+        """
+        GIVEN clean architecture with no issues
+        WHEN evaluating checkpoint trigger
+        THEN returns False
+        """
+        analysis = {
+            "adr_violations": [],
+            "has_clear_remediation": True,
+            "coupling_score": 0.4,
+            "boundary_violations": [],
+        }
+        should_trigger, reason = should_trigger_war_room_checkpoint_arch_review(
+            analysis
+        )
+
+        assert should_trigger is False
+        assert reason == "none"
+
+
+class TestArchReviewCommandWarRoomIntegration:
+    """Tests that architecture-review command documents War Room integration."""
+
+    @pytest.fixture
+    def actual_arch_review_content(self) -> str:
+        """Load actual architecture-review.md command content."""
+        cmd_path = Path(__file__).parents[2] / "commands" / "architecture-review.md"
+        return cmd_path.read_text()
+
+    def test_command_has_war_room_checkpoint_section(
+        self, actual_arch_review_content: str
+    ) -> None:
+        """
+        GIVEN the actual architecture-review.md command
+        WHEN checking for War Room integration
+        THEN has a checkpoint section
+        """
+        assert "War Room Checkpoint" in actual_arch_review_content
+
+    def test_command_documents_trigger_conditions(
+        self, actual_arch_review_content: str
+    ) -> None:
+        """
+        GIVEN the actual architecture-review.md command
+        WHEN checking trigger documentation
+        THEN documents the moderate trigger conditions
+        """
+        content_lower = actual_arch_review_content.lower()
+        assert "adr" in content_lower
+        assert "coupling" in content_lower
+        assert "boundary" in content_lower
+
+    def test_command_shows_skill_invocation(
+        self, actual_arch_review_content: str
+    ) -> None:
+        """
+        GIVEN the actual architecture-review.md command
+        WHEN checking skill invocation
+        THEN shows how to invoke war-room-checkpoint skill
+        """
+        assert "Skill(attune:war-room-checkpoint)" in actual_arch_review_content
+
+
+def should_trigger_war_room_checkpoint_arch_review(
+    analysis: dict,
+) -> tuple[bool, str]:
+    """
+    Determine if War Room checkpoint should be triggered for architecture review.
+
+    Uses MODERATE approach:
+    - ADR violations without clear remediation, OR
+    - High coupling score (>0.7), OR
+    - Multiple boundary violations (>2)
+
+    Returns (should_trigger, reason).
+    """
+    # Trigger condition 1: ADR violations without remediation
+    if analysis.get("adr_violations") and not analysis.get("has_clear_remediation"):
+        return True, "adr_violations"
+
+    # Trigger condition 2: High coupling
+    if analysis.get("coupling_score", 0) > 0.7:
+        return True, "high_coupling"
+
+    # Trigger condition 3: Multiple boundary violations
+    if len(analysis.get("boundary_violations", [])) > 2:
+        return True, "boundary_violations"
+
+    return False, "none"
