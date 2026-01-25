@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Audit and sync plugin.json files with disk contents.
 
-This script scans plugin directories for commands, skills, agents, and hooks,
-compares them with plugin.json registrations, and optionally fixes discrepancies.
+This script scans plugin directories for commands, skills, agents, hooks, and modules,
+compares them with plugin.json registrations, and validates module references.
 """
 
 import argparse
@@ -20,6 +20,9 @@ class PluginAuditor:
         self.plugins_root = plugins_root
         self.dry_run = dry_run
         self.discrepancies: dict[str, Any] = {}
+        self.module_issues: dict[
+            str, dict[str, Any]
+        ] = {}  # Track module issues separately
 
     # Cache/temp directories to exclude from scans (consistent with update_versions.py)
     CACHE_EXCLUDES = {
@@ -48,6 +51,143 @@ class PluginAuditor:
     def _should_exclude(self, path: Path) -> bool:
         """Check if path should be excluded based on cache/temp patterns."""
         return any(exclude in path.parts for exclude in self.CACHE_EXCLUDES)
+
+    def audit_skill_modules(self, plugin_path: Path) -> dict[str, Any]:
+        """Audit modules within each skill directory.
+
+        Scans the ENTIRE plugin for module references, including:
+        - Skill files (SKILL.md and root .md files)
+        - Commands (commands/*.md and commands/*/modules/*.md)
+        - Agents (agents/*.md)
+
+        For each skill with modules, reports:
+        - Orphaned modules (exist but not referenced anywhere in plugin)
+        - Missing modules (referenced but don't exist)
+
+        Returns:
+            Dict mapping skill names to their module issues
+        """
+        skill_module_issues: dict[str, Any] = {}
+        skills_dir = plugin_path / "skills"
+
+        if not skills_dir.exists():
+            return skill_module_issues
+
+        # First, collect ALL module references from the entire plugin
+        all_references = self._scan_plugin_for_module_refs(plugin_path)
+
+        for skill_dir in skills_dir.iterdir():
+            if not skill_dir.is_dir() or self._should_exclude(skill_dir):
+                continue
+
+            # Scan modules on disk for this skill
+            modules_on_disk = self._scan_skill_modules(skill_dir)
+            if not modules_on_disk:
+                continue  # Skip skills with no modules
+
+            skill_name = skill_dir.name
+
+            # Find references to THIS skill's modules
+            # References can be: modules/file.md, skills/skill-name/modules/file.md
+            referenced_modules: set[str] = set()
+            for ref in all_references:
+                # Direct module reference (from within the skill or relative)
+                if ref in modules_on_disk:
+                    referenced_modules.add(ref)
+                # Full path reference: skills/skill-name/modules/file.md
+                elif f"skills/{skill_name}/modules/" in ref:
+                    module_name = ref.split("/")[-1]
+                    if module_name in modules_on_disk:
+                        referenced_modules.add(module_name)
+
+            # Calculate discrepancies
+            orphaned = modules_on_disk - referenced_modules
+            missing = referenced_modules - modules_on_disk
+
+            if orphaned or missing:
+                skill_module_issues[skill_name] = {
+                    "orphaned": sorted(orphaned),
+                    "missing": sorted(missing),
+                }
+
+        return skill_module_issues
+
+    def _scan_plugin_for_module_refs(self, plugin_path: Path) -> set[str]:
+        """Scan entire plugin for module references.
+
+        Searches in:
+        - skills/**/*.md (skill definitions)
+        - commands/**/*.md (command files and their modules)
+        - agents/*.md (agent definitions)
+        """
+        all_refs: set[str] = set()
+
+        # Scan skills
+        skills_dir = plugin_path / "skills"
+        if skills_dir.exists():
+            for md_file in skills_dir.rglob("*.md"):
+                if not self._should_exclude(md_file):
+                    all_refs.update(self._extract_module_refs_from_file(md_file))
+
+        # Scan commands
+        commands_dir = plugin_path / "commands"
+        if commands_dir.exists():
+            for md_file in commands_dir.rglob("*.md"):
+                if not self._should_exclude(md_file):
+                    all_refs.update(self._extract_module_refs_from_file(md_file))
+
+        # Scan agents
+        agents_dir = plugin_path / "agents"
+        if agents_dir.exists():
+            for md_file in agents_dir.rglob("*.md"):
+                if not self._should_exclude(md_file):
+                    all_refs.update(self._extract_module_refs_from_file(md_file))
+
+        return all_refs
+
+    def _scan_skill_modules(self, skill_dir: Path) -> set[str]:
+        """Scan for .md files in a skill's modules/ subdirectory."""
+        modules: set[str] = set()
+        modules_dir = skill_dir / "modules"
+
+        if modules_dir.exists():
+            for module_file in modules_dir.glob("*.md"):
+                if not self._should_exclude(module_file):
+                    modules.add(module_file.name)
+
+        return modules
+
+    def _extract_module_refs_from_file(self, md_file: Path) -> set[str]:
+        """Extract module references from a single markdown file.
+
+        Patterns matched:
+        - @modules/filename.md
+        - modules/filename.md
+        - `modules/filename.md`
+        - See `modules/filename.md`
+        - skills/skill-name/modules/filename.md (full path)
+        - plugins/plugin-name/skills/skill-name/modules/filename.md
+        """
+        references: set[str] = set()
+
+        try:
+            content = md_file.read_text(encoding="utf-8")
+            patterns = [
+                # Direct module references
+                r"@modules/([a-zA-Z0-9_-]+\.md)",
+                r"[`\s\(]modules/([a-zA-Z0-9_-]+\.md)",
+                r"See\s+`?modules/([a-zA-Z0-9_-]+\.md)",
+                # Full path references (captures entire path)
+                r"skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
+                r"plugins/[a-zA-Z0-9_-]+/skills/[a-zA-Z0-9_-]+/modules/([a-zA-Z0-9_-]+\.md)",
+            ]
+            for pattern in patterns:
+                matches = re.findall(pattern, content)
+                references.update(matches)
+        except OSError:
+            pass
+
+        return references
 
     def scan_disk_files(self, plugin_path: Path) -> dict[str, list[str]]:
         """Scan disk for actual commands, skills, agents, hooks."""
@@ -78,13 +218,22 @@ class PluginAuditor:
                     rel_path = f"./commands/{cmd_file.name}"
                     results["commands"].append(rel_path)
 
-        # Skills: directories in skills/ (excluding cache directories)
+        # Skills: directories in skills/ that contain skill content
+        # A valid skill directory must have SKILL.md OR *.md files at root level
+        # Directories with only modules/ subdirectories are module holders, not skills
         skills_dir = plugin_path / "skills"
         if skills_dir.exists():
             for skill_dir in skills_dir.iterdir():
                 if skill_dir.is_dir() and not self._should_exclude(skill_dir):
-                    rel_path = f"./skills/{skill_dir.name}"
-                    results["skills"].append(rel_path)
+                    # Check if directory has actual skill content
+                    has_skill_md = (skill_dir / "SKILL.md").exists()
+                    has_root_md_files = any(
+                        f.suffix == ".md" for f in skill_dir.iterdir() if f.is_file()
+                    )
+                    # Only register if it has skill content
+                    if has_skill_md or has_root_md_files:
+                        rel_path = f"./skills/{skill_dir.name}"
+                        results["skills"].append(rel_path)
 
         # Agents: *.md files in agents/ (excluding cache directories)
         agents_dir = plugin_path / "agents"
@@ -285,19 +434,27 @@ class PluginAuditor:
         # Scan disk
         on_disk = self.scan_disk_files(plugin_path)
 
-        # Compare
+        # Compare registrations
         discrepancies = self.compare_registrations(
             plugin_path, on_disk, plugin_json_data
         )
 
+        # Audit modules within skills
+        module_issues = self.audit_skill_modules(plugin_path)
+
         # Report
         has_discrepancies = bool(discrepancies["missing"] or discrepancies["stale"])
+        has_module_issues = bool(module_issues)
 
         if has_discrepancies:
             self.discrepancies[plugin_name] = discrepancies
             self._print_discrepancies(plugin_name, discrepancies)
 
-        return has_discrepancies
+        if has_module_issues:
+            self.module_issues[plugin_name] = module_issues
+            self._print_module_issues(plugin_name, module_issues)
+
+        return has_discrepancies or has_module_issues
 
     def _print_discrepancies(
         self, plugin_name: str, discrepancies: dict[str, Any]
@@ -320,6 +477,28 @@ class PluginAuditor:
                 print(f"  {category}:")
                 for item in items:
                     print(f"    - {item}")
+
+    def _print_module_issues(
+        self, plugin_name: str, module_issues: dict[str, Any]
+    ) -> None:
+        """Print module issues for a plugin's skills."""
+        # Only print header if we haven't already printed discrepancies
+        if plugin_name not in self.discrepancies:
+            print(f"\n{'=' * 60}")
+            print(f"PLUGIN: {plugin_name}")
+            print("=" * 60)
+
+        print("\n[MODULES] Skill module issues:")
+        for skill_name, issues in sorted(module_issues.items()):
+            print(f"  {skill_name}/:")
+            if issues.get("orphaned"):
+                print("    Orphaned (exist but not referenced):")
+                for module in issues["orphaned"]:
+                    print(f"      - modules/{module}")
+            if issues.get("missing"):
+                print("    Missing (referenced but not found):")
+                for module in issues["missing"]:
+                    print(f"      - modules/{module}")
 
     def fix_plugin(self, plugin_name: str) -> bool:
         """Fix discrepancies by updating plugin.json or hooks.json.
@@ -436,7 +615,8 @@ class PluginAuditor:
         print("AUDIT SUMMARY")
         print("=" * 60)
         print(f"Plugins audited: {len(plugins)}")
-        print(f"Plugins with discrepancies: {plugins_with_issues}")
+        print(f"Plugins with registration issues: {len(self.discrepancies)}")
+        print(f"Plugins with module issues: {len(self.module_issues)}")
         print(f"Plugins clean: {len(plugins) - plugins_with_issues}")
 
         # Fix if requested

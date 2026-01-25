@@ -201,20 +201,26 @@ python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
 2. Analyze recent changes
 3. Identify broken or outdated tests
 
+See `modules/test-discovery.md` for detection patterns.
+
 ### Phase 2: Strategy
-1. Choose appropriate BDD style
+1. Choose appropriate BDD style (see `modules/bdd-patterns.md`)
 2. Plan test structure
 3. Define quality criteria
 
 ### Phase 3: Implementation
-1. Write failing tests (RED)
+1. Write failing tests (RED) - see `modules/tdd-workflow.md`
 2. Implement minimal passing code (GREEN)
 3. Refactor for clarity (REFACTOR)
+
+See `modules/test-generation.md` for generation templates.
 
 ### Phase 4: Validation
 1. Static analysis and linting
 2. Dynamic test execution
 3. Coverage and quality metrics
+
+See `modules/quality-validation.md` for validation criteria.
 
 ## Quality Assurance
 
@@ -227,6 +233,8 @@ The skill applies multiple quality checks:
 ## Examples
 
 ### BDD-Style Test Generation
+
+See `modules/bdd-patterns.md` for additional patterns.
 ```python
 class TestGitWorkflow:
     """BDD-style tests for Git workflow operations."""
@@ -247,6 +255,8 @@ class TestGitWorkflow:
 - Add edge cases and error scenarios
 - Include performance benchmarks
 - Add mutation testing for robustness
+
+See `modules/test-enhancement.md` for enhancement strategies.
 
 ## Integration with Existing Skills
 

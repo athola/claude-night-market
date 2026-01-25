@@ -223,7 +223,7 @@ See `modules/version-validation.md` for detailed validation procedures.
 
 ### Phase 4: Code Review with Scope Context
 
-Use `pensive:unified-review` on the changed files.
+Use `pensive:unified-review` on the changed files. For comment quality assessment, see `modules/comment-guidelines.md`.
 
 **Critical:** Evaluate each finding against the scope baseline:
 
