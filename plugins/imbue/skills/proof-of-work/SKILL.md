@@ -26,6 +26,17 @@ version: 1.3.4
 ---
 # Proof of Work
 
+## Table of Contents
+
+- [Overview](#overview)
+- [The Iron Law](#the-iron-law)
+- [Usage Standards](#usage-standards)
+- [Validation Protocol](#validation-protocol)
+- [Integration](#integration)
+- [Validation Checklist](#validation-checklist-before-claiming-done)
+- [Red Flag Self-Check](#red-flag-self-check)
+- [Exit Criteria](#exit-criteria)
+
 ## Overview
 
 The "Proof of Work" methodology prevents premature completion claims by requiring technical verification before stating that a task is finished. For example, instead of assuming an LSP configuration functions after a restart, we verify that the server starts and that tools respond to queries. This approach confirms the solution works before the user attempts validation.

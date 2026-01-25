@@ -171,41 +171,63 @@ class TestModularArchitecturePatterns:
     So that skills are maintainable and efficient
     """
 
+    @pytest.fixture
+    def modular_skills_path(self) -> Path:
+        """Path to the modular-skills skill."""
+        return Path(__file__).parents[3] / "skills" / "modular-skills" / "SKILL.md"
+
+    @pytest.fixture
+    def modular_skills_content(self, modular_skills_path: Path) -> str:
+        """Load the modular-skills skill content."""
+        return modular_skills_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_modular_skills_enforces_single_responsibility(self) -> None:
+    def test_modular_skills_enforces_single_responsibility(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Framework enforces single responsibility per module.
 
         Given the modular-skills framework
         When reviewing design principles
         Then it should emphasize single responsibility
         """
-        # This validates single responsibility principle
-        assert True
+        # Assert - single responsibility documented
+        assert "single responsibility" in modular_skills_content.lower()
+        assert "one task" in modular_skills_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_modular_skills_prevents_monolithic_files(self) -> None:
+    def test_modular_skills_prevents_monolithic_files(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Framework prevents monolithic skill files.
 
         Given the modular-skills framework
         When reviewing structure guidelines
         Then it should encourage splitting large files
         """
-        # This validates anti-monolithic patterns
-        assert True
+        # Assert - anti-monolithic guidance exists
+        assert "monolithic" in modular_skills_content.lower()
+        assert "150" in modular_skills_content  # Line limit threshold
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_modular_skills_defines_shallow_dependencies(self) -> None:
+    def test_modular_skills_defines_shallow_dependencies(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Framework defines shallow dependency patterns.
 
         Given the modular-skills framework
         When reviewing dependency guidelines
         Then it should encourage shallow, clear dependencies
         """
-        # This validates dependency management
-        assert True
+        # Assert - dependency guidance exists
+        assert "dependenc" in modular_skills_content.lower()
+        assert (
+            "shallow" in modular_skills_content.lower()
+            or "loose coupling" in modular_skills_content.lower()
+        )
 
 
 class TestProgressiveDisclosureEnforcement:
@@ -216,41 +238,60 @@ class TestProgressiveDisclosureEnforcement:
     So that I can understand quickly without loading everything
     """
 
+    @pytest.fixture
+    def modular_skills_path(self) -> Path:
+        """Path to the modular-skills skill."""
+        return Path(__file__).parents[3] / "skills" / "modular-skills" / "SKILL.md"
+
+    @pytest.fixture
+    def modular_skills_content(self, modular_skills_path: Path) -> str:
+        """Load the modular-skills skill content."""
+        return modular_skills_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_progressive_disclosure_starts_with_essentials(self) -> None:
+    def test_progressive_disclosure_starts_with_essentials(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Progressive disclosure starts with essential content.
 
         Given a modular skill structure
         When reviewing content organization
         Then essentials should come before deep details
         """
-        # This validates progressive disclosure ordering
-        assert True
+        # Assert - progressive disclosure documented
+        assert "progressive disclosure" in modular_skills_content.lower()
+        assert "essential" in modular_skills_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_progressive_disclosure_uses_modules(self) -> None:
+    def test_progressive_disclosure_uses_modules(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Progressive disclosure uses modules for deep details.
 
         Given a modular skill structure
         When reviewing content organization
         Then deep details should be in separate modules
         """
-        # This validates modular content structure
-        assert True
+        # Assert - module references exist for deep details
+        assert "modules/" in modular_skills_content
+        assert "@include" in modular_skills_content or "Load:" in modular_skills_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_progressive_disclosure_prevents_context_bloat(self) -> None:
+    def test_progressive_disclosure_prevents_context_bloat(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Progressive disclosure prevents context window bloat.
 
         Given a modular skill structure
         When reviewing token usage
         Then modules should only load when needed
         """
-        # This validates token efficiency
-        assert True
+        # Assert - context/token efficiency documented
+        assert "token" in modular_skills_content.lower()
+        assert "context" in modular_skills_content.lower()
 
 
 class TestModularSkillsDocumentationQuality:
@@ -261,26 +302,44 @@ class TestModularSkillsDocumentationQuality:
     So that I can apply patterns correctly
     """
 
+    @pytest.fixture
+    def modular_skills_path(self) -> Path:
+        """Path to the modular-skills skill."""
+        return Path(__file__).parents[3] / "skills" / "modular-skills" / "SKILL.md"
+
+    @pytest.fixture
+    def modular_skills_content(self, modular_skills_path: Path) -> str:
+        """Load the modular-skills skill content."""
+        return modular_skills_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_docs_include_verification_commands(self) -> None:
+    def test_docs_include_verification_commands(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Documentation includes verification after examples.
 
         Given modular-skills code examples
         When reviewing documentation quality
         Then examples should include verification steps
         """
-        # This validates documentation testing patterns
-        assert True
+        # Assert - verification commands follow code examples
+        assert "```bash" in modular_skills_content
+        # Has actual runnable commands
+        assert "python" in modular_skills_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_docs_avoid_abstract_descriptions(self) -> None:
+    def test_docs_avoid_abstract_descriptions(
+        self, modular_skills_content: str
+    ) -> None:
         """Scenario: Documentation avoids abstract Quick Start.
 
         Given modular-skills Quick Start
         When reviewing content quality
         Then it should have concrete commands, not abstract descriptions
         """
-        # This validates cargo cult prevention
-        assert True
+        # Assert - Quick Start has actual commands, not just descriptions
+        assert "## Quick Start" in modular_skills_content
+        # Contains actual executable commands
+        assert "python scripts/" in modular_skills_content

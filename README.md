@@ -71,7 +71,51 @@ claude --maintenance
 
 ## What's Included
 
-The 16 plugins are organized into four layers.
+**16 plugins** organized in layers, each building on foundations below:
+
+```mermaid
+flowchart TB
+    classDef domainClass fill:#e8f4f8,stroke:#2980b9,stroke-width:2px,color:#2c3e50
+    classDef utilityClass fill:#f8f4e8,stroke:#f39c12,stroke-width:2px,color:#2c3e50
+    classDef foundationClass fill:#f4e8f8,stroke:#8e44ad,stroke-width:2px,color:#2c3e50
+    classDef metaClass fill:#e8f4e8,stroke:#27ae60,stroke-width:2px,color:#2c3e50
+
+    subgraph Domain["Domain Specialists"]
+        direction LR
+        D1[archetypes]:::domainClass
+        D2[pensive]:::domainClass
+        D3[parseltongue]:::domainClass
+        D4[memory-palace]:::domainClass
+        D5[spec-kit]:::domainClass
+        D6[minister]:::domainClass
+        D7[attune]:::domainClass
+        D8[scry]:::domainClass
+        D9[scribe]:::domainClass
+    end
+
+    subgraph Utility["Utility Layer"]
+        direction LR
+        U1[conserve]:::utilityClass
+        U2[conjure]:::utilityClass
+        U3[hookify]:::utilityClass
+    end
+
+    subgraph Foundation["Foundation Layer"]
+        direction LR
+        F1[imbue]:::foundationClass
+        F2[sanctum]:::foundationClass
+        F3[leyline]:::foundationClass
+    end
+
+    subgraph Meta["Meta Layer"]
+        direction LR
+        M1[abstract]:::metaClass
+    end
+
+    Domain ==> Utility ==> Foundation ==> Meta
+```
+
+### Layer Overview
 
 1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth and quotas), and `imbue` (TDD cycles).
 2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine).

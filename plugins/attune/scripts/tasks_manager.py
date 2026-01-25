@@ -6,13 +6,6 @@ supporting both Claude Code Tasks system and file-based fallback.
 Plugin-specific configuration for attune's project execution workflows.
 """
 
-# Plugin-specific constants
-PLUGIN_NAME = "attune"
-TASK_PREFIX = "ATTUNE"
-DEFAULT_STATE_DIR = ".attune"
-DEFAULT_STATE_FILE = "execution-state.json"
-ENV_VAR_PREFIX = "CLAUDE_CODE_TASK_LIST_ID"  # e.g., attune-{project}
-
 import json
 import re
 import subprocess
@@ -21,6 +14,17 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+# Plugin-specific constants
+PLUGIN_NAME = "attune"
+TASK_PREFIX = "ATTUNE"
+DEFAULT_STATE_DIR = ".attune"
+DEFAULT_STATE_FILE = "execution-state.json"
+ENV_VAR_PREFIX = "CLAUDE_CODE_TASK_LIST_ID"  # e.g., attune-{project}
+
+# Ambiguity detection thresholds
+LARGE_SCOPE_TOKEN_THRESHOLD = 5000
+LARGE_SCOPE_WORD_THRESHOLD = 30
 
 
 class AmbiguityType(Enum):
@@ -175,7 +179,7 @@ def detect_ambiguity(
 
     # Check for large scope
     estimated_tokens = context.get("estimated_tokens", 0)
-    if estimated_tokens > 5000:
+    if estimated_tokens > LARGE_SCOPE_TOKEN_THRESHOLD:
         return AmbiguityResult(
             is_ambiguous=True,
             ambiguity_type=AmbiguityType.LARGE_SCOPE,
@@ -186,7 +190,7 @@ def detect_ambiguity(
     if estimated_tokens == 0:
         # Rough estimate: complex descriptions with many clauses
         word_count = len(task_description.split())
-        if word_count > 30:
+        if word_count > LARGE_SCOPE_WORD_THRESHOLD:
             return AmbiguityResult(
                 is_ambiguous=True,
                 ambiguity_type=AmbiguityType.LARGE_SCOPE,

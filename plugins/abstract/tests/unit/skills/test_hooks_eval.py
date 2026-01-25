@@ -215,29 +215,51 @@ class TestHookSecurityPatterns:
     So that hooks don't introduce vulnerabilities
     """
 
+    @pytest.fixture
+    def hooks_eval_path(self) -> Path:
+        """Path to the hooks-eval skill."""
+        return Path(__file__).parents[3] / "skills" / "hooks-eval" / "SKILL.md"
+
+    @pytest.fixture
+    def hooks_eval_content(self, hooks_eval_path: Path) -> str:
+        """Load the hooks-eval skill content."""
+        return hooks_eval_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hooks_eval_detects_dangerous_patterns(self) -> None:
+    def test_hooks_eval_detects_dangerous_patterns(
+        self, hooks_eval_content: str
+    ) -> None:
         """Scenario: Framework detects dangerous hook patterns.
 
         Given the hooks-eval framework
         When reviewing security criteria
         Then it should identify dangerous patterns like code injection
         """
-        # This validates that security patterns are testable
-        assert True
+        # Assert - dangerous pattern detection documented
+        assert "security" in hooks_eval_content.lower()
+        assert (
+            "vulnerab" in hooks_eval_content.lower()
+            or "dangerous" in hooks_eval_content.lower()
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hooks_eval_prevents_injection_attacks(self) -> None:
+    def test_hooks_eval_prevents_injection_attacks(
+        self, hooks_eval_content: str
+    ) -> None:
         """Scenario: Framework prevents injection vulnerabilities.
 
         Given the hooks-eval framework
         When reviewing security guidance
         Then it should warn about injection attack vectors
         """
-        # This validates injection prevention patterns
-        assert True
+        # Assert - injection prevention documented
+        assert "security" in hooks_eval_content.lower()
+        assert (
+            "injection" in hooks_eval_content.lower()
+            or "validation" in hooks_eval_content.lower()
+        )
 
 
 class TestHookPerformancePatterns:
@@ -248,29 +270,50 @@ class TestHookPerformancePatterns:
     So that hooks don't slow down operations
     """
 
+    @pytest.fixture
+    def hooks_eval_path(self) -> Path:
+        """Path to the hooks-eval skill."""
+        return Path(__file__).parents[3] / "skills" / "hooks-eval" / "SKILL.md"
+
+    @pytest.fixture
+    def hooks_eval_content(self, hooks_eval_path: Path) -> str:
+        """Load the hooks-eval skill content."""
+        return hooks_eval_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hooks_eval_defines_execution_time_limits(self) -> None:
+    def test_hooks_eval_defines_execution_time_limits(
+        self, hooks_eval_content: str
+    ) -> None:
         """Scenario: Framework defines acceptable hook execution times.
 
         Given the hooks-eval framework
         When reviewing performance criteria
         Then it should specify maximum execution time thresholds
         """
-        # This validates performance threshold testing
-        assert True
+        # Assert - execution time criteria documented
+        assert "performance" in hooks_eval_content.lower()
+        assert (
+            "time" in hooks_eval_content.lower()
+            or "execution" in hooks_eval_content.lower()
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hooks_eval_monitors_resource_usage(self) -> None:
+    def test_hooks_eval_monitors_resource_usage(self, hooks_eval_content: str) -> None:
         """Scenario: Framework monitors hook resource consumption.
 
         Given the hooks-eval framework
         When reviewing performance criteria
         Then it should track memory and CPU usage
         """
-        # This validates resource monitoring patterns
-        assert True
+        # Assert - resource monitoring documented
+        assert "performance" in hooks_eval_content.lower()
+        assert (
+            "memory" in hooks_eval_content.lower()
+            or "resource" in hooks_eval_content.lower()
+            or "i/o" in hooks_eval_content.lower()
+        )
 
 
 class TestHookDocumentationQuality:
@@ -281,26 +324,41 @@ class TestHookDocumentationQuality:
     So that I can implement hooks correctly
     """
 
+    @pytest.fixture
+    def hooks_eval_path(self) -> Path:
+        """Path to the hooks-eval skill."""
+        return Path(__file__).parents[3] / "skills" / "hooks-eval" / "SKILL.md"
+
+    @pytest.fixture
+    def hooks_eval_content(self, hooks_eval_path: Path) -> str:
+        """Load the hooks-eval skill content."""
+        return hooks_eval_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hook_docs_include_verification_steps(self) -> None:
+    def test_hook_docs_include_verification_steps(
+        self, hooks_eval_content: str
+    ) -> None:
         """Scenario: Hook documentation includes verification commands.
 
         Given hook code examples
         When reviewing documentation quality
         Then examples should include verification steps
         """
-        # This validates documentation testing patterns
-        assert True
+        # Assert - verification steps exist in documentation
+        assert "verification" in hooks_eval_content.lower()
+        assert "```" in hooks_eval_content  # Code blocks with examples
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_hook_docs_avoid_cargo_cult_patterns(self) -> None:
+    def test_hook_docs_avoid_cargo_cult_patterns(self, hooks_eval_content: str) -> None:
         """Scenario: Hook documentation avoids cargo cult patterns.
 
         Given hook examples
         When reviewing for anti-patterns
         Then examples should be concrete, not abstract
         """
-        # This validates cargo cult prevention
-        assert True
+        # Assert - concrete examples exist (code blocks with actual code)
+        assert "```python" in hooks_eval_content or "```bash" in hooks_eval_content
+        # Has actual function definitions, not just descriptions
+        assert "def " in hooks_eval_content or "async def" in hooks_eval_content

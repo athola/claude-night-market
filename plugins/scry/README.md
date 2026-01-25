@@ -2,6 +2,22 @@
 
 Media generation for terminal recordings, browser automation, GIF processing, and tutorial composition.
 
+## Quick Start
+
+```bash
+# Record a terminal session
+/record-terminal --output demo.gif
+
+# Record a browser session
+/record-browser --url https://example.com
+
+# Use VHS tape scripts for terminal recordings
+Skill(scry:vhs-recording)
+
+# Combine media assets into tutorials
+Skill(scry:media-composition)
+```
+
 ## Overview
 
 Scry manages terminal and browser recordings to create technical demos and tutorials. It uses VHS (Charmbracelet) for terminal tape scripts and Playwright for browser automation, allowing for both interactive and programmatic recording workflows. The plugin also handles GIF optimization and media composition to combine disparate assets into cohesive documentation.

@@ -2,6 +2,22 @@
 
 Project management and initiative alignment using GitHub repository data.
 
+## Quick Start
+
+```bash
+# Create a GitHub issue
+/create-issue
+
+# Close an issue after verifying completion
+/close-issue --issue 123
+
+# Generate initiative status report
+python plugins/minister/scripts/tracker.py status --github-comment
+
+# Update repository labels
+/update-labels
+```
+
 ## Overview
 
 Minister synchronizes GitHub Projects, issues, and status checks for roadmap tracking. It generates snapshots of initiative status from live GitHub data and executes release governance through automated checks on CI status and documentation completeness.

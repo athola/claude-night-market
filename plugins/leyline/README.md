@@ -2,6 +2,19 @@
 
 Infrastructure and pipeline building blocks for Claude Code plugins.
 
+## Quick Start
+
+```bash
+# Use quota management for rate-limited services
+Skill(leyline:quota-management)
+
+# Implement standardized error handling
+Skill(leyline:error-patterns)
+
+# Set up authentication flows
+Skill(leyline:authentication-patterns)
+```
+
 ## Overview
 
 Leyline provides shared utilities and services to maintain consistent plugin functionality. It handles resource tracking, service integration, and pipeline patterns such as error handling and circuit breakers. While Abstract manages evaluation and design, Leyline delivers the technical components required for cross-plugin communication and system stability.
@@ -19,6 +32,17 @@ Leyline provides shared utilities and services to maintain consistent plugin fun
 ## Workflow and Integration
 
 Other plugins call Leyline for quota enforcement and standardized error recovery. The `quota_tracker` and `service_registry` utilities provide real-time monitoring of service health and rate limit compliance. These patterns use loose coupling to allow for progressive adoption throughout the codebase.
+
+## Optional Dependencies
+
+| Package | Purpose | Fallback |
+|---------|---------|----------|
+| tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
+
+For accurate token counts, install tiktoken:
+```bash
+pip install tiktoken
+```
 
 ## Plugin Metadata Standards (Claude Code 2.0.73+)
 

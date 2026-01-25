@@ -21,7 +21,7 @@ dependencies = [
 
 [project.optional-dependencies]
 tokens = [
-    "tiktoken>=0.7.0",  # For accurate token estimation (optional, not currently used)
+    "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
 ]
 dev = [
     "ruff>=0.14.13,<1.0",

@@ -2,6 +2,22 @@
 
 Resource optimization and performance monitoring for Claude Code.
 
+## Quick Start
+
+```bash
+# Scan for code bloat
+/bloat-scan --level 2
+
+# Remediate identified bloat (with approval)
+/unbloat --from-scan report
+
+# Check for AI-generated code issues
+/ai-hygiene-audit
+
+# Invoke context optimization skill
+Skill(conserve:clear-context)
+```
+
 ## Overview
 
 Conservation manages token usage and session efficiency through resource monitoring and optimization. The plugin follows the Maximum Effective Context Window (MECW) principle, which maintains context pressure below 50% to preserve response quality. It identifies technical debt, eliminates response bloat, and provides strategies for codebase discovery to reduce the total token footprint.

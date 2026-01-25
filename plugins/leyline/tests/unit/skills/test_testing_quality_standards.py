@@ -59,7 +59,7 @@ class TestTestingQualityStandards:
 
         Given the testing-quality-standards skill
         When reviewing quality assessment
-        Then it should categorize quality metrics (structure, coverage, maintainability, reliability)
+        Then it should categorize quality metrics
         """
         # Assert - quality metrics exist
         assert (
@@ -199,29 +199,59 @@ class TestCoverageThresholdsValidation:
     So that code quality is measurable
     """
 
+    @pytest.fixture
+    def quality_standards_path(self) -> Path:
+        """Path to the testing-quality-standards skill."""
+        return (
+            Path(__file__).parents[3]
+            / "skills"
+            / "testing-quality-standards"
+            / "SKILL.md"
+        )
+
+    @pytest.fixture
+    def quality_standards_content(self, quality_standards_path: Path) -> str:
+        """Load the testing-quality-standards skill content."""
+        return quality_standards_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_coverage_thresholds_are_specific(self) -> None:
+    def test_coverage_thresholds_are_specific(
+        self, quality_standards_content: str
+    ) -> None:
         """Scenario: Coverage thresholds use specific percentages.
 
         Given the testing quality standards
         When reviewing coverage requirements
         Then thresholds should be specific (60%, 80%, 90%, 95%+)
         """
-        # This validates specific threshold values
-        assert True
+        # Assert - specific percentage thresholds exist
+        assert "%" in quality_standards_content
+        # Has specific numbers indicating thresholds
+        assert any(
+            num in quality_standards_content for num in ["60", "70", "80", "90", "95"]
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_coverage_thresholds_define_use_cases(self) -> None:
+    def test_coverage_thresholds_define_use_cases(
+        self, quality_standards_content: str
+    ) -> None:
         """Scenario: Coverage thresholds map to use cases.
 
         Given the testing quality standards
         When reviewing threshold application
         Then each threshold should have a defined use case
         """
-        # This validates use case mapping
-        assert True
+        # Assert - thresholds have context/use cases
+        assert "coverage" in quality_standards_content.lower()
+        # Multiple coverage levels mentioned
+        content_lower = quality_standards_content.lower()
+        assert (
+            "critical" in content_lower
+            or "edge" in content_lower
+            or "path" in content_lower
+        )
 
 
 class TestAntiPatternsDocumentation:
@@ -232,29 +262,53 @@ class TestAntiPatternsDocumentation:
     So that I can avoid common testing mistakes
     """
 
+    @pytest.fixture
+    def quality_standards_path(self) -> Path:
+        """Path to the testing-quality-standards skill."""
+        return (
+            Path(__file__).parents[3]
+            / "skills"
+            / "testing-quality-standards"
+            / "SKILL.md"
+        )
+
+    @pytest.fixture
+    def quality_standards_content(self, quality_standards_path: Path) -> str:
+        """Load the testing-quality-standards skill content."""
+        return quality_standards_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_anti_patterns_module_exists(self) -> None:
+    def test_anti_patterns_module_exists(self, quality_standards_content: str) -> None:
         """Scenario: Anti-patterns module is referenced.
 
         Given the testing quality standards
         When reviewing documentation structure
         Then anti-patterns should be documented in a separate module
         """
-        # This validates anti-patterns documentation
-        assert True
+        # Assert - anti-patterns referenced
+        assert (
+            "anti-pattern" in quality_standards_content.lower()
+            or "anti pattern" in quality_standards_content.lower()
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_anti_patterns_include_before_after(self) -> None:
+    def test_anti_patterns_include_before_after(
+        self, quality_standards_content: str
+    ) -> None:
         """Scenario: Anti-patterns include before/after examples.
 
         Given the testing quality standards
         When reviewing anti-pattern documentation
         Then examples should show bad vs good patterns
         """
-        # This validates before/after examples
-        assert True
+        # Assert - before/after or bad/good pattern examples
+        content_lower = quality_standards_content.lower()
+        assert (
+            "example" in content_lower
+            or "```" in quality_standards_content  # Code examples
+        )
 
 
 class TestQualityMetricsCompleteness:
@@ -265,50 +319,70 @@ class TestQualityMetricsCompleteness:
     So that all aspects of test quality are measured
     """
 
+    @pytest.fixture
+    def quality_standards_path(self) -> Path:
+        """Path to the testing-quality-standards skill."""
+        return (
+            Path(__file__).parents[3]
+            / "skills"
+            / "testing-quality-standards"
+            / "SKILL.md"
+        )
+
+    @pytest.fixture
+    def quality_standards_content(self, quality_standards_path: Path) -> str:
+        """Load the testing-quality-standards skill content."""
+        return quality_standards_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_metrics_cover_structure(self) -> None:
+    def test_metrics_cover_structure(self, quality_standards_content: str) -> None:
         """Scenario: Quality metrics include structure criteria.
 
         Given the testing quality standards
         When reviewing quality categories
         Then structure metrics should exist (organization, names, setup/teardown)
         """
-        # This validates structure metrics
-        assert True
+        # Assert - structure metrics documented
+        assert "structure" in quality_standards_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_metrics_cover_coverage(self) -> None:
+    def test_metrics_cover_coverage(self, quality_standards_content: str) -> None:
         """Scenario: Quality metrics include coverage criteria.
 
         Given the testing quality standards
         When reviewing quality categories
         Then coverage metrics should exist (critical paths, edge cases, errors)
         """
-        # This validates coverage metrics
-        assert True
+        # Assert - coverage metrics documented
+        assert "coverage" in quality_standards_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_metrics_cover_maintainability(self) -> None:
+    def test_metrics_cover_maintainability(
+        self, quality_standards_content: str
+    ) -> None:
         """Scenario: Quality metrics include maintainability criteria.
 
         Given the testing quality standards
         When reviewing quality categories
         Then maintainability metrics should exist (DRY, fixtures, assertions)
         """
-        # This validates maintainability metrics
-        assert True
+        # Assert - maintainability metrics documented
+        assert "maintain" in quality_standards_content.lower()
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_metrics_cover_reliability(self) -> None:
+    def test_metrics_cover_reliability(self, quality_standards_content: str) -> None:
         """Scenario: Quality metrics include reliability criteria.
 
         Given the testing quality standards
         When reviewing quality categories
         Then reliability metrics should exist (flakiness, determinism, speed)
         """
-        # This validates reliability metrics
-        assert True
+        # Assert - reliability metrics documented
+        assert (
+            "reliability" in quality_standards_content.lower()
+            or "flaky" in quality_standards_content.lower()
+        )

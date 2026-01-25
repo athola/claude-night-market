@@ -44,6 +44,14 @@ evaluation_criteria:
 ---
 # Skills Evaluation and Improvement
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Quick Start](#quick-start)
+3. [Evaluation Workflow](#evaluation-workflow)
+4. [Evaluation and Optimization](#evaluation-and-optimization)
+5. [Resources](#resources)
+
 ## Overview
 
 This framework audits Claude skills against quality standards to improve performance and reduce token consumption. Automated tools analyze skill structure, measure context usage, and identify specific technical improvements.

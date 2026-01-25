@@ -27,12 +27,12 @@ Requirements: Python 3.10+, [uv](https://docs.astral.sh/uv/).
 
 | Package | Purpose | Fallback |
 |---------|---------|----------|
-| tiktoken | Accurate token estimation | Heuristic estimation (~4 chars/token) |
-| leyline | Quota tracking infrastructure | Stub tracker (tracking disabled) |
+| tiktoken | Accurate token estimation | Heuristic (~4 chars/token) |
+| leyline | Quota tracking | Stub tracker (disabled) |
 
-Install with full features:
+For accurate token counts, install tiktoken:
 ```bash
-uv sync --extra full
+pip install tiktoken
 ```
 
 ## Usage

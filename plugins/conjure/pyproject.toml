@@ -22,8 +22,8 @@ dependencies = [
 
 [project.optional-dependencies]
 full = [
-    "tiktoken>=0.7.0",  # For accurate token estimation (has heuristic fallback)
-    "leyline>=1.0.0",   # For quota tracking (has stub fallback)
+    "tiktoken>=0.7.0",  # Accurate token estimation (fallback: ~4 chars/token)
+    "leyline>=1.0.0",   # Quota tracking (fallback: stub tracker)
 ]
 dev = [
     "ruff>=0.14.13,<1.0",
@@ -137,6 +137,14 @@ no_implicit_optional = true
 explicit_package_bases = true
 namespace_packages = true
 exclude = ['^\.venv', '^\.uv-cache', '^fix_.*\.py$']
+
+[[tool.mypy.overrides]]
+module = ["tiktoken", "tiktoken.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["leyline", "leyline.*"]
+ignore_missing_imports = true
 
 [tool.bandit]
 exclude_dirs = [".venv", ".uv-cache", ".git", "__pycache__"]

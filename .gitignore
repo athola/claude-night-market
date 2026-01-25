@@ -70,6 +70,10 @@ package-lock.json
 # Build artifacts
 *.log
 
+# Generated reports and scans
+debt_scan_results.json
+.demo-palaces/
+
 # local docs
 docs/plans/
 docs/backlog/

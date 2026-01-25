@@ -41,7 +41,7 @@ class MetaEvaluator:
         ],
         # Pensive plugin (review skills)
         "pensive": [
-            "review-core",
+            "shared",
             "test-review",
             "api-review",
             "architecture-review",
@@ -359,6 +359,10 @@ class MetaEvaluator:
         print("\n" + "=" * 60)
         print("META-EVALUATION RESULTS")
         print("=" * 60)
+
+        # Show which plugins are being evaluated
+        plugins_evaluated = list(self.EVALUATION_SKILLS.keys())
+        print(f"\nPlugins: {', '.join(plugins_evaluated)}")
 
         # Summary
         print(f"\nSkills Evaluated: {results['skills_evaluated']}")

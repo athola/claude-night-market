@@ -272,3 +272,5 @@ When reviewing code, check:
 - [ ] Each class has single responsibility (SRP)
 - [ ] No god classes (> 500 lines)
 - [ ] Dependencies are injected, not created (DIP)
+
+**Verification:** Run `wc -l <file>` to check line counts and `grep -c "class " <file>` to count classes per file.

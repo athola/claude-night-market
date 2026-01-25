@@ -179,41 +179,59 @@ class TestScoringMethodologyQuality:
     So that evaluations are meaningful and consistent
     """
 
+    @pytest.fixture
+    def eval_framework_path(self) -> Path:
+        """Path to the evaluation-framework skill."""
+        return (
+            Path(__file__).parents[3] / "skills" / "evaluation-framework" / "SKILL.md"
+        )
+
+    @pytest.fixture
+    def eval_framework_content(self, eval_framework_path: Path) -> str:
+        """Load the evaluation-framework skill content."""
+        return eval_framework_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_scoring_avoids_arbitrary_weights(self) -> None:
+    def test_scoring_avoids_arbitrary_weights(
+        self, eval_framework_content: str
+    ) -> None:
         """Scenario: Framework prevents arbitrary weight assignment.
 
         Given the evaluation framework
         When reviewing weight assignment guidance
         Then it should emphasize rational weight distribution
         """
-        # This validates that weights are assigned thoughtfully
-        assert True
+        # Assert - weight guidance exists
+        assert "weight" in eval_framework_content.lower()
+        # Has structure for defining weights
+        assert "```" in eval_framework_content  # Code examples for weights
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_scoring_includes_normalization(self) -> None:
+    def test_scoring_includes_normalization(self, eval_framework_content: str) -> None:
         """Scenario: Framework includes score normalization.
 
         Given the evaluation framework
         When reviewing scoring methodology
         Then it should normalize scores to consistent scale
         """
-        # This validates normalization patterns
-        assert True
+        # Assert - scoring/scale documented
+        assert "scor" in eval_framework_content.lower()
+        # Has numeric values for scale
+        assert any(char.isdigit() for char in eval_framework_content)
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_scoring_defines_quality_gates(self) -> None:
+    def test_scoring_defines_quality_gates(self, eval_framework_content: str) -> None:
         """Scenario: Framework defines quality gate thresholds.
 
         Given the evaluation framework
         When reviewing threshold application
         Then it should specify quality gate levels
         """
-        # This validates quality gate patterns
-        assert True
+        # Assert - thresholds documented
+        assert "threshold" in eval_framework_content.lower()
 
 
 class TestDocumentationQuality:
@@ -224,38 +242,64 @@ class TestDocumentationQuality:
     So that I can implement evaluation systems correctly
     """
 
+    @pytest.fixture
+    def eval_framework_path(self) -> Path:
+        """Path to the evaluation-framework skill."""
+        return (
+            Path(__file__).parents[3] / "skills" / "evaluation-framework" / "SKILL.md"
+        )
+
+    @pytest.fixture
+    def eval_framework_content(self, eval_framework_path: Path) -> str:
+        """Load the evaluation-framework skill content."""
+        return eval_framework_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_framework_docs_include_verification(self) -> None:
+    def test_framework_docs_include_verification(
+        self, eval_framework_content: str
+    ) -> None:
         """Scenario: Documentation includes verification after examples.
 
         Given evaluation-framework code examples
         When reviewing documentation quality
         Then examples should include verification steps
         """
-        # This validates documentation testing patterns
-        assert True
+        # Assert - verification documented
+        assert (
+            "verification" in eval_framework_content.lower()
+            or "verify" in eval_framework_content.lower()
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_framework_avoids_cargo_cult(self) -> None:
+    def test_framework_avoids_cargo_cult(self, eval_framework_content: str) -> None:
         """Scenario: Framework avoids cargo cult patterns.
 
         Given evaluation-framework examples
         When reviewing for anti-patterns
         Then examples should be concrete and runnable
         """
-        # This validates cargo cult prevention
-        assert True
+        # Assert - has concrete examples (code blocks)
+        assert "```" in eval_framework_content
+        # Has actual YAML or code, not just descriptions
+        assert (
+            "yaml" in eval_framework_content.lower()
+            or "python" in eval_framework_content.lower()
+        )
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_framework_progressive_disclosure(self) -> None:
+    def test_framework_progressive_disclosure(
+        self, eval_framework_content: str
+    ) -> None:
         """Scenario: Framework uses progressive disclosure.
 
         Given evaluation-framework structure
         When reviewing content organization
         Then essentials should come before deep details
         """
-        # This validates progressive disclosure
-        assert True
+        # Assert - has TOC and modular structure
+        assert "## Table of Contents" in eval_framework_content
+        # References modules for details
+        assert "modules/" in eval_framework_content or "See " in eval_framework_content

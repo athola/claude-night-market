@@ -106,8 +106,8 @@ class TestMetaEvaluationFunctionality:
 
         Given the meta-evaluation script
         When running evaluation on abstract plugin
-        Then it should check skills-eval, hooks-eval, modular-skills
-        And report on their quality criteria
+        Then it should have zero issues
+        And exit with success
         """
         # Arrange
         cmd = [
@@ -121,12 +121,14 @@ class TestMetaEvaluationFunctionality:
 
         # Act
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-
-        # Assert
-        assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
-        # Should mention abstract skills
         output = result.stdout + result.stderr
-        assert "abstract" in output.lower()
+
+        # Assert - zero issues required
+        assert "abstract" in output.lower(), "Plugin name not in output"
+        assert "Total Issues: 0" in output, (
+            f"Abstract plugin has meta-evaluation issues:\n{output}"
+        )
+        assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -138,8 +140,8 @@ class TestMetaEvaluationFunctionality:
 
         Given the meta-evaluation script
         When running evaluation on leyline plugin
-        Then it should check evaluation-framework, testing-quality-standards
-        And report on their quality criteria
+        Then it should have zero issues
+        And exit with success
         """
         # Arrange
         cmd = [
@@ -149,17 +151,18 @@ class TestMetaEvaluationFunctionality:
             str(plugins_root),
             "--plugin",
             "leyline",
-            "--verbose",  # Use verbose mode to see skill details
         ]
 
         # Act
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-
-        # Assert
-        assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
-        # Should report evaluation results (skills evaluated count)
         output = result.stdout + result.stderr
-        assert "skills evaluated" in output.lower() or "leyline" in output.lower()
+
+        # Assert - zero issues required
+        assert "leyline" in output.lower(), "Plugin name not in output"
+        assert "Total Issues: 0" in output, (
+            f"Leyline plugin has meta-evaluation issues:\n{output}"
+        )
+        assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -171,8 +174,8 @@ class TestMetaEvaluationFunctionality:
 
         Given the meta-evaluation script
         When running evaluation on imbue plugin
-        Then it should check proof-of-work, evidence-logging
-        And report on their quality criteria
+        Then it should have zero issues
+        And exit with success
         """
         # Arrange
         cmd = [
@@ -186,12 +189,14 @@ class TestMetaEvaluationFunctionality:
 
         # Act
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-
-        # Assert
-        assert result.returncode in [0, 1], f"Script crashed: {result.stderr}"
-        # Should mention imbue skills
         output = result.stdout + result.stderr
-        assert "imbue" in output.lower()
+
+        # Assert - zero issues required
+        assert "imbue" in output.lower(), "Plugin name not in output"
+        assert "Total Issues: 0" in output, (
+            f"Imbue plugin has meta-evaluation issues:\n{output}"
+        )
+        assert result.returncode == 0, f"Script failed:\n{output}"
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -361,6 +366,40 @@ class TestMetaEvaluationIntegration:
         output = result.stdout + result.stderr
         # Should mention multiple plugins
         assert "abstract" in output.lower() or "leyline" in output.lower()
+
+    @pytest.mark.bdd
+    @pytest.mark.integration
+    def test_all_skills_pass_with_zero_issues(
+        self, meta_eval_script: Path, plugins_root: Path
+    ) -> None:
+        """
+        Scenario: All evaluation skills must pass meta-evaluation
+
+        Given the meta-evaluation script
+        When running on all plugins
+        Then there should be zero issues found
+        And exit code should be 0 (success)
+
+        This is a quality gate - if this test fails, fix the skill issues
+        before merging. Do not weaken this test.
+        """
+        # Arrange
+        cmd = [
+            sys.executable,
+            str(meta_eval_script),
+            "--plugins-root",
+            str(plugins_root),
+        ]
+
+        # Act
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        output = result.stdout + result.stderr
+
+        # Assert - must have zero issues
+        assert "Total Issues: 0" in output, (
+            f"Meta-evaluation found issues that must be fixed:\n{output}"
+        )
+        assert result.returncode == 0, f"Meta-evaluation failed with issues:\n{output}"
 
     @pytest.mark.bdd
     @pytest.mark.integration

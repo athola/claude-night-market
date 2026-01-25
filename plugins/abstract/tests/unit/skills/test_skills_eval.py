@@ -344,7 +344,7 @@ class TestWorkflowMonitorQualityChecks:
     def workflow_monitor_path(self) -> Path:
         """Path to the workflow-monitor skill."""
         # This is in the imbue plugin
-        # From abstract/tests/unit/skills, go up 4 levels to plugins/ directory, then into imbue
+        # Go up 4 levels from abstract/tests/unit/skills to plugins/
         return (
             Path(__file__).parents[4]  # Back to plugins/ directory
             / "imbue"
@@ -413,31 +413,45 @@ class TestDocumentationTestingPatterns:
     So that skills are testable and verifiable
     """
 
+    @pytest.fixture
+    def skills_eval_path(self) -> Path:
+        """Path to the skills-eval skill."""
+        return Path(__file__).parents[3] / "skills" / "skills-eval" / "SKILL.md"
+
+    @pytest.fixture
+    def skills_eval_content(self, skills_eval_path: Path) -> str:
+        """Load the skills-eval skill content."""
+        return skills_eval_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skills_have_testable_structure(self) -> None:
+    def test_skills_have_testable_structure(self, skills_eval_content: str) -> None:
         """Scenario: Skills can be tested for structural compliance.
 
         Given a skill file
         When testing structural requirements
         Then it should validate frontmatter, sections, and patterns
         """
-        # This is a meta-test about the testability of skills
-        # The existence of this test file demonstrates the pattern
-        assert True
+        # Assert - skill has testable structure elements
+        assert "---" in skills_eval_content  # Frontmatter markers
+        assert "## " in skills_eval_content  # Section headers
+        assert "name:" in skills_eval_content  # Required frontmatter field
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_evaluation_framework_prevents_cargo_cult(self) -> None:
+    def test_evaluation_framework_prevents_cargo_cult(
+        self, skills_eval_content: str
+    ) -> None:
         """Scenario: Evaluation framework prevents cargo cult patterns.
 
         Given quality criteria
         When reviewing skills
         Then cargo cult anti-patterns should be detectable
         """
-        # This test validates that our testing approach catches cargo cult
-        # By testing for concrete commands, verification steps, and evidence
-        assert True
+        # Assert - framework documents cargo cult prevention
+        # skills-eval references evaluation criteria that detect cargo cult
+        assert "quality" in skills_eval_content.lower()
+        assert "```" in skills_eval_content  # Has code blocks (not just descriptions)
 
 
 class TestProgressiveDisclosureEnforcement:
@@ -448,26 +462,39 @@ class TestProgressiveDisclosureEnforcement:
     So that I can understand quickly without reading everything
     """
 
+    @pytest.fixture
+    def skills_eval_path(self) -> Path:
+        """Path to the skills-eval skill."""
+        return Path(__file__).parents[3] / "skills" / "skills-eval" / "SKILL.md"
+
+    @pytest.fixture
+    def skills_eval_content(self, skills_eval_path: Path) -> str:
+        """Load the skills-eval skill content."""
+        return skills_eval_path.read_text()
+
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_skills_follow_modular_structure(self) -> None:
+    def test_skills_follow_modular_structure(self, skills_eval_content: str) -> None:
         """Scenario: Skills use modular structure for progressive disclosure.
 
         Given skill evaluation criteria
         When reviewing skill architecture
         Then modules should be referenced for deep details
         """
-        # Validate that the framework enforces modular structure
-        assert True
+        # Assert - skill references modules for details
+        assert "modules/" in skills_eval_content
+        assert "See " in skills_eval_content or "see " in skills_eval_content
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_toc_required_for_long_modules(self) -> None:
+    def test_toc_required_for_long_modules(self, skills_eval_content: str) -> None:
         """Scenario: Long modules require TOC for navigation.
 
         Given a module exceeding 100 lines
         When evaluating structure
         Then a TOC should be required
         """
-        # This validates the TOC requirement for navigation
-        assert True
+        # Assert - TOC exists in the skill (which exceeds 100 lines)
+        assert "## Table of Contents" in skills_eval_content
+        # Has section links
+        assert "[" in skills_eval_content and "](" in skills_eval_content
