@@ -178,6 +178,48 @@ for step in ["analyze", "triage", "plan", "fix", "validate", "complete"]:
 - **Options Reference**: See [Configuration & Options](fix-pr-modules/configuration-options.md)
 - **Troubleshooting**: See [Troubleshooting](fix-pr-modules/troubleshooting-fixes.md)
 
+## Mandatory Exit Gate
+
+**⛔ CRITICAL: The workflow is NOT complete until this gate passes.**
+
+Before reporting completion, you MUST run this verification:
+
+```bash
+# Get PR info
+REPO_FULL=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+OWNER=$(echo "$REPO_FULL" | cut -d'/' -f1)
+REPO=$(echo "$REPO_FULL" | cut -d'/' -f2)
+PR_NUM=$(gh pr view --json number -q .number)
+
+# Check for unresolved threads
+UNRESOLVED=$(gh api graphql -f query="
+query {
+  repository(owner: \"$OWNER\", name: \"$REPO\") {
+    pullRequest(number: $PR_NUM) {
+      reviewThreads(first: 100) {
+        nodes { isResolved }
+      }
+    }
+  }
+}" --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+
+if [[ "$UNRESOLVED" -gt 0 ]]; then
+  echo "❌ EXIT GATE FAILED: $UNRESOLVED unresolved threads"
+  echo "Run Step 6 (Complete) before reporting workflow complete"
+  exit 1
+else
+  echo "✓ EXIT GATE PASSED: All threads resolved"
+fi
+```
+
+**This gate is NOT optional.** If threads remain unresolved:
+1. Execute [Step 6: Complete](fix-pr-modules/steps/6-complete.md)
+2. Reply to each thread with fix description
+3. Resolve each thread via GraphQL
+4. Re-run this gate until it passes
+
+**The `--to` flag cannot skip Step 6** - use `--to validate` for dry runs, but completing the workflow always requires thread resolution.
+
 ## See Also
 
 - `/pr` - Create pull request

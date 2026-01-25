@@ -17,7 +17,9 @@ The fix-pr workflow consists of 6 sequential steps. Each step builds on the prev
 | **[3](steps/3-plan.md)** | [Plan](steps/3-plan.md) | Generate fix strategies | Fixes are obvious |
 | **[4](steps/4-fix.md)** | [Fix](steps/4-fix.md) | Apply code changes | Made changes manually |
 | **[5](steps/5-validate.md)** | [Validate](steps/5-validate.md) | Test and verify fixes | Already validated |
-| **[6](steps/6-complete.md)** | [Complete](steps/6-complete.md) | Resolve threads, create issues | NOT the PR author |
+| **[6](steps/6-complete.md)** | [Complete](steps/6-complete.md) | **Reply to & resolve threads** | **⛔ NEVER SKIP** |
+
+> **⚠️ Step 6 is MANDATORY.** The workflow is incomplete until all review threads are replied to and resolved. See [Mandatory Exit Gate](../fix-pr.md#mandatory-exit-gate).
 
 ## Workflow Diagram
 

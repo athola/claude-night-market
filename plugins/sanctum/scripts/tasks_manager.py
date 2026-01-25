@@ -7,6 +7,7 @@ Plugin-specific configuration for sanctum's git and PR fix workflows.
 """
 
 import json
+import os
 import re
 import subprocess
 from collections.abc import Callable
@@ -22,9 +23,13 @@ DEFAULT_STATE_DIR = ".sanctum"
 DEFAULT_STATE_FILE = "pr-workflow-state.json"
 ENV_VAR_PREFIX = "CLAUDE_CODE_TASK_LIST_ID"  # e.g., sanctum-fix-pr-{pr_number}
 
-# Ambiguity detection thresholds
-LARGE_SCOPE_TOKEN_THRESHOLD = 5000
-LARGE_SCOPE_WORD_THRESHOLD = 30
+# Ambiguity detection thresholds (configurable via environment variables)
+LARGE_SCOPE_TOKEN_THRESHOLD = int(
+    os.environ.get("SANCTUM_LARGE_SCOPE_TOKEN_THRESHOLD", "5000")
+)
+LARGE_SCOPE_WORD_THRESHOLD = int(
+    os.environ.get("SANCTUM_LARGE_SCOPE_WORD_THRESHOLD", "30")
+)
 
 
 class AmbiguityType(Enum):
@@ -202,8 +207,6 @@ def detect_ambiguity(
 
         # Look for pattern: "A uses B" and "B uses A"
         # Extract service names (words ending in Service, Manager, etc.)
-        import re
-
         task_services = set(
             re.findall(r"\b(\w+(?:service|manager|handler))\b", task_lower, re.I)
         )
