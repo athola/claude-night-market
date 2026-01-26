@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help deps test test-unit test-integration test-bdd test-coverage lint format type-check typecheck \
-        security clean install-hooks status ci mutation-test demo-tracking demo-initiatives demo-skills plugin-check debug-variables
+        security clean install-hooks status ci mutation-test benchmark demo-tracking demo-initiatives demo-skills plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests scripts
@@ -86,6 +86,13 @@ mutation-test: ## Run mutation testing
 		mutmut run --paths-to-mutate src/minister --tests-dir tests/; \
 	else \
 		echo "mutmut not installed (pip install mutmut)"; \
+	fi
+
+benchmark: ## Run performance benchmarks
+	@if $(PYTEST) --benchmark-only --benchmark-sort=mean 2>/dev/null; then \
+		echo "Benchmarks complete"; \
+	else \
+		echo "pytest-benchmark not installed (pip install pytest-benchmark)"; \
 	fi
 
 # ---------- Demo/Dogfood Targets ----------

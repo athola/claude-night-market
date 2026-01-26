@@ -5,7 +5,7 @@
 
 .PHONY: help install install-dev test test-unit test-integration test-performance test-all test-coverage \
         test-slow test-parallel lint format format-check type-check typecheck security clean docs check-all ci \
-        dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests mutation-test \
+        dev-setup dev-test dev-check validate-plugin deps deps-report status profile-tests mutation-test benchmark \
         demo-catchup demo-review demo-skills plugin-check debug-variables
 
 # Override source directories for this plugin
@@ -154,6 +154,13 @@ mutation-test: ## Run mutation testing
 		mutmut run --paths-to-mutate scripts --tests-dir tests/; \
 	else \
 		echo "mutmut not installed (pip install mutmut)"; \
+	fi
+
+benchmark: ## Run performance benchmarks
+	@if $(PYTEST) --benchmark-only --benchmark-sort=mean 2>/dev/null; then \
+		echo "Benchmarks complete"; \
+	else \
+		echo "pytest-benchmark not installed (pip install pytest-benchmark)"; \
 	fi
 
 # ---------- Demo/Dogfood Targets ----------
