@@ -139,7 +139,11 @@ Skill(attune:war-room)
 # 3. Persist to Strategeion
 #    ~/.claude/memory-palace/strategeion/war-table/{session-id}/
 
-# 4. Output decision document with RS assessment
+# 4. **AUTO-DOCUMENT TO PROJECT PLANS** (NEW)
+#    Write decision to docs/plans/YYYY-MM-DD-war-room-{topic}.md
+#    Creates docs/plans/ if it doesn't exist
+
+# 5. Output decision document with RS assessment
 ```
 
 ## Output
@@ -305,6 +309,52 @@ Recommendation: Skip War Room. Chief Strategist can decide immediately.
 **Phase 0 Output**: RS = 0.88 → Type 1A+ → Full Council + Delphi
 
 **Outcome**: Iterative Delphi rounds until 85% expert consensus. Maximum deliberation resources applied.
+
+## Project Plan Integration
+
+**MANDATORY**: After every War Room decision, automatically persist to project plans.
+
+### Auto-Documentation Behavior
+
+1. After Supreme Commander synthesis, write decision to:
+   ```
+   docs/plans/YYYY-MM-DD-war-room-{sanitized-topic}.md
+   ```
+
+2. If `docs/plans/` doesn't exist, create it
+
+3. Decision document includes:
+   - Session ID and date
+   - RS assessment table
+   - Selected approach
+   - Implementation orders (as checklist)
+   - Reversal plan
+   - Dissenting views (if any)
+
+### Template
+
+```markdown
+# War Room Decision: {topic}
+
+**Session**: {session-id}
+**Date**: {date}
+**RS**: {score} (Type {type})
+
+## Decision Summary
+
+{decision content}
+
+## Implementation Orders
+
+1. [ ] {task 1}
+2. [ ] {task 2}
+
+## Reversal Plan
+
+{reversal strategy}
+```
+
+This ensures all strategic decisions are captured in the project's planning documentation for future reference and audit trails.
 
 ## Related Commands
 
