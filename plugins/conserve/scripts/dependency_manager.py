@@ -211,20 +211,23 @@ def main() -> None:
     manager = DependencyManager(Path(args.root))
 
     if args.report:
-        pass
+        report = manager.generate_report()
+        print(report)
     elif args.scan:
         issues = manager.detect_issues()
         if issues:
-            for _issue in issues:
-                pass
+            print(f"Found {len(issues)} dependency issue(s):")
+            for issue in issues:
+                print(f"  - {issue}")
         else:
-            pass
+            print("No dependency issues found.")
     elif args.fix:
         fixes = manager.fix_dependencies(dry_run=args.dry_run)
-        for _fix in fixes:
-            pass
+        prefix = "[DRY-RUN] " if args.dry_run else ""
+        for fix in fixes:
+            print(f"{prefix}Fixed: {fix}")
     else:
-        pass
+        parser.print_help()
 
 
 if __name__ == "__main__":

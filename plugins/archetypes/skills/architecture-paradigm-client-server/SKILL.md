@@ -16,7 +16,7 @@ Triggers: server, client-server, architecture, peer-to-peer, distributed-systems
   DO NOT use when: peer-to-peer dominates - consider dedicated P2P patterns.
 
   Consult this skill when designing client-server systems or API architectures.
-version: 1.3.4
+version: 1.3.5
 category: architectural-pattern
 tags: [architecture, client-server, peer-to-peer, distributed-systems]
 dependencies: []

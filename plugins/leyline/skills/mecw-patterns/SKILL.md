@@ -27,7 +27,7 @@ modules:
   - modules/monitoring-patterns.md
   - modules/prevention-strategies.md
 reusable_by: [conserve, abstract, conjure, spec-kit, sanctum, imbue]
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

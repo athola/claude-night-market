@@ -19,7 +19,7 @@ modules:
   - modules/qwen-specifics.md
 references:
   - delegation-core/shared-shell-execution.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

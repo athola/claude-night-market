@@ -100,8 +100,10 @@ if __name__ == "__main__":
         # Sort by size (largest first)
         large_files.sort(key=lambda x: x[1], reverse=True)
 
-        for _skill_file, _lines in large_files:
-            pass
+        count = len(large_files)
+        print(f"Found {count} large skill file(s) exceeding {args.threshold} lines:")
+        for skill_file, lines in large_files:
+            print(f"  - {skill_file}: {lines} lines")
 
         total_reduction = 0
         for skill_file, _lines in large_files:

@@ -21,6 +21,8 @@ Conserve helps you work efficiently within Claude's context limits. It automatic
 | `cpu-gpu-performance` | Resource monitoring and selective testing | Before builds, tests, or training |
 | `mcp-code-execution` | MCP patterns for data pipelines | Processing data outside context |
 | `optimizing-large-skills` | Large skill optimization | Breaking down oversized skills |
+| `bloat-detector` | Detect bloated documentation and code | During documentation reviews |
+| `clear-context` | Context window management strategies | When approaching context limits |
 
 ## Commands
 

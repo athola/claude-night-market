@@ -386,24 +386,36 @@ def main() -> None:
     )
 
     if args.output_json:
-        pass
+        print(json.dumps(strategies, indent=2, default=str))
     else:
-        strategies["metadata"]
+        meta = strategies["metadata"]
+        print(f"Strategy Type: {meta.get('strategy_type', 'unknown')}")
+        print(f"Generated: {meta.get('generated_at', 'unknown')}")
 
-        for _control in strategies["automated_controls"]:
-            pass
+        print("\nAutomated Controls:")
+        for control in strategies["automated_controls"]:
+            name = control.get("name", "unnamed")
+            desc = control.get("description", "")
+            print(f"  - {name}: {desc}")
 
-        for _control in strategies["manual_controls"]:
-            pass
+        print("\nManual Controls:")
+        for control in strategies["manual_controls"]:
+            name = control.get("name", "unnamed")
+            desc = control.get("description", "")
+            print(f"  - {name}: {desc}")
 
-        for _strategy in strategies["preventive_strategies"]:
-            pass
+        print("\nPreventive Strategies:")
+        for strategy in strategies["preventive_strategies"]:
+            name = strategy.get("name", "unnamed")
+            desc = strategy.get("description", "")
+            print(f"  - {name}: {desc}")
 
         if args.verbose:
-            for _details in strategies["implementation_plan"].values():
-                pass
+            print("\nImplementation Plan:")
+            for phase, details in strategies["implementation_plan"].items():
+                print(f"  {phase}: {details}")
 
-            strategies["monitoring_requirements"]
+            print(f"\nMonitoring: {strategies['monitoring_requirements']}")
 
 
 if __name__ == "__main__":

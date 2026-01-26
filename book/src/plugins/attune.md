@@ -10,16 +10,18 @@ Attune integrates the brainstorm-plan-execute workflow from superpowers with spe
 
 ```mermaid
 graph LR
-    A[Brainstorm] --> B[Specify]
-    B --> C[Plan]
-    C --> D[Initialize]
-    D --> E[Execute]
+    A[Brainstorm] --> B[War Room]
+    B --> C[Specify]
+    C --> D[Plan]
+    D --> E[Initialize]
+    E --> F[Execute]
 
     style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e8
-    style E fill:#fce4ec
+    style B fill:#fff9c4
+    style C fill:#f3e5f5
+    style D fill:#fff3e0
+    style E fill:#e8f5e8
+    style F fill:#fce4ec
 ```
 
 ## Commands
@@ -27,11 +29,11 @@ graph LR
 | Command | Phase | Description |
 |---------|-------|-------------|
 | `/attune:brainstorm` | 1. Ideation | Socratic questioning to explore problem space |
-| `/attune:specify` | 2. Specification | Create detailed specs from brainstorm |
-| `/attune:plan` | 3. Planning | Design architecture and break down tasks |
-| `/attune:init` | 4. Initialization | Generate project structure and tooling |
-| `/attune:execute` | 5. Implementation | Execute tasks with TDD discipline |
-| `/attune:war-room` | Decision | Multi-LLM expert deliberation with reversibility-based routing |
+| `/attune:war-room` | 2. Deliberation | Multi-LLM expert deliberation with reversibility-based routing |
+| `/attune:specify` | 3. Specification | Create detailed specs from war-room decision |
+| `/attune:plan` | 4. Planning | Design architecture and break down tasks |
+| `/attune:init` | 5. Initialization | Generate or update project structure with tooling |
+| `/attune:execute` | 6. Implementation | Execute tasks with TDD discipline |
 | `/attune:upgrade-project` | Maintenance | Add configs to existing projects |
 | `/attune:validate` | Quality | Validate project structure |
 
@@ -68,16 +70,19 @@ graph LR
 # 1. Brainstorm the idea
 /attune:brainstorm
 
-# 2. Create specification
+# 2. War room deliberation (auto-routes by complexity)
+/attune:war-room --from-brainstorm
+
+# 3. Create specification
 /attune:specify
 
-# 3. Plan architecture
+# 4. Plan architecture
 /attune:plan
 
-# 4. Initialize project
+# 5. Initialize project
 /attune:init
 
-# 5. Execute implementation
+# 6. Execute implementation
 /attune:execute
 ```
 
@@ -86,11 +91,12 @@ graph LR
 | Skill | Purpose |
 |-------|---------|
 | `project-brainstorming` | Socratic ideation workflow |
-| `project-specification` | Spec creation from brainstorm |
+| `war-room` | Multi-LLM expert council with Type 1/2 decision routing |
+| `war-room-checkpoint` | Inline RS assessment for embedded escalation during workflow |
+| `project-specification` | Spec creation from war-room decision |
 | `project-planning` | Architecture and task breakdown |
 | `project-init` | Interactive project initialization |
 | `project-execution` | Systematic implementation |
-| `war-room` | Multi-LLM expert council with Type 1/2 decision routing |
 | `makefile-generation` | Generate language-specific Makefiles |
 | `workflow-setup` | Configure CI/CD pipelines |
 | `precommit-setup` | Set up code quality hooks |
@@ -108,6 +114,19 @@ Attune combines capabilities from:
 - **superpowers**: Brainstorming, planning, execution workflows
 - **spec-kit**: Specification-driven development
 - **abstract**: Plugin and skill authoring for plugin projects
+
+## War Room Integration
+
+The war room is a mandatory phase after brainstorming. It automatically routes to the appropriate deliberation intensity based on Reversibility Score (RS):
+
+| Mode | RS Range | Duration | Description |
+|------|----------|----------|-------------|
+| Express | ≤ 0.40 | <2 min | Quick decision by Chief Strategist |
+| Lightweight | 0.41-0.60 | 5-10 min | 3-expert panel |
+| Full Council | 0.61-0.80 | 15-30 min | 7-expert deliberation |
+| Delphi | > 0.80 | 30-60 min | Iterative consensus for critical decisions |
+
+The `war-room-checkpoint` skill can also trigger additional deliberation during planning or execution when high-stakes decisions arise.
 
 ## Examples
 

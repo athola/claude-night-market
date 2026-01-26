@@ -1,6 +1,6 @@
 {
   "name": "attune",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Project initialization and setup automation for Python, Rust, and TypeScript projects",
   "category": "development-tools",
   "tags": ["automation", "setup", "templates", "ci-cd", "git"],

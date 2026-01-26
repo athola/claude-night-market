@@ -34,7 +34,7 @@ modules:
   - modules/anti-overengineering.md
   - modules/branch-management.md
   - modules/baseline-scenarios.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

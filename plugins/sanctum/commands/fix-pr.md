@@ -139,6 +139,53 @@ The workflow auto-detects scope and suggests step-skipping:
    /fix-pr <pr-number> --to plan
    ```
 
+## War Room Checkpoint (Automatic)
+
+**Purpose**: Assess whether complex PR feedback warrants expert deliberation before planning fixes.
+
+**Auto-triggers when** (moderate approach):
+- Scope is major (6+ comments), OR
+- Conflicting reviewer feedback detected, OR
+- Multiple refactoring suggestions (>2), OR
+- Breaking change required by reviewer
+
+**Checkpoint invocation** (automatic, after Step 2 Triage):
+
+```markdown
+Skill(attune:war-room-checkpoint) with context:
+  source_command: "fix-pr"
+  decision_needed: "Fix strategy for PR #123 review feedback"
+  blocking_items: [
+    {type: "refactor", description: "Reviewer A: Extract service class"},
+    {type: "refactor", description: "Reviewer B: Keep inline, add tests only"},
+    {type: "breaking", description: "API signature change required"}
+  ]
+  files_affected: [files from triage analysis]
+  profile: [from user settings, default: "default"]
+```
+
+**War Room Questions** (when escalated):
+- "How do we reconcile conflicting reviewer suggestions?"
+- "Should we push back on any suggestions as out-of-scope?"
+- "Is a multi-commit or multi-PR approach appropriate?"
+
+**Response handling**:
+
+| RS Score | Mode | Action |
+|----------|------|--------|
+| RS <= 0.40 | Express | Quick recommendation, continue |
+| RS 0.41-0.60 | Lightweight | Panel reviews conflicting feedback |
+| RS > 0.60 | Full Council | Full deliberation on approach |
+
+**Auto-continue logic**:
+- If confidence > 0.8: Apply War Room's fix strategy
+- If confidence <= 0.8: Present options to user
+
+**Skip conditions**:
+- Scope is minor or medium with clear fixes
+- No conflicting feedback
+- Single reviewer, straightforward comments
+
 ## Integration
 
 This command integrates with:
@@ -180,9 +227,9 @@ for step in ["analyze", "triage", "plan", "fix", "validate", "complete"]:
 
 ## Mandatory Exit Gate
 
-**⛔ CRITICAL: The workflow is NOT complete until this gate passes.**
+**⛔ CRITICAL: The workflow is NOT complete until BOTH gates pass.**
 
-Before reporting completion, you MUST run this verification:
+### Gate 1: Thread Resolution
 
 ```bash
 # Get PR info
@@ -204,15 +251,59 @@ query {
 }" --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 if [[ "$UNRESOLVED" -gt 0 ]]; then
-  echo "❌ EXIT GATE FAILED: $UNRESOLVED unresolved threads"
-  echo "Run Step 6 (Complete) before reporting workflow complete"
+  echo "❌ GATE 1 FAILED: $UNRESOLVED unresolved threads"
   exit 1
 else
-  echo "✓ EXIT GATE PASSED: All threads resolved"
+  echo "✓ GATE 1 PASSED: All threads resolved"
 fi
 ```
 
-**This gate is NOT optional.** If threads remain unresolved:
+### Gate 2: Issue Tracking Verification (NEW)
+
+**Every review item must be either FIXED or have a GitHub ISSUE created.**
+
+Before completing, verify the triage reconciliation:
+
+```markdown
+## Issue Tracking Checklist (MANDATORY)
+
+For EACH item from triage (Step 2), confirm ONE of:
+- [ ] **Fixed**: Code change applied and committed
+- [ ] **Issue Created**: GitHub issue number recorded (e.g., #45)
+- [ ] **Skipped (justified)**: Informational/praise only - no action needed
+
+| Triage ID | Category | Disposition | Evidence |
+|-----------|----------|-------------|----------|
+| C1 | Critical | Fixed | commit abc123 |
+| S1 | Suggestion | Issue #45 | gh issue view 45 |
+| S2 | Suggestion | Fixed | commit abc123 |
+| D1 | Deferred | Issue #46 | gh issue view 46 |
+| I1 | Informational | Skipped | No action needed |
+
+**⛔ GATE 2 FAILS if any row has empty "Disposition" or "Evidence"**
+```
+
+**Automatic verification** (run after populating table):
+```bash
+# Verify issues were actually created for deferred/suggestion items
+# This should match the count from your triage
+
+# Count issues created today referencing this PR
+ISSUES_CREATED=$(gh issue list --search "PR #$PR_NUM in:body" --json number --jq 'length')
+echo "Issues created referencing PR #$PR_NUM: $ISSUES_CREATED"
+
+# If triage had N suggestion/deferred items, ISSUES_CREATED should be >= N
+# (unless they were all fixed directly)
+```
+
+### Gate 3: Summary Posted
+
+The PR summary comment (Step 6.5) must include:
+- All fixed items with commit references
+- All created issues with issue numbers
+- Explicit "None" if no suggestions/deferred items
+
+**This gate is NOT optional.** If any gate fails:
 1. Execute [Step 6: Complete](fix-pr-modules/steps/6-complete.md)
 2. Reply to each thread with fix description
 3. Resolve each thread via GraphQL

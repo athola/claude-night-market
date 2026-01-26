@@ -16,7 +16,7 @@ Triggers: infrastructure, review, patterns, shared
   This skill provides shared patterns consumed by other pensive skills.
 category: review-infrastructure
 tags: [shared, infrastructure, review, patterns]
-version: 1.3.4
+version: 1.3.5
 estimated_tokens: 50
 ---
 
@@ -34,13 +34,10 @@ Centralized infrastructure for:
 
 ## Module Structure
 
-```
-modules/
-├── review-workflow-core.md       # Core 5-step workflow pattern
-├── output-format-templates.md    # Standard output structures
-└── quality-checklist-patterns.md # Reusable quality checklists
-```
-**Verification:** Run the command with `--help` flag to verify availability.
+Available shared modules:
+- See `modules/review-workflow-core.md` for the core 5-step workflow pattern
+- See `modules/output-format-templates.md` for standard output structures
+- See `modules/quality-checklist-patterns.md` for reusable quality checklists
 
 ## Usage
 

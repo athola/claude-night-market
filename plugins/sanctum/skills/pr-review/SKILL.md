@@ -39,7 +39,7 @@ dependencies:
   - memory-palace:review-chamber
   - scribe:slop-detector
   - scribe:doc-generator
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -223,7 +223,7 @@ See `modules/version-validation.md` for detailed validation procedures.
 
 ### Phase 4: Code Review with Scope Context
 
-Use `pensive:unified-review` on the changed files.
+Use `pensive:unified-review` on the changed files. For comment quality assessment, see `modules/comment-guidelines.md`.
 
 **Critical:** Evaluate each finding against the scope baseline:
 

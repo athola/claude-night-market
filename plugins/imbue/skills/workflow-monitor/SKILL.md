@@ -26,7 +26,7 @@ modules:
   - modules/detection-patterns.md
   - modules/issue-templates.md
   - modules/efficiency-metrics.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

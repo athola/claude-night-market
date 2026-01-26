@@ -13,7 +13,7 @@ Triggers: decision-making, research, aware, architecture, initialization
 
   DO NOT use when: architecture is already decided - use project-init instead.
   DO NOT use when: exploring multiple architectures - use architecture-paradigms instead.
-version: 1.3.4
+version: 1.3.5
 category: project-initialization
 tags: [architecture, initialization, research, decision-making, best-practices]
 dependencies: [architecture-paradigms]
@@ -429,16 +429,16 @@ customizer.apply_structure(Path("./my-project"))
 
 ## Integration with Existing Commands
 
-This skill enhances `/attune:init` by adding an architecture selection phase:
+This skill enhances `/attune:project-init` by adding an architecture selection phase:
 
 ```bash
 # Standard initialization (no architecture decision)
-/attune:init --lang python --name my-project
+/attune:project-init --lang python --name my-project
 
 # Architecture-aware initialization
 /attune:brainstorm           # Explore project needs
 Skill(architecture-aware-init) # Select architecture based on research
-/attune:init --arch <paradigm> # Initialize with chosen architecture
+/attune:project-init --arch <paradigm> # Initialize with chosen architecture
 ```
 **Verification:** Run `python --version` to verify Python environment.
 
@@ -478,7 +478,7 @@ WebSearch("CQRS Event Sourcing Python examples")
 
 ## See Also
 
-- `/attune:init` - Basic project initialization
+- `/attune:project-init` - Basic project initialization
 - `/attune:plan` - Architecture planning after paradigm selection
 - Architecture paradigms README for paradigm details
 ## Troubleshooting

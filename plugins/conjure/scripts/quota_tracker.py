@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
 try:
-    import tiktoken
+    import tiktoken  # type: ignore[import-untyped]
 except ImportError:
     tiktoken = None  # type: ignore[assignment]
 

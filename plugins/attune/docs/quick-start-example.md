@@ -207,7 +207,7 @@ CREATE INDEX idx_tasks_completed ON tasks(completed);
 ## Task Breakdown
 
 ### TASK-001: Initialize Project (30 min, P0)
-- Use `/attune:init --lang python`
+- Use `/attune:project-init --lang python`
 - Set up project structure
 - Configure pyproject.toml with Click dependency
 
@@ -250,10 +250,10 @@ CREATE INDEX idx_tasks_completed ON tasks(completed);
 **Day 4**: TASK-005 through TASK-006 (polish and docs)
 ```
 
-## Step 4: Initialize (/attune:init)
+## Step 4: Initialize (/attune:project-init)
 
 ```bash
-/attune:init --lang python --name task-tracker
+/attune:project-init --lang python --name task-tracker
 ```
 
 **Output**:
@@ -298,7 +298,7 @@ Total tasks: 6
 TASK-001: Initialize Project
 ─────────────────────────────────────
 
-Already complete (project initialized with /attune:init)
+Already complete (project initialized with /attune:project-init)
 
 ✅ TASK-001: Complete (0 min - skipped)
 

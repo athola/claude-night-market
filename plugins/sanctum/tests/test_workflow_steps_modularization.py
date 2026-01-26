@@ -233,7 +233,8 @@ class TestNoContentLoss:
     def test_total_content_preserved(self):
         """Combined modules should have similar content volume to original."""
         # Original file was 1203 lines, +47 lines for PENDING review detection (PR #142)
-        ORIGINAL_LINE_COUNT = 1250
+        # +270 lines for mandatory issue creation enforcement (Gates 2 & 3)
+        ORIGINAL_LINE_COUNT = 1520
         TOLERANCE = 0.20  # Allow 20% variance for added navigation/headers/structure
 
         # Count lines in hub + all step files

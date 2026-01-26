@@ -22,13 +22,13 @@ For detailed attune-specific changes, see the main CHANGELOG under the following
    /attune:brainstorm
    /attune:specify
    /attune:plan
-   /attune:init
+   /attune:project-init
    /attune:execute
    ```
 
 2. **For existing projects** - Continue using as before:
    ```bash
-   /attune:init
+   /attune:project-init
    /attune:upgrade-project
    /attune:validate
    ```

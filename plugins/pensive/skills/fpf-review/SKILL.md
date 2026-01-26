@@ -27,7 +27,7 @@ modules:
   - modules/functional-perspective.md
   - modules/practical-perspective.md
   - modules/foundation-perspective.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

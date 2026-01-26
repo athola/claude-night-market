@@ -7,10 +7,11 @@ Project development plugin for Claude Code. Support ideation, specification, arc
 Standardize project development:
 
 1. **Brainstorm**: Ideate and explore problem space.
-2. **Specify**: Create detailed specifications.
-3. **Plan**: Design architecture and break down tasks.
-4. **Init**: Initialize project structure.
-5. **Execute**: Implement systematically with tracking.
+2. **War Room**: Multi-expert deliberation to select approach.
+3. **Specify**: Create detailed specifications.
+4. **Plan**: Design architecture and break down tasks.
+5. **Init**: Initialize or update project structure.
+6. **Execute**: Implement systematically with tracking.
 
 ## Features
 
@@ -40,10 +41,10 @@ Standardize project development:
 
 ```bash
 # Interactive mode
-/attune:init
+/attune:project-init
 
 # Language specification
-/attune:init --lang python --name my-project --author "Your Name"
+/attune:project-init --lang python --name my-project --author "Your Name"
 ```
 
 ### Upgrade Existing Project
@@ -63,12 +64,20 @@ Standardize project development:
 | Command | Description | Phase |
 |---------|-------------|-------|
 | `/attune:brainstorm` | Brainstorm project ideas using Socratic questioning | 1. Ideation |
-| `/attune:arch-init` | **Architecture-aware initialization with research** | 1.5. Architecture |
-| `/attune:specify` | Create detailed specifications from brainstorm | 2. Specification |
-| `/attune:plan` | Plan architecture and break down into tasks | 3. Planning |
-| `/attune:init` | Initialize project structure with tooling | 4. Initialization |
-| `/attune:execute` | Execute implementation tasks systematically | 5. Implementation |
-| `/attune:war-room` | **Multi-LLM expert deliberation with reversibility-based routing** | Decision |
+| `/attune:war-room` | **Multi-LLM expert deliberation for approach selection** | 2. Deliberation |
+| `/attune:arch-init` | **Architecture-aware initialization with research** | 3. Architecture |
+| `/attune:specify` | Create detailed specifications from war-room decision | 4. Specification |
+| `/attune:plan` | Plan architecture and break down into tasks | 5. Planning |
+| `/attune:project-init` | Initialize or update project structure with tooling | 6. Initialization |
+| `/attune:execute` | Execute implementation tasks systematically | 7. Implementation |
+
+**War Room Integration**: The war-room is a **mandatory phase** after brainstorming. It automatically routes to the appropriate deliberation intensity based on Reversibility Score (RS):
+- **Express** (RS ≤ 0.40): Quick decision by Chief Strategist (<2 min)
+- **Lightweight** (RS 0.41-0.60): 3-expert panel (5-10 min)
+- **Full Council** (RS 0.61-0.80): 7-expert deliberation (15-30 min)
+- **Delphi** (RS > 0.80): Iterative consensus for critical decisions (30-60 min)
+
+The `war-room-checkpoint` skill can also trigger additional deliberation during planning or execution when high-stakes decisions arise.
 
 ### Project Management
 
@@ -84,10 +93,11 @@ Standardize project development:
 | Skill | Description | Use When |
 |-------|-------------|----------|
 | `project-brainstorming` | Socratic questioning and ideation | Starting new project from idea |
+| `war-room` | **Multi-LLM expert council with Type 1/2 routing** | Complex strategic decisions (RS > 0.40) |
+| `war-room-checkpoint` | **Inline RS assessment for embedded escalation** | Called by other commands at decision points |
 | `project-specification` | Spec-driven requirement definition | Need detailed requirements |
 | `project-planning` | Architecture design and task breakdown | Planning implementation |
 | `project-execution` | Systematic task execution with TDD | Implementing planned tasks |
-| `war-room` | **Multi-LLM expert council with Type 1/2 routing** | Complex strategic decisions (RS > 0.40) |
 
 ### Initialization Skills
 
@@ -132,27 +142,36 @@ Templates are based on proven patterns from reference projects:
 # 1. Brainstorm the project
 /attune:brainstorm --domain "CLI tool"
 
-# Output: docs/project-brief.md with problem, constraints, approach
+# Output: docs/project-brief.md with problem, constraints, approaches
 
-# 2. Create specification
+# 2. War Room deliberation (mandatory - auto-routes by complexity)
+/attune:war-room --from-brainstorm
+
+# Output: Decision document with selected approach
+# - Simple choice? Express mode (<2 min)
+# - Complex trade-offs? Full council deliberation
+
+# 3. Create specification
 /attune:specify
 
 # Output: docs/specification.md with requirements and acceptance criteria
 
-# 3. Plan implementation
+# 4. Plan implementation
 /attune:plan
 
 # Output: docs/implementation-plan.md with architecture and tasks
 
-# 4. Initialize project
-/attune:init --lang python
+# 5. Initialize or update project
+/attune:project-init --lang python
 
 # Output: Complete project structure with tooling
+# Note: For existing projects, detects and offers to update configurations
 
-# 5. Execute implementation
+# 6. Execute implementation
 /attune:execute
 
 # Output: Systematic implementation with progress tracking
+# Note: war-room-checkpoint can escalate at decision points during execution
 ```
 
 ## Usage Examples

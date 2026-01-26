@@ -24,7 +24,7 @@ progressive_loading: true
 modules:
   - success-criteria-patterns
   - specification-structure
-version: 1.3.4
+version: 1.3.5
 ---
 
 # Spec Writing
@@ -58,7 +58,7 @@ Focus on user value and business needs rather than implementation details. Avoid
 - Dependencies (when external systems involved)
 - Assumptions (when decisions made with incomplete info)
 
-**See**: `specification-structure` module for detailed templates and guidelines
+**See**: `modules/specification-structure.md` for detailed templates and guidelines
 
 ## Quality Checklist
 
@@ -81,7 +81,7 @@ Focus on user value and business needs rather than implementation details. Avoid
 - "Redis cache hit rate above 80%" -> Use: "Frequently accessed data loads with no noticeable delay"
 - "React components render efficiently" -> Use: "UI updates appear with no visible frame drops"
 
-**See**: `success-criteria-patterns` module for detailed examples and conversion process
+**See**: `modules/success-criteria-patterns.md` for detailed examples and conversion process
 
 ## Related Skills
 

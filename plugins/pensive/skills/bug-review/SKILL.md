@@ -28,7 +28,7 @@ complexity: intermediate
 estimated_tokens: 450
 progressive_loading: true
 dependencies: [pensive:shared, imbue:evidence-logging, imbue:diff-analysis/modules/risk-assessment-framework]
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

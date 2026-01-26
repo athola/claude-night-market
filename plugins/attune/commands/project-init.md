@@ -1,51 +1,55 @@
 ---
-name: init
-description: Initialize project with git, workflows, hooks, and Makefiles
-usage: /attune:init [--lang python|rust|typescript] [--name NAME]
+name: project-init
+description: Initialize or update project with git, workflows, hooks, and Makefiles
+usage: /attune:project-init [--lang python|rust|typescript] [--name NAME]
 ---
 
-# Attune Init Command
+# Attune Project Init Command
 
 <identification>
-triggers: init project, initialize project, new project, project setup
+triggers: init project, initialize project, new project, project setup, update tooling
 
 use_when:
 - Starting a new project from scratch
 - Setting up development infrastructure
+- Updating existing project tooling to current standards
+- Adding missing configurations to established projects
 </identification>
 
-Initialize a new project with complete development infrastructure.
+Initialize or update a project with complete development infrastructure.
 
 ## Usage
 
 ```bash
 # Interactive mode (recommended)
-/attune:init
+/attune:project-init
 
 # Specify language
-/attune:init --lang python
+/attune:project-init --lang python
 
 # Full specification
-/attune:init --lang python --name my-project --author "Your Name"
+/attune:project-init --lang python --name my-project --author "Your Name"
 ```
 
 ## What This Command Does
 
 1. **Detects or accepts language specification** (Python, Rust, TypeScript)
 2. **Initializes git repository** (if not already initialized)
-3. **Creates configuration files**:
+3. **Creates or updates configuration files**:
    - `.gitignore` - Language-specific ignores
    - `Makefile` - Development automation
    - `.pre-commit-config.yaml` - Code quality hooks
    - `pyproject.toml` / `Cargo.toml` / `package.json` - Dependency management
-4. **Sets up GitHub workflows**:
+4. **Sets up or updates GitHub workflows**:
    - Test workflow
    - Lint workflow
    - Type check workflow
-5. **Creates project structure**:
+5. **Creates project structure** (if not present):
    - `src/` directory with initial module
    - `tests/` directory
    - `README.md`
+
+**Note**: For existing projects, init will detect present configurations and offer to update them to current standards. Use `--force` to overwrite without prompting, or the interactive mode for selective updates.
 
 ## Workflow
 
@@ -106,7 +110,7 @@ When no arguments provided, the skill guides you through:
 ### Example 1: New Python CLI Project
 
 ```bash
-/attune:init --lang python --name awesome-cli --description "An awesome CLI tool"
+/attune:project-init --lang python --name awesome-cli --description "An awesome CLI tool"
 ```
 
 Creates:
@@ -134,7 +138,7 @@ awesome-cli/
 
 ```bash
 cd my-existing-project
-/attune:init --lang python
+/attune:project-init --lang python
 ```
 
 Prompts:
@@ -149,7 +153,7 @@ File exists: Makefile. Overwrite? [y/N]: y
 ### Example 3: Force Overwrite All Files
 
 ```bash
-/attune:init --lang python --force
+/attune:project-init --lang python --force
 ```
 
 Overwrites all existing files without prompting.
@@ -175,7 +179,7 @@ make help
 ```bash
 # Initialize manually
 git init
-/attune:init --lang python
+/attune:project-init --lang python
 ```
 
 **Permission denied on scripts**:

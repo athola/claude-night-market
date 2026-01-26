@@ -1,12 +1,13 @@
 {
   "name": "attune",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
   "commands": [
+    "./commands/arch-init.md",
     "./commands/brainstorm.md",
     "./commands/execute.md",
-    "./commands/init.md",
     "./commands/plan.md",
+    "./commands/project-init.md",
     "./commands/specify.md",
     "./commands/upgrade-project.md",
     "./commands/validate.md",
@@ -22,6 +23,7 @@
     "./skills/project-planning",
     "./skills/project-specification",
     "./skills/war-room",
+    "./skills/war-room-checkpoint",
     "./skills/workflow-setup"
   ],
   "agents": [

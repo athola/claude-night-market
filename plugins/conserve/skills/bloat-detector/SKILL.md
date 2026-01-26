@@ -20,7 +20,7 @@ modules:
   - remediation-types
 progressive_loading: true
 estimated_tokens: 400
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -92,17 +92,17 @@ Priority = (Token_Savings × 0.4) + (Maintenance × 0.3) + (Confidence × 0.2) +
 ## Module Architecture
 
 **Tier 1** (always available):
-- `@module:quick-scan` - Heuristics, no tools
-- `@module:git-history-analysis` - Staleness, churn, vibe coding signatures
+- See `modules/quick-scan.md` - Heuristics, no tools
+- See `modules/git-history-analysis.md` - Staleness, churn, vibe coding signatures
 
 **Tier 2** (optional tools):
-- `@module:code-bloat-patterns` - Anti-patterns (God class, Lava flow)
-- `@module:ai-generated-bloat` - AI-specific patterns (Tab bloat, hallucinations)
-- `@module:documentation-bloat` - Redundancy, readability, slop detection
-- `@module:static-analysis-integration` - Vulture, Knip
+- See `modules/code-bloat-patterns.md` - Anti-patterns (God class, Lava flow)
+- See `modules/ai-generated-bloat.md` - AI-specific patterns (Tab bloat, hallucinations)
+- See `modules/documentation-bloat.md` - Redundancy, readability, slop detection
+- See `modules/static-analysis-integration.md` - Vulture, Knip
 
 **Shared**:
-- `@module:remediation-types` - DELETE, REFACTOR, CONSOLIDATE, ARCHIVE
+- See `modules/remediation-types.md` - DELETE, REFACTOR, CONSOLIDATE, ARCHIVE
 
 ## Auto-Exclusions
 

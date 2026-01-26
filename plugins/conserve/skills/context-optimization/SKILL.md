@@ -37,7 +37,7 @@ hooks:
     - command: |
         echo "[skill:context-optimization] === Optimization completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
         # Could export: context pressure events over time
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -123,6 +123,7 @@ def select_optimal_modules(context_situation, task_complexity):
 - **MECW Theory**: See `modules/mecw-principles.md` for core concepts and the 50% rule.
 - **Context Analysis**: See `modules/mecw-assessment.md` for risk identification.
 - **Workflow Delegation**: See `modules/subagent-coordination.md` for decomposition patterns.
+- **Context Waiting**: See `modules/context-waiting.md` for deferred loading strategies.
 ## Troubleshooting
 
 ### Common Issues

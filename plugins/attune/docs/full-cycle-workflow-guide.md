@@ -7,16 +7,29 @@ Complete guide to using Attune's brainstorm-plan-execute workflow for systematic
 Attune provides a structured approach to project development:
 
 ```
-IDEATION → SPECIFICATION → PLANNING → INITIALIZATION → IMPLEMENTATION
+IDEATION → WAR ROOM → SPECIFICATION → PLANNING → INITIALIZATION → IMPLEMENTATION
+               │                          ↑            ↑
+               │                     checkpoint    checkpoint
+               └─────────────────────────────────────────────────────────────────
+                 Routes by RS: Express (<2min) | Lightweight | Full Council | Delphi
 ```
+
+The **War Room** is a **mandatory phase** after brainstorming that automatically routes to appropriate deliberation intensity:
+- **Express** (RS ≤ 0.40): Quick decision by Chief Strategist for simple choices
+- **Lightweight** (RS 0.41-0.60): 3-expert panel for moderate complexity
+- **Full Council** (RS 0.61-0.80): 7-expert deliberation for architecture decisions
+- **Delphi** (RS > 0.80): Iterative consensus for critical, irreversible decisions
+
+Additional `war-room-checkpoint` escalations can occur during planning or execution when high-stakes decisions emerge.
 
 This prevents common development pitfalls:
 - ❌ Scope creep from unclear requirements
 - ❌ Rework from poor architecture decisions
 - ❌ Technical debt from ad-hoc implementation
 - ❌ Lost progress from missing tracking
+- ❌ Analysis paralysis (RS-based routing prevents over-deliberation)
 
-## The Five Phases
+## The Phases
 
 ### Phase 1: Brainstorm (/attune:brainstorm)
 
@@ -67,7 +80,55 @@ This prevents common development pitfalls:
 - Applies structured ideation frameworks
 - Documents decisions systematically
 
-### Phase 2: Specify (/attune:specify)
+### Phase 2: War Room (/attune:war-room)
+
+**Purpose**: Mandatory multi-expert deliberation for approach selection with intelligent routing
+
+**Always Invoked After Brainstorm**: The War Room is not optional—it ensures every project benefits from expert council review. However, it automatically routes to the appropriate intensity level to avoid over-deliberation.
+
+**Activities**:
+1. Assess Reversibility Score (RS) across 5 dimensions
+2. Route to appropriate mode (Express/Lightweight/Full Council/Delphi)
+3. For Express: Chief Strategist provides quick recommendation
+4. For higher modes: Gather intelligence, develop COAs, Red Team review
+5. Synthesize decision with reversal plan
+
+**Output**: Decision document with selected approach, rationale, and implementation orders
+
+**Mode Selection** (automatic based on RS):
+| RS Range | Mode | Time | What Happens |
+|----------|------|------|--------------|
+| ≤ 0.40 | Express | <2 min | Chief Strategist decides immediately |
+| 0.41-0.60 | Lightweight | 5-10 min | 3-expert quick deliberation |
+| 0.61-0.80 | Full Council | 15-30 min | 7-expert full deliberation with Red Team |
+| > 0.80 | Delphi | 30-60 min | Iterative rounds until consensus |
+
+**Example - Simple Decision (Express)**:
+```bash
+/attune:brainstorm --domain "utility script"
+/attune:war-room --from-brainstorm
+# RS = 0.24 → Express mode
+# Chief Strategist: "Single Python script with argparse. Proceed."
+# Total time: 90 seconds
+```
+
+**Example - Complex Decision (Full Council)**:
+```bash
+/attune:brainstorm --domain "payment system"
+/attune:war-room --from-brainstorm
+# RS = 0.72 → Full Council activated
+# 7 experts deliberate, Red Team challenges, reversal plan created
+# Decision: Event-sourced microservices with saga pattern
+# Total time: 20 minutes
+```
+
+**Integration with Checkpoints**:
+During later phases, `war-room-checkpoint` can trigger additional deliberation when:
+- 3+ overlapping issues detected during execution
+- Blocking PR review items discovered
+- ADR violations or architecture drift detected
+
+### Phase 3: Specify (/attune:specify)
 
 **Purpose**: Transform project brief into detailed, testable specifications
 
@@ -117,7 +178,7 @@ This prevents common development pitfalls:
 - Applies spec-kit templates and validation
 - Enables clarification workflow
 
-### Phase 3: Plan (/attune:plan)
+### Phase 4: Plan (/attune:plan)
 
 **Purpose**: Transform specification into implementation plan with architecture and tasks
 
@@ -167,24 +228,30 @@ Sprint 2 (Jan 17-30): GitHub Integration - 12 tasks, 48 points
 - Applies dependency analysis
 - Creates checkpoint-based execution flow
 
-### Phase 4: Initialize (/attune:init)
+### Phase 5: Initialize (/attune:project-init)
 
-**Purpose**: Set up project structure with proper tooling and CI/CD
+**Purpose**: Set up or update project structure with proper tooling and CI/CD
 
 **Activities**:
-1. Create project directory structure
-2. Initialize git repository
-3. Generate language-specific configuration (pyproject.toml, etc.)
-4. Set up GitHub Actions workflows
-5. Configure pre-commit hooks
-6. Create Makefile with development targets
-7. Generate README and documentation stubs
+1. Create or verify project directory structure
+2. Initialize git repository (if not present)
+3. Generate or update language-specific configuration (pyproject.toml, etc.)
+4. Set up or update GitHub Actions workflows
+5. Configure or update pre-commit hooks
+6. Create or update Makefile with development targets
+7. Generate README and documentation stubs (if not present)
 
 **Output**: Complete project structure ready for implementation
 
+**For Existing Projects**:
+- Detects present configurations and offers selective updates
+- Compares against current standards and recommends updates
+- Preserves custom configurations while adding missing components
+- Use `--force` to overwrite without prompting
+
 **Example Session**:
 ```bash
-/attune:init --lang python --name tech-debt-tracker
+/attune:project-init --lang python --name tech-debt-tracker
 
 # Creates:
 tech-debt-tracker/
@@ -223,7 +290,7 @@ make test         # Run tests (none yet, but framework ready)
 
 **Note**: Can be used standalone without prior phases for quick project setup.
 
-### Phase 5: Execute (/attune:execute)
+### Phase 6: Execute (/attune:execute)
 
 **Purpose**: Systematically implement tasks with TDD, checkpoints, and tracking
 
@@ -247,7 +314,7 @@ make test         # Run tests (none yet, but framework ready)
 🚀 Executing Implementation Plan
 
 [✓] TASK-001: Initialize Project Structure (45 min)
-    ├─ Project initialized with /attune:init
+    ├─ Project initialized with /attune:project-init
     ├─ Tests passing: 0 (framework only)
     └─ Status: Complete
 
@@ -314,23 +381,33 @@ def test_debt_item_creation(db_session):
 ### Full Cycle (Recommended for New Projects)
 
 ```bash
-/attune:brainstorm → /attune:specify → /attune:plan → /attune:init → /attune:execute
+/attune:brainstorm → /attune:war-room → /attune:specify → /attune:plan → /attune:project-init → /attune:execute
 ```
 
 **Best for**: Greenfield projects, unclear requirements, team projects
 
+**Note**: War Room is mandatory but routes intelligently—simple decisions get express mode (<2 min), complex decisions get full council deliberation.
+
 ### Quick Start (Skip Early Phases)
 
 ```bash
-/attune:init → /attune:execute
+/attune:project-init → /attune:execute
 ```
 
 **Best for**: Well-understood projects, prototypes, solo development
 
+### Tooling Update (Existing Projects)
+
+```bash
+/attune:project-init  # Detects existing config and offers updates
+```
+
+**Best for**: Existing projects needing tooling refresh to current standards
+
 ### Specification-First (Skip Brainstorm)
 
 ```bash
-/attune:specify → /attune:plan → /attune:init → /attune:execute
+/attune:specify → /attune:plan → /attune:project-init → /attune:execute
 ```
 
 **Best for**: Requirements already clear, need planning and execution
@@ -384,7 +461,7 @@ def test_debt_item_creation(db_session):
 
 **Bad**:
 ```bash
-/attune:init  # Jump straight to code
+/attune:project-init  # Jump straight to code
 # Result: Scope creep, unclear requirements, rework
 ```
 
@@ -393,7 +470,7 @@ def test_debt_item_creation(db_session):
 /attune:brainstorm  # Explore problem space
 /attune:specify     # Define requirements
 /attune:plan        # Design architecture
-/attune:init        # Set up project
+/attune:project-init        # Set up project
 /attune:execute     # Implement systematically
 # Result: Clear direction, quality built-in
 ```

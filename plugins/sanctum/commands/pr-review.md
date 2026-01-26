@@ -160,6 +160,54 @@ gh pr view $PR_NUM --json body --jq '.body | length > 0'
 
 **Full workflow details**: See [Workflow Details](pr-review/modules/review-workflow.md)
 
+## War Room Checkpoint (Automatic)
+
+**Purpose**: Assess whether complex PR findings warrant expert deliberation before finalizing verdict.
+
+**Auto-triggers when** (moderate approach):
+- >3 blocking issues identified, OR
+- Architecture changes detected (new services, major refactors), OR
+- ADR non-compliance found, OR
+- Scope-mode=strict with out-of-scope findings requiring judgment
+
+**Checkpoint invocation** (automatic, after Phase 4):
+
+```markdown
+Skill(attune:war-room-checkpoint) with context:
+  source_command: "pr-review"
+  decision_needed: "Review verdict for PR #123"
+  blocking_items: [
+    {type: "blocking", description: "Missing error handling"},
+    {type: "architecture", description: "New service without ADR"},
+    {type: "scope", description: "Unrelated payment refactor"}
+  ]
+  files_affected: [list of changed files]
+  profile: [from user settings, default: "default"]
+```
+
+**War Room Questions** (when escalated):
+- "Should this PR be split into smaller, reviewable chunks?"
+- "Which blocking issues are truly blocking vs. nice-to-have?"
+- "Is the architectural change warranted given the stated scope?"
+
+**Response handling**:
+
+| RS Score | Mode | Action |
+|----------|------|--------|
+| RS <= 0.40 | Express | Quick verdict recommendation, continue immediately |
+| RS 0.41-0.60 | Lightweight | 3-expert panel deliberates on blocking/non-blocking classification |
+| RS > 0.60 | Full Council | Full panel reviews architecture decisions |
+
+**Auto-continue logic**:
+- If confidence > 0.8: Apply War Room's blocking/non-blocking reclassification
+- If confidence <= 0.8: Present findings to user before posting review
+
+**Skip conditions** (checkpoint not invoked):
+- 0 blocking issues (clean PR)
+- All issues are clearly minor (typos, formatting)
+- `--skip-war-room` flag
+- `--dry-run` mode (assessment shown but not posted)
+
 ## Review Classification
 
 Reviews classify findings into:

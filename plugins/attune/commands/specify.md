@@ -337,7 +337,7 @@ Specification follows this template:
       ↓
 /attune:plan          ← Plan architecture
       ↓
-/attune:init          ← Initialize project
+/attune:project-init          ← Initialize project
       ↓
 /attune:execute       ← Implement systematically
 ```

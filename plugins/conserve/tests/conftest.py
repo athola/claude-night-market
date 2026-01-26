@@ -142,7 +142,7 @@ def sample_plugin_json():
             {
                 "name": "token-conservation",
                 "description": "Minimize token usage through conservative prompting",
-                "file": "skills/resource-management/token-conservation/SKILL.md",
+                "file": "skills/token-conservation/SKILL.md",
             },
             {
                 "name": "mcp-code-execution",
@@ -150,9 +150,9 @@ def sample_plugin_json():
                 "file": "skills/mcp-code-execution/SKILL.md",
             },
             {
-                "name": "performance-monitoring",
+                "name": "cpu-gpu-performance",
                 "description": "Monitor CPU/GPU performance and resource usage",
-                "file": "skills/performance-monitoring/cpu-gpu-performance/SKILL.md",
+                "file": "skills/cpu-gpu-performance/SKILL.md",
             },
             {
                 "name": "optimizing-large-skills",
@@ -268,7 +268,7 @@ def temp_skill_dir(tmp_path):
     skill_configs = [
         ("context-optimization", "MECW principles and context management"),
         ("token-conservation", "Token optimization and quota management"),
-        ("performance-monitoring", "Resource usage and performance tracking"),
+        ("cpu-gpu-performance", "Resource usage and performance tracking"),
         ("mcp-code-execution", "MCP pattern optimization"),
         ("optimizing-large-skills", "Large skill optimization patterns"),
     ]

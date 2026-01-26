@@ -7,6 +7,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-01-25
+
+### Fixed - Context Handoff Execution Mode
+
+- **Execution mode propagation** - Context handoffs now preserve `--dangerous` mode
+  - Session state captures execution mode (interactive/unattended/dangerous)
+  - Continuation agents inherit `auto_continue` flag from parent
+  - Batch operations (e.g., `/do-issue 42 43 44 --dangerous`) complete fully
+  - Fixes workflow stopping unexpectedly at 80% context handoffs
+
+- **Updated components**:
+  - `conserve:clear-context` skill - Added execution mode detection and propagation
+  - `conserve:continuation-agent` - Respects execution mode, continues without prompts
+  - `sanctum:do-issue` command - Added `--dangerous` flag documentation
+  - Session state module - Added execution_mode metadata (v1.1)
+
+### Changed - Attune Command Naming
+
+- **Command rename** - `/attune:init` renamed to `/attune:project-init` for consistency with skill naming
+  - Matches the underlying `project-init` skill name
+  - Clearer distinction from `/attune:arch-init`
+
+- **New command** - `/attune:arch-init` now available as documented in README
+  - Previously referenced in docs but command file was missing
+  - Invokes `architecture-aware-init` skill for research-based project setup
+
+### Added - Conserve Context Optimization
+
+- **Fallback context estimation** - `conserve` now gracefully handles missing `CLAUDE_CONTEXT_USAGE` environment variable
+  - Provides alternative estimation methods when native context tracking unavailable
+  - Maintains functionality across different Claude Code versions
+  - Improves robustness of context optimization workflows
+
+- **Batch implementation** - Implemented issues #55-68 for conserve plugin
+  - Multiple enhancements to bloat detection and context optimization
+  - Updated token estimation scripts with better accuracy
+  - Enhanced MCP code execution skills
+
+### Added - Attune War Room Checkpoint
+
+- **War-room-checkpoint skill** - New embedded escalation support for attune
+  - Enables checkpoint creation during war-room sessions
+  - Supports resuming complex troubleshooting workflows
+  - Improves session management for long-running debugging tasks
+
+### Improved - Documentation Quality
+
+- **Token efficiency improvements** - Reduced verbosity across guides and READMEs
+  - Condensed documentation to save tokens while maintaining clarity
+  - Added Table of Contents to 19 skills over 100 lines
+  - Removed AI slop from commands and agents
+  - Improved clarity in all plugin guides
+
+- **Skills infrastructure** - Enhanced skill evaluation and testing
+  - Fixed script paths in skills-eval
+  - Updated PATH to TARGET naming to avoid environment conflicts
+  - Restored frontmatter and version fields across all skills
+
+### Fixed - Dependency Management
+
+- **Optional dependencies** - Moved tiktoken and leyline to optional dependencies
+  - Reduces base installation footprint
+  - Allows selective installation of resource-heavy packages
+  - Improves startup performance for core functionality
+
+- **Tasks manager consolidation** - Differentiated tasks_manager.py per plugin
+  - Each plugin now has its own specialized tasks manager
+  - Better encapsulation of plugin-specific workflow logic
+  - Maintained consistency across implementations
+
+### Improved - Sanctum Git Workflows
+
+- **Module auditing** - Enhanced update-plugins command with module auditing
+  - Validates plugin structure before updates
+  - Detects and reports configuration issues
+  - Improves reliability of bulk plugin operations
+
 ## [1.3.4] - 2026-01-23
 
 ### Analyzed - Claude Code 2.1.16 Compatibility

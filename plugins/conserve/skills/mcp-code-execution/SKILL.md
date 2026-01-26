@@ -19,7 +19,7 @@ progressive_loading: true
 dependencies:
   hub: [context-optimization, token-conservation]
   modules: [mcp-subagents, mcp-patterns, mcp-validation]
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -172,6 +172,12 @@ def synthesize_module_results(module_results):
 **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Module Integration
+
+### Available Modules
+- See `modules/mcp-coordination.md` for cross-module orchestration
+- See `modules/mcp-patterns.md` for common MCP execution patterns
+- See `modules/mcp-subagents.md` for subagent delegation strategies
+- See `modules/mcp-validation.md` for MECW compliance validation
 
 ### With Context Optimization Hub
 - Receives high-level MECW strategy from context-optimization

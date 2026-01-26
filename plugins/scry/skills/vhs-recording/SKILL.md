@@ -17,7 +17,7 @@ progressive_loading: true
 modules:
   - tape-syntax
   - execution
-version: 1.3.4
+version: 1.3.5
 ---
 
 # VHS Recording Skill
@@ -36,6 +36,11 @@ VHS converts declarative tape files into animated GIFs of terminal sessions. Tap
 - Execute VHS recording
 - Verify output GIF creation
 ```
+
+## Module Reference
+
+- See `modules/tape-syntax.md` for VHS tape file directives
+- See `modules/execution.md` for recording workflow details
 
 ## Workflow
 

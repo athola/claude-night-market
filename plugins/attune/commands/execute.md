@@ -76,7 +76,7 @@ Agent(attune:project-implementer)
 
 **Actions**:
 - Load implementation plan
-- Validate project initialized (run /attune:init if needed)
+- Validate project initialized (run /attune:project-init if needed)
 - Check dependencies installed
 - Review task dependency graph
 
@@ -137,7 +137,7 @@ Agent(attune:project-implementer)
 
 ```bash
 /attune:plan
-/attune:init --lang python
+/attune:project-init --lang python
 /attune:execute
 ```
 
@@ -154,7 +154,7 @@ Phase 1: Foundation (10 tasks)
 ─────────────────────────────────────
 
 [✓] TASK-001: Initialize Project Structure
-    ├─ Created project with /attune:init
+    ├─ Created project with /attune:project-init
     ├─ All tests passing
     └─ Duration: 45 minutes
 
@@ -420,7 +420,7 @@ Each task follows this systematic pattern:
       ↓
 /attune:plan          ← Plan architecture and tasks
       ↓
-/attune:init          ← Initialize project structure
+/attune:project-init          ← Initialize project structure
       ↓
 /attune:execute       ← You are here (implement systematically)
 ```
@@ -437,7 +437,7 @@ Before marking task complete, verify:
 ## Related Commands
 
 - `/attune:plan` - Create implementation plan
-- `/attune:init` - Initialize project structure
+- `/attune:project-init` - Initialize project structure
 - `/attune:validate` - Validate project state
 - `/speckit-implement` - Spec-kit implementation workflow (if available)
 

@@ -30,7 +30,7 @@ progressive_loading: true
 dependencies:
   - pensive:shared
   - imbue:evidence-logging
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

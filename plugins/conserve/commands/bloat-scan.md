@@ -116,8 +116,8 @@ Execute progressive bloat detection across code, documentation, and dependencies
    Findings: 24
 
    HIGH PRIORITY (5):
-     - src/deprecated/old_api.py (95/100)
-     - docs/archive/old-guide.md (88/100)
+     - src/deprecated/old_handler.py (95/100)
+     - docs/outdated-migration-guide.md (88/100)
      ...
 
    MEDIUM PRIORITY (11):

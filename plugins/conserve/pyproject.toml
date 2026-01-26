@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "conserve-dev"
-version = "1.3.4"
+version = "1.3.5"
 description = "Development tools for the conserve Claude Code plugin - resource optimization and performance monitoring"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}

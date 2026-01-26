@@ -18,7 +18,7 @@ modules:
   - remediation-strategies
 dependencies:
   - scribe:shared
-version: 1.3.4
+version: 1.3.5
 ---
 
 # AI Slop Detection
@@ -182,6 +182,11 @@ Output format:
 2. Convert bullet list at line 34-56 to prose
 3. Vary sentence structure in paragraphs 3-5
 ```
+
+## Module Reference
+
+- See `modules/fiction-patterns.md` for narrative-specific slop markers
+- See `modules/remediation-strategies.md` for fix recommendations
 
 ## Integration with Remediation
 

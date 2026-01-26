@@ -249,7 +249,7 @@ Loads previous session state from `.attune/brainstorm-session.json`
 ## Next Steps
 1. /attune:specify - Create detailed specification
 2. /attune:plan - Plan architecture and implementation
-3. /attune:init - Initialize project structure
+3. /attune:project-init - Initialize project structure
 ```
 
 ## Session State
@@ -277,7 +277,7 @@ Brainstorm sessions are saved to `.attune/brainstorm-session.json`:
       ↓
 /attune:plan          ← Plan architecture
       ↓
-/attune:init          ← Initialize project
+/attune:project-init          ← Initialize project
       ↓
 /attune:execute       ← Implement systematically
 ```

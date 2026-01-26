@@ -4,7 +4,7 @@ description: Socratic questioning and ideation methodology for project conceptio
 
 Triggers: frameworks, conception, brainstorming, socratic, using
 model_preference: claude-sonnet-4
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -293,7 +293,7 @@ Final output saved to `docs/project-brief.md`:
 ## Next Steps
 1. `/attune:specify` - Create detailed specification
 2. `/attune:plan` - Plan architecture and tasks
-3. `/attune:init` - Initialize project structure
+3. `/attune:project-init` - Initialize project structure
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 

@@ -38,11 +38,16 @@ class TestPluginAuditor:
         assert "./commands/test-modules/module-file.md" not in result["commands"]
 
     def test_scan_disk_files_finds_skills(self, tmp_path: Path) -> None:
-        """Test scanning for skill directories."""
+        """Test scanning for skill directories with valid content."""
         skills_dir = tmp_path / "skills"
         skills_dir.mkdir()
-        (skills_dir / "test-skill").mkdir()
-        (skills_dir / "another-skill").mkdir()
+        # Skills need SKILL.md or root .md files to be recognized
+        test_skill = skills_dir / "test-skill"
+        test_skill.mkdir()
+        (test_skill / "SKILL.md").write_text("# Test Skill")
+        another_skill = skills_dir / "another-skill"
+        another_skill.mkdir()
+        (another_skill / "SKILL.md").write_text("# Another Skill")
         (skills_dir / "__pycache__").mkdir()  # Should be excluded
 
         auditor = PluginAuditor(tmp_path.parent, dry_run=True)
@@ -97,7 +102,9 @@ class TestPluginAuditor:
 
         skills_dir = tmp_path / "skills"
         skills_dir.mkdir()
-        (skills_dir / "real-skill").mkdir()
+        real_skill = skills_dir / "real-skill"
+        real_skill.mkdir()
+        (real_skill / "SKILL.md").write_text("# Real Skill")
 
         # Create cache directories that should be excluded
         # Python caches

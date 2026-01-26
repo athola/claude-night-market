@@ -18,7 +18,7 @@ modules:
 dependencies:
   - scribe:shared
   - scribe:slop-detector
-version: 1.3.4
+version: 1.3.5
 ---
 
 # Documentation Generator
@@ -164,6 +164,11 @@ When editing code comments:
 3. **Use imperative mood** ("Validate input" not "Validates input")
 4. **Brief is better** - remove filler
 5. **Keep Args/Returns structure** if present
+
+## Module Reference
+
+- See `modules/generation-guidelines.md` for content creation patterns
+- See `modules/quality-gates.md` for validation criteria
 
 ## Integration with Other Skills
 

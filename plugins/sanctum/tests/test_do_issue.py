@@ -645,3 +645,235 @@ class TestFixIssueIntegration:
         assert set(result.issues_processed) == {42, 43}
         # Should have at least 2 reviews (one for parallel, one for sequential)
         assert result.reviews_completed >= 1
+
+
+# ==============================================================================
+# War Room Checkpoint Tests
+# ==============================================================================
+
+
+@dataclass
+class WarRoomCheckpointContext:
+    """Context for War Room checkpoint assessment."""
+
+    issues_involved: list[int]
+    files_affected: list[str]
+    has_overlapping_files: bool = False
+    has_dependency_conflicts: bool = False
+    touches_critical_modules: bool = False
+
+
+def should_trigger_war_room_checkpoint(
+    issues: list[Issue],
+    files_per_issue: dict[int, list[str]] | None = None,
+) -> tuple[bool, str]:
+    """
+    Determine if War Room checkpoint should be triggered.
+
+    Uses MODERATE approach:
+    - 3+ issues being implemented, OR
+    - Dependency conflicts detected, OR
+    - Overlapping file changes, OR
+    - Single issue touches critical modules
+
+    Returns (should_trigger, reason).
+    """
+    files_per_issue = files_per_issue or {}
+
+    # Trigger condition 1: 3+ issues
+    if len(issues) >= 3:
+        return True, "multiple_issues"
+
+    # Trigger condition 2: Dependency conflicts
+    _, dependent = analyze_dependencies(issues)
+    if dependent:
+        return True, "dependency_conflicts"
+
+    # Trigger condition 3: Overlapping files
+    if files_per_issue:
+        all_files: list[str] = []
+        for files in files_per_issue.values():
+            all_files.extend(files)
+        if len(all_files) != len(set(all_files)):
+            return True, "overlapping_files"
+
+    # Trigger condition 4: Critical modules
+    critical_patterns = ["auth", "database", "schema", "api/v"]
+    for files in files_per_issue.values():
+        for f in files:
+            if any(pattern in f.lower() for pattern in critical_patterns):
+                return True, "critical_modules"
+
+    return False, "none"
+
+
+class TestWarRoomCheckpointTriggers:
+    """Tests for War Room checkpoint trigger conditions in do-issue."""
+
+    def test_triggers_on_three_or_more_issues(self) -> None:
+        """
+        GIVEN 3+ issues
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'multiple_issues' reason
+        """
+        issues = [
+            Issue(number=42, title="A", body=""),
+            Issue(number=43, title="B", body=""),
+            Issue(number=44, title="C", body=""),
+        ]
+        should_trigger, reason = should_trigger_war_room_checkpoint(issues)
+
+        assert should_trigger is True
+        assert reason == "multiple_issues"
+
+    def test_does_not_trigger_on_two_independent_issues(self) -> None:
+        """
+        GIVEN 2 independent issues with no overlap
+        WHEN evaluating checkpoint trigger
+        THEN returns False
+        """
+        issues = [
+            Issue(number=42, title="A", body=""),
+            Issue(number=43, title="B", body=""),
+        ]
+        files = {42: ["src/a.py"], 43: ["src/b.py"]}
+        should_trigger, reason = should_trigger_war_room_checkpoint(issues, files)
+
+        assert should_trigger is False
+        assert reason == "none"
+
+    def test_triggers_on_dependency_conflicts(self) -> None:
+        """
+        GIVEN issues with dependencies between them
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'dependency_conflicts' reason
+        """
+        issues = [
+            Issue(number=42, title="Base", body=""),
+            Issue(number=43, title="Depends", body="Blocked by #42", dependencies=[42]),
+        ]
+        should_trigger, reason = should_trigger_war_room_checkpoint(issues)
+
+        assert should_trigger is True
+        assert reason == "dependency_conflicts"
+
+    def test_triggers_on_overlapping_files(self) -> None:
+        """
+        GIVEN issues that modify the same files
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'overlapping_files' reason
+        """
+        issues = [
+            Issue(number=42, title="A", body=""),
+            Issue(number=43, title="B", body=""),
+        ]
+        files = {
+            42: ["src/shared.py", "src/a.py"],
+            43: ["src/shared.py", "src/b.py"],  # shared.py overlaps
+        }
+        should_trigger, reason = should_trigger_war_room_checkpoint(issues, files)
+
+        assert should_trigger is True
+        assert reason == "overlapping_files"
+
+    def test_triggers_on_critical_modules(self) -> None:
+        """
+        GIVEN issue touching critical module (auth, database, schema, api)
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'critical_modules' reason
+        """
+        issues = [Issue(number=42, title="Auth change", body="")]
+        files = {42: ["src/auth/middleware.py"]}
+        should_trigger, reason = should_trigger_war_room_checkpoint(issues, files)
+
+        assert should_trigger is True
+        assert reason == "critical_modules"
+
+    def test_triggers_on_database_schema_changes(self) -> None:
+        """
+        GIVEN issue touching database schema
+        WHEN evaluating checkpoint trigger
+        THEN returns True with 'critical_modules' reason
+        """
+        issues = [Issue(number=42, title="Schema update", body="")]
+        files = {42: ["migrations/schema_v2.sql"]}
+        should_trigger, reason = should_trigger_war_room_checkpoint(issues, files)
+
+        assert should_trigger is True
+        assert reason == "critical_modules"
+
+
+class TestDoIssueCommandWarRoomIntegration:
+    """Tests that do-issue command documents War Room checkpoint integration."""
+
+    @pytest.fixture
+    def actual_do_issue_content(self) -> str:
+        """Load actual do-issue.md command content."""
+        cmd_path = Path(__file__).parents[1] / "commands" / "do-issue.md"
+        return cmd_path.read_text()
+
+    def test_command_has_war_room_checkpoint_section(
+        self, actual_do_issue_content: str
+    ) -> None:
+        """
+        GIVEN the actual do-issue.md command
+        WHEN checking for War Room integration
+        THEN has a checkpoint section
+        """
+        assert "War Room Checkpoint" in actual_do_issue_content
+
+    def test_command_documents_trigger_conditions(
+        self, actual_do_issue_content: str
+    ) -> None:
+        """
+        GIVEN the actual do-issue.md command
+        WHEN checking trigger documentation
+        THEN documents the moderate trigger conditions
+        """
+        content_lower = actual_do_issue_content.lower()
+        assert "3+" in actual_do_issue_content or "3 issues" in content_lower
+        assert "dependency" in content_lower
+        assert "overlapping" in content_lower
+
+    def test_command_documents_auto_continue_logic(
+        self, actual_do_issue_content: str
+    ) -> None:
+        """
+        GIVEN the actual do-issue.md command
+        WHEN checking auto-continue documentation
+        THEN documents confidence threshold behavior
+        """
+        assert "confidence" in actual_do_issue_content.lower()
+        assert "0.8" in actual_do_issue_content or "80%" in actual_do_issue_content
+
+    def test_command_documents_skip_conditions(
+        self, actual_do_issue_content: str
+    ) -> None:
+        """
+        GIVEN the actual do-issue.md command
+        WHEN checking skip conditions
+        THEN documents when checkpoint is skipped
+        """
+        content_lower = actual_do_issue_content.lower()
+        assert "skip" in content_lower
+        assert "minor" in content_lower
+
+    def test_command_shows_skill_invocation(self, actual_do_issue_content: str) -> None:
+        """
+        GIVEN the actual do-issue.md command
+        WHEN checking skill invocation
+        THEN shows how to invoke war-room-checkpoint skill
+        """
+        assert "Skill(attune:war-room-checkpoint)" in actual_do_issue_content
+
+    def test_command_documents_rs_score_modes(
+        self, actual_do_issue_content: str
+    ) -> None:
+        """
+        GIVEN the actual do-issue.md command
+        WHEN checking mode documentation
+        THEN documents RS score thresholds and modes
+        """
+        assert "Express" in actual_do_issue_content
+        assert "Lightweight" in actual_do_issue_content
+        assert "Full Council" in actual_do_issue_content

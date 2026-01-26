@@ -18,7 +18,7 @@ modules:
   - modules/git-testing-fixtures.md
   - modules/mock-fixtures.md
   - modules/ci-integration.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -84,6 +84,7 @@ For detailed implementation patterns, see:
 - **[Git Testing Fixtures](modules/git-testing-fixtures.md)** - GitRepository helper class for testing git workflows
 - **[Mock Fixtures](modules/mock-fixtures.md)** - Mock tool fixtures for Bash, TodoWrite, and other Claude Code tools
 - **[CI Integration](modules/ci-integration.md)** - GitHub Actions workflows and test commands for automated testing
+- **Module Index**: See `modules/README.md` for module organization overview
 
 ## Integration with Other Skills
 

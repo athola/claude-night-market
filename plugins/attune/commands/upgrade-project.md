@@ -106,5 +106,5 @@ Check that all configurations are up-to-date.
 
 ## Related Commands
 
-- `/attune:init` - Initialize new project from scratch
+- `/attune:project-init` - Initialize new project from scratch
 - `/attune:validate` - Validate current project setup

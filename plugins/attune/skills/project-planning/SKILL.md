@@ -4,7 +4,7 @@ description: Transform specifications into structured implementation plans with 
 
 Triggers: architecture, project, planning, into, specifications
 model_preference: claude-sonnet-4
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -346,7 +346,7 @@ Save to `docs/implementation-plan.md`:
 ## Next Steps
 
 1. Review plan with team
-2. Initialize project with `/attune:init`
+2. Initialize project with `/attune:project-init`
 3. Start execution with `/attune:execute`
 ```
 

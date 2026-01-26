@@ -17,7 +17,7 @@ Triggers: dogfooder, makefile
   DO NOT use when: creating custom non-standard build systems.
 
   Use this skill BEFORE releasing any plugin to verify Makefile coverage.
-version: 1.3.4
+version: 1.3.5
 author: Claude Skills
 modules: true
 ---

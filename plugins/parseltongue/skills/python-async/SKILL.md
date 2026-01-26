@@ -16,7 +16,7 @@ Triggers: concurrency, coroutines, await, async, asyncio
   DO NOT use when: testing async code - use python-testing async module.
 
   Consult this skill for async Python patterns and concurrency.
-version: 1.3.4
+version: 1.3.5
 category: async
 tags: [python, async, asyncio, concurrency, await, coroutines]
 tools: [async-analyzer, concurrency-checker]
@@ -69,13 +69,13 @@ asyncio.run(main())
 
 This skill uses progressive loading. Content is organized into focused modules:
 
-- **basic-patterns**: Core async/await, gather(), and task management
-- **concurrency-control**: Semaphores and locks for rate limiting
-- **error-handling-timeouts**: Error handling, timeouts, and cancellation
-- **advanced-patterns**: Context managers, iterators, producer-consumer
-- **testing-async**: Testing with pytest-asyncio
-- **real-world-applications**: Web scraping and database operations
-- **pitfalls-best-practices**: Common mistakes and best practices
+- See `modules/basic-patterns.md` - Core async/await, gather(), and task management
+- See `modules/concurrency-control.md` - Semaphores and locks for rate limiting
+- See `modules/error-handling-timeouts.md` - Error handling, timeouts, and cancellation
+- See `modules/advanced-patterns.md` - Context managers, iterators, producer-consumer
+- See `modules/testing-async.md` - Testing with pytest-asyncio
+- See `modules/real-world-applications.md` - Web scraping and database operations
+- See `modules/pitfalls-best-practices.md` - Common mistakes and best practices
 
 Load specific modules based on your needs, or reference all for detailed guidance.
 

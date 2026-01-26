@@ -127,6 +127,7 @@ gh api graphql -f query='...' | jq -r '.data.repository.pullRequest.reviewThread
 1. **GraphQL mutation failed silently** - Check for API errors
 2. **Wrong thread ID used** - Verify using `PRRT_*` format, not numeric comment ID
 3. **Permissions issue** - Token may lack `repo` scope for thread resolution
+4. **Wrong mutation name** - Use `resolveReviewThread` NOT `resolvePullRequestReviewThread` (which doesn't exist)
 
 **Solution:**
 1. Re-run thread resolution with verbose output:
