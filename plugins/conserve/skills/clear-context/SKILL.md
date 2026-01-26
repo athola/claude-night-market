@@ -91,6 +91,8 @@ Before triggering auto-clear, gather:
 
 ### Step 2: Save Session State
 
+**IMPORTANT**: If `.claude/session-state.md` already exists, you MUST Read it first before writing (Claude Code requires reading existing files before overwriting). Create the `.claude/` directory if it doesn't exist.
+
 Write to `.claude/session-state.md` (or `$CONSERVE_SESSION_STATE_PATH`):
 
 ```markdown
