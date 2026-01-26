@@ -163,57 +163,30 @@ benchmark: ## Run performance benchmarks
 		echo "pytest-benchmark not installed (pip install pytest-benchmark)"; \
 	fi
 
-# ---------- Demo/Dogfood Targets ----------
-demo-catchup: ## Demo catchup workflow on this repo's recent changes
-	@echo "=== Imbue Catchup Demo ==="
-	@echo "Demonstrating catchup methodology on recent git history..."
+# ---------- Demo/Dogfood Targets (LIVE) ----------
+demo-catchup: ## Demo catchup workflow (LIVE)
+	@echo "=== Imbue Catchup Demo (LIVE) ==="
 	@echo ""
-	@echo "Step 1: Context - Current branch and status"
-	@git rev-parse --abbrev-ref HEAD
+	@echo "Branch: $$(git rev-parse --abbrev-ref HEAD)"
 	@git log --oneline -5
 	@echo ""
-	@echo "Step 2: Delta - Recent changes"
 	@git diff --stat HEAD~3..HEAD 2>/dev/null || git diff --stat HEAD~1..HEAD
 	@echo ""
-	@echo "Step 3: Insights - Files changed by category"
-	@echo "Skills:   $$(git diff --name-only HEAD~3..HEAD 2>/dev/null | grep -c 'skills/' || echo 0)"
-	@echo "Tests:    $$(git diff --name-only HEAD~3..HEAD 2>/dev/null | grep -c 'test' || echo 0)"
-	@echo "Scripts:  $$(git diff --name-only HEAD~3..HEAD 2>/dev/null | grep -c '\.py$$' || echo 0)"
-	@echo ""
-	@echo "Catchup demo complete. Use /imbue:catchup for full workflow."
+	@echo "Use /imbue:catchup for full workflow."
 
-demo-review: ## Demo review workflow on imbue's own skills
-	@echo "=== Imbue Review Demo ==="
-	@echo "Demonstrating review workflow on imbue skills..."
+demo-validator: ## Demo imbue validator (LIVE)
+	@echo "=== Imbue Validator Demo (LIVE) ==="
 	@echo ""
-	@echo "Step 1: Context - Plugin root and structure"
-	@pwd
-	@echo ""
-	@echo "Step 2: Scope - Skills inventory"
-	@find skills/ -name "SKILL.md" -exec echo "  - {}" \;
-	@echo ""
-	@echo "Step 3: Evidence - Skill frontmatter validation"
+	$(UV_RUN) python scripts/imbue_validator.py --root . --report
+
+demo-skills: ## List imbue skills
+	@echo "=== Imbue Skills ==="
 	@for skill in skills/*/SKILL.md; do \
-		echo "Checking $$skill..."; \
-		head -15 "$$skill" | grep -E '^(name|description|category):' || echo "  (frontmatter incomplete)"; \
+		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		echo "  - $$name"; \
 	done
-	@echo ""
-	@echo "Review demo complete. Use /imbue:review for full workflow."
 
-demo-skills: ## Validate imbue skill structure and content
-	@echo "=== Imbue Skills Demo ==="
-	@echo "Validating skill files..."
-	@for skill in skills/*/SKILL.md; do \
-		echo ""; \
-		echo ">>> $$skill"; \
-		head -1 "$$skill" | grep -q "^---" && echo "  [OK] Has frontmatter" || echo "  [X] Missing frontmatter"; \
-		grep -q "## When to Use" "$$skill" && echo "  [OK] Has usage section" || echo "  [X] Missing usage section"; \
-		wc -l < "$$skill" | xargs -I{} echo "  Lines: {}"; \
-	done
-	@echo ""
-	@echo "Skills validation complete."
-
-plugin-check: demo-catchup demo-review demo-skills ## Run all demo workflows
+plugin-check: demo-catchup demo-validator demo-skills ## Run all live demos
 	@echo ""
 	@echo "=== Imbue Plugin Check Complete ==="
 
