@@ -228,7 +228,7 @@ Sprint 2 (Jan 17-30): GitHub Integration - 12 tasks, 48 points
 - Applies dependency analysis
 - Creates checkpoint-based execution flow
 
-### Phase 5: Initialize (/attune:init)
+### Phase 5: Initialize (/attune:project-init)
 
 **Purpose**: Set up or update project structure with proper tooling and CI/CD
 
@@ -251,7 +251,7 @@ Sprint 2 (Jan 17-30): GitHub Integration - 12 tasks, 48 points
 
 **Example Session**:
 ```bash
-/attune:init --lang python --name tech-debt-tracker
+/attune:project-init --lang python --name tech-debt-tracker
 
 # Creates:
 tech-debt-tracker/
@@ -314,7 +314,7 @@ make test         # Run tests (none yet, but framework ready)
 🚀 Executing Implementation Plan
 
 [✓] TASK-001: Initialize Project Structure (45 min)
-    ├─ Project initialized with /attune:init
+    ├─ Project initialized with /attune:project-init
     ├─ Tests passing: 0 (framework only)
     └─ Status: Complete
 
@@ -381,7 +381,7 @@ def test_debt_item_creation(db_session):
 ### Full Cycle (Recommended for New Projects)
 
 ```bash
-/attune:brainstorm → /attune:war-room → /attune:specify → /attune:plan → /attune:init → /attune:execute
+/attune:brainstorm → /attune:war-room → /attune:specify → /attune:plan → /attune:project-init → /attune:execute
 ```
 
 **Best for**: Greenfield projects, unclear requirements, team projects
@@ -391,7 +391,7 @@ def test_debt_item_creation(db_session):
 ### Quick Start (Skip Early Phases)
 
 ```bash
-/attune:init → /attune:execute
+/attune:project-init → /attune:execute
 ```
 
 **Best for**: Well-understood projects, prototypes, solo development
@@ -399,7 +399,7 @@ def test_debt_item_creation(db_session):
 ### Tooling Update (Existing Projects)
 
 ```bash
-/attune:init  # Detects existing config and offers updates
+/attune:project-init  # Detects existing config and offers updates
 ```
 
 **Best for**: Existing projects needing tooling refresh to current standards
@@ -407,7 +407,7 @@ def test_debt_item_creation(db_session):
 ### Specification-First (Skip Brainstorm)
 
 ```bash
-/attune:specify → /attune:plan → /attune:init → /attune:execute
+/attune:specify → /attune:plan → /attune:project-init → /attune:execute
 ```
 
 **Best for**: Requirements already clear, need planning and execution
@@ -461,7 +461,7 @@ def test_debt_item_creation(db_session):
 
 **Bad**:
 ```bash
-/attune:init  # Jump straight to code
+/attune:project-init  # Jump straight to code
 # Result: Scope creep, unclear requirements, rework
 ```
 
@@ -470,7 +470,7 @@ def test_debt_item_creation(db_session):
 /attune:brainstorm  # Explore problem space
 /attune:specify     # Define requirements
 /attune:plan        # Design architecture
-/attune:init        # Set up project
+/attune:project-init        # Set up project
 /attune:execute     # Implement systematically
 # Result: Clear direction, quality built-in
 ```

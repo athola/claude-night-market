@@ -346,7 +346,7 @@ Save to `docs/implementation-plan.md`:
 ## Next Steps
 
 1. Review plan with team
-2. Initialize project with `/attune:init`
+2. Initialize project with `/attune:project-init`
 3. Start execution with `/attune:execute`
 ```
 

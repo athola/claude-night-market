@@ -198,7 +198,8 @@ plugins/attune/
 │   ├── workflow-setup/         # GitHub Actions setup
 │   └── precommit-setup/        # Pre-commit hooks setup
 ├── commands/
-│   ├── init.md                 # /attune:init
+│   ├── project-init.md         # /attune:project-init
+│   ├── arch-init.md            # /attune:arch-init
 │   ├── upgrade-project.md      # /attune:upgrade-project
 │   └── validate.md             # /attune:validate
 └── README.md
@@ -219,7 +220,7 @@ plugins/attune/
 - Python .gitignore, Makefile, pyproject.toml
 - Pre-commit hooks configuration
 - Test workflow
-- `/attune:init` command
+- `/attune:project-init` command
 
 **Phase 2: Multi-language**
 - Rust templates (Cargo.toml, Makefile)
@@ -281,7 +282,7 @@ plugins/attune/
 1. Create plugin structure (`plugins/attune/`)
 2. Implement template engine with variable substitution
 3. Create Python templates from simple-resume reference
-4. Implement `/attune:init` command
+4. Implement `/attune:project-init` command
 5. Create `project-init` skill for interactive mode
 6. Test on fresh Python project
 7. Iterate based on feedback

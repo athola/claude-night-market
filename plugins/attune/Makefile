@@ -91,11 +91,11 @@ demo-init: ## Demo project initialization workflow
 	done 2>/dev/null || echo "  (no modules found)"
 	@echo ""
 	@echo "Step 3: Commands available"
-	@echo "  /attune:init      - Initialize new project"
+	@echo "  /attune:project-init      - Initialize new project"
 	@echo "  /attune:specify   - Create project specification"
 	@echo "  /attune:plan      - Generate project plan"
 	@echo ""
-	@echo "Init demo complete. Use /attune:init to start a new project."
+	@echo "Init demo complete. Use /attune:project-init to start a new project."
 
 demo-brainstorm: ## Demo brainstorming workflow
 	@echo "=== Attune Brainstorm Demo ==="

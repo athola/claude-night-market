@@ -41,10 +41,10 @@ Standardize project development:
 
 ```bash
 # Interactive mode
-/attune:init
+/attune:project-init
 
 # Language specification
-/attune:init --lang python --name my-project --author "Your Name"
+/attune:project-init --lang python --name my-project --author "Your Name"
 ```
 
 ### Upgrade Existing Project
@@ -68,7 +68,7 @@ Standardize project development:
 | `/attune:arch-init` | **Architecture-aware initialization with research** | 3. Architecture |
 | `/attune:specify` | Create detailed specifications from war-room decision | 4. Specification |
 | `/attune:plan` | Plan architecture and break down into tasks | 5. Planning |
-| `/attune:init` | Initialize or update project structure with tooling | 6. Initialization |
+| `/attune:project-init` | Initialize or update project structure with tooling | 6. Initialization |
 | `/attune:execute` | Execute implementation tasks systematically | 7. Implementation |
 
 **War Room Integration**: The war-room is a **mandatory phase** after brainstorming. It automatically routes to the appropriate deliberation intensity based on Reversibility Score (RS):
@@ -162,7 +162,7 @@ Templates are based on proven patterns from reference projects:
 # Output: docs/implementation-plan.md with architecture and tasks
 
 # 5. Initialize or update project
-/attune:init --lang python
+/attune:project-init --lang python
 
 # Output: Complete project structure with tooling
 # Note: For existing projects, detects and offers to update configurations

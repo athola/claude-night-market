@@ -453,6 +453,7 @@ Ensure PR body contains "Fixes #ISSUE_NUMBER" for auto-close on merge.
 | `--parallel` | Force parallel execution for multiple issues |
 | `--no-review` | Skip code review between tasks (not recommended) |
 | `--close` | Automatically close issues when implemented |
+| `--dangerous` | Continue execution without pauses (batch mode, auto-continue on handoffs) |
 
 ## Multiple Issues
 
@@ -470,6 +471,33 @@ The workflow:
    - Dependent issues run sequentially
 4. **Executes with code review** between batches
 5. **Creates single PR** (or multiple if needed)
+
+### Execution Mode for Batch Processing
+
+When processing multiple issues, especially with `--dangerous` flag:
+
+```bash
+/do-issue 42 43 44 --dangerous
+```
+
+**Execution mode is automatically set to**:
+```json
+{
+  "mode": "unattended",
+  "auto_continue": true,
+  "source_command": "do-issue",
+  "remaining_tasks": ["#43", "#44"],
+  "dangerous_mode": true
+}
+```
+
+**Context Handoff Behavior**:
+- If context reaches 80%, session state is saved with execution mode
+- Continuation agent inherits `auto_continue: true`
+- Processing continues WITHOUT pausing for user confirmation
+- Only stops when ALL issues are complete or on error
+
+This ensures batch operations complete fully even across multiple context handoffs.
 
 ### Example Multi-Issue Execution
 

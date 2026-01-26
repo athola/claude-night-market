@@ -72,7 +72,7 @@ Skill(attune:project-planning)
 #    - Includes architecture + task breakdown
 
 # 5. Transition to initialization/execution
-#    Next: /attune:init (set up project)
+#    Next: /attune:project-init (set up project)
 #    Then: /attune:execute (implement tasks)
 ```
 
@@ -244,7 +244,7 @@ Three-tier architecture:
 - [ ] Makefile with dev targets
 
 **Technical Notes**:
-- Use /attune:init for project setup
+- Use /attune:project-init for project setup
 - Configure monorepo structure (backend/, frontend/)
 - Set up shared Makefile targets
 
@@ -329,7 +329,7 @@ TASK-001 (Init)
 ## Next Steps
 
 1. **Review plan**: Team walkthrough and adjustments
-2. **Initialize project**: Run `/attune:init --lang python`
+2. **Initialize project**: Run `/attune:project-init --lang python`
 3. **Start Sprint 1**: Execute TASK-001 through TASK-010
 4. **Track progress**: Use `/attune:execute` for systematic implementation
 ```
@@ -381,7 +381,7 @@ class DebtItem(Base):
       ↓
 /attune:plan          ← You are here
       ↓
-/attune:init          ← Initialize project structure
+/attune:project-init          ← Initialize project structure
       ↓
 /attune:execute       ← Implement tasks systematically
 ```
@@ -398,7 +398,7 @@ The planning skill automatically validates:
 ## Related Commands
 
 - `/attune:specify` - Create specification
-- `/attune:init` - Initialize project from plan
+- `/attune:project-init` - Initialize project from plan
 - `/attune:execute` - Execute implementation tasks
 - `/speckit-plan` - Spec-kit's planning workflow (if available)
 - `/speckit-tasks` - Spec-kit's task generation (if available)

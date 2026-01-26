@@ -53,13 +53,37 @@ class ArchitectureRecommendation:
     secondary: str = ""
     rationale: str = ""
     confidence: str = "medium"
+    trade_offs: dict[str, str] | None = None
+    alternatives: list[dict[str, str]] | None = None
+
+
+def parse_project_context(context_data: dict[str, str]) -> ProjectContext:
+    """Parse context dictionary into ProjectContext object.
+
+    Args:
+        context_data: Dictionary with project context fields
+
+    Returns:
+        ProjectContext instance
+
+    """
+    return ProjectContext(
+        project_type=context_data.get("project_type", "web-api"),
+        domain_complexity=context_data.get("domain_complexity", "moderate"),
+        team_size=context_data.get("team_size", "5-15"),
+        team_experience=context_data.get("team_experience", "mixed"),
+        language=context_data.get("language", "python"),
+        scalability_needs=context_data.get("scalability_needs", "moderate"),
+        security_requirements=context_data.get("security_requirements", "standard"),
+    )
 
 
 class ArchitectureResearcher:
     """Research and recommend architectures based on project context."""
 
-    def __init__(self) -> None:
+    def __init__(self, context: ProjectContext) -> None:
         """Initialize architecture researcher."""
+        self.context = context
         # Load decision matrix from YAML instead of embedding in code
         matrix_data = load_decision_matrix()
         self.PARADIGM_MATRIX = matrix_data["matrix"]
@@ -84,10 +108,6 @@ class ArchitectureResearcher:
         secondary = base_rec["secondary"]
 
         # Apply project type modifiers (if defined in YAML)
-        # NOTE: Modifier application is intentionally simple - the YAML matrix
-        # already encodes most project-type-specific recommendations. These
-        # modifiers provide optional overrides for edge cases not captured
-        # in the primary matrix lookup.
         if context.project_type in self.project_type_modifiers:
             modifiers = self.project_type_modifiers[context.project_type]
             if "preferred_paradigm" in modifiers:
@@ -96,16 +116,12 @@ class ArchitectureResearcher:
                 secondary = modifiers["fallback_paradigm"]
 
         # Apply scalability modifiers for high-scale requirements
-        # NOTE: Scalability modifiers only apply when needs exceed "moderate".
-        # The base matrix assumes moderate scalability; these modifiers
-        # promote patterns better suited for high-throughput scenarios.
         if context.scalability_needs in self.scalability_modifiers:
             modifiers = self.scalability_modifiers[context.scalability_needs]
             if (
                 "promote_patterns" in modifiers
                 and primary not in modifiers["promote_patterns"]
             ):
-                # Suggest promoted pattern as alternative if not already primary
                 if modifiers["promote_patterns"]:
                     secondary = modifiers["promote_patterns"][0]
 
@@ -117,7 +133,51 @@ class ArchitectureResearcher:
             confidence="high",
         )
 
-    # ... rest of the class implementation ...
+    def generate_search_queries(self) -> list[str]:
+        """Generate search queries for online research."""
+        return [
+            "architecture patterns best practices 2026",
+            "software architecture decision framework",
+        ]
+
+    def recommend_paradigm(
+        self, _research_findings: dict[str, str]
+    ) -> ArchitectureRecommendation:
+        """Recommend paradigm incorporating research findings."""
+        # For now, delegate to basic recommend (research integration is future work)
+        return self.recommend(self.context)
+
+    def _build_recommendation(
+        self,
+        paradigm: str,
+        secondary: str,
+        rationale: str,
+        _research_findings: dict[str, str],
+    ) -> ArchitectureRecommendation:
+        """Build recommendation with given parameters."""
+        return ArchitectureRecommendation(
+            paradigm=paradigm,
+            primary=paradigm,
+            secondary=secondary,
+            rationale=rationale,
+            confidence="high",
+        )
+
+    def save_research_session(self, output_path: Path) -> None:
+        """Save research session to JSON file."""
+        import json
+
+        session_data = {
+            "context": {
+                "project_type": self.context.project_type,
+                "domain_complexity": self.context.domain_complexity,
+                "team_size": self.context.team_size,
+                "language": self.context.language,
+            },
+            "queries": self.generate_search_queries(),
+        }
+
+        output_path.write_text(json.dumps(session_data, indent=2))
 
 
 def main() -> None:
@@ -134,7 +194,7 @@ def main() -> None:
         domain_complexity=args.complexity,
     )
 
-    researcher = ArchitectureResearcher()
+    researcher = ArchitectureResearcher(context)
     recommendation = researcher.recommend(context)
     print(f"Recommended: {recommendation.primary}")
     if recommendation.secondary:

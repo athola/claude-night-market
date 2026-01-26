@@ -227,9 +227,9 @@ for step in ["analyze", "triage", "plan", "fix", "validate", "complete"]:
 
 ## Mandatory Exit Gate
 
-**⛔ CRITICAL: The workflow is NOT complete until this gate passes.**
+**⛔ CRITICAL: The workflow is NOT complete until BOTH gates pass.**
 
-Before reporting completion, you MUST run this verification:
+### Gate 1: Thread Resolution
 
 ```bash
 # Get PR info
@@ -251,15 +251,59 @@ query {
 }" --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
 
 if [[ "$UNRESOLVED" -gt 0 ]]; then
-  echo "❌ EXIT GATE FAILED: $UNRESOLVED unresolved threads"
-  echo "Run Step 6 (Complete) before reporting workflow complete"
+  echo "❌ GATE 1 FAILED: $UNRESOLVED unresolved threads"
   exit 1
 else
-  echo "✓ EXIT GATE PASSED: All threads resolved"
+  echo "✓ GATE 1 PASSED: All threads resolved"
 fi
 ```
 
-**This gate is NOT optional.** If threads remain unresolved:
+### Gate 2: Issue Tracking Verification (NEW)
+
+**Every review item must be either FIXED or have a GitHub ISSUE created.**
+
+Before completing, verify the triage reconciliation:
+
+```markdown
+## Issue Tracking Checklist (MANDATORY)
+
+For EACH item from triage (Step 2), confirm ONE of:
+- [ ] **Fixed**: Code change applied and committed
+- [ ] **Issue Created**: GitHub issue number recorded (e.g., #45)
+- [ ] **Skipped (justified)**: Informational/praise only - no action needed
+
+| Triage ID | Category | Disposition | Evidence |
+|-----------|----------|-------------|----------|
+| C1 | Critical | Fixed | commit abc123 |
+| S1 | Suggestion | Issue #45 | gh issue view 45 |
+| S2 | Suggestion | Fixed | commit abc123 |
+| D1 | Deferred | Issue #46 | gh issue view 46 |
+| I1 | Informational | Skipped | No action needed |
+
+**⛔ GATE 2 FAILS if any row has empty "Disposition" or "Evidence"**
+```
+
+**Automatic verification** (run after populating table):
+```bash
+# Verify issues were actually created for deferred/suggestion items
+# This should match the count from your triage
+
+# Count issues created today referencing this PR
+ISSUES_CREATED=$(gh issue list --search "PR #$PR_NUM in:body" --json number --jq 'length')
+echo "Issues created referencing PR #$PR_NUM: $ISSUES_CREATED"
+
+# If triage had N suggestion/deferred items, ISSUES_CREATED should be >= N
+# (unless they were all fixed directly)
+```
+
+### Gate 3: Summary Posted
+
+The PR summary comment (Step 6.5) must include:
+- All fixed items with commit references
+- All created issues with issue numbers
+- Explicit "None" if no suggestions/deferred items
+
+**This gate is NOT optional.** If any gate fails:
 1. Execute [Step 6: Complete](fix-pr-modules/steps/6-complete.md)
 2. Reply to each thread with fix description
 3. Resolve each thread via GraphQL

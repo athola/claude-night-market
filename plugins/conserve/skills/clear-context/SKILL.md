@@ -98,6 +98,17 @@ Write to `.claude/session-state.md` (or `$CONSERVE_SESSION_STATE_PATH`):
 Generated: [timestamp]
 Reason: Context threshold exceeded (80%+)
 
+## Execution Mode
+
+**Mode**: [unattended | interactive | dangerous]
+**Auto-Continue**: [true | false]
+**Source Command**: [do-issue | execute-plan | etc.]
+**Remaining Tasks**: [list of pending items]
+
+> **CRITICAL**: If `auto_continue: true` or mode is `dangerous`/`unattended`,
+> the continuation agent MUST NOT pause for user confirmation.
+> Continue executing all remaining tasks until completion.
+
 ## Current Task
 [What we're trying to accomplish]
 
@@ -120,20 +131,77 @@ Reason: Context threshold exceeded (80%+)
 [Specific next steps for the continuation agent]
 ```
 
+**Execution Mode Detection**:
+
+Before writing state, detect the execution mode:
+
+```python
+# Detect execution mode from environment/context
+execution_mode = {
+    "mode": "interactive",  # default
+    "auto_continue": False,
+    "source_command": None,
+    "remaining_tasks": [],
+    "dangerous_mode": False
+}
+
+# Check for dangerous/unattended mode indicators
+if os.environ.get("CLAUDE_DANGEROUS_MODE") == "1":
+    execution_mode["mode"] = "dangerous"
+    execution_mode["auto_continue"] = True
+    execution_mode["dangerous_mode"] = True
+elif os.environ.get("CLAUDE_UNATTENDED") == "1":
+    execution_mode["mode"] = "unattended"
+    execution_mode["auto_continue"] = True
+
+# Inherit from parent session state if exists
+if parent_state and parent_state.get("execution_mode"):
+    execution_mode = parent_state["execution_mode"]
+```
+
 ### Step 3: Spawn Continuation Agent
 
-Use the Task tool to delegate:
+Use the Task tool to delegate. **CRITICAL**: Include execution mode in the task prompt:
 
 ```
 Task: Continue the work from session checkpoint
 
 Instructions:
 1. Read .claude/session-state.md for full context
-2. Verify understanding of current task and progress
-3. Continue from where the previous agent left off
-4. If you also approach 80% context, repeat this handoff process
+2. Check the "Execution Mode" section FIRST
+3. If `auto_continue: true` or mode is `dangerous`/`unattended`:
+   - DO NOT pause for user confirmation
+   - Continue executing ALL remaining tasks until completion
+   - Only stop on actual errors or when all work is done
+4. Verify understanding of current task and progress
+5. Continue from where the previous agent left off
+6. If you also approach 80% context, repeat this handoff process
+   - PRESERVE the execution mode when creating your own checkpoint
 
 The session state file contains all necessary context to continue without interruption.
+
+**EXECUTION MODE INHERITANCE**: You MUST inherit and propagate the execution
+mode from the session state. If the parent was in dangerous/unattended mode,
+you are also in that mode. Do not ask the user for confirmation.
+```
+
+**For batch/multi-issue workflows** (e.g., `/do-issue 42 43 44`):
+
+```
+Task: Continue batch processing from session checkpoint
+
+Instructions:
+1. Read .claude/session-state.md for full context
+2. EXECUTION MODE: This is a batch operation with auto_continue=true
+3. Process ALL remaining tasks in the queue:
+   - Remaining: [issue #43, issue #44]
+4. DO NOT stop between tasks - continue until all are complete
+5. If you hit 80% context, hand off with the same execution mode
+6. Only pause for:
+   - Actual errors requiring human judgment
+   - Completion of ALL tasks
+
+This is an unattended batch operation. Continue without user prompts.
 ```
 
 ### Step 4: Graceful Exit

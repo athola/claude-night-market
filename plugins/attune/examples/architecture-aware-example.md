@@ -436,10 +436,10 @@ transaction-api/
 
 ## Comparison: Traditional vs Architecture-Aware
 
-### Traditional Init (`/attune:init`)
+### Traditional Init (`/attune:project-init`)
 
 ```bash
-/attune:init --name transaction-api --lang python
+/attune:project-init --name transaction-api --lang python
 ```
 
 **Result**: Generic Python project structure

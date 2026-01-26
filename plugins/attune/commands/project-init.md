@@ -1,10 +1,10 @@
 ---
-name: init
+name: project-init
 description: Initialize or update project with git, workflows, hooks, and Makefiles
-usage: /attune:init [--lang python|rust|typescript] [--name NAME]
+usage: /attune:project-init [--lang python|rust|typescript] [--name NAME]
 ---
 
-# Attune Init Command
+# Attune Project Init Command
 
 <identification>
 triggers: init project, initialize project, new project, project setup, update tooling
@@ -22,13 +22,13 @@ Initialize or update a project with complete development infrastructure.
 
 ```bash
 # Interactive mode (recommended)
-/attune:init
+/attune:project-init
 
 # Specify language
-/attune:init --lang python
+/attune:project-init --lang python
 
 # Full specification
-/attune:init --lang python --name my-project --author "Your Name"
+/attune:project-init --lang python --name my-project --author "Your Name"
 ```
 
 ## What This Command Does
@@ -110,7 +110,7 @@ When no arguments provided, the skill guides you through:
 ### Example 1: New Python CLI Project
 
 ```bash
-/attune:init --lang python --name awesome-cli --description "An awesome CLI tool"
+/attune:project-init --lang python --name awesome-cli --description "An awesome CLI tool"
 ```
 
 Creates:
@@ -138,7 +138,7 @@ awesome-cli/
 
 ```bash
 cd my-existing-project
-/attune:init --lang python
+/attune:project-init --lang python
 ```
 
 Prompts:
@@ -153,7 +153,7 @@ File exists: Makefile. Overwrite? [y/N]: y
 ### Example 3: Force Overwrite All Files
 
 ```bash
-/attune:init --lang python --force
+/attune:project-init --lang python --force
 ```
 
 Overwrites all existing files without prompting.
@@ -179,7 +179,7 @@ make help
 ```bash
 # Initialize manually
 git init
-/attune:init --lang python
+/attune:project-init --lang python
 ```
 
 **Permission denied on scripts**:

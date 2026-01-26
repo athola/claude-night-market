@@ -57,7 +57,7 @@ class ProjectValidator:
                 ValidationResult(
                     "gitignore",
                     False,
-                    ".gitignore missing (run: /attune:init or /attune:upgrade-project)",
+                    ".gitignore missing (run: /attune:project-init or /attune:upgrade-project)",
                     "git",
                 )
             )

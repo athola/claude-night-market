@@ -46,14 +46,37 @@ Read ${CONSERVE_SESSION_STATE_PATH:-.claude/session-state.md}
 
 ## After Reading State
 
-1. **Acknowledge** the handoff by summarizing:
+1. **CHECK EXECUTION MODE FIRST** (before anything else):
+   - Look for the "Execution Mode" section
+   - If `auto_continue: true` or mode is `dangerous`/`unattended`:
+     - **DO NOT** pause for user confirmation
+     - **DO NOT** ask "should I continue?"
+     - **CONTINUE** executing until ALL tasks are complete
+   - This is NON-NEGOTIABLE for batch operations
+
+2. **Acknowledge** the handoff by summarizing:
    - The objective
    - Progress so far
+   - **Execution mode** (interactive/unattended/dangerous)
    - Your immediate next step
 
-2. **Re-read** any files listed in "Context to Re-read"
+3. **Re-read** any files listed in "Context to Re-read"
 
-3. **Continue** from the "Immediate Next Step"
+4. **Continue** from the "Immediate Next Step"
+
+## Execution Mode Behavior
+
+| Mode | Behavior |
+|------|----------|
+| `interactive` | Normal operation, may pause for user input |
+| `unattended` | Continue without prompts, log all decisions |
+| `dangerous` | Continue without prompts, skip permission checks |
+
+**CRITICAL**: When in `unattended` or `dangerous` mode:
+- Process ALL remaining tasks in the queue
+- Only stop for actual errors requiring human judgment
+- Only stop when ALL work is complete
+- Propagate the same mode to any further handoffs
 
 ## Context Awareness
 
@@ -70,9 +93,11 @@ This creates a chain of continuation agents for very long tasks.
 When you're the continuation agent:
 
 1. **Read state file first** - This is your source of truth
-2. **Don't re-do completed work** - Trust the progress summary
-3. **Document your own progress** - Update state file at checkpoints
-4. **Maintain handoff count** - Increment metadata.handoff_count
+2. **Check execution mode** - Determines if you pause or continue automatically
+3. **Don't re-do completed work** - Trust the progress summary
+4. **Document your own progress** - Update state file at checkpoints
+5. **Maintain handoff count** - Increment metadata.handoff_count
+6. **Preserve execution mode** - When you hand off, pass the same mode
 
 ## Example Workflow
 
@@ -112,8 +137,14 @@ When the task is complete:
 
 1. **Mark all success criteria as done**
 2. **Update the state file** with completion status
-3. **Clean up** - Note that state file can be archived or deleted
-4. **Report completion** to the user
+3. **Check for remaining tasks** in execution_mode.remaining_tasks:
+   - If tasks remain AND auto_continue is true: **continue to next task**
+   - If no tasks remain: proceed to cleanup
+4. **Clean up** - Note that state file can be archived or deleted
+5. **Report completion** to the user
+
+**Batch Mode Completion**: Only report "complete" when ALL tasks in
+`remaining_tasks` have been processed, not after each individual task.
 
 ## Error Handling
 

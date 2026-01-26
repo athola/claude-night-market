@@ -110,15 +110,54 @@ export CONSERVE_SESSION_STATE_PATH="/tmp/my-session-state.md"
 
 ---
 
+## Execution Mode
+
+**CRITICAL**: Capture and propagate execution mode for unattended workflows.
+
+```markdown
+## Execution Mode
+
+**Mode**: [unattended | interactive | dangerous]
+**Auto-Continue**: [true | false]
+**Source Command**: [do-issue | execute-plan | batch-process | etc.]
+**Remaining Tasks**: [list of pending task IDs or issue numbers]
+
+### Flags Inherited
+- `--dangerous`: Continue executing without user prompts
+- `--no-confirm`: Skip confirmation dialogs
+- `--batch`: Processing multiple items
+```
+
+| Mode | Behavior | Use Case |
+|------|----------|----------|
+| `interactive` | Pause at checkpoints, ask user | Normal development |
+| `unattended` | Continue automatically, log decisions | CI/CD, batch processing |
+| `dangerous` | Like unattended + skip permissions | Fully automated pipelines |
+
+**Detection**: Check environment variables and session context:
+- `CLAUDE_DANGEROUS_MODE=1` → dangerous mode
+- `CLAUDE_UNATTENDED=1` → unattended mode
+- Presence of `--dangerous` in original command → dangerous mode
+- Multiple issues/tasks in queue → likely batch mode
+
+---
+
 ## Metadata
 
 ```json
 {
-  "checkpoint_version": "1.0",
+  "checkpoint_version": "1.1",
   "parent_session_id": null,
   "handoff_count": 0,
   "estimated_remaining_work": "medium",
-  "priority": "high"
+  "priority": "high",
+  "execution_mode": {
+    "mode": "interactive",
+    "auto_continue": false,
+    "source_command": null,
+    "remaining_tasks": [],
+    "dangerous_mode": false
+  }
 }
 ```
 ```

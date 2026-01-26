@@ -218,9 +218,9 @@ After running `/attune:arch-init`, you get:
 5. **Research Session**: JSON with context and queries
 6. **Next Steps**: Links to paradigm skill
 
-## Compared to /attune:init
+## Compared to /attune:project-init
 
-| Feature | `/attune:init` | `/attune:arch-init` |
+| Feature | `/attune:project-init` | `/attune:arch-init` |
 |---------|---------------|---------------------|
 | Language Selection | ✅ | ✅ |
 | Base Templates | ✅ | ✅ |
@@ -232,7 +232,7 @@ After running `/attune:arch-init`, you get:
 | ADR Generation | ❌ | ✅ |
 
 **When to use**:
-- `/attune:init`: When architecture is already decided
+- `/attune:project-init`: When architecture is already decided
 - `/attune:arch-init`: When you need architecture guidance
 
 ## Available Paradigms
@@ -309,6 +309,5 @@ Each example includes:
 ## See Also
 
 - [Architecture-Aware Init Skill](../skills/architecture-aware-init/SKILL.md)
-- [Command Reference](../commands/attune:arch-init)
 - [Archetypes Plugin](../../archetypes/README.md)
 - [Project Brainstorming](brainstorm-attune-plugin.md)

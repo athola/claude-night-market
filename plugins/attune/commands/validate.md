@@ -145,5 +145,5 @@ jobs:
 
 ## Related Commands
 
-- `/attune:init` - Initialize new project
+- `/attune:project-init` - Initialize new project
 - `/attune:upgrade-project` - Fix validation issues automatically

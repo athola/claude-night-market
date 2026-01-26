@@ -158,7 +158,7 @@ make help
 
 ```
 **Verification:** Run `pytest -v` to verify tests pass.
-User: /attune:init
+User: /attune:project-init
 ## Troubleshooting
 
 ### Common Issues

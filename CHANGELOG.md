@@ -7,7 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - Context Handoff Execution Mode
+
+- **Execution mode propagation** - Context handoffs now preserve `--dangerous` mode
+  - Session state captures execution mode (interactive/unattended/dangerous)
+  - Continuation agents inherit `auto_continue` flag from parent
+  - Batch operations (e.g., `/do-issue 42 43 44 --dangerous`) complete fully
+  - Fixes workflow stopping unexpectedly at 80% context handoffs
+
+- **Updated components**:
+  - `conserve:clear-context` skill - Added execution mode detection and propagation
+  - `conserve:continuation-agent` - Respects execution mode, continues without prompts
+  - `sanctum:do-issue` command - Added `--dangerous` flag documentation
+  - Session state module - Added execution_mode metadata (v1.1)
+
 ## [1.3.5] - 2026-01-25
+
+### Changed - Attune Command Naming
+
+- **Command rename** - `/attune:init` renamed to `/attune:project-init` for consistency with skill naming
+  - Matches the underlying `project-init` skill name
+  - Clearer distinction from `/attune:arch-init`
+
+- **New command** - `/attune:arch-init` now available as documented in README
+  - Previously referenced in docs but command file was missing
+  - Invokes `architecture-aware-init` skill for research-based project setup
 
 ### Added - Conserve Context Optimization
 

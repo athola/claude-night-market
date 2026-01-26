@@ -125,7 +125,38 @@ fi
 - [ ] Re-read ALL review comments - find suggestions not captured at triage time.
 - [ ] Ensure EVERY non-worked-on item has a GitHub issue created in 6.1/6.2.
 
-**Output:** Complete list of all items requiring issues (triage items + newly-discovered review suggestions).
+**⛔ MANDATORY OUTPUT FORMAT (Machine-Checkable):**
+
+You MUST produce this reconciliation table. Empty tables or missing rows = workflow failure.
+
+```markdown
+## Reconciliation Table
+
+| ID | Category | Description | Disposition | Evidence |
+|----|----------|-------------|-------------|----------|
+| C1 | Critical | [from triage] | Fixed | commit SHA |
+| C2 | Critical | [from triage] | Fixed | commit SHA |
+| S1 | In-Scope | [from triage] | Fixed | commit SHA |
+| S2 | Suggestion | [from triage] | Issue #NN | link |
+| S3 | Suggestion | [discovered in review] | Fixed | commit SHA |
+| D1 | Deferred | [from triage] | Issue #NN | link |
+| I1 | Informational | [praise/question] | Skipped | N/A |
+
+### Summary
+- **Fixed**: N items (commit refs: abc123, def456)
+- **Issues Created**: N items (issue refs: #45, #46, #47)
+- **Skipped**: N items (informational only)
+- **UNACCOUNTED**: 0 items ← MUST BE ZERO
+
+⛔ If UNACCOUNTED > 0, STOP and address before proceeding.
+```
+
+**Disposition values (ONLY these are valid):**
+- `Fixed` - Code change applied, requires commit SHA
+- `Issue #NN` - GitHub issue created, requires issue number
+- `Skipped` - Informational/praise only, no action needed
+
+**VALIDATION RULE**: Every row from Step 2 triage MUST appear here. Missing rows = incomplete reconciliation.
 
 ---
 
@@ -603,6 +634,37 @@ Skill(sanctum:resolve-threads)
 This validates any threads missed during Step 6.3 are resolved via batch operation.
 
 **Step 6 Output**: All threads resolved, issues created, summary posted
+
+---
+
+## ⛔ FINAL WORKFLOW GATE (Run Before Reporting Complete)
+
+**ALL THREE conditions must be true:**
+
+```bash
+# === GATE 1: Thread Resolution ===
+UNRESOLVED=$(gh api graphql -f query="..." --jq '...' )
+[[ "$UNRESOLVED" -eq 0 ]] && echo "✓ Gate 1: Threads" || echo "❌ Gate 1 FAILED"
+
+# === GATE 2: Reconciliation Complete ===
+# Verify reconciliation table has no UNACCOUNTED items
+# This is a manual check - review your reconciliation table above
+echo "Gate 2: Verify UNACCOUNTED = 0 in reconciliation table"
+
+# === GATE 3: Issues Created ===
+# Count issues created that reference this PR
+ISSUES=$(gh issue list --search "PR #$PR_NUM in:body created:>=today" --json number --jq 'length')
+echo "Issues created today referencing PR: $ISSUES"
+# Compare against Suggestion + Deferred count from triage
+```
+
+**Workflow completion checklist:**
+- [ ] Gate 1: 0 unresolved threads
+- [ ] Gate 2: Reconciliation table complete, UNACCOUNTED = 0
+- [ ] Gate 3: Issues created match Suggestion + Deferred count (or all were fixed)
+- [ ] Summary comment posted with all evidence
+
+**⛔ DO NOT report "/fix-pr complete" until all gates pass.**
 
 ---
 
