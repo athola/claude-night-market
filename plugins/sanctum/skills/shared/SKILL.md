@@ -20,7 +20,7 @@ provides:
   infrastructure: [todowrite-patterns, git-commands, output-templates]
 reusable_by: [all sanctum skills]
 estimated_tokens: 200
-version: 1.3.4
+version: 1.3.5
 ---
 
 # Shared Infrastructure for Sanctum

@@ -8,7 +8,7 @@ Triggers: serverless, cost-optimization, architecture, faas, event-driven
   Triggers: serverless, FaaS, Lambda, event-driven, pay-per-use
   Use when: workloads are event-driven with bursty traffic
   DO NOT use when: long-running processes or stateful operations required.
-version: 1.3.4
+version: 1.3.5
 category: architectural-pattern
 tags: [architecture, serverless, faas, event-driven, cost-optimization]
 dependencies: []

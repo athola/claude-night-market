@@ -32,7 +32,7 @@ references:
   - leyline/skills/error-patterns/SKILL.md
   - leyline/skills/authentication-patterns/SKILL.md
   - leyline/skills/service-registry/SKILL.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

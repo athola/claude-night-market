@@ -12,7 +12,7 @@ tags: [anti-sycophancy, critical-thinking, intellectual-honesty, debate, analysi
 dependencies:
   - imbue:evidence-logging
 tools: []
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

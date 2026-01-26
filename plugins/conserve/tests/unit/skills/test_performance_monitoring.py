@@ -49,7 +49,7 @@ class TestPerformanceMonitoringSkill:
         """Mock performance monitoring skill content with required components."""
         return """---
 
-name: performance-monitoring
+name: cpu-gpu-performance
 description: |
   Monitor CPU/GPU performance and resource usage to identify
   bottlenecks and optimization opportunities.
@@ -76,11 +76,11 @@ tags:
 
 ## TodoWrite Items
 
-- `performance-monitoring:metrics-collection`
-- `performance-monitoring:threshold-analysis`
-- `performance-monitoring:alert-evaluation`
-- `performance-monitoring:optimization-recommendations`
-- `performance-monitoring:trend-analysis`
+- `cpu-gpu-performance:baseline`
+- `cpu-gpu-performance:scope`
+- `cpu-gpu-performance:instrument`
+- `cpu-gpu-performance:throttle`
+- `cpu-gpu-performance:log`
 
 ## Monitoring Metrics
 
@@ -108,42 +108,42 @@ tags:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_performance_monitoring_creates_required_todowrite_items(
+    def test_cpu_gpu_performance_creates_required_todowrite_items(
         self,
         mock_todo_write,
     ) -> None:
-        """Scenario: Performance monitoring creates required TodoWrite items.
+        """Scenario: CPU/GPU performance creates required TodoWrite items.
 
-        Given the performance-monitoring skill is executed
+        Given the cpu-gpu-performance skill is executed
         When establishing the monitoring workflow
         Then it should create all 5 required TodoWrite items
         And each item should have proper naming convention.
         """
         # Arrange
         expected_items = [
-            "performance-monitoring:metrics-collection",
-            "performance-monitoring:threshold-analysis",
-            "performance-monitoring:alert-evaluation",
-            "performance-monitoring:optimization-recommendations",
-            "performance-monitoring:trend-analysis",
+            "cpu-gpu-performance:baseline",
+            "cpu-gpu-performance:scope",
+            "cpu-gpu-performance:instrument",
+            "cpu-gpu-performance:throttle",
+            "cpu-gpu-performance:log",
         ]
 
-        # Act - simulate performance-monitoring skill execution
-        performance_monitoring_items = [
-            "performance-monitoring:metrics-collection",
-            "performance-monitoring:threshold-analysis",
-            "performance-monitoring:alert-evaluation",
-            "performance-monitoring:optimization-recommendations",
-            "performance-monitoring:trend-analysis",
+        # Act - simulate cpu-gpu-performance skill execution
+        cpu_gpu_performance_items = [
+            "cpu-gpu-performance:baseline",
+            "cpu-gpu-performance:scope",
+            "cpu-gpu-performance:instrument",
+            "cpu-gpu-performance:throttle",
+            "cpu-gpu-performance:log",
         ]
 
         # Assert
-        assert len(performance_monitoring_items) == FIVE
+        assert len(cpu_gpu_performance_items) == FIVE
         for expected_item in expected_items:
-            assert expected_item in performance_monitoring_items
+            assert expected_item in cpu_gpu_performance_items
         assert all(
-            item.startswith("performance-monitoring:")
-            for item in performance_monitoring_items
+            item.startswith("cpu-gpu-performance:")
+            for item in cpu_gpu_performance_items
         )
 
     @pytest.mark.bdd

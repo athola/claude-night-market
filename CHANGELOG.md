@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-01-25
+
+### Added - Conserve Context Optimization
+
+- **Fallback context estimation** - `conserve` now gracefully handles missing `CLAUDE_CONTEXT_USAGE` environment variable
+  - Provides alternative estimation methods when native context tracking unavailable
+  - Maintains functionality across different Claude Code versions
+  - Improves robustness of context optimization workflows
+
+- **Batch implementation** - Implemented issues #55-68 for conserve plugin
+  - Multiple enhancements to bloat detection and context optimization
+  - Updated token estimation scripts with better accuracy
+  - Enhanced MCP code execution skills
+
+### Added - Attune War Room Checkpoint
+
+- **War-room-checkpoint skill** - New embedded escalation support for attune
+  - Enables checkpoint creation during war-room sessions
+  - Supports resuming complex troubleshooting workflows
+  - Improves session management for long-running debugging tasks
+
+### Improved - Documentation Quality
+
+- **Token efficiency improvements** - Reduced verbosity across guides and READMEs
+  - Condensed documentation to save tokens while maintaining clarity
+  - Added Table of Contents to 19 skills over 100 lines
+  - Removed AI slop from commands and agents
+  - Improved clarity in all plugin guides
+
+- **Skills infrastructure** - Enhanced skill evaluation and testing
+  - Fixed script paths in skills-eval
+  - Updated PATH to TARGET naming to avoid environment conflicts
+  - Restored frontmatter and version fields across all skills
+
+### Fixed - Dependency Management
+
+- **Optional dependencies** - Moved tiktoken and leyline to optional dependencies
+  - Reduces base installation footprint
+  - Allows selective installation of resource-heavy packages
+  - Improves startup performance for core functionality
+
+- **Tasks manager consolidation** - Differentiated tasks_manager.py per plugin
+  - Each plugin now has its own specialized tasks manager
+  - Better encapsulation of plugin-specific workflow logic
+  - Maintained consistency across implementations
+
+### Improved - Sanctum Git Workflows
+
+- **Module auditing** - Enhanced update-plugins command with module auditing
+  - Validates plugin structure before updates
+  - Detects and reports configuration issues
+  - Improves reliability of bulk plugin operations
+
 ## [1.3.4] - 2026-01-23
 
 ### Analyzed - Claude Code 2.1.16 Compatibility

@@ -27,7 +27,7 @@ usage_patterns:
   - skill-loading
 complexity: intermediate
 estimated_tokens: 1500
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -100,6 +100,8 @@ Quick reference for command-to-skill mappings:
 | `/speckit-checklist` | - | verification-before-completion |
 
 **For detailed patterns**: See `modules/command-skill-matrix.md` for complete mappings and loading rules.
+
+See `modules/writing-plans-extensions.md` for plan authoring patterns.
 
 ### Progress Tracking Items
 

@@ -20,7 +20,7 @@ provides:
   infrastructure: [tech-stack-patterns, checklist-dimensions, artifact-structure]
 reusable_by: [all spec-kit skills and commands]
 estimated_tokens: 200
-version: 1.3.4
+version: 1.3.5
 ---
 
 # Shared Infrastructure
@@ -39,20 +39,20 @@ This skill consolidates reusable components:
 ## Modules
 
 ### tech-stack-patterns.md
-Technology-specific patterns for common stacks and tools:
+See `modules/tech-stack-patterns.md` for technology-specific patterns:
 - Language-specific ignore patterns (Node.js, Python, Rust, Go, Java, C#)
 - Common tool configurations (Docker, ESLint, Prettier, Terraform)
 - Universal exclusions (.DS_Store, .vscode, .idea)
 
 ### checklist-dimensions.md
-Quality validation dimensions for requirement testing:
+See `modules/checklist-dimensions.md` for quality validation dimensions:
 - Completeness, Clarity, Consistency
 - Measurability, Coverage, Edge Cases
 - Non-Functional Requirements
 - How to write "unit tests for requirements"
 
 ### artifact-structure.md
-Spec-kit artifact organization and purpose:
+See `modules/artifact-structure.md` for spec-kit artifact organization:
 - spec.md structure and role
 - plan.md structure and role
 - tasks.md structure and role

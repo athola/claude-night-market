@@ -12,7 +12,7 @@ dependencies:
 complexity: lightweight
 estimated_tokens: 400
 progressive_loading: false
-version: 1.0.0
+version: 1.3.5
 ---
 
 # War Room Checkpoint Skill

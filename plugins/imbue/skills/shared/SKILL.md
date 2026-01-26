@@ -24,7 +24,7 @@ modules:
   - modules/todowrite-patterns.md
   - modules/evidence-formats.md
   - modules/anti-cargo-cult.md
-version: 1.3.4
+version: 1.3.5
 ---
 
 # Shared Infrastructure for Imbue

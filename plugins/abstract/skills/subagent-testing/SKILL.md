@@ -12,7 +12,7 @@ description: |
 
   DO NOT use when: implementing skills (use skill-authoring instead),
   creating hooks (use hook-authoring instead)
-version: 1.3.4
+version: 1.3.5
 category: testing
 tags: [testing, validation, TDD, subagents, fresh-instances]
 token_budget: 30

@@ -53,13 +53,13 @@ class TestConservationValidator:
                 "indicators": ["MECW", "context optimization", "50% rule"],
             },
             {
-                "file": "skills/resource-management/token-conservation/SKILL.md",
+                "file": "skills/token-conservation/SKILL.md",
                 "type": "token_conservation",
                 "confidence": 0.95,
                 "indicators": ["token budget", "quota", "conservation"],
             },
             {
-                "file": "skills/performance-monitoring/cpu-gpu-performance/SKILL.md",
+                "file": "skills/cpu-gpu-performance/SKILL.md",
                 "type": "performance_monitoring",
                 "confidence": 0.85,
                 "indicators": ["performance metrics", "resource monitoring"],

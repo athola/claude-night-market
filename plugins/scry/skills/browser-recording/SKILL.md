@@ -19,7 +19,7 @@ modules:
   - video-capture
 dependencies:
   - scry:gif-generation
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -190,10 +190,13 @@ Default output paths:
 - Videos: `./test-results/<test-name>/video.webm`
 - Screenshots: `./test-results/<test-name>/screenshot.png`
 
+## Module Reference
+
+- See `modules/spec-execution.md` for detailed Playwright execution options
+- See `modules/video-capture.md` for video format and quality settings
+
 ## See Also
 
-- spec-execution module: Detailed Playwright execution options
-- video-capture module: Video format and quality settings
 - scry:gif-generation: Convert video to optimized GIF
 ## Troubleshooting
 

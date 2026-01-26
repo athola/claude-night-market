@@ -3,7 +3,7 @@ name: review-chamber
 description: Capture and retrieve PR review knowledge in project memory palaces
 
 Triggers: memory, project, capture, retrieve, review
-version: 1.3.4
+version: 1.3.5
 triggers:
   - pr review completed
   - knowledge capture requested
@@ -17,10 +17,6 @@ usage_patterns:
 dependencies:
   - memory-palace:knowledge-intake
   - sanctum:pr-review
-modules:
-  - capture-workflow.md
-  - evaluation-criteria.md
-  - search-patterns.md
 ---
 ## Table of Contents
 
@@ -289,6 +285,12 @@ python scripts/palace_manager.py search "authentication" \
 3. **Use consistent tags** - Enable cross-project discovery
 4. **Review periodically** - Prune outdated entries
 5. **Surface proactively** - Show relevant knowledge when starting related work
+
+## Module Reference
+
+- See `modules/capture-workflow.md` for detailed capture process
+- See `modules/evaluation-criteria.md` for knowledge worth assessment
+- See `modules/search-patterns.md` for query optimization
 ## Troubleshooting
 
 ### Common Issues

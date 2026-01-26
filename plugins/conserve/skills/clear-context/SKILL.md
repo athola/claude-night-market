@@ -21,7 +21,7 @@ hooks:
     - matcher: "Task"
       command: |
         echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -155,9 +155,7 @@ This skill works with `context_warning.py` hook:
 ## Module Loading
 
 For detailed session state format and examples:
-```
-Load module: session-state
-```
+- See `modules/session-state.md` for checkpoint format and handoff patterns
 
 ## Self-Monitoring Pattern
 

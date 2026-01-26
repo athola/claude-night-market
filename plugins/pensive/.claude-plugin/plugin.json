@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/full-review.md",

@@ -24,7 +24,7 @@ scripts: [palace_manager.py]
 usage_patterns: [search, cross-reference, discovery, review-search]
 complexity: intermediate
 estimated_tokens: 500
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

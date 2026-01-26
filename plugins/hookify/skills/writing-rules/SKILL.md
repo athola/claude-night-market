@@ -9,7 +9,7 @@ Triggers: validation, rules, patterns, safety, hookify
 
   Use when: preventing dangerous commands, blocking debug commits, enforcing conventions
   DO NOT use when: hook scope (abstract:hook-scope-guide), SDK hooks (abstract:hook-authoring), evaluating hooks (abstract:hooks-eval)
-version: 1.3.4
+version: 1.3.5
 category: hook-development
 tags: [hookify, rules, patterns, validation, safety]
 dependencies: []

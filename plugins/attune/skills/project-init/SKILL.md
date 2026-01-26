@@ -13,7 +13,7 @@ modules:
   - ./modules/language-detection.md
   - ./modules/metadata-collection.md
   - ./modules/template-rendering.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -39,15 +39,17 @@ Interactive workflow for initializing new software projects with complete develo
 ## Use When
 
 - Starting a new Python, Rust, or TypeScript project
+- Updating existing project tooling to current standards
 - Need to set up git, GitHub workflows, pre-commit hooks, Makefile
 - Want consistent project structure across team
 - Converting unstructured project to best practices
+- Adding missing configurations to established codebases
 
 ## Workflow
 
 ### 1. Detect or Select Language
 
-Load `Skill(attune:project-init#language-detection)`
+Load `modules/language-detection.md`
 
 - Auto-detect from existing files (pyproject.toml, Cargo.toml, package.json)
 - If ambiguous or empty directory, ask user to select
@@ -55,7 +57,7 @@ Load `Skill(attune:project-init#language-detection)`
 
 ### 2. Collect Project Metadata
 
-Load `Skill(attune:project-init#metadata-collection)`
+Load `modules/metadata-collection.md`
 
 Gather:
 - Project name (default: directory name)
@@ -82,7 +84,7 @@ If files exist (Makefile, .gitignore, etc.):
 
 ### 4. Render and Apply Templates
 
-Load `Skill(attune:project-init#template-rendering)`
+Load `modules/template-rendering.md`
 
 Run initialization script:
 ```bash

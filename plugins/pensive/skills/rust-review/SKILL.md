@@ -36,7 +36,7 @@ modules:
   - concurrency-patterns.md
   - unsafe-audit.md
   - cargo-dependencies.md
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 
@@ -95,17 +95,17 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 Load modules as needed based on review scope:
 
 **Quick Review** (ownership + errors):
-- @include ownership-analysis.md
-- @include error-handling.md
+- See `modules/ownership-analysis.md` for borrowing and lifetime analysis
+- See `modules/error-handling.md` for Result/Option patterns
 
 **Concurrency Focus**:
-- @include concurrency-patterns.md
+- See `modules/concurrency-patterns.md` for async and sync primitives
 
 **Safety Audit**:
-- @include unsafe-audit.md
+- See `modules/unsafe-audit.md` for unsafe block documentation
 
 **Dependency Review**:
-- @include cargo-dependencies.md
+- See `modules/cargo-dependencies.md` for vulnerability scanning
 
 ## Core Workflow
 

@@ -32,7 +32,7 @@ modules:
   - deduplication-patterns
   - portability-checks
   - best-practices
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

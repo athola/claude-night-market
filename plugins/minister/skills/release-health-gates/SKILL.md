@@ -16,7 +16,7 @@ Triggers: github, governance, health, readiness, quality
   DO NOT use when: code reviews - use pensive review skills.
 
   Standardizes release approvals with GitHub-aware checklists.
-version: 1.3.4
+version: 1.3.5
 category: governance
 tags: [release, github, readiness, quality, governance]
 dependencies: []

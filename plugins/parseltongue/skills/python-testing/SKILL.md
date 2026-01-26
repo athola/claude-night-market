@@ -36,7 +36,7 @@ modules:
   - testing-workflows
   - test-quality
   - async-testing
-version: 1.3.4
+version: 1.3.5
 ---
 # Python Testing Hub
 
@@ -65,16 +65,16 @@ Testing standards for pytest configuration, fixture management, and TDD implemen
 This skill uses modular loading to manage the system prompt budget.
 
 ### Core Implementation
-- **unit-testing**: AAA (Arrange-Act-Assert) pattern, basic test structure, and exception validation.
-- **fixtures-and-mocking**: Request-scoped fixtures, parameterization, and boundary mocking.
-- **async-testing**: Coroutine testing, async fixtures, and concurrency validation.
+- See `modules/unit-testing.md` - AAA (Arrange-Act-Assert) pattern, basic test structure, and exception validation.
+- See `modules/fixtures-and-mocking.md` - Request-scoped fixtures, parameterization, and boundary mocking.
+- See `modules/async-testing.md` - Coroutine testing, async fixtures, and concurrency validation.
 
 ### Infrastructure & Workflow
-- **test-infrastructure**: Directory standards, `conftest.py` management, and coverage tools.
-- **testing-workflows**: Local execution patterns and GitHub Actions integration.
+- See `modules/test-infrastructure.md` - Directory standards, `conftest.py` management, and coverage tools.
+- See `modules/testing-workflows.md` - Local execution patterns and GitHub Actions integration.
 
 ### Standards
-- **test-quality**: Identification of common anti-patterns like broad exception catching or shared state between tests.
+- See `modules/test-quality.md` - Identification of common anti-patterns like broad exception catching or shared state between tests.
 
 ## Exit Criteria
 

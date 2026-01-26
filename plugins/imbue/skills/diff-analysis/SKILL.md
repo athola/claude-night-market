@@ -28,7 +28,7 @@ complexity: intermediate
 progressive_loading: true
 module_strategy: workflow-based
 estimated_tokens: 800
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

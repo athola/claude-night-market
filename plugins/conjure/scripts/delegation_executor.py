@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from leyline.tokens import estimate_tokens
+    from leyline.tokens import estimate_tokens  # type: ignore[import-untyped]
 except ImportError:  # pragma: no cover
 
     def estimate_tokens(files: list[str], prompt: str = "") -> int:

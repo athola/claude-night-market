@@ -4,7 +4,7 @@ description: Transform specifications into structured implementation plans with 
 
 Triggers: architecture, project, planning, into, specifications
 model_preference: claude-sonnet-4
-version: 1.3.4
+version: 1.3.5
 ---
 ## Table of Contents
 

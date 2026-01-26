@@ -28,7 +28,7 @@ modules:
 dependencies:
   - scribe:shared
   - scribe:slop-detector
-version: 1.3.4
+version: 1.3.5
 ---
 
 # Style Learning Skill
@@ -223,6 +223,10 @@ Generate [content type] following the style profile:
   > [exemplar quote]
 - Avoid: [anti-patterns from profile]
 ```
+
+## Module Reference
+
+- See `modules/style-application.md` for applying learned styles to new content
 
 ## Integration with slop-detector
 
