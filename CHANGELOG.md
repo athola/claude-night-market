@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-01-25
+
 ### Fixed - Context Handoff Execution Mode
 
 - **Execution mode propagation** - Context handoffs now preserve `--dangerous` mode
@@ -20,8 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `conserve:continuation-agent` - Respects execution mode, continues without prompts
   - `sanctum:do-issue` command - Added `--dangerous` flag documentation
   - Session state module - Added execution_mode metadata (v1.1)
-
-## [1.3.5] - 2026-01-25
 
 ### Changed - Attune Command Naming
 
