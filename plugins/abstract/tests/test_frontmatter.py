@@ -515,7 +515,7 @@ class TestAllHookEventTypes:
 
     def test_all_valid_hook_events(self) -> None:
         """Test all documented hook event types are valid."""
-        expected_events = [
+        expected_events = (
             "PreToolUse",
             "PostToolUse",
             "UserPromptSubmit",
@@ -526,7 +526,7 @@ class TestAllHookEventTypes:
             "PreCompact",
             "SessionStart",
             "SessionEnd",
-        ]
+        )
         assert FrontmatterProcessor.VALID_HOOK_EVENTS == expected_events
 
     def test_each_hook_event_type_validates(self) -> None:
@@ -546,34 +546,34 @@ class TestConstantDefinitions:
 
     def test_skill_fields_defined(self) -> None:
         """Test 2.1.0 skill fields are defined."""
-        expected_fields = [
+        expected_fields = (
             "context",
             "agent",
             "user-invocable",
             "hooks",
             "allowed-tools",
             "model",
-        ]
+        )
         assert FrontmatterProcessor.CLAUDE_CODE_210_SKILL_FIELDS == expected_fields
 
     def test_agent_fields_defined(self) -> None:
         """Test 2.1.0 agent fields are defined."""
-        expected_fields = [
+        expected_fields = (
             "hooks",
             "skills",
             "escalation",
             "permissionMode",
-        ]
+        )
         assert FrontmatterProcessor.CLAUDE_CODE_210_AGENT_FIELDS == expected_fields
 
     def test_permission_modes_defined(self) -> None:
         """Test valid permission modes are defined."""
-        expected_modes = [
+        expected_modes = (
             "default",
             "acceptEdits",
             "dontAsk",
             "bypassPermissions",
             "plan",
             "ignore",
-        ]
+        )
         assert FrontmatterProcessor.VALID_PERMISSION_MODES == expected_modes

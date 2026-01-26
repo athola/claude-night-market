@@ -52,26 +52,26 @@ class FrontmatterProcessor:
     # Default recommended fields for skill files
     DEFAULT_RECOMMENDED_FIELDS = ["category", "tags", "dependencies", "tools"]
 
-    # Claude Code 2.1.0+ optional fields for skills
-    CLAUDE_CODE_210_SKILL_FIELDS = [
+    # Claude Code 2.1.0+ optional fields for skills (tuples for immutability)
+    CLAUDE_CODE_210_SKILL_FIELDS = (
         "context",  # "fork" for forked sub-agent context
         "agent",  # Agent type for skill execution
         "user-invocable",  # Boolean: visibility in slash command menu
         "hooks",  # PreToolUse/PostToolUse/Stop lifecycle hooks
         "allowed-tools",  # YAML-style list or comma-separated string
         "model",  # Model override for this skill
-    ]
+    )
 
-    # Claude Code 2.1.0+ optional fields for agents
-    CLAUDE_CODE_210_AGENT_FIELDS = [
+    # Claude Code 2.1.0+ optional fields for agents (tuples for immutability)
+    CLAUDE_CODE_210_AGENT_FIELDS = (
         "hooks",  # PreToolUse/PostToolUse/Stop lifecycle hooks
         "skills",  # Skills to auto-load (NOT inherited from parent)
         "escalation",  # Model escalation configuration
         "permissionMode",  # Permission handling mode
-    ]
+    )
 
-    # Valid hook event types
-    VALID_HOOK_EVENTS = [
+    # Valid hook event types (tuple for immutability)
+    VALID_HOOK_EVENTS = (
         "PreToolUse",
         "PostToolUse",
         "UserPromptSubmit",
@@ -82,17 +82,17 @@ class FrontmatterProcessor:
         "PreCompact",
         "SessionStart",
         "SessionEnd",
-    ]
+    )
 
-    # Valid permission modes
-    VALID_PERMISSION_MODES = [
+    # Valid permission modes (tuple for immutability)
+    VALID_PERMISSION_MODES = (
         "default",
         "acceptEdits",
         "dontAsk",
         "bypassPermissions",
         "plan",
         "ignore",
-    ]
+    )
 
     @staticmethod
     def has_frontmatter(content: str) -> bool:
@@ -423,7 +423,7 @@ class FrontmatterProcessor:
         errors: list[str] = []
         if "allowed-tools" in frontmatter:
             tools = frontmatter["allowed-tools"]
-            if not isinstance(tools, list | str):
+            if not isinstance(tools, (list, str)):
                 type_name = type(tools).__name__
                 errors.append(
                     f"'allowed-tools' must be a list or string, got: {type_name}"
