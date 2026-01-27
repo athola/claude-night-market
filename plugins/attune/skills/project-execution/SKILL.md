@@ -112,11 +112,14 @@ Execute implementation plan systematically with checkpoints, validation, and pro
    - Documentation updated?
 
 4. CHECKPOINT
-   - Mark task complete
+   - Mark task complete IMMEDIATELY (do NOT batch)
    - Update execution state
    - Report progress
    - Identify blockers
 ```
+
+**Task Completion Discipline**: Always call `TaskUpdate(taskId: "X", status: "completed")` right after finishing each task—never defer completions to end of session.
+
 **Verification:** Run `pytest -v` to verify tests pass.
 
 ### Post-Execution Phase

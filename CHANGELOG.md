@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.6] - 2026-01-26
+
+### Added - Hookify Enhanced Tooling (hookify)
+
+- **Context-aware rule suggestions** - `rule_suggester.py` analyzes project patterns
+  - Scans `.claude/` files, existing rules, and common tools
+  - Suggests rules matching detected patterns (git workflows, linters, test runners)
+  - Confidence scoring based on frequency and importance
+  - Supports custom rule templates for project-specific needs
+
+- **Hook-to-hookify conversion tool** - `hook_to_hookify.py` migrates legacy hooks
+  - Converts Claude Code hook scripts to hookify rule format
+  - Extracts patterns, conditions, and actions from existing hooks
+  - Preserves hook metadata (event type, matcher) in rule config
+  - Generates equivalent hookify YAML rules
+
+### Changed - Makefile Dogfooding
+
+- **Live demo requirement** - `/abstract:make-dogfood` now requires actual command execution
+  - Replaced static `echo` statements with real command invocations
+  - Validates that Makefile targets produce meaningful output
+  - Better testing of actual tool integration
+
+### Improved - Attune Task Integration
+
+- **Project execution skill** - Enhanced task workflow documentation
+  - Improved TasksManager integration guidance
+  - Clearer phase transitions and checkpoint handling
+
 ## [1.3.5] - 2026-01-25
 
 ### Fixed - Context Handoff Execution Mode
@@ -1518,6 +1547,9 @@ Applied systematic data extraction to 4 large Python scripts:
 - Merged from PR #8
 - Commit: bd7d2ce
 
+[1.3.6]: https://github.com/athola/claude-night-market/compare/v1.3.5...v1.3.6
+[1.3.5]: https://github.com/athola/claude-night-market/compare/v1.3.4...v1.3.5
+[1.3.4]: https://github.com/athola/claude-night-market/compare/v1.3.3...v1.3.4
 [1.3.3]: https://github.com/athola/claude-night-market/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/athola/claude-night-market/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/athola/claude-night-market/compare/v1.3.0...v1.3.1

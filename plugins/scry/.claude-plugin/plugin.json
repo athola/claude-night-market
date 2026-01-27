@@ -1,6 +1,6 @@
 {
   "name": "scry",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "Media generation capabilities for terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition",
   "commands": [
     "./commands/record-terminal.md",

@@ -19,6 +19,19 @@ Claude Code 2.1.16+ provides a native Tasks system for state management. The `at
 | `CLAUDE_CODE_TASK_LIST_ID` | Share tasks across sessions | `attune-project-xyz` |
 | `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` | Disable background execution | `1` |
 
+## Task Completion Discipline
+
+**CRITICAL**: Mark tasks complete IMMEDIATELY after finishing work:
+
+1. Complete the work
+2. Run `TaskUpdate(taskId: "X", status: "completed")`
+3. Then move to next task
+
+Do NOT batch task completions at the end—update status as you go. This ensures:
+- Accurate progress tracking for users
+- Proper state recovery if session ends unexpectedly
+- Clear signal to other agents about task availability
+
 ## Design Patterns
 
 ### Lazy Task Creation

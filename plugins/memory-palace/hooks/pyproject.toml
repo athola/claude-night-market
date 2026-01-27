@@ -5,7 +5,7 @@
 # - Clear separation between hook logic and skill content
 [project]
 name = "memory-palace-hooks"
-version = "1.3.5"
+version = "1.3.6"
 description = "Hooks for memory-palace plugin - URL detection, web content processing, and local doc monitoring"
 readme = "README.md"
 requires-python = ">=3.10"

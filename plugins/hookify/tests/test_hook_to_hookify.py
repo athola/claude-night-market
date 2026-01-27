@@ -187,3 +187,166 @@ class TestGenerateHookifyRule:
 
         assert "conditions:" in rule
         assert "operator: contains" in rule
+
+
+class TestHookAnalyzerEdgeCases:
+    """Test edge cases and additional patterns."""
+
+    def test_extracts_endswith_pattern(self):
+        """Given a hook with endswith, extracts pattern."""
+        code = """
+def hook(context):
+    if context["file_path"].endswith(".py"):
+        return {"action": "warn"}
+"""
+        import ast
+
+        tree = ast.parse(code)
+        analyzer = HookAnalyzer()
+        analyzer.visit(tree)
+
+        assert len(analyzer.patterns) == 1
+        assert analyzer.patterns[0].pattern_type == "ends_with"
+        assert analyzer.patterns[0].pattern == ".py"
+
+    def test_extracts_equality_pattern(self):
+        """Given a hook with equality check, extracts equals pattern."""
+        code = """
+def hook(context):
+    if context["command"] == "rm -rf /":
+        return {"action": "block"}
+"""
+        import ast
+
+        tree = ast.parse(code)
+        analyzer = HookAnalyzer()
+        analyzer.visit(tree)
+
+        assert len(analyzer.patterns) == 1
+        assert analyzer.patterns[0].pattern_type == "equals"
+        assert analyzer.patterns[0].pattern == "rm -rf /"
+
+    def test_detects_network_complexity(self):
+        """Given a hook with HTTP calls, marks as complex with network."""
+        code = """
+import requests
+def hook(context):
+    response = requests.get("http://example.com")
+    return response
+"""
+        import ast
+
+        tree = ast.parse(code)
+        analyzer = HookAnalyzer()
+        analyzer.visit(tree)
+
+        assert analyzer.has_network
+        assert analyzer.complexity >= 5
+
+    def test_guesses_content_field(self):
+        """Given variable named 'content', guesses content field."""
+        code = """
+def hook(context):
+    if "password" in context["content"]:
+        return {"action": "block"}
+"""
+        import ast
+
+        tree = ast.parse(code)
+        analyzer = HookAnalyzer()
+        analyzer.visit(tree)
+
+        assert len(analyzer.patterns) == 1
+        assert analyzer.patterns[0].field == "content"
+
+    def test_guesses_file_path_field(self):
+        """Given variable named 'file_path', guesses file_path field."""
+        code = """
+def hook(context):
+    file_path = context["file"]
+    if ".env" in file_path:
+        return {"action": "block"}
+"""
+        import ast
+
+        tree = ast.parse(code)
+        analyzer = HookAnalyzer()
+        analyzer.visit(tree)
+
+        # Should detect the pattern and guess field from variable name
+        assert len(analyzer.patterns) >= 1
+
+
+class TestAnalyzeHookEdgeCases:
+    """Test error handling and edge cases in analyze_hook."""
+
+    def test_handles_syntax_error_gracefully(self):
+        """Given invalid Python syntax, returns unconvertible analysis."""
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write("def invalid syntax here")
+            f.flush()
+            path = Path(f.name)
+
+        analysis = analyze_hook(path)
+        path.unlink()
+
+        assert not analysis.convertible
+        assert "parse" in analysis.reason.lower() or "syntax" in analysis.reason.lower()
+
+    def test_marks_no_patterns_as_unconvertible(self):
+        """Given hook with no extractable patterns, marks unconvertible."""
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as f:
+            f.write("""
+def hook(context):
+    # Does nothing recognizable
+    return None
+""")
+            f.flush()
+            path = Path(f.name)
+
+        analysis = analyze_hook(path)
+        path.unlink()
+
+        assert not analysis.convertible
+        assert "no extractable" in analysis.reason.lower()
+
+
+class TestGenerateHookifyRuleEdgeCases:
+    """Test edge cases in rule generation."""
+
+    def test_returns_empty_for_unconvertible(self):
+        """Given unconvertible analysis, returns empty string."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("complex.py"),
+            convertible=False,
+            reason="Too complex",
+        )
+
+        rule = generate_hookify_rule(analysis)
+
+        assert rule == ""
+
+    def test_generates_single_non_regex_pattern(self):
+        """Given single non-regex pattern, generates conditions block."""
+        from scripts.hook_to_hookify import HookAnalysis
+
+        analysis = HookAnalysis(
+            file_path=Path("contains_hook.py"),
+            hook_type="PreToolUse",
+            patterns=[
+                ExtractedPattern(
+                    pattern_type="contains",
+                    pattern="sudo",
+                    field="command",
+                )
+            ],
+            convertible=True,
+        )
+
+        rule = generate_hookify_rule(analysis)
+
+        assert "conditions:" in rule
+        assert "operator: contains" in rule
+        assert "field: command" in rule

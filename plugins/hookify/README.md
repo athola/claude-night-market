@@ -31,6 +31,27 @@ cd claude-night-market
 claude install ./plugins/hookify
 ```
 
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/hookify:from-hook` | Convert Python SDK hooks to declarative hookify rules |
+| `/hookify:install` | Install a rule from the catalog or a custom file |
+| `/hookify:list` | List installed and available rules |
+| `/hookify:configure` | Configure rule settings |
+
+## Scripts
+
+### Rule Suggester
+
+Analyze project context and suggest relevant rules:
+
+```bash
+python plugins/hookify/scripts/rule_suggester.py --project-dir .
+```
+
+Detects languages, frameworks, and tooling to recommend appropriate rules.
+
 ## Documentation
 
 - **Rule Catalog**: `Skill(hookify:rule-catalog)`

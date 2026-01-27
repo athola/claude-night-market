@@ -406,10 +406,12 @@ Each task follows this systematic pattern:
 
 ### 4. Checkpoint
 ```bash
-# Mark task complete
+# Mark task complete IMMEDIATELY (never batch)
 # Update execution state
 # Report progress
 ```
+
+**Task Completion Discipline**: Call `TaskUpdate(taskId, status: "completed")` right after finishing each task—never defer to end of session.
 
 ## Integration with Full Cycle
 

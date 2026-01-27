@@ -1825,7 +1825,7 @@ wheels = [
 
 [[package]]
 name = "spec-kit"
-version = "1.3.5"
+version = "1.3.6"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
