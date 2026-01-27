@@ -82,7 +82,47 @@ grep -rn "^def " --include="*.py" . | awk -F'def ' '{print $2}' | \
 ```
 **Confidence:** HIGH (85%) | **Action:** EXTRACT shared utility
 
-### 7. Premature Abstraction
+### 7. Dead Wrapper / Facade Bloat
+**Definition:** Modules that wrap existing functionality without adding meaningful logic — thin facades, unused service interfaces, or re-export layers with no consumers.
+
+**Signals:**
+- File imports from another internal module and re-exports similar API
+- No external imports of the wrapper (0 refs from outside itself)
+- Not a proper package (missing `__init__.py` for Python)
+- Docstring examples show imports but no actual code uses them
+- Functionality already exists in the wrapped module or in `examples/`
+
+```bash
+# Find Python files that only re-export from other internal modules
+for f in $(find . -name "*.py" -not -path "*/test*" -not -path "*/__pycache__/*"); do
+  # Check if file mostly imports and re-calls another module's functions
+  imports=$(grep -c "^from \.\." "$f" 2>/dev/null || echo 0)
+  total=$(wc -l < "$f" 2>/dev/null || echo 0)
+  refs=$(git grep -l "$(basename "$f" .py)" -- "*.py" 2>/dev/null | grep -v "$f" | wc -l)
+  if [ "$imports" -gt 2 ] && [ "$refs" -eq 0 ] && [ "$total" -gt 50 ]; then
+    echo "DEAD_WRAPPER: $f ($total lines, $imports internal imports, 0 external refs)"
+  fi
+done
+```
+
+**Also check for intra-file dead wrappers:**
+```bash
+# Find classes/functions that only delegate to another method with no transformation
+grep -rn "def .*self" --include="*.py" . | while read line; do
+  file=$(echo "$line" | cut -d: -f1)
+  lineno=$(echo "$line" | cut -d: -f2)
+  # Check if function body is just "return self.other_thing(...)"
+  body=$(sed -n "$((lineno+1)),$((lineno+3))p" "$file" 2>/dev/null)
+  if echo "$body" | grep -qP '^\s+return self\.\w+\(' && [ $(echo "$body" | wc -l) -le 2 ]; then
+    echo "PASSTHROUGH: $file:$lineno - trivial delegation"
+  fi
+done
+```
+
+**Confidence:** HIGH (85%) for whole-file wrappers, MEDIUM (70%) for intra-file passthrough
+**Action:** DELETE (whole-file) or INLINE (intra-file passthrough)
+
+### 8. Premature Abstraction
 **Definition:** Base classes/interfaces with <3 implementations (YAGNI violation).
 **AI Cause:** AI defaults to "scalable" patterns without context.
 
@@ -95,7 +135,7 @@ done
 ```
 **Confidence:** HIGH (80%) | **Action:** INLINE until 3rd use case
 
-### 8. Happy Path Bias
+### 9. Happy Path Bias
 **Definition:** Tests verify success paths only; no error handling tested.
 **AI Cause:** AI optimizes for "works" demonstrations.
 
@@ -112,7 +152,7 @@ For comprehensive AI-specific patterns, see: `@module:ai-generated-bloat`
 ```python
 PATTERN_SCORES = {
     'god_class': 30, 'lava_flow': 25, 'dead_code': 35,
-    'import_bloat': 15, 'duplication': 20
+    'import_bloat': 15, 'duplication': 20, 'dead_wrapper': 30
 }
 score = min(100, sum(PATTERN_SCORES[p] for p in detected))
 ```

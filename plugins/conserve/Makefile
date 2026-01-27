@@ -8,7 +8,7 @@
         validate-skills test-skills mutation-test benchmark memory-profile demo-context demo-tokens demo-skills demo-bloat plugin-check debug-variables
 
 # Plugin-specific variables (must be before include)
-SRC_DIRS := scripts services
+SRC_DIRS := scripts
 COV_DIRS := $(SRC_DIRS)
 
 # Include shared configuration from abstract plugin
