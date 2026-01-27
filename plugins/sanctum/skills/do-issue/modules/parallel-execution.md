@@ -2,43 +2,91 @@
 
 Dispatch subagents for independent tasks concurrently.
 
-## Group Independent Tasks
+## CRITICAL: Execute Nonconflicting Tasks in Parallel
 
-Identify tasks that can run concurrently:
+**When you have multiple NONCONFLICTING tasks, invoke ALL Task tools in a SINGLE response.**
 
-- Tasks from different files
-- Tasks with no shared state
-- Tasks that don't modify same code paths
+This is NOT optional - parallel execution is the default for nonconflicting tasks.
+
+## Identify Nonconflicting Tasks
+
+Tasks can run in parallel ONLY when ALL conditions are met:
+
+✅ **Safe for parallel execution:**
+- Tasks modify **different files** (no overlap)
+- Tasks have **no shared state** (independent data)
+- Tasks don't modify **same code paths** (no merge conflicts)
+- Tasks have **satisfied dependencies** (no blocking)
+- Tasks don't depend on **each other's outputs**
+
+❌ **NOT safe for parallel execution:**
+- Tasks modify the **same file** or related files
+- Tasks share **configuration** or **global state**
+- Tasks have **sequential dependencies**
+- Tasks touch **overlapping code paths** that could conflict
+- Tasks need results from **each other**
+
+## Analyze Task Conflicts BEFORE Dispatching
+
+**MANDATORY**: Perform conflict analysis before parallel execution:
+
+```markdown
+Analyzing tasks for parallel execution:
+
+Task 1 (Issue #42): Create auth middleware in src/auth/middleware.py
+Task 2 (Issue #43): Fix validation bug in src/validators/schema.py
+Task 3 (Issue #44): Add logging to src/utils/logger.py
+
+Conflict Check:
+- Files: ✅ No overlap (middleware.py, schema.py, logger.py are different)
+- Dependencies: ✅ No sequential dependencies between tasks
+- State: ✅ No shared configuration or database schema
+- Code paths: ✅ Independent modules, no import conflicts
+
+Decision: Execute Tasks 1, 2, 3 in PARALLEL (3 Task tool invocations in single response)
+```
+
+**COUNTER-EXAMPLE** - Sequential execution required:
+
+```markdown
+Task A (Issue #50): Refactor User model in models/user.py
+Task B (Issue #51): Add authentication using User model
+
+Conflict Check:
+- Files: ❌ Task B depends on Task A's User model changes
+- Dependencies: ❌ Task B needs Task A's output
+- Code paths: ❌ Both touch authentication flow
+
+Decision: Execute SEQUENTIALLY (Task A first, then Task B)
+```
 
 ## Dispatch Parallel Subagents
 
-For independent tasks, dispatch concurrently using the Task tool:
+**CORRECT PATTERN** - Multiple Task tool invocations in ONE response:
 
-```
-Task tool (general-purpose) [PARALLEL]:
-  description: "Issue #42 - Task 1: Create auth middleware"
-  prompt: |
-    You are implementing Task 1 from Issue #42.
+```text
+I'll execute these 3 nonconflicting tasks in parallel:
 
-    Issue context:
-    [Issue body and requirements]
+Task(description: "Issue #42 - Create auth middleware")
+Task(description: "Issue #43 - Fix validation bug")
+Task(description: "Issue #44 - Add logging feature")
 
-    Your job:
-    1. Implement exactly what the task specifies
-    2. Follow TDD - write failing test first
-    3. Implement until tests pass
-    4. Verify no regressions
-    5. Commit your work with conventional commit format
-
-    Report: Implementation summary, test results, files changed
+Each task will:
+1. Implement in its designated file (no conflicts)
+2. Follow TDD - write failing test first
+3. Verify no regressions
+4. Commit with conventional format
 ```
 
-```
-Task tool (general-purpose) [PARALLEL]:
-  description: "Issue #43 - Task 1: Fix validation bug"
-  prompt: |
-    You are implementing Task 1 from Issue #43.
-    [Same structure as above]
+**WRONG PATTERN** - Sequential invocations:
+
+```text
+❌ Task(description: "Issue #42")
+   [wait for result]
+   Task(description: "Issue #43")
+   [wait for result]
+
+This wastes time when tasks are nonconflicting!
 ```
 
 ## Await Parallel Results
@@ -46,10 +94,14 @@ Task tool (general-purpose) [PARALLEL]:
 Collect results from all parallel subagents before proceeding:
 
 ```
-Parallel Batch 1: Issues #42, #43
-  [2 subagents running in parallel...]
-  #42 Task 1: Complete (auth middleware)
-  #43 Task 1: Complete (validation fix)
+Parallel Batch 1: Issues #42, #43, #44 (3 tasks)
+  [3 subagents running in parallel...]
+
+  ✅ #42: Complete (auth middleware in src/auth/middleware.py)
+  ✅ #43: Complete (validation fix in src/validators/schema.py)
+  ✅ #44: Complete (logging in src/utils/logger.py)
+
+All tasks completed without conflicts.
 ```
 
 ## Key Principles

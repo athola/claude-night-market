@@ -129,7 +129,7 @@ Agent(attune:project-implementer)
 - `--phase <phase-name>` - Execute specific phase
 - `--resume` - Resume from last checkpoint
 - `--dry-run` - Preview execution without applying changes
-- `--parallel` - Execute independent tasks in parallel (advanced)
+- `--parallel` - Execute nonconflicting tasks in parallel (DEFAULT for independent tasks)
 
 ## Examples
 

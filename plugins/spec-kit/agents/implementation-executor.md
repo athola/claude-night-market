@@ -50,7 +50,9 @@ Executes implementation tasks systematically following the task plan.
 ### Task Execution
 1. Process tasks by phase order
 2. Respect sequential dependencies
-3. Execute parallel tasks [P] concurrently
+3. **Execute NONCONFLICTING parallel tasks [P] concurrently (DEFAULT)**
+   - Verify all tasks pass conflict checks (files, state, dependencies, paths, outputs)
+   - Invoke ALL nonconflicting Task tools in SINGLE response
 4. Follow TDD: write tests first when applicable
 
 ### Post-Task
