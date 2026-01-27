@@ -95,10 +95,10 @@ def assess_context_usage(usage: float) -> ContextAlert:
                 "AUTO-CLEAR REQUIRED! Execute clear-context workflow NOW."
             ),
             recommendations=[
-                "STOP current work immediately",
-                "Invoke Skill(conserve:clear-context) NOW",
-                f"Save session state to {state_path}",
-                "Spawn continuation agent to continue work",
+                "DO NOT STOP or tell the user to continue later",
+                f"Save session state to {state_path} immediately",
+                "Spawn a continuation-agent via Task tool to continue the work automatically",
+                "The continuation agent has fresh context and will pick up where you left off",
                 "This is NOT optional - auto-compact will trigger soon",
             ],
         )
@@ -295,12 +295,12 @@ def main() -> int:
             output["hookSpecificOutput"]["additionalContext"] = (
                 "**EMERGENCY CONTEXT ALERT**\n\n"
                 f"{alert.message}\n\n"
-                "**IMMEDIATE ACTION REQUIRED:**\n"
-                "1. STOP current work\n"
-                "2. Invoke `Skill(conserve:clear-context)`\n"
-                "3. Follow the auto-clear workflow\n\n"
-                "This will save your progress and spawn a continuation agent "
-                "with fresh context to continue the work seamlessly.\n\n"
+                "**AUTO-CONTINUE REQUIRED (DO NOT STOP):**\n"
+                "1. Save session state to .claude/session-state.md with current progress\n"
+                "2. Spawn a continuation-agent via Task tool to continue automatically\n"
+                "3. The continuation agent has fresh context - work continues seamlessly\n\n"
+                "**CRITICAL: Do NOT tell the user to continue in a new session.** "
+                "Do NOT stop working. Save state and spawn the continuation agent NOW.\n\n"
                 "Recommendations:\n"
                 + "\n".join(f"- {rec}" for rec in alert.recommendations)
             )

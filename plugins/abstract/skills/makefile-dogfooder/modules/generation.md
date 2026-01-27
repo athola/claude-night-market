@@ -4,70 +4,99 @@
 
 This module provides templates and workflows for generating contextually appropriate Makefile targets for plugins in the claude-night-market project. It supports both aggregator and leaf plugin patterns with customizable templates.
 
+## Core Principle: LIVE Demonstrations
+
+**CRITICAL:** Demo targets must run ACTUAL functionality, not just echo static information.
+
+| ❌ BAD (Static/Informational) | ✅ GOOD (Live/Functional) |
+|-------------------------------|---------------------------|
+| `@echo "Skills: 5"` | `@$(UV_RUN) python scripts/validator.py --scan` |
+| `@find skills/ -name '*.md' \| wc -l` | `@$(UV_RUN) python scripts/cli.py analyze skills/` |
+| `@echo "Feature: token estimation"` | `@$(UV_RUN) python scripts/token_estimator.py --file README.md` |
+
+**Reference Pattern** (from ragentop):
+```makefile
+demo-detection: build  ## Demonstrate agent session detection (LIVE)
+	@echo "=== Agent Session Detection Demo (LIVE) ==="
+	@./target/release/ragentop detect --verbose
+```
+
+This runs the actual tool and shows REAL output that users would see.
+
 ## Template Categories
 
 ### 1. Demo Targets
 
-**Purpose:** Demonstrate plugin functionality and showcase key features
+**Purpose:** Demonstrate plugin functionality by RUNNING actual user-facing tools
 
-#### Basic Demo Template
+#### Live Demo Template (Preferred)
+```makefile
+demo-$(FEATURE): ## Demonstrate $(FEATURE) functionality (LIVE)
+	@echo "=== $(PLUGIN_NAME) $(FEATURE) Demo (LIVE) ==="
+	@echo ""
+	$(UV_RUN) python scripts/$(FEATURE_SCRIPT).py $(DEMO_ARGS)
+	@echo ""
+	@echo "Use /$(PLUGIN_NAME):$(SKILL_NAME) for full workflow."
+```
+
+#### Self-Dogfooding Demo Template
+```makefile
+demo-dogfood: ## Run plugin tools on this plugin (LIVE)
+	@echo "=== $(PLUGIN_NAME) Self-Dogfood Demo (LIVE) ==="
+	@echo "Running $(TOOL_NAME) on $(PLUGIN_NAME) plugin itself..."
+	@echo ""
+	$(UV_RUN) python scripts/$(TOOL_NAME).py --target . $(TOOL_ARGS)
+```
+
+#### Fallback Demo Template (when no CLI exists)
 ```makefile
 demo: ## Run plugin demonstration
 	@echo "=== $(PLUGIN_NAME) Demo ==="
-	@echo "Demonstrating core functionality..."
 	@echo ""
-	@echo "Available skills:"
+	@echo "Available skills (invoke with /$(PLUGIN_NAME):<skill>):"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(basename $$(dirname $$skill)); \
-		echo "  - $$name"; \
+		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		desc=$$(head -10 "$$skill" | grep '^description:' | cut -d: -f2- | head -c 60); \
+		echo "  - $$name: $$desc"; \
 	done
 	@echo ""
-	@echo "Demo complete. Use /$(PLUGIN_NAME):skill-name for specific workflows."
-```
-
-#### Advanced Demo Template (with feature showcase)
-```makefile
-demo-features: ## Demonstrate plugin features
-	@echo "=== $(PLUGIN_NAME) Feature Demo ==="
-	@echo "Plugin capabilities:"
-	@echo "  - Feature 1: $(FEATURE_1_DESC)"
-	@echo "  - Feature 2: $(FEATURE_2_DESC)"
-	@echo "  - Feature 3: $(FEATURE_3_DESC)"
-	@echo ""
-	@echo "Running feature demonstrations..."
-	@echo "Demo complete."
+	@echo "No CLI tools available. Use slash commands for functionality."
 ```
 
 ### 2. Dogfood Targets
 
-**Purpose:** Test the plugin on itself using its own functionality
+**Purpose:** Test the plugin on itself using its own functionality - LIVE execution
 
-#### Self-Validation Template
+#### Live Self-Validation Template (Preferred)
 ```makefile
-plugin-check: ## Run plugin self-validation
-	@echo "=== $(PLUGIN_NAME) Self-Check ==="
-	@echo "Validating plugin structure..."
-	@echo "Skills: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l)"
-	@echo "Tools:  $$(find scripts/ -name '*.py' 2>/dev/null | wc -l)"
-	@echo "Tests:  $$(find tests/ -name '*.py' 2>/dev/null | wc -l)"
+plugin-check: ## Run plugin self-validation (LIVE)
+	@echo "=== $(PLUGIN_NAME) Self-Check (LIVE) ==="
 	@echo ""
-	@echo "Checking dependencies..."
-	@test -f pyproject.toml && echo "  OK pyproject.toml" || echo "  MISSING pyproject.toml"
-	@test -f uv.lock && echo "  OK uv.lock" || echo "  MISSING uv.lock"
+	@echo "Running validator on this plugin..."
+	$(UV_RUN) python scripts/$(VALIDATOR_SCRIPT).py --target . --report
 	@echo ""
-	@echo "Plugin check complete."
+	@echo "Plugin validation complete."
 ```
 
-#### Self-Test Template
+#### Composite Dogfood Template
+```makefile
+plugin-check: demo-$(FEATURE1) demo-$(FEATURE2) ## Run all live demos
+	@echo ""
+	@echo "=== $(PLUGIN_NAME) Plugin Check Complete ==="
+```
+
+#### Fallback Self-Test Template (minimal tooling)
 ```makefile
 plugin-test: ## Test plugin using its own tools
 	@echo "=== $(PLUGIN_NAME) Self-Test ==="
-	@echo "Testing plugin functionality..."
 	@if [ -f scripts/$(PLUGIN_CLI).py ]; then \
-		echo "Testing CLI..."; \
-		uv run python scripts/$(PLUGIN_CLI).py --test || echo "  CLI test skipped"; \
+		echo "Running CLI self-test..."; \
+		$(UV_RUN) python scripts/$(PLUGIN_CLI).py --help; \
+		$(UV_RUN) python scripts/$(PLUGIN_CLI).py --test 2>/dev/null || echo "  (no --test flag)"; \
+	else \
+		echo "No CLI available - running pytest instead..."; \
+		$(PYTEST) tests/ -v --tb=short -q; \
 	fi
-	@echo "Self-test complete."
 ```
 
 ### 3. Quick-Run Targets
@@ -357,84 +386,110 @@ def generate_makefile_targets(context: PluginContext,
 
 ## Code Examples
 
-### Example 1: Conservation Plugin (Leaf)
+### Example 1: Abstract Plugin - LIVE Skill Validation
 
 ```makefile
-# ---------- Demo/Dogfood Targets ----------
-demo-context: ## Demo context optimization on own skills
-	@echo "=== Conservation Context Demo ==="
-	@echo "Demonstrating context-optimization skill..."
-	@echo "Skills directory size: $$(du -sh skills/ 2>/dev/null | cut -f1)"
-	@echo "Total skill files: $$(find skills/ -name '*.md' 2>/dev/null | wc -l)"
-
-demo-tokens: ## Demo token estimation on own plugin
-	@echo "=== Conservation Token Demo ==="
-	@echo "Demonstrating token estimation..."
-	@total_lines=$$(find skills/ -name "*.md" -exec cat {} \; 2>/dev/null | wc -l); \
-	total_tokens=$$((total_lines * 4)); \
-	echo "  Total: ~$$total_tokens tokens"
-
-plugin-check: demo-context demo-tokens demo-skills test-skills ## Run all demo workflows
+# ---------- Demo/Dogfood Targets (LIVE) ----------
+demo-validation: ## Demonstrate plugin validation (LIVE)
+	@echo "=== Abstract Validation Demo (LIVE) ==="
 	@echo ""
-	@echo "=== Conservation Plugin Check Complete ==="
+	@echo "Running validator on abstract plugin itself..."
+	$(UV_RUN) python scripts/validate-plugin.py .
+	@echo ""
+	@echo "Use /abstract:validate-plugin for full validation workflow."
 
-quick-status: ## Quick project status
-	@echo "Conservation: $$(find skills/ -name 'SKILL.md' 2>/dev/null | wc -l) skills, $$(find scripts/ -name '*.py' 2>/dev/null | wc -l) tools"
+demo-tokens: ## Demonstrate token estimation (LIVE)
+	@echo "=== Abstract Token Estimation Demo (LIVE) ==="
+	@echo ""
+	@echo "Estimating tokens for skill-authoring skill..."
+	$(UV_RUN) python scripts/token_estimator.py --file skills/skill-authoring/SKILL.md
+	@echo ""
+	@echo "Use /abstract:estimate-tokens for full estimation workflow."
+
+demo-audit: ## Demonstrate skill auditing (LIVE)
+	@echo "=== Abstract Skill Audit Demo (LIVE) ==="
+	@echo ""
+	@echo "Auditing skills in this plugin..."
+	$(UV_RUN) python -c "from abstract.skills_eval import SkillsAuditor; from pathlib import Path; a = SkillsAuditor(Path('.')); r = a.audit_skills(); print(f'Score: {r.get(\"average_score\", 0):.1f}/100')"
+
+plugin-check: demo-validation demo-tokens demo-audit ## Run all live demos
+	@echo ""
+	@echo "=== Abstract Plugin Check Complete ==="
 ```
 
-### Example 2: Root Aggregator
+### Example 2: Conserve Plugin - LIVE Context Analysis
 
 ```makefile
-# ---------- Demo/Dogfood Targets ----------
-demo-all: ## Demo all plugins
-	@for plugin in $(SUB_PLUGINS); do \
-		echo "=== $$plugin Demo ==="; \
-		$(MAKE) -C "$$plugin" demo 2>/dev/null || echo "  (demo failed)"; \
-		echo ""; \
-	done
-
-check-all: ## Check all plugins
-	@for plugin in $(SUB_PLUGINS); do \
-		echo "=== $$plugin Check ==="; \
-		$(MAKE) -C "$$plugin" plugin-check 2>/dev/null || echo "  (check failed)"; \
-		echo ""; \
-	done
-
-plugin-check: check-all ## Check all plugins
+# ---------- Demo/Dogfood Targets (LIVE) ----------
+demo-bloat: ## Demonstrate bloat scanning (LIVE)
+	@echo "=== Conserve Bloat Scan Demo (LIVE) ==="
 	@echo ""
-	@echo "=== All Plugins Check Complete ==="
+	@echo "Scanning this plugin for context bloat..."
+	$(UV_RUN) python scripts/bloat_scanner.py --target . --format summary
+	@echo ""
+	@echo "Use /conserve:bloat-scan for full analysis."
+
+demo-optimize: ## Demonstrate context optimization (LIVE)
+	@echo "=== Conserve Optimization Demo (LIVE) ==="
+	@echo ""
+	@echo "Analyzing context usage in skills/..."
+	$(UV_RUN) python scripts/context_analyzer.py --path skills/ --report
+	@echo ""
+	@echo "Use /conserve:optimize-context for recommendations."
+
+plugin-check: demo-bloat demo-optimize ## Run all live demos
+	@echo ""
+	@echo "=== Conserve Plugin Check Complete ==="
 ```
 
-### Example 3: Simple Plugin with Custom Features
+### Example 3: Imbue Plugin - LIVE Review Workflow
+
+```makefile
+# ---------- Demo/Dogfood Targets (LIVE) ----------
+demo-catchup: ## Demonstrate catchup workflow (LIVE)
+	@echo "=== Imbue Catchup Demo (LIVE) ==="
+	@echo ""
+	@echo "Running catchup on recent git changes..."
+	@git log --oneline -5
+	@echo ""
+	@git diff --stat HEAD~3..HEAD 2>/dev/null || git diff --stat HEAD~1..HEAD
+	@echo ""
+	@echo "Use /imbue:catchup for full workflow."
+
+demo-review: ## Demonstrate review workflow (LIVE)
+	@echo "=== Imbue Review Demo (LIVE) ==="
+	@echo ""
+	@echo "Running imbue validator on this plugin..."
+	$(UV_RUN) python scripts/imbue_validator.py --root . --report
+	@echo ""
+	@echo "Use /imbue:review for full review workflow."
+
+plugin-check: demo-catchup demo-review ## Run all live demos
+	@echo ""
+	@echo "=== Imbue Plugin Check Complete ==="
+```
+
+### Example 4: Fallback Pattern (No CLI Tools)
+
+For plugins without dedicated CLI tools, demonstrate skill invocation patterns:
 
 ```makefile
 # ---------- Demo/Dogfood Targets ----------
-demo: ## Run plugin demonstration
-	@echo "=== MyPlugin Demo ==="
-	@echo "Demonstrating core functionality..."
+demo-skills: ## Show available skills and how to invoke them
+	@echo "=== $(PLUGIN_NAME) Skills Demo ==="
 	@echo ""
-	@echo "Available skills:"
+	@echo "Available skills (invoke with /$(PLUGIN_NAME):<skill>):"
 	@for skill in skills/*/SKILL.md; do \
-		name=$$(basename $$(dirname $$skill)); \
-		echo "  - $$name"; \
+		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
+		desc=$$(head -15 "$$skill" | grep '^description:' | cut -d: -f2- | head -c 50); \
+		echo "  /$(PLUGIN_NAME):$$name - $$desc..."; \
 	done
-
-demo-advanced: ## Demonstrate advanced features
-	@echo "=== MyPlugin Advanced Demo ==="
-	@echo "Advanced capabilities:"
-	@echo "  - Batch processing of multiple files"
-	@echo "  - Real-time progress monitoring"
-	@echo "  - Export to multiple formats"
-
-plugin-check: demo demo-advanced ## Run plugin validation
 	@echo ""
-	@echo "=== MyPlugin Validation Complete ==="
+	@echo "Example: /$(PLUGIN_NAME):$$(ls skills/ | head -1)"
 
-quick-validate: ## Quick validation check
-	@echo "Validating MyPlugin..."
-	@test -f pyproject.toml || { echo "MISSING pyproject.toml"; exit 1; }
-	@test -d skills/ || { echo "MISSING skills/ directory"; exit 1; }
-	@echo "OK - MyPlugin structure valid"
+plugin-check: demo-skills lint test ## Run demos and quality checks
+	@echo ""
+	@echo "=== $(PLUGIN_NAME) Plugin Check Complete ==="
 ```
 
 ## Best Practices

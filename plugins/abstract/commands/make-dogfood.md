@@ -65,10 +65,17 @@ Safely validate existing targets:
 
 ### 4. Generation Phase
 Create missing targets based on analysis:
-- Generate demo targets to showcase functionality
-- Add dogfood targets for self-testing
+- Generate **LIVE demo targets** that run actual CLI tools/scripts
+- Add dogfood targets that run plugin tools on the plugin itself
 - Create quick-run targets for common workflows
+- Ensure demos show REAL output, not static echoes
 - Maintain consistency with existing patterns
+
+**Generation Checklist:**
+- [ ] Does `demo-*` target run an actual script/tool?
+- [ ] Does output show real, dynamic data?
+- [ ] Would a user learn something by running this?
+- [ ] Is the plugin "eating its own dogfood"?
 
 ## Examples
 
@@ -93,6 +100,37 @@ Create missing targets based on analysis:
 3. **Tests safely** without modifying files or running risky operations
 4. **Generates missing targets** with contextually appropriate templates
 5. **Maintains consistency** with existing project patterns and conventions
+
+## CRITICAL: Demo Target Philosophy
+
+**Demo targets must run ACTUAL functionality, not just echo static information.**
+
+| ❌ BAD (Static/Informational) | ✅ GOOD (Live/Functional) |
+|-------------------------------|---------------------------|
+| `@echo "Skills: 5"` | `$(UV_RUN) python scripts/validator.py --scan` |
+| `@find skills/ \| wc -l` | `$(UV_RUN) python scripts/cli.py analyze .` |
+| `@echo "Feature: validation"` | `$(UV_RUN) python scripts/validator.py --target .` |
+
+**Reference Pattern** (from ragentop project):
+```makefile
+demo-detection: build  ## Demonstrate agent session detection (LIVE)
+	@echo "=== Agent Session Detection Demo (LIVE) ==="
+	@./target/release/ragentop detect --verbose
+```
+
+This runs the actual tool and shows REAL output that users would see.
+
+### Good Demo Targets:
+- **Run plugin's own CLI tools** on itself (dogfooding)
+- **Execute validators/analyzers** on the plugin's own code
+- **Show real output** from actual tool invocations
+- **Demonstrate user workflows** with live examples
+
+### Bad Demo Targets:
+- Echo static feature descriptions
+- Count files with `find | wc -l`
+- List directory contents
+- Print hardcoded capability lists
 
 ## Output Format
 

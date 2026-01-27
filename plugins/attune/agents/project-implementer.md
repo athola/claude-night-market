@@ -373,13 +373,36 @@ When blocked, follow debugging framework:
 
 ## Velocity Optimization
 
-### Parallel Execution
+### Parallel Execution (DEFAULT for Nonconflicting Tasks)
 
-When possible, execute independent tasks in parallel:
+**CRITICAL**: When multiple tasks have no conflicts, execute them in PARALLEL (not sequentially).
+
+**Conflict Analysis Required**:
+```markdown
+Before parallel execution, verify ALL conditions:
+✅ Files: No file overlap between tasks
+✅ State: No shared configuration or globals
+✅ Dependencies: All prerequisites satisfied
+✅ Code paths: No merge conflicts
+✅ Outputs: Tasks don't need each other's results
+
+If ALL pass: Execute in PARALLEL (multiple Task calls in one response)
+If ANY fail: Execute SEQUENTIALLY
+```
+
+**Example - Parallel execution**:
 ```markdown
 TASK-001 (complete)
-    ├─▶ TASK-002 (execute)
-    └─▶ TASK-003 (execute in parallel)
+    ├─▶ TASK-002 (models/user.py)     ──┐
+    ├─▶ TASK-003 (api/endpoints.py)   ──┤─▶ PARALLEL
+    └─▶ TASK-004 (utils/validators.py)──┘    (3 Tasks, 1 response)
+```
+
+**Example - Sequential required**:
+```markdown
+TASK-005 (refactor schema) ──▶ TASK-006 (migrate data)
+                              ▲
+                              └─ TASK-006 needs TASK-005 output
 ```
 
 ### Timeboxing
@@ -392,10 +415,10 @@ TASK-001 (complete)
 
 ### Batch Operations
 
-**Group similar tasks**:
-- Multiple model implementations
-- Multiple API endpoints
-- Multiple test suites
+**Group nonconflicting tasks**:
+- Multiple model implementations (different files)
+- Multiple API endpoints (no shared state)
+- Multiple test suites (independent modules)
 
 ## Integration Patterns
 

@@ -1,6 +1,6 @@
 {
   "name": "archetypes",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "main": "skills",
   "skills": [
     "skills/architecture-paradigms",

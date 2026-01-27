@@ -23,6 +23,17 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_complete_notify.py --clear-state",
+            "timeout": 1
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

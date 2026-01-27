@@ -6,22 +6,25 @@ repos:
       # Note: Linting handled by global ruff-format + ruff hooks below
       # =================================================================
 
+      # Note: These hooks use pass_filenames: false because the scripts
+      # determine changed files via 'git diff --cached' internally.
+      # The 'files:' pattern only controls WHEN the hook triggers.
       - id: run-plugin-typecheck
         name: Type Check Changed Plugins
         entry: ./scripts/run-plugin-typecheck.sh --changed
         language: system
-        pass_filenames: false
+        pass_filenames: false  # Script uses git diff internally
         stages: [pre-commit]
-        files: ^plugins/.*\.py$
+        files: ^plugins/.*\.py$  # Triggers on .py changes
         verbose: true
 
       - id: run-plugin-tests
         name: Test Changed Plugins
         entry: ./scripts/run-plugin-tests.sh --changed
         language: system
-        pass_filenames: false
+        pass_filenames: false  # Script uses git diff internally
         stages: [pre-commit]
-        files: ^plugins/.*\.(py|md)$
+        files: ^plugins/.*\.(py|md)$  # Triggers on .py/.md changes
         verbose: true
 
       # =================================================================

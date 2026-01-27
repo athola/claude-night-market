@@ -442,14 +442,18 @@ class TestMainEntryPoint:
         """Given notifications enabled, spawns background process."""
         monkeypatch.delenv("CLAUDE_NO_NOTIFICATIONS", raising=False)
 
-        with patch("session_complete_notify.subprocess.Popen") as mock_popen:
-            with pytest.raises(SystemExit) as exc_info:
-                main()
+        with patch(
+            "session_complete_notify.get_session_id", return_value="test_session"
+        ):
+            with patch("session_complete_notify.subprocess.Popen") as mock_popen:
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
 
         assert exc_info.value.code == 0
         mock_popen.assert_called_once()
         call_args = mock_popen.call_args[0][0]
         assert "--background" in call_args
+        assert "test_session" in call_args  # session_id passed to background
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -457,9 +461,12 @@ class TestMainEntryPoint:
         """Given spawn request, creates detached session."""
         monkeypatch.delenv("CLAUDE_NO_NOTIFICATIONS", raising=False)
 
-        with patch("session_complete_notify.subprocess.Popen") as mock_popen:
-            with pytest.raises(SystemExit):
-                main()
+        with patch(
+            "session_complete_notify.get_session_id", return_value="test_session"
+        ):
+            with patch("session_complete_notify.subprocess.Popen") as mock_popen:
+                with pytest.raises(SystemExit):
+                    main()
 
         call_kwargs = mock_popen.call_args[1]
         assert call_kwargs.get("start_new_session") is True
@@ -472,10 +479,13 @@ class TestMainEntryPoint:
         """Given Popen failure, exits cleanly without error."""
         monkeypatch.delenv("CLAUDE_NO_NOTIFICATIONS", raising=False)
 
-        with patch("session_complete_notify.subprocess.Popen") as mock_popen:
-            mock_popen.side_effect = OSError("spawn failed")
-            with pytest.raises(SystemExit) as exc_info:
-                main()
+        with patch(
+            "session_complete_notify.get_session_id", return_value="test_session"
+        ):
+            with patch("session_complete_notify.subprocess.Popen") as mock_popen:
+                mock_popen.side_effect = OSError("spawn failed")
+                with pytest.raises(SystemExit) as exc_info:
+                    main()
 
         # Should still exit 0 (notifications are non-critical)
         assert exc_info.value.code == 0
@@ -486,15 +496,19 @@ class TestRunNotification:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_sends_notification_with_terminal_info(self) -> None:
+    def test_sends_notification_with_terminal_info(self, tmp_path: Path) -> None:
         """Given background mode, sends notification with terminal context."""
         with patch(
             "session_complete_notify.get_terminal_info",
             return_value="iTerm - myproject",
         ):
             with patch("session_complete_notify.send_notification") as mock_send:
-                mock_send.return_value = True
-                run_notification()
+                with patch(
+                    "session_complete_notify.NotificationState.load"
+                ) as mock_state:
+                    mock_state.return_value.should_notify.return_value = (True, "ok")
+                    mock_send.return_value = True
+                    run_notification("test_session", str(tmp_path))
 
         mock_send.assert_called_once()
         args = mock_send.call_args[0]
@@ -503,23 +517,27 @@ class TestRunNotification:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_fails_silently_on_error(self) -> None:
+    def test_fails_silently_on_error(self, tmp_path: Path) -> None:
         """Given notification error, does not raise exception."""
         with patch("session_complete_notify.get_terminal_info") as mock_info:
             mock_info.side_effect = RuntimeError("failed to get info")
             # Should not raise
-            run_notification()
+            run_notification("test_session", str(tmp_path))
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_notification_message_format(self) -> None:
+    def test_notification_message_format(self, tmp_path: Path) -> None:
         """Given successful detection, formats message correctly."""
         with patch(
             "session_complete_notify.get_terminal_info", return_value="tmux:dev:main"
         ):
             with patch("session_complete_notify.send_notification") as mock_send:
-                mock_send.return_value = True
-                run_notification()
+                with patch(
+                    "session_complete_notify.NotificationState.load"
+                ) as mock_state:
+                    mock_state.return_value.should_notify.return_value = (True, "ok")
+                    mock_send.return_value = True
+                    run_notification("test_session", str(tmp_path))
 
         args = mock_send.call_args[0]
         assert "Awaiting input in:" in args[1]

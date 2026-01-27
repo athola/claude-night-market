@@ -4,7 +4,7 @@
 # Uses shared Make includes from abstract plugin for DRY compliance
 
 .PHONY: help deps check fix format lint type-check typecheck spellcheck security test test-unit precommit \
-        status clean install-hooks enable disable skills install create list search delete manager export \
+        status clean clean-queue install-hooks enable disable skills install create list search delete manager export \
         import garden-metrics garden-tend mutation-test benchmark memory-profile demo-reset demo-import demo-export plugin-check demo-status debug-variables
 
 # Plugin-specific variables (must be before include)
@@ -156,6 +156,21 @@ garden-metrics:
 
 garden-tend:
 	GARDEN_FILE=$(GARDEN_FILE) $(CLI) garden tend --path "$(GARDEN_FILE)" --prometheus
+
+# ---------- Test cleanup ----------
+# Override test-unit to clean up queue files created during hook tests
+QUEUE_DIR := docs/knowledge-corpus/queue
+
+test-unit: ## Run unit tests (with queue cleanup)
+	@echo "Running unit tests..."
+	@$(PYTEST) $(TEST_UNIT_TARGETS) $(TEST_UNIT_ARGS) || { echo "[WARN] Tests failed"; exit 1; }
+	@echo "Cleaning up test-generated queue files..."
+	@rm -f $(QUEUE_DIR)/websearch-*.md $(QUEUE_DIR)/webfetch-*.md 2>/dev/null || true
+
+clean-queue: ## Remove auto-generated queue files from tests
+	@echo "Cleaning queue directory..."
+	@rm -f $(QUEUE_DIR)/websearch-*.md $(QUEUE_DIR)/webfetch-*.md 2>/dev/null || true
+	@echo "Queue cleaned."
 
 # ---------- Advanced Testing ----------
 mutation-test: ## Run mutation testing

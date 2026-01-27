@@ -129,7 +129,7 @@ Agent(attune:project-implementer)
 - `--phase <phase-name>` - Execute specific phase
 - `--resume` - Resume from last checkpoint
 - `--dry-run` - Preview execution without applying changes
-- `--parallel` - Execute independent tasks in parallel (advanced)
+- `--parallel` - Execute nonconflicting tasks in parallel (DEFAULT for independent tasks)
 
 ## Examples
 
@@ -406,10 +406,12 @@ Each task follows this systematic pattern:
 
 ### 4. Checkpoint
 ```bash
-# Mark task complete
+# Mark task complete IMMEDIATELY (never batch)
 # Update execution state
 # Report progress
 ```
+
+**Task Completion Discipline**: Call `TaskUpdate(taskId, status: "completed")` right after finishing each task—never defer to end of session.
 
 ## Integration with Full Cycle
 

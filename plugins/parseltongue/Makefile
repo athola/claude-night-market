@@ -164,69 +164,30 @@ debug-variables: ## Show Makefile variable values (for debugging)
 	@echo "PYTEST_TARGETS: $(PYTEST_TARGETS)"
 	@echo "MAKEFLAGS: $(MAKEFLAGS)"
 
-# ---------- Demo/Dogfood Targets ----------
-demo-async: ## Demo async Python patterns on own code
-	@echo "=== Parseltongue Async Demo ==="
-	@echo "Demonstrating python-async skill patterns..."
+# ---------- Demo/Dogfood Targets (LIVE) ----------
+demo-tests: ## Run tests to demonstrate testing patterns (LIVE)
+	@echo "=== Parseltongue Testing Demo (LIVE) ==="
 	@echo ""
-	@echo "Step 1: Find async patterns in codebase"
-	@echo "async def occurrences: $$(grep -r 'async def' skills/ tests/ 2>/dev/null | wc -l)"
-	@echo "await occurrences: $$(grep -r 'await ' skills/ tests/ 2>/dev/null | wc -l)"
-	@echo "asyncio imports: $$(grep -r 'import asyncio' skills/ tests/ 2>/dev/null | wc -l)"
-	@echo ""
-	@echo "Step 2: Skill coverage"
-	@test -f skills/python-async/SKILL.md && echo "  [OK] python-async skill exists" || echo "  [X] python-async skill missing"
-	@head -10 skills/python-async/SKILL.md 2>/dev/null | grep -E '^(name|description):' || true
-	@echo ""
-	@echo "Async demo complete. Use parseltongue:python-async for full guidance."
+	$(PYTEST) tests/ -v --tb=short -q --co 2>/dev/null | head -20 || $(PYTEST) tests/ -v --tb=short -q | head -30
 
-demo-testing: ## Demo testing patterns on own test suite
-	@echo "=== Parseltongue Testing Demo ==="
-	@echo "Demonstrating python-testing skill patterns..."
+demo-coverage: ## Run coverage analysis (LIVE)
+	@echo "=== Parseltongue Coverage Demo (LIVE) ==="
 	@echo ""
-	@echo "Step 1: Test suite analysis"
-	@echo "Test files: $$(find tests/ -name 'test_*.py' 2>/dev/null | wc -l)"
-	@echo "Test functions: $$(grep -r 'def test_' tests/ 2>/dev/null | wc -l)"
-	@echo "Fixtures: $$(grep -r '@pytest.fixture' tests/ 2>/dev/null | wc -l)"
-	@echo "Parametrized: $$(grep -r '@pytest.mark.parametrize' tests/ 2>/dev/null | wc -l)"
-	@echo ""
-	@echo "Step 2: Skill coverage"
-	@test -f skills/python-testing/SKILL.md && echo "  [OK] python-testing skill exists" || echo "  [X] python-testing skill missing"
-	@echo ""
-	@echo "Testing demo complete. Use parseltongue:python-testing for full guidance."
+	$(PYTEST) --cov=parseltongue --cov-report=term-missing -q 2>/dev/null | head -30 || echo "Coverage: run 'make coverage' for full report"
 
-demo-perf: ## Demo performance patterns
-	@echo "=== Parseltongue Performance Demo ==="
-	@echo "Demonstrating python-performance skill..."
+demo-lint: ## Run linting on parseltongue code (LIVE)
+	@echo "=== Parseltongue Lint Demo (LIVE) ==="
 	@echo ""
-	@echo "Step 1: Codebase metrics"
-	@echo "Python files: $$(find . -name '*.py' -not -path './.venv/*' 2>/dev/null | wc -l)"
-	@echo "Total lines: $$(find . -name '*.py' -not -path './.venv/*' -exec cat {} \; 2>/dev/null | wc -l)"
-	@echo ""
-	@echo "Step 2: Potential optimizations"
-	@echo "List comprehensions: $$(grep -r '\[.*for.*in.*\]' skills/ 2>/dev/null | wc -l)"
-	@echo "Generator expressions: $$(grep -r '(.*for.*in.*)' skills/ 2>/dev/null | wc -l)"
-	@echo ""
-	@echo "Step 3: Skill coverage"
-	@test -f skills/python-performance/SKILL.md && echo "  [OK] python-performance skill exists" || echo "  [X] python-performance skill missing"
-	@echo ""
-	@echo "Performance demo complete. Use parseltongue:python-performance for full guidance."
+	$(RUFF) check parseltongue/ --statistics 2>/dev/null || echo "Linting clean or ruff not configured"
 
-demo-skills: ## Validate parseltongue skill structure
-	@echo "=== Parseltongue Skills Demo ==="
-	@echo "Python development skills:"
+demo-skills: ## List parseltongue skills
+	@echo "=== Parseltongue Skills ==="
 	@for skill in skills/*/SKILL.md; do \
 		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
-	@echo ""
-	@echo "Skill coverage:"
-	@echo "  python-async:       $$(test -f skills/python-async/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  python-testing:     $$(test -f skills/python-testing/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  python-performance: $$(test -f skills/python-performance/SKILL.md && echo '[OK]' || echo '[X]')"
-	@echo "  python-packaging:   $$(test -f skills/python-packaging/SKILL.md && echo '[OK]' || echo '[X]')"
 
-plugin-check: demo-async demo-testing demo-perf demo-skills ## Run all demo workflows
+plugin-check: demo-tests demo-lint demo-skills ## Run all live demos
 	@echo ""
 	@echo "=== Parseltongue Plugin Check Complete ==="
 

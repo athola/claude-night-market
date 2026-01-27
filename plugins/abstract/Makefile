@@ -246,22 +246,30 @@ mutation-test: ## Run mutation testing
 		echo "mutmut not installed (pip install mutmut)"; \
 	fi
 
-# ---------- Demo/Dogfood Targets ----------
-demo-skills: ## Validate abstract skill structure
-	@echo "=== Abstract Skills Demo ==="
-	@echo "Skill authoring and evaluation tools:"
+# ---------- Demo/Dogfood Targets (LIVE) ----------
+demo-validation: ## Demonstrate plugin validation (LIVE)
+	@echo "=== Abstract Validation Demo (LIVE) ==="
+	@echo ""
+	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py .
+
+demo-tokens: ## Demonstrate token estimation (LIVE)
+	@echo "=== Abstract Token Estimation Demo (LIVE) ==="
+	@echo ""
+	$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file $(SKILLS_DIR)/skill-authoring/SKILL.md
+
+demo-analyzer: ## Demonstrate skill analyzer (LIVE)
+	@echo "=== Abstract Skill Analyzer Demo (LIVE) ==="
+	@echo ""
+	$(UV_PYTHON) $(SCRIPTS_DIR)/skill_analyzer.py --path $(SKILLS_DIR)/skill-authoring
+
+demo-skills: ## List available skills
+	@echo "=== Abstract Skills ==="
 	@for skill in $(SKILLS_DIR)/*/SKILL.md; do \
 		name=$$(head -10 "$$skill" | grep '^name:' | cut -d: -f2 | tr -d ' '); \
 		echo "  - $$name"; \
 	done
-	@echo ""
-	@echo "Step 2: Running skill validator on abstract plugin..."
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py . || echo "  (validation completed with warnings)"
-	@echo ""
-	@echo "Step 3: Token estimation sample"
-	@$(UV_PYTHON) $(SCRIPTS_DIR)/token_estimator.py --file $(SKILLS_DIR)/skill-authoring/SKILL.md 2>/dev/null || echo "  (token estimator sample skipped)"
 
-plugin-check: validate-self demo-skills ## Run all demo workflows
+plugin-check: demo-validation demo-tokens demo-analyzer ## Run all live demos
 	@echo ""
 	@echo "=== Abstract Plugin Check Complete ==="
 

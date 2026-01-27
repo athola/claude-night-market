@@ -155,43 +155,25 @@ memory-profile: ## Profile memory usage
 	@echo "Memory profiling not yet configured for conserve"
 	@echo "Install memory_profiler: pip install memory_profiler"
 
-# ---------- Demo/Dogfood Targets ----------
-demo-context: ## Demo context optimization on own skills
-	@echo "=== Conservation Context Demo ==="
-	@echo "Demonstrating context-optimization skill..."
+# ---------- Demo/Dogfood Targets (LIVE) ----------
+demo-context: ## Demo context optimization (LIVE)
+	@echo "=== Conservation Context Demo (LIVE) ==="
 	@echo ""
-	@echo "Step 1: Measure current context usage"
-	@echo "Skills directory size: $$(du -sh skills/ 2>/dev/null | cut -f1)"
-	@echo "Total skill files: $$(find skills/ -name '*.md' 2>/dev/null | wc -l)"
-	@echo "Largest skills:"
-	@find skills/ -name "*.md" -exec wc -l {} \; 2>/dev/null | sort -rn | head -5
+	@echo "Running context optimizer on this plugin..."
+	cd ../abstract && $(UV_RUN) python scripts/context_optimizer.py --path ../conserve/skills/ --report 2>/dev/null || \
+		echo "Context optimizer: skills/ = $$(du -sh skills/ | cut -f1), $$(find skills/ -name '*.md' | wc -l) files"
 	@echo ""
-	@echo "Step 2: Skill structure analysis"
-	@for skill in skills/*/SKILL.md; do \
-		name=$$(basename $$(dirname $$skill)); \
-		modules=$$(find $$(dirname $$skill) -name "*.md" ! -name "SKILL.md" 2>/dev/null | wc -l); \
-		echo "  $$name: $$modules modules"; \
-	done
-	@echo ""
-	@echo "Context demo complete. Use /conservation:optimize-context for full workflow."
+	@echo "Use /conserve:optimize-context for full workflow."
 
-demo-tokens: ## Demo token estimation on own plugin
-	@echo "=== Conservation Token Demo ==="
-	@echo "Demonstrating token estimation..."
+demo-tokens: ## Demo token estimation (LIVE)
+	@echo "=== Conservation Token Demo (LIVE) ==="
 	@echo ""
-	@echo "Step 1: Estimate skill tokens"
-	@for skill in skills/*/SKILL.md; do \
-		lines=$$(wc -l < "$$skill" 2>/dev/null); \
-		tokens=$$((lines * 4)); \
-		echo "  $$skill: ~$$tokens tokens ($$lines lines)"; \
-	done
+	@echo "Running token estimator on conserve skills..."
+	cd ../abstract && $(UV_RUN) python scripts/token_estimator.py --directory ../conserve/skills/ 2>/dev/null || \
+		$(UV_RUN) python scripts/token_estimator.py --file skills/context-optimization/SKILL.md 2>/dev/null || \
+		echo "Token estimate: ~$$(find skills/ -name '*.md' -exec cat {} \; | wc -l | awk '{print $$1*4}') tokens"
 	@echo ""
-	@echo "Step 2: Total plugin estimate"
-	@total_lines=$$(find skills/ -name "*.md" -exec cat {} \; 2>/dev/null | wc -l); \
-	total_tokens=$$((total_lines * 4)); \
-	echo "  Total: ~$$total_tokens tokens ($$total_lines lines)"
-	@echo ""
-	@echo "Token demo complete. Use 'make token-estimate ARGS=...' for precise estimation."
+	@echo "Use 'make token-estimate ARGS=...' for detailed estimation."
 
 demo-skills: ## Validate conservation skill structure
 	@echo "=== Conservation Skills Demo ==="

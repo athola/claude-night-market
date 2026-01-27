@@ -118,11 +118,11 @@ flowchart TB
 ### Layer Overview
 
 1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth and quotas), and `imbue` (TDD cycles).
-2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine).
+2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine with hook conversion and context-aware rule suggestions).
 3.  **Domain Specialists**: Task-specific logic. `pensive` (code review), `spec-kit` (requirements), and `minister` (issue tracking).
 4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 125 skills, 109 commands, and 40 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 125 skills, 111 commands, and 40 agents.
 
 ## Common Workflows
 

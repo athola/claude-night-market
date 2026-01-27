@@ -69,8 +69,17 @@ Each task includes:
 Dependencies define execution order and identify parallelization opportunities:
 
 - **Sequential Tasks**: Execute in strict order when dependencies exist
-- **Parallel Tasks [P]**: Can run concurrently when no conflicts exist
-- **File Coordination**: Tasks affecting same files must run sequentially
+- **Parallel Tasks [P]**: Can run concurrently when ALL nonconflicting conditions are met
+- **File Coordination**: Tasks affecting same files MUST run sequentially
+
+**Nonconflicting Criteria for Parallel Execution**:
+- ✅ Files: No file overlap between tasks
+- ✅ State: No shared configuration or global state
+- ✅ Dependencies: All prerequisites satisfied
+- ✅ Code paths: No merge conflicts possible
+- ✅ Outputs: Tasks don't need each other's results
+
+**Mark tasks with [P] ONLY if they pass ALL criteria above.**
 
 For fan-out/fan-in patterns, task ID conventions, and validation rules, see `modules/dependency-patterns.md`.
 
