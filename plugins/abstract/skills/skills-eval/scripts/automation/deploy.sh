@@ -41,7 +41,7 @@ else
 fi
 
 # Test modular-skills scripts
-for tool in skill-analyzer token-estimator module-validator; do
+for tool in skill-analyzer token-estimator module_validator; do
     if [[ -x "$MODULAR_SKILLS_DIR/scripts/$tool" ]]; then
         echo " $tool executable"
     else

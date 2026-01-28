@@ -4,7 +4,7 @@
 # Provides token caching, session management, and multi-service support
 #
 # Usage:
-#   source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+#   source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 #   ensure_auth github || exit 1
 #
 

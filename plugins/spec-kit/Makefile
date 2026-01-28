@@ -42,7 +42,7 @@ test-integration: ## Run integration tests only
 # ---------- Validation ----------
 validate-plugin: ## Validate plugin structure
 	@echo "Validating spec-kit plugin structure..."
-	python3 $(ABSTRACT_DIR)/scripts/validate-plugin.py . || echo "Validation completed with warnings"
+	python3 $(ABSTRACT_DIR)/scripts/validate_plugin.py . || echo "Validation completed with warnings"
 
 # ---------- CI ----------
 ci: lint test ## Run CI pipeline

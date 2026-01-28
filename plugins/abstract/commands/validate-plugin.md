@@ -64,5 +64,5 @@ done
 Run the Python validation script:
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate-plugin.py "${1:-.}"
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate_plugin.py "${1:-.}"
 ```

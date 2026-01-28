@@ -2,7 +2,7 @@
 # Version validation script for claude-night-market
 # Used by /pr-review Phase 1.5 to check version consistency
 #
-# Usage: validate-versions.sh [PR_NUMBER]
+# Usage: validate_versions.sh [PR_NUMBER]
 #   If PR_NUMBER provided, checks only files changed in that PR
 #   Otherwise, validates entire repository
 

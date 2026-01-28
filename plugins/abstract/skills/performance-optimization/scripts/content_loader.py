@@ -5,7 +5,7 @@ Description: On-demand content loading tool for progressive skill content
 disclosure. Implements conditional loading based on user context and
 requirements.
 
-Usage: scripts/content-loader.py [--skill-path PATH] [--context CONTEXT]
+Usage: scripts/content_loader.py [--skill-path PATH] [--context CONTEXT]
 [--format FORMAT].
 """
 

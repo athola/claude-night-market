@@ -85,14 +85,14 @@ skill-load api-design api-testing
 1. **Start with Hub-first approach**: Begin with clear overview and boundaries
 2. **Identify natural seams**: Look for existing section breaks and theme changes
 3. **Extract shared functionality**: Move common patterns to tools
-4. **Validate early and often**: Use module-validator throughout migration
+4. **Validate early and often**: Use module_validator throughout migration
 5. **Measure token improvements**: Track actual usage patterns
 6. **Consider loading patterns**: Design for partial loading scenarios
 
 ## Quick Validation
 ```bash
 # Validate new structure
-module-validator --directory api-development/ --verbose
+module_validator --directory api-development/ --verbose
 
 # Check token efficiency
 token-estimator --directory api-development/ --include-dependencies

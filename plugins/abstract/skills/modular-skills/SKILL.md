@@ -9,7 +9,7 @@ description: |
 category: workflow-optimization
 tags: [architecture, modularity, tokens, skills, design-patterns, skill-design, token-optimization]
 dependencies: []
-tools: [skill-analyzer, token-estimator, module-validator]
+tools: [skill-analyzer, token-estimator, module_validator]
 usage_patterns:
   - skill-design
   - architecture-review
@@ -41,7 +41,7 @@ Modular design keeps file sizes within recommended limits, typically under 150 l
 Three tools support modular skill development:
 - `skill-analyzer`: Checks complexity and suggests where to split code.
 - `token-estimator`: Forecasts usage and suggests optimizations.
-- `module-validator`: Verifies that structure complies with project standards.
+- `module_validator`: Verifies that structure complies with project standards.
 
 ### Design Principles
 

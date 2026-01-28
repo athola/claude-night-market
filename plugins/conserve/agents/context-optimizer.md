@@ -110,6 +110,6 @@ The agent produces a structured report including:
 ## Integration
 
 This agent uses tools from:
-- `scripts/growth-analyzer.py` - Growth pattern analysis
-- `scripts/growth-controller.py` - Optimization execution
+- `scripts/growth_analyzer.py` - Growth pattern analysis
+- `scripts/growth_controller.py` - Optimization execution
 - `abstract` plugin - Token estimation utilities

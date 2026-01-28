@@ -16,7 +16,7 @@ complete-skills/
 │   │   ├── documentation-guidelines/SKILL.md
 │   │   └── deployment-procedures/SKILL.md
 │   └── scripts/                         # Shared utilities
-│       └── setup-validator.py
+│       └── setup_validator.py
 ├── validation-scripts/                  # Analysis tools
 │   └── compare-tokens.py
 └── README.md                            # This file
@@ -109,10 +109,10 @@ Use the setup validator to check the modular structure:
 
 ```bash
 # Validate the modular setup
-python3 development-workflow/scripts/setup-validator.py
+python3 development-workflow/scripts/setup_validator.py
 
 # Generate setup script for new projects
-python3 development-workflow/scripts/setup-validator.py \
+python3 development-workflow/scripts/setup_validator.py \
     --generate-script \
     --output setup-development-workflow.sh
 ```
@@ -307,7 +307,7 @@ mkdir -p development-workflow/tools
 ### 4. Validation Phase
 ```bash
 # Validate new structure
-module-validator --directory development-workflow/ --verbose
+module_validator --directory development-workflow/ --verbose
 
 # Compare token usage
 python3 validation-scripts/compare-tokens.py \

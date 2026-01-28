@@ -55,7 +55,7 @@ Comprehensive review of plugin architecture quality. Orchestrates multiple evalu
 ### 1. Plugin Structure Validation
 Validates plugin.json, directory structure, naming conventions, and path references.
 
-**Source**: `abstract:plugin-validator` agent, `validate-plugin.py` script
+**Source**: `abstract:plugin-validator` agent, `validate_plugin.py` script
 
 ### 2. Skills Quality Assessment
 Evaluates all skills against quality standards:
@@ -74,7 +74,7 @@ Checks all commands for:
 - Implementation references
 - Integration with skills/agents
 
-**Source**: `validate-plugin.py` command validation
+**Source**: `validate_plugin.py` command validation
 
 ### 4. Hooks Evaluation
 Comprehensive hook analysis:
@@ -212,7 +212,7 @@ Exit codes:
 
 This command orchestrates multiple evaluation tools:
 
-1. **Plugin structure validation**: `validate-plugin.py`
+1. **Plugin structure validation**: `validate_plugin.py`
 2. **Skills evaluation**: `skill_analyzer.py --scan-all`
 3. **Token analysis**: `context_optimizer.py report`
 4. **Hooks evaluation**: `hooks_auditor.py` (if hooks exist)

@@ -146,7 +146,7 @@ For workflows requiring interactive authentication with token caching and sessio
 
 ```bash
 # Source the interactive auth script
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 
 # Ensure authentication before proceeding
 ensure_auth github || exit 1

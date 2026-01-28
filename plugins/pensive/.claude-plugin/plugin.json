@@ -13,7 +13,8 @@
     "./commands/makefile-review.md",
     "./commands/shell-review.md",
     "./commands/skill-review.md",
-    "./commands/skill-history.md"
+    "./commands/skill-history.md",
+    "./commands/refine-code.md"
   ],
   "skills": [
     "./skills/shared",
@@ -26,12 +27,14 @@
     "./skills/math-review",
     "./skills/makefile-review",
     "./skills/shell-review",
-    "./skills/fpf-review"
+    "./skills/fpf-review",
+    "./skills/code-refinement"
   ],
   "agents": [
     "./agents/code-reviewer.md",
     "./agents/architecture-reviewer.md",
-    "./agents/rust-auditor.md"
+    "./agents/rust-auditor.md",
+    "./agents/code-refiner.md"
   ],
   "keywords": [
     "review",

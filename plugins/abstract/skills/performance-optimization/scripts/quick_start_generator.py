@@ -4,7 +4,7 @@
 Description: Automated quick-start generator for existing skills. Creates
 lightweight variants focused on essential information.
 
-Usage: scripts/quick-start-generator.py [--skill-path PATH] [--output PATH]
+Usage: scripts/quick_start_generator.py [--skill-path PATH] [--output PATH]
 [--template TEMPLATE].
 """
 
@@ -284,7 +284,7 @@ class QuickStartGenerator:
         generic_descriptions = {
             "skill-analyzer": "Complexity analysis and recommendations",
             "token-estimator": "Usage forecasting and optimization",
-            "module-validator": "Structure validation and compliance",
+            "module_validator": "Structure validation and compliance",
             "skills-auditor": "detailed skill discovery and analysis",
             "improvement-suggester": "Prioritized improvement recommendations",
             "compliance-checker": "Standards validation and security checking",

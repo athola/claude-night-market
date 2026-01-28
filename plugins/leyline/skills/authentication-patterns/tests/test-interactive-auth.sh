@@ -22,7 +22,7 @@ echo ""
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Find leyline plugin root (contains scripts/ directory)
 LEYLINE_ROOT="$(cd "$TEST_DIR/../../.." && pwd)"
-MODULE_PATH="$LEYLINE_ROOT/scripts/interactive-auth.sh"
+MODULE_PATH="$LEYLINE_ROOT/scripts/interactive_auth.sh"
 
 if [[ ! -f "$MODULE_PATH" ]]; then
   echo -e "${RED}✗ Module not found: $MODULE_PATH${NC}"
@@ -248,7 +248,7 @@ echo ""
 echo "Module is ready for use in workflows."
 echo ""
 echo "Quick start:"
-echo "  source plugins/leyline/scripts/interactive-auth.sh"
+echo "  source plugins/leyline/scripts/interactive_auth.sh"
 echo "  ensure_auth github || exit 1"
 echo "  gh pr view 123"
 echo ""

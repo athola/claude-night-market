@@ -23,7 +23,7 @@ gh pr view 123
 
 ```bash
 # New way - interactive auth with caching
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 
 ensure_auth github || exit 1
 
@@ -37,7 +37,7 @@ gh pr view 123
 # /pr-review command
 
 # Source interactive auth
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Ensure GitHub authentication
 if ! ensure_auth github; then
@@ -66,7 +66,7 @@ gh api "repos/owner/repo/pulls/$PR_NUMBER/comments"
 #!/usr/bin/env bash
 # /create-issue command
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Ensure authentication
 if ! ensure_auth github; then
@@ -88,7 +88,7 @@ gh issue create --title "$TITLE" "$@"
 #!/usr/bin/env bash
 # Sync issues from GitHub to GitLab
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Authenticate both services
 ensure_auth github || exit 1
@@ -108,7 +108,7 @@ gh issue list --json number,title | \
 #!/usr/bin/env bash
 # Batch PR operations
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Use wrapper functions for cleaner code
 gh_api_with_auth "repos/owner/repo/pulls" | \
@@ -149,7 +149,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTH_INTERACTIVE: false  # Force non-interactive mode
         run: |
-          source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+          source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
           # Will use GITHUB_TOKEN from environment
           if ! ensure_auth github; then
@@ -172,7 +172,7 @@ jobs:
 #!/usr/bin/env bash
 # /fix-pr command
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Ensure authentication before starting workflow
 if ! ensure_auth github; then
@@ -214,7 +214,7 @@ When updating existing workflows to use interactive auth:
 #!/usr/bin/env bash
 # Long-running workflow with extended cache
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Extend cache to 1 hour for long-running workflow
 export AUTH_CACHE_TTL=3600
@@ -232,7 +232,7 @@ ensure_auth github  # Skips check if within 1 hour
 
 ```bash
 #!/usr/bin/env bash
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Wrapper for error handling
 run_authenticated_command() {
@@ -279,7 +279,7 @@ cat ~/.cache/claude-auth/github/session.json
 export AUTH_INTERACTIVE=false
 export GITHUB_TOKEN="ghp_..."
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 ensure_auth github  # Should use GITHUB_TOKEN, no prompt
 ```

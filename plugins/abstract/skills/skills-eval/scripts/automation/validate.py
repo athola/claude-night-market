@@ -17,7 +17,7 @@ def validate_skill(skill_path):
 
     # Use modular-skills validator
     modular_skills_dir = Path(__file__).parent.parent.parent / "modular-skills"
-    validator = modular_skills_dir / "tools" / "module-validator"
+    validator = modular_skills_dir / "tools" / "module_validator"
 
     if validator.exists():
         try:

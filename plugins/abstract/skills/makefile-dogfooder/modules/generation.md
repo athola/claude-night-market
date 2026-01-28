@@ -394,7 +394,7 @@ demo-validation: ## Demonstrate plugin validation (LIVE)
 	@echo "=== Abstract Validation Demo (LIVE) ==="
 	@echo ""
 	@echo "Running validator on abstract plugin itself..."
-	$(UV_RUN) python scripts/validate-plugin.py .
+	$(UV_RUN) python scripts/validate_plugin.py .
 	@echo ""
 	@echo "Use /abstract:validate-plugin for full validation workflow."
 

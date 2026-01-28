@@ -112,19 +112,19 @@ class TestScriptsStructure:
         assert scripts_dir.exists(), "scripts/ directory not found"
 
     def test_gif_demo_script_exists(self, scripts_dir: Path) -> None:
-        """gif-demo.sh should exist."""
-        gif_demo = scripts_dir / "gif-demo.sh"
-        assert gif_demo.exists(), "gif-demo.sh not found"
+        """gif_demo.sh should exist."""
+        gif_demo = scripts_dir / "gif_demo.sh"
+        assert gif_demo.exists(), "gif_demo.sh not found"
 
     def test_gif_demo_script_executable(self, scripts_dir: Path) -> None:
-        """gif-demo.sh should be executable."""
+        """gif_demo.sh should be executable."""
         import os
 
-        gif_demo = scripts_dir / "gif-demo.sh"
-        assert os.access(gif_demo, os.X_OK), "gif-demo.sh is not executable"
+        gif_demo = scripts_dir / "gif_demo.sh"
+        assert os.access(gif_demo, os.X_OK), "gif_demo.sh is not executable"
 
     def test_gif_demo_script_has_shebang(self, scripts_dir: Path) -> None:
-        """gif-demo.sh should have proper shebang."""
-        gif_demo = scripts_dir / "gif-demo.sh"
+        """gif_demo.sh should have proper shebang."""
+        gif_demo = scripts_dir / "gif_demo.sh"
         content = gif_demo.read_text()
-        assert content.startswith("#!/"), "gif-demo.sh missing shebang"
+        assert content.startswith("#!/"), "gif_demo.sh missing shebang"

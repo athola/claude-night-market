@@ -14,7 +14,7 @@ ABSTRACT_DIR := ../abstract
 
 GIF_DEMO_DIR ?= /tmp/scry-gif-test
 TMP_DIR ?= $(GIF_DEMO_DIR)
-GIF_DEMO_SCRIPT := $(SCRIPTS_DIR)/gif-demo.sh
+GIF_DEMO_SCRIPT := $(SCRIPTS_DIR)/gif_demo.sh
 
 # Default target - auto-generated help from ## comments
 help: ## Show this help message

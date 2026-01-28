@@ -46,7 +46,7 @@ cloud-architecture/
 ## Testing and Validation
 ```bash
 # Validate entire ecosystem
-module-validator --directory cloud-architecture/ --check-dependencies
+module_validator --directory cloud-architecture/ --check-dependencies
 
 # Test specific provider
 token-estimator --file providers/aws/SKILL.md --include-dependencies

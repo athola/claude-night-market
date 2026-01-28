@@ -46,7 +46,7 @@ cloud-architecture/
 1. Define provider-specific modules
 2. Create shared scripts directory
 3. Implement provider-selector for intelligent routing
-4. Validate with module-validator
+4. Validate with module_validator
 
 ## Integration
 Use with **dynamic-loading** for context-aware module selection.

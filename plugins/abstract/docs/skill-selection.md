@@ -28,7 +28,7 @@ modular-skills/
 │   └── antipatterns-and-migration.md
 ├── scripts/              # Analysis and validation tools
 │   ├── skill-analyzer
-│   ├── module-validator
+│   ├── module_validator
 │   └── token-estimator
 └── examples/             # Reference implementations
 ```
@@ -168,7 +168,7 @@ Some scripts appear in multiple skills but serve different purposes:
 |----------|-----------|---------------|
 | New skill design | `modular-skills` | `skill-analyzer` |
 | Modularization planning | `modular-skills` | `token-estimator` |
-| Structure validation | `modular-skills` | `module-validator` |
+| Structure validation | `modular-skills` | `module_validator` |
 | Quality assessment | `skills-eval` | `skills-auditor` |
 | Improvement planning | `skills-eval` | `improvement-suggester` |
 | Standards validation | `skills-eval` | `compliance-checker` |
@@ -204,7 +204,7 @@ Some scripts appear in multiple skills but serve different purposes:
 ### Creating Modular Skills
 1. Use `skill-analyzer` to assess scope and complexity
 2. Design module boundaries based on usage patterns
-3. Validate with `module-validator` for structure compliance
+3. Validate with `module_validator` for structure compliance
 4. Estimate tokens with `token-estimator`
 
 ### Evaluating Skills

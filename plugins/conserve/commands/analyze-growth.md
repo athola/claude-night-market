@@ -65,11 +65,11 @@ Analyzes skill file growth patterns over time and predicts future context budget
 
 Pairs with:
 - `/optimize-context` - Current state analysis
-- `growth-controller.py` - Automated growth management
+- `growth_controller.py` - Automated growth management
 - `optimizing-large-skills` skill - Implementation patterns
 
 ## Implementation
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/growth-analyzer.py --growth "${1:-.}"
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/growth_analyzer.py --growth "${1:-.}"
 ```

@@ -102,11 +102,11 @@ debug-variables: ## Show Makefile variable values (for debugging)
 # ---------- CLI Tools ----------
 cli-status: ## Show plugin status via CLI
 	@echo "Running CLI status check..."
-	./bin/conservation-cli status || echo "CLI not available"
+	./bin/conservation_cli status || echo "CLI not available"
 
 cli-validate: ## Run full validation via CLI
 	@echo "Running CLI validation..."
-	./bin/conservation-cli validate || echo "CLI not available"
+	./bin/conservation_cli validate || echo "CLI not available"
 
 # ---------- Resource Management ----------
 token-estimate: ## Estimate token usage for skills (ARGS=...)

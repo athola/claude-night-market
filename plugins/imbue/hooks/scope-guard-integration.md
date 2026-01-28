@@ -56,11 +56,11 @@ Copy the threshold check hook to your project:
 
 ```bash
 # Copy hook to project
-cp plugins/imbue/hooks/pre-pr-scope-check.sh .git/hooks/pre-push
+cp plugins/imbue/hooks/pre_pr_scope_check.sh .git/hooks/pre-push
 
 # Or install globally
 mkdir -p ~/.claude/hooks
-cp plugins/imbue/hooks/pre-pr-scope-check.sh ~/.claude/hooks/
+cp plugins/imbue/hooks/pre_pr_scope_check.sh ~/.claude/hooks/
 ```
 
 ## Option 4: Manual Checkpoint Prompts

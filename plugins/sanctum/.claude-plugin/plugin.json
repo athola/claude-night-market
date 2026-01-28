@@ -20,7 +20,8 @@
     "./commands/update-readme.md",
     "./commands/update-tests.md",
     "./commands/update-tutorial.md",
-    "./commands/update-version.md"
+    "./commands/update-version.md",
+    "./commands/update-ci.md"
   ],
   "skills": [
     "./skills/commit-messages",

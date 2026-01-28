@@ -46,7 +46,7 @@ imbue/
 │   ├── hooks.json           # Hook configuration
 │   ├── session-start.sh     # Session initialization
 │   ├── user-prompt-submit.sh # Per-prompt threshold checks
-│   ├── pre-pr-scope-check.sh # Branch threshold monitoring
+│   ├── pre_pr_scope_check.sh # Branch threshold monitoring
 │   └── tdd_bdd_gate.py      # PreToolUse: Iron Law enforcement
 ├── commands/
 │   ├── full-review.md       # Structured review command

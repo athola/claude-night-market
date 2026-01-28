@@ -98,11 +98,11 @@ validate-skill-descriptions: ## Validate skill descriptions follow best practice
 
 validate-plugin: ## Validate plugin structure (TARGET=<path>, defaults to current dir)
 	@echo "Validating plugin structure..."
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py "$(or $(TARGET),.)"
+	$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py "$(or $(TARGET),.)"
 
 validate-self: ## Validate this plugin's structure
 	@echo "Validating abstract plugin structure..."
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py .
+	$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
 
 estimate-tokens: ## Estimate token usage (TARGET=<path>)
 	$(call require_path,$@)
@@ -250,7 +250,7 @@ mutation-test: ## Run mutation testing
 demo-validation: ## Demonstrate plugin validation (LIVE)
 	@echo "=== Abstract Validation Demo (LIVE) ==="
 	@echo ""
-	$(UV_PYTHON) $(SCRIPTS_DIR)/validate-plugin.py .
+	$(UV_PYTHON) $(SCRIPTS_DIR)/validate_plugin.py .
 
 demo-tokens: ## Demonstrate token estimation (LIVE)
 	@echo "=== Abstract Token Estimation Demo (LIVE) ==="

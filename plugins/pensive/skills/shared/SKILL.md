@@ -62,6 +62,7 @@ All pensive review skills:
 - `pensive:makefile-review`
 - `pensive:math-review`
 - `pensive:unified-review`
+- `pensive:code-refinement`
 ## Troubleshooting
 
 ### Common Issues

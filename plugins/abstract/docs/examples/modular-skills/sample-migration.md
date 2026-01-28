@@ -69,7 +69,7 @@ skill-load api-development     # 4,400 tokens (all modules + tools)
 ## Validation Commands
 ```bash
 # Validate structure
-module-validator --directory api-development/ --verbose
+module_validator --directory api-development/ --verbose
 
 # Check efficiency
 token-estimator --directory api-development/ --include-dependencies

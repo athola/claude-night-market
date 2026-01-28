@@ -110,6 +110,22 @@ if [ "$list_only" -eq 1 ]; then
 fi
 
 errors=0
+max_retries=3
+retry_delay=2
+
+retry_cmd() {
+  local attempt
+  for attempt in $(seq 1 "$max_retries"); do
+    if "$@" 2>&1; then
+      return 0
+    fi
+    if [ "$attempt" -lt "$max_retries" ]; then
+      warn "attempt $attempt/$max_retries failed, retrying in ${retry_delay}s..."
+      sleep "$retry_delay"
+    fi
+  done
+  return 1
+}
 
 while IFS= read -r plugin_id; do
   if [ -n "$only_regex" ] && ! printf "%s" "$plugin_id" | rg -q "$only_regex"; then
@@ -125,15 +141,18 @@ while IFS= read -r plugin_id; do
   fi
 
   # Uninstall first (ignore failures so we still attempt install).
-  if ! claude plugin uninstall --scope "$scope" "$plugin_id"; then
+  if ! retry_cmd claude plugin uninstall --scope "$scope" "$plugin_id"; then
     warn "uninstall failed for $plugin_id (scope=$scope); continuing to install"
   fi
 
-  if ! claude plugin install --scope "$scope" "$plugin_id"; then
+  if ! retry_cmd claude plugin install --scope "$scope" "$plugin_id"; then
     warn "install failed for $plugin_id (scope=$scope)"
     errors=$((errors + 1))
     printf "%s\n" "$plugin_id install failed" >>"$failures_file"
   fi
+
+  # Small delay between plugins to avoid rate limiting.
+  sleep 1
 
 done <"$plugin_ids_file"
 
