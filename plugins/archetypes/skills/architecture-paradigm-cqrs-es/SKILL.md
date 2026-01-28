@@ -8,7 +8,7 @@ Triggers: event-sourcing, architecture, scalability, distributed-systems, audit-
   Triggers: CQRS, event sourcing, audit trail, temporal queries
   Use when: read/write scaling differs or audit trail required
   DO NOT use when: simple CRUD - use architecture-paradigms first.
-version: 1.3.5
+version: 1.3.7
 category: architectural-pattern
 tags: [architecture, CQRS, Event-Sourcing, distributed-systems, audit-trail, scalability]
 dependencies: []

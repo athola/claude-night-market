@@ -10,9 +10,9 @@ This module provides an interactive authentication system for external services 
 
 ## Features
 
-### 1. Core Module (`interactive-auth.sh`)
+### 1. Core Module (`interactive_auth.sh`)
 
-**File:** `plugins/leyline/scripts/interactive-auth.sh`
+**File:** `plugins/leyline/scripts/interactive_auth.sh`
 
 **Capabilities:**
 - Multi-service support (GitHub, GitLab, AWS, GCP, Azure)
@@ -46,7 +46,7 @@ aws_with_auth [args...]          # Wrapper for aws commands
 
 ### 3. Test Suite
 
-**File:** `plugins/leyline/skills/authentication-patterns/tests/test-interactive-auth.sh`
+**File:** `plugins/leyline/skills/authentication-patterns/tests/test-interactive_auth.sh`
 
 **Tests:**
 - Syntax validation
@@ -118,7 +118,7 @@ Environment variables:
 
 ```bash
 # Source the module
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 
 # Ensure authentication
 ensure_auth github || exit 1
@@ -134,7 +134,7 @@ gh api repos/owner/repo/issues
 #!/usr/bin/env bash
 # My workflow
 
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 
 # Ensure authentication at start
 if ! ensure_auth github; then
@@ -166,7 +166,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTH_INTERACTIVE: false  # Force non-interactive
         run: |
-          source plugins/leyline/scripts/interactive-auth.sh
+          source plugins/leyline/scripts/interactive_auth.sh
           ensure_auth github || exit 1
           /pr-review ${{ github.event.pull_request.number }}
 ```
@@ -230,7 +230,7 @@ Current workflows that use GitHub API:
 
 **Step 1:** Add to workflow
 ```bash
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 ```
 
 **Step 2:** Replace auth checks
@@ -299,7 +299,7 @@ T=86401.5s: ✓ Re-authenticated
 ### Run Test Suite
 
 ```bash
-bash plugins/leyline/skills/authentication-patterns/tests/test-interactive-auth.sh
+bash plugins/leyline/skills/authentication-patterns/tests/test-interactive_auth.sh
 ```
 
 ### Test Interactive Flow
@@ -309,7 +309,7 @@ bash plugins/leyline/skills/authentication-patterns/tests/test-interactive-auth.
 clear_all_auth_cache
 
 # Test authentication
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 ensure_auth github
 ```
 
@@ -319,7 +319,7 @@ ensure_auth github
 export AUTH_INTERACTIVE=false
 export GITHUB_TOKEN="ghp_test..."
 
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 ensure_auth github  # Should use GITHUB_TOKEN, no prompt
 ```
 
@@ -349,11 +349,11 @@ plugins/leyline/skills/authentication-patterns/
 ├── README.md                           # Quick start guide
 ├── modules/
 │   ├── interactive-auth.md            # Comprehensive docs
-│   └── interactive-auth.sh            # Implementation
+│   └── interactive_auth.sh            # Implementation
 ├── examples/
 │   └── workflow-integration.md        # Integration examples
 └── tests/
-    └── test-interactive-auth.sh       # Test suite
+    └── test-interactive_auth.sh       # Test suite
 ```
 
 ### Modified

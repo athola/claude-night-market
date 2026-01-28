@@ -9,7 +9,7 @@ tags: [tokens, efficiency, communication, directness]
 tools: []
 complexity: low
 estimated_tokens: 500
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

@@ -9,7 +9,7 @@ tags: [efficiency, workflow, decision-making]
 tools: []
 complexity: low
 estimated_tokens: 450
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

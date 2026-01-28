@@ -23,7 +23,7 @@ progressive_loading: true
 modules:
   - modules/classification.md
   - modules/recovery-strategies.md
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

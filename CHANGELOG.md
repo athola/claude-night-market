@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.7] - 2026-01-28
+
+### Changed - File & Code Cleanup
+
+- **Script filename normalization** - Renamed script files from kebab-case to snake_case
+  for Python module consistency across the ecosystem
+
+- **Dead wrapper detection** - `conserve:bloat-scan` and `unbloat` now detect dead wrapper
+  scripts that simply delegate to other commands without adding value
+
+### Removed
+
+- **Unused conserve services directory** - Cleaned up `conserve/services/` directory
+  that contained no active code
+
 ## [1.3.6] - 2026-01-26
 
 ### Added - Hookify Enhanced Tooling (hookify)

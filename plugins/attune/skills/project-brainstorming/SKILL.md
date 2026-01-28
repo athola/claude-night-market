@@ -4,7 +4,7 @@ description: Socratic questioning and ideation methodology for project conceptio
 
 Triggers: frameworks, conception, brainstorming, socratic, using
 model_preference: claude-sonnet-4
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

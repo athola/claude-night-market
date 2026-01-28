@@ -22,7 +22,7 @@ progressive_loading: true
 dependencies:
   hub: [token-conservation]
   modules: []
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

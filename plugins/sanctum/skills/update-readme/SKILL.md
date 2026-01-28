@@ -31,7 +31,7 @@ dependencies:
   - imbue:evidence-logging
   - scribe:slop-detector
   - scribe:doc-generator
-version: 1.3.5
+version: 1.3.7
 ---
 
 # README Update Workflow

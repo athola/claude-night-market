@@ -23,7 +23,7 @@ scripts: [palace_manager.py]
 usage_patterns: [palace-design, domain-analysis, layout-creation]
 complexity: intermediate
 estimated_tokens: 600
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 
