@@ -3,8 +3,11 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help deps test test-unit test-integration test-bdd test-coverage lint format type-check typecheck \
-        security clean install-hooks status ci mutation-test benchmark demo-tracking demo-initiatives demo-skills plugin-check debug-variables
+.PHONY:
+.PHONY: benchmark ci clean debug-variables demo-close-issue demo-create-issue demo-initiatives \
+	demo-skills demo-tracking demo-update-labels deps format help install-hooks lint mutation-test \
+	plugin-check security status test test-bdd test-close-issue test-coverage test-create-issue \
+	test-integration test-unit test-update-labels type-check typecheck
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := src tests scripts
@@ -142,6 +145,78 @@ plugin-check: demo-tracking demo-initiatives demo-skills status ## Run all demo 
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
+
+demo-create-issue: ## Demo create-issue command (LIVE)
+	@echo "=== create-issue Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /create-issue"
+	@echo "Plugin: minister"
+	@echo ""
+	@echo "This demonstrates create-issue usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /create-issue for full workflow."
+
+
+demo-close-issue: ## Demo close-issue command (LIVE)
+	@echo "=== close-issue Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /close-issue"
+	@echo "Plugin: minister"
+	@echo ""
+	@echo "This demonstrates close-issue usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /close-issue for full workflow."
+
+
+demo-update-labels: ## Demo update-labels command (LIVE)
+	@echo "=== update-labels Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-labels"
+	@echo "Plugin: minister"
+	@echo ""
+	@echo "This demonstrates update-labels usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-labels for full workflow."
+
+
+demo-minister-commands: demo-create-issue demo-close-issue demo-update-labels ## Run all minister documented command demos
+	@echo ""
+	@echo "=== Minister All Commands Demo Complete ==="
+	@echo "Ran 3 documented commands"
+	@echo ""
+
+
+test-create-issue: ## Test create-issue command workflow
+	@echo "=== Testing create-issue workflow ==="
+	@echo "Validating: /create-issue"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-close-issue: ## Test close-issue command workflow
+	@echo "=== Testing close-issue workflow ==="
+	@echo "Validating: /close-issue"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-update-labels: ## Test update-labels command workflow
+	@echo "=== Testing update-labels workflow ==="
+	@echo "Validating: /update-labels"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

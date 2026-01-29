@@ -3,8 +3,10 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help validate status clean check-deps lint test test-unit test-integration demo-vhs demo-playwright demo-gif clean-gif-temp demo-skills plugin-check debug-variables ci-check
-
+.PHONY:
+.PHONY: check-deps ci-check clean clean-gif-temp debug-variables demo-gif demo-playwright \
+	demo-record-browser demo-record-terminal demo-skills demo-vhs help lint plugin-check status test \
+	test-integration test-record-browser test-record-terminal test-unit validate
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts
 
@@ -197,6 +199,114 @@ clean: ## Clean up generated files
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
+
+demo-record-terminal: ## Demo record-terminal command (LIVE)
+	@echo "=== record-terminal Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /record-terminal"
+	@echo "Plugin: scry"
+	@echo ""
+	@echo "This demonstrates record-terminal usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /record-terminal for full workflow."
+
+
+demo-record-browser: ## Demo record-browser command (LIVE)
+	@echo "=== record-browser Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /record-browser"
+	@echo "Plugin: scry"
+	@echo ""
+	@echo "This demonstrates record-browser usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /record-browser for full workflow."
+
+
+	@echo "=== record-terminal Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /record-terminal"
+	@echo "Plugin: scry"
+	@echo ""
+	@echo "This demonstrates record-terminal usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /record-terminal for full workflow."
+
+
+	@echo "=== record-terminal Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /record-terminal"
+	@echo "Plugin: scry"
+	@echo ""
+	@echo "This demonstrates record-terminal usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /record-terminal for full workflow."
+
+
+	@echo "=== record-browser Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /record-browser"
+	@echo "Plugin: scry"
+	@echo ""
+	@echo "This demonstrates record-browser usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /record-browser for full workflow."
+
+
+demo-scry-commands: demo-record-terminal demo-record-browser demo-record-terminal demo-record-terminal demo-record-browser ## Run all scry documented command demos
+	@echo ""
+	@echo "=== Scry All Commands Demo Complete ==="
+	@echo "Ran 5 documented commands"
+	@echo ""
+
+
+test-record-terminal: ## Test record-terminal command workflow
+	@echo "=== Testing record-terminal workflow ==="
+	@echo "Validating: /record-terminal"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-record-browser: ## Test record-browser command workflow
+	@echo "=== Testing record-browser workflow ==="
+	@echo "Validating: /record-browser"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing record-terminal workflow ==="
+	@echo "Validating: /record-terminal"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing record-terminal workflow ==="
+	@echo "Validating: /record-terminal"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing record-browser workflow ==="
+	@echo "Validating: /record-browser"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

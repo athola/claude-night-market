@@ -43,7 +43,7 @@ Sanctum manages repository state and development workflows. It provides prefligh
 | `/update-version` | Bump project versions. |
 | `/update-dependencies` | Scan and update dependencies across ecosystems. |
 | `/update-tutorial` | Generate or update tutorial documentation with recordings. |
-| `/pr-review` | Scope-focused PR review with knowledge capture. |
+| `/pr-review` | Scope-focused PR review with mandatory code quality analysis and knowledge capture. |
 | `/resolve-threads` | Batch-resolve unresolved PR review threads via GitHub GraphQL. |
 | `/create-tag` | Create git tags from merged PRs or version arguments. |
 | `/merge-docs` | Consolidate ephemeral LLM-generated docs into permanent files. |

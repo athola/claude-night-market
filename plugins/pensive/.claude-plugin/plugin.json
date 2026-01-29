@@ -17,18 +17,19 @@
     "./commands/refine-code.md"
   ],
   "skills": [
-    "./skills/shared",
-    "./skills/unified-review",
     "./skills/api-review",
     "./skills/architecture-review",
     "./skills/bug-review",
-    "./skills/rust-review",
-    "./skills/test-review",
-    "./skills/math-review",
-    "./skills/makefile-review",
-    "./skills/shell-review",
+    "./skills/code-refinement",
     "./skills/fpf-review",
-    "./skills/code-refinement"
+    "./skills/makefile-review",
+    "./skills/math-review",
+    "./skills/rust-review",
+    "./skills/safety-critical-patterns",
+    "./skills/shared",
+    "./skills/shell-review",
+    "./skills/test-review",
+    "./skills/unified-review"
   ],
   "agents": [
     "./agents/code-reviewer.md",

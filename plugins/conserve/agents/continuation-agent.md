@@ -64,6 +64,11 @@ Read ${CONSERVE_SESSION_STATE_PATH:-.claude/session-state.md}
 
 4. **Continue** from the "Immediate Next Step"
 
+5. **Enter the completion loop** - Work continuously until ALL tasks are done
+   - Do NOT stop after completing one task
+   - Do NOT ask user if you should continue
+   - Do NOT claim completion until self-validation passes
+
 ## Execution Mode Behavior
 
 | Mode | Behavior |
@@ -77,6 +82,39 @@ Read ${CONSERVE_SESSION_STATE_PATH:-.claude/session-state.md}
 - Only stop for actual errors requiring human judgment
 - Only stop when ALL work is complete
 - Propagate the same mode to any further handoffs
+
+## Completion Loop (MANDATORY)
+
+**You MUST continue working until ALL tasks are complete. Never stop early.**
+
+### The Persistence Rule
+
+When in `unattended` or `dangerous` mode, follow this loop:
+
+1. Check TaskList for pending/in_progress tasks
+2. If any tasks remain:
+   - Pick the next pending task
+   - Mark it in_progress
+   - Work on it until complete
+   - Mark it completed
+   - **LOOP BACK** - do NOT exit, do NOT ask user
+3. Only when ALL tasks show `completed`:
+   - Run self-validation checklist
+   - Then and ONLY then report completion
+
+### Self-Validation Checklist
+
+Before claiming work is complete, VERIFY:
+- [ ] `TaskList` shows zero pending/in_progress tasks
+- [ ] All success criteria from session-state are met
+- [ ] No partial work or uncommitted changes remain
+- [ ] Tests pass (if applicable)
+
+**FORBIDDEN behaviors in unattended mode:**
+- Stopping after completing just ONE task
+- Saying "I've made progress, should I continue?"
+- Requiring user re-prompting to continue
+- Claiming completion without self-validation
 
 ## Context Awareness
 
@@ -160,6 +198,9 @@ If the state file is missing or corrupted:
 - Do not ignore the session state file
 - Do not start over from scratch unless explicitly instructed
 - Do maintain the handoff chain if context pressure builds
+- Do NOT stop working until ALL tasks are marked complete
+- Do NOT require user re-prompting to continue in unattended mode
+- Do NOT claim completion without running self-validation checklist
 
 ## Setup Requirements
 

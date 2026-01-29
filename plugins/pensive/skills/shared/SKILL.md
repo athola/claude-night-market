@@ -38,6 +38,7 @@ Available shared modules:
 - See `modules/review-workflow-core.md` for the core 5-step workflow pattern
 - See `modules/output-format-templates.md` for standard output structures
 - See `modules/quality-checklist-patterns.md` for reusable quality checklists
+- See `modules/code-quality-analysis.md` for deduplication and redundancy detection
 
 ## Usage
 

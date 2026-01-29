@@ -33,6 +33,7 @@ Or reference from the marketplace:
 | **shell-review** | Checks shell scripts for correctness, portability, and safety. |
 | **fpf-review** | Functional/Practical/Foundation architecture review. |
 | **code-refinement** | Analyzes living code for duplication, algorithmic inefficiency, clean code violations, and architectural misfit. |
+| **safety-critical-patterns** | NASA Power of 10 rules adapted for robust, verifiable code with context-appropriate rigor. |
 
 ### Commands
 

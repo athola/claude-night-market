@@ -286,6 +286,61 @@ A version validation section that will be included in the final PR review:
    - Maintainability concerns
    - Test coverage gaps
 
+### Phase 2.5: Code Quality Analysis (MANDATORY)
+
+**CRITICAL: This phase is MANDATORY for all PR reviews. There is NO bypass mechanism.**
+
+**⚠️ ENFORCEMENT CHECK: This phase MUST complete with duplication and redundancy findings documented.**
+**If you skip this phase, the workflow is INCOMPLETE.**
+
+Invokes `pensive:code-refinement` patterns from `pensive:shared/modules/code-quality-analysis`:
+
+6. **Duplication & Redundancy Scan**
+   ```bash
+   # Analyze only changed files for duplication
+   CHANGED_FILES=$(gh pr diff $PR_NUMBER --name-only | grep -E '\.(py|ts|js|rs|go)$')
+
+   # Run targeted quality analysis
+   # See: pensive:shared/modules/code-quality-analysis.md
+   ```
+
+   **Invoke the full skill:**
+   ```
+   Skill(pensive:code-refinement)
+   ```
+
+   Analysis dimensions (from `pensive:code-refinement`):
+   - **Duplication & Redundancy**: Hash-based detection, similar functions, copy-paste
+   - **Algorithmic Efficiency**: Time/space complexity, O(n^2) where O(n) works, unnecessary iterations
+   - **Clean Code Violations**: Long methods, deep nesting, poor naming, magic values
+   - **Architectural Fit**: Coupling violations, paradigm mismatches, leaky abstractions
+   - **Anti-Slop Patterns**: Premature abstraction, enterprise cosplay, hollow patterns
+   - **Error Handling**: Bare excepts, swallowed errors, happy-path-only code
+
+7. **Quality Findings Classification**
+
+   | Finding | Severity | Action |
+   |---------|----------|--------|
+   | Exact duplication >10 lines | BLOCKING | Must consolidate |
+   | Similar functions 3+ occurrences | IN-SCOPE | Should refactor |
+   | Repeated patterns | SUGGESTION | Author discretion |
+   | Minor redundancy | SUGGESTION | Optional cleanup |
+
+**Output**: Code quality findings added to review report with consolidation strategies.
+
+### Phase 2.5 Completion Checklist
+
+Before proceeding to Phase 3, verify ALL items are complete:
+
+- [ ] Duplication scan executed on all changed files
+- [ ] Redundancy patterns analyzed
+- [ ] Findings classified (BLOCKING/IN-SCOPE/SUGGESTION)
+- [ ] Consolidation strategies documented for each finding
+
+**If any item above is unchecked, GO BACK and complete Phase 2.5.**
+
+**This phase is NON-NEGOTIABLE. Skipping code quality analysis = incomplete review.**
+
 ### Phase 3: Synthesis & Validation
 
 6. **Scope-Aware Triage**

@@ -1,7 +1,7 @@
 ---
 name: make-dogfood
-description: Analyze and enhance Makefiles for complete functionality coverage
-usage: /make-dogfood [--scope root|plugins|all] [--mode analyze|test|full] [--plugin <name>] [--interactive]
+description: Analyze and enhance Makefiles for complete functionality coverage with auto-generation capability
+usage: /make-dogfood [--mode analyze|generate|apply] [--plugin <name>] [--dry-run] [--generate-makefiles] [--preflight-check] [--verbose]
 ---
 
 # Makefile Dogfooding Command
@@ -15,30 +15,43 @@ use_when:
 - Generating missing targets
 - Preparing plugins for release
 - Auditing Makefile coverage across plugins
+- Creating Makefiles for plugins without them
 
 do_not_use_when:
-- Writing initial Makefiles from scratch
+- Writing initial Makefiles from scratch (use --generate-makefiles instead)
 - Debugging specific build failures
 - Creating custom build systems
 </identification>
 
-Use the makefile-dogfooder skill to analyze, test, and enhance Makefiles across the claude-night-market project.
+Use the makefile-dogfooder script to analyze, test, and enhance Makefiles across the claude-night-market project with comprehensive safety checks and auto-generation capabilities.
 
 ## Parameters
 
-- `--scope`: Target scope (default: all)
-  - `root`: Analyze only the root Makefile
-  - `plugins`: Analyze plugin Makefiles only
-  - `all`: Analyze both root and plugin Makefiles
+- `--mode`: Operation mode (default: analyze)
+  - `analyze`: Only analyze and report gaps (SAFE - no changes)
+  - `generate`: Show generated targets without writing files
+  - `apply`: Write targets to Makefiles (use with --dry-run first)
 
-- `--mode`: Operation mode (default: full)
-  - `analyze`: Only analyze and report gaps
-  - `test`: Only test existing targets safely
-  - `full`: Complete analysis + testing + generation
+- `--plugin`: Restrict to specific plugin (e.g., `--plugin sanctum`)
+  - Recommended: Test on one plugin before applying to all
 
-- `--plugin`: Restrict to specific plugin (e.g., `--plugin abstract`)
+- `--dry-run`: Preview changes without writing files (HIGHLY RECOMMENDED)
+  - Always use this before applying changes for real
+  - Shows what will be generated/modified
 
-- `--interactive`: Prompt before applying changes (default: true for generation)
+- `--generate-makefiles`: Generate Makefiles for plugins that don't have them
+  - Follows attune:makefile-generation pattern
+  - Auto-detects language (Python/Rust/TypeScript)
+  - Creates standard targets for detected language
+
+- `--preflight-check`: Run validation checks before processing
+  - Validates directories exist
+  - Checks write permissions
+  - Detects git repository for rollback
+
+- `--verbose`: Show detailed progress and error messages
+
+- `--output`: Output format (text|json, default: text)
 
 ## Workflow
 
@@ -80,18 +93,48 @@ Create missing targets based on analysis:
 ## Examples
 
 ```bash
-# Analyze all Makefiles
-/make-dogfood --mode analyze
+# SAFE WORKFLOW (Recommended)
 
-# Test targets only
-/make-dogfood --mode test --scope plugins
+# 1. Analyze all plugins to see what's missing
+python3 plugins/abstract/scripts/makefile_dogfooder.py --mode analyze
 
-# Full workflow for single plugin
-/make-dogfood --plugin abstract --mode full
+# 2. Generate for a single plugin (see what would be created)
+python3 plugins/abstract/scripts/makefile_dogfooder.py --plugin sanctum --mode generate
 
-# Quick check with auto-apply
-/make-dogfood --scope root --mode full --interactive=false
+# 3. Dry-run to preview changes
+python3 plugins/abstract/scripts/makefile_dogfooder.py --plugin sanctum --mode apply --dry-run
+
+# 4. Apply for real
+python3 plugins/abstract/scripts/makefile_dogfooder.py --plugin sanctum --mode apply
+
+# 5. Generate Makefiles for plugins missing them
+python3 plugins/abstract/scripts/makefile_dogfooder.py --generate-makefiles --mode analyze
+
+# 6. Bulk workflow with safety
+python3 plugins/abstract/scripts/makefile_dogfooder.py --mode apply --dry-run  # Test all
+python3 plugins/abstract/scripts/makefile_dogfooder.py --mode apply  # Apply all
 ```
+
+## Safety Features
+
+The script includes comprehensive safety checks:
+
+1. **Preflight Validation** (automatic in apply mode)
+   - Directory existence checks
+   - Write permission verification
+   - Git repository detection
+
+2. **Working Directory Validation**
+   - Automatic normalization
+   - Prevents "file not found" errors
+
+3. **Confirmation Prompt**
+   - Prompts before applying without --dry-run
+   - Prevents accidental changes
+
+4. **Duplicate Detection**
+   - Checks for existing targets
+   - Prevents conflicts and warnings
 
 ## What This Command Does
 

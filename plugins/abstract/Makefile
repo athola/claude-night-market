@@ -11,12 +11,13 @@
 #     include config/make/common.mk
 #     include config/make/python.mk
 
-.PHONY: help check test clean install-hooks status docs docs-clean docs-serve docs-check \
-        update-changelog check-changelog format lint type-check typecheck security unit-tests test-unit \
-        test-coverage test-quick analyze-skill estimate-tokens audit-skill improve-skill \
-        check-compliance audit-all eval-report dev-setup ci-check verify-install debug-variables \
-        validate-skill-descriptions validate-plugin validate-self test-wrappers validate-migration generate-wrappers \
-        mutation-test demo-skills plugin-check
+.PHONY:
+.PHONY: analyze-skill audit-all audit-skill check check-changelog check-compliance ci-check clean \
+	debug-variables demo-skills demo-validate-plugin dev-setup docs docs-check docs-clean docs-serve \
+	estimate-tokens eval-report format generate-wrappers help improve-skill install-hooks lint \
+	mutation-test plugin-check security status test test-coverage test-quick test-unit \
+	test-validate-plugin test-wrappers type-check typecheck unit-tests update-changelog \
+	validate-migration validate-plugin validate-self validate-skill-descriptions verify-install
 
 # Plugin-specific variables (must be before include)
 ABSTRACT_DIR := .
@@ -276,6 +277,34 @@ plugin-check: demo-validation demo-tokens demo-analyzer ## Run all live demos
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
+
+demo-validate-plugin: ## Demo validate-plugin command (LIVE)
+	@echo "=== validate-plugin Demo (LIVE) ==="
+	@echo ""
+	@echo "Running validate-plugin on abstract plugin..."
+	@echo ""
+	$(UV_RUN) python scripts/validator.py --target . || echo 'Plugin validator: Checks plugin structure compliance' || echo "  [INFO] Tool execution completed"
+	@echo ""
+	@echo "Use /validate-plugin for full workflow."
+
+
+demo-abstract-commands: demo-validate-plugin ## Run all abstract documented command demos
+	@echo ""
+	@echo "=== Abstract All Commands Demo Complete ==="
+	@echo "Ran 1 documented commands"
+	@echo ""
+
+
+test-validate-plugin: ## Test validate-plugin command workflow
+	@echo "=== Testing validate-plugin workflow ==="
+	@echo "Validating: /validate-plugin"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

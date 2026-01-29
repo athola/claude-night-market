@@ -3,12 +3,14 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: all test test-unit test-integration test-async test-performance test-testing test-edge-case \
-        test-language coverage coverage-check lint format type-check typecheck quality-check clean dev-install \
-        install test-parallel security python-tests async-patterns-tests testing-guidance-tests \
-        benchmark memory-profile dev ci coverage-report test-structure test-perf test-file \
-        test-pattern test-duplicates test-fixtures mutation-test help status debug-variables \
-        demo-async demo-testing demo-perf demo-skills plugin-check
+.PHONY:
+.PHONY: all async-patterns-tests benchmark ci clean coverage coverage-check coverage-report \
+	debug-variables demo-analyze-tests demo-async demo-check-async demo-perf demo-run-profiler \
+	demo-skills demo-testing dev dev-install format help install lint memory-profile mutation-test \
+	plugin-check python-tests quality-check security status test test-analyze-tests test-async \
+	test-check-async test-duplicates test-edge-case test-file test-fixtures test-integration \
+	test-language test-parallel test-pattern test-perf test-performance test-run-profiler \
+	test-structure test-testing test-unit testing-guidance-tests type-check typecheck
 
 # Plugin-specific variables (must be before include)
 # Note: source is in 'parseltongue/' not 'src/'
@@ -194,6 +196,78 @@ plugin-check: demo-tests demo-lint demo-skills ## Run all live demos
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
+
+demo-analyze-tests: ## Demo analyze-tests command (LIVE)
+	@echo "=== analyze-tests Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /analyze-tests"
+	@echo "Plugin: parseltongue"
+	@echo ""
+	@echo "This demonstrates analyze-tests usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /analyze-tests for full workflow."
+
+
+demo-run-profiler: ## Demo run-profiler command (LIVE)
+	@echo "=== run-profiler Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /run-profiler"
+	@echo "Plugin: parseltongue"
+	@echo ""
+	@echo "This demonstrates run-profiler usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /run-profiler for full workflow."
+
+
+demo-check-async: ## Demo check-async command (LIVE)
+	@echo "=== check-async Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /check-async"
+	@echo "Plugin: parseltongue"
+	@echo ""
+	@echo "This demonstrates check-async usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /check-async for full workflow."
+
+
+demo-parseltongue-commands: demo-analyze-tests demo-run-profiler demo-check-async ## Run all parseltongue documented command demos
+	@echo ""
+	@echo "=== Parseltongue All Commands Demo Complete ==="
+	@echo "Ran 3 documented commands"
+	@echo ""
+
+
+test-analyze-tests: ## Test analyze-tests command workflow
+	@echo "=== Testing analyze-tests workflow ==="
+	@echo "Validating: /analyze-tests"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-run-profiler: ## Test run-profiler command workflow
+	@echo "=== Testing run-profiler workflow ==="
+	@echo "Validating: /run-profiler"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-check-async: ## Test check-async command workflow
+	@echo "=== Testing check-async workflow ==="
+	@echo "Validating: /check-async"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

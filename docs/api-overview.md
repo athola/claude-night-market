@@ -9,23 +9,23 @@ Claude Night Market consists of 16 plugins that provide CLI commands, Python pac
 
 ## API Inventory
 
-The ecosystem includes 109 CLI commands, 122 modular skills, 40 specialized agents, and 7 Python packages with public APIs. We also maintain 16 execution hooks.
+The ecosystem includes 114 CLI commands, 126 modular skills, 41 specialized agents, and 7 Python packages with public APIs. We also maintain 16 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.3.7 | 18 | 13 | 5 | Yes | abstract-skills |
+| abstract | 1.3.7 | 18 | 10 | 5 | Yes | abstract-skills |
 | archetypes | 1.3.7 | 0 | 14 | 0 | No | - |
-| attune | 1.3.7 | 8 | 10 | 2 | No | - |
+| attune | 1.3.7 | 9 | 11 | 2 | No | - |
 | conjure | 1.3.7 | 0 | 3 | 0 | No | - |
-| conserve | 1.3.7 | 5 | 10 | 5 | No | - |
-| hookify | 1.3.7 | 5 | 2 | 0 | No | - |
+| conserve | 1.3.7 | 6 | 11 | 5 | No | - |
+| hookify | 1.3.7 | 6 | 2 | 0 | No | - |
 | imbue | 1.3.7 | 3 | 11 | 1 | No | - |
 | leyline | 1.3.7 | 2 | 12 | 0 | Yes | - |
-| memory-palace | 1.3.7 | 5 | 7 | 4 | Yes | - |
+| memory-palace | 1.3.7 | 5 | 6 | 4 | Yes | - |
 | minister | 1.3.7 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.3.7 | 3 | 4 | 4 | No | - |
-| pensive | 1.3.7 | 11 | 11 | 3 | Yes | - |
-| sanctum | 1.3.7 | 20 | 15 | 9 | Yes | - |
+| pensive | 1.3.7 | 12 | 13 | 4 | Yes | - |
+| sanctum | 1.3.7 | 31 | 15 | 9 | Yes | - |
 | scribe | 1.3.7 | 5 | 4 | 3 | No | - |
 | scry | 1.3.7 | 2 | 4 | 1 | No | - |
 | spec-kit | 1.3.7 | 9 | 4 | 3 | Yes | - |
@@ -66,10 +66,10 @@ Governance and project initiative tracking. Uses skills like `governance-trackin
 Python development utilities. Includes tools for analyzing tests and profiling performance (`analyze-tests`, `run-profiler`). Skills support async programming and packaging.
 
 ### Pensive (v1.3.7)
-Code review and analysis framework. Provides specific review commands for various languages and domains, such as `api-review`, `rust-review`, and `bug-review`.
+Code review and analysis framework. Provides specific review commands for various languages and domains, such as `api-review`, `rust-review`, and `bug-review`. Includes `safety-critical-patterns` for NASA Power of 10 rules adapted for robust code.
 
 ### Sanctum (v1.3.7)
-Git workflow automation. Handles tasks from commit message generation to PR reviews. Commands include `fix-pr`, `merge-docs`, and `update-dependencies`.
+Git workflow automation. Handles tasks from commit message generation to PR reviews with mandatory code quality analysis. Commands include `fix-pr`, `merge-docs`, and `update-dependencies`.
 
 ### Scribe (v1.3.7)
 Documentation generation and content authoring utilities. Commands help create and maintain documentation across plugins.

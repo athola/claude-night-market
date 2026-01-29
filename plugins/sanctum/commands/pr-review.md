@@ -265,11 +265,27 @@ Documentation findings are **non-blocking** by default. Use `--strict` to treat 
 
 This command integrates with:
 - **superpowers:receiving-code-review**: Core review logic
+- **pensive:code-refinement**: Code quality and deduplication analysis (optional)
+- **pensive:shared/modules/code-quality-analysis**: Shared quality patterns
 - **scribe:slop-detector**: Documentation quality analysis
 - **scribe:doc-editor**: Interactive doc cleanup (if needed)
 - **gh CLI**: Fetch PR data, post comments, create issues
 - **imbue:scope-guard**: Scope worthiness evaluation
 - **backlog system**: Issue creation and tracking
+
+### Code Quality Analysis (MANDATORY - NON-NEGOTIABLE)
+
+**This analysis is REQUIRED and cannot be bypassed.**
+
+Every PR review automatically invokes `pensive:code-refinement` patterns for:
+- **Duplication detection**: Near-identical blocks, similar functions
+- **Redundancy analysis**: Repeated patterns, copy-paste indicators
+- **Clean code checks**: Complexity, naming, magic values
+
+Code quality findings are classified as:
+- **BLOCKING**: Exact duplication >10 lines affecting maintainability
+- **IN-SCOPE**: Similar patterns that should be consolidated
+- **SUGGESTION**: Minor redundancy for author discretion
 
 ## Getting Help
 
