@@ -1,8 +1,8 @@
 #!/bin/bash
-# pre-pr-scope-check.sh
+# pre_pr_scope_check.sh
 # Checks branch metrics against scope-guard thresholds before PR creation
 #
-# Usage: ./pre-pr-scope-check.sh [base-branch]
+# Usage: ./pre_pr_scope_check.sh [base-branch]
 # Default base branch: main
 #
 # Exit codes:

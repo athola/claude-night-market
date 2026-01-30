@@ -50,7 +50,7 @@ All checks must pass for the commit to succeed.
 
 ### Plugin Validation Hooks
 
-The `plugins/abstract/scripts/` directory contains our validators: `abstract_validator.py` for skills, `validate-plugin.py` for structure, and `context_optimizer.py`.
+The `plugins/abstract/scripts/` directory contains our validators: `abstract_validator.py` for skills, `validate_plugin.py` for structure, and `context_optimizer.py`.
 
 ### Standard Quality Checks
 

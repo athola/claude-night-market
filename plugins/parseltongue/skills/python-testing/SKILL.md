@@ -36,7 +36,7 @@ modules:
   - testing-workflows
   - test-quality
   - async-testing
-version: 1.3.5
+version: 1.3.7
 ---
 # Python Testing Hub
 

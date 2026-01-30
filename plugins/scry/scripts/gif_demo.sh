@@ -6,7 +6,7 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
 Generate a small sample video and convert it to a GIF using temp paths.
 
 Usage:
-  gif-demo.sh
+  gif_demo.sh
 
 Environment overrides:
   TMP_DIR     (default: /tmp/scry-gif-test)

@@ -3,9 +3,18 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help install test test-unit test-integration test-all test-cov test-bdd test-git lint format \
-        type-check typecheck security qa clean watch-test docs ci-test ci-build install-hooks profile-test \
-        quick-check status deps demo-commit demo-pr-prep demo-git-workspace demo-skills plugin-check debug-variables
+.PHONY:
+.PHONY: ci-build ci-test clean debug-variables demo-commit demo-commit-msg demo-create-tag \
+	demo-do-issue demo-fix-pr demo-fix-workflow demo-git-catchup demo-git-workspace demo-merge-docs \
+	demo-pr demo-pr-prep demo-pr-review demo-prepare-pr demo-rename demo-resolve-threads demo-resume \
+	demo-skills demo-update-dependencies demo-update-docs demo-update-plugins demo-update-readme \
+	demo-update-tests demo-update-tutorial demo-update-version deps docs format help install \
+	install-hooks lint plugin-check profile-test qa quick-check security status test test-all test-bdd \
+	test-commit-msg test-cov test-create-tag test-do-issue test-fix-pr test-fix-workflow test-git \
+	test-git-catchup test-integration test-merge-docs test-pr test-pr-review test-prepare-pr \
+	test-rename test-resolve-threads test-resume test-unit test-update-dependencies test-update-docs \
+	test-update-plugins test-update-readme test-update-tests test-update-tutorial test-update-version \
+	type-check typecheck watch-test
 
 # Plugin-specific variables
 SRC_DIRS ?= src tests
@@ -194,6 +203,223 @@ plugin-check: demo-commit demo-pr-prep demo-git-workspace demo-skills ## Run all
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
+
+demo-rename: ## Demo rename command (LIVE)
+	@echo "=== rename Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /rename"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates rename usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /rename for full workflow."
+
+
+demo-resume: ## Demo resume command (LIVE)
+	@echo "=== resume Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /resume"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates resume usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /resume for full workflow."
+
+
+demo-git-catchup: ## Demo git-catchup command (LIVE)
+	@echo "=== git-catchup Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /git-catchup"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates git-catchup usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /git-catchup for full workflow."
+
+
+demo-commit-msg: ## Demo commit-msg command (LIVE)
+	@echo "=== commit-msg Demo (LIVE) ==="
+	@echo ""
+	@echo "Running commit-msg on sanctum plugin..."
+	@echo ""
+	git log --oneline -1 | head -1 || echo 'Commit-msg: Generates conventional commit messages' || echo "  [INFO] Tool execution completed"
+	@echo ""
+	@echo "Use /commit-msg for full workflow."
+
+
+demo-do-issue: ## Demo do-issue command (LIVE)
+	@echo "=== do-issue Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /do-issue"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates do-issue usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /do-issue for full workflow."
+
+
+demo-fix-workflow: ## Demo fix-workflow command (LIVE)
+	@echo "=== fix-workflow Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /fix-workflow"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates fix-workflow usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /fix-workflow for full workflow."
+
+
+demo-fix-pr: ## Demo fix-pr command (LIVE)
+	@echo "=== fix-pr Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /fix-pr"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates fix-pr usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /fix-pr for full workflow."
+
+
+demo-pr: ## Demo pr command (LIVE)
+	@echo "=== pr Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /pr"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates pr usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /pr for full workflow."
+
+
+demo-update-docs: ## Demo update-docs command (LIVE)
+	@echo "=== update-docs Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-docs"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates update-docs usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-docs for full workflow."
+
+
+demo-update-readme: ## Demo update-readme command (LIVE)
+	@echo "=== update-readme Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /update-readme"
+	@echo "Plugin: sanctum"
+	@echo ""
+	@echo "This demonstrates update-readme usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /update-readme for full workflow."
+
+
+demo-sanctum-commands: demo-rename demo-resume demo-git-catchup demo-commit-msg demo-do-issue demo-fix-workflow demo-fix-pr demo-pr demo-update-docs demo-update-readme ## Run all sanctum documented command demos
+	@echo ""
+	@echo "=== Sanctum All Commands Demo Complete ==="
+	@echo "Ran 10 documented commands"
+	@echo ""
+
+
+test-rename: ## Test rename command workflow
+	@echo "=== Testing rename workflow ==="
+	@echo "Validating: /rename"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-resume: ## Test resume command workflow
+	@echo "=== Testing resume workflow ==="
+	@echo "Validating: /resume"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-git-catchup: ## Test git-catchup command workflow
+	@echo "=== Testing git-catchup workflow ==="
+	@echo "Validating: /git-catchup"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-commit-msg: ## Test commit-msg command workflow
+	@echo "=== Testing commit-msg workflow ==="
+	@echo "Validating: /commit-msg"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-do-issue: ## Test do-issue command workflow
+	@echo "=== Testing do-issue workflow ==="
+	@echo "Validating: /do-issue"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-fix-workflow: ## Test fix-workflow command workflow
+	@echo "=== Testing fix-workflow workflow ==="
+	@echo "Validating: /fix-workflow"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-fix-pr: ## Test fix-pr command workflow
+	@echo "=== Testing fix-pr workflow ==="
+	@echo "Validating: /fix-pr"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-pr: ## Test pr command workflow
+	@echo "=== Testing pr workflow ==="
+	@echo "Validating: /pr"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-update-docs: ## Test update-docs command workflow
+	@echo "=== Testing update-docs workflow ==="
+	@echo "Validating: /update-docs"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-update-readme: ## Test update-readme command workflow
+	@echo "=== Testing update-readme workflow ==="
+	@echo "Validating: /update-readme"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

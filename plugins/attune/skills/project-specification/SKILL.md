@@ -4,7 +4,7 @@ description: Transform project brief into detailed, testable specifications usin
 
 Triggers: specification, testable, development, spec-driven, project
 model_preference: claude-sonnet-4
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

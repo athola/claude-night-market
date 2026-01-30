@@ -65,5 +65,5 @@ Works with conservation plugin skills:
 ## Implementation
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/growth-analyzer.py "${1:-.}"
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/growth_analyzer.py "${1:-.}"
 ```

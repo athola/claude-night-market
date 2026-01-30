@@ -3,9 +3,13 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help deps check fix format lint type-check typecheck spellcheck security test test-unit precommit \
-        status clean clean-queue install-hooks enable disable skills install create list search delete manager export \
-        import garden-metrics garden-tend mutation-test benchmark memory-profile demo-reset demo-import demo-export plugin-check demo-status debug-variables
+.PHONY:
+.PHONY: benchmark check clean clean-queue create debug-variables delete demo-export demo-garden \
+	demo-import demo-navigate demo-palace demo-pensive demo-reset demo-review-room demo-skill-logs \
+	demo-status deps disable enable export fix format garden-metrics garden-tend help import install \
+	install-hooks lint list manager memory-profile mutation-test plugin-check precommit search security \
+	skills spellcheck status test test-garden test-navigate test-palace test-pensive test-review-room \
+	test-skill-logs test-unit type-check typecheck
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts src
@@ -208,6 +212,215 @@ plugin-check: demo-import garden-metrics list search demo-export
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
+
+demo-palace: ## Demo palace command (LIVE)
+	@echo "=== palace Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /palace"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates palace usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /palace for full workflow."
+
+
+demo-garden: ## Demo garden command (LIVE)
+	@echo "=== garden Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /garden"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates garden usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /garden for full workflow."
+
+
+demo-navigate: ## Demo navigate command (LIVE)
+	@echo "=== navigate Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /navigate"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates navigate usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /navigate for full workflow."
+
+
+demo-review-room: ## Demo review-room command (LIVE)
+	@echo "=== review-room Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /review-room"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates review-room usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /review-room for full workflow."
+
+
+demo-skill-logs: ## Demo skill-logs command (LIVE)
+	@echo "=== skill-logs Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /skill-logs"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates skill-logs usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /skill-logs for full workflow."
+
+
+	@echo "=== review-room Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /review-room"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates review-room usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /review-room for full workflow."
+
+
+	@echo "=== review-room Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /review-room"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates review-room usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /review-room for full workflow."
+
+
+	@echo "=== review-room Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /review-room"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates review-room usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /review-room for full workflow."
+
+
+	@echo "=== skill-logs Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /skill-logs"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates skill-logs usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /skill-logs for full workflow."
+
+
+	@echo "=== skill-logs Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /skill-logs"
+	@echo "Plugin: memory-palace"
+	@echo ""
+	@echo "This demonstrates skill-logs usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /skill-logs for full workflow."
+
+
+demo-memory-palace-commands: demo-palace demo-garden demo-navigate demo-review-room demo-skill-logs demo-review-room demo-review-room demo-review-room demo-skill-logs demo-skill-logs ## Run all memory-palace documented command demos
+	@echo ""
+	@echo "=== Memory-palace All Commands Demo Complete ==="
+	@echo "Ran 10 documented commands"
+	@echo ""
+
+
+test-palace: ## Test palace command workflow
+	@echo "=== Testing palace workflow ==="
+	@echo "Validating: /palace"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-garden: ## Test garden command workflow
+	@echo "=== Testing garden workflow ==="
+	@echo "Validating: /garden"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-navigate: ## Test navigate command workflow
+	@echo "=== Testing navigate workflow ==="
+	@echo "Validating: /navigate"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-review-room: ## Test review-room command workflow
+	@echo "=== Testing review-room workflow ==="
+	@echo "Validating: /review-room"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-skill-logs: ## Test skill-logs command workflow
+	@echo "=== Testing skill-logs workflow ==="
+	@echo "Validating: /skill-logs"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing review-room workflow ==="
+	@echo "Validating: /review-room"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing review-room workflow ==="
+	@echo "Validating: /review-room"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing review-room workflow ==="
+	@echo "Validating: /review-room"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing skill-logs workflow ==="
+	@echo "Validating: /skill-logs"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing skill-logs workflow ==="
+	@echo "Validating: /skill-logs"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

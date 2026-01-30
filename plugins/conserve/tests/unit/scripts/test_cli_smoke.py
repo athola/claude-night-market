@@ -31,22 +31,22 @@ class TestCLISmokeTests:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_growth_analyzer_cli_handles_missing_file(self, tmp_path: Path) -> None:
-        """Smoke test: growth-analyzer CLI handles missing input file."""
+        """Smoke test: growth_analyzer CLI handles missing input file."""
         # Arrange
-        growth_analyzer = load_module("growth-analyzer")
+        growth_analyzer = load_module("growth_analyzer")
         nonexistent = str(tmp_path / "missing.json")
 
         # Act & Assert
-        with patch("sys.argv", ["growth-analyzer.py", "--context-file", nonexistent]):
+        with patch("sys.argv", ["growth_analyzer.py", "--context-file", nonexistent]):
             with pytest.raises(SystemExit):
                 growth_analyzer.main()
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_growth_analyzer_cli_handles_valid_input(self, tmp_path: Path) -> None:
-        """Smoke test: growth-analyzer CLI processes valid input."""
+        """Smoke test: growth_analyzer CLI processes valid input."""
         # Arrange
-        growth_analyzer = load_module("growth-analyzer")
+        growth_analyzer = load_module("growth_analyzer")
         input_file = tmp_path / "context.json"
         input_file.write_text(
             json.dumps(
@@ -63,7 +63,7 @@ class TestCLISmokeTests:
 
         # Act
         with patch(
-            "sys.argv", ["growth-analyzer.py", "--context-file", str(input_file)]
+            "sys.argv", ["growth_analyzer.py", "--context-file", str(input_file)]
         ):
             # Should complete without crashing
             try:
@@ -74,14 +74,14 @@ class TestCLISmokeTests:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_growth_controller_cli_handles_missing_file(self, tmp_path: Path) -> None:
-        """Smoke test: growth-controller CLI handles missing input file."""
+        """Smoke test: growth_controller CLI handles missing input file."""
         # Arrange
-        growth_controller = load_module("growth-controller")
+        growth_controller = load_module("growth_controller")
         nonexistent = str(tmp_path / "missing.json")
 
         # Act & Assert
         with patch(
-            "sys.argv", ["growth-controller.py", "--analysis-file", nonexistent]
+            "sys.argv", ["growth_controller.py", "--analysis-file", nonexistent]
         ):
             with pytest.raises(SystemExit):
                 growth_controller.main()
@@ -89,9 +89,9 @@ class TestCLISmokeTests:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_growth_controller_cli_handles_valid_input(self, tmp_path: Path) -> None:
-        """Smoke test: growth-controller CLI processes valid input."""
+        """Smoke test: growth_controller CLI processes valid input."""
         # Arrange
-        growth_controller = load_module("growth-controller")
+        growth_controller = load_module("growth_controller")
         input_file = tmp_path / "analysis.json"
         input_file.write_text(
             json.dumps(
@@ -101,7 +101,7 @@ class TestCLISmokeTests:
 
         # Act
         with patch(
-            "sys.argv", ["growth-controller.py", "--analysis-file", str(input_file)]
+            "sys.argv", ["growth_controller.py", "--analysis-file", str(input_file)]
         ):
             try:
                 growth_controller.main()

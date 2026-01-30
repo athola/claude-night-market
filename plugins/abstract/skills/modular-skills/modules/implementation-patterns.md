@@ -67,10 +67,10 @@ We create clear documentation for our skills so that others can understand how t
 
 ### Validation
 
-Before we deploy a new skill, we validate it to make sure it's working as expected. We use the `module-validator` tool for this.
+Before we deploy a new skill, we validate it to make sure it's working as expected. We use the `module_validator` tool for this.
 
 ```bash
-module-validator --skill-path . --check-dependencies
+module_validator --skill-path . --check-dependencies
 ```
 
 The validator checks for:

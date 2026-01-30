@@ -6,7 +6,7 @@ Interactive authentication for external services with automatic token caching, s
 
 ```bash
 # Source the interactive auth script
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 
 # Ensure authentication (prompts if needed)
 ensure_auth github || exit 1
@@ -45,7 +45,7 @@ No installation required - the module is part of the `leyline` plugin.
 ### Basic Authentication
 
 ```bash
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Check and prompt if needed
 ensure_auth github || exit 1
@@ -59,7 +59,7 @@ ensure_auth aws || exit 1
 #!/usr/bin/env bash
 # My workflow that uses GitHub API
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Ensure authentication at start
 if ! ensure_auth github; then
@@ -187,7 +187,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTH_INTERACTIVE: false  # Force non-interactive
         run: |
-          source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+          source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
           ensure_auth github || exit 1
           /pr-review ${{ github.event.pull_request.number }}
 ```
@@ -199,7 +199,7 @@ review:
   script:
     - export GITLAB_TOKEN="$CI_JOB_TOKEN"
     - export AUTH_INTERACTIVE=false
-    - source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+    - source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
     - ensure_auth gitlab || exit 1
     - ./run-review.sh
 ```
@@ -425,14 +425,14 @@ See `examples/workflow-integration.md` for comprehensive examples:
 
 To add support for a new service:
 
-1. Add to `AUTH_CHECK_COMMANDS` array in `interactive-auth.sh`
+1. Add to `AUTH_CHECK_COMMANDS` array in `interactive_auth.sh`
 2. Add to `AUTH_LOGIN_COMMANDS` array
 3. Create prompt function if needed (e.g., `prompt_newservice_auth`)
 4. Add documentation to this README
 
 Example:
 ```bash
-# In interactive-auth.sh
+# In interactive_auth.sh
 declare -A AUTH_CHECK_COMMANDS=(
   ...
   [myservice]="myservice auth status"

@@ -390,54 +390,54 @@ Sleep 500ms
 
 
 class TestGifDemoScript:
-    """Feature: gif-demo.sh script integration.
+    """Feature: gif_demo.sh script integration.
 
     As a user
-    I want the gif-demo.sh script to work
+    I want the gif_demo.sh script to work
     So that I can easily create demo GIFs
     """
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_gif_demo_script_exists(self, scripts_dir: Path) -> None:
-        """Scenario: gif-demo.sh script exists.
+        """Scenario: gif_demo.sh script exists.
 
         Given the scripts directory
-        When checking for gif-demo.sh
+        When checking for gif_demo.sh
         Then it should exist.
         """
-        gif_demo = scripts_dir / "gif-demo.sh"
-        assert gif_demo.exists(), "gif-demo.sh not found"
+        gif_demo = scripts_dir / "gif_demo.sh"
+        assert gif_demo.exists(), "gif_demo.sh not found"
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_gif_demo_script_is_executable(self, scripts_dir: Path) -> None:
-        """Scenario: gif-demo.sh is executable.
+        """Scenario: gif_demo.sh is executable.
 
-        Given gif-demo.sh exists
+        Given gif_demo.sh exists
         When checking permissions
         Then it should be executable.
         """
         import os
 
-        gif_demo = scripts_dir / "gif-demo.sh"
+        gif_demo = scripts_dir / "gif_demo.sh"
         if not gif_demo.exists():
-            pytest.skip("gif-demo.sh not found")
+            pytest.skip("gif_demo.sh not found")
 
-        assert os.access(gif_demo, os.X_OK), "gif-demo.sh is not executable"
+        assert os.access(gif_demo, os.X_OK), "gif_demo.sh is not executable"
 
     @pytest.mark.bdd
     @pytest.mark.integration
     def test_gif_demo_script_shows_help(self, scripts_dir: Path) -> None:
-        """Scenario: gif-demo.sh shows help.
+        """Scenario: gif_demo.sh shows help.
 
-        Given gif-demo.sh exists
+        Given gif_demo.sh exists
         When running with --help
         Then it should show usage information.
         """
-        gif_demo = scripts_dir / "gif-demo.sh"
+        gif_demo = scripts_dir / "gif_demo.sh"
         if not gif_demo.exists():
-            pytest.skip("gif-demo.sh not found")
+            pytest.skip("gif_demo.sh not found")
 
         result = subprocess.run(
             [str(gif_demo), "--help"],

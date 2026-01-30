@@ -4,7 +4,7 @@ description: Common issues and solutions for modular skills development with dia
 category: troubleshooting
 tags: [troubleshooting, debugging, modular-skills, diagnostics, common-issues]
 dependencies: [modular-skills]
-tools: [module-validator]
+tools: [module_validator]
 complexity: intermediate
 estimated_tokens: 600
 ---
@@ -15,14 +15,14 @@ estimated_tokens: 600
 
 ### Module Validation Failures
 
-**Issue**: `module-validator` reports structural violations or compliance issues
+**Issue**: `module_validator` reports structural violations or compliance issues
 
 ```bash
 # Check specific skill with verbose output
-skills/modular-skills/scripts/module-validator -s path/to/skill.md --verbose
+skills/modular-skills/scripts/module_validator -s path/to/skill.md --verbose
 
 # Validate YAML frontmatter specifically
-skills/modular-skills/scripts/module-validator -s path/to/skill.md -c
+skills/modular-skills/scripts/module_validator -s path/to/skill.md -c
 ```
 
 **Common Solutions**:
@@ -115,10 +115,10 @@ skills/modular-skills/scripts/skill-analyzer --path path/to/skills/ --verbose
 
 ```bash
 # Validate against modular design principles
-skills/modular-skills/scripts/module-validator -d path/to/skills/ --fail-on-warnings
+skills/modular-skills/scripts/module_validator -d path/to/skills/ --fail-on-warnings
 
 # Check for structural violations
-skills/modular-skills/scripts/module-validator -s path/to/skill.md --verbose
+skills/modular-skills/scripts/module_validator -s path/to/skill.md --verbose
 ```
 
 **Design Validation Checklist**:
@@ -204,7 +204,7 @@ skills/modular-skills/scripts/skill-analyzer --verbose --path skill.md
 ### Help System
 All tools support `--help` for usage guidance:
 ```bash
-skills/modular-skills/scripts/module-validator --help
+skills/modular-skills/scripts/module_validator --help
 skills/modular-skills/scripts/token-estimator --help
 ```
 
@@ -224,5 +224,5 @@ skills/modular-skills/scripts/token-estimator -d path/to/skills/
 ### Validation Scripts
 Use `--fail-on-warnings` for strict checking:
 ```bash
-skills/modular-skills/scripts/module-validator --fail-on-warnings -s skill.md
+skills/modular-skills/scripts/module_validator --fail-on-warnings -s skill.md
 ```

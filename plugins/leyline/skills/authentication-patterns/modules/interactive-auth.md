@@ -32,7 +32,7 @@ Provides interactive authentication flows for external services with automatic t
 
 ```bash
 # Source this script in your workflow
-source plugins/leyline/scripts/interactive-auth.sh
+source plugins/leyline/scripts/interactive_auth.sh
 
 # Ensure authentication before using service
 ensure_auth github || exit 1
@@ -387,7 +387,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTH_INTERACTIVE: false  # Force non-interactive
         run: |
-          source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+          source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
           ensure_auth github || exit 1
           /pr-review ${{ github.event.pull_request.number }}
 ```
@@ -519,7 +519,7 @@ ensure_auth github || exit 1
 #!/usr/bin/env bash
 # /pr-review command
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 # Ensure GitHub authentication
 if ! ensure_auth github; then
@@ -539,7 +539,7 @@ gh api repos/owner/repo/pulls/$PR_NUMBER/comments
 #!/usr/bin/env bash
 # Sync issue labels across repos
 
-source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
 
 ensure_auth github || exit 1
 
@@ -568,7 +568,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTH_INTERACTIVE: false
         run: |
-          source plugins/leyline/skills/authentication-patterns/modules/interactive-auth.sh
+          source plugins/leyline/skills/authentication-patterns/modules/interactive_auth.sh
           ensure_auth github || exit 1
           ./scripts/sync-issues.sh
 ```

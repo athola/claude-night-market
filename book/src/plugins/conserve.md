@@ -21,13 +21,15 @@ Conserve helps you work efficiently within Claude's context limits. It automatic
 | `cpu-gpu-performance` | Resource monitoring and selective testing | Before builds, tests, or training |
 | `mcp-code-execution` | MCP patterns for data pipelines | Processing data outside context |
 | `optimizing-large-skills` | Large skill optimization | Breaking down oversized skills |
-| `bloat-detector` | Detect bloated documentation and code | During documentation reviews |
+| `bloat-detector` | Detect bloated documentation, dead code, dead wrappers | During documentation reviews, code cleanup |
 | `clear-context` | Context window management strategies | When approaching context limits |
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
+| `/bloat-scan` | Detect code bloat, dead code, and dead wrapper scripts |
+| `/unbloat` | Remove detected bloat with progressive analysis |
 | `/optimize-context` | Analyze and optimize context window usage |
 | `/analyze-growth` | Predict context budget impact of skill growth |
 

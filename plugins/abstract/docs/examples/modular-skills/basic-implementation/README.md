@@ -50,7 +50,7 @@ development-workflow/
 
 3. **Validate new structure**
    ```bash
-   module-validator --directory development-workflow/ --verbose
+   module_validator --directory development-workflow/ --verbose
    ```
 
 4. **Test token usage**

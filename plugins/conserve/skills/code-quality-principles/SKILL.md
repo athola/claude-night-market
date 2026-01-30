@@ -9,7 +9,7 @@ tags: [design, principles, clean-code, architecture]
 tools: []
 complexity: low
 estimated_tokens: 600
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

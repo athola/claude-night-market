@@ -20,7 +20,7 @@ provides:
   infrastructure: [python-imports, error-handling, config-patterns]
 reusable_by: [all leyline skills, conserve, conjure, abstract]
 estimated_tokens: 150
-version: 1.3.5
+version: 1.3.7
 ---
 
 # Shared Infrastructure for Leyline

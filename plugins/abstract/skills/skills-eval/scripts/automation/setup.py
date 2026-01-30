@@ -33,7 +33,7 @@ def setup_skills_eval() -> bool:
         skills_eval_dir / "tools" / "compliance-checker",
         modular_skills_dir / "tools" / "skill-analyzer",
         modular_skills_dir / "tools" / "token-estimator",
-        modular_skills_dir / "tools" / "module-validator",
+        modular_skills_dir / "tools" / "module_validator",
     ]
 
     for tool in tools:

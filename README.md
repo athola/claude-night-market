@@ -12,8 +12,8 @@ Hooks adapt context based on the active agent. `pensive` tracks usage frequency 
 **Security & Session Management**
 `leyline` manages OAuth flows for GitHub, GitLab, and AWS with local token caching. `conserve` implements permission checks, automatically approving safe commands like `ls` while blocking high-risk operations like `rm -rf /`. `sanctum` isolates named sessions for debugging, feature work, and PR reviews. Quality gates in `/create-skill` and `/create-command` halt execution if the project has failing tests.
 
-**Resilience & Collaboration**
-`/update-plugins` recommends updates based on plugin stability metrics and now includes module auditing to detect orphaned or missing skill references. `/fix-workflow` attempts to repair failed runs by analyzing previous errors. For strategic decisions, `/attune:war-room` uses a Type 1/2 reversibility framework to route choices to appropriate expert subagents, with `war-room-checkpoint` enabling embedded escalation at decision points during implementation.
+**Maintenance & Resilience**
+`/cleanup` orchestrates bloat removal, code refinement, and AI hygiene auditing in a single pass with progressive depth levels. `/update-ci` reconciles pre-commit hooks and GitHub Actions workflows with recent code changes, detecting renamed files and orphaned references. `/update-plugins` recommends updates based on plugin stability metrics and includes module auditing to detect orphaned or missing skill references. `/fix-workflow` attempts to repair failed runs by analyzing previous errors. `/abstract:make-dogfood` generates or validates Makefile targets for all documented commands across plugins, with automatic language detection for Python, Rust, and TypeScript projects. For strategic decisions, `/attune:war-room` uses a Type 1/2 reversibility framework to route choices to appropriate expert subagents, with `war-room-checkpoint` enabling embedded escalation at decision points during implementation.
 
 **Cross-Session State (Claude Code 2.1.16+)**
 `attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation occurs on-demand, and state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`. The `war-room-checkpoint` skill integrates with commands like `/do-issue`, `/pr-review`, `/fix-pr`, and `/architecture-review` to trigger expert deliberation when high-stakes decisions emerge during workflows. Ambiguity detection prompts for user decisions when task boundaries are unclear. Versions prior to 2.1.16 use file-based state by default.
@@ -119,10 +119,10 @@ flowchart TB
 
 1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth and quotas), and `imbue` (TDD cycles).
 2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine with hook conversion and context-aware rule suggestions).
-3.  **Domain Specialists**: Task-specific logic. `pensive` (code review), `spec-kit` (requirements), and `minister` (issue tracking).
-4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring.
+3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), and `minister` (issue tracking).
+4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring, including Makefile generation and command-to-target validation.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 125 skills, 111 commands, and 40 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 126 skills, 114 commands, and 41 agents.
 
 ## Common Workflows
 
@@ -142,7 +142,12 @@ Details are available in the [Common Workflows Guide](book/src/getting-started/c
 | Catch up on changes | `/catchup` | Context recovery |
 | Write specifications | `/speckit-specify` | Spec-driven development |
 | Debug issues | `Skill(superpowers:debugging)` | Root cause analysis |
+| Codebase cleanup | `/cleanup` | Orchestrated bloat, quality, and hygiene scan |
+| Update CI/CD | `/update-ci` | Reconcile hooks and workflows with code changes |
+| Refine code | `/refine-code` | Duplication, algorithms, and clean code analysis |
+| Safety review | `Skill(pensive:safety-critical-patterns)` | NASA Power of 10 guidelines for robust code |
 | Improve plugins | `/update-plugins` | Update based on stability metrics + module audit |
+| Generate Makefiles | `/abstract:make-dogfood` | Auto-generate Makefiles for plugins with language detection |
 | Strategic decisions | `/attune:war-room` | Expert routing with reversibility scoring |
 | Embedded escalation | `Skill(attune:war-room-checkpoint)` | Inline expert deliberation at decision points |
 

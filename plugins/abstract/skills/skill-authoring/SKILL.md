@@ -6,7 +6,7 @@ description: |
   Use when creating new skills, improving compliance, or validating quality before deployment.
   Do not use for evaluating existing skills (use skills-eval) or analyzing architecture (use modular-skills).
   Follow the Iron Law: write a failing test before writing any skill.
-version: 1.3.5
+version: 1.3.7
 category: skill-development
 tags: [authoring, tdd, skills, writing, best-practices, validation]
 dependencies: [modular-skills]

@@ -8,7 +8,7 @@ description: |
   Use when: validating plugin structure, checking plugin.json, verifying paths exist
 
   ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
-  - Quick pass/fail check? → Parent runs `python3 .../validate-plugin.py <path>`
+  - Quick pass/fail check? → Parent runs `python3 .../validate_plugin.py <path>`
   - JSON syntax check? → Parent runs `jq . plugin.json`
   - Single field check? → Parent reads file directly
   ONLY invoke this agent for: multi-plugin validation, detailed error interpretation,
@@ -83,7 +83,7 @@ hooks:
 Before any work, assess if this task justifies subagent overhead:
 
 **Return early if**:
-- User just wants pass/fail → "SIMPLE: `python3 .../validate-plugin.py <path>`"
+- User just wants pass/fail → "SIMPLE: `python3 .../validate_plugin.py <path>`"
 - Single plugin, no interpretation needed → "SIMPLE: Parent runs script directly"
 - Quick syntax check → "SIMPLE: Parent runs `jq . plugin.json`"
 
@@ -121,5 +121,5 @@ Returns validation report with:
 ## Implementation
 
 ```bash
-python3 /home/alext/claude-night-market/plugins/abstract/scripts/validate-plugin.py <plugin-path>
+python3 /home/alext/claude-night-market/plugins/abstract/scripts/validate_plugin.py <plugin-path>
 ```

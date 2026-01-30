@@ -16,7 +16,7 @@ Triggers: concurrency, coroutines, await, async, asyncio
   DO NOT use when: testing async code - use python-testing async module.
 
   Consult this skill for async Python patterns and concurrency.
-version: 1.3.5
+version: 1.3.7
 category: async
 tags: [python, async, asyncio, concurrency, await, coroutines]
 tools: [async-analyzer, concurrency-checker]

@@ -3,9 +3,9 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help dev-setup test-integration test-verbose \
-        clean status debug-variables \
-        demo-init demo-brainstorm demo-skills plugin-check
+.PHONY:
+.PHONY: clean debug-variables demo-attune demo-brainstorm demo-init demo-skills dev-setup help \
+	plugin-check status test-attune test-integration test-verbose
 
 # Plugin-specific variables (must be before include)
 SRC_DIRS := scripts tests
@@ -148,4 +148,206 @@ Makefile.local:;
 -include Makefile.local
 
 # Note: catch-all rule removed to allow included targets from python.mk to work
-# The %:: double-colon rule was interfering with typecheck, lint, etc.
+# The
+
+demo-attune: ## Demo attune command (LIVE)
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune :validate"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune :validate for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+	@echo "=== attune Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /attune"
+	@echo "Plugin: attune"
+	@echo ""
+	@echo "This demonstrates attune usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /attune for full workflow."
+
+
+demo-attune-commands: demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune demo-attune ## Run all attune documented command demos
+	@echo ""
+	@echo "=== Attune All Commands Demo Complete ==="
+	@echo "Ran 10 documented commands"
+	@echo ""
+
+
+test-attune: ## Test attune command workflow
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing attune workflow ==="
+	@echo "Validating: /attune"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+# Catch-all rule
+%:: double-colon rule was interfering with typecheck, lint, etc.

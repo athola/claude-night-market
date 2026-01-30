@@ -32,6 +32,8 @@ Or reference from the marketplace:
 | **makefile-review** | Audits and optimizes build systems. |
 | **shell-review** | Checks shell scripts for correctness, portability, and safety. |
 | **fpf-review** | Functional/Practical/Foundation architecture review. |
+| **code-refinement** | Analyzes living code for duplication, algorithmic inefficiency, clean code violations, and architectural misfit. |
+| **safety-critical-patterns** | NASA Power of 10 rules adapted for robust, verifiable code with context-appropriate rigor. |
 
 ### Commands
 
@@ -47,6 +49,7 @@ Or reference from the marketplace:
 | `/makefile-review` | Audits Makefiles against best practices. |
 | `/shell-review` | Checks shell script safety and portability. |
 | `/fpf-review` | Executes an FPF architecture review. |
+| `/refine-code` | Analyzes and improves living code quality across 6 dimensions. |
 | `/skill-review` | Analyzes skill performance and stability. |
 | `/skill-history` | Displays recent skill execution data with context. |
 
@@ -57,6 +60,7 @@ Or reference from the marketplace:
 | **code-reviewer** | General review agent with bug detection capabilities. |
 | **architecture-reviewer** | Agent specialized in architectural assessment. |
 | **rust-auditor** | Agent focused on Rust safety and security. |
+| **code-refiner** | Agent for code quality refinement and refactoring plan generation. |
 
 ## Quick Start
 

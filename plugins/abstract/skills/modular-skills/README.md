@@ -16,7 +16,7 @@ Design patterns and implementation guidelines for reusable skill components.
 skill-analyzer --scan
 
 # Validate module structure
-module-validator --check-all
+module_validator --check-all
 
 # Estimate token usage
 token-estimator --skill <path>
@@ -50,7 +50,7 @@ skill-name/
 
 ## Validation Tools
 
-- **module-validator**: Structure and quality checks
+- **module_validator**: Structure and quality checks
 - **skill-analyzer**: detailed skill analysis
 - **token-estimator**: Context usage optimization
 

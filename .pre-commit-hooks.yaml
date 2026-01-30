@@ -21,7 +21,7 @@
 - id: validate-plugin-structure
   name: Validate Plugin Structure
   description: Validate that plugins follow required structure
-  entry: python3 plugins/abstract/scripts/validate-plugin.py
+  entry: python3 plugins/abstract/scripts/validate_plugin.py
   language: system
   pass_filenames: true
   files: ^plugins/[^/]+/\.claude-plugin/plugin\.json$

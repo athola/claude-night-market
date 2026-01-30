@@ -190,7 +190,7 @@ python scripts/skill_analyzer.py --path skill.md
 ## Tools Available
 - `skill-analyzer`: Complexity analysis
 - `token-estimator`: Usage planning
-- `module-validator`: Structure validation
+- `module_validator`: Structure validation
 
 <!-- NEED_MORE_DETAIL? -->
 <!-- Full content available: implementation patterns, examples, detailed workflows -->
@@ -242,7 +242,7 @@ skills/skills-eval/scripts/token-usage-tracker --optimization-report skills/
 ### Automated Migration
 ```bash
 # Auto-generate quick-start variants
-skills/scripts/quick-start-generator --source skills/ --target skills-quick/
+skills/scripts/quick_start_generator --source skills/ --target skills-quick/
 
 # Add progressive loading markers
 skills/scripts/loading-marker-adder --skills skills/ --pattern tiered

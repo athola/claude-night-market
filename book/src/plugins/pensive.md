@@ -26,6 +26,8 @@ Pensive provides deep code review capabilities across multiple dimensions: archi
 | `math-review` | Mathematical correctness | Reviewing mathematical logic |
 | `shell-review` | Shell script auditing | Exit codes, portability, safety patterns |
 | `fpf-review` | FPF architecture review | Functional/Practical/Foundation analysis |
+| `safety-critical-patterns` | NASA Power of 10 rules | Robust, verifiable code with context-appropriate rigor |
+| `code-refinement` | Code quality analysis | Duplication, efficiency, clean code violations |
 
 ## Commands
 

@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/full-review.md",
@@ -13,25 +13,29 @@
     "./commands/makefile-review.md",
     "./commands/shell-review.md",
     "./commands/skill-review.md",
-    "./commands/skill-history.md"
+    "./commands/skill-history.md",
+    "./commands/refine-code.md"
   ],
   "skills": [
-    "./skills/shared",
-    "./skills/unified-review",
     "./skills/api-review",
     "./skills/architecture-review",
     "./skills/bug-review",
-    "./skills/rust-review",
-    "./skills/test-review",
-    "./skills/math-review",
+    "./skills/code-refinement",
+    "./skills/fpf-review",
     "./skills/makefile-review",
+    "./skills/math-review",
+    "./skills/rust-review",
+    "./skills/safety-critical-patterns",
+    "./skills/shared",
     "./skills/shell-review",
-    "./skills/fpf-review"
+    "./skills/test-review",
+    "./skills/unified-review"
   ],
   "agents": [
     "./agents/code-reviewer.md",
     "./agents/architecture-reviewer.md",
-    "./agents/rust-auditor.md"
+    "./agents/rust-auditor.md",
+    "./agents/code-refiner.md"
   ],
   "keywords": [
     "review",

@@ -207,7 +207,7 @@ Est. Changes: 1 file modified, 2 files created
 ## Verification Checklist
 
 After implementation:
-- [ ] `uv run python scripts/validate-plugin.py ../conjure/` passes
+- [ ] `uv run python scripts/validate_plugin.py ../conjure/` passes
 - [ ] `uv run python scripts/token_estimator.py --file ../conjure/skills/delegation-core/SKILL.md` shows <3000 tokens
 - [ ] Hooks still function correctly (manual test)
 - [ ] All leyline imports resolve correctly

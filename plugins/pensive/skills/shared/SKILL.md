@@ -16,7 +16,7 @@ Triggers: infrastructure, review, patterns, shared
   This skill provides shared patterns consumed by other pensive skills.
 category: review-infrastructure
 tags: [shared, infrastructure, review, patterns]
-version: 1.3.5
+version: 1.3.7
 estimated_tokens: 50
 ---
 
@@ -38,6 +38,7 @@ Available shared modules:
 - See `modules/review-workflow-core.md` for the core 5-step workflow pattern
 - See `modules/output-format-templates.md` for standard output structures
 - See `modules/quality-checklist-patterns.md` for reusable quality checklists
+- See `modules/code-quality-analysis.md` for deduplication and redundancy detection
 
 ## Usage
 
@@ -62,6 +63,7 @@ All pensive review skills:
 - `pensive:makefile-review`
 - `pensive:math-review`
 - `pensive:unified-review`
+- `pensive:code-refinement`
 ## Troubleshooting
 
 ### Common Issues

@@ -1,4 +1,4 @@
-"""Tests for gif-demo.sh script functionality."""
+"""Tests for gif_demo.sh script functionality."""
 
 import os
 import shutil
@@ -10,12 +10,12 @@ import pytest
 
 @pytest.fixture
 def gif_demo_script(scripts_dir: Path) -> Path:
-    """Return path to gif-demo.sh."""
-    return scripts_dir / "gif-demo.sh"
+    """Return path to gif_demo.sh."""
+    return scripts_dir / "gif_demo.sh"
 
 
 class TestGifDemoHelp:
-    """Tests for gif-demo.sh help functionality."""
+    """Tests for gif_demo.sh help functionality."""
 
     def test_help_flag_short(self, gif_demo_script: Path) -> None:
         """Script should respond to -h flag."""
@@ -41,7 +41,7 @@ class TestGifDemoHelp:
 
 
 class TestGifDemoDependencies:
-    """Tests for gif-demo.sh dependency checking."""
+    """Tests for gif_demo.sh dependency checking."""
 
     @pytest.mark.skipif(
         shutil.which("ffmpeg") is not None,
@@ -71,7 +71,7 @@ class TestGifDemoDependencies:
 
 @pytest.mark.integration
 class TestGifDemoExecution:
-    """Integration tests for gif-demo.sh execution (requires ffmpeg)."""
+    """Integration tests for gif_demo.sh execution (requires ffmpeg)."""
 
     def test_generates_gif(
         self, gif_demo_script: Path, has_ffmpeg: bool, tmp_path: Path

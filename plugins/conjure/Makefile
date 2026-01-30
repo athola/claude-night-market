@@ -3,10 +3,12 @@
 #
 # Uses shared Make includes from abstract plugin for DRY compliance
 
-.PHONY: help deps check fix format lint type-check typecheck spellcheck security test status clean \
-        install-hooks validate-all quota-status usage-report validate-delegation delegate-status \
-        delegate-verify delegate-usage delegate-test delegate-gemini delegate-qwen delegate-auto \
-        demo-token-estimate precommit mutation-test benchmark memory-profile demo-delegation demo-skills plugin-check debug-variables
+.PHONY:
+.PHONY: benchmark check clean debug-variables delegate-auto delegate-gemini delegate-qwen \
+	delegate-status delegate-test delegate-usage delegate-verify demo-delegation demo-plugin \
+	demo-skills demo-status demo-token-estimate deps fix format help install-hooks lint memory-profile \
+	mutation-test plugin-check precommit quota-status security spellcheck status test test-plugin \
+	test-status type-check typecheck usage-report validate-all validate-delegation
 
 # Override source directories for this plugin
 SRC_DIRS := scripts hooks
@@ -203,6 +205,74 @@ plugin-check: demo-delegation demo-skills status ## Run all demo workflows
 # Include local overrides if they exist (before catch-all rule)
 Makefile.local:;
 -include Makefile.local
+
+demo-plugin: ## Demo plugin command (LIVE)
+	@echo "=== plugin Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /plugin install athola@claude-night-market"
+	@echo "Plugin: conjure"
+	@echo ""
+	@echo "This demonstrates plugin usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /plugin install athola@claude-night-market for full workflow."
+
+
+	@echo "=== plugin Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /plugin"
+	@echo "Plugin: conjure"
+	@echo ""
+	@echo "This demonstrates plugin usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /plugin for full workflow."
+
+
+demo-status: ## Demo status command (LIVE)
+	@echo "=== status Demo (LIVE) ==="
+	@echo ""
+	@echo "Command: /status"
+	@echo "Plugin: conjure"
+	@echo ""
+	@echo "This demonstrates status usage."
+	@echo "Execute manually in Claude Code for full functionality."
+	@echo ""
+	@echo "Use /status for full workflow."
+
+
+demo-conjure-commands: demo-plugin demo-plugin demo-status ## Run all conjure documented command demos
+	@echo ""
+	@echo "=== Conjure All Commands Demo Complete ==="
+	@echo "Ran 3 documented commands"
+	@echo ""
+
+
+test-plugin: ## Test plugin command workflow
+	@echo "=== Testing plugin workflow ==="
+	@echo "Validating: /plugin"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+	@echo "=== Testing plugin workflow ==="
+	@echo "Validating: /plugin"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
+
+test-status: ## Test status command workflow
+	@echo "=== Testing status workflow ==="
+	@echo "Validating: /status"
+	@echo "Check: Command executes without errors"
+	@echo "Check: Output matches expected format"
+	@echo "Status: [ ] Manual test required"
+	@echo ""
+
 
 # Guard against accidental file creation (catch-all for unknown targets)
 %::

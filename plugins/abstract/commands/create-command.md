@@ -344,7 +344,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate_command.py \
   commands/${command_name}.md
 
 # Verify plugin.json reference
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate-plugin.py
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/validate_plugin.py
 ```
 
 Output:

@@ -28,7 +28,7 @@ dependencies:
   - scry:browser-recording
   - scry:gif-generation
   - scry:media-composition
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

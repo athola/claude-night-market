@@ -20,7 +20,7 @@ modules:
   - remediation-types
 progressive_loading: true
 estimated_tokens: 400
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

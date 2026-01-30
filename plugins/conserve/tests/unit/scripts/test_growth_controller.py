@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for growth-controller.py script - actual implementation tests.
+"""Tests for growth_controller.py script - actual implementation tests.
 
 This module tests the GrowthController class following TDD/BDD principles,
 exercising the actual implementation instead of mocks.
@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pytest
 
-# Load the growth-controller module dynamically (hyphenated filename)
+# Load the growth_controller module dynamically
 scripts_dir = Path(__file__).parent.parent.parent.parent / "scripts"
 spec = importlib.util.spec_from_file_location(
-    "growth_controller_module", scripts_dir / "growth-controller.py"
+    "growth_controller_module", scripts_dir / "growth_controller.py"
 )
 assert spec is not None
 assert spec.loader is not None

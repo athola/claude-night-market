@@ -17,7 +17,7 @@ Triggers: templates, validation, reusable, shared, patterns
   DO NOT use when: pattern is context-dependent requiring variations.
 
   Reference these patterns to validate consistency across the ecosystem.
-version: 1.3.5
+version: 1.3.7
 category: meta-infrastructure
 tags: [patterns, templates, shared, validation, reusable]
 dependencies: []

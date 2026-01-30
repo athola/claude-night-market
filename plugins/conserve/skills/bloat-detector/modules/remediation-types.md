@@ -67,6 +67,26 @@ Move stale but historically valuable content:
 | MEDIUM | Guides, how-tos, 5-10 refs |
 | HIGH | Core docs, > 10 refs |
 
+## INLINE (Remove Dead Wrappers)
+
+Replace thin facades and passthrough functions with direct usage of the underlying implementation:
+- Whole-file wrappers with 0 external consumers → DELETE
+- Intra-file passthrough methods that only delegate → INLINE callers to use wrapped method directly
+- Re-export layers where examples/ already demonstrates the same API
+
+**Risk Assessment:**
+| Risk | Criteria |
+|------|----------|
+| LOW | 0 external refs, wrapper adds no logic, underlying module is stable |
+| MEDIUM | 1-2 refs, wrapper adds minor convenience (default args, error handling) |
+| HIGH | >2 refs, wrapper provides meaningful abstraction or cross-cutting concerns |
+
+**Detection Signals:**
+- File imports internal module and re-exports similar API surface
+- No `__init__.py` (not a proper package)
+- Function bodies are single `return self.other_method(...)` calls
+- Duplicate capability exists in `examples/` or `skills/` directories
+
 ## Auto-Approval Levels
 
 | Level | Criteria |

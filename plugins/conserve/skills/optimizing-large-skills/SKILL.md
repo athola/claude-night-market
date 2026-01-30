@@ -16,7 +16,7 @@ description: |
   Consult this skill when skills-eval shows "Large skill file" warnings.
 token_budget: 25
 progressive_loading: true
-version: 1.3.5
+version: 1.3.7
 ---
 ## Table of Contents
 

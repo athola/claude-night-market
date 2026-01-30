@@ -9,7 +9,7 @@ The tools have been moved from individual skill directories to a centralized `sc
 ## Migrated Tools
 
 ### From `skills/modular-skills/tools/`
-- `module-validator` → `scripts/skill_analyzer.py`
+- `module_validator` → `scripts/skill_analyzer.py`
 - `skill-analyzer` → `scripts/skill_analyzer.py`
 - `token-estimator` → `scripts/token_estimator.py`
 
@@ -24,10 +24,10 @@ The tools have been moved from individual skill directories to a centralized `sc
 ```bash
 # Run tool from skill directory
 cd skills/modular-skills
-./tools/module-validator my-skill
+./tools/module_validator my-skill
 
 # Or from repo root
-./skills/modular-skills/tools/module-validator my-skill
+./skills/modular-skills/tools/module_validator my-skill
 ```
 
 ### After

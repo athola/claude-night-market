@@ -9,7 +9,7 @@ tags: [sourcing, citations, accuracy, efficiency]
 tools: [WebSearch]
 complexity: low
 estimated_tokens: 400
-version: 1.3.5
+version: 1.3.7
 ---
 
 # Smart Sourcing

@@ -12,6 +12,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
+# Import Phase 2-4 modules
+sys.path.insert(0, str(Path(__file__).parent))
+from update_plugins_modules import (
+    KnowledgeQueueChecker,
+    MetaEvaluator,
+    PerformanceAnalyzer,
+)
+
 
 class PluginAuditor:
     """Audit and sync plugin.json registrations with disk contents."""
@@ -23,6 +31,11 @@ class PluginAuditor:
         self.module_issues: dict[
             str, dict[str, Any]
         ] = {}  # Track module issues separately
+
+        # Initialize Phase 2-4 analyzers
+        self.performance_analyzer = PerformanceAnalyzer()
+        self.meta_evaluator = MetaEvaluator()
+        self.queue_checker = KnowledgeQueueChecker()
 
     # Cache/temp directories to exclude from scans (consistent with update_versions.py)
     CACHE_EXCLUDES = {
@@ -590,6 +603,20 @@ class PluginAuditor:
 
         return True
 
+    def analyze_skill_performance(self, plugin_name: str) -> dict[str, Any]:
+        """Phase 2: Analyze skill execution metrics for performance issues."""
+        return self.performance_analyzer.analyze_plugin(plugin_name)
+
+    def check_meta_evaluation(
+        self, plugin_name: str, plugin_path: Path
+    ) -> dict[str, Any]:
+        """Phase 3: Validate recursive quality of evaluation-related skills."""
+        return self.meta_evaluator.check_plugin(plugin_name, plugin_path)
+
+    def check_knowledge_queue(self) -> list[dict[str, Any]]:
+        """Phase 4: Scan memory-palace queue for pending research items."""
+        return self.queue_checker.check_queue()
+
     def audit_all(self, specific_plugin: str | None = None) -> int:
         """Audit all plugins or a specific plugin."""
         if specific_plugin:
@@ -606,9 +633,27 @@ class PluginAuditor:
         print(f"Auditing {len(plugins)} plugin(s)...\n")
 
         plugins_with_issues = 0
+        performance_report: dict[str, Any] = {}
+        meta_eval_report: dict[str, Any] = {}
+
+        # Phase 1: Registration Audit
         for plugin_name in plugins:
             if self.audit_plugin(plugin_name):
                 plugins_with_issues += 1
+
+            # Phase 2: Performance Analysis
+            perf_data = self.analyze_skill_performance(plugin_name)
+            if any(perf_data.values()):
+                performance_report[plugin_name] = perf_data
+
+            # Phase 3: Meta-Evaluation Check
+            plugin_path = self.plugins_root / plugin_name
+            meta_issues = self.check_meta_evaluation(plugin_name, plugin_path)
+            if any(meta_issues.values()):
+                meta_eval_report[plugin_name] = meta_issues
+
+        # Phase 4: Knowledge Queue Check (once for all plugins)
+        queue_items = self.check_knowledge_queue()
 
         # Summary
         print(f"\n{'=' * 60}")
@@ -618,6 +663,56 @@ class PluginAuditor:
         print(f"Plugins with registration issues: {len(self.discrepancies)}")
         print(f"Plugins with module issues: {len(self.module_issues)}")
         print(f"Plugins clean: {len(plugins) - plugins_with_issues}")
+
+        # Phase 2 Summary
+        if performance_report:
+            print(f"\n{'=' * 60}")
+            print("PHASE 2: PERFORMANCE & IMPROVEMENT ANALYSIS")
+            print("=" * 60)
+            for plugin, data in performance_report.items():
+                print(f"\n{plugin}:")
+                if data["unstable_skills"]:
+                    print("  ⚠ Unstable skills (stability_gap > 0.3):")
+                    for item in data["unstable_skills"]:
+                        print(f"    - {item['skill']}: {item['stability_gap']}")
+                if data["recent_failures"]:
+                    print("  ❌ Recent failures (last 7 days):")
+                    for item in data["recent_failures"]:
+                        print(f"    - {item['skill']}: {item['failures']} failures")
+                if data["low_success_rate"]:
+                    print("  📉 Low success rate (< 80%):")
+                    for item in data["low_success_rate"]:
+                        print(f"    - {item['skill']}: {item['success_rate']:.0%}")
+
+        # Phase 3 Summary
+        if meta_eval_report:
+            print(f"\n{'=' * 60}")
+            print("PHASE 3: META-EVALUATION CHECK")
+            print("=" * 60)
+            for plugin, issues in meta_eval_report.items():
+                print(f"\n{plugin}:")
+                if issues["missing_toc"]:
+                    print(f"  📋 Missing TOC: {', '.join(issues['missing_toc'])}")
+                if issues["missing_verification"]:
+                    print(
+                        f"  🔍 Missing verification: {', '.join(issues['missing_verification'])}"
+                    )
+                if issues["missing_tests"]:
+                    print(f"  🧪 Missing tests: {', '.join(issues['missing_tests'])}")
+
+        # Phase 4 Summary
+        if queue_items:
+            print(f"\n{'=' * 60}")
+            print("PHASE 4: KNOWLEDGE QUEUE PROMOTION CHECK")
+            print("=" * 60)
+            print(f"\nPending items in memory-palace queue: {len(queue_items)}")
+            for item in queue_items[:10]:  # Show top 10
+                age_str = (
+                    f"{item['age_days']}d ago" if item["age_days"] > 0 else "today"
+                )
+                print(f"  [{item['priority'].upper()}] {item['file']} ({age_str})")
+            if len(queue_items) > 10:
+                print(f"  ... and {len(queue_items) - 10} more")
 
         # Fix if requested
         if not self.dry_run and plugins_with_issues > 0:

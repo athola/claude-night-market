@@ -49,42 +49,42 @@ repos:
 
       - id: validate-abstract-plugin
         name: Validate Abstract Plugin Structure
-        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/abstract
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/abstract
         language: system
         files: ^plugins/abstract/
         pass_filenames: false
 
       - id: validate-imbue-plugin
         name: Validate Imbue Plugin Structure
-        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/imbue
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/imbue
         language: system
         files: ^plugins/imbue/
         pass_filenames: false
 
       - id: validate-archetypes-plugin
         name: Validate Archetypes Plugin Structure
-        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/archetypes
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/archetypes
         language: system
         files: ^plugins/archetypes/
         pass_filenames: false
 
       - id: validate-conjure-plugin
         name: Validate Conjure Plugin Structure
-        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conjure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/conjure
         language: system
         files: ^plugins/conjure/
         pass_filenames: false
 
       - id: validate-conserve-plugin
         name: Validate Conserve Plugin Structure
-        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/conserve
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/conserve
         language: system
         files: ^plugins/conserve/
         pass_filenames: false
 
       - id: validate-memory-palace-plugin
         name: Validate Memory Palace Plugin Structure
-        entry: python3 plugins/abstract/scripts/validate-plugin.py plugins/memory-palace
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/memory-palace
         language: system
         files: ^plugins/memory-palace/
         pass_filenames: false

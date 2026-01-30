@@ -1,0 +1,12 @@
+# Makefile Dogfooding Pre-commit Hook
+# Ensures documented commands have corresponding Makefile targets
+
+- repo: local
+  hooks:
+    - id: makefile-dogfood-check
+      name: Makefile Dogfooding Check
+      entry: bash -c 'cd "$(git rev-parse --show-toplevel)" && python3 plugins/abstract/scripts/makefile_dogfooder.py --mode analyze'
+      language: system
+      pass_filenames: false
+      always_run: true
+      description: Check that documented commands have Makefile demo targets
