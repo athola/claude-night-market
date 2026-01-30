@@ -4,6 +4,7 @@ Scans memory-palace queue for pending research items that need promotion.
 """
 
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -67,7 +68,3 @@ class KnowledgeQueueChecker:
         )
 
         return queue_items
-
-
-# Need to import re
-import re

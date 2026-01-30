@@ -304,8 +304,6 @@ test-validate-plugin: ## Test validate-plugin command workflow
 	@echo ""
 
 
-
-
 # Guard against accidental file creation (catch-all for unknown targets)
 %::
 	@echo "Error: Unknown target '$@'"
