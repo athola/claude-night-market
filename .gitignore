@@ -94,3 +94,4 @@ plugins/memory-palace/reports/
 plugins/memory-palace/docs/knowledge-corpus/queue/webfetch-*.md
 plugins/memory-palace/docs/knowledge-corpus/queue/websearch-*.md
 plugins/memory-palace/docs/knowledge-corpus/queue/archive/
+**/*.claude/session-state.md
