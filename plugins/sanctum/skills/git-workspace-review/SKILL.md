@@ -42,6 +42,19 @@ version: 1.3.7
 
 # Git Workspace Review
 
+## Table of Contents
+
+1. [Usage](#usage)
+2. [Required Progress Tracking](#required-progress-tracking)
+
+## Verification
+
+Run `git status` after review to verify workspace state matches expectations.
+
+## Testing
+
+Run `pytest plugins/sanctum/tests/test_git_workspace_review.py` to validate review workflow.
+
 ## Usage
 
 Use this skill before workflows that depend on repository state, such as commit message generation, PR preparation, or release notes. Run it once per session or whenever staged changes are modified.

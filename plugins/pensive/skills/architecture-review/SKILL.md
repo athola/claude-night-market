@@ -48,6 +48,11 @@ version: 1.3.7
 - [Step 3: Interaction Mapping (`arch-review:interaction-mapping`)](#step-3:-interaction-mapping-(arch-review:interaction-mapping))
 - [Step 4: Principle Checks (`arch-review:principle-checks`)](#step-4:-principle-checks-(arch-review:principle-checks))
 - [Step 5: Risks and Actions (`arch-review:risks-actions`)](#step-5:-risks-and-actions-(arch-review:risks-actions))
+- [Testing](#testing)
+
+## Testing
+
+Run `pytest plugins/pensive/tests/skills/test_architecture_review.py` to verify review logic.
 - [Architecture Principles Checklist](#architecture-principles-checklist)
 - [Coupling](#coupling)
 - [Cohesion](#cohesion)

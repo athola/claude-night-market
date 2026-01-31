@@ -48,6 +48,11 @@ version: 1.3.7
 - [Progressive Loading](#progressive-loading)
 - [Output Format](#output-format)
 - [Summary](#summary)
+- [Testing](#testing)
+
+## Testing
+
+Run `pytest plugins/pensive/tests/skills/test_makefile_review.py` to verify review logic.
 - [Context](#context)
 - [Dependency Analysis](#dependency-analysis)
 - [Duplication Candidates](#duplication-candidates)

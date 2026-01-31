@@ -38,6 +38,8 @@ version: 1.3.7
 - [Output Format](#output-format)
 - [Configuration](#configuration)
 - [Guardrails](#guardrails)
+
+Run verification after review: `make lint && make test` to confirm no regressions.
 - [Integration Points](#integration-points)
 
 # FPF Architecture Review

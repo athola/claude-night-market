@@ -38,6 +38,10 @@ version: 1.3.7
 - [1. Inventory Current Features](#1-inventory-current-features)
 - [2. Score and Classify](#2-score-and-classify)
 - [3. Generate Suggestions](#3-generate-suggestions)
+
+## Verification
+
+Run `make test-feature-review` to verify scoring logic after changes.
 - [4. Upload to GitHub](#4-upload-to-github)
 - [Workflow](#workflow)
 - [Phase 1: Feature Discovery (`feature-review:inventory-complete`)](#phase-1:-feature-discovery-(feature-review:inventory-complete))

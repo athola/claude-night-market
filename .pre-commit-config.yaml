@@ -96,6 +96,14 @@ repos:
         files: ^plugins/memory-palace/docs/knowledge-corpus/.*\.md$
         pass_filenames: false
 
+      - id: meta-evaluation-check
+        name: Meta-Evaluation Quality Check
+        entry: python3 plugins/sanctum/scripts/update_plugin_registrations.py --dry-run
+        language: system
+        files: ^plugins/.*/skills/.*SKILL\.md$
+        pass_filenames: false
+        verbose: true
+
       - id: check-context-optimization
         name: Check Context Optimization
         entry: python3 plugins/abstract/scripts/context_optimizer.py stats plugins/

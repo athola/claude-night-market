@@ -42,6 +42,12 @@ version: 1.3.7
 
 Testing standards for pytest configuration, fixture management, and TDD implementation.
 
+## Table of Contents
+
+1. [Quick Start](#quick-start)
+2. [When to Use](#when-to-use)
+3. [Modules](#modules)
+
 ## Quick Start
 
 1.  **Dependencies**: `pip install pytest pytest-cov pytest-asyncio pytest-mock`

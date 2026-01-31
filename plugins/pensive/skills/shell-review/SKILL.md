@@ -31,6 +31,14 @@ version: 1.3.7
 
 Audit shell scripts for correctness, safety, and portability.
 
+## Verification
+
+After review, run `shellcheck <script>` to verify fixes address identified issues.
+
+## Testing
+
+Run `pytest plugins/pensive/tests/skills/test_shell_review.py -v` to validate review patterns.
+
 ## Quick Start
 
 ```bash

@@ -22,6 +22,12 @@ version: 1.3.7
 
 Shared quality standards and metrics for testing across all plugins in the Claude Night Market ecosystem.
 
+## Table of Contents
+
+1. [Coverage Thresholds](#coverage-thresholds)
+2. [Quality Metrics](#quality-metrics)
+3. [Detailed Topics](#detailed-topics)
+
 ## Coverage Thresholds
 
 | Level | Coverage | Use Case |

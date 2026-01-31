@@ -54,7 +54,7 @@ evaluation_criteria:
 
 ## Overview
 
-This framework audits Claude skills against quality standards to improve performance and reduce token consumption. Automated tools analyze skill structure, measure context usage, and identify specific technical improvements.
+This framework audits Claude skills against quality standards to improve performance and reduce token consumption. Automated tools analyze skill structure, measure context usage, and identify specific technical improvements. Run verification commands after each audit to confirm fixes work correctly.
 
 The `skills-auditor` provides structural analysis, while the `improvement-suggester` ranks fixes by impact. Compliance is verified through the `compliance-checker`. Runtime efficiency is monitored by `tool-performance-analyzer` and `token-usage-tracker`.
 
