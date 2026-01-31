@@ -55,7 +55,9 @@ class NotificationState:
                     notified_since_input=data.get("notified_since_input", False),
                     session_id=session_id,
                 )
-        except (OSError, json.JSONDecodeError):
+        except (OSError, json.JSONDecodeError) as e:
+            # Log to stderr for debugging (doesn't break hook output)
+            print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
             pass
         return cls(session_id=session_id)
 

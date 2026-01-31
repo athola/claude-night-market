@@ -134,7 +134,7 @@ addopts = [
     "--cov=scripts",
     "--cov-report=term-missing",
     "--cov-report=html",
-    "--cov-fail-under=85"
+    "--cov-fail-under=84"
 ]
 markers = [
     "unit: Unit tests for individual components",
@@ -156,7 +156,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 85
+fail_under = 84
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

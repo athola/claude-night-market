@@ -101,8 +101,10 @@ def main() -> None:
         if input_data:
             hook_input = json.loads(input_data)
             agent_type = hook_input.get("agent_type", "")
-    except (OSError, json.JSONDecodeError):
+    except (OSError, json.JSONDecodeError) as e:
         # Gracefully handle missing or malformed input
+        # Log to stderr for debugging (doesn't break hook output)
+        print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
         pass
 
     # Skip full governance for lightweight agents
