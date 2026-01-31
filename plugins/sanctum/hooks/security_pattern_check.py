@@ -170,7 +170,9 @@ def main():
     try:
         raw_input = sys.stdin.read()
         input_data = json.loads(raw_input)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        # Log to stderr for debugging (doesn't break hook output)
+        print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
         sys.exit(0)
 
     tool_name = input_data.get("tool_name", "")
