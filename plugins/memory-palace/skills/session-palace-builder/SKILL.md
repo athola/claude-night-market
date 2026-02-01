@@ -1,21 +1,10 @@
 ---
+
 name: session-palace-builder
-description: |
-
-Triggers: conversation-state, session, temporary-storage, project-memory, palace
-  Construct temporary, session-specific memory palaces for complex projects
-  and conversations.
-
-  Triggers: session context, project memory, conversation state, temporary storage,
-  session palace, context preservation, complex project, extended conversation
-
-  Use when: working on complex multi-step projects, preserving context across
-  interruptions, tracking session-specific state
-
-  DO NOT use when: permanent knowledge structures needed - use memory-palace-architect.
-  DO NOT use when: searching existing knowledge - use knowledge-locator.
-
-  Consult this skill for session-scoped temporary knowledge structures.
+description: 'Consult this skill for session-scoped temporary knowledge structures.'
+triggers: conversation-state, session, temporary-storage, project-memory, palace Construct temporary, session-specific memory palaces for complex projects and conversations., session context, project memory, conversation state, temporary storage, session palace, context preservation, complex project, extended conversation
+use_when: 'working on complex multi-step projects, preserving context across interruptions, tracking session-specific state'
+do_not_use_when: 'permanent knowledge structures needed - use memory-palace-architect. DO NOT use when: searching existing knowledge - use knowledge-locator.'
 category: session-management
 tags: [session, context, project-memory, conversation-state, temporary-storage]
 dependencies: [memory-palace-architect]

@@ -1,22 +1,10 @@
 ---
+
 name: scope-guard
-description: |
-
-Triggers: prioritization, anti-overengineering, yagni, scope, guard
-  Prevents overengineering through worthiness scoring, opportunity cost comparison,
-  and branch threshold monitoring.
-
-  Triggers: scope creep, overengineering, worthiness score, branch size, YAGNI,
-  feature evaluation, scope validation, anti-overengineering, opportunity cost
-
-  Use when: evaluating features during brainstorming, planning new functionality,
-  branches approach size limits (1000/1500/2000 lines, 15/25/30 commits)
-
-  DO NOT use when: feature is already approved and in progress.
-  DO NOT use when: simple bug fixes with clear scope.
-
-  Use this skill BEFORE implementing any new feature. This is NON-NEGOTIABLE
-  for scope control.
+description: 'Use this skill BEFORE implementing any new feature. This is NON-NEGOTIABLE for scope control.'
+triggers: prioritization, anti-overengineering, yagni, scope, guard Prevents overengineering through worthiness scoring, opportunity cost comparison, and branch threshold monitoring., scope creep, overengineering, worthiness score, branch size, YAGNI, feature evaluation, scope validation, anti-overengineering, opportunity cost
+use_when: 'evaluating features during brainstorming, planning new functionality, branches approach size limits (1000/1500/2000 lines, 15/25/30 commits)'
+do_not_use_when: 'feature is already approved and in progress. DO NOT use when: simple bug fixes with clear scope.'
 category: workflow-methodology
 tags: [anti-overengineering, scope, YAGNI, prioritization, backlog]
 dependencies: []

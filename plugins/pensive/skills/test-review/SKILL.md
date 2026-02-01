@@ -1,21 +1,10 @@
 ---
+
 name: test-review
-description: |
-
-Triggers: fixtures, quality, test, bdd, testing
-  Evaluate and upgrade test suites with TDD/BDD rigor, coverage tracking,
-  and quality assessment.
-
-  Triggers: test audit, test coverage, test quality, TDD, BDD, test gaps,
-  test improvement, coverage analysis, test remediation
-
-  Use when: auditing test suites, analyzing coverage gaps, improving test
-  quality, evaluating TDD/BDD compliance
-
-  DO NOT use when: writing new tests - use parseltongue:python-testing.
-  DO NOT use when: updating existing tests - use sanctum:test-updates.
-
-  Use this skill for test suite evaluation and quality assessment.
+description: 'Use this skill for test suite evaluation and quality assessment.'
+triggers: fixtures, quality, test, bdd, testing Evaluate and upgrade test suites with TDD/BDD rigor, coverage tracking, and quality assessment., test audit, test coverage, test quality, TDD, BDD, test gaps, test improvement, coverage analysis, test remediation
+use_when: 'auditing test suites, analyzing coverage gaps, improving test quality, evaluating TDD/BDD compliance'
+do_not_use_when: 'writing new tests - use parseltongue:python-testing. DO NOT use when: updating existing tests - use sanctum:test-updates.'
 category: testing
 tags: [testing, tdd, bdd, coverage, quality, fixtures]
 tools: [coverage-analyzer, scenario-evaluator, gap-finder]

@@ -1,20 +1,10 @@
 ---
+
 name: python-packaging
-description: |
-
-Triggers: pyproject.toml, pypi, packaging, distribution, python
-  Create distributable Python packages with proper structure and publishing.
-
-  Triggers: Python packaging, pyproject.toml, uv, pip, PyPI, distribution, CLI tools,
-  entry points, package structure, publishing
-
-  Use when: creating Python packages, configuring pyproject.toml, setting up
-  entry points, publishing to PyPI, CI/CD for packages
-
-  DO NOT use when: testing packages - use python-testing instead.
-  DO NOT use when: optimizing package performance - use python-performance.
-
-  Consult this skill for Python package creation and distribution.
+description: 'Consult this skill for Python package creation and distribution.'
+triggers: pyproject.toml, pypi, packaging, distribution, python Create distributable Python packages with proper structure and publishing., Python packaging, pyproject.toml, uv, pip, PyPI, distribution, CLI tools, entry points, package structure, publishing
+use_when: 'creating Python packages, configuring pyproject.toml, setting up entry points, publishing to PyPI, CI/CD for packages'
+do_not_use_when: 'testing packages - use python-testing instead. DO NOT use when: optimizing package performance - use python-performance.'
 category: packaging
 tags: [python, packaging, pyproject.toml, uv, pip, pypi, distribution]
 tools: [package-analyzer, build-runner]

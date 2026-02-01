@@ -1,22 +1,10 @@
 ---
+
 name: doc-consolidation
-description: |
-
-Triggers: consolidation, knowledge-management, git-hygiene, cleanup, docs
-  Consolidates ephemeral LLM-generated markdown files into permanent documentation.
-
-  Triggers: consolidate docs, untracked reports, ephemeral files, git cleanup,
-  report consolidation, knowledge extraction, REPORT.md files, ANALYSIS.md files
-
-  Use when: you have untracked *_REPORT.md or *_ANALYSIS.md files, git status
-  shows markdown artifacts that shouldn't be committed, preparing PR and need
-  to clean up working artifacts, preserving insights from code reviews
-
-  DO NOT use when: files are already in docs/ or skills/ locations.
-  DO NOT use when: files are intentionally temporary scratch notes.
-  DO NOT use when: source files have no extractable value.
-
-  Merges valuable content into permanent documentation, then deletes source files.
+description: 'Merges valuable content into permanent documentation, then deletes source files.'
+triggers: consolidation, knowledge-management, git-hygiene, cleanup, docs Consolidates ephemeral LLM-generated markdown files into permanent documentation., consolidate docs, untracked reports, ephemeral files, git cleanup, report consolidation, knowledge extraction, REPORT.md files, ANALYSIS.md files
+use_when: 'you have untracked *_REPORT.md or *_ANALYSIS.md files, git status shows markdown artifacts that shouldn''t be committed, preparing PR and need to clean up working artifacts, preserving insights from code reviews'
+do_not_use_when: 'files are already in docs/ or skills/ locations. DO NOT use when: files are intentionally temporary scratch notes. DO NOT use when: source files have no extractable value.'
 version: 1.3.8
 category: documentation
 tags: [docs, consolidation, cleanup, git-hygiene, knowledge-management]

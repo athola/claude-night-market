@@ -1,22 +1,10 @@
 ---
+
 name: hooks-eval
-description: |
-
-Triggers: agent-sdk, eval, claude-sdk, performance, security
-  detailed hook evaluation framework for Claude Code and Agent SDK hooks.
-
-  Triggers: hook audit, hook security, hook performance, hook compliance,
-  SDK hooks, hook evaluation, hook benchmarking, hook vulnerability
-
-  Use when: auditing existing hooks for security vulnerabilities, benchmarking
-  hook performance, implementing hooks using Python SDK, understanding hook
-  callback signatures, validating hooks against compliance standards
-
-  DO NOT use when: deciding hook placement - use hook-scope-guide instead.
-  DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
-  DO NOT use when: validating plugin structure - use validate-plugin instead.
-
-  Use this skill BEFORE deploying hooks to production.
+description: 'Use this skill BEFORE deploying hooks to production.'
+triggers: agent-sdk, eval, claude-sdk, performance, security detailed hook evaluation framework for Claude Code and Agent SDK hooks., hook audit, hook security, hook performance, hook compliance, SDK hooks, hook evaluation, hook benchmarking, hook vulnerability
+use_when: 'auditing existing hooks for security vulnerabilities, benchmarking hook performance, implementing hooks using Python SDK, understanding hook callback signatures, validating hooks against compliance standards'
+do_not_use_when: 'deciding hook placement - use hook-scope-guide instead. DO NOT use when: writing hook rules from scratch - use hook-authoring instead. DO NOT use when: validating plugin structure - use validate-plugin instead.'
 version: 1.3.8
 category: hook-management
 tags: [hooks, evaluation, security, performance, claude-sdk, agent-sdk]

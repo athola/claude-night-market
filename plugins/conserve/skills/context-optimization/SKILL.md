@@ -1,20 +1,10 @@
 ---
+
 name: context-optimization
-description: |
-
-Triggers: context, optimization
-  Reduce context usage with MECW principles (keep under 50% of total window).
-
-  Triggers: context pressure, token usage, MECW, context window, optimization,
-  decomposition, workflow splitting, context management, token optimization
-
-  Use when: context usage approaches 50% of window, tasks need decomposition,
-  complex multi-step operations planned, context pressure is high
-
-  DO NOT use when: simple single-step tasks with low context usage.
-  DO NOT use when: already using mcp-code-execution for tool chains.
-
-  Use this skill BEFORE starting complex tasks. Check context levels proactively.
+description: 'Use this skill BEFORE starting complex tasks. Check context levels proactively.'
+triggers: context, optimization Reduce context usage with MECW principles (keep under 50% of total window)., context pressure, token usage, MECW, context window, optimization, decomposition, workflow splitting, context management, token optimization
+use_when: 'context usage approaches 50% of window, tasks need decomposition, complex multi-step operations planned, context pressure is high'
+do_not_use_when: 'simple single-step tasks with low context usage. DO NOT use when: already using mcp-code-execution for tool chains.'
 category: conservation
 token_budget: 150
 progressive_loading: true

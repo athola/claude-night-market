@@ -16,123 +16,57 @@ def extract_structured_content(description: str) -> dict[str, str]:
     """
     Extract structured content from description string.
 
-    Returns dict with:
-    - description: Main description (first paragraph or non-trigger content)
-    - triggers: Comma-separated trigger keywords
-    - use_when: Usage guidance
-    - do_not_use_when: Anti-patterns
+    Strategy: Split into paragraphs (blank line separated), then classify each.
+    - Paragraphs starting with "Triggers:" → triggers
+    - Paragraphs starting with "Use when:" → use_when
+    - Paragraphs starting with "DO NOT use when:" → do_not_use_when
+    - Other paragraphs → description
     """
-    lines = description.strip().split("\n")
     result = {"description": "", "triggers": "", "use_when": "", "do_not_use_when": ""}
 
-    current_section = "description"
-    description_lines = []
+    # Split into paragraphs by blank lines
+    paragraphs = re.split(r"\n\s*\n", description.strip())
+    description_parts = []
 
-    for line in lines:
-        line_stripped = line.strip()
-
-        # Skip empty lines
-        if not line_stripped:
+    for para in paragraphs:
+        para = para.strip()
+        if not para:
             continue
 
-        # Detect section headers
-        if line_stripped.startswith("Triggers:"):
-            current_section = "triggers"
-            # Extract triggers from this line and merge with existing
-            triggers_text = line_stripped.replace("Triggers:", "").strip()
-            if triggers_text:
-                if result["triggers"]:
-                    result["triggers"] += ", " + triggers_text
-                else:
-                    result["triggers"] = triggers_text
-            continue
-        elif line_stripped.startswith("Use when:"):
-            current_section = "use_when"
-            # Extract from this line
-            use_when_text = line_stripped.replace("Use when:", "").strip()
-            if use_when_text:
-                result["use_when"] = use_when_text
-            continue
-        elif line_stripped.startswith("DO NOT use when:") or line_stripped.startswith(
+        # Normalize whitespace within paragraph
+        para_text = " ".join(para.split())
+
+        # Classify paragraph by its prefix
+        if para_text.startswith("Triggers:"):
+            triggers = para_text.replace("Triggers:", "").strip()
+            if result["triggers"]:
+                result["triggers"] += ", " + triggers
+            else:
+                result["triggers"] = triggers
+        elif para_text.startswith("Use when:"):
+            use_when = para_text.replace("Use when:", "").strip()
+            if result["use_when"]:
+                result["use_when"] += " " + use_when
+            else:
+                result["use_when"] = use_when
+        elif para_text.startswith("DO NOT use when:") or para_text.startswith(
             "Do not use when:"
         ):
-            # Extract from this line and append to existing
-            do_not_text = re.sub(
-                r"^DO NOT use when:|^Do not use when:", "", line_stripped
+            do_not = re.sub(
+                r"^DO NOT use when:|^Do not use when:", "", para_text
             ).strip()
-            if do_not_text:
-                if result["do_not_use_when"]:
-                    result["do_not_use_when"] += " " + do_not_text
-                else:
-                    result["do_not_use_when"] = do_not_text
-            current_section = "do_not_use_when"
-            continue
-
-        # Check if this line looks like a trigger continuation vs a description sentence
-        if current_section == "triggers":
-            # Heuristics to detect description vs trigger continuation:
-            # 1. Ends with period = sentence = description
-            # 2. Starts with action verb (Analyze, Review, Create, etc.) = description
-            # 3. Contains 'the', 'and', 'for', 'with' but no commas = sentence = description
-            is_sentence = (
-                line_stripped.endswith(".")
-                or line_stripped.endswith(":")
-                or any(
-                    line_stripped.startswith(verb)
-                    for verb in [
-                        "Analyze",
-                        "Review",
-                        "Create",
-                        "Update",
-                        "Generate",
-                        "Validate",
-                        "Check",
-                        "Verify",
-                        "Improve",
-                        "Refactor",
-                        "Build",
-                        "Test",
-                        "Debug",
-                        "Fix",
-                        "Implement",
-                        "Configure",
-                        "Install",
-                        "Setup",
-                        "Provides",
-                        "Enables",
-                        "Supports",
-                        "Manages",
-                    ]
-                )
-                or ("the " in line_stripped.lower() and "," not in line_stripped)
-            )
-
-            if is_sentence:
-                current_section = "description"
-                description_lines.append(line_stripped)
-            else:
-                # Continue triggers
-                if result["triggers"]:
-                    result["triggers"] += " " + line_stripped.rstrip(",").strip()
-                else:
-                    result["triggers"] = line_stripped.rstrip(",").strip()
-        elif current_section == "description":
-            description_lines.append(line_stripped)
-        elif current_section == "use_when":
-            if result["use_when"]:
-                result["use_when"] += " " + line_stripped
-            else:
-                result["use_when"] = line_stripped
-        elif current_section == "do_not_use_when":
             if result["do_not_use_when"]:
-                result["do_not_use_when"] += " " + line_stripped
+                result["do_not_use_when"] += " " + do_not
             else:
-                result["do_not_use_when"] = line_stripped
+                result["do_not_use_when"] = do_not
+        else:
+            # Regular paragraph = part of description
+            description_parts.append(para_text)
 
-    # Clean up description - take only the main description paragraph
-    result["description"] = " ".join(description_lines).strip()
+    # Join description parts
+    result["description"] = " ".join(description_parts).strip()
 
-    # Clean up triggers - remove trailing commas and normalize
+    # Clean up triggers - remove trailing commas
     result["triggers"] = result["triggers"].rstrip(",").strip()
 
     return result

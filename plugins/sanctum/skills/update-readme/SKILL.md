@@ -1,21 +1,10 @@
 ---
+
 name: update-readme
-description: |
-
-Triggers: research, exemplars, readme, structure, update
-  Consolidate README content using language-aware exemplars, internal doc linkage,
-  and reproducible evidence.
-
-  Triggers: README update, documentation refresh, readme structure, exemplar research,
-  language-aware docs, readme modernization, project documentation
-
-  Use when: README requires structural refresh, adding features to documentation,
-  aligning readme with exemplar standards, improving project presentation
-
-  DO NOT use when: updating inline docs - use doc-updates.
-  DO NOT use when: consolidating ephemeral reports - use doc-consolidation.
-
-  Run git-workspace-review first to capture repo context.
+description: 'Run git-workspace-review first to capture repo context.'
+triggers: research, exemplars, readme, structure, update Consolidate README content using language-aware exemplars, internal doc linkage, and reproducible evidence., README update, documentation refresh, readme structure, exemplar research, language-aware docs, readme modernization, project documentation
+use_when: 'README requires structural refresh, adding features to documentation, aligning readme with exemplar standards, improving project presentation'
+do_not_use_when: 'updating inline docs - use doc-updates. DO NOT use when: consolidating ephemeral reports - use doc-consolidation.'
 category: artifact-generation
 tags: [readme, documentation, exemplars, research, structure]
 tools: [Read, Write, Edit, Bash, WebSearch, TodoWrite]

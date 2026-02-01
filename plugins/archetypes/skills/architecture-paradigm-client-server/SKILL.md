@@ -1,21 +1,10 @@
 ---
+
 name: architecture-paradigm-client-server
-description: |
-
-Triggers: server, client-server, architecture, peer-to-peer, distributed-systems
-  Model system responsibilities across clients, servers, and optional peer-to-peer
-  nodes for traditional distributed applications.
-
-  Triggers: client-server, web architecture, mobile backend, API design, thin client,
-  thick client, peer-to-peer, P2P, offline-first, synchronization
-
-  Use when: traditional web/mobile applications with centralized services,
-  clear separation between client and server responsibilities needed
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
-  DO NOT use when: peer-to-peer dominates - consider dedicated P2P patterns.
-
-  Consult this skill when designing client-server systems or API architectures.
+description: 'Consult this skill when designing client-server systems or API architectures.'
+triggers: server, client-server, architecture, peer-to-peer, distributed-systems Model system responsibilities across clients, servers, and optional peer-to-peer nodes for traditional distributed applications., client-server, web architecture, mobile backend, API design, thin client, thick client, peer-to-peer, P2P, offline-first, synchronization
+use_when: 'traditional web/mobile applications with centralized services, clear separation between client and server responsibilities needed'
+do_not_use_when: 'selecting from multiple paradigms - use architecture-paradigms first. DO NOT use when: peer-to-peer dominates - consider dedicated P2P patterns.'
 version: 1.3.8
 category: architectural-pattern
 tags: [architecture, client-server, peer-to-peer, distributed-systems]

@@ -1,18 +1,10 @@
 ---
+
 name: doc-updates
-description: |
-
-Triggers: consolidation, docstrings, writing, adr, readme
-  Update documentation with writing guideline enforcement, consolidation detection, and accuracy verification.
-
-  Triggers: documentation update, docs update, ADR, docstrings, writing guidelines, readme update, debloat docs
-
-  Use when: updating documentation after code changes, enforcing writing guidelines, maintaining ADRs
-
-  DO NOT use when: README-specific updates - use update-readme instead.
-  DO NOT use when: complex multi-file consolidation - use doc-consolidation.
-
-  Use this skill for general documentation updates with built-in quality gates.
+description: 'Use this skill for general documentation updates with built-in quality gates.'
+triggers: consolidation, docstrings, writing, adr, readme Update documentation with writing guideline enforcement, consolidation detection, and accuracy verification., documentation update, docs update, ADR, docstrings, writing guidelines, readme update, debloat docs
+use_when: 'updating documentation after code changes, enforcing writing guidelines, maintaining ADRs'
+do_not_use_when: 'README-specific updates - use update-readme instead. DO NOT use when: complex multi-file consolidation - use doc-consolidation.'
 category: artifact-generation
 tags: [documentation, readme, adr, docstrings, writing, consolidation, debloat]
 tools: [Read, Write, Edit, Bash, TodoWrite]

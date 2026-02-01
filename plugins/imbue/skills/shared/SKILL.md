@@ -1,19 +1,9 @@
 ---
+
 name: shared
-description: |
-
-Triggers: analysis, patterns, templates, shared
-  Shared infrastructure and patterns for imbue analysis skills.
-
-  Triggers: imbue patterns, todowrite patterns, evidence formats, analysis workflows,
-  shared templates, imbue infrastructure
-
-  Use when: other imbue skills need common patterns, creating new analysis skills,
-  ensuring consistency across imbue plugin
-
-  DO NOT use directly: this skill is infrastructure for other imbue skills.
-
-  This skill provides shared patterns consumed by other imbue skills.
+description: 'DO NOT use directly: this skill is infrastructure for other imbue skills. This skill provides shared patterns consumed by other imbue skills.'
+triggers: analysis, patterns, templates, shared Shared infrastructure and patterns for imbue analysis skills., imbue patterns, todowrite patterns, evidence formats, analysis workflows, shared templates, imbue infrastructure
+use_when: 'other imbue skills need common patterns, creating new analysis skills, ensuring consistency across imbue plugin'
 category: infrastructure
 tags: [shared, patterns, templates, analysis]
 provides:

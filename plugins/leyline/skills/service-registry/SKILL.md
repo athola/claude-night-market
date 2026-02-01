@@ -1,20 +1,10 @@
 ---
+
 name: service-registry
-description: |
-
-Triggers: services, health-checks, service, registry, execution
-  Registry pattern for managing external service connections, configurations,
-  and health checks.
-
-  Triggers: service registry, service discovery, health checks, service configuration,
-  multi-service integration, unified execution, service management
-
-  Use when: managing multiple external services, implementing health checks,
-  centralizing service configuration, unified service execution
-
-  DO NOT use when: single service integration without registry needs.
-
-  Consult this skill when implementing service registry patterns.
+description: 'Consult this skill when implementing service registry patterns.'
+triggers: services, health-checks, service, registry, execution Registry pattern for managing external service connections, configurations, and health checks., service registry, service discovery, health checks, service configuration, multi-service integration, unified execution, service management
+use_when: 'managing multiple external services, implementing health checks, centralizing service configuration, unified service execution'
+do_not_use_when: 'single service integration without registry needs.'
 category: infrastructure
 tags: [services, registry, execution, health-checks, integration]
 dependencies: [quota-management, usage-logging]

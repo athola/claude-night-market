@@ -1,20 +1,10 @@
 ---
+
 name: mcp-code-execution
-description: |
-
-Triggers: execution, code
-  Transform tool-heavy workflows into MCP code execution patterns for token savings and optimized processing.
-
-  Triggers: MCP, code execution, tool chain, data pipeline, tool transformation, batch processing, workflow optimization
-
-  Use when: >3 tools chained sequentially, large datasets (>10k rows), large files (>50KB), context usage >25%
-
-  DO NOT use when: simple tool calls that don't chain.
-  DO NOT use when: context pressure is low and tools are fast.
-
-  Use this skill BEFORE building complex tool chains. Optimize proactively.
-location: plugin
-token_budget: 200
+description: 'Use this skill BEFORE building complex tool chains. Optimize proactively. location: plugin token_budget: 200'
+triggers: execution, code Transform tool-heavy workflows into MCP code execution patterns for token savings and optimized processing., MCP, code execution, tool chain, data pipeline, tool transformation, batch processing, workflow optimization
+use_when: '>3 tools chained sequentially, large datasets (>10k rows), large files (>50KB), context usage >25%'
+do_not_use_when: 'simple tool calls that don''t chain. DO NOT use when: context pressure is low and tools are fast.'
 progressive_loading: true
 dependencies:
   hub: [context-optimization, token-conservation]

@@ -1,21 +1,10 @@
 ---
+
 name: pr-review
-description: |
-
-Triggers: github, pr, knowledge-capture, code-quality, scope
-  Scope-focused PR code review that validates against original requirements and
-  routes out-of-scope findings to GitHub issues.
-
-  Triggers: PR review, pull request review, scope validation, requirement compliance,
-  backlog triage, code review, blocking issues
-
-  Use when: reviewing PRs, validating against requirements, triaging findings
-  to backlog, preventing overengineering
-
-  DO NOT use when: preparing PRs - use pr-prep instead.
-  DO NOT use when: deep code review - use pensive:unified-review.
-
-  Use this skill for scope-focused PR reviews.
+description: 'Use this skill for scope-focused PR reviews.'
+triggers: github, pr, knowledge-capture, code-quality, scope Scope-focused PR code review that validates against original requirements and routes out-of-scope findings to GitHub issues., PR review, pull request review, scope validation, requirement compliance, backlog triage, code review, blocking issues
+use_when: 'reviewing PRs, validating against requirements, triaging findings to backlog, preventing overengineering'
+do_not_use_when: 'preparing PRs - use pr-prep instead. DO NOT use when: deep code review - use pensive:unified-review.'
 category: review
 tags: [pr, review, scope, github, code-quality, knowledge-capture]
 tools: [gh, pensive:unified-review]

@@ -1,20 +1,10 @@
 ---
+
 name: evaluation-framework
-description: |
-
-Triggers: decision-making, quality, scoring, metrics, evaluation
-  Generic weighted scoring and threshold-based decision framework for evaluating
-  artifacts against configurable criteria.
-
-  Triggers: evaluation, scoring, quality gates, decision framework, rubrics,
-  weighted criteria, threshold decisions, artifact evaluation
-
-  Use when: implementing evaluation systems, creating quality gates, designing
-  scoring rubrics, building decision frameworks
-
-  DO NOT use when: simple pass/fail without scoring needs.
-
-  Consult this skill when building evaluation or scoring systems.
+description: 'Consult this skill when building evaluation or scoring systems.'
+triggers: decision-making, quality, scoring, metrics, evaluation Generic weighted scoring and threshold-based decision framework for evaluating artifacts against configurable criteria., evaluation, scoring, quality gates, decision framework, rubrics, weighted criteria, threshold decisions, artifact evaluation
+use_when: 'implementing evaluation systems, creating quality gates, designing scoring rubrics, building decision frameworks'
+do_not_use_when: 'simple pass/fail without scoring needs.'
 category: infrastructure
 tags: [evaluation, scoring, decision-making, metrics, quality]
 dependencies: []

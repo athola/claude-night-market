@@ -1,21 +1,10 @@
 ---
+
 name: digital-garden-cultivator
-description: |
-
-Triggers: garden, linking, curation, knowledge-base, digital
-  Design, manage, and evolve digital gardens as living knowledge bases within
-  memory palaces.
-
-  Triggers: digital garden, knowledge base, linking, note curation, content lifecycle,
-  garden maintenance, bidirectional links, knowledge evolution
-
-  Use when: managing note collections, creating link structures, maintaining
-  knowledge bases, tending garden health and growth
-
-  DO NOT use when: creating memory palace structures - use memory-palace-architect.
-  DO NOT use when: evaluating new knowledge - use knowledge-intake.
-
-  Consult this skill when cultivating and maintaining digital gardens.
+description: 'Consult this skill when cultivating and maintaining digital gardens.'
+triggers: garden, linking, curation, knowledge-base, digital Design, manage, and evolve digital gardens as living knowledge bases within memory palaces., digital garden, knowledge base, linking, note curation, content lifecycle, garden maintenance, bidirectional links, knowledge evolution
+use_when: 'managing note collections, creating link structures, maintaining knowledge bases, tending garden health and growth'
+do_not_use_when: 'creating memory palace structures - use memory-palace-architect. DO NOT use when: evaluating new knowledge - use knowledge-intake.'
 category: cultivation
 tags: [digital-garden, knowledge-base, linking, curation, documentation]
 dependencies: [leyline:storage-templates]

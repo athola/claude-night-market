@@ -1,19 +1,9 @@
 ---
+
 name: pensive:shared
-description: |
-
-Triggers: infrastructure, review, patterns, shared
-  Shared infrastructure and reusable modules for all pensive review skills.
-
-  Triggers: pensive patterns, review workflow, output templates, quality checklists,
-  pensive infrastructure, shared review patterns
-
-  Use when: other pensive skills need common patterns, creating new review skills,
-  ensuring consistency across pensive plugin
-
-  DO NOT use directly: this skill is infrastructure for other pensive skills.
-
-  This skill provides shared patterns consumed by other pensive skills.
+description: 'DO NOT use directly: this skill is infrastructure for other pensive skills. This skill provides shared patterns consumed by other pensive skills.'
+triggers: infrastructure, review, patterns, shared Shared infrastructure and reusable modules for all pensive review skills., pensive patterns, review workflow, output templates, quality checklists, pensive infrastructure, shared review patterns
+use_when: 'other pensive skills need common patterns, creating new review skills, ensuring consistency across pensive plugin'
 category: review-infrastructure
 tags: [shared, infrastructure, review, patterns]
 version: 1.3.8

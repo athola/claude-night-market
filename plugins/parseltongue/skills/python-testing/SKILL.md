@@ -1,23 +1,10 @@
 ---
+
 name: python-testing
-description: |
-
-Triggers: quality-assurance, test-automation, pytest, testing, python
-  Python testing with pytest, fixtures, mocking, and TDD workflows.
-
-  Triggers: pytest, unit tests, test fixtures, mocking, TDD, test suite, coverage,
-  test-driven development, testing patterns, parameterized tests, unittest replacement,
-  test coverage, pytest fixtures, async testing, test automation, pytest marks,
-  test mocking, pytest plugins, integration tests, test discovery
-
-  Use when: writing unit tests, setting up test suites, implementing TDD,
-  configuring pytest, creating fixtures, async testing, writing integration tests,
-  mocking dependencies, parameterizing tests, setting up CI/CD testing
-
-  DO NOT use when: evaluating test quality - use pensive:test-review instead.
-  DO NOT use when: infrastructure test config - use leyline:pytest-config.
-
-  Consult this skill for Python testing implementation and patterns.
+description: 'Consult this skill for Python testing implementation and patterns.'
+triggers: quality-assurance, test-automation, pytest, testing, python Python testing with pytest, fixtures, mocking, and TDD workflows., pytest, unit tests, test fixtures, mocking, TDD, test suite, coverage, test-driven development, testing patterns, parameterized tests, unittest replacement, test coverage, pytest fixtures, async testing, test automation, pytest marks, test mocking, pytest plugins, integration tests, test discovery
+use_when: 'writing unit tests, setting up test suites, implementing TDD, configuring pytest, creating fixtures, async testing, writing integration tests, mocking dependencies, parameterizing tests, setting up CI/CD testing'
+do_not_use_when: 'evaluating test quality - use pensive:test-review instead. DO NOT use when: infrastructure test config - use leyline:pytest-config.'
 category: testing
 tags: [python, testing, pytest, tdd, test-automation, quality-assurance]
 tools: [test-analyzer, coverage-reporter, test-runner]

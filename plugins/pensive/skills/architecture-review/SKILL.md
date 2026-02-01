@@ -1,20 +1,10 @@
 ---
+
 name: architecture-review
-description: |
-
-Triggers: adr, architecture, patterns, design, review
-  Evaluate codebase architecture against ADRs, coupling rules, and team guardrails.
-
-  Triggers: architecture review, ADR audit, coupling analysis, design review,
-  principle checks, Law of Demeter, architecture assessment
-
-  Use when: reviewing architecture decisions, auditing ADR compliance, analyzing
-  coupling, validating design principles
-
-  DO NOT use when: selecting architecture paradigms - use archetypes skills.
-  DO NOT use when: API surface review - use api-review.
-
-  Use this skill for architecture assessment and compliance.
+description: 'Use this skill for architecture assessment and compliance.'
+triggers: adr, architecture, patterns, design, review Evaluate codebase architecture against ADRs, coupling rules, and team guardrails., architecture review, ADR audit, coupling analysis, design review, principle checks, Law of Demeter, architecture assessment
+use_when: 'reviewing architecture decisions, auditing ADR compliance, analyzing coupling, validating design principles'
+do_not_use_when: 'selecting architecture paradigms - use archetypes skills. DO NOT use when: API surface review - use api-review.'
 category: architecture
 tags: [architecture, design, adr, coupling, patterns, principles]
 tools: [adr-auditor, coupling-analyzer, principle-checker]

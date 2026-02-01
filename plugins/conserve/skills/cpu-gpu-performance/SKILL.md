@@ -1,23 +1,10 @@
 ---
+
 name: cpu-gpu-performance
-description: |
-
-Triggers: performance
-  Monitor and optimize CPU/GPU usage with load measurement and cost-effective
-  validation strategies.
-
-  Triggers: CPU usage, GPU usage, performance, load monitoring, build performance,
-  training, resource consumption, test suite, compilation
-
-  Use when: session starts (auto-load with token-conservation), planning builds
-  or training that could pin CPUs/GPUs for >1 minute, retrying failed resource-heavy commands
-
-  DO NOT use when: simple operations with no resource impact.
-  DO NOT use when: quick single-file operations.
-
-  Use this skill BEFORE resource-intensive operations. Establish baselines proactively.
-location: plugin
-token_budget: 400
+description: 'Use this skill BEFORE resource-intensive operations. Establish baselines proactively. location: plugin token_budget: 400'
+triggers: performance Monitor and optimize CPU/GPU usage with load measurement and cost-effective validation strategies., CPU usage, GPU usage, performance, load monitoring, build performance, training, resource consumption, test suite, compilation
+use_when: 'session starts (auto-load with token-conservation), planning builds or training that could pin CPUs/GPUs for >1 minute, retrying failed resource-heavy commands'
+do_not_use_when: 'simple operations with no resource impact. DO NOT use when: quick single-file operations.'
 progressive_loading: true
 dependencies:
   hub: [token-conservation]

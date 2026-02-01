@@ -1,21 +1,10 @@
 ---
+
 name: unified-review
-description: |
-
-Triggers: multi-domain, unified, code-quality, analysis, orchestration
-  Orchestrate and run appropriate pensive review skills based on codebase
-  analysis and context.
-
-  Triggers: code review, unified review, full review, review orchestration,
-  multi-domain review, intelligent review, auto-detect review
-
-  Use when: general review needed without knowing which specific skill applies,
-  full multi-domain review desired, integrated reporting needed
-
-  DO NOT use when: specific review type known - use bug-review, test-review, etc.
-  DO NOT use when: architecture-only focus - use architecture-review.
-
-  Use this skill when orchestrating multiple review types.
+description: 'Use this skill when orchestrating multiple review types.'
+triggers: multi-domain, unified, code-quality, analysis, orchestration Orchestrate and run appropriate pensive review skills based on codebase analysis and context., code review, unified review, full review, review orchestration, multi-domain review, intelligent review, auto-detect review
+use_when: 'general review needed without knowing which specific skill applies, full multi-domain review desired, integrated reporting needed'
+do_not_use_when: 'specific review type known - use bug-review, test-review, etc. DO NOT use when: architecture-only focus - use architecture-review.'
 category: orchestration
 tags: [review, orchestration, code-quality, analysis, multi-domain]
 tools: [skill-selector, context-analyzer, report-integrator]

@@ -1,21 +1,10 @@
 ---
+
 name: github-initiative-pulse
-description: |
-
-Triggers: github, dashboards, reporting, pulse, initiative
-  Generate program dashboards, GitHub-ready comment digests, and CSV summaries
-  sourced from Minister's tracker data.
-
-  Triggers: initiative pulse, status report, weekly update, stakeholder briefing,
-  github dashboard, blocker radar, initiative health, program metrics
-
-  Use when: creating status reports, weekly updates, stakeholder briefings,
-  generating GitHub comment digests, tracking initiative health
-
-  DO NOT use when: release gates/readiness - use release-health-gates.
-  DO NOT use when: project planning - use spec-kit:speckit-orchestrator.
-
-  Outputs markdown digests and CSV exports for GitHub issues and PRs.
+description: 'Outputs markdown digests and CSV exports for GitHub issues and PRs.'
+triggers: github, dashboards, reporting, pulse, initiative Generate program dashboards, GitHub-ready comment digests, and CSV summaries sourced from Minister's tracker data., initiative pulse, status report, weekly update, stakeholder briefing, github dashboard, blocker radar, initiative health, program metrics
+use_when: 'creating status reports, weekly updates, stakeholder briefings, generating GitHub comment digests, tracking initiative health'
+do_not_use_when: 'release gates/readiness - use release-health-gates. DO NOT use when: project planning - use spec-kit:speckit-orchestrator.'
 version: 1.3.8
 category: project-management
 tags: [github, projects, reporting, status, dashboards]

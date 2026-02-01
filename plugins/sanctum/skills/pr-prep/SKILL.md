@@ -1,21 +1,10 @@
 ---
+
 name: pr-prep
-description: |
-
-Triggers: pr, quality-gates, prep, git, testing
-  Prepare a pull request by validating the workspace, running quality gates,
-  summarizing changes, and drafting the PR template.
-
-  Triggers: PR preparation, pull request, quality gates, PR template, PR summary,
-  branch preparation, merge request
-
-  Use when: preparing PRs for submission, running quality gates, drafting
-  PR descriptions and templates
-
-  DO NOT use when: reviewing existing PRs - use pr-review instead.
-  DO NOT use when: just generating commit messages - use commit-messages.
-
-  Use this skill for PR preparation.
+description: 'Use this skill for PR preparation.'
+triggers: pr, quality-gates, prep, git, testing Prepare a pull request by validating the workspace, running quality gates, summarizing changes, and drafting the PR template., PR preparation, pull request, quality gates, PR template, PR summary, branch preparation, merge request
+use_when: 'preparing PRs for submission, running quality gates, drafting PR descriptions and templates'
+do_not_use_when: 'reviewing existing PRs - use pr-review instead. DO NOT use when: just generating commit messages - use commit-messages.'
 category: artifact-generation
 tags: [git, pr, pull-request, quality-gates, testing]
 tools: [Bash, Write, TodoWrite]

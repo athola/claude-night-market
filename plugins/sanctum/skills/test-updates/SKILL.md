@@ -1,21 +1,10 @@
 ---
+
 name: test-updates
-description: |
-
-Triggers: quality-assurance, test-generation, test, bdd, pytest
-  Update and maintain tests following TDD/BDD principles with detailed
-  quality assurance.
-
-  Triggers: test updates, test maintenance, test generation, TDD workflow,
-  BDD patterns, test coverage, pytest, test enhancement, quality assurance
-
-  Use when: updating existing tests, generating new tests for features,
-  enhancing test quality, ensuring detailed coverage, pre-commit validation
-
-  DO NOT use when: auditing test suites - use pensive:test-review.
-  DO NOT use when: writing production code - focus on implementation first.
-
-  Run git-workspace-review first to understand which tests need updates.
+description: 'Run git-workspace-review first to understand which tests need updates.'
+triggers: quality-assurance, test-generation, test, bdd, pytest Update and maintain tests following TDD/BDD principles with detailed quality assurance., test updates, test maintenance, test generation, TDD workflow, BDD patterns, test coverage, pytest, test enhancement, quality assurance
+use_when: 'updating existing tests, generating new tests for features, enhancing test quality, ensuring detailed coverage, pre-commit validation'
+do_not_use_when: 'auditing test suites - use pensive:test-review. DO NOT use when: writing production code - focus on implementation first.'
 version: 1.3.8
 category: testing-automation
 tags: [tdd, bdd, testing, quality-assurance, test-generation, pytest]
