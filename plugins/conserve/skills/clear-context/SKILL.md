@@ -222,24 +222,25 @@ def long_running_task():
             return  # Continuation agent takes over
 ```
 
-## Estimation Without CLAUDE_CONTEXT_USAGE
+## Context Measurement Methods
 
-If the environment variable isn't available, estimate using:
+### Precise (Headless/Batch)
 
-1. **Turn count heuristic**: ~5-10K tokens per complex turn
-2. **Tool invocation count**: Heavy tool use = faster context growth
-3. **File read tracking**: Large files consume significant context
+For accurate token breakdown in automation:
 
-```python
-def estimate_context_pressure():
-    """Rough estimation when env var unavailable."""
-    # Heuristics (tune based on observation)
-    turns_weight = 0.02  # Each turn ~2% of typical context
-    file_reads_weight = 0.05  # Each file read ~5%
-
-    estimated = (turn_count * turns_weight) + (file_reads * file_reads_weight)
-    return min(estimated, 1.0)
+```bash
+claude -p "/context" --verbose --output-format json
 ```
+
+See `/conserve:optimize-context` for full headless documentation.
+
+### Fast Estimation (Real-time Hooks)
+
+For hooks where speed matters, use heuristics:
+
+1. **JSONL file size**: ~800KB ≈ 100% context (used by context_warning hook)
+2. **Turn count**: ~5-10K tokens per complex turn
+3. **Tool invocations**: Heavy tool use = faster growth
 
 ## Example: Brainstorm with Auto-Clear
 

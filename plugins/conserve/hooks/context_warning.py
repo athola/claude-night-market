@@ -137,8 +137,13 @@ def assess_context_usage(usage: float) -> ContextAlert:
 def estimate_context_from_session() -> float | None:
     """Estimate context usage from current session's JSONL file size.
 
-    This is a fallback when CLAUDE_CONTEXT_USAGE is not available.
-    Estimates based on conversation history file size.
+    This is a FAST fallback for real-time hooks when CLAUDE_CONTEXT_USAGE
+    is not available. Estimates based on conversation history file size.
+
+    Note: For more precise context reading in batch/headless scenarios,
+    use the CLI method instead:
+        claude -p "/context" --verbose --output-format json
+    See: plugins/conserve/commands/optimize-context.md
 
     Returns:
         Estimated context usage as float 0-1, or None if cannot estimate.
