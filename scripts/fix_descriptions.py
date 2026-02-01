@@ -141,8 +141,31 @@ def extract_structured_content(description: str) -> dict[str, str]:
 def process_malformed_skill_file(
     filepath: Path, content: str, frontmatter_text: str, body: str, dry_run: bool
 ) -> dict | None:
-    """Process SKILL.md files with YAML parsing errors using raw text manipulation."""
+    """Process SKILL.md files with YAML parsing errors using raw text manipulation.
+
+    Handles cases where description block has improper indentation causing
+    'Triggers:' to look like a YAML key.
+    """
     lines = frontmatter_text.split("\n")
+
+    # Known top-level YAML fields that signal end of description block
+    # Excludes triggers/use_when/do_not_use_when since those appear IN descriptions
+    top_level_fields = {
+        "name:",
+        "category:",
+        "tags:",
+        "tools:",
+        "usage_patterns:",
+        "complexity:",
+        "estimated_tokens:",
+        "progressive_loading:",
+        "dependencies:",
+        "modules:",
+        "version:",
+        "model:",
+        "escalation:",
+        "examples:",
+    }
 
     # Find description field
     desc_start = None
@@ -154,30 +177,43 @@ def process_malformed_skill_file(
     if desc_start is None:
         return None
 
-    # Extract description content (multi-line string)
+    # Extract description content - everything until next known top-level field
     desc_lines = []
     i = desc_start + 1
     while i < len(lines):
         line = lines[i]
-        # Stop at next top-level field (no indentation)
-        if line and not line.startswith(" ") and not line.startswith("\t"):
+        line_stripped = line.strip().lower()
+        # Stop at next known top-level field
+        if any(line_stripped.startswith(field) for field in top_level_fields):
             break
         desc_lines.append(line)
         i += 1
+    desc_end = i
 
     description = "\n".join(desc_lines)
     extracted = extract_structured_content(description)
 
-    # Build new frontmatter with raw text replacement
+    if not extracted["description"]:
+        return None
+
+    # Build new frontmatter preserving other fields
     new_lines = lines[:desc_start]
-    new_lines.append(f"description: {repr(extracted['description'])}")
+
+    # Quote description properly for YAML
+    desc_text = extracted["description"].replace("'", "''")
+    new_lines.append(f"description: '{desc_text}'")
+
     if extracted["triggers"]:
         new_lines.append(f"triggers: {extracted['triggers']}")
     if extracted["use_when"]:
-        new_lines.append(f"use_when: {extracted['use_when']}")
+        use_when_text = extracted["use_when"].replace("'", "''")
+        new_lines.append(f"use_when: '{use_when_text}'")
     if extracted["do_not_use_when"]:
-        new_lines.append(f"do_not_use_when: {extracted['do_not_use_when']}")
-    new_lines.extend(lines[i:])
+        do_not_text = extracted["do_not_use_when"].replace("'", "''")
+        new_lines.append(f"do_not_use_when: '{do_not_text}'")
+
+    # Add remaining fields
+    new_lines.extend(lines[desc_end:])
 
     new_content = f"---\n{chr(10).join(new_lines)}---{body}"
 
