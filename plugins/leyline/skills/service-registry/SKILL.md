@@ -1,28 +1,41 @@
 ---
-
 name: service-registry
-description: 'Consult this skill when implementing service registry patterns.'
-triggers: services, health-checks, service, registry, execution Registry pattern for managing external service connections, configurations, and health checks., service registry, service discovery, health checks, service configuration, multi-service integration, unified execution, service management
-use_when: 'managing multiple external services, implementing health checks, centralizing service configuration, unified service execution'
-do_not_use_when: 'single service integration without registry needs.'
+description: Consult this skill when implementing service registry patterns. Use when
+  managing multiple external services, implementing health checks, centralizing service
+  configuration, unified service execution. Do not use when single service integration
+  without registry needs.
 category: infrastructure
-tags: [services, registry, execution, health-checks, integration]
-dependencies: [quota-management, usage-logging]
-tools: [service-executor]
+tags:
+- services
+- registry
+- execution
+- health-checks
+- integration
+dependencies:
+- quota-management
+- usage-logging
+tools:
+- service-executor
 provides:
-  infrastructure: [service-registry, health-monitoring, execution-engine]
-  patterns: [service-discovery, unified-execution, configuration-management]
-usage_patterns:
-  - multi-service-integration
-  - service-health-checks
+  infrastructure:
+  - service-registry
+  - health-monitoring
+  - execution-engine
+  patterns:
+  - service-discovery
   - unified-execution
   - configuration-management
+usage_patterns:
+- multi-service-integration
+- service-health-checks
+- unified-execution
+- configuration-management
 complexity: intermediate
 estimated_tokens: 550
 progressive_loading: true
 modules:
-  - modules/service-config.md
-  - modules/execution-patterns.md
+- modules/service-config.md
+- modules/execution-patterns.md
 version: 1.3.8
 ---
 ## Table of Contents

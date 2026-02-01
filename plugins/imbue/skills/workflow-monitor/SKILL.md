@@ -1,6 +1,8 @@
 ---
 name: workflow-monitor
 description: automatically create GitHub issues for workflow improvements via /fix-workflow.
+  Use when workflows fail, timeout, or show inefficient patterns. Do not use when
+  normal workflow execution, simple command errors.
 category: workflow-methodology
 tags:
 - workflow
@@ -26,10 +28,6 @@ modules:
 - modules/issue-templates.md
 - modules/efficiency-metrics.md
 version: 1.3.8
-triggers: workflow error, inefficient execution, workflow failure, execution monitor
-  Monitor workflow executions for errors and inefficiencies. When issues are detected
-use_when: workflows fail, timeout, or show inefficient patterns
-do_not_use_when: normal workflow execution, simple command errors
 ---
 ## Table of Contents
 

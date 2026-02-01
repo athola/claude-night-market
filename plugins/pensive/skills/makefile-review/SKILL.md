@@ -1,27 +1,36 @@
 ---
-
 name: makefile-review
-description: 'Use this skill for Makefile audit and optimization.'
-triggers: makefile, make, automation, portability, review Audit Makefiles for duplication, portability, and idiomatic GNU Make usage., Makefile review, build system, GNU Make, portability, deduplication, pattern rules, automatic variables, dependency graph
-use_when: 'auditing Makefiles, reviewing build system, checking portability, eliminating recipe duplication'
-do_not_use_when: 'creating new Makefiles - use abstract:make-dogfood. DO NOT use when: architecture review - use architecture-review.'
+description: 'Use this skill for Makefile audit and optimization. Use when auditing
+  Makefiles, reviewing build system, checking portability, eliminating recipe duplication.
+  Do not use when creating new Makefiles - use abstract:make-dogfood. DO NOT use when:
+  architecture review - use architecture-review.'
 category: build
-tags: [makefile, build, make, portability, automation]
-tools: [dependency-mapper, dedup-finder, portability-checker]
+tags:
+- makefile
+- build
+- make
+- portability
+- automation
+tools:
+- dependency-mapper
+- dedup-finder
+- portability-checker
 usage_patterns:
-  - makefile-audit
-  - build-optimization
-  - portability-review
-  - deduplication
+- makefile-audit
+- build-optimization
+- portability-review
+- deduplication
 complexity: intermediate
 estimated_tokens: 150
 progressive_loading: true
-dependencies: [pensive:shared, imbue:evidence-logging]
+dependencies:
+- pensive:shared
+- imbue:evidence-logging
 modules:
-  - dependency-graph
-  - deduplication-patterns
-  - portability-checks
-  - best-practices
+- dependency-graph
+- deduplication-patterns
+- portability-checks
+- best-practices
 version: 1.3.8
 ---
 ## Table of Contents

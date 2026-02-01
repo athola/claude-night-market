@@ -1,7 +1,16 @@
 ---
 name: git-workspace-agent
-description: Git workspace analysis agent specializing in repository state assessment,
-  file structure mapping, and change tracking.
+description: 'Git workspace analysis agent specializing in repository state assessment,
+  file structure mapping, and change tracking. Use when preflight checks before commits/PRs/reviews,
+  understanding repository state, mapping codebase structure, analyzing staged and
+  unstaged changes. Do not use when generating commit messages - use commit-agent.
+  preparing PR descriptions - use pr-agent. ⚠️ PRE-INVOCATION CHECK (parent must verify
+  BEFORE calling this agent): - "What branch?" → Parent runs `git branch --show-current`
+  - "Show status" → Parent runs `git status` - "What changed?" → Parent runs `git
+  diff --stat` - Any single git command → Parent runs it directly ONLY invoke this
+  agent for: full workspace analysis, theme extraction, structure mapping, or multi-aspect
+  preflight validation. Provides read-only analysis and state assessment for downstream
+  workflows.'
 tools:
 - Read
 - Bash
@@ -37,17 +46,6 @@ examples:
 - context: User exploring unfamiliar codebase
   user: Help me understand this project's structure
   assistant: I'll use the git-workspace-agent to map the codebase structure.
-triggers: git workspace, repository state, file structure, change tracking, preflight
-  check, git status, diff analysis, codebase mapping
-use_when: preflight checks before commits/PRs/reviews, understanding repository state,
-  mapping codebase structure, analyzing staged and unstaged changes
-do_not_use_when: 'generating commit messages - use commit-agent. preparing PR descriptions
-  - use pr-agent. ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this
-  agent): - "What branch?" → Parent runs `git branch --show-current` - "Show status"
-  → Parent runs `git status` - "What changed?" → Parent runs `git diff --stat` - Any
-  single git command → Parent runs it directly ONLY invoke this agent for: full workspace
-  analysis, theme extraction, structure mapping, or multi-aspect preflight validation.
-  Provides read-only analysis and state assessment for downstream workflows.'
 ---
 
 # Git Workspace Agent

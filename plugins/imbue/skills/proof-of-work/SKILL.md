@@ -4,7 +4,10 @@ description: 'Enforces "prove before claim" discipline - validation, testing, an
   evidence requirements before declaring work complete. Use when claiming work is
   complete, recommending solutions, or finishing implementations. Do not use when
   asking questions or for work clearly in-progress. MANDATORY: This skill is required
-  before any completion claim.'
+  before any completion claim. Use when: validation, definition-of-done, proof, acceptance-criteria,
+  testing, completion, finished, done, working, should work, configured, ready to
+  use, implemented, fixed, improvement validated, workflow optimized, performance
+  improved, issue resolved..'
 category: workflow-methodology
 tags:
 - validation
@@ -27,9 +30,6 @@ modules:
 - modules/red-flags.md
 - modules/iron-law-enforcement.md
 version: 1.3.8
-triggers: validation, definition-of-done, proof, acceptance-criteria, testing, completion,
-  finished, done, working, should work, configured, ready to use, implemented, fixed,
-  improvement validated, workflow optimized, performance improved, issue resolved.
 ---
 # Proof of Work
 

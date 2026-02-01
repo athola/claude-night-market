@@ -2,7 +2,12 @@
 name: code-refinement
 description: 'Analyze and improve living code quality: duplication, algorithmic efficiency,
   clean code principles, architectural fit, anti-slop patterns, and error handling
-  robustness.'
+  robustness. Use when improving code quality, reducing AI slop, refactoring for clarity,
+  optimizing algorithms, applying clean code principles. Do not use when removing
+  dead/unused code (use conserve:bloat-detector). reviewing for bugs (use pensive:bug-review).
+  selecting architecture paradigms (use archetypes skills). This skill actively improves
+  living code, complementing bloat detection (dead code removal) with quality refinement
+  (living code improvement).'
 category: code-quality
 tags:
 - refactoring
@@ -34,14 +39,6 @@ modules:
 - modules/clean-code-checks.md
 - modules/architectural-fit.md
 version: 1.3.8
-triggers: refine, code quality, clean code, refactor, duplication, algorithm efficiency,
-  complexity reduction, code smell, anti-slop, craft
-use_when: improving code quality, reducing AI slop, refactoring for clarity, optimizing
-  algorithms, applying clean code principles
-do_not_use_when: removing dead/unused code (use conserve:bloat-detector). reviewing
-  for bugs (use pensive:bug-review). selecting architecture paradigms (use archetypes
-  skills). This skill actively improves living code, complementing bloat detection
-  (dead code removal) with quality refinement (living code improvement).
 ---
 ## Table of Contents
 

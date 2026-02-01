@@ -1,18 +1,23 @@
 ---
-
 name: review-core
-description: 'Use this skill at the BEGINNING of any detailed review for consistent structure.'
-triggers: scaffolding, evidence, reporting, analysis, core Foundational workflow for preparing and structuring detailed reviews (architecture, API, code quality)., review workflow, structured review, review scaffolding, evidence capture, review preparation, analysis framework, review template
-use_when: 'starting any detailed review workflow, needing consistent structure for capturing context and findings, ensuring comparable review outputs'
-do_not_use_when: 'quick catchup without formal review - use catchup. DO NOT use when: diff-focused analysis - use diff-analysis.'
+description: 'Use this skill at the BEGINNING of any detailed review for consistent
+  structure. Use when starting any detailed review workflow, needing consistent structure
+  for capturing context and findings, ensuring comparable review outputs. Do not use
+  when quick catchup without formal review - use catchup. DO NOT use when: diff-focused
+  analysis - use diff-analysis.'
 category: review-patterns
-tags: [workflow, scaffolding, evidence, reporting, analysis]
+tags:
+- workflow
+- scaffolding
+- evidence
+- reporting
+- analysis
 dependencies: []
 tools: []
 usage_patterns:
-  - review-preflight
-  - workflow-scaffolding
-  - evidence-capture
+- review-preflight
+- workflow-scaffolding
+- evidence-capture
 complexity: intermediate
 estimated_tokens: 1500
 version: 1.3.8

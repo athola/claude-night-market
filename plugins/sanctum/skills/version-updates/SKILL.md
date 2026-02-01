@@ -1,18 +1,27 @@
 ---
-
 name: version-updates
-description: 'Use this skill for version management and release preparation.'
-triggers: changelog, bump, release, version, semver Bump project versions across configs, docs, and changelog using git-workspace-review context., version bump, semver, release version, changelog update, version update, package version, release preparation
-use_when: 'bumping project versions, updating changelogs, preparing releases, coordinating version changes across files'
-do_not_use_when: 'just documentation updates - use doc-updates. DO NOT use when: full PR preparation - use pr-prep.'
+description: 'Use this skill for version management and release preparation. Use when
+  bumping project versions, updating changelogs, preparing releases, coordinating
+  version changes across files. Do not use when just documentation updates - use doc-updates.
+  DO NOT use when: full PR preparation - use pr-prep.'
 category: artifact-generation
-tags: [version, release, changelog, semver, bump]
-tools: [Read, Write, Edit, Bash, TodoWrite]
+tags:
+- version
+- release
+- changelog
+- semver
+- bump
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- TodoWrite
 complexity: medium
 estimated_tokens: 700
 dependencies:
-  - sanctum:shared
-  - sanctum:git-workspace-review
+- sanctum:shared
+- sanctum:git-workspace-review
 version: 1.3.8
 ---
 

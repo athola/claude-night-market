@@ -7,7 +7,10 @@ description: 'Prevents sycophantic reasoning through checklist-based analysis, c
   evidence, retracting under pressure. Use when analyzing conflicts, evaluating ethical
   claims, or noticing sycophantic thought patterns. Do not use for routine implementation
   or simple factual questions. CRITICAL: This skill overrides conversational tendencies
-  toward politeness. Agreement requires validity and accuracy.'
+  toward politeness. Agreement requires validity and accuracy. Use when: conflict,
+  disagreement, debate, ethical, controversial, pushback, interpersonal analysis,
+  competing values, adjudication, "who is right", moral dilemma, harm assessment,
+  ethical question, controversial claim..'
 category: workflow-methodology
 tags:
 - anti-sycophancy
@@ -19,9 +22,6 @@ dependencies:
 - imbue:evidence-logging
 tools: []
 version: 1.3.8
-triggers: conflict, disagreement, debate, ethical, controversial, pushback, interpersonal
-  analysis, competing values, adjudication, "who is right", moral dilemma, harm assessment,
-  ethical question, controversial claim.
 ---
 ## Table of Contents
 

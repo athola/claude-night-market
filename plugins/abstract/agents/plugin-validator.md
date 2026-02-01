@@ -1,35 +1,49 @@
 ---
 name: plugin-validator
-description: |
-  Validates Claude Code plugin structure against official requirements - checks
+description: 'Validates Claude Code plugin structure against official requirements
+  - checks
+
   plugin.json schema, verifies referenced paths exist, validates kebab-case naming,
+
   and validates skill frontmatter is complete.
+
 
   Use when: validating plugin structure, checking plugin.json, verifying paths exist
 
+
   ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
+
   - Quick pass/fail check? → Parent runs `python3 .../validate_plugin.py <path>`
+
   - JSON syntax check? → Parent runs `jq . plugin.json`
+
   - Single field check? → Parent reads file directly
+
   ONLY invoke this agent for: multi-plugin validation, detailed error interpretation,
-  fix-and-revalidate cycles, or integration with other workflows.
-tools: [Read, Grep, Glob, Bash]
+
+  fix-and-revalidate cycles, or integration with other workflows.'
+tools:
+- Read
+- Grep
+- Glob
+- Bash
 model: haiku
 escalation:
   to: sonnet
   hints:
-    - security_sensitive
-    - novel_pattern
+  - security_sensitive
+  - novel_pattern
 examples:
-  - context: User wants to validate a plugin they're working on
-    user: "Can you validate my plugin structure?"
-    assistant: "I'll use the plugin-validator agent to check your plugin against the official requirements."
-  - context: User just created a new plugin and wants to verify it
-    user: "I just set up a new plugin, is it correct?"
-    assistant: "Let me validate the plugin structure for you."
-  - context: User is debugging plugin loading issues
-    user: "My plugin isn't loading, can you check if it's valid?"
-    assistant: "I'll validate the plugin structure to identify any issues."
+- context: User wants to validate a plugin they're working on
+  user: Can you validate my plugin structure?
+  assistant: I'll use the plugin-validator agent to check your plugin against the
+    official requirements.
+- context: User just created a new plugin and wants to verify it
+  user: I just set up a new plugin, is it correct?
+  assistant: Let me validate the plugin structure for you.
+- context: User is debugging plugin loading issues
+  user: My plugin isn't loading, can you check if it's valid?
+  assistant: I'll validate the plugin structure to identify any issues.
 ---
 
 # Plugin Validator Agent

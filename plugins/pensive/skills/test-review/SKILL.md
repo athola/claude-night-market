@@ -1,27 +1,37 @@
 ---
-
 name: test-review
-description: 'Use this skill for test suite evaluation and quality assessment.'
-triggers: fixtures, quality, test, bdd, testing Evaluate and upgrade test suites with TDD/BDD rigor, coverage tracking, and quality assessment., test audit, test coverage, test quality, TDD, BDD, test gaps, test improvement, coverage analysis, test remediation
-use_when: 'auditing test suites, analyzing coverage gaps, improving test quality, evaluating TDD/BDD compliance'
-do_not_use_when: 'writing new tests - use parseltongue:python-testing. DO NOT use when: updating existing tests - use sanctum:test-updates.'
+description: 'Use this skill for test suite evaluation and quality assessment. Use
+  when auditing test suites, analyzing coverage gaps, improving test quality, evaluating
+  TDD/BDD compliance. Do not use when writing new tests - use parseltongue:python-testing.
+  DO NOT use when: updating existing tests - use sanctum:test-updates.'
 category: testing
-tags: [testing, tdd, bdd, coverage, quality, fixtures]
-tools: [coverage-analyzer, scenario-evaluator, gap-finder]
+tags:
+- testing
+- tdd
+- bdd
+- coverage
+- quality
+- fixtures
+tools:
+- coverage-analyzer
+- scenario-evaluator
+- gap-finder
 usage_patterns:
-  - test-audit
-  - coverage-analysis
-  - quality-improvement
-  - gap-remediation
+- test-audit
+- coverage-analysis
+- quality-improvement
+- gap-remediation
 complexity: intermediate
 estimated_tokens: 200
 progressive_loading: true
-dependencies: [pensive:shared, imbue:evidence-logging]
+dependencies:
+- pensive:shared
+- imbue:evidence-logging
 modules:
-  - framework-detection
-  - coverage-analysis
-  - scenario-quality
-  - remediation-planning
+- framework-detection
+- coverage-analysis
+- scenario-quality
+- remediation-planning
 version: 1.3.8
 ---
 ## Table of Contents

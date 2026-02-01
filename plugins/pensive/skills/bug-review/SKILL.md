@@ -1,22 +1,33 @@
 ---
-
 name: bug-review
-description: 'Use this skill for systematic bug hunting with evidence trails.'
-triggers: verification, fixes, defects, code-quality, review Systematically uncover and fix bugs using language-specific expertise and reproducible evidence., bug hunting, defect detection, debugging, fix verification, bug fix, regression check, error investigation, defect documentation
-use_when: 'deep bug hunting needed, documenting defects, verifying fixes, systematic debugging required'
-do_not_use_when: 'test coverage audit - use test-review instead. DO NOT use when: architecture issues - use architecture-review.'
+description: 'Use this skill for systematic bug hunting with evidence trails. Use
+  when deep bug hunting needed, documenting defects, verifying fixes, systematic debugging
+  required. Do not use when test coverage audit - use test-review instead. DO NOT
+  use when: architecture issues - use architecture-review.'
 category: code-review
-tags: [bugs, defects, debugging, code-quality, fixes, verification]
-tools: [defect-tracker, fix-generator, verification-runner]
+tags:
+- bugs
+- defects
+- debugging
+- code-quality
+- fixes
+- verification
+tools:
+- defect-tracker
+- fix-generator
+- verification-runner
 usage_patterns:
-  - bug-hunting
-  - defect-documentation
-  - fix-preparation
-  - verification-planning
+- bug-hunting
+- defect-documentation
+- fix-preparation
+- verification-planning
 complexity: intermediate
 estimated_tokens: 450
 progressive_loading: true
-dependencies: [pensive:shared, imbue:evidence-logging, imbue:diff-analysis/modules/risk-assessment-framework]
+dependencies:
+- pensive:shared
+- imbue:evidence-logging
+- imbue:diff-analysis/modules/risk-assessment-framework
 version: 1.3.8
 ---
 ## Table of Contents

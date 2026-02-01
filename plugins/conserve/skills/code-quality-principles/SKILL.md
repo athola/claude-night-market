@@ -1,7 +1,8 @@
 ---
 name: code-quality-principles
-description: Provides guidance on fundamental software design principles to reduce
-  complexity, prevent over-engineering, and improve maintainability.
+description: 'Provides guidance on fundamental software design principles to reduce
+  complexity, prevent over-engineering, and improve maintainability. Use when: KISS,
+  YAGNI, SOLID, clean code, code quality, refactor, design principles.'
 category: development
 tags:
 - design
@@ -12,7 +13,6 @@ tools: []
 complexity: low
 estimated_tokens: 600
 version: 1.3.8
-triggers: KISS, YAGNI, SOLID, clean code, code quality, refactor, design principles
 ---
 ## Table of Contents
 

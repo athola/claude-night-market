@@ -1,27 +1,32 @@
 ---
-
 name: scope-guard
-description: 'Use this skill BEFORE implementing any new feature. This is NON-NEGOTIABLE for scope control.'
-triggers: prioritization, anti-overengineering, yagni, scope, guard Prevents overengineering through worthiness scoring, opportunity cost comparison, and branch threshold monitoring., scope creep, overengineering, worthiness score, branch size, YAGNI, feature evaluation, scope validation, anti-overengineering, opportunity cost
-use_when: 'evaluating features during brainstorming, planning new functionality, branches approach size limits (1000/1500/2000 lines, 15/25/30 commits)'
-do_not_use_when: 'feature is already approved and in progress. DO NOT use when: simple bug fixes with clear scope.'
+description: 'Use this skill BEFORE implementing any new feature. This is NON-NEGOTIABLE
+  for scope control. Use when evaluating features during brainstorming, planning new
+  functionality, branches approach size limits (1000/1500/2000 lines, 15/25/30 commits).
+  Do not use when feature is already approved and in progress. DO NOT use when: simple
+  bug fixes with clear scope.'
 category: workflow-methodology
-tags: [anti-overengineering, scope, YAGNI, prioritization, backlog]
+tags:
+- anti-overengineering
+- scope
+- YAGNI
+- prioritization
+- backlog
 dependencies: []
 tools: []
 usage_patterns:
-  - feature-evaluation
-  - scope-validation
-  - threshold-monitoring
-  - backlog-management
+- feature-evaluation
+- scope-validation
+- threshold-monitoring
+- backlog-management
 complexity: intermediate
 estimated_tokens: 2500
 modules:
-  - modules/decision-framework.md
-  - modules/github-integration.md
-  - modules/anti-overengineering.md
-  - modules/branch-management.md
-  - modules/baseline-scenarios.md
+- modules/decision-framework.md
+- modules/github-integration.md
+- modules/anti-overengineering.md
+- modules/branch-management.md
+- modules/baseline-scenarios.md
 version: 1.3.8
 ---
 ## Table of Contents

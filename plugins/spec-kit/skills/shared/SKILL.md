@@ -1,14 +1,22 @@
 ---
-
 name: shared
-description: 'DO NOT use directly: this skill is infrastructure for other spec-kit skills. Provides reusable patterns consumed by all spec-kit commands and skills.'
-triggers: patterns, templates, specification, shared Shared infrastructure and patterns for spec-kit specification-driven development., spec-kit patterns, tech-stack patterns, checklist dimensions, artifact structure, specification infrastructure, shared templates
-use_when: 'developing new spec-kit skills, referencing standard patterns, ensuring consistency across specification workflows'
+description: 'DO NOT use directly: this skill is infrastructure for other spec-kit
+  skills. Provides reusable patterns consumed by all spec-kit commands and skills.
+  Use when developing new spec-kit skills, referencing standard patterns, ensuring
+  consistency across specification workflows.'
 category: infrastructure
-tags: [shared, patterns, templates, specification]
+tags:
+- shared
+- patterns
+- templates
+- specification
 provides:
-  infrastructure: [tech-stack-patterns, checklist-dimensions, artifact-structure]
-reusable_by: [all spec-kit skills and commands]
+  infrastructure:
+  - tech-stack-patterns
+  - checklist-dimensions
+  - artifact-structure
+reusable_by:
+- all spec-kit skills and commands
 estimated_tokens: 200
 version: 1.3.8
 ---

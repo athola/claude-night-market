@@ -1,32 +1,40 @@
 ---
-
 name: unified-review
-description: 'Use this skill when orchestrating multiple review types.'
-triggers: multi-domain, unified, code-quality, analysis, orchestration Orchestrate and run appropriate pensive review skills based on codebase analysis and context., code review, unified review, full review, review orchestration, multi-domain review, intelligent review, auto-detect review
-use_when: 'general review needed without knowing which specific skill applies, full multi-domain review desired, integrated reporting needed'
-do_not_use_when: 'specific review type known - use bug-review, test-review, etc. DO NOT use when: architecture-only focus - use architecture-review.'
+description: 'Use this skill when orchestrating multiple review types. Use when general
+  review needed without knowing which specific skill applies, full multi-domain review
+  desired, integrated reporting needed. Do not use when specific review type known
+  - use bug-review, test-review, etc. DO NOT use when: architecture-only focus - use
+  architecture-review.'
 category: orchestration
-tags: [review, orchestration, code-quality, analysis, multi-domain]
-tools: [skill-selector, context-analyzer, report-integrator]
+tags:
+- review
+- orchestration
+- code-quality
+- analysis
+- multi-domain
+tools:
+- skill-selector
+- context-analyzer
+- report-integrator
 usage_patterns:
-  - auto-detect-review
-  - full-review
-  - focused-review
+- auto-detect-review
+- full-review
+- focused-review
 complexity: intermediate
 estimated_tokens: 400
 progressive_loading: true
 dependencies:
-  - pensive:shared
-  - imbue:evidence-logging
-  - imbue:structured-output
+- pensive:shared
+- imbue:evidence-logging
+- imbue:structured-output
 orchestrates:
-  - pensive:rust-review
-  - pensive:api-review
-  - pensive:architecture-review
-  - pensive:bug-review
-  - pensive:test-review
-  - pensive:makefile-review
-  - pensive:math-review
+- pensive:rust-review
+- pensive:api-review
+- pensive:architecture-review
+- pensive:bug-review
+- pensive:test-review
+- pensive:makefile-review
+- pensive:math-review
 version: 1.3.8
 ---
 ## Table of Contents

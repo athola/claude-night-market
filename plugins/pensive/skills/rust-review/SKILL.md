@@ -1,30 +1,38 @@
 ---
-
 name: rust-review
-description: 'Use this skill for Rust-specific code audits.'
-triggers: concurrency, traits, rust, ownership, cargo Expert-level Rust audits covering ownership, concurrency, unsafe blocks, traits, and Cargo dependencies., Rust review, ownership analysis, borrowing, unsafe audit, concurrency, Cargo dependencies, lifetime annotations, trait bounds
-use_when: 'reviewing Rust code, auditing unsafe blocks, analyzing ownership patterns, scanning Cargo dependencies for security'
-do_not_use_when: 'general code review without Rust - use unified-review. DO NOT use when: performance profiling - use parseltongue:python-performance pattern.'
+description: 'Use this skill for Rust-specific code audits. Use when reviewing Rust
+  code, auditing unsafe blocks, analyzing ownership patterns, scanning Cargo dependencies
+  for security. Do not use when general code review without Rust - use unified-review.
+  DO NOT use when: performance profiling - use parseltongue:python-performance pattern.'
 category: code-review
-tags: [rust, ownership, concurrency, unsafe, traits, cargo]
-tools: [borrow-checker-analyzer, unsafe-auditor, dependency-scanner]
+tags:
+- rust
+- ownership
+- concurrency
+- unsafe
+- traits
+- cargo
+tools:
+- borrow-checker-analyzer
+- unsafe-auditor
+- dependency-scanner
 usage_patterns:
-  - rust-audit
-  - unsafe-review
-  - dependency-audit
-  - concurrency-analysis
+- rust-audit
+- unsafe-review
+- dependency-audit
+- concurrency-analysis
 complexity: advanced
 estimated_tokens: 400
 progressive_loading: true
 dependencies:
-  - pensive:shared
-  - imbue:evidence-logging
+- pensive:shared
+- imbue:evidence-logging
 modules:
-  - ownership-analysis.md
-  - error-handling.md
-  - concurrency-patterns.md
-  - unsafe-audit.md
-  - cargo-dependencies.md
+- ownership-analysis.md
+- error-handling.md
+- concurrency-patterns.md
+- unsafe-audit.md
+- cargo-dependencies.md
 version: 1.3.8
 ---
 ## Table of Contents

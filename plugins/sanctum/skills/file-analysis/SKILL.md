@@ -1,18 +1,27 @@
 ---
-
 name: file-analysis
-description: 'Provides structural context for downstream review and refactoring workflows.'
-triggers: codebase, file, analysis, structure, exploration Structured file enumeration and content analysis for understanding codebase structure before reviews or refactoring., file analysis, codebase structure, directory mapping, hotspot detection, code exploration, file enumeration, structure mapping, module boundaries
-use_when: 'before architecture reviews to understand file organization, exploring unfamiliar codebases to map structure, estimating scope for refactoring or migration'
-do_not_use_when: 'general code exploration - use the Explore agent. DO NOT use when: searching for specific patterns - use Grep directly.'
+description: 'Provides structural context for downstream review and refactoring workflows.
+  Use when before architecture reviews to understand file organization, exploring
+  unfamiliar codebases to map structure, estimating scope for refactoring or migration.
+  Do not use when general code exploration - use the Explore agent. DO NOT use when:
+  searching for specific patterns - use Grep directly.'
 category: workspace-ops
-tags: [files, structure, analysis, codebase, exploration]
-tools: [Bash, Glob, Grep, TodoWrite]
+tags:
+- files
+- structure
+- analysis
+- codebase
+- exploration
+tools:
+- Bash
+- Glob
+- Grep
+- TodoWrite
 complexity: medium
 estimated_tokens: 800
 dependencies:
-  - sanctum:shared
-  - imbue:evidence-logging
+- sanctum:shared
+- imbue:evidence-logging
 version: 1.3.8
 ---
 

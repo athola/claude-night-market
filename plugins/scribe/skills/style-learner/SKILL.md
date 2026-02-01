@@ -1,7 +1,11 @@
 ---
 name: style-learner
 description: Learn and extract writing style patterns from exemplar text for consistent
-  application.
+  application. Use when creating a style guide from existing content, ensuring consistency
+  across documents, learning a specific author's voice, customizing AI output style.
+  Do not use when detecting AI slop - use slop-detector instead. just need to clean
+  up existing content - use doc-generator with --remediate. Use this skill to build
+  style profiles from exemplar text.
 category: writing-quality
 tags:
 - style
@@ -25,14 +29,6 @@ dependencies:
 - scribe:shared
 - scribe:slop-detector
 version: 1.3.8
-triggers: writing style, voice, tone, style guide, exemplar, style learning, learn
-  style, extract style, style profile, writing voice, tone analysis, style guide generation,
-  exemplar analysis
-use_when: creating a style guide from existing content, ensuring consistency across
-  documents, learning a specific author's voice, customizing AI output style
-do_not_use_when: detecting AI slop - use slop-detector instead. just need to clean
-  up existing content - use doc-generator with --remediate. Use this skill to build
-  style profiles from exemplar text.
 ---
 
 # Style Learning Skill

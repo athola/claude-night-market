@@ -1,13 +1,19 @@
 ---
-
 name: shared-patterns
-description: 'Reference these patterns to validate consistency across the ecosystem.'
-triggers: templates, validation, reusable, shared, patterns Reusable patterns and templates for Claude Code skill and hook development., validation patterns, error handling, testing templates, workflow patterns, shared patterns, reusable templates, DRY patterns, common workflows
-use_when: 'creating new skills or hooks that need consistent patterns, implementing validation logic, setting up error handling, creating test scaffolding, referencing standard workflow structures'
-do_not_use_when: 'pattern is specific to one skill only. DO NOT use when: pattern is still evolving - wait for stability. DO NOT use when: pattern is context-dependent requiring variations.'
+description: 'Reference these patterns to validate consistency across the ecosystem.
+  Use when creating new skills or hooks that need consistent patterns, implementing
+  validation logic, setting up error handling, creating test scaffolding, referencing
+  standard workflow structures. Do not use when pattern is specific to one skill only.
+  DO NOT use when: pattern is still evolving - wait for stability. DO NOT use when:
+  pattern is context-dependent requiring variations.'
 version: 1.3.8
 category: meta-infrastructure
-tags: [patterns, templates, shared, validation, reusable]
+tags:
+- patterns
+- templates
+- shared
+- validation
+- reusable
 dependencies: []
 estimated_tokens: 400
 ---

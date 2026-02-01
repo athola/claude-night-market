@@ -1,28 +1,39 @@
 ---
-
 name: usage-logging
-description: 'Consult this skill when implementing usage logging and audit trails.'
-triggers: usage, metrics, logging, analytics, sessions Session-aware usage logging for audit trails, cost tracking, and analytics with JSONL format., usage logging, audit trails, cost tracking, session logging, analytics, structured logging, JSONL
-use_when: 'implementing audit trails, tracking costs, collecting usage analytics, managing session logging'
-do_not_use_when: 'simple operations without logging needs.'
+description: Consult this skill when implementing usage logging and audit trails.
+  Use when implementing audit trails, tracking costs, collecting usage analytics,
+  managing session logging. Do not use when simple operations without logging needs.
 category: infrastructure
-tags: [logging, usage, audit, metrics, sessions, analytics]
+tags:
+- logging
+- usage
+- audit
+- metrics
+- sessions
+- analytics
 dependencies: []
-tools: [usage-logger]
+tools:
+- usage-logger
 provides:
-  infrastructure: [usage-logging, session-management, audit-trails]
-  patterns: [structured-logging, metrics-collection, cost-tracking]
-usage_patterns:
-  - audit-logging
-  - cost-tracking
-  - usage-analytics
+  infrastructure:
+  - usage-logging
   - session-management
+  - audit-trails
+  patterns:
+  - structured-logging
+  - metrics-collection
+  - cost-tracking
+usage_patterns:
+- audit-logging
+- cost-tracking
+- usage-analytics
+- session-management
 complexity: beginner
 estimated_tokens: 450
 progressive_loading: true
 modules:
-  - modules/session-patterns.md
-  - modules/log-formats.md
+- modules/session-patterns.md
+- modules/log-formats.md
 version: 1.3.8
 ---
 ## Table of Contents

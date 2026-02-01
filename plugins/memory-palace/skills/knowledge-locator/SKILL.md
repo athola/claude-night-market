@@ -1,15 +1,28 @@
 ---
-
 name: knowledge-locator
-description: 'Consult this skill when searching or navigating stored knowledge.'
-triggers: spatial-memory, indexing, search, locator, retrieval Spatial indexing and retrieval system for finding information within memory palaces using multi-modal search., knowledge search, find information, locate concept, recall, spatial query, cross-reference, discovery, memory retrieval, pr review search, past decisions, review patterns
-use_when: 'searching for stored knowledge, cross-referencing concepts, discovering connections, retrieving from palaces, finding past PR decisions'
-do_not_use_when: 'creating new palace structures - use memory-palace-architect. DO NOT use when: processing new external resources - use knowledge-intake.'
+description: 'Consult this skill when searching or navigating stored knowledge. Use
+  when searching for stored knowledge, cross-referencing concepts, discovering connections,
+  retrieving from palaces, finding past PR decisions. Do not use when creating new
+  palace structures - use memory-palace-architect. DO NOT use when: processing new
+  external resources - use knowledge-intake.'
 category: navigation
-tags: [retrieval, search, indexing, recall, spatial-memory, pr-review]
-dependencies: [memory-palace-architect, review-chamber]
-scripts: [palace_manager.py]
-usage_patterns: [search, cross-reference, discovery, review-search]
+tags:
+- retrieval
+- search
+- indexing
+- recall
+- spatial-memory
+- pr-review
+dependencies:
+- memory-palace-architect
+- review-chamber
+scripts:
+- palace_manager.py
+usage_patterns:
+- search
+- cross-reference
+- discovery
+- review-search
 complexity: intermediate
 estimated_tokens: 500
 version: 1.3.8

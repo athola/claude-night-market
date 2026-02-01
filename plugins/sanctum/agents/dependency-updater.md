@@ -1,7 +1,12 @@
 ---
 name: dependency-updater
 description: Dependency analysis and update agent for multi-ecosystem repositories.
-  Scans pyproject.toml, Cargo.toml, package.json, and go.mod files.
+  Scans pyproject.toml, Cargo.toml, package.json, and go.mod files. Use when checking
+  for outdated dependencies, updating package versions, resolving version conflicts,
+  preparing dependency update PRs. Do not use when installing new dependencies - use
+  ecosystem-specific tools. debugging dependency issues - analyze manually first.
+  Provides conflict detection, compatible version resolution, and code migration assistance
+  for breaking changes.
 tools:
 - Bash
 - Read
@@ -57,13 +62,6 @@ examples:
 - context: User wants to update a specific ecosystem
   user: Update my Python dependencies
   assistant: I'll use the dependency-updater agent to check pyproject.toml files.
-triggers: update dependencies, outdated packages, dependency conflicts, version updates,
-  security vulnerabilities, upgrade packages
-use_when: checking for outdated dependencies, updating package versions, resolving
-  version conflicts, preparing dependency update PRs
-do_not_use_when: installing new dependencies - use ecosystem-specific tools. debugging
-  dependency issues - analyze manually first. Provides conflict detection, compatible
-  version resolution, and code migration assistance for breaking changes.
 ---
 
 # Dependency Updater Agent

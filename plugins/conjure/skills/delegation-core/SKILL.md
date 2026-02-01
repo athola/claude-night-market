@@ -1,37 +1,43 @@
 ---
 name: delegation-core
-description: Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging, and error handling.
-triggers: delegate task, external LLM, gemini, qwen, large context, offload
-use_when: tasks exceed context window or need cheaper processing
-do_not_use_when: task requires Claude's reasoning
+description: Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging,
+  and error handling. Use when tasks exceed context window or need cheaper processing.
+  Do not use when task requires Claude's reasoning.
 category: delegation-framework
-tags: [delegation, external-llm, gemini, qwen, task-management, quality-control]
+tags:
+- delegation
+- external-llm
+- gemini
+- qwen
+- task-management
+- quality-control
 dependencies:
-  - leyline:quota-management
-  - leyline:usage-logging
-  - leyline:service-registry
-  - leyline:error-patterns
-  - leyline:authentication-patterns
-tools: [delegation-executor]
+- leyline:quota-management
+- leyline:usage-logging
+- leyline:service-registry
+- leyline:error-patterns
+- leyline:authentication-patterns
+tools:
+- delegation-executor
 usage_patterns:
-  - task-assessment
-  - delegation-planning
-  - quality-validation
-  - integration-workflows
+- task-assessment
+- delegation-planning
+- quality-validation
+- integration-workflows
 complexity: intermediate
 estimated_tokens: 250
 progressive_loading: true
 modules:
-  - modules/task-assessment.md
-  - modules/cost-estimation.md
-  - modules/handoff-patterns.md
-  - modules/troubleshooting.md
+- modules/task-assessment.md
+- modules/cost-estimation.md
+- modules/handoff-patterns.md
+- modules/troubleshooting.md
 references:
-  - leyline/skills/quota-management/SKILL.md
-  - leyline/skills/usage-logging/SKILL.md
-  - leyline/skills/error-patterns/SKILL.md
-  - leyline/skills/authentication-patterns/SKILL.md
-  - leyline/skills/service-registry/SKILL.md
+- leyline/skills/quota-management/SKILL.md
+- leyline/skills/usage-logging/SKILL.md
+- leyline/skills/error-patterns/SKILL.md
+- leyline/skills/authentication-patterns/SKILL.md
+- leyline/skills/service-registry/SKILL.md
 version: 1.3.8
 ---
 ## Table of Contents

@@ -1,10 +1,11 @@
 ---
-
 name: makefile-dogfooder
-description: 'Use this skill BEFORE releasing any plugin to verify Makefile coverage.'
-triggers: dogfooder, makefile Analyze and enhance Makefiles for complete user functionality coverage., Makefile analysis, Makefile gaps, missing targets, plugin release, Makefile coverage, build targets, make dogfood, plugin quality
-use_when: 'analyzing Makefile completeness before releasing plugins, identifying gaps during plugin maintenance, scoring Makefiles against best practices, verifying Makefiles support standard developer workflows'
-do_not_use_when: 'writing initial Makefiles from scratch. DO NOT use when: debugging specific build target failures. DO NOT use when: creating custom non-standard build systems.'
+description: 'Use this skill BEFORE releasing any plugin to verify Makefile coverage.
+  Use when analyzing Makefile completeness before releasing plugins, identifying gaps
+  during plugin maintenance, scoring Makefiles against best practices, verifying Makefiles
+  support standard developer workflows. Do not use when writing initial Makefiles
+  from scratch. DO NOT use when: debugging specific build target failures. DO NOT
+  use when: creating custom non-standard build systems.'
 version: 1.3.8
 author: Claude Skills
 modules: true

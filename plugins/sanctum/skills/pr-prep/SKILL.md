@@ -1,49 +1,53 @@
 ---
-
 name: pr-prep
-description: 'Use this skill for PR preparation.'
-triggers: pr, quality-gates, prep, git, testing Prepare a pull request by validating the workspace, running quality gates, summarizing changes, and drafting the PR template., PR preparation, pull request, quality gates, PR template, PR summary, branch preparation, merge request
-use_when: 'preparing PRs for submission, running quality gates, drafting PR descriptions and templates'
-do_not_use_when: 'reviewing existing PRs - use pr-review instead. DO NOT use when: just generating commit messages - use commit-messages.'
+description: 'Use this skill for PR preparation. Use when preparing PRs for submission,
+  running quality gates, drafting PR descriptions and templates. Do not use when reviewing
+  existing PRs - use pr-review instead. DO NOT use when: just generating commit messages
+  - use commit-messages.'
 category: artifact-generation
-tags: [git, pr, pull-request, quality-gates, testing]
-tools: [Bash, Write, TodoWrite]
+tags:
+- git
+- pr
+- pull-request
+- quality-gates
+- testing
+tools:
+- Bash
+- Write
+- TodoWrite
 complexity: medium
 estimated_tokens: 1000
 progressive_loading: true
 modules:
-  - quality-gates.md
-  - pr-template.md
+- quality-gates.md
+- pr-template.md
 dependencies:
-  - sanctum:shared
-  - sanctum:git-workspace-review
-  - imbue:evidence-logging
-  - imbue:structured-output
-  - scribe:slop-detector
-  - scribe:doc-generator
-
-# Claude Code 2.1.0+ lifecycle hooks
+- sanctum:shared
+- sanctum:git-workspace-review
+- imbue:evidence-logging
+- imbue:structured-output
+- scribe:slop-detector
+- scribe:doc-generator
 hooks:
   PreToolUse:
-    - matcher: "Bash"
-      command: |
-        # Log quality gate execution
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(make|npm|cargo|pytest|ruff|eslint|clippy) (test|lint|fmt|build|check)"; then
-          cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
-          echo "[skill:pr-prep] Quality gate: $cmd at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-        fi
-      once: false
+  - matcher: Bash
+    command: "# Log quality gate execution\nif echo \"$CLAUDE_TOOL_INPUT\" | grep\
+      \ -qE \"(make|npm|cargo|pytest|ruff|eslint|clippy) (test|lint|fmt|build|check)\"\
+      ; then\n  cmd=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.command // empty' 2>/dev/null\
+      \ || echo 'N/A')\n  echo \"[skill:pr-prep] Quality gate: $cmd at $(date)\" >>\
+      \ ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\nfi\n"
+    once: false
   PostToolUse:
-    - matcher: "Write"
-      command: |
-        # Track PR template generation
-        file=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.file_path // empty' 2>/dev/null)
-        if echo "$file" | grep -qE "(pr[-_]description|PR[-_]TEMPLATE|pull[-_]request)"; then
-          echo "[skill:pr-prep] PR template written: $file at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-        fi
+  - matcher: Write
+    command: "# Track PR template generation\nfile=$(echo \"$CLAUDE_TOOL_INPUT\" |\
+      \ jq -r '.file_path // empty' 2>/dev/null)\nif echo \"$file\" | grep -qE \"\
+      (pr[-_]description|PR[-_]TEMPLATE|pull[-_]request)\"; then\n  echo \"[skill:pr-prep]\
+      \ PR template written: $file at $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
+      fi\n"
   Stop:
-    - command: |
-        echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
+  - command: 'echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
+
+      '
 version: 1.3.8
 ---
 # Pull Request Preparation Workflow

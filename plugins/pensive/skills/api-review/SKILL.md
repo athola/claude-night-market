@@ -1,21 +1,30 @@
 ---
-
 name: api-review
-description: 'Use this skill for API surface evaluation and design review.'
-triggers: consistency, versioning, design, review, documentation Evaluate public API surfaces against internal guidelines and external exemplars., API review, API design, consistency audit, API documentation, versioning, surface inventory, exemplar research
-use_when: 'reviewing API design, auditing consistency, governing documentation, researching API exemplars'
-do_not_use_when: 'architecture review - use architecture-review. DO NOT use when: implementation bugs - use bug-review.'
+description: 'Use this skill for API surface evaluation and design review. Use when
+  reviewing API design, auditing consistency, governing documentation, researching
+  API exemplars. Do not use when architecture review - use architecture-review. DO
+  NOT use when: implementation bugs - use bug-review.'
 category: code-review
-tags: [api, design, consistency, documentation, versioning]
-tools: [surface-analyzer, exemplar-finder, consistency-checker]
+tags:
+- api
+- design
+- consistency
+- documentation
+- versioning
+tools:
+- surface-analyzer
+- exemplar-finder
+- consistency-checker
 usage_patterns:
-  - api-design-review
-  - consistency-audit
-  - documentation-governance
+- api-design-review
+- consistency-audit
+- documentation-governance
 complexity: intermediate
 estimated_tokens: 400
 progressive_loading: true
-dependencies: [pensive:shared, imbue:evidence-logging]
+dependencies:
+- pensive:shared
+- imbue:evidence-logging
 version: 1.3.8
 ---
 # API Review Workflow

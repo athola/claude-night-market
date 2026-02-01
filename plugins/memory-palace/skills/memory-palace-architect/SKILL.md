@@ -1,15 +1,26 @@
 ---
-
 name: memory-palace-architect
-description: 'Consult this skill when designing permanent memory palace structures.'
-triggers: memory, spatial, architecture, organization, mnemonic Design and construct virtual memory palaces for spatial knowledge organization using mnemonic techniques., memory palace, spatial organization, mnemonic, knowledge architecture, domain mapping, layout design, memory structure, recall enhancement
-use_when: 'creating new memory palace structures, organizing complex domains, designing spatial layouts for knowledge retention'
-do_not_use_when: 'quick knowledge search - use knowledge-locator instead. DO NOT use when: session-specific context - use session-palace-builder.'
+description: 'Consult this skill when designing permanent memory palace structures.
+  Use when creating new memory palace structures, organizing complex domains, designing
+  spatial layouts for knowledge retention. Do not use when quick knowledge search
+  - use knowledge-locator instead. DO NOT use when: session-specific context - use
+  session-palace-builder.'
 category: architecture
-tags: [memory, organization, spatial, knowledge, architecture, mnemonic]
-dependencies: [leyline:progressive-loading]
-scripts: [palace_manager.py]
-usage_patterns: [palace-design, domain-analysis, layout-creation]
+tags:
+- memory
+- organization
+- spatial
+- knowledge
+- architecture
+- mnemonic
+dependencies:
+- leyline:progressive-loading
+scripts:
+- palace_manager.py
+usage_patterns:
+- palace-design
+- domain-analysis
+- layout-creation
 complexity: intermediate
 estimated_tokens: 600
 version: 1.3.8

@@ -1,32 +1,34 @@
 ---
-
 name: context-optimization
-description: 'Use this skill BEFORE starting complex tasks. Check context levels proactively.'
-triggers: context, optimization Reduce context usage with MECW principles (keep under 50% of total window)., context pressure, token usage, MECW, context window, optimization, decomposition, workflow splitting, context management, token optimization
-use_when: 'context usage approaches 50% of window, tasks need decomposition, complex multi-step operations planned, context pressure is high'
-do_not_use_when: 'simple single-step tasks with low context usage. DO NOT use when: already using mcp-code-execution for tool chains.'
+description: 'Use this skill BEFORE starting complex tasks. Check context levels proactively.
+  Use when context usage approaches 50% of window, tasks need decomposition, complex
+  multi-step operations planned, context pressure is high. Do not use when simple
+  single-step tasks with low context usage. DO NOT use when: already using mcp-code-execution
+  for tool chains.'
 category: conservation
 token_budget: 150
 progressive_loading: true
-
-# Claude Code 2.1.0+ lifecycle hooks
 hooks:
   PreToolUse:
-    - matcher: "Read"
-      command: |
-        echo "[skill:context-optimization] 📊 Context analysis started: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-      once: true
+  - matcher: Read
+    command: 'echo "[skill:context-optimization] 📊 Context analysis started: $(date)"
+      >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
+
+      '
+    once: true
   PostToolUse:
-    - matcher: "Bash"
-      command: |
-        # Track context analysis tools
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(wc|tokei|cloc|context)"; then
-          echo "[skill:context-optimization] Context measurement executed: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-        fi
+  - matcher: Bash
+    command: "# Track context analysis tools\nif echo \"$CLAUDE_TOOL_INPUT\" | grep\
+      \ -qE \"(wc|tokei|cloc|context)\"; then\n  echo \"[skill:context-optimization]\
+      \ Context measurement executed: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
+      fi\n"
   Stop:
-    - command: |
-        echo "[skill:context-optimization] === Optimization completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-        # Could export: context pressure events over time
+  - command: 'echo "[skill:context-optimization] === Optimization completed at $(date)
+      ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
+
+      # Could export: context pressure events over time
+
+      '
 version: 1.3.8
 ---
 ## Table of Contents

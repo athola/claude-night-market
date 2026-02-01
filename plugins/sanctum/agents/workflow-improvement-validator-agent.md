@@ -1,7 +1,11 @@
 ---
 name: workflow-improvement-validator-agent
-description: Validates that workflow improvements make a substantive difference by
+description: 'Validates that workflow improvements make a substantive difference by
   running targeted tests/validators and replaying a minimal workflow reproduction.
+  Use when confirming improvements after implementation, running targeted validation,
+  comparing before/after metrics, documenting evidence. Do not use when still implementing
+  - use workflow-improvement-implementer-agent. issues found - route back to implementer
+  agent. Final step in /fix-workflow: confirms substantive improvement with evidence.'
 tools:
 - Read
 - Write
@@ -20,13 +24,6 @@ examples:
   user: Did this actually improve the workflow?
   assistant: I'll use workflow-improvement-validator-agent to run targeted validation
     and replay the minimal reproduction.
-triggers: validate improvements, workflow validation, acceptance criteria check, minimal
-  reproduction, substantive difference, metrics comparison
-use_when: confirming improvements after implementation, running targeted validation,
-  comparing before/after metrics, documenting evidence
-do_not_use_when: 'still implementing - use workflow-improvement-implementer-agent.
-  issues found - route back to implementer agent. Final step in /fix-workflow: confirms
-  substantive improvement with evidence.'
 ---
 
 # Workflow Improvement Validator Agent

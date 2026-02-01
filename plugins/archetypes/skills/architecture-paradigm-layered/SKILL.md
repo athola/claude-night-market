@@ -1,20 +1,30 @@
 ---
-
 name: architecture-paradigm-layered
-description: 'Consult this skill when implementing layered patterns or enforcing layer boundaries.'
-triggers: monolith, separation-of-concerns, n-tier, architecture, layered Use a Layered (N-Tier) architecture to separate presentation, domain logic, and data access responsibilities within a system., layered architecture, n-tier, separation of concerns, presentation layer, data access layer, service layer, traditional architecture, monolith structure, layer enforcement, dependency direction
-use_when: 'building traditional applications with clear boundaries, working with moderate-sized teams, needing familiar and well-understood patterns, compliance requirements demand clear separation'
-do_not_use_when: 'selecting from multiple paradigms - use architecture-paradigms first. DO NOT use when: high scalability needs independent component scaling. DO NOT use when: teams need independent deployment cycles - use microservices.'
+description: 'Consult this skill when implementing layered patterns or enforcing layer
+  boundaries. Use when building traditional applications with clear boundaries, working
+  with moderate-sized teams, needing familiar and well-understood patterns, compliance
+  requirements demand clear separation. Do not use when selecting from multiple paradigms
+  - use architecture-paradigms first. DO NOT use when: high scalability needs independent
+  component scaling. DO NOT use when: teams need independent deployment cycles - use
+  microservices.'
 version: 1.3.8
 category: architectural-pattern
-tags: [architecture, layered, n-tier, separation-of-concerns, monolith]
+tags:
+- architecture
+- layered
+- n-tier
+- separation-of-concerns
+- monolith
 dependencies: []
-tools: [dependency-validator, layer-enforcer, architecture-compliance-checker]
+tools:
+- dependency-validator
+- layer-enforcer
+- architecture-compliance-checker
 usage_patterns:
-  - paradigm-implementation
-  - legacy-system-modernization
-  - team-structure-alignment
-  - compliance-requirements
+- paradigm-implementation
+- legacy-system-modernization
+- team-structure-alignment
+- compliance-requirements
 complexity: low
 estimated_tokens: 700
 ---

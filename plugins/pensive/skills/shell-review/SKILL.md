@@ -1,6 +1,8 @@
 ---
 name: shell-review
 description: Audit shell scripts for correctness, portability, and common pitfalls.
+  Use when reviewing shell scripts, CI scripts, hook scripts, wrapper scripts. Do
+  not use when creating new scripts - use attune:workflow-setup.
 category: build
 tags:
 - shell
@@ -24,9 +26,6 @@ modules:
 - portability
 - safety-patterns
 version: 1.3.8
-triggers: shell script, bash, sh, script review, pipeline, exit code
-use_when: reviewing shell scripts, CI scripts, hook scripts, wrapper scripts
-do_not_use_when: creating new scripts - use attune:workflow-setup
 ---
 ## Table of Contents
 

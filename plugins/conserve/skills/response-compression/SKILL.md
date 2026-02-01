@@ -1,6 +1,8 @@
 ---
 name: response-compression
-description: hype, and unnecessary framing. Includes termination and directness guidelines.
+description: 'hype, and unnecessary framing. Includes termination and directness guidelines.
+  Use when: verbose, bloat, concise, compress, direct, efficient response Eliminates
+  response bloat including emojis, filler words, hedging language.'
 category: optimization
 tags:
 - tokens
@@ -11,8 +13,6 @@ tools: []
 complexity: low
 estimated_tokens: 500
 version: 1.3.8
-triggers: verbose, bloat, concise, compress, direct, efficient response Eliminates
-  response bloat including emojis, filler words, hedging language
 ---
 ## Table of Contents
 

@@ -1,24 +1,32 @@
 ---
 name: qwen-delegation
-description: Qwen CLI delegation workflow implementing delegation-core for Alibaba's Qwen models.
-triggers: qwen cli, qwen delegation, alibaba qwen, qwen batch, multi-file analysis, 100K context
-use_when: delegation-core selected Qwen, need Qwen's large context capabilities, batch processing required
-do_not_use_when: deciding which model to use (use delegation-core first), qwen CLI not installed
+description: Qwen CLI delegation workflow implementing delegation-core for Alibaba's
+  Qwen models. Use when delegation-core selected Qwen, need Qwen's large context capabilities,
+  batch processing required. Do not use when deciding which model to use (use delegation-core
+  first), qwen CLI not installed.
 category: delegation-implementation
-tags: [qwen, cli, delegation, alibaba, large-context]
-dependencies: [delegation-core]
-tools: [qwen-cli, delegation-executor]
+tags:
+- qwen
+- cli
+- delegation
+- alibaba
+- large-context
+dependencies:
+- delegation-core
+tools:
+- qwen-cli
+- delegation-executor
 usage_patterns:
-  - qwen-cli-integration
-  - large-context-analysis
-  - bulk-processing
+- qwen-cli-integration
+- large-context-analysis
+- bulk-processing
 complexity: intermediate
 estimated_tokens: 600
 progressive_loading: true
 modules:
-  - modules/qwen-specifics.md
+- modules/qwen-specifics.md
 references:
-  - delegation-core/shared-shell-execution.md
+- delegation-core/shared-shell-execution.md
 version: 1.3.8
 ---
 ## Table of Contents

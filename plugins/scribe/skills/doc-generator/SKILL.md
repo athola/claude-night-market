@@ -1,9 +1,11 @@
 ---
 name: doc-generator
-description: Generate or remediate documentation with human-quality writing and style
+description: 'Generate or remediate documentation with human-quality writing and style
   adherence. Use when creating new documentation, rewriting AI-generated content,
   or applying style profiles. Do not use for slop detection only (use slop-detector)
-  or learning styles (use style-learner).
+  or learning styles (use style-learner). Use when: documentation, generate docs,
+  write docs, technical writing, generate documentation, write readme, create guide,
+  doc generation, remediate docs, polish content, clean up docs..'
 category: artifact-generation
 tags:
 - documentation
@@ -27,9 +29,6 @@ dependencies:
 - scribe:shared
 - scribe:slop-detector
 version: 1.3.8
-triggers: documentation, generate docs, write docs, technical writing, generate documentation,
-  write readme, create guide, doc generation, remediate docs, polish content, clean
-  up docs.
 ---
 
 # Documentation Generator

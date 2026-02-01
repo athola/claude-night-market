@@ -1,31 +1,36 @@
 ---
-
 name: git-workspace-review
-description: 'Use this skill as foundation for git workflows.'
-triggers: staged, preflight, git, review, status Lightweight preflight checklist for verifying repo path, staged changes, and diffs before other workflows., git status, preflight, workspace check, staged changes, diff review, git verification, repo state
-use_when: 'verifying workspace state before other git operations, checking staged changes, preflight checks before commits or PRs'
-do_not_use_when: 'full commit workflow - use commit-messages instead. DO NOT use when: full PR preparation - use pr-prep.'
+description: 'Use this skill as foundation for git workflows. Use when verifying workspace
+  state before other git operations, checking staged changes, preflight checks before
+  commits or PRs. Do not use when full commit workflow - use commit-messages instead.
+  DO NOT use when: full PR preparation - use pr-prep.'
 category: workspace-ops
-tags: [git, preflight, status, diff, staged]
-tools: [Bash, TodoWrite]
+tags:
+- git
+- preflight
+- status
+- diff
+- staged
+tools:
+- Bash
+- TodoWrite
 complexity: low
 estimated_tokens: 500
 dependencies:
-  - sanctum:shared
-
-# Claude Code 2.1.0+ lifecycle hooks
+- sanctum:shared
 hooks:
   PreToolUse:
-    - matcher: "Bash"
-      command: |
-        # Log git analysis commands
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "git (status|diff|log|show|branch)"; then
-          echo "[skill:git-workspace-review] Git analysis initiated: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-        fi
-      once: true  # Log once per skill invocation
+  - matcher: Bash
+    command: "# Log git analysis commands\nif echo \"$CLAUDE_TOOL_INPUT\" | grep -qE\
+      \ \"git (status|diff|log|show|branch)\"; then\n  echo \"[skill:git-workspace-review]\
+      \ Git analysis initiated: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log\n\
+      fi\n"
+    once: true
   Stop:
-    - command: |
-        echo "[skill:git-workspace-review] === Analysis completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
+  - command: 'echo "[skill:git-workspace-review] === Analysis completed at $(date)
+      ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
+
+      '
 version: 1.3.8
 ---
 

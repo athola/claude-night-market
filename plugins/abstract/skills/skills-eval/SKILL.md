@@ -1,9 +1,12 @@
 ---
 name: skills-eval
-description: Evaluate and improve Claude skill quality through auditing. Use when
+description: 'Evaluate and improve Claude skill quality through auditing. Use when
   reviewing skill quality, preparing skills for production, or auditing existing skills.
   Do not use when creating new skills (use modular-skills) or writing prose (use writing-clearly-and-concisely).
-  Use this skill before shipping any skill to production.
+  Use this skill before shipping any skill to production. Use when: quality-assurance,
+  skills, optimization, tool-use, performance-metrics, skill audit, quality review,
+  compliance check, improvement suggestions, token usage analysis, skill evaluation,
+  skill assessment, skill optimization, skill standards, skill metrics, skill performance..'
 version: 1.3.8
 category: skill-management
 tags:
@@ -59,10 +62,6 @@ evaluation_criteria:
   token_efficiency: 25
   tool_integration: 20
   claude_sdk_compliance: 10
-triggers: quality-assurance, skills, optimization, tool-use, performance-metrics,
-  skill audit, quality review, compliance check, improvement suggestions, token usage
-  analysis, skill evaluation, skill assessment, skill optimization, skill standards,
-  skill metrics, skill performance.
 ---
 # Skills Evaluation and Improvement
 

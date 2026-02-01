@@ -2,6 +2,8 @@
 name: fpf-review
 description: Architecture review using FPF (Functional Programming Framework) methodology.
   Evaluates codebases through functional, practical, and foundation perspectives.
+  Use when conducting architecture reviews, evaluating system design. Do not use when
+  simple code reviews, bug fixes, documentation updates.
 category: review-methodology
 tags:
 - architecture
@@ -28,9 +30,6 @@ modules:
 - modules/practical-perspective.md
 - modules/foundation-perspective.md
 version: 1.3.8
-triggers: architecture review, FPF, functional programming framework, systems architecture
-use_when: conducting architecture reviews, evaluating system design
-do_not_use_when: simple code reviews, bug fixes, documentation updates
 ---
 ## Table of Contents
 

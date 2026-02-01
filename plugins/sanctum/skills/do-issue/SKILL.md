@@ -1,35 +1,40 @@
 ---
-
 name: do-issue
-description: 'Uses subagents for parallel execution with code review gates between batches.'
-triggers: github, automation, parallel, subagents, issue Fix GitHub issues using subagent-driven-development with parallel execution where appropriate., fix issue, github issue, issue resolution, subagent development, parallel execution, issue workflow, gh issue, fix github
-use_when: 'addressing GitHub issues systematically, multiple related issues need fixing, tasks can be parallelized across subagents, quality gates needed between task batches'
-do_not_use_when: 'single simple fix - just implement directly. DO NOT use when: issue needs clarification - comment first to clarify scope.'
+description: 'Uses subagents for parallel execution with code review gates between
+  batches. Use when addressing GitHub issues systematically, multiple related issues
+  need fixing, tasks can be parallelized across subagents, quality gates needed between
+  task batches. Do not use when single simple fix - just implement directly. DO NOT
+  use when: issue needs clarification - comment first to clarify scope.'
 category: workflow-automation
-tags: [github, issues, subagents, parallel, automation]
+tags:
+- github
+- issues
+- subagents
+- parallel
+- automation
 dependencies:
-  - superpowers:subagent-driven-development
-  - superpowers:writing-plans
-  - superpowers:test-driven-development
-  - superpowers:requesting-code-review
-  - superpowers:finishing-a-development-branch
+- superpowers:subagent-driven-development
+- superpowers:writing-plans
+- superpowers:test-driven-development
+- superpowers:requesting-code-review
+- superpowers:finishing-a-development-branch
 tools:
-  - gh (GitHub CLI)
-  - Task (subagent dispatch)
+- gh (GitHub CLI)
+- Task (subagent dispatch)
 usage_patterns:
-  - issue-discovery
-  - task-planning
-  - parallel-execution
-  - quality-gates
+- issue-discovery
+- task-planning
+- parallel-execution
+- quality-gates
 complexity: advanced
 estimated_tokens: 2500
 modules:
-  - modules/issue-discovery.md
-  - modules/task-planning.md
-  - modules/parallel-execution.md
-  - modules/quality-gates.md
-  - modules/completion.md
-  - modules/troubleshooting.md
+- modules/issue-discovery.md
+- modules/task-planning.md
+- modules/parallel-execution.md
+- modules/quality-gates.md
+- modules/completion.md
+- modules/troubleshooting.md
 version: 1.3.8
 ---
 ## Table of Contents

@@ -1,13 +1,20 @@
 ---
-
 name: escalation-governance
-description: 'NEVER escalate without investigation first. This is the Iron Law.'
-triggers: governance, escalation, orchestration, model-selection, agents Guide to deciding whether to escalate from a lower model (haiku/sonnet) to a higher model (sonnet/opus)., model escalation, haiku to sonnet, sonnet to opus, reasoning depth, task complexity, model selection, capability trade-off
-use_when: 'evaluating whether to escalate models, facing genuine complexity requiring deeper reasoning, novel patterns with no existing solutions, high-stakes decisions requiring capability investment'
-do_not_use_when: 'thrashing without investigation - investigate root cause first. DO NOT use when: time pressure alone - urgency doesn''t change task complexity. DO NOT use when: "just to be safe" - assess actual complexity instead.'
+description: 'NEVER escalate without investigation first. This is the Iron Law. Use
+  when evaluating whether to escalate models, facing genuine complexity requiring
+  deeper reasoning, novel patterns with no existing solutions, high-stakes decisions
+  requiring capability investment. Do not use when thrashing without investigation
+  - investigate root cause first. DO NOT use when: time pressure alone - urgency doesn''t
+  change task complexity. DO NOT use when: "just to be safe" - assess actual complexity
+  instead.'
 version: 1.3.8
 category: agent-workflow
-tags: [escalation, model-selection, governance, agents, orchestration]
+tags:
+- escalation
+- model-selection
+- governance
+- agents
+- orchestration
 dependencies: []
 estimated_tokens: 800
 ---

@@ -1,30 +1,37 @@
 ---
-
 name: python-async
-description: 'Consult this skill for async Python patterns and concurrency.'
-triggers: concurrency, coroutines, await, async, asyncio Master Python asyncio, concurrent programming, and async/await patterns for high-performance applications., asyncio, async/await, coroutines, concurrent programming, async API, I/O-bound, websockets, background tasks, semaphores, async context managers
-use_when: 'building async APIs, concurrent systems, I/O-bound applications, implementing rate limiting, async context managers'
-do_not_use_when: 'CPU-bound optimization - use python-performance instead. DO NOT use when: testing async code - use python-testing async module.'
+description: 'Consult this skill for async Python patterns and concurrency. Use when
+  building async APIs, concurrent systems, I/O-bound applications, implementing rate
+  limiting, async context managers. Do not use when CPU-bound optimization - use python-performance
+  instead. DO NOT use when: testing async code - use python-testing async module.'
 version: 1.3.8
 category: async
-tags: [python, async, asyncio, concurrency, await, coroutines]
-tools: [async-analyzer, concurrency-checker]
+tags:
+- python
+- async
+- asyncio
+- concurrency
+- await
+- coroutines
+tools:
+- async-analyzer
+- concurrency-checker
 usage_patterns:
-  - async-api-development
-  - concurrent-io
-  - websocket-servers
-  - background-tasks
+- async-api-development
+- concurrent-io
+- websocket-servers
+- background-tasks
 complexity: intermediate
 estimated_tokens: 400
 progressive_loading: true
 modules:
-  - basic-patterns
-  - concurrency-control
-  - error-handling-timeouts
-  - advanced-patterns
-  - testing-async
-  - real-world-applications
-  - pitfalls-best-practices
+- basic-patterns
+- concurrency-control
+- error-handling-timeouts
+- advanced-patterns
+- testing-async
+- real-world-applications
+- pitfalls-best-practices
 ---
 
 # Async Python Patterns

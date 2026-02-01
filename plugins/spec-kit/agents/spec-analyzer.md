@@ -1,7 +1,10 @@
 ---
 name: spec-analyzer
 description: Analyze specification artifacts for consistency, coverage, and quality
-  issues.
+  issues. Use when checking spec quality, validating spec/plan/tasks alignment, debugging
+  missing requirements, detecting ambiguity or underspecification. Do not use when
+  writing specifications - use spec-writing skill. generating tasks - use task-generator
+  agent. Trigger proactively during /speckit-analyze commands.
 tools:
 - Read
 - Grep
@@ -17,12 +20,6 @@ examples:
 - context: User is debugging missing requirements
   user: What requirements don't have tasks?
   assistant: I'll analyze the coverage gaps between your spec and tasks.
-triggers: spec analysis, requirement coverage, consistency check, ambiguity detection,
-  specification quality, cross-artifact validation, coverage gaps
-use_when: checking spec quality, validating spec/plan/tasks alignment, debugging missing
-  requirements, detecting ambiguity or underspecification
-do_not_use_when: writing specifications - use spec-writing skill. generating tasks
-  - use task-generator agent. Trigger proactively during /speckit-analyze commands.
 ---
 
 # Spec Analyzer Agent

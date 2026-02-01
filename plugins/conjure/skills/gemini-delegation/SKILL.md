@@ -1,27 +1,34 @@
 ---
 name: gemini-delegation
-description: Gemini CLI delegation workflow implementing delegation-core for Google's Gemini models.
-triggers: gemini cli, gemini delegation, google gemini, 1M context, large file analysis, gemini batch
-use_when: delegation-core selected Gemini, need Gemini's 1M+ token context window, batch processing required
-do_not_use_when: deciding which model to use (use delegation-core first), gemini CLI not installed
+description: Gemini CLI delegation workflow implementing delegation-core for Google's
+  Gemini models. Use when delegation-core selected Gemini, need Gemini's 1M+ token
+  context window, batch processing required. Do not use when deciding which model
+  to use (use delegation-core first), gemini CLI not installed.
 category: delegation-implementation
-tags: [gemini, cli, delegation, google, large-context]
-dependencies: [delegation-core]
-tools: [gemini-cli]
+tags:
+- gemini
+- cli
+- delegation
+- google
+- large-context
+dependencies:
+- delegation-core
+tools:
+- gemini-cli
 usage_patterns:
-  - gemini-cli-integration
-  - large-context-analysis
-  - batch-processing
+- gemini-cli-integration
+- large-context-analysis
+- batch-processing
 complexity: intermediate
 estimated_tokens: 600
 progressive_loading: true
 modules:
-  - modules/gemini-specifics.md
+- modules/gemini-specifics.md
 references:
-  - delegation-core/../../leyline/skills/authentication-patterns/SKILL.md
-  - delegation-core/../../leyline/skills/quota-management/SKILL.md
-  - delegation-core/../../leyline/skills/usage-logging/SKILL.md
-  - delegation-core/../../leyline/skills/error-patterns/SKILL.md
+- delegation-core/../../leyline/skills/authentication-patterns/SKILL.md
+- delegation-core/../../leyline/skills/quota-management/SKILL.md
+- delegation-core/../../leyline/skills/usage-logging/SKILL.md
+- delegation-core/../../leyline/skills/error-patterns/SKILL.md
 version: 1.3.8
 ---
 ## Table of Contents

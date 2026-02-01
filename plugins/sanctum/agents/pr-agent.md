@@ -1,7 +1,16 @@
 ---
 name: pr-agent
-description: Pull request preparation agent specializing in quality gate execution,
-  change summarization, and PR template completion.
+description: 'Pull request preparation agent specializing in quality gate execution,
+  change summarization, and PR template completion. Use when preparing detailed PR
+  descriptions, running pre-PR quality gates, documenting testing evidence, completing
+  PR checklists. Do not use when just writing commit messages - use commit-agent.
+  only analyzing workspace state - use git-workspace-agent. ⚠️ PRE-INVOCATION CHECK
+  (parent must verify BEFORE calling this agent): - Single commit, <50 lines? → Parent
+  runs `gh pr create --fill` - Obvious fix (typo, bump)? → Parent creates PR directly
+  - No quality gates needed? → Parent uses `gh pr create --title "..." --body "..."`
+  ONLY invoke this agent for: multi-commit PRs, breaking changes, quality gate execution,
+  or complex change narratives. Executes quality gates and produces complete PR descriptions
+  ready for submission.'
 tools:
 - Read
 - Write
@@ -42,18 +51,6 @@ examples:
 - context: User needs testing documentation
   user: How should I document the testing I did for this PR?
   assistant: I'll use the pr-agent to help structure your testing section.
-triggers: pull request, PR preparation, quality gates, PR description, change summary,
-  testing documentation, PR template, PR review
-use_when: preparing detailed PR descriptions, running pre-PR quality gates, documenting
-  testing evidence, completing PR checklists
-do_not_use_when: 'just writing commit messages - use commit-agent. only analyzing
-  workspace state - use git-workspace-agent. ⚠️ PRE-INVOCATION CHECK (parent must
-  verify BEFORE calling this agent): - Single commit, <50 lines? → Parent runs `gh
-  pr create --fill` - Obvious fix (typo, bump)? → Parent creates PR directly - No
-  quality gates needed? → Parent uses `gh pr create --title "..." --body "..."` ONLY
-  invoke this agent for: multi-commit PRs, breaking changes, quality gate execution,
-  or complex change narratives. Executes quality gates and produces complete PR descriptions
-  ready for submission.'
 ---
 
 # PR Agent

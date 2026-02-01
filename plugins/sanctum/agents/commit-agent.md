@@ -1,7 +1,16 @@
 ---
 name: commit-agent
-description: Conventional commit message generation agent specializing in change classification,
-  semantic versioning awareness, and consistent commit formatting.
+description: 'Conventional commit message generation agent specializing in change
+  classification, semantic versioning awareness, and consistent commit formatting.
+  Use when drafting commit messages for staged changes, classifying change types,
+  formatting breaking change footers, linking issues in commits. Do not use when analyzing
+  repository state - use git-workspace-agent first. preparing full PR - use pr-agent.
+  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent): - Single
+  file with <20 lines? → Parent commits directly - Obvious type (typo, version bump,
+  deps)? → Parent uses `fix(scope): message` - Can write message in <30 seconds? →
+  Parent commits directly ONLY invoke this agent for: multi-file changes, ambiguous
+  classification, breaking changes, or complex scope decisions. Generates complete
+  conventional commit messages ready for use.'
 tools:
 - Read
 - Write
@@ -48,17 +57,6 @@ examples:
 - context: User making breaking changes
   user: I'm changing the API, how should I document this in the commit?
   assistant: I'll use the commit-agent to format the breaking change footer correctly.
-triggers: commit message, conventional commit, semantic versioning, change classification,
-  commit type, breaking change, commit format
-use_when: drafting commit messages for staged changes, classifying change types, formatting
-  breaking change footers, linking issues in commits
-do_not_use_when: 'analyzing repository state - use git-workspace-agent first. preparing
-  full PR - use pr-agent. ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling
-  this agent): - Single file with <20 lines? → Parent commits directly - Obvious type
-  (typo, version bump, deps)? → Parent uses `fix(scope): message` - Can write message
-  in <30 seconds? → Parent commits directly ONLY invoke this agent for: multi-file
-  changes, ambiguous classification, breaking changes, or complex scope decisions.
-  Generates complete conventional commit messages ready for use.'
 ---
 
 # Commit Agent

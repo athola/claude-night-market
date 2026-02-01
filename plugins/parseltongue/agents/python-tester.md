@@ -1,58 +1,66 @@
 ---
 name: python-tester
-description: |
-  Expert Python testing agent specializing in pytest, TDD workflows, mocking
+description: 'Expert Python testing agent specializing in pytest, TDD workflows, mocking
+
   strategies, and thorough test coverage.
+
 
   Use when: writing test suites, debugging complex failures, improving coverage
 
+
   ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
+
   - "Run pytest"? → Parent runs `pytest <path> -v`
+
   - "Run one test"? → Parent runs `pytest <path>::test_name -v`
+
   - "Check coverage"? → Parent runs `pytest --cov=<module>`
+
   - Simple assertion fix? → Parent edits directly
+
   ONLY invoke this agent for: new test suite creation, complex mocking/fixtures,
-  coverage gap analysis, TDD cycles, or debugging flaky tests.
-tools: [Read, Write, Edit, Bash, Glob, Grep]
+
+  coverage gap analysis, TDD cycles, or debugging flaky tests.'
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- Glob
+- Grep
 model: sonnet
 skills: parseltongue:python-testing, leyline:pytest-config
-
-# Claude Code 2.1.0+ lifecycle hooks
 hooks:
   PreToolUse:
-    - matcher: "Bash"
-      command: |
-        # Validate pytest commands before execution
-        if echo "$CLAUDE_TOOL_INPUT" | grep -q "pytest"; then
-          echo "[python-tester] pytest command validated" >&2
-        fi
-      once: false
+  - matcher: Bash
+    command: "# Validate pytest commands before execution\nif echo \"$CLAUDE_TOOL_INPUT\"\
+      \ | grep -q \"pytest\"; then\n  echo \"[python-tester] pytest command validated\"\
+      \ >&2\nfi\n"
+    once: false
   PostToolUse:
-    - matcher: "Write|Edit"
-      command: |
-        # Auto-check for common test issues after writing
-        if echo "$CLAUDE_TOOL_INPUT" | grep -q "test_"; then
-          echo "[python-tester] Test file written" >&2
-        fi
+  - matcher: Write|Edit
+    command: "# Auto-check for common test issues after writing\nif echo \"$CLAUDE_TOOL_INPUT\"\
+      \ | grep -q \"test_\"; then\n  echo \"[python-tester] Test file written\" >&2\n\
+      fi\n"
   Stop:
-    - command: "echo '[python-tester] Testing session completed' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/test-audit.log"
-
+  - command: echo '[python-tester] Testing session completed' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/test-audit.log
 escalation:
   to: opus
   hints:
-    - reasoning_required
-    - novel_pattern
-    - complex_fixture_design
+  - reasoning_required
+  - novel_pattern
+  - complex_fixture_design
 examples:
-  - context: User needs tests for Python code
-    user: "Write tests for this module"
-    assistant: "I'll use the python-tester agent to create thorough tests with pytest."
-  - context: User has failing tests
-    user: "My tests are failing, can you help debug?"
-    assistant: "Let me use the python-tester agent to analyze and fix the test failures."
-  - context: User wants to improve test coverage
-    user: "How can I improve my test coverage?"
-    assistant: "I'll use the python-tester agent to analyze coverage and suggest additional tests."
+- context: User needs tests for Python code
+  user: Write tests for this module
+  assistant: I'll use the python-tester agent to create thorough tests with pytest.
+- context: User has failing tests
+  user: My tests are failing, can you help debug?
+  assistant: Let me use the python-tester agent to analyze and fix the test failures.
+- context: User wants to improve test coverage
+  user: How can I improve my test coverage?
+  assistant: I'll use the python-tester agent to analyze coverage and suggest additional
+    tests.
 ---
 
 # Python Tester Agent

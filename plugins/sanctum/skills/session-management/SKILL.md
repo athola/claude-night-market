@@ -1,6 +1,7 @@
 ---
 name: session-management
 description: Manage Claude Code sessions with naming, checkpointing, and resume strategies.
+  Use when organizing long-running work, creating debug checkpoints, managing PR reviews.
 category: workflow
 tags:
 - session
@@ -12,8 +13,6 @@ tools:
 complexity: low
 estimated_tokens: 400
 version: 1.3.8
-triggers: session, resume, rename, checkpoint
-use_when: organizing long-running work, creating debug checkpoints, managing PR reviews
 ---
 
 # Session Management

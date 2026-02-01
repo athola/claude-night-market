@@ -1,28 +1,37 @@
 ---
-
 name: release-health-gates
-description: 'Standardizes release approvals with GitHub-aware checklists.'
-triggers: github, governance, health, readiness, quality Declarative release readiness checklist that mirrors GitHub checks, deployment issues, and documentation requirements., release gates, release readiness, deployment checklist, release review, quality signals, rollout scorecard, QA handshake, deployment gates
-use_when: 'preparing releases, validating deployment gates, conducting release reviews, embedding release gate snippets in PRs'
-do_not_use_when: 'weekly status updates - use github-initiative-pulse. DO NOT use when: code reviews - use pensive review skills.'
+description: 'Standardizes release approvals with GitHub-aware checklists. Use when
+  preparing releases, validating deployment gates, conducting release reviews, embedding
+  release gate snippets in PRs. Do not use when weekly status updates - use github-initiative-pulse.
+  DO NOT use when: code reviews - use pensive review skills.'
 version: 1.3.8
 category: governance
-tags: [release, github, readiness, quality, governance]
+tags:
+- release
+- github
+- readiness
+- quality
+- governance
 dependencies: []
-tools: [minister-tracker]
+tools:
+- minister-tracker
 provides:
-  governance: [release-gates, rollout-scorecards]
-  reporting: [deployment-comment, qa-handshake]
+  governance:
+  - release-gates
+  - rollout-scorecards
+  reporting:
+  - deployment-comment
+  - qa-handshake
 usage_patterns:
-  - release-train
-  - hotfix-review
-  - stakeholder-briefing
+- release-train
+- hotfix-review
+- stakeholder-briefing
 complexity: intermediate
 estimated_tokens: 700
 progressive_loading: true
 modules:
-  - modules/quality-signals.md
-  - modules/deployment-readiness.md
+- modules/quality-signals.md
+- modules/deployment-readiness.md
 ---
 
 # Release Health Gates

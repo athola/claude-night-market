@@ -1,7 +1,11 @@
 ---
 name: workflow-improvement-implementer-agent
-description: Implements agreed workflow improvements across skills, agents, commands,
-  and hooks while keeping diffs focused, consistent, and test-backed.
+description: 'Implements agreed workflow improvements across skills, agents, commands,
+  and hooks while keeping diffs focused, consistent, and test-backed. Use when executing
+  improvement plan from planner agent, applying focused plugin asset edits, adding
+  tests for behavior changes. Do not use when still planning - use workflow-improvement-planner-agent.
+  validating changes - use workflow-improvement-validator-agent. Fourth step in /fix-workflow:
+  applies focused changes following sanctum conventions.'
 tools:
 - Read
 - Write
@@ -21,13 +25,6 @@ examples:
   user: Implement the plan from /fix-workflow.
   assistant: I'll use workflow-improvement-implementer-agent to apply focused changes
     and add/adjust tests where needed.
-triggers: implement improvements, workflow changes, plugin asset changes, focused
-  edits, test-backed changes, incremental implementation
-use_when: executing improvement plan from planner agent, applying focused plugin asset
-  edits, adding tests for behavior changes
-do_not_use_when: 'still planning - use workflow-improvement-planner-agent. validating
-  changes - use workflow-improvement-validator-agent. Fourth step in /fix-workflow:
-  applies focused changes following sanctum conventions.'
 ---
 
 # Workflow Improvement Implementer Agent

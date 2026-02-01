@@ -1,28 +1,38 @@
 ---
-
 name: python-testing
-description: 'Consult this skill for Python testing implementation and patterns.'
-triggers: quality-assurance, test-automation, pytest, testing, python Python testing with pytest, fixtures, mocking, and TDD workflows., pytest, unit tests, test fixtures, mocking, TDD, test suite, coverage, test-driven development, testing patterns, parameterized tests, unittest replacement, test coverage, pytest fixtures, async testing, test automation, pytest marks, test mocking, pytest plugins, integration tests, test discovery
-use_when: 'writing unit tests, setting up test suites, implementing TDD, configuring pytest, creating fixtures, async testing, writing integration tests, mocking dependencies, parameterizing tests, setting up CI/CD testing'
-do_not_use_when: 'evaluating test quality - use pensive:test-review instead. DO NOT use when: infrastructure test config - use leyline:pytest-config.'
+description: 'Consult this skill for Python testing implementation and patterns. Use
+  when writing unit tests, setting up test suites, implementing TDD, configuring pytest,
+  creating fixtures, async testing, writing integration tests, mocking dependencies,
+  parameterizing tests, setting up CI/CD testing. Do not use when evaluating test
+  quality - use pensive:test-review instead. DO NOT use when: infrastructure test
+  config - use leyline:pytest-config.'
 category: testing
-tags: [python, testing, pytest, tdd, test-automation, quality-assurance]
-tools: [test-analyzer, coverage-reporter, test-runner]
+tags:
+- python
+- testing
+- pytest
+- tdd
+- test-automation
+- quality-assurance
+tools:
+- test-analyzer
+- coverage-reporter
+- test-runner
 usage_patterns:
-  - testing-implementation
-  - test-suite-setup
-  - test-refactoring
-  - ci-cd-integration
+- testing-implementation
+- test-suite-setup
+- test-refactoring
+- ci-cd-integration
 complexity: intermediate
 estimated_tokens: 900
 progressive_loading: true
 modules:
-  - unit-testing
-  - fixtures-and-mocking
-  - test-infrastructure
-  - testing-workflows
-  - test-quality
-  - async-testing
+- unit-testing
+- fixtures-and-mocking
+- test-infrastructure
+- testing-workflows
+- test-quality
+- async-testing
 version: 1.3.8
 ---
 # Python Testing Hub

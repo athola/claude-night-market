@@ -1,7 +1,8 @@
 ---
 name: decisive-action
-description: Guidance on when to ask clarifying questions vs proceed with standard
-  approaches. Reduces interaction rounds while preventing wrong assumptions.
+description: 'Guidance on when to ask clarifying questions vs proceed with standard
+  approaches. Reduces interaction rounds while preventing wrong assumptions. Use when:
+  question threshold, decisive, autonomous, clarifying questions.'
 category: workflow
 tags:
 - efficiency
@@ -11,7 +12,6 @@ tools: []
 complexity: low
 estimated_tokens: 450
 version: 1.3.8
-triggers: question threshold, decisive, autonomous, clarifying questions
 ---
 ## Table of Contents
 

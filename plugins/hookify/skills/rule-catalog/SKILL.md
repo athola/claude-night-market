@@ -1,22 +1,28 @@
 ---
-
 name: rule-catalog
-description: 'This skill provides the catalog and guides installation.'
-triggers: templates, rules, install, catalog, hookify Browse and install pre-built hookify rules from the official catalog., install hookify rule, hookify catalog, browse rules, pre-built rules, available hookify rules, hookify templates
-use_when: 'looking for ready-made hookify rules, installing standard rules, browsing available rule categories'
-do_not_use_when: 'writing custom rules - use hookify:writing-rules instead.'
+description: This skill provides the catalog and guides installation. Use when looking
+  for ready-made hookify rules, installing standard rules, browsing available rule
+  categories. Do not use when writing custom rules - use hookify:writing-rules instead.
 version: 1.3.8
 category: hook-development
-tags: [hookify, rules, catalog, install, templates]
+tags:
+- hookify
+- rules
+- catalog
+- install
+- templates
 dependencies: []
 estimated_tokens: 1500
 complexity: beginner
 provides:
-  patterns: [rule-installation, rule-browsing]
-  infrastructure: [rule-catalog]
+  patterns:
+  - rule-installation
+  - rule-browsing
+  infrastructure:
+  - rule-catalog
 usage_patterns:
-  - browsing-rules
-  - installing-rules
+- browsing-rules
+- installing-rules
 ---
 ## Table of Contents
 

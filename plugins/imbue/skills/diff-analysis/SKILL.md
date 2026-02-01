@@ -1,18 +1,26 @@
 ---
-
 name: diff-analysis
-description: 'Use this skill for systematic change analysis with risk scoring.'
-triggers: semantic-analysis, changes, analysis, categorization, risk-assessment Methodology for categorizing changes, assessing risks, and creating summaries from any changeset., diff analysis, changeset review, risk assessment, change categorization, semantic analysis, release preparation, change summary, git diff
-use_when: 'analyzing specific changesets, assessing risk of changes, preparing release notes, categorizing changes by type and impact'
-do_not_use_when: 'quick context catchup - use catchup instead. DO NOT use when: full PR review - use review-core with pensive skills.'
+description: 'Use this skill for systematic change analysis with risk scoring. Use
+  when analyzing specific changesets, assessing risk of changes, preparing release
+  notes, categorizing changes by type and impact. Do not use when quick context catchup
+  - use catchup instead. DO NOT use when: full PR review - use review-core with pensive
+  skills.'
 category: analysis-methods
-tags: [changes, semantic-analysis, risk-assessment, categorization, summaries]
-dependencies: [imbue:evidence-logging]
-tools: [git, diff-tools]
+tags:
+- changes
+- semantic-analysis
+- risk-assessment
+- categorization
+- summaries
+dependencies:
+- imbue:evidence-logging
+tools:
+- git
+- diff-tools
 usage_patterns:
-  - change-analysis
-  - risk-assessment
-  - release-preparation
+- change-analysis
+- risk-assessment
+- release-preparation
 complexity: intermediate
 progressive_loading: true
 module_strategy: workflow-based
