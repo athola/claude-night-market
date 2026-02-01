@@ -31,6 +31,13 @@ repos:
       # Plugin Validation Hooks
       # =================================================================
 
+      - id: validate-skill-descriptions
+        name: Validate Skill Descriptions
+        entry: python3 scripts/fix_descriptions.py --check
+        language: system
+        files: SKILL\.md$
+        pass_filenames: false
+
       - id: validate-abstract-skills
         name: Validate Abstract Skills
         entry: python3 plugins/abstract/scripts/abstract_validator.py
