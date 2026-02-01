@@ -1,22 +1,23 @@
 ---
 name: subagent-testing
-description: |
-  TDD-style testing methodology for skills using fresh subagent instances
+description: TDD-style testing methodology for skills using fresh subagent instances
   to prevent priming bias and validate skill effectiveness.
-
-  Triggers: test skill, validate skill, skill testing, subagent testing,
-  fresh instance testing, TDD for skills, skill validation
-
-  Use when: validating skill improvements, testing skill effectiveness,
-  preventing priming bias, measuring skill impact on behavior
-
-  DO NOT use when: implementing skills (use skill-authoring instead),
-  creating hooks (use hook-authoring instead)
 version: 1.3.8
 category: testing
-tags: [testing, validation, TDD, subagents, fresh-instances]
+tags:
+- testing
+- validation
+- TDD
+- subagents
+- fresh-instances
 token_budget: 30
 progressive_loading: true
+triggers: test skill, validate skill, skill testing, subagent testing, fresh instance
+  testing, TDD for skills, skill validation
+use_when: validating skill improvements, testing skill effectiveness, preventing priming
+  bias, measuring skill impact on behavior
+do_not_use_when: implementing skills (use skill-authoring instead), creating hooks
+  (use hook-authoring instead)
 ---
 
 # Subagent Testing - TDD for Skills

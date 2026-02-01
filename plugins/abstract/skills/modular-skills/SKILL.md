@@ -1,23 +1,35 @@
 ---
 name: modular-skills
-description: |
-  Architect skills as modular blocks to control token usage and complexity.
-  Triggers: skills, architecture, modular, design-patterns, modularity, skill design, skill architecture, modularization, token optimization, skill structure, refactoring skills, new skill creation, skill complexity.
-  Use when creating skills >150 lines, breaking down monolithic skills, or planning new architecture.
-  Do not use for evaluating existing skills (use skills-eval) or writing human-facing prose (use writing-clearly-and-concisely).
-  Check this skill before starting any new skill development.
+description: Architect skills as modular blocks to control token usage and complexity.
+  Use when creating skills >150 lines, breaking down monolithic skills, or planning
+  new architecture. Do not use for evaluating existing skills (use skills-eval) or
+  writing human-facing prose (use writing-clearly-and-concisely). Check this skill
+  before starting any new skill development.
 category: workflow-optimization
-tags: [architecture, modularity, tokens, skills, design-patterns, skill-design, token-optimization]
+tags:
+- architecture
+- modularity
+- tokens
+- skills
+- design-patterns
+- skill-design
+- token-optimization
 dependencies: []
-tools: [skill-analyzer, token-estimator, module_validator]
+tools:
+- skill-analyzer
+- token-estimator
+- module_validator
 usage_patterns:
-  - skill-design
-  - architecture-review
-  - token-optimization
-  - refactoring-workflows
+- skill-design
+- architecture-review
+- token-optimization
+- refactoring-workflows
 complexity: intermediate
 estimated_tokens: 1200
 version: 1.3.8
+triggers: skills, architecture, modular, design-patterns, modularity, skill design,
+  skill architecture, modularization, token optimization, skill structure, refactoring
+  skills, new skill creation, skill complexity.
 ---
 ## Table of Contents
 

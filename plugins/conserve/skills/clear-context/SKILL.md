@@ -1,27 +1,22 @@
 ---
 name: clear-context
-description: |
-  Automatic context management with graceful handoff to continuation subagent.
-
-  Triggers: context pressure, 80% threshold, auto-clear, context full,
-  continuation, session state, checkpoint
-
-  Use when: Context usage approaches 80% during long-running tasks.
-  This skill enables automatic continuation without manual /clear.
-
-  The key insight: Subagents have fresh context windows. By delegating
-  remaining work to a continuation subagent, we achieve effective "auto-clear"
-  without stopping the workflow.
+description: Automatic context management with graceful handoff to continuation subagent.
 category: conservation
 token_budget: 200
 progressive_loading: true
-
 hooks:
   PreToolUse:
-    - matcher: "Task"
-      command: |
-        echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
+  - matcher: Task
+    command: 'echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
+
+      '
 version: 1.3.8
+triggers: context pressure, 80% threshold, auto-clear, context full, continuation,
+  session state, checkpoint
+use_when: 'Context usage approaches 80% during long-running tasks. This skill enables
+  automatic continuation without manual /clear. The key insight: Subagents have fresh
+  context windows. By delegating remaining work to a continuation subagent, we achieve
+  effective "auto-clear" without stopping the workflow.'
 ---
 ## Table of Contents
 

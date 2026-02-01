@@ -1,33 +1,36 @@
 ---
 name: fpf-review
-description: |
-  Triggers: architecture review, FPF, functional programming framework, systems architecture
-  Architecture review using FPF (Functional Programming Framework) methodology.
+description: Architecture review using FPF (Functional Programming Framework) methodology.
   Evaluates codebases through functional, practical, and foundation perspectives.
-
-  Use when: conducting architecture reviews, evaluating system design
-  DO NOT use when: simple code reviews, bug fixes, documentation updates
 category: review-methodology
-tags: [architecture, review, FPF, functional, systems-design]
+tags:
+- architecture
+- review
+- FPF
+- functional
+- systems-design
 dependencies:
-  - pensive:code-reviewer
-  - imbue:review-core
+- pensive:code-reviewer
+- imbue:review-core
 tools:
-  - Read
-  - Grep
-  - Glob
-  - TodoWrite
+- Read
+- Grep
+- Glob
+- TodoWrite
 usage_patterns:
-  - architecture-analysis
-  - design-evaluation
-  - recommendation-generation
+- architecture-analysis
+- design-evaluation
+- recommendation-generation
 complexity: advanced
 estimated_tokens: 3000
 modules:
-  - modules/functional-perspective.md
-  - modules/practical-perspective.md
-  - modules/foundation-perspective.md
+- modules/functional-perspective.md
+- modules/practical-perspective.md
+- modules/foundation-perspective.md
 version: 1.3.8
+triggers: architecture review, FPF, functional programming framework, systems architecture
+use_when: conducting architecture reviews, evaluating system design
+do_not_use_when: simple code reviews, bug fixes, documentation updates
 ---
 ## Table of Contents
 

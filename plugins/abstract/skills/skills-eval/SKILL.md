@@ -1,46 +1,68 @@
 ---
 name: skills-eval
-description: |
-  Evaluate and improve Claude skill quality through auditing.
-  Triggers: quality-assurance, skills, optimization, tool-use, performance-metrics, skill audit, quality review, compliance check, improvement suggestions, token usage analysis, skill evaluation, skill assessment, skill optimization, skill standards, skill metrics, skill performance.
-  Use when reviewing skill quality, preparing skills for production, or auditing existing skills.
+description: Evaluate and improve Claude skill quality through auditing. Use when
+  reviewing skill quality, preparing skills for production, or auditing existing skills.
   Do not use when creating new skills (use modular-skills) or writing prose (use writing-clearly-and-concisely).
   Use this skill before shipping any skill to production.
 version: 1.3.8
 category: skill-management
-tags: [evaluation, improvement, skills, optimization, quality-assurance, tool-use, performance-metrics]
-dependencies: [modular-skills, performance-optimization]
-tools: [skills-auditor, improvement-suggester, compliance-checker, tool-performance-analyzer, token-usage-tracker]
+tags:
+- evaluation
+- improvement
+- skills
+- optimization
+- quality-assurance
+- tool-use
+- performance-metrics
+dependencies:
+- modular-skills
+- performance-optimization
+tools:
+- skills-auditor
+- improvement-suggester
+- compliance-checker
+- tool-performance-analyzer
+- token-usage-tracker
 provides:
-  infrastructure: ["evaluation-framework", "quality-assurance", "improvement-planning"]
-  patterns: ["skill-analysis", "token-optimization", "modular-design"]
+  infrastructure:
+  - evaluation-framework
+  - quality-assurance
+  - improvement-planning
+  patterns:
+  - skill-analysis
+  - token-optimization
+  - modular-design
   sdk_features:
-    - "agent-sdk-compatibility"
-    - "advanced-metrics"
-    - "dynamic-discovery"
+  - agent-sdk-compatibility
+  - advanced-metrics
+  - dynamic-discovery
 estimated_tokens: 1800
 usage_patterns:
-  - skill-audit
-  - quality-assessment
-  - improvement-planning
-  - skills-inventory
-  - tool-performance-evaluation
-  - dynamic-discovery-optimization
-  - advanced-tool-use-analysis
-  - programmatic-calling-efficiency
-  - context-preservation-quality
-  - token-efficiency-optimization
-  - modular-architecture-validation
-  - integration-testing
-  - compliance-reporting
-  - performance-benchmarking
+- skill-audit
+- quality-assessment
+- improvement-planning
+- skills-inventory
+- tool-performance-evaluation
+- dynamic-discovery-optimization
+- advanced-tool-use-analysis
+- programmatic-calling-efficiency
+- context-preservation-quality
+- token-efficiency-optimization
+- modular-architecture-validation
+- integration-testing
+- compliance-reporting
+- performance-benchmarking
 complexity: advanced
 evaluation_criteria:
-  structure_compliance: 25     # Modular architecture, progressive disclosure
-  metadata_quality: 20         # Complete frontmatter, clear descriptions
-  token_efficiency: 25         # Context optimization, response compression
-  tool_integration: 20         # Tool effectiveness, error handling, performance
-  claude_sdk_compliance: 10    # API compatibility, best practices adherence
+  structure_compliance: 25
+  metadata_quality: 20
+  token_efficiency: 25
+  tool_integration: 20
+  claude_sdk_compliance: 10
+triggers: quality-assurance, skills, optimization, tool-use, performance-metrics,
+  skill audit, quality review, compliance check, improvement suggestions, token usage
+  analysis, skill evaluation, skill assessment, skill optimization, skill standards,
+  skill metrics, skill performance.
 ---
 # Skills Evaluation and Improvement
 

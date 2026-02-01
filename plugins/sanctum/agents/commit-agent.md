@@ -1,73 +1,64 @@
 ---
 name: commit-agent
-description: |
-  Conventional commit message generation agent specializing in change classification,
+description: Conventional commit message generation agent specializing in change classification,
   semantic versioning awareness, and consistent commit formatting.
-
-  Triggers: commit message, conventional commit, semantic versioning, change
-  classification, commit type, breaking change, commit format
-
-  Use when: drafting commit messages for staged changes, classifying change types,
-  formatting breaking change footers, linking issues in commits
-
-  DO NOT use when: analyzing repository state - use git-workspace-agent first.
-  DO NOT use when: preparing full PR - use pr-agent.
-
-  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
-  - Single file with <20 lines? → Parent commits directly
-  - Obvious type (typo, version bump, deps)? → Parent uses `fix(scope): message`
-  - Can write message in <30 seconds? → Parent commits directly
-  ONLY invoke this agent for: multi-file changes, ambiguous classification,
-  breaking changes, or complex scope decisions.
-
-  Generates complete conventional commit messages ready for use.
-tools: [Read, Write, Bash]
+tools:
+- Read
+- Write
+- Bash
 model: haiku
 permissionMode: acceptEdits
 escalation:
   to: sonnet
   hints:
-    - ambiguous_input
-    - high_stakes
-
-# Claude Code 2.1.0+ lifecycle hooks
+  - ambiguous_input
+  - high_stakes
 hooks:
   PreToolUse:
-    - matcher: "Bash"
-      command: |
-        # Validate git commands before execution
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "git (status|diff|log|show)"; then
-          echo "[commit-agent] Git query at $(date): $(echo '$CLAUDE_TOOL_INPUT' | jq -r '.command // empty' 2>/dev/null || echo 'N/A')" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log
-        fi
-      once: false
-    - matcher: "Read"
-      command: |
-        # Track file reads for commit context
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(diff|patch|staged)"; then
-          echo "[commit-agent] Reading staged changes: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log
-        fi
-      once: true  # Only log once per session
+  - matcher: Bash
+    command: "# Validate git commands before execution\nif echo \"$CLAUDE_TOOL_INPUT\"\
+      \ | grep -qE \"git (status|diff|log|show)\"; then\n  echo \"[commit-agent] Git\
+      \ query at $(date): $(echo '$CLAUDE_TOOL_INPUT' | jq -r '.command // empty'\
+      \ 2>/dev/null || echo 'N/A')\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log\n\
+      fi\n"
+    once: false
+  - matcher: Read
+    command: "# Track file reads for commit context\nif echo \"$CLAUDE_TOOL_INPUT\"\
+      \ | grep -qE \"(diff|patch|staged)\"; then\n  echo \"[commit-agent] Reading\
+      \ staged changes: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log\n\
+      fi\n"
+    once: true
   PostToolUse:
-    - matcher: "Bash"
-      command: |
-        # Track commit creation
-        if echo "$CLAUDE_TOOL_INPUT" | grep -q "git commit"; then
-          echo "[commit-agent] ✓ Commit created at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log
-        fi
+  - matcher: Bash
+    command: "# Track commit creation\nif echo \"$CLAUDE_TOOL_INPUT\" | grep -q \"\
+      git commit\"; then\n  echo \"[commit-agent] ✓ Commit created at $(date)\" >>\
+      \ ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log\nfi\n"
   Stop:
-    - command: |
-        echo "[commit-agent] === Session completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log
+  - command: 'echo "[commit-agent] === Session completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/commit-audit.log
 
+      '
 examples:
-  - context: User has staged changes ready to commit
-    user: "Help me write a commit message for these changes"
-    assistant: "I'll use the commit-agent to analyze your changes and draft a conventional commit message."
-  - context: User unsure about commit type
-    user: "Is this a fix or a refactor?"
-    assistant: "Let me use the commit-agent to classify your changes properly."
-  - context: User making breaking changes
-    user: "I'm changing the API, how should I document this in the commit?"
-    assistant: "I'll use the commit-agent to format the breaking change footer correctly."
+- context: User has staged changes ready to commit
+  user: Help me write a commit message for these changes
+  assistant: I'll use the commit-agent to analyze your changes and draft a conventional
+    commit message.
+- context: User unsure about commit type
+  user: Is this a fix or a refactor?
+  assistant: Let me use the commit-agent to classify your changes properly.
+- context: User making breaking changes
+  user: I'm changing the API, how should I document this in the commit?
+  assistant: I'll use the commit-agent to format the breaking change footer correctly.
+triggers: commit message, conventional commit, semantic versioning, change classification,
+  commit type, breaking change, commit format
+use_when: drafting commit messages for staged changes, classifying change types, formatting
+  breaking change footers, linking issues in commits
+do_not_use_when: 'analyzing repository state - use git-workspace-agent first. preparing
+  full PR - use pr-agent. ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling
+  this agent): - Single file with <20 lines? → Parent commits directly - Obvious type
+  (typo, version bump, deps)? → Parent uses `fix(scope): message` - Can write message
+  in <30 seconds? → Parent commits directly ONLY invoke this agent for: multi-file
+  changes, ambiguous classification, breaking changes, or complex scope decisions.
+  Generates complete conventional commit messages ready for use.'
 ---
 
 # Commit Agent

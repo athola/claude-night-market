@@ -1,26 +1,35 @@
 ---
 name: bloat-detector
-description: |
-  Detect codebase bloat through progressive analysis: dead code, duplication, complexity, documentation bloat.
-
-  Triggers: bloat detection, dead code, code cleanup, duplication, technical debt, unused code
-
-  Use when: context usage high, quarterly maintenance, pre-release cleanup, before refactoring
-  DO NOT use when: active feature development, time-sensitive bugs, codebase < 1000 lines
+description: 'Detect codebase bloat through progressive analysis: dead code, duplication,
+  complexity, documentation bloat.'
 category: conservation
-tags: [bloat, cleanup, static-analysis, technical-debt, optimization]
-tools: [Bash, Grep, Glob, Read]
+tags:
+- bloat
+- cleanup
+- static-analysis
+- technical-debt
+- optimization
+tools:
+- Bash
+- Grep
+- Glob
+- Read
 modules:
-  - quick-scan
-  - git-history-analysis
-  - code-bloat-patterns
-  - ai-generated-bloat
-  - documentation-bloat
-  - static-analysis-integration
-  - remediation-types
+- quick-scan
+- git-history-analysis
+- code-bloat-patterns
+- ai-generated-bloat
+- documentation-bloat
+- static-analysis-integration
+- remediation-types
 progressive_loading: true
 estimated_tokens: 400
 version: 1.3.8
+triggers: bloat detection, dead code, code cleanup, duplication, technical debt, unused
+  code
+use_when: context usage high, quarterly maintenance, pre-release cleanup, before refactoring
+do_not_use_when: active feature development, time-sensitive bugs, codebase < 1000
+  lines
 ---
 ## Table of Contents
 

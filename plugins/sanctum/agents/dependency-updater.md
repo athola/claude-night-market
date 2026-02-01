@@ -1,76 +1,69 @@
 ---
 name: dependency-updater
-description: |
-  Dependency analysis and update agent for multi-ecosystem repositories.
+description: Dependency analysis and update agent for multi-ecosystem repositories.
   Scans pyproject.toml, Cargo.toml, package.json, and go.mod files.
-
-  Triggers: update dependencies, outdated packages, dependency conflicts,
-  version updates, security vulnerabilities, upgrade packages
-
-  Use when: checking for outdated dependencies, updating package versions,
-  resolving version conflicts, preparing dependency update PRs
-
-  DO NOT use when: installing new dependencies - use ecosystem-specific tools.
-  DO NOT use when: debugging dependency issues - analyze manually first.
-
-  Provides conflict detection, compatible version resolution, and code migration
-  assistance for breaking changes.
-tools: [Bash, Read, Write, Edit, Glob, Grep, TodoWrite]
+tools:
+- Bash
+- Read
+- Write
+- Edit
+- Glob
+- Grep
+- TodoWrite
 model: sonnet
 permissionMode: acceptEdits
 escalation:
   to: opus
   hints:
-    - complex_conflict_resolution
-    - breaking_api_changes
-    - security_vulnerabilities
-
-# Claude Code 2.1.0+ lifecycle hooks
+  - complex_conflict_resolution
+  - breaking_api_changes
+  - security_vulnerabilities
 hooks:
   PreToolUse:
-    - matcher: "Bash"
-      command: |
-        # Log and validate package manager operations
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(npm|pip|uv|cargo|go) (install|add|update|upgrade|remove)"; then
-          cmd=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // empty' 2>/dev/null || echo 'N/A')
-          echo "[dependency-updater] ⚠️  Package operation: $cmd" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
-
-          # Security: Warn on install operations
-          if echo "$cmd" | grep -qE "install|add"; then
-            echo "[dependency-updater] WARNING: Installing new package - ensure security review completed" >&2
-          fi
-        fi
-      once: false
-    - matcher: "Write|Edit"
-      command: |
-        # Track dependency file modifications
-        file=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.file_path // empty' 2>/dev/null)
-        if echo "$file" | grep -qE "(package\.json|package-lock\.json|Cargo\.toml|Cargo\.lock|pyproject\.toml|uv\.lock|go\.mod|go\.sum)"; then
-          echo "[dependency-updater] 📝 Modifying dependency file: $file at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
-        fi
-      once: false
+  - matcher: Bash
+    command: "# Log and validate package manager operations\nif echo \"$CLAUDE_TOOL_INPUT\"\
+      \ | grep -qE \"(npm|pip|uv|cargo|go) (install|add|update|upgrade|remove)\";\
+      \ then\n  cmd=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r '.command // empty' 2>/dev/null\
+      \ || echo 'N/A')\n  echo \"[dependency-updater] ⚠️  Package operation: $cmd\"\
+      \ >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n\n  # Security: Warn\
+      \ on install operations\n  if echo \"$cmd\" | grep -qE \"install|add\"; then\n\
+      \    echo \"[dependency-updater] WARNING: Installing new package - ensure security\
+      \ review completed\" >&2\n  fi\nfi\n"
+    once: false
+  - matcher: Write|Edit
+    command: "# Track dependency file modifications\nfile=$(echo \"$CLAUDE_TOOL_INPUT\"\
+      \ | jq -r '.file_path // empty' 2>/dev/null)\nif echo \"$file\" | grep -qE \"\
+      (package\\.json|package-lock\\.json|Cargo\\.toml|Cargo\\.lock|pyproject\\.toml|uv\\\
+      .lock|go\\.mod|go\\.sum)\"; then\n  echo \"[dependency-updater] \U0001F4DD Modifying\
+      \ dependency file: $file at $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n\
+      fi\n"
+    once: false
   PostToolUse:
-    - matcher: "Bash"
-      command: |
-        # Capture version check results
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(outdated|list --outdated|npm outdated|cargo outdated)"; then
-          echo "[dependency-updater] ✓ Version check completed: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
-        fi
+  - matcher: Bash
+    command: "# Capture version check results\nif echo \"$CLAUDE_TOOL_INPUT\" | grep\
+      \ -qE \"(outdated|list --outdated|npm outdated|cargo outdated)\"; then\n  echo\
+      \ \"[dependency-updater] ✓ Version check completed: $(date)\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n\
+      fi\n"
   Stop:
-    - command: |
-        echo "[dependency-updater] === Update session completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log
-        # Optional: Export summary to security dashboard
-        if [ -f ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log ]; then
-          echo "[dependency-updater] Audit log: $(wc -l < ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log) entries" >&2
-        fi
-
+  - command: "echo \"[dependency-updater] === Update session completed at $(date)\
+      \ ===\" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\n# Optional: Export\
+      \ summary to security dashboard\nif [ -f ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log\
+      \ ]; then\n  echo \"[dependency-updater] Audit log: $(wc -l < ${CLAUDE_CODE_TMPDIR:-/tmp}/dependency-audit.log)\
+      \ entries\" >&2\nfi\n"
 examples:
-  - context: User wants to check for outdated dependencies
-    user: "Check if any dependencies need updating"
-    assistant: "I'll use the dependency-updater agent to scan all dependency files."
-  - context: User wants to update a specific ecosystem
-    user: "Update my Python dependencies"
-    assistant: "I'll use the dependency-updater agent to check pyproject.toml files."
+- context: User wants to check for outdated dependencies
+  user: Check if any dependencies need updating
+  assistant: I'll use the dependency-updater agent to scan all dependency files.
+- context: User wants to update a specific ecosystem
+  user: Update my Python dependencies
+  assistant: I'll use the dependency-updater agent to check pyproject.toml files.
+triggers: update dependencies, outdated packages, dependency conflicts, version updates,
+  security vulnerabilities, upgrade packages
+use_when: checking for outdated dependencies, updating package versions, resolving
+  version conflicts, preparing dependency update PRs
+do_not_use_when: installing new dependencies - use ecosystem-specific tools. debugging
+  dependency issues - analyze manually first. Provides conflict detection, compatible
+  version resolution, and code migration assistance for breaking changes.
 ---
 
 # Dependency Updater Agent

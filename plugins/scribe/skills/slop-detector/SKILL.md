@@ -1,24 +1,35 @@
 ---
 name: slop-detector
-description: |
-  Detect and flag AI-generated content markers in documentation and prose.
-  Triggers: ai slop, ai-generated, llm markers, chatgpt phrases, claude tells, slop detection, ai cleanup, humanize text, remove ai markers, detect chatgpt, detect llm, writing quality, ai tells.
-  Use when reviewing documentation for AI markers, cleaning up LLM-generated content, or auditing prose quality.
-  Do not use when generating new content (use doc-generator) or learning writing styles (use style-learner).
+description: Detect and flag AI-generated content markers in documentation and prose.
+  Use when reviewing documentation for AI markers, cleaning up LLM-generated content,
+  or auditing prose quality. Do not use when generating new content (use doc-generator)
+  or learning writing styles (use style-learner).
 category: writing-quality
-tags: [ai-detection, slop, writing, cleanup, documentation, quality]
-tools: [Read, Grep, TodoWrite]
+tags:
+- ai-detection
+- slop
+- writing
+- cleanup
+- documentation
+- quality
+tools:
+- Read
+- Grep
+- TodoWrite
 complexity: medium
 estimated_tokens: 2800
 progressive_loading: true
 modules:
-  - vocabulary-patterns
-  - structural-patterns
-  - fiction-patterns
-  - remediation-strategies
+- vocabulary-patterns
+- structural-patterns
+- fiction-patterns
+- remediation-strategies
 dependencies:
-  - scribe:shared
+- scribe:shared
 version: 1.3.8
+triggers: ai slop, ai-generated, llm markers, chatgpt phrases, claude tells, slop
+  detection, ai cleanup, humanize text, remove ai markers, detect chatgpt, detect
+  llm, writing quality, ai tells.
 ---
 
 # AI Slop Detection

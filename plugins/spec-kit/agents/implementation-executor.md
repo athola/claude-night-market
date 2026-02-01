@@ -1,30 +1,31 @@
 ---
 name: implementation-executor
-description: |
-  Execute implementation tasks systematically following the task plan with
+description: Execute implementation tasks systematically following the task plan with
   TDD approach and progress tracking.
-
-  Triggers: implement tasks, execute tasks, systematic implementation, phase
-  execution, task completion, TDD implementation, code generation
-
-  Use when: executing implementation tasks from tasks.md, continuing
-  implementation, implementing specific phases, systematic code generation
-
-  DO NOT use when: generating tasks - use task-generator agent first.
-  DO NOT use when: analyzing specs - use spec-analyzer agent.
-
-  Trigger proactively during /speckit-implement commands.
-tools: [Read, Write, Edit, Bash, Grep, Glob]
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- Grep
+- Glob
 examples:
-  - context: User has tasks.md ready and wants to start coding
-    user: "Implement the tasks in tasks.md"
-    assistant: "I'll use the implementation-executor agent to systematically work through your task list."
-  - context: User wants to continue implementation
-    user: "Continue with the next implementation tasks"
-    assistant: "Let me pick up where we left off and execute the pending tasks."
-  - context: User wants specific phase implemented
-    user: "Implement phase 2 of the feature"
-    assistant: "I'll execute all Phase 2 tasks from your tasks.md."
+- context: User has tasks.md ready and wants to start coding
+  user: Implement the tasks in tasks.md
+  assistant: I'll use the implementation-executor agent to systematically work through
+    your task list.
+- context: User wants to continue implementation
+  user: Continue with the next implementation tasks
+  assistant: Let me pick up where we left off and execute the pending tasks.
+- context: User wants specific phase implemented
+  user: Implement phase 2 of the feature
+  assistant: I'll execute all Phase 2 tasks from your tasks.md.
+triggers: implement tasks, execute tasks, systematic implementation, phase execution,
+  task completion, TDD implementation, code generation
+use_when: executing implementation tasks from tasks.md, continuing implementation,
+  implementing specific phases, systematic code generation
+do_not_use_when: generating tasks - use task-generator agent first. analyzing specs
+  - use spec-analyzer agent. Trigger proactively during /speckit-implement commands.
 ---
 
 # Implementation Executor Agent

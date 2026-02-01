@@ -1,15 +1,19 @@
 ---
 name: session-management
-description: |
-  Triggers: session, resume, rename, checkpoint
-  Manage Claude Code sessions with naming, checkpointing, and resume strategies.
-  Use when: organizing long-running work, creating debug checkpoints, managing PR reviews
+description: Manage Claude Code sessions with naming, checkpointing, and resume strategies.
 category: workflow
-tags: [session, resume, checkpoint, debugging]
-tools: [Bash]
+tags:
+- session
+- resume
+- checkpoint
+- debugging
+tools:
+- Bash
 complexity: low
 estimated_tokens: 400
 version: 1.3.8
+triggers: session, resume, rename, checkpoint
+use_when: organizing long-running work, creating debug checkpoints, managing PR reviews
 ---
 
 # Session Management

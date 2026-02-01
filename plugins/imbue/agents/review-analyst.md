@@ -1,18 +1,18 @@
 ---
 name: review-analyst
-description: |
-  Autonomous agent for conducting structured reviews with evidence gathering.
-
-  Triggers: detailed review, code review with evidence, architecture assessment,
-  security audit, quality review, structured findings
-
-  Use when: detailed code reviews requiring evidence trails, architecture
-  assessments with structured outputs, security audits with reproducible findings
-
-  DO NOT use when: quick code check without formal review - use pensive skills.
-  DO NOT use when: just catching up on changes - use catchup skill.
-tools: [Read, Glob, Grep, Bash]
+description: Autonomous agent for conducting structured reviews with evidence gathering.
+tools:
+- Read
+- Glob
+- Grep
+- Bash
 skills: imbue:review-core, imbue:evidence-logging, imbue:structured-output, imbue:diff-analysis
+triggers: detailed review, code review with evidence, architecture assessment, security
+  audit, quality review, structured findings
+use_when: detailed code reviews requiring evidence trails, architecture assessments
+  with structured outputs, security audits with reproducible findings
+do_not_use_when: quick code check without formal review - use pensive skills. just
+  catching up on changes - use catchup skill.
 ---
 
 # Review Analyst Agent

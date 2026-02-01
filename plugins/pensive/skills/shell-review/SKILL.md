@@ -1,23 +1,32 @@
 ---
 name: shell-review
-description: |
-  Audit shell scripts for correctness, portability, and common pitfalls.
-
-  Triggers: shell script, bash, sh, script review, pipeline, exit code
-  Use when: reviewing shell scripts, CI scripts, hook scripts, wrapper scripts
-  DO NOT use when: creating new scripts - use attune:workflow-setup
+description: Audit shell scripts for correctness, portability, and common pitfalls.
 category: build
-tags: [shell, bash, posix, scripting, ci, hooks]
-tools: [Read, Grep, Bash]
+tags:
+- shell
+- bash
+- posix
+- scripting
+- ci
+- hooks
+tools:
+- Read
+- Grep
+- Bash
 complexity: intermediate
 estimated_tokens: 200
 progressive_loading: true
-dependencies: [pensive:shared, imbue:evidence-logging]
+dependencies:
+- pensive:shared
+- imbue:evidence-logging
 modules:
-  - exit-codes
-  - portability
-  - safety-patterns
+- exit-codes
+- portability
+- safety-patterns
 version: 1.3.8
+triggers: shell script, bash, sh, script review, pipeline, exit code
+use_when: reviewing shell scripts, CI scripts, hook scripts, wrapper scripts
+do_not_use_when: creating new scripts - use attune:workflow-setup
 ---
 ## Table of Contents
 
