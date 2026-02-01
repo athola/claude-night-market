@@ -37,7 +37,7 @@ hooks:
   Stop:
     - command: |
         echo "[skill:git-workspace-review] === Analysis completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Git Workspace Review

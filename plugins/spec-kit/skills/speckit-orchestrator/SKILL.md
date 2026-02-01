@@ -27,7 +27,7 @@ usage_patterns:
   - skill-loading
 complexity: intermediate
 estimated_tokens: 1500
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

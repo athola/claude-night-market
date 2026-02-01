@@ -33,7 +33,7 @@ dependencies:
   - scribe:doc-generator
 optional_dependencies:
   - elements-of-style:writing-clearly-and-concisely
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

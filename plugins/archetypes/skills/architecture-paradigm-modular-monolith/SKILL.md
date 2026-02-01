@@ -8,7 +8,7 @@ Triggers: monolith, architecture, modular, team-autonomy, modular-monolith
   Triggers: modular monolith, module boundaries, single deployment, team autonomy
   Use when: teams need autonomy without distributed overhead
   DO NOT use when: already using microservices or system is small.
-version: 1.3.7
+version: 1.3.8
 category: architectural-pattern
 tags: [architecture, modular-monolith, monolith, internal-boundaries, team-autonomy]
 dependencies: []

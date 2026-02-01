@@ -23,7 +23,7 @@ scripts: []
 usage_patterns: [session-context, project-tracking, state-management]
 complexity: intermediate
 estimated_tokens: 500
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

@@ -16,7 +16,7 @@ Triggers: quality-assurance, test-generation, test, bdd, pytest
   DO NOT use when: writing production code - focus on implementation first.
 
   Run git-workspace-review first to understand which tests need updates.
-version: 1.3.7
+version: 1.3.8
 category: testing-automation
 tags: [tdd, bdd, testing, quality-assurance, test-generation, pytest]
 dependencies: [test-driven-development, git-workspace-review, file-analysis]

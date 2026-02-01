@@ -19,7 +19,7 @@ progressive_loading: true
 dependencies:
   hub: [context-optimization, token-conservation]
   modules: [mcp-subagents, mcp-patterns, mcp-validation]
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

@@ -18,7 +18,7 @@ modules:
 dependencies:
   - scribe:shared
   - scribe:slop-detector
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Documentation Generator

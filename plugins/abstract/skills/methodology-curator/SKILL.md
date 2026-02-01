@@ -5,7 +5,7 @@ description: |
   Triggers: methodology, framework, expert approach, best practices, masters, proven method, domain expertise, how should I approach, what's the best way, evaluate skill, review methodology, is this grounded, optimization check.
   Use when starting creation workflows, evaluating methodology gaps, or seeking domain expertise.
   Do not use if you already have a specific methodology or are fixing syntax/structural issues.
-version: 1.3.7
+version: 1.3.8
 category: meta-skills
 tags: [methodology, frameworks, expertise, curation, design, evaluation]
 dependencies: []

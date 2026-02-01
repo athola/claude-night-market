@@ -22,7 +22,7 @@ modules:
   - modules/acceptance-criteria.md
   - modules/red-flags.md
   - modules/iron-law-enforcement.md
-version: 1.3.7
+version: 1.3.8
 ---
 # Proof of Work
 

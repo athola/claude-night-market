@@ -6,7 +6,7 @@ description: |
   Use when reviewing skill quality, preparing skills for production, or auditing existing skills.
   Do not use when creating new skills (use modular-skills) or writing prose (use writing-clearly-and-concisely).
   Use this skill before shipping any skill to production.
-version: 1.3.7
+version: 1.3.8
 category: skill-management
 tags: [evaluation, improvement, skills, optimization, quality-assurance, tool-use, performance-metrics]
 dependencies: [modular-skills, performance-optimization]

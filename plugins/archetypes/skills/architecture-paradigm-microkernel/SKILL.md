@@ -9,7 +9,7 @@ Triggers: extensibility, architecture, platform-design, plugin, microkernel
 
   Use when: platforms/IDEs/marketplaces, core stability critical, plugin isolation needed
   DO NOT use when: selecting paradigms (use architecture-paradigms first), no extensibility needed
-version: 1.3.7
+version: 1.3.8
 category: architectural-pattern
 tags: [architecture, microkernel, plugin, extensibility, platform-design]
 dependencies: []

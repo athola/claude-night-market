@@ -18,7 +18,7 @@ Triggers: architecture, team-autonomy, scalability, distributed-systems, microse
   DO NOT use when: strong transactional consistency required across operations.
 
   Consult this skill when designing or evolving microservices architectures.
-version: 1.3.7
+version: 1.3.8
 category: architectural-pattern
 tags: [architecture, microservices, distributed-systems, team-autonomy, scalability]
 dependencies: []

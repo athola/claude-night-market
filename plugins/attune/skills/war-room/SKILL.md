@@ -19,7 +19,7 @@ modules:
   - modules/expert-roles.md
   - modules/deliberation-protocol.md
   - modules/merkle-dag.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

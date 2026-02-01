@@ -15,7 +15,7 @@ dependencies: []
 estimated_tokens: 400
 provides:
   patterns: [coverage-thresholds, quality-metrics, anti-patterns]
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Testing Quality Standards

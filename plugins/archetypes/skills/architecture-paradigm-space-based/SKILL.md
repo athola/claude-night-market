@@ -8,7 +8,7 @@ Triggers: data-grid, space, architecture, based, in-memory
   Triggers: space-based, data grid, in-memory, linear scaling, high traffic
   Use when: traffic overwhelms database nodes or linear scalability needed
   DO NOT use when: data doesn't fit in memory or simpler caching would work.
-version: 1.3.7
+version: 1.3.8
 category: architectural-pattern
 tags: [architecture, space-based, data-grid, scalability, in-memory, stateful]
 dependencies: []

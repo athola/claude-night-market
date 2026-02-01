@@ -23,7 +23,7 @@ scripts: [garden_metrics.py]
 usage_patterns: [garden-management, knowledge-curation, content-lifecycle]
 complexity: intermediate
 estimated_tokens: 500
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

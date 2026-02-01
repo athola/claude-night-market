@@ -26,7 +26,7 @@ complexity: intermediate
 estimated_tokens: 400
 progressive_loading: true
 dependencies: [pensive:shared, imbue:evidence-logging]
-version: 1.3.7
+version: 1.3.8
 ---
 # API Review Workflow
 

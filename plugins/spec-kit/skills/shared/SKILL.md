@@ -20,7 +20,7 @@ provides:
   infrastructure: [tech-stack-patterns, checklist-dimensions, artifact-structure]
 reusable_by: [all spec-kit skills and commands]
 estimated_tokens: 200
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Shared Infrastructure

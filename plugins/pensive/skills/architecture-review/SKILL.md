@@ -34,7 +34,7 @@ modules:
   - modules/adr-audit.md
   - modules/coupling-analysis.md
   - modules/principle-checks.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

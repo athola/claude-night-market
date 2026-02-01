@@ -22,7 +22,7 @@ references:
   - delegation-core/../../leyline/skills/quota-management/SKILL.md
   - delegation-core/../../leyline/skills/usage-logging/SKILL.md
   - delegation-core/../../leyline/skills/error-patterns/SKILL.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

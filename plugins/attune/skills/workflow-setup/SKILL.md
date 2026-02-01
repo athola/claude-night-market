@@ -5,7 +5,7 @@ description: Configure GitHub Actions workflows for CI/CD (test, lint, typecheck
 Triggers: github, actions, publish, configure, workflows
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

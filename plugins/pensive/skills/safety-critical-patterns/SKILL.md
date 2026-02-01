@@ -13,7 +13,7 @@ tags: [safety, defensive-coding, assertions, NASA, robustness, verification]
 tools: [Read, Grep, Glob]
 complexity: intermediate
 estimated_tokens: 600
-version: 1.3.7
+version: 1.3.8
 dependencies:
   - pensive:shared
   - pensive:code-refinement

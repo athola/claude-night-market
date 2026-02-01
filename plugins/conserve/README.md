@@ -52,7 +52,7 @@ Detects AI-specific code quality issues such as tab-completion bloat (repeated s
 | `unbloat-remediator` | Executes bloat remediation workflows. | Bash, Grep, Glob, Read, Write, Edit | Sonnet/Opus |
 | `ai-hygiene-auditor` | Detects AI-generated code quality issues. | Bash, Grep, Glob, Read | Sonnet |
 | `context-optimizer` | Assesses and optimizes MECW. | Read, Grep | Sonnet |
-| `continuation-agent` | Continues work from session state checkpoints. | Read, Write, Edit, Bash, Glob, Grep, Task | default |
+| `continuation-agent` | Continues work from session state checkpoints. | Read, Write, Edit, Bash, Glob, Grep | default |
 
 ## Skills
 
@@ -86,7 +86,18 @@ Auto-approves safe patterns like read-only operations, search, and git status. A
 
 ### Context Usage
 
-Monitoring levels trigger actions based on context pressure: LOW (<40%), WARNING (40-50%), CRITICAL (50-80%), and EMERGENCY (80%+). At the EMERGENCY level, the `clear-context` skill automatically saves state to `.claude/session-state.md` and spawns a continuation agent with a fresh context.
+Monitoring levels trigger actions based on context pressure: LOW (<40%), WARNING (40-50%), CRITICAL (50-80%), and EMERGENCY (80%+). At the EMERGENCY level, the `clear-context` skill saves state to `.claude/session-state.md` and either spawns a continuation agent via Task tool or guides graceful wrap-up if Task tool is unavailable.
+
+### Context Measurement
+
+Two methods are available depending on the use case:
+
+| Method | Use Case | Accuracy | Speed |
+|--------|----------|----------|-------|
+| File size heuristic | Real-time hooks | Approximate (~800KB ≈ 100%) | Fast |
+| CLI `/context` command | Headless/batch automation | Precise token breakdown | Slower |
+
+For headless sessions, use `claude -p "/context" --verbose --output-format json` to get precise token breakdowns. See `/conserve:optimize-context` for full documentation.
 
 ## Requirements
 

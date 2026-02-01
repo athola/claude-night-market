@@ -36,7 +36,7 @@ modules:
   - concurrency-patterns.md
   - unsafe-audit.md
   - cargo-dependencies.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

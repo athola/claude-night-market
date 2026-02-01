@@ -18,7 +18,7 @@ Triggers: governance, escalation, orchestration, model-selection, agents
   DO NOT use when: "just to be safe" - assess actual complexity instead.
 
   NEVER escalate without investigation first. This is the Iron Law.
-version: 1.3.7
+version: 1.3.8
 category: agent-workflow
 tags: [escalation, model-selection, governance, agents, orchestration]
 dependencies: []
