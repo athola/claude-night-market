@@ -39,33 +39,9 @@ class TestContextWarningHook:
     As a context optimization workflow
     I want to receive warnings at 40% and critical alerts at 50%
     So that I can proactively optimize context usage
+
+    Uses shared fixture: context_warning_module from conftest.py
     """
-
-    @pytest.fixture
-    def context_warning_module(self):
-        """Import the context_warning module."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        # Get absolute path to context_warning.py
-        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-        module_path = hooks_path / "context_warning.py"
-
-        # Load module using importlib
-        spec = importlib.util.spec_from_file_location("context_warning", module_path)
-        context_warning = importlib.util.module_from_spec(spec)
-        sys.modules["context_warning"] = context_warning
-        spec.loader.exec_module(context_warning)
-
-        return {
-            "WARNING_THRESHOLD": context_warning.WARNING_THRESHOLD,
-            "CRITICAL_THRESHOLD": context_warning.CRITICAL_THRESHOLD,
-            "EMERGENCY_THRESHOLD": context_warning.EMERGENCY_THRESHOLD,
-            "ContextSeverity": context_warning.ContextSeverity,
-            "ContextAlert": context_warning.ContextAlert,
-            "assess_context_usage": context_warning.assess_context_usage,
-        }
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -190,7 +166,7 @@ class TestContextWarningHook:
         Given context usage is at or above 80%
         When assessing context usage
         Then it should return EMERGENCY severity
-        And recommend invoking clear-context skill.
+        And recommend completing current work gracefully.
         """
         assess = context_warning_module["assess_context_usage"]
         ContextSeverity = context_warning_module["ContextSeverity"]
@@ -200,7 +176,8 @@ class TestContextWarningHook:
         assert alert.severity == ContextSeverity.EMERGENCY
         assert alert.usage_percent == EIGHTY_PERCENT
         assert "EMERGENCY" in alert.message
-        assert any("clear-context" in rec.lower() for rec in alert.recommendations)
+        # Updated: now recommends graceful completion instead of Task tool invocation
+        assert any("complete" in rec.lower() for rec in alert.recommendations)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -212,7 +189,7 @@ class TestContextWarningHook:
         Given context usage is above 80%
         When assessing context usage
         Then it should return EMERGENCY severity
-        And include auto-clear workflow instructions.
+        And include graceful wrap-up instructions.
         """
         assess = context_warning_module["assess_context_usage"]
         ContextSeverity = context_warning_module["ContextSeverity"]
@@ -224,7 +201,9 @@ class TestContextWarningHook:
         assert alert.severity == ContextSeverity.EMERGENCY
         assert alert.usage_percent == ninety_percent
         assert "AUTO-CLEAR" in alert.message
-        assert any("stop" in rec.lower() for rec in alert.recommendations)
+        # Updated: now recommends graceful completion (Task tool unavailable)
+        assert any("complete" in rec.lower() for rec in alert.recommendations)
+        assert any("summarize" in rec.lower() for rec in alert.recommendations)
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -372,28 +351,13 @@ class TestContextWarningEdgeCases:
     As a robust hook
     I want to handle edge cases gracefully
     So that the hook never crashes unexpectedly
+
+    Uses shared fixture: context_warning_full_module from conftest.py
     """
-
-    @pytest.fixture
-    def context_warning_module(self):
-        """Import the context_warning module."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-        module_path = hooks_path / "context_warning.py"
-
-        spec = importlib.util.spec_from_file_location("context_warning", module_path)
-        context_warning = importlib.util.module_from_spec(spec)
-        sys.modules["context_warning"] = context_warning
-        spec.loader.exec_module(context_warning)
-
-        return context_warning
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_invalid_negative_usage_raises(self, context_warning_module) -> None:
+    def test_invalid_negative_usage_raises(self, context_warning_full_module) -> None:
         """Scenario: Negative usage value raises ValueError.
 
         Given a negative context usage value
@@ -401,11 +365,11 @@ class TestContextWarningEdgeCases:
         Then it should raise ValueError.
         """
         with pytest.raises(ValueError, match="must be between 0 and 1"):
-            context_warning_module.assess_context_usage(-0.1)
+            context_warning_full_module.assess_context_usage(-0.1)
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_invalid_over_100_percent_raises(self, context_warning_module) -> None:
+    def test_invalid_over_100_percent_raises(self, context_warning_full_module) -> None:
         """Scenario: Usage over 100% raises ValueError.
 
         Given context usage over 1.0 (100%)
@@ -413,55 +377,55 @@ class TestContextWarningEdgeCases:
         Then it should raise ValueError.
         """
         with pytest.raises(ValueError, match="must be between 0 and 1"):
-            context_warning_module.assess_context_usage(1.1)
+            context_warning_full_module.assess_context_usage(1.1)
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_boundary_at_exactly_zero(self, context_warning_module) -> None:
+    def test_boundary_at_exactly_zero(self, context_warning_full_module) -> None:
         """Scenario: Context at exactly 0% is OK.
 
         Given context usage at exactly 0%
         When assessing context usage
         Then severity should be OK.
         """
-        alert = context_warning_module.assess_context_usage(0.0)
-        assert alert.severity == context_warning_module.ContextSeverity.OK
+        alert = context_warning_full_module.assess_context_usage(0.0)
+        assert alert.severity == context_warning_full_module.ContextSeverity.OK
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_boundary_at_exactly_100_percent(self, context_warning_module) -> None:
+    def test_boundary_at_exactly_100_percent(self, context_warning_full_module) -> None:
         """Scenario: Context at exactly 100% is EMERGENCY.
 
         Given context usage at exactly 100%
         When assessing context usage
         Then severity should be EMERGENCY (triggers auto-clear).
         """
-        alert = context_warning_module.assess_context_usage(1.0)
-        assert alert.severity == context_warning_module.ContextSeverity.EMERGENCY
+        alert = context_warning_full_module.assess_context_usage(1.0)
+        assert alert.severity == context_warning_full_module.ContextSeverity.EMERGENCY
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_boundary_just_below_warning(self, context_warning_module) -> None:
+    def test_boundary_just_below_warning(self, context_warning_full_module) -> None:
         """Scenario: Context at 39.99% is OK.
 
         Given context usage just below 40%
         When assessing context usage
         Then severity should be OK.
         """
-        alert = context_warning_module.assess_context_usage(0.3999)
-        assert alert.severity == context_warning_module.ContextSeverity.OK
+        alert = context_warning_full_module.assess_context_usage(0.3999)
+        assert alert.severity == context_warning_full_module.ContextSeverity.OK
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_boundary_just_below_critical(self, context_warning_module) -> None:
+    def test_boundary_just_below_critical(self, context_warning_full_module) -> None:
         """Scenario: Context at 49.99% is WARNING.
 
         Given context usage just below 50%
         When assessing context usage
         Then severity should be WARNING.
         """
-        alert = context_warning_module.assess_context_usage(0.4999)
-        assert alert.severity == context_warning_module.ContextSeverity.WARNING
+        alert = context_warning_full_module.assess_context_usage(0.4999)
+        assert alert.severity == context_warning_full_module.ContextSeverity.WARNING
 
 
 class TestFormatHookOutput:
@@ -470,29 +434,14 @@ class TestFormatHookOutput:
     As a hook
     I want correct JSON output format
     So that Claude Code can process warnings
+
+    Uses shared fixture: context_warning_full_module from conftest.py
     """
-
-    @pytest.fixture
-    def context_warning_module(self):
-        """Import the context_warning module."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-        module_path = hooks_path / "context_warning.py"
-
-        spec = importlib.util.spec_from_file_location("context_warning", module_path)
-        context_warning = importlib.util.module_from_spec(spec)
-        sys.modules["context_warning"] = context_warning
-        spec.loader.exec_module(context_warning)
-
-        return context_warning
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_warning_output_has_additional_context(
-        self, context_warning_module
+        self, context_warning_full_module
     ) -> None:
         """Scenario: WARNING alert includes additionalContext.
 
@@ -500,8 +449,8 @@ class TestFormatHookOutput:
         When formatting hook output
         Then additionalContext should be present.
         """
-        alert = context_warning_module.assess_context_usage(0.45)
-        output = context_warning_module.format_hook_output(alert)
+        alert = context_warning_full_module.assess_context_usage(0.45)
+        output = context_warning_full_module.format_hook_output(alert)
 
         assert "hookSpecificOutput" in output
         assert output["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
@@ -511,7 +460,7 @@ class TestFormatHookOutput:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_critical_output_has_additional_context(
-        self, context_warning_module
+        self, context_warning_full_module
     ) -> None:
         """Scenario: CRITICAL alert includes additionalContext.
 
@@ -519,8 +468,8 @@ class TestFormatHookOutput:
         When formatting hook output
         Then additionalContext should be present with recommendations.
         """
-        alert = context_warning_module.assess_context_usage(0.60)
-        output = context_warning_module.format_hook_output(alert)
+        alert = context_warning_full_module.assess_context_usage(0.60)
+        output = context_warning_full_module.format_hook_output(alert)
 
         assert "additionalContext" in output["hookSpecificOutput"]
         assert "CRITICAL" in output["hookSpecificOutput"]["additionalContext"]
@@ -528,29 +477,29 @@ class TestFormatHookOutput:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_ok_output_no_additional_context(self, context_warning_module) -> None:
+    def test_ok_output_no_additional_context(self, context_warning_full_module) -> None:
         """Scenario: OK alert has no additionalContext.
 
         Given an OK severity alert
         When formatting hook output
         Then additionalContext should NOT be present.
         """
-        alert = context_warning_module.assess_context_usage(0.20)
-        output = context_warning_module.format_hook_output(alert)
+        alert = context_warning_full_module.assess_context_usage(0.20)
+        output = context_warning_full_module.format_hook_output(alert)
 
         assert "additionalContext" not in output["hookSpecificOutput"]
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_output_is_json_serializable(self, context_warning_module) -> None:
+    def test_output_is_json_serializable(self, context_warning_full_module) -> None:
         """Scenario: Hook output can be serialized to JSON.
 
         Given any alert
         When formatting and serializing to JSON
         Then it should produce valid JSON.
         """
-        alert = context_warning_module.assess_context_usage(0.55)
-        output = context_warning_module.format_hook_output(alert)
+        alert = context_warning_full_module.assess_context_usage(0.55)
+        output = context_warning_full_module.format_hook_output(alert)
 
         # Should not raise
         json_str = json.dumps(output)
@@ -565,28 +514,15 @@ class TestGetContextUsageFromEnv:
     As a hook
     I want to read context usage from environment
     So that I can integrate with Claude Code
+
+    Uses shared fixture: context_warning_full_module from conftest.py
     """
-
-    @pytest.fixture
-    def context_warning_module(self):
-        """Import the context_warning module."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-        module_path = hooks_path / "context_warning.py"
-
-        spec = importlib.util.spec_from_file_location("context_warning", module_path)
-        context_warning = importlib.util.module_from_spec(spec)
-        sys.modules["context_warning"] = context_warning
-        spec.loader.exec_module(context_warning)
-
-        return context_warning
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_reads_from_env_variable(self, context_warning_module, monkeypatch) -> None:
+    def test_reads_from_env_variable(
+        self, context_warning_full_module, monkeypatch
+    ) -> None:
         """Scenario: Read usage from CLAUDE_CONTEXT_USAGE.
 
         Given CLAUDE_CONTEXT_USAGE environment variable is set
@@ -594,50 +530,58 @@ class TestGetContextUsageFromEnv:
         Then it should return the float value.
         """
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.45")
-        usage = context_warning_module.get_context_usage_from_env()
+        usage = context_warning_full_module.get_context_usage_from_env()
         assert usage == 0.45
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_returns_none_without_env(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
-        """Scenario: Returns None without environment variable.
+        """Scenario: Returns None without environment variable and estimation disabled.
 
         Given CLAUDE_CONTEXT_USAGE is not set
+        And fallback estimation is disabled
         When getting context usage
         Then it should return None.
         """
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
-        usage = context_warning_module.get_context_usage_from_env()
+        monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
+        usage = context_warning_full_module.get_context_usage_from_env()
         assert usage is None
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_handles_invalid_env_value(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: Handle invalid environment value gracefully.
 
         Given invalid CLAUDE_CONTEXT_USAGE value
+        And fallback estimation is disabled
         When getting context usage
         Then it should return None (not crash).
         """
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "not-a-number")
-        usage = context_warning_module.get_context_usage_from_env()
+        monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
+        usage = context_warning_full_module.get_context_usage_from_env()
         assert usage is None
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_handles_empty_env_value(self, context_warning_module, monkeypatch) -> None:
+    def test_handles_empty_env_value(
+        self, context_warning_full_module, monkeypatch
+    ) -> None:
         """Scenario: Handle empty environment value.
 
         Given empty CLAUDE_CONTEXT_USAGE value
+        And fallback estimation is disabled
         When getting context usage
         Then it should return None.
         """
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "")
-        usage = context_warning_module.get_context_usage_from_env()
+        monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
+        usage = context_warning_full_module.get_context_usage_from_env()
         assert usage is None
 
 
@@ -647,29 +591,14 @@ class TestMainEntryPoint:
     As a hook
     I want main() to handle various inputs correctly
     So that the hook is robust in production
+
+    Uses shared fixture: context_warning_full_module from conftest.py
     """
-
-    @pytest.fixture
-    def context_warning_module(self):
-        """Import the context_warning module."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-        module_path = hooks_path / "context_warning.py"
-
-        spec = importlib.util.spec_from_file_location("context_warning", module_path)
-        context_warning = importlib.util.module_from_spec(spec)
-        sys.modules["context_warning"] = context_warning
-        spec.loader.exec_module(context_warning)
-
-        return context_warning
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_no_context_usage(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: main() with no context usage outputs minimal JSON.
 
@@ -685,7 +614,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -694,7 +623,9 @@ class TestMainEntryPoint:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_main_with_warning_level(self, context_warning_module, monkeypatch) -> None:
+    def test_main_with_warning_level(
+        self, context_warning_full_module, monkeypatch
+    ) -> None:
         """Scenario: main() with 45% usage outputs WARNING.
 
         Given 45% context usage in environment
@@ -709,7 +640,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -719,7 +650,7 @@ class TestMainEntryPoint:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_main_with_ok_level(self, context_warning_module, monkeypatch) -> None:
+    def test_main_with_ok_level(self, context_warning_full_module, monkeypatch) -> None:
         """Scenario: main() with 20% usage outputs minimal JSON.
 
         Given 20% context usage in environment
@@ -734,7 +665,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -744,7 +675,7 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_invalid_json_input(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: main() handles malformed JSON on stdin.
 
@@ -760,7 +691,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         # Should still output valid JSON
@@ -771,24 +702,25 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_hook_input_usage(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: main() reads usage from hook input JSON.
 
         Given context_usage in hook input JSON
-        When running main with no env var
+        When running main with no env var and estimation disabled
         Then it should use the hook input value.
         """
         from io import StringIO
 
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
+        monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
         hook_input = json.dumps({"context_usage": 0.55})
         monkeypatch.setattr("sys.stdin", StringIO(hook_input))
 
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -798,7 +730,7 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_env_takes_priority_over_input(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: Environment variable takes priority over hook input.
 
@@ -815,7 +747,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -826,7 +758,7 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_critical_level(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: main() with 60% usage outputs CRITICAL.
 
@@ -842,7 +774,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -853,7 +785,7 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_invalid_usage_value(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: main() handles invalid usage value from hook input.
 
@@ -870,7 +802,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -880,7 +812,7 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_with_emergency_level(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: main() with 85% usage outputs EMERGENCY.
 
@@ -896,7 +828,7 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
@@ -908,7 +840,7 @@ class TestMainEntryPoint:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_main_emergency_output_has_formatted_instructions(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: main() EMERGENCY output includes formatted workflow instructions.
 
@@ -924,20 +856,21 @@ class TestMainEntryPoint:
         output_capture = StringIO()
         monkeypatch.setattr("builtins.print", lambda x: output_capture.write(x))
 
-        result = context_warning_module.main()
+        result = context_warning_full_module.main()
 
         assert result == 0
         output = output_capture.getvalue()
         data = json.loads(output)
         additional_context = data["hookSpecificOutput"]["additionalContext"]
 
-        # Check for formatted sections
-        assert "**EMERGENCY CONTEXT ALERT**" in additional_context
-        assert "**IMMEDIATE ACTION REQUIRED:**" in additional_context
-        assert "1. STOP current work" in additional_context
-        assert "2. Invoke `Skill(conserve:clear-context)`" in additional_context
-        assert "3. Follow the auto-clear workflow" in additional_context
-        assert "Recommendations:" in additional_context
+        # Check for formatted sections (updated for graceful wrap-up workflow)
+        assert "**CONTEXT LIMIT APPROACHING**" in additional_context
+        assert "EMERGENCY" in additional_context
+        assert "**ACTION REQUIRED:**" in additional_context
+        # Steps now focus on graceful completion (Task tool unavailable)
+        assert "1. Save session state" in additional_context
+        assert "session-state.md" in additional_context
+        assert "Do NOT repeatedly warn" in additional_context
 
 
 class TestConfigurableEmergencyThreshold:
@@ -946,37 +879,14 @@ class TestConfigurableEmergencyThreshold:
     As a user
     I want to configure the emergency threshold via environment variable
     So that I can adjust auto-clear behavior for my workflow.
+
+    Uses shared fixture: context_warning_reloader from conftest.py
     """
-
-    @pytest.fixture
-    def context_warning_module_reloaded(self):
-        """Reload context_warning module to pick up env var changes."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        # Get absolute path to context_warning.py
-        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-        module_path = hooks_path / "context_warning.py"
-
-        def reload_module():
-            # Force reload to pick up new env var
-            spec = importlib.util.spec_from_file_location(
-                "context_warning_test", module_path
-            )
-            if spec is None or spec.loader is None:
-                raise RuntimeError("Failed to load context_warning module spec")
-            context_warning = importlib.util.module_from_spec(spec)
-            sys.modules["context_warning_test"] = context_warning
-            spec.loader.exec_module(context_warning)
-            return context_warning
-
-        return reload_module
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_custom_emergency_threshold(
-        self, context_warning_module_reloaded, monkeypatch
+        self, context_warning_reloader, monkeypatch
     ) -> None:
         """Scenario: Emergency threshold can be configured via env var.
 
@@ -985,7 +895,7 @@ class TestConfigurableEmergencyThreshold:
         Then it should return EMERGENCY severity.
         """
         monkeypatch.setenv("CONSERVE_EMERGENCY_THRESHOLD", "0.75")
-        context_warning = context_warning_module_reloaded()
+        context_warning = context_warning_reloader()
 
         # 76% should now be EMERGENCY with 75% threshold
         alert = context_warning.assess_context_usage(0.76)
@@ -994,7 +904,7 @@ class TestConfigurableEmergencyThreshold:
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_default_emergency_threshold_when_not_set(
-        self, context_warning_module_reloaded, monkeypatch
+        self, context_warning_reloader, monkeypatch
     ) -> None:
         """Scenario: Default emergency threshold is 80% when not configured.
 
@@ -1003,14 +913,14 @@ class TestConfigurableEmergencyThreshold:
         Then it should be 0.80.
         """
         monkeypatch.delenv("CONSERVE_EMERGENCY_THRESHOLD", raising=False)
-        context_warning = context_warning_module_reloaded()
+        context_warning = context_warning_reloader()
 
         assert context_warning.EMERGENCY_THRESHOLD == EIGHTY_PERCENT
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_custom_threshold_below_critical(
-        self, context_warning_module_reloaded, monkeypatch
+        self, context_warning_reloader, monkeypatch
     ) -> None:
         """Scenario: Custom threshold at 60% still works correctly.
 
@@ -1019,109 +929,87 @@ class TestConfigurableEmergencyThreshold:
         Then it should return EMERGENCY severity (not CRITICAL).
         """
         monkeypatch.setenv("CONSERVE_EMERGENCY_THRESHOLD", "0.60")
-        context_warning = context_warning_module_reloaded()
+        context_warning = context_warning_reloader()
 
         # 60% should now be EMERGENCY with 60% threshold
         alert = context_warning.assess_context_usage(SIXTY_PERCENT)
         assert alert.severity == context_warning.ContextSeverity.EMERGENCY
 
 
-class TestConfigurableSessionStatePath:
-    """Feature: Configurable session state path via environment variable.
+class TestEmergencyRecommendations:
+    """Feature: Emergency recommendations for graceful context wrap-up.
 
-    As a user
-    I want to configure the session state path via environment variable
-    So that I can customize where session state is saved.
+    As a context management system
+    I want emergency recommendations to guide graceful completion
+    So that work is not lost when context limits are reached.
+
+    Note: Session state path configuration moved to main() output formatting,
+    not assess_context_usage() recommendations. See test_main_emergency_output_*.
+
+    Uses shared fixture: context_warning_reloader from conftest.py
     """
 
-    @pytest.fixture
-    def context_warning_module_reloaded(self):
-        """Reload context_warning module to pick up env var changes."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        # Get absolute path to context_warning.py
-        hooks_path = Path(__file__).resolve().parent.parent.parent / "hooks"
-        module_path = hooks_path / "context_warning.py"
-
-        def reload_module():
-            # Force reload to pick up new env var
-            spec = importlib.util.spec_from_file_location(
-                "context_warning_session_test", module_path
-            )
-            if spec is None or spec.loader is None:
-                raise RuntimeError("Failed to load context_warning module spec")
-            context_warning = importlib.util.module_from_spec(spec)
-            sys.modules["context_warning_session_test"] = context_warning
-            spec.loader.exec_module(context_warning)
-            return context_warning
-
-        return reload_module
-
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_default_session_state_path_in_recommendations(
-        self, context_warning_module_reloaded, monkeypatch
+    def test_emergency_recommendations_focus_on_graceful_completion(
+        self, context_warning_reloader, monkeypatch
     ) -> None:
-        """Scenario: Default session state path appears in EMERGENCY recommendations.
+        """Scenario: EMERGENCY recommendations focus on graceful completion.
 
-        Given CONSERVE_SESSION_STATE_PATH is not set
-        When assessing 85% context usage (EMERGENCY level)
-        Then recommendations should reference default path .claude/session-state.md.
+        Given context usage is at EMERGENCY level (85%)
+        When assessing context usage
+        Then recommendations should guide graceful wrap-up.
         """
         monkeypatch.delenv("CONSERVE_SESSION_STATE_PATH", raising=False)
-        context_warning = context_warning_module_reloaded()
+        context_warning = context_warning_reloader()
 
         alert = context_warning.assess_context_usage(0.85)
 
         assert alert.severity == context_warning.ContextSeverity.EMERGENCY
-        assert any(".claude/session-state.md" in rec for rec in alert.recommendations)
+        recs_text = " ".join(alert.recommendations).lower()
+        # Updated: now focuses on graceful completion (Task tool unavailable)
+        assert "complete" in recs_text
+        assert "commit" in recs_text or "pending" in recs_text
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_custom_session_state_path_in_recommendations(
-        self, context_warning_module_reloaded, monkeypatch
+    def test_emergency_recommendations_mention_auto_compact(
+        self, context_warning_reloader, monkeypatch
     ) -> None:
-        """Scenario: Custom session state path appears in EMERGENCY recommendations.
-
-        Given CONSERVE_SESSION_STATE_PATH is set to custom/path/state.md
-        When assessing 85% context usage (EMERGENCY level)
-        Then recommendations should reference the custom path.
-        """
-        custom_path = "custom/path/state.md"
-        monkeypatch.setenv("CONSERVE_SESSION_STATE_PATH", custom_path)
-        context_warning = context_warning_module_reloaded()
-
-        alert = context_warning.assess_context_usage(0.85)
-
-        assert alert.severity == context_warning.ContextSeverity.EMERGENCY
-        assert any(custom_path in rec for rec in alert.recommendations)
-        assert not any(
-            ".claude/session-state.md" in rec for rec in alert.recommendations
-        )
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_emergency_recommendations_contain_workflow_steps(
-        self, context_warning_module_reloaded, monkeypatch
-    ) -> None:
-        """Scenario: EMERGENCY recommendations include complete workflow steps.
+        """Scenario: EMERGENCY recommendations mention auto-compact.
 
         Given context usage is at EMERGENCY level
         When assessing context usage
-        Then recommendations should include all auto-clear workflow steps.
+        Then recommendations should mention auto-compact as fallback.
         """
         monkeypatch.delenv("CONSERVE_SESSION_STATE_PATH", raising=False)
-        context_warning = context_warning_module_reloaded()
+        context_warning = context_warning_reloader()
 
         alert = context_warning.assess_context_usage(0.85)
 
-        # Check all expected workflow steps are present
         recs_text = " ".join(alert.recommendations).lower()
-        assert "stop" in recs_text
-        assert "clear-context" in recs_text
-        assert "continuation" in recs_text or "agent" in recs_text
+        assert "auto-compact" in recs_text
+        assert "work is not lost" in recs_text
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_emergency_recommendations_include_summarize_step(
+        self, context_warning_reloader, monkeypatch
+    ) -> None:
+        """Scenario: EMERGENCY recommendations include summarize step.
+
+        Given context usage is at EMERGENCY level
+        When assessing context usage
+        Then recommendations should include summarizing remaining tasks.
+        """
+        monkeypatch.delenv("CONSERVE_SESSION_STATE_PATH", raising=False)
+        context_warning = context_warning_reloader()
+
+        alert = context_warning.assess_context_usage(0.85)
+
+        recs_text = " ".join(alert.recommendations).lower()
+        assert "summarize" in recs_text
+        assert "remaining" in recs_text or "tasks" in recs_text
 
 
 class TestFallbackContextEstimation:
@@ -1130,28 +1018,14 @@ class TestFallbackContextEstimation:
     As a context monitoring system
     I want to estimate context usage from session file size
     So that monitoring works even when CLAUDE_CONTEXT_USAGE is unavailable
+
+    Uses shared fixture: context_warning_full_module from conftest.py
     """
-
-    @pytest.fixture
-    def context_warning_module(self):
-        """Import the context_warning module."""
-        import importlib.util
-        import sys
-        from pathlib import Path
-
-        module_path = (
-            Path(__file__).parent.parent.parent / "hooks" / "context_warning.py"
-        )
-        spec = importlib.util.spec_from_file_location("context_warning", module_path)
-        module = importlib.util.module_from_spec(spec)
-        sys.modules["context_warning"] = module
-        spec.loader.exec_module(module)
-        return module
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_estimation_disabled_by_env(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: Estimation can be disabled via environment variable.
 
@@ -1162,14 +1036,14 @@ class TestFallbackContextEstimation:
         monkeypatch.setenv("CONSERVE_CONTEXT_ESTIMATION", "0")
         monkeypatch.delenv("CLAUDE_CONTEXT_USAGE", raising=False)
 
-        result = context_warning_module.estimate_context_from_session()
+        result = context_warning_full_module.estimate_context_from_session()
 
         assert result is None
 
     @pytest.mark.bdd
     @pytest.mark.unit
     def test_env_variable_takes_precedence(
-        self, context_warning_module, monkeypatch
+        self, context_warning_full_module, monkeypatch
     ) -> None:
         """Scenario: CLAUDE_CONTEXT_USAGE takes precedence over estimation.
 
@@ -1179,6 +1053,6 @@ class TestFallbackContextEstimation:
         """
         monkeypatch.setenv("CLAUDE_CONTEXT_USAGE", "0.75")
 
-        result = context_warning_module.get_context_usage_from_env()
+        result = context_warning_full_module.get_context_usage_from_env()
 
         assert result == 0.75

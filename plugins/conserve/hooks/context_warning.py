@@ -298,8 +298,9 @@ def main() -> int:
                 f"{alert.message}\n\n"
                 "**ACTION REQUIRED:**\n"
                 "1. Save session state to .claude/session-state.md\n"
-                "2. Try spawning continuation via Task tool\n"
-                "3. If Task unavailable: complete current work, summarize remaining tasks\n\n"
+                "2. Complete current in-progress work\n"
+                "3. Summarize remaining tasks for continuation\n"
+                "4. Invoke Skill(conserve:clear-context) for graceful handoff\n\n"
                 "Do NOT repeatedly warn - take action now."
             )
         print(json.dumps(output))
