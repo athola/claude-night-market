@@ -84,9 +84,6 @@ def assess_context_usage(usage: float) -> ContextAlert:
 
     # EMERGENCY level - auto-clear workflow required
     if usage >= EMERGENCY_THRESHOLD:
-        state_path = os.environ.get(
-            "CONSERVE_SESSION_STATE_PATH", ".claude/session-state.md"
-        )
         return ContextAlert(
             severity=ContextSeverity.EMERGENCY,
             usage_percent=usage,
@@ -95,11 +92,10 @@ def assess_context_usage(usage: float) -> ContextAlert:
                 "AUTO-CLEAR REQUIRED! Execute clear-context workflow NOW."
             ),
             recommendations=[
-                "DO NOT STOP or tell the user to continue later",
-                f"Save session state to {state_path} immediately",
-                "Spawn a continuation-agent via Task tool to continue the work automatically",
-                "The continuation agent has fresh context and will pick up where you left off",
-                "This is NOT optional - auto-compact will trigger soon",
+                "Complete current in-progress work",
+                "Commit any pending changes",
+                "Summarize remaining tasks in your response",
+                "Session will auto-compact if needed - work is not lost",
             ],
         )
     # CRITICAL level - immediate optimization needed
@@ -293,16 +289,13 @@ def main() -> int:
         # For EMERGENCY level, add explicit skill invocation instruction
         if alert.severity == ContextSeverity.EMERGENCY:
             output["hookSpecificOutput"]["additionalContext"] = (
-                "**EMERGENCY CONTEXT ALERT**\n\n"
+                "**CONTEXT LIMIT APPROACHING**\n\n"
                 f"{alert.message}\n\n"
-                "**AUTO-CONTINUE REQUIRED (DO NOT STOP):**\n"
-                "1. Save session state to .claude/session-state.md with current progress\n"
-                "2. Spawn a continuation-agent via Task tool to continue automatically\n"
-                "3. The continuation agent has fresh context - work continues seamlessly\n\n"
-                "**CRITICAL: Do NOT tell the user to continue in a new session.** "
-                "Do NOT stop working. Save state and spawn the continuation agent NOW.\n\n"
-                "Recommendations:\n"
-                + "\n".join(f"- {rec}" for rec in alert.recommendations)
+                "**WRAP UP CURRENT TASK:**\n"
+                "1. Complete any in-progress edits or commits\n"
+                "2. Summarize remaining work in your response\n"
+                "3. The session will auto-compact if needed\n\n"
+                "**DO NOT** repeatedly warn about context - finish current work."
             )
         print(json.dumps(output))
 
