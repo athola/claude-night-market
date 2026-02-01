@@ -161,57 +161,36 @@ if parent_state and parent_state.get("execution_mode"):
     execution_mode = parent_state["execution_mode"]
 ```
 
-### Step 3: Spawn Continuation Agent
+### Step 3: Spawn Continuation Agent (Task Tool)
 
-Use the Task tool to delegate. **CRITICAL**: Include execution mode in the task prompt:
+Use the Task tool to delegate work to a fresh subagent:
 
 ```
-Task: Continue the work from session checkpoint
+Task: Continue work from session checkpoint
 
 Instructions:
 1. Read .claude/session-state.md for full context
-2. Check the "Execution Mode" section FIRST
-3. If `auto_continue: true` or mode is `dangerous`/`unattended`:
-   - DO NOT pause for user confirmation
-   - Continue executing ALL remaining tasks until completion
-   - Only stop on actual errors or when all work is done
-4. Verify understanding of current task and progress
-5. Continue from where the previous agent left off
-6. If you also approach 80% context, repeat this handoff process
-   - PRESERVE the execution mode when creating your own checkpoint
-
-The session state file contains all necessary context to continue without interruption.
-
-**EXECUTION MODE INHERITANCE**: You MUST inherit and propagate the execution
-mode from the session state. If the parent was in dangerous/unattended mode,
-you are also in that mode. Do not ask the user for confirmation.
+2. Check "Execution Mode" section - inherit auto_continue setting
+3. Continue from where previous agent left off
+4. If you also hit 80% context, repeat this handoff process
 ```
 
-**For batch/multi-issue workflows** (e.g., `/do-issue 42 43 44`):
+**Task Tool Details:**
+- Spawns subagent with fresh 200k context window
+- Up to 10 parallel agents supported
+- ~20k token overhead per subagent
 
-```
-Task: Continue batch processing from session checkpoint
+### Step 3 Fallback: Graceful Wrap-Up
 
-Instructions:
-1. Read .claude/session-state.md for full context
-2. EXECUTION MODE: This is a batch operation with auto_continue=true
-3. Process ALL remaining tasks in the queue:
-   - Remaining: [issue #43, issue #44]
-4. DO NOT stop between tasks - continue until all are complete
-5. If you hit 80% context, hand off with the same execution mode
-6. Only pause for:
-   - Actual errors requiring human judgment
-   - Completion of ALL tasks
+If Task tool is unavailable (permissions, context restrictions):
 
-This is an unattended batch operation. Continue without user prompts.
-```
-
-### Step 4: Graceful Exit
-
-After spawning continuation agent:
-- Report that handoff is complete
-- Provide link to session state for reference
-- Exit current task (subagent continues)
+1. **Complete current in-progress work** (finish edits, commits)
+2. **Summarize remaining tasks** in your response
+3. **Let auto-compact handle continuation** - Claude Code compresses context automatically
+4. **Manual continuation options**:
+   - `claude --continue` to resume session
+   - New session + `/catchup` to understand changes
+   - Read `.claude/session-state.md` for saved context
 
 ## Integration with Existing Hooks
 

@@ -291,11 +291,11 @@ def main() -> int:
             output["hookSpecificOutput"]["additionalContext"] = (
                 "**CONTEXT LIMIT APPROACHING**\n\n"
                 f"{alert.message}\n\n"
-                "**WRAP UP CURRENT TASK:**\n"
-                "1. Complete any in-progress edits or commits\n"
-                "2. Summarize remaining work in your response\n"
-                "3. The session will auto-compact if needed\n\n"
-                "**DO NOT** repeatedly warn about context - finish current work."
+                "**ACTION REQUIRED:**\n"
+                "1. Save session state to .claude/session-state.md\n"
+                "2. Try spawning continuation via Task tool\n"
+                "3. If Task unavailable: complete current work, summarize remaining tasks\n\n"
+                "Do NOT repeatedly warn - take action now."
             )
         print(json.dumps(output))
 
