@@ -4,7 +4,9 @@ This module provides common test fixtures, mocks, and utilities for testing
 the conservation plugin's skills, commands, and agents following TDD/BDD principles.
 """
 
+import importlib.util
 import sys
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -547,8 +549,6 @@ def create_mock_context_analysis(
 
 def _load_context_warning_module():
     """Load the context_warning module from hooks directory."""
-    import importlib.util
-
     hooks_path = Path(__file__).resolve().parent.parent / "hooks"
     module_path = hooks_path / "context_warning.py"
 
@@ -567,6 +567,7 @@ def context_warning_module():
 
     Returns:
         Dictionary containing threshold constants, classes, and functions.
+
     """
     context_warning = _load_context_warning_module()
     return {
@@ -585,6 +586,7 @@ def context_warning_full_module():
 
     Returns:
         The complete module object for tests that need direct access.
+
     """
     return _load_context_warning_module()
 
@@ -598,16 +600,13 @@ def context_warning_reloader():
 
     Returns:
         A function that reloads and returns the module.
-    """
-    import importlib.util
 
+    """
     hooks_path = Path(__file__).resolve().parent.parent / "hooks"
     module_path = hooks_path / "context_warning.py"
 
     def reload_module():
         # Use unique module name to force fresh import
-        import uuid
-
         module_name = f"context_warning_{uuid.uuid4().hex[:8]}"
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         if spec is None or spec.loader is None:
