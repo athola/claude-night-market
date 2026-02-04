@@ -2,7 +2,7 @@
 name: architecture-aware-init
 description: |
 
-Triggers: decision-making, research, aware, architecture, initialization
+  Triggers: decision-making, research, aware, architecture, initialization
   Architecture-aware project initialization combining online research with archetype selection.
 
   Triggers: project initialization, new project, architecture decision, project setup,

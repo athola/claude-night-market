@@ -4,7 +4,7 @@ description: 'Consult this skill when designing data pipelines or transformation
   Use when data flows through fixed sequence of transformations, stages can be independently
   developed and tested, parallel processing of stages is beneficial. Do not use when
   selecting from multiple paradigms - use architecture-paradigms first. DO NOT use
-  when: data flow isn''t sequential or predictable. DO NOT use when: complex branching/merging
+  when: data flow is not sequential or predictable. DO NOT use when: complex branching/merging
   logic dominates.'
 version: 1.3.8
 category: architectural-pattern

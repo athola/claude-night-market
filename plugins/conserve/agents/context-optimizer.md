@@ -4,11 +4,7 @@ description: 'Autonomous agent for context window optimization and MECW complian
   Use when full context audits needed, skills exceed token budgets, pre-release compliance
   verification, periodic health checks. Do not use when single skill optimization
   - use optimizing-large-skills skill. quick token counts - use skills-eval instead.
-  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent): - Single
-  skill token count? → Parent runs `wc -w skill.md` or estimates - Quick size check?
-  → Parent reads file header - One-off query? → Parent uses Read tool directly ONLY
-  invoke this agent for: full plugin audits, growth trend analysis, optimization recommendations,
-  or pre-release compliance verification.'
+  PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent): - Single skill token count? Parent runs `wc -w skill.md` or estimates - Quick size check? Parent reads file header - One-off query? Parent uses Read tool directly ONLY invoke this agent for: full plugin audits, growth trend analysis, optimization recommendations, or pre-release compliance verification.'
 tools:
 - Read
 - Glob

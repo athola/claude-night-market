@@ -2,7 +2,7 @@
 name: testing-quality-standards
 description: |
 
-Triggers: quality, metrics, test coverage, unit test, standards
+  Triggers: quality, metrics, test coverage, unit test, standards
   Cross-plugin testing quality metrics and standards. Referenced by pensive:test-review and parseltongue:python-testing.
 
   Triggers: testing standards, quality metrics, coverage thresholds, anti-patterns

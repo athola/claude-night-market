@@ -2,7 +2,7 @@
 name: architecture-paradigm-service-based
 description: |
 
-Triggers: service-based, architecture, based, modular, service
+  Triggers: service-based, architecture, based, modular, service
   Coarse-grained service architecture for deployment independence without microservices complexity.
 
   Triggers: service-based, SOA, coarse-grained services, domain services

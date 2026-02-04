@@ -2,7 +2,7 @@
 name: project-init
 description: |
 
-Triggers: project, init
+  Triggers: project, init
   Interactive project initialization with git setup, workflows, hooks, and build configuration.
 
   Triggers: project setup, initialization, scaffold, bootstrap, new project

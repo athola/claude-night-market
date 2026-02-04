@@ -2,7 +2,7 @@
 name: gif-generation
 description: |
 
-Triggers: optimization, ffmpeg, generation, gif, video
+  Triggers: optimization, ffmpeg, generation, gif, video
   Post-process video files and generate optimized GIFs.
   Converts webm/mp4 to GIF with configurable quality settings.
 

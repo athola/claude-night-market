@@ -2,7 +2,7 @@
 name: project-brainstorming
 description: Socratic questioning and ideation methodology for project conception using structured brainstorming frameworks
 
-Triggers: frameworks, conception, brainstorming, socratic, using
+  Triggers: frameworks, conception, brainstorming, socratic, using
 model_preference: claude-sonnet-4
 version: 1.3.8
 ---

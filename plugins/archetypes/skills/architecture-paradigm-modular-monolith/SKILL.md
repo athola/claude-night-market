@@ -2,7 +2,7 @@
 name: architecture-paradigm-modular-monolith
 description: |
 
-Triggers: monolith, architecture, modular, team-autonomy, modular-monolith
+  Triggers: monolith, architecture, modular, team-autonomy, modular-monolith
   Single deployable with enforced module boundaries for team autonomy without distributed complexity.
 
   Triggers: modular monolith, module boundaries, single deployment, team autonomy

@@ -2,7 +2,7 @@
 name: project-planning
 description: Transform specifications into structured implementation plans with architecture design and task breakdown
 
-Triggers: architecture, project, planning, into, specifications
+  Triggers: architecture, project, planning, into, specifications
 model_preference: claude-sonnet-4
 version: 1.3.8
 ---

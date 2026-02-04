@@ -1,9 +1,9 @@
 ---
 name: safety-critical-patterns
-description: 'Guidelines from NASA''s Power of 10 rules for writing robust, verifiable
+description: 'Guidelines from the NASA Power of 10 rules for writing robust, verifiable
   code. Adapted for general software development with context-appropriate rigor. Use
-  when Writing critical code paths, reviewing for robustness, improving code quality
-  DO NOT use: As rigid requirements for all code - match rigor to consequence.'
+  when writing critical code paths, reviewing for robustness, improving code quality.
+  Do not use as rigid requirements for all code - match rigor to consequence.'
 category: code-quality
 tags:
 - safety

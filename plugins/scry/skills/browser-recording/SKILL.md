@@ -2,7 +2,7 @@
 name: browser-recording
 description: |
 
-Triggers: tutorial, web, video, browser, playwright
+  Triggers: tutorial, web, video, browser, playwright
   Record browser sessions using Playwright for web UI tutorials, converts video to GIF
 
   Triggers: browser recording, playwright, web demo

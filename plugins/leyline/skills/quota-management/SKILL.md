@@ -2,7 +2,7 @@
 name: quota-management
 description: |
 
-Triggers: quota, management, rate-limiting, thresholds, cost-tracking
+  Triggers: quota, management, rate-limiting, thresholds, cost-tracking
   Quota tracking, threshold monitoring, and graceful degradation for rate-limited API services.
 
   Triggers: quota, rate limiting, usage limits, thresholds

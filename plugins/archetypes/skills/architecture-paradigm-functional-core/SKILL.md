@@ -2,7 +2,7 @@
 name: architecture-paradigm-functional-core
 description: |
 
-Triggers: functional-core, imperative-shell, side-effects, functional, architecture
+  Triggers: functional-core, imperative-shell, side-effects, functional, architecture
   Functional Core, Imperative Shell: isolate deterministic logic from side effects for testability.
 
   Triggers: functional core, imperative shell, pure functions, testability

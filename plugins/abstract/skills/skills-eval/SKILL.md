@@ -6,7 +6,8 @@ description: 'Evaluate and improve Claude skill quality through auditing. Use wh
   Use this skill before shipping any skill to production. Use when: quality-assurance,
   skills, optimization, tool-use, performance-metrics, skill audit, quality review,
   compliance check, improvement suggestions, token usage analysis, skill evaluation,
-  skill assessment, skill optimization, skill standards, skill metrics, skill performance..'
+  skill assessment, skill optimization, skill standards, skill metrics, skill performance,
+  skill quality.'
 version: 1.3.8
 category: skill-management
 tags:

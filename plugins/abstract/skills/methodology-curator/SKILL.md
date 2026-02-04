@@ -7,7 +7,7 @@ description: 'Surfaces expert frameworks and proven methodologies before creatin
   syntax/structural issues. Use when: methodology, framework, expert approach, best
   practices, masters, proven method, domain expertise, how should I approach, what''s
   the best way, evaluate skill, review methodology, is this grounded, optimization
-  check..'
+  check, methodology evaluation.'
 version: 1.3.8
 category: meta-skills
 tags:

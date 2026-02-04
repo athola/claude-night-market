@@ -1,27 +1,6 @@
 ---
 name: plugin-validator
-description: 'Validates Claude Code plugin structure against official requirements
-  - checks
-
-  plugin.json schema, verifies referenced paths exist, validates kebab-case naming,
-
-  and validates skill frontmatter is complete.
-
-
-  Use when: validating plugin structure, checking plugin.json, verifying paths exist
-
-
-  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
-
-  - Quick pass/fail check? → Parent runs `python3 .../validate_plugin.py <path>`
-
-  - JSON syntax check? → Parent runs `jq . plugin.json`
-
-  - Single field check? → Parent reads file directly
-
-  ONLY invoke this agent for: multi-plugin validation, detailed error interpretation,
-
-  fix-and-revalidate cycles, or integration with other workflows.'
+description: 'Validates Claude Code plugin structure against official requirements - checks plugin.json schema, verifies referenced paths exist, validates kebab-case naming, and validates skill frontmatter is complete. Use when: validating plugin structure, checking plugin.json, verifying paths exist. PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent): Quick pass/fail check? Parent runs `python3 .../validate_plugin.py <path>`. JSON syntax check? Parent runs `jq . plugin.json`. Single field check? Parent reads file directly. ONLY invoke this agent for: multi-plugin validation, detailed error interpretation, fix-and-revalidate cycles, or integration with other workflows.'
 tools:
 - Read
 - Grep

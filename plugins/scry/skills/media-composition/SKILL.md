@@ -2,7 +2,7 @@
 name: media-composition
 description: |
 
-Triggers: tutorial, composition, stitch, ffmpeg, media
+  Triggers: tutorial, composition, stitch, ffmpeg, media
   Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal layouts
 
   Triggers: combine media, stitch gifs, composite, merge recordings

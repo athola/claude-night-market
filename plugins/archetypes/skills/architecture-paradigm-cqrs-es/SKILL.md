@@ -2,7 +2,7 @@
 name: architecture-paradigm-cqrs-es
 description: |
 
-Triggers: event-sourcing, architecture, scalability, distributed-systems, audit-trail
+  Triggers: event-sourcing, architecture, scalability, distributed-systems, audit-trail
   CQRS and Event Sourcing for auditability, read/write separation, and temporal queries.
 
   Triggers: CQRS, event sourcing, audit trail, temporal queries

@@ -2,7 +2,7 @@
 name: speckit-orchestrator
 description: |
 
-Triggers: specification, speckit, planning, orchestrator, orchestration
+  Triggers: specification, speckit, planning, orchestrator, orchestration
   Workflow orchestrator for Spec Driven Development. Coordinates skills and tracks progress.
 
   Triggers: speckit workflow, spec driven development, speckit commands

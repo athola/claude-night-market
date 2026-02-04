@@ -3,7 +3,7 @@ name: mcp-code-execution
 description: 'Use this skill BEFORE building complex tool chains. Optimize proactively.
   location: plugin token_budget: 200. Use when >3 tools chained sequentially, large
   datasets (>10k rows), large files (>50KB), context usage >25%. Do not use when simple
-  tool calls that don''t chain. DO NOT use when: context pressure is low and tools
+  tool calls that do not chain. DO NOT use when: context pressure is low and tools
   are fast.'
 progressive_loading: true
 dependencies:

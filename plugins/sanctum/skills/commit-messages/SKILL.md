@@ -2,7 +2,7 @@
 name: commit-messages
 description: |
 
-Triggers: messages, conventional-commits, git, changelog, commit
+  Triggers: messages, conventional-commits, git, changelog, commit
   Generate conventional commit messages from staged changes with correct type/scope.
 
   Triggers: commit message, conventional commit, git commit

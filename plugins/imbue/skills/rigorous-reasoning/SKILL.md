@@ -2,7 +2,7 @@
 name: rigorous-reasoning
 description: 'Prevents sycophantic reasoning through checklist-based analysis, categorical
   integrity, and evidence-following to uncomfortable conclusions. Red Flags: "I agree
-  that", "You''re right", "Great point", "Absolutely", "That''s a fair point", "I
+  that", "You are right", "Great point", "Absolutely", "That is a fair point", "I
   can see why", agreement without validation, softening conclusions, hedging without
   evidence, retracting under pressure. Use when analyzing conflicts, evaluating ethical
   claims, or noticing sycophantic thought patterns. Do not use for routine implementation
@@ -10,7 +10,7 @@ description: 'Prevents sycophantic reasoning through checklist-based analysis, c
   toward politeness. Agreement requires validity and accuracy. Use when: conflict,
   disagreement, debate, ethical, controversial, pushback, interpersonal analysis,
   competing values, adjudication, "who is right", moral dilemma, harm assessment,
-  ethical question, controversial claim..'
+  ethical question, controversial claim, sycophancy prevention.'
 category: workflow-methodology
 tags:
 - anti-sycophancy

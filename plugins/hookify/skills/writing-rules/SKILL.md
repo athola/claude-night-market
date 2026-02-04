@@ -2,7 +2,7 @@
 name: writing-rules
 description: |
 
-Triggers: validation, rules, patterns, safety, hookify
+  Triggers: validation, rules, patterns, safety, hookify
   Create hookify rules - markdown-based behavioral rules preventing unwanted actions.
 
   Triggers: create hookify rule, behavioral rule, prevent behavior, block command

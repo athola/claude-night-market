@@ -2,7 +2,7 @@
 name: delegation-core
 description: Delegate tasks to external LLM services (Gemini, Qwen) with quota, logging,
   and error handling. Use when tasks exceed context window or need cheaper processing.
-  Do not use when task requires Claude's reasoning.
+  Do not use when task requires reasoning by Claude.
 category: delegation-framework
 tags:
 - delegation

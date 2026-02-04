@@ -2,7 +2,7 @@
 name: architecture-paradigm-microkernel
 description: |
 
-Triggers: extensibility, architecture, platform-design, plugin, microkernel
+  Triggers: extensibility, architecture, platform-design, plugin, microkernel
   Minimal core system with plugin-based feature extensibility for platform development.
 
   Triggers: microkernel, plugin-architecture, extensibility, platform-design

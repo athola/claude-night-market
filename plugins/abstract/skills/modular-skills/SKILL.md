@@ -6,7 +6,8 @@ description: 'Architect skills as modular blocks to control token usage and comp
   writing human-facing prose (use writing-clearly-and-concisely). Check this skill
   before starting any new skill development. Use when: skills, architecture, modular,
   design-patterns, modularity, skill design, skill architecture, modularization, token
-  optimization, skill structure, refactoring skills, new skill creation, skill complexity..'
+  optimization, skill structure, refactoring skills, new skill creation, skill complexity,
+  modular architecture.'
 category: workflow-optimization
 tags:
 - architecture

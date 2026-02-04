@@ -2,7 +2,7 @@
 name: error-patterns
 description: |
 
-Triggers: recovery, errors, error, patterns, error-handling
+  Triggers: recovery, errors, error, patterns, error-handling
   Standardized error handling patterns with classification, recovery, and logging strategies.
 
   Triggers: error handling, error recovery, graceful degradation, resilience

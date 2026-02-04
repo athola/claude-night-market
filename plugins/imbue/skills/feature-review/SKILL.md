@@ -2,7 +2,7 @@
 name: feature-review
 description: |
 
-Triggers: feature, backlog, prioritization, roadmap, wsjf
+  Triggers: feature, backlog, prioritization, roadmap, wsjf
   Feature review and prioritization with RICE/WSJF/Kano scoring. Creates GitHub issues for suggestions.
 
   Triggers: feature review, prioritization, RICE, WSJF, roadmap, backlog

@@ -2,7 +2,7 @@
 name: task-planning
 description: |
 
-Triggers: dependencies, tasks, speckit, planning, implementation
+  Triggers: dependencies, tasks, speckit, planning, implementation
   Generate phased, dependency-ordered tasks from specs. Identifies parallelization opportunities.
 
   Triggers: task planning, dependency ordering, phased breakdown, parallel tasks

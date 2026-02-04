@@ -2,7 +2,7 @@
 name: workflow-improvement
 description: |
 
-Triggers: skills, retrospective, efficiency, workflow, improvement
+  Triggers: skills, retrospective, efficiency, workflow, improvement
   Retrospective workflow evaluation and improvement of skills, agents, commands, and hooks.
 
   Triggers: workflow improvement, retrospective, workflow efficiency

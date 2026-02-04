@@ -2,7 +2,7 @@
 name: authentication-patterns
 description: |
 
-Triggers: api-keys, tokens, oauth, patterns, authentication
+  Triggers: api-keys, tokens, oauth, patterns, authentication
   Authentication patterns for external services: API keys, OAuth, token management, verification.
 
   Triggers: authentication, API keys, OAuth, token management, credentials

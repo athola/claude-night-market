@@ -2,7 +2,7 @@
 name: architecture-paradigm-hexagonal
 description: |
 
-Triggers: hexagonal, architecture, ports-adapters, testability, infrastructure-independence
+  Triggers: hexagonal, architecture, ports-adapters, testability, infrastructure-independence
   Decouple domain logic from infrastructure using Hexagonal (Ports & Adapters) pattern.
 
   Triggers: hexagonal, ports-adapters, infrastructure-independence, domain-isolation

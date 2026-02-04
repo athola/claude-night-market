@@ -201,22 +201,22 @@ Phase 2 stays on the main model for careful merge execution.
 ### Intelligent Weave
 Insert content into matching existing sections, preserving style.
 
-Use when: Destination has relevant section, content is additive.
+  Use when: Destination has relevant section, content is additive.
 
 ### Replace Section
 Replace existing section with more detailed new content.
 
-Use when: New content 2x+ more detailed or has later date.
+  Use when: New content 2x+ more detailed or has later date.
 
 ### Append with Context
 Add new section with date and source reference.
 
-Use when: No matching section, content doesn't fit existing structure.
+  Use when: No matching section, content doesn't fit existing structure.
 
 ### Create New File
 Generate complete new document.
 
-Use when: No suitable destination exists, content warrants standalone doc.
+  Use when: No suitable destination exists, content warrants standalone doc.
 
 ## Integration
 
