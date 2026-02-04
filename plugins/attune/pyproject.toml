@@ -134,6 +134,10 @@ addopts = [
     "--cov=scripts",
     "--cov-report=term-missing",
     "--cov-report=html",
+    # Coverage threshold: 84% (lowered from 85% in PR #179)
+    # Reason: New scripts (architecture_researcher.py, attune_arch_init.py, template_customizer.py)
+    # are excluded from coverage per tool.coverage.run.omit - they use external APIs and are
+    # tested manually. TODO: Restore to 85% when integration test mocks are added (#TBD)
     "--cov-fail-under=84"
 ]
 markers = [

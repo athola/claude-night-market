@@ -26,20 +26,16 @@
 
 set -euo pipefail
 
+# Source shared JSON utilities (provides get_json_field, escape_for_json)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+# shellcheck source=../../../scripts/shared/json_utils.sh
+source "${SCRIPT_DIR}/../../../scripts/shared/json_utils.sh"
+
 # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
 HOOK_INPUT=""
 AGENT_TYPE=""
 if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
-    # Extract agent_type using jq if available, otherwise grep, fallback to sed
-    if command -v jq >/dev/null 2>&1; then
-        AGENT_TYPE=$(echo "$HOOK_INPUT" | jq -r '.agent_type // empty' 2>/dev/null || echo "")
-    elif echo "test" | grep -oP '\d+' >/dev/null 2>&1; then
-        # GNU grep available (supports Perl regex)
-        AGENT_TYPE=$(echo "$HOOK_INPUT" | grep -oP '"agent_type"\s*:\s*"\K[^"]+' 2>/dev/null || echo "")
-    else
-        # Portable fallback using sed (POSIX-compliant)
-        AGENT_TYPE=$(echo "$HOOK_INPUT" | sed -n 's/.*"agent_type"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' 2>/dev/null || echo "")
-    fi
+    AGENT_TYPE=$(get_json_field "$HOOK_INPUT" "agent_type")
 fi
 
 # Lightweight agents that get abbreviated guidance
@@ -58,8 +54,7 @@ EOF
         ;;
 esac
 
-# Determine plugin root directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+# Determine plugin root directory (SCRIPT_DIR already set above for json_utils.sh)
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Check bypass mode from environment
@@ -152,31 +147,7 @@ if [ -n "$deep_mode_msg" ]; then
 $conservation_summary"
 fi
 
-# Escape outputs for JSON - uses jq when available, falls back to pure bash
-escape_for_json() {
-    local input="$1"
-    # Prefer jq for production-grade JSON escaping (handles unicode, control chars)
-    if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
-    else
-        # Pure bash fallback - less production-grade but functional
-        echo "[conservation:session-start] Warning: jq not found, using bash fallback for JSON escaping" >&2
-        local output=""
-        local i char
-        for (( i=0; i<${#input}; i++ )); do
-            char="${input:$i:1}"
-            case "$char" in
-                '\'$'\\') output+='\\\\' ;;
-                '"') output+='\\"' ;;
-                $'\n') output+='\\n' ;;
-                $'\r') output+='\\r' ;;
-                $'\t') output+='\\t' ;;
-                *) output+="$char" ;;
-            esac
-        done
-        printf '%s' "$output"
-    fi
-}
+# escape_for_json is now provided by shared/json_utils.sh
 
 summary_escaped=$(escape_for_json "$conservation_summary")
 
