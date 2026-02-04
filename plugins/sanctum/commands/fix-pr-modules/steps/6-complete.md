@@ -321,6 +321,34 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
 
 **CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
 
+### Review Feedback Types
+
+GitHub has TWO types of review feedback - this workflow handles BOTH:
+
+| Type | Source | Resolution Method |
+|------|--------|-------------------|
+| **Review Threads** | Line-level comments from "Start a review" | GraphQL `resolveReviewThread` |
+| **PR Comments** | Conversation tab comments | Reply via `gh pr comment` |
+
+**Detection Logic:**
+```bash
+# Check for review threads (line-level)
+THREADS=$(gh api graphql -f query="..." --jq '[...reviewThreads...] | length')
+
+# Check for PR comments containing review feedback
+COMMENTS=$(gh pr view --json comments --jq '[.comments[] | select(.body | test("review|fix|change|improve|consider"; "i"))] | length')
+
+if [[ "$THREADS" -eq 0 && "$COMMENTS" -gt 0 ]]; then
+  echo "Review feedback is in PR comments (not threads)"
+  echo "Reply to comments using: gh pr comment --body 'Addressed in commit abc123'"
+fi
+```
+
+**If review feedback is in PR comments (not threads):**
+1. Reply to the comment thread acknowledging fixes
+2. Reference commit SHAs for each addressed item
+3. No GraphQL resolution needed (comments don't have resolve state)
+
 **MANDATORY WORKFLOW CHECKPOINTS - Create TodoWrite items BEFORE starting:**
 ```markdown
 ## Thread Resolution (MANDATORY for PR Authors)
