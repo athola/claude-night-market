@@ -291,17 +291,26 @@ def main() -> int:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
     else:
         output = format_hook_output(alert)
-        # For EMERGENCY level, add explicit skill invocation instruction
+        # For EMERGENCY level, trigger mandatory auto-continuation
         if alert.severity == ContextSeverity.EMERGENCY:
             output["hookSpecificOutput"]["additionalContext"] = (
-                "**CONTEXT LIMIT APPROACHING**\n\n"
+                "**MANDATORY AUTO-CONTINUATION TRIGGERED**\n\n"
                 f"{alert.message}\n\n"
-                "**ACTION REQUIRED:**\n"
-                "1. Save session state to .claude/session-state.md\n"
-                "2. Complete current in-progress work\n"
-                "3. Summarize remaining tasks for continuation\n"
-                "4. Invoke Skill(conserve:clear-context) for graceful handoff\n\n"
-                "Do NOT repeatedly warn - take action now."
+                "**YOU MUST EXECUTE THIS NOW** (not optional):\n\n"
+                "```\n"
+                "1. Write session state to .claude/session-state.md with:\n"
+                "   - Current task objective\n"
+                "   - Progress summary\n"
+                "   - Remaining work\n"
+                "   - execution_mode: unattended, auto_continue: true\n\n"
+                "2. Spawn continuation agent with Task tool:\n"
+                "   Task(prompt='Continue from .claude/session-state.md. "
+                "Read state file FIRST. This is unattended mode - do NOT pause "
+                "for confirmation. Complete ALL remaining work.', "
+                "description='Continuation agent for context handoff')\n"
+                "```\n\n"
+                "**BLOCKING**: Do not proceed with other work until handoff is complete.\n"
+                "This is MANDATORY, not a recommendation."
             )
         print(json.dumps(output))
 
