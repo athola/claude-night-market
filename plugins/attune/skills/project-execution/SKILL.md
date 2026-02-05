@@ -2,7 +2,6 @@
 name: project-execution
 description: Systematic task execution with checkpoint validation, progress tracking, and quality gates
 
-  Triggers: progress, validation, quality, project, systematic
 model_preference: claude-sonnet-4
 tools_allowed: all
 version: 1.3.8

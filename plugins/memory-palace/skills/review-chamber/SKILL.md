@@ -3,7 +3,6 @@ name: review-chamber
 description: 'Capture and retrieve PR review knowledge in project memory palaces.
   Use when: pr review completed, knowledge capture requested, review patterns query,
   past decisions lookup.'
-  Triggers: memory, project, capture, retrieve, review
 version: 1.3.8
 usage_patterns:
 - capture-review: After PR review completion, capture significant findings

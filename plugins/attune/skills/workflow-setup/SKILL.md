@@ -2,7 +2,6 @@
 name: workflow-setup
 description: Configure GitHub Actions workflows for CI/CD (test, lint, typecheck, publish)
 
-  Triggers: github, actions, publish, configure, workflows
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
 version: 1.3.8

@@ -2,7 +2,6 @@
 name: project-specification
 description: Transform project brief into detailed, testable specifications using spec-driven development methodology
 
-  Triggers: specification, testable, development, spec-driven, project
 model_preference: claude-sonnet-4
 version: 1.3.8
 ---
