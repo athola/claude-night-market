@@ -1,35 +1,41 @@
 ---
 name: review-core
-description: |
-
-Triggers: scaffolding, evidence, reporting, analysis, core
-  Foundational workflow for preparing and structuring detailed reviews
-  (architecture, API, code quality).
-
-  Triggers: review workflow, structured review, review scaffolding, evidence capture,
-  review preparation, analysis framework, review template
-
-  Use when: starting any detailed review workflow, needing consistent structure
-  for capturing context and findings, ensuring comparable review outputs
-
-  DO NOT use when: quick catchup without formal review - use catchup.
-  DO NOT use when: diff-focused analysis - use diff-analysis.
-
-  Use this skill at the BEGINNING of any detailed review for consistent structure.
+description: 'Use this skill at the BEGINNING of any detailed review for consistent
+  structure. Use when starting any detailed review workflow, needing consistent structure
+  for capturing context and findings, ensuring comparable review outputs. Do not use
+  when quick catchup without formal review - use catchup. DO NOT use when: diff-focused
+  analysis - use diff-analysis.'
 category: review-patterns
-tags: [workflow, scaffolding, evidence, reporting, analysis]
+tags:
+- workflow
+- scaffolding
+- evidence
+- reporting
+- analysis
 dependencies: []
 tools: []
 usage_patterns:
-  - review-preflight
-  - workflow-scaffolding
-  - evidence-capture
+- review-preflight
+- workflow-scaffolding
+- evidence-capture
 complexity: intermediate
 estimated_tokens: 1500
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Core Review Workflow
+
+## Table of Contents
+
+1. [When to Use](#when-to-use)
+2. [Activation Patterns](#activation-patterns)
+3. [Required TodoWrite Items](#required-todowrite-items)
+4. [Step 1 – Establish Context](#step-1--establish-context-review-corecontext-established)
+5. [Step 2 – Inventory Scope](#step-2--inventory-scope-review-corescope-inventoried)
+6. [Step 3 – Capture Evidence](#step-3--capture-evidence-review-coreevidence-captured)
+7. [Step 4 – Structure Deliverables](#step-4--structure-deliverables-review-coredeliverables-structured)
+8. [Step 5 – Contingency Plan](#step-5--contingency-plan-review-corecontingencies-documented)
+9. [Troubleshooting](#troubleshooting)
 
 ## When to Use
 - Use this skill at the beginning of any detailed review workflow (e.g., for architecture, math, or an API).

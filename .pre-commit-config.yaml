@@ -31,6 +31,13 @@ repos:
       # Plugin Validation Hooks
       # =================================================================
 
+      - id: validate-skill-descriptions
+        name: Validate Skill Descriptions
+        entry: python3 scripts/fix_descriptions.py --check
+        language: system
+        files: SKILL\.md$
+        pass_filenames: false
+
       - id: validate-abstract-skills
         name: Validate Abstract Skills
         entry: python3 plugins/abstract/scripts/abstract_validator.py
@@ -95,6 +102,14 @@ repos:
         language: system
         files: ^plugins/memory-palace/docs/knowledge-corpus/.*\.md$
         pass_filenames: false
+
+      - id: meta-evaluation-check
+        name: Meta-Evaluation Quality Check
+        entry: python3 plugins/sanctum/scripts/update_plugin_registrations.py --dry-run
+        language: system
+        files: ^plugins/.*/skills/.*SKILL\.md$
+        pass_filenames: false
+        verbose: true
 
       - id: check-context-optimization
         name: Check Context Optimization

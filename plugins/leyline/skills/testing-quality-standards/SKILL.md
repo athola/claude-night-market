@@ -1,11 +1,9 @@
 ---
 name: testing-quality-standards
 description: |
-
-Triggers: quality, metrics, test coverage, unit test, standards
   Cross-plugin testing quality metrics and standards. Referenced by pensive:test-review and parseltongue:python-testing.
 
-  Triggers: testing standards, quality metrics, coverage thresholds, anti-patterns
+  testing standards, quality metrics, coverage thresholds, anti-patterns
 
   Use when: test quality evaluation, coverage thresholds, quality standards
   DO NOT use when: simple scripts without quality requirements
@@ -15,12 +13,18 @@ dependencies: []
 estimated_tokens: 400
 provides:
   patterns: [coverage-thresholds, quality-metrics, anti-patterns]
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Testing Quality Standards
 
 Shared quality standards and metrics for testing across all plugins in the Claude Night Market ecosystem.
+
+## Table of Contents
+
+1. [Coverage Thresholds](#coverage-thresholds)
+2. [Quality Metrics](#quality-metrics)
+3. [Detailed Topics](#detailed-topics)
 
 ## Coverage Thresholds
 

@@ -1,32 +1,33 @@
 ---
 name: workflow-monitor
-description: |
-  Triggers: workflow error, inefficient execution, workflow failure, execution monitor
-  Monitor workflow executions for errors and inefficiencies. When issues are detected,
-  automatically create GitHub issues for workflow improvements via /fix-workflow.
-
-  Use when: workflows fail, timeout, or show inefficient patterns
-  DO NOT use when: normal workflow execution, simple command errors
+description: automatically create GitHub issues for workflow improvements via /fix-workflow.
+  Use when workflows fail, timeout, or show inefficient patterns. Do not use when
+  normal workflow execution, simple command errors.
 category: workflow-methodology
-tags: [workflow, monitoring, error-detection, efficiency, automation]
+tags:
+- workflow
+- monitoring
+- error-detection
+- efficiency
+- automation
 dependencies:
-  - imbue:evidence-logging
-  - sanctum:fix-workflow
+- imbue:evidence-logging
+- sanctum:fix-workflow
 tools:
-  - Bash
-  - TodoWrite
-  - gh (GitHub CLI)
+- Bash
+- TodoWrite
+- gh (GitHub CLI)
 usage_patterns:
-  - error-detection
-  - efficiency-analysis
-  - issue-creation
+- error-detection
+- efficiency-analysis
+- issue-creation
 complexity: intermediate
 estimated_tokens: 2500
 modules:
-  - modules/detection-patterns.md
-  - modules/issue-templates.md
-  - modules/efficiency-metrics.md
-version: 1.3.7
+- modules/detection-patterns.md
+- modules/issue-templates.md
+- modules/efficiency-metrics.md
+version: 1.3.8
 ---
 ## Table of Contents
 

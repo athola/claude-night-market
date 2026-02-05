@@ -1,11 +1,9 @@
 ---
 name: commit-messages
 description: |
-
-Triggers: messages, conventional-commits, git, changelog, commit
   Generate conventional commit messages from staged changes with correct type/scope.
 
-  Triggers: commit message, conventional commit, git commit
+  commit message, conventional commit, git commit
   Use when: generating commit messages in conventional commits format
   DO NOT use when: full PR preparation - use pr-prep instead.
 category: artifact-generation
@@ -16,7 +14,7 @@ estimated_tokens: 600
 dependencies:
   - sanctum:shared
   - sanctum:git-workspace-review
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Conventional Commit Workflow

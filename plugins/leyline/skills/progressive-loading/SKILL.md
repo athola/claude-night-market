@@ -1,11 +1,9 @@
 ---
 name: progressive-loading
 description: |
-
-Triggers: context-management, modularity, progressive-disclosure, loading, token-optimization
   Context-aware progressive module loading with hub-and-spoke pattern for token optimization.
 
-  Triggers: progressive loading, lazy loading, hub-spoke, module selection
+  progressive loading, lazy loading, hub-spoke, module selection
   Use when: optimizing skill loading or reducing upfront context usage
 category: infrastructure
 tags: [progressive-disclosure, context-management, modularity, token-optimization, lazy-loading]
@@ -25,7 +23,7 @@ progressive_loading: true
 modules:
   - modules/selection-strategies.md
   - modules/loading-patterns.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

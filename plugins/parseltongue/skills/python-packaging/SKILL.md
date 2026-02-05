@@ -1,37 +1,35 @@
 ---
 name: python-packaging
-description: |
-
-Triggers: pyproject.toml, pypi, packaging, distribution, python
-  Create distributable Python packages with proper structure and publishing.
-
-  Triggers: Python packaging, pyproject.toml, uv, pip, PyPI, distribution, CLI tools,
-  entry points, package structure, publishing
-
-  Use when: creating Python packages, configuring pyproject.toml, setting up
-  entry points, publishing to PyPI, CI/CD for packages
-
-  DO NOT use when: testing packages - use python-testing instead.
-  DO NOT use when: optimizing package performance - use python-performance.
-
-  Consult this skill for Python package creation and distribution.
+description: 'Consult this skill for Python package creation and distribution. Use
+  when creating Python packages, configuring pyproject.toml, setting up entry points,
+  publishing to PyPI, CI/CD for packages. Do not use when testing packages - use python-testing
+  instead. DO NOT use when: optimizing package performance - use python-performance.'
 category: packaging
-tags: [python, packaging, pyproject.toml, uv, pip, pypi, distribution]
-tools: [package-analyzer, build-runner]
+tags:
+- python
+- packaging
+- pyproject.toml
+- uv
+- pip
+- pypi
+- distribution
+tools:
+- package-analyzer
+- build-runner
 usage_patterns:
-  - package-creation
-  - pypi-publishing
-  - cli-tool-development
-  - library-distribution
+- package-creation
+- pypi-publishing
+- cli-tool-development
+- library-distribution
 complexity: beginner
 estimated_tokens: 200
 progressive_loading: true
 modules:
-  - uv-workflow.md
-  - pyproject-patterns.md
-  - entry-points.md
-  - ci-cd-integration.md
-version: 1.3.7
+- uv-workflow.md
+- pyproject-patterns.md
+- entry-points.md
+- ci-cd-integration.md
+version: 1.3.8
 ---
 ## Table of Contents
 

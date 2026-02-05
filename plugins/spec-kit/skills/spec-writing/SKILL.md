@@ -1,11 +1,9 @@
 ---
 name: spec-writing
 description: |
-
-Triggers: specification, user-stories, requirements, speckit, acceptance-criteria
   Create clear, testable specifications with user stories and acceptance criteria.
 
-  Triggers: spec writing, feature specification, requirements, user stories
+  spec writing, feature specification, requirements, user stories
   Use when: creating new specifications or writing acceptance criteria
   DO NOT use when: generating implementation tasks - use task-planning.
 category: specification
@@ -24,7 +22,7 @@ progressive_loading: true
 modules:
   - success-criteria-patterns
   - specification-structure
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Spec Writing

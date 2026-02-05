@@ -1,67 +1,56 @@
 ---
 name: pr-agent
-description: |
-  Pull request preparation agent specializing in quality gate execution,
-  change summarization, and PR template completion.
-
-  Triggers: pull request, PR preparation, quality gates, PR description,
-  change summary, testing documentation, PR template, PR review
-
-  Use when: preparing detailed PR descriptions, running pre-PR quality gates,
-  documenting testing evidence, completing PR checklists
-
-  DO NOT use when: just writing commit messages - use commit-agent.
-  DO NOT use when: only analyzing workspace state - use git-workspace-agent.
-
-  ⚠️ PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent):
-  - Single commit, <50 lines? → Parent runs `gh pr create --fill`
-  - Obvious fix (typo, bump)? → Parent creates PR directly
+description: 'Pull request preparation agent specializing in quality gate execution,
+  change summarization, and PR template completion. Use when preparing detailed PR
+  descriptions, running pre-PR quality gates, documenting testing evidence, completing
+  PR checklists. Do not use when just writing commit messages - use commit-agent.
+  only analyzing workspace state - use git-workspace-agent. ⚠️ PRE-INVOCATION CHECK
+  (parent must verify BEFORE calling this agent): - Single commit, <50 lines? → Parent
+  runs `gh pr create --fill` - Obvious fix (typo, bump)? → Parent creates PR directly
   - No quality gates needed? → Parent uses `gh pr create --title "..." --body "..."`
-  ONLY invoke this agent for: multi-commit PRs, breaking changes,
-  quality gate execution, or complex change narratives.
-
-  Executes quality gates and produces complete PR descriptions ready for submission.
-tools: [Read, Write, Edit, Bash, Glob, Grep]
+  ONLY invoke this agent for: multi-commit PRs, breaking changes, quality gate execution,
+  or complex change narratives. Executes quality gates and produces complete PR descriptions
+  ready for submission.'
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- Glob
+- Grep
 model: sonnet
 skills: sanctum:pr-prep, imbue:evidence-logging
-
-# Claude Code 2.1.0+ lifecycle hooks
 hooks:
   PreToolUse:
-    - matcher: "Bash"
-      command: |
-        # Log quality gate executions
-        if echo "$CLAUDE_TOOL_INPUT" | grep -qE "(make|pytest|ruff|npm)"; then
-          echo "[pr-agent] Quality gate: $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log
-        fi
-      once: false
+  - matcher: Bash
+    command: "# Log quality gate executions\nif echo \"$CLAUDE_TOOL_INPUT\" | grep\
+      \ -qE \"(make|pytest|ruff|npm)\"; then\n  echo \"[pr-agent] Quality gate: $(date)\"\
+      \ >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log\nfi\n"
+    once: false
   PostToolUse:
-    - matcher: "Write"
-      command: |
-        # Track PR description generation
-        if echo "$CLAUDE_TOOL_INPUT" | grep -q "PR\|pull"; then
-          echo "[pr-agent] PR description written" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log
-        fi
+  - matcher: Write
+    command: "# Track PR description generation\nif echo \"$CLAUDE_TOOL_INPUT\" |\
+      \ grep -q \"PR\\|pull\"; then\n  echo \"[pr-agent] PR description written\"\
+      \ >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log\nfi\n"
   Stop:
-    - command: "echo '[pr-agent] PR preparation completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log"
-
+  - command: echo '[pr-agent] PR preparation completed at $(date)' >> ${CLAUDE_CODE_TMPDIR:-/tmp}/pr-audit.log
 escalation:
   to: opus
   hints:
-    - reasoning_required
-    - high_stakes
-    - security_sensitive
-    - breaking_changes
+  - reasoning_required
+  - high_stakes
+  - security_sensitive
+  - breaking_changes
 examples:
-  - context: User ready to submit a pull request
-    user: "I'm ready to create a PR, can you help prepare the description?"
-    assistant: "I'll use the pr-agent to run quality gates and draft your PR description."
-  - context: User wants to review changes before PR
-    user: "What should I check before opening this PR?"
-    assistant: "Let me use the pr-agent to run through the pre-PR checklist."
-  - context: User needs testing documentation
-    user: "How should I document the testing I did for this PR?"
-    assistant: "I'll use the pr-agent to help structure your testing section."
+- context: User ready to submit a pull request
+  user: I'm ready to create a PR, can you help prepare the description?
+  assistant: I'll use the pr-agent to run quality gates and draft your PR description.
+- context: User wants to review changes before PR
+  user: What should I check before opening this PR?
+  assistant: Let me use the pr-agent to run through the pre-PR checklist.
+- context: User needs testing documentation
+  user: How should I document the testing I did for this PR?
+  assistant: I'll use the pr-agent to help structure your testing section.
 ---
 
 # PR Agent

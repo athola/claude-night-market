@@ -5,23 +5,32 @@
 # Updated for Claude Code 2.1.2: Reads agent_type from hook input via stdin
 # to customize scope-guard injection based on the invoking agent.
 #
+# Hook Input Schema (Claude Code 2.1.2+):
+# {
+#   "agent_type": "string",      // e.g., "code-reviewer", "implementation-agent"
+#   "source": "string",          // e.g., "cli", "editor"
+#   "session_id": "string"       // Unique session identifier
+# }
+#
+# Backward Compatibility: Gracefully handles missing stdin (older versions)
+# Performance: <50ms typical, <200ms worst-case
+#
 # Agent-aware behavior:
 #   Review/optimization agents get abbreviated scope-guard reminders
 #   Implementation agents get full scope-guard methodology
 
 set -euo pipefail
 
+# Source shared JSON utilities (provides get_json_field, escape_for_json)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+# shellcheck source=../../../scripts/shared/json_utils.sh
+source "${SCRIPT_DIR}/../../../scripts/shared/json_utils.sh"
+
 # Read hook input from stdin to get agent_type (Claude Code 2.1.2+)
 HOOK_INPUT=""
 AGENT_TYPE=""
 if read -t 0.1 -r HOOK_INPUT 2>/dev/null; then
-    # Extract agent_type using jq if available, otherwise grep
-    if command -v jq >/dev/null 2>&1; then
-        AGENT_TYPE=$(echo "$HOOK_INPUT" | jq -r '.agent_type // empty' 2>/dev/null || echo "")
-    else
-        # Fallback: simple pattern extraction
-        AGENT_TYPE=$(echo "$HOOK_INPUT" | grep -oP '"agent_type"\s*:\s*"\K[^"]+' 2>/dev/null || echo "")
-    fi
+    AGENT_TYPE=$(get_json_field "$HOOK_INPUT" "agent_type")
 fi
 
 # Lightweight agents that skip full scope-guard methodology
@@ -40,8 +49,7 @@ EOF
         ;;
 esac
 
-# Determine plugin root directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+# Determine plugin root directory (SCRIPT_DIR already set above for json_utils.sh)
 PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Portable number extraction (works without grep -P)
@@ -192,61 +200,7 @@ NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 4. Commit to conclusion (follow checklist, not gut)
 5. Guard against retraction (only update for substantive reasons)"
 
-# Escape outputs for JSON - uses jq when available, falls back to pure bash
-escape_for_json() {
-    local input="$1"
-    # Prefer jq for production-grade JSON escaping (handles unicode, control chars)
-    if command -v jq >/dev/null 2>&1; then
-        printf '%s' "$input" | jq -Rs '.[:-1] // ""' | sed 's/^"//;s/"$//'
-    else
-        # Pure bash fallback with complete JSON control character handling
-        # WARNING: jq is recommended for production use. Install with: apt-get install jq
-        [ "${JSON_ESCAPE_WARN:-0}" = "0" ] && echo "[WARN] jq not found, using bash fallback for JSON escaping. Install jq for better performance." >&2 && export JSON_ESCAPE_WARN=1
-        local output=""
-        local i char
-        for (( i=0; i<${#input}; i++ )); do
-            char="${input:$i:1}"
-            case "$char" in
-                '\'$'\\') output+='\\\\' ;;
-                '"') output+='\\"' ;;
-                $'\n') output+='\\n' ;;
-                $'\r') output+='\\r' ;;
-                $'\t') output+='\\t' ;;
-                $'\b') output+='\\b' ;;  # Backspace
-                $'\f') output+='\\f' ;;  # Form feed
-                # Handle other control characters (U+0000-U+001F)
-                $'\x00') output+='\\u0000' ;;
-                $'\x01') output+='\\u0001' ;;
-                $'\x02') output+='\\u0002' ;;
-                $'\x03') output+='\\u0003' ;;
-                $'\x04') output+='\\u0004' ;;
-                $'\x05') output+='\\u0005' ;;
-                $'\x06') output+='\\u0006' ;;
-                $'\x07') output+='\\u0007' ;;
-                $'\x0e') output+='\\u000e' ;;
-                $'\x0f') output+='\\u000f' ;;
-                $'\x10') output+='\\u0010' ;;
-                $'\x11') output+='\\u0011' ;;
-                $'\x12') output+='\\u0012' ;;
-                $'\x13') output+='\\u0013' ;;
-                $'\x14') output+='\\u0014' ;;
-                $'\x15') output+='\\u0015' ;;
-                $'\x16') output+='\\u0016' ;;
-                $'\x17') output+='\\u0017' ;;
-                $'\x18') output+='\\u0018' ;;
-                $'\x19') output+='\\u0019' ;;
-                $'\x1a') output+='\\u001a' ;;
-                $'\x1b') output+='\\u001b' ;;
-                $'\x1c') output+='\\u001c' ;;
-                $'\x1d') output+='\\u001d' ;;
-                $'\x1e') output+='\\u001e' ;;
-                $'\x1f') output+='\\u001f' ;;
-                *) output+="$char" ;;
-            esac
-        done
-        printf '%s' "$output"
-    fi
-}
+# escape_for_json is now provided by shared/json_utils.sh
 
 summary_escaped=$(escape_for_json "$scope_guard_summary")
 reminder_escaped=$(escape_for_json "$scope_guard_reminder")

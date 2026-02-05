@@ -1,28 +1,15 @@
 ---
 name: token-conservation
-description: |
-
-Triggers: token, conservation
-  Minimize token usage through conservative prompting, work delegation,
-  and quota tracking.
-
-  Triggers: token usage, quota, token limits, prompt size, token conservation,
-  usage tracking, delegation, context compression, token budget
-
-  Use when: session starts (mandatory), prompt sizes spike, tool calls increase,
-  before long-running analyses or massive context loads
-
-  DO NOT use when: context-optimization already handles the scenario.
-  DO NOT use when: simple queries with minimal context.
-
-  Use this skill at the START of every session. This is MANDATORY for quota management.
-location: plugin
-token_budget: 300
+description: 'Use this skill at the START of every session. This is MANDATORY for
+  quota management. location: plugin token_budget: 300. Use when session starts (mandatory),
+  prompt sizes spike, tool calls increase, before long-running analyses or massive
+  context loads. Do not use when context-optimization already handles the scenario.
+  DO NOT use when: simple queries with minimal context.'
 progressive_loading: true
 dependencies:
   hub: []
   modules: []
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Token Conservation Workflow

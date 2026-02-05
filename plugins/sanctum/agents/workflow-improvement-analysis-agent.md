@@ -1,29 +1,29 @@
 ---
 name: workflow-improvement-analysis-agent
-description: |
-  Analyzes a recreated workflow slice and produces multiple improvement approaches
-  with explicit trade-offs and confidence scores.
-
-  Triggers: workflow improvement, improvement analysis, trade-offs, approach
-  comparison, workflow options, improvement approaches, confidence scoring
-
-  Use when: generating improvement options after workflow recreation, comparing
-  trade-offs between approaches, scoring improvement confidence
-
-  DO NOT use when: recreating workflow first - use workflow-recreate-agent.
-  DO NOT use when: already have chosen approach - use workflow-improvement-planner-agent.
-
-  Second step in /fix-workflow: generates 3-5 improvement approaches with trade-offs.
-tools: [Read, Write, Edit, Bash, Glob, Grep, TodoWrite]
+description: 'Analyzes a recreated workflow slice and produces multiple improvement
+  approaches with explicit trade-offs and confidence scores. Use when generating improvement
+  options after workflow recreation, comparing trade-offs between approaches, scoring
+  improvement confidence. Do not use when recreating workflow first - use workflow-recreate-agent.
+  already have chosen approach - use workflow-improvement-planner-agent. Second step
+  in /fix-workflow: generates 3-5 improvement approaches with trade-offs.'
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- Glob
+- Grep
+- TodoWrite
 model: sonnet
 escalation:
   to: opus
   hints:
-    - reasoning_required
+  - reasoning_required
 examples:
-  - context: Need options before changing plugin assets
-    user: "What are the best ways to improve this workflow?"
-    assistant: "I'll use workflow-improvement-analysis-agent to generate multiple approaches with trade-offs."
+- context: Need options before changing plugin assets
+  user: What are the best ways to improve this workflow?
+  assistant: I'll use workflow-improvement-analysis-agent to generate multiple approaches
+    with trade-offs.
 ---
 
 # Workflow Improvement Analysis Agent

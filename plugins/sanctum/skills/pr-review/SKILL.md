@@ -1,45 +1,41 @@
 ---
 name: pr-review
-description: |
-
-Triggers: github, pr, knowledge-capture, code-quality, scope
-  Scope-focused PR code review that validates against original requirements and
-  routes out-of-scope findings to GitHub issues.
-
-  Triggers: PR review, pull request review, scope validation, requirement compliance,
-  backlog triage, code review, blocking issues
-
-  Use when: reviewing PRs, validating against requirements, triaging findings
-  to backlog, preventing overengineering
-
-  DO NOT use when: preparing PRs - use pr-prep instead.
-  DO NOT use when: deep code review - use pensive:unified-review.
-
-  Use this skill for scope-focused PR reviews.
+description: 'Use this skill for scope-focused PR reviews. Use when reviewing PRs,
+  validating against requirements, triaging findings to backlog, preventing overengineering.
+  Do not use when preparing PRs - use pr-prep instead. DO NOT use when: deep code
+  review - use pensive:unified-review.'
 category: review
-tags: [pr, review, scope, github, code-quality, knowledge-capture]
-tools: [gh, pensive:unified-review]
+tags:
+- pr
+- review
+- scope
+- github
+- code-quality
+- knowledge-capture
+tools:
+- gh
+- pensive:unified-review
 usage_patterns:
-  - scope-validation
-  - backlog-triage
-  - requirement-compliance
-  - knowledge-capture
+- scope-validation
+- backlog-triage
+- requirement-compliance
+- knowledge-capture
 complexity: intermediate
 estimated_tokens: 500
 progressive_loading: true
 modules:
-  - knowledge-capture.md
-  - version-validation.md
+- knowledge-capture.md
+- version-validation.md
 dependencies:
-  - sanctum:shared
-  - sanctum:git-workspace-review
-  - sanctum:version-updates
-  - pensive:unified-review
-  - imbue:evidence-logging
-  - memory-palace:review-chamber
-  - scribe:slop-detector
-  - scribe:doc-generator
-version: 1.3.7
+- sanctum:shared
+- sanctum:git-workspace-review
+- sanctum:version-updates
+- pensive:unified-review
+- imbue:evidence-logging
+- memory-palace:review-chamber
+- scribe:slop-detector
+- scribe:doc-generator
+version: 1.3.8
 ---
 ## Table of Contents
 

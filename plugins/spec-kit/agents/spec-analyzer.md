@@ -1,29 +1,25 @@
 ---
 name: spec-analyzer
-description: |
-  Analyze specification artifacts for consistency, coverage, and quality issues.
-
-  Triggers: spec analysis, requirement coverage, consistency check, ambiguity
-  detection, specification quality, cross-artifact validation, coverage gaps
-
-  Use when: checking spec quality, validating spec/plan/tasks alignment,
-  debugging missing requirements, detecting ambiguity or underspecification
-
-  DO NOT use when: writing specifications - use spec-writing skill.
-  DO NOT use when: generating tasks - use task-generator agent.
-
-  Trigger proactively during /speckit-analyze commands.
-tools: [Read, Grep, Glob]
+description: Analyze specification artifacts for consistency, coverage, and quality
+  issues. Use when checking spec quality, validating spec/plan/tasks alignment, debugging
+  missing requirements, detecting ambiguity or underspecification. Do not use when
+  writing specifications - use spec-writing skill. generating tasks - use task-generator
+  agent. Trigger proactively during /speckit-analyze commands.
+tools:
+- Read
+- Grep
+- Glob
 examples:
-  - context: User wants to check spec quality
-    user: "Analyze my feature specification"
-    assistant: "I'll use the spec-analyzer agent to check for consistency, coverage, and quality issues."
-  - context: User has completed tasks.md and wants verification
-    user: "Are my spec, plan, and tasks aligned?"
-    assistant: "Let me analyze the cross-artifact consistency for you."
-  - context: User is debugging missing requirements
-    user: "What requirements don't have tasks?"
-    assistant: "I'll analyze the coverage gaps between your spec and tasks."
+- context: User wants to check spec quality
+  user: Analyze my feature specification
+  assistant: I'll use the spec-analyzer agent to check for consistency, coverage,
+    and quality issues.
+- context: User has completed tasks.md and wants verification
+  user: Are my spec, plan, and tasks aligned?
+  assistant: Let me analyze the cross-artifact consistency for you.
+- context: User is debugging missing requirements
+  user: What requirements don't have tasks?
+  assistant: I'll analyze the coverage gaps between your spec and tasks.
 ---
 
 # Spec Analyzer Agent

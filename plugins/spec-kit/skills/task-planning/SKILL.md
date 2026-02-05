@@ -1,11 +1,9 @@
 ---
 name: task-planning
 description: |
-
-Triggers: dependencies, tasks, speckit, planning, implementation
   Generate phased, dependency-ordered tasks from specs. Identifies parallelization opportunities.
 
-  Triggers: task planning, dependency ordering, phased breakdown, parallel tasks
+  task planning, dependency ordering, phased breakdown, parallel tasks
   Use when: converting specifications to implementation tasks
   DO NOT use when: writing specifications - use spec-writing.
 category: planning
@@ -25,7 +23,7 @@ usage_patterns:
   - implementation-planning
 complexity: intermediate
 estimated_tokens: 1200
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Task Planning

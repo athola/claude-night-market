@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.8] - 2026-02-01
+
+### Changed - Conserve Plugin Improvements
+
+- **Test fixture consolidation** - Unified test fixtures and synced emergency workflow
+- **Context measurement documentation** - Documented precise vs fast context measurement methods
+- **Headless context reading** - Added documentation for headless context reading feature
+- **Clear-context cleanup** - Removed Task tool references from clear-context skill
+- **Context warnings cleanup** - Removed impossible Task tool references from context warnings
+
 ## [1.3.7] - 2026-01-28
 
 ### Changed - File & Code Cleanup

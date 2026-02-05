@@ -55,6 +55,40 @@ Analyzes context window usage and provides optimization recommendations based on
 # Full breakdown with per-module analysis
 ```
 
+## Headless Mode (Non-Interactive)
+
+For reading context in headless/automated Claude Code sessions:
+
+```bash
+# Get context breakdown with JSON output
+claude -p "run /context" --verbose --output-format json
+
+# Two-call pattern for reliable execution
+# (Claude doesn't always execute /context on first prompt)
+SESSION_ID=$(claude -p "ready" --output-format json | jq -r '.session_id')
+claude --continue "$SESSION_ID" -p "/context" --verbose --output-format json
+```
+
+**Key flags:**
+- `--verbose`: Includes categorical token breakdown
+- `--output-format json`: Machine-parseable output
+- `--continue`: Resumes existing session for reliable command execution
+
+**Example JSON output:**
+```json
+{
+  "context": {
+    "total_tokens": 45000,
+    "usage_percent": 22.5,
+    "breakdown": {
+      "system": 8000,
+      "conversation": 32000,
+      "tools": 5000
+    }
+  }
+}
+```
+
 ## Integration
 
 Works with conservation plugin skills:

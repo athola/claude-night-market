@@ -1,38 +1,37 @@
 ---
 name: makefile-review
-description: |
-
-Triggers: makefile, make, automation, portability, review
-  Audit Makefiles for duplication, portability, and idiomatic GNU Make usage.
-
-  Triggers: Makefile review, build system, GNU Make, portability, deduplication,
-  pattern rules, automatic variables, dependency graph
-
-  Use when: auditing Makefiles, reviewing build system, checking portability,
-  eliminating recipe duplication
-
-  DO NOT use when: creating new Makefiles - use abstract:make-dogfood.
-  DO NOT use when: architecture review - use architecture-review.
-
-  Use this skill for Makefile audit and optimization.
+description: 'Use this skill for Makefile audit and optimization. Use when auditing
+  Makefiles, reviewing build system, checking portability, eliminating recipe duplication.
+  Do not use when creating new Makefiles - use abstract:make-dogfood. DO NOT use when:
+  architecture review - use architecture-review.'
 category: build
-tags: [makefile, build, make, portability, automation]
-tools: [dependency-mapper, dedup-finder, portability-checker]
+tags:
+- makefile
+- build
+- make
+- portability
+- automation
+tools:
+- dependency-mapper
+- dedup-finder
+- portability-checker
 usage_patterns:
-  - makefile-audit
-  - build-optimization
-  - portability-review
-  - deduplication
+- makefile-audit
+- build-optimization
+- portability-review
+- deduplication
 complexity: intermediate
 estimated_tokens: 150
 progressive_loading: true
-dependencies: [pensive:shared, imbue:evidence-logging]
+dependencies:
+- pensive:shared
+- imbue:evidence-logging
 modules:
-  - dependency-graph
-  - deduplication-patterns
-  - portability-checks
-  - best-practices
-version: 1.3.7
+- dependency-graph
+- deduplication-patterns
+- portability-checks
+- best-practices
+version: 1.3.8
 ---
 ## Table of Contents
 
@@ -48,6 +47,11 @@ version: 1.3.7
 - [Progressive Loading](#progressive-loading)
 - [Output Format](#output-format)
 - [Summary](#summary)
+- [Testing](#testing)
+
+## Testing
+
+Run `pytest plugins/pensive/tests/skills/test_makefile_review.py` to verify review logic.
 - [Context](#context)
 - [Dependency Analysis](#dependency-analysis)
 - [Duplication Candidates](#duplication-candidates)

@@ -1,26 +1,24 @@
 ---
 name: shared
-description: |
-
-Triggers: patterns, templates, git, shared
-  Shared infrastructure and patterns for sanctum git/workspace skills.
-
-  Triggers: sanctum patterns, todowrite patterns, git commands, output templates,
-  sanctum infrastructure, shared patterns, git conventions
-
-  Use when: developing new sanctum skills, refactoring existing skills,
-  ensuring consistency across sanctum workflows, referencing standard patterns
-
-  DO NOT use directly: this skill is infrastructure for other sanctum skills.
-
-  Provides reusable patterns consumed by all sanctum git and workspace skills.
+description: 'DO NOT use directly: this skill is infrastructure for other sanctum
+  skills. Provides reusable patterns consumed by all sanctum git and workspace skills.
+  Use when developing new sanctum skills, refactoring existing skills, ensuring consistency
+  across sanctum workflows, referencing standard patterns.'
 category: infrastructure
-tags: [shared, patterns, templates, git]
+tags:
+- shared
+- patterns
+- templates
+- git
 provides:
-  infrastructure: [todowrite-patterns, git-commands, output-templates]
-reusable_by: [all sanctum skills]
+  infrastructure:
+  - todowrite-patterns
+  - git-commands
+  - output-templates
+reusable_by:
+- all sanctum skills
 estimated_tokens: 200
-version: 1.3.7
+version: 1.3.8
 ---
 
 # Shared Infrastructure for Sanctum

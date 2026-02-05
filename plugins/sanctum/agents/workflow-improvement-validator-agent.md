@@ -1,29 +1,29 @@
 ---
 name: workflow-improvement-validator-agent
-description: |
-  Validates that workflow improvements make a substantive difference by running
-  targeted tests/validators and replaying a minimal workflow reproduction.
-
-  Triggers: validate improvements, workflow validation, acceptance criteria check,
-  minimal reproduction, substantive difference, metrics comparison
-
-  Use when: confirming improvements after implementation, running targeted
-  validation, comparing before/after metrics, documenting evidence
-
-  DO NOT use when: still implementing - use workflow-improvement-implementer-agent.
-  DO NOT use when: issues found - route back to implementer agent.
-
-  Final step in /fix-workflow: confirms substantive improvement with evidence.
-tools: [Read, Write, Edit, Bash, Glob, Grep, TodoWrite]
+description: 'Validates that workflow improvements make a substantive difference by
+  running targeted tests/validators and replaying a minimal workflow reproduction.
+  Use when confirming improvements after implementation, running targeted validation,
+  comparing before/after metrics, documenting evidence. Do not use when still implementing
+  - use workflow-improvement-implementer-agent. issues found - route back to implementer
+  agent. Final step in /fix-workflow: confirms substantive improvement with evidence.'
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- Glob
+- Grep
+- TodoWrite
 model: sonnet
 escalation:
   to: opus
   hints:
-    - reasoning_required
+  - reasoning_required
 examples:
-  - context: Confirm the workflow is actually improved
-    user: "Did this actually improve the workflow?"
-    assistant: "I'll use workflow-improvement-validator-agent to run targeted validation and replay the minimal reproduction."
+- context: Confirm the workflow is actually improved
+  user: Did this actually improve the workflow?
+  assistant: I'll use workflow-improvement-validator-agent to run targeted validation
+    and replay the minimal reproduction.
 ---
 
 # Workflow Improvement Validator Agent

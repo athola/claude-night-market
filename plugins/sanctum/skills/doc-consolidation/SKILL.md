@@ -1,33 +1,27 @@
 ---
 name: doc-consolidation
-description: |
-
-Triggers: consolidation, knowledge-management, git-hygiene, cleanup, docs
-  Consolidates ephemeral LLM-generated markdown files into permanent documentation.
-
-  Triggers: consolidate docs, untracked reports, ephemeral files, git cleanup,
-  report consolidation, knowledge extraction, REPORT.md files, ANALYSIS.md files
-
-  Use when: you have untracked *_REPORT.md or *_ANALYSIS.md files, git status
-  shows markdown artifacts that shouldn't be committed, preparing PR and need
-  to clean up working artifacts, preserving insights from code reviews
-
-  DO NOT use when: files are already in docs/ or skills/ locations.
-  DO NOT use when: files are intentionally temporary scratch notes.
-  DO NOT use when: source files have no extractable value.
-
-  Merges valuable content into permanent documentation, then deletes source files.
-version: 1.3.7
+description: 'Merges valuable content into permanent documentation, then deletes source
+  files. Use when you have untracked *_REPORT.md or *_ANALYSIS.md files, git status
+  shows markdown artifacts that shouldn''t be committed, preparing PR and need to
+  clean up working artifacts, preserving insights from code reviews. Do not use when
+  files are already in docs/ or skills/ locations. DO NOT use when: files are intentionally
+  temporary scratch notes. DO NOT use when: source files have no extractable value.'
+version: 1.3.8
 category: documentation
-tags: [docs, consolidation, cleanup, git-hygiene, knowledge-management]
+tags:
+- docs
+- consolidation
+- cleanup
+- git-hygiene
+- knowledge-management
 status: stable
 created: 2025-12-06
 updated: 2025-12-06
 modules:
-  - modules/candidate-detection.md
-  - modules/content-analysis.md
-  - modules/destination-routing.md
-  - modules/merge-execution.md
+- modules/candidate-detection.md
+- modules/content-analysis.md
+- modules/destination-routing.md
+- modules/merge-execution.md
 ---
 ## Table of Contents
 
@@ -207,22 +201,22 @@ Phase 2 stays on the main model for careful merge execution.
 ### Intelligent Weave
 Insert content into matching existing sections, preserving style.
 
-Use when: Destination has relevant section, content is additive.
+  Use when: Destination has relevant section, content is additive.
 
 ### Replace Section
 Replace existing section with more detailed new content.
 
-Use when: New content 2x+ more detailed or has later date.
+  Use when: New content 2x+ more detailed or has later date.
 
 ### Append with Context
 Add new section with date and source reference.
 
-Use when: No matching section, content doesn't fit existing structure.
+  Use when: No matching section, content doesn't fit existing structure.
 
 ### Create New File
 Generate complete new document.
 
-Use when: No suitable destination exists, content warrants standalone doc.
+  Use when: No suitable destination exists, content warrants standalone doc.
 
 ## Integration
 

@@ -1,30 +1,25 @@
 ---
 name: task-generator
-description: |
-  Generate dependency-ordered implementation tasks from specification and
-  planning artifacts.
-
-  Triggers: task generation, generate tasks, implementation tasks, dependency
-  ordering, phased tasks, task breakdown, tasks.md creation
-
-  Use when: generating tasks from spec and plan, breaking down implementation
-  work, creating ordered task lists, starting implementation phase
-
-  DO NOT use when: analyzing specifications - use spec-analyzer agent.
-  DO NOT use when: executing tasks - use implementation-executor agent.
-
-  Trigger proactively during /speckit-tasks commands.
-tools: [Read, Write, Grep, Glob]
+description: Generate dependency-ordered implementation tasks from specification and
+  planning artifacts. Use when generating tasks from spec and plan, breaking down
+  implementation work, creating ordered task lists, starting implementation phase.
+  Do not use when analyzing specifications - use spec-analyzer agent. executing tasks
+  - use implementation-executor agent. Trigger proactively during /speckit-tasks commands.
+tools:
+- Read
+- Write
+- Grep
+- Glob
 examples:
-  - context: User has a completed spec and plan
-    user: "Generate tasks from my feature spec"
-    assistant: "I'll use the task-generator agent to create an ordered task list."
-  - context: User wants to break down implementation work
-    user: "Create implementation tasks for this feature"
-    assistant: "Let me generate dependency-ordered tasks from your artifacts."
-  - context: User is starting implementation phase
-    user: "What tasks do I need to implement this feature?"
-    assistant: "I'll analyze your spec and plan to generate actionable tasks."
+- context: User has a completed spec and plan
+  user: Generate tasks from my feature spec
+  assistant: I'll use the task-generator agent to create an ordered task list.
+- context: User wants to break down implementation work
+  user: Create implementation tasks for this feature
+  assistant: Let me generate dependency-ordered tasks from your artifacts.
+- context: User is starting implementation phase
+  user: What tasks do I need to implement this feature?
+  assistant: I'll analyze your spec and plan to generate actionable tasks.
 ---
 
 # Task Generator Agent

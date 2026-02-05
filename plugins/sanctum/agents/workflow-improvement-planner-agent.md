@@ -1,29 +1,30 @@
 ---
 name: workflow-improvement-planner-agent
-description: |
-  Converges on the best workflow improvement approach, defines acceptance criteria,
-  and produces an execution plan coordinating implementer and validator subagents.
-
-  Triggers: improvement planning, acceptance criteria, execution plan, approach
-  selection, validation steps, file-by-file plan, improvement coordination
-
-  Use when: selecting best approach from analysis, defining acceptance criteria,
-  creating bounded execution plan, coordinating implementer/validator agents
-
-  DO NOT use when: still analyzing approaches - use workflow-improvement-analysis-agent.
-  DO NOT use when: ready to implement - use workflow-improvement-implementer-agent.
-
-  Third step in /fix-workflow: produces bounded plan with acceptance criteria.
-tools: [Read, Write, Edit, Bash, Glob, Grep, TodoWrite]
+description: 'Converges on the best workflow improvement approach, defines acceptance
+  criteria, and produces an execution plan coordinating implementer and validator
+  subagents. Use when selecting best approach from analysis, defining acceptance criteria,
+  creating bounded execution plan, coordinating implementer/validator agents. Do not
+  use when still analyzing approaches - use workflow-improvement-analysis-agent. ready
+  to implement - use workflow-improvement-implementer-agent. Third step in /fix-workflow:
+  produces bounded plan with acceptance criteria.'
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- Glob
+- Grep
+- TodoWrite
 model: sonnet
 escalation:
   to: opus
   hints:
-    - reasoning_required
+  - reasoning_required
 examples:
-  - context: Need a bounded plan for improvements
-    user: "Pick an approach and plan the changes."
-    assistant: "I'll use workflow-improvement-planner-agent to define acceptance criteria and a small, high-use plan."
+- context: Need a bounded plan for improvements
+  user: Pick an approach and plan the changes.
+  assistant: I'll use workflow-improvement-planner-agent to define acceptance criteria
+    and a small, high-use plan.
 ---
 
 # Workflow Improvement Planner Agent

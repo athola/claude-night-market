@@ -1,36 +1,33 @@
 ---
 name: math-review
-description: |
-
-Triggers: verification, algorithms, scientific, stability, math
-  Intensive mathematical analysis for numerical stability, algorithm correctness,
-  and alignment with authoritative standards.
-
-  Triggers: math review, numerical stability, algorithm correctness, mathematical
-  verification, scientific computing, numerical analysis, derivation check
-
-  Use when: reviewing math-heavy code, verifying algorithm correctness, checking
-  numerical stability, aligning with mathematical standards
-
-  DO NOT use when: general algorithm review - use architecture-review.
-  DO NOT use when: performance optimization - use parseltongue:python-performance.
-
-  Use this skill for mathematical code verification.
+description: 'Use this skill for mathematical code verification. Use when reviewing
+  math-heavy code, verifying algorithm correctness, checking numerical stability,
+  aligning with mathematical standards. Do not use when general algorithm review -
+  use architecture-review. DO NOT use when: performance optimization - use parseltongue:python-performance.'
 category: specialized
-tags: [math, algorithms, numerical, stability, verification, scientific]
-tools: [derivation-checker, stability-analyzer, reference-finder]
+tags:
+- math
+- algorithms
+- numerical
+- stability
+- verification
+- scientific
+tools:
+- derivation-checker
+- stability-analyzer
+- reference-finder
 usage_patterns:
-  - algorithm-review
-  - numerical-analysis
-  - derivation-verification
-  - stability-assessment
+- algorithm-review
+- numerical-analysis
+- derivation-verification
+- stability-assessment
 complexity: advanced
 estimated_tokens: 200
 progressive_loading: true
 dependencies:
-  - pensive:shared
-  - imbue:evidence-logging
-version: 1.3.7
+- pensive:shared
+- imbue:evidence-logging
+version: 1.3.8
 ---
 ## Table of Contents
 

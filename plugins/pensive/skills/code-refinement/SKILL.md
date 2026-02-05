@@ -1,43 +1,44 @@
 ---
 name: code-refinement
-description: |
-
-  Triggers: refine, code quality, clean code, refactor, duplication, algorithm efficiency,
-  complexity reduction, code smell, anti-slop, craft
-
-  Analyze and improve living code quality: duplication, algorithmic efficiency, clean code
-  principles, architectural fit, anti-slop patterns, and error handling robustness.
-
-  Use when: improving code quality, reducing AI slop, refactoring for clarity,
-  optimizing algorithms, applying clean code principles
-
-  DO NOT use when: removing dead/unused code (use conserve:bloat-detector).
-  DO NOT use when: reviewing for bugs (use pensive:bug-review).
-  DO NOT use when: selecting architecture paradigms (use archetypes skills).
-
-  This skill actively improves living code, complementing bloat detection (dead code removal)
-  with quality refinement (living code improvement).
+description: 'Analyze and improve living code quality: duplication, algorithmic efficiency,
+  clean code principles, architectural fit, anti-slop patterns, and error handling
+  robustness. Use when improving code quality, reducing AI slop, refactoring for clarity,
+  optimizing algorithms, applying clean code principles. Do not use when removing
+  dead/unused code (use conserve:bloat-detector). reviewing for bugs (use pensive:bug-review).
+  selecting architecture paradigms (use archetypes skills). This skill actively improves
+  living code, complementing bloat detection (dead code removal) with quality refinement
+  (living code improvement).'
 category: code-quality
-tags: [refactoring, clean-code, algorithms, duplication, anti-slop, craft]
-tools: [Read, Grep, Glob, Bash]
+tags:
+- refactoring
+- clean-code
+- algorithms
+- duplication
+- anti-slop
+- craft
+tools:
+- Read
+- Grep
+- Glob
+- Bash
 usage_patterns:
-  - code-quality-improvement
-  - duplication-reduction
-  - algorithm-optimization
-  - clean-code-enforcement
+- code-quality-improvement
+- duplication-reduction
+- algorithm-optimization
+- clean-code-enforcement
 complexity: advanced
 estimated_tokens: 350
 progressive_loading: true
 dependencies:
-  - pensive:shared
-  - pensive:safety-critical-patterns
-  - imbue:evidence-logging
+- pensive:shared
+- pensive:safety-critical-patterns
+- imbue:evidence-logging
 modules:
-  - modules/duplication-analysis.md
-  - modules/algorithm-efficiency.md
-  - modules/clean-code-checks.md
-  - modules/architectural-fit.md
-version: 1.3.7
+- modules/duplication-analysis.md
+- modules/algorithm-efficiency.md
+- modules/clean-code-checks.md
+- modules/architectural-fit.md
+version: 1.3.8
 ---
 ## Table of Contents
 

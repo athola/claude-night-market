@@ -160,6 +160,40 @@ You MUST produce this reconciliation table. Empty tables or missing rows = workf
 
 ---
 
+## 6.0.1 Issue Creation Enforcement (AUTOMATIC - BEFORE 6.1)
+
+**⛔ CRITICAL: Issues MUST be created IMMEDIATELY after reconciliation, not deferred.**
+
+When the reconciliation table contains items with disposition "Issue #NN" or category "Suggestion"/"Deferred":
+
+1. **STOP** - Do not proceed to 6.1 documentation
+2. **CREATE** the issues NOW using the templates in 6.1/6.2
+3. **UPDATE** the reconciliation table with actual issue numbers
+4. **VERIFY** issues exist before continuing
+
+```bash
+# Enforcement check - count items needing issues
+NEEDS_ISSUES=$(grep -c "Suggestion\|Deferred" reconciliation_table.md || echo 0)
+ISSUES_CREATED=$(gh issue list --search "PR #$PR_NUM in:body created:>=today" --json number --jq 'length')
+
+if [[ "$NEEDS_ISSUES" -gt "$ISSUES_CREATED" ]]; then
+  echo "❌ ENFORCEMENT FAILED: $NEEDS_ISSUES items need issues, only $ISSUES_CREATED created"
+  echo "CREATE ISSUES NOW before proceeding"
+  exit 1
+fi
+```
+
+**Anti-Pattern Detection:**
+| What You Wrote | Problem | Correct Action |
+|----------------|---------|----------------|
+| "Issue: Create follow-up" | Intent, not execution | Run `gh issue create` NOW |
+| "Will create issue later" | Deferring the deferral | Create issue IMMEDIATELY |
+| "S3: Deferred" without #NN | Missing issue number | Issue not created yet |
+
+**The reconciliation table is NOT complete until all Issue dispositions have real issue numbers (e.g., `Issue #184`).**
+
+---
+
 ## 6.1 Create Issues for Suggestions/Deferred Items (AUTOMATIC)
 
 **CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items identified in Step 6.0.**
@@ -286,6 +320,34 @@ For each comment classified as **Deferred** (including "out-of-scope", "medium p
 ## 6.3 Thread Resolution (MANDATORY)
 
 **CRITICAL: You MUST reply to and resolve each review thread after fixing. This is not optional.**
+
+### Review Feedback Types
+
+GitHub has TWO types of review feedback - this workflow handles BOTH:
+
+| Type | Source | Resolution Method |
+|------|--------|-------------------|
+| **Review Threads** | Line-level comments from "Start a review" | GraphQL `resolveReviewThread` |
+| **PR Comments** | Conversation tab comments | Reply via `gh pr comment` |
+
+**Detection Logic:**
+```bash
+# Check for review threads (line-level)
+THREADS=$(gh api graphql -f query="..." --jq '[...reviewThreads...] | length')
+
+# Check for PR comments containing review feedback
+COMMENTS=$(gh pr view --json comments --jq '[.comments[] | select(.body | test("review|fix|change|improve|consider"; "i"))] | length')
+
+if [[ "$THREADS" -eq 0 && "$COMMENTS" -gt 0 ]]; then
+  echo "Review feedback is in PR comments (not threads)"
+  echo "Reply to comments using: gh pr comment --body 'Addressed in commit abc123'"
+fi
+```
+
+**If review feedback is in PR comments (not threads):**
+1. Reply to the comment thread acknowledging fixes
+2. Reference commit SHAs for each addressed item
+3. No GraphQL resolution needed (comments don't have resolve state)
 
 **MANDATORY WORKFLOW CHECKPOINTS - Create TodoWrite items BEFORE starting:**
 ```markdown

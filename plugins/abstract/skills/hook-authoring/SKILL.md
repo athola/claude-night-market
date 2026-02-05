@@ -1,37 +1,37 @@
 ---
 name: hook-authoring
-description: |
-
-Triggers: validation, sdk, automation, hook, authoring
-  Complete guide for writing Claude Code and SDK hooks with security-first design.
-
-  Triggers: hook creation, hook writing, PreToolUse, PostToolUse, UserPromptSubmit,
-  tool validation, logging hooks, context injection, workflow automation
-
-  Use when: creating new hooks for tool validation, logging operations for audit,
-  injecting context before prompts, enforcing project-specific workflows,
-  preventing dangerous operations in production
-
-  DO NOT use when: logic belongs in core skill - use Skills instead.
-  DO NOT use when: complex multi-step workflows needed - use Agents instead.
-  DO NOT use when: behavior better suited for custom tool.
-
-  Use this skill BEFORE writing any hook. Check even if unsure.
-version: 1.3.7
+description: 'Use this skill BEFORE writing any hook. Check even if unsure. Use when
+  creating new hooks for tool validation, logging operations for audit, injecting
+  context before prompts, enforcing project-specific workflows, preventing dangerous
+  operations in production. Do not use when logic belongs in core skill - use Skills
+  instead. DO NOT use when: complex multi-step workflows needed - use Agents instead.
+  DO NOT use when: behavior better suited for custom tool.'
+version: 1.3.8
 category: hook-development
-tags: [hooks, sdk, security, performance, automation, validation]
+tags:
+- hooks
+- sdk
+- security
+- performance
+- automation
+- validation
 dependencies: []
 estimated_tokens: 1200
 complexity: intermediate
 provides:
-  patterns: [hook-authoring, security-patterns, performance-optimization]
-  infrastructure: [hook-validation, testing-framework]
-usage_patterns:
-  - writing-hooks
-  - hook-validation
+  patterns:
+  - hook-authoring
   - security-patterns
   - performance-optimization
-  - sdk-integration
+  infrastructure:
+  - hook-validation
+  - testing-framework
+usage_patterns:
+- writing-hooks
+- hook-validation
+- security-patterns
+- performance-optimization
+- sdk-integration
 ---
 ## Table of Contents
 

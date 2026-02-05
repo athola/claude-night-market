@@ -1,11 +1,9 @@
 ---
 name: project-init
 description: |
-
-Triggers: project, init
   Interactive project initialization with git setup, workflows, hooks, and build configuration.
 
-  Triggers: project setup, initialization, scaffold, bootstrap, new project
+  project setup, initialization, scaffold, bootstrap, new project
   Use when: starting new projects or initializing repositories
 model: claude-sonnet-4
 tools: [Read, Write, Bash, Glob]
@@ -13,7 +11,7 @@ modules:
   - ./modules/language-detection.md
   - ./modules/metadata-collection.md
   - ./modules/template-rendering.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

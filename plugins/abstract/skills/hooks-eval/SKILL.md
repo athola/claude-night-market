@@ -1,33 +1,35 @@
 ---
 name: hooks-eval
-description: |
-
-Triggers: agent-sdk, eval, claude-sdk, performance, security
-  detailed hook evaluation framework for Claude Code and Agent SDK hooks.
-
-  Triggers: hook audit, hook security, hook performance, hook compliance,
-  SDK hooks, hook evaluation, hook benchmarking, hook vulnerability
-
-  Use when: auditing existing hooks for security vulnerabilities, benchmarking
-  hook performance, implementing hooks using Python SDK, understanding hook
-  callback signatures, validating hooks against compliance standards
-
-  DO NOT use when: deciding hook placement - use hook-scope-guide instead.
-  DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
-  DO NOT use when: validating plugin structure - use validate-plugin instead.
-
-  Use this skill BEFORE deploying hooks to production.
-version: 1.3.7
+description: 'Use this skill BEFORE deploying hooks to production. Use when auditing
+  existing hooks for security vulnerabilities, benchmarking hook performance, implementing
+  hooks using Python SDK, understanding hook callback signatures, validating hooks
+  against compliance standards. Do not use when deciding hook placement - use hook-scope-guide
+  instead. DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
+  DO NOT use when: validating plugin structure - use validate-plugin instead.'
+version: 1.3.8
 category: hook-management
-tags: [hooks, evaluation, security, performance, claude-sdk, agent-sdk]
-dependencies: [hook-scope-guide]
+tags:
+- hooks
+- evaluation
+- security
+- performance
+- claude-sdk
+- agent-sdk
+dependencies:
+- hook-scope-guide
 provides:
-  infrastructure: ["hook-evaluation", "security-scanning", "performance-analysis"]
-  patterns: ["hook-auditing", "sdk-integration", "compliance-checking"]
+  infrastructure:
+  - hook-evaluation
+  - security-scanning
+  - performance-analysis
+  patterns:
+  - hook-auditing
+  - sdk-integration
+  - compliance-checking
   sdk_features:
-    - "python-sdk-hooks"
-    - "hook-callbacks"
-    - "hook-matchers"
+  - python-sdk-hooks
+  - hook-callbacks
+  - hook-matchers
 estimated_tokens: 1200
 ---
 ## Table of Contents

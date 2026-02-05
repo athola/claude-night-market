@@ -1,25 +1,33 @@
 ---
 name: war-room
-description: Multi-LLM deliberation framework for strategic decisions through pressure-based expert consultation
-triggers: war room, strategic decision, multi-expert, deliberation, council, convene experts, expert panel
-use_when: complex decisions requiring multiple perspectives, architectural trade-offs, high-stakes choices
-do_not_use_when: simple questions, routine tasks, single-path implementations
+description: Multi-LLM deliberation framework for strategic decisions through pressure-based
+  expert consultation. Use when complex decisions requiring multiple perspectives,
+  architectural trade-offs, high-stakes choices. Do not use when simple questions,
+  routine tasks, single-path implementations.
 model_preference: claude-opus-4
 category: strategic-planning
-tags: [deliberation, multi-llm, strategy, decision-making, council]
+tags:
+- deliberation
+- multi-llm
+- strategy
+- decision-making
+- council
 dependencies:
-  - conjure:delegation-core
-  - memory-palace:strategeion
-tools: [Bash, Read, Write]
+- conjure:delegation-core
+- memory-palace:strategeion
+tools:
+- Bash
+- Read
+- Write
 complexity: advanced
 estimated_tokens: 2500
 progressive_loading: true
 modules:
-  - modules/reversibility-assessment.md
-  - modules/expert-roles.md
-  - modules/deliberation-protocol.md
-  - modules/merkle-dag.md
-version: 1.3.7
+- modules/reversibility-assessment.md
+- modules/expert-roles.md
+- modules/deliberation-protocol.md
+- modules/merkle-dag.md
+version: 1.3.8
 ---
 ## Table of Contents
 

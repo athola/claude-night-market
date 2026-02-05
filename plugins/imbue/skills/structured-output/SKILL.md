@@ -1,32 +1,27 @@
 ---
 name: structured-output
-description: |
-
-Triggers: consistency, reporting, structured, structure, formatting
-  Guide to formatting review deliverables for consistency, ensuring findings
-  are comparable across different types of analysis.
-
-  Triggers: report formatting, deliverable structure, consistent output, review
-  output, findings format, report template, output consistency
-
-  Use when: formatting final review outputs, ensuring consistent deliverable
-  structure, making findings comparable across reviews
-
-  DO NOT use when: capturing evidence during analysis - use evidence-logging.
-  DO NOT use when: reviewing changes - use diff-analysis or review-core first.
-
-  Consult this skill when formatting final review deliverables.
+description: 'Consult this skill when formatting final review deliverables. Use when
+  formatting final review outputs, ensuring consistent deliverable structure, making
+  findings comparable across reviews. Do not use when capturing evidence during analysis
+  - use evidence-logging. DO NOT use when: reviewing changes - use diff-analysis or
+  review-core first.'
 category: output-patterns
-tags: [formatting, deliverables, consistency, reporting, structure]
-dependencies: [imbue:evidence-logging]
+tags:
+- formatting
+- deliverables
+- consistency
+- reporting
+- structure
+dependencies:
+- imbue:evidence-logging
 tools: []
 usage_patterns:
-  - deliverable-formatting
-  - report-structure
-  - consistent-output
+- deliverable-formatting
+- report-structure
+- consistent-output
 complexity: beginner
 estimated_tokens: 1000
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

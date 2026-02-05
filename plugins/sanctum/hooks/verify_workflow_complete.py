@@ -39,8 +39,10 @@ def main() -> None:
     # Read stop reason from stdin (optional)
     try:
         _ = json.load(sys.stdin)
-    except (json.JSONDecodeError, TypeError, ValueError, AttributeError):
+    except (json.JSONDecodeError, TypeError, ValueError, AttributeError) as e:
         pass  # No payload or invalid input - continue anyway
+        # Log to stderr for debugging (doesn't break hook output)
+        print(f"[DEBUG] Hook input parse failed: {e}", file=sys.stderr)
 
     # Output reminder
     print(json.dumps({"reason": REMINDER}))

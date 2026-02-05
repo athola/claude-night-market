@@ -4,7 +4,9 @@ This module provides common test fixtures, mocks, and utilities for testing
 the conservation plugin's skills, commands, and agents following TDD/BDD principles.
 """
 
+import importlib.util
 import sys
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -538,3 +540,80 @@ def create_mock_context_analysis(
         else "CRITICAL",
         "mecw_compliant": utilization <= OPTIMAL_UTILIZATION_THRESHOLD,
     }
+
+
+# =============================================================================
+# Context Warning Hook Fixtures
+# =============================================================================
+
+
+def _load_context_warning_module():
+    """Load the context_warning module from hooks directory."""
+    hooks_path = Path(__file__).resolve().parent.parent / "hooks"
+    module_path = hooks_path / "context_warning.py"
+
+    spec = importlib.util.spec_from_file_location("context_warning", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Failed to load context_warning module spec")
+    context_warning = importlib.util.module_from_spec(spec)
+    sys.modules["context_warning"] = context_warning
+    spec.loader.exec_module(context_warning)
+    return context_warning
+
+
+@pytest.fixture
+def context_warning_module():
+    """Import the context_warning module and return a dict of key components.
+
+    Returns:
+        Dictionary containing threshold constants, classes, and functions.
+
+    """
+    context_warning = _load_context_warning_module()
+    return {
+        "WARNING_THRESHOLD": context_warning.WARNING_THRESHOLD,
+        "CRITICAL_THRESHOLD": context_warning.CRITICAL_THRESHOLD,
+        "EMERGENCY_THRESHOLD": context_warning.EMERGENCY_THRESHOLD,
+        "ContextSeverity": context_warning.ContextSeverity,
+        "ContextAlert": context_warning.ContextAlert,
+        "assess_context_usage": context_warning.assess_context_usage,
+    }
+
+
+@pytest.fixture
+def context_warning_full_module():
+    """Import the full context_warning module.
+
+    Returns:
+        The complete module object for tests that need direct access.
+
+    """
+    return _load_context_warning_module()
+
+
+@pytest.fixture
+def context_warning_reloader():
+    """Return a function that reloads the context_warning module.
+
+    Use this fixture when testing environment variable effects that
+    require a fresh module import.
+
+    Returns:
+        A function that reloads and returns the module.
+
+    """
+    hooks_path = Path(__file__).resolve().parent.parent / "hooks"
+    module_path = hooks_path / "context_warning.py"
+
+    def reload_module():
+        # Use unique module name to force fresh import
+        module_name = f"context_warning_{uuid.uuid4().hex[:8]}"
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        if spec is None or spec.loader is None:
+            raise RuntimeError("Failed to load context_warning module spec")
+        context_warning = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = context_warning
+        spec.loader.exec_module(context_warning)
+        return context_warning
+
+    return reload_module

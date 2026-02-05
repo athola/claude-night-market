@@ -2,10 +2,9 @@
 name: precommit-setup
 description: Configure comprehensive three-layer pre-commit quality system with linting, type checking, and testing enforcement
 
-Triggers: pre-commit, quality, configure, enforcement, checking
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

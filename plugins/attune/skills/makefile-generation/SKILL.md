@@ -2,10 +2,9 @@
 name: makefile-generation
 description: Generate language-specific Makefile with common development targets
 
-Triggers: language-specific, makefile, development, targets, generation
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

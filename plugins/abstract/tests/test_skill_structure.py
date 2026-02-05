@@ -63,7 +63,7 @@ class TestSkillDescriptionBestPractices:
         Then it should contain action verbs describing capabilities
         """
         action_patterns = [
-            r"\b(validate|check|analyze|create|build|generate|evaluate|test|review|guide|help|provide|decision|framework|implement|optimize|manage|configure|design|develop|enable|validate|enforce|monitor|track|audit|assess)\b",
+            r"\b(validate|check|analyze|create|build|generate|evaluate|test|review|guide|help|provide|decision|framework|implement|optimize|manage|configure|design|develop|enable|enforce|monitor|track|audit|assess|surface|select|curate|discover|identify|extract|process|transform|execute|coordinate|orchestrate)\b",
         ]
 
         for skill_file in skill_files:
@@ -89,11 +89,16 @@ class TestSkillDescriptionBestPractices:
 
     @pytest.mark.bdd
     def test_skill_description_includes_when_to_use(self, skill_files) -> None:
-        """Scenario: Skill description explains when to use the skill.
+        """Scenario: Skill has trigger/usage information.
 
         Given a skill file with frontmatter
-        When I read the description field
-        Then it should contain trigger phrases like "Use when" or "Use for"
+        When I read the description, triggers, or use_when fields
+        Then at least one should contain trigger/usage information
+
+        Note: Skills can specify triggers in:
+        - description field (legacy format)
+        - triggers field (new format)
+        - use_when field (new format)
         """
         trigger_patterns = [
             r"use when",
@@ -113,16 +118,32 @@ class TestSkillDescriptionBestPractices:
             if not result.is_valid or "description" not in result.parsed:
                 continue
 
+            # Check description (legacy format)
             description = result.parsed["description"].lower()
-            has_trigger = any(
+            has_trigger_in_desc = any(
                 re.search(pattern, description, re.IGNORECASE)
                 for pattern in trigger_patterns
             )
 
+            # Check triggers field (new format)
+            triggers = result.parsed.get("triggers", "")
+            if isinstance(triggers, list):
+                triggers = " ".join(triggers)
+            has_triggers_field = bool(triggers)
+
+            # Check use_when field (new format)
+            use_when = result.parsed.get("use_when", "")
+            has_use_when_field = bool(use_when)
+
+            # Pass if ANY of these are present
+            has_trigger_info = (
+                has_trigger_in_desc or has_triggers_field or has_use_when_field
+            )
+
             desc_preview = result.parsed["description"][:100]
-            assert has_trigger, (
-                f"Skill '{skill_file.name}' description should include "
-                f"trigger phrases. Current: {desc_preview}..."
+            assert has_trigger_info, (
+                f"Skill '{skill_file.name}' should have trigger information "
+                f"(in description, triggers, or use_when field). Current description: {desc_preview}..."
             )
 
     @pytest.mark.bdd

@@ -84,9 +84,6 @@ def assess_context_usage(usage: float) -> ContextAlert:
 
     # EMERGENCY level - auto-clear workflow required
     if usage >= EMERGENCY_THRESHOLD:
-        state_path = os.environ.get(
-            "CONSERVE_SESSION_STATE_PATH", ".claude/session-state.md"
-        )
         return ContextAlert(
             severity=ContextSeverity.EMERGENCY,
             usage_percent=usage,
@@ -95,11 +92,10 @@ def assess_context_usage(usage: float) -> ContextAlert:
                 "AUTO-CLEAR REQUIRED! Execute clear-context workflow NOW."
             ),
             recommendations=[
-                "DO NOT STOP or tell the user to continue later",
-                f"Save session state to {state_path} immediately",
-                "Spawn a continuation-agent via Task tool to continue the work automatically",
-                "The continuation agent has fresh context and will pick up where you left off",
-                "This is NOT optional - auto-compact will trigger soon",
+                "Complete current in-progress work",
+                "Commit any pending changes",
+                "Summarize remaining tasks in your response",
+                "Session will auto-compact if needed - work is not lost",
             ],
         )
     # CRITICAL level - immediate optimization needed
@@ -141,8 +137,13 @@ def assess_context_usage(usage: float) -> ContextAlert:
 def estimate_context_from_session() -> float | None:
     """Estimate context usage from current session's JSONL file size.
 
-    This is a fallback when CLAUDE_CONTEXT_USAGE is not available.
-    Estimates based on conversation history file size.
+    This is a FAST fallback for real-time hooks when CLAUDE_CONTEXT_USAGE
+    is not available. Estimates based on conversation history file size.
+
+    Note: For more precise context reading in batch/headless scenarios,
+    use the CLI method instead:
+        claude -p "/context" --verbose --output-format json
+    See: plugins/conserve/commands/optimize-context.md
 
     Returns:
         Estimated context usage as float 0-1, or None if cannot estimate.
@@ -290,19 +291,26 @@ def main() -> int:
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse"}}))
     else:
         output = format_hook_output(alert)
-        # For EMERGENCY level, add explicit skill invocation instruction
+        # For EMERGENCY level, trigger mandatory auto-continuation
         if alert.severity == ContextSeverity.EMERGENCY:
             output["hookSpecificOutput"]["additionalContext"] = (
-                "**EMERGENCY CONTEXT ALERT**\n\n"
+                "**MANDATORY AUTO-CONTINUATION TRIGGERED**\n\n"
                 f"{alert.message}\n\n"
-                "**AUTO-CONTINUE REQUIRED (DO NOT STOP):**\n"
-                "1. Save session state to .claude/session-state.md with current progress\n"
-                "2. Spawn a continuation-agent via Task tool to continue automatically\n"
-                "3. The continuation agent has fresh context - work continues seamlessly\n\n"
-                "**CRITICAL: Do NOT tell the user to continue in a new session.** "
-                "Do NOT stop working. Save state and spawn the continuation agent NOW.\n\n"
-                "Recommendations:\n"
-                + "\n".join(f"- {rec}" for rec in alert.recommendations)
+                "**YOU MUST EXECUTE THIS NOW** (not optional):\n\n"
+                "```\n"
+                "1. Write session state to .claude/session-state.md with:\n"
+                "   - Current task objective\n"
+                "   - Progress summary\n"
+                "   - Remaining work\n"
+                "   - execution_mode: unattended, auto_continue: true\n\n"
+                "2. Spawn continuation agent with Task tool:\n"
+                "   Task(prompt='Continue from .claude/session-state.md. "
+                "Read state file FIRST. This is unattended mode - do NOT pause "
+                "for confirmation. Complete ALL remaining work.', "
+                "description='Continuation agent for context handoff')\n"
+                "```\n\n"
+                "**BLOCKING**: Do not proceed with other work until handoff is complete.\n"
+                "This is MANDATORY, not a recommendation."
             )
         print(json.dumps(output))
 

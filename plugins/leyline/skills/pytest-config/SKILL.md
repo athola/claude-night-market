@@ -1,11 +1,9 @@
 ---
 name: pytest-config
 description: |
-
-Triggers: fixtures, config, configuration, pytest, testing
   Standardized pytest configuration for plugin development with shared test patterns.
 
-  Triggers: pytest configuration, conftest, fixtures, test setup
+  pytest configuration, conftest, fixtures, test setup
   Use when: setting up pytest for plugin development or creating fixtures
 category: infrastructure
 tags: [pytest, testing, configuration, fixtures]
@@ -18,7 +16,7 @@ modules:
   - modules/git-testing-fixtures.md
   - modules/mock-fixtures.md
   - modules/ci-integration.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

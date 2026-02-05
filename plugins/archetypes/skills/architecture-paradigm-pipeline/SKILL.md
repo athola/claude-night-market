@@ -1,31 +1,29 @@
 ---
 name: architecture-paradigm-pipeline
-description: |
-
-Triggers: pipeline, streaming, data-processing, architecture, pipes-filters
-  Compose processing stages using a pipes-and-filters model for ETL, media
-  processing, or compiler-like workloads.
-
-  Triggers: pipeline architecture, pipes and filters, ETL, data transformation,
-  stream processing, CI/CD pipeline, media processing, batch processing
-
-  Use when: data flows through fixed sequence of transformations, stages can be
-  independently developed and tested, parallel processing of stages is beneficial
-
-  DO NOT use when: selecting from multiple paradigms - use architecture-paradigms first.
-  DO NOT use when: data flow isn't sequential or predictable.
-  DO NOT use when: complex branching/merging logic dominates.
-
-  Consult this skill when designing data pipelines or transformation workflows.
-version: 1.3.7
+description: 'Consult this skill when designing data pipelines or transformation workflows.
+  Use when data flows through fixed sequence of transformations, stages can be independently
+  developed and tested, parallel processing of stages is beneficial. Do not use when
+  selecting from multiple paradigms - use architecture-paradigms first. DO NOT use
+  when: data flow is not sequential or predictable. DO NOT use when: complex branching/merging
+  logic dominates.'
+version: 1.3.8
 category: architectural-pattern
-tags: [architecture, pipeline, pipes-filters, ETL, streaming, data-processing]
+tags:
+- architecture
+- pipeline
+- pipes-filters
+- ETL
+- streaming
+- data-processing
 dependencies: []
-tools: [stream-processor, message-queue, data-validator]
+tools:
+- stream-processor
+- message-queue
+- data-validator
 usage_patterns:
-  - paradigm-implementation
-  - data-transformation
-  - workflow-automation
+- paradigm-implementation
+- data-transformation
+- workflow-automation
 complexity: medium
 estimated_tokens: 700
 ---

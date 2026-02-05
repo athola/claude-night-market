@@ -1,23 +1,43 @@
 ---
 name: war-room-checkpoint
-description: Inline reversibility assessment for embedded War Room escalation from other commands
-triggers: checkpoint, assess complexity, should escalate, embedded assessment
-use_when: called from other commands at decision points to determine if War Room escalation is needed
-do_not_use_when: standalone strategic decisions (use war-room instead), simple questions
+description: Inline reversibility assessment for embedded War Room escalation from
+  other commands. Use when called from other commands at decision points to determine
+  if War Room escalation is needed. Do not use when standalone strategic decisions
+  (use war-room instead), simple questions.
 model_preference: claude-sonnet-4
 category: strategic-planning
-tags: [checkpoint, embedded, escalation, reversibility, inline]
+tags:
+- checkpoint
+- embedded
+- escalation
+- reversibility
+- inline
 dependencies:
-  - attune:war-room
+- attune:war-room
 complexity: lightweight
 estimated_tokens: 400
 progressive_loading: false
-version: 1.3.7
+version: 1.3.8
 ---
 
 # War Room Checkpoint Skill
 
 Lightweight inline assessment for determining whether a decision point within a command warrants War Room escalation.
+
+## Table of Contents
+
+1. [Purpose](#purpose)
+2. [When Commands Should Invoke This](#when-commands-should-invoke-this)
+3. [Invocation Pattern](#invocation-pattern)
+4. [Checkpoint Flow](#checkpoint-flow)
+5. [Confidence Calculation](#confidence-calculation)
+6. [Profile Thresholds](#profile-thresholds)
+7. [Output Format](#output-format)
+8. [Examples](#examples)
+
+## Verification
+
+Run `make test-checkpoint` to verify checkpoint logic works correctly after changes.
 
 ## Purpose
 

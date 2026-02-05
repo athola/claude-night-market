@@ -1,39 +1,36 @@
 ---
 name: python-performance
-description: |
-
-Triggers: memory, profiling, optimization, performance, python
-  Profile and optimize Python code using cProfile, memory profilers, and
-  performance best practices.
-
-  Triggers: profiling, optimization, cProfile, memory profiler, bottleneck,
-  slow code, performance, benchmarking, py-spy, tracemalloc
-
-  Use when: debugging slow code, identifying bottlenecks, optimizing memory,
-  benchmarking performance, production profiling
-
-  DO NOT use when: async concurrency - use python-async instead.
-  DO NOT use when: CPU/GPU system monitoring - use conservation:cpu-gpu-performance.
-
-  Consult this skill for Python performance profiling and optimization.
+description: 'Consult this skill for Python performance profiling and optimization.
+  Use when debugging slow code, identifying bottlenecks, optimizing memory, benchmarking
+  performance, production profiling. Do not use when async concurrency - use python-async
+  instead. DO NOT use when: CPU/GPU system monitoring - use conservation:cpu-gpu-performance.'
 category: performance
-tags: [python, performance, profiling, optimization, cProfile, memory]
-tools: [profiler-runner, memory-analyzer, benchmark-suite]
+tags:
+- python
+- performance
+- profiling
+- optimization
+- cProfile
+- memory
+tools:
+- profiler-runner
+- memory-analyzer
+- benchmark-suite
 usage_patterns:
-  - performance-analysis
-  - bottleneck-identification
-  - memory-optimization
-  - algorithm-optimization
+- performance-analysis
+- bottleneck-identification
+- memory-optimization
+- algorithm-optimization
 complexity: intermediate
 estimated_tokens: 1200
 progressive_loading: true
 modules:
-  - profiling-tools
-  - optimization-patterns
-  - memory-management
-  - benchmarking-tools
-  - best-practices
-version: 1.3.7
+- profiling-tools
+- optimization-patterns
+- memory-management
+- benchmarking-tools
+- best-practices
+version: 1.3.8
 ---
 
 # Python Performance Optimization

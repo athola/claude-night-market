@@ -1,11 +1,9 @@
 ---
 name: authentication-patterns
 description: |
-
-Triggers: api-keys, tokens, oauth, patterns, authentication
   Authentication patterns for external services: API keys, OAuth, token management, verification.
 
-  Triggers: authentication, API keys, OAuth, token management, credentials
+  authentication, API keys, OAuth, token management, credentials
   Use when: integrating external services or implementing authentication flows
 category: infrastructure
 tags: [authentication, api-keys, oauth, tokens, security]
@@ -24,7 +22,7 @@ modules:
   - modules/auth-methods.md
   - modules/verification-patterns.md
   - modules/interactive-auth.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

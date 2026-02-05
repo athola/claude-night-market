@@ -1,11 +1,9 @@
 ---
 name: error-patterns
 description: |
-
-Triggers: recovery, errors, error, patterns, error-handling
   Standardized error handling patterns with classification, recovery, and logging strategies.
 
-  Triggers: error handling, error recovery, graceful degradation, resilience
+  error handling, error recovery, graceful degradation, resilience
   Use when: implementing error handling in production plugins
 category: infrastructure
 tags: [errors, error-handling, recovery, resilience, debugging]
@@ -23,7 +21,7 @@ progressive_loading: true
 modules:
   - modules/classification.md
   - modules/recovery-strategies.md
-version: 1.3.7
+version: 1.3.8
 ---
 ## Table of Contents
 

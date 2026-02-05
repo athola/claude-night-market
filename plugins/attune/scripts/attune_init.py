@@ -51,6 +51,8 @@ def copy_templates(
     variables: dict,
     templates_root: Path,
     force: bool = False,
+    dry_run: bool = False,
+    backup: bool = False,
 ) -> list[str]:
     """Copy and render templates to project.
 
@@ -60,11 +62,16 @@ def copy_templates(
         variables: Template variables
         templates_root: Root path of templates directory
         force: Overwrite existing files
+        dry_run: Preview changes without writing files
+        backup: Create backup before overwriting files
 
     Returns:
         List of created file paths
 
     """
+    import shutil
+    from datetime import datetime
+
     engine = TemplateEngine(variables)
     template_dir = templates_root / language
 
@@ -73,6 +80,14 @@ def copy_templates(
         return []
 
     created_files = []
+    backup_dir = None
+
+    # Create backup directory if needed
+    if backup:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_dir = project_path / ".backup" / timestamp
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        print(f"📦 Backup directory: {backup_dir}")
 
     # Find all template files
     template_files = list(template_dir.rglob("*.template"))
@@ -91,12 +106,29 @@ def copy_templates(
         output_rel = Path(output_rel_str)
         output_path = project_path / output_rel
 
+        # Dry run - just print what would happen
+        if dry_run:
+            if output_path.exists():
+                print(f"[DRY RUN] Would overwrite: {output_path}")
+            else:
+                print(f"[DRY RUN] Would create: {output_path}")
+            created_files.append(str(output_path))
+            continue
+
         # Check if file exists
-        if output_path.exists() and not force:
-            response = input(f"File exists: {output_path}. Overwrite? [y/N]: ")
-            if response.lower() != "y":
-                print(f"⊘ Skipped: {output_path}")
-                continue
+        if output_path.exists():
+            # Backup if requested
+            if backup and backup_dir:
+                backup_file = backup_dir / output_rel
+                backup_file.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(output_path, backup_file)
+                print(f"📦 Backed up: {output_path} -> {backup_file}")
+
+            if not force:
+                response = input(f"File exists: {output_path}. Overwrite? [y/N]: ")
+                if response.lower() != "y":
+                    print(f"⊘ Skipped: {output_path}")
+                    continue
 
         # Render and write template
         engine.render_file(template_path, output_path)
@@ -107,7 +139,11 @@ def copy_templates(
 
 
 def create_project_structure(  # noqa: PLR0915
-    project_path: Path, language: str, module_name: str, project_name: str
+    project_path: Path,
+    language: str,
+    module_name: str,
+    project_name: str,
+    dry_run: bool = False,
 ) -> None:
     """Create basic project directory structure.
 
@@ -116,29 +152,42 @@ def create_project_structure(  # noqa: PLR0915
         language: Target language
         module_name: Python module name (for Python projects)
         project_name: Project name
+        dry_run: Preview changes without writing files
 
     """
     if language == "python":
         # Create src/module_name structure
         src_dir = project_path / "src" / module_name
-        src_dir.mkdir(parents=True, exist_ok=True)
+        if dry_run:
+            print(f"[DRY RUN] Would create directory: {src_dir}")
+        else:
+            src_dir.mkdir(parents=True, exist_ok=True)
 
         # Create __init__.py
         init_file = src_dir / "__init__.py"
         if not init_file.exists():
-            init_file.write_text(
-                f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n'
-            )
-            print(f"✓ Created: {init_file}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {init_file}")
+            else:
+                init_file.write_text(
+                    f'"""{module_name} package."""\n\n__version__ = "0.1.0"\n'
+                )
+                print(f"✓ Created: {init_file}")
 
         # Create tests directory
         tests_dir = project_path / "tests"
-        tests_dir.mkdir(parents=True, exist_ok=True)
+        if dry_run:
+            print(f"[DRY RUN] Would create directory: {tests_dir}")
+        else:
+            tests_dir.mkdir(parents=True, exist_ok=True)
 
         test_init = tests_dir / "__init__.py"
         if not test_init.exists():
-            test_init.write_text("")
-            print(f"✓ Created: {test_init}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {test_init}")
+            else:
+                test_init.write_text("")
+                print(f"✓ Created: {test_init}")
 
         # Create README.md if it doesn't exist
         readme = project_path / "README.md"
@@ -159,18 +208,27 @@ uv sync
 make help
 ```
 """
-            readme.write_text(readme_content)
-            print(f"✓ Created: {readme}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {readme}")
+            else:
+                readme.write_text(readme_content)
+                print(f"✓ Created: {readme}")
 
     elif language == "rust":
         # Create src/main.rs
         src_dir = project_path / "src"
-        src_dir.mkdir(parents=True, exist_ok=True)
+        if dry_run:
+            print(f"[DRY RUN] Would create directory: {src_dir}")
+        else:
+            src_dir.mkdir(parents=True, exist_ok=True)
 
         main_rs = src_dir / "main.rs"
         if not main_rs.exists():
-            main_rs.write_text('fn main() {\n    println!("Hello, world!");\n}\n')
-            print(f"✓ Created: {main_rs}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {main_rs}")
+            else:
+                main_rs.write_text('fn main() {\n    println!("Hello, world!");\n}\n')
+                print(f"✓ Created: {main_rs}")
 
         # Create lib.rs for library
         lib_rs = src_dir / "lib.rs"
@@ -191,8 +249,11 @@ mod tests {{
     }}
 }}
 """
-            lib_rs.write_text(lib_content)
-            print(f"✓ Created: {lib_rs}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {lib_rs}")
+            else:
+                lib_rs.write_text(lib_content)
+                print(f"✓ Created: {lib_rs}")
 
         # Create README.md
         readme = project_path / "README.md"
@@ -213,13 +274,19 @@ cargo build
 make help
 ```
 """
-            readme.write_text(readme_content)
-            print(f"✓ Created: {readme}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {readme}")
+            else:
+                readme.write_text(readme_content)
+                print(f"✓ Created: {readme}")
 
     elif language == "typescript":
         # Create src/index.ts
         src_dir = project_path / "src"
-        src_dir.mkdir(parents=True, exist_ok=True)
+        if dry_run:
+            print(f"[DRY RUN] Would create directory: {src_dir}")
+        else:
+            src_dir.mkdir(parents=True, exist_ok=True)
 
         index_ts = src_dir / "index.ts"
         if not index_ts.exists():
@@ -228,8 +295,11 @@ make help
                 '  return "Hello from TypeScript!";\n'
                 "}\n"
             )
-            index_ts.write_text(index_content)
-            print(f"✓ Created: {index_ts}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {index_ts}")
+            else:
+                index_ts.write_text(index_content)
+                print(f"✓ Created: {index_ts}")
 
         # Create src/App.tsx for React
         app_tsx = src_dir / "App.tsx"
@@ -246,8 +316,11 @@ function App() {{
 
 export default App;
 """
-            app_tsx.write_text(app_content)
-            print(f"✓ Created: {app_tsx}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {app_tsx}")
+            else:
+                app_tsx.write_text(app_content)
+                print(f"✓ Created: {app_tsx}")
 
         # Create README.md
         readme = project_path / "README.md"
@@ -269,8 +342,11 @@ npm run dev
 make help
 ```
 """
-            readme.write_text(readme_content)
-            print(f"✓ Created: {readme}")
+            if dry_run:
+                print(f"[DRY RUN] Would create: {readme}")
+            else:
+                readme.write_text(readme_content)
+                print(f"✓ Created: {readme}")
 
 
 def main() -> None:
@@ -338,6 +414,16 @@ def main() -> None:
         action="store_true",
         help="Skip git initialization",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview changes without writing files",
+    )
+    parser.add_argument(
+        "--backup",
+        action="store_true",
+        help="Create timestamped backup before overwriting files",
+    )
 
     args = parser.parse_args()
 
@@ -393,11 +479,17 @@ def main() -> None:
         variables=variables,
         templates_root=templates_root,
         force=args.force,
+        dry_run=args.dry_run,
+        backup=args.backup,
     )
 
     # Create project structure
     create_project_structure(
-        project_path, language, variables["PROJECT_MODULE"], project_name
+        project_path,
+        language,
+        variables["PROJECT_MODULE"],
+        project_name,
+        dry_run=args.dry_run,
     )
 
     print(f"\n{'=' * 60}")

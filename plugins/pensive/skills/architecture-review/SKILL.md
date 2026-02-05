@@ -1,40 +1,38 @@
 ---
 name: architecture-review
-description: |
-
-Triggers: adr, architecture, patterns, design, review
-  Evaluate codebase architecture against ADRs, coupling rules, and team guardrails.
-
-  Triggers: architecture review, ADR audit, coupling analysis, design review,
-  principle checks, Law of Demeter, architecture assessment
-
-  Use when: reviewing architecture decisions, auditing ADR compliance, analyzing
-  coupling, validating design principles
-
-  DO NOT use when: selecting architecture paradigms - use archetypes skills.
-  DO NOT use when: API surface review - use api-review.
-
-  Use this skill for architecture assessment and compliance.
+description: 'Use this skill for architecture assessment and compliance. Use when
+  reviewing architecture decisions, auditing ADR compliance, analyzing coupling, validating
+  design principles. Do not use when selecting architecture paradigms - use archetypes
+  skills. DO NOT use when: API surface review - use api-review.'
 category: architecture
-tags: [architecture, design, adr, coupling, patterns, principles]
-tools: [adr-auditor, coupling-analyzer, principle-checker]
+tags:
+- architecture
+- design
+- adr
+- coupling
+- patterns
+- principles
+tools:
+- adr-auditor
+- coupling-analyzer
+- principle-checker
 usage_patterns:
-  - architecture-assessment
-  - adr-audit
-  - refactor-review
-  - design-validation
+- architecture-assessment
+- adr-audit
+- refactor-review
+- design-validation
 complexity: advanced
 estimated_tokens: 300
 progressive_loading: true
 dependencies:
-  - pensive:shared
-  - imbue:evidence-logging
-  - imbue:diff-analysis/modules/risk-assessment-framework
+- pensive:shared
+- imbue:evidence-logging
+- imbue:diff-analysis/modules/risk-assessment-framework
 modules:
-  - modules/adr-audit.md
-  - modules/coupling-analysis.md
-  - modules/principle-checks.md
-version: 1.3.7
+- modules/adr-audit.md
+- modules/coupling-analysis.md
+- modules/principle-checks.md
+version: 1.3.8
 ---
 ## Table of Contents
 
@@ -48,6 +46,11 @@ version: 1.3.7
 - [Step 3: Interaction Mapping (`arch-review:interaction-mapping`)](#step-3:-interaction-mapping-(arch-review:interaction-mapping))
 - [Step 4: Principle Checks (`arch-review:principle-checks`)](#step-4:-principle-checks-(arch-review:principle-checks))
 - [Step 5: Risks and Actions (`arch-review:risks-actions`)](#step-5:-risks-and-actions-(arch-review:risks-actions))
+- [Testing](#testing)
+
+## Testing
+
+Run `pytest plugins/pensive/tests/skills/test_architecture_review.py` to verify review logic.
 - [Architecture Principles Checklist](#architecture-principles-checklist)
 - [Coupling](#coupling)
 - [Cohesion](#cohesion)

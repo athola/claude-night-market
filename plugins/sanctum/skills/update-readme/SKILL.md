@@ -1,37 +1,36 @@
 ---
 name: update-readme
-description: |
-
-Triggers: research, exemplars, readme, structure, update
-  Consolidate README content using language-aware exemplars, internal doc linkage,
-  and reproducible evidence.
-
-  Triggers: README update, documentation refresh, readme structure, exemplar research,
-  language-aware docs, readme modernization, project documentation
-
-  Use when: README requires structural refresh, adding features to documentation,
-  aligning readme with exemplar standards, improving project presentation
-
-  DO NOT use when: updating inline docs - use doc-updates.
-  DO NOT use when: consolidating ephemeral reports - use doc-consolidation.
-
-  Run git-workspace-review first to capture repo context.
+description: 'Run git-workspace-review first to capture repo context. Use when README
+  requires structural refresh, adding features to documentation, aligning readme with
+  exemplar standards, improving project presentation. Do not use when updating inline
+  docs - use doc-updates. DO NOT use when: consolidating ephemeral reports - use doc-consolidation.'
 category: artifact-generation
-tags: [readme, documentation, exemplars, research, structure]
-tools: [Read, Write, Edit, Bash, WebSearch, TodoWrite]
+tags:
+- readme
+- documentation
+- exemplars
+- research
+- structure
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- WebSearch
+- TodoWrite
 complexity: high
 estimated_tokens: 1200
 modules:
-  - language-audit
-  - exemplar-research
+- language-audit
+- exemplar-research
 progressive_loading: true
 dependencies:
-  - sanctum:shared
-  - sanctum:git-workspace-review
-  - imbue:evidence-logging
-  - scribe:slop-detector
-  - scribe:doc-generator
-version: 1.3.7
+- sanctum:shared
+- sanctum:git-workspace-review
+- imbue:evidence-logging
+- scribe:slop-detector
+- scribe:doc-generator
+version: 1.3.8
 ---
 
 # README Update Workflow
