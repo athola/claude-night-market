@@ -1,11 +1,31 @@
 ---
 name: war-room
-description: Convene a multi-LLM War Room for strategic decision making through expert deliberation
+description: "Convene multi-LLM expert panel to pressure-test strategic decisions and build consensus through deliberation"
 ---
 
 # War Room Command
 
-Orchestrate multi-expert deliberation for complex strategic decisions.
+Orchestrate multi-expert deliberation for complex strategic decisions with reversibility assessment and adversarial review.
+
+## When To Use
+
+Use this command when you need to:
+- Make critical, high-stakes decisions
+- Evaluate irreversible or costly changes
+- Compare architectural approaches with trade-offs
+- Resolve conflicting expert opinions
+- Pressure-test assumptions before commitment
+- Build consensus on strategic direction
+- Assess decision reversibility
+
+## When NOT To Use
+
+Avoid this command if:
+- Decision is trivial or easily reversible
+- Single obvious path exists
+- Already decided and need implementation
+- Routine operational choices
+- Quick tactical adjustments
 
 ## Usage
 

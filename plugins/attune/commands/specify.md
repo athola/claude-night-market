@@ -1,20 +1,29 @@
 ---
 name: specify
-description: Create specifications from brainstorm using spec-driven development
+description: "Create detailed specifications from project briefs using spec-driven methodology with acceptance criteria and testable requirements"
 usage: /attune:specify [--input FILE] [--feature NAME]
 ---
 
 # Attune Specify Command
 
-<identification>
-triggers: specify, create spec, specification, project spec
+Transform project briefs into structured, testable specifications with functional requirements and acceptance criteria.
 
-use_when:
-- Transforming brainstorm into detailed specification
-- Creating testable requirements from project brief
-</identification>
+## When To Use
 
-Transform project brief into detailed, testable specification using spec-driven development methodology.
+Use this command when you need to:
+- Transform brainstorm output into detailed specification
+- Create testable requirements from project brief
+- Define acceptance criteria for implementation
+- Document functional and non-functional requirements
+- Establish scope boundaries before planning
+
+## When NOT To Use
+
+Avoid this command if:
+- Still exploring problem space (use `/attune:brainstorm` first)
+- Already have detailed specification (use `/attune:plan` instead)
+- Need to refine existing spec (edit specification document directly)
+- Making architectural decisions without requirements (brainstorm first)
 
 ## Usage
 
