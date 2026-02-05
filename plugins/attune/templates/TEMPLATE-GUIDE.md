@@ -6,12 +6,21 @@
 description: [WHAT]. Use when: [keywords]. Do not use when: [boundary].
 ```
 
-## Budgets
+## Critical Discovery
 
-- Skills: 100-150 chars (max 200)
+**Only `description` affects Claude matching.** All other frontmatter fields (`category`, `tags`, `complexity`, etc.) are custom metadata for our ecosystem only.
+
+From official Claude Code docs:
+> "The description field provides a brief summary of what the skill does, and is the primary signal Claude uses to determine when to invoke a skill."
+
+**Token Budget**: 15,000 chars total for all skill descriptions across the entire plugin ecosystem.
+
+## Description Budgets
+
+- Skills: 100-150 chars (max 200 for complex skills)
 - Commands: 50-100 chars (max 150)
 - Agents: 75-125 chars (max 175)
-- **Total all descriptions**: < 3000 chars
+- **Attune target**: < 3,000 chars (20% of ecosystem budget)
 
 ## Workflow
 
@@ -21,9 +30,13 @@ description: [WHAT]. Use when: [keywords]. Do not use when: [boundary].
 4. Check budget: `/conserve:estimate-tokens`
 5. Commit
 
-## Critical
+## Trigger Keyword Strategy
 
-**Only `description` affects Claude matching.** All other frontmatter is metadata.
+Select 5-10 keywords mixing:
+- **User language**: "new project", "starting from scratch"
+- **Technical terms**: "requirements", "architecture", "testing"
+- **Workflow stages**: "before implementation", "after completion"
+- **Problem indicators**: "unclear requirements", "multiple options"
 
 ## Pilot Learnings (Phase 1)
 
@@ -61,11 +74,27 @@ Pilot results (3 components):
 - Multiple "Use when" scenarios add up fast
 - Balance comprehensiveness with brevity
 
+## Anti-Patterns to Avoid
+
+❌ **Vague descriptions**: "Helps with project stuff"
+✅ **Specific outcomes**: "Generates actionable project briefs with validated approaches"
+
+❌ **How-focused**: "Uses Socratic questioning"
+✅ **What-focused**: "Guides project ideation" (how is in content)
+
+❌ **No boundaries**: Applicable to everything
+✅ **Clear boundaries**: "Do not use when: requirements already clear"
+
+❌ **Missing triggers**: Only in description prose
+✅ **Explicit triggers**: "Use when: keyword1, keyword2, phrase"
+
+❌ **Token bloat**: Description is a paragraph
+✅ **Concise utility**: 1-2 sentences max in description
+
 ## References
 
 - Skill patterns: `skill-discoverability-template.md`
 - Command patterns: `command-discoverability-template.md`
 - Agent patterns: `agent-discoverability-template.md`
-- Research: `.claude/discoverability-patterns-summary.md`
-- Official spec: `.claude/frontmatter-spec-findings.md`
-- Plan: `docs/implementation-plan-attune-discoverability-v1.4.0.md`
+- Implementation plan: `docs/implementation-plan-attune-discoverability-v1.4.0.md`
+- Architecture decision: `docs/adr/0005-attune-discoverability-enhancement.md`
