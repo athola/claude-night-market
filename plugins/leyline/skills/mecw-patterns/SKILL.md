@@ -1,11 +1,9 @@
 ---
 name: mecw-patterns
 description: |
-
-  Triggers: context-management, patterns, token-optimization, thresholds, mecw
   MECW theory and patterns for hallucination prevention via context management. Implements 50% rule.
 
-  Triggers: MECW, context window, hallucination, 50% rule, context pressure
+  MECW, context window, hallucination, 50% rule, context pressure
   Use when: implementing context-aware systems or monitoring context pressure
 category: infrastructure
 tags: [context-management, mecw, hallucination-prevention, token-optimization, thresholds]

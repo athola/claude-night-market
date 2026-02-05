@@ -1,11 +1,9 @@
 ---
 name: architecture-paradigm-space-based
 description: |
-
-  Triggers: data-grid, space, architecture, based, in-memory
   Data-grid architecture for high-traffic stateful workloads with linear scalability.
 
-  Triggers: space-based, data grid, in-memory, linear scaling, high traffic
+  space-based, data grid, in-memory, linear scaling, high traffic
   Use when: traffic overwhelms database nodes or linear scalability needed
   DO NOT use when: data doesn't fit in memory or simpler caching would work.
 version: 1.3.8

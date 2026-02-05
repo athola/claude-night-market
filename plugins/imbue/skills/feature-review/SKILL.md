@@ -1,11 +1,9 @@
 ---
 name: feature-review
 description: |
-
-  Triggers: feature, backlog, prioritization, roadmap, wsjf
   Feature review and prioritization with RICE/WSJF/Kano scoring. Creates GitHub issues for suggestions.
 
-  Triggers: feature review, prioritization, RICE, WSJF, roadmap, backlog
+  feature review, prioritization, RICE, WSJF, roadmap, backlog
   Use when: reviewing features or suggesting new features
   DO NOT use when: evaluating single feature scope - use scope-guard.
 category: workflow-methodology

@@ -1,11 +1,9 @@
 ---
 name: tutorial-updates
 description: |
-
-  Triggers: tutorial, vhs, gif, updates, playwright
   Orchestrate tutorial generation from VHS tapes and Playwright specs to dual-tone markdown with GIF recording.
 
-  Triggers: tutorial update, gif generation, tape recording, update tutorial, regenerate gifs, tutorial manifest
+  tutorial update, gif generation, tape recording, update tutorial, regenerate gifs, tutorial manifest
 
   Use when: regenerating tutorial GIFs, updating documentation demos, creating tutorials from tape files
 

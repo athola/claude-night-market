@@ -1,11 +1,9 @@
 ---
 name: knowledge-intake
 description: |
-
-  Triggers: knowledge-management, curation, evaluation, external-resources, knowledge
   Process external resources into actionable knowledge with evaluation, storage, and application decisions.
 
-  Triggers: knowledge intake, article evaluation, paper review, external resource
+  knowledge intake, article evaluation, paper review, external resource
   Use when: user shares links to articles, papers, or external resources
   DO NOT use when: searching existing knowledge - use knowledge-locator.
 category: governance

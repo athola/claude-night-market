@@ -1,12 +1,9 @@
 ---
 name: vhs-recording
 description: |
+  Generate terminal recordings using VHS tape files, produces GIF outputs.
 
-  Triggers: tutorial, vhs, gif, terminal, recording
-  Generate terminal recordings using VHS tape files, produces GIF outputs
-
-  Triggers: terminal recording, vhs tape, terminal demo
-
+  Triggers: tutorial, vhs, gif, terminal, recording, terminal demo
   Use when: creating terminal recordings for tutorials
 category: media-generation
 tags: [vhs, terminal, recording, gif, demo, tutorial]

@@ -1,11 +1,9 @@
 ---
 name: commit-messages
 description: |
-
-  Triggers: messages, conventional-commits, git, changelog, commit
   Generate conventional commit messages from staged changes with correct type/scope.
 
-  Triggers: commit message, conventional commit, git commit
+  commit message, conventional commit, git commit
   Use when: generating commit messages in conventional commits format
   DO NOT use when: full PR preparation - use pr-prep instead.
 category: artifact-generation
