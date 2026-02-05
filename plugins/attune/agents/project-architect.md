@@ -1,14 +1,19 @@
 ---
 name: project-architect
-description: Architecture design agent - analyzes requirements and generates system architecture with component design
+description: "Architecture design specialist - analyzes requirements and generates component-based system architecture with technology selection and rationale. Use when: designing system architecture, defining components and interfaces, selecting technology stack, making architectural decisions."
+# Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools_allowed: [Read, Write, Grep, Glob]
 max_iterations: 10
+version: 1.4.0
+category: agent
+tags: [architecture, design, planning, technical-decisions]
+complexity: intermediate
 ---
 
 # Project Architect Agent
 
-Analyzes project specifications and generates system architecture with component design.
+Transforms specifications into production-ready system architectures with component design, technology recommendations, and deployment strategies.
 
 ## Capabilities
 
@@ -17,6 +22,15 @@ Analyzes project specifications and generates system architecture with component
 - **Interface Design**: Design APIs and component interfaces
 - **Data Modeling**: Design data schemas and flows
 - **Technology Selection**: Recommend technology stack with rationale
+
+## When To Invoke
+
+Delegate to this agent when you need:
+- System architecture design from specifications
+- Component decomposition and interface definition
+- Technology stack evaluation and selection
+- Architectural decision documentation
+- Design review and optimization
 
 ## Invocation
 

@@ -7,7 +7,7 @@ Use this template when creating or enhancing attune plugin skills to follow prov
 ```yaml
 ---
 name: skill-kebab-case
-description: [WHAT it does]. Use when: [keyword1, keyword2, scenario]. Do not use when: [boundary].
+description: "[WHAT it does]. Use when: [keyword1, keyword2, scenario]. Do not use when: [boundary]."
 # Custom metadata (not used by Claude for matching):
 version: 1.4.0
 category: workflow|methodology|code-quality|infrastructure
@@ -16,6 +16,8 @@ complexity: low|intermediate|high
 estimated_tokens: [realistic estimate]
 ---
 ```
+
+**CRITICAL**: Always quote the description field (contains colons which break YAML parsing).
 
 ### Official Fields (Used by Claude)
 - **`name`**: Skill identifier (kebab-case)

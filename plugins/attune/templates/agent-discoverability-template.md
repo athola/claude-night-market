@@ -7,12 +7,21 @@ Agents = specialized roles. Focus on capabilities and delegation context.
 ```yaml
 ---
 name: agent-name
-description: [Role] - [capability] to achieve [outcome]. Use when: [context], [decision type].
+description: "[Role] - [capability] to achieve [outcome]. Use when: [context], [decision type]."
+# Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools_allowed: [Read, Write, Grep, Glob]
 max_iterations: 10
+version: 1.4.0
+category: agent
+tags: [relevant, keywords]
+complexity: intermediate
 ---
+```
 
+**CRITICAL**: Always quote the description field (contains colons).
+
+```markdown
 # Agent Title
 
 [Expertise statement]

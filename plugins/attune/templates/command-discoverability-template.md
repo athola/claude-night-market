@@ -7,9 +7,11 @@ Commands are action-oriented - focus on tangible outputs and workflow position.
 ```yaml
 ---
 name: command-name
-description: [Action verb] [tangible outcome] using [method] - concise, 50-100 chars
+description: "[Action verb] [tangible outcome] using [method] - concise, 50-100 chars"
 ---
 ```
+
+**CRITICAL**: Always quote the description field.
 
 ## Description Formula
 

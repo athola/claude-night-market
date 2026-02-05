@@ -1,11 +1,28 @@
 ---
 name: brainstorm
-description: Brainstorm project ideas and requirements using Socratic questioning and ideation techniques
+description: "Guide project ideation through structured Socratic questioning to generate actionable project briefs with approach comparisons"
 ---
 
 # Attune Brainstorm Command
 
-Facilitate project ideation through Socratic questioning, constraint analysis, and creative exploration.
+Transform vague project ideas into structured briefs with validated approaches through multi-phase exploration.
+
+## When To Use
+
+Use this command when you need to:
+- Start a new project without clear requirements
+- Explore and compare multiple technical approaches
+- Validate project feasibility before committing resources
+- Document decision rationale for stakeholders
+- Clarify the core problem being solved
+
+## When NOT To Use
+
+Avoid this command if:
+- Requirements and specification already exist (use `/attune:plan` instead)
+- You need to refine existing specs (use `/attune:specify` instead)
+- Project scope is well-defined (jump to `/attune:project-init`)
+- Making mid-project strategic decisions (use `/attune:war-room` instead)
 
 ## Usage
 
