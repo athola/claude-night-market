@@ -89,6 +89,13 @@ repos:
         files: ^plugins/conserve/
         pass_filenames: false
 
+      - id: validate-attune-plugin
+        name: Validate Attune Plugin Structure
+        entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/attune
+        language: system
+        files: ^plugins/attune/
+        pass_filenames: false
+
       - id: validate-memory-palace-plugin
         name: Validate Memory Palace Plugin Structure
         entry: python3 plugins/abstract/scripts/validate_plugin.py plugins/memory-palace
