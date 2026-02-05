@@ -1,10 +1,14 @@
 ---
 name: workflow-setup
-description: Configure GitHub Actions workflows for CI/CD (test, lint, typecheck, publish)
-
+description: "Configure GitHub Actions CI/CD workflows for automated testing, linting, and deployment. Use when: setting up CI/CD, configuring GitHub Actions, automating quality checks. Do not use when: CI/CD already configured or using different platform."
+# Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.3.8
+version: 1.4.0
+category: infrastructure
+tags: [github-actions, ci-cd, workflows, automation, testing]
+complexity: intermediate
+estimated_tokens: 1500
 ---
 ## Table of Contents
 
@@ -30,11 +34,20 @@ version: 1.3.8
 
 Set up GitHub Actions workflows for continuous integration and deployment.
 
-## Use When
+## When To Use
 
 - Need CI/CD for a new project
 - Adding missing workflows to existing project
 - Updating workflow versions to latest
+- Automating testing and quality checks
+- Setting up deployment pipelines
+
+## When NOT To Use
+
+- GitHub Actions workflows already configured and current
+- Project uses different CI platform (GitLab CI, CircleCI, etc.)
+- Not hosted on GitHub
+- Use `/attune:upgrade-project` instead for updating existing workflows
 
 ## Standard Workflows
 

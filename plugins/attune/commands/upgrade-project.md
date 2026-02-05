@@ -1,11 +1,28 @@
 ---
 name: upgrade-project
-description: Add or update configurations in an existing project to match current best practices
+description: "Update existing project configurations to current best practices with selective component upgrades"
 ---
 
 # Attune Upgrade-Project Command
 
-Add missing configurations or update existing ones in a project.
+Add missing configurations or update existing ones to match current best practices.
+
+## When To Use
+
+Use this command when you need to:
+- Update project tooling to current standards
+- Add missing configurations to existing project
+- Upgrade specific components (Makefile, workflows, hooks)
+- Bring legacy project up to modern standards
+- Selectively update outdated configurations
+
+## When NOT To Use
+
+Avoid this command if:
+- Starting new project from scratch (use `/attune:project-init`)
+- All configurations current and complete
+- Need full reinitialization (backup and reinitialize)
+- Custom configurations that shouldn't be standardized
 
 ## Usage
 

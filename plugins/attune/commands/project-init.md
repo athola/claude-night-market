@@ -1,22 +1,29 @@
 ---
 name: project-init
-description: Initialize or update project with git, workflows, hooks, and Makefiles
+description: "Initialize project with complete development infrastructure including git, workflows, hooks, and Makefiles"
 usage: /attune:project-init [--lang python|rust|typescript] [--name NAME]
 ---
 
 # Attune Project Init Command
 
-<identification>
-triggers: init project, initialize project, new project, project setup, update tooling
+Initialize or update projects with complete development infrastructure and standard tooling.
 
-use_when:
-- Starting a new project from scratch
-- Setting up development infrastructure
-- Updating existing project tooling to current standards
-- Adding missing configurations to established projects
-</identification>
+## When To Use
 
-Initialize or update a project with complete development infrastructure.
+Use this command when you need to:
+- Start a new project from scratch
+- Set up development infrastructure (git, Makefile, CI/CD)
+- Bootstrap project with language-specific tooling
+- Initialize empty repository with standards
+- Create project structure and configurations
+
+## When NOT To Use
+
+Avoid this command if:
+- Project already initialized and configured
+- Only need specific component updates (use `/attune:upgrade-project`)
+- Need architecture selection first (use `/attune:arch-init`)
+- Modifying established project structure
 
 ## Usage
 
