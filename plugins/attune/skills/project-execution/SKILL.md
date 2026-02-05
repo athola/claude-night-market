@@ -1,10 +1,14 @@
 ---
 name: project-execution
-description: Systematic task execution with checkpoint validation, progress tracking, and quality gates
-
+description: "Execute implementation plans systematically with checkpoint validation, progress tracking, and continuous quality gates. Use when: implementing tasks, executing plans, tracking progress, validating checkpoints. Do not use when: no implementation plan exists or still in planning phase."
+# Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 tools_allowed: all
-version: 1.3.8
+version: 1.4.0
+category: workflow
+tags: [execution, implementation, progress-tracking, quality-gates, tdd]
+complexity: intermediate
+estimated_tokens: 2100
 ---
 ## Table of Contents
 
@@ -50,12 +54,21 @@ version: 1.3.8
 
 Execute implementation plan systematically with checkpoints, validation, and progress tracking.
 
-## When to Use
+## When To Use
 
 - After planning phase completes
 - Ready to implement tasks
 - Need systematic execution with tracking
 - Want checkpoint-based validation
+- Executing task lists with dependencies
+- Monitoring progress and velocity
+
+## When NOT To Use
+
+- No implementation plan exists (use `Skill(attune:project-planning)` first)
+- Still planning or designing (complete planning phase before execution)
+- Single isolated task (execute directly without framework overhead)
+- Exploratory coding or prototyping (use focused development instead)
 
 ## Integration
 
