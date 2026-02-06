@@ -30,7 +30,7 @@ modules:
 - memory-management
 - benchmarking-tools
 - best-practices
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Python Performance Optimization

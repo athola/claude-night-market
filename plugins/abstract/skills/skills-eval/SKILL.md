@@ -8,7 +8,7 @@ description: 'Evaluate and improve Claude skill quality through auditing. Use wh
   compliance check, improvement suggestions, token usage analysis, skill evaluation,
   skill assessment, skill optimization, skill standards, skill metrics, skill performance,
   skill quality.'
-version: 1.3.8
+version: 1.4.0
 category: skill-management
 tags:
 - evaluation

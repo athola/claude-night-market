@@ -5,7 +5,7 @@ description: 'Run git-workspace-review first to understand which tests need upda
   quality, ensuring detailed coverage, pre-commit validation. Do not use when auditing
   test suites - use pensive:test-review. DO NOT use when: writing production code
   - focus on implementation first.'
-version: 1.3.8
+version: 1.4.0
 category: testing-automation
 tags:
 - tdd

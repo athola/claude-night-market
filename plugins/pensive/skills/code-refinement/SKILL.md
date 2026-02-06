@@ -38,7 +38,7 @@ modules:
 - modules/algorithm-efficiency.md
 - modules/clean-code-checks.md
 - modules/architectural-fit.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

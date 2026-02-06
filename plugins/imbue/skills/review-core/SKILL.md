@@ -20,7 +20,7 @@ usage_patterns:
 - evidence-capture
 complexity: intermediate
 estimated_tokens: 1500
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Core Review Workflow

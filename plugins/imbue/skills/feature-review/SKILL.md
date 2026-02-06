@@ -25,7 +25,7 @@ modules:
   - modules/classification-system.md
   - modules/tradeoff-dimensions.md
   - modules/configuration.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

@@ -34,7 +34,7 @@ progressive_loading: true
 modules:
 - modules/session-patterns.md
 - modules/log-formats.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

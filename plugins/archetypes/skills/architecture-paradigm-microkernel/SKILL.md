@@ -6,7 +6,7 @@ description: |
   Triggers: microkernel, plugin-architecture, extensibility, platform-design
   Use when: platforms/IDEs/marketplaces, core stability critical, plugin isolation needed
   DO NOT use when: selecting paradigms (use architecture-paradigms first), no extensibility needed
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, microkernel, plugin, extensibility, platform-design]
 dependencies: []

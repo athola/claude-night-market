@@ -9,7 +9,7 @@ progressive_loading: true
 dependencies:
   hub: []
   modules: []
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Token Conservation Workflow

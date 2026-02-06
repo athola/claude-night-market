@@ -36,7 +36,7 @@ progressive_loading: true
 modules:
 - modules/service-config.md
 - modules/execution-patterns.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

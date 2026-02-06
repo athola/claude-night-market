@@ -16,7 +16,7 @@ modules:
   - modules/git-testing-fixtures.md
   - modules/mock-fixtures.md
   - modules/ci-integration.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

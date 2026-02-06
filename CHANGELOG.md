@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-02-05
+
+### Added - Attune Discoverability Enhancement (attune)
+
+- **Discoverability pattern** - All 20 attune components (9 skills, 9 commands, 2 agents) now feature enhanced automatic discovery through optimized descriptions
+  - Pattern: `[WHAT]. Use when: [triggers]. Do not use when: [boundaries].`
+  - "When To Use" and "When NOT To Use" sections guide users to correct components
+  - Trigger keyword optimization (5-10 keywords per component)
+  - Explicit boundaries prevent false positive matches
+
+- **Contributor templates** - Reusable templates in `plugins/attune/templates/`
+  - `skill-discoverability-template.md` - For skills
+  - `command-discoverability-template.md` - For commands
+  - `agent-discoverability-template.md` - For agents
+  - `TEMPLATE-GUIDE.md` - Quick reference with YAML quoting rules and token budgets
+
+- **Pre-commit validation** - Hook validates discoverability metadata on commit
+
+### Changed - Token Budget Management
+
+- **Description optimization** - Attune descriptions total 3,920 chars (196 avg per component)
+  - Skills: 100-150 chars target
+  - Commands: 50-100 chars target
+  - Agents: 75-125 chars target
+  - Well under 20% of ecosystem's 15,000 char budget
+
 ## [1.3.8] - 2026-02-01
 
 ### Changed - Conserve Plugin Improvements

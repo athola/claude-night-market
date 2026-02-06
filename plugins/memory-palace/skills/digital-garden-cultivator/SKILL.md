@@ -22,7 +22,7 @@ usage_patterns:
 - content-lifecycle
 complexity: intermediate
 estimated_tokens: 500
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

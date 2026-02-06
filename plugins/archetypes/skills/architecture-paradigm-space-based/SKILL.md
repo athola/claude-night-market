@@ -6,7 +6,7 @@ description: |
   space-based, data grid, in-memory, linear scaling, high traffic
   Use when: traffic overwhelms database nodes or linear scalability needed
   DO NOT use when: data doesn't fit in memory or simpler caching would work.
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, space-based, data-grid, scalability, in-memory, stateful]
 dependencies: []

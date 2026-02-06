@@ -11,7 +11,7 @@ tools: [Bash]
 complexity: low
 estimated_tokens: 400
 progressive_loading: false
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

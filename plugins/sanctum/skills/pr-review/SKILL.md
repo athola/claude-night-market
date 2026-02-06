@@ -35,7 +35,7 @@ dependencies:
 - memory-palace:review-chamber
 - scribe:slop-detector
 - scribe:doc-generator
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -366,8 +366,28 @@ A PR should be approved when:
 - **`/pr`**: To prepare a PR before review
 - **`pensive:unified-review`**: For the actual code analysis
 - **`pensive:bug-review`**: For deeper bug hunting if needed
-- **`scribe:slop-detector`**: For documentation quality in changed `.md` files
-- **`scribe:doc-generator`**: For PR description writing guidelines
+- **`scribe:slop-detector`**: For documentation AND commit message quality analysis
+- **`scribe:doc-generator`**: For PR description writing guidelines (slop-free)
+
+## Slop Detection Integration
+
+### Documentation Review
+For all changed `.md` files, invoke `Skill(scribe:slop-detector)`:
+- Score ≥ 3.0: Flag as IN-SCOPE (should remediate)
+- Score ≥ 5.0: Flag as BLOCKING if `--strict` mode
+
+### Commit Message Review
+Scan all PR commit messages for slop markers:
+```bash
+gh pr view <number> --json commits --jq '.commits[].messageBody' | \
+  grep -iE 'leverage|seamless|comprehensive|delve|robust|utilize|facilitate'
+```
+If slop found in commits: Add to SUGGESTION category with remediation guidance.
+
+### PR Description Review
+Apply `scribe:slop-detector` to PR body:
+- Tier 1 words in description → SUGGESTION to rephrase
+- Marketing phrases ("unlock potential") → Flag for removal
 
 ## Exit Criteria
 

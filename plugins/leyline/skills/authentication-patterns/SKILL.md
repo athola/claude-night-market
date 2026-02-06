@@ -22,7 +22,7 @@ modules:
   - modules/auth-methods.md
   - modules/verification-patterns.md
   - modules/interactive-auth.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 

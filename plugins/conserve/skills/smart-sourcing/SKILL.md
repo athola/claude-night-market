@@ -13,7 +13,7 @@ tools:
 - WebSearch
 complexity: low
 estimated_tokens: 400
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Smart Sourcing

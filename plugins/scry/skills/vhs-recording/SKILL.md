@@ -14,7 +14,7 @@ progressive_loading: true
 modules:
   - tape-syntax
   - execution
-version: 1.3.8
+version: 1.4.0
 ---
 
 # VHS Recording Skill
