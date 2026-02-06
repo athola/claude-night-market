@@ -152,3 +152,87 @@ managers, preventing resource exhaustion."""
 
         commit_msg = mock_bash("git log -1 --pretty=format:%s%n%n%b")
         assert "memory leak" in commit_msg.lower()
+
+
+class TestCommitMessageSlopDetection:
+    """Feature: Detect and reject AI slop in commit messages.
+
+    As a repository maintainer
+    I want commit messages to be free of AI-generated content markers
+    So that the git history reads naturally and professionally
+    """
+
+    # Tier 1 slop words that should ALWAYS be rejected
+    TIER1_SLOP_WORDS = [
+        "leverage",
+        "utilize",
+        "seamless",
+        "comprehensive",
+        "robust",
+        "facilitate",
+        "streamline",
+        "delve",
+        "multifaceted",
+        "pivotal",
+        "intricate",
+        "nuanced",
+    ]
+
+    # Blocked phrases
+    BLOCKED_PHRASES = [
+        "it's worth noting",
+        "at its core",
+        "in essence",
+        "a testament to",
+        "navigate the complexities",
+    ]
+
+    def test_detects_tier1_slop_words_in_subject(self) -> None:
+        """Scenario: Reject commit subjects containing tier-1 slop words."""
+        bad_subjects = [
+            "feat: leverage new API for auth",
+            "fix: utilize helper function",
+            "docs: add comprehensive guide",
+        ]
+
+        for subject in bad_subjects:
+            has_slop = any(word in subject.lower() for word in self.TIER1_SLOP_WORDS)
+            assert has_slop, f"Should detect slop in: {subject}"
+
+    def test_accepts_clean_commit_subjects(self) -> None:
+        """Scenario: Accept commit subjects without slop words."""
+        clean_subjects = [
+            "feat: add new API for auth",
+            "fix: use helper function",
+            "docs: add complete guide",
+        ]
+
+        for subject in clean_subjects:
+            has_slop = any(word in subject.lower() for word in self.TIER1_SLOP_WORDS)
+            assert not has_slop, f"Should not flag clean subject: {subject}"
+
+    def test_detects_slop_phrases_in_body(self) -> None:
+        """Scenario: Reject commit bodies containing blocked phrases."""
+        bad_body = """This change leverages the new API.
+
+It's worth noting that this improves performance.
+At its core, this is a refactoring effort."""
+
+        has_slop = any(phrase in bad_body.lower() for phrase in self.BLOCKED_PHRASES)
+        assert has_slop, "Should detect blocked phrases in body"
+
+    def test_provides_alternatives_for_slop_words(self) -> None:
+        """Scenario: Mapping from slop words to clean alternatives exists."""
+        alternatives = {
+            "leverage": "use",
+            "utilize": "use",
+            "comprehensive": "complete",
+            "robust": "solid",
+            "facilitate": "enable",
+            "streamline": "simplify",
+            "delve": "explore",
+        }
+
+        for slop, clean in alternatives.items():
+            assert slop in self.TIER1_SLOP_WORDS, f"{slop} should be in tier-1 list"
+            assert clean not in self.TIER1_SLOP_WORDS, f"{clean} should not be slop"
