@@ -38,10 +38,21 @@ version: 1.4.0
 
 # Structured Output
 
-## When to Use
+## When To Use
 - When finalizing any review or analysis.
 - To format findings in a consistent and actionable way.
 - Before presenting results to stakeholders or committing them to documentation.
+
+## When NOT To Use
+
+- Capturing evidence during analysis
+  - use evidence-logging
+- Reviewing changes - use diff-analysis or
+  review-core first
+- Capturing evidence during analysis
+  - use evidence-logging
+- Reviewing changes - use diff-analysis or
+  review-core first
 
 ## Activation Patterns
 **Trigger Keywords**: format, structure, deliverable, report, organize, present, consistent

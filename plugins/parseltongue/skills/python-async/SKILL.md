@@ -52,7 +52,7 @@ asyncio.run(main())
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Building async web APIs (FastAPI, aiohttp)
 - Implementing concurrent I/O operations
@@ -60,6 +60,15 @@ asyncio.run(main())
 - Developing real-time applications (WebSockets)
 - Processing multiple independent tasks simultaneously
 - Building microservices with async communication
+
+## When NOT To Use
+
+- CPU-bound optimization - use python-performance
+  instead
+- Testing async code - use python-testing async module
+- CPU-bound optimization - use python-performance
+  instead
+- Testing async code - use python-testing async module
 
 ## Modules
 

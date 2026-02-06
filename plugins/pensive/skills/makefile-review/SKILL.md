@@ -73,13 +73,18 @@ Audit Makefiles for best practices, deduplication, and portability.
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Makefile changes or additions
 - Build system optimization
 - Portability improvements
 - CI/CD pipeline updates
 - Developer experience improvements
+
+## When NOT To Use
+
+- Creating new Makefiles - use abstract:make-dogfood
+- Architecture review - use architecture-review
 
 ## Required TodoWrite Items
 

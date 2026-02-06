@@ -45,7 +45,7 @@ estimated_tokens: 900
 - When different business capabilities (bounded contexts) have distinct scaling requirements or would benefit from different technology stacks.
 - When there is a significant organizational commitment to investing in DevOps and SRE maturity, including advanced observability, CI/CD, and incident response capabilities.
 
-## When NOT to Use This Paradigm
+## When NOT To Use This Paradigm
 - When team size is small and organizational complexity is low
 - When lack of DevOps maturity or limited platform engineering resources
 - When system requires strong transactional consistency across operations

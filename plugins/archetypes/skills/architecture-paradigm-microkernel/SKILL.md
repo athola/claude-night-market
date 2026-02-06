@@ -21,6 +21,17 @@ estimated_tokens: 900
 
 # The Microkernel (Plugin) Architecture Paradigm
 
+
+## When To Use
+
+- Building extensible systems with plugin architectures
+- Products requiring customer-specific customizations
+
+## When NOT To Use
+
+- Monolithic applications without plugin extensibility needs
+- Systems where all features are core and tightly coupled by design
+
 ## When to Employ This Paradigm
 - When building platforms, Integrated Development Environments (IDEs), data ingestion pipelines, or marketplaces where third parties need to extend core functionality.
 - When the core system requires extreme stability, while extensions and features must evolve and change rapidly.

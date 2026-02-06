@@ -27,6 +27,17 @@ version: 1.4.0
 
 Guidance on KISS, YAGNI, and SOLID principles with language-specific examples.
 
+
+## When To Use
+
+- Improving code readability and maintainability
+- Applying SOLID, KISS, YAGNI principles during refactoring
+
+## When NOT To Use
+
+- Throwaway scripts or one-time data migrations
+- Performance-critical code where readability trades are justified
+
 ## KISS (Keep It Simple, Stupid)
 
 **Principle**: Avoid unnecessary complexity. Prefer obvious solutions over clever ones.

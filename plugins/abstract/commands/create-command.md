@@ -6,23 +6,23 @@ usage: /create-command [command-description] [--skip-brainstorm] [--plugin <name
 
 # Create Command
 
-<identification>
-triggers: new command, create command, slash command, start command, build command, add command, write command
+Creates new slash commands through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed commands before generating any files.
 
-use_when:
+**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create command files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
+
+## When To Use
+
+Use this command when you need to:
 - Creating a new slash command from scratch
 - Need guided brainstorming for command design
 - Want structured workflow for command development
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Creating skills - use /create-skill instead
 - Creating hooks - use /create-hook instead
 - Modifying existing commands - edit directly
-</identification>
-
-Creates new slash commands through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed commands before generating any files.
-
-**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create command files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## Usage
 

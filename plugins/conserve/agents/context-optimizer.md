@@ -54,13 +54,20 @@ Autonomous agent specialized in analyzing and optimizing context window usage ac
 - **Optimization Execution**: Implements recommended optimizations
 - **Growth Monitoring**: Tracks and predicts context growth
 
-## When to Use
+## When To Use
 
 Dispatch this agent for:
 - Full context audits across large skill collections
 - Automated optimization of skills exceeding token budgets
 - Pre-release context compliance verification
 - Periodic health checks of plugin context efficiency
+
+## When NOT To Use
+
+- Single skill optimization
+  - use optimizing-large-skills skill
+- Single skill optimization
+  - use optimizing-large-skills skill
 
 ## Agent Workflow
 

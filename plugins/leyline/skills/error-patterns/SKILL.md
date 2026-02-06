@@ -49,12 +49,17 @@ version: 1.4.0
 
 Standardized error handling patterns for consistent, production-grade behavior across plugins. Provides error classification, recovery strategies, and debugging workflows.
 
-## When to Use
+## When To Use
 
 - Building resilient integrations
 - Need consistent error handling
 - Want graceful degradation
 - Debugging production issues
+
+## When NOT To Use
+
+- Project doesn't use the leyline infrastructure patterns
+- Simple scripts without service architecture needs
 
 ## Error Classification
 

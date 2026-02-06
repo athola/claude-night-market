@@ -65,13 +65,22 @@ uv publish
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Creating distributable Python libraries
 - Building CLI tools
 - Publishing to PyPI
 - Setting up development environments
 - Managing project dependencies
+
+## When NOT To Use
+
+- Testing packages - use python-testing
+  instead
+- Optimizing package performance - use python-performance
+- Testing packages - use python-testing
+  instead
+- Optimizing package performance - use python-performance
 
 ## Core Decisions
 

@@ -45,7 +45,7 @@ estimated_tokens: 700
 - When compliance or operations teams require clear separation of concerns (e.g., UI vs. domain logic vs. persistence).
 - When the deployment artifact remains a monolith, but code clarity and separation are degrading.
 
-## When NOT to Use This Paradigm
+## When NOT To Use This Paradigm
 - When high scalability demands require independent scaling of components
 - When multiple teams need independent deployment cycles
 - When complex business logic requires frequent cross-layer communication

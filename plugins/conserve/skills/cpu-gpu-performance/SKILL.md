@@ -26,11 +26,20 @@ version: 1.4.0
 
 # CPU/GPU Performance Discipline
 
-## When to Use
+## When To Use
 - At the beginning of every session (auto-load alongside `token-conservation`).
 - Whenever you plan to build, train, or test anything that could pin CPU cores
   or GPUs for more than a minute.
 - Before retrying a failing command that previously consumed significant resources.
+
+## When NOT To Use
+
+- Simple operations
+  with no resource impact
+- Quick single-file operations
+- Simple operations
+  with no resource impact
+- Quick single-file operations
 
 ## Required TodoWrite Items
 1. `cpu-gpu-performance:baseline`

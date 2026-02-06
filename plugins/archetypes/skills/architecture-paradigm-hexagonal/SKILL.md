@@ -22,6 +22,17 @@ estimated_tokens: 1200
 
 # The Hexagonal (Ports & Adapters) Paradigm
 
+
+## When To Use
+
+- Isolating business logic from external dependencies
+- Systems needing swappable adapters for testing
+
+## When NOT To Use
+
+- Small scripts or utilities without external dependencies
+- Prototypes where port/adapter abstraction adds overhead
+
 ## When to Employ This Paradigm
 - When you anticipate frequent changes to databases, frameworks, or user interfaces and need the core domain logic to remain stable.
 - When testing the core application requires mocking complex or slow infrastructure components.

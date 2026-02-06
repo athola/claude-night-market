@@ -42,11 +42,22 @@ version: 1.4.0
 
 Structured method for analyzing changesets: categorize changes, assess risks, generate insights. Works for git diffs, configuration changes, API migrations, schema updates, or document revisions.
 
-## When to Use
+## When To Use
 - Extracting insights from raw change data
 - Categorizing and prioritizing changes before code reviews
 - Preparing release notes or changelogs
 - Assessing migration scope and risk
+
+## When NOT To Use
+
+- Quick context catchup
+  - use catchup instead
+- Full PR review - use review-core with pensive
+  skills
+- Quick context catchup
+  - use catchup instead
+- Full PR review - use review-core with pensive
+  skills
 
 ## Activation Patterns
 **Trigger Keywords**: diff, changes, release notes, changelog, migration, impact, risk assessment

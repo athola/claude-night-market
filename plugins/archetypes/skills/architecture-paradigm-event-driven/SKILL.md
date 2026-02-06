@@ -21,6 +21,17 @@ estimated_tokens: 800
 
 # The Event-Driven Architecture Paradigm
 
+
+## When To Use
+
+- Building async, loosely-coupled systems
+- Systems with complex event processing pipelines
+
+## When NOT To Use
+
+- Simple request-response applications without async needs
+- Systems requiring strong transactional consistency
+
 ## When to Employ This Paradigm
 - For real-time or bursty workloads (e.g., IoT, financial trading, logistics) where loose coupling and asynchronous processing are beneficial.
 - When multiple, distinct subsystems must react to the same business or domain events.

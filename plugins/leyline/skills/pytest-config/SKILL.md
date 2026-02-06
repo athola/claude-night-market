@@ -30,6 +30,17 @@ version: 1.4.0
 
 Standardized pytest configuration and patterns for consistent testing infrastructure across Claude Night Market plugins.
 
+
+## When To Use
+
+- Setting up pytest configuration and fixtures
+- Configuring conftest.py patterns for test infrastructure
+
+## When NOT To Use
+
+- Non-Python projects or projects using other test frameworks
+- Simple scripts that do not need test infrastructure
+
 ## Quick Start
 
 ### Basic pyproject.toml Configuration

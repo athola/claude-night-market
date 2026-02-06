@@ -20,6 +20,17 @@ version: 1.4.0
 
 # Conventional Commit Workflow
 
+
+## When To Use
+
+- Generating conventional commit messages from staged changes
+- Ensuring commit messages follow project conventions
+
+## When NOT To Use
+
+- Full PR preparation - use sanctum:pr-prep instead
+- Amending existing commits - use git directly
+
 ## Usage
 
 Use this skill to draft a commit message for staged changes. Execute `Skill(sanctum:git-workspace-review)` first to capture the repository path, status, and diffs. If no changes are staged, stage the relevant files before continuing.

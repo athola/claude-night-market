@@ -71,7 +71,7 @@ Prevents overengineering by both Claude and human during the brainstormâ†’planâ†
 2. **Opportunity Cost** - Compare against existing backlog
 3. **Branch Discipline** - Respect size thresholds
 
-## When to Use
+## When To Use
 
 - During brainstorming sessions before documenting designs
 - During planning sessions before finalizing implementation plans
@@ -79,7 +79,7 @@ Prevents overengineering by both Claude and human during the brainstormâ†’planâ†
 - Automatically via hooks when branches approach thresholds
 - When proposing new features, abstractions, or patterns
 
-## When NOT to Use
+## When NOT To Use
 
 - Bug fixes with clear, bounded scope
 - Documentation-only changes

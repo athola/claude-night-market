@@ -70,13 +70,13 @@ Review implemented features and suggest new ones using evidence-based prioritiza
 
 Feature decisions rely on data. Every feature involves tradeoffs that require evaluation. This skill uses hybrid RICE+WSJF scoring with Kano classification to prioritize work and generates actionable GitHub issues for accepted suggestions.
 
-## When to Use
+## When To Use
 
 - Roadmap reviews (sprint planning, quarterly reviews).
 - Retrospective evaluations.
 - Planning new development cycles.
 
-## When NOT to Use
+## When NOT To Use
 
 - Emergency bug fixes.
 - Simple documentation updates.

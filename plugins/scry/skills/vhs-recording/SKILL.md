@@ -21,6 +21,17 @@ version: 1.4.0
 
 Generate professional terminal recordings from VHS tape files.
 
+
+## When To Use
+
+- Recording terminal sessions with VHS tape scripts
+- Creating terminal demo recordings for documentation
+
+## When NOT To Use
+
+- Browser-based workflows - use scry:browser-recording instead
+- Non-terminal demos or GUI applications
+
 ## Overview
 
 VHS converts declarative tape files into animated GIFs of terminal sessions. Tape files define commands, timing, and terminal appearance.

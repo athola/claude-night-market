@@ -6,20 +6,6 @@ usage: /create-skill [skill-description] [--skip-brainstorm] [--plugin <name>]
 
 # Create Skill Command
 
-<identification>
-triggers: new skill, create skill, skill creation, start skill, build skill, add skill, write skill
-
-use_when:
-- Starting a new skill from scratch
-- Need guided brainstorming for skill design
-- Want structured workflow for skill development
-
-do_not_use_when:
-- Evaluating existing skills - use /skills-eval instead
-- Testing existing skills - use /test-skill instead
-- Improving skill architecture - use modular-skills skill
-</identification>
-
 Creates new skills through a structured workflow: **iron-law → brainstorm → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed skills before generating any files.
 
 **CRITICAL**: This workflow enforces the Iron Law. You CANNOT create skill files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
@@ -189,7 +175,7 @@ updated: ${date}
 
 ${description_expanded}
 
-## When to Use
+## When To Use
 
 Use this skill when:
 - ${condition_1}
@@ -199,6 +185,11 @@ Use this skill when:
 Do NOT use when:
 - ${anti_condition_1}
 - ${anti_condition_2}
+
+## When NOT To Use
+
+- Simple file edits that don't need structured workflow
+- Already have a working solution - just implement it
 
 ## Quick Start
 

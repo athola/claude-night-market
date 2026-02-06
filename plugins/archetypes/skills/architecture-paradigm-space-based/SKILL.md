@@ -21,6 +21,17 @@ estimated_tokens: 800
 
 # The Space-Based Architecture Paradigm
 
+
+## When To Use
+
+- High-traffic applications needing elastic scalability
+- Systems requiring in-memory data grids
+
+## When NOT To Use
+
+- Low-traffic applications where distributed caching is overkill
+- Systems with strong consistency requirements over availability
+
 ## When to Employ This Paradigm
 - When traffic or state volume overwhelms a single database node.
 - When latency requirements demand in-memory data grids located close to processing units.

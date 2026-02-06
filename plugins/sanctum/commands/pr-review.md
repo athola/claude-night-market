@@ -7,14 +7,6 @@ extends: "superpowers:receiving-code-review"
 
 # Enhanced PR Review
 
-<identification>
-triggers: PR review, code review, pull request, pre-merge
-
-use_when:
-- Reviewing feature PRs or enforcing quality gates
-- Pre-merge validation with scope discipline
-</identification>
-
 Integrates Sanctum's disciplined scope validation with superpowers:receiving-code-review's detailed analysis to provide thorough, balanced PR reviews that prevent scope creep while ensuring code quality.
 
 ## Core Philosophy
@@ -39,13 +31,18 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 - **Security Scanning**: Vulnerability detection
 - **Performance Impact Assessment**: Efficiency considerations
 
-## When to Use
+## When To Use
 
 - Reviewing feature branch PRs
 - Validating implementation against requirements
 - Pre-merge quality gates
 - Generating actionable review feedback
 - Creating improvement backlog
+
+## When NOT To Use
+
+- Self-reviewing trivial changes
+- Draft PRs not ready for review
 
 ## Documentation
 

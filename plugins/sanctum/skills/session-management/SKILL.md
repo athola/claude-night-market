@@ -17,6 +17,17 @@ version: 1.4.0
 
 # Session Management
 
+
+## When To Use
+
+- Managing session checkpoints and state preservation
+- Resuming work across Claude Code sessions
+
+## When NOT To Use
+
+- Short sessions that do not need checkpoints
+- Fresh starts where no prior session context exists
+
 ## Overview
 
 Claude Code supports named sessions for better workflow organization. Use this skill to manage complex, long-running work across multiple sessions.

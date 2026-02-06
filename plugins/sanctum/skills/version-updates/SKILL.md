@@ -27,9 +27,14 @@ version: 1.4.0
 
 # Version Update Workflow
 
-## When to Use
+## When To Use
 Use this skill when preparing a release or bumping the project version.
 Run `Skill(sanctum:git-workspace-review)` first to capture current changes.
+
+## When NOT To Use
+
+- Just documentation updates - use doc-updates
+- Full PR preparation - use pr-prep
 
 ## Required TodoWrite Items
 1. `version-update:context-collected`

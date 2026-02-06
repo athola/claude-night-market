@@ -57,13 +57,18 @@ version: 1.4.0
 
 # Documentation Update Workflow
 
-## When to Use
+## When To Use
 
 Use this skill when code changes require updates to the README, plans, wikis, or docstrings. Run `Skill(sanctum:git-workspace-review)` first to capture the change context.
 
 ### System Capabilities
 
 The documentation update workflow includes several specialized functions. It identifies redundancy through consolidation detection and enforces directory-specific style rules, with strict limits for `docs/` and more lenient ones for the `book/` directory. The system also verifies the accuracy of version numbers and component counts and integrates with the LSP for semantic documentation verification in supported versions of Claude Code.
+
+## When NOT To Use
+
+- README-specific updates - use update-readme instead
+- Complex multi-file consolidation - use doc-consolidation
 
 ## Required TodoWrite Items
 

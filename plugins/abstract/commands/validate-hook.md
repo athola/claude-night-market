@@ -7,23 +7,23 @@ modules: [security-checks, performance-checks, compliance-checks]
 
 # Validate Hook Command
 
-<identification>
-triggers: validate hook, hook security, hook performance, hook compliance, hook audit, check hook, verify hook
+Detailed validation for Claude Code and SDK hooks. Performs security scanning, performance analysis, and compliance verification.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Developing hooks and need validation before deployment
 - Auditing existing hooks for security vulnerabilities
 - Checking hook performance and timeout compliance
 - Verifying compliance with SDK best practices
 - Before committing hook changes
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Creating new hooks - use /create-hook instead
 - Evaluating all hooks in plugin - use /hooks-eval instead
 - Deciding hook placement - use hook-scope-guide skill
-</identification>
-
-Detailed validation for Claude Code and SDK hooks. Performs security scanning, performance analysis, and compliance verification.
 
 ## Usage
 

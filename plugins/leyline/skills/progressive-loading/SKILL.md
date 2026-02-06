@@ -53,7 +53,7 @@ Progressive loading provides standardized patterns for building skills that load
 
 The core principle: **Start minimal, expand intelligently, monitor continuously.**
 
-## When to Use
+## When To Use
 
 Use progressive loading when building skills that:
 - Cover multiple distinct workflows or domains
@@ -61,6 +61,11 @@ Use progressive loading when building skills that:
 - Have modules that are mutually exclusive based on context
 - Require MECW compliance for long-running sessions
 - Want to optimize for common paths while supporting edge cases
+
+## When NOT To Use
+
+- Project doesn't use the leyline infrastructure patterns
+- Simple scripts without service architecture needs
 
 ## Quick Start
 

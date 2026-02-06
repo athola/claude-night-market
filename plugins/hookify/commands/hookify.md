@@ -9,15 +9,18 @@ examples:
 
 # Hookify Command
 
-<identification>
-triggers: hookify, create rule, behavioral rule, block action, prevent behavior
+Creates custom behavioral rules to prevent unwanted actions.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Creating rules from explicit instructions
 - Analyzing conversation for unwanted behaviors to block
-</identification>
 
-Creates custom behavioral rules to prevent unwanted actions.
+## When NOT To Use
+
+- Complex multi-step workflows - use agents instead
+- One-time operations that don't need persistent rules
 
 ## Usage
 

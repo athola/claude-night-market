@@ -6,22 +6,22 @@ usage: /context-report [directory-path]
 
 # Context Optimization Report
 
-<identification>
-triggers: context report, context optimization, skill portfolio, context analysis, optimization report, large files, context budget, skill efficiency
+Generates a detailed context window optimization report for all skills in a directory. Identifies large files, categorizes by size, and provides actionable optimization recommendations.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Assessing overall skill portfolio efficiency
 - Pre-publish verification before releasing plugins
 - Planning modularization priorities across many skills
 - Identifying large files that need optimization
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Analyzing single skill - use /analyze-skill instead
 - Estimating specific file tokens - use /estimate-tokens
 - Evaluating skill quality - use /skills-eval instead
-</identification>
-
-Generates a detailed context window optimization report for all skills in a directory. Identifies large files, categorizes by size, and provides actionable optimization recommendations.
 
 ## Usage
 

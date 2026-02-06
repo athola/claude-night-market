@@ -68,13 +68,22 @@ Architecture assessment against ADRs and design principles.
 /architecture-review
 ```
 
-## When to Use
+## When To Use
 
 - Approving reimplementations.
 - Large-scale refactoring reviews.
 - System design changes.
 - New module/service introduction.
 - Dependency restructuring.
+
+## When NOT To Use
+
+- Selecting architecture paradigms - use archetypes
+  skills
+- API surface review - use api-review
+- Selecting architecture paradigms - use archetypes
+  skills
+- API surface review - use api-review
 
 ## Progressive Loading
 

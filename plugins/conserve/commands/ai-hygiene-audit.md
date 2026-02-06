@@ -6,17 +6,20 @@ usage: /ai-hygiene-audit [--focus git|duplication|tests|docs] [--report FILE] [-
 
 # AI Hygiene Audit Command
 
-<identification>
-triggers: ai hygiene, ai audit, vibe coding check, ai code quality, slop detection
+Detect AI-specific code quality issues that traditional bloat detection misses.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Suspected AI-generated code quality issues
 - Before major releases to check for hidden debt
 - Reviewing PRs with suspected AI generation
 - After rapid AI-assisted development sprints
-</identification>
 
-Detect AI-specific code quality issues that traditional bloat detection misses.
+## When NOT To Use
+
+- Quick fixes that don't need structured workflow
+- Already know the specific issue - fix it directly
 
 ## Why This Exists
 

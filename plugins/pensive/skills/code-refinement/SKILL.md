@@ -63,13 +63,20 @@ Analyze and improve living code quality across six dimensions.
 /refine-code --level 3 --report refinement-plan.md
 ```
 
-## When to Use
+## When To Use
 
 - After rapid AI-assisted development sprints
 - Before major releases (quality gate)
 - When code "works but smells"
 - Refactoring existing modules for clarity
 - Reducing technical debt in living code
+
+## When NOT To Use
+
+- Removing
+  dead/unused code (use conserve:bloat-detector)
+- Removing
+  dead/unused code (use conserve:bloat-detector)
 
 ## Analysis Dimensions
 

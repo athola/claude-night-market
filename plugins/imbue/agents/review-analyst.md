@@ -25,13 +25,18 @@ Autonomous agent specialized in conducting structured reviews using imbue's meth
 - **Finding Categorization**: Organizes findings by severity and type
 - **Deliverable Generation**: Produces structured reports with evidence references
 
-## When to Use
+## When To Use
 
 Dispatch this agent for:
 - detailed code reviews requiring evidence trails
 - Architecture assessments with structured outputs
 - Security audits with reproducible findings
 - Quality reviews needing consistent formatting
+
+## When NOT To Use
+
+- Informal exploration or brainstorming
+- Simple tasks that don't require evidence-based validation
 
 ## Agent Workflow
 

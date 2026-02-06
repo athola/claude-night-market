@@ -53,13 +53,24 @@ python -m module_name --help
 \`\`\`
 
 **Verification**: Run with `--help` flag to confirm installation.
-## When to Use
+## When To Use
 - **Automatic**: Keywords: `code execution`, `MCP`, `tool chain`, `data pipeline`, `MECW`
 - **Tool Chains**: >3 tools chained sequentially
 - **Data Processing**: Large datasets (>10k rows) or files (>50KB)
 - **Context Pressure**: Current usage >25% of total window (proactive context management)
 
 > **MCP Tool Search (Claude Code 2.1.7+)**: When MCP tool descriptions exceed 10% of context, tools are automatically deferred and discovered via MCPSearch instead of being loaded upfront. This reduces token overhead by ~85% but means tools must be discovered on-demand. Haiku models do not support tool search. Configure threshold with `ENABLE_TOOL_SEARCH=auto:N` where N is the percentage.
+
+## When NOT To Use
+
+- Simple
+  tool calls that
+- Context pressure is low and tools
+  are fast
+- Simple
+  tool calls that
+- Context pressure is low and tools
+  are fast
 
 ## Core Hub Responsibilities
 - Orchestrates MCP code execution workflow

@@ -21,6 +21,17 @@ estimated_tokens: 700
 
 # The Serverless Architecture Paradigm
 
+
+## When To Use
+
+- Event-driven workloads with variable traffic
+- Minimizing operational overhead for cloud-native apps
+
+## When NOT To Use
+
+- Long-running processes exceeding function timeout limits
+- Applications requiring persistent connections or local state
+
 ## When to Employ This Paradigm
 - When workloads are event-driven and exhibit intermittent or "bursty" traffic patterns.
 - When the goal is to minimize infrastructure management and adopt a pay-per-execution cost model.

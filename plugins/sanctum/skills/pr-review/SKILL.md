@@ -72,12 +72,21 @@ Review pull requests with discipline: validate against original requirements, pr
 
 The goal is to validate the implementation meets its stated requirements without introducing regressions. Improvements beyond the scope belong in future PRs.
 
-## When to Use
+## When To Use
 
 - Before merging any feature branch
 - When reviewing PRs from teammates
 - To validate your own work before requesting review
 - To generate a backlog of improvements discovered during review
+
+## When NOT To Use
+
+- Preparing PRs - use pr-prep instead
+- Deep code
+  review - use pensive:unified-review
+- Preparing PRs - use pr-prep instead
+- Deep code
+  review - use pensive:unified-review
 
 ## Scope Classification Framework
 

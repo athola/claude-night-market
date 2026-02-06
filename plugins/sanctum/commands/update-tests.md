@@ -6,14 +6,6 @@ usage: /update-tests [paths...]
 
 # Update Tests
 
-<identification>
-triggers: update tests, test update, add tests, test coverage
-
-use_when:
-- Tests need updates after code changes
-- Improving test coverage with TDD/BDD patterns
-</identification>
-
 To update tests following TDD/BDD principles with meta dogfooding, load skills in order:
 
 1. Run `Skill(sanctum:git-workspace-review)` to capture change context and complete its `TodoWrite` items.
@@ -22,6 +14,17 @@ To update tests following TDD/BDD principles with meta dogfooding, load skills i
    - **Generation**: Create new tests using TDD principles
    - **Enhancement**: Apply BDD patterns to existing tests
    - **Validation**: Run quality assurance checks
+
+## When To Use
+
+Use this command when you need to:
+- Tests need updates after code changes
+- Improving test coverage with TDD/BDD patterns
+
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Workflow
 

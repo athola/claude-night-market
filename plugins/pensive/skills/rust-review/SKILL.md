@@ -70,13 +70,18 @@ Expert-level Rust code audits with focus on safety, correctness, and idiomatic p
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Reviewing Rust code changes
 - Auditing unsafe blocks
 - Analyzing concurrency patterns
 - Dependency security review
 - Performance optimization review
+
+## When NOT To Use
+
+- General code review without Rust - use unified-review
+- Performance profiling - use parseltongue:python-performance pattern
 
 ## Required TodoWrite Items
 

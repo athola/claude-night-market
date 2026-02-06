@@ -63,6 +63,17 @@ version: 1.4.0
 
 Systematically process external resources into actionable knowledge. When a user links an article, blog post, or paper, this skill guides evaluation, storage decisions, and application routing.
 
+
+## When To Use
+
+- Capturing and organizing knowledge from sessions
+- Ingesting information into structured memory palaces
+
+## When NOT To Use
+
+- Temporary notes that do not need long-term storage
+- Code-only changes without knowledge capture needs
+
 ## What It Is
 
 A knowledge governance framework that answers three questions for every external resource:

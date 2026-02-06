@@ -61,13 +61,20 @@ version: 1.4.0
 
 Generic template patterns and lifecycle management for structured content storage. Provides reusable templates, maturity progression models, and file naming conventions that work across different storage domains.
 
-## When to Use
+## When To Use
 
 - Building knowledge management systems
 - Organizing documentation with maturity stages
 - Need consistent file naming patterns
 - Want template-driven content creation
 - Implementing lifecycle-based workflows
+
+## When NOT To Use
+
+- Simple
+  storage without lifecycle or structure needs
+- Simple
+  storage without lifecycle or structure needs
 
 ## Core Concepts
 

@@ -28,6 +28,17 @@ version: 1.4.0
 
 Guidance on when to ask clarifying questions versus proceeding autonomously.
 
+
+## When To Use
+
+- Reducing unnecessary clarifying questions
+- Taking autonomous action when intent is clear
+
+## When NOT To Use
+
+- High-stakes irreversible operations requiring explicit confirmation
+- Ambiguous requirements where clarification prevents wasted work
+
 ## Core Principle
 
 Ask questions only when ambiguity would **materially impair correctness** or capacity to fulfill the request precisely.

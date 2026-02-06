@@ -181,7 +181,7 @@ python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
 ```
 **Verification:** Run `pytest -v` to verify tests pass.
 
-## When to Use It
+## When To Use It
 
 **Use this skill when you need to:**
 - Update tests after code changes
@@ -194,6 +194,17 @@ python plugins/sanctum/skills/test-updates/scripts/quality_checker.py \
 - CI/CD pipeline integration
 - Refactoring with test safety
 - Onboarding new developers
+
+## When NOT To Use
+
+- Auditing
+  test suites - use pensive:test-review
+- Writing production code
+  - focus on implementation first
+- Auditing
+  test suites - use pensive:test-review
+- Writing production code
+  - focus on implementation first
 
 ## Workflow Integration
 

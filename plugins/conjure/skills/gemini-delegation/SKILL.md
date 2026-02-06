@@ -51,11 +51,20 @@ version: 1.4.0
 
 This skill implements `conjure:delegation-core` for the Gemini CLI. It provides Gemini-specific authentication, quota management, and command construction using shared patterns.
 
-## When to Use
+## When To Use
 - After `Skill(conjure:delegation-core)` determines Gemini is suitable
 - When you need Gemini's large context window (1M+ tokens)
 - For batch processing, summarization, or pattern extraction tasks
 - If the `gemini` CLI is installed and authenticated
+
+## When NOT To Use
+
+- Deciding which model
+  to use (use delegation-core first)
+- Gemini CLI not installed
+- Deciding which model
+  to use (use delegation-core first)
+- Gemini CLI not installed
 
 ## Prerequisites
 

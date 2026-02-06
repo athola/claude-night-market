@@ -6,10 +6,11 @@ usage: /make-dogfood [--mode analyze|generate|apply] [--plugin <name>] [--dry-ru
 
 # Makefile Dogfooding Command
 
-<identification>
-triggers: make dogfood, Makefile analysis, Makefile enhancement, missing targets, Makefile gaps, build targets, plugin Makefile, Makefile quality
+Use the makefile-dogfooder script to analyze, test, and enhance Makefiles across the claude-night-market project with comprehensive safety checks and auto-generation capabilities.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Analyzing Makefile completeness
 - Testing existing make targets
 - Generating missing targets
@@ -17,13 +18,12 @@ use_when:
 - Auditing Makefile coverage across plugins
 - Creating Makefiles for plugins without them
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Writing initial Makefiles from scratch (use --generate-makefiles instead)
 - Debugging specific build failures
 - Creating custom build systems
-</identification>
-
-Use the makefile-dogfooder script to analyze, test, and enhance Makefiles across the claude-night-market project with comprehensive safety checks and auto-generation capabilities.
 
 ## Parameters
 

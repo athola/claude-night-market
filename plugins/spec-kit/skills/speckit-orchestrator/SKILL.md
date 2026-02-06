@@ -55,12 +55,17 @@ Treat SDD as a minimal, testable “self-modeling” loop:
 
 This mirrors patterns from open-ended embodied agents (e.g., Voyager/MineDojo) that compound capability via a curriculum (`tasks.md`) and a skill library (reusable plugin skills + superpowers methodology skills).
 
-## When to Use
+## When To Use
 
 - Starting any `/speckit-*` command.
 - Coordinating multi-phase development workflows.
 - Tracking progress across specification, planning, and implementation.
 - Ensuring skill dependencies are loaded.
+
+## When NOT To Use
+
+- Single-phase work (just specify, or just plan)
+- Non-spec-driven projects
 
 ## Core Workflow
 

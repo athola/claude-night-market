@@ -38,6 +38,17 @@ version: 1.4.0
 
 Post-process video files (webm/mp4) and generate optimized GIF output with configurable quality settings.
 
+
+## When To Use
+
+- Converting recordings to animated GIF format
+- Creating lightweight demo animations
+
+## When NOT To Use
+
+- High-quality video output - use full recording tools
+- Static image generation without animation needs
+
 ## Overview
 
 This skill handles the conversion of video recordings (typically from browser automation) to GIF format. It provides multiple quality presets and optimization options to balance file size with visual quality.

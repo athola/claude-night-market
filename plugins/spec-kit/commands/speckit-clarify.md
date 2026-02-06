@@ -6,18 +6,18 @@ usage: /speckit-clarify [spec-path]
 
 # Speckit Clarify
 
-<identification>
-triggers: clarify spec, spec questions, ambiguity, underspecified
+Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:brainstorming` for enhanced clarification capabilities.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Feature spec has ambiguous or missing details
 - Pre-planning validation needed
 
-do_not_use_when:
-- Generating tasks - use /speckit-tasks instead
-</identification>
+## When NOT To Use
 
-Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:brainstorming` for enhanced clarification capabilities.
+Avoid this command if:
+- Generating tasks - use /speckit-tasks instead
 
 ## User Input
 

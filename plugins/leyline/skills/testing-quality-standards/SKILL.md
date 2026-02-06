@@ -20,6 +20,17 @@ version: 1.4.0
 
 Shared quality standards and metrics for testing across all plugins in the Claude Night Market ecosystem.
 
+
+## When To Use
+
+- Establishing test quality gates and coverage targets
+- Validating test suite against quality standards
+
+## When NOT To Use
+
+- Exploratory testing or spike work
+- Projects with established quality gates that meet requirements
+
 ## Table of Contents
 
 1. [Coverage Thresholds](#coverage-thresholds)

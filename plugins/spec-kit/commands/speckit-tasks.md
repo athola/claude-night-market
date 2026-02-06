@@ -6,15 +6,18 @@ usage: /speckit-tasks [feature-dir]
 
 # Speckit Tasks
 
-<identification>
-triggers: generate tasks, task planning, tasks.md, implementation tasks
+Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:executing-plans` and `superpowers:systematic-debugging` for enhanced task generation.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Converting spec/plan into actionable task list
 - Creating dependency-ordered implementation roadmap
-</identification>
 
-Before proceeding, load the `speckit-orchestrator` skill for workflow coordination. Consider loading complementary skills like `superpowers:executing-plans` and `superpowers:systematic-debugging` for enhanced task generation.
+## When NOT To Use
+
+- Project doesn't follow spec-driven development
+- Quick fixes that don't need formal specification
 
 ## User Input
 

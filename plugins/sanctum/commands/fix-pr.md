@@ -7,16 +7,19 @@ extends: "superpowers:receiving-code-review"
 
 # Enhanced PR Fix
 
-<identification>
-triggers: fix PR, address review, PR feedback, review comments
-
-use_when:
-- Responding to PR review comments systematically
-- Iterating on PR after reviewer feedback
-</identification>
-
 A progressive workflow for addressing PR review feedback, following the attune pattern:
 **analyze** → **triage** → **plan** → **fix** → **validate** → **complete**
+
+## When To Use
+
+Use this command when you need to:
+- Responding to PR review comments systematically
+- Iterating on PR after reviewer feedback
+
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Quick Reference
 

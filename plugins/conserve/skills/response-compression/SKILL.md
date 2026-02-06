@@ -28,6 +28,17 @@ version: 1.4.0
 
 Eliminate response bloat to save 200-400 tokens per response while maintaining clarity.
 
+
+## When To Use
+
+- Reducing verbose output to save context tokens
+- Providing concise answers without losing information
+
+## When NOT To Use
+
+- Educational explanations where detail improves understanding
+- First-time setup instructions needing step-by-step clarity
+
 ## Elimination Rules
 
 ### ELIMINATE

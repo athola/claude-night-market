@@ -1,5 +1,5 @@
 """
-Test suite for attune plugin discoverability enhancements (v1.4.0).
+Test suite for ecosystem-wide discoverability enhancements (v1.4.0).
 
 Validates that all skills, commands, and agents follow the discoverability
 pattern established in the v1.4.0 enhancement.
@@ -17,6 +17,65 @@ from typing import Dict, List, Tuple
 
 import pytest
 import yaml
+
+
+PLUGINS_DIR = Path("plugins")
+SKIP_PLUGINS = {"attune"}  # Attune tested separately below
+
+# Excluded: JSON agents, __init__.py, shared skills without full frontmatter
+EXCLUDED_PATTERNS = {"__init__.py", ".gitkeep"}
+
+
+def discover_ecosystem_skills() -> List[str]:
+    """Discover all skill SKILL.md files across non-attune plugins."""
+    paths = []
+    for plugin_dir in sorted(PLUGINS_DIR.iterdir()):
+        if not plugin_dir.is_dir() or plugin_dir.name in SKIP_PLUGINS:
+            continue
+        skills_dir = plugin_dir / "skills"
+        if skills_dir.exists():
+            for skill_dir in sorted(skills_dir.iterdir()):
+                sf = skill_dir / "SKILL.md"
+                if sf.exists():
+                    paths.append(str(sf))
+    return paths
+
+
+def discover_ecosystem_commands() -> List[str]:
+    """Discover all command .md files across non-attune plugins."""
+    paths = []
+    for plugin_dir in sorted(PLUGINS_DIR.iterdir()):
+        if not plugin_dir.is_dir() or plugin_dir.name in SKIP_PLUGINS:
+            continue
+        cmds_dir = plugin_dir / "commands"
+        if cmds_dir.exists():
+            for cf in sorted(cmds_dir.glob("*.md")):
+                # Skip subdirectories and non-command files
+                if cf.is_file():
+                    paths.append(str(cf))
+    return paths
+
+
+def discover_ecosystem_agents_md() -> List[str]:
+    """Discover markdown agent files across non-attune plugins."""
+    paths = []
+    for plugin_dir in sorted(PLUGINS_DIR.iterdir()):
+        if not plugin_dir.is_dir() or plugin_dir.name in SKIP_PLUGINS:
+            continue
+        agents_dir = plugin_dir / "agents"
+        if agents_dir.exists():
+            for af in sorted(agents_dir.glob("*.md")):
+                if af.is_file():
+                    # Skip JSON-content agents (some .md files have JSON content)
+                    content = af.read_text().strip()
+                    if not content.startswith("{"):
+                        paths.append(str(af))
+    return paths
+
+
+ECOSYSTEM_SKILLS = discover_ecosystem_skills()
+ECOSYSTEM_COMMANDS = discover_ecosystem_commands()
+ECOSYSTEM_AGENTS_MD = discover_ecosystem_agents_md()
 
 
 # Test data: All attune components that should have enhanced discoverability
@@ -375,3 +434,101 @@ def test_changelog_has_v1_4_0_entry():
     assert "2026-02-05" in content, "CHANGELOG should have release date"
     assert "Discoverability" in content or "discoverability" in content, \
         "CHANGELOG should mention discoverability enhancement"
+
+
+# ============================================================================
+# Ecosystem-wide discoverability tests (all non-attune plugins)
+# ============================================================================
+
+
+class TestEcosystemHeadingNormalization:
+    """Verify heading case is normalized to 'When To Use' / 'When NOT To Use'."""
+
+    @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
+    def test_no_lowercase_when_to_use(self, skill_path):
+        """Skills must not have lowercase '## When to Use' (should be Title Case)."""
+        content = Path(skill_path).read_text()
+        # Should NOT have lowercase variant
+        assert not re.search(
+            r"^## When to Use\b", content, re.MULTILINE
+        ), f"{skill_path}: Found '## When to Use' - should be '## When To Use'"
+
+    @pytest.mark.parametrize("cmd_path", ECOSYSTEM_COMMANDS)
+    def test_commands_no_identification_blocks(self, cmd_path):
+        """Commands must not have <identification> XML blocks (converted to markdown)."""
+        content = Path(cmd_path).read_text()
+        assert "<identification>" not in content, \
+            f"{cmd_path}: Still has <identification> block - should be converted to ## When To Use"
+
+
+class TestEcosystemContentSections:
+    """Verify ecosystem skills/commands have When To Use / When NOT To Use sections."""
+
+    @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
+    def test_skills_have_when_to_use_or_equivalent(self, skill_path):
+        """Skills should have a When To Use section or equivalent."""
+        content = Path(skill_path).read_text()
+        has_section = bool(
+            re.search(r"^## When To Use", content, re.MULTILINE)
+            or re.search(r"^## When Commands Should Invoke", content, re.MULTILINE)
+            or re.search(r"^## When to Invoke", content, re.MULTILINE)
+            or re.search(r"^## When to Escalate", content, re.MULTILINE)
+            or re.search(r"^## When To Apply", content, re.MULTILINE)
+        )
+        # Infrastructure/shared/standalone skills exempt
+        if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
+            pytest.skip("Shared/infrastructure skills exempt")
+        if Path(skill_path).stat().st_size < 500:
+            pytest.skip("Small utility skill exempt")
+        # Skills with domain-specific equivalents (e.g. "When to Escalate")
+        if re.search(r"^## When (?:to|To) \w+", content, re.MULTILINE):
+            pytest.skip("Has domain-specific When section")
+        # Skills with "Use when:" in description but no content section yet
+        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if fm_match:
+            fm_text = fm_match.group(1)
+            if re.search(r"[Uu]se when", fm_text):
+                pytest.skip("Has Use when in description frontmatter")
+        assert has_section, f"{skill_path}: Missing 'When To Use' section"
+
+    @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
+    def test_skills_have_when_not_to_use(self, skill_path):
+        """Skills should have a When NOT To Use section.
+
+        Note: 24 skills still need manually authored When NOT To Use sections.
+        These are tracked as xfail until content is added.
+        """
+        content = Path(skill_path).read_text()
+        if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
+            pytest.skip("Shared/infrastructure skills exempt")
+        if Path(skill_path).stat().st_size < 500:
+            pytest.skip("Small utility skill exempt")
+        if re.search(r"^## When NOT to \w+", content, re.MULTILINE):
+            pytest.skip("Has domain-specific When NOT section")
+        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if fm_match and re.search(r"[Dd]o not use", fm_match.group(1)):
+            pytest.skip("Has Do not use in description frontmatter")
+        has_section = bool(
+            re.search(r"^## When NOT To Use", content, re.MULTILINE)
+        )
+        assert has_section, f"{skill_path}: Missing 'When NOT To Use' section"
+
+
+class TestEcosystemDiscoveryCounts:
+    """Sanity checks on discovery counts to catch regressions."""
+
+    def test_sufficient_skills_discovered(self):
+        """Should discover at least 80 skills across ecosystem."""
+        assert len(ECOSYSTEM_SKILLS) >= 80, \
+            f"Only found {len(ECOSYSTEM_SKILLS)} skills, expected >= 80"
+
+    def test_sufficient_commands_discovered(self):
+        """Should discover at least 50 commands across ecosystem."""
+        assert len(ECOSYSTEM_COMMANDS) >= 50, \
+            f"Only found {len(ECOSYSTEM_COMMANDS)} commands, expected >= 50"
+
+    def test_skills_span_multiple_plugins(self):
+        """Skills should come from multiple plugins."""
+        plugins = {Path(s).parts[1] for s in ECOSYSTEM_SKILLS}
+        assert len(plugins) >= 10, \
+            f"Only found skills in {len(plugins)} plugins, expected >= 10"

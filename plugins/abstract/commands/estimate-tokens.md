@@ -6,22 +6,22 @@ usage: /estimate-tokens [skill-path]
 
 # Estimate Token Usage
 
-<identification>
-triggers: estimate tokens, token count, token usage, context budget, token estimation, skill tokens, context window, token analysis
+Estimates token consumption for skill files, including optional dependency analysis. Essential for context window budgeting and optimization decisions.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Planning context budgets before adding content
 - Comparing modularization approaches for token efficiency
 - Validating progressive disclosure patterns
 - Checking if skill fits context window
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Analyzing skill complexity - use /analyze-skill instead
 - Full context optimization report - use /context-report
 - Evaluating skill quality - use /skills-eval instead
-</identification>
-
-Estimates token consumption for skill files, including optional dependency analysis. Essential for context window budgeting and optimization decisions.
 
 ## Usage
 

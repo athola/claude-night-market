@@ -63,12 +63,19 @@ version: 1.4.0
 
 A registry pattern for managing connections to external services. Handles configuration, health checking, and execution across multiple service integrations.
 
-## When to Use
+## When To Use
 
 - Managing multiple external services.
 - Need consistent execution interface.
 - Want health monitoring across services.
 - Building service failover logic.
+
+## When NOT To Use
+
+- Single service integration
+  without registry needs
+- Single service integration
+  without registry needs
 
 ## Core Concepts
 

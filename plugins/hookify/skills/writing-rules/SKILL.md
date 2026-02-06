@@ -47,6 +47,17 @@ usage_patterns:
 
 # Hookify Rule Writing Guide
 
+
+## When To Use
+
+- Creating behavioral rules to prevent unwanted actions
+- Defining persistent guardrails for Claude Code sessions
+
+## When NOT To Use
+
+- Complex multi-step workflows - use agents instead
+- One-time operations that do not need persistent behavioral rules
+
 ## Overview
 
 Hookify rules are markdown files with YAML frontmatter that define patterns to watch for and messages to show when those patterns match. Rules are stored in `.claude/hookify.{rule-name}.local.md` files.

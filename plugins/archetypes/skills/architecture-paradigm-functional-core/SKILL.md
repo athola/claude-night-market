@@ -22,6 +22,17 @@ estimated_tokens: 1200
 
 # The Functional Core, Imperative Shell Paradigm
 
+
+## When To Use
+
+- Separating pure business logic from side effects
+- Improving testability through immutable domain models
+
+## When NOT To Use
+
+- Performance-critical hot paths where immutability overhead matters
+- Purely imperative codebases with no plans to adopt functional patterns
+
 ## When to Employ This Paradigm
 - When business logic is entangled with I/O operations (e.g., database calls, HTTP requests), making tests brittle and slow.
 - When significant development time is spent rewriting adapters or dealing with framework churn.

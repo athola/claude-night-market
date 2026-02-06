@@ -47,12 +47,17 @@ version: 1.4.0
 
 Patterns for tracking and enforcing resource quotas across rate-limited services. This skill provides the infrastructure that other plugins use for consistent quota handling.
 
-## When to Use
+## When To Use
 
 - Building integrations with rate-limited APIs
 - Need to track usage across sessions
 - Want graceful degradation when limits approached
 - Require cost estimation before operations
+
+## When NOT To Use
+
+- Project doesn't use the leyline infrastructure patterns
+- Simple scripts without service architecture needs
 
 ## Core Concepts
 

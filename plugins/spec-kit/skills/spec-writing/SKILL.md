@@ -31,12 +31,16 @@ version: 1.4.0
 
 Create clear, complete, and testable specifications from natural language feature descriptions. Specifications focus on user value and business needs, avoiding implementation details.
 
-## When to Use
+## When To Use
 
 - Creating new feature specifications
 - Refining existing specifications
 - Writing user stories and acceptance criteria
 - Defining success criteria
+
+## When NOT To Use
+
+- Generating implementation tasks - use task-planning
 
 ## Core Principles
 

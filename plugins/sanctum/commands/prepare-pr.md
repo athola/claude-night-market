@@ -56,12 +56,17 @@ Orchestrates the full PR preparation workflow by running documentation updates, 
 - **Scope Compliance**: Validates changes against branch requirements
 - **PR Template Generation**: Creates structured PR descriptions
 
-## When to Use
+## When To Use
 
 - **Before every PR**: Complete preparation workflow
 - **Feature completion**: Ensures all documentation and tests are current
 - **Governance compliance**: Follows Mandatory Post-Implementation Protocol
 - **Quality assurance**: Full validation before requesting reviews
+
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Workflow
 

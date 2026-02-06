@@ -60,13 +60,17 @@ A generic framework for weighted scoring and threshold-based decision making. Pr
 
 This framework abstracts the common pattern of: define criteria → assign weights → score against criteria → apply thresholds → make decisions.
 
-## When to Use
+## When To Use
 
 - Implementing quality gates or evaluation rubrics
 - Building scoring systems for artifacts, proposals, or submissions
 - Need consistent evaluation methodology across different domains
 - Want threshold-based automated decision making
 - Creating assessment tools with weighted criteria
+
+## When NOT To Use
+
+- Simple pass/fail without scoring needs
 
 ## Core Pattern
 

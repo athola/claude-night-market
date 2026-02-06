@@ -64,11 +64,15 @@ version: 1.4.0
 
 A method for deciding when and how to delegate tasks to external LLM services. Core principle: **delegate execution, retain high-level reasoning**.
 
-## When to Use
+## When To Use
 - Before invoking external LLMs for task assistance.
 - When operations are token-heavy and exceed local context limits.
 - When batch processing benefits from different model characteristics.
 - When tasks require routing between models.
+
+## When NOT To Use
+
+- Task requires reasoning by Claude
 
 ## Philosophy
 

@@ -48,6 +48,17 @@ dependencies:
 
 Capture, organize, and retrieve knowledge from PR reviews within project memory palaces.
 
+
+## When To Use
+
+- Capturing PR review knowledge for future reference
+- Building review pattern libraries from past reviews
+
+## When NOT To Use
+
+- Quick self-reviews of trivial changes
+- Automated CI checks that cover the review scope
+
 ## Overview
 
 The Review Chamber is a dedicated room within each project palace that stores valuable knowledge extracted from PR reviews. It transforms ephemeral PR discussions into persistent, searchable institutional memory.

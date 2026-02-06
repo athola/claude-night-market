@@ -45,6 +45,17 @@ version: 1.4.0
 
 Combine multiple media assets (GIFs, videos, images) into composite outputs for detailed tutorials and documentation.
 
+
+## When To Use
+
+- Combining multiple media outputs into compositions
+- Creating composite demos from terminal and browser recordings
+
+## When NOT To Use
+
+- Single-format output that does not need composition
+- Simple terminal recordings - use scry:vhs-recording directly
+
 ## Overview
 
 This skill orchestrates the combination of separately generated media assets into unified outputs. It reads manifest files that define components and their composition rules, validates all inputs exist, and executes FFmpeg commands to produce the final composite media.

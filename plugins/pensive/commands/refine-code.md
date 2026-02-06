@@ -6,23 +6,23 @@ usage: /refine-code [PATH] [--level 1|2|3] [--focus all|duplication|algorithms|c
 
 # Refine Code Command
 
-<identification>
-triggers: refine code, improve quality, clean code, reduce slop, code refinement, refactor quality
+Analyze living code for quality issues and generate a prioritized refactoring plan.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - After AI-assisted development to check for slop
 - Before releases as a quality gate
 - When code works but needs improvement
 - Systematic refactoring of living code
 - Reducing duplication and algorithmic inefficiency
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Removing dead/unused code (use /unbloat)
 - Bug hunting (use /bug-review)
 - Selecting architecture paradigm (use archetypes)
-</identification>
-
-Analyze living code for quality issues and generate a prioritized refactoring plan.
 
 ## Philosophy
 

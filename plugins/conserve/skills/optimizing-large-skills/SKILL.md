@@ -24,7 +24,7 @@ version: 1.4.0
 Systematic methodology for reducing skill file size while preserving functionality
 through separation of concerns and strategic code organization.
 
-## When to Use
+## When To Use
 
 **Symptoms that trigger this skill:**
 - Skills-eval validation shows "[WARN] Large skill file" warnings
@@ -39,6 +39,13 @@ through separation of concerns and strategic code organization.
 python skills/optimizing-large-skills/tools/optimization-patterns.py \
   skills/path/SKILL.md --verbose --generate-plan
 ```
+
+## When NOT To Use
+
+- Skill is under 300 lines
+  and well-organized
+- Skill is under 300 lines
+  and well-organized
 
 ## Core Pattern: Externalize-Consolidate-Progress
 

@@ -21,6 +21,17 @@ estimated_tokens: 700
 
 # The Modular Monolith Paradigm
 
+
+## When To Use
+
+- Organizing large codebases into well-bounded modules
+- Teams wanting microservice boundaries without distributed complexity
+
+## When NOT To Use
+
+- Already distributed as microservices
+- Tiny applications where module boundaries add unnecessary complexity
+
 ## When to Employ This Paradigm
 - When you desire team autonomy similar to that of microservices, but without the operational overhead of a distributed system.
 - When release velocity is slowed by tangled dependencies between internal modules.

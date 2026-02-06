@@ -14,9 +14,14 @@ version: 1.4.0
 
 # Token Conservation Workflow
 
-## When to Use
+## When To Use
 - Run at the start of every session and whenever prompt sizes or tool calls begin to spike.
 - Mandatory before launching long-running analyses, wide diffs, or massive context loads.
+
+## When NOT To Use
+
+- Context-optimization already handles the scenario
+- Simple queries with minimal context
 
 ## Required TodoWrite Items
 1. `token-conservation:quota-check`

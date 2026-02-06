@@ -39,6 +39,17 @@ version: 1.4.0
 
 Record browser sessions using Playwright to create video captures of web UI interactions for tutorials and documentation.
 
+
+## When To Use
+
+- Recording browser sessions with Playwright
+- Creating web application demo recordings
+
+## When NOT To Use
+
+- Terminal-only workflows - use scry:vhs-recording instead
+- Static screenshots - use standard screenshot tools
+
 ## Overview
 
 This skill uses Playwright's built-in video recording to capture browser interactions. The workflow:

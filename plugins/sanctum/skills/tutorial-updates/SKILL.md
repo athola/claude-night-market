@@ -74,6 +74,17 @@ version: 1.4.0
 
 Orchestrate tutorial generation with GIF recordings from VHS tape files and Playwright browser specs.
 
+
+## When To Use
+
+- Generating or updating user-facing tutorials
+- Creating VHS and Playwright tutorial recordings
+
+## When NOT To Use
+
+- Internal documentation without user-facing tutorials
+- API reference docs - use scribe:doc-generator instead
+
 ## Overview
 
 This skill coordinates the complete tutorial generation pipeline:

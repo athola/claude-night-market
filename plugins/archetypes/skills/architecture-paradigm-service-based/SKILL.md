@@ -21,6 +21,17 @@ estimated_tokens: 700
 
 # The Service-Based Architecture Paradigm
 
+
+## When To Use
+
+- Multi-team organizations with domain-aligned services
+- Systems requiring independent deployment of components
+
+## When NOT To Use
+
+- Single-team projects small enough for a monolith
+- Latency-sensitive systems where inter-service calls are prohibitive
+
 ## When to Employ This Paradigm
 - When teams require a degree of deployment independence but are not yet prepared for the complexity of managing numerous microservices.
 - When shared databases or large-scale systems (like ERPs) make full service autonomy unrealistic.

@@ -138,7 +138,12 @@ Works with:
 - `conserve:token-conservation` - Weighs source cost vs value
 - `memory-palace:research` - Full sourcing for knowledge corpus
 
-## When to Use Full Sourcing
+## When To Use Full Sourcing
+
+## When NOT To Use
+
+- Internal project code that doesn't need citations
+- Casual conversation without factual claims
 
 Escalate to full sourcing (accept high token cost) for:
 - Knowledge corpus entries (permanent documentation)
