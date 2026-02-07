@@ -72,10 +72,7 @@ A registry pattern for managing connections to external services. Handles config
 
 ## When NOT To Use
 
-- Single service integration
-  without registry needs
-- Single service integration
-  without registry needs
+- Single service integration without registry needs
 
 ## Core Concepts
 

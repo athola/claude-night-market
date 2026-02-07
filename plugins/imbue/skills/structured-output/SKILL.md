@@ -45,14 +45,8 @@ version: 1.4.0
 
 ## When NOT To Use
 
-- Capturing evidence during analysis
-  - use evidence-logging
-- Reviewing changes - use diff-analysis or
-  review-core first
-- Capturing evidence during analysis
-  - use evidence-logging
-- Reviewing changes - use diff-analysis or
-  review-core first
+- Capturing evidence during analysis - use evidence-logging
+- Reviewing changes - use diff-analysis or review-core first
 
 ## Activation Patterns
 **Trigger Keywords**: format, structure, deliverable, report, organize, present, consistent

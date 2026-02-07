@@ -59,14 +59,8 @@ python -m conserve.context_analyzer
 
 ## When NOT To Use
 
-- Simple
-  single-step tasks with low context usage
-- Already using mcp-code-execution
-  for tool chains
-- Simple
-  single-step tasks with low context usage
-- Already using mcp-code-execution
-  for tool chains
+- Simple single-step tasks with low context usage
+- Already using mcp-code-execution for tool chains
 
 ## Core Hub Responsibilities
 

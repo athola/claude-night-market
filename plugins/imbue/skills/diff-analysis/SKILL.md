@@ -50,14 +50,8 @@ Structured method for analyzing changesets: categorize changes, assess risks, ge
 
 ## When NOT To Use
 
-- Quick context catchup
-  - use catchup instead
-- Full PR review - use review-core with pensive
-  skills
-- Quick context catchup
-  - use catchup instead
-- Full PR review - use review-core with pensive
-  skills
+- Quick context catchup - use catchup instead
+- Full PR review - use review-core with pensive skills
 
 ## Activation Patterns
 **Trigger Keywords**: diff, changes, release notes, changelog, migration, impact, risk assessment

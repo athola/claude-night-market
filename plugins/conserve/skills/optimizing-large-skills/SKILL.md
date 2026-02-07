@@ -42,10 +42,7 @@ python skills/optimizing-large-skills/tools/optimization-patterns.py \
 
 ## When NOT To Use
 
-- Skill is under 300 lines
-  and well-organized
-- Skill is under 300 lines
-  and well-organized
+- Skill is under 300 lines and well-organized
 
 ## Core Pattern: Externalize-Consolidate-Progress
 

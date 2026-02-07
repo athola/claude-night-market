@@ -34,11 +34,7 @@ version: 1.4.0
 
 ## When NOT To Use
 
-- Simple operations
-  with no resource impact
-- Quick single-file operations
-- Simple operations
-  with no resource impact
+- Simple operations with no resource impact
 - Quick single-file operations
 
 ## Required TodoWrite Items

@@ -63,14 +63,8 @@ python -m module_name --help
 
 ## When NOT To Use
 
-- Simple
-  tool calls that
-- Context pressure is low and tools
-  are fast
-- Simple
-  tool calls that
-- Context pressure is low and tools
-  are fast
+- Simple tool calls that don't chain
+- Context pressure is low and tools are fast
 
 ## Core Hub Responsibilities
 - Orchestrates MCP code execution workflow

@@ -71,10 +71,7 @@ Generic template patterns and lifecycle management for structured content storag
 
 ## When NOT To Use
 
-- Simple
-  storage without lifecycle or structure needs
-- Simple
-  storage without lifecycle or structure needs
+- Simple storage without lifecycle or structure needs
 
 ## Core Concepts
 

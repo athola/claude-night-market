@@ -43,11 +43,7 @@ version: 1.4.0
 
 ## When NOT To Use
 
-- Quick informal checks without
-  documentation needs
-- Structured output is the focus - use structured-output
-- Quick informal checks without
-  documentation needs
+- Quick informal checks without documentation needs
 - Structured output is the focus - use structured-output
 
 ## Activation Patterns

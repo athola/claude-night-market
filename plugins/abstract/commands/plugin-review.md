@@ -1,6 +1,6 @@
 ---
 name: plugin-review
-description: Comprehensive plugin architecture review - skills, commands, hooks, agents, tokens, bloat
+description: Rigorous review of plugin architecture quality. Orchestrates multiple evaluation tools to provide a unified health report covering skills, commands, hooks, agents, token efficiency, and bloat detection.
 usage: /plugin-review [plugin-path] [--focus skills|hooks|bloat|tokens|all] [--format summary|detailed|json]
 ---
 

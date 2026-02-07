@@ -43,10 +43,7 @@ version: 1.4.0
 
 ## When NOT To Use
 
-- Diff-focused
-  analysis - use diff-analysis
-- Diff-focused
-  analysis - use diff-analysis
+- Diff-focused analysis - use diff-analysis
 
 ## Activation Patterns
 **Trigger Keywords**: review, audit, analysis, assessment, evaluation, inspection
