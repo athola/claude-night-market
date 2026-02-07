@@ -6,16 +6,19 @@ usage: /unbloat [--from-scan REPORT] [--auto-approve low] [--dry-run] [--focus c
 
 # Unbloat Command
 
-<identification>
-triggers: unbloat, remove bloat, cleanup codebase, reduce bloat
+Execute safe bloat remediation workflows with user approval at each step.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - After bloat-scan identifies remediation targets
 - Preparing for release
 - Reducing codebase complexity
-</identification>
 
-Execute safe bloat remediation workflows with user approval at each step.
+## When NOT To Use
+
+- Quick fixes that don't need structured workflow
+- Already know the specific issue - fix it directly
 
 ## Philosophy
 

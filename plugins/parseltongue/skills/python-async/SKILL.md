@@ -4,7 +4,7 @@ description: 'Consult this skill for async Python patterns and concurrency. Use 
   building async APIs, concurrent systems, I/O-bound applications, implementing rate
   limiting, async context managers. Do not use when CPU-bound optimization - use python-performance
   instead. DO NOT use when: testing async code - use python-testing async module.'
-version: 1.3.8
+version: 1.4.0
 category: async
 tags:
 - python
@@ -52,7 +52,7 @@ asyncio.run(main())
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Building async web APIs (FastAPI, aiohttp)
 - Implementing concurrent I/O operations
@@ -60,6 +60,15 @@ asyncio.run(main())
 - Developing real-time applications (WebSockets)
 - Processing multiple independent tasks simultaneously
 - Building microservices with async communication
+
+## When NOT To Use
+
+- CPU-bound optimization - use python-performance
+  instead
+- Testing async code - use python-testing async module
+- CPU-bound optimization - use python-performance
+  instead
+- Testing async code - use python-testing async module
 
 ## Modules
 

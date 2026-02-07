@@ -6,18 +6,21 @@ usage: /update-readme
 
 # Update README Content
 
-<identification>
-triggers: update readme, readme update, documentation update
-
-use_when:
-- README needs updates after code changes
-- Consolidating documentation with recent work
-</identification>
-
 To edit the README, load the required skills in order:
 
 1. Run `Skill(sanctum:git-workspace-review)` to capture the change context and complete its `TodoWrite` items.
 2. Run `Skill(sanctum:update-readme)` and follow its checklist (context, exemplar research, content consolidation, verification).
+
+## When To Use
+
+Use this command when you need to:
+- README needs updates after code changes
+- Consolidating documentation with recent work
+
+## When NOT To Use
+
+- README is current and accurate
+- Internal docs not exposed to users
 
 ## Workflow
 - Use notes from the preflight to understand recent changes that affect the README.

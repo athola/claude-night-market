@@ -16,7 +16,7 @@ modules:
   - modules/git-testing-fixtures.md
   - modules/mock-fixtures.md
   - modules/ci-integration.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -29,6 +29,17 @@ version: 1.3.8
 # Pytest Configuration Patterns
 
 Standardized pytest configuration and patterns for consistent testing infrastructure across Claude Night Market plugins.
+
+
+## When To Use
+
+- Setting up pytest configuration and fixtures
+- Configuring conftest.py patterns for test infrastructure
+
+## When NOT To Use
+
+- Non-Python projects or projects using other test frameworks
+- Simple scripts that do not need test infrastructure
 
 ## Quick Start
 

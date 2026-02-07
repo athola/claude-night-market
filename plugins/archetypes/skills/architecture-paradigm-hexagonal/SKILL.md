@@ -6,7 +6,7 @@ description: |
   Triggers: hexagonal, ports-adapters, infrastructure-independence, domain-isolation, testability
   Use when: business logic separation, infrastructure changes needed, testability critical
   DO NOT use when: selecting paradigms (use architecture-paradigms first), simple CRUD
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, hexagonal, ports-adapters, infrastructure-independence, testability]
 dependencies: []
@@ -21,6 +21,17 @@ estimated_tokens: 1200
 ---
 
 # The Hexagonal (Ports & Adapters) Paradigm
+
+
+## When To Use
+
+- Isolating business logic from external dependencies
+- Systems needing swappable adapters for testing
+
+## When NOT To Use
+
+- Small scripts or utilities without external dependencies
+- Prototypes where port/adapter abstraction adds overhead
 
 ## When to Employ This Paradigm
 - When you anticipate frequent changes to databases, frameworks, or user interfaces and need the core domain logic to remain stable.

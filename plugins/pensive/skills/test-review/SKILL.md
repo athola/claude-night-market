@@ -32,7 +32,7 @@ modules:
 - coverage-analysis
 - scenario-quality
 - remediation-planning
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -69,13 +69,18 @@ Evaluate and improve test suites with TDD/BDD rigor.
 ```
 **Verification:** Run `pytest -v` to verify tests pass.
 
-## When to Use
+## When To Use
 
 - Reviewing test suite quality
 - Analyzing coverage gaps
 - Before major releases
 - After test failures
 - Planning test improvements
+
+## When NOT To Use
+
+- Writing new tests - use parseltongue:python-testing
+- Updating existing tests - use sanctum:test-updates
 
 ## Required TodoWrite Items
 

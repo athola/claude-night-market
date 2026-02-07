@@ -28,6 +28,48 @@ Standardize project development:
 - Pre-commit hooks and Makefiles.
 - Dependency management and project structure.
 
+## Discoverability (v1.4.0)
+
+All attune skills, commands, and agents now feature **enhanced automatic discovery** through optimized descriptions following a proven pattern:
+
+```
+[WHAT it does]. Use when: [triggers]. Do not use when: [boundaries].
+```
+
+### How It Works
+
+Claude automatically matches your natural language requests to the appropriate attune component based on the description. Enhanced descriptions include:
+
+1. **WHAT**: Clear action or capability statement
+2. **WHEN**: Trigger keywords and scenarios (e.g., "starting projects", "comparing approaches")
+3. **WHEN NOT**: Explicit boundaries preventing false positives (e.g., "requirements already exist")
+
+### Discovery Examples
+
+| You say... | Claude invokes... | Why |
+|-----------|-------------------|-----|
+| "I want to start a new web app" | `/attune:brainstorm` | Matches "starting projects" trigger |
+| "Create a specification from my brief" | `/attune:specify` | Matches "create specifications" |
+| "Design the system architecture" | `project-architect` agent | Matches "designing system architecture" |
+| "Should I convene a war room?" | `Skill(attune:war-room)` | Matches "strategic decisions" |
+
+### Content Structure
+
+Every skill and command includes:
+
+- **When To Use**: 5-7 specific scenarios triggering this component
+- **When NOT To Use**: Clear boundaries with alternatives (e.g., "use `/attune:plan` instead")
+
+This prevents misuse and guides you to the right tool for your current workflow stage.
+
+### For Contributors
+
+When adding new skills or commands, follow the templates in `plugins/attune/templates/`:
+- `skill-discoverability-template.md` - For skills
+- `command-discoverability-template.md` - For commands
+- `agent-discoverability-template.md` - For agents
+- `TEMPLATE-GUIDE.md` - Detailed guidance and examples
+
 ## Quick Start
 
 ### Architecture-Aware Initialization

@@ -21,7 +21,7 @@ progressive_loading: true
 modules:
   - modules/classification.md
   - modules/recovery-strategies.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -49,12 +49,17 @@ version: 1.3.8
 
 Standardized error handling patterns for consistent, production-grade behavior across plugins. Provides error classification, recovery strategies, and debugging workflows.
 
-## When to Use
+## When To Use
 
 - Building resilient integrations
 - Need consistent error handling
 - Want graceful degradation
 - Debugging production issues
+
+## When NOT To Use
+
+- Project doesn't use the leyline infrastructure patterns
+- Simple scripts without service architecture needs
 
 ## Error Classification
 

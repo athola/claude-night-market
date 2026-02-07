@@ -16,7 +16,7 @@ modules:
   - video-capture
 dependencies:
   - scry:gif-generation
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -38,6 +38,17 @@ version: 1.3.8
 # Browser Recording Skill
 
 Record browser sessions using Playwright to create video captures of web UI interactions for tutorials and documentation.
+
+
+## When To Use
+
+- Recording browser sessions with Playwright
+- Creating web application demo recordings
+
+## When NOT To Use
+
+- Terminal-only workflows - use scry:vhs-recording instead
+- Static screenshots - use standard screenshot tools
 
 ## Overview
 

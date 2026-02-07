@@ -1,9 +1,13 @@
 ---
 name: project-brainstorming
-description: Socratic questioning and ideation methodology for project conception using structured brainstorming frameworks
-
+description: "Guide project ideation through Socratic questioning and constraint analysis to create actionable project briefs. Use when: starting projects, exploring problem spaces, comparing approaches, validating feasibility. Do not use when: requirements already clear and specification exists."
+# Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
-version: 1.3.8
+version: 1.4.0
+category: workflow
+tags: [brainstorming, ideation, planning, requirements, socratic-method]
+complexity: intermediate
+estimated_tokens: 2800
 ---
 ## Table of Contents
 
@@ -49,12 +53,21 @@ version: 1.3.8
 
 Guide project ideation through Socratic questioning, constraint analysis, and structured exploration.
 
-## When to Use
+## When To Use
 
 - Starting a new project without clear requirements
 - Exploring problem space before specification
 - Need to compare multiple approaches systematically
 - Validating project feasibility and scope
+- Documenting decision rationale for stakeholders
+- Need to clarify the core problem being solved
+
+## When NOT To Use
+
+- Requirements and specification already exist (use `Skill(attune:project-planning)` instead)
+- Refining existing specs (use `Skill(attune:project-specification)` instead)
+- Project scope is well-defined (jump to `/attune:project-init`)
+- Mid-project pivots (use `Skill(attune:war-room)` for strategic decisions)
 
 ## Integration
 

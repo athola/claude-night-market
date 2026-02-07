@@ -1,11 +1,28 @@
 ---
 name: validate
-description: Validate project structure and configurations against best practices
+description: "Validate project structure and configurations against best practices with detailed issue reporting"
 ---
 
 # Attune Validate Command
 
-Check project setup against best practices and identify issues.
+Check project setup against best practices, identify issues, and recommend improvements.
+
+## When To Use
+
+Use this command when you need to:
+- Validate project structure and configurations
+- Check for missing required files or settings
+- Identify configuration issues before deployment
+- Audit project against best practices
+- Verify setup after initialization or upgrades
+
+## When NOT To Use
+
+Avoid this command if:
+- Just initialized project (likely passing all checks)
+- Need to fix issues, not just identify them (use upgrade-project)
+- Looking for code quality issues (use linting/testing instead)
+- Validating specific component only (check component directly)
 
 ## Usage
 

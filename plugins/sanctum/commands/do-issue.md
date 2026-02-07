@@ -6,17 +6,20 @@ usage: /do-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [
 
 # Do GitHub Issue(s)
 
-<identification>
-triggers: fix issue, address issue, implement issue, do issue
+A progressive workflow for implementing GitHub issues, following the attune pattern:
+**analyze** → **specify** → **plan** → **implement** → **validate** → **complete**
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Implementing fixes for one or more GitHub issues
 - Progressive issue resolution with validation
 - Addressing a particular issue or ticket that is referenced
-</identification>
 
-A progressive workflow for implementing GitHub issues, following the attune pattern:
-**analyze** → **specify** → **plan** → **implement** → **validate** → **complete**
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Quick Reference
 

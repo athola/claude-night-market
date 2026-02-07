@@ -11,7 +11,7 @@ tools: [Bash]
 complexity: low
 estimated_tokens: 400
 progressive_loading: false
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -37,6 +37,17 @@ version: 1.3.8
 # GIF Generation Skill
 
 Post-process video files (webm/mp4) and generate optimized GIF output with configurable quality settings.
+
+
+## When To Use
+
+- Converting recordings to animated GIF format
+- Creating lightweight demo animations
+
+## When NOT To Use
+
+- High-quality video output - use full recording tools
+- Static image generation without animation needs
 
 ## Overview
 

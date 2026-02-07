@@ -22,7 +22,7 @@ usage_patterns:
 - content-lifecycle
 complexity: intermediate
 estimated_tokens: 500
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -66,13 +66,24 @@ python scripts/garden_metrics.py path/to/garden.json --format brief
 - `brief` - One-line summary
 - `prometheus` - Prometheus exposition format
 
-## When to Use
+## When To Use
 
 - Building dynamic knowledge bases that evolve over time
 - Connecting notes, skills, and palaces through bidirectional links
 - Incubating ideas before formalizing as documentation
 - Creating discovery paths for navigating information
 - Managing content lifecycle (seedling → growing → evergreen)
+
+## When NOT To Use
+
+- Creating memory palace
+  structures - use memory-palace-architect
+- Evaluating new knowledge
+  - use knowledge-intake
+- Creating memory palace
+  structures - use memory-palace-architect
+- Evaluating new knowledge
+  - use knowledge-intake
 
 ## Content Maturity Levels
 

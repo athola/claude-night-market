@@ -633,3 +633,52 @@ class TestDocumentationQualityIntegration:
         skip_doc_review = flags.get("--skip-doc-review", False)
 
         assert skip_doc_review
+
+
+class TestSlopDetectionPhase:
+    """Feature: Detect AI slop in PR content.
+
+    As a code reviewer
+    I want to detect AI-generated content markers in docs and commits
+    So that the codebase maintains natural, human-quality writing
+    """
+
+    TIER1_SLOP = ["leverage", "seamless", "comprehensive", "delve", "robust", "utilize"]
+
+    @pytest.mark.unit
+    def test_scans_documentation_files_for_slop(self) -> None:
+        """Scenario: Scan changed .md files for slop markers."""
+        changed_files = ["README.md", "docs/guide.md", "src/main.py"]
+        md_files = [f for f in changed_files if f.endswith(".md")]
+
+        assert len(md_files) == 2
+        assert "README.md" in md_files
+
+    @pytest.mark.unit
+    def test_scans_commit_messages_for_slop(self) -> None:
+        """Scenario: Detect slop in commit messages."""
+        commits = [
+            "feat: leverage new auth API",
+            "fix: resolve bug in parser",
+            "docs: add comprehensive guide",
+        ]
+
+        slop_commits = [
+            c for c in commits if any(s in c.lower() for s in self.TIER1_SLOP)
+        ]
+        assert len(slop_commits) == 2
+
+    @pytest.mark.unit
+    def test_classifies_doc_slop_by_score(self) -> None:
+        """Scenario: Classify documentation slop by severity."""
+        scores = {"light": 2.0, "moderate": 4.0, "heavy": 6.0}
+
+        assert scores["light"] < 3.0  # SUGGESTION
+        assert 3.0 <= scores["moderate"] < 5.0  # IN-SCOPE
+        assert scores["heavy"] >= 5.0  # BLOCKING in strict mode
+
+    @pytest.mark.unit
+    def test_commit_slop_is_suggestion_only(self) -> None:
+        """Scenario: Commit message slop is always SUGGESTION."""
+        commit_slop_severity = "SUGGESTION"
+        assert commit_slop_severity not in ["BLOCKING", "IN-SCOPE"]

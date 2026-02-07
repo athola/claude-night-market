@@ -13,7 +13,7 @@ estimated_tokens: 450
 progressive_loading: false
 dependencies:
   - scry:gif-generation
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -44,6 +44,17 @@ version: 1.3.8
 # Media Composition Skill
 
 Combine multiple media assets (GIFs, videos, images) into composite outputs for detailed tutorials and documentation.
+
+
+## When To Use
+
+- Combining multiple media outputs into compositions
+- Creating composite demos from terminal and browser recordings
+
+## When NOT To Use
+
+- Single-format output that does not need composition
+- Simple terminal recordings - use scry:vhs-recording directly
 
 ## Overview
 

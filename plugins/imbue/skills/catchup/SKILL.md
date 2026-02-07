@@ -24,7 +24,7 @@ complexity: intermediate
 estimated_tokens: 700
 progressive_loading: true
 module_strategy: context-based
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -41,10 +41,21 @@ version: 1.3.8
 
 Structured method for quickly understanding recent changes in git repositories, meeting notes, sprint progress, document revisions, or system logs. Answers "what changed and what matters?" efficiently.
 
-## When to Use
+## When To Use
 - Joining ongoing work or returning after absence
 - Before planning or reviewing handoffs
 - Any "what happened and what's next" context
+
+## When NOT To Use
+
+- Doing detailed
+  diff analysis - use diff-analysis instead
+- Full code review needed
+  - use review-core instead
+- Doing detailed
+  diff analysis - use diff-analysis instead
+- Full code review needed
+  - use review-core instead
 
 ## Activation
 **Keywords**: catchup, summary, status, progress, context, handoff

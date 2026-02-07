@@ -23,7 +23,7 @@ usage_patterns:
 - layout-creation
 complexity: intermediate
 estimated_tokens: 600
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -72,13 +72,24 @@ python scripts/palace_manager.py status
 ```
 **Verification:** Run `python --version` to verify Python environment.
 
-## When to Use
+## When To Use
 
 - Creating knowledge structures for complex topics
 - Organizing large amounts of related information
 - Building persistent, project-specific memory systems
 - Designing learning pathways for skill acquisition
 - Structuring documentation or reference material
+
+## When NOT To Use
+
+- Quick knowledge search
+  - use knowledge-locator instead
+- Session-specific context - use
+  session-palace-builder
+- Quick knowledge search
+  - use knowledge-locator instead
+- Session-specific context - use
+  session-palace-builder
 
 ## Architectural Templates
 

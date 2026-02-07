@@ -34,7 +34,7 @@ progressive_loading: true
 modules:
 - modules/session-patterns.md
 - modules/log-formats.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -59,12 +59,16 @@ version: 1.3.8
 
 Session-aware logging infrastructure for tracking operations across plugins. Provides structured JSONL logging with automatic session management for audit trails and analytics.
 
-## When to Use
+## When To Use
 
 - Need audit trails for operations
 - Tracking costs across sessions
 - Building usage analytics
 - Debugging with operation history
+
+## When NOT To Use
+
+- Simple operations without logging needs
 
 ## Core Concepts
 

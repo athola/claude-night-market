@@ -8,12 +8,17 @@ usage: /update-all-plugins
 
 One-shot command that upgrades every installed plugin from all configured marketplaces and syncs memory palace knowledge. This command reads the installed plugins configuration, updates each plugin individually, and processes any queued research into palaces.
 
-## When to Use
+## When To Use
 - After receiving marketplace-wide security fixes or compatibility updates
 - Before running regression suites that depend on latest plugins
 - To avoid manually updating each plugin individually
 - When you want to validate all plugins are at their latest versions
 - To process accumulated research from sessions into memory palaces
+
+## When NOT To Use
+
+- Project doesn't use the leyline infrastructure patterns
+- Simple scripts without service architecture needs
 
 ## Workflow
 The command executes the Python script at `scripts/update_all_plugins.py` which:

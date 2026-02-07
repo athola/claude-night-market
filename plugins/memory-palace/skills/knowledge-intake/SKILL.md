@@ -13,7 +13,7 @@ scripts: []
 usage_patterns: [resource-intake, knowledge-evaluation, application-routing]
 complexity: intermediate
 estimated_tokens: 950
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -62,6 +62,17 @@ version: 1.3.8
 # Knowledge Intake
 
 Systematically process external resources into actionable knowledge. When a user links an article, blog post, or paper, this skill guides evaluation, storage decisions, and application routing.
+
+
+## When To Use
+
+- Capturing and organizing knowledge from sessions
+- Ingesting information into structured memory palaces
+
+## When NOT To Use
+
+- Temporary notes that do not need long-term storage
+- Code-only changes without knowledge capture needs
 
 ## What It Is
 

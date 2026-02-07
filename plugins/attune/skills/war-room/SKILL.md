@@ -1,33 +1,26 @@
 ---
 name: war-room
-description: Multi-LLM deliberation framework for strategic decisions through pressure-based
-  expert consultation. Use when complex decisions requiring multiple perspectives,
-  architectural trade-offs, high-stakes choices. Do not use when simple questions,
-  routine tasks, single-path implementations.
+description: "Multi-LLM deliberation framework for strategic decisions through expert pressure-testing and consensus building. Use when: critical decisions, irreversible changes, architecture choices, conflicting approaches, high stakes. Do not use when: decision is trivial, easily reversible, or already made."
+# Custom metadata (not used by Claude for matching):
 model_preference: claude-opus-4
+version: 1.4.0
 category: strategic-planning
-tags:
-- deliberation
-- multi-llm
-- strategy
-- decision-making
-- council
-dependencies:
-- conjure:delegation-core
-- memory-palace:strategeion
-tools:
-- Bash
-- Read
-- Write
+tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced
 estimated_tokens: 2500
 progressive_loading: true
 modules:
-- modules/reversibility-assessment.md
-- modules/expert-roles.md
-- modules/deliberation-protocol.md
-- modules/merkle-dag.md
-version: 1.3.8
+  - modules/reversibility-assessment.md
+  - modules/expert-roles.md
+  - modules/deliberation-protocol.md
+  - modules/merkle-dag.md
+dependencies:
+  - conjure:delegation-core
+  - memory-palace:strategeion
+tools:
+  - Bash
+  - Read
+  - Write
 ---
 ## Table of Contents
 
@@ -78,7 +71,7 @@ RS = (Reversal Cost + Time Lock-In + Blast Radius + Information Loss + Reputatio
 
 See `modules/reversibility-assessment.md` for full scoring guide.
 
-## When to Use
+## When To Use
 
 - Architectural decisions with major trade-offs
 - Multi-stakeholder problems requiring diverse perspectives
@@ -86,7 +79,7 @@ See `modules/reversibility-assessment.md` for full scoring guide.
 - Novel problems without clear precedent
 - When brainstorming produces multiple strong competing approaches
 
-## When NOT to Use
+## When NOT To Use
 
 - Simple questions with obvious answers
 - Routine implementation tasks

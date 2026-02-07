@@ -30,7 +30,7 @@ modules:
 - memory-management
 - benchmarking-tools
 - best-practices
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Python Performance Optimization
@@ -47,7 +47,7 @@ print(f"Average: {time/100:.6f}s")
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Identifying performance bottlenecks
 - Reducing application latency
@@ -55,6 +55,15 @@ print(f"Average: {time/100:.6f}s")
 - Reducing memory consumption
 - Profiling production applications
 - Improving database query performance
+
+## When NOT To Use
+
+- Async concurrency - use python-async
+  instead
+- CPU/GPU system monitoring - use conservation:cpu-gpu-performance
+- Async concurrency - use python-async
+  instead
+- CPU/GPU system monitoring - use conservation:cpu-gpu-performance
 
 ## Modules
 

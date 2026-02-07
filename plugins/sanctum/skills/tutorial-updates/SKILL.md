@@ -26,7 +26,7 @@ dependencies:
   - scry:browser-recording
   - scry:gif-generation
   - scry:media-composition
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -73,6 +73,17 @@ version: 1.3.8
 # Tutorial Updates Skill
 
 Orchestrate tutorial generation with GIF recordings from VHS tape files and Playwright browser specs.
+
+
+## When To Use
+
+- Generating or updating user-facing tutorials
+- Creating VHS and Playwright tutorial recordings
+
+## When NOT To Use
+
+- Internal documentation without user-facing tutorials
+- API reference docs - use scribe:doc-generator instead
 
 ## Overview
 

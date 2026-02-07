@@ -13,12 +13,23 @@ dependencies: []
 estimated_tokens: 400
 provides:
   patterns: [coverage-thresholds, quality-metrics, anti-patterns]
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Testing Quality Standards
 
 Shared quality standards and metrics for testing across all plugins in the Claude Night Market ecosystem.
+
+
+## When To Use
+
+- Establishing test quality gates and coverage targets
+- Validating test suite against quality standards
+
+## When NOT To Use
+
+- Exploratory testing or spike work
+- Projects with established quality gates that meet requirements
 
 ## Table of Contents
 

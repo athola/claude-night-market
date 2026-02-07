@@ -6,17 +6,20 @@ usage: /update-tutorial <name> [--all] [--list] [--scaffold]
 
 # Update Tutorial
 
-<identification>
-triggers: update tutorial, generate tutorial, tutorial gif, VHS recording
-
-use_when:
-- Creating or updating documentation tutorials
-- Generating terminal/browser recording GIFs
-</identification>
-
 To generate or update tutorials with accompanying GIFs, invoke the tutorial-updates skill:
 
 1. Run `Skill(sanctum:tutorial-updates)` with the appropriate arguments.
+
+## When To Use
+
+Use this command when you need to:
+- Creating or updating documentation tutorials
+- Generating terminal/browser recording GIFs
+
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Usage
 

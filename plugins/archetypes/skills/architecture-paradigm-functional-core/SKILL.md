@@ -6,7 +6,7 @@ description: |
   Triggers: functional-core, imperative-shell, pure functions, side-effects, testability
   Use when: business logic is entangled with I/O or tests are brittle
   DO NOT use when: simple scripting without complex logic.
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, functional-core, imperative-shell, testability, business-logic, side-effects]
 dependencies: []
@@ -21,6 +21,17 @@ estimated_tokens: 1200
 ---
 
 # The Functional Core, Imperative Shell Paradigm
+
+
+## When To Use
+
+- Separating pure business logic from side effects
+- Improving testability through immutable domain models
+
+## When NOT To Use
+
+- Performance-critical hot paths where immutability overhead matters
+- Purely imperative codebases with no plans to adopt functional patterns
 
 ## When to Employ This Paradigm
 - When business logic is entangled with I/O operations (e.g., database calls, HTTP requests), making tests brittle and slow.

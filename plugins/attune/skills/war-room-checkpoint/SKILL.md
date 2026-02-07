@@ -1,23 +1,16 @@
 ---
 name: war-room-checkpoint
-description: Inline reversibility assessment for embedded War Room escalation from
-  other commands. Use when called from other commands at decision points to determine
-  if War Room escalation is needed. Do not use when standalone strategic decisions
-  (use war-room instead), simple questions.
+description: "Inline reversibility assessment for embedded War Room escalation from other commands. Use when: called from commands at decision points, determining if escalation needed. Do not use when: standalone strategic decisions, simple questions."
+# Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
+version: 1.4.0
 category: strategic-planning
-tags:
-- checkpoint
-- embedded
-- escalation
-- reversibility
-- inline
+tags: [checkpoint, embedded, escalation, reversibility, inline]
 dependencies:
-- attune:war-room
+  - attune:war-room
 complexity: lightweight
 estimated_tokens: 400
 progressive_loading: false
-version: 1.3.8
 ---
 
 # War Room Checkpoint Skill

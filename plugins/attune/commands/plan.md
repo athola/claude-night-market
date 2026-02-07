@@ -1,20 +1,30 @@
 ---
 name: plan
-description: Create implementation plan with architecture and task breakdown
+description: "Generate implementation plan with architecture design and dependency-ordered tasks from specification"
 usage: /attune:plan [--input FILE] [--component NAME]
 ---
 
 # Attune Plan Command
 
-<identification>
-triggers: plan, implementation plan, architecture plan, task breakdown
+Transform specifications into executable implementation plans with system architecture, component design, and dependency-ordered task breakdown.
 
-use_when:
-- Converting specification into implementation plan
-- Designing architecture and breaking down tasks
-</identification>
+## When To Use
 
-Transform specification into structured implementation plan with architecture design and task breakdown.
+Use this command when you need to:
+- Convert specification into implementation plan
+- Design system architecture from requirements
+- Break down work into dependency-ordered tasks
+- Estimate effort and plan sprints
+- Define component interfaces and data flow
+- Create actionable roadmap for execution
+
+## When NOT To Use
+
+Avoid this command if:
+- No specification exists yet (use `/attune:specify` first)
+- Still defining requirements (complete specification phase)
+- Ready to execute existing plan (use `/attune:execute` instead)
+- Adjusting running project (update plan incrementally)
 
 ## Usage
 

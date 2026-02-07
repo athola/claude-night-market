@@ -6,23 +6,23 @@ usage: /create-hook [hook-description] [--skip-brainstorm] [--plugin <name>] [--
 
 # Create Hook Command
 
-<identification>
-triggers: new hook, create hook, hook creation, start hook, build hook, add hook, write hook, PreToolUse, PostToolUse, UserPromptSubmit
+Creates new hooks through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed, secure hooks before generating any files.
 
-use_when:
+**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create hook files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
+
+## When To Use
+
+Use this command when you need to:
 - Creating a new hook from scratch
 - Need security-first design guidance
 - Want structured workflow for hook development with Socratic questioning
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Evaluating existing hooks - use /hooks-eval instead
 - Deciding where to place hooks - use hook-scope-guide skill
 - Validating hook security - use /validate-hook instead
-</identification>
-
-Creates new hooks through a structured workflow: **iron-law → brainstorm → design → scaffold → validate**. Uses Socratic questioning to refine rough ideas into well-designed, secure hooks before generating any files.
-
-**CRITICAL**: This workflow enforces the Iron Law. You CANNOT create hook files without first creating and running failing tests. See [Iron Law Interlock](../shared-modules/iron-law-interlock.md).
 
 ## Usage
 
@@ -231,7 +231,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Any
 
-
 def main() -> None:
     """Main hook entry point."""
     try:
@@ -254,7 +253,6 @@ def main() -> None:
     }
     print(json.dumps(response))
     sys.exit(0)
-
 
 if __name__ == '__main__':
     main()

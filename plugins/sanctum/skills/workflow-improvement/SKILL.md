@@ -13,15 +13,19 @@ complexity: medium
 estimated_tokens: 900
 dependencies:
   - sanctum:shared
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Workflow Improvement
 
-## When to Use
+## When To Use
 Use this skill after running a command or completing a short session slice where execution felt slow, confusing, repetitive, or fragile.
 
 This skill focuses on improving the *workflow assets* (skills, agents, commands, hooks) that were involved, not on feature work itself.
+
+## When NOT To Use
+
+- Implementing features - focus on feature work first
 
 ## Required TodoWrite Items
 1. `fix-workflow:context-gathered`

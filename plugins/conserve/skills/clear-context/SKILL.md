@@ -14,7 +14,7 @@ hooks:
     command: 'echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
 
       '
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -39,11 +39,16 @@ When context pressure reaches critical levels (80%+), invoke this skill to:
 Skill(conserve:clear-context)
 ```
 
-## When to Use
+## When To Use
 
 - **Proactively**: Before starting large multi-chained tasks
 - **Reactively**: When context warning indicates 80%+ usage
 - **Automatically**: Integrated into long-running workflows
+
+## When NOT To Use
+
+- Context usage is under 50% - continue working normally
+- Mid-critical-operation where handoff would lose state
 
 ## The Auto-Clear Pattern
 

@@ -3,7 +3,7 @@ name: rule-catalog
 description: This skill provides the catalog and guides installation. Use when looking
   for ready-made hookify rules, installing standard rules, browsing available rule
   categories. Do not use when writing custom rules - use hookify:writing-rules instead.
-version: 1.3.8
+version: 1.4.0
 category: hook-development
 tags:
 - hookify

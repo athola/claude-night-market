@@ -6,22 +6,22 @@ usage: /analyze-skill [skill-path]
 
 # Analyze Skill Complexity
 
-<identification>
-triggers: analyze skill, skill complexity, skill metrics, modularization, skill size, skill structure, skill analysis, complexity analysis
+Analyzes a skill file for complexity metrics and provides modularization recommendations based on the modular-skills framework.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Assessing skill file complexity before adding content
 - Planning modularization strategies
 - Checking if a skill needs to be split
 - Validating progressive disclosure design
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Evaluating skill quality - use /skills-eval instead
 - Estimating token usage only - use /estimate-tokens instead
 - Creating new skills - use /create-skill instead
-</identification>
-
-Analyzes a skill file for complexity metrics and provides modularization recommendations based on the modular-skills framework.
 
 ## Usage
 

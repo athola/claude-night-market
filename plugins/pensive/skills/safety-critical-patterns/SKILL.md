@@ -18,7 +18,7 @@ tools:
 - Glob
 complexity: intermediate
 estimated_tokens: 600
-version: 1.3.8
+version: 1.4.0
 dependencies:
 - pensive:shared
 - pensive:code-refinement

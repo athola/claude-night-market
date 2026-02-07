@@ -21,7 +21,7 @@ usage_patterns:
 - consistent-output
 complexity: beginner
 estimated_tokens: 1000
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -38,10 +38,15 @@ version: 1.3.8
 
 # Structured Output
 
-## When to Use
+## When To Use
 - When finalizing any review or analysis.
 - To format findings in a consistent and actionable way.
 - Before presenting results to stakeholders or committing them to documentation.
+
+## When NOT To Use
+
+- Capturing evidence during analysis - use evidence-logging
+- Reviewing changes - use diff-analysis or review-core first
 
 ## Activation Patterns
 **Trigger Keywords**: format, structure, deliverable, report, organize, present, consistent

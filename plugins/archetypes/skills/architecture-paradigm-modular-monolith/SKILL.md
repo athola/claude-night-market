@@ -6,7 +6,7 @@ description: |
   Triggers: modular-monolith, module boundaries, single deployment, team autonomy
   Use when: teams need autonomy without distributed overhead
   DO NOT use when: already using microservices or system is small.
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, modular-monolith, monolith, internal-boundaries, team-autonomy]
 dependencies: []
@@ -20,6 +20,17 @@ estimated_tokens: 700
 ---
 
 # The Modular Monolith Paradigm
+
+
+## When To Use
+
+- Organizing large codebases into well-bounded modules
+- Teams wanting microservice boundaries without distributed complexity
+
+## When NOT To Use
+
+- Already distributed as microservices
+- Tiny applications where module boundaries add unnecessary complexity
 
 ## When to Employ This Paradigm
 - When you desire team autonomy similar to that of microservices, but without the operational overhead of a distributed system.

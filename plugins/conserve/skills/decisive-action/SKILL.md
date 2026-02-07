@@ -11,7 +11,7 @@ tags:
 tools: []
 complexity: low
 estimated_tokens: 450
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -27,6 +27,17 @@ version: 1.3.8
 # Decisive Action
 
 Guidance on when to ask clarifying questions versus proceeding autonomously.
+
+
+## When To Use
+
+- Reducing unnecessary clarifying questions
+- Taking autonomous action when intent is clear
+
+## When NOT To Use
+
+- High-stakes irreversible operations requiring explicit confirmation
+- Ambiguous requirements where clarification prevents wasted work
 
 ## Core Principle
 

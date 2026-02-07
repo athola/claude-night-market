@@ -25,7 +25,7 @@ usage_patterns:
 - review-search
 complexity: intermediate
 estimated_tokens: 500
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -71,13 +71,24 @@ python scripts/palace_manager.py list
 ```
 **Verification:** Run `python --version` to verify Python environment.
 
-## When to Use
+## When To Use
 
 - Finding specific concepts within one or more memory palaces
 - Cross-referencing information across different palaces
 - Discovering connections between stored information
 - Finding information using partial or contextual queries
 - Analyzing access patterns for palace optimization
+
+## When NOT To Use
+
+- Creating new
+  palace structures - use memory-palace-architect
+- Processing new
+  external resources - use knowledge-intake
+- Creating new
+  palace structures - use memory-palace-architect
+- Processing new
+  external resources - use knowledge-intake
 
 ## Search Modalities
 

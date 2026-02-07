@@ -7,23 +7,23 @@ modules: [loophole-patterns, rationalization-guide]
 
 # Bulletproof Skill Command
 
-<identification>
-triggers: bulletproof, harden skill, rationalization, loopholes, bypass, red flags
+Systematically hardens skills against rationalization and bypass behaviors.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Hardening skills against rationalization and bypass behaviors
 - Identifying loopholes in skill language
 - Generating rationalization tables
 - Creating red flags lists
 - Preparing skills for production
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Testing skill functionality - use /test-skill instead
 - Evaluating skill quality - use /skills-eval instead
 - Creating new skills - use /create-skill instead
-</identification>
-
-Systematically hardens skills against rationalization and bypass behaviors.
 
 ## Usage
 

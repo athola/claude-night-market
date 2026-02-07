@@ -6,22 +6,22 @@ usage: /hooks-eval [plugin-path] [options]
 
 # Hooks-Eval
 
-<identification>
-triggers: hooks eval, evaluate hooks, hook evaluation, plugin hooks, all hooks, hook framework, hook quality, hook portfolio
+Detailed evaluation framework for analyzing all hooks within a plugin (or across project/global scopes) with advanced security scanning, performance benchmarking, and compliance validation. Built on the same principles as skills-eval but specifically tailored for Claude Code hook architecture.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Evaluating all hooks in a plugin comprehensively
 - Comparing multiple hooks
 - Validating quality gates across hook portfolio
 - Security scanning entire plugin's hooks
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Analyzing single hook - use /analyze-hook instead
 - Validating specific hook - use /validate-hook instead
 - Creating new hooks - use /create-hook instead
-</identification>
-
-Detailed evaluation framework for analyzing all hooks within a plugin (or across project/global scopes) with advanced security scanning, performance benchmarking, and compliance validation. Built on the same principles as skills-eval but specifically tailored for Claude Code hook architecture.
 
 ## Usage
 

@@ -20,7 +20,7 @@ Hooks adapt context based on the active agent. `pensive` tracks usage frequency 
 
 ## Workflow Improvements
 
-Commands automate multi-step processes to reduce manual intervention. `/prepare-pr` validates branch scope, runs configured linters, and verifies a clean git state before drafting a pull request. `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` requires a written specification phase before generating code. To maintain context, `/catchup` reads recent git history, and `/attune:init` detects project types (Python, Node) to scaffold configuration files.
+Commands automate multi-step processes to reduce manual intervention. `/prepare-pr` validates branch scope, runs configured linters, and verifies a clean git state before drafting a pull request. `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` requires a written specification phase before generating code. To maintain context, `/catchup` reads recent git history, and `/attune:project-init` detects project types (Python, Node) to scaffold configuration files.
 
 ## Quick Start
 
@@ -119,7 +119,7 @@ flowchart TB
 
 1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth and quotas), and `imbue` (TDD cycles).
 2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine with hook conversion and context-aware rule suggestions).
-3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), and `minister` (issue tracking).
+3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), `minister` (issue tracking), and `attune` (project lifecycle from brainstorm to execution). `attune` v1.4.0 introduced an enhanced discoverability pattern for automatic command matching from natural language.
 4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring, including Makefile generation and command-to-target validation.
 
 See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 126 skills, 114 commands, and 41 agents.

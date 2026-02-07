@@ -21,7 +21,7 @@ usage_patterns:
 - state-management
 complexity: intermediate
 estimated_tokens: 500
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -71,13 +71,24 @@ make test VERBOSE=1
 \`\`\`
 
 **Verification**: Run `make build && make test` to confirm build works.
-## When to Use
+## When To Use
 
 - Extended conversations requiring context preservation
 - Complex, multi-step projects with interrelated components
 - Workflows requiring state management across interactions
 - Collaborative sessions accumulating information over time
 - Code review or debugging sessions with many findings
+
+## When NOT To Use
+
+- Permanent knowledge structures
+  needed - use memory-palace-architect
+- Searching existing knowledge
+  - use knowledge-locator
+- Permanent knowledge structures
+  needed - use memory-palace-architect
+- Searching existing knowledge
+  - use knowledge-locator
 
 ## Session Palace Templates
 

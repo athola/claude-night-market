@@ -18,7 +18,7 @@ provides:
 reusable_by:
 - all spec-kit skills and commands
 estimated_tokens: 200
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Shared Infrastructure

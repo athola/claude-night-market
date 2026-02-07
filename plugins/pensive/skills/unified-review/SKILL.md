@@ -35,7 +35,7 @@ orchestrates:
 - pensive:test-review
 - pensive:makefile-review
 - pensive:math-review
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -79,13 +79,23 @@ Intelligently selects and executes appropriate review skills based on codebase a
 ```
 **Verification:** Run `pytest -v` to verify tests pass.
 
-## When to Use
+## When To Use
 
 - Starting a full code review
 - Reviewing changes across multiple domains
 - Need intelligent selection of review skills
 - Want integrated reporting from multiple review types
 - Before merging major feature branches
+
+## When NOT To Use
+
+- Specific review type known
+  - use bug-review
+- Test-review
+- Architecture-only focus - use
+  architecture-review
+- Specific review type known
+  - use bug-review
 
 ## Review Skill Selection Matrix
 

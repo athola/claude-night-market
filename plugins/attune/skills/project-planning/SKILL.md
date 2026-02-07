@@ -1,9 +1,13 @@
 ---
 name: project-planning
-description: Transform specifications into structured implementation plans with architecture design and task breakdown
-
+description: "Transform specifications into structured implementation plans with architecture design and dependency-ordered task breakdown. Use when: converting specs to plans, designing architecture, breaking down tasks, estimating effort. Do not use when: no specification exists yet or still brainstorming approaches."
+# Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
-version: 1.3.8
+version: 1.4.0
+category: workflow
+tags: [planning, architecture, task-breakdown, dependencies, estimation]
+complexity: intermediate
+estimated_tokens: 2400
 ---
 ## Table of Contents
 
@@ -54,12 +58,21 @@ version: 1.3.8
 
 Transform specification into implementation plan with architecture design and dependency-ordered tasks.
 
-## When to Use
+## When To Use
 
 - After specification phase completes
 - Need to design system architecture
 - Need task breakdown for implementation
 - Planning sprints and resource allocation
+- Converting requirements into actionable tasks
+- Defining component interfaces and dependencies
+
+## When NOT To Use
+
+- No specification exists yet (use `Skill(attune:project-specification)` first)
+- Still exploring problem space (use `Skill(attune:project-brainstorming)` instead)
+- Ready to execute existing plan (use `Skill(attune:project-execution)` instead)
+- Need to adjust running project (update plan incrementally, don't restart)
 
 ## Integration
 

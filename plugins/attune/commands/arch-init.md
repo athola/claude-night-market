@@ -1,22 +1,29 @@
 ---
 name: arch-init
-description: Architecture-aware project initialization with research and paradigm selection
+description: "Initialize projects with architecture-aware templates using paradigm research and selection guidance"
 usage: /attune:arch-init [--name NAME] [--lang python|rust|typescript] [--arch PARADIGM]
 ---
 
 # Attune Architecture-Aware Init Command
 
-<identification>
-triggers: architecture init, arch init, new project architecture, choose architecture, architecture-aware
+Research-driven project initialization that selects appropriate architectural paradigms based on project needs.
 
-use_when:
-- Starting a new project and unsure which architecture fits best
-- Want modern, industry-standard architecture choices
-- Need justification for architectural decisions
-- Want templates customized to chosen paradigm
-</identification>
+## When To Use
 
-Architecture-aware project initialization that combines online research with archetype selection.
+Use this command when you need to:
+- Start a new project with architecture guidance
+- Choose between architectural paradigms (hexagonal, clean, etc.)
+- Get research-backed architecture recommendations
+- Initialize project with paradigm-specific templates
+- Understand trade-offs of different architectures
+
+## When NOT To Use
+
+Avoid this command if:
+- Architecture already decided (use `/attune:project-init` directly)
+- Simple project without architectural complexity
+- Modifying existing project structure
+- Standard patterns sufficient without special architecture
 
 ## Usage
 

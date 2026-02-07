@@ -269,6 +269,78 @@ A version validation section that will be included in the final PR review:
 
 **This section is PREPENDED to the review summary** so version issues are the first thing reviewers see.
 
+### Phase 1.7: Slop Detection (MANDATORY)
+
+**Run AI slop detection on documentation and commit messages BEFORE code review.**
+
+This phase uses `Skill(scribe:slop-detector)` to identify AI-generated content markers.
+
+1. **Scan Changed Documentation**
+   ```bash
+   # Get all changed .md files
+   MD_FILES=$(gh pr diff $PR_NUMBER --name-only | grep -E '\.md$')
+
+   for file in $MD_FILES; do
+     # Invoke slop detection
+     echo "Scanning $file for AI slop..."
+     # Apply scribe:slop-detector patterns
+   done
+   ```
+
+2. **Scan Commit Messages**
+   ```bash
+   # Extract all commit messages
+   gh pr view $PR_NUMBER --json commits --jq '.commits[] | .messageHeadline + "\n" + .messageBody' > /tmp/commits.txt
+
+   # Check for tier-1 slop words
+   SLOP_WORDS="leverage|seamless|comprehensive|delve|robust|utilize|facilitate|streamline|multifaceted|pivotal|intricate|nuanced"
+   SLOP_FOUND=$(grep -iE "$SLOP_WORDS" /tmp/commits.txt || true)
+
+   if [[ -n "$SLOP_FOUND" ]]; then
+     echo "⚠️ AI slop detected in commit messages:"
+     echo "$SLOP_FOUND"
+   fi
+   ```
+
+3. **Scan PR Description**
+   ```bash
+   gh pr view $PR_NUMBER --json body --jq '.body' | \
+     grep -iE 'leverage|seamless|comprehensive|delve|robust|utilize' && \
+     echo "⚠️ Slop markers in PR description"
+   ```
+
+4. **Classification of Slop Findings**
+
+   | Location | Score | Severity | Action |
+   |----------|-------|----------|--------|
+   | Documentation | ≥5.0 | BLOCKING (if --strict) | Must remediate |
+   | Documentation | 3.0-4.9 | IN-SCOPE | Should remediate |
+   | Documentation | <3.0 | SUGGESTION | Optional cleanup |
+   | Commit messages | Any tier-1 | SUGGESTION | Note for future |
+   | PR description | Any tier-1 | SUGGESTION | Recommend rephrase |
+
+**Output from this phase:**
+
+```markdown
+### Slop Detection Results
+
+**Documentation Scanned**: 3 files
+**Overall Score**: 2.8/10 (Light)
+
+| File | Score | Top Issues |
+|------|-------|------------|
+| README.md | 1.2 | Clean |
+| docs/guide.md | 4.1 | "comprehensive", "leverage" |
+| CHANGELOG.md | 0.5 | Clean |
+
+**Commit Messages**: 1 slop marker found
+- "feat: leverage new API" → suggest: "feat: use new API"
+
+**Recommendations**:
+- Run `/doc-polish docs/guide.md` to remediate
+- Consider rewording commit message for clarity
+```
+
 ### Phase 2: Code Analysis (Superpowers)
 
 4. **detailed Code Review**

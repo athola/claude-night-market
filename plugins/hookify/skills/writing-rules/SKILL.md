@@ -7,7 +7,7 @@ description: |
 
   Use when: preventing dangerous commands, blocking debug commits, enforcing conventions
   DO NOT use when: hook scope (abstract:hook-scope-guide), SDK hooks (abstract:hook-authoring), evaluating hooks (abstract:hooks-eval)
-version: 1.3.8
+version: 1.4.0
 category: hook-development
 tags: [hookify, rules, patterns, validation, safety]
 dependencies: []
@@ -46,6 +46,17 @@ usage_patterns:
 
 
 # Hookify Rule Writing Guide
+
+
+## When To Use
+
+- Creating behavioral rules to prevent unwanted actions
+- Defining persistent guardrails for Claude Code sessions
+
+## When NOT To Use
+
+- Complex multi-step workflows - use agents instead
+- One-time operations that do not need persistent behavioral rules
 
 ## Overview
 

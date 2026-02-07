@@ -19,7 +19,7 @@ usage_patterns:
 - reproducible-analysis
 complexity: intermediate
 estimated_tokens: 1200
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -36,10 +36,15 @@ version: 1.3.8
 
 # Evidence Logging
 
-## When to Use
+## When To Use
 - During any review or analysis workflow to capture reproducible evidence.
 - When findings must be traceable to specific commands, outputs, or sources.
 - Before finalizing recommendations that stakeholders will act upon.
+
+## When NOT To Use
+
+- Quick informal checks without documentation needs
+- Structured output is the focus - use structured-output
 
 ## Activation Patterns
 **Trigger Keywords**: evidence, proof, trace, audit, reproducible, citation, source, verify

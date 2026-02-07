@@ -29,7 +29,7 @@ hooks:
       # Could export: context pressure events over time
 
       '
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -52,10 +52,15 @@ version: 1.3.8
 python -m conserve.context_analyzer
 ```
 
-## When to Use
+## When To Use
 
 - **Threshold Alert**: When context usage approaches 50% of the window.
 - **Complex Tasks**: For operations requiring multi-file analysis or long tool chains.
+
+## When NOT To Use
+
+- Simple single-step tasks with low context usage
+- Already using mcp-code-execution for tool chains
 
 ## Core Hub Responsibilities
 

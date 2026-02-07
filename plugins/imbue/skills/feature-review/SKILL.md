@@ -25,7 +25,7 @@ modules:
   - modules/classification-system.md
   - modules/tradeoff-dimensions.md
   - modules/configuration.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -70,13 +70,13 @@ Review implemented features and suggest new ones using evidence-based prioritiza
 
 Feature decisions rely on data. Every feature involves tradeoffs that require evaluation. This skill uses hybrid RICE+WSJF scoring with Kano classification to prioritize work and generates actionable GitHub issues for accepted suggestions.
 
-## When to Use
+## When To Use
 
 - Roadmap reviews (sprint planning, quarterly reviews).
 - Retrospective evaluations.
 - Planning new development cycles.
 
-## When NOT to Use
+## When NOT To Use
 
 - Emergency bug fixes.
 - Simple documentation updates.

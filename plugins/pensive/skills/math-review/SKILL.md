@@ -27,7 +27,7 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:evidence-logging
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -64,7 +64,7 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Changes to mathematical models or algorithms
 - Statistical routines or probabilistic logic
@@ -72,6 +72,15 @@ Intensive analysis ensuring numerical stability and alignment with standards.
 - Scientific computing code
 - ML/AI model implementations
 - Safety-critical calculations
+
+## When NOT To Use
+
+- General algorithm review -
+  use architecture-review
+- Performance optimization - use parseltongue:python-performance
+- General algorithm review -
+  use architecture-review
+- Performance optimization - use parseltongue:python-performance
 
 ## Required TodoWrite Items
 

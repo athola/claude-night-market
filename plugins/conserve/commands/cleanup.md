@@ -6,18 +6,21 @@ usage: /cleanup [--focus all|bloat|quality|hygiene] [--level 1|2|3] [--report FI
 
 # Cleanup Command
 
-<identification>
-triggers: cleanup, clean up, codebase cleanup, full cleanup, maintenance, housekeeping
+Unified orchestrator that combines bloat removal, code quality refinement, and AI hygiene auditing into a single workflow.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Comprehensive codebase maintenance
 - Before major releases
 - After extended AI-assisted development
 - Regular hygiene cadence (weekly/sprint)
 - Onboarding new team members to codebase state
-</identification>
 
-Unified orchestrator that combines bloat removal, code quality refinement, and AI hygiene auditing into a single workflow.
+## When NOT To Use
+
+- Quick fixes that don't need structured workflow
+- Already know the specific issue - fix it directly
 
 ## Philosophy
 

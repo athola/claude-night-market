@@ -25,7 +25,7 @@ modules:
 - exit-codes
 - portability
 - safety-patterns
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -53,13 +53,18 @@ Run `pytest plugins/pensive/tests/skills/test_shell_review.py -v` to validate re
 /shell-review path/to/script.sh
 ```
 
-## When to Use
+## When To Use
 
 - CI/CD pipeline scripts
 - Git hook scripts
 - Wrapper scripts (run-*.sh)
 - Build automation scripts
 - Pre-commit hook implementations
+
+## When NOT To Use
+
+- Non-shell scripts (Python, JS, etc.)
+- One-liner commands that don't need review
 
 ## Required TodoWrite Items
 

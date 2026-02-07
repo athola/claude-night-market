@@ -8,7 +8,7 @@ description: 'Guide to effective Claude Code skill authoring using TDD methodolo
   skill, authoring, tdd, skill authoring, skill writing, new skill, TDD skills, skill
   creation, skill best practices, skill validation, skill deployment, skill compliance,
   skill testing.'
-version: 1.3.8
+version: 1.4.0
 category: skill-development
 tags:
 - authoring

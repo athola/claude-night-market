@@ -33,7 +33,7 @@ modules:
 - testing-workflows
 - test-quality
 - async-testing
-version: 1.3.8
+version: 1.4.0
 ---
 # Python Testing Hub
 
@@ -56,12 +56,23 @@ Testing standards for pytest configuration, fixture management, and TDD implemen
     ```
 3.  **Verification**: Run `pytest` to confirm discovery of files matching `test_*.py`.
 
-## When to Use
+## When To Use
 
 - Constructing unit and integration tests for Python 3.9+ projects.
 - Isolating external dependencies using `pytest-mock` or custom monkeypatching.
 - Validating asynchronous logic with `pytest-asyncio` markers and event loop management.
 - Configuring project-wide coverage thresholds and reporting.
+
+## When NOT To Use
+
+- Evaluating test
+  quality - use pensive:test-review instead
+- Infrastructure test
+  config - use leyline:pytest-config
+- Evaluating test
+  quality - use pensive:test-review instead
+- Infrastructure test
+  config - use leyline:pytest-config
 
 ## Modules
 

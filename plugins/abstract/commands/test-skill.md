@@ -7,21 +7,21 @@ extends: "superpowers:test-driven-development"
 
 # Test Skill
 
-<identification>
-triggers: test skill, skill test, validate skill, skill validation, RED GREEN REFACTOR, TDD skill, skill quality
+Runs skill validation via superpowers:test-driven-development while keeping the familiar `/test-skill` interface.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Testing a skill through RED/GREEN/REFACTOR phases
 - Validating skill behavior before deployment
 - Running TDD checkpoints on skill development
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Evaluating skill quality metrics - use /skills-eval instead
 - Creating new skills - use /create-skill instead
 - Hardening against rationalization - use /bulletproof-skill
-</identification>
-
-Runs skill validation via superpowers:test-driven-development while keeping the familiar `/test-skill` interface.
 
 ## How It Works
 

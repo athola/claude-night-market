@@ -1,9 +1,13 @@
 ---
 name: project-specification
-description: Transform project brief into detailed, testable specifications using spec-driven development methodology
-
+description: "Transform project briefs into detailed, testable specifications using spec-driven development methodology. Use when: translating requirements, defining acceptance criteria, creating technical specs, before implementation. Do not use when: already have detailed specification or still exploring problem space."
+# Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
-version: 1.3.8
+version: 1.4.0
+category: workflow
+tags: [specification, requirements, acceptance-criteria, spec-driven-development]
+complexity: intermediate
+estimated_tokens: 2200
 ---
 ## Table of Contents
 
@@ -49,12 +53,21 @@ version: 1.3.8
 
 Transform project briefs into structured, testable specifications with acceptance criteria.
 
-## When to Use
+## When To Use
 
 - After brainstorming phase completes
 - Have project brief but need detailed requirements
 - Need testable acceptance criteria for implementation
 - Planning validation and testing strategy
+- Translating business requirements into technical specs
+- Defining scope boundaries and out-of-scope items
+
+## When NOT To Use
+
+- Still exploring problem space (use `Skill(attune:project-brainstorming)` instead)
+- Already have detailed specification (use `Skill(attune:project-planning)` instead)
+- Refining existing implementation (use code review skills)
+- Making strategic decisions (use `Skill(attune:war-room)` for complex choices)
 
 ## Integration
 

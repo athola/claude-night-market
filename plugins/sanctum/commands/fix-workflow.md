@@ -6,15 +6,18 @@ usage: /fix-workflow [--scope sanctum|repo] [--dry-run] [--focus skills|agents|c
 
 # Fix Workflow
 
-<identification>
-triggers: fix workflow, workflow improvement, retrospective, session analysis
+Run a lightweight retrospective on the **most recent command or session slice** visible in the current context window, then implement targeted improvements to the workflow components involved (skills, agents, commands, hooks).
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Workflow execution felt inefficient or needs optimization
 - Post-session improvement of skills/agents/commands/hooks
-</identification>
 
-Run a lightweight retrospective on the **most recent command or session slice** visible in the current context window, then implement targeted improvements to the workflow components involved (skills, agents, commands, hooks).
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Self-Improvement Architecture
 

@@ -6,21 +6,21 @@ usage: /skills-eval [skill-name]
 
 # Skills Evaluation Command
 
-<identification>
-triggers: skills eval, evaluate skills, skill evaluation, skill quality, skill audit, skill compliance, skill improvements, skill assessment
+## When To Use
 
-use_when:
+Use this command when you need to:
 - Auditing skill ecosystem quality
 - Discovering implementation patterns
 - Planning skill improvements
 - Checking compliance with standards
 - Generating improvement recommendations
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Evaluating hooks - use /hooks-eval instead
 - Validating plugin structure - use /validate-plugin instead
 - Creating new skills - use /create-skill instead
-</identification>
 
 ## Usage
 

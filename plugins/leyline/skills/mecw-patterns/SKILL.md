@@ -25,7 +25,7 @@ modules:
   - modules/monitoring-patterns.md
   - modules/prevention-strategies.md
 reusable_by: [conserve, abstract, conjure, spec-kit, sanctum, imbue]
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -49,13 +49,18 @@ version: 1.3.8
 
 Maximum Effective Context Window (MECW) patterns provide the theoretical foundations and practical utilities for managing context window usage to prevent hallucinations. The core principle: **Never use more than 50% of total context window for input content.**
 
-## When to Use
+## When To Use
 
 - Need to prevent hallucinations in long-running sessions
 - Managing context-heavy workflows
 - Building systems that process large amounts of data
 - Want proactive context pressure monitoring
 - Require safe token budget calculation
+
+## When NOT To Use
+
+- Project doesn't use the leyline infrastructure patterns
+- Simple scripts without service architecture needs
 
 ## Core Principle: The 50% Rule
 

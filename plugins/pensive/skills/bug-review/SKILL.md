@@ -28,7 +28,7 @@ dependencies:
 - pensive:shared
 - imbue:evidence-logging
 - imbue:diff-analysis/modules/risk-assessment-framework
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -66,13 +66,17 @@ Systematic bug identification and fixing with language-specific expertise.
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-## When to Use
+## When To Use
 
 - Reviewing code for potential bugs
 - After receiving bug reports
 - Before major releases
 - During security audits
 - Investigating production issues
+
+## When NOT To Use
+
+- Test coverage audit - use test-review instead
 
 ## Required TodoWrite Items
 

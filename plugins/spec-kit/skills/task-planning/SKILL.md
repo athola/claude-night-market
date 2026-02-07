@@ -23,7 +23,7 @@ usage_patterns:
   - implementation-planning
 complexity: intermediate
 estimated_tokens: 1200
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Task Planning
@@ -32,12 +32,16 @@ version: 1.3.8
 
 Transforms specifications and implementation plans into actionable, dependency-ordered tasks. Creates phased breakdowns that guide systematic implementation.
 
-## When to Use
+## When To Use
 
 - Converting specifications to implementation tasks
 - Planning feature implementation order
 - Identifying parallel execution opportunities
 - Breaking down complex features into phases
+
+## When NOT To Use
+
+- Writing specifications - use spec-writing
 
 ## Task Phases
 

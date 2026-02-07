@@ -357,7 +357,7 @@ This command complements:
 - `/fix-workflow` - Implements improvements for identified issues
 - `memory-palace:knowledge-intake` - Evaluates queue items for promotion (Phase 3)
 
-## When to Use
+## When To Use
 
 - After adding new commands, skills, agents, or hooks
 - During version bumps to ensure completeness
@@ -365,6 +365,11 @@ This command complements:
 - When capabilities-reference.md seems out of sync
 - **Periodically (weekly/monthly)** to catch performance degradation early
 - **After major refactors** to ensure no regressions in skill stability
+
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Improvement Integration Loop
 

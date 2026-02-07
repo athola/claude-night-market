@@ -8,12 +8,17 @@ usage: /resolve-threads [<pr-number> | <pr-url>]
 
 Quickly resolve all unresolved review threads on a PR after fixes have been addressed.
 
-## When to Use
+## When To Use
 
 - **Runs automatically** at the end of `/fix-pr` (Phase 7)
 - After manually addressing PR review comments outside `/fix-pr`
 - To clean up resolved conversations before merge
 - As a standalone verification command
+
+## When NOT To Use
+
+- Simple changes that don't need the full workflow
+- Work already completed through another sanctum command
 
 ## Workflow
 

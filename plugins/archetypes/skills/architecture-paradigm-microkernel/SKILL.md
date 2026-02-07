@@ -6,7 +6,7 @@ description: |
   Triggers: microkernel, plugin-architecture, extensibility, platform-design
   Use when: platforms/IDEs/marketplaces, core stability critical, plugin isolation needed
   DO NOT use when: selecting paradigms (use architecture-paradigms first), no extensibility needed
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, microkernel, plugin, extensibility, platform-design]
 dependencies: []
@@ -20,6 +20,17 @@ estimated_tokens: 900
 ---
 
 # The Microkernel (Plugin) Architecture Paradigm
+
+
+## When To Use
+
+- Building extensible systems with plugin architectures
+- Products requiring customer-specific customizations
+
+## When NOT To Use
+
+- Monolithic applications without plugin extensibility needs
+- Systems where all features are core and tightly coupled by design
 
 ## When to Employ This Paradigm
 - When building platforms, Integrated Development Environments (IDEs), data ingestion pipelines, or marketplaces where third parties need to extend core functionality.

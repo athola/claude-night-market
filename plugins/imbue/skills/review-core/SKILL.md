@@ -20,7 +20,7 @@ usage_patterns:
 - evidence-capture
 complexity: intermediate
 estimated_tokens: 1500
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Core Review Workflow
@@ -37,9 +37,13 @@ version: 1.3.8
 8. [Step 5 – Contingency Plan](#step-5--contingency-plan-review-corecontingencies-documented)
 9. [Troubleshooting](#troubleshooting)
 
-## When to Use
+## When To Use
 - Use this skill at the beginning of any detailed review workflow (e.g., for architecture, math, or an API).
 - It provides a consistent structure for capturing context, logging evidence, and formatting the final report, which makes the findings of different reviews comparable.
+
+## When NOT To Use
+
+- Diff-focused analysis - use diff-analysis
 
 ## Activation Patterns
 **Trigger Keywords**: review, audit, analysis, assessment, evaluation, inspection

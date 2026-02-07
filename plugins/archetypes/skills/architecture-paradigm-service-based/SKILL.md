@@ -6,7 +6,7 @@ description: |
   service-based, SOA, coarse-grained services, domain services
   Use when: teams need deployment independence without microservices complexity
   DO NOT use when: fine-grained scaling needed - use microservices.
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, service-based, soa, modular, shared-database]
 dependencies: []
@@ -20,6 +20,17 @@ estimated_tokens: 700
 ---
 
 # The Service-Based Architecture Paradigm
+
+
+## When To Use
+
+- Multi-team organizations with domain-aligned services
+- Systems requiring independent deployment of components
+
+## When NOT To Use
+
+- Single-team projects small enough for a monolith
+- Latency-sensitive systems where inter-service calls are prohibitive
 
 ## When to Employ This Paradigm
 - When teams require a degree of deployment independence but are not yet prepared for the complexity of managing numerous microservices.

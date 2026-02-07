@@ -27,7 +27,7 @@ modules:
 - modules/qwen-specifics.md
 references:
 - delegation-core/shared-shell-execution.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -51,11 +51,20 @@ version: 1.3.8
 
 This skill implements `conjure:delegation-core` for the Qwen CLI using shared delegation patterns. It provides Qwen-specific authentication, quota management, and command construction.
 
-## When to Use
+## When To Use
 - After `Skill(conjure:delegation-core)` determines Qwen is suitable
 - When you need Qwen's large context window (100K+ tokens)
 - For batch processing, summarization, or multi-file analysis
 - If the `qwen` CLI is installed and configured
+
+## When NOT To Use
+
+- Deciding which model to use (use delegation-core
+  first)
+- Qwen CLI not installed
+- Deciding which model to use (use delegation-core
+  first)
+- Qwen CLI not installed
 
 ## Prerequisites
 

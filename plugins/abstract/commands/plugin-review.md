@@ -1,15 +1,16 @@
 ---
 name: plugin-review
-description: Comprehensive plugin architecture review - skills, commands, hooks, agents, tokens, bloat
+description: Rigorous review of plugin architecture quality. Orchestrates multiple evaluation tools to provide a unified health report covering skills, commands, hooks, agents, token efficiency, and bloat detection.
 usage: /plugin-review [plugin-path] [--focus skills|hooks|bloat|tokens|all] [--format summary|detailed|json]
 ---
 
 # Plugin Review
 
-<identification>
-triggers: skill review, plugin review, architecture review, plugin health, skill audit, comprehensive review, plugin quality, quality check, health check, skill portfolio
+Comprehensive review of plugin architecture quality. Orchestrates multiple evaluation tools to provide a unified health report covering skills, commands, hooks, agents, token efficiency, and bloat detection.
 
-use_when:
+## When To Use
+
+Use this command when you need to:
 - Assessing overall plugin/skill architecture health
 - Pre-release validation of plugin quality
 - Quarterly maintenance audits
@@ -17,14 +18,13 @@ use_when:
 - Identifying improvement priorities across skills/commands/hooks
 - Validating plugin meets quality standards
 
-do_not_use_when:
+## When NOT To Use
+
+Avoid this command if:
 - Single skill analysis - use /analyze-skill
 - Single hook analysis - use /analyze-hook
 - Creating new skills - use /create-skill
 - Token estimation only - use /estimate-tokens
-</identification>
-
-Comprehensive review of plugin architecture quality. Orchestrates multiple evaluation tools to provide a unified health report covering skills, commands, hooks, agents, token efficiency, and bloat detection.
 
 ## Usage
 

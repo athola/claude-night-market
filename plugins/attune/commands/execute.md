@@ -1,11 +1,29 @@
 ---
 name: execute
-description: Execute implementation tasks systematically with progress tracking and checkpoint validation
+description: "Execute implementation plan systematically with progress tracking and checkpoint validation"
 ---
 
 # Attune Execute Command
 
-Execute implementation plan systematically with task tracking, checkpoint validation, and progress reporting.
+Execute implementation plans systematically with task tracking, checkpoint validation, and continuous progress reporting.
+
+## When To Use
+
+Use this command when you need to:
+- Execute implementation plan with task tracking
+- Implement tasks in dependency order
+- Validate checkpoints against acceptance criteria
+- Track progress and identify blockers
+- Monitor velocity and burndown metrics
+- Ensure systematic quality-gated execution
+
+## When NOT To Use
+
+Avoid this command if:
+- No implementation plan exists (use `/attune:plan` first)
+- Still planning or designing (complete planning phase)
+- Single isolated task (execute directly without framework)
+- Exploratory coding or quick prototype (too much overhead)
 
 ## Usage
 

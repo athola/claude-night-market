@@ -22,7 +22,7 @@ modules:
   - modules/auth-methods.md
   - modules/verification-patterns.md
   - modules/interactive-auth.md
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -47,12 +47,17 @@ version: 1.3.8
 
 Common authentication patterns for integrating with external services. Provides consistent approaches to credential management, verification, and error handling.
 
-## When to Use
+## When To Use
 
 - Integrating with external APIs
 - Need credential verification
 - Managing multiple auth methods
 - Handling auth failures gracefully
+
+## When NOT To Use
+
+- Project doesn't use the leyline infrastructure patterns
+- Simple scripts without service architecture needs
 
 ## Authentication Methods
 

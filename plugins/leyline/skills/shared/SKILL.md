@@ -21,7 +21,7 @@ reusable_by:
 - conjure
 - abstract
 estimated_tokens: 150
-version: 1.3.8
+version: 1.4.0
 ---
 
 # Shared Infrastructure for Leyline

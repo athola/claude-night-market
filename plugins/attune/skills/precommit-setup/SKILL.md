@@ -1,10 +1,14 @@
 ---
 name: precommit-setup
-description: Configure comprehensive three-layer pre-commit quality system with linting, type checking, and testing enforcement
-
+description: "Configure three-layer pre-commit quality system with linting, type checking, and testing hooks. Use when: setting up quality gates, configuring pre-commit, establishing code quality standards. Do not use when: pre-commit already configured optimally."
+# Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.3.8
+version: 1.4.0
+category: infrastructure
+tags: [pre-commit, quality-gates, linting, type-checking, testing]
+complexity: intermediate
+estimated_tokens: 1800
 ---
 ## Table of Contents
 
@@ -58,13 +62,20 @@ version: 1.3.8
 
 Configure a detailed three-layer pre-commit quality system that enforces linting, type checking, and testing before commits.
 
-## Use When
+## When To Use
 
 - Setting up new project with code quality enforcement
 - Adding pre-commit hooks to existing project
 - Upgrading from basic linting to a full quality system
 - Setting up monorepo/plugin architecture with per-component quality checks
 - Updating pre-commit hook versions
+
+## When NOT To Use
+
+- Pre-commit hooks already configured and working optimally
+- Project doesn't use git version control
+- Team explicitly avoids pre-commit hooks for workflow reasons
+- Use `/attune:upgrade-project` instead for updating existing configurations
 
 ## Philosophy: Three-Layer Defense
 

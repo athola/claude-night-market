@@ -25,7 +25,7 @@ progressive_loading: true
 dependencies:
 - pensive:shared
 - imbue:evidence-logging
-version: 1.3.8
+version: 1.4.0
 ---
 # API Review Workflow
 

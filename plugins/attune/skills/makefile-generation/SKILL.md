@@ -1,10 +1,14 @@
 ---
 name: makefile-generation
-description: Generate language-specific Makefile with common development targets
-
+description: "Generate language-specific Makefiles with common development targets for testing, linting, and automation. Use when: initializing projects, setting up development workflow, standardizing commands. Do not use when: Makefile already exists and is current."
+# Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.3.8
+version: 1.4.0
+category: infrastructure
+tags: [makefile, automation, build-tools, development-workflow]
+complexity: low
+estimated_tokens: 1200
 ---
 ## Table of Contents
 
@@ -27,11 +31,20 @@ version: 1.3.8
 
 Generate a Makefile with standard development targets for Python, Rust, or TypeScript projects.
 
-## Use When
+## When To Use
 
 - Need a Makefile for a project without one
 - Want to update Makefile with new targets
 - Standardizing build automation across projects
+- Setting up development workflow commands
+- Creating language-specific build targets
+
+## When NOT To Use
+
+- Makefile already exists and is current
+- Project uses alternative build system exclusively (e.g., npm scripts only)
+- Complex custom build process that doesn't fit standard patterns
+- Use `/attune:upgrade-project` instead for updating existing Makefiles
 
 ## Standard Targets
 

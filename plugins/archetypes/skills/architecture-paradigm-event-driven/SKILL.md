@@ -6,7 +6,7 @@ description: |
   Triggers: event-driven, message queue, pub/sub, asynchronous, decoupling
   Use when: real-time workloads or multiple subsystems react to same events
   DO NOT use when: simple request-response patterns suffice.
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, event-driven, asynchronous, decoupling, scalability, resilience]
 dependencies: []
@@ -20,6 +20,17 @@ estimated_tokens: 800
 ---
 
 # The Event-Driven Architecture Paradigm
+
+
+## When To Use
+
+- Building async, loosely-coupled systems
+- Systems with complex event processing pipelines
+
+## When NOT To Use
+
+- Simple request-response applications without async needs
+- Systems requiring strong transactional consistency
 
 ## When to Employ This Paradigm
 - For real-time or bursty workloads (e.g., IoT, financial trading, logistics) where loose coupling and asynchronous processing are beneficial.

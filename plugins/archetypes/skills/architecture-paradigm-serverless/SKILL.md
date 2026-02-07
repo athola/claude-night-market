@@ -6,7 +6,7 @@ description: |
   serverless, FaaS, Lambda, event-driven, pay-per-use
   Use when: workloads are event-driven with bursty traffic
   DO NOT use when: long-running processes or stateful operations required.
-version: 1.3.8
+version: 1.4.0
 category: architectural-pattern
 tags: [architecture, serverless, faas, event-driven, cost-optimization]
 dependencies: []
@@ -20,6 +20,17 @@ estimated_tokens: 700
 ---
 
 # The Serverless Architecture Paradigm
+
+
+## When To Use
+
+- Event-driven workloads with variable traffic
+- Minimizing operational overhead for cloud-native apps
+
+## When NOT To Use
+
+- Long-running processes exceeding function timeout limits
+- Applications requiring persistent connections or local state
 
 ## When to Employ This Paradigm
 - When workloads are event-driven and exhibit intermittent or "bursty" traffic patterns.

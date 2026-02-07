@@ -26,7 +26,7 @@ modules:
 - remediation-types
 progressive_loading: true
 estimated_tokens: 400
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -72,7 +72,7 @@ Adds: Static analysis (Vulture/Knip), git churn hotspots, doc similarity
 ```
 Adds: Cross-file redundancy, dependency graphs, readability metrics
 
-## When to Use
+## When To Use
 
 | Do | Don't |
 |----|-------|
@@ -80,6 +80,12 @@ Adds: Cross-file redundancy, dependency graphs, readability metrics
 | Quarterly maintenance | Time-sensitive bugs |
 | Pre-release cleanup | Codebase < 1000 lines |
 | Before major refactoring | Tools unavailable (Tier 2/3) |
+
+## When NOT To Use
+
+- Active feature development
+- Time-sensitive bugs
+- Codebase < 1000 lines
 
 ## Confidence Levels
 

@@ -8,7 +8,7 @@ description: Systematic methodology to reduce skill file size through externaliz
   skill when skills-eval shows "Large skill file" warnings.
 token_budget: 25
 progressive_loading: true
-version: 1.3.8
+version: 1.4.0
 ---
 ## Table of Contents
 
@@ -24,7 +24,7 @@ version: 1.3.8
 Systematic methodology for reducing skill file size while preserving functionality
 through separation of concerns and strategic code organization.
 
-## When to Use
+## When To Use
 
 **Symptoms that trigger this skill:**
 - Skills-eval validation shows "[WARN] Large skill file" warnings
@@ -39,6 +39,10 @@ through separation of concerns and strategic code organization.
 python skills/optimizing-large-skills/tools/optimization-patterns.py \
   skills/path/SKILL.md --verbose --generate-plan
 ```
+
+## When NOT To Use
+
+- Skill is under 300 lines and well-organized
 
 ## Core Pattern: Externalize-Consolidate-Progress
 

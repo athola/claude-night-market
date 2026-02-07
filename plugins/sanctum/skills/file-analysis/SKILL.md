@@ -22,15 +22,20 @@ estimated_tokens: 800
 dependencies:
 - sanctum:shared
 - imbue:evidence-logging
-version: 1.3.8
+version: 1.4.0
 ---
 
 # File Analysis
 
-## When to Use
+## When To Use
 - Before architecture reviews to understand module boundaries and file organization.
 - When exploring unfamiliar codebases to map structure before making changes.
 - As input to scope estimation for refactoring or migration work.
+
+## When NOT To Use
+
+- General code exploration - use the Explore agent
+- Searching for specific patterns - use Grep directly
 
 ## Required TodoWrite Items
 1. `file-analysis:root-identified`

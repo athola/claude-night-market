@@ -6,7 +6,7 @@ description: 'Merges valuable content into permanent documentation, then deletes
   clean up working artifacts, preserving insights from code reviews. Do not use when
   files are already in docs/ or skills/ locations. DO NOT use when: files are intentionally
   temporary scratch notes. DO NOT use when: source files have no extractable value.'
-version: 1.3.8
+version: 1.4.0
 category: documentation
 tags:
 - docs
@@ -58,7 +58,7 @@ modules:
 
 Extracts valuable knowledge from ephemeral LLM outputs and merges it into permanent documentation.
 
-## When to Use
+## When To Use
 
 Use this skill when:
 - You have untracked `*_REPORT.md` or `*_ANALYSIS.md` files from Claude sessions
@@ -71,6 +71,14 @@ Do NOT use when:
 - Files are intentionally temporary scratch notes
 - User explicitly wants to preserve the original report format
 - Source files have no extractable value (pure log output)
+
+## When NOT To Use
+
+- Files are already in docs/ or skills/ locations
+- Files are intentionally
+  temporary scratch notes
+- Source files have no extractable value
+- Files are already in docs/ or skills/ locations
 
 ## Quick Start
 

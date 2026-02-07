@@ -7,14 +7,6 @@ extends: "superpowers:receiving-code-review"
 
 # Enhanced PR Review
 
-<identification>
-triggers: PR review, code review, pull request, pre-merge
-
-use_when:
-- Reviewing feature PRs or enforcing quality gates
-- Pre-merge validation with scope discipline
-</identification>
-
 Integrates Sanctum's disciplined scope validation with superpowers:receiving-code-review's detailed analysis to provide thorough, balanced PR reviews that prevent scope creep while ensuring code quality.
 
 ## Core Philosophy
@@ -39,13 +31,18 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 - **Security Scanning**: Vulnerability detection
 - **Performance Impact Assessment**: Efficiency considerations
 
-## When to Use
+## When To Use
 
 - Reviewing feature branch PRs
 - Validating implementation against requirements
 - Pre-merge quality gates
 - Generating actionable review feedback
 - Creating improvement backlog
+
+## When NOT To Use
+
+- Self-reviewing trivial changes
+- Draft PRs not ready for review
 
 ## Documentation
 
@@ -97,11 +94,12 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 
 1. **Scope Establishment** - Discover requirements from plan/spec/tasks
 2. **Version Validation** - Ensure version consistency (mandatory unless bypassed)
-3. **Code Analysis** - Deep technical review
-4. **Documentation Review** - AI slop detection on changed docs (via scribe)
-5. **GitHub Review** - Post review comments to PR (MANDATORY)
-6. **Test Plan** - Post verification checklist to PR (MANDATORY)
-7. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY)
+3. **Slop Detection** - AI content markers in docs, commits, PR description (MANDATORY)
+4. **Code Analysis** - Deep technical review
+5. **Code Quality** - Duplication, redundancy analysis
+6. **GitHub Review** - Post review comments to PR (MANDATORY)
+7. **Test Plan** - Post verification checklist to PR (MANDATORY)
+8. **PR Description** - Update PR body OR create from commits/scope if empty (MANDATORY)
 
 **MANDATORY OUTPUTS:** Review comment, Test plan comment, PR description update.
 If any are missing, the review is INCOMPLETE.
