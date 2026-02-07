@@ -29,7 +29,7 @@ hooks:
       # Could export: context pressure events over time
 
       '
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 

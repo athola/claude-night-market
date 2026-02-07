@@ -12,6 +12,7 @@ tools:
 - Bash
 - Write
 model: haiku
+memory: project
 skills: conserve:context-optimization, conserve:optimizing-large-skills
 hooks:
   PreToolUse:

@@ -20,7 +20,7 @@ Use this command when you need to:
 ## When NOT To Use
 
 Avoid this command if:
-- No implementation plan exists (use `/attune:plan` first)
+- No implementation plan exists (use `/attune:blueprint` first)
 - Still planning or designing (complete planning phase)
 - Single isolated task (execute directly without framework)
 - Exploratory coding or quick prototype (too much overhead)
@@ -154,7 +154,7 @@ Agent(attune:project-implementer)
 ### Example 1: Full Execution
 
 ```bash
-/attune:plan
+/attune:blueprint
 /attune:project-init --lang python
 /attune:execute
 ```
@@ -438,7 +438,7 @@ Each task follows this systematic pattern:
       ↓
 /attune:specify       ← Define requirements
       ↓
-/attune:plan          ← Plan architecture and tasks
+/attune:blueprint          ← Plan architecture and tasks
       ↓
 /attune:project-init          ← Initialize project structure
       ↓
@@ -456,7 +456,7 @@ Before marking task complete, verify:
 
 ## Related Commands
 
-- `/attune:plan` - Create implementation plan
+- `/attune:blueprint` - Create implementation plan
 - `/attune:project-init` - Initialize project structure
 - `/attune:validate` - Validate project state
 - `/speckit-implement` - Spec-kit implementation workflow (if available)

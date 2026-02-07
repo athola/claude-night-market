@@ -144,7 +144,7 @@ Skill(parseltongue:python-testing)
 /attune:specify
 # Create specification from brainstorm
 
-/attune:plan
+/attune:blueprint
 # Design architecture and break down tasks
 
 /attune:init

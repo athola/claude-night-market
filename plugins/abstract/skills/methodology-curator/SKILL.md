@@ -8,7 +8,7 @@ description: 'Surfaces expert frameworks and proven methodologies before creatin
   practices, masters, proven method, domain expertise, how should I approach, what''s
   the best way, evaluate skill, review methodology, is this grounded, optimization
   check, methodology evaluation.'
-version: 1.4.0
+version: 1.4.1
 category: meta-skills
 tags:
 - methodology

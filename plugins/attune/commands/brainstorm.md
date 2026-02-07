@@ -19,7 +19,7 @@ Use this command when you need to:
 ## When NOT To Use
 
 Avoid this command if:
-- Requirements and specification already exist (use `/attune:plan` instead)
+- Requirements and specification already exist (use `/attune:blueprint` instead)
 - You need to refine existing specs (use `/attune:specify` instead)
 - Project scope is well-defined (jump to `/attune:project-init`)
 - Making mid-project strategic decisions (use `/attune:war-room` instead)
@@ -265,7 +265,7 @@ Loads previous session state from `.attune/brainstorm-session.json`
 
 ## Next Steps
 1. /attune:specify - Create detailed specification
-2. /attune:plan - Plan architecture and implementation
+2. /attune:blueprint - Plan architecture and implementation
 3. /attune:project-init - Initialize project structure
 ```
 
@@ -292,7 +292,7 @@ Brainstorm sessions are saved to `.attune/brainstorm-session.json`:
       ↓
 /attune:specify       ← Define requirements
       ↓
-/attune:plan          ← Plan architecture
+/attune:blueprint          ← Plan architecture
       ↓
 /attune:project-init          ← Initialize project
       ↓
@@ -302,7 +302,7 @@ Brainstorm sessions are saved to `.attune/brainstorm-session.json`:
 ## Related Commands
 
 - `/attune:specify` - Create detailed specification from brief
-- `/attune:plan` - Plan project architecture
+- `/attune:blueprint` - Plan project architecture
 - `/imbue:feature-review` - Review feature worthiness
 
 ## Related Skills

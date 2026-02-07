@@ -4,7 +4,7 @@ description: "Execute implementation plans systematically with checkpoint valida
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 tools_allowed: all
-version: 1.4.0
+version: 1.4.1
 category: workflow
 tags: [execution, implementation, progress-tracking, quality-gates, tdd]
 complexity: intermediate

@@ -191,7 +191,7 @@ tags: [brainstorming, ideation, planning]
 2. **Budget Flexibility**: Initial 3,000 char target was for ~14 components; actual 20 components required proportional adjustment
 3. **Pattern Success**: WHAT/WHEN/WHEN NOT formula effective across all component types (skills, commands, agents)
 4. **Template Value**: Pilot phase template refinement prevented issues in later phases
-5. **Cross-References**: "When NOT To Use" sections valuable for workflow guidance (e.g., "use `/attune:plan` instead")
+5. **Cross-References**: "When NOT To Use" sections valuable for workflow guidance (e.g., "use `/attune:blueprint` instead")
 
 ## Future Work
 

@@ -31,7 +31,7 @@ graph LR
 | `/attune:brainstorm` | 1. Ideation | Socratic questioning to explore problem space |
 | `/attune:war-room` | 2. Deliberation | Multi-LLM expert deliberation with reversibility-based routing |
 | `/attune:specify` | 3. Specification | Create detailed specs from war-room decision |
-| `/attune:plan` | 4. Planning | Design architecture and break down tasks |
+| `/attune:blueprint` | 4. Planning | Design architecture and break down tasks |
 | `/attune:init` | 5. Initialization | Generate or update project structure with tooling |
 | `/attune:execute` | 6. Implementation | Execute tasks with TDD discipline |
 | `/attune:upgrade-project` | Maintenance | Add configs to existing projects |
@@ -77,7 +77,7 @@ graph LR
 /attune:specify
 
 # 4. Plan architecture
-/attune:plan
+/attune:blueprint
 
 # 5. Initialize project
 /attune:init

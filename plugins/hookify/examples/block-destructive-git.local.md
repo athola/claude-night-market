@@ -11,7 +11,7 @@ conditions:
 
 🛑 **Destructive Git Operation Blocked!**
 
-This command destroys uncommitted work. When `dangerouslyDisableSandbox` is enabled, these commands execute immediately without confirmation.
+This command destroys uncommitted work. Even with sandbox auto-allow mode, destructive git operations warrant an explicit safety gate.
 
 ## What You're About to Lose
 

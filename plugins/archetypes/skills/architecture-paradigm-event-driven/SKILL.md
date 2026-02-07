@@ -6,7 +6,7 @@ description: |
   Triggers: event-driven, message queue, pub/sub, asynchronous, decoupling
   Use when: real-time workloads or multiple subsystems react to same events
   DO NOT use when: simple request-response patterns suffice.
-version: 1.4.0
+version: 1.4.1
 category: architectural-pattern
 tags: [architecture, event-driven, asynchronous, decoupling, scalability, resilience]
 dependencies: []

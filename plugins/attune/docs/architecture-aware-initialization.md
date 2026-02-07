@@ -182,7 +182,7 @@ Implementation
 /attune:arch-init            # 2. ⭐ Select architecture
 Skill(architecture-paradigm-*) # 3. Load guidance
 /attune:specify              # 4. Detailed specs
-/attune:plan                 # 5. Implementation plan
+/attune:blueprint                 # 5. Implementation plan
 /attune:execute              # 6. Build system
 ```
 
@@ -275,7 +275,7 @@ Skill(architecture-paradigm-{selected})
 
 # Continue workflow
 /attune:specify
-/attune:plan
+/attune:blueprint
 /attune:execute
 ```
 

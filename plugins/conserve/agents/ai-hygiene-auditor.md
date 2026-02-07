@@ -24,6 +24,8 @@ examples:
 
 Specialized agent for detecting AI-specific code quality issues that traditional bloat detection misses.
 
+> **Tool Preference (Claude Code 2.1.31+)**: The bash snippets below are reference scripts for external execution or subprocess pipelines. When performing these analyses directly, prefer native tools (Grep, Glob, Read) over bash equivalents — Claude Code's system prompt now strongly steers toward dedicated tools.
+
 ## Why This Agent Exists
 
 AI coding has created qualitatively different bloat:

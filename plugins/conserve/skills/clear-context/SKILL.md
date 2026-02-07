@@ -14,7 +14,7 @@ hooks:
     command: 'echo "[skill:clear-context] Subagent delegation at $(date)" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/clear-context-audit.log
 
       '
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 
@@ -49,6 +49,9 @@ Skill(conserve:clear-context)
 
 - Context usage is under 50% - continue working normally
 - Mid-critical-operation where handoff would lose state
+- **Consider "Summarize from here" first** (Claude Code 2.1.32+): Before full auto-clear,
+  try partial summarization via the message selector. This compresses older context while
+  preserving recent work — often sufficient to relieve pressure without a full handoff.
 
 ## The Auto-Clear Pattern
 

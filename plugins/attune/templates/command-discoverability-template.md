@@ -80,7 +80,7 @@ Use this command when you need to:
 ## When NOT To Use
 
 Avoid this command if:
-- Requirements and specification already exist (use /attune:plan instead)
+- Requirements and specification already exist (use /attune:blueprint instead)
 - Refining existing specs (use /attune:specify instead)
 - Project scope is well-defined (jump to /attune:project-init)
 

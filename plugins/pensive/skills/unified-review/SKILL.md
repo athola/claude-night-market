@@ -35,7 +35,7 @@ orchestrates:
 - pensive:test-review
 - pensive:makefile-review
 - pensive:math-review
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 

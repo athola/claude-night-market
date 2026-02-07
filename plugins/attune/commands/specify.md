@@ -21,7 +21,7 @@ Use this command when you need to:
 
 Avoid this command if:
 - Still exploring problem space (use `/attune:brainstorm` first)
-- Already have detailed specification (use `/attune:plan` instead)
+- Already have detailed specification (use `/attune:blueprint` instead)
 - Need to refine existing spec (edit specification document directly)
 - Making architectural decisions without requirements (brainstorm first)
 
@@ -76,7 +76,7 @@ Skill(attune:project-specification)
 #    - Includes all requirements with testability
 
 # 4. Transition to planning
-#    Next: /attune:plan (use spec as input)
+#    Next: /attune:blueprint (use spec as input)
 ```
 
 ## Specification Structure
@@ -344,7 +344,7 @@ Specification follows this template:
       ↓
 /attune:specify       ← You are here
       ↓
-/attune:plan          ← Plan architecture
+/attune:blueprint          ← Plan architecture
       ↓
 /attune:project-init          ← Initialize project
       ↓
@@ -364,7 +364,7 @@ The specification skill automatically validates:
 ## Related Commands
 
 - `/attune:brainstorm` - Generate project brief
-- `/attune:plan` - Create implementation plan from spec
+- `/attune:blueprint` - Create implementation plan from spec
 - `/speckit-specify` - Spec-kit's specification workflow (if available)
 - `/speckit-clarify` - Spec-kit's clarification workflow (if available)
 

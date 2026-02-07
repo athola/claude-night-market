@@ -360,7 +360,7 @@ After initialization:
 4. **Continue with specification**:
    ```bash
    /attune:specify
-   /attune:plan
+   /attune:blueprint
    /attune:execute
    ```
 

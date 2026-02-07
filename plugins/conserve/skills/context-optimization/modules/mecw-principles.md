@@ -78,6 +78,19 @@ When context exceeds MECW limits:
 This complements our MECW thresholds:
 - **Status line** shows accurate current usage %
 - **/context command** shows detailed breakdown by plugin (2.0.74+)
+
+### Variable Context Windows (Opus 4.6 / Claude Code 2.1.32+)
+
+With Opus 4.6, context windows vary: 200K standard, 1M beta. MECW thresholds scale proportionally:
+
+| Context Window | 30% (Optimal) | 50% (MECW Limit) | 80% (Emergency) |
+|---------------|---------------|-------------------|------------------|
+| **200K** | 60K tokens | 100K tokens | 160K tokens |
+| **1M (beta)** | 300K tokens | 500K tokens | 800K tokens |
+
+Server-side compaction (Opus 4.6) provides an additional safety net — the API automatically summarizes earlier conversation parts when approaching limits. This does not replace MECW discipline but reduces catastrophic failure risk.
+
+**"Summarize from here" (2.1.32+)**: Partial conversation summarization via the message selector provides a manual middle ground between `/compact` (full) and `/new` (clean slate). Use when only older context is stale.
 - **Conservation plugin** provides proactive optimization recommendations when approaching thresholds
 
 **Context Optimization with /context (2.0.74+)**:

@@ -9,6 +9,8 @@ Deduplication strategy (prevents multiple notifications from same event):
 3. Time-based debouncing: Skip if notification sent within N seconds
 """
 
+from __future__ import annotations
+
 import hashlib
 import html
 import json

@@ -1,6 +1,6 @@
 ---
 name: list
-description: List all hookify rules with their status
+description: List all rules with their status
 usage: |
   /hookify:list [--enabled|--disabled|--all]
 examples:

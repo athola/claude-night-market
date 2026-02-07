@@ -1,7 +1,7 @@
 ---
-name: plan
+name: blueprint
 description: "Generate implementation plan with architecture design and dependency-ordered tasks from specification"
-usage: /attune:plan [--input FILE] [--component NAME]
+usage: /attune:blueprint [--input FILE] [--component NAME]
 ---
 
 # Attune Plan Command
@@ -30,13 +30,13 @@ Avoid this command if:
 
 ```bash
 # Create plan from specification
-/attune:plan
+/attune:blueprint
 
 # Plan with custom input
-/attune:plan --input docs/specification.md
+/attune:blueprint --input docs/specification.md
 
 # Focus on specific component
-/attune:plan --component "authentication"
+/attune:blueprint --component "authentication"
 ```
 
 ## What This Command Does
@@ -198,7 +198,7 @@ Skill(attune:project-planning)
 
 ```bash
 /attune:specify
-/attune:plan
+/attune:blueprint
 ```
 
 **Output**: `docs/implementation-plan.md`
@@ -347,7 +347,7 @@ TASK-001 (Init)
 ### Example 2: Component-Focused Plan
 
 ```bash
-/attune:plan --component "authentication"
+/attune:blueprint --component "authentication"
 ```
 
 Creates `docs/plans/component-authentication.md` with focused architecture and tasks.
@@ -355,7 +355,7 @@ Creates `docs/plans/component-authentication.md` with focused architecture and t
 ### Example 3: Detailed Plan with Code Examples
 
 ```bash
-/attune:plan --detailed
+/attune:blueprint --detailed
 ```
 
 Includes code snippets and implementation examples for each task:
@@ -389,7 +389,7 @@ class DebtItem(Base):
       ↓
 /attune:specify       ← Define requirements
       ↓
-/attune:plan          ← You are here
+/attune:blueprint          ← You are here
       ↓
 /attune:project-init          ← Initialize project structure
       ↓

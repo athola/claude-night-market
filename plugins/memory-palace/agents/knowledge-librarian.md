@@ -3,6 +3,7 @@ name: knowledge-librarian
 description: Use this agent when the user shares an external link (article, blog post, paper) or asks to evaluate, store, prune, or manage knowledge. Trigger proactively when URLs are shared to assess importance and route appropriately.
 tools: [Read, Write, Bash, Grep, Glob, WebFetch, WebSearch]
 model: sonnet
+memory: project
 escalation:
   to: opus
   hints:

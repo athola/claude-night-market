@@ -22,7 +22,7 @@ estimated_tokens: 800
 dependencies:
 - sanctum:shared
 - imbue:evidence-logging
-version: 1.4.0
+version: 1.4.1
 ---
 
 # File Analysis

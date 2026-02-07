@@ -3,7 +3,6 @@
 **Version**: 1.0.0-draft
 **Date**: 2026-01-25
 **Status**: Draft - Pending Review
-**Branch**: conserve-updates-1.3.5
 
 ---
 
@@ -37,7 +36,7 @@ Extend the War Room deliberation system from a standalone command to an **embedd
 |---------|--------|-------------------|-------------------|
 | `/attune:execute` | attune | On blocked task (>2 attempts) | Persistent blocker requiring pivot |
 | `/speckit-implement` | spec-kit | On checklist FAIL requiring judgment | Phase-gate failure with ambiguous resolution |
-| `/attune:plan` | attune | After approach generation | Optional, user-requested only |
+| `/attune:blueprint` | attune | After approach generation | Optional, user-requested only |
 | `/update-dependencies` | sanctum | After analysis | Semver-major count >= 3 with breaking changes |
 
 ### Phase 3 (Considered)
@@ -382,38 +381,7 @@ command_profiles:
 
 ### Profile Selection
 
-```python
-def get_effective_profile(
-    command: str,
-    user_profile: str = "default",
-    context: CheckpointContext = None
-) -> dict:
-    """Calculate effective thresholds for this checkpoint."""
-
-    base = PROFILES[user_profile].copy()
-
-    # Apply command-specific adjustments
-    if command in COMMAND_PROFILES:
-        cmd_profile = COMMAND_PROFILES[command]
-
-        # Multi-issue adjustment for do-issue
-        if (command == "do-issue" and
-            context and len(context.issues_involved) >= 3):
-            for key in ["express_ceiling", "lightweight_ceiling", "full_council_ceiling"]:
-                base[key] += cmd_profile.get("multi_issue_adjustment", 0)
-
-        # Strict mode adjustment for pr-review
-        if command == "pr-review" and context and "strict" in str(context):
-            for key in ["express_ceiling", "lightweight_ceiling", "full_council_ceiling"]:
-                base[key] += cmd_profile.get("strict_mode_adjustment", 0)
-
-        # Base adjustment for architecture-review
-        if "base_adjustment" in cmd_profile:
-            for key in ["express_ceiling", "lightweight_ceiling", "full_council_ceiling"]:
-                base[key] += cmd_profile["base_adjustment"]
-
-    return base
-```
+Effective thresholds = base profile + command-specific adjustments. For example, `do-issue` with 3+ issues applies `-0.10` to all ceilings, while `pr-review` in strict mode applies `-0.15`.
 
 ---
 
@@ -421,194 +389,26 @@ def get_effective_profile(
 
 ### Confidence Scoring
 
-```python
-def calculate_confidence(war_room_result: WarRoomSession) -> float:
-    """
-    Calculate confidence score for auto-continue decision.
+Confidence starts at 1.0 and is adjusted by:
 
-    Returns:
-        float: 0.0-1.0, where > 0.8 means auto-continue
-    """
-    confidence = 1.0
-
-    # Reduce confidence for dissenting views
-    if war_room_result.dissenting_views:
-        dissent_count = len(war_room_result.dissenting_views)
-        confidence -= 0.1 * dissent_count
-
-    # Reduce confidence for narrow voting margin
-    if war_room_result.voting_margin < 0.3:  # Less than 30% margin
-        confidence -= 0.2
-
-    # Reduce confidence for high reversibility score (Type 1A+)
-    if war_room_result.reversibility_score > 0.80:
-        confidence -= 0.15
-
-    # Reduce confidence for novel problem domain
-    if war_room_result.is_novel_domain:
-        confidence -= 0.1
-
-    # Reduce confidence for compound decisions
-    if len(war_room_result.sub_decisions) > 1:
-        confidence -= 0.1
-
-    # Boost confidence for unanimous agreement
-    if war_room_result.is_unanimous:
-        confidence = min(confidence + 0.2, 1.0)
-
-    return max(confidence, 0.0)
-```
+| Factor | Adjustment | Condition |
+|--------|-----------|-----------|
+| Dissenting views | -0.1 each | Any expert dissent |
+| Narrow voting margin | -0.2 | Margin < 30% |
+| High RS (Type 1A+) | -0.15 | RS > 0.80 |
+| Novel domain | -0.1 | No precedent |
+| Compound decisions | -0.1 | Multiple sub-decisions |
+| Unanimous agreement | +0.2 | All experts agree |
 
 ### Auto-Continue vs. Prompt Decision
 
-```python
-async def handle_checkpoint_response(
-    response: CheckpointResponse,
-    original_command: str
-) -> CommandContinuation:
-    """
-    Determine whether to auto-continue or prompt user.
-    """
-
-    # Express mode always auto-continues
-    if response.selected_mode == "express":
-        return CommandContinuation(
-            continue_automatically=True,
-            orders=response.recommendation,
-            log_message=f"Express mode: {response.rationale}"
-        )
-
-    # Check confidence threshold
-    if response.confidence > 0.8:
-        return CommandContinuation(
-            continue_automatically=True,
-            orders=response.orders,
-            log_message=f"War Room decision (confidence={response.confidence:.2f}): {response.rationale}"
-        )
-
-    # Prompt user for ambiguous cases
-    return CommandContinuation(
-        continue_automatically=False,
-        orders=response.orders,
-        prompt_message=format_confirmation_prompt(response),
-        log_message=f"War Room decision requires confirmation (confidence={response.confidence:.2f})"
-    )
-```
+- **Express mode**: Always auto-continues with recommendation
+- **Confidence > 0.8**: Auto-continues with War Room orders
+- **Confidence ≤ 0.8**: Prompts user with formatted confirmation
 
 ### Confirmation Prompt Format
 
-```markdown
-## War Room Checkpoint: {source_command}
-
-**Decision**: {decision_needed}
-
-**War Room Assessment**:
-- Reversibility Score: {rs} ({decision_type})
-- Deliberation Mode: {selected_mode}
-- Confidence: {confidence:.0%}
-
-**Recommendation**:
-{recommendation_or_orders}
-
-**Rationale**:
-{rationale}
-
-{dissenting_views_if_any}
-
-**Proceed with War Room recommendation?**
-- [Y] Yes, continue with this approach
-- [N] No, let me reconsider
-- [D] Show full War Room session details
-```
-
----
-
-## Command Integration Examples
-
-### `/do-issue` Integration
-
-```markdown
-## Modified Step 3: Plan (Task Breakdown)
-
-### 3.1 Identify Components to Change
-[... existing content ...]
-
-### 3.2 Create Task Breakdown
-[... existing content ...]
-
-### 3.3 Dependency Analysis (Multiple Issues)
-[... existing content ...]
-
-### 3.4 War Room Checkpoint [NEW]
-
-**Automatic checkpoint when:**
-- 3+ issues being implemented
-- Dependency conflicts detected
-- Overlapping file changes identified
-
-**Checkpoint invocation:**
-```bash
-# Internal: invoke war-room-checkpoint
-Skill(attune:war-room-checkpoint) {
-  source_command: "do-issue"
-  decision_needed: "Execution strategy for issues #42, #43, #44"
-  issues_involved: [42, 43, 44]
-  files_affected: ["src/auth/", "src/api/users.py"]
-  conflict_description: "Issues #42 and #44 both modify auth middleware"
-}
-```
-
-**If RS > threshold:**
-- War Room convenes (lightweight or full council)
-- Returns execution order and PR strategy
-- Command continues with War Room orders
-
-**If RS ≤ threshold:**
-- Express recommendation returned
-- Command continues immediately
-
-**Step 3 Output**: Task breakdown with War Room-validated execution order
-```
-
-### `/pr-review` Integration
-
-```markdown
-## Modified Workflow
-
-### Phase 3: Code Analysis
-[... existing content ...]
-
-### Phase 4: War Room Checkpoint [NEW]
-
-**Automatic checkpoint when:**
-- >3 blocking issues identified
-- Architecture changes detected
-- ADR non-compliance found
-- Scope-mode=strict with out-of-scope findings
-
-**Checkpoint invocation:**
-```bash
-Skill(attune:war-room-checkpoint) {
-  source_command: "pr-review"
-  decision_needed: "Review verdict for PR #123"
-  blocking_items: [
-    {type: "blocking", description: "Missing error handling in auth flow"},
-    {type: "blocking", description: "API contract change without migration"},
-    {type: "architecture", description: "New service added without ADR"},
-    {type: "scope", description: "Unrelated refactoring in payment module"}
-  ]
-  files_affected: ["src/auth/", "src/api/", "src/payment/"]
-}
-```
-
-**War Room determines:**
-- Which blocking issues are truly blocking
-- Whether PR should be split
-- Specific feedback to provide
-
-### Phase 5: GitHub Review
-[... continues with War Room guidance ...]
-```
+Displays: source command, decision needed, RS/decision type/mode/confidence, recommendation with rationale, dissenting views (if any), and Y/N/D options (Yes/No/Details).
 
 ---
 
@@ -661,91 +461,9 @@ Skill(attune:war-room-checkpoint) {
 }
 ```
 
----
-
 ## Audit Trail
 
-All checkpoint invocations are logged to Strategeion:
-
-```yaml
-# ~/.claude/memory-palace/strategeion/checkpoints/{date}/{session-id}.yaml
-checkpoint:
-  session_id: "checkpoint-20260125-143022"
-  source_command: "do-issue"
-  decision_needed: "Execution strategy for issues #42, #43, #44"
-
-  assessment:
-    reversibility_score: 0.56
-    decision_type: "Type 1B"
-    selected_mode: "lightweight"
-    profile_used: "default"
-    effective_thresholds:
-      express: 0.40
-      lightweight: 0.60
-      full_council: 0.80
-
-  outcome:
-    escalated: true
-    war_room_session_id: "war-room-20260125-143025"
-    confidence: 0.85
-    auto_continued: true
-    orders:
-      - "Implement #42 first (auth base)"
-      - "Then #43 (depends on #42)"
-      - "Defer #44 to separate PR (scope creep)"
-
-  metadata:
-    timestamp: "2026-01-25T14:30:22Z"
-    duration_ms: 12500
-    user_confirmed: null  # null if auto-continued
-```
-
----
-
-## Implementation Plan
-
-### Phase 1: Foundation (Week 1-2)
-
-1. **Create `war-room-checkpoint` skill**
-   - SKILL.md with lightweight assessment logic
-   - Integration with existing reversibility-assessment module
-   - Express mode fast-path
-
-2. **Update `/do-issue` command**
-   - Add checkpoint invocation after Step 3
-   - Implement trigger conditions
-   - Test with multiple issues
-
-3. **Add configuration system**
-   - User settings support
-   - Profile loading
-   - Command overrides
-
-### Phase 2: Core Commands (Week 3-4)
-
-4. **Update `/pr-review` command**
-   - Add checkpoint after code analysis
-   - Integrate with scope modes
-   - Handle blocking issue routing
-
-5. **Update `/architecture-review` command**
-   - Add checkpoint before recommendation
-   - Integrate with ADR validation
-
-6. **Update `/fix-pr` command**
-   - Add checkpoint after triage
-   - Handle conflicting feedback routing
-
-### Phase 3: Polish (Week 5)
-
-7. **Audit trail implementation**
-   - Strategeion checkpoint logging
-   - Integration with Memory Palace
-
-8. **Testing and documentation**
-   - Integration tests for each command
-   - Update command documentation
-   - User guide for configuration
+All checkpoint invocations are logged to `~/.claude/memory-palace/strategeion/checkpoints/{date}/{session-id}.yaml` with: session ID, source command, RS assessment, selected mode, outcome (orders, confidence, whether auto-continued), and timing metadata.
 
 ---
 
@@ -772,8 +490,6 @@ checkpoint:
 - [ ] Clear explanation when War Room engages
 - [ ] Seamless continuation after War Room decision
 - [ ] Easy override via settings if user dislikes auto-escalation
-
----
 
 ## Related Documents
 

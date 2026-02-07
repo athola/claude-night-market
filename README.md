@@ -16,7 +16,7 @@ Hooks adapt context based on the active agent. `pensive` tracks usage frequency 
 `/cleanup` orchestrates bloat removal, code refinement, and AI hygiene auditing in a single pass with progressive depth levels. `/update-ci` reconciles pre-commit hooks and GitHub Actions workflows with recent code changes, detecting renamed files and orphaned references. `/update-plugins` recommends updates based on plugin stability metrics and includes module auditing to detect orphaned or missing skill references. `/fix-workflow` attempts to repair failed runs by analyzing previous errors. `/abstract:make-dogfood` generates or validates Makefile targets for all documented commands across plugins, with automatic language detection for Python, Rust, and TypeScript projects. For strategic decisions, `/attune:war-room` uses a Type 1/2 reversibility framework to route choices to appropriate expert subagents, with `war-room-checkpoint` enabling embedded escalation at decision points during implementation.
 
 **Cross-Session State (Claude Code 2.1.16+)**
-`attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation occurs on-demand, and state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`. The `war-room-checkpoint` skill integrates with commands like `/do-issue`, `/pr-review`, `/fix-pr`, and `/architecture-review` to trigger expert deliberation when high-stakes decisions emerge during workflows. Ambiguity detection prompts for user decisions when task boundaries are unclear. Versions prior to 2.1.16 use file-based state by default.
+`attune`, `spec-kit`, and `sanctum` integrate with the native Claude Code Tasks system. Task creation occurs on-demand, and state persists across sessions via `CLAUDE_CODE_TASK_LIST_ID`. The `war-room-checkpoint` skill integrates with commands like `/do-issue`, `/pr-review`, `/fix-pr`, and `/architecture-review` to trigger expert deliberation when high-stakes decisions emerge during workflows. Ambiguity detection prompts for user decisions when task boundaries are unclear. Versions prior to 2.1.16 use file-based state by default. Claude Code 2.1.20+ supports task deletion via `TaskUpdate`, and 2.1.33+ adds persistent agent memory scoped to user, project, or session.
 
 ## Workflow Improvements
 
@@ -119,10 +119,10 @@ flowchart TB
 
 1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth and quotas), and `imbue` (TDD cycles).
 2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine with hook conversion and context-aware rule suggestions).
-3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), `minister` (issue tracking), and `attune` (project lifecycle from brainstorm to execution). `attune` v1.4.0 introduced an enhanced discoverability pattern for automatic command matching from natural language.
+3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), `minister` (issue tracking), and `attune` (project lifecycle from brainstorm to execution). `attune` uses an enhanced discoverability pattern for automatic command matching from natural language. The `/attune:plan` command was renamed to `/attune:blueprint` in v1.4.1.
 4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring, including Makefile generation and command-to-target validation.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 126 skills, 114 commands, and 41 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 120 skills, 114 commands, and 41 agents.
 
 ## Common Workflows
 
@@ -183,7 +183,7 @@ Refer to the [Plugin Development Guide](docs/plugin-development-guide.md).
 
 ## Prompt Context Usage
 
-The ecosystem adds ~14.8k characters to the system prompt (limit: 15k), enforced by a pre-commit hook. Plugins use modular designs and progressive loading to stay within these limits.
+The ecosystem adds ~14.8k characters to the system prompt. As of Claude Code 2.1.32+, the skill description budget scales at 2% of context window instead of a fixed limit. Plugins use modular designs and progressive loading to stay within these limits.
 
 ## Contributing
 

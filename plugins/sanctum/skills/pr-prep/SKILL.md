@@ -48,7 +48,7 @@ hooks:
   - command: 'echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
 
       '
-version: 1.4.0
+version: 1.4.1
 ---
 # Pull Request Preparation Workflow
 

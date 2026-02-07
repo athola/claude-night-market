@@ -3,7 +3,7 @@ name: development-workflow
 description: detailed development workflow with modular patterns for git, code review, testing, documentation, and deployment
 
 Triggers: deployment, development, hub-and-spoke, modular, code
-version: 1.4.0
+version: 1.4.1
 created_by: abstract-examples
 tags: [development, workflow, modular, hub-and-spoke]
 category: workflow

@@ -6,6 +6,18 @@ Spatial knowledge organization using memory palace techniques for Claude Code.
 
 Memory Palace organizes complex information using spatial memory techniques for easier retrieval.
 
+## How This Differs from Native Claude Memory (2.1.32+)
+
+Claude Code now provides three layers of memory, each serving a different purpose:
+
+| Layer | Feature | Scope | Control |
+|-------|---------|-------|---------|
+| **Native Memory** (2.1.32+) | Automatic session summaries | Session continuity — "what did I work on?" | Implicit, automatic |
+| **Agent `memory` Frontmatter** (2.1.33+) | Per-agent persistent memory | Agent-scoped — `user`, `project`, or `local` | Opt-in per agent via frontmatter |
+| **Memory Palace** | Structured knowledge management | Domain knowledge — "how does X relate to Y?" | Explicit, user-designed architecture |
+
+**Native memory** handles session continuity and resumption. **Agent memory frontmatter** gives individual agents persistent recall across sessions (Memory Palace agents use `memory: project`). **Memory Palace** provides structured, navigable knowledge architectures with spatial hierarchies, bidirectional links, and multi-modal search that persist as a permanent knowledge corpus.
+
 ## Features
 
 The Memory Palace Architect allows users to design spatial knowledge structures using mnemonic techniques, while the Knowledge Locator facilitates multi-modal search across these palaces. Temporary structures for extended conversations are handled by the Session Palace Builder, and the Digital Garden Cultivator manages evolving knowledge bases with bidirectional linking. Additionally, a dedicated PR Review Chamber captures knowledge from PR reviews, and Skill Execution Memory automatically logs skill invocation history to support continual learning.

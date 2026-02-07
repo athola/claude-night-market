@@ -143,10 +143,10 @@ Command-line users need quick task tracking without context switching to web or 
 **Testing**: pytest
 ```
 
-## Step 3: Plan (/attune:plan)
+## Step 3: Plan (/attune:blueprint)
 
 ```bash
-/attune:plan
+/attune:blueprint
 ```
 
 **Generated Plan** (excerpt):

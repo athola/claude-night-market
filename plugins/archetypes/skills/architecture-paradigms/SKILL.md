@@ -8,7 +8,7 @@ description: Interactive selector and router for architecture paradigms. Use whe
   layered, microservices, etc.) instead. reviewing existing architecture - use architecture-review
   instead. Use this skill BEFORE making architecture decisions. Check even if unsure
   about needs.
-version: 1.4.0
+version: 1.4.1
 category: architecture-decision
 tags:
 - architecture

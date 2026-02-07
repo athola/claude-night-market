@@ -22,7 +22,7 @@ estimated_tokens: 700
 dependencies:
 - sanctum:shared
 - sanctum:git-workspace-review
-version: 1.4.0
+version: 1.4.1
 ---
 
 # Version Update Workflow

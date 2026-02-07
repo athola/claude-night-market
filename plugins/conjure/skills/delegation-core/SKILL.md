@@ -38,7 +38,7 @@ references:
 - leyline/skills/error-patterns/SKILL.md
 - leyline/skills/authentication-patterns/SKILL.md
 - leyline/skills/service-registry/SKILL.md
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 
@@ -135,6 +135,18 @@ Execute and validate results:
 - Log usage.
 
 **Exit Criteria**: Results validated and integrated, usage logged.
+
+## MCP Authentication
+
+### OAuth Client Credentials (Claude Code 2.1.30+)
+
+For MCP servers that don't support Dynamic Client Registration (e.g., Slack), pre-configured OAuth client credentials can be provided:
+
+```bash
+claude mcp add <server-name> --client-id <id> --client-secret <secret>
+```
+
+This enables delegation workflows through MCP servers that require pre-configured OAuth, expanding the range of external services available for task delegation.
 
 ## Leyline Infrastructure
 

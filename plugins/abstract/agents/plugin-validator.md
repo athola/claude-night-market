@@ -7,6 +7,7 @@ tools:
 - Glob
 - Bash
 model: haiku
+memory: project
 escalation:
   to: sonnet
   hints:
@@ -54,6 +55,35 @@ The validator recognizes and validates new 2.1.0 frontmatter fields:
 - `Bash(npm *)` - All npm commands
 - `Bash(* install)` - Any install command
 - `Bash(git * main)` - Git with main branch
+
+**Wildcard Normalization (2.1.20+):**
+- ⚠️ `Bash(*)` is now treated as equivalent to plain `Bash` — warn if encountered
+- Scoped wildcards like `Bash(npm *)` remain distinct and valid
+- Validation should flag `Bash(*)` as redundant: suggest using `Bash` instead
+
+### Agent Memory Field (2.1.33+)
+
+Agents can declare persistent memory scope in frontmatter:
+
+| Value | Scope |
+|-------|-------|
+| `user` | Persisted across all projects for the user |
+| `project` | Persisted within a specific project |
+| `local` | Local to current session |
+
+**Validation**: Warn if `memory` value is not one of: `user`, `project`, `local`.
+
+### Sub-Agent Restrictions (2.1.33+)
+
+Agent `tools` frontmatter supports `Task(agent_type)` syntax to restrict sub-agent spawning:
+
+```yaml
+tools:
+  - Read
+  - Task(code-reviewer)
+```
+
+**Validation**: Verify `Task(agent_type)` references use valid kebab-case names. Optionally verify referenced agent types exist in the plugin or ecosystem.
 
 **Hook Structure Validated:**
 ```yaml

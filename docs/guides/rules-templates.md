@@ -48,7 +48,7 @@ alwaysApply: false
 # Conservation Guidelines
 
 When working with Python files:
-- Prefer targeted `rg`/`sed -n` slices over reading whole files
+- Prefer `Read` with `offset`/`limit` or `Grep` tool over loading whole files
 - Use streaming for large file operations
 - Monitor context usage with conservation patterns
 ```

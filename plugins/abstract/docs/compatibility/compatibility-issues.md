@@ -10,6 +10,16 @@ Known issues, testing procedures, and troubleshooting guidance.
 
 | Version | Issue | Workaround | Fixed In |
 |---------|-------|------------|----------|
+| < 2.1.34 | Sandbox-excluded commands bypass permission prompts when auto-allow enabled | Set `allowUnsandboxedCommands: false` or disable auto-allow | 2.1.34 |
+| < 2.1.34 | Agent teams setting change between renders causes crash | Avoid changing agent teams settings mid-session | 2.1.34 |
+| < 2.1.31 | PDF-too-large errors permanently lock sessions | Start a new conversation | 2.1.31 |
+| < 2.1.31 | Bash commands report false "Read-only file system" in sandbox mode | Disable sandbox or retry | 2.1.31 |
+| < 2.1.31 | temperatureOverride silently ignored in streaming API | Use non-streaming path | 2.1.31 |
+| < 2.1.31 | LSP shutdown fails with strict language servers (null params) | Restart session | 2.1.31 |
+| < 2.1.31 | Plan mode crash with missing ~/.claude.json defaults | Ensure config has default fields | 2.1.31 |
+| < 2.1.30 | Subagents cannot access SDK-provided MCP tools | Avoid MCP delegation to subagents | 2.1.30 |
+| < 2.1.30 | Prompt cache not invalidating on tool schema changes | Restart session after MCP tool updates | 2.1.30 |
+| < 2.1.30 | Phantom "(no content)" blocks waste tokens | None | 2.1.30 |
 | < 2.0.71 | Glob patterns incorrectly rejected | Use permission hooks | 2.0.71 |
 | < 2.0.71 | MCP servers don't load with --dangerously-skip-permissions | Manual trust step | 2.0.71 |
 | < 2.0.70 | /config thinking mode doesn't persist | Manual reset | 2.0.70 |

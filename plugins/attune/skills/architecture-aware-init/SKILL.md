@@ -11,7 +11,7 @@ description: |
 
   DO NOT use when: architecture is already decided - use project-init instead.
   DO NOT use when: exploring multiple architectures - use architecture-paradigms instead.
-version: 1.4.0
+version: 1.4.1
 category: project-initialization
 tags: [architecture, initialization, research, decision-making, best-practices]
 dependencies: [architecture-paradigms]
@@ -477,7 +477,7 @@ WebSearch("CQRS Event Sourcing Python examples")
 ## See Also
 
 - `/attune:project-init` - Basic project initialization
-- `/attune:plan` - Architecture planning after paradigm selection
+- `/attune:blueprint` - Architecture planning after paradigm selection
 - Architecture paradigms README for paradigm details
 ## Troubleshooting
 

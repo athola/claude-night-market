@@ -3,7 +3,7 @@ name: project-planning
 description: "Transform specifications into structured implementation plans with architecture design and dependency-ordered task breakdown. Use when: converting specs to plans, designing architecture, breaking down tasks, estimating effort. Do not use when: no specification exists yet or still brainstorming approaches."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
-version: 1.4.0
+version: 1.4.1
 category: workflow
 tags: [planning, architecture, task-breakdown, dependencies, estimation]
 complexity: intermediate
@@ -384,12 +384,12 @@ Before completing plan:
 
 ## Related Commands
 
-- `/attune:plan` - Invoke this skill
+- `/attune:blueprint` - Invoke this skill
 - `/attune:execute` - Next step in workflow
 
 ## Examples
 
-See `/attune:plan` command documentation for complete examples.
+See `/attune:blueprint` command documentation for complete examples.
 ## Troubleshooting
 
 ### Common Issues

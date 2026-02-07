@@ -4,7 +4,7 @@ description: "Configure three-layer pre-commit quality system with linting, type
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.4.0
+version: 1.4.1
 category: infrastructure
 tags: [pre-commit, quality-gates, linting, type-checking, testing]
 complexity: intermediate

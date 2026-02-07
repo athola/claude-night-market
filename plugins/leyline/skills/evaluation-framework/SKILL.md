@@ -31,7 +31,7 @@ progressive_loading: true
 modules:
 - modules/scoring-patterns.md
 - modules/decision-thresholds.md
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 

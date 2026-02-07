@@ -3,7 +3,7 @@ name: war-room
 description: "Multi-LLM deliberation framework for strategic decisions through expert pressure-testing and consensus building. Use when: critical decisions, irreversible changes, architecture choices, conflicting approaches, high stakes. Do not use when: decision is trivial, easily reversible, or already made."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-opus-4
-version: 1.4.0
+version: 1.4.1
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced

@@ -4,7 +4,7 @@ description: 'Consult this skill for async Python patterns and concurrency. Use 
   building async APIs, concurrent systems, I/O-bound applications, implementing rate
   limiting, async context managers. Do not use when CPU-bound optimization - use python-performance
   instead. DO NOT use when: testing async code - use python-testing async module.'
-version: 1.4.0
+version: 1.4.1
 category: async
 tags:
 - python

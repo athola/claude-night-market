@@ -1,6 +1,6 @@
 ---
 name: do-issue
-description: Implement GitHub issues using attune-style progressive workflow
+description: Implement GitHub issues using progressive analyze-specify-plan-implement workflow
 usage: /do-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--from <step>] [--to <step>] [--scope auto|minor|medium|major]
 ---
 
@@ -529,7 +529,7 @@ Attune Workflow        | /do-issue Equivalent
 /attune:brainstorm     | (issue created/assigned)
 /attune:arch-init      | --
 /attune:specify        | Step 1-2: Analyze + Specify
-/attune:plan           | Step 3: Plan
+/attune:blueprint           | Step 3: Plan
 /attune:init           | Step 4.1: Create branch
 /attune:execute        | Step 4-5: Implement + Validate
 /attune:validate       | (included in Step 5)

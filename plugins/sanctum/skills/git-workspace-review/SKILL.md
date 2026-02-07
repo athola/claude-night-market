@@ -31,7 +31,7 @@ hooks:
       ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
 
       '
-version: 1.4.0
+version: 1.4.1
 ---
 
 # Git Workspace Review

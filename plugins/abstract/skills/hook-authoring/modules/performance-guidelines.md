@@ -24,6 +24,8 @@ Optimization techniques for writing fast, efficient hooks that don't degrade age
 | **UserPromptSubmit** | < 200ms | 2s | Blocks message processing |
 | **Stop** | < 2s | 10s | Final cleanup, less critical |
 | **SubagentStop** | < 1s | 5s | May have multiple instances |
+| **TeammateIdle** | < 1s | 5s | Agent teams coordination |
+| **TaskCompleted** | < 1s | 5s | Task completion handling |
 | **PreCompact** | < 1s | 3s | Blocks context compaction |
 
 ### Measuring Hook Performance

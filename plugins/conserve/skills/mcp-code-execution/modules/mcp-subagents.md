@@ -52,6 +52,26 @@ Before ANY Task invocation:
 2. Is reasoning < 500 tokens? → Do it directly
 3. Check agent's ⚠️ PRE-INVOCATION CHECK in description → Follow it
 
+## SDK MCP Tool Access Fix (Claude Code 2.1.30+)
+
+**Critical fix**: Prior to 2.1.30, subagents could not access SDK-provided MCP tools because they were not synced to the shared application state. This meant any workflow delegating MCP tool usage to subagents was **silently broken** — the subagent would simply not have the MCP tools available.
+
+**Now fixed**: MCP tools are properly synced across subagent boundaries. No workarounds needed.
+
+## Sub-Agent Spawning Restrictions (Claude Code 2.1.33+)
+
+Agent `tools` frontmatter now supports `Task(agent_type)` to restrict which sub-agents can be spawned. This provides governance over delegation chains and prevents uncontrolled spawning.
+
+```yaml
+tools:
+  - Read
+  - Bash
+  - Task(research-agent)
+  - Task(testing-agent)
+```
+
+Use for orchestrator agents that should only delegate to specific workers. Combined with the pre-invocation complexity check, this ensures both *whether* and *to whom* delegation occurs is controlled.
+
 ## When to Use
 - **Automatic**: Keywords: `subagent`, `decompose`, `break down`, `modular`
 - **Complex Workflows**: Multi-step processes requiring specialization

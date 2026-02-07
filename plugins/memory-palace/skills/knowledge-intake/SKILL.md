@@ -13,7 +13,7 @@ scripts: []
 usage_patterns: [resource-intake, knowledge-evaluation, application-routing]
 complexity: intermediate
 estimated_tokens: 950
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 

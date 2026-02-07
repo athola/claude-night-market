@@ -11,7 +11,7 @@ modules:
   - ./modules/language-detection.md
   - ./modules/metadata-collection.md
   - ./modules/template-rendering.md
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 

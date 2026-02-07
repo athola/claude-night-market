@@ -6,7 +6,7 @@ description: 'Use this skill BEFORE deploying hooks to production. Use when audi
   against compliance standards. Do not use when deciding hook placement - use hook-scope-guide
   instead. DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
   DO NOT use when: validating plugin structure - use validate-plugin instead.'
-version: 1.4.0
+version: 1.4.1
 category: hook-management
 tags:
 - hooks
@@ -81,6 +81,8 @@ HookEvent = Literal[
     "UserPromptSubmit", # When user submits prompt
     "Stop",             # When stopping execution
     "SubagentStop",     # When a subagent stops
+    "TeammateIdle",     # When teammate agent becomes idle (2.1.33+)
+    "TaskCompleted",    # When a task finishes execution (2.1.33+)
     "PreCompact"        # Before message compaction
 ]
 ```

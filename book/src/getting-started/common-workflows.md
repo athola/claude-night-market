@@ -75,7 +75,7 @@ For complex projects requiring exploration, begin by brainstorming the problem s
 /attune:specify
 
 # 3. Plan architecture and tasks
-/attune:plan
+/attune:blueprint
 
 # 4. Initialize with chosen architecture
 /attune:arch-init --name my-project
@@ -721,6 +721,8 @@ allowed-tools:
   - Bash(* install)  # Any install command
   - Bash(git * main) # Git with main branch
 ```
+
+> **Note (2.1.20+)**: `Bash(*)` is now treated as equivalent to plain `Bash`. Use scoped wildcards like `Bash(npm *)` for targeted permissions, or plain `Bash` for unrestricted access.
 
 ### Disabling Specific Agents
 

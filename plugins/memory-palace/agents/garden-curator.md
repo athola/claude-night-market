@@ -3,6 +3,7 @@ name: garden-curator
 description: Use this agent when the user asks to "manage my garden", "check garden health", "add notes to garden", "calculate garden metrics", or needs help with digital garden maintenance. Trigger for knowledge base curation tasks.
 tools: [Read, Write, Bash, Grep, Glob]
 model: sonnet
+memory: project
 escalation:
   to: opus
   hints:

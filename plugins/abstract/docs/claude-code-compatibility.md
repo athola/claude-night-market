@@ -13,8 +13,15 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 ## Current Recommendations
 
-**Recommended Version**: Claude Code 2.1.4+
-- ✅ `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` env var for CI/CD
+**Recommended Version**: Claude Code 2.1.34+
+- ✅ Sandbox permission bypass fix (unsandboxed commands no longer auto-allowed without consent)
+- ✅ Agent teams render stability fix
+- ✅ All 2.1.33 features (TeammateIdle/TaskCompleted hooks, Task(agent_type) restrictions, agent memory)
+- ✅ All 2.1.31 features (stronger tool preference, PDF session fix, sandbox bash fix)
+- ✅ All 2.1.30 features (task tool metrics, PDF pages parameter, subagent SDK MCP fix)
+- ✅ All 2.1.21 features (file tool preference, auto-compact fix, task ID reuse fix)
+- ✅ All 2.1.18 features (customizable keybindings, chord sequences)
+- ✅ All 2.1.9 features (MCP tool search config, plansDirectory, PreToolUse additionalContext)
 - ✅ All 2.1.3 features (skills/commands merge, subagent model fix, 10-min hook timeout)
 - ✅ All 2.0.74+ features (LSP, allowed-tools, /context)
 
@@ -27,7 +34,13 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Key Features |
 |---------------------|-------------------|--------|--------------|
-| 2.1.4+ | 1.2.5+ | ✅ Recommended | Background task disable env var, OAuth fix |
+| 2.1.34+ | 1.4.1+ | ✅ Recommended | Sandbox permission bypass fix, agent teams render crash fix |
+| 2.1.33+ | 1.4.1+ | ✅ Supported | Agent team hooks, Task(agent_type) restrictions, agent memory frontmatter |
+| 2.1.31+ | 1.4.1+ | ✅ Supported | Stronger tool preference, PDF session fix, sandbox bash fix, streaming temp fix |
+| 2.1.30+ | 1.4.1+ | ✅ Supported | Task tool metrics, PDF pages, subagent MCP fix, resume memory |
+| 2.1.18+ | 1.4.0+ | ✅ Supported | Customizable keybindings, chord sequences |
+| 2.1.9+ | 1.2.9+ | ✅ Supported | MCP tool search config, PreToolUse additionalContext |
+| 2.1.4+ | 1.2.5+ | ✅ Supported | Background task disable env var, OAuth fix |
 | 2.1.3+ | 1.2.5+ | ✅ Supported | Skills/commands merge, subagent model fix, 10-min hook timeout |
 | 2.1.0+ | 1.2.3+ | ✅ Supported | Frontmatter hooks, context forking, `once: true` |
 | 2.0.74+ | 1.1.1+ | ✅ Supported | LSP, allowed-tools fix, improved /context |
@@ -96,6 +109,6 @@ Create isolated conversation branches for exploration:
 
 ---
 
-**Last Updated**: 2026-01-11
-**Ecosystem Version**: 1.2.5+
-**Tested With**: Claude Code 2.1.4
+**Last Updated**: 2026-02-07
+**Ecosystem Version**: 1.4.1+
+**Tested With**: Claude Code 2.1.34

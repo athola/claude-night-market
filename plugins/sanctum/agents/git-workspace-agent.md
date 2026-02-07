@@ -68,6 +68,7 @@ Expert agent for Git repository analysis and workspace state assessment.
 - Conflict detection
 - Stash state awareness
 - Remote tracking status
+- **Claude Code 2.1.30+**: Additional read-only flags available: `--topo-order`, `--cherry-pick`, `--format`, `--raw` for `git log` and `git show` — enables structured output and more precise change detection
 
 ### Diff Interpretation
 - Change statistics collection

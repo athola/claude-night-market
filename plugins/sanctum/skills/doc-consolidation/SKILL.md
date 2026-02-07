@@ -6,7 +6,7 @@ description: 'Merges valuable content into permanent documentation, then deletes
   clean up working artifacts, preserving insights from code reviews. Do not use when
   files are already in docs/ or skills/ locations. DO NOT use when: files are intentionally
   temporary scratch notes. DO NOT use when: source files have no extractable value.'
-version: 1.4.0
+version: 1.4.1
 category: documentation
 tags:
 - docs

@@ -6,7 +6,7 @@ description: |
   Triggers: hexagonal, ports-adapters, infrastructure-independence, domain-isolation, testability
   Use when: business logic separation, infrastructure changes needed, testability critical
   DO NOT use when: selecting paradigms (use architecture-paradigms first), simple CRUD
-version: 1.4.0
+version: 1.4.1
 category: architectural-pattern
 tags: [architecture, hexagonal, ports-adapters, infrastructure-independence, testability]
 dependencies: []

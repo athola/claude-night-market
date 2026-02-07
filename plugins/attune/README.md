@@ -58,7 +58,7 @@ Claude automatically matches your natural language requests to the appropriate a
 Every skill and command includes:
 
 - **When To Use**: 5-7 specific scenarios triggering this component
-- **When NOT To Use**: Clear boundaries with alternatives (e.g., "use `/attune:plan` instead")
+- **When NOT To Use**: Clear boundaries with alternatives (e.g., "use `/attune:blueprint` instead")
 
 This prevents misuse and guides you to the right tool for your current workflow stage.
 
@@ -109,7 +109,7 @@ When adding new skills or commands, follow the templates in `plugins/attune/temp
 | `/attune:war-room` | **Multi-LLM expert deliberation for approach selection** | 2. Deliberation |
 | `/attune:arch-init` | **Architecture-aware initialization with research** | 3. Architecture |
 | `/attune:specify` | Create detailed specifications from war-room decision | 4. Specification |
-| `/attune:plan` | Plan architecture and break down into tasks | 5. Planning |
+| `/attune:blueprint` | Plan architecture and break down into tasks | 5. Planning |
 | `/attune:project-init` | Initialize or update project structure with tooling | 6. Initialization |
 | `/attune:execute` | Execute implementation tasks systematically | 7. Implementation |
 
@@ -175,72 +175,6 @@ Templates are based on proven patterns from reference projects:
 - `.github/workflows/test.yml` - CI testing workflow
 - `.github/workflows/lint.yml` - Linting workflow
 - `.github/workflows/typecheck.yml` - Type checking workflow
-
-## Quick Start - Full Cycle
-
-### Complete Project Development
-
-```bash
-# 1. Brainstorm the project
-/attune:brainstorm --domain "CLI tool"
-
-# Output: docs/project-brief.md with problem, constraints, approaches
-
-# 2. War Room deliberation (mandatory - auto-routes by complexity)
-/attune:war-room --from-brainstorm
-
-# Output: Decision document with selected approach
-# - Simple choice? Express mode (<2 min)
-# - Complex trade-offs? Full council deliberation
-
-# 3. Create specification
-/attune:specify
-
-# Output: docs/specification.md with requirements and acceptance criteria
-
-# 4. Plan implementation
-/attune:plan
-
-# Output: docs/implementation-plan.md with architecture and tasks
-
-# 5. Initialize or update project
-/attune:project-init --lang python
-
-# Output: Complete project structure with tooling
-# Note: For existing projects, detects and offers to update configurations
-
-# 6. Execute implementation
-/attune:execute
-
-# Output: Systematic implementation with progress tracking
-# Note: war-room-checkpoint can escalate at decision points during execution
-```
-
-## Usage Examples
-
-### Add GitHub Workflows to Existing Project
-
-```bash
-# From project root
-/attune:upgrade-project --component workflows
-```
-
-### Example 3: Validate Project Structure
-
-```bash
-/attune:validate
-```
-
-Output:
-```
-[OK] Git repository initialized
-[OK] .gitignore present and complete
-[OK] Pre-commit hooks configured
-[OK] GitHub Actions workflows configured
-[OK] Makefile with development targets
-[WARN] Missing: Type checker configuration (mypy)
-[FAIL] Missing: Test coverage configuration
-```
 
 ## Configuration
 

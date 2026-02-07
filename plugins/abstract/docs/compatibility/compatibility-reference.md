@@ -12,7 +12,18 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Notes |
 |---------------------|-------------------|--------|-------|
-| 2.1.6+ | 1.2.9+ | ✅ Recommended | Nested skills discovery, status line context %, MCP enable command |
+| 2.1.34+ | 1.4.1+ | ✅ Recommended | Sandbox permission bypass fix, agent teams render crash fix |
+| 2.1.33+ | 1.4.1+ | ✅ Supported | Agent team hooks, Task(agent_type) restrictions, agent memory frontmatter |
+| 2.1.31+ | 1.4.1+ | ✅ Supported | Stronger tool preference, PDF session fix, sandbox bash fix, temperatureOverride streaming fix |
+| 2.1.30+ | 1.4.1+ | ✅ Supported | Task tool metrics, PDF pages, subagent MCP fix, resume memory improvement |
+| 2.1.29+ | 1.4.1+ | ✅ Supported | `saved_hook_context` resume performance fix |
+| 2.1.27+ | 1.4.1+ | ✅ Supported | PR-linked sessions, ripgrep timeout fix, async hook cancellation |
+| 2.1.21+ | 1.4.1+ | ✅ Supported | File tool preference, auto-compact fix, task ID reuse fix, session resume fix |
+| 2.1.20+ | 1.4.1+ | ✅ Supported | TaskUpdate delete, background agent permissions, Bash(*) normalization, CLAUDE.md --add-dir |
+| 2.1.19+ | 1.4.0+ | ✅ Supported | Command argument shorthand, skills auto-approval, CLAUDE_CODE_ENABLE_TASKS |
+| 2.1.18+ | 1.4.0+ | ✅ Supported | Customizable keybindings, `/keybindings` command, chord sequences |
+| 2.1.9+ | 1.2.9+ | ✅ Supported | MCP tool search threshold, plansDirectory, PreToolUse additionalContext |
+| 2.1.6+ | 1.2.9+ | ✅ Supported | Nested skills discovery, status line context %, MCP enable command |
 | 2.1.5+ | 1.2.9+ | ✅ Supported | CLAUDE_CODE_TMPDIR for custom temp directories |
 | 2.1.4+ | 1.2.5+ | ✅ Supported | Background task disable env var, OAuth fix |
 | 2.1.3+ | 1.2.5+ | ✅ Supported | Skills/commands merge, subagent model fix, 10-min hook timeout |

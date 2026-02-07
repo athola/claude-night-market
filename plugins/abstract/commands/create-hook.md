@@ -47,6 +47,8 @@ Avoid this command if:
 | `Notification` | Claude sends notification | Custom alerts, sound effects |
 | `Stop` | Session/task ends | Cleanup, summaries, checkpoints |
 | `SubagentStop` | Subagent completes | Aggregation, reporting |
+| `TeammateIdle` | Teammate agent becomes idle | Work assignment, load balancing |
+| `TaskCompleted` | Task finishes execution | Coordination, chaining, reporting |
 | `PreCompact` | Before context compaction | Backup, preservation |
 | `SessionStart` | Session begins | Context loading, initialization |
 

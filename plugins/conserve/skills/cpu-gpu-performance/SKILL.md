@@ -10,7 +10,7 @@ dependencies:
   hub:
   - token-conservation
   modules: []
-version: 1.4.0
+version: 1.4.1
 ---
 ## Table of Contents
 

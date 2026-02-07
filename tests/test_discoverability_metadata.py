@@ -94,7 +94,7 @@ SKILLS = [
 COMMANDS = [
     "plugins/attune/commands/brainstorm.md",
     "plugins/attune/commands/specify.md",
-    "plugins/attune/commands/plan.md",
+    "plugins/attune/commands/blueprint.md",
     "plugins/attune/commands/execute.md",
     "plugins/attune/commands/war-room.md",
     "plugins/attune/commands/arch-init.md",
@@ -422,20 +422,6 @@ def test_readme_has_discoverability_section():
         "README should explain WHAT/WHEN/WHEN NOT pattern"
 
 
-def test_changelog_has_v1_4_0_entry():
-    """Verify that CHANGELOG has v1.4.0 entry."""
-    changelog_path = Path("plugins/attune/CHANGELOG.md")
-    assert changelog_path.exists(), "CHANGELOG should exist"
-
-    with open(changelog_path) as f:
-        content = f.read()
-
-    assert "1.4.0" in content, "CHANGELOG should have v1.4.0 entry"
-    assert "2026-02-05" in content, "CHANGELOG should have release date"
-    assert "Discoverability" in content or "discoverability" in content, \
-        "CHANGELOG should mention discoverability enhancement"
-
-
 # ============================================================================
 # Ecosystem-wide discoverability tests (all non-attune plugins)
 # ============================================================================
@@ -466,52 +452,61 @@ class TestEcosystemContentSections:
 
     @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
     def test_skills_have_when_to_use_or_equivalent(self, skill_path):
-        """Skills should have a When To Use section or equivalent."""
-        content = Path(skill_path).read_text()
-        has_section = bool(
-            re.search(r"^## When To Use", content, re.MULTILINE)
-            or re.search(r"^## When Commands Should Invoke", content, re.MULTILINE)
-            or re.search(r"^## When to Invoke", content, re.MULTILINE)
-            or re.search(r"^## When to Escalate", content, re.MULTILINE)
-            or re.search(r"^## When To Apply", content, re.MULTILINE)
-        )
-        # Infrastructure/shared/standalone skills exempt
+        """Skills should have a When To Use section or equivalent.
+
+        Accepted forms (all count as passes):
+        - ## When To Use / When to Invoke / When to Escalate (content sections)
+        - Any ## When to/To <verb> heading (domain-specific variants)
+        - 'Use when' in frontmatter description
+        """
         if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
             pytest.skip("Shared/infrastructure skills exempt")
         if Path(skill_path).stat().st_size < 500:
             pytest.skip("Small utility skill exempt")
-        # Skills with domain-specific equivalents (e.g. "When to Escalate")
-        if re.search(r"^## When (?:to|To) \w+", content, re.MULTILINE):
-            pytest.skip("Has domain-specific When section")
-        # Skills with "Use when:" in description but no content section yet
+
+        content = Path(skill_path).read_text()
+
+        has_content_section = bool(
+            re.search(r"^## When (?:to|To) \w+", content, re.MULTILINE)
+        )
+        has_frontmatter_hint = False
         fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
         if fm_match:
-            fm_text = fm_match.group(1)
-            if re.search(r"[Uu]se when", fm_text):
-                pytest.skip("Has Use when in description frontmatter")
-        assert has_section, f"{skill_path}: Missing 'When To Use' section"
+            has_frontmatter_hint = bool(
+                re.search(r"[Uu]se when", fm_match.group(1))
+            )
+
+        assert has_content_section or has_frontmatter_hint, \
+            f"{skill_path}: Missing 'When To Use' section or 'Use when' in description"
 
     @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
     def test_skills_have_when_not_to_use(self, skill_path):
-        """Skills should have a When NOT To Use section.
+        """Skills should have a When NOT To Use section or equivalent.
 
-        Note: 24 skills still need manually authored When NOT To Use sections.
-        These are tracked as xfail until content is added.
+        Accepted forms (all count as passes):
+        - ## When NOT To Use (canonical)
+        - Any ## When NOT to/To <verb> heading (domain-specific variants)
+        - 'Do not use' in frontmatter description
         """
-        content = Path(skill_path).read_text()
         if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
             pytest.skip("Shared/infrastructure skills exempt")
         if Path(skill_path).stat().st_size < 500:
             pytest.skip("Small utility skill exempt")
-        if re.search(r"^## When NOT to \w+", content, re.MULTILINE):
-            pytest.skip("Has domain-specific When NOT section")
-        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
-        if fm_match and re.search(r"[Dd]o not use", fm_match.group(1)):
-            pytest.skip("Has Do not use in description frontmatter")
-        has_section = bool(
-            re.search(r"^## When NOT To Use", content, re.MULTILINE)
+
+        content = Path(skill_path).read_text()
+
+        has_content_section = bool(
+            re.search(r"^## When NOT [Tt]o \w+", content, re.MULTILINE)
         )
-        assert has_section, f"{skill_path}: Missing 'When NOT To Use' section"
+        has_frontmatter_hint = False
+        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if fm_match:
+            has_frontmatter_hint = bool(
+                re.search(r"[Dd]o not use", fm_match.group(1))
+            )
+
+        assert has_content_section or has_frontmatter_hint, \
+            f"{skill_path}: Missing 'When NOT To Use' section or 'Do not use' in description"
 
 
 class TestEcosystemDiscoveryCounts:

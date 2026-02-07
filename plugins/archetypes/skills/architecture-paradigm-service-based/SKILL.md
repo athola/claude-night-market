@@ -6,7 +6,7 @@ description: |
   service-based, SOA, coarse-grained services, domain services
   Use when: teams need deployment independence without microservices complexity
   DO NOT use when: fine-grained scaling needed - use microservices.
-version: 1.4.0
+version: 1.4.1
 category: architectural-pattern
 tags: [architecture, service-based, soa, modular, shared-database]
 dependencies: []
