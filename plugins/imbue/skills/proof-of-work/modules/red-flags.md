@@ -714,4 +714,4 @@ Conclusion: "Production-ready" for [defined scope], NOT for [missing items]
 
 **Rule:** If you don't understand it, don't ship it.
 
-See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for the complete understanding verification protocol.
+See [anti-cargo-cult.md](anti-cargo-cult.md) for the complete understanding verification protocol.

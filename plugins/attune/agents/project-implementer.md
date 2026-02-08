@@ -1,13 +1,17 @@
 ---
 name: project-implementer
-description: "Implementation specialist - executes tasks from plans with TDD methodology, writes tests, and validates acceptance criteria. Use when: implementing features, writing code, test-driven development, executing task lists."
-# Custom metadata (not used by Claude for matching):
+description: Implementation specialist - executes tasks from plans with TDD methodology,
+  writes tests, and validates acceptance criteria.
 model: claude-sonnet-4
 tools_allowed: all
 max_iterations: 50
 version: 1.4.0
 category: agent
-tags: [implementation, tdd, testing, execution]
+tags:
+- implementation
+- tdd
+- testing
+- execution
 complexity: intermediate
 ---
 

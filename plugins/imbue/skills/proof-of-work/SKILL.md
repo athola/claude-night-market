@@ -2,12 +2,10 @@
 name: proof-of-work
 description: 'Enforces "prove before claim" discipline - validation, testing, and
   evidence requirements before declaring work complete. Use when claiming work is
-  complete, recommending solutions, or finishing implementations. Do not use when
-  asking questions or for work clearly in-progress. MANDATORY: This skill is required
-  before any completion claim. Use when: validation, definition-of-done, proof, acceptance-criteria,
-  testing, completion, finished, done, working, should work, configured, ready to
-  use, implemented, fixed, improvement validated, workflow optimized, performance
-  improved, issue resolved..'
+  complete, recommending solutions, or finishing implementations, improvement validated,
+  workflow optimized, performance improved, or issue resolved. Do not use when asking
+  questions or for work clearly in-progress. MANDATORY: This skill is required before
+  any completion claim.'
 category: workflow-methodology
 tags:
 - validation
@@ -29,6 +27,7 @@ modules:
 - modules/acceptance-criteria.md
 - modules/red-flags.md
 - modules/iron-law-enforcement.md
+- modules/anti-cargo-cult.md
 version: 1.4.1
 ---
 # Proof of Work

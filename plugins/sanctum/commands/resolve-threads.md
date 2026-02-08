@@ -1,7 +1,7 @@
 ---
 name: resolve-threads
-description: Batch-resolve all unresolved PR review threads via GitHub GraphQL API
-usage: /resolve-threads [<pr-number> | <pr-url>]
+description: Batch-resolve all unresolved PR/MR review threads via platform GraphQL API (GitHub/GitLab)
+usage: /resolve-threads [<pr-number> | <pr-url> | <mr-url>]
 ---
 
 # Resolve PR Review Threads
@@ -25,8 +25,11 @@ Quickly resolve all unresolved review threads on a PR after fixes have been addr
 ### Step 1: Identify Target PR
 
 ```bash
-# If no PR specified, use current branch
+# GitHub - if no PR specified, use current branch
 gh pr view --json number,url -q '.number'
+
+# GitLab
+glab mr view --json iid -q '.iid'
 ```
 
 ### Step 2: Fetch Unresolved Threads

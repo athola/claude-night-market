@@ -1,6 +1,6 @@
 ---
 name: project-brainstorming
-description: "Guide project ideation through Socratic questioning and constraint analysis to create actionable project briefs. Use when: starting projects, exploring problem spaces, comparing approaches, validating feasibility. Do not use when: requirements already clear and specification exists."
+description: "Guide project ideation through Socratic questioning and constraint analysis for actionable project briefs. Use for starting projects, exploring problems, comparing approaches, feasibility. Skip if requirements are clear."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 version: 1.4.1

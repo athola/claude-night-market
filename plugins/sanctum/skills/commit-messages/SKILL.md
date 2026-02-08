@@ -1,20 +1,31 @@
 ---
 name: commit-messages
-description: |
-  Generate conventional commit messages from staged changes with correct type/scope.
+description: 'Generate conventional commit messages from staged changes with correct
+  type/scope.
+
 
   commit message, conventional commit, git commit
+
   Use when: generating commit messages in conventional commits format
-  DO NOT use when: full PR preparation - use pr-prep instead.
+
+  DO NOT.'
 category: artifact-generation
-tags: [git, commit, conventional-commits, changelog, slop-free]
-tools: [Bash, Write, TodoWrite]
+tags:
+- git
+- commit
+- conventional-commits
+- changelog
+- slop-free
+tools:
+- Bash
+- Write
+- TodoWrite
 complexity: low
 estimated_tokens: 700
 dependencies:
-  - sanctum:shared
-  - sanctum:git-workspace-review
-  - scribe:slop-detector
+- sanctum:shared
+- sanctum:git-workspace-review
+- scribe:slop-detector
 version: 1.4.1
 ---
 

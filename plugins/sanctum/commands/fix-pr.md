@@ -1,20 +1,20 @@
 ---
 name: fix-pr
-description: Address PR review feedback using progressive workflow
-usage: /fix-pr [<pr-number> | <pr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
+description: Address PR/MR review feedback using progressive workflow (GitHub/GitLab)
+usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
 extends: "superpowers:receiving-code-review"
 ---
 
-# Enhanced PR Fix
+# Enhanced PR/MR Fix
 
-A progressive workflow for addressing PR review feedback, following the attune pattern:
+A progressive workflow for addressing PR/MR review feedback, following the attune pattern. Supports both GitHub PRs and GitLab MRs via `leyline:git-platform` detection.
 **analyze** → **triage** → **plan** → **fix** → **validate** → **complete**
 
 ## When To Use
 
 Use this command when you need to:
-- Responding to PR review comments systematically
-- Iterating on PR after reviewer feedback
+- Responding to PR/MR review comments systematically
+- Iterating on PR/MR after reviewer feedback
 
 ## When NOT To Use
 

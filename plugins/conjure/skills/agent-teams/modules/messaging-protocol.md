@@ -1,0 +1,107 @@
+---
+name: messaging-protocol
+description: Message types, inbox operations, and fcntl-based concurrency control
+parent_skill: conjure:agent-teams
+category: delegation-framework
+estimated_tokens: 200
+---
+
+# Messaging Protocol
+
+## Inbox Structure
+
+Each agent has a dedicated inbox file:
+
+```
+~/.claude/teams/<team>/inboxes/<agent-name>.json
+```
+
+Content is a JSON array of message objects. An empty inbox is `[]`.
+
+## Message Format (InboxMessage)
+
+```json
+{
+  "from": "team-lead",
+  "text": "Implement the auth middleware next",
+  "timestamp": "2026-02-07T22:00:00Z",
+  "read": false,
+  "summary": "Auth middleware task",
+  "color": "#FF6B6B"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `from` | string | yes | Sender agent name |
+| `text` | string | yes | Message body (plain text or serialized JSON) |
+| `timestamp` | string | yes | ISO 8601 timestamp |
+| `read` | boolean | yes | Read-state flag (default: `false`) |
+| `summary` | string | no | Short summary for quick scanning |
+| `color` | string | no | Display color for UI |
+
+## Message Types
+
+### Direct Messages
+Plain text or structured payloads sent to a specific agent's inbox.
+
+```python
+send_plain_message(team, to_agent, text, summary=None)
+```
+
+### Broadcast Messages
+Sent to all team members' inboxes simultaneously.
+
+```python
+send_broadcast(team, from_agent, text, summary=None)
+```
+
+### Task Assignments
+Structured notification when a task's `owner` field changes.
+
+```python
+send_task_assignment(team, to_agent, task)
+```
+
+### Shutdown Requests
+Structured request with a unique ID for graceful agent termination.
+
+```python
+send_shutdown_request(team, to_agent, request_id)
+```
+
+### Plan Approvals
+Response messages confirming or rejecting proposed plans.
+
+## fcntl File Locking
+
+All inbox operations use exclusive file locks to prevent concurrent corruption:
+
+```python
+import fcntl
+
+lock_path = inbox_dir / ".lock"
+lock_path.touch()
+
+with open(lock_path) as lock_fd:
+    fcntl.flock(lock_fd, fcntl.LOCK_EX)   # Acquire exclusive lock
+    try:
+        # Read, modify, write inbox JSON
+        messages = json.loads(inbox_path.read_text())
+        messages.append(new_message)
+        inbox_path.write_text(json.dumps(messages))
+    finally:
+        fcntl.flock(lock_fd, fcntl.LOCK_UN)  # Release lock
+```
+
+**Crash recovery**: If an agent dies while holding a lock, the OS releases the `fcntl` lock automatically. However, the inbox file may be in an inconsistent state if the write was interrupted. Wrap writes in the atomic pattern from `team-management.md`.
+
+## Read Operations
+
+`read_inbox(agent)` supports:
+- `unread_only=True`: Filter to messages where `read == false`
+- `mark_as_read=True`: Set `read = true` on returned messages within the lock
+
+## Polling Pattern
+
+Agents poll their inbox on a timer (no push mechanism). The MCP server implements `poll_inbox()` with a 30-second maximum wait, returning early when new messages arrive.

@@ -1,20 +1,32 @@
 ---
 name: architecture-paradigm-event-driven
-description: |
-  Asynchronous event-based communication to decouple producers/consumers for scalability and resilience.
+description: 'Asynchronous event-based communication to decouple producers/consumers
+  for scalability and resilience.
+
 
   Triggers: event-driven, message queue, pub/sub, asynchronous, decoupling
+
   Use when: real-time workloads or multiple subsystems react to same events
-  DO NOT use when: simple request-response patterns suffice.
+
+  DO NOT.'
 version: 1.4.1
 category: architectural-pattern
-tags: [architecture, event-driven, asynchronous, decoupling, scalability, resilience]
+tags:
+- architecture
+- event-driven
+- asynchronous
+- decoupling
+- scalability
+- resilience
 dependencies: []
-tools: [message-broker, event-stream-processor, distributed-tracing]
+tools:
+- message-broker
+- event-stream-processor
+- distributed-tracing
 usage_patterns:
-  - paradigm-implementation
-  - real-time-processing
-  - system-extensibility
+- paradigm-implementation
+- real-time-processing
+- system-extensibility
 complexity: high
 estimated_tokens: 800
 ---

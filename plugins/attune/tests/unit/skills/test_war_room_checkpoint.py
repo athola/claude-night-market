@@ -59,7 +59,7 @@ class TestWarRoomCheckpointSkillStructure:
         When parsing frontmatter
         Then required fields should be present
         """
-        required_fields = ["name", "description", "triggers", "use_when"]
+        required_fields = ["name", "description"]
         for field in required_fields:
             assert field in skill_frontmatter, f"Missing frontmatter field: {field}"
 

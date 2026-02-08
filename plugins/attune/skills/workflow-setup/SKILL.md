@@ -1,6 +1,6 @@
 ---
 name: workflow-setup
-description: "Configure GitHub Actions CI/CD workflows for automated testing, linting, and deployment. Use when: setting up CI/CD, configuring GitHub Actions, automating quality checks. Do not use when: CI/CD already configured or using different platform."
+description: "Configure GitHub Actions CI/CD workflows for automated testing, linting, and deployment. Use for CI/CD setup and quality automation. Skip if CI/CD configured or using different platform."
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
@@ -12,7 +12,7 @@ estimated_tokens: 1500
 ---
 ## Table of Contents
 
-- [Use When](#use-when)
+- [When To Use](#when-to-use)
 - [Standard Workflows](#standard-workflows)
 - [Python Workflows](#python-workflows)
 - [Rust Workflows](#rust-workflows)

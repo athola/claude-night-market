@@ -1,25 +1,28 @@
 ---
 name: do-issue
 description: 'Uses subagents for parallel execution with code review gates between
-  batches. Use when addressing GitHub issues systematically, multiple related issues
+  batches. Use when addressing issues systematically, multiple related issues
   need fixing, tasks can be parallelized across subagents, quality gates needed between
   task batches. Do not use when single simple fix - just implement directly. DO NOT
   use when: issue needs clarification - comment first to clarify scope.'
 category: workflow-automation
 tags:
 - github
+- gitlab
 - issues
 - subagents
 - parallel
 - automation
+- cross-platform
 dependencies:
+- leyline:git-platform
 - superpowers:subagent-driven-development
 - superpowers:writing-plans
 - superpowers:test-driven-development
 - superpowers:requesting-code-review
 - superpowers:finishing-a-development-branch
 tools:
-- gh (GitHub CLI)
+- gh (GitHub CLI) / glab (GitLab CLI)
 - Task (subagent dispatch)
 usage_patterns:
 - issue-discovery
@@ -42,18 +45,20 @@ version: 1.4.1
 - [Key Features](#key-features)
 - [Workflow Overview](#workflow-overview)
 - [Required TodoWrite Items](#required-todowrite-items)
-- [GitHub CLI Commands](#github-cli-commands)
 - [Configuration](#configuration)
 - [Detailed Resources](#detailed-resources)
 
 
-# Fix GitHub Issue(s)
+# Fix Issue(s)
 
-Retrieves GitHub issue content and uses subagent-driven-development to systematically address requirements, executing tasks in parallel where dependencies allow.
+Retrieves issue content from the detected git platform (GitHub, GitLab, or Bitbucket) and uses subagent-driven-development to systematically address requirements, executing tasks in parallel where dependencies allow.
+
+**Platform detection is automatic** via the `leyline:git-platform` SessionStart hook. Check session context for `git_platform:` to determine which CLI to use.
 
 ## Key Features
 
-- **Flexible Input**: Single issue number, GitHub URL, or space-delimited list
+- **Cross-Platform**: Automatically detects GitHub/GitLab/Bitbucket and uses appropriate CLI
+- **Flexible Input**: Single issue number, platform URL, or space-delimited list
 - **Parallel Execution**: Independent tasks run concurrently via subagents
 - **Quality Gates**: Code review between task groups
 - **Fresh Context**: Each subagent starts with clean context for focused work
@@ -77,18 +82,17 @@ Retrieves GitHub issue content and uses subagent-driven-development to systemati
 5. `do-issue:sequential-complete`
 6. `do-issue:issues-updated`
 
-## GitHub CLI Commands
+## Forge CLI Commands
 
-```bash
-# Fetch issue details
-gh issue view <number> --json title,body,labels,comments
+Use the platform detected in session context (`git_platform:`). See `Skill(leyline:git-platform)` for full mapping.
 
-# Add completion comment
-gh issue comment <number> --body "message"
+| Operation | GitHub (`gh`) | GitLab (`glab`) |
+|-----------|---------------|-----------------|
+| Fetch issue | `gh issue view <N> --json title,body,labels,comments` | `glab issue view <N>` |
+| Comment | `gh issue comment <N> --body "msg"` | `glab issue note <N> --message "msg"` |
+| Close | `gh issue close <N> --comment "reason"` | `glab issue close <N>` |
+| Search | `gh issue list --search "query"` | `glab issue list --search "query"` |
 
-# Close issue
-gh issue close <number> --comment "reason"
-```
 **Verification:** Run the command with `--help` flag to verify availability.
 
 ## Configuration

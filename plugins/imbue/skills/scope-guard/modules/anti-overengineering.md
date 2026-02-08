@@ -126,7 +126,7 @@ AI makes cargo cult overengineering worse because:
 
 **Rule:** If justification uses "might", "could", or "eventually" - defer to backlog.
 
-See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for understanding verification protocols.
+See [../../proof-of-work/modules/anti-cargo-cult.md](../../proof-of-work/modules/anti-cargo-cult.md) for understanding verification protocols.
 
 ## "While We're Here" Pattern
 
@@ -191,4 +191,4 @@ Before claiming any AI-assisted work is complete:
 3. **Refactoring Balance**: Did you refactor existing code, not just add new?
 4. **Test Depth**: Do tests cover failures, not just success?
 
-See [../../shared/modules/anti-cargo-cult.md] for full understanding verification protocol.
+See [../../proof-of-work/modules/anti-cargo-cult.md](../../proof-of-work/modules/anti-cargo-cult.md) for full understanding verification protocol.

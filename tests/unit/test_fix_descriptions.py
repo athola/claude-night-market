@@ -229,7 +229,8 @@ class TestProcessSkillFile:
         Then it returns None (no changes needed)
         """
         skill_file = skill_dir / "SKILL.md"
-        skill_file.write_text(dedent("""\
+        skill_file.write_text(
+            dedent("""\
             ---
             name: my-skill
             description: "A clean skill that needs no changes"
@@ -239,7 +240,8 @@ class TestProcessSkillFile:
             # My Skill
 
             Content here.
-        """))
+        """)
+        )
 
         result = process_skill_file(skill_file, dry_run=True)
 
@@ -254,7 +256,8 @@ class TestProcessSkillFile:
         Then it returns a change dict with old and new descriptions
         """
         skill_file = skill_dir / "SKILL.md"
-        skill_file.write_text(dedent("""\
+        skill_file.write_text(
+            dedent("""\
             ---
             name: my-skill
             description: "Analyze code quality."
@@ -264,7 +267,8 @@ class TestProcessSkillFile:
             ---
 
             # My Skill
-        """))
+        """)
+        )
 
         result = process_skill_file(skill_file, dry_run=True)
 
@@ -307,7 +311,8 @@ class TestProcessSkillFile:
         And custom fields are removed from frontmatter
         """
         skill_file = skill_dir / "SKILL.md"
-        skill_file.write_text(dedent("""\
+        skill_file.write_text(
+            dedent("""\
             ---
             name: my-skill
             description: "Analyze code."
@@ -318,7 +323,8 @@ class TestProcessSkillFile:
             ---
 
             # Content
-        """))
+        """)
+        )
 
         process_skill_file(skill_file, dry_run=False)
 
@@ -359,7 +365,8 @@ class TestProcessSkillFile:
         Then it detects the need for consolidation and strips the triggers
         """
         skill_file = skill_dir / "SKILL.md"
-        skill_file.write_text(dedent("""\
+        skill_file.write_text(
+            dedent("""\
             ---
             name: my-skill
             description: "Analyze code quality. Triggers: refine, code"
@@ -367,7 +374,8 @@ class TestProcessSkillFile:
             ---
 
             # Content
-        """))
+        """)
+        )
 
         result = process_skill_file(skill_file, dry_run=True)
 
@@ -384,7 +392,8 @@ class TestProcessSkillFile:
         Then it returns None (stripping leaves empty, nothing useful to produce)
         """
         skill_file = skill_dir / "SKILL.md"
-        skill_file.write_text(dedent("""\
+        skill_file.write_text(
+            dedent("""\
             ---
             name: my-skill
             description: "Triggers: refine, code"
@@ -392,7 +401,8 @@ class TestProcessSkillFile:
             ---
 
             # Content
-        """))
+        """)
+        )
 
         result = process_skill_file(skill_file, dry_run=True)
 

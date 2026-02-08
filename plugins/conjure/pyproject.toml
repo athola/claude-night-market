@@ -153,3 +153,6 @@ skips = ["B101"]  # Skip assert_used test for test files
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "bdd: BDD-style behavior-driven tests",
+]

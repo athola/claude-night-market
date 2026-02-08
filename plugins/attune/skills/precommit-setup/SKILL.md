@@ -1,6 +1,6 @@
 ---
 name: precommit-setup
-description: "Configure three-layer pre-commit quality system with linting, type checking, and testing hooks. Use when: setting up quality gates, configuring pre-commit, establishing code quality standards. Do not use when: pre-commit already configured optimally."
+description: "Configure three-layer pre-commit system with linting, type checking, and testing hooks. Use for quality gate setup and code standards. Skip if pre-commit is optimally configured."
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
@@ -12,7 +12,7 @@ estimated_tokens: 1800
 ---
 ## Table of Contents
 
-- [Use When](#use-when)
+- [When To Use](#when-to-use)
 - [Philosophy: Three-Layer Defense](#philosophy:-three-layer-defense)
 - [Standard Hooks (Layer 1)](#standard-hooks-(layer-1))
 - [Python Projects](#python-projects)

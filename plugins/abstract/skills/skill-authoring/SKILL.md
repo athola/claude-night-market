@@ -4,10 +4,7 @@ description: 'Guide to effective Claude Code skill authoring using TDD methodolo
   and persuasion principles. Use when creating new skills, improving compliance, or
   validating quality before deployment. Do not use for evaluating existing skills
   (use skills-eval) or analyzing architecture (use modular-skills). Follow the Iron
-  Law: write a failing test before writing any skill. Use when: skills, validation,
-  skill, authoring, tdd, skill authoring, skill writing, new skill, TDD skills, skill
-  creation, skill best practices, skill validation, skill deployment, skill compliance,
-  skill testing.'
+  Law: write a failing test before writing any skill.'
 version: 1.4.1
 category: skill-development
 tags:

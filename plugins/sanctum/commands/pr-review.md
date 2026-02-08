@@ -1,13 +1,13 @@
 ---
 name: pr-review
-description: Comprehensive PR review with scope validation and code analysis
-usage: /pr-review [<pr-number> | <pr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--no-line-comments] [--skip-version-check] [--skip-doc-review]
+description: Comprehensive PR/MR review with scope validation and code analysis (GitHub/GitLab)
+usage: /pr-review [<pr-number> | <pr-url> | <mr-url>] [--scope-mode strict|standard|flexible] [--auto-approve-safe-prs] [--no-auto-issues] [--dry-run] [--no-line-comments] [--skip-version-check] [--skip-doc-review]
 extends: "superpowers:receiving-code-review"
 ---
 
-# Enhanced PR Review
+# Enhanced PR/MR Review
 
-Integrates Sanctum's disciplined scope validation with superpowers:receiving-code-review's detailed analysis to provide thorough, balanced PR reviews that prevent scope creep while ensuring code quality.
+Integrates Sanctum's disciplined scope validation with superpowers:receiving-code-review's detailed analysis to provide thorough, balanced reviews that prevent scope creep while ensuring code quality. Supports both GitHub PRs and GitLab MRs via `leyline:git-platform` detection.
 
 ## Core Philosophy
 
@@ -56,11 +56,12 @@ Integrates Sanctum's disciplined scope validation with superpowers:receiving-cod
 
 ### Basic Usage
 ```bash
-# Review PR with default settings
+# Review PR/MR with default settings
 /pr-review 123
 
-# Review with PR URL
+# Review with platform URL
 /pr-review https://github.com/org/repo/pull/123
+/pr-review https://gitlab.com/org/repo/-/merge_requests/123
 ```
 
 ### Scope Modes
@@ -264,7 +265,7 @@ Documentation findings are **non-blocking** by default. Use `--strict` to treat 
 This command integrates with:
 - **superpowers:receiving-code-review**: Core review logic
 - **pensive:code-refinement**: Code quality and deduplication analysis (optional)
-- **pensive:shared/modules/code-quality-analysis**: Shared quality patterns
+- **pensive:code-refinement**: Code quality patterns
 - **scribe:slop-detector**: Documentation quality analysis
 - **scribe:doc-editor**: Interactive doc cleanup (if needed)
 - **gh CLI**: Fetch PR data, post comments, create issues

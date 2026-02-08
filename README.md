@@ -122,7 +122,7 @@ flowchart TB
 3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), `minister` (issue tracking), and `attune` (project lifecycle from brainstorm to execution). `attune` uses an enhanced discoverability pattern for automatic command matching from natural language. The `/attune:plan` command was renamed to `/attune:blueprint` in v1.4.1.
 4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring, including Makefile generation and command-to-target validation.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 120 skills, 114 commands, and 41 agents.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 122 skills, 102 commands, and 41 agents across all 16 plugins.
 
 ## Common Workflows
 

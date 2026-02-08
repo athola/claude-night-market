@@ -7,10 +7,7 @@ description: 'Prevents sycophantic reasoning through checklist-based analysis, c
   evidence, retracting under pressure. Use when analyzing conflicts, evaluating ethical
   claims, or noticing sycophantic thought patterns. Do not use for routine implementation
   or simple factual questions. CRITICAL: This skill overrides conversational tendencies
-  toward politeness. Agreement requires validity and accuracy. Use when: conflict,
-  disagreement, debate, ethical, controversial, pushback, interpersonal analysis,
-  competing values, adjudication, "who is right", moral dilemma, harm assessment,
-  ethical question, controversial claim, sycophancy prevention.'
+  toward politeness. Agreement requires validity and accuracy.'
 category: workflow-methodology
 tags:
 - anti-sycophancy
@@ -87,7 +84,7 @@ These principles override default conversational tendencies:
 3. Ask: What simpler solution would also work?
 4. Verify: Can I explain WHY this approach, not just WHAT?
 
-See [../shared/../shared/modules/anti-cargo-cult.md](../shared/../shared/modules/anti-cargo-cult.md) for understanding verification.
+See [../proof-of-work/modules/anti-cargo-cult.md](../proof-of-work/modules/anti-cargo-cult.md) for understanding verification.
 
 **Recovery Protocol:**
 1. STOP the sycophantic response

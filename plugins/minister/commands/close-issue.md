@@ -1,12 +1,12 @@
 ---
 name: close-issue
-description: Analyze if GitHub issues can be closed based on commits
+description: Analyze if issues (GitHub/GitLab) can be closed based on commits
 usage: /close-issue <issue-ref>... [--dry-run]
 ---
 
 # Close Issue Analysis
 
-Researches commits and codebase to determine if linked GitHub issues can be closed based on existing changes. For incomplete issues, reports gaps with specific tasks and offers to work on them immediately.
+Researches commits and codebase to determine if linked issues (GitHub/GitLab) can be closed based on existing changes. Uses `leyline:git-platform` for platform detection. For incomplete issues, reports gaps with specific tasks and offers to work on them immediately.
 
 ## When To Use
 
@@ -18,7 +18,7 @@ Use this command when you need to:
 
 - `<issue-ref>` - One or more issue references:
   - Issue number: `21`
-  - Full URL: `https://github.com/owner/repo/issues/21`
+  - Full URL: `https://github.com/owner/repo/issues/21` or `https://gitlab.com/owner/repo/-/issues/21`
   - Short reference: `owner/repo#21`
 - `--dry-run` - Analyze only, skip interactive prompts
 

@@ -30,7 +30,7 @@ The fourth principle addresses **cargo cult programming** - the ritual inclusion
 - Why this approach over simpler alternatives?
 - When would this fail?
 
-See [../../shared/modules/anti-cargo-cult.md](../../shared/modules/anti-cargo-cult.md) for the full protocol.
+See [anti-cargo-cult.md](anti-cargo-cult.md) for the full protocol.
 
 ## Why This Matters (The Reddit Insight)
 

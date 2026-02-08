@@ -41,7 +41,6 @@ class MetaEvaluator:
         ],
         # Pensive plugin (review skills)
         "pensive": [
-            "shared",
             "test-review",
             "api-review",
             "architecture-review",

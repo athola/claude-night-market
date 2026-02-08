@@ -1,30 +1,49 @@
 ---
 name: mecw-patterns
-description: |
-  MECW theory and patterns for hallucination prevention via context management. Implements 50% rule.
+description: 'MECW theory and patterns for hallucination prevention via context management.
+  Implements 50% rule.
 
-  MECW, context window, hallucination, 50% rule, context pressure
-  Use when: implementing context-aware systems or monitoring context pressure
+
+  MECW, context window, hallucination, 50% rule, context pressure.'
 category: infrastructure
-tags: [context-management, mecw, hallucination-prevention, token-optimization, thresholds]
+tags:
+- context-management
+- mecw
+- hallucination-prevention
+- token-optimization
+- thresholds
 dependencies: []
-tools: [mecw-monitor, context-tracker]
+tools:
+- mecw-monitor
+- context-tracker
 provides:
-  infrastructure: [context-monitoring, mecw-compliance, pressure-calculation]
-  patterns: [context-optimization, safe-budgeting, hallucination-prevention]
-usage_patterns:
-  - context-window-management
+  infrastructure:
+  - context-monitoring
+  - mecw-compliance
+  - pressure-calculation
+  patterns:
+  - context-optimization
+  - safe-budgeting
   - hallucination-prevention
-  - token-budget-planning
-  - pressure-monitoring
+usage_patterns:
+- context-window-management
+- hallucination-prevention
+- token-budget-planning
+- pressure-monitoring
 complexity: intermediate
 estimated_tokens: 350
 progressive_loading: true
 modules:
-  - modules/mecw-theory.md
-  - modules/monitoring-patterns.md
-  - modules/prevention-strategies.md
-reusable_by: [conserve, abstract, conjure, spec-kit, sanctum, imbue]
+- modules/mecw-theory.md
+- modules/monitoring-patterns.md
+- modules/prevention-strategies.md
+reusable_by:
+- conserve
+- abstract
+- conjure
+- spec-kit
+- sanctum
+- imbue
 version: 1.4.1
 ---
 ## Table of Contents

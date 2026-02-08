@@ -139,6 +139,7 @@ class PluginValidator:
             "description": "Clear description of plugin functionality",
             "author": "Author name or object with name/email",
             "license": "License identifier (e.g., 'MIT')",
+            "keywords": "Array of discovery keywords (e.g., ['git', 'workflow'])",
         }
 
         for field, description in recommended.items():
@@ -181,25 +182,64 @@ class PluginValidator:
                 paths = []
 
             for path in paths:
-                # Check relative path format
-                if not path.startswith("./") and not path.startswith(field + "/"):
-                    self.issues["warnings"].append(
-                        f"{field} path should use relative format: {path}",
-                    )
+                self._validate_path_entry(field, path)
 
-                # Check if referenced path exists
-                # Try both as-is and with .md extension
-                clean_path = path.lstrip("./")
-                check_paths = [
-                    self.plugin_path / clean_path,
-                    self.plugin_path / f"{clean_path}.md",
-                    self.plugin_path / clean_path / "SKILL.md",
-                ]
+        self._validate_hooks_path(config)
 
-                if not any(p.exists() for p in check_paths):
-                    self.issues["critical"].append(
-                        f"Referenced {field} path not found: {path}",
-                    )
+    def _validate_path_entry(self, field: str, path: str) -> None:
+        """Validate a single path entry."""
+        # Check relative path format
+        if not path.startswith("./") and not path.startswith(field + "/"):
+            self.issues["warnings"].append(
+                f"{field} path should use relative format: {path}",
+            )
+
+        # Check if referenced path exists
+        clean_path = path.lstrip("./")
+        check_paths = [
+            self.plugin_path / clean_path,
+            self.plugin_path / f"{clean_path}.md",
+            self.plugin_path / clean_path / "SKILL.md",
+        ]
+
+        if not any(p.exists() for p in check_paths):
+            self.issues["critical"].append(
+                f"Referenced {field} path not found: {path}",
+            )
+
+    def _validate_hooks_path(self, config: dict[str, Any]) -> None:
+        """Validate hooks path reference."""
+        if "hooks" not in config:
+            return
+
+        hooks_value = config["hooks"]
+        if not isinstance(hooks_value, str):
+            return
+
+        clean_path = hooks_value.lstrip("./")
+        hooks_path = self.plugin_path / clean_path
+
+        if not hooks_path.exists():
+            self.issues["critical"].append(
+                f"Referenced hooks path not found: {hooks_value}",
+            )
+            return
+
+        # Validate hooks.json is valid JSON
+        try:
+            with open(hooks_path) as f:
+                hooks_data = json.load(f)
+            if not isinstance(hooks_data, (dict, list)):
+                self.issues["warnings"].append(
+                    "hooks.json should contain a JSON object or array",
+                )
+            else:
+                msg = f"[OK] hooks path '{hooks_value}' exists and is valid JSON"
+                self.issues["info"].append(msg)
+        except json.JSONDecodeError as e:
+            self.issues["critical"].append(
+                f"hooks.json is not valid JSON: {e}",
+            )
 
     def _validate_dependencies(self) -> None:
         """Validate dependencies format and versioning."""
@@ -263,6 +303,17 @@ class PluginValidator:
                     f"{dirname}/ should be at plugin root, not inside .claude-plugin/",
                 )
                 self.issues["info"].append(f"Run: mv .claude-plugin/{dirname} ./")
+
+        # Detect deprecated skills/shared/ directory pattern
+        shared_dir = self.plugin_path / "skills" / "shared"
+        if shared_dir.exists() and shared_dir.is_dir():
+            shared_modules = list(shared_dir.rglob("*.md"))
+            if shared_modules:
+                self.issues["warnings"].append(
+                    f"Deprecated pattern: skills/shared/ directory found with "
+                    f"{len(shared_modules)} module(s). Move shared modules into "
+                    "skill-specific modules/ directories instead.",
+                )
 
     def _validate_skills(self) -> None:
         """Validate skill files and structure."""

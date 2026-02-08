@@ -1,18 +1,28 @@
 ---
 name: testing-quality-standards
-description: |
-  Cross-plugin testing quality metrics and standards. Referenced by pensive:test-review and parseltongue:python-testing.
+description: 'Cross-plugin testing quality metrics and standards. Referenced by pensive:test-review
+  and parseltongue:python-testing.
+
 
   testing standards, quality metrics, coverage thresholds, anti-patterns
 
+
   Use when: test quality evaluation, coverage thresholds, quality standards
-  DO NOT use when: simple scripts without quality requirements
+
+  DO NOT.'
 category: infrastructure
-tags: [testing, quality, standards, metrics]
+tags:
+- testing
+- quality
+- standards
+- metrics
 dependencies: []
 estimated_tokens: 400
 provides:
-  patterns: [coverage-thresholds, quality-metrics, anti-patterns]
+  patterns:
+  - coverage-thresholds
+  - quality-metrics
+  - anti-patterns
 version: 1.4.1
 ---
 

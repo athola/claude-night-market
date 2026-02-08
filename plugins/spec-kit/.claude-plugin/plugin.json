@@ -14,7 +14,6 @@
     "./commands/speckit-tasks.md"
   ],
   "skills": [
-    "./skills/shared",
     "./skills/speckit-orchestrator",
     "./skills/spec-writing",
     "./skills/task-planning"

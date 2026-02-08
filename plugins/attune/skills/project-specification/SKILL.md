@@ -1,6 +1,6 @@
 ---
 name: project-specification
-description: "Transform project briefs into detailed, testable specifications using spec-driven development methodology. Use when: translating requirements, defining acceptance criteria, creating technical specs, before implementation. Do not use when: already have detailed specification or still exploring problem space."
+description: "Transform project briefs into testable specifications with acceptance criteria. Use for requirements translation, spec creation, pre-implementation. Skip if spec exists or still exploring."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 version: 1.4.1

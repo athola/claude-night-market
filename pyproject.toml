@@ -63,6 +63,7 @@ markers = [
     "skill: Skill-specific tests",
     "hook: Hook-specific tests",
     "command: Command-specific tests",
+    "bdd: BDD-style behavior-driven tests",
 ]
 
 [tool.coverage.run]

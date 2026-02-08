@@ -159,7 +159,7 @@ Feature timeline and version-specific capabilities.
 - ✅ **Plan Mode Crash Fix**: Entering plan mode no longer crashes when `~/.claude.json` is missing default fields
   - **Previous Bug**: Sessions became unusable after entering plan mode with incomplete project config
   - **Now Fixed**: Missing fields handled gracefully
-  - **Affected**: `spec-kit:artifact-structure` references plan mode — no changes needed
+  - **Affected**: `spec-kit:spec-writing` references plan mode — no changes needed
 
 - ✅ **temperatureOverride Streaming Fix**: `temperatureOverride` now respected in streaming API path
   - **Previous Bug**: All streaming requests silently used default temperature (1.0) regardless of configured override
@@ -309,7 +309,7 @@ Stabilization releases. Key changes:
 - ✅ **Task ID Reuse Fix**: Task IDs no longer reused after deletion
   - **Previous Bug**: Deleting a task and creating a new one could silently reuse the same ID, leaking old state
   - **Now Fixed**: Deleted task IDs are properly retired
-  - **Affected**: `imbue:shared/todowrite-patterns`, `sanctum:shared/todowrite-patterns` — both updated with version note
+  - **Affected**: `imbue:proof-of-work`, `sanctum:session-management` — both updated with version note
 
 - ✅ **Session Resume During Tool Execution**: Fixed API errors when resuming sessions interrupted during tool execution
   - **Previous Bug**: Sessions interrupted mid-tool-execution could fail to resume
@@ -340,7 +340,7 @@ Stabilization releases. Key changes:
 **New Features**:
 - ✅ **TaskUpdate Delete**: Tasks can now be deleted via the TaskUpdate tool
   - **Impact**: Workflows creating many TodoWrite items can clean up after completion
-  - **Affected**: `sanctum:shared/todowrite-patterns`, `imbue:shared/todowrite-patterns`
+  - **Affected**: `sanctum:session-management`, `imbue:proof-of-work`
   - **Best Practice**: Delete transient tracking items; preserve proof-of-work and audit items
   - **Ecosystem Updates**: TodoWrite pattern docs updated with deletion guidelines
 

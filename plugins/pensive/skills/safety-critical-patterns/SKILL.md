@@ -149,7 +149,7 @@ tsc --strict --noImplicitAny
 
 Reference this skill from:
 - `pensive:code-refinement` - Clean code dimension
-- `pensive:shared/modules/code-quality-analysis` - Quality checks
+- `pensive:code-refinement` - Quality checks
 - `sanctum:pr-review` - Code quality phase
 
 ## Sources

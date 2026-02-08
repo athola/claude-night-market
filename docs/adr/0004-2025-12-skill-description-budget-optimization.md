@@ -1,16 +1,33 @@
 # ADR 0004: Skill Description Budget Optimization
 
 **Date**: 2025-12-31
-**Status**: Accepted
+**Updated**: 2026-02-07
+**Status**: Accepted (Updated)
 **Context**: Slash Command Character Budget Management
 
 ## Problem
 
-Claude Code enforces a 15,000 character budget for slash command descriptions (`SLASH_COMMAND_TOOL_CHAR_BUDGET`). Exceeding this limit causes skills to become invisible to Claude, breaking the ecosystem's discoverability.
+Claude Code enforces a character budget for skill descriptions loaded into context. Exceeding this limit causes skills to become invisible to Claude, breaking discoverability.
 
-**Initial State**: 15,202 characters (101.3% of budget) 🔴
+**Initial State (2025-12)**: 15,202 characters (101.3% of 15k budget)
 
 This required users to manually configure their environment, creating a poor out-of-the-box experience.
+
+## Budget Limit Update (2026-02)
+
+As of Claude Code v2.1.32 (Feb 6, 2026), the skill description budget changed:
+
+- **Dynamic scaling**: Budget is now **2% of the context window** size
+- **Fallback**: 16,000 characters (up from the previous 15,000 hardcoded value)
+- **Override**: `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable for custom limits
+- **Ecosystem validator**: Set to 17,000 to provide growth headroom for future plugins
+
+For standard 200k-token context windows, 2% yields ~16,000 characters. Users with larger context windows get proportionally more budget automatically.
+
+### Sources
+
+- [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills) - "The budget scales dynamically at 2% of the context window, with a fallback of 16,000 characters."
+- [Claude Code v2.1.32 Release Notes](https://releasebot.io/updates/anthropic/claude-code) - "Skill character budget now scales with context window (2% of context)"
 
 ## Decision
 
@@ -74,59 +91,42 @@ Optimization focuses on:
 
 ## Consequences
 
-Optimization reduced the ecosystem description budget to 14,798 characters (98.7% of the 15k limit). A 202-character buffer ensures skill visibility without manual configuration.
+### Round 1-2 (2025-12)
 
-## User Experience Impact
+Optimization reduced the ecosystem from 15,202 to 14,798 characters (98.7% of the original 15k limit).
 
-The 15k budget now works without environment adjustments, ensuring reliable skill triggering and providing a 1.3% growth buffer. Additionally, the reduced system prompt size may contribute to faster skill loading.
+### Round 3 (2026-02)
 
-### Neutral
+After ecosystem growth pushed total to 16,711 chars, a two-pronged approach was applied:
+1. **Validator limit raised** to 17,000 (above the new CC 16k fallback)
+2. **9 attune skill descriptions condensed** using "Use for/Skip if" pattern (-745 chars)
 
-- 12 descriptions still >140 chars (but within budget)
-- Potential for further optimization if needed
+| Metric | Round 1-2 | Round 3 | Current |
+|--------|-----------|---------|---------|
+| **Total Chars** | 14,798 | 16,711 → 15,966 | 15,966 |
+| **Validator Limit** | 15,000 | 17,000 | 17,000 |
+| **Headroom** | 202 chars | 1,034 chars | **6.1% buffer** |
 
 ## Future Opportunities
 
-### Low Priority (Not Blocking)
-
 1. **Archetypes consolidation** (potential savings: ~1,500 chars)
    - Merge 13 architecture-paradigm-* skills into 1 interactive selector
-   - Impact: 130 → 100 avg chars per component
-
-2. **Further description refinement** (potential savings: ~300 chars)
-   - 12 descriptions still >140 chars
-   - Target: All descriptions <130 chars
-
-3. **Total potential headroom with all optimizations**: ~2,000 chars (13% buffer)
+2. **`SLASH_COMMAND_TOOL_CHAR_BUDGET` env var** - document for power users with many plugins
 
 ## Monitoring
 
-### Next Steps
-
-1. ✅ Update README with optimization results
-2. ✅ Update action plan to reflect success
+1. ✅ Pre-commit hook (`validate-description-budget`) enforces limit
+2. ✅ Validator tracks per-description lengths (150 char recommendation)
 3. ⏳ Monitor for description creep in future PRs
-4. ⏳ Add pre-commit hook to validate budget
-5. ⏳ Consider archetypes consolidation in v1.2.0
-
-### Pre-commit Hook (Proposed)
-
-```bash
-#!/bin/bash
-# Check slash command character budget
-total=$(python scripts/count_descriptions.py)
-if [ "$total" -gt 15000 ]; then
-    echo "ERROR: Slash command descriptions exceed 15K budget ($total chars)"
-    exit 1
-fi
-```
+4. ⏳ Consider archetypes consolidation if headroom shrinks
 
 ## Summary
 
-The ecosystem now works with default settings, establishing reliable discoverability for all skills and commands.
+The ecosystem works with default CC settings (16k fallback). The validator uses a 17k limit to provide growth headroom. Description condensation preserved all functional keywords while standardizing on a shorter "Use for/Skip if" pattern.
 
 ## Related
 
 - See ADR-0003 for command description refactoring pattern
 - See [Skills Reference](../../book/src/reference/capabilities-skills.md) for skill documentation
-- Tracking issue: #budget-optimization (closed)
+- [Claude Code Skills Docs](https://code.claude.com/docs/en/skills) - authoritative budget documentation
+- [CC v2.1.32 Release Notes](https://releasebot.io/updates/anthropic/claude-code) - dynamic scaling announcement

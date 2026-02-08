@@ -1,25 +1,36 @@
 ---
 name: writing-rules
-description: |
-  Create markdown-based behavioral rules preventing unwanted actions.
+description: 'Create markdown-based behavioral rules preventing unwanted actions.
+
 
   create hookify rule, behavioral rule, prevent behavior, block command
 
+
   Use when: preventing dangerous commands, blocking debug commits, enforcing conventions
-  DO NOT use when: hook scope (abstract:hook-scope-guide), SDK hooks (abstract:hook-authoring), evaluating hooks (abstract:hooks-eval)
+
+  DO NOT.'
 version: 1.4.1
 category: hook-development
-tags: [hookify, rules, patterns, validation, safety]
+tags:
+- hookify
+- rules
+- patterns
+- validation
+- safety
 dependencies: []
 estimated_tokens: 2500
 complexity: beginner
 provides:
-  patterns: [rule-writing, pattern-matching, condition-building]
-  infrastructure: [rule-validation]
-usage_patterns:
-  - creating-rules
+  patterns:
+  - rule-writing
   - pattern-matching
-  - behavioral-enforcement
+  - condition-building
+  infrastructure:
+  - rule-validation
+usage_patterns:
+- creating-rules
+- pattern-matching
+- behavioral-enforcement
 ---
 ## Table of Contents
 

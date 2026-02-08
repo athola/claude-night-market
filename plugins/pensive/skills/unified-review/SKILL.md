@@ -209,7 +209,7 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 - All selected review skills executed
 - Findings consolidated and prioritized
 - Action plan created with ownership
-- Evidence logged per `pensive:shared/modules/output-format-templates`
+- Evidence logged per structured output format
 ## Troubleshooting
 
 ### Common Issues

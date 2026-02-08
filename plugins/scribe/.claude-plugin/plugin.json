@@ -10,7 +10,6 @@
     "./commands/doc-verify.md"
   ],
   "skills": [
-    "./skills/shared",
     "./skills/slop-detector",
     "./skills/style-learner",
     "./skills/doc-generator"

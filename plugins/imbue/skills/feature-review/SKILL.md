@@ -1,30 +1,40 @@
 ---
 name: feature-review
-description: |
-  Feature review and prioritization with RICE/WSJF/Kano scoring. Creates GitHub issues for suggestions.
+description: 'Feature review and prioritization with RICE/WSJF/Kano scoring. Creates
+  GitHub issues for suggestions.
+
 
   feature review, prioritization, RICE, WSJF, roadmap, backlog
+
   Use when: reviewing features or suggesting new features
-  DO NOT use when: evaluating single feature scope - use scope-guard.
+
+  DO NOT.'
 category: workflow-methodology
-tags: [feature-review, prioritization, RICE, WSJF, Kano, roadmap, backlog]
+tags:
+- feature-review
+- prioritization
+- RICE
+- WSJF
+- Kano
+- roadmap
+- backlog
 dependencies:
-  - imbue:scope-guard
-  - imbue:review-core
+- imbue:scope-guard
+- imbue:review-core
 tools:
-  - gh (GitHub CLI)
+- gh (GitHub CLI)
 usage_patterns:
-  - feature-inventory
-  - prioritization-scoring
-  - suggestion-generation
-  - github-integration
+- feature-inventory
+- prioritization-scoring
+- suggestion-generation
+- github-integration
 complexity: intermediate
 estimated_tokens: 3500
 modules:
-  - modules/scoring-framework.md
-  - modules/classification-system.md
-  - modules/tradeoff-dimensions.md
-  - modules/configuration.md
+- modules/scoring-framework.md
+- modules/classification-system.md
+- modules/tradeoff-dimensions.md
+- modules/configuration.md
 version: 1.4.1
 ---
 ## Table of Contents

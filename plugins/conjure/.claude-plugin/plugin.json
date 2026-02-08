@@ -5,7 +5,8 @@
   "skills": [
     "./skills/delegation-core",
     "./skills/gemini-delegation",
-    "./skills/qwen-delegation"
+    "./skills/qwen-delegation",
+    "./skills/agent-teams"
   ],
   "keywords": [
     "delegation",
@@ -13,7 +14,10 @@
     "gemini",
     "qwen",
     "orchestration",
-    "routing"
+    "routing",
+    "agent-teams",
+    "multi-agent",
+    "coordination"
   ],
   "author": {
     "name": "Alex Thola",

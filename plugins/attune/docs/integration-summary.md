@@ -320,10 +320,10 @@ Execute   → .attune/execution-state.json + code
 ## Related Documentation
 
 - [README.md](../README.md) - Plugin overview
-- [CHANGELOG.md](../CHANGELOG.md) - Version history
+- [CHANGELOG.md](../../../CHANGELOG.md) - Version history
 - [Full-Cycle Workflow Guide](./full-cycle-workflow-guide.md) - Complete guide
 - [Quick Start Example](./quick-start-example.md) - Practical walkthrough
 - [Brainstorm Command](../commands/brainstorm.md) - Brainstorming reference
 - [Specify Command](../commands/specify.md) - Specification reference
-- [Plan Command](../commands/plan.md) - Planning reference
+- [Blueprint Command](../commands/blueprint.md) - Planning reference
 - [Execute Command](../commands/execute.md) - Execution reference

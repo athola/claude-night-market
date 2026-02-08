@@ -1,26 +1,38 @@
 ---
 name: error-patterns
-description: |
-  Standardized error handling patterns with classification, recovery, and logging strategies.
+description: 'Standardized error handling patterns with classification, recovery,
+  and logging strategies.
 
-  error handling, error recovery, graceful degradation, resilience
-  Use when: implementing error handling in production plugins
+
+  error handling, error recovery, graceful degradation, resilience.'
 category: infrastructure
-tags: [errors, error-handling, recovery, resilience, debugging]
-dependencies: [usage-logging]
+tags:
+- errors
+- error-handling
+- recovery
+- resilience
+- debugging
+dependencies:
+- usage-logging
 provides:
-  infrastructure: [error-handling, error-classification, recovery]
-  patterns: [graceful-degradation, error-logging, debugging]
-usage_patterns:
+  infrastructure:
   - error-handling
-  - resilience-patterns
-  - debugging-workflows
+  - error-classification
+  - recovery
+  patterns:
+  - graceful-degradation
+  - error-logging
+  - debugging
+usage_patterns:
+- error-handling
+- resilience-patterns
+- debugging-workflows
 complexity: beginner
 estimated_tokens: 450
 progressive_loading: true
 modules:
-  - modules/classification.md
-  - modules/recovery-strategies.md
+- modules/classification.md
+- modules/recovery-strategies.md
 version: 1.4.1
 ---
 ## Table of Contents

@@ -1,18 +1,32 @@
 ---
 name: workflow-improvement
-description: |
-  Retrospective workflow evaluation and improvement of skills, agents, commands, and hooks.
+description: 'Retrospective workflow evaluation and improvement of skills, agents,
+  commands, and hooks.
+
 
   workflow improvement, retrospective, workflow efficiency
+
   Use when: workflow felt slow, confusing, or needs optimization
-  DO NOT use when: implementing features - focus on feature work first.
+
+  DO NOT.'
 category: workflow-ops
-tags: [workflow, retrospective, efficiency, commands, agents, skills, hooks]
-tools: [Read, Edit, Bash, TodoWrite]
+tags:
+- workflow
+- retrospective
+- efficiency
+- commands
+- agents
+- skills
+- hooks
+tools:
+- Read
+- Edit
+- Bash
+- TodoWrite
 complexity: medium
 estimated_tokens: 900
 dependencies:
-  - sanctum:shared
+- sanctum:shared
 version: 1.4.1
 ---
 

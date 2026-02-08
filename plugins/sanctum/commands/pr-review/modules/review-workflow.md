@@ -1,8 +1,10 @@
-# PR Review: Workflow Details
+# PR/MR Review: Workflow Details
 
 Detailed workflow phases, examples, and advanced features.
 
 > **See Also**: [Main Command](../../pr-review.md) | [Framework](review-framework.md) | [Configuration](review-configuration.md)
+
+**Platform Note**: Commands below show GitHub (`gh`) examples. Check session context for `git_platform:` and consult `Skill(leyline:git-platform)` for GitLab (`glab`) / Bitbucket equivalents.
 
 ## Workflow
 
@@ -365,7 +367,7 @@ This phase uses `Skill(scribe:slop-detector)` to identify AI-generated content m
 **⚠️ ENFORCEMENT CHECK: This phase MUST complete with duplication and redundancy findings documented.**
 **If you skip this phase, the workflow is INCOMPLETE.**
 
-Invokes `pensive:code-refinement` patterns from `pensive:shared/modules/code-quality-analysis`:
+Invokes `pensive:code-refinement` patterns:
 
 6. **Duplication & Redundancy Scan**
    ```bash
@@ -373,7 +375,7 @@ Invokes `pensive:code-refinement` patterns from `pensive:shared/modules/code-qua
    CHANGED_FILES=$(gh pr diff $PR_NUMBER --name-only | grep -E '\.(py|ts|js|rs|go)$')
 
    # Run targeted quality analysis
-   # See: pensive:shared/modules/code-quality-analysis.md
+   # See: pensive:code-refinement
    ```
 
    **Invoke the full skill:**
@@ -432,7 +434,7 @@ Before proceeding to Phase 3, verify ALL items are complete:
 
 8. **Auto-Create Issues for Backlog Items (AUTOMATIC)**
 
-   > **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md`
+   > **Module Reference**: Auto-issue creation is handled inline by the workflow monitor.
 
    Items classified as "Backlog" or "Out-of-Scope" are automatically logged to GitHub:
 

@@ -88,7 +88,14 @@ HookEvent = Literal[
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-**Note**: Python SDK does not support `SessionStart`, `SessionEnd`, or `Notification` hooks due to setup limitations.
+**Note**: Python SDK does not support `SessionStart`, `SessionEnd`, or `Notification` hooks due to setup limitations. However, plugins can define `SessionStart` hooks via `hooks.json` using shell commands (e.g., leyline's `detect-git-platform.sh`).
+
+### Plugin-Level hooks.json
+
+Plugins can declare hooks via `"hooks": "./hooks/hooks.json"` in plugin.json. The evaluator validates:
+- Referenced hooks.json exists and is valid JSON
+- Shell commands referenced in hooks exist and are executable
+- Hook matchers use valid event types
 
 ### Hook Callback Signature
 

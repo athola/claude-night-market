@@ -1,6 +1,6 @@
 # API Overview
 
-*Updated: 2026-01-23*
+*Updated: 2026-02-07*
 *Original Source: API_REVIEW_REPORT.md (API Surface Inventory)*
 
 ## API Surface Summary
@@ -9,26 +9,26 @@ Claude Night Market consists of 16 plugins that provide CLI commands, Python pac
 
 ## API Inventory
 
-The ecosystem includes 114 CLI commands, 126 modular skills, 41 specialized agents, and 7 Python packages with public APIs. We also maintain 16 execution hooks.
+The ecosystem includes 102 CLI commands, 121 modular skills, 41 specialized agents, and 7 Python packages with public APIs. We also maintain 17 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
 | abstract | 1.4.1 | 18 | 10 | 5 | Yes | abstract-skills |
 | archetypes | 1.4.1 | 0 | 14 | 0 | No | - |
 | attune | 1.4.1 | 9 | 11 | 2 | No | - |
-| conjure | 1.4.1 | 0 | 3 | 0 | No | - |
+| conjure | 1.4.1 | 0 | 4 | 0 | No | - |
 | conserve | 1.4.1 | 6 | 11 | 5 | No | - |
 | hookify | 1.4.1 | 6 | 2 | 0 | No | - |
-| imbue | 1.4.1 | 3 | 11 | 1 | No | - |
+| imbue | 1.4.1 | 3 | 10 | 1 | No | - |
 | leyline | 1.4.1 | 2 | 12 | 0 | Yes | - |
 | memory-palace | 1.4.1 | 5 | 6 | 4 | Yes | - |
 | minister | 1.4.1 | 3 | 2 | 0 | Yes | - |
 | parseltongue | 1.4.1 | 3 | 4 | 4 | No | - |
-| pensive | 1.4.1 | 12 | 13 | 4 | Yes | - |
-| sanctum | 1.4.1 | 31 | 15 | 9 | Yes | - |
-| scribe | 1.4.1 | 5 | 4 | 3 | No | - |
+| pensive | 1.4.1 | 12 | 12 | 4 | Yes | - |
+| sanctum | 1.4.1 | 19 | 14 | 9 | Yes | - |
+| scribe | 1.4.1 | 5 | 3 | 3 | No | - |
 | scry | 1.4.1 | 2 | 4 | 1 | No | - |
-| spec-kit | 1.4.1 | 9 | 4 | 3 | Yes | - |
+| spec-kit | 1.4.1 | 9 | 3 | 3 | Yes | - |
 
 ## Plugin Details
 
@@ -42,7 +42,7 @@ Reference library for architecture paradigms. Contains 14 skills covering patter
 Project initialization and architecture templates. Streamlines the setup of new projects with `arch-init` and `init`.
 
 ### Conjure (v1.4.1)
-Cross-model delegation. Skills like `gemini-delegation` and `qwen-delegation` route tasks to specific models based on capability.
+Cross-model delegation and multi-agent coordination. Skills like `gemini-delegation` and `qwen-delegation` route tasks to specific models, while `agent-teams` coordinates parallel Claude Code agents through a filesystem-based protocol.
 
 ### Conserve (v1.4.1)
 Context window usage and resource management. Commands like `analyze-growth` and `optimize-context` help developers understand token consumption. Skills include `context-optimization`, `clear-context`, and `resource-management`.
@@ -54,7 +54,7 @@ Hook development utilities and templates. Commands help create, test, and manage
 Structured review workflows. Offers commands for feature reviews and catchups (`feature-review`, `catchup`). Skills include `evidence-logging`, `proof-of-work`, and `scope-guard`.
 
 ### Leyline (v1.4.1)
-Shared patterns and utilities library. Allows for bulk plugin updates via `reinstall-all-plugins`. Skills cover authentication, error handling, and testing standards.
+Shared patterns and utilities library. Allows for bulk plugin updates via `reinstall-all-plugins`. Skills cover authentication, error handling, testing standards, and cross-platform git forge detection via `git-platform`.
 
 ### Memory-Palace (v1.4.1)
 Knowledge management organization. Commands like `garden` and `palace` help users navigate and structure information. Skills focus on knowledge intake and retrieval.
