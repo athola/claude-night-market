@@ -1,7 +1,6 @@
 # Skill Authoring Best Practices
 
-For comprehensive best practices guide, see:
-**[Skill Authoring Best Practices](../../../../../docs/examples/skill-development/authoring-best-practices.md)**
+Essential patterns for writing effective Claude Code skills. Covers frontmatter structure, modular decomposition, progressive disclosure, and quality validation.
 
 ## Quick Reference
 
@@ -58,4 +57,4 @@ The comprehensive best practices guide includes:
 - Migration strategies
 - Advanced optimization techniques
 
-📖 **[Full Best Practices Guide](../../../../../docs/examples/skill-development/authoring-best-practices.md)**
+See `Skill(abstract:skill-authoring)` for the full authoring guide and templates.

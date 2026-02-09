@@ -189,6 +189,22 @@ Skill(attune:war-room-checkpoint) with context:
 - No conflicting feedback
 - Single reviewer, straightforward comments
 
+## Agent Teams (Default for Major Scope)
+
+Agent teams is **on by default** for major scope PRs (6+ comments). Teammates parallelize fix implementation and coordinate via inbox messaging when fixes touch related code. Use `--no-agent-teams` to force sequential/Task tool execution.
+
+**Automatic downgrade**: Agent teams is skipped for minor/medium scope (≤5 comments). Use `--no-agent-teams` to disable for any invocation.
+
+**Requires**: Claude Code 2.1.32+, tmux, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Falls back to sequential execution if unavailable.
+
+```bash
+# Major scope uses agent teams by default
+/fix-pr 123 --scope major
+
+# Disable agent teams explicitly
+/fix-pr 123 --scope major --no-agent-teams
+```
+
 ## Integration
 
 This command integrates with:
@@ -197,6 +213,7 @@ This command integrates with:
 - **git**: Commits changes, pushes updates
 - **test suite**: Runs verification after fixes
 - **Claude Code Tasks** (2.1.16+): Progress tracking with native Tasks system
+- **Agent Teams** (2.1.32+): Optional parallel fix execution for major scope PRs
 
 ### Claude Code Tasks Integration
 

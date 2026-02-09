@@ -479,6 +479,7 @@ glab issue note ISSUE_NUMBER --message "Fix implemented in MR !MR_NUMBER"
 | `--no-review` | Skip code review between tasks (not recommended) |
 | `--close` | Automatically close issues when implemented |
 | `--dangerous` | Continue execution without pauses (batch mode, auto-continue on handoffs) |
+| `--no-agent-teams` | Disable agent teams and use Task tool dispatch instead. Agent teams is **on by default** for parallel execution (auto-downgrades for `--scope minor`). |
 
 ## Multiple Issues
 

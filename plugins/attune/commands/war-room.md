@@ -376,6 +376,34 @@ Recommendation: Skip War Room. Chief Strategist can decide immediately.
 
 This ensures all strategic decisions are captured in the project's planning documentation for future reference and audit trails.
 
+## Agent Teams Mode (Experimental)
+
+For Full Council and Delphi modes, experts can optionally run as persistent Claude Code teammates with bidirectional messaging instead of one-shot conjure delegations.
+
+```bash
+# Enable agent teams execution backend
+/attune:war-room "Platform migration strategy" --full-council --agent-teams
+
+# Delphi mode auto-suggests agent teams (persistent teammates avoid re-invocation per round)
+/attune:war-room "Cloud provider lock-in" --delphi --agent-teams
+```
+
+**Requires**: Claude Code 2.1.32+, tmux, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+
+**Trade-offs**:
+- **Gain**: Real-time inter-expert messaging (experts react to each other's COAs, challenges, and premortems)
+- **Gain**: Delphi rounds don't re-invoke experts — teammates persist across iterations
+- **Lose**: Model diversity (all teammates are Claude; no Gemini/Qwen/GLM)
+- **Lose**: Higher token cost (each teammate maintains full context)
+
+**When NOT to use**: Express and Lightweight modes — the coordination overhead exceeds benefit for ≤3 experts.
+
+**Fallback**: If tmux is unavailable or team creation fails, automatically falls back to conjure delegation.
+
+| Flag | Description |
+|------|-------------|
+| `--agent-teams` | Use agent teams for expert panel (Full Council/Delphi only) |
+
 ## Related Commands
 
 - `/attune:brainstorm` - Pre-War Room ideation
@@ -388,4 +416,5 @@ This ensures all strategic decisions are captured in the project's planning docu
 - `Skill(attune:war-room)` - Core War Room skill
 - `Skill(attune:project-brainstorming)` - Ideation
 - `Skill(conjure:delegation-core)` - Expert dispatch
+- `Skill(conjure:agent-teams)` - Agent teams coordination
 - `Skill(imbue:rigorous-reasoning)` - Reasoning methodology

@@ -212,4 +212,4 @@ See [Iron Law Interlock](../../../abstract/shared-modules/iron-law-interlock.md)
 
 - [enforcement-language.md](enforcement-language.md) - Language intensity calibration
 - [anti-rationalization.md](anti-rationalization.md) - Bypass prevention patterns
-- [iron-law-enforcement.md](../../imbue/skills/proof-of-work/modules/iron-law-enforcement.md) - Full TDD enforcement
+- **iron-law-enforcement** (`Skill(imbue:proof-of-work)`) - Full TDD enforcement: RED (write failing test) → GREEN (minimal implementation) → REFACTOR (clean up with tests passing). No implementation without a failing test first.

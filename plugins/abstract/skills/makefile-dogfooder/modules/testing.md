@@ -1,6 +1,6 @@
 # Safe Testing Module
 
-Strategies for safely testing Makefile targets without side effects. For comprehensive test examples, see [Makefile Testing Examples](../../../docs/examples/makefile-testing/comprehensive-examples.md).
+Strategies for safely testing Makefile targets without side effects.
 
 ## Testing Philosophy
 
@@ -122,4 +122,4 @@ For comprehensive test examples including:
 - Utility functions for testing
 - Coverage checking patterns
 
-See: [Makefile Testing Examples](../../../docs/examples/makefile-testing/comprehensive-examples.md)
+Use `make -n <target>` for dry-run validation before executing targets.

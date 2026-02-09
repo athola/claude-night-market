@@ -9,11 +9,11 @@ Claude Night Market consists of 16 plugins that provide CLI commands, Python pac
 
 ## API Inventory
 
-The ecosystem includes 102 CLI commands, 121 modular skills, 41 specialized agents, and 7 Python packages with public APIs. We also maintain 17 execution hooks.
+The ecosystem includes 102 CLI commands, 123 modular skills, 41 specialized agents, and 7 Python packages with public APIs. We also maintain 17 execution hooks.
 
 | Plugin | Version | Commands | Skills | Agents | Python Package | CLI Entry |
 |--------|---------|----------|--------|--------|----------------|-----------|
-| abstract | 1.4.1 | 18 | 10 | 5 | Yes | abstract-skills |
+| abstract | 1.4.1 | 18 | 11 | 5 | Yes | abstract-skills |
 | archetypes | 1.4.1 | 0 | 14 | 0 | No | - |
 | attune | 1.4.1 | 9 | 11 | 2 | No | - |
 | conjure | 1.4.1 | 0 | 4 | 0 | No | - |
@@ -39,7 +39,7 @@ Validation and analysis framework for the ecosystem. Includes commands for creat
 Reference library for architecture paradigms. Contains 14 skills covering patterns like hexagonal architecture, microservices, and event-driven design.
 
 ### Attune (v1.4.1)
-Project initialization and architecture templates. Streamlines the setup of new projects with `arch-init` and `init`.
+Project initialization, architecture templates, and strategic decision-making. Commands include `arch-init`, `init`, and `war-room` (multi-expert deliberation with optional agent teams execution for Full Council and Delphi modes).
 
 ### Conjure (v1.4.1)
 Cross-model delegation and multi-agent coordination. Skills like `gemini-delegation` and `qwen-delegation` route tasks to specific models, while `agent-teams` coordinates parallel Claude Code agents through a filesystem-based protocol.

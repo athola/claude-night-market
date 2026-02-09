@@ -1,6 +1,6 @@
 # Graphviz Conventions for Skill Diagrams
 
-Process diagrams help visualize skill workflows, decision trees, and error handling. For comprehensive examples, see [Graphviz Examples](../../../docs/examples/skill-development/graphviz-examples.md).
+Process diagrams help visualize skill workflows, decision trees, and error handling.
 
 ## When to Include Diagrams
 
@@ -100,4 +100,4 @@ For complete examples including:
 - Error handling flows
 - Anti-patterns to avoid
 
-See: [Graphviz Examples](../../../docs/examples/skill-development/graphviz-examples.md)
+Use `dot -Tsvg workflow.dot -o workflow.svg` to render diagrams locally.

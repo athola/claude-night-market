@@ -1,7 +1,6 @@
 # Hook Types Overview
 
-For comprehensive hook types documentation, see:
-**[Hook Types Guide](../../../../../docs/examples/hook-development/hook-types-comprehensive.md)**
+Claude Code hook lifecycle events and their use cases. Hooks intercept specific moments in the session to inject context, validate actions, or transform outputs.
 
 ## Quick Reference
 
@@ -43,4 +42,4 @@ The comprehensive hook types guide includes:
 - Performance considerations
 - Migration guides
 
-📖 **[Full Hook Types Guide](../../../../../docs/examples/hook-development/hook-types-comprehensive.md)**
+See `Skill(abstract:hook-authoring)` for the full hook development guide and examples.

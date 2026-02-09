@@ -73,6 +73,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `optimizing-large-skills` | [conserve](../plugins/conserve.md) | Large skill optimization |
+| `performance-optimization` | [abstract](../plugins/abstract.md) | Progressive loading, token budgeting, and context-aware content delivery |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |

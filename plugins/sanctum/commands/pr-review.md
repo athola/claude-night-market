@@ -260,6 +260,22 @@ Documentation findings are **non-blocking** by default. Use `--strict` to treat 
 
 **Mode details**: See [Classification Framework](pr-review/modules/review-framework.md#scope-mode-details)
 
+## Agent Teams (Default for Large PRs)
+
+Agent teams is **on by default** for PRs with 15+ changed files spanning multiple subsystems. Teammates parallelize review aspects (security, architecture, tests, docs) and the lead synthesizes before posting. Use `--no-agent-teams` to force sequential review.
+
+**Automatic downgrade**: Agent teams is skipped for PRs with <15 changed files. Use `--no-agent-teams` to disable for any invocation.
+
+**Requires**: Claude Code 2.1.32+, tmux, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Falls back to sequential review if unavailable.
+
+```bash
+# Large PR uses agent teams by default
+/pr-review 123
+
+# Disable agent teams explicitly
+/pr-review 123 --no-agent-teams
+```
+
 ## Integration
 
 This command integrates with:
@@ -271,6 +287,7 @@ This command integrates with:
 - **gh CLI**: Fetch PR data, post comments, create issues
 - **imbue:scope-guard**: Scope worthiness evaluation
 - **backlog system**: Issue creation and tracking
+- **Agent Teams** (2.1.32+): Optional parallel review for large PRs
 
 ### Code Quality Analysis (MANDATORY - NON-NEGOTIABLE)
 

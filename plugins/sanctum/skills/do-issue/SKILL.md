@@ -95,6 +95,26 @@ Use the platform detected in session context (`git_platform:`). See `Skill(leyli
 
 **Verification:** Run the command with `--help` flag to verify availability.
 
+## Agent Teams (Default Execution Mode)
+
+Agent teams is the **default** parallel execution backend for do-issue. Teammates coordinate via filesystem-based messaging, enabling real-time communication when shared files or dependencies are discovered mid-implementation.
+
+**Automatic downgrade**: For single issues with `--scope minor`, agent teams is skipped (Task tool or inline execution is used instead). Use `--no-agent-teams` to force Task tool dispatch for any invocation.
+
+**Requires**: Claude Code 2.1.32+, tmux, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. If prerequisites are missing, silently falls back to Task tool dispatch.
+
+```yaml
+# Agent teams configuration
+fix_issue:
+  agent_teams:
+    enabled: true           # on by default; --no-agent-teams to disable
+    max_teammates: 4        # limit concurrent workers
+    model: sonnet           # teammate model (lead uses current model)
+    auto_downgrade: true    # skip agent teams for --scope minor
+```
+
+See `modules/parallel-execution.md` for detailed agent teams patterns.
+
 ## Configuration
 
 ```yaml

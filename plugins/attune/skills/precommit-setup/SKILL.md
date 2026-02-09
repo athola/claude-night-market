@@ -671,5 +671,5 @@ repos:
 
 ## See Also
 
-- [Quality Gates Documentation](../../../../docs/quality-gates.md) - Detailed quality system guide
-- [Testing Guide](../../../../docs/testing-guide.md) - Testing best practices
+- **Quality Gates** - Three-layer validation: pre-commit hooks (formatting, linting), CI checks (tests, coverage), and PR review gates (code quality, security)
+- **Testing Guide** - Run `make test` for unit tests, `make lint` for static analysis, `make format` for auto-formatting. Target 85%+ coverage.

@@ -153,6 +153,12 @@ skips = ["B101"]  # Skip assert_used test for test files
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    "--strict-markers",
+]
 markers = [
+    "unit: Unit tests for individual components",
+    "integration: Integration tests for workflow orchestration",
+    "slow: Slow running tests",
     "bdd: BDD-style behavior-driven tests",
 ]
