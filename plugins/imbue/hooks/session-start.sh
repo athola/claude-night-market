@@ -25,6 +25,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
 # --- Inlined JSON utilities (from scripts/shared/json_utils.sh) ---
 # Inlined to avoid broken relative path when plugin runs from Claude Code cache.
+# NOTE: Intentionally duplicated in conserve/hooks/session-start.sh — do not DRY-refactor.
 
 # Extract a field value from a JSON string
 # Uses three-tier fallback: jq → GNU grep → POSIX sed
