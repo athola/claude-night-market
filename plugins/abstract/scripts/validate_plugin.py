@@ -227,7 +227,7 @@ class PluginValidator:
 
         # Validate hooks.json is valid JSON
         try:
-            with open(hooks_path) as f:
+            with open(hooks_path, encoding="utf-8") as f:
                 hooks_data = json.load(f)
             if not isinstance(hooks_data, (dict, list)):
                 self.issues["warnings"].append(

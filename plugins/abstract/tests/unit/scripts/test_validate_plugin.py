@@ -297,3 +297,62 @@ class TestKeywordsRecommendation:
         v._validate_recommended_fields()
 
         assert not any("keywords" in msg for msg in v.issues["recommendations"])
+
+
+class TestDeprecatedSharedDirectory:
+    """Feature: Detect deprecated skills/shared/ directory pattern.
+
+    As a plugin validator
+    I want to warn when skills/shared/ directories exist
+    So that plugin authors migrate to skill-specific modules
+    """
+
+    @pytest.mark.unit
+    def test_shared_dir_with_modules_triggers_warning(self, plugin_dir: Path) -> None:
+        """Scenario: skills/shared/ directory with markdown files.
+
+        Given a plugin with skills/shared/ containing .md files
+        When structure validation runs
+        Then a deprecation warning is issued
+        """
+        shared_dir = plugin_dir / "skills" / "shared"
+        shared_dir.mkdir(parents=True)
+        (shared_dir / "SKILL.md").write_text("# Shared")
+        modules_dir = shared_dir / "modules"
+        modules_dir.mkdir()
+        (modules_dir / "patterns.md").write_text("# Patterns")
+
+        v = _make_validator(plugin_dir)
+        v._validate_directory_structure()
+
+        assert any("Deprecated pattern" in msg for msg in v.issues["warnings"])
+        assert any("skills/shared/" in msg for msg in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_no_shared_dir_no_warning(self, plugin_dir: Path) -> None:
+        """Scenario: plugin without skills/shared/ directory.
+
+        Given a plugin without a skills/shared/ directory
+        When structure validation runs
+        Then no deprecation warning is issued
+        """
+        v = _make_validator(plugin_dir)
+        v._validate_directory_structure()
+
+        assert not any("Deprecated pattern" in msg for msg in v.issues["warnings"])
+
+    @pytest.mark.unit
+    def test_empty_shared_dir_no_warning(self, plugin_dir: Path) -> None:
+        """Scenario: skills/shared/ exists but has no markdown files.
+
+        Given a plugin with an empty skills/shared/ directory
+        When structure validation runs
+        Then no deprecation warning is issued
+        """
+        shared_dir = plugin_dir / "skills" / "shared"
+        shared_dir.mkdir(parents=True)
+
+        v = _make_validator(plugin_dir)
+        v._validate_directory_structure()
+
+        assert not any("Deprecated pattern" in msg for msg in v.issues["warnings"])
