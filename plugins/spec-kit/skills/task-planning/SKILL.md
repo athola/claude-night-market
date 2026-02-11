@@ -17,13 +17,13 @@ tags:
 - implementation
 - dependencies
 dependencies:
-- spec-kit:shared
 - superpowers:writing-plans
 - superpowers:executing-plans
 tools: []
 modules:
 - phase-structure.md
 - dependency-patterns.md
+- tech-stack-patterns
 progressive_loading: true
 usage_patterns:
 - task-generation

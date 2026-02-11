@@ -17,7 +17,6 @@ tags:
 - user-stories
 - acceptance-criteria
 dependencies:
-- spec-kit:shared
 - superpowers:brainstorming
 tools: []
 usage_patterns:
@@ -30,6 +29,7 @@ progressive_loading: true
 modules:
 - success-criteria-patterns
 - specification-structure
+- checklist-dimensions
 ---
 
 # Spec Writing

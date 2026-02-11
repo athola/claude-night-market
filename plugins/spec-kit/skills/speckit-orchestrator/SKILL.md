@@ -13,7 +13,6 @@ tags:
 - planning
 - specification
 dependencies:
-- spec-kit:shared
 - sanctum:git-workspace-review
 - imbue:evidence-logging
 - superpowers:brainstorming
@@ -23,6 +22,7 @@ tools: []
 modules:
 - command-skill-matrix
 - progress-tracking
+- artifact-structure
 progressive_loading: true
 usage_patterns:
 - workflow-coordination
