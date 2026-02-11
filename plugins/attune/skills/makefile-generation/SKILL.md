@@ -4,7 +4,6 @@ description: "Generate language-specific Makefiles with testing, linting, and au
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.4.1
 category: infrastructure
 tags: [makefile, automation, build-tools, development-workflow]
 complexity: low

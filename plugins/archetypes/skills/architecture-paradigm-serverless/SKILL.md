@@ -9,7 +9,6 @@ description: 'Serverless FaaS for event-driven workloads with minimal infrastruc
   Use when: workloads are event-driven with bursty traffic
 
   DO NOT use when: long-running processes or stateful operations required.'
-version: 1.4.1
 category: architectural-pattern
 tags:
 - architecture

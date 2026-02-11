@@ -1,7 +1,6 @@
 ---
 name: documentation-guidelines
 description: Best practices for code documentation, API documentation, README standards, and technical writing for developers
-version: 1.0.0
 created_by: abstract-examples
 tags: [documentation, technical-writing, api-docs, readme, best-practices]
 category: development

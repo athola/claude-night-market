@@ -3,7 +3,6 @@ name: rule-catalog
 description: Browse the rule catalog and guide installation. Use when looking for
   ready-made rules, installing standard rules, browsing available categories. Do not
   use when writing custom rules - use writing-rules skill instead.
-version: 1.4.1
 category: hook-development
 tags:
 - hookify

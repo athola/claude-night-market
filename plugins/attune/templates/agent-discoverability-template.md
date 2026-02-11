@@ -12,7 +12,6 @@ description: "[Role] - [capability] to achieve [outcome]. Use when: [context], [
 model: claude-sonnet-4
 tools_allowed: [Read, Write, Grep, Glob]
 max_iterations: 10
-version: 1.4.0
 category: agent
 tags: [relevant, keywords]
 complexity: intermediate

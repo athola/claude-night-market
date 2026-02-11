@@ -9,7 +9,6 @@ description: 'Asynchronous event-based communication to decouple producers/consu
   Use when: real-time workloads or multiple subsystems react to same events
 
   DO NOT use when: selecting paradigms (use architecture-paradigms first), simple request-response.'
-version: 1.4.1
 category: architectural-pattern
 tags:
 - architecture

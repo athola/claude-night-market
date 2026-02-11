@@ -20,7 +20,6 @@ dependencies:
 - sanctum:shared
 - sanctum:git-workspace-review
 - scribe:slop-detector
-version: 1.4.1
 ---
 
 # Conventional Commit Workflow

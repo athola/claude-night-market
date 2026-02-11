@@ -39,7 +39,6 @@ estimated_tokens: 400
 progressive_loading: true
 modules:
 - modules/command-mapping.md
-version: 1.4.1
 ---
 ## Table of Contents
 

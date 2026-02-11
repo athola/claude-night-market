@@ -25,7 +25,6 @@ usage_patterns:
 - review-search
 complexity: intermediate
 estimated_tokens: 500
-version: 1.4.1
 ---
 ## Table of Contents
 

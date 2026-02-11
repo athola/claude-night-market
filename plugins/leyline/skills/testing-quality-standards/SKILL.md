@@ -23,7 +23,6 @@ provides:
   - coverage-thresholds
   - quality-metrics
   - anti-patterns
-version: 1.4.1
 ---
 
 # Testing Quality Standards

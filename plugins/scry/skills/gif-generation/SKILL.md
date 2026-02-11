@@ -14,7 +14,6 @@ tools:
 complexity: low
 estimated_tokens: 400
 progressive_loading: false
-version: 1.4.1
 ---
 ## Table of Contents
 

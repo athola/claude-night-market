@@ -30,7 +30,6 @@ usage_patterns:
 - application-routing
 complexity: intermediate
 estimated_tokens: 950
-version: 1.4.1
 ---
 ## Table of Contents
 

@@ -3,7 +3,6 @@ name: project-specification
 description: "Transform project briefs into testable specifications with acceptance criteria. Use for requirements translation, spec creation, pre-implementation. Skip if spec exists or still exploring."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
-version: 1.4.1
 category: workflow
 tags: [specification, requirements, acceptance-criteria, spec-driven-development]
 complexity: intermediate

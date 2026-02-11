@@ -9,7 +9,6 @@ description: 'CQRS and Event Sourcing for auditability, read/write separation, a
   Use when: read/write scaling differs or audit trail required
 
   DO NOT use when: selecting paradigms (use architecture-paradigms first), simple CRUD without audit needs.'
-version: 1.4.1
 category: architectural-pattern
 tags:
 - architecture

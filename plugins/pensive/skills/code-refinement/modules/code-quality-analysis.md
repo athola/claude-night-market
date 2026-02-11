@@ -6,7 +6,6 @@ category: review-infrastructure
 tags: [code-quality, deduplication, redundancy, analysis, DRY]
 reusable_by: [pensive:code-refinement, pensive:unified-review, sanctum:pr-review, pensive:bug-review]
 estimated_tokens: 450
-version: 1.0.0
 ---
 
 # Code Quality Analysis Module

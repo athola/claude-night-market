@@ -33,7 +33,6 @@ modules:
 - concurrency-patterns.md
 - unsafe-audit.md
 - cargo-dependencies.md
-version: 1.4.1
 ---
 ## Table of Contents
 

@@ -14,7 +14,6 @@ dependencies:
   - mcp-subagents
   - mcp-patterns
   - mcp-validation
-version: 1.4.1
 ---
 ## Table of Contents
 

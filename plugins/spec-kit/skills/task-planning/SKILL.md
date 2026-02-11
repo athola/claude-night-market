@@ -31,7 +31,6 @@ usage_patterns:
 - implementation-planning
 complexity: intermediate
 estimated_tokens: 1200
-version: 1.4.1
 ---
 
 # Task Planning

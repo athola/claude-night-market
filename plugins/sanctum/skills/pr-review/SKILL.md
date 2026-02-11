@@ -38,7 +38,6 @@ dependencies:
 - memory-palace:review-chamber
 - scribe:slop-detector
 - scribe:doc-generator
-version: 1.4.1
 ---
 ## Table of Contents
 

@@ -24,7 +24,6 @@ A wrapper skill is a lightweight SKILL.md file that:
 ---
 name: your-wrapper-skill
 description: Brief description focused on user benefit (≤1024 chars)
-version: 1.0.0
 category: appropriate-category
 tags: [wrapper, delegation, modular]
 dependencies: [modular-skills, shared-patterns]

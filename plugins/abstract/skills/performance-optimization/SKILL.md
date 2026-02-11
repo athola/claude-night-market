@@ -29,7 +29,6 @@ estimated_tokens: 450
 progressive_loading: true
 modules:
   - modules/conditional-loading.md
-version: 1.4.1
 ---
 
 ## Table of Contents

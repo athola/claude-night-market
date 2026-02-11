@@ -28,7 +28,6 @@ modules:
 - modules/red-flags.md
 - modules/iron-law-enforcement.md
 - modules/anti-cargo-cult.md
-version: 1.4.1
 ---
 # Proof of Work
 

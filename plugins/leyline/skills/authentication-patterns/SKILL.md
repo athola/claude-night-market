@@ -34,7 +34,6 @@ modules:
 - modules/auth-methods.md
 - modules/verification-patterns.md
 - modules/interactive-auth.md
-version: 1.4.1
 ---
 ## Table of Contents
 

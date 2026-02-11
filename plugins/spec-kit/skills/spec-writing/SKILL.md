@@ -30,7 +30,6 @@ progressive_loading: true
 modules:
 - success-criteria-patterns
 - specification-structure
-version: 1.4.1
 ---
 
 # Spec Writing

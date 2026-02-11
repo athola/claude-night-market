@@ -347,31 +347,6 @@ class TestTokenBudget:
         )
 
 
-class TestVersioning:
-    """Test that enhanced components have updated version."""
-
-    @pytest.mark.parametrize("component_path", ALL_COMPONENTS)
-    def test_version_is_1_4_0_or_later(self, component_path):
-        """Enhanced components should be version 1.4.0 or later."""
-        data, _, _ = parse_frontmatter(component_path)
-
-        # Version might be in different fields depending on component type
-        version = data.get("version")
-
-        if version:
-            # Parse version string
-            version_parts = version.split(".")
-            major = int(version_parts[0])
-            minor = int(version_parts[1]) if len(version_parts) > 1 else 0
-
-            # Should be at least 1.4.0
-            assert major >= 1, f"{component_path}: Version major should be >= 1"
-            if major == 1:
-                assert minor >= 4, (
-                    f"{component_path}: Version minor should be >= 4 for v1.x"
-                )
-
-
 class TestYAMLQuoting:
     """Test that descriptions with colons are properly quoted."""
 

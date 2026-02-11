@@ -12,7 +12,6 @@ tools:
 - Bash
 complexity: low
 estimated_tokens: 400
-version: 1.4.1
 ---
 
 # Session Management

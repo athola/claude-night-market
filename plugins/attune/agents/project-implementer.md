@@ -6,7 +6,6 @@ description: Implementation specialist - executes tasks from plans with TDD meth
 model: claude-sonnet-4
 tools_allowed: all
 max_iterations: 50
-version: 1.4.0
 category: agent
 tags:
 - implementation

@@ -33,7 +33,6 @@ modules:
 - testing-workflows
 - test-quality
 - async-testing
-version: 1.4.1
 ---
 # Python Testing Hub
 

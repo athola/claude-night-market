@@ -35,7 +35,6 @@ progressive_loading: true
 modules:
 - modules/threshold-strategies.md
 - modules/estimation-patterns.md
-version: 1.4.1
 ---
 ## Table of Contents
 

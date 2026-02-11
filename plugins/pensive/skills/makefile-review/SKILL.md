@@ -31,7 +31,6 @@ modules:
 - deduplication-patterns
 - portability-checks
 - best-practices
-version: 1.4.1
 ---
 ## Table of Contents
 

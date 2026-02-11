@@ -38,7 +38,6 @@ progressive_loading: true
 modules:
 - modules/selection-strategies.md
 - modules/loading-patterns.md
-version: 1.4.1
 ---
 ## Table of Contents
 

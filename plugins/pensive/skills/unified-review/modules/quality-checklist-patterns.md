@@ -6,7 +6,6 @@ category: review-infrastructure
 tags: [quality, checklist, validation, completeness]
 reusable_by: [pensive:bug-review, pensive:api-review, pensive:architecture-review, pensive:test-review, pensive:rust-review, pensive:makefile-review, pensive:math-review, pensive:unified-review]
 estimated_tokens: 300
-version: 1.0.0
 ---
 
 # Quality Checklist Patterns

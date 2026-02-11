@@ -4,7 +4,6 @@ description: "Configure GitHub Actions CI/CD workflows for automated testing, li
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.4.1
 category: infrastructure
 tags: [github-actions, ci-cd, workflows, automation, testing]
 complexity: intermediate

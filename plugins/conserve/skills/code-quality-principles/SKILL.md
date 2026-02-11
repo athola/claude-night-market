@@ -11,7 +11,6 @@ tags:
 tools: []
 complexity: low
 estimated_tokens: 600
-version: 1.4.1
 ---
 ## Table of Contents
 

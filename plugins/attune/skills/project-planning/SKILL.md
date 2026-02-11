@@ -3,7 +3,6 @@ name: project-planning
 description: "Transform specifications into implementation plans with architecture design and dependency-ordered tasks. Use for spec-to-plan conversion, task breakdown, effort estimation. Skip if no spec exists."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
-version: 1.4.1
 category: workflow
 tags: [planning, architecture, task-breakdown, dependencies, estimation]
 complexity: intermediate

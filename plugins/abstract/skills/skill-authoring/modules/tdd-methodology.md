@@ -122,7 +122,6 @@ Based on baseline failures, write just enough to fix observed problems:
 ---
 name: secure-api-design
 description: Guides secure API endpoint design with validation, error handling, and security best practices. Use when creating new endpoints, reviewing API code, or responding to security requirements.
-version: 1.0.0
 category: security
 tags: [api, security, validation, error-handling]
 estimated_tokens: 800

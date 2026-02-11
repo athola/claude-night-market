@@ -10,7 +10,6 @@ description: 'Minimal core system with plugin-based feature extensibility for pl
   needed
 
   DO NOT use when: selecting paradigms (use architecture-paradigms first), no extensibility needed.'
-version: 1.4.1
 category: architectural-pattern
 tags:
 - architecture

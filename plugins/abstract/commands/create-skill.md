@@ -161,7 +161,6 @@ Creates SKILL.md with:
 ---
 name: ${skill_name}
 description: ${description}
-version: 0.1.0
 category: ${category}
 tags: [${tags}]
 status: draft

@@ -38,7 +38,6 @@ references:
 - leyline/skills/error-patterns/SKILL.md
 - leyline/skills/authentication-patterns/SKILL.md
 - leyline/skills/service-registry/SKILL.md
-version: 1.4.1
 ---
 ## Table of Contents
 

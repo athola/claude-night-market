@@ -1,7 +1,6 @@
 ---
 name: git-workflow
 description: Best practices for Git workflow including repository setup, branching strategies, and daily development practices
-version: 1.0.0
 created_by: abstract-examples
 tags: [git, version-control, branching, workflow]
 category: development

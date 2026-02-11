@@ -19,7 +19,6 @@ usage_patterns:
 - reproducible-analysis
 complexity: intermediate
 estimated_tokens: 1200
-version: 1.4.1
 ---
 ## Table of Contents
 

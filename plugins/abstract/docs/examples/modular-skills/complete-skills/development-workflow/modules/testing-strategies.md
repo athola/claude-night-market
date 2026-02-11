@@ -1,7 +1,6 @@
 ---
 name: testing-strategies
 description: detailed testing framework including unit tests, integration tests, and end-to-end testing patterns
-version: 1.0.0
 created_by: abstract-examples
 tags: [testing, quality, tdd, unit-tests, integration-tests, e2e]
 category: testing

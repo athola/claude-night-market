@@ -44,7 +44,6 @@ reusable_by:
 - spec-kit
 - sanctum
 - imbue
-version: 1.4.1
 ---
 ## Table of Contents
 

@@ -28,7 +28,6 @@ dependencies:
 - pensive:shared
 - imbue:evidence-logging
 - imbue:diff-analysis/modules/risk-assessment-framework
-version: 1.4.1
 ---
 ## Table of Contents
 

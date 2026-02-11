@@ -74,7 +74,6 @@ skills/
 ---
 name: test-skill
 description: TDD testing workflow for skills using RED-GREEN-REFACTOR methodology. Run baseline tests without skill, document failures, run with skill, compare results. Uses proven testing patterns from skill-authoring and skills-eval modules.
-version: 2.0.0
 category: testing
 tags: [tdd, testing, validation, workflow, wrapper]
 dependencies: [skill-authoring, skills-eval, shared-patterns]

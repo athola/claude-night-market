@@ -10,7 +10,6 @@ description: 'Functional Core, Imperative Shell: isolate deterministic logic fro
 
   DO NOT use when: simple scripting without complex logic, or performance-critical
   hot paths where immutability overhead matters.'
-version: 1.4.1
 category: architectural-pattern
 tags:
 - architecture

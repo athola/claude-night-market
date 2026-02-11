@@ -34,7 +34,6 @@ modules:
 references:
 - delegation-core/../../leyline/skills/error-patterns/SKILL.md
 - delegation-core/../../leyline/skills/service-registry/SKILL.md
-version: 1.4.1
 ---
 ## Table of Contents
 

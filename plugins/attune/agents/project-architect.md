@@ -10,7 +10,6 @@ tools_allowed:
 - Grep
 - Glob
 max_iterations: 10
-version: 1.4.0
 category: agent
 tags:
 - architecture

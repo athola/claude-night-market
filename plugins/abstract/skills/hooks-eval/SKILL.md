@@ -6,7 +6,6 @@ description: 'Use this skill BEFORE deploying hooks to production. Use when audi
   against compliance standards. Do not use when deciding hook placement - use hook-scope-guide
   instead. DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
   DO NOT use when: validating plugin structure - use validate-plugin instead.'
-version: 1.4.1
 category: hook-management
 tags:
 - hooks

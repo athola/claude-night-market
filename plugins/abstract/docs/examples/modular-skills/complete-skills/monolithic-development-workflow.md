@@ -1,7 +1,6 @@
 ---
 name: development-workflow
 description: detailed development workflow covering git, code review, testing, documentation, and deployment practices
-version: 1.0.0
 created_by: abstract-examples
 tags: [development, workflow, git, testing, documentation, deployment]
 category: workflow
