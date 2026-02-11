@@ -6,7 +6,7 @@ action: block
 conditions:
   - field: command
     operator: regex_match
-    pattern: git\s+(reset\s+--hard|checkout\s+--\s+\.|checkout\s+HEAD\s+--|clean\s+-[fd]+|stash\s+drop|branch\s+-D|reflog\s+expire|gc\s+--prune)
+    pattern: git\s+(reset\s+--hard|checkout\s+--\s+\.|checkout\s+HEAD\s+--|checkout\s+\S+\s+--\s|restore\s+--source|clean\s+-[fd]+|stash\s+drop|branch\s+-D|reflog\s+expire|gc\s+--prune)
 ---
 
 🛑 **Destructive Git Operation Blocked!**
@@ -20,6 +20,8 @@ This command can cause **irreversible data loss** - uncommitted changes, local b
 | `git reset --hard` | 🔴 Critical | All uncommitted changes (staged + unstaged) |
 | `git checkout -- .` | 🔴 Critical | All unstaged changes in working directory |
 | `git checkout HEAD -- <file>` | 🟡 High | Specific file's uncommitted changes |
+| `git checkout <branch> -- <path>` | 🔴 Critical | Overwrites files from another branch (undoes intentional changes) |
+| `git restore --source` | 🟡 High | Overwrites files from another ref |
 | `git clean -fd` | 🔴 Critical | All untracked files and directories |
 | `git stash drop` | 🟡 High | Stashed changes permanently |
 | `git branch -D` | 🟡 High | Force-deletes branch (even unmerged) |

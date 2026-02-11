@@ -12,8 +12,6 @@ description: 'Orchestrate tutorial generation from VHS tapes and Playwright spec
   from tape files
 
 
-  DO NOT use when: only updating text - use doc-updates.
-
   DO NOT.'
 category: artifact-generation
 tags:

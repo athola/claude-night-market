@@ -45,7 +45,7 @@ class NotificationState:
         return Path(f"/tmp/.claude-notify-{safe_id}.json")  # noqa: S108
 
     @classmethod
-    def load(cls, session_id: str) -> "NotificationState":
+    def load(cls, session_id: str) -> NotificationState:
         """Load state from file, or return fresh state if not found."""
         state_file = cls.state_file_path(session_id)
         try:

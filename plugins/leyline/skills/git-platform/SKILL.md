@@ -9,7 +9,7 @@ description: 'Git platform detection and cross-platform command mapping for GitH
   Use when: executing forge operations (issues, PRs/MRs, CI, API calls) in any skill
   or command
 
-  Do not.'
+  Do not use directly: consumed by sanctum and other plugins as infrastructure.'
 category: infrastructure
 tags:
 - git
