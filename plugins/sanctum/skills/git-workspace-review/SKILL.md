@@ -87,6 +87,10 @@ Run `git diff --cached` to examine the actual changes. For unstaged work, use `g
 
 Complete all progress tracking items. You should have a clear understanding of modified files and areas, and the correct work should be staged. Subsequent workflows can then rely on this context without re-executing git commands.
 
+## Supporting Modules
+
+- [Git commands reference](modules/git-commands.md) - diff, status, branch operations for sanctum workflows
+
 ## Troubleshooting
 
 If pre-commit hooks block a commit, resolve the reported issues instead of using `--no-verify`. Run `make format` to fix styling errors automatically and use `make lint` to isolate logical failures. If merge conflicts occur, use `git merge --abort` to return to a clean state before retrying.

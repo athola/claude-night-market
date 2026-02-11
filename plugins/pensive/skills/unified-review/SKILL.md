@@ -210,6 +210,12 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 - Findings consolidated and prioritized
 - Action plan created with ownership
 - Evidence logged per structured output format
+## Supporting Modules
+
+- [Review workflow core](modules/review-workflow-core.md) - standard 5-step workflow pattern for all pensive reviews
+- [Output format templates](modules/output-format-templates.md) - finding entry, severity, action item templates
+- [Quality checklist patterns](modules/quality-checklist-patterns.md) - pre-review, analysis, evidence, deliverable checklists
+
 ## Troubleshooting
 
 ### Common Issues

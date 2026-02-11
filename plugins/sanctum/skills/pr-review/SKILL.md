@@ -414,6 +414,11 @@ Apply `scribe:slop-detector` to PR body:
 - Findings classified correctly
 - Backlog items tracked as issues
 - Clear recommendation provided
+
+## Supporting Modules
+
+- [GitHub PR comment patterns](modules/github-comments.md) - `gh api` patterns for inline and summary PR comments
+
 ## Troubleshooting
 
 ### Common Issues

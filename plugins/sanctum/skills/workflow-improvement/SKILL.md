@@ -242,6 +242,11 @@ pensive:skill-review --skill sanctum:<component> --recommendations
 ```
 
 This creates a feedback loop where future `/fix-workflow` and `/update-plugins` runs will reference this lesson.
+
+## Supporting Modules
+
+- [Auto issue creation](modules/auto-issue-creation.md) - patterns for automatically creating GitHub issues from deferred items
+
 ## Troubleshooting
 
 ### Common Issues

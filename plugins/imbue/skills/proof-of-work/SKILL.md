@@ -123,6 +123,10 @@ Verify that the problem was reproduced with evidence and the solution was tested
 
 Before sending a completion message, confirm that you have run the recommended commands and captured their output. Verify that you have researched known issues and that the validation steps are reproducible by the user. Ensure you are proving rather than assuming.
 
+## Supporting Modules
+
+- [TodoWrite naming patterns](modules/todowrite-patterns.md) - naming conventions and safe deletion rules for imbue TodoWrite items
+
 ## Exit Criteria
 
 Complete all progress tracking items. Create an evidence log with reproducible proofs. Define and validate acceptance criteria, and document any identified blockers.

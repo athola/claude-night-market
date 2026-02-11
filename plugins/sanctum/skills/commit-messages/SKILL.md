@@ -1,14 +1,8 @@
 ---
 name: commit-messages
 description: 'Generate conventional commit messages from staged changes with correct
-  type/scope.
-
-
-  commit message, conventional commit, git commit
-
-  Use when: generating commit messages in conventional commits format
-
-  DO NOT.'
+  type/scope. Use when generating commit messages in conventional commits format.
+  DO NOT use when: full PR preparation - use pr-prep instead.'
 category: artifact-generation
 tags:
 - git
@@ -101,6 +95,10 @@ Combine this skill with `Skill(imbue:catchup)` or `/git-catchup` if additional c
 ## Troubleshooting
 
 Address specific errors reported by pre-commit hooks. Run `make format` to resolve styling issues and `make lint` for logic or style violations. Fix all detected issues before re-attempting the commit. If a merge conflict occurs, use `git merge --abort` to return to a clean state. A rejected commit indicates a failed quality gate; analyze the output and apply fixes before retrying.
+
+## Supporting Modules
+
+- [Output templates](modules/output-templates.md) - conventional commit, PR description, and documentation update formats
 
 ## See Also
 

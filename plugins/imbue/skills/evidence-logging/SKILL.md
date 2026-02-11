@@ -119,6 +119,10 @@ Finding: Memory leak in connection pool [E3, C2]
 - Todos completed with structured evidence log.
 - All findings traceable to specific evidence references.
 - Downstream reports can cite evidence without re-running commands.
+## Supporting Modules
+
+- [Evidence format conventions](modules/evidence-formats.md) - standardized `[E1]`, `[C1]`, `[A1]` reference formats
+
 ## Troubleshooting
 
 ### Common Issues

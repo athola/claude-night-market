@@ -112,6 +112,10 @@ Write the final PR description to the specified path, then display the file path
 
 Do not include tool or AI attribution in the PR text. If changes are required mid-process, re-run quality gates. This skill covers preparation; pushing changes and opening the PR occurs outside this workflow.
 
+## Supporting Modules
+
+- [TodoWrite patterns](modules/todowrite-patterns.md) - naming conventions for sanctum TodoWrite items
+
 ## Troubleshooting
 
 If project-specific commands like `make` or `npm` are unavailable, verify the environment setup against the `README`. For permission errors, check write access to build directories. If a step fails without clear output, retry the command with verbose flags to inspect the logs.

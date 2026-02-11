@@ -172,6 +172,10 @@ Document with `imbue:evidence-logging` (if available):
 | `conserve:code-quality-principles` | Optional | Built-in KISS/YAGNI/SOLID checks |
 | `archetypes:architecture-paradigms` | Optional | Principle-based checks only (no paradigm detection) |
 
+## Supporting Modules
+
+- [Code quality analysis](modules/code-quality-analysis.md) - duplication detection commands and consolidation strategies
+
 When optional plugins are not installed, the skill degrades gracefully:
 - Without `imbue`: Evidence captured inline, no TodoWrite proof-of-work
 - Without `conserve`: Uses built-in clean code checks (subset)
