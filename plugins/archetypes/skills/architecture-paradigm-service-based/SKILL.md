@@ -8,7 +8,7 @@ description: 'Coarse-grained service architecture for deployment independence wi
 
   Use when: teams need deployment independence without microservices complexity
 
-  DO NOT.'
+  DO NOT use when: fine-grained scaling needed - use microservices.'
 version: 1.4.1
 category: architectural-pattern
 tags:

@@ -8,7 +8,7 @@ description: 'Process external resources into actionable knowledge with evaluati
 
   Use when: user shares links to articles, papers, or external resources
 
-  DO NOT.'
+  DO NOT use when: searching existing knowledge - use knowledge-locator.'
 category: governance
 tags:
 - knowledge-management

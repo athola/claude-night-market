@@ -10,7 +10,7 @@ description: 'Decouple domain logic from infrastructure using Hexagonal (Ports &
   Use when: business logic separation, infrastructure changes needed, testability
   critical
 
-  DO NOT.'
+  DO NOT use when: selecting paradigms (use architecture-paradigms first), simple CRUD.'
 version: 1.4.1
 category: architectural-pattern
 tags:

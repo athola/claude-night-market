@@ -8,7 +8,7 @@ description: 'Create clear, testable specifications with user stories and accept
 
   Use when: creating new specifications or writing acceptance criteria
 
-  DO NOT.'
+  DO NOT use when: converting specs to tasks - use task-planning.'
 category: specification
 tags:
 - speckit

@@ -9,7 +9,7 @@ description: 'Minimal core system with plugin-based feature extensibility for pl
   Use when: platforms/IDEs/marketplaces, core stability critical, plugin isolation
   needed
 
-  DO NOT.'
+  DO NOT use when: selecting paradigms (use architecture-paradigms first), no extensibility needed.'
 version: 1.4.1
 category: architectural-pattern
 tags:

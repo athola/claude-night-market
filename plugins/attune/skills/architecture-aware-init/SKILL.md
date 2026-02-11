@@ -14,7 +14,7 @@ description: 'Architecture-aware project initialization combining online researc
   based on project type, team size, domain complexity, and current best practices
 
 
-  DO NOT.'
+  DO NOT use when: architecture is already decided - use project-init instead.'
 version: 1.4.1
 category: project-initialization
 tags:

@@ -8,7 +8,7 @@ description: 'Data-grid architecture for high-traffic stateful workloads with li
 
   Use when: traffic overwhelms database nodes or linear scalability needed
 
-  DO NOT.'
+  DO NOT use when: data does not fit in memory or simpler caching suffices.'
 version: 1.4.1
 category: architectural-pattern
 tags:

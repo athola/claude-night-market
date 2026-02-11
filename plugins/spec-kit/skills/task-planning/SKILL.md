@@ -8,7 +8,7 @@ description: 'Generate phased, dependency-ordered tasks from specs. Identifies p
 
   Use when: converting specifications to implementation tasks
 
-  DO NOT.'
+  DO NOT use when: writing specs - use spec-writing. Not for execution - use speckit-implement.'
 category: planning
 tags:
 - speckit

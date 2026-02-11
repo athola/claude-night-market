@@ -8,7 +8,7 @@ description: 'Retrospective workflow evaluation and improvement of skills, agent
 
   Use when: workflow felt slow, confusing, or needs optimization
 
-  DO NOT.'
+  DO NOT use when: simple one-off fixes - use fix-pr or do-issue instead.'
 category: workflow-ops
 tags:
 - workflow

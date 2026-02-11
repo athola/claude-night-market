@@ -8,7 +8,7 @@ description: 'Single deployable with enforced module boundaries for team autonom
 
   Use when: teams need autonomy without distributed overhead
 
-  DO NOT.'
+  DO NOT use when: already using microservices or system is small.'
 version: 1.4.1
 category: architectural-pattern
 tags:

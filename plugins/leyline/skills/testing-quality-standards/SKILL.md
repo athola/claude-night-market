@@ -9,7 +9,7 @@ description: 'Cross-plugin testing quality metrics and standards. Referenced by 
 
   Use when: test quality evaluation, coverage thresholds, quality standards
 
-  DO NOT.'
+  DO NOT use when: simple scripts without quality requirements.'
 category: infrastructure
 tags:
 - testing

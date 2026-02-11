@@ -8,7 +8,8 @@ description: 'Functional Core, Imperative Shell: isolate deterministic logic fro
 
   Use when: business logic is entangled with I/O or tests are brittle
 
-  DO NOT.'
+  DO NOT use when: simple scripting without complex logic, or performance-critical
+  hot paths where immutability overhead matters.'
 version: 1.4.1
 category: architectural-pattern
 tags:
