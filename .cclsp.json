@@ -2,7 +2,7 @@
   "servers": [
     {
       "extensions": ["py", "pyi"],
-      "command": ["pylsp"],
+      "command": ["python3", "scripts/lsp-proxy.py", "pylsp"],
       "rootDir": ".",
       "initializationOptions": {
         "settings": {
@@ -21,12 +21,7 @@
     },
     {
       "extensions": ["js", "ts", "jsx", "tsx", "mjs", "cjs"],
-      "command": ["typescript-language-server", "--stdio"],
-      "rootDir": "."
-    },
-    {
-      "extensions": ["md", "markdown"],
-      "command": ["typescript-language-server", "--stdio"],
+      "command": ["python3", "scripts/lsp-proxy.py", "typescript-language-server", "--stdio"],
       "rootDir": "."
     }
   ]
