@@ -16,8 +16,10 @@ name: agent-name
 description: |
   Agent description with triggers and use-cases.
 tools: [Read, Write, Edit, Bash, Glob, Grep]  # Available tools
+  # Task(agent-name) restricts sub-agent spawning (2.1.33+)
 model: haiku|sonnet|opus                        # Base model
 permissionMode: acceptEdits                     # Permission automation
+memory: user|project|local                      # Persistent memory scope (2.1.33+)
 skills: plugin:skill1, plugin:skill2            # Auto-loaded skills
 escalation:
   to: opus                                      # Escalation target
@@ -37,6 +39,23 @@ hooks:
 | `default` | Prompt for permissions |
 | `acceptEdits` | Auto-accept file edits |
 | `plan` | Planning only, no execution |
+
+**Background Agent Permissions (2.1.20+)**: Background agents now prompt for tool permissions *before* launching into the background. This prevents agents from stalling mid-execution waiting for approval. Multi-agent dispatches may show sequential permission prompts before work begins.
+
+**Task Deletion (2.1.20+)**: Agents with `TodoWrite` in their tools list can now delete completed tasks via `TaskUpdate`. Use deletion to clean up transient tracking items after workflow completion.
+
+**Agent Memory (2.1.33+)**: Agents can declare persistent memory scope via `memory` frontmatter:
+| Scope | Persistence |
+|-------|-------------|
+| `user` | Across all projects for the user |
+| `project` | Within a specific project |
+| `local` | Current session only |
+
+**Sub-Agent Restrictions (2.1.33+)**: Use `Task(agent-name)` in the `tools` list to restrict which sub-agents an agent can spawn. For example, `tools: [Read, Task(code-reviewer)]` only allows dispatching `code-reviewer`. Omitting Task restrictions allows spawning any agent.
+
+**Agent Team Hooks (2.1.33+)**: Two new hook events for multi-agent coordination:
+- `TeammateIdle` — triggered when a teammate agent becomes idle
+- `TaskCompleted` — triggered when a task finishes execution
 
 **Model Selection**:
 | Model | Use Case | Cost |

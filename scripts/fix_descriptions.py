@@ -85,10 +85,19 @@ def process_skill_file(filepath: Path, dry_run: bool = True) -> dict | None:
         k in frontmatter for k in ["triggers", "use_when", "do_not_use_when"]
     )
     desc = frontmatter.get("description", "")
-    has_embedded = "Triggers:" in desc or "Use when:" in desc
+    has_truncated_do_not = bool(re.search(r"\bDO NOT\.\s*$", desc))
 
-    if not has_custom and not has_embedded:
+    if not has_custom and not has_truncated_do_not:
         return None
+
+    # Flag truncated "DO NOT." as needing manual fix (cannot auto-generate)
+    if has_truncated_do_not and not has_custom:
+        return {
+            "file": str(filepath),
+            "old_description": desc[:80] if desc else "(empty)",
+            "new_description": "(MANUAL FIX NEEDED: truncated 'DO NOT.')",
+            "truncated": True,
+        }
 
     # Consolidate
     old_desc = desc
@@ -125,7 +134,9 @@ def main():
     parser.add_argument("--dry-run", action="store_true", default=True)
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--path", type=Path, default=Path("plugins"))
-    parser.add_argument("--check", action="store_true", help="Check mode for pre-commit")
+    parser.add_argument(
+        "--check", action="store_true", help="Check mode for pre-commit"
+    )
 
     args = parser.parse_args()
     dry_run = not args.apply
@@ -137,12 +148,19 @@ def main():
     if args.check:
         # Pre-commit check mode - fail if any files need fixing
         issues = []
+        truncated = []
         for f in skill_files + agent_files:
             result = process_skill_file(f, dry_run=True)
             if result:
-                issues.append(f)
-        if issues:
-            print(f"❌ {len(issues)} files need description consolidation:")
+                if result.get("truncated"):
+                    truncated.append(f)
+                else:
+                    issues.append(f)
+        if issues or truncated:
+            total = len(issues) + len(truncated)
+            print(f"❌ {total} files need description fixes:")
+            for f in truncated:
+                print(f"   {f} (truncated 'DO NOT.' - needs completion)")
             for f in issues[:10]:
                 print(f"   {f}")
             return 1

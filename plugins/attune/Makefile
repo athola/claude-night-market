@@ -93,7 +93,7 @@ demo-init: ## Demo project initialization workflow
 	@echo "Step 3: Commands available"
 	@echo "  /attune:project-init      - Initialize new project"
 	@echo "  /attune:specify   - Create project specification"
-	@echo "  /attune:plan      - Generate project plan"
+	@echo "  /attune:blueprint      - Generate project plan"
 	@echo ""
 	@echo "Init demo complete. Use /attune:project-init to start a new project."
 

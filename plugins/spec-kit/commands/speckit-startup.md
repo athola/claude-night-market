@@ -1,5 +1,5 @@
 ---
-description: Bootstrap speckit workflow at the start of a Claude session
+description: Bootstrap spec-driven development workflow at the start of a session
 ---
 
 Initialize the Spec Driven Development workflow for this session:

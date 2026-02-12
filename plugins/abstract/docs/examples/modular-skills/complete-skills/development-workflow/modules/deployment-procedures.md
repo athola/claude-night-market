@@ -1,7 +1,6 @@
 ---
 name: deployment-procedures
 description: detailed deployment workflow including CI/CD pipelines, environment setup, monitoring, and production release management
-version: 1.0.0
 created_by: abstract-examples
 tags: [deployment, ci-cd, production, monitoring, devops]
 category: development

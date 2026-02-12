@@ -1,6 +1,6 @@
 ---
 name: help
-description: Display hookify help and documentation
+description: Display help and documentation
 usage: /hookify:help
 examples:
   - /hookify:help

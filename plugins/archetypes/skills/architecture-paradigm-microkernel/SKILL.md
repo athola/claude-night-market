@@ -1,20 +1,31 @@
 ---
 name: architecture-paradigm-microkernel
-description: |
-  Minimal core system with plugin-based feature extensibility for platform development.
+description: 'Minimal core system with plugin-based feature extensibility for platform
+  development.
+
 
   Triggers: microkernel, plugin-architecture, extensibility, platform-design
-  Use when: platforms/IDEs/marketplaces, core stability critical, plugin isolation needed
-  DO NOT use when: selecting paradigms (use architecture-paradigms first), no extensibility needed
-version: 1.4.0
+
+  Use when: platforms/IDEs/marketplaces, core stability critical, plugin isolation
+  needed
+
+  DO NOT use when: selecting paradigms (use architecture-paradigms first), no extensibility needed.'
 category: architectural-pattern
-tags: [architecture, microkernel, plugin, extensibility, platform-design]
+tags:
+- architecture
+- microkernel
+- plugin
+- extensibility
+- platform-design
 dependencies: []
-tools: [plugin-loader, sandbox-executor, sdk-generator]
+tools:
+- plugin-loader
+- sandbox-executor
+- sdk-generator
 usage_patterns:
-  - paradigm-implementation
-  - platform-development
-  - extensibility-design
+- paradigm-implementation
+- platform-development
+- extensibility-design
 complexity: high
 estimated_tokens: 900
 ---

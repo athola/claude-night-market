@@ -1,20 +1,30 @@
 ---
 name: architecture-paradigm-service-based
-description: |
-  Coarse-grained service architecture for deployment independence without microservices complexity.
+description: 'Coarse-grained service architecture for deployment independence without
+  microservices complexity.
+
 
   service-based, SOA, coarse-grained services, domain services
+
   Use when: teams need deployment independence without microservices complexity
-  DO NOT use when: fine-grained scaling needed - use microservices.
-version: 1.4.0
+
+  DO NOT use when: fine-grained scaling needed - use microservices.'
 category: architectural-pattern
-tags: [architecture, service-based, soa, modular, shared-database]
+tags:
+- architecture
+- service-based
+- soa
+- modular
+- shared-database
 dependencies: []
-tools: [api-gateway, service-registry, schema-management]
+tools:
+- api-gateway
+- service-registry
+- schema-management
 usage_patterns:
-  - paradigm-implementation
-  - monolith-refactoring
-  - deployment-independence
+- paradigm-implementation
+- monolith-refactoring
+- deployment-independence
 complexity: medium
 estimated_tokens: 700
 ---

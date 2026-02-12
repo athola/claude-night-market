@@ -7,7 +7,6 @@ description: 'Consult this skill when implementing layered patterns or enforcing
   - use architecture-paradigms first. DO NOT use when: high scalability needs independent
   component scaling. DO NOT use when: teams need independent deployment cycles - use
   microservices.'
-version: 1.4.0
 category: architectural-pattern
 tags:
 - architecture

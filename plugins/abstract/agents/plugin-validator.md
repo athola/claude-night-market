@@ -1,12 +1,15 @@
 ---
 name: plugin-validator
-description: 'Validates Claude Code plugin structure against official requirements - checks plugin.json schema, verifies referenced paths exist, validates kebab-case naming, and validates skill frontmatter is complete. Use when: validating plugin structure, checking plugin.json, verifying paths exist. PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent): Quick pass/fail check? Parent runs `python3 .../validate_plugin.py <path>`. JSON syntax check? Parent runs `jq . plugin.json`. Single field check? Parent reads file directly. ONLY invoke this agent for: multi-plugin validation, detailed error interpretation, fix-and-revalidate cycles, or integration with other workflows.'
+description: Validates Claude Code plugin structure against official requirements
+  - checks plugin.json schema, verifies referenced paths exist, validates kebab-case
+  naming, and validates skill frontmatter is complete.
 tools:
 - Read
 - Grep
 - Glob
 - Bash
 model: haiku
+memory: project
 escalation:
   to: sonnet
   hints:
@@ -32,11 +35,13 @@ Validates Claude Code plugin structure against official requirements and best pr
 ## Capabilities
 
 - Validates `.claude-plugin/plugin.json` exists and is valid JSON
-- Checks required fields (name) and recommended fields (version, description)
+- Checks required fields (name) and recommended fields (version, description, keywords)
 - Validates kebab-case naming convention
-- Verifies referenced files/paths exist
+- Verifies referenced files/paths exist (skills, commands, agents, hooks)
+- Validates hooks.json references and JSON syntax
 - Checks path format (relative with `./`)
 - Validates skill frontmatter completeness
+- Detects deprecated `skills/shared/` directory pattern (modules should be skill-specific)
 
 ### Claude Code 2.1.0+ Validation
 
@@ -54,6 +59,35 @@ The validator recognizes and validates new 2.1.0 frontmatter fields:
 - `Bash(npm *)` - All npm commands
 - `Bash(* install)` - Any install command
 - `Bash(git * main)` - Git with main branch
+
+**Wildcard Normalization (2.1.20+):**
+- ⚠️ `Bash(*)` is now treated as equivalent to plain `Bash` — warn if encountered
+- Scoped wildcards like `Bash(npm *)` remain distinct and valid
+- Validation should flag `Bash(*)` as redundant: suggest using `Bash` instead
+
+### Agent Memory Field (2.1.33+)
+
+Agents can declare persistent memory scope in frontmatter:
+
+| Value | Scope |
+|-------|-------|
+| `user` | Persisted across all projects for the user |
+| `project` | Persisted within a specific project |
+| `local` | Local to current session |
+
+**Validation**: Warn if `memory` value is not one of: `user`, `project`, `local`.
+
+### Sub-Agent Restrictions (2.1.33+)
+
+Agent `tools` frontmatter supports `Task(agent_type)` syntax to restrict sub-agent spawning:
+
+```yaml
+tools:
+  - Read
+  - Task(code-reviewer)
+```
+
+**Validation**: Verify `Task(agent_type)` references use valid kebab-case names. Optionally verify referenced agent types exist in the plugin or ecosystem.
 
 **Hook Structure Validated:**
 ```yaml

@@ -25,7 +25,6 @@ modules:
 - exit-codes
 - portability
 - safety-patterns
-version: 1.4.0
 ---
 ## Table of Contents
 

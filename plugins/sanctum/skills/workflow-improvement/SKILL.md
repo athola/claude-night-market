@@ -1,19 +1,32 @@
 ---
 name: workflow-improvement
-description: |
-  Retrospective workflow evaluation and improvement of skills, agents, commands, and hooks.
+description: 'Retrospective workflow evaluation and improvement of skills, agents,
+  commands, and hooks.
+
 
   workflow improvement, retrospective, workflow efficiency
+
   Use when: workflow felt slow, confusing, or needs optimization
-  DO NOT use when: implementing features - focus on feature work first.
+
+  DO NOT use when: simple one-off fixes - use fix-pr or do-issue instead.'
 category: workflow-ops
-tags: [workflow, retrospective, efficiency, commands, agents, skills, hooks]
-tools: [Read, Edit, Bash, TodoWrite]
+tags:
+- workflow
+- retrospective
+- efficiency
+- commands
+- agents
+- skills
+- hooks
+tools:
+- Read
+- Edit
+- Bash
+- TodoWrite
 complexity: medium
 estimated_tokens: 900
 dependencies:
-  - sanctum:shared
-version: 1.4.0
+- sanctum:shared
 ---
 
 # Workflow Improvement
@@ -228,6 +241,11 @@ pensive:skill-review --skill sanctum:<component> --recommendations
 ```
 
 This creates a feedback loop where future `/fix-workflow` and `/update-plugins` runs will reference this lesson.
+
+## Supporting Modules
+
+- [Auto issue creation](modules/auto-issue-creation.md) - patterns for automatically creating GitHub issues from deferred items
+
 ## Troubleshooting
 
 ### Common Issues

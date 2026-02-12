@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-02-07
+
+### Changed - Claude Code Compatibility Updates (abstract, conserve, sanctum)
+
+- **Compatibility tracker update** - Documented Claude Code 2.1.20 through 2.1.34 features and fixes
+  - Background agent permissions, session resume compaction, Task tool metrics
+  - Agent teams experimental feature (2.1.32+), sub-agent spawning restrictions (2.1.33+)
+  - Sandbox permission bypass fix (2.1.34), auto-compact threshold fix (2.1.21+)
+  - Variable context windows for Opus 4.6 (200K standard, 1M beta)
+
+- **Session management enhancements** (sanctum) - Documented PR-linked sessions, resume hints on exit, automatic memory, agent persistence on resume, and multiple resume reliability fixes
+
+- **Token conservation updates** (conserve) - Added PDF reading with `pages` parameter, "Summarize from here" partial compaction, automatic memory awareness, native tool preference over bash equivalents
+
+- **Subagent coordination** (conserve) - Documented Task tool metrics, TaskStop display improvements, agent teams vs Task tool comparison, and sub-agent spawning restrictions
+
+### Changed - Attune Command Rename
+
+- **`/attune:plan` renamed to `/attune:blueprint`** - All cross-references in brainstorm, execute, specify, do-issue, and fix-pr commands updated
+
+### Changed - Description Optimization (hookify)
+
+- **Shorter command descriptions** - Removed redundant plugin name prefixes from hookify command descriptions to stay within token budgets
+
+### Changed - Hook Reliability (conserve, imbue)
+
+- **Inlined JSON utilities** in conserve session-start hook - Eliminates broken relative path when plugin runs from Claude Code cache directory
+- **Native tool preference notes** added to bloat-detector and ai-hygiene-auditor agents
+
+### Changed - TodoWrite Patterns (sanctum)
+
+- **Task deletion documentation** (Claude Code 2.1.20+) - When and how to delete completed workflow items, including the 2.1.21 ID reuse fix
+
+### Removed
+
+- **Shared SKILL.md wrappers** deleted from imbue, leyline, pensive, sanctum, scribe, and spec-kit - These infrastructure skill files added context overhead without providing value; shared modules remain available via direct module references
+
 ## [1.4.0] - 2026-02-05
 
 ### Added - Attune Discoverability Enhancement (attune)
@@ -1285,7 +1322,7 @@ Applied systematic data extraction to 4 large Python scripts:
   - **New Commands**:
     - `/attune:brainstorm` - Brainstorm project ideas using Socratic questioning (integrates superpowers)
     - `/attune:specify` - Create detailed specifications from brainstorm session (integrates spec-kit)
-    - `/attune:plan` - Plan architecture and break down into tasks (integrates superpowers)
+    - `/attune:blueprint` - Plan architecture and break down into tasks (integrates superpowers)
     - `/attune:init` - Initialize new project with complete development infrastructure
     - `/attune:execute` - Execute implementation tasks systematically (integrates superpowers)
     - `/attune:upgrade-project` - Add or update configurations in existing projects

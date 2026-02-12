@@ -494,7 +494,7 @@ Execute pre-commit workflow:
 - Keep descriptions under 80 characters
 - Provide usage examples
 - Reference existing skills when applicable
-- Use `$ARGUMENTS` or `$1`, `$2` for arguments
+- Use `$ARGUMENTS` for full argument string, `$0`/`$1`/`$2` shorthand or `$ARGUMENTS[0]`/`$ARGUMENTS[1]` bracket syntax for positional args (2.1.19+)
 
 ### DON'T:
 - Create commands that duplicate built-in functionality

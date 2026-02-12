@@ -1,13 +1,10 @@
 ---
 name: modular-skills
-description: 'Architect skills as modular blocks to control token usage and complexity.
+description: Architect skills as modular blocks to control token usage and complexity.
   Use when creating skills >150 lines, breaking down monolithic skills, or planning
   new architecture. Do not use for evaluating existing skills (use skills-eval) or
   writing human-facing prose (use writing-clearly-and-concisely). Check this skill
-  before starting any new skill development. Use when: skills, architecture, modular,
-  design-patterns, modularity, skill design, skill architecture, modularization, token
-  optimization, skill structure, refactoring skills, new skill creation, skill complexity,
-  modular architecture.'
+  before starting any new skill development.
 category: workflow-optimization
 tags:
 - architecture
@@ -29,7 +26,6 @@ usage_patterns:
 - refactoring-workflows
 complexity: intermediate
 estimated_tokens: 1200
-version: 1.4.0
 ---
 ## Table of Contents
 
@@ -58,6 +54,12 @@ Three tools support modular skill development:
 ### Design Principles
 
 We design skills around single responsibility and loose coupling. Each module focuses on one task, minimizing dependencies to keep the architecture cohesive. Clear boundaries and well-defined interfaces prevent changes in one module from breaking others. This follows Anthropic's Agent Skills best practices: provide a high-level overview first, then surface details as needed to maintain context efficiency.
+
+### Module Ownership (IMPORTANT)
+
+**Deprecated**: `skills/shared/modules/` directories. This pattern caused orphaned references when shared modules were updated or removed.
+
+**Current pattern**: Each skill owns its modules at `skills/<skill-name>/modules/`. When multiple skills need the same content, the primary owner holds the module and others reference it via relative path (e.g., `../skill-authoring/modules/anti-rationalization.md`). The validator flags any remaining `skills/shared/` directories.
 
 ## Quick Start
 

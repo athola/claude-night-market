@@ -1,26 +1,38 @@
 ---
 name: architecture-aware-init
-description: |
-  Architecture-aware project initialization combining online research with archetype selection.
+description: 'Architecture-aware project initialization combining online research
+  with archetype selection.
+
 
   project initialization, new project, architecture decision, project setup,
+
   which architecture, choose architecture, project architecture
 
+
   Use when: initializing a new project and need to select an appropriate architecture
+
   based on project type, team size, domain complexity, and current best practices
 
-  DO NOT use when: architecture is already decided - use project-init instead.
-  DO NOT use when: exploring multiple architectures - use architecture-paradigms instead.
-version: 1.4.0
+
+  DO NOT use when: architecture is already decided - use project-init instead.'
 category: project-initialization
-tags: [architecture, initialization, research, decision-making, best-practices]
-dependencies: [architecture-paradigms]
-tools: [web-search, paradigm-matcher, template-advisor]
+tags:
+- architecture
+- initialization
+- research
+- decision-making
+- best-practices
+dependencies:
+- architecture-paradigms
+tools:
+- web-search
+- paradigm-matcher
+- template-advisor
 usage_patterns:
-  - new-project-setup
-  - architecture-selection
-  - best-practices-research
-  - template-customization
+- new-project-setup
+- architecture-selection
+- best-practices-research
+- template-customization
 complexity: advanced
 estimated_tokens: 1800
 ---
@@ -477,7 +489,7 @@ WebSearch("CQRS Event Sourcing Python examples")
 ## See Also
 
 - `/attune:project-init` - Basic project initialization
-- `/attune:plan` - Architecture planning after paradigm selection
+- `/attune:blueprint` - Architecture planning after paradigm selection
 - Architecture paradigms README for paradigm details
 ## Troubleshooting
 

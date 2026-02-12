@@ -1,8 +1,6 @@
 ---
 name: smart-sourcing
-description: 'balancing accuracy with token efficiency. Use when: source, cite, reference,
-  factual claim, verify, attribution Intelligent sourcing that requires citations
-  only for high-value factual claims.'
+description: balancing accuracy with token efficiency.
 category: optimization
 tags:
 - sourcing
@@ -13,7 +11,6 @@ tools:
 - WebSearch
 complexity: low
 estimated_tokens: 400
-version: 1.4.0
 ---
 
 # Smart Sourcing

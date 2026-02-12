@@ -1,7 +1,6 @@
 ---
 name: code-review
 description: Best practices for code review process, pull request guidelines, and team collaboration quality standards
-version: 1.0.0
 created_by: abstract-examples
 tags: [code-review, pull-request, collaboration, quality, best-practices]
 category: development

@@ -1,22 +1,27 @@
 ---
 name: browser-recording
-description: |
-  Record browser sessions using Playwright for web UI tutorials, converts video to GIF.
-
-  Triggers: tutorial, web, video, browser, playwright, browser recording, web demo
-  Use when: creating browser-based tutorials
+description: Record browser sessions using Playwright for web UI tutorials, converts
+  video to GIF.
 category: media-generation
-tags: [playwright, browser, recording, video, web, tutorial]
-tools: [Read, Write, Bash]
+tags:
+- playwright
+- browser
+- recording
+- video
+- web
+- tutorial
+tools:
+- Read
+- Write
+- Bash
 complexity: medium
 estimated_tokens: 500
 progressive_loading: true
 modules:
-  - spec-execution
-  - video-capture
+- spec-execution
+- video-capture
 dependencies:
-  - scry:gif-generation
-version: 1.4.0
+- scry:gif-generation
 ---
 ## Table of Contents
 

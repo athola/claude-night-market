@@ -1,20 +1,20 @@
 ---
 name: fix-pr
-description: Address PR review feedback using progressive workflow
-usage: /fix-pr [<pr-number> | <pr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
+description: Address PR/MR review feedback using progressive workflow (GitHub/GitLab)
+usage: /fix-pr [<pr-number> | <pr-url> | <mr-url>] [--dry-run] [--from <step>] [--to <step>] [--commit-strategy single|separate|manual]
 extends: "superpowers:receiving-code-review"
 ---
 
-# Enhanced PR Fix
+# Enhanced PR/MR Fix
 
-A progressive workflow for addressing PR review feedback, following the attune pattern:
+A progressive workflow for addressing PR/MR review feedback, following the attune pattern. Supports both GitHub PRs and GitLab MRs via `leyline:git-platform` detection.
 **analyze** → **triage** → **plan** → **fix** → **validate** → **complete**
 
 ## When To Use
 
 Use this command when you need to:
-- Responding to PR review comments systematically
-- Iterating on PR after reviewer feedback
+- Responding to PR/MR review comments systematically
+- Iterating on PR/MR after reviewer feedback
 
 ## When NOT To Use
 
@@ -189,6 +189,22 @@ Skill(attune:war-room-checkpoint) with context:
 - No conflicting feedback
 - Single reviewer, straightforward comments
 
+## Agent Teams (Default for Major Scope)
+
+Agent teams is **on by default** for major scope PRs (6+ comments). Teammates parallelize fix implementation and coordinate via inbox messaging when fixes touch related code. Use `--no-agent-teams` to force sequential/Task tool execution.
+
+**Automatic downgrade**: Agent teams is skipped for minor/medium scope (≤5 comments). Use `--no-agent-teams` to disable for any invocation.
+
+**Requires**: Claude Code 2.1.32+, tmux, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Falls back to sequential execution if unavailable.
+
+```bash
+# Major scope uses agent teams by default
+/fix-pr 123 --scope major
+
+# Disable agent teams explicitly
+/fix-pr 123 --scope major --no-agent-teams
+```
+
 ## Integration
 
 This command integrates with:
@@ -197,6 +213,7 @@ This command integrates with:
 - **git**: Commits changes, pushes updates
 - **test suite**: Runs verification after fixes
 - **Claude Code Tasks** (2.1.16+): Progress tracking with native Tasks system
+- **Agent Teams** (2.1.32+): Optional parallel fix execution for major scope PRs
 
 ### Claude Code Tasks Integration
 

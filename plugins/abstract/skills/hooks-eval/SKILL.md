@@ -6,7 +6,6 @@ description: 'Use this skill BEFORE deploying hooks to production. Use when audi
   against compliance standards. Do not use when deciding hook placement - use hook-scope-guide
   instead. DO NOT use when: writing hook rules from scratch - use hook-authoring instead.
   DO NOT use when: validating plugin structure - use validate-plugin instead.'
-version: 1.4.0
 category: hook-management
 tags:
 - hooks
@@ -81,12 +80,21 @@ HookEvent = Literal[
     "UserPromptSubmit", # When user submits prompt
     "Stop",             # When stopping execution
     "SubagentStop",     # When a subagent stops
+    "TeammateIdle",     # When teammate agent becomes idle (2.1.33+)
+    "TaskCompleted",    # When a task finishes execution (2.1.33+)
     "PreCompact"        # Before message compaction
 ]
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-**Note**: Python SDK does not support `SessionStart`, `SessionEnd`, or `Notification` hooks due to setup limitations.
+**Note**: Python SDK does not support `SessionStart`, `SessionEnd`, or `Notification` hooks due to setup limitations. However, plugins can define `SessionStart` hooks via `hooks.json` using shell commands (e.g., leyline's `detect-git-platform.sh`).
+
+### Plugin-Level hooks.json
+
+Plugins can declare hooks via `"hooks": "./hooks/hooks.json"` in plugin.json. The evaluator validates:
+- Referenced hooks.json exists and is valid JSON
+- Shell commands referenced in hooks exist and are executable
+- Hook matchers use valid event types
 
 ### Hook Callback Signature
 

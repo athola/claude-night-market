@@ -48,7 +48,6 @@ hooks:
   - command: 'echo "[skill:pr-prep] === Workflow completed at $(date) ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
 
       '
-version: 1.4.0
 ---
 # Pull Request Preparation Workflow
 
@@ -111,6 +110,10 @@ Write the final PR description to the specified path, then display the file path
 ## Notes
 
 Do not include tool or AI attribution in the PR text. If changes are required mid-process, re-run quality gates. This skill covers preparation; pushing changes and opening the PR occurs outside this workflow.
+
+## Supporting Modules
+
+- [TodoWrite patterns](modules/todowrite-patterns.md) - naming conventions for sanctum TodoWrite items
 
 ## Troubleshooting
 

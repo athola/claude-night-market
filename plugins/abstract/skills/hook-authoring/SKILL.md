@@ -6,7 +6,6 @@ description: 'Use this skill BEFORE writing any hook. Check even if unsure. Use 
   operations in production. Do not use when logic belongs in core skill - use Skills
   instead. DO NOT use when: complex multi-step workflows needed - use Agents instead.
   DO NOT use when: behavior better suited for custom tool.'
-version: 1.4.0
 category: hook-development
 tags:
 - hooks
@@ -80,6 +79,7 @@ This skill teaches you how to write effective, secure, and performant hooks for 
 - **PostToolUse**: Log, analyze, or modify tool outputs after execution
 - **UserPromptSubmit**: Inject context or filter user messages before processing
 - **Stop/SubagentStop**: Cleanup, final reporting, or result aggregation
+- **TeammateIdle/TaskCompleted**: Multi-agent coordination and orchestration (2.1.33+)
 - **PreCompact**: State preservation before context window compaction
 
 > **New in 2.1.9**: PreToolUse hooks can now return `additionalContext` to inject information before a tool executes. This enables patterns like cache hints, security warnings, or relevant context injection.
@@ -143,6 +143,8 @@ Quick reference for all supported hook events:
 | **Notification** | Claude Code sends notification | `message` | Custom notification handling |
 | **Stop** | Agent completes | `reason`, `result` | Final cleanup, summary reports |
 | **SubagentStop** | Subagent completes | `subagent_id`, `result` | Result processing, aggregation |
+| **TeammateIdle** | Teammate agent becomes idle | `agent_id`, `session_id` | Work assignment, load balancing (2.1.33+) |
+| **TaskCompleted** | Task finishes execution | `task_id`, `result` | Coordination, chaining, reporting (2.1.33+) |
 | **PreCompact** | Before context compact | `context_size` | State preservation, checkpointing |
 | **SessionStart** | Session starts/resumes | `session_id`, `source`, `agent_type` | Initialization, context loading |
 | **SessionEnd** | Session terminates | `session_id` | Cleanup, final logging |

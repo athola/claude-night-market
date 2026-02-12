@@ -1,6 +1,6 @@
 {
   "name": "minister",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Project management plugin that aligns initiatives with GitHub data - turns repositories, issues, and projects into status dashboards",
   "commands": [
     "./commands/close-issue.md",

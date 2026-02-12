@@ -1,31 +1,35 @@
 ---
 name: speckit-orchestrator
-description: |
-  Workflow orchestrator for Spec Driven Development. Coordinates skills and tracks progress.
+description: 'Workflow orchestrator for Spec Driven Development. Coordinates skills
+  and tracks progress.
 
-  speckit workflow, spec driven development, speckit commands
-  Use when: starting any /speckit-* command or coordinating multi-phase development
+
+  speckit workflow, spec driven development, speckit commands.'
 category: workflow-orchestration
-tags: [speckit, workflow, orchestration, planning, specification]
+tags:
+- speckit
+- workflow
+- orchestration
+- planning
+- specification
 dependencies:
-  - spec-kit:shared
-  - sanctum:git-workspace-review
-  - imbue:evidence-logging
-  - superpowers:brainstorming
-  - superpowers:writing-plans
-  - superpowers:executing-plans
+- sanctum:git-workspace-review
+- imbue:evidence-logging
+- superpowers:brainstorming
+- superpowers:writing-plans
+- superpowers:executing-plans
 tools: []
 modules:
-  - command-skill-matrix
-  - progress-tracking
+- command-skill-matrix
+- progress-tracking
+- artifact-structure
 progressive_loading: true
 usage_patterns:
-  - workflow-coordination
-  - progress-tracking
-  - skill-loading
+- workflow-coordination
+- progress-tracking
+- skill-loading
 complexity: intermediate
 estimated_tokens: 1500
-version: 1.4.0
 ---
 ## Table of Contents
 

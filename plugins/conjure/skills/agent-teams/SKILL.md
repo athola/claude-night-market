@@ -1,0 +1,217 @@
+---
+name: agent-teams
+description: Coordinate Claude Code Agent Teams through filesystem-based protocol. Use
+  when orchestrating multiple Claude agents on parallel tasks, need task dependency
+  management, multi-agent code review or implementation. Do not use when single-agent
+  work suffices, task is not parallelizable.
+category: delegation-framework
+tags:
+- agent-teams
+- multi-agent
+- coordination
+- tmux
+- task-management
+- messaging
+dependencies:
+- delegation-core
+tools:
+- Bash
+- Read
+- Write
+usage_patterns:
+- team-orchestration
+- parallel-implementation
+- multi-agent-review
+- task-dependency-management
+complexity: advanced
+estimated_tokens: 450
+progressive_loading: true
+modules:
+- modules/team-management.md
+- modules/messaging-protocol.md
+- modules/task-coordination.md
+- modules/spawning-patterns.md
+references:
+- delegation-core/../../leyline/skills/error-patterns/SKILL.md
+- delegation-core/../../leyline/skills/service-registry/SKILL.md
+---
+## Table of Contents
+
+- [Overview](#overview)
+- [When to Use](#when-to-use)
+- [Prerequisites](#prerequisites)
+- [Protocol Architecture](#protocol-architecture)
+- [Quick Start](#quick-start)
+- [Coordination Workflow](#coordination-workflow)
+- [Module Reference](#module-reference)
+- [Integration with Conjure](#integration-with-conjure)
+- [Troubleshooting](#troubleshooting)
+- [Exit Criteria](#exit-criteria)
+
+
+# Agent Teams Coordination
+
+## Overview
+
+Claude Code Agent Teams enables multiple Claude CLI processes to collaborate on shared work through a filesystem-based coordination protocol. Each teammate runs as an independent `claude` process in a tmux pane, communicating via JSON files guarded by `fcntl` locks. No database, no daemon, no network layer.
+
+This skill provides the patterns for orchestrating agent teams effectively.
+
+## When To Use
+
+- Parallel implementation across multiple files or modules
+- Multi-agent code review (one agent reviews, another implements fixes)
+- Large refactoring requiring coordinated changes across subsystems
+- Tasks with natural parallelism that benefit from concurrent agents
+
+## When NOT To Use
+
+- Single-file changes or small tasks (overhead exceeds benefit)
+- Tasks requiring tight sequential reasoning (agents coordinate loosely)
+- When `claude` CLI is not available or tmux is not installed
+
+## Prerequisites
+
+```bash
+# Verify Claude Code CLI
+claude --version
+
+# Verify tmux (required for split-pane mode)
+tmux -V
+
+# Enable experimental feature (set by spawner automatically)
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+```
+
+## Protocol Architecture
+
+```
+~/.claude/
+  teams/<team-name>/
+    config.json            # Team metadata + member roster
+    inboxes/
+      <agent-name>.json    # Per-agent message queue
+      .lock                # fcntl exclusive lock
+  tasks/<team-name>/
+    1.json ... N.json      # Auto-incrementing task files
+    .lock                  # fcntl exclusive lock
+```
+
+**Design principles:**
+- **Filesystem is the database**: JSON files, atomic writes via `tempfile` + `os.replace`
+- **fcntl locking**: Prevents concurrent read/write corruption on inboxes and tasks
+- **Numbered tasks**: Auto-incrementing IDs with sequential file naming
+- **Loose coupling**: Agents poll their own inbox; no push notifications
+
+## Quick Start
+
+### 1. Create a Team
+
+```bash
+# Programmatic team setup (via MCP or direct API)
+# Team config written to ~/.claude/teams/<team-name>/config.json
+```
+
+The team config contains:
+- `name`, `description`, `created_at` (ms timestamp)
+- `lead_agent_id`, `lead_session_id`
+- `members[]` — array of LeadMember and TeammateMember objects
+
+### 2. Spawn Teammates
+
+Each teammate is a separate `claude` CLI process launched with identity flags:
+
+```bash
+claude --agent-id "backend@my-team" \
+       --agent-name "backend" \
+       --team-name "my-team" \
+       --agent-color "#FF6B6B" \
+       --parent-session-id "$SESSION_ID" \
+       --agent-type "general-purpose" \
+       --model sonnet
+```
+
+See `modules/spawning-patterns.md` for tmux pane management and color assignment.
+
+### 3. Create Tasks with Dependencies
+
+```json
+{
+  "id": "1",
+  "subject": "Implement API endpoints",
+  "description": "Create REST endpoints for user management",
+  "status": "pending",
+  "owner": null,
+  "blocks": ["3"],
+  "blocked_by": [],
+  "metadata": {}
+}
+```
+
+See `modules/task-coordination.md` for state machine and dependency management.
+
+### 4. Coordinate via Messages
+
+```json
+{
+  "from": "team-lead",
+  "text": "API endpoints are ready for integration testing",
+  "timestamp": "2026-02-07T22:00:00Z",
+  "read": false,
+  "summary": "API ready"
+}
+```
+
+See `modules/messaging-protocol.md` for message types and inbox operations.
+
+## Coordination Workflow
+
+1. **`agent-teams:team-created`** — Initialize team config and directories
+2. **`agent-teams:teammates-spawned`** — Launch agents in tmux panes
+3. **`agent-teams:tasks-assigned`** — Create tasks with dependencies, assign owners
+4. **`agent-teams:coordination-active`** — Agents claim tasks, exchange messages, mark completion
+5. **`agent-teams:team-shutdown`** — Graceful shutdown with approval protocol
+
+## Module Reference
+
+- **team-management.md**: Team lifecycle, config format, member management
+- **messaging-protocol.md**: Message types, inbox operations, locking patterns
+- **task-coordination.md**: Task CRUD, state machine, dependency cycle detection
+- **spawning-patterns.md**: tmux spawning, CLI flags, pane management
+
+## Integration with Conjure
+
+Agent Teams extends the conjure delegation model:
+
+| Conjure Pattern | Agent Teams Equivalent |
+|-----------------|----------------------|
+| `delegation-core:task-assessed` | `agent-teams:team-created` |
+| `delegation-core:handoff-planned` | `agent-teams:tasks-assigned` |
+| `delegation-core:results-integrated` | `agent-teams:team-shutdown` |
+| External LLM execution | Teammate agent execution |
+
+Use `Skill(conjure:delegation-core)` first to determine if the task benefits from multi-agent coordination vs. single-service delegation.
+
+## Troubleshooting
+
+### Common Issues
+
+**tmux not found**
+Install via package manager: `brew install tmux` / `apt install tmux`
+
+**Stale lock files**
+If an agent crashes mid-operation, lock files may persist. Remove `.lock` files manually from `~/.claude/teams/<team>/inboxes/` or `~/.claude/tasks/<team>/`
+
+**Orphaned tasks**
+Tasks claimed by a crashed agent stay `in_progress` indefinitely. Implement heartbeat monitoring or claim-expiry (reset tasks claimed >N minutes without progress).
+
+**Message ordering**
+Filesystem timestamp resolution varies (HFS+ = 1s granularity). Use numbered filenames or UUID-sorted names to avoid collision on rapid message bursts.
+
+## Exit Criteria
+
+- [ ] Team created with config and directories
+- [ ] Teammates spawned and registered in config
+- [ ] Tasks created with dependency graph (no cycles)
+- [ ] Agents coordinating via inbox messages
+- [ ] Graceful shutdown completed

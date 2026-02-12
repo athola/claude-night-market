@@ -8,7 +8,6 @@ description: Systematic methodology to reduce skill file size through externaliz
   skill when skills-eval shows "Large skill file" warnings.
 token_budget: 25
 progressive_loading: true
-version: 1.4.0
 ---
 ## Table of Contents
 

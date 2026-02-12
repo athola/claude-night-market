@@ -1,10 +1,9 @@
 ---
 name: makefile-generation
-description: "Generate language-specific Makefiles with common development targets for testing, linting, and automation. Use when: initializing projects, setting up development workflow, standardizing commands. Do not use when: Makefile already exists and is current."
+description: "Generate language-specific Makefiles with testing, linting, and automation targets. Use for project initialization and workflow standardization. Skip if Makefile exists."
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.4.0
 category: infrastructure
 tags: [makefile, automation, build-tools, development-workflow]
 complexity: low
@@ -12,7 +11,7 @@ estimated_tokens: 1200
 ---
 ## Table of Contents
 
-- [Use When](#use-when)
+- [When To Use](#when-to-use)
 - [Standard Targets](#standard-targets)
 - [Python Makefile](#python-makefile)
 - [Rust Makefile](#rust-makefile)

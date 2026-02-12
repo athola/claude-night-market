@@ -1,20 +1,30 @@
 ---
 name: architecture-paradigm-modular-monolith
-description: |
-  Single deployable with enforced module boundaries for team autonomy without distributed complexity.
+description: 'Single deployable with enforced module boundaries for team autonomy
+  without distributed complexity.
+
 
   Triggers: modular-monolith, module boundaries, single deployment, team autonomy
+
   Use when: teams need autonomy without distributed overhead
-  DO NOT use when: already using microservices or system is small.
-version: 1.4.0
+
+  DO NOT use when: already using microservices or system is small.'
 category: architectural-pattern
-tags: [architecture, modular-monolith, monolith, internal-boundaries, team-autonomy]
+tags:
+- architecture
+- modular-monolith
+- monolith
+- internal-boundaries
+- team-autonomy
 dependencies: []
-tools: [dependency-analyzer, module-boundary-enforcer, refactoring-planner]
+tools:
+- dependency-analyzer
+- module-boundary-enforcer
+- refactoring-planner
 usage_patterns:
-  - paradigm-implementation
-  - monolith-modernization
-  - team-scaling
+- paradigm-implementation
+- monolith-modernization
+- team-scaling
 complexity: medium
 estimated_tokens: 700
 ---

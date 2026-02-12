@@ -1,20 +1,30 @@
 ---
 name: architecture-paradigm-serverless
-description: |
-  Serverless FaaS for event-driven workloads with minimal infrastructure management.
+description: 'Serverless FaaS for event-driven workloads with minimal infrastructure
+  management.
+
 
   serverless, FaaS, Lambda, event-driven, pay-per-use
+
   Use when: workloads are event-driven with bursty traffic
-  DO NOT use when: long-running processes or stateful operations required.
-version: 1.4.0
+
+  DO NOT use when: long-running processes or stateful operations required.'
 category: architectural-pattern
-tags: [architecture, serverless, faas, event-driven, cost-optimization]
+tags:
+- architecture
+- serverless
+- faas
+- event-driven
+- cost-optimization
 dependencies: []
-tools: [cloud-sdk, serverless-framework, IaC-tools]
+tools:
+- cloud-sdk
+- serverless-framework
+- IaC-tools
 usage_patterns:
-  - paradigm-implementation
-  - event-driven-architectures
-  - cost-optimization
+- paradigm-implementation
+- event-driven-architectures
+- cost-optimization
 complexity: medium
 estimated_tokens: 700
 ---

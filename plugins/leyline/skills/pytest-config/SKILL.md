@@ -1,22 +1,29 @@
 ---
 name: pytest-config
-description: |
-  Standardized pytest configuration for plugin development with shared test patterns.
+description: 'Standardized pytest configuration for plugin development with shared
+  test patterns.
 
-  pytest configuration, conftest, fixtures, test setup
-  Use when: setting up pytest for plugin development or creating fixtures
+
+  pytest configuration, conftest, fixtures, test setup.'
 category: infrastructure
-tags: [pytest, testing, configuration, fixtures]
-dependencies: [leyline:testing-quality-standards]
+tags:
+- pytest
+- testing
+- configuration
+- fixtures
+dependencies:
+- leyline:testing-quality-standards
 estimated_tokens: 200
 provides:
-  infrastructure: [pytest-config, conftest-patterns, coverage-config]
+  infrastructure:
+  - pytest-config
+  - conftest-patterns
+  - coverage-config
 modules:
-  - modules/conftest-patterns.md
-  - modules/git-testing-fixtures.md
-  - modules/mock-fixtures.md
-  - modules/ci-integration.md
-version: 1.4.0
+- modules/conftest-patterns.md
+- modules/git-testing-fixtures.md
+- modules/mock-fixtures.md
+- modules/ci-integration.md
 ---
 ## Table of Contents
 

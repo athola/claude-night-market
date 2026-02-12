@@ -1,18 +1,18 @@
 ---
 name: do-issue
-description: Implement GitHub issues using attune-style progressive workflow
+description: Implement issues (GitHub/GitLab/Bitbucket) using progressive analyze-specify-plan-implement workflow
 usage: /do-issue <issue-number | issue-url | space-delimited-list> [--dry-run] [--from <step>] [--to <step>] [--scope auto|minor|medium|major]
 ---
 
-# Do GitHub Issue(s)
+# Do Issue(s)
 
-A progressive workflow for implementing GitHub issues, following the attune pattern:
+A progressive workflow for implementing issues from the detected git platform (GitHub, GitLab, or Bitbucket), following the attune pattern:
 **analyze** → **specify** → **plan** → **implement** → **validate** → **complete**
 
 ## When To Use
 
 Use this command when you need to:
-- Implementing fixes for one or more GitHub issues
+- Implementing fixes for one or more issues (GitHub, GitLab, or Bitbucket)
 - Progressive issue resolution with validation
 - Addressing a particular issue or ticket that is referenced
 
@@ -78,11 +78,12 @@ The workflow auto-detects scope and suggests step-skipping:
 ### 1.1 Fetch Issue Details
 
 ```bash
-# Get issue details
+# GitHub
 gh issue view ISSUE_NUMBER --json number,title,body,labels,state,assignees
-
-# Get issue comments for additional context
 gh issue view ISSUE_NUMBER --comments
+
+# GitLab
+glab issue view ISSUE_NUMBER
 ```
 
 ### 1.2 Understand Requirements
@@ -96,11 +97,13 @@ Extract from the issue:
 ### 1.3 Check Related Issues
 
 ```bash
-# Find related issues
+# GitHub
 gh issue list --search "related keywords" --json number,title
-
-# Check if this is part of a larger effort
 gh issue view ISSUE_NUMBER --json milestone,project
+
+# GitLab
+glab issue list --search "related keywords"
+glab issue view ISSUE_NUMBER
 ```
 
 **Step 1 Output**: Issue understanding, context gathered
@@ -127,6 +130,7 @@ If the issue has explicit criteria, extract them:
 
 If criteria are unclear, add clarifying comments to the issue:
 ```bash
+# GitHub
 gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
 ## Clarification Questions
 
@@ -388,9 +392,10 @@ For project structure verification:
 git push -u origin fix/issue-ISSUE_NUMBER
 ```
 
-### 6.2 Create Pull Request
+### 6.2 Create Pull/Merge Request
 
 ```bash
+# GitHub
 gh pr create --title "fix(scope): description" --body "$(cat <<'EOF'
 ## Summary
 
@@ -414,12 +419,23 @@ Fixes #ISSUE_NUMBER
 - [x] [Criterion 2 from issue]
 EOF
 )"
+
+# GitLab
+glab mr create --title "fix(scope): description" --description "$(cat <<'EOF'
+## Summary
+
+Closes #ISSUE_NUMBER
+
+[Brief description of what was fixed]
+EOF
+)"
 ```
 
 ### 6.3 Update Issue
 
 Comment on the issue with fix details:
 ```bash
+# GitHub
 gh issue comment ISSUE_NUMBER --body "$(cat <<'EOF'
 ## Fix Implemented
 
@@ -437,9 +453,15 @@ EOF
 )"
 ```
 
-### 6.4 Link PR to Issue (Auto-Close)
+```bash
+# GitLab
+glab issue note ISSUE_NUMBER --message "Fix implemented in MR !MR_NUMBER"
+```
 
-Ensure PR body contains "Fixes #ISSUE_NUMBER" for auto-close on merge.
+### 6.4 Link PR/MR to Issue (Auto-Close)
+
+- **GitHub**: Ensure PR body contains "Fixes #ISSUE_NUMBER" for auto-close on merge.
+- **GitLab**: Ensure MR body contains "Closes #ISSUE_NUMBER" for auto-close on merge.
 
 **Step 6 Output**: PR created, issue updated
 
@@ -457,6 +479,7 @@ Ensure PR body contains "Fixes #ISSUE_NUMBER" for auto-close on merge.
 | `--no-review` | Skip code review between tasks (not recommended) |
 | `--close` | Automatically close issues when implemented |
 | `--dangerous` | Continue execution without pauses (batch mode, auto-continue on handoffs) |
+| `--no-agent-teams` | Disable agent teams and use Task tool dispatch instead. Agent teams is **on by default** for parallel execution (auto-downgrades for `--scope minor`). |
 
 ## Multiple Issues
 
@@ -529,7 +552,7 @@ Attune Workflow        | /do-issue Equivalent
 /attune:brainstorm     | (issue created/assigned)
 /attune:arch-init      | --
 /attune:specify        | Step 1-2: Analyze + Specify
-/attune:plan           | Step 3: Plan
+/attune:blueprint           | Step 3: Plan
 /attune:init           | Step 4.1: Create branch
 /attune:execute        | Step 4-5: Implement + Validate
 /attune:validate       | (included in Step 5)

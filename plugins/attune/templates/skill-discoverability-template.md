@@ -9,7 +9,6 @@ Use this template when creating or enhancing attune plugin skills to follow prov
 name: skill-kebab-case
 description: "[WHAT it does]. Use when: [keyword1, keyword2, scenario]. Do not use when: [boundary]."
 # Custom metadata (not used by Claude for matching):
-version: 1.4.0
 category: workflow|methodology|code-quality|infrastructure
 tags: [discoverability, keywords]
 complexity: low|intermediate|high
@@ -110,7 +109,6 @@ tags: [brainstorming]
 name: project-brainstorming
 description: Guide project ideation through Socratic questioning and constraint analysis to create actionable project briefs. Use when: starting projects, exploring problem spaces, comparing approaches, validating feasibility. Do not use when: requirements already clear and specification exists.
 # Custom metadata (not used by Claude for matching):
-version: 1.4.0
 category: workflow
 tags: [brainstorming, ideation, planning, requirements, socratic-method]
 complexity: intermediate
@@ -157,7 +155,6 @@ description: Creates tests
 name: test-generation
 description: Generate comprehensive test suites using TDD methodology with behavior-driven scenarios. Use when: implementing features, fixing bugs, adding test coverage, test-driven development. Do not use when: tests already exist and passing.
 # Custom metadata:
-version: 1.4.0
 category: testing
 tags: [tdd, testing, quality, bdd]
 complexity: intermediate

@@ -18,6 +18,8 @@ HookEvent = Literal[
     "UserPromptSubmit",  # Called when user submits a prompt
     "Stop",              # Called when stopping execution
     "SubagentStop",      # Called when a subagent stops
+    "TeammateIdle",      # Called when teammate agent becomes idle (2.1.33+)
+    "TaskCompleted",     # Called when a task finishes execution (2.1.33+)
     "PreCompact"         # Called before message compaction
 ]
 ```
@@ -37,6 +39,8 @@ HookEvent = Literal[
 | `UserPromptSubmit` | User submits input | Input validation, preprocessing, redaction |
 | `Stop` | Agent stops | Cleanup, final logging, state persistence |
 | `SubagentStop` | Subagent completes | Coordination, result aggregation |
+| `TeammateIdle` | Teammate agent becomes idle | Work assignment, load balancing (2.1.33+) |
+| `TaskCompleted` | Task finishes execution | Coordination, chaining, reporting (2.1.33+) |
 | `PreCompact` | Before message compaction | Context preservation, important info extraction |
 
 **Note**: `PermissionRequest` is a Claude Code CLI-specific hook and is not available in the Python SDK. It runs via shell commands configured in hooks.json.
@@ -251,6 +255,26 @@ async for message in query(
 {
     "prompt": "User's input text",
     "conversation_id": "conv_123"
+}
+```
+
+### TeammateIdle Input (2.1.33+)
+
+```python
+{
+    "agent_id": "teammate-abc123",   # ID of the idle teammate
+    "session_id": "sess_456"         # Session the teammate belongs to
+}
+```
+
+### TaskCompleted Input (2.1.33+)
+
+```python
+{
+    "task_id": "task_789",           # ID of the completed task
+    "result": "...",                 # Task result/output
+    "duration_ms": 15000,            # Time taken
+    "token_count": 8500              # Tokens consumed
 }
 ```
 

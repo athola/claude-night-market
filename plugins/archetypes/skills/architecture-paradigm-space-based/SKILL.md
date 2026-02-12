@@ -1,20 +1,31 @@
 ---
 name: architecture-paradigm-space-based
-description: |
-  Data-grid architecture for high-traffic stateful workloads with linear scalability.
+description: 'Data-grid architecture for high-traffic stateful workloads with linear
+  scalability.
+
 
   space-based, data grid, in-memory, linear scaling, high traffic
+
   Use when: traffic overwhelms database nodes or linear scalability needed
-  DO NOT use when: data doesn't fit in memory or simpler caching would work.
-version: 1.4.0
+
+  DO NOT use when: data does not fit in memory or simpler caching suffices.'
 category: architectural-pattern
-tags: [architecture, space-based, data-grid, scalability, in-memory, stateful]
+tags:
+- architecture
+- space-based
+- data-grid
+- scalability
+- in-memory
+- stateful
 dependencies: []
-tools: [data-grid-platform, replication-manager, load-tester]
+tools:
+- data-grid-platform
+- replication-manager
+- load-tester
 usage_patterns:
-  - paradigm-implementation
-  - high-traffic-workloads
-  - linear-scalability
+- paradigm-implementation
+- high-traffic-workloads
+- linear-scalability
 complexity: high
 estimated_tokens: 800
 ---

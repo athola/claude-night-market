@@ -12,7 +12,6 @@ tools:
 - Bash
 complexity: low
 estimated_tokens: 400
-version: 1.4.0
 ---
 
 # Session Management
@@ -82,7 +81,23 @@ For complex PR reviews that span multiple sittings:
 claude --resume pr-review-123
 ```
 
-### 4. Investigation Sessions
+### 4. PR-Linked Sessions (Claude Code 2.1.27+)
+
+Sessions are automatically linked to PRs when created via `gh pr create`. Resume PR-specific sessions later:
+
+```
+# Resume session for a specific PR
+claude --from-pr 156
+claude --from-pr https://github.com/org/repo/pull/156
+
+# Workflow: review → pause → resume with full context
+/rename pr-review-156
+# ... review work ...
+# Later:
+claude --from-pr 156
+```
+
+### 5. Investigation Sessions
 
 When investigating issues that may require research:
 
@@ -100,10 +115,14 @@ claude --resume investigate-memory-leak
 The `/resume` screen provides:
 
 - **Grouped forked sessions**: See related sessions together
-- **Keyboard shortcuts**:
-  - `P` - Preview session content
-  - `R` - Rename a session
+- **Keyboard shortcuts** (defaults, customizable via `/keybindings`):
+  - Preview session content
+  - Rename a session
 - **Recent sessions**: Sorted by last activity
+
+### 6. Resume Hint on Exit (Claude Code 2.1.31+)
+
+Claude Code now shows a resume hint when you exit, displaying the command to continue your conversation. This makes session resumption more discoverable — users no longer need to know about `--resume` beforehand.
 
 ## Best Practices
 
@@ -151,9 +170,35 @@ If a named session isn't appearing in `/resume`:
 
 ### Lost Context After Resume
 
-If context seems incomplete after resuming:
+If context seems incomplete or resume is slow:
+- **Claude Code 2.1.30+**: 68% memory reduction for `--resume` via stat-based session loading with progressive enrichment — especially impactful for users with many sessions. Also fixes hangs when resuming sessions with corrupted transcript files (parentUuid cycles).
+- **Claude Code 2.1.29+**: Fixed slow startup when resuming sessions with many `once: true` hooks — `saved_hook_context` loading is now optimized
+- **Claude Code 2.1.21+**: Fixed API errors when resuming sessions interrupted during tool execution — previously these sessions could fail to resume entirely
+- **Claude Code 2.1.20+**: Session compaction/resume is now fixed — resume correctly loads the compact summary instead of full history
 - Use `/catchup` to refresh git state
+- Use `/debug` (Claude Code 2.1.30+) for session troubleshooting diagnostics
 - Re-run `Skill(sanctum:git-workspace-review)` if needed
+- If on older versions: resumed sessions may reload uncompacted history, increasing context usage unexpectedly
+
+### 7. Automatic Memory (Claude Code 2.1.32+)
+
+Claude now automatically records and recalls memories as it works. Session summaries, key results, and work logs are captured implicitly and recalled in future sessions. This provides passive cross-session continuity without manual checkpoint management.
+
+- **No action required**: Memory recording is automatic on first-party Anthropic API
+- **Complements named sessions**: Automatic memory handles implicit continuity; named sessions provide explicit organization
+- **Token overhead**: Recalled memories add to baseline context — factor this into MECW budgets
+
+### 8. Agent Persistence on Resume (Claude Code 2.1.32+)
+
+`--resume` now re-uses the `--agent` value from the previous conversation by default. Agent-specific workflows that are resumed will continue with the same agent configuration without needing to re-specify it.
+
+```
+# Start with a specific agent
+claude --agent my-agent
+
+# Resume later — my-agent is automatically used
+claude --resume
+```
 
 ## See Also
 

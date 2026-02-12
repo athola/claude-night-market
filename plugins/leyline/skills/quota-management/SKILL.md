@@ -1,29 +1,40 @@
 ---
 name: quota-management
-description: |
-  Quota tracking, threshold monitoring, and graceful degradation for rate-limited API services.
+description: 'Quota tracking, threshold monitoring, and graceful degradation for rate-limited
+  API services.
 
-  quota, rate limiting, usage limits, thresholds
-  Use when: integrating rate-limited services or tracking API usage
+
+  quota, rate limiting, usage limits, thresholds.'
 category: infrastructure
-tags: [quota, rate-limiting, resource-management, cost-tracking, thresholds]
+tags:
+- quota
+- rate-limiting
+- resource-management
+- cost-tracking
+- thresholds
 dependencies: []
-tools: [quota-tracker]
+tools:
+- quota-tracker
 provides:
-  infrastructure: [quota-tracking, threshold-monitoring, usage-estimation]
-  patterns: [graceful-degradation, quota-enforcement, cost-optimization]
+  infrastructure:
+  - quota-tracking
+  - threshold-monitoring
+  - usage-estimation
+  patterns:
+  - graceful-degradation
+  - quota-enforcement
+  - cost-optimization
 usage_patterns:
-  - service-integration
-  - rate-limit-management
-  - cost-tracking
-  - resource-monitoring
+- service-integration
+- rate-limit-management
+- cost-tracking
+- resource-monitoring
 complexity: intermediate
 estimated_tokens: 500
 progressive_loading: true
 modules:
-  - modules/threshold-strategies.md
-  - modules/estimation-patterns.md
-version: 1.4.0
+- modules/threshold-strategies.md
+- modules/estimation-patterns.md
 ---
 ## Table of Contents
 

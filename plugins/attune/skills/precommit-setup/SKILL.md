@@ -1,10 +1,9 @@
 ---
 name: precommit-setup
-description: "Configure three-layer pre-commit quality system with linting, type checking, and testing hooks. Use when: setting up quality gates, configuring pre-commit, establishing code quality standards. Do not use when: pre-commit already configured optimally."
+description: "Configure three-layer pre-commit system with linting, type checking, and testing hooks. Use for quality gate setup and code standards. Skip if pre-commit is optimally configured."
 # Custom metadata (not used by Claude for matching):
 model: claude-sonnet-4
 tools: [Read, Write, Bash]
-version: 1.4.0
 category: infrastructure
 tags: [pre-commit, quality-gates, linting, type-checking, testing]
 complexity: intermediate
@@ -12,7 +11,7 @@ estimated_tokens: 1800
 ---
 ## Table of Contents
 
-- [Use When](#use-when)
+- [When To Use](#when-to-use)
 - [Philosophy: Three-Layer Defense](#philosophy:-three-layer-defense)
 - [Standard Hooks (Layer 1)](#standard-hooks-(layer-1))
 - [Python Projects](#python-projects)
@@ -671,5 +670,5 @@ repos:
 
 ## See Also
 
-- [Quality Gates Documentation](../../../../docs/quality-gates.md) - Detailed quality system guide
-- [Testing Guide](../../../../docs/testing-guide.md) - Testing best practices
+- **Quality Gates** - Three-layer validation: pre-commit hooks (formatting, linting), CI checks (tests, coverage), and PR review gates (code quality, security)
+- **Testing Guide** - Run `make test` for unit tests, `make lint` for static analysis, `make format` for auto-formatting. Target 85%+ coverage.

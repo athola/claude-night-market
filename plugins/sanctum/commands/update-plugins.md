@@ -132,7 +132,7 @@ Based on phases 1-3, create actionable recommendations:
 
 **Critical and Moderate issues are automatically logged to GitHub issues.**
 
-> **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for the full pattern.
+> **Module Reference**: Auto-issue creation is handled inline by the workflow monitor.
 
 For each Critical or Moderate recommendation:
 

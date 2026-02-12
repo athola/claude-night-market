@@ -48,6 +48,53 @@ Claude Code v2.1.1+ introduced automatic context compaction for "sidechain" (sub
    - Use explicit progress markers (TodoWrite, checkpoints)
    - Avoid relying on early conversation context for late decisions
 
+### Background Agent Permissions (Claude Code 2.1.20+)
+
+Background agents now **prompt for tool permissions before launching** into the background. This means:
+
+- When a user backgrounds a task (Ctrl+B), permissions are confirmed upfront
+- Agents won't stall mid-execution waiting for permission approval
+- Multi-agent workflows (e.g., `sanctum:do-issue`) may show permission prompts for each dispatched agent before they begin background work
+
+**Design consideration**: If your workflow dispatches multiple agents in parallel, users will see permission prompts sequentially before agents start. This is expected behavior, not a bug.
+
+### Session Resume Compaction (Claude Code 2.1.20+)
+
+Fixed: `--resume` now correctly loads the compact summary instead of full history. Previously, resumed sessions could reload the entire uncompacted conversation, negating compaction benefits. Subagent state preservation patterns (TodoWrite checkpoints, file-based state) remain the recommended approach since compaction summaries may omit details.
+
+### Task Tool Metrics (Claude Code 2.1.30+)
+
+Task tool results now include **token count**, **tool uses**, and **duration** metrics. This enables data-driven delegation decisions instead of heuristic estimates.
+
+**Key implications**:
+- The `should_delegate()` decision framework can now incorporate **actual measured efficiency** from prior Task invocations
+- Coordination metrics (line `track_coordination_metrics`) can use native duration instead of manual timing
+- Post-execution validation can compare estimated vs. actual token spend per subagent
+
+**Using Task metrics for delegation decisions**:
+```python
+def should_delegate_with_metrics(task, prior_task_results):
+    """Enhanced delegation using real Task tool metrics."""
+    # If we have prior data for similar tasks, use actual measurements
+    similar = find_similar_prior_results(task, prior_task_results)
+    if similar:
+        avg_tokens = mean(r.token_count for r in similar)
+        avg_duration = mean(r.duration for r in similar)
+        efficiency = avg_tokens / (avg_tokens + BASE_OVERHEAD)
+        return efficiency >= MIN_EFFICIENCY, f"Measured efficiency: {efficiency:.1%}"
+
+    # Fall back to heuristic estimation for novel tasks
+    return should_delegate(task, context_usage)
+```
+
+### Improved TaskStop Display (Claude Code 2.1.30+)
+
+TaskStop now shows the **stopped command/task description** instead of a generic "Task stopped" message. This improves debugging of multi-agent workflows — when a subagent is stopped due to context pressure or timeout, you can now identify *which* task was affected without parsing logs.
+
+### Auto-Compact Threshold Fix (Claude Code 2.1.21+)
+
+Fixed: Auto-compact no longer triggers too early on models with large output token limits. Previously, models like Opus (with larger max output) could see compaction trigger significantly below the expected ~160k threshold because the effective context calculation didn't properly account for output token reservation. The thresholds in the table below are now accurate across all model tiers.
+
 ### When Auto-Compaction Triggers
 
 | Context Usage | Behavior |
@@ -373,6 +420,76 @@ def synthesize_exploration_results(results):
 
     return synthesis
 ```
+
+## Agent Teams (Experimental — Claude Code 2.1.32+)
+
+Claude Code 2.1.32 introduces **agent teams** as a research preview for multi-agent collaboration. This is a fundamentally different coordination model from Task-based subagent delegation.
+
+**Enable**: Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
+
+### Agent Teams vs Task Tool
+
+| Aspect | Task Tool (Current) | Agent Teams (Experimental) |
+|--------|--------------------|-----------------------------|
+| **Coordination** | Parent dispatches, collects results | Lead assigns, teammates message each other |
+| **Communication** | One-way (parent→child→result) | Bidirectional (lead↔teammates, teammate↔teammate) |
+| **State** | Independent context per subagent | Shared task list, message passing |
+| **Parallelism** | Up to 10 concurrent tasks | Lead + multiple teammates |
+| **Resume** | Sessions resumable | No resume with in-process teammates |
+| **Nesting** | Subagents can spawn subagents | No nested teams |
+
+### When to Use Agent Teams
+
+- Complex multi-step projects where subtasks have **interdependencies**
+- Workflows requiring **real-time coordination** between workers
+- Situations where one agent's output directly feeds another's input
+
+### When to Stick with Task Tool
+
+- Independent, parallelizable subtasks (map-reduce patterns)
+- Simple delegation with clear input→output contracts
+- Workflows that need session resumption reliability
+
+### Known Limitations
+
+- **No session resumption**: `/resume` does not restore in-process teammates
+- **Task status lag**: Teammates may not mark tasks complete — check manually if stuck
+- **One team per session**: Clean up before starting a new team
+- **Token-intensive**: Agent teams consume significantly more tokens than Task-based delegation
+
+### Recommendation
+
+Use Task tool patterns for production workflows. Consider agent teams for exploratory, complex coordination scenarios where inter-agent communication adds clear value. Monitor the experimental feature for stabilization before migrating critical workflows.
+
+### Agent Teams Hook Events (Claude Code 2.1.33+)
+
+Two new hook events enable tighter coordination in agent teams workflows:
+
+- **`TeammateIdle`**: Triggered when a teammate agent becomes idle. Use for dynamic work assignment — detect when a teammate finishes and assign new work without polling.
+- **`TaskCompleted`**: Triggered when a task finishes execution. Use for pipeline coordination — chain tasks, aggregate results, or trigger follow-up work automatically.
+
+These complement Task tool metrics (2.1.30+) for data-driven orchestration. Example use case: a `TaskCompleted` hook that logs efficiency metrics and triggers the next pipeline stage.
+
+### Sub-Agent Spawning Restrictions (Claude Code 2.1.33+)
+
+Agent `tools` frontmatter now supports `Task(agent_type)` syntax to restrict which sub-agents can be spawned:
+
+```yaml
+# Agent can only spawn these specific sub-agents
+tools:
+  - Read
+  - Bash
+  - Grep
+  - Task(code-reviewer)
+  - Task(test-runner)
+```
+
+**Benefits**:
+- Prevents uncontrolled delegation chains and scope creep
+- Enforces pipeline discipline in multi-stage workflows
+- Improves security by limiting agent capabilities
+
+**Recommendation**: Add `Task(agent_type)` restrictions to pipeline agents (e.g., `sanctum/workflow-improvement-*`) and orchestrator agents that should only delegate to specific workers. Agents without `Task` in their tools list cannot spawn sub-agents at all — this is already the case for most ecosystem agents.
 
 ## Best Practices
 

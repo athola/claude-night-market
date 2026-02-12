@@ -1,28 +1,35 @@
 ---
 name: spec-writing
-description: |
-  Create clear, testable specifications with user stories and acceptance criteria.
+description: 'Create clear, testable specifications with user stories and acceptance
+  criteria.
+
 
   spec writing, feature specification, requirements, user stories
+
   Use when: creating new specifications or writing acceptance criteria
-  DO NOT use when: generating implementation tasks - use task-planning.
+
+  DO NOT use when: converting specs to tasks - use task-planning.'
 category: specification
-tags: [speckit, specification, requirements, user-stories, acceptance-criteria]
+tags:
+- speckit
+- specification
+- requirements
+- user-stories
+- acceptance-criteria
 dependencies:
-  - spec-kit:shared
-  - superpowers:brainstorming
+- superpowers:brainstorming
 tools: []
 usage_patterns:
-  - feature-specification
-  - requirements-documentation
-  - user-story-creation
+- feature-specification
+- requirements-documentation
+- user-story-creation
 complexity: intermediate
 estimated_tokens: 1200
 progressive_loading: true
 modules:
-  - success-criteria-patterns
-  - specification-structure
-version: 1.4.0
+- success-criteria-patterns
+- specification-structure
+- checklist-dimensions
 ---
 
 # Spec Writing

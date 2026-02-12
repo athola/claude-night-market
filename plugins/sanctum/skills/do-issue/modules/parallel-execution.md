@@ -113,6 +113,55 @@ All tasks completed without conflicts.
 | **Conventional Commits** | Each task commits with proper format |
 | **Isolation** | Tasks don't share state between subagents |
 
+## Agent Teams (Default Execution Backend)
+
+Agent teams is the **default** for parallel execution in do-issue. Teammates coordinate via filesystem-based messaging, which prevents merge conflicts and duplicate work that Task tool batches would only catch at the review gate.
+
+Use `--no-agent-teams` to fall back to Task tool dispatch when coordination overhead isn't justified.
+
+### Automatic Downgrade
+
+Agent teams is skipped (Task tool or inline used instead) when:
+- Single issue with `--scope minor` (no parallelism needed)
+- tmux is not installed or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is unset
+- `--no-agent-teams` flag is explicitly passed
+
+### When Task Tool Is Better
+
+| Scenario | Recommendation |
+|----------|---------------|
+| Single issue, minor scope | Inline execution (no dispatch at all) |
+| 2-3 fully independent issues, no shared files | Task tool is simpler, `--no-agent-teams` |
+| 3+ issues with shared files or dependencies | Agent teams (default) |
+| 5+ issues, complex dependency graph | Agent teams (default) |
+
+### Agent Teams Execution Pattern
+
+```text
+Lead agent creates team: do-issue-{timestamp}
+  Spawns: worker-1 (Sonnet), worker-2 (Sonnet), worker-3 (Sonnet)
+
+Lead assigns tasks via inbox:
+  worker-1: "Implement #42 (auth middleware) in src/auth/"
+  worker-2: "Fix #43 (validation bug) in src/validators/"
+  worker-3: "Add #44 (logging) in src/utils/"
+
+Mid-execution coordination:
+  worker-1 → worker-3: "I added auth logging to src/auth/log.py —
+    don't duplicate in your logging task"
+  worker-3 → worker-1: "Acknowledged, will import from your module"
+
+Lead collects completion messages, runs quality gates, shuts down team.
+```
+
+### Key Difference from Task Tool
+
+Task tool subagents are **fire-and-forget** — they can't communicate mid-execution. Agent teams teammates can **send messages to each other** when they discover shared concerns. This prevents merge conflicts and duplicate work that Task tool batches would catch only at the review gate.
+
+### Fallback
+
+If tmux is unavailable or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` is not set, `--agent-teams` silently falls back to standard Task tool dispatch.
+
 ## Next Phase
 
 After parallel execution completes, proceed to [quality-gates.md](quality-gates.md) for batch review.

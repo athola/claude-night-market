@@ -1,7 +1,6 @@
 # Multi-Metric Evaluation Methodology
 
-For comprehensive evaluation methodology, see:
-**[Evaluation Methodology Guide](../../../../../docs/examples/skill-development/evaluation-methodology.md)**
+Weighted multi-metric scoring for skill quality assessment. Covers compliance (30%), performance (25%), documentation (20%), and maintainability (25%) dimensions with vector normalization for scale invariance.
 
 ## Quick Reference
 
@@ -56,4 +55,4 @@ The comprehensive methodology guide includes:
 - Benchmark comparisons
 - Continuous improvement frameworks
 
-📖 **[Full Evaluation Methodology](../../../../../docs/examples/skill-development/evaluation-methodology.md)**
+Use `Skill(abstract:skills-eval)` to run the full evaluation pipeline against any skill.

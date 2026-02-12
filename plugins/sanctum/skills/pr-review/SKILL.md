@@ -10,10 +10,12 @@ tags:
 - review
 - scope
 - github
+- gitlab
 - code-quality
 - knowledge-capture
+- cross-platform
 tools:
-- gh
+- gh / glab (platform-detected)
 - pensive:unified-review
 usage_patterns:
 - scope-validation
@@ -27,6 +29,7 @@ modules:
 - knowledge-capture.md
 - version-validation.md
 dependencies:
+- leyline:git-platform
 - sanctum:shared
 - sanctum:git-workspace-review
 - sanctum:version-updates
@@ -35,7 +38,6 @@ dependencies:
 - memory-palace:review-chamber
 - scribe:slop-detector
 - scribe:doc-generator
-version: 1.4.0
 ---
 ## Table of Contents
 
@@ -64,7 +66,9 @@ version: 1.4.0
 
 # Scope-Focused PR Review
 
-Review pull requests with discipline: validate against original requirements, prevent scope creep, and route out-of-scope findings to GitHub issues.
+Review pull/merge requests with discipline: validate against original requirements, prevent scope creep, and route out-of-scope findings to issues on the detected platform.
+
+**Platform detection is automatic** via `leyline:git-platform`. Use `gh` for GitHub, `glab` for GitLab. Check session context for `git_platform:`.
 
 ## Core Principle
 
@@ -164,15 +168,21 @@ Before looking at ANY code, understand what this PR is supposed to accomplish.
    ```
    **Verification:** Run the command with `--help` flag to verify availability.
 
-4. **PR description**: Author's intent
+4. **PR/MR description**: Author's intent
    ```bash
+   # GitHub
    gh pr view <number> --json body --jq '.body'
+   # GitLab
+   glab mr view <number> --json description --jq '.description'
    ```
    **Verification:** Run the command with `--help` flag to verify availability.
 
 5. **Commit messages**: Incremental decisions
    ```bash
+   # GitHub
    gh pr view <number> --json commits --jq '.commits[].messageHeadline'
+   # GitLab
+   glab mr view <number> --json commits
    ```
    **Verification:** Run the command with `--help` flag to verify availability.
 
@@ -187,14 +197,14 @@ If no scope artifacts exist, flag this as a process issue but continue with PR d
 ### Phase 2: Gather Changes
 
 ```bash
-# Changed files list
+# GitHub
 gh pr diff <number> --name-only
-
-# Full diff
 gh pr diff <number>
-
-# Statistics
 gh pr view <number> --json additions,deletions,changedFiles,commits
+
+# GitLab
+glab mr diff <number>
+glab mr view <number>
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
@@ -244,30 +254,28 @@ Scope check: Is input validation mentioned in requirements?
 
 ### Phase 5: Backlog Triage
 
-For each BACKLOG item, create a GitHub issue:
+For each BACKLOG item, create an issue on the detected platform:
 
 ```bash
+# GitHub
 gh issue create \
   --title "[Tech Debt] Brief description" \
   --body "## Context
 Identified during PR #<number> review.
+..." \
+  --label "tech-debt"
 
-## Details
-<what the improvement would address>
-
-## Suggested Approach
-<how to implement>
-
-## Priority
-Low - Improvement opportunity, not blocking
-
----
-*Auto-created by pr-review*" \
+# GitLab
+glab issue create \
+  --title "[Tech Debt] Brief description" \
+  --description "## Context
+Identified during MR !<number> review.
+..." \
   --label "tech-debt"
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
-**Ask user before creating:** "I found N backlog items. Create GitHub issues? [y/n/select]"
+**Ask user before creating:** "I found N backlog items. Create issues? [y/n/select]"
 
 ### Phase 6: Generate Report
 
@@ -405,6 +413,11 @@ Apply `scribe:slop-detector` to PR body:
 - Findings classified correctly
 - Backlog items tracked as issues
 - Clear recommendation provided
+
+## Supporting Modules
+
+- [GitHub PR comment patterns](modules/github-comments.md) - `gh api` patterns for inline and summary PR comments
+
 ## Troubleshooting
 
 ### Common Issues

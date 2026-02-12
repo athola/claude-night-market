@@ -1,6 +1,6 @@
 {
   "name": "imbue",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Intelligent workflow methodologies for analysis, evidence gathering, and structured output patterns",
   "skills": [
     "./skills/catchup",
@@ -11,7 +11,6 @@
     "./skills/review-core",
     "./skills/rigorous-reasoning",
     "./skills/scope-guard",
-    "./skills/shared",
     "./skills/structured-output",
     "./skills/workflow-monitor"
   ],

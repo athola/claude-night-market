@@ -1,10 +1,9 @@
 ---
 name: project-execution
-description: "Execute implementation plans systematically with checkpoint validation, progress tracking, and continuous quality gates. Use when: implementing tasks, executing plans, tracking progress, validating checkpoints. Do not use when: no implementation plan exists or still in planning phase."
+description: "Execute implementation plans with checkpoint validation, progress tracking, and quality gates. Use for task implementation, plan execution, progress tracking. Skip if no plan exists."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
 tools_allowed: all
-version: 1.4.0
 category: workflow
 tags: [execution, implementation, progress-tracking, quality-gates, tdd]
 complexity: intermediate

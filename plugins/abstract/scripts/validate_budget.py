@@ -8,8 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Configuration
-BUDGET_LIMIT = 15000  # Default Claude Code budget
-WARN_THRESHOLD = 14500  # Warn at 96.7% usage
+BUDGET_LIMIT = (
+    17000  # Above CC 16k fallback; override via SLASH_COMMAND_TOOL_CHAR_BUDGET
+)
+WARN_THRESHOLD = 16500  # Warn at 97.1% usage
 DESCRIPTION_MAX = 150  # Max chars per description (recommendation)
 VERBOSE_DISPLAY_LIMIT = 5  # Number of verbose items to display
 

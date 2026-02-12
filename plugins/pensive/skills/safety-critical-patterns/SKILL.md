@@ -18,7 +18,6 @@ tools:
 - Glob
 complexity: intermediate
 estimated_tokens: 600
-version: 1.4.0
 dependencies:
 - pensive:shared
 - pensive:code-refinement
@@ -149,7 +148,7 @@ tsc --strict --noImplicitAny
 
 Reference this skill from:
 - `pensive:code-refinement` - Clean code dimension
-- `pensive:shared/modules/code-quality-analysis` - Quality checks
+- `pensive:code-refinement` - Quality checks
 - `sanctum:pr-review` - Code quality phase
 
 ## Sources

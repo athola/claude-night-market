@@ -5,7 +5,6 @@ description: TDD-style testing methodology for skills using fresh subagent insta
   improvements, testing skill effectiveness, preventing priming bias, measuring skill
   impact on behavior. Do not use when implementing skills (use skill-authoring instead),
   creating hooks (use hook-authoring instead).
-version: 1.4.0
 category: testing
 tags:
 - testing

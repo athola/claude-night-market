@@ -30,12 +30,15 @@ modules:
 - memory-management
 - benchmarking-tools
 - best-practices
-version: 1.4.0
 ---
 
 # Python Performance Optimization
 
 Profiling and optimization patterns for Python code.
+
+## Table of Contents
+
+1. [Quick Start](#quick-start)
 
 ## Quick Start
 

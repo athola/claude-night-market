@@ -11,12 +11,13 @@ tags:
 - efficiency
 - automation
 dependencies:
+- leyline:git-platform
 - imbue:evidence-logging
 - sanctum:fix-workflow
 tools:
 - Bash
 - TodoWrite
-- gh (GitHub CLI)
+- gh / glab (platform-detected)
 usage_patterns:
 - error-detection
 - efficiency-analysis
@@ -27,7 +28,6 @@ modules:
 - modules/detection-patterns.md
 - modules/issue-templates.md
 - modules/efficiency-metrics.md
-version: 1.4.0
 ---
 ## Table of Contents
 
@@ -43,7 +43,7 @@ version: 1.4.0
 
 # Workflow Monitor
 
-Monitor workflow executions for errors and inefficiencies, automatically creating GitHub issues for improvements.
+Monitor workflow executions for errors and inefficiencies, automatically creating issues on the detected git platform (GitHub/GitLab) for improvements. Check session context for `git_platform:` and use `Skill(leyline:git-platform)` for CLI command mapping.
 
 ## Philosophy
 

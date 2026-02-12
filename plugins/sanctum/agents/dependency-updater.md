@@ -16,6 +16,7 @@ tools:
 - Grep
 - TodoWrite
 model: sonnet
+memory: project
 permissionMode: acceptEdits
 escalation:
   to: opus
@@ -126,17 +127,16 @@ go list -m -versions <module>
 
 Scan the repository **recursively** for ALL dependency files, including nested workspaces:
 
-```bash
-# Find all dependency manifests - MUST be recursive to catch nested workspaces
-find . -name "pyproject.toml" -o -name "Cargo.toml" -o -name "package.json" -o -name "go.mod" \
-  | grep -v node_modules | grep -v .venv | grep -v .uv-cache
+Use Glob tool for parallel discovery (preferred over bash find — Claude Code 2.1.31+ strongly steers toward native tools):
 
-# Alternative: Use Glob tool for parallel discovery
+```
 Glob("**/pyproject.toml")  # Python - catches plugins/*/pyproject.toml, plugins/*/hooks/pyproject.toml
 Glob("**/Cargo.toml")      # Rust - catches workspace members
 Glob("**/package.json")    # JS - catches monorepo packages
 Glob("**/go.mod")          # Go - catches submodules
 ```
+
+Filter out `.venv/`, `node_modules/`, `.uv-cache/` results from Glob output.
 
 **Critical**: Monorepos commonly have:
 - `plugins/*/pyproject.toml` - plugin-level dependencies

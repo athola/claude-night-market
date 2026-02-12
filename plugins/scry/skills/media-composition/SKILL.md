@@ -1,19 +1,22 @@
 ---
 name: media-composition
-description: |
-  Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal layouts.
-
-  Triggers: tutorial, composition, stitch, ffmpeg, media, combine, merge recordings
-  Use when: combining terminal and browser recordings
+description: Combine media assets (GIFs, videos) into composite tutorials with vertical/horizontal
+  layouts.
 category: media-generation
-tags: [composition, ffmpeg, media, combine, stitch, tutorial]
-tools: [Bash]
+tags:
+- composition
+- ffmpeg
+- media
+- combine
+- stitch
+- tutorial
+tools:
+- Bash
 complexity: medium
 estimated_tokens: 450
 progressive_loading: false
 dependencies:
-  - scry:gif-generation
-version: 1.4.0
+- scry:gif-generation
 ---
 ## Table of Contents
 

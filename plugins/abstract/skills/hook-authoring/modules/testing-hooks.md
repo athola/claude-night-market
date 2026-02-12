@@ -1,6 +1,6 @@
 # Testing Hooks
 
-Testing strategies for hook development. For comprehensive test examples, see [Hook Testing Examples](../../../docs/examples/hook-testing/comprehensive-examples.md).
+Testing strategies for hook development. Covers unit testing hook logic, mocking external dependencies, and CI/CD integration.
 
 ## Testing Philosophy
 
@@ -108,7 +108,7 @@ For comprehensive test examples including:
 - Performance benchmarks
 - CI/CD configuration
 
-See: [Hook Testing Examples](../../../docs/examples/hook-testing/comprehensive-examples.md)
+See `Skill(abstract:hook-authoring)` for full hook development patterns including test examples.
 
 ## Related Modules
 

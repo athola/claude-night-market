@@ -7,7 +7,6 @@ description: 'NEVER escalate without investigation first. This is the Iron Law. 
   - investigate root cause first. DO NOT use when: time pressure alone - urgency doesn''t
   change task complexity. DO NOT use when: "just to be safe" - assess actual complexity
   instead.'
-version: 1.4.0
 category: agent-workflow
 tags:
 - escalation
@@ -209,6 +208,16 @@ Agent starts task at assigned model
 ## Model Capability Notes
 
 **MCP Tool Search (Claude Code 2.1.7+)**: Haiku models do not support MCP tool search. If a workflow uses many MCP tools (descriptions exceeding 10% of context), those tools load upfront on haiku instead of being deferred. This can consume significant context. Consider escalating to sonnet for MCP-heavy workflows or ensure haiku agents use only native tools (Read, Write, Bash, etc.).
+
+**Effort Controls as Escalation Alternative (Opus 4.6 / Claude Code 2.1.32+)**: Opus 4.6 introduces adaptive thinking with effort levels (`low`, `medium`, `high`, `max`). Before escalating between models, consider whether adjusting effort level on the current model would suffice:
+
+| Instead of... | Consider... | When |
+|--------------|-------------|------|
+| Haiku → Sonnet | Stay on Haiku | Task is still deterministic, just needs more context |
+| Sonnet → Opus | Opus@medium | Moderate reasoning, not deep architectural analysis |
+| Opus@default → "maybe try again" | Opus@max | Genuine complexity that needs maximum reasoning depth |
+
+Effort controls do NOT replace the escalation governance framework — they provide an additional axis. The Iron Law still applies: investigate before changing either model or effort level.
 
 ## Troubleshooting
 

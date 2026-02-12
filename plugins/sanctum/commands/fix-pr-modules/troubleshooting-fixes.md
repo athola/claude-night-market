@@ -289,7 +289,7 @@ Attune Workflow        | /fix-pr Equivalent
 /attune:brainstorm     | (PR review received)
 /attune:arch-init      | --
 /attune:specify        | Step 1: Analyze
-/attune:plan           | Step 2-3: Triage + Plan
+/attune:blueprint           | Step 2-3: Triage + Plan
 /attune:init           | --
 /attune:execute        | Step 4-5: Fix + Validate
 /attune:validate       | (included in Step 5)

@@ -9,7 +9,6 @@ progressive_loading: true
 dependencies:
   hub: []
   modules: []
-version: 1.4.0
 ---
 
 # Token Conservation Workflow
@@ -36,8 +35,14 @@ version: 1.4.0
 - Capture remaining budget and set a max token target for this task.
 
 ## Step 2 – Context Plan (`context-plan`)
-- Decide exactly which files/snippets to expose. Prefer `rg`/`sed -n` slices
-  instead of whole files.
+- Decide exactly which files/snippets to expose. Prefer `Read` with `offset`/`limit`
+  params or `Grep` tool over loading whole files. Avoid `cat`/`sed`/`awk` via Bash
+  — Claude Code 2.1.21+ steers toward native file tools (Read, Edit, Write, Grep, Glob).
+- **PDFs (Claude Code 2.1.30+)**: Use `Read` with `pages: "1-5"` for targeted PDF reading
+  instead of loading entire documents. Large PDFs (>10 pages) return a lightweight
+  reference when @-mentioned — use the `pages` parameter to read specific sections.
+  Hard limits: **100 pages max, 20MB max per PDF**. Exceeding these previously locked
+  sessions permanently (fixed in 2.1.31).
 - Convert prose instructions into bullet lists before prompting so only essential
   info hits the model.
 
@@ -53,10 +58,16 @@ version: 1.4.0
 - Use `prompt caching` ideas: reference prior outputs instead of restating them
   when the model has already processed the information (cite snippet IDs).
 - Decide whether the current thread should be compacted:
+  - If only recent context is stale, use **"Summarize from here"** (Claude Code 2.1.32+)
+    via the message selector to partially summarize the conversation — this preserves
+    recent context while compressing older portions
   - If the active workflow is finished and earlier context will not be reused,
     instruct the user to run `/new`
   - If progress requires the existing thread but the window is bloated,
     prompt them to run `/compact` before continuing
+- **Automatic memory** (Claude Code 2.1.32+): Claude now records and recalls session
+  memories automatically. This adds minor token overhead but improves cross-session
+  continuity. No action needed — be aware it contributes to baseline context usage.
 
 ## Step 5 – Logging (`logging`)
 

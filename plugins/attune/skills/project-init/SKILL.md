@@ -1,17 +1,20 @@
 ---
 name: project-init
-description: |
-  Interactive project initialization with git setup, workflows, hooks, and build configuration.
+description: 'Interactive project initialization with git setup, workflows, hooks,
+  and build configuration.
 
-  project setup, initialization, scaffold, bootstrap, new project
-  Use when: starting new projects or initializing repositories
+
+  project setup, initialization, scaffold, bootstrap, new project.'
 model: claude-sonnet-4
-tools: [Read, Write, Bash, Glob]
+tools:
+- Read
+- Write
+- Bash
+- Glob
 modules:
-  - ./modules/language-detection.md
-  - ./modules/metadata-collection.md
-  - ./modules/template-rendering.md
-version: 1.4.0
+- ./modules/language-detection.md
+- ./modules/metadata-collection.md
+- ./modules/template-rendering.md
 ---
 ## Table of Contents
 

@@ -343,6 +343,35 @@ Sessions are persisted after each phase:
 - Can resume from last completed phase
 - Use `--resume <session-id>` to continue
 
+## Agent Teams Execution Path
+
+When `--agent-teams` is active (Full Council / Delphi only), phases execute through persistent teammates instead of one-shot delegations:
+
+### Phase Mapping
+
+| Phase | Standard (Conjure) | Agent Teams |
+|-------|-------------------|-------------|
+| Phase 0: RS Assessment | Chief Strategist direct call | Lead agent computes directly (no team needed yet) |
+| Phase 1: Intel | Parallel delegation to Scout + Intel | Lead sends inbox tasks to `scout` + `intel-officer` teammates |
+| Phase 2: Assessment | Sequential delegation | Lead's `chief-strategist` teammate processes intel reports |
+| Phase 3: COA Dev | Parallel delegation, anonymized | Teammates develop COAs independently; can send clarifying questions via inbox |
+| Phase 4: Red Team | Sequential delegation | `red-team` teammate receives COAs; **can message authors for clarification** |
+| Phase 5: Voting | Parallel delegation | Lead broadcasts ballot; teammates respond via inbox messages |
+| Phase 6: Premortem | Parallel delegation | Teammates post failure scenarios; **can build on each other's analysis** |
+| Phase 7: Synthesis | Supreme Commander call | Lead agent synthesizes (teammates shut down after) |
+
+### Key Differences
+
+**Bidirectional messaging** (Phases 3-6): In standard mode, experts produce one-shot responses. In agent teams mode, experts can exchange messages mid-phase — the Red Team can ask a COA author to clarify assumptions, and premortem participants can chain failure scenarios.
+
+**Delphi persistence**: In standard mode, each Delphi round re-invokes all experts from scratch. In agent teams mode, teammates persist across rounds, retaining prior context and positions. This reduces token waste and enables more nuanced position evolution.
+
+**Anonymization**: Agent teams still uses anonymized COA labeling (Response A, B, C) during Phases 3-5. Attribution is revealed in Phase 7 by the lead agent after de-anonymization.
+
+### Graceful Shutdown
+
+After Phase 7, the lead sends `shutdown_request` to all teammates. Teammates acknowledge and exit. Lead cleans up team config and tmux panes.
+
 ## Metrics
 
 Track per session:

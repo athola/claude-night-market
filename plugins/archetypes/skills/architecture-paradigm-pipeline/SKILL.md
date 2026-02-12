@@ -6,7 +6,6 @@ description: 'Consult this skill when designing data pipelines or transformation
   selecting from multiple paradigms - use architecture-paradigms first. DO NOT use
   when: data flow is not sequential or predictable. DO NOT use when: complex branching/merging
   logic dominates.'
-version: 1.4.0
 category: architectural-pattern
 tags:
 - architecture

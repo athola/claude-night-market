@@ -1,18 +1,18 @@
 {
   "name": "leyline",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Infrastructure and pipeline building blocks for Claude Code plugins. Like ancient ley lines connecting sacred sites, leyline provides the foundational patterns that connect and power plugin ecosystems.",
   "commands": [
     "./commands/reinstall-all-plugins.md",
     "./commands/update-all-plugins.md"
   ],
   "skills": [
-    "./skills/shared",
     "./skills/quota-management",
     "./skills/usage-logging",
     "./skills/service-registry",
     "./skills/error-patterns",
     "./skills/authentication-patterns",
+    "./skills/git-platform",
     "./skills/mecw-patterns",
     "./skills/evaluation-framework",
     "./skills/storage-templates",
@@ -20,6 +20,7 @@
     "./skills/testing-quality-standards",
     "./skills/pytest-config"
   ],
+  "hooks": "./hooks/hooks.json",
   "keywords": [
     "infrastructure",
     "pipeline",

@@ -1,14 +1,9 @@
 ---
 name: skills-eval
-description: 'Evaluate and improve Claude skill quality through auditing. Use when
+description: Evaluate and improve Claude skill quality through auditing. Use when
   reviewing skill quality, preparing skills for production, or auditing existing skills.
   Do not use when creating new skills (use modular-skills) or writing prose (use writing-clearly-and-concisely).
-  Use this skill before shipping any skill to production. Use when: quality-assurance,
-  skills, optimization, tool-use, performance-metrics, skill audit, quality review,
-  compliance check, improvement suggestions, token usage analysis, skill evaluation,
-  skill assessment, skill optimization, skill standards, skill metrics, skill performance,
-  skill quality.'
-version: 1.4.0
+  Use this skill before shipping any skill to production.
 category: skill-management
 tags:
 - evaluation
@@ -119,6 +114,12 @@ Quality assessments use the `skills-auditor` and `improvement-suggester` to gene
 We evaluate skills across five dimensions: structure compliance, content quality, token efficiency, activation reliability, and tool integration. Scores above 90 represent production-ready skills, while scores below 50 indicate critical issues requiring immediate attention.
 
 Improvements are prioritized by impact. Critical issues include security vulnerabilities or broken functionality. High-priority items cover structural flaws that hinder discoverability. Medium and low priorities focus on best practices and minor optimizations.
+
+### Structural Patterns
+
+**Deprecated**: `skills/shared/modules/` directories. Shared modules must be relocated into the consuming skill's own `modules/` directory. The evaluator flags any remaining `skills/shared/` as a structural warning.
+
+**Current**: Each skill owns its modules at `skills/<skill-name>/modules/`. Cross-skill references use relative paths (e.g., `../skill-authoring/modules/anti-rationalization.md`).
 
 ## Resources
 

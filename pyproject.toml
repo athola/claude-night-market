@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "claude-night-market"
-version = "1.4.0"
+version = "1.4.1"
 description = "Root workspace config for tests and linting"
 requires-python = ">=3.12"
 dependencies = [
@@ -63,6 +63,7 @@ markers = [
     "skill: Skill-specific tests",
     "hook: Hook-specific tests",
     "command: Command-specific tests",
+    "bdd: BDD-style behavior-driven tests",
 ]
 
 [tool.coverage.run]

@@ -35,7 +35,6 @@ orchestrates:
 - pensive:test-review
 - pensive:makefile-review
 - pensive:math-review
-version: 1.4.0
 ---
 ## Table of Contents
 
@@ -209,7 +208,13 @@ This reduces token usage by 50-70% for focused reviews while maintaining full ca
 - All selected review skills executed
 - Findings consolidated and prioritized
 - Action plan created with ownership
-- Evidence logged per `pensive:shared/modules/output-format-templates`
+- Evidence logged per structured output format
+## Supporting Modules
+
+- [Review workflow core](modules/review-workflow-core.md) - standard 5-step workflow pattern for all pensive reviews
+- [Output format templates](modules/output-format-templates.md) - finding entry, severity, action item templates
+- [Quality checklist patterns](modules/quality-checklist-patterns.md) - pre-review, analysis, evidence, deliverable checklists
+
 ## Troubleshooting
 
 ### Common Issues

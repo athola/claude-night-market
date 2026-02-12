@@ -379,7 +379,7 @@ This provides:
 /attune:specify
 
 # Plan implementation tasks
-/attune:plan
+/attune:blueprint
 
 # Execute implementation
 /attune:execute

@@ -1,6 +1,6 @@
 ---
 name: configure
-description: Interactive interface to enable/disable hookify rules
+description: Interactive interface to enable/disable rules
 usage: /hookify:configure
 examples:
   - /hookify:configure

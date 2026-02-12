@@ -1,6 +1,7 @@
 ---
 name: python-tester
-description: 'Expert Python testing agent specializing in pytest, TDD workflows, mocking strategies, and thorough test coverage. Use when: writing test suites, debugging complex failures, improving coverage. PRE-INVOCATION CHECK (parent must verify BEFORE calling this agent): Run pytest? Parent runs `pytest <path> -v`. Run one test? Parent runs `pytest <path>::test_name -v`. Check coverage? Parent runs `pytest --cov=<module>`. Simple assertion fix? Parent edits directly. ONLY invoke this agent for: new test suite creation, complex mocking/fixtures, coverage gap analysis, TDD cycles, or debugging flaky tests.'
+description: Expert Python testing agent specializing in pytest, TDD workflows, mocking
+  strategies, and thorough test coverage.
 tools:
 - Read
 - Write

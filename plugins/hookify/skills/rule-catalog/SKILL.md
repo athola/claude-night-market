@@ -1,9 +1,8 @@
 ---
 name: rule-catalog
-description: This skill provides the catalog and guides installation. Use when looking
-  for ready-made hookify rules, installing standard rules, browsing available rule
-  categories. Do not use when writing custom rules - use hookify:writing-rules instead.
-version: 1.4.0
+description: Browse the rule catalog and guide installation. Use when looking for
+  ready-made rules, installing standard rules, browsing available categories. Do not
+  use when writing custom rules - use writing-rules skill instead.
 category: hook-development
 tags:
 - hookify
@@ -24,6 +23,19 @@ usage_patterns:
 - browsing-rules
 - installing-rules
 ---
+
+## When To Use
+
+- Browsing available hookify rules by category
+- Installing standard pre-built rules into a project
+- Looking for ready-made rules before writing custom ones
+
+## When NOT To Use
+
+- Writing custom rules from scratch — use `hookify:writing-rules` instead
+- Debugging or modifying existing installed rules
+- Converting Python SDK hooks — use `hookify:from-hook` instead
+
 ## Table of Contents
 
 - [Quick Install](#quick-install)

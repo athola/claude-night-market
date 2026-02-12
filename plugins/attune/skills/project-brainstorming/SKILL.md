@@ -1,9 +1,8 @@
 ---
 name: project-brainstorming
-description: "Guide project ideation through Socratic questioning and constraint analysis to create actionable project briefs. Use when: starting projects, exploring problem spaces, comparing approaches, validating feasibility. Do not use when: requirements already clear and specification exists."
+description: "Guide project ideation through Socratic questioning and constraint analysis for actionable project briefs. Use for starting projects, exploring problems, comparing approaches, feasibility. Skip if requirements are clear."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-sonnet-4
-version: 1.4.0
 category: workflow
 tags: [brainstorming, ideation, planning, requirements, socratic-method]
 complexity: intermediate
@@ -304,7 +303,7 @@ Final output saved to `docs/project-brief.md`:
 
 ## Next Steps
 1. `/attune:specify` - Create detailed specification
-2. `/attune:plan` - Plan architecture and tasks
+2. `/attune:blueprint` - Plan architecture and tasks
 3. `/attune:project-init` - Initialize project structure
 ```
 **Verification:** Run the command with `--help` flag to verify availability.

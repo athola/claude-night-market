@@ -330,7 +330,7 @@ class TestIntegrationWithCodeRefinement:
         Then safety-critical-patterns should be referenced
         """
         refinement_references = [
-            "pensive:shared/modules/code-quality-analysis",
+            "pensive:code-refinement/modules/code-quality-analysis",
             "pensive:safety-critical-patterns",
         ]
 
@@ -338,9 +338,9 @@ class TestIntegrationWithCodeRefinement:
 
     @pytest.mark.unit
     def test_shared_module_exposes_safety_patterns(self) -> None:
-        """Scenario: Shared code-quality module references safety patterns.
+        """Scenario: Code-quality module references safety patterns.
 
-        Given pensive:shared/modules/code-quality-analysis
+        Given pensive:code-refinement/modules/code-quality-analysis
         When checking cross-references
         Then safety-critical patterns should be listed
         """

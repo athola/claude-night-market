@@ -1,29 +1,43 @@
 ---
 name: progressive-loading
-description: |
-  Context-aware progressive module loading with hub-and-spoke pattern for token optimization.
+description: 'Context-aware progressive module loading with hub-and-spoke pattern
+  for token optimization.
 
-  progressive loading, lazy loading, hub-spoke, module selection
-  Use when: optimizing skill loading or reducing upfront context usage
+
+  progressive loading, lazy loading, hub-spoke, module selection.'
 category: infrastructure
-tags: [progressive-disclosure, context-management, modularity, token-optimization, lazy-loading]
-dependencies: [leyline:mecw-patterns]
-tools: [mecw-monitor, context-tracker, module-selector]
+tags:
+- progressive-disclosure
+- context-management
+- modularity
+- token-optimization
+- lazy-loading
+dependencies:
+- leyline:mecw-patterns
+tools:
+- mecw-monitor
+- context-tracker
+- module-selector
 provides:
-  infrastructure: [progressive-loading, context-based-selection, load-on-demand]
-  patterns: [hub-and-spoke, conditional-loading, context-awareness]
+  infrastructure:
+  - progressive-loading
+  - context-based-selection
+  - load-on-demand
+  patterns:
+  - hub-and-spoke
+  - conditional-loading
+  - context-awareness
 usage_patterns:
-  - skill-optimization
-  - context-aware-loading
-  - dynamic-module-selection
-  - token-budget-management
+- skill-optimization
+- context-aware-loading
+- dynamic-module-selection
+- token-budget-management
 complexity: intermediate
 estimated_tokens: 800
 progressive_loading: true
 modules:
-  - modules/selection-strategies.md
-  - modules/loading-patterns.md
-version: 1.4.0
+- modules/selection-strategies.md
+- modules/loading-patterns.md
 ---
 ## Table of Contents
 

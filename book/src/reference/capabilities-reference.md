@@ -25,6 +25,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `architecture-paradigm-service-based` | [archetypes](../plugins/archetypes.md) | Coarse-grained SOA |
 | `architecture-paradigm-space-based` | [archetypes](../plugins/archetypes.md) | Data-grid architecture |
 | `architecture-paradigms` | [archetypes](../plugins/archetypes.md) | Orchestrator for paradigm selection |
+| `agent-teams` | [conjure](../plugins/conjure.md) | Coordinate Claude Code Agent Teams through filesystem-based protocol |
 | `architecture-aware-init` | [attune](../plugins/attune.md) | Architecture-aware project initialization with research |
 | `architecture-review` | [pensive](../plugins/pensive.md) | Architecture assessment |
 | `authentication-patterns` | [leyline](../plugins/leyline.md) | Auth flow patterns |
@@ -54,6 +55,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `fpf-review` | [pensive](../plugins/pensive.md) | FPF architecture review (Functional/Practical/Foundation) |
 | `gemini-delegation` | [conjure](../plugins/conjure.md) | Gemini CLI integration |
 | `gif-generation` | [scry](../plugins/scry.md) | GIF processing and optimization |
+| `git-platform` | [leyline](../plugins/leyline.md) | Cross-platform git forge detection and command mapping |
 | `git-workspace-review` | [sanctum](../plugins/sanctum.md) | Repo state analysis |
 | `github-initiative-pulse` | [minister](../plugins/minister.md) | Initiative progress tracking |
 | `hook-authoring` | [abstract](../plugins/abstract.md) | Security-first hook development |
@@ -71,7 +73,8 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `optimizing-large-skills` | [conserve](../plugins/conserve.md) | Large skill optimization |
-| `performance-optimization` | [abstract](../plugins/abstract.md) | Agent SDK performance patterns |
+| `performance-optimization` | [abstract](../plugins/abstract.md) | Progressive loading, token budgeting, and context-aware content delivery |
+| `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
@@ -96,6 +99,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
+| `safety-critical-patterns` | [pensive](../plugins/pensive.md) | NASA Power of 10 rules for robust code |
 | `scope-guard` | [imbue](../plugins/imbue.md) | Anti-overengineering |
 | `service-registry` | [leyline](../plugins/leyline.md) | Service discovery patterns |
 | `session-management` | [sanctum](../plugins/sanctum.md) | Session naming, checkpointing, and resume strategies |
@@ -103,6 +107,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `shared-patterns` | [abstract](../plugins/abstract.md) | Reusable plugin development patterns |
 | `shell-review` | [pensive](../plugins/pensive.md) | Shell script auditing for safety and portability |
 | `slop-detector` | [scribe](../plugins/scribe.md) | Detect AI-generated content markers |
+| `smart-sourcing` | [conserve](../plugins/conserve.md) | Balance accuracy with token efficiency |
 | `skill-authoring` | [abstract](../plugins/abstract.md) | TDD methodology for skill creation |
 | `skills-eval` | [abstract](../plugins/abstract.md) | Skill quality assessment |
 | `spec-writing` | [spec-kit](../plugins/spec-kit.md) | Specification authoring |
@@ -123,6 +128,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `version-updates` | [sanctum](../plugins/sanctum.md) | Version bumping |
 | `vhs-recording` | [scry](../plugins/scry.md) | Terminal recordings with VHS |
 | `war-room` | [attune](../plugins/attune.md) | Multi-LLM expert council with Type 1/2 reversibility routing |
+| `war-room-checkpoint` | [attune](../plugins/attune.md) | Inline reversibility assessment for embedded escalation |
 | `workflow-improvement` | [sanctum](../plugins/sanctum.md) | Workflow retrospectives |
 | `workflow-monitor` | [imbue](../plugins/imbue.md) | Workflow execution monitoring and issue creation |
 | `workflow-setup` | [attune](../plugins/attune.md) | Configure CI/CD pipelines |
@@ -143,7 +149,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/attune:brainstorm` | attune | Brainstorm project ideas using Socratic questioning |
 | `/attune:execute` | attune | Execute implementation tasks systematically |
 | `/attune:init` | attune | Initialize new project with development infrastructure |
-| `/attune:plan` | attune | Plan architecture and break down tasks |
+| `/attune:blueprint` | attune | Plan architecture and break down tasks |
 | `/attune:specify` | attune | Create detailed specifications from brainstorm |
 | `/attune:upgrade-project` | attune | Add or update configurations in existing project |
 | `/attune:validate` | attune | Validate project structure against best practices |
@@ -279,6 +285,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `bridge.after_tool_use` | conjure | PostToolUse | Suggests delegation for large output |
 | `bridge.on_tool_start` | conjure | PreToolUse | Suggests delegation for large input |
 | `context_warning.py` | conserve | PreToolUse | Context utilization monitoring |
+| `detect-git-platform.sh` | leyline | SessionStart | Detect git forge platform from remote URL |
 | `local_doc_processor.py` | memory-palace | PostToolUse | Processes local docs |
 | `permission_request.py` | conserve | PermissionRequest | Permission automation |
 | `post-evaluation.json` | abstract | Config | Quality scoring config |

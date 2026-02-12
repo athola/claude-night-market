@@ -1,8 +1,10 @@
-# PR Review: Configuration & Options
+# PR/MR Review: Configuration & Options
 
 Command options, configuration, best practices, and integration details.
 
 > **See Also**: [Main Command](../../pr-review.md) | [Workflow](review-workflow.md) | [Framework](review-framework.md)
+
+**Platform Note**: Commands below show GitHub (`gh`) examples. Check session context for `git_platform:` and consult `Skill(leyline:git-platform)` for GitLab (`glab`) / Bitbucket equivalents.
 
 ## Advanced Features
 
@@ -219,7 +221,7 @@ pr_review:
       deferred: ["enhancement", "medium-priority"]
 ```
 
-> **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for implementation details.
+> **Module Reference**: Auto-issue creation is handled inline by the workflow monitor.
 
 ## Best Practices
 
@@ -250,7 +252,7 @@ pr_review:
 
 - Maintains full backward compatibility with /pr-review
 - Requires superpowers plugin for enhanced analysis
-- GitHub CLI (`gh`) required for review submission and issue creation
+- Platform CLI (`gh` or `glab`) required for review submission and issue creation
 - All Sanctum scope validation preserved
 - Adds detailed code quality checks
 - **Automatically posts findings as GitHub PR review comments**

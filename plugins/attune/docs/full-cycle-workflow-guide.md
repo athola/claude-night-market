@@ -178,7 +178,7 @@ During later phases, `war-room-checkpoint` can trigger additional deliberation w
 - Applies spec-kit templates and validation
 - Enables clarification workflow
 
-### Phase 4: Plan (/attune:plan)
+### Phase 4: Plan (/attune:blueprint)
 
 **Purpose**: Transform specification into implementation plan with architecture and tasks
 
@@ -194,7 +194,7 @@ During later phases, `war-room-checkpoint` can trigger additional deliberation w
 
 **Example Session**:
 ```bash
-/attune:plan
+/attune:blueprint
 
 # Analyzes docs/specification.md
 # Invokes project-architect agent
@@ -381,7 +381,7 @@ def test_debt_item_creation(db_session):
 ### Full Cycle (Recommended for New Projects)
 
 ```bash
-/attune:brainstorm → /attune:war-room → /attune:specify → /attune:plan → /attune:project-init → /attune:execute
+/attune:brainstorm → /attune:war-room → /attune:specify → /attune:blueprint → /attune:project-init → /attune:execute
 ```
 
 **Best for**: Greenfield projects, unclear requirements, team projects
@@ -407,7 +407,7 @@ def test_debt_item_creation(db_session):
 ### Specification-First (Skip Brainstorm)
 
 ```bash
-/attune:specify → /attune:plan → /attune:project-init → /attune:execute
+/attune:specify → /attune:blueprint → /attune:project-init → /attune:execute
 ```
 
 **Best for**: Requirements already clear, need planning and execution
@@ -415,7 +415,7 @@ def test_debt_item_creation(db_session):
 ### Planning-Only (Existing Projects)
 
 ```bash
-/attune:plan → /attune:execute
+/attune:blueprint → /attune:execute
 ```
 
 **Best for**: Existing projects needing systematic implementation
@@ -469,7 +469,7 @@ def test_debt_item_creation(db_session):
 ```bash
 /attune:brainstorm  # Explore problem space
 /attune:specify     # Define requirements
-/attune:plan        # Design architecture
+/attune:blueprint        # Design architecture
 /attune:project-init        # Set up project
 /attune:execute     # Implement systematically
 # Result: Clear direction, quality built-in
@@ -488,7 +488,7 @@ def test_debt_item_creation(db_session):
 
 **Planning refinement**:
 ```bash
-/attune:plan
+/attune:blueprint
 # Review architecture
 # Adjust and re-run if needed
 ```

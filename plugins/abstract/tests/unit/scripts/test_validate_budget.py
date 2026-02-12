@@ -285,10 +285,10 @@ class TestBudgetConstants:
         """Scenario: Budget limit is set to a reasonable value.
 
         Given the BUDGET_LIMIT constant
-        Then it should be a positive integer around 15000.
+        Then it should be a positive integer around 17000.
         """
         assert BUDGET_LIMIT > 0
-        assert BUDGET_LIMIT == 15000
+        assert BUDGET_LIMIT == 17000
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -299,7 +299,7 @@ class TestBudgetConstants:
         Then it should be less than BUDGET_LIMIT.
         """
         assert WARN_THRESHOLD < BUDGET_LIMIT
-        assert WARN_THRESHOLD == 14500
+        assert WARN_THRESHOLD == 16500
 
     @pytest.mark.bdd
     @pytest.mark.unit

@@ -1,9 +1,8 @@
 ---
 name: war-room
-description: "Multi-LLM deliberation framework for strategic decisions through expert pressure-testing and consensus building. Use when: critical decisions, irreversible changes, architecture choices, conflicting approaches, high stakes. Do not use when: decision is trivial, easily reversible, or already made."
+description: "Multi-LLM deliberation for strategic decisions via expert pressure-testing and consensus building. Use for critical, irreversible, or high-stakes architecture choices and conflicts. Skip for trivial or reversible decisions."
 # Custom metadata (not used by Claude for matching):
 model_preference: claude-opus-4
-version: 1.4.0
 category: strategic-planning
 tags: [deliberation, multi-llm, strategy, decision-making, council, reversibility]
 complexity: advanced
@@ -362,12 +361,67 @@ War Room can be auto-suggested via hook when:
 - Complexity score exceeds threshold (0.7)
 - User has opted in via settings
 
+## Agent Teams Execution Mode
+
+### Overview
+
+When `--agent-teams` is specified (or auto-selected for Full Council / Delphi modes), the War Room uses Claude Code Agent Teams instead of sequential conjure delegation. Each expert runs as a persistent teammate with bidirectional messaging, enabling real-time deliberation instead of batch request/response cycles.
+
+**Requires**: Claude Code 2.1.32+, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, tmux installed.
+
+### When Agent Teams Helps
+
+| Mode | Without Agent Teams | With Agent Teams | Benefit |
+|------|-------------------|-----------------|---------|
+| Express | Sonnet direct call | N/A (overkill) | None — skip |
+| Lightweight | 3 sequential delegations | N/A (overhead exceeds benefit) | None — skip |
+| Full Council | 7 sequential/parallel delegations | 7 teammates with live inbox messaging | Experts can **react** to each other's COAs in real-time |
+| Delphi | Multiple delegation rounds | Persistent team iterates until convergence | No re-invocation cost per round; state preserved across rounds |
+
+**Rule of thumb**: Use agent teams only for Full Council and Delphi modes. Lightweight and Express modes don't generate enough inter-expert traffic to justify the coordination overhead.
+
+### Team Configuration
+
+```bash
+# War Room agent team structure
+Team: war-room-{session-id}
+  Lead: supreme-commander (Opus) — orchestrates phases, final synthesis
+  Teammates:
+    chief-strategist (Sonnet) — approach generation
+    intel-officer (Sonnet) — deep context analysis
+    field-tactician (Sonnet) — implementation feasibility
+    scout (Haiku) — rapid reconnaissance
+    red-team (Sonnet) — adversarial challenge
+    logistics (Haiku) — resource estimation
+```
+
+Note: In agent teams mode, all teammates run as Claude Code instances (Opus/Sonnet/Haiku). External LLM experts (Gemini, Qwen, GLM) are not used because agent teams requires the Claude CLI. The trade-off is losing model diversity but gaining real-time inter-expert messaging.
+
+### Deliberation Flow with Agent Teams
+
+1. **Lead creates team** → spawns teammates in tmux panes
+2. **Phase 1 (Intel)**: Lead assigns intel tasks to scout + intel-officer via inbox
+3. **Phase 3 (COA)**: Lead broadcasts situation assessment; teammates develop COAs independently; messaging allows clarifying questions mid-development
+4. **Phase 4 (Red Team)**: Red-team teammate receives all COAs, posts challenges; other teammates can **respond to challenges in real-time**
+5. **Phase 5 (Voting)**: Lead broadcasts ballot; teammates rank via inbox messages
+6. **Phase 6 (Premortem)**: All teammates receive selected COA; can build on each other's failure scenarios
+7. **Phase 7 (Synthesis)**: Lead collects all artifacts, produces decision
+
+### Falling Back to Conjure Delegation
+
+If agent teams fails (tmux unavailable, team creation error), the War Room automatically falls back to standard conjure delegation. The deliberation protocol is identical — only the execution backend differs.
+
+### Cost Considerations
+
+Agent teams is significantly more token-intensive than conjure delegation (each teammate maintains its own context window). Use only when the coordination value justifies the cost — typically Delphi mode where multiple rounds of revision make persistent teammates worthwhile.
+
 ## Related Skills
 
 - `Skill(attune:project-brainstorming)` - Pre-War Room ideation
 - `Skill(imbue:scope-guard)` - Scope management
 - `Skill(imbue:rigorous-reasoning)` - Reasoning methodology
 - `Skill(conjure:delegation-core)` - Expert dispatch
+- `Skill(conjure:agent-teams)` - Agent teams coordination (Full Council / Delphi)
 
 ## Related Commands
 

@@ -14,7 +14,6 @@ dependencies:
   - mcp-subagents
   - mcp-patterns
   - mcp-validation
-version: 1.4.0
 ---
 ## Table of Contents
 
@@ -60,6 +59,8 @@ python -m module_name --help
 - **Context Pressure**: Current usage >25% of total window (proactive context management)
 
 > **MCP Tool Search (Claude Code 2.1.7+)**: When MCP tool descriptions exceed 10% of context, tools are automatically deferred and discovered via MCPSearch instead of being loaded upfront. This reduces token overhead by ~85% but means tools must be discovered on-demand. Haiku models do not support tool search. Configure threshold with `ENABLE_TOOL_SEARCH=auto:N` where N is the percentage.
+
+> **Subagent MCP Access Fix (Claude Code 2.1.30+)**: SDK-provided MCP tools are now properly synced to subagents. Prior to 2.1.30, subagents could not access SDK-provided MCP tools — workflows delegating MCP tool usage to subagents were silently broken. No workarounds needed on 2.1.30+.
 
 ## When NOT To Use
 

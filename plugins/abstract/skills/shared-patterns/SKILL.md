@@ -6,7 +6,6 @@ description: 'Reference these patterns to validate consistency across the ecosys
   standard workflow structures. Do not use when pattern is specific to one skill only.
   DO NOT use when: pattern is still evolving - wait for stability. DO NOT use when:
   pattern is context-dependent requiring variations.'
-version: 1.4.0
 category: meta-infrastructure
 tags:
 - patterns

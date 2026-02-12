@@ -9,6 +9,8 @@ estimated_tokens: 150
 
 Detect anti-patterns using pattern recognition and heuristics. Works without external tools.
 
+> **Tool Preference (Claude Code 2.1.31+)**: The bash snippets in this module are reference implementations for external script execution or CI pipelines. When performing these analyses directly within Claude Code, prefer native tools: use Grep instead of `grep`, Glob instead of `find`, and Read instead of `cat`/`sed`.
+
 ## Anti-Patterns
 
 ### 1. God Class

@@ -24,7 +24,6 @@ complexity: intermediate
 estimated_tokens: 700
 progressive_loading: true
 module_strategy: context-based
-version: 1.4.0
 ---
 ## Table of Contents
 

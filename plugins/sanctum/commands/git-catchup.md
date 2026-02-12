@@ -1,6 +1,6 @@
 ---
 name: git-catchup
-description: A git repository catchup using the imbue catchup methodology.
+description: Catch up on repository changes with structured analysis and actionable insights
 usage: /git-catchup [baseline]
 ---
 

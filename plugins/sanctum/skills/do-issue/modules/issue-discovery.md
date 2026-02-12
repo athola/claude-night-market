@@ -1,6 +1,6 @@
 # Phase 1: Issue Discovery
 
-Parse input arguments and retrieve issue content from GitHub.
+Parse input arguments and retrieve issue content from the detected git platform. Check session context for `git_platform:` to determine which CLI to use.
 
 ## Input Formats
 
@@ -10,8 +10,9 @@ The command accepts flexible input:
 # Single issue number
 /do-issue 42
 
-# GitHub issue URL
+# Platform URL (GitHub or GitLab)
 /do-issue https://github.com/owner/repo/issues/42
+/do-issue https://gitlab.com/owner/repo/-/issues/42
 
 # Multiple issues (space-delimited)
 /do-issue 42 43 44
@@ -22,14 +23,15 @@ The command accepts flexible input:
 
 ## Retrieve Issue Content
 
-For each issue, fetch the full content:
+For each issue, fetch the full content using the platform-appropriate CLI:
 
 ```bash
-# By number (uses current repo)
+# GitHub
 gh issue view 42 --json title,body,labels,assignees,comments
-
-# By URL (extracts owner/repo/number)
 gh issue view https://github.com/owner/repo/issues/42 --json title,body,labels,assignees,comments
+
+# GitLab
+glab issue view 42
 ```
 
 ## Extract Requirements

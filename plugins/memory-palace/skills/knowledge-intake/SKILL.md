@@ -1,19 +1,35 @@
 ---
 name: knowledge-intake
-description: |
-  Process external resources into actionable knowledge with evaluation, storage, and application decisions.
+description: 'Process external resources into actionable knowledge with evaluation,
+  storage, and application decisions.
+
 
   knowledge intake, article evaluation, paper review, external resource
+
   Use when: user shares links to articles, papers, or external resources
-  DO NOT use when: searching existing knowledge - use knowledge-locator.
+
+  DO NOT use when: searching existing knowledge - use knowledge-locator.'
 category: governance
-tags: [knowledge-management, intake, evaluation, curation, external-resources]
-dependencies: [memory-palace-architect, digital-garden-cultivator, leyline:evaluation-framework, leyline:storage-templates, scribe:slop-detector, scribe:doc-verify]
+tags:
+- knowledge-management
+- intake
+- evaluation
+- curation
+- external-resources
+dependencies:
+- memory-palace-architect
+- digital-garden-cultivator
+- leyline:evaluation-framework
+- leyline:storage-templates
+- scribe:slop-detector
+- scribe:doc-verify
 scripts: []
-usage_patterns: [resource-intake, knowledge-evaluation, application-routing]
+usage_patterns:
+- resource-intake
+- knowledge-evaluation
+- application-routing
 complexity: intermediate
 estimated_tokens: 950
-version: 1.4.0
 ---
 ## Table of Contents
 

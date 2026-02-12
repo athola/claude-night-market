@@ -4,11 +4,33 @@ Recommendations for which Claude models to use for different plugin tasks.
 
 ## Model Selection Framework
 
-| Model | Use For | Latency | Cost |
-|-------|---------|---------|------|
-| **Haiku** | Validation, formatting, lookup, counting | Fast | Low |
-| **Sonnet** | Moderate analysis, code generation, summaries | Medium | Medium |
-| **Opus** | Deep reasoning, architecture, creative tasks | Slow | High |
+| Model | Use For | Latency | Cost | Context |
+|-------|---------|---------|------|---------|
+| **Haiku** | Validation, formatting, lookup, counting | Fast | Low | 200K |
+| **Sonnet** | Moderate analysis, code generation, summaries | Medium | Medium | 200K |
+| **Opus 4.6** | Deep reasoning, architecture, creative tasks | Slow | High | 200K (1M beta) |
+
+### Opus 4.6 Capabilities (Claude Code 2.1.32+)
+
+Opus 4.6 introduces features that affect model selection strategy:
+
+- **Adaptive Thinking**: `thinking: {type: "adaptive"}` lets Claude decide when and how deeply to think
+- **Effort Controls**: 4 levels — `low`, `medium`, `high` (default), `max` — trade reasoning depth against speed/cost
+- **128K Max Output**: Significantly larger output window for complex generation tasks
+- **Server-Side Compaction**: Automatic context summarization on the API side, enabling effectively infinite conversations
+- **1M Context Window (Beta)**: Available for workloads requiring massive context
+
+### Effort Controls as an Alternative to Model Escalation
+
+Instead of always escalating haiku→sonnet→opus, consider effort controls on Opus 4.6:
+
+| Approach | When to Use | Trade-off |
+|----------|-------------|-----------|
+| **Haiku→Sonnet→Opus** | Cost-sensitive workflows, high-volume automation | Cheapest per-token, but model switching adds complexity |
+| **Opus@low→@high→@max** | Quality-sensitive workflows, complex orchestration | Higher per-token cost, but simpler single-model pipeline |
+| **Hybrid** | Mixed workloads | Haiku for deterministic tasks, Opus with effort controls for reasoning tasks |
+
+The hybrid approach is recommended: use Haiku for Tier 1 deterministic tasks, and Opus 4.6 with adaptive effort for Tier 2/3 tasks that previously required sonnet-to-opus escalation.
 
 ## Decision Flowchart
 
@@ -18,12 +40,12 @@ Is the task deterministic (same input → same output)?
 └── NO ↓
 
 Does it require subjective judgment or nuanced reasoning?
-├── YES → Use Opus
+├── YES → Use Opus 4.6 (effort: high or max)
 └── NO ↓
 
 Is it pattern matching with moderate complexity?
-├── YES → Use Sonnet
-└── NO → Use Opus (default safe choice)
+├── YES → Use Sonnet or Opus 4.6 (effort: low/medium)
+└── NO → Use Opus 4.6 (default safe choice)
 ```
 
 ## Tier 1: Haiku Candidates (High Confidence)
@@ -279,9 +301,13 @@ Track these metrics after optimization:
 
 ## Context Management for Subagents
 
+### Server-Side Compaction (Opus 4.6 / Claude Code 2.1.32+)
+
+Opus 4.6 introduces **server-side context compaction** — the API automatically summarizes earlier conversation parts when context approaches the window limit. This is separate from Claude Code's client-side auto-compaction and provides an additional safety net for long-running workflows.
+
 ### Auto-Compaction (Claude Code 2.1.1+)
 
-Subagent conversations automatically compact when context reaches ~160k tokens. This is a system-level feature requiring no configuration.
+Subagent conversations automatically compact when context reaches ~160k tokens (on standard 200K windows). This is a system-level feature requiring no configuration. With the 1M context beta, thresholds scale proportionally.
 
 **Log signature**:
 ```json

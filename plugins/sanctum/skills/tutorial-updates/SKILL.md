@@ -1,32 +1,47 @@
 ---
 name: tutorial-updates
-description: |
-  Orchestrate tutorial generation from VHS tapes and Playwright specs to dual-tone markdown with GIF recording.
+description: 'Orchestrate tutorial generation from VHS tapes and Playwright specs
+  to dual-tone markdown with GIF recording.
 
-  tutorial update, gif generation, tape recording, update tutorial, regenerate gifs, tutorial manifest
 
-  Use when: regenerating tutorial GIFs, updating documentation demos, creating tutorials from tape files
+  tutorial update, gif generation, tape recording, update tutorial, regenerate gifs,
+  tutorial manifest
 
-  DO NOT use when: only updating text - use doc-updates.
-  DO NOT use when: only capturing browser - use scry:browser-recording directly.
+
+  Use when: regenerating tutorial GIFs, updating documentation demos, creating tutorials
+  from tape files
+
+
+  DO NOT use when: only updating text - use doc-updates.'
 category: artifact-generation
-tags: [tutorial, gif, vhs, playwright, documentation, demo]
-tools: [Read, Write, Edit, Bash, TodoWrite, Glob]
+tags:
+- tutorial
+- gif
+- vhs
+- playwright
+- documentation
+- demo
+tools:
+- Read
+- Write
+- Edit
+- Bash
+- TodoWrite
+- Glob
 complexity: high
 estimated_tokens: 1100
 progressive_loading: true
 modules:
-  - manifest-parsing
-  - markdown-generation
-  - tape-validation
+- manifest-parsing
+- markdown-generation
+- tape-validation
 dependencies:
-  - sanctum:shared
-  - sanctum:git-workspace-review
-  - scry:vhs-recording
-  - scry:browser-recording
-  - scry:gif-generation
-  - scry:media-composition
-version: 1.4.0
+- sanctum:shared
+- sanctum:git-workspace-review
+- scry:vhs-recording
+- scry:browser-recording
+- scry:gif-generation
+- scry:media-composition
 ---
 ## Table of Contents
 

@@ -4,6 +4,8 @@
 
 **Purpose**: Resolve threads, create issues for deferred items, and post summary.
 
+**Platform Note**: Commands below show GitHub (`gh`) examples. Check session context for `git_platform:` and consult `Skill(leyline:git-platform)` for GitLab (`glab`) / Bitbucket equivalents. GitLab uses "merge request" terminology and `glab api graphql` for thread resolution.
+
 **⚠️ CRITICAL WORKFLOW GUARDRAIL ⚠️**
 
 **NEVER skip this step unless you are NOT the PR author. If you are the PR author and received review comments, you MUST complete this step. There are NO exceptions.**
@@ -198,7 +200,7 @@ fi
 
 **CRITICAL: GitHub issues are created AUTOMATICALLY for ALL suggestion and deferred items identified in Step 6.0.**
 
-> **Module Reference**: See `plugins/sanctum/skills/shared/modules/auto-issue-creation.md` for the full pattern.
+> **Module Reference**: Auto-issue creation is handled inline by the workflow monitor.
 
 **This step is automatic** - no flag required. When items are classified as "Suggestion" or "Deferred" during triage (Step 2) OR identified during reconciliation (Step 6.0), issues are created.
 

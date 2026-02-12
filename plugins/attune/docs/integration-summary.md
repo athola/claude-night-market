@@ -16,7 +16,7 @@ Summary of the Attune 1.0.0 integration with superpowers and spec-kit for full-c
    - Purpose: Create testable requirements from briefs
    - Output: `docs/specification.md`
 
-3. **Plan** (`/attune:plan`)
+3. **Plan** (`/attune:blueprint`)
    - Integrates: `Skill(superpowers:writing-plans)` for structured planning
    - Invokes: `Agent(attune:project-architect)` for architecture design
    - Purpose: Design system and break into tasks
@@ -118,7 +118,7 @@ plugins/attune/
     ├── Acceptance criteria validation
     └── Clarification workflow
 
-/attune:plan
+/attune:blueprint
 └── Skill(superpowers:writing-plans)         ← Delegates to superpowers
     ├── Dependency analysis
     ├── Checkpoint planning
@@ -145,7 +145,7 @@ plugins/attune/
     ├── NFR categories
     └── Quality validation
 
-/attune:plan
+/attune:blueprint
 └── Skill(attune:project-planning)           ← Built-in methodology
     ├── Component identification
     ├── Task breakdown
@@ -239,8 +239,8 @@ Execute   → .attune/execution-state.json + code
 - [ ] `/attune:brainstorm` detects and uses superpowers (if available)
 - [ ] `/attune:specify` works standalone
 - [ ] `/attune:specify` detects and uses spec-kit (if available)
-- [ ] `/attune:plan` generates architecture
-- [ ] `/attune:plan` invokes project-architect agent
+- [ ] `/attune:blueprint` generates architecture
+- [ ] `/attune:blueprint` invokes project-architect agent
 - [ ] `/attune:execute` implements tasks with TDD
 - [ ] `/attune:execute` invokes project-implementer agent
 - [ ] Workflow phases chain correctly (brainstorm → execute)
@@ -320,10 +320,10 @@ Execute   → .attune/execution-state.json + code
 ## Related Documentation
 
 - [README.md](../README.md) - Plugin overview
-- [CHANGELOG.md](../CHANGELOG.md) - Version history
+- [CHANGELOG.md](../../../CHANGELOG.md) - Version history
 - [Full-Cycle Workflow Guide](./full-cycle-workflow-guide.md) - Complete guide
 - [Quick Start Example](./quick-start-example.md) - Practical walkthrough
 - [Brainstorm Command](../commands/brainstorm.md) - Brainstorming reference
 - [Specify Command](../commands/specify.md) - Specification reference
-- [Plan Command](../commands/plan.md) - Planning reference
+- [Blueprint Command](../commands/blueprint.md) - Planning reference
 - [Execute Command](../commands/execute.md) - Execution reference

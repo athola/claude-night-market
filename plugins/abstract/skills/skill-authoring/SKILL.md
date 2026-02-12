@@ -4,11 +4,7 @@ description: 'Guide to effective Claude Code skill authoring using TDD methodolo
   and persuasion principles. Use when creating new skills, improving compliance, or
   validating quality before deployment. Do not use for evaluating existing skills
   (use skills-eval) or analyzing architecture (use modular-skills). Follow the Iron
-  Law: write a failing test before writing any skill. Use when: skills, validation,
-  skill, authoring, tdd, skill authoring, skill writing, new skill, TDD skills, skill
-  creation, skill best practices, skill validation, skill deployment, skill compliance,
-  skill testing.'
-version: 1.4.0
+  Law: write a failing test before writing any skill.'
 category: skill-development
 tags:
 - authoring
@@ -61,6 +57,21 @@ python scripts/abstract_validator.py --check
 ## Description Optimization
 
 Skill descriptions must be optimized for semantic search and explicit triggering. Follow the formula `[What it does] + [When to use it] + [Key triggers]`. Use a third-person voice (e.g., "Guides...", "Provides...") and include specific, concrete use cases. Avoid marketing language or vague phrases like "helps with coding."
+
+### Skill Character Budget (Claude Code 2.1.32+)
+
+Skill description character budgets now **scale with context window** at 2% of available context. This means:
+
+| Context Window | Description Budget |
+|---------------|-------------------|
+| 200K (standard) | ~4,000 characters |
+| 1M (Opus 4.6 beta) | ~20,000 characters |
+
+Previously constrained skills can use more descriptive text on larger windows. However, keep descriptions concise regardless — longer is not better. The scaling primarily prevents truncation for skills with legitimately complex trigger conditions, not as an invitation to add verbose content.
+
+### Plugin Name Auto-Display (Claude Code 2.1.33+)
+
+Plugin names are now automatically shown alongside skill descriptions in the `/skills` menu. Do not repeat the plugin name in skill descriptions — it is redundant and wastes character budget. Focus descriptions on what the skill does and when to use it.
 
 ## The TDD Cycle for Skills
 

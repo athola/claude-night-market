@@ -1,6 +1,6 @@
 ---
 name: from-hook
-description: Convert Python SDK hooks to hookify rules
+description: Convert Python SDK hooks to declarative rules
 ---
 
 # /hookify:from-hook

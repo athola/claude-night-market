@@ -1,28 +1,39 @@
 ---
 name: authentication-patterns
-description: |
-  Authentication patterns for external services: API keys, OAuth, token management, verification.
+description: 'Authentication patterns for external services: API keys, OAuth, token
+  management, verification.
 
-  authentication, API keys, OAuth, token management, credentials
-  Use when: integrating external services or implementing authentication flows
+
+  authentication, API keys, OAuth, token management, credentials.'
 category: infrastructure
-tags: [authentication, api-keys, oauth, tokens, security]
-dependencies: [error-patterns]
+tags:
+- authentication
+- api-keys
+- oauth
+- tokens
+- security
+dependencies:
+- error-patterns
 provides:
-  infrastructure: [authentication, credential-management, auth-verification]
-  patterns: [api-key-auth, oauth-flow, token-refresh]
+  infrastructure:
+  - authentication
+  - credential-management
+  - auth-verification
+  patterns:
+  - api-key-auth
+  - oauth-flow
+  - token-refresh
 usage_patterns:
-  - service-authentication
-  - credential-verification
-  - token-management
+- service-authentication
+- credential-verification
+- token-management
 complexity: beginner
 estimated_tokens: 400
 progressive_loading: true
 modules:
-  - modules/auth-methods.md
-  - modules/verification-patterns.md
-  - modules/interactive-auth.md
-version: 1.4.0
+- modules/auth-methods.md
+- modules/verification-patterns.md
+- modules/interactive-auth.md
 ---
 ## Table of Contents
 

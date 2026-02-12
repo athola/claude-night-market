@@ -1,6 +1,6 @@
 ---
 name: install
-description: Install a hookify rule from the catalog
+description: Install a rule from the catalog
 usage: |
   /hookify:install <category>:<rule-name>
   /hookify:install --category <name>

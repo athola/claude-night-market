@@ -23,7 +23,6 @@ usage_patterns:
 - layout-creation
 complexity: intermediate
 estimated_tokens: 600
-version: 1.4.0
 ---
 ## Table of Contents
 

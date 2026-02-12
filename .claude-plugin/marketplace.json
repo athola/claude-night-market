@@ -6,104 +6,104 @@
   },
   "metadata": {
     "description": "Personal Claude Code plugin collection: architecture patterns, intelligent delegation, resource optimization, code review, and spatial memory systems",
-    "version": "1.4.0"
+    "version": "1.4.1"
   },
   "plugins": [
     {
       "name": "abstract",
       "source": "./plugins/abstract",
       "description": "Meta-skills infrastructure for Claude Code plugin ecosystem - skill authoring, hook development, modular design patterns, and evaluation frameworks",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "attune",
       "source": "./plugins/attune",
       "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "archetypes",
       "source": "./plugins/archetypes",
       "description": "Architecture paradigm selection and implementation planning - 14 paradigm skills from functional-core to microservices",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "conjure",
       "source": "./plugins/conjure",
       "description": "Intelligent delegation framework for routing tasks to external LLMs (Gemini, Qwen) while retaining strategic oversight",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "conserve",
       "source": "./plugins/conserve",
       "description": "Resource optimization and bloat detection - CPU/GPU performance monitoring, token conservation, bloat detection, and codebase cleanup",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "hookify",
       "source": "./plugins/hookify",
       "description": "Create custom behavioral rules through markdown configuration - prevent unwanted behaviors with pattern matching and zero-code rule authoring",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "imbue",
       "source": "./plugins/imbue",
       "description": "Intelligent workflow methodologies - review-core scaffolding, diff analysis, evidence logging, and catchup patterns",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "leyline",
       "source": "./plugins/leyline",
       "description": "Storage and persistence patterns - templates for data management and storage solutions",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "memory-palace",
       "source": "./plugins/memory-palace",
       "description": "Spatial knowledge organization with memory palace techniques - includes skill execution memory storage for continual learning",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "minister",
       "source": "./plugins/minister",
       "description": "Project management plugin that aligns initiatives with GitHub data - turns repositories, issues, and projects into status dashboards",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "parseltongue",
       "source": "./plugins/parseltongue",
       "description": "Language detection, pattern matching, and testing guidance for multi-language codebases",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "pensive",
       "source": "./plugins/pensive",
       "description": "Reflective code review toolkit - domain reviews (architecture, bugs, APIs, math, Rust, tests, Makefiles) plus skill performance analysis with stability gap detection",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "sanctum",
       "source": "./plugins/sanctum",
       "description": "Git and workspace operations - commit messages, PR prep, documentation updates, version bumping",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "scribe",
       "source": "./plugins/scribe",
       "description": "Documentation review, cleanup, and generation with AI slop detection, style learning, and human-quality writing enforcement",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "scry",
       "source": "./plugins/scry",
       "description": "Media generation - terminal recordings (VHS), browser recordings (Playwright), GIF processing, and media composition",
-      "version": "1.4.0"
+      "version": "1.4.1"
     },
     {
       "name": "spec-kit",
       "source": "./plugins/spec-kit",
       "description": "Specification-driven development - spec writing, implementation planning, and task orchestration",
-      "version": "1.4.0"
+      "version": "1.4.1"
     }
   ]
 }

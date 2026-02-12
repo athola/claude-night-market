@@ -167,6 +167,69 @@ def get_glm_command() -> list[str]:
 | Premortem | All active experts | - |
 | Synthesis | Supreme Commander | - |
 
+## Agent Teams Member Mapping
+
+When using `--agent-teams`, experts map to Claude Code teammates. External LLM diversity is traded for real-time inter-expert messaging.
+
+```python
+AGENT_TEAMS_MEMBERS = {
+    "supreme_commander": {
+        "agent_name": "supreme-commander",
+        "model": "opus",
+        "role": "Lead agent (not spawned — IS the lead)",
+    },
+    "chief_strategist": {
+        "agent_name": "chief-strategist",
+        "model": "sonnet",
+        "color": "#4ECDC4",
+    },
+    "intelligence_officer": {
+        "agent_name": "intel-officer",
+        "model": "sonnet",
+        "color": "#45B7D1",
+    },
+    "field_tactician": {
+        "agent_name": "field-tactician",
+        "model": "sonnet",
+        "color": "#96CEB4",
+    },
+    "scout": {
+        "agent_name": "scout",
+        "model": "haiku",
+        "color": "#FFEAA7",
+    },
+    "red_team": {
+        "agent_name": "red-team",
+        "model": "sonnet",
+        "color": "#FF6B6B",
+    },
+    "logistics_officer": {
+        "agent_name": "logistics",
+        "model": "haiku",
+        "color": "#DDA0DD",
+    },
+}
+```
+
+### Model Selection Rationale
+
+- **Opus** for Supreme Commander — highest reasoning for final synthesis
+- **Sonnet** for Strategist, Intel, Tactician, Red Team — strong reasoning at moderate cost
+- **Haiku** for Scout, Logistics — speed-critical roles with simpler reasoning needs
+
+### Spawning Example
+
+```bash
+# Lead spawns chief-strategist teammate
+tmux split-window -h "CLAUDECODE=1 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 \
+  claude --agent-id chief-strategist@war-room-20260208 \
+         --agent-name chief-strategist \
+         --team-name war-room-20260208 \
+         --agent-color '#4ECDC4' \
+         --parent-session-id $SESSION_ID \
+         --model sonnet"
+```
+
 ## Invocation Safety
 
 All external experts are invoked using `asyncio.create_subprocess_exec` which:
@@ -174,3 +237,5 @@ All external experts are invoked using `asyncio.create_subprocess_exec` which:
 - Passes arguments as a list (safe)
 - Captures stdout/stderr separately
 - Handles timeouts gracefully
+
+Agent teams teammates are invoked via `tmux split-window` with CLI identity flags — the same safety model applies (no shell interpretation of user input).

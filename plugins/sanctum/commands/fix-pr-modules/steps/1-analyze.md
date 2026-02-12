@@ -2,20 +2,25 @@
 
 > **Navigation**: [← Main Workflow](../workflow-steps.md) | [Step 2: Triage →](2-triage.md)
 
-**Purpose**: Understand the PR and gather all review comments.
+**Purpose**: Understand the PR/MR and gather all review comments.
 
-**Skip when**: You're already familiar with the PR and comments (e.g., you just received the review notification).
+**Platform Note**: Commands below show GitHub (`gh`) examples. Check session context for `git_platform:` and consult `Skill(leyline:git-platform)` for GitLab (`glab`) / Bitbucket equivalents.
 
-## 1.1 Identify Target PR
+**Skip when**: You're already familiar with the PR/MR and comments (e.g., you just received the review notification).
+
+## 1.1 Identify Target PR/MR
 
 ```bash
-# Current branch or specified PR
+# GitHub - Current branch or specified PR
 gh pr view --json number,url,headRefName,body,title
+
+# GitLab
+glab mr view
 ```
 
-## 1.2 Check and Add PR Description (if missing)
+## 1.2 Check and Add PR/MR Description (if missing)
 
-Verify the PR has a description and add one if it's missing:
+Verify the PR/MR has a description and add one if it's missing:
 
    ```bash
    # Check if PR has a description
@@ -299,7 +304,7 @@ Skill(superpowers:receiving-code-review)
 - Suggests specific fixes
 - Classifies feedback by impact and scope
 
-**Step 1 Output**: PR metadata, all review comments, initial analysis
+**Step 1 Output**: PR/MR metadata, all review comments, initial analysis
 
 ---
 

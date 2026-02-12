@@ -1,13 +1,21 @@
 ---
 name: project-architect
-description: "Architecture design specialist - analyzes requirements and generates component-based system architecture with technology selection and rationale. Use when: designing system architecture, defining components and interfaces, selecting technology stack, making architectural decisions."
-# Custom metadata (not used by Claude for matching):
+description: Architecture design specialist - analyzes requirements and generates
+  component-based system architecture with technology selection and rationale.
+  Use for greenfield projects, major refactors, or technology stack decisions.
 model: claude-sonnet-4
-tools_allowed: [Read, Write, Grep, Glob]
+tools_allowed:
+- Read
+- Write
+- Grep
+- Glob
 max_iterations: 10
-version: 1.4.0
 category: agent
-tags: [architecture, design, planning, technical-decisions]
+tags:
+- architecture
+- design
+- planning
+- technical-decisions
 complexity: intermediate
 ---
 

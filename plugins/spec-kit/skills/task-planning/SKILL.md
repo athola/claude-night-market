@@ -1,29 +1,36 @@
 ---
 name: task-planning
-description: |
-  Generate phased, dependency-ordered tasks from specs. Identifies parallelization opportunities.
+description: 'Generate phased, dependency-ordered tasks from specs. Identifies parallelization
+  opportunities.
+
 
   task planning, dependency ordering, phased breakdown, parallel tasks
+
   Use when: converting specifications to implementation tasks
-  DO NOT use when: writing specifications - use spec-writing.
+
+  DO NOT use when: writing specs - use spec-writing. Not for execution - use speckit-implement.'
 category: planning
-tags: [speckit, tasks, planning, implementation, dependencies]
+tags:
+- speckit
+- tasks
+- planning
+- implementation
+- dependencies
 dependencies:
-  - spec-kit:shared
-  - superpowers:writing-plans
-  - superpowers:executing-plans
+- superpowers:writing-plans
+- superpowers:executing-plans
 tools: []
 modules:
-  - phase-structure.md
-  - dependency-patterns.md
+- phase-structure.md
+- dependency-patterns.md
+- tech-stack-patterns
 progressive_loading: true
 usage_patterns:
-  - task-generation
-  - dependency-ordering
-  - implementation-planning
+- task-generation
+- dependency-ordering
+- implementation-planning
 complexity: intermediate
 estimated_tokens: 1200
-version: 1.4.0
 ---
 
 # Task Planning

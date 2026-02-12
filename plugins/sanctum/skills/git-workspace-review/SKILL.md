@@ -31,7 +31,6 @@ hooks:
       ===" >> ${CLAUDE_CODE_TMPDIR:-/tmp}/skill-audit.log
 
       '
-version: 1.4.0
 ---
 
 # Git Workspace Review
@@ -86,6 +85,10 @@ Run `git diff --cached` to examine the actual changes. For unstaged work, use `g
 ## Exit Criteria
 
 Complete all progress tracking items. You should have a clear understanding of modified files and areas, and the correct work should be staged. Subsequent workflows can then rely on this context without re-executing git commands.
+
+## Supporting Modules
+
+- [Git commands reference](modules/git-commands.md) - diff, status, branch operations for sanctum workflows
 
 ## Troubleshooting
 

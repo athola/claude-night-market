@@ -22,7 +22,9 @@ Skill(superpowers:brainstorming)
 Skill(imbue:scope-guard) # Evaluate brainstorm results
 ```
 
-**Skill Components**: Every skill starts with YAML frontmatter (name, description, tags, dependencies, token estimate). Larger skills split content into a `modules/` directory. Many skills define TodoWrite items as checkpoints and exit criteria that mark the skill complete.
+**Skill Components**: Every skill starts with YAML frontmatter (name, description, tags, dependencies, token estimate). Larger skills split content into a `modules/` directory. Many skills define TodoWrite items as checkpoints and exit criteria that mark the skill complete. As of Claude Code 2.1.20+, completed tasks can be deleted via TaskUpdate to reduce clutter — though proof-of-work and audit items should be preserved.
+
+**Skill Description Budget (2.1.32+)**: Skill character budgets now scale at 2% of context window instead of a fixed limit. On 200K context this yields ~4K chars; on 1M context ~20K chars. Skills from `--add-dir` directories are also auto-discovered (2.1.32+). Skills without additional permissions or hooks are auto-approved without user confirmation (2.1.19+).
 
 ---
 

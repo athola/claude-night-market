@@ -1,6 +1,6 @@
 {
   "name": "pensive",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Reflective code review toolkit with structured analysis, domain expertise, and intelligent review orchestration",
   "commands": [
     "./commands/full-review.md",
@@ -26,7 +26,6 @@
     "./skills/math-review",
     "./skills/rust-review",
     "./skills/safety-critical-patterns",
-    "./skills/shared",
     "./skills/shell-review",
     "./skills/test-review",
     "./skills/unified-review"

@@ -227,6 +227,7 @@ See [Sensitivity Analysis](multi-metric-evaluation-methodology.md#sensitivity-an
 - No trigger phrases in description
 - Security vulnerabilities
 - Broken functionality
+- References to deleted `skills/shared/modules/` files (broken links)
 
 ### High Issues (Address Before Next Release)
 
@@ -236,6 +237,7 @@ See [Sensitivity Analysis](multi-metric-evaluation-methodology.md#sensitivity-an
 - Missing verification steps after examples (-1 point)
 - Fewer than 5 trigger phrases (-1 point)
 - SKILL.md exceeds 500 lines
+- Modules in deprecated `skills/shared/` directory (-2 points, relocate to skill-specific `modules/`)
 
 ### Medium Issues (Address Soon)
 

@@ -1,247 +1,410 @@
 #!/usr/bin/env python3
 """
-Feature: Extract structured content from skill descriptions
+Feature: Consolidate skill descriptions into Claude Code official format
 
 As a plugin developer
-I want to extract triggers and usage patterns from descriptions
-So that UI displays concise descriptions while preserving metadata
+I want to consolidate triggers, use_when, and do_not_use_when into a single description
+So that Claude Code can read all discovery info from the description field
+
+Format: "[What it does]. Use when [scenarios]. Do not use when [anti-patterns]."
 """
 
 import sys
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
+import yaml
 
 # Add scripts to path for testing
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
-from fix_descriptions import extract_structured_content
+from fix_descriptions import consolidate_description, process_skill_file
 
 
-class TestExtractStructuredContent:
-    """Test extraction of triggers, use_when, and do_not_use_when from descriptions."""
-
-    @pytest.mark.unit
-    def test_extracts_triggers_from_first_line(self):
-        """
-        Scenario: Description starts with Triggers line
-        Given a description with "Triggers:" on the first line
-        When I extract structured content
-        Then triggers field contains the keywords
-        And description field contains the actual description
-        """
-        # Arrange
-        description = """
-Triggers: refine, code quality, clean code, refactor
-
-Analyze and improve living code quality across multiple dimensions.
-
-Use when: improving code quality, reducing duplication
-"""
-
-        # Act
-        result = extract_structured_content(description)
-
-        # Assert
-        assert result["triggers"] == "refine, code quality, clean code, refactor"
-        assert "Analyze and improve living code quality" in result["description"]
-        assert "Triggers:" not in result["description"]
+class TestConsolidateDescription:
+    """Test consolidation of frontmatter fields into a single description."""
 
     @pytest.mark.unit
-    def test_extracts_use_when_from_description(self):
+    def test_simple_description_with_all_fields(self):
         """
-        Scenario: Description contains Use when section
-        Given a description with "Use when:" guidance
-        When I extract structured content
-        Then use_when field contains the guidance
-        And description does not contain "Use when:"
+        Scenario: Frontmatter has separate description, use_when, and do_not_use_when
+        Given a frontmatter dict with all metadata fields
+        When I consolidate the description
+        Then the result follows "[What]. Use when [X]. Do not use when [Y]." format
         """
-        # Arrange
-        description = """
-Analyze code quality and improve it.
+        frontmatter = {
+            "description": "Analyze and improve code quality.",
+            "use_when": "improving code quality, reducing duplication",
+            "do_not_use_when": "removing dead code (use bloat-detector)",
+        }
 
-Use when: improving code quality, reducing duplication, refactoring for clarity
+        result = consolidate_description(frontmatter)
 
-DO NOT use when: removing dead code
-"""
-
-        # Act
-        result = extract_structured_content(description)
-
-        # Assert
-        assert "improving code quality" in result["use_when"]
-        assert "reducing duplication" in result["use_when"]
-        assert "Use when:" not in result["description"]
+        assert result.startswith("Analyze and improve code quality")
+        assert "Use when improving code quality, reducing duplication" in result
+        assert "Do not use when removing dead code (use bloat-detector)" in result
+        assert result.endswith(".")
 
     @pytest.mark.unit
-    def test_extracts_do_not_use_when_from_description(self):
+    def test_description_only(self):
         """
-        Scenario: Description contains DO NOT use when section
-        Given a description with "DO NOT use when:" guidance
-        When I extract structured content
-        Then do_not_use_when field contains the anti-patterns
-        And description does not contain "DO NOT use when:"
+        Scenario: Frontmatter has only a description, no metadata fields
+        Given a frontmatter dict with only description
+        When I consolidate the description
+        Then the result is just the description with trailing period
         """
-        # Arrange
-        description = """
-Analyze and improve code quality.
+        frontmatter = {
+            "description": "Simple skill that does one thing",
+        }
 
-DO NOT use when: removing dead code (use conserve:bloat-detector)
-DO NOT use when: reviewing for bugs (use pensive:bug-review)
-"""
+        result = consolidate_description(frontmatter)
 
-        # Act
-        result = extract_structured_content(description)
-
-        # Assert
-        assert "removing dead code" in result["do_not_use_when"]
-        assert "conserve:bloat-detector" in result["do_not_use_when"]
-        assert "DO NOT use when:" not in result["description"]
+        assert result == "Simple skill that does one thing."
 
     @pytest.mark.unit
-    def test_handles_multiline_triggers(self):
+    def test_triggers_used_when_no_use_when(self):
         """
-        Scenario: Triggers span multiple lines
-        Given triggers that continue on multiple lines
-        When I extract structured content
-        Then all trigger keywords are concatenated
+        Scenario: Frontmatter has triggers but no use_when
+        Given triggers field but no use_when field
+        When I consolidate the description
+        Then triggers are promoted to "Use when:" section
         """
-        # Arrange
-        description = """
-Triggers: refine, code quality, clean code, refactor, duplication, algorithm efficiency,
-complexity reduction, code smell, anti-slop, craft
+        frontmatter = {
+            "description": "Analyze code quality.",
+            "triggers": "refine, code quality, clean code",
+        }
 
-Analyze and improve living code quality.
-"""
+        result = consolidate_description(frontmatter)
 
-        # Act
-        result = extract_structured_content(description)
-
-        # Assert
-        assert "refine" in result["triggers"]
-        assert "complexity reduction" in result["triggers"]
-        assert "craft" in result["triggers"]
-        assert result["triggers"].count("Triggers:") == 0
+        assert "Use when:" in result
+        assert "refine, code quality, clean code" in result
 
     @pytest.mark.unit
-    def test_preserves_description_without_triggers(self):
+    def test_list_triggers_joined(self):
         """
-        Scenario: Description has no triggers or usage patterns
-        Given a plain description without metadata
-        When I extract structured content
-        Then description is preserved as-is
-        And metadata fields are empty
+        Scenario: Triggers field is a YAML list
+        Given triggers as a list instead of string
+        When I consolidate the description
+        Then list items are joined with commas
         """
-        # Arrange
-        description = (
-            "Analyze and improve living code quality across multiple dimensions."
+        frontmatter = {
+            "description": "Analyze code.",
+            "triggers": ["refine", "code quality", "clean code"],
+        }
+
+        result = consolidate_description(frontmatter)
+
+        assert "refine, code quality, clean code" in result
+
+    @pytest.mark.unit
+    def test_use_when_preferred_over_triggers(self):
+        """
+        Scenario: Both use_when and triggers are present
+        Given both use_when and triggers fields
+        When I consolidate the description
+        Then use_when is used (triggers ignored since use_when is more specific)
+        """
+        frontmatter = {
+            "description": "Analyze code.",
+            "triggers": "refine, code quality",
+            "use_when": "improving code quality, reducing AI slop",
+        }
+
+        result = consolidate_description(frontmatter)
+
+        assert "Use when improving code quality" in result
+        # Triggers keyword list should NOT appear since use_when supersedes it
+        assert "Use when: refine" not in result
+
+    @pytest.mark.unit
+    def test_strips_existing_use_when_from_description(self):
+        """
+        Scenario: Description already has "Use when:" embedded
+        Given description text containing "Use when:" inline
+        When I consolidate the description
+        Then the embedded "Use when:" is removed (replaced by field value)
+        """
+        frontmatter = {
+            "description": "Analyze code. Use when: old embedded triggers",
+            "use_when": "new consolidated triggers",
+        }
+
+        result = consolidate_description(frontmatter)
+
+        assert "old embedded triggers" not in result
+        assert "Use when new consolidated triggers" in result
+
+    @pytest.mark.unit
+    def test_strips_existing_triggers_from_description(self):
+        """
+        Scenario: Description already has "Triggers:" embedded
+        Given description text containing "Triggers:" inline
+        When I consolidate the description
+        Then the embedded "Triggers:" is removed
+        """
+        frontmatter = {
+            "description": "Analyze code. Triggers: old keywords",
+            "triggers": "new, clean, keywords",
+        }
+
+        result = consolidate_description(frontmatter)
+
+        assert "old keywords" not in result
+        assert "new, clean, keywords" in result
+
+    @pytest.mark.unit
+    def test_empty_frontmatter_returns_empty(self):
+        """
+        Scenario: No description or metadata at all
+        Given an empty frontmatter dict
+        When I consolidate the description
+        Then the result is empty
+        """
+        result = consolidate_description({})
+
+        assert result == ""
+
+    @pytest.mark.unit
+    def test_trailing_periods_deduplicated(self):
+        """
+        Scenario: Fields already end with periods
+        Given fields that end with trailing periods
+        When I consolidate the description
+        Then periods are not doubled
+        """
+        frontmatter = {
+            "description": "Analyze code quality.",
+            "use_when": "improving code.",
+            "do_not_use_when": "removing dead code.",
+        }
+
+        result = consolidate_description(frontmatter)
+
+        # Should not have ".." anywhere
+        assert ".." not in result
+
+    @pytest.mark.unit
+    def test_real_world_code_refinement(self):
+        """
+        Scenario: Process actual code-refinement skill frontmatter
+        Given frontmatter matching a real skill with all fields
+        When I consolidate the description
+        Then description is concise and follows official format
+        """
+        frontmatter = {
+            "description": "Analyze and improve living code quality: duplication, algorithmic efficiency.",
+            "triggers": "refine, code quality, clean code, refactor",
+            "use_when": "improving code quality, reducing AI slop, refactoring for clarity",
+            "do_not_use_when": "removing dead/unused code (use conserve:bloat-detector)",
+        }
+
+        result = consolidate_description(frontmatter)
+
+        # Should have all three parts
+        assert "Analyze and improve living code quality" in result
+        assert "Use when improving code quality" in result
+        assert "Do not use when removing dead/unused code" in result
+        # Should not start with "Triggers:"
+        assert not result.startswith("Triggers:")
+
+
+class TestProcessSkillFile:
+    """Test processing of actual SKILL.md files."""
+
+    @pytest.fixture
+    def skill_dir(self, tmp_path: Path) -> Path:
+        """Create a temporary skill directory."""
+        d = tmp_path / "plugins" / "test" / "skills" / "my-skill"
+        d.mkdir(parents=True)
+        return d
+
+    @pytest.mark.unit
+    def test_returns_none_for_clean_file(self, skill_dir: Path):
+        """
+        Scenario: File has no custom fields and no embedded metadata
+        Given a SKILL.md without triggers/use_when/do_not_use_when fields
+        And the description has no "Use when:" or "Triggers:" substrings
+        When I process the file
+        Then it returns None (no changes needed)
+        """
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text(
+            dedent("""\
+            ---
+            name: my-skill
+            description: "A clean skill that needs no changes"
+            version: "1.4.0"
+            ---
+
+            # My Skill
+
+            Content here.
+        """)
         )
 
-        # Act
-        result = extract_structured_content(description)
+        result = process_skill_file(skill_file, dry_run=True)
 
-        # Assert
-        assert result["description"] == description.strip()
-        assert result["triggers"] == ""
-        assert result["use_when"] == ""
-        assert result["do_not_use_when"] == ""
+        assert result is None
 
     @pytest.mark.unit
-    def test_real_world_example_code_refinement(self):
+    def test_detects_custom_fields(self, skill_dir: Path):
         """
-        Scenario: Process actual code-refinement skill description
-        Given the actual problematic description from code-refinement
-        When I extract structured content
-        Then description is concise and UI-friendly
-        And triggers are extracted to separate field
+        Scenario: File has custom metadata fields that need consolidation
+        Given a SKILL.md with triggers and use_when fields
+        When I process the file
+        Then it returns a change dict with old and new descriptions
         """
-        # Arrange
-        description = """
-Triggers: refine, code quality, clean code, refactor, duplication, algorithm efficiency,
-complexity reduction, code smell, anti-slop, craft
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text(
+            dedent("""\
+            ---
+            name: my-skill
+            description: "Analyze code quality."
+            triggers: "refine, code quality"
+            use_when: "improving code"
+            version: "1.4.0"
+            ---
 
-Analyze and improve living code quality: duplication, algorithmic efficiency, clean code
-principles, architectural fit, anti-slop patterns, and error handling robustness.
+            # My Skill
+        """)
+        )
 
-Use when: improving code quality, reducing AI slop, refactoring for clarity,
-optimizing algorithms, applying clean code principles
+        result = process_skill_file(skill_file, dry_run=True)
 
-DO NOT use when: removing dead/unused code (use conserve:bloat-detector).
-DO NOT use when: reviewing for bugs (use pensive:bug-review).
-DO NOT use when: selecting architecture paradigms (use archetypes skills).
-
-This skill actively improves living code, complementing bloat detection (dead code removal)
-with quality refinement (living code improvement).
-"""
-
-        # Act
-        result = extract_structured_content(description)
-
-        # Assert
-        # Description should be concise and not start with "Triggers:"
-        assert not result["description"].startswith("Triggers:")
-        assert "Analyze and improve living code quality" in result["description"]
-
-        # Triggers should be extracted
-        assert "refine" in result["triggers"]
-        assert "code quality" in result["triggers"]
-        assert "anti-slop" in result["triggers"]
-
-        # Use when should be extracted
-        assert "improving code quality" in result["use_when"]
-        assert "reducing AI slop" in result["use_when"]
-
-        # DO NOT use when should be extracted
-        assert "removing dead/unused code" in result["do_not_use_when"]
-        assert "conserve:bloat-detector" in result["do_not_use_when"]
+        assert result is not None
+        assert "old_description" in result
+        assert "new_description" in result
 
     @pytest.mark.unit
-    def test_handles_multiline_use_when(self):
+    def test_dry_run_does_not_modify_file(self, skill_dir: Path):
         """
-        Scenario: Use when guidance spans multiple lines
-        Given use_when that continues across lines
-        When I extract structured content
-        Then all lines are concatenated with spaces
+        Scenario: Dry run mode
+        Given a file that needs consolidation
+        When I process with dry_run=True
+        Then the file content is unchanged
         """
-        # Arrange
-        description = """
-Analyze code quality.
+        skill_file = skill_dir / "SKILL.md"
+        original = dedent("""\
+            ---
+            name: my-skill
+            description: "Analyze code."
+            triggers: "refine, quality"
+            version: "1.0.0"
+            ---
 
-Use when: improving code quality, reducing AI slop, refactoring for clarity,
-optimizing algorithms, applying clean code principles
-"""
+            # Content
+        """)
+        skill_file.write_text(original)
 
-        # Act
-        result = extract_structured_content(description)
+        process_skill_file(skill_file, dry_run=True)
 
-        # Assert
-        assert "improving code quality" in result["use_when"]
-        assert "optimizing algorithms" in result["use_when"]
-        assert "applying clean code principles" in result["use_when"]
-        # Should be one continuous string
-        assert "\n" not in result["use_when"]
+        assert skill_file.read_text() == original
 
     @pytest.mark.unit
-    def test_handles_multiple_do_not_use_when_lines(self):
+    def test_apply_modifies_file(self, skill_dir: Path):
         """
-        Scenario: Multiple DO NOT use when entries
-        Given multiple "DO NOT use when:" lines
-        When I extract structured content
-        Then all anti-patterns are captured together
+        Scenario: Apply mode writes consolidated description
+        Given a file with custom fields
+        When I process with dry_run=False
+        Then the file is updated with consolidated description
+        And custom fields are removed from frontmatter
         """
-        # Arrange
-        description = """
-Analyze code quality.
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text(
+            dedent("""\
+            ---
+            name: my-skill
+            description: "Analyze code."
+            triggers: "refine, quality"
+            use_when: "improving code quality"
+            do_not_use_when: "removing dead code"
+            version: "1.0.0"
+            ---
 
-DO NOT use when: removing dead/unused code (use conserve:bloat-detector).
-DO NOT use when: reviewing for bugs (use pensive:bug-review).
-DO NOT use when: selecting architecture paradigms (use archetypes skills).
-"""
+            # Content
+        """)
+        )
 
-        # Act
-        result = extract_structured_content(description)
+        process_skill_file(skill_file, dry_run=False)
 
-        # Assert
-        assert "removing dead/unused code" in result["do_not_use_when"]
-        assert "reviewing for bugs" in result["do_not_use_when"]
-        assert "selecting architecture paradigms" in result["do_not_use_when"]
+        updated = skill_file.read_text()
+        fm_text = updated.split("---")[1]
+        fm = yaml.safe_load(fm_text)
+
+        # Custom fields should be removed
+        assert "triggers" not in fm
+        assert "use_when" not in fm
+        assert "do_not_use_when" not in fm
+
+        # Description should be consolidated
+        assert "Use when" in fm["description"]
+        assert "Do not use when" in fm["description"]
+
+    @pytest.mark.unit
+    def test_returns_none_for_invalid_frontmatter(self, skill_dir: Path):
+        """
+        Scenario: File has no valid frontmatter
+        Given a file without --- delimiters
+        When I process the file
+        Then it returns None
+        """
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text("# No frontmatter\n\nJust content.")
+
+        result = process_skill_file(skill_file, dry_run=True)
+
+        assert result is None
+
+    @pytest.mark.unit
+    def test_detects_embedded_triggers_in_description(self, skill_dir: Path):
+        """
+        Scenario: File has Triggers: embedded in description text
+        Given a SKILL.md where description contains "Triggers:" after real content
+        When I process the file
+        Then it detects the need for consolidation and strips the triggers
+        """
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text(
+            dedent("""\
+            ---
+            name: my-skill
+            description: "Analyze code quality. Triggers: refine, code"
+            version: "1.0.0"
+            ---
+
+            # Content
+        """)
+        )
+
+        result = process_skill_file(skill_file, dry_run=True)
+
+        # Should detect embedded Triggers: and consolidate
+        assert result is not None
+        assert "new_description" in result
+
+    @pytest.mark.unit
+    def test_embedded_triggers_only_returns_none(self, skill_dir: Path):
+        """
+        Scenario: Description is ONLY triggers with no real content
+        Given a SKILL.md where description starts with "Triggers:" and has no other text
+        When I process the file
+        Then it returns None (stripping leaves empty, nothing useful to produce)
+        """
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text(
+            dedent("""\
+            ---
+            name: my-skill
+            description: "Triggers: refine, code"
+            version: "1.0.0"
+            ---
+
+            # Content
+        """)
+        )
+
+        result = process_skill_file(skill_file, dry_run=True)
+
+        # Stripping "Triggers:..." leaves empty description → returns None
+        assert result is None

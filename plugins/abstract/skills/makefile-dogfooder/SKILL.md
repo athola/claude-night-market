@@ -6,7 +6,6 @@ description: 'Use this skill BEFORE releasing any plugin to verify Makefile cove
   support standard developer workflows. Do not use when writing initial Makefiles
   from scratch. DO NOT use when: debugging specific build target failures. DO NOT
   use when: creating custom non-standard build systems.'
-version: 1.4.0
 author: Claude Skills
 modules: true
 ---

@@ -1,6 +1,6 @@
 [project]
 name = "imbue-dev"
-version = "1.4.0"
+version = "1.4.1"
 description = "Development tools for the imbue Claude Code plugin - review workflow and evidence management"
 authors = [
     {name = "Alex Thola", email = "alexthola@gmail.com"}
@@ -128,6 +128,7 @@ addopts = [
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
     "--cov-fail-under=85",
+    "--no-cov-on-fail",
     "--tb=short",
     "--durations=10"
 ]

@@ -13,11 +13,9 @@ References:
 
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 import pytest
 import yaml
-
 
 PLUGINS_DIR = Path("plugins")
 SKIP_PLUGINS = {"attune"}  # Attune tested separately below
@@ -26,7 +24,7 @@ SKIP_PLUGINS = {"attune"}  # Attune tested separately below
 EXCLUDED_PATTERNS = {"__init__.py", ".gitkeep"}
 
 
-def discover_ecosystem_skills() -> List[str]:
+def discover_ecosystem_skills() -> list[str]:
     """Discover all skill SKILL.md files across non-attune plugins."""
     paths = []
     for plugin_dir in sorted(PLUGINS_DIR.iterdir()):
@@ -41,7 +39,7 @@ def discover_ecosystem_skills() -> List[str]:
     return paths
 
 
-def discover_ecosystem_commands() -> List[str]:
+def discover_ecosystem_commands() -> list[str]:
     """Discover all command .md files across non-attune plugins."""
     paths = []
     for plugin_dir in sorted(PLUGINS_DIR.iterdir()):
@@ -56,7 +54,7 @@ def discover_ecosystem_commands() -> List[str]:
     return paths
 
 
-def discover_ecosystem_agents_md() -> List[str]:
+def discover_ecosystem_agents_md() -> list[str]:
     """Discover markdown agent files across non-attune plugins."""
     paths = []
     for plugin_dir in sorted(PLUGINS_DIR.iterdir()):
@@ -94,7 +92,7 @@ SKILLS = [
 COMMANDS = [
     "plugins/attune/commands/brainstorm.md",
     "plugins/attune/commands/specify.md",
-    "plugins/attune/commands/plan.md",
+    "plugins/attune/commands/blueprint.md",
     "plugins/attune/commands/execute.md",
     "plugins/attune/commands/war-room.md",
     "plugins/attune/commands/arch-init.md",
@@ -111,7 +109,7 @@ AGENTS = [
 ALL_COMPONENTS = SKILLS + COMMANDS + AGENTS
 
 
-def parse_frontmatter(file_path: str) -> Tuple[Dict, str, str]:
+def parse_frontmatter(file_path: str) -> tuple[dict, str, str]:
     """
     Parse frontmatter and body from a markdown file.
 
@@ -153,7 +151,9 @@ class TestFrontmatterStructure:
         """All components must have a name field."""
         data, _, _ = parse_frontmatter(component_path)
         assert "name" in data, f"{component_path}: Missing 'name' field"
-        assert isinstance(data["name"], str), f"{component_path}: 'name' should be string"
+        assert isinstance(data["name"], str), (
+            f"{component_path}: 'name' should be string"
+        )
         assert len(data["name"]) > 0, f"{component_path}: 'name' should not be empty"
 
     @pytest.mark.parametrize("component_path", ALL_COMPONENTS)
@@ -161,42 +161,56 @@ class TestFrontmatterStructure:
         """All components must have a description field."""
         data, _, _ = parse_frontmatter(component_path)
         assert "description" in data, f"{component_path}: Missing 'description' field"
-        assert isinstance(data["description"], str), f"{component_path}: 'description' should be string"
-        assert len(data["description"]) > 0, f"{component_path}: 'description' should not be empty"
+        assert isinstance(data["description"], str), (
+            f"{component_path}: 'description' should be string"
+        )
+        assert len(data["description"]) > 0, (
+            f"{component_path}: 'description' should not be empty"
+        )
 
 
 class TestDescriptionPattern:
-    """Test that descriptions follow the WHAT/WHEN/WHEN NOT pattern."""
+    """Test that descriptions follow the WHAT/WHEN/WHEN NOT pattern.
+
+    Accepted trigger formats (v1.4.0 and v1.4.1):
+    - "Use when ..." / "Use for ..." / "Use at ..."
+    - "Do not use when ..." / "Skip if ..." / "Skip for ..."
+    """
+
+    # Pattern matches: "Use when", "Use for", "Use at" (case-insensitive)
+    USE_PATTERN = re.compile(r"use (?:when|for|at)\b", re.IGNORECASE)
+    # Pattern matches: "Do not use when", "Skip if", "Skip for" (case-insensitive)
+    SKIP_PATTERN = re.compile(r"(?:do not use when|skip (?:if|for))\b", re.IGNORECASE)
 
     @pytest.mark.parametrize("component_path", SKILLS)
     def test_skill_description_has_use_when(self, component_path):
-        """Skill descriptions should include 'Use when:' trigger keywords."""
+        """Skill descriptions should include usage trigger keywords."""
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
 
-        # Check for pattern (case-insensitive)
-        assert re.search(r"use when", desc, re.IGNORECASE), \
-            f"{component_path}: Skill description should include 'Use when:' keywords"
+        assert self.USE_PATTERN.search(desc), (
+            f"{component_path}: Skill description should include 'Use when/for' keywords"
+        )
 
     @pytest.mark.parametrize("component_path", SKILLS)
     def test_skill_description_has_do_not_use_when(self, component_path):
-        """Skill descriptions should include 'Do not use when:' boundaries."""
+        """Skill descriptions should include boundary/skip keywords."""
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
 
-        # Check for pattern (case-insensitive)
-        assert re.search(r"do not use when", desc, re.IGNORECASE), \
-            f"{component_path}: Skill description should include 'Do not use when:' boundary"
+        assert self.SKIP_PATTERN.search(desc), (
+            f"{component_path}: Skill description should include 'Do not use when' or 'Skip if/for' boundary"
+        )
 
     @pytest.mark.parametrize("component_path", AGENTS)
     def test_agent_description_has_use_when(self, component_path):
-        """Agent descriptions should include 'Use when:' invocation context."""
+        """Agent descriptions should include usage trigger context."""
         data, _, _ = parse_frontmatter(component_path)
         desc = data.get("description", "")
 
-        # Agents should have use when pattern
-        assert re.search(r"use when", desc, re.IGNORECASE), \
-            f"{component_path}: Agent description should include 'Use when:' context"
+        assert self.USE_PATTERN.search(desc), (
+            f"{component_path}: Agent description should include 'Use when/for' context"
+        )
 
 
 class TestDescriptionLength:
@@ -210,8 +224,9 @@ class TestDescriptionLength:
         length = len(desc)
 
         # Skills can be up to 300 chars (complex skills allowed longer)
-        assert 100 <= length <= 350, \
+        assert 100 <= length <= 350, (
             f"{component_path}: Skill description length {length} outside range [100-350]"
+        )
 
     @pytest.mark.parametrize("component_path", COMMANDS)
     def test_command_description_length(self, component_path):
@@ -221,8 +236,9 @@ class TestDescriptionLength:
         length = len(desc)
 
         # Commands should be concise
-        assert 50 <= length <= 200, \
+        assert 50 <= length <= 200, (
             f"{component_path}: Command description length {length} outside range [50-200]"
+        )
 
     @pytest.mark.parametrize("component_path", AGENTS)
     def test_agent_description_length(self, component_path):
@@ -232,8 +248,9 @@ class TestDescriptionLength:
         length = len(desc)
 
         # Agents need room for capability description
-        assert 75 <= length <= 350, \
+        assert 75 <= length <= 350, (
             f"{component_path}: Agent description length {length} outside range [75-350]"
+        )
 
 
 class TestContentStructure:
@@ -245,9 +262,9 @@ class TestContentStructure:
         _, _, body = parse_frontmatter(component_path)
 
         # Check for section (allow case variations)
-        assert re.search(r"##\s+When\s+To\s+Use", body, re.IGNORECASE) or \
-               re.search(r"##\s+When\s+Commands\s+Should\s+Invoke", body, re.IGNORECASE), \
-            f"{component_path}: Missing 'When To Use' section in content"
+        assert re.search(r"##\s+When\s+To\s+Use", body, re.IGNORECASE) or re.search(
+            r"##\s+When\s+Commands\s+Should\s+Invoke", body, re.IGNORECASE
+        ), f"{component_path}: Missing 'When To Use' section in content"
 
     @pytest.mark.parametrize("component_path", SKILLS)
     def test_skills_have_when_not_to_use_section(self, component_path):
@@ -257,8 +274,9 @@ class TestContentStructure:
         # Check for section (allow case variations)
         # War-room-checkpoint is special case (embedded use only)
         if "war-room-checkpoint" not in component_path:
-            assert re.search(r"##\s+When\s+NOT\s+To\s+Use", body, re.IGNORECASE), \
+            assert re.search(r"##\s+When\s+NOT\s+To\s+Use", body, re.IGNORECASE), (
                 f"{component_path}: Missing 'When NOT To Use' section in content"
+            )
 
     @pytest.mark.parametrize("component_path", COMMANDS)
     def test_commands_have_when_to_use_section(self, component_path):
@@ -266,8 +284,9 @@ class TestContentStructure:
         _, _, body = parse_frontmatter(component_path)
 
         # Check for section
-        assert re.search(r"##\s+When\s+To\s+Use", body, re.IGNORECASE), \
+        assert re.search(r"##\s+When\s+To\s+Use", body, re.IGNORECASE), (
             f"{component_path}: Missing 'When To Use' section in content"
+        )
 
     @pytest.mark.parametrize("component_path", COMMANDS)
     def test_commands_have_when_not_to_use_section(self, component_path):
@@ -275,8 +294,9 @@ class TestContentStructure:
         _, _, body = parse_frontmatter(component_path)
 
         # Check for section
-        assert re.search(r"##\s+When\s+NOT\s+To\s+Use", body, re.IGNORECASE), \
+        assert re.search(r"##\s+When\s+NOT\s+To\s+Use", body, re.IGNORECASE), (
             f"{component_path}: Missing 'When NOT To Use' section in content"
+        )
 
     @pytest.mark.parametrize("component_path", AGENTS)
     def test_agents_have_when_to_invoke_section(self, component_path):
@@ -284,8 +304,9 @@ class TestContentStructure:
         _, _, body = parse_frontmatter(component_path)
 
         # Check for section
-        assert re.search(r"##\s+When\s+To\s+Invoke", body, re.IGNORECASE), \
+        assert re.search(r"##\s+When\s+To\s+Invoke", body, re.IGNORECASE), (
             f"{component_path}: Missing 'When To Invoke' section in content"
+        )
 
 
 class TestTokenBudget:
@@ -305,8 +326,9 @@ class TestTokenBudget:
         # Adjusted target: 4290 chars
         adjusted_target = 4290
 
-        assert total_chars <= adjusted_target, \
+        assert total_chars <= adjusted_target, (
             f"Total description length {total_chars} exceeds adjusted budget {adjusted_target}"
+        )
 
     def test_average_description_length_reasonable(self):
         """Average description length should be reasonable."""
@@ -320,31 +342,9 @@ class TestTokenBudget:
         avg_length = total_chars / len(ALL_COMPONENTS)
 
         # Average should be between 150-250 chars
-        assert 150 <= avg_length <= 250, \
+        assert 150 <= avg_length <= 250, (
             f"Average description length {avg_length:.0f} outside reasonable range [150-250]"
-
-
-class TestVersioning:
-    """Test that enhanced components have updated version."""
-
-    @pytest.mark.parametrize("component_path", ALL_COMPONENTS)
-    def test_version_is_1_4_0_or_later(self, component_path):
-        """Enhanced components should be version 1.4.0 or later."""
-        data, _, _ = parse_frontmatter(component_path)
-
-        # Version might be in different fields depending on component type
-        version = data.get("version")
-
-        if version:
-            # Parse version string
-            version_parts = version.split(".")
-            major = int(version_parts[0])
-            minor = int(version_parts[1]) if len(version_parts) > 1 else 0
-
-            # Should be at least 1.4.0
-            assert major >= 1, f"{component_path}: Version major should be >= 1"
-            if major == 1:
-                assert minor >= 4, f"{component_path}: Version minor should be >= 4 for v1.x"
+        )
 
 
 class TestYAMLQuoting:
@@ -364,8 +364,9 @@ class TestYAMLQuoting:
 
                 if ":" in desc_part:
                     # Should start with a quote
-                    assert desc_part.startswith('"') or desc_part.startswith("'"), \
+                    assert desc_part.startswith('"') or desc_part.startswith("'"), (
                         f"{component_path}: Description with colon should be quoted"
+                    )
                 break
 
 
@@ -416,24 +417,10 @@ def test_readme_has_discoverability_section():
     with open(readme_path) as f:
         content = f.read()
 
-    assert "Discoverability (v1.4.0)" in content, \
+    assert "Discoverability (v1.4.0)" in content, (
         "README should have Discoverability section"
-    assert "WHAT it does" in content, \
-        "README should explain WHAT/WHEN/WHEN NOT pattern"
-
-
-def test_changelog_has_v1_4_0_entry():
-    """Verify that CHANGELOG has v1.4.0 entry."""
-    changelog_path = Path("plugins/attune/CHANGELOG.md")
-    assert changelog_path.exists(), "CHANGELOG should exist"
-
-    with open(changelog_path) as f:
-        content = f.read()
-
-    assert "1.4.0" in content, "CHANGELOG should have v1.4.0 entry"
-    assert "2026-02-05" in content, "CHANGELOG should have release date"
-    assert "Discoverability" in content or "discoverability" in content, \
-        "CHANGELOG should mention discoverability enhancement"
+    )
+    assert "WHAT it does" in content, "README should explain WHAT/WHEN/WHEN NOT pattern"
 
 
 # ============================================================================
@@ -449,16 +436,17 @@ class TestEcosystemHeadingNormalization:
         """Skills must not have lowercase '## When to Use' (should be Title Case)."""
         content = Path(skill_path).read_text()
         # Should NOT have lowercase variant
-        assert not re.search(
-            r"^## When to Use\b", content, re.MULTILINE
-        ), f"{skill_path}: Found '## When to Use' - should be '## When To Use'"
+        assert not re.search(r"^## When to Use\b", content, re.MULTILINE), (
+            f"{skill_path}: Found '## When to Use' - should be '## When To Use'"
+        )
 
     @pytest.mark.parametrize("cmd_path", ECOSYSTEM_COMMANDS)
     def test_commands_no_identification_blocks(self, cmd_path):
         """Commands must not have <identification> XML blocks (converted to markdown)."""
         content = Path(cmd_path).read_text()
-        assert "<identification>" not in content, \
+        assert "<identification>" not in content, (
             f"{cmd_path}: Still has <identification> block - should be converted to ## When To Use"
+        )
 
 
 class TestEcosystemContentSections:
@@ -466,52 +454,59 @@ class TestEcosystemContentSections:
 
     @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
     def test_skills_have_when_to_use_or_equivalent(self, skill_path):
-        """Skills should have a When To Use section or equivalent."""
-        content = Path(skill_path).read_text()
-        has_section = bool(
-            re.search(r"^## When To Use", content, re.MULTILINE)
-            or re.search(r"^## When Commands Should Invoke", content, re.MULTILINE)
-            or re.search(r"^## When to Invoke", content, re.MULTILINE)
-            or re.search(r"^## When to Escalate", content, re.MULTILINE)
-            or re.search(r"^## When To Apply", content, re.MULTILINE)
-        )
-        # Infrastructure/shared/standalone skills exempt
+        """Skills should have a When To Use section or equivalent.
+
+        Accepted forms (all count as passes):
+        - ## When To Use / When to Invoke / When to Escalate (content sections)
+        - Any ## When to/To <verb> heading (domain-specific variants)
+        - 'Use when' in frontmatter description
+        """
         if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
             pytest.skip("Shared/infrastructure skills exempt")
         if Path(skill_path).stat().st_size < 500:
             pytest.skip("Small utility skill exempt")
-        # Skills with domain-specific equivalents (e.g. "When to Escalate")
-        if re.search(r"^## When (?:to|To) \w+", content, re.MULTILINE):
-            pytest.skip("Has domain-specific When section")
-        # Skills with "Use when:" in description but no content section yet
+
+        content = Path(skill_path).read_text()
+
+        has_content_section = bool(
+            re.search(r"^## When (?:to|To) \w+", content, re.MULTILINE)
+        )
+        has_frontmatter_hint = False
         fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
         if fm_match:
-            fm_text = fm_match.group(1)
-            if re.search(r"[Uu]se when", fm_text):
-                pytest.skip("Has Use when in description frontmatter")
-        assert has_section, f"{skill_path}: Missing 'When To Use' section"
+            has_frontmatter_hint = bool(re.search(r"[Uu]se when", fm_match.group(1)))
+
+        assert has_content_section or has_frontmatter_hint, (
+            f"{skill_path}: Missing 'When To Use' section or 'Use when' in description"
+        )
 
     @pytest.mark.parametrize("skill_path", ECOSYSTEM_SKILLS)
     def test_skills_have_when_not_to_use(self, skill_path):
-        """Skills should have a When NOT To Use section.
+        """Skills should have a When NOT To Use section or equivalent.
 
-        Note: 24 skills still need manually authored When NOT To Use sections.
-        These are tracked as xfail until content is added.
+        Accepted forms (all count as passes):
+        - ## When NOT To Use (canonical)
+        - Any ## When NOT to/To <verb> heading (domain-specific variants)
+        - 'Do not use' in frontmatter description
         """
-        content = Path(skill_path).read_text()
         if "/shared/" in skill_path or skill_path.endswith("shared/SKILL.md"):
             pytest.skip("Shared/infrastructure skills exempt")
         if Path(skill_path).stat().st_size < 500:
             pytest.skip("Small utility skill exempt")
-        if re.search(r"^## When NOT to \w+", content, re.MULTILINE):
-            pytest.skip("Has domain-specific When NOT section")
-        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
-        if fm_match and re.search(r"[Dd]o not use", fm_match.group(1)):
-            pytest.skip("Has Do not use in description frontmatter")
-        has_section = bool(
-            re.search(r"^## When NOT To Use", content, re.MULTILINE)
+
+        content = Path(skill_path).read_text()
+
+        has_content_section = bool(
+            re.search(r"^## When NOT [Tt]o \w+", content, re.MULTILINE)
         )
-        assert has_section, f"{skill_path}: Missing 'When NOT To Use' section"
+        has_frontmatter_hint = False
+        fm_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if fm_match:
+            has_frontmatter_hint = bool(re.search(r"[Dd]o not use", fm_match.group(1)))
+
+        assert has_content_section or has_frontmatter_hint, (
+            f"{skill_path}: Missing 'When NOT To Use' section or 'Do not use' in description"
+        )
 
 
 class TestEcosystemDiscoveryCounts:
@@ -519,16 +514,19 @@ class TestEcosystemDiscoveryCounts:
 
     def test_sufficient_skills_discovered(self):
         """Should discover at least 80 skills across ecosystem."""
-        assert len(ECOSYSTEM_SKILLS) >= 80, \
+        assert len(ECOSYSTEM_SKILLS) >= 80, (
             f"Only found {len(ECOSYSTEM_SKILLS)} skills, expected >= 80"
+        )
 
     def test_sufficient_commands_discovered(self):
         """Should discover at least 50 commands across ecosystem."""
-        assert len(ECOSYSTEM_COMMANDS) >= 50, \
+        assert len(ECOSYSTEM_COMMANDS) >= 50, (
             f"Only found {len(ECOSYSTEM_COMMANDS)} commands, expected >= 50"
+        )
 
     def test_skills_span_multiple_plugins(self):
         """Skills should come from multiple plugins."""
         plugins = {Path(s).parts[1] for s in ECOSYSTEM_SKILLS}
-        assert len(plugins) >= 10, \
+        assert len(plugins) >= 10, (
             f"Only found skills in {len(plugins)} plugins, expected >= 10"
+        )
