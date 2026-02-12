@@ -75,9 +75,28 @@ Skill(attune:project-specification)
 #    - Saved to docs/specification.md
 #    - Includes all requirements with testability
 
-# 4. Transition to planning
-#    Next: /attune:blueprint (use spec as input)
+# 4. Workflow auto-continues (see below)
 ```
+
+### Workflow Continuation Protocol (MANDATORY)
+
+**After specification completes successfully**, auto-proceed to the next phase unless `--standalone` was specified:
+
+1. **Verify artifact**: Confirm `docs/specification.md` exists and is non-empty
+2. **Checkpoint message**: Display brief summary to user:
+   ```
+   Specification complete. Saved to docs/specification.md.
+   Proceeding to planning phase...
+   ```
+3. **Auto-invoke next phase**:
+   ```
+   Skill(attune:project-planning)
+   ```
+
+**Bypass Conditions** (skip auto-continuation if ANY true):
+- `--standalone` flag was provided
+- `docs/specification.md` does not exist or is empty
+- User explicitly requests to stop after specification
 
 ## Specification Structure
 
@@ -130,6 +149,7 @@ Explicitly document what's NOT included to prevent scope creep.
 - `--output <path>` - Output spec file (default: docs/specification.md)
 - `--feature <name>` - Specify single feature instead of full project
 - `--clarify` - Run clarification phase (like spec-kit clarify)
+- `--standalone` - Run only this phase; do not auto-proceed to planning
 
 ## Examples
 
@@ -341,13 +361,11 @@ Specification follows this template:
 
 ```
 /attune:brainstorm    ← Generate project brief
-      ↓
+      ↓ [auto]
 /attune:specify       ← You are here
-      ↓
-/attune:blueprint          ← Plan architecture
-      ↓
-/attune:project-init          ← Initialize project
-      ↓
+      ↓ [auto]
+/attune:blueprint     ← Plan architecture
+      ↓ [auto]
 /attune:execute       ← Implement systematically
 ```
 

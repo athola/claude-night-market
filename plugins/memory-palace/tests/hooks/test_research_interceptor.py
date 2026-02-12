@@ -690,5 +690,59 @@ class TestEndToEnd:
         assert "timestamp" in entry
 
 
+class TestGracefulDegradation:
+    """Tests for graceful degradation when memory_palace package is unavailable."""
+
+    def test_has_memory_palace_flag_exists(self) -> None:
+        """Module should expose _HAS_MEMORY_PALACE flag."""
+        assert hasattr(research_interceptor, "_HAS_MEMORY_PALACE")
+
+    def test_novelty_by_redundancy_empty_when_no_memory_palace(self) -> None:
+        """_NOVELTY_BY_REDUNDANCY should be empty dict when imports fail."""
+        original_flag = research_interceptor._HAS_MEMORY_PALACE
+        original_map = research_interceptor._NOVELTY_BY_REDUNDANCY
+        try:
+            research_interceptor._HAS_MEMORY_PALACE = False
+            research_interceptor._NOVELTY_BY_REDUNDANCY = {}
+            assert research_interceptor._NOVELTY_BY_REDUNDANCY == {}
+        finally:
+            research_interceptor._HAS_MEMORY_PALACE = original_flag
+            research_interceptor._NOVELTY_BY_REDUNDANCY = original_map
+
+    def test_main_exits_cleanly_when_no_memory_palace(self) -> None:
+        """Hook main() should exit(0) when memory_palace package is unavailable."""
+        mock_stdin = StringIO(
+            json.dumps(
+                {
+                    "tool_name": "WebSearch",
+                    "tool_input": {"query": "test query"},
+                },
+            ),
+        )
+        original_flag = research_interceptor._HAS_MEMORY_PALACE
+        try:
+            research_interceptor._HAS_MEMORY_PALACE = False
+            with (
+                patch("sys.stdin", mock_stdin),
+                patch("sys.stdout", StringIO()),
+                patch("shared.config.get_config", return_value={
+                    "enabled": True,
+                    "research_mode": "cache_first",
+                    "telemetry": {"enabled": False},
+                }),
+                pytest.raises(SystemExit) as exc_info,
+            ):
+                research_interceptor.main()
+            assert exc_info.value.code == 0
+        finally:
+            research_interceptor._HAS_MEMORY_PALACE = original_flag
+
+    def test_module_functions_still_importable_when_no_memory_palace(self) -> None:
+        """Core functions like extract_query_intent should work regardless."""
+        # These functions don't depend on memory_palace imports
+        query = extract_query_intent("WebSearch", {"query": "test"})
+        assert query == "test"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

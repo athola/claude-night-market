@@ -4,7 +4,7 @@ Tests the DecayModel which implements time-based quality decay
 with different decay curves based on entry maturity.
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -103,7 +103,7 @@ class TestDecayModel:
         state = model.calculate_decay(
             entry_id="entry-1",
             maturity="growing",
-            last_validated=datetime.now(UTC),
+            last_validated=datetime.now(timezone.utc),
         )
         assert state.decay_factor == pytest.approx(1.0, abs=0.01)
         assert state.days_since_validation == 0
@@ -112,7 +112,7 @@ class TestDecayModel:
     def test_calculate_decay_seedling_half_life(self, model: DecayModel) -> None:
         """Seedling at half-life should have ~0.5 decay factor."""
         half_life = DECAY_CONFIG["seedling"]["half_life_days"]
-        last_validated = datetime.now(UTC) - timedelta(days=half_life)
+        last_validated = datetime.now(timezone.utc) - timedelta(days=half_life)
 
         state = model.calculate_decay(
             entry_id="entry-1",
@@ -124,7 +124,7 @@ class TestDecayModel:
     def test_calculate_decay_growing_half_life(self, model: DecayModel) -> None:
         """Growing at half-life should have ~0.5 decay factor."""
         half_life = DECAY_CONFIG["growing"]["half_life_days"]
-        last_validated = datetime.now(UTC) - timedelta(days=half_life)
+        last_validated = datetime.now(timezone.utc) - timedelta(days=half_life)
 
         state = model.calculate_decay(
             entry_id="entry-1",
@@ -136,7 +136,7 @@ class TestDecayModel:
     def test_calculate_decay_evergreen_half_life(self, model: DecayModel) -> None:
         """Evergreen at half-life should have ~0.5 decay factor."""
         half_life = DECAY_CONFIG["evergreen"]["half_life_days"]
-        last_validated = datetime.now(UTC) - timedelta(days=half_life)
+        last_validated = datetime.now(timezone.utc) - timedelta(days=half_life)
 
         state = model.calculate_decay(
             entry_id="entry-1",
@@ -148,18 +148,18 @@ class TestDecayModel:
     def test_decay_factor_range(self, model: DecayModel) -> None:
         """Decay factor should always be between 0.0 and 1.0."""
         # Very old entry
-        ancient = datetime.now(UTC) - timedelta(days=365)
+        ancient = datetime.now(timezone.utc) - timedelta(days=365)
         state = model.calculate_decay("entry-1", "seedling", ancient)
         assert 0.0 <= state.decay_factor <= 1.0
 
         # Future date (shouldn't happen but handle gracefully)
-        future = datetime.now(UTC) + timedelta(days=1)
+        future = datetime.now(timezone.utc) + timedelta(days=1)
         state2 = model.calculate_decay("entry-2", "seedling", future)
         assert 0.0 <= state2.decay_factor <= 1.0
 
     def test_status_thresholds(self, model: DecayModel) -> None:
         """Status should reflect decay severity."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
 
         # Fresh: recently validated
         fresh = model.calculate_decay("e1", "growing", now)
@@ -177,7 +177,7 @@ class TestDecayModel:
 
     def test_validate_entry(self, model: DecayModel) -> None:
         """Should record validation and reset decay."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         model.validate_entry("entry-1", now)
 
         state = model.calculate_decay(
@@ -189,7 +189,7 @@ class TestDecayModel:
 
     def test_get_validation_date(self, model: DecayModel) -> None:
         """Should retrieve last validation date."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         model.validate_entry("entry-1", now)
 
         validation_date = model.get_validation_date("entry-1")
@@ -203,7 +203,7 @@ class TestDecayModel:
 
     def test_get_stale_entries(self, model: DecayModel) -> None:
         """Should identify entries needing attention."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
 
         # Register entries with different validation dates
         model.validate_entry("fresh-1", now)
@@ -263,7 +263,7 @@ class TestDecayModel:
 
     def test_archive_threshold(self, model: DecayModel) -> None:
         """Entries below archive threshold should be marked archived."""
-        ancient = datetime.now(UTC) - timedelta(days=500)
+        ancient = datetime.now(timezone.utc) - timedelta(days=500)
         model.validate_entry("ancient-1", ancient)
 
         state = model.calculate_decay("ancient-1", "seedling", ancient)
@@ -272,7 +272,7 @@ class TestDecayModel:
 
     def test_export_validation_state(self, model: DecayModel) -> None:
         """Should export validation state as serializable data."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         model.validate_entry("entry-1", now)
         model.validate_entry("entry-2", now - timedelta(days=10))
 
@@ -283,7 +283,7 @@ class TestDecayModel:
 
     def test_import_validation_state(self, model: DecayModel) -> None:
         """Should import validation state from serializable data."""
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         state_data = {
             "entry-1": now.isoformat(),
             "entry-2": (now - timedelta(days=5)).isoformat(),

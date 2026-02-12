@@ -24,6 +24,7 @@ Solution:
 - Use --ignore flags when running from root
 - This conftest provides root-level configuration without conflicting fixtures
 """
+from __future__ import annotations
 
 from pathlib import Path
 

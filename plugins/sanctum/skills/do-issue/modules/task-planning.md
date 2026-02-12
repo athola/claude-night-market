@@ -67,6 +67,27 @@ Parallel Batch 1: Issues #42, #43
 Sequential Phase: Issue #44
 ```
 
+## Risk Classification
+
+After task breakdown, classify each task's risk tier using `leyline:risk-classification` heuristics. Run the heuristic classifier against each task's affected files and append a `[R:TIER]` marker.
+
+### Classification Process
+
+1. For each task, identify the files it will modify
+2. Apply `leyline:risk-classification/modules/heuristic-classifier.md` pattern matching
+3. Append `[R:TIER]` marker to the task line
+
+### Task Format with Risk Markers
+
+```markdown
+- [ ] T001 Create project structure per implementation plan
+- [ ] T005 [P] [R:YELLOW] Implement authentication middleware in src/middleware/auth.py
+- [ ] T012 [P] [US1] [R:YELLOW] Create LoginForm component in src/components/LoginForm.tsx
+- [ ] T015 [US2] [R:RED] Add user migration in migrations/002_add_users.py
+```
+
+Tasks without `[R:TIER]` markers default to GREEN. Markers are additive — existing task formats remain valid without them.
+
 ## Next Phase
 
 After planning, proceed to [parallel-execution.md](parallel-execution.md) to dispatch subagents.

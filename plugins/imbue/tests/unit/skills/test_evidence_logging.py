@@ -6,7 +6,7 @@ following TDD/BDD principles and testing all evidence management scenarios.
 
 import json
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -109,7 +109,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         """Sample evidence logging session data."""
         return {
             "session_id": "evidence-session-123",
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "context": {
                 "repository": "/test/review-project",
                 "branch": "feature/new-feature",
@@ -165,7 +165,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "id": f"E{len(evidence_log['evidence']) + 1}",
             "command": command,
             "output": output,
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "working_directory": evidence_log["context"]["repository"],
         }
         evidence_log["evidence"].append(evidence_item)
@@ -204,7 +204,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "id": f"E{len(evidence_log['evidence']) + 1}",
                 "command": command,
                 "output": output,
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "working_directory": evidence_log["context"]["repository"],
             }
             evidence_log["evidence"].append(evidence_item)
@@ -235,7 +235,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "id": f"C{len(evidence_log['citations']) + 1}",
             "url": "https://docs.python.org/3/library/json.html",
             "title": "JSON encoder and decoder",
-            "accessed": datetime.now(UTC).isoformat(),
+            "accessed": datetime.now(timezone.utc).isoformat(),
             "relevant_snippet": "JSON (JavaScript Object Notation) is a lightweight data interchange format.",
         }
 
@@ -425,7 +425,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "id": "E1",
             "command": "find . -type f",
             "output": snippet,
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "working_directory": "/test/repo",
         }
         sample_evidence_session["evidence"].append(evidence_item)
@@ -519,7 +519,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "id": "E1",
             "command": error_command,
             "output": f"ERROR: {error_output}",
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "working_directory": sample_evidence_session["context"]["repository"],
             "status": "failed",
         }
@@ -530,7 +530,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
             "id": "E2",
             "command": "pwd",
             "output": "/test/review-project",
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "working_directory": sample_evidence_session["context"]["repository"],
             "status": "success",
         }
@@ -563,7 +563,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                 "id": "E1",
                 "command": "git log --oneline -1",
                 "output": "abc123 Latest commit message",
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "working_directory": sample_evidence_session["context"]["repository"],
             },
         )
@@ -595,8 +595,8 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
         sessions = []
         for i in range(5):
             session = {
-                "session_id": f"evidence-session-{i}-{datetime.now(UTC).isoformat()}",
-                "timestamp": datetime.now(UTC).isoformat(),
+                "session_id": f"evidence-session-{i}-{datetime.now(timezone.utc).isoformat()}",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "evidence": [],
                 "citations": [],
             }
@@ -627,7 +627,7 @@ Workflow for capturing reproducible evidence and audit trails during reviews.
                     "id": f"E{i + 1}",
                     "command": f"test-command-{i}",
                     "output": f"output-{i}",
-                    "timestamp": datetime.now(UTC).isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "working_directory": "/test/repo",
                 },
             )

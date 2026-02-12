@@ -7,7 +7,7 @@ the conservation plugin's skills, commands, and agents following TDD/BDD princip
 import importlib.util
 import sys
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from unittest.mock import Mock
@@ -221,7 +221,7 @@ def sample_context_analysis():
 def sample_performance_metrics():
     """Sample performance monitoring metrics."""
     return {
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "cpu_usage_percent": 15.2,
         "memory_usage_mb": 512,
         "gpu_usage_percent": 0.0,
@@ -406,13 +406,13 @@ def mock_token_quota_tracker():
 
     class MockTokenQuotaTracker:
         def __init__(self) -> None:
-            self.session_start = datetime.now(UTC)
+            self.session_start = datetime.now(timezone.utc)
             self.weekly_usage = 45000
             self.weekly_limit = 100000
 
         def check_quota(self):
             session_duration = (
-                datetime.now(UTC) - self.session_start
+                datetime.now(timezone.utc) - self.session_start
             ).total_seconds() / 3600
             remaining = self.weekly_limit - self.weekly_usage
             return {
@@ -501,7 +501,7 @@ def create_mock_token_log_entry(
     """Create a mock token usage log entry."""
     return {
         "session_id": session_id,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "tokens_used": tokens_used,
         "operation": operation,
         "efficiency_score": 0.85,
@@ -518,7 +518,7 @@ def create_mock_performance_metric(
         "name": metric_name,
         "value": value,
         "unit": unit,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "threshold_exceeded": False,
     }
 

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import csv
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 
-@dataclass(slots=True)
+@dataclass
 class ResearchTelemetryEvent:
     """CSV-friendly representation of a cache interception."""
 
@@ -59,7 +59,7 @@ class ResearchTelemetryEvent:
         notes: str | None = None,
     ) -> ResearchTelemetryEvent:
         """Build and stamp the event with current timestamp."""
-        timestamp = datetime.now(UTC).isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
         return cls(
             timestamp=timestamp,
             query_id=query_id,

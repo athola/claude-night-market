@@ -4,7 +4,7 @@ This module tests CPU/GPU performance monitoring, resource tracking,
 and alert functionality following TDD/BDD principles.
 """
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -430,7 +430,7 @@ tags:
 
             historical_data.append(
                 {
-                    "timestamp": datetime.now(UTC)
+                    "timestamp": datetime.now(timezone.utc)
                     .replace(hour=hour_offset)
                     .isoformat(),
                     "cpu_usage": min(cpu_usage, 95.0),  # Cap at 95%

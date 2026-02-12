@@ -17,6 +17,8 @@ BDD (Behavior-Driven Development) is enforced alongside TDD:
 - Test methods should have Scenario docstrings
 """
 
+from __future__ import annotations
+
 import json
 import sys
 from pathlib import Path

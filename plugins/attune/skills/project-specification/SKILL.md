@@ -315,11 +315,35 @@ Make security requirements verifiable:
 - "All API endpoints require authentication" (testable)
 - NOT "System is secure" (vague)
 
+## Post-Completion: Workflow Continuation (REQUIRED)
+
+**Automatic Trigger**: After Quality Checks pass and `docs/specification.md` is saved, MUST auto-invoke the next phase.
+
+**When continuation is invoked**:
+1. Verify `docs/specification.md` exists and is non-empty
+2. Display checkpoint message to user:
+   ```
+   Specification complete. Saved to docs/specification.md.
+   Proceeding to planning phase...
+   ```
+3. Invoke next phase:
+   ```
+   Skill(attune:project-planning)
+   ```
+
+**Bypass Conditions** (ONLY skip continuation if ANY true):
+- `--standalone` flag was provided by the user
+- `docs/specification.md` does not exist or is empty (phase failed)
+- User explicitly requests to stop after specification
+
+**Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+
 ## Related Skills
 
 - `Skill(spec-kit:spec-writing)` - Spec-kit methodology (if available)
 - `Skill(attune:project-brainstorming)` - Previous phase
-- `Skill(attune:project-planning)` - Next phase
+- `Skill(attune:project-planning)` - **AUTO-INVOKED** next phase after specification
+- `Skill(attune:mission-orchestrator)` - Full lifecycle orchestration
 
 ## Related Commands
 

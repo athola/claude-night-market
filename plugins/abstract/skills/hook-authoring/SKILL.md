@@ -307,13 +307,32 @@ class MyHooks(AgentHooks):
 **Pros:** Full Python capabilities, complex logic, state management
 **Cons:** Requires Python, more complex setup
 
+## Bash Permission Matching Notes
+
+### Environment Variable Wrappers (2.1.38+)
+
+Permission rules now correctly match commands prefixed with environment variable assignments. Before 2.1.38, `NODE_ENV=production npm test` would not match a rule for `Bash(npm *)`.
+
+```
+# These now all match `Bash(npm *)`:
+npm test
+NODE_ENV=production npm test
+FORCE_COLOR=1 CI=true npm test
+```
+
+When writing PreToolUse hooks that inspect bash commands, be aware that the permission system strips env var prefixes for matching, but your hook receives the full command string including prefixes.
+
+### Heredoc Delimiter Security (2.1.38+)
+
+Claude Code now validates heredoc delimiters to prevent command smuggling. The recommended pattern `<<'EOF'` (single-quoted) remains the safest approach. Always use single-quoted delimiters in heredoc patterns to prevent variable expansion.
+
 ## Security Essentials
 
 ### Critical Security Rules
 
 1. **Input Validation**: Always validate tool inputs before processing
 2. **No Secret Logging**: Never log API keys, tokens, passwords, or credentials
-3. **Sandbox Awareness**: Respect sandbox boundaries, don't escape
+3. **Sandbox Awareness**: Respect sandbox boundaries, don't escape. Note: `.claude/skills/` is read-only in sandbox mode (2.1.38+)
 4. **Fail-Safe Defaults**: Return None on error instead of blocking the agent
 5. **Rate Limiting**: Prevent hook abuse from malicious or buggy code
 6. **Injection Prevention**: Sanitize all logged content to prevent log injection
@@ -610,6 +629,35 @@ FORCE_AUTOUPDATE_PLUGINS=1 claude --agent my-agent
 - [Claude Code Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
 - [Claude Agent SDK Documentation](https://docs.anthropic.com/en/docs/claude-agent-sdk)
 - [Settings Configuration](https://docs.anthropic.com/en/docs/claude-code/settings)
+## Hook Exit Codes
+
+Hooks communicate decisions to Claude Code via exit codes:
+
+| Exit Code | Meaning | stdout | stderr |
+|-----------|---------|--------|--------|
+| **0** | Success/allow | Shown to Claude as system context | Ignored |
+| **2** | Block/deny | Ignored | Shown to user as explanation (2.1.39+ fix) |
+| **Other** | Error | Ignored | Shown to user as error message |
+
+### Blocking with Exit Code 2 (2.1.39+)
+
+Use exit code 2 to block an action and display a message to the user:
+
+```bash
+#!/bin/bash
+# Example: Block force pushes with user-facing message
+command=$(echo "$1" | jq -r '.tool_input.command // empty')
+if echo "$command" | grep -q 'push.*--force'; then
+  echo "Force push blocked: use --force-with-lease instead" >&2
+  exit 2
+fi
+exit 0
+```
+
+**Important**: Before Claude Code 2.1.39, stderr from exit code 2 was silently swallowed ([#10964](https://github.com/anthropics/claude-code/issues/10964)). Users would see a generic "hook error" instead of the custom message. This is now fixed — stderr is properly displayed to the user.
+
+**Plugin hooks**: Before 2.1.39, plugin-installed hooks had a separate code path that also failed to show stderr for exit code 2 ([#10412](https://github.com/anthropics/claude-code/issues/10412)). Both plugin and project hooks now work correctly.
+
 ## Troubleshooting
 
 ### Common Issues
@@ -622,3 +670,6 @@ Validate JSON/Python syntax before deployment
 
 **Permission denied**
 Check hook file permissions and ownership
+
+**Hook blocking message not shown (pre-2.1.39)**
+If using exit code 2 to block with a user-facing message and the message isn't appearing, upgrade to Claude Code 2.1.39+. In older versions, use exit 0 with stdout as a workaround.

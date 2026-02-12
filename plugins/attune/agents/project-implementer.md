@@ -69,7 +69,11 @@ Output:
 3. Check for resume state and prompt user if incomplete execution found
 4. Identify next task to execute
 5. Verify dependencies complete (TasksManager enforces this)
-6. Review task acceptance criteria
+6. **Risk-tier check** (if `leyline:risk-classification` available):
+   - GREEN/YELLOW: Proceed normally
+   - RED: Invoke `Skill(attune:war-room-checkpoint)` for reversibility scoring before execution
+   - CRITICAL: Invoke `Skill(attune:war-room-checkpoint)` + require human confirmation before proceeding
+7. Review task acceptance criteria
 
 **Claude Code Tasks Integration** (2.1.16+):
 ```python

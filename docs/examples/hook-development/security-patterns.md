@@ -20,10 +20,12 @@ Comprehensive security guidance for writing safe, secure hooks that protect agen
 | Threat | Description | Mitigation |
 |--------|-------------|------------|
 | **Command Injection** | Malicious input executing shell commands | Input validation, parameterization |
+| **Heredoc Smuggling** | Crafted heredoc delimiters injecting commands | Use `<<'EOF'` (single-quoted) delimiters; Claude Code 2.1.38+ hardens parsing |
 | **Secret Leakage** | Credentials in logs or outputs | Sanitization, pattern matching |
 | **Path Traversal** | Access files outside allowed directories | Path validation, allowlists |
 | **Resource Exhaustion** | Excessive hook execution consuming resources | Timeouts, rate limits |
 | **Privilege Escalation** | Hooks gaining unauthorized access | Least privilege, sandboxing |
+| **Skills Directory Injection** | Runtime modification of `.claude/skills/` to alter behavior | Sandbox mode blocks writes to skills directory (2.1.38+) |
 | **Log Injection** | Malicious data corrupting logs | Output sanitization |
 
 ## Input Validation

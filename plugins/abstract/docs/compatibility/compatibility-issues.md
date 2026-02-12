@@ -10,6 +10,18 @@ Known issues, testing procedures, and troubleshooting guidance.
 
 | Version | Issue | Workaround | Fixed In |
 |---------|-------|------------|----------|
+| < 2.1.39 | Hook exit code 2 (block) doesn't show stderr to user | Use exit 0 with stdout instead | 2.1.39 |
+| < 2.1.39 | Agent Teams uses wrong model identifiers on Bedrock/Vertex/Foundry | Set fully-qualified model IDs manually | 2.1.39 |
+| < 2.1.39 | MCP tools returning image content crash during streaming | Avoid image-returning MCP tools in streaming | 2.1.39 |
+| < 2.1.39 | `/resume` shows raw XML tags in session previews | None | 2.1.39 |
+| < 2.1.39 | Fatal errors silently swallowed | Check logs manually | 2.1.39 |
+| < 2.1.39 | Process hangs after session close | Kill process manually | 2.1.39 |
+| < 2.1.38 | Heredoc delimiter parsing vulnerable to command smuggling | Use `<<'EOF'` (single-quoted) delimiters | 2.1.38 |
+| < 2.1.38 | Bash permission rules don't match env variable wrapper commands (`KEY=val cmd`) | Add separate permission rules for prefixed commands | 2.1.38 |
+| < 2.1.38 | Tab key queues slash commands instead of autocompleting | Type full command name manually | 2.1.38 |
+| < 2.1.38 | Text between tool uses disappears in non-streaming mode | None | 2.1.38 |
+| < 2.1.38 | VS Code extension creates duplicate sessions on resume | Ignore duplicates in session list | 2.1.38 |
+| 2.1.37 | VS Code terminal scrolls to top unexpectedly | Scroll back manually | 2.1.38 |
 | < 2.1.34 | Sandbox-excluded commands bypass permission prompts when auto-allow enabled | Set `allowUnsandboxedCommands: false` or disable auto-allow | 2.1.34 |
 | < 2.1.34 | Agent teams setting change between renders causes crash | Avoid changing agent teams settings mid-session | 2.1.34 |
 | < 2.1.31 | PDF-too-large errors permanently lock sessions | Start a new conversation | 2.1.31 |
@@ -138,6 +150,6 @@ Monitor these Claude Code developments that may affect plugins:
 
 ---
 
-**Last Updated**: 2025-12-30
-**Ecosystem Version**: 1.1.1+
-**Tested With**: Claude Code 2.0.74
+**Last Updated**: 2026-02-11
+**Ecosystem Version**: 1.4.2+
+**Tested With**: Claude Code 2.1.39

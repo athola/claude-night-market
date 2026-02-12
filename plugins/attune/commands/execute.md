@@ -431,18 +431,23 @@ Each task follows this systematic pattern:
 
 **Task Completion Discipline**: Call `TaskUpdate(taskId, status: "completed")` right after finishing each task—never defer to end of session.
 
+## Terminal Phase
+
+This is the **final phase** of the attune workflow. No auto-continuation occurs after execution completes. The workflow terminates here with:
+- All tasks implemented and validated
+- Completion report generated
+- Execution state saved to `.attune/execution-state.json`
+
 ## Integration with Full Cycle
 
 ```
 /attune:brainstorm    ← Generate project brief
-      ↓
+      ↓ [auto]
 /attune:specify       ← Define requirements
-      ↓
-/attune:blueprint          ← Plan architecture and tasks
-      ↓
-/attune:project-init          ← Initialize project structure
-      ↓
-/attune:execute       ← You are here (implement systematically)
+      ↓ [auto]
+/attune:blueprint     ← Plan architecture and tasks
+      ↓ [auto]
+/attune:execute       ← You are here (terminal phase)
 ```
 
 ## Quality Gates

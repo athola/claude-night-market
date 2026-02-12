@@ -5,6 +5,8 @@ keyword indexing and query template matching, with intelligent scoring
 to classify matches as strong (>80%), partial (40-80%), or weak (<40%).
 """
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
 from typing import Any

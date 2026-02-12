@@ -5,7 +5,7 @@ following TDD/BDD principles and testing all output formatting scenarios.
 """
 
 import time
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import pytest
@@ -352,7 +352,7 @@ Common template variables that should be populated:
         review_data = {
             "title": "Security and Performance Review",
             "review_id": "REV-2024-001",
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "findings": sample_review_findings[:2],  # Use first 2 findings
         }
 
@@ -469,7 +469,7 @@ Common template variables that should be populated:
 
     def _calculate_due_date(self, priority: str) -> str:
         """Calculate due date based on priority."""
-        today = datetime.now(UTC)
+        today = datetime.now(timezone.utc)
         days_map = {
             "P1": 1,  # Critical: 1 day
             "P2": 3,  # High: 3 days

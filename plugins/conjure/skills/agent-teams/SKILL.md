@@ -14,6 +14,8 @@ tags:
 - messaging
 dependencies:
 - delegation-core
+- leyline:damage-control
+- leyline:risk-classification
 tools:
 - Bash
 - Read
@@ -31,6 +33,8 @@ modules:
 - modules/messaging-protocol.md
 - modules/task-coordination.md
 - modules/spawning-patterns.md
+- modules/crew-roles.md
+- modules/health-monitoring.md
 references:
 - delegation-core/../../leyline/skills/error-patterns/SKILL.md
 - delegation-core/../../leyline/skills/service-registry/SKILL.md
@@ -172,12 +176,22 @@ See `modules/messaging-protocol.md` for message types and inbox operations.
 4. **`agent-teams:coordination-active`** — Agents claim tasks, exchange messages, mark completion
 5. **`agent-teams:team-shutdown`** — Graceful shutdown with approval protocol
 
+## Crew Roles
+
+Each team member has a `role` that determines their capabilities and task compatibility. Five roles are defined: `implementer` (default), `researcher`, `tester`, `reviewer`, and `architect`. Roles constrain which risk tiers an agent can handle — see `modules/crew-roles.md` for the full capability matrix and role-risk compatibility table.
+
+## Health Monitoring
+
+Team members can be monitored for health via heartbeat messages and claim expiry. The lead polls team health every 60s with a 2-stage stall detection protocol (health_check probe + 30s wait). Stalled agents have their tasks released and are restarted or replaced following the "replace don't wait" doctrine. See `modules/health-monitoring.md` for the full protocol and state machine.
+
 ## Module Reference
 
 - **team-management.md**: Team lifecycle, config format, member management
 - **messaging-protocol.md**: Message types, inbox operations, locking patterns
 - **task-coordination.md**: Task CRUD, state machine, dependency cycle detection
 - **spawning-patterns.md**: tmux spawning, CLI flags, pane management
+- **crew-roles.md**: Role taxonomy, capability matrix, role-risk compatibility
+- **health-monitoring.md**: Heartbeat protocol, stall detection, automated recovery
 
 ## Integration with Conjure
 
@@ -203,10 +217,16 @@ Install via package manager: `brew install tmux` / `apt install tmux`
 If an agent crashes mid-operation, lock files may persist. Remove `.lock` files manually from `~/.claude/teams/<team>/inboxes/` or `~/.claude/tasks/<team>/`
 
 **Orphaned tasks**
-Tasks claimed by a crashed agent stay `in_progress` indefinitely. Implement heartbeat monitoring or claim-expiry (reset tasks claimed >N minutes without progress).
+Tasks claimed by a crashed agent stay `in_progress` indefinitely. Use `modules/health-monitoring.md` for heartbeat-based stall detection and automatic task release. The health monitoring protocol detects unresponsive agents within 60s + 30s probe window and releases their tasks for reassignment.
 
 **Message ordering**
 Filesystem timestamp resolution varies (HFS+ = 1s granularity). Use numbered filenames or UUID-sorted names to avoid collision on rapid message bursts.
+
+**Model errors on Bedrock/Vertex/Foundry (pre-2.1.39)**
+Teammate agents could use incorrect model identifiers on enterprise providers, causing 400 errors. Upgrade to Claude Code 2.1.39+ for correct model ID qualification across all providers.
+
+**Nested session guard (2.1.39+)**
+If `claude` refuses to launch within an existing session, ensure you're using tmux pane splitting (not subshell invocation). The guard is intentional — see `modules/spawning-patterns.md` for details.
 
 ## Exit Criteria
 

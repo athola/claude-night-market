@@ -35,6 +35,7 @@ graph LR
 | `/attune:init` | 5. Initialization | Generate or update project structure with tooling |
 | `/attune:execute` | 6. Implementation | Execute tasks with TDD discipline |
 | `/attune:upgrade-project` | Maintenance | Add configs to existing projects |
+| `/attune:mission` | Full Cycle | Run entire lifecycle as a single mission with state detection |
 | `/attune:validate` | Quality | Validate project structure |
 
 ## Supported Languages
@@ -98,6 +99,7 @@ graph LR
 | `project-init` | Interactive project initialization |
 | `project-execution` | Systematic implementation |
 | `makefile-generation` | Generate language-specific Makefiles |
+| `mission-orchestrator` | Unified brainstorm-specify-plan-execute lifecycle orchestrator |
 | `workflow-setup` | Configure CI/CD pipelines |
 | `precommit-setup` | Set up code quality hooks |
 

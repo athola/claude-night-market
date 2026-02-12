@@ -10,7 +10,7 @@ import sys
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -25,19 +25,27 @@ SRC_DIR = PLUGIN_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-# Import from memory_palace after path setup
-from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
-from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
-from memory_palace.curation import DomainAlignment, IntakeFlagPayload  # noqa: E402
-from memory_palace.lifecycle.autonomy_state import (  # noqa: E402
-    AutonomyProfile,
-    AutonomyStateStore,
-)
-from memory_palace.observability.telemetry import (  # noqa: E402
-    ResearchTelemetryEvent,
-    TelemetryLogger,
-    resolve_telemetry_path,
-)
+# Import from memory_palace after path setup.
+# These imports require pyyaml which may not be available on system Python.
+# The hook degrades gracefully when the package is unavailable.
+_HAS_MEMORY_PALACE = False
+try:
+    from memory_palace.corpus.cache_lookup import CacheLookup  # noqa: E402
+    from memory_palace.corpus.marginal_value import RedundancyLevel  # noqa: E402
+    from memory_palace.curation import DomainAlignment, IntakeFlagPayload  # noqa: E402
+    from memory_palace.lifecycle.autonomy_state import (  # noqa: E402
+        AutonomyProfile,
+        AutonomyStateStore,
+    )
+    from memory_palace.observability.telemetry import (  # noqa: E402
+        ResearchTelemetryEvent,
+        TelemetryLogger,
+        resolve_telemetry_path,
+    )
+
+    _HAS_MEMORY_PALACE = True
+except (ImportError, ModuleNotFoundError) as e:
+    logger.debug("memory_palace package not available: %s", e)
 
 # Freshness indicators - if present, likely needs web
 _FRESHNESS_PATTERNS = re.compile(
@@ -53,7 +61,7 @@ _EVERGREEN_PATTERNS = re.compile(
 )
 
 
-@dataclass(slots=True)
+@dataclass
 class CacheInterceptDecision:
     """Structured result describing cache interception behavior."""
 
@@ -74,12 +82,14 @@ class CacheInterceptDecision:
     autonomy_domains: list[str] = field(default_factory=list)
 
 
-_NOVELTY_BY_REDUNDANCY = {
-    RedundancyLevel.EXACT_MATCH: 0.05,
-    RedundancyLevel.HIGHLY_REDUNDANT: 0.15,
-    RedundancyLevel.PARTIAL_OVERLAP: 0.45,
-    RedundancyLevel.NOVEL: 0.9,
-}
+_NOVELTY_BY_REDUNDANCY: dict[Any, float] = {}
+if _HAS_MEMORY_PALACE:
+    _NOVELTY_BY_REDUNDANCY = {
+        RedundancyLevel.EXACT_MATCH: 0.05,
+        RedundancyLevel.HIGHLY_REDUNDANT: 0.15,
+        RedundancyLevel.PARTIAL_OVERLAP: 0.45,
+        RedundancyLevel.NOVEL: 0.9,
+    }
 
 
 def extract_query_intent(tool_name: str, tool_input: dict[str, Any]) -> str:
@@ -488,6 +498,10 @@ def main() -> None:
     if tool_name not in ("WebFetch", "WebSearch"):
         sys.exit(0)
 
+    if not _HAS_MEMORY_PALACE:
+        # Cannot intercept without memory_palace package (pyyaml missing)
+        sys.exit(0)
+
     config = shared_config.get_config()
     if not config.get("enabled", True):
         sys.exit(0)
@@ -604,7 +618,7 @@ def main() -> None:
             queue_path.parent.mkdir(parents=True, exist_ok=True)
 
             queue_entry = {
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "query_id": query_id,
                 "tool_name": tool_name,
                 "query": query,

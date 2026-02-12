@@ -5,10 +5,10 @@
 # - Clear separation between hook logic and skill content
 [project]
 name = "memory-palace-hooks"
-version = "1.4.1"
+version = "1.4.2"
 description = "Hooks for memory-palace plugin - URL detection, web content processing, and local doc monitoring"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "Claude Night Market" }]
 keywords = ["claude-code", "hooks", "memory-palace", "knowledge-management"]
@@ -42,14 +42,14 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 strict = true
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py39"
 line-length = 100
 
 [tool.ruff.lint]

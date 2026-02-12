@@ -19,7 +19,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -127,7 +127,7 @@ class TestLogEntryCreation:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
 
         assert log_file.exists(), f"Log file should exist at {log_file}"
@@ -150,7 +150,7 @@ class TestLogEntryCreation:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
 
         # When - run 3 times
@@ -180,7 +180,7 @@ class TestLogEntryCreation:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
 
         # When
@@ -213,7 +213,7 @@ class TestLogEntryCreation:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
 
         # When
@@ -268,7 +268,7 @@ class TestDurationTracking:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
         entry = json.loads(log_file.read_text().strip())
 
@@ -299,7 +299,7 @@ class TestDurationTracking:
         # Then
         assert result["returncode"] == 0
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
         entry = json.loads(log_file.read_text().strip())
 
@@ -333,7 +333,7 @@ class TestOutcomeDetection:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
         entry = json.loads(log_file.read_text().strip())
 
@@ -362,7 +362,7 @@ class TestOutcomeDetection:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
         entry = json.loads(log_file.read_text().strip())
 
@@ -392,7 +392,7 @@ class TestOutcomeDetection:
 
         # Then
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
         entry = json.loads(log_file.read_text().strip())
 
@@ -420,7 +420,7 @@ class TestContinualMetrics:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
 
         # When
@@ -449,7 +449,7 @@ class TestContinualMetrics:
         skill_ref = "abstract:skill-auditor"
         hook_path = Path("hooks/skill_execution_logger.py")
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
 
         # When - execute with alternating success/failure
@@ -623,7 +623,7 @@ class TestOutputSanitization:
             "CLAUDE_HOME": str(tmp_path),
         }
         log_dir = tmp_path / "skills" / "logs" / "abstract" / "skill-auditor"
-        log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+        log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         log_file = log_dir / f"{log_date}.jsonl"
 
         # When

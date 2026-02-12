@@ -19,11 +19,13 @@ Leyline provides reusable infrastructure patterns that other plugins build on. T
 | `quota-management` | Rate limiting and quotas | Building services that consume APIs |
 | `usage-logging` | Telemetry tracking | Logging tool usage for analytics |
 | `service-registry` | Service discovery patterns | Managing external tool connections |
+| `damage-control` | Agent-level error recovery for multi-agent coordination | Crash recovery, context overflow, merge conflicts |
 | `error-patterns` | Standardized error handling | Implementing production-grade error recovery |
 | `authentication-patterns` | Auth flow patterns | Handling API keys and OAuth |
 | `evaluation-framework` | Decision thresholds | Building evaluation criteria |
 | `mecw-patterns` | MECW implementation | Minimal Effective Context Window |
 | `progressive-loading` | Dynamic content loading | Lazy loading strategies |
+| `risk-classification` | Inline 4-tier risk classification for agent tasks | Risk-based task routing with war-room escalation |
 | `pytest-config` | Pytest configuration | Standardized test configuration |
 | `storage-templates` | Storage abstraction | File and database patterns |
 | `testing-quality-standards` | Test quality guidelines | Ensuring high-quality tests |

@@ -24,7 +24,8 @@ Tasks are numbered JSON files in `~/.claude/tasks/<team>/`:
   "blocked_by": [],
   "metadata": {
     "priority": "high",
-    "estimated_hours": 2
+    "estimated_hours": 2,
+    "risk_tier": "GREEN"
   }
 }
 ```
@@ -106,6 +107,15 @@ When `owner` changes, the system auto-sends a task assignment message to the new
 Setting `status: "deleted"` triggers:
 1. Remove all `blocks`/`blocked_by` references from other tasks
 2. Unlink the task JSON file from disk
+
+## Risk-Aware Task Assignment
+
+When `leyline:risk-classification` is available, the lead validates risk tier before assigning tasks:
+
+1. **Read `risk_tier`** from task metadata (default: `"GREEN"` if absent)
+2. **Validate assignment**: Check that the assigned agent's role is compatible with the tier (see `conjure:agent-teams/modules/crew-roles.md`)
+3. **Apply parallel constraints**: Respect the risk-tier parallel safety matrix — no RED+RED, never parallel CRITICAL
+4. **Set verification gates**: Task completion requires passing the tier-appropriate verification gates from `leyline:risk-classification/modules/verification-gates.md`
 
 ## Concurrency Safety
 

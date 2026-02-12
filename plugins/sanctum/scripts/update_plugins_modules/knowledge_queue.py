@@ -3,6 +3,8 @@
 Scans memory-palace queue for pending research items that need promotion.
 """
 
+from __future__ import annotations
+
 import json
 import re
 from datetime import datetime

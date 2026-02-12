@@ -74,9 +74,28 @@ Skill(attune:project-brainstorming)
 #    - Saved to docs/project-brief.md
 #    - Includes problem, goals, constraints, approach
 
-# 4. Transition to specification
-#    Next: /attune:specify (use brief as input)
+# 4. Workflow auto-continues (see below)
 ```
+
+### Workflow Continuation Protocol (MANDATORY)
+
+**After brainstorming completes successfully**, auto-proceed to the next phase unless `--standalone` was specified:
+
+1. **Verify artifact**: Confirm `docs/project-brief.md` exists and is non-empty
+2. **Checkpoint message**: Display brief summary to user:
+   ```
+   Brainstorming complete. Project brief saved to docs/project-brief.md.
+   Proceeding to specification phase...
+   ```
+3. **Auto-invoke next phase**:
+   ```
+   Skill(attune:project-specification)
+   ```
+
+**Bypass Conditions** (skip auto-continuation if ANY true):
+- `--standalone` flag was provided
+- `docs/project-brief.md` does not exist or is empty
+- User explicitly requests to stop after brainstorming
 
 ## Brainstorming Phases
 
@@ -139,6 +158,7 @@ Skill(attune:project-brainstorming)
 - `--resume` - Resume previous brainstorm session
 - `--output <path>` - Custom output path for brief (default: docs/project-brief.md)
 - `--skip-superpowers` - Don't use superpowers integration
+- `--standalone` - Run only this phase; do not auto-proceed to specification
 
 ## Examples
 
@@ -289,13 +309,11 @@ Brainstorm sessions are saved to `.attune/brainstorm-session.json`:
 
 ```
 /attune:brainstorm    ← You are here
-      ↓
+      ↓ [auto]
 /attune:specify       ← Define requirements
-      ↓
-/attune:blueprint          ← Plan architecture
-      ↓
-/attune:project-init          ← Initialize project
-      ↓
+      ↓ [auto]
+/attune:blueprint     ← Plan architecture
+      ↓ [auto]
 /attune:execute       ← Implement systematically
 ```
 

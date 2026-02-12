@@ -6,6 +6,8 @@ Validates recursive quality of evaluation-related skills:
 - Ensures test references exist
 """
 
+from __future__ import annotations
+
 import re
 from pathlib import Path
 from typing import Any

@@ -7,7 +7,7 @@ BDD-style tests organized by behavior:
 """
 
 import json
-from datetime import UTC
+from datetime import timezone
 
 import pytest
 
@@ -39,14 +39,14 @@ class TestIsoToDatetime:
         assert result.month == MONTH_DEC
         assert result.day == DAY_ONE
         assert result.hour == HOUR_NOON
-        assert result.tzinfo == UTC
+        assert result.tzinfo == timezone.utc
 
     def test_converts_non_utc_to_utc(self) -> None:
         """Convert non-UTC timestamps to UTC."""
         # EST is UTC-5
         result = iso_to_datetime("2025-12-01T07:00:00-05:00")
         assert result.hour == HOUR_NOON  # 7 AM EST = 12 PM UTC
-        assert result.tzinfo == UTC
+        assert result.tzinfo == timezone.utc
 
     def test_handles_naive_timestamps(self) -> None:
         """Handle naive timestamps (no timezone info)."""

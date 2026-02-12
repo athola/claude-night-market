@@ -70,6 +70,45 @@ Structured request with a unique ID for graceful agent termination.
 send_shutdown_request(team, to_agent, request_id)
 ```
 
+### Heartbeat
+Periodic health signal from agent to lead. Includes current task and progress.
+
+```json
+{
+  "from": "backend",
+  "type": "heartbeat",
+  "text": "{\"task_id\": \"5\", \"progress_percent\": 60}",
+  "timestamp": "2026-02-07T22:15:00Z",
+  "summary": "heartbeat: T5 60%"
+}
+```
+
+### Health Check
+Request from lead to verify agent is responsive. Agent must respond with a heartbeat within 30s.
+
+```json
+{
+  "from": "team-lead",
+  "type": "health_check",
+  "text": "{\"request_id\": \"hc-001\"}",
+  "timestamp": "2026-02-07T22:16:00Z",
+  "summary": "health check request"
+}
+```
+
+### Stall Alert
+Broadcast from lead when an agent is detected as stalled. Includes stalled agent identity and released tasks.
+
+```json
+{
+  "from": "team-lead",
+  "type": "stall_alert",
+  "text": "{\"stalled_agent\": \"backend\", \"released_tasks\": [\"5\", \"6\"]}",
+  "timestamp": "2026-02-07T22:17:00Z",
+  "summary": "backend stalled, tasks 5,6 released"
+}
+```
+
 ### Plan Approvals
 Response messages confirming or rejecting proposed plans.
 

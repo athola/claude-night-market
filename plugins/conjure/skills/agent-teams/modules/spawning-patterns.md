@@ -21,6 +21,15 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 These are set automatically by the spawner before launching each teammate.
 
+### Nested Session Guard (Claude Code 2.1.39+)
+
+Claude Code 2.1.39 added a guard that prevents launching `claude` inside another `claude` session. Agent teams are **unaffected** because:
+- tmux `split-window` creates an independent shell environment
+- The `CLAUDECODE=1` env var is set explicitly per pane, not inherited from a parent session
+- The guard targets accidental recursive invocations, not intentional team spawning
+
+If you encounter the guard unexpectedly, ensure you're using tmux or iTerm2 pane splitting (not subshell invocations like `claude -p "..." | ...` within an existing session).
+
 ## CLI Identity Flags
 
 ```bash
@@ -29,6 +38,7 @@ claude \
   --agent-name "backend" \
   --team-name "my-team" \
   --agent-color "#FF6B6B" \
+  --agent-role "implementer" \
   --parent-session-id "$LEAD_SESSION_ID" \
   --agent-type "general-purpose" \
   --model sonnet
@@ -42,7 +52,8 @@ claude \
 | `--agent-color` | hex color | Visual distinction in tmux |
 | `--parent-session-id` | string | Links to lead agent's session |
 | `--agent-type` | string | Role type (e.g., `general-purpose`) |
-| `--model` | string | Model selection: `sonnet`, `opus`, `haiku` |
+| `--agent-role` | string | Crew role: `implementer`, `researcher`, `tester`, `reviewer`, `architect` (default: `implementer`) |
+| `--model` | string | Model selection: `sonnet`, `opus`, `haiku` (2.1.39+ correctly qualifies for Bedrock/Vertex/Foundry) |
 | `--plan-mode-required` | flag | Optional: enforce planning mode |
 
 ## Agent ID Format

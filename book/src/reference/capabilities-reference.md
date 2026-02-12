@@ -69,12 +69,14 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `mcp-code-execution` | [conserve](../plugins/conserve.md) | MCP patterns for data pipelines |
 | `methodology-curator` | [abstract](../plugins/abstract.md) | Surface expert frameworks for skill development |
 | `media-composition` | [scry](../plugins/scry.md) | Multi-source media stitching |
+| `mission-orchestrator` | [attune](../plugins/attune.md) | Unified lifecycle orchestrator for project development |
 | `mecw-patterns` | [leyline](../plugins/leyline.md) | MECW implementation |
 | `memory-palace-architect` | [memory-palace](../plugins/memory-palace.md) | Building virtual palaces |
 | `modular-skills` | [abstract](../plugins/abstract.md) | Modular design patterns |
 | `optimizing-large-skills` | [conserve](../plugins/conserve.md) | Large skill optimization |
 | `performance-optimization` | [abstract](../plugins/abstract.md) | Progressive loading, token budgeting, and context-aware content delivery |
 | `code-refinement` | [pensive](../plugins/pensive.md) | Duplication, algorithms, and clean code analysis |
+| `damage-control` | [leyline](../plugins/leyline.md) | Agent-level error recovery for multi-agent coordination |
 | `pr-prep` | [sanctum](../plugins/sanctum.md) | PR preparation |
 | `pr-review` | [sanctum](../plugins/sanctum.md) | PR review workflows |
 | `precommit-setup` | [attune](../plugins/attune.md) | Set up pre-commit hooks |
@@ -96,6 +98,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `review-chamber` | [memory-palace](../plugins/memory-palace.md) | PR review knowledge capture and retrieval |
 | `response-compression` | [conserve](../plugins/conserve.md) | Response compression patterns |
 | `review-core` | [imbue](../plugins/imbue.md) | Scaffolding for detailed reviews |
+| `risk-classification` | [leyline](../plugins/leyline.md) | Inline 4-tier risk classification for agent tasks |
 | `rigorous-reasoning` | [imbue](../plugins/imbue.md) | Anti-sycophancy guardrails |
 | `rule-catalog` | [hookify](../plugins/hookify.md) | Pre-built behavioral rule templates |
 | `rust-review` | [pensive](../plugins/pensive.md) | Rust-specific checking |
@@ -149,6 +152,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/attune:brainstorm` | attune | Brainstorm project ideas using Socratic questioning |
 | `/attune:execute` | attune | Execute implementation tasks systematically |
 | `/attune:init` | attune | Initialize new project with development infrastructure |
+| `/attune:mission` | attune | Run full project lifecycle as a single mission with state detection and recovery |
 | `/attune:blueprint` | attune | Plan architecture and break down tasks |
 | `/attune:specify` | attune | Create detailed specifications from brainstorm |
 | `/attune:upgrade-project` | attune | Add or update configurations in existing project |
