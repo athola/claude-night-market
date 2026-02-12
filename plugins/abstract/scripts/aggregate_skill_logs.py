@@ -17,7 +17,7 @@ import statistics
 import sys
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -89,7 +89,7 @@ def load_log_entries(
 
     """
     entries_by_skill: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    cutoff = datetime.now(UTC) - timedelta(days=days_back)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days_back)
 
     # Traverse plugin/skill directory structure
     for plugin_dir in log_dir.iterdir():
@@ -354,7 +354,7 @@ def aggregate_logs(days_back: int = 30) -> AggregationResult:
     total_executions = sum(m.total_executions for m in metrics_by_skill.values())
 
     return AggregationResult(
-        timestamp=datetime.now(UTC),
+        timestamp=datetime.now(timezone.utc),
         skills_analyzed=len(metrics_by_skill),
         total_executions=total_executions,
         high_impact_issues=high_impact_issues,

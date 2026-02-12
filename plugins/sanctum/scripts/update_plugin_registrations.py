@@ -5,6 +5,8 @@ This script scans plugin directories for commands, skills, agents, hooks, and mo
 compares them with plugin.json registrations, and validates module references.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import re
@@ -174,6 +176,7 @@ class PluginAuditor:
         """Extract module references from a single markdown file.
 
         Patterns matched:
+        - YAML frontmatter modules: list (bare names, converted to filename.md)
         - @modules/filename.md
         - modules/filename.md
         - `modules/filename.md`
@@ -185,6 +188,25 @@ class PluginAuditor:
 
         try:
             content = md_file.read_text(encoding="utf-8")
+
+            # Extract from YAML frontmatter modules: list
+            frontmatter_match = re.match(r"^---\n(.*?\n)---", content, re.DOTALL)
+            if frontmatter_match:
+                frontmatter = frontmatter_match.group(1)
+                # Find the modules: block and extract bare names
+                modules_match = re.search(
+                    r"^modules:\s*\n((?:- .+\n)*)", frontmatter, re.MULTILINE
+                )
+                if modules_match:
+                    for name in re.findall(r"^- (.+)$", modules_match.group(1), re.MULTILINE):
+                        name = name.strip()
+                        if name and not name.startswith("{"):
+                            # Convert bare name to filename: name -> name.md
+                            if not name.endswith(".md"):
+                                name = f"{name}.md"
+                            references.add(name)
+
+            # Content-level patterns
             patterns = [
                 # Direct module references
                 r"@modules/([a-zA-Z0-9_-]+\.md)",

@@ -42,10 +42,18 @@ estimated_tokens: 200
       "agent_id": "backend@my-team",
       "name": "backend",
       "agent_type": "general-purpose",
+      "role": "implementer",
       "model": "sonnet",
       "joined_at": 1738972801000,
       "tmux_pane_id": "%1",
-      "cwd": "/home/user/project"
+      "cwd": "/home/user/project",
+      "health": {
+        "status": "healthy",
+        "last_heartbeat": "2026-02-07T22:00:01Z",
+        "last_task_update": null,
+        "stall_count": 0,
+        "replacement_count": 0
+      }
     }
   ]
 }
@@ -81,6 +89,23 @@ This guarantees that any agent reading `config.json` sees either the old or new 
 3. **Operate**: Agents coordinate through tasks and messages
 4. **Shrink**: Remove completed teammates, clean up their inboxes
 5. **Delete**: Requires all non-lead members removed first; purges both `teams/` and `tasks/` directories
+
+## Member Health States
+
+Members with a `health` object follow a state machine for health tracking:
+
+```
+healthy → stalled → unresponsive → replaced
+  ▲          │
+  └──────────┘ (recovery succeeds)
+```
+
+- **healthy**: Agent is responsive, heartbeat within claim expiry
+- **stalled**: No heartbeat received within claim_expiry_seconds, health_check sent
+- **unresponsive**: Failed to respond to health_check within 30s
+- **replaced**: Agent decommissioned, fresh agent spawned with new identity
+
+Members without a `health` object work as before (no health monitoring). See `modules/health-monitoring.md` for full protocol. The `role` field (default: `"implementer"`) determines the agent's capability set — see `modules/crew-roles.md`.
 
 ## Single Team Per Session
 

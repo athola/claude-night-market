@@ -168,6 +168,12 @@ If a named session isn't appearing in `/resume`:
 - Sessions may expire after extended inactivity
 - Use `/resume` screen to browse available sessions
 
+### Duplicate Sessions in VS Code
+
+If you see duplicate session entries when resuming in VS Code:
+- **Claude Code 2.1.38+**: Fixed — resume now correctly reuses the existing session without creating duplicates
+- **Older versions**: Ignore the duplicate entries; they point to the same underlying session
+
 ### Lost Context After Resume
 
 If context seems incomplete or resume is slow:

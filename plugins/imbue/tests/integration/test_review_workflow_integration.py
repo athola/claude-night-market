@@ -5,7 +5,7 @@ and commands working together, following TDD/BDD principles.
 """
 
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from unittest.mock import Mock
 
 import pytest
@@ -181,7 +181,7 @@ def test_auth():
                     + "test_user"
                     + "'"
                 ),
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
         ]
 
@@ -368,7 +368,7 @@ def test_auth():
                     "id": f"E{len(shared_evidence) + 1}",
                     "command": f"agent analysis of {context.get('target', 'unknown')}",
                     "output": "Security vulnerability detected",
-                    "timestamp": datetime.now(UTC).isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "agent": "review-analyst",
                 }
                 shared_evidence.append(evidence_item)
@@ -484,7 +484,7 @@ def test_auth():
                         "command": "git diff HEAD~1..HEAD",
                         "output": "2 files changed, 15 insertions(+), 5 deletions(-)",
                         "skill": "diff-analysis",
-                        "timestamp": datetime.now(UTC).isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                     }
                     evidence_log["evidence"].append(diff_evidence)
                     evidence_log["next_evidence_id"] += 1

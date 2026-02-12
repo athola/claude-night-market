@@ -396,12 +396,36 @@ Save session to `.attune/brainstorm-session.json`:
 ```
 **Verification:** Run the command with `--help` flag to verify availability.
 
+### Phase 6: Workflow Continuation (REQUIRED)
+
+**Automatic Trigger**: After Phase 5 (Decision & Rationale) completes and `docs/project-brief.md` is saved, MUST auto-invoke the next phase.
+
+**When continuation is invoked**:
+1. Verify `docs/project-brief.md` exists and is non-empty
+2. Display checkpoint message to user:
+   ```
+   Brainstorming complete. Project brief saved to docs/project-brief.md.
+   Proceeding to specification phase...
+   ```
+3. Invoke next phase:
+   ```
+   Skill(attune:project-specification)
+   ```
+
+**Bypass Conditions** (ONLY skip continuation if ANY true):
+- `--standalone` flag was provided by the user
+- `docs/project-brief.md` does not exist or is empty (phase failed)
+- User explicitly requests to stop after brainstorming
+
+**Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+
 ## Related Skills
 
 - `Skill(superpowers:brainstorming)` - Socratic method (if available)
 - `Skill(attune:war-room)` - **REQUIRED AUTOMATIC INTEGRATION** - Invoked after Phase 3 for multi-LLM deliberation
 - `Skill(imbue:scope-guard)` - Scope creep prevention
-- `Skill(attune:project-specification)` - Next phase after brainstorming
+- `Skill(attune:project-specification)` - **AUTO-INVOKED** next phase after brainstorming
+- `Skill(attune:mission-orchestrator)` - Full lifecycle orchestration
 
 ## Related Commands
 

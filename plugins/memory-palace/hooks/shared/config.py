@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None  # type: ignore[assignment]
 
 # Singleton cache
 _config_cache: dict[str, Any] | None = None
@@ -125,6 +128,12 @@ def get_config() -> dict[str, Any]:
     try:
         current_mtime = config_path.stat().st_mtime
         if _config_cache is not None and current_mtime <= _config_mtime:
+            return _config_cache
+
+        if yaml is None:
+            # pyyaml not installed - use defaults
+            if _config_cache is None:
+                _config_cache = CONFIG_DEFAULTS.copy()
             return _config_cache
 
         with open(config_path) as f:

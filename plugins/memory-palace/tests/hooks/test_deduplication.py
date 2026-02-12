@@ -8,12 +8,14 @@ import sys
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
+import shared.deduplication as dedup_module
 from shared.deduplication import (
     get_content_hash,
     get_index_stats,
     get_url_key,
     is_known,
     needs_update,
+    update_index,
 )
 
 
@@ -113,3 +115,66 @@ class TestGetIndexStats:
         assert stats["total_hashes"] >= 0
         assert stats["urls"] >= 0
         assert stats["local_docs"] >= 0
+
+
+class TestYamlUnavailable:
+    """Tests for graceful degradation when pyyaml is not installed."""
+
+    def setup_method(self) -> None:
+        """Reset dedup caches before each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    def teardown_method(self) -> None:
+        """Reset dedup caches after each test."""
+        dedup_module._index_cache = None
+        dedup_module._index_mtime = 0
+
+    def test_load_index_returns_empty_when_yaml_unavailable(self) -> None:
+        """When yaml is None, _load_index returns empty structure."""
+        original_yaml = dedup_module.yaml
+        try:
+            dedup_module.yaml = None
+            index = dedup_module._load_index()
+            assert index == {"entries": {}, "hashes": {}}
+        finally:
+            dedup_module.yaml = original_yaml
+
+    def test_is_known_returns_false_when_yaml_unavailable(self) -> None:
+        """When yaml is None, nothing is known."""
+        original_yaml = dedup_module.yaml
+        try:
+            dedup_module.yaml = None
+            assert is_known(content_hash="sha256:abc123") is False
+            assert is_known(url="https://example.com") is False
+        finally:
+            dedup_module.yaml = original_yaml
+
+    def test_update_index_caches_only_when_yaml_unavailable(self) -> None:
+        """When yaml is None, update_index stores in memory but doesn't persist."""
+        original_yaml = dedup_module.yaml
+        try:
+            dedup_module.yaml = None
+            content_hash = get_content_hash("test content for no-yaml")
+            update_index(
+                content_hash=content_hash,
+                stored_at="docs/test.md",
+                importance_score=50,
+            )
+            # Should be cached in memory
+            assert dedup_module._index_cache is not None
+            assert content_hash in dedup_module._index_cache.get("hashes", {})
+        finally:
+            dedup_module.yaml = original_yaml
+
+    def test_get_index_stats_works_when_yaml_unavailable(self) -> None:
+        """When yaml is None, stats should still return valid structure."""
+        original_yaml = dedup_module.yaml
+        try:
+            dedup_module.yaml = None
+            stats = get_index_stats()
+            assert isinstance(stats, dict)
+            assert stats["total_entries"] == 0
+            assert stats["total_hashes"] == 0
+        finally:
+            dedup_module.yaml = original_yaml

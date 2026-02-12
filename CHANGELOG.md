@@ -5,7 +5,39 @@ All notable changes to the Claude Night Market plugin ecosystem are documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.2] - 2026-02-11
+
+### Added
+
+- **Mission orchestrator** (attune) - `/attune:mission` command and `mission-orchestrator` skill wrap the full brainstorm→specify→plan→execute lifecycle into a single resumable command with artifact-based state detection, phase routing, and session recovery via `leyline:damage-control`
+
+- **Damage control** (leyline) - `damage-control` skill provides agent-level error recovery for multi-agent coordination, covering crash recovery, context overflow, and merge conflict resolution
+
+- **Risk classification** (leyline) - `risk-classification` skill implements 4-tier inline risk routing (GREEN/YELLOW/RED/CRITICAL) with heuristic matching for low-risk tasks and war-room-checkpoint escalation for high-risk decisions
+
+- **Agent teams coordination** (conjure) - New `crew-roles` module defines agent role taxonomy and `health-monitoring` module adds health checks for multi-agent workflows
+
+### Fixed
+
+- **Python 3.9 compatibility** (memory-palace) - Lowered hooks `requires-python` from `>=3.10` to `>=3.9` and updated mypy/ruff targets to match macOS system Python
+
+### Changed - Claude Code Compatibility Updates (abstract, conserve, sanctum, conjure)
+
+- **Compatibility tracker update** - Documented Claude Code 2.1.38 and 2.1.39 features and fixes
+  - 2.1.39: Nested session guard, hook exit code 2 stderr fix, agent teams model fix for Bedrock/Vertex/Foundry, MCP image streaming crash fix, OTel speed attribute, terminal rendering improvements, fatal error display, process hang fix
+  - 2.1.38: Heredoc delimiter parsing hardened against command smuggling (security), sandbox blocks writes to `.claude/skills` directory (security), bash permission matching for env variable wrapper commands (`KEY=val cmd`), VS Code terminal scroll-to-top regression fix, tab key autocomplete restored, text between tool uses preserved in non-streaming mode, VS Code duplicate sessions on resume fixed
+
+- **Hook authoring updates** (abstract) - Added hook exit codes reference table, exit code 2 blocking documentation with examples and troubleshooting; bash permission matching notes for env var wrappers; heredoc delimiter security guidance; sandbox `.claude/skills` write restriction awareness
+
+- **Agent teams updates** (conjure) - Added nested session guard explanation to spawning patterns, Bedrock/Vertex/Foundry model fix note, provider compatibility troubleshooting
+
+- **Security patterns update** (docs) - Added heredoc smuggling and skills directory injection to threat model table
+
+- **Session management** (sanctum) - Added VS Code duplicate sessions troubleshooting section
+
+- **Sanctum conventions** - Updated HEREDOC guidance to recommend single-quoted delimiters with 2.1.38 security context
+
+- **Skill authoring** (abstract) - Added sandbox compatibility checklist item for skills that create/modify other skills at runtime
 
 ## [1.4.1] - 2026-02-07
 

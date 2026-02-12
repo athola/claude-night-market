@@ -1,6 +1,6 @@
 {
   "name": "attune",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
   "commands": [
     "./commands/arch-init.md",
@@ -11,7 +11,8 @@
     "./commands/specify.md",
     "./commands/upgrade-project.md",
     "./commands/validate.md",
-    "./commands/war-room.md"
+    "./commands/war-room.md",
+    "./commands/mission.md"
   ],
   "skills": [
     "./skills/architecture-aware-init",
@@ -24,7 +25,8 @@
     "./skills/project-specification",
     "./skills/war-room",
     "./skills/war-room-checkpoint",
-    "./skills/workflow-setup"
+    "./skills/workflow-setup",
+    "./skills/mission-orchestrator"
   ],
   "agents": [
     "./agents/project-architect.md",
@@ -52,6 +54,9 @@
     "python",
     "rust",
     "typescript",
+    "mission",
+    "orchestrator",
+    "lifecycle",
     "templates",
     "scaffolding",
     "project-structure",
