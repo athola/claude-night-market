@@ -151,11 +151,11 @@ def sanitize_output(output: str, max_length: int = 5000) -> str:
         Sanitized and truncated output
 
     """
-    # Truncate if too long
+    # Truncate BEFORE regex matching to prevent ReDoS on large inputs
     if len(output) > max_length:
         output = output[:max_length] + f"\n... (truncated from {len(output)} chars)"
 
-    # Redact potential secrets using pattern matching
+    # Redact potential secrets using pattern matching (safe: input is bounded above)
     sensitive_patterns = [
         # API keys
         (

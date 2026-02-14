@@ -16,6 +16,7 @@ dependencies:
 - attune:project-specification
 - attune:project-planning
 - attune:project-execution
+- attune:war-room-checkpoint
 - leyline:risk-classification
 - leyline:damage-control
 tools:
@@ -101,9 +102,9 @@ Wraps the entire attune development lifecycle (brainstorm → specify → plan �
 | Type | Phases | Auto-detected When |
 |------|--------|--------------------|
 | `full` | brainstorm → specify → plan → execute | No artifacts exist |
-| `standard` | specify → plan → execute | project-brief.md exists |
-| `tactical` | plan → execute | specification.md exists |
-| `quickfix` | execute | implementation-plan.md exists |
+| `standard` | specify → plan → execute | `docs/project-brief.md` exists |
+| `tactical` | plan → execute | `docs/specification.md` exists |
+| `quickfix` | execute | `docs/implementation-plan.md` exists |
 
 See `modules/mission-types.md` for full type definitions and custom type support.
 

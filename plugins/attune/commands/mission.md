@@ -118,7 +118,7 @@ The resume command:
 
 ```
 /attune:mission              ← Orchestrates everything below
-  ├─ /attune:brainstorm      ← Phase 1 (if full/standard)
+  ├─ /attune:brainstorm      ← Phase 1 (if full)
   ├─ /attune:specify         ← Phase 2 (if full/standard)
   ├─ /attune:blueprint       ← Phase 3 (if full/standard/tactical)
   └─ /attune:execute         ← Phase 4 (always)

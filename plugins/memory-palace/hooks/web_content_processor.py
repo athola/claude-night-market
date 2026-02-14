@@ -210,16 +210,21 @@ auto_generated: true
         queue_path = QUEUE_DIR / filename
         queue_path.write_text(queue_entry, encoding="utf-8")
 
-        # Update index to track this content
-        update_index(
-            content_hash=content_hash,
-            stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
-            importance_score=50,  # Default pending evaluation
-            url=url,
-            title=title,
-            maturity="seedling",
-            routing_type="pending",
-        )
+        # Update index separately — if this fails, clean up the orphaned file
+        try:
+            update_index(
+                content_hash=content_hash,
+                stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
+                importance_score=50,  # Default pending evaluation
+                url=url,
+                title=title,
+                maturity="seedling",
+                routing_type="pending",
+            )
+        except Exception as idx_err:
+            logger.error("web_content_processor: Index update failed, removing orphan: %s", idx_err)
+            queue_path.unlink(missing_ok=True)
+            return None
 
         return str(queue_path)
 

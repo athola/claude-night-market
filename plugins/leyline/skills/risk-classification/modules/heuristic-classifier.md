@@ -114,9 +114,10 @@ function classify(task):
         pattern_tier = match_patterns(file.path)
         tier = max(tier, pattern_tier)
 
-    # Apply change type multiplier
+    # Apply change type multiplier (escalate by 1 tier, capped at CRITICAL)
     if any(file.change_type == DELETE for file in task.affected_files):
-        tier = escalate(tier, +1)
+        TIERS = [GREEN, YELLOW, RED, CRITICAL]
+        tier = TIERS[min(TIERS.index(tier) + 1, len(TIERS) - 1)]
 
     # Apply file count escalation
     if len(task.affected_files) >= 11:

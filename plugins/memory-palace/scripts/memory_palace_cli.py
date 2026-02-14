@@ -129,7 +129,9 @@ class MemoryPalaceCLI:
                 with open(self.claude_config) as f:
                     config = json.load(f)
             except json.JSONDecodeError:
-                self.print_warning("Existing config was invalid, creating new one")
+                backup = self.claude_config.with_suffix(".json.bak")
+                shutil.copy2(self.claude_config, backup)
+                self.print_warning(f"Existing config was invalid, backed up to {backup.name}")
 
         # Add memory palace permissions
         permissions = config.setdefault("permissions", {})

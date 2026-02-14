@@ -34,6 +34,7 @@ Content is a JSON array of message objects. An empty inbox is `[]`.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `from` | string | yes | Sender agent name |
+| `type` | string | no | Message type: `"heartbeat"`, `"health_check"`, `"stall_alert"`, `"plan_approval"`, `"shutdown"`. Omit for plain direct messages. |
 | `text` | string | yes | Message body (plain text or serialized JSON) |
 | `timestamp` | string | yes | ISO 8601 timestamp |
 | `read` | boolean | yes | Read-state flag (default: `false`) |
@@ -111,6 +112,20 @@ Broadcast from lead when an agent is detected as stalled. Includes stalled agent
 
 ### Plan Approvals
 Response messages confirming or rejecting proposed plans.
+
+```json
+{
+  "from": "team-lead",
+  "type": "plan_approval",
+  "text": "{\"task_id\": \"3\", \"approved\": true, \"notes\": \"Proceed with approach A\"}",
+  "timestamp": "2026-02-07T22:20:00Z",
+  "summary": "plan approved: T3"
+}
+```
+
+```python
+send_plan_approval(team, to_agent, task_id, approved, notes=None)
+```
 
 ## fcntl File Locking
 
