@@ -2,6 +2,11 @@
 
 This guide walks you through adding the Claude Night Market to your Claude Code setup.
 
+## Prerequisites
+
+- **Claude Code** 2.1.16+ (2.1.32+ for agent teams features)
+- **Python 3.9+** — required for hook execution. macOS ships Python 3.9.6 as the system interpreter; hooks run under this rather than virtual environments. Plugin packages may target higher versions (3.10+, 3.12+) via `uv`.
+
 ## Step 1: Add the Marketplace
 
 Open Claude Code and run:

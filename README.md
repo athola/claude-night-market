@@ -22,6 +22,25 @@ Hooks adapt context based on the active agent. `pensive` tracks usage frequency 
 
 Commands automate multi-step processes to reduce manual intervention. `/prepare-pr` validates branch scope, runs configured linters, and verifies a clean git state before drafting a pull request. `/full-review` audits syntax, logic, and security in a single pass. `/speckit-specify` requires a written specification phase before generating code. To maintain context, `/catchup` reads recent git history, and `/attune:project-init` detects project types (Python, Node) to scaffold configuration files. `/attune:mission` wraps the full project lifecycle into a single resumable command with artifact-based state detection and error recovery via `leyline:damage-control`.
 
+## Requirements
+
+- **Claude Code** 2.1.16+ (2.1.32+ for agent teams, 2.1.38+ for full security features)
+- **Python 3.9+** — hooks execute under the system Python (macOS ships 3.9.6). Plugin packages and scripts may target 3.10+ or 3.12+ via virtual environments, but **all hook code must be 3.9-compatible**
+
+### Python 3.9 Hook Compatibility Rules
+
+Hooks run outside virtual environments, so they must avoid syntax and APIs added after 3.9:
+
+| Feature | Requires | Use Instead |
+|---------|----------|-------------|
+| `X \| Y` union types | 3.10+ | `from __future__ import annotations` |
+| `@dataclass(slots=True)` | 3.10+ | `@dataclass` (omit `slots`) |
+| `datetime.UTC` | 3.11+ | `datetime.timezone.utc` |
+| `import tomllib` | 3.11+ | `import tomli` or parse manually |
+| `import yaml` | not stdlib | wrap in `try/except ImportError` |
+
+See the [Plugin Development Guide](docs/plugin-development-guide.md) for the full list.
+
 ## Quick Start
 
 ### Claude Code Plugin Commands
