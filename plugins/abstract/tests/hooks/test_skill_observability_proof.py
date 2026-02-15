@@ -20,7 +20,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # Constants
@@ -59,12 +59,12 @@ def pre_tool_use_hook() -> None:
             plugin, skill = "unknown", skill_ref
 
         # Create invocation ID for tracking across pre/post hooks
-        invocation_id = f"{plugin}:{skill}:{datetime.now(timezone.utc).timestamp()}"
+        invocation_id = f"{plugin}:{skill}:{datetime.now(UTC).timestamp()}"
 
         # Store pre-execution state
         state = {
             "invocation_id": invocation_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "skill": skill_ref,
             "plugin": plugin,
             "skill_name": skill,
@@ -149,7 +149,7 @@ def post_tool_use_hook() -> None:
         duration_ms = None
         if pre_state:
             pre_time = datetime.fromisoformat(pre_state["timestamp"])
-            post_time = datetime.now(timezone.utc)
+            post_time = datetime.now(UTC)
             duration_ms = int((post_time - pre_time).total_seconds() * 1000)
 
         # Determine outcome
@@ -161,7 +161,7 @@ def post_tool_use_hook() -> None:
 
         # Create execution log entry
         log_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "invocation_id": pre_state["invocation_id"] if pre_state else "unknown",
             "skill": skill_ref,
             "plugin": plugin,
@@ -181,7 +181,7 @@ def post_tool_use_hook() -> None:
         log_dir = Path.home() / ".claude" / "skills" / "logs" / plugin / skill
         log_dir.mkdir(parents=True, exist_ok=True)
 
-        log_file = log_dir / f"{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl"
+        log_file = log_dir / f"{datetime.now(UTC).strftime('%Y-%m-%d')}.jsonl"
         with open(log_file, "a") as f:
             f.write(json.dumps(log_entry) + "\n")
 
@@ -284,7 +284,7 @@ if __name__ == "__main__":
             / "logs"
             / "abstract"
             / "skill-auditor"
-            / f"{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.jsonl"
+            / f"{datetime.now(UTC).strftime('%Y-%m-%d')}.jsonl"
         )
         if log_file.exists():
             print(f"✓ Log file created: {log_file}")
