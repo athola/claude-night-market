@@ -81,10 +81,28 @@ Skill(attune:project-planning)
 #    - Saved to docs/implementation-plan.md
 #    - Includes architecture + task breakdown
 
-# 5. Transition to initialization/execution
-#    Next: /attune:project-init (set up project)
-#    Then: /attune:execute (implement tasks)
+# 5. Workflow auto-continues (see below)
 ```
+
+### Workflow Continuation Protocol (MANDATORY)
+
+**After planning completes successfully**, auto-proceed to the next phase unless `--standalone` was specified:
+
+1. **Verify artifact**: Confirm `docs/implementation-plan.md` exists and is non-empty
+2. **Checkpoint message**: Display brief summary to user:
+   ```
+   Implementation plan complete. Saved to docs/implementation-plan.md.
+   Proceeding to execution phase...
+   ```
+3. **Auto-invoke next phase**:
+   ```
+   Skill(attune:project-execution)
+   ```
+
+**Bypass Conditions** (skip auto-continuation if ANY true):
+- `--standalone` flag was provided
+- `docs/implementation-plan.md` does not exist or is empty
+- User explicitly requests to stop after planning
 
 ## Plan Structure
 
@@ -191,6 +209,7 @@ Skill(attune:project-planning)
 - `--output <path>` - Output plan (default: docs/implementation-plan.md)
 - `--component <name>` - Focus on specific component
 - `--detailed` - Generate detailed task breakdown with code examples
+- `--standalone` - Run only this phase; do not auto-proceed to execution
 
 ## Examples
 
@@ -386,13 +405,11 @@ class DebtItem(Base):
 
 ```
 /attune:brainstorm    ← Generate project brief
-      ↓
+      ↓ [auto]
 /attune:specify       ← Define requirements
-      ↓
-/attune:blueprint          ← You are here
-      ↓
-/attune:project-init          ← Initialize project structure
-      ↓
+      ↓ [auto]
+/attune:blueprint     ← You are here
+      ↓ [auto]
 /attune:execute       ← Implement tasks systematically
 ```
 

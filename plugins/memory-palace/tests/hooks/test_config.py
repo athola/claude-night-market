@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import os
 import sys
+from unittest.mock import patch
 
 # Add hooks to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../hooks"))
 
+import shared.config as config_module
 from shared.config import (
     CONFIG_DEFAULTS,
     get_config,
@@ -156,3 +158,51 @@ class TestShouldProcessPath:
         """Excluded paths in knowledge dirs should not be processed."""
         # If there was a .env in docs, it should still be excluded
         assert should_process_path("docs/.env") is False
+
+
+class TestYamlUnavailable:
+    """Tests for graceful degradation when pyyaml is not installed."""
+
+    def setup_method(self) -> None:
+        """Reset config cache before each test."""
+        config_module._config_cache = None
+        config_module._config_mtime = 0
+
+    def teardown_method(self) -> None:
+        """Reset config cache after each test."""
+        config_module._config_cache = None
+        config_module._config_mtime = 0
+
+    def test_get_config_returns_defaults_when_yaml_unavailable(self) -> None:
+        """When yaml is None, get_config should return CONFIG_DEFAULTS."""
+        original_yaml = config_module.yaml
+        try:
+            config_module.yaml = None
+            result = get_config()
+            assert result == CONFIG_DEFAULTS
+            assert result["enabled"] is True
+            assert result["research_mode"] == "cache_first"
+        finally:
+            config_module.yaml = original_yaml
+
+    def test_get_config_caches_defaults_when_yaml_unavailable(self) -> None:
+        """When yaml is None, repeated calls should return cached defaults."""
+        original_yaml = config_module.yaml
+        try:
+            config_module.yaml = None
+            result1 = get_config()
+            result2 = get_config()
+            assert result1 is result2  # Same object from cache
+        finally:
+            config_module.yaml = original_yaml
+
+    def test_path_functions_work_with_default_config(self) -> None:
+        """Path utility functions should work with default-only config."""
+        original_yaml = config_module.yaml
+        try:
+            config_module.yaml = None
+            assert is_path_excluded(".git/config") is True
+            assert is_knowledge_path("docs/guide.md") is True
+            assert should_process_path("docs/guide.md") is True
+        finally:
+            config_module.yaml = original_yaml

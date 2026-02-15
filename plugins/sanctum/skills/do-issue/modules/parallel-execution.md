@@ -25,6 +25,8 @@ Tasks can run in parallel ONLY when ALL conditions are met:
 - Tasks have **sequential dependencies**
 - Tasks touch **overlapping code paths** that could conflict
 - Tasks need results from **each other**
+- Both tasks are `[R:RED]` (compounding risk prohibited)
+- Either task is `[R:CRITICAL]` (always executes solo)
 
 ## Analyze Task Conflicts BEFORE Dispatching
 
@@ -59,6 +61,20 @@ Conflict Check:
 
 Decision: Execute SEQUENTIALLY (Task A first, then Task B)
 ```
+
+## Risk-Tier Parallel Safety
+
+When tasks have `[R:TIER]` markers (from `leyline:risk-classification`), apply these additional constraints:
+
+| Task A Tier | Task B Tier | Parallel? | Reason |
+|-------------|-------------|-----------|--------|
+| GREEN | Any | Yes | Low risk, independent |
+| YELLOW | YELLOW | Yes | Standard caution |
+| YELLOW | RED | Yes | With conflict monitoring |
+| RED | RED | **No** | Compounding risk too high |
+| Any | CRITICAL | **No** | CRITICAL always solo |
+
+Tasks without `[R:TIER]` markers are treated as GREEN (backward compatible).
 
 ## Dispatch Parallel Subagents
 

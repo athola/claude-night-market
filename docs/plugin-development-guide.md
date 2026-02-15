@@ -41,7 +41,29 @@ If performance lags, profile token usage with `python -m cProfile`. Documentatio
 
 ## Tooling
 
-We use Python 3.10+ managed by `uv`. `pytest` handles testing, while `ruff` manages linting and formatting. `mypy` enforces type checking, and `bandit` performs security analysis. `pre-commit` and GitHub Actions handle automation tasks.
+We use Python 3.9+ for plugin packages, managed by `uv`. `pytest` handles testing, while `ruff` manages linting and formatting. `mypy` enforces type checking, and `bandit` performs security analysis. `pre-commit` and GitHub Actions handle automation tasks.
+
+### Python Version Requirements
+
+The ecosystem has a two-tier Python requirement:
+
+| Code Type | Minimum Python | Reason |
+|-----------|---------------|--------|
+| **Hooks** | **3.9+** | Execute under macOS system Python (3.9.6), outside virtual environments |
+| Plugin packages & scripts | 3.10+ | Run inside `uv`-managed virtual environments |
+| Root project & CI tooling | 3.12+ | Development-only, not user-facing |
+
+**Hook compatibility is critical.** If a hook imports from a `src/` package, the entire transitive import chain must be 3.9-compatible. Avoid these patterns in hook code:
+
+| Avoid | Python Version | Use Instead |
+|-------|---------------|-------------|
+| `X \| Y` union types | 3.10+ | `from __future__ import annotations` |
+| `@dataclass(slots=True)` | 3.10+ | `@dataclass` (omit `slots`) |
+| `match/case` statements | 3.10+ | `if/elif` chains |
+| `datetime.UTC` | 3.11+ | `datetime.timezone.utc` |
+| `import tomllib` | 3.11+ | `import tomli` with fallback |
+| `type X = ...` aliases | 3.12+ | `TypeAlias` from `typing` |
+| `import yaml` (pyyaml) | not stdlib | `try/except ImportError` with `yaml = None` fallback |
 
 ## Release Checklist
 

@@ -11,11 +11,14 @@ import hashlib
 import os
 import re
 import tempfile
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from typing import Any
@@ -77,6 +80,10 @@ def _load_index() -> dict[str, Any]:
         current_mtime = index_path.stat().st_mtime
 
         if _index_cache is not None and current_mtime <= _index_mtime:
+            return _index_cache
+
+        if yaml is None:
+            _index_cache = {"entries": {}, "hashes": {}}
             return _index_cache
 
         with open(index_path) as f:
@@ -176,7 +183,7 @@ def update_index(
     global _index_cache
 
     index = _load_index()
-    now = datetime.now(UTC).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     entry = {
         "content_hash": content_hash,
@@ -207,6 +214,11 @@ def update_index(
     index["hashes"][content_hash] = stored_at
 
     # Atomic write back using tempfile + rename
+    if yaml is None:
+        # Cannot persist without yaml - cache only
+        _index_cache = index
+        return
+
     index_path = _get_index_path()
     index_path.parent.mkdir(parents=True, exist_ok=True)
 

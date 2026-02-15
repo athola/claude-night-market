@@ -17,7 +17,7 @@ import os
 import re
 import sys
 from collections import defaultdict
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -151,11 +151,11 @@ def sanitize_output(output: str, max_length: int = 5000) -> str:
         Sanitized and truncated output
 
     """
-    # Truncate if too long
+    # Truncate BEFORE regex matching to prevent ReDoS on large inputs
     if len(output) > max_length:
         output = output[:max_length] + f"\n... (truncated from {len(output)} chars)"
 
-    # Redact potential secrets using pattern matching
+    # Redact potential secrets using pattern matching (safe: input is bounded above)
     sensitive_patterns = [
         # API keys
         (
@@ -219,7 +219,7 @@ def create_log_entry(
     """
     plugin, skill = parse_skill_name(tool_input)
     skill_ref = f"{plugin}:{skill}"
-    end_time = datetime.now(UTC)
+    end_time = datetime.now(timezone.utc)
 
     # Calculate duration from pre-execution state if available
     if pre_state and "timestamp" in pre_state:

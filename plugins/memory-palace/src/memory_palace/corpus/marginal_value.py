@@ -5,6 +5,8 @@ to validate only valuable knowledge enters the corpus. Follows the principle:
 "If it can't teach something the existing corpus can't already teach → skip it."
 """
 
+from __future__ import annotations
+
 import hashlib
 import re
 from dataclasses import dataclass

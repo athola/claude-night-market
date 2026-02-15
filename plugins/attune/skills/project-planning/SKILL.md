@@ -374,12 +374,36 @@ Before completing plan:
 - ✅ Risks assessed with mitigations
 - ✅ Sprints balanced by capacity
 
+## Post-Completion: Workflow Continuation (REQUIRED)
+
+**Automatic Trigger**: After Quality Checks pass and `docs/implementation-plan.md` is saved, MUST auto-invoke the next phase.
+
+**When continuation is invoked**:
+1. Verify `docs/implementation-plan.md` exists and is non-empty
+2. Display checkpoint message to user:
+   ```
+   Implementation plan complete. Saved to docs/implementation-plan.md.
+   Proceeding to execution phase...
+   ```
+3. Invoke next phase:
+   ```
+   Skill(attune:project-execution)
+   ```
+
+**Bypass Conditions** (ONLY skip continuation if ANY true):
+- `--standalone` flag was provided by the user
+- `docs/implementation-plan.md` does not exist or is empty (phase failed)
+- User explicitly requests to stop after planning
+
+**Do NOT prompt the user for confirmation** — this is a lightweight checkpoint, not an interactive gate. The user can always interrupt if needed.
+
 ## Related Skills
 
 - `Skill(superpowers:writing-plans)` - Planning methodology (if available)
 - `Skill(spec-kit:task-planning)` - Task breakdown (if available)
 - `Skill(attune:project-specification)` - Previous phase
-- `Skill(attune:project-execution)` - Next phase
+- `Skill(attune:project-execution)` - **AUTO-INVOKED** next phase after planning
+- `Skill(attune:mission-orchestrator)` - Full lifecycle orchestration
 
 ## Related Commands
 

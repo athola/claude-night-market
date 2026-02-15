@@ -6,6 +6,8 @@ Analyzes skill execution metrics from memory-palace logs to identify:
 - Low success rates (< 80%)
 """
 
+from __future__ import annotations
+
 import json
 from datetime import datetime, timedelta
 from pathlib import Path

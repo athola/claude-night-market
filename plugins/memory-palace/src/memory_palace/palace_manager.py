@@ -6,6 +6,8 @@ Support operations including palace creation, loading, saving, master index
 management, and data export/import.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json

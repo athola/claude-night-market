@@ -6,6 +6,156 @@ Feature timeline and version-specific capabilities.
 
 ## Feature Timeline
 
+### Claude Code 2.1.39 (February 2026)
+
+**New Features**:
+- ✅ **Nested Session Guard**: Claude Code now detects and prevents launching inside another Claude Code session
+  - **Behavior**: If `CLAUDECODE=1` is already set in the environment (indicating an active session), launching `claude` will warn or block
+  - **Impact**: Prevents accidental recursive session spawning that could cause confusion, resource waste, or context corruption
+  - **Affected**: `conjure:agent-teams` spawning patterns — teammate sessions launched via tmux are unaffected because tmux creates independent shell environments
+  - **Action Required**: Workflows that intentionally nest `claude` invocations (e.g., `claude -p` inside a `claude` session for quick queries) should be aware of this guard
+  - **Note**: Agent teams set `CLAUDECODE=1` automatically — the guard distinguishes between intentional team spawning (via tmux panes) and accidental recursive invocation
+
+- ✅ **OTel Speed Attribute**: Fast mode now tagged in OpenTelemetry events and trace spans via a `speed` attribute
+  - **Impact**: Observability integrations can distinguish between fast mode and normal mode requests
+  - **Affected**: Monitoring and observability documentation
+  - **Action Required**: None — progressive enhancement for users with OTel tracing configured
+
+**Bug Fixes**:
+- ✅ **Agent Teams Model Fix for Bedrock/Vertex/Foundry**: Teammate agents now use correct model identifiers on non-Anthropic-API providers
+  - **Previous Bug**: Agent teams on Bedrock, Vertex AI, or Foundry would use wrong model identifiers (e.g., non-qualified model IDs), causing 400 errors or falling back to wrong models ([#23499](https://github.com/anthropics/claude-code/issues/23499), [#5108](https://github.com/anthropics/claude-code/issues/5108))
+  - **Now Fixed**: Model identifiers correctly qualified for each provider (e.g., `us.anthropic.claude-opus-4-6-v1` for Bedrock)
+  - **Impact**: Agent teams now usable on enterprise cloud providers
+  - **Affected**: `conjure:agent-teams` — added provider compatibility note to spawning patterns
+  - **Action Required**: None — passive fix, existing `--model` flags work correctly
+
+- ✅ **MCP Image Content Streaming Crash Fixed**: MCP tools returning image content during streaming no longer crash
+  - **Previous Bug**: If an MCP tool returned image data while streaming was active, the response parser crashed
+  - **Now Fixed**: Image content blocks handled correctly in streaming mode
+  - **Impact**: MCP integrations with visual content (screenshots, diagrams) now work reliably
+  - **Affected**: `scry:browser-recording` and any MCP-based image workflows
+  - **Action Required**: None
+
+- ✅ **Hook Exit Code 2 Stderr Now Displayed**: Hook blocking errors (exit code 2) now correctly show stderr output to the user
+  - **Previous Bug**: When hooks returned exit code 2 (block decision), the stderr message explaining why the action was blocked was silently swallowed — users saw generic "hook error" instead of the hook's explanation ([#10964](https://github.com/anthropics/claude-code/issues/10964), [#10412](https://github.com/anthropics/claude-code/issues/10412))
+  - **Now Fixed**: Stderr from exit code 2 hooks is properly displayed to the user, including from plugin-installed hooks
+  - **Impact**: Hook developers can now rely on exit code 2 blocking with informative user-facing messages
+  - **Affected**: `abstract:hook-authoring` — updated with exit code 2 blocking documentation
+  - **Affected**: All ecosystem hooks that use blocking decisions (conserve, sanctum, imbue, hookify rules)
+  - **Action Required**: None — existing hooks that use exit code 2 will now have their messages properly displayed
+
+- ✅ **Improved Model Error Messages for Bedrock/Vertex/Foundry**: Error messages now include fallback suggestions when model requests fail on enterprise providers
+  - **Previous**: Generic error messages without actionable guidance
+  - **Now**: Specific error with fallback model suggestions (e.g., "Try using `us.anthropic.claude-sonnet-4-5-v1` instead")
+  - **Impact**: Better debugging experience for enterprise users
+  - **Action Required**: None
+
+- ✅ **`/resume` Session Previews Show Clean Command Names**: Session preview no longer displays raw XML tags
+  - **Previous Bug**: Session previews in `/resume` showed raw `<command-name>` XML tags instead of readable skill/command names
+  - **Now Fixed**: Clean, readable command names displayed
+  - **Impact**: Better session management UX — previously documented in 2.1.33 for a similar XML rendering issue
+  - **Affected**: `sanctum:session-management` — improved resume experience
+  - **Action Required**: None
+
+- ✅ **`/resume` No Longer Shows Interrupt Messages as Titles**: Session titles derived from interrupts no longer pollute the resume list
+  - **Previous Bug**: If a session was interrupted mid-execution, the interrupt message could become the session title shown in `/resume`
+  - **Now Fixed**: Interrupt messages filtered from session title derivation
+  - **Impact**: Cleaner session list in `/resume`
+  - **Action Required**: None
+
+- ✅ **Plugin Browse "Space to Toggle" Hint Fixed**: Already-installed plugins no longer show misleading toggle hint
+  - **Previous Bug**: Browsing plugins showed "Space to Toggle" for plugins that were already installed, implying they could be toggled off (they need to be uninstalled)
+  - **Now Fixed**: Correct action hint shown based on plugin state
+  - **Impact**: Plugin management UX improvement
+  - **Action Required**: None
+
+- ✅ **Fatal Errors Now Displayed**: Fatal errors are no longer silently swallowed
+  - **Previous Bug**: Some fatal errors were caught and discarded, leaving users with no indication of what went wrong
+  - **Now Fixed**: Fatal errors properly surfaced to the user
+  - **Impact**: Better debugging experience for all users
+  - **Action Required**: None
+
+- ✅ **Process No Longer Hangs After Session Close**: Fixed process remaining alive after session terminates
+  - **Previous Bug**: Under certain conditions, the Claude Code process would hang after the session was closed, requiring manual termination
+  - **Now Fixed**: Clean process exit on session close
+  - **Impact**: Improved reliability for CI/CD pipelines and scripted workflows
+  - **Action Required**: None
+
+- ✅ **Terminal Rendering Improvements**: Multiple rendering fixes in this release
+  - **Character loss at screen boundary**: Characters at the edge of the terminal screen are no longer lost during rendering
+  - **Blank lines in verbose transcript**: Verbose transcript view no longer shows spurious blank lines
+  - **General performance**: Terminal rendering performance improved across the board
+  - **Impact**: Better visual experience, especially during long-running sessions
+  - **Action Required**: None
+
+**Notes**:
+- The nested session guard is an important safety feature — but it does not affect agent teams or subagent workflows since those use tmux-based or Task tool-based isolation
+- The hook exit code 2 stderr fix is significant for plugin developers — blocking hooks can now provide meaningful user-facing messages reliably
+- The Agent Teams model fix makes multi-agent workflows viable on Bedrock, Vertex, and Foundry for the first time
+- Terminal rendering improvements continue from 2.1.38's VS Code scroll fix
+- Recommended version bumped to 2.1.39+ due to hook stderr fix and agent teams reliability
+
+### Claude Code 2.1.38 (February 2026)
+
+**Security Fixes**:
+- 🔒 **Heredoc Delimiter Parsing Hardened**: Improved delimiter parsing to prevent command smuggling via crafted heredoc delimiters
+  - **Previous Risk**: Specially crafted heredoc delimiters could potentially inject commands during bash tool execution
+  - **Now Fixed**: Delimiter parsing validates and sanitizes heredoc boundaries before execution
+  - **Security Impact**: Closes a potential command injection vector in bash tool heredoc handling
+  - **Affected**: Ecosystem files using heredoc patterns for commit messages, PR bodies, and multi-line output (sanctum rules, commit-messages skill, pr-prep skill, do-issue command) — all benefit automatically
+  - **Action Required**: None — passive security improvement, no pattern changes needed
+  - **Note**: The `git commit -m "$(cat <<'EOF' ... EOF)"` pattern recommended by sanctum remains safe and is now more robustly handled
+
+- 🔒 **Sandbox Blocks Writes to `.claude/skills` Directory**: Skills directory is now read-only when sandbox mode is active
+  - **Previous Behavior**: Sandbox mode allowed writes to `.claude/skills/`, enabling runtime skill creation/modification
+  - **Now Blocked**: Write, Edit, and file creation operations targeting `.claude/skills/` are rejected in sandbox mode
+  - **Security Impact**: Prevents runtime injection of malicious skills that could alter Claude's behavior
+  - **Affected**: `abstract:skill-authoring` — updated with sandbox write restriction note
+  - **Affected**: `abstract:create-skill` — skill creation requires non-sandbox mode or `dangerouslyDisableSandbox`
+  - **Action Required**: Workflows that dynamically create skills must either disable sandbox or use pre-deployment skill installation
+  - **Note**: Skills installed via plugin marketplace are unaffected — this only blocks runtime file writes to the skills directory
+  - **Clarification**: This blocks writes to `.claude/skills/` within the sandbox path (project-level). User-level `~/.claude/skills/logs/` writes (e.g., skill execution logging by abstract's PostToolUse hook) are outside the sandbox boundary and remain unaffected
+
+**Bug Fixes**:
+- ✅ **VS Code Terminal Scroll-to-Top Regression Fixed**: VS Code extension terminal no longer scrolls to top unexpectedly
+  - **Previous Bug** (2.1.37): Terminal would jump to the top of output history during interaction, losing the user's scroll position
+  - **Now Fixed**: Terminal scroll position maintained correctly in VS Code extension
+  - **Impact**: Passive UX fix — no ecosystem changes needed
+  - **Action Required**: None
+
+- ✅ **Tab Key Autocomplete Restored**: Tab key now correctly autocompletes instead of queueing slash commands
+  - **Previous Bug**: Pressing Tab would queue a slash command instead of triggering autocomplete, disrupting the expected interaction flow
+  - **Now Fixed**: Tab key behavior restored to autocomplete (consistent with standard terminal behavior)
+  - **Impact**: Passive UX fix — skills and commands invoked via `/` menu are unaffected
+  - **Action Required**: None
+
+- ✅ **Bash Permission Matching for Env Variable Wrappers**: Permission rules now correctly match commands prefixed with environment variable assignments
+  - **Previous Bug**: Commands like `NODE_ENV=production npm test` or `FORCE_COLOR=1 jest` would not match permission rules expecting `npm test` or `jest` — resulting in unexpected permission prompts or denials ([#15292](https://github.com/anthropics/claude-code/issues/15292), [#15777](https://github.com/anthropics/claude-code/issues/15777))
+  - **Now Fixed**: Environment variable prefixes (e.g., `KEY=value command`) are stripped during permission matching, so the base command matches existing rules
+  - **Impact**: Permission rules using wildcard patterns like `Bash(npm *)` or `Bash(jest *)` now correctly match env-prefixed invocations
+  - **Affected**: `abstract:hook-authoring` — updated with env wrapper matching note
+  - **Affected**: `hookify:writing-rules` — rule patterns benefit automatically (no changes needed)
+  - **Action Required**: None — existing permission rules now work correctly for a broader set of command invocations
+
+- ✅ **Text Between Tool Uses Preserved (Non-Streaming)**: Text output between consecutive tool calls no longer disappears
+  - **Previous Bug**: When not using streaming mode (e.g., SDK integrations, `--output-format json`), text generated between tool uses was silently dropped
+  - **Now Fixed**: All inter-tool text is correctly preserved and displayed
+  - **Impact**: SDK integrations and non-streaming pipelines now receive complete output
+  - **Action Required**: None — passive fix, no workarounds existed
+
+- ✅ **VS Code Duplicate Sessions on Resume Fixed**: Resuming sessions in VS Code extension no longer creates duplicate session entries
+  - **Previous Bug**: Each resume in VS Code could create a duplicate session entry, cluttering the session list
+  - **Now Fixed**: Resume correctly reuses the existing session without duplication
+  - **Impact**: Cleaner session management in VS Code extension
+  - **Affected**: `sanctum:session-management` — updated troubleshooting section with version note
+  - **Action Required**: None
+
+**Notes**:
+- The heredoc delimiter hardening is a defense-in-depth security fix — the recommended `<<'EOF'` quoting pattern was already safe, but edge cases with crafted delimiters are now properly handled
+- Sandbox `.claude/skills` write blocking is a significant security boundary — any plugin workflow that generates skills at runtime needs to account for this
+- The env variable wrapper permission fix resolves a common friction point for CI/CD and test workflows that set environment variables inline
+- Recommended version bumped to 2.1.38+ due to the heredoc security fix and sandbox hardening
+
 ### Claude Code 2.1.34 (February 2026)
 
 **Bug Fixes**:

@@ -11,7 +11,7 @@ import json
 import os
 import shutil
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -129,7 +129,9 @@ class MemoryPalaceCLI:
                 with open(self.claude_config) as f:
                     config = json.load(f)
             except json.JSONDecodeError:
-                self.print_warning("Existing config was invalid, creating new one")
+                backup = self.claude_config.with_suffix(".json.bak")
+                shutil.copy2(self.claude_config, backup)
+                self.print_warning(f"Existing config was invalid, backed up to {backup.name}")
 
         # Add memory palace permissions
         permissions = config.setdefault("permissions", {})
@@ -283,7 +285,7 @@ class MemoryPalaceCLI:
             self.print_warning(f"Garden file not found: {target_path}")
             return
 
-        now_dt = datetime.fromisoformat(opts.now) if opts.now else datetime.now(UTC)
+        now_dt = datetime.fromisoformat(opts.now) if opts.now else datetime.now(timezone.utc)
         with target_path.open(encoding="utf-8") as f:
             data = json.load(f)
 

@@ -4,11 +4,13 @@ Coordinates usage tracking, decay model, and source lineage
 for detailed knowledge quality assessment and management.
 """
 
+from __future__ import annotations
+
 import logging
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from memory_palace.corpus.decay_model import DecayModel
@@ -137,7 +139,7 @@ class KnowledgeOrchestrator:
                     entry_id,
                     last_validated_str,
                 )
-                last_validated = datetime.now(UTC)
+                last_validated = datetime.now(timezone.utc)
         else:
             # Check decay model
             last_validated = self.decay_model.get_validation_date(entry_id)
@@ -153,12 +155,12 @@ class KnowledgeOrchestrator:
                             entry_id,
                             created_str,
                         )
-                    last_validated = datetime.now(UTC)
+                    last_validated = datetime.now(timezone.utc)
                 else:
-                    last_validated = datetime.now(UTC)
+                    last_validated = datetime.now(timezone.utc)
 
         if last_validated is None:
-            last_validated = datetime.now(UTC)
+            last_validated = datetime.now(timezone.utc)
 
         decay_state = self.decay_model.calculate_decay(
             entry_id, maturity, last_validated

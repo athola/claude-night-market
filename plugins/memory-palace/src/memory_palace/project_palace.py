@@ -19,6 +19,8 @@ Project Palace Structure:
     └── garden/             # Evolving knowledge, experiments
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
 import os

@@ -73,6 +73,11 @@ Skills must pass ALL gates before deployment. No exceptions.
 - [ ] No circular references
 - [ ] Module topics focused and distinct
 
+#### Sandbox Compatibility (Claude Code 2.1.38+)
+
+- [ ] Skill does not require runtime writes to `.claude/skills/` (blocked in sandbox mode)
+- [ ] If skill creates/modifies other skills, documented as requiring non-sandbox mode
+
 #### Script Requirements (if applicable)
 
 - [ ] Scripts in `scripts/` directory

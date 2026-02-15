@@ -14,7 +14,7 @@ import logging
 import re
 import sys
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -133,7 +133,7 @@ def store_webfetch_content(
     """
     try:
         # Generate entry metadata
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
         title = extract_title_from_content(content, url)
         slug = slugify(title)
@@ -210,16 +210,21 @@ auto_generated: true
         queue_path = QUEUE_DIR / filename
         queue_path.write_text(queue_entry, encoding="utf-8")
 
-        # Update index to track this content
-        update_index(
-            content_hash=content_hash,
-            stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
-            importance_score=50,  # Default pending evaluation
-            url=url,
-            title=title,
-            maturity="seedling",
-            routing_type="pending",
-        )
+        # Update index separately — if this fails, clean up the orphaned file
+        try:
+            update_index(
+                content_hash=content_hash,
+                stored_at=str(queue_path.relative_to(PLUGIN_ROOT)),
+                importance_score=50,  # Default pending evaluation
+                url=url,
+                title=title,
+                maturity="seedling",
+                routing_type="pending",
+            )
+        except Exception as idx_err:
+            logger.error("web_content_processor: Index update failed, removing orphan: %s", idx_err)
+            queue_path.unlink(missing_ok=True)
+            return None
 
         return str(queue_path)
 
@@ -240,7 +245,7 @@ def store_websearch_results(
         return None
 
     try:
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
         slug = slugify(query)
         filename = f"websearch-{slug}-{entry_id[:19]}.md"

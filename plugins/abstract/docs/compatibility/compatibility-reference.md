@@ -12,7 +12,9 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Notes |
 |---------------------|-------------------|--------|-------|
-| 2.1.34+ | 1.4.1+ | ✅ Recommended | Sandbox permission bypass fix, agent teams render crash fix |
+| 2.1.39+ | 1.4.2+ | ✅ Recommended | Nested session guard, hook exit code 2 stderr fix, agent teams model fix, terminal rendering |
+| 2.1.38+ | 1.4.2+ | ✅ Supported | Heredoc security hardening, sandbox skills write block, env var permission matching fix |
+| 2.1.34+ | 1.4.1+ | ✅ Supported | Sandbox permission bypass fix, agent teams render crash fix |
 | 2.1.33+ | 1.4.1+ | ✅ Supported | Agent team hooks, Task(agent_type) restrictions, agent memory frontmatter |
 | 2.1.31+ | 1.4.1+ | ✅ Supported | Stronger tool preference, PDF session fix, sandbox bash fix, temperatureOverride streaming fix |
 | 2.1.30+ | 1.4.1+ | ✅ Supported | Task tool metrics, PDF pages, subagent MCP fix, resume memory improvement |

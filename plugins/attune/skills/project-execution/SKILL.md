@@ -142,6 +142,10 @@ Execute implementation plan systematically with checkpoints, validation, and pro
 4. Generate completion report
 5. Prepare for deployment/release
 
+### Terminal Phase Notice
+
+This is the **final phase** of the attune workflow. No auto-continuation occurs after execution completes. The workflow terminates here. Unlike brainstorming, specification, and planning phases, execution does NOT auto-invoke any subsequent phase.
+
 ## Task Execution Pattern
 
 ### TDD Workflow
@@ -420,6 +424,7 @@ On track? = Estimated completion <= Sprint end date
 - `Skill(superpowers:systematic-debugging)` - Debugging (if available)
 - `Skill(superpowers:test-driven-development)` - TDD (if available)
 - `Skill(superpowers:verification-before-completion)` - Validation (if available)
+- `Skill(attune:mission-orchestrator)` - Full lifecycle orchestration
 
 ## Related Agents
 

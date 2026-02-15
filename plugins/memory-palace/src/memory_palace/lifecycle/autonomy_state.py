@@ -5,7 +5,7 @@ from __future__ import annotations
 import contextlib
 import os
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -22,14 +22,14 @@ _LEVEL_ALL = 3
 
 
 def _iso_now() -> str:
-    return datetime.now(UTC).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 def _normalize_domain(domain: str) -> str:
     return domain.strip().lower()
 
 
-@dataclass(slots=True)
+@dataclass
 class PerformanceMetrics:
     """Lightweight counters describing recent governance outcomes."""
 
@@ -69,7 +69,7 @@ class PerformanceMetrics:
         )
 
 
-@dataclass(slots=True)
+@dataclass
 class DomainControl:
     """Per-domain override indicating custom autonomy expectations."""
 
@@ -101,7 +101,7 @@ class DomainControl:
         )
 
 
-@dataclass(slots=True)
+@dataclass
 class AutonomyState:
     """Persistent snapshot of the autonomy lifecycle."""
 
@@ -142,7 +142,7 @@ class AutonomyState:
         )
 
 
-@dataclass(slots=True)
+@dataclass
 class AutonomyProfile:
     """Computed profile combining config defaults with persisted state."""
 

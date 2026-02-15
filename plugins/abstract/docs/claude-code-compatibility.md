@@ -13,9 +13,13 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 ## Current Recommendations
 
-**Recommended Version**: Claude Code 2.1.34+
-- ✅ Sandbox permission bypass fix (unsandboxed commands no longer auto-allowed without consent)
-- ✅ Agent teams render stability fix
+**Recommended Version**: Claude Code 2.1.39+
+- ✅ Nested session guard (prevents accidental recursive `claude` invocations)
+- ✅ Hook exit code 2 stderr fix (blocking hooks now properly display messages)
+- ✅ Agent Teams model identifiers fixed for Bedrock, Vertex, and Foundry
+- ✅ Terminal rendering improvements (character loss, performance, blank lines)
+- ✅ Fatal errors and process hangs fixed
+- ✅ All 2.1.38 features (heredoc security, sandbox skills write block, env var permission fix)
 - ✅ All 2.1.33 features (TeammateIdle/TaskCompleted hooks, Task(agent_type) restrictions, agent memory)
 - ✅ All 2.1.31 features (stronger tool preference, PDF session fix, sandbox bash fix)
 - ✅ All 2.1.30 features (task tool metrics, PDF pages parameter, subagent SDK MCP fix)
@@ -34,7 +38,9 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Key Features |
 |---------------------|-------------------|--------|--------------|
-| 2.1.34+ | 1.4.1+ | ✅ Recommended | Sandbox permission bypass fix, agent teams render crash fix |
+| 2.1.39+ | 1.4.2+ | ✅ Recommended | Nested session guard, hook stderr fix, agent teams model fix, terminal rendering |
+| 2.1.38+ | 1.4.2+ | ✅ Supported | Heredoc security hardening, sandbox skills write block, env var permission fix |
+| 2.1.34+ | 1.4.1+ | ✅ Supported | Sandbox permission bypass fix, agent teams render crash fix |
 | 2.1.33+ | 1.4.1+ | ✅ Supported | Agent team hooks, Task(agent_type) restrictions, agent memory frontmatter |
 | 2.1.31+ | 1.4.1+ | ✅ Supported | Stronger tool preference, PDF session fix, sandbox bash fix, streaming temp fix |
 | 2.1.30+ | 1.4.1+ | ✅ Supported | Task tool metrics, PDF pages, subagent MCP fix, resume memory |
@@ -109,6 +115,6 @@ Create isolated conversation branches for exploration:
 
 ---
 
-**Last Updated**: 2026-02-07
-**Ecosystem Version**: 1.4.1+
-**Tested With**: Claude Code 2.1.34
+**Last Updated**: 2026-02-11
+**Ecosystem Version**: 1.4.2+
+**Tested With**: Claude Code 2.1.39

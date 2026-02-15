@@ -5,12 +5,14 @@ reinforcement learning signals. Each usage event contributes to
 an entry's overall quality score.
 """
 
+from __future__ import annotations
+
 import logging
 import math
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -52,7 +54,7 @@ class UsageEvent:
 
     entry_id: str
     signal: UsageSignal
-    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     context: dict[str, Any] = field(default_factory=dict)
 
 
@@ -108,7 +110,7 @@ class UsageTracker:
         event = UsageEvent(
             entry_id=entry_id,
             signal=signal,
-            timestamp=datetime.now(UTC),
+            timestamp=datetime.now(timezone.utc),
             context=context or {},
         )
         self._events.append(event)

@@ -11,7 +11,7 @@ globs: ["**/*.md", ".git/**", "CHANGELOG.md", "README.md"]
 - Focus on "why" not "what"
 - No AI attribution (no Co-Authored-By for AI)
 - No emojis in commit messages
-- Use HEREDOC for multi-line messages
+- Use HEREDOC for multi-line messages (always use single-quoted `<<'EOF'` delimiters — 2.1.38+ hardens delimiter parsing against command smuggling)
 
 ## Git Safety
 
