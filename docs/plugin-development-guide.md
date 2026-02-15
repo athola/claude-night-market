@@ -41,7 +41,7 @@ If performance lags, profile token usage with `python -m cProfile`. Documentatio
 
 ## Tooling
 
-We use Python 3.10+ for plugin packages, managed by `uv`. `pytest` handles testing, while `ruff` manages linting and formatting. `mypy` enforces type checking, and `bandit` performs security analysis. `pre-commit` and GitHub Actions handle automation tasks.
+We use Python 3.9+ for plugin packages, managed by `uv`. `pytest` handles testing, while `ruff` manages linting and formatting. `mypy` enforces type checking, and `bandit` performs security analysis. `pre-commit` and GitHub Actions handle automation tasks.
 
 ### Python Version Requirements
 
