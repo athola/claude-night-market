@@ -20,6 +20,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/skill_execution_logger.py",
             "timeout": 3
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/homeostatic_monitor.py",
+            "timeout": 3
           }
         ]
       }
