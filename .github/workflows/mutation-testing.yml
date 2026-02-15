@@ -18,6 +18,15 @@ jobs:
       matrix:
         plugin: ${{ fromJson(github.event.inputs.plugin == 'all' && '["sanctum", "abstract", "imbue", "attune"]' || format('["{0}"]', github.event.inputs.plugin || 'sanctum')) }}
     steps:
+      - name: Validate plugin name
+        env:
+          PLUGIN_NAME: ${{ matrix.plugin }}
+        run: |
+          if ! echo "$PLUGIN_NAME" | grep -qE '^[a-zA-Z0-9-]+$'; then
+            echo "::error::Invalid plugin name: must match ^[a-zA-Z0-9-]+$"
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
 
       - name: Set up Python
@@ -29,29 +38,42 @@ jobs:
         uses: astral-sh/setup-uv@v4
 
       - name: Install dependencies
+        env:
+          PLUGIN_NAME: ${{ matrix.plugin }}
         run: |
-          cd plugins/${{ matrix.plugin }}
-          uv sync --quiet 2>/dev/null || true
+          cd "plugins/$PLUGIN_NAME"
+          uv sync --quiet 2>/dev/null
           uv pip install mutmut --quiet
 
       - name: Run mutation testing
+        env:
+          PLUGIN_NAME: ${{ matrix.plugin }}
         run: |
-          cd plugins/${{ matrix.plugin }}
-          # Find Python source files to mutate
+          cd "plugins/$PLUGIN_NAME"
           if [ -d "scripts" ]; then
-            uv run mutmut run --paths-to-mutate=scripts/ --tests-dir=tests/ --no-progress || true
+            # Exit codes: 0=no survivors, 2=survivors found, other=crash
+            set +e
+            uv run mutmut run --paths-to-mutate=scripts/ --tests-dir=tests/ --no-progress
+            exit_code=$?
+            set -e
+            if [ $exit_code -ne 0 ] && [ $exit_code -ne 2 ]; then
+              echo "::error::mutmut crashed with exit code $exit_code"
+              exit 1
+            fi
           fi
 
       - name: Generate report
         if: always()
+        env:
+          PLUGIN_NAME: ${{ matrix.plugin }}
         run: |
-          cd plugins/${{ matrix.plugin }}
+          cd "plugins/$PLUGIN_NAME"
           if [ -f ".mutmut-cache" ]; then
-            echo "## Mutation Testing Results: ${{ matrix.plugin }}" >> $GITHUB_STEP_SUMMARY
+            echo "## Mutation Testing Results: $PLUGIN_NAME" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
             uv run mutmut results >> $GITHUB_STEP_SUMMARY 2>&1 || echo "No results available" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
           else
-            echo "## Mutation Testing: ${{ matrix.plugin }}" >> $GITHUB_STEP_SUMMARY
+            echo "## Mutation Testing: $PLUGIN_NAME" >> $GITHUB_STEP_SUMMARY
             echo "No Python source files found to mutate." >> $GITHUB_STEP_SUMMARY
           fi

@@ -14,8 +14,14 @@ from __future__ import annotations
 import json
 import os
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
+
+# Allow importing from src/abstract/ when running as a hook
+_src = Path(__file__).resolve().parent.parent / "src"
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+
+from abstract.improvement_queue import ImprovementQueue  # noqa: E402
 
 STABILITY_GAP_THRESHOLD = 0.3
 CRITICAL_GAP_THRESHOLD = 0.5
@@ -87,45 +93,21 @@ def main() -> None:
             print(json.dumps(output))
             sys.exit(0)
 
-        # Skill is degrading -- flag it in the queue
+        # Skill is degrading -- flag it in the queue via ImprovementQueue
         queue_file = claude_home / "skills" / "improvement-queue.json"
-
-        # Load or create queue
-        queue_data: dict = {"skills": {}}
-        if queue_file.exists():
-            try:
-                queue_data = json.loads(queue_file.read_text())
-            except (json.JSONDecodeError, OSError):
-                pass
-
-        skills = queue_data.setdefault("skills", {})
-        if skill_ref not in skills:
-            skills[skill_ref] = {
-                "skill_name": skill_ref,
-                "stability_gap": gap,
-                "flagged_count": 0,
-                "last_flagged": "",
-                "execution_ids": [],
-                "status": "monitoring",
-            }
-
-        entry = skills[skill_ref]
+        queue = ImprovementQueue(queue_file)
 
         # Don't flag if already evaluating or pending review
+        entry = queue.skills.get(skill_ref, {})
         if entry.get("status") in ("evaluating", "pending_rollback_review"):
             sys.exit(0)
 
-        entry["flagged_count"] = entry.get("flagged_count", 0) + 1
-        entry["stability_gap"] = gap
-        entry["last_flagged"] = datetime.now(UTC).isoformat()
         invocation_id = os.environ.get("CLAUDE_SESSION_ID", "unknown")
-        entry["execution_ids"].append(invocation_id)
+        queue.flag_skill(skill_ref, gap, invocation_id)
 
-        queue_file.parent.mkdir(parents=True, exist_ok=True)
-        queue_file.write_text(json.dumps(queue_data, indent=2))
-
+        entry = queue.skills[skill_ref]
         status = "critical" if gap > CRITICAL_GAP_THRESHOLD else "degrading"
-        trigger = entry["flagged_count"] >= 3
+        trigger = queue.needs_improvement(skill_ref)
 
         output = {
             "hookSpecificOutput": {

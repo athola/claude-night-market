@@ -26,7 +26,7 @@ def check_tdd_compliance(staged_files):
         print("[TDD] Implementation files staged without tests:")
         for f in impl_files:
             print(f"  - {f}")
-        print("\nConsider adding tests. Use --no-verify to bypass (not recommended).")
+        print("\nConsider adding tests before committing.")
         return 1
     return 0
 

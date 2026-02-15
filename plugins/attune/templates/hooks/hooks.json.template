@@ -8,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_commit_tdd.py"
+            "command": "uv run python3 ${CLAUDE_PLUGIN_ROOT}/hooks/pre_commit_tdd.py"
           }
         ]
       }
