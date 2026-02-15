@@ -90,6 +90,19 @@ export CONSERVE_SESSION_STATE_PATH="/tmp/my-session-state.md"
 ]
 ```
 
+### Existing Task IDs
+
+**IMPORTANT**: List all task IDs from TaskList so the continuation agent
+references them via TaskUpdate instead of creating duplicates.
+
+| Task ID | Subject | Status |
+|---------|---------|--------|
+| #1 | Task subject | in_progress |
+| #2 | Task subject | pending |
+
+> The continuation agent MUST use TaskUpdate on these IDs.
+> It MUST NOT create new tasks via TaskCreate unless genuinely new work is discovered.
+
 ---
 
 ## Continuation Instructions
@@ -157,7 +170,8 @@ export CONSERVE_SESSION_STATE_PATH="/tmp/my-session-state.md"
     "source_command": null,
     "remaining_tasks": [],
     "dangerous_mode": false
-  }
+  },
+  "existing_task_ids": []
 }
 ```
 ```

@@ -17,7 +17,7 @@ import os
 import re
 import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -219,7 +219,7 @@ def create_log_entry(
     """
     plugin, skill = parse_skill_name(tool_input)
     skill_ref = f"{plugin}:{skill}"
-    end_time = datetime.now(timezone.utc)
+    end_time = datetime.now(UTC)
 
     # Calculate duration from pre-execution state if available
     if pre_state and "timestamp" in pre_state:
