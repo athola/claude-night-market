@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""Pre-commit hook for test coverage enforcement.
+
+Runs pytest with coverage and fails if below threshold.
+Part of Iron Law TDD enforcement (Level 5: Coverage Gates).
+"""
+import subprocess
+import sys
+
+COVERAGE_THRESHOLD = 80  # Minimum line coverage percentage
+
+
+def run_coverage():
+    """Run pytest with coverage and check threshold."""
+    result = subprocess.run(
+        ["uv", "run", "python", "-m", "pytest", "--cov=scripts", "--cov-report=term-missing",
+         "--cov-fail-under=" + str(COVERAGE_THRESHOLD), "-q"],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0:
+        print(f"[Coverage] Below {COVERAGE_THRESHOLD}% threshold:")
+        print(result.stdout[-500:] if len(result.stdout) > 500 else result.stdout)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(run_coverage())

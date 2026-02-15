@@ -252,6 +252,20 @@ Example command demonstrating {plugin_name} plugin functionality.
 """)
     print(f"✓ Created: {example_command}")
 
+    # Copy TDD hook templates if available
+    script_dir_hooks = Path(__file__).parent.parent / "templates" / "hooks"
+    if script_dir_hooks.is_dir():
+        hooks_dir = project_path / "hooks"
+        hooks_dir.mkdir(exist_ok=True)
+        for template_file in script_dir_hooks.glob("*.template"):
+            # Strip .template extension for the destination filename
+            dest_name = template_file.stem
+            dest_path = hooks_dir / dest_name
+            if not dest_path.exists() or force:
+                dest_path.write_text(template_file.read_text())
+                print(f"  Created: {dest_path}")
+        print("  TDD hook templates installed to hooks/")
+
     # Create plugin structure test
     test_file = project_path / "tests" / "test_plugin_structure.py"
     test_file.write_text(f'''"""Test {plugin_name} plugin structure."""

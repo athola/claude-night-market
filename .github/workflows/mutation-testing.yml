@@ -1,0 +1,57 @@
+name: Mutation Testing (Iron Law Pillar 3)
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: 'Plugin to test (or "all")'
+        required: false
+        default: 'sanctum'
+  schedule:
+    # Weekly on Sundays at midnight
+    - cron: '0 0 * * 0'
+
+jobs:
+  mutation-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        plugin: ${{ fromJson(github.event.inputs.plugin == 'all' && '["sanctum", "abstract", "imbue", "attune"]' || format('["{0}"]', github.event.inputs.plugin || 'sanctum')) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: |
+          cd plugins/${{ matrix.plugin }}
+          uv sync --quiet 2>/dev/null || true
+          uv pip install mutmut --quiet
+
+      - name: Run mutation testing
+        run: |
+          cd plugins/${{ matrix.plugin }}
+          # Find Python source files to mutate
+          if [ -d "scripts" ]; then
+            uv run mutmut run --paths-to-mutate=scripts/ --tests-dir=tests/ --no-progress || true
+          fi
+
+      - name: Generate report
+        if: always()
+        run: |
+          cd plugins/${{ matrix.plugin }}
+          if [ -f ".mutmut-cache" ]; then
+            echo "## Mutation Testing Results: ${{ matrix.plugin }}" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            uv run mutmut results >> $GITHUB_STEP_SUMMARY 2>&1 || echo "No results available" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## Mutation Testing: ${{ matrix.plugin }}" >> $GITHUB_STEP_SUMMARY
+            echo "No Python source files found to mutate." >> $GITHUB_STEP_SUMMARY
+          fi

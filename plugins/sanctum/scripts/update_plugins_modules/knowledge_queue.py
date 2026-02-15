@@ -26,6 +26,7 @@ class KnowledgeQueueChecker:
 
         Returns:
             List of pending items sorted by priority and age
+
         """
         queue_items: list[dict[str, Any]] = []
 

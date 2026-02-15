@@ -422,20 +422,16 @@ class TestExtractModuleRefsFromFile:
         assert "phase-routing.md" in refs
         assert "state-detection.md" in refs
 
-    def test_frontmatter_modules_already_with_md_extension(self, tmp_path: Path) -> None:
+    def test_frontmatter_modules_already_with_md_extension(
+        self, tmp_path: Path
+    ) -> None:
         """
         GIVEN a frontmatter modules: list where names already end in .md
         WHEN extracting module refs
         THEN they are kept as-is without double extension.
         """
         md_file = tmp_path / "SKILL.md"
-        md_file.write_text(
-            "---\n"
-            "modules:\n"
-            "- already-named.md\n"
-            "---\n"
-            "# Skill\n"
-        )
+        md_file.write_text("---\nmodules:\n- already-named.md\n---\n# Skill\n")
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
         refs = auditor._extract_module_refs_from_file(md_file)
@@ -451,12 +447,7 @@ class TestExtractModuleRefsFromFile:
         """
         md_file = tmp_path / "SKILL.md"
         md_file.write_text(
-            "---\n"
-            "modules:\n"
-            "- valid-module\n"
-            "- {dynamic_module}\n"
-            "---\n"
-            "# Skill\n"
+            "---\nmodules:\n- valid-module\n- {dynamic_module}\n---\n# Skill\n"
         )
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
@@ -615,11 +606,7 @@ class TestAuditSkillModules:
         modules_dir.mkdir()
 
         (skill_dir / "SKILL.md").write_text(
-            "---\n"
-            "modules:\n"
-            "- referenced-module\n"
-            "---\n"
-            "# My Skill\n"
+            "---\nmodules:\n- referenced-module\n---\n# My Skill\n"
         )
         (modules_dir / "referenced-module.md").write_text("# Referenced\n")
 
@@ -822,13 +809,7 @@ class TestExtractModuleRefsEdgeCases:
         THEN an empty set is returned (no crash).
         """
         md_file = tmp_path / "SKILL.md"
-        md_file.write_text(
-            "---\n"
-            "name: test\n"
-            "modules:\n"
-            "---\n"
-            "# Skill\n"
-        )
+        md_file.write_text("---\nname: test\nmodules:\n---\n# Skill\n")
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
         refs = auditor._extract_module_refs_from_file(md_file)
@@ -858,13 +839,7 @@ class TestExtractModuleRefsEdgeCases:
         THEN underscore names are correctly converted to filename.md.
         """
         md_file = tmp_path / "SKILL.md"
-        md_file.write_text(
-            "---\n"
-            "modules:\n"
-            "- my_module\n"
-            "---\n"
-            "# Skill\n"
-        )
+        md_file.write_text("---\nmodules:\n- my_module\n---\n# Skill\n")
 
         auditor = PluginAuditor(tmp_path, dry_run=True)
         refs = auditor._extract_module_refs_from_file(md_file)
@@ -1059,7 +1034,9 @@ class TestFixPluginAdvanced:
         # File should be unchanged
         assert plugin_json.read_text() == original_content
 
-    def test_fix_plugin_returns_true_when_no_discrepancies(self, tmp_path: Path) -> None:
+    def test_fix_plugin_returns_true_when_no_discrepancies(
+        self, tmp_path: Path
+    ) -> None:
         """
         GIVEN a plugin with no recorded discrepancies
         WHEN fix_plugin is called
@@ -1108,6 +1085,72 @@ class TestFixPluginAdvanced:
         assert "./commands/new.md" in data["commands"]
         assert "./commands/stale.md" not in data["commands"]
         assert "./skills/existing-skill" in data["skills"]
+
+    def test_fix_plugin_validates_written_json(self, tmp_path: Path) -> None:
+        """Verify fix_plugin validates JSON after writing."""
+        plugin_dir = tmp_path / "test-plugin"
+        plugin_dir.mkdir()
+        config_dir = plugin_dir / ".claude-plugin"
+        config_dir.mkdir()
+
+        plugin_json = config_dir / "plugin.json"
+        plugin_json.write_text(
+            json.dumps(
+                {"name": "test-plugin", "commands": ["./commands/cmd1.md"]}, indent=2
+            )
+        )
+
+        auditor = PluginAuditor(tmp_path, dry_run=False)
+        auditor.discrepancies["test-plugin"] = {
+            "missing": {"commands": ["./commands/cmd2.md"]},
+            "stale": {},
+        }
+
+        result = auditor.fix_plugin("test-plugin")
+        assert result is True
+
+        # Verify the written file is valid JSON
+        with plugin_json.open() as f:
+            data = json.load(f)
+        assert "./commands/cmd2.md" in data["commands"]
+
+    def test_fix_plugin_returns_false_on_corrupt_write(self, tmp_path: Path) -> None:
+        """Verify fix_plugin returns False if written JSON is invalid."""
+        import unittest.mock
+
+        plugin_dir = tmp_path / "test-plugin"
+        plugin_dir.mkdir()
+        config_dir = plugin_dir / ".claude-plugin"
+        config_dir.mkdir()
+
+        plugin_json = config_dir / "plugin.json"
+        plugin_json.write_text(
+            json.dumps(
+                {"name": "test-plugin", "commands": ["./commands/cmd1.md"]}, indent=2
+            )
+        )
+
+        auditor = PluginAuditor(tmp_path, dry_run=False)
+        auditor.discrepancies["test-plugin"] = {
+            "missing": {"commands": ["./commands/cmd2.md"]},
+            "stale": {},
+        }
+
+        # Patch json.load: allow the first call (initial read at line 554),
+        # but fail on the second call (validation read-back after write).
+        original_json_load = json.load
+        load_call_count = {"n": 0}
+
+        def selective_failing_load(f):
+            load_call_count["n"] += 1
+            if load_call_count["n"] >= 2:
+                raise json.JSONDecodeError("Mocked corrupt JSON", "", 0)
+            return original_json_load(f)
+
+        with unittest.mock.patch("json.load", side_effect=selective_failing_load):
+            result = auditor.fix_plugin("test-plugin")
+
+        assert result is False
 
 
 class TestScanSkillModules:

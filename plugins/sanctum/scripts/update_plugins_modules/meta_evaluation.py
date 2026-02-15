@@ -41,6 +41,7 @@ class MetaEvaluator:
 
         Returns:
             Dict with missing_toc, missing_verification, and missing_tests lists
+
         """
         issues: dict[str, Any] = {
             "missing_toc": [],

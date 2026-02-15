@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Pre-commit hook enforcing TDD patterns.
+
+Verifies that commits include test files alongside implementation changes.
+Part of Iron Law TDD enforcement (Level 4: Pre-Commit Hooks).
+"""
+import subprocess
+import sys
+
+
+def get_staged_files():
+    """Get list of staged Python files."""
+    result = subprocess.run(
+        ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+        capture_output=True, text=True
+    )
+    return [f for f in result.stdout.strip().split("\n") if f.endswith(".py")]
+
+
+def check_tdd_compliance(staged_files):
+    """Check that implementation files have corresponding test files."""
+    impl_files = [f for f in staged_files if not f.startswith("tests/") and "test_" not in f]
+    test_files = [f for f in staged_files if f.startswith("tests/") or "test_" in f]
+
+    if impl_files and not test_files:
+        print("[TDD] Implementation files staged without tests:")
+        for f in impl_files:
+            print(f"  - {f}")
+        print("\nConsider adding tests. Use --no-verify to bypass (not recommended).")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    files = get_staged_files()
+    if files:
+        sys.exit(check_tdd_compliance(files))

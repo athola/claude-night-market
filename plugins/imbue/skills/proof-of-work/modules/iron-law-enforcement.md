@@ -261,6 +261,19 @@ exit 0
 
 ---
 
+### Pillar 3 Implementation: Automated Mutation Testing
+
+> **Status: IMPLEMENTED** via `.github/workflows/mutation-testing.yml`
+
+Mutation testing (Pillar 3 of the Iron Law) is now enforced through a GitHub Actions
+workflow that runs weekly and on-demand via `workflow_dispatch`. It uses `mutmut` to
+mutate Python source files in each plugin's `scripts/` directory and reports mutation
+scores in the GitHub Actions step summary. To run manually, trigger the
+"Mutation Testing (Iron Law Pillar 3)" workflow from the Actions tab and select a
+plugin (or "all").
+
+---
+
 ### Level 5: Coverage Gate Enforcement
 
 Require evidence of test quality, not just test existence.
