@@ -5,7 +5,7 @@ following TDD/BDD principles and testing all agent scenarios.
 """
 
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock
 
 import pytest
@@ -65,7 +65,7 @@ class TestReviewAnalystAgent:
         """Sample agent session context."""
         return {
             "session_id": "agent-session-123",
-            "initiated_at": datetime.now(timezone.utc).isoformat(),
+            "initiated_at": datetime.now(UTC).isoformat(),
             "focus": "security_review",
             "target": "src/auth/",
             "tools_available": ["Read", "Glob", "Grep", "Bash"],
@@ -275,7 +275,7 @@ class TestReviewAnalystAgent:
                 "id": f"E{i + 1}",
                 "command": f"grep -r '{search_pattern}' src/",
                 "output": search_results,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "file": finding["file"],
                 "line": finding["line"],
             }
@@ -535,7 +535,7 @@ class TestReviewAnalystAgent:
             "metadata": {
                 "agent": "review-analyst",
                 "session_id": "agent-session-123",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "focus": "security_review",
                 "target": "src/auth/",
                 "total_findings": len(sample_agent_findings),

@@ -4,7 +4,7 @@ This module tests token optimization, quota management, and conservation
 functionality following TDD/BDD principles.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -437,7 +437,7 @@ tags:
         # Act - simulate logging conservation activities
         activities = [
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "activity": "context_planning",
                 "tokens_used": 45,
                 "tokens_saved": 150,
@@ -445,7 +445,7 @@ tags:
                 "efficiency_score": 0.77,
             },
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "activity": "delegation",
                 "tokens_used": 200,
                 "tokens_saved": 800,
@@ -453,7 +453,7 @@ tags:
                 "efficiency_score": 0.80,
             },
             {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "activity": "compression",
                 "tokens_used": 25,
                 "tokens_saved": 75,

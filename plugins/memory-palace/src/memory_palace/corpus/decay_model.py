@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 import math
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -84,11 +84,11 @@ class DecayModel:
             DecayState with current decay metrics
 
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # validate last_validated is timezone-aware
         if last_validated.tzinfo is None:
-            last_validated = last_validated.replace(tzinfo=timezone.utc)
+            last_validated = last_validated.replace(tzinfo=UTC)
 
         delta = now - last_validated
         days_since = max(0, delta.days)
@@ -186,9 +186,9 @@ class DecayModel:
 
         """
         if validation_date is None:
-            validation_date = datetime.now(timezone.utc)
+            validation_date = datetime.now(UTC)
         elif validation_date.tzinfo is None:
-            validation_date = validation_date.replace(tzinfo=timezone.utc)
+            validation_date = validation_date.replace(tzinfo=UTC)
 
         self._validation_dates[entry_id] = validation_date
 
@@ -229,7 +229,7 @@ class DecayModel:
             validation_date = self._validation_dates.get(entry_id)
             if validation_date is None:
                 # Use entry creation time or default to old date
-                validation_date = datetime.now(timezone.utc)
+                validation_date = datetime.now(UTC)
 
             state = self.calculate_decay(entry_id, maturity, validation_date)
 

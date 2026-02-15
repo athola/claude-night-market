@@ -106,3 +106,50 @@ class TestExperienceLibraryPruning:
             )
         entries = lib.list_entries("abstract:test-skill")
         assert len(entries) <= 20
+
+
+class TestExperienceLibraryEdgeCases:
+    """Test error handling and edge cases."""
+
+    def test_should_skip_corrupt_json_in_list_entries(self, tmp_path: Path) -> None:
+        """Given corrupt JSON file in library, when listing, then skip gracefully."""
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        lib.store(
+            skill_ref="abstract:test-skill",
+            task_description="Valid entry",
+            approach_taken="Good approach",
+            outcome="success",
+            duration_ms=1000,
+            tools_used=["Read"],
+            key_decisions=[],
+        )
+        # Inject a corrupt JSON file into the skill directory
+        skill_dir = tmp_path / "experience-library" / "abstract_test-skill"
+        corrupt_file = skill_dir / "corrupt_entry.json"
+        corrupt_file.write_text("{invalid json!!!")
+
+        entries = lib.list_entries("abstract:test-skill")
+        # Should have the valid entry but skip the corrupt one
+        assert len(entries) == 1
+        assert entries[0]["task_description"] == "Valid entry"
+
+    def test_should_return_empty_for_no_similar_entries(self, tmp_path: Path) -> None:
+        """Given empty library, when finding similar, then return empty list."""
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        results = lib.find_similar("abstract:nonexistent-skill", "some query")
+        assert results == []
+
+    def test_should_return_empty_when_no_keyword_overlap(self, tmp_path: Path) -> None:
+        """Given entries with no keyword match, when queried, then return empty."""
+        lib = ExperienceLibrary(tmp_path / "experience-library")
+        lib.store(
+            skill_ref="abstract:test-skill",
+            task_description="alpha beta gamma",
+            approach_taken="Some approach",
+            outcome="success",
+            duration_ms=1000,
+            tools_used=["Read"],
+            key_decisions=[],
+        )
+        results = lib.find_similar("abstract:test-skill", "xyz completely different")
+        assert results == []

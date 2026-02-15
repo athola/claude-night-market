@@ -4,7 +4,7 @@ Tests the KnowledgeOrchestrator which coordinates usage tracking,
 decay model, and source lineage for overall knowledge quality assessment.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -81,7 +81,7 @@ class TestKnowledgeOrchestrator:
         entry = {
             "id": "entry-1",
             "maturity": "growing",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         assessment = orchestrator.assess_entry(entry)
         assert assessment.entry_id == "entry-1"
@@ -92,7 +92,7 @@ class TestKnowledgeOrchestrator:
         entry = {
             "id": "entry-1",
             "maturity": "growing",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
 
         # Record usage
@@ -105,7 +105,7 @@ class TestKnowledgeOrchestrator:
 
     def test_assess_entry_with_decay(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should incorporate decay into assessment."""
-        old_date = datetime.now(timezone.utc) - timedelta(days=60)
+        old_date = datetime.now(UTC) - timedelta(days=60)
         entry = {
             "id": "entry-1",
             "maturity": "seedling",
@@ -123,8 +123,8 @@ class TestKnowledgeOrchestrator:
         entry = {
             "id": "entry-1",
             "maturity": "evergreen",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "last_validated": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "last_validated": datetime.now(UTC).isoformat(),
         }
 
         # Add positive signals
@@ -141,7 +141,7 @@ class TestKnowledgeOrchestrator:
         self, orchestrator: KnowledgeOrchestrator
     ) -> None:
         """Mid-scoring entry should need attention."""
-        old_date = datetime.now(timezone.utc) - timedelta(days=45)
+        old_date = datetime.now(UTC) - timedelta(days=45)
         entry = {
             "id": "entry-1",
             "maturity": "growing",
@@ -162,7 +162,7 @@ class TestKnowledgeOrchestrator:
         self, orchestrator: KnowledgeOrchestrator
     ) -> None:
         """Low-scoring entry should be critical."""
-        very_old = datetime.now(timezone.utc) - timedelta(days=180)
+        very_old = datetime.now(UTC) - timedelta(days=180)
         entry = {
             "id": "entry-1",
             "maturity": "seedling",
@@ -200,7 +200,7 @@ class TestKnowledgeOrchestrator:
 
     def test_get_maintenance_queue(self, orchestrator: KnowledgeOrchestrator) -> None:
         """Should return entries needing maintenance."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         old = now - timedelta(days=60)
         very_old = now - timedelta(days=120)
 
@@ -277,7 +277,7 @@ class TestKnowledgeOrchestrator:
         entry = {
             "id": "entry-1",
             "maturity": "growing",
-            "created_at": (datetime.now(timezone.utc) - timedelta(days=30)).isoformat(),
+            "created_at": (datetime.now(UTC) - timedelta(days=30)).isoformat(),
         }
 
         # Validate
@@ -291,7 +291,7 @@ class TestKnowledgeOrchestrator:
         self, orchestrator: KnowledgeOrchestrator
     ) -> None:
         """Should recommend validation for stale entries."""
-        old_date = datetime.now(timezone.utc) - timedelta(days=60)
+        old_date = datetime.now(UTC) - timedelta(days=60)
         entry = {
             "id": "entry-1",
             "maturity": "growing",
@@ -314,8 +314,8 @@ class TestKnowledgeOrchestrator:
         entry = {
             "id": "entry-1",
             "maturity": "growing",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "last_validated": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "last_validated": datetime.now(UTC).isoformat(),
         }
 
         assessment = orchestrator.assess_entry(entry)
@@ -331,8 +331,8 @@ class TestKnowledgeOrchestrator:
         entry = {
             "id": "entry-1",
             "maturity": "growing",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "last_validated": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "last_validated": datetime.now(UTC).isoformat(),
         }
 
         orchestrator.record_usage("entry-1", UsageSignal.ACCESS)
@@ -351,17 +351,17 @@ class TestKnowledgeOrchestrator:
             {
                 "id": "e1",
                 "maturity": "evergreen",
-                "last_validated": datetime.now(timezone.utc).isoformat(),
+                "last_validated": datetime.now(UTC).isoformat(),
             },
             {
                 "id": "e2",
                 "maturity": "growing",
-                "last_validated": datetime.now(timezone.utc).isoformat(),
+                "last_validated": datetime.now(UTC).isoformat(),
             },
             {
                 "id": "e3",
                 "maturity": "seedling",
-                "last_validated": datetime.now(timezone.utc).isoformat(),
+                "last_validated": datetime.now(UTC).isoformat(),
             },
         ]
 
@@ -382,7 +382,7 @@ class TestKnowledgeOrchestrator:
             {
                 "id": f"entry-{i}",
                 "maturity": "growing",
-                "last_validated": datetime.now(timezone.utc).isoformat(),
+                "last_validated": datetime.now(UTC).isoformat(),
             }
             for i in range(10)
         ]
@@ -408,12 +408,12 @@ class TestKnowledgeOrchestrator:
                 {
                     "entry_id": "entry-1",
                     "signal": "access",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "context": {},
                 }
             ],
             "validation_dates": {
-                "entry-1": datetime.now(timezone.utc).isoformat(),
+                "entry-1": datetime.now(UTC).isoformat(),
             },
             "lineage": {},
         }

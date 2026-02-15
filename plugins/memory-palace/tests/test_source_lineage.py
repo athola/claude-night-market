@@ -4,7 +4,7 @@ Tests the SourceLineageManager which implements full and simple
 lineage tracking based on source importance.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -125,7 +125,7 @@ class TestSimpleLineage:
             entry_id="entry-1",
             source_type=SourceType.WEB_ARTICLE,
             source_url="https://example.com/article",
-            retrieved_at=datetime.now(timezone.utc),
+            retrieved_at=datetime.now(UTC),
         )
         assert lineage.entry_id == "entry-1"
         assert lineage.source_type == SourceType.WEB_ARTICLE
@@ -137,7 +137,7 @@ class TestSimpleLineage:
             entry_id="entry-1",
             source_type=SourceType.USER_INPUT,
             source_url=None,
-            retrieved_at=datetime.now(timezone.utc),
+            retrieved_at=datetime.now(UTC),
         )
         assert lineage.source_url is None
 
@@ -368,7 +368,7 @@ class TestSourceLineageManager:
                     "source_id": "src-1",
                     "source_type": "documentation",
                     "url": "https://docs.example.com",
-                    "retrieved_at": datetime.now(timezone.utc).isoformat(),
+                    "retrieved_at": datetime.now(UTC).isoformat(),
                 },
                 "derived_from": [],
                 "transformations": [],
@@ -379,7 +379,7 @@ class TestSourceLineageManager:
                 "entry_id": "entry-2",
                 "source_type": "web_article",
                 "source_url": "https://blog.example.com",
-                "retrieved_at": datetime.now(timezone.utc).isoformat(),
+                "retrieved_at": datetime.now(UTC).isoformat(),
             },
         }
 

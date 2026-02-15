@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Manage dependencies in Claude Code plugins."""
+
 from __future__ import annotations
 
 import argparse

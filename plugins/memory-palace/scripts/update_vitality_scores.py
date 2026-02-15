@@ -39,7 +39,7 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
     """Apply decay to vitality entries and build tending queue."""
     entries = data.get("entries", {})
     stale_threshold = data.get("metadata", {}).get("stale_threshold", 10)
-    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    now = dt.datetime.now(dt.UTC).isoformat()
     queue: dict[str, list[str]] = {"stale": [], "probation_overdue": []}
 
     for entry_id, payload in entries.items():
@@ -58,7 +58,7 @@ def decay_entries(data: dict[str, Any], decay: int) -> dict[str, Any]:
         if state == "probation" and last_accessed:
             last_dt = dt.datetime.fromisoformat(last_accessed.replace("Z", "+00:00"))
             OVERDUE_DAYS = 14
-            if (dt.datetime.now(dt.timezone.utc) - last_dt).days >= OVERDUE_DAYS:
+            if (dt.datetime.now(dt.UTC) - last_dt).days >= OVERDUE_DAYS:
                 queue["probation_overdue"].append(entry_id)
 
     metadata = data.setdefault("metadata", {})

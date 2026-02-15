@@ -136,7 +136,7 @@ class ReviewEntry:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ReviewEntry":
+    def from_dict(cls, data: dict[str, Any]) -> ReviewEntry:
         """Deserialize from dictionary."""
         entry = cls(
             source_pr=data["source_pr"],

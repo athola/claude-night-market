@@ -7,7 +7,7 @@ import argparse
 import json
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -129,7 +129,7 @@ def compute_regret_alerts(
 def write_alerts_file(alerts: dict[str, Any], path: Path) -> Path:
     """Persist alert payload for downstream scoring jobs."""
     payload = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "total_alerts": len(alerts),
         "alerts": alerts,
     }

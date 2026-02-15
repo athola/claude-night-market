@@ -4,7 +4,7 @@ Tests the UsageTracker which implements usage-based scoring with
 reinforcement learning signals for knowledge entries.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -79,7 +79,7 @@ class TestUsageScore:
             access_count=10,
             citation_count=3,
             feedback_balance=2,
-            last_accessed=datetime.now(timezone.utc),
+            last_accessed=datetime.now(UTC),
             decay_factor=0.9,
         )
         assert score.entry_id == "test-1"
@@ -204,7 +204,7 @@ class TestUsageTracker:
 
     def test_get_events_time_range(self, tracker: UsageTracker) -> None:
         """Should filter events by time range."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         yesterday = now - timedelta(days=1)
 
         # Record events manually with different timestamps
@@ -258,13 +258,13 @@ class TestUsageTracker:
             {
                 "entry_id": "entry-1",
                 "signal": "access",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "context": {},
             },
             {
                 "entry_id": "entry-2",
                 "signal": "citation",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "context": {"cited_by": "test"},
             },
         ]

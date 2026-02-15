@@ -17,7 +17,7 @@ members = [
 
 [[package]]
 name = "abstract"
-version = "1.4.2"
+version = "1.4.3"
 source = { editable = "plugins/abstract" }
 dependencies = [
     { name = "pre-commit" },
@@ -328,7 +328,7 @@ wheels = [
 
 [[package]]
 name = "claude-night-market"
-version = "1.4.2"
+version = "1.4.3"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -403,7 +403,7 @@ wheels = [
 
 [[package]]
 name = "conserve-dev"
-version = "1.4.2"
+version = "1.4.3"
 source = { editable = "plugins/conserve" }
 dependencies = [
     { name = "pre-commit" },
@@ -814,7 +814,7 @@ wheels = [
 
 [[package]]
 name = "leyline"
-version = "1.4.2"
+version = "1.4.3"
 source = { editable = "plugins/leyline" }
 
 [package.optional-dependencies]

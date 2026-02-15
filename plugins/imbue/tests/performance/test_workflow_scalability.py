@@ -10,7 +10,7 @@ import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import psutil
 import pytest
@@ -194,7 +194,7 @@ class TestWorkflowScalability:
                 "id": f"E{i:05d}",
                 "command": f"test_command_{i}",
                 "output": f"Output {i} with some content",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "working_directory": "/test/repo",
                 "file": f"src/file_{i % 100}.py",
                 "line": (i % 200) + 1,
@@ -207,7 +207,7 @@ class TestWorkflowScalability:
         # Simulate evidence log management
         evidence_log = {
             "session_id": "scalability-test",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "evidence": [],
             "citations": [],
             "evidence_index": {},  # For quick lookup

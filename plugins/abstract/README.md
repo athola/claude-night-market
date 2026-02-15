@@ -19,7 +19,7 @@ Add to `marketplace.json`:
   "name": "abstract",
   "source": { "source": "url", "url": "https://github.com/athola/abstract.git" },
   "description": "Meta-skills infrastructure - modular design and evaluation",
-  "version": "1.0.1",
+  "version": "1.4.3",
   "strict": true
 }
 ```
@@ -28,7 +28,9 @@ Claude loads the plugin on startup.
 
 ## What's Included
 
-Abstract provides skills, commands, and agents for plugin development. `methodology-curator` surfaces expert frameworks, while `modular-skills` provides architectural guidance. Use `skills-eval` to score and improve skill quality. The `/validate-plugin` command checks structures against requirements. Specialized agents like `plugin-validator` and `meta-architect` assist during review. These tools reduce token usage and identify modularization opportunities.
+Abstract provides skills, commands, and agents for plugin development. `methodology-curator` surfaces expert frameworks, while `modular-skills` provides architectural guidance. Use `skills-eval` to score and improve skill quality.
+
+The `/validate-plugin` command checks structures against requirements. Specialized agents like `plugin-validator` and `meta-architect` assist during review.
 
 ## Structure
 

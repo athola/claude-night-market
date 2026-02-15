@@ -113,7 +113,7 @@ def write_palace_entry(
         "title": candidate.title,
         "source": candidate.raw.get("source", {}),
         "author": candidate.actor,
-        "date_captured": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d"),
+        "date_captured": dt.datetime.now(dt.UTC).strftime("%Y-%m-%d"),
         "palace": candidate.raw.get("summary", {}).get("palace", "Intake"),
         "district": candidate.raw.get("summary", {}).get("district", "Curation"),
         "maturity": "probation",
@@ -239,7 +239,7 @@ def append_curation_log(  # noqa: PLR0913 - log needs explicit context fields
             "|-----------|-------|--------|----------|----------------|-------|\n",
             encoding="utf-8",
         )
-    timestamp = dt.datetime.now(dt.timezone.utc).isoformat()
+    timestamp = dt.datetime.now(dt.UTC).isoformat()
     notes_parts = [
         f"title:{candidate.title}",
         f"palace:{palace_path.name}",

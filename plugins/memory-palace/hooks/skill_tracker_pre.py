@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -67,12 +67,12 @@ def main() -> None:
         skill_ref = f"{plugin}:{skill}"
 
         # Create unique invocation ID
-        invocation_id = f"{skill_ref}:{datetime.now(timezone.utc).timestamp()}"
+        invocation_id = f"{skill_ref}:{datetime.now(UTC).timestamp()}"
 
         # Create state for PostToolUse to read
         state = {
             "invocation_id": invocation_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "skill": skill_ref,
             "plugin": plugin,
             "skill_name": skill,

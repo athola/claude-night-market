@@ -76,7 +76,7 @@ class Topic:
         )
 
 
-TODAY = dt.datetime.now(dt.timezone.utc).date()
+TODAY = dt.datetime.now(dt.UTC).date()
 
 
 def load_topics() -> list[Topic]:

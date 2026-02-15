@@ -9,6 +9,7 @@ description: 'Analyze and improve living code quality: duplication, algorithmic 
   living code, complementing bloat detection (dead code removal) with quality refinement
   (living code improvement).'
 category: code-quality
+version: 1.4.3
 tags:
 - refactoring
 - clean-code

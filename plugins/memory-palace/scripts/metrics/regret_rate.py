@@ -7,7 +7,7 @@ import argparse
 import json
 import textwrap
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 HISTORY_PATH = Path("telemetry/autonomy_history.json")
@@ -32,7 +32,7 @@ def main() -> None:
     counter = Counter(event.get("result", "correct") for event in events)
     total = sum(counter.values()) or 1
     regret_rate = counter.get("regret", 0) / total
-    generated_at = datetime.now(timezone.utc).isoformat()
+    generated_at = datetime.now(UTC).isoformat()
     payload: dict[str, float | int | str] = {
         "total": total,
         "regret_rate": regret_rate,

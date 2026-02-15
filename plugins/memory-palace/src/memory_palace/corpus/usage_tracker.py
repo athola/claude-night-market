@@ -12,7 +12,7 @@ import math
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -54,7 +54,7 @@ class UsageEvent:
 
     entry_id: str
     signal: UsageSignal
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     context: dict[str, Any] = field(default_factory=dict)
 
 
@@ -110,7 +110,7 @@ class UsageTracker:
         event = UsageEvent(
             entry_id=entry_id,
             signal=signal,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             context=context or {},
         )
         self._events.append(event)

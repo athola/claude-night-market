@@ -725,11 +725,14 @@ class TestGracefulDegradation:
             with (
                 patch("sys.stdin", mock_stdin),
                 patch("sys.stdout", StringIO()),
-                patch("shared.config.get_config", return_value={
-                    "enabled": True,
-                    "research_mode": "cache_first",
-                    "telemetry": {"enabled": False},
-                }),
+                patch(
+                    "shared.config.get_config",
+                    return_value={
+                        "enabled": True,
+                        "research_mode": "cache_first",
+                        "telemetry": {"enabled": False},
+                    },
+                ),
                 pytest.raises(SystemExit) as exc_info,
             ):
                 research_interceptor.main()

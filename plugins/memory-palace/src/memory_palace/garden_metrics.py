@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from statistics import mean
 from typing import Any
@@ -73,7 +73,7 @@ def parse_args() -> argparse.Namespace:
 
 def iso_to_datetime(value: str) -> datetime:
     """Convert an ISO 8601 string to a timezone-aware datetime object."""
-    return datetime.fromisoformat(value).astimezone(timezone.utc)
+    return datetime.fromisoformat(value).astimezone(UTC)
 
 
 def compute_metrics(data: dict[str, Any], now: datetime) -> dict[str, Any]:
@@ -147,7 +147,7 @@ def compute_garden_metrics(
         Dictionary containing the computed metrics.
 
     """
-    current_time = now or datetime.now(timezone.utc)
+    current_time = now or datetime.now(UTC)
     with path.open("r", encoding="utf-8") as file:
         data = json.load(file)
     metrics = compute_metrics(data, current_time)
@@ -159,7 +159,7 @@ def compute_garden_metrics(
 def main() -> int:
     """Parse arguments, compute metrics, and print the output."""
     args = parse_args()
-    now = datetime.fromisoformat(args.now) if args.now else datetime.now(timezone.utc)
+    now = datetime.fromisoformat(args.now) if args.now else datetime.now(UTC)
 
     compute_garden_metrics(args.path, now, args.tending_queue)
     if args.format == "brief":

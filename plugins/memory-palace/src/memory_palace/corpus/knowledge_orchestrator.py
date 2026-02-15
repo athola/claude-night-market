@@ -10,7 +10,7 @@ import logging
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from memory_palace.corpus.decay_model import DecayModel
@@ -139,7 +139,7 @@ class KnowledgeOrchestrator:
                     entry_id,
                     last_validated_str,
                 )
-                last_validated = datetime.now(timezone.utc)
+                last_validated = datetime.now(UTC)
         else:
             # Check decay model
             last_validated = self.decay_model.get_validation_date(entry_id)
@@ -155,12 +155,12 @@ class KnowledgeOrchestrator:
                             entry_id,
                             created_str,
                         )
-                    last_validated = datetime.now(timezone.utc)
+                    last_validated = datetime.now(UTC)
                 else:
-                    last_validated = datetime.now(timezone.utc)
+                    last_validated = datetime.now(UTC)
 
         if last_validated is None:
-            last_validated = datetime.now(timezone.utc)
+            last_validated = datetime.now(UTC)
 
         decay_state = self.decay_model.calculate_decay(
             entry_id, maturity, last_validated

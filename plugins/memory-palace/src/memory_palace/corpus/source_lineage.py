@@ -8,7 +8,7 @@ while simple lineage is used for standard sources to save storage.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -33,7 +33,7 @@ class SourceReference:
     url: str | None = None
     title: str | None = None
     author: str | None = None
-    retrieved_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    retrieved_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     confidence: float = 1.0  # Confidence in source accuracy
 
 
@@ -221,7 +221,7 @@ class SourceLineageManager:
 
         validation_record = {
             "validator": validator,
-            "date": datetime.now(timezone.utc).isoformat(),
+            "date": datetime.now(UTC).isoformat(),
             "status": status,
         }
         if notes:

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -60,8 +60,8 @@ class ReinforcementCounter:
     helpful: int = 0
     harmful: int = 0
     neutral: int = 0
-    first_seen: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    last_accessed: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    first_seen: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_accessed: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -140,7 +140,7 @@ class ReinforcementCounter:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ReinforcementCounter":
+    def from_dict(cls, data: dict[str, Any]) -> ReinforcementCounter:
         """Deserialize counter from dictionary."""
         counters = data.get("counters", {})
         return cls(
@@ -149,10 +149,10 @@ class ReinforcementCounter:
             harmful=counters.get("harmful", 0),
             neutral=counters.get("neutral", 0),
             first_seen=datetime.fromisoformat(
-                data.get("first_seen", datetime.now(timezone.utc).isoformat())
+                data.get("first_seen", datetime.now(UTC).isoformat())
             ),
             last_accessed=datetime.fromisoformat(
-                data.get("last_accessed", datetime.now(timezone.utc).isoformat())
+                data.get("last_accessed", datetime.now(UTC).isoformat())
             ),
             metadata=data.get("metadata", {}),
         )
@@ -223,7 +223,7 @@ class CounterReinforcementTracker:
             counter.neutral += 1
 
         # Update access time
-        counter.last_accessed = datetime.now(timezone.utc)
+        counter.last_accessed = datetime.now(UTC)
 
         # Merge metadata if provided
         if metadata:
