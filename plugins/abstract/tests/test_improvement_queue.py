@@ -124,3 +124,89 @@ class TestNeedsImprovement:
         result = queue.get_improvable_skills()
         assert len(result) == 1
         assert result[0] == "abstract:skill-a"
+
+
+class TestEvaluationWindow:
+    """Test re-evaluation timer tracking."""
+
+    def test_should_track_eval_executions(self, tmp_path: Path) -> None:
+        """Given an evaluating skill, when execution recorded, then count increments."""
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        for i in range(3):
+            queue.flag_skill(
+                "abstract:test-skill", stability_gap=0.4, execution_id=f"e{i}"
+            )
+        queue.start_evaluation("abstract:test-skill", baseline_gap=0.15)
+        queue.record_eval_execution("abstract:test-skill", stability_gap=0.10)
+        assert queue.skills["abstract:test-skill"]["eval_executions"] == 1
+
+    def test_should_not_complete_before_target(self, tmp_path: Path) -> None:
+        """Given 9 eval executions, when checked, then not ready for decision."""
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        for i in range(3):
+            queue.flag_skill(
+                "abstract:test-skill", stability_gap=0.4, execution_id=f"e{i}"
+            )
+        queue.start_evaluation("abstract:test-skill", baseline_gap=0.15)
+        for _ in range(9):
+            queue.record_eval_execution("abstract:test-skill", stability_gap=0.10)
+        assert queue.is_eval_complete("abstract:test-skill") is False
+
+    def test_should_complete_at_target(self, tmp_path: Path) -> None:
+        """Given 10 eval executions, when checked, then ready for decision."""
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        for i in range(3):
+            queue.flag_skill(
+                "abstract:test-skill", stability_gap=0.4, execution_id=f"e{i}"
+            )
+        queue.start_evaluation("abstract:test-skill", baseline_gap=0.15)
+        for _ in range(10):
+            queue.record_eval_execution("abstract:test-skill", stability_gap=0.10)
+        assert queue.is_eval_complete("abstract:test-skill") is True
+
+
+class TestEvalDecision:
+    """Test evaluation decision logic."""
+
+    def test_should_promote_on_improvement(self, tmp_path: Path) -> None:
+        """Given improved metrics after eval, when decided, then status is promoted."""
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        for i in range(3):
+            queue.flag_skill(
+                "abstract:test-skill", stability_gap=0.4, execution_id=f"e{i}"
+            )
+        queue.start_evaluation("abstract:test-skill", baseline_gap=0.35)
+        for _ in range(10):
+            queue.record_eval_execution("abstract:test-skill", stability_gap=0.10)
+        decision = queue.evaluate("abstract:test-skill")
+        assert decision == "promote"
+        assert queue.skills["abstract:test-skill"]["status"] == "promoted"
+
+    def test_should_flag_for_review_on_regression(self, tmp_path: Path) -> None:
+        """Given worse metrics after eval, when decided, then pending_rollback_review."""
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        for i in range(3):
+            queue.flag_skill(
+                "abstract:test-skill", stability_gap=0.4, execution_id=f"e{i}"
+            )
+        queue.start_evaluation("abstract:test-skill", baseline_gap=0.15)
+        for _ in range(10):
+            queue.record_eval_execution("abstract:test-skill", stability_gap=0.40)
+        decision = queue.evaluate("abstract:test-skill")
+        assert decision == "pending_rollback_review"
+        assert (
+            queue.skills["abstract:test-skill"]["status"] == "pending_rollback_review"
+        )
+
+    def test_should_flag_for_review_on_no_change(self, tmp_path: Path) -> None:
+        """Given same metrics after eval, when decided, then pending_rollback_review."""
+        queue = ImprovementQueue(tmp_path / "queue.json")
+        for i in range(3):
+            queue.flag_skill(
+                "abstract:test-skill", stability_gap=0.4, execution_id=f"e{i}"
+            )
+        queue.start_evaluation("abstract:test-skill", baseline_gap=0.35)
+        for _ in range(10):
+            queue.record_eval_execution("abstract:test-skill", stability_gap=0.35)
+        decision = queue.evaluate("abstract:test-skill")
+        assert decision == "pending_rollback_review"

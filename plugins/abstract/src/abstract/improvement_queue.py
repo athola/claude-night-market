@@ -90,3 +90,53 @@ class ImprovementQueue:
         entry["flagged_count"] = 0
         entry["execution_ids"] = []
         self._save()
+
+    def record_eval_execution(self, skill_ref: str, stability_gap: float) -> None:
+        """Record one execution during evaluation window."""
+        entry = self.skills.get(skill_ref)
+        if not entry or entry.get("status") != "evaluating":
+            return
+        entry["eval_executions"] = entry.get("eval_executions", 0) + 1
+        entry["stability_gap"] = stability_gap
+        eval_gaps: list[float] = entry.setdefault("eval_gaps", [])
+        eval_gaps.append(stability_gap)
+        self._save()
+
+    def is_eval_complete(self, skill_ref: str) -> bool:
+        """Check if evaluation window is complete."""
+        entry = self.skills.get(skill_ref)
+        if not entry or entry.get("status") != "evaluating":
+            return False
+        return bool(entry.get("eval_executions", 0) >= entry.get("eval_target", 10))
+
+    def evaluate(self, skill_ref: str) -> str:
+        """Make promotion/rollback decision after evaluation completes.
+
+        Returns:
+            "promote" if improved, "pending_rollback_review" otherwise.
+
+        """
+        entry = self.skills.get(skill_ref)
+        if not entry:
+            return "unknown"
+
+        baseline = entry.get("baseline_gap", 0)
+        eval_gaps: list[float] = entry.get("eval_gaps", [])
+        avg_gap = (
+            sum(eval_gaps) / len(eval_gaps)
+            if eval_gaps
+            else entry.get("stability_gap", 0)
+        )
+
+        if avg_gap < baseline:
+            entry["status"] = "promoted"
+            decision = "promote"
+        else:
+            entry["status"] = "pending_rollback_review"
+            entry["regression_detected"] = datetime.now(UTC).isoformat()
+            entry["current_gap"] = avg_gap
+            decision = "pending_rollback_review"
+
+        entry["evaluating"] = False
+        self._save()
+        return decision
