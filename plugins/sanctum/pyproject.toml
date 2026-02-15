@@ -46,6 +46,11 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
+[tool.pyright]
+pythonVersion = "3.9"
+extraPaths = ["src", "scripts", "hooks"]
+exclude = [".venv", ".uv-cache", "**/__pycache__"]
+
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true
@@ -78,6 +83,7 @@ markers = [
     "git: Tests that require Git operations",
     "bdd: Behavior-Driven Development style tests",
     "requires_notify_send: Tests that require notify-send command to be installed",
+    "benchmark: Performance benchmark tests",
 ]
 
 [tool.coverage.run]
