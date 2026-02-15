@@ -89,6 +89,17 @@ Before triggering auto-clear, gather:
 - Files being actively worked on
 - Open TodoWrite items
 
+### Step 1.5: Finalize Task List Before Handoff
+
+**CRITICAL**: Before saving state or spawning a continuation agent, reconcile the task list:
+
+1. **Review all tasks** via `TaskList`
+2. **Mark completed tasks** as `completed` via `TaskUpdate` — do NOT leave done work as `in_progress`
+3. **Record existing task IDs** — collect all task IDs (pending and in_progress) to pass in the session state so the continuation agent references them instead of creating duplicates
+4. **Include task IDs in session state** under the `existing_task_ids` field (see Step 2)
+
+This prevents the continuation agent from creating duplicate tasks.
+
 ### Step 2: Save Session State
 
 **IMPORTANT**: If `.claude/session-state.md` already exists, you MUST Read it first before writing (Claude Code requires reading existing files before overwriting). Create the `.claude/` directory if it doesn't exist.
@@ -128,6 +139,12 @@ Reason: Context threshold exceeded (80%+)
 ## Pending TodoWrite Items
 - [ ] Item 1
 - [ ] Item 2
+
+## Existing Task IDs
+[List task IDs from TaskList so the continuation agent can reference them
+instead of creating duplicates. Example:]
+- Task #1: "Implement feature X" (in_progress)
+- Task #2: "Write tests for feature X" (pending)
 
 ## Continuation Instructions
 [Specific next steps for the continuation agent]
@@ -175,9 +192,13 @@ Instructions:
    - DO NOT pause for user confirmation
    - Continue executing ALL remaining tasks until completion
    - Only stop on actual errors or when all work is done
-4. Verify understanding of current task and progress
-5. Continue from where the previous agent left off
-6. If you also approach 80% context, repeat this handoff process
+4. **TASK LIST**: Do NOT create new tasks via TaskCreate. The parent agent
+   already created the task list. Use TaskList to see existing tasks, and
+   TaskUpdate to mark them in_progress/completed. Check the "Existing Task IDs"
+   section in the session state for the authoritative list.
+5. Verify understanding of current task and progress
+6. Continue from where the previous agent left off
+7. If you also approach 80% context, repeat this handoff process
    - PRESERVE the execution mode when creating your own checkpoint
 
 The session state file contains all necessary context to continue without interruption.
@@ -185,6 +206,9 @@ The session state file contains all necessary context to continue without interr
 **EXECUTION MODE INHERITANCE**: You MUST inherit and propagate the execution
 mode from the session state. If the parent was in dangerous/unattended mode,
 you are also in that mode. Do not ask the user for confirmation.
+
+**TASK DEDUPLICATION**: Do NOT create duplicate tasks. The parent has already
+populated the task list. Use TaskUpdate on existing task IDs only.
 ```
 
 **For batch/multi-issue workflows** (e.g., `/do-issue 42 43 44`):

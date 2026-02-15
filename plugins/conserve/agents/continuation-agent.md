@@ -203,12 +203,30 @@ If the state file is missing or corrupted:
 2. Look for recent git changes that might indicate progress
 3. If recovery fails, report the issue and ask for guidance
 
+## CRITICAL: Task List Deduplication
+
+**Do NOT create new tasks via TaskCreate.** The parent agent owns the task list. Creating
+new tasks will produce duplicates that confuse tracking and waste effort.
+
+Instead:
+1. **Use TaskList** to see existing tasks the parent already created
+2. **Use TaskGet** to read full details of a specific task
+3. **Use TaskUpdate** to mark tasks as `in_progress` or `completed`
+4. **Reference existing task IDs** from the session state `existing_task_ids` field
+
+If the session state includes an `existing_task_ids` list, those are the tasks you must
+work from. Never recreate them.
+
+**The only exception**: If you discover genuinely NEW work not covered by any existing task,
+you may create a task for it. But first verify via TaskList that no existing task covers it.
+
 ## Restrictions
 
 - Do not modify files outside the project scope
 - Do not ignore the session state file
 - Do not start over from scratch unless explicitly instructed
 - Do maintain the handoff chain if context pressure builds
+- Do NOT create duplicate tasks — use TaskUpdate on existing tasks instead
 - Do NOT stop working until ALL tasks are marked complete
 - Do NOT require user re-prompting to continue in unattended mode
 - Do NOT claim completion without running self-validation checklist
