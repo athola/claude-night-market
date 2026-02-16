@@ -13,7 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -73,7 +73,7 @@ class ExperienceLibrary:
             "duration_ms": trajectory.duration_ms,
             "tools_used": trajectory.tools_used,
             "key_decisions": trajectory.key_decisions,
-            "stored_at": datetime.now(UTC).isoformat(),
+            "stored_at": datetime.now(timezone.utc).isoformat(),
         }
 
         skill_dir = self._skill_dir(trajectory.skill_ref)

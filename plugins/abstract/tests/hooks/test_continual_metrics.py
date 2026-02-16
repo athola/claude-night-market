@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -66,7 +66,7 @@ def print_metrics(metrics: dict) -> None:
 
 def verify_log_file(log_dir: Path) -> bool:
     """Verify log file exists and has valid entries."""
-    log_date = datetime.now(UTC).strftime("%Y-%m-%d")
+    log_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     log_file = log_dir / f"{log_date}.jsonl"
 
     if not log_file.exists():

@@ -8,7 +8,8 @@ monitoring system.
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -27,19 +28,25 @@ class ImprovementQueue:
             try:
                 data = json.loads(self.queue_file.read_text())
                 self.skills = data.get("skills", {})
-            except (json.JSONDecodeError, OSError):
+            except (json.JSONDecodeError, OSError) as e:
+                sys.stderr.write(
+                    f"improvement_queue: corrupt queue file {self.queue_file}: {e}\n"
+                )
                 self.skills = {}
-        self._save()
+        else:
+            self._save()
 
     def _save(self) -> None:
-        """Persist queue to disk."""
+        """Persist queue to disk using atomic write."""
         self.queue_file.parent.mkdir(parents=True, exist_ok=True)
-        self.queue_file.write_text(
+        tmp_file = self.queue_file.with_suffix(".tmp")
+        tmp_file.write_text(
             json.dumps(
                 {"skills": self.skills},
                 indent=2,
             )
         )
+        tmp_file.replace(self.queue_file)
 
     TRIGGER_THRESHOLD = 3
 
@@ -59,7 +66,7 @@ class ImprovementQueue:
         entry = self.skills[skill_ref]
         entry["flagged_count"] += 1
         entry["stability_gap"] = stability_gap
-        entry["last_flagged"] = datetime.now(UTC).isoformat()
+        entry["last_flagged"] = datetime.now(timezone.utc).isoformat()
         entry["execution_ids"].append(execution_id)
         self._save()
 
@@ -83,7 +90,7 @@ class ImprovementQueue:
             return
         entry["status"] = "evaluating"
         entry["evaluating"] = True
-        entry["eval_start"] = datetime.now(UTC).isoformat()
+        entry["eval_start"] = datetime.now(timezone.utc).isoformat()
         entry["eval_executions"] = 0
         entry["eval_target"] = 10
         entry["baseline_gap"] = baseline_gap
@@ -133,7 +140,7 @@ class ImprovementQueue:
             decision = "promote"
         else:
             entry["status"] = "pending_rollback_review"
-            entry["regression_detected"] = datetime.now(UTC).isoformat()
+            entry["regression_detected"] = datetime.now(timezone.utc).isoformat()
             entry["current_gap"] = avg_gap
             decision = "pending_rollback_review"
 

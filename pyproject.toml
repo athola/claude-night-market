@@ -137,6 +137,7 @@ extend-ignore = [
     "B008",  # Do not perform function calls in argument defaults
     "B905",  # zip-without-explicit-strict (Python 3.10+ strict default ok)
     "E402",  # Module imports not at top of file (acceptable in some cases)
+    "UP017",  # datetime-utc-alias — keep timezone.utc for Python 3.9 compat
 ]
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = [

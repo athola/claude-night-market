@@ -3,14 +3,13 @@
 Manages adaptation version history in skill YAML frontmatter,
 supporting version bumps, rollback tracking, and metric baselines.
 
-Part of the self-adapting system. See:
-docs/plans/2026-02-15-self-adapting-systems-design.md
+Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.md
 """
 
 from __future__ import annotations
 
 import re
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -45,7 +44,7 @@ class SkillVersionManager:
                 "version_history": [
                     {
                         "version": "1.0.0",
-                        "timestamp": datetime.now(UTC).isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                         "baseline_metrics": {
                             "success_rate": 0.0,
                             "stability_gap": 0.0,
@@ -77,7 +76,7 @@ class SkillVersionManager:
         adaptation["version_history"].append(
             {
                 "version": new_version,
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "change_summary": change_summary,
                 "baseline_metrics": metrics,
             }

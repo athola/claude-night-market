@@ -5,8 +5,7 @@ Reads stability gap from execution history and flags degrading
 skills in the improvement queue. When a skill accumulates 3+
 flags, it becomes eligible for auto-improvement.
 
-Part of the self-adapting system. See:
-docs/plans/2026-02-15-self-adapting-systems-design.md
+Part of the self-adapting system. See: docs/adr/0006-self-adapting-skill-health.md
 """
 
 from __future__ import annotations
@@ -130,7 +129,7 @@ def main() -> None:
 
         sys.exit(0)
 
-    except Exception as e:
+    except (json.JSONDecodeError, OSError, KeyError) as e:
         sys.stderr.write(f"homeostatic_monitor error: {e}\n")
         sys.exit(0)
 
