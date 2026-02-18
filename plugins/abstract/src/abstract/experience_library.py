@@ -5,17 +5,20 @@ skill executions. Retrieved via keyword similarity matching and
 injected into future skill context as exemplars.
 
 Part of the self-adapting system. See:
-docs/plans/2026-02-15-self-adapting-systems-design.md
+docs/adr/0006-self-adapting-skill-health.md
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 MAX_ENTRIES_PER_SKILL = 20
 MAX_EXEMPLARS = 3
@@ -91,7 +94,11 @@ class ExperienceLibrary:
         for f in sorted(skill_dir.glob("*.json")):
             try:
                 entries.append(json.loads(f.read_text()))
-            except (json.JSONDecodeError, OSError):
+            except json.JSONDecodeError:
+                logger.warning("Malformed JSON in experience entry: %s", f)
+                continue
+            except OSError:
+                logger.warning("Failed to read experience entry: %s", f)
                 continue
         return entries
 
