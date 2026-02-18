@@ -10,7 +10,7 @@ import sys
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -618,7 +618,7 @@ def main() -> None:
             queue_path.parent.mkdir(parents=True, exist_ok=True)
 
             queue_entry = {
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "query_id": query_id,
                 "tool_name": tool_name,
                 "query": query,

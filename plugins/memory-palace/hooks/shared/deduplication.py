@@ -11,7 +11,7 @@ import hashlib
 import os
 import re
 import tempfile
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -183,7 +183,7 @@ def update_index(
     global _index_cache
 
     index = _load_index()
-    now = datetime.now(UTC).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     entry = {
         "content_hash": content_hash,

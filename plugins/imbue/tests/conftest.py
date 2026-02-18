@@ -7,7 +7,7 @@ the imbue plugin's skills, commands, and agents following TDD/BDD principles.
 import shutil
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from unittest.mock import Mock
@@ -202,14 +202,14 @@ def sample_evidence_log():
     """Sample evidence log structure."""
     return {
         "session_id": "test-session-123",
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "context": {"repository": "/test/repo", "branch": "main", "baseline": "HEAD~1"},
         "evidence": [
             {
                 "id": "E1",
                 "command": "git status",
                 "output": "On branch main\nnothing to commit, working tree clean",
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "working_directory": "/test/repo",
             },
             {
@@ -219,7 +219,7 @@ def sample_evidence_log():
                     " src/main.py | 2 +-\n"
                     " 1 file changed, 2 insertions(+), 1 deletion(-)"
                 ),
-                "timestamp": datetime.now(UTC).isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "working_directory": "/test/repo",
             },
         ],
@@ -228,7 +228,7 @@ def sample_evidence_log():
                 "id": "C1",
                 "url": "https://example.com/docs",
                 "title": "Example Documentation",
-                "accessed": datetime.now(UTC).isoformat(),
+                "accessed": datetime.now(timezone.utc).isoformat(),
                 "relevant_snippet": "This is relevant information",
             },
         ],
@@ -409,7 +409,7 @@ def sample_review_report():
     return {
         "metadata": {
             "review_id": "review-123",
-            "timestamp": datetime.now(UTC).isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "reviewer": "Test Reviewer",
             "target": "/test/repo",
             "baseline": "HEAD~1",
@@ -511,7 +511,7 @@ def create_mock_evidence_item(e_id: str, command: str, output: str) -> dict[str,
         "id": e_id,
         "command": command,
         "output": output,
-        "timestamp": datetime.now(UTC).isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "working_directory": "/test/repo",
     }
 

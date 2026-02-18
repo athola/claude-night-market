@@ -14,7 +14,7 @@ import logging
 import re
 import sys
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -133,7 +133,7 @@ def store_webfetch_content(
     """
     try:
         # Generate entry metadata
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
         title = extract_title_from_content(content, url)
         slug = slugify(title)
@@ -162,7 +162,7 @@ auto_generated: true
 ## Source
 
 - **URL**: {url}
-- **Fetched**: {now.strftime("%Y-%m-%d %H:%M:%S UTC")}
+- **Fetched**: {now.strftime("%Y-%m-%d %H:%M:%S timezone.utc")}
 - **Content Length**: {len(content):,} characters
 
 ## Fetch Context
@@ -248,7 +248,7 @@ def store_websearch_results(
         return None
 
     try:
-        now = datetime.now(UTC)
+        now = datetime.now(timezone.utc)
         entry_id = f"{now.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid.uuid4().hex[:8]}"
         slug = slugify(query)
         filename = f"websearch-{slug}-{entry_id[:19]}.md"
@@ -288,7 +288,7 @@ auto_generated: true
 ## Search Metadata
 
 - **Query**: {query}
-- **Searched**: {now.strftime("%Y-%m-%d %H:%M:%S UTC")}
+- **Searched**: {now.strftime("%Y-%m-%d %H:%M:%S timezone.utc")}
 - **Results**: {len(results)} items captured
 
 ## Search Results

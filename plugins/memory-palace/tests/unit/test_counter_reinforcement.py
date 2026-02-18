@@ -4,7 +4,7 @@ Tests the ACE Playbook-inspired pattern where similar insights
 increment counters rather than creating duplicates.
 """
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -188,7 +188,7 @@ class TestCounterReinforcementTracker:
         self, tracker: CounterReinforcementTracker
     ) -> None:
         """Test reinforce updates last_accessed timestamp."""
-        before = datetime.now(UTC)
+        before = datetime.now(timezone.utc)
         tracker.reinforce("entry-1", FeedbackType.HELPFUL)
         counter = tracker.get_counter("entry-1")
 
