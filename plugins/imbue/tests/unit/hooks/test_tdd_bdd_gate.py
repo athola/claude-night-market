@@ -55,35 +55,69 @@ class TestIsImplementationFile:
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_module_md_is_implementation_file(self, tdd_gate_module) -> None:
-        """Scenario: Module .md files in modules/ directory are implementation files.
+    def test_markdown_module_is_not_implementation_file(self, tdd_gate_module) -> None:
+        """Scenario: Markdown module files are NOT implementation files.
 
         Given a path to a .md file in modules/ directory
         When checking if it's an implementation file
-        Then it should return True with module type.
+        Then it should return False because markdown modules are agent
+        instruction documents, not executable code testable by pytest.
         """
         is_impl, impl_type = tdd_gate_module.is_implementation_file(
             "/plugins/imbue/skills/proof-of-work/modules/iron-law-enforcement.md"
         )
 
-        assert is_impl is True
-        assert impl_type == tdd_gate_module.MODULE_FILE
+        assert is_impl is False
+        assert impl_type is None
 
     @pytest.mark.bdd
     @pytest.mark.unit
-    def test_command_md_is_implementation_file(self, tdd_gate_module) -> None:
-        """Scenario: Command .md files in commands/ directory are implementation files.
+    def test_python_module_is_implementation_file(self, tdd_gate_module) -> None:
+        """Scenario: Python module files in modules/ ARE implementation files.
+
+        Given a path to a .py file in modules/ directory
+        When checking if it's an implementation file
+        Then it should return True with python type.
+        """
+        is_impl, impl_type = tdd_gate_module.is_implementation_file(
+            "/plugins/imbue/skills/proof-of-work/modules/validator.py"
+        )
+
+        assert is_impl is True
+        assert impl_type == tdd_gate_module.PYTHON_FILE
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_skill_md_still_triggers_gate(self, tdd_gate_module) -> None:
+        """Scenario: SKILL.md files still trigger the TDD gate.
+
+        Given a path to a SKILL.md file
+        When checking if it's an implementation file
+        Then it should return True (SKILL.md defines core behavior).
+        """
+        is_impl, impl_type = tdd_gate_module.is_implementation_file(
+            "/plugins/attune/skills/war-room/SKILL.md"
+        )
+
+        assert is_impl is True
+        assert impl_type == tdd_gate_module.SKILL_FILE
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_markdown_command_is_not_implementation_file(self, tdd_gate_module) -> None:
+        """Scenario: Markdown command files are NOT implementation files.
 
         Given a path to a .md file in commands/ directory
         When checking if it's an implementation file
-        Then it should return True with command type.
+        Then it should return False because markdown commands are agent
+        instruction documents, not executable code testable by pytest.
         """
         is_impl, impl_type = tdd_gate_module.is_implementation_file(
             "/plugins/attune/commands/war-room.md"
         )
 
-        assert is_impl is True
-        assert impl_type == tdd_gate_module.COMMAND_FILE
+        assert is_impl is False
+        assert impl_type is None
 
     @pytest.mark.bdd
     @pytest.mark.unit
@@ -242,30 +276,6 @@ class TestFindTestFile:
 
         assert test_path is not None
         assert "test_validator" in str(test_path)
-
-    @pytest.mark.bdd
-    @pytest.mark.unit
-    def test_find_test_for_command(self, tdd_gate_module, tmp_path) -> None:
-        """Scenario: Find test file for command.
-
-        Given a command .md file path
-        When finding the corresponding test file
-        Then it should look in tests/unit/commands/ directory.
-        """
-        # Create mock plugin structure
-        plugin_root = tmp_path / "plugins" / "attune"
-        plugin_root.mkdir(parents=True)
-        (plugin_root / "pyproject.toml").touch()
-        (plugin_root / "commands").mkdir(parents=True)
-        cmd_path = plugin_root / "commands" / "war-room.md"
-        cmd_path.touch()
-
-        test_path = tdd_gate_module.find_test_file(
-            str(cmd_path), tdd_gate_module.COMMAND_FILE
-        )
-
-        assert test_path is not None
-        assert "test_war_room_command" in str(test_path)
 
     @pytest.mark.bdd
     @pytest.mark.unit

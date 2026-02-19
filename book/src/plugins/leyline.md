@@ -29,6 +29,7 @@ Leyline provides reusable infrastructure patterns that other plugins build on. T
 | `pytest-config` | Pytest configuration | Standardized test configuration |
 | `storage-templates` | Storage abstraction | File and database patterns |
 | `testing-quality-standards` | Test quality guidelines | Ensuring high-quality tests |
+| `git-platform` | Git platform detection and cross-platform commands | Abstracting GitHub/GitLab/Bitbucket differences |
 
 ## Commands
 
@@ -146,6 +147,16 @@ The `mecw-patterns` skill implements Minimum Effective Context Window principles
 | Load on Demand | Fetch details only when needed |
 | Evict Stale | Remove outdated information |
 | Prioritize Recent | Weight recent context higher |
+
+## Discussion Operations (GitHub Only)
+
+The `git-platform` skill's `command-mapping` module provides GraphQL templates for GitHub Discussions. These templates are consumed by attune (war room publishing), imbue (scope-guard linking), memory-palace (knowledge promotion), and minister (playbook rituals).
+
+Supported operations: create, comment, threaded reply, mark-as-answer, search, get-by-number, update, and list-by-category. Category resolution from slug to `nodeId` is included as a prerequisite step.
+
+On non-GitHub platforms (GitLab, Bitbucket), all Discussion operations are skipped with a warning.
+
+A `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent "Decisions" discussions at session start and injects a summary (<600 tokens) so that new sessions can discover prior deliberations.
 
 ## Integration
 

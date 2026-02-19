@@ -130,6 +130,10 @@ The war room is a mandatory phase after brainstorming. It automatically routes t
 
 The `war-room-checkpoint` skill can also trigger additional deliberation during planning or execution when high-stakes decisions arise.
 
+### Discussion Publishing
+
+After the Supreme Commander synthesis (Phase 7), the war room offers to publish the decision to a GitHub Discussion in the "Decisions" category. This requires user approval and checks for prior decisions on the same topic to avoid duplicates. The published Discussion includes the full decision record with alternatives considered, scoring breakdown, and implementation guidance. Local strategeion files remain the primary record; the Discussion is an additional cross-session discovery channel.
+
 ## Examples
 
 ### Initialize Python CLI Project

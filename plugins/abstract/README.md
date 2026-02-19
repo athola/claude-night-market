@@ -19,7 +19,7 @@ Add to `marketplace.json`:
   "name": "abstract",
   "source": { "source": "url", "url": "https://github.com/athola/abstract.git" },
   "description": "Meta-skills infrastructure - modular design and evaluation",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "strict": true
 }
 ```

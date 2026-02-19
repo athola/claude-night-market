@@ -201,6 +201,10 @@ Unlike palaces (structured), gardens are organic:
 # - Suggested links
 ```
 
+## Knowledge Promotion to Discussions
+
+Evergreen corpus entries can be promoted to a GitHub Discussion in the "Knowledge" (Q&A) category. The `discussion-promotion` module in `knowledge-intake` checks entry maturity — only entries at the `evergreen` lifecycle stage are eligible. Promotion creates a structured Discussion with title, summary, key findings, and source references. Entries that already have a `discussion_url` field are updated rather than duplicated.
+
 ## Related Plugins
 
 - **conservation**: Memory Palace helps reduce redundant web fetches
