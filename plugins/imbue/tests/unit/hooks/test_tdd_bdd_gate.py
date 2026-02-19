@@ -651,6 +651,133 @@ class TestMainEntryPoint:
 
         assert exc_info.value.code == 0
 
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_processes_edit_tool(
+        self, tdd_gate_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: main() processes Edit tool operations.
+
+        Given an Edit tool operation for a new implementation file
+        When running main
+        Then it should enforce the TDD gate with exit code 2.
+        """
+        from io import StringIO
+
+        # Create mock plugin structure
+        plugin_root = tmp_path / "plugins" / "imbue"
+        plugin_root.mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        skill_dir = plugin_root / "skills" / "example"
+        skill_dir.mkdir(parents=True)
+
+        skill_path = skill_dir / "SKILL.md"
+        # File doesn't exist yet (new implementation)
+
+        input_data = json.dumps(
+            {
+                "tool_name": "Edit",
+                "tool_input": {"file_path": str(skill_path)},
+            }
+        )
+        monkeypatch.setattr("sys.stdin", StringIO(input_data))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("sys.stdout", output_capture)
+
+        with pytest.raises(SystemExit) as exc_info:
+            tdd_gate_module.main()
+
+        assert exc_info.value.code == 2
+        output = output_capture.getvalue()
+        assert "additionalContext" in output
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_processes_multiedit_tool(
+        self, tdd_gate_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: main() processes MultiEdit tool operations.
+
+        Given a MultiEdit tool operation for a new implementation file
+        When running main
+        Then it should enforce the TDD gate with exit code 2.
+        """
+        from io import StringIO
+
+        # Create mock plugin structure
+        plugin_root = tmp_path / "plugins" / "imbue"
+        plugin_root.mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        skill_dir = plugin_root / "skills" / "example"
+        skill_dir.mkdir(parents=True)
+
+        skill_path = skill_dir / "SKILL.md"
+
+        input_data = json.dumps(
+            {
+                "tool_name": "MultiEdit",
+                "tool_input": {"file_path": str(skill_path)},
+            }
+        )
+        monkeypatch.setattr("sys.stdin", StringIO(input_data))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("sys.stdout", output_capture)
+
+        with pytest.raises(SystemExit) as exc_info:
+            tdd_gate_module.main()
+
+        assert exc_info.value.code == 2
+        output = output_capture.getvalue()
+        assert "additionalContext" in output
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_main_existing_file_without_tests_gives_short_reminder(
+        self, tdd_gate_module, monkeypatch, tmp_path
+    ) -> None:
+        """Scenario: main() gives short reminder when modifying existing file without tests.
+
+        Given a Write tool operation for an existing Python implementation file
+        And no corresponding test file exists
+        When running main
+        Then it should exit with code 2 and a short reminder (not the full template).
+        """
+        from io import StringIO
+
+        # Create mock plugin structure with existing implementation
+        plugin_root = tmp_path / "plugins" / "imbue"
+        plugin_root.mkdir(parents=True)
+        (plugin_root / "pyproject.toml").touch()
+        scripts_dir = plugin_root / "scripts"
+        scripts_dir.mkdir(parents=True)
+
+        impl_path = scripts_dir / "validator.py"
+        impl_path.write_text("# existing implementation\n")
+
+        input_data = json.dumps(
+            {
+                "tool_name": "Write",
+                "tool_input": {"file_path": str(impl_path)},
+            }
+        )
+        monkeypatch.setattr("sys.stdin", StringIO(input_data))
+
+        output_capture = StringIO()
+        monkeypatch.setattr("sys.stdout", output_capture)
+
+        with pytest.raises(SystemExit) as exc_info:
+            tdd_gate_module.main()
+
+        assert exc_info.value.code == 2
+        output = output_capture.getvalue()
+        parsed = json.loads(output)
+        context = parsed["hookSpecificOutput"]["additionalContext"]
+        # Should be the short reminder, not the full Iron Law template
+        assert "TDD/BDD Reminder" in context
+        assert "Consider tests" in context
+
 
 class TestFindPluginRoot:
     """Feature: Find plugin root directory.
@@ -716,3 +843,24 @@ class TestFindPluginRoot:
         found_root = tdd_gate_module._find_plugin_root(nested_path)
 
         assert found_root == plugin_root
+
+    @pytest.mark.bdd
+    @pytest.mark.unit
+    def test_find_plugin_root_returns_none_without_markers(
+        self, tdd_gate_module, tmp_path
+    ) -> None:
+        """Scenario: _find_plugin_root returns None when no marker is found.
+
+        Given a file path with no pyproject.toml or .claude-plugin in any parent
+        When finding the plugin root
+        Then it should return None instead of traversing to filesystem root.
+        """
+        # Create directory structure without any plugin markers
+        nested_dir = tmp_path / "some" / "deep" / "path"
+        nested_dir.mkdir(parents=True)
+        nested_file = nested_dir / "file.py"
+        nested_file.touch()
+
+        found_root = tdd_gate_module._find_plugin_root(nested_file)
+
+        assert found_root is None

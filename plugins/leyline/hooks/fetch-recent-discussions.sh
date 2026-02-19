@@ -4,7 +4,7 @@
 # and injects a brief summary into the session context for cross-session learning.
 #
 # Requirements:
-#   - GitHub platform (detected by detect-git-platform.sh)
+#   - GitHub platform (self-detected via git remote URL)
 #   - gh CLI authenticated
 #   - Repository has Discussions enabled with a "Decisions" category
 #
@@ -13,61 +13,47 @@
 
 set -euo pipefail
 
+# --- Helper: emit empty SessionStart JSON and exit ---
+
+_emit_empty() {
+    local reason="${1:-}"
+    if [ -n "$reason" ]; then
+        echo "[fetch-recent-discussions] $reason" >&2
+    fi
+    cat <<'EOF'
+{
+  "hookSpecificOutput": {
+    "hookEventName": "SessionStart",
+    "additionalContext": ""
+  }
+}
+EOF
+    exit 0
+}
+
 # --- Guard: GitHub platform only ---
 
 # Check if gh CLI is available
 if ! command -v gh >/dev/null 2>&1; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    _emit_empty
 fi
 
 # Check if gh is authenticated (suppress output)
 if ! gh auth status >/dev/null 2>&1; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    _emit_empty
 fi
 
 # Check if we're in a git repo with a GitHub remote
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    _emit_empty
 fi
 
 remote_url=$(git remote get-url origin 2>/dev/null || echo "")
 case "$remote_url" in
-    *github.com*|*github.*) ;;  # GitHub — continue
+    *github.com*) ;;  # GitHub.com — continue
     *)
-        # Not GitHub — skip silently
-        cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-        exit 0
+        # Not GitHub.com — skip silently
+        _emit_empty
         ;;
 esac
 
@@ -85,19 +71,12 @@ owner="${owner_repo%%/*}"
 repo="${owner_repo##*/}"
 
 if [ -z "$owner" ] || [ -z "$repo" ]; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    _emit_empty "could not parse owner/repo from remote URL"
 fi
 
 # --- Resolve "Decisions" category ID ---
 
+category_err=$(mktemp)
 category_response=$(gh api graphql -f query='
 query($owner: String!, $repo: String!) {
   repository(owner: $owner, name: $repo) {
@@ -106,40 +85,33 @@ query($owner: String!, $repo: String!) {
       nodes { id slug }
     }
   }
-}' -f owner="$owner" -f repo="$repo" 2>/dev/null || echo "")
+}' -f owner="$owner" -f repo="$repo" 2>"$category_err" || echo "")
 
 if [ -z "$category_response" ]; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    err_msg=$(cat "$category_err" 2>/dev/null || true)
+    rm -f "$category_err"
+    _emit_empty "GraphQL category query failed: ${err_msg:-unknown error}"
 fi
+rm -f "$category_err"
 
-# Check if discussions are enabled
+# Check for GraphQL errors and whether discussions are enabled
 has_discussions=$(echo "$category_response" | python3 -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
-    print(data.get('data', {}).get('repository', {}).get('hasDiscussionsEnabled', False))
-except Exception:
+    if data.get('errors'):
+        msgs = '; '.join(e.get('message', '?') for e in data['errors'])
+        print('Error: ' + msgs, file=sys.stderr)
+        print('False')
+    else:
+        print(data.get('data', {}).get('repository', {}).get('hasDiscussionsEnabled', False))
+except Exception as exc:
+    print(f'JSON parse error: {exc}', file=sys.stderr)
     print('False')
-" 2>/dev/null || echo "False")
+" 2>&2 || echo "False")
 
 if [ "$has_discussions" != "True" ]; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    _emit_empty
 fi
 
 # Find the "decisions" category ID
@@ -147,30 +119,24 @@ category_id=$(echo "$category_response" | python3 -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
+    if data.get('errors'):
+        sys.exit(0)
     cats = data.get('data', {}).get('repository', {}).get('discussionCategories', {}).get('nodes', [])
     for c in cats:
         if c.get('slug', '').lower() == 'decisions':
             print(c['id'])
             break
-except Exception:
-    pass
-" 2>/dev/null || echo "")
+except Exception as exc:
+    print(f'JSON parse error: {exc}', file=sys.stderr)
+" 2>&2 || echo "")
 
 if [ -z "$category_id" ]; then
-    # No "Decisions" category — skip silently
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    _emit_empty
 fi
 
 # --- Fetch 5 most recent Decisions discussions ---
 
+discussions_err=$(mktemp)
 discussions_response=$(gh api graphql -f query='
 query($owner: String!, $repo: String!, $categoryId: ID!) {
   repository(owner: $owner, name: $repo) {
@@ -183,28 +149,26 @@ query($owner: String!, $repo: String!, $categoryId: ID!) {
       }
     }
   }
-}' -f owner="$owner" -f repo="$repo" -f categoryId="$category_id" 2>/dev/null || echo "")
+}' -f owner="$owner" -f repo="$repo" -f categoryId="$category_id" 2>"$discussions_err" || echo "")
 
 if [ -z "$discussions_response" ]; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    err_msg=$(cat "$discussions_err" 2>/dev/null || true)
+    rm -f "$discussions_err"
+    _emit_empty "GraphQL discussions query failed: ${err_msg:-unknown error}"
 fi
+rm -f "$discussions_err"
 
 # --- Format summary ---
 
 summary=$(echo "$discussions_response" | python3 -c "
-from __future__ import annotations
 import sys, json
 
 try:
     data = json.load(sys.stdin)
+    if data.get('errors'):
+        msgs = '; '.join(e.get('message', '?') for e in data['errors'])
+        print(f'GraphQL errors: {msgs}', file=sys.stderr)
+        sys.exit(0)
     nodes = data.get('data', {}).get('repository', {}).get('discussions', {}).get('nodes', [])
     if not nodes:
         sys.exit(0)
@@ -222,20 +186,12 @@ try:
         lines.append(f'  #{num} {title} ({date}) -- {snippet}')
 
     print('\n'.join(lines))
-except Exception:
-    pass
-" 2>/dev/null || echo "")
+except Exception as exc:
+    print(f'Format error: {exc}', file=sys.stderr)
+" 2>&2 || echo "")
 
 if [ -z "$summary" ]; then
-    cat <<'EOF'
-{
-  "hookSpecificOutput": {
-    "hookEventName": "SessionStart",
-    "additionalContext": ""
-  }
-}
-EOF
-    exit 0
+    _emit_empty
 fi
 
 # --- Inject into session context ---
@@ -244,7 +200,7 @@ escaped_summary=$(echo "$summary" | python3 -c "
 import sys, json
 text = sys.stdin.read()
 print(json.dumps(text)[1:-1])
-" 2>/dev/null || echo "")
+" 2>&2 || echo "")
 
 cat <<EOF
 {

@@ -125,6 +125,8 @@ Post each major phase as a threaded comment on the Discussion. This preserves th
 4. **Red Team Challenges** — key challenges and responses (Phase 4)
 5. **Supreme Commander Synthesis** — the final decision rationale (Phase 7)
 
+> Phases 5-6 (War Game execution and Decision Briefing) are internal deliberation artifacts that don't warrant separate comments. Their outputs are incorporated into the Red Team Challenges and Supreme Commander Synthesis.
+
 For each comment:
 ```bash
 gh api graphql -f query='
@@ -142,9 +144,11 @@ mutation($discussionId: ID!, $body: String!) {
 *Full details in strategeion: \`<local_file_path>\`*"
 ```
 
-### Step 5: Mark Synthesis as Answer
+### Step 5: Mark Synthesis as Answer (Q&A Categories Only)
 
-Mark the final Supreme Commander Synthesis comment as the Discussion answer:
+> **Skip this step for the "Decisions" category.** It uses Announcement format, which does not support answers. The synthesis is already the last comment — no further marking is needed.
+
+For Q&A-format categories (e.g., "Knowledge"), mark the synthesis comment as the answer:
 
 ```bash
 gh api graphql -f query='
@@ -157,7 +161,7 @@ mutation($commentId: ID!) {
 }' -f commentId="$SYNTHESIS_COMMENT_ID"
 ```
 
-Note: `markDiscussionCommentAsAnswer` only works if the Discussion category supports answers. The "Decisions" category uses Announcement format which does not support answers. If the mutation fails, log a warning and continue — the synthesis is still the last comment.
+If the mutation fails (wrong category format), log a warning and continue.
 
 ### Step 6: Apply Labels
 

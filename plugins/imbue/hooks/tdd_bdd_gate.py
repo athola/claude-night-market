@@ -3,7 +3,7 @@
 
 This hook implements the Iron Law: NO IMPLEMENTATION WITHOUT A FAILING TEST FIRST
 
-It fires on PreToolUse for Write/Edit operations and checks:
+It fires on PreToolUse for Write/Edit/MultiEdit operations and checks:
 1. Is this an implementation file (skill, module, Python code)?
 2. Does a corresponding test file exist?
 3. If not, inject a reminder to write tests first
@@ -30,16 +30,19 @@ SKILL_FILE = "skill"
 PYTHON_FILE = "python"
 
 
-def _find_plugin_root(path: Path) -> Path:
-    """Find the plugin root by looking for pyproject.toml or .claude-plugin."""
+def _find_plugin_root(path: Path) -> Path | None:
+    """Find the plugin root by looking for pyproject.toml or .claude-plugin.
+
+    Returns None if no plugin root is found (prevents traversal to filesystem root).
+    """
     plugin_root = path.parent
     while plugin_root != plugin_root.parent:
         has_pyproject = (plugin_root / "pyproject.toml").exists()
         has_plugin = (plugin_root / ".claude-plugin").exists()
         if has_pyproject or has_plugin:
-            break
+            return plugin_root
         plugin_root = plugin_root.parent
-    return plugin_root
+    return None
 
 
 def _check_python_file(path: Path) -> tuple[bool, str | None]:
@@ -103,6 +106,8 @@ def find_test_file(impl_path: str, impl_type: str) -> Path | None:
     """Find the corresponding test file for an implementation file."""
     path = Path(impl_path)
     plugin_root = _find_plugin_root(path)
+    if plugin_root is None:
+        return None
     tests_dir = plugin_root / "tests"
 
     finders = {
