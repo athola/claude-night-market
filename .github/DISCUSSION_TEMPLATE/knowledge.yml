@@ -1,0 +1,50 @@
+# Category: Knowledge (Q&A format — supports marking answers)
+# Requires manual category creation: Settings → Discussions → New Category
+#   Name: Knowledge | Format: Q&A | Description: Promoted evergreen content from knowledge-corpus
+title: "[Knowledge] "
+labels:
+  - "knowledge"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Knowledge Entry
+        Evergreen knowledge promoted from the local knowledge-corpus for cross-session discovery.
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      description: The subject of this knowledge entry
+      placeholder: "GraphQL Discussions API"
+    validations:
+      required: true
+  - type: dropdown
+    id: maturity
+    attributes:
+      label: Maturity
+      description: Digital garden maturity level
+      options:
+        - Seedling
+        - Growing
+        - Evergreen
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: Where did this knowledge come from?
+      placeholder: "https://docs.github.com/... or session-2026-02-19"
+  - type: textarea
+    id: content
+    attributes:
+      label: Content
+      description: The knowledge content. Link to local corpus files for full details.
+      placeholder: |
+        Key points:
+        - ...
+        - ...
+
+        See also: `plugins/memory-palace/docs/knowledge-corpus/...`
+    validations:
+      required: true

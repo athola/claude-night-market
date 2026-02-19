@@ -112,6 +112,102 @@ Use consistent labels for filtering:
 | `refactor` | Code improvements |
 | `architecture` | Structural changes |
 
+### Step 4: Create Linked Discussion (OPTIONAL)
+
+After the GitHub issue is created (Step 1), offer to create a companion Discussion with full reasoning context:
+
+```
+Also create a Discussion with full reasoning context? [Y/n]
+```
+
+If the user declines ("n"), skip to Step 5 (Validation). The issue-only workflow is preserved.
+
+If the user approves ("Y"):
+
+**4a. Resolve category ID:**
+```bash
+# Get repository ID and "deliberations" category ID
+gh api graphql -f query='
+query($owner: String!, $repo: String!) {
+  repository(owner: $owner, name: $repo) {
+    id
+    discussionCategories(first: 25) {
+      nodes { id slug }
+    }
+  }
+}' -f owner="OWNER" -f repo="REPO"
+```
+
+Find the category nodeID where `slug` equals `"deliberations"`. If not found, warn and skip Discussion creation.
+
+**4b. Create the Discussion:**
+```bash
+gh api graphql -f query='
+mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+  createDiscussion(input: {
+    repositoryId: $repoId,
+    categoryId: $categoryId,
+    title: $title,
+    body: $body
+  }) {
+    discussion { number id url }
+  }
+}' -f repoId="$REPO_ID" -f categoryId="$CATEGORY_ID" \
+   -f title="[Scope Guard] <feature name>" \
+   -f body="$BODY"
+```
+
+**Discussion body structure:**
+```markdown
+## Deferred Feature: <feature name>
+
+**Worthiness Score:** X.XX (threshold: 1.0)
+**Branch:** <current-branch-name>
+**Date:** <YYYY-MM-DD>
+**Linked Issue:** #<issue-number>
+
+### Scoring Breakdown
+
+| Factor | Score | Rationale |
+|--------|-------|-----------|
+| Business Value | X | <reason> |
+| Time Criticality | X | <reason> |
+| Risk Reduction | X | <reason> |
+| Complexity | X | <reason> |
+| Token Cost | X | <reason> |
+| Scope Drift | X | <reason> |
+
+**Formula:** (X + X + X) / (X + X + X) = X.XX
+
+### Alternatives Considered
+
+<Full alternatives analysis that doesn't fit in an issue body>
+
+### Context
+
+<Extended reasoning, trade-offs, and background>
+
+### When to Revisit
+
+- When branch budget frees up
+- When related work is scheduled
+- During next planning cycle
+```
+
+**4c. Apply labels:**
+- `scope-guard` — always
+- `deferred` — always
+- Branch name label (if exists)
+
+**4d. Update the issue with Discussion link:**
+```bash
+gh issue comment <issue-number> --body "Full reasoning context: <discussion_url>"
+```
+
+**4e. Error handling:**
+- If Discussion creation fails, warn but do NOT block the deferral workflow
+- The issue (Step 1) is the primary record; the Discussion is supplementary
+
 ## Validation
 
 After creating the issue, verify:

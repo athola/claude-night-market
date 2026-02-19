@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-02-19
+
+### Added
+
+- **GitHub Discussions as agent collective memory** — Cross-session decision retrieval and knowledge sharing via GitHub Discussions GraphQL API
+  - **Discussion CRUD operations** (leyline) — `command-mapping.md` extended with create, comment, search, mark-as-answer, get, update, and list-by-category GraphQL templates; GitHub-only with graceful degradation for GitLab/Bitbucket
+  - **Discussion category templates** — `.github/DISCUSSION_TEMPLATE/` with 4 structured forms: decisions (announcement), deliberations (open), learnings (retrospective), knowledge (Q&A)
+  - **War room discussion publishing** (attune) — `discussion-publishing` module publishes completed deliberations to a "Decisions" Discussion after user approval; checks for prior decisions to avoid duplicates
+  - **Session-start discussion retrieval** (leyline) — `fetch-recent-discussions.sh` SessionStart hook queries the 5 most recent Decisions discussions via a bounded GraphQL query (3s timeout, <600 tokens)
+  - **Knowledge promotion to Discussions** (memory-palace) — `discussion-promotion` module promotes evergreen corpus entries to a "Knowledge" Discussion category; supports both create and update flows
+  - **Scope-guard discussion linking** (imbue) — `github-integration.md` extended with optional Step 4 that creates a companion Discussion with full scoring breakdown when deferring features
+
+### Fixed
+
+- **Minister playbook broken CLI commands** (minister) — Replaced non-functional `gh discussion create/comment/list` CLI calls with working GraphQL mutations in `github-program-rituals.md` and `release-train-health.md`
+
+### Changed
+
+- **TDD gate relaxed for markdown modules** (imbue) — `tdd_bdd_gate.py` no longer gates `.md` files in `modules/` and `commands/` directories; these are agent instruction documents tested by `abstract:skills-eval`, not pytest. `SKILL.md` files remain gated.
+
 ## [1.4.3] - 2026-02-15
 
 ### Added

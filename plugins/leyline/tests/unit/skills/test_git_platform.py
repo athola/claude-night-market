@@ -325,3 +325,35 @@ class TestGitPlatformSkill:
         content = module.read_text()
         assert "gh api graphql" in content
         assert "glab api graphql" in content
+
+    @pytest.mark.unit
+    def test_command_mapping_has_discussion_operations(self):
+        """
+        Scenario: Command mapping documents GitHub Discussion CRUD operations
+        Given the command-mapping module
+        When reading the Discussion Operations section
+        Then it covers create, comment, search, mark-as-answer, and get operations
+        And it notes that Discussions are GitHub-only (N/A for GitLab/Bitbucket).
+        """
+        module = SKILL_FILE.parent / "modules" / "command-mapping.md"
+        content = module.read_text()
+        assert "## Discussion Operations" in content
+        assert "createDiscussion" in content
+        assert "addDiscussionComment" in content
+        assert "markDiscussionCommentAsAnswer" in content
+        assert "search(query:" in content or "type: DISCUSSION" in content
+        assert "GitHub only" in content
+
+    @pytest.mark.unit
+    def test_command_mapping_has_category_resolution(self):
+        """
+        Scenario: Command mapping documents category resolution for Discussions
+        Given the command-mapping module
+        When reading the Discussion prerequisites
+        Then it shows how to resolve category nodeIds from slugs.
+        """
+        module = SKILL_FILE.parent / "modules" / "command-mapping.md"
+        content = module.read_text()
+        assert "discussionCategories" in content
+        assert "slug" in content
+        assert "hasDiscussionsEnabled" in content

@@ -140,6 +140,7 @@ The scope-guard skill prevents overengineering via four components:
 | `decision-framework` | Worthiness formula and scoring |
 | `anti-overengineering` | Rules to prevent scope creep |
 | `branch-management` | Threshold monitoring (lines, commits, days) |
+| `github-integration` | Issue creation and optional Discussion linking for deferrals |
 | `baseline-scenarios` | Validated test scenarios |
 
 ## Iron Law TDD Enforcement

@@ -1,6 +1,6 @@
 {
   "name": "conserve",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Resource optimization and performance monitoring toolkit for efficient Claude Code workflows",
   "skills": [
     "./skills/bloat-detector",

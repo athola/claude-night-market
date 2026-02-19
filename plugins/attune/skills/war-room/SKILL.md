@@ -13,9 +13,11 @@ modules:
   - modules/expert-roles.md
   - modules/deliberation-protocol.md
   - modules/merkle-dag.md
+  - modules/discussion-publishing.md
 dependencies:
   - conjure:delegation-core
   - memory-palace:strategeion
+  - leyline:git-platform
 tools:
   - Bash
   - Read
