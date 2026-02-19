@@ -30,6 +30,7 @@ class PerformanceAnalyzer:
 
         Returns:
             Dict with unstable_skills, recent_failures, and low_success_rate lists
+
         """
         performance_data: dict[str, Any] = {
             "unstable_skills": [],

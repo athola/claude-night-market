@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-02-15
+
+### Added
+
+- **Self-adapting skill system** (abstract) - Closed-loop homeostatic monitoring with 6 components:
+  - `homeostatic_monitor.py` PostToolUse hook reads stability gap metrics from memory-palace and queues degrading skills for improvement
+  - `improvement_queue.py` module with flag/trigger logic (3+ flags auto-triggers skill-improver agent)
+  - `skill_versioning.py` manages YAML frontmatter versions on skill modifications
+  - `experience_library.py` stores successful execution trajectories for future skill context
+  - `rollback_reviewer.py` creates human-gated GitHub issues when skill regressions are detected
+  - Evaluation window tracks next 10 executions after improvement to detect regressions
+
+### Fixed
+
+- **Continuation agent task duplication** (conserve) - Agents spawned via `Task` tool no longer create duplicate task list entries when resuming from session state checkpoints
+- **Benchmark pytest marker** (sanctum) - Registered `benchmark` marker in `pyproject.toml` to eliminate `PytestUnknownMarkWarning`
+
 ## [1.4.2] - 2026-02-11
 
 ### Added

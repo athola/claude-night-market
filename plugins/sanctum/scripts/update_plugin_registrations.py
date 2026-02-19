@@ -81,6 +81,7 @@ class PluginAuditor:
 
         Returns:
             Dict mapping skill names to their module issues
+
         """
         skill_module_issues: dict[str, Any] = {}
         skills_dir = plugin_path / "skills"
@@ -198,7 +199,9 @@ class PluginAuditor:
                     r"^modules:\s*\n((?:- .+\n)*)", frontmatter, re.MULTILINE
                 )
                 if modules_match:
-                    for name in re.findall(r"^- (.+)$", modules_match.group(1), re.MULTILINE):
+                    for name in re.findall(
+                        r"^- (.+)$", modules_match.group(1), re.MULTILINE
+                    ):
                         name = name.strip()
                         if name and not name.startswith("{"):
                             # Convert bare name to filename: name -> name.md
@@ -324,6 +327,7 @@ class PluginAuditor:
 
         Returns:
             List of hook script paths in ./hooks/filename format, or None if file not found
+
         """
         # Resolve the hooks.json path
         hooks_json_path = plugin_path / hooks_json_ref.lstrip("./")
@@ -619,6 +623,13 @@ class PluginAuditor:
                 with plugin_json_path.open("w", encoding="utf-8") as f:
                     json.dump(plugin_data, f, indent=2, ensure_ascii=False)
                     f.write("\n")  # Trailing newline
+                # Validate written JSON (smoke test)
+                try:
+                    with plugin_json_path.open(encoding="utf-8") as f:
+                        json.load(f)
+                except json.JSONDecodeError as e:
+                    print(f"[ERROR] Invalid JSON written to {plugin_json_path}: {e}")
+                    return False
                 print(f"[FIXED] {plugin_name}: plugin.json updated")
             else:
                 print(f"[DRY-RUN] {plugin_name}: would update plugin.json")

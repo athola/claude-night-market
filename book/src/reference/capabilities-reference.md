@@ -295,6 +295,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `post-evaluation.json` | abstract | Config | Quality scoring config |
 | `post_implementation_policy.py` | sanctum | SessionStart | Requires docs/tests updates |
 | `pre-skill-load.json` | abstract | Config | Pre-load validation |
+| `homeostatic_monitor.py` | abstract | PostToolUse | Stability gap monitoring, queues degrading skills for improvement |
 | `pre_skill_execution.py` | abstract | PreToolUse | Skill execution tracking |
 | `research_interceptor.py` | memory-palace | PreToolUse | Cache lookup before web |
 | `security_pattern_check.py` | sanctum | PreToolUse | Security anti-pattern detection |

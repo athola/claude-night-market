@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Integration test for continual metrics in dual-hook system."""
+
 from __future__ import annotations
 
 import json

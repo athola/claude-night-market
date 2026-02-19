@@ -33,7 +33,7 @@ class TestIsoToDatetime:
     """Tests for ISO 8601 timestamp parsing."""
 
     def test_parses_utc_timestamp(self) -> None:
-        """Parse UTC timestamp correctly."""
+        """Parse timezone.utc timestamp correctly."""
         result = iso_to_datetime("2025-12-01T12:00:00+00:00")
         assert result.year == YEAR_2025
         assert result.month == MONTH_DEC
@@ -42,15 +42,15 @@ class TestIsoToDatetime:
         assert result.tzinfo == timezone.utc
 
     def test_converts_non_utc_to_utc(self) -> None:
-        """Convert non-UTC timestamps to UTC."""
-        # EST is UTC-5
+        """Convert non-timezone.utc timestamps to timezone.utc."""
+        # EST is timezone.utc-5
         result = iso_to_datetime("2025-12-01T07:00:00-05:00")
-        assert result.hour == HOUR_NOON  # 7 AM EST = 12 PM UTC
+        assert result.hour == HOUR_NOON  # 7 AM EST = 12 PM timezone.utc
         assert result.tzinfo == timezone.utc
 
     def test_handles_naive_timestamps(self) -> None:
         """Handle naive timestamps (no timezone info)."""
-        # Should still parse, converting to local then UTC
+        # Should still parse, converting to local then timezone.utc
         result = iso_to_datetime("2025-12-01T12:00:00")
         assert result.year == YEAR_2025
 
@@ -120,7 +120,7 @@ class TestComputeMetrics:
 
     def test_computes_avg_days_since_tend(self, fixed_timestamp) -> None:
         """Compute average days since last tending."""
-        # fixed_timestamp is 2025-12-01 12:00 UTC
+        # fixed_timestamp is 2025-12-01 12:00 timezone.utc
         one_day_ago = "2025-11-30T12:00:00+00:00"
         three_days_ago = "2025-11-28T12:00:00+00:00"
 

@@ -140,7 +140,7 @@ class ReinforcementCounter:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "ReinforcementCounter":
+    def from_dict(cls, data: dict[str, Any]) -> ReinforcementCounter:
         """Deserialize counter from dictionary."""
         counters = data.get("counters", {})
         return cls(

@@ -23,6 +23,7 @@ def find_version_files(root: Path, include_cache: bool = False) -> list[Path]:
 
     Returns:
         Sorted list of paths to version files
+
     """
     version_files = []
 

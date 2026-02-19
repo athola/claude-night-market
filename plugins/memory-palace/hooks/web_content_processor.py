@@ -162,7 +162,7 @@ auto_generated: true
 ## Source
 
 - **URL**: {url}
-- **Fetched**: {now.strftime("%Y-%m-%d %H:%M:%S UTC")}
+- **Fetched**: {now.strftime("%Y-%m-%d %H:%M:%S timezone.utc")}
 - **Content Length**: {len(content):,} characters
 
 ## Fetch Context
@@ -222,7 +222,10 @@ auto_generated: true
                 routing_type="pending",
             )
         except Exception as idx_err:
-            logger.error("web_content_processor: Index update failed, removing orphan: %s", idx_err)
+            logger.error(
+                "web_content_processor: Index update failed, removing orphan: %s",
+                idx_err,
+            )
             queue_path.unlink(missing_ok=True)
             return None
 
@@ -285,7 +288,7 @@ auto_generated: true
 ## Search Metadata
 
 - **Query**: {query}
-- **Searched**: {now.strftime("%Y-%m-%d %H:%M:%S UTC")}
+- **Searched**: {now.strftime("%Y-%m-%d %H:%M:%S timezone.utc")}
 - **Results**: {len(results)} items captured
 
 ## Search Results

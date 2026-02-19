@@ -58,8 +58,24 @@ The abstract plugin provides tools for building, evaluating, and maintaining Cla
 
 | Hook | Type | Description |
 |------|------|-------------|
+| `homeostatic_monitor.py` | PostToolUse | Reads stability gap metrics, queues degrading skills for auto-improvement |
+| `pre_skill_execution.py` | PreToolUse | Skill execution tracking |
+| `skill_execution_logger.py` | PostToolUse | Skill metrics logging |
 | `post-evaluation.json` | Config | Quality scoring and improvement tracking |
 | `pre-skill-load.json` | Config | Pre-load validation for dependencies |
+
+## Self-Adapting System
+
+A closed-loop system that monitors skill health and auto-triggers improvements:
+
+1. `homeostatic_monitor.py` checks stability gap after each Skill invocation
+2. Skills with gap > 0.3 are queued in `improvement_queue.py`
+3. After 3+ flags, the `skill-improver` agent runs automatically
+4. `skill_versioning.py` tracks changes via YAML frontmatter
+5. `rollback_reviewer.py` creates GitHub issues if regressions are detected
+6. `experience_library.py` stores successful trajectories for future context
+
+Cross-plugin dependency: reads stability metrics from memory-palace's `.history.json`.
 
 ## Usage Examples
 
