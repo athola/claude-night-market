@@ -108,7 +108,7 @@ try:
 except Exception as exc:
     print(f'JSON parse error: {exc}', file=sys.stderr)
     print('False')
-" 2>&2 || echo "False")
+" || echo "False")
 
 if [ "$has_discussions" != "True" ]; then
     _emit_empty
@@ -128,7 +128,7 @@ try:
             break
 except Exception as exc:
     print(f'JSON parse error: {exc}', file=sys.stderr)
-" 2>&2 || echo "")
+" || echo "")
 
 if [ -z "$category_id" ]; then
     _emit_empty
@@ -188,7 +188,7 @@ try:
     print('\n'.join(lines))
 except Exception as exc:
     print(f'Format error: {exc}', file=sys.stderr)
-" 2>&2 || echo "")
+" || echo "")
 
 if [ -z "$summary" ]; then
     _emit_empty
@@ -200,7 +200,7 @@ escaped_summary=$(echo "$summary" | python3 -c "
 import sys, json
 text = sys.stdin.read()
 print(json.dumps(text)[1:-1])
-" 2>&2 || echo "")
+" || echo "")
 
 cat <<EOF
 {
