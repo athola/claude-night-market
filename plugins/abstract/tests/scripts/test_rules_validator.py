@@ -139,6 +139,111 @@ class TestValidateFrontmatter:
         assert any("list" in e.lower() for e in result["errors"])
 
     @pytest.mark.unit
+    def test_frontmatter_closing_at_eof(self, tmp_path: Path) -> None:
+        """Scenario: Frontmatter closing delimiter at end of file
+        Given a rule file where --- closes at EOF with no trailing newline
+        When I validate the frontmatter
+        Then it should parse successfully
+        """
+        rule_file = tmp_path / "eof-close.md"
+        rule_file.write_text("---\ndescription: test\n---")
+
+        result = validate_frontmatter(rule_file)
+        assert result["valid"] is True
+        assert result["errors"] == []
+
+    @pytest.mark.unit
+    def test_empty_yaml_body_parses_as_empty_dict(self, tmp_path: Path) -> None:
+        """Scenario: Frontmatter with empty YAML body
+        Given a rule file with --- delimiters but no YAML content
+        When I validate the frontmatter
+        Then it should treat it as valid with empty frontmatter
+        """
+        rule_file = tmp_path / "empty-yaml.md"
+        rule_file.write_text("---\n---\nSome body content.\n")
+
+        result = validate_frontmatter(rule_file)
+        assert result["valid"] is True
+        assert result["score"] == 25
+
+    @pytest.mark.unit
+    def test_non_dict_yaml_reports_error(self, tmp_path: Path) -> None:
+        """Scenario: Frontmatter YAML is a list instead of a mapping
+        Given a rule file where YAML parses to a list
+        When I validate the frontmatter
+        Then it should report a mapping error
+        """
+        rule_file = tmp_path / "list-yaml.md"
+        rule_file.write_text("---\n- item1\n- item2\n---\nBody.\n")
+
+        result = validate_frontmatter(rule_file)
+        assert result["valid"] is False
+        assert any("mapping" in e.lower() for e in result["errors"])
+
+    @pytest.mark.unit
+    def test_unknown_fields_produce_warnings(self, tmp_path: Path) -> None:
+        """Scenario: Frontmatter contains unrecognized fields
+        Given a rule file with fields not in VALID_FIELDS or CURSOR_FIELDS
+        When I validate the frontmatter
+        Then it should produce warnings about unknown fields
+        And the score should be reduced
+        """
+        rule_file = tmp_path / "unknown-fields.md"
+        rule_file.write_text(
+            textwrap.dedent("""\
+            ---
+            description: Valid field
+            author: Some Person
+            priority: high
+            ---
+            Content here.
+            """)
+        )
+
+        result = validate_frontmatter(rule_file)
+        assert result["valid"] is True
+        assert any("author" in w for w in result["warnings"])
+        assert any("priority" in w for w in result["warnings"])
+        assert result["score"] < 25
+
+    @pytest.mark.unit
+    def test_unclosed_frontmatter_treated_as_no_frontmatter(
+        self, tmp_path: Path
+    ) -> None:
+        """Scenario: Frontmatter opening delimiter but no closing delimiter
+        Given a rule file that starts with --- but never closes it
+        When I validate the frontmatter
+        Then it should treat it as no frontmatter (valid)
+        """
+        rule_file = tmp_path / "unclosed.md"
+        rule_file.write_text("---\ndescription: test\nNo closing delimiter here")
+
+        result = validate_frontmatter(rule_file)
+        assert result["valid"] is True
+        assert result["score"] == 25
+
+    @pytest.mark.unit
+    def test_empty_paths_list_warns(self, tmp_path: Path) -> None:
+        """Scenario: paths field is an empty list
+        Given a rule file where paths is [] (empty list)
+        When I validate the frontmatter
+        Then it should warn about removing the empty paths field
+        """
+        rule_file = tmp_path / "empty-paths.md"
+        rule_file.write_text(
+            textwrap.dedent("""\
+            ---
+            paths: []
+            ---
+            Content here.
+            """)
+        )
+
+        result = validate_frontmatter(rule_file)
+        assert result["valid"] is True
+        assert any("empty" in w.lower() for w in result["warnings"])
+
+    @pytest.mark.unit
     def test_invalid_yaml_syntax(self, tmp_path: Path) -> None:
         """Scenario: Rule file has invalid YAML in frontmatter
         Given a rule file with malformed YAML
@@ -256,6 +361,71 @@ class TestValidateOrganization:
         result = validate_organization(rules_dir)
         assert len(result["warnings"]) > 0
 
+    @pytest.mark.unit
+    def test_uppercase_filename_flagged(self, tmp_path: Path) -> None:
+        """Scenario: Rule file with uppercase letters in name
+        Given a rule file not in kebab-case (contains uppercase or underscores)
+        When I validate the organization
+        Then it should warn about kebab-case convention
+        """
+        rules_dir = tmp_path / ".claude" / "rules"
+        rules_dir.mkdir(parents=True)
+        (rules_dir / "ApiRules.md").write_text("Content here for validation.")
+
+        result = validate_organization(rules_dir)
+        assert any("kebab-case" in w.lower() for w in result["warnings"])
+
+    @pytest.mark.unit
+    def test_broken_symlink_flagged(self, tmp_path: Path) -> None:
+        """Scenario: Rules directory contains a broken symlink
+        Given a rules directory with a symlink pointing to a missing target
+        When I validate the organization
+        Then it should report an error about the broken symlink
+        """
+        rules_dir = tmp_path / ".claude" / "rules"
+        rules_dir.mkdir(parents=True)
+        broken_link = rules_dir / "broken-link.md"
+        broken_link.symlink_to(tmp_path / "nonexistent-target.md")
+
+        result = validate_organization(rules_dir)
+        assert any("symlink" in e.lower() for e in result["errors"])
+
+    @pytest.mark.unit
+    def test_nonexistent_directory_errors(self, tmp_path: Path) -> None:
+        """Scenario: Validate organization of a nonexistent directory
+        Given a path that does not exist
+        When I validate the organization
+        Then it should report an error and score 0
+        """
+        result = validate_organization(tmp_path / "nonexistent")
+        assert result["score"] == 0
+        assert len(result["errors"]) > 0
+
+    @pytest.mark.unit
+    def test_empty_directory_warns(self, tmp_path: Path) -> None:
+        """Scenario: Validate organization of an empty directory
+        Given a rules directory with no .md files
+        When I validate the organization
+        Then it should warn about no rule files found
+        """
+        rules_dir = tmp_path / ".claude" / "rules"
+        rules_dir.mkdir(parents=True)
+
+        result = validate_organization(rules_dir)
+        assert result["score"] == 0
+        assert any("no rule files" in w.lower() for w in result["warnings"])
+
+    @pytest.mark.unit
+    def test_empty_glob_pattern_in_list_flagged(self) -> None:
+        """Scenario: Glob pattern list contains a whitespace-only entry
+        Given a patterns list with an empty/whitespace string
+        When I validate the patterns
+        Then it should report an error about empty pattern
+        """
+        result = validate_glob_patterns(["src/**/*.ts", "  ", "lib/**/*.ts"])
+        assert result["valid"] is False
+        assert any("empty" in e.lower() for e in result["errors"])
+
 
 class TestValidateContentQuality:
     """Feature: Content quality assessment
@@ -290,6 +460,18 @@ class TestValidateContentQuality:
         result = validate_content_quality("")
         assert result["score"] == 0
         assert len(result["warnings"]) > 0
+
+    @pytest.mark.unit
+    def test_short_content_warned(self) -> None:
+        """Scenario: Very short rule content
+        Given rule content with fewer than 10 words
+        When I assess content quality
+        Then it should warn about insufficient detail
+        """
+        content = "Use TypeScript."
+        result = validate_content_quality(content)
+        assert any("short" in w.lower() for w in result["warnings"])
+        assert result["score"] < 25
 
     @pytest.mark.unit
     def test_verbose_content_warned(self) -> None:
@@ -354,6 +536,83 @@ class TestEvaluateRulesDirectory:
         result = evaluate_rules_directory(rules_dir)
         assert result["total_score"] == 0
         assert result["files_evaluated"] == 0
+
+    @pytest.mark.unit
+    def test_file_without_paths_gets_full_glob_score(self, tmp_path: Path) -> None:
+        """Scenario: Rule file with no paths field in evaluate_rules_directory
+        Given a rule file with no paths frontmatter
+        When running a full evaluation
+        Then the glob pattern score should be full (20 points)
+        """
+        rules_dir = tmp_path / ".claude" / "rules"
+        rules_dir.mkdir(parents=True)
+        (rules_dir / "general-rules.md").write_text(
+            textwrap.dedent("""\
+            ---
+            description: General coding rules
+            ---
+            Use meaningful variable names and follow coding standards.
+            Always write clear documentation for public APIs.
+            """)
+        )
+
+        result = evaluate_rules_directory(rules_dir)
+        assert result["total_score"] > 0
+        assert result["files_evaluated"] == 1
+
+    @pytest.mark.unit
+    def test_token_efficiency_tiers(self, tmp_path: Path) -> None:
+        """Scenario: Token efficiency scoring across different content sizes
+        Given rule files with different content lengths
+        When running a full evaluation
+        Then token efficiency should scale with content size
+        """
+        rules_dir = tmp_path / ".claude" / "rules"
+        rules_dir.mkdir(parents=True)
+
+        # Create a file with content between 500-1000 tokens (~385-770 words)
+        medium_content = "Follow this important coding standard carefully. " * 100
+        (rules_dir / "medium-rules.md").write_text(
+            f"---\ndescription: Medium rules\n---\n{medium_content}\n"
+        )
+
+        result = evaluate_rules_directory(rules_dir)
+        assert result["total_score"] > 0
+        assert result["files_evaluated"] == 1
+
+    @pytest.mark.unit
+    def test_high_token_count_reduces_score(self, tmp_path: Path) -> None:
+        """Scenario: Very verbose rule file reduces token efficiency score
+        Given a rule file exceeding 1000 estimated tokens
+        When running a full evaluation
+        Then it should score lower due to token inefficiency
+        """
+        rules_dir = tmp_path / ".claude" / "rules"
+        rules_dir.mkdir(parents=True)
+
+        # Create content exceeding 1000 tokens (~770+ words)
+        verbose_content = "This is an extremely verbose and detailed rule. " * 200
+        (rules_dir / "verbose-rules.md").write_text(
+            f"---\ndescription: Verbose rules\n---\n{verbose_content}\n"
+        )
+
+        result_verbose = evaluate_rules_directory(rules_dir)
+
+        # Compare with a concise version
+        concise_dir = tmp_path / ".claude2" / "rules"
+        concise_dir.mkdir(parents=True)
+        (concise_dir / "concise-rules.md").write_text(
+            textwrap.dedent("""\
+            ---
+            description: Concise rules
+            ---
+            Use strict TypeScript. Enable noImplicitAny.
+            Prefer interfaces over type aliases. Keep functions short.
+            """)
+        )
+
+        result_concise = evaluate_rules_directory(concise_dir)
+        assert result_concise["total_score"] > result_verbose["total_score"]
 
     @pytest.mark.unit
     def test_nonexistent_directory_errors(self, tmp_path: Path) -> None:

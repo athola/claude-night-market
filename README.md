@@ -139,9 +139,9 @@ flowchart TB
 1.  **Foundation Layer**: Core utilities. `sanctum` (git and sessions), `leyline` (auth, quotas, and GitHub Discussions retrieval), and `imbue` (TDD cycles).
 2.  **Utility Layer**: Resource management. `conserve` (context optimization) and `hookify` (rules engine with hook conversion and context-aware rule suggestions).
 3.  **Domain Specialists**: Task-specific logic. `pensive` (code review and refinement, including NASA Power of 10 safety patterns), `spec-kit` (requirements), `minister` (issue tracking), and `attune` (project lifecycle from brainstorm to execution). `attune` commands auto-chain forward by default (use `--standalone` to run a single phase). `/attune:mission` orchestrates the full brainstorm→specify→plan→execute lifecycle with state persistence and session recovery.
-4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring, including Makefile generation and command-to-target validation. Its self-adapting system monitors skill stability via a PostToolUse hook, queues degrading skills for automatic improvement, and creates human-gated GitHub issues when regressions are detected.
+4.  **Meta Layer**: `abstract` provides tools for plugin and skill authoring, including Makefile generation, command-to-target validation, and Claude Code rules evaluation. Its self-adapting system monitors skill stability via a PostToolUse hook, queues degrading skills for automatic improvement, and creates human-gated GitHub issues when regressions are detected. A daily learning aggregation hook generates LEARNINGS.md and promotes high-severity findings to GitHub Issues or Discussions.
 
-See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 126 skills, 99 commands, and 37 agents across all 16 plugins.
+See [Capabilities Reference](book/src/reference/capabilities-reference.md) for the full list of 127 skills, 105 commands, and 41 agents across all 16 plugins.
 
 ## Common Workflows
 
@@ -168,6 +168,7 @@ Details are available in the [Common Workflows Guide](book/src/getting-started/c
 | Safety review | `Skill(pensive:safety-critical-patterns)` | NASA Power of 10 guidelines for robust code |
 | Improve plugins | `/update-plugins` | Update based on stability metrics + module audit |
 | Generate Makefiles | `/abstract:make-dogfood` | Auto-generate Makefiles for plugins with language detection |
+| Validate rules | `/rules-eval` | Audit `.claude/rules/` for frontmatter and content quality |
 | Strategic decisions | `/attune:war-room` | Expert routing with reversibility scoring |
 | Embedded escalation | `Skill(attune:war-room-checkpoint)` | Inline expert deliberation at decision points |
 

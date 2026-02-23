@@ -1,6 +1,6 @@
 {
   "name": "attune",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Full-cycle project development - brainstorm ideas, create specifications, plan architecture, initialize projects, and execute implementation with integrated workflows from superpowers and spec-kit",
   "commands": [
     "./commands/arch-init.md",
