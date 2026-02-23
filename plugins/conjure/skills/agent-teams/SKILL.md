@@ -206,6 +206,14 @@ Agent Teams extends the conjure delegation model:
 
 Use `Skill(conjure:delegation-core)` first to determine if the task benefits from multi-agent coordination vs. single-service delegation.
 
+## Worktree Isolation Alternative (Claude Code 2.1.49+)
+
+For parallel agents that modify files, `isolation: worktree` provides a lightweight alternative to filesystem-based coordination. Each agent runs in its own temporary git worktree, eliminating the need for `fcntl` locking or inbox-based conflict avoidance on shared files.
+
+- **When to prefer worktrees over agent teams messaging**: Agents work on overlapping files but don't need mid-execution communication
+- **When to prefer agent teams messaging**: Agents need to coordinate discoveries or adjust plans based on each other's progress
+- **Combine both**: Use agent teams for coordination with `isolation: worktree` per teammate for filesystem safety
+
 ## Troubleshooting
 
 ### Common Issues

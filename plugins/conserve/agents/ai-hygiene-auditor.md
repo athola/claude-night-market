@@ -5,6 +5,7 @@ description: |
   indicators, slop artifacts, and Tab-completion bloat. Specialized complement to bloat-auditor.
 tools: [Bash, Grep, Glob, Read]
 model: sonnet
+background: true
 escalation:
   to: opus
   hints:

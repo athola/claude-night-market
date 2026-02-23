@@ -258,9 +258,8 @@ if [ "$all_good" = true ]; then
     echo -e "     ${YELLOW}→${NC} \"Show me all call sites of Z method\""
     echo -e "  3. LSP provides semantic understanding (not just text matching)"
     echo
-    echo -e "${YELLOW}Note:${NC} If you just installed plugins, restart Claude Code to activate:"
-    echo -e "  ${BLUE}→${NC} exit"
-    echo -e "  ${BLUE}→${NC} ENABLE_LSP_TOOL=1 claude"
+    echo -e "${YELLOW}Note:${NC} Plugins installed via marketplace are available immediately (Claude Code 2.1.45+)."
+    echo -e "  ${BLUE}→${NC} For older versions, restart Claude Code after installing plugins."
 fi
 
 echo

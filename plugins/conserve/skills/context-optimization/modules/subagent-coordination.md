@@ -104,6 +104,19 @@ Fixed: Auto-compact no longer triggers too early on models with large output tok
 | > 90% (~144k+) | Compaction imminent |
 | ~160k | **Auto-compaction triggers** |
 
+### Worktree Isolation for Parallel Agents (Claude Code 2.1.49+)
+
+Agents with `isolation: worktree` in their frontmatter run in a temporary git worktree, providing filesystem-level isolation for parallel execution.
+
+- **Parallel safety**: Multiple agents can modify the same files without conflicts — each gets its own working directory
+- **Auto-cleanup**: Worktree is removed if the agent makes no changes; preserved with commits if changes exist
+- **Frontmatter**: Add `isolation: worktree` to any agent definition, or use `--worktree` CLI flag
+- **Background agent constraint**: Agents with `background: true` **cannot use MCP tools or AskUserQuestion** — plan tool access accordingly when combining background execution with worktree isolation
+
+### Memory Stability in Long Sessions (Claude Code 2.1.47+)
+
+2.1.47 fixes an O(n^2) message accumulation issue and adds stream buffer release, reducing memory growth in long-running agent sessions. This is particularly relevant for multi-agent workflows where the parent dispatches many sequential subagents — previously, memory usage could grow disproportionately as each subagent's results accumulated. The fix makes sustained orchestration sessions (e.g., large map-reduce pipelines) more stable without requiring manual session restarts.
+
 ### Best Practice: State Preservation
 
 For subagents handling complex, multi-step workflows:
@@ -373,7 +386,12 @@ class SubagentCoordinator:
         return subagent_id
 
     def collect_results(self):
-        """Collect and synthesize subagent results."""
+        """
+        Collect and synthesize subagent results.
+
+        As of Claude Code 2.1.47, background agents return the final
+        answer directly — no transcript parsing needed.
+        """
         for subagent_id in self.active_subagents:
             self.results[subagent_id] = get_subagent_result(subagent_id)
         return self.synthesize()
@@ -490,6 +508,22 @@ tools:
 - Improves security by limiting agent capabilities
 
 **Recommendation**: Add `Task(agent_type)` restrictions to pipeline agents (e.g., `sanctum/workflow-improvement-*`) and orchestrator agents that should only delegate to specific workers. Agents without `Task` in their tools list cannot spawn sub-agents at all — this is already the case for most ecosystem agents.
+
+#### Background Agent Crash Fix (2.1.45+, improved in 2.1.47)
+
+Backgrounded agents (`run_in_background: true`) no longer crash with a ReferenceError on completion. This improves reliability for all parallel dispatch patterns.
+
+- **Before**: Background agents could silently crash, requiring retry logic or manual checking
+- **After**: Background agent completion is handled cleanly with proper result delivery
+- **2.1.47**: Background agents now return the **final answer directly** instead of raw transcript data (#26012). Previously, collecting results from background agents required parsing through transcript artifacts to extract the actual answer — this workaround is no longer needed. The `collect_results()` pattern in the coordination examples below now receives clean, usable output.
+
+#### Subagent Skill Compaction Fix (2.1.45+)
+
+Skills invoked by subagents no longer leak into the main session's context after compaction.
+
+- **Before**: If a subagent invoked a skill, the skill content could appear in the main session after compaction, consuming context tokens and potentially causing confusion
+- **After**: Subagent skill invocations are properly scoped — they stay within the subagent's context and are discarded when the subagent completes
+- **Impact**: Long-running sessions with many subagent dispatches will maintain cleaner context
 
 ## Best Practices
 

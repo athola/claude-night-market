@@ -147,6 +147,19 @@ claude mcp add <server-name> --client-id <id> --client-secret <secret>
 
 This enables delegation workflows through MCP servers that require pre-configured OAuth, expanding the range of external services available for task delegation.
 
+### Claude.ai MCP Connectors (Claude Code 2.1.46+)
+
+As an alternative to manual OAuth setup, users can configure MCP servers directly in claude.ai at claude.ai/settings/connectors. These connectors are automatically available in Claude Code when logged in with a claude.ai account — no `claude mcp add` or credential management required. This provides a browser-based auth flow that may be simpler for services with complex OAuth requirements.
+
+## Worktree Isolation for File-Modifying Delegations (Claude Code 2.1.49+)
+
+When delegating tasks that modify files to subagents, use `isolation: worktree` in the agent frontmatter to run each agent in a temporary git worktree. This prevents file conflicts when multiple delegated agents operate in parallel on overlapping paths. The worktree is auto-cleaned if no changes are made; preserved with commits if the agent produces changes.
+
+```yaml
+# Agent frontmatter for isolated delegation
+isolation: worktree
+```
+
 ## Leyline Infrastructure
 
 Conjure uses leyline infrastructure:

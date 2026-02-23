@@ -15,6 +15,7 @@ tools:
 - Grep
 - TodoWrite
 model: sonnet
+isolation: worktree
 escalation:
   to: opus
   hints:

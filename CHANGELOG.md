@@ -27,6 +27,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **TDD gate relaxed for markdown modules** (imbue) — `tdd_bdd_gate.py` no longer gates `.md` files in `modules/` and `commands/` directories; these are agent instruction documents tested by `abstract:skills-eval`, not pytest. `SKILL.md` files remain gated.
 
+- **Claude Code compatibility updates 2.1.41–2.1.47** (abstract, conserve, sanctum, conjure, leyline, scribe) — Documented 7 new Claude Code releases:
+  - 2.1.47: `last_assistant_message` hook field, background agent transcript fix, parallel file write resilience, plan mode compaction fix, bash permission validation, concurrent agent streaming fix, memory improvements, Edit tool unicode fix, LSP gitignore filter
+  - 2.1.46: Claude.ai MCP connectors, macOS orphan process fix
+  - 2.1.45: Sonnet 4.6, plugin hot-loading, subagent skill compaction fix, background agent crash fix, SDK rate limit types
+  - 2.1.44: ENAMETOOLONG fix, auth refresh fix
+  - 2.1.43: AWS auth timeout, agents dir warning fix, structured-outputs header fix
+  - 2.1.42: Deferred schema init, prompt cache improvement, /resume interrupt title fix
+  - 2.1.41: `claude auth` CLI, `/rename` auto-name, streaming notifications, plan mode tick fix, permission rule refresh
+
+- **Agent worktree isolation** (abstract, attune, conserve, pensive, sanctum, spec-kit) — Added `isolation: worktree` frontmatter to 6 agents: skill-improver, project-implementer, unbloat-remediator, code-refiner, dependency-updater, workflow-improvement-implementer. Documented worktree isolation patterns in conjure agent-teams, delegation-core, conserve subagent-coordination, and sanctum parallel-execution.
+
+- **Agent background execution** (conserve, scribe) — Added `background: true` to 4 agents: ai-hygiene-auditor, bloat-auditor, doc-verifier, slop-hunter. Documented background agent MCP restriction (background agents cannot use MCP tools).
+
+- **Learnings-to-Discussions pipeline** (abstract) — `aggregate-logs` command extended with Phase 6a (post learnings to Discussions) and linked to new `/promote-discussions` command (Phase 6c).
+
+- **Configuration change audit hook** (sanctum) — `config_change_audit.py` ConfigChange hook logs all settings mutations (user, project, local, policy, skills) to stderr for security audit trail; observe-only, never blocks changes.
+
 ## [1.4.3] - 2026-02-15
 
 ### Added

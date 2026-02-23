@@ -12,7 +12,14 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Notes |
 |---------------------|-------------------|--------|-------|
-| 2.1.39+ | 1.4.2+ | ✅ Recommended | Nested session guard, hook exit code 2 stderr fix, agent teams model fix, terminal rendering |
+| 2.1.47+ | 1.4.2+ | ✅ Recommended | `last_assistant_message` hook field, background agent transcript fix, parallel file write resilience, plan mode compaction fix |
+| 2.1.46+ | 1.4.2+ | ✅ Supported | Claude.ai MCP connectors, macOS orphan process fix |
+| 2.1.45+ | 1.4.2+ | ✅ Supported | Sonnet 4.6, plugin hot-loading, subagent skill compaction fix, background agent crash fix |
+| 2.1.44+ | 1.4.2+ | ✅ Supported | ENAMETOOLONG fix, auth refresh fix |
+| 2.1.43+ | 1.4.2+ | ✅ Supported | AWS auth timeout, agents dir warning fix, structured-outputs header fix |
+| 2.1.42+ | 1.4.2+ | ✅ Supported | Deferred schema init, prompt cache improvement, /resume interrupt title fix, image error UX |
+| 2.1.41+ | 1.4.2+ | ✅ Supported | claude auth CLI, /rename auto-name, streaming notifications, plan mode tick fix, permission rule refresh |
+| 2.1.39+ | 1.4.2+ | ✅ Supported | Nested session guard, hook exit code 2 stderr fix, agent teams model fix, terminal rendering |
 | 2.1.38+ | 1.4.2+ | ✅ Supported | Heredoc security hardening, sandbox skills write block, env var permission matching fix |
 | 2.1.34+ | 1.4.1+ | ✅ Supported | Sandbox permission bypass fix, agent teams render crash fix |
 | 2.1.33+ | 1.4.1+ | ✅ Supported | Agent team hooks, Task(agent_type) restrictions, agent memory frontmatter |

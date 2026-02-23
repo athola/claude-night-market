@@ -200,6 +200,7 @@ Quick lookup table of all skills, commands, agents, and hooks in the Claude Nigh
 | `/plugin-review` | abstract | Comprehensive plugin architecture review |
 | `/pr` | sanctum | Prepare pull request |
 | `/prepare-pr` | sanctum | Complete PR preparation with updates and validation |
+| `/promote-discussions` | abstract | Promote highly-voted community learnings from Discussions to Issues |
 | `/pr-review` | sanctum | Enhanced PR review |
 | `/record-browser` | scry | Record browser session |
 | `/record-terminal` | scry | Create terminal recording |

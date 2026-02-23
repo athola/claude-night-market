@@ -15,6 +15,7 @@ description: |
   duplication scan, or architectural alignment review.
 tools: [Read, Write, Edit, Bash, Glob, Grep]
 model: sonnet
+isolation: worktree
 escalation:
   to: opus
   hints:

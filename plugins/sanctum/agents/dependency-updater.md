@@ -16,6 +16,7 @@ tools:
 - Grep
 - TodoWrite
 model: sonnet
+isolation: worktree
 memory: project
 permissionMode: acceptEdits
 escalation:

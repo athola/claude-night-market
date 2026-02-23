@@ -17,6 +17,7 @@
     "./commands/improve-skills.md",
     "./commands/make-dogfood.md",
     "./commands/plugin-review.md",
+    "./commands/promote-discussions.md",
     "./commands/skills-eval.md",
     "./commands/test-skill.md",
     "./commands/validate-hook.md",

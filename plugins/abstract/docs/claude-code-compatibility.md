@@ -13,12 +13,17 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 ## Current Recommendations
 
-**Recommended Version**: Claude Code 2.1.39+
-- ✅ Nested session guard (prevents accidental recursive `claude` invocations)
-- ✅ Hook exit code 2 stderr fix (blocking hooks now properly display messages)
-- ✅ Agent Teams model identifiers fixed for Bedrock, Vertex, and Foundry
-- ✅ Terminal rendering improvements (character loss, performance, blank lines)
-- ✅ Fatal errors and process hangs fixed
+**Recommended Version**: Claude Code 2.1.47+
+- ✅ `last_assistant_message` field in Stop/SubagentStop hook inputs
+- ✅ Background agent transcript fix — `run_in_background` agents return final answer
+- ✅ Parallel file write/edit resilience — independent mutations complete on sibling failure
+- ✅ Plan mode compaction fix — plan mode survives context compaction
+- ✅ Plugin agent skill fully-qualified name fix
+- ✅ Concurrent agent streaming stability fix
+- ✅ All 2.1.46 features (Claude.ai MCP connectors, macOS orphan process fix, Sonnet 4.6)
+- ✅ All 2.1.44 features (ENAMETOOLONG fix, auth refresh fix)
+- ✅ All 2.1.41 features (claude auth CLI, /rename auto-name, streaming notifications)
+- ✅ All 2.1.39 features (nested session guard, hook stderr fix, agent teams model fix)
 - ✅ All 2.1.38 features (heredoc security, sandbox skills write block, env var permission fix)
 - ✅ All 2.1.33 features (TeammateIdle/TaskCompleted hooks, Task(agent_type) restrictions, agent memory)
 - ✅ All 2.1.31 features (stronger tool preference, PDF session fix, sandbox bash fix)
@@ -38,7 +43,11 @@ This document tracks compatibility between the claude-night-market plugin ecosys
 
 | Claude Code Version | Ecosystem Version | Status | Key Features |
 |---------------------|-------------------|--------|--------------|
-| 2.1.39+ | 1.4.2+ | ✅ Recommended | Nested session guard, hook stderr fix, agent teams model fix, terminal rendering |
+| 2.1.47+ | 1.4.2+ | ✅ Recommended | last_assistant_message hook field, background agent fixes |
+| 2.1.46+ | 1.4.2+ | ✅ Supported | Claude.ai MCP connectors, macOS orphan process fix |
+| 2.1.45+ | 1.4.2+ | ✅ Supported | Sonnet 4.6, plugin hot-loading, subagent skill fix, background agent fix |
+| 2.1.41+ | 1.4.2+ | ✅ Supported | claude auth CLI, /rename auto-name, streaming notifications, plan mode tick fix |
+| 2.1.39+ | 1.4.2+ | ✅ Supported | Nested session guard, hook stderr fix, agent teams model fix, terminal rendering |
 | 2.1.38+ | 1.4.2+ | ✅ Supported | Heredoc security hardening, sandbox skills write block, env var permission fix |
 | 2.1.34+ | 1.4.1+ | ✅ Supported | Sandbox permission bypass fix, agent teams render crash fix |
 | 2.1.33+ | 1.4.1+ | ✅ Supported | Agent team hooks, Task(agent_type) restrictions, agent memory frontmatter |
@@ -115,6 +124,6 @@ Create isolated conversation branches for exploration:
 
 ---
 
-**Last Updated**: 2026-02-11
+**Last Updated**: 2026-02-20
 **Ecosystem Version**: 1.4.2+
-**Tested With**: Claude Code 2.1.39
+**Tested With**: Claude Code 2.1.47

@@ -36,6 +36,8 @@ gh api repos/owner/repo/issues
 | Google Cloud | `gcloud` | `gcloud auth login` |
 | Azure | `az` | `az login` |
 
+> **Note (Claude Code 2.1.41+)**: `claude auth login`, `claude auth status`, and `claude auth logout` manage Claude API authentication. These are separate from the git platform auth commands above.
+
 ## Installation
 
 No installation required - the module is part of the `leyline` plugin.
